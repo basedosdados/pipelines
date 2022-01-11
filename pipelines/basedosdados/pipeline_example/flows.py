@@ -61,12 +61,12 @@ from prefect import Flow
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from pipelines.constants import constants
-from pipelines.basedosdados.tasks import say_hello
-from pipelines.basedosdados.schedules import every_two_weeks
+from pipelines.basedosdados.pipeline_example.tasks import say_hello
+from pipelines.basedosdados.pipeline_example.schedules import every_two_weeks
 
 with Flow("my_flow") as flow:
     say_hello()
-    
+
 with Flow("my_flow_2") as flow2:
     say_hello()
 
