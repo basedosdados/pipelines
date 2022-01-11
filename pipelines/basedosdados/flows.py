@@ -66,7 +66,13 @@ from pipelines.basedosdados.schedules import every_two_weeks
 
 with Flow("my_flow") as flow:
     say_hello()
+    
+with Flow("my_flow_2") as flow2:
+    say_hello()
 
 flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+
+flow2.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+flow2.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 # flow.schedule = every_two_weeks
