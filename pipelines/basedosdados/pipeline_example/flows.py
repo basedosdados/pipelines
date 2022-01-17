@@ -70,9 +70,15 @@ with Flow("my_flow") as flow:
 with Flow("my_flow_2") as flow2:
     say_hello()
 
+with Flow("my_flow_3") as flow3:
+    say_hello()
+
 flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 
 flow2.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 flow2.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+
+flow3.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+flow3.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 # flow.schedule = every_two_weeks
