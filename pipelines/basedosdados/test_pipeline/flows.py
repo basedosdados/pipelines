@@ -1,5 +1,5 @@
 """
-Flows for basedosdados
+test flow for basedosdados
 """
 
 ###############################################################################
@@ -57,28 +57,28 @@ Flows for basedosdados
 ###############################################################################
 
 
-from prefect import Flow
+from prefect import Flow, Parameter
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from pipelines.constants import constants
-from pipelines.basedosdados.pipeline_example.tasks import say_hello
-from pipelines.basedosdados.pipeline_example.schedules import every_two_weeks
+from pipelines.basedosdados.test_pipeline.tasks import (
+    get_data,
+    dataframe_to_csv,
+    upload_to_gcs,
+)
+from pipelines.basedosdados.test_pipeline.schedules import every_five_minutes
+from uuid import uuid4
 
-with Flow("my_flow") as flow:
-    say_hello()
+with Flow("test_flow") as test_flow:
+    # BigQuery parameters
+    dataset_id = Parameter("dataset_id")
+    table_id = Parameter("table_id")
 
-with Flow("my_flow_2") as flow2:
-    say_hello()
+    path = f"data/{uuid4()}/"
+    df = get_data()
+    path = dataframe_to_csv(df=df, path=path)
+    upload_to_gcs(path=path, dataset_id=dataset_id, table_id=table_id)
 
-with Flow("my_flow_3") as flow3:
-    say_hello()
-
-flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-
-flow2.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-flow2.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-
-flow3.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-flow3.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-# flow.schedule = every_two_weeks
+test_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+test_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+test_flow.schedule = every_five_minutes
