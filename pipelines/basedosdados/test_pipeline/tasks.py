@@ -78,7 +78,7 @@ def get_random_expression() -> pd.DataFrame:
         df["date"] = ds
     except:
         data = [datetime.datetime.now(), np.nan, np.nan, np.nan, np.nan, np.nan]
-        df = pd.DataFrame(ds, columns=cols)
+        df = pd.DataFrame(data, columns=cols)
     return df[cols]
 
 
