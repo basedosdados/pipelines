@@ -61,12 +61,12 @@ from prefect import Flow, Parameter
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from pipelines.constants import constants
+from pipelines.basedosdados.test_pipeline.schedules import every_five_minutes
 from pipelines.basedosdados.test_pipeline.tasks import (
-    get_data,
+    get_random_expression,
     dataframe_to_csv,
     upload_to_gcs,
 )
-from pipelines.basedosdados.test_pipeline.schedules import every_five_minutes
 from uuid import uuid4
 
 with Flow("test_flow") as test_flow:
@@ -75,8 +75,11 @@ with Flow("test_flow") as test_flow:
     table_id = Parameter("table_id")
 
     path = f"data/{uuid4()}/"
-    df = get_data()
+
+    df = get_random_expression()
+
     path = dataframe_to_csv(df=df, path=path)
+
     upload_to_gcs(path=path, dataset_id=dataset_id, table_id=table_id)
 
 test_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

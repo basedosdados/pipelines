@@ -52,7 +52,6 @@ from prefect import task
 
 
 import os
-from uuid import uuid4
 import datetime
 from pathlib import Path
 from typing import Union
@@ -61,10 +60,11 @@ import requests
 import pandas as pd
 import numpy as np
 import basedosdados as bd
+from pipelines.utils import log
 
-# from pipelines.utils import log
+
 @task
-def get_data() -> pd.DataFrame:
+def get_random_expression() -> pd.DataFrame:
     """
     Get random data
     """
@@ -92,10 +92,10 @@ def dataframe_to_csv(df: pd.DataFrame, path: Union[str, Path]) -> Union[str, Pat
     # Create directory if it doesn't exist
     os.makedirs(path, exist_ok=True)
     # Write dataframe to CSV
-    # log(f"Writing dataframe to CSV: {path}")
+    log(f"Writing dataframe to CSV: {path}")
     ds = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M")
     df.to_csv(path / f"{ds}.csv", index=False)
-    # log(f"Wrote dataframe to CSV: {path}")
+    log(f"Wrote dataframe to CSV: {path}")
 
     return path
 
@@ -122,12 +122,11 @@ def upload_to_gcs(path: Union[str, Path], dataset_id: str, table_id: str) -> Non
             if_exists="replace",
         )
 
+        log(
+            f"Successfully uploaded {path} to {tb.bucket_name}.staging.{dataset_id}.{table_id}"
+        )
 
-#         log(
-#             f"Successfully uploaded {path} to {tb.bucket_name}.staging.{dataset_id}.{table_id}"
-#         )
-
-#     else:
-#         log(
-#             "Table does not exist in STAGING, need to create it in local first.\nCreate and publish the table in BigQuery first."
-#         )
+    else:
+        log(
+            "Table does not exist in STAGING, need to create it in local first.\nCreate and publish the table in BigQuery first."
+        )
