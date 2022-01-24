@@ -93,7 +93,7 @@ def dataframe_to_csv(df: pd.DataFrame, path: Union[str, Path], ts) -> Union[str,
     os.makedirs(path, exist_ok=True)
     # Write dataframe to CSV
     log(f"Writing dataframe to CSV: {path}")
-    ds = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M")
+    ts = ts.replace(" ", "_").replace(":", "_").replace("-", "_")
     df.to_csv(path / f"{ts}.csv", index=False)
     log(f"Wrote dataframe to CSV: {path}")
 
