@@ -77,9 +77,9 @@ with Flow("test_flow") as test_flow:
 
     path = f"data/{uuid4()}/"
 
-    df = get_random_expression()
+    df, ts = get_random_expression()
 
-    path = dataframe_to_csv(df=df, path=path)
+    path = dataframe_to_csv(df=df, path=path, ts=ts)
 
     upload_to_gcs(path=path, dataset_id=dataset_id, table_id=table_id)
 

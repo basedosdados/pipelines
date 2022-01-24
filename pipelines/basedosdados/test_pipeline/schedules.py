@@ -77,7 +77,7 @@ from pipelines.constants import constants
 every_five_minutes = Schedule(
     clocks=[
         IntervalClock(
-            interval=timedelta(minutes=5),
+            interval=timedelta(minutes=2),
             start_date=datetime(2021, 1, 1),
             labels=[
                 constants.BASEDOSDADOS_AGENT_LABEL.value,

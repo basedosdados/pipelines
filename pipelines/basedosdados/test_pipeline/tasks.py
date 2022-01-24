@@ -63,7 +63,7 @@ import basedosdados as bd
 from pipelines.utils import log
 
 
-@task
+@task(nout=2)
 def get_random_expression() -> pd.DataFrame:
     """
     Get random data
@@ -72,18 +72,18 @@ def get_random_expression() -> pd.DataFrame:
     r = requests.get(URL)
 
     cols = ["date", "first", "second", "operation", "expression", "answer"]
-    ds = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+    ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
     try:
         df = pd.json_normalize(r.json())
-        df["date"] = ds
+        df["date"] = ts
     except:
         data = [datetime.datetime.now(), np.nan, np.nan, np.nan, np.nan, np.nan]
         df = pd.DataFrame(data, columns=cols)
-    return df[cols]
+    return df[cols], ts
 
 
 @task
-def dataframe_to_csv(df: pd.DataFrame, path: Union[str, Path]) -> Union[str, Path]:
+def dataframe_to_csv(df: pd.DataFrame, path: Union[str, Path], ts) -> Union[str, Path]:
     """
     Writes a dataframe to a CSV file.
     """
@@ -94,7 +94,7 @@ def dataframe_to_csv(df: pd.DataFrame, path: Union[str, Path]) -> Union[str, Pat
     # Write dataframe to CSV
     log(f"Writing dataframe to CSV: {path}")
     ds = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M")
-    df.to_csv(path / f"{ds}.csv", index=False)
+    df.to_csv(path / f"{ts}.csv", index=False)
     log(f"Wrote dataframe to CSV: {path}")
 
     return path
