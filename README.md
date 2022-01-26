@@ -27,6 +27,12 @@ python manage.py list-projects
 Em seguida, leia com anteção os comentários em cada um dos arquivos do seu projeto, de modo a evitar conflitos e erros.
 Links para a documentação do Prefect também encontram-se nos comentários.
 
+## Como acessar a UI do prefect
+
+Primeiramente, deve-se ingressar no Tailscale usando sua conta do GitHub. Para isso, acesse https://login.tailscale.com/ e clique em “Sign in with GitHub”. Em seguida, autorize o acesso solicitado. Depois, você deve escolher qual “Tailnet” utilizar. Nesse caso, escolha a “basedosdados”.Dessa forma, você terá permissão para se conectar à VPN. 
+
+Caso seja solicitado o acesso a um link para autenticação, favor fazê-lo. Assim que o acesso for autorizado, será possível acessar a interface web do Prefect no endereço http://prefect-ui.prefect.svc.cluster.local:8080/.
+
 ### Requisitos
 
 - Requisitos Python em tempo de execução devem ser adicionados ao `pyproject.toml` na raiz desse repositório.
