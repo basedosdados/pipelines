@@ -39,3 +39,30 @@ Caso seja solicitado o acesso a um link para autenticação, favor fazê-lo. Ass
 - Requisitos do `manage.py` estão em `requirements-cli.txt`
 - Requisitos para a Action de deployment estão em `requirements-deploy.txt`
 - Requisitos para testes estão em `requirements-tests.txt`
+
+## Acesse a UI
+
+Requisitos
+Conta no GitHub
+Ser membro da organização prefeitura-rio no GitHub
+Preparo inicial
+Primeiramente, deve-se ingressar no Tailscale usando sua conta do GitHub. Para isso, acesse https://login.tailscale.com/ e clique em “Sign in with GitHub”
+
+Em seguida, autorize o acesso solicitado.
+
+Depois, você deve escolher qual “Tailnet” utilizar. Nesse caso, escolha a “basedosdados”:
+
+Dessa forma, você terá permissão para se conectar à VPN.
+
+Nessa página você encontrará instruções de instalação do Tailscale para as diversas plataformas suportadas (macOS, iOS, Windows, Linux e Android). Por serem muitas, as instruções individuais para elas não estão compreendidas nesse documento.
+Conectando-se
+Como dito anteriormente, não serão explicitados os métodos para todas as plataformas suportadas. Caso haja dúvida, é possível recorrer ao site do Tailscale ou solicitar ajuda à equipe do Escritório Municipal de Dados. Assim, então, os próximos passos considerarão um sistema Linux para uso.
+
+O comando que deve ser executado para acesso pleno à VPN é
+
+```
+sudo tailscale up --accept-routes --accept-dns
+```
+
+Caso seja solicitado o acesso a um link para autenticação, favor fazê-lo. Assim que o acesso for autorizado, será possível acessar a interface web do Prefect no endereço http://prefect-ui.prefect.svc.cluster.local:8080/.
+
