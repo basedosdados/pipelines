@@ -6,3 +6,5 @@ Imports all flows for every project so we can register all of them.
 # Automatically managed, please do not touch
 ###############################################################################
 from pipelines.basedosdados import *
+from pipelines.br_cvm_oferta_publica_distribuicao.flows import *
+from pipelines.br_cvm_administradores_carteira.flows import *
