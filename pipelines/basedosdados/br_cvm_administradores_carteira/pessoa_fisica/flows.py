@@ -69,7 +69,7 @@ from pipelines.basedosdados.br_cvm_administradores_carteira.pessoa_fisica.tasks 
     upload_to_gcs,
 )
 from pipelines.basedosdados.br_cvm_administradores_carteira.pessoa_fisica.schedules import (
-    every_two_weeks,
+    every_day,
 )
 
 with Flow("br_cvm_oferta_publica_distribuicao__pessoa_fisica") as flow:
