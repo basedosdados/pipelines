@@ -6,3 +6,4 @@ Prefect flows for basedosdados project
 ###############################################################################
 from pipelines.basedosdados.template_pipeline.flows import *
 from pipelines.basedosdados.test_pipeline.flows import *
+from pipelines.basedosdados.br_cvm_administradores_carteira.pessoa_fisica.flows import *
