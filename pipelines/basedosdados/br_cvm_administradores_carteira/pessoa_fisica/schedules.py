@@ -77,7 +77,7 @@ from pipelines.constants import constants
 every_day = Schedule(
     clocks=[
         IntervalClock(
-            parameters={
+            parameter_defaults={
                 "dataset_id": "br_cvm_administradores_carteira",
                 "table_id": "pessoa_fisica",
                 "url": "http://dados.cvm.gov.br/dados/ADM_CART/CAD/DADOS/cad_adm_cart.zip",
