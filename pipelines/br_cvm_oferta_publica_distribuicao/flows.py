@@ -60,12 +60,30 @@ Flows for br_cvm_oferta_publica_distribuicao
 from prefect import Flow
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
+import shutil
 from pipelines.constants import constants
-from pipelines.br_cvm_oferta_publica_distribuicao.tasks import say_hello
+from pipelines.br_cvm_oferta_publica_distribuicao.tasks import (
+    crawl,
+    clean_table_oferta_distribuicao,
+    upload_to_gcs,
+)
 from pipelines.br_cvm_oferta_publica_distribuicao.schedules import every_two_weeks
 
 with Flow("my_flow") as flow:
-    say_hello()
+    ROOT = "/tmp/basedosdados"
+    URL = "http://dados.cvm.gov.br/dados/OFERTA/DISTRIB/DADOS/oferta_distribuicao.csv"
+
+    crawl(ROOT, URL)
+
+    oferta_distribuicao_filepath = clean_table_oferta_distribuicao(ROOT)
+
+    upload_to_gcs(
+        "br_cvm_oferta_publica_distribuicao",
+        "dia",
+        oferta_distribuicao_filepath,
+    )
+
+    shutil.rmtree(ROOT)
 
 flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
