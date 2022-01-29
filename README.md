@@ -2,6 +2,17 @@
 
 Esse repositório contém flows desenvolvidos com Prefect relacionados à Base dos Dados.
 
+## Como rodar uma pipeline localmente
+
+ Escolha a pipeline que deseja executar (exemplo `pipelines.emd.test_flow.flows.flow`)
+
+```py
+from pipelines.emd.utils import run_local
+from pipelines.emd.test_pipeline.flows import flow
+
+run_local(flow, parameters = {"param": "val"})
+```
+
 ## Como desenvolver
 
 O script `manage.py` é responsável por criar e listar projetos desse repositório. Para usá-lo, no entanto, você deve instalar as dependências em `requirements-cli.txt`. Você pode obter mais informações sobre os comandos
