@@ -8,9 +8,9 @@ Esse repositório contém flows desenvolvidos com Prefect relacionados à Base d
 
 1. Criar uma pasta com o nome da pipeline na pasta [pipelines/basedosdados/](/pipelines/basedosdados/), caso seja a captura de uma base a pasta deve ser o nome do `dataset_id`. 
 
-2. Na pasta da nova pipeline, devem ser criados os arquivos `flows.py`, `tasks.py`, `schedules.py` e `__init__.py`, como no exemplo da pipeline [pipelines/basedosdados/template_pipeline/](/pipelines/basedosdados/template_pipeline/).
+2. Na pasta da nova pipeline, devem ser criados os arquivos `flows.py`, `tasks.py`, `schedules.py` e `__init__.py`, como no exemplo da pipeline [template_pipeline/](/pipelines/basedosdados/template_pipeline/).
 
-3. Os `flows` da nova pipeline deve ser importado no arquivo [pipelines/basedosdados/__init__.py](/pipelines/basedosdados/__init__.py) 
+3. Os `flows` da nova pipeline deve ser importado no arquivo [pipelines/basedosdados/\_\_init\_\_.py](/pipelines/basedosdados/__init__.py) 
 
 ## Como rodar uma pipeline localmente
 
