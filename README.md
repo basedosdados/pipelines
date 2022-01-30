@@ -2,6 +2,16 @@
 
 Esse repositório contém flows desenvolvidos com Prefect relacionados à Base dos Dados.
 
+----
+
+## Criando uma nova pipeline
+
+1. Criar uma pasta com o nome da pipeline na pasta [pipelines/basedosdados/](/pipelines/basedosdados/), caso seja a captura de uma base a pasta deve ser o nome do `dataset_id`. 
+
+2. Na pasta da nova pipeline, devem ser criados os arquivos `flows.py`, `tasks.py`, `schedules.py` e `__init__.py`, como no exemplo da pipeline [pipelines/basedosdados/template_pipeline/](/pipelines/basedosdados/template_pipeline/).
+
+3. Os `flows` da nova pipeline deve ser importado no arquivo [pipelines/basedosdados/__init__.py](/pipelines/basedosdados/__init__.py) 
+
 ## Como rodar uma pipeline localmente
 
  Escolha a pipeline que deseja executar (exemplo `pipelines.emd.test_flow.flows.flow`)
@@ -12,16 +22,6 @@ from pipelines.emd.test_pipeline.flows import flow
 
 run_local(flow, parameters = {"param": "val"})
 ```
-
-----
-
-## Criando uma nova pipeline
-
-1. Criar uma pasta com o nome da pipeline na pasta [pipelines/basedosdados/](/pipelines/basedosdados/), caso seja a captura de uma base a pasta deve ser o nome do `dataset_id`. 
-
-2. Na pasta da nova pipeline, devem ser criados os arquivos `flows.py`, `tasks.py`, `schedules.py` e `__init__.py`, como no exemplo da pipeline [pipelines/basedosdados/template_pipeline/](/pipelines/basedosdados/template_pipeline/).
-
-3. Os `flows` da nova pipeline deve ser importado no arquivo [pipelines/basedosdados/__init__.py](/pipelines/basedosdados/__init__.py) 
 
 ----
 
