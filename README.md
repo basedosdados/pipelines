@@ -14,7 +14,7 @@ Esse repositório contém flows desenvolvidos com Prefect relacionados à Base d
 
 ## Como rodar uma pipeline localmente
 
- Escolha a pipeline que deseja executar (exemplo `pipelines.emd.test_flow.flows.flow`)
+ Escolha a pipeline que deseja executar (exemplo `pipelines.emd.test_pipeline.flows.flow`)
 
 ```py
 from pipelines.emd.utils import run_local
