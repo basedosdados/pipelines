@@ -67,30 +67,26 @@ from pipelines.bases.br_cvm_administradores_carteira.tasks import (
     clean_table_pessoa_juridica,
     upload_to_gcs,
 )
-from pipelines.bases.br_cvm_administradores_carteira.schedules import every_day_at_midnight
+from pipelines.bases.br_cvm_administradores_carteira.schedules import every_day
 
 ROOT = "/tmp/basedosdados"
 URL = "http://dados.cvm.gov.br/dados/ADM_CART/CAD/DADOS/cad_adm_cart.zip"
-
 
 with Flow("br_cvm_administradores_carteira.responsavel") as flow:
     crawl(ROOT, URL)
     filepath = clean_table_responsavel(ROOT)
     upload_to_gcs("br_cvm_administradores_carteira", "responsavel", filepath)
 
-
 with Flow("br_cvm_administradores_carteira.pessoa_fisica") as flow:
     crawl(ROOT, URL)
     filepath = clean_table_pessoa_fisica(ROOT)
     upload_to_gcs("br_cvm_administradores_carteira", "pessoa_fisica", filepath)
-
 
 with Flow("br_cvm_administradores_carteira.pessoa_juridica") as flow:
     crawl(ROOT, URL)
     filepath = clean_table_pessoa_juridica(ROOT)
     upload_to_gcs("br_cvm_administradores_carteira", "pessoa_juridica", filepath)
 
-
 flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-flow.schedule = every_day_at_midnight
+flow.schedule = every_day
