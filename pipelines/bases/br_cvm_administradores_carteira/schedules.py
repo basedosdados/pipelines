@@ -78,8 +78,7 @@ every_day_at_midnight = Schedule(
     clocks=[
         IntervalClock(
             interval=timedelta(days=1),
-            start_date=pendulum.datetime(
-                2021, 1, 1, 0, 0, 0, tz="America/Sao_Paulo"),
+            start_date=pendulum.datetime(2021, 1, 1, 0, 0, 0, tz="America/Sao_Paulo"),
             labels=[
                 constants.BASEDOSDADOS_AGENT_LABEL.value,
             ]

@@ -61,25 +61,30 @@ import basedosdados as bd
 from pipelines.utils import log
 
 @task
-def crawl(root: str, url: str) -> None:
+def crawl(root: str, url: str, chunk_size=128) -> None:
     """Download and unzip dataset br_cvm_administradores_carteira"""
     filepath = f"{root}/data.zip"
     os.makedirs(root, exist_ok=True)
+
+    response = requests.get(url)
+
     with open(filepath, "wb") as file:
-        response = requests.get(url)
-        file.write(response.content)
-        shutil.unpack_archive(filepath, extract_dir=root)
+        for chunk in response.iter_content(chunk_size=chunk_size):
+            file.write(chunk)
+
+    shutil.unpack_archive(filepath, extract_dir=root)
 
 @task
 def clean_table_responsavel(root: str) -> str:
+    # pylint: disable=invalid-name
     """Clean table pessoa_fisica"""
     in_filepath = f"{root}/cad_adm_cart_resp.csv"
     ou_filepath = f"{root}/bd_responsavel.csv"
 
-    # pylint: disable=invalid-name
-    df = pd.read_csv(
+    df: pd.DataFrame = pd.read_csv(
         in_filepath,
         sep=";",
+        na_values="",
         keep_default_na=False,
         encoding="latin1",
         dtype=object

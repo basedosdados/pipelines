@@ -5,4 +5,4 @@ Imports all flows for every project so we can register all of them.
 ###############################################################################
 # Automatically managed, please do not touch
 ###############################################################################
-from pipelines.basedosdados import *
+from pipelines.bases import *

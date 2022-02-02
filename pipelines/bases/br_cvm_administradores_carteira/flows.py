@@ -1,5 +1,5 @@
 """
-Flows for br_cvm_oferta_publica_distribuicao
+Flows for br_cvm_administradores_carteira
 """
 
 ###############################################################################
@@ -23,7 +23,7 @@ Flows for br_cvm_oferta_publica_distribuicao
 # mandatório configurar alguns parâmetros dele, os quais são:
 # - storage: onde esse flow está armazenado. No caso, o storage é o
 #   próprio módulo Python que contém o flow. Sendo assim, deve-se
-#   configurar o storage como o pipelines.br_cvm_oferta_publica_distribuicao
+#   configurar o storage como o pipelines.br_cvm_administradores_carteira
 # - run_config: para o caso de execução em cluster Kubernetes, que é
 #   provavelmente o caso, é necessário configurar o run_config com a
 #   imagem Docker que será usada para executar o flow. Assim sendo,
@@ -56,35 +56,41 @@ Flows for br_cvm_oferta_publica_distribuicao
 #
 ###############################################################################
 
-
 from prefect import Flow
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
-import shutil
 from pipelines.constants import constants
-from pipelines.basedosdados.br_cvm_oferta_publica_distribuicao.tasks import (
+from pipelines.bases.br_cvm_administradores_carteira.tasks import (
     crawl,
-    clean_table_oferta_distribuicao,
+    clean_table_responsavel,
+    clean_table_pessoa_fisica,
+    clean_table_pessoa_juridica,
     upload_to_gcs,
 )
-from pipelines.basedosdados.br_cvm_oferta_publica_distribuicao.schedules import every_two_weeks
+from pipelines.bases.br_cvm_administradores_carteira.schedules import every_day_at_midnight
 
-with Flow("my_flow") as flow:
-    ROOT = "/tmp/basedosdados"
-    URL = "http://dados.cvm.gov.br/dados/OFERTA/DISTRIB/DADOS/oferta_distribuicao.csv"
+ROOT = "/tmp/basedosdados"
+URL = "http://dados.cvm.gov.br/dados/ADM_CART/CAD/DADOS/cad_adm_cart.zip"
 
+
+with Flow("br_cvm_administradores_carteira.responsavel") as flow:
     crawl(ROOT, URL)
+    filepath = clean_table_responsavel(ROOT)
+    upload_to_gcs("br_cvm_administradores_carteira", "responsavel", filepath)
 
-    oferta_distribuicao_filepath = clean_table_oferta_distribuicao(ROOT)
 
-    upload_to_gcs(
-        "br_cvm_oferta_publica_distribuicao",
-        "dia",
-        oferta_distribuicao_filepath,
-    )
+with Flow("br_cvm_administradores_carteira.pessoa_fisica") as flow:
+    crawl(ROOT, URL)
+    filepath = clean_table_pessoa_fisica(ROOT)
+    upload_to_gcs("br_cvm_administradores_carteira", "pessoa_fisica", filepath)
 
-    shutil.rmtree(ROOT)
+
+with Flow("br_cvm_administradores_carteira.pessoa_juridica") as flow:
+    crawl(ROOT, URL)
+    filepath = clean_table_pessoa_juridica(ROOT)
+    upload_to_gcs("br_cvm_administradores_carteira", "pessoa_juridica", filepath)
+
 
 flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-flow.schedule = every_two_weeks
+flow.schedule = every_day_at_midnight

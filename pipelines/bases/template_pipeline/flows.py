@@ -1,5 +1,5 @@
 """
-Flows for basedosdados
+Flows for emd
 """
 
 ###############################################################################
@@ -61,8 +61,7 @@ from prefect import Flow
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from pipelines.constants import constants
-from pipelines.basedosdados.template_pipeline.tasks import say_hello
-from pipelines.basedosdados.template_pipeline.schedules import every_two_weeks
+from pipelines.bases.template_pipeline.tasks import say_hello
 
 with Flow("my_flow") as flow:
     say_hello()
