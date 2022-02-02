@@ -66,16 +66,16 @@ from pipelines.bases.br_cvm_oferta_publica_distribuicao.tasks import (
     clean_table_oferta_distribuicao,
     upload_to_gcs,
 )
-from pipelines.bases.br_cvm_oferta_publica_distribuicao.schedules import every_two_weeks
+from pipelines.bases.br_cvm_oferta_publica_distribuicao.schedules import every_day
 
 ROOT = "/tmp/basedosdados"
 URL = "http://dados.cvm.gov.br/dados/OFERTA/DISTRIB/DADOS/oferta_distribuicao.csv"
 
-with Flow("br_cvm_oferta_publica_distribuicao.dia") as flow:
+with Flow("br_cvm_oferta_publica_distribuicao.dia") as br_cvm_ofe_pub_dis_dia:
     crawl(ROOT, URL)
     filepath = clean_table_oferta_distribuicao(ROOT)
     upload_to_gcs("br_cvm_oferta_publica_distribuicao", "dia", filepath)
 
-flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-flow.schedule = every_two_weeks
+br_cvm_ofe_pub_dis_dia.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_cvm_ofe_pub_dis_dia.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_cvm_ofe_pub_dis_dia.schedule = every_day
