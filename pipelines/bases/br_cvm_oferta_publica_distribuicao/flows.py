@@ -1,5 +1,5 @@
 """
-test flow for basedosdados
+Flows for br_cvm_oferta_publica_distribuicao
 """
 
 ###############################################################################
@@ -23,7 +23,7 @@ test flow for basedosdados
 # mandatório configurar alguns parâmetros dele, os quais são:
 # - storage: onde esse flow está armazenado. No caso, o storage é o
 #   próprio módulo Python que contém o flow. Sendo assim, deve-se
-#   configurar o storage como o pipelines.basedosdados
+#   configurar o storage como o pipelines.br_cvm_oferta_publica_distribuicao
 # - run_config: para o caso de execução em cluster Kubernetes, que é
 #   provavelmente o caso, é necessário configurar o run_config com a
 #   imagem Docker que será usada para executar o flow. Assim sendo,
@@ -57,32 +57,25 @@ test flow for basedosdados
 ###############################################################################
 
 
-from prefect import Flow, Parameter
+from prefect import Flow
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from pipelines.constants import constants
-from pipelines.basedosdados.test_pipeline.tasks import (
-    get_random_expression,
-    dataframe_to_csv,
+from pipelines.bases.br_cvm_oferta_publica_distribuicao.tasks import (
+    crawl,
+    clean_table_oferta_distribuicao,
     upload_to_gcs,
 )
-from pipelines.basedosdados.test_pipeline.schedules import every_five_minutes
+from pipelines.bases.br_cvm_oferta_publica_distribuicao.schedules import every_two_weeks
 
-from uuid import uuid4
+ROOT = "/tmp/basedosdados"
+URL = "http://dados.cvm.gov.br/dados/OFERTA/DISTRIB/DADOS/oferta_distribuicao.csv"
 
-with Flow("test_flow") as test_flow:
-    # BigQuery parameters
-    dataset_id = Parameter("dataset_id")
-    table_id = Parameter("table_id")
+with Flow("br_cvm_oferta_publica_distribuicao.dia") as flow:
+    crawl(ROOT, URL)
+    filepath = clean_table_oferta_distribuicao(ROOT)
+    upload_to_gcs("br_cvm_oferta_publica_distribuicao", "dia", filepath)
 
-    path = f"data/{uuid4()}/"
-
-    df, ts = get_random_expression()
-
-    path = dataframe_to_csv(df=df, path=path, ts=ts)
-
-    upload_to_gcs(path=path, dataset_id=dataset_id, table_id=table_id)
-
-test_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-test_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-test_flow.schedule = every_five_minutes
+flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+flow.schedule = every_two_weeks

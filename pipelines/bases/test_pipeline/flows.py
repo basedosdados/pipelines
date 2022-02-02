@@ -1,5 +1,5 @@
 """
-Flows for emd
+test flow for basedosdados
 """
 
 ###############################################################################
@@ -57,15 +57,32 @@ Flows for emd
 ###############################################################################
 
 
-from prefect import Flow
+from prefect import Flow, Parameter
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from pipelines.constants import constants
-from pipelines.basedosdados.template_pipeline.tasks import say_hello
-from pipelines.basedosdados.template_pipeline.schedules import every_two_weeks
+from pipelines.bases.test_pipeline.tasks import (
+    get_random_expression,
+    dataframe_to_csv,
+    upload_to_gcs,
+)
+from pipelines.bases.test_pipeline.schedules import every_five_minutes
 
-with Flow("my_flow") as flow:
-    say_hello()
+from uuid import uuid4
 
-flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+with Flow("test_flow") as test_flow:
+    # BigQuery parameters
+    dataset_id = Parameter("dataset_id")
+    table_id = Parameter("table_id")
+
+    path = f"data/{uuid4()}/"
+
+    df, ts = get_random_expression()
+
+    path = dataframe_to_csv(df=df, path=path, ts=ts)
+
+    upload_to_gcs(path=path, dataset_id=dataset_id, table_id=table_id)
+
+test_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+test_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+test_flow.schedule = every_five_minutes

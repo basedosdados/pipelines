@@ -78,6 +78,9 @@ target/
 .ipynb_checkpoints
 **/tweets_flamengo/*.ipynb
 
+# VSCode
+.vscode
+
 # IPython
 profile_default/
 ipython_config.py

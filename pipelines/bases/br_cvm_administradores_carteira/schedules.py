@@ -1,5 +1,5 @@
 """
-Schedules for basedosdados
+Schedules for br_cvm_administradores_carteira
 """
 
 ###############################################################################
@@ -28,7 +28,7 @@ Schedules for basedosdados
 #             interval=timedelta(minutes=1),
 #             start_date=datetime(2021, 1, 1),
 #             labels=[
-#                 constants.BASEDOSDADOS_AGENT_LABEL.value,
+#                 constants.BR_CVM_ADMINISTRADORES_CARTEIRA_AGENT_LABEL.value,
 #             ]
 #         ),
 #     ]
@@ -38,7 +38,7 @@ Schedules for basedosdados
 # Vale notar que o parâmetro `labels` é obrigatório e deve ser uma lista com
 # apenas um elemento, correspondendo ao label do agente que será executado.
 # O label do agente é definido em `constants.py` e deve ter o formato
-# `BASEDOSDADOS_AGENT_LABEL`.
+# `BR_CVM_ADMINISTRADORES_CARTEIRA_AGENT_LABEL`.
 #
 # Outro exemplo, para executar todos os dias à meia noite, segue abaixo:
 #
@@ -68,25 +68,20 @@ Schedules for basedosdados
 #
 ###############################################################################
 
-
-from datetime import timedelta, datetime
+from datetime import timedelta
+import pendulum
 from prefect.schedules import Schedule
 from prefect.schedules.clocks import IntervalClock
 from pipelines.constants import constants
 
-every_day = Schedule(
+every_day_at_midnight = Schedule(
     clocks=[
         IntervalClock(
-            parameter_defaults={
-                "dataset_id": "br_cvm_administradores_carteira",
-                "table_id": "pessoa_fisica",
-                "url": "http://dados.cvm.gov.br/dados/ADM_CART/CAD/DADOS/cad_adm_cart.zip",
-            },
             interval=timedelta(days=1),
-            start_date=datetime(2021, 1, 1),
+            start_date=pendulum.datetime(2021, 1, 1, 0, 0, 0, tz="America/Sao_Paulo"),
             labels=[
                 constants.BASEDOSDADOS_AGENT_LABEL.value,
-            ],
-        ),
+            ]
+        )
     ]
 )
