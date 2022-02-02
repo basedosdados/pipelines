@@ -60,11 +60,11 @@ from pipelines.utils import log
 
 @task
 def crawl(root: str, url: str) -> None:
+    # pylint: disable=invalid-name
     """Get table 'oferta_distribuicao' from CVM website"""
     filepath = f"{root}/oferta_distribuicao.csv"
     os.makedirs(root, exist_ok=True)
 
-    # pylint: disable=invalid-name
     df: pd.DataFrame = pd.read_csv(url, encoding="latin-1", sep=";")
     df.to_csv(filepath, index=False, sep=";")
 

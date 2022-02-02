@@ -106,12 +106,12 @@ def clean_table_responsavel(root: str) -> str:
 
 @task
 def clean_table_pessoa_fisica(root: str) -> str:
+    # pylint: disable=invalid-name
     """Clean table pessoa_fisica"""
     in_filepath = f"{root}/cad_adm_cart_pf.csv"
     ou_filepath = f"{root}/bd_pessoa_fisica.csv"
 
-    # pylint: disable=invalid-name
-    df = pd.read_csv(
+    df: pd.DataFrame = pd.read_csv(
         in_filepath,
         sep=";",
         keep_default_na=False,
@@ -135,12 +135,12 @@ def clean_table_pessoa_fisica(root: str) -> str:
 
 @task
 def clean_table_pessoa_juridica(root: str) -> str:
+    # pylint: disable=invalid-name
     """Clean table pessoa_fisica"""
     in_filepath = f"{root}/cad_adm_cart_pj.csv"
     ou_filepath = f"{root}/bd_pessoa_juridica.csv"
 
-    # pylint: disable=invalid-name
-    df = pd.read_csv(
+    df: pd.DataFrame = pd.read_csv(
         in_filepath,
         sep=";",
         keep_default_na=False,
@@ -185,8 +185,8 @@ def clean_table_pessoa_juridica(root: str) -> str:
 
 @task
 def upload_to_gcs(dataset_id: str, table_id: str, path: Union[str, Path]) -> None:
-    """Upload a bunch of CSVs to Google Cloud Storage using basedosdados library"""
     # pylint: disable=invalid-name
+    """Upload a bunch of CSVs to Google Cloud Storage using basedosdados library"""
     tb = bd.Table(dataset_id=dataset_id, table_id=table_id)
 
     if tb.table_exists(mode="staging"):
