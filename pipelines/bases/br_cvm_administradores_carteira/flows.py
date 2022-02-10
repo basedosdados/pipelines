@@ -60,12 +60,12 @@ from prefect import Flow
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from pipelines.constants import constants
+from pipelines.utils import upload_to_gcs
 from pipelines.bases.br_cvm_administradores_carteira.tasks import (
     crawl,
     clean_table_responsavel,
     clean_table_pessoa_fisica,
     clean_table_pessoa_juridica,
-    upload_to_gcs,
 )
 from pipelines.bases.br_cvm_administradores_carteira.schedules import every_day
 

@@ -49,14 +49,9 @@ Tasks for br_cvm_oferta_publica_distribuicao
 ###############################################################################
 
 import os
-from pathlib import Path
-from typing import Union
 
 import pandas as pd
-import basedosdados as bd
 from prefect import task
-
-from pipelines.utils import log
 
 @task
 def crawl(root: str, url: str) -> None:
@@ -67,6 +62,7 @@ def crawl(root: str, url: str) -> None:
 
     df: pd.DataFrame = pd.read_csv(url, encoding="latin-1", sep=";")
     df.to_csv(filepath, index=False, sep=";")
+
 
 @task
 def clean_table_oferta_distribuicao(root: str) -> str:
@@ -97,21 +93,3 @@ def clean_table_oferta_distribuicao(root: str) -> str:
     df.to_csv(ou_filepath, index=False)
 
     return ou_filepath
-
-@task
-def upload_to_gcs(dataset_id: str, table_id: str, path: Union[str, Path]) -> None:
-    # pylint: disable=invalid-name
-    """Upload a bunch of CSVs to Google Cloud Storage using basedosdados library"""
-    tb = bd.Table(dataset_id=dataset_id, table_id=table_id)
-
-    if tb.table_exists(mode="staging"):
-        tb.append(
-            filepath=path,
-            if_exists="replace",
-        )
-
-        log((f"Successfully uploaded {path} to "
-             f"{tb.bucket_name}.staging.{dataset_id}.{table_id}"))
-    else:
-        log(("Table does not exist in STAGING, need to create it in local first.\n"
-             "Create and publish the table in BigQuery first."))

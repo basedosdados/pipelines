@@ -50,15 +50,10 @@ Tasks for br_cvm_administradores_carteira
 
 import os
 import shutil
-from pathlib import Path
-from typing import Union
 
 import requests
 import pandas as pd
 from prefect import task
-import basedosdados as bd
-
-from pipelines.utils import log
 
 @task
 def crawl(root: str, url: str, chunk_size=128) -> None:
@@ -74,6 +69,7 @@ def crawl(root: str, url: str, chunk_size=128) -> None:
 
     shutil.unpack_archive(filepath, extract_dir=root)
 
+
 @task
 def clean_table_responsavel(root: str) -> str:
     # pylint: disable=invalid-name
@@ -87,14 +83,10 @@ def clean_table_responsavel(root: str) -> str:
         na_values="",
         keep_default_na=False,
         encoding="latin1",
-        dtype=object
+        dtype=object,
     )
 
-    df.columns = [
-        "cnpj",
-        "nome",
-        "tipo"
-    ]
+    df.columns = ["cnpj", "nome", "tipo"]
 
     df["cnpj"] = df["cnpj"].str.replace(".", "")
     df["cnpj"] = df["cnpj"].str.replace("/", "")
@@ -103,6 +95,7 @@ def clean_table_responsavel(root: str) -> str:
     df.to_csv(ou_filepath, index=False)
 
     return ou_filepath
+
 
 @task
 def clean_table_pessoa_fisica(root: str) -> str:
@@ -133,6 +126,7 @@ def clean_table_pessoa_fisica(root: str) -> str:
 
     return ou_filepath
 
+
 @task
 def clean_table_pessoa_juridica(root: str) -> str:
     # pylint: disable=invalid-name
@@ -141,11 +135,7 @@ def clean_table_pessoa_juridica(root: str) -> str:
     ou_filepath = f"{root}/bd_pessoa_juridica.csv"
 
     df: pd.DataFrame = pd.read_csv(
-        in_filepath,
-        sep=";",
-        keep_default_na=False,
-        encoding="latin1",
-        dtype=object
+        in_filepath, sep=";", keep_default_na=False, encoding="latin1", dtype=object
     )
 
     df.columns = [
@@ -172,7 +162,7 @@ def clean_table_pessoa_juridica(root: str) -> str:
         "valor_patrimonial_liquido",
         "data_patrimonio_liquido",
         "email",
-        "website"
+        "website",
     ]
 
     df["cnpj"] = df["cnpj"].str.replace(".", "")
@@ -182,21 +172,3 @@ def clean_table_pessoa_juridica(root: str) -> str:
     df.to_csv(ou_filepath, index=False)
 
     return ou_filepath
-
-@task
-def upload_to_gcs(dataset_id: str, table_id: str, path: Union[str, Path]) -> None:
-    # pylint: disable=invalid-name
-    """Upload a bunch of CSVs to Google Cloud Storage using basedosdados library"""
-    tb = bd.Table(dataset_id=dataset_id, table_id=table_id)
-
-    if tb.table_exists(mode="staging"):
-        tb.append(
-            filepath=path,
-            if_exists="replace",
-        )
-
-        log((f"Successfully uploaded {path} to "
-             f"{tb.bucket_name}.staging.{dataset_id}.{table_id}"))
-    else:
-        log(("Table does not exist in STAGING, need to create it in local first.\n"
-             "Create and publish the table in BigQuery first."))
