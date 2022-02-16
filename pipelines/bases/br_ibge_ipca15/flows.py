@@ -29,7 +29,7 @@ with Flow("br_ibge_ipca15.brasil") as br_ibge_ipca15_br:
     wait_header_path = create_header(path=filepath)
 
     # Create table in BigQuery
-    wait_create_db = create_bd_table(  # pylint: disable=invalid-name
+    wait_create_bd_table = create_bd_table(  # pylint: disable=invalid-name
         path=wait_header_path,
         dataset_id=dataset_id,
         table_id=table_id,
@@ -42,7 +42,7 @@ with Flow("br_ibge_ipca15.brasil") as br_ibge_ipca15_br:
         path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        wait=wait_create_db,
+        wait=wait_create_bd_table,
     )
 
 br_ibge_ipca15_br.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
