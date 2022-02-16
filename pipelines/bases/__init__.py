@@ -6,4 +6,7 @@ Prefect flows for basedosdados project
 ###############################################################################
 from pipelines.bases.br_cvm_administradores_carteira.flows import *
 from pipelines.bases.br_cvm_oferta_publica_distribuicao.flows import *
+from pipelines.bases.br_ibge_inpc.flows import *
+from pipelines.bases.br_ibge_ipca.flows import *
+from pipelines.bases.br_ibge_ipca15.flows import *
 from pipelines.bases.test_pipeline.flows import *

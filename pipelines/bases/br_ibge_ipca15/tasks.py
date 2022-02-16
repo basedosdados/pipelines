@@ -9,10 +9,11 @@ import glob
 import wget
 from tqdm import tqdm
 from time import sleep
+from pipelines.utils import upload_to_gcs_utils, create_bd_table_utils
 
 
 @task
-def crawl(indice: str, folder:str) -> None:
+def crawl(indice: str, folder: str) -> None:
     os.system('mkdir -p "/tmp/data"')
     os.system('mkdir -p "/tmp/data/input"')
     os.system('mkdir -p "/tmp/data/input/br"')
@@ -80,7 +81,11 @@ def crawl(indice: str, folder:str) -> None:
         "mes/ip15_geral": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela3065.csv&terr=N&rank=-&query=t/3065/n1/all/v/all/p/all/d/v355%202,v356%202,v1117%2013,v1118%202,v1119%202,v1120%202/l/,v,t%2Bp&abreviarRotulos=True&exibirNotas=False",
         "mes/inpc_geral": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela1736.csv&terr=N&rank=-&query=t/1736/n1/all/v/all/p/all/d/v44%202,v68%202,v2289%2013,v2290%202,v2291%202,v2292%202/l/,v,t%2Bp&abreviarRotulos=True&exibirNotas=False",
     }
-    links = {k: v for k, v in links.items() if k.__contains__(indice) & k.__contains__(folder)}
+    links = {
+        k: v
+        for k, v in links.items()
+        if k.__contains__(indice) & k.__contains__(folder)
+    }
     # precisei adicionar try catchs no loop para conseguir baixar todas
     # as tabelas sem ter pproblema com o limite de requisição do sidra
     links_keys = list(links.keys())
@@ -208,7 +213,7 @@ def clean_mes_brasil(indice: str) -> None:
     df = pd.concat([grupo, subgrupo, item, subitem, geral])
     filepath = "/tmp/data/output/{}/categoria_brasil.csv".format(indice)
     df.to_csv(filepath, index=False)
-    
+
     return filepath
 
 
@@ -323,7 +328,7 @@ def clean_mes_rm(indice: str):
     df = pd.concat([grupo, subgrupo, item, subitem_1, subitem_2, geral])
     filepath = "/tmp/data/output/{}/categoria_rm.csv".format(indice)
     df.to_csv(filepath, index=False)
-    
+
     return filepath
 
 
@@ -438,7 +443,7 @@ def clean_mes_municipio(indice: str):
     df = pd.concat([grupo, subgrupo, item, subitem_1, subitem_2, geral])
     filepath = "/tmp/data/output/{}/categoria_municipio.csv".format(indice)
     df.to_csv(filepath, index=False)
-    
+
     return filepath
 
 
