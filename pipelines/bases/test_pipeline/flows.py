@@ -85,4 +85,4 @@ with Flow("test_flow") as test_flow:
 
 test_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 test_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-test_flow.schedule = every_five_minutes
+# test_flow.schedule = every_five_minutes
