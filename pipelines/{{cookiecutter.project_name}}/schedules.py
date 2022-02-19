@@ -57,7 +57,7 @@ Schedules for {{cookiecutter.project_name}}
 #             start_date=pendulum.datetime(
 #                 2021, 1, 1, 0, 0, 0, tz="America/Sao_Paulo"),
 #             labels=[
-#                 constants.BASEDOSDADOS_AGENT_LABEL.value,
+#                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
 #             ]
 #         )
 #     ]
