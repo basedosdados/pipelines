@@ -28,7 +28,7 @@ Schedules for basedosdados
 #             interval=timedelta(minutes=1),
 #             start_date=datetime(2021, 1, 1),
 #             labels=[
-#                 constants.BASEDOSDADOS_AGENT_LABEL.value,
+#                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
 #             ]
 #         ),
 #     ]
@@ -38,7 +38,7 @@ Schedules for basedosdados
 # Vale notar que o parâmetro `labels` é obrigatório e deve ser uma lista com
 # apenas um elemento, correspondendo ao label do agente que será executado.
 # O label do agente é definido em `constants.py` e deve ter o formato
-# `BASEDOSDADOS_AGENT_LABEL`.
+# `BASEDOSDADOS_DEV_AGENT_LABEL`.
 #
 # Outro exemplo, para executar todos os dias à meia noite, segue abaixo:
 #
@@ -57,7 +57,7 @@ Schedules for basedosdados
 #             start_date=pendulum.datetime(
 #                 2021, 1, 1, 0, 0, 0, tz="America/Sao_Paulo"),
 #             labels=[
-#                 constants.BASEDOSDADOS_AGENT_LABEL.value,
+#                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
 #             ]
 #         )
 #     ]
@@ -80,7 +80,7 @@ every_five_minutes = Schedule(
             interval=timedelta(minutes=2),
             start_date=datetime(2021, 1, 1),
             labels=[
-                constants.BASEDOSDADOS_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "test_dataset",

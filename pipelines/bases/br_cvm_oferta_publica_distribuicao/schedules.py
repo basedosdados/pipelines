@@ -57,7 +57,7 @@ Schedules for br_cvm_oferta_publica_distribuicao
 #             start_date=pendulum.datetime(
 #                 2021, 1, 1, 0, 0, 0, tz="America/Sao_Paulo"),
 #             labels=[
-#                 constants.BASEDOSDADOS_AGENT_LABEL.value,
+#                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
 #             ]
 #         )
 #     ]
@@ -79,7 +79,7 @@ every_day = Schedule(
             interval=timedelta(days=1),
             start_date=datetime(2021, 1, 1),
             labels=[
-                constants.BASEDOSDADOS_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ]
         ),
     ]
