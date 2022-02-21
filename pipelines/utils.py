@@ -6,7 +6,7 @@ from typing import Any, Dict, Union
 import logging
 
 import basedosdados as bd
-from mysqlx import Row
+# from mysqlx import Row
 import pandas as pd
 
 import prefect
@@ -125,7 +125,7 @@ def create_bd_table(
 
     # pylint: disable=C0103
     st = bd.Storage(dataset_id=dataset_id, table_id=table_id)
-
+    
     # full dump
     if dump_type == "append":
         if tb.table_exists(mode="staging"):
@@ -160,8 +160,8 @@ def create_bd_table(
             path=path,
             if_storage_data_exists="replace",
             if_table_config_exists="replace",
-            if_table_exists="replace",
-            location="southamerica-east1",
+            if_table_exists="replace"
+            # location="southamerica-east1",
         )
 
         log(
