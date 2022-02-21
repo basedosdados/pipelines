@@ -12,7 +12,7 @@ from time import sleep
 
 
 @task
-def crawl(indice: str, folder:str) -> None:
+def crawler(indice: str, folder:str) -> None:
     os.system('mkdir -p "/tmp/data"')
     os.system('mkdir -p "/tmp/data/input"')
     os.system('mkdir -p "/tmp/data/input/br"')
