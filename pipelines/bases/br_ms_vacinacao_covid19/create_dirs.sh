@@ -1,0 +1,6 @@
+declare -a new_dirs=(/tmp/data,/tmp/data/br_ms_vacinacao_covid19,/tmp/data/br_ms_vacinacao_covid19/input,/tmp/data/br_ms_vacinacao_covid19/output/microdados,/tmp/data/br_ms_vacinacao_covid19/output/microdados_vacinacao,/tmp/data/br_ms_vacinacao_covid19/output/microdados_paciente,/tmp/data/br_ms_vacinacao_covid19/output/microdados_estabelecimento,/tmp/data/br_ms_vacinacao_covid19/aux)
+
+for dir in "${new_dirs[@]}"
+do
+    mkdir -p dir
+done
