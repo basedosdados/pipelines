@@ -42,8 +42,6 @@ UFS = [
     "SP",
 ]
 
-UFS = ["AC", "RR"]
-
 MUNICIPIO = bd.read_sql(
     """
                           SELECT *
