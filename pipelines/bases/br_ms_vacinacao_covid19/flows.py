@@ -1,5 +1,5 @@
 """
-Flows for br_ibge_ipca
+Flows for br_ms_vacinacao_covid19
 """
 
 from prefect import Flow
@@ -8,13 +8,42 @@ from prefect.storage import GCS
 from pipelines.constants import constants
 from pipelines.utils import upload_to_gcs, create_bd_table, create_header
 from prefect.tasks.shell import ShellTask
+import basedosdados as bd
+from pipelines.bases.br_ms_vacinacao_covid19.tasks import download_ufs, build_data
+from pipelines.bases.br_ms_vacinacao_covid19.schedules import every_day
 
+UFS = [
+    "AC",
+    "AL",
+    "AM",
+    "AP",
+    "BA",
+    "CE",
+    "DF",
+    "ES",
+    "GO",
+    "MA",
+    "MG",
+    "MS",
+    "MT",
+    "PA",
+    "PB",
+    "PE",
+    "PI",
+    "PR",
+    "RJ",
+    "RN",
+    "RO",
+    "RR",
+    "SC",
+    "SE",
+    "RS",
+    "TO",
+    "SP",
+]
 
-create_dirs = ShellTask(helper_script="create_dirs.sh")
-append_csv = ShellTask(helper_script="group_csv.sh")
-UFS=["AC", "AL", "AM", "AP", "BA", "CE", "DF", "ES", "GO", 
-    "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI", "PR",
-    "RJ", "RN", "RO", "RR", "SC", "SE", "RS", "TO", "SP"]
+UFS = ["AC", "RR"]
+
 MUNICIPIO = bd.read_sql(
     """
                           SELECT *
@@ -23,35 +52,25 @@ MUNICIPIO = bd.read_sql(
     billing_project_id="basedosdados-dev",
 )
 
-municipio.to_csv("/tmp/data/br_ms_vacinacao_covid19/aux/municipio.csv", index=False)
+create_dirs = ShellTask(command="bash bash_scripts/br_ms_vacinacao_covid19/create_dirs.sh", stream_output=True)
+append_partitions = ShellTask(command="bash bash_scripts/br_ms_vacinacao_covid19/append_partitions.sh", stream_output=True)
+append_states = ShellTask(command="bash bash_scripts/br_ms_vacinacao_covid19/append_states.sh microdados", stream_output=True)
+test=ShellTask(command="ls", stream_output=True)
+
+with Flow("download_data") as download_data:
+    create = create_dirs()
+    download = download_ufs(ufs=UFS, method="multiprocess", upstream_tasks=[create])
+    append = append_partitions(upstream_tasks=[download])    
+
+download_data.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+download_data.schedule = every_day
 
 with Flow("br_ms_vacinacao_covid19.microdados") as br_ms_vacinacao_covid19_microdados:
-    FOLDER="microdados/"
-    create_dirs()
-    crawler(UFS, "multiprocess")
-    append_csv()
-
-for uf in ufs:
-    filename = "input/" + uf + ".csv"
-    print("Using raw files of {}.".format(uf))
-    chunksize = 10 ** 6
-    n_chunk = 1
-
-    for df in pd.read_csv(filename,
-                            sep=";",
-                            dtype=object,
-                            chunksize=chunksize):
-
-        print("Cleaning state {}_{}.".format(uf, n_chunk))
-        df.fillna('')
-        build_microdados(uf, df, MUNICIPIO, n_chunk)
-
-        n_chunk = n_chunk + 1
-
-    filepath = build_microdados(uf, df, municipio, n_chunk)
+    build = build_data(ufs=UFS, municipio=MUNICIPIO, table="microdados")
+    filepath = append_states(upstream_tasks=[build])
+    
     dataset_id = "br_ms_vacinacao_covid19"
     table_id = "microdados"
-
 
     wait_header_path = create_header(path=filepath)
 
@@ -71,3 +90,107 @@ for uf in ufs:
         table_id=table_id,
         wait=wait_create_bd_table,
     )
+
+br_ms_vacinacao_covid19_microdados.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_ms_vacinacao_covid19_microdados.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
+br_ms_vacinacao_covid19_microdados.schedule = every_day
+
+with Flow("br_ms_vacinacao_covid19.microdados_estabelecimento") as br_ms_vacinacao_covid19_microdados_estabelecimento:
+    build = build_data(ufs=UFS, municipio=MUNICIPIO, table="microdados_estabelecimento")
+    filepath = append_states(upstream_tasks=[build])
+    
+    dataset_id = "br_ms_vacinacao_covid19"
+    table_id = "microdados_estabelecimento"
+
+    wait_header_path = create_header(path=filepath)
+
+    # Create table in BigQuery
+    wait_create_bd_table = create_bd_table(  # pylint: disable=invalid-name
+        path=wait_header_path,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dump_type="overwrite",
+        wait=wait_header_path,
+    )
+
+    # Upload to GCS
+    upload_to_gcs(
+        path=filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=wait_create_bd_table,
+    )
+
+br_ms_vacinacao_covid19_microdados_estabelecimento.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_ms_vacinacao_covid19_microdados_estabelecimento.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
+br_ms_vacinacao_covid19_microdados_estabelecimento.schedule = every_day
+
+with Flow("br_ms_vacinacao_covid19.microdados_paciente") as br_ms_vacinacao_covid19_microdados_paciente:
+    build = build_data(ufs=UFS, municipio=MUNICIPIO, table="microdados_paciente")
+    filepath = append_states(upstream_tasks=[build])
+    
+    dataset_id = "br_ms_vacinacao_covid19"
+    table_id = "microdados_paciente"
+
+    wait_header_path = create_header(path=filepath)
+
+    # Create table in BigQuery
+    wait_create_bd_table = create_bd_table(  # pylint: disable=invalid-name
+        path=wait_header_path,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dump_type="overwrite",
+        wait=wait_header_path,
+    )
+
+    # Upload to GCS
+    upload_to_gcs(
+        path=filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=wait_create_bd_table,
+    )
+
+br_ms_vacinacao_covid19_microdados_paciente.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_ms_vacinacao_covid19_microdados_paciente.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
+br_ms_vacinacao_covid19_microdados_paciente.schedule = every_day
+
+with Flow("br_ms_vacinacao_covid19.microdados_vacinacao") as br_ms_vacinacao_covid19_microdados_vacinacao:
+    build = build_data(ufs=UFS, municipio=MUNICIPIO, table="microdados_vacinacao")
+    filepath = append_states(upstream_tasks=[build])
+    
+    dataset_id = "br_ms_vacinacao_covid19"
+    table_id = "microdados_vacinacao"
+
+    wait_header_path = create_header(path=filepath)
+
+    # Create table in BigQuery
+    wait_create_bd_table = create_bd_table(  # pylint: disable=invalid-name
+        path=wait_header_path,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dump_type="overwrite",
+        wait=wait_header_path,
+    )
+
+    # Upload to GCS
+    upload_to_gcs(
+        path=filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=wait_create_bd_table,
+    )
+
+br_ms_vacinacao_covid19_microdados_vacinacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_ms_vacinacao_covid19_microdados_vacinacao.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
+br_ms_vacinacao_covid19_microdados_vacinacao.schedule = every_day
+
+
