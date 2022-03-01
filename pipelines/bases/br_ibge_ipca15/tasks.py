@@ -1,5 +1,5 @@
 """
-Tasks for br_ibge_ipca15
+Tasks for br_ibge_inpc
 """
 
 from prefect import task
@@ -10,8 +10,9 @@ import wget
 from tqdm import tqdm
 from time import sleep
 
+
 @task
-def crawler(indice: str, folder: str) -> None:
+def crawler(indice: str, folder:str) -> None:
     os.system('mkdir -p "/tmp/data"')
     os.system('mkdir -p "/tmp/data/input"')
     os.system('mkdir -p "/tmp/data/input/br"')
@@ -22,6 +23,7 @@ def crawler(indice: str, folder: str) -> None:
     os.system('mkdir -p "/tmp/data/output/ip15"')
     os.system('mkdir -p "/tmp/data/output/ipca"')
     os.system('mkdir -p "/tmp/data/output/inpc"')
+    print(os.system('tree /tmp/data'))
 
     links = {
         "br/ipca_grupo": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7060.csv&terr=NC&rank=-&query=t/7060/n1/all/v/all/p/all/c315/7170,7445,7486,7558,7625,7660,7712,7766,7786/d/v63%202,v66%204,v69%202,v2265%202/l/,v,t%2Bp%2Bc315",
@@ -79,11 +81,7 @@ def crawler(indice: str, folder: str) -> None:
         "mes/ip15_geral": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela3065.csv&terr=N&rank=-&query=t/3065/n1/all/v/all/p/all/d/v355%202,v356%202,v1117%2013,v1118%202,v1119%202,v1120%202/l/,v,t%2Bp&abreviarRotulos=True&exibirNotas=False",
         "mes/inpc_geral": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela1736.csv&terr=N&rank=-&query=t/1736/n1/all/v/all/p/all/d/v44%202,v68%202,v2289%2013,v2290%202,v2291%202,v2292%202/l/,v,t%2Bp&abreviarRotulos=True&exibirNotas=False",
     }
-    links = {
-        k: v
-        for k, v in links.items()
-        if k.__contains__(indice) & k.__contains__(folder)
-    }
+    links = {k: v for k, v in links.items() if k.__contains__(indice) & k.__contains__(folder)}
     # precisei adicionar try catchs no loop para conseguir baixar todas
     # as tabelas sem ter pproblema com o limite de requisição do sidra
     links_keys = list(links.keys())
@@ -108,6 +106,7 @@ def crawler(indice: str, folder: str) -> None:
         for rem in rems:
             print(rem)
 
+    print(os.system('tree /tmp/data'))
 
 @task
 def clean_mes_brasil(indice: str) -> None:
@@ -211,7 +210,8 @@ def clean_mes_brasil(indice: str) -> None:
     df = pd.concat([grupo, subgrupo, item, subitem, geral])
     filepath = "/tmp/data/output/{}/categoria_brasil.csv".format(indice)
     df.to_csv(filepath, index=False)
-
+    print(os.system('tree /tmp/data'))
+    
     return filepath
 
 
@@ -326,7 +326,8 @@ def clean_mes_rm(indice: str):
     df = pd.concat([grupo, subgrupo, item, subitem_1, subitem_2, geral])
     filepath = "/tmp/data/output/{}/categoria_rm.csv".format(indice)
     df.to_csv(filepath, index=False)
-
+    print(os.system('tree /tmp/data'))
+    
     return filepath
 
 
@@ -441,7 +442,8 @@ def clean_mes_municipio(indice: str):
     df = pd.concat([grupo, subgrupo, item, subitem_1, subitem_2, geral])
     filepath = "/tmp/data/output/{}/categoria_municipio.csv".format(indice)
     df.to_csv(filepath, index=False)
-
+    
+    print(os.system('tree /tmp/data'))
     return filepath
 
 
@@ -520,5 +522,6 @@ def clean_mes_geral(indice: str):
 
     filepath = "/tmp/data/output/{}/mes_geral.csv".format(indice)
     df.to_csv(filepath, index=False)
+    print(os.system('tree /tmp/data'))
 
     return filepath

@@ -18,12 +18,12 @@ from pipelines.bases.br_ibge_ipca.schedules import every_month
 
 INDICE = "ipca"
 
-with Flow("br_ibge_ipca.brasil") as br_ibge_ipca_br:
+with Flow("br_ibge_ipca.mes_categoria_brasil") as br_ibge_ipca_mes_categoria_brasil:
     FOLDER="br/"
     crawler(INDICE, FOLDER)
     filepath = clean_mes_brasil(INDICE)
     dataset_id = "br_ibge_ipca"
-    table_id = "brasil"
+    table_id = "mes_categoria_brasil"
 
 
     wait_header_path = create_header(path=filepath)
@@ -45,16 +45,16 @@ with Flow("br_ibge_ipca.brasil") as br_ibge_ipca_br:
         wait=wait_create_bd_table,
     )
     
-br_ibge_ipca_br.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_ibge_ipca_br.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_ibge_ipca_br.schedule = every_month
+br_ibge_ipca_mes_categoria_brasil.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_ibge_ipca_mes_categoria_brasil.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_ibge_ipca_mes_categoria_brasil.schedule = every_month
 
-with Flow("br_ibge_ipca.rm") as br_ibge_ipca_rm:
+with Flow("br_ibge_ipca.mes_categoria_rm") as br_ibge_ipca_mes_categoria_rm:
     FOLDER="rm/"
     crawler(INDICE, FOLDER)
     filepath = clean_mes_rm(INDICE)
     dataset_id = "br_ibge_ipca"
-    table_id = "rm"
+    table_id = "mes_categoria_rm"
 
     wait_header_path = create_header(path=filepath)
 
@@ -75,17 +75,17 @@ with Flow("br_ibge_ipca.rm") as br_ibge_ipca_rm:
         wait=wait_create_bd_table,
     )
 
-br_ibge_ipca_rm.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_ibge_ipca_rm.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_ibge_ipca_rm.schedule = every_month
+br_ibge_ipca_mes_categoria_rm.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_ibge_ipca_mes_categoria_rm.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_ibge_ipca_mes_categoria_rm.schedule = every_month
 
 
-with Flow("br_ibge_ipca.municipio") as br_ibge_ipca_municipio:
+with Flow("br_ibge_ipca.mes_categoria_municipio") as br_ibge_ipca_mes_categoria_municipio:
     FOLDER="mun/"
     crawler(INDICE, FOLDER)
     filepath = clean_mes_municipio(INDICE)
     dataset_id = "br_ibge_ipca"
-    table_id = "municipio"
+    table_id = "mes_categoria_municipio"
 
     wait_header_path = create_header(path=filepath)
 
@@ -106,16 +106,16 @@ with Flow("br_ibge_ipca.municipio") as br_ibge_ipca_municipio:
         wait=wait_create_bd_table,
     )
 
-br_ibge_ipca_municipio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_ibge_ipca_municipio.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_ibge_ipca_municipio.schedule = every_month
+br_ibge_ipca_mes_categoria_municipio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_ibge_ipca_mes_categoria_municipio.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_ibge_ipca_mes_categoria_municipio.schedule = every_month
 
-with Flow("br_ibge_ipca.geral") as br_ibge_ipca_geral:
+with Flow("br_ibge_ipca.mes_brasil") as br_ibge_ipca_mes_brasil:
     FOLDER="mes/"
     crawler(INDICE, FOLDER)
     filepath = clean_mes_geral(INDICE)
     dataset_id = "br_ibge_ipca"
-    table_id = "geral"
+    table_id = "mes_brasil"
 
     wait_header_path = create_header(path=filepath)
 
@@ -136,6 +136,6 @@ with Flow("br_ibge_ipca.geral") as br_ibge_ipca_geral:
         wait=wait_create_bd_table,
     )
 
-br_ibge_ipca_geral.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_ibge_ipca_geral.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_ibge_ipca_geral.schedule = every_month
+br_ibge_ipca_mes_brasil.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_ibge_ipca_mes_brasil.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_ibge_ipca_mes_brasil.schedule = every_month
