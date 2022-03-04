@@ -520,7 +520,7 @@ def clean_mes_geral(indice: str):
         # Renomeando colunas e ordenando
         df = df[ordem]
 
-    filepath = "/tmp/data/output/{}/mes_geral.csv".format(indice)
+    filepath = "/tmp/data/output/{}/mes_brasil.csv".format(indice)
     df.to_csv(filepath, index=False)
     print(os.system('tree /tmp/data'))
 
