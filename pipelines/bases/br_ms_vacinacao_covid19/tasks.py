@@ -137,9 +137,9 @@ def build_data(ufs: list, municipio: pd.DataFrame, table: str) -> list:
     Iterate over an array of uf's csv files to create the selected table. Returns a list of filepaths
     """
     if table!='microdados':
-        output_folder = f'/tmp/data/br_ms_vacinacao_covid19/output/microdados_{table}/'
+        output_folder = f'/tmp/data/br_ms_vacinacao_covid19/microdados_{table}/'
     else:
-        output_folder = '/tmp/data/br_ms_vacinacao_covid19/output/microdados/'
+        output_folder = '/tmp/data/br_ms_vacinacao_covid19/microdados/'
 
     filepaths=[]
     for uf in tqdm(ufs):
@@ -154,7 +154,7 @@ def build_data(ufs: list, municipio: pd.DataFrame, table: str) -> list:
             if table == "microdados":
                 chunk_microdados = _clean_microdados(uf, chunk, municipio, n_chunk)
                 filepath = (
-                    f"/tmp/data/br_ms_vacinacao_covid19/output/microdados/sigla_uf={uf}/{uf}.csv"
+                    f"/tmp/data/br_ms_vacinacao_covid19/microdados/sigla_uf={uf}/{uf}.csv"
                 )
                 chunk_microdados.to_csv(
                     filepath, mode="a", header=write_header, index=False
