@@ -5,6 +5,7 @@ Tasks for br_ibge_ipca
 from prefect import task
 from bs4 import BeautifulSoup
 import re
+import os
 import pandas as pd
 from traceback import print_exc
 import time
@@ -130,12 +131,19 @@ def download_ufs(ufs: list, method="multiprocess") -> None:
         )
 
 
-@task
-def build_data(ufs: list, municipio: pd.DataFrame, table: str) -> str:
+@task(nout=2)
+def build_data(ufs: list, municipio: pd.DataFrame, table: str) -> list:
     """
-    Iterate over an array of uf's csv files to create the selected table. Returns a filepath
+    Iterate over an array of uf's csv files to create the selected table. Returns a list of filepaths
     """
+    if table!='microdados':
+        output_folder = f'/tmp/data/br_ms_vacinacao_covid19/output/microdados_{table}/'
+    else:
+        output_folder = '/tmp/data/br_ms_vacinacao_covid19/output/microdados/'
+
+    filepaths=[]
     for uf in tqdm(ufs):
+        os.system(f'mkdir -p {output_folder}/sigla_uf={uf}')
         filename = "/tmp/data/br_ms_vacinacao_covid19/input/" + uf + ".csv"
         print("Using raw files of {}.".format(uf))
         chunksize = 10 ** 4
@@ -146,31 +154,35 @@ def build_data(ufs: list, municipio: pd.DataFrame, table: str) -> str:
             if table == "microdados":
                 chunk_microdados = _clean_microdados(uf, chunk, municipio, n_chunk)
                 filepath = (
-                    f"/tmp/data/br_ms_vacinacao_covid19/output/microdados/{uf}.csv"
+                    f"/tmp/data/br_ms_vacinacao_covid19/output/microdados/sigla_uf={uf}/{uf}.csv"
                 )
                 chunk_microdados.to_csv(
                     filepath, mode="a", header=write_header, index=False
                 )
+                filepaths.append(filepath)
             elif table == "vacinacao":
                 chunk_vacinacao = _clean_vacinacao(uf, chunk, n_chunk)
-                filepath = f"/tmp/data/br_ms_vacinacao_covid19/output/microdados_vacinacao/{uf}.csv"
+                filepath = f"/tmp/data/br_ms_vacinacao_covid19/output/microdados_vacinacao/sigla_uf={uf}/{uf}.csv"
                 chunk_vacinacao.to_csv(
                     filepath, mode="a", header=write_header, index=False
                 )
+                filepaths.append(filepath)
             elif table == "paciente":
                 chunk_paciente = _clean_paciente(uf, chunk, municipio, n_chunk)
-                filepath = f"/tmp/data/br_ms_vacinacao_covid19/output/microdados_paciente/{uf}.csv"
+                filepath = f"/tmp/data/br_ms_vacinacao_covid19/output/microdados_paciente/sigla_uf={uf}/{uf}.csv"
                 chunk_paciente.to_csv(
                     filepath, mode="a", header=write_header, index=False
                 )
+                filepaths.append(filepath)
             elif table == "estabelecimento":
                 chunk_estabelecimento = _clean_estabelecimento(
                     uf, chunk, municipio, n_chunk
                 )
-                filepath = f"/tmp/data/br_ms_vacinacao_covid19/output/microdados_estabelecimento/{uf}.csv"
+                filepath = f"/tmp/data/br_ms_vacinacao_covid19/output/microdados_estabelecimento/sigla_uf={uf}/{uf}.csv"
                 chunk_estabelecimento.to_csv(
                     filepath, mode="a", header=write_header, index=False
                 )
+                filepaths.append(filepath)
             else:
                 raise ValueError(
                     "table must be either microdados, vacinacao, paciente or estabelecimento"
@@ -178,6 +190,8 @@ def build_data(ufs: list, municipio: pd.DataFrame, table: str) -> str:
 
             write_header = False
             n_chunk = n_chunk + 1
+
+    return filepaths
 
 
 def _url_scrapper(url: str, pattern: str) -> list:

@@ -2,13 +2,14 @@
 General utilities for all pipelines.
 """
 from pathlib import Path
-from typing import Any, Dict, Union
+from typing import Any, Dict, Union, Tuple, List
 import logging
 
 import basedosdados as bd
+
 # from mysqlx import Row
 import pandas as pd
-
+import numpy as np
 import prefect
 from prefect import task
 
@@ -52,122 +53,126 @@ def run_local(flow: prefect.Flow, parameters: Dict[str, Any] = None):
     return flow.run()
 
 
-###############
-#
-# Upload to GCS
-#
-###############
-@task
-def create_header(path: Union[str, Path]):
+def untuple_clocks(clocks):
     """
-    Writes a header to a CSV file.
+    Converts a list of tuples to a list of clocks.
+    """
+    return [clock[0] if isinstance(clock, tuple) else clock for clock in clocks]
+
+
+###############
+#
+# Dataframe
+#
+###############
+
+
+def dataframe_to_csv(dataframe: pd.DataFrame, path: Union[str, Path]) -> None:
+    """
+    Writes a dataframe to a CSV file.
     """
     # Remove filename from path
     path = Path(path)
-    dataframe = pd.read_csv(path, nrows=10)
-
     # Create directory if it doesn't exist
-    save_header_path = Path("data/header.csv")
-    save_header_path.parent.mkdir(parents=True, exist_ok=True)
-
+    path.parent.mkdir(parents=True, exist_ok=True)
     # Write dataframe to CSV
-    dataframe.to_csv(save_header_path, index=False, encoding="utf-8")
-    log(f"Wrote header CSV: {path}")
+    log(f"Writing dataframe to CSV: {path}")
+    dataframe.to_csv(path, index=False, encoding="utf-8")
+    log(f"Wrote dataframe to CSV: {path}")
 
-    return save_header_path
 
-
-@task
-def upload_to_gcs(
-    path: Union[str, Path],
-    dataset_id: str,
-    table_id: str,
-    wait=None,  # pylint: disable=unused-argument
-) -> None:
+def batch_to_dataframe(batch: Tuple[Tuple], columns: List[str]) -> pd.DataFrame:
     """
-    Uploads a bunch of CSVs using BD+
+    Converts a batch of rows to a dataframe.
     """
-    # pylint: disable=C0103
-    tb = bd.Table(dataset_id=dataset_id, table_id=table_id)
-    # st = bd.Storage(dataset_id=dataset_id, table_id=table_id)
+    log(f"Converting batch of size {len(batch)} to dataframe")
+    return pd.DataFrame(batch, columns=columns)
 
-    if tb.table_exists(mode="staging"):
-        # the name of the files need to be the same or the data doesn't get overwritten
-        tb.append(
-            filepath=path,
-            if_exists="replace",
+
+def clean_dataframe(dataframe: pd.DataFrame) -> pd.DataFrame:
+    """
+    Cleans a dataframe.
+    """
+    for col in dataframe.columns.tolist():
+        if dataframe[col].dtype == object:
+            try:
+                dataframe[col] = (
+                    dataframe[col]
+                    .astype(str)
+                    .str.replace("\x00", "", regex=True)
+                    .replace("None", np.nan, regex=True)
+                )
+            except Exception as exc:
+                print("Column: ", col, "\nData: ", dataframe[col].tolist(), "\n", exc)
+                raise
+    return dataframe
+
+
+def remove_columns_accents(dataframe: pd.DataFrame) -> list:
+    return list(
+        dataframe.columns.str.normalize("NFKD")
+        .str.encode("ascii", errors="ignore")
+        .str.decode("utf-8")
+    )
+
+
+###############
+#
+# File
+#
+###############
+
+
+def to_partitions(data, partition_columns, savepath):
+    """Save data in to hive patitions schema, given a dataframe and a list of partition columns.
+    Args:
+        data (pandas.core.frame.DataFrame): Dataframe to be partitioned.
+        partition_columns (list): List of columns to be used as partitions.
+        savepath (str, pathlib.PosixPath): folder path to save the partitions
+
+    Exemple:
+
+        data = {
+            "ano": [2020, 2021, 2020, 2021, 2020, 2021, 2021,2025],
+            "mes": [1, 2, 3, 4, 5, 6, 6,9],
+            "sigla_uf": ["SP", "SP", "RJ", "RJ", "PR", "PR", "PR","PR"],
+            "dado": ["a", "b", "c", "d", "e", "f", "g",'h'],
+        }
+
+        to_partitions(
+            data=pd.DataFrame(data),
+            partition_columns=['ano','mes','sigla_uf'],
+            savepath='partitions/'
+        )
+    """
+
+    if isinstance(data, (pd.core.frame.DataFrame)):
+
+        savepath = Path(savepath)
+
+        unique_combinations = (
+            data[partition_columns]
+            .drop_duplicates(subset=partition_columns)
+            .to_dict(orient="records")
         )
 
-        log(
-            f"Successfully uploaded {path} to {tb.bucket_name}.staging.{dataset_id}.{table_id}"
-        )
+        for filter_combination in unique_combinations:
+            patitions_values = [
+                f"{partition}={value}"
+                for partition, value in filter_combination.items()
+            ]
+            filter_save_path = Path(savepath / "/".join(patitions_values))
+            filter_save_path.mkdir(parents=True, exist_ok=True)
+
+            df_filter = data.loc[
+                data[filter_combination.keys()]
+                .isin(filter_combination.values())
+                .all(axis=1),
+                :,
+            ]
+            df_filter = df_filter.drop(columns=partition_columns)
+
+            df_filter.to_csv(filter_save_path / "data.csv", index=False)
 
     else:
-        # pylint: disable=C0301
-        log(
-            "Table does not exist in STAGING, need to create it in local first.\nCreate and publish the table in BigQuery first."
-        )
-
-
-@task
-def create_bd_table(
-    path: Union[str, Path],
-    dataset_id: str,
-    table_id: str,
-    dump_type: str,
-    wait=None,  # pylint: disable=unused-argument
-) -> None:
-    """
-    Create table using BD+
-    """
-    # pylint: disable=C0103
-    tb = bd.Table(dataset_id=dataset_id, table_id=table_id)
-
-    # pylint: disable=C0103
-    st = bd.Storage(dataset_id=dataset_id, table_id=table_id)
-    
-    # full dump
-    if dump_type == "append":
-        if tb.table_exists(mode="staging"):
-            log(
-                f"Mode append: Table {st.bucket_name}.{dataset_id}.{table_id} already exists"
-            )
-        else:
-            tb.create(
-                path=path,
-                location="southamerica-east1",
-            )
-            log(
-                f"Mode append: Sucessfully created a new table {st.bucket_name}.{dataset_id}.{table_id}"
-            )  # pylint: disable=C0301
-
-            st.delete_table(
-                mode="staging", bucket_name=st.bucket_name, not_found_ok=True
-            )
-            log(
-                f"Mode append: Sucessfully remove header data from {st.bucket_name}.{dataset_id}.{table_id}"
-            )  # pylint: disable=C0301
-    elif dump_type == "overwrite":
-        if tb.table_exists(mode="staging"):
-            log(
-                f"Mode overwrite: Table {st.bucket_name}.{dataset_id}.{table_id} already exists, DELETING OLD DATA!"
-            )  # pylint: disable=C0301
-            st.delete_table(
-                mode="staging", bucket_name=st.bucket_name, not_found_ok=True
-            )
-        ## prod datasets is public if the project is datario. staging are private im both projects
-        tb.create(
-            path=path,
-            if_storage_data_exists="replace",
-            if_table_config_exists="replace",
-            if_table_exists="replace"
-            # location="southamerica-east1",
-        )
-
-        log(
-            f"Mode overwrite: Sucessfully created table {st.bucket_name}.{dataset_id}.{table_id}"
-        )
-        st.delete_table(mode="staging", bucket_name=st.bucket_name, not_found_ok=True)
-        log(
-            f"Mode overwrite: Sucessfully remove header data from {st.bucket_name}.{dataset_id}.{table_id}"
-        )  # pylint: disable=C0301
+        raise BaseException("Data need to be a pandas DataFrame")
