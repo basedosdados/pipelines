@@ -10,7 +10,7 @@ from pipelines.bases.br_cvm_oferta_publica_distribuicao.tasks import (
     crawl,
     clean_table_oferta_distribuicao,
 )
-from pipelines.utils import upload_to_gcs, create_bd_table, create_header
+from pipelines.tasks import upload_to_gcs, create_bd_table, dump_header_to_csv
 from pipelines.bases.br_cvm_oferta_publica_distribuicao.schedules import every_day
 
 ROOT = "/tmp/basedosdados"
@@ -20,9 +20,9 @@ with Flow("br_cvm_oferta_publica_distribuicao.dia") as br_cvm_ofe_pub_dis_dia:
     crawl(ROOT, URL)
     filepath = clean_table_oferta_distribuicao(ROOT)
     dataset_id = "br_cvm_oferta_publica_distribuicao"
-    table_id =  "dia"
+    table_id = "dia"
 
-    wait_header_path = create_header(path=filepath)
+    wait_header_path = dump_header_to_csv(data_path=filepath)
 
     # Create table in BigQuery
     wait_create_bd_table = create_bd_table(  # pylint: disable=invalid-name

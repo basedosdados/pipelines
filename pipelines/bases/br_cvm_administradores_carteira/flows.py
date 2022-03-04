@@ -12,7 +12,8 @@ from pipelines.bases.br_cvm_administradores_carteira.tasks import (
     clean_table_pessoa_fisica,
     clean_table_pessoa_juridica,
 )
-from pipelines.utils import upload_to_gcs, create_bd_table, create_header
+from pipelines.constants import constants
+from pipelines.tasks import upload_to_gcs, create_bd_table, dump_header_to_csv
 from pipelines.bases.br_cvm_administradores_carteira.schedules import every_day
 
 ROOT = "/tmp/basedosdados"
@@ -22,9 +23,9 @@ with Flow("br_cvm_administradores_carteira.responsavel") as br_cvm_adm_car_res:
     crawl(ROOT, URL)
     filepath = clean_table_responsavel(ROOT)
     dataset_id = "br_cvm_administradores_carteira"
-    table_id="responsavel"
+    table_id = "responsavel"
 
-    wait_header_path = create_header(path=filepath)
+    wait_header_path = dump_header_to_csv(data_path=filepath)
 
     # Create table in BigQuery
     wait_create_bd_table = create_bd_table(  # pylint: disable=invalid-name
@@ -53,7 +54,7 @@ with Flow("br_cvm_administradores_carteira.pessoa_fisica") as br_cvm_adm_car_pes
     dataset_id = "br_cvm_administradores_carteira"
     table_id = "pessoa_fisica"
 
-    wait_header_path = create_header(path=filepath)
+    wait_header_path = dump_header_to_csv(data_path=filepath)
 
     # Create table in BigQuery
     wait_create_bd_table = create_bd_table(  # pylint: disable=invalid-name
@@ -82,7 +83,7 @@ with Flow("br_cvm_administradores_carteira.pessoa_juridica") as br_cvm_adm_car_p
     dataset_id = "br_cvm_administradores_carteira"
     table_id = "pessoa_juridica"
 
-    wait_header_path = create_header(path=filepath)
+    wait_header_path = dump_header_to_csv(data_path=filepath)
 
     # Create table in BigQuery
     wait_create_bd_table = create_bd_table(  # pylint: disable=invalid-name

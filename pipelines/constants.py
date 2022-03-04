@@ -8,6 +8,7 @@ class constants(Enum):  # pylint: disable=c0103
     """
     Constants used in the EMD flows.
     """
+
     ######################################
     # Automatically managed,
     # please do not change these values
@@ -25,3 +26,6 @@ class constants(Enum):  # pylint: disable=c0103
     ######################################
     # Prefect
     GCS_FLOWS_BUCKET = "basedosdados-dev-prefect"
+    # Prefect tasks retry policy
+    TASK_MAX_RETRIES = 5
+    TASK_RETRY_DELAY = 10  # seconds

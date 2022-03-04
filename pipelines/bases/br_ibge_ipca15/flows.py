@@ -7,7 +7,7 @@ from prefect import Flow
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from pipelines.constants import constants
-from pipelines.utils import upload_to_gcs, create_bd_table, create_header
+from pipelines.tasks import upload_to_gcs, create_bd_table, dump_header_to_csv
 from pipelines.bases.br_ibge_ipca15.tasks import (
     crawler,
     clean_mes_brasil,
@@ -26,7 +26,7 @@ with Flow("br_ibge_ipca15.mes_categoria_brasil") as br_ibge_ipca15_mes_categoria
     dataset_id = "br_ibge_ipca15"
     table_id = "mes_categoria_brasil"
 
-    wait_header_path = create_header(path=filepath)
+    wait_header_path = dump_header_to_csv(data_path=filepath)
     # print(wait_header_path)
 
     # Create table in BigQuery
@@ -47,7 +47,9 @@ with Flow("br_ibge_ipca15.mes_categoria_brasil") as br_ibge_ipca15_mes_categoria
     )
 
 br_ibge_ipca15_mes_categoria_brasil.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_ibge_ipca15_mes_categoria_brasil.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_ibge_ipca15_mes_categoria_brasil.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
 br_ibge_ipca15_mes_categoria_brasil.schedule = every_month
 
 with Flow("br_ibge_ipca15.mes_categoria_rm") as br_ibge_ipca15_mes_categoria_rm:
@@ -57,7 +59,7 @@ with Flow("br_ibge_ipca15.mes_categoria_rm") as br_ibge_ipca15_mes_categoria_rm:
     dataset_id = "br_ibge_ipca15"
     table_id = "mes_categoria_rm"
 
-    wait_header_path = create_header(path=filepath)
+    wait_header_path = dump_header_to_csv(data_path=filepath)
 
     # Create table in BigQuery
     wait_create_bd_table = create_bd_table(  # pylint: disable=invalid-name
@@ -77,18 +79,22 @@ with Flow("br_ibge_ipca15.mes_categoria_rm") as br_ibge_ipca15_mes_categoria_rm:
     )
 
 br_ibge_ipca15_mes_categoria_rm.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_ibge_ipca15_mes_categoria_rm.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_ibge_ipca15_mes_categoria_rm.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
 br_ibge_ipca15_mes_categoria_rm.schedule = every_month
 
 
-with Flow("br_ibge_ipca15.mes_categoria_municipio") as br_ibge_ipca15_mes_categoria_municipio:
+with Flow(
+    "br_ibge_ipca15.mes_categoria_municipio"
+) as br_ibge_ipca15_mes_categoria_municipio:
     FOLDER = "mun/"
     crawler(INDICE, FOLDER)
     filepath = clean_mes_municipio(INDICE)
     dataset_id = "br_ibge_ipca15"
     table_id = "mes_categoria_municipio"
 
-    wait_header_path = create_header(path=filepath)
+    wait_header_path = dump_header_to_csv(data_path=filepath)
 
     # Create table in BigQuery
     wait_create_bd_table = create_bd_table(  # pylint: disable=invalid-name
@@ -108,7 +114,9 @@ with Flow("br_ibge_ipca15.mes_categoria_municipio") as br_ibge_ipca15_mes_catego
     )
 
 br_ibge_ipca15_mes_categoria_municipio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_ibge_ipca15_mes_categoria_municipio.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_ibge_ipca15_mes_categoria_municipio.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
 br_ibge_ipca15_mes_categoria_municipio.schedule = every_month
 
 with Flow("br_ibge_ipca15.mes_brasil") as br_ibge_ipca15_mes_brasil:
@@ -118,7 +126,7 @@ with Flow("br_ibge_ipca15.mes_brasil") as br_ibge_ipca15_mes_brasil:
     dataset_id = "br_ibge_ipca15"
     table_id = "mes_brasil"
 
-    wait_header_path = create_header(path=filepath)
+    wait_header_path = dump_header_to_csv(data_path=filepath)
 
     # Create table in BigQuery
     wait_create_bd_table = create_bd_table(  # pylint: disable=invalid-name
