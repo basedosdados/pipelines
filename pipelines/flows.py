@@ -5,4 +5,4 @@ Imports all flows for every project so we can register all of them.
 ###############################################################################
 # Automatically managed, please do not touch
 ###############################################################################
-from pipelines.bases import *
+from pipelines.datasets import *
