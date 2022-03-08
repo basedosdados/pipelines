@@ -47,6 +47,6 @@ def clean_table_oferta_distribuicao(root: str) -> str:
     df.loc[(df["oferta_regime_fiduciario"] == "N"), "oferta_regime_fiduciario"] = "Não"
     df.loc[(df["oferta_regime_fiduciario"] == "S"), "oferta_regime_fiduciario"] = "Sim"
 
-    df.to_csv(ou_filepath, index=False)
+    df.to_csv(ou_filepath, index=False, encoding='utf-8')
 
     return ou_filepath
