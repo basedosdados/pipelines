@@ -3,8 +3,10 @@ Helper tasks that could fit any pipeline.
 """
 from pathlib import Path
 from typing import Union
-from datetime import timedelta
+from datetime import date, timedelta, datetime
+import ruamel.yaml
 from uuid import uuid4
+from os.path import expanduser
 
 import basedosdados as bd
 import glob
@@ -148,3 +150,30 @@ def upload_to_gcs(
         log(
             "Table does not exist in STAGING, need to create it in local first.\nCreate and publish the table in BigQuery first."
         )
+
+@task
+def update_metadata(dataset_id, table_id):
+    '''
+    Update metadata in BQ for a selected table
+    '''
+    today = str(date.today() - timedelta(hours = 12))
+    yaml = ruamel.yaml.YAML()
+    yaml.preserve_quotes = True
+    yaml.indent(mapping=4, sequence=6, offset=4)
+    home = expanduser("~")
+    
+    config_file = home+'basedosdados/mais/bases/{}/{}/table_config.yaml'.format(dataset_id, table_id)
+
+    with open(config_file) as fp:
+        data = yaml.load(fp)
+    
+    data['last_updated']['metadata'] = today
+
+    with open(config_file, 'w') as fp:
+        yaml.dump(data, fp)
+  
+    handle = bd.Metadata(dataset_id=dataset_id, table_id=table_id)
+    handle.create(if_exists='replace')
+    handle.validate()
+    handle.publish(if_exists='replace')
+    log(f"Metadata for {table_id} updated")
