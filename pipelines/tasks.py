@@ -162,7 +162,7 @@ def update_metadata(dataset_id, table_id):
     yaml.indent(mapping=4, sequence=6, offset=4)
     home = expanduser("~")
     
-    config_file = home+'basedosdados/mais/bases/{}/{}/table_config.yaml'.format(dataset_id, table_id)
+    config_file = home+'/basedosdados/mais/bases/{}/{}/table_config.yaml'.format(dataset_id, table_id)
 
     with open(config_file) as fp:
         data = yaml.load(fp)
