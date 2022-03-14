@@ -17,8 +17,8 @@ ROOT = "/tmp/data"
 URL = "http://dados.cvm.gov.br/dados/OFERTA/DISTRIB/DADOS/oferta_distribuicao.csv"
 
 with Flow("br_cvm_oferta_publica_distribuicao.dia") as br_cvm_ofe_pub_dis_dia:
-    crawl(ROOT, URL)
-    filepath = clean_table_oferta_distribuicao(ROOT)
+    wait_crawl = crawl(ROOT, URL)
+    filepath = clean_table_oferta_distribuicao(ROOT, upstream_tasks[wait_crawl])
     dataset_id = "br_cvm_oferta_publica_distribuicao"
     table_id = "dia"
 
