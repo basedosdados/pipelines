@@ -8,6 +8,8 @@ from typing import Union
 import pandas as pd
 import basedosdados as bd
 from prefect import task
+from pandas.api.types import is_string_dtype
+from unidecode import unidecode
 
 from pipelines.utils import log
 
@@ -32,20 +34,24 @@ def clean_table_oferta_distribuicao(root: str) -> str:
         in_filepath,
         sep=";",
         keep_default_na=False,
-        encoding="latin1",
+        encoding="utf-8",
         dtype=object,
     )
 
     df.columns = [k.lower() for k in df.columns]
 
-    df.loc[(df["oferta_inicial"] == "N"), "oferta_inicial"] = "Não"
+    df.loc[(df["oferta_inicial"] == "N"), "oferta_inicial"] = "Nao"
     df.loc[(df["oferta_inicial"] == "S"), "oferta_inicial"] = "Sim"
 
-    df.loc[(df["oferta_incentivo_fiscal"] == "N"), "oferta_incentivo_fiscal"] = "Não"
+    df.loc[(df["oferta_incentivo_fiscal"] == "N"), "oferta_incentivo_fiscal"] = "Nao"
     df.loc[(df["oferta_incentivo_fiscal"] == "S"), "oferta_incentivo_fiscal"] = "Sim"
 
-    df.loc[(df["oferta_regime_fiduciario"] == "N"), "oferta_regime_fiduciario"] = "Não"
+    df.loc[(df["oferta_regime_fiduciario"] == "N"), "oferta_regime_fiduciario"] = "Nao"
     df.loc[(df["oferta_regime_fiduciario"] == "S"), "oferta_regime_fiduciario"] = "Sim"
+
+    for col in df.columns:
+        if is_string_dtype(df[col]):
+            df[col]=df[col].apply(lambda x: unidecode(x) if isinstance(x, str) else x)
 
     df.to_csv(ou_filepath, index=False, encoding='utf-8')
 
