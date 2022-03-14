@@ -16,7 +16,7 @@ from pipelines.constants import constants
 from pipelines.tasks import upload_to_gcs, create_bd_table, dump_header_to_csv
 from pipelines.datasets.br_cvm_administradores_carteira.schedules import every_day
 
-ROOT = "/tmp/basedosdados"
+ROOT = "/tmp/data"
 URL = "http://dados.cvm.gov.br/dados/ADM_CART/CAD/DADOS/cad_adm_cart.zip"
 
 with Flow("br_cvm_administradores_carteira.responsavel") as br_cvm_adm_car_res:

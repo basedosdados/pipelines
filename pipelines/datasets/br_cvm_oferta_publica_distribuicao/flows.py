@@ -13,7 +13,7 @@ from pipelines.datasets.br_cvm_oferta_publica_distribuicao.tasks import (
 from pipelines.tasks import upload_to_gcs, create_bd_table, dump_header_to_csv
 from pipelines.datasets.br_cvm_oferta_publica_distribuicao.schedules import every_day
 
-ROOT = "/tmp/basedosdados"
+ROOT = "/tmp/data"
 URL = "http://dados.cvm.gov.br/dados/OFERTA/DISTRIB/DADOS/oferta_distribuicao.csv"
 
 with Flow("br_cvm_oferta_publica_distribuicao.dia") as br_cvm_ofe_pub_dis_dia:
