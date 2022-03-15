@@ -11,7 +11,7 @@ from prefect import task
 from pandas.api.types import is_string_dtype
 from unidecode import unidecode
 
-from pipelines.utils import log
+from pipelines.utils.utils import log
 
 @task
 def crawl(root: str, url: str) -> None:
@@ -20,7 +20,7 @@ def crawl(root: str, url: str) -> None:
     filepath = f"{root}/oferta_distribuicao.csv"
     os.makedirs(root, exist_ok=True)
 
-    df: pd.DataFrame = pd.read_csv(url, encoding="latin-1", sep=";")
+    df = pd.read_csv(url, encoding="latin-1", sep=";")
     df.to_csv(filepath, index=False, sep=";")
 
 @task
@@ -30,7 +30,7 @@ def clean_table_oferta_distribuicao(root: str) -> str:
     in_filepath = f"{root}/oferta_distribuicao.csv"
     ou_filepath = f"{root}/br_cvm_oferta_publica_distribuicao.csv"
 
-    df = pd.DataFrame = pd.read_csv(
+    df = pd.read_csv(
         in_filepath,
         sep=";",
         keep_default_na=False,

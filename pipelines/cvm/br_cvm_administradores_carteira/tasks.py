@@ -14,7 +14,7 @@ import basedosdados as bd
 from pandas.api.types import is_string_dtype
 from unidecode import unidecode
 
-from pipelines.utils import log
+from pipelines.utils.utils import log
 
 @task
 def crawl(root: str, url: str, chunk_size=128) -> None:

@@ -21,7 +21,6 @@ app = typer.Typer()
 def append_text(original_text: str, text_to_add: str, after_text: str = None):
     """
     Appends text to a string after a given text.
-
     :param original_text: The original text.
     :param text_to_add: The text to add.
     :param after_text: The text after which the text to add should be added.
@@ -37,7 +36,6 @@ def append_text(original_text: str, text_to_add: str, after_text: str = None):
 def add_import(project_name: str):
     """
     Adds an import to the project's flows file.
-
     :param project_name: The project name.
     :return: The original text with the import appended.
     """
@@ -55,7 +53,6 @@ def add_import(project_name: str):
 def add_agent(project_name: str):
     """
     Adds the agent to the constants file.
-
     :param project_name: The name of the project.
     """
     with open(CONSTANTS_FILE_PATH, "r") as file:
@@ -72,7 +69,6 @@ def add_agent(project_name: str):
 def cut_cookie(project_name: str):
     """
     Runs the cookiecutter command.
-
     :param project_name: The name of the project.
     """
     cookiecutter(
@@ -98,7 +94,6 @@ def single_word_valid(input: str) -> bool:
 def name_already_exists(input: str) -> bool:
     """
     Checks if the name already exists.
-
     :param input: The input.
     :return: True if the name already exists, False otherwise.
     """
@@ -117,7 +112,6 @@ def name_already_exists(input: str) -> bool:
 def check_name(input: str) -> str:
     """
     Checks if the name is valid.
-
     :param input: The input.
     :return: The input if it is valid, otherwise an error message.
     """

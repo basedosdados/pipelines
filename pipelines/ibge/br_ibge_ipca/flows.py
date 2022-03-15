@@ -6,15 +6,15 @@ from prefect import Flow
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from pipelines.constants import constants
-from pipelines.tasks import upload_to_gcs, create_bd_table, dump_header_to_csv
-from pipelines.datasets.br_ibge_ipca.tasks import (
+from pipelines.utils.tasks import upload_to_gcs, create_bd_table, dump_header_to_csv
+from pipelines.ibge.br_ibge_ipca.tasks import (
     crawler,
     clean_mes_brasil,
     clean_mes_rm,
     clean_mes_municipio,
     clean_mes_geral,
 )
-from pipelines.datasets.br_ibge_ipca.schedules import every_month
+from pipelines.ibge.br_ibge_ipca.schedules import every_month
 
 INDICE = "ipca"
 

@@ -5,4 +5,6 @@ Imports all flows for every project so we can register all of them.
 ###############################################################################
 # Automatically managed, please do not touch
 ###############################################################################
-from pipelines.datasets import *
+from pipelines.cvm import *
+from pipelines.ibge import *
+from pipelines.data_tweet.flows import *
