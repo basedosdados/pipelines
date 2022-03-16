@@ -22,11 +22,11 @@ tests_no_zope = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>
 
 [[package]]
 name = "basedosdados"
-version = "1.6.2a11"
+version = "1.6.2"
 description = "Organizar e facilitar o acesso a dados brasileiros através de tabelas públicas no BigQuery."
 category = "main"
 optional = false
-python-versions = ">=3.7.1"
+python-versions = ">=3.7.1,<3.11"
 
 [package.dependencies]
 ckanapi = "4.6"
@@ -37,6 +37,7 @@ google-cloud-storage = "1.42.3"
 Jinja2 = "3.0.3"
 pandas = "1.2.4"
 pandas-gbq = "0.13.2"
+pandavro = ">=1.6.0,<2.0.0"
 pyaml = "20.4.0"
 pyarrow = "6.0.0"
 "ruamel.yaml" = "0.17.10"
@@ -210,6 +211,20 @@ description = "Pythonic argument parser, that will make you smile"
 category = "main"
 optional = false
 python-versions = "*"
+
+[[package]]
+name = "fastavro"
+version = "1.4.10"
+description = "Fast read/write of AVRO files"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.extras]
+codecs = ["python-snappy", "zstandard", "lz4"]
+lz4 = ["lz4"]
+snappy = ["python-snappy"]
+zstandard = ["zstandard"]
 
 [[package]]
 name = "fsspec"
@@ -625,6 +640,23 @@ pydata-google-auth = "*"
 
 [package.extras]
 tqdm = ["tqdm (>=4.23.0)"]
+
+[[package]]
+name = "pandavro"
+version = "1.6.0"
+description = "The interface between Avro and pandas DataFrame"
+category = "main"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+
+[package.dependencies]
+fastavro = ">=0.14.11"
+numpy = ">=1.7.0"
+pandas = ">=1.1.5"
+six = ">=1.9"
+
+[package.extras]
+tests = ["pytest"]
 
 [[package]]
 name = "partd"
@@ -1218,7 +1250,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.1,<3.11"
-content-hash = "22c36d8c5d3c8a19efd52c63d52929e269fc3d6ec107737f191ea07c9588de47"
+content-hash = "f5ea30f5acd6e234de4221891679fc9e7e31db74c9e866f45d2c9551e1177f2d"
 
 [metadata.files]
 atomicwrites = [
@@ -1230,8 +1262,8 @@ attrs = [
     {file = "attrs-21.2.0.tar.gz", hash = "sha256:ef6aaac3ca6cd92904cdd0d83f629a15f18053ec84e6432106f7a4d04ae4f5fb"},
 ]
 basedosdados = [
-    {file = "basedosdados-1.6.2a11-py3-none-any.whl", hash = "sha256:967d817e1140a4bdaa32605c0af926ef182e0456c8c1a055af2808161d45f757"},
-    {file = "basedosdados-1.6.2a11.tar.gz", hash = "sha256:629099714d44343b5ae32fab952832d8ecd57e6073eef88d9f018569896193ec"},
+    {file = "basedosdados-1.6.2-py3-none-any.whl", hash = "sha256:2991f01d1b5b6a1d33127d79e389408fc29eeb3649dc40f623fbd4c676b76542"},
+    {file = "basedosdados-1.6.2.tar.gz", hash = "sha256:b3c35823f097ac021b0667a8a4787b9aba8b043670af49c698298ec069b7b7d4"},
 ]
 cachetools = [
     {file = "cachetools-4.2.4-py3-none-any.whl", hash = "sha256:92971d3cb7d2a97efff7c7bb1657f21a8f5fb309a37530537c71b1774189f2d1"},
@@ -1321,6 +1353,24 @@ docker = [
 ]
 docopt = [
     {file = "docopt-0.6.2.tar.gz", hash = "sha256:49b3a825280bd66b3aa83585ef59c4a8c82f2c8a522dbe754a8bc8d08c85c491"},
+]
+fastavro = [
+    {file = "fastavro-1.4.10-cp310-cp310-macosx_10_14_x86_64.whl", hash = "sha256:f225c81e869b3cefef6f2b478cd452693181ed7e645be3cea4d82024354ecaa0"},
+    {file = "fastavro-1.4.10-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:b7669302c9124b7cd6c1bdff80c77116b2290c984814077fb7d01d7389586054"},
+    {file = "fastavro-1.4.10-cp310-cp310-win_amd64.whl", hash = "sha256:995525bdfbdfef205ea148b5bc6a9fe5ccf921931123c39d9aad75a2b661681e"},
+    {file = "fastavro-1.4.10-cp37-cp37m-macosx_10_14_x86_64.whl", hash = "sha256:64244c53f1e4853184c2f7383d0332e1dcb34c38c05e6613530ade0378e8acfc"},
+    {file = "fastavro-1.4.10-cp37-cp37m-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:c60965da6dc7a91e00ccd84d84797fad746555f44e8a816c4cc460fb231c44fe"},
+    {file = "fastavro-1.4.10-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:10eb25378f37dc00c10e83c4c0442c1a6d1b871f74a6dfdfc12b6447962bbdd0"},
+    {file = "fastavro-1.4.10-cp37-cp37m-win_amd64.whl", hash = "sha256:d5719adf6045fc743de5fa738d561a81e58dc782c94f1b16cb21b5dd6253e7fd"},
+    {file = "fastavro-1.4.10-cp38-cp38-macosx_10_14_x86_64.whl", hash = "sha256:24c4a1a8cc92e135ecfcd9cbd1f6cfa088cbc74d78c18e02a609cb11fa33778d"},
+    {file = "fastavro-1.4.10-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:0934490b0c3bcfd6bcbacbcb5144c6b5e4298cda209fbb17c856adf5405127dd"},
+    {file = "fastavro-1.4.10-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:a23763d73412c077aee401a0368c64cbc23859e26711dbae78a3cf0227f65165"},
+    {file = "fastavro-1.4.10-cp38-cp38-win_amd64.whl", hash = "sha256:09f1dfdd8192ae09e0f477d1f024d8054fccdb099ad495d2a796bcee3cadebd1"},
+    {file = "fastavro-1.4.10-cp39-cp39-macosx_10_15_x86_64.whl", hash = "sha256:0c6695753fa3035bbd0fa5cb21bf1b5dad39483c669b32ca0bb55fb07c1ccc87"},
+    {file = "fastavro-1.4.10-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:35f960dbba04647d8d6d5616f879622d2a1e8a84eb2d2e02a883a22e0803463a"},
+    {file = "fastavro-1.4.10-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:9660878ca01e3dbbee12385c5902a2b6b12ecbb5af4733d1026175a14b1ef67f"},
+    {file = "fastavro-1.4.10-cp39-cp39-win_amd64.whl", hash = "sha256:64cbd386e408b3bcb2de53b1f847163073eb0d0d0338db65f76051c6ba9a9bc1"},
+    {file = "fastavro-1.4.10.tar.gz", hash = "sha256:a24f9dd803c44bfb599476b000f9bd0088f7ac2401e6c20818f38d8af12785a0"},
 ]
 fsspec = [
     {file = "fsspec-2021.11.1-py3-none-any.whl", hash = "sha256:bcb136caa37e1470dd8314a7d3917cb9b25dd9da44c10d36df556ab4ef038185"},
@@ -1661,6 +1711,9 @@ pandas = [
 pandas-gbq = [
     {file = "pandas-gbq-0.13.2.tar.gz", hash = "sha256:bc3a615c92df76490be33ae1efe60e82b8affd196e39f4f6c9c76d67c32e3d46"},
     {file = "pandas_gbq-0.13.2-py3-none-any.whl", hash = "sha256:858539f397dcadf1e2792db49ac9a010098009f47859252d4aeaf03d530ea290"},
+]
+pandavro = [
+    {file = "pandavro-1.6.0.tar.gz", hash = "sha256:d098da34529fbb20de5fd1a6f231918d1b60941b25bea5dc87897ef0d472cb6f"},
 ]
 partd = [
     {file = "partd-1.2.0-py3-none-any.whl", hash = "sha256:5c3a5d70da89485c27916328dc1e26232d0e270771bd4caef4a5124b6a457288"},
