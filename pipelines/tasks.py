@@ -13,7 +13,7 @@ import pandas as pd
 from prefect import task
 
 from pipelines.constants import constants
-from pipelines.utils.utils import get_username_and_password_from_secret, log
+from pipelines.utils import get_username_and_password_from_secret, log
 
 ##################
 #
