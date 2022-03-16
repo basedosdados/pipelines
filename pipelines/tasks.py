@@ -123,7 +123,6 @@ def create_bd_table(
                 if_storage_data_exists="replace",
                 if_table_config_exists="replace",
                 if_table_exists="replace",
-                location="southamerica-east1",
                 dataset_is_public=dataset_is_public,
             )
             log(
@@ -150,7 +149,6 @@ def create_bd_table(
             if_storage_data_exists="replace",
             if_table_config_exists="replace",
             if_table_exists="replace",
-            location="southamerica-east1",
             dataset_is_public=dataset_is_public,
         )
 
