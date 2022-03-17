@@ -1,8 +1,7 @@
 """
-Prefect flows for {{cookiecutter.project_name}} project
+Prefect flows for test_pipeline project
 """
 ###############################################################################
 # Automatically managed, please do not touch
 ###############################################################################
-from pipelines.{{cookiecutter.project_name}}.flows import *
-from pipelines.{{cookiecutter.project_name}}.{{cookiecutter.workspace_name}}.flows import *
+from .flows import *

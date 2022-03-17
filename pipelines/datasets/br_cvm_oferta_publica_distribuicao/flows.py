@@ -6,12 +6,12 @@ from prefect import Flow
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from pipelines.constants import constants
-from pipelines.cvm.br_cvm_oferta_publica_distribuicao.tasks import (
+from pipelines.datasets.br_cvm_oferta_publica_distribuicao.tasks import (
     crawl,
     clean_table_oferta_distribuicao,
 )
 from pipelines.utils.tasks import upload_to_gcs, create_bd_table, dump_header_to_csv
-from pipelines.cvm.br_cvm_oferta_publica_distribuicao.schedules import every_day
+from pipelines.datasets.br_cvm_oferta_publica_distribuicao.schedules import every_day
 
 ROOT = "/tmp/data"
 URL = "http://dados.cvm.gov.br/dados/OFERTA/DISTRIB/DADOS/oferta_distribuicao.csv"

@@ -1,5 +1,5 @@
 """
-Flows for {{cookiecutter.project_name}}
+test flow for basedosdados
 """
 
 ###############################################################################
@@ -23,7 +23,7 @@ Flows for {{cookiecutter.project_name}}
 # mandatório configurar alguns parâmetros dele, os quais são:
 # - storage: onde esse flow está armazenado. No caso, o storage é o
 #   próprio módulo Python que contém o flow. Sendo assim, deve-se
-#   configurar o storage como o pipelines.{{cookiecutter.project_name}}
+#   configurar o storage como o pipelines.basedosdados
 # - run_config: para o caso de execução em cluster Kubernetes, que é
 #   provavelmente o caso, é necessário configurar o run_config com a
 #   imagem Docker que será usada para executar o flow. Assim sendo,
@@ -57,16 +57,32 @@ Flows for {{cookiecutter.project_name}}
 ###############################################################################
 
 
-from prefect import Flow
+from prefect import Flow, Parameter
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from pipelines.constants import constants
-from pipelines.{{cookiecutter.project_name}}.tasks import say_hello
-# from pipelines.{{cookiecutter.project_name}}.schedules import every_two_weeks
+from pipelines.datasets.test_pipeline.tasks import (
+    get_random_expression,
+    dataframe_to_csv,
+    upload_to_gcs,
+)
+from pipelines.datasets.test_pipeline.schedules import every_five_minutes
 
-with Flow("my_flow") as flow:
-    say_hello()
+from uuid import uuid4
 
-flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-# flow.schedule = every_two_weeks
+with Flow("test_flow") as test_flow:
+    # BigQuery parameters
+    dataset_id = Parameter("dataset_id")
+    table_id = Parameter("table_id")
+
+    path = f"data/{uuid4()}/"
+
+    df, ts = get_random_expression()
+
+    path = dataframe_to_csv(df=df, path=path, ts=ts)
+
+    upload_to_gcs(path=path, dataset_id=dataset_id, table_id=table_id)
+
+test_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+test_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+# test_flow.schedule = every_five_minutes

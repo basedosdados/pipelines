@@ -1,5 +1,5 @@
 """
-Schedules for {{cookiecutter.project_name}}
+Schedules for basedosdados
 """
 
 ###############################################################################
@@ -28,7 +28,7 @@ Schedules for {{cookiecutter.project_name}}
 #             interval=timedelta(minutes=1),
 #             start_date=datetime(2021, 1, 1),
 #             labels=[
-#                 constants.{{cookiecutter.project_name|upper}}_AGENT_LABEL.value,
+#                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
 #             ]
 #         ),
 #     ]
@@ -38,7 +38,7 @@ Schedules for {{cookiecutter.project_name}}
 # Vale notar que o parâmetro `labels` é obrigatório e deve ser uma lista com
 # apenas um elemento, correspondendo ao label do agente que será executado.
 # O label do agente é definido em `constants.py` e deve ter o formato
-# `{{cookiecutter.project_name|upper}}_AGENT_LABEL`.
+# `BASEDOSDADOS_DEV_AGENT_LABEL`.
 #
 # Outro exemplo, para executar todos os dias à meia noite, segue abaixo:
 #
@@ -57,7 +57,7 @@ Schedules for {{cookiecutter.project_name}}
 #             start_date=pendulum.datetime(
 #                 2021, 1, 1, 0, 0, 0, tz="America/Sao_Paulo"),
 #             labels=[
-#                 constants.K8S_AGENT_LABEL.value,
+#                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
 #             ]
 #         )
 #     ]
@@ -74,14 +74,18 @@ from prefect.schedules import Schedule
 from prefect.schedules.clocks import IntervalClock
 from pipelines.constants import constants
 
-every_two_weeks = Schedule(
+every_five_minutes = Schedule(
     clocks=[
         IntervalClock(
-            interval=timedelta(weeks=2),
+            interval=timedelta(minutes=2),
             start_date=datetime(2021, 1, 1),
             labels=[
-                constants.{{cookiecutter.project_name | upper}}_AGENT_LABEL.value,
-            ]
+                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            ],
+            parameter_defaults={
+                "dataset_id": "test_dataset",
+                "table_id": "test_prefect",
+            },
         ),
     ]
 )
