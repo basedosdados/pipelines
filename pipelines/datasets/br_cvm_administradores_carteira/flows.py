@@ -20,8 +20,8 @@ ROOT = "/tmp/data"
 URL = "http://dados.cvm.gov.br/dados/ADM_CART/CAD/DADOS/cad_adm_cart.zip"
 
 with Flow("br_cvm_administradores_carteira.responsavel") as br_cvm_adm_car_res:
-    crawl(ROOT, URL)
-    filepath = clean_table_responsavel(ROOT)
+    wait_crawl = crawl(ROOT, URL)
+    filepath = clean_table_responsavel(ROOT, upstream_tasks=[wait_crawl])
     dataset_id = "br_cvm_administradores_carteira"
     table_id = "responsavel"
 
@@ -49,8 +49,8 @@ br_cvm_adm_car_res.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value
 br_cvm_adm_car_res.schedule = every_day
 
 with Flow("br_cvm_administradores_carteira.pessoa_fisica") as br_cvm_adm_car_pes_fis:
-    crawl(ROOT, URL)
-    filepath = clean_table_pessoa_fisica(ROOT)
+    wait_crawl = crawl(ROOT, URL)
+    filepath = clean_table_pessoa_fisica(ROOT, upstream_tasks=[wait_crawl])
     dataset_id = "br_cvm_administradores_carteira"
     table_id = "pessoa_fisica"
 
@@ -78,8 +78,8 @@ br_cvm_adm_car_pes_fis.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.v
 br_cvm_adm_car_pes_fis.schedule = every_day
 
 with Flow("br_cvm_administradores_carteira.pessoa_juridica") as br_cvm_adm_car_pes_jur:
-    crawl(ROOT, URL)
-    filepath = clean_table_pessoa_juridica(ROOT)
+    wait_crawl = crawl(ROOT, URL)
+    filepath = clean_table_pessoa_juridica(ROOT, upstream_tasks=[wait_crawl])
     dataset_id = "br_cvm_administradores_carteira"
     table_id = "pessoa_juridica"
 
