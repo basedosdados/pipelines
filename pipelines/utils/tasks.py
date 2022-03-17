@@ -194,3 +194,45 @@ def upload_to_gcs(
         log(
             "Table does not exist in STAGING, need to create it in local first.\nCreate and publish the table in BigQuery first."
         )
+
+
+def publish_table(
+    path: Union[str, Path],
+    dataset_id: str,
+    table_id: str,
+    if_exists="raise",
+    wait=None,  # pylint: disable=unused-argument
+) -> None:
+    """Creates BigQuery table at production dataset.
+    Table should be located at `<dataset_id>.<table_id>`.
+    It creates a view that uses the query from
+    `<metadata_path>/<dataset_id>/<table_id>/publish.sql`.
+    Make sure that all columns from the query also exists at
+    `<metadata_path>/<dataset_id>/<table_id>/table_config.sql`, including
+    the partitions.
+    Args:
+        if_exists (str): Optional.
+            What to do if table exists.
+            * 'raise' : Raises Conflict exception
+            * 'replace' : Replace table
+            * 'pass' : Do nothing
+    Todo:
+        * Check if all required fields are filled
+    """
+
+    tb = bd.Table(dataset_id=dataset_id, table_id=table_id)
+
+    if if_exists == "replace":
+        tb.delete(mode="prod")
+
+    tb.client["bigquery_prod"].query(
+        (tb.table_folder / "publish.sql").open("r", encoding="utf-8").read()
+    ).result()
+
+    tb.update()
+
+    if tb.table_exists(mode="prod"):
+        log(f"Successfully uploaded {table_id} to prod.")
+    else:
+        # pylint: disable=C0301
+        log("I cannot upload {table_id} in prod.")
