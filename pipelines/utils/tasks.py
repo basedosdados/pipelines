@@ -220,6 +220,7 @@ def publish_table(
         * Check if all required fields are filled
     """
 
+    # pylint: disable=C0103
     tb = bd.Table(dataset_id=dataset_id, table_id=table_id)
 
     if if_exists == "replace":
