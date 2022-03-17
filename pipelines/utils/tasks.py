@@ -195,7 +195,7 @@ def upload_to_gcs(
             "Table does not exist in STAGING, need to create it in local first.\nCreate and publish the table in BigQuery first."
         )
 
-
+@task
 def publish_table(
     path: Union[str, Path],
     dataset_id: str,
