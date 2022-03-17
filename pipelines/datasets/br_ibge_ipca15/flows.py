@@ -21,8 +21,8 @@ INDICE = "ip15"
 
 with Flow("br_ibge_ipca15.mes_categoria_brasil") as br_ibge_ipca15_mes_categoria_brasil:
     FOLDER = "br/"
-    crawler(INDICE, FOLDER)
-    filepath = clean_mes_brasil(INDICE)
+    wait_crawler = crawler(INDICE, FOLDER)
+    filepath = clean_mes_brasil(INDICE, upstream_tasks = [wait_crawler])
     dataset_id = "br_ibge_ipca15"
     table_id = "mes_categoria_brasil"
 
