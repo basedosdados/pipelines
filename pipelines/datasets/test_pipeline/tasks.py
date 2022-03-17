@@ -60,7 +60,7 @@ import requests
 import pandas as pd
 import numpy as np
 import basedosdados as bd
-from pipelines.utils import log
+from pipelines.utils.utils import log
 
 
 @task(nout=2)

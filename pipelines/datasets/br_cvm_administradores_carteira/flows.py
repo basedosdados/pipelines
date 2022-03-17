@@ -13,7 +13,7 @@ from pipelines.datasets.br_cvm_administradores_carteira.tasks import (
     clean_table_pessoa_juridica,
 )
 from pipelines.constants import constants
-from pipelines.tasks import upload_to_gcs, create_bd_table, dump_header_to_csv
+from pipelines.utils.tasks import upload_to_gcs, create_bd_table, dump_header_to_csv
 from pipelines.datasets.br_cvm_administradores_carteira.schedules import every_day
 
 ROOT = "/tmp/data"

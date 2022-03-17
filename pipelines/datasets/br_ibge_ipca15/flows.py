@@ -7,7 +7,7 @@ from prefect import Flow
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from pipelines.constants import constants
-from pipelines.tasks import upload_to_gcs, create_bd_table, dump_header_to_csv
+from pipelines.utils.tasks import upload_to_gcs, create_bd_table, dump_header_to_csv
 from pipelines.datasets.br_ibge_ipca15.tasks import (
     crawler,
     clean_mes_brasil,
