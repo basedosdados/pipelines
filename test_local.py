@@ -27,5 +27,5 @@ flows = reduce(lambda x,y: x+y, [flows_ipca,flows_inpc,flows_ipca15, flows_cvm])
 
 
 if __name__ == "__main__":
-    for flow in flows_cvm:
+    for flow in flows_ipca:
         run_local(flow)
