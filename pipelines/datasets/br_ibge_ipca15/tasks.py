@@ -12,7 +12,7 @@ from time import sleep
 
 
 @task
-def crawler(indice: str, folder:str) -> None:
+def crawler(indice: str, folder: str) -> None:
     os.system('mkdir -p "/tmp/data"')
     os.system('mkdir -p "/tmp/data/input"')
     os.system('mkdir -p "/tmp/data/input/br"')
@@ -23,8 +23,8 @@ def crawler(indice: str, folder:str) -> None:
     os.system('mkdir -p "/tmp/data/output/ip15"')
     os.system('mkdir -p "/tmp/data/output/ipca"')
     os.system('mkdir -p "/tmp/data/output/inpc"')
-    print(os.system('tree /tmp/data'))
-
+    print(os.system("tree /tmp/data"))
+    # pylint: disable=line-too-long
     links = {
         "br/ipca_grupo": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7060.csv&terr=NC&rank=-&query=t/7060/n1/all/v/all/p/all/c315/7170,7445,7486,7558,7625,7660,7712,7766,7786/d/v63%202,v66%204,v69%202,v2265%202/l/,v,t%2Bp%2Bc315",
         "br/inpc_grupo": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7063.csv&terr=NC&rank=-&query=t/7063/n1/all/v/all/p/all/c315/7170,7445,7486,7558,7625,7660,7712,7766,7786/d/v44%202,v45%204,v68%202,v2292%202/l/,v,t%2Bp%2Bc315",
@@ -81,19 +81,25 @@ def crawler(indice: str, folder:str) -> None:
         "mes/ip15_geral": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela3065.csv&terr=N&rank=-&query=t/3065/n1/all/v/all/p/all/d/v355%202,v356%202,v1117%2013,v1118%202,v1119%202,v1120%202/l/,v,t%2Bp&abreviarRotulos=True&exibirNotas=False",
         "mes/inpc_geral": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela1736.csv&terr=N&rank=-&query=t/1736/n1/all/v/all/p/all/d/v44%202,v68%202,v2289%2013,v2290%202,v2291%202,v2292%202/l/,v,t%2Bp&abreviarRotulos=True&exibirNotas=False",
     }
-    links = {k: v for k, v in links.items() if k.__contains__(indice) & k.__contains__(folder)}
+    # pylint: enable=line-too-long
+
+    links = {
+        k: v
+        for k, v in links.items()
+        if k.__contains__(indice) & k.__contains__(folder)
+    }
     # precisei adicionar try catchs no loop para conseguir baixar todas
     # as tabelas sem ter pproblema com o limite de requisição do sidra
     links_keys = list(links.keys())
     success_dwnl = []
     for key in tqdm(links_keys):
         try:
-            wget.download(links[key], out="/tmp/data/input/" + key + ".csv")
+            wget.download(links[key], out=f"/tmp/data/input/{key}.csv")
             success_dwnl.append(key)
         except:
             try:
                 sleep(10)
-                wget.download(links[key], out="/tmp/data/input/" + key + ".csv")
+                wget.download(links[key], out=f"/tmp/data/input/{key}.csv")
                 success_dwnl.append(key)
             except:
                 pass
@@ -106,7 +112,8 @@ def crawler(indice: str, folder:str) -> None:
         for rem in rems:
             print(rem)
 
-    print(os.system('tree /tmp/data'))
+    print(os.system("tree /tmp/data"))
+
 
 @task
 def clean_mes_brasil(indice: str) -> None:
@@ -159,59 +166,65 @@ def clean_mes_brasil(indice: str) -> None:
         if arquivo.split("/")[-1].split("_")[0] == indice
     ]
     for arq in arquivos:
-        df = pd.read_csv(arq, skipfooter=14, skiprows=2, sep=";", dtype="str")
+        dataframe = pd.read_csv(arq, skipfooter=14, skiprows=2, sep=";", dtype="str")
         # renomear colunas
-        df.rename(columns=rename, inplace=True)
+        dataframe.rename(columns=rename, inplace=True)
         # substituir "..." por vazio
-        df = df.replace("...", "")
-        df = df.replace("-", "")
+        dataframe = dataframe.replace("...", "")
+        dataframe = dataframe.replace("-", "")
 
         # Normalizando float
-        df = df.replace(",", ".", regex=True)
+        dataframe = dataframe.replace(",", ".", regex=True)
 
         # Split coluna data e substituir mes
-        df[["mes", "ano"]] = df["ano"].str.split(" ", 1, expand=True)
-        df["mes"] = df["mes"].map(n_mes)
+        dataframe[["mes", "ano"]] = dataframe["ano"].str.split(" ", 1, expand=True)
+        dataframe["mes"] = dataframe["mes"].map(n_mes)
 
         # Split coluna categoria e add id_categoria_bd
         if arq.split("_")[-1].split(".")[0] != "geral":
-            df[["id_categoria", "categoria"]] = df["categoria"].str.split(
+            dataframe[["id_categoria", "categoria"]] = dataframe["categoria"].str.split(
                 ".", 1, expand=True
             )
 
         if arq.split("_")[-1].split(".")[0] == "grupo":
-            df["id_categoria_bd"] = df["id_categoria"].apply(lambda x: x + ".0.00.000")
-            df = df[ordem]
-            grupo = pd.DataFrame(df)
-        elif arq.split("_")[-1].split(".")[0] == "subgrupo":
-            df["id_categoria_bd"] = df["id_categoria"].apply(
-                lambda x: x[0] + "." + x[1] + ".00.000"
+            dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
+                lambda x: f"{x}.0.00.000"
             )
-            df = df[ordem]
-            subgrupo = pd.DataFrame(df)
-        elif arq.split("_")[-1].split(".")[0] == "item":
-            df["id_categoria_bd"] = df["id_categoria"].apply(
-                lambda x: x[0] + "." + x[1] + "." + x[2:4] + ".000"
-            )
-            df = df[ordem]
-            item = pd.DataFrame(df)
-        elif arq.split("_")[-1].split(".")[0] == "subitem":
-            df["id_categoria_bd"] = df["id_categoria"].apply(
-                lambda x: x[0] + "." + x[1] + "." + x[2:4] + "." + x[4:7]
-            )
-            df = df[ordem]
-            subitem = pd.DataFrame(df)
-        elif arq.split("_")[-1].split(".")[0] == "geral":
-            df["id_categoria"] = ""
-            df["id_categoria_bd"] = "0.0.00.000"
-            df = df[ordem]
-            geral = pd.DataFrame(df)
 
-    df = pd.concat([grupo, subgrupo, item, subitem, geral])
+            dataframe = dataframe[ordem]
+            grupo = pd.DataFrame(dataframe)
+        elif arq.split("_")[-1].split(".")[0] == "subgrupo":
+            dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
+                lambda x: f"{x[0]}.{x[1]}.00.000"
+            )
+
+            dataframe = dataframe[ordem]
+            subgrupo = pd.DataFrame(dataframe)
+        elif arq.split("_")[-1].split(".")[0] == "item":
+            dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
+                lambda x: f"{x[0]}.{x[1]}.{x[2:4]}.000"
+            )
+
+            dataframe = dataframe[ordem]
+            item = pd.DataFrame(dataframe)
+        elif arq.split("_")[-1].split(".")[0] == "subitem":
+            dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
+                lambda x: f"{x[0]}.{x[1]}.{x[2:4]}.{x[4:7]}"
+            )
+
+            dataframe = dataframe[ordem]
+            subitem = pd.DataFrame(dataframe)
+        elif arq.split("_")[-1].split(".")[0] == "geral":
+            dataframe["id_categoria"] = ""
+            dataframe["id_categoria_bd"] = "0.0.00.000"
+            dataframe = dataframe[ordem]
+            geral = pd.DataFrame(dataframe)
+
+    dataframe = pd.concat([grupo, subgrupo, item, subitem, geral])
     filepath = "/tmp/data/output/{}/categoria_brasil.csv".format(indice)
-    df.to_csv(filepath, index=False)
-    print(os.system('tree /tmp/data'))
-    
+    dataframe.to_csv(filepath, index=False)
+    print(os.system("tree /tmp/data"))
+
     return filepath
 
 
@@ -269,65 +282,72 @@ def clean_mes_rm(indice: str):
         if arquivo.split("/")[-1].split("_")[0] == indice
     ]
     for arq in arquivos:
-        df = pd.read_csv(arq, skipfooter=14, skiprows=2, sep=";", dtype="str")
+        dataframe = pd.read_csv(arq, skipfooter=14, skiprows=2, sep=";", dtype="str")
         # renomear colunas
-        df.rename(columns=rename, inplace=True)
+        dataframe.rename(columns=rename, inplace=True)
         # substituir "..." por vazio
-        df = df.replace("...", "")
-        df = df.replace("-", "")
+        dataframe = dataframe.replace("...", "")
+        dataframe = dataframe.replace("-", "")
 
         # Normalizando float
-        df = df.replace(",", ".", regex=True)
+        dataframe = dataframe.replace(",", ".", regex=True)
 
         # Split coluna data e substituir mes
-        df[["mes", "ano"]] = df["ano"].str.split(" ", 1, expand=True)
-        df["mes"] = df["mes"].map(n_mes)
+        dataframe[["mes", "ano"]] = dataframe["ano"].str.split(" ", 1, expand=True)
+        dataframe["mes"] = dataframe["mes"].map(n_mes)
 
         # Split coluna categoria e add id_categoria_bd
         if arq.split("_")[-1].split(".")[0] != "geral":
-            df[["id_categoria", "categoria"]] = df["categoria"].str.split(
+            dataframe[["id_categoria", "categoria"]] = dataframe["categoria"].str.split(
                 ".", 1, expand=True
             )
 
         if arq.split("_")[-1].split(".")[0] == "grupo":
-            df["id_categoria_bd"] = df["id_categoria"].apply(lambda x: x + ".0.00.000")
-            df = df[ordem]
-            grupo = pd.DataFrame(df)
-        elif arq.split("_")[-1].split(".")[0] == "subgrupo":
-            df["id_categoria_bd"] = df["id_categoria"].apply(
-                lambda x: x[0] + "." + x[1] + ".00.000"
+            dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
+                lambda x: f"{x}.0.00.000"
             )
-            df = df[ordem]
-            subgrupo = pd.DataFrame(df)
-        elif arq.split("_")[-1].split(".")[0] == "item":
-            df["id_categoria_bd"] = df["id_categoria"].apply(
-                lambda x: x[0] + "." + x[1] + "." + x[2:4] + ".000"
-            )
-            df = df[ordem]
-            item = pd.DataFrame(df)
-        elif "_".join(arq.split("_")[1:]).split(".")[0] == "subitem_1":
-            df["id_categoria_bd"] = df["id_categoria"].apply(
-                lambda x: x[0] + "." + x[1] + "." + x[2:4] + "." + x[4:7]
-            )
-            df = df[ordem]
-            subitem_1 = pd.DataFrame(df)
-        elif "_".join(arq.split("_")[1:]).split(".")[0] == "subitem_2":
-            df["id_categoria_bd"] = df["id_categoria"].apply(
-                lambda x: x[0] + "." + x[1] + "." + x[2:4] + "." + x[4:7]
-            )
-            df = df[ordem]
-            subitem_2 = pd.DataFrame(df)
-        elif arq.split("_")[-1].split(".")[0] == "geral":
-            df["id_categoria"] = ""
-            df["id_categoria_bd"] = "0.0.00.000"
-            df = df[ordem]
-            geral = pd.DataFrame(df)
 
-    df = pd.concat([grupo, subgrupo, item, subitem_1, subitem_2, geral])
+            dataframe = dataframe[ordem]
+            grupo = pd.DataFrame(dataframe)
+        elif arq.split("_")[-1].split(".")[0] == "subgrupo":
+            dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
+                lambda x: f"{x[0]}.{x[1]}.00.000"
+            )
+
+            dataframe = dataframe[ordem]
+            subgrupo = pd.DataFrame(dataframe)
+        elif arq.split("_")[-1].split(".")[0] == "item":
+            dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
+                lambda x: f"{x[0]}.{x[1]}.{x[2:4]}.000"
+            )
+
+            dataframe = dataframe[ordem]
+            item = pd.DataFrame(dataframe)
+        elif "_".join(arq.split("_")[1:]).split(".")[0] == "subitem_1":
+            dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
+                lambda x: f"{x[0]}.{x[1]}.{x[2:4]}.{x[4:7]}"
+            )
+
+            dataframe = dataframe[ordem]
+            subitem_1 = pd.DataFrame(dataframe)
+        elif "_".join(arq.split("_")[1:]).split(".")[0] == "subitem_2":
+            dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
+                lambda x: f"{x[0]}.{x[1]}.{x[2:4]}.{x[4:7]}"
+            )
+
+            dataframe = dataframe[ordem]
+            subitem_2 = pd.DataFrame(dataframe)
+        elif arq.split("_")[-1].split(".")[0] == "geral":
+            dataframe["id_categoria"] = ""
+            dataframe["id_categoria_bd"] = "0.0.00.000"
+            dataframe = dataframe[ordem]
+            geral = pd.DataFrame(dataframe)
+
+    dataframe = pd.concat([grupo, subgrupo, item, subitem_1, subitem_2, geral])
     filepath = "/tmp/data/output/{}/categoria_rm.csv".format(indice)
-    df.to_csv(filepath, index=False)
-    print(os.system('tree /tmp/data'))
-    
+    dataframe.to_csv(filepath, index=False)
+    print(os.system("tree /tmp/data"))
+
     return filepath
 
 
@@ -385,65 +405,72 @@ def clean_mes_municipio(indice: str):
         if arquivo.split("/")[-1].split("_")[0] == indice
     ]
     for arq in arquivos:
-        df = pd.read_csv(arq, skipfooter=14, skiprows=2, sep=";", dtype="str")
+        dataframe = pd.read_csv(arq, skipfooter=14, skiprows=2, sep=";", dtype="str")
         # renomear colunas
-        df.rename(columns=rename, inplace=True)
+        dataframe.rename(columns=rename, inplace=True)
         # substituir "..." por vazio
-        df = df.replace("...", "")
-        df = df.replace("-", "")
+        dataframe = dataframe.replace("...", "")
+        dataframe = dataframe.replace("-", "")
 
         # Normalizando float
-        df = df.replace(",", ".", regex=True)
+        dataframe = dataframe.replace(",", ".", regex=True)
 
         # Split coluna data e substituir mes
-        df[["mes", "ano"]] = df["ano"].str.split(" ", 1, expand=True)
-        df["mes"] = df["mes"].map(n_mes)
+        dataframe[["mes", "ano"]] = dataframe["ano"].str.split(" ", 1, expand=True)
+        dataframe["mes"] = dataframe["mes"].map(n_mes)
 
         # Split coluna categoria e add id_categoria_bd
         if arq.split("_")[-1].split(".")[0] != "geral":
-            df[["id_categoria", "categoria"]] = df["categoria"].str.split(
+            dataframe[["id_categoria", "categoria"]] = dataframe["categoria"].str.split(
                 ".", 1, expand=True
             )
 
         if arq.split("_")[-1].split(".")[0] == "grupo":
-            df["id_categoria_bd"] = df["id_categoria"].apply(lambda x: x + ".0.00.000")
-            df = df[ordem]
-            grupo = pd.DataFrame(df)
-        elif arq.split("_")[-1].split(".")[0] == "subgrupo":
-            df["id_categoria_bd"] = df["id_categoria"].apply(
-                lambda x: x[0] + "." + x[1] + ".00.000"
+            dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
+                lambda x: f"{x}.0.00.000"
             )
-            df = df[ordem]
-            subgrupo = pd.DataFrame(df)
-        elif arq.split("_")[-1].split(".")[0] == "item":
-            df["id_categoria_bd"] = df["id_categoria"].apply(
-                lambda x: x[0] + "." + x[1] + "." + x[2:4] + ".000"
-            )
-            df = df[ordem]
-            item = pd.DataFrame(df)
-        elif "_".join(arq.split("_")[1:]).split(".")[0] == "subitem_1":
-            df["id_categoria_bd"] = df["id_categoria"].apply(
-                lambda x: x[0] + "." + x[1] + "." + x[2:4] + "." + x[4:7]
-            )
-            df = df[ordem]
-            subitem_1 = pd.DataFrame(df)
-        elif "_".join(arq.split("_")[1:]).split(".")[0] == "subitem_2":
-            df["id_categoria_bd"] = df["id_categoria"].apply(
-                lambda x: x[0] + "." + x[1] + "." + x[2:4] + "." + x[4:7]
-            )
-            df = df[ordem]
-            subitem_2 = pd.DataFrame(df)
-        elif arq.split("_")[-1].split(".")[0] == "geral":
-            df["id_categoria"] = ""
-            df["id_categoria_bd"] = "0.0.00.000"
-            df = df[ordem]
-            geral = pd.DataFrame(df)
 
-    df = pd.concat([grupo, subgrupo, item, subitem_1, subitem_2, geral])
+            dataframe = dataframe[ordem]
+            grupo = pd.DataFrame(dataframe)
+        elif arq.split("_")[-1].split(".")[0] == "subgrupo":
+            dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
+                lambda x: f"{x[0]}.{x[1]}.00.000"
+            )
+
+            dataframe = dataframe[ordem]
+            subgrupo = pd.DataFrame(dataframe)
+        elif arq.split("_")[-1].split(".")[0] == "item":
+            dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
+                lambda x: f"{x[0]}.{x[1]}.{x[2:4]}.000"
+            )
+
+            dataframe = dataframe[ordem]
+            item = pd.DataFrame(dataframe)
+        elif "_".join(arq.split("_")[1:]).split(".")[0] == "subitem_1":
+            dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
+                lambda x: f"{x[0]}.{x[1]}.{x[2:4]}.{x[4:7]}"
+            )
+
+            dataframe = dataframe[ordem]
+            subitem_1 = pd.DataFrame(dataframe)
+        elif "_".join(arq.split("_")[1:]).split(".")[0] == "subitem_2":
+            dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
+                lambda x: f"{x[0]}.{x[1]}.{x[2:4]}.{x[4:7]}"
+            )
+
+            dataframe = dataframe[ordem]
+            subitem_2 = pd.DataFrame(dataframe)
+        elif arq.split("_")[-1].split(".")[0] == "geral":
+            dataframe["id_categoria"] = ""
+            dataframe["id_categoria_bd"] = "0.0.00.000"
+            dataframe = dataframe[ordem]
+            geral = pd.DataFrame(dataframe)
+
+    dataframe = pd.concat([grupo, subgrupo, item, subitem_1, subitem_2, geral])
     filepath = "/tmp/data/output/{}/categoria_municipio.csv".format(indice)
-    df.to_csv(filepath, index=False)
-    
-    print(os.system('tree /tmp/data'))
+    dataframe.to_csv(filepath, index=False)
+
+    print(os.system("tree /tmp/data"))
     return filepath
 
 
@@ -502,26 +529,26 @@ def clean_mes_geral(indice: str):
     ]
     for arq in arquivos:
         if indice == "ip15":
-            df = pd.read_csv(arq, skiprows=2, skipfooter=11, sep=";")
+            dataframe = pd.read_csv(arq, skiprows=2, skipfooter=11, sep=";")
         else:
-            df = pd.read_csv(arq, skiprows=2, skipfooter=13, sep=";")
+            dataframe = pd.read_csv(arq, skiprows=2, skipfooter=13, sep=";")
 
-        df["mes"], df["ano"] = df["Mês"].str.split(" ", 1).str
-        df["mes"] = df["mes"].map(n_mes)
+        dataframe["mes"], dataframe["ano"] = dataframe["Mês"].str.split(" ", 1).str
+        dataframe["mes"] = dataframe["mes"].map(n_mes)
 
         # renomear colunas
-        df.rename(columns=rename, inplace=True)
-        df = df.replace("...", "")
-        df = df.replace("-", "")
+        dataframe.rename(columns=rename, inplace=True)
+        dataframe = dataframe.replace("...", "")
+        dataframe = dataframe.replace("-", "")
 
         # Normalizando float
-        df = df.replace(",", ".", regex=True)
+        dataframe = dataframe.replace(",", ".", regex=True)
 
         # Renomeando colunas e ordenando
-        df = df[ordem]
+        dataframe = dataframe[ordem]
 
     filepath = "/tmp/data/output/{}/mes_brasil.csv".format(indice)
-    df.to_csv(filepath, index=False)
-    print(os.system('tree /tmp/data'))
+    dataframe.to_csv(filepath, index=False)
+    print(os.system("tree /tmp/data"))
 
     return filepath

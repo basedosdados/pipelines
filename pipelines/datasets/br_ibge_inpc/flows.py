@@ -53,7 +53,7 @@ br_ibge_inpc_mes_categoria_brasil.schedule = every_month
 with Flow("br_ibge_inpc.mes_categoria_rm") as br_ibge_inpc_mes_categoria_rm:
     FOLDER = "rm/"
     wait_crawler = crawler(INDICE, FOLDER)
-    filepath = clean_mes_rm(INDICE, upstream_tasks = [wait_crawler])
+    filepath = clean_mes_rm(INDICE, upstream_tasks=[wait_crawler])
     dataset_id = "br_ibge_inpc"
     table_id = "mes_categoria_rm"
 
@@ -88,7 +88,7 @@ with Flow(
 ) as br_ibge_inpc_mes_categoria_municipio:
     FOLDER = "mun/"
     wait_crawler = crawler(INDICE, FOLDER)
-    filepath = clean_mes_municipio(INDICE, upstream_tasks = [wait_crawler])
+    filepath = clean_mes_municipio(INDICE, upstream_tasks=[wait_crawler])
     dataset_id = "br_ibge_inpc"
     table_id = "mes_categoria_municipio"
 
