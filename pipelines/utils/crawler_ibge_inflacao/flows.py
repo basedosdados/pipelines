@@ -3,7 +3,7 @@ Flows for br_ibge_inpc
 """
 # pylint: disable=C0103, E1123, invalid-name
 
-from prefect import Flow
+from prefect import Flow, Parameter
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from pipelines.constants import constants
@@ -16,17 +16,23 @@ from pipelines.utils.crawler_ibge_inflacao.tasks import (
     clean_mes_geral,
 )
 
-# from pipelines.utils.crawler_ibge_inflacao.schedules import every_month
 
+with Flow("Template: Ingerir tabela Inflacao") as flow_ibge_inflacao_mes_brasil:
 
-with Flow("br_ibge_inpc.mes_categoria_brasil") as br_ibge_inpc_mes_categoria_brasil:
-    INDICE = "inpc"
-    FOLDER = "br/"
+    #####################################
+    #
+    # Parameters
+    #
+    #####################################
+
+    INDICE = Parameter("indice")
+    FOLDER = Parameter("indice")
+    dataset_id = Parameter("dataset_id")
+    table_id = Parameter("table_id")
+
     wait_crawler = crawler(indice=INDICE, folder=FOLDER)
     # pylint: disable=E1123
     filepath = clean_mes_brasil(indice=INDICE, upstream_tasks=[wait_crawler])
-    dataset_id = "br_ibge_inpc"
-    table_id = "mes_categoria_brasil"
 
     wait_header_path = dump_header_to_csv(data_path=filepath, wait=filepath)
 
@@ -47,19 +53,28 @@ with Flow("br_ibge_inpc.mes_categoria_brasil") as br_ibge_inpc_mes_categoria_bra
         wait=wait_create_bd_table,
     )
 
-br_ibge_inpc_mes_categoria_brasil.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_ibge_inpc_mes_categoria_brasil.run_config = KubernetesRun(
+flow_ibge_inflacao_mes_brasil.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+flow_ibge_inflacao_mes_brasil.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_ibge_inpc_mes_categoria_brasil.schedule = every_month
 
-with Flow("br_ibge_inpc.mes_categoria_rm") as br_ibge_inpc_mes_categoria_rm:
-    FOLDER = "rm/"
+
+with Flow("Template: Ingerir tabela Inflacao") as flow_ibge_inflacao_mes_rm:
+
+    #####################################
+    #
+    # Parameters
+    #
+    #####################################
+
+    INDICE = Parameter("indice")
+    FOLDER = Parameter("indice")
+    dataset_id = Parameter("dataset_id")
+    table_id = Parameter("table_id")
+
     wait_crawler = crawler(indice=INDICE, folder=FOLDER)
     # pylint: disable=E1123
     filepath = clean_mes_rm(indice=INDICE, upstream_tasks=[wait_crawler])
-    dataset_id = "br_ibge_inpc"
-    table_id = "mes_categoria_rm"
 
     wait_header_path = dump_header_to_csv(data_path=filepath, wait=filepath)
 
@@ -80,22 +95,26 @@ with Flow("br_ibge_inpc.mes_categoria_rm") as br_ibge_inpc_mes_categoria_rm:
         wait=wait_create_bd_table,
     )
 
-br_ibge_inpc_mes_categoria_rm.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_ibge_inpc_mes_categoria_rm.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-# br_ibge_inpc_mes_categoria_rm.schedule = every_month
+flow_ibge_inflacao_mes_rm.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+flow_ibge_inflacao_mes_rm.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 
 
-with Flow(
-    "br_ibge_inpc.mes_categoria_municipio"
-) as br_ibge_inpc_mes_categoria_municipio:
-    FOLDER = "mun/"
+with Flow("Template: Ingerir tabela Inflacao") as flow_ibge_inflacao_mes_municipio:
+
+    #####################################
+    #
+    # Parameters
+    #
+    #####################################
+
+    INDICE = Parameter("indice")
+    FOLDER = Parameter("indice")
+    dataset_id = Parameter("dataset_id")
+    table_id = Parameter("table_id")
+
     wait_crawler = crawler(indice=INDICE, folder=FOLDER)
     # pylint: disable=E1123
     filepath = clean_mes_municipio(indice=INDICE, upstream_tasks=[wait_crawler])
-    dataset_id = "br_ibge_inpc"
-    table_id = "mes_categoria_municipio"
 
     wait_header_path = dump_header_to_csv(data_path=filepath, wait=filepath)
 
@@ -116,19 +135,28 @@ with Flow(
         wait=wait_create_bd_table,
     )
 
-br_ibge_inpc_mes_categoria_municipio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_ibge_inpc_mes_categoria_municipio.run_config = KubernetesRun(
+flow_ibge_inflacao_mes_municipio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+flow_ibge_inflacao_mes_municipio.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_ibge_inpc_mes_categoria_municipio.schedule = every_month
 
-with Flow("br_ibge_inpc.mes_brasil") as br_ibge_inpc_mes_brasil:
-    FOLDER = "mes/"
+
+with Flow("Template: Ingerir tabela Inflacao") as flow_ibge_inflacao_mes_geral:
+
+    #####################################
+    #
+    # Parameters
+    #
+    #####################################
+
+    INDICE = Parameter("indice")
+    FOLDER = Parameter("indice")
+    dataset_id = Parameter("dataset_id")
+    table_id = Parameter("table_id")
+
     wait_crawler = crawler(indice=INDICE, folder=FOLDER)
     # pylint: disable=E1123
     filepath = clean_mes_geral(indice=INDICE, upstream_tasks=[wait_crawler])
-    dataset_id = "br_ibge_inpc"
-    table_id = "mes_brasil"
 
     wait_header_path = dump_header_to_csv(data_path=filepath, wait=filepath)
 
@@ -149,6 +177,7 @@ with Flow("br_ibge_inpc.mes_brasil") as br_ibge_inpc_mes_brasil:
         wait=wait_create_bd_table,
     )
 
-br_ibge_inpc_mes_brasil.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_ibge_inpc_mes_brasil.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-# br_ibge_inpc_mes_brasil.schedule = every_month
+flow_ibge_inflacao_mes_geral.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+flow_ibge_inflacao_mes_geral.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
