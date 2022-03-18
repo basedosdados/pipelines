@@ -1,6 +1,8 @@
 """
 Helper tasks that could fit any pipeline.
 """
+# pylint disable=C0103
+
 from datetime import timedelta
 from os import walk
 from os.path import join
@@ -197,7 +199,7 @@ def upload_to_gcs(
 
 
 def publish_table(
-    path: Union[str, Path],
+    path: Union[str, Path],  # pylint: disable=unused-argument
     dataset_id: str,
     table_id: str,
     if_exists="raise",

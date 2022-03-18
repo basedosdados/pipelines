@@ -1,6 +1,7 @@
 """
 Flows for br_cvm_oferta_publica_distribuicao
 """
+# pylint: disable=C0103, E1123, invalid-name
 
 from prefect import Flow
 from prefect.run_configs import KubernetesRun
@@ -22,7 +23,6 @@ ROOT = "/tmp/data"
 URL = "http://dados.cvm.gov.br/dados/OFERTA/DISTRIB/DADOS/oferta_distribuicao.csv"
 
 with Flow("br_cvm_oferta_publica_distribuicao.dia") as br_cvm_ofe_pub_dis_dia:
-    # pylint: disable=C0103, E1123, invalid-name
     wait_crawl = crawl(root=ROOT, url=URL)
     filepath = clean_table_oferta_distribuicao(root=ROOT, upstream_tasks=[wait_crawl])
     dataset_id = "br_cvm_oferta_publica_distribuicao"
@@ -58,5 +58,3 @@ with Flow("br_cvm_oferta_publica_distribuicao.dia") as br_cvm_ofe_pub_dis_dia:
 br_cvm_ofe_pub_dis_dia.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_cvm_ofe_pub_dis_dia.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 br_cvm_ofe_pub_dis_dia.schedule = every_day
-
-# pylint: enable=C0103, E1123, invalid-name

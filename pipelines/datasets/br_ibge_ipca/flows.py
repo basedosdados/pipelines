@@ -1,6 +1,7 @@
 """
 Flows for br_ibge_ipca
 """
+# pylint: disable=C0103, E1123, invalid-name
 
 from prefect import Flow
 from prefect.run_configs import KubernetesRun
@@ -20,16 +21,15 @@ INDICE = "ipca"
 
 with Flow("br_ibge_ipca.mes_categoria_brasil") as br_ibge_ipca_mes_categoria_brasil:
     FOLDER = "br/"
-    wait_crawler = crawler(INDICE, FOLDER)
-    # pylint: disable=E1123
-    filepath = clean_mes_brasil(INDICE, upstream_tasks = [wait_crawler])
+    wait_crawler = crawler(indice=INDICE, folder=FOLDER)
+    filepath = clean_mes_brasil(indice=INDICE, upstream_tasks=[wait_crawler])
     dataset_id = "br_ibge_ipca"
     table_id = "mes_categoria_brasil"
 
-    wait_header_path = dump_header_to_csv(data_path=filepath)
+    wait_header_path = dump_header_to_csv(data_path=filepath, wait=filepath)
 
     # Create table in BigQuery
-    wait_create_bd_table = create_bd_table(  # pylint: disable=invalid-name
+    wait_create_bd_table = create_bd_table(
         path=wait_header_path,
         dataset_id=dataset_id,
         table_id=table_id,
@@ -53,16 +53,15 @@ br_ibge_ipca_mes_categoria_brasil.schedule = every_month
 
 with Flow("br_ibge_ipca.mes_categoria_rm") as br_ibge_ipca_mes_categoria_rm:
     FOLDER = "rm/"
-    wait_crawler = crawler(INDICE, FOLDER)
-    # pylint: disable=E1123
-    filepath = clean_mes_rm(INDICE, upstream_tasks = [wait_crawler])
+    wait_crawler = crawler(indice=INDICE, folder=FOLDER)
+    filepath = clean_mes_rm(indice=INDICE, upstream_tasks=[wait_crawler])
     dataset_id = "br_ibge_ipca"
     table_id = "mes_categoria_rm"
 
-    wait_header_path = dump_header_to_csv(data_path=filepath)
+    wait_header_path = dump_header_to_csv(data_path=filepath, wait=filepath)
 
     # Create table in BigQuery
-    wait_create_bd_table = create_bd_table(  # pylint: disable=invalid-name
+    wait_create_bd_table = create_bd_table(
         path=wait_header_path,
         dataset_id=dataset_id,
         table_id=table_id,
@@ -89,16 +88,15 @@ with Flow(
     "br_ibge_ipca.mes_categoria_municipio"
 ) as br_ibge_ipca_mes_categoria_municipio:
     FOLDER = "mun/"
-    wait_crawler = crawler(INDICE, FOLDER)
-    # pylint: disable=E1123
-    filepath = clean_mes_municipio(INDICE, upstream_tasks = [wait_crawler])
+    wait_crawler = crawler(indice=INDICE, folder=FOLDER)
+    filepath = clean_mes_municipio(indice=INDICE, upstream_tasks=[wait_crawler])
     dataset_id = "br_ibge_ipca"
     table_id = "mes_categoria_municipio"
 
-    wait_header_path = dump_header_to_csv(data_path=filepath)
+    wait_header_path = dump_header_to_csv(data_path=filepath, wait=filepath)
 
     # Create table in BigQuery
-    wait_create_bd_table = create_bd_table(  # pylint: disable=invalid-name
+    wait_create_bd_table = create_bd_table(
         path=wait_header_path,
         dataset_id=dataset_id,
         table_id=table_id,
@@ -122,16 +120,15 @@ br_ibge_ipca_mes_categoria_municipio.schedule = every_month
 
 with Flow("br_ibge_ipca.mes_brasil") as br_ibge_ipca_mes_brasil:
     FOLDER = "mes/"
-    wait_crawler = crawler(INDICE, FOLDER)
-    # pylint: disable=E1123
-    filepath = clean_mes_geral(INDICE, upstream_tasks = [wait_crawler])
+    wait_crawler = crawler(indice=INDICE, folder=FOLDER)
+    filepath = clean_mes_geral(indice=INDICE, upstream_tasks=[wait_crawler])
     dataset_id = "br_ibge_ipca"
     table_id = "mes_brasil"
 
-    wait_header_path = dump_header_to_csv(data_path=filepath)
+    wait_header_path = dump_header_to_csv(data_path=filepath, wait=filepath)
 
     # Create table in BigQuery
-    wait_create_bd_table = create_bd_table(  # pylint: disable=invalid-name
+    wait_create_bd_table = create_bd_table(
         path=wait_header_path,
         dataset_id=dataset_id,
         table_id=table_id,

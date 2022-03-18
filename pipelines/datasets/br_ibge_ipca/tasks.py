@@ -15,7 +15,7 @@ import wget
 @task
 def crawler(indice: str, folder: str) -> None:
     """
-    Crawler for IBGE INPC
+    Crawler for IBGE IPCA
     """
 
     os.system('mkdir -p "/tmp/data"')

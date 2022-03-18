@@ -55,7 +55,7 @@ test flow for basedosdados
 # Abaixo segue um código para exemplificação, que pode ser removido.
 #
 ###############################################################################
-
+from uuid import uuid4
 
 from prefect import Flow, Parameter
 from prefect.run_configs import KubernetesRun
@@ -66,9 +66,9 @@ from pipelines.datasets.test_pipeline.tasks import (
     dataframe_to_csv,
     upload_to_gcs,
 )
-from pipelines.datasets.test_pipeline.schedules import every_five_minutes
 
-from uuid import uuid4
+# from pipelines.datasets.test_pipeline.schedules import every_five_minutes
+
 
 with Flow("test_flow") as test_flow:
     # BigQuery parameters
@@ -77,9 +77,9 @@ with Flow("test_flow") as test_flow:
 
     path = f"data/{uuid4()}/"
 
-    df, ts = get_random_expression()
+    dataframe, time_stamp = get_random_expression()
 
-    path = dataframe_to_csv(df=df, path=path, ts=ts)
+    path = dataframe_to_csv(dataframe=dataframe, path=path, time_stamp=time_stamp)
 
     upload_to_gcs(path=path, dataset_id=dataset_id, table_id=table_id)
 
