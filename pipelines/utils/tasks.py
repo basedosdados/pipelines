@@ -195,6 +195,48 @@ def upload_to_gcs(
             "Table does not exist in STAGING, need to create it in local first.\nCreate and publish the table in BigQuery first."
         )
 
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def update_metadata(dataset_id: str, table_id: str, fields_to_update: list) -> None:
+    '''
+    Update metadata for a selected table
+
+    dataset_id: dataset_id, 
+    table_id: table_id, 
+    fields_to_update: list of dictionaries with key and values to be updated
+    '''
+    handle = bd.Metadata(dataset_id=dataset_id, table_id=table_id)
+    handle.create(if_exists='replace')
+
+    yaml = ruamel.yaml.YAML()
+    yaml.preserve_quotes = True
+    yaml.indent(mapping=4, sequence=6, offset=4)
+
+    config_file = handle.filepath.as_posix()
+
+    with open(config_file) as fp:
+        data = yaml.load(fp)
+    
+    # this is, of course, very slow but very few fields will be update each time, so the cubic algo will not have major performance consequences
+    for field in fields_to_update:
+        for k,v in field.items():
+            if isinstance(v, dict):
+                for i, j in v.items():
+                    data[k][i] = j
+            else:
+                data[k] = v
+
+    with open(config_file, 'w') as fp:
+        yaml.dump(data, fp)
+  
+    if handle.validate():
+        handle.publish(if_exists='replace')
+        log(f"Metadata for {table_id} updated")
+    else:
+        log('Fail to validate metadata.')
+
 @task
 def publish_table(
     path: Union[str, Path],
