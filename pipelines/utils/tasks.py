@@ -1,6 +1,8 @@
 """
 Helper tasks that could fit any pipeline.
 """
+# pylint: disable=C0103, C0301, invalid-name, E1101
+
 from datetime import timedelta
 from os import walk
 from os.path import join
@@ -11,6 +13,7 @@ from uuid import uuid4
 import basedosdados as bd
 import pandas as pd
 from prefect import task
+import ruamel.yaml as ryaml
 
 from pipelines.constants import constants
 from pipelines.utils.utils import get_username_and_password_from_secret, log
@@ -127,19 +130,19 @@ def create_bd_table(
             )
             log(
                 f"Mode append: Sucessfully created a new table {st.bucket_name}.{dataset_id}.{table_id}"
-            )  # pylint: disable=C0301
+            )
 
             st.delete_table(
                 mode="staging", bucket_name=st.bucket_name, not_found_ok=True
             )
             log(
                 f"Mode append: Sucessfully remove header data from {st.bucket_name}.{dataset_id}.{table_id}"
-            )  # pylint: disable=C0301
+            )
     elif dump_type == "overwrite":
         if tb.table_exists(mode="staging"):
             log(
                 f"Mode overwrite: Table {st.bucket_name}.{dataset_id}.{table_id} already exists, DELETING OLD DATA!"
-            )  # pylint: disable=C0301
+            )
             st.delete_table(
                 mode="staging", bucket_name=st.bucket_name, not_found_ok=True
             )
@@ -158,7 +161,7 @@ def create_bd_table(
         st.delete_table(mode="staging", bucket_name=st.bucket_name, not_found_ok=True)
         log(
             f"Mode overwrite: Sucessfully remove header data from {st.bucket_name}.{dataset_id}.{table_id}"
-        )  # pylint: disable=C0301
+        )
 
 
 @task(
@@ -190,56 +193,58 @@ def upload_to_gcs(
         )
 
     else:
-        # pylint: disable=C0301
+
         log(
             "Table does not exist in STAGING, need to create it in local first.\nCreate and publish the table in BigQuery first."
         )
+
 
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def update_metadata(dataset_id: str, table_id: str, fields_to_update: list) -> None:
-    '''
+    """
     Update metadata for a selected table
 
-    dataset_id: dataset_id, 
-    table_id: table_id, 
+    dataset_id: dataset_id,
+    table_id: table_id,
     fields_to_update: list of dictionaries with key and values to be updated
-    '''
+    """
     handle = bd.Metadata(dataset_id=dataset_id, table_id=table_id)
-    handle.create(if_exists='replace')
+    handle.create(if_exists="replace")
 
-    yaml = ruamel.yaml.YAML()
+    yaml = ryaml.yaml.YAML()
     yaml.preserve_quotes = True
     yaml.indent(mapping=4, sequence=6, offset=4)
 
     config_file = handle.filepath.as_posix()
 
-    with open(config_file) as fp:
+    with open(config_file, encoding="utf-8") as fp:
         data = yaml.load(fp)
-    
+
     # this is, of course, very slow but very few fields will be update each time, so the cubic algo will not have major performance consequences
     for field in fields_to_update:
-        for k,v in field.items():
+        for k, v in field.items():
             if isinstance(v, dict):
                 for i, j in v.items():
                     data[k][i] = j
             else:
                 data[k] = v
 
-    with open(config_file, 'w') as fp:
+    with open(config_file, "w", encoding="utf-8") as fp:
         yaml.dump(data, fp)
-  
+
     if handle.validate():
-        handle.publish(if_exists='replace')
+        handle.publish(if_exists="replace")
         log(f"Metadata for {table_id} updated")
     else:
-        log('Fail to validate metadata.')
+        log("Fail to validate metadata.")
+
 
 @task
 def publish_table(
-    path: Union[str, Path],
+    path: Union[str, Path],  # pylint: disable=unused-argument
     dataset_id: str,
     table_id: str,
     if_exists="raise",
@@ -277,5 +282,5 @@ def publish_table(
     if tb.table_exists(mode="prod"):
         log(f"Successfully uploaded {table_id} to prod.")
     else:
-        # pylint: disable=C0301
+
         log("I cannot upload {table_id} in prod.")

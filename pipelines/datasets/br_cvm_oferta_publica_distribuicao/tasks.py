@@ -2,16 +2,13 @@
 Tasks for br_cvm_oferta_publica_distribuicao
 """
 import os
-from pathlib import Path
-from typing import Union
+
 
 import pandas as pd
-import basedosdados as bd
-from prefect import task
 from pandas.api.types import is_string_dtype
+from prefect import task
 from unidecode import unidecode
 
-from pipelines.utils.utils import log
 
 @task
 def crawl(root: str, url: str) -> None:
@@ -20,17 +17,18 @@ def crawl(root: str, url: str) -> None:
     filepath = f"{root}/oferta_distribuicao.csv"
     os.makedirs(root, exist_ok=True)
 
-    df: pd.DataFrame = pd.read_csv(url, encoding="latin-1", sep=";")
-    df.to_csv(filepath, index=False, sep=";")
+    dataframe: pd.DataFrame = pd.read_csv(url, encoding="latin-1", sep=";")
+    dataframe.to_csv(filepath, index=False, sep=";")
+
 
 @task
 def clean_table_oferta_distribuicao(root: str) -> str:
-    # pylint: disable=invalid-name,no-member,unsubscriptable-object
+    # pylint: disable=invalid-name,no-member,unsubscriptable-object, E1137
     """Standardizes column names and selected variables"""
     in_filepath = f"{root}/oferta_distribuicao.csv"
     ou_filepath = f"{root}/br_cvm_oferta_publica_distribuicao.csv"
 
-    df = pd.DataFrame = pd.read_csv(
+    dataframe = pd.DataFrame = pd.read_csv(
         in_filepath,
         sep=";",
         keep_default_na=False,
@@ -38,21 +36,31 @@ def clean_table_oferta_distribuicao(root: str) -> str:
         dtype=object,
     )
 
-    df.columns = [k.lower() for k in df.columns]
+    dataframe.columns = [k.lower() for k in dataframe.columns]
 
-    df.loc[(df["oferta_inicial"] == "N"), "oferta_inicial"] = "Nao"
-    df.loc[(df["oferta_inicial"] == "S"), "oferta_inicial"] = "Sim"
+    dataframe.loc[(dataframe["oferta_inicial"] == "N"), "oferta_inicial"] = "Nao"
+    dataframe.loc[(dataframe["oferta_inicial"] == "S"), "oferta_inicial"] = "Sim"
 
-    df.loc[(df["oferta_incentivo_fiscal"] == "N"), "oferta_incentivo_fiscal"] = "Nao"
-    df.loc[(df["oferta_incentivo_fiscal"] == "S"), "oferta_incentivo_fiscal"] = "Sim"
+    dataframe.loc[
+        (dataframe["oferta_incentivo_fiscal"] == "N"), "oferta_incentivo_fiscal"
+    ] = "Nao"
+    dataframe.loc[
+        (dataframe["oferta_incentivo_fiscal"] == "S"), "oferta_incentivo_fiscal"
+    ] = "Sim"
 
-    df.loc[(df["oferta_regime_fiduciario"] == "N"), "oferta_regime_fiduciario"] = "Nao"
-    df.loc[(df["oferta_regime_fiduciario"] == "S"), "oferta_regime_fiduciario"] = "Sim"
+    dataframe.loc[
+        (dataframe["oferta_regime_fiduciario"] == "N"), "oferta_regime_fiduciario"
+    ] = "Nao"
+    dataframe.loc[
+        (dataframe["oferta_regime_fiduciario"] == "S"), "oferta_regime_fiduciario"
+    ] = "Sim"
 
-    for col in df.columns:
-        if is_string_dtype(df[col]):
-            df[col]=df[col].apply(lambda x: unidecode(x) if isinstance(x, str) else x)
+    for col in dataframe.columns:
+        if is_string_dtype(dataframe[col]):
+            dataframe[col] = dataframe[col].apply(
+                lambda x: unidecode(x) if isinstance(x, str) else x
+            )
 
-    df.to_csv(ou_filepath, index=False, encoding='utf-8')
+    dataframe.to_csv(ou_filepath, index=False, encoding="utf-8")
 
     return ou_filepath

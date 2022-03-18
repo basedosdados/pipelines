@@ -1,20 +1,17 @@
 """
 Tasks for br_cvm_administradores_carteira
 """
+# pylint: disable=line-too-long, W0702, E1101, E1136, E1137
 
 import os
 import shutil
-from pathlib import Path
-from typing import Union
 
 import requests
 import pandas as pd
 from prefect import task
-import basedosdados as bd
 from pandas.api.types import is_string_dtype
 from unidecode import unidecode
 
-from pipelines.utils.utils import log
 
 @task
 def crawl(root: str, url: str, chunk_size=128) -> None:
@@ -30,6 +27,7 @@ def crawl(root: str, url: str, chunk_size=128) -> None:
 
     shutil.unpack_archive(filepath, extract_dir=root)
 
+
 @task
 def clean_table_responsavel(root: str) -> str:
     # pylint: disable=invalid-name
@@ -37,32 +35,31 @@ def clean_table_responsavel(root: str) -> str:
     in_filepath = f"{root}/cad_adm_cart_resp.csv"
     ou_filepath = f"{root}/bd_responsavel.csv"
 
-    df: pd.DataFrame = pd.read_csv(
+    dataframe: pd.DataFrame = pd.read_csv(
         in_filepath,
         sep=";",
         na_values="",
         keep_default_na=False,
         encoding="latin1",
-        dtype=object
+        dtype=object,
     )
 
-    df.columns = [
-        "cnpj",
-        "nome",
-        "tipo"
-    ]
+    dataframe.columns = ["cnpj", "nome", "tipo"]
 
-    df["cnpj"] = df["cnpj"].str.replace(".", "")
-    df["cnpj"] = df["cnpj"].str.replace("/", "")
-    df["cnpj"] = df["cnpj"].str.replace("-", "")
+    dataframe["cnpj"] = dataframe["cnpj"].str.replace(".", "")
+    dataframe["cnpj"] = dataframe["cnpj"].str.replace("/", "")
+    dataframe["cnpj"] = dataframe["cnpj"].str.replace("-", "")
 
-    for col in df.columns:
-        if is_string_dtype(df[col]):
-            df[col]=df[col].apply(lambda x: unidecode(x) if isinstance(x, str) else x)
+    for col in dataframe.columns:
+        if is_string_dtype(dataframe[col]):
+            dataframe[col] = dataframe[col].apply(
+                lambda x: unidecode(x) if isinstance(x, str) else x
+            )
 
-    df.to_csv(ou_filepath, index=False)
+    dataframe.to_csv(ou_filepath, index=False)
 
     return ou_filepath
+
 
 @task
 def clean_table_pessoa_fisica(root: str) -> str:
@@ -71,7 +68,7 @@ def clean_table_pessoa_fisica(root: str) -> str:
     in_filepath = f"{root}/cad_adm_cart_pf.csv"
     ou_filepath = f"{root}/bd_pessoa_fisica.csv"
 
-    df: pd.DataFrame = pd.read_csv(
+    dataframe: pd.DataFrame = pd.read_csv(
         in_filepath,
         sep=";",
         keep_default_na=False,
@@ -79,7 +76,7 @@ def clean_table_pessoa_fisica(root: str) -> str:
         dtype=object,
     )
 
-    df.columns = [
+    dataframe.columns = [
         "nome",
         "data_registro",
         "data_cancelamento",
@@ -89,14 +86,16 @@ def clean_table_pessoa_fisica(root: str) -> str:
         "categoria_registro",
     ]
 
+    for col in dataframe.columns:
+        if is_string_dtype(dataframe[col]):
+            dataframe[col] = dataframe[col].apply(
+                lambda x: unidecode(x) if isinstance(x, str) else x
+            )
 
-    for col in df.columns:
-        if is_string_dtype(df[col]):
-            df[col]=df[col].apply(lambda x: unidecode(x) if isinstance(x, str) else x)
-
-    df.to_csv(ou_filepath, index=False)
+    dataframe.to_csv(ou_filepath, index=False)
 
     return ou_filepath
+
 
 @task
 def clean_table_pessoa_juridica(root: str) -> str:
@@ -105,15 +104,11 @@ def clean_table_pessoa_juridica(root: str) -> str:
     in_filepath = f"{root}/cad_adm_cart_pj.csv"
     ou_filepath = f"{root}/bd_pessoa_juridica.csv"
 
-    df: pd.DataFrame = pd.read_csv(
-        in_filepath,
-        sep=";",
-        keep_default_na=False,
-        encoding="latin1",
-        dtype=object
+    dataframe: pd.DataFrame = pd.read_csv(
+        in_filepath, sep=";", keep_default_na=False, encoding="latin1", dtype=object
     )
 
-    df.columns = [
+    dataframe.columns = [
         "cnpj",
         "denominacao_social",
         "denominacao_comercial",
@@ -137,17 +132,19 @@ def clean_table_pessoa_juridica(root: str) -> str:
         "valor_patrimonial_liquido",
         "data_patrimonio_liquido",
         "email",
-        "website"
+        "website",
     ]
 
-    df["cnpj"] = df["cnpj"].str.replace(".", "")
-    df["cnpj"] = df["cnpj"].str.replace("/", "")
-    df["cnpj"] = df["cnpj"].str.replace("-", "")
+    dataframe["cnpj"] = dataframe["cnpj"].str.replace(".", "")
+    dataframe["cnpj"] = dataframe["cnpj"].str.replace("/", "")
+    dataframe["cnpj"] = dataframe["cnpj"].str.replace("-", "")
 
-    for col in df.columns:
-        if is_string_dtype(df[col]):
-            df[col]=df[col].apply(lambda x: unidecode(x) if isinstance(x, str) else x)
+    for col in dataframe.columns:
+        if is_string_dtype(dataframe[col]):
+            dataframe[col] = dataframe[col].apply(
+                lambda x: unidecode(x) if isinstance(x, str) else x
+            )
 
-    df.to_csv(ou_filepath, index=False)
+    dataframe.to_csv(ou_filepath, index=False)
 
     return ou_filepath
