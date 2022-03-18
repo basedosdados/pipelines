@@ -1,19 +1,34 @@
 """
 Helper tasks that could fit any pipeline.
 """
+from datetime import timedelta
+from os import walk
+from os.path import join
 from pathlib import Path
 from typing import Union
-from datetime import timedelta, date
-import ruamel.yaml
 from uuid import uuid4
 
 import basedosdados as bd
-import glob
 import pandas as pd
 from prefect import task
 
 from pipelines.constants import constants
-from pipelines.utils import log
+from pipelines.utils.utils import get_username_and_password_from_secret, log
+
+##################
+#
+# Hashicorp Vault
+#
+##################
+
+
+@task(checkpoint=False, nout=2)
+def get_user_and_password(secret_path: str):
+    """
+    Returns the user and password for the given secret path.
+    """
+    log(f"Getting user and password for secret path: {secret_path}")
+    return get_username_and_password_from_secret(secret_path)
 
 
 ###############
@@ -25,7 +40,10 @@ from pipelines.utils import log
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def dump_header_to_csv(data_path: Union[str, Path], wait=None):
+def dump_header_to_csv(
+    data_path: Union[str, Path],
+    wait=None,  # pylint: disable=unused-argument
+):
     """
     Writes a header to a CSV file.
     """
@@ -33,19 +51,39 @@ def dump_header_to_csv(data_path: Union[str, Path], wait=None):
     path = Path(data_path)
     if not path.is_dir():
         path = path.parent
-    files = glob.glob(f"{path}/*")
-    file = files[0] if files else ""
+    # Grab first CSV file found
+    found: bool = False
+    file: str = None
+    for subdir, _, filenames in walk(str(path)):
+        for fname in filenames:
+            if fname.endswith(".csv"):
+                file = join(subdir, fname)
+                log(f"Found CSV file: {file}")
+                found = True
+                break
+        if found:
+            break
+
+    save_header_path = f"data/{uuid4()}"
+    # discover if it's a partitioned table
+    if partition_folders := [folder for folder in file.split("/") if "=" in folder]:
+        partition_path = "/".join(partition_folders)
+        save_header_file_path = Path(f"{save_header_path}/{partition_path}/header.csv")
+        log(f"Found partition path: {save_header_file_path}")
+
+    else:
+        save_header_file_path = Path(f"{save_header_path}/header.csv")
+        log(f"Do not found partition path: {save_header_file_path}")
+
+    # Create directory if it doesn't exist
+    save_header_file_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Read just first row
     dataframe = pd.read_csv(file, nrows=1)
 
-    # Create directory if it doesn't exist
-    save_header_path = Path(f"data/{uuid4()}/header.csv")
-    save_header_path.parent.mkdir(parents=True, exist_ok=True)
-
     # Write dataframe to CSV
-    dataframe.to_csv(save_header_path, index=False, encoding="utf-8")
-    log(f"Wrote header CSV: {path}")
+    dataframe.to_csv(save_header_file_path, index=False, encoding="utf-8")
+    log(f"Wrote header CSV: {save_header_file_path}")
 
     return save_header_path
 
@@ -70,6 +108,9 @@ def create_bd_table(
     # pylint: disable=C0103
     st = bd.Storage(dataset_id=dataset_id, table_id=table_id)
 
+    # prod datasets is public if the project is datario. staging are private im both projects
+    dataset_is_public = tb.client["bigquery_prod"].project == "datario"
+
     # full dump
     if dump_type == "append":
         if tb.table_exists(mode="staging"):
@@ -79,7 +120,10 @@ def create_bd_table(
         else:
             tb.create(
                 path=path,
-                location="southamerica-east1",
+                if_storage_data_exists="replace",
+                if_table_config_exists="replace",
+                if_table_exists="replace",
+                dataset_is_public=dataset_is_public,
             )
             log(
                 f"Mode append: Sucessfully created a new table {st.bucket_name}.{dataset_id}.{table_id}"
@@ -99,12 +143,13 @@ def create_bd_table(
             st.delete_table(
                 mode="staging", bucket_name=st.bucket_name, not_found_ok=True
             )
-        # prod datasets is public if the project is datario. staging are private im both projects
+
         tb.create(
             path=path,
             if_storage_data_exists="replace",
             if_table_config_exists="replace",
             if_table_exists="replace",
+            dataset_is_public=dataset_is_public,
         )
 
         log(
@@ -150,7 +195,11 @@ def upload_to_gcs(
             "Table does not exist in STAGING, need to create it in local first.\nCreate and publish the table in BigQuery first."
         )
 
-@task
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def update_metadata(dataset_id: str, table_id: str, fields_to_update: list) -> None:
     '''
     Update metadata for a selected table
@@ -188,3 +237,46 @@ def update_metadata(dataset_id: str, table_id: str, fields_to_update: list) -> N
         log(f"Metadata for {table_id} updated")
     else:
         log('Fail to validate metadata.')
+
+@task
+def publish_table(
+    path: Union[str, Path],
+    dataset_id: str,
+    table_id: str,
+    if_exists="raise",
+    wait=None,  # pylint: disable=unused-argument
+) -> None:
+    """Creates BigQuery table at production dataset.
+    Table should be located at `<dataset_id>.<table_id>`.
+    It creates a view that uses the query from
+    `<metadata_path>/<dataset_id>/<table_id>/publish.sql`.
+    Make sure that all columns from the query also exists at
+    `<metadata_path>/<dataset_id>/<table_id>/table_config.sql`, including
+    the partitions.
+    Args:
+        if_exists (str): Optional.
+            What to do if table exists.
+            * 'raise' : Raises Conflict exception
+            * 'replace' : Replace table
+            * 'pass' : Do nothing
+    Todo:
+        * Check if all required fields are filled
+    """
+
+    # pylint: disable=C0103
+    tb = bd.Table(dataset_id=dataset_id, table_id=table_id)
+
+    if if_exists == "replace":
+        tb.delete(mode="prod")
+
+    tb.client["bigquery_prod"].query(
+        (tb.table_folder / "publish.sql").open("r", encoding="utf-8").read()
+    ).result()
+
+    tb.update()
+
+    if tb.table_exists(mode="prod"):
+        log(f"Successfully uploaded {table_id} to prod.")
+    else:
+        # pylint: disable=C0301
+        log("I cannot upload {table_id} in prod.")
