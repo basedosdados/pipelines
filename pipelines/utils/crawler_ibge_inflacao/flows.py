@@ -1,7 +1,7 @@
 """
 Flows for br_ibge_inpc
 """
-# pylint: disable=C0103, E1123, invalid-name
+# pylint: disable=C0103, E1123, invalid-name, R0801
 
 from prefect import Flow, Parameter
 from prefect.run_configs import KubernetesRun
