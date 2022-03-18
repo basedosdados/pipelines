@@ -1,7 +1,7 @@
 """
 Flows for br_cvm_administradores_carteira
 """
-# pylint: disable=C0103, E1123, invalid-name
+# pylint: disable=C0103, E1123, invalid-name, duplicate-code, R0801
 
 from prefect import Flow
 from prefect.run_configs import KubernetesRun

@@ -11,6 +11,7 @@ br_ibge_inpc_mes_categoria_brasil_every_month = generate_inflacao_clocks(
         "table_id": "mes_categoria_brasil",
     }
 )
+
 br_ibge_inpc_mes_categoria_rm_every_month = generate_inflacao_clocks(
     parameters={
         "indice": "inpc",
