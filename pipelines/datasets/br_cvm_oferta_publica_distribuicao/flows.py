@@ -18,6 +18,7 @@ URL = "http://dados.cvm.gov.br/dados/OFERTA/DISTRIB/DADOS/oferta_distribuicao.cs
 
 with Flow("br_cvm_oferta_publica_distribuicao.dia") as br_cvm_ofe_pub_dis_dia:
     wait_crawl = crawl(ROOT, URL)
+    # pylint: disable=E1123
     filepath = clean_table_oferta_distribuicao(ROOT, upstream_tasks=[wait_crawl])
     dataset_id = "br_cvm_oferta_publica_distribuicao"
     table_id = "dia"

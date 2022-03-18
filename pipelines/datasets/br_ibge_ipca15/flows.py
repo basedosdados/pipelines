@@ -22,6 +22,7 @@ INDICE = "ip15"
 with Flow("br_ibge_ipca15.mes_categoria_brasil") as br_ibge_ipca15_mes_categoria_brasil:
     FOLDER = "br/"
     wait_crawler = crawler(INDICE, FOLDER)
+    # pylint: disable=E1123
     filepath = clean_mes_brasil(INDICE, upstream_tasks = [wait_crawler])
     dataset_id = "br_ibge_ipca15"
     table_id = "mes_categoria_brasil"
@@ -54,8 +55,9 @@ br_ibge_ipca15_mes_categoria_brasil.schedule = every_month
 
 with Flow("br_ibge_ipca15.mes_categoria_rm") as br_ibge_ipca15_mes_categoria_rm:
     FOLDER = "rm/"
-    crawler(INDICE, FOLDER)
-    filepath = clean_mes_rm(INDICE)
+    wait_crawler = crawler(INDICE, FOLDER)
+    # pylint: disable=E1123
+    filepath = clean_mes_rm(INDICE, upstream_tasks=[wait_crawler])
     dataset_id = "br_ibge_ipca15"
     table_id = "mes_categoria_rm"
 
@@ -89,8 +91,9 @@ with Flow(
     "br_ibge_ipca15.mes_categoria_municipio"
 ) as br_ibge_ipca15_mes_categoria_municipio:
     FOLDER = "mun/"
-    crawler(INDICE, FOLDER)
-    filepath = clean_mes_municipio(INDICE)
+    wait_crawler = crawler(INDICE, FOLDER)
+    # pylint: disable=E1123
+    filepath = clean_mes_municipio(INDICE, upstream_tasks=[wait_crawler])
     dataset_id = "br_ibge_ipca15"
     table_id = "mes_categoria_municipio"
 
@@ -121,8 +124,9 @@ br_ibge_ipca15_mes_categoria_municipio.schedule = every_month
 
 with Flow("br_ibge_ipca15.mes_brasil") as br_ibge_ipca15_mes_brasil:
     FOLDER = "mes/"
-    crawler(INDICE, FOLDER)
-    filepath = clean_mes_geral(INDICE)
+    wait_crawler = crawler(INDICE, FOLDER)
+    # pylint: disable=E1123
+    filepath = clean_mes_geral(INDICE, upstream_tasks=[wait_crawler])
     dataset_id = "br_ibge_ipca15"
     table_id = "mes_brasil"
 
