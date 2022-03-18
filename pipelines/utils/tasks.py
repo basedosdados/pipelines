@@ -1,7 +1,7 @@
 """
 Helper tasks that could fit any pipeline.
 """
-# pylint: disable=C0103, C0301, invalid-name
+# pylint: disable=C0103, C0301, invalid-name, E1101
 
 from datetime import timedelta
 from os import walk
@@ -220,7 +220,7 @@ def update_metadata(dataset_id: str, table_id: str, fields_to_update: list) -> N
 
     config_file = handle.filepath.as_posix()
 
-    with open(config_file) as fp:
+    with open(config_file, encoding="utf-8") as fp:
         data = yaml.load(fp)
 
     # this is, of course, very slow but very few fields will be update each time, so the cubic algo will not have major performance consequences
