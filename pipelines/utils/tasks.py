@@ -232,7 +232,7 @@ def update_metadata(dataset_id: str, table_id: str, fields_to_update: list) -> N
             else:
                 data[k] = v
 
-    with open(config_file, "w") as fp:
+    with open(config_file, "w", encoding="utf-8") as fp:
         yaml.dump(data, fp)
 
     if handle.validate():
