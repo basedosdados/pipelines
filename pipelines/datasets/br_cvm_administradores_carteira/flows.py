@@ -1,7 +1,8 @@
 """
 Flows for br_cvm_administradores_carteira
 """
-# pylint: disable=C0103, E1123, invalid-name, duplicate-code, R0801
+# pylint: disable=C0103, E1123, invalid-name
+# pylint: ignore=duplicate-code
 
 from prefect import Flow
 from prefect.run_configs import KubernetesRun
@@ -28,7 +29,8 @@ with Flow("br_cvm_administradores_carteira.responsavel") as br_cvm_adm_car_res:
     wait_header_path = dump_header_to_csv(data_path=filepath, wait=filepath)
 
     # Create table in BigQuery
-    wait_create_bd_table = create_bd_table(
+    wait_create_bd_table = cre
+    ate_bd_table(
         path=wait_header_path,
         dataset_id=dataset_id,
         table_id=table_id,
