@@ -8,14 +8,14 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from pipelines.constants import constants
 from pipelines.utils.tasks import upload_to_gcs, create_bd_table, dump_header_to_csv
-from pipelines.datasets.br_ibge_inpc.tasks import (
+from pipelines.utils.crawler_ibge_inflacao.tasks import (
     crawler,
     clean_mes_brasil,
     clean_mes_rm,
     clean_mes_municipio,
     clean_mes_geral,
 )
-from pipelines.datasets.br_ibge_inpc.schedules import every_month
+from pipelines.utils.crawler_ibge_inflacao.schedules import every_month
 
 INDICE = "inpc"
 

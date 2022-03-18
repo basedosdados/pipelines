@@ -1,5 +1,5 @@
 """
-Schedules for br_ibge_ipca15
+Schedules for br_ibge_inpc
 """
 
 from datetime import timedelta, datetime
@@ -14,7 +14,7 @@ every_month = Schedule(
             start_date=datetime(2021, 1, 1),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-            ]
+            ],
         )
     ]
 )

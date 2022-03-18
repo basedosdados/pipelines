@@ -1,7 +1,7 @@
 """
 Tasks for br_cvm_administradores_carteira
 """
-# pylint: disable=line-too-long, W0702, E1101, E1136
+# pylint: disable=line-too-long, W0702, E1101, E1136, E1137
 
 import os
 import shutil

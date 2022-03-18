@@ -1,7 +1,7 @@
 """
 Helper tasks that could fit any pipeline.
 """
-# pylint disable=C0103
+# pylint: disable=C0103, C0301, invalid-name
 
 from datetime import timedelta
 from os import walk
@@ -129,19 +129,19 @@ def create_bd_table(
             )
             log(
                 f"Mode append: Sucessfully created a new table {st.bucket_name}.{dataset_id}.{table_id}"
-            )  # pylint: disable=C0301
+            )
 
             st.delete_table(
                 mode="staging", bucket_name=st.bucket_name, not_found_ok=True
             )
             log(
                 f"Mode append: Sucessfully remove header data from {st.bucket_name}.{dataset_id}.{table_id}"
-            )  # pylint: disable=C0301
+            )
     elif dump_type == "overwrite":
         if tb.table_exists(mode="staging"):
             log(
                 f"Mode overwrite: Table {st.bucket_name}.{dataset_id}.{table_id} already exists, DELETING OLD DATA!"
-            )  # pylint: disable=C0301
+            )
             st.delete_table(
                 mode="staging", bucket_name=st.bucket_name, not_found_ok=True
             )
@@ -160,7 +160,7 @@ def create_bd_table(
         st.delete_table(mode="staging", bucket_name=st.bucket_name, not_found_ok=True)
         log(
             f"Mode overwrite: Sucessfully remove header data from {st.bucket_name}.{dataset_id}.{table_id}"
-        )  # pylint: disable=C0301
+        )
 
 
 @task(
@@ -192,7 +192,7 @@ def upload_to_gcs(
         )
 
     else:
-        # pylint: disable=C0301
+
         log(
             "Table does not exist in STAGING, need to create it in local first.\nCreate and publish the table in BigQuery first."
         )
@@ -237,5 +237,5 @@ def publish_table(
     if tb.table_exists(mode="prod"):
         log(f"Successfully uploaded {table_id} to prod.")
     else:
-        # pylint: disable=C0301
+
         log("I cannot upload {table_id} in prod.")

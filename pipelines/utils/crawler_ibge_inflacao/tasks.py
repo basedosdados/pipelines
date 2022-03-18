@@ -2,7 +2,6 @@
 Tasks for br_ibge_inpc
 """
 # pylint: disable=line-too-long, W0702, E1101
-
 import glob
 import os
 from time import sleep
@@ -12,12 +11,15 @@ from prefect import task
 from tqdm import tqdm
 import wget
 
+from pipelines.utils.utils import log
+
 
 @task
 def crawler(indice: str, folder: str) -> None:
     """
-    Crawler for br_ibge_ipca15
+    Crawler for IBGE Inflacao
     """
+    log(f"Crawling {indice}")
     os.system('mkdir -p "/tmp/data"')
     os.system('mkdir -p "/tmp/data/input"')
     os.system('mkdir -p "/tmp/data/input/br"')
@@ -28,7 +30,7 @@ def crawler(indice: str, folder: str) -> None:
     os.system('mkdir -p "/tmp/data/output/ip15"')
     os.system('mkdir -p "/tmp/data/output/ipca"')
     os.system('mkdir -p "/tmp/data/output/inpc"')
-    print(os.system("tree /tmp/data"))
+    log(os.system("tree /tmp/data"))
     links = {
         "br/ipca_grupo": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7060.csv&terr=NC&rank=-&query=t/7060/n1/all/v/all/p/all/c315/7170,7445,7486,7558,7625,7660,7712,7766,7786/d/v63%202,v66%204,v69%202,v2265%202/l/,v,t%2Bp%2Bc315",
         "br/inpc_grupo": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7063.csv&terr=NC&rank=-&query=t/7063/n1/all/v/all/p/all/c315/7170,7445,7486,7558,7625,7660,7712,7766,7786/d/v44%202,v45%204,v68%202,v2292%202/l/,v,t%2Bp%2Bc315",
@@ -108,20 +110,20 @@ def crawler(indice: str, folder: str) -> None:
                 pass
 
     if len(links_keys) == len(success_dwnl):
-        print("All files were successfully downloaded")
+        log("All files were successfully downloaded")
     else:
-        print("The folowing files failed to download:")
+        log("The folowing files failed to download:")
         rems = set(links_keys) - set(success_dwnl)
         for rem in rems:
-            print(rem)
+            log(rem)
 
-    print(os.system("tree /tmp/data"))
+    log(os.system("tree /tmp/data"))
 
 
 @task
 def clean_mes_brasil(indice: str) -> None:
     """
-    Clean mes_brasil dataset.
+    Clean the data from the mes_brasil dataset.
     """
     rename = {
         "Mês": "ano",
@@ -194,9 +196,8 @@ def clean_mes_brasil(indice: str) -> None:
 
         if arq.split("_")[-1].split(".")[0] == "grupo":
             dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
-                lambda x: f"{x}.0.00.000"
+                lambda x: x + ".0.00.000"
             )
-
             dataframe = dataframe[ordem]
             grupo = pd.DataFrame(dataframe)
         elif arq.split("_")[-1].split(".")[0] == "subgrupo":
@@ -229,7 +230,7 @@ def clean_mes_brasil(indice: str) -> None:
     dataframe = pd.concat([grupo, subgrupo, item, subitem, geral])
     filepath = f"/tmp/data/output/{indice}/categoria_brasil.csv"
     dataframe.to_csv(filepath, index=False)
-    print(os.system("tree /tmp/data"))
+    log(os.system("tree /tmp/data"))
 
     return filepath
 
@@ -313,37 +314,32 @@ def clean_mes_rm(indice: str):
 
         if arq.split("_")[-1].split(".")[0] == "grupo":
             dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
-                lambda x: f"{x}.0.00.000"
+                lambda x: x + ".0.00.000"
             )
-
             dataframe = dataframe[ordem]
             grupo = pd.DataFrame(dataframe)
         elif arq.split("_")[-1].split(".")[0] == "subgrupo":
             dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
-                lambda x: f"{x[0]}.{x[1]}.00.000"
+                lambda x: x[0] + "." + x[1] + ".00.000"
             )
-
             dataframe = dataframe[ordem]
             subgrupo = pd.DataFrame(dataframe)
         elif arq.split("_")[-1].split(".")[0] == "item":
             dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
-                lambda x: f"{x[0]}.{x[1]}.{x[2:4]}.000"
+                lambda x: x[0] + "." + x[1] + "." + x[2:4] + ".000"
             )
-
             dataframe = dataframe[ordem]
             item = pd.DataFrame(dataframe)
         elif "_".join(arq.split("_")[1:]).split(".", maxsplit=1)[0] == "subitem_1":
             dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
-                lambda x: f"{x[0]}.{x[1]}.{x[2:4]}.{x[4:7]}"
+                lambda x: x[0] + "." + x[1] + "." + x[2:4] + "." + x[4:7]
             )
-
             dataframe = dataframe[ordem]
             subitem_1 = pd.DataFrame(dataframe)
         elif "_".join(arq.split("_")[1:]).split(".", maxsplit=1)[0] == "subitem_2":
             dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
-                lambda x: f"{x[0]}.{x[1]}.{x[2:4]}.{x[4:7]}"
+                lambda x: x[0] + "." + x[1] + "." + x[2:4] + "." + x[4:7]
             )
-
             dataframe = dataframe[ordem]
             subitem_2 = pd.DataFrame(dataframe)
         elif arq.split("_")[-1].split(".")[0] == "geral":
@@ -355,14 +351,14 @@ def clean_mes_rm(indice: str):
     dataframe = pd.concat([grupo, subgrupo, item, subitem_1, subitem_2, geral])
     filepath = f"/tmp/data/output/{indice}/categoria_rm.csv"
     dataframe.to_csv(filepath, index=False)
-    print(os.system("tree /tmp/data"))
+    log(os.system("tree /tmp/data"))
 
     return filepath
 
 
 @task
 def clean_mes_municipio(indice: str):
-    """ "
+    """
     Clean mes_municipio
     """
     rename = {
@@ -439,37 +435,32 @@ def clean_mes_municipio(indice: str):
 
         if arq.split("_")[-1].split(".")[0] == "grupo":
             dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
-                lambda x: f"{x}.0.00.000"
+                lambda x: x + ".0.00.000"
             )
-
             dataframe = dataframe[ordem]
             grupo = pd.DataFrame(dataframe)
         elif arq.split("_")[-1].split(".")[0] == "subgrupo":
             dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
-                lambda x: f"{x[0]}.{x[1]}.00.000"
+                lambda x: x[0] + "." + x[1] + ".00.000"
             )
-
             dataframe = dataframe[ordem]
             subgrupo = pd.DataFrame(dataframe)
         elif arq.split("_")[-1].split(".")[0] == "item":
             dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
-                lambda x: f"{x[0]}.{x[1]}.{x[2:4]}.000"
+                lambda x: x[0] + "." + x[1] + "." + x[2:4] + ".000"
             )
-
             dataframe = dataframe[ordem]
             item = pd.DataFrame(dataframe)
         elif "_".join(arq.split("_")[1:]).split(".", maxsplit=1)[0] == "subitem_1":
             dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
-                lambda x: f"{x[0]}.{x[1]}.{x[2:4]}.{x[4:7]}"
+                lambda x: x[0] + "." + x[1] + "." + x[2:4] + "." + x[4:7]
             )
-
             dataframe = dataframe[ordem]
             subitem_1 = pd.DataFrame(dataframe)
         elif "_".join(arq.split("_")[1:]).split(".", maxsplit=1)[0] == "subitem_2":
             dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
-                lambda x: f"{x[0]}.{x[1]}.{x[2:4]}.{x[4:7]}"
+                lambda x: x[0] + "." + x[1] + "." + x[2:4] + "." + x[4:7]
             )
-
             dataframe = dataframe[ordem]
             subitem_2 = pd.DataFrame(dataframe)
         elif arq.split("_")[-1].split(".")[0] == "geral":
@@ -482,14 +473,14 @@ def clean_mes_municipio(indice: str):
     filepath = f"/tmp/data/output/{indice}/categoria_municipio.csv"
     dataframe.to_csv(filepath, index=False)
 
-    print(os.system("tree /tmp/data"))
+    log(os.system("tree /tmp/data"))
     return filepath
 
 
 @task
 def clean_mes_geral(indice: str):
     """
-    clean mes_geal
+    clean_mes_geral
     """
     rename = {
         "IPCA - Número-índice (base: dezembro de 1993 = 100) (Número-índice)": "indice",
@@ -564,6 +555,6 @@ def clean_mes_geral(indice: str):
 
     filepath = f"/tmp/data/output/{indice}/mes_brasil.csv"
     dataframe.to_csv(filepath, index=False)
-    print(os.system("tree /tmp/data"))
+    log(os.system("tree /tmp/data"))
 
     return filepath
