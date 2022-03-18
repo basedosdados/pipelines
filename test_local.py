@@ -1,4 +1,4 @@
-from pipelines.utils import run_local
+from pipelines.utils.utils import run_local
 from functools import reduce
 from pipelines.datasets.br_ibge_ipca15 import (
 br_ibge_ipca15_mes_categoria_brasil, br_ibge_ipca15_mes_categoria_rm, br_ibge_ipca15_mes_categoria_municipio, br_ibge_ipca15_mes_brasil
@@ -27,5 +27,5 @@ flows = reduce(lambda x,y: x+y, [flows_ipca,flows_inpc,flows_ipca15, flows_cvm])
 
 
 if __name__ == "__main__":
-    for flow in flows_cvm[:1]:
+    for flow in flows_cvm[1:]:
         run_local(flow)

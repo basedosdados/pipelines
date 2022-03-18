@@ -11,8 +11,10 @@ import requests
 import pandas as pd
 from prefect import task
 import basedosdados as bd
+from pandas.api.types import is_string_dtype
+from unidecode import unidecode
 
-from pipelines.utils import log
+from pipelines.utils.utils import log
 
 @task
 def crawl(root: str, url: str, chunk_size=128) -> None:
@@ -54,6 +56,10 @@ def clean_table_responsavel(root: str) -> str:
     df["cnpj"] = df["cnpj"].str.replace("/", "")
     df["cnpj"] = df["cnpj"].str.replace("-", "")
 
+    for col in df.columns:
+        if is_string_dtype(df[col]):
+            df[col]=df[col].apply(lambda x: unidecode(x) if isinstance(x, str) else x)
+
     df.to_csv(ou_filepath, index=False)
 
     return ou_filepath
@@ -82,6 +88,11 @@ def clean_table_pessoa_fisica(root: str) -> str:
         "data_inicio_situacao",
         "categoria_registro",
     ]
+
+
+    for col in df.columns:
+        if is_string_dtype(df[col]):
+            df[col]=df[col].apply(lambda x: unidecode(x) if isinstance(x, str) else x)
 
     df.to_csv(ou_filepath, index=False)
 
@@ -132,6 +143,10 @@ def clean_table_pessoa_juridica(root: str) -> str:
     df["cnpj"] = df["cnpj"].str.replace(".", "")
     df["cnpj"] = df["cnpj"].str.replace("/", "")
     df["cnpj"] = df["cnpj"].str.replace("-", "")
+
+    for col in df.columns:
+        if is_string_dtype(df[col]):
+            df[col]=df[col].apply(lambda x: unidecode(x) if isinstance(x, str) else x)
 
     df.to_csv(ou_filepath, index=False)
 

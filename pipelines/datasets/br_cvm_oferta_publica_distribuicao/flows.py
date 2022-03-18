@@ -10,15 +10,15 @@ from pipelines.datasets.br_cvm_oferta_publica_distribuicao.tasks import (
     crawl,
     clean_table_oferta_distribuicao,
 )
-from pipelines.tasks import upload_to_gcs, create_bd_table, dump_header_to_csv
+from pipelines.utils.tasks import upload_to_gcs, create_bd_table, dump_header_to_csv, publish_table
 from pipelines.datasets.br_cvm_oferta_publica_distribuicao.schedules import every_day
 
-ROOT = "/tmp/basedosdados"
+ROOT = "/tmp/data"
 URL = "http://dados.cvm.gov.br/dados/OFERTA/DISTRIB/DADOS/oferta_distribuicao.csv"
 
 with Flow("br_cvm_oferta_publica_distribuicao.dia") as br_cvm_ofe_pub_dis_dia:
-    crawl(ROOT, URL)
-    filepath = clean_table_oferta_distribuicao(ROOT)
+    wait_crawl = crawl(ROOT, URL)
+    filepath = clean_table_oferta_distribuicao(ROOT, upstream_tasks=[wait_crawl])
     dataset_id = "br_cvm_oferta_publica_distribuicao"
     table_id = "dia"
 
@@ -34,11 +34,19 @@ with Flow("br_cvm_oferta_publica_distribuicao.dia") as br_cvm_ofe_pub_dis_dia:
     )
 
     # Upload to GCS
-    upload_to_gcs(
+    wait_upload_table = upload_to_gcs(
         path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         wait=wait_create_bd_table,
+    )
+
+    publish_table(
+        path=filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        if_exists="replace",
+        wait=wait_upload_table,
     )
 
 br_cvm_ofe_pub_dis_dia.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

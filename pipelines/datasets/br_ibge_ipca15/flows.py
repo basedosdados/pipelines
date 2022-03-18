@@ -7,7 +7,7 @@ from prefect import Flow
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from pipelines.constants import constants
-from pipelines.tasks import upload_to_gcs, create_bd_table, dump_header_to_csv
+from pipelines.utils.tasks import upload_to_gcs, create_bd_table, dump_header_to_csv
 from pipelines.datasets.br_ibge_ipca15.tasks import (
     crawler,
     clean_mes_brasil,
@@ -21,8 +21,8 @@ INDICE = "ip15"
 
 with Flow("br_ibge_ipca15.mes_categoria_brasil") as br_ibge_ipca15_mes_categoria_brasil:
     FOLDER = "br/"
-    crawler(INDICE, FOLDER)
-    filepath = clean_mes_brasil(INDICE)
+    wait_crawler = crawler(INDICE, FOLDER)
+    filepath = clean_mes_brasil(INDICE, upstream_tasks = [wait_crawler])
     dataset_id = "br_ibge_ipca15"
     table_id = "mes_categoria_brasil"
 

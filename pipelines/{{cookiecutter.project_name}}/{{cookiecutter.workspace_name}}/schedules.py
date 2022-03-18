@@ -1,5 +1,5 @@
 """
-Schedules for {{cookiecutter.project_name}}
+Schedules for {{cookiecutter.workspace_name}}
 """
 
 ###############################################################################
