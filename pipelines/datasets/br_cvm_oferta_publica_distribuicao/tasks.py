@@ -23,7 +23,7 @@ def crawl(root: str, url: str) -> None:
 
 @task
 def clean_table_oferta_distribuicao(root: str) -> str:
-    # pylint: disable=invalid-name,no-member,unsubscriptable-object
+    # pylint: disable=invalid-name,no-member,unsubscriptable-object, E1137
     """Standardizes column names and selected variables"""
     in_filepath = f"{root}/oferta_distribuicao.csv"
     ou_filepath = f"{root}/br_cvm_oferta_publica_distribuicao.csv"
