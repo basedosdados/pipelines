@@ -26,7 +26,7 @@ with Flow("Template: Ingerir tabela Inflacao") as flow_ibge_inflacao_mes_brasil:
     #####################################
 
     INDICE = Parameter("indice")
-    FOLDER = Parameter("indice")
+    FOLDER = Parameter("folder")
     dataset_id = Parameter("dataset_id")
     table_id = Parameter("table_id")
 
@@ -68,7 +68,7 @@ with Flow("Template: Ingerir tabela Inflacao") as flow_ibge_inflacao_mes_rm:
     #####################################
 
     INDICE = Parameter("indice")
-    FOLDER = Parameter("indice")
+    FOLDER = Parameter("folder")
     dataset_id = Parameter("dataset_id")
     table_id = Parameter("table_id")
 
@@ -108,7 +108,7 @@ with Flow("Template: Ingerir tabela Inflacao") as flow_ibge_inflacao_mes_municip
     #####################################
 
     INDICE = Parameter("indice")
-    FOLDER = Parameter("indice")
+    FOLDER = Parameter("folder")
     dataset_id = Parameter("dataset_id")
     table_id = Parameter("table_id")
 
@@ -150,7 +150,7 @@ with Flow("Template: Ingerir tabela Inflacao") as flow_ibge_inflacao_mes_geral:
     #####################################
 
     INDICE = Parameter("indice")
-    FOLDER = Parameter("indice")
+    FOLDER = Parameter("folder")
     dataset_id = Parameter("dataset_id")
     table_id = Parameter("table_id")
 
