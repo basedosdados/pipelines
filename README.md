@@ -39,7 +39,7 @@ poetry install
 
 ```
 pre-commit install -->
-```
+<!-- ``` -->
 
 - Pronto! Seu ambiente está configurado para desenvolvimento.
 
