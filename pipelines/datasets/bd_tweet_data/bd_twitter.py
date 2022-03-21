@@ -10,7 +10,6 @@ def create_headers(bearer_token):
     return headers
 
 def create_url(keyword, start_date, end_date, max_results = 10):
-    
     ttid = 1184334528837574656
     search_url = f"https://api.twitter.com/2/users/{ttid}/tweets" #Change to the endpoint you want to collect data from
 
