@@ -18,7 +18,7 @@ def create_url(keyword, start_date, end_date, max_results = 10):
     query_params = {'start_time': start_date,
                     'end_time': end_date,
                     'max_results': max_results,
-                    'tweet.fields': 'public_metrics,created_at',
+                    'tweet.fields': 'public_metrics,created_at,non_public_metrics',
                     'next_token': {}}
     
     return (search_url, query_params)

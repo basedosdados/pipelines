@@ -1,8 +1,11 @@
 import pandas as pd
 from bd_twitter import auth,create_headers,create_url,connect_to_endpoint,flatten
+import os
 
 from dotenv import load_dotenv
 load_dotenv()
+
+os.system('mkdir -p /tmp/data')
 
 #Inputs for the request
 bearer_token = auth()
@@ -17,11 +20,19 @@ url = create_url(keyword, start_time,end_time, max_results)
 
 json_response = connect_to_endpoint(url[0], headers, url[1])
 
-data = [flatten(i) for i in json_response["data"]]
+print(json_response['errors'])
 
-data = pd.DataFrame(data)
+# data = [flatten(i) for i in json_response["data"]]
 
-print(data.head())
+# data = pd.DataFrame(data)
+
+# data.to_csv('/tmp/data/metricas_tweets.csv', index=False)
+
+# for col in data.columns:
+#     print(col)
+
+# print(os.system('tree /tmp/data'))
+
 
 
 
