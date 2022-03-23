@@ -324,3 +324,5 @@ def get_temporal_coverage(
         start_date = f"{dates[0].year}"
         end_date = f"{dates[-1].year}"
         return start_date + "(" + interval + ")" + end_date
+
+    raise ValueError("time_unit must be one of the following: day, month, year")

@@ -3,6 +3,8 @@ Flows for br_cvm_oferta_publica_distribuicao
 """
 # pylint: disable=C0103, E1123, invalid-name
 
+from datetime import datetime
+
 from prefect import Flow
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
@@ -20,7 +22,6 @@ from pipelines.utils.tasks import (
     publish_table,
 )
 from pipelines.datasets.br_cvm_oferta_publica_distribuicao.schedules import every_day
-from datetime import datetime
 
 ROOT = "/tmp/data"
 URL = "http://dados.cvm.gov.br/dados/OFERTA/DISTRIB/DADOS/oferta_distribuicao.csv"

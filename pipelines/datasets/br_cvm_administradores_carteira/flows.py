@@ -3,6 +3,8 @@ Flows for br_cvm_administradores_carteira
 """
 # pylint: disable=C0103, E1123, invalid-name
 
+from datetime import datetime
+
 from prefect import Flow
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
@@ -24,7 +26,6 @@ from pipelines.utils.tasks import (
 )
 from pipelines.datasets.br_cvm_administradores_carteira.schedules import every_day
 
-from datetime import datetime
 
 ROOT = "/tmp/data"
 URL = "http://dados.cvm.gov.br/dados/ADM_CART/CAD/DADOS/cad_adm_cart.zip"
@@ -54,12 +55,13 @@ with Flow("br_cvm_administradores_carteira.responsavel") as br_cvm_adm_car_res:
         wait=wait_create_bd_table,
     )
 
-    # no generate temporal coverage since there is no date variable 
+    # no generate temporal coverage since there is no date variable
     wait_update_metadata = update_metadata(
         dataset_id=dataset_id,
         table_id=table_id,
         fields_to_update=[
-            {"last_updated": {"metadata": datetime.now().strftime("%Y/%m/%d")}}        ],
+            {"last_updated": {"metadata": datetime.now().strftime("%Y/%m/%d")}}
+        ],
         upstream_tasks=[wait_create_bd_table],
     )
 
@@ -100,7 +102,7 @@ with Flow("br_cvm_administradores_carteira.pessoa_fisica") as br_cvm_adm_car_pes
         wait=wait_create_bd_table,
     )
 
-    #update_metadata
+    # update_metadata
     temporal_coverage = get_temporal_coverage(
         filepath=filepath,
         date_col="data_registro",
@@ -114,7 +116,7 @@ with Flow("br_cvm_administradores_carteira.pessoa_fisica") as br_cvm_adm_car_pes
         table_id=table_id,
         fields_to_update=[
             {"last_updated": {"metadata": datetime.now().strftime("%Y/%m/%d")}},
-            {"temporal_coverage": [temporal_coverage]}
+            {"temporal_coverage": [temporal_coverage]},
         ],
         upstream_tasks=[temporal_coverage],
     )
@@ -156,7 +158,7 @@ with Flow("br_cvm_administradores_carteira.pessoa_juridica") as br_cvm_adm_car_p
         wait=wait_create_bd_table,
     )
 
-    #update_metadata
+    # update_metadata
     temporal_coverage = get_temporal_coverage(
         filepath=filepath,
         date_col="data_registro",
@@ -170,7 +172,7 @@ with Flow("br_cvm_administradores_carteira.pessoa_juridica") as br_cvm_adm_car_p
         table_id=table_id,
         fields_to_update=[
             {"last_updated": {"metadata": datetime.now().strftime("%Y/%m/%d")}},
-            {"temporal_coverage": [temporal_coverage]}
+            {"temporal_coverage": [temporal_coverage]},
         ],
         upstream_tasks=[temporal_coverage],
     )
