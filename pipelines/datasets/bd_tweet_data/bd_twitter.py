@@ -10,14 +10,14 @@ def create_headers(bearer_token):
     return headers
 
 def create_url(keyword, start_date, end_date, max_results = 10):
-    ttid = 1184334528837574656
+    ttid = 1467938832914042882
     search_url = f"https://api.twitter.com/2/users/{ttid}/tweets" #Change to the endpoint you want to collect data from
 
     #change params based on the endpoint you are using
     query_params = {'start_time': start_date,
                     'end_time': end_date,
                     'max_results': max_results,
-                    'tweet.fields': 'public_metrics,created_at,non_public_metrics',
+                    'tweet.fields': 'public_metrics,created_at',
                     'next_token': {}}
     
     return (search_url, query_params)
