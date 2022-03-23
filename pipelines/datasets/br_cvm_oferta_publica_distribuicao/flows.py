@@ -50,8 +50,7 @@ with Flow("br_cvm_oferta_publica_distribuicao.dia") as br_cvm_ofe_pub_dis_dia:
         wait=wait_create_bd_table,
     )
 
-    ##update_metadata
-    now = datetime.now().strftime("%Y/%m/%d")
+    #update_metadata
     temporal_coverage = get_temporal_coverage(
         filepath=filepath,
         date_col="data_abertura_processo",
@@ -64,8 +63,8 @@ with Flow("br_cvm_oferta_publica_distribuicao.dia") as br_cvm_ofe_pub_dis_dia:
         dataset_id=dataset_id,
         table_id=table_id,
         fields_to_update=[
-            {"last_updated": {"metadata": now}},
-            {"temporal_coverage": [temporal_coverage]},
+            {"last_updated": {"metadata": datetime.now().strftime("%Y/%m/%d")}},
+            {"temporal_coverage": [temporal_coverage]}
         ],
         upstream_tasks=[temporal_coverage],
     )

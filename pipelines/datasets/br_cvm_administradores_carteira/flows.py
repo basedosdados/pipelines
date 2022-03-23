@@ -12,9 +12,19 @@ from pipelines.datasets.br_cvm_administradores_carteira.tasks import (
     clean_table_pessoa_fisica,
     clean_table_pessoa_juridica,
 )
+
 from pipelines.constants import constants
-from pipelines.utils.tasks import upload_to_gcs, create_bd_table, dump_header_to_csv
+from pipelines.utils.tasks import (
+    upload_to_gcs,
+    create_bd_table,
+    dump_header_to_csv,
+    get_temporal_coverage,
+    update_metadata,
+    publish_table,
+)
 from pipelines.datasets.br_cvm_administradores_carteira.schedules import every_day
+
+from datetime import datetime
 
 ROOT = "/tmp/data"
 URL = "http://dados.cvm.gov.br/dados/ADM_CART/CAD/DADOS/cad_adm_cart.zip"
@@ -37,11 +47,28 @@ with Flow("br_cvm_administradores_carteira.responsavel") as br_cvm_adm_car_res:
     )
 
     # Upload to GCS
-    upload_to_gcs(
+    wait_upload_table = upload_to_gcs(
         path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         wait=wait_create_bd_table,
+    )
+
+    # no generate temporal coverage since there is no date variable 
+    wait_update_metadata = update_metadata(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        fields_to_update=[
+            {"last_updated": {"metadata": datetime.now().strftime("%Y/%m/%d")}}        ],
+        upstream_tasks=[wait_create_bd_table],
+    )
+
+    publish_table(
+        path=filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        if_exists="replace",
+        wait=wait_update_metadata,
     )
 
 br_cvm_adm_car_res.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -66,11 +93,38 @@ with Flow("br_cvm_administradores_carteira.pessoa_fisica") as br_cvm_adm_car_pes
     )
 
     # Upload to GCS
-    upload_to_gcs(
+    wait_upload_table = upload_to_gcs(
         path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         wait=wait_create_bd_table,
+    )
+
+    #update_metadata
+    temporal_coverage = get_temporal_coverage(
+        filepath=filepath,
+        date_col="data_registro",
+        time_unit="day",
+        interval="1",
+        upstream_tasks=[wait_upload_table],
+    )
+
+    wait_update_metadata = update_metadata(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        fields_to_update=[
+            {"last_updated": {"metadata": datetime.now().strftime("%Y/%m/%d")}},
+            {"temporal_coverage": [temporal_coverage]}
+        ],
+        upstream_tasks=[temporal_coverage],
+    )
+
+    publish_table(
+        path=filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        if_exists="replace",
+        wait=wait_update_metadata,
     )
 
 br_cvm_adm_car_pes_fis.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -95,11 +149,38 @@ with Flow("br_cvm_administradores_carteira.pessoa_juridica") as br_cvm_adm_car_p
     )
 
     # Upload to GCS
-    upload_to_gcs(
+    wait_upload_table = upload_to_gcs(
         path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         wait=wait_create_bd_table,
+    )
+
+    #update_metadata
+    temporal_coverage = get_temporal_coverage(
+        filepath=filepath,
+        date_col="data_registro",
+        time_unit="day",
+        interval="1",
+        upstream_tasks=[wait_upload_table],
+    )
+
+    wait_update_metadata = update_metadata(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        fields_to_update=[
+            {"last_updated": {"metadata": datetime.now().strftime("%Y/%m/%d")}},
+            {"temporal_coverage": [temporal_coverage]}
+        ],
+        upstream_tasks=[temporal_coverage],
+    )
+
+    publish_table(
+        path=filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        if_exists="replace",
+        wait=wait_update_metadata,
     )
 
 br_cvm_adm_car_pes_jur.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
