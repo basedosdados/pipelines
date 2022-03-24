@@ -2,15 +2,12 @@ import os
 import requests
 import collections
 
-def auth():
-    return os.getenv('TWITTER_TOKEN')
-
 def create_headers(bearer_token):
     headers = {"Authorization": "Bearer {}".format(bearer_token)}
     return headers
 
 def create_url(keyword, start_date, end_date, max_results = 10):
-    ttid = 1467938832914042882
+    ttid = 1184334528837574656
     search_url = f"https://api.twitter.com/2/users/{ttid}/tweets" #Change to the endpoint you want to collect data from
 
     #change params based on the endpoint you are using
