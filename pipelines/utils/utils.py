@@ -34,13 +34,9 @@ def log(msg: Any, level: str = "info") -> None:
         "critical": logging.CRITICAL,
     }
 
-    number_blank_space = 10
-    msg = "\n".join(
-        [
-            number_blank_space * " " + line
-            for line in ["----"] + msg.split("\n") + ["\n----\n"]
-        ]
-    )
+    blank_spaces = 10 * " "
+    prefix = blank_spaces + "----\n"
+    msg = prefix + "\n".join([blank_spaces + line for line in msg.split("\n")]) + "\n"
 
     if level not in levels:
         raise ValueError(f"Invalid log level: {level}")
