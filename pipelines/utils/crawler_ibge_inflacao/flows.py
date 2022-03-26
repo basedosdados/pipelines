@@ -7,7 +7,7 @@ from prefect import Flow, Parameter
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from pipelines.constants import constants
-from pipelines.utils.tasks import upload_to_gcs, create_bd_table, dump_header_to_csv
+from pipelines.utils.tasks import create_table_and_upload_to_gcs
 from pipelines.utils.crawler_ibge_inflacao.tasks import (
     crawler,
     clean_mes_brasil,
@@ -34,23 +34,12 @@ with Flow("Template: IBGE Inflação: mes_brasil") as flow_ibge_inflacao_mes_bra
     # pylint: disable=E1123
     filepath = clean_mes_brasil(indice=INDICE, upstream_tasks=[wait_crawler])
 
-    wait_header_path = dump_header_to_csv(data_path=filepath, wait=filepath)
-
-    # Create table in BigQuery
-    wait_create_bd_table = create_bd_table(  # pylint: disable=invalid-name
-        path=wait_header_path,
+    create_table_and_upload_to_gcs(
+        data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_type="overwrite",
-        wait=wait_header_path,
-    )
-
-    # Upload to GCS
-    upload_to_gcs(
-        path=filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        wait=wait_create_bd_table,
+        wait=filepath,
     )
 
 flow_ibge_inflacao_mes_brasil.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -76,23 +65,12 @@ with Flow("Template: IBGE Inflação: mes_rm") as flow_ibge_inflacao_mes_rm:
     # pylint: disable=E1123
     filepath = clean_mes_rm(indice=INDICE, upstream_tasks=[wait_crawler])
 
-    wait_header_path = dump_header_to_csv(data_path=filepath, wait=filepath)
-
-    # Create table in BigQuery
-    wait_create_bd_table = create_bd_table(  # pylint: disable=invalid-name
-        path=wait_header_path,
+    create_table_and_upload_to_gcs(
+        data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_type="overwrite",
-        wait=wait_header_path,
-    )
-
-    # Upload to GCS
-    upload_to_gcs(
-        path=filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        wait=wait_create_bd_table,
+        wait=filepath,
     )
 
 flow_ibge_inflacao_mes_rm.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -116,24 +94,14 @@ with Flow("Template: IBGE Inflação: mes_municipio") as flow_ibge_inflacao_mes_
     # pylint: disable=E1123
     filepath = clean_mes_municipio(indice=INDICE, upstream_tasks=[wait_crawler])
 
-    wait_header_path = dump_header_to_csv(data_path=filepath, wait=filepath)
-
-    # Create table in BigQuery
-    wait_create_bd_table = create_bd_table(  # pylint: disable=invalid-name
-        path=wait_header_path,
+    create_table_and_upload_to_gcs(
+        data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_type="overwrite",
-        wait=wait_header_path,
+        wait=filepath,
     )
 
-    # Upload to GCS
-    upload_to_gcs(
-        path=filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        wait=wait_create_bd_table,
-    )
 
 flow_ibge_inflacao_mes_municipio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 flow_ibge_inflacao_mes_municipio.run_config = KubernetesRun(
@@ -158,23 +126,12 @@ with Flow("Template: IBGE Inflação: mes_geral") as flow_ibge_inflacao_mes_gera
     # pylint: disable=E1123
     filepath = clean_mes_geral(indice=INDICE, upstream_tasks=[wait_crawler])
 
-    wait_header_path = dump_header_to_csv(data_path=filepath, wait=filepath)
-
-    # Create table in BigQuery
-    wait_create_bd_table = create_bd_table(  # pylint: disable=invalid-name
-        path=wait_header_path,
+    create_table_and_upload_to_gcs(
+        data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_type="overwrite",
-        wait=wait_header_path,
-    )
-
-    # Upload to GCS
-    upload_to_gcs(
-        path=filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        wait=wait_create_bd_table,
+        wait=filepath,
     )
 
 flow_ibge_inflacao_mes_geral.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
