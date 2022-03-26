@@ -1,17 +1,13 @@
 """
 Helper tasks that could fit any pipeline.
 """
-# pylint: disable=C0103, C0301, invalid-name, E1101
+# pylint: disable=C0103, C0301, invalid-name, E1101, R0913
 
 from datetime import timedelta
-from os import walk
-from os.path import join
 from pathlib import Path
 from typing import Union
-from uuid import uuid4
 
 import basedosdados as bd
-import pandas as pd
 from prefect import task
 import ruamel.yaml as ryaml
 

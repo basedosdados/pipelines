@@ -33,7 +33,10 @@ def log(msg: Any, level: str = "info") -> None:
         "error": logging.ERROR,
         "critical": logging.CRITICAL,
     }
-    msg = f"###\n\n {msg}"
+    number_blank_space = 10
+    msg = "\n".join(
+        [number_blank_space * " " + line for line in ["----"] + msg.split("\n")]
+    )
     if level not in levels:
         raise ValueError(f"Invalid log level: {level}")
     prefect.context.logger.log(levels[level], msg)  # pylint: disable=E1101
