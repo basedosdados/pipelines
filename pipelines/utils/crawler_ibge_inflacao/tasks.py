@@ -20,6 +20,8 @@ def crawler(indice: str, folder: str) -> None:
     Crawler for IBGE Inflacao
     """
     log(f"Crawling {indice}")
+    os.system("[ -e /tmp/data/input/ ] && rm -r /tmp/data/input/")
+    os.system("[ -e /tmp/data/output/ ] && rm -r /tmp/data/output/")
     os.system('mkdir -p "/tmp/data"')
     os.system('mkdir -p "/tmp/data/input"')
     os.system('mkdir -p "/tmp/data/input/br"')
