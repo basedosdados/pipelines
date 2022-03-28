@@ -67,4 +67,4 @@ jobs:
 
       - name: Register Prefect flows
         run: |-
-          prefect register --project $PREFECT__SERVER__PROJECT -p pipelines/
+          python .github/workflows/scripts/register_flows.py --project $PREFECT__SERVER__PROJECT --path pipelines/
