@@ -2,7 +2,6 @@
 Flows for br_cvm_oferta_publica_distribuicao
 """
 # pylint: disable=C0103, E1123, invalid-name
-
 from datetime import datetime
 
 from prefect import Flow
@@ -14,11 +13,9 @@ from pipelines.datasets.br_cvm_oferta_publica_distribuicao.tasks import (
     clean_table_oferta_distribuicao,
 )
 from pipelines.utils.tasks import (
-    upload_to_gcs,
-    create_bd_table,
-    dump_header_to_csv,
-    get_temporal_coverage,
+    create_table_and_upload_to_gcs,
     update_metadata,
+    get_temporal_coverage,
     publish_table,
 )
 from pipelines.datasets.br_cvm_oferta_publica_distribuicao.schedules import every_day
@@ -27,28 +24,17 @@ ROOT = "/tmp/data"
 URL = "http://dados.cvm.gov.br/dados/OFERTA/DISTRIB/DADOS/oferta_distribuicao.csv"
 
 with Flow("br_cvm_oferta_publica_distribuicao.dia") as br_cvm_ofe_pub_dis_dia:
-    wait_crawl = crawl(root=ROOT, url=URL)
-    filepath = clean_table_oferta_distribuicao(root=ROOT, upstream_tasks=[wait_crawl])
     dataset_id = "br_cvm_oferta_publica_distribuicao"
     table_id = "dia"
+    wait_crawl = crawl(root=ROOT, url=URL)
+    filepath = clean_table_oferta_distribuicao(root=ROOT, upstream_tasks=[wait_crawl])
 
-    wait_header_path = dump_header_to_csv(data_path=filepath, wait=filepath)
-
-    # Create table in BigQuery
-    wait_create_bd_table = create_bd_table(
-        path=wait_header_path,
+    wait_upload_table = create_table_and_upload_to_gcs(
+        data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_type="overwrite",
-        wait=wait_header_path,
-    )
-
-    # Upload to GCS
-    wait_upload_table = upload_to_gcs(
-        path=filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        wait=wait_create_bd_table,
+        wait=filepath,
     )
 
     #update_metadata

@@ -2,7 +2,6 @@
 Flows for br_cvm_administradores_carteira
 """
 # pylint: disable=C0103, E1123, invalid-name
-
 from datetime import datetime
 
 from prefect import Flow
@@ -14,18 +13,9 @@ from pipelines.datasets.br_cvm_administradores_carteira.tasks import (
     clean_table_pessoa_fisica,
     clean_table_pessoa_juridica,
 )
-
 from pipelines.constants import constants
-from pipelines.utils.tasks import (
-    upload_to_gcs,
-    create_bd_table,
-    dump_header_to_csv,
-    get_temporal_coverage,
-    update_metadata,
-    publish_table,
-)
+from pipelines.utils.tasks import create_table_and_upload_to_gcs, update_metadata, get_temporal_coverage, publish_table
 from pipelines.datasets.br_cvm_administradores_carteira.schedules import every_day
-
 
 ROOT = "/tmp/data"
 URL = "http://dados.cvm.gov.br/dados/ADM_CART/CAD/DADOS/cad_adm_cart.zip"
@@ -36,23 +26,12 @@ with Flow("br_cvm_administradores_carteira.responsavel") as br_cvm_adm_car_res:
     dataset_id = "br_cvm_administradores_carteira"
     table_id = "responsavel"
 
-    wait_header_path = dump_header_to_csv(data_path=filepath, wait=filepath)
-
-    # Create table in BigQuery
-    wait_create_bd_table = create_bd_table(
-        path=wait_header_path,
+    wait_upload_table = create_table_and_upload_to_gcs(
+        data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_type="overwrite",
-        wait=wait_header_path,
-    )
-
-    # Upload to GCS
-    wait_upload_table = upload_to_gcs(
-        path=filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        wait=wait_create_bd_table,
+        wait=filepath,
     )
 
     # no generate temporal coverage since there is no date variable
@@ -62,7 +41,7 @@ with Flow("br_cvm_administradores_carteira.responsavel") as br_cvm_adm_car_res:
         fields_to_update=[
             {"last_updated": {"metadata": datetime.now().strftime("%Y/%m/%d")}}
         ],
-        upstream_tasks=[wait_create_bd_table],
+        upstream_tasks=[wait_upload_table],
     )
 
     publish_table(
@@ -83,23 +62,12 @@ with Flow("br_cvm_administradores_carteira.pessoa_fisica") as br_cvm_adm_car_pes
     dataset_id = "br_cvm_administradores_carteira"
     table_id = "pessoa_fisica"
 
-    wait_header_path = dump_header_to_csv(data_path=filepath, wait=filepath)
-
-    # Create table in BigQuery
-    wait_create_bd_table = create_bd_table(
-        path=wait_header_path,
+    wait_upload_table = create_table_and_upload_to_gcs(
+        data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_type="overwrite",
-        wait=wait_header_path,
-    )
-
-    # Upload to GCS
-    wait_upload_table = upload_to_gcs(
-        path=filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        wait=wait_create_bd_table,
+        wait=filepath,
     )
 
     # update_metadata
@@ -139,23 +107,12 @@ with Flow("br_cvm_administradores_carteira.pessoa_juridica") as br_cvm_adm_car_p
     dataset_id = "br_cvm_administradores_carteira"
     table_id = "pessoa_juridica"
 
-    wait_header_path = dump_header_to_csv(data_path=filepath, wait=filepath)
-
-    # Create table in BigQuery
-    wait_create_bd_table = create_bd_table(
-        path=wait_header_path,
+    wait_upload_table = create_table_and_upload_to_gcs(
+        data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_type="overwrite",
-        wait=wait_header_path,
-    )
-
-    # Upload to GCS
-    wait_upload_table = upload_to_gcs(
-        path=filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        wait=wait_create_bd_table,
+        wait=filepath,
     )
 
     # update_metadata
