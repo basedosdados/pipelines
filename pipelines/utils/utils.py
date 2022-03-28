@@ -3,9 +3,11 @@ General utilities for all pipelines.
 """
 
 import logging
-from os import getenv
+from os import getenv, walk
+from os.path import join
 from pathlib import Path
 from typing import Any, Dict, List, Tuple, Union
+from uuid import uuid4
 
 import basedosdados as bd
 import hvac
@@ -16,6 +18,7 @@ from prefect.client import Client
 from prefect.engine.state import State
 from prefect.run_configs import KubernetesRun
 import requests
+
 # import telegram
 
 
@@ -30,6 +33,11 @@ def log(msg: Any, level: str = "info") -> None:
         "error": logging.ERROR,
         "critical": logging.CRITICAL,
     }
+
+    blank_spaces = 8 * " "
+    prefix = blank_spaces + "----\n"
+    msg = prefix + "\n".join([blank_spaces + line for line in msg.split("\n")]) + "\n"
+
     if level not in levels:
         raise ValueError(f"Invalid log level: {level}")
     prefect.context.logger.log(levels[level], msg)  # pylint: disable=E1101
@@ -97,7 +105,6 @@ def notify_discord_on_failure(
         message=message,
         webhook_url=url,
     )
-
 
 
 def run_local(flow: prefect.Flow, parameters: Dict[str, Any] = None):
@@ -374,3 +381,50 @@ def parser_blobs_to_partition_dict(blobs: list) -> dict:
                 except KeyError:
                     partitions_dict[key] = [value]
     return partitions_dict
+
+
+def dump_header_to_csv(
+    data_path: Union[str, Path],
+):
+    """
+    Writes a header to a CSV file.
+    """
+    # Remove filename from path
+    path = Path(data_path)
+    if not path.is_dir():
+        path = path.parent
+    # Grab first CSV file found
+    found: bool = False
+    file: str = None
+    for subdir, _, filenames in walk(str(path)):
+        for fname in filenames:
+            if fname.endswith(".csv"):
+                file = join(subdir, fname)
+                log(f"Found CSV file: {file}")
+                found = True
+                break
+        if found:
+            break
+
+    save_header_path = f"data/{uuid4()}"
+    # discover if it's a partitioned table
+    if partition_folders := [folder for folder in file.split("/") if "=" in folder]:
+        partition_path = "/".join(partition_folders)
+        save_header_file_path = Path(f"{save_header_path}/{partition_path}/header.csv")
+        log(f"Found partition path: {save_header_file_path}")
+
+    else:
+        save_header_file_path = Path(f"{save_header_path}/header.csv")
+        log(f"Do not found partition path: {save_header_file_path}")
+
+    # Create directory if it doesn't exist
+    save_header_file_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Read just first row
+    dataframe = pd.read_csv(file, nrows=1)
+
+    # Write dataframe to CSV
+    dataframe.to_csv(save_header_file_path, index=False, encoding="utf-8")
+    log(f"Wrote header CSV: {save_header_file_path}")
+
+    return save_header_path

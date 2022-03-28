@@ -13,7 +13,7 @@ from pipelines.datasets.br_cvm_administradores_carteira.tasks import (
     clean_table_pessoa_juridica,
 )
 from pipelines.constants import constants
-from pipelines.utils.tasks import upload_to_gcs, create_bd_table, dump_header_to_csv
+from pipelines.utils.tasks import create_table_and_upload_to_gcs
 from pipelines.datasets.br_cvm_administradores_carteira.schedules import every_day
 
 ROOT = "/tmp/data"
@@ -25,23 +25,12 @@ with Flow("br_cvm_administradores_carteira.responsavel") as br_cvm_adm_car_res:
     dataset_id = "br_cvm_administradores_carteira"
     table_id = "responsavel"
 
-    wait_header_path = dump_header_to_csv(data_path=filepath, wait=filepath)
-
-    # Create table in BigQuery
-    wait_create_bd_table = create_bd_table(
-        path=wait_header_path,
+    wait_upload_table = create_table_and_upload_to_gcs(
+        data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_type="overwrite",
-        wait=wait_header_path,
-    )
-
-    # Upload to GCS
-    upload_to_gcs(
-        path=filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        wait=wait_create_bd_table,
+        wait=filepath,
     )
 
 br_cvm_adm_car_res.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -54,23 +43,12 @@ with Flow("br_cvm_administradores_carteira.pessoa_fisica") as br_cvm_adm_car_pes
     dataset_id = "br_cvm_administradores_carteira"
     table_id = "pessoa_fisica"
 
-    wait_header_path = dump_header_to_csv(data_path=filepath, wait=filepath)
-
-    # Create table in BigQuery
-    wait_create_bd_table = create_bd_table(
-        path=wait_header_path,
+    wait_upload_table = create_table_and_upload_to_gcs(
+        data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_type="overwrite",
-        wait=wait_header_path,
-    )
-
-    # Upload to GCS
-    upload_to_gcs(
-        path=filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        wait=wait_create_bd_table,
+        wait=filepath,
     )
 
 br_cvm_adm_car_pes_fis.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -83,23 +61,12 @@ with Flow("br_cvm_administradores_carteira.pessoa_juridica") as br_cvm_adm_car_p
     dataset_id = "br_cvm_administradores_carteira"
     table_id = "pessoa_juridica"
 
-    wait_header_path = dump_header_to_csv(data_path=filepath, wait=filepath)
-
-    # Create table in BigQuery
-    wait_create_bd_table = create_bd_table(
-        path=wait_header_path,
+    wait_upload_table = create_table_and_upload_to_gcs(
+        data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_type="overwrite",
-        wait=wait_header_path,
-    )
-
-    # Upload to GCS
-    upload_to_gcs(
-        path=filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        wait=wait_create_bd_table,
+        wait=filepath,
     )
 
 br_cvm_adm_car_pes_jur.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
