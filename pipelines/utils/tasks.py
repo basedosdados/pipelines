@@ -267,6 +267,7 @@ def publish_table(
 
         log("I cannot upload {table_id} in prod.")
 
+
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),

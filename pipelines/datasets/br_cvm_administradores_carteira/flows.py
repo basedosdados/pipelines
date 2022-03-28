@@ -14,7 +14,12 @@ from pipelines.datasets.br_cvm_administradores_carteira.tasks import (
     clean_table_pessoa_juridica,
 )
 from pipelines.constants import constants
-from pipelines.utils.tasks import create_table_and_upload_to_gcs, update_metadata, get_temporal_coverage, publish_table
+from pipelines.utils.tasks import (
+    create_table_and_upload_to_gcs,
+    update_metadata,
+    get_temporal_coverage,
+    publish_table,
+)
 from pipelines.datasets.br_cvm_administradores_carteira.schedules import every_day
 
 ROOT = "/tmp/data"
