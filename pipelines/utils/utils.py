@@ -35,9 +35,8 @@ def log(msg: Any, level: str = "info") -> None:
     }
 
     blank_spaces = 8 * " "
-    prefix = blank_spaces + "----\n"
-    msg = prefix + str(msg) + "\n\n"
-    msg = "\n".join([blank_spaces + line for line in msg.split("\n")])
+    msg = blank_spaces + "----\n" + str(msg)
+    msg = "\n".join([blank_spaces + line for line in msg.split("\n")]) + "\n\n"
 
     if level not in levels:
         raise ValueError(f"Invalid log level: {level}")
