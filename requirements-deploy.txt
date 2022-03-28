@@ -3,3 +3,5 @@ poetry==1.1.11
 google-cloud-storage==1.42.1
 requests==2.23.0
 pandas==1.3.5
+loguru==0.6.0
+typer==0.4.0
