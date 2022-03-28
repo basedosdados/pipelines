@@ -10,6 +10,7 @@ from typing import Union
 import basedosdados as bd
 from prefect import task
 import ruamel.yaml as ryaml
+import pandas as pd
 
 from pipelines.constants import constants
 from pipelines.utils.utils import (
@@ -195,7 +196,7 @@ def update_metadata(dataset_id: str, table_id: str, fields_to_update: list) -> N
     handle = bd.Metadata(dataset_id=dataset_id, table_id=table_id)
     handle.create(if_exists="replace")
 
-    yaml = ryaml.yaml.YAML()
+    yaml = ryaml.YAML()
     yaml.preserve_quotes = True
     yaml.indent(mapping=4, sequence=6, offset=4)
 
