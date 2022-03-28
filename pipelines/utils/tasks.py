@@ -10,6 +10,7 @@ from typing import Union
 import basedosdados as bd
 from prefect import task
 import ruamel.yaml as ryaml
+import pandas as pd
 
 from pipelines.constants import constants
 from pipelines.utils.utils import (
@@ -195,7 +196,7 @@ def update_metadata(dataset_id: str, table_id: str, fields_to_update: list) -> N
     handle = bd.Metadata(dataset_id=dataset_id, table_id=table_id)
     handle.create(if_exists="replace")
 
-    yaml = ryaml.yaml.YAML()
+    yaml = ryaml.YAML()
     yaml.preserve_quotes = True
     yaml.indent(mapping=4, sequence=6, offset=4)
 
@@ -265,3 +266,42 @@ def publish_table(
     else:
 
         log("I cannot upload {table_id} in prod.")
+
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def get_temporal_coverage(
+    filepath: str, date_col: str, time_unit: str, interval: str
+) -> str:
+    """
+    Generates a temporal coverage string from a csv.
+    The pattern follows the BD's Style Manual (https://basedosdados.github.io/mais/style_data/#cobertura-temporal)
+
+    args:
+    filepath: csv filepath
+    date_col: date column to use as reference
+    time_unit: day | month | year
+    interval: time between dates.
+    For example, if the time_unit is month and the data is update every quarter, then the intervel is 3.
+    """
+    df = pd.read_csv(filepath, usecols=[date_col], parse_dates=[date_col])
+
+    dates = df[date_col].to_list()
+    dates.sort()
+
+    if time_unit == "day":
+        start_date = f"{dates[0].year}-{dates[0].month}-{dates[0].day}"
+        end_date = f"{dates[-1].year}-{dates[-1].month}-{dates[-1].day}"
+        return start_date + "(" + interval + ")" + end_date
+    if time_unit == "month":
+        start_date = f"{dates[0].year}-{dates[0].month}"
+        end_date = f"{dates[-1].year}-{dates[-1].month}"
+        return start_date + "(" + interval + ")" + end_date
+    if time_unit == "year":
+        start_date = f"{dates[0].year}"
+        end_date = f"{dates[-1].year}"
+        return start_date + "(" + interval + ")" + end_date
+
+    raise ValueError("time_unit must be one of the following: day, month, year")
