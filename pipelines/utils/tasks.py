@@ -8,15 +8,17 @@ from pathlib import Path
 from typing import Union
 import inspect
 import textwrap
+import os
 
 import basedosdados as bd
 from prefect import task
 import ruamel.yaml as ryaml
 import pandas as pd
+import toml
 
 from pipelines.constants import constants
 from pipelines.utils.utils import (
-    get_username_and_password_from_secret,
+    get_credentials_from_secret,
     log,
     dump_header_to_csv,
 )
@@ -29,12 +31,12 @@ from pipelines.utils.utils import (
 
 
 @task(checkpoint=False, nout=2)
-def get_user_and_password(secret_path: str):
+def get_credentials(secret_path: str):
     """
     Returns the user and password for the given secret path.
     """
     log(f"Getting user and password for secret path: {secret_path}")
-    return get_username_and_password_from_secret(secret_path)
+    return get_credentials_from_secret(secret_path)
 
 
 ###############
@@ -188,6 +190,20 @@ def update_metadata(dataset_id: str, table_id: str, fields_to_update: list) -> N
     table_id: table_id,
     fields_to_update: list of dictionaries with key and values to be updated
     """
+    # add credentials to config.toml
+    home=os.getenv("HOME")
+    toml_file=home+"/.basedosdados/config.toml"
+    data = toml.load(toml_file)
+
+    (api_key, url) = get_credentials_from_secret(secret_path='ckan_credentials')
+
+    data['ckan']['api_key']=api_key
+    data['ckan']['url']=url
+
+    f = open(toml_file,'w')
+    toml.dump(data, f)
+    f.close()
+
     handle = bd.Metadata(dataset_id=dataset_id, table_id=table_id)
     handle.create(if_exists="replace")
 
@@ -219,7 +235,10 @@ def update_metadata(dataset_id: str, table_id: str, fields_to_update: list) -> N
         log("Fail to validate metadata.")
 
 
-@task
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def publish_table(
     path: Union[str, Path],  # pylint: disable=unused-argument
     dataset_id: str,
