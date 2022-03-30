@@ -6,6 +6,8 @@ Helper tasks that could fit any pipeline.
 from datetime import timedelta
 from pathlib import Path
 from typing import Union
+import inspect
+import textwrap
 
 import basedosdados as bd
 from prefect import task
@@ -88,7 +90,7 @@ def create_table_and_upload_to_gcs(
                 path=header_path,
                 if_storage_data_exists="replace",
                 if_table_config_exists="replace",
-                if_table_exists="replace"
+                if_table_exists="replace",
             )
 
             log(
@@ -137,7 +139,7 @@ def create_table_and_upload_to_gcs(
             path=header_path,
             if_storage_data_exists="replace",
             if_table_config_exists="replace",
-            if_table_exists="replace"
+            if_table_exists="replace",
         )
 
         log(
@@ -298,3 +300,102 @@ def get_temporal_coverage(
         return start_date + "(" + interval + ")" + end_date
 
     raise ValueError("time_unit must be one of the following: day, month, year")
+
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def update_publish_sql(dataset_id: str, table_id: str, dtype: dict):
+    """Edit publish.sql with columns and bigquery_type"""
+
+    # pylint: disable=C0103
+    tb = bd.Table(dataset_id=dataset_id, table_id=table_id)
+
+    ### publish.sql header and instructions
+    publish_txt = """
+    /*
+    Query para publicar a tabela.
+
+    Esse é o lugar para:
+    - modificar nomes, ordem e tipos de colunas
+    - dar join com outras tabelas
+    - criar colunas extras (e.g. logs, proporções, etc.)
+
+    Qualquer coluna definida aqui deve também existir em `table_config.yaml`.
+
+    # Além disso, sinta-se à vontade para alterar alguns nomes obscuros
+    # para algo um pouco mais explícito.
+
+    TIPOS:
+    - Para modificar tipos de colunas, basta substituir STRING por outro tipo válido.
+    - Exemplo: `SAFE_CAST(column_name AS NUMERIC) column_name`
+    - Mais detalhes: https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types
+    */
+    """
+    accepted_types = [
+        "INT64",
+        "NUMERIC",
+        "FLOAT64",
+        "BOOL",
+        "STRING",
+        "BYTES",
+        "ARRAY",
+        "DATE",
+        "TIME",
+        "DATETIME",
+        "TIMESTAMP",
+        "STRUCT",
+        "GEOGRAPHY",
+    ]
+    if not set(dtype.values()).issubset(accepted_types):
+        non_type = list(set(accepted_types) - set(dtype))[0]
+        raise ValueError(
+            f"Big Query types must be one of the following 'INT64', 'NUMERIC', 'FLOAT64', 'BOOL', 'STRING', 'BYTES', 'ARRAY', 'DATE', 'TIME', 'DATETIME', 'TIMESTAMP', 'STRUCT', 'GEOGRAPHY'.\n{non_type} was found"
+        )
+
+    # remove triple quotes extra space
+    publish_txt = inspect.cleandoc(publish_txt)
+    publish_txt = textwrap.dedent(publish_txt)
+
+    # add create table statement
+    project_id_prod = tb.client["bigquery_prod"].project
+    publish_txt += (
+        f"\n\nCREATE VIEW {project_id_prod}.{tb.dataset_id}.{tb.table_id} AS\nSELECT \n"
+    )
+
+    # sort columns by is_partition, partitions_columns come first
+
+    # pylint: disable=W0212
+    if tb._is_partitioned():
+        columns = sorted(
+            tb.table_config["columns"],
+            key=lambda k: (k["is_partition"] is not None, k["is_partition"]),
+            reverse=True,
+        )
+    else:
+        columns = tb.table_config["columns"]
+
+    # add columns in publish.sql
+    for col in columns:
+        name = col["name"]
+        if name in dtype.keys():
+            bigquery_type = dtype[name]
+        else:
+            if col["bigquery_type"] is None:
+                bigquery_type = "STRING"
+            else:
+                bigquery_type = col["bigquery_type"].upper()
+
+        publish_txt += f"SAFE_CAST({name} AS {bigquery_type}) {name},\n"
+    ## remove last comma
+    publish_txt = publish_txt[:-2] + "\n"
+
+    # add from statement
+    project_id_staging = tb.client["bigquery_staging"].project
+    publish_txt += (
+        f"FROM {project_id_staging}.{tb.dataset_id}_staging.{tb.table_id} AS t"
+    )
+
+    # save publish.sql in table_folder
+    (tb.table_folder / "publish.sql").open("w", encoding="utf-8").write(publish_txt)
