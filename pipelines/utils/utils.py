@@ -136,7 +136,8 @@ def run_cloud(
 
     # Change flow name for development and register
     flow.name = f"{flow.name} (development)"
-    flow.run_config = KubernetesRun(image="ghcr.io/prefeitura-rio/prefect-flows:latest")
+    flow.run_config = KubernetesRun(
+        image="ghcr.io/basedosdados/prefect-flows:latest")
     flow_id = flow.register(project_name="main", labels=[])
 
     # Get Prefect Client and submit flow run
@@ -213,7 +214,7 @@ def smart_split(
     return [
         text[:separator_index],
         *smart_split(
-            text[separator_index + len(separator) :],
+            text[separator_index + len(separator):],
             max_length,
             separator,
         ),
@@ -267,7 +268,8 @@ def clean_dataframe(dataframe: pd.DataFrame) -> pd.DataFrame:
                     .replace("None", np.nan, regex=True)
                 )
             except Exception as exc:
-                print("Column: ", col, "\nData: ", dataframe[col].tolist(), "\n", exc)
+                print("Column: ", col, "\nData: ",
+                      dataframe[col].tolist(), "\n", exc)
                 raise
     return dataframe
 
@@ -410,7 +412,8 @@ def dump_header_to_csv(
     # discover if it's a partitioned table
     if partition_folders := [folder for folder in file.split("/") if "=" in folder]:
         partition_path = "/".join(partition_folders)
-        save_header_file_path = Path(f"{save_header_path}/{partition_path}/header.csv")
+        save_header_file_path = Path(
+            f"{save_header_path}/{partition_path}/header.csv")
         log(f"Found partition path: {save_header_file_path}")
 
     else:
