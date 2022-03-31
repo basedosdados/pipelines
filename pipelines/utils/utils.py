@@ -71,7 +71,7 @@ def get_vault_secret(secret_path: str, client: hvac.Client = None) -> dict:
     return vault_client.secrets.kv.read_secret_version(secret_path)["data"]
 
 
-def get_username_and_password_from_secret(
+def get_credentials_from_secret(
     secret_path: str,
     client: hvac.Client = None,
 ) -> Tuple[str, str]:
@@ -79,9 +79,10 @@ def get_username_and_password_from_secret(
     Returns a username and password from a secret in Vault.
     """
     secret = get_vault_secret(secret_path, client)
+    keys = list(secret["data"].keys())
     return (
-        secret["data"]["username"],
-        secret["data"]["password"],
+        secret["data"][keys[0]],
+        secret["data"][keys[1]],
     )
 
 
