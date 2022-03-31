@@ -182,6 +182,7 @@ def create_table_and_upload_to_gcs(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
+# pylint: disable=R0914
 def update_metadata(dataset_id: str, table_id: str, fields_to_update: list) -> None:
     """
     Update metadata for a selected table
@@ -200,9 +201,8 @@ def update_metadata(dataset_id: str, table_id: str, fields_to_update: list) -> N
     data['ckan']['api_key']=api_key
     data['ckan']['url']=url
 
-    f = open(toml_file,'w')
-    toml.dump(data, f)
-    f.close()
+    with open(toml_file, 'w', encoding="utf-8") as f:
+        toml.dump(data, f)
 
     handle = bd.Metadata(dataset_id=dataset_id, table_id=table_id)
     handle.create(if_exists="replace")
