@@ -8,13 +8,11 @@ from pathlib import Path
 from typing import Union
 import inspect
 import textwrap
-import os
 
 import basedosdados as bd
 from prefect import task
 import ruamel.yaml as ryaml
 import pandas as pd
-import toml
 
 from pipelines.constants import constants
 from pipelines.utils.utils import (
@@ -192,20 +190,13 @@ def update_metadata(dataset_id: str, table_id: str, fields_to_update: list) -> N
     fields_to_update: list of dictionaries with key and values to be updated
     """
     # add credentials to config.toml
-    home=os.getenv("HOME")
-    toml_file=home+"/.basedosdados/config.toml"
-    data = toml.load(toml_file)
-
-    (api_key, url) = get_credentials_from_secret(secret_path='ckan_credentials')
-
-    data['ckan']['api_key']=api_key
-    data['ckan']['url']=url
-
-    with open(toml_file, 'w', encoding="utf-8") as f:
-        toml.dump(data, f)
+    (api_key, url) = get_credentials_from_secret(secret_path="ckan_credentials")
 
     handle = bd.Metadata(dataset_id=dataset_id, table_id=table_id)
     handle.create(if_exists="replace")
+
+    handle.CKAN_API_KEY = api_key
+    handle.CKAN_URL = url
 
     yaml = ryaml.YAML()
     yaml.preserve_quotes = True
