@@ -74,10 +74,10 @@ def crawler():
 
     df.columns = [col.replace('non_public_metrics_','').replace('public_metrics_','') for col in df.columns]
 
-    filepath = '/tmp/data/metricas_tweets.csv'
-    df.to_csv(filepath)
+    full_filepath = f'/tmp/data/metricas_tweets/dia={now.strftime("%Y-%m-%d")}/metricas_tweets.csv'
+    df.to_csv(full_filepath)
 
-    return filepath
+    return '/tmp/data/metricas_tweets'
 
 
 def _create_headers(bearer_token):
