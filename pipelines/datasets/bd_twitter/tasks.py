@@ -2,8 +2,8 @@
 Tasks for bd_tweet_data
 """
 import os
-import collections
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
+import pytz
 
 from prefect import task
 import requests
@@ -11,36 +11,63 @@ from tqdm import tqdm
 from requests_oauthlib import OAuth1
 import pandas as pd
 import numpy as np
+from typing import Union
 from dotenv import load_dotenv
 load_dotenv()
 
+from pipelines.utils import get_storage_blobs, log
+from pipelines.bd_twitter.utils import (
+    create_headers,
+    create_url,
+    connect_to_endpoint,
+    flatten
+)
 from pipelines.constants import constants
 
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def crawler():
+def new_data()-> Union[bool, pd.DataFrame]:
+    now = datetime.now(tz=pytz.UTC)
+    os.system(f'mkdir -p /tmp/data/metricas_tweets/dia={now.strftime("%Y-%m-%d")}/')
+
     bearer_token = os.getenv('TWITTER_TOKEN')
-
-    os.system('mkdir -p /tmp/data')
-
-    headers = _create_headers(bearer_token)
+    headers = create_headers(bearer_token)
     keyword = "xbox lang:en"
 
-    # non_public_metrics only available for last 30 days
-    now = datetime.now(timezone.utc)
-    thirty_before = now - timedelta(days = 30)
+    blobs = get_storage_blobs(dataset_id='bd_twitter', table_id='metricas_tweets')
+    url = blobs[0].public_url
+    df = pd.read_csv(url, parse_dates=['created_at'])
+    last_date = np.max(df['created_at'])
 
-    start_time = thirty_before.strftime("%Y-%m-%dT00:00:00.000Z")
+    now = datetime.now(tz=pytz.UTC)
+
+    # non_public_metrics only available for last 30 days
+    if (now-last_date)>timedelta(days = 30):
+        before = now - timedelta(days = 30)
+    else:
+        before = now - (now-last_date)
+
+    start_time = before.strftime("%Y-%m-%dT00:00:00.000Z")
     end_time=now.strftime("%Y-%m-%dT00:00:00.000Z")
 
     max_results = 100
-    url = _create_url(keyword, start_time,end_time, max_results)
-    json_response = _connect_to_endpoint(url[0], headers, url[1])
-    data = [_flatten(i) for i in json_response["data"]]
+    url = create_url(keyword, start_time,end_time, max_results)
+    json_response = connect_to_endpoint(url[0], headers, url[1])
+    data = [flatten(i) for i in json_response["data"]]
     df1 = pd.DataFrame(data)
 
+    if df1.shape[0]==0:
+        return False
+    else:
+        return df1
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def crawler_metricas(df1: pd.DataFrame) -> str:
     ids = [k for k in df1['id']]
 
     temp_dict ={}
@@ -79,41 +106,62 @@ def crawler():
 
     return '/tmp/data/metricas_tweets'
 
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def crawler_metricas_agg():
+    CONSUMER_KEY=os.getenv('CONSUMER_KEY')
+    CONSUMER_SECRET=os.getenv('CONSUMER_SECRET')
+    ACCESS_TOKEN=os.getenv('ACCESS_TOKEN')
+    ACCESS_SECRET=os.getenv('ACCESS_SECRET')
 
-def _create_headers(bearer_token):
-    headers = {"Authorization": "Bearer {}".format(bearer_token)}
-    return headers
+    now = datetime.now(tz=pytz.UTC)
+    os.system('mkdir -p /tmp/data/metricas_tweets_agg/')
 
+    blobs = get_storage_blobs(dataset_id='bd_twitter', table_id='metricas_tweets')
+    data_url = blobs[0].public_url
+    df = pd.read_csv(data_url, parse_dates=['created_at'])
 
-def _create_url(keyword, start_date, end_date, max_results = 10):
-    ttid = 1184334528837574656
-    search_url = f"https://api.twitter.com/2/users/{ttid}/tweets" #Change to the endpoint you want to collect data from
+    df1 = df.groupby('created_at').agg({
+        'retweet_count': 'sum',
+        'reply_count': 'sum',
+        'like_count': 'sum',
+        'quote_count': 'sum', 
+        'impression_count': 'sum',
+        'user_profile_clicks': 'sum',
+        'url_link_clicks': 'sum'
+    })
 
-    #change params based on the endpoint you are using
-    query_params = {'start_time': start_date,
-                    'end_time': end_date,
-                    'max_results': max_results,
-                    'tweet.fields': 'public_metrics,created_at',
-                    'next_token': {}}
-    
-    return (search_url, query_params)
+    df1= df1.reset_index()
 
+    url = 'https://api.twitter.com/2/users/1184334528837574656?user.fields=public_metrics'
 
-def _connect_to_endpoint(url, headers, params, next_token = None):
-    params['next_token'] = next_token   #params object received from create_url function
-    response = requests.request("GET", url, headers = headers, params = params)
-    print("Endpoint Response Code: " + str(response.status_code))
-    if response.status_code != 200:
-        raise Exception(response.status_code, response.text)
-    return response.json()
+    headeroauth = OAuth1(CONSUMER_KEY, CONSUMER_SECRET,ACCESS_TOKEN, ACCESS_SECRET, signature_type='auth_header')
+    try:
+        r = requests.get(url, auth=headeroauth)
 
+        json_response = r.json()
+        result = json_response['data']['public_metrics']
+    except:
+        print(json_response['errors'])
 
-def _flatten(d, parent_key='', sep='_'):
-    items = []
-    for k, v in d.items():
-        new_key = parent_key + sep + k if parent_key else k
-        if isinstance(v, collections.MutableMapping):
-            items.extend(_flatten(v, new_key, sep=sep).items())
-        else:
-            items.append((new_key, v))
-    return dict(items)
+    df2 = pd.DataFrame(result, index=[1])
+    now = datetime.now().strftime('%Y-%m-%d')
+    df2['date'] = now
+
+    df1['date'] = [date.strftime('%Y-%m-%d') for date in df1['created_at']]
+
+    df1=df1.drop('created_at', axis=1)
+
+    if now not in df1['date'].to_list():
+        part = pd.DataFrame([[np.nan]*len(df1.columns)],columns=df1.columns)
+        part['date']=now
+        df1=df1.append(part)
+
+    df = df1.set_index('date').join(df2.set_index('date'))
+
+    filepath = '/tmp/data/metricas_tweets/metricas_tweets.csv'
+    df.to_csv(filepath)
+
+    return filepath
