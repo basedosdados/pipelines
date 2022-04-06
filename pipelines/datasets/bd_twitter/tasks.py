@@ -15,8 +15,8 @@ from typing import Union
 from dotenv import load_dotenv
 load_dotenv()
 
-from pipelines.utils import get_storage_blobs, log
-from pipelines.bd_twitter.utils import (
+from pipelines.utils.utils import get_storage_blobs, log
+from pipelines.datasets.bd_twitter.utils import (
     create_headers,
     create_url,
     connect_to_endpoint,
@@ -28,7 +28,14 @@ from pipelines.constants import constants
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def new_data()-> Union[bool, pd.DataFrame]:
+def echo(message:str)-> None:
+    log(message)
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def has_new_tweets()-> bool:
     now = datetime.now(tz=pytz.UTC)
     os.system(f'mkdir -p /tmp/data/metricas_tweets/dia={now.strftime("%Y-%m-%d")}/')
 
@@ -36,38 +43,44 @@ def new_data()-> Union[bool, pd.DataFrame]:
     headers = create_headers(bearer_token)
     keyword = "xbox lang:en"
 
-    blobs = get_storage_blobs(dataset_id='bd_twitter', table_id='metricas_tweets')
-    url = blobs[0].public_url
-    df = pd.read_csv(url, parse_dates=['created_at'])
-    last_date = np.max(df['created_at'])
-
-    now = datetime.now(tz=pytz.UTC)
-
     # non_public_metrics only available for last 30 days
-    if (now-last_date)>timedelta(days = 30):
-        before = now - timedelta(days = 30)
-    else:
-        before = now - (now-last_date)
-
+    before = now - timedelta(days = 29)
     start_time = before.strftime("%Y-%m-%dT00:00:00.000Z")
     end_time=now.strftime("%Y-%m-%dT00:00:00.000Z")
-
     max_results = 100
     url = create_url(keyword, start_time,end_time, max_results)
     json_response = connect_to_endpoint(url[0], headers, url[1])
     data = [flatten(i) for i in json_response["data"]]
     df1 = pd.DataFrame(data)
 
-    if df1.shape[0]==0:
-        return False
-    else:
-        return df1
+    blobs = get_storage_blobs(dataset_id='bd_twitter', table_id='metricas_tweets')
+    now = datetime.now(tz=pytz.UTC)
+
+    if len(blobs)!=0:
+        dfs =[]
+        for blob in blobs:
+            url_data = blob.public_url
+            df = pd.read_csv(url_data, dtype={'id':str})
+            dfs.append(df)
+
+        df=dfs[0].append(dfs[1:])
+        ids = df.id.to_list()
+        df1=df1[~df1['id'].isin(ids)]
+
+    if len(df1)>0:
+        log(f'{len(df1)} new tweets founded')
+        
+    df1.to_csv('/tmp/basic_metrics.csv', index=False)
+
+    return not df1.empty
 
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def crawler_metricas(df1: pd.DataFrame) -> str:
+def crawler_metricas() -> str:
+    now = datetime.now(tz=pytz.UTC)
+    df1 = pd.read_csv('/tmp/basic_metrics.csv', dtype = {'url_link_clicks': int, 'user_profile_clicks': int, 'impression_count': int})
     ids = [k for k in df1['id']]
 
     temp_dict ={}
@@ -88,7 +101,7 @@ def crawler_metricas(df1: pd.DataFrame) -> str:
                 json_response = r.json()
                 temp_dict.update({id_field: json_response['data']['non_public_metrics']})
             except:
-                print(json_response['errors'])
+                log(json_response['errors'])
         else:
             temp_dict.update({id_field: {'url_link_clicks': np.nan, 'user_profile_clicks': np.nan, 'impression_count': np.nan}})
 
@@ -119,9 +132,15 @@ def crawler_metricas_agg():
     now = datetime.now(tz=pytz.UTC)
     os.system('mkdir -p /tmp/data/metricas_tweets_agg/')
 
+    dfs=[]
     blobs = get_storage_blobs(dataset_id='bd_twitter', table_id='metricas_tweets')
-    data_url = blobs[0].public_url
-    df = pd.read_csv(data_url, parse_dates=['created_at'])
+    for blob in blobs:
+        url_data = blob.public_url
+        df = pd.read_csv(url_data, dtype={'id':str}, parse_dates=['created_at'])
+        dfs.append(df)
+
+    df=dfs[0].append(dfs[1:])
+
 
     df1 = df.groupby('created_at').agg({
         'retweet_count': 'sum',
@@ -144,7 +163,7 @@ def crawler_metricas_agg():
         json_response = r.json()
         result = json_response['data']['public_metrics']
     except:
-        print(json_response['errors'])
+        log(json_response['errors'])
 
     df2 = pd.DataFrame(result, index=[1])
     now = datetime.now().strftime('%Y-%m-%d')
@@ -161,7 +180,7 @@ def crawler_metricas_agg():
 
     df = df1.set_index('date').join(df2.set_index('date'))
 
-    filepath = '/tmp/data/metricas_tweets/metricas_tweets.csv'
+    filepath = '/tmp/data/metricas_tweets_agg/metricas_tweets_agg.csv'
     df.to_csv(filepath)
 
     return filepath

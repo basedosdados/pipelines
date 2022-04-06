@@ -8,25 +8,26 @@ from prefect import Flow, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from pipelines.constants import constants
-from pipelines.datasets.bd_twitter.tasks import crawler_metricas, crawler_metricas_agg, new_data
+from pipelines.datasets.bd_twitter.tasks import crawler_metricas, crawler_metricas_agg, has_new_tweets, echo
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     update_publish_sql,
     publish_table,
 )
+from pipelines.utils.utils import log
 from pipelines.datasets.bd_twitter.schedules import every_day, every_week
 
 with Flow("bd_twitter_data.metricas_tweets") as bd_twt_metricas:
     dataset_id = "bd_twitter"
     table_id = "metricas_tweets"
 
-    cond = new_data()
+    cond = has_new_tweets()
 
     with case(cond, False):
-        log(f"No tweets to update since {before.strftime('%Y-%m-%d')}")
+        echo("No tweets to update")
 
     with case(cond, True):
-        filepath = crawler_metricas(cond, upstream_tasks=[cond])
+        filepath = crawler_metricas(upstream_tasks=[cond])
 
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=filepath,
@@ -41,7 +42,7 @@ with Flow("bd_twitter_data.metricas_tweets") as bd_twt_metricas:
             'reply_count': 'INT64', 
             'like_count': 'INT64', 
             'quote_count': 'INT64',
-        'created_at': 'DATE',
+        'created_at': 'STRING',
         'url_link_clicks': 'INT64', 
         'user_profile_clicks': 'INT64',
         'impression_count': 'INT64'
@@ -79,7 +80,7 @@ with Flow("bd_twitter_data.metricas_tweets_agg") as bd_twt_metricas_agg:
         'reply_count': 'INT64', 
         'like_count': 'INT64', 
         'quote_count': 'INT64',
-       'created_at': 'DATE',
+       'date': 'DATE',
        'url_link_clicks': 'INT64', 
        'user_profile_clicks': 'INT64',
        'impression_count': 'INT64'
