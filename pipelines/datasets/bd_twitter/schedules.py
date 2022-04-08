@@ -14,7 +14,7 @@ every_week = Schedule(
             start_date=datetime(2021, 1, 1),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-            ]
+            ],
         ),
     ]
 )
