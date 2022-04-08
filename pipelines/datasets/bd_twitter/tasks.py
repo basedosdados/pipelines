@@ -66,7 +66,6 @@ def has_new_tweets(bearer_token: str) -> bool:
     )
 
     headers = create_headers(bearer_token)
-    keyword = "xbox lang:en"
 
     # non_public_metrics only available for last 30 days
     before = now - timedelta(days=29)
@@ -74,7 +73,7 @@ def has_new_tweets(bearer_token: str) -> bool:
     end_time = now.strftime("%Y-%m-%dT00:00:00.000Z")
     max_results = 100
     # pylint: disable=E1121
-    url = create_url(keyword, start_time, end_time, max_results)
+    url = create_url(start_time, end_time, max_results)
     json_response = connect_to_endpoint(url[0], headers, url[1])
     data = [flatten(i) for i in json_response["data"]]
     df1 = pd.DataFrame(data)
