@@ -168,7 +168,7 @@ def crawler_metricas(
     filepath = f'/tmp/data/metricas_tweets/upload_day={now.strftime("%Y-%m-%d")}/metricas_tweets.csv'
     df.to_csv(filepath)
 
-    return "/tmp/data/metricas_tweets/"
+    return filepath
 
 
 @task(
