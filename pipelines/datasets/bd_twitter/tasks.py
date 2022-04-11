@@ -193,7 +193,10 @@ def crawler_metricas_agg(
 
     df = dfs[0].append(dfs[1:])
 
-    df1 = df.groupby("created_at").agg(
+    df["date"] = [date.strftime("%Y-%m-%d") for date in df["created_at"]]
+    df = df.drop("created_at", axis=1)
+
+    df1 = df.groupby("date").agg(
         {
             "retweet_count": "sum",
             "reply_count": "sum",
@@ -229,14 +232,14 @@ def crawler_metricas_agg(
     now = datetime.now().strftime("%Y-%m-%d")
     df2["date"] = now
 
-    df1["date"] = [date.strftime("%Y-%m-%d") for date in df1["created_at"]]
-
-    df1 = df1.drop("created_at", axis=1)
+    log(df1.head())
 
     if now not in df1["date"].to_list():
         part = pd.DataFrame([[np.nan] * len(df1.columns)], columns=df1.columns)
         part["date"] = now
         df1 = df1.append(part)
+
+    log(df1.head())
 
     df = df1.set_index("date").join(df2.set_index("date"))
 
