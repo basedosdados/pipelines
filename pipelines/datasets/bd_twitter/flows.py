@@ -52,7 +52,6 @@ with Flow("bd_twitter_data.metricas_tweets") as bd_twt_metricas:
             dataset_id=dataset_id,
             table_id=table_id,
             dump_type="append",
-            partitions=["upload_day"],
             wait=filepath,
         )
 

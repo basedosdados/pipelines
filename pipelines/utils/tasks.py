@@ -53,7 +53,6 @@ def create_table_and_upload_to_gcs(
     dataset_id: str,
     table_id: str,
     dump_type: str,
-    partitions=None,
     wait=None,  # pylint: disable=unused-argument
 ) -> None:
     """
@@ -164,7 +163,7 @@ def create_table_and_upload_to_gcs(
     log("STARTING UPLOAD TO GCS")
     if tb.table_exists(mode="staging"):
         # the name of the files need to be the same or the data doesn't get overwritten
-        tb.append(filepath=data_path, if_exists="replace", partitions=partitions)
+        tb.append(filepath=data_path, if_exists="replace")
 
         log(
             f"STEP UPLOAD: Successfully uploaded {data_path} to Storage:\n"
