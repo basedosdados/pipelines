@@ -165,10 +165,10 @@ def crawler_metricas(
     ]
 
     # pylint: disable=C0301
-    filepath = f'/tmp/data/metricas_tweets/upload_day={now.strftime("%Y-%m-%d")}/metricas_tweets.csv'
-    df.to_csv(filepath)
+    full_filepath = f'/tmp/data/metricas_tweets/upload_day={now.strftime("%Y-%m-%d")}/metricas_tweets.csv'
+    df.to_csv(full_filepath)
 
-    return filepath
+    return '/tmp/data/metricas_tweets/'
 
 
 @task(
