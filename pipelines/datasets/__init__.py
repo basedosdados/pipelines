@@ -10,3 +10,4 @@ from pipelines.datasets.br_ibge_inpc.flows import *
 from pipelines.datasets.br_ibge_ipca.flows import *
 from pipelines.datasets.br_ibge_ipca15.flows import *
 from pipelines.datasets.bd_twitter.flows import *
+from pipelines.datasets.br_cgu_terceirizados.flows import *
