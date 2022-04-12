@@ -296,12 +296,12 @@ def get_temporal_coverage(
     dates.sort()
 
     if time_unit == "day":
-        start_date = f"{dates[0].year}-{dates[0].month}-{dates[0].day}"
-        end_date = f"{dates[-1].year}-{dates[-1].month}-{dates[-1].day}"
+        start_date = f"{dates[0].year}-{dates[0].strftime('%m')}-{dates[0].strftime('%d')}"
+        end_date = f"{dates[-1].year}-{dates[-1].strftime('%m')}-{dates[-1].strftime('%d')}"
         return start_date + "(" + interval + ")" + end_date
     if time_unit == "month":
-        start_date = f"{dates[0].year}-{dates[0].month}"
-        end_date = f"{dates[-1].year}-{dates[-1].month}"
+        start_date = f"{dates[0].year}-{dates[0].strftime('%m')}"
+        end_date = f"{dates[-1].year}-{dates[-1].strftime('%m')}"
         return start_date + "(" + interval + ")" + end_date
     if time_unit == "year":
         start_date = f"{dates[0].year}"
