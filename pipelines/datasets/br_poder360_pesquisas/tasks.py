@@ -1,59 +1,66 @@
 """
 Tasks for br_poder360_pesquisas
 """
-
-###############################################################################
-#
-# Aqui é onde devem ser definidas as tasks para os flows do projeto.
-# Cada task representa um passo da pipeline. Não é estritamente necessário
-# tratar todas as exceções que podem ocorrer durante a execução de uma task,
-# mas é recomendável, ainda que não vá implicar em  uma quebra no sistema.
-# Mais informações sobre tasks podem ser encontradas na documentação do
-# Prefect: https://docs.prefect.io/core/concepts/tasks.html
-#
-# De modo a manter consistência na codebase, todo o código escrito passará
-# pelo pylint. Todos os warnings e erros devem ser corrigidos.
-#
-# As tasks devem ser definidas como funções comuns ao Python, com o decorador
-# @task acima. É recomendado inserir type hints para as variáveis.
-#
-# Um exemplo de task é o seguinte:
-#
-# -----------------------------------------------------------------------------
-# from prefect import task
-#
-# @task
-# def my_task(param1: str, param2: int) -> str:
-#     """
-#     My task description.
-#     """
-#     return f'{param1} {param2}'
-# -----------------------------------------------------------------------------
-#
-# Você também pode usar pacotes Python arbitrários, como numpy, pandas, etc.
-#
-# -----------------------------------------------------------------------------
-# from prefect import task
-# import numpy as np
-#
-# @task
-# def my_task(a: np.ndarray, b: np.ndarray) -> str:
-#     """
-#     My task description.
-#     """
-#     return np.add(a, b)
-# -----------------------------------------------------------------------------
-#
-# Abaixo segue um código para exemplificação, que pode ser removido.
-#
-###############################################################################
+from datetime import timedelta
+import os
 
 from prefect import task
+import requests
+import json
+import pandas as pd
+from tqdm import tqdm
+from pipelines.constants import constants
+from pipelines.utils.utils import log
 
 
-@task
-def say_hello(name: str = 'World') -> str:
-    """
-    Greeting task.
-    """
-    return f'Hello, {name}!'
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def crawler() -> str:
+    os.system("mkdir -p /tmp/data/poder360/")
+    header = ["id_pesquisa","ano","sigla_uf","nome_municipio","cargo","data","data_referencia","instituto","contratante","orgao_registro",
+        "numero_registro","quantidade_entrevistas","margem_mais","margem_menos","tipo","turno","tipo_voto","id_cenario","descricao_cenario",
+        "id_candidato_poder360","nome_candidato","sigla_partido","condicao","percentual"]
+
+    data = pd.DataFrame(columns=header)
+
+    for year in tqdm(range(2000, 2023)):
+        url = "https://pesquisas.poder360.com.br/web/consulta/fetch?data_pesquisa_de={}-01-01&data_pesquisa_ate={}-12-31&order_column=ano&order_type=asc".format(
+            year, year
+        )
+        response = requests.get(url, headers={"User-Agent": "Magic Browser"})
+        data_json = response.json()
+        log(ano)
+        df = pd.json_normalize(data_json)
+        if df.shape[0]>0:
+            df = df[["pesquisa_id","ano","ambito","cargo","tipo","turno","data_pesquisa","instituto","voto_tipo","cenario_id","cenario_descricao",
+                    "candidatos_id","candidato","condicao","percentual","data_referencia","margem_mais","margem_menos","contratante","num_registro",
+                    "orgao_registro","qtd_entrevistas","partido","cidade"]
+            ]
+            df.columns = ["id_pesquisa","ano","sigla_uf","cargo","tipo","turno","data","instituto","tipo_voto","id_cenario","descricao_cenario",
+                "id_candidato_poder360","nome_candidato","condicao","percentual","data_referencia","margem_mais","margem_menos","contratante",
+                "numero_registro","orgao_registro","quantidade_entrevistas","sigla_partido","nome_municipio"]
+            df = df[header]
+            df["sigla_uf"] = df["sigla_uf"].str.replace("BR", "")
+            df["cargo"] = df["cargo"].str.lower()
+            df["tipo"] = df["tipo"].str.lower()
+            df["tipo_voto"] = df["tipo_voto"].str.lower()
+            df["sigla_uf"] = df["sigla_uf"].str.replace("Novo", "NOVO")
+            df["sigla_uf"] = df["sigla_uf"].str.replace("Patriota", "PATRI")
+            df["sigla_uf"] = df["sigla_uf"].str.replace("Podemos", "PODE")
+            df["sigla_uf"] = df["sigla_uf"].str.replace("Progressistas", "PP")
+            df["sigla_uf"] = df["sigla_uf"].str.replace("Prona", "PRONA")
+            df["sigla_uf"] = df["sigla_uf"].str.replace("Pros", "PROS")
+            df["sigla_uf"] = df["sigla_uf"].str.replace("Psol", "PSOL")
+            df["sigla_uf"] = df["sigla_uf"].str.replace("Rede", "REDE")
+
+            data = pd.concat([data, df])
+        else:
+            continue
+
+
+    filepath = "/tmp/data/poder360/microdados_poder360.csv"
+    data.to_csv(filepath, index=False)
+    return filepath
