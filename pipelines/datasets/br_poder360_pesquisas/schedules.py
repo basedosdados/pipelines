@@ -3,9 +3,11 @@ Schedules for br_poder360_pesquisas
 """
 
 from datetime import datetime
+
 from prefect.schedules import Schedule
-from pipelines.constants import constants
 from prefect.schedules.clocks import CronClock
+
+from pipelines.constants import constants
 
 
 every_monday_thursday = Schedule(

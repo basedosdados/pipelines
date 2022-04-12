@@ -17,9 +17,7 @@ from pipelines.utils.tasks import (
 )
 from pipelines.datasets.br_poder360_pesquisas.schedules import every_monday_thursday
 
-ROOT = "/tmp/data"
-URL = "http://dados.cvm.gov.br/dados/OFERTA/DISTRIB/DADOS/oferta_distribuicao.csv"
-
+# pylint: disable=C0103
 with Flow("br_poder360_pesquisas.microdados") as br_poder360:
     dataset_id = "br_poder360_pesquisas"
     table_id = "microdados"
@@ -34,31 +32,31 @@ with Flow("br_poder360_pesquisas.microdados") as br_poder360:
         wait=filepath,
     )
 
-    # temporal_coverage = get_temporal_coverage(
-    #     filepath=filepath,
-    #     date_col="data_abertura_processo",
-    #     time_unit="day",
-    #     interval="1",
-    #     upstream_tasks=[wait_upload_table],
-    # )
+    temporal_coverage = get_temporal_coverage(
+        filepath=filepath,
+        date_col="data",
+        time_unit="year",
+        interval="1",
+        upstream_tasks=[wait_upload_table],
+    )
 
-    # wait_update_metadata = update_metadata(
-    #     dataset_id=dataset_id,
-    #     table_id=table_id,
-    #     fields_to_update=[
-    #         {"last_updated": {"metadata": datetime.now().strftime("%Y/%m/%d")}},
-    #         {"temporal_coverage": [temporal_coverage]},
-    #     ],
-    #     upstream_tasks=[temporal_coverage],
-    # )
+    wait_update_metadata = update_metadata(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        fields_to_update=[
+            {"last_updated": {"metadata": datetime.now().strftime("%Y/%m/%d")}},
+            {"temporal_coverage": [temporal_coverage]},
+        ],
+        upstream_tasks=[temporal_coverage],
+    )
 
-    # publish_table(
-    #     path=filepath,
-    #     dataset_id=dataset_id,
-    #     table_id=table_id,
-    #     if_exists="replace",
-    #     wait=wait_update_metadata,
-    # )
+    publish_table(
+        path=filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        if_exists="replace",
+        wait=wait_update_metadata,
+    )
 
 br_poder360.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_poder360.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
