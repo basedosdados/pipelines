@@ -376,14 +376,7 @@ def update_publish_sql(dataset_id: str, table_id: str, dtype: dict):
     # sort columns by is_partition, partitions_columns come first
 
     # pylint: disable=W0212
-    if tb._is_partitioned():
-        columns = sorted(
-            tb.table_config["columns"],
-            key=lambda k: (k["is_partition"] is not None, k["is_partition"]),
-            reverse=True,
-        )
-    else:
-        columns = tb.table_config["columns"]
+    columns = tb.table_config["columns"]
 
     # add columns in publish.sql
     for col in columns:

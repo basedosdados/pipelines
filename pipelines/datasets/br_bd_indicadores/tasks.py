@@ -164,6 +164,21 @@ def crawler_metricas(
         for col in df.columns
     ]
 
+    url = (
+        "https://api.twitter.com/2/users/1184334528837574656?user.fields=public_metrics"
+    )
+    try:
+        r = requests.get(url, auth=headeroauth)
+        json_response = r.json()
+        result = json_response["data"]["public_metrics"]
+    except KeyError:
+        log(json_response["errors"])
+
+    df['following_count'] = result['following_count']
+    df['followers_count'] = result['followers_count']
+    df['tweet_count'] =  result['tweet_count']
+    df['listed_count'] = result['listed_count']
+
     # pylint: disable=C0301
     full_filepath = f'/tmp/data/metricas_tweets/upload_day={now.strftime("%Y-%m-%d")}/metricas_tweets.csv'
     df.to_csv(full_filepath)
@@ -175,28 +190,24 @@ def crawler_metricas(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def crawler_metricas_agg(
-    access_secret: str, access_token: str, consumer_key: str, consumer_secret: str
-):
+def crawler_metricas_agg():
     '''
     Task to weekly capture aggregate data from previously created daily twitter data
     '''
-    now = datetime.now(tz=pytz.UTC)
     os.system("mkdir -p /tmp/data/metricas_tweets_agg/")
 
     dfs = []
     blobs = get_storage_blobs(dataset_id="br_bd_indicadores", table_id="metricas_tweets")
     for blob in blobs:
         url_data = blob.public_url
+        date = blob.time_created.strftime('%Y-%m-%d')
         df = pd.read_csv(url_data, dtype={"id": str}, parse_dates=["created_at"])
+        df['upload_date'] = date
         dfs.append(df)
 
     df = dfs[0].append(dfs[1:])
 
-    df["date"] = [date.strftime("%Y-%m-%d") for date in df["created_at"]]
-    df = df.drop("created_at", axis=1)
-
-    df1 = df.groupby("date").agg(
+    df = df.groupby("upload_date").agg(
         {
             "retweet_count": "sum",
             "reply_count": "sum",
@@ -205,39 +216,12 @@ def crawler_metricas_agg(
             "impression_count": "sum",
             "user_profile_clicks": "sum",
             "url_link_clicks": "sum",
+            'followers_count':'first',
+            'following_count': 'first',
+            'tweet_count': 'first',
+            'listed_count': 'first'
         }
     )
-
-    df1 = df1.reset_index()
-
-    url = (
-        "https://api.twitter.com/2/users/1184334528837574656?user.fields=public_metrics"
-    )
-
-    headeroauth = OAuth1(
-        consumer_key,
-        consumer_secret,
-        access_token,
-        access_secret,
-        signature_type="auth_header",
-    )
-    try:
-        r = requests.get(url, auth=headeroauth)
-        json_response = r.json()
-        result = json_response["data"]["public_metrics"]
-    except KeyError:
-        log(json_response["errors"])
-
-    df2 = pd.DataFrame(result, index=[1])
-    now = datetime.now().strftime("%Y-%m-%d")
-    df2["date"] = now
-
-    if now not in df1["date"].to_list():
-        part = pd.DataFrame([[np.nan] * len(df1.columns)], columns=df1.columns)
-        part["date"] = now
-        df1 = df1.append(part)
-
-    df = df1.set_index("date").join(df2.set_index("date"))
 
     filepath = "/tmp/data/metricas_tweets_agg/metricas_tweets_agg.csv"
     df.to_csv(filepath)

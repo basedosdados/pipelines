@@ -68,6 +68,10 @@ with Flow("br_bd_indicadores_data.metricas_tweets") as bd_twt_metricas:
                 "url_link_clicks": "FLOAT64",
                 "user_profile_clicks": "FLOAT64",
                 "impression_count": "FLOAT64",
+                'followers_count':'FLOAT64',
+                'following_count': 'FLOAT64',
+                'tweet_count': 'FLOAT64',
+                'listed_count': 'FLOAT64'
             },
             upstream_tasks=[wait_upload_table],
         )
@@ -85,22 +89,13 @@ bd_twt_metricas.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 bd_twt_metricas.schedule = every_day
 
 
+
 with Flow("br_bd_indicadores_data.metricas_tweets_agg") as bd_twt_metricas_agg:
     dataset_id = "br_bd_indicadores"  # pylint: disable=C0103
     table_id = "metricas_tweets_agg"  # pylint: disable=C0103
 
-    (
-        access_secret,
-        access_token,
-        consumer_key,
-        consumer_secret,
-        bearer_token,
-    ) = get_credentials(secret_path="twitter_credentials")
-
     # pylint: disable=C0103
-    filepath = crawler_metricas_agg(
-        access_secret, access_token, consumer_key, consumer_secret
-    )
+    filepath = crawler_metricas_agg()
 
     # pylint: disable=C0103
     wait_upload_table = create_table_and_upload_to_gcs(
@@ -124,6 +119,10 @@ with Flow("br_bd_indicadores_data.metricas_tweets_agg") as bd_twt_metricas_agg:
             "url_link_clicks": "FLOAT64",
             "user_profile_clicks": "FLOAT64",
             "impression_count": "FLOAT64",
+            'followers_count':'FLOAT64',
+            'following_count': 'FLOAT64',
+            'tweet_count': 'FLOAT64',
+            'listed_count': 'FLOAT64'
         },
         upstream_tasks=[wait_upload_table],
     )
