@@ -16,7 +16,7 @@ every_hour = Schedule(
             cron="0 * * * *",  # 0 * * * * means at every hour.
             start_date=datetime(2021, 1, 1),
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
         )
     ]
