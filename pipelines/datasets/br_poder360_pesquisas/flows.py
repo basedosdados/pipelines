@@ -1,31 +1,28 @@
 """
-Flows for br_cgu_terceirizados
+Flows for br_poder360_pesquisas
 """
+
 from datetime import datetime
 
 from prefect import Flow
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from pipelines.constants import constants
-from pipelines.datasets.br_cgu_terceirizados.tasks import crawl, clean_save_table
+from pipelines.datasets.br_poder360_pesquisas.tasks import crawler
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     update_metadata,
+    get_temporal_coverage,
     publish_table,
 )
-from pipelines.datasets.br_cgu_terceirizados.schedules import every_four_months
-
-
-ROOT = "/tmp/data"
-URL = "https://www.gov.br/cgu/pt-br/acesso-a-informacao/dados-abertos/arquivos/terceirizados"
-
+from pipelines.datasets.br_poder360_pesquisas.schedules import every_monday_thursday
 
 # pylint: disable=C0103
-with Flow("br_cgu_pessoal_executivo_federal.terceirizados") as br_cgu_pess_exec_fed_terc:
-    dataset_id = "br_cgu_pessoal_executivo_federal"
-    table_id = "terceirizados"
-    crawl_urls, temporal_coverage = crawl(URL)
-    filepath = clean_save_table(ROOT, crawl_urls)
+with Flow("br_poder360_pesquisas.microdados") as br_poder360:
+    dataset_id = "br_poder360_pesquisas"
+    table_id = "microdados"
+
+    filepath = crawler()
 
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
@@ -33,6 +30,14 @@ with Flow("br_cgu_pessoal_executivo_federal.terceirizados") as br_cgu_pess_exec_
         table_id=table_id,
         dump_type="overwrite",
         wait=filepath,
+    )
+
+    temporal_coverage = get_temporal_coverage(
+        filepath=filepath,
+        date_col="data",
+        time_unit="year",
+        interval="1",
+        upstream_tasks=[wait_upload_table],
     )
 
     wait_update_metadata = update_metadata(
@@ -53,7 +58,6 @@ with Flow("br_cgu_pessoal_executivo_federal.terceirizados") as br_cgu_pess_exec_
         wait=wait_update_metadata,
     )
 
-
-br_cgu_pess_exec_fed_terc.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_cgu_pess_exec_fed_terc.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_cgu_pess_exec_fed_terc.schedule = every_four_months
+br_poder360.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_poder360.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_poder360.schedule = every_monday_thursday

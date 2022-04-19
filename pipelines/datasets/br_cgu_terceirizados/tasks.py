@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup
 from prefect import task
 
 
+# pylint: disable=C0103
 @task
 def crawl(url: str) -> str:
     """
@@ -31,6 +32,7 @@ def crawl(url: str) -> str:
     return urls, temporal_coverage
 
 
+# pylint: disable=C0103
 @task
 def clean_save_table(root: str, url_list: list):
     """Standardizes column names and selected variables"""

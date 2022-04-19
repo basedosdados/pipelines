@@ -140,7 +140,7 @@ Escolha a pipeline que deseja executar (exemplo `pipelines.rj_escritorio.test_pi
 
 ```py
 from pipelines.utils.utils import run_local
-pipelines.datasets.test_pipeline.flows import flow
+from pipelines.datasets.test_pipeline.flows import flow
 
 run_local(flow, parameters = {"param": "val"})
 ```
