@@ -36,13 +36,19 @@ def get_credentials(secret_path: str) -> Tuple[str, str, str, str, str]:
     """
     log(f"Getting user and password for secret path: {secret_path}")
     tokens_dict = get_credentials_from_secret(secret_path)
-    access_secret = tokens_dict["ACCESS_SECRET"]
+    access_token_secret = tokens_dict["ACCESS_SECRET"]
     access_token = tokens_dict["ACCESS_TOKEN"]
     consumer_key = tokens_dict["CONSUMER_KEY"]
     consumer_secret = tokens_dict["CONSUMER_SECRET"]
     twitter_token = tokens_dict["TWITTER_TOKEN"]
 
-    return access_secret, access_token, consumer_key, consumer_secret, twitter_token
+    return (
+        access_token_secret,
+        access_token,
+        consumer_key,
+        consumer_secret,
+        twitter_token,
+    )
 
 
 # pylint: disable=R0914
@@ -61,11 +67,13 @@ def was_table_updated() -> bool:
         WHERE creation_time BETWEEN TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 1 HOUR) AND CURRENT_TIMESTAMP()
         ORDER BY creation_time DESC
     """,
+        billing_project_id="basedosdados",
         from_file=True,
     )
 
     if not df.empty:
-        os.system("mkdir -p /tmp/data/updated_tables.csv")
+        os.system("mkdir -p /tmp/data/")
+        df.to_csv("/tmp/data/updated_tables.csv")
         return True
     return False
 
@@ -75,7 +83,7 @@ def was_table_updated() -> bool:
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def send_tweet(
-    access_secret: str,
+    access_token: str,
     access_token_secret: str,
     consumer_key: str,
     consumer_secret: str,
@@ -89,12 +97,12 @@ def send_tweet(
         bearer_token=bearer_token,
         consumer_key=consumer_key,
         consumer_secret=consumer_secret,
-        access_token=access_secret,
+        access_token=access_token,
         access_token_secret=access_token_secret,
     )
 
     df = pd.read_csv("/tmp/data/updated_tables.csv")
-    dict_updated_tables = dict(df["dataset"].to_list(), df["table_name"].to_list())
+    dict_updated_tables = dict(zip(df["dataset"].to_list(), df["table_name"].to_list()))
 
     for dataset, table in dict_updated_tables.items():
         client.create_tweet(

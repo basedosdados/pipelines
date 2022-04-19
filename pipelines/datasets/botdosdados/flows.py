@@ -23,7 +23,7 @@ with Flow("botdosdados.metricas_tweets") as bot_dados_flow:
 
     with case(cond, True):
         (
-            access_secret,
+            access_token_secret,
             access_token,
             consumer_key,
             consumer_secret,
@@ -33,12 +33,12 @@ with Flow("botdosdados.metricas_tweets") as bot_dados_flow:
         )
 
         send_tweet(
-            access_secret,
             access_token,
+            access_token_secret,
             consumer_key,
             consumer_secret,
             bearer_token,
-            upstream_tasks=[get_credentials],
+            upstream_tasks=[access_token],
         )  # pylint: disable=C0103
 
 bot_dados_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
