@@ -211,6 +211,7 @@ def crawler_metricas_agg():
         dfs.append(df)
 
     df = dfs[0].append(dfs[1:])
+    df = df.drop_duplicates(subset="id", keep="first")
 
     df = df.groupby("upload_date").agg(
         {

@@ -68,11 +68,27 @@ with Flow("br_bd_indicadores_data.metricas_tweets") as bd_twt_metricas:
                 "url_link_clicks": "FLOAT64",
                 "user_profile_clicks": "FLOAT64",
                 "impression_count": "FLOAT64",
-                'followers_count':'FLOAT64',
-                'following_count': 'FLOAT64',
-                'tweet_count': 'FLOAT64',
-                'listed_count': 'FLOAT64'
+                "followers_count": "FLOAT64",
+                "following_count": "FLOAT64",
+                "tweet_count": "FLOAT64",
+                "listed_count": "FLOAT64",
             },
+            columns=[
+                "id",
+                "created_at",
+                "text",
+                "retweet_count",
+                "reply_count",
+                "like_count",
+                "quote_count",
+                "impression_count",
+                "user_profile_clicks",
+                "url_link_clicks",
+                "following_count",
+                "followers_count",
+                "tweet_count",
+                "listed_count",
+            ],
             upstream_tasks=[wait_upload_table],
         )
 
@@ -87,7 +103,6 @@ with Flow("br_bd_indicadores_data.metricas_tweets") as bd_twt_metricas:
 bd_twt_metricas.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 bd_twt_metricas.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 bd_twt_metricas.schedule = every_day
-
 
 
 with Flow("br_bd_indicadores_data.metricas_tweets_agg") as bd_twt_metricas_agg:
@@ -119,11 +134,25 @@ with Flow("br_bd_indicadores_data.metricas_tweets_agg") as bd_twt_metricas_agg:
             "url_link_clicks": "FLOAT64",
             "user_profile_clicks": "FLOAT64",
             "impression_count": "FLOAT64",
-            'followers_count':'FLOAT64',
-            'following_count': 'FLOAT64',
-            'tweet_count': 'FLOAT64',
-            'listed_count': 'FLOAT64'
+            "followers_count": "FLOAT64",
+            "following_count": "FLOAT64",
+            "tweet_count": "FLOAT64",
+            "listed_count": "FLOAT64",
         },
+        columns=[
+            "upload_date",
+            "retweet_count",
+            "reply_count",
+            "like_count",
+            "quote_count",
+            "impression_count",
+            "user_profile_clicks",
+            "url_link_clicks",
+            "followers_count",
+            "following_count",
+            "tweet_count",
+            "listed_count",
+        ],
         upstream_tasks=[wait_upload_table],
     )
 
