@@ -13,7 +13,7 @@ from pipelines.datasets.botdosdados.tasks import (
 )
 from pipelines.datasets.botdosdados.schedules import every_hour
 
-with Flow("botdosdados.metricas_tweets") as bot_dados_flow:
+with Flow("botdosdados.send_tweets") as bot_dados_flow:
 
     # pylint: disable=C0103
     cond = was_table_updated()
