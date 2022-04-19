@@ -2,8 +2,8 @@
 Schedules for br_cgu_terceirizados
 """
 
-from dateutil.rrule import rrule, MONTHLY
 from datetime import datetime
+from dateutil.rrule import rrule, MONTHLY
 from prefect.schedules import Schedule
 from prefect.schedules.clocks import RRuleClock
 from pipelines.constants import constants

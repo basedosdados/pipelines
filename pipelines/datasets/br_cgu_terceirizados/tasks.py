@@ -3,8 +3,8 @@ Tasks for br_cgu_terceirizados
 """
 import os
 import re
-import requests
 from io import BytesIO
+import requests
 
 import pandas as pd
 from bs4 import BeautifulSoup
@@ -21,15 +21,13 @@ def crawl(url: str) -> str:
         "a", {"class": "internal-link"}, href=True
     )
     urls = [url["href"] for url in urls if url["href"].endswith("csv")]
-    
     regex_pattern = re.compile(r'\d{6}')
     temporal_coverage = regex_pattern.findall(''.join(urls))
     temporal_coverage.sort()
     start_date = temporal_coverage[0][:4] + "-" + temporal_coverage[0][4:]
     end_date = temporal_coverage[-1][:4] + "-" + temporal_coverage[-1][4:]
     temporal_coverage = start_date + "(4)" + end_date
-    
-    
+
     return urls, temporal_coverage
 
 
@@ -38,7 +36,7 @@ def clean_save_table(root: str, url_list: list):
     """Standardizes column names and selected variables"""
     path_out = f"{root}/terceirizados.csv"
     os.makedirs(root, exist_ok=True)
-    
+
     cols = [
         "id_terc",
         "sg_orgao_sup_tabela_ug",
@@ -67,14 +65,14 @@ def clean_save_table(root: str, url_list: list):
     df = pd.DataFrame(columns=cols)
     for url in url_list:
         csv = requests.get(url)
-        f = BytesIO()
-        f.write(csv.content)
-        f.seek(0)
+        file_bytes = BytesIO()
+        file_bytes.write(csv.content)
+        file_bytes.seek(0)
         # handle cases with and without header
         if "id_terc" in csv.text[:20]:
-            df_url = pd.read_csv(f, sep=";", low_memory=False)
+            df_url = pd.read_csv(file_bytes, sep=";", low_memory=False)
         else:
-            df_url = pd.read_csv(f, sep=";", low_memory=False, names=cols, header=None)
+            df_url = pd.read_csv(file_bytes, sep=";", low_memory=False, names=cols, header=None)
         df = pd.concat([df, df_url], ignore_index=True)
         del df_url
 
