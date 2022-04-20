@@ -14,7 +14,6 @@ from pipelines.datasets.br_bd_indicadores.tasks import (
 )
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
-    update_publish_sql,
     publish_table,
 )
 from pipelines.datasets.br_bd_indicadores.schedules import every_day, every_week
@@ -55,39 +54,17 @@ with Flow("br_bd_indicadores_data.metricas_tweets") as bd_twt_metricas:
             wait=filepath,
         )
 
-        # pylint: disable=C0103
-        wait_update_publish_sql = update_publish_sql(
-            dataset_id,
-            table_id,
-            dtype={
-                "retweet_count": "INT64",
-                "reply_count": "INT64",
-                "like_count": "INT64",
-                "quote_count": "INT64",
-                "created_at": "STRING",
-                "url_link_clicks": "FLOAT64",
-                "user_profile_clicks": "FLOAT64",
-                "impression_count": "FLOAT64",
-                'followers_count':'FLOAT64',
-                'following_count': 'FLOAT64',
-                'tweet_count': 'FLOAT64',
-                'listed_count': 'FLOAT64'
-            },
-            upstream_tasks=[wait_upload_table],
-        )
-
         publish_table(
             path=filepath,
             dataset_id=dataset_id,
             table_id=table_id,
             if_exists="replace",
-            wait=wait_update_publish_sql,
+            wait=wait_upload_table,
         )
 
 bd_twt_metricas.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 bd_twt_metricas.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 bd_twt_metricas.schedule = every_day
-
 
 
 with Flow("br_bd_indicadores_data.metricas_tweets_agg") as bd_twt_metricas_agg:
@@ -107,33 +84,12 @@ with Flow("br_bd_indicadores_data.metricas_tweets_agg") as bd_twt_metricas_agg:
     )
 
     # pylint: disable=C0103
-    wait_update_publish_sql = update_publish_sql(
-        dataset_id,
-        table_id,
-        dtype={
-            "retweet_count": "FLOAT64",
-            "reply_count": "FLOAT64",
-            "like_count": "FLOAT64",
-            "quote_count": "FLOAT64",
-            "date": "DATE",
-            "url_link_clicks": "FLOAT64",
-            "user_profile_clicks": "FLOAT64",
-            "impression_count": "FLOAT64",
-            'followers_count':'FLOAT64',
-            'following_count': 'FLOAT64',
-            'tweet_count': 'FLOAT64',
-            'listed_count': 'FLOAT64'
-        },
-        upstream_tasks=[wait_upload_table],
-    )
-
-    # pylint: disable=C0103
     publish_table(
         path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         if_exists="replace",
-        wait=wait_update_publish_sql,
+        wait=wait_upload_table,
     )
 
 bd_twt_metricas_agg.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

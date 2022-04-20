@@ -296,8 +296,12 @@ def get_temporal_coverage(
     dates.sort()
 
     if time_unit == "day":
-        start_date = f"{dates[0].year}-{dates[0].strftime('%m')}-{dates[0].strftime('%d')}"
-        end_date = f"{dates[-1].year}-{dates[-1].strftime('%m')}-{dates[-1].strftime('%d')}"
+        start_date = (
+            f"{dates[0].year}-{dates[0].strftime('%m')}-{dates[0].strftime('%d')}"
+        )
+        end_date = (
+            f"{dates[-1].year}-{dates[-1].strftime('%m')}-{dates[-1].strftime('%d')}"
+        )
         return start_date + "(" + interval + ")" + end_date
     if time_unit == "month":
         start_date = f"{dates[0].year}-{dates[0].strftime('%m')}"
@@ -315,7 +319,7 @@ def get_temporal_coverage(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def update_publish_sql(dataset_id: str, table_id: str, dtype: dict):
+def update_publish_sql(dataset_id: str, table_id: str, dtype: dict, columns: list):
     """Edit publish.sql with columns and bigquery_type"""
 
     # pylint: disable=C0103
@@ -376,6 +380,10 @@ def update_publish_sql(dataset_id: str, table_id: str, dtype: dict):
     # sort columns by is_partition, partitions_columns come first
 
     # pylint: disable=W0212
+    md = bd.Metadata(dataset_id=dataset_id, table_id=table_id)
+    md.create(columns=columns, if_exists="replace")
+    tb._make_publish_sql()
+
     columns = tb.table_config["columns"]
 
     # add columns in publish.sql
