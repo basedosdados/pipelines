@@ -3,13 +3,13 @@ Tasks for botdosdados
 """
 import os
 from typing import Tuple
-from datetime import timedelta
+from datetime import timedelta, datetime
 from time import sleep
 
 import tweepy
 from prefect import task
+from basedosdados.download.metadata import _safe_fetch
 import pandas as pd
-import basedosdados as bd
 from pipelines.utils.utils import log
 from pipelines.datasets.botdosdados.utils import (
     get_credentials_from_secret,
@@ -56,20 +56,39 @@ def get_credentials(secret_path: str) -> Tuple[str, str, str, str, str]:
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def was_table_updated() -> bool:
+def was_table_updated(page_size: int, hours: int) -> bool:
     """
     Checks if there are tables updated within last hour. If True, saves table locally.
     """
-    df = bd.read_sql(
-        """
-        SELECT table_catalog as proj, table_schema as dataset, table_name, creation_time
-        FROM region-us.INFORMATION_SCHEMA.TABLES
-        WHERE creation_time BETWEEN TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 1 HOUR) AND CURRENT_TIMESTAMP()
-        ORDER BY creation_time DESC
-    """,
-        billing_project_id="basedosdados",
-        from_file=True,
-    )
+    url = f"https://basedosdados.org/api/3/action/bd_dataset_search?q=&resource_type=bdm_table&page=1&page_size={page_size}"
+    response = _safe_fetch(url)
+    json_response = response.json()
+    datasets = json_response["result"]["datasets"]
+    n_datasets = len(datasets)
+    dfs = []
+    for index in range(n_datasets):
+        dataset_dict = datasets[index]
+        dataset_name = dataset_dict["name"]
+        n_tables = len(dataset_dict["resources"])
+        tables = [
+            dataset_dict["resources"][k]["name"]
+            for k in range(n_tables)
+            if dataset_dict["resources"][k]["resource_type"] == "bdm_table"
+        ]
+        created = [
+            dataset_dict["resources"][k]["created"]
+            for k in range(n_tables)
+            if dataset_dict["resources"][k]["resource_type"] == "bdm_table"
+        ]
+        df = pd.DataFrame({"table": tables, "created": created})
+        df["dataset"] = dataset_name
+        df = df.reindex(["dataset", "table", "created"], axis=1)
+        dfs.append(df)
+
+    df = dfs[0].append(dfs[1:])
+    df["created"] = pd.to_datetime(df["created"])
+    df.sort_values("created", ascending=False, inplace=True)
+    df = df[df["created"] > datetime.now() - pd.Timedelta(hours=hours)]
 
     if not df.empty:
         os.system("mkdir -p /tmp/data/")
@@ -102,7 +121,7 @@ def send_tweet(
     )
 
     df = pd.read_csv("/tmp/data/updated_tables.csv")
-    dict_updated_tables = dict(zip(df["dataset"].to_list(), df["table_name"].to_list()))
+    dict_updated_tables = dict(zip(df["dataset"].to_list(), df["table"].to_list()))
 
     for dataset, table in dict_updated_tables.items():
         client.create_tweet(
