@@ -51,7 +51,7 @@ with Flow("br_bd_indicadores_data.metricas_tweets") as bd_twt_metricas:
             data_path=filepath,
             dataset_id=dataset_id,
             table_id=table_id,
-            dump_type="append",
+            dump_type="overwrite",
             wait=filepath,
         )
 
