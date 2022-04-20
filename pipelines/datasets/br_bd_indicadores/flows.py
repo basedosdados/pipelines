@@ -51,45 +51,8 @@ with Flow("br_bd_indicadores_data.metricas_tweets") as bd_twt_metricas:
             data_path=filepath,
             dataset_id=dataset_id,
             table_id=table_id,
-            dump_type="overwrite",
+            dump_type="append",
             wait=filepath,
-        )
-
-        # pylint: disable=C0103
-        wait_update_publish_sql = update_publish_sql(
-            dataset_id,
-            table_id,
-            dtype={
-                "retweet_count": "INT64",
-                "reply_count": "INT64",
-                "like_count": "INT64",
-                "quote_count": "INT64",
-                "created_at": "STRING",
-                "url_link_clicks": "FLOAT64",
-                "user_profile_clicks": "FLOAT64",
-                "impression_count": "FLOAT64",
-                "followers_count": "FLOAT64",
-                "following_count": "FLOAT64",
-                "tweet_count": "FLOAT64",
-                "listed_count": "FLOAT64",
-            },
-            columns=[
-                "id",
-                "created_at",
-                "text",
-                "retweet_count",
-                "reply_count",
-                "like_count",
-                "quote_count",
-                "impression_count",
-                "user_profile_clicks",
-                "url_link_clicks",
-                "following_count",
-                "followers_count",
-                "tweet_count",
-                "listed_count",
-            ],
-            upstream_tasks=[wait_upload_table],
         )
 
         publish_table(
@@ -97,7 +60,7 @@ with Flow("br_bd_indicadores_data.metricas_tweets") as bd_twt_metricas:
             dataset_id=dataset_id,
             table_id=table_id,
             if_exists="replace",
-            wait=wait_update_publish_sql,
+            wait=wait_updload_table,
         )
 
 bd_twt_metricas.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
