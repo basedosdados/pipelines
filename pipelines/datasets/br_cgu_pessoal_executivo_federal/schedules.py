@@ -15,7 +15,7 @@ every_four_months = Schedule(
             rrule(freq=MONTHLY, count=4),
             start_date=datetime(2021, 1, 1),
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value
                 ]
             )
         ]
