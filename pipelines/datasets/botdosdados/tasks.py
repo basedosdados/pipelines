@@ -75,20 +75,20 @@ def was_table_updated(page_size: int, hours: int) -> bool:
             for k in range(n_tables)
             if dataset_dict["resources"][k]["resource_type"] == "bdm_table"
         ]
-        created = [
-            dataset_dict["resources"][k]["created"]
+        metadata_modified = [
+            dataset_dict["resources"][k]["metadata_modified"]
             for k in range(n_tables)
             if dataset_dict["resources"][k]["resource_type"] == "bdm_table"
         ]
-        df = pd.DataFrame({"table": tables, "created": created})
+        df = pd.DataFrame({"table": tables, "metadata_modified": metadata_modified})
         df["dataset"] = dataset_name
-        df = df.reindex(["dataset", "table", "created"], axis=1)
+        df = df.reindex(["dataset", "table", "metadata_modified"], axis=1)
         dfs.append(df)
 
     df = dfs[0].append(dfs[1:])
-    df["created"] = pd.to_datetime(df["created"])
-    df.sort_values("created", ascending=False, inplace=True)
-    df = df[df["created"] > datetime.now() - pd.Timedelta(hours=hours)]
+    df["metadata_modified"] = pd.to_datetime(df["metadata_modified"])
+    df.sort_values("metadata_modified", ascending=False, inplace=True)
+    df = df[df["metadata_modified"] > datetime.now() - pd.Timedelta(hours=hours)]
 
     if not df.empty:
         os.system("mkdir -p /tmp/data/")
