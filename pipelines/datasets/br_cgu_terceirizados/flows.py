@@ -7,13 +7,13 @@ from prefect import Flow
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from pipelines.constants import constants
-from pipelines.datasets.br_cgu_pessoal_executivo_federal.tasks import crawl, clean_save_table
+from pipelines.datasets.br_cgu_terceirizados.tasks import crawl, clean_save_table
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     update_metadata,
     publish_table,
 )
-from pipelines.datasets.br_cgu_pessoal_executivo_federal.schedules import every_four_months
+from pipelines.datasets.br_cgu_terceirizados.schedules import every_four_months
 
 
 ROOT = "/tmp/data"
