@@ -16,7 +16,7 @@ from pipelines.datasets.botdosdados.schedules import every_hour
 with Flow("botdosdados.send_tweets") as bot_dados_flow:
 
     # pylint: disable=C0103
-    cond = was_table_updated(page_size=100, hours=1)
+    cond = was_table_updated(page_size=100, hours=24)
 
     with case(cond, False):
         echo("No table updated")
