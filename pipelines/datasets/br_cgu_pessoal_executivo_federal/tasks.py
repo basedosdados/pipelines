@@ -4,6 +4,7 @@ Tasks for br_cgu_terceirizados
 import os
 import re
 from io import BytesIO
+from typing import Tuple
 import requests
 
 import pandas as pd
@@ -12,8 +13,8 @@ from prefect import task
 
 
 # pylint: disable=C0103
-@task
-def crawl(url: str) -> str:
+@task(nout=2)
+def crawl(url: str) -> Tuple[str,str]:
     """
     Get all table urls from CGU website and extract temporal covarage
     """
