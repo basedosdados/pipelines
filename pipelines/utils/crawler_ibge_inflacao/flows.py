@@ -50,7 +50,7 @@ with Flow("Template: IBGE Inflação: mes_brasil") as flow_ibge_inflacao_mes_bra
 
     temporal_coverage = get_temporal_coverage(
         filepath=filepath,
-        date_col=['ano','mes'],
+        date_cols=["ano", "mes"],
         time_unit="month",
         interval="1",
         upstream_tasks=[wait_upload_table],
@@ -107,7 +107,7 @@ with Flow("Template: IBGE Inflação: mes_rm") as flow_ibge_inflacao_mes_rm:
 
     temporal_coverage = get_temporal_coverage(
         filepath=filepath,
-        date_col=['ano','mes'],
+        date_cols=["ano", "mes"],
         time_unit="month",
         interval="1",
         upstream_tasks=[wait_upload_table],
@@ -162,7 +162,7 @@ with Flow("Template: IBGE Inflação: mes_municipio") as flow_ibge_inflacao_mes_
 
     temporal_coverage = get_temporal_coverage(
         filepath=filepath,
-        date_col=['ano','mes'],
+        date_cols=["ano", "mes"],
         time_unit="month",
         interval="1",
         upstream_tasks=[wait_upload_table],
@@ -220,7 +220,7 @@ with Flow("Template: IBGE Inflação: mes_geral") as flow_ibge_inflacao_mes_gera
 
     temporal_coverage = get_temporal_coverage(
         filepath=filepath,
-        date_col=['ano','mes'],
+        date_cols=["ano", "mes"],
         time_unit="month",
         interval="1",
         upstream_tasks=[wait_upload_table],
