@@ -34,7 +34,7 @@ with Flow("br_poder360_pesquisas.microdados") as br_poder360:
 
     temporal_coverage = get_temporal_coverage(
         filepath=filepath,
-        date_col="data",
+        date_cols=["data"],
         time_unit="year",
         interval="1",
         upstream_tasks=[wait_upload_table],
