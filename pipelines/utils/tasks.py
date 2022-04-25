@@ -3,7 +3,7 @@ Helper tasks that could fit any pipeline.
 """
 # pylint: disable=C0103, C0301, invalid-name, E1101, R0913
 
-from datetime import timedelta
+from datetime import timedelta, datetime
 from pathlib import Path
 from typing import Union
 import inspect
@@ -290,28 +290,36 @@ def get_temporal_coverage(
     interval: time between dates.
     For example, if the time_unit is month and the data is update every quarter, then the intervel is 3.
     """
-    if len(date_cols)==1:
-        date_col=date_cols[0]
+    if len(date_cols) == 1:
+        date_col = date_cols[0]
         df = pd.read_csv(filepath, usecols=[date_col], parse_dates=[date_col])
         dates = df[date_col].to_list()
         dates.sort()
-    elif len(date_cols==2):
-        year=date_cols[0]
-        month= date_cols[1]
+    elif len(date_cols) == 2:
+        year = date_cols[0]
+        month = date_cols[1]
         df = pd.read_csv(filepath, usecols=[year, month])
-        df['date']=[datetime.strptime(str(x)+'-'+str(y)+'-'+'1', '%Y-%m-%d') for x,y in zip(df[year],df[month])]
-        dates = df['date'].to_list()
+        df["date"] = [
+            datetime.strptime(str(x) + "-" + str(y) + "-" + "1", "%Y-%m-%d")
+            for x, y in zip(df[year], df[month])
+        ]
+        dates = df["date"].to_list()
         dates.sort()
-    elif len(date_cols==3):
-        year=date_cols[0]
-        month= date_cols[1]
-        month= date_cols[2]
+    elif len(date_cols) == 3:
+        year = date_cols[0]
+        month = date_cols[1]
+        day = date_cols[2]
         df = pd.read_csv(filepath, usecols=[year, month])
-        df['date']=[datetime.strptime(str(x)+'-'+str(y)+'-'+str(y), '%Y-%m-%d') for x,y in zip(df[year],df[month],df[day])]
-        dates = df['date'].to_list()
+        df["date"] = [
+            datetime.strptime(str(x) + "-" + str(y) + "-" + str(y), "%Y-%m-%d")
+            for x, y in zip(df[year], df[month], df[day])
+        ]
+        dates = df["date"].to_list()
         dates.sort()
     else:
-        raise ValueError('date_cols must be a list with up to 3 elements in the following order [year, month, day]')        
+        raise ValueError(
+            "date_cols must be a list with up to 3 elements in the following order [year, month, day]"
+        )
 
     if time_unit == "day":
         start_date = (
