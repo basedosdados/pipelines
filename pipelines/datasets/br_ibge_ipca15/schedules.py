@@ -14,7 +14,7 @@ br_ibge_ipca15_mes_categoria_brasil_every_month = generate_inflacao_clocks(
 br_ibge_ipca15_mes_categoria_rm_every_month = generate_inflacao_clocks(
     parameters={
         "indice": "ipca15",
-        "folder": "rm/",
+        "folder": "rm",
         "dataset_id": "br_ibge_ipca15",
         "table_id": "mes_categoria_rm",
     }
@@ -24,7 +24,7 @@ br_ibge_ipca15_mes_categoria_rm_every_month = generate_inflacao_clocks(
 br_ibge_ipca15_mes_categoria_municipio_every_month = generate_inflacao_clocks(
     parameters={
         "indice": "ipca15",
-        "folder": "mun/",
+        "folder": "mun",
         "dataset_id": "br_ibge_ipca15",
         "table_id": "mes_categoria_municipio",
     },
@@ -33,7 +33,7 @@ br_ibge_ipca15_mes_categoria_municipio_every_month = generate_inflacao_clocks(
 br_ibge_ipca15_mes_brasil_every_month = generate_inflacao_clocks(
     parameters={
         "indice": "ipca15",
-        "folder": "mes/",
+        "folder": "mes",
         "dataset_id": "br_ibge_ipca15",
         "table_id": "mes_brasil",
     },
