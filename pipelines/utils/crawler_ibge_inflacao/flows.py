@@ -34,12 +34,30 @@ with Flow("Template: IBGE Inflação: mes_brasil") as flow_ibge_inflacao_mes_bra
     # pylint: disable=E1123
     filepath = clean_mes_brasil(indice=INDICE, upstream_tasks=[wait_crawler])
 
-    create_table_and_upload_to_gcs(
+    wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_type="overwrite",
         wait=filepath,
+    )
+
+    temporal_coverage = get_temporal_coverage(
+        filepath=filepath,
+        date_col="data",
+        time_unit="year",
+        interval="1",
+        upstream_tasks=[wait_upload_table],
+    )
+
+    wait_update_metadata = update_metadata(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        fields_to_update=[
+            {"last_updated": {"metadata": datetime.now().strftime("%Y/%m/%d")}},
+            {"temporal_coverage": [temporal_coverage]},
+        ],
+        upstream_tasks=[temporal_coverage],
     )
 
 flow_ibge_inflacao_mes_brasil.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

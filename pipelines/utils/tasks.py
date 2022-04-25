@@ -277,7 +277,7 @@ def publish_table(
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def get_temporal_coverage(
-    filepath: str, date_col: str, time_unit: str, interval: str
+    filepath: str, date_cols: list, time_unit: str, interval: str
 ) -> str:
     """
     Generates a temporal coverage string from a csv.
@@ -285,15 +285,21 @@ def get_temporal_coverage(
 
     args:
     filepath: csv filepath
-    date_col: date column to use as reference
+    date_cols: date columns to use as reference (use the order [year, month, day])
     time_unit: day | month | year
     interval: time between dates.
     For example, if the time_unit is month and the data is update every quarter, then the intervel is 3.
     """
-    df = pd.read_csv(filepath, usecols=[date_col], parse_dates=[date_col])
-
-    dates = df[date_col].to_list()
-    dates.sort()
+    if len(date_cols)==1:
+        date_col=date_cols[0]
+        df = pd.read_csv(filepath, usecols=[date_col], parse_dates=[date_col])
+        dates = df[date_col].to_list()
+        dates.sort()
+    elif len(date_cols==2):
+        date_col=date_cols[0]
+        df = pd.read_csv(filepath, usecols=[date_col], parse_dates=[date_col])
+        dates = df[date_col].to_list()
+        dates.sort()        
 
     if time_unit == "day":
         start_date = (
