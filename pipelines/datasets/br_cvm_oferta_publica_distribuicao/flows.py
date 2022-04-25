@@ -40,7 +40,7 @@ with Flow("br_cvm_oferta_publica_distribuicao.dia") as br_cvm_ofe_pub_dis_dia:
     # update_metadata
     temporal_coverage = get_temporal_coverage(
         filepath=filepath,
-        date_col="data_abertura_processo",
+        date_col=["data_abertura_processo"],
         time_unit="day",
         interval="1",
         upstream_tasks=[wait_upload_table],

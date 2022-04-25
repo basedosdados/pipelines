@@ -296,10 +296,22 @@ def get_temporal_coverage(
         dates = df[date_col].to_list()
         dates.sort()
     elif len(date_cols==2):
-        date_col=date_cols[0]
-        df = pd.read_csv(filepath, usecols=[date_col], parse_dates=[date_col])
-        dates = df[date_col].to_list()
-        dates.sort()        
+        year=date_cols[0]
+        month= date_cols[1]
+        df = pd.read_csv(filepath, usecols=[year, month])
+        df['date']=[datetime.strptime(str(x)+'-'+str(y)+'-'+'1', '%Y-%m-%d') for x,y in zip(df[year],df[month])]
+        dates = df['date'].to_list()
+        dates.sort()
+    elif len(date_cols==3):
+        year=date_cols[0]
+        month= date_cols[1]
+        month= date_cols[2]
+        df = pd.read_csv(filepath, usecols=[year, month])
+        df['date']=[datetime.strptime(str(x)+'-'+str(y)+'-'+str(y), '%Y-%m-%d') for x,y in zip(df[year],df[month],df[day])]
+        dates = df['date'].to_list()
+        dates.sort()
+    else:
+        raise ValueError('date_cols must be a list with up to 3 elements in the following order [year, month, day]')        
 
     if time_unit == "day":
         start_date = (

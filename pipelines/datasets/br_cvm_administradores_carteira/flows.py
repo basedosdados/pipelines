@@ -78,7 +78,7 @@ with Flow("br_cvm_administradores_carteira.pessoa_fisica") as br_cvm_adm_car_pes
     # update_metadata
     temporal_coverage = get_temporal_coverage(
         filepath=filepath,
-        date_col="data_registro",
+        date_col=["data_registro"],
         time_unit="day",
         interval="1",
         upstream_tasks=[wait_upload_table],
@@ -123,7 +123,7 @@ with Flow("br_cvm_administradores_carteira.pessoa_juridica") as br_cvm_adm_car_p
     # update_metadata
     temporal_coverage = get_temporal_coverage(
         filepath=filepath,
-        date_col="data_registro",
+        date_col=["data_registro"],
         time_unit="day",
         interval="1",
         upstream_tasks=[wait_upload_table],
