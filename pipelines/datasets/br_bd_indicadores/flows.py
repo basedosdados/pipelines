@@ -54,14 +54,6 @@ with Flow("br_bd_indicadores_data.metricas_tweets") as bd_twt_metricas:
             wait=filepath,
         )
 
-        publish_table(
-            path=filepath,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            if_exists="replace",
-            wait=wait_upload_table,
-        )
-
 bd_twt_metricas.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 bd_twt_metricas.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 bd_twt_metricas.schedule = every_day
@@ -81,15 +73,6 @@ with Flow("br_bd_indicadores_data.metricas_tweets_agg") as bd_twt_metricas_agg:
         table_id=table_id,
         dump_type="overwrite",
         wait=filepath,
-    )
-
-    # pylint: disable=C0103
-    publish_table(
-        path=filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        if_exists="replace",
-        wait=wait_upload_table,
     )
 
 bd_twt_metricas_agg.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
