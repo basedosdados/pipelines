@@ -9,4 +9,7 @@ from pipelines.datasets.br_cvm_oferta_publica_distribuicao.flows import *
 from pipelines.datasets.br_ibge_inpc.flows import *
 from pipelines.datasets.br_ibge_ipca.flows import *
 from pipelines.datasets.br_ibge_ipca15.flows import *
-from pipelines.datasets.bd_twitter.flows import *
+from pipelines.datasets.br_bd_indicadores.flows import *
+from pipelines.datasets.br_poder360_pesquisas.flows import *
+from pipelines.datasets.botdosdados.flows import *
+from pipelines.datasets.br_cgu_pessoal_executivo_federal.flows import *

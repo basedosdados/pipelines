@@ -1,33 +1,28 @@
 """
-Flows for br_cvm_oferta_publica_distribuicao
+Flows for br_poder360_pesquisas
 """
-# pylint: disable=C0103, E1123, invalid-name
+
 from datetime import datetime
 
 from prefect import Flow
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from pipelines.constants import constants
-from pipelines.datasets.br_cvm_oferta_publica_distribuicao.tasks import (
-    crawl,
-    clean_table_oferta_distribuicao,
-)
+from pipelines.datasets.br_poder360_pesquisas.tasks import crawler
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     update_metadata,
     get_temporal_coverage,
     publish_table,
 )
-from pipelines.datasets.br_cvm_oferta_publica_distribuicao.schedules import every_day
+from pipelines.datasets.br_poder360_pesquisas.schedules import every_monday_thursday
 
-ROOT = "/tmp/data"
-URL = "http://dados.cvm.gov.br/dados/OFERTA/DISTRIB/DADOS/oferta_distribuicao.csv"
+# pylint: disable=C0103
+with Flow("br_poder360_pesquisas.microdados") as br_poder360:
+    dataset_id = "br_poder360_pesquisas"
+    table_id = "microdados"
 
-with Flow("br_cvm_oferta_publica_distribuicao.dia") as br_cvm_ofe_pub_dis_dia:
-    dataset_id = "br_cvm_oferta_publica_distribuicao"
-    table_id = "dia"
-    wait_crawl = crawl(root=ROOT, url=URL)
-    filepath = clean_table_oferta_distribuicao(root=ROOT, upstream_tasks=[wait_crawl])
+    filepath = crawler()
 
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
@@ -37,11 +32,10 @@ with Flow("br_cvm_oferta_publica_distribuicao.dia") as br_cvm_ofe_pub_dis_dia:
         wait=filepath,
     )
 
-    # update_metadata
     temporal_coverage = get_temporal_coverage(
         filepath=filepath,
-        date_cols=["data_abertura_processo"],
-        time_unit="day",
+        date_cols=["data"],
+        time_unit="year",
         interval="1",
         upstream_tasks=[wait_upload_table],
     )
@@ -64,6 +58,6 @@ with Flow("br_cvm_oferta_publica_distribuicao.dia") as br_cvm_ofe_pub_dis_dia:
         wait=wait_update_metadata,
     )
 
-br_cvm_ofe_pub_dis_dia.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_cvm_ofe_pub_dis_dia.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_cvm_ofe_pub_dis_dia.schedule = every_day
+br_poder360.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_poder360.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_poder360.schedule = every_monday_thursday

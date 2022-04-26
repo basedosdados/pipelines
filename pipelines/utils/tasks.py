@@ -3,7 +3,7 @@ Helper tasks that could fit any pipeline.
 """
 # pylint: disable=C0103, C0301, invalid-name, E1101, R0913
 
-from datetime import timedelta
+from datetime import timedelta, datetime
 from pathlib import Path
 from typing import Union
 import inspect
@@ -277,7 +277,7 @@ def publish_table(
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def get_temporal_coverage(
-    filepath: str, date_col: str, time_unit: str, interval: str
+    filepath: str, date_cols: list, time_unit: str, interval: str
 ) -> str:
     """
     Generates a temporal coverage string from a csv.
@@ -285,23 +285,53 @@ def get_temporal_coverage(
 
     args:
     filepath: csv filepath
-    date_col: date column to use as reference
+    date_cols: date columns to use as reference (use the order [year, month, day])
     time_unit: day | month | year
     interval: time between dates.
     For example, if the time_unit is month and the data is update every quarter, then the intervel is 3.
     """
-    df = pd.read_csv(filepath, usecols=[date_col], parse_dates=[date_col])
-
-    dates = df[date_col].to_list()
-    dates.sort()
+    if len(date_cols) == 1:
+        date_col = date_cols[0]
+        df = pd.read_csv(filepath, usecols=[date_col], parse_dates=[date_col])
+        dates = df[date_col].to_list()
+        dates.sort()
+    elif len(date_cols) == 2:
+        year = date_cols[0]
+        month = date_cols[1]
+        df = pd.read_csv(filepath, usecols=[year, month])
+        df["date"] = [
+            datetime.strptime(str(x) + "-" + str(y) + "-" + "1", "%Y-%m-%d")
+            for x, y in zip(df[year], df[month])
+        ]
+        dates = df["date"].to_list()
+        dates.sort()
+    elif len(date_cols) == 3:
+        year = date_cols[0]
+        month = date_cols[1]
+        day = date_cols[2]
+        df = pd.read_csv(filepath, usecols=[year, month])
+        df["date"] = [
+            datetime.strptime(str(x) + "-" + str(y) + "-" + str(y), "%Y-%m-%d")
+            for x, y in zip(df[year], df[month], df[day])
+        ]
+        dates = df["date"].to_list()
+        dates.sort()
+    else:
+        raise ValueError(
+            "date_cols must be a list with up to 3 elements in the following order [year, month, day]"
+        )
 
     if time_unit == "day":
-        start_date = f"{dates[0].year}-{dates[0].month}-{dates[0].day}"
-        end_date = f"{dates[-1].year}-{dates[-1].month}-{dates[-1].day}"
+        start_date = (
+            f"{dates[0].year}-{dates[0].strftime('%m')}-{dates[0].strftime('%d')}"
+        )
+        end_date = (
+            f"{dates[-1].year}-{dates[-1].strftime('%m')}-{dates[-1].strftime('%d')}"
+        )
         return start_date + "(" + interval + ")" + end_date
     if time_unit == "month":
-        start_date = f"{dates[0].year}-{dates[0].month}"
-        end_date = f"{dates[-1].year}-{dates[-1].month}"
+        start_date = f"{dates[0].year}-{dates[0].strftime('%m')}"
+        end_date = f"{dates[-1].year}-{dates[-1].strftime('%m')}"
         return start_date + "(" + interval + ")" + end_date
     if time_unit == "year":
         start_date = f"{dates[0].year}"
@@ -315,7 +345,7 @@ def get_temporal_coverage(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def update_publish_sql(dataset_id: str, table_id: str, dtype: dict):
+def update_publish_sql(dataset_id: str, table_id: str, dtype: dict, columns: list):
     """Edit publish.sql with columns and bigquery_type"""
 
     # pylint: disable=C0103
@@ -376,14 +406,11 @@ def update_publish_sql(dataset_id: str, table_id: str, dtype: dict):
     # sort columns by is_partition, partitions_columns come first
 
     # pylint: disable=W0212
-    if tb._is_partitioned():
-        columns = sorted(
-            tb.table_config["columns"],
-            key=lambda k: (k["is_partition"] is not None, k["is_partition"]),
-            reverse=True,
-        )
-    else:
-        columns = tb.table_config["columns"]
+    md = bd.Metadata(dataset_id=dataset_id, table_id=table_id)
+    md.create(columns=columns, if_exists="replace")
+    tb._make_publish_sql()
+
+    columns = tb.table_config["columns"]
 
     # add columns in publish.sql
     for col in columns:
