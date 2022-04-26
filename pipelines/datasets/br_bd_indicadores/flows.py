@@ -12,10 +12,7 @@ from pipelines.datasets.br_bd_indicadores.tasks import (
     echo,
     get_credentials,
 )
-from pipelines.utils.tasks import (
-    create_table_and_upload_to_gcs,
-    publish_table,
-)
+from pipelines.utils.tasks import create_table_and_upload_to_gcs
 from pipelines.datasets.br_bd_indicadores.schedules import every_day, every_week
 
 with Flow("br_bd_indicadores_data.metricas_tweets") as bd_twt_metricas:
