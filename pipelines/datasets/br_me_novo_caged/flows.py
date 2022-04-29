@@ -28,21 +28,25 @@ install_wget = ShellTask(
     command="apt-get -y install wget", stream_output=True
 )
 
-which= ShellTask(command="bash pipelines/datasets/br_me_novo_caged/bash_scripts/check.sh", stream_output=True)
+install_ftp = ShellTask(
+    command="apt-get -y install ftp", stream_output=True
+)
+
+
+# which= ShellTask(command="bash pipelines/datasets/br_me_novo_caged/bash_scripts/check.sh", stream_output=True)
 
 # pylint: disable=C0103
 with Flow("br_me_novo_caged.microdados_mov") as cagedmov:
     dataset_id = "br_me_novo_caged"
     table_id = "microdados_mov"
 
-    which()
-
     update_apt= update()
 
     sevenz=install_sevenz(upstream_tasks=[update_apt])
     wget=install_wget(upstream_tasks=[sevenz])
+    ftp=install_ftp(upstream_tasks=[wget])
 
-    get_data=download(upstream_tasks=[wget])
+    get_data=download(upstream_tasks=[ftp])
 
     # pylint: disable=E1123
     filepath = build_partitions(group="cagedmov", upstream_tasks=[get_data])

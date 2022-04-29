@@ -41,7 +41,7 @@ for ano in "${anos[@]}"
 do
     for mes in "${pad_meses[@]}"
     do
-        wget --no-passive "$ftp_path$ano/$ano$mes/$upper_group$ano$mes.7z"
+        wget "$ftp_path$ano/$ano$mes/$upper_group$ano$mes.7z"
         7z x -y $upper_group$ano$mes.7z
         rm *7z
     done
