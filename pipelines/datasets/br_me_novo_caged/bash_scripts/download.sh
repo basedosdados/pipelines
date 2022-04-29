@@ -32,22 +32,17 @@ do
 done
 
 cd /tmp/novo_caged/$lower_group/input
-base_path=ftp://anonymous:anonymous@ftp.mtps.gov.br/pdet/microdados/
-selected_folder="NOVO CAGED/2020/"
+ftp_path="ftp://anonymous:anonymous@ftp.mtps.gov.br/pdet/microdados/NOVO CAGED/"
 
-full_ftp=$base_path$selected_folder
-full_path=ftp.mtps.gov.br/pdet/microdados/$selected_folder
-
-wget -r "$full_ftp"
-cd "$full_path"
-
+pad_meses=($(echo {01..12}))
 folders=($(seq 202001 1 202012))
 
-for folder in ${folders[@]}
+for ano in "${anos[@]}"
 do
-    7z x -y $folder/$upper_group*z
-    mv *txt /tmp/novo_caged/$lower_group/input/
+    for mes in "${pad_meses[@]}"
+    do
+        wget --no-passive "$ftp_path$ano/$ano$mes/$upper_group$ano$mes.7z"
+        7z x -y $upper_group$ano$mes.7z
+        rm *7z
+    done
 done
-
-cd /tmp/novo_caged/$lower_group/input/
-rm -r ftp.mtps.gov.br
