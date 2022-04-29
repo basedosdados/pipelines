@@ -15,15 +15,21 @@ download = ShellTask(
     command="bash bash_scripts/download.sh cagedmov", stream_output=True
 )
 
+install_sevenz = ShellTask(
+    command="apt-get install p7zip-full", stream_output=True
+)
+
 # pylint: disable=C0103
 with Flow("br_me_novo_caged.microdados_mov") as cagedmov:
     dataset_id = "br_me_novo_caged"
     table_id = "microdados_mov"
 
-    download()
+    installation=install_sevenz()
+
+    get_data=download(upstream_tasks=[installation])
 
     # pylint: disable=E1123
-    filepath = build_partitions(group="cagedmov", upstream_tasks=[download])
+    filepath = build_partitions(group="cagedmov", upstream_tasks=[get_data])
 
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
