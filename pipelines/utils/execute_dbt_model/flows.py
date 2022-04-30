@@ -63,7 +63,7 @@ with Flow(
                 "mode": "prod",
             },
             labels=[
-                constants.RJ_DATARIO_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
             run_name=f"Publish to datario: {dataset_id}.{table_id}",
         )
