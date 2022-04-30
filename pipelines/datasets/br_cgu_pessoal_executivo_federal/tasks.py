@@ -73,9 +73,9 @@ def clean_save_table(root: str, url_list: list):
         file_bytes.seek(0)
         # handle cases with and without header
         if "id_terc" in csv.text[:20]:
-            df_url = pd.read_csv(file_bytes, sep=";", low_memory=False)
+            df_url = pd.read_csv(file_bytes, sep=";", low_memory=False, dtype=str)
         else:
-            df_url = pd.read_csv(file_bytes, sep=";", low_memory=False, names=cols, header=None)
+            df_url = pd.read_csv(file_bytes, sep=";", low_memory=False, names=cols, header=None, dtype=str)
         df = pd.concat([df, df_url], ignore_index=True)
         del df_url
 
