@@ -12,7 +12,7 @@ from pipelines.constants import constants
 from pipelines.datasets.br_me_novo_caged.schedules import every_month
 
 download = ShellTask(
-    command="bash pipelines/datasets/br_me_novo_caged/bash_scripts/master cagedmov", stream_output=True
+    command="bash pipelines/datasets/br_me_novo_caged/bash_scripts/master.sh cagedmov", stream_output=True
 )
 
 # which= ShellTask(command="bash pipelines/datasets/br_me_novo_caged/bash_scripts/check.sh", stream_output=True)

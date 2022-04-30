@@ -1,6 +1,4 @@
-sudo apt install apt-transport-https curl
-
-sudo -i
+apt install apt-transport-https curl
 
 echo "deb https://deb.torproject.org/torproject.org/ $(lsb_release -cs) main" > /etc/apt/sources.list.d/tor.list
 
@@ -10,12 +8,10 @@ gpg --export A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89 | apt-key add -
 
 apt update
 
-exit
+apt install tor tor-geoipdb torsocks deb.torproject.org-keyring
 
-sudo apt install tor tor-geoipdb torsocks deb.torproject.org-keyring
+echo "ExitNodes {us}\nStrictNodes 1">>/etc/tor/torrc
 
-sudo echo "ExitNodes {us}\nStrictNodes 1">>/etc/tor/torrc
-
-sudo systemctl reload tor
+systemctl reload tor
 
 torify curl ipinfo.io
