@@ -15,9 +15,6 @@ from pipelines.datasets.br_bd_indicadores.tasks import (
     get_credentials,
 )
 
-from pipelines.datasets.br_bd_indicadores_refresh_data.schedules import (
-    br_bd_indicadores_daily_update_schedule,
-)
 from pipelines.utils.execute_dbt_model.flows import run_dbt_model_flow
 from pipelines.utils.tasks import create_table_and_upload_to_gcs
 from pipelines.datasets.br_bd_indicadores.schedules import every_day, every_week
@@ -89,4 +86,4 @@ run_dbt_br_bd_indicadores_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 run_dbt_br_bd_indicadores_flow.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-run_dbt_br_bd_indicadores_flow.schedule = br_bd_indicadores_daily_update_schedule
+run_dbt_br_bd_indicadores_flow.schedule = every_day
