@@ -3,7 +3,7 @@
 su -
 
 apt-get update
-apt-get -y install p7zip-full wget ftp gpg apt-transport-https lsb-release systemd-sysv ubuntu-standard
+apt-get -y install p7zip-full wget ftp gpg apt-transport-https lsb-release systemd
 
 bash pipelines/bash_scripts/install_tor.sh
 
