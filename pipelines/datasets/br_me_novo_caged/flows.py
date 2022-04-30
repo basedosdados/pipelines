@@ -15,8 +15,6 @@ download = ShellTask(
     command="bash pipelines/datasets/br_me_novo_caged/bash_scripts/master.sh cagedmov", stream_output=True
 )
 
-# which= ShellTask(command="bash pipelines/datasets/br_me_novo_caged/bash_scripts/check.sh", stream_output=True)
-
 # pylint: disable=C0103
 with Flow("br_me_novo_caged.microdados_mov") as cagedmov:
     dataset_id = "br_me_novo_caged"
