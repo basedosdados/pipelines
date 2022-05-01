@@ -9,8 +9,11 @@ from typing import Union
 import inspect
 import textwrap
 
+
 import basedosdados as bd
+import prefect
 from prefect import task
+from prefect.client import Client
 import ruamel.yaml as ryaml
 import pandas as pd
 
@@ -435,3 +438,16 @@ def update_publish_sql(dataset_id: str, table_id: str, dtype: dict, columns: lis
 
     # save publish.sql in table_folder
     (tb.table_folder / "publish.sql").open("w", encoding="utf-8").write(publish_txt)
+
+
+# pylint: disable=W0613
+@task
+def rename_current_flow_run_dataset_table(
+    prefix: str, dataset_id, table_id, wait=None
+) -> None:
+    """
+    Rename the current flow run.
+    """
+    flow_run_id = prefect.context.get("flow_run_id")
+    client = Client()
+    return client.set_flow_run_name(flow_run_id, f"{prefix}{dataset_id}.{table_id}")
