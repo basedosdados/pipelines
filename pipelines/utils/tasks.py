@@ -53,7 +53,6 @@ def create_table_and_upload_to_gcs(
     dataset_id: str,
     table_id: str,
     dump_type: str,
-    partitions=None,
     wait=None,  # pylint: disable=unused-argument
 ) -> None:
     """
@@ -164,7 +163,7 @@ def create_table_and_upload_to_gcs(
     log("STARTING UPLOAD TO GCS")
     if tb.table_exists(mode="staging"):
         # the name of the files need to be the same or the data doesn't get overwritten
-        tb.append(filepath=data_path, if_exists="replace", partitions=partitions)
+        tb.append(filepath=data_path, if_exists="replace")
 
         log(
             f"STEP UPLOAD: Successfully uploaded {data_path} to Storage:\n"
@@ -297,12 +296,16 @@ def get_temporal_coverage(
     dates.sort()
 
     if time_unit == "day":
-        start_date = f"{dates[0].year}-{dates[0].month}-{dates[0].day}"
-        end_date = f"{dates[-1].year}-{dates[-1].month}-{dates[-1].day}"
+        start_date = (
+            f"{dates[0].year}-{dates[0].strftime('%m')}-{dates[0].strftime('%d')}"
+        )
+        end_date = (
+            f"{dates[-1].year}-{dates[-1].strftime('%m')}-{dates[-1].strftime('%d')}"
+        )
         return start_date + "(" + interval + ")" + end_date
     if time_unit == "month":
-        start_date = f"{dates[0].year}-{dates[0].month}"
-        end_date = f"{dates[-1].year}-{dates[-1].month}"
+        start_date = f"{dates[0].year}-{dates[0].strftime('%m')}"
+        end_date = f"{dates[-1].year}-{dates[-1].strftime('%m')}"
         return start_date + "(" + interval + ")" + end_date
     if time_unit == "year":
         start_date = f"{dates[0].year}"
@@ -316,7 +319,7 @@ def get_temporal_coverage(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def update_publish_sql(dataset_id: str, table_id: str, dtype: dict):
+def update_publish_sql(dataset_id: str, table_id: str, dtype: dict, columns: list):
     """Edit publish.sql with columns and bigquery_type"""
 
     # pylint: disable=C0103
@@ -377,14 +380,11 @@ def update_publish_sql(dataset_id: str, table_id: str, dtype: dict):
     # sort columns by is_partition, partitions_columns come first
 
     # pylint: disable=W0212
-    if tb._is_partitioned():
-        columns = sorted(
-            tb.table_config["columns"],
-            key=lambda k: (k["is_partition"] is not None, k["is_partition"]),
-            reverse=True,
-        )
-    else:
-        columns = tb.table_config["columns"]
+    md = bd.Metadata(dataset_id=dataset_id, table_id=table_id)
+    md.create(columns=columns, if_exists="replace")
+    tb._make_publish_sql()
+
+    columns = tb.table_config["columns"]
 
     # add columns in publish.sql
     for col in columns:
