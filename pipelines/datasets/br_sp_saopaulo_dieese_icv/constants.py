@@ -37,4 +37,5 @@ class constants(Enum):  # pylint: disable=c0103
     """
     Constant values for the br_sp_saopaulo_dieese_icv project
     """
+
     FOO = "bar"
