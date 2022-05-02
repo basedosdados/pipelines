@@ -3,14 +3,17 @@ Helper tasks that could fit any pipeline.
 """
 # pylint: disable=C0103, C0301, invalid-name, E1101, R0913
 
-from datetime import timedelta
+from datetime import timedelta, datetime
 from pathlib import Path
 from typing import Union
 import inspect
 import textwrap
 
+
 import basedosdados as bd
+import prefect
 from prefect import task
+from prefect.client import Client
 import ruamel.yaml as ryaml
 import pandas as pd
 
@@ -277,7 +280,7 @@ def publish_table(
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def get_temporal_coverage(
-    filepath: str, date_col: str, time_unit: str, interval: str
+    filepath: str, date_cols: list, time_unit: str, interval: str
 ) -> str:
     """
     Generates a temporal coverage string from a csv.
@@ -285,15 +288,41 @@ def get_temporal_coverage(
 
     args:
     filepath: csv filepath
-    date_col: date column to use as reference
+    date_cols: date columns to use as reference (use the order [year, month, day])
     time_unit: day | month | year
     interval: time between dates.
     For example, if the time_unit is month and the data is update every quarter, then the intervel is 3.
     """
-    df = pd.read_csv(filepath, usecols=[date_col], parse_dates=[date_col])
-
-    dates = df[date_col].to_list()
-    dates.sort()
+    if len(date_cols) == 1:
+        date_col = date_cols[0]
+        df = pd.read_csv(filepath, usecols=[date_col], parse_dates=[date_col])
+        dates = df[date_col].to_list()
+        dates.sort()
+    elif len(date_cols) == 2:
+        year = date_cols[0]
+        month = date_cols[1]
+        df = pd.read_csv(filepath, usecols=[year, month])
+        df["date"] = [
+            datetime.strptime(str(x) + "-" + str(y) + "-" + "1", "%Y-%m-%d")
+            for x, y in zip(df[year], df[month])
+        ]
+        dates = df["date"].to_list()
+        dates.sort()
+    elif len(date_cols) == 3:
+        year = date_cols[0]
+        month = date_cols[1]
+        day = date_cols[2]
+        df = pd.read_csv(filepath, usecols=[year, month])
+        df["date"] = [
+            datetime.strptime(str(x) + "-" + str(y) + "-" + str(y), "%Y-%m-%d")
+            for x, y in zip(df[year], df[month], df[day])
+        ]
+        dates = df["date"].to_list()
+        dates.sort()
+    else:
+        raise ValueError(
+            "date_cols must be a list with up to 3 elements in the following order [year, month, day]"
+        )
 
     if time_unit == "day":
         start_date = (
@@ -409,3 +438,16 @@ def update_publish_sql(dataset_id: str, table_id: str, dtype: dict, columns: lis
 
     # save publish.sql in table_folder
     (tb.table_folder / "publish.sql").open("w", encoding="utf-8").write(publish_txt)
+
+
+# pylint: disable=W0613
+@task
+def rename_current_flow_run_dataset_table(
+    prefix: str, dataset_id, table_id, wait=None
+) -> None:
+    """
+    Rename the current flow run.
+    """
+    flow_run_id = prefect.context.get("flow_run_id")
+    client = Client()
+    return client.set_flow_run_name(flow_run_id, f"{prefix}{dataset_id}.{table_id}")

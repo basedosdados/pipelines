@@ -4,6 +4,7 @@ Tasks for br_cgu_terceirizados
 import os
 import re
 from io import BytesIO
+from typing import Tuple
 import requests
 
 import pandas as pd
@@ -12,8 +13,8 @@ from prefect import task
 
 
 # pylint: disable=C0103
-@task
-def crawl(url: str) -> str:
+@task(nout=2)
+def crawl(url: str) -> Tuple[str,str]:
     """
     Get all table urls from CGU website and extract temporal covarage
     """
@@ -72,9 +73,9 @@ def clean_save_table(root: str, url_list: list):
         file_bytes.seek(0)
         # handle cases with and without header
         if "id_terc" in csv.text[:20]:
-            df_url = pd.read_csv(file_bytes, sep=";", low_memory=False)
+            df_url = pd.read_csv(file_bytes, sep=";", low_memory=False, dtype=str)
         else:
-            df_url = pd.read_csv(file_bytes, sep=";", low_memory=False, names=cols, header=None)
+            df_url = pd.read_csv(file_bytes, sep=";", low_memory=False, names=cols, header=None, dtype=str)
         df = pd.concat([df, df_url], ignore_index=True)
         del df_url
 
