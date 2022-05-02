@@ -23,8 +23,8 @@ with Flow(name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value) as run_dbt_mod
     dataset_id = Parameter("dataset_id")
     table_id = Parameter("table_id")
     mode = Parameter("mode", default="dev", required=False)
-    materialize_to_datario = Parameter(
-        "materialize_to_datario", default=False, required=False
+    materialize_to_basedosdados = Parameter(
+        "materialize_to_basedosdados", default=False, required=False
     )
 
     #####################################
@@ -47,7 +47,7 @@ with Flow(name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value) as run_dbt_mod
         sync=True,
     )
 
-    with case(materialize_to_datario, True):
+    with case(materialize_to_basedosdados, True):
         datario_materialization_flow = create_flow_run(
             flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
             project_name=constants.PREFECT_DEFAULT_PROJECT.value,
