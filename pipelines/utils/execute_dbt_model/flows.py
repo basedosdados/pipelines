@@ -3,10 +3,9 @@
 DBT-related flows.
 """
 
-from prefect import Parameter, case
+from prefect import Parameter
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
-from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 from prefect import Flow
 
 from pipelines.constants import constants
@@ -23,11 +22,8 @@ with Flow(name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value) as run_dbt_mod
     dataset_id = Parameter("dataset_id")
     table_id = Parameter("table_id")
     mode = Parameter("mode", default="dev", required=False)
-    materialize_to_basedosdados = Parameter(
-        "materialize_to_basedosdados", default=False, required=False
-    )
 
-    #####################################
+    #################   ####################
     #
     # Rename flow run
     #
@@ -46,29 +42,6 @@ with Flow(name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value) as run_dbt_mod
         table_id=table_id,
         sync=True,
     )
-
-    with case(materialize_to_basedosdados, True):
-        datario_materialization_flow = create_flow_run(
-            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-            parameters={
-                "dataset_id": dataset_id,
-                "table_id": table_id,
-                "mode": "prod",
-            },
-            labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
-            ],
-            run_name=f"Publish to datario: {dataset_id}.{table_id}",
-        )
-        datario_materialization_flow.set_upstream(materialize_this)
-
-        wait_for_materialization = wait_for_flow_run(
-            datario_materialization_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
 
 run_dbt_model_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 run_dbt_model_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
