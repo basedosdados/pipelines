@@ -88,6 +88,7 @@ Unidecode = "^1.3.4"
 hvac = "^0.11.2"
 loguru = "^0.6.0"
 beautifulsoup4 = "4.11.1"
+ipeadatapy = "^0.1.7"
 dbt-client = "^0.1.3"
 
 [tool.poetry.dev-dependencies]
