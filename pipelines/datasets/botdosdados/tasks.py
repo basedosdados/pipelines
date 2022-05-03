@@ -70,15 +70,18 @@ def was_table_updated(page_size: int, hours: int) -> bool:
         dataset_dict = datasets[index]
         dataset_name = dataset_dict["name"]
         n_tables = len(dataset_dict["resources"])
+        dataset_resources=[dataset_dict["resources"][k] for k in range(n_tables) if "last_updated" in dataset_dict["resources"][k].keys()]
+        dataset_resources=[dataset_resource for dataset_resource in dataset_resources if dataset_resource['last_updated'] is not None]
+        n_tables = len(dataset_resources)
         tables = [
-            dataset_dict["resources"][k]["name"]
+            dataset_resources[k]["name"]
             for k in range(n_tables)
-            if dataset_dict["resources"][k]["resource_type"] == "bdm_table"
+            if dataset_resources[k]["resource_type"] == "bdm_table"
         ]
         last_updated = [
-            dataset_dict["resources"][k]["last_updated"]["data"]
+            dataset_resources[k]["last_updated"]["data"]
             for k in range(n_tables)
-            if dataset_dict["resources"][k]["resource_type"] == "bdm_table"
+            if dataset_resources[k]["resource_type"] == "bdm_table"
         ]
         df = pd.DataFrame({"table": tables, "last_updated": last_updated})
         df["dataset"] = dataset_name
@@ -87,8 +90,9 @@ def was_table_updated(page_size: int, hours: int) -> bool:
 
     df = dfs[0].append(dfs[1:])
     df["last_updated"] = pd.to_datetime(df["last_updated"])
-    df.sort_values("last_updated", ascending=False, inplace=True)
-    df = df[df["last_updated"] > datetime.now() - pd.Timedelta(hours=hours)]
+    df.dropna(subset=['last_updated'], inplace=True)
+    df.reset_index(drop=True, inplace=True)
+    df = df[df["last_updated"].apply(lambda x: x.timestamp()) > (datetime.now()- pd.Timedelta(hours=hours)).timestamp()]
 
     if not df.empty:
         os.system("mkdir -p /tmp/data/")
