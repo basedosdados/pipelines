@@ -60,7 +60,7 @@ with Flow("Template: IBGE Inflação: mes_brasil") as flow_ibge_inflacao_mes_bra
         dataset_id=dataset_id,
         table_id=table_id,
         fields_to_update=[
-            {"last_updated": {"metadata": datetime.now().strftime("%Y/%m/%d")}},
+            {"last_updated": {"data": datetime.now().strftime("%Y/%m/%d")}},
             {"temporal_coverage": [temporal_coverage]},
         ],
         upstream_tasks=[temporal_coverage],

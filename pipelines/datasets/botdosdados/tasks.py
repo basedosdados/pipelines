@@ -75,20 +75,20 @@ def was_table_updated(page_size: int, hours: int) -> bool:
             for k in range(n_tables)
             if dataset_dict["resources"][k]["resource_type"] == "bdm_table"
         ]
-        metadata_modified = [
-            dataset_dict["resources"][k]["metadata_modified"]
+        last_updated = [
+            dataset_dict["resources"][k]["last_updated"]["data"]
             for k in range(n_tables)
             if dataset_dict["resources"][k]["resource_type"] == "bdm_table"
         ]
-        df = pd.DataFrame({"table": tables, "metadata_modified": metadata_modified})
+        df = pd.DataFrame({"table": tables, "last_updated": last_updated})
         df["dataset"] = dataset_name
-        df = df.reindex(["dataset", "table", "metadata_modified"], axis=1)
+        df = df.reindex(["dataset", "table", "last_updated"], axis=1)
         dfs.append(df)
 
     df = dfs[0].append(dfs[1:])
-    df["metadata_modified"] = pd.to_datetime(df["metadata_modified"])
-    df.sort_values("metadata_modified", ascending=False, inplace=True)
-    df = df[df["metadata_modified"] > datetime.now() - pd.Timedelta(hours=hours)]
+    df["last_updated"] = pd.to_datetime(df["last_updated"])
+    df.sort_values("last_updated", ascending=False, inplace=True)
+    df = df[df["last_updated"] > datetime.now() - pd.Timedelta(hours=hours)]
 
     if not df.empty:
         os.system("mkdir -p /tmp/data/")
