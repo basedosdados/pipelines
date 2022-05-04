@@ -6,6 +6,7 @@ from copy import deepcopy
 from prefect import Flow, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
+from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 from pipelines.constants import constants
 from pipelines.datasets.br_bd_indicadores.tasks import (
     crawler_metricas,
@@ -53,6 +54,27 @@ with Flow("br_bd_indicadores.metricas_tweets") as bd_twt_metricas:
             table_id=table_id,
             dump_type="append",
             wait=filepath,
+        )
+
+        bd_materialization_flow = create_flow_run(
+        flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
+        project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+        parameters={
+            "dataset_id": dataset_id,
+            "table_id": table_id,
+            "mode": "prod",
+        },
+        labels=[
+            constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+        ],
+        run_name=f"Materialize: {dataset_id}.{table_id}",
+        )
+
+        wait_for_materialization = wait_for_flow_run(
+        bd_materialization_flow,
+        stream_states=True,
+        stream_logs=True,
+        raise_final_state=True,
         )
 
 bd_twt_metricas.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
