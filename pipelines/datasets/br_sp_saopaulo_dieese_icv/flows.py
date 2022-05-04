@@ -37,7 +37,7 @@ with Flow("br_sp_saopaulo_dieese_icv.mes") as br_sp_dieese:
         dataset_id=dataset_id,
         table_id=table_id,
         fields_to_update=[
-            {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%m:%S")}}
+            {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}}
         ],
         upstream_tasks=[wait_upload_table],
     )

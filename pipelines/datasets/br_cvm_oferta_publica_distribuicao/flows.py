@@ -50,7 +50,7 @@ with Flow("br_cvm_oferta_publica_distribuicao.dia") as br_cvm_ofe_pub_dis_dia:
         dataset_id=dataset_id,
         table_id=table_id,
         fields_to_update=[
-            {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%m:%S")}},
+            {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
             {"temporal_coverage": [temporal_coverage]},
         ],
         upstream_tasks=[temporal_coverage],
