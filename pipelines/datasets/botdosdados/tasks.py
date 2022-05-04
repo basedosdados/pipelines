@@ -154,19 +154,32 @@ def send_tweet(
     for dataset in datasets:
         tables = df[df.dataset == dataset].table.to_list()
         coverages = df[df.dataset == dataset].temporal_coverage.to_list()
-        main_tweet = f"""📣 O conjunto #{dataset} acaba de ser atualizado no datalake da @basedosdados.
-        Acesse por aqui ⤵️ 
-        [LINK] """
+        main_tweet = f"""📣 O conjunto #{dataset} acaba de ser atualizado no datalake da @basedosdados."""
         next_tweet = "As tabelas atualizadas foram:\n"
-        for table, coverage in zip(table, coverage):
-            next_tweet = (
-                next_tweet + f"{table}. Agora com cobertura temporal {coverage}\n"
-            )
+        for table, coverage in zip(tables, coverages):
+            if len(coverage.split("(")[0]) == 4:
+                next_tweet = (
+                    next_tweet
+                    + f"{table}. Esses dados são anuais e agora cobrem o período entre {coverage.split('(')[0]} e {coverage.split(')')[1]}\n"
+                )
+            elif len(coverage.split("(")[0]) == 7:
+                next_tweet = (
+                    next_tweet
+                    + f"{table}. Esses dados são mensais e agora cobrem o período entre {coverage.split('(')[0]} e {coverage.split(')')[1]}\n"
+                )
+            elif len(coverage.split("(")[0]) == 9:
+                next_tweet = (
+                    next_tweet
+                    + f"{table}. Esses dados são diários e agora cobrem o período entre {coverage.split('(')[0]} e {coverage.split(')')[1]}\n"
+                )
+            else:
+                raise ValueError(
+                    f"Coverage information {coverage} doesn't matchs the BD's standard."
+                )
 
-        first = api.update_status(status=main_tweet)
-        second = api.update_status(
-            status=next_tweet,
-            in_reply_to_status_id=first.id,
-            auto_populate_reply_metadata=True,
+        first = client.create_tweet(text=main_tweet)
+        client.create_tweet(
+            text=next_tweet,
+            in_reply_to_tweet_id=first.id,
         )
         sleep(10)
