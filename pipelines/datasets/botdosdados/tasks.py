@@ -70,29 +70,53 @@ def was_table_updated(page_size: int, hours: int) -> bool:
         dataset_dict = datasets[index]
         dataset_name = dataset_dict["name"]
         n_tables = len(dataset_dict["resources"])
-        dataset_resources=[dataset_dict["resources"][k] for k in range(n_tables) if "last_updated" in dataset_dict["resources"][k].keys()]
-        dataset_resources=[dataset_resource for dataset_resource in dataset_resources if dataset_resource['last_updated'] is not None]
+        dataset_resources = [
+            dataset_dict["resources"][k]
+            for k in range(n_tables)
+            if "last_updated" in dataset_dict["resources"][k].keys()
+        ]
+        dataset_resources = [
+            dataset_resource
+            for dataset_resource in dataset_resources
+            if dataset_resource["last_updated"] is not None
+        ]
+        dataset_resources = [
+            dataset_resource
+            for dataset_resource in dataset_resources
+            if dataset_resource["resource_type"] == "bdm_table"
+        ]
         n_tables = len(dataset_resources)
-        tables = [
-            dataset_resources[k]["name"]
-            for k in range(n_tables)
-            if dataset_resources[k]["resource_type"] == "bdm_table"
-        ]
+        tables = [dataset_resources[k]["name"] for k in range(n_tables)]
         last_updated = [
-            dataset_resources[k]["last_updated"]["data"]
-            for k in range(n_tables)
-            if dataset_resources[k]["resource_type"] == "bdm_table"
+            dataset_resources[k]["last_updated"]["data"] for k in range(n_tables)
         ]
-        df = pd.DataFrame({"table": tables, "last_updated": last_updated})
+        temporal_coverage = [
+            dataset_resources[k]["temporal_coverage"] for k in range(n_tables)
+        ]
+        df = pd.DataFrame(
+            {
+                "table": tables,
+                "last_updated": last_updated,
+                "temporal_coverage": temporal_coverage,
+            }
+        )
         df["dataset"] = dataset_name
-        df = df.reindex(["dataset", "table", "last_updated"], axis=1)
+        df = df.reindex(
+            ["dataset", "table", "last_updated", "temporal_coverage"], axis=1
+        )
         dfs.append(df)
 
     df = dfs[0].append(dfs[1:])
     df["last_updated"] = pd.to_datetime(df["last_updated"])
-    df.dropna(subset=['last_updated'], inplace=True)
+    df.dropna(subset=["last_updated", "temporal_coverage"], inplace=True)
+    df["temporal_coverage"] = [
+        k[0] if len(k) > 0 else k for k in df["temporal_coverage"]
+    ]
     df.reset_index(drop=True, inplace=True)
-    df = df[df["last_updated"].apply(lambda x: x.timestamp()) > (datetime.now()- pd.Timedelta(hours=hours)).timestamp()]
+    df = df[
+        df["last_updated"].apply(lambda x: x.timestamp())
+        > (datetime.now() - pd.Timedelta(hours=hours)).timestamp()
+    ]
 
     if not df.empty:
         os.system("mkdir -p /tmp/data/")
@@ -125,10 +149,24 @@ def send_tweet(
     )
 
     df = pd.read_csv("/tmp/data/updated_tables.csv")
-    dict_updated_tables = dict(zip(df["dataset"].to_list(), df["table"].to_list()))
+    datasets = df.dataset.unique()
 
-    for dataset, table in dict_updated_tables.items():
-        client.create_tweet(
-            text=f"A tabela {table} do dataset {dataset} acaba de ser atualizada no Data Lake da @basedosdados"
+    for dataset in datasets:
+        tables = df[df.dataset == dataset].table.to_list()
+        coverages = df[df.dataset == dataset].temporal_coverage.to_list()
+        main_tweet = f"""📣 O conjunto #{dataset} acaba de ser atualizado no datalake da @basedosdados.
+        Acesse por aqui ⤵️ 
+        [LINK] """
+        next_tweet = "As tabelas atualizadas foram:\n"
+        for table, coverage in zip(table, coverage):
+            next_tweet = (
+                next_tweet + f"{table}. Agora com cobertura temporal {coverage}\n"
+            )
+
+        first = api.update_status(status=main_tweet)
+        second = api.update_status(
+            status=next_tweet,
+            in_reply_to_status_id=first.id,
+            auto_populate_reply_metadata=True,
         )
         sleep(10)
