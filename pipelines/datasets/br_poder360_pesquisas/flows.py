@@ -44,7 +44,7 @@ with Flow("br_poder360_pesquisas.microdados") as br_poder360:
         dataset_id=dataset_id,
         table_id=table_id,
         fields_to_update=[
-            {"last_updated": {"data": datetime.now().strftime("%Y/%m/%d")}},
+            {"last_updated": {"data": datetime.now().strftime("%Y-%M-%d %H:%m:%S")}},
             {"temporal_coverage": [temporal_coverage]},
         ],
         upstream_tasks=[temporal_coverage],
