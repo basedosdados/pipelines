@@ -149,12 +149,12 @@ def send_tweet(
         access_token_secret=access_token_secret,
     )
 
-    df = pd.read_csv("/tmp/data/updated_tables.csv")
-    datasets = df.dataset.unique()
+    dataframe = pd.read_csv("/tmp/data/updated_tables.csv")
+    datasets = dataframe.dataset.unique()
 
     for dataset in datasets:
-        tables = df[df.dataset == dataset].table.to_list()
-        coverages = df[df.dataset == dataset].temporal_coverage.to_list()
+        tables = dataframe[dataframe.dataset == dataset].table.to_list()
+        coverages = dataframe[dataframe.dataset == dataset].temporal_coverage.to_list()
         dataset_name = dataset.replace("-", "_")
         main_tweet = f"""📣 O conjunto #{dataset_name} acaba de ser atualizado no datalake da @basedosdados."""
         next_tweet = "As tabelas atualizadas foram:\n"

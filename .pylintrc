@@ -88,7 +88,12 @@ disable=raw-checker-failed,
         use-symbolic-message-instead,
         line-too-long,
         duplicate-code,
-        consider-using-f-string
+        consider-using-f-string,
+        unexpected-keyword-arg,
+        broad-except,
+        unsubscriptable-object,
+        unsupported-assignment-operation,
+        no-member
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option

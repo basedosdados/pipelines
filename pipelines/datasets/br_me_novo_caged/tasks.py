@@ -28,12 +28,12 @@ def build_partitions(group: str) -> str:
     """
     input_files = glob(f"/tmp/novo_caged/{group}/input/*txt")
     for filename in tqdm(input_files):
-        df = pd.read_csv(filename, sep=";", dtype={"uf": str})
+        dataframe = pd.read_csv(filename, sep=";", dtype={"uf": str})
         date = re.search(r"\d+", filename).group()
         ano = date[:4]
         mes = int(date[-2:])
 
-        df.columns = [unidecode(col) for col in df.columns]
+        dataframe.columns = [unidecode(col) for col in dataframe.columns]
 
         dict_uf = {
             "11": "RO",
@@ -65,16 +65,16 @@ def build_partitions(group: str) -> str:
             "53": "DF",
         }
 
-        df["uf"] = df["uf"].map(dict_uf)
+        dataframe["uf"] = dataframe["uf"].map(dict_uf)
 
         for state in dict_uf.values():
-            data = df[df["uf"] == state]
+            data = dataframe[dataframe["uf"] == state]
             data.drop(["competenciamov", "uf"], axis=1, inplace=True)
             data.to_csv(
                 f"/tmp/novo_caged/{group}/ano={ano}/mes={mes}/sigla_uf={state}/data.csv",
                 index=False,
             )
             del data
-        del df
+        del dataframe
 
     return "/tmp/novo_caged/{group}/"
