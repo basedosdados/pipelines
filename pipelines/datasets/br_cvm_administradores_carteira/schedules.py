@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Schedules for br_cvm_administradores_carteira
 """
@@ -13,7 +14,7 @@ every_day = Schedule(
             start_date=datetime(2021, 1, 1),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-            ]
+            ],
         )
     ]
 )

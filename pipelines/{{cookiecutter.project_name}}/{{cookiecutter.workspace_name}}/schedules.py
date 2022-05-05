@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Schedules for {{cookiecutter.workspace_name}}
 """
