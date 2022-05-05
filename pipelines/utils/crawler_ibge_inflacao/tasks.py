@@ -117,12 +117,12 @@ def crawler(indice: str, folder: str) -> None:
         try:
             wget.download(links[key], out=f"/tmp/data/input/{key}.csv")
             success_dwnl.append(key)
-        except:
+        except Exception:
             try:
                 sleep(10)
                 wget.download(links[key], out=f"/tmp/data/input/{key}.csv")
                 success_dwnl.append(key)
-            except:
+            except Exception:
                 pass
 
     if len(links_keys) == len(success_dwnl):

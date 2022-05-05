@@ -355,7 +355,7 @@ def update_publish_sql(dataset_id: str, table_id: str, dtype: dict, columns: lis
     # pylint: disable=C0103
     tb = bd.Table(dataset_id=dataset_id, table_id=table_id)
 
-    ### publish.sql header and instructions
+    # publish.sql header and instructions
     publish_txt = """
     /*
     Query para publicar a tabela.
@@ -428,7 +428,7 @@ def update_publish_sql(dataset_id: str, table_id: str, dtype: dict, columns: lis
                 bigquery_type = col["bigquery_type"].upper()
 
         publish_txt += f"SAFE_CAST({name} AS {bigquery_type}) {name},\n"
-    ## remove last comma
+    # remove last comma
     publish_txt = publish_txt[:-2] + "\n"
 
     # add from statement

@@ -12,6 +12,7 @@ import pandas as pd
 from tqdm import tqdm
 from pipelines.constants import constants
 
+
 # pylint: disable=C0103
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
