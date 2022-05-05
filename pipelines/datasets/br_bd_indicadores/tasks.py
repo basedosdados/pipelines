@@ -97,26 +97,6 @@ def has_new_tweets(bearer_token: str) -> bool:
     if len(df1) > 0:
         log(f"{len(df1)} new tweets founded")
 
-    df1 = df1.reindex(
-        [
-            "id",
-            "text",
-            "retweet_count",
-            "reply_count",
-            "like_count",
-            "quote_count",
-            "created_at",
-            "url_link_clicks",
-            "user_profile_clicks",
-            "impression_count",
-            "following_count",
-            "followers_count",
-            "tweet_count",
-            "listed_count",
-        ],
-        axis=1,
-    )
-
     df1.to_csv("/tmp/basic_metrics.csv", index=False)
 
     return not df1.empty
@@ -133,14 +113,7 @@ def crawler_metricas(
     Create file with public and non_public_metrics from Twitter API
     """
     now = datetime.now(tz=pytz.UTC)
-    df1 = pd.read_csv(
-        "/tmp/basic_metrics.csv",
-        dtype={
-            "url_link_clicks": int,
-            "user_profile_clicks": int,
-            "impression_count": int,
-        },
-    )
+    df1 = pd.read_csv("/tmp/basic_metrics.csv")
     ids = df1["id"].to_list()
 
     headeroauth = OAuth1(
