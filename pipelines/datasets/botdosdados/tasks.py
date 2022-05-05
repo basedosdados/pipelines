@@ -154,7 +154,8 @@ def send_tweet(
     for dataset in datasets:
         tables = df[df.dataset == dataset].table.to_list()
         coverages = df[df.dataset == dataset].temporal_coverage.to_list()
-        main_tweet = f"""📣 O conjunto #{dataset} acaba de ser atualizado no datalake da @basedosdados."""
+        dataset_name=dataset.replace('-','_')
+        main_tweet = f"""📣 O conjunto #{dataset_name} acaba de ser atualizado no datalake da @basedosdados."""
         next_tweet = "As tabelas atualizadas foram:\n"
         for table, coverage in zip(tables, coverages):
             if len(coverage.split("(")[0]) == 4:
