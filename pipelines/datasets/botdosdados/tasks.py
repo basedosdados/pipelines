@@ -57,7 +57,7 @@ def get_credentials(secret_path: str) -> Tuple[str, str, str, str, str]:
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def was_table_updated(page_size: int, hours: int) -> bool:
+def was_table_updated(page_size: int, hours: int, wait=None) -> bool:
     """
     Checks if there are tables updated within last hour. If True, saves table locally.
     """

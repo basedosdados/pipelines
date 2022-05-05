@@ -38,7 +38,7 @@ def echo(message: str) -> None:
 
 
 @task(checkpoint=False, nout=5)
-def get_credentials(secret_path: str) -> Tuple[str, str, str, str, str]:
+def get_credentials(secret_path: str, wait=None) -> Tuple[str, str, str, str, str]:
     """
     Returns the user and password for the given secret path.
     """
