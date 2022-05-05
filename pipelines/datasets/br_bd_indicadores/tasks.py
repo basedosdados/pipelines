@@ -24,6 +24,7 @@ from pipelines.datasets.br_bd_indicadores.utils import (
 )
 from pipelines.constants import constants
 
+
 # pylint: disable=C0103
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
