@@ -8,6 +8,7 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 from pipelines.constants import constants
+from pipelines.utils.constants import constants as utils_constants
 from pipelines.datasets.br_bd_indicadores.tasks import (
     crawler_metricas,
     crawler_metricas_agg,
@@ -62,7 +63,7 @@ with Flow("br_bd_indicadores.metricas_tweets") as bd_twt_metricas:
         parameters={
             "dataset_id": dataset_id,
             "table_id": table_id,
-            "mode": "prod",
+            "mode": "dev",
         },
         labels=[
             constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
