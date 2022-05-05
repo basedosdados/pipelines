@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Tasks for {{cookiecutter.project_name}}
 """

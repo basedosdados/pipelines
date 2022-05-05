@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Flows for br_ibge_inpc
 """

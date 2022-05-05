@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Tasks for br_ibge_inpc
 """
@@ -22,11 +23,15 @@ def crawler(indice: str, folder: str) -> None:
     indice: inpc | ipca | ip15
     folder: br | rm | mun | mes
     """
-    if folder not in ['br', 'rm', 'mun', 'mes']:
-        raise ValueError("folder argument must be one of the following: 'br', 'rm', 'mun', 'mes'")
+    if folder not in ["br", "rm", "mun", "mes"]:
+        raise ValueError(
+            "folder argument must be one of the following: 'br', 'rm', 'mun', 'mes'"
+        )
 
-    if indice not in ['inpc', 'ipca', 'ip15']:
-        raise ValueError("indice argument must be one of the following: 'inpc', 'ipca', 'ip15'")
+    if indice not in ["inpc", "ipca", "ip15"]:
+        raise ValueError(
+            "indice argument must be one of the following: 'inpc', 'ipca', 'ip15'"
+        )
 
     log(f"Crawling {indice}")
     os.system("[ -e /tmp/data/input/ ] && rm -r /tmp/data/input/")
@@ -137,8 +142,10 @@ def clean_mes_brasil(indice: str) -> None:
     Clean the data from the mes_brasil dataset.
     """
 
-    if indice not in ['inpc', 'ipca', 'ip15']:
-        raise ValueError("indice argument must be one of the following: 'inpc', 'ipca', 'ip15'")
+    if indice not in ["inpc", "ipca", "ip15"]:
+        raise ValueError(
+            "indice argument must be one of the following: 'inpc', 'ipca', 'ip15'"
+        )
     rename = {
         "Mês": "ano",
         "Geral, grupo, subgrupo, item e subitem": "categoria",
@@ -254,8 +261,10 @@ def clean_mes_rm(indice: str):
     """
     Clean mes_rm
     """
-    if indice not in ['inpc', 'ipca', 'ip15']:
-        raise ValueError("indice argument must be one of the following: 'inpc', 'ipca', 'ip15'")
+    if indice not in ["inpc", "ipca", "ip15"]:
+        raise ValueError(
+            "indice argument must be one of the following: 'inpc', 'ipca', 'ip15'"
+        )
     rename = {
         "Cód.": "id_regiao_metropolitana",
         "Unnamed: 1": "rm",
@@ -377,8 +386,10 @@ def clean_mes_municipio(indice: str):
     """
     Clean mes_municipio
     """
-    if indice not in ['inpc', 'ipca', 'ip15']:
-        raise ValueError("indice argument must be one of the following: 'inpc', 'ipca', 'ip15'")
+    if indice not in ["inpc", "ipca", "ip15"]:
+        raise ValueError(
+            "indice argument must be one of the following: 'inpc', 'ipca', 'ip15'"
+        )
     rename = {
         "Cód.": "id_municipio",
         "Unnamed: 1": "municipio",
@@ -500,8 +511,10 @@ def clean_mes_geral(indice: str):
     """
     clean_mes_geral
     """
-    if indice not in ['inpc', 'ipca', 'ip15']:
-        raise ValueError("indice argument must be one of the following: 'inpc', 'ipca', 'ip15'")
+    if indice not in ["inpc", "ipca", "ip15"]:
+        raise ValueError(
+            "indice argument must be one of the following: 'inpc', 'ipca', 'ip15'"
+        )
     rename = {
         "IPCA - Número-índice (base: dezembro de 1993 = 100) (Número-índice)": "indice",
         "IPCA - Variação mensal (%)": "variacao_mensal",

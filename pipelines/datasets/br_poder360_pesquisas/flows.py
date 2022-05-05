@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Flows for br_poder360_pesquisas
 """

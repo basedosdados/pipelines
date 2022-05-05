@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Flows for br_bd_indicadores
 """
@@ -19,7 +20,10 @@ from pipelines.utils.execute_dbt_model.tasks import (
     get_k8s_dbt_client,
     run_dbt_model,
 )
-from pipelines.utils.tasks import create_table_and_upload_to_gcs, rename_current_flow_run_dataset_table
+from pipelines.utils.tasks import (
+    create_table_and_upload_to_gcs,
+    rename_current_flow_run_dataset_table,
+)
 from pipelines.datasets.br_bd_indicadores.schedules import every_day, every_week
 
 with Flow("br_bd_indicadores.metricas_tweets") as bd_twt_metricas:
