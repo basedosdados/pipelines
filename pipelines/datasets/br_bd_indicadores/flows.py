@@ -1,12 +1,13 @@
 """
 Flows for br_bd_indicadores
 """
-from copy import deepcopy
 
 from prefect import Flow, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
+from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 from pipelines.constants import constants
+from pipelines.utils.constants import constants as utils_constants
 from pipelines.datasets.br_bd_indicadores.tasks import (
     crawler_metricas,
     crawler_metricas_agg,
@@ -15,7 +16,6 @@ from pipelines.datasets.br_bd_indicadores.tasks import (
     get_credentials,
 )
 
-from pipelines.utils.execute_dbt_model.flows import run_dbt_model_flow
 from pipelines.utils.tasks import create_table_and_upload_to_gcs
 from pipelines.datasets.br_bd_indicadores.schedules import every_day, every_week
 
@@ -55,6 +55,27 @@ with Flow("br_bd_indicadores.metricas_tweets") as bd_twt_metricas:
             wait=filepath,
         )
 
+        bd_materialization_flow = create_flow_run(
+        flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
+        project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+        parameters={
+            "dataset_id": dataset_id,
+            "table_id": table_id,
+            "mode": "dev",
+        },
+        labels=[
+            constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+        ],
+        run_name=f"Materialize: {dataset_id}.{table_id}",
+        )
+
+        wait_for_materialization = wait_for_flow_run(
+        bd_materialization_flow,
+        stream_states=True,
+        stream_logs=True,
+        raise_final_state=True,
+        )
+
 bd_twt_metricas.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 bd_twt_metricas.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 bd_twt_metricas.schedule = every_day
@@ -79,11 +100,3 @@ with Flow("br_bd_indicadores.metricas_tweets_agg") as bd_twt_metricas_agg:
 bd_twt_metricas_agg.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 bd_twt_metricas_agg.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 bd_twt_metricas_agg.schedule = every_week
-
-run_dbt_br_bd_indicadores_flow = deepcopy(run_dbt_model_flow)
-run_dbt_br_bd_indicadores_flow.name = "br_bd_indicadores - Materializar tabelas"
-run_dbt_br_bd_indicadores_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-run_dbt_br_bd_indicadores_flow.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-run_dbt_br_bd_indicadores_flow.schedule = every_day
