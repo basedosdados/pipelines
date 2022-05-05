@@ -97,19 +97,6 @@ def has_new_tweets(bearer_token: str) -> bool:
     if len(df1) > 0:
         log(f"{len(df1)} new tweets founded")
 
-    df1 = df1.reindex(
-        [
-            "id",
-            "text",
-            "public_metrics_retweet_count",
-            "public_metrics_reply_count",
-            "public_metrics_like_count",
-            "public_metrics_quote_count",
-            "created_at"
-        ],
-        axis=1,
-    )
-
     df1.to_csv("/tmp/basic_metrics.csv", index=False)
 
     return not df1.empty
