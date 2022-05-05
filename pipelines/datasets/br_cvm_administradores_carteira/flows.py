@@ -44,7 +44,7 @@ with Flow("br_cvm_administradores_carteira.responsavel") as br_cvm_adm_car_res:
         dataset_id=dataset_id,
         table_id=table_id,
         fields_to_update=[
-            {"last_updated": {"metadata": datetime.now().strftime("%Y/%m/%d")}}
+            {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}}
         ],
         upstream_tasks=[wait_upload_table],
     )
@@ -88,7 +88,7 @@ with Flow("br_cvm_administradores_carteira.pessoa_fisica") as br_cvm_adm_car_pes
         dataset_id=dataset_id,
         table_id=table_id,
         fields_to_update=[
-            {"last_updated": {"metadata": datetime.now().strftime("%Y/%m/%d")}},
+            {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
             {"temporal_coverage": [temporal_coverage]},
         ],
         upstream_tasks=[temporal_coverage],
@@ -133,7 +133,7 @@ with Flow("br_cvm_administradores_carteira.pessoa_juridica") as br_cvm_adm_car_p
         dataset_id=dataset_id,
         table_id=table_id,
         fields_to_update=[
-            {"last_updated": {"metadata": datetime.now().strftime("%Y/%m/%d")}},
+            {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
             {"temporal_coverage": [temporal_coverage]},
         ],
         upstream_tasks=[temporal_coverage],
