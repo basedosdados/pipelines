@@ -30,7 +30,7 @@ class constants(Enum):  # pylint: disable=c0103
     BD_DISCORD_WEBHOOK_SECRET_PATH = "prefect-discord-webhook"
     # Prefect
     GCS_FLOWS_BUCKET = "basedosdados-dev-prefect"
-    DEFAULT_CODE_OWNERS = ["@equipe_infra", "@equipe_dados"]
+    DEFAULT_CODE_OWNERS = ["equipe_infra", "equipe_dados"]
     # Prefect tasks retry policy
     TASK_MAX_RETRIES = 5
     TASK_RETRY_DELAY = 10  # seconds

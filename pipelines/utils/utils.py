@@ -184,16 +184,16 @@ def notify_discord_on_failure(
     at_code_owners = []
     for code_owner in code_owners:
         if code_owner.startswith("@"):
-            at_code_owners.append(code_owner)
+            at_code_owners.append(f"    - <{code_owner}>\n")
         else:
-            at_code_owners.append(f"@{code_owner}")
+            at_code_owners.append(f"    - <@{code_owner}>\n")
     message = (
         f":man_facepalming: Flow **{flow.name}** has failed."
         + f'\n  - State message: *"{state.message}"*'
         + "\n  - Link to the failed flow: "
         + f"http://prefect-ui.prefect.svc.cluster.local:8080/flow-run/{flow_run_id}"
-        + "\n  - Extra attention:"
-        + "\n    - ".join(at_code_owners)
+        + "\n  - Extra attention:\n"
+        + "".join(at_code_owners)
     )
     send_discord_message(
         message=message,
