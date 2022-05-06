@@ -5,9 +5,9 @@ Flows for br_cvm_administradores_carteira
 # pylint: disable=C0103, E1123, invalid-name
 from datetime import datetime
 
-from prefect import Flow
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
+
 from pipelines.datasets.br_cvm_administradores_carteira.tasks import (
     crawl,
     clean_table_responsavel,
@@ -15,6 +15,7 @@ from pipelines.datasets.br_cvm_administradores_carteira.tasks import (
     clean_table_pessoa_juridica,
 )
 from pipelines.constants import constants
+from pipelines.utils.decorators import Flow
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     update_metadata,
@@ -26,7 +27,7 @@ from pipelines.datasets.br_cvm_administradores_carteira.schedules import every_d
 ROOT = "/tmp/data"
 URL = "http://dados.cvm.gov.br/dados/ADM_CART/CAD/DADOS/cad_adm_cart.zip"
 
-with Flow("br_cvm_administradores_carteira.responsavel") as br_cvm_adm_car_res:
+with Flow(name="br_cvm_administradores_carteira.responsavel") as br_cvm_adm_car_res:
     wait_crawl = crawl(root=ROOT, url=URL)
     filepath = clean_table_responsavel(root=ROOT, upstream_tasks=[wait_crawl])
     dataset_id = "br_cvm_administradores_carteira"

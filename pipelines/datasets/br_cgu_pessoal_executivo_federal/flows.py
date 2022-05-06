@@ -4,7 +4,6 @@ Flows for br_cgu_terceirizados
 """
 from datetime import datetime
 
-from prefect import Flow
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from pipelines.constants import constants
@@ -12,6 +11,7 @@ from pipelines.datasets.br_cgu_pessoal_executivo_federal.tasks import (
     crawl,
     clean_save_table,
 )
+from pipelines.utils.decorators import Flow
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     update_metadata,
@@ -28,7 +28,7 @@ URL = "https://www.gov.br/cgu/pt-br/acesso-a-informacao/dados-abertos/arquivos/t
 
 # pylint: disable=C0103
 with Flow(
-    "br_cgu_pessoal_executivo_federal.terceirizados"
+    name="br_cgu_pessoal_executivo_federal.terceirizados"
 ) as br_cgu_pess_exec_fed_terc:
     dataset_id = "br_cgu_pessoal_executivo_federal"
     table_id = "terceirizados"

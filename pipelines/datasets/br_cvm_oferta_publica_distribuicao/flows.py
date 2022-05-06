@@ -5,14 +5,15 @@ Flows for br_cvm_oferta_publica_distribuicao
 # pylint: disable=C0103, E1123, invalid-name
 from datetime import datetime
 
-from prefect import Flow
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
+
 from pipelines.constants import constants
 from pipelines.datasets.br_cvm_oferta_publica_distribuicao.tasks import (
     crawl,
     clean_table_oferta_distribuicao,
 )
+from pipelines.utils.decorators import Flow
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     update_metadata,
@@ -24,7 +25,7 @@ from pipelines.datasets.br_cvm_oferta_publica_distribuicao.schedules import ever
 ROOT = "/tmp/data"
 URL = "http://dados.cvm.gov.br/dados/OFERTA/DISTRIB/DADOS/oferta_distribuicao.csv"
 
-with Flow("br_cvm_oferta_publica_distribuicao.dia") as br_cvm_ofe_pub_dis_dia:
+with Flow(name="br_cvm_oferta_publica_distribuicao.dia") as br_cvm_ofe_pub_dis_dia:
     dataset_id = "br_cvm_oferta_publica_distribuicao"
     table_id = "dia"
     wait_crawl = crawl(root=ROOT, url=URL)

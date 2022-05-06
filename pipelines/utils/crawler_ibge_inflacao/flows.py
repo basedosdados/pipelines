@@ -5,16 +5,11 @@ Flows for ibge inflacao
 # pylint: disable=C0103, E1123, invalid-name, duplicate-code, R0801
 from datetime import datetime
 
-from prefect import Flow, Parameter
+from prefect import Parameter
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
+
 from pipelines.constants import constants
-from pipelines.utils.tasks import (
-    create_table_and_upload_to_gcs,
-    update_metadata,
-    get_temporal_coverage,
-    publish_table,
-)
 from pipelines.utils.crawler_ibge_inflacao.tasks import (
     crawler,
     clean_mes_brasil,
@@ -22,9 +17,17 @@ from pipelines.utils.crawler_ibge_inflacao.tasks import (
     clean_mes_municipio,
     clean_mes_geral,
 )
+from pipelines.utils.decorators import Flow
+from pipelines.utils.tasks import (
+    create_table_and_upload_to_gcs,
+    update_metadata,
+    get_temporal_coverage,
+    publish_table,
+)
 
-
-with Flow("Template: IBGE Inflação: mes_brasil") as flow_ibge_inflacao_mes_brasil:
+with Flow(
+    name="BD Template - IBGE Inflação: mes_brasil"
+) as flow_ibge_inflacao_mes_brasil:
 
     #####################################
     #
@@ -81,7 +84,7 @@ flow_ibge_inflacao_mes_brasil.run_config = KubernetesRun(
 )
 
 
-with Flow("Template: IBGE Inflação: mes_rm") as flow_ibge_inflacao_mes_rm:
+with Flow("BD Template - IBGE Inflação: mes_rm") as flow_ibge_inflacao_mes_rm:
 
     #####################################
     #
@@ -136,7 +139,9 @@ flow_ibge_inflacao_mes_rm.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 flow_ibge_inflacao_mes_rm.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 
 
-with Flow("Template: IBGE Inflação: mes_municipio") as flow_ibge_inflacao_mes_municipio:
+with Flow(
+    "BD Template - IBGE Inflação: mes_municipio"
+) as flow_ibge_inflacao_mes_municipio:
 
     #####################################
     #
@@ -194,7 +199,7 @@ flow_ibge_inflacao_mes_municipio.run_config = KubernetesRun(
 )
 
 
-with Flow("Template: IBGE Inflação: mes_geral") as flow_ibge_inflacao_mes_geral:
+with Flow("BD Template - IBGE Inflação: mes_geral") as flow_ibge_inflacao_mes_geral:
 
     #####################################
     #

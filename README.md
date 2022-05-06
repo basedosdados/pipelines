@@ -165,7 +165,7 @@ run_local(flow, parameters = {"param": "val"})
 - Em seguida, tenha certeza que você já tem acesso à UI do Prefect, tanto para realizar a submissão da run, como para
   acompanhá-la durante o processo de execução. Caso não tenha, verifique o procedimento em https://library-emd.herokuapp.com/infraestrutura/como-acessar-a-ui-do-prefect
 
-- Escolha a pipeline que deseja executar (exemplo `pipelines.emd.test_pipeline.flows.flow`) e faça:
+- Escolha a pipeline que deseja executar (exemplo `pipelines.datasets.test_pipeline.flows.flow`) e faça:
 
 ```py
 from pipelines.utils.utils import run_cloud
