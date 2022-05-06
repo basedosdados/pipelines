@@ -20,7 +20,7 @@ from prefect.engine.state import State
 from prefect.run_configs import KubernetesRun
 import requests
 
-from pipelines.constants import constants, _get_owners_mentions
+from pipelines.constants import constants, _get_owners_discord_mentions
 
 # import telegram
 
@@ -183,10 +183,9 @@ def notify_discord_on_failure(
     code_owners = code_owners or constants.DEFAULT_CODE_OWNERS.value
     at_code_owners = []
     for code_owner in code_owners:
-        code_owner_dict = _get_owners_mentions[code_owner]
+        code_owner_dict = _get_owners_discord_mentions()[code_owner]
         code_owner_id = code_owner_dict["user_id"]
         code_owner_type = code_owner_dict["type"]
-
         if code_owner_type == "user":
             at_code_owners.append(f"    - <@{code_owner_id}>\n")
         elif code_owner_type == "user_nickname":
