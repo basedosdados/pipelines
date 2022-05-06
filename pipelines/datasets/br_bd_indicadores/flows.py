@@ -34,8 +34,8 @@ with Flow("br_bd_indicadores.metricas_tweets") as bd_twt_metricas:
     materialize_after_dump = Parameter(
         "materialize after dump", default=False, required=False
     )
-    dataset_id = "br_bd_indicadores"  # pylint: disable=C0103
-    table_id = "metricas_tweets"  # pylint: disable=C0103
+    dataset_id = Parameter("dataset_id", default="br_bd_indicadores", required=True)
+    table_id = Parameter("table_id", default="twitter_metrics", required=True)
     #####################################
     #
     # Rename flow run
@@ -53,7 +53,7 @@ with Flow("br_bd_indicadores.metricas_tweets") as bd_twt_metricas:
         bearer_token,
     ) = get_credentials(secret_path="twitter_credentials", wait=None)
 
-    cond = has_new_tweets(bearer_token)
+    cond = has_new_tweets(bearer_token, table_id=table_id)
 
     with case(cond, False):
         echo("No tweets to update")
@@ -66,6 +66,7 @@ with Flow("br_bd_indicadores.metricas_tweets") as bd_twt_metricas:
             consumer_key,
             consumer_secret,
             upstream_tasks=[cond],
+            table_id=table_id,
         )  # pylint: disable=C0103
 
         # pylint: disable=C0103
@@ -111,11 +112,12 @@ bd_twt_metricas.schedule = every_day
 
 
 with Flow("br_bd_indicadores.metricas_tweets_agg") as bd_twt_metricas_agg:
-    dataset_id = "br_bd_indicadores"  # pylint: disable=C0103
-    table_id = "metricas_tweets_agg"  # pylint: disable=C0103
+    dataset_id = Parameter("dataset_id", default="br_bd_indicadores", required=True)
+    table_id = Parameter("table_id", default="twitter_metrics_agg", required=True)
+    table_to_agg = Parameter("table_to_agg", default="twitter_metrics", required=True)
 
     # pylint: disable=C0103
-    filepath = crawler_metricas_agg()
+    filepath = crawler_metricas_agg(table_to_agg=table_to_agg)
 
     # pylint: disable=C0103
     wait_upload_table = create_table_and_upload_to_gcs(
