@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Para rodar esse script o usuário deve rodar bash download.sh group, onde group é cagedmov | cagedfor | cageddex. 
+# Para rodar esse script o usuário deve rodar bash download.sh group, onde group é cagedmov | cagedfor | cageddex.
 # Ver explicação no próximo comentário:
 
 # Os microdados resultantes da nova consolidação estão disponibilizados de acordo com o

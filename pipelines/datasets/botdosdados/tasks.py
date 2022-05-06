@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Tasks for botdosdados
 """
@@ -52,11 +53,12 @@ def get_credentials(secret_path: str) -> Tuple[str, str, str, str, str]:
 
 
 # pylint: disable=R0914
+# pylint: disable=W0613
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def was_table_updated(page_size: int, hours: int) -> bool:
+def was_table_updated(page_size: int, hours: int, wait=None) -> bool:
     """
     Checks if there are tables updated within last hour. If True, saves table locally.
     """
@@ -148,13 +150,14 @@ def send_tweet(
         access_token_secret=access_token_secret,
     )
 
-    df = pd.read_csv("/tmp/data/updated_tables.csv")
-    datasets = df.dataset.unique()
+    dataframe = pd.read_csv("/tmp/data/updated_tables.csv")
+    datasets = dataframe.dataset.unique()
 
     for dataset in datasets:
-        tables = df[df.dataset == dataset].table.to_list()
-        coverages = df[df.dataset == dataset].temporal_coverage.to_list()
-        main_tweet = f"""📣 O conjunto #{dataset} acaba de ser atualizado no datalake da @basedosdados."""
+        tables = dataframe[dataframe.dataset == dataset].table.to_list()
+        coverages = dataframe[dataframe.dataset == dataset].temporal_coverage.to_list()
+        dataset_name = dataset.replace("-", "_")
+        main_tweet = f"""📣 O conjunto #{dataset_name} acaba de ser atualizado no datalake da @basedosdados."""
         next_tweet = "As tabelas atualizadas foram:\n"
         for table, coverage in zip(tables, coverages):
             if len(coverage.split("(")[0]) == 4:

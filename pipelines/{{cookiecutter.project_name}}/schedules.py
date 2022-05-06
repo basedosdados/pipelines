@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Schedules for {{cookiecutter.project_name}}
 """

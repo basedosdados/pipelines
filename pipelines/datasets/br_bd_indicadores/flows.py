@@ -23,6 +23,10 @@ from pipelines.utils.tasks import (
     rename_current_flow_run_dataset_table,
     get_current_flow_labels,
 )
+from pipelines.utils.tasks import (
+    create_table_and_upload_to_gcs,
+    rename_current_flow_run_dataset_table,
+)
 from pipelines.datasets.br_bd_indicadores.schedules import every_day, every_week
 
 with Flow("br_bd_indicadores.metricas_tweets") as bd_twt_metricas:

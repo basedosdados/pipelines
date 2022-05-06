@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Schedules for br_cgu_terceirizados
 """
@@ -13,9 +14,7 @@ every_four_months = Schedule(
         CronClock(
             cron="0 0 28 2/4 *",
             start_date=datetime(2021, 1, 1),
-            labels=[
-                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value
-                ]
-            )
-        ]
-    )
+            labels=[constants.BASEDOSDADOS_PROD_AGENT_LABEL.value],
+        )
+    ]
+)

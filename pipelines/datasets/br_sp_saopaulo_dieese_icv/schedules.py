@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Schedules for br_sp_saopaulo_dieese_icv
 """

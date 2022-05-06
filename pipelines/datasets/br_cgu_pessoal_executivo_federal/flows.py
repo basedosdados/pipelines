@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Flows for br_cgu_terceirizados
 """
@@ -7,13 +8,18 @@ from prefect import Flow
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from pipelines.constants import constants
-from pipelines.datasets.br_cgu_pessoal_executivo_federal.tasks import crawl, clean_save_table
+from pipelines.datasets.br_cgu_pessoal_executivo_federal.tasks import (
+    crawl,
+    clean_save_table,
+)
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     update_metadata,
     publish_table,
 )
-from pipelines.datasets.br_cgu_pessoal_executivo_federal.schedules import every_four_months
+from pipelines.datasets.br_cgu_pessoal_executivo_federal.schedules import (
+    every_four_months,
+)
 
 
 ROOT = "/tmp/data"
@@ -21,7 +27,9 @@ URL = "https://www.gov.br/cgu/pt-br/acesso-a-informacao/dados-abertos/arquivos/t
 
 
 # pylint: disable=C0103
-with Flow("br_cgu_pessoal_executivo_federal.terceirizados") as br_cgu_pess_exec_fed_terc:
+with Flow(
+    "br_cgu_pessoal_executivo_federal.terceirizados"
+) as br_cgu_pess_exec_fed_terc:
     dataset_id = "br_cgu_pessoal_executivo_federal"
     table_id = "terceirizados"
     crawl_urls, temporal_coverage = crawl(URL)

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Helper tasks that could fit any pipeline.
 """
@@ -354,7 +355,7 @@ def update_publish_sql(dataset_id: str, table_id: str, dtype: dict, columns: lis
     # pylint: disable=C0103
     tb = bd.Table(dataset_id=dataset_id, table_id=table_id)
 
-    ### publish.sql header and instructions
+    # publish.sql header and instructions
     publish_txt = """
     /*
     Query para publicar a tabela.
@@ -427,7 +428,7 @@ def update_publish_sql(dataset_id: str, table_id: str, dtype: dict, columns: lis
                 bigquery_type = col["bigquery_type"].upper()
 
         publish_txt += f"SAFE_CAST({name} AS {bigquery_type}) {name},\n"
-    ## remove last comma
+    # remove last comma
     publish_txt = publish_txt[:-2] + "\n"
 
     # add from statement
@@ -442,6 +443,15 @@ def update_publish_sql(dataset_id: str, table_id: str, dtype: dict, columns: lis
 
 # pylint: disable=W0613
 @task
+def rename_current_flow_run(msg: str, wait=None) -> None:
+    """
+    Rename the current flow run.
+    """
+    flow_run_id = prefect.context.get("flow_run_id")
+    client = Client()
+    return client.set_flow_run_name(flow_run_id, msg)
+
+
 def rename_current_flow_run_dataset_table(
     prefix: str, dataset_id, table_id, wait=None
 ) -> None:
@@ -460,3 +470,10 @@ def get_current_flow_labels() -> List[str]:
     flow_run_id = prefect.context.get("flow_run_id")
     flow_run_view = FlowRunView.from_flow_run_id(flow_run_id)
     return flow_run_view.labels
+
+@task
+def get_date_time_str(wait=None) -> str:
+    """
+    Get current time as string
+    """
+    return datetime.now().strftime("%Y-%m-%d %HH:%MM")

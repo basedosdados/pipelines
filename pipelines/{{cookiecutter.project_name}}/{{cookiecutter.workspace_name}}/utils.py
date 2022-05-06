@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 General purpose functions for the {{cookiecutter.workspace_name}} project
 """
