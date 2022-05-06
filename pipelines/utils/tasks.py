@@ -452,6 +452,7 @@ def rename_current_flow_run(msg: str, wait=None) -> None:
     return client.set_flow_run_name(flow_run_id, msg)
 
 
+@task
 def rename_current_flow_run_dataset_table(
     prefix: str, dataset_id, table_id, wait=None
 ) -> None:
