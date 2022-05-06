@@ -43,6 +43,6 @@ def clean_dieese_icv():
     )
 
     filepath = "/tmp/data/br_sp_saopaulo_dieese_icv/mes.csv"
-    icv_mes.to_csv(filepath)
+    icv_mes.to_csv(filepath, index=False)
 
     return filepath
