@@ -5,15 +5,15 @@ Helper tasks that could fit any pipeline.
 
 from datetime import timedelta, datetime
 from pathlib import Path
-from typing import Union
+from typing import Union, List
 import inspect
 import textwrap
-
 
 import basedosdados as bd
 import prefect
 from prefect import task
 from prefect.client import Client
+from prefect.backend import FlowRunView
 import ruamel.yaml as ryaml
 import pandas as pd
 
@@ -451,3 +451,12 @@ def rename_current_flow_run_dataset_table(
     flow_run_id = prefect.context.get("flow_run_id")
     client = Client()
     return client.set_flow_run_name(flow_run_id, f"{prefix}{dataset_id}.{table_id}")
+
+@task
+def get_current_flow_labels() -> List[str]:
+    """
+    Get the labels of the current flow.
+    """
+    flow_run_id = prefect.context.get("flow_run_id")
+    flow_run_view = FlowRunView.from_flow_run_id(flow_run_id)
+    return flow_run_view.labels
