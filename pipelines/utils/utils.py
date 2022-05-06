@@ -20,7 +20,7 @@ from prefect.engine.state import State
 from prefect.run_configs import KubernetesRun
 import requests
 
-from pipelines.constants import constants, get_owners_discord_mentions
+from pipelines.constants import constants
 
 # import telegram
 
