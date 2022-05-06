@@ -181,11 +181,12 @@ def notify_discord_on_failure(
     url = get_vault_secret(secret_path)["data"]["url"]
     flow_run_id = prefect.context.get("flow_run_id")
     code_owners = code_owners or constants.DEFAULT_CODE_OWNERS.value
+    code_owner_dict = constants.OWNERS_DISCORD_MENTIONS.value
     at_code_owners = []
     for code_owner in code_owners:
-        code_owner_dict = get_owners_discord_mentions()[code_owner]
-        code_owner_id = code_owner_dict["user_id"]
-        code_owner_type = code_owner_dict["type"]
+        code_owner_id = code_owner_dict[code_owner]["user_id"]
+        code_owner_type = code_owner_dict[code_owner]["type"]
+
         if code_owner_type == "user":
             at_code_owners.append(f"    - <@{code_owner_id}>\n")
         elif code_owner_type == "user_nickname":
