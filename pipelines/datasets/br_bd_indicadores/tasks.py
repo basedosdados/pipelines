@@ -36,6 +36,7 @@ def echo(message: str) -> None:
     """
     log(message)
 
+
 # pylint: disable=W0613
 @task(checkpoint=False, nout=5)
 def get_credentials(secret_path: str, wait=None) -> Tuple[str, str, str, str, str]:
@@ -177,10 +178,25 @@ def crawler_metricas(
     df["tweet_count"] = result["tweet_count"]
     df["listed_count"] = result["listed_count"]
 
-    df=df.reindex(['id', 'text', 'created_at', 'retweet_count', 'reply_count',
-    'like_count', 'quote_count', 'impression_count', 'user_profile_clicks',
-    'url_link_clicks', 'following_count', 'followers_count', 'tweet_count',
-    'listed_count'], axis=1)
+    df = df.reindex(
+        [
+            "id",
+            "text",
+            "created_at",
+            "retweet_count",
+            "reply_count",
+            "like_count",
+            "quote_count",
+            "impression_count",
+            "user_profile_clicks",
+            "url_link_clicks",
+            "following_count",
+            "followers_count",
+            "tweet_count",
+            "listed_count",
+        ],
+        axis=1,
+    )
 
     # pylint: disable=C0301
     full_filepath = f'/tmp/data/metricas_tweets/upload_day={now.strftime("%Y-%m-%d")}/metricas_tweets.csv'
