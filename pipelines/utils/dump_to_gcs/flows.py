@@ -2,13 +2,12 @@
 """
 Flows for dumping data directly from BigQuery to GCS.
 """
-from prefect import Parameter
+from prefect import Parameter, Flow
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
 from pipelines.utils.constants import constants as utils_constants
-from pipelines.utils.decorators import Flow
 from pipelines.utils.dump_to_gcs.constants import constants as dump_to_gcs_constants
 from pipelines.utils.dump_to_gcs.tasks import download_data_to_gcs
 
