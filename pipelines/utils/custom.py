@@ -59,7 +59,7 @@ class CustomFlow(Flow):
             state_handlers=state_handlers,
             on_failure=partial(
                 notify_discord_on_failure,
-                secret_path=constants.EMD_DISCORD_WEBHOOK_SECRET_PATH.value,
+                secret_path=constants.BD_DISCORD_WEBHOOK_SECRET_PATH.value,
                 code_owners=code_owners,
             ),
             validate=validate,
