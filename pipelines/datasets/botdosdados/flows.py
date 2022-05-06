@@ -18,7 +18,7 @@ from pipelines.utils.tasks import rename_current_flow_run, get_date_time_str
 with Flow("botdosdados.send_tweets") as bot_dados_flow:
     # pylint: disable=C0103
     now = get_date_time_str()
-    rename_flow_run = rename_current_flow_run(msg=f'botdosdados - {now}', wait=now)
+    rename_flow_run = rename_current_flow_run(msg=f"botdosdados - {now}", wait=now)
 
     cond = was_table_updated(page_size=100, hours=1, wait=rename_flow_run)
 
