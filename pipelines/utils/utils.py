@@ -231,6 +231,36 @@ def untuple_clocks(clocks):
 
 ###############
 #
+# Text formatting
+#
+###############
+
+
+def human_readable(
+    value: Union[int, float],
+    unit: str = "",
+    unit_prefixes: List[str] = None,
+    unit_divider: int = 1000,
+    decimal_places: int = 2,
+):
+    """
+    Formats a value in a human readable way.
+    """
+    if unit_prefixes is None:
+        unit_prefixes = ["", "k", "M", "G", "T", "P", "E", "Z", "Y"]
+    if value == 0:
+        return f"{value}{unit}"
+    unit_prefix = unit_prefixes[0]
+    for prefix in unit_prefixes[1:]:
+        if value < unit_divider:
+            break
+        unit_prefix = prefix
+        value /= unit_divider
+    return f"{value:.{decimal_places}f}{unit_prefix}{unit}"
+
+
+###############
+#
 # Dataframe
 #
 ###############
