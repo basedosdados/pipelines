@@ -68,7 +68,7 @@ from pipelines.utils.decorators import Flow
 with Flow(
     name="my_flow",
     code_owners=[
-        "@your-discord-username",
+        "discord-username",
     ]
 ) as {{cookiecutter.project_name}}_flow:
     say_hello()
