@@ -13,6 +13,10 @@ from pipelines.utils.dump_to_gcs.tasks import download_data_to_gcs
 
 with Flow(
     name=utils_constants.FLOW_DUMP_TO_GCS_NAME.value,
+    code_owners=[
+        " @equipe_infra",
+        " @equipe_dados",
+    ],
 ) as dump_to_gcs_flow:
 
     project_id = Parameter("project_id", required=False)

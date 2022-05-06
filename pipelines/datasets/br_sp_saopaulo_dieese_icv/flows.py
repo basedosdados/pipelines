@@ -6,14 +6,14 @@ Flows for br_sp_saopaulo_dieese_icv
 
 from datetime import datetime
 
-from prefect import Flow
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
+
 from pipelines.constants import constants
 from pipelines.datasets.br_sp_saopaulo_dieese_icv.tasks import (
     clean_dieese_icv,
 )
-
+from pipelines.utils.decorators import Flow
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     update_metadata,
@@ -21,7 +21,7 @@ from pipelines.utils.tasks import (
 )
 from pipelines.datasets.br_sp_saopaulo_dieese_icv.schedules import every_month
 
-with Flow("br_sp_saopaulo_dieese_icv.mes") as br_sp_dieese:
+with Flow(name="br_sp_saopaulo_dieese_icv.mes") as br_sp_dieese:
     dataset_id = "br_sp_saopaulo_dieese_icv"
     table_id = "mes"
     filepath = clean_dieese_icv()  # igual minha funcao de tratamento

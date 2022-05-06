@@ -5,11 +5,12 @@ Flows for br_poder360_pesquisas
 
 from datetime import datetime
 
-from prefect import Flow
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
+
 from pipelines.constants import constants
 from pipelines.datasets.br_poder360_pesquisas.tasks import crawler
+from pipelines.utils.decorators import Flow
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     update_metadata,
@@ -19,7 +20,7 @@ from pipelines.utils.tasks import (
 from pipelines.datasets.br_poder360_pesquisas.schedules import every_monday_thursday
 
 # pylint: disable=C0103
-with Flow("br_poder360_pesquisas.microdados") as br_poder360:
+with Flow(name="br_poder360_pesquisas.microdados") as br_poder360:
     dataset_id = "br_poder360_pesquisas"
     table_id = "microdados"
 
