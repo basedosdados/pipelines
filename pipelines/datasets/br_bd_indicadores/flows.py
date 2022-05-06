@@ -34,7 +34,7 @@ with Flow(name="br_bd_indicadores.metricas_tweets") as bd_twt_metricas:
         "materialization_mode", default="dev", required=False
     )
     materialize_after_dump = Parameter(
-        "materialize after dump", default=False, required=False
+        "materialize after dump", default=True, required=False
     )
     dataset_id = Parameter("dataset_id", default="br_bd_indicadores", required=True)
     table_id = Parameter("table_id", default="twitter_metrics", required=True)
