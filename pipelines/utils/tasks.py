@@ -465,7 +465,7 @@ def rename_current_flow_run_dataset_table(
 
 @task
 def get_date_time_str(wait=None) -> str:
-    '''
+    """
     Get current time as string
-    '''
+    """
     return datetime.now().strftime("%Y-%m-%d %HH:%MM")
