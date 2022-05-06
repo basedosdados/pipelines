@@ -59,15 +59,11 @@ def get_credentials(secret_path: str, wait=None) -> Tuple[str, str, str, str, st
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def has_new_tweets(bearer_token: str) -> bool:
+def has_new_tweets(bearer_token: str, table_id: str) -> bool:
     """
     Checks if there are new tweets to capture data
     """
     now = datetime.now(tz=pytz.UTC)
-    os.system(
-        f'mkdir -p /tmp/data/metricas_tweets/upload_day={now.strftime("%Y-%m-%d")}/'
-    )
-
     headers = create_headers(bearer_token)
 
     # non_public_metrics only available for last 30 days
@@ -81,9 +77,7 @@ def has_new_tweets(bearer_token: str) -> bool:
     data = [flatten(i) for i in json_response["data"]]
     df1 = pd.DataFrame(data)
 
-    blobs = get_storage_blobs(
-        dataset_id="br_bd_indicadores", table_id="metricas_tweets"
-    )
+    blobs = get_storage_blobs(dataset_id="br_bd_indicadores", table_id=table_id)
     now = datetime.now(tz=pytz.UTC)
 
     if len(blobs) != 0:
@@ -110,12 +104,15 @@ def has_new_tweets(bearer_token: str) -> bool:
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def crawler_metricas(
-    access_secret: str, access_token: str, consumer_key: str, consumer_secret: str
+    access_secret: str,
+    access_token: str,
+    consumer_key: str,
+    consumer_secret: str,
+    table_id: str,
 ) -> str:
     """
     Create file with public and non_public_metrics from Twitter API
     """
-    now = datetime.now(tz=pytz.UTC)
     df1 = pd.read_csv("/tmp/basic_metrics.csv")
     ids = df1["id"].to_list()
 
@@ -201,26 +198,27 @@ def crawler_metricas(
     )
 
     # pylint: disable=C0301
-    full_filepath = f'/tmp/data/metricas_tweets/upload_day={now.strftime("%Y-%m-%d")}/metricas_tweets.csv'
+    full_filepath = f"/tmp/data/{table_id}/upload_ts={str(int(datetime.now().timestamp()))}/{table_id}.csv"
+    folder = full_filepath.replace(table_id + ".csv", "")
+    log(folder)
+    os.system(f"mkdir -p {folder}")
     df.to_csv(full_filepath, index=False)
 
-    return "/tmp/data/metricas_tweets/"
+    return f"/tmp/data/{table_id}/"
 
 
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def crawler_metricas_agg():
+def crawler_metricas_agg(table_to_agg: str):
     """
     Task to weekly capture aggregate data from previously created daily twitter data
     """
-    os.system("mkdir -p /tmp/data/metricas_tweets_agg/")
+    os.system(f"mkdir -p /tmp/data/{table_to_agg}_agg/")
 
     dfs = []
-    blobs = get_storage_blobs(
-        dataset_id="br_bd_indicadores", table_id="metricas_tweets"
-    )
+    blobs = get_storage_blobs(dataset_id="br_bd_indicadores", table_id=table_to_agg)
     for blob in blobs:
         url_data = blob.public_url
         date = blob.time_created.strftime("%Y-%m-%d")
@@ -247,7 +245,7 @@ def crawler_metricas_agg():
         }
     )
 
-    filepath = "/tmp/data/metricas_tweets_agg/metricas_tweets_agg.csv"
+    filepath = f"/tmp/data/{table_to_agg}_agg/{table_to_agg}_agg.csv"
     df.to_csv(filepath)
 
     return filepath
