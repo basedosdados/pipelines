@@ -178,6 +178,8 @@ def crawler_metricas(
     df["tweet_count"] = result["tweet_count"]
     df["listed_count"] = result["listed_count"]
 
+    df.reset_index(inplace=True)
+
     df = df.reindex(
         [
             "id",
@@ -200,7 +202,7 @@ def crawler_metricas(
 
     # pylint: disable=C0301
     full_filepath = f'/tmp/data/metricas_tweets/upload_day={now.strftime("%Y-%m-%d")}/metricas_tweets.csv'
-    df.to_csv(full_filepath)
+    df.to_csv(full_filepath, index=False)
 
     return "/tmp/data/metricas_tweets/"
 
