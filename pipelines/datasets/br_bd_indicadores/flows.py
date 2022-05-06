@@ -29,6 +29,14 @@ from pipelines.datasets.br_bd_indicadores.schedules import every_day, every_week
 with Flow("br_bd_indicadores.metricas_tweets") as bd_twt_metricas:
     dataset_id = "br_bd_indicadores"  # pylint: disable=C0103
     table_id = "metricas_tweets"  # pylint: disable=C0103
+    #####################################
+    #
+    # Rename flow run
+    #
+    #####################################
+    rename_flow_run = rename_current_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+    )
 
     (
         access_secret,
@@ -36,7 +44,7 @@ with Flow("br_bd_indicadores.metricas_tweets") as bd_twt_metricas:
         consumer_key,
         consumer_secret,
         bearer_token,
-    ) = get_credentials(secret_path="twitter_credentials")
+    ) = get_credentials(secret_path="twitter_credentials", wait=None)
 
     cond = has_new_tweets(bearer_token)
 
