@@ -4,12 +4,14 @@ Flows for br_bd_indicadores
 """
 from datetime import timedelta
 
-from prefect import Flow, Parameter, case
+from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
+
 from pipelines.constants import constants
 from pipelines.utils.constants import constants as utils_constants
+from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.datasets.br_bd_indicadores.tasks import (
     crawler_metricas,

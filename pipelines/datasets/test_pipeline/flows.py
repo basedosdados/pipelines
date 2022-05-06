@@ -58,15 +58,17 @@ test flow for basedosdados
 ###############################################################################
 from uuid import uuid4
 
-from prefect import Flow, Parameter
+from prefect import Parameter
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
+
 from pipelines.constants import constants
 from pipelines.datasets.test_pipeline.tasks import (
     get_random_expression,
     dataframe_to_csv,
     upload_to_gcs,
 )
+from pipelines.utils.decorators import Flow
 
 # from pipelines.datasets.test_pipeline.schedules import every_five_minutes
 

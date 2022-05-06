@@ -2,7 +2,7 @@
 """
 Flows for botdosdados
 """
-from prefect import Flow, case
+from prefect import case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from pipelines.constants import constants
@@ -13,6 +13,7 @@ from pipelines.datasets.botdosdados.tasks import (
     echo,
 )
 from pipelines.datasets.botdosdados.schedules import every_hour
+from pipelines.utils.decorators import Flow
 from pipelines.utils.tasks import rename_current_flow_run, get_date_time_str
 
 with Flow("botdosdados.send_tweets") as bot_dados_flow:

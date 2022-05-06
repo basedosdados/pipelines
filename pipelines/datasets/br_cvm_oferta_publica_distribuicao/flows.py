@@ -5,14 +5,15 @@ Flows for br_cvm_oferta_publica_distribuicao
 # pylint: disable=C0103, E1123, invalid-name
 from datetime import datetime
 
-from prefect import Flow
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
+
 from pipelines.constants import constants
 from pipelines.datasets.br_cvm_oferta_publica_distribuicao.tasks import (
     crawl,
     clean_table_oferta_distribuicao,
 )
+from pipelines.utils.decorators import Flow
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     update_metadata,
