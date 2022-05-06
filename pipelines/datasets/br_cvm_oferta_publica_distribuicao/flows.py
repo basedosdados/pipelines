@@ -25,7 +25,7 @@ from pipelines.datasets.br_cvm_oferta_publica_distribuicao.schedules import ever
 ROOT = "/tmp/data"
 URL = "http://dados.cvm.gov.br/dados/OFERTA/DISTRIB/DADOS/oferta_distribuicao.csv"
 
-with Flow("br_cvm_oferta_publica_distribuicao.dia") as br_cvm_ofe_pub_dis_dia:
+with Flow(name="br_cvm_oferta_publica_distribuicao.dia") as br_cvm_ofe_pub_dis_dia:
     dataset_id = "br_cvm_oferta_publica_distribuicao"
     table_id = "dia"
     wait_crawl = crawl(root=ROOT, url=URL)

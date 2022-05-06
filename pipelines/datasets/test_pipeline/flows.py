@@ -73,7 +73,7 @@ from pipelines.utils.decorators import Flow
 # from pipelines.datasets.test_pipeline.schedules import every_five_minutes
 
 
-with Flow("test_flow") as test_flow:
+with Flow(name="test_flow") as test_flow:
     # BigQuery parameters
     dataset_id = Parameter("dataset_id")
     table_id = Parameter("table_id")

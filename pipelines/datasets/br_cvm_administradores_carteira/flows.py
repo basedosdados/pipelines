@@ -27,7 +27,7 @@ from pipelines.datasets.br_cvm_administradores_carteira.schedules import every_d
 ROOT = "/tmp/data"
 URL = "http://dados.cvm.gov.br/dados/ADM_CART/CAD/DADOS/cad_adm_cart.zip"
 
-with Flow("br_cvm_administradores_carteira.responsavel") as br_cvm_adm_car_res:
+with Flow(name="br_cvm_administradores_carteira.responsavel") as br_cvm_adm_car_res:
     wait_crawl = crawl(root=ROOT, url=URL)
     filepath = clean_table_responsavel(root=ROOT, upstream_tasks=[wait_crawl])
     dataset_id = "br_cvm_administradores_carteira"

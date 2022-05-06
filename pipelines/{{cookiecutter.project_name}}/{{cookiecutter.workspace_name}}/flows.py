@@ -67,7 +67,7 @@ from pipelines.{{cookiecutter.project_name}}.{{cookiecutter.workspace_name}}.tas
 from pipelines.utils.decorators import Flow
 
 with Flow(
-    "my_flow",
+    name="my_flow",
     code_owners=[
         "@your-discord-username",
     ]

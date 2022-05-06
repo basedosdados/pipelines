@@ -20,7 +20,7 @@ download = ShellTask(
 )
 
 # pylint: disable=C0103
-with Flow("br_me_novo_caged.microdados_mov") as cagedmov:
+with Flow(name="br_me_novo_caged.microdados_mov") as cagedmov:
     dataset_id = "br_me_novo_caged"
     table_id = "microdados_mov"
 

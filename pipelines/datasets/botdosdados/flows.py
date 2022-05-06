@@ -16,7 +16,9 @@ from pipelines.datasets.botdosdados.schedules import every_hour
 from pipelines.utils.decorators import Flow
 from pipelines.utils.tasks import rename_current_flow_run, get_date_time_str
 
-with Flow("botdosdados.send_tweets") as bot_dados_flow:
+with Flow(
+    name="botdosdados.send_tweets",
+) as bot_dados_flow:
     # pylint: disable=C0103
     now = get_date_time_str()
     rename_flow_run = rename_current_flow_run(msg=f"botdosdados - {now}", wait=now)

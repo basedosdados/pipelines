@@ -25,7 +25,7 @@ from pipelines.utils.tasks import (
     publish_table,
 )
 
-with Flow("Template: IBGE Inflação: mes_brasil") as flow_ibge_inflacao_mes_brasil:
+with Flow(name="Template: IBGE Inflação: mes_brasil") as flow_ibge_inflacao_mes_brasil:
 
     #####################################
     #

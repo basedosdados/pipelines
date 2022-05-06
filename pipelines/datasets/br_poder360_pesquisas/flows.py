@@ -20,7 +20,7 @@ from pipelines.utils.tasks import (
 from pipelines.datasets.br_poder360_pesquisas.schedules import every_monday_thursday
 
 # pylint: disable=C0103
-with Flow("br_poder360_pesquisas.microdados") as br_poder360:
+with Flow(name="br_poder360_pesquisas.microdados") as br_poder360:
     dataset_id = "br_poder360_pesquisas"
     table_id = "microdados"
 
