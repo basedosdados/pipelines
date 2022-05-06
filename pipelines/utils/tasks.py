@@ -462,6 +462,7 @@ def rename_current_flow_run_dataset_table(
     client = Client()
     return client.set_flow_run_name(flow_run_id, f"{prefix}{dataset_id}.{table_id}")
 
+
 @task
 def get_current_flow_labels() -> List[str]:
     """
@@ -470,6 +471,7 @@ def get_current_flow_labels() -> List[str]:
     flow_run_id = prefect.context.get("flow_run_id")
     flow_run_view = FlowRunView.from_flow_run_id(flow_run_id)
     return flow_run_view.labels
+
 
 @task
 def get_date_time_str(wait=None) -> str:

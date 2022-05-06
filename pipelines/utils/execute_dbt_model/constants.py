@@ -13,4 +13,3 @@ class constants(Enum):  # pylint: disable=c0103
 
     WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS = 3
     WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL = 5
-    

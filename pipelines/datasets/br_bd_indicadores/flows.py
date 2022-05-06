@@ -31,8 +31,12 @@ from pipelines.datasets.br_bd_indicadores.schedules import every_day, every_week
 
 with Flow("br_bd_indicadores.metricas_tweets") as bd_twt_metricas:
     # Parameters
-    materialization_mode = Parameter("materialization_mode", default="dev", required=False)
-    materialize_after_dump = Parameter("materialize after dump", default=False, required=False)
+    materialization_mode = Parameter(
+        "materialization_mode", default="dev", required=False
+    )
+    materialize_after_dump = Parameter(
+        "materialize after dump", default=False, required=False
+    )
     dataset_id = "br_bd_indicadores"  # pylint: disable=C0103
     table_id = "metricas_tweets"  # pylint: disable=C0103
     #####################################
@@ -85,7 +89,7 @@ with Flow("br_bd_indicadores.metricas_tweets") as bd_twt_metricas:
                 parameters={
                     "dataset_id": dataset_id,
                     "table_id": table_id,
-                    "mode": materialization_mode
+                    "mode": materialization_mode,
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
