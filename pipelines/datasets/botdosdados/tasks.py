@@ -12,6 +12,7 @@ import tweepy
 from prefect import task
 from basedosdados.download.metadata import _safe_fetch
 import pandas as pd
+import numpy as np
 from pipelines.utils.utils import log
 from pipelines.datasets.botdosdados.utils import (
     get_credentials_from_secret,
@@ -64,6 +65,7 @@ def was_table_updated(page_size: int, hours: int, wait=None) -> bool:
     Checks if there are tables updated within last hour. If True, saves table locally.
     """
 
+    # pylint: disable=R0915
     datasets_links = defaultdict(lambda: "not selected")
     datasets_links[
         "mundo_transfermarkt_competicoes"
@@ -154,7 +156,14 @@ def was_table_updated(page_size: int, hours: int, wait=None) -> bool:
 
     df = dfs[0].append(dfs[1:])
     df["link"] = df["dataset"].map(datasets_links)
-    df["last_updated"] = pd.to_datetime(df["last_updated"])
+    df["last_updated"] = [
+        datetime.strptime(date.strftime("%Y-%m-%d %H:%M:%S"), "%Y-%m-%d %H:%M:%S")
+        if date is not None
+        else np.nan
+        for date in pd.to_datetime(df["last_updated"])
+    ]
+    log(df["last_updated"].unique())
+    df = df[df["last_updated"] != "None"]
     df.dropna(
         subset=["last_updated", "temporal_coverage", "updated_frequency"], inplace=True
     )
@@ -162,7 +171,9 @@ def was_table_updated(page_size: int, hours: int, wait=None) -> bool:
         k[0] if len(k) > 0 else k for k in df["temporal_coverage"]
     ]
     df.reset_index(drop=True, inplace=True)
-    df[df.dataset.isin(selected_datasets)]
+    df.sort_values("last_updated", ascending=False, inplace=True)
+    log(df[["dataset", "link", "last_updated"]])
+    df = df[df.dataset.isin(selected_datasets)]
     df = df[
         df["last_updated"].apply(lambda x: x.timestamp())
         > (datetime.now() - pd.Timedelta(hours=hours)).timestamp()
@@ -209,7 +220,7 @@ def send_tweet(
             dataframe.dataset == dataset
         ].updated_frequency.to_list()
         links = dataframe[dataframe.dataset == dataset].link.to_list()
-        main_tweet = f"""📣 O conjunto #{dataset} foi atualizado no datalake da @basedosdados às {last_updateds[0]}.\n\nAcesse por aqui ⤵️\n{links[0]}
+        main_tweet = f"""📣 O conjunto #{dataset} foi atualizado no datalake da @basedosdados às {last_updateds[0][11:16]}.\n\nAcesse por aqui ⤵️\n{links[0]}
         """
         thread = "As tabelas atualizadas foram:\n"
 
