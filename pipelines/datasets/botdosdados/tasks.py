@@ -70,7 +70,13 @@ def was_table_updated(page_size: int, hours: int, wait=None) -> bool:
     dfs = []
     for index in range(n_datasets):
         dataset_dict = datasets[index]
-        dataset_name = dataset_dict["resources"][0]["dataset_id"]
+        log(index)
+        for j in range(len(dataset_dict["resources"])):
+            if dataset_dict["resources"][j]["resource_type"] == "bdm_table":
+                dataset_name = dataset_dict["resources"][j]["dataset_id"]
+                break
+            else:
+                continue
         n_tables = len(dataset_dict["resources"])
         dataset_resources = [
             dataset_dict["resources"][k]
@@ -156,7 +162,7 @@ def send_tweet(
     for dataset in datasets:
         tables = dataframe[dataframe.dataset == dataset].table.to_list()
         coverages = dataframe[dataframe.dataset == dataset].temporal_coverage.to_list()
-        main_tweet = f"""📣 O conjunto #{dataset} acaba de ser atualizado no datalake da @basedosdados."""
+        main_tweet = f"""📣 O conjunto #{dataset} foi atualizado no datalake da @basedosdados às {datetime.now().strftime('%H-%M')}."""
         next_tweet = "As tabelas atualizadas foram:\n"
         for table, coverage in zip(tables, coverages):
             if len(coverage.split("(")[0]) == 4:
