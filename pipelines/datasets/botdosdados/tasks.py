@@ -6,6 +6,7 @@ import os
 from typing import Tuple
 from datetime import timedelta, datetime
 from time import sleep
+from collections import defaultdict
 
 import tweepy
 from prefect import task
@@ -62,6 +63,34 @@ def was_table_updated(page_size: int, hours: int, wait=None) -> bool:
     """
     Checks if there are tables updated within last hour. If True, saves table locally.
     """
+
+    datasets_links = defaultdict(lambda: "not selected")
+    datasets_links[
+        "mundo_transfermarkt_competicoes"
+    ] = "https://basedosdados.org/dataset/mundo-transfermarkt-competicoes"
+    datasets_links[
+        "br_me_caged.microdados_antigos"
+    ] = "https://basedosdados.org/dataset/br-me-caged"
+    datasets_links["br_ibge_inpc"] = "https://basedosdados.org/dataset/br-ibge-inpc"
+    datasets_links["br_ibge_ipca"] = "https://basedosdados.org/dataset/br-ibge-ipca"
+    datasets_links["br_ibge_ipca15"] = "https://basedosdados.org/dataset/br-ibge-ipca15"
+    datasets_links[
+        "br_anp_precos_combustiveis"
+    ] = "https://basedosdados.org/dataset/br-anp-precos-combustiveis"
+    datasets_links[
+        "br_poder360_pesquisas"
+    ] = "https://basedosdados.org/dataset/br-poder360-pesquisas"
+    datasets_links["br_ms_cnes"] = "https://basedosdados.org/dataset/br-ms-cnes"
+    datasets_links[
+        "br_camara_atividade_legislativa"
+    ] = "https://basedosdados.org/dataset/br-camara-atividade-legislativa"
+    datasets_links["br_ibge_pnadc"] = "https://basedosdados.org/dataset/br-ibge-pnadc"
+    datasets_links[
+        "br_ana_reservatorios"
+    ] = "https://basedosdados.org/dataset/br-ana-reservatorios"
+
+    selected_datasets = list(datasets_links.keys())
+
     url = f"https://basedosdados.org/api/3/action/bd_dataset_search?q=&resource_type=bdm_table&page=1&page_size={page_size}"
     response = _safe_fetch(url)
     json_response = response.json()
@@ -124,6 +153,7 @@ def was_table_updated(page_size: int, hours: int, wait=None) -> bool:
         dfs.append(df)
 
     df = dfs[0].append(dfs[1:])
+    df["link"] = df["dataset"].map(datasets_links)
     df["last_updated"] = pd.to_datetime(df["last_updated"])
     df.dropna(
         subset=["last_updated", "temporal_coverage", "updated_frequency"], inplace=True
@@ -132,6 +162,7 @@ def was_table_updated(page_size: int, hours: int, wait=None) -> bool:
         k[0] if len(k) > 0 else k for k in df["temporal_coverage"]
     ]
     df.reset_index(drop=True, inplace=True)
+    df[df.dataset.isin(selected_datasets)]
     df = df[
         df["last_updated"].apply(lambda x: x.timestamp())
         > (datetime.now() - pd.Timedelta(hours=hours)).timestamp()
@@ -177,7 +208,9 @@ def send_tweet(
         updated_frequencies = dataframe[
             dataframe.dataset == dataset
         ].updated_frequency.to_list()
-        main_tweet = f"""📣 O conjunto #{dataset} foi atualizado no datalake da @basedosdados às {last_updateds[0]}."""
+        links = dataframe[dataframe.dataset == dataset].link.to_list()
+        main_tweet = f"""📣 O conjunto #{dataset} foi atualizado no datalake da @basedosdados às {last_updateds[0]}.\n\nAcesse por aqui ⤵️\n{links[0]}
+        """
         thread = "As tabelas atualizadas foram:\n"
 
         dict_frequency = {
@@ -185,6 +218,7 @@ def send_tweet(
             "month": "anuais",
             "one_year": "anuais",
             "two_years": "bianuais",
+            "recurring": "recorrentes",
         }
         i = 1
         for table, coverage, updated_frequency in zip(
