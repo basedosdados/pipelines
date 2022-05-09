@@ -180,6 +180,8 @@ def send_tweet(
                 )
 
         first = client.create_tweet(text=main_tweet)
+        log(type(first))
+        log(dir(first))
         client.create_tweet(
             text=next_tweet,
             in_reply_to_tweet_id=first.id,
