@@ -70,7 +70,11 @@ def was_table_updated(page_size: int, hours: int, wait=None) -> bool:
     dfs = []
     for index in range(n_datasets):
         dataset_dict = datasets[index]
-        dataset_name = dataset_dict["resources"][0]["dataset_id"]
+        for j in range(len(dataset_dict["resources"])):
+            if dataset_dict["resources"][j]["resource_type"] == "bdm_table":
+                dataset_name = dataset_dict["resources"][j]["dataset_id"]
+                break
+            continue
         n_tables = len(dataset_dict["resources"])
         dataset_resources = [
             dataset_dict["resources"][k]
@@ -95,22 +99,35 @@ def was_table_updated(page_size: int, hours: int, wait=None) -> bool:
         temporal_coverage = [
             dataset_resources[k]["temporal_coverage"] for k in range(n_tables)
         ]
+        updated_frequency = [
+            dataset_resources[k]["update_frequency"] for k in range(n_tables)
+        ]
         df = pd.DataFrame(
             {
                 "table": tables,
                 "last_updated": last_updated,
                 "temporal_coverage": temporal_coverage,
+                "updated_frequency": updated_frequency,
             }
         )
         df["dataset"] = dataset_name
         df = df.reindex(
-            ["dataset", "table", "last_updated", "temporal_coverage"], axis=1
+            [
+                "dataset",
+                "table",
+                "last_updated",
+                "temporal_coverage",
+                "updated_frequency",
+            ],
+            axis=1,
         )
         dfs.append(df)
 
     df = dfs[0].append(dfs[1:])
     df["last_updated"] = pd.to_datetime(df["last_updated"])
-    df.dropna(subset=["last_updated", "temporal_coverage"], inplace=True)
+    df.dropna(
+        subset=["last_updated", "temporal_coverage", "updated_frequency"], inplace=True
+    )
     df["temporal_coverage"] = [
         k[0] if len(k) > 0 else k for k in df["temporal_coverage"]
     ]
@@ -156,32 +173,61 @@ def send_tweet(
     for dataset in datasets:
         tables = dataframe[dataframe.dataset == dataset].table.to_list()
         coverages = dataframe[dataframe.dataset == dataset].temporal_coverage.to_list()
-        main_tweet = f"""📣 O conjunto #{dataset} acaba de ser atualizado no datalake da @basedosdados."""
-        next_tweet = "As tabelas atualizadas foram:\n"
-        for table, coverage in zip(tables, coverages):
+        last_updateds = dataframe[dataframe.dataset == dataset].last_updated.to_list()
+        updated_frequencies = dataframe[
+            dataframe.dataset == dataset
+        ].updated_frequency.to_list()
+        main_tweet = f"""📣 O conjunto #{dataset} foi atualizado no datalake da @basedosdados às {last_updateds[0]}."""
+        thread = "As tabelas atualizadas foram:\n"
+
+        dict_frequency = {
+            "day": "diários",
+            "month": "anuais",
+            "one_year": "anuais",
+            "two_years": "bianuais",
+        }
+        i = 1
+        for table, coverage, updated_frequency in zip(
+            tables, coverages, updated_frequencies
+        ):
             if len(coverage.split("(")[0]) == 4:
-                next_tweet = (
-                    next_tweet
-                    + f"{table}. Esses dados são anuais e agora cobrem o período entre {coverage.split('(')[0]} e {coverage.split(')')[1]}\n"
+                thread = (
+                    thread
+                    + f"{str(i)+')'} {table}. Esses dados são {dict_frequency[updated_frequency]} e agora cobrem o período entre {coverage.split('(')[0]} e {coverage.split(')')[1]}\n"
                 )
             elif len(coverage.split("(")[0]) == 7:
-                next_tweet = (
-                    next_tweet
-                    + f"{table}. Esses dados são mensais e agora cobrem o período entre {coverage.split('(')[0]} e {coverage.split(')')[1]}\n"
+                thread = (
+                    thread
+                    + f"{str(i)+')'} {table}. Esses dados são {dict_frequency[updated_frequency]} e agora cobrem o período entre {coverage.split('(')[0]} e {coverage.split(')')[1]}\n"
                 )
-            elif len(coverage.split("(")[0]) == 9:
-                next_tweet = (
-                    next_tweet
-                    + f"{table}. Esses dados são diários e agora cobrem o período entre {coverage.split('(')[0]} e {coverage.split(')')[1]}\n"
+            elif len(coverage.split("(")[0]) == 10:
+                thread = (
+                    thread
+                    + f"{str(i)+')'} {table}. Esses dados são {dict_frequency[updated_frequency]} e agora cobrem o período entre {coverage.split('(')[0]} e {coverage.split(')')[1]}\n"
                 )
             else:
                 raise ValueError(
                     f"Coverage information {coverage} doesn't matchs the BD's standard."
                 )
+            i += 1
 
         first = client.create_tweet(text=main_tweet)
-        client.create_tweet(
-            text=next_tweet,
-            in_reply_to_tweet_id=first.id,
-        )
+        next_tweets = thread.split("\n")
+        next_tweets = [tweet for tweet in next_tweets if len(tweet) > 0]
+        next_tweets = [next_tweets[0] + "\n" + next_tweets[1]] + next_tweets[2:]
+
+        log(thread)
+        log(next_tweets)
+
+        for i, next_tweet in enumerate(next_tweets):
+            if i == 0:
+                reply = client.create_tweet(
+                    text=next_tweet,
+                    in_reply_to_tweet_id=first.data["id"],
+                )
+            else:
+                reply = client.create_tweet(
+                    text=next_tweet,
+                    in_reply_to_tweet_id=reply.data["id"],
+                )
         sleep(10)
