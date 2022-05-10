@@ -298,6 +298,10 @@ def get_temporal_coverage(
         date_col = date_cols[0]
         df = pd.read_csv(filepath, usecols=[date_col], parse_dates=[date_col])
         dates = df[date_col].to_list()
+        # keep only valid dates
+        dates = [d for d in dates if isinstance(d, pd.Timestamp)]
+        if len(dates) == 0:
+            raise ValueError("Selected date col has no valid date")
         dates.sort()
     elif len(date_cols) == 2:
         year = date_cols[0]
@@ -308,6 +312,10 @@ def get_temporal_coverage(
             for x, y in zip(df[year], df[month])
         ]
         dates = df["date"].to_list()
+        # keep only valid dates
+        dates = [d for d in dates if isinstance(d, pd.Timestamp)]
+        if len(dates) == 0:
+            raise ValueError("Selected date col has no valid date")
         dates.sort()
     elif len(date_cols) == 3:
         year = date_cols[0]
@@ -319,6 +327,10 @@ def get_temporal_coverage(
             for x, y in zip(df[year], df[month], df[day])
         ]
         dates = df["date"].to_list()
+        # keep only valid dates
+        dates = [d for d in dates if isinstance(d, pd.Timestamp)]
+        if len(dates) == 0:
+            raise ValueError("Selected date col has no valid date")
         dates.sort()
     else:
         raise ValueError(
