@@ -219,7 +219,7 @@ def send_tweet(
             dataframe.dataset == dataset
         ].updated_frequency.to_list()
         links = dataframe[dataframe.dataset == dataset].link.to_list()
-        main_tweet = f"""📣 O conjunto #{dataset} acaba de ser atualizado no datalake da @basedosdados.\n\nAcesse por aqui ⤵️\n{links[0]}
+        main_tweet = f"""📣 O conjunto #{dataset} foi atualizado no datalake da @basedosdados.\n\nAcesse por aqui ⤵️\n{links[0]}
         """
         thread = "As tabelas atualizadas foram:\n"
 
