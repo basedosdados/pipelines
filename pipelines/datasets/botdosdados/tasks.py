@@ -13,7 +13,7 @@ from prefect import task
 from basedosdados.download.metadata import _safe_fetch
 import pandas as pd
 import numpy as np
-from pipelines.utils.utils import log
+from pipelines.utils.utils import log, get_storage_blobs
 from pipelines.datasets.botdosdados.utils import (
     get_credentials_from_secret,
 )
@@ -275,3 +275,38 @@ def send_tweet(
                     in_reply_to_tweet_id=reply.data["id"],
                 )
         sleep(10)
+
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def send_plot(
+    access_token: str,
+    access_token_secret: str,
+    consumer_key: str,
+    consumer_secret: str,
+    bearer_token: str,
+):
+    """
+    Sends an update plot based on table_id data.
+    """
+
+    client = tweepy.Client(
+        bearer_token=bearer_token,
+        consumer_key=consumer_key,
+        consumer_secret=consumer_secret,
+        access_token=access_token,
+        access_token_secret=access_token_secret,
+    )
+
+    blobs = get_storage_blobs(dataset_id="br_ibge_ipca", table_id="mes_brasil")
+
+    if len(blobs) != 0:
+        dfs = []
+        for blob in blobs:
+            url_data = blob.public_url
+            df = pd.read_csv(url_data, dtype={"id": str})
+            dfs.append(df)
+
+    client.create_tweet(text="sample")
