@@ -14,3 +14,4 @@ from pipelines.datasets.br_poder360_pesquisas.flows import *
 from pipelines.datasets.botdosdados.flows import *
 from pipelines.datasets.br_cgu_pessoal_executivo_federal.flows import *
 from pipelines.datasets.br_me_caged.flows import *
+from pipelines.datasets.br_fgv_igp.flows import *
