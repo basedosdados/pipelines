@@ -13,6 +13,8 @@ from prefect import task
 from basedosdados.download.metadata import _safe_fetch
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
 from pipelines.utils.utils import log, get_storage_blobs
 from pipelines.datasets.botdosdados.utils import (
     get_credentials_from_secret,
@@ -277,28 +279,11 @@ def send_tweet(
         sleep(10)
 
 
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
-def send_plot(
-    access_token: str,
-    access_token_secret: str,
-    consumer_key: str,
-    consumer_secret: str,
-    bearer_token: str,
-):
+def generate_inflation_plot(dataset_id: str, table_id: str):
     """
-    Sends an update plot based on table_id data.
+    Creates an update plot based on table_id data.
     """
-
-    client = tweepy.Client(
-        bearer_token=bearer_token,
-        consumer_key=consumer_key,
-        consumer_secret=consumer_secret,
-        access_token=access_token,
-        access_token_secret=access_token_secret,
-    )
+    os.system("mkdir -p /tmp/plots/")
 
     blobs = get_storage_blobs(dataset_id="br_ibge_ipca", table_id="mes_brasil")
 
@@ -309,4 +294,49 @@ def send_plot(
             df = pd.read_csv(url_data, dtype={"id": str})
             dfs.append(df)
 
-    client.create_tweet(text="sample")
+    df["date"] = (
+        df["ano"].apply(lambda x: str(x))
+        + "-"
+        + df["mes"].apply(lambda x: str(x).zfill(2))
+    ).apply(lambda x: datetime.strptime(x, "%Y-%m"))
+    dict_month = {
+        1: "Janeiro",
+        2: "Fevereiro",
+        3: "Março",
+        4: "Abril",
+        5: "Maio",
+        6: "Junho",
+        7: "Julho",
+        8: "Agosto",
+        9: "Setembro",
+        10: "Outubro",
+        11: "Novembro",
+        12: "Dezembro",
+    }
+    df["date"] = df["date"].map(dict_month)
+    df.sort_values("date", inplace=True)
+    last_data = df.iloc[-1, :]["variacao_doze_meses"]
+    last_month = df.iloc[-1, :]["mes"]
+    indice = "IPCA"
+
+    text = f"Em {last_month}, a inflação acumulada nos últimos 12 meses medida pelo {indice} foi de {last_data}"
+
+    print(last_data)
+    df.set_index("date", inplace=True)
+    df = df[df.index.year.isin(list(range(2015, 2022)))]
+
+    sns.set_style("whitegrid")
+
+    fig, ax = plt.subplots()
+
+    ax.plot(df["variacao_doze_meses"], color="lime")
+    ax.spines["right"].set_visible(False)
+    ax.spines["top"].set_visible(False)
+
+    ax.set_title("Inflação acumulada - 12 meses (IPCA)", fontsize=14)
+
+    filepath = "/tmp/plots/ipca.jpeg"
+
+    fig.savefig(filepath, bbox_inches="tight")
+
+    return text, filepath
