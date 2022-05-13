@@ -5,7 +5,6 @@ Tasks for botdosdados
 import os
 from typing import Tuple
 from datetime import timedelta, datetime
-from time import sleep
 from collections import defaultdict
 
 import tweepy
@@ -57,6 +56,7 @@ def get_credentials(secret_path: str) -> Tuple[str, str, str, str, str]:
 
 
 # pylint: disable=R0914
+# pylint: disable=R0913
 # pylint: disable=W0613
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
@@ -192,24 +192,10 @@ def was_table_updated(page_size: int, hours: int, wait=None) -> bool:
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def send_tweet(
-    access_token: str,
-    access_token_secret: str,
-    consumer_key: str,
-    consumer_secret: str,
-    bearer_token: str,
-):
+def message_last_tables() -> list:
     """
     Sends one tweet for each new table added recently. Uses 10 seconds interval for each new tweet
     """
-
-    client = tweepy.Client(
-        bearer_token=bearer_token,
-        consumer_key=consumer_key,
-        consumer_secret=consumer_secret,
-        access_token=access_token,
-        access_token_secret=access_token_secret,
-    )
 
     dataframe = pd.read_csv("/tmp/data/updated_tables.csv")
     datasets = dataframe.dataset.unique()
@@ -257,29 +243,20 @@ def send_tweet(
                 )
             i += 1
 
-        first = client.create_tweet(text=main_tweet)
         next_tweets = thread.split("\n")
         next_tweets = [tweet for tweet in next_tweets if len(tweet) > 0]
-        next_tweets = [next_tweets[0] + "\n" + next_tweets[1]] + next_tweets[2:]
+        texts = (
+            [main_tweet] + [next_tweets[0] + "\n" + next_tweets[1]] + next_tweets[2:]
+        )
 
-        log(thread)
-        log(next_tweets)
-
-        for i, next_tweet in enumerate(next_tweets):
-            if i == 0:
-                reply = client.create_tweet(
-                    text=next_tweet,
-                    in_reply_to_tweet_id=first.data["id"],
-                )
-            else:
-                reply = client.create_tweet(
-                    text=next_tweet,
-                    in_reply_to_tweet_id=reply.data["id"],
-                )
-        sleep(10)
+        return texts
 
 
-def generate_inflation_plot(dataset_id: str, table_id: str):
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def message_inflation_plot(dataset_id: str, table_id: str) -> list:
     """
     Creates an update plot based on table_id data.
     """
@@ -294,6 +271,7 @@ def generate_inflation_plot(dataset_id: str, table_id: str):
             df = pd.read_csv(url_data, dtype={"id": str})
             dfs.append(df)
 
+    # pylint: disable=W0108
     df["date"] = (
         df["ano"].apply(lambda x: str(x))
         + "-"
@@ -319,7 +297,9 @@ def generate_inflation_plot(dataset_id: str, table_id: str):
     last_month = df.iloc[-1, :]["mes"]
     indice = "IPCA"
 
-    text = f"Em {last_month}, a inflação acumulada nos últimos 12 meses medida pelo {indice} foi de {last_data}"
+    texts = [
+        f"Em {last_month}, a inflação acumulada nos últimos 12 meses medida pelo {indice} foi de {last_data}"
+    ]
 
     print(last_data)
     df.set_index("date", inplace=True)
@@ -335,8 +315,86 @@ def generate_inflation_plot(dataset_id: str, table_id: str):
 
     ax.set_title("Inflação acumulada - 12 meses (IPCA)", fontsize=14)
 
-    filepath = "/tmp/plots/ipca.jpeg"
+    filepath = "/tmp/plots/inflation.jpeg"
 
     fig.savefig(filepath, bbox_inches="tight")
 
-    return text, filepath
+    return texts
+
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def send_thread(
+    access_token: str,
+    access_token_secret: str,
+    consumer_key: str,
+    consumer_secret: str,
+    bearer_token: str,
+    texts: list,
+    is_reply: bool,
+    reply_id: None,
+) -> int:
+    """
+    Sends a sequence of tweets at once.
+    """
+
+    if any(len(text) > 280 for text in texts):
+        raise ValueError("Each tweet text must be 280 characters length at most.")
+
+    client = tweepy.Client(
+        bearer_token=bearer_token,
+        consumer_key=consumer_key,
+        consumer_secret=consumer_secret,
+        access_token=access_token,
+        access_token_secret=access_token_secret,
+    )
+
+    for i, text in enumerate(texts):
+        if i == 0:
+            if is_reply:
+                reply = client.create_tweet(text=text, in_reply_to_tweet_id=reply_id)
+            else:
+                reply = client.create_text(text=text)
+        else:
+            reply = client.create_text(
+                text=text,
+                in_reply_to_tweet_id=reply.data["id"],
+            )
+
+    return reply.data["id"]
+
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def send_media(
+    access_token: str,
+    access_token_secret: str,
+    consumer_key: str,
+    consumer_secret: str,
+    bearer_token: str,
+    text: str,
+    images: list,
+) -> int:
+    """
+    Sends a single tweet with a list of medias.
+    """
+    client = tweepy.Client(
+        bearer_token=bearer_token,
+        consumer_key=consumer_key,
+        consumer_secret=consumer_secret,
+        access_token=access_token,
+        access_token_secret=access_token_secret,
+    )
+
+    dict_medias = []
+    for i, image in enumerate(images):
+        media = client.media_upload(image)
+        dict_medias.update({f"media_{i}": media})
+
+    tweet = client.create_tweet(text=text, media=[list(dict_medias.values())])
+
+    return tweet.data["id"]
