@@ -62,7 +62,7 @@ def get_credentials(secret_path: str) -> Tuple[str, str, str, str, str]:
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def was_table_updated(page_size: int, hours: int, wait=None) -> bool:
+def was_table_updated(page_size: int, hours: int, subset: str, wait=None) -> bool:
     """
     Checks if there are tables updated within last hour. If True, saves table locally.
     """
@@ -92,6 +92,15 @@ def was_table_updated(page_size: int, hours: int, wait=None) -> bool:
     datasets_links[
         "br_ana_reservatorios"
     ] = "https://basedosdados.org/dataset/br-ana-reservatorios"
+
+    if subset == "inflation":
+        datasets_links = {
+            k: v
+            for k, v in datasets_links.items()
+            if k in ["br_ibge_inpc", "br_ibge_ipca", "br_ibge_ipca15"]
+        }
+    else:
+        raise ValueError("Subset must me one of the following: inflation")
 
     selected_datasets = list(datasets_links.keys())
 

@@ -26,7 +26,9 @@ with Flow(name="botdosdados.message_inflation") as inflation_flow:
     now = get_date_time_str()
     rename_flow_run = rename_current_flow_run(msg=f"botdosdados - {now}", wait=now)
 
-    cond = was_table_updated(page_size=100, hours=24, wait=rename_flow_run)
+    cond = was_table_updated(
+        page_size=100, hours=24, subset="inflation", wait=rename_flow_run
+    )
 
     with case(cond, False):
         echo("No table updated")
