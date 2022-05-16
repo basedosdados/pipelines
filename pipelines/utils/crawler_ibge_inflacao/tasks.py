@@ -18,7 +18,6 @@ from pipelines.utils.utils import log
 # pylint: disable=C0206
 # pylint: disable=C0201
 # pylint: disable=R0914
-# pylint: disable=W0641
 
 
 @task
@@ -267,8 +266,7 @@ def clean_mes_brasil(indice: str) -> None:
         "grupo": grupo if "grupo" in locals() else "",
         "subgrupo": subgrupo if "subgrupo" in locals() else "",
         "item": item if "item" in locals() else "",
-        "subitem_1": subitem_1 if "subitem_1" in locals() else "",
-        "subitem_2": subitem_2 if "subitem_2" in locals() else "",
+        "subitem": subitem if "subitem" in locals() else "",
         "geral": geral if "geral" in locals() else "",
     }
 
