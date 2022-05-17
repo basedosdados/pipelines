@@ -5,15 +5,17 @@ Tasks for botdosdados
 import os
 from typing import Tuple
 from datetime import timedelta, datetime
-from time import sleep
 from collections import defaultdict
 
 import tweepy
+from tweepy.auth import OAuthHandler
 from prefect import task
 from basedosdados.download.metadata import _safe_fetch
 import pandas as pd
 import numpy as np
-from pipelines.utils.utils import log
+import matplotlib.pyplot as plt
+import seaborn as sns
+from pipelines.utils.utils import log, get_storage_blobs
 from pipelines.datasets.botdosdados.utils import (
     get_credentials_from_secret,
 )
@@ -55,12 +57,13 @@ def get_credentials(secret_path: str) -> Tuple[str, str, str, str, str]:
 
 
 # pylint: disable=R0914
+# pylint: disable=R0913
 # pylint: disable=W0613
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def was_table_updated(page_size: int, hours: int, wait=None) -> bool:
+def was_table_updated(page_size: int, hours: int, subset: str, wait=None) -> bool:
     """
     Checks if there are tables updated within last hour. If True, saves table locally.
     """
@@ -90,6 +93,15 @@ def was_table_updated(page_size: int, hours: int, wait=None) -> bool:
     datasets_links[
         "br_ana_reservatorios"
     ] = "https://basedosdados.org/dataset/br-ana-reservatorios"
+
+    if subset == "inflation":
+        datasets_links = {
+            k: v
+            for k, v in datasets_links.items()
+            if k in ["br_ibge_inpc", "br_ibge_ipca", "br_ibge_ipca15"]
+        }
+    else:
+        raise ValueError("Subset must me one of the following: inflation")
 
     selected_datasets = list(datasets_links.keys())
 
@@ -157,13 +169,13 @@ def was_table_updated(page_size: int, hours: int, wait=None) -> bool:
     df = dfs[0].append(dfs[1:])
     df["link"] = df["dataset"].map(datasets_links)
     df["last_updated"] = [
-        datetime.strptime(date.strftime("%Y-%m-%d %H:%M:%S"), "%Y-%m-%d %H:%M:%S")
-        if date is not None
+        datetime.strptime(date, "%Y-%m-%d %H:%M:%S")
+        if isinstance(date, str)
         else np.nan
-        for date in pd.to_datetime(df["last_updated"])
+        for date in pd.to_datetime(df["last_updated"], errors="coerce").dt.strftime(
+            "%Y-%m-%d %H:%M:%S"
+        )
     ]
-    log(df["last_updated"].unique())
-    df = df[df["last_updated"] != "None"]
     df.dropna(
         subset=["last_updated", "temporal_coverage", "updated_frequency"], inplace=True
     )
@@ -172,7 +184,6 @@ def was_table_updated(page_size: int, hours: int, wait=None) -> bool:
     ]
     df.reset_index(drop=True, inplace=True)
     df.sort_values("last_updated", ascending=False, inplace=True)
-    log(df[["dataset", "link", "last_updated"]])
     df = df[df.dataset.isin(selected_datasets)]
     df = df[
         df["last_updated"].apply(lambda x: x.timestamp())
@@ -190,24 +201,10 @@ def was_table_updated(page_size: int, hours: int, wait=None) -> bool:
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def send_tweet(
-    access_token: str,
-    access_token_secret: str,
-    consumer_key: str,
-    consumer_secret: str,
-    bearer_token: str,
-):
+def message_last_tables() -> list:
     """
     Sends one tweet for each new table added recently. Uses 10 seconds interval for each new tweet
     """
-
-    client = tweepy.Client(
-        bearer_token=bearer_token,
-        consumer_key=consumer_key,
-        consumer_secret=consumer_secret,
-        access_token=access_token,
-        access_token_secret=access_token_secret,
-    )
 
     dataframe = pd.read_csv("/tmp/data/updated_tables.csv")
     datasets = dataframe.dataset.unique()
@@ -219,7 +216,7 @@ def send_tweet(
             dataframe.dataset == dataset
         ].updated_frequency.to_list()
         links = dataframe[dataframe.dataset == dataset].link.to_list()
-        main_tweet = f"""📣 O conjunto #{dataset} foi atualizado no datalake da @basedosdados.\n\nAcesse por aqui ⤵️\n{links[0]}
+        main_tweet = f"""📣 O conjunto #{dataset.lower()} foi atualizado no data lake da @basedosdados\n\nAcesse por aqui ⤵️\n{links[0]}
         """
         thread = "As tabelas atualizadas foram:\n"
 
@@ -255,23 +252,149 @@ def send_tweet(
                 )
             i += 1
 
-        first = client.create_tweet(text=main_tweet)
         next_tweets = thread.split("\n")
         next_tweets = [tweet for tweet in next_tweets if len(tweet) > 0]
-        next_tweets = [next_tweets[0] + "\n" + next_tweets[1]] + next_tweets[2:]
+        texts = (
+            [main_tweet] + [next_tweets[0] + "\n" + next_tweets[1]] + next_tweets[2:]
+        )
 
-        log(thread)
-        log(next_tweets)
+        return texts
 
-        for i, next_tweet in enumerate(next_tweets):
-            if i == 0:
-                reply = client.create_tweet(
-                    text=next_tweet,
-                    in_reply_to_tweet_id=first.data["id"],
-                )
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def message_inflation_plot(dataset_id: str, table_id: str) -> str:
+    """
+    Creates an update plot based on table_id data and returns a text to be used in tweet.
+    """
+    os.system("mkdir -p /tmp/plots/")
+
+    blobs = get_storage_blobs(dataset_id="br_ibge_ipca", table_id="mes_brasil")
+
+    if len(blobs) != 0:
+        dfs = []
+        for blob in blobs:
+            url_data = blob.public_url
+            df = pd.read_csv(url_data, dtype={"id": str})
+            dfs.append(df)
+
+    # pylint: disable=W0108
+    df["date"] = (
+        df["ano"].apply(lambda x: str(x))
+        + "-"
+        + df["mes"].apply(lambda x: str(x).zfill(2))
+    ).apply(lambda x: datetime.strptime(x, "%Y-%m"))
+    dict_month = {
+        1: "Janeiro",
+        2: "Fevereiro",
+        3: "Março",
+        4: "Abril",
+        5: "Maio",
+        6: "Junho",
+        7: "Julho",
+        8: "Agosto",
+        9: "Setembro",
+        10: "Outubro",
+        11: "Novembro",
+        12: "Dezembro",
+    }
+    df["mes"] = df["mes"].map(dict_month)
+    df.sort_values("date", inplace=True)
+    last_data = df.iloc[-1, :]["variacao_doze_meses"]
+    last_month = df.iloc[-1, :]["mes"]
+    indice = "IPCA"
+
+    text = f"Em {last_month}, a inflação acumulada nos últimos 12 meses medida pelo {indice} foi de {str(last_data).replace('.',',')}%"
+
+    log(last_data)
+    df.set_index("date", inplace=True)
+    df = df[df.index.year.isin(list(range(2015, 2022)))]
+
+    sns.set_style("whitegrid")
+
+    fig, ax = plt.subplots()
+
+    ax.plot(df["variacao_doze_meses"], color="lime")
+    ax.spines["right"].set_visible(False)
+    ax.spines["top"].set_visible(False)
+
+    ax.set_title("Inflação acumulada - 12 meses (IPCA)", fontsize=14)
+
+    filepath = "/tmp/plots/inflation.jpeg"
+
+    fig.savefig(filepath, bbox_inches="tight")
+
+    return text
+
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def send_thread(
+    access_token: str,
+    access_token_secret: str,
+    consumer_key: str,
+    consumer_secret: str,
+    bearer_token: str,
+    texts: list,
+    is_reply: bool,
+    reply_id: None,
+) -> int:
+    """
+    Sends a sequence of tweets at once.
+    """
+
+    if any(len(text) > 280 for text in texts):
+        raise ValueError("Each tweet text must be 280 characters length at most.")
+
+    client = tweepy.Client(
+        bearer_token=bearer_token,
+        consumer_key=consumer_key,
+        consumer_secret=consumer_secret,
+        access_token=access_token,
+        access_token_secret=access_token_secret,
+    )
+
+    for i, text in enumerate(texts):
+        if i == 0:
+            if is_reply:
+                reply = client.create_tweet(text=text, in_reply_to_tweet_id=reply_id)
             else:
-                reply = client.create_tweet(
-                    text=next_tweet,
-                    in_reply_to_tweet_id=reply.data["id"],
-                )
-        sleep(10)
+                reply = client.create_tweet(text=text)
+        else:
+            reply = client.create_tweet(
+                text=text,
+                in_reply_to_tweet_id=reply.data["id"],
+            )
+
+    return reply.data["id"]
+
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def send_media(
+    access_token: str,
+    access_token_secret: str,
+    consumer_key: str,
+    consumer_secret: str,
+    text: str,
+    image: str,
+) -> int:
+    """
+    Sends a single tweet with a list of medias.
+    """
+    # must apply for elevated access https://stackoverflow.com/questions/70134338/tweepy-twitter-api-v2-unable-to-upload-photo-media
+
+    auth = OAuthHandler(consumer_key, consumer_secret)
+    auth.set_access_token(access_token, access_token_secret)
+
+    api = tweepy.API(auth)
+    ret = api.media_upload(filename=image)
+    tweet = api.update_status(media_ids=[ret.media_id_string], status=text)
+
+    return tweet.id
