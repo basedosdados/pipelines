@@ -3,7 +3,6 @@
 utils for botdosdados
 """
 import hvac
-import tweepy
 
 from pipelines.utils.utils import get_vault_secret
 
