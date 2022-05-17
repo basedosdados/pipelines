@@ -168,13 +168,13 @@ def was_table_updated(page_size: int, hours: int, subset: str, wait=None) -> boo
     df = dfs[0].append(dfs[1:])
     df["link"] = df["dataset"].map(datasets_links)
     df["last_updated"] = [
-        datetime.strptime(date.strftime("%Y-%m-%d %H:%M:%S"), "%Y-%m-%d %H:%M:%S")
-        if date is not None
+        datetime.strptime(date, "%Y-%m-%d %H:%M:%S")
+        if isinstance(date, str)
         else np.nan
-        for date in pd.to_datetime(df["last_updated"])
+        for date in pd.to_datetime(df["last_updated"], errors="coerce").dt.strftime(
+            "%Y-%m-%d %H:%M:%S"
+        )
     ]
-    log(df["last_updated"].unique())
-    df = df[df["last_updated"] != "None"]
     df.dropna(
         subset=["last_updated", "temporal_coverage", "updated_frequency"], inplace=True
     )
@@ -183,7 +183,6 @@ def was_table_updated(page_size: int, hours: int, subset: str, wait=None) -> boo
     ]
     df.reset_index(drop=True, inplace=True)
     df.sort_values("last_updated", ascending=False, inplace=True)
-    log(df[["dataset", "link", "last_updated"]])
     df = df[df.dataset.isin(selected_datasets)]
     df = df[
         df["last_updated"].apply(lambda x: x.timestamp())
