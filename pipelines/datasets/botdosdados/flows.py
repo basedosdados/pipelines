@@ -49,24 +49,23 @@ with Flow(name="botdosdados.message_inflation") as inflation_flow:
         )
 
         twt_media_id = send_media(
-            access_token,
-            access_token_secret,
-            consumer_key,
-            consumer_secret,
-            bearer_token,
+            access_token=access_token,
+            access_token_secret=access_token_secret,
+            consumer_key=consumer_key,
+            consumer_secret=consumer_secret,
             text=text,
-            images=["/tmp/plots/inflation.jpeg"],
+            image="/tmp/plots/inflation.jpeg",
             upstream_tasks=[text],
         )
 
         texts = message_last_tables(upstream_tasks=[twt_media_id])
 
         id_last_twt = send_thread(
-            access_token,
-            access_token_secret,
-            consumer_key,
-            consumer_secret,
-            bearer_token,
+            access_token=access_token,
+            access_token_secret=access_token_secret,
+            consumer_key=consumer_key,
+            consumer_secret=consumer_secret,
+            bearer_token=bearer_token,
             texts=texts,
             is_reply=True,
             reply_id=twt_media_id,

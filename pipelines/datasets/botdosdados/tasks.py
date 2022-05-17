@@ -8,6 +8,7 @@ from datetime import timedelta, datetime
 from collections import defaultdict
 
 import tweepy
+from tweepy.auth import OAuthHandler
 from prefect import task
 from basedosdados.download.metadata import _safe_fetch
 import pandas as pd
@@ -215,7 +216,7 @@ def message_last_tables() -> list:
             dataframe.dataset == dataset
         ].updated_frequency.to_list()
         links = dataframe[dataframe.dataset == dataset].link.to_list()
-        main_tweet = f"""📣 O conjunto #{dataset} foi atualizado no datalake da @basedosdados.\n\nAcesse por aqui ⤵️\n{links[0]}
+        main_tweet = f"""📣 O conjunto #{dataset.lower()} foi atualizado no data lake da @basedosdados\n\nAcesse por aqui ⤵️\n{links[0]}
         """
         thread = "As tabelas atualizadas foram:\n"
 
@@ -264,9 +265,9 @@ def message_last_tables() -> list:
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def message_inflation_plot(dataset_id: str, table_id: str) -> list:
+def message_inflation_plot(dataset_id: str, table_id: str) -> str:
     """
-    Creates an update plot based on table_id data.
+    Creates an update plot based on table_id data and returns a text to be used in tweet.
     """
     os.system("mkdir -p /tmp/plots/")
 
@@ -299,17 +300,15 @@ def message_inflation_plot(dataset_id: str, table_id: str) -> list:
         11: "Novembro",
         12: "Dezembro",
     }
-    df["date"] = df["date"].map(dict_month)
+    df["mes"] = df["mes"].map(dict_month)
     df.sort_values("date", inplace=True)
     last_data = df.iloc[-1, :]["variacao_doze_meses"]
     last_month = df.iloc[-1, :]["mes"]
     indice = "IPCA"
 
-    texts = [
-        f"Em {last_month}, a inflação acumulada nos últimos 12 meses medida pelo {indice} foi de {last_data}"
-    ]
+    text = f"Em {last_month}, a inflação acumulada nos últimos 12 meses medida pelo {indice} foi de {str(last_data).replace('.',',')}%"
 
-    print(last_data)
+    log(last_data)
     df.set_index("date", inplace=True)
     df = df[df.index.year.isin(list(range(2015, 2022)))]
 
@@ -327,7 +326,7 @@ def message_inflation_plot(dataset_id: str, table_id: str) -> list:
 
     fig.savefig(filepath, bbox_inches="tight")
 
-    return texts
+    return text
 
 
 @task(
@@ -364,9 +363,9 @@ def send_thread(
             if is_reply:
                 reply = client.create_tweet(text=text, in_reply_to_tweet_id=reply_id)
             else:
-                reply = client.create_text(text=text)
+                reply = client.create_tweet(text=text)
         else:
-            reply = client.create_text(
+            reply = client.create_tweet(
                 text=text,
                 in_reply_to_tweet_id=reply.data["id"],
             )
@@ -383,26 +382,19 @@ def send_media(
     access_token_secret: str,
     consumer_key: str,
     consumer_secret: str,
-    bearer_token: str,
     text: str,
-    images: list,
+    image: str,
 ) -> int:
     """
     Sends a single tweet with a list of medias.
     """
-    client = tweepy.Client(
-        bearer_token=bearer_token,
-        consumer_key=consumer_key,
-        consumer_secret=consumer_secret,
-        access_token=access_token,
-        access_token_secret=access_token_secret,
-    )
+    # must apply for elevated access https://stackoverflow.com/questions/70134338/tweepy-twitter-api-v2-unable-to-upload-photo-media
 
-    dict_medias = []
-    for i, image in enumerate(images):
-        media = client.media_upload(image)
-        dict_medias.update({f"media_{i}": media})
+    auth = OAuthHandler(consumer_key, consumer_secret)
+    auth.set_access_token(access_token, access_token_secret)
 
-    tweet = client.create_tweet(text=text, media=[list(dict_medias.values())])
+    api = tweepy.API(auth)
+    ret = api.media_upload(filename=image)
+    tweet = api.update_status(media_ids=[ret.media_id_string], status=text)
 
-    return tweet.data["id"]
+    return tweet.id
