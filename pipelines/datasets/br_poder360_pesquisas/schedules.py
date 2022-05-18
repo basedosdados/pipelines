@@ -20,5 +20,11 @@ every_monday_thursday = Schedule(
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
         )
-    ]
+    ],
+    parameter_defaults={
+        "dataset_id": "br_poder360_pesquisas",
+        "materialization_mode": "dev",
+        "materialize after dump": True,
+        "table_id": "microdados",
+    },
 )
