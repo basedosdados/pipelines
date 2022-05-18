@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Flows for br_fgv_igp
 """
@@ -15,8 +16,7 @@ from pipelines.datasets.br_fgv_igp.tasks import (
     IGP_OG_mensal,
     IGP_OG_anual,
     IGP_M_anual,
-    IGP_M_mensal
-
+    IGP_M_mensal,
 )
 from pipelines.constants import constants
 from pipelines.utils.tasks import (
@@ -26,7 +26,7 @@ from pipelines.utils.tasks import (
 from pipelines.datasets.br_fgv_igp.schedules import every_year
 
 with Flow("br_fgv_igp.igp_di_ano") as br_fgv_igp_di_ano:
-    filepath =IGP_DI_anual()
+    filepath = IGP_DI_anual()
     dataset_id = "br_fgv_igp"
     table_id = "igp_di_ano"
 
@@ -53,7 +53,7 @@ br_fgv_igp_di_ano.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 br_fgv_igp_di_ano.schedule = every_month
 
 with Flow("br_fgv_igp.igp_di_mes") as br_fgv_igp_di_mes:
-    filepath =IGP_DI_mensal()
+    filepath = IGP_DI_mensal()
     dataset_id = "br_fgv_igp"
     table_id = "igp_di_mes"
 
@@ -80,7 +80,7 @@ br_fgv_igp_di_mes.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 br_fgv_igp_di_mes.schedule = every_month
 
 with Flow("br_fgv_igp.igp_10_mes") as br_fgv_igp_10_mes:
-    filepath =IGP_10_mensal()
+    filepath = IGP_10_mensal()
     dataset_id = "br_fgv_igp"
     table_id = "igp_10_mes"
 
@@ -106,7 +106,7 @@ br_fgv_igp_10_mes.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 br_fgv_igp_10_mes.schedule = every_month
 
 with Flow("br_fgv_igp.igp_m_mes") as br_fgv_igp_m_mes:
-    filepath =IGP_M_mensal()
+    filepath = IGP_M_mensal()
     dataset_id = "br_fgv_igp"
     table_id = "igp_m_mes"
 
@@ -132,7 +132,7 @@ br_fgv_igp_m_mes.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 br_fgv_igp_m_mes.schedule = every_month
 
 with Flow("br_fgv_igp.igp_m_ano") as br_fgv_igp_m_ano:
-    filepath =IGP_M_anual()
+    filepath = IGP_M_anual()
     dataset_id = "br_fgv_igp"
     table_id = "igp_m_ano"
 
@@ -158,7 +158,7 @@ br_fgv_igp_m_ano.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 br_fgv_igp_m_ano.schedule = every_month
 
 with Flow("br_fgv_igp.igp_og_mes") as br_fgv_igp_og_mes:
-    filepath =IGP_OG_mensal()
+    filepath = IGP_OG_mensal()
     dataset_id = "br_fgv_igp"
     table_id = "igp_og_mes"
 
@@ -185,7 +185,7 @@ br_fgv_igp_og_mes.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 br_fgv_igp_og_mes.schedule = every_month
 
 with Flow("br_fgv_igp.igp_og_ano") as br_fgv_igp_og_ano:
-    filepath =IGP_OG_anual()
+    filepath = IGP_OG_anual()
     dataset_id = "br_fgv_igp"
     table_id = "igp_og_ano"
 
@@ -209,5 +209,3 @@ with Flow("br_fgv_igp.igp_og_ano") as br_fgv_igp_og_ano:
 br_fgv_igp_og_ano.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_fgv_igp_og_ano.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 br_fgv_igp_og_ano.schedule = every_month
-
-

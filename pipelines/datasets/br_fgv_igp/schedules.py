@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Schedules for br_fgv_igp
 """
@@ -14,7 +15,7 @@ every_month = Schedule(
             start_date=datetime(2021, 1, 1),
             labels=[
                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
-            ]
+            ],
         ),
     ]
 )
