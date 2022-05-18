@@ -24,7 +24,7 @@ every_day = Schedule(
     clocks=[
         IntervalClock(
             interval=timedelta(days=1),
-            start_date=datetime(2021, 5, 18, 15, 45),
+            start_date=datetime(2022, 5, 18, 16, 24),
             labels=[
                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
