@@ -115,6 +115,9 @@ bd_twt_metricas.schedule = every_day
 with Flow("br_bd_indicadores.twitter_metrics_agg") as bd_twt_metricas_agg:
     dataset_id = Parameter("dataset_id", default="br_bd_indicadores", required=True)
     table_id = Parameter("table_id", default="twitter_metrics_agg", required=True)
+    materialization_mode = Parameter(
+        "materialization_mode", default="dev", required=False
+    )
 
     current_flow_labels = get_current_flow_labels()
     materialization_flow = create_flow_run(
