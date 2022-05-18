@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Constant values for the {{cookiecutter.project_name}} projects
 """

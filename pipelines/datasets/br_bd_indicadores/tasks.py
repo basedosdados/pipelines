@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Tasks for br_twitter
 """
@@ -23,6 +24,7 @@ from pipelines.datasets.br_bd_indicadores.utils import (
 )
 from pipelines.constants import constants
 
+
 # pylint: disable=C0103
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
@@ -35,8 +37,9 @@ def echo(message: str) -> None:
     log(message)
 
 
+# pylint: disable=W0613
 @task(checkpoint=False, nout=5)
-def get_credentials(secret_path: str) -> Tuple[str, str, str, str, str]:
+def get_credentials(secret_path: str, wait=None) -> Tuple[str, str, str, str, str]:
     """
     Returns the user and password for the given secret path.
     """
@@ -56,15 +59,11 @@ def get_credentials(secret_path: str) -> Tuple[str, str, str, str, str]:
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def has_new_tweets(bearer_token: str) -> bool:
+def has_new_tweets(bearer_token: str, table_id: str) -> bool:
     """
     Checks if there are new tweets to capture data
     """
     now = datetime.now(tz=pytz.UTC)
-    os.system(
-        f'mkdir -p /tmp/data/metricas_tweets/upload_day={now.strftime("%Y-%m-%d")}/'
-    )
-
     headers = create_headers(bearer_token)
 
     # non_public_metrics only available for last 30 days
@@ -78,9 +77,7 @@ def has_new_tweets(bearer_token: str) -> bool:
     data = [flatten(i) for i in json_response["data"]]
     df1 = pd.DataFrame(data)
 
-    blobs = get_storage_blobs(
-        dataset_id="br_bd_indicadores", table_id="metricas_tweets"
-    )
+    blobs = get_storage_blobs(dataset_id="br_bd_indicadores", table_id=table_id)
     now = datetime.now(tz=pytz.UTC)
 
     if len(blobs) != 0:
@@ -107,20 +104,16 @@ def has_new_tweets(bearer_token: str) -> bool:
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def crawler_metricas(
-    access_secret: str, access_token: str, consumer_key: str, consumer_secret: str
+    access_secret: str,
+    access_token: str,
+    consumer_key: str,
+    consumer_secret: str,
+    table_id: str,
 ) -> str:
     """
     Create file with public and non_public_metrics from Twitter API
     """
-    now = datetime.now(tz=pytz.UTC)
-    df1 = pd.read_csv(
-        "/tmp/basic_metrics.csv",
-        dtype={
-            "url_link_clicks": int,
-            "user_profile_clicks": int,
-            "impression_count": int,
-        },
-    )
+    df1 = pd.read_csv("/tmp/basic_metrics.csv")
     ids = df1["id"].to_list()
 
     headeroauth = OAuth1(
@@ -182,54 +175,33 @@ def crawler_metricas(
     df["tweet_count"] = result["tweet_count"]
     df["listed_count"] = result["listed_count"]
 
+    df.reset_index(inplace=True)
+
+    df = df.reindex(
+        [
+            "id",
+            "text",
+            "created_at",
+            "retweet_count",
+            "reply_count",
+            "like_count",
+            "quote_count",
+            "impression_count",
+            "user_profile_clicks",
+            "url_link_clicks",
+            "following_count",
+            "followers_count",
+            "tweet_count",
+            "listed_count",
+        ],
+        axis=1,
+    )
+
     # pylint: disable=C0301
-    full_filepath = f'/tmp/data/metricas_tweets/upload_day={now.strftime("%Y-%m-%d")}/metricas_tweets.csv'
-    df.to_csv(full_filepath)
+    full_filepath = f"/tmp/data/{table_id}/upload_ts={str(int(datetime.now().timestamp()))}/{table_id}.csv"
+    folder = full_filepath.replace(table_id + ".csv", "")
+    log(folder)
+    os.system(f"mkdir -p {folder}")
+    df.to_csv(full_filepath, index=False)
 
-    return "/tmp/data/metricas_tweets/"
-
-
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
-def crawler_metricas_agg():
-    """
-    Task to weekly capture aggregate data from previously created daily twitter data
-    """
-    os.system("mkdir -p /tmp/data/metricas_tweets_agg/")
-
-    dfs = []
-    blobs = get_storage_blobs(
-        dataset_id="br_bd_indicadores", table_id="metricas_tweets"
-    )
-    for blob in blobs:
-        url_data = blob.public_url
-        date = blob.time_created.strftime("%Y-%m-%d")
-        df = pd.read_csv(url_data, dtype={"id": str}, parse_dates=["created_at"])
-        df["upload_date"] = date
-        dfs.append(df)
-
-    df = dfs[0].append(dfs[1:])
-    df = df.drop_duplicates(subset="id", keep="first")
-
-    df = df.groupby("upload_date").agg(
-        {
-            "retweet_count": "sum",
-            "reply_count": "sum",
-            "like_count": "sum",
-            "quote_count": "sum",
-            "impression_count": "sum",
-            "user_profile_clicks": "sum",
-            "url_link_clicks": "sum",
-            "followers_count": "first",
-            "following_count": "first",
-            "tweet_count": "first",
-            "listed_count": "first",
-        }
-    )
-
-    filepath = "/tmp/data/metricas_tweets_agg/metricas_tweets_agg.csv"
-    df.to_csv(filepath)
-
-    return filepath
+    return f"/tmp/data/{table_id}/"

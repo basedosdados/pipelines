@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Tasks for br_cvm_administradores_carteira
 """

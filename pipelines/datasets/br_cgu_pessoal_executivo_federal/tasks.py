@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Tasks for br_cgu_terceirizados
 """
@@ -14,7 +15,7 @@ from prefect import task
 
 # pylint: disable=C0103
 @task(nout=2)
-def crawl(url: str) -> Tuple[str,str]:
+def crawl(url: str) -> Tuple[str, str]:
     """
     Get all table urls from CGU website and extract temporal covarage
     """
@@ -23,8 +24,8 @@ def crawl(url: str) -> Tuple[str,str]:
         "a", {"class": "internal-link"}, href=True
     )
     urls = [url["href"] for url in urls if url["href"].endswith("csv")]
-    regex_pattern = re.compile(r'\d{6}')
-    temporal_coverage = regex_pattern.findall(''.join(urls))
+    regex_pattern = re.compile(r"\d{6}")
+    temporal_coverage = regex_pattern.findall("".join(urls))
     temporal_coverage.sort()
     start_date = temporal_coverage[0][:4] + "-" + temporal_coverage[0][4:]
     end_date = temporal_coverage[-1][:4] + "-" + temporal_coverage[-1][4:]
@@ -73,9 +74,16 @@ def clean_save_table(root: str, url_list: list):
         file_bytes.seek(0)
         # handle cases with and without header
         if "id_terc" in csv.text[:20]:
-            df_url = pd.read_csv(file_bytes, sep=";", low_memory=False)
+            df_url = pd.read_csv(file_bytes, sep=";", low_memory=False, dtype=str)
         else:
-            df_url = pd.read_csv(file_bytes, sep=";", low_memory=False, names=cols, header=None)
+            df_url = pd.read_csv(
+                file_bytes,
+                sep=";",
+                low_memory=False,
+                names=cols,
+                header=None,
+                dtype=str,
+            )
         df = pd.concat([df, df_url], ignore_index=True)
         del df_url
 

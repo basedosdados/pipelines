@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Tasks for basedosdados
 """
@@ -31,7 +32,7 @@ def get_random_expression() -> pd.DataFrame:
     try:
         dataframe = pd.json_normalize(response.json())
         dataframe["date"] = time_stamp
-    except:
+    except Exception:
         data = [datetime.datetime.now(), np.nan, np.nan, np.nan, np.nan, np.nan]
         dataframe = pd.DataFrame(data, columns=cols)
     return dataframe[cols], time_stamp

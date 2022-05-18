@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from os import path
 from pathlib import Path
 import pkgutil
@@ -12,8 +13,9 @@ from string_utils import is_snake_case
 CONSTANTS_FILE_PATH = Path(__file__).parent / "pipelines" / "constants.py"
 CONSTANTS_FIND_AGENTS_TEXT = "M9w=k-b_\n"
 COOKIECUTTER_PATH_AGENCY = Path(__file__).parent / "pipelines"
-COOKIECUTTER_PATH_PROJECT = Path(
-    __file__).parent / "pipelines" / "{{cookiecutter.project_name}}"
+COOKIECUTTER_PATH_PROJECT = (
+    Path(__file__).parent / "pipelines" / "{{cookiecutter.project_name}}"
+)
 FLOWS_FILE_PATH = Path(__file__).parent / "pipelines" / "flows.py"
 PIPELINES_PATH = Path(__file__).parent / "pipelines"
 
@@ -48,7 +50,8 @@ def add_import(project_name: str):
         flows_text = flows_file.read()
 
     flows_text = append_text(
-        flows_text, f"from pipelines.{project_name}.flows import *\n")
+        flows_text, f"from pipelines.{project_name}.flows import *\n"
+    )
 
     with open(FLOWS_FILE_PATH, "w") as flows_file:
         flows_file.write(flows_text)
@@ -68,7 +71,8 @@ def add_agency_import(agency_name: str, project_name: str):
         flows_text = flows_file.read()
 
     flows_text = append_text(
-        flows_text, f"from pipelines.{agency_name}.{project_name}.flows import *\n")
+        flows_text, f"from pipelines.{agency_name}.{project_name}.flows import *\n"
+    )
 
     with open(path, "w") as flows_file:
         flows_file.write(flows_text)
@@ -85,7 +89,10 @@ def add_agent(project_name: str):
         file_text = file.read()
 
     file_text = append_text(
-        file_text, f"    {project_name.upper()}_AGENT_LABEL = \"{uuid4()}\"\n", CONSTANTS_FIND_AGENTS_TEXT)
+        file_text,
+        f'    {project_name.upper()}_AGENT_LABEL = "{uuid4()}"\n',
+        CONSTANTS_FIND_AGENTS_TEXT,
+    )
 
     with open(CONSTANTS_FILE_PATH, "w") as file:
         file.write(file_text)
@@ -105,7 +112,7 @@ def cut_agency_cookie(agency_name: str):
             "project_name": agency_name,
             "workspace_name": "example",
         },
-        output_dir=str(COOKIECUTTER_PATH_AGENCY)
+        output_dir=str(COOKIECUTTER_PATH_AGENCY),
     )
     delete_file(COOKIECUTTER_PATH_AGENCY / agency_name / "cookiecutter.json")
 
@@ -124,7 +131,7 @@ def cut_project_cookie(agency_name: str, project_name: str):
             "project_name": agency_name,
             "workspace_name": project_name,
         },
-        output_dir=str(COOKIECUTTER_PATH_AGENCY / agency_name)
+        output_dir=str(COOKIECUTTER_PATH_AGENCY / agency_name),
     )
 
 
@@ -159,9 +166,7 @@ def name_already_exists(input: str) -> bool:
     try:
         import pipelines
     except ImportError:
-        logger.error(
-            "Não foi possível importar as pipelines."
-        )
+        logger.error("Não foi possível importar as pipelines.")
         exit(1)
     pkgpath = path.dirname(pipelines.__file__)
     return input in [name for _, name, _ in pkgutil.iter_modules([pkgpath])]
@@ -201,18 +206,14 @@ def agency_must_exist(input: str) -> str:
     try:
         import pipelines
     except ImportError:
-        logger.error(
-            "Não foi possível importar as pipelines."
-        )
+        logger.error("Não foi possível importar as pipelines.")
         exit(1)
     pkgpath = path.dirname(pipelines.__file__)
     agencies = [name for _, name, _ in pkgutil.iter_modules([pkgpath])]
     if input in agencies:
         return input
     else:
-        logger.error(
-            f"A agência {input} não existe."
-        )
+        logger.error(f"A agência {input} não existe.")
         exit(1)
 
 
@@ -228,25 +229,20 @@ def project_must_not_exist_in_agency(input: str, agency: str) -> str:
     try:
         import pipelines
     except ImportError:
-        logger.error(
-            "Não foi possível importar as pipelines."
-        )
+        logger.error("Não foi possível importar as pipelines.")
         exit(1)
     pkgpath = path.dirname(pipelines.__file__)
     agencies = [name for _, name, _ in pkgutil.iter_modules([pkgpath])]
     if agency in agencies:
-        projects = [name for _, name,
-                    _ in pkgutil.iter_modules([str(Path(pkgpath) / agency)])]
+        projects = [
+            name for _, name, _ in pkgutil.iter_modules([str(Path(pkgpath) / agency)])
+        ]
         if input in projects:
-            logger.error(
-                f"O projeto {input} já existe na agência {agency}."
-            )
+            logger.error(f"O projeto {input} já existe na agência {agency}.")
             exit(1)
         return input
     else:
-        logger.error(
-            f"O órgão {agency} não foi encontrado."
-        )
+        logger.error(f"O órgão {agency} não foi encontrado.")
         exit(1)
 
 
@@ -263,7 +259,7 @@ def add_agency(agency_name: str = typer.Argument(..., callback=check_name)):
 @app.command()
 def add_project(
     agency_name: str = typer.Argument(..., callback=agency_must_exist),
-    project_name: str = typer.Argument(...)
+    project_name: str = typer.Argument(...),
 ):
     """
     Cria um novo projeto no órgão usando o cookiecutter.
@@ -273,7 +269,7 @@ def add_project(
     cut_project_cookie(agency_name, project_name)
 
 
-@ app.command()
+@app.command()
 def list_projects():
     """
     Lista os projetos cadastrados e nomes reservados
@@ -281,13 +277,10 @@ def list_projects():
     try:
         import pipelines
     except ImportError:
-        logger.error(
-            "Não foi possível importar as pipelines."
-        )
+        logger.error("Não foi possível importar as pipelines.")
         exit(1)
     pkgpath = path.dirname(pipelines.__file__)
-    logger.info(
-        "Projetos cadastrados e nomes reservados:")
+    logger.info("Projetos cadastrados e nomes reservados:")
     for _, name, _ in pkgutil.iter_modules([pkgpath]):
         logger.info(f"- {name}")
 

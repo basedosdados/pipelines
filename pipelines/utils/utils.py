@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 General utilities for all pipelines.
 """
@@ -6,7 +7,7 @@ import logging
 from os import getenv, walk
 from os.path import join
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 from uuid import uuid4
 
 import basedosdados as bd
@@ -18,6 +19,8 @@ from prefect.client import Client
 from prefect.engine.state import State
 from prefect.run_configs import KubernetesRun
 import requests
+
+from pipelines.constants import constants
 
 # import telegram
 
@@ -86,26 +89,16 @@ def get_credentials_from_secret(
     )
 
 
-def notify_discord_on_failure(
-    flow: prefect.Flow,
-    state: State,
-    secret_path: str,
-):
+def set_default_parameters(
+    flow: prefect.Flow, default_parameters: dict
+) -> prefect.Flow:
     """
-    Notifies a Discord channel when a flow fails.
+    Sets default parameters for a flow.
     """
-    url = get_vault_secret(secret_path)["data"]["url"]
-    flow_run_id = prefect.context.get("flow_run_id")
-    message = (
-        f":man_facepalming: Flow **{flow.name}** has failed."
-        + f'\n  - State message: *"{state.message}"*'
-        + "\n  - Link to the failed flow: "
-        + f"http://prefect-ui.prefect.svc.cluster.local:8080/flow-run/{flow_run_id}"
-    )
-    send_discord_message(
-        message=message,
-        webhook_url=url,
-    )
+    for parameter in flow.parameters():
+        if parameter.name in default_parameters:
+            parameter.default = default_parameters[parameter.name]
+    return flow
 
 
 def run_local(flow: prefect.Flow, parameters: Dict[str, Any] = None):
@@ -137,8 +130,7 @@ def run_cloud(
 
     # Change flow name for development and register
     flow.name = f"{flow.name} (development)"
-    flow.run_config = KubernetesRun(
-        image="ghcr.io/basedosdados/prefect-flows:latest")
+    flow.run_config = KubernetesRun(image="ghcr.io/basedosdados/prefect-flows:latest")
     flow_id = flow.register(project_name="main", labels=[])
 
     # Get Prefect Client and submit flow run
@@ -174,6 +166,47 @@ def send_discord_message(
     requests.post(
         webhook_url,
         data={"content": message},
+    )
+
+
+def notify_discord_on_failure(
+    flow: prefect.Flow,
+    state: State,
+    secret_path: str,
+    code_owners: Optional[List[str]] = None,
+):
+    """
+    Notifies a Discord channel when a flow fails.
+    """
+    url = get_vault_secret(secret_path)["data"]["url"]
+    flow_run_id = prefect.context.get("flow_run_id")
+    code_owners = code_owners or constants.DEFAULT_CODE_OWNERS.value
+    code_owner_dict = constants.OWNERS_DISCORD_MENTIONS.value
+    at_code_owners = []
+    for code_owner in code_owners:
+        code_owner_id = code_owner_dict[code_owner]["user_id"]
+        code_owner_type = code_owner_dict[code_owner]["type"]
+
+        if code_owner_type == "user":
+            at_code_owners.append(f"    - <@{code_owner_id}>\n")
+        elif code_owner_type == "user_nickname":
+            at_code_owners.append(f"    - <@!{code_owner_id}>\n")
+        elif code_owner_type == "channel":
+            at_code_owners.append(f"    - <#{code_owner_id}>\n")
+        elif code_owner_type == "role":
+            at_code_owners.append(f"    - <@&{code_owner_id}>\n")
+
+    message = (
+        f":man_facepalming: Flow **{flow.name}** has failed."
+        + f'\n  - State message: *"{state.message}"*'
+        + "\n  - Link to the failed flow: "
+        + f"http://prefect-ui.prefect.svc.cluster.local:8080/flow-run/{flow_run_id}"
+        + "\n  - Extra attention:\n"
+        + "".join(at_code_owners)
+    )
+    send_discord_message(
+        message=message,
+        webhook_url=url,
     )
 
 
@@ -215,7 +248,7 @@ def smart_split(
     return [
         text[:separator_index],
         *smart_split(
-            text[separator_index + len(separator):],
+            text[separator_index + len(separator) :],
             max_length,
             separator,
         ),
@@ -227,6 +260,36 @@ def untuple_clocks(clocks):
     Converts a list of tuples to a list of clocks.
     """
     return [clock[0] if isinstance(clock, tuple) else clock for clock in clocks]
+
+
+###############
+#
+# Text formatting
+#
+###############
+
+
+def human_readable(
+    value: Union[int, float],
+    unit: str = "",
+    unit_prefixes: List[str] = None,
+    unit_divider: int = 1000,
+    decimal_places: int = 2,
+):
+    """
+    Formats a value in a human readable way.
+    """
+    if unit_prefixes is None:
+        unit_prefixes = ["", "k", "M", "G", "T", "P", "E", "Z", "Y"]
+    if value == 0:
+        return f"{value}{unit}"
+    unit_prefix = unit_prefixes[0]
+    for prefix in unit_prefixes[1:]:
+        if value < unit_divider:
+            break
+        unit_prefix = prefix
+        value /= unit_divider
+    return f"{value:.{decimal_places}f}{unit_prefix}{unit}"
 
 
 ###############
@@ -269,8 +332,7 @@ def clean_dataframe(dataframe: pd.DataFrame) -> pd.DataFrame:
                     .replace("None", np.nan, regex=True)
                 )
             except Exception as exc:
-                print("Column: ", col, "\nData: ",
-                      dataframe[col].tolist(), "\n", exc)
+                print("Column: ", col, "\nData: ", dataframe[col].tolist(), "\n", exc)
                 raise
     return dataframe
 
@@ -413,8 +475,7 @@ def dump_header_to_csv(
     # discover if it's a partitioned table
     if partition_folders := [folder for folder in file.split("/") if "=" in folder]:
         partition_path = "/".join(partition_folders)
-        save_header_file_path = Path(
-            f"{save_header_path}/{partition_path}/header.csv")
+        save_header_file_path = Path(f"{save_header_path}/{partition_path}/header.csv")
         log(f"Found partition path: {save_header_file_path}")
 
     else:

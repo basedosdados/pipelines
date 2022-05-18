@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Flows for {{cookiecutter.workspace_name}}
 """
@@ -57,16 +58,22 @@ Flows for {{cookiecutter.workspace_name}}
 ###############################################################################
 
 
-from prefect import Flow
+
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from pipelines.constants import constants
 from pipelines.{{cookiecutter.project_name}}.{{cookiecutter.workspace_name}}.tasks import say_hello
 # from pipelines.{{cookiecutter.project_name}}.{{cookiecutter.workspace_name}}.schedules import every_two_weeks
+from pipelines.utils.decorators import Flow
 
-with Flow("my_flow") as flow:
+with Flow(
+    name="my_flow",
+    code_owners=[
+        "discord-username",
+    ]
+) as {{cookiecutter.project_name}}_{{cookiecutter.workspace_name}}_flow:
     say_hello()
 
-flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+{{cookiecutter.project_name}}_{{cookiecutter.workspace_name}}_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+{{cookiecutter.project_name}}_{{cookiecutter.workspace_name}}_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 # flow.schedule = every_two_weeks

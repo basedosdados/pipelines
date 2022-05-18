@@ -1,0 +1,37 @@
+name: Deploy docs
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  docs:
+    name: Deploy docs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.9.x"
+
+      - name: Upgrade pip
+        run: |
+          pip install -U pip poetry pdoc3
+
+      - name: Install package and doc dependencies
+        run: |
+          python -m pip install .
+
+      - name: Generate docs
+        run: |
+          pdoc3 --html --html-dir docs pipelines
+
+      - name: Deploy docs
+        uses: JamesIves/github-pages-deploy-action@v4.2.3
+        with:
+          branch: gh-pages
+          folder: docs/pipelines

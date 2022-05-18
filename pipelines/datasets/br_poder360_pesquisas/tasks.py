@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Tasks for br_poder360_pesquisas
 """
@@ -11,15 +12,16 @@ import pandas as pd
 from tqdm import tqdm
 from pipelines.constants import constants
 
+
 # pylint: disable=C0103
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def crawler() -> str:
-    '''
+    """
     Crawler to consume poder360's API  and save local csv
-    '''
+    """
     os.system("mkdir -p /tmp/data/poder360/")
     header = [
         "id_pesquisa",

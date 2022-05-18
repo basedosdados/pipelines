@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - master
+    paths:
+      - ".github/workflows/cd.yaml"
+      - "pipelines/**/*"
+      - "pyproject.toml"
 
 env:
   GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
