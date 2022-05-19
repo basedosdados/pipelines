@@ -77,16 +77,12 @@ def get_vault_secret(secret_path: str, client: hvac.Client = None) -> dict:
 def get_credentials_from_secret(
     secret_path: str,
     client: hvac.Client = None,
-) -> Tuple[str, str]:
+) -> dict:
     """
     Returns a username and password from a secret in Vault.
     """
     secret = get_vault_secret(secret_path, client)
-    keys = list(secret["data"].keys())
-    return (
-        secret["data"][keys[0]],
-        secret["data"][keys[1]],
-    )
+    return secret["data"]
 
 
 def set_default_parameters(
@@ -208,23 +204,6 @@ def notify_discord_on_failure(
         message=message,
         webhook_url=url,
     )
-
-
-# def send_telegram_message(
-#     message: str,
-#     token: str,
-#     chat_id: int,
-#     parse_mode: str = telegram.ParseMode.HTML,
-# ):
-#     """
-#     Sends a message to a Telegram chat.
-#     """
-#     bot = telegram.Bot(token=token)
-#     bot.send_message(
-#         chat_id=chat_id,
-#         text=message,
-#         parse_mode=parse_mode,
-#     )
 
 
 def smart_split(
