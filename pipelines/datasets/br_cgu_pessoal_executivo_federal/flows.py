@@ -33,7 +33,7 @@ URL = "https://www.gov.br/cgu/pt-br/acesso-a-informacao/dados-abertos/arquivos/t
 
 # pylint: disable=C0103
 with Flow(
-    name="br_cgu_pessoal_executivo_federal.terceirizados"
+    name="br_cgu_pessoal_executivo_federal.terceirizados", code_owners=["ath67"]
 ) as br_cgu_pess_exec_fed_terc:
     # Parameters
     dataset_id = Parameter(

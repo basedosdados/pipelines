@@ -30,7 +30,9 @@ from pipelines.datasets.br_cvm_oferta_publica_distribuicao.schedules import sche
 ROOT = "/tmp/data"
 URL = "http://dados.cvm.gov.br/dados/OFERTA/DISTRIB/DADOS/oferta_distribuicao.csv"
 
-with Flow(name="br_cvm_oferta_publica_distribuicao.dia") as br_cvm_ofe_pub_dis_dia:
+with Flow(
+    name="br_cvm_oferta_publica_distribuicao.dia", code_owners=["lucas_cr"]
+) as br_cvm_ofe_pub_dis_dia:
     # Parameters
     dataset_id = Parameter(
         "dataset_id", default="br_cvm_oferta_publica_distribuicao", required=True

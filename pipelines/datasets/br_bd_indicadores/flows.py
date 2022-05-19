@@ -28,8 +28,8 @@ from pipelines.utils.tasks import (
 from pipelines.datasets.br_bd_indicadores.schedules import every_day, every_week
 
 with Flow(
-        name="br_bd_indicadores.twitter_metrics",
-        code_owners=[
+    name="br_bd_indicadores.twitter_metrics",
+    code_owners=[
         "lucas_cr",
     ],
 ) as bd_twt_metricas:
@@ -117,7 +117,9 @@ bd_twt_metricas.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 bd_twt_metricas.schedule = every_day
 
 
-with Flow("br_bd_indicadores.twitter_metrics_agg") as bd_twt_metricas_agg:
+with Flow(
+    name="br_bd_indicadores.twitter_metrics_agg", code_owners=["lucas_cr"]
+) as bd_twt_metricas_agg:
     dataset_id = Parameter("dataset_id", default="br_bd_indicadores", required=True)
     table_id = Parameter("table_id", default="twitter_metrics_agg", required=True)
     materialization_mode = Parameter(

@@ -25,7 +25,9 @@ from pipelines.utils.tasks import (
 from pipelines.datasets.br_poder360_pesquisas.schedules import every_monday_thursday
 
 # pylint: disable=C0103
-with Flow(name="br_poder360_pesquisas.microdados") as br_poder360:
+with Flow(
+    name="br_poder360_pesquisas.microdados", code_owners=["lucas_cr"]
+) as br_poder360:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_poder360_pesquisas", required=True)
     table_id = Parameter("table_id", default="microdados", required=True)
