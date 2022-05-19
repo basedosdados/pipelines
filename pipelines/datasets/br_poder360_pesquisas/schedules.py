@@ -17,7 +17,7 @@ every_monday_thursday = Schedule(
             cron="0 21 * * 1,4",  # 0 21 * * 1,4 means At 21:00 on Monday and Thursday.
             start_date=datetime(2021, 1, 1),
             labels=[
-                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
         )
     ],
