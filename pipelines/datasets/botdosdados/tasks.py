@@ -15,10 +15,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from pipelines.utils.utils import log, get_storage_blobs
-from pipelines.datasets.botdosdados.utils import (
-    get_credentials_from_secret,
-)
+from pipelines.utils.utils import log, get_storage_blobs, get_credentials_from_secret
 from pipelines.constants import constants
 
 

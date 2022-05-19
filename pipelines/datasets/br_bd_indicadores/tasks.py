@@ -14,13 +14,12 @@ from requests_oauthlib import OAuth1
 import pandas as pd
 import numpy as np
 
-from pipelines.utils.utils import get_storage_blobs, log
+from pipelines.utils.utils import get_storage_blobs, log, get_credentials_from_secret
 from pipelines.datasets.br_bd_indicadores.utils import (
     create_headers,
     create_url,
     connect_to_endpoint,
     flatten,
-    get_credentials_from_secret,
 )
 from pipelines.constants import constants
 
