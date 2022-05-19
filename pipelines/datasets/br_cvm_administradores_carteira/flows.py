@@ -3,11 +3,15 @@
 Flows for br_cvm_administradores_carteira
 """
 # pylint: disable=C0103, E1123, invalid-name
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
+from prefect import Parameter, case
+from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
+from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.constants import constants as utils_constants
 from pipelines.datasets.br_cvm_administradores_carteira.tasks import (
     crawl,
     clean_table_responsavel,
@@ -20,18 +24,39 @@ from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     update_metadata,
     get_temporal_coverage,
-    publish_table,
+    rename_current_flow_run_dataset_table,
+    get_current_flow_labels,
 )
-from pipelines.datasets.br_cvm_administradores_carteira.schedules import every_day
+from pipelines.datasets.br_cvm_administradores_carteira.schedules import (
+    schedule_responsavel,
+    schedule_fisica,
+    schedule_juridica,
+)
 
 ROOT = "/tmp/data"
 URL = "http://dados.cvm.gov.br/dados/ADM_CART/CAD/DADOS/cad_adm_cart.zip"
 
 with Flow(name="br_cvm_administradores_carteira.responsavel") as br_cvm_adm_car_res:
+    # Parameters
+    dataset_id = Parameter(
+        "dataset_id", default="br_cvm_administradores_carteira", required=True
+    )
+    table_id = Parameter("table_id", default="responsavel", required=True)
+
+    materialization_mode = Parameter(
+        "materialization_mode", default="dev", required=False
+    )
+
+    materialize_after_dump = Parameter(
+        "materialize after dump", default=True, required=False
+    )
+
+    rename_flow_run = rename_current_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+    )
+
     wait_crawl = crawl(root=ROOT, url=URL)
     filepath = clean_table_responsavel(root=ROOT, upstream_tasks=[wait_crawl])
-    dataset_id = "br_cvm_administradores_carteira"
-    table_id = "responsavel"
 
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
@@ -51,23 +76,59 @@ with Flow(name="br_cvm_administradores_carteira.responsavel") as br_cvm_adm_car_
         upstream_tasks=[wait_upload_table],
     )
 
-    publish_table(
-        path=filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        if_exists="replace",
-        wait=wait_update_metadata,
-    )
+    with case(materialize_after_dump, True):
+        # Trigger DBT flow run
+        current_flow_labels = get_current_flow_labels()
+        materialization_flow = create_flow_run(
+            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
+            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+            parameters={
+                "dataset_id": dataset_id,
+                "table_id": table_id,
+                "mode": materialization_mode,
+            },
+            labels=current_flow_labels,
+            run_name=f"Materialize {dataset_id}.{table_id}",
+        )
+
+        wait_for_materialization = wait_for_flow_run(
+            materialization_flow,
+            stream_states=True,
+            stream_logs=True,
+            raise_final_state=True,
+        )
+        wait_for_materialization.max_retries = (
+            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
+        )
+        wait_for_materialization.retry_delay = timedelta(
+            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+        )
 
 br_cvm_adm_car_res.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_cvm_adm_car_res.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_cvm_adm_car_res.schedule = every_day
+br_cvm_adm_car_res.schedule = schedule_responsavel
 
 with Flow("br_cvm_administradores_carteira.pessoa_fisica") as br_cvm_adm_car_pes_fis:
+    # Parameters
+    dataset_id = Parameter(
+        "dataset_id", default="br_cvm_administradores_carteira", required=True
+    )
+    table_id = Parameter("table_id", default="pessoa_fisica", required=True)
+
+    materialization_mode = Parameter(
+        "materialization_mode", default="dev", required=False
+    )
+
+    materialize_after_dump = Parameter(
+        "materialize after dump", default=True, required=False
+    )
+
+    rename_flow_run = rename_current_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+    )
+
     wait_crawl = crawl(root=ROOT, url=URL)
     filepath = clean_table_pessoa_fisica(root=ROOT, upstream_tasks=[wait_crawl])
-    dataset_id = "br_cvm_administradores_carteira"
-    table_id = "pessoa_fisica"
 
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
@@ -96,23 +157,59 @@ with Flow("br_cvm_administradores_carteira.pessoa_fisica") as br_cvm_adm_car_pes
         upstream_tasks=[temporal_coverage],
     )
 
-    publish_table(
-        path=filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        if_exists="replace",
-        wait=wait_update_metadata,
-    )
+    with case(materialize_after_dump, True):
+        # Trigger DBT flow run
+        current_flow_labels = get_current_flow_labels()
+        materialization_flow = create_flow_run(
+            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
+            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+            parameters={
+                "dataset_id": dataset_id,
+                "table_id": table_id,
+                "mode": materialization_mode,
+            },
+            labels=current_flow_labels,
+            run_name=f"Materialize {dataset_id}.{table_id}",
+        )
+
+        wait_for_materialization = wait_for_flow_run(
+            materialization_flow,
+            stream_states=True,
+            stream_logs=True,
+            raise_final_state=True,
+        )
+        wait_for_materialization.max_retries = (
+            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
+        )
+        wait_for_materialization.retry_delay = timedelta(
+            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+        )
 
 br_cvm_adm_car_pes_fis.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_cvm_adm_car_pes_fis.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_cvm_adm_car_pes_fis.schedule = every_day
+br_cvm_adm_car_pes_fis.schedule = schedule_fisica
 
 with Flow("br_cvm_administradores_carteira.pessoa_juridica") as br_cvm_adm_car_pes_jur:
+    # Parameters
+    dataset_id = Parameter(
+        "dataset_id", default="br_cvm_administradores_carteira", required=True
+    )
+    table_id = Parameter("table_id", default="pessoa_juridica", required=True)
+
+    materialization_mode = Parameter(
+        "materialization_mode", default="dev", required=False
+    )
+
+    materialize_after_dump = Parameter(
+        "materialize after dump", default=True, required=False
+    )
+
+    rename_flow_run = rename_current_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+    )
+
     wait_crawl = crawl(root=ROOT, url=URL)
     filepath = clean_table_pessoa_juridica(root=ROOT, upstream_tasks=[wait_crawl])
-    dataset_id = "br_cvm_administradores_carteira"
-    table_id = "pessoa_juridica"
 
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
@@ -141,14 +238,34 @@ with Flow("br_cvm_administradores_carteira.pessoa_juridica") as br_cvm_adm_car_p
         upstream_tasks=[temporal_coverage],
     )
 
-    publish_table(
-        path=filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        if_exists="replace",
-        wait=wait_update_metadata,
-    )
+    with case(materialize_after_dump, True):
+        # Trigger DBT flow run
+        current_flow_labels = get_current_flow_labels()
+        materialization_flow = create_flow_run(
+            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
+            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+            parameters={
+                "dataset_id": dataset_id,
+                "table_id": table_id,
+                "mode": materialization_mode,
+            },
+            labels=current_flow_labels,
+            run_name=f"Materialize {dataset_id}.{table_id}",
+        )
+
+        wait_for_materialization = wait_for_flow_run(
+            materialization_flow,
+            stream_states=True,
+            stream_logs=True,
+            raise_final_state=True,
+        )
+        wait_for_materialization.max_retries = (
+            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
+        )
+        wait_for_materialization.retry_delay = timedelta(
+            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+        )
 
 br_cvm_adm_car_pes_jur.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_cvm_adm_car_pes_jur.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_cvm_adm_car_pes_jur.schedule = every_day
+br_cvm_adm_car_pes_jur.schedule = schedule_juridica
