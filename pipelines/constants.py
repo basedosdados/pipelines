@@ -52,7 +52,7 @@ class constants(Enum):  # pylint: disable=c0103
             "user_id": "865034571469160458",
             "type": "role",
         },
-        "pimbel": {
+        "diego": {
             "user_id": "272581753829326849",
             "type": "user_nickname",
         },
