@@ -16,12 +16,12 @@ schedule_dia = Schedule(
             labels=[
                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
+            parameter_defaults={
+                "dataset_id": "br_cvm_oferta_publica_distribuicao",
+                "materialization_mode": "dev",
+                "materialize after dump": True,
+                "table_id": "dia",
+            },
         ),
     ],
-    parameter_defaults={
-        "dataset_id": "br_cvm_oferta_publica_distribuicao",
-        "materialization_mode": "dev",
-        "materialize after dump": True,
-        "table_id": "dia",
-    },
 )
