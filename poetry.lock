@@ -102,7 +102,7 @@ python-versions = "*"
 
 [[package]]
 name = "basedosdados"
-version = "1.6.4b2"
+version = "1.6.4b3"
 description = "Organizar e facilitar o acesso a dados brasileiros através de tabelas públicas no BigQuery."
 category = "main"
 optional = false
@@ -115,6 +115,7 @@ click = "8.0.3"
 google-cloud-bigquery = "2.30.1"
 google-cloud-bigquery-storage = "1.1.0"
 google-cloud-storage = "1.42.3"
+importlib-metadata = ">=4.11.3,<5.0.0"
 ipykernel = "5.3.4"
 Jinja2 = "3.0.3"
 jupyter = ">=1.0.0,<2.0.0"
@@ -124,7 +125,7 @@ mkdocs-click = ">=0.5.0,<0.6.0"
 mkdocs-material = ">=8.2.7,<9.0.0"
 mkdocstrings = ">=0.18.1,<0.19.0"
 pandas = "1.2.4"
-pandas-gbq = "0.13.2"
+pandas-gbq = ">=0.17.4,<0.18.0"
 pandavro = ">=1.6.0,<2.0.0"
 pyaml = "20.4.0"
 pyarrow = "6.0.0"
@@ -324,6 +325,20 @@ distributed = ["distributed (==2021.11.2)"]
 test = ["pytest", "pytest-rerunfailures", "pytest-xdist", "pre-commit"]
 
 [[package]]
+name = "db-dtypes"
+version = "1.0.1"
+description = "Pandas Data Types for SQL systems (BigQuery, Spanner)"
+category = "main"
+optional = false
+python-versions = ">=3.6, <3.11"
+
+[package.dependencies]
+numpy = ">=1.16.6,<2.0dev"
+packaging = ">=17.0"
+pandas = ">=0.24.2,<2.0dev"
+pyarrow = ">=3.0.0,<9.0dev"
+
+[[package]]
 name = "dbt-client"
 version = "0.1.3"
 description = "A simple client for DBT RPC instances"
@@ -506,7 +521,7 @@ dev = ["twine", "markdown", "flake8", "wheel"]
 
 [[package]]
 name = "google-api-core"
-version = "1.31.4"
+version = "1.31.5"
 description = "Google API client core library"
 category = "main"
 optional = false
@@ -1396,17 +1411,22 @@ test = ["pytest (>=5.0.1)", "pytest-xdist", "hypothesis (>=3.58)"]
 
 [[package]]
 name = "pandas-gbq"
-version = "0.13.2"
-description = "Pandas interface to Google BigQuery"
+version = "0.17.4"
+description = "Google BigQuery connector for pandas"
 category = "main"
 optional = false
-python-versions = ">=3.5"
+python-versions = ">=3.7, <3.11"
 
 [package.dependencies]
-google-auth = "*"
-google-auth-oauthlib = "*"
-google-cloud-bigquery = ">=1.11.1"
-pandas = ">=0.19.0"
+db-dtypes = ">=0.3.1,<2.0.0"
+google-api-core = ">=1.31.5,<2.0.0 || >2.3.0,<3.0.0dev"
+google-auth = ">=1.25.0"
+google-auth-oauthlib = ">=0.0.1"
+google-cloud-bigquery = ">=1.27.2,<2.4.0 || >=2.5.0,<4.0.0dev"
+google-cloud-bigquery-storage = ">=1.1.0,<3.0.0dev"
+numpy = ">=1.16.6"
+pandas = ">=0.24.2"
+pyarrow = ">=3.0.0,<8.0dev"
 pydata-google-auth = "*"
 
 [package.extras]
@@ -2419,7 +2439,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.11"
-content-hash = "417baee4ef3b219e980048bebffd20f860139c5a43a94dd79b3062b707211e46"
+content-hash = "7270f8555bc340afe10b98fabc83935b5557d8f96aa5cfc29997bbbf14e08e4e"
 
 [metadata.files]
 appdirs = [
@@ -2478,8 +2498,8 @@ backcall = [
     {file = "backcall-0.2.0.tar.gz", hash = "sha256:5cbdbf27be5e7cfadb448baf0aa95508f91f2bbc6c6437cd9cd06e2a4c215e1e"},
 ]
 basedosdados = [
-    {file = "basedosdados-1.6.4b2-py3-none-any.whl", hash = "sha256:07ea73738d0549a5a3026f3df3623abc4191237379df92bfccf08c3650e06670"},
-    {file = "basedosdados-1.6.4b2.tar.gz", hash = "sha256:42bc94be7a47a9d3c215895e490d8de2bbae60e49dc54933a487d7666ccc7862"},
+    {file = "basedosdados-1.6.4b3-py3-none-any.whl", hash = "sha256:00040169d845ff5fa7868e2cdd314cb2276a1f34ab87fcb5bb06855cefce5bc4"},
+    {file = "basedosdados-1.6.4b3.tar.gz", hash = "sha256:006b6200e3790ca37fb94da388da81f7aa41505eb6fe3767369385d5a8cfe856"},
 ]
 beautifulsoup4 = [
     {file = "beautifulsoup4-4.11.1-py3-none-any.whl", hash = "sha256:58d5c3d29f5a36ffeb94f02f0d786cd53014cf9b3b3951d42e0080d8a9498d30"},
@@ -2626,6 +2646,10 @@ dask = [
     {file = "dask-2021.11.2-py3-none-any.whl", hash = "sha256:2b0ad7beba8950add4fdc7c5cb94fa9444915ddb00c711d5743e2c4bb0a95ef5"},
     {file = "dask-2021.11.2.tar.gz", hash = "sha256:e12bfe272928d62fa99623d98d0e0b0c045b33a47509ef31a22175aa5fd10917"},
 ]
+db-dtypes = [
+    {file = "db-dtypes-1.0.1.tar.gz", hash = "sha256:3eb5931c9f8c314a1a4aeb698a7eb1d713cddaed4a7a13f0408a8785c4a72330"},
+    {file = "db_dtypes-1.0.1-py2.py3-none-any.whl", hash = "sha256:b26b295773d2a4b445f6a7f297ec04dd9eb5d3fb26622032550da013486ba7b7"},
+]
 dbt-client = [
     {file = "dbt-client-0.1.3.tar.gz", hash = "sha256:192fff51a51d6d002d4048dd494e601592599e004c0f31f1ea5156aa6d516cf5"},
     {file = "dbt_client-0.1.3-py3-none-any.whl", hash = "sha256:31a0db4844c1559c95c643a6f57d1e39d4e9c3b4d9a8c867f7b3e6ed75cedca0"},
@@ -2692,8 +2716,8 @@ ghp-import = [
     {file = "ghp_import-2.1.0-py3-none-any.whl", hash = "sha256:8337dd7b50877f163d4c0289bc1f1c7f127550241988d568c1db512c4324a619"},
 ]
 google-api-core = [
-    {file = "google-api-core-1.31.4.tar.gz", hash = "sha256:c77ffc8b4981b44efdb9d68431fd96d21dbd39545c29552bbe79b9b7dd2c3689"},
-    {file = "google_api_core-1.31.4-py2.py3-none-any.whl", hash = "sha256:ed59c6a695a81f601e4ba0f37ca9dbde3c43b3309e161a1a8946f266db4a0c4e"},
+    {file = "google-api-core-1.31.5.tar.gz", hash = "sha256:85d2074f2c8f9c07e614d7f978767d71ceb7d40647814ef4236d3a0ef671ee75"},
+    {file = "google_api_core-1.31.5-py2.py3-none-any.whl", hash = "sha256:6815207a8b422e9da42c200681603f304b25f98c98b675a9db9fdc3717e44280"},
 ]
 google-auth = [
     {file = "google-auth-1.35.0.tar.gz", hash = "sha256:b7033be9028c188ee30200b204ea00ed82ea1162e8ac1df4aa6ded19a191d88e"},
@@ -3235,8 +3259,8 @@ pandas = [
     {file = "pandas-1.2.4.tar.gz", hash = "sha256:649ecab692fade3cbfcf967ff936496b0cfba0af00a55dfaacd82bdda5cb2279"},
 ]
 pandas-gbq = [
-    {file = "pandas-gbq-0.13.2.tar.gz", hash = "sha256:bc3a615c92df76490be33ae1efe60e82b8affd196e39f4f6c9c76d67c32e3d46"},
-    {file = "pandas_gbq-0.13.2-py3-none-any.whl", hash = "sha256:858539f397dcadf1e2792db49ac9a010098009f47859252d4aeaf03d530ea290"},
+    {file = "pandas-gbq-0.17.4.tar.gz", hash = "sha256:70ac57cc6ebf9d1e1c1c810f5ccac710163acd4c3d13e8badea27bb66fae19f7"},
+    {file = "pandas_gbq-0.17.4-py2.py3-none-any.whl", hash = "sha256:3b3714167bdc4b1a6013ff6286a452727efbceb412922a2ca39aa996e8e8b129"},
 ]
 pandavro = [
     {file = "pandavro-1.6.0.tar.gz", hash = "sha256:d098da34529fbb20de5fd1a6f231918d1b60941b25bea5dc87897ef0d472cb6f"},
