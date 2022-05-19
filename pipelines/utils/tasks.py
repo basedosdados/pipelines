@@ -54,7 +54,7 @@ def create_table_and_upload_to_gcs(
     data_path: Union[str, Path],
     dataset_id: str,
     table_id: str,
-    dump_type: str,
+    dump_mode: str,
     wait=None,  # pylint: disable=unused-argument
 ) -> None:
     """
@@ -74,7 +74,7 @@ def create_table_and_upload_to_gcs(
     #
     #####################################
     log("STARTING TABLE CREATION MANAGEMENT")
-    if dump_type == "append":
+    if dump_mode == "append":
         if tb.table_exists(mode="staging"):
             log(
                 f"MODE APPEND: Table ALREADY EXISTS:"
@@ -108,7 +108,7 @@ def create_table_and_upload_to_gcs(
                 f"{storage_path}\n"
                 f"{storage_path_link}"
             )  # pylint: disable=C0301
-    elif dump_type == "overwrite":
+    elif dump_mode == "overwrite":
         if tb.table_exists(mode="staging"):
             log(
                 "MODE OVERWRITE: Table ALREADY EXISTS, DELETING OLD DATA!\n"

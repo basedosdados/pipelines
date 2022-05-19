@@ -56,7 +56,7 @@ with Flow(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        dump_type="overwrite",
+        dump_mode="overwrite",
         wait=filepath,
     )
 

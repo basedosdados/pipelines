@@ -33,7 +33,7 @@ with Flow(name="br_me_novo_caged.microdados_mov") as cagedmov:
     #     data_path=filepath,
     #     dataset_id=dataset_id,
     #     table_id=table_id,
-    #     dump_type="append",
+    #     dump_mode="append",
     #     wait=filepath,
     # )
 

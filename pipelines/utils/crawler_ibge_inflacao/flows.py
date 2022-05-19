@@ -57,7 +57,7 @@ with Flow(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        dump_type="overwrite",
+        dump_mode="overwrite",
         wait=filepath,
     )
 
@@ -138,7 +138,7 @@ with Flow("BD Template - IBGE Inflação: mes_rm") as flow_ibge_inflacao_mes_rm:
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        dump_type="overwrite",
+        dump_mode="overwrite",
         wait=filepath,
     )
 
@@ -220,7 +220,7 @@ with Flow(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        dump_type="overwrite",
+        dump_mode="overwrite",
         wait=filepath,
     )
 
@@ -303,7 +303,7 @@ with Flow("BD Template - IBGE Inflação: mes_geral") as flow_ibge_inflacao_mes_
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        dump_type="overwrite",
+        dump_mode="overwrite",
         wait=filepath,
     )
 
