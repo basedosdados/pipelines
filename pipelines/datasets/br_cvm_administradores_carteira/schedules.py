@@ -15,14 +15,14 @@ schedule_responsavel = Schedule(
             labels=[
                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
+            parameter_defaults={
+                "dataset_id": "br_cvm_administradores_carteira",
+                "materialization_mode": "dev",
+                "materialize after dump": True,
+                "table_id": "responsavel",
+            },
         )
     ],
-    parameter_defaults={
-        "dataset_id": "br_cvm_administradores_carteira",
-        "materialization_mode": "dev",
-        "materialize after dump": True,
-        "table_id": "responsavel",
-    },
 )
 
 schedule_fisica = Schedule(
@@ -33,14 +33,14 @@ schedule_fisica = Schedule(
             labels=[
                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
+            parameter_defaults={
+                "dataset_id": "br_cvm_administradores_carteira",
+                "materialization_mode": "dev",
+                "materialize after dump": True,
+                "table_id": "pessoa_fisica",
+            },
         )
     ],
-    parameter_defaults={
-        "dataset_id": "br_cvm_administradores_carteira",
-        "materialization_mode": "dev",
-        "materialize after dump": True,
-        "table_id": "pessoa_fisica",
-    },
 )
 
 schedule_juridica = Schedule(
@@ -51,12 +51,12 @@ schedule_juridica = Schedule(
             labels=[
                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
+            parameter_defaults={
+                "dataset_id": "br_cvm_administradores_carteira",
+                "materialization_mode": "dev",
+                "materialize after dump": True,
+                "table_id": "pessoa_juridica",
+            },
         )
     ],
-    parameter_defaults={
-        "dataset_id": "br_cvm_administradores_carteira",
-        "materialization_mode": "dev",
-        "materialize after dump": True,
-        "table_id": "pessoa_juridica",
-    },
 )

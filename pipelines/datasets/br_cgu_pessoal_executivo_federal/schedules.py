@@ -15,12 +15,12 @@ every_four_months = Schedule(
             cron="0 0 28 2/4 *",
             start_date=datetime(2021, 1, 1),
             labels=[constants.BASEDOSDADOS_DEV_AGENT_LABEL.value],
+            parameter_defaults={
+                "dataset_id": "br_cgu_pessoal_executivo_federal",
+                "materialization_mode": "dev",
+                "materialize after dump": True,
+                "table_id": "terceirizados",
+            },
         )
-    ],
-    parameter_defaults={
-        "dataset_id": "br_cgu_pessoal_executivo_federal",
-        "materialization_mode": "dev",
-        "materialize after dump": True,
-        "table_id": "terceirizados",
-    },
+    ]
 )

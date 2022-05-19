@@ -16,12 +16,12 @@ every_month = Schedule(
             labels=[
                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
+            parameter_defaults={
+                "dataset_id": "br_bd_indicadores",
+                "materialization_mode": "dev",
+                "materialize after dump": True,
+                "table_id": "mes",
+            },
         )
     ],
-    parameter_defaults={
-        "dataset_id": "br_bd_indicadores",
-        "materialization_mode": "dev",
-        "materialize after dump": True,
-        "table_id": "mes",
-    },
 )
