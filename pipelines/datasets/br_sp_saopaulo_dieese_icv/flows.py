@@ -26,7 +26,9 @@ from pipelines.utils.tasks import (
 )
 from pipelines.datasets.br_sp_saopaulo_dieese_icv.schedules import every_month
 
-with Flow(name="br_sp_saopaulo_dieese_icv.mes") as br_sp_dieese:
+with Flow(
+    name="br_sp_saopaulo_dieese_icv.mes", code_owners=["crislanealves"]
+) as br_sp_dieese:
     # Parameters
     dataset_id = Parameter(
         "dataset_id", default="br_sp_saopaulo_dieese_icv", required=True
