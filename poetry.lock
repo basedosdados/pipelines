@@ -102,7 +102,7 @@ python-versions = "*"
 
 [[package]]
 name = "basedosdados"
-version = "1.6.4b3"
+version = "1.6.4b4"
 description = "Organizar e facilitar o acesso a dados brasileiros através de tabelas públicas no BigQuery."
 category = "main"
 optional = false
@@ -2439,7 +2439,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.11"
-content-hash = "7270f8555bc340afe10b98fabc83935b5557d8f96aa5cfc29997bbbf14e08e4e"
+content-hash = "c2f2fdd566b08205cd516060410722a0ca568bb76db76f6bd738c69b6be590fe"
 
 [metadata.files]
 appdirs = [
@@ -2498,8 +2498,8 @@ backcall = [
     {file = "backcall-0.2.0.tar.gz", hash = "sha256:5cbdbf27be5e7cfadb448baf0aa95508f91f2bbc6c6437cd9cd06e2a4c215e1e"},
 ]
 basedosdados = [
-    {file = "basedosdados-1.6.4b3-py3-none-any.whl", hash = "sha256:00040169d845ff5fa7868e2cdd314cb2276a1f34ab87fcb5bb06855cefce5bc4"},
-    {file = "basedosdados-1.6.4b3.tar.gz", hash = "sha256:006b6200e3790ca37fb94da388da81f7aa41505eb6fe3767369385d5a8cfe856"},
+    {file = "basedosdados-1.6.4b4-py3-none-any.whl", hash = "sha256:9f23246adb0951681700cdd16819735c3ddaa5c6c8c5f4be0f48fab03241d404"},
+    {file = "basedosdados-1.6.4b4.tar.gz", hash = "sha256:45bdfd17f9e150d91c5e4491ef8abb6f725407b44f3d310641bf6c8370c82074"},
 ]
 beautifulsoup4 = [
     {file = "beautifulsoup4-4.11.1-py3-none-any.whl", hash = "sha256:58d5c3d29f5a36ffeb94f02f0d786cd53014cf9b3b3951d42e0080d8a9498d30"},
@@ -3845,6 +3845,10 @@ rsa = [
     {file = "ruamel.yaml-0.17.10.tar.gz", hash = "sha256:106bc8d6dc6a0ff7c9196a47570432036f41d556b779c6b4e618085f57e39e67"},
 ]
 "ruamel.yaml.clib" = [
+    {file = "ruamel.yaml.clib-0.2.6-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:6e7be2c5bcb297f5b82fee9c665eb2eb7001d1050deaba8471842979293a80b0"},
+    {file = "ruamel.yaml.clib-0.2.6-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.manylinux_2_24_x86_64.whl", hash = "sha256:221eca6f35076c6ae472a531afa1c223b9c29377e62936f61bc8e6e8bdc5f9e7"},
+    {file = "ruamel.yaml.clib-0.2.6-cp310-cp310-win32.whl", hash = "sha256:1070ba9dd7f9370d0513d649420c3b362ac2d687fe78c6e888f5b12bf8bc7bee"},
+    {file = "ruamel.yaml.clib-0.2.6-cp310-cp310-win_amd64.whl", hash = "sha256:77df077d32921ad46f34816a9a16e6356d8100374579bc35e15bab5d4e9377de"},
     {file = "ruamel.yaml.clib-0.2.6-cp35-cp35m-macosx_10_6_intel.whl", hash = "sha256:cfdb9389d888c5b74af297e51ce357b800dd844898af9d4a547ffc143fa56751"},
     {file = "ruamel.yaml.clib-0.2.6-cp35-cp35m-manylinux1_x86_64.whl", hash = "sha256:7b2927e92feb51d830f531de4ccb11b320255ee95e791022555971c466af4527"},
     {file = "ruamel.yaml.clib-0.2.6-cp35-cp35m-win32.whl", hash = "sha256:ada3f400d9923a190ea8b59c8f60680c4ef8a4b0dfae134d2f2ff68429adfab5"},
