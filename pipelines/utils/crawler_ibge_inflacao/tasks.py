@@ -204,7 +204,7 @@ def clean_mes_brasil(indice: str) -> None:
         raise FileNotFoundError(
             errno.ENOENT,
             os.strerror(errno.ENOENT),
-            "/tmp/data/input/br. Please, check if br is the value of FOLDER arg in crawler task",
+            "/tmp/data/input/br. Please, check if br is the value of FOLDER arg in crawler task and if the files was downloaded and if the files was downloaded",
         )
     for arq in arquivos:
         dataframe = pd.read_csv(arq, skipfooter=14, skiprows=2, sep=";", dtype="str")
@@ -346,7 +346,7 @@ def clean_mes_rm(indice: str):
         raise FileNotFoundError(
             errno.ENOENT,
             os.strerror(errno.ENOENT),
-            "/tmp/data/input/rm. Please, check if rm is the value of FOLDER arg in crawler task",
+            "/tmp/data/input/rm. Please, check if rm is the value of FOLDER arg in crawler task and if the files was downloaded",
         )
 
     for arq in arquivos:
@@ -492,7 +492,7 @@ def clean_mes_municipio(indice: str):
         raise FileNotFoundError(
             errno.ENOENT,
             os.strerror(errno.ENOENT),
-            "/tmp/data/input/mun. Please, check if mun is the value of FOLDER arg in crawler task",
+            "/tmp/data/input/mun. Please, check if mun is the value of FOLDER arg in crawler task and if the files was downloaded",
         )
 
     for arq in arquivos:
@@ -637,7 +637,7 @@ def clean_mes_geral(indice: str):
         raise FileNotFoundError(
             errno.ENOENT,
             os.strerror(errno.ENOENT),
-            "/tmp/data/input/mes. Please, check if mes is the value of FOLDER arg in crawler task",
+            "/tmp/data/input/mes. Please, check if mes is the value of FOLDER arg in crawler task and if the files was downloaded",
         )
 
     for arq in arquivos:
