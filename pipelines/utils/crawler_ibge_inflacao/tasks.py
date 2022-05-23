@@ -2,11 +2,12 @@
 """
 Tasks for br_ibge_inpc
 """
-# pylint: disable=line-too-long, W0702, E1101
+# pylint: disable=line-too-long, W0702, E1101, W0212
 import glob
 import errno
 import os
 from time import sleep
+import ssl
 
 import pandas as pd
 from prefect import task
@@ -15,6 +16,8 @@ import wget
 
 from pipelines.utils.utils import log
 
+# necessary for use wget, see: https://stackoverflow.com/questions/35569042/ssl-certificate-verify-failed-with-python3
+ssl._create_default_https_context = ssl._create_unverified_context
 # pylint: disable=C0206
 # pylint: disable=C0201
 # pylint: disable=R0914
