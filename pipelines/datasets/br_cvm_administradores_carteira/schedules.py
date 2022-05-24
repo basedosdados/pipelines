@@ -13,7 +13,7 @@ schedule_responsavel = Schedule(
             interval=timedelta(days=1),
             start_date=datetime(2021, 1, 1),
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_cvm_administradores_carteira",
@@ -31,7 +31,7 @@ schedule_fisica = Schedule(
             interval=timedelta(days=1),
             start_date=datetime(2021, 1, 1),
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_cvm_administradores_carteira",
@@ -49,7 +49,7 @@ schedule_juridica = Schedule(
             interval=timedelta(days=1),
             start_date=datetime(2021, 1, 1),
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_cvm_administradores_carteira",
