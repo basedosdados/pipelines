@@ -13,8 +13,6 @@ every_week = Schedule(
         IntervalClock(
             interval=timedelta(weeks=1),
             start_date=datetime(2021, 1, 1, 17,35),
-            filters=[filters.is_weekday],
-            adjustments=[adjustments.next_weekday],
             labels=[
                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
@@ -25,7 +23,9 @@ every_week = Schedule(
                 "table_id": "twitter_metrics_agg",
             },
         ),
-    ]
+    ],
+    filters=[filters.is_weekday],
+    adjustments=[adjustments.next_weekday],
 )
 
 every_day = Schedule(
@@ -33,7 +33,6 @@ every_day = Schedule(
         IntervalClock(
             interval=timedelta(days=1),
             start_date=datetime(2022, 5, 18, 16, 24),
-            filters=[filters.is_weekday],
             labels=[
                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
@@ -44,5 +43,6 @@ every_day = Schedule(
                 "table_id": "twitter_metrics",
             },
         ),
-    ]
+    ],
+    filters=[filters.is_weekday],
 )
