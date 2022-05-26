@@ -12,7 +12,7 @@ every_week = Schedule(
     clocks=[
         IntervalClock(
             interval=timedelta(weeks=1),
-            start_date=datetime(2021, 1, 1, 17,35),
+            start_date=datetime(2021, 1, 1, 17, 35),
             labels=[
                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
