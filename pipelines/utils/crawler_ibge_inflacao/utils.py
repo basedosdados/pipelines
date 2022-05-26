@@ -24,6 +24,6 @@ def generate_inflacao_clocks(parameters: dict):
                 parameter_defaults=parameters,
             )
         ],
-    filters=[filters.is_weekday],
-    adjustments=[adjustments.next_weekday],
+        filters=[filters.is_weekday],
+        adjustments=[adjustments.next_weekday],
     )
