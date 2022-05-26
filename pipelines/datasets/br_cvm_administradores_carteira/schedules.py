@@ -30,7 +30,7 @@ schedule_fisica = Schedule(
     clocks=[
         IntervalClock(
             interval=timedelta(days=1),
-            start_date=datetime(2021, 1, 1, 6,50),
+            start_date=datetime(2021, 1, 1, 6, 50),
             filters=[filters.is_weekday],
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
