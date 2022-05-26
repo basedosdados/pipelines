@@ -4,7 +4,7 @@ Schedules for br_cvm_oferta_publica_distribuicao
 """
 
 from datetime import timedelta, datetime
-from prefect.schedules import Schedule
+from prefect.schedules import Schedule, filters
 from prefect.schedules.clocks import IntervalClock
 from pipelines.constants import constants
 
@@ -12,7 +12,8 @@ schedule_dia = Schedule(
     clocks=[
         IntervalClock(
             interval=timedelta(days=1),
-            start_date=datetime(2021, 1, 1),
+            start_date=datetime(2021, 1, 1, 6, 45),
+            filters=[filters.is_weekday],
             labels=[
                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
