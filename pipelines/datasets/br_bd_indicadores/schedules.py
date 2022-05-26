@@ -4,7 +4,7 @@ Schedules for bd_tweet_data
 """
 
 from datetime import timedelta, datetime
-from prefect.schedules import Schedule, filters
+from prefect.schedules import Schedule, filters, adjustments
 from prefect.schedules.clocks import IntervalClock
 from pipelines.constants import constants
 
@@ -13,6 +13,8 @@ every_week = Schedule(
         IntervalClock(
             interval=timedelta(weeks=1),
             start_date=datetime(2021, 1, 1, 17,35),
+            filters=[filters.is_weekday],
+            adjustments=[adjustments.next_weekday],
             labels=[
                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
