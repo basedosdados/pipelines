@@ -13,8 +13,6 @@ every_month = Schedule(
         IntervalClock(
             interval=timedelta(days=30),
             start_date=datetime(2021, 1, 1, 14, 32),
-            filters=[filters.is_weekday],
-            adjustments=[adjustments.next_weekday],
             labels=[
                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
@@ -26,4 +24,6 @@ every_month = Schedule(
             },
         )
     ],
+    filters=[filters.is_weekday],
+    adjustments=[adjustments.next_weekday],
 )

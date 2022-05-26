@@ -12,7 +12,6 @@ schedule_responsavel = Schedule(
         IntervalClock(
             interval=timedelta(days=1),
             start_date=datetime(2021, 1, 1, 6, 12),
-            filters=[filters.is_weekday],
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -24,6 +23,7 @@ schedule_responsavel = Schedule(
             },
         )
     ],
+    filters=[filters.is_weekday],
 )
 
 schedule_fisica = Schedule(
@@ -31,7 +31,6 @@ schedule_fisica = Schedule(
         IntervalClock(
             interval=timedelta(days=1),
             start_date=datetime(2021, 1, 1, 6, 50),
-            filters=[filters.is_weekday],
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -43,6 +42,7 @@ schedule_fisica = Schedule(
             },
         )
     ],
+    filters=[filters.is_weekday],
 )
 
 schedule_juridica = Schedule(
@@ -50,7 +50,6 @@ schedule_juridica = Schedule(
         IntervalClock(
             interval=timedelta(days=1),
             start_date=datetime(2021, 1, 1, 6, 0),
-            filters=[filters.is_weekday],
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -62,4 +61,5 @@ schedule_juridica = Schedule(
             },
         )
     ],
+    filters=[filters.is_weekday],
 )
