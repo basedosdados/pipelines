@@ -76,7 +76,11 @@ with Flow(
             dataset_id=dataset_id,
             table_id=table_id,
             fields_to_update=[
-                {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
+                {
+                    "last_updated": {
+                        "data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    }
+                },
                 {"temporal_coverage": [temporal_coverage]},
             ],
             upstream_tasks=[temporal_coverage],
@@ -160,7 +164,11 @@ with Flow("BD Template - IBGE Inflação: mes_rm") as flow_ibge_inflacao_mes_rm:
             dataset_id=dataset_id,
             table_id=table_id,
             fields_to_update=[
-                {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
+                {
+                    "last_updated": {
+                        "data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    }
+                },
                 {"temporal_coverage": [temporal_coverage]},
             ],
             upstream_tasks=[temporal_coverage],
@@ -245,7 +253,11 @@ with Flow(
             dataset_id=dataset_id,
             table_id=table_id,
             fields_to_update=[
-                {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
+                {
+                    "last_updated": {
+                        "data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    }
+                },
                 {"temporal_coverage": [temporal_coverage]},
             ],
             upstream_tasks=[temporal_coverage],
@@ -331,7 +343,11 @@ with Flow("BD Template - IBGE Inflação: mes_geral") as flow_ibge_inflacao_mes_
             dataset_id=dataset_id,
             table_id=table_id,
             fields_to_update=[
-                {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
+                {
+                    "last_updated": {
+                        "data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    }
+                },
                 {"temporal_coverage": [temporal_coverage]},
             ],
             upstream_tasks=[temporal_coverage],

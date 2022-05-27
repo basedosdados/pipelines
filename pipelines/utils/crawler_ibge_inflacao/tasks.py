@@ -145,7 +145,6 @@ def crawler(indice: str, folder: str) -> bool:
     return False
 
 
-
 @task
 def clean_mes_brasil(indice: str) -> None:
     """
