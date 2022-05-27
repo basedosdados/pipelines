@@ -20,7 +20,6 @@ from pipelines.utils.crawler_ibge_inflacao.tasks import (
     clean_mes_municipio,
     clean_mes_geral,
 )
-from pipelines.utils.utils import log
 from pipelines.utils.decorators import Flow
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
