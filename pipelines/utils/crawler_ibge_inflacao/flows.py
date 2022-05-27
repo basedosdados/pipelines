@@ -53,9 +53,6 @@ with Flow(
     was_downloaded = crawler(indice=INDICE, folder=FOLDER)
     # pylint: disable=E1123
 
-    with case(was_downloaded, False):
-        log("The files download failed")
-
     with case(was_downloaded, True):
         filepath = clean_mes_brasil(indice=INDICE, upstream_tasks=[was_downloaded])
 
@@ -138,9 +135,6 @@ with Flow("BD Template - IBGE Inflação: mes_rm") as flow_ibge_inflacao_mes_rm:
 
     was_downloaded = crawler(indice=INDICE, folder=FOLDER)
     # pylint: disable=E1123
-
-    with case(was_downloaded, False):
-        log("The files download failed")
 
     with case(was_downloaded, True):
         # pylint: disable=E1123
@@ -227,9 +221,6 @@ with Flow(
     was_downloaded = crawler(indice=INDICE, folder=FOLDER)
     # pylint: disable=E1123
 
-    with case(was_downloaded, False):
-        log("The files download failed")
-
     with case(was_downloaded, True):
         # pylint: disable=E1123
         filepath = clean_mes_municipio(indice=INDICE, upstream_tasks=[was_downloaded])
@@ -315,9 +306,6 @@ with Flow("BD Template - IBGE Inflação: mes_geral") as flow_ibge_inflacao_mes_
 
     was_downloaded = crawler(indice=INDICE, folder=FOLDER)
     # pylint: disable=E1123
-
-    with case(was_downloaded, False):
-        log("The files download failed")
 
     with case(was_downloaded, True):
         # pylint: disable=E1123
