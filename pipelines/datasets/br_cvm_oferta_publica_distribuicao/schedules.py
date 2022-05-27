@@ -14,11 +14,11 @@ schedule_dia = Schedule(
             interval=timedelta(days=1),
             start_date=datetime(2021, 1, 1, 6, 45),
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_cvm_oferta_publica_distribuicao",
-                "materialization_mode": "dev",
+                "materialization_mode": "prod",
                 "materialize after dump": True,
                 "table_id": "dia",
             },
