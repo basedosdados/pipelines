@@ -24,7 +24,7 @@ ssl._create_default_https_context = ssl._create_unverified_context
 
 
 @task
-def crawler(indice: str, folder: str) -> None:
+def crawler(indice: str, folder: str) -> bool:
     """
     Crawler for IBGE Inflacao
 
@@ -133,15 +133,16 @@ def crawler(indice: str, folder: str) -> None:
             except Exception:
                 pass
 
+    log(os.system("tree /tmp/data"))
     if len(links_keys) == len(success_dwnl):
         log("All files were successfully downloaded")
-    else:
-        log("The folowing files failed to download:")
-        rems = set(links_keys) - set(success_dwnl)
-        for rem in rems:
-            log(rem)
+        return True
 
-    log(os.system("tree /tmp/data"))
+    log("The folowing files failed to download:")
+    rems = set(links_keys) - set(success_dwnl)
+    for rem in rems:
+        log(rem)
+    return False
 
 
 @task
