@@ -10,7 +10,7 @@ labels."k8s-pod/prefect_io/flow_id"="[flow_id]"
 
 Onde flow_id é o ID do seu Flow que pode ser encontrado na UI do prefect.
 
-Ocorre que muitas vezes nos deparamos com logs pouco informativos. Por exemplo, quando há uma falha na materialização de uma tabela via DBT, frequentemente nos deparamos com o seguinte log:
+Ocorre que muitas vezes nos deparamos com logs pouco informativos. Por exemplo, quando há uma falha na materialização de uma tabela via DBT, frequentemente observamos o seguinte log:
 
 ```
 Exception: There are no results here. This probably indicates that the task failed.
