@@ -1,4 +1,4 @@
-# Como obter logs completos para um Flow do Prefect
+# Como obter logs completos de uma run
 
 No monitoramento de flows em desenvolvimento ou em produção é muito importante ter acesso aos logs para que os processos de debug e *troubleshooting* possam ser feitos de forma eficiente. Você pode acessar os logs do seu Flow na UI do prefect na aba "logs". Alternativamente, os logs do mesmo Flow podem ser vistos com um pouco mais de detalhe no [Cloud Logging](https://console.cloud.google.com/logs/query) com a seguinte query:
 
