@@ -50,7 +50,7 @@ def run_dbt_model(
     Run a DBT model.
     """
     if dbt_alias:
-        table_id = f'{dataset_id}__{table_id}'
+        table_id = f"{dataset_id}__{table_id}"
     dbt_client.cli(
         f"run --models {dataset_id}.{table_id}",
         sync=sync,

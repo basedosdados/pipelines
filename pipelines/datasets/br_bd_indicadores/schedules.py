@@ -47,5 +47,3 @@ every_week = Schedule(
     filters=[filters.is_weekday],
     adjustments=[adjustments.next_weekday],
 )
-
-
