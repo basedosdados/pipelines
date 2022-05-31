@@ -24,6 +24,7 @@ every_monday_thursday = Schedule(
                 "materialization_mode": "dev",
                 "materialize after dump": True,
                 "table_id": "microdados",
+                "dbt_alias": False,
             },
         )
     ],

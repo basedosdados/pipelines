@@ -40,6 +40,9 @@ with Flow(
     materialize_after_dump = Parameter(
         "materialize after dump", default=True, required=False
     )
+    dbt_alias = Parameter(
+        "dbt_alias", default=False, required=False
+    )
     dataset_id = Parameter("dataset_id", default="br_bd_indicadores", required=True)
     table_id = Parameter("table_id", default="twitter_metrics", required=True)
     #####################################
@@ -124,6 +127,9 @@ with Flow(
     table_id = Parameter("table_id", default="twitter_metrics_agg", required=True)
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
+    )
+    dbt_alias = Parameter(
+        "dbt_alias", default=False, required=False
     )
 
     current_flow_labels = get_current_flow_labels()

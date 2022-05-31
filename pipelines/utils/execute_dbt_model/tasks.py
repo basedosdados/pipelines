@@ -43,11 +43,14 @@ def run_dbt_model(
     dbt_client: DbtClient,
     dataset_id: str,
     table_id: str,
+    dbt_alias: bool,
     sync: bool = True,
 ):
     """
     Run a DBT model.
     """
+    if dbt_alias:
+        table_id = f'{dataset_id}__{table_id}'
     dbt_client.cli(
         f"run --models {dataset_id}.{table_id}",
         sync=sync,
