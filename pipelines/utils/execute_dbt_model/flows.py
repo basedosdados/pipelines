@@ -42,7 +42,7 @@ with Flow(name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value) as run_dbt_mod
         dbt_client=dbt_client,
         dataset_id=dataset_id,
         table_id=table_id,
-        dbt_alias = dbt_alias,
+        dbt_alias=dbt_alias,
         sync=True,
     )
 
