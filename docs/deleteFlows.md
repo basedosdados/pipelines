@@ -1,6 +1,6 @@
 # Como deletar Flows usando Python
 
-É comum ter que deletar flows em produção ou em desenvolvimento depois de uma alteração específica do Flow ou depois uma alteração geral em todas as pipelines. É possível deletar esses flows na própria UI do Prefect clicando no ícone de lixeira no canto superior direito da página do Flow. O problema dessa solução, contudo, é que quando você precisa deletar muitos flows, você irá gastar muito tempo deletando um por um. Felizmente, é possível usar o cliente em python do prefect para deletar vários flows de uma vez. 
+É comum ter que deletar flows em produção ou em desenvolvimento depois de uma alteração específica do Flow ou depois uma alteração geral em todas as pipelines. É possível deletar esses flows na própria UI do Prefect clicando no ícone de lixeira no canto superior direito da página do Flow. O problema dessa solução, contudo, é que quando você precisa deletar muitos flows, você irá gastar muito tempo deletando um por um. Felizmente, é possível usar o cliente em python do prefect para deletar vários flows de uma vez.
 
 Para deletar apenas um flow via python, use o seguinte snippet:
 
