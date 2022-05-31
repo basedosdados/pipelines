@@ -20,6 +20,7 @@ every_four_months = Schedule(
                 "materialization_mode": "dev",
                 "materialize after dump": True,
                 "table_id": "terceirizados",
+                "dbt_alias": False,
             },
         )
     ],

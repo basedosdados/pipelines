@@ -21,6 +21,7 @@ schedule_dia = Schedule(
                 "materialization_mode": "prod",
                 "materialize after dump": True,
                 "table_id": "dia",
+                "dbt_alias": False,
             },
         ),
     ],
