@@ -1,8 +1,14 @@
+# -*- coding: utf-8 -*-
 with Flow(
-    name="fundacao_lemann.ano_escola_serie_educacao_aprendizagem_adequada", code_owners=["crislanealves"]
+    name="fundacao_lemann.ano_escola_serie_educacao_aprendizagem_adequada",
+    code_owners=["crislanealves"],
 ) as bd_twt_metricas_agg:
     dataset_id = Parameter("dataset_id", default="fundacao_lemann", required=True)
-    table_id = Parameter("table_id", default="ano_escola_serie_educacao_aprendizagem_adequada", required=True)
+    table_id = Parameter(
+        "table_id",
+        default="ano_escola_serie_educacao_aprendizagem_adequada",
+        required=True,
+    )
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
