@@ -1,8 +1,33 @@
+"""
+Flows for fundacao_lemann
+"""
+
+from datetime import timedelta
+
+from prefect import Parameter
+from prefect.run_configs import KubernetesRun
+from prefect.storage import GCS
+from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
+
+from pipelines.constants import constants
+from pipelines.utils.constants import constants as utils_constants
+from pipelines.utils.decorators import Flow
+from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+
+from pipelines.utils.tasks import get_current_flow_labels
+
+from pipelines.datasets.fundacao_lemann.schedules import every_year
+
 with Flow(
-    name="fundacao_lemann.ano_escola_serie_educacao_aprendizagem_adequada", code_owners=["crislanealves"]
-) as bd_twt_metricas_agg:
+    name="fundacao_lemann.ano_escola_serie_educacao_aprendizagem_adequada",
+    code_owners=["crislanealves"],
+) as ano_escola_serie_educacao_aprendizagem_adequada:
     dataset_id = Parameter("dataset_id", default="fundacao_lemann", required=True)
-    table_id = Parameter("table_id", default="ano_escola_serie_educacao_aprendizagem_adequada", required=True)
+    table_id = Parameter(
+        "table_id",
+        default="ano_escola_serie_educacao_aprendizagem_adequada",
+        required=True,
+    )
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -35,6 +60,10 @@ with Flow(
         seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
     )
 
-bd_twt_metricas_agg.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-bd_twt_metricas_agg.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-bd_twt_metricas_agg.schedule = every_week
+ano_escola_serie_educacao_aprendizagem_adequada.storage = GCS(
+    constants.GCS_FLOWS_BUCKET.value
+)
+ano_escola_serie_educacao_aprendizagem_adequada.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
+ano_escola_serie_educacao_aprendizagem_adequada.schedule = every_year
