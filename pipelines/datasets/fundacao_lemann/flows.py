@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Flows for fundacao_lemann
 """
