@@ -349,13 +349,14 @@ def get_date_time_str(wait=None) -> str:
     """
     return datetime.now().strftime("%Y-%m-%d %HH:%MM")
 
+
 @task
 def download_storage_files(project_id: str, bucket_id: str, objects: list) -> None:
-    '''
+    """
     Download files from Google Cloud Storage.
-    '''
+    """
     client = storage.Client(project_ids)
     bucket = client.get_bucket(bucket_id)
     for obj in objects:
         blob = bucket.blob(obj)
-        blob.download_to_filename(f'/tmp/{obj}')
+        blob.download_to_filename(f"/tmp/{obj}")
