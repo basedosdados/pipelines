@@ -472,3 +472,19 @@ def dump_header_to_csv(
     log(f"Wrote header CSV: {save_header_file_path}")
 
     return save_header_path
+    
+
+def get_df(dataset_id, table_id):
+    """
+    Build a pandas DataFrame from a table in Storage.
+    """
+    blobs = get_storage_blobs(dataset_id=dataset_id, table_id=table_id)
+
+    if len(blobs) != 0:
+        dfs = []
+        for blob in blobs:
+            url_data = blob.public_url
+            df = pd.read_csv(url_data, dtype={"id": str})
+            dfs.append(df)
+        return df
+    raise ValueError("No data found. Check dataset_id and table_id.")

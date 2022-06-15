@@ -17,7 +17,11 @@ from pipelines.datasets.botdosdados.tasks import (
 )
 from pipelines.datasets.botdosdados.schedules import every_day
 from pipelines.utils.decorators import Flow
-from pipelines.utils.tasks import rename_current_flow_run, get_date_time_str
+from pipelines.utils.tasks import (
+    rename_current_flow_run,
+    get_date_time_str,
+    download_storage_files,
+)
 
 with Flow(
     name="botdosdados.message_inflation", code_owners=["lucas_cr"]
@@ -46,8 +50,15 @@ with Flow(
             secret_path="botdosdados_credentials", upstream_tasks=[cond]
         )
 
+        download_storage_files(
+            project_id="basedosdados-dev",
+            bucket_id="basedosdados-dev",
+            objects=["auxiliary_files/Ubuntu-Bold.ttf", "auxiliary_files/Ubuntu-Regular.ttf"],
+            upstream_tasks=[access_token],
+        )
+
         text = message_inflation_plot(
-            dataset_id=dataset_id, table_id=table_id, upstream_tasks=[access_token]
+            dataset_id=dataset_id, table_id=table_id, upstream_tasks=[download_storage_files]
         )
 
         twt_media_id = send_media(
