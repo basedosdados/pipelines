@@ -15,18 +15,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-
-from pipelines.utils.utils import (
-    log,
-    get_storage_blobs,
-    get_credentials_from_secret,
-    get_df,
-)
-from pipelines.datasets.botdosdados.utils import (
-    create_image,
-    get_concat_v,
-    format_float_as_percentage,
-)
+from pipelines.utils.utils import log, get_storage_blobs, get_credentials_from_secret
 from pipelines.constants import constants
 
 
@@ -277,10 +266,16 @@ def message_inflation_plot(dataset_id: str, table_id: str) -> str:
     """
     Creates an update plot based on table_id data and returns a text to be used in tweet.
     """
-    for folder in ["plots", "inflation", "auxiliary_files"]:
-        os.system(f"mkdir -p /tmp/{folder}/")
+    os.system("mkdir -p /tmp/plots/")
 
-    df = get_df(dataset_id="br_ibge_ipca", table_id="mes_brasil")
+    blobs = get_storage_blobs(dataset_id="br_ibge_ipca", table_id="mes_brasil")
+
+    if len(blobs) != 0:
+        dfs = []
+        for blob in blobs:
+            url_data = blob.public_url
+            df = pd.read_csv(url_data, dtype={"id": str})
+            dfs.append(df)
 
     # pylint: disable=W0108
     df["date"] = (
@@ -288,9 +283,6 @@ def message_inflation_plot(dataset_id: str, table_id: str) -> str:
         + "-"
         + df["mes"].apply(lambda x: str(x).zfill(2))
     ).apply(lambda x: datetime.strptime(x, "%Y-%m"))
-
-    df = df.sort_values("date").tail(12)
-
     dict_month = {
         1: "Janeiro",
         2: "Fevereiro",
@@ -309,138 +301,27 @@ def message_inflation_plot(dataset_id: str, table_id: str) -> str:
     df.sort_values("date", inplace=True)
     last_data = df.iloc[-1, :]["variacao_doze_meses"]
     last_month = df.iloc[-1, :]["mes"]
+    indice = "IPCA"
 
-    header_text = f"No mês de {last_month.lower()},\na inflação acumulada nos\núltimos 12 meses foi de"
+    text = f"Em {last_month}, a inflação acumulada nos últimos 12 meses medida pelo {indice} foi de {str(last_data).replace('.',',')}%"
 
-    key_indicator = f"{format_float_as_percentage(last_data)}"
+    log(last_data)
+    df.set_index("date", inplace=True)
+    df = df[df.index.year.isin(list(range(2015, 2022)))]
 
-    create_image(
-        header_text,
-        (1100, 400),
-        70,
-        "/tmp/auxiliary_files/Ubuntu-Regular.ttf",
-        "/tmp/auxiliary_files/last_value1.png",
-        True,
-    )
-    create_image(
-        key_indicator,
-        (1100, 270),
-        230,
-        "/tmp/auxiliary_files/Ubuntu-Bold.ttf",
-        "/tmp/auxiliary_files/last_value2.png",
-        True,
-    )
+    sns.set_style("whitegrid")
 
-    top = Image.open("/tmp/auxiliary_files/last_value1.png")
-    bottom = Image.open("/tmp/auxiliary_files/last_value2.png")
+    fig, ax = plt.subplots()
 
-    get_concat_v(top, bottom).save("/tmp/auxiliary_files/last_value.png")
+    ax.plot(df["variacao_doze_meses"], color="lime")
+    ax.spines["right"].set_visible(False)
+    ax.spines["top"].set_visible(False)
 
-    df["mes_abv"] = df["mes"].apply(lambda x: x[0:3])
-    df.set_index("mes_abv", inplace=True)
-    last_value = plt.imread("/tmp/auxiliary_files/last_value.png")
-    fig = plt.figure(figsize=(12.72, 7))
-    gs = gridspec.GridSpec(1, 2, width_ratios=[1, 1.5])
+    ax.set_title("Inflação acumulada - 12 meses (IPCA)", fontsize=14)
 
-    ax1 = plt.subplot(gs[0])
-    img = ax1.imshow(last_value)
-    ax1.axis("off")
+    filepath = "/tmp/plots/inflation.jpeg"
 
-    meta = 3.5
-
-    with plt.rc_context({"xtick.color": "white", "ytick.color": "white"}):
-        ax2 = plt.subplot(gs[1])
-        ax2.plot(df["variacao_doze_meses"], color="#7ec876", linewidth=2.0)
-        ax2.yaxis.grid(True, color="gray", linewidth=0.2)
-        ax2.spines["right"].set_visible(False)
-        ax2.spines["top"].set_visible(False)
-        ax2.spines["bottom"].set_visible(False)
-        ax2.spines["left"].set_visible(False)
-        ax2.margins(x=0)
-        ax2.hlines(
-            y=meta,
-            color=[66 / 255, 176 / 255, 255 / 255],
-            linestyle="--",
-            xmin=0,
-            xmax=12,
-            linewidth=2,
-        )
-        ax2.hlines(
-            y=meta + 1.5,
-            color=[0 / 255, 147 / 255, 253 / 255],
-            linestyle="-",
-            xmin=0,
-            xmax=12,
-            linewidth=1,
-        )
-        ax2.text(
-            10.8,
-            meta * 0.80,
-            "META",
-            style="normal",
-            weight="bold",
-            color=[66 / 255, 176 / 255, 255 / 255],
-            fontsize=12,
-        )
-        ax2.text(
-            9.9,
-            (meta + 1.5) * 1.07,
-            "Lim. sup.",
-            style="normal",
-            weight="bold",
-            color=[11 / 255, 115 / 255, 192 / 255],
-            fontsize=12,
-        )
-        ax2.text(
-            10.2,
-            (meta - 1.5) * 0.65,
-            "Lim. inf.",
-            style="normal",
-            weight="bold",
-            color=[11 / 255, 115 / 255, 192 / 255],
-            fontsize=12,
-        )
-        ax2.hlines(
-            y=meta - 1.5,
-            color=[0 / 255, 147 / 255, 253 / 255],
-            linestyle="-",
-            xmin=0,
-            xmax=12,
-            linewidth=1,
-        )
-        ax2.set_ylim(-1, df["variacao_doze_meses"].max() * 1.1)
-        ax2.tick_params(axis="y", which="major", labelsize=14)
-        ax2.tick_params(axis="x", which="major", labelsize=12)
-        # ax.grid(True)
-        for tick in ax2.xaxis.get_major_ticks():
-            tick.tick1line.set_visible(False)
-            tick.tick2line.set_visible(False)
-            tick.label1.set_visible(True)
-            tick.label2.set_visible(False)
-
-        for tick in ax2.yaxis.get_major_ticks():
-            tick.tick1line.set_visible(False)
-            tick.tick2line.set_visible(False)
-            tick.label1.set_visible(True)
-            tick.label2.set_visible(False)
-
-        ax2.set_facecolor((37 / 255, 42 / 255, 50 / 255))
-
-    fig.patch.set_facecolor((37 / 255, 42 / 255, 50 / 255))
-    plt.savefig("/tmp/inflation/body.png", bbox_inches="tight", pad_inches=0.64)
-
-    model = Image.open("bd_art/model_inflation.png")
-    w, h = model.size
-    model.crop((0, 0, w, h - 900)).save("/tmp/inflation/head.png")
-    model.crop((0, 940, w, h)).save("/tmp/inflation/foot.png")
-
-    head = Image.open("/tmp/inflation/head.png")
-    body = Image.open("/tmp/inflation/body.png")
-    foot = Image.open("/tmp/inflation/foot.png")
-
-    filepath = "/tmp/plots/inflation.png"
-
-    get_concat_v(get_concat_v(head, body), foot).save(filepath)
+    fig.savefig(filepath, bbox_inches="tight")
 
     return text
 
