@@ -9,7 +9,6 @@ from pathlib import Path
 from typing import Union, List
 
 import basedosdados as bd
-from google.cloud import storage
 import prefect
 from prefect import task
 from prefect.client import Client
@@ -348,15 +347,3 @@ def get_date_time_str(wait=None) -> str:
     Get current time as string
     """
     return datetime.now().strftime("%Y-%m-%d %HH:%MM")
-
-
-@task
-def download_storage_files(project_id: str, bucket_id: str, objects: list) -> None:
-    """
-    Download files from Google Cloud Storage.
-    """
-    client = storage.Client(project_ids)
-    bucket = client.get_bucket(bucket_id)
-    for obj in objects:
-        blob = bucket.blob(obj)
-        blob.download_to_filename(f"/tmp/{obj}")
