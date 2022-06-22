@@ -472,7 +472,7 @@ def dump_header_to_csv(
     log(f"Wrote header CSV: {save_header_file_path}")
 
     return save_header_path
-    
+
 
 def get_df(dataset_id, table_id):
     """

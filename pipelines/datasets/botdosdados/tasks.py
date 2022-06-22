@@ -16,8 +16,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from pipelines.utils.utils import log, get_storage_blobs, get_credentials_from_secret, get_df
-from pipelines.datasets.botdosdados.utils import create_image, get_concat_v, format_float_as_percentage
+from pipelines.utils.utils import (
+    log,
+    get_storage_blobs,
+    get_credentials_from_secret,
+    get_df,
+)
+from pipelines.datasets.botdosdados.utils import (
+    create_image,
+    get_concat_v,
+    format_float_as_percentage,
+)
 from pipelines.constants import constants
 
 
@@ -259,6 +268,7 @@ def message_last_tables() -> list:
 
         return texts
 
+
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
@@ -267,14 +277,16 @@ def message_inflation_plot(dataset_id: str, table_id: str) -> str:
     """
     Creates an update plot based on table_id data and returns a text to be used in tweet.
     """
-    for folder in ['plots', 'inflation', 'auxiliary_files']:
+    for folder in ["plots", "inflation", "auxiliary_files"]:
         os.system(f"mkdir -p /tmp/{folder}/")
 
     df = get_df(dataset_id="br_ibge_ipca", table_id="mes_brasil")
 
     # pylint: disable=W0108
     df["date"] = (
-        df["ano"].apply(lambda x: str(x)) + "-" + df["mes"].apply(lambda x: str(x).zfill(2))
+        df["ano"].apply(lambda x: str(x))
+        + "-"
+        + df["mes"].apply(lambda x: str(x).zfill(2))
     ).apply(lambda x: datetime.strptime(x, "%Y-%m"))
 
     df = df.sort_values("date").tail(12)
@@ -303,7 +315,12 @@ def message_inflation_plot(dataset_id: str, table_id: str) -> str:
     key_indicator = f"{format_float_as_percentage(last_data)}"
 
     create_image(
-        header_text, (1100, 400), 70, "/tmp/auxiliary_files/Ubuntu-Regular.ttf", "/tmp/auxiliary_files/last_value1.png", True
+        header_text,
+        (1100, 400),
+        70,
+        "/tmp/auxiliary_files/Ubuntu-Regular.ttf",
+        "/tmp/auxiliary_files/last_value1.png",
+        True,
     )
     create_image(
         key_indicator,
@@ -417,7 +434,6 @@ def message_inflation_plot(dataset_id: str, table_id: str) -> str:
     model.crop((0, 0, w, h - 900)).save("/tmp/inflation/head.png")
     model.crop((0, 940, w, h)).save("/tmp/inflation/foot.png")
 
-
     head = Image.open("/tmp/inflation/head.png")
     body = Image.open("/tmp/inflation/body.png")
     foot = Image.open("/tmp/inflation/foot.png")
@@ -425,7 +441,6 @@ def message_inflation_plot(dataset_id: str, table_id: str) -> str:
     filepath = "/tmp/plots/inflation.png"
 
     get_concat_v(get_concat_v(head, body), foot).save(filepath)
-
 
     return text
 
