@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 utils for botdosdados
 """
@@ -67,13 +68,13 @@ def format_float_as_percentage(f):
     """
     Format float as percentage
     """
-    return f'{f:.2f}%'.replace('.', ',')
+    return f"{f:.2f}%".replace(".", ",")
 
 
 def add_margin(pil_img, top, right, bottom, left, color):
-    '''
+    """
     Add margin to an image
-    '''
+    """
     width, height = pil_img.size
     new_width = width + right + left
     new_height = height + top + bottom

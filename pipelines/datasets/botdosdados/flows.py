@@ -53,12 +53,17 @@ with Flow(
         download_storage_files(
             project_id="basedosdados-dev",
             bucket_id="basedosdados-dev",
-            objects=["auxiliary_files/Ubuntu-Bold.ttf", "auxiliary_files/Ubuntu-Regular.ttf"],
+            objects=[
+                "auxiliary_files/Ubuntu-Bold.ttf",
+                "auxiliary_files/Ubuntu-Regular.ttf",
+            ],
             upstream_tasks=[access_token],
         )
 
         text = message_inflation_plot(
-            dataset_id=dataset_id, table_id=table_id, upstream_tasks=[download_storage_files]
+            dataset_id=dataset_id,
+            table_id=table_id,
+            upstream_tasks=[download_storage_files],
         )
 
         twt_media_id = send_media(
