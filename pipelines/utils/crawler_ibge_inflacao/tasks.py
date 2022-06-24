@@ -127,7 +127,7 @@ def crawler(indice: str, folder: str) -> bool:
             success_dwnl.append(key)
         except Exception:
             try:
-                sleep(20)
+                sleep(10)
                 wget.download(links[key], out=f"/tmp/data/input/{key}.csv")
                 success_dwnl.append(key)
             except Exception:
