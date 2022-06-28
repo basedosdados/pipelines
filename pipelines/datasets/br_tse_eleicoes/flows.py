@@ -13,7 +13,7 @@ from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.constants import constants
-from pipelines.datasets.br_tse_eleicoes import build_partitions_votacao_zona
+from pipelines.datasets.br_tse_eleicoes.tasks import build_partitions_votacao_zona
 from pipelines.utils.decorators import Flow
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
