@@ -41,7 +41,7 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    filepath = build_partitions_votacao_zona(ano=2020, ufs=["AC", "RR"])
+    filepath = build_partitions_votacao_zona(anos=[2020], ufs=["AC", "RR"])
 
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
