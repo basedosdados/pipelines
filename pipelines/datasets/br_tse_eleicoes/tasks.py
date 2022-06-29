@@ -10,6 +10,7 @@ from itertools import product
 from prefect import task
 from unidecode import unidecode
 import pandas as pd
+from pipelines.utils.tasks import log
 
 
 @task
@@ -18,9 +19,9 @@ def build_partitions_votacao_zona(anos: list, ufs: list) -> str:
     Build csvs from votacao_zona zip files partitioned by uf and ano
     """
     ufs_anos = product(ufs, anos)
-
+    current_path = os.getcwd()
     for uf, ano in ufs_anos:
-        dest = f"/tmp/br_tse_eleicoes/detalhes_votacao_secao/sigla_uf={uf}"
+        dest = f"/tmp/br_tse_eleicoes/detalhes_votacao_secao/ano={ano}/sigla_uf={uf}"
         os.system(f"mkdir -p {dest}")
         os.chdir(dest)
         curl_command = f"""
@@ -32,13 +33,15 @@ def build_partitions_votacao_zona(anos: list, ufs: list) -> str:
         with zipfile.ZipFile(f"votacao_secao_{ano}_{uf}.zip", "r") as zip_ref:
             zip_ref.extractall(dest)
 
-        df = pd.read_csv(f"votacao_secao_{ano}_{uf}.csv", sep=";")
-        df.columns = [unidecode(col) for col in df.columns]
-        df.to_csv(f"votacao_secao_{ano}_{uf}.csv", sep=";", index=False)
+        os.system(f"mv votacao_secao_{ano}_{uf}.csv detalhes_votacao_secao.csv")
+        df = pd.read_csv("detalhes_votacao_secao.csv", sep=";")
+        df.columns = [unidecode(col).lower() for col in df.columns]
+        df.drop(["ano_eleicao", "sg_uf"], axis=1, inplace=True)
+        df.to_csv("detalhes_votacao_secao.csv", sep=",", index=False)
 
-        os.system(f"rm votacao_secao_{ano}_{uf}.zip")
-        os.system("rm *pdf")
+        os.system("find . -type f ! -iname \"*.csv\" -delete")
 
-    os.system("tree /tmp/br_tse_eleicoes/detalhes_votacao_secao/")
+    log(os.system("tree /tmp/br_tse_eleicoes/detalhes_votacao_secao/"))
+    os.chdir(current_path)
 
     return "/tmp/br_tse_eleicoes/detalhes_votacao_secao/"

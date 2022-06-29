@@ -25,7 +25,7 @@ from pipelines.datasets.br_tse_eleicoes.schedules import every_monday_thursday
 # pylint: disable=C0103
 with Flow(
     name="br_tse_eleicoes.detalhes_votacao_secao", code_owners=["lucas_cr"]
-) as br_tse_eleicoes:
+) as votacao_secao_flow:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_tse_eleicoes", required=True)
     table_id = Parameter("table_id", default="detalhes_votacao_secao", required=True)
@@ -80,6 +80,6 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-br_tse_eleicoes.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_tse_eleicoes.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_tse_eleicoes.schedule = every_monday_thursday
+votacao_secao_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+votacao_secao_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+votacao_secao_flow.schedule = every_monday_thursday
