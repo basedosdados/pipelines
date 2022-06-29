@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Tasks for br_tse_eleicoes
+Tasks for br_tse
 """
 # pylint: disable=invalid-name
 import zipfile
@@ -21,7 +21,7 @@ def build_partitions_votacao_zona(anos: list, ufs: list) -> str:
     ufs_anos = product(ufs, anos)
     current_path = os.getcwd()
     for uf, ano in ufs_anos:
-        dest = f"/tmp/br_tse_eleicoes/detalhes_votacao_secao/ano={ano}/sigla_uf={uf}"
+        dest = f"/tmp/br_tse/detalhes_votacao_secao/ano={ano}/sigla_uf={uf}"
         os.system(f"mkdir -p {dest}")
         os.chdir(dest)
         curl_command = f"""
@@ -37,11 +37,17 @@ def build_partitions_votacao_zona(anos: list, ufs: list) -> str:
         df = pd.read_csv("detalhes_votacao_secao.csv", sep=";")
         df.columns = [unidecode(col).lower() for col in df.columns]
         df.drop(["ano_eleicao", "sg_uf"], axis=1, inplace=True)
+
+        text_cols = ['nm_tipo_eleicao', 'ds_eleicao', 'nm_municipio', 'nm_ue', 'nm_votavel']
+
+        for col in text_cols:
+            df[col] = df[col].apply(lambda x: unidecode(x))
+
         df.to_csv("detalhes_votacao_secao.csv", sep=",", index=False)
 
         os.system("find . -type f ! -iname \"*.csv\" -delete")
 
-    log(os.system("tree /tmp/br_tse_eleicoes/detalhes_votacao_secao/"))
+    log(os.system("tree /tmp/br_tse/detalhes_votacao_secao/"))
     os.chdir(current_path)
 
-    return "/tmp/br_tse_eleicoes/detalhes_votacao_secao/"
+    return "/tmp/br_tse/detalhes_votacao_secao/"

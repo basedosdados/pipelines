@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Flows for br_tse_eleicoes
+Flows for br_tse
 """
 
 from datetime import timedelta
@@ -13,21 +13,21 @@ from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.constants import constants
-from pipelines.datasets.br_tse_eleicoes.tasks import build_partitions_votacao_zona
+from pipelines.datasets.br_tse.tasks import build_partitions_votacao_zona
 from pipelines.utils.decorators import Flow
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     rename_current_flow_run_dataset_table,
     get_current_flow_labels,
 )
-from pipelines.datasets.br_tse_eleicoes.schedules import every_monday_thursday
+from pipelines.datasets.br_tse.schedules import every_monday_thursday
 
 # pylint: disable=C0103
 with Flow(
-    name="br_tse_eleicoes.detalhes_votacao_secao", code_owners=["lucas_cr"]
+    name="br_tse.detalhes_votacao_secao", code_owners=["lucas_cr"]
 ) as votacao_secao_flow:
     # Parameters
-    dataset_id = Parameter("dataset_id", default="br_tse_eleicoes", required=True)
+    dataset_id = Parameter("dataset_id", default="br_tse", required=True)
     table_id = Parameter("table_id", default="detalhes_votacao_secao", required=True)
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False

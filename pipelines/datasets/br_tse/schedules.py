@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Schedules for br_tse_eleicoes
+Schedules for br_tse
 """
 
 from datetime import datetime
@@ -20,7 +20,7 @@ every_monday_thursday = Schedule(
                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
             parameter_defaults={
-                "dataset_id": "br_tse_eleicoes",
+                "dataset_id": "br_tse",
                 "materialization_mode": "dev",
                 "materialize after dump": True,
                 "table_id": "detalhes_votacao_secao",
