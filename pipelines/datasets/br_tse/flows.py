@@ -22,6 +22,36 @@ from pipelines.utils.tasks import (
 )
 from pipelines.datasets.br_tse.schedules import every_monday_thursday
 
+UFS = [
+"AC",
+"AL",
+"AM",
+"AP",
+"BA",
+"CE",
+"DF",
+"ES",
+"GO",
+"MA",
+"MG",
+"MS",
+"MT",
+"PA",
+"PB",
+"PE",
+"PI",
+"PR",
+"RJ",
+"RN",
+"RO",
+"RR",
+"SC",
+"SE",
+"RS",
+"TO",
+"SP"]
+
+# UFS = ["AC", "RR"]
 # pylint: disable=C0103
 with Flow(
     name="br_tse.detalhes_votacao_secao", code_owners=["lucas_cr"]
@@ -41,7 +71,10 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    filepath = build_partitions_votacao_zona(anos=[2020], ufs=["AC", "RR"])
+    filepath = build_partitions_votacao_zona(
+        anos=[2020],
+        ufs=UFS
+    )
 
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,

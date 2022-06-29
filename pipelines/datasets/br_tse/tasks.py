@@ -41,7 +41,7 @@ def build_partitions_votacao_zona(anos: list, ufs: list) -> str:
         text_cols = ['nm_tipo_eleicao', 'ds_eleicao', 'nm_municipio', 'nm_ue', 'nm_votavel']
 
         for col in text_cols:
-            df[col] = df[col].apply(lambda x: unidecode(x))
+            df[col] = df[col].apply(unidecode)
 
         df.to_csv("detalhes_votacao_secao.csv", sep=",", index=False)
 
