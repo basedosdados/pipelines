@@ -22,36 +22,7 @@ from pipelines.utils.tasks import (
 )
 from pipelines.datasets.br_tse.schedules import every_monday_thursday
 
-UFS = [
-"AC",
-"AL",
-"AM",
-"AP",
-"BA",
-"CE",
-"DF",
-"ES",
-"GO",
-"MA",
-"MG",
-"MS",
-"MT",
-"PA",
-"PB",
-"PE",
-"PI",
-"PR",
-"RJ",
-"RN",
-"RO",
-"RR",
-"SC",
-"SE",
-"RS",
-"TO",
-"SP"]
 
-# UFS = ["AC", "RR"]
 # pylint: disable=C0103
 with Flow(
     name="br_tse.detalhes_votacao_secao", code_owners=["lucas_cr"]
@@ -66,14 +37,16 @@ with Flow(
         "materialize after dump", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    ufs = Parameter("ufs", default=["AC","AL","AM","AP","BA","CE","DF","ES","GO","MA","MG","MS","MT","PA","PB","PE","PI","PR","RJ","RN","RO","RR","SC","SE","RS","TO","SP"], required=False)
+    anos = Parameter("anos", default=[2020], required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
     filepath = crawler_votacao_secao(
-        anos=[2020],
-        ufs=UFS
+        anos=anos,
+        ufs=ufs
     )
 
     wait_upload_table = create_table_and_upload_to_gcs(

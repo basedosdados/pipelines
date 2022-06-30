@@ -45,6 +45,8 @@ def crawler_votacao_secao(anos: list, ufs: list) -> str:
 
         df.to_csv("detalhes_votacao_secao.csv", sep=",", index=False)
 
+        del df
+
         os.system("find . -type f ! -iname \"*.csv\" -delete")
 
     log(os.system("tree /tmp/br_tse/detalhes_votacao_secao/"))
