@@ -14,7 +14,7 @@ from pipelines.utils.tasks import log
 
 
 @task
-def build_partitions_votacao_zona(anos: list, ufs: list) -> str:
+def crawler_votacao_secao(anos: list, ufs: list) -> str:
     """
     Build csvs from votacao_zona zip files partitioned by uf and ano
     """

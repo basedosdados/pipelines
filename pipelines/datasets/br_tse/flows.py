@@ -13,7 +13,7 @@ from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.constants import constants
-from pipelines.datasets.br_tse.tasks import build_partitions_votacao_zona
+from pipelines.datasets.br_tse.tasks import crawler_votacao_secao
 from pipelines.utils.decorators import Flow
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
@@ -71,7 +71,7 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    filepath = build_partitions_votacao_zona(
+    filepath = crawler_votacao_secao(
         anos=[2020],
         ufs=UFS
     )
@@ -86,7 +86,7 @@ with Flow(
 
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
+        current_flow_labels = get_current_flow_labels(upstream_tasks=[wait_upload_table])
         materialization_flow = create_flow_run(
             flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
             project_name=constants.PREFECT_DEFAULT_PROJECT.value,
@@ -98,6 +98,7 @@ with Flow(
             },
             labels=current_flow_labels,
             run_name=f"Materialize {dataset_id}.{table_id}",
+            upstream_tasks=[current_flow_labels]
         )
 
         wait_for_materialization = wait_for_flow_run(
@@ -105,6 +106,7 @@ with Flow(
             stream_states=True,
             stream_logs=True,
             raise_final_state=True,
+            upstream_tasks=[materialization_flow]
         )
         wait_for_materialization.max_retries = (
             dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
