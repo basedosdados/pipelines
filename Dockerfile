@@ -14,6 +14,9 @@ RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 RUN python3 -m pip install --no-cache-dir -U "pip>=21.2.4" "prefect==$PREFECT_VERSION"
 
+# Add CLI tools
+RUN apt-get update; apt-get install curl -y
+
 # Install requirements
 WORKDIR /app
 COPY . .
