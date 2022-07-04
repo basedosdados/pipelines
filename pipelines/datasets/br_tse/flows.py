@@ -37,17 +37,46 @@ with Flow(
         "materialize after dump", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
-    ufs = Parameter("ufs", default=["AC","AL","AM","AP","BA","CE","DF","ES","GO","MA","MG","MS","MT","PA","PB","PE","PI","PR","RJ","RN","RO","RR","SC","SE","RS","TO","SP"], required=False)
+    ufs = Parameter(
+        "ufs",
+        default=[
+            "AC",
+            "AL",
+            "AM",
+            "AP",
+            "BA",
+            "CE",
+            "DF",
+            "ES",
+            "GO",
+            "MA",
+            "MG",
+            "MS",
+            "MT",
+            "PA",
+            "PB",
+            "PE",
+            "PI",
+            "PR",
+            "RJ",
+            "RN",
+            "RO",
+            "RR",
+            "SC",
+            "SE",
+            "RS",
+            "TO",
+            "SP",
+        ],
+        required=False,
+    )
     anos = Parameter("anos", default=[2020], required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    filepath = crawler_votacao_secao(
-        anos=anos,
-        ufs=ufs
-    )
+    filepath = crawler_votacao_secao(anos=anos, ufs=ufs)
 
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
@@ -59,7 +88,9 @@ with Flow(
 
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels(upstream_tasks=[wait_upload_table])
+        current_flow_labels = get_current_flow_labels(
+            upstream_tasks=[wait_upload_table]
+        )
         materialization_flow = create_flow_run(
             flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
             project_name=constants.PREFECT_DEFAULT_PROJECT.value,
@@ -71,7 +102,7 @@ with Flow(
             },
             labels=current_flow_labels,
             run_name=f"Materialize {dataset_id}.{table_id}",
-            upstream_tasks=[current_flow_labels]
+            upstream_tasks=[current_flow_labels],
         )
 
         wait_for_materialization = wait_for_flow_run(
@@ -79,7 +110,7 @@ with Flow(
             stream_states=True,
             stream_logs=True,
             raise_final_state=True,
-            upstream_tasks=[materialization_flow]
+            upstream_tasks=[materialization_flow],
         )
         wait_for_materialization.max_retries = (
             dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value

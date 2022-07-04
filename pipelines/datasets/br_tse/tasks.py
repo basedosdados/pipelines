@@ -38,7 +38,13 @@ def crawler_votacao_secao(anos: list, ufs: list) -> str:
         df.columns = [unidecode(col).lower() for col in df.columns]
         df.drop(["ano_eleicao", "sg_uf"], axis=1, inplace=True)
 
-        text_cols = ['nm_tipo_eleicao', 'ds_eleicao', 'nm_municipio', 'nm_ue', 'nm_votavel']
+        text_cols = [
+            "nm_tipo_eleicao",
+            "ds_eleicao",
+            "nm_municipio",
+            "nm_ue",
+            "nm_votavel",
+        ]
 
         for col in text_cols:
             df[col] = df[col].apply(unidecode)
@@ -47,7 +53,7 @@ def crawler_votacao_secao(anos: list, ufs: list) -> str:
 
         del df
 
-        os.system("find . -type f ! -iname \"*.csv\" -delete")
+        os.system('find . -type f ! -iname "*.csv" -delete')
 
     log(os.system("tree /tmp/br_tse/detalhes_votacao_secao/"))
     os.chdir(current_path)
