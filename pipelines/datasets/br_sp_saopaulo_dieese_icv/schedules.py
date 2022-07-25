@@ -17,7 +17,7 @@ every_month = Schedule(
                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
             parameter_defaults={
-                "dataset_id": "br_bd_indicadores",
+                "dataset_id": "br_sp_saopaulo_dieese_icv",
                 "materialization_mode": "dev",
                 "materialize after dump": True,
                 "table_id": "mes",
