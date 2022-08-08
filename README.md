@@ -117,8 +117,10 @@ Links para a documentação do Prefect também encontram-se nos comentários.
 Caso o órgão para o qual você desenvolverá um projeto já exista, basta fazer
 
 ```
-python manage.py add-project nome-do-orgao nome-do-projeto
+python manage.py add-project datasets nome-do-projeto
 ```
+
+Onde `nome-projeto` 
 
 ### Adicionando dependências para execução
 
