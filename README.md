@@ -1,6 +1,6 @@
 # Pipelines
 
-Esse repositório contém fluxos de captura e subida de dados no datalake da Base dos Dados.
+Esse repositório contém flows desenvolvidos com Prefect relacionados a Base dos Dados.
 
 ---
 
@@ -17,29 +17,29 @@ Esse repositório contém fluxos de captura e subida de dados no datalake da Bas
 
 - Clonar esse repositório
 
-  ```
-  git clone https://github.com/basedosdados/pipelines
-  ```
+```
+git clone https://github.com/basedosdados/pipelines
+```
 
 - Abrí-lo no seu editor de texto
 
 - No seu ambiente de desenvolvimento, instalar [poetry](https://python-poetry.org/) para gerenciamento de dependências
 
-  ```
-  pip3 install poetry
-  ```
+```
+pip3 install poetry
+```
 
 - Instalar as dependências para desenvolvimento
 
-  ```
-  poetry install
-  ```
+```
+poetry install
+```
 
-- Instalar os hooks de pré-commit (ver https://pre-commit.com/ para entendimento dos hooks)
+<!-- - Instalar os hooks de pré-commit (ver [#127](https://github.com/prefeitura-rio/pipelines/pull/127) para entendimento dos hooks)
 
-  ```
-  pre-commit install
-  ```
+```
+pre-commit install -->
+<!-- ``` -->
 
 - Pronto! Seu ambiente está configurado para desenvolvimento.
 
@@ -50,7 +50,7 @@ Esse repositório contém fluxos de captura e subida de dados no datalake da Bas
 ### Estrutura de diretorios
 
 ```
-datasets/                    # diretório raiz para o órgão
+datasets/                       # diretório raiz para o órgão
 |-- projeto1/                # diretório de projeto
 |-- |-- __init__.py          # vazio
 |-- |-- constants.py         # valores constantes para o projeto
@@ -147,69 +147,51 @@ run_local(flow, parameters = {"param": "val"})
 
 ### Como testar uma pipeline na nuvem
 
-1. Faça a cópia do arquivo `.env.example` para um novo arquivo nomeado `.env`:
+- Primeiramente, você deve assegurar que as seguintes variáveis de ambiente existam e estejam devidamente configuradas:
 
-    ```
-    cp .env.example .env
-    ```
-
-* Substitua os valores das seguintes variáveis pelos seus respectivos valores:
   - `GOOGLE_APPLICATION_CREDENTIALS`: Path para um arquivo JSON com as credenciais da API do Google Cloud
-    de uma conta de serviço com acesso de escrita ao bucket `basedosdados-dev` no Google Cloud Storage.
+    de uma conta de serviço com acesso de escrita ao bucket `datario-public` no Google Cloud Storage.
+
+  - `PREFECT__BACKEND`: deve ter o valor `server`.
+
+  - `PREFECT__SERVER__HOST`: deve ter o valor `http://prefect-apollo.prefect.svc.cluster.local`.
+
+  - `PREFECT__SERVER__PORT`: deve ter o valor `4200`.
+
+  - `VAULT_ADDRESS`: deve ter o valor `http://vault.vault.svc.cluster.local:8200/`
+
   - `VAULT_TOKEN`: deve ter o valor do token do órgão para o qual você está desenvolvendo. Caso não saiba o token, entre em contato.
 
-* Carregue as variáveis de ambiente do arquivo `.env`:
+- Em seguida, tenha certeza que você já tem acesso à UI do Prefect, tanto para realizar a submissão da run, como para
+  acompanhá-la durante o processo de execução. Caso não tenha, verifique o procedimento em https://library-emd.herokuapp.com/infraestrutura/como-acessar-a-ui-do-prefect
 
-    ```sh
-    source .env
-    ```
+- Escolha a pipeline que deseja executar (exemplo `pipelines.datasets.test_pipeline.flows.flow`) e faça:
 
-* Também, garanta que o arquivo `$HOME/.prefect/auth.toml` exista e tenha um conteúdo semelhante ao seguinte:
+```py
+from pipelines.utils.utils import run_cloud
+from pipelines.datasets.test_pipeline.flows import flow
 
-    ```toml
-    # This file is auto-generated and should not be manually edited
-    # Update the Prefect config or use the CLI to login instead
-
-    ["prefect.basedosdados.org"]
-    api_key = "<sua-api-key>"
-    tenant_id = "<tenant-id>"
-    ```
-
-- Em seguida, tenha certeza que você já tem acesso à UI do Prefect, tanto para realizar a submissão da run, como para acompanhá-la durante o processo de execução.
-
-1. Crie o arquivo `test.py` com a pipeline que deseja executar e adicione a função `run_cloud` com os parâmetros necessários:
-
-    ```py
-    from pipelines.utils import run_cloud
-    from pipelines.[secretaria].[pipeline].flows import flow # Complete com as infos da sua pipeline
-
-    run_cloud(
-        flow,               # O flow que você deseja executar
-        labels=[
-            "example",      # Label para identificar o agente que irá executar a pipeline (ex: basedosdados-dev)
-        ],
-        parameters = {
-            "param": "val", # Parâmetros que serão passados para a pipeline (opcional)
-        }
-    )
-    ```
-
-2. Rode a pipeline com:
-
-    ```sh
-    python test.py
-    ```
+run_cloud(
+    flow,               # O flow que você deseja executar
+    labels=[
+        "example",      # Label para identificar o agente que executará a pipeline
+    ],
+    parameters = {
+        "param": "val", # Parâmetros que serão passados para a pipeline (opcional)
+    }
+)
+```
 
 - A saída deverá se assemelhar ao exemplo abaixo:
 
-    ```
-    [2022-02-19 12:22:57-0300] INFO - prefect.GCS | Uploading xxxxxxxx-development/2022-02-19t15-22-57-694759-00-00 to basedosdados-dev
-    Flow URL: http://localhost:8080/default/flow/xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-    └── ID: xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-    └── Project: main
-    └── Labels: []
-    Run submitted, please check it at:
-    http://prefect-ui.prefect.svc.cluster.local:8080/flow-run/xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-    ```
+```
+[2022-02-19 12:22:57-0300] INFO - prefect.GCS | Uploading xxxxxxxx-development/2022-02-19t15-22-57-694759-00-00 to datario-public
+Flow URL: http://localhost:8080/default/flow/xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+ └── ID: xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+ └── Project: main
+ └── Labels: []
+Run submitted, please check it at:
+http://prefect-ui.prefect.svc.cluster.local:8080/flow-run/xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+```
 
 - (Opcional, mas recomendado) Quando acabar de desenvolver sua pipeline, delete todas as versões da mesma pela UI do Prefect.
