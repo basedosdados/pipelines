@@ -120,7 +120,7 @@ Caso o órgão para o qual você desenvolverá um projeto já exista, basta faze
 python manage.py add-project datasets nome-do-projeto
 ```
 
-Onde `nome-projeto` 
+Onde `nome-projeto`
 
 ### Adicionando dependências para execução
 
