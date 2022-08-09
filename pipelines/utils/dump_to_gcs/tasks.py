@@ -99,7 +99,12 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
 
     # Checking if data exceeds the maximum allowed size
     log("Checking if data exceeds the maximum allowed size")
-    client = google_client(query_project_id=project_id, billing_project_id=billing_project_id, from_file=True, reauth=False)
+    client = google_client(
+        query_project_id=project_id,
+        billing_project_id=billing_project_id,
+        from_file=True,
+        reauth=False,
+    )
     job_config = bigquery.QueryJobConfig()
     job_config.dry_run = True
     job = client["bigquery"].query(query, job_config=job_config)
