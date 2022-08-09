@@ -16,7 +16,10 @@ import pandas as pd
 from prefect import task
 from pipelines.constants import constants
 
-from pipelines.datasets.br_tse_eleicoes.utils import get_id_candidato_bd, get_blobs_from_raw
+from pipelines.datasets.br_tse_eleicoes.utils import (
+    get_id_candidato_bd,
+    get_blobs_from_raw,
+)
 
 
 @task(
@@ -24,9 +27,9 @@ from pipelines.datasets.br_tse_eleicoes.utils import get_id_candidato_bd, get_bl
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def download_before22(table_id: str) -> None:
-    '''
+    """
     Download external data from previous elections
-    '''
+    """
     os.system("mkdir -p /tmp/data/input")
     blobs = get_blobs_from_raw(dataset_id="br_tse_eleicoes", table_id=table_id)
     for blob in tqdm(blobs):
