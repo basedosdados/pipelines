@@ -2,7 +2,7 @@
 """
 Tasks for br_ibge_inpc
 """
-# pylint: disable=line-too-long, W0702, E1101, W0212
+# pylint: disable=line-too-long, W0702, E1101, W0212,unnecessary-dunder-call
 import glob
 import errno
 import os
