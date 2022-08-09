@@ -163,7 +163,7 @@ def get_id_candidato_bd(df: pd.DataFrame) -> pd.DataFrame:
     return data
 
 
-def get_blobs_from_raw(dataset_id:str, table_id:str) -> list:
+def get_blobs_from_raw(dataset_id: str, table_id: str) -> list:
     """
     Get all blobs from a table in a dataset.
     """
