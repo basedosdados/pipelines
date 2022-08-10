@@ -171,6 +171,6 @@ def get_blobs_from_raw(dataset_id: str, table_id: str) -> list:
     storage = bd.Storage(dataset_id=dataset_id, table_id=table_id)
     return list(
         storage.client["storage_staging"]
-        .bucket("basedosdados")
+        .bucket("basedosdados-dev")
         .list_blobs(prefix=f"raw/{storage.dataset_id}/{storage.table_id}/")
     )
