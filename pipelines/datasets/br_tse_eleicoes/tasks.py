@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 from prefect import task
 from pipelines.constants import constants
-
+from pipelines.utils.utils import log
 from pipelines.datasets.br_tse_eleicoes.utils import (
     get_id_candidato_bd,
     get_blobs_from_raw,
@@ -37,6 +37,8 @@ def download_before22(table_id: str) -> None:
         os.system(f"mkdir -p /tmp/data/{'/'.join(blob.name.split('/')[:-1])}")
         df.to_csv(f"/tmp/data/{blob.name}", sep=";", index=False)
         del df
+
+    log(os.system("tree /tmp/data/"))
 
 
 @task(
@@ -181,10 +183,10 @@ def clean_candidatos22(folder: str):
     df.replace("#Nulo#", np.nan, inplace=True)
     df.replace("#nulo#", np.nan, inplace=True)
 
-    os.system("mkdir -p /tmp/data/staging/br_tse_eleicoes/candidatos/ano=2022/")
+    os.system("mkdir -p /tmp/data/raw/br_tse_eleicoes/candidatos/ano=2022/")
 
     df.to_csv(
-        "/tmp/data/staging/br_tse_eleicoes/candidatos/ano=2022/candidatos.csv",
+        "/tmp/data/raw/br_tse_eleicoes/candidatos/ano=2022/candidatos.csv",
         sep=";",
         index=False,
     )
