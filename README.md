@@ -174,6 +174,12 @@ run_local(flow, parameters = {"param": "val"})
     tenant_id = "<tenant-id>"
     ```
 
+    * O valor da chave `tenant_id` pode ser coletada atráves da seguinte URL: https://prefect.basedosdados.org/default/api. Devendo ser executado a seguinte query:
+
+        ```graphql
+        query { tenant{ id } }
+        ```
+
 - Em seguida, tenha certeza que você já tem acesso à UI do Prefect, tanto para realizar a submissão da run, como para acompanhá-la durante o processo de execução.
 
 1. Crie o arquivo `test.py` com a pipeline que deseja executar e adicione a função `run_cloud` com os parâmetros necessários:
