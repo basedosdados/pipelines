@@ -211,7 +211,7 @@ run_local(flow, parameters = {"param": "val"})
     └── Project: main
     └── Labels: []
     Run submitted, please check it at:
-    http://prefect-ui.prefect.svc.cluster.local:8080/flow-run/xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+    https://prefect.basedosdados.org/flow-run/xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
     ```
 
 - (Opcional, mas recomendado) Quando acabar de desenvolver sua pipeline, delete todas as versões da mesma pela UI do Prefect.
