@@ -169,9 +169,6 @@ run_local(flow, parameters = {"param": "val"})
 * Também, garanta que o arquivo `$HOME/.prefect/auth.toml` exista e tenha um conteúdo semelhante ao seguinte:
 
     ```toml
-    # This file is auto-generated and should not be manually edited
-    # Update the Prefect config or use the CLI to login instead
-
     ["prefect.basedosdados.org"]
     api_key = "<sua-api-key>"
     tenant_id = "<tenant-id>"
