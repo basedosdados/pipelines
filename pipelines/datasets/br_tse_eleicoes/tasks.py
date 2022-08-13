@@ -7,6 +7,7 @@ from datetime import timedelta
 import zipfile
 import os
 from glob import glob
+from itertools import product
 
 import requests
 from unidecode import unidecode
@@ -19,6 +20,8 @@ from pipelines.utils.utils import log
 from pipelines.datasets.br_tse_eleicoes.utils import (
     get_id_candidato_bd,
     get_blobs_from_raw,
+    normalize_dahis,
+    get_data_from_prod
 )
 
 
@@ -205,7 +208,7 @@ def build_candidatos(folder: str):
 
     dfs = []
 
-    files = [f"{folder}/ano={ano}/candidatos.csv" for ano in range(2022, 1992, -2)]
+    files = [f"{folder}/ano={ano}/candidatos.csv" for ano in range(2022, 2018, -2)]
 
     for file in files:
         df = pd.read_csv(
@@ -227,7 +230,9 @@ def build_candidatos(folder: str):
 
     df = get_id_candidato_bd(df)
 
-    for ano in range(2022, 1992, -2):
+    df = normalize_dahis(df)
+
+    for ano in range(2022, 2018, -2):
         os.system(f"mkdir -p /tmp/data/output/ano={ano}/")
         table = df[df["ano"] == ano]
         table.drop_duplicates(inplace=True)
@@ -237,3 +242,194 @@ def build_candidatos(folder: str):
     os.system("tree /tmp/data/")
 
     return "/tmp/data/output/"
+
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def build_bens_candidato(folder: str) -> str:
+    """
+    Builds the bens_candidato csv file.
+    """
+
+    dfs = []
+
+    ufs = [
+        "AC",
+        "AL",
+        "AM",
+        "AP",
+        "BA",
+        "BR",
+        "CE",
+        "DF",
+        "ES",
+        "GO",
+        "MA",
+        "MG",
+        "MS",
+        "MT",
+        "PA",
+        "PB",
+        "PE",
+        "PI",
+        "PR",
+        "RJ",
+        "RN",
+        "RO",
+        "RR",
+        "RS",
+        "SC",
+        "SE",
+        "SP",
+        "TO",
+        "BR",
+        "VT",
+        "ZZ",
+    ]
+
+    files = [
+        f"{folder}/ano={ano}/sigla_uf={uf}/bens_candidato.csv"
+        for ano, uf in product(range(2022, 2018, -2), ufs)
+    ]
+
+    for file in files:
+        try:
+            df = pd.read_csv(file, sep=";", encoding="latin-1")
+            df["ano"] = int(file.split("/")[-3].split("=")[-1])
+            df["sigla_uf"] = file.split("/")[-2].split("=")[-1]
+            dfs.append(df)
+        except FileNotFoundError:
+            print(f"File {file} not found")
+            continue
+
+    df = pd.concat(dfs)
+
+    candidatos = get_data_from_prod(
+        "br_tse_eleicoes",
+        "candidatos",
+        ["ano", "tipo_eleicao", "sigla_uf", "sequencial", "id_candidato_bd"],
+    )
+
+    candidatos.drop_duplicates(inplace=True)
+
+    print(candidatos.head())
+
+    print("\n\n")
+
+    df.rename(columns={"sequencial_candidato": "sequencial"}, inplace=True)
+
+    df.drop(columns=["id_candidato_bd"], inplace=True)
+
+    print(df.head())
+
+    df = df.set_index(["ano", "tipo_eleicao", "sigla_uf", "sequencial"]).join(
+        candidatos.set_index(["ano", "tipo_eleicao", "sigla_uf", "sequencial"])
+    )
+
+    df.reset_index(inplace=True)
+
+    df.rename(columns={"sequencial": "sequencial_candidato"}, inplace=True)
+
+    df = df.reindex(
+        columns=[
+            "ano",
+            "sigla_uf",
+            "tipo_eleicao",
+            "sequencial_candidato",
+            "id_candidato_bd",
+            "id_tipo_item",
+            "tipo_item",
+            "descricao_item",
+            "valor_item",
+        ]
+    )
+
+    print("\n\n")
+
+    print(df.head())
+
+    for ano, uf in product(range(2022, 2018, -2), ufs):
+        table = df[df["ano"] == ano]
+        table = table[table["sigla_uf"] == uf]
+        if table.shape[0] == 0:
+            continue
+        os.system(f"mkdir -p /tmp/data/output/ano={ano}/sigla_uf={uf}/")
+        table.drop_duplicates(inplace=True)
+        table.drop("ano", axis=1, inplace=True)
+        table.drop("sigla_uf", axis=1, inplace=True)
+        table.to_csv(
+            f"/tmp/data/output/ano={ano}/sigla_uf={uf}/bens_candidato.csv", index=False
+        )
+
+    os.system("tree /tmp/data/")
+
+    return "/tmp/data/output/"
+
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def clean_bens22(folder) -> None:
+    """
+    Clean bens_canidadto.csv files for 2022
+    """
+    dfs = []
+
+    files = glob(f"{folder}/bem_candidato*.csv")
+
+    for file in files[:2]:
+        df = pd.read_csv(file, sep=";", encoding="latin-1")
+        dfs.append(df)
+
+    df = pd.concat(dfs)
+
+    n = df.shape[0]
+
+    table = pd.DataFrame(
+        {
+            "tipo_eleicao": [
+                unidecode(unidecode(k.lower())) if isinstance(k, str) else k
+                for k in df["NM_TIPO_ELEICAO"].to_list()
+            ],
+            "sigla_uf": df["SG_UF"].to_list(),
+            "sequencial_candidato": df["SQ_CANDIDATO"].to_list(),
+            "id_tipo_item": df["CD_TIPO_BEM_CANDIDATO"].to_list(),
+            "id_candidato_bd": n * np.nan,
+            "tipo_item": [
+                unidecode(unidecode(k.title())) if isinstance(k, str) else k
+                for k in df["DS_TIPO_BEM_CANDIDATO"].to_list()
+            ],
+            "descricao_item": [
+                unidecode(unidecode(k.title())) if isinstance(k, str) else k
+                for k in df["DS_BEM_CANDIDATO"].to_list()
+            ],
+            "valor_item": df["VR_BEM_CANDIDATO"].to_list(),
+        }
+    )
+
+    del df
+    df = table.copy()
+    del table
+
+    df.replace("#NULO#", np.nan, inplace=True)
+    df.replace("#Nulo#", np.nan, inplace=True)
+    df.replace("#nulo#", np.nan, inplace=True)
+
+    ufs = df["sigla_uf"].unique()
+
+    for uf in ufs:
+        df_uf = df[df["sigla_uf"] == uf].copy()
+        os.system(
+            f"mkdir -p /tmp/data/raw/br_tse_eleicoes/bens_candidato/ano=2022/sigla_uf={uf}/"
+        )
+        df_uf.to_csv(
+            f"/tmp/data/raw/br_tse_eleicoes/bens_candidato/ano=2022/sigla_uf={uf}/bens_candidato.csv",
+            index=False,
+            sep=";",
+        )
+        del df_uf
+
+    os.system("tree /tmp/data/")
