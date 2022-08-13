@@ -98,6 +98,6 @@ with Flow(
         wait=filepath,
     )
 
-br_tse_candidatos.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_tse_candidatos.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_tse_candidatos.schedule = schedule_bens
+br_tse_bens.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_tse_bens.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_tse_bens.schedule = schedule_bens
