@@ -19,6 +19,8 @@ schedule_candidatos = Schedule(
             parameter_defaults={
                 "dataset_id": "br_tse_eleicoes",
                 "table_id": "candidatos",
+                "start": 1998,
+                "id_candidato_bd": False,
             },
         ),
     ],
@@ -36,8 +38,30 @@ schedule_bens = Schedule(
             parameter_defaults={
                 "dataset_id": "br_tse_eleicoes",
                 "table_id": "bens_candidato",
+                "start": 2006,
+                "id_candidato_bd": False,
             },
         ),
     ],
     filters=[filters.is_weekday],
 )
+
+schedule_despesa = Schedule(
+    clocks=[
+        IntervalClock(
+            interval=timedelta(days=1),
+            start_date=datetime(2021, 1, 1, 9, 45),
+            labels=[
+                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            ],
+            parameter_defaults={
+                "dataset_id": "br_tse_eleicoes",
+                "table_id": "despesas_candidato",
+                "start": 2006,
+                "id_candidato_bd": False,
+            },
+        ),
+    ],
+    filters=[filters.is_weekday],
+)
+

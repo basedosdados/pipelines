@@ -29,17 +29,18 @@ from pipelines.datasets.br_tse_eleicoes.utils import (
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def download_before22(table_id: str) -> None:
+def download_before22(table_id: str, start: int) -> None:
     """
     Download external data from previous elections
     """
     os.system("mkdir -p /tmp/data/input")
     blobs = get_blobs_from_raw(dataset_id="br_tse_eleicoes", table_id=table_id)
     for blob in tqdm(blobs):
-        df = pd.read_csv(blob.public_url, encoding="utf-8")
-        os.system(f"mkdir -p /tmp/data/{'/'.join(blob.name.split('/')[:-1])}")
-        df.to_csv(f"/tmp/data/{blob.name}", sep=";", index=False)
-        del df
+        if int("".join([k for k in blob.name if k.isdigit()])) > start:
+            df = pd.read_csv(blob.public_url, encoding="utf-8")
+            os.system(f"mkdir -p /tmp/data/{'/'.join(blob.name.split('/')[:-1])}")
+            df.to_csv(f"/tmp/data/{blob.name}", sep=";", index=False)
+            del df
 
     log(os.system("tree /tmp/data/"))
 
@@ -48,10 +49,13 @@ def download_before22(table_id: str) -> None:
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def get_csv_files(url, save_path, chunk_size=128) -> None:
+def get_csv_files(url, save_path, chunk_size=128, mkdir=False) -> None:
     """
     Gets all csv files from a url and saves them to a directory.
     """
+    if mkdir:
+        os.system("mkdir -p /tmp/data/input/")
+
     request_headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36",
     }
@@ -71,7 +75,7 @@ def get_csv_files(url, save_path, chunk_size=128) -> None:
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def clean_candidatos22(folder: str):
+def clean_candidatos22(folder: str) -> str:
     """
     Cleans the candidatos csv file.
     """
@@ -196,19 +200,21 @@ def clean_candidatos22(folder: str):
 
     os.system("tree /tmp/data/")
 
+    return "/tmp/data/raw/br_tse_eleicoes/candidatos/"
+
 
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def build_candidatos(folder: str):
+def build_candidatos(folder: str, start: int, end: int):
     """
     Builds the candidatos csv file.
     """
 
     dfs = []
 
-    files = [f"{folder}/ano={ano}/candidatos.csv" for ano in range(2022, 2018, -2)]
+    files = [f"{folder}/ano={ano}/candidatos.csv" for ano in range(end, start, -2)]
 
     for file in files:
         df = pd.read_csv(
@@ -232,7 +238,7 @@ def build_candidatos(folder: str):
 
     df = normalize_dahis(df)
 
-    for ano in range(2022, 2018, -2):
+    for ano in range(end, start, -2):
         os.system(f"mkdir -p /tmp/data/output/ano={ano}/")
         table = df[df["ano"] == ano]
         table.drop_duplicates(inplace=True)
@@ -248,7 +254,7 @@ def build_candidatos(folder: str):
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def build_bens_candidato(folder: str) -> str:
+def build_bens_candidato(folder: str, start: int, end: int) -> str:
     """
     Builds the bens_candidato csv file.
     """
@@ -291,7 +297,7 @@ def build_bens_candidato(folder: str) -> str:
 
     files = [
         f"{folder}/ano={ano}/sigla_uf={uf}/bens_candidato.csv"
-        for ano, uf in product(range(2022, 2018, -2), ufs)
+        for ano, uf in product(range(end, start, -2), ufs)
     ]
 
     for file in files:
@@ -350,7 +356,7 @@ def build_bens_candidato(folder: str) -> str:
 
     print(df.head())
 
-    for ano, uf in product(range(2022, 2018, -2), ufs):
+    for ano, uf in product(range(end, start, -2), ufs):
         table = df[df["ano"] == ano]
         table = table[table["sigla_uf"] == uf]
         if table.shape[0] == 0:
@@ -433,3 +439,96 @@ def clean_bens22(folder) -> None:
         del df_uf
 
     os.system("tree /tmp/data/")
+
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def clean_despesa22(folder):
+    """
+    Clean despesa_candidato.csv files for 2022
+    """
+    files = glob(f"{folder}/*.csv")
+
+    for file in files:
+        df = pd.read_csv(file, sep=";", encoding="latin-1")
+        n = df.shape[0]
+        uf = "".join([k for k in file if k.isupper()])
+
+        table = pd.DataFrame(
+            {
+                "ano": int("".join([k for k in file if k.isdigit()])),
+                "turno": df["ST_TURNO"].to_list(),
+                "tipo_eleicao": [
+                    unidecode(k.lower()) if isinstance(k, str) else k
+                    for k in df["NM_TIPO_ELEICAO"]
+                ],
+                "sigla_uf": uf,
+                "id_municipio": n * [np.nan],
+                "id_municipio_tse": n * [np.nan],
+                "numero_candidato": df["NR_CANDIDATO"].to_list(),
+                "cpf_candidato": df["NR_CPF_CANDIDATO"].to_list(),
+                "sequencial_candidato": df["SQ_CANDIDATO"].to_list(),
+                "id_candidato_bd": n * [np.nan],
+                "nome_candidato": df["NM_CANDIDATO"].to_list(),
+                "cpf_vice_suplente": df["NR_CPF_VICE_CANDIDATO"].to_list(),
+                "numero_partido": df["NR_PARTIDO"].to_list(),
+                "sigla_partido": df["SG_PARTIDO"].to_list(),
+                "nome_partido": df["NM_PARTIDO"].to_list(),
+                "cargo": df["DS_CARGO"].to_list(),
+                "sequencial_despesa": df["SQ_DESPESA"].to_list(),
+                "data_despesa": df["DT_DESPESA"].to_list(),
+                "tipo_despesa": n * [np.nan],
+                "descricao_despesa": df["DS_DESPESA"].to_list(),
+                "origem_despesa": df["DS_ORIGEM_DESPESA"].to_list(),
+                "valor_despesa": df["VR_DESPESA_CONTRATADA"].to_list(),
+                "tipo_prestacao_contas": df["TP_PRESTACAO_CONTAS"].to_list(),
+                "sequencial_prestador_contas": df["SQ_PRESTADOR_CONTAS"].to_list(),
+                "cnpj_prestador_contas": df["NR_CNPJ_PRESTADOR_CONTA"].to_list(),
+                "cnpj_candidato": n * [np.nan],
+                "tipo_documento": df["DS_TIPO_DOCUMENTO"].to_list(),
+                "numero_documento": df["NR_DOCUMENTO"].to_list(),
+                "especie_recurso": n * [np.nan],
+                "fonte_recurso": n * [np.nan],
+                "cpf_cnpj_fornecedor": df["NR_CPF_CNPJ_FORNECEDOR"].to_list(),
+                "nome_fornecedor": df["NM_FORNECEDOR"].to_list(),
+                "cnae_2_fornecedor": df["CD_CNAE_FORNECEDOR"].to_list(),
+                "descricao_cnae_2_fornecedor": df["DS_CNAE_FORNECEDOR"].to_list(),
+                "tipo_fornecedor": df["DS_TIPO_FORNECEDOR"].to_list(),
+                "esfera_partidaria_fornecedor": df[
+                    "DS_ESFERA_PART_FORNECEDOR"
+                ].to_list(),
+                "sigla_uf_fornecedor": df["SG_UF_FORNECEDOR"].to_list(),
+                "id_municipio_tse_fornecedor": df["CD_MUNICIPIO_FORNECEDOR"].to_list(),
+                "sequencial_candidato_fornecedor": df[
+                    "SQ_CANDIDATO_FORNECEDOR"
+                ].to_list(),
+                "numero_candidato_fornecedor": df["NR_CANDIDATO_FORNECEDOR"].to_list(),
+                "numero_partido_fornecedor": df["NR_PARTIDO_FORNECEDOR"].to_list(),
+                "sigla_partido_fornecedor": df["SG_PARTIDO_FORNECEDOR"].to_list(),
+                "nome_partido_fornecedor": df["NM_PARTIDO_FORNECEDOR"].to_list(),
+                "cargo_fornecedor": df["DS_CARGO_FORNECEDOR"].to_list(),
+            }
+        )
+
+        table["tipo_eleicao"] = table["tipo_eleicao"].replace(
+            {"ordinaria": "eleicao ordinaria"}
+        )
+        table.replace("#NULO#", np.nan, inplace=True)
+        table.replace("#Nulo#", np.nan, inplace=True)
+        table.replace("#nulo#", np.nan, inplace=True)
+        table.replace(-1, np.nan, inplace=True)
+
+        if table.shape[0] == 0:
+            continue
+        os.system(f"mkdir -p /tmp/data/output/ano=2018/sigla_uf={uf}/")
+        table.drop_duplicates(inplace=True)
+        table.drop("ano", axis=1, inplace=True)
+        table.drop("sigla_uf", axis=1, inplace=True)
+        table.to_csv(
+            f"/tmp/data/output/ano=2018/sigla_uf={uf}/despesas_candidato.csv",
+            index=False,
+        )
+
+        return "/tmp/data/output/ano=2018/"
