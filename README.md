@@ -182,7 +182,7 @@ run_local(flow, parameters = {"param": "val"})
 1. Crie o arquivo `test.py` com a pipeline que deseja executar e adicione a função `run_cloud` com os parâmetros necessários:
 
     ```py
-    from pipelines.utils import run_cloud
+    from pipelines.utils.utils import run_cloud
     from pipelines.[secretaria].[pipeline].flows import flow # Complete com as infos da sua pipeline
 
     run_cloud(
