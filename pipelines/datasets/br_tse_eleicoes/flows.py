@@ -18,7 +18,10 @@ from pipelines.datasets.br_tse_eleicoes.tasks import (
     build_bens_candidato,
     clean_bens22,
 )
-from pipelines.datasets.br_tse_eleicoes.schedules import schedule_bens, schedule_candidatos
+from pipelines.datasets.br_tse_eleicoes.schedules import (
+    schedule_bens,
+    schedule_candidatos,
+)
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     rename_current_flow_run_dataset_table,

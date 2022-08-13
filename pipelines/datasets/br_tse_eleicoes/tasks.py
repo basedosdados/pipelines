@@ -21,7 +21,7 @@ from pipelines.datasets.br_tse_eleicoes.utils import (
     get_id_candidato_bd,
     get_blobs_from_raw,
     normalize_dahis,
-    get_data_from_prod
+    get_data_from_prod,
 )
 
 
