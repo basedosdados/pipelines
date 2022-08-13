@@ -169,13 +169,16 @@ run_local(flow, parameters = {"param": "val"})
 * Também, garanta que o arquivo `$HOME/.prefect/auth.toml` exista e tenha um conteúdo semelhante ao seguinte:
 
     ```toml
-    # This file is auto-generated and should not be manually edited
-    # Update the Prefect config or use the CLI to login instead
-
     ["prefect.basedosdados.org"]
     api_key = "<sua-api-key>"
     tenant_id = "<tenant-id>"
     ```
+
+    * O valor da chave `tenant_id` pode ser coletada atráves da seguinte URL: https://prefect.basedosdados.org/default/api. Devendo ser executado a seguinte query:
+
+        ```graphql
+        query { tenant{ id } }
+        ```
 
 - Em seguida, tenha certeza que você já tem acesso à UI do Prefect, tanto para realizar a submissão da run, como para acompanhá-la durante o processo de execução.
 
@@ -211,7 +214,7 @@ run_local(flow, parameters = {"param": "val"})
     └── Project: main
     └── Labels: []
     Run submitted, please check it at:
-    http://prefect-ui.prefect.svc.cluster.local:8080/flow-run/xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+    https://prefect.basedosdados.org/flow-run/xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
     ```
 
 - (Opcional, mas recomendado) Quando acabar de desenvolver sua pipeline, delete todas as versões da mesma pela UI do Prefect.
