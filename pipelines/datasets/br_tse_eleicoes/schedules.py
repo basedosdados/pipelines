@@ -31,7 +31,7 @@ schedule_bens = Schedule(
     clocks=[
         IntervalClock(
             interval=timedelta(days=1),
-            start_date=datetime(2021, 1, 1, 9, 45),
+            start_date=datetime(2021, 1, 1, 10, 0),
             labels=[
                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
@@ -50,7 +50,7 @@ schedule_despesa = Schedule(
     clocks=[
         IntervalClock(
             interval=timedelta(days=1),
-            start_date=datetime(2021, 1, 1, 9, 45),
+            start_date=datetime(2021, 1, 1, 10, 15),
             labels=[
                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
@@ -65,3 +65,22 @@ schedule_despesa = Schedule(
     filters=[filters.is_weekday],
 )
 
+
+schedule_receita = Schedule(
+    clocks=[
+        IntervalClock(
+            interval=timedelta(days=1),
+            start_date=datetime(2021, 1, 1, 10, 30),
+            labels=[
+                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            ],
+            parameter_defaults={
+                "dataset_id": "br_tse_eleicoes",
+                "table_id": "receitas_candidato",
+                "start": 2006,
+                "id_candidato_bd": False,
+            },
+        ),
+    ],
+    filters=[filters.is_weekday],
+)

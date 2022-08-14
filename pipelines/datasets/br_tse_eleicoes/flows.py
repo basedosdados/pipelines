@@ -18,6 +18,7 @@ from pipelines.datasets.br_tse_eleicoes.tasks import (
     build_bens_candidato,
     clean_bens22,
     clean_despesa22,
+    clean_receita22,
 )
 from pipelines.datasets.br_tse_eleicoes.schedules import (
     schedule_bens,
@@ -50,7 +51,7 @@ with Flow(
         )
 
         gfiles_task = get_csv_files(
-            url=tse_constants.CANDIDATOS22_ZIP,
+            url=tse_constants.CANDIDATOS22_ZIP.value,
             save_path="/tmp/data/",
             upstream_tasks=[d22_task],
         )
@@ -74,7 +75,7 @@ with Flow(
 
     with case(id_candidato_bd, False):
         gfiles_task = get_csv_files(
-            url=tse_constants.CANDIDATOS22_ZIP,
+            url=tse_constants.CANDIDATOS22_ZIP.value,
             save_path="/tmp/data/",
             upstream_tasks=[rename_flow_run],
         )
@@ -111,7 +112,7 @@ with Flow(
         d22_task = download_before22(table_id=table_id, start=start)
 
         gfiles_task = get_csv_files(
-            url=tse_constants.BENS22_ZIP,
+            url=tse_constants.BENS22_ZIP.value,
             save_path="/tmp/data/",
             upstream_tasks=[d22_task],
         )
@@ -135,7 +136,7 @@ with Flow(
 
     with case(id_candidato_bd, False):
         gfiles_task = get_csv_files(
-            url=tse_constants.BENS22_ZIP,
+            url=tse_constants.BENS22_ZIP.value,
             save_path="/tmp/data/",
             mkdir=True,
             upstream_tasks=[d22_task],
@@ -169,14 +170,12 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    d22_task = download_before22(table_id=table_id, start=start)
-
     with case(id_candidato_bd, False):
         gfiles_task = get_csv_files(
-            url=tse_constants.DESPESA22_ZIP,
+            url=tse_constants.CONTAS22_ZIP.value,
             save_path="/tmp/data/",
             mkdir=True,
-            upstream_tasks=[d22_task],
+            upstream_tasks=[rename_flow_run],
         )
 
         filepath = clean_despesa22("/tmp/data/input", upstream_tasks=[gfiles_task])
@@ -192,3 +191,39 @@ with Flow(
 br_tse_despesa.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_tse_despesa.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 br_tse_despesa.schedule = schedule_despesa
+
+
+with Flow(
+    name="br_tse_eleicoes.receitas_candidato", code_owners=["lucas_cr"]
+) as br_tse_receita:
+    # Parameters
+    dataset_id = Parameter("dataset_id", default="br_tse_eleicoes", required=True)
+    table_id = Parameter("table_id", default="receitas_candidato", required=True)
+    start = Parameter("start", default=2018, required=True)
+    id_candidato_bd = Parameter("id_candidato_bd", default=False, required=True)
+
+    rename_flow_run = rename_current_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+    )
+
+    with case(id_candidato_bd, False):
+        gfiles_task = get_csv_files(
+            url=tse_constants.CONTAS22_ZIP.value,
+            save_path="/tmp/data/",
+            mkdir=True,
+            upstream_tasks=[rename_flow_run],
+        )
+
+        filepath = clean_receita22("/tmp/data/input", upstream_tasks=[gfiles_task])
+
+        wait_upload_table = create_table_and_upload_to_gcs(
+            data_path=filepath,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dump_mode="append",
+            wait=filepath,
+        )
+
+br_tse_receita.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_tse_receita.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_tse_receita.schedule = schedule_despesa
