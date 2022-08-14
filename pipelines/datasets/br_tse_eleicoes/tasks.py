@@ -190,6 +190,7 @@ def clean_candidatos22(folder: str) -> str:
     df.replace("#NULO#", np.nan, inplace=True)
     df.replace("#Nulo#", np.nan, inplace=True)
     df.replace("#nulo#", np.nan, inplace=True)
+    df.replace(-1, np.nan, inplace=True)
 
     os.system("mkdir -p /tmp/data/raw/br_tse_eleicoes/candidatos/ano=2022/")
 
@@ -208,45 +209,48 @@ def clean_candidatos22(folder: str) -> str:
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def build_candidatos(folder: str, start: int, end: int):
+def build_candidatos(folder: str, start: int, end: int, id_candidato_bd: bool = False):
     """
     Builds the candidatos csv file.
     """
 
-    dfs = []
+    if id_candidato_bd:
+        dfs = []
 
-    files = [f"{folder}/ano={ano}/candidatos.csv" for ano in range(end, start, -2)]
+        files = [f"{folder}/ano={ano}/candidatos.csv" for ano in range(end, start, -2)]
 
-    for file in files:
-        df = pd.read_csv(
-            file,
-            sep=";",
-            encoding="latin-1",
-            dtype={
-                "id_candidato_bd": str,
-                "cpf": str,
-                "titulo_eleitoral": str,
-                "sequencial": str,
-                "numero": str,
-            },
-        )
-        df["ano"] = int(file.split("/")[-2].split("=")[-1])
-        dfs.append(df)
+        for file in files:
+            df = pd.read_csv(
+                file,
+                sep=";",
+                encoding="utf-8",
+                dtype={
+                    "id_candidato_bd": str,
+                    "cpf": str,
+                    "titulo_eleitoral": str,
+                    "sequencial": str,
+                    "numero": str,
+                },
+            )
+            df["ano"] = int(file.split("/")[-2].split("=")[-1])
+            dfs.append(df)
 
-    df = pd.concat(dfs)
+        df = pd.concat(dfs)
 
-    df = get_id_candidato_bd(df)
+        df = get_id_candidato_bd(df)
 
-    df = normalize_dahis(df)
+        df = normalize_dahis(df)
 
-    for ano in range(end, start, -2):
-        os.system(f"mkdir -p /tmp/data/output/ano={ano}/")
-        table = df[df["ano"] == ano]
-        table.drop_duplicates(inplace=True)
-        table.drop("ano", axis=1, inplace=True)
-        table.to_csv(f"/tmp/data/output/ano={ano}/candidatos.csv", index=False)
-
-    os.system("tree /tmp/data/")
+        for ano in range(end, start, -2):
+            os.system(f"mkdir -p /tmp/data/output/ano={ano}/")
+            table = df[df["ano"] == ano]
+            table.drop_duplicates(inplace=True)
+            table.drop("ano", axis=1, inplace=True)
+            table.to_csv(f"/tmp/data/output/ano={ano}/candidatos.csv", index=False)
+    else:
+        df = pd.read_csv("/tmp/data/raw/br_tse_eleicoes/candidatos/ano=2022/candidatos.csv",sep=";",encoding="utf-8")
+        os.system("mkdir -p /tmp/data/output/ano=2022/")
+        df.to_csv("/tmp/data/output/ano=2022/candidatos.csv", index=False)
 
     return "/tmp/data/output/"
 
@@ -448,6 +452,9 @@ def clean_bens22(folder) -> None:
         del df_uf
 
 
+
+
+
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
@@ -489,8 +496,9 @@ def clean_despesa22(folder):
                 "tipo_despesa": n * [np.nan],
                 "descricao_despesa": df["DS_DESPESA"].to_list(),
                 "origem_despesa": df["DS_ORIGEM_DESPESA"].to_list(),
-                "valor_despesa": df["VR_DESPESA_CONTRATADA"].to_list(),
+                "valor_despesa": [str(k).replace(',','.') if k.replace(',','').isdigit() else k for k in df["VR_DESPESA_CONTRATADA"].to_list()],
                 "tipo_prestacao_contas": df["TP_PRESTACAO_CONTAS"].to_list(),
+                "data_prestacao_contas": df["DT_PRESTACAO_CONTAS"].to_list(),
                 "sequencial_prestador_contas": df["SQ_PRESTADOR_CONTAS"].to_list(),
                 "cnpj_prestador_contas": df["NR_CNPJ_PRESTADOR_CONTA"].to_list(),
                 "cnpj_candidato": n * [np.nan],
@@ -538,7 +546,7 @@ def clean_despesa22(folder):
             index=False,
         )
 
-        return "/tmp/data/output/"
+    return "/tmp/data/output/"
 
 
 @task(
@@ -551,14 +559,7 @@ def clean_receita22(folder):
     """
 
     files = glob(f"{folder}/*.csv")
-    files = list(
-        filter(
-            lambda x: bool(
-                re.match(r"receitas_candidatos_\d{4}_[A-Z]{2}.csv", x.split("/")[-1])
-            ),
-            files,
-        )
-    )
+    files = list(filter(lambda x: bool(re.match(r"receitas_candidatos_\d{4}_[A-Z]{2}.csv", x.split("/")[-1])), files))
 
     for file in files:
         df = pd.read_csv(file, sep=";", encoding="latin-1")
@@ -582,22 +583,23 @@ def clean_receita22(folder):
                 "sequencial_candidato": df["SQ_CANDIDATO"].to_list(),
                 "id_candidato_bd": n * [np.nan],
                 "nome_candidato": df["NM_CANDIDATO"].to_list(),
-                "cpf_vice_suplente": df["NR_CPF_VICE_CANDIDATO"].to_list(),
+                "cpf_vice_suplente": [str(k).replace('.0','') if str(k)[0].isdigit() else k for k in  df["NR_CPF_VICE_CANDIDATO"].to_list()],
                 "numero_partido": df["NR_PARTIDO"].to_list(),
                 "nome_partido": df["NM_PARTIDO"].to_list(),
                 "sigla_partido": df["SG_PARTIDO"].to_list(),
                 "cargo": df["DS_CARGO"].to_list(),
                 "sequencial_receita": df["SQ_RECEITA"].to_list(),
-                "data_receita": df["DT_RECEITA"].to_list(),
-                "fonte_receita": df["DS_FONTE_RECEITA"].to_list(),
-                "origem_receita": df["DS_ORIGEM_RECEITA"].to_list(),
-                "natureza_receita": df["DS_NATUREZA_RECEITA"].to_list(),
+                "data_receita": [k.replace('/','-') if isinstance(k, str) else k for k in df["DT_RECEITA"].to_list()],
+                "fonte_receita": [unidecode(k.lower()) if isinstance(k, str) else k for k in df["DS_FONTE_RECEITA"].to_list()],
+                "origem_receita": [unidecode(k.lower()) if isinstance(k, str) else k for k in df["DS_ORIGEM_RECEITA"].to_list()],
+                "natureza_receita": [unidecode(k.lower()) if isinstance(k, str) else k for k in df["DS_NATUREZA_RECEITA"].to_list()],
                 "especie_receita": df["DS_ESPECIE_RECEITA"].to_list(),
                 "situacao_receita": n * [np.nan],
                 "descricao_receita": df["DS_RECEITA"].to_list(),
-                "valor_receita": df["VR_RECEITA"].to_list(),
-                "sequencial_candidato_doador": df["SQ_CANDIDATO_DOADOR"].to_list(),
+                "valor_receita": [float(k.replace(',','.')) if isinstance(k, str) else k for k in df["VR_RECEITA"].to_list()],
+                "sequencial_candidato_doador": [str(k).replace('.0','') if str(k)[0].isdigit() else k for k in df["SQ_CANDIDATO_DOADOR"].to_list()],
                 "cpf_cnpj_doador": df["NR_CPF_CNPJ_DOADOR"].to_list(),
+                "sigla_uf_doador": df['SG_UF_DOADOR'].to_list(),
                 "id_municipio_tse_doador": df["CD_MUNICIPIO_DOADOR"].to_list(),
                 "nome_doador": df["NM_DOADOR"].to_list(),
                 "nome_doador_rf": df["NM_DOADOR_RFB"].to_list(),
@@ -647,4 +649,4 @@ def clean_receita22(folder):
             index=False,
         )
 
-        return "/tmp/data/output/"
+    return "/tmp/data/output/"
