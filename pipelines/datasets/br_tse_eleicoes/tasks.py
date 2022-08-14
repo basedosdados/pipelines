@@ -40,7 +40,7 @@ def download_before22(table_id: str, start: int) -> None:
         if int("".join([k for k in blob.name if k.isdigit()])) > start:
             df = pd.read_csv(blob.public_url, encoding="utf-8")
             os.system(f"mkdir -p /tmp/data/{'/'.join(blob.name.split('/')[:-1])}")
-            df.to_csv(f"/tmp/data/{blob.name}", sep=";", index=False)
+            df.to_csv(f"/tmp/data/{blob.name}", sep=";", index=False, encoding="utf-8")
             del df
 
     log(os.system("tree /tmp/data/"))
@@ -255,13 +255,10 @@ def build_candidatos(folder: str, start: int, end: int):
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def build_bens_candidato(folder: str, start: int, end: int) -> str:
+def build_bens_candidato(folder: str, start: int, end: int, id_candidato_bd: bool =False) -> str:
     """
     Builds the bens_candidato csv file.
     """
-
-    dfs = []
-
     ufs = [
         "AC",
         "AL",
@@ -295,82 +292,93 @@ def build_bens_candidato(folder: str, start: int, end: int) -> str:
         "VT",
         "ZZ",
     ]
-
-    files = [
-        f"{folder}/ano={ano}/sigla_uf={uf}/bens_candidato.csv"
-        for ano, uf in product(range(end, start, -2), ufs)
-    ]
-
-    for file in files:
-        try:
-            df = pd.read_csv(file, sep=";", encoding="latin-1")
-            df["ano"] = int(file.split("/")[-3].split("=")[-1])
-            df["sigla_uf"] = file.split("/")[-2].split("=")[-1]
-            dfs.append(df)
-        except FileNotFoundError:
-            print(f"File {file} not found")
-            continue
-
-    df = pd.concat(dfs)
-
-    candidatos = get_data_from_prod(
-        "br_tse_eleicoes",
-        "candidatos",
-        ["ano", "tipo_eleicao", "sigla_uf", "sequencial", "id_candidato_bd"],
-    )
-
-    candidatos.drop_duplicates(inplace=True)
-
-    print(candidatos.head())
-
-    print("\n\n")
-
-    df.rename(columns={"sequencial_candidato": "sequencial"}, inplace=True)
-
-    df.drop(columns=["id_candidato_bd"], inplace=True)
-
-    print(df.head())
-
-    df = df.set_index(["ano", "tipo_eleicao", "sigla_uf", "sequencial"]).join(
-        candidatos.set_index(["ano", "tipo_eleicao", "sigla_uf", "sequencial"])
-    )
-
-    df.reset_index(inplace=True)
-
-    df.rename(columns={"sequencial": "sequencial_candidato"}, inplace=True)
-
-    df = df.reindex(
-        columns=[
-            "ano",
-            "sigla_uf",
-            "tipo_eleicao",
-            "sequencial_candidato",
-            "id_candidato_bd",
-            "id_tipo_item",
-            "tipo_item",
-            "descricao_item",
-            "valor_item",
+    dfs = []
+    if id_candidato_bd:
+        files = [
+            f"{folder}/ano={ano}/sigla_uf={uf}/bens_candidato.csv"
+            for ano, uf in product(range(end, start, -2), ufs)
         ]
-    )
 
-    print("\n\n")
+        for file in files:
+            try:
+                df = pd.read_csv(file, sep=";", encoding="utf-8")
+                df["ano"] = int(file.split("/")[-3].split("=")[-1])
+                df["sigla_uf"] = file.split("/")[-2].split("=")[-1]
+                dfs.append(df)
+            except FileNotFoundError:
+                log(f"File {file} not found")
+                continue
 
-    print(df.head())
+        df = pd.concat(dfs)
 
-    for ano, uf in product(range(end, start, -2), ufs):
-        table = df[df["ano"] == ano]
-        table = table[table["sigla_uf"] == uf]
-        if table.shape[0] == 0:
-            continue
-        os.system(f"mkdir -p /tmp/data/output/ano={ano}/sigla_uf={uf}/")
-        table.drop_duplicates(inplace=True)
-        table.drop("ano", axis=1, inplace=True)
-        table.drop("sigla_uf", axis=1, inplace=True)
-        table.to_csv(
-            f"/tmp/data/output/ano={ano}/sigla_uf={uf}/bens_candidato.csv", index=False
+        candidatos = get_data_from_prod(
+            "br_tse_eleicoes",
+            "candidatos",
+            ["ano", "tipo_eleicao", "sigla_uf", "sequencial", "id_candidato_bd"],
         )
 
-    os.system("tree /tmp/data/")
+        candidatos.drop_duplicates(inplace=True)
+        candidatos['ano'] = [int(k) if str(k).isdigit() else k for k in candidatos['ano']]
+
+        df.rename(columns={"sequencial_candidato": "sequencial"}, inplace=True)
+
+        df.drop(columns=["id_candidato_bd"], inplace=True)
+        
+        df = df.merge(candidatos, on=["ano", "tipo_eleicao", "sigla_uf", "sequencial"], how='left')
+
+        df.rename(columns={"sequencial": "sequencial_candidato"}, inplace=True)
+
+        df = df.reindex(
+            columns=[
+                "ano",
+                "sigla_uf",
+                "tipo_eleicao",
+                "sequencial_candidato",
+                "id_candidato_bd",
+                "id_tipo_item",
+                "tipo_item",
+                "descricao_item",
+                "valor_item",
+            ]
+        )
+
+        for ano, uf in product(range(end, start, -2), ufs):
+            table = df[df["ano"] == ano]
+            table = table[table["sigla_uf"] == uf]
+            if table.shape[0] == 0:
+                continue
+            os.system(f"mkdir -p /tmp/data/output/ano={ano}/sigla_uf={uf}/")
+            table.drop_duplicates(inplace=True)
+            table.drop("ano", axis=1, inplace=True)
+            table.drop("sigla_uf", axis=1, inplace=True)
+            table.to_csv(
+                f"/tmp/data/output/ano={ano}/sigla_uf={uf}/bens_candidato.csv", index=False
+            )
+
+    else:
+        for uf in ufs:
+            try:
+                file= f"{folder}/ano=2022/sigla_uf={uf}/bens_candidato.csv"
+                df = pd.read_csv(file, sep=";", encoding="utf-8")
+                os.system(f"mkdir -p /tmp/data/output/ano=2022/sigla_uf={uf}/")
+                df.drop("sigla_uf", axis=1, inplace=True)
+                df = df.reindex(columns=[
+                            "tipo_eleicao",
+                            "sequencial_candidato",
+                            "id_candidato_bd",
+                            "id_tipo_item",
+                            "tipo_item",
+                            "descricao_item",
+                            "valor_item",
+                        ]
+                    )
+                df.drop_duplicates(inplace=True)
+                df.to_csv(
+                    f"/tmp/data/output/ano=2022/sigla_uf={uf}/bens_candidato.csv", index=False
+                )
+            except FileNotFoundError:
+                log(f"File {file} not found")
+                continue
 
     return "/tmp/data/output/"
 
@@ -413,7 +421,7 @@ def clean_bens22(folder) -> None:
                 unidecode(unidecode(k.title())) if isinstance(k, str) else k
                 for k in df["DS_BEM_CANDIDATO"].to_list()
             ],
-            "valor_item": df["VR_BEM_CANDIDATO"].to_list(),
+            "valor_item": [float(k.replace(',','.')) if k.replace(',','').isdigit() else k for k in df["VR_BEM_CANDIDATO"].to_list()],
         }
     )
 
@@ -438,8 +446,6 @@ def clean_bens22(folder) -> None:
             sep=";",
         )
         del df_uf
-
-    os.system("tree /tmp/data/")
 
 
 @task(
