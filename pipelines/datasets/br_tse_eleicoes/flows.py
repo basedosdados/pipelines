@@ -28,6 +28,7 @@ from pipelines.datasets.br_tse_eleicoes.schedules import (
     schedule_bens,
     schedule_candidatos,
     schedule_despesa,
+    schedule_receita,
 )
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
@@ -209,10 +210,7 @@ with Flow(
 
     with case(id_candidato_bd, False):
         gfiles_task = get_csv_files(
-            url=tse_constants.BENS22_ZIP.value,
-            save_path="/tmp/data/",
-            mkdir=True,
-            upstream_tasks=[rename_flow_run],
+            url=tse_constants.BENS22_ZIP.value, save_path="/tmp/data/", mkdir=True
         )
 
         c22_task = clean_bens22("/tmp/data/input", upstream_tasks=[gfiles_task])
@@ -437,4 +435,4 @@ with Flow(
 
 br_tse_receita.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_tse_receita.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_tse_receita.schedule = schedule_despesa
+br_tse_receita.schedule = schedule_receita
