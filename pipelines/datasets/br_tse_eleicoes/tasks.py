@@ -230,6 +230,7 @@ def build_candidatos(folder: str, start: int, end: int, id_candidato_bd: bool = 
                     "titulo_eleitoral": str,
                     "sequencial": str,
                     "numero": str,
+                    'idade': int,
                 },
             )
             df["ano"] = int(file.split("/")[-2].split("=")[-1])
