@@ -19,7 +19,7 @@ schedule_candidatos = Schedule(
             parameter_defaults={
                 "dataset_id": "br_tse_eleicoes",
                 "table_id": "candidatos",
-                "start": 1998,
+                "start": 2018,
                 "id_candidato_bd": False,
                 "materialization_mode": "dev",
                 "materialize after dump": True,

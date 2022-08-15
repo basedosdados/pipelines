@@ -248,13 +248,14 @@ def build_candidatos(folder: str, start: int, end: int, id_candidato_bd: bool = 
             table.drop("ano", axis=1, inplace=True)
             table.to_csv(f"/tmp/data/output/ano={ano}/candidatos.csv", index=False)
     else:
-        df = pd.read_csv(
-            "/tmp/data/raw/br_tse_eleicoes/candidatos/ano=2022/candidatos.csv",
-            sep=";",
-            encoding="utf-8",
-        )
-        os.system("mkdir -p /tmp/data/output/ano=2022/")
-        df.to_csv("/tmp/data/output/ano=2022/candidatos.csv", index=False)
+        for ano in range(end, start, -2):
+            df = pd.read_csv(
+                f"/tmp/data/raw/br_tse_eleicoes/candidatos/ano={ano}/candidatos.csv",
+                sep=";",
+                encoding="utf-8",
+            )
+            os.system(f"mkdir -p /tmp/data/output/ano={ano}/")
+            df.to_csv(f"/tmp/data/output/ano={ano}/candidatos.csv", index=False)
 
     return "/tmp/data/output/"
 

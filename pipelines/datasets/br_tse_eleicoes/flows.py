@@ -45,7 +45,7 @@ with Flow(
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_tse_eleicoes", required=True)
     table_id = Parameter("table_id", default="candidatos", required=True)
-    start = Parameter("start", default=2018, required=True)
+    start = Parameter("start", default=1998, required=True)
     id_candidato_bd = Parameter("id_candidato_bd", default=False, required=True)
 
     materialization_mode = Parameter(
@@ -91,11 +91,15 @@ with Flow(
         )
 
     with case(id_candidato_bd, False):
+        d22_task = download_before22(
+            table_id=table_id, start=start, upstream_tasks=[rename_flow_run]
+        )
+
         gfiles_task = get_csv_files(
             url=tse_constants.CANDIDATOS22_ZIP.value,
             save_path="/tmp/data/",
-            mkdir=True,
-            upstream_tasks=[rename_flow_run],
+            mkdir=False,
+            upstream_tasks=[d22_task],
         )
 
         c22_task = clean_candidatos22("/tmp/data/input", upstream_tasks=[gfiles_task])
