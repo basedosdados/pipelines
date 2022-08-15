@@ -38,7 +38,7 @@ class constants(Enum):  # pylint: disable=c0103
     # Discord code owners constants
     ######################################
     BD_DISCORD_WEBHOOK_SECRET_PATH = "prefect-discord-webhook"
-    DEFAULT_CODE_OWNERS = ["equipe_infra", "equipe_dados"]
+    DEFAULT_CODE_OWNERS = ["equipe_infra"]
     OWNERS_DISCORD_MENTIONS = {
         # Register all code owners, users_id and type
         #     - possible types: https://docs.discord.club/embedg/reference/mentions
@@ -46,10 +46,6 @@ class constants(Enum):  # pylint: disable=c0103
         #     - types: user, user_nickname, channel, role
         "equipe_infra": {
             "user_id": "865223885031997455",
-            "type": "role",
-        },
-        "equipe_dados": {
-            "user_id": "865034571469160458",
             "type": "role",
         },
         "diego": {
