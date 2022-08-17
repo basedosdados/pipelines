@@ -23,6 +23,7 @@ from pipelines.datasets.br_tse_eleicoes.utils import (
     get_blobs_from_raw,
     normalize_dahis,
     get_data_from_prod,
+    clean_digit_id
 )
 
 
@@ -104,14 +105,15 @@ def clean_candidatos22(folder: str) -> str:
             "id_municipio_tse": n * [np.nan],
             "id_candidato_bd": n * [np.nan],
             "cpf": [
-                str(k).zfill(11) if isinstance(k, int) else k
+                clean_digit_id(number=k, n_digits=11) if isinstance(k, int) else k
                 for k in df["NR_CPF_CANDIDATO"].to_list()
             ],
             "titulo_eleitoral": [
-                str(k).zfill(12) if isinstance(k, int) else k
+                clean_digit_id(number=k, n_digits=12) if isinstance(k, int) else k
                 for k in df["NR_TITULO_ELEITORAL_CANDIDATO"].to_list()
             ],
-            "sequencial": df["SQ_CANDIDATO"].to_list(),
+            "sequencial": [clean_digit_id(number=k, n_digits=11) if isinstance(k, int) else k
+                for k in df["SQ_CANDIDATO"].to_list()],
             "numero": df["NR_CANDIDATO"].to_list(),
             "nome": [
                 unidecode(k.title()) if isinstance(k, str) else k
@@ -254,7 +256,13 @@ def build_candidatos(folder: str, start: int, end: int, id_candidato_bd: bool = 
                 f"/tmp/data/raw/br_tse_eleicoes/candidatos/ano={ano}/candidatos.csv",
                 sep=";",
                 encoding="utf-8",
+                dtype={
+                    "cpf": str,
+                    "titulo_eleitoral": str,
+                    "sequencial": str,
+                }
             )
+            df.drop_duplicates(inplace=True)
             os.system(f"mkdir -p /tmp/data/output/ano={ano}/")
             df.to_csv(f"/tmp/data/output/ano={ano}/candidatos.csv", index=False)
 
