@@ -5,8 +5,8 @@ Tasks for delete_flows
 from typing import Dict, List
 from prefect import task
 from prefect.client import Client
-from pipelines.utils.utils import log
 import pendulum
+from pipelines.utils.utils import log
 
 
 @task(checkpoint=False)

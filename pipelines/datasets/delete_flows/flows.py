@@ -9,7 +9,7 @@ from prefect.storage import GCS
 from pipelines.datasets.delete_flows.schedules import daily_at_3am
 from pipelines.datasets.delete_flows.tasks import (
     delete_flow_run,
-    get_old_flow_runs,
+    get_old_flows_runs,
     get_prefect_client,
 )
 from pipelines.constants import constants
@@ -26,7 +26,7 @@ with Flow(
     client = get_prefect_client()
 
     # Get the old flow runs
-    old_flow_runs = get_old_flow_runs(days_old=days_old, client=client)
+    old_flow_runs = get_old_flows_runs(days_old=days_old, client=client)
 
     # Delete the old flow runs
     delete_flow_run.map(old_flow_runs)
