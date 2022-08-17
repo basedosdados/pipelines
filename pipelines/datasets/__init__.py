@@ -17,3 +17,4 @@ from pipelines.datasets.botdosdados.flows import *
 from pipelines.datasets.br_cgu_pessoal_executivo_federal.flows import *
 from pipelines.datasets.fundacao_lemann.flows import *
 from pipelines.datasets.br_tse_eleicoes.flows import *
+from pipelines.datasets.delete_flows.flows import *
