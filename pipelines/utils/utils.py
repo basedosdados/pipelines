@@ -194,7 +194,7 @@ def notify_discord_on_failure(
         f":man_facepalming: Flow **{flow.name}** has failed."
         + f'\n  - State message: *"{state.message}"*'
         + "\n  - Link to the failed flow: "
-        + f"http://prefect-ui.prefect.svc.cluster.local:8080/flow-run/{flow_run_id}"
+        + f"https://prefect.basedosdados.org/flow-run/{flow_run_id}"
         + "\n  - Extra attention:\n"
         + "".join(at_code_owners)
     )
