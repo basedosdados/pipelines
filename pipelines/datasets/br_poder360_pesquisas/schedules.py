@@ -15,7 +15,7 @@ every_monday_thursday = Schedule(
     clocks=[
         IntervalClock(
             interval=timedelta(days=1),
-            start_date=datetime(2021, 1, 1, 9, 45),
+            start_date=datetime(2021, 1, 1, 15, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
