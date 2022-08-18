@@ -328,10 +328,6 @@ def build_bens_candidato(
             for ano, uf in product(range(end, start, -2), ufs)
         ]
 
-        check = glob.glob(f"{folder}/")
-        llog("Check files")
-        log(check)
-
         for file in files:
             try:
                 df = pd.read_csv(file, sep=";", encoding="utf-8")
@@ -420,10 +416,6 @@ def build_bens_candidato(
                 log(f"File {file} not found")
                 continue
 
-    log("Check folders:")
-
-    log(os.system("tree /tmp/data/raw/br_tse_eleicoes/bens_candidato/"))
-
     return "/tmp/data/output/"
 
 
@@ -439,7 +431,7 @@ def clean_bens22(folder) -> None:
 
     files = glob(f"{folder}/bem_candidato*.csv")
 
-    for file in files[:2]:
+    for file in files:
         df = pd.read_csv(file, sep=";", encoding="latin-1")
         dfs.append(df)
 
