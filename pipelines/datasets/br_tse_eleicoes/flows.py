@@ -232,7 +232,7 @@ with Flow(
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
-            wait=filepath,
+            upstream_tasks=[filepath],
         )
 
     wait_update_metadata = update_metadata(
