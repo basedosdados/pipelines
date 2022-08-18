@@ -14,7 +14,7 @@ schedule_candidatos = Schedule(
             interval=timedelta(days=1),
             start_date=datetime(2021, 1, 1, 9, 45),
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_tse_eleicoes",
@@ -36,14 +36,14 @@ schedule_bens = Schedule(
             interval=timedelta(days=1),
             start_date=datetime(2021, 1, 1, 10, 0),
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_tse_eleicoes",
                 "table_id": "bens_candidato",
                 "start": 2006,
                 "id_candidato_bd": False,
-                "materialization_mode": "dev",
+                "materialization_mode": "prod",
                 "materialize after dump": True,
                 "dbt_alias": False,
             },
@@ -58,13 +58,13 @@ schedule_despesa = Schedule(
             interval=timedelta(days=1),
             start_date=datetime(2021, 1, 1, 10, 15),
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_tse_eleicoes",
                 "table_id": "despesas_candidato",
                 "id_candidato_bd": False,
-                "materialization_mode": "dev",
+                "materialization_mode": "prod",
                 "materialize after dump": True,
                 "dbt_alias": False,
             },
@@ -80,13 +80,13 @@ schedule_receita = Schedule(
             interval=timedelta(days=1),
             start_date=datetime(2021, 1, 1, 10, 30),
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_tse_eleicoes",
                 "table_id": "receitas_candidato",
                 "id_candidato_bd": False,
-                "materialization_mode": "dev",
+                "materialization_mode": "prod",
                 "materialize after dump": True,
                 "dbt_alias": False,
             },

@@ -17,7 +17,7 @@ every_four_months = Schedule(
             labels=[constants.BASEDOSDADOS_DEV_AGENT_LABEL.value],
             parameter_defaults={
                 "dataset_id": "br_cgu_pessoal_executivo_federal",
-                "materialization_mode": "dev",
+                "materialization_mode": "prod",
                 "materialize after dump": True,
                 "table_id": "terceirizados",
                 "dbt_alias": False,
