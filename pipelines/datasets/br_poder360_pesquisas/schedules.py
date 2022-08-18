@@ -6,7 +6,7 @@ Schedules for br_poder360_pesquisas
 from datetime import datetime
 
 from prefect.schedules import Schedule
-from prefect.schedules.clocks import CronClock
+from prefect.schedules.clocks import IntervalClock
 
 from pipelines.constants import constants
 
