@@ -17,7 +17,7 @@ from pipelines.utils.decorators import Flow
 
 with Flow(
     name="Limpeza de histórico de runs", code_owners=["guialvesp1"]
-) as database_cleanup_flow:
+) as database_delete_flows:
 
     # Parameters
     days_old = Parameter("days_old", default=60, required=False)
@@ -31,9 +31,29 @@ with Flow(
     # Delete the old flow runs
     delete_flow_run.map(old_flow_runs)
 
-database_cleanup_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-database_cleanup_flow.run_config = KubernetesRun(
+database_delete_flows.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+database_delete_flows.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value,
     labels=[constants.BASEDOSDADOS_DEV_AGENT_LABEL.value],
 )
-database_cleanup_flow.schedule = daily_at_3am
+database_delete_flows.schedule = daily_at_3am
+
+
+with Flow(
+    name="Limpeza de histórico de run", code_owners=["guialvesp1"]
+) as database_delete_flow:
+
+    # Parameters
+    flow_run_id = Parameter("flow_run_id", default=None, required=True)
+
+    # Get the Prefect client
+    client = get_prefect_client()
+
+    # Delete the old flow runs
+    delete_flow_run(flow_run_dict=dict(id=flow_run_id), client=client)
+
+database_delete_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+database_delete_flow.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value,
+    labels=[constants.BASEDOSDADOS_DEV_AGENT_LABEL.value],
+)
