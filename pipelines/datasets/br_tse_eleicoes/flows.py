@@ -213,26 +213,26 @@ with Flow(
         )
 
     with case(id_candidato_bd, False):
-        gfiles_task1 = get_csv_files(
+        gfiles_task = get_csv_files(
             url=tse_constants.BENS22_ZIP.value, save_path="/tmp/data/", mkdir=True, upstream_tasks=[rename_flow_run]
         )
 
-        c22_task1 = clean_bens22("/tmp/data/input", upstream_tasks=[gfiles_task1])
+        c22_task = clean_bens22("/tmp/data/input", upstream_tasks=[gfiles_task])
 
-        filepath1 = build_bens_candidato(
+        filepath = build_bens_candidato(
             "/tmp/data/raw/br_tse_eleicoes/bens_candidato",
             start=start,
             end=2022,
             id_candidato_bd=id_candidato_bd,
-            upstream_tasks=[c22_task1],
+            upstream_tasks=[c22_task],
         )
 
-        wait_upload_table1 = create_table_and_upload_to_gcs(
+        wait_upload_table = create_table_and_upload_to_gcs(
             data_path=filepath,
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
-            upstream_tasks=[filepath1],
+            wait=filepath,
         )
 
     wait_update_metadata = update_metadata(
@@ -241,7 +241,7 @@ with Flow(
         fields_to_update=[
             {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}}
         ],
-        upstream_tasks=[wait_upload_table1],
+        upstream_tasks=[wait_upload_table],
     )
 
     with case(materialize_after_dump, True):
