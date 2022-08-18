@@ -328,6 +328,10 @@ def build_bens_candidato(
             for ano, uf in product(range(end, start, -2), ufs)
         ]
 
+        check = glob.glob(f"{folder}/")
+        llog("Check files")
+        log(check)
+
         for file in files:
             try:
                 df = pd.read_csv(file, sep=";", encoding="utf-8")
