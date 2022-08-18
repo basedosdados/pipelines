@@ -41,7 +41,7 @@ schedule_bens = Schedule(
             parameter_defaults={
                 "dataset_id": "br_tse_eleicoes",
                 "table_id": "bens_candidato",
-                "start": 2006,
+                "start": 2018,
                 "id_candidato_bd": False,
                 "materialization_mode": "prod",
                 "materialize after dump": True,
