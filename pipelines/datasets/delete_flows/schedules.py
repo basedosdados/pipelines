@@ -23,7 +23,7 @@ daily_at_3am = Schedule(
                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
             parameter_defaults={
-                "days_old": 30,
+                "days_old": 15,
             },
         ),
     ]
