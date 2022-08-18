@@ -131,7 +131,7 @@ with Flow(
 
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
+        current_flow_labels = get_current_flow_labels(upstream_tasks=[wait_update_metadata])
         materialization_flow = create_flow_run(
             flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
             project_name=constants.PREFECT_DEFAULT_PROJECT.value,
@@ -246,7 +246,7 @@ with Flow(
 
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
+        current_flow_labels = get_current_flow_labels(upstream_tasks=[wait_update_metadata])
         materialization_flow = create_flow_run(
             flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
             project_name=constants.PREFECT_DEFAULT_PROJECT.value,
@@ -328,7 +328,7 @@ with Flow(
 
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
+        current_flow_labels = get_current_flow_labels(upstream_tasks=[wait_update_metadata])
         materialization_flow = create_flow_run(
             flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
             project_name=constants.PREFECT_DEFAULT_PROJECT.value,
@@ -410,7 +410,7 @@ with Flow(
 
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
+        current_flow_labels = get_current_flow_labels(upstream_tasks=[wait_update_metadata])
         materialization_flow = create_flow_run(
             flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
             project_name=constants.PREFECT_DEFAULT_PROJECT.value,

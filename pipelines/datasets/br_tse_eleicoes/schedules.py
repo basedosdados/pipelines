@@ -21,7 +21,7 @@ schedule_candidatos = Schedule(
                 "table_id": "candidatos",
                 "start": 2018,
                 "id_candidato_bd": False,
-                "materialization_mode": "dev",
+                "materialization_mode": "prod",
                 "materialize after dump": True,
                 "dbt_alias": False,
             },
