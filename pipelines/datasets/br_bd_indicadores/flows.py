@@ -2,6 +2,7 @@
 """
 Flows for br_bd_indicadores
 """
+# pylint: disable=invalid-name
 from datetime import timedelta
 
 from prefect import Parameter, case
@@ -15,6 +16,7 @@ from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.datasets.br_bd_indicadores.tasks import (
     crawler_metricas,
+    crawler_real_time,
     has_new_tweets,
     echo,
     get_twitter_credentials,

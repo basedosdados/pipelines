@@ -2,25 +2,19 @@
 """
 utils for br_bd_inndicadores
 """
-
+# pylint: disable=too-few-public-methods
+import collections
+from typing import Tuple
 from typing import List
+
 from google.analytics.data_v1beta import BetaAnalyticsDataClient
 from google.analytics.data_v1beta.types import (
     Dimension,
     Metric,
-    DateRange,
-    Metric,
-    OrderBy,
-    FilterExpression,
-    MetricAggregation,
-    CohortSpec,
 )
 from google.analytics.data_v1beta.types import (
-    RunReportRequest,
     RunRealtimeReportRequest,
 )
-import collections
-from typing import Tuple
 
 import requests
 
@@ -140,4 +134,4 @@ class GA4RealTimeReport:
             output["rows"] = rows
             return output
         except Exception as e:
-            raise GA4Exception(e)
+            raise GA4Exception(e) from e

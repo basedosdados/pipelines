@@ -549,7 +549,7 @@ dev = ["wheel", "flake8", "markdown", "twine"]
 
 [[package]]
 name = "google-analytics-data"
-version = "0.12.0"
+version = "0.12.1"
 description = ""
 category = "main"
 optional = false
@@ -557,8 +557,8 @@ python-versions = ">=3.6"
 
 [package.dependencies]
 google-api-core = {version = ">=1.31.5,<2.0.0 || >2.3.0,<3.0.0dev", extras = ["grpc"]}
-packaging = ">=14.3"
-proto-plus = ">=1.15.0"
+proto-plus = ">=1.15.0,<2.0.0dev"
+protobuf = ">=3.19.0,<4.0.0dev"
 
 [[package]]
 name = "google-api-core"
@@ -2544,7 +2544,7 @@ docs = ["rst.linker (>=1.9)", "jaraco.packaging (>=9)", "sphinx"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.11"
-content-hash = "aee1fea2970fdf145b10aae40e4e4ef26265305058b5e42c43e9c91cb42752b9"
+content-hash = "7090674708f02237904e7af67d026e2040411a95ebf817807598fcccbe57f123"
 
 [metadata.files]
 appdirs = [
@@ -2842,8 +2842,8 @@ ghp-import = [
     {file = "ghp_import-2.1.0-py3-none-any.whl", hash = "sha256:8337dd7b50877f163d4c0289bc1f1c7f127550241988d568c1db512c4324a619"},
 ]
 google-analytics-data = [
-    {file = "google-analytics-data-0.12.0.tar.gz", hash = "sha256:57aacc6baf66140eb0bd247704b71056ba7bccf59990044835b7452fc22f6716"},
-    {file = "google_analytics_data-0.12.0-py2.py3-none-any.whl", hash = "sha256:05b8a3685adb2f58bb82b6813c2f9c5708872d4251f9e44c4ffac1e03d361b2d"},
+    {file = "google-analytics-data-0.12.1.tar.gz", hash = "sha256:8d5436797338683ff80988d6303e1bbeca01a1d7ece73c248fe2315aa2ae70dc"},
+    {file = "google_analytics_data-0.12.1-py2.py3-none-any.whl", hash = "sha256:320a16df6624606abbceef85c6b0a67727eff48f27da347630929b3ee28cd5ff"},
 ]
 google-api-core = [
     {file = "google-api-core-1.31.5.tar.gz", hash = "sha256:85d2074f2c8f9c07e614d7f978767d71ceb7d40647814ef4236d3a0ef671ee75"},

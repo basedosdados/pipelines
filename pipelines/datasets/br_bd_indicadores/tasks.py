@@ -20,7 +20,7 @@ from pipelines.datasets.br_bd_indicadores.utils import (
     create_url,
     connect_to_endpoint,
     flatten,
-    GA4RealTimeReportGA4RealTimeReport,
+    GA4RealTimeReport,
 )
 from pipelines.constants import constants
 
@@ -240,6 +240,6 @@ def get_ga_credentials(secret_path: str, wait=None) -> str:
     """
     log(f"Getting user and password for secret path: {secret_path}")
     tokens_dict = get_credentials_from_secret(secret_path)
-    property_id = tokens_dict["ACCESS_SECRET"]
+    property_id = tokens_dict["property_id"]
 
     return property_id
