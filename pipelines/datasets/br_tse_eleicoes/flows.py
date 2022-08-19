@@ -188,7 +188,9 @@ with Flow(
     )
 
     with case(id_candidato_bd, True):
-        d22_task = download_before22(table_id=table_id, start=start, upstream_tasks=[rename_flow_run])
+        d22_task = download_before22(
+            table_id=table_id, start=start, upstream_tasks=[rename_flow_run]
+        )
 
         gfiles_task = get_csv_files(
             url=tse_constants.BENS22_ZIP.value,
@@ -216,7 +218,10 @@ with Flow(
 
     with case(id_candidato_bd, False):
         gfiles_task = get_csv_files(
-            url=tse_constants.BENS22_ZIP.value, save_path="/tmp/data/", mkdir=True, upstream_tasks=[rename_flow_run]
+            url=tse_constants.BENS22_ZIP.value,
+            save_path="/tmp/data/",
+            mkdir=True,
+            upstream_tasks=[rename_flow_run],
         )
 
         c22_task = clean_bens22("/tmp/data/input", upstream_tasks=[gfiles_task])
