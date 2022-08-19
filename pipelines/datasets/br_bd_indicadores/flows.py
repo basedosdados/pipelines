@@ -28,7 +28,7 @@ from pipelines.utils.tasks import (
     get_current_flow_labels,
 )
 
-from pipelines.datasets.br_bd_indicadores.schedules import every_day, every_week
+from pipelines.datasets.br_bd_indicadores.schedules import every_day, every_week, schedule_pageviews
 
 with Flow(
     name="br_bd_indicadores.twitter_metrics",
@@ -195,4 +195,4 @@ with Flow(
 
 bd_pageviews.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 bd_pageviews.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-bd_pageviews.schedule = every_day
+bd_pageviews.schedule = schedule_pageviews
