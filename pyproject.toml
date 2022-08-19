@@ -93,6 +93,7 @@ websocket-client = "1.2.1"
 wget = "^3.2"
 zict = "2.0.0"
 pre-commit = "^2.20.0"
+google-analytics-data = "0.12."
 
 [tool.poetry.dev-dependencies]
 pytest_cov = "^3.0.0"
