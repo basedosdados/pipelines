@@ -20,7 +20,7 @@ from pipelines.datasets.br_bd_indicadores.utils import (
     create_url,
     connect_to_endpoint,
     flatten,
-    GA4RealTimeReportGA4RealTimeReport
+    GA4RealTimeReportGA4RealTimeReport,
 )
 from pipelines.constants import constants
 
@@ -39,7 +39,9 @@ def echo(message: str) -> None:
 
 # pylint: disable=W0613
 @task(checkpoint=False, nout=5)
-def get_twitter_credentials(secret_path: str, wait=None) -> Tuple[str, str, str, str, str]:
+def get_twitter_credentials(
+    secret_path: str, wait=None
+) -> Tuple[str, str, str, str, str]:
     """
     Returns the user and password for the given secret path.
     """
@@ -211,28 +213,24 @@ def crawler_metricas(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def crawler_real_time(lst_dimension: list, lst_metric:list, property_id: str) -> None:
+def crawler_real_time(lst_dimension: list, lst_metric: list, property_id: str) -> None:
     """
     Crawler real time data from Google Anallytics API
     """
-    
+
     ga4 = GA4RealTimeReport(property_id)
-    response = ga4.query_report(
-        lst_dimension,
-        lst_metric,
-        100,
-        True
-    )
+    response = ga4.query_report(lst_dimension, lst_metric, 100, True)
 
-    df = pd.DataFrame(response['rows'], columns=response['headers'])
+    df = pd.DataFrame(response["rows"], columns=response["headers"])
 
-    now = datetime.now().strftime('%Y-%m-%d')
+    now = datetime.now().strftime("%Y-%m-%d")
 
-    df['date'] = now
+    df["date"] = now
 
-    filepath = f'/tmp/data/date={now}/pageviews.csv'
+    filepath = f"/tmp/data/date={now}/pageviews.csv"
 
     df.to_csv(filepath, index=False)
+
 
 # pylint: disable=W0613
 @task(checkpoint=False)
@@ -243,6 +241,5 @@ def get_ga_credentials(secret_path: str, wait=None) -> str:
     log(f"Getting user and password for secret path: {secret_path}")
     tokens_dict = get_credentials_from_secret(secret_path)
     property_id = tokens_dict["ACCESS_SECRET"]
-
 
     return property_id

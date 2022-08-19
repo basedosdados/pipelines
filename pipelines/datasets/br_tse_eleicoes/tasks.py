@@ -264,7 +264,7 @@ def build_candidatos(folder: str, start: int, end: int, id_candidato_bd: bool = 
             df = pd.read_csv(
                 f"/tmp/data/raw/br_tse_eleicoes/candidatos/ano={ano}/candidatos.csv",
                 sep=";",
-                encoding="utf-8"
+                encoding="utf-8",
             )
             df["cpf"] = [
                 clean_digit_id(number=k, n_digits=11) if pd.notna(k) else k
