@@ -28,7 +28,11 @@ from pipelines.utils.tasks import (
     get_current_flow_labels,
 )
 
-from pipelines.datasets.br_bd_indicadores.schedules import every_day, every_week, schedule_pageviews
+from pipelines.datasets.br_bd_indicadores.schedules import (
+    every_day,
+    every_week,
+    schedule_pageviews,
+)
 
 with Flow(
     name="br_bd_indicadores.twitter_metrics",
