@@ -7,6 +7,9 @@ import collections
 from typing import Tuple
 from typing import List
 
+from apiclient.discovery import build
+from oauth2client.service_account import ServiceAccountCredentials
+import pandas as pd
 from google.analytics.data_v1beta import BetaAnalyticsDataClient
 from google.analytics.data_v1beta.types import (
     Dimension,
@@ -135,3 +138,65 @@ class GA4RealTimeReport:
             return output
         except Exception as e:
             raise GA4Exception(e) from e
+
+def initialize_analyticsreporting():
+  """Initializes an Analytics Reporting API V4 service object.
+  Returns:
+    An authorized Analytics Reporting API V4 service object.
+  """
+  KEY_FILE_LOCATION=os.environ['GOGLE_APPLICATION_CREDENTIALS']
+  SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
+  credentials = ServiceAccountCredentials.from_json_keyfile_name(
+      KEY_FILE_LOCATION, SCOPES)
+
+  # Build the service object.
+  analytics = build('analyticsreporting', 'v4', credentials=credentials)
+
+  return analytics
+
+
+def get_report(analytics, dimension:str, metric: str, VIEW_ID: str):
+  """Queries the Analytics Reporting API V4.
+  Args:
+    analytics: An authorized Analytics Reporting API V4 service object.
+  Returns:
+    The Analytics Reporting API V4 response.
+  """
+  return analytics.reports().batchGet(
+      body={
+        'reportRequests': [
+        {
+          'viewId': VIEW_ID,
+          'dateRanges': [{'startDate': '30daysAgo', 'endDate': 'today'}],
+          'metrics': [{'expression': metric }],
+          'dimensions': [{'name': dimension}]
+        }]
+      }
+  ).execute()
+
+
+def parse_data(response):
+    reports = response['reports'][0]
+    columnHeader = reports['columnHeader']['dimensions']
+    metricHeader = reports['columnHeader']['metricHeader']['metricHeaderEntries']
+    #Get dimenssion names
+    dim_names = [columnHeader[n].split(":")[1] for n in range (len(columnHeader))]
+    #Get metric names
+    metric_names = [metricHeader[n]['name'].split(":")[1] for n in range (len(metricHeader))]
+    column_names = dim_names+metric_names
+
+
+    columns = columnHeader
+    for metric in metricHeader:
+        columns.append(metric['name'])
+
+    data = pd.json_normalize(reports['data']['rows'])
+    data_dimensions = pd.DataFrame(data['dimensions'].tolist())
+    data_metrics = pd.DataFrame(data['metrics'].tolist())
+    data_metrics = data_metrics.applymap(lambda x: x['values'])
+    data_metrics = pd.DataFrame(data_metrics[0].tolist())
+    result = pd.concat([data_dimensions, data_metrics], axis=1, ignore_index=True)
+
+    # Assign columns names to DF
+    result.columns = column_names
+    return result

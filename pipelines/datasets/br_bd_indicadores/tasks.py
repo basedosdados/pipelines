@@ -5,6 +5,7 @@ Tasks for br_twitter
 import os
 from datetime import datetime, timedelta
 from typing import Tuple
+from functools import reduce
 
 import pytz
 from prefect import task
@@ -21,6 +22,9 @@ from pipelines.datasets.br_bd_indicadores.utils import (
     connect_to_endpoint,
     flatten,
     GA4RealTimeReport,
+    parse_data,
+    initialize_analyticsreporting,
+    get_report
 )
 from pipelines.constants import constants
 
@@ -215,7 +219,7 @@ def crawler_metricas(
 )
 def crawler_real_time(lst_dimension: list, lst_metric: list, property_id: str) -> None:
     """
-    Crawler real time data from Google Anallytics API
+    Crawler real time data from Google Analytics API
     """
 
     ga4 = GA4RealTimeReport(property_id)
@@ -234,7 +238,6 @@ def crawler_real_time(lst_dimension: list, lst_metric: list, property_id: str) -
     return '/tmp/data/'
 
 
-# pylint: disable=W0613
 @task(checkpoint=False)
 def get_ga_credentials(secret_path: str, wait=None) -> str:
     """
@@ -245,3 +248,36 @@ def get_ga_credentials(secret_path: str, wait=None) -> str:
     property_id = tokens_dict["property_id"]
 
     return property_id
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def crawler_report_ga():
+    analytics = initialize_analyticsreporting()
+    users1 = get_report(analytics, 'ga:date', 'ga:1dayUsers', VIEW_ID)
+    users7 = get_report(analytics, 'ga:date', 'ga:7dayUsers', VIEW_ID)
+    users14 = get_report(analytics, 'ga:date', 'ga:14dayUsers', VIEW_ID)
+    users28 = get_report(analytics, 'ga:date', 'ga:28dayUsers', VIEW_ID)
+    users30 = get_report(analytics, 'ga:date', 'ga:30dayUsers', VIEW_ID)
+    new_users = get_report(analytics, 'ga:date', 'ga:newUsers', VIEW_ID)
+
+    reports = [users1, users7, users14, users28, users30, new_users]
+    dfs=[]
+
+    for report in reports:
+        df = parse_data(report)
+        dfs.append(df)
+
+    df = reduce(lambda left,right: pd.merge(left,right,on='date', how='outer'), dfs)
+
+    now = datetime.now().strftime("%Y-%m-%d")
+
+    filepath = f"/tmp/data/upload_day={now}/users.csv"
+    partition_path = filepath.replace('users.csv', '')
+    os.system(f"mkdir -p {partition_path}")
+
+    df.to_csv(filepath, index=False)
+
+    return '/tmp/data/'
+    
