@@ -124,7 +124,8 @@ with Flow(
         dataset_id=dataset_id,
         table_id=table_id,
         fields_to_update=[
-            {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}}
+            {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
+            {"temporal_coverage": ["1994(1)2022"]},
         ],
         upstream_tasks=[wait_upload_table],
     )
