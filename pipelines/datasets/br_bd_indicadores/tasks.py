@@ -24,7 +24,7 @@ from pipelines.datasets.br_bd_indicadores.utils import (
     GA4RealTimeReport,
     parse_data,
     initialize_analyticsreporting,
-    get_report
+    get_report,
 )
 from pipelines.constants import constants
 
@@ -230,12 +230,12 @@ def crawler_real_time(lst_dimension: list, lst_metric: list, property_id: str) -
     now = datetime.now().strftime("%Y-%m-%d")
 
     filepath = f"/tmp/data/date={now}/pageviews.csv"
-    partition_path = filepath.replace('pageviews.csv', '')
+    partition_path = filepath.replace("pageviews.csv", "")
     os.system(f"mkdir -p {partition_path}")
 
     df.to_csv(filepath, index=False)
 
-    return '/tmp/data/'
+    return "/tmp/data/"
 
 
 @task(checkpoint=False)
@@ -249,35 +249,35 @@ def get_ga_credentials(secret_path: str, wait=None) -> str:
 
     return property_id
 
+
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def crawler_report_ga():
     analytics = initialize_analyticsreporting()
-    users1 = get_report(analytics, 'ga:date', 'ga:1dayUsers', VIEW_ID)
-    users7 = get_report(analytics, 'ga:date', 'ga:7dayUsers', VIEW_ID)
-    users14 = get_report(analytics, 'ga:date', 'ga:14dayUsers', VIEW_ID)
-    users28 = get_report(analytics, 'ga:date', 'ga:28dayUsers', VIEW_ID)
-    users30 = get_report(analytics, 'ga:date', 'ga:30dayUsers', VIEW_ID)
-    new_users = get_report(analytics, 'ga:date', 'ga:newUsers', VIEW_ID)
+    users1 = get_report(analytics, "ga:date", "ga:1dayUsers", VIEW_ID)
+    users7 = get_report(analytics, "ga:date", "ga:7dayUsers", VIEW_ID)
+    users14 = get_report(analytics, "ga:date", "ga:14dayUsers", VIEW_ID)
+    users28 = get_report(analytics, "ga:date", "ga:28dayUsers", VIEW_ID)
+    users30 = get_report(analytics, "ga:date", "ga:30dayUsers", VIEW_ID)
+    new_users = get_report(analytics, "ga:date", "ga:newUsers", VIEW_ID)
 
     reports = [users1, users7, users14, users28, users30, new_users]
-    dfs=[]
+    dfs = []
 
     for report in reports:
         df = parse_data(report)
         dfs.append(df)
 
-    df = reduce(lambda left,right: pd.merge(left,right,on='date', how='outer'), dfs)
+    df = reduce(lambda left, right: pd.merge(left, right, on="date", how="outer"), dfs)
 
     now = datetime.now().strftime("%Y-%m-%d")
 
     filepath = f"/tmp/data/upload_day={now}/users.csv"
-    partition_path = filepath.replace('users.csv', '')
+    partition_path = filepath.replace("users.csv", "")
     os.system(f"mkdir -p {partition_path}")
 
     df.to_csv(filepath, index=False)
 
-    return '/tmp/data/'
-    
+    return "/tmp/data/"
