@@ -229,7 +229,11 @@ def crawler_real_time(lst_dimension: list, lst_metric: list, property_id: str) -
 
     filepath = f"/tmp/data/date={now}/pageviews.csv"
 
+    os.system(f"mkdir -p {filepath.replace('pageviews.csv', '')}")
+
     df.to_csv(filepath, index=False)
+
+    return filepath
 
 
 # pylint: disable=W0613
