@@ -88,3 +88,8 @@ def clean_fgv_df(df: pd.DataFrame) -> pd.DataFrame:
     df.rename(columns={"YEAR": "ano", "MONTH": "mes"}, inplace=True)
 
     return df
+
+
+@task
+def hello_task():
+    print("Hello, Test")
