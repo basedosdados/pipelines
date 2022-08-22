@@ -58,12 +58,13 @@ Flows for crawler_fgv_igp
 ###############################################################################
 
 
-from prefect import Parameter, case
+from prefect import Parameter
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
+
 from pipelines.constants import constants
-from pipelines.utils.crawler_fgv_igp.tasks import say_hello
 from pipelines.utils.crawler_fgv_igp.schedules import every_month
+from pipelines.utils.crawler_fgv_igp.tasks import crawler_fgv
 from pipelines.utils.decorators import Flow
 
 with Flow(
@@ -71,14 +72,16 @@ with Flow(
     code_owners=[
         "Mauricio Fagundes",
     ],
-) as crawler_fgv_igp_flow:
+) as fgv_igp_flow:
     # Parameters
-    INDICE = Parameter("indice")
+    INDICE = Parameter("indice", default="IGP12_IGPDI12")
     PERIODO = Parameter("periodo")
     dataset_id = Parameter("dataset_id", default="br_fgv_igp")
     table_id = Parameter("table_id")
 
+    crawler_task = crawler_fgv(INDICE)
 
-crawler_fgv_igp_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-crawler_fgv_igp_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-crawler_fgv_igp_flow.schedule = every_month
+
+fgv_igp_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+fgv_igp_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+fgv_igp_flow.schedule = every_month

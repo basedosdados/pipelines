@@ -62,9 +62,7 @@ from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from pipelines.constants import constants
-from pipelines.datasets.br_fgv_igp.tasks import say_hello
 
-# from pipelines.datasets.br_fgv_igp.schedules import every_two_weeks
 from pipelines.utils.decorators import Flow
 
 with Flow(
@@ -76,7 +74,7 @@ with Flow(
     # parameters
     teste = Parameter("teste", default=False, required=False)
     with case(teste, True):
-        say_hello()
+        pass
 
 br_fgv_igp_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_fgv_igp_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
