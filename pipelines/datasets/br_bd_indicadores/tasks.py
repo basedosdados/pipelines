@@ -239,35 +239,45 @@ def crawler_real_time(lst_dimension: list, lst_metric: list, property_id: str) -
 
 
 @task(checkpoint=False)
-def get_ga_credentials(secret_path: str, wait=None) -> str:
+def get_ga_credentials(secret_path: str, key: str, wait=None) -> str:
     """
     Returns the user and password for the given secret path.
     """
     log(f"Getting user and password for secret path: {secret_path}")
     tokens_dict = get_credentials_from_secret(secret_path)
-    property_id = tokens_dict["property_id"]
+    secret = tokens_dict[key]
 
-    return property_id
+    return secret
 
 
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def crawler_report_ga():
-    analytics = initialize_analyticsreporting()
-    users1 = get_report(analytics, "ga:date", "ga:1dayUsers", VIEW_ID)
-    users7 = get_report(analytics, "ga:date", "ga:7dayUsers", VIEW_ID)
-    users14 = get_report(analytics, "ga:date", "ga:14dayUsers", VIEW_ID)
-    users28 = get_report(analytics, "ga:date", "ga:28dayUsers", VIEW_ID)
-    users30 = get_report(analytics, "ga:date", "ga:30dayUsers", VIEW_ID)
-    new_users = get_report(analytics, "ga:date", "ga:newUsers", VIEW_ID)
+def crawler_report_ga(view_id: str, metrics: list):
+    """
+    Extract data from Google Analytics API for the specified view_id and metrics.
+    All metrics are computed by date and merged in a DataFrame.
 
-    reports = [users1, users7, users14, users28, users30, new_users]
+    Args:
+        view_id (str): Google Analytics view_id
+        metrics (list): List of metrics to extract from Google Analytics API
+
+    Returns:
+        str: Path to the partition folder
+    """
+    map_report_metric = {}
+
+    analytics = initialize_analyticsreporting()
+    for metric in metrics:
+        map_report_metric.update(
+            {metric: get_report(analytics, "ga:date", f"ga:{metric}", view_id)}
+        )
+
     dfs = []
 
-    for report in reports:
-        df = parse_data(report)
+    for metric in metrics:
+        df = parse_data(map_report_metric[metric])
         dfs.append(df)
 
     df = reduce(lambda left, right: pd.merge(left, right, on="date", how="outer"), dfs)

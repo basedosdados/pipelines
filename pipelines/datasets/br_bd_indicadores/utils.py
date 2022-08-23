@@ -6,6 +6,7 @@ utils for br_bd_inndicadores
 import collections
 from typing import Tuple
 from typing import List
+import os
 
 from apiclient.discovery import build
 from oauth2client.service_account import ServiceAccountCredentials
@@ -171,7 +172,7 @@ def get_report(analytics, dimension: str, metric: str, VIEW_ID: str):
                 "reportRequests": [
                     {
                         "viewId": VIEW_ID,
-                        "dateRanges": [{"startDate": "30daysAgo", "endDate": "today"}],
+                        "dateRanges": [{"startDate": "today", "endDate": "today"}],
                         "metrics": [{"expression": metric}],
                         "dimensions": [{"name": dimension}],
                     }
@@ -182,7 +183,15 @@ def get_report(analytics, dimension: str, metric: str, VIEW_ID: str):
     )
 
 
-def parse_data(response):
+def parse_data(response)->pd.DataFrame:
+    """Parses the Analytics Reporting API V4 response.
+
+    Args:
+        response: An Analytics Reporting API V4 response.
+
+    Returns:
+        Dataframe with the response data.
+    """
     reports = response["reports"][0]
     columnHeader = reports["columnHeader"]["dimensions"]
     metricHeader = reports["columnHeader"]["metricHeader"]["metricHeaderEntries"]
