@@ -8,7 +8,7 @@ from typing import Tuple
 from typing import List
 import os
 
-from apiclient.discovery import build
+from googleapiclient.discovery import build
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 from google.analytics.data_v1beta import BetaAnalyticsDataClient
