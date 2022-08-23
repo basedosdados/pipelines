@@ -19,7 +19,6 @@ from google.analytics.data_v1beta.types import (
 from google.analytics.data_v1beta.types import (
     RunRealtimeReportRequest,
 )
-
 import requests
 
 

@@ -15,7 +15,7 @@ from requests_oauthlib import OAuth1
 import pandas as pd
 import numpy as np
 
-from pipelines.utils.utils import get_storage_blobs, log, get_credentials_from_secret
+from pipelines.utils.utils import get_storage_blobs, log, get_credentials_from_secret, rename_columns_started_with_number
 from pipelines.datasets.br_bd_indicadores.utils import (
     create_headers,
     create_url,
@@ -283,6 +283,8 @@ def crawler_report_ga(view_id: str, metrics: list = None) -> str:
         dfs.append(df)
 
     df = reduce(lambda left, right: pd.merge(left, right, on="date", how="outer"), dfs)
+
+    df=rename_columns_started_with_number(df)
 
     now = datetime.now().strftime("%Y-%m-%d")
 

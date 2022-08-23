@@ -12,13 +12,13 @@ schedule_users = Schedule(
     clocks=[
         IntervalClock(
             interval=timedelta(days=1),
-            start_date=datetime(2022, 5, 18, 16, 27),
+            start_date=datetime(2022, 5, 15, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_bd_indicadores",
-                "table_id": "pageviews",
+                "table_id": "analytics_users",
             },
         ),
     ],

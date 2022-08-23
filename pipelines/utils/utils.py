@@ -470,3 +470,37 @@ def dump_header_to_csv(
     log(f"Wrote header CSV: {save_header_file_path}")
 
     return save_header_path
+
+
+# replace 1 for one, 2 for two, 3 for three, etc if column's name starts with number
+def rename_columns_started_with_number(df)-> pd.DataFrame:
+    """Replace numbers in column names with words
+    
+    Args:
+        df: Dataframe to be processed
+    Returns:
+        Dataframe with replaced column names
+    """
+
+    for col in df.columns:
+        if col.startswith(str(1)):
+            df.rename(columns={col: col.replace(str(1), "one")}, inplace=True)
+        elif col.startswith(str(2)):
+            df.rename(columns={col: col.replace(str(2), "two")}, inplace=True)
+        elif col.startswith(str(3)):
+            df.rename(columns={col: col.replace(str(3), "three")}, inplace=True)
+        elif col.startswith(str(4)):
+            df.rename(columns={col: col.replace(str(4), "four")}, inplace=True)
+        elif col.startswith(str(5)):
+            df.rename(columns={col: col.replace(str(5), "five")}, inplace=True)
+        elif col.startswith(str(6)):
+            df.rename(columns={col: col.replace(str(6), "six")}, inplace=True)
+        elif col.startswith(str(7)):
+            df.rename(columns={col: col.replace(str(7), "seven")}, inplace=True)
+        elif col.startswith(str(8)):
+            df.rename(columns={col: col.replace(str(8), "eight")}, inplace=True)
+        elif col.startswith(str(9)):
+            df.rename(columns={col: col.replace(str(9), "nine")}, inplace=True)
+        elif col.startswith(str(0)):
+            df.rename(columns={col: col.replace(str(0), "zero")}, inplace=True)
+    return df
