@@ -8,7 +8,7 @@ from prefect.schedules import Schedule, filters, adjustments
 from prefect.schedules.clocks import IntervalClock
 from pipelines.constants import constants
 
-schedule_pageviews = Schedule(
+schedule_users = Schedule(
     clocks=[
         IntervalClock(
             interval=timedelta(days=1),
