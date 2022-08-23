@@ -21,7 +21,7 @@ from pipelines.datasets.br_bd_indicadores.tasks import (
     echo,
     get_twitter_credentials,
     get_ga_credentials,
-    crawler_report_ga
+    crawler_report_ga,
 )
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
@@ -181,7 +181,9 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    property_id = get_ga_credentials(secret_path="ga_credentials", key='property_id', wait=None)
+    property_id = get_ga_credentials(
+        secret_path="ga_credentials", key="property_id", wait=None
+    )
 
     filepath = crawler_real_time(
         lst_dimension=["country", "city", "unifiedScreenName"],

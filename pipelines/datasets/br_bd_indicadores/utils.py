@@ -183,7 +183,7 @@ def get_report(analytics, dimension: str, metric: str, VIEW_ID: str):
     )
 
 
-def parse_data(response)->pd.DataFrame:
+def parse_data(response) -> pd.DataFrame:
     """Parses the Analytics Reporting API V4 response.
 
     Args:
