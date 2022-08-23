@@ -217,7 +217,7 @@ def crawler_metricas(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def crawler_real_time(lst_dimension: list, lst_metric: list, property_id: str) -> None:
+def crawler_real_time(lst_dimension: list, lst_metric: list, property_id: str) -> str:
     """
     Crawler real time data from Google Analytics API
     """
@@ -254,7 +254,7 @@ def get_ga_credentials(secret_path: str, key: str, wait=None) -> str:
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def crawler_report_ga(view_id: str, metrics: list):
+def crawler_report_ga(view_id: str, metrics: list = None)-> str:
     """
     Extract data from Google Analytics API for the specified view_id and metrics.
     All metrics are computed by date and merged in a DataFrame.
@@ -266,6 +266,8 @@ def crawler_report_ga(view_id: str, metrics: list):
     Returns:
         str: Path to the partition folder
     """
+
+    metrics = metrics if metrics else []
     map_report_metric = {}
 
     analytics = initialize_analyticsreporting()

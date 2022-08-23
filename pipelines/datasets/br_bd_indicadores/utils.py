@@ -146,7 +146,7 @@ def initialize_analyticsreporting():
     Returns:
       An authorized Analytics Reporting API V4 service object.
     """
-    KEY_FILE_LOCATION = os.environ["GOGLE_APPLICATION_CREDENTIALS"]
+    KEY_FILE_LOCATION = os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
     SCOPES = ["https://www.googleapis.com/auth/analytics.readonly"]
     credentials = ServiceAccountCredentials.from_json_keyfile_name(
         KEY_FILE_LOCATION, SCOPES
@@ -161,9 +161,12 @@ def initialize_analyticsreporting():
 def get_report(analytics, dimension: str, metric: str, VIEW_ID: str):
     """Queries the Analytics Reporting API V4.
     Args:
-      analytics: An authorized Analytics Reporting API V4 service object.
+        analytics: An authorized Analytics Reporting API V4 service object.
+        dimension: The name of the dimension to query.
+        metric: The name of the metric to query.
+        VIEW_ID: The ID of the view to retrieve data for.
     Returns:
-      The Analytics Reporting API V4 response.
+        The Analytics Reporting API V4 response.
     """
     return (
         analytics.reports()
