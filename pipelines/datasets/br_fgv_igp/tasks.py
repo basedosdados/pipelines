@@ -48,13 +48,48 @@ Tasks for br_fgv_igp
 # Abaixo segue um código para exemplificação, que pode ser removido.
 #
 ###############################################################################
-
+import ipeadatapy as idpy
+import pandas as pd
 from prefect import task
 
 
-@task
-def say_hello(name: str = "World") -> str:
+@task  # noqa
+def crawler_fgv(code: str) -> pd.DataFrame:
     """
-    Greeting task.
+    Crawl data from ipeadata
+
+    Args:
+        code (str): the Ipeadata code
+
+    Returns:
+        pd.DataFrame: raw DataFrame from Ipeadata
     """
-    return f"Hello, {name}!"
+
+    return idpy.timeseries(code)
+
+
+@task  # noqa
+def clean_fgv_df(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Clean FGV results
+
+    Args:
+        df (pd.DataFrame): the DataFrame to be cleaned
+
+    Returns:
+        pd.DataFrame: cleaned DataFrame with calculated columns
+    """
+    df.rename({df.columns[-1]: "indice"}, axis=1, inplace=True)
+    df["indice"] = df["indice"].astype(float, errors="ignore")
+    df["var_mensal"] = df["indice"].pct_change(periods=1) * 100
+    df["NEXT_MONTH"] = df.shift(-1)["indice"]
+    df["indice_fechamento_mensal"] = (df["indice"] * df["NEXT_MONTH"]) ** 0.5
+    df.drop(columns=["DAY", "CODE", "RAW DATE", "NEXT_MONTH"], inplace=True)
+    df.rename(columns={"YEAR": "ano", "MONTH": "mes"}, inplace=True)
+
+    return df
+
+
+@task  # noqa
+def hello_task():
+    print("Hello, Test")

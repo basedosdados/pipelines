@@ -4,7 +4,7 @@ from unittest.mock import patch
 import pandas as pd
 import pytest
 
-from pipelines.utils.crawler_fgv_igp.tasks import clean_fgv_df
+from pipelines.datasets.br_fgv_igp.tasks import clean_fgv_df
 
 
 def test_crawler(igpdi_mensal: pd.DataFrame) -> None:
@@ -18,7 +18,7 @@ def test_crawler(igpdi_mensal: pd.DataFrame) -> None:
 
     """
     with patch(
-        "pipelines.utils.crawler_fgv_igp.tasks.crawler_fgv.run",
+        "pipelines.datasets.br_fgv_igp.tasks.crawler_fgv.run",
         return_value=igpdi_mensal,
     ) as mocked:
         df = mocked("IGP12_IGPDI12")
