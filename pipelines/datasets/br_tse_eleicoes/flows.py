@@ -124,14 +124,17 @@ with Flow(
         dataset_id=dataset_id,
         table_id=table_id,
         fields_to_update=[
-            {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}}
+            {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
+            {"temporal_coverage": ["1994(1)2022"]},
         ],
         upstream_tasks=[wait_upload_table],
     )
 
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
+        current_flow_labels = get_current_flow_labels(
+            upstream_tasks=[wait_update_metadata]
+        )
         materialization_flow = create_flow_run(
             flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
             project_name=constants.PREFECT_DEFAULT_PROJECT.value,
@@ -186,7 +189,9 @@ with Flow(
     )
 
     with case(id_candidato_bd, True):
-        d22_task = download_before22(table_id=table_id, start=start)
+        d22_task = download_before22(
+            table_id=table_id, start=start, upstream_tasks=[rename_flow_run]
+        )
 
         gfiles_task = get_csv_files(
             url=tse_constants.BENS22_ZIP.value,
@@ -214,7 +219,10 @@ with Flow(
 
     with case(id_candidato_bd, False):
         gfiles_task = get_csv_files(
-            url=tse_constants.BENS22_ZIP.value, save_path="/tmp/data/", mkdir=True
+            url=tse_constants.BENS22_ZIP.value,
+            save_path="/tmp/data/",
+            mkdir=True,
+            upstream_tasks=[rename_flow_run],
         )
 
         c22_task = clean_bens22("/tmp/data/input", upstream_tasks=[gfiles_task])
@@ -246,7 +254,9 @@ with Flow(
 
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
+        current_flow_labels = get_current_flow_labels(
+            upstream_tasks=[wait_update_metadata]
+        )
         materialization_flow = create_flow_run(
             flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
             project_name=constants.PREFECT_DEFAULT_PROJECT.value,
@@ -328,7 +338,9 @@ with Flow(
 
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
+        current_flow_labels = get_current_flow_labels(
+            upstream_tasks=[wait_update_metadata]
+        )
         materialization_flow = create_flow_run(
             flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
             project_name=constants.PREFECT_DEFAULT_PROJECT.value,
@@ -410,7 +422,9 @@ with Flow(
 
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
+        current_flow_labels = get_current_flow_labels(
+            upstream_tasks=[wait_update_metadata]
+        )
         materialization_flow = create_flow_run(
             flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
             project_name=constants.PREFECT_DEFAULT_PROJECT.value,

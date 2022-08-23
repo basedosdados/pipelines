@@ -14,11 +14,11 @@ every_month = Schedule(
             interval=timedelta(days=30),
             start_date=datetime(2021, 1, 1, 14, 32),
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_sp_saopaulo_dieese_icv",
-                "materialization_mode": "dev",
+                "materialization_mode": "prod",
                 "materialize after dump": True,
                 "table_id": "mes",
                 "dbt_alias": False,

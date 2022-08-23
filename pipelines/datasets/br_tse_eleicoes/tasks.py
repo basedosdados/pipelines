@@ -265,12 +265,23 @@ def build_candidatos(folder: str, start: int, end: int, id_candidato_bd: bool = 
                 f"/tmp/data/raw/br_tse_eleicoes/candidatos/ano={ano}/candidatos.csv",
                 sep=";",
                 encoding="utf-8",
-                dtype={
-                    "cpf": str,
-                    "titulo_eleitoral": str,
-                    "sequencial": str,
-                },
             )
+            df["cpf"] = [
+                clean_digit_id(number=k, n_digits=11) if pd.notna(k) else k
+                for k in df["cpf"].to_list()
+            ]
+            df["titulo_eleitoral"] = [
+                clean_digit_id(number=k, n_digits=12) if pd.notna(k) else k
+                for k in df["titulo_eleitoral"].to_list()
+            ]
+            df["sequencial"] = [
+                clean_digit_id(number=k, n_digits=12) if pd.notna(k) else k
+                for k in df["sequencial"].to_list()
+            ]
+            df.replace("#NULO#", np.nan, inplace=True)
+            df.replace("#Nulo#", np.nan, inplace=True)
+            df.replace("#NI#", np.nan, inplace=True)
+            df.replace(-1, np.nan, inplace=True)
             df.drop_duplicates(inplace=True)
             os.system(f"mkdir -p /tmp/data/output/ano={ano}/")
             df.to_csv(f"/tmp/data/output/ano={ano}/candidatos.csv", index=False)
@@ -416,10 +427,6 @@ def build_bens_candidato(
                 log(f"File {file} not found")
                 continue
 
-    log("Check folders:")
-
-    log(os.system("tree /tmp/data/raw/br_tse_eleicoes/bens_candidato/"))
-
     return "/tmp/data/output/"
 
 
@@ -435,7 +442,7 @@ def clean_bens22(folder) -> None:
 
     files = glob(f"{folder}/bem_candidato*.csv")
 
-    for file in files[:2]:
+    for file in files:
         df = pd.read_csv(file, sep=";", encoding="latin-1")
         dfs.append(df)
 

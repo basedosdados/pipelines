@@ -270,7 +270,7 @@ def clean_digit_id(number: int, n_digits: int) -> str:
     """
     Clean digit id.
     """
-    number = str(number)
+    number = str(number).split(".")[0]
     number = number.zfill(n_digits)
     number = "".join([i for i in number if i.isdigit()])
 
