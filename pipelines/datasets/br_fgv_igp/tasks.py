@@ -48,7 +48,11 @@ Tasks for br_fgv_igp
 # Abaixo segue um código para exemplificação, que pode ser removido.
 #
 ###############################################################################
+import csv
+import pathlib
+
 import ipeadatapy as idpy
+import numpy as np
 import pandas as pd
 from prefect import task
 
@@ -69,27 +73,57 @@ def crawler_fgv(code: str) -> pd.DataFrame:
 
 
 @task  # noqa
-def clean_fgv_df(df: pd.DataFrame) -> pd.DataFrame:
+def clean_fgv_df(
+    df: pd.DataFrame, root: pathlib.PosixPath, period: str = "mensal"
+) -> pathlib.PosixPath:
     """
     Clean FGV results
 
     Args:
         df (pd.DataFrame): the DataFrame to be cleaned
+        root: (pathlib.Path): where is the root for tmp folder for data
+        period (str): the period of the time series [mensal|anual]
 
     Returns:
-        pd.DataFrame: cleaned DataFrame with calculated columns
+        str: the path of the csv file from DataFrame
     """
+    if period not in ["mensal", "anual"]:
+        raise Exception("Period must be 'mensal' or 'anual'")
+
+    filepath = root / f"igpdi_{period}.csv"
+
+    if not root.is_dir():
+        root.mkdir(parents=True, exist_ok=False)
+
+    var_period = f"var_{period}"
+    var_end_period = f"indice_fechamento_{period}"
+
+    # absolute value with aug/1994 = 100
     df.rename({df.columns[-1]: "indice"}, axis=1, inplace=True)
+
+    # monthly variation in percent
     df["indice"] = df["indice"].astype(float, errors="ignore")
-    df["var_mensal"] = df["indice"].pct_change(periods=1) * 100
-    df["NEXT_MONTH"] = df.shift(-1)["indice"]
-    df["indice_fechamento_mensal"] = (df["indice"] * df["NEXT_MONTH"]) ** 0.5
-    df.drop(columns=["DAY", "CODE", "RAW DATE", "NEXT_MONTH"], inplace=True)
+    df[var_period] = df["indice"].pct_change(periods=1) * 100
+    df["NEXT_PERIOD"] = df.shift(-1)["indice"]
+
+    # end of period: Ipeadata geometric mean between current and next month
+    df[var_end_period] = (df["indice"] * df["NEXT_PERIOD"]) ** 0.5
+
+    # drop and rename columns
+    df.drop(columns=["DAY", "CODE", "RAW DATE", "NEXT_PERIOD"], inplace=True)
     df.rename(columns={"YEAR": "ano", "MONTH": "mes"}, inplace=True)
 
-    return df
+    df.reset_index(drop=True, inplace=True)
 
+    df.to_csv(
+        filepath,
+        encoding="utf-8",
+        sep=",",
+        decimal=".",
+        na_rep=np.nan,
+        quoting=csv.QUOTE_NONNUMERIC,
+        index=False,
+        header=True,
+    )
 
-@task  # noqa
-def hello_task():
-    print("Hello, Test")
+    return filepath
