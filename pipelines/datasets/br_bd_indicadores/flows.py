@@ -21,6 +21,7 @@ from pipelines.datasets.br_bd_indicadores.tasks import (
     echo,
     get_twitter_credentials,
     get_ga_credentials,
+    crawler_report_ga,
 )
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
@@ -28,7 +29,11 @@ from pipelines.utils.tasks import (
     get_current_flow_labels,
 )
 
-from pipelines.datasets.br_bd_indicadores.schedules import every_day, every_week, schedule_pageviews
+from pipelines.datasets.br_bd_indicadores.schedules import (
+    every_day,
+    every_week,
+    schedule_users,
+)
 
 with Flow(
     name="br_bd_indicadores.twitter_metrics",
@@ -176,7 +181,9 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    property_id = get_ga_credentials(secret_path="ga_credentials", wait=None)
+    property_id = get_ga_credentials(
+        secret_path="ga_credentials", key="property_id", wait=None
+    )
 
     filepath = crawler_real_time(
         lst_dimension=["country", "city", "unifiedScreenName"],
@@ -195,4 +202,37 @@ with Flow(
 
 bd_pageviews.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 bd_pageviews.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-bd_pageviews.schedule = schedule_pageviews
+
+
+with Flow(
+    name="br_bd_indicadores.ga_users",
+    code_owners=[
+        "lucas_cr",
+    ],
+) as bd_ga_users:
+    dataset_id = Parameter("dataset_id", default="br_bd_indicadores", required=True)
+    table_id = Parameter("table_id", default="analytics_users", required=True)
+    rename_flow_run = rename_current_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+    )
+
+    view_id = get_ga_credentials(secret_path="ga_credentials", key="view_id", wait=None)
+
+    filepath = crawler_report_ga(
+        view_id=view_id,
+        metrics=["1dayUsers", "7dayUsers", "14dayUsers", "28dayUsers", "newUsers"],
+        upstream_tasks=[view_id],
+    )
+
+    wait_upload_table = create_table_and_upload_to_gcs(
+        data_path=filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dump_mode="append",
+        wait=filepath,
+    )
+
+
+bd_ga_users.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+bd_ga_users.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+bd_ga_users.schedule = schedule_users

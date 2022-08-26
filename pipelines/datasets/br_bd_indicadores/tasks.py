@@ -5,6 +5,7 @@ Tasks for br_twitter
 import os
 from datetime import datetime, timedelta
 from typing import Tuple
+from functools import reduce
 
 import pytz
 from prefect import task
@@ -14,13 +15,21 @@ from requests_oauthlib import OAuth1
 import pandas as pd
 import numpy as np
 
-from pipelines.utils.utils import get_storage_blobs, log, get_credentials_from_secret
+from pipelines.utils.utils import (
+    get_storage_blobs,
+    log,
+    get_credentials_from_secret,
+    add_underscore_to_column_name,
+)
 from pipelines.datasets.br_bd_indicadores.utils import (
     create_headers,
     create_url,
     connect_to_endpoint,
     flatten,
     GA4RealTimeReport,
+    parse_data,
+    initialize_analyticsreporting,
+    get_report,
 )
 from pipelines.constants import constants
 
@@ -213,9 +222,9 @@ def crawler_metricas(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def crawler_real_time(lst_dimension: list, lst_metric: list, property_id: str) -> None:
+def crawler_real_time(lst_dimension: list, lst_metric: list, property_id: str) -> str:
     """
-    Crawler real time data from Google Anallytics API
+    Crawler real time data from Google Analytics API
     """
 
     ga4 = GA4RealTimeReport(property_id)
@@ -226,22 +235,70 @@ def crawler_real_time(lst_dimension: list, lst_metric: list, property_id: str) -
     now = datetime.now().strftime("%Y-%m-%d")
 
     filepath = f"/tmp/data/date={now}/pageviews.csv"
-    partition_path = filepath.replace('pageviews.csv', '')
+    partition_path = filepath.replace("pageviews.csv", "")
     os.system(f"mkdir -p {partition_path}")
 
     df.to_csv(filepath, index=False)
 
-    return '/tmp/data/'
+    return "/tmp/data/"
 
 
-# pylint: disable=W0613
 @task(checkpoint=False)
-def get_ga_credentials(secret_path: str, wait=None) -> str:
+def get_ga_credentials(secret_path: str, key: str, wait=None) -> str:
     """
     Returns the user and password for the given secret path.
     """
     log(f"Getting user and password for secret path: {secret_path}")
     tokens_dict = get_credentials_from_secret(secret_path)
-    property_id = tokens_dict["property_id"]
+    secret = tokens_dict[key]
 
-    return property_id
+    return secret
+
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def crawler_report_ga(view_id: str, metrics: list = None) -> str:
+    """
+    Extract data from Google Analytics API for the specified view_id and metrics.
+    All metrics are computed by date and merged in a DataFrame.
+
+    Args:
+        view_id (str): Google Analytics view_id
+        metrics (list): List of metrics to extract from Google Analytics API
+
+    Returns:
+        str: Path to the partition folder
+    """
+
+    metrics = metrics if metrics else []
+    map_report_metric = {}
+
+    analytics = initialize_analyticsreporting()
+    for metric in metrics:
+        map_report_metric.update(
+            {metric: get_report(analytics, "ga:date", f"ga:{metric}", view_id)}
+        )
+
+    dfs = []
+
+    for metric in metrics:
+        df = parse_data(map_report_metric[metric])
+        dfs.append(df)
+
+    df = reduce(lambda left, right: pd.merge(left, right, on="date", how="outer"), dfs)
+
+    df.drop(columns=["date"], inplace=True)
+
+    df = add_underscore_to_column_name(df)
+
+    now = datetime.now().strftime("%Y-%m-%d")
+
+    filepath = f"/tmp/data/upload_day={now}/users.csv"
+    partition_path = filepath.replace("users.csv", "")
+    os.system(f"mkdir -p {partition_path}")
+
+    df.to_csv(filepath, index=False)
+
+    return "/tmp/data/"
