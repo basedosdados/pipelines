@@ -221,7 +221,7 @@ def update_metadata(dataset_id: str, table_id: str, fields_to_update: list) -> N
         yaml.dump(data, fp)
 
     if handle.validate():
-        handle.publish(if_exists="replace", all=True)
+        handle.publish(if_exists="replace")
         log(f"Metadata for {table_id} updated")
     else:
         log("Fail to validate metadata.")
