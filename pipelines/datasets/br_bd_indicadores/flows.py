@@ -220,7 +220,7 @@ with Flow(
 
     filepath = crawler_report_ga(
         view_id=view_id,
-        metrics=["1dayUsers", "7dayUsers", "14dayUsers", "28dayUsers", "newUsers"],
+        metrics=["1dayUsers", "7dayUsers", "14dayUsers", "28dayUsers", "30dayUsers", "newUsers"],
         upstream_tasks=[view_id],
     )
 
