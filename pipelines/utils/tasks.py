@@ -191,23 +191,17 @@ def update_metadata(dataset_id: str, table_id: str, fields_to_update: list) -> N
     fields_to_update: list of dictionaries with key and values to be updated
     """
     # add credentials to config.toml
-    # dict_credentials = get_credentials_from_secret(secret_path="ckan_credentials")
-
     handle = bd.Metadata(dataset_id=dataset_id, table_id=table_id)
     handle.create(if_exists="replace")
-
-    log('Check config.toml for credentials')
-    log(handle.CKAN_API_KEY)
-    log(handle.CKAN_URL)
-
-    # handle.CKAN_API_KEY = dict_credentials["api_key"]
-    # handle.CKAN_URL = dict_credentials["url"]
 
     yaml = ryaml.YAML()
     yaml.preserve_quotes = True
     yaml.indent(mapping=4, sequence=6, offset=4)
 
     config_file = handle.filepath.as_posix()
+
+    log('get path config_file')
+    log(config_file)
 
     with open(config_file, encoding="utf-8") as fp:
         data = yaml.load(fp)
