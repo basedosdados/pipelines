@@ -194,7 +194,7 @@ def update_metadata(dataset_id: str, table_id: str, fields_to_update: list) -> N
     # dict_credentials = get_credentials_from_secret(secret_path="ckan_credentials")
 
     handle = bd.Metadata(dataset_id=dataset_id, table_id=table_id)
-    # handle.create(if_exists="replace")
+    handle.create(if_exists="replace")
 
     # handle.CKAN_API_KEY = dict_credentials["api_key"]
     # handle.CKAN_URL = dict_credentials["url"]
