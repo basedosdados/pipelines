@@ -196,6 +196,10 @@ def update_metadata(dataset_id: str, table_id: str, fields_to_update: list) -> N
     handle = bd.Metadata(dataset_id=dataset_id, table_id=table_id)
     handle.create(if_exists="replace")
 
+    log('Check config.toml for credentials')
+    log(handle.CKAN_API_KEY)
+    log(handle.CKAN_URL)
+
     # handle.CKAN_API_KEY = dict_credentials["api_key"]
     # handle.CKAN_URL = dict_credentials["url"]
 
