@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from pathlib import Path
 from unittest.mock import patch
 
 import pandas as pd
@@ -8,7 +9,6 @@ from pipelines.datasets.br_fgv_igp.flows import ROOT
 from pipelines.datasets.br_fgv_igp.tasks import clean_fgv_df
 
 
-@pytest.mark.skip("refactor to return filepath")
 def test_crawler(igpdi_mensal: pd.DataFrame) -> None:
     """
     Check indice of July 2022
@@ -27,7 +27,7 @@ def test_crawler(igpdi_mensal: pd.DataFrame) -> None:
 
     df_cleaned = clean_fgv_df.run(df, root=ROOT)
 
-    assert df_cleaned == ""
+    assert df_cleaned == Path("tmp/data/igpdi_mensal.csv")
 
 
 @pytest.fixture
