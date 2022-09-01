@@ -67,7 +67,6 @@ eleicao_perfil_candidato_2022.run_config = KubernetesRun(
 eleicao_perfil_candidato_2022.schedule = schedule_candidatos
 
 
-
 with Flow(
     name="br_jota.eleicao_prestacao_contas_candidato_2022", code_owners=["lauris"]
 ) as eleicao_prestacao_contas_candidato_2022:
@@ -115,11 +114,14 @@ eleicao_prestacao_contas_candidato_2022.schedule = schedule_contas_candidato
 
 
 with Flow(
-    name="br_jota.eleicao_prestacao_contas_candidato_origem_2022", code_owners=["lauris"]
+    name="br_jota.eleicao_prestacao_contas_candidato_origem_2022",
+    code_owners=["lauris"],
 ) as eleicao_prestacao_contas_candidato_origem_2022:
     dataset_id = Parameter("dataset_id", default="br_jota", required=True)
     table_id = Parameter(
-        "table_id", default="eleicao_prestacao_contas_candidato_origem_2022", required=True
+        "table_id",
+        default="eleicao_prestacao_contas_candidato_origem_2022",
+        required=True,
     )
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
@@ -153,8 +155,12 @@ with Flow(
         seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
     )
 
-eleicao_prestacao_contas_candidato_origem_2022.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+eleicao_prestacao_contas_candidato_origem_2022.storage = GCS(
+    constants.GCS_FLOWS_BUCKET.value
+)
 eleicao_prestacao_contas_candidato_origem_2022.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-eleicao_prestacao_contas_candidato_origem_2022.schedule = schedule_contas_candidato_origem
+eleicao_prestacao_contas_candidato_origem_2022.schedule = (
+    schedule_contas_candidato_origem
+)
