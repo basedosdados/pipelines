@@ -11,4 +11,4 @@ class constants(Enum):  # pylint: disable=c0103
     Constants for utils.
     """
 
-    MAX_BYTES_PROCESSED_PER_TABLE = 1 * 1024 * 1024 * 1024  # 1GB
+    MAX_BYTES_PROCESSED_PER_TABLE = 5 * 1024 * 1024 * 1024  # 5GB
