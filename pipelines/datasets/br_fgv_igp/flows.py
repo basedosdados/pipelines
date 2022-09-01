@@ -12,7 +12,7 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.datasets import every_month
+from pipelines.datasets.br_fgv_igp.schedules import igp_di_mes
 from pipelines.datasets.br_fgv_igp.tasks import crawler_fgv, clean_fgv_df
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -33,7 +33,7 @@ with Flow(
 ) as fgv_igp_flow:
     # Parameters
     INDICE = Parameter("indice", default="IGP12_IGPDI12")
-    PERIOD = Parameter("period", default="mensal", required=False)
+    PERIODO = Parameter("periodo", default="mes", required=False)
     dataset_id = Parameter("dataset_id", default="br_fgv_igp")
     table_id = Parameter("table_id")
     materialization_mode = Parameter(
@@ -53,7 +53,7 @@ with Flow(
     filepath = clean_fgv_df(
         df_indice,
         root=ROOT,
-        period=PERIOD,
+        period=PERIODO,
         upstream_tasks=[
             df_indice,
         ],
@@ -116,4 +116,4 @@ with Flow(
 
 fgv_igp_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 fgv_igp_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-fgv_igp_flow.schedule = every_month
+fgv_igp_flow.schedule = igp_di_mes

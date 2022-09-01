@@ -23,11 +23,11 @@ def test_crawler(igpdi_mensal: pd.DataFrame) -> None:
         "pipelines.datasets.br_fgv_igp.tasks.crawler_fgv.run",
         return_value=igpdi_mensal,
     ) as mocked:
-        df = mocked("IGP12_IGPDI12", period="mensal")
+        df = mocked("IGP12_IGPDI12", period="mes")
 
     df_cleaned = clean_fgv_df.run(df, root=ROOT)
 
-    assert df_cleaned == Path("tmp/data/igpdi_mensal.csv")
+    assert df_cleaned == Path("tmp/data/igpdi_mes.csv")
 
 
 @pytest.fixture

@@ -74,7 +74,7 @@ def crawler_fgv(code: str) -> pd.DataFrame:
 
 @task  # noqa
 def clean_fgv_df(
-    df: pd.DataFrame, root: pathlib.PosixPath, period: str = "mensal"
+    df: pd.DataFrame, root: pathlib.PosixPath, period: str = "mes"
 ) -> pathlib.PosixPath:
     """
     Clean FGV results
@@ -87,8 +87,8 @@ def clean_fgv_df(
     Returns:
         str: the path of the csv file from DataFrame
     """
-    if period not in ["mensal", "anual"]:
-        raise Exception("Period must be 'mensal' or 'anual'")
+    if period not in ["mes", "ano"]:
+        raise Exception("Period must be 'mes' or 'ano'")
 
     filepath = root / f"igpdi_{period}.csv"
 
