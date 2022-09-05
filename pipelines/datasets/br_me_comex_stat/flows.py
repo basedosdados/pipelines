@@ -16,7 +16,7 @@ from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 
 from pipelines.datasets.br_me_comex_stat.tasks import (
-    clean_br_me_comex_stat,                                                                         
+    clean_br_me_comex_stat,
 )
 
 from pipelines.utils.tasks import (
@@ -41,14 +41,20 @@ with Flow(
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_me_comex_stat", required=True)
     table_id = Parameter("table_id", default="municipio_exportacao", required=True)
-    start = Parameter("start", default=1997, required=True)                          ## confirmar depois
-    materialization_mode = Parameter("materialization_mode", default="dev", required=False)
-    materialize_after_dump = Parameter("materialize after dump", default=True, required=False)
+    start = Parameter("start", default=1997, required=True)  ## confirmar depois
+    materialization_mode = Parameter(
+        "materialization_mode", default="dev", required=False
+    )
+    materialize_after_dump = Parameter(
+        "materialize after dump", default=True, required=False
+    )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
-    rename_flow_run = rename_current_flow_run_dataset_table(prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id)
+    rename_flow_run = rename_current_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+    )
 
-    filepath = clean_br_me_comex_stat()                                                   
+    filepath = clean_br_me_comex_stat()
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
@@ -106,14 +112,20 @@ with Flow(
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_me_comex_stat", required=True)
     table_id = Parameter("table_id", default="municipio_importacao", required=True)
-    start = Parameter("start", default=1997, required=True)                          ## confirmar depois
-    materialization_mode = Parameter("materialization_mode", default="dev", required=False)
-    materialize_after_dump = Parameter("materialize after dump", default=True, required=False)
+    start = Parameter("start", default=1997, required=True)  ## confirmar depois
+    materialization_mode = Parameter(
+        "materialization_mode", default="dev", required=False
+    )
+    materialize_after_dump = Parameter(
+        "materialize after dump", default=True, required=False
+    )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
-    rename_flow_run = rename_current_flow_run_dataset_table(prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id)
+    rename_flow_run = rename_current_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+    )
 
-    filepath = clean_br_me_comex_stat()                                                   
+    filepath = clean_br_me_comex_stat()
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
@@ -171,14 +183,20 @@ with Flow(
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_me_comex_stat", required=True)
     table_id = Parameter("table_id", default="ncm_exportacao", required=True)
-    start = Parameter("start", default=1997, required=True)                          ## confirmar depois
-    materialization_mode = Parameter("materialization_mode", default="dev", required=False)
-    materialize_after_dump = Parameter("materialize after dump", default=True, required=False)
+    start = Parameter("start", default=1997, required=True)  ## confirmar depois
+    materialization_mode = Parameter(
+        "materialization_mode", default="dev", required=False
+    )
+    materialize_after_dump = Parameter(
+        "materialize after dump", default=True, required=False
+    )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
-    rename_flow_run = rename_current_flow_run_dataset_table(prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id)
+    rename_flow_run = rename_current_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+    )
 
-    filepath = clean_br_me_comex_stat()                                                   
+    filepath = clean_br_me_comex_stat()
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
@@ -236,14 +254,20 @@ with Flow(
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_me_comex_stat", required=True)
     table_id = Parameter("table_id", default="ncm_importacao", required=True)
-    start = Parameter("start", default=1997, required=True)                          ## confirmar depois
-    materialization_mode = Parameter("materialization_mode", default="dev", required=False)
-    materialize_after_dump = Parameter("materialize after dump", default=True, required=False)
+    start = Parameter("start", default=1997, required=True)  ## confirmar depois
+    materialization_mode = Parameter(
+        "materialization_mode", default="dev", required=False
+    )
+    materialize_after_dump = Parameter(
+        "materialize after dump", default=True, required=False
+    )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
-    rename_flow_run = rename_current_flow_run_dataset_table(prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id)
+    rename_flow_run = rename_current_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+    )
 
-    filepath = clean_br_me_comex_stat()                                                   
+    filepath = clean_br_me_comex_stat()
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
