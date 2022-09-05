@@ -9,7 +9,7 @@ import pathlib
 import pandas as pd
 from prefect import task
 
-from pipelines.datasets.br_fgv_igp.utils import IGPData, ROOT
+from pipelines.datasets.br_fgv_igp.utils import IGPData
 
 
 @task  # noqa
@@ -40,9 +40,10 @@ def clean_fgv_df(igp_data: IGPData) -> pathlib.Path:
         str: the path of the csv file from DataFrame
     """
     filepath = pathlib.Path(igp_data.filepath)
+    filedir = filepath.parents[0]
 
-    if not ROOT.is_dir():
-        ROOT.mkdir(parents=True, exist_ok=False)
+    if not filedir.is_dir():
+        filedir.mkdir(parents=True, exist_ok=False)
 
     df = igp_data.df
 

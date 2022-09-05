@@ -3,32 +3,6 @@
 General purpose functions for the br_fgv_igp project
 """
 
-###############################################################################
-#
-# Esse é um arquivo onde podem ser declaratas funções que serão usadas
-# pelo projeto br_fgv_igp.
-#
-# Por ser um arquivo opcional, pode ser removido sem prejuízo ao funcionamento
-# do projeto, caos não esteja em uso.
-#
-# Para declarar funções, basta fazer em código Python comum, como abaixo:
-#
-# ```
-# def foo():
-#     """
-#     Function foo
-#     """
-#     print("foo")
-# ```
-#
-# Para usá-las, basta fazer conforme o exemplo abaixo:
-#
-# ```py
-# from pipelines.datasets.br_fgv_igp.utils import foo
-# foo()
-# ```
-#
-###############################################################################
 import ipeadatapy as idpy
 import numpy as np
 import pandas as pd
@@ -57,7 +31,7 @@ class IGPData:
         Returns:
             str: full path of csv file
         """
-        return f"{ROOT}/{self.index_name}_{self.period}.csv"
+        return f"{ROOT}/{self.index_name.lower()}_{self.period.lower()}/{self.index_name.lower()}_{self.period.lower()}.csv"
 
     def _get_ipea_data(self) -> pd.DataFrame:
         """
@@ -149,13 +123,11 @@ class IGPData:
             pd.DataFrame: DataFrame with 1st and 2nd tenths
         """
         dec1 = idpy.timeseries(self.decendios[0])
-        dec1.rename(
-            {dec1.columns[-1]: "indice_primeiro_decendio"}, axis=1, inplace=True
-        )
-        dec1 = dec1[["indice_primeiro_decendio"]]
+        dec1.rename({dec1.columns[-1]: "var_primeiro_decendio"}, axis=1, inplace=True)
+        dec1 = dec1[["var_primeiro_decendio"]]
         dec2 = idpy.timeseries(self.decendios[1])
-        dec2.rename({dec2.columns[-1]: "indice_segundo_decendio"}, axis=1, inplace=True)
-        dec2 = dec2[["indice_segundo_decendio"]]
+        dec2.rename({dec2.columns[-1]: "var_segundo_decendio"}, axis=1, inplace=True)
+        dec2 = dec2[["var_segundo_decendio"]]
         return pd.merge(dec1, dec2, how="outer", on="DATE")
 
     @staticmethod
