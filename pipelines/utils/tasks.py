@@ -201,7 +201,7 @@ def update_metadata(dataset_id: str, table_id: str, fields_to_update: list) -> N
 
     config_file = handle.filepath.as_posix()  # noqa
 
-    log('get path config_file')
+    log("get path config_file")
     log(config_file)
 
     with open(config_file, encoding="utf-8") as fp:
