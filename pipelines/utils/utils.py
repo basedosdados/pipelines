@@ -4,6 +4,9 @@ General utilities for all pipelines.
 """
 
 import logging
+import base64
+from datetime import datetime
+import json
 from os import getenv, walk
 from os.path import join
 from pathlib import Path
@@ -11,6 +14,10 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from uuid import uuid4
 
 import basedosdados as bd
+import croniter
+from google.cloud import storage
+from google.cloud.storage.blob import Blob
+from google.oauth2 import service_account
 import hvac
 import numpy as np
 import pandas as pd
@@ -19,10 +26,9 @@ from prefect.client import Client
 from prefect.engine.state import State
 from prefect.run_configs import KubernetesRun
 import requests
+from redis_pal import RedisPal
 
 from pipelines.constants import constants
-
-# import telegram
 
 
 def log(msg: Any, level: str = "info") -> None:
@@ -399,11 +405,11 @@ def get_storage_blobs(dataset_id: str, table_id: str) -> list:
     Get all blobs from a table in a dataset.
     """
 
-    storage = bd.Storage(dataset_id=dataset_id, table_id=table_id)
+    storage_bd = bd.Storage(dataset_id=dataset_id, table_id=table_id)
     return list(
-        storage.client["storage_staging"]
-        .bucket(storage.bucket_name)
-        .list_blobs(prefix=f"staging/{storage.dataset_id}/{storage.table_id}/")
+        storage_bd.client["storage_staging"]
+        .bucket(storage_bd.bucket_name)
+        .list_blobs(prefix=f"staging/{storage_bd.dataset_id}/{storage_bd.table_id}/")
     )
 
 
@@ -481,3 +487,79 @@ def add_underscore_to_column_name(dataframe: pd.DataFrame) -> pd.DataFrame:
         if column[0].isdigit():
             dataframe.rename(columns={column: f"_{column}"}, inplace=True)
     return dataframe
+
+
+def determine_whether_to_execute_or_not(
+    cron_expression: str, datetime_now: datetime, datetime_last_execution: datetime
+) -> bool:
+    """
+    Determines whether the cron expression is currently valid.
+    Args:
+        cron_expression: The cron expression to check.
+        datetime_now: The current datetime.
+        datetime_last_execution: The last datetime the cron expression was executed.
+    Returns:
+        True if the cron expression should trigger, False otherwise.
+    """
+    cron_expression_iterator = croniter.croniter(
+        cron_expression, datetime_last_execution
+    )
+    next_cron_expression_time = cron_expression_iterator.get_next(datetime)
+    if next_cron_expression_time <= datetime_now:
+        return True
+    return False
+
+
+def get_redis_client(
+    host: str = "redis.redis.svc.cluster.local",
+    port: int = 6379,
+    db: int = 0,  # pylint: disable=C0103
+    password: str = None,
+) -> RedisPal:
+    """
+    Returns a Redis client.
+    """
+    return RedisPal(
+        host=host,
+        port=port,
+        db=db,
+        password=password,
+    )
+
+
+def list_blobs_with_prefix(
+    bucket_name: str, prefix: str, mode: str = "prod"
+) -> List[Blob]:
+    """
+    Lists all the blobs in the bucket that begin with the prefix.
+    This can be used to list all blobs in a "folder", e.g. "public/".
+    Mode needs to be "prod" or "staging"
+    """
+
+    credentials = get_credentials_from_env(mode=mode)
+    storage_client = storage.Client(credentials=credentials)
+
+    # Note: Client.list_blobs requires at least package version 1.17.0.
+    blobs = storage_client.list_blobs(bucket_name, prefix=prefix)
+
+    return list(blobs)
+
+
+def get_credentials_from_env(
+    mode: str = "prod", scopes: List[str] = None
+) -> service_account.Credentials:
+    """
+    Gets credentials from env vars
+    """
+    if mode not in ["prod", "staging"]:
+        raise ValueError("Mode must be 'prod' or 'staging'")
+    env: str = getenv(f"BASEDOSDADOS_CREDENTIALS_{mode.upper()}", "")
+    if env == "":
+        raise ValueError(f"BASEDOSDADOS_CREDENTIALS_{mode.upper()} env var not set!")
+    info: dict = json.loads(base64.b64decode(env))
+    cred: service_account.Credentials = (
+        service_account.Credentials.from_service_account_info(info)
+    )
+    if scopes:
+        cred = cred.with_scopes(scopes)
+    return cred
