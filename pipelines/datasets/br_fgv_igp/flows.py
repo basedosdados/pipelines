@@ -2,7 +2,6 @@
 """
 Flows for br_fgv_igp
 """
-
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -12,6 +11,7 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
+from pipelines.datasets.br_fgv_igp.constants import constants as fgv_igp_constants
 from pipelines.datasets.br_fgv_igp.schedules import igp_di_mes
 from pipelines.datasets.br_fgv_igp.tasks import crawler_fgv, clean_fgv_df
 from pipelines.utils.constants import constants as utils_constants
@@ -32,7 +32,7 @@ with Flow(
     code_owners=[],
 ) as fgv_igp_flow:
     # Parameters
-    INDICE = Parameter("indice", default="IGP12_IGPDI12")
+    INDICE = Parameter("indice", default="IGPDI", required=False)
     PERIODO = Parameter("periodo", default="mes", required=False)
     dataset_id = Parameter("dataset_id", default="br_fgv_igp")
     table_id = Parameter("table_id")
@@ -41,7 +41,7 @@ with Flow(
     )
 
     materialize_after_dump = Parameter(
-        "materialize after dump", default=True, required=False
+        "materialize_after_dump", default=True, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
@@ -49,11 +49,9 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    df_indice = crawler_fgv(INDICE)
+    df_indice = crawler_fgv(fgv_igp_constants.FGV_INDEX.value.get(INDICE), PERIODO)
     filepath = clean_fgv_df(
         df_indice,
-        root=ROOT,
-        period=PERIODO,
         upstream_tasks=[
             df_indice,
         ],

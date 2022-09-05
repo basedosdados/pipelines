@@ -32,6 +32,7 @@ Constant values for the datasets projects
 ###############################################################################
 
 from enum import Enum
+from pathlib import Path
 
 
 class constants(Enum):  # pylint: disable=c0103
@@ -39,4 +40,11 @@ class constants(Enum):  # pylint: disable=c0103
     Constant values for the br_fgv_igp project
     """
 
-    FOO = "bar"
+    FGV_INDEX = dict(
+        IGPDI=("IGP12_IGPDI12", None, None),
+        IGPM=("IGP12_IGPM12", "IGP12_IGPMG1D12", "IGP12_IGPMG2D12"),
+        IGPOG=("IGP12_IGPOG12", None, None),
+        IGP10=("IGP12_IGP1012", None, None),
+    )
+
+    ROOT = Path("tmp/data")
