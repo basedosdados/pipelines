@@ -18,7 +18,7 @@ schedule_users = Schedule(
             ],
             parameter_defaults={
                 "dataset_id": "br_bd_indicadores",
-                "table_id": "analytics_users",
+                "table_id": "website_users",
             },
         ),
     ],
