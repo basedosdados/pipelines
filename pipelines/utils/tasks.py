@@ -365,8 +365,8 @@ def get_nrows(dataset_id: str, table_id: str, staging_mode: str) -> int:
         database = "basedosdados-dev.{dataset_id}_staging.{table_id}"
     elif staging_mode == "prod":
         database = "basedosdados-staging.{dataset_id}_staging.{table_id}"
-    # ideally, we would consume the API to get the number of rows, 
-    # but it is not available yet. 
+    # ideally, we would consume the API to get the number of rows,
+    # but it is not available yet.
     # See: https://stackoverflow.com/questions/69313542/num-rows-issue-for-views-in-big-query-python-library
     query = f"SELECT COUNT(*) AS n_rows FROM `{database}`"
     n_rows = bd.read_sql(

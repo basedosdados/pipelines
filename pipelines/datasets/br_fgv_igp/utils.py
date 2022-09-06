@@ -2,7 +2,7 @@
 """
 General purpose functions for the br_fgv_igp project
 """
-
+# pylint: disable=invalid-name
 import ipeadatapy as idpy
 import numpy as np
 import pandas as pd

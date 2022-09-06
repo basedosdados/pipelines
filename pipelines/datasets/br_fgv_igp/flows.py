@@ -2,6 +2,7 @@
 """
 Flows for br_fgv_igp
 """
+# pylint: disable=invalid-name
 from datetime import timedelta
 from pathlib import Path
 
