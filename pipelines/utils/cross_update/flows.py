@@ -36,7 +36,7 @@ with Flow(
 
     table_nrows = get_nrows.map(updated_tables)
 
-    update_nrows.map(table_nrows)    
+    update_nrows.map(table_nrows)
 
 crossupdate_nrows.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 crossupdate_nrows.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)

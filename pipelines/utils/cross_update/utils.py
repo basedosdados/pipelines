@@ -1,6 +1,8 @@
-'''
+# -*- coding: utf-8 -*-
+"""
 Utils for cross_update pipeline
-'''
+"""
+
 
 def _safe_fetch(url: str):
     """
