@@ -2,7 +2,9 @@
 """
 Flows for br_fgv_igp
 """
-from datetime import timedelta, datetime
+
+# pylint: disable=invalid-name
+from datetime import timedelta
 from pathlib import Path
 
 from prefect import Parameter, case

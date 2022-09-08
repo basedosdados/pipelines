@@ -211,7 +211,7 @@ with Flow(
     ],
 ) as bd_ga_users:
     dataset_id = Parameter("dataset_id", default="br_bd_indicadores", required=True)
-    table_id = Parameter("table_id", default="analytics_users", required=True)
+    table_id = Parameter("table_id", default="website_users", required=True)
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )

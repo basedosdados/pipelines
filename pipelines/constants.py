@@ -22,7 +22,7 @@ class constants(Enum):  # pylint: disable=c0103
     DATA_TWEET_AGENT_LABEL = "bd8347ba-4969-42ec-aa52-045cef55c4af"
     BASEDOSDADOS_DEV_AGENT_LABEL = "basedosdados-dev"
     BASEDOSDADOS_PROD_AGENT_LABEL = "basedosdados"
-    BASEDOSDADOS_PERGUNTAS_AGENT_LABEL = "perguntas"
+    BASEDOSDADOS_PERGUNTAS_AGENT_LABEL = "basedosdados-perguntas"
 
     ######################################
     # Other constants
