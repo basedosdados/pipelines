@@ -15,7 +15,7 @@ schedule_nrows = Schedule(
             start_date=datetime(2021, 1, 1, 9, 45),
             labels=[
                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
-            ]
+            ],
         ),
     ],
 )

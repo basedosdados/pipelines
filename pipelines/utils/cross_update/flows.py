@@ -15,9 +15,7 @@ from pipelines.utils.cross_update.tasks import (
     get_nrows,
     update_nrows,
 )
-from pipelines.utils.cross_update.schedules import (
-    schedule_nrows
-)
+from pipelines.utils.cross_update.schedules import schedule_nrows
 
 with Flow(
     name="cross_update.update_nrows", code_owners=["lucas_cr"]
