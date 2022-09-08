@@ -2,6 +2,7 @@
 """
 Flows for br_fgv_igp
 """
+
 # pylint: disable=invalid-name
 from datetime import timedelta
 from pathlib import Path
@@ -25,7 +26,11 @@ from pipelines.datasets.br_fgv_igp.tasks import crawler_fgv, clean_fgv_df
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.tasks import create_table_and_upload_to_gcs
+from pipelines.utils.tasks import (
+    create_table_and_upload_to_gcs,
+    update_metadata,
+    get_temporal_coverage,
+)
 from pipelines.utils.tasks import (
     rename_current_flow_run_dataset_table,
     get_current_flow_labels,
@@ -99,22 +104,23 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-    # temporal_coverage = get_temporal_coverage(
-    #     filepath=filepath,
-    #     date_cols=["ano", "mes"],
-    #     time_unit="month",
-    #     interval="1",
-    #     upstream_tasks=[filepath],
-    # )
-    #
-    # wait_update_metadata = update_metadata(
-    #     dataset_id=dataset_id,
-    #     table_id=table_id,
-    #     fields_to_update=[
-    #         {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}}
-    #     ],
-    #     upstream_tasks=[filepath],
-    # )
+    temporal_coverage = get_temporal_coverage(
+        filepath=filepath,
+        date_cols=["ano", "mes"],
+        time_unit="month",
+        interval="1",
+        upstream_tasks=[filepath],
+    )
+
+    wait_update_metadata = update_metadata(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        fields_to_update=[
+            {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
+            {"temporal_coverage": [temporal_coverage]},
+        ],
+        upstream_tasks=[wait_upload_table],
+    )
 
 
 fgv_igpdi_mes_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -188,22 +194,23 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-    # temporal_coverage = get_temporal_coverage(
-    #     filepath=filepath,
-    #     date_cols=["ano", "mes"],
-    #     time_unit="month",
-    #     interval="1",
-    #     upstream_tasks=[filepath],
-    # )
-    #
-    # wait_update_metadata = update_metadata(
-    #     dataset_id=dataset_id,
-    #     table_id=table_id,
-    #     fields_to_update=[
-    #         {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}}
-    #     ],
-    #     upstream_tasks=[filepath],
-    # )
+    temporal_coverage = get_temporal_coverage(
+        filepath=filepath,
+        date_cols=["ano", "mes"],
+        time_unit="month",
+        interval="1",
+        upstream_tasks=[filepath],
+    )
+
+    wait_update_metadata = update_metadata(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        fields_to_update=[
+            {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
+            {"temporal_coverage": [temporal_coverage]},
+        ],
+        upstream_tasks=[filepath],
+    )
 
 
 fgv_igpdi_ano_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -277,22 +284,23 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-    # temporal_coverage = get_temporal_coverage(
-    #     filepath=filepath,
-    #     date_cols=["ano", "mes"],
-    #     time_unit="month",
-    #     interval="1",
-    #     upstream_tasks=[filepath],
-    # )
-    #
-    # wait_update_metadata = update_metadata(
-    #     dataset_id=dataset_id,
-    #     table_id=table_id,
-    #     fields_to_update=[
-    #         {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}}
-    #     ],
-    #     upstream_tasks=[filepath],
-    # )
+    temporal_coverage = get_temporal_coverage(
+        filepath=filepath,
+        date_cols=["ano", "mes"],
+        time_unit="month",
+        interval="1",
+        upstream_tasks=[filepath],
+    )
+
+    wait_update_metadata = update_metadata(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        fields_to_update=[
+            {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
+            {"temporal_coverage": [temporal_coverage]},
+        ],
+        upstream_tasks=[filepath],
+    )
 
 
 fgv_igpm_mes_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -366,22 +374,23 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-    # temporal_coverage = get_temporal_coverage(
-    #     filepath=filepath,
-    #     date_cols=["ano", "mes"],
-    #     time_unit="month",
-    #     interval="1",
-    #     upstream_tasks=[filepath],
-    # )
-    #
-    # wait_update_metadata = update_metadata(
-    #     dataset_id=dataset_id,
-    #     table_id=table_id,
-    #     fields_to_update=[
-    #         {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}}
-    #     ],
-    #     upstream_tasks=[filepath],
-    # )
+    temporal_coverage = get_temporal_coverage(
+        filepath=filepath,
+        date_cols=["ano", "mes"],
+        time_unit="month",
+        interval="1",
+        upstream_tasks=[filepath],
+    )
+
+    wait_update_metadata = update_metadata(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        fields_to_update=[
+            {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
+            {"temporal_coverage": [temporal_coverage]},
+        ],
+        upstream_tasks=[filepath],
+    )
 
 
 fgv_igpm_ano_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -455,22 +464,23 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-    # temporal_coverage = get_temporal_coverage(
-    #     filepath=filepath,
-    #     date_cols=["ano", "mes"],
-    #     time_unit="month",
-    #     interval="1",
-    #     upstream_tasks=[filepath],
-    # )
-    #
-    # wait_update_metadata = update_metadata(
-    #     dataset_id=dataset_id,
-    #     table_id=table_id,
-    #     fields_to_update=[
-    #         {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}}
-    #     ],
-    #     upstream_tasks=[filepath],
-    # )
+    temporal_coverage = get_temporal_coverage(
+        filepath=filepath,
+        date_cols=["ano", "mes"],
+        time_unit="month",
+        interval="1",
+        upstream_tasks=[filepath],
+    )
+
+    wait_update_metadata = update_metadata(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        fields_to_update=[
+            {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
+            {"temporal_coverage": [temporal_coverage]},
+        ],
+        upstream_tasks=[filepath],
+    )
 
 
 fgv_igpog_mes_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -544,22 +554,23 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-    # temporal_coverage = get_temporal_coverage(
-    #     filepath=filepath,
-    #     date_cols=["ano", "mes"],
-    #     time_unit="month",
-    #     interval="1",
-    #     upstream_tasks=[filepath],
-    # )
-    #
-    # wait_update_metadata = update_metadata(
-    #     dataset_id=dataset_id,
-    #     table_id=table_id,
-    #     fields_to_update=[
-    #         {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}}
-    #     ],
-    #     upstream_tasks=[filepath],
-    # )
+    temporal_coverage = get_temporal_coverage(
+        filepath=filepath,
+        date_cols=["ano", "mes"],
+        time_unit="month",
+        interval="1",
+        upstream_tasks=[filepath],
+    )
+
+    wait_update_metadata = update_metadata(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        fields_to_update=[
+            {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
+            {"temporal_coverage": [temporal_coverage]},
+        ],
+        upstream_tasks=[filepath],
+    )
 
 
 fgv_igpog_ano_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -633,22 +644,23 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-    # temporal_coverage = get_temporal_coverage(
-    #     filepath=filepath,
-    #     date_cols=["ano", "mes"],
-    #     time_unit="month",
-    #     interval="1",
-    #     upstream_tasks=[filepath],
-    # )
-    #
-    # wait_update_metadata = update_metadata(
-    #     dataset_id=dataset_id,
-    #     table_id=table_id,
-    #     fields_to_update=[
-    #         {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}}
-    #     ],
-    #     upstream_tasks=[filepath],
-    # )
+    temporal_coverage = get_temporal_coverage(
+        filepath=filepath,
+        date_cols=["ano", "mes"],
+        time_unit="month",
+        interval="1",
+        upstream_tasks=[filepath],
+    )
+
+    wait_update_metadata = update_metadata(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        fields_to_update=[
+            {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
+            {"temporal_coverage": [temporal_coverage]},
+        ],
+        upstream_tasks=[filepath],
+    )
 
 
 fgv_igp10_mes_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
