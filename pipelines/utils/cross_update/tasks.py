@@ -1,51 +1,81 @@
 # -*- coding: utf-8 -*-
 """
-Tasks for dumping data directly from BigQuery to GCS.
+Tasks for cross update of metadata.
 """
-
+# pylint: disable=invalid-name
 from typing import List, Dict
-import math
+import datetime
+from datetime import timedelta
 
 import basedosdados as bd
 from prefect import task
+import ruamel.yaml as ryaml
 
-from pipelines.utils.cross_update.utils import _safe_fetch, _dict_from_page
+
+from pipelines.utils.cross_update.utils import _safe_fetch
+from pipelines.utils.utils import log
 
 
 @task
-def last_updated_tables() -> List[Dict[str, str]]:
+def crawler_datasets() -> Dict:
     """
-    This function uses `bd_dataset_search` website API
+    This task uses `bd_dataset_search` website API
     enpoint to retrieve a list of tables updated in last 7 days.
     Args:
         mode (str): prod or staging
     Returns:
         list of lists with dataset_id and table_id
     """
-    # first request is made separately since we need to now the number of pages before the iteration
-    page_size = 100  # this function will only made more than one requisition if there are more than 100 datasets in the API response #pylint: disable=C0301
+    # first request is made separately since we need to know the number of pages before the iteration
+    page_size = 100
     url = f"https://basedosdados.org/api/3/action/bd_dataset_search?q=&resource_type=bdm_table&page=1&page_size={page_size}"  # pylint: disable=C0301
     response = _safe_fetch(url)
     json_response = response.json()
+
+    return json_response
+
+
+@task
+def last_updated_tables(json_response) -> List[Dict[str, str]]:
+    """
+    Generate a dict from BD's API response with dataset_id and description as keys
+    """
     n_datasets = json_response["result"]["count"]
-    n_pages = math.ceil(n_datasets / page_size)
-    temp_dict = _dict_from_page(json_response)
+    n_resources = [
+        json_response["result"]["datasets"][k]["num_resources"]
+        for k in range(n_datasets)
+    ]
+    datasets = json_response["result"]["datasets"]
+    bdm_tables = []
 
-    temp_dicts = [temp_dict]
-    for page in range(2, n_pages + 1):
-        url = f"https://basedosdados.org/api/3/action/bd_dataset_search?q=&resource_type=bdm_table&page={page}&page_size={page_size}"  # pylint: disable=C0301
-        response = _safe_fetch(url)
-        json_response = response.json()
-        temp_dict = _dict_from_page(json_response)
-        temp_dicts.append(temp_dict)
+    for i in range(n_datasets):
+        for j in range(n_resources[i]):
+            if datasets[i]["resources"][j]["resource_type"] == "bdm_table":
+                bdm_tables.append(datasets[i]["resources"][j])
+    result = []
+    for bdm_table in bdm_tables:
+        tmp_dict = {
+            "dataset_id": bdm_table["dataset_id"],
+            "table_id": bdm_table["table_id"],
+            "last_updated": bdm_table["metadata_modified"],
+        }
+        result.append(tmp_dict)
 
-    dataset_dict = defaultdict(list)
+    # filter list of dictionaries by last_updated and remove older than 7 days
+    today = datetime.datetime.today()
+    seven_days_ago = today - timedelta(days=1)
+    result = [
+        x
+        for x in result
+        if datetime.datetime.strptime(x["last_updated"], "%Y-%m-%dT%H:%M:%S.%f")
+        > seven_days_ago
+    ]
 
-    for d in temp_dicts:  # pylint: disable=C0103
-        for key, value in d.items():
-            dataset_dict[key].append(value)
+    # remove last_updated key
+    for x in result:
+        del x["last_updated"]
 
-    print(dataset_dict.keys())
+    return result
 
 
 @task
@@ -70,15 +100,45 @@ def get_nrows(dataset_id: str, table_id: str) -> List[Dict[str, str]]:
         query=query, billing_project_id=config_map["project_id"], from_file=True
     )["n_rows"].to_list()[0]
 
-    return n_rows
+    return {"dataset_id": dataset_id, "table_id": table_id, "n_rows": n_rows}
 
 
-@tasks
+@task
 def update_nrows(dataset_id: str, table_id: str, nrows: int) -> None:
-    """Update number of rows in a table
-
-    Args:
-        dataset_id (str): dataset id
-        table_id (str): table id
-        nrows (int): number of rows
     """
+    Update metadata for a selected table
+    dataset_id: dataset_id,
+    table_id: table_id,
+    fields_to_update: list of dictionaries with key and values to be updated
+    """
+    fields_to_update = [{"number_rows": nrows}]
+
+    # add credentials to config.toml
+    handle = bd.Metadata(dataset_id=dataset_id, table_id=table_id)
+    handle.create(if_exists="replace")
+
+    yaml = ryaml.YAML()
+    yaml.preserve_quotes = True
+    yaml.indent(mapping=4, sequence=6, offset=4)
+
+    config_file = handle.filepath.as_posix()
+
+    with open(config_file, encoding="utf-8") as fp:
+        data = yaml.load(fp)
+
+    for field in fields_to_update:
+        for k, v in field.items():
+            if isinstance(v, dict):
+                for i, j in v.items():
+                    data[k][i] = j
+            else:
+                data[k] = v
+
+    with open(config_file, "w", encoding="utf-8") as fp:
+        yaml.dump(data, fp)
+
+    if handle.validate():
+        handle.publish(if_exists="replace")
+        log(f"Metadata for {table_id} updated")
+    else:
+        log("Fail to validate metadata.")

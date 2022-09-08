@@ -2,6 +2,7 @@
 """
 Utils for cross_update pipeline
 """
+import requests
 
 
 def _safe_fetch(url: str):
@@ -22,20 +23,3 @@ def _safe_fetch(url: str):
         print("This url doesn't appear to exists:", err)
 
     return response
-
-
-def _dict_from_page(json_response):
-    """
-    Generate a dict from BD's API response with dataset_id and description as keys
-    """
-    temp_dict = {
-        "dataset_id": [
-            dataset["name"] for dataset in json_response["result"]["datasets"]
-        ],
-        "description": [
-            dataset["notes"] if "notes" in dataset.keys() else None
-            for dataset in json_response["result"]["datasets"]
-        ],
-    }
-
-    return temp_dict
