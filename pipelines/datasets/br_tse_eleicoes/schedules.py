@@ -94,3 +94,4 @@ schedule_receita = Schedule(
     ],
     filters=[filters.is_weekday],
 )
+

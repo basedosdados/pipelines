@@ -14,10 +14,11 @@ import ruamel.yaml as ryaml
 
 from pipelines.utils.cross_update.utils import _safe_fetch
 from pipelines.utils.utils import log
+from pipelines.utils.dump_to_gcs.constants import constants as dump_to_gcs_constants
 
 
 @task
-def crawler_datasets(page_size:int, mode:str) -> Dict:
+def crawler_datasets(page_size: int, mode: str) -> Dict:
     """
     This task uses `bd_dataset_search` website API
     enpoint to retrieve a list of tables updated in last 7 days.
@@ -26,12 +27,12 @@ def crawler_datasets(page_size:int, mode:str) -> Dict:
     Returns:
         list of lists with dataset_id and table_id
     """
-    if mode=='prod':
-        url = 'https://basedosdados.org/api/3/action/bd_dataset_search'
-    elif mode=='dev':
-        url = 'https://staging.basedosdados.org/api/3/action/bd_dataset_search'
+    if mode == "prod":
+        url = "https://basedosdados.org/api/3/action/bd_dataset_search"
+    elif mode == "dev":
+        url = "https://staging.basedosdados.org/api/3/action/bd_dataset_search"
     else:
-        raise ValueError('mode must be prod or dev')
+        raise ValueError("mode must be prod or dev")
     url = f"{url}?q=&resource_type=bdm_table&page=1&page_size={page_size}"  # pylint: disable=C0301
     response = _safe_fetch(url)
     json_response = response.json()
@@ -40,7 +41,7 @@ def crawler_datasets(page_size:int, mode:str) -> Dict:
 
 
 @task
-def last_updated_tables(json_response:dict, days:int=7) -> List[Dict[str, str]]:
+def last_updated_tables(json_response: dict, days: int = 7) -> List[Dict[str, str]]:
     """Generate a list of dicts like {"dataset_id": "dataset_id", "table_id": "table_id"}
     where all tables was update in the last 7 days
     """
@@ -88,7 +89,7 @@ def last_updated_tables(json_response:dict, days:int=7) -> List[Dict[str, str]]:
 
 
 @task
-def tables_to_zip(json_response:dict, days:int=7) -> List[Dict[str, str]]:
+def tables_to_zip(json_response: dict, days: int = 7) -> List[Dict[str, str]]:
     """Generate a list of dicts like {"dataset_id": "dataset_id", "table_id": "table_id"}
     where all tables was update in the last 7 days and has less than 200k rows
     """
@@ -105,12 +106,22 @@ def tables_to_zip(json_response:dict, days:int=7) -> List[Dict[str, str]]:
             if datasets[i]["resources"][j]["resource_type"] == "bdm_table":
                 bdm_tables.append(datasets[i]["resources"][j])
     result = []
+
     for bdm_table in bdm_tables:
+        # skip if dataset_id, table_id, metadata_modified, and number of rows are not in the bdm_table keys
+        if not all(
+            key in bdm_table.keys()
+            for key in ["dataset_id", "table_id", "metadata_modified", "number_of_rows"]
+        ):
+            continue
+        log(f"Table: {bdm_table['dataset_id']}.{bdm_table['table_id']}")
         tmp_dict = {
             "dataset_id": bdm_table["dataset_id"],
             "table_id": bdm_table["table_id"],
             "last_updated": bdm_table["metadata_modified"],
             "number_rows": bdm_table["number_rows"],
+            "project_id": "basedosdados",
+            "maximum_bytes_processed": dump_to_gcs_constants.MAX_BYTES_PROCESSED_PER_TABLE.value,
         }
         result.append(tmp_dict)
 
@@ -126,6 +137,12 @@ def tables_to_zip(json_response:dict, days:int=7) -> List[Dict[str, str]]:
 
     # filter list of dictionaries by number_rows and remove tables with more than 200k rows
     result = [x for x in result if x["number_rows"] <= 200000]
+
+    log(
+        f"Found {len(result)} tables updated in last 7 days and has less than 200k rows"
+    )
+    for table in result:
+        log(f"Table: {table['dataset_id']}.{table['table_id']} will be ziped")
 
     # remove last_updated key and number_rows key
     for x in result:
@@ -152,7 +169,9 @@ def update_nrows(table_dict: Dict[str, str], mode: str) -> Dict[str, str]:
         config_map.update({"database": f"basedosdados.{dataset_id}.{table_id}"})
         config_map.update({"project_id": "basedosdados"})
     elif mode == "dev":
-        config_map.update({"database": f"basedosdados-dev.{dataset_id}_staging.{table_id}"})
+        config_map.update(
+            {"database": f"basedosdados-dev.{dataset_id}_staging.{table_id}"}
+        )
         config_map.update({"project_id": "basedosdados-dev"})
     else:
         raise ValueError("mode must be prod or dev")
