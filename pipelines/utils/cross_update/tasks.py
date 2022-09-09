@@ -36,9 +36,9 @@ def crawler_datasets() -> Dict:
 
 
 @task
-def last_updated_tables(json_response) -> List[Dict[str, str]]:
-    """
-    Generate a dict from BD's API response with dataset_id and description as keys
+def last_updated_tables(json_response:dict, days:int=7) -> List[Dict[str, str]]:
+    """Generate a list of dicts like {"dataset_id": "dataset_id", "table_id": "table_id"}
+    where all tables was update in the last 7 days
     """
     n_datasets = json_response["result"]["count"]
     n_resources = [
@@ -61,9 +61,9 @@ def last_updated_tables(json_response) -> List[Dict[str, str]]:
         }
         result.append(tmp_dict)
 
-    # filter list of dictionaries by last_updated and remove older than 7 days
+    # filter list of dictionaries by last_updated and remove older than X days
     today = datetime.datetime.today()
-    seven_days_ago = today - timedelta(days=1)
+    seven_days_ago = today - timedelta(days=days)
     result = [
         x
         for x in result
@@ -79,6 +79,54 @@ def last_updated_tables(json_response) -> List[Dict[str, str]]:
     # remove last_updated key
     for x in result:
         del x["last_updated"]
+
+    return result
+
+
+@task
+def tables_to_zip(json_response:dict, days:int=7) -> List[Dict[str, str]]:
+    """Generate a list of dicts like {"dataset_id": "dataset_id", "table_id": "table_id"}
+    where all tables was update in the last 7 days and has less than 200k rows
+    """
+    n_datasets = json_response["result"]["count"]
+    n_resources = [
+        json_response["result"]["datasets"][k]["num_resources"]
+        for k in range(n_datasets)
+    ]
+    datasets = json_response["result"]["datasets"]
+    bdm_tables = []
+
+    for i in range(n_datasets):
+        for j in range(n_resources[i]):
+            if datasets[i]["resources"][j]["resource_type"] == "bdm_table":
+                bdm_tables.append(datasets[i]["resources"][j])
+    result = []
+    for bdm_table in bdm_tables:
+        tmp_dict = {
+            "dataset_id": bdm_table["dataset_id"],
+            "table_id": bdm_table["table_id"],
+            "last_updated": bdm_table["metadata_modified"],
+            "number_rows": bdm_table["number_rows"],
+        }
+        result.append(tmp_dict)
+
+    # filter list of dictionaries by last_updated and remove older than X days
+    today = datetime.datetime.today()
+    seven_days_ago = today - timedelta(days=days)
+    result = [
+        x
+        for x in result
+        if datetime.datetime.strptime(x["last_updated"], "%Y-%m-%dT%H:%M:%S.%f")
+        > seven_days_ago
+    ]
+
+    # filter list of dictionaries by number_rows and remove tables with more than 200k rows
+    result = [x for x in result if x["number_rows"] <= 200000]
+
+    # remove last_updated key and number_rows key
+    for x in result:
+        del x["last_updated"]
+        del x["number_rows"]
 
     return result
 
