@@ -2,7 +2,7 @@
 """
 Tasks for cross update of metadata.
 """
-# pylint: disable=invalid-name
+# pylint: disable=invalid-name, too-many-locals
 from typing import List, Dict
 import datetime
 from datetime import timedelta
@@ -71,6 +71,11 @@ def last_updated_tables(json_response) -> List[Dict[str, str]]:
         > seven_days_ago
     ]
 
+    log(f"Found {len(result)} tables updated in last 7 days")
+
+    for table in result:
+        log(f"Table: {table['dataset_id']}.{table['table_id']}")
+
     # remove last_updated key
     for x in result:
         del x["last_updated"]
@@ -79,7 +84,7 @@ def last_updated_tables(json_response) -> List[Dict[str, str]]:
 
 
 @task
-def get_nrows(dataset_id: str, table_id: str) -> List[Dict[str, str]]:
+def update_nrows(table_dict: Dict[str, str]) -> Dict[str, str]:
     """Get number of rows in a table
 
     Args:
@@ -88,8 +93,10 @@ def get_nrows(dataset_id: str, table_id: str) -> List[Dict[str, str]]:
     Returns:
         int: number of rows
     """
+    dataset_id = table_dict["dataset_id"]
+    table_id = table_dict["table_id"]
     config_map = {}
-    config_map.update({"database": "basedosdados.{dataset_id}_staging.{table_id}"})
+    config_map.update({"database": f"basedosdados.{dataset_id}.{table_id}"})
     config_map.update({"project_id": "basedosdados"})
 
     # ideally, we would consume the API to get the number of rows,
@@ -100,18 +107,7 @@ def get_nrows(dataset_id: str, table_id: str) -> List[Dict[str, str]]:
         query=query, billing_project_id=config_map["project_id"], from_file=True
     )["n_rows"].to_list()[0]
 
-    return {"dataset_id": dataset_id, "table_id": table_id, "n_rows": n_rows}
-
-
-@task
-def update_nrows(dataset_id: str, table_id: str, nrows: int) -> None:
-    """
-    Update metadata for a selected table
-    dataset_id: dataset_id,
-    table_id: table_id,
-    fields_to_update: list of dictionaries with key and values to be updated
-    """
-    fields_to_update = [{"number_rows": nrows}]
+    fields_to_update = [{"number_rows": int(n_rows)}]
 
     # add credentials to config.toml
     handle = bd.Metadata(dataset_id=dataset_id, table_id=table_id)
