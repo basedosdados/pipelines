@@ -26,18 +26,20 @@ with Flow(
 ) as crossupdate_nrows:
     dump_to_gcs = Parameter("dump_to_gcs", default=False, required=False)
     days = Parameter("days", default=7, required=False)
+    mode = Parameter("mode", default="prod", required=False)
 
-    json_response = crawler_datasets()
+    json_response = crawler_datasets(page_size=100,mode=mode)
     updated_tables = last_updated_tables(json_response, days=days)
-    tables_to_zip = tables_to_zip(json_response, days=days)
     updated_tables.set_upstream(json_response)
-    tables_to_zip.set_upstream(json_response)
 
-    table_nrows = update_nrows.map(updated_tables)
+    table_nrows = update_nrows.map(updated_tables, mode=unmapped(mode))
     table_nrows.set_upstream(updated_tables)
 
     with case(dump_to_gcs, True):
+        json_response = crawler_datasets(page_size=100,mode=mode)
         current_flow_labels = get_current_flow_labels()
+        tables_to_zip = tables_to_zip(json_response, days=days)
+        tables_to_zip.set_upstream(json_response)
         dump_eventos_to_gcs_flow = create_flow_run.map(
             flow_name=unmapped(utils_constants.FLOW_DUMP_TO_GCS_NAME.value),
             project_name=unmapped(constants.PREFECT_DEFAULT_PROJECT.value),

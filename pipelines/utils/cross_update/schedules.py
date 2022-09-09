@@ -14,8 +14,13 @@ schedule_nrows = Schedule(
             interval=timedelta(days=7),
             start_date=datetime(2021, 1, 1, 9, 45),
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
+            parameter_defaults={
+                "dump_to_gcs": False,
+                "days": 7,
+                "mode": "dev",
+            },
         ),
     ],
 )
