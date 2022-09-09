@@ -180,6 +180,8 @@ def update_nrows(table_dict: Dict[str, str], mode: str) -> Dict[str, str]:
     with open(config_file, encoding="utf-8") as fp:
         data = yaml.load(fp)
 
+    log(data)
+
     for field in fields_to_update:
         for k, v in field.items():
             if isinstance(v, dict):
@@ -190,6 +192,8 @@ def update_nrows(table_dict: Dict[str, str], mode: str) -> Dict[str, str]:
 
     with open(config_file, "w", encoding="utf-8") as fp:
         yaml.dump(data, fp)
+
+    log(data)
 
     if handle.validate():
         handle.publish(if_exists="replace")
