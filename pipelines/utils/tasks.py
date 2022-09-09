@@ -201,9 +201,6 @@ def update_metadata(dataset_id: str, table_id: str, fields_to_update: list) -> N
 
     config_file = handle.filepath.as_posix()  # noqa
 
-    log("get path config_file")
-    log(config_file)
-
     with open(config_file, encoding="utf-8") as fp:
         data = yaml.load(fp)
 
@@ -346,31 +343,3 @@ def get_date_time_str(wait=None) -> str:
     Get current time as string
     """
     return datetime.now().strftime("%Y-%m-%d %HH:%MM")
-
-
-@task
-def get_nrows(dataset_id: str, table_id: str, staging_mode: str) -> int:
-    """Get number of rows in a table
-
-    Args:
-        dataset_id (str): dataset id
-        table_id (str): table id
-        staging_mode (str): staging mode
-
-    Returns:
-        int: number of rows
-    """
-
-    if staging_mode == "dev":
-        database = "basedosdados-dev.{dataset_id}_staging.{table_id}"
-    elif staging_mode == "prod":
-        database = "basedosdados-staging.{dataset_id}_staging.{table_id}"
-    # ideally, we would consume the API to get the number of rows,
-    # but it is not available yet.
-    # See: https://stackoverflow.com/questions/69313542/num-rows-issue-for-views-in-big-query-python-library
-    query = f"SELECT COUNT(*) AS n_rows FROM `{database}`"
-    n_rows = bd.read_sql(
-        query=query, billing_project_id="basedosdados-dev", from_file=True
-    )["n_rows"].to_list()[0]
-
-    return n_rows
