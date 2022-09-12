@@ -98,6 +98,9 @@ def crawler_tables(json_response: dict, days: int = 7) -> Tuple[List[Dict[str, s
         }
         to_zip.append(tmp_dict)
 
+    # remove tables where number of rows is None
+    to_zip = [x for x in to_zip if x["number_rows"] is not None]
+    # keep only tables with less than 200k lines
     to_zip = [x for x in to_zip if x["number_rows"] <= 200000]
 
     log(f"Found {len(to_zip)} tables to zip")
