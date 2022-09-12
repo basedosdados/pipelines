@@ -22,6 +22,7 @@ class constants(Enum):  # pylint: disable=c0103
     DATA_TWEET_AGENT_LABEL = "bd8347ba-4969-42ec-aa52-045cef55c4af"
     BASEDOSDADOS_DEV_AGENT_LABEL = "basedosdados-dev"
     BASEDOSDADOS_PROD_AGENT_LABEL = "basedosdados"
+    BASEDOSDADOS_PERGUNTAS_AGENT_LABEL = "basedosdados-perguntas"
 
     ######################################
     # Other constants
@@ -38,7 +39,7 @@ class constants(Enum):  # pylint: disable=c0103
     # Discord code owners constants
     ######################################
     BD_DISCORD_WEBHOOK_SECRET_PATH = "prefect-discord-webhook"
-    DEFAULT_CODE_OWNERS = ["equipe_infra", "equipe_dados"]
+    DEFAULT_CODE_OWNERS = ["equipe_infra"]
     OWNERS_DISCORD_MENTIONS = {
         # Register all code owners, users_id and type
         #     - possible types: https://docs.discord.club/embedg/reference/mentions
@@ -46,10 +47,6 @@ class constants(Enum):  # pylint: disable=c0103
         #     - types: user, user_nickname, channel, role
         "equipe_infra": {
             "user_id": "865223885031997455",
-            "type": "role",
-        },
-        "equipe_dados": {
-            "user_id": "865034571469160458",
             "type": "role",
         },
         "diego": {
@@ -66,6 +63,18 @@ class constants(Enum):  # pylint: disable=c0103
         },
         "ath67": {
             "user_id": "467788821527003136",
+            "type": "user_nickname",
+        },
+        "guialvesp1": {
+            "user_id": "307722006818979840",
+            "type": "user_nickname",
+        },
+        "lauris": {
+            "user_id": "725799350516842636",
+            "type": "user_nickname",
+        },
+        "Mauricio Fagundes": {
+            "user_id": "238816891337048064",
             "type": "user_nickname",
         },
     }

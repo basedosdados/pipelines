@@ -2,6 +2,7 @@
 """
 Flows for br_bd_indicadores
 """
+# pylint: disable=invalid-name
 from datetime import timedelta
 
 from prefect import Parameter, case
@@ -15,9 +16,12 @@ from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.datasets.br_bd_indicadores.tasks import (
     crawler_metricas,
+    crawler_real_time,
     has_new_tweets,
     echo,
-    get_credentials,
+    get_twitter_credentials,
+    get_ga_credentials,
+    crawler_report_ga,
 )
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
@@ -25,7 +29,11 @@ from pipelines.utils.tasks import (
     get_current_flow_labels,
 )
 
-from pipelines.datasets.br_bd_indicadores.schedules import every_day, every_week
+from pipelines.datasets.br_bd_indicadores.schedules import (
+    every_day,
+    every_week,
+    schedule_users,
+)
 
 with Flow(
     name="br_bd_indicadores.twitter_metrics",
@@ -58,7 +66,7 @@ with Flow(
         consumer_key,
         consumer_secret,
         bearer_token,
-    ) = get_credentials(secret_path="twitter_credentials", wait=None)
+    ) = get_twitter_credentials(secret_path="twitter_credentials", wait=None)
 
     cond = has_new_tweets(bearer_token, table_id=table_id)
 
@@ -159,3 +167,79 @@ with Flow(
 bd_twt_metricas_agg.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 bd_twt_metricas_agg.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 bd_twt_metricas_agg.schedule = every_week
+
+
+with Flow(
+    name="br_bd_indicadores.page_views",
+    code_owners=[
+        "lucas_cr",
+    ],
+) as bd_pageviews:
+    dataset_id = Parameter("dataset_id", default="br_bd_indicadores", required=True)
+    table_id = Parameter("table_id", default="page_views", required=True)
+    rename_flow_run = rename_current_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+    )
+
+    property_id = get_ga_credentials(
+        secret_path="ga_credentials", key="property_id", wait=None
+    )
+
+    filepath = crawler_real_time(
+        lst_dimension=["country", "city", "unifiedScreenName"],
+        lst_metric=["activeUsers", "conversions", "eventCount", "screenPageViews"],
+        property_id=property_id,
+    )
+
+    wait_upload_table = create_table_and_upload_to_gcs(
+        data_path=filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dump_mode="append",
+        wait=filepath,
+    )
+
+
+bd_pageviews.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+bd_pageviews.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+
+
+with Flow(
+    name="br_bd_indicadores.ga_users",
+    code_owners=[
+        "lucas_cr",
+    ],
+) as bd_ga_users:
+    dataset_id = Parameter("dataset_id", default="br_bd_indicadores", required=True)
+    table_id = Parameter("table_id", default="website_users", required=True)
+    rename_flow_run = rename_current_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+    )
+
+    view_id = get_ga_credentials(secret_path="ga_credentials", key="view_id", wait=None)
+
+    filepath = crawler_report_ga(
+        view_id=view_id,
+        metrics=[
+            "1dayUsers",
+            "7dayUsers",
+            "14dayUsers",
+            "28dayUsers",
+            "30dayUsers",
+            "newUsers",
+        ],
+        upstream_tasks=[view_id],
+    )
+
+    wait_upload_table = create_table_and_upload_to_gcs(
+        data_path=filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dump_mode="append",
+        wait=filepath,
+    )
+
+
+bd_ga_users.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+bd_ga_users.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+bd_ga_users.schedule = schedule_users

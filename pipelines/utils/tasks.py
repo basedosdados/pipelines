@@ -9,12 +9,12 @@ from pathlib import Path
 from typing import Union, List
 
 import basedosdados as bd
-import prefect
-from prefect import task
-from prefect.client import Client
-from prefect.backend import FlowRunView
-import ruamel.yaml as ryaml
 import pandas as pd
+import prefect
+import ruamel.yaml as ryaml
+from prefect import task
+from prefect.backend import FlowRunView
+from prefect.client import Client
 
 from pipelines.constants import constants
 from pipelines.utils.utils import (
@@ -22,6 +22,7 @@ from pipelines.utils.utils import (
     log,
     dump_header_to_csv,
 )
+
 
 ##################
 #
@@ -83,7 +84,7 @@ def create_table_and_upload_to_gcs(
             )
         else:
             # the header is needed to create a table when dosen't exist
-            log("MODE APPEND: Table DOSEN'T EXISTS\n" "Start to CREATE HEADER file")
+            log("MODE APPEND: Table DOSEN'T EXISTS\n" + "Start to CREATE HEADER file")
             header_path = dump_header_to_csv(data_path=data_path)
             log("MODE APPEND: Created HEADER file:\n" f"{header_path}")
 
@@ -132,7 +133,7 @@ def create_table_and_upload_to_gcs(
 
         # the header is needed to create a table when dosen't exist
         # in overwrite mode the header is always created
-        log("MODE OVERWRITE: Table DOSEN'T EXISTS\n" "Start to CREATE HEADER file")
+        log("MODE OVERWRITE: Table DOSEN'T EXISTS\n" + "Start to CREATE HEADER file")
         header_path = dump_header_to_csv(data_path=data_path)
         log("MODE OVERWRITE: Created HEADER file:\n" f"{header_path}")
 
@@ -191,19 +192,14 @@ def update_metadata(dataset_id: str, table_id: str, fields_to_update: list) -> N
     fields_to_update: list of dictionaries with key and values to be updated
     """
     # add credentials to config.toml
-    dict_credentials = get_credentials_from_secret(secret_path="ckan_credentials")
-
     handle = bd.Metadata(dataset_id=dataset_id, table_id=table_id)
     handle.create(if_exists="replace")
-
-    handle.CKAN_API_KEY = dict_credentials["api_key"]
-    handle.CKAN_URL = dict_credentials["url"]
 
     yaml = ryaml.YAML()
     yaml.preserve_quotes = True
     yaml.indent(mapping=4, sequence=6, offset=4)
 
-    config_file = handle.filepath.as_posix()
+    config_file = handle.filepath.as_posix()  # noqa
 
     with open(config_file, encoding="utf-8") as fp:
         data = yaml.load(fp)
@@ -309,8 +305,8 @@ def get_temporal_coverage(
 
 
 # pylint: disable=W0613
-@task
-def rename_current_flow_run(msg: str, wait=None) -> None:
+@task  # noqa
+def rename_current_flow_run(msg: str, wait=None) -> bool:
     """
     Rename the current flow run.
     """
@@ -319,10 +315,10 @@ def rename_current_flow_run(msg: str, wait=None) -> None:
     return client.set_flow_run_name(flow_run_id, msg)
 
 
-@task
+@task  # noqa
 def rename_current_flow_run_dataset_table(
     prefix: str, dataset_id, table_id, wait=None
-) -> None:
+) -> bool:
     """
     Rename the current flow run.
     """
@@ -331,7 +327,7 @@ def rename_current_flow_run_dataset_table(
     return client.set_flow_run_name(flow_run_id, f"{prefix}{dataset_id}.{table_id}")
 
 
-@task
+@task  # noqa
 def get_current_flow_labels() -> List[str]:
     """
     Get the labels of the current flow.
@@ -341,7 +337,7 @@ def get_current_flow_labels() -> List[str]:
     return flow_run_view.labels
 
 
-@task
+@task  # noqa
 def get_date_time_str(wait=None) -> str:
     """
     Get current time as string

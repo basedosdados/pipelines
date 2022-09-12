@@ -38,4 +38,5 @@ class constants(Enum):  # pylint: disable=c0103
     """
     Constant values for the {{cookiecutter.workspace_name}} project
     """
+
     FOO = "bar"

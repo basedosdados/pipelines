@@ -52,9 +52,9 @@ Tasks for {{cookiecutter.project_name}}
 from prefect import task
 
 
-@task
-def say_hello(name: str = 'World') -> str:
+@task  # noqa
+def say_hello(name: str = "World") -> str:
     """
     Greeting task.
     """
-    return f'Hello, {name}!'
+    return f"Hello, {name}!"
