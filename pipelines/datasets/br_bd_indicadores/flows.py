@@ -15,6 +15,7 @@ from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.datasets.br_bd_indicadores.tasks import (
+    crawler_data_quality,
     crawler_metricas,
     crawler_real_time,
     has_new_tweets,
@@ -239,7 +240,33 @@ with Flow(
         wait=filepath,
     )
 
-
 bd_ga_users.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 bd_ga_users.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 bd_ga_users.schedule = schedule_users
+
+
+with Flow(
+    name="br_bd_indicadores.qualidade_dados",
+    code_owners=[
+        "rdahis",
+    ],
+) as bd_qualidade_dados:
+    # Parameters
+    dataset_id = Parameter("dataset_id", default="br_bd_indicadores", required=True)
+    table_id = Parameter("table_id", default="qualidade_dados", required=True)
+
+    #
+    filepath = crawler_data_quality()
+
+    # pylint: disable=C0103
+    wait_upload_table = create_table_and_upload_to_gcs(
+        data_path=filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dump_mode="append",
+        wait=filepath,
+    )
+
+bd_qualidade_dados.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+bd_qualidade_dados.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+bd_qualidade_dados.schedule = every_day
