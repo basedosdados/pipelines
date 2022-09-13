@@ -14,6 +14,7 @@ from tqdm import tqdm
 from requests_oauthlib import OAuth1
 import pandas as pd
 import numpy as np
+import basedosdados as bd
 
 from pipelines.utils.utils import (
     get_storage_blobs,
@@ -302,3 +303,19 @@ def crawler_report_ga(view_id: str, metrics: list = None) -> str:
     df.to_csv(filepath, index=False)
 
     return "/tmp/data/"
+
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def crawler_data_quality() -> str:
+    """
+    Extract data from Base dos Dados API.
+
+    Args:
+
+    Returns:
+    """
+
+    print("Hello world!")
