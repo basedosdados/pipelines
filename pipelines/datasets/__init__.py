@@ -20,3 +20,4 @@ from pipelines.datasets.br_tse_eleicoes.flows import *
 from pipelines.datasets.delete_flows.flows import *
 from pipelines.datasets.br_jota.flows import *
 from pipelines.datasets.br_fgv_igp.flows import *
+from pipelines.datasets.br_me_caged.flows import *
