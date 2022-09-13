@@ -1,8 +1,9 @@
 """
 Tasks for br_me_novo_caged
 """
-
+# pylint: disable=invalid-name
 import re
+import os
 from glob import glob
 from datetime import timedelta
 
@@ -13,7 +14,25 @@ from tqdm import tqdm
 
 from pipelines.constants import constants
 
-# pylint: disable=C0103
+@task
+def get_caged_data(table_id: str, year: int) -> None:
+    """
+    Get CAGED data
+    """
+    if year not in [2020, 2021, 2022]:
+        raise ValueError("Year must be 2020, 2021 or 2022")
+    groups = {
+        "microdados_movimentacao": "cagedmov",
+        "microdados_movimentacao_fora_prazo": "cagedfor",
+        "microdados_movimentacao_excluida": "cageddex",
+    }
+
+    group = groups[table_id]
+    command = f"bash pipelines/datasets/br_me_caged/bash_scripts/download.sh {group} {table_id} {year}"
+
+    os.system(command)
+
+
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
@@ -27,7 +46,7 @@ def build_partitions(table_id: str) -> str:
     input_files = glob(f"/tmp/caged/{table_id}/input/*txt")
     for filename in tqdm(input_files):
         df = pd.read_csv(filename, sep=";", dtype={"uf": str})
-        date = re.search(r"\d+", filename).table_id()
+        date = re.search(r"\d+", filename).group()
         ano = date[:4]
         mes = int(date[-2:])
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Para rodar esse script o usuário deve rodar bash download.sh group table_name, onde group é cagedmov | cagedfor | cageddex
+# Para rodar esse script o usuário deve rodar bash download.sh group, onde group é cagedmov | cagedfor | cageddex
 # e table_name é o nome da tabela que será criada no BigQuery  microdados_movimentacao | microdados_movimentacao_fora_prazo | microdados_movimentacao_excluida 
 
 # Ver explicação no próximo comentário:
@@ -17,6 +17,7 @@
 lower_group=$1
 upper_group=${lower_group^^}
 table_name=$2
+year=$3
 
 mkdir -p /tmp/caged/$table_name/input
 ufs=('RO' 'AC' 'AM' 'RR' 'PA' 'AP' 'TO' 'MA' 'PI' 'CE' 'RN' 'PB' 'PE' 'AL' 'SE' 'BA' 'MG' 'ES' 'RJ' 'SP' 'PR' 'SC' 'RS' 'MS' 'MT' 'GO' 'DF')
@@ -29,7 +30,7 @@ do
     do
         for mes in "${meses[@]}"
         do
-            mkdir -p /tmp/$table_name/ano=$ano/mes=$mes/sigla_uf=$uf/
+            mkdir -p /tmp/caged/$table_name/ano=$ano/mes=$mes/sigla_uf=$uf/
         done
     done
 done
