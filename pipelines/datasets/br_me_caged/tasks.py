@@ -94,4 +94,4 @@ def build_partitions(table_id: str) -> str:
             del data
         del df
 
-    return "/tmp/caged/{table_id}/"
+    return f"/tmp/caged/{table_id}/"
