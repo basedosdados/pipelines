@@ -4,6 +4,7 @@ Tasks for br_twitter
 """
 import os
 from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 from typing import Tuple
 from functools import reduce
 
@@ -14,7 +15,6 @@ from tqdm import tqdm
 from requests_oauthlib import OAuth1
 import pandas as pd
 import numpy as np
-import basedosdados as bd
 
 from pipelines.utils.utils import (
     get_storage_blobs,
@@ -31,6 +31,7 @@ from pipelines.datasets.br_bd_indicadores.utils import (
     parse_data,
     initialize_analyticsreporting,
     get_report,
+    get_temporal_coverage_list,
 )
 from pipelines.constants import constants
 
@@ -309,13 +310,101 @@ def crawler_report_ga(view_id: str, metrics: list = None) -> str:
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def crawler_data_quality() -> str:
+def crawler_data_quality():
     """
-    Extract data from Base dos Dados API.
 
     Args:
 
     Returns:
     """
 
-    print("Hello world!")
+    url = "https://basedosdados.org/api/3/action/bd_dataset_search?page_size=10000"
+    r = requests.get(url)
+    json_response = r.json()
+
+    current_date = datetime.today()
+    datasets = json_response["result"]["datasets"]
+    tables = []
+    for dataset in datasets:
+        for resource in dataset["resources"]:
+            if resource["resource_type"] == "bdm_table":
+
+                # indicator for outdated
+                outdated = None
+                if resource["update_frequency"] in [
+                    "recurring",
+                    "unique",
+                    "uncertain",
+                    "other",
+                    None,
+                ]:
+                    pass
+                else:
+                    if resource["temporal_coverage"] in [None, []]:
+                        pass
+                    else:
+                        upper_temporal_coverage = get_temporal_coverage_list(
+                            resource["temporal_coverage"]
+                        )[-1]
+                        if resource["update_frequency"] in [
+                            "one_year",
+                            "semester",
+                            "quarter",
+                            "month",
+                            "week",
+                            "day",
+                            "hour",
+                            "minute",
+                            "second",
+                        ]:
+                            delta = 1
+                        elif resource["update_frequency"] == "two_years":
+                            delta = 2
+                        elif resource["update_frequency"] == "four_years":
+                            delta = 4
+                        elif resource["update_frequency"] == "five_years":
+                            delta = 5
+                        elif resource["update_frequency"] == "ten_years":
+                            delta = 10
+                        else:
+                            delta = 1000
+
+                        number_dashes = upper_temporal_coverage.count("-")
+                        if number_dashes == 0:
+                            upper_temporal_coverage = datetime.strptime(
+                                upper_temporal_coverage, "%Y"
+                            )
+                            diff = relativedelta(years=delta)
+                        elif number_dashes == 1:
+                            upper_temporal_coverage = datetime.strptime(
+                                upper_temporal_coverage, "%Y-%m"
+                            )
+                            diff = relativedelta(month=delta)
+                        elif number_dashes == 2:
+                            upper_temporal_coverage = datetime.strptime(
+                                upper_temporal_coverage, "%Y-%m-%d"
+                            )
+                            diff = relativedelta(days=delta)
+
+                        if current_date > upper_temporal_coverage + diff:
+                            outdated = True
+                        else:
+                            outdated = False
+
+                tables.append(
+                    {
+                        "resource_id": resource["id"],
+                        "dataset_id": dataset["name"],
+                        "table_id": resource["name"],
+                        "temporal_coverage": resource["temporal_coverage"],
+                        "update_frequency": resource["update_frequency"],
+                        "outdated": outdated,
+                    }
+                )
+
+    df = pd.DataFrame.from_dict(tables)
+
+    os.system("mkdir -p /tmp/data/")
+    df.to_csv("/tmp/data/data_quality.csv")
+
+    return "/tmp/data/data_quality.csv"
