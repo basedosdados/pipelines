@@ -246,16 +246,15 @@ bd_ga_users.schedule = schedule_users
 
 
 with Flow(
-    name="br_bd_indicadores.qualidade_dados",
+    name="br_bd_indicadores.data_quality",
     code_owners=[
         "rdahis",
     ],
-) as bd_qualidade_dados:
+) as bd_data_quality:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_bd_indicadores", required=True)
-    table_id = Parameter("table_id", default="qualidade_dados", required=True)
+    table_id = Parameter("table_id", default="data_quality", required=True)
 
-    #
     filepath = crawler_data_quality()
 
     # pylint: disable=C0103
@@ -267,6 +266,6 @@ with Flow(
         wait=filepath,
     )
 
-bd_qualidade_dados.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-bd_qualidade_dados.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-bd_qualidade_dados.schedule = every_day
+bd_data_quality.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+bd_data_quality.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+bd_data_quality.schedule = every_day
