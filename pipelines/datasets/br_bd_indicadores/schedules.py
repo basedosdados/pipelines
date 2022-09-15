@@ -45,6 +45,25 @@ every_day = Schedule(
     filters=[filters.is_weekday],
 )
 
+every_day_data_quality = Schedule(
+    clocks=[
+        IntervalClock(
+            interval=timedelta(days=1),
+            start_date=datetime(2022, 9, 15, 10, 00),
+            labels=[
+                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            ],
+            parameter_defaults={
+                "dataset_id": "br_bd_indicadores",
+                "table_id": "data_quality",
+                "materialization_mode": "dev",
+                "materialize after dump": True,
+                "dbt_alias": False,
+            },
+        ),
+    ],
+)
+
 every_week = Schedule(
     clocks=[
         IntervalClock(

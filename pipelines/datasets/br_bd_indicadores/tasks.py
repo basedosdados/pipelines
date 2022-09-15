@@ -328,83 +328,84 @@ def crawler_data_quality():
     for dataset in datasets:
         for resource in dataset["resources"]:
             if resource["resource_type"] == "bdm_table":
+                if "update_frequency" in resource:
 
-                # indicator for outdated
-                outdated = None
-                if resource["update_frequency"] in [
-                    "recurring",
-                    "unique",
-                    "uncertain",
-                    "other",
-                    None,
-                ]:
-                    pass
-                else:
-                    if resource["temporal_coverage"] in [None, []]:
+                    # indicator for outdated
+                    outdated = None
+                    if resource["update_frequency"] in [
+                        "recurring",
+                        "unique",
+                        "uncertain",
+                        "other",
+                        None,
+                    ]:
                         pass
                     else:
-                        upper_temporal_coverage = get_temporal_coverage_list(
-                            resource["temporal_coverage"]
-                        )[-1]
-                        if resource["update_frequency"] in [
-                            "one_year",
-                            "semester",
-                            "quarter",
-                            "month",
-                            "week",
-                            "day",
-                            "hour",
-                            "minute",
-                            "second",
-                        ]:
-                            delta = 1
-                        elif resource["update_frequency"] == "two_years":
-                            delta = 2
-                        elif resource["update_frequency"] == "four_years":
-                            delta = 4
-                        elif resource["update_frequency"] == "five_years":
-                            delta = 5
-                        elif resource["update_frequency"] == "ten_years":
-                            delta = 10
+                        if resource["temporal_coverage"] in [None, []]:
+                            pass
                         else:
-                            delta = 1000
+                            upper_temporal_coverage = get_temporal_coverage_list(
+                                resource["temporal_coverage"]
+                            )[-1]
+                            if resource["update_frequency"] in [
+                                "one_year",
+                                "semester",
+                                "quarter",
+                                "month",
+                                "week",
+                                "day",
+                                "hour",
+                                "minute",
+                                "second",
+                            ]:
+                                delta = 1
+                            elif resource["update_frequency"] == "two_years":
+                                delta = 2
+                            elif resource["update_frequency"] == "four_years":
+                                delta = 4
+                            elif resource["update_frequency"] == "five_years":
+                                delta = 5
+                            elif resource["update_frequency"] == "ten_years":
+                                delta = 10
+                            else:
+                                delta = 1000
 
-                        number_dashes = upper_temporal_coverage.count("-")
-                        if number_dashes == 0:
-                            upper_temporal_coverage = datetime.strptime(
-                                upper_temporal_coverage, "%Y"
-                            )
-                            diff = relativedelta(years=delta)
-                        elif number_dashes == 1:
-                            upper_temporal_coverage = datetime.strptime(
-                                upper_temporal_coverage, "%Y-%m"
-                            )
-                            diff = relativedelta(month=delta)
-                        elif number_dashes == 2:
-                            upper_temporal_coverage = datetime.strptime(
-                                upper_temporal_coverage, "%Y-%m-%d"
-                            )
-                            diff = relativedelta(days=delta)
+                            number_dashes = upper_temporal_coverage.count("-")
+                            if number_dashes == 0:
+                                upper_temporal_coverage = datetime.strptime(
+                                    upper_temporal_coverage, "%Y"
+                                )
+                                diff = relativedelta(years=delta)
+                            elif number_dashes == 1:
+                                upper_temporal_coverage = datetime.strptime(
+                                    upper_temporal_coverage, "%Y-%m"
+                                )
+                                diff = relativedelta(month=delta)
+                            elif number_dashes == 2:
+                                upper_temporal_coverage = datetime.strptime(
+                                    upper_temporal_coverage, "%Y-%m-%d"
+                                )
+                                diff = relativedelta(days=delta)
 
-                        if current_date > upper_temporal_coverage + diff:
-                            outdated = True
-                        else:
-                            outdated = False
+                            if current_date > upper_temporal_coverage + diff:
+                                outdated = True
+                            else:
+                                outdated = False
 
-                tables.append(
-                    {
-                        "resource_id": resource["id"],
-                        "dataset_id": dataset["name"],
-                        "table_id": resource["name"],
-                        "temporal_coverage": resource["temporal_coverage"],
-                        "update_frequency": resource["update_frequency"],
-                        "outdated": outdated,
-                    }
-                )
+                    tables.append(
+                        {
+                            "resource_id": resource["id"],
+                            "dataset_id": dataset["name"],
+                            "table_id": resource["name"],
+                            "temporal_coverage": resource["temporal_coverage"],
+                            "update_frequency": resource["update_frequency"],
+                            "outdated": outdated,
+                        }
+                    )
 
     df = pd.DataFrame.from_dict(tables)
 
     os.system("mkdir -p /tmp/data/")
-    df.to_csv("/tmp/data/data_quality.csv")
+    df.to_csv("/tmp/data/data_quality.csv", index=False)
 
     return "/tmp/data/data_quality.csv"
