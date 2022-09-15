@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Flows for br_me_novo_caged
 """
@@ -12,13 +13,12 @@ from pipelines.datasets.br_me_caged.tasks import build_partitions, get_caged_dat
 from pipelines.utils.tasks import create_table_and_upload_to_gcs
 from pipelines.datasets.br_me_caged.schedules import every_month
 
-with Flow("br_me_caged.microdados_mov", code_owners=["lucas_cr"]
-) as cagedmov:
+with Flow("br_me_caged.microdados_mov", code_owners=["lucas_cr"]) as cagedmov:
     dataset_id = Parameter("dataset_id", default="br_me_caged", required=True)
     table_id = Parameter("table_id", default="microdados_movimentacao", required=True)
     year = Parameter("year", default=2022, required=True)
 
-    get_data=get_caged_data(table_id=table_id, year=year)
+    get_data = get_caged_data(table_id=table_id, year=year)
 
     filepath = build_partitions(table_id=table_id, upstream_tasks=[get_data])
 

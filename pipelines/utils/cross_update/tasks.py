@@ -41,7 +41,9 @@ def datasearch_json(page_size: int, mode: str) -> Dict:
 
 
 @task(nout=2)
-def crawler_tables(json_response: dict, days: int = 7) -> Tuple[List[Dict[str, str]], List[Dict[str, str]]]:
+def crawler_tables(
+    json_response: dict, days: int = 7
+) -> Tuple[List[Dict[str, str]], List[Dict[str, str]]]:
     """Generate a list of dicts like {"dataset_id": "dataset_id", "table_id": "table_id"}
     where all tables was update in the last 7 days
     """
@@ -81,7 +83,7 @@ def crawler_tables(json_response: dict, days: int = 7) -> Tuple[List[Dict[str, s
     to_update = [
         x
         for x in to_update
-        if datetime.datetime.strptime(x["last_updated"],  "%Y-%m-%dT%H:%M:%S.%f")
+        if datetime.datetime.strptime(x["last_updated"], "%Y-%m-%dT%H:%M:%S.%f")
         > seven_days_ago
     ]
 
@@ -105,7 +107,9 @@ def crawler_tables(json_response: dict, days: int = 7) -> Tuple[List[Dict[str, s
 
     log(f"Found {len(to_zip)} tables to zip")
     for table in to_zip:
-        log(f"Zipping: dataset_id: {table['dataset_id']}, table_id: {table['table_id']}")
+        log(
+            f"Zipping: dataset_id: {table['dataset_id']}, table_id: {table['table_id']}"
+        )
 
     for x in to_zip:
         del x["number_rows"]

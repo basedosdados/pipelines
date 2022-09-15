@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Para rodar esse script o usuário deve rodar bash download.sh group, onde group é cagedmov | cagedfor | cageddex
-# e table_name é o nome da tabela que será criada no BigQuery  microdados_movimentacao | microdados_movimentacao_fora_prazo | microdados_movimentacao_excluida 
+# e table_name é o nome da tabela que será criada no BigQuery  microdados_movimentacao | microdados_movimentacao_fora_prazo | microdados_movimentacao_excluida
 
 # Ver explicação no próximo comentário:
 
