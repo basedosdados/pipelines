@@ -8,7 +8,6 @@ from typing import Tuple
 from typing import List
 import os
 from datetime import datetime
-from pipelines.utils.utils import log
 
 from googleapiclient.discovery import build
 from oauth2client.service_account import ServiceAccountCredentials
@@ -57,7 +56,7 @@ def connect_to_endpoint(url: str, headers: dict, params: dict, next_token=None) 
     Connect to endpoint using params
     """
     params["next_token"] = next_token  # params object received from create_url function
-    response = requests.request("GET", url, headers=headers, params=params)
+    response = requests.request("GET", url, headers=headers, params=params, timeout=30)
     print("Endpoint Response Code: " + str(response.status_code))
     if response.status_code != 200:
         raise Exception(response.status_code, response.text)
@@ -224,6 +223,7 @@ def parse_data(response) -> pd.DataFrame:
 
 
 def flatten_list(ll):
+    """Flatten a list of lists"""
     return [str(item) for sublist in ll for item in sublist]
 
 

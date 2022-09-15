@@ -3,65 +3,16 @@
 """
 Tasks for br_me_comex_stat
 """
+# pylint: disable=invalid-name,too-many-nested-blocks
+from glob import glob
+from zipfile import ZipFile
 
-from asyncio import tasks
 import pandas as pd
 import numpy as np
-import os
-import requests
+from prefect import task
 
-from glob import glob
-from enum import Enum
-from zipfile import ZipFile
-from tqdm import tqdm
-
-
-def create_paths(tables, path, ufs):
-    """
-    Create and partition folders
-    """
-    path_temps = [path, path + "input/", path + "output/"]
-
-    for path_temp in path_temps:
-        os.makedirs(path_temp, exist_ok=True)
-
-    for table in tables:
-        for ano in [*range(1997, 2024)]:
-
-            for mes in [*range(1, 13)]:
-
-                if "municipio" in table:
-
-                    for uf in ufs:
-
-                        os.makedirs(
-                            path + f"output/{table}/ano={ano}/mes={mes}/sigla_uf={uf}",
-                            exist_ok=True,
-                        )
-
-                else:
-                    os.makedirs(
-                        path + f"output/{table}/ano={ano}/mes={mes}/", exist_ok=True
-                    )
-
-
-def download_data(path):
-
-    """
-    Crawler for br_me_comex_stat
-    """
-    groups = {
-        "ncm": ["EXP_COMPLETA", "IMP_COMPLETA"],
-        "mun": ["EXP_COMPLETA_MUN", "IMP_COMPLETA_MUN"],
-    }
-
-    for item in groups.keys():
-        for group in tqdm(groups[item]):
-            print(f"Baixando {item} do {group}")
-            url = f"https://balanca.economia.gov.br/balanca/bd/comexstat-bd/{item}/{group}.zip"
-            r = requests.get(url, verify=False, timeout=99999999)
-            open(path + "input/" + f"{group}.zip", "wb").write(r.content)
-
+from pipelines.datasets.br_me_comex_stat.utils import create_paths, download_data
+from pipelines.datasets.br_me_comex_stat.constants import constants
 
 @task
 def clean_br_me_comex_stat():

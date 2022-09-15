@@ -2,12 +2,13 @@
 """
 Tasks for br_twitter
 """
+# pylint: disable=invalid-name,too-many-branches,too-many-nested-blocks
 import os
 from datetime import datetime, timedelta
-from dateutil.relativedelta import relativedelta
 from typing import Tuple
 from functools import reduce
 
+from dateutil.relativedelta import relativedelta
 import pytz
 from prefect import task
 import requests
@@ -144,7 +145,7 @@ def crawler_metricas(
             url = f"https://api.twitter.com/2/tweets/{id_field}?tweet.fields=non_public_metrics"
 
             try:
-                r = requests.get(url, auth=headeroauth)
+                r = requests.get(url, auth=headeroauth, timeout=10)
 
                 json_response = r.json()
                 temp_dict.update(
@@ -177,7 +178,7 @@ def crawler_metricas(
         "https://api.twitter.com/2/users/1184334528837574656?user.fields=public_metrics"
     )
     try:
-        r = requests.get(url, auth=headeroauth)
+        r = requests.get(url, auth=headeroauth, timeout=10)
         json_response = r.json()
         result = json_response["data"]["public_metrics"]
     except KeyError:
@@ -319,7 +320,7 @@ def crawler_data_quality():
     """
 
     url = "https://basedosdados.org/api/3/action/bd_dataset_search?page_size=10000"
-    r = requests.get(url)
+    r = requests.get(url, timeout=300)
     json_response = r.json()
 
     current_date = datetime.today()
@@ -387,10 +388,7 @@ def crawler_data_quality():
                                 )
                                 diff = relativedelta(days=delta)
 
-                            if current_date > upper_temporal_coverage + diff:
-                                outdated = True
-                            else:
-                                outdated = False
+                            outdated = current_date > upper_temporal_coverage + diff
 
                     tables.append(
                         {

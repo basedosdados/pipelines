@@ -166,6 +166,7 @@ def send_discord_message(
     requests.post(
         webhook_url,
         data={"content": message},
+        timeout=5,
     )
 
 

@@ -2,7 +2,7 @@
 """
 General purpose functions for the br_fgv_igp project
 """
-# pylint: disable=invalid-name
+# pylint: disable=invalid-name,too-many-instance-attributes
 import ipeadatapy as idpy
 import numpy as np
 import pandas as pd
@@ -14,6 +14,7 @@ ROOT = fgv_constants.ROOT.value
 
 
 class IGPData:
+    """ Class for IGP pipeline """
     def __init__(self, ipeacode, period):
         self.fgv_indexes = FGV_INDEX.get(ipeacode)
         self.period = period

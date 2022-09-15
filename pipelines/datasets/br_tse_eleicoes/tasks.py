@@ -61,7 +61,7 @@ def get_csv_files(url, save_path, chunk_size=128, mkdir=False) -> None:
     request_headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36",
     }
-    r = requests.get(url, headers=request_headers, stream=True)
+    r = requests.get(url, headers=request_headers, stream=True, timeout=10)
     save_path = save_path + url.split("/")[-1]
     with open(save_path, "wb") as fd:
         for chunk in r.iter_content(chunk_size=chunk_size):

@@ -11,7 +11,7 @@ def _safe_fetch(url: str):
     """
     response = None
     try:
-        response = requests.get(url)
+        response = requests.get(url, timeout=300)
         response.raise_for_status()
     except requests.exceptions.HTTPError as errh:
         print("Http Error:", errh)
