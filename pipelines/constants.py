@@ -77,4 +77,8 @@ class constants(Enum):  # pylint: disable=c0103
             "user_id": "238816891337048064",
             "type": "user_nickname",
         },
+        "rdahis": {
+            "user_id": "",
+            "type": "user_nickname",
+        },
     }
