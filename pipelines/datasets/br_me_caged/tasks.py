@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Tasks for br_me_novo_caged
 """
@@ -13,6 +14,7 @@ from unidecode import unidecode
 from tqdm import tqdm
 
 from pipelines.constants import constants
+
 
 @task
 def get_caged_data(table_id: str, year: int) -> None:
