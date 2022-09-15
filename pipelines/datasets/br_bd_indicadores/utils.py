@@ -7,7 +7,8 @@ import collections
 from typing import Tuple
 from typing import List
 import os
-import datetime
+from datetime import datetime
+from pipelines.utils.utils import log
 
 from googleapiclient.discovery import build
 from oauth2client.service_account import ServiceAccountCredentials
