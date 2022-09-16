@@ -26,7 +26,6 @@ env:
 
 jobs:
   build-container:
-    if: startsWith(github.head_ref, 'staging/')
     name: Build Docker image
     runs-on: ubuntu-latest
     steps:
