@@ -21,7 +21,7 @@ from pipelines.datasets.br_ibge_pnadc.constants import constants as pnad_constan
 
 @task
 def get_quarter_and_year() -> Tuple[int, int]:
-    """ Get quarter and year for today """
+    """Get quarter and year for today"""
 
     today = date.today()
     year = today.year
