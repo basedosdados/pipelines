@@ -18,7 +18,7 @@ env:
   GKE_ZONE: ${{ secrets.GKE_ZONE }}
   IMAGE_NAME: ghcr.io/basedosdados/prefect-flows
   PREFECT__BACKEND: cloud
-  PREFECT__CLOUD__API: https://prefect.dados.rio/api
+  PREFECT__CLOUD__API: https://prefect.basedosdados.org/api
   PREFECT__CLOUD__PORT: 443
   PREFECT__SERVER__PROJECT: ${{ secrets.PREFECT__SERVER__PROJECT__STAGING }}
   PREFECT_AUTH_TOML: ${{ secrets.PREFECT_AUTH_TOML }}
