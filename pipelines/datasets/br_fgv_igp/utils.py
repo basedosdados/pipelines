@@ -14,7 +14,8 @@ ROOT = fgv_constants.ROOT.value
 
 
 class IGPData:
-    """ Class for IGP pipeline """
+    """Class for IGP pipeline"""
+
     def __init__(self, ipeacode, period):
         self.fgv_indexes = FGV_INDEX.get(ipeacode)
         self.period = period

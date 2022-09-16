@@ -446,8 +446,11 @@ def identify_code_owners(files: List[str]) -> List[str]:
 if __name__ == "__main__":
 
     # Assert arguments.
-    if len(sys.argv) != 2:
-        print(f"Usage: python {sys.argv[0]} <changed_files>")
+    if len(sys.argv) not in [2, 3]:
+        print(f"Usage: python {sys.argv[0]} <changed_files> [--write-to-file]")
+
+    # Write to file?
+    write_to_file = "--write-to-file" in sys.argv
 
     # Get modified files
     changed_files: List[str] = sys.argv[1].split(" ")
@@ -488,6 +491,12 @@ if __name__ == "__main__":
     for file_ in dependent_files:
         print(f"\t- {file_}")
 
+    # Write dependent file list to file.
+    if write_to_file:
+        with open("dependent_files.txt", "w") as f:
+            for file_ in dependent_files:
+                f.write(f"{file_}\n")
+
     # Start a PR message
     message = "### Análise da árvore de código\n\n"
 
@@ -524,7 +533,8 @@ if __name__ == "__main__":
     if len(dependent_files) == 0 and len(conflicts) == 0:
         message += "*Nenhum problema encontrado!*"
 
-    log(message)
+    if not write_to_file:
+        log(message)
 
     # Raise if there are conflicts
     if len(conflicts) > 0:

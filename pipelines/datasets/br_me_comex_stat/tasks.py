@@ -14,6 +14,7 @@ from prefect import task
 from pipelines.datasets.br_me_comex_stat.utils import create_paths, download_data
 from pipelines.datasets.br_me_comex_stat.constants import constants
 
+
 @task
 def clean_br_me_comex_stat():
     """

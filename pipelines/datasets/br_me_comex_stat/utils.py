@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ Utils for the Brazilian Comex Stat pipeline. """
 # pylint: disable=invalid-name
 import os
