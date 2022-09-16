@@ -1,11 +1,11 @@
-name: Register flows (production)
+name: Register flows (staging)
 
 on:
-  push:
+  pull_request:
     branches:
       - master
     paths:
-      - ".github/workflows/cd.yaml"
+      - ".github/workflows/cd_staging.yaml"
       - "pipelines/**/*"
       - "pyproject.toml"
       - "Dockerfile"
@@ -20,12 +20,13 @@ env:
   PREFECT__BACKEND: cloud
   PREFECT__CLOUD__API: https://prefect.dados.rio/api
   PREFECT__CLOUD__PORT: 443
-  PREFECT__SERVER__PROJECT: ${{ secrets.PREFECT__SERVER__PROJECT }}
+  PREFECT__SERVER__PROJECT: ${{ secrets.PREFECT__SERVER__PROJECT__STAGING }}
   PREFECT_AUTH_TOML: ${{ secrets.PREFECT_AUTH_TOML }}
 
 jobs:
   build-container:
-    name: Register flows (production)
+    if: startsWith(github.head_ref, 'staging/')
+    name: Register flows (staging)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -72,11 +73,11 @@ jobs:
       - name: Wait for Docker image to be available
         uses: lewagon/wait-on-check-action@v1.1.2
         with:
-          ref: ${{ github.ref }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           check-name: 'Build Docker image'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           verbose: true
 
       - name: Register Prefect flows
         run: |-
-          python .github/workflows/scripts/register_flows.py --project $PREFECT__SERVER__PROJECT --path pipelines/ --schedule --filter-affected-flows
+          python .github/workflows/scripts/register_flows.py --project $PREFECT__SERVER__PROJECT --path pipelines/ --no-schedule --filter-affected-flows
