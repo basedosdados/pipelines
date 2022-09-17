@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-utils for br_bd_inndicadores
+utils for br_bd_indicadores
 """
 # pylint: disable=too-few-public-methods
 import collections
@@ -55,7 +55,7 @@ def connect_to_endpoint(url: str, headers: dict, params: dict, next_token=None) 
     Connect to endpoint using params
     """
     params["next_token"] = next_token  # params object received from create_url function
-    response = requests.request("GET", url, headers=headers, params=params)
+    response = requests.request("GET", url, headers=headers, params=params, timeout=30)
     print("Endpoint Response Code: " + str(response.status_code))
     if response.status_code != 200:
         raise Exception(response.status_code, response.text)

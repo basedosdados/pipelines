@@ -19,7 +19,7 @@ def crawl(url: str) -> Tuple[str, str]:
     """
     Get all table urls from CGU website and extract temporal covarage
     """
-    html_page = requests.get(url).content
+    html_page = requests.get(url, timeout=300).content
     urls = BeautifulSoup(html_page, "html.parser").find_all(
         "a", {"class": "internal-link"}, href=True
     )
@@ -68,7 +68,7 @@ def clean_save_table(root: str, url_list: list):
     ]
     df = pd.DataFrame(columns=cols)
     for url in url_list:
-        csv = requests.get(url)
+        csv = requests.get(url, timeout=300)
         file_bytes = BytesIO()
         file_bytes.write(csv.content)
         file_bytes.seek(0)
