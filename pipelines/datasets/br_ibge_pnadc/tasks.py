@@ -18,19 +18,6 @@ from prefect import task
 
 from pipelines.datasets.br_ibge_pnadc.constants import constants as pnad_constants
 
-
-@task
-def get_quarter_and_year() -> Tuple[int, int]:
-    """Get quarter and year for today"""
-
-    today = date.today()
-    year = today.year
-    month = today.month
-    quarter = (month - 1) // 3 + 1
-
-    return quarter, year
-
-
 @task
 def get_url_from_template(year: int, quarter: int) -> str:
     """Return the url for the PNAD microdata file for a given year and month.
