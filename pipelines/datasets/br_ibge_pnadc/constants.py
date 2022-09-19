@@ -2,6 +2,7 @@
 """
 Constant values for the datasets projects
 """
+# pylint: disable=invalid-name, too-many-lines
 from enum import Enum
 
 
