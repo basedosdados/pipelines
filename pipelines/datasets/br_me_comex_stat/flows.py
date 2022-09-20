@@ -2,7 +2,7 @@
 """
 Flows for br_me_comex_stat
 """
-
+# pylint: disable=invalid-name
 from datetime import datetime, timedelta
 
 from prefect.run_configs import KubernetesRun
@@ -32,8 +32,6 @@ from pipelines.datasets.br_me_comex_stat.schedules import (
     schedule_ncm_importacao,
     schedule_ncm_exportacao,
 )
-
-from pipelines.datasets.br_me_comex_stat.constants import constants as comex_constants
 
 with Flow(
     name="br_me_comex_stat.municipio_exportacao", code_owners=["crislanealves"]

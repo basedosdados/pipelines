@@ -3,14 +3,17 @@
 Custom script for registering flows.
 """
 
+import ast
 from collections import (
     Counter,
     defaultdict,
 )
 import glob
 import hashlib
+import importlib
 import json
 import os
+from pathlib import Path
 import runpy
 import sys
 from time import sleep
@@ -34,6 +37,8 @@ from prefect.utilities.graphql import (
 )
 from typer import Typer
 
+import pipelines  # DO NOT REMOVE THIS LINE
+
 
 app = Typer()
 FlowLike = Union[box.Box, "prefect.Flow"]
@@ -45,6 +50,7 @@ def build_and_register(  # pylint: disable=too-many-branches
     project_id: str,
     max_retries: int = 5,
     retry_interval: int = 5,
+    schedule: bool = True,
 ) -> Counter:
     """
     (Adapted from Prefect original code.)
@@ -67,6 +73,7 @@ def build_and_register(  # pylint: disable=too-many-branches
     for flow in flows:
         storage = flow.storage if isinstance(flow, prefect.Flow) else None
         storage_to_flows[storage].append(flow)
+        flow.name = flow.name
 
     # Register each flow, building storage as needed.
     # Stats on success/fail/skip rates are kept for later display
@@ -101,7 +108,7 @@ def build_and_register(  # pylint: disable=too-many-branches
                             client=client,
                             serialized_flow=serialized_flow,
                             project_id=project_id,
-                            schedule=True,
+                            schedule=schedule,
                         )
                         break
                     except Exception:  # pylint: disable=broad-except
@@ -354,12 +361,138 @@ def register_serialized_flow(
     return new_id, prev_version + 1, True
 
 
+def filename_to_python_module(filename: str) -> str:
+    """
+    Returns the Python module name from a filename.
+
+    Example:
+
+    - Filename:
+
+    ```py
+    path/to/file.py
+    ```
+
+    - Output:
+
+    ```py
+    'path.to.file'
+    ```
+
+    Args:
+        filename (str): The filename to get the Python module name from.
+
+    Returns:
+        str: The Python module name.
+    """
+    # Get the file path in Python module format.
+    file_path = Path(filename).with_suffix("").as_posix().replace("/", ".")
+
+    return file_path
+
+
+def get_declared(python_file: Union[str, Path]) -> List[str]:
+    """
+    Returns a list of declared variables, functions and classes
+    in a Python file. The output must be fully qualified.
+
+    Example:
+
+    - Python file (path/to/file.py):
+
+    ```py
+    x = 1
+    y = 2
+
+    def func1():
+        pass
+
+    class Class1:
+        pass
+    ```
+
+    - Output:
+
+    ```py
+    ['path.to.file.x', 'path.to.file.y', 'path.to.file.func1', 'path.to.file.Class1']
+    ```
+
+    Args:
+        python_file (str): The Python file to get the declared variables from.
+
+    Returns:
+        list: A list of declared variables from the Python file.
+    """
+    # We need to get the contents of the Python file.
+    with open(python_file, "r") as f:
+        content = f.read()
+
+    # Get file path in Python module format.
+    file_path = filename_to_python_module(python_file)
+
+    # Parse it into an AST.
+    tree = ast.parse(content)
+
+    # Then, iterate over the imports.
+    declared = []
+    for node in tree.body:
+        # print(type(node))
+        if isinstance(node, ast.Assign):
+            for target in node.targets:
+                if isinstance(target, ast.Name):
+                    declared.append(f"{file_path}.{target.id}")
+        elif isinstance(node, ast.AugAssign):
+            if isinstance(node.target, ast.Name):
+                declared.append(f"{file_path}.{node.target.id}")
+        elif isinstance(node, ast.AnnAssign):
+            if isinstance(node.target, ast.Name):
+                declared.append(f"{file_path}.{node.target.id}")
+        elif isinstance(node, ast.With):
+            for item in node.items:
+                if isinstance(item, ast.withitem):
+                    if isinstance(item.optional_vars, ast.Name):
+                        declared.append(f"{file_path}.{item.optional_vars.id}")
+        elif isinstance(node, ast.FunctionDef):
+            declared.append(f"{file_path}.{node.name}")
+        elif isinstance(node, ast.AsyncFunctionDef):
+            declared.append(f"{file_path}.{node.name}")
+        elif isinstance(node, ast.ClassDef):
+            declared.append(f"{file_path}.{node.name}")
+
+    return declared
+
+
+def get_affected_flows(fpath: str = None):
+    if not fpath:
+        fpath = "dependent_files.txt"
+    with open(fpath, "r") as f:
+        fnames = f.read().splitlines()
+    fnames = [fname for fname in fnames if fname.endswith(".py")]
+    flow_files = set()
+    for fname in fnames:
+        flow_file = Path(fname).parent / "flows.py"
+        if flow_file.exists():
+            flow_files.add(flow_file)
+    declared_flows = []
+    for flow_file in flow_files:
+        declared_flows.extend(get_declared(flow_file))
+    flows = []
+    for flow in declared_flows:
+        try:
+            flows.append(eval(flow))
+        except Exception:
+            logger.warning(f"Could not evaluate {flow}")
+    return flows
+
+
 @app.command(name="register", help="Register a flow")
 def main(
     project: str = None,
     path: str = None,
     max_retries: int = 5,
     retry_interval: int = 5,
+    schedule: bool = True,
+    filter_affected_flows: bool = False,
 ) -> None:
     """
     A helper for registering Prefect flows. The original implementation does not
@@ -386,6 +519,16 @@ def main(
     logger.info("Collecting flows...")
     source_to_flows = collect_flows(paths)
 
+    if filter_affected_flows:
+        # Filter out flows that are not affected by the change
+        affected_flows = get_affected_flows("dependent_files.txt")
+        for key in source_to_flows.keys():
+            filtered_flows = []
+            for flow in source_to_flows[key]:
+                if flow in affected_flows:
+                    filtered_flows.append(flow)
+            source_to_flows[key] = filtered_flows
+
     # Iterate through each file, building all storage and registering all flows
     # Log errors as they happen, but only exit once all files have been processed
     stats = Counter(registered=0, errored=0, skipped=0)
@@ -397,6 +540,7 @@ def main(
             project_id,
             max_retries=max_retries,
             retry_interval=retry_interval,
+            schedule=schedule,
         )
 
     # Output summary message

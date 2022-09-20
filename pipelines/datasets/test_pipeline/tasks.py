@@ -25,7 +25,7 @@ def get_random_expression() -> pd.DataFrame:
     Get random data
     """
     URL = "https://x-math.herokuapp.com/api/random"
-    response = requests.get(URL)
+    response = requests.get(URL, timeout=5)
 
     cols = ["date", "first", "second", "operation", "expression", "answer"]
     time_stamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
