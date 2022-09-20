@@ -37,10 +37,12 @@ def echo(message: str) -> None:
 )
 def crawler_organizations():
     """
+    Pulls metadata about organizations from Base dos Dados' APIs and returns it structured in a csv file.
 
     Args:
 
     Returns:
+        Path to csv file with structured metadata about organizations.
     """
 
     url = "https://basedosdados.org/api/3/action/organization_list"
@@ -84,10 +86,12 @@ def crawler_organizations():
 )
 def crawler_datasets():
     """
+    Pulls metadata about datasets from Base dos Dados' APIs and returns it structured in a csv file.
 
     Args:
 
     Returns:
+        Path to csv file with structured metadata about datasets.
     """
 
     url = "https://basedosdados.org/api/3/action/bd_dataset_search?page_size=50000"
@@ -124,10 +128,12 @@ def crawler_datasets():
 )
 def crawler_resources():
     """
+    Pulls metadata about resources from Base dos Dados' APIs and returns it structured in a csv file.
 
     Args:
 
     Returns:
+        Path to csv file with structured metadata about resources.
     """
 
     url = "https://basedosdados.org/api/3/action/bd_dataset_search?page_size=50000"
@@ -164,10 +170,12 @@ def crawler_resources():
 )
 def crawler_external_links():
     """
+    Pulls metadata about external links from Base dos Dados' APIs and returns it structured in a csv file.
 
     Args:
 
     Returns:
+        Path to csv file with structured metadata about external links.
     """
 
     url = "https://basedosdados.org/api/3/action/bd_dataset_search?page_size=50000&resource_type=external_link"
@@ -214,10 +222,12 @@ def crawler_external_links():
 )
 def crawler_information_requests():
     """
+    Pulls metadata about information requests from Base dos Dados' APIs and returns it structured in a csv file.
 
     Args:
 
     Returns:
+        Path to csv file with structured metadata about information requests.
     """
 
     url = "https://basedosdados.org/api/3/action/bd_dataset_search?page_size=50000&resource_type=information_request"
@@ -264,10 +274,12 @@ def crawler_information_requests():
 )
 def crawler_tables():
     """
+    Pulls metadata about tables from Base dos Dados' APIs and returns it structured in a csv file.
 
     Args:
 
     Returns:
+        Path to csv file with structured metadata about tables.
     """
 
     url = "https://basedosdados.org/api/3/action/bd_dataset_search?page_size=50000&resource_type=bdm_table"
@@ -358,9 +370,9 @@ def crawler_tables():
                                 diff = relativedelta(days=delta)
 
                             if current_date > upper_temporal_coverage + diff:
-                                outdated = True
+                                outdated = 1
                             else:
-                                outdated = False
+                                outdated = 0
 
                 resources.append(
                     {
@@ -393,10 +405,12 @@ def crawler_tables():
 )
 def crawler_columns():
     """
+    Pulls metadata about columns from Base dos Dados' APIs and returns it structured in a csv file.
 
     Args:
 
     Returns:
+        Path to csv file with structured metadata about columns.
     """
 
     url = "https://basedosdados.org/api/3/action/bd_dataset_search?page_size=50000&resource_type=bdm_table"

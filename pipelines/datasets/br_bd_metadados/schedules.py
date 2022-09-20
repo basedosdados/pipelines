@@ -12,7 +12,7 @@ every_day_organizations = Schedule(
     clocks=[
         IntervalClock(
             interval=timedelta(days=1),
-            start_date=datetime(2022, 9, 15, 10, 00),
+            start_date=datetime(2022, 9, 20, 10, 00),
             labels=[
                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
@@ -31,7 +31,7 @@ every_day_datasets = Schedule(
     clocks=[
         IntervalClock(
             interval=timedelta(days=1),
-            start_date=datetime(2022, 9, 15, 10, 00),
+            start_date=datetime(2022, 9, 20, 10, 5),
             labels=[
                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
@@ -50,7 +50,7 @@ every_day_resources = Schedule(
     clocks=[
         IntervalClock(
             interval=timedelta(days=1),
-            start_date=datetime(2022, 9, 15, 10, 00),
+            start_date=datetime(2022, 9, 20, 10, 10),
             labels=[
                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
@@ -69,7 +69,7 @@ every_day_external_links = Schedule(
     clocks=[
         IntervalClock(
             interval=timedelta(days=1),
-            start_date=datetime(2022, 9, 15, 10, 00),
+            start_date=datetime(2022, 9, 20, 10, 15),
             labels=[
                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
@@ -88,7 +88,7 @@ every_day_information_requests = Schedule(
     clocks=[
         IntervalClock(
             interval=timedelta(days=1),
-            start_date=datetime(2022, 9, 15, 10, 00),
+            start_date=datetime(2022, 9, 20, 10, 20),
             labels=[
                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
@@ -107,7 +107,7 @@ every_day_tables = Schedule(
     clocks=[
         IntervalClock(
             interval=timedelta(days=1),
-            start_date=datetime(2022, 9, 15, 10, 00),
+            start_date=datetime(2022, 9, 20, 10, 25),
             labels=[
                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
@@ -126,7 +126,7 @@ every_day_columns = Schedule(
     clocks=[
         IntervalClock(
             interval=timedelta(days=1),
-            start_date=datetime(2022, 9, 15, 10, 00),
+            start_date=datetime(2022, 9, 20, 10, 30),
             labels=[
                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
