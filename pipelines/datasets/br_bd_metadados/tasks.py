@@ -424,6 +424,11 @@ def crawler_columns():
             if resource["resource_type"] == "bdm_table":
                 for column in resource.get("columns"):
 
+                    directory_column = None
+                    if column.get("directory_column") is not None:
+                        if column.get("directory_column")["dataset_id"] is not None:
+                            directory_column = column.get("directory_column")
+
                     columns.append(
                         {
                             "table_id": resource.get("id"),
@@ -434,7 +439,7 @@ def crawler_columns():
                             "covered_by_dictionary": column.get(
                                 "covered_by_dictionary"
                             ),
-                            "directory_column": column.get("directory_column"),
+                            "directory_column": directory_column,
                             "measurement_unit": column.get("measurement_unit"),
                             "has_sensitive_data": column.get("has_sensitive_data"),
                             "observations": column.get("observations"),
