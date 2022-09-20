@@ -239,7 +239,6 @@ with Flow(
         wait=filepath,
     )
 
-
 bd_ga_users.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 bd_ga_users.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 bd_ga_users.schedule = schedule_users

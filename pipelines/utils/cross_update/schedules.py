@@ -17,9 +17,9 @@ schedule_nrows = Schedule(
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
-                "dump_to_gcs": False,
+                "dump_to_gcs": True,
                 "days": 7,
-                "mode": "dev",
+                "mode": "prod",
             },
         ),
     ],

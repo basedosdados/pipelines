@@ -3,7 +3,7 @@
 Tasks for cross update of metadata.
 """
 # pylint: disable=invalid-name, too-many-locals
-from typing import List, Dict
+from typing import List, Dict, Tuple
 import datetime
 from datetime import timedelta
 
@@ -18,7 +18,7 @@ from pipelines.utils.dump_to_gcs.constants import constants as dump_to_gcs_const
 
 
 @task
-def crawler_datasets(page_size: int, mode: str) -> Dict:
+def datasearch_json(page_size: int, mode: str) -> Dict:
     """
     This task uses `bd_dataset_search` website API
     enpoint to retrieve a list of tables updated in last 7 days.
@@ -40,8 +40,10 @@ def crawler_datasets(page_size: int, mode: str) -> Dict:
     return json_response
 
 
-@task
-def last_updated_tables(json_response: dict, days: int = 7) -> List[Dict[str, str]]:
+@task(nout=2)
+def crawler_tables(
+    json_response: dict, days: int = 7
+) -> Tuple[List[Dict[str, str]], List[Dict[str, str]]]:
     """Generate a list of dicts like {"dataset_id": "dataset_id", "table_id": "table_id"}
     where all tables was update in the last 7 days
     """
@@ -52,108 +54,75 @@ def last_updated_tables(json_response: dict, days: int = 7) -> List[Dict[str, st
     ]
     datasets = json_response["result"]["datasets"]
     bdm_tables = []
-
     for i in range(n_datasets):
         for j in range(n_resources[i]):
             if datasets[i]["resources"][j]["resource_type"] == "bdm_table":
                 bdm_tables.append(datasets[i]["resources"][j])
-    result = []
+
+    log(f"Found {len(bdm_tables)} bdm tables")
+    log(bdm_tables[0].keys())
+    to_update = []
     for bdm_table in bdm_tables:
-        tmp_dict = {
-            "dataset_id": bdm_table["dataset_id"],
-            "table_id": bdm_table["table_id"],
-            "last_updated": bdm_table["metadata_modified"],
-        }
-        result.append(tmp_dict)
-
-    # filter list of dictionaries by last_updated and remove older than X days
-    today = datetime.datetime.today()
-    seven_days_ago = today - timedelta(days=days)
-    result = [
-        x
-        for x in result
-        if datetime.datetime.strptime(x["last_updated"], "%Y-%m-%dT%H:%M:%S.%f")
-        > seven_days_ago
-    ]
-
-    log(f"Found {len(result)} tables updated in last 7 days")
-
-    for table in result:
-        log(f"Table: {table['dataset_id']}.{table['table_id']}")
-
-    # remove last_updated key
-    for x in result:
-        del x["last_updated"]
-
-    return result
-
-
-@task
-def tables_to_zip(json_response: dict, days: int = 7) -> List[Dict[str, str]]:
-    """Generate a list of dicts like {"dataset_id": "dataset_id", "table_id": "table_id"}
-    where all tables was update in the last 7 days and has less than 200k rows
-    """
-    n_datasets = json_response["result"]["count"]
-    n_resources = [
-        json_response["result"]["datasets"][k]["num_resources"]
-        for k in range(n_datasets)
-    ]
-    datasets = json_response["result"]["datasets"]
-    bdm_tables = []
-
-    for i in range(n_datasets):
-        for j in range(n_resources[i]):
-            if datasets[i]["resources"][j]["resource_type"] == "bdm_table":
-                bdm_tables.append(datasets[i]["resources"][j])
-    result = []
-
-    for bdm_table in bdm_tables:
-        # skip if dataset_id, table_id, metadata_modified, and number of rows are not in the bdm_table keys
+        # skip if dataset_id, table_id, last_updated, and number of rows are not in the bdm_table keys
         if not all(
             key in bdm_table.keys()
-            for key in ["dataset_id", "table_id", "metadata_modified", "number_of_rows"]
+            for key in ["dataset_id", "table_id", "metadata_modified", "number_rows"]
         ):
             continue
-        log(f"Table: {bdm_table['dataset_id']}.{bdm_table['table_id']}")
         tmp_dict = {
             "dataset_id": bdm_table["dataset_id"],
             "table_id": bdm_table["table_id"],
             "last_updated": bdm_table["metadata_modified"],
             "number_rows": bdm_table["number_rows"],
-            "project_id": "basedosdados",
-            "maximum_bytes_processed": dump_to_gcs_constants.MAX_BYTES_PROCESSED_PER_TABLE.value,
         }
-        result.append(tmp_dict)
+        to_update.append(tmp_dict)
 
     # filter list of dictionaries by last_updated and remove older than X days
     today = datetime.datetime.today()
     seven_days_ago = today - timedelta(days=days)
-    result = [
+    to_update = [
         x
-        for x in result
+        for x in to_update
         if datetime.datetime.strptime(x["last_updated"], "%Y-%m-%dT%H:%M:%S.%f")
         > seven_days_ago
     ]
 
-    # filter list of dictionaries by number_rows and remove tables with more than 200k rows
-    result = [x for x in result if x["number_rows"] <= 200000]
+    log(f"Found {len(to_update)} tables updated in last 7 days")
 
-    log(
-        f"Found {len(result)} tables updated in last 7 days and has less than 200k rows"
-    )
-    for table in result:
-        log(f"Table: {table['dataset_id']}.{table['table_id']} will be ziped")
+    to_zip = []
+    for bdm_table in to_update:
+        tmp_dict = {
+            "dataset_id": bdm_table["dataset_id"],
+            "table_id": bdm_table["table_id"],
+            "project_id": "basedosdados",
+            "maximum_bytes_processed": dump_to_gcs_constants.MAX_BYTES_PROCESSED_PER_TABLE.value,
+            "number_rows": bdm_table["number_rows"],
+        }
+        to_zip.append(tmp_dict)
 
-    # remove last_updated key and number_rows key
-    for x in result:
-        del x["last_updated"]
+    # remove tables where number of rows is None
+    to_zip = [x for x in to_zip if x["number_rows"] is not None]
+    # keep only tables with less than 200k lines
+    to_zip = [x for x in to_zip if x["number_rows"] <= 200000]
+
+    log(f"Found {len(to_zip)} tables to zip")
+    for table in to_zip:
+        log(
+            f"Zipping: dataset_id: {table['dataset_id']}, table_id: {table['table_id']}"
+        )
+
+    for x in to_zip:
         del x["number_rows"]
 
-    return result
+    for x in to_update:
+        del x["number_rows"]
+        del x["last_updated"]
+
+    return (to_update, to_zip)
 
 
 @task
-def update_nrows(table_dict: Dict[str, str], mode: str) -> Dict[str, str]:
+def update_nrows(table_dict: Dict[str, str], mode: str) -> None:
     """Get number of rows in a table
 
     Args:
@@ -199,7 +168,7 @@ def update_nrows(table_dict: Dict[str, str], mode: str) -> Dict[str, str]:
     with open(config_file, encoding="utf-8") as fp:
         data = yaml.load(fp)
 
-    log(data)
+    # log(data)
 
     for field in fields_to_update:
         for k, v in field.items():
@@ -212,7 +181,7 @@ def update_nrows(table_dict: Dict[str, str], mode: str) -> Dict[str, str]:
     with open(config_file, "w", encoding="utf-8") as fp:
         yaml.dump(data, fp)
 
-    log(data)
+    # log(data)
 
     if handle.validate():
         handle.publish(if_exists="replace")

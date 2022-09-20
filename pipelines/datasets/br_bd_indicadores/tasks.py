@@ -2,6 +2,7 @@
 """
 Tasks for br_twitter
 """
+# pylint: disable=invalid-name,too-many-branches,too-many-nested-blocks
 import os
 from datetime import datetime, timedelta
 from typing import Tuple
@@ -142,7 +143,7 @@ def crawler_metricas(
             url = f"https://api.twitter.com/2/tweets/{id_field}?tweet.fields=non_public_metrics"
 
             try:
-                r = requests.get(url, auth=headeroauth)
+                r = requests.get(url, auth=headeroauth, timeout=10)
 
                 json_response = r.json()
                 temp_dict.update(
@@ -175,7 +176,7 @@ def crawler_metricas(
         "https://api.twitter.com/2/users/1184334528837574656?user.fields=public_metrics"
     )
     try:
-        r = requests.get(url, auth=headeroauth)
+        r = requests.get(url, auth=headeroauth, timeout=10)
         json_response = r.json()
         result = json_response["data"]["public_metrics"]
     except KeyError:

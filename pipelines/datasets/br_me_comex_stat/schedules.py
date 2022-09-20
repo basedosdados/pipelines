@@ -1,96 +1,95 @@
 # -*- coding: utf-8 -*-
+
 """
-Schedules for br_tse_eleicoes
+Schedules for br_me_comex_stat
 """
 
 from datetime import timedelta, datetime
-from prefect.schedules import Schedule, filters
+from prefect.schedules import Schedule, filters, adjustments
 from prefect.schedules.clocks import IntervalClock
 from pipelines.constants import constants
 
-schedule_candidatos = Schedule(
+schedule_municipio_exportacao = Schedule(
     clocks=[
         IntervalClock(
-            interval=timedelta(days=1),
-            start_date=datetime(2021, 1, 1, 9, 45),
+            interval=timedelta(days=30),
+            start_date=datetime(1997, 1, 1, 14, 32),  ## confirmar aqui
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
-                "dataset_id": "br_tse_eleicoes",
-                "table_id": "candidatos",
-                "start": 2018,
-                "id_candidato_bd": False,
+                "dataset_id": "br_me_comex_stat",
+                "table_id": "municipio_exportacao",
                 "materialization_mode": "prod",
                 "materialize after dump": True,
                 "dbt_alias": False,
             },
-        ),
+        )
     ],
     filters=[filters.is_weekday],
-)
-
-schedule_bens = Schedule(
-    clocks=[
-        IntervalClock(
-            interval=timedelta(days=1),
-            start_date=datetime(2021, 1, 1, 10, 0),
-            labels=[
-                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-            ],
-            parameter_defaults={
-                "dataset_id": "br_tse_eleicoes",
-                "table_id": "bens_candidato",
-                "start": 2018,
-                "id_candidato_bd": False,
-                "materialization_mode": "prod",
-                "materialize after dump": True,
-                "dbt_alias": False,
-            },
-        ),
-    ],
-    filters=[filters.is_weekday],
-)
-
-schedule_despesa = Schedule(
-    clocks=[
-        IntervalClock(
-            interval=timedelta(days=1),
-            start_date=datetime(2021, 1, 1, 10, 15),
-            labels=[
-                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-            ],
-            parameter_defaults={
-                "dataset_id": "br_tse_eleicoes",
-                "table_id": "despesas_candidato",
-                "id_candidato_bd": False,
-                "materialization_mode": "prod",
-                "materialize after dump": True,
-                "dbt_alias": False,
-            },
-        ),
-    ],
-    filters=[filters.is_weekday],
+    adjustments=[adjustments.next_weekday],
 )
 
 
-schedule_receita = Schedule(
+schedule_municipio_importacao = Schedule(
     clocks=[
         IntervalClock(
-            interval=timedelta(days=1),
-            start_date=datetime(2021, 1, 1, 10, 30),
+            interval=timedelta(days=30),
+            start_date=datetime(1997, 1, 1, 14, 32),  ## confirmar aqui
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
-                "dataset_id": "br_tse_eleicoes",
-                "table_id": "receitas_candidato",
-                "id_candidato_bd": False,
+                "dataset_id": "br_me_comex_stat",
+                "table_id": "municipio_importacao",
                 "materialization_mode": "prod",
                 "materialize after dump": True,
                 "dbt_alias": False,
             },
-        ),
+        )
     ],
     filters=[filters.is_weekday],
+    adjustments=[adjustments.next_weekday],
+)
+
+schedule_ncm_importacao = Schedule(
+    clocks=[
+        IntervalClock(
+            interval=timedelta(days=30),
+            start_date=datetime(1997, 1, 1, 14, 32),  ## confirmar aqui
+            labels=[
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+            ],
+            parameter_defaults={
+                "dataset_id": "br_me_comex_stat",
+                "table_id": "ncm_importacao",
+                "materialization_mode": "prod",
+                "materialize after dump": True,
+                "dbt_alias": False,
+            },
+        )
+    ],
+    filters=[filters.is_weekday],
+    adjustments=[adjustments.next_weekday],
+)
+
+schedule_ncm_exportacao = Schedule(
+    clocks=[
+        IntervalClock(
+            interval=timedelta(days=30),
+            start_date=datetime(1997, 1, 1, 14, 32),  ## confirmar aqui
+            labels=[
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+            ],
+            parameter_defaults={
+                "dataset_id": "br_me_comex_stat",
+                "table_id": "ncm_exportacao",
+                "materialization_mode": "prod",
+                "materialize after dump": True,
+                "dbt_alias": False,
+            },
+        )
+    ],
+    filters=[filters.is_weekday],
+    adjustments=[adjustments.next_weekday],
 )

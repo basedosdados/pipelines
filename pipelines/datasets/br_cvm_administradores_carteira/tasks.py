@@ -20,7 +20,7 @@ def crawl(root: str, url: str, chunk_size=128) -> None:
     filepath = f"{root}/data.zip"
     os.makedirs(root, exist_ok=True)
 
-    response = requests.get(url)
+    response = requests.get(url, timeout=300)
 
     with open(filepath, "wb") as file:
         for chunk in response.iter_content(chunk_size=chunk_size):

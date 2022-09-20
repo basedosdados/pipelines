@@ -12,6 +12,7 @@ from pipelines.datasets.br_ibge_ipca.flows import *
 from pipelines.datasets.br_ibge_ipca15.flows import *
 from pipelines.datasets.br_sp_saopaulo_dieese_icv.flows import *
 from pipelines.datasets.br_bd_indicadores.flows import *
+from pipelines.datasets.br_bd_metadados.flows import *
 from pipelines.datasets.br_poder360_pesquisas.flows import *
 from pipelines.datasets.botdosdados.flows import *
 from pipelines.datasets.br_cgu_pessoal_executivo_federal.flows import *
@@ -20,3 +21,5 @@ from pipelines.datasets.br_tse_eleicoes.flows import *
 from pipelines.datasets.delete_flows.flows import *
 from pipelines.datasets.br_jota.flows import *
 from pipelines.datasets.br_fgv_igp.flows import *
+from pipelines.datasets.br_me_caged.flows import *
+from pipelines.datasets.br_ibge_pnadc.flows import *
