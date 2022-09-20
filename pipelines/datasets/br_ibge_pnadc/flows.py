@@ -46,7 +46,7 @@ with Flow(name="br_ibge_pnadc.microdados", code_owners=["lucas_cr"]) as br_pnadc
     )
 
     url = get_url_from_template(year, quarter, upstream_tasks=[rename_flow_run])
-    input_filepath = download_txt(url, upstream_tasks=[url])
+    input_filepath = download_txt(url, mkdir=True, upstream_tasks=[url])
     output_filepath = build_partitions(input_filepath, upstream_tasks=[input_filepath])
 
     wait_upload_table = create_table_and_upload_to_gcs(
