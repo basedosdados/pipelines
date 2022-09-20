@@ -51,7 +51,7 @@ def crawler_organizations():
 
     organizations_json = json_response["result"]
     organizations = []
-    for organization in organizations_json[0:20]:
+    for organization in organizations_json:
 
         response = requests.get(
             "https://basedosdados.org/api/3/action/organization_show?id={}".format(
