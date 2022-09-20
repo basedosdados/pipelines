@@ -17,7 +17,7 @@ def test_igp_di_object_mes(igpdi_mes_mock):
         return_value=igpdi_mes_mock,
     ):
         igpdi_mensal = IGPData("IGPDI", "mes")
-    acum_2021 = igpdi_mensal.df.loc["2021-12-01", "acum_ano"]
+    acum_2021 = igpdi_mensal.df.loc["2021-12-01", "variacao_acumulada_ano"]
     assert round(acum_2021, ndigits=2) == 17.74
 
 
@@ -27,7 +27,7 @@ def test_igp_di_object_ano(igpdi_ano_mock):
         return_value=igpdi_ano_mock,
     ):
         igpdi_anual = IGPData("IGPDI", "ano")
-    var_2021 = igpdi_anual.df.loc[2021, "var_anual"]
+    var_2021 = igpdi_anual.df.loc[2021, "variacao_anual"]
     assert round(var_2021, ndigits=6) == 17.737619
 
 
@@ -45,7 +45,7 @@ def test_igp_m_object_mes(igpm_mes_mock, igpm_decendios_mock):
     df = igpm_mensal.df
     igpm_2021_12 = df.loc[(df.ano == 2021) & (df.mes == 12)].iloc[0]
     assert round(igpm_2021_12.indice, ndigits=3) == 1100.988
-    assert round(igpm_2021_12.var_mensal, ndigits=2) == 0.87
+    assert round(igpm_2021_12.variacao_mensal, ndigits=2) == 0.87
     assert round(igpm_2021_12.indice_primeiro_decendio, ndigits=2) == -0.22
     assert round(igpm_2021_12.indice_segundo_decendio, ndigits=2) == 0.43
 
@@ -59,7 +59,7 @@ def test_igp_m_object_ano(igpm_ano_mock):
 
     df = igpm_anual.df
     igpm_2021 = df.loc[df.ano == 2021].iloc[0]
-    assert round(igpm_2021.var_anual, ndigits=6) == 17.783212
+    assert round(igpm_2021.variacao_anual, ndigits=6) == 17.783212
 
 
 def test_igp_og_object_mes(igpog_mes_mock):
