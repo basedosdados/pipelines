@@ -196,7 +196,7 @@ with Flow(
 
     temporal_coverage = get_temporal_coverage(
         filepath=filepath,
-        date_cols=["ano", "mes"],
+        date_cols=["ano"],
         time_unit="month",
         interval="1",
         upstream_tasks=[filepath],
@@ -376,7 +376,7 @@ with Flow(
 
     temporal_coverage = get_temporal_coverage(
         filepath=filepath,
-        date_cols=["ano", "mes"],
+        date_cols=["ano"],
         time_unit="month",
         interval="1",
         upstream_tasks=[filepath],
@@ -556,7 +556,7 @@ with Flow(
 
     temporal_coverage = get_temporal_coverage(
         filepath=filepath,
-        date_cols=["ano", "mes"],
+        date_cols=["ano"],
         time_unit="month",
         interval="1",
         upstream_tasks=[filepath],
@@ -579,7 +579,7 @@ fgv_igpog_ano_flow.schedule = igp_og_ano
 
 
 with Flow(
-    name="IGP-OG mensal",
+    name="IGP-10 mensal",
     code_owners=[],
 ) as fgv_igp10_mes_flow:
     # Parameters

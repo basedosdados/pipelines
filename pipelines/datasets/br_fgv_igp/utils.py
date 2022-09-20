@@ -71,14 +71,14 @@ class IGPData:
         Returns:
             pd.DataFrame: DataFrame with specific columns
         """
-        dfm["var_mensal"] = dfm["indice"].pct_change(periods=1) * 100
-        dfm["var_12_meses"] = dfm["indice"].pct_change(periods=12) * 100
+        dfm["variacao_mensal"] = dfm["indice"].pct_change(periods=1) * 100
+        dfm["variacao_12_meses"] = dfm["indice"].pct_change(periods=12) * 100
         if self.first_dec and self.second_dec:
             decendios = self._get_decendios()
             dfm = pd.merge(dfm, decendios, how="outer", on="DATE")
         # noinspection PyUnresolvedReferences
-        dfm["acum_ano"] = (
-            dfm[["var_mensal"]]
+        dfm["variacao_acumulada_ano"] = (
+            dfm[["variacao_mensal"]]
             .groupby(dfm.index.year)
             .apply(self._calculate_year_accum)
         )
@@ -110,12 +110,13 @@ class IGPData:
         last_days.drop(columns=["mes"], inplace=True)
         dfy = pd.merge(grouped_df, last_days, how="outer", on="YEAR")
         dfy.drop(dfy.tail(1).index, inplace=True)
-        dfy["var_anual"] = dfy["indice"].pct_change(periods=1) * 100
+        dfy["variacao_anual"] = dfy["indice"].pct_change(periods=1) * 100
         dfy["next_month"] = dfy["indice"].shift(-1)
         dfy["indice_fechamento_anual"] = round(
             np.sqrt(dfy["indice"] * dfy["next_month"]), ndigits=6
         )
         dfy.drop(columns=["next_month"], inplace=True)
+        dfy["ano"] = pd.to_numeric(dfy["ano"], downcast="integer")
         return dfy
 
     def _get_decendios(self) -> pd.DataFrame:
@@ -125,11 +126,15 @@ class IGPData:
             pd.DataFrame: DataFrame with 1st and 2nd tenths
         """
         dec1 = idpy.timeseries(self.decendios[0])
-        dec1.rename({dec1.columns[-1]: "var_primeiro_decendio"}, axis=1, inplace=True)
-        dec1 = dec1[["var_primeiro_decendio"]]
+        dec1.rename(
+            {dec1.columns[-1]: "variacao_primeiro_decendio"}, axis=1, inplace=True
+        )
+        dec1 = dec1[["variacao_primeiro_decendio"]]
         dec2 = idpy.timeseries(self.decendios[1])
-        dec2.rename({dec2.columns[-1]: "var_segundo_decendio"}, axis=1, inplace=True)
-        dec2 = dec2[["var_segundo_decendio"]]
+        dec2.rename(
+            {dec2.columns[-1]: "variacao_segundo_decendio"}, axis=1, inplace=True
+        )
+        dec2 = dec2[["variacao_segundo_decendio"]]
         return pd.merge(dec1, dec2, how="outer", on="DATE")
 
     @staticmethod
