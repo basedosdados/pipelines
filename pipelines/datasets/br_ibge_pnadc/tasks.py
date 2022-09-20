@@ -2,12 +2,10 @@
 """
 Tasks for br_ibge_pnadc
 """
-# pylint: disable=invalid-name
+# pylint: disable=invalid-name,unnecessary-dunder-call
 import zipfile
 import os
 from glob import glob
-from datetime import date
-from typing import Tuple
 
 import requests
 from tqdm import tqdm
@@ -20,22 +18,24 @@ from pipelines.datasets.br_ibge_pnadc.constants import constants as pnad_constan
 
 
 @task
-def get_url_from_template(year: int, quarter: int) -> str:
+def get_url_from_template(year: int, quarter: int)-> str:
     """Return the url for the PNAD microdata file for a given year and month.
-
     Args:
-        url (str): url template
-        year (int): year
-        month (int): month
-
+        year (int): Year of the microdata file.
+        quarter (int): Quarter of the microdata file.
     Returns:
         str: url
     """
-    today = date.today().strftime("%Y%m%d")
-    template = (
-        pnad_constants.URL_PREFIX.value + "/{year}/PNADC_0{quarter}{year}_{today}.zip"
-    )
-    return template.format(year=year, quarter=quarter, today=today)
+    download_page='https://ftp.ibge.gov.br/Trabalho_e_Rendimento/Pesquisa_Nacional_por_Amostra_de_Domicilios_continua/Trimestral/Microdados/2021/'
+    response = requests.get(download_page, timeout=5)
+    hrefs = [k for k in response.text.split('href="')[1:] if k.__contains__('zip')]
+    hrefs = [k.split('"')[0] for k in hrefs]
+    href = hrefs[0]
+    href = href.replace('2021', str(year))
+    filename = href.replace('01', str(quarter).zfill(2))
+
+    url = pnad_constants.URL_PREFIX.value + '/{year}/{filename}'
+    return url.format(year=year, filename=filename)
 
 
 @task
@@ -78,7 +78,6 @@ def build_partitions(filepath: str) -> str:
         names=pnad_constants.COLUMNS_NAMES.value,
         header=None,
         encoding="latin-1",
-        nrows=1000,
         dtype=str,
     )
 
