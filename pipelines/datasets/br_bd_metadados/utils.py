@@ -8,6 +8,9 @@ import pandas as pd
 
 
 def flatten_list(ll):
+    """
+    Flattens a list of lists into one list of strings.
+    """
     return [str(item) for sublist in ll for item in sublist]
 
 

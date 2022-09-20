@@ -4,7 +4,7 @@ Schedules for bd_tweet_data
 """
 
 from datetime import timedelta, datetime
-from prefect.schedules import Schedule, filters, adjustments
+from prefect.schedules import Schedule
 from prefect.schedules.clocks import IntervalClock
 from pipelines.constants import constants
 

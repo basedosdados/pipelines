@@ -8,7 +8,6 @@ from datetime import datetime, timedelta
 from typing import Tuple
 from functools import reduce
 
-from dateutil.relativedelta import relativedelta
 import pytz
 from prefect import task
 import requests
