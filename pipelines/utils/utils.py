@@ -125,6 +125,7 @@ def run_cloud(
     run_description: str = "",
     agent_type: str = "kubernetes",
     machine_type: str = "f1-micro",
+    image: str = "ghcr.io/basedosdados/prefect-flows:latest",
 ):
     """
     Runs a flow on Prefect Server (must have VPN configured).
@@ -136,12 +137,10 @@ def run_cloud(
     flow.name = f"{flow.name} (development)"
 
     if agent_type == "kubernetes":
-        flow.run_config = KubernetesRun(
-            image="ghcr.io/basedosdados/prefect-flows:latest"
-        )
+        flow.run_config = KubernetesRun(image=image)
     elif agent_type == "vertex":
         flow.run_config = VertexRun(
-            image="ghcr.io/basedosdados/prefect-flows:latest",
+            image=image,
             machine_type=machine_type,
         )
     else:
