@@ -90,7 +90,7 @@ def crawler_datasets():
     Returns:
     """
 
-    url = "https://basedosdados.org/api/3/action/bd_dataset_search"
+    url = "https://basedosdados.org/api/3/action/bd_dataset_search?page_size=50000"
     r = requests.get(url)
     datasets_json = r.json()["result"]["datasets"]
 
@@ -103,9 +103,9 @@ def crawler_datasets():
                 "id": dataset["id"],
                 "name": dataset["name"],
                 "title": dataset["title"],
-                "date_created": dataset["metadata_created"],
-                "date_last_modified": dataset["metadata_modified"],
-                "groups": [group["id"] for group in dataset["groups"]],
+                "date_created": dataset["metadata_created"][0:10],
+                "date_last_modified": dataset["metadata_modified"][0:10],
+                "themes": [group["id"] for group in dataset["groups"]],
                 "tags": [tag["id"] for tag in dataset["tags"]],
             }
         )
@@ -130,24 +130,25 @@ def crawler_resources():
     Returns:
     """
 
-    url = "https://basedosdados.org/api/3/action/bd_dataset_search&page_size=100000"
+    url = "https://basedosdados.org/api/3/action/bd_dataset_search?page_size=50000"
     r = requests.get(url)
     datasets_json = r.json()["result"]["datasets"]
 
     resources = []
     for dataset in datasets_json:
         for resource in dataset["resources"]:
+            if resource.get("created") is not None:
 
-            resources.append(
-                {
-                    "dataset_id": dataset["id"],
-                    "id": resource["id"],
-                    "name": resource["name"],
-                    "date_created": resource["created"],
-                    "date_last_modified": resource["metadata_modified"],
-                    "type": resource["resource_type"],
-                }
-            )
+                resources.append(
+                    {
+                        "dataset_id": dataset["id"],
+                        "id": resource["id"],
+                        "name": resource["name"],
+                        "date_created": resource["created"][0:10],
+                        "date_last_modified": resource["metadata_modified"][0:10],
+                        "type": resource["resource_type"],
+                    }
+                )
 
     df = pd.DataFrame.from_dict(resources)
 
@@ -169,7 +170,7 @@ def crawler_external_links():
     Returns:
     """
 
-    url = "https://basedosdados.org/api/3/action/bd_dataset_search?resource_type=external_link"
+    url = "https://basedosdados.org/api/3/action/bd_dataset_search?page_size=50000&resource_type=external_link"
     r = requests.get(url)
     datasets_json = r.json()["result"]["datasets"]
 
@@ -183,8 +184,8 @@ def crawler_external_links():
                         "dataset_id": dataset.get("id"),
                         "id": resource.get("id"),
                         "name": resource.get("name"),
-                        "date_created": resource.get("created"),
-                        "date_last_modified": resource.get("metadata_modified"),
+                        "date_created": resource.get("created")[0:10],
+                        "date_last_modified": resource.get("metadata_modified")[0:10],
                         "url": resource.get("url"),
                         "language": resource.get("language"),
                         "has_structured_data": resource.get("has_structured_data"),
@@ -219,7 +220,7 @@ def crawler_information_requests():
     Returns:
     """
 
-    url = "https://basedosdados.org/api/3/action/bd_dataset_search?resource_type=information_request"
+    url = "https://basedosdados.org/api/3/action/bd_dataset_search?page_size=50000&resource_type=information_request"
     r = requests.get(url)
     datasets_json = r.json()["result"]["datasets"]
 
@@ -233,8 +234,8 @@ def crawler_information_requests():
                         "dataset_id": dataset.get("id"),
                         "id": resource.get("id"),
                         "name": resource.get("name"),
-                        "date_created": resource.get("created"),
-                        "date_last_modified": resource.get("metadata_modified"),
+                        "date_created": resource.get("created")[0:10],
+                        "date_last_modified": resource.get("metadata_modified")[0:10],
                         "url": resource.get("url"),
                         "origin": resource.get("origin"),
                         "number": resource.get("number"),
@@ -269,7 +270,7 @@ def crawler_tables():
     Returns:
     """
 
-    url = "https://basedosdados.org/api/3/action/bd_dataset_search?resource_type=bdm_table"
+    url = "https://basedosdados.org/api/3/action/bd_dataset_search?page_size=50000&resource_type=bdm_table"
     r = requests.get(url)
     json_response = r.json()
 
@@ -398,7 +399,7 @@ def crawler_columns():
     Returns:
     """
 
-    url = "https://basedosdados.org/api/3/action/bd_dataset_search?resource_type=bdm_table"
+    url = "https://basedosdados.org/api/3/action/bd_dataset_search?page_size=50000&resource_type=bdm_table"
     r = requests.get(url)
     json_response = r.json()
 

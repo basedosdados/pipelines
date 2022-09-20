@@ -4,7 +4,6 @@ Tasks for br_twitter
 """
 import os
 from datetime import datetime, timedelta
-from dateutil.relativedelta import relativedelta
 from typing import Tuple
 from functools import reduce
 
@@ -31,7 +30,6 @@ from pipelines.datasets.br_bd_indicadores.utils import (
     parse_data,
     initialize_analyticsreporting,
     get_report,
-    get_temporal_coverage_list,
 )
 from pipelines.constants import constants
 

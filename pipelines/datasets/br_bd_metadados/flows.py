@@ -14,7 +14,7 @@ from pipelines.constants import constants
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.datasets.br_bd_indicadores.tasks import (
+from pipelines.datasets.br_bd_metadados.tasks import (
     crawler_organizations,
     crawler_datasets,
     crawler_resources,
@@ -29,7 +29,7 @@ from pipelines.utils.tasks import (
     get_current_flow_labels,
 )
 
-from pipelines.datasets.br_bd_indicadores.schedules import (
+from pipelines.datasets.br_bd_metadados.schedules import (
     every_day_organizations,
     every_day_datasets,
     every_day_resources,
