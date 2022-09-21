@@ -378,7 +378,7 @@ def crawler_tables():
                     {
                         "dataset_id": dataset.get("id"),
                         "id": resource.get("id"),
-                        "table_id": resource.get("name"),
+                        "name": resource.get("name"),
                         "date_created": date_created,
                         "date_last_modified": date_last_modified,
                         "spatial_coverage": resource.get("spatial_coverage"),
