@@ -24,7 +24,7 @@ import pandas as pd
 import prefect
 from prefect.client import Client
 from prefect.engine.state import State
-from prefect.run_configs import KubernetesRun
+from prefect.run_configs import KubernetesRun, VertexRun
 import requests
 from redis_pal import RedisPal
 
@@ -123,6 +123,9 @@ def run_cloud(
     labels: List[str],
     parameters: Dict[str, Any] = None,
     run_description: str = "",
+    agent_type: str = "kubernetes",
+    machine_type: str = "f1-micro",
+    image: str = "ghcr.io/basedosdados/prefect-flows:latest",
 ):
     """
     Runs a flow on Prefect Server (must have VPN configured).
@@ -132,7 +135,16 @@ def run_cloud(
 
     # Change flow name for development and register
     flow.name = f"{flow.name} (development)"
-    flow.run_config = KubernetesRun(image="ghcr.io/basedosdados/prefect-flows:latest")
+
+    if agent_type == "kubernetes":
+        flow.run_config = KubernetesRun(image=image)
+    elif agent_type == "vertex":
+        flow.run_config = VertexRun(
+            image=image,
+            machine_type=machine_type,
+        )
+    else:
+        raise ValueError(f"Invalid agent type: {agent_type}")
     flow_id = flow.register(project_name="main", labels=[])
 
     # Get Prefect Client and submit flow run
