@@ -370,9 +370,9 @@ def crawler_tables():
                                 diff = relativedelta(days=delta)
 
                             if current_date > upper_temporal_coverage + diff:
-                                outdated = 1
+                                outdated = "1"
                             else:
-                                outdated = 0
+                                outdated = "0"
 
                 resources.append(
                     {
