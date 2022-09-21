@@ -18,7 +18,7 @@ from pipelines.datasets.br_ibge_pnadc.constants import constants as pnad_constan
 
 
 @task
-def get_url_from_template(year: int, quarter: int)-> str:
+def get_url_from_template(year: int, quarter: int) -> str:
     """Return the url for the PNAD microdata file for a given year and month.
     Args:
         year (int): Year of the microdata file.
@@ -26,15 +26,15 @@ def get_url_from_template(year: int, quarter: int)-> str:
     Returns:
         str: url
     """
-    download_page='https://ftp.ibge.gov.br/Trabalho_e_Rendimento/Pesquisa_Nacional_por_Amostra_de_Domicilios_continua/Trimestral/Microdados/2021/'
+    download_page = "https://ftp.ibge.gov.br/Trabalho_e_Rendimento/Pesquisa_Nacional_por_Amostra_de_Domicilios_continua/Trimestral/Microdados/2021/"
     response = requests.get(download_page, timeout=5)
-    hrefs = [k for k in response.text.split('href="')[1:] if k.__contains__('zip')]
+    hrefs = [k for k in response.text.split('href="')[1:] if k.__contains__("zip")]
     hrefs = [k.split('"')[0] for k in hrefs]
     href = hrefs[0]
-    href = href.replace('2021', str(year))
-    filename = href.replace('01', str(quarter).zfill(2))
+    href = href.replace("2021", str(year))
+    filename = href.replace("01", str(quarter).zfill(2))
 
-    url = pnad_constants.URL_PREFIX.value + '/{year}/{filename}'
+    url = pnad_constants.URL_PREFIX.value + "/{year}/{filename}"
     return url.format(year=year, filename=filename)
 
 
@@ -73,15 +73,15 @@ def build_parquet_files(filepath: str) -> str:
     os.system("mkdir -p /tmp/data/staging/")
     # read file
     chunks = pd.read_fwf(
-            filepath,
-            widths=pnad_constants.COLUMNS_WIDTHS.value,
-            names=pnad_constants.COLUMNS_NAMES.value,
-            header=None,
-            encoding="latin-1",
-            dtype=str,
-            chunksize=10000,
-        )
-    
+        filepath,
+        widths=pnad_constants.COLUMNS_WIDTHS.value,
+        names=pnad_constants.COLUMNS_NAMES.value,
+        header=None,
+        encoding="latin-1",
+        dtype=str,
+        chunksize=10000,
+    )
+
     for i, chunk in enumerate(chunks):
         # partition by year, quarter and region
         chunk.rename(
@@ -98,7 +98,6 @@ def build_parquet_files(filepath: str) -> str:
         )
         chunk["sigla_uf"] = chunk["id_uf"].map(pnad_constants.map_codigo_sigla_uf.value)
         chunk["id_domicilio"] = chunk["id_estrato"] + chunk["V1008"] + chunk["V1014"]
-
 
         chunk["habitual"] = [np.nan] * len(chunk)
         chunk["efetivo"] = [np.nan] * len(chunk)
@@ -126,7 +125,7 @@ def save_partitions(filepath: str) -> str:
 
     Args:
         filepath (str): Path to the file used to build the partitions.
-    
+
     Returns:
         str: Path to the saved file.
 
