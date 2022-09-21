@@ -13,7 +13,7 @@ import pandas as pd
 import numpy as np
 from prefect import task
 
-
+from pipelines.utils.utils import log
 from pipelines.datasets.br_ibge_pnadc.constants import constants as pnad_constants
 
 
@@ -65,50 +65,82 @@ def download_txt(url, chunk_size=128, mkdir=False) -> str:
 
 
 @task
-def build_partitions(filepath: str) -> str:
+def build_parquet_files(filepath: str) -> str:
     """
     Build partitions from a given file.
     """
 
-    os.system("mkdir -p /tmp/data/output/")
+    os.system("mkdir -p /tmp/data/staging/")
     # read file
-    df = pd.read_fwf(
-        filepath,
-        widths=pnad_constants.COLUMNS_WIDTHS.value,
-        names=pnad_constants.COLUMNS_NAMES.value,
-        header=None,
-        encoding="latin-1",
-        dtype=str,
-    )
+    chunks = pd.read_fwf(
+            filepath,
+            widths=pnad_constants.COLUMNS_WIDTHS.value,
+            names=pnad_constants.COLUMNS_NAMES.value,
+            header=None,
+            encoding="latin-1",
+            dtype=str,
+            chunksize=10000,
+        )
+    
+    for i, chunk in enumerate(chunks):
+        # partition by year, quarter and region
+        chunk.rename(
+            columns={
+                "UF": "id_uf",
+                "Estrato": "id_estrato",
+                "UPA": "id_upa",
+                "Capital": "capital",
+                "RM_RIDE": "rm_ride",
+                "Trimestre": "trimestre",
+                "Ano": "ano",
+            },
+            inplace=True,
+        )
+        chunk["sigla_uf"] = chunk["id_uf"].map(pnad_constants.map_codigo_sigla_uf.value)
+        chunk["id_domicilio"] = chunk["id_estrato"] + chunk["V1008"] + chunk["V1014"]
 
-    # partition by year, quarter and region
-    trimestre = df["Trimestre"].unique()[0]
-    ano = df["Ano"].unique()[0]
-    df.rename(
-        columns={
-            "UF": "id_uf",
-            "Estrato": "id_estrato",
-            "UPA": "id_upa",
-            "Capital": "capital",
-            "RM_RIDE": "rm_ride",
-            "Trimestre": "trimestre",
-            "Ano": "ano",
-        },
-        inplace=True,
-    )
-    df["sigla_uf"] = df["id_uf"].map(pnad_constants.map_codigo_sigla_uf.value)
-    df["id_domicilio"] = df["id_estrato"] + df["V1008"] + df["V1014"]
 
-    ordered_columns = pnad_constants.COLUMNS_ORDER.value
+        chunk["habitual"] = [np.nan] * len(chunk)
+        chunk["efetivo"] = [np.nan] * len(chunk)
+        ordered_columns = pnad_constants.COLUMNS_ORDER.value
+        chunk = chunk[ordered_columns]
 
-    # # reorder columns to match schema
-    # print(ordered_columns)
-    df["habitual"] = [np.nan] * len(df)
-    df["efetivo"] = [np.nan] * len(df)
-    df = df[ordered_columns]
+        # save to parquet
+        chunk.to_parquet(
+            f"/tmp/data/staging/microdados_{i}.parquet",
+            index=False,
+        )
+        log(i)
 
+    # print number of parquet files
+    total_files = len(glob("/tmp/data/staging/*.parquet"))
+    log(f"Total of {total_files} parquet files created.")
+
+    return "/tmp/data/staging/"
+
+
+@task
+def save_partitions(filepath: str) -> str:
+    """
+    Save partitions to disk.
+
+    Args:
+        filepath (str): Path to the file used to build the partitions.
+    
+    Returns:
+        str: Path to the saved file.
+
+    """
+    os.system("mkdir -p /tmp/data/output/")
+
+    # get all parquet files
+    parquet_files = glob(f"{filepath}*.parquet")
+    # read all parquet files
+    df = pd.concat([pd.read_parquet(f) for f in parquet_files])
+
+    trimestre = df["trimestre"].unique()[0]
+    ano = df["ano"].unique()[0]
     df.drop(columns=["trimestre", "ano"], inplace=True)
-
     ufs = df["sigla_uf"].unique()
 
     for uf in ufs:
