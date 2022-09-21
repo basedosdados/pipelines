@@ -16,7 +16,8 @@ from pipelines.constants import constants
 from pipelines.datasets.br_ibge_pnadc.tasks import (
     get_url_from_template,
     download_txt,
-    build_partitions,
+    build_parquet_files,
+    save_partitions
 )
 from pipelines.utils.decorators import Flow
 from pipelines.utils.tasks import (
@@ -47,7 +48,12 @@ with Flow(name="br_ibge_pnadc.microdados", code_owners=["lucas_cr"]) as br_pnadc
 
     url = get_url_from_template(year, quarter, upstream_tasks=[rename_flow_run])
     input_filepath = download_txt(url, mkdir=True, upstream_tasks=[url])
-    output_filepath = build_partitions(input_filepath, upstream_tasks=[input_filepath])
+    staging_filepath = build_parquet_files(
+        input_filepath, upstream_tasks=[input_filepath]
+    )
+    output_filepath = save_partitions(
+        staging_filepath,
+        upstream_tasks=[staging_filepath])
 
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=output_filepath,
