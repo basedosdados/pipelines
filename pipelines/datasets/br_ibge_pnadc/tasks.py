@@ -61,13 +61,15 @@ def download_txt(url, chunk_size=128, mkdir=False) -> str:
     os.system('cd /tmp/data/input; find . -type f ! -iname "*.txt" -delete')
     filepath = glob("/tmp/data/input/*.txt")[0]
 
+    log(f"Using file {filepath}")
+
     return filepath
 
 
 @task
 def build_parquet_files(filepath: str) -> str:
     """
-    Build partitions from a given file.
+    Build parquets from txt original file.
     """
 
     os.system("mkdir -p /tmp/data/staging/")
@@ -77,7 +79,7 @@ def build_parquet_files(filepath: str) -> str:
         widths=pnad_constants.COLUMNS_WIDTHS.value,
         names=pnad_constants.COLUMNS_NAMES.value,
         header=None,
-        encoding="latin-1",
+        encoding="utf-8",
         dtype=str,
         chunksize=10000,
     )
@@ -109,7 +111,6 @@ def build_parquet_files(filepath: str) -> str:
             f"/tmp/data/staging/microdados_{i}.parquet",
             index=False,
         )
-        log(i)
 
     # print number of parquet files
     total_files = len(glob("/tmp/data/staging/*.parquet"))
