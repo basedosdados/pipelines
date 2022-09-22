@@ -2,16 +2,16 @@
 """
 utils for br_bd_inndicadores
 """
-# pylint: disable=too-few-public-methods
+# pylint: disable=too-few-public-methods,invalid-name
 from datetime import datetime
 import pandas as pd
 
 
-def flatten_list(ll):
+def flatten_list(array):
     """
     Flattens a list of lists into one list of strings.
     """
-    return [str(item) for sublist in ll for item in sublist]
+    return [str(item) for sublist in array for item in sublist]
 
 
 def classify_frequency(interval):
