@@ -15,7 +15,10 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 RUN python3 -m pip install --no-cache-dir -U "pip>=21.2.4" "prefect==$PREFECT_VERSION"
 
 # Add CLI tools
-RUN apt-get update; apt-get install curl wget ftp p7zip-full -y
+RUN apt-get update && \
+    apt-get install --no-install-recommends -y curl wget ftp p7zip-full traceroute && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Install requirements
 WORKDIR /app
