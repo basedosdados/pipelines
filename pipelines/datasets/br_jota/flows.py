@@ -10,16 +10,15 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.constants import constants as utils_constants
-from pipelines.utils.decorators import Flow
 from pipelines.datasets.br_jota.schedules import (
     schedule_candidatos,
     schedule_contas_candidato,
-    schedule_contas_candidato_origem
+    schedule_contas_candidato_origem,
 )
+from pipelines.utils.constants import constants as utils_constants
+from pipelines.utils.decorators import Flow
+from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.utils.tasks import get_current_flow_labels
-
 
 with Flow(
     name="br_jota.eleicao_perfil_candidato_2022", code_owners=["lauris"]
@@ -155,12 +154,13 @@ with Flow(
         seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
     )
 
+eleicao_prestacao_contas_candidato_origem_2022.schedule = (
+    schedule_contas_candidato_origem
+)
+
 eleicao_prestacao_contas_candidato_origem_2022.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
 )
 eleicao_prestacao_contas_candidato_origem_2022.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
-)
-eleicao_prestacao_contas_candidato_origem_2022.schedule = (
-    schedule_contas_candidato_origem
 )
