@@ -16,7 +16,7 @@ from pipelines.utils.decorators import Flow
 from pipelines.datasets.br_jota.schedules import (
     schedule_candidatos,
     schedule_contas_candidato,
-    schedule_contas_candidato_origem
+    schedule_contas_candidato_origem,
 )
 from pipelines.utils.tasks import get_current_flow_labels
 
