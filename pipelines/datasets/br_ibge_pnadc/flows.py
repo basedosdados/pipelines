@@ -17,7 +17,7 @@ from pipelines.datasets.br_ibge_pnadc.tasks import (
     get_url_from_template,
     download_txt,
     build_parquet_files,
-    save_partitions
+    save_partitions,
 )
 from pipelines.utils.decorators import Flow
 from pipelines.utils.tasks import (
@@ -52,8 +52,8 @@ with Flow(name="br_ibge_pnadc.microdados", code_owners=["lucas_cr"]) as br_pnadc
         input_filepath, upstream_tasks=[input_filepath]
     )
     output_filepath = save_partitions(
-        staging_filepath,
-        upstream_tasks=[staging_filepath])
+        staging_filepath, upstream_tasks=[staging_filepath]
+    )
 
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=output_filepath,
