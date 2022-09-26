@@ -491,17 +491,6 @@ def dump_header_to_csv(
     return save_header_path
 
 
-# if first character in the name collumn starts with a number, add underscore before it
-def add_underscore_to_column_name(dataframe: pd.DataFrame) -> pd.DataFrame:
-    """
-    Add underscore to column name if first character is a number.
-    """
-    for column in dataframe.columns:
-        if column[0].isdigit():
-            dataframe.rename(columns={column: f"_{column}"}, inplace=True)
-    return dataframe
-
-
 def determine_whether_to_execute_or_not(
     cron_expression: str, datetime_now: datetime, datetime_last_execution: datetime
 ) -> bool:

@@ -18,7 +18,10 @@ schedule_users = Schedule(
             ],
             parameter_defaults={
                 "dataset_id": "br_bd_indicadores",
-                "table_id": "website_users",
+                "table_id": "website_user",
+                "materialization_mode": "dev",
+                "materialize after dump": True,
+                "dbt_alias": False,
             },
         ),
     ],
@@ -35,9 +38,9 @@ every_day = Schedule(
             ],
             parameter_defaults={
                 "dataset_id": "br_bd_indicadores",
+                "table_id": "twitter_metrics",
                 "materialization_mode": "dev",
                 "materialize after dump": True,
-                "table_id": "twitter_metrics",
                 "dbt_alias": False,
             },
         ),
