@@ -14,12 +14,12 @@ schedule_users = Schedule(
             interval=timedelta(days=1),
             start_date=datetime(2022, 5, 15, 0, 0),
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_bd_indicadores",
                 "table_id": "website_user",
-                "materialization_mode": "dev",
+                "materialization_mode": "prod",
                 "materialize after dump": True,
                 "dbt_alias": False,
             },
