@@ -612,8 +612,11 @@ def clean_despesa22(folder):
             f"/tmp/data/output/ano=2022/sigla_uf={uf}/despesas_candidato.csv",
             index=False,
         )
-    os.system("rm -r /tmp/data/output/ano=2022/sigla_uf=BRASIL/")
-    os.system("rm -r /tmp/data/output/ano=2022/sigla_uf=BR/")
+    try:
+        os.system("rm -r /tmp/data/output/ano=2022/sigla_uf=BRASIL/")
+        os.system("rm -r /tmp/data/output/ano=2022/sigla_uf=BR/")
+    except:
+        pass
 
     return "/tmp/data/output/"
 
@@ -767,7 +770,11 @@ def clean_receita22(folder):
             f"/tmp/data/output/ano=2022/sigla_uf={uf}/receitas_candidato.csv",
             index=False,
         )
-    os.system("rm -r /tmp/data/output/ano=2022/sigla_uf=BRASIL/")
-    os.system("rm -r /tmp/data/output/ano=2022/sigla_uf=BR/")
 
+    try:
+        os.system("rm -r /tmp/data/output/ano=2022/sigla_uf=BRASIL/")
+        os.system("rm -r /tmp/data/output/ano=2022/sigla_uf=BR/")
+    except:
+        pass
+        
     return "/tmp/data/output/"
