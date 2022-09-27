@@ -613,7 +613,7 @@ def clean_despesa22(folder):
             index=False,
         )
 
-    os.system("rm -rf /tmp/data/output/ano=2022/sigla_uf=BR*")
+    os.system("rm -rf /tmp/data/output/ano=2022/sigla_uf=BRA*")
 
     return "/tmp/data/output/"
 
