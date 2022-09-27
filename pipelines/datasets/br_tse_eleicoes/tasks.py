@@ -613,6 +613,7 @@ def clean_despesa22(folder):
             index=False,
         )
     os.system("rm -r /tmp/data/output/ano=2022/sigla_uf=BRASIL/")
+    os.system("rm -r /tmp/data/output/ano=2022/sigla_uf=BR/")
 
     return "/tmp/data/output/"
 
@@ -767,5 +768,6 @@ def clean_receita22(folder):
             index=False,
         )
     os.system("rm -r /tmp/data/output/ano=2022/sigla_uf=BRASIL/")
+    os.system("rm -r /tmp/data/output/ano=2022/sigla_uf=BR/")
 
     return "/tmp/data/output/"
