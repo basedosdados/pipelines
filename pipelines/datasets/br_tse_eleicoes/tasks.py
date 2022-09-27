@@ -639,6 +639,8 @@ def clean_receita22(folder):
 
     for file in files:
         df = pd.read_csv(file, sep=";", encoding="latin-1")
+        # replace cells like '##############' to np.nan
+        df.replace({r'^#*$':np.nan}, regex=True, inplace=True)
         n = df.shape[0]
         uf = "".join([k for k in file if k.isupper()])
 
