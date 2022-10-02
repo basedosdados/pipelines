@@ -3,21 +3,22 @@
 Tasks for br_tse_eleicoes
 """
 # pylint: disable=invalid-name,line-too-long
-from datetime import timedelta
-import zipfile
+import json
 import os
+import re
+import zipfile
+from datetime import timedelta
 from glob import glob
 from itertools import product
-import re
 
-import requests
-from unidecode import unidecode
-from tqdm import tqdm
 import numpy as np
 import pandas as pd
+import requests
 from prefect import task
+from tqdm import tqdm
+from unidecode import unidecode
+
 from pipelines.constants import constants
-from pipelines.utils.utils import log
 from pipelines.datasets.br_tse_eleicoes.utils import (
     get_id_candidato_bd,
     get_blobs_from_raw,
@@ -25,6 +26,7 @@ from pipelines.datasets.br_tse_eleicoes.utils import (
     get_data_from_prod,
     clean_digit_id,
 )
+from pipelines.utils.utils import log
 
 
 @task(
@@ -640,7 +642,7 @@ def clean_receita22(folder):
     for file in files:
         df = pd.read_csv(file, sep=";", encoding="latin-1")
         # replace cells like '##############' to np.nan
-        df.replace({r'^#*$':np.nan}, regex=True, inplace=True)
+        df.replace({r"^#*$": np.nan}, regex=True, inplace=True)
         n = df.shape[0]
         uf = "".join([k for k in file if k.isupper()])
 
@@ -772,3 +774,35 @@ def clean_receita22(folder):
 
     os.system("rm -rf /tmp/data/output/ano=2022/sigla_uf=BRA*")
     return "/tmp/data/output/"
+
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def get_apuracao():
+    filepath = "tmp/data/apuracao.csv"
+
+    data = requests.get(
+        "https://resultados.tse.jus.br/oficial/ele2022/544/dados-simplificados/br/br-c0001-e000544-r.json"
+    )
+
+    json_data = json.loads(data.content)
+    candidato = []
+    # partido = []
+    votos = []
+    porcentagem = []
+
+    for informacoes in json_data["cand"]:
+        candidato.append(informacoes["nm"])
+        votos.append(int(informacoes["vap"]))
+        porcentagem.append(float(informacoes["pvap"].replace(",", ".")))
+
+    df_eleicao = pd.DataFrame(
+        list(zip(candidato, votos, porcentagem)),
+        columns=["Candidato", "Votos", "Porcentagem"],
+    ).sort_values(by="Votos", ascending=False)
+    # print(df_eleicao.head(), '\n')
+    os.system("mkdir -p tmp/data")
+    df_eleicao.to_csv(filepath, encoding="utf-8", sep=",", decimal=".", na_rep="")
+    return filepath

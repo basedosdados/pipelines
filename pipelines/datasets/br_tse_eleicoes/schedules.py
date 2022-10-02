@@ -4,8 +4,10 @@ Schedules for br_tse_eleicoes
 """
 
 from datetime import timedelta, datetime
+
 from prefect.schedules import Schedule, filters
 from prefect.schedules.clocks import IntervalClock
+
 from pipelines.constants import constants
 
 schedule_candidatos = Schedule(
@@ -93,4 +95,25 @@ schedule_receita = Schedule(
         ),
     ],
     filters=[filters.is_weekday],
+)
+
+
+schedule_apuracao = Schedule(
+    clocks=[
+        IntervalClock(
+            interval=timedelta(minutes=1),
+            start_date=datetime(2021, 1, 1, 10, 30),
+            labels=[
+                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            ],
+            parameter_defaults={
+                "dataset_id": "br_tse_eleicoes",
+                "table_id": "apuracao",
+                "id_candidato_bd": False,
+                "materialization_mode": "dev",
+                "materialize after dump": False,
+                "dbt_alias": False,
+            },
+        ),
+    ]
 )
