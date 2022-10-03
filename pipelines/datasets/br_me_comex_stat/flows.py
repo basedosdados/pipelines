@@ -101,7 +101,7 @@ with Flow(
 
 br_comex_mx.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_comex_mx.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_comex_mx.schedule = schedule_municipio_exportacao
+br_comex_mx.schedule = None
 
 
 with Flow(
@@ -172,7 +172,7 @@ with Flow(
 
 br_comex_mi.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_comex_mi.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_comex_mi.schedule = schedule_municipio_importacao
+br_comex_mi.schedule = None
 
 
 with Flow(
@@ -243,7 +243,7 @@ with Flow(
 
 br_comex_ncm_export.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_comex_ncm_export.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_comex_ncm_export.schedule = schedule_ncm_exportacao
+br_comex_ncm_export.schedule = None
 
 
 with Flow(
@@ -314,4 +314,4 @@ with Flow(
 
 br_comex_ncm_import.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_comex_ncm_import.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_comex_ncm_import.schedule = schedule_ncm_importacao
+br_comex_ncm_import.schedule = None
