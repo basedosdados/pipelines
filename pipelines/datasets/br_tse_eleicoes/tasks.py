@@ -613,7 +613,7 @@ def clean_despesa22(folder):
             index=False,
         )
 
-    os.system("rm -rf /tmp/data/output/ano=2022/sigla_uf=BR*")
+    os.system("rm -rf /tmp/data/output/ano=2022/sigla_uf=BRA*")
 
     return "/tmp/data/output/"
 
@@ -639,6 +639,8 @@ def clean_receita22(folder):
 
     for file in files:
         df = pd.read_csv(file, sep=";", encoding="latin-1")
+        # replace cells like '##############' to np.nan
+        df.replace({r'^#*$':np.nan}, regex=True, inplace=True)
         n = df.shape[0]
         uf = "".join([k for k in file if k.isupper()])
 
@@ -768,5 +770,5 @@ def clean_receita22(folder):
             index=False,
         )
 
-    os.system("rm -rf /tmp/data/output/ano=2022/sigla_uf=BR*")
+    os.system("rm -rf /tmp/data/output/ano=2022/sigla_uf=BRA*")
     return "/tmp/data/output/"
