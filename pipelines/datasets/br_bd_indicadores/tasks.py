@@ -291,7 +291,14 @@ def crawler_report_ga(view_id: str, metrics: list = None) -> str:
 
     df.drop(columns=["date"], inplace=True)
 
-    df.columns = ['users_1_day','users_7_days','users_14_days', 'users_28_days', 'users_30_days','new_users']
+    df.columns = [
+        "users_1_day",
+        "users_7_days",
+        "users_14_days",
+        "users_28_days",
+        "users_30_days",
+        "new_users",
+    ]
 
     now = datetime.now().strftime("%Y-%m-%d")
 

@@ -2,10 +2,10 @@
 """
 Schedules for br_ibge_pnadc
 """
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from prefect.schedules import Schedule
-from prefect.schedules.clocks import IntervalClock
+from prefect.schedules.clocks import CronClock
 
 from pipelines.constants import constants
 
@@ -15,8 +15,8 @@ last_quarter = current_quarter - 1
 
 every_quarter = Schedule(
     clocks=[
-        IntervalClock(
-            interval=timedelta(days=90),
+        CronClock(
+            cron="00 15 15 5,8,11,2 *",  # At 15:00 on day-of-month 15 in May, August, November, and February
             start_date=datetime(2021, 1, 1, 15, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
