@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Constants for br_me_comex_stat
 """
@@ -11,7 +10,12 @@ class constants(Enum):  # pylint: disable=c0103
     Constants for br_me_comex_stat
     """
 
-    UF = [
+    GROUPS = {
+        "ncm": ["EXP_COMPLETA", "IMP_COMPLETA"],
+        "mun": ["EXP_COMPLETA_MUN", "IMP_COMPLETA_MUN"],
+    }
+
+    UFS = [
         "AC",
         "AL",
         "AM",
@@ -40,7 +44,9 @@ class constants(Enum):  # pylint: disable=c0103
         "SP",
         "TO",
     ]
+
     PATH = "/tmp/br_me_comex_stat/"
+
     TABLE = [
         "ncm_exportacao",
         "ncm_importacao",

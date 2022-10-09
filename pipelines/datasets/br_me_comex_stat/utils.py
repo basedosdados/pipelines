@@ -1,54 +1,58 @@
-# -*- coding: utf-8 -*-
-""" Utils for the Brazilian Comex Stat pipeline. """
-# pylint: disable=invalid-name
+
+""" 
+Utils for br_me_comex_stat
+"""
+
 import os
 import requests
 
 from tqdm import tqdm
 
+def create_paths(table, path, ufs, current_year):
+    """ Create and partition folders"""
 
-def create_paths(tables, path, ufs):
-    """
-    Create and partition folders
-    """
     path_temps = [path, path + "input/", path + "output/"]
 
     for path_temp in path_temps:
-        os.makedirs(path_temp, exist_ok=True)
+        os.makedirs(path_temp, exist_ok=True) ### TODO: verificar se já existe 
 
-    for table in tables:
-        for ano in [*range(1997, 2024)]:
+    for ano in [*range(1997, current_year)]:
 
-            for mes in [*range(1, 13)]:
+        for mes in [*range(1, 13)]:
 
-                if "municipio" in table:
+            if 'municipio' in table:
 
-                    for uf in ufs:
+                for uf in ufs:
 
-                        os.makedirs(
-                            path + f"output/{table}/ano={ano}/mes={mes}/sigla_uf={uf}",
-                            exist_ok=True,
-                        )
-
-                else:
                     os.makedirs(
-                        path + f"output/{table}/ano={ano}/mes={mes}/", exist_ok=True
+                        path + f"output/{table}/ano={ano}/mes={mes}/sigla_uf={uf}", exist_ok=True
                     )
 
+            else:
+                    os.makedirs(
+                        path + f"output/{table}/ano={ano}/mes={mes}/", exist_ok=True
+                        
+                    )
 
-def download_data(path):
-    """
-    Crawler for br_me_comex_stat
-    """
-    groups = {
-        "ncm": ["EXP_COMPLETA", "IMP_COMPLETA"],
-        "mun": ["EXP_COMPLETA_MUN", "IMP_COMPLETA_MUN"],
-    }
+def download_data(path, group, item):
 
-    for item, value in groups.items():
-        for group in tqdm(value):
-            print(f"Baixando {item} do {group}")
-            url = f"https://balanca.economia.gov.br/balanca/bd/comexstat-bd/{item}/{group}.zip"
-            r = requests.get(url, verify=False, timeout=99999999)
-            with open(path + f"input/{group}.zip", "wb") as f:
-                f.write(r.content)
+    """ 
+    Crawler for br_me_comex_stat 
+    """
+
+    # for item in groups.keys():
+    #     for group in tqdm(groups[item]):
+    print(f"Baixando {item} do {group}")
+
+    zip_output_path = path + "input/" + f"{group}.zip"
+    url = f"https://balanca.economia.gov.br/balanca/bd/comexstat-bd/{item}/{group}.zip"
+    r = requests.get(url, verify=False, timeout=99999999)
+    open(zip_output_path, "wb").write(r.content)
+
+    import zipfile
+    with zipfile.ZipFile(zip_output_path,"r") as zip_ref:
+        zip_ref.extractall(path + "input/")
+    
+    os.remove(zip_output_path)
+
+    print('Download concluído!')
