@@ -17,6 +17,7 @@ from datetime import datetime
 
 import dask.dataframe as dd
 
+
 @task
 def clean_br_me_comex_stat(table_name):
 
@@ -25,10 +26,10 @@ def clean_br_me_comex_stat(table_name):
     """
     current_year = datetime.now().year + 1
 
-    filename = 'IMP_COMPLETA_MUN'
+    filename = "IMP_COMPLETA_MUN"
 
     create_paths(table_name, constants.PATH.value, constants.UFS.value, current_year)
-    download_data(constants.PATH.value, filename, 'mun')
+    download_data(constants.PATH.value, filename, "mun")
 
     rename_ncm = {
         "CO_ANO": "ano",
@@ -58,12 +59,12 @@ def clean_br_me_comex_stat(table_name):
     }
 
     file_name = constants.PATH.value + "input/" + filename + ".csv"
-        
+
     df = dd.read_csv(file_name, sep=";", blocksize="16MB")
 
     if "MUN" in file_name:
 
-        print('ENTROU NO MUN')
+        print("ENTROU NO MUN")
         print(df.shape)
 
         df = df.rename(columns=rename_mun)
@@ -82,9 +83,7 @@ def clean_br_me_comex_stat(table_name):
             df["id_municipio"] - 100000,
         ]
 
-        df["id_municipio"] = np.select(
-            condicao, valores, default=df["id_municipio"]
-        )
+        df["id_municipio"] = np.select(condicao, valores, default=df["id_municipio"])
 
         for table in constants.TABLE.value:
 
@@ -100,20 +99,15 @@ def clean_br_me_comex_stat(table_name):
 
                             df_partition = df[df["ano"] == ano].copy()
 
-                            df_partition = df_partition[
-                                df_partition["mes"] == mes
-                            ]
-                            df_partition = df_partition[
-                                df_partition["sigla_uf"] == uf
-                            ]
+                            df_partition = df_partition[df_partition["mes"] == mes]
+                            df_partition = df_partition[df_partition["sigla_uf"] == uf]
 
                             df_partition = df_partition.drop(
-                                ["ano", "mes", "sigla_uf"],
-                                axis=1
+                                ["ano", "mes", "sigla_uf"], axis=1
                             )
 
-                            print('Iniciando save')
-                            df_partition = df_partition.compute()                                                      
+                            print("Iniciando save")
+                            df_partition = df_partition.compute()
 
                             df_partition.to_csv(
                                 constants.PATH.value
@@ -122,7 +116,7 @@ def clean_br_me_comex_stat(table_name):
                                 index=False,
                                 encoding="utf-8",
                                 na_rep="",
-                                #single_file=True
+                                # single_file=True
                             )
 
                             del df_partition
@@ -138,14 +132,10 @@ def clean_br_me_comex_stat(table_name):
                     print(f"Particionando {table_name}_{ano}_{mes}")
                     df_partition = df[df["ano"] == ano].copy()
 
-                    df_partition = df_partition[
-                        df_partition["mes"] == mes
-                    ]
+                    df_partition = df_partition[df_partition["mes"] == mes]
 
-                    df_partition.drop(
-                        ["ano", "mes"], axis=1, inplace=True
-                    )
-                    
+                    df_partition.drop(["ano", "mes"], axis=1, inplace=True)
+
                     df_partition.to_csv(
                         constants.PATH.value
                         + "output/"
@@ -160,9 +150,10 @@ def clean_br_me_comex_stat(table_name):
 
     return "/tmp/br_me_comex_stat/output/"
 
-clean_br_me_comex_stat('municipio_importacao')
 
-## TODO: 
+clean_br_me_comex_stat("municipio_importacao")
+
+## TODO:
 ## 1. Achar uma maneira de alinhar o select numpy com dask (linhas 71-87)
 ## 2. Ajustar flows com nome da tabela.
 ## 3. Ver uma maneira de passar o group e item para funcao de download

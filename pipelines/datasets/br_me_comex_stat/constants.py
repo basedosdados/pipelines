@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Constants for br_me_comex_stat
 """

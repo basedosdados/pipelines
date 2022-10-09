@@ -52,7 +52,9 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    filepath = clean_br_me_comex_stat()        # passar só a tabela (segue para os outros flows)
+    filepath = (
+        clean_br_me_comex_stat()
+    )  # passar só a tabela (segue para os outros flows)
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
