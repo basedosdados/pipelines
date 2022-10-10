@@ -120,7 +120,7 @@ def crawler(indice: str, folder: str) -> bool:
     }
     links_keys = list(links.keys())
     success_dwnl = []
-    if folder!='rm':
+    if folder != "rm":
         # precisei adicionar try catchs no loop para conseguir baixar todas
         # as tabelas sem ter pproblema com o limite de requisição do sidra
         for key in tqdm(links_keys):
@@ -139,7 +139,7 @@ def crawler(indice: str, folder: str) -> bool:
             try:
                 response = get_legacy_session().get(links[key])
                 # download the csv
-                with open(f"/tmp/data/input/{key}.csv", 'wb') as f:
+                with open(f"/tmp/data/input/{key}.csv", "wb") as f:
                     f.write(response.content)
                 success_dwnl.append(key)
             except Exception:
@@ -147,7 +147,7 @@ def crawler(indice: str, folder: str) -> bool:
                     sleep(10)
                     response = get_legacy_session().get(links[key])
                     # download the csv
-                    with open(f"/tmp/data/input/{key}.csv", 'wb') as f:
+                    with open(f"/tmp/data/input/{key}.csv", "wb") as f:
                         f.write(response.content)
                     success_dwnl.append(key)
                 except Exception:
@@ -376,7 +376,9 @@ def clean_mes_rm(indice: str):
     for arq in arquivos:
         log(arq)
         try:
-            dataframe = pd.read_csv(arq, skipfooter=14, skiprows=2, sep=";", dtype="str")
+            dataframe = pd.read_csv(
+                arq, skipfooter=14, skiprows=2, sep=";", dtype="str"
+            )
         except:
             log(f"Error reading {arq}")
             continue

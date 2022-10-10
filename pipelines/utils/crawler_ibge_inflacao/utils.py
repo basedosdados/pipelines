@@ -36,15 +36,15 @@ def generate_inflacao_clocks(parameters: dict):
 
 # class to deal with ssl context. See more at:https://github.com/psf/requests/issues/4775
 class CustomHttpAdapter(requests.adapters.HTTPAdapter):
-    """ Transport adapter" that allows us to use custom ssl_context."""
+    """Transport adapter" that allows us to use custom ssl_context."""
 
     def __init__(self, ssl_context=None, **kwargs):
-        """ Initiate the class with the ssl context"""
+        """Initiate the class with the ssl context"""
         self.ssl_context = ssl_context
         super().__init__(**kwargs)
 
     def init_poolmanager(self, connections, maxsize, block=False):
-        """ Initiate the pool manager"""
+        """Initiate the pool manager"""
         self.poolmanager = urllib3.poolmanager.PoolManager(
             num_pools=connections,
             maxsize=maxsize,
@@ -54,7 +54,7 @@ class CustomHttpAdapter(requests.adapters.HTTPAdapter):
 
 
 def get_legacy_session():
-    """ Get the session with the ssl context"""
+    """Get the session with the ssl context"""
     ctx = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
     ctx.options |= 0x4  # OP_LEGACY_SERVER_CONNECT
     session = requests.session()
