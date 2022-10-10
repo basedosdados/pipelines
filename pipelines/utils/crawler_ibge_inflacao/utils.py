@@ -20,12 +20,12 @@ def generate_inflacao_clocks(parameters: dict):
     """
     return Schedule(
         clocks=[
-        CronClock(
-            cron="0 18 12 * *", #day 12 of every month at 6 pm
-            start_date=datetime(2021, 1, 1, 15, 0),
-            labels=[
-                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-            ],
+            CronClock(
+                cron="0 18 12 * *",  # day 12 of every month at 6 pm
+                start_date=datetime(2021, 1, 1, 15, 0),
+                labels=[
+                    constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                ],
                 parameter_defaults=parameters,
             )
         ],
