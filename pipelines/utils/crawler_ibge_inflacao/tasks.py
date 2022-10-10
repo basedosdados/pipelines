@@ -2,7 +2,7 @@
 """
 Tasks for br_ibge_inpc
 """
-# pylint: disable=line-too-long, W0702, E1101, W0212,unnecessary-dunder-call
+# pylint: disable=line-too-long, W0702, E1101, W0212,unnecessary-dunder-call,invalid-name,too-many-statements
 import glob
 import errno
 import os
@@ -15,6 +15,7 @@ from tqdm import tqdm
 import wget
 
 from pipelines.utils.utils import log
+from pipelines.utils.crawler_ibge_inflacao.utils import get_legacy_session
 
 # necessary for use wget, see: https://stackoverflow.com/questions/35569042/ssl-certificate-verify-failed-with-python3
 ssl._create_default_https_context = ssl._create_unverified_context
@@ -117,21 +118,40 @@ def crawler(indice: str, folder: str) -> bool:
         for k, v in links.items()
         if k.__contains__(indice) & k.__contains__(folder)
     }
-    # precisei adicionar try catchs no loop para conseguir baixar todas
-    # as tabelas sem ter pproblema com o limite de requisição do sidra
     links_keys = list(links.keys())
     success_dwnl = []
-    for key in tqdm(links_keys):
-        try:
-            wget.download(links[key], out=f"/tmp/data/input/{key}.csv")
-            success_dwnl.append(key)
-        except Exception:
+    if folder!='rm':
+        # precisei adicionar try catchs no loop para conseguir baixar todas
+        # as tabelas sem ter pproblema com o limite de requisição do sidra
+        for key in tqdm(links_keys):
             try:
-                sleep(10)
                 wget.download(links[key], out=f"/tmp/data/input/{key}.csv")
                 success_dwnl.append(key)
             except Exception:
-                pass
+                try:
+                    sleep(10)
+                    wget.download(links[key], out=f"/tmp/data/input/{key}.csv")
+                    success_dwnl.append(key)
+                except Exception:
+                    pass
+    else:
+        for key in tqdm(links_keys):
+            try:
+                response = get_legacy_session().get(links[key])
+                # download the csv
+                with open(f"/tmp/data/input/{key}.csv", 'wb') as f:
+                    f.write(response.content)
+                success_dwnl.append(key)
+            except Exception:
+                try:
+                    sleep(10)
+                    response = get_legacy_session().get(links[key])
+                    # download the csv
+                    with open(f"/tmp/data/input/{key}.csv", 'wb') as f:
+                        f.write(response.content)
+                    success_dwnl.append(key)
+                except Exception:
+                    pass
 
     log(os.system("tree /tmp/data"))
     if len(links_keys) == len(success_dwnl):
@@ -355,7 +375,11 @@ def clean_mes_rm(indice: str):
 
     for arq in arquivos:
         log(arq)
-        dataframe = pd.read_csv(arq, skipfooter=14, skiprows=2, sep=";", dtype="str")
+        try:
+            dataframe = pd.read_csv(arq, skipfooter=14, skiprows=2, sep=";", dtype="str")
+        except:
+            log(f"Error reading {arq}")
+            continue
         # renomear colunas
         dataframe.rename(columns=rename, inplace=True)
         # substituir "..." por vazio
