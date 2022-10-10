@@ -4,11 +4,11 @@ Schedules for ibge inflacao
 """
 # pylint: disable=arguments-differ
 import ssl
-from datetime import timedelta, datetime
+from datetime import datetime
 
 import requests
 from prefect.schedules import Schedule, filters, adjustments
-from prefect.schedules.clocks import IntervalClock
+from prefect.schedules.clocks import CronClock
 import urllib3
 
 from pipelines.constants import constants
@@ -19,13 +19,13 @@ def generate_inflacao_clocks(parameters: dict):
     generate ibge inflacao schedules
     """
     return Schedule(
-        [
-            IntervalClock(
-                interval=timedelta(days=30),
-                start_date=datetime(2021, 1, 1, 15, 5),
-                labels=[
-                    constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-                ],
+        clocks=[
+        CronClock(
+            cron="0 18 12 * *", #day 12 of every month at 6 pm
+            start_date=datetime(2021, 1, 1, 15, 0),
+            labels=[
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+            ],
                 parameter_defaults=parameters,
             )
         ],
