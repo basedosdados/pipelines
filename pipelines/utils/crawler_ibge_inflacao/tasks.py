@@ -142,7 +142,8 @@ def crawler(indice: str, folder: str) -> bool:
                 with open(f"/tmp/data/input/{key}.csv", "wb") as f:
                     f.write(response.content)
                 success_dwnl.append(key)
-            except Exception:
+            except Exception as e:
+                log(e)
                 try:
                     sleep(10)
                     response = get_legacy_session().get(links[key])
@@ -150,7 +151,8 @@ def crawler(indice: str, folder: str) -> bool:
                     with open(f"/tmp/data/input/{key}.csv", "wb") as f:
                         f.write(response.content)
                     success_dwnl.append(key)
-                except Exception:
+                except Exception as e:
+                    log(e)
                     pass
 
     log(os.system("tree /tmp/data"))
