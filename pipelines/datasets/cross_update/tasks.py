@@ -12,7 +12,7 @@ from prefect import task
 import ruamel.yaml as ryaml
 
 
-from pipelines.utils.cross_update.utils import _safe_fetch
+from pipelines.datasets.cross_update.utils import _safe_fetch
 from pipelines.utils.utils import log
 from pipelines.utils.dump_to_gcs.constants import constants as dump_to_gcs_constants
 

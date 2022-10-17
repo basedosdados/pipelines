@@ -11,12 +11,12 @@ from prefect import Parameter, unmapped, case
 
 from pipelines.constants import constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.cross_update.tasks import (
+from pipelines.datasets.cross_update.tasks import (
     datasearch_json,
     crawler_tables,
     update_nrows,
 )
-from pipelines.utils.cross_update.schedules import schedule_nrows
+from pipelines.datasets.cross_update.schedules import schedule_nrows
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.tasks import get_current_flow_labels
 
