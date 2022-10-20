@@ -50,7 +50,7 @@ with Flow(
             raise_final_state=unmapped(True),
         )
 
-        rename_blobs.map(upstream_tasks=[wait_for_dump_to_gcs])
+        rename_blobs(upstream_tasks=[wait_for_dump_to_gcs])
 
 
 crossupdate_nrows.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
