@@ -33,7 +33,6 @@ from pipelines.utils.tasks import (
 from pipelines.datasets.br_bd_indicadores.schedules import (
     every_day,
     every_week,
-    schedule_users,
 )
 
 with Flow(
@@ -291,4 +290,4 @@ with Flow(
 
 bd_ga_users.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 bd_ga_users.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-bd_ga_users.schedule = schedule_users
+bd_ga_users.schedule = None
