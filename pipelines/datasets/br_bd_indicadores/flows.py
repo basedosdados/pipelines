@@ -11,9 +11,12 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.utils.constants import constants as utils_constants
-from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.datasets.br_bd_indicadores.schedules import (
+    every_day,
+    every_week,
+    schedule_users,
+    schedule_contabilidade,
+)
 from pipelines.datasets.br_bd_indicadores.tasks import (
     crawler_metricas,
     crawler_real_time,
@@ -22,18 +25,16 @@ from pipelines.datasets.br_bd_indicadores.tasks import (
     get_twitter_credentials,
     get_ga_credentials,
     crawler_report_ga,
+    get_data_from_sheet,
 )
+from pipelines.utils.constants import constants as utils_constants
+from pipelines.utils.decorators import Flow
+from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     rename_current_flow_run_dataset_table,
     get_current_flow_labels,
     update_metadata,
-)
-
-from pipelines.datasets.br_bd_indicadores.schedules import (
-    every_day,
-    every_week,
-    schedule_users,
 )
 
 with Flow(
@@ -292,3 +293,87 @@ with Flow(
 bd_ga_users.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 bd_ga_users.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 bd_ga_users.schedule = schedule_users
+
+
+with Flow(
+    name="br_bd_indicadores.contabilidade",
+    code_owners=[],
+) as bd_indicadores_contabilidade:
+    dataset_id = Parameter("dataset_id", default="br_bd_indicadores", required=True)
+    table_id = Parameter("table_id", default="contabilidade", required=True)
+    sheet_id = Parameter(
+        "sheet_id",
+        default="1jtZAV2SFEdEX99DumpUQ1LjZE2vcSgvL4DNo4n6HIec",
+        required=True,
+    )
+    sheet_name = Parameter(
+        "sheet_name", default="transacoes_anonimizado", required=True
+    )
+
+    materialization_mode = Parameter(
+        "materialization_mode", default="dev", required=False
+    )
+
+    materialize_after_dump = Parameter(
+        "materialize after dump", default=True, required=False
+    )
+    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+
+    rename_flow_run = rename_current_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+    )
+
+    filepath = get_data_from_sheet(sheet_id, sheet_name, wait=None)
+
+    wait_upload_table = create_table_and_upload_to_gcs(
+        data_path=filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dump_mode="overwrite",
+        wait=filepath,
+        upstream_tasks=[filepath],
+    )
+
+    wait_update_metadata = update_metadata(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        fields_to_update=[
+            {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}}
+        ],
+        upstream_tasks=[wait_upload_table],
+    )
+
+    with case(materialize_after_dump, True):
+        # Trigger DBT flow run
+        current_flow_labels = get_current_flow_labels()
+        materialization_flow = create_flow_run(
+            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
+            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+            parameters={
+                "dataset_id": dataset_id,
+                "table_id": table_id,
+                "mode": materialization_mode,
+                "dbt_alias": dbt_alias,
+            },
+            labels=current_flow_labels,
+            run_name=f"Materialize {dataset_id}.{table_id}",
+        )
+
+        wait_for_materialization = wait_for_flow_run(
+            materialization_flow,
+            stream_states=True,
+            stream_logs=True,
+            raise_final_state=True,
+        )
+        wait_for_materialization.max_retries = (
+            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
+        )
+        wait_for_materialization.retry_delay = timedelta(
+            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+        )
+
+bd_indicadores_contabilidade.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+bd_indicadores_contabilidade.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
+bd_indicadores_contabilidade.schedule = schedule_contabilidade
