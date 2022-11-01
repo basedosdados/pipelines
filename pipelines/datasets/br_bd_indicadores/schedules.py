@@ -81,6 +81,8 @@ schedule_contabilidade = Schedule(
             parameter_defaults={
                 "dataset_id": "br_bd_indicadores",
                 "table_id": "contabilidade",
+                "sheet_id": "1jtZAV2SFEdEX99DumpUQ1LjZE2vcSgvL4DNo4n6HIec",
+                "sheet_name": "transacoes_anonimizado",
                 "materialization_mode": "dev",
                 "materialize after dump": True,
             },

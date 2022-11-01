@@ -316,13 +316,19 @@ def crawler_report_ga(view_id: str, metrics: list = None) -> str:
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def get_data_from_sheet(sheet_id: str, sheet_name: str, wait=None):
-    """Get the data from a Google Sheet, saves DataFrame as csv and return the path to the csv file"""
+def get_data_from_sheet(sheet_id: str, sheet_name: str) -> pd.DataFrame:
+    """Get the data from a Google Sheet, and return a DataFrame."""
     google_sheet = create_google_sheet_url(sheet_id, sheet_name)
     df_contabilidade = pd.read_csv(google_sheet)
+    return df_contabilidade
 
-    filepath = "tmp/data/contabilidade.csv"
-    df_contabilidade.to_csv(
-        filepath, encoding="utf-8", sep=",", na_rep=np.nan, index=False
-    )
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def save_data_to_csv(df: pd.DataFrame, filename: str) -> str:
+    """Save the DataFrame as csv and return the path to the csv file"""
+    filepath = f"/tmp/data/{filename}.csv"
+    df.to_csv(filepath, encoding="utf-8", sep=",", na_rep=np.nan, index=False)
     return filepath

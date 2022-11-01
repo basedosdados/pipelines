@@ -26,6 +26,7 @@ from pipelines.datasets.br_bd_indicadores.tasks import (
     get_ga_credentials,
     crawler_report_ga,
     get_data_from_sheet,
+    save_data_to_csv,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -323,7 +324,10 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    filepath = get_data_from_sheet(sheet_id, sheet_name, wait=None)
+    df_contabilidade = get_data_from_sheet(sheet_id=sheet_id, sheet_name=sheet_name)
+    filepath = save_data_to_csv(
+        df=df_contabilidade, filename="contabilidade", upstream_tasks=[df_contabilidade]
+    )
 
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
