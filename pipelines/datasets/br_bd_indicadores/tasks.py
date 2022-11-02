@@ -6,6 +6,7 @@ Tasks for br_twitter
 import os
 from datetime import datetime, timedelta
 from functools import reduce
+from pathlib import Path
 from typing import Tuple
 
 import numpy as np
@@ -329,6 +330,9 @@ def get_data_from_sheet(sheet_id: str, sheet_name: str) -> pd.DataFrame:
 )
 def save_data_to_csv(df: pd.DataFrame, filename: str) -> str:
     """Save the DataFrame as csv and return the path to the csv file"""
-    filepath = f"/tmp/data/{filename}.csv"
+    out_path = Path("tmp/data")
+    if not out_path.is_dir():
+        out_path.mkdir(parents=True)
+    filepath = f"tmp/data/{filename}.csv"
     df.to_csv(filepath, encoding="utf-8", sep=",", na_rep=np.nan, index=False)
     return filepath
