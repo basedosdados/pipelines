@@ -6,13 +6,16 @@ Tasks for cross update of metadata.
 from typing import List, Dict, Tuple
 import datetime
 from datetime import timedelta
+import re
 
 import basedosdados as bd
 from prefect import task
 import ruamel.yaml as ryaml
+from google.cloud import storage
+from tqdm import tqdm
 
 
-from pipelines.utils.cross_update.utils import _safe_fetch
+from pipelines.datasets.cross_update.utils import _safe_fetch
 from pipelines.utils.utils import log
 from pipelines.utils.dump_to_gcs.constants import constants as dump_to_gcs_constants
 
@@ -188,3 +191,17 @@ def update_nrows(table_dict: Dict[str, str], mode: str) -> None:
         log(f"Metadata for {table_id} updated")
     else:
         log("Fail to validate metadata.")
+
+
+@task
+def rename_blobs() -> None:
+    """Rename blobs in basedosdados-dev bucket"""
+    storage_client = storage.Client()
+
+    bucket = storage_client.get_bucket("basedosdados-public")
+    blobs = bucket.list_blobs(prefix="one-click-download/")
+
+    for blob in tqdm(list(blobs)):
+        table_id = blob.name.split("/")[-2]
+        new_name = re.sub(r"data0*\.csv\.gz", table_id + ".csv.gz", blob.name)
+        bucket.rename_blob(blob, new_name)

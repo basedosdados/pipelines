@@ -608,12 +608,60 @@ def clean_despesa22(folder):
         table.drop_duplicates(inplace=True)
         table.drop("ano", axis=1, inplace=True)
         table.drop("sigla_uf", axis=1, inplace=True)
+        order_columns = [
+            "turno",
+            "tipo_eleicao",
+            "id_municipio",
+            "id_municipio_tse",
+            "sequencial_candidato",
+            "numero_candidato",
+            "cpf_candidato",
+            "id_candidato_bd",
+            "nome_candidato",
+            "cpf_vice_suplente",
+            "numero_partido",
+            "sigla_partido",
+            "nome_partido",
+            "cargo",
+            "sequencial_despesa",
+            "data_despesa",
+            "tipo_despesa",
+            "descricao_despesa",
+            "origem_despesa",
+            "valor_despesa",
+            "tipo_prestacao_contas",
+            "data_prestacao_contas",
+            "sequencial_prestador_contas",
+            "cnpj_prestador_contas",
+            "cnpj_candidato",
+            "tipo_documento",
+            "numero_documento",
+            "especie_recurso",
+            "fonte_recurso",
+            "cpf_cnpj_fornecedor",
+            "nome_fornecedor",
+            "nome_fornecedor_rf",
+            "cnae_2_fornecedor",
+            "descricao_cnae_2_fornecedor",
+            "tipo_fornecedor",
+            "esfera_partidaria_fornecedor",
+            "sigla_uf_fornecedor",
+            "id_municipio_tse_fornecedor",
+            "sequencial_candidato_fornecedor",
+            "numero_candidato_fornecedor",
+            "numero_partido_fornecedor",
+            "sigla_partido_fornecedor",
+            "nome_partido_fornecedor",
+        ]
+        # change order of columns and create empty columns for new columns
+        table["nome_fornecedor_rf"] = np.nan
+        table = table[order_columns]
         table.to_csv(
             f"/tmp/data/output/ano=2022/sigla_uf={uf}/despesas_candidato.csv",
             index=False,
         )
 
-    os.system("rm -rf /tmp/data/output/ano=2022/sigla_uf=BR*")
+    os.system("rm -rf /tmp/data/output/ano=2022/sigla_uf=BRA*")
 
     return "/tmp/data/output/"
 
@@ -639,6 +687,8 @@ def clean_receita22(folder):
 
     for file in files:
         df = pd.read_csv(file, sep=";", encoding="latin-1")
+        # replace cells like '##############' to np.nan
+        df.replace({r"^#*$": np.nan}, regex=True, inplace=True)
         n = df.shape[0]
         uf = "".join([k for k in file if k.isupper()])
 
@@ -763,10 +813,68 @@ def clean_receita22(folder):
         table.drop_duplicates(inplace=True)
         table.drop("ano", axis=1, inplace=True)
         table.drop("sigla_uf", axis=1, inplace=True)
+        order_columns = [
+            "turno",
+            "tipo_eleicao",
+            "id_municipio",
+            "id_municipio_tse",
+            "sequencial_candidato",
+            "numero_candidato",
+            "cpf_candidato",
+            "cnpj_candidato",
+            "titulo_eleitor_candidato",
+            "id_candidato_bd",
+            "nome_candidato",
+            "cpf_vice_suplente",
+            "numero_partido",
+            "nome_partido",
+            "sigla_partido",
+            "cargo",
+            "sequencial_receita",
+            "data_receita",
+            "fonte_receita",
+            "origem_receita",
+            "natureza_receita",
+            "especie_receita",
+            "situacao_receita",
+            "descricao_receita",
+            "valor_receita",
+            "sequencial_candidato_doador",
+            "cpf_cnpj_doador",
+            "sigla_uf_doador",
+            "id_municipio_tse_doador",
+            "nome_doador",
+            "nome_doador_rf",
+            "cargo_candidato_doador",
+            "numero_partido_doador",
+            "sigla_partido_doador",
+            "nome_partido_doador",
+            "esfera_partidaria_doador",
+            "numero_candidato_doador",
+            "cnae_2_doador",
+            "descricao_cnae_2_doador",
+            "cpf_cnpj_doador_orig",
+            "nome_doador_orig",
+            "nome_doador_orig_rf",
+            "tipo_doador_orig",
+            "descricao_cnae_2_doador_orig",
+            "nome_administrador",
+            "cpf_administrador",
+            "numero_recibo_eleitoral",
+            "numero_documento",
+            "numero_recibo_doacao",
+            "numero_documento_doacao",
+            "tipo_prestacao_contas",
+            "data_prestacao_contas",
+            "sequencial_prestador_contas",
+            "cnpj_prestador_contas",
+            "entrega_conjunto",
+        ]
+        table = table[order_columns]
         table.to_csv(
             f"/tmp/data/output/ano=2022/sigla_uf={uf}/receitas_candidato.csv",
             index=False,
         )
 
-    os.system("rm -rf /tmp/data/output/ano=2022/sigla_uf=BR*")
+    os.system("rm -rf /tmp/data/output/ano=2022/sigla_uf=BRA*")
     return "/tmp/data/output/"

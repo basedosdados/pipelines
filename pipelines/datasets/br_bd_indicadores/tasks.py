@@ -5,22 +5,19 @@ Tasks for br_twitter
 # pylint: disable=invalid-name,too-many-branches,too-many-nested-blocks
 import os
 from datetime import datetime, timedelta
-from typing import Tuple
 from functools import reduce
+from pathlib import Path
+from typing import Tuple
 
-import pytz
-from prefect import task
-import requests
-from tqdm import tqdm
-from requests_oauthlib import OAuth1
-import pandas as pd
 import numpy as np
+import pandas as pd
+import pytz
+import requests
+from prefect import task
+from requests_oauthlib import OAuth1
+from tqdm import tqdm
 
-from pipelines.utils.utils import (
-    get_storage_blobs,
-    log,
-    get_credentials_from_secret,
-)
+from pipelines.constants import constants
 from pipelines.datasets.br_bd_indicadores.utils import (
     create_headers,
     create_url,
@@ -30,8 +27,13 @@ from pipelines.datasets.br_bd_indicadores.utils import (
     parse_data,
     initialize_analyticsreporting,
     get_report,
+    create_google_sheet_url,
 )
-from pipelines.constants import constants
+from pipelines.utils.utils import (
+    get_storage_blobs,
+    log,
+    get_credentials_from_secret,
+)
 
 
 # pylint: disable=C0103
@@ -309,3 +311,28 @@ def crawler_report_ga(view_id: str, metrics: list = None) -> str:
     df.to_csv(filepath, index=False)
 
     return "/tmp/data/"
+
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def get_data_from_sheet(sheet_id: str, sheet_name: str) -> pd.DataFrame:
+    """Get the data from a Google Sheet, and return a DataFrame."""
+    google_sheet = create_google_sheet_url(sheet_id, sheet_name)
+    df_contabilidade = pd.read_csv(google_sheet)
+    return df_contabilidade
+
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def save_data_to_csv(df: pd.DataFrame, filename: str) -> str:
+    """Save the DataFrame as csv and return the path to the csv file"""
+    out_path = Path("tmp/data")
+    if not out_path.is_dir():
+        out_path.mkdir(parents=True)
+    filepath = f"tmp/data/{filename}.csv"
+    df.to_csv(filepath, encoding="utf-8", sep=",", na_rep=np.nan, index=False)
+    return filepath

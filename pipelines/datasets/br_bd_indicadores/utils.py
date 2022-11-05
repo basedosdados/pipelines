@@ -4,13 +4,12 @@ utils for br_bd_indicadores
 """
 # pylint: disable=too-few-public-methods
 import collections
-from typing import Tuple
-from typing import List
 import os
+from typing import List
+from typing import Tuple
 
-from googleapiclient.discovery import build
-from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
+import requests
 from google.analytics.data_v1beta import BetaAnalyticsDataClient
 from google.analytics.data_v1beta.types import (
     Dimension,
@@ -19,7 +18,10 @@ from google.analytics.data_v1beta.types import (
 from google.analytics.data_v1beta.types import (
     RunRealtimeReportRequest,
 )
-import requests
+from googleapiclient.discovery import build
+from oauth2client.service_account import ServiceAccountCredentials
+
+from pipelines.utils.constants import constants
 
 
 def create_headers(bearer_token: str) -> dict:
@@ -219,3 +221,9 @@ def parse_data(response) -> pd.DataFrame:
     # Assign columns names to DF
     result.columns = column_names
     return result
+
+
+def create_google_sheet_url(sheet_id: str, sheet_name: str) -> str:
+    """Create a Google Sheet URL from a sheet ID and sheet name."""
+    google_sheets_url = constants.GOOGLE_SHEETS_URL.value
+    return google_sheets_url.format(sheet_id=sheet_id, sheet_name=sheet_name)
