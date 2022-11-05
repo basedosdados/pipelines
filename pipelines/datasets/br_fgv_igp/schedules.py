@@ -25,7 +25,6 @@ igp_di_mes = Schedule(
                 "periodo": "mes",
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
-                "dbt_alias": True,
             },
         ),
     ]
@@ -46,7 +45,6 @@ igp_di_ano = Schedule(
                 "periodo": "ano",
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
-                "dbt_alias": True,
             },
         ),
     ]
@@ -67,7 +65,6 @@ igp_m_mes = Schedule(
                 "periodo": "mes",
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
-                "dbt_alias": True,
             },
         ),
     ]
@@ -88,7 +85,6 @@ igp_m_ano = Schedule(
                 "periodo": "ano",
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
-                "dbt_alias": True,
             },
         ),
     ]
@@ -109,7 +105,6 @@ igp_og_mes = Schedule(
                 "periodo": "mes",
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
-                "dbt_alias": True,
             },
         ),
     ]
@@ -130,7 +125,6 @@ igp_og_ano = Schedule(
                 "periodo": "ano",
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
-                "dbt_alias": True,
             },
         ),
     ]
@@ -151,7 +145,6 @@ igp_10_mes = Schedule(
                 "periodo": "mes",
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
-                "dbt_alias": True,
             },
         ),
     ]
