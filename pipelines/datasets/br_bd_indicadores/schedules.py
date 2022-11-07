@@ -76,14 +76,14 @@ schedule_contabilidade = Schedule(
             interval=timedelta(days=1),
             start_date=datetime(2022, 1, 1, 0, 0),
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_bd_indicadores",
                 "table_id": "contabilidade",
                 "sheet_id": "1jtZAV2SFEdEX99DumpUQ1LjZE2vcSgvL4DNo4n6HIec",
                 "sheet_name": "transacoes_anonimizado",
-                "materialization_mode": "dev",
+                "materialization_mode": "prod",
                 "materialize after dump": True,
             },
         ),
