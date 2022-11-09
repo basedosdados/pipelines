@@ -24,9 +24,7 @@ from pipelines.datasets.br_tse_eleicoes.tasks import (
     clean_despesa22,
     clean_receita22,
 )
-from pipelines.datasets.br_tse_eleicoes.schedules import (
-    schedule_bens
-)
+
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     rename_current_flow_run_dataset_table,
@@ -282,7 +280,7 @@ with Flow(
 
 br_tse_bens.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_tse_bens.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_tse_bens.schedule = schedule_bens
+br_tse_bens.schedule = None
 
 
 with Flow(
