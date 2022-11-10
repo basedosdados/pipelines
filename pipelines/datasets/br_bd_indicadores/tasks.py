@@ -321,6 +321,8 @@ def get_data_from_sheet(sheet_id: str, sheet_name: str) -> pd.DataFrame:
     """Get the data from a Google Sheet, and return a DataFrame."""
     google_sheet = create_google_sheet_url(sheet_id, sheet_name)
     df_contabilidade = pd.read_csv(google_sheet)
+    df_contabilidade["valor"] = df_contabilidade["valor"].str.replace(",", ".")
+    df_contabilidade["valor"] = df_contabilidade["valor"].astype(float)
     return df_contabilidade
 
 
