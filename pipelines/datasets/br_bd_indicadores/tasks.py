@@ -323,6 +323,7 @@ def get_data_from_sheet(sheet_id: str, sheet_name: str) -> pd.DataFrame:
     df_contabilidade = pd.read_csv(google_sheet)
     df_contabilidade["valor"] = df_contabilidade["valor"].str.replace(",", ".")
     df_contabilidade["valor"] = df_contabilidade["valor"].astype(float)
+
     return df_contabilidade
 
 
@@ -337,4 +338,5 @@ def save_data_to_csv(df: pd.DataFrame, filename: str) -> str:
         out_path.mkdir(parents=True)
     filepath = f"/tmp/data/{filename}.csv"
     df.to_csv(filepath, encoding="utf-8", sep=",", na_rep=np.nan, index=False)
+    
     return filepath
