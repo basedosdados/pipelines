@@ -74,7 +74,7 @@ schedule_contabilidade = Schedule(
     clocks=[
         IntervalClock(
             interval=timedelta(days=1),
-            start_date=datetime(2022, 1, 1, 0, 0),
+            start_date=datetime(2022, 1, 1, 6, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -83,6 +83,28 @@ schedule_contabilidade = Schedule(
                 "table_id": "contabilidade",
                 "sheet_id": "1jtZAV2SFEdEX99DumpUQ1LjZE2vcSgvL4DNo4n6HIec",
                 "sheet_name": "transacoes_anonimizado",
+                "materialization_mode": "prod",
+                "materialize after dump": True,
+            },
+        ),
+    ],
+    filters=[filters.is_weekday],
+    adjustments=[adjustments.next_weekday],
+)
+
+schedule_receitas = Schedule(
+    clocks=[
+        IntervalClock(
+            interval=timedelta(days=1),
+            start_date=datetime(2022, 1, 1, 6, 0),
+            labels=[
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+            ],
+            parameter_defaults={
+                "dataset_id": "br_bd_indicadores",
+                "table_id": "receitas_planejadas",
+                "sheet_id": "1fHp1NNUyhFIAAJ9bZOdZ2i9PSLIbkjSjMcGAlaxur90",
+                "sheet_name": "receitas_planejadas_anonimizado",
                 "materialization_mode": "prod",
                 "materialize after dump": True,
             },

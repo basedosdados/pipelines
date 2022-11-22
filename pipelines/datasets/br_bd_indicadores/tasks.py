@@ -320,11 +320,12 @@ def crawler_report_ga(view_id: str, metrics: list = None) -> str:
 def get_data_from_sheet(sheet_id: str, sheet_name: str) -> pd.DataFrame:
     """Get the data from a Google Sheet, and return a DataFrame."""
     google_sheet = create_google_sheet_url(sheet_id, sheet_name)
-    df_contabilidade = pd.read_csv(google_sheet)
-    df_contabilidade["valor"] = df_contabilidade["valor"].str.replace(",", ".")
-    df_contabilidade["valor"] = df_contabilidade["valor"].astype(float)
+    dff = pd.read_csv(google_sheet)
+    if dff["valor"].dtype == "object":
+        dff["valor"] = dff["valor"].str.replace(",", ".")
+        dff["valor"] = dff["valor"].astype(float)
 
-    return df_contabilidade
+    return dff
 
 
 @task(
@@ -333,10 +334,10 @@ def get_data_from_sheet(sheet_id: str, sheet_name: str) -> pd.DataFrame:
 )
 def save_data_to_csv(df: pd.DataFrame, filename: str) -> str:
     """Save the DataFrame as csv and return the path to the csv file"""
-    out_path = Path("/tmp/data")
+    out_path = Path("tmp/data")
     if not out_path.is_dir():
         out_path.mkdir(parents=True)
-    filepath = f"/tmp/data/{filename}.csv"
+    filepath = f"tmp/data/{filename}.csv"
     df.to_csv(filepath, encoding="utf-8", sep=",", na_rep=np.nan, index=False)
-    
+
     return filepath
