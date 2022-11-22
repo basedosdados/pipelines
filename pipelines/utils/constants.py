@@ -13,3 +13,5 @@ class constants(Enum):  # pylint: disable=c0103
 
     FLOW_EXECUTE_DBT_MODEL_NAME = "BD template: Executa DBT model"
     FLOW_DUMP_TO_GCS_NAME = "BD template: Ingerir tabela zipada para GCS"
+
+    GOOGLE_SHEETS_URL = "https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"

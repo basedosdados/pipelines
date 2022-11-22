@@ -11,12 +11,13 @@ from prefect import Parameter, unmapped, case
 
 from pipelines.constants import constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.cross_update.tasks import (
+from pipelines.datasets.cross_update.tasks import (
     datasearch_json,
     crawler_tables,
     update_nrows,
+    rename_blobs,
 )
-from pipelines.utils.cross_update.schedules import schedule_nrows
+from pipelines.datasets.cross_update.schedules import schedule_nrows
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.tasks import get_current_flow_labels
 
@@ -48,6 +49,9 @@ with Flow(
             stream_logs=unmapped(True),
             raise_final_state=unmapped(True),
         )
+
+        rename_blobs(upstream_tasks=[wait_for_dump_to_gcs])
+
 
 crossupdate_nrows.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 crossupdate_nrows.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)

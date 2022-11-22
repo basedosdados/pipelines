@@ -13,11 +13,6 @@ from pipelines.constants import constants
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
-from pipelines.datasets.br_jota.schedules import (
-    schedule_candidatos,
-    schedule_contas_candidato,
-    schedule_contas_candidato_origem,
-)
 from pipelines.utils.tasks import get_current_flow_labels
 
 
@@ -64,7 +59,7 @@ eleicao_perfil_candidato_2022.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 eleicao_perfil_candidato_2022.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-eleicao_perfil_candidato_2022.schedule = schedule_candidatos
+eleicao_perfil_candidato_2022.schedule = None
 
 
 with Flow(
@@ -110,7 +105,7 @@ eleicao_prestacao_contas_candidato_2022.storage = GCS(constants.GCS_FLOWS_BUCKET
 eleicao_prestacao_contas_candidato_2022.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-eleicao_prestacao_contas_candidato_2022.schedule = schedule_contas_candidato
+eleicao_prestacao_contas_candidato_2022.schedule = None
 
 
 with Flow(
@@ -161,6 +156,4 @@ eleicao_prestacao_contas_candidato_origem_2022.storage = GCS(
 eleicao_prestacao_contas_candidato_origem_2022.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-eleicao_prestacao_contas_candidato_origem_2022.schedule = (
-    schedule_contas_candidato_origem
-)
+eleicao_prestacao_contas_candidato_origem_2022.schedule = None

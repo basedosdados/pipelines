@@ -1,17 +1,21 @@
 # -*- coding: utf-8 -*-
-from pathlib import Path
+"""
+Tests for IGP functins
+"""
 from unittest.mock import patch
 
 import pandas as pd
 import pytest
 
-from pipelines.datasets.br_fgv_igp.constants import constants as fgv_igp_constants
-from pipelines.datasets.br_fgv_igp.flows import ROOT
-from pipelines.datasets.br_fgv_igp.tasks import crawler_fgv, clean_fgv_df
 from pipelines.datasets.br_fgv_igp.utils import IGPData
 
 
+# pylint: disable=invalid-name, redefined-outer-name
+
+
 def test_igp_di_object_mes(igpdi_mes_mock):
+    """Test for igp_di (monthly)"""
+
     with patch(
         "pipelines.datasets.br_fgv_igp.utils.IGPData._get_ipea_data",
         return_value=igpdi_mes_mock,
@@ -22,6 +26,8 @@ def test_igp_di_object_mes(igpdi_mes_mock):
 
 
 def test_igp_di_object_ano(igpdi_ano_mock):
+    """Test for igp_di (annual)"""
+
     with patch(
         "pipelines.datasets.br_fgv_igp.utils.IGPData._get_ipea_data",
         return_value=igpdi_ano_mock,
@@ -32,6 +38,8 @@ def test_igp_di_object_ano(igpdi_ano_mock):
 
 
 def test_igp_m_object_mes(igpm_mes_mock, igpm_decendios_mock):
+    """Test for igp_m (monthly)"""
+
     with patch(
         "pipelines.datasets.br_fgv_igp.utils.IGPData._get_ipea_data",
         return_value=igpm_mes_mock,
@@ -51,6 +59,8 @@ def test_igp_m_object_mes(igpm_mes_mock, igpm_decendios_mock):
 
 
 def test_igp_m_object_ano(igpm_ano_mock):
+    """Test for igp_m (annual)"""
+
     with patch(
         "pipelines.datasets.br_fgv_igp.utils.IGPData._get_ipea_data",
         return_value=igpm_ano_mock,
@@ -63,6 +73,8 @@ def test_igp_m_object_ano(igpm_ano_mock):
 
 
 def test_igp_og_object_mes(igpog_mes_mock):
+    """Test for igp_og (monthly)"""
+
     with patch(
         "pipelines.datasets.br_fgv_igp.utils.IGPData._get_ipea_data",
         return_value=igpog_mes_mock,
@@ -74,6 +86,8 @@ def test_igp_og_object_mes(igpog_mes_mock):
 
 
 def test_igp_og_object_ano(igpog_ano_mock):
+    """Test for igp_og (annual)"""
+
     with patch(
         "pipelines.datasets.br_fgv_igp.utils.IGPData._get_ipea_data",
         return_value=igpog_ano_mock,
@@ -85,6 +99,8 @@ def test_igp_og_object_ano(igpog_ano_mock):
 
 
 def test_igp_10_object_mes(igp10_mes_mock):
+    """Test for igp_10 (monthly)"""
+
     with patch(
         "pipelines.datasets.br_fgv_igp.utils.IGPData._get_ipea_data",
         return_value=igp10_mes_mock,
@@ -93,62 +109,6 @@ def test_igp_10_object_mes(igp10_mes_mock):
     df = igp10_mensal.df
     igp10_2022_07 = df.loc[(df.ano == 2022) & (df.mes == 7)].iloc[0]
     assert round(igp10_2022_07.indice, ndigits=3) == 1220.204
-
-
-@pytest.mark.skip("Will be converted to POO")
-def test_crawler():
-    INDICE = "IGPDI"
-    PERIODO = "mes"
-    df = crawler_fgv.run(fgv_igp_constants.FGV_INDEX.value.get(INDICE), PERIODO)
-    assert isinstance(df, pd.DataFrame)
-
-
-@pytest.mark.skip("Will be converted to POO")
-def test_clean_df_month(igpdi_mensal: pd.DataFrame) -> None:
-    """
-    Check indice of July 2022
-    Args:
-        igpdi_mensal (pd.DataFrame): fixture of Monthly IGP-DI
-
-    Returns:
-        None
-
-    """
-    INDICE = "IGPDI"
-    PERIODO = "mes"
-    with patch(
-        "pipelines.datasets.br_fgv_igp.tasks.crawler_fgv.run",
-        return_value=igpdi_mensal,
-    ) as mocked:
-        df = mocked(INDICE, period=PERIODO)
-
-    df_cleaned = clean_fgv_df.run(df, root=ROOT, period=PERIODO)
-
-    assert df_cleaned == Path("tmp/data/igpdi_mes.csv")
-
-
-@pytest.mark.skip("Will be converted to POO")
-def test_clean_df_year(igpdi_anual: pd.DataFrame) -> None:
-    """
-    Check indice of July 2022
-    Args:
-        igpdi_anual (pd.DataFrame): fixture of Monthly IGP-DI
-
-    Returns:
-        None
-
-    """
-    INDICE = "IGPDI"
-    PERIODO = "ano"
-    with patch(
-        "pipelines.datasets.br_fgv_igp.tasks.crawler_fgv.run",
-        return_value=igpdi_anual,
-    ) as mocked:
-        df = mocked(INDICE, period=PERIODO)
-
-    df_cleaned = clean_fgv_df.run(df, root=ROOT, period=PERIODO)
-
-    assert df_cleaned == Path("tmp/data/igpdi_ano.csv")
 
 
 @pytest.fixture
