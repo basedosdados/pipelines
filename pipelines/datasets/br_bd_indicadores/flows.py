@@ -506,7 +506,7 @@ with Flow(
         sheet_id, sheet_name, upstream_tasks=[sheet_id, sheet_name]
     )
     filepath = save_data_to_csv(
-        df=df_receitas, filename="equipes", upstream_tasks=[df_equipes]
+        df=df_equipes, filename="equipes", upstream_tasks=[df_equipes]
     )
 
     wait_upload_table = create_table_and_upload_to_gcs(
@@ -589,7 +589,7 @@ with Flow(
 
     df_pessoas = get_data_from_sheet(sheet_id=sheet_id, sheet_name=sheet_name)
     filepath = save_data_to_csv(
-        df=df_receitas, filename="pessoas", upstream_tasks=[df_pessoas]
+        df=df_pessoas, filename="pessoas", upstream_tasks=[df_pessoas]
     )
 
     wait_upload_table = create_table_and_upload_to_gcs(
