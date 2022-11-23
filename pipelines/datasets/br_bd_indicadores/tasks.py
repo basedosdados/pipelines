@@ -14,6 +14,7 @@ import pandas as pd
 import pytz
 import requests
 from prefect import task
+from prefect.triggers import all_successful
 from requests_oauthlib import OAuth1
 from tqdm import tqdm
 
@@ -314,6 +315,7 @@ def crawler_report_ga(view_id: str, metrics: list = None) -> str:
 
 
 @task(
+    trigger=all_successful,
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
@@ -321,9 +323,10 @@ def get_data_from_sheet(sheet_id: str, sheet_name: str) -> pd.DataFrame:
     """Get the data from a Google Sheet, and return a DataFrame."""
     google_sheet = create_google_sheet_url(sheet_id, sheet_name)
     dff = pd.read_csv(google_sheet)
-    if dff["valor"].dtype == "object":
-        dff["valor"] = dff["valor"].str.replace(",", ".")
-        dff["valor"] = dff["valor"].astype(float)
+    if "valor" in dff.columns:
+        if dff["valor"].dtype == "object":
+            dff["valor"] = dff["valor"].str.replace(",", ".")
+            dff["valor"] = dff["valor"].astype(float)
 
     return dff
 

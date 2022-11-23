@@ -113,3 +113,47 @@ schedule_receitas = Schedule(
     filters=[filters.is_weekday],
     adjustments=[adjustments.next_weekday],
 )
+
+schedule_equipes = Schedule(
+    clocks=[
+        IntervalClock(
+            interval=timedelta(days=1),
+            start_date=datetime(2022, 1, 1, 6, 0),
+            labels=[
+                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            ],
+            parameter_defaults={
+                "dataset_id": "br_bd_indicadores",
+                "table_id": "equipes",
+                "sheet_id": "1gLJyoxiFeIRn7FKiP3Fpbr04bScVuhmF",
+                "sheet_name": "equipes",
+                "materialization_mode": "prod",
+                "materialize after dump": True,
+            },
+        ),
+    ],
+    filters=[filters.is_weekday],
+    adjustments=[adjustments.next_weekday],
+)
+
+schedule_pessoas = Schedule(
+    clocks=[
+        IntervalClock(
+            interval=timedelta(days=1),
+            start_date=datetime(2022, 1, 1, 6, 0),
+            labels=[
+                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            ],
+            parameter_defaults={
+                "dataset_id": "br_bd_indicadores",
+                "table_id": "pessoas",
+                "sheet_id": "1cQj9ItJoO_AQElRT2ngpHZXhFCSpQCrV",
+                "sheet_name": "pessoas",
+                "materialization_mode": "prod",
+                "materialize after dump": True,
+            },
+        ),
+    ],
+    filters=[filters.is_weekday],
+    adjustments=[adjustments.next_weekday],
+)
