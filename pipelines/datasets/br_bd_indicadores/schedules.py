@@ -84,7 +84,7 @@ schedule_contabilidade = Schedule(
                 "sheet_id": "1jtZAV2SFEdEX99DumpUQ1LjZE2vcSgvL4DNo4n6HIec",
                 "sheet_name": "transacoes_anonimizado",
                 "materialization_mode": "prod",
-                "materialize after dump": True,
+                "materialize_after_dump": True,
             },
         ),
     ],
@@ -106,7 +106,7 @@ schedule_receitas = Schedule(
                 "sheet_id": "1fHp1NNUyhFIAAJ9bZOdZ2i9PSLIbkjSjMcGAlaxur90",
                 "sheet_name": "receitas_planejadas_anonimizado",
                 "materialization_mode": "prod",
-                "materialize after dump": True,
+                "materialize_after_dump": True,
             },
         ),
     ],
@@ -120,7 +120,7 @@ schedule_equipes = Schedule(
             interval=timedelta(days=1),
             start_date=datetime(2022, 1, 1, 6, 0),
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_bd_indicadores",
@@ -128,7 +128,7 @@ schedule_equipes = Schedule(
                 "sheet_id": "1gLJyoxiFeIRn7FKiP3Fpbr04bScVuhmF",
                 "sheet_name": "equipes",
                 "materialization_mode": "prod",
-                "materialize after dump": True,
+                "materialize_after_dump": True,
             },
         ),
     ],
@@ -142,7 +142,7 @@ schedule_pessoas = Schedule(
             interval=timedelta(days=1),
             start_date=datetime(2022, 1, 1, 6, 0),
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_bd_indicadores",
@@ -150,7 +150,7 @@ schedule_pessoas = Schedule(
                 "sheet_id": "1cQj9ItJoO_AQElRT2ngpHZXhFCSpQCrV",
                 "sheet_name": "pessoas",
                 "materialization_mode": "prod",
-                "materialize after dump": True,
+                "materialize_after_dump": True,
             },
         ),
     ],
