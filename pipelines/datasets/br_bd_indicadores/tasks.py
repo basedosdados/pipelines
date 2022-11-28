@@ -7,7 +7,7 @@ import os
 from datetime import datetime, timedelta
 from functools import reduce
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, Optional
 
 import numpy as np
 import pandas as pd
@@ -319,10 +319,14 @@ def crawler_report_ga(view_id: str, metrics: list = None) -> str:
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def get_data_from_sheet(sheet_id: str, sheet_name: str) -> pd.DataFrame:
+def get_data_from_sheet(
+    sheet_id: str, sheet_name: str, usecols: Optional[int] = None
+) -> pd.DataFrame:
     """Get the data from a Google Sheet, and return a DataFrame."""
     google_sheet = create_google_sheet_url(sheet_id, sheet_name)
-    dff = pd.read_csv(google_sheet)
+    if isinstance(usecols, int):
+        usecols = list(range(usecols))
+    dff = pd.read_csv(google_sheet, usecols=usecols)
     if "valor" in dff.columns:
         if dff["valor"].dtype == "object":
             dff["valor"] = dff["valor"].str.replace(",", ".")
