@@ -1,21 +1,10 @@
 pipelines:
   owners:
-    - lucascr91
     - d116626
   dir:
     datasets:
       owners:
-        - lucascr91
         - d116626
-      dir:
-        botdosdados:
-          owners:
-            - lucascr91
     utils:
       owners:
-        - lucascr91
         - d116626
-      dir:
-        crawler_ibge_inflacao:
-          owners:
-            - lucascr91
