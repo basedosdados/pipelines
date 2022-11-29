@@ -587,7 +587,9 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    df_pessoas = get_data_from_sheet(sheet_id=sheet_id, sheet_name=sheet_name)
+    df_pessoas = get_data_from_sheet(
+        sheet_id=sheet_id, sheet_name=sheet_name, usecols=9
+    )
     filepath = save_data_to_csv(
         df=df_pessoas, filename="pessoas", upstream_tasks=[df_pessoas]
     )
