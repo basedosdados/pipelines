@@ -96,7 +96,7 @@ def crawler_tables(
         > seven_days_ago
     ]
 
-    log(f"Found {len(to_update)} tables updated in last 7 days")
+    log(f"Found {len(to_update)} tables updated in last {days} days")
 
     to_zip = []
     for bdm_table in to_update:
