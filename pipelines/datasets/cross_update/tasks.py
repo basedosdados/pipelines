@@ -2,22 +2,22 @@
 """
 Tasks for cross update of metadata.
 """
+import datetime
+import re
+from datetime import timedelta
+
 # pylint: disable=invalid-name, too-many-locals
 from typing import List, Dict, Tuple
-import datetime
-from datetime import timedelta
-import re
 
 import basedosdados as bd
-from prefect import task
 import ruamel.yaml as ryaml
 from google.cloud import storage
+from prefect import task
 from tqdm import tqdm
 
-
 from pipelines.datasets.cross_update.utils import _safe_fetch
-from pipelines.utils.utils import log
 from pipelines.utils.dump_to_gcs.constants import constants as dump_to_gcs_constants
+from pipelines.utils.utils import log
 
 
 @task
@@ -26,9 +26,10 @@ def datasearch_json(page_size: int, mode: str) -> Dict:
     This task uses `bd_dataset_search` website API
     enpoint to retrieve a list of tables updated in last 7 days.
     Args:
+        page_size (int): Number of tables to be retrieved in each request.
         mode (str): prod or staging
     Returns:
-        list of lists with dataset_id and table_id
+        dict with api response
     """
     if mode == "prod":
         url = "https://basedosdados.org/api/3/action/bd_dataset_search"
@@ -48,9 +49,14 @@ def crawler_tables(
     json_response: dict, days: int = 7
 ) -> Tuple[List[Dict[str, str]], List[Dict[str, str]]]:
     """Generate a list of dicts like {"dataset_id": "dataset_id", "table_id": "table_id"}
-    where all tables was update in the last 7 days
+    where all tables were update in the last 7 days
     """
-    n_datasets = json_response["result"]["count"]
+    # the line below returns the full number of datasets, despite the page_size this approach
+    # leads to an IndexError when the number of datasets is greater than page_size (in the flow)
+    # n_datasets = json_response["result"]["count"]
+
+    # changed n_datasets to the actual number of datasets, limited by page_size
+    n_datasets = len(json_response["result"]["datasets"])
     n_resources = [
         json_response["result"]["datasets"][k]["num_resources"]
         for k in range(n_datasets)
@@ -129,10 +135,10 @@ def update_nrows(table_dict: Dict[str, str], mode: str) -> None:
     """Get number of rows in a table
 
     Args:
-        dataset_id (str): dataset id
-        table_id (str): table id
+        table_dict (Dict[str, str]): Dict with dataset_id and table_id
+        mode (str): prod or dev
     Returns:
-        int: number of rows
+        None
     """
     dataset_id = table_dict["dataset_id"]
     table_id = table_dict["table_id"]

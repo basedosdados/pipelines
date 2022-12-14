@@ -4,21 +4,21 @@ Flows for br_tse_eleicoes
 """
 # pylint: disable=invalid-name,line-too-long
 
+from prefect import Parameter, unmapped, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
-from prefect import Parameter, unmapped, case
 
 from pipelines.constants import constants
-from pipelines.utils.decorators import Flow
+from pipelines.datasets.cross_update.schedules import schedule_nrows
 from pipelines.datasets.cross_update.tasks import (
     datasearch_json,
     crawler_tables,
     update_nrows,
     rename_blobs,
 )
-from pipelines.datasets.cross_update.schedules import schedule_nrows
 from pipelines.utils.constants import constants as utils_constants
+from pipelines.utils.decorators import Flow
 from pipelines.utils.tasks import get_current_flow_labels
 
 with Flow(
@@ -27,8 +27,9 @@ with Flow(
     dump_to_gcs = Parameter("dump_to_gcs", default=False, required=False)
     days = Parameter("days", default=7, required=False)
     mode = Parameter("mode", default="prod", required=False)
+    page_size = Parameter("page_size", default=100, required=False)
 
-    json_response = datasearch_json(page_size=100, mode=mode)
+    json_response = datasearch_json(page_size=page_size, mode=mode)
     updated_tables, tables_to_zip = crawler_tables(json_response, days=days)
     updated_tables.set_upstream(json_response)
     update_nrows.map(updated_tables, mode=unmapped(mode))
@@ -53,6 +54,6 @@ with Flow(
         rename_blobs(upstream_tasks=[wait_for_dump_to_gcs])
 
 
-crossupdate_nrows.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-crossupdate_nrows.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+crossupdate_nrows.storage = GCS(str(constants.GCS_FLOWS_BUCKET.value))
+crossupdate_nrows.run_config = KubernetesRun(image=str(constants.DOCKER_IMAGE.value))
 crossupdate_nrows.schedule = schedule_nrows
