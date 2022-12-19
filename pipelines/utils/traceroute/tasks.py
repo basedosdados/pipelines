@@ -3,17 +3,16 @@
 Tasks related to the traceroute flow.
 """
 
-import subprocess
-from typing import List, Tuple, Union
-
 from prefect import task
-import requests
 
 from pipelines.utils.traceroute.utils import (
     get_ip_location,
     traceroute,
 )
 from pipelines.utils.utils import log
+
+
+# pylint: disable=invalid-name
 
 
 @task
