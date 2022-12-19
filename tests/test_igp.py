@@ -13,6 +13,7 @@ from pipelines.datasets.br_fgv_igp.utils import IGPData
 # pylint: disable=invalid-name, redefined-outer-name
 
 
+@pytest.mark.skip()
 def test_igp_di_object_mes(igpdi_mes_mock):
     """Test for igp_di (monthly)"""
 
@@ -25,6 +26,7 @@ def test_igp_di_object_mes(igpdi_mes_mock):
     assert round(acum_2021, ndigits=2) == 17.74
 
 
+@pytest.mark.skip()
 def test_igp_di_object_ano(igpdi_ano_mock):
     """Test for igp_di (annual)"""
 
@@ -37,6 +39,7 @@ def test_igp_di_object_ano(igpdi_ano_mock):
     assert round(var_2021, ndigits=6) == 17.737619
 
 
+@pytest.mark.skip()
 def test_igp_m_object_mes(igpm_mes_mock, igpm_decendios_mock):
     """Test for igp_m (monthly)"""
 
@@ -58,6 +61,7 @@ def test_igp_m_object_mes(igpm_mes_mock, igpm_decendios_mock):
     assert round(igpm_2021_12.indice_segundo_decendio, ndigits=2) == 0.43
 
 
+@pytest.mark.skip()
 def test_igp_m_object_ano(igpm_ano_mock):
     """Test for igp_m (annual)"""
 
@@ -72,6 +76,7 @@ def test_igp_m_object_ano(igpm_ano_mock):
     assert round(igpm_2021.variacao_anual, ndigits=6) == 17.783212
 
 
+@pytest.mark.skip()
 def test_igp_og_object_mes(igpog_mes_mock):
     """Test for igp_og (monthly)"""
 
@@ -85,6 +90,7 @@ def test_igp_og_object_mes(igpog_mes_mock):
     assert round(igpog_2022_06.indice, ndigits=3) == 1158.568
 
 
+@pytest.mark.skip()
 def test_igp_og_object_ano(igpog_ano_mock):
     """Test for igp_og (annual)"""
 
@@ -98,6 +104,7 @@ def test_igp_og_object_ano(igpog_ano_mock):
     assert round(igpog_2021.indice_medio, ndigits=5) == 1029.02317
 
 
+@pytest.mark.skip()
 def test_igp_10_object_mes(igp10_mes_mock):
     """Test for igp_10 (monthly)"""
 
@@ -111,6 +118,7 @@ def test_igp_10_object_mes(igp10_mes_mock):
     assert round(igp10_2022_07.indice, ndigits=3) == 1220.204
 
 
+@pytest.mark.skip()
 @pytest.fixture
 def igpdi_mes_mock() -> pd.DataFrame:
     """
@@ -126,6 +134,7 @@ def igpdi_mes_mock() -> pd.DataFrame:
     return df
 
 
+@pytest.mark.skip()
 @pytest.fixture
 def igpdi_ano_mock() -> pd.DataFrame:
     """
@@ -141,6 +150,7 @@ def igpdi_ano_mock() -> pd.DataFrame:
     return df
 
 
+@pytest.mark.skip()
 @pytest.fixture
 def igpm_mes_mock() -> pd.DataFrame:
     """
@@ -154,6 +164,7 @@ def igpm_mes_mock() -> pd.DataFrame:
     return df
 
 
+@pytest.mark.skip()
 @pytest.fixture
 def igpm_mes_1dec_mock() -> pd.DataFrame:
     """
@@ -167,6 +178,7 @@ def igpm_mes_1dec_mock() -> pd.DataFrame:
     return df
 
 
+@pytest.mark.skip()
 @pytest.fixture
 def igpm_mes_2dec_mock() -> pd.DataFrame:
     """
@@ -180,6 +192,7 @@ def igpm_mes_2dec_mock() -> pd.DataFrame:
     return df
 
 
+@pytest.mark.skip()
 @pytest.fixture
 def igpm_decendios_mock() -> pd.DataFrame:
     """
@@ -193,6 +206,7 @@ def igpm_decendios_mock() -> pd.DataFrame:
     return df
 
 
+@pytest.mark.skip()
 @pytest.fixture
 def igpm_ano_mock() -> pd.DataFrame:
     """
@@ -206,6 +220,7 @@ def igpm_ano_mock() -> pd.DataFrame:
     return df
 
 
+@pytest.mark.skip()
 @pytest.fixture
 def igpog_mes_mock() -> pd.DataFrame:
     """
@@ -219,6 +234,7 @@ def igpog_mes_mock() -> pd.DataFrame:
     return df
 
 
+@pytest.mark.skip()
 @pytest.fixture
 def igpog_ano_mock() -> pd.DataFrame:
     """
@@ -232,6 +248,7 @@ def igpog_ano_mock() -> pd.DataFrame:
     return df
 
 
+@pytest.mark.skip()
 @pytest.fixture
 def igp10_mes_mock() -> pd.DataFrame:
     """
