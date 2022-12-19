@@ -5,32 +5,23 @@ Flows for br_me_comex_stat
 # pylint: disable=invalid-name
 from datetime import datetime, timedelta
 
+from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
-from prefect import Parameter, case
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.constants import constants as utils_constants
-from pipelines.utils.decorators import Flow
-
 from pipelines.datasets.br_me_comex_stat.tasks import (
     clean_br_me_comex_stat,
 )
-
+from pipelines.utils.constants import constants as utils_constants
+from pipelines.utils.decorators import Flow
+from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     update_metadata,
     rename_current_flow_run_dataset_table,
     get_current_flow_labels,
-)
-
-from pipelines.datasets.br_me_comex_stat.schedules import (
-    schedule_municipio_exportacao,
-    schedule_municipio_importacao,
-    schedule_ncm_importacao,
-    schedule_ncm_exportacao,
 )
 
 with Flow(
@@ -39,7 +30,7 @@ with Flow(
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_me_comex_stat", required=True)
     table_id = Parameter("table_id", default="municipio_exportacao", required=True)
-    start = Parameter("start", default=1997, required=True)  ## confirmar depois
+    start = Parameter("start", default=1997, required=True)  # confirmar depois
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -110,7 +101,7 @@ with Flow(
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_me_comex_stat", required=True)
     table_id = Parameter("table_id", default="municipio_importacao", required=True)
-    start = Parameter("start", default=1997, required=True)  ## confirmar depois
+    start = Parameter("start", default=1997, required=True)  # confirmar depois
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -181,7 +172,7 @@ with Flow(
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_me_comex_stat", required=True)
     table_id = Parameter("table_id", default="ncm_exportacao", required=True)
-    start = Parameter("start", default=1997, required=True)  ## confirmar depois
+    start = Parameter("start", default=1997, required=True)  # confirmar depois
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -252,7 +243,7 @@ with Flow(
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_me_comex_stat", required=True)
     table_id = Parameter("table_id", default="ncm_importacao", required=True)
-    start = Parameter("start", default=1997, required=True)  ## confirmar depois
+    start = Parameter("start", default=1997, required=True)  # confirmar depois
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
