@@ -2,11 +2,12 @@
 """
 General utilities for all pipelines.
 """
+import base64
+import json
+
 # pylint: disable=too-many-arguments
 import logging
-import base64
 from datetime import datetime
-import json
 from os import getenv, walk
 from os.path import join
 from pathlib import Path
@@ -15,17 +16,17 @@ from uuid import uuid4
 
 import basedosdados as bd
 import croniter
-from google.cloud import storage
-from google.cloud.storage.blob import Blob
-from google.oauth2 import service_account
 import hvac
 import numpy as np
 import pandas as pd
 import prefect
+import requests
+from google.cloud import storage
+from google.cloud.storage.blob import Blob
+from google.oauth2 import service_account
 from prefect.client import Client
 from prefect.engine.state import State
 from prefect.run_configs import KubernetesRun, VertexRun
-import requests
 from redis_pal import RedisPal
 
 from pipelines.constants import constants
@@ -145,7 +146,7 @@ def run_cloud(
         )
     else:
         raise ValueError(f"Invalid agent type: {agent_type}")
-    flow_id = flow.register(project_name="main", labels=[])
+    flow_id = flow.register(project_name="staging", labels=[])
 
     # Get Prefect Client and submit flow run
     client = Client()
