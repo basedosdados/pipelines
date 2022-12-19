@@ -5,15 +5,17 @@ Schedules for br_me_comex_stat
 """
 
 from datetime import timedelta, datetime
+
 from prefect.schedules import Schedule, filters, adjustments
 from prefect.schedules.clocks import IntervalClock
+
 from pipelines.constants import constants
 
 schedule_municipio_exportacao = Schedule(
     clocks=[
         IntervalClock(
             interval=timedelta(days=30),
-            start_date=datetime(1997, 1, 1, 14, 32),  ## confirmar aqui
+            start_date=datetime(1997, 1, 1, 14, 32),  # confirmar aqui
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -35,7 +37,7 @@ schedule_municipio_importacao = Schedule(
     clocks=[
         IntervalClock(
             interval=timedelta(days=30),
-            start_date=datetime(1997, 1, 1, 14, 32),  ## confirmar aqui
+            start_date=datetime(1997, 1, 1, 14, 32),  # confirmar aqui
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -56,7 +58,7 @@ schedule_ncm_importacao = Schedule(
     clocks=[
         IntervalClock(
             interval=timedelta(days=30),
-            start_date=datetime(1997, 1, 1, 14, 32),  ## confirmar aqui
+            start_date=datetime(1997, 1, 1, 14, 32),  # confirmar aqui
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -77,7 +79,7 @@ schedule_ncm_exportacao = Schedule(
     clocks=[
         IntervalClock(
             interval=timedelta(days=30),
-            start_date=datetime(1997, 1, 1, 14, 32),  ## confirmar aqui
+            start_date=datetime(1997, 1, 1, 14, 32),  # confirmar aqui
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
