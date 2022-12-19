@@ -62,8 +62,8 @@ def traceroute(hostname: str):
     """
     Launches traceroute command and parses results.
     """
-    traceroute = (
-        subprocess.Popen(  # pylint: disable=redefined-outer-name, consider-using-with
+    traceroute = (  # pylint: disable=redefined-outer-name
+        subprocess.Popen(  # pylint: disable=consider-using-with
             ["traceroute", hostname], stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         )
     )
