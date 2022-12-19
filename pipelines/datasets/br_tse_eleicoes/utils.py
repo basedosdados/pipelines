@@ -5,9 +5,9 @@ General purpose functions for the br_tse_eleicoes project
 # pylint: disable=invalid-name,line-too-long
 import re
 
+import basedosdados as bd
 import pandas as pd
 from unidecode import unidecode
-import basedosdados as bd
 
 
 def get_id_candidato_bd(df: pd.DataFrame) -> pd.DataFrame:
@@ -82,10 +82,10 @@ def get_id_candidato_bd(df: pd.DataFrame) -> pd.DataFrame:
         )
 
         # not actually used. See https://github.com/basedosdados/mais/blob/master/bases/br_tse_eleicoes/code/sub/cria_id_candidato.do
-        # pylint: disable=unused-variable
-        para_3a_rodada = (
-            df[(df["N_nomes"] > 1)].sort_values("N_nomes").reset_index(drop=True)
-        )
+
+        # para_3a_rodada = (
+        #     df[(df["N_nomes"] > 1)].sort_values("N_nomes").reset_index(drop=True)
+        # )
 
         df = df[(df["N_nomes"] == 1)]
 

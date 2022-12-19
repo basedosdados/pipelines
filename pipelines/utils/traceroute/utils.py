@@ -9,6 +9,9 @@ from typing import List, Tuple, Union
 import requests
 
 
+# pylint: disable=invalid-name
+
+
 def get_ip_location(
     ip_address: Union[List[str], str] = None
 ) -> Union[
@@ -31,11 +34,11 @@ def get_ip_location(
     if isinstance(ip_address, list) and len(ip_address) > 1:
         url = "http://ip-api.com/batch"
         data = [{"query": ip} for ip in ip_address]
-        response = requests.post(url, json=data)
+        response = requests.post(url, json=data, timeout=300)
         data = response.json()
         return [parse_data(d) for d in data]
     # If it's a list of length 1, a string or None
-    elif (
+    if (
         isinstance(ip_address, list)
         and len(ip_address) == 1
         or isinstance(ip_address, str)
@@ -44,23 +47,25 @@ def get_ip_location(
         url = "http://ip-api.com/json/"
         if ip_address:
             url = f"{url}{ip_address}"
-        response = requests.get(url)
+        response = requests.get(url, timeout=300)
         data = response.json()
         try:
             ip, country, city, lat, lon = parse_data(data)
-        except KeyError:
-            raise KeyError(f"Error while parsing data: {data}")
+        except KeyError as err:
+            raise KeyError(f"Error while parsing data: {data}") from err
         return ip, country, city, lat, lon
-    else:
-        raise ValueError(f"Invalid ip_address: {ip_address}")
+
+    raise ValueError(f"Invalid ip_address: {ip_address}")
 
 
 def traceroute(hostname: str):
     """
     Launches traceroute command and parses results.
     """
-    traceroute = subprocess.Popen(
-        ["traceroute", hostname], stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+    traceroute = (  # pylint: disable=redefined-outer-name
+        subprocess.Popen(  # pylint: disable=consider-using-with
+            ["traceroute", hostname], stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+        )
     )
     ipList = []
     for line in iter(traceroute.stdout.readline, b""):
