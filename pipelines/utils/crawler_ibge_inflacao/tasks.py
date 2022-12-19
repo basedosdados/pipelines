@@ -2,20 +2,21 @@
 """
 Tasks for br_ibge_inpc
 """
+import errno
+
 # pylint: disable=line-too-long, W0702, E1101, W0212,unnecessary-dunder-call,invalid-name,too-many-statements
 import glob
-import errno
 import os
-from time import sleep
 import ssl
+from time import sleep
 
 import pandas as pd
+import wget
 from prefect import task
 from tqdm import tqdm
-import wget
 
-from pipelines.utils.utils import log
 from pipelines.utils.crawler_ibge_inflacao.utils import get_legacy_session
+from pipelines.utils.utils import log
 
 # necessary for use wget, see: https://stackoverflow.com/questions/35569042/ssl-certificate-verify-failed-with-python3
 ssl._create_default_https_context = ssl._create_unverified_context
@@ -151,9 +152,8 @@ def crawler(indice: str, folder: str) -> bool:
                     with open(f"/tmp/data/input/{key}.csv", "wb") as f:
                         f.write(response.content)
                     success_dwnl.append(key)
-                except Exception as e:
+                except Exception as e:  # pylint: disable=redefined-outer-name
                     log(e)
-                    pass
 
     log(os.system("tree /tmp/data"))
     if len(links_keys) == len(success_dwnl):
@@ -381,10 +381,10 @@ def clean_mes_rm(indice: str):
             dataframe = pd.read_csv(
                 arq, skipfooter=14, skiprows=2, sep=";", dtype="str"
             )
-        except:
-            log(f"Error reading {arq}")
+        except Exception as e:
+            log(f"Error reading {arq}: {e}")
             continue
-        # renomear colunas
+        # renomear colunas.
         dataframe.rename(columns=rename, inplace=True)
         # substituir "..." por vazio
         dataframe = dataframe.replace("...", "")
