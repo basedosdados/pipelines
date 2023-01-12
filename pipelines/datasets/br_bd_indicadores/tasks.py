@@ -174,6 +174,11 @@ def crawler_metricas(
         for col in df.columns
     ]
 
+    # A partir de 10/01/2023 o campo "impression_count" ficou duplicado no dataframe
+    # Não consegui encontrar o motivo, então estou removendo o campo duplicado
+
+    df = df.loc[:, ~df.columns.duplicated()]
+
     url = (
         "https://api.twitter.com/2/users/1184334528837574656?user.fields=public_metrics"
     )
