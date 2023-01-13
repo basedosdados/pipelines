@@ -334,13 +334,7 @@ def get_data_from_sheet(
     dff = pd.read_csv(google_sheet, usecols=usecols)
     if "valor" in dff.columns:
         if dff["valor"].dtype == "object":
-            dff["valor"] = (
-                dff["valor"]
-                .str.replace(".", "#")
-                .str.replace(",", ".")
-                .str.replace("#", "")
-            )
-            # dff["valor"] = dff["valor"].str.replace(",", ".")
+            dff["valor"] = dff["valor"].str.replace(",", ".")
             dff["valor"] = dff["valor"].astype(float)
 
     return dff
