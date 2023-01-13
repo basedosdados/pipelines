@@ -353,9 +353,13 @@ with Flow(
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
+        if materialization_mode == "dev":
+            project_name = "staging"
+        else:
+            project_name = constants.PREFECT_DEFAULT_PROJECT.value
         materialization_flow = create_flow_run(
             flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+            project_name=project_name,
             parameters={
                 "dataset_id": dataset_id,
                 "table_id": table_id,
