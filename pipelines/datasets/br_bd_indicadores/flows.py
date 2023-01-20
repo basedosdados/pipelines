@@ -15,7 +15,6 @@ from pipelines.datasets.br_bd_indicadores.schedules import (
     every_day,
     every_week,
     schedule_users,
-    schedule_contabilidade,
     schedule_receitas,
     schedule_equipes,
     schedule_pessoas,
@@ -305,6 +304,8 @@ with Flow(
 ) as bd_indicadores_contabilidade:
     dataset_id = Parameter("dataset_id", default="br_bd_indicadores", required=True)
     table_id = Parameter("table_id", default="contabilidade", required=True)
+    # manual id for the cases where the original file breaks
+    # 1OfPAtE42M53rPm-qVWl8pbH8bN16x3uUxXA2WZunlJc
     sheet_id = Parameter(
         "sheet_id",
         default="1jtZAV2SFEdEX99DumpUQ1LjZE2vcSgvL4DNo4n6HIec",
@@ -388,7 +389,7 @@ bd_indicadores_contabilidade.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 bd_indicadores_contabilidade.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-bd_indicadores_contabilidade.schedule = schedule_contabilidade
+# bd_indicadores_contabilidade.schedule = schedule_contabilidade
 
 
 with Flow(
