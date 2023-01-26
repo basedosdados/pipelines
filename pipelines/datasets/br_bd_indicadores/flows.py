@@ -510,7 +510,7 @@ with Flow(
     )
 
     df_equipes = get_data_from_sheet(
-        sheet_id, sheet_name, upstream_tasks=[sheet_id, sheet_name]
+        sheet_id, sheet_name, usecols=6, upstream_tasks=[sheet_id, sheet_name]
     )
     filepath = save_data_to_csv(
         df=df_equipes, filename="equipes", upstream_tasks=[df_equipes]
