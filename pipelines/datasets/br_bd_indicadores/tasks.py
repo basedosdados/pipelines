@@ -350,6 +350,6 @@ def save_data_to_csv(df: pd.DataFrame, filename: str) -> str:
     if not out_path.is_dir():
         out_path.mkdir(parents=True)
     filepath = f"tmp/data/{filename}.csv"
-    df.to_csv(filepath, encoding="utf-8", sep=",", na_rep=np.nan, index=False)
+    df.to_csv(filepath, encoding="utf-8", sep=",", na_rep="", index=False)
 
     return filepath
