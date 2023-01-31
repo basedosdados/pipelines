@@ -18,6 +18,7 @@ from pipelines.datasets.br_bd_indicadores.schedules import (
     schedule_receitas,
     schedule_equipes,
     schedule_pessoas,
+    schedule_contabilidade,
 )
 from pipelines.datasets.br_bd_indicadores.tasks import (
     crawler_metricas,
@@ -389,7 +390,7 @@ bd_indicadores_contabilidade.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 bd_indicadores_contabilidade.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# bd_indicadores_contabilidade.schedule = schedule_contabilidade
+bd_indicadores_contabilidade.schedule = schedule_contabilidade
 
 
 with Flow(
