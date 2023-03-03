@@ -24,3 +24,5 @@ from pipelines.datasets.br_fgv_igp.flows import *
 from pipelines.datasets.br_me_caged.flows import *
 from pipelines.datasets.br_ibge_pnadc.flows import *
 from pipelines.datasets.cross_update.flows import *
+from pipelines.datasets.br_bd_teste.flows import *
+from pipelines.datasets.test_lauris.flows import *
