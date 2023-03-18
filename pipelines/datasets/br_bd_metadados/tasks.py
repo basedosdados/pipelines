@@ -16,6 +16,7 @@ from pipelines.utils.utils import (
 )
 from pipelines.datasets.br_bd_metadados.utils import (
     get_temporal_coverage_list,
+    check_missing_metadata,
 )
 from pipelines.constants import constants
 
@@ -301,6 +302,26 @@ def crawler_tables():
                 else:
                     date_created = None
 
+                if "last_updated" in resource:
+                    if resource["last_updated"].get("metadata") is not None:
+                        metadata_created = str(
+                            resource["last_updated"].get("metadata")
+                        ).replace("/", "-")[0:10]
+                    else:
+                        metadata_created = ""
+                    if resource["last_updated"].get("data") is not None:
+                        data_created = str(
+                            resource["last_updated"].get("data")
+                        ).replace("/", "-")[0:10]
+                    else:
+                        data_created = ""
+                    if resource["last_updated"].get("release") is not None:
+                        release_created = str(
+                            resource["last_updated"].get("release")
+                        ).replace("/", "-")[0:10]
+                    else:
+                        release_created = ""
+
                 if "metadata_modified" in resource:
                     if resource["metadata_modified"] is not None:
                         date_last_modified = resource["metadata_modified"][0:10]
@@ -390,10 +411,16 @@ def crawler_tables():
                         "number_rows": number_rows,
                         "number_columns": len(resource.get("columns")),
                         "outdated": outdated,
+                        "metadata": metadata_created,
+                        "data": data_created,
+                        "release": release_created,
+                        "published_by": resource.get("published_by").get("name"),
+                        "cleaned_by": resource.get("data_cleaned_by").get("name"),
                     }
                 )
 
     df = pd.DataFrame.from_dict(resources)
+    df = check_missing_metadata(df)
 
     os.system("mkdir -p /tmp/data/")
     df.to_csv("/tmp/data/tables.csv", index=False)
