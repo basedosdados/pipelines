@@ -81,4 +81,28 @@ class constants(Enum):  # pylint: disable=c0103
             "user_id": "290670932756922381",
             "type": "user_nickname",
         },
+        "Gabriel Pisa": {
+            "user_id": "313757164747358209",
+            "type": "user_nickname",
+        },
+        "arthurfg": {
+            "user_id": "1011467113682190427",
+            "type": "user_nickname",
+        },
+        "trick": {
+            "user_id": "252923443052281856",
+            "type": "user_nickname",
+        },
+        "lucasmoreira": {
+            "user_id": "765511326675763233",
+            "type": "user_nickname",
+        },
+        "Gabs": {
+            "user_id": "690361518973649006",
+            "type": "user_nickname",
+        },
+        "gustavoalcantara": {
+            "user_id": "951646117584592946",
+            "type": "user_nickname",
+        },
     }
