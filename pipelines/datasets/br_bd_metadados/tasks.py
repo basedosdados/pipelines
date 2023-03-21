@@ -5,20 +5,20 @@ Tasks for br_twitter
 # pylint: disable=invalid-name,too-many-nested-blocks,too-many-arguments,too-many-locals,too-many-branches,too-many-statements
 import os
 from datetime import datetime, timedelta
-from dateutil.relativedelta import relativedelta
 
-from prefect import task
-import requests
 import pandas as pd
+import requests
+from dateutil.relativedelta import relativedelta
+from prefect import task
 
-from pipelines.utils.utils import (
-    log,
-)
+from pipelines.constants import constants
 from pipelines.datasets.br_bd_metadados.utils import (
     get_temporal_coverage_list,
     check_missing_metadata,
 )
-from pipelines.constants import constants
+from pipelines.utils.utils import (
+    log,
+)
 
 
 # pylint: disable=C0103
@@ -296,43 +296,37 @@ def crawler_tables():
         for resource in dataset["resources"]:
             if resource["resource_type"] == "bdm_table":
 
+                date_created = None
                 if "created" in resource:
                     if resource["created"] is not None:
                         date_created = resource["created"][0:10]
-                else:
-                    date_created = None
 
+                metadata_created, data_created, release_created = "", "", ""
                 if "last_updated" in resource:
                     if resource["last_updated"].get("metadata") is not None:
                         metadata_created = str(
                             resource["last_updated"].get("metadata")
                         ).replace("/", "-")[0:10]
-                    else:
-                        metadata_created = ""
+
                     if resource["last_updated"].get("data") is not None:
                         data_created = str(
                             resource["last_updated"].get("data")
                         ).replace("/", "-")[0:10]
-                    else:
-                        data_created = ""
+
                     if resource["last_updated"].get("release") is not None:
                         release_created = str(
                             resource["last_updated"].get("release")
                         ).replace("/", "-")[0:10]
-                    else:
-                        release_created = ""
 
+                date_last_modified = None
                 if "metadata_modified" in resource:
                     if resource["metadata_modified"] is not None:
                         date_last_modified = resource["metadata_modified"][0:10]
-                else:
-                    date_last_modified = None
 
+                number_rows = 0
                 if "number_rows" in resource:
                     if resource["number_rows"] is not None:
                         number_rows = int(resource["number_rows"])
-                else:
-                    number_rows = 0
 
                 # indicator for outdated
                 outdated = None
@@ -376,6 +370,7 @@ def crawler_tables():
                                 delta = 1000
 
                             number_dashes = upper_temporal_coverage.count("-")
+                            diff = 0
                             if number_dashes == 0:
                                 upper_temporal_coverage = datetime.strptime(
                                     upper_temporal_coverage, "%Y"
