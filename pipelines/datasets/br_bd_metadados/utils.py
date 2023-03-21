@@ -115,7 +115,7 @@ def check_missing_metadata(df: pd.DataFrame) -> pd.DataFrame:
     df["missing_metadata"] = False
 
     # Verifica se há valores nulos em cada coluna
-    for col in df.loc[:, df.columns != "oudated"].columns:
+    for col in df.loc[:, df.columns != "outdated"].columns:
         if df[col].isnull().values.any():
             # Se houver valores nulos, atualiza a coluna 'missing_metadata' para 'True'
             df["missing_metadata"] = True
