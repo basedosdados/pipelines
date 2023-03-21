@@ -395,6 +395,7 @@ def crawler_tables():
                 resources.append(
                     {
                         "dataset_id": dataset.get("id"),
+                        "dataset_name": dataset.get("name"),
                         "id": resource.get("id"),
                         "name": resource.get("name"),
                         "date_created": date_created,
