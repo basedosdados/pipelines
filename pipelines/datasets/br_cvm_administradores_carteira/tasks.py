@@ -7,10 +7,10 @@ Tasks for br_cvm_administradores_carteira
 import os
 import shutil
 
-import requests
 import pandas as pd
-from prefect import task
+import requests
 from pandas.api.types import is_string_dtype
+from prefect import task
 from unidecode import unidecode
 
 
@@ -19,6 +19,7 @@ def crawl(root: str, url: str, chunk_size=128) -> None:
     """Download and unzip dataset br_cvm_administradores_carteira"""
     filepath = f"{root}/data.zip"
     os.makedirs(root, exist_ok=True)
+    os.makedirs(f"{root}/cleaned", exist_ok=True)
 
     response = requests.get(url, timeout=300)
 
@@ -32,9 +33,9 @@ def crawl(root: str, url: str, chunk_size=128) -> None:
 @task
 def clean_table_responsavel(root: str) -> str:
     # pylint: disable=invalid-name
-    """Clean table pessoa_fisica"""
+    """Clean table responsavel"""
     in_filepath = f"{root}/cad_adm_cart_resp.csv"
-    ou_filepath = f"{root}/bd_responsavel.csv"
+    ou_filepath = f"{root}/cleaned/bd_responsavel.csv"
 
     dataframe: pd.DataFrame = pd.read_csv(
         in_filepath,
@@ -57,7 +58,7 @@ def clean_table_responsavel(root: str) -> str:
                 lambda x: unidecode(x) if isinstance(x, str) else x
             )
 
-    dataframe.to_csv(ou_filepath, index=False)
+    dataframe.to_csv(ou_filepath, index=False, encoding="utf-8")
 
     return ou_filepath
 
@@ -67,7 +68,7 @@ def clean_table_pessoa_fisica(root: str) -> str:
     # pylint: disable=invalid-name
     """Clean table pessoa_fisica"""
     in_filepath = f"{root}/cad_adm_cart_pf.csv"
-    ou_filepath = f"{root}/bd_pessoa_fisica.csv"
+    ou_filepath = f"{root}/cleaned/bd_pessoa_fisica.csv"
 
     dataframe: pd.DataFrame = pd.read_csv(
         in_filepath,
@@ -103,7 +104,7 @@ def clean_table_pessoa_juridica(root: str) -> str:
     # pylint: disable=invalid-name
     """Clean table pessoa_fisica"""
     in_filepath = f"{root}/cad_adm_cart_pj.csv"
-    ou_filepath = f"{root}/bd_pessoa_juridica.csv"
+    ou_filepath = f"{root}/cleaned/bd_pessoa_juridica.csv"
 
     dataframe: pd.DataFrame = pd.read_csv(
         in_filepath, sep=";", keep_default_na=False, encoding="latin1", dtype=object
