@@ -119,3 +119,5 @@ download_frota <- function(key = NULL, prefix = NULL, month, year, tempdir = tem
   purrr::transpose() %>% 
   purrr::walk(~download_file(.x))
 }
+
+download_frota(year = 2013, month = 1, tempdir =  'p')
