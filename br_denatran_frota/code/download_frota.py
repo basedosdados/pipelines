@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 from collections import defaultdict
 
 
-def download_frota(key=None, prefix=None, month=None, year=None, tempdir=None, dir=None):
+def download_frota( month=None, year=None, tempdir=None, dir=None):
     months = {
         "janeiro": 1,
         "fevereiro": 2,
@@ -25,7 +25,7 @@ def download_frota(key=None, prefix=None, month=None, year=None, tempdir=None, d
     }
 
     if year > 2012:
-        url = f"https://www.gov.br/infraestrutura/pt-br/assuntos/transito/conteudo-denatran/frota-de-veiculos-{year}"
+        url = f"https://www.gov.br/infraestrutura/pt-br/assuntos/transito/conteudo-Senatran/frota-de-veiculos-{year}"
     else:
         raise ValueError("Utilize a função download_frota_old()")
 
@@ -46,7 +46,7 @@ def download_frota(key=None, prefix=None, month=None, year=None, tempdir=None, d
         return filename
 
     def handle_xl(i):
-        dest_path_file = os.path.join(dir, f"{prefix}_{i['mes']}-{i['ano']}.{i['filetype']}")
+        dest_path_file = os.path.join(dir, f"{i['mes']}-{i['ano']}.{i['filetype']}")
         if not os.path.isfile(dest_path_file):
             urlretrieve(i["href"], dest_path_file)
 
@@ -69,7 +69,7 @@ def download_frota(key=None, prefix=None, month=None, year=None, tempdir=None, d
             if os.path.isfile(filepath):
                 if filename.endswith((".xlsx", ".xls")):
                     dest_path_file = os.path.join(
-                        dir, f"{prefix}_{i['mes']}-{i['ano']}.{filename.split('.')[-1]}"
+                        dir, f"{i['mes']}-{i['ano']}.{filename.split('.')[-1]}"
                     )
                     if not os.path.isfile(dest_path_file):
                         os.rename(filepath, dest_path_file)
@@ -88,12 +88,14 @@ def download_frota(key=None, prefix=None, month=None, year=None, tempdir=None, d
     data = defaultdict(list)
     for node in nodes:
         txt = node.text
-        href = node.attrib["href"]
-        match = re.search("(?i)xls|xlsx|rar|zip$", href)
-        if match and re.search(key, txt, re.IGNORECASE) and months.get(match.group(1)) in month:
-            filetype = match.group().lower()
-            mes_name = re.search("(%s)" % "|".join(months.keys()), href).group(1)
-            mes = months[mes_name]
-            ano = int(re.search("\d{4}", href).group())
-            info = {'txt': txt, 'href': href, 'mes_name': mes_name, 'mes': mes, 'ano': ano, 'filetype': filetype}
-            download_file(info)
+        href = node.get('href')
+        match = re.search(r"(?i)\/([\w-]+)\/(\d{4})\/(\w+)\/([\w-]+)\.(?:xls|xlsx|rar|zip)$", href)
+        if match:
+            matched_month = match.group(3)
+            matched_year = match.group(2)
+            if months.get(matched_month) == month and matched_year == str(year):
+                filetype = match.group(0).split('.')[-1].lower()
+                info = {'txt': txt, 'href': href, 'mes_name': matched_month, 'mes': month, 'ano': year, 'filetype': filetype}
+                download_file(info)
+
+download_frota(year=2022, month = 12)
