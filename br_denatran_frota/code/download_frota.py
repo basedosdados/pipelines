@@ -75,7 +75,13 @@ def download_frota(key=None, prefix=None, month=None, year=None, tempdir=None, d
                         os.rename(filepath, dest_path_file)
                     else:
                         os.remove(filepath)
-
+    
+    def download_file(i):
+        if i['filetype'] in ['rar', 'zip']:
+            handle_compact(i)
+        elif i['filetype'] in ['xlsx', 'xls']:
+            handle_xl(i)
+            
     soup = BeautifulSoup(urlopen(url), "html.parser")
     nodes = soup.select("p > a")
 
