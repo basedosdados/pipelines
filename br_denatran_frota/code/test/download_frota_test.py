@@ -24,7 +24,7 @@ class TestDownloadFrota(unittest.TestCase):
             download_frota(month=1, year=2010)
 
     def test_download_frota_with_invalid_month(self):
-        with self.assertRaises(HTTPError):
+        with self.assertRaises(ValueError):
             download_frota(month=13, year=2022, dir=self.test_dir)
 
     def test_download_frota_with_missing_directory(self):
