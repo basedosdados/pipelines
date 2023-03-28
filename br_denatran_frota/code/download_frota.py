@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 from collections import defaultdict
 
 
-def download_frota( month=None, year=None, tempdir=None, dir=None):
+def download_frota(month=None, year=None, tempdir=None, dir=None):
     months = {
         "janeiro": 1,
         "fevereiro": 2,
@@ -28,9 +28,9 @@ def download_frota( month=None, year=None, tempdir=None, dir=None):
         url = f"https://www.gov.br/infraestrutura/pt-br/assuntos/transito/conteudo-Senatran/frota-de-veiculos-{year}"
     else:
         raise ValueError("Utilize a função download_frota_old()")
-    
+
     if month not in months.values():
-        raise ValueError('Mês inválido.')
+        raise ValueError("Mês inválido.")
 
     if not tempdir:
         tempdir = tempfile.gettempdir()
@@ -78,27 +78,32 @@ def download_frota( month=None, year=None, tempdir=None, dir=None):
                         os.rename(filepath, dest_path_file)
                     else:
                         os.remove(filepath)
-    
+
     def download_file(i):
-        if i['filetype'] in ['rar', 'zip']:
+        if i["filetype"] in ["rar", "zip"]:
             handle_compact(i)
-        elif i['filetype'] in ['xlsx', 'xls']:
+        elif i["filetype"] in ["xlsx", "xls"]:
             handle_xl(i)
-            
+
     soup = BeautifulSoup(urlopen(url), "html.parser")
     nodes = soup.select("p > a")
-
-    data = defaultdict(list)
     for node in nodes:
         txt = node.text
-        href = node.get('href')
-        match = re.search(r"(?i)\/([\w-]+)\/(\d{4})\/(\w+)\/([\w-]+)\.(?:xls|xlsx|rar|zip)$", href)
+        href = node.get("href")
+        match = re.search(
+            r"(?i)\/([\w-]+)\/(\d{4})\/(\w+)\/([\w-]+)\.(?:xls|xlsx|rar|zip)$", href
+        )
         if match:
             matched_month = match.group(3)
             matched_year = match.group(2)
             if months.get(matched_month) == month and matched_year == str(year):
-                filetype = match.group(0).split('.')[-1].lower()
-                info = {'txt': txt, 'href': href, 'mes_name': matched_month, 'mes': month, 'ano': year, 'filetype': filetype}
+                filetype = match.group(0).split(".")[-1].lower()
+                info = {
+                    "txt": txt,
+                    "href": href,
+                    "mes_name": matched_month,
+                    "mes": month,
+                    "ano": year,
+                    "filetype": filetype,
+                }
                 download_file(info)
-
-download_frota(year=2022, month = 12)
