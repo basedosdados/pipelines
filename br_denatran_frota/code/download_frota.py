@@ -8,7 +8,28 @@ from bs4 import BeautifulSoup
 from collections import defaultdict
 
 
-def download_frota(month=None, year=None, tempdir=None, dir=None):
+def make_filename(i: dict, ext: bool = True) -> str:
+    """Cria o nome do arquivo usando o dicionário enviado.
+
+    Args:
+        i (dict): Dicionário com todas as informações do arquivo.
+        ext (bool, optional): Especifica se o nome de arquivo gerado precisa do tipo de arquivo no fim. Defaults to True.
+
+    Returns:
+        str: O nome completo do arquivo.
+    """
+    txt = i["txt"]
+    mes = i["mes"]
+    ano = i["ano"]
+    filetype = i["filetype"]
+    filename = re.sub("\\s+", "_", txt, flags=re.UNICODE).lower()
+    filename = f"{filename}_{mes}-{ano}"
+    if ext:
+        filename += f".{filetype}"
+    return filename
+
+
+def download_frota(month: int = None, year: int = None, tempdir=None, dir=None):
     months = {
         "janeiro": 1,
         "fevereiro": 2,
@@ -27,7 +48,7 @@ def download_frota(month=None, year=None, tempdir=None, dir=None):
     if year > 2012:
         url = f"https://www.gov.br/infraestrutura/pt-br/assuntos/transito/conteudo-Senatran/frota-de-veiculos-{year}"
     else:
-        raise ValueError("Utilize a função download_frota_old()")
+        raise ValueError("Para anos anteriores eu não implementei a função ainda.")
 
     if month not in months.values():
         raise ValueError("Mês inválido.")
@@ -36,17 +57,6 @@ def download_frota(month=None, year=None, tempdir=None, dir=None):
         tempdir = tempfile.gettempdir()
     if not dir:
         dir = os.getcwd()
-
-    def make_filename(i, ext=True):
-        txt = i["txt"]
-        mes = i["mes"]
-        ano = i["ano"]
-        filetype = i["filetype"]
-        filename = re.sub("\\s+", "_", txt, flags=re.UNICODE).lower()
-        filename = f"{filename}_{mes}-{ano}"
-        if ext:
-            filename += f".{filetype}"
-        return filename
 
     def handle_xl(i):
         dest_path_file = os.path.join(dir, f"{i['mes']}-{i['ano']}.{i['filetype']}")
@@ -107,3 +117,6 @@ def download_frota(month=None, year=None, tempdir=None, dir=None):
                     "filetype": filetype,
                 }
                 download_file(info)
+
+
+download_frota(year=2022, month=2)
