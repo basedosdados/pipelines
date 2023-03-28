@@ -5,7 +5,41 @@ from urllib.request import urlopen, urlretrieve
 from zipfile import ZipFile
 from rarfile import RarFile
 from bs4 import BeautifulSoup
-from collections import defaultdict
+
+
+def handle_xl(i: dict):
+    tempdir = i["tempdir"]
+    dest_path_file = os.path.join(tempdir, make_filename(i))
+    if not os.path.isfile(dest_path_file):
+        urlretrieve(i["href"], dest_path_file)
+
+
+def handle_compact(i: dict):
+    tempdir = i["tempdir"]
+    path_file_zip = os.path.join(tempdir, make_filename(i))
+    dir_file = os.path.join(tempdir, make_filename(i, ext=False))
+
+    if not os.path.isfile(path_file_zip):
+        urlretrieve(i["href"], path_file_zip)
+
+    if i["filetype"] == "rar":
+        with RarFile(path_file_zip) as rar_file:
+            rar_file.extractall(dir_file)
+    else:
+        with ZipFile(path_file_zip) as zip_file:
+            zip_file.extractall(dir_file)
+
+    for filename in os.listdir(dir_file):
+        filepath = os.path.join(dir_file, filename)
+        if os.path.isfile(filepath):
+            if filename.endswith((".xlsx", ".xls")):
+                dest_path_file = os.path.join(
+                    dir_name, f"{i['mes']}-{i['ano']}.{filename.split('.')[-1]}"
+                )
+                if not os.path.isfile(dest_path_file):
+                    os.rename(filepath, dest_path_file)
+                else:
+                    os.remove(filepath)
 
 
 def make_filename(i: dict, ext: bool = True) -> str:
@@ -29,7 +63,14 @@ def make_filename(i: dict, ext: bool = True) -> str:
     return filename
 
 
-def download_frota(month: int = None, year: int = None, tempdir=None, dir=None):
+def download_file(i):
+    if i["filetype"] in ["rar", "zip"]:
+        handle_compact(i)
+    elif i["filetype"] in ["xlsx", "xls"]:
+        handle_xl(i)
+
+
+def download_frota(month: int = None, year: int = None, tempdir=None, dir_name=None):
     months = {
         "janeiro": 1,
         "fevereiro": 2,
@@ -55,45 +96,8 @@ def download_frota(month: int = None, year: int = None, tempdir=None, dir=None):
 
     if not tempdir:
         tempdir = tempfile.gettempdir()
-    if not dir:
-        dir = os.getcwd()
-
-    def handle_xl(i):
-        dest_path_file = os.path.join(dir, f"{i['mes']}-{i['ano']}.{i['filetype']}")
-        if not os.path.isfile(dest_path_file):
-            urlretrieve(i["href"], dest_path_file)
-
-    def handle_compact(i):
-        path_file_zip = os.path.join(tempdir, make_filename(i))
-        dir_file = os.path.join(tempdir, make_filename(i, ext=False))
-
-        if not os.path.isfile(path_file_zip):
-            urlretrieve(i["href"], path_file_zip)
-
-        if i["filetype"] == "rar":
-            with RarFile(path_file_zip) as rar_file:
-                rar_file.extractall(dir_file)
-        else:
-            with ZipFile(path_file_zip) as zip_file:
-                zip_file.extractall(dir_file)
-
-        for filename in os.listdir(dir_file):
-            filepath = os.path.join(dir_file, filename)
-            if os.path.isfile(filepath):
-                if filename.endswith((".xlsx", ".xls")):
-                    dest_path_file = os.path.join(
-                        dir, f"{i['mes']}-{i['ano']}.{filename.split('.')[-1]}"
-                    )
-                    if not os.path.isfile(dest_path_file):
-                        os.rename(filepath, dest_path_file)
-                    else:
-                        os.remove(filepath)
-
-    def download_file(i):
-        if i["filetype"] in ["rar", "zip"]:
-            handle_compact(i)
-        elif i["filetype"] in ["xlsx", "xls"]:
-            handle_xl(i)
+    if not dir_name:
+        dir_name = os.getcwd()
 
     soup = BeautifulSoup(urlopen(url), "html.parser")
     nodes = soup.select("p:contains('Frota por ') > a")
@@ -115,6 +119,7 @@ def download_frota(month: int = None, year: int = None, tempdir=None, dir=None):
                     "mes": month,
                     "ano": year,
                     "filetype": filetype,
+                    "tempdir": tempdir,
                 }
                 download_file(info)
 
