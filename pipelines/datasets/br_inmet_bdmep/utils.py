@@ -34,12 +34,13 @@ General purpose functions for the br_inmet_bdmep project
 import pandas as pd
 
 # import string
-# import tempfile
-# import urllib.request
-# import zipfile
+import tempfile
+import urllib.request
+import zipfile
+
 # import rasterio
 # import geopandas as gpd
-# import os
+import os
 import numpy as np
 
 # import glob
@@ -212,3 +213,27 @@ def get_clima_info(file: str) -> pd.DataFrame:
     clima["hora"] = clima["hora"].apply(lambda x: convert_to_time(x))
 
     return clima
+
+
+def download_inmet(year: int) -> None:
+    """
+    Realiza o download dos dados históricos de uma determinado ano do INMET (Instituto Nacional de Meteorologia)
+    e descompacta o arquivo em um diretório local.
+
+    Args:
+        year (int): O ano para o qual deseja-se baixar os dados históricos.
+
+    Returns:
+        None
+    """
+
+    ## to-do -> adicionar condição para testar se o dir já existe (pathlib)
+    os.system("mkdir -p /tmp/data/input/")
+    temp = tempfile.NamedTemporaryFile(delete=False)
+    url = f"https://portal.inmet.gov.br/uploads/dadoshistoricos/{year}.zip"
+    urllib.request.urlretrieve(url, temp.name)
+    with zipfile.ZipFile(temp.name, "r") as zip_ref:
+        zip_ref.extractall(f"/tmp/data/input/{year}")
+    temp.close()
+    # remove o arquivo temporário
+    os.remove(temp.name)

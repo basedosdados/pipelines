@@ -54,15 +54,11 @@ from pipelines.utils.utils import (
 )
 from pipelines.datasets.br_inmet_bdmep.utils import (
     get_clima_info,
+    download_inmet,
 )
 from pipelines.constants import constants
 
 import pandas as pd
-
-# import string
-import tempfile
-import urllib.request
-import zipfile
 
 # import rasterio
 # import geopandas as gpd
@@ -80,31 +76,6 @@ from prefect import task
 # pylint: disable=C0103
 
 
-@task  # noqa
-def download_inmet(year: int) -> None:
-    """
-    Realiza o download dos dados históricos de uma determinado ano do INMET (Instituto Nacional de Meteorologia)
-    e descompacta o arquivo em um diretório local.
-
-    Args:
-        year (int): O ano para o qual deseja-se baixar os dados históricos.
-
-    Returns:
-        None
-    """
-
-    ## to-do -> adicionar condição para testar se o dir já existe (pathlib)
-    os.system("mkdir -p /tmp/data/input/")
-    temp = tempfile.NamedTemporaryFile(delete=False)
-    url = f"https://portal.inmet.gov.br/uploads/dadoshistoricos/{year}.zip"
-    urllib.request.urlretrieve(url, temp.name)
-    with zipfile.ZipFile(temp.name, "r") as zip_ref:
-        zip_ref.extractall(f"/tmp/data/input/{year}")
-    temp.close()
-    # remove o arquivo temporário
-    os.remove(temp.name)
-
-
 @task
 def get_base_inmet(year: int) -> str:
     """
@@ -119,6 +90,7 @@ def get_base_inmet(year: int) -> str:
     -------
     None
     """
+    download_inmet(year)
 
     files = glob.glob(os.path.join(f"/tmp/data/input/{year}/", "*.CSV"))
 

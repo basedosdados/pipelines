@@ -106,8 +106,7 @@ with Flow(name="br_inmet_bdmep", code_owners=["arthurfg"]) as br_inmet:
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    download_inmet(2023, upstream_tasks=[rename_flow_run])
-    output_filepath = get_base_inmet(year, upstream_tasks=[download_inmet])
+    output_filepath = get_base_inmet(year, upstream_tasks=[rename_flow_run])
 
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=output_filepath,
