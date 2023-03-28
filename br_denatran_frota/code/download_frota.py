@@ -28,6 +28,9 @@ def download_frota( month=None, year=None, tempdir=None, dir=None):
         url = f"https://www.gov.br/infraestrutura/pt-br/assuntos/transito/conteudo-Senatran/frota-de-veiculos-{year}"
     else:
         raise ValueError("Utilize a função download_frota_old()")
+    
+    if month not in months.values():
+        raise ValueError('Mês inválido.')
 
     if not tempdir:
         tempdir = tempfile.gettempdir()
