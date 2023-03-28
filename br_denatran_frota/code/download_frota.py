@@ -33,9 +33,7 @@ def handle_compact(i: dict):
         filepath = os.path.join(dir_file, filename)
         if os.path.isfile(filepath):
             if filename.endswith((".xlsx", ".xls")):
-                dest_path_file = os.path.join(
-                    dir_name, f"{i['mes']}-{i['ano']}.{filename.split('.')[-1]}"
-                )
+                dest_path_file = os.path.join(tempdir, make_filename(i))
                 if not os.path.isfile(dest_path_file):
                     os.rename(filepath, dest_path_file)
                 else:
@@ -100,10 +98,12 @@ def download_frota(month: int = None, year: int = None, tempdir=None, dir_name=N
         dir_name = os.getcwd()
 
     soup = BeautifulSoup(urlopen(url), "html.parser")
+    # Só queremos os dados de frota nacional.
     nodes = soup.select("p:contains('Frota por ') > a")
     for node in nodes:
         txt = node.text
         href = node.get("href")
+        # Pega a parte relevante do arquivo em questão.
         match = re.search(
             r"(?i)\/([\w-]+)\/(\d{4})\/(\w+)\/([\w-]+)\.(?:xls|xlsx|rar|zip)$", href
         )
