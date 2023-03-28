@@ -86,7 +86,7 @@ def download_frota(month=None, year=None, tempdir=None, dir=None):
             handle_xl(i)
 
     soup = BeautifulSoup(urlopen(url), "html.parser")
-    nodes = soup.select("p > a")
+    nodes = soup.select("p:contains('Frota por ') > a")
     for node in nodes:
         txt = node.text
         href = node.get("href")
