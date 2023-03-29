@@ -134,6 +134,3 @@ def download_frota(month: int, year: int):
                     "filetype": filetype,
                 }
                 download_file(info)
-
-
-download_frota(year=2022, month=2)
