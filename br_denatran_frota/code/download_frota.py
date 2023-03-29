@@ -7,9 +7,17 @@ from rarfile import RarFile
 from bs4 import BeautifulSoup
 
 
-def handle_xl(i: dict):
-    tempdir = i["tempdir"]
-    dest_path_file = os.path.join(tempdir, make_filename(i))
+def handle_xl(i: dict) -> None:
+    """Efetivamente baixa e lida com arquivos excel.
+
+    Args:
+        i (dict): Dicionário com as informações do arquivo a ser baixado.
+    """
+    dir_name = os.getcwd()
+    # TODO: Isso aqui NÃO ESTÁ muito limpo ou genérico, e não sei onde deveriam ficar os arquivos por hora.
+    dest_path_file = os.path.join(
+        dir_name, "br_denatran_frota", "files", make_filename(i)
+    )
     if not os.path.isfile(dest_path_file):
         urlretrieve(i["href"], dest_path_file)
 
@@ -62,13 +70,23 @@ def make_filename(i: dict, ext: bool = True) -> str:
 
 
 def download_file(i):
-    if i["filetype"] in ["rar", "zip"]:
-        handle_compact(i)
-    elif i["filetype"] in ["xlsx", "xls"]:
+    if i["filetype"] in ["xlsx", "xls"]:
         handle_xl(i)
+    else:
+        raise ValueError("A função handle_compact tá bem esquisita por hora.")
 
 
-def download_frota(month: int = None, year: int = None, tempdir=None, dir_name=None):
+def download_frota(month: int, year: int):
+    """Função principal para baixar os dados de frota por município e tipo e também por UF e tipo.
+
+    Args:
+        month (int): Mês desejado.
+        year (int): Ano desejado.
+
+    Raises:
+        ValueError: Dá erro caso o ano desejado seja anterior ao que a função consegue no momento.
+        ValueError: Dá erro caso o mês desejado não seja um mês válido.
+    """
     months = {
         "janeiro": 1,
         "fevereiro": 2,
@@ -94,8 +112,6 @@ def download_frota(month: int = None, year: int = None, tempdir=None, dir_name=N
 
     if not tempdir:
         tempdir = tempfile.gettempdir()
-    if not dir_name:
-        dir_name = os.getcwd()
 
     soup = BeautifulSoup(urlopen(url), "html.parser")
     # Só queremos os dados de frota nacional.
