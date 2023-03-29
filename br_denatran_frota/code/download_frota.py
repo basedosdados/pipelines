@@ -110,9 +110,6 @@ def download_frota(month: int, year: int):
     if month not in months.values():
         raise ValueError("Mês inválido.")
 
-    if not tempdir:
-        tempdir = tempfile.gettempdir()
-
     soup = BeautifulSoup(urlopen(url), "html.parser")
     # Só queremos os dados de frota nacional.
     nodes = soup.select("p:contains('Frota por ') > a")
@@ -135,7 +132,6 @@ def download_frota(month: int, year: int):
                     "mes": month,
                     "ano": year,
                     "filetype": filetype,
-                    "tempdir": tempdir,
                 }
                 download_file(info)
 
