@@ -5,14 +5,17 @@ from zipfile import ZipFile
 import shutil
 
 
-def download_frota_old(key=None, prefix=None, year=None, tempdir=None, dir=None):
-    def create_directory(path):
-        if not os.path.exists(path):
-            os.makedirs(path)
+def create_directory(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
 
-    def extract_files_from_zip(zip_file, extract_path):
-        with ZipFile(zip_file, "r") as zip:
-            zip.extractall(extract_path)
+
+def extract_files_from_zip(zip_file, extract_path):
+    with ZipFile(zip_file, "r") as zip:
+        zip.extractall(extract_path)
+
+
+def download_frota_old(key=None, prefix=None, year=None, tempdir=None, dir=None):
 
     if year > 2012:
         raise ValueError("Utilize download_frota()")
