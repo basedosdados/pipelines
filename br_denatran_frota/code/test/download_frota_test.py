@@ -14,15 +14,15 @@ class TestDownloadFrota(unittest.TestCase):
         os.rmdir(self.test_dir)
 
     def test_download_frota_with_valid_args(self):
-        # TODO: Since there is no teardown, this test doesn't have the same effect running twice.
-        # It could always download the file twice in download_frota OR we implement cleanup?
-        # Or we generalize with tempd irs. This might just be overkill anyway.
-        download_frota(month=2, year=2022)
+        # TODO: This is always assuming a structure of having a files dir under the denatran directory...
+        month = 2
+        year = 2022
+        download_frota(month, year)
         expected_file_path = os.path.join(
             os.getcwd(),
             "br_denatran_frota",
             "files",
-            "frota_por_município_e_tipo_2-2022.xls",
+            f"frota_por_município_e_tipo_{month}-{year}.xls",
         )
         self.assertTrue(os.path.isfile(expected_file_path))
 

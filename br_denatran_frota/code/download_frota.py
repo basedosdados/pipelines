@@ -18,8 +18,7 @@ def handle_xl(i: dict) -> None:
     dest_path_file = os.path.join(
         dir_name, "br_denatran_frota", "files", make_filename(i)
     )
-    if not os.path.isfile(dest_path_file):
-        urlretrieve(i["href"], dest_path_file)
+    urlretrieve(i["href"], dest_path_file)
 
 
 def handle_compact(i: dict):
