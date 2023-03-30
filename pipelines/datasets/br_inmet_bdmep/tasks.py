@@ -2,53 +2,6 @@
 """
 Tasks for br_inmet_bdmep
 """
-
-###############################################################################
-#
-# Aqui é onde devem ser definidas as tasks para os flows do projeto.
-# Cada task representa um passo da pipeline. Não é estritamente necessário
-# tratar todas as exceções que podem ocorrer durante a execução de uma task,
-# mas é recomendável, ainda que não vá implicar em  uma quebra no sistema.
-# Mais informações sobre tasks podem ser encontradas na documentação do
-# Prefect: https://docs.prefect.io/core/concepts/tasks.html
-#
-# De modo a manter consistência na codebase, todo o código escrito passará
-# pelo pylint. Todos os warnings e erros devem ser corrigidos.
-#
-# As tasks devem ser definidas como funções comuns ao Python, com o decorador
-# @task acima. É recomendado inserir type hints para as variáveis.
-#
-# Um exemplo de task é o seguinte:
-#
-# -----------------------------------------------------------------------------
-# from prefect import task
-#
-# @task
-# def my_task(param1: str, param2: int) -> str:
-#     """
-#     My task description.
-#     """
-#     return f'{param1} {param2}'
-# -----------------------------------------------------------------------------
-#
-# Você também pode usar pacotes Python arbitrários, como numpy, pandas, etc.
-#
-# -----------------------------------------------------------------------------
-# from prefect import task
-# import numpy as np
-#
-# @task
-# def my_task(a: np.ndarray, b: np.ndarray) -> str:
-#     """
-#     My task description.
-#     """
-#     return np.add(a, b)
-# -----------------------------------------------------------------------------
-#
-# Abaixo segue um código para exemplificação, que pode ser removido.
-#
-###############################################################################
-
 from pipelines.utils.utils import (
     log,
 )
@@ -59,19 +12,12 @@ from pipelines.datasets.br_inmet_bdmep.utils import (
 from pipelines.constants import constants
 
 import pandas as pd
-
-# import rasterio
-# import geopandas as gpd
 import os
 import numpy as np
 import glob
-
-# import datetime
-# import re
 from datetime import datetime, time
-
-# from unidecode import unidecode
 from prefect import task
+from pipelines.datasets.br_inmet_bdmep.constants import constants as inmet_constants
 
 # pylint: disable=C0103
 
@@ -95,6 +41,10 @@ def get_base_inmet(year: int) -> str:
     files = glob.glob(os.path.join(f"/tmp/data/input/{year}/", "*.CSV"))
 
     base = pd.concat([get_clima_info(file) for file in files], ignore_index=True)
+
+    # ordena as colunas
+    ordem = inmet_constants.COLUMNS_ORDER.value
+    base = base[ordem]
 
     os.makedirs(os.path.join(f"/tmp/data/output/microdados/ano={year}"), exist_ok=True)
     name = os.path.join(

@@ -3,48 +3,14 @@
 General purpose functions for the br_inmet_bdmep project
 """
 
-###############################################################################
-#
-# Esse é um arquivo onde podem ser declaratas funções que serão usadas
-# pelo projeto br_inmet_bdmep.
-#
-# Por ser um arquivo opcional, pode ser removido sem prejuízo ao funcionamento
-# do projeto, caos não esteja em uso.
-#
-# Para declarar funções, basta fazer em código Python comum, como abaixo:
-#
-# ```
-# def foo():
-#     """
-#     Function foo
-#     """
-#     print("foo")
-# ```
-#
-# Para usá-las, basta fazer conforme o exemplo abaixo:
-#
-# ```py
-# from pipelines.datasets.br_inmet_bdmep.utils import foo
-# foo()
-# ```
-#
-###############################################################################
 # pylint: disable=too-few-public-methods,invalid-name
 
 import pandas as pd
-
-# import string
 import tempfile
 import urllib.request
 import zipfile
-
-# import rasterio
-# import geopandas as gpd
 import os
 import numpy as np
-
-# import glob
-# import datetime
 import re
 from datetime import datetime, time
 from unidecode import unidecode
@@ -201,10 +167,17 @@ def get_clima_info(file: str) -> pd.DataFrame:
     clima["id_estacao"] = caract.loc[3, "value"]
 
     # substitui valores -9999 por NaN
-    clima.replace(to_replace=-9999, value=np.nan, inplace=True)
+    clima.replace(to_replace=-9999, value="", inplace=True)
 
     # converte a coluna data para datetime
-    clima["data"] = clima["data"].apply(lambda x: datetime.strptime(str(x), "%Y/%m/%d"))
+    if all(clima["data"].str.contains("/")):
+        clima["data"] = clima["data"].apply(
+            lambda x: datetime.strptime(str(x), "%Y/%m/%d")
+        )
+    else:
+        clima["data"] = clima["data"].apply(
+            lambda x: datetime.strptime(str(x), "%Y-%m-%d")
+        )
 
     # converte as colunas de 3 a 19 para float
     clima.iloc[:, 3:19] = clima.iloc[:, 3:19].astype(float)
@@ -226,14 +199,21 @@ def download_inmet(year: int) -> None:
     Returns:
         None
     """
-
-    ## to-do -> adicionar condição para testar se o dir já existe (pathlib)
     os.system("mkdir -p /tmp/data/input/")
-    temp = tempfile.NamedTemporaryFile(delete=False)
-    url = f"https://portal.inmet.gov.br/uploads/dadoshistoricos/{year}.zip"
-    urllib.request.urlretrieve(url, temp.name)
-    with zipfile.ZipFile(temp.name, "r") as zip_ref:
-        zip_ref.extractall(f"/tmp/data/input/{year}")
-    temp.close()
+    if year <= 2019:
+        temp = tempfile.NamedTemporaryFile(delete=False)
+        url = f"https://portal.inmet.gov.br/uploads/dadoshistoricos/{year}.zip"
+        urllib.request.urlretrieve(url, temp.name)
+        with zipfile.ZipFile(temp.name, "r") as zip_ref:
+            zip_ref.extractall("/tmp/data/input/")
+        temp.close()
+
+    else:
+        temp = tempfile.NamedTemporaryFile(delete=False)
+        url = f"https://portal.inmet.gov.br/uploads/dadoshistoricos/{year}.zip"
+        urllib.request.urlretrieve(url, temp.name)
+        with zipfile.ZipFile(temp.name, "r") as zip_ref:
+            zip_ref.extractall(f"/tmp/data/input/{year}")
+        temp.close()
     # remove o arquivo temporário
     os.remove(temp.name)
