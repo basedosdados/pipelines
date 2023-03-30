@@ -299,7 +299,7 @@ def condicoes(database, valor) -> None:
 # todo: not str types. they're arrays i think
 def standardize_monetary_units(
     df: pd.DataFrame, date_column, value_column
-) -> pd.Dataframe:
+) -> pd.DataFrame:
 
     """This function corrects monetary units from ESTBAN files.
     It relies on the data_base column being a string in the format YYYYMM,
