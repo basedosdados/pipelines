@@ -318,7 +318,7 @@ def standardize_monetary_units(
 
 
 # todo: to func:extrai os ids dos verbetes
-def create_id_verbete_column(df: pd.DataFrame, column_name: str) -> pd.Dataframe:
+def create_id_verbete_column(df: pd.DataFrame, column_name: str) -> pd.DataFrame:
     """This function creates id_verbete column from a verbete column.
     It parses numeric digitis from the verbete column strings.
 
@@ -338,7 +338,7 @@ def create_id_verbete_column(df: pd.DataFrame, column_name: str) -> pd.Dataframe
 
 # todo: to func:criar ano e mes
 # criar ano e mes
-def create_month_year_columns(df: pd.DataFrame, date_column: str) -> pd.Dataframe:
+def create_month_year_columns(df: pd.DataFrame, date_column: str) -> pd.DataFrame:
     """This function creates month and year columns from a date column.
     It Relies on the date column being a string in the format YYYYMM,
     where YYYY is the year and MM is the month.
