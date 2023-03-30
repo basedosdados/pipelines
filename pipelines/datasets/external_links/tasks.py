@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-# ! import log from general utils pipelines repo
 from prefect import task
 import requests
 import pandas as pd
@@ -74,19 +73,10 @@ def crawler_external_links_status():
             dic["url_status_error"] = e
             print(f"erro: a url {external_url} retornou o erro {e}")
 
-    # log('dados baixados com sucesso')
-
     df = pd.DataFrame.from_dict(resources)
 
     os.system("mkdir -p /tmp/data/")
+
     df.to_csv("/tmp/data/external_link_status.csv", index=False)
 
     return "/tmp/data/external_link_status.csv"
-
-
-# @task
-# def save_dataframe(df: pd.DataFrame, filepath: str) -> None:
-#     """
-#     Saves dataframe to csv file.
-#     """
-#     df.to_csv(filepath, index=False)

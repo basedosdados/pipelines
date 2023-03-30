@@ -1,14 +1,10 @@
 # -*- coding: utf-8 -*-
-# from prefect import Flow
-# from tasks import crawler_external_links_status#, save_dataframe
 
-# import tasks
 from datetime import timedelta
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
-
 
 from pipelines.constants import constants
 from pipelines.utils.constants import constants as utils_constants
@@ -19,22 +15,11 @@ from pipelines.datasets.external_links.tasks import (
 )
 
 
-# from pipelines.utils.decorators import Flow
-
-# import utils
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     rename_current_flow_run_dataset_table,
     get_current_flow_labels,
 )
-
-# with Flow('external link') as flow:
-#     #file_path = Parameter('file_path', default='data/external_links_status.csv')
-#     #set flow parameters
-#     df = crawler_external_links_status()
-#     #save df
-#     #save_dataframe(df, filepath = file_path)
-
 
 with Flow(
     name="external_links.external_links_status",
@@ -102,4 +87,4 @@ with Flow(
 
 external_links_status.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 external_links_status.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-# external_links_status.schedule = every_day_organizations
+external_links_status.schedule = None
