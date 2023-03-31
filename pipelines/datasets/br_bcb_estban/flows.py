@@ -111,7 +111,6 @@ with Flow(
 
 br_bcb_estban_municipio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_bcb_estban_municipio.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_bcb_estban_municipio.flow.schedule = None
 
 
 with Flow(
@@ -193,4 +192,3 @@ with Flow(
 
 br_bcb_estban_agencia.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_bcb_estban_agencia.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_bcb_estban_agencia.flow.schedule = None
