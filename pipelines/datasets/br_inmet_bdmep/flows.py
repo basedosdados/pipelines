@@ -22,6 +22,8 @@ from pipelines.utils.tasks import (
     get_current_flow_labels,
 )
 
+from pipelines.datasets.br_inmet_bdmep.schedules import every_month_inmet
+
 # from pipelines.datasets.br_ibge_pnadc.schedules import every_quarter
 
 # pylint: disable=C0103
@@ -83,5 +85,5 @@ with Flow(name="br_inmet_bdmep", code_owners=["arthurfg"]) as br_inmet:
 
 br_inmet.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_inmet.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-# br_inmet.schedule = every_two_weeks
+br_inmet.schedule = every_month_inmet
 # flow.schedule = every_two_weeks

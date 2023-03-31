@@ -86,3 +86,22 @@ every_two_weeks = Schedule(
         ),
     ]
 )
+
+every_month_inmet = Schedule(
+    clocks=[
+        IntervalClock(
+            interval=timedelta(days=30),
+            start_date=datetime(2023, 3, 31, 17, 11),
+            labels=[
+                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            ],
+            parameter_defaults={
+                "dataset_id": "br_inmet_bdmep",
+                "table_id": "microdados",
+                "materialization_mode": "dev",
+                "materialize after dump": True,
+                "dbt_alias": True,
+            },
+        ),
+    ],
+)
