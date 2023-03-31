@@ -37,7 +37,7 @@ with Flow(
     code_owners=[
         "Gabriel Pisa",
     ],
-) as br_bcb_estban:
+) as br_bcb_estban_municipio:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_bcb_estban", required=True)
     table_id = Parameter("table_id", default="municipio", required=True)
@@ -109,8 +109,8 @@ with Flow(
         )
 
 
-br_bcb_estban.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_bcb_estban.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_bcb_estban_municipio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_bcb_estban_municipio.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 # flow.schedule = every_two_weeks
 
 
@@ -119,7 +119,7 @@ with Flow(
     code_owners=[
         "Gabriel Pisa",
     ],
-) as br_bcb_estban:
+) as br_bcb_estban_agencia:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_bcb_estban", required=True)
     table_id = Parameter("table_id", default="agencia", required=True)
@@ -191,6 +191,6 @@ with Flow(
         )
 
 
-br_bcb_estban.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_bcb_estban.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_bcb_estban_agencia.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_bcb_estban_agencia.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 # flow.schedule = every_two_weeks
