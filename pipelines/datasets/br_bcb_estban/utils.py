@@ -138,17 +138,6 @@ def rename_columns_agencia(df: pd.DataFrame) -> pd.DataFrame:
 # clean_dataframe and remove_columns_accents from pipelines.utils.utils
 # will be used
 # change inputs
-def get_data_from_prod() -> pd.DataFrame:
-    """
-    Get select columns from a table in prod.
-    """
-
-    df = bd.read_table(
-        dataset_id="br_bd_diretorios_brasil",
-        table_id="municipio",
-        billing_project_id="pisagab-staging",
-    )
-    return df
 
 
 def pre_cleaning_for_pivot_long_municipio(df: pd.DataFrame) -> pd.DataFrame:
@@ -353,5 +342,54 @@ def create_month_year_columns(df: pd.DataFrame, date_column: str) -> pd.DataFram
     """
     df["ano"] = df[date_column].astype(str).str.slice(0, 4)
     df["mes"] = df[date_column].astype(str).str.slice(4)
+
+    return df
+
+
+def order_cols_municipio(df: pd.DataFrame) -> pd.DataFrame:
+
+    """this function orders the columns of the dataframe
+
+    Returns:
+        pd.DataFrame: ordered columns
+    """
+    order = [
+        "ano",
+        "mes",
+        "sigla_uf",
+        "id_municipio",
+        "cnpj_basico",
+        "instituicao",
+        "agencias_esperadas",
+        "agencias_processadas",
+        "id_verbete",
+        "valor",
+    ]
+
+    df = df[order]
+
+    return df
+
+
+def cols_order_agencia(df: pd.DataFrame) -> pd.DataFrame:
+
+    """this function orders the columns of the dataframe
+
+    Returns:
+        pd.DataFrame: ordered columns
+    """
+    order = [
+        "ano",
+        "mes",
+        "sigla_uf",
+        "id_municipio",
+        "cnpj_basico",
+        "instituicao",
+        "cnpj_agencia",
+        "id_verbete",
+        "valor",
+    ]
+
+    df = df[order]
 
     return df

@@ -62,7 +62,7 @@ with Flow(
         save_path=br_bcb_estban_constants.DOWNLOAD_PATH_MUNICIPIO.value,
     )
 
-    municipio = get_id_municipio()
+    municipio = get_id_municipio(table="municipio")
 
     # ?  settar upstream tasks: verificar o funcionamento
     filepath = cleaning_municipios_data(
@@ -144,7 +144,7 @@ with Flow(
     )
     # read_file
 
-    municipio = get_id_municipio()
+    municipio = get_id_municipio(table="municipio")
 
     filepath = cleaning_agencias_data(
         path=br_bcb_estban_constants.DOWNLOAD_PATH_AGENCIA.value,

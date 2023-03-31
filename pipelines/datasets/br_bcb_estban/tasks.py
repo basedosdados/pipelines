@@ -28,12 +28,14 @@ from pipelines.datasets.br_bcb_estban.utils import (
     create_id_municipio,
     pre_cleaning_for_pivot_long_municipio,
     wide_to_long_municipio,
+    order_cols_municipio,
     standardize_monetary_units,
     create_id_verbete_column,
     create_month_year_columns,
     rename_columns_agencia,
     pre_cleaning_for_pivot_long_agencia,
     wide_to_long_agencia,
+    cols_order_agencia,
 )
 
 
@@ -70,11 +72,12 @@ def download_estban_files(xpath: str, save_path: str) -> str:
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def get_id_municipio() -> pd.DataFrame:
+def get_id_municipio(table) -> pd.DataFrame:
     """get id municipio from basedosdados"""
+
     municipio = bd.read_table(
         dataset_id="br_bd_diretorios_brasil",
-        table_id="municipio",
+        table_id=table,
         billing_project_id="basedosdados-dev",
     )
 
@@ -110,7 +113,7 @@ def cleaning_municipios_data(path, municipio):
         )
         df = create_id_verbete_column(df)
         df = create_month_year_columns(df)
-
+        df = order_cols_municipio(df)
         # save df
 
         # 3. build and save partition
@@ -122,7 +125,7 @@ def cleaning_municipios_data(path, municipio):
 
         del df
 
-        return br_bcb_estban_constants.CLEANED_FILES_PATH_MUNICIPIO.value
+    return br_bcb_estban_constants.CLEANED_FILES_PATH_MUNICIPIO.value
 
 
 # 2. clean data
@@ -156,7 +159,7 @@ def cleaning_agencias_data(path, municipio):
         )
         df = create_id_verbete_column(df)
         df = create_month_year_columns(df)
-
+        df = cols_order_agencia(df)
         # save df
 
         # 3. build and save partition
@@ -168,4 +171,4 @@ def cleaning_agencias_data(path, municipio):
 
         del df
 
-        return br_bcb_estban_constants.CLEANED_FILES_PATH_AGENCIA.value
+    return br_bcb_estban_constants.CLEANED_FILES_PATH_AGENCIA.value
