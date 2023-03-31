@@ -75,7 +75,6 @@ def get_id_municipio() -> pd.DataFrame:
     municipio = bd.read_table(
         dataset_id="br_bd_diretorios_brasil",
         table_id="municipio",
-        # todo: there's gotta be a constant here
         billing_project_id="basedosdados-dev",
     )
 
@@ -166,7 +165,6 @@ def cleaning_agencias_data(path, municipio):
             partition_columns=["ano", "mes", "sigla_uf"],
             savepath=br_bcb_estban_constants.CLEANED_FILES_PATH_AGENCIA.value,
         )
-        # todo: see if NAn are setted to ' ' in above function
 
         del df
 
