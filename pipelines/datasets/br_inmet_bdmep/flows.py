@@ -28,7 +28,7 @@ from pipelines.utils.tasks import (
 with Flow(name="br_inmet_bdmep", code_owners=["arthurfg"]) as br_inmet:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_inmet_bdmep", required=True)
-    table_id = Parameter("table_id", default="microdados_teste", required=True)
+    table_id = Parameter("table_id", default="microdados", required=True)
     year = Parameter("year", default=2023, required=True)
 
     materialization_mode = Parameter(
