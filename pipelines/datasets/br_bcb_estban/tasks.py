@@ -100,7 +100,11 @@ def cleaning_municipios_data(path, municipio):
     Returns:
         df: a standardized partitioned estban dataset
     """
-    for df in os.listdir(path):
+    # limit to 10 for testing purposes
+    paths = os.listdir(path)
+    paths = paths[1:10]
+
+    for df in paths:
         df = read_files(path)
         df = rename_columns_municipio(df)
         df = remove_columns_accents(df)
@@ -142,7 +146,11 @@ def cleaning_agencias_data(path, municipio):
     Returns:
         df: a standardized partitioned estban dataset
     """
-    for df in os.listdir(path):
+    # limit to 10 for testing purposes
+    paths = os.listdir(path)
+    paths = paths[1:10]
+
+    for df in paths:
 
         # todo: perharps set path as Parameter
         df = read_files(path)
