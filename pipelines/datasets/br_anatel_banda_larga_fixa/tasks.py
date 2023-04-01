@@ -26,6 +26,7 @@ from pipelines.constants import constants
 
 from prefect import task
 
+
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
@@ -87,17 +88,18 @@ def to_partitions(df: pd.DataFrame, partition_columns: list[str], savepath: str)
                 index=False,
                 mode="a",
                 header=not file_filter_save_path.exists(),
-                encoding= 'utf-8',
+                encoding="utf-8",
             )
 
     else:
         raise BaseException("Data need to be a pandas DataFrame")
 
+
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def check_and_create_column(df: pd.DataFrame, col_name:str)-> pd.DataFrame:
+def check_and_create_column(df: pd.DataFrame, col_name: str) -> pd.DataFrame:
     """
     Verifique se existe uma coluna em um Pandas DataFrame. Caso contrário, crie uma nova coluna com o nome fornecido
     e preenchê-lo com valores NaN. Se existir, não faça nada.
@@ -110,8 +112,9 @@ def check_and_create_column(df: pd.DataFrame, col_name:str)-> pd.DataFrame:
     Pandas DataFrame: O DataFrame modificado.
     """
     if col_name not in df.columns:
-        df[col_name] = ''
+        df[col_name] = ""
     return df
+
 
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
@@ -119,50 +122,108 @@ def check_and_create_column(df: pd.DataFrame, col_name:str)-> pd.DataFrame:
 )
 def treatment():
     os.makedirs("/tmp/data/input", exist_ok=True)
-    url = 'https://www.anatel.gov.br/dadosabertos/paineis_de_dados/acessos/acessos_banda_larga_fixa.zip'
+    url = "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/acessos/acessos_banda_larga_fixa.zip"
     response = requests.get(url)
 
-    with open('/tmp/data/input/acessos_banda_larga_fixa.zip', 'wb') as zip_file:
+    with open("/tmp/data/input/acessos_banda_larga_fixa.zip", "wb") as zip_file:
         zip_file.write(response.content)
 
-    with zipfile.ZipFile('/tmp/data/input/acessos_banda_larga_fixa.zip', 'r') as zip_ref:
-        zip_ref.extractall('/tmp/data/input')
+    with zipfile.ZipFile(
+        "/tmp/data/input/acessos_banda_larga_fixa.zip", "r"
+    ) as zip_ref:
+        zip_ref.extractall("/tmp/data/input")
 
-    pasta = '/tmp/data/input'
-    banda_larga = os.path.join(pasta, 'acessos_banda_larga_fixa.zip')
+    pasta = "/tmp/data/input"
+    banda_larga = os.path.join(pasta, "acessos_banda_larga_fixa.zip")
 
-    #anos = ['2007-2010', '2011-2012', '2013-2014', '2015-2016', '2017-2018', '2019-2020', '2021', '2022', '2023']
-    anos = ['2007-2010']
+    # anos = ['2007-2010', '2011-2012', '2013-2014', '2015-2016', '2017-2018', '2019-2020', '2021', '2022', '2023']
+    anos = ["2007-2010"]
     with ZipFile(banda_larga) as z:
         for ano in anos:
-            
-            with z.open(f'Acessos_Banda_Larga_Fixa_{ano}.csv') as f:
-                df = pd.read_csv(f, sep=';', encoding='utf-8')
-                df = check_and_create_column.run(df, 'Tipo de Produto')
-                
-                # ! A partir do ano de 2021, há uma nova coluna chamada 'Tipo de Produto'
-                df.rename(columns={'Ano': 'ano','Mês':'mes', 'Grupo Econômico':'grupo_economico', 'Empresa':'empresa',
-                                'CNPJ':'cnpj', 'Porte da Prestadora':'porte_empresa', 'UF':'sigla_uf', 'Município':'municipio',
-                                'Código IBGE Município':'id_municipio', 'Faixa de Velocidade':'velocidade', 'Tecnologia':'tecnologia',
-                                'Meio de Acesso':'transmissao', 'Acessos':'acessos', 'Tipo de Pessoa': 'pessoa', 'Tipo de Produto':'produto'}, inplace=True)
-                
-                # organização das variáveis
-                df.drop(['grupo_economico', 'municipio'], axis=1, inplace=True)
-                
-                df = df[['ano', 'mes', 'sigla_uf', 'id_municipio', 'cnpj', 'empresa', 'porte_empresa', 'tecnologia', 'transmissao', 'velocidade', 'produto', 'acessos']]
-                
-                df.sort_values(['ano', 'mes', 'sigla_uf', 'id_municipio', 'cnpj', 'empresa', 'porte_empresa', 'tecnologia', 'transmissao', 'velocidade'], inplace=True)
-                
-                df.replace(np.nan, '', inplace=True)
-                df['transmissao'] = df['transmissao'].apply(lambda x: x.replace('Cabo Metálico', 'Cabo Metalico'))
-                df['transmissao'] = df['transmissao'].apply(lambda x: x.replace('Satélite', 'Satelite'))
-                df['transmissao'] = df['transmissao'].apply(lambda x: x.replace('Híbrido', 'Hibrido'))
-                df['transmissao'] = df['transmissao'].apply(lambda x: x.replace('Fibra Óptica', 'Fibra Optica'))
-                df['transmissao'] = df['transmissao'].apply(lambda x: x.replace('Rádio', 'Radio'))
-    
-                to_partitions.run(df = df,
-                                partition_columns = ['ano', 'mes', 'sigla_uf'],
-                                    savepath = '/tmp/data/microdados.csv'
-                                    )
 
-    return '/tmp/data/microdados.csv'
+            with z.open(f"Acessos_Banda_Larga_Fixa_{ano}.csv") as f:
+                df = pd.read_csv(f, sep=";", encoding="utf-8")
+                df = check_and_create_column.run(df, "Tipo de Produto")
+
+                # ! A partir do ano de 2021, há uma nova coluna chamada 'Tipo de Produto'
+                df.rename(
+                    columns={
+                        "Ano": "ano",
+                        "Mês": "mes",
+                        "Grupo Econômico": "grupo_economico",
+                        "Empresa": "empresa",
+                        "CNPJ": "cnpj",
+                        "Porte da Prestadora": "porte_empresa",
+                        "UF": "sigla_uf",
+                        "Município": "municipio",
+                        "Código IBGE Município": "id_municipio",
+                        "Faixa de Velocidade": "velocidade",
+                        "Tecnologia": "tecnologia",
+                        "Meio de Acesso": "transmissao",
+                        "Acessos": "acessos",
+                        "Tipo de Pessoa": "pessoa",
+                        "Tipo de Produto": "produto",
+                    },
+                    inplace=True,
+                )
+
+                # organização das variáveis
+                df.drop(["grupo_economico", "municipio"], axis=1, inplace=True)
+
+                df = df[
+                    [
+                        "ano",
+                        "mes",
+                        "sigla_uf",
+                        "id_municipio",
+                        "cnpj",
+                        "empresa",
+                        "porte_empresa",
+                        "tecnologia",
+                        "transmissao",
+                        "velocidade",
+                        "produto",
+                        "acessos",
+                    ]
+                ]
+
+                df.sort_values(
+                    [
+                        "ano",
+                        "mes",
+                        "sigla_uf",
+                        "id_municipio",
+                        "cnpj",
+                        "empresa",
+                        "porte_empresa",
+                        "tecnologia",
+                        "transmissao",
+                        "velocidade",
+                    ],
+                    inplace=True,
+                )
+
+                df.replace(np.nan, "", inplace=True)
+                df["transmissao"] = df["transmissao"].apply(
+                    lambda x: x.replace("Cabo Metálico", "Cabo Metalico")
+                )
+                df["transmissao"] = df["transmissao"].apply(
+                    lambda x: x.replace("Satélite", "Satelite")
+                )
+                df["transmissao"] = df["transmissao"].apply(
+                    lambda x: x.replace("Híbrido", "Hibrido")
+                )
+                df["transmissao"] = df["transmissao"].apply(
+                    lambda x: x.replace("Fibra Óptica", "Fibra Optica")
+                )
+                df["transmissao"] = df["transmissao"].apply(
+                    lambda x: x.replace("Rádio", "Radio")
+                )
+
+                to_partitions.run(
+                    df=df,
+                    partition_columns=["ano", "mes", "sigla_uf"],
+                    savepath="/tmp/data/microdados.csv",
+                )
+
+    return "/tmp/data/microdados.csv"

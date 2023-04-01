@@ -14,9 +14,8 @@ from pipelines.constants import constants
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.datasets.br_anatel_banda_larga_fixa.tasks import (
-    treatment
-)
+from pipelines.datasets.br_anatel_banda_larga_fixa.tasks import treatment
+
 # from pipelines.datasets.br_anatel_banda_larga_fixa.schedules import every_two_weeks
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
@@ -31,7 +30,9 @@ with Flow(
     ],
 ) as banda_larga_microdados:
     # Parameters
-    dataset_id = Parameter("dataset_id", default="br_anatel_banda_larga_fixa", required=True)
+    dataset_id = Parameter(
+        "dataset_id", default="br_anatel_banda_larga_fixa", required=True
+    )
     table_id = Parameter("table_id", default="microdados", required=True)
 
     materialization_mode = Parameter(
