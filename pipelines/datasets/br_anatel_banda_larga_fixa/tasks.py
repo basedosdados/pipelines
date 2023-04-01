@@ -32,7 +32,7 @@ from prefect import task
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def to_partitions(df: pd.DataFrame, partition_columns: list[str], savepath: str):
-    """ # ! Salve os dados no esquema de partições do hive, dado um dataframe e uma lista de colunas de partição.
+    """# ! Salve os dados no esquema de partições do hive, dado um dataframe e uma lista de colunas de partição.
 
     # * Argumentos:
 
@@ -126,8 +126,8 @@ def check_and_create_column(df: pd.DataFrame, col_name: str) -> pd.DataFrame:
 )
 def treatment():
 
-    # ! Crio os diretórios de entrada 
-    os.makedirs("/tmp/data/input", exist_ok=True) 
+    # ! Crio os diretórios de entrada
+    os.makedirs("/tmp/data/input", exist_ok=True)
 
     # ! url do arquivo zip e baixo os arquivos
     url = "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/acessos/acessos_banda_larga_fixa.zip"
@@ -139,29 +139,29 @@ def treatment():
 
     # ! Descompactando o arquivo zip
     with zipfile.ZipFile(
-        "/tmp/data/input/acessos_banda_larga_fixa.zip", "r") as zip_ref:
+        "/tmp/data/input/acessos_banda_larga_fixa.zip", "r"
+    ) as zip_ref:
         zip_ref.extractall("/tmp/data/input")
 
     # ! Criando o caminho para o arquivo zipado
     pasta = "/tmp/data/input"
     banda_larga = os.path.join(pasta, "acessos_banda_larga_fixa.zip")
 
-
     # anos = ['2007-2010', '2011-2012', '2013-2014', '2015-2016', '2017-2018', '2019-2020', '2021', '2022', '2023'] # ! Lista de anos a serem processados
     anos = ["2007-2010"]
     # ! Abrindo o arquivo zipado
-    with ZipFile(banda_larga) as z: 
+    with ZipFile(banda_larga) as z:
 
         # ! Iterando sobre a lista de anos
-        for ano in anos: 
+        for ano in anos:
 
             # ! Abrindo o arquivo csv dentro do zip pelo ano
-            with z.open(f"Acessos_Banda_Larga_Fixa_{ano}.csv") as f: 
+            with z.open(f"Acessos_Banda_Larga_Fixa_{ano}.csv") as f:
 
                 # ! Lendo o arquivo csv
                 df = pd.read_csv(f, sep=";", encoding="utf-8")
                 # ! Fazendo referencia a função criada anteriormente para verificar colunas
-                df = check_and_create_column.run(df, "Tipo de Produto") 
+                df = check_and_create_column.run(df, "Tipo de Produto")
 
                 # ! Renomeando as colunas
                 df.rename(
@@ -224,18 +224,20 @@ def treatment():
                 # ! substituindo valores nulos por vazio
                 df.replace(np.nan, "", inplace=True)
                 # ! Retirando os acentos da coluna "transmissao"
-                df['transmissao'] = df['transmissao'].apply(lambda x: x.replace('Cabo Metálico', 'Cabo Metalico')
-                                                            .replace('Satélite', 'Satelite')
-                                                            .replace('Híbrido', 'Hibrido')
-                                                            .replace('Fibra Óptica', 'Fibra Optica')
-                                                            .replace('Rádio', 'Radio'))
-                
+                df["transmissao"] = df["transmissao"].apply(
+                    lambda x: x.replace("Cabo Metálico", "Cabo Metalico")
+                    .replace("Satélite", "Satelite")
+                    .replace("Híbrido", "Hibrido")
+                    .replace("Fibra Óptica", "Fibra Optica")
+                    .replace("Rádio", "Radio")
+                )
+
                 # ! Fazendo referencia a função criada anteriormente para particionar o arquivo o arquivo
                 to_partitions.run(
                     df=df,
                     partition_columns=["ano", "mes", "sigla_uf"],
                     savepath="/tmp/data/microdados.csv",
                 )
-                
+
     # ! retornando o caminho do path
     return "/tmp/data/microdados.csv"
