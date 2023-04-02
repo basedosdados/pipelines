@@ -22,7 +22,7 @@ from pipelines.datasets.br_bd_metadados.tasks import (
     crawler_information_requests,
     crawler_tables,
     crawler_columns,
-    crawler_available_options
+    crawler_available_options,
 )
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
@@ -38,7 +38,7 @@ from pipelines.datasets.br_bd_metadados.schedules import (
     every_day_information_requests,
     every_day_tables,
     every_day_columns,
-    every_day_available_options
+    every_day_available_options,
 )
 
 with Flow(

@@ -26,8 +26,6 @@ from pipelines.constants import constants
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-
-
 def crawler_available_options():
 
     """
@@ -48,10 +46,10 @@ def crawler_available_options():
         for chave in data["result"][element].keys():
             valor = data["result"][element][chave]
             lista_geral.append([element, chave, valor])
-  
+
     df = pd.DataFrame(lista_geral, columns=["elemento", "chave", "valor"])
 
     os.system("mkdir -p /tmp/data/available_options")
-    df.to_csv('/tmp/data/available_options/available_options.csv', index=False)
+    df.to_csv("/tmp/data/available_options/available_options.csv", index=False)
 
-    return '/tmp/data/available_options/available_options.csv'
+    return "/tmp/data/available_options/available_options.csv"

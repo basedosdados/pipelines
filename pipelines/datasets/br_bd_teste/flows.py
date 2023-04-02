@@ -58,11 +58,11 @@ Flows for br_bd_teste
 ###############################################################################
 
 
-
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from pipelines.constants import constants
 from pipelines.datasets.br_bd_teste.tasks import say_hello
+
 # from pipelines.datasets.br_bd_teste.schedules import every_two_weeks
 from pipelines.utils.decorators import Flow
 
@@ -70,7 +70,7 @@ with Flow(
     name="my_flow",
     code_owners=[
         "discord-username",
-    ]
+    ],
 ) as datasets_br_bd_teste_flow:
     say_hello()
 

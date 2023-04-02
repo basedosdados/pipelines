@@ -82,7 +82,7 @@ every_two_weeks = Schedule(
             start_date=datetime(2021, 1, 1),
             labels=[
                 constants.DATASETS_AGENT_LABEL.value,
-            ]
+            ],
         ),
     ]
 )

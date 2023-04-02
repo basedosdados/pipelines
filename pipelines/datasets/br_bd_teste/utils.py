@@ -32,6 +32,7 @@ General purpose functions for the br_bd_teste project
 
 import prefect
 
-def log (msg):
+
+def log(msg):
     logger = prefect.context.get("logger")
     logger.info(msg)

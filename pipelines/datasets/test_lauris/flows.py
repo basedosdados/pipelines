@@ -13,16 +13,14 @@ from pipelines.constants import constants
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.datasets.test_lauris.tasks import (
-    crawler_available_options
-)
+from pipelines.datasets.test_lauris.tasks import crawler_available_options
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     rename_current_flow_run_dataset_table,
     get_current_flow_labels,
 )
 
-'''from pipelines.datasets.test_lauris.schedules import every_day_available_options'''
+"""from pipelines.datasets.test_lauris.schedules import every_day_available_options"""
 
 with Flow(
     name="bd_available_options",
@@ -90,4 +88,4 @@ with Flow(
 
 bd_available_options.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 bd_available_options.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-#bd_available_options.schedule = every_day_available_options
+# bd_available_options.schedule = every_day_available_options

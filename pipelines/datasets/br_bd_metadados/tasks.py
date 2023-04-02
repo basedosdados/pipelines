@@ -464,8 +464,6 @@ def crawler_columns():
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-
-
 def crawler_available_options():
 
     """
@@ -486,10 +484,10 @@ def crawler_available_options():
         for key in data["result"][element].keys():
             value = data["result"][element][key]
             lista_geral.append([element, key, value])
-  
+
     df = pd.DataFrame(lista_geral, columns=["element", "key", "value"])
 
     os.system("mkdir -p /tmp/data/available_options")
-    df.to_csv('/tmp/data/available_options/available_options.csv', index=False)
+    df.to_csv("/tmp/data/available_options/available_options.csv", index=False)
 
-    return '/tmp/data/available_options/available_options.csv'
+    return "/tmp/data/available_options/available_options.csv"
