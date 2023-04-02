@@ -4,6 +4,21 @@ import requests
 from zipfile import ZipFile
 import shutil
 
+months = {
+    "jan": 1,
+    "fev": 2,
+    "mar": 3,
+    "abr": 4,
+    "mai": 5,
+    "jun": 6,
+    "jul": 7,
+    "ago": 8,
+    "set": 9,
+    "out": 10,
+    "nov": 11,
+    "dez": 12,
+}
+
 
 def create_directory(path):
     if not os.path.exists(path):
@@ -20,8 +35,7 @@ def download_frota_old(key=None, prefix=None, year=None, tempdir=None, dir=None)
     if year > 2012:
         raise ValueError("Utilize download_frota()")
 
-    mi_url = f"https://www.gov.br/infraestrutura/pt-br/assuntos/transito/arquivos-denatran/estatisticas/renavam/{year}/frota{'_' if year > 2008 else ''}{year}.zip"
-
+    mi_url = f"https://www.gov.br/infraestrutura/pt-br/assuntos/transito/arquivos-senatran/estatisticas/renavam/{year}/frota{'_' if year > 2008 else ''}{year}.zip"
     create_directory(tempdir)
     create_directory(dir)
 
@@ -38,21 +52,6 @@ def download_frota_old(key=None, prefix=None, year=None, tempdir=None, dir=None)
                 os.remove(path_file)
 
         extract_files_from_zip(path_file, dir_temp)
-
-    months = {
-        "jan": 1,
-        "fev": 2,
-        "mar": 3,
-        "abr": 4,
-        "mai": 5,
-        "jun": 6,
-        "jul": 7,
-        "ago": 8,
-        "set": 9,
-        "out": 10,
-        "nov": 11,
-        "dez": 12,
-    }
 
     for root, dirs, files in os.walk(dir_temp):
         for name in files:
