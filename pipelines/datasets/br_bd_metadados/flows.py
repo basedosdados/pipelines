@@ -38,6 +38,7 @@ from pipelines.datasets.br_bd_metadados.schedules import (
     every_day_information_requests,
     every_day_tables,
     every_day_columns,
+    every_day_available_options
 )
 
 with Flow(
@@ -519,9 +520,9 @@ bd_columns.schedule = every_day_columns
 with Flow(
     name="br_bd_metadados.available_options",
     code_owners=[
-        "equipe_infra",
+        "trick",
     ],
-) as bd_organizations:
+) as bd_available_options:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_bd_metadados", required=True)
     table_id = Parameter("table_id", default="available_options", required=True)
@@ -580,6 +581,6 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-bd_organizations.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-bd_organizations.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-bd_organizations.schedule = every_day_organizations
+bd_available_options.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+bd_available_options.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+bd_available_options.schedule = every_day_available_options

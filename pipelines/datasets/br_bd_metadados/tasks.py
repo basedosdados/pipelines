@@ -11,6 +11,7 @@ from prefect import task
 import requests
 import urllib.request
 import pandas as pd
+import json
 
 from pipelines.utils.utils import (
     log,
@@ -482,11 +483,11 @@ def crawler_available_options():
 
     lista_geral = []
     for element in data["result"].keys():
-        for chave in data["result"][element].keys():
-            valor = data["result"][element][chave]
-            lista_geral.append([element, chave, valor])
+        for key in data["result"][element].keys():
+            value = data["result"][element][key]
+            lista_geral.append([element, key, value])
   
-    df = pd.DataFrame(lista_geral, columns=["elemento", "chave", "valor"])
+    df = pd.DataFrame(lista_geral, columns=["element", "key", "value"])
 
     os.system("mkdir -p /tmp/data/available_options")
     df.to_csv('/tmp/data/available_options/available_options.csv', index=False)
