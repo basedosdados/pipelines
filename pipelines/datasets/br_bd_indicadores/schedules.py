@@ -120,14 +120,14 @@ schedule_equipes = Schedule(
             interval=timedelta(days=1),
             start_date=datetime(2022, 1, 1, 6, 0),
             labels=[
-                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_bd_indicadores",
                 "table_id": "equipes",
                 "sheet_id": "1gLJyoxiFeIRn7FKiP3Fpbr04bScVuhmF",
                 "sheet_name": "equipes",
-                "materialization_mode": "prod",
+                "materialization_mode": "dev",
                 "materialize_after_dump": True,
             },
         ),
@@ -142,14 +142,14 @@ schedule_pessoas = Schedule(
             interval=timedelta(days=1),
             start_date=datetime(2022, 1, 1, 6, 0),
             labels=[
-                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_bd_indicadores",
                 "table_id": "pessoas",
                 "sheet_id": "1cQj9ItJoO_AQElRT2ngpHZXhFCSpQCrV",
                 "sheet_name": "pessoas",
-                "materialization_mode": "prod",
+                "materialization_mode": "dev",
                 "materialize_after_dump": True,
             },
         ),
