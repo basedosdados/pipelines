@@ -16,9 +16,7 @@ from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.datasets.br_anatel_banda_larga_fixa.tasks import treatment
 
-from pipelines.datasets.br_anatel_banda_larga_fixa.schedules import (
-    every_month_anatel
-)
+from pipelines.datasets.br_anatel_banda_larga_fixa.schedules import every_month_anatel
 
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
