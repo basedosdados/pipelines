@@ -152,7 +152,6 @@ def cleaning_agencias_data(path, municipio):
     paths = paths[1:10]
 
     for df in paths:
-
         df = read_files(paths)
         df = rename_columns_agencia(df)
         # see the behavior of the function

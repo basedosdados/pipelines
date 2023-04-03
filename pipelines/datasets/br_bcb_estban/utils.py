@@ -50,7 +50,6 @@ def extract_download_links(url, xpath):
 
 
 def download_and_unzip(url, path):
-
     """download and unzip a zip file
 
     Args:
@@ -289,7 +288,6 @@ def condicoes(database, valor) -> None:
 def standardize_monetary_units(
     df: pd.DataFrame, date_column, value_column
 ) -> pd.DataFrame:
-
     """This function corrects monetary units from ESTBAN files.
     It relies on the data_base column being a string in the format YYYYMM,
     where YYYY is the year and MM is the month."""
@@ -347,7 +345,6 @@ def create_month_year_columns(df: pd.DataFrame, date_column: str) -> pd.DataFram
 
 
 def order_cols_municipio(df: pd.DataFrame) -> pd.DataFrame:
-
     """this function orders the columns of the dataframe
 
     Returns:
@@ -372,7 +369,6 @@ def order_cols_municipio(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def cols_order_agencia(df: pd.DataFrame) -> pd.DataFrame:
-
     """this function orders the columns of the dataframe
 
     Returns:
