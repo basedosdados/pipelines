@@ -106,7 +106,7 @@ def cleaning_municipios_data(path, municipio):
     paths = paths[1:10]
 
     for df in paths:
-        df = read_files(path)
+        df = read_files(paths)
         df = rename_columns_municipio(df)
         df = remove_columns_accents(df)
         df = clean_dataframe(df)
@@ -153,14 +153,12 @@ def cleaning_agencias_data(path, municipio):
 
     for df in paths:
 
-        # todo: perharps set path as Parameter
-        df = read_files(path)
+        df = read_files(paths)
         df = rename_columns_agencia(df)
         # see the behavior of the function
         df = remove_columns_accents(df)
         df = clean_dataframe(df)
         df = create_id_municipio(df, municipio)
-
         df = pre_cleaning_for_pivot_long_agencia(df)
         df = wide_to_long_agencia(df)
         df = standardize_monetary_units(

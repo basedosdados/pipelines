@@ -88,7 +88,7 @@ def read_files(path: str) -> pd.DataFrame:
         encoding="latin-1",
         skipfooter=2,
         skiprows=2,
-        dtype={"CNPJ": "string", "CODMUN": "string"},
+        dtype={"CNPJ": str, "CODMUN": str},
     )
 
     return df
@@ -413,13 +413,21 @@ def get_data_from_prod(dataset_id: str, table_id: str, columns: list) -> list:
     for blob in blobs:
         partitions = re.findall(r"\w+(?==)", blob.name)
         if len(set(partitions) & set(columns)) == 0:
-            df = pd.read_csv(blob.public_url, usecols=columns)
+            df = pd.read_csv(
+                blob.public_url,
+                usecols=columns,
+                dtype={"id_municipio": str, "id_municipio_bcb": str},
+            )
             dfs.append(df)
         else:
             columns2add = list(set(partitions) & set(columns))
             for column in columns2add:
                 columns.remove(column)
-            df = pd.read_csv(blob.public_url, usecols=columns)
+            df = pd.read_csv(
+                blob.public_url,
+                usecols=columns,
+                dtype={"id_municipio": str, "id_municipio_bcb": str},
+            )
             for column in columns2add:
                 df[column] = blob.name.split(column + "=")[1].split("/")[0]
             dfs.append(df)
