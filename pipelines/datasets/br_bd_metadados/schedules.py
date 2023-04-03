@@ -4,8 +4,10 @@ Schedules for bd_tweet_data
 """
 
 from datetime import timedelta, datetime
+
 from prefect.schedules import Schedule
 from prefect.schedules.clocks import IntervalClock
+
 from pipelines.constants import constants
 
 every_day_organizations = Schedule(
@@ -20,7 +22,7 @@ every_day_organizations = Schedule(
                 "dataset_id": "br_bd_metadados",
                 "table_id": "organizations",
                 "materialization_mode": "dev",
-                "materialize after dump": True,
+                "materialize_after_dump": True,
                 "dbt_alias": False,
             },
         ),
@@ -39,7 +41,7 @@ every_day_datasets = Schedule(
                 "dataset_id": "br_bd_metadados",
                 "table_id": "datasets",
                 "materialization_mode": "dev",
-                "materialize after dump": True,
+                "materialize_after_dump": True,
                 "dbt_alias": False,
             },
         ),
@@ -58,7 +60,7 @@ every_day_resources = Schedule(
                 "dataset_id": "br_bd_metadados",
                 "table_id": "resources",
                 "materialization_mode": "dev",
-                "materialize after dump": True,
+                "materialize_after_dump": True,
                 "dbt_alias": False,
             },
         ),
@@ -77,7 +79,7 @@ every_day_external_links = Schedule(
                 "dataset_id": "br_bd_metadados",
                 "table_id": "external_links",
                 "materialization_mode": "dev",
-                "materialize after dump": True,
+                "materialize_after_dump": True,
                 "dbt_alias": False,
             },
         ),
@@ -96,7 +98,7 @@ every_day_information_requests = Schedule(
                 "dataset_id": "br_bd_metadados",
                 "table_id": "information_requests",
                 "materialization_mode": "dev",
-                "materialize after dump": True,
+                "materialize_after_dump": True,
                 "dbt_alias": False,
             },
         ),
@@ -115,7 +117,7 @@ every_day_tables = Schedule(
                 "dataset_id": "br_bd_metadados",
                 "table_id": "tables",
                 "materialization_mode": "dev",
-                "materialize after dump": True,
+                "materialize_after_dump": True,
                 "dbt_alias": False,
             },
         ),
@@ -134,7 +136,7 @@ every_day_columns = Schedule(
                 "dataset_id": "br_bd_metadados",
                 "table_id": "columns",
                 "materialization_mode": "dev",
-                "materialize after dump": True,
+                "materialize_after_dump": True,
                 "dbt_alias": False,
             },
         ),
