@@ -88,7 +88,7 @@ every_month_inmet = Schedule(
                 "dataset_id": "br_inmet_bdmep",
                 "table_id": "microdados",
                 "materialization_mode": "dev",
-                "materialize after dump": True,
+                "materialize_after_dump": True,
                 "dbt_alias": True,
             },
         ),
