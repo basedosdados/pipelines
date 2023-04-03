@@ -79,6 +79,7 @@ def get_id_municipio(table) -> pd.DataFrame:
         dataset_id="br_bd_diretorios_brasil",
         table_id=table,
         billing_project_id="basedosdados-dev",
+        query_project_id="basedosdados-dev",
     )
 
     municipio = dict(zip(municipio.id_municipio_bcb, municipio.id_municipio))
