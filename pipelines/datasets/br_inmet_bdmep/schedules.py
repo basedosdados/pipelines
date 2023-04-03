@@ -80,7 +80,7 @@ from prefect.schedules.clocks import CronClock
 every_month_inmet = Schedule(
     clocks=[
         CronClock(
-            cron="11 16 28 * *",  # At 16:11 on day-of-month 28
+            cron="50 17 28 * *",  # At 17:50 on day-of-month 28
             start_date=datetime(2021, 3, 31, 17, 11),
             labels=[
                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
