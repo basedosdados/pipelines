@@ -14,7 +14,6 @@ from dateutil.relativedelta import relativedelta
 
 from prefect import task
 import requests
-import pandas as pd
 
 from pipelines.utils.utils import (
     log,
@@ -23,8 +22,6 @@ from pipelines.datasets.br_bd_metadados.utils import (
     get_temporal_coverage_list,
 )
 from pipelines.constants import constants
-
-from prefect import task
 
 
 @task(
