@@ -147,7 +147,7 @@ def treatment():
     pasta = "/tmp/data/input"
     banda_larga = os.path.join(pasta, "acessos_banda_larga_fixa.zip")
 
-    anos = [
+    '''anos = [
         "2007-2010",
         "2011-2012",
         "2013-2014",
@@ -157,8 +157,8 @@ def treatment():
         "2021",
         "2022",
         "2023",
-    ]  # ! Lista de anos a serem processados
-
+    ]'''  # ! Lista de anos a serem processados
+    anos = ["2007-2010"]
     # ! Abrindo o arquivo zipado
     with ZipFile(banda_larga) as z:
 
@@ -243,7 +243,7 @@ def treatment():
                 )
 
                 # ! Fazendo referencia a função criada anteriormente para particionar o arquivo o arquivo
-                to_partitions.run(
+                to_partitions.run( 
                     df=df,
                     partition_columns=["ano", "mes", "sigla_uf"],
                     savepath="/tmp/data/microdados.csv",
