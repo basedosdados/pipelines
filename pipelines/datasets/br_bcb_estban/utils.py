@@ -393,3 +393,37 @@ def cols_order_agencia(df: pd.DataFrame) -> pd.DataFrame:
     df = df[order]
 
     return df
+
+
+# function copied from datasets.br_tse_eleicoes.utils
+def get_data_from_prod(dataset_id: str, table_id: str, columns: list) -> list:
+    """
+    Get select columns from a table in prod.
+    """
+
+    storage = bd.Storage(dataset_id=dataset_id, table_id=table_id)
+    blobs = list(
+        storage.client["storage_staging"]
+        .bucket("basedosdados-dev")
+        .list_blobs(prefix=f"staging/{storage.dataset_id}/{storage.table_id}/")
+    )
+
+    dfs = []
+
+    for blob in blobs:
+        partitions = re.findall(r"\w+(?==)", blob.name)
+        if len(set(partitions) & set(columns)) == 0:
+            df = pd.read_csv(blob.public_url, usecols=columns)
+            dfs.append(df)
+        else:
+            columns2add = list(set(partitions) & set(columns))
+            for column in columns2add:
+                columns.remove(column)
+            df = pd.read_csv(blob.public_url, usecols=columns)
+            for column in columns2add:
+                df[column] = blob.name.split(column + "=")[1].split("/")[0]
+            dfs.append(df)
+
+    df = pd.concat(dfs)
+
+    return df

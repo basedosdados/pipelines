@@ -36,6 +36,7 @@ from pipelines.datasets.br_bcb_estban.utils import (
     pre_cleaning_for_pivot_long_agencia,
     wide_to_long_agencia,
     cols_order_agencia,
+    get_data_from_prod,
 )
 
 
@@ -75,11 +76,10 @@ def download_estban_files(xpath: str, save_path: str) -> str:
 def get_id_municipio(table) -> pd.DataFrame:
     """get id municipio from basedosdados"""
 
-    municipio = bd.read_table(
-        dataset_id="br_bd_diretorios_brasil",
-        table_id=table,
-        billing_project_id="basedosdados-dev",
-        query_project_id="basedosdados-dev",
+    municipio = get_data_from_prod(
+        "br_bd_diretorios_brasil",
+        table,
+        ["id_municipio_bcb", "id_municipio"],
     )
 
     municipio = dict(zip(municipio.id_municipio_bcb, municipio.id_municipio))
