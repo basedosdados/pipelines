@@ -74,12 +74,13 @@ from datetime import timedelta, datetime
 from prefect.schedules import Schedule
 from prefect.schedules.clocks import IntervalClock
 from pipelines.constants import constants
+from prefect.schedules.clocks import CronClock
 
 
 every_month_inmet = Schedule(
     clocks=[
-        IntervalClock(
-            interval=timedelta(days=30),
+        CronClock(
+            cron="11 16 28 * *",  # At 16:11 on day-of-month 28
             start_date=datetime(2021, 3, 31, 17, 11),
             labels=[
                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
