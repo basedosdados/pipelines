@@ -147,7 +147,17 @@ def treatment():
     pasta = "/tmp/data/input"
     banda_larga = os.path.join(pasta, "acessos_banda_larga_fixa.zip")
 
-    anos = ['2007-2010', '2011-2012', '2013-2014', '2015-2016', '2017-2018', '2019-2020', '2021', '2022', '2023'] # ! Lista de anos a serem processados
+    anos = [
+        "2007-2010",
+        "2011-2012",
+        "2013-2014",
+        "2015-2016",
+        "2017-2018",
+        "2019-2020",
+        "2021",
+        "2022",
+        "2023",
+    ]  # ! Lista de anos a serem processados
 
     # ! Abrindo o arquivo zipado
     with ZipFile(banda_larga) as z:
