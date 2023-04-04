@@ -150,7 +150,7 @@ def pre_cleaning_for_pivot_long_municipio(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.Dataframe: _description_
     """
-    df.drop(columns={"MUNICIPIO", "CODMUN_IBGE", "CODMUN"}, inplace=True)
+    df.drop(columns={"MUNICIPIO", "CODMUN_IBGE", "CODMUN"}, axis=1, inplace=True)
 
     df.rename(
         columns={
@@ -161,7 +161,6 @@ def pre_cleaning_for_pivot_long_municipio(df: pd.DataFrame) -> pd.DataFrame:
             "AGEN_ESPERADAS": "agencias_esperadas",
             "AGEN_PROCESSADAS": "agencias_processadas",
         },
-        axis=1,
         inplace=True,
     )
 
@@ -179,6 +178,7 @@ def pre_cleaning_for_pivot_long_agencia(df: pd.DataFrame) -> pd.DataFrame:
         pd.Dataframe: _description_
     """
     df.drop(columns={"MUNICIPIO", "CODMUN_IBGE", "CODMUN"}, axis=1, inplace=True)
+
     df.rename(
         columns={
             "#DATA_BASE": "data_base",
