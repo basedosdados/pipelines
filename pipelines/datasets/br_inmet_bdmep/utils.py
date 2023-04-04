@@ -217,3 +217,22 @@ def download_inmet(year: int) -> None:
         temp.close()
     # remove o arquivo temporário
     os.remove(temp.name)
+
+
+def year_list(start=2000):
+    """
+    Retorna uma lista com uma sequência de anos, onde a última observação é sempre o ano mais atual.
+
+    Args:
+    - inicio (int): o ano inicial da sequência (padrão: 2000)
+
+    Returns:
+    - lista de inteiros: uma lista com uma sequência de anos que começa em "inicio" e termina no ano atual.
+    """
+    # Obter o ano atual
+    actual_year = datetime.now().year
+
+    # Criar uma lista com uma sequência de anos
+    years = [year for year in range(start, actual_year + 1)]
+
+    return years

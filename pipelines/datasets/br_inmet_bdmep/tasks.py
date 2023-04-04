@@ -8,6 +8,7 @@ from pipelines.utils.utils import (
 from pipelines.datasets.br_inmet_bdmep.utils import (
     get_clima_info,
     download_inmet,
+    year_list,
 )
 from pipelines.constants import constants
 
@@ -23,33 +24,33 @@ from pipelines.datasets.br_inmet_bdmep.constants import constants as inmet_const
 
 
 @task
-def get_base_inmet(year: int) -> str:
+def get_base_inmet() -> str:
     """
-    Baixa e processa dados climáticos do INMET (Instituto Nacional de Meteorologia) para um determinado ano e salva em arquivo CSV.
+    Faz o download dos dados meteorológicos do INMET, processa-os e salva os dataframes resultantes em arquivos CSV.
 
-    Parâmetros
-    ----------
-    year: int
-        Ano dos dados climáticos a serem baixados e processados.
-
-    Retorno
-    -------
-    None
+    Retorna:
+    - str: o caminho para o diretório que contém os arquivos CSV de saída.
     """
-    download_inmet(year)
+    years = year_list()
 
-    files = glob.glob(os.path.join(f"/tmp/data/input/{year}/", "*.CSV"))
+    for year in years:
+        download_inmet(year)
 
-    base = pd.concat([get_clima_info(file) for file in files], ignore_index=True)
+        files = glob.glob(os.path.join(f"/tmp/data/input/{year}/", "*.CSV"))
 
-    # ordena as colunas
-    ordem = inmet_constants.COLUMNS_ORDER.value
-    base = base[ordem]
+        base = pd.concat([get_clima_info(file) for file in files], ignore_index=True)
 
-    os.makedirs(os.path.join(f"/tmp/data/output/microdados/ano={year}"), exist_ok=True)
-    name = os.path.join(
-        f"/tmp/data/output/microdados/ano={year}/", f"microdados_{year}.csv"
-    )
-    base.to_csv(name, index=False)
+        # ordena as colunas
+        ordem = inmet_constants.COLUMNS_ORDER.value
+        base = base[ordem]
+
+        # Salva o dataframe resultante em um arquivo CSV
+        os.makedirs(
+            os.path.join(f"/tmp/data/output/microdados/ano={year}"), exist_ok=True
+        )
+        name = os.path.join(
+            f"/tmp/data/output/microdados/ano={year}/", f"microdados_{year}.csv"
+        )
+        base.to_csv(name, index=False)
 
     return "/tmp/data/output/microdados/"
