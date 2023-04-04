@@ -104,14 +104,15 @@ def cleaning_municipios_data(path, municipio):
         df: a standardized partitioned estban dataset
     """
     # limit to 10 for testing purposes
-    log(f"the files {os.listdir(path)} are in this path")
-    files = glob.glob(os.path.join(path, "*.csv"))
+    files = os.listdir(path)
     log(f"the following files will be cleaned: {files}")
-    files = files[1:10]
 
-    for path in files:
-        log(f"building {path}")
-        df = read_files(path)
+    for file in files:
+        log("the file being cleaned is: ", file)
+
+        build_complete_file_path = os.path.join(path, file)
+        log(f"building {build_complete_file_path}")
+        df = read_files(build_complete_file_path)
         log("reading file")
         df = rename_columns_municipio(df)
         log("renaming columns")
