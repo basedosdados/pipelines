@@ -15,7 +15,6 @@ from pipelines.datasets.br_bcb_estban.constants import (
 from datetime import datetime, timedelta
 
 from pipelines.utils.utils import (
-    remove_columns_accents,
     clean_dataframe,
     to_partitions,
 )
@@ -108,16 +107,16 @@ def cleaning_municipios_data(path, municipio):
     for df in paths:
         df = read_files(paths)
         df = rename_columns_municipio(df)
-        df = remove_columns_accents(df)
+
         df = clean_dataframe(df)
         df = create_id_municipio(df, municipio)
         df = pre_cleaning_for_pivot_long_municipio(df)
         df = wide_to_long_municipio(df)
         df = standardize_monetary_units(
-            df, date_column="database", value_column="valor"
+            df, date_column="data_base", value_column="valor"
         )
-        df = create_id_verbete_column(df)
-        df = create_month_year_columns(df)
+        df = create_id_verbete_column(df, column_name="id_verbete")
+        df = create_month_year_columns(df, date_column="data_base")
         df = order_cols_municipio(df)
         # save df
 
@@ -156,16 +155,15 @@ def cleaning_agencias_data(path, municipio):
         df = read_files(paths)
         df = rename_columns_agencia(df)
         # see the behavior of the function
-        df = remove_columns_accents(df)
         df = clean_dataframe(df)
         df = create_id_municipio(df, municipio)
         df = pre_cleaning_for_pivot_long_agencia(df)
         df = wide_to_long_agencia(df)
         df = standardize_monetary_units(
-            df, date_column="database", value_column="valor"
+            df, date_column="data_base", value_column="valor"
         )
-        df = create_id_verbete_column(df)
-        df = create_month_year_columns(df)
+        df = create_id_verbete_column(df, column_name="id_verbete")
+        df = create_month_year_columns(df, date_column="data_base")
         df = cols_order_agencia(df)
         # save df
 
