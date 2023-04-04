@@ -468,6 +468,9 @@ def dump_header_to_csv(
         if found:
             break
 
+    if file is None:
+        raise FileNotFoundError("No csv file found")
+
     save_header_path = f"data/{uuid4()}"
     # discover if it's a partitioned table
     log(f"o nome do arquivo é {file}")
