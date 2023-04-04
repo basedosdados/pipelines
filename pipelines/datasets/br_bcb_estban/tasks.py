@@ -7,6 +7,7 @@ from prefect import task
 import pandas as pd
 import os
 import basedosdados as bd
+import glob
 
 from pipelines.constants import constants
 from pipelines.datasets.br_bcb_estban.constants import (
@@ -101,11 +102,11 @@ def cleaning_municipios_data(path, municipio):
         df: a standardized partitioned estban dataset
     """
     # limit to 10 for testing purposes
-    paths = os.listdir(path)
-    paths = paths[1:10]
+    files = glob.glob(os.path.join(path, "*.csv"))
+    files = files[1:10]
 
-    for df in paths:
-        df = read_files(paths)
+    for df in files:
+        df = read_files(files)
         df = rename_columns_municipio(df)
 
         df = clean_dataframe(df)
@@ -147,12 +148,14 @@ def cleaning_agencias_data(path, municipio):
         df: a standardized partitioned estban dataset
     """
     # limit to 10 for testing purposes
-    paths = os.listdir(path)
-    paths = paths[1:10]
+    # be aware, relie only in .csv files its not that good
+    # cause bacen can change file format
+    files = glob.glob(os.path.join(path, "*.csv"))
+    files = files[1:10]
 
-    for df in paths:
+    for df in files:
 
-        df = read_files(paths)
+        df = read_files(files)
         df = rename_columns_agencia(df)
         # see the behavior of the function
         df = clean_dataframe(df)
@@ -165,9 +168,7 @@ def cleaning_agencias_data(path, municipio):
         df = create_id_verbete_column(df, column_name="id_verbete")
         df = create_month_year_columns(df, date_column="data_base")
         df = cols_order_agencia(df)
-        # save df
 
-        # 3. build and save partition
         to_partitions(
             df,
             partition_columns=["ano", "mes", "sigla_uf"],
