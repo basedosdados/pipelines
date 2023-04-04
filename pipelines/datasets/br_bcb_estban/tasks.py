@@ -18,6 +18,7 @@ from datetime import datetime, timedelta
 from pipelines.utils.utils import (
     clean_dataframe,
     to_partitions,
+    log,
 )
 from pipelines.datasets.br_bcb_estban.utils import *
 from pipelines.datasets.br_bcb_estban.utils import (
@@ -40,7 +41,6 @@ from pipelines.datasets.br_bcb_estban.utils import (
 )
 
 
-# todo: download data -> create another param to save_path instead of deafault value
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
@@ -66,6 +66,7 @@ def download_estban_files(xpath: str, save_path: str) -> str:
         file = "https://www4.bcb.gov.br/" + file
         download_and_unzip(file, path=save_path)
 
+    log("download task successfully !")
     return save_path
 
 
@@ -83,7 +84,7 @@ def get_id_municipio(table) -> pd.DataFrame:
     )
 
     municipio = dict(zip(municipio.id_municipio_bcb, municipio.id_municipio))
-
+    log("municipio dataset successfully downloaded!")
     return municipio
 
 
@@ -105,22 +106,31 @@ def cleaning_municipios_data(path, municipio):
     files = glob.glob(os.path.join(path, "*.csv"))
     files = files[1:10]
 
-    for df in files:
-        df = read_files(files)
+    for path in files:
+        log(f"building {path}")
+        df = read_files(path)
+        log("reading file")
         df = rename_columns_municipio(df)
-
+        log("renaming columns")
         df = clean_dataframe(df)
+        log("cleaning dataframe")
         df = create_id_municipio(df, municipio)
+        log("creating id municipio")
         df = pre_cleaning_for_pivot_long_municipio(df)
+        log("pre cleaning for pivot long")
         df = wide_to_long_municipio(df)
+        log("wide to long")
         df = standardize_monetary_units(
             df, date_column="data_base", value_column="valor"
         )
+        log("standardizing monetary units")
         df = create_id_verbete_column(df, column_name="id_verbete")
+        log("creating id verbete column")
         df = create_month_year_columns(df, date_column="data_base")
+        log("creating month year columns")
         df = order_cols_municipio(df)
         # save df
-
+        log("saving and doing partition")
         # 3. build and save partition
         to_partitions(
             df,
@@ -153,9 +163,9 @@ def cleaning_agencias_data(path, municipio):
     files = glob.glob(os.path.join(path, "*.csv"))
     files = files[1:10]
 
-    for df in files:
+    for path in files:
 
-        df = read_files(files)
+        df = read_files(path)
         df = rename_columns_agencia(df)
         # see the behavior of the function
         df = clean_dataframe(df)
