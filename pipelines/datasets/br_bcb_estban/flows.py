@@ -66,7 +66,7 @@ with Flow(
 
     # ?  settar upstream tasks: verificar o funcionamento
     filepath = cleaning_municipios_data(
-        path=br_bcb_estban_constants.DOWNLOAD_PATH_MUNICIPIO,
+        path=br_bcb_estban_constants.DOWNLOAD_PATH_MUNICIPIO.value,
         municipio=municipio,
         upstream_tasks=[donwload_files, municipio],
     )
