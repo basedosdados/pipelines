@@ -20,15 +20,9 @@ class TestDownloadFrota(unittest.TestCase):
         download_frota(month, year)
         expected_file_path = os.path.join(
             os.getcwd(),
-            "br_denatran_frota",
-            "files",
             f"frota_por_município_e_tipo_{month}-{year}.xls",
         )
         self.assertTrue(os.path.isfile(expected_file_path))
-
-    def test_download_frota_with_invalid_year(self):
-        with self.assertRaises(ValueError):
-            download_frota(month=1, year=2010)
 
     def test_download_frota_with_invalid_month(self):
         with self.assertRaises(ValueError):

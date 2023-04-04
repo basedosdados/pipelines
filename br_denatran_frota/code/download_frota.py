@@ -1,23 +1,37 @@
 import os
 import re
-import tempfile
+import glob
 from urllib.request import urlopen, urlretrieve
 from zipfile import ZipFile
 from rarfile import RarFile
 from bs4 import BeautifulSoup
 
 
+MONTHS = {
+    "janeiro": 1,
+    "fevereiro": 2,
+    "marco": 3,
+    "abril": 4,
+    "maio": 5,
+    "junho": 6,
+    "julho": 7,
+    "agosto": 8,
+    "setembro": 9,
+    "outubro": 10,
+    "novembro": 11,
+    "dezembro": 12,
+}
+
+DATASET = "br_denatran_frota"
+
+
 def handle_xl(i: dict) -> None:
-    """Efetivamente baixa e lida com arquivos excel.
+    """Actually downloads and deals with Excel files.
 
     Args:
-        i (dict): Dicionário com as informações do arquivo a ser baixado.
+        i (dict): Dictionary with all the desired downloadable file's info.
     """
-    dir_name = os.getcwd()
-    # TODO: Isso aqui NÃO ESTÁ muito limpo ou genérico, e não sei onde deveriam ficar os arquivos por hora.
-    dest_path_file = os.path.join(
-        dir_name, "br_denatran_frota", "files", make_filename(i)
-    )
+    dest_path_file = make_filename(i)
     urlretrieve(i["href"], dest_path_file)
 
 
@@ -48,14 +62,14 @@ def handle_compact(i: dict):
 
 
 def make_filename(i: dict, ext: bool = True) -> str:
-    """Cria o nome do arquivo usando o dicionário enviado.
+    """Creates the filename using the sent dictionary.
 
     Args:
-        i (dict): Dicionário com todas as informações do arquivo.
-        ext (bool, optional): Especifica se o nome de arquivo gerado precisa do tipo de arquivo no fim. Defaults to True.
+        i (dict): Dictionary with all the file's info.
+        ext (bool, optional): Specifies if the generated file name needs the filetype at the end. Defaults to True.
 
     Returns:
-        str: O nome completo do arquivo.
+        str: The full filename.
     """
     txt = i["txt"]
     mes = i["mes"]
@@ -75,40 +89,14 @@ def download_file(i):
         raise ValueError("A função handle_compact tá bem esquisita por hora.")
 
 
-def download_frota(month: int, year: int):
-    """Função principal para baixar os dados de frota por município e tipo e também por UF e tipo.
+def download_post_2012(year: int, month: int):
+    """_summary_
 
     Args:
-        month (int): Mês desejado.
-        year (int): Ano desejado.
-
-    Raises:
-        ValueError: Dá erro caso o ano desejado seja anterior ao que a função consegue no momento.
-        ValueError: Dá erro caso o mês desejado não seja um mês válido.
+        year (int): _description_
+        month (int): _description_
     """
-    months = {
-        "janeiro": 1,
-        "fevereiro": 2,
-        "marco": 3,
-        "abril": 4,
-        "maio": 5,
-        "junho": 6,
-        "julho": 7,
-        "agosto": 8,
-        "setembro": 9,
-        "outubro": 10,
-        "novembro": 11,
-        "dezembro": 12,
-    }
-
-    if year > 2012:
-        url = f"https://www.gov.br/infraestrutura/pt-br/assuntos/transito/conteudo-Senatran/frota-de-veiculos-{year}"
-    else:
-        raise ValueError("Para anos anteriores eu não implementei a função ainda.")
-
-    if month not in months.values():
-        raise ValueError("Mês inválido.")
-
+    url = f"https://www.gov.br/infraestrutura/pt-br/assuntos/transito/conteudo-Senatran/frota-de-veiculos-{year}"
     soup = BeautifulSoup(urlopen(url), "html.parser")
     # Só queremos os dados de frota nacional.
     nodes = soup.select("p:contains('Frota por ') > a")
@@ -122,7 +110,7 @@ def download_frota(month: int, year: int):
         if match:
             matched_month = match.group(3)
             matched_year = match.group(2)
-            if months.get(matched_month) == month and matched_year == str(year):
+            if MONTHS.get(matched_month) == month and matched_year == str(year):
                 filetype = match.group(0).split(".")[-1].lower()
                 info = {
                     "txt": txt,
@@ -133,3 +121,53 @@ def download_frota(month: int, year: int):
                     "filetype": filetype,
                 }
                 download_file(info)
+
+
+def make_dir_when_not_exists(dir_name: str):
+    """Auxiliary function to create a subdirectory when it is not present.
+
+    Args:
+        dir_name (str): Name of the subdirectory to be created.
+    """
+    if not os.path.exists(dir_name):
+        os.mkdir(dir_name)
+
+
+def download_frota(month: int, year: int):
+    """Função principal para baixar os dados de frota por município e tipo e também por UF e tipo.
+
+    Args:
+        month (int): Mês desejado.
+        year (int): Ano desejado.
+
+    Raises:
+        ValueError: Dá erro caso o mês desejado não seja um mês válido.
+    """
+
+    if month not in MONTHS.values():
+        raise ValueError("Mês inválido.")
+
+    dir_list = glob.glob(f"**/{DATASET}", recursive=True)
+    if dir_list:
+        # I always want to be in the actual folder for this dataset:
+        os.chdir(dir_list[0])
+
+    # I always need a files directory inside my dataset folder.
+    make_dir_when_not_exists("files")
+    year_dir_name = f"{year}"
+    desired_dir_name = os.path.join("files", year_dir_name)
+
+    # Cria pasta para aquele ano de arquivos caso seja necessário.
+    make_dir_when_not_exists(desired_dir_name)
+    os.chdir(desired_dir_name)
+    if year > 2012:
+        download_post_2012(year, month)
+    else:
+        url = f"https://www.gov.br/infraestrutura/pt-br/assuntos/transito/arquivos-senatran/estatisticas/renavam/{year}/frota{'_' if year > 2008 else ''}{year}.zip"
+
+        generic_zip_filename = f"geral_{year}.zip"
+        urlretrieve(url, generic_zip_filename)
+        with ZipFile(generic_zip_filename) as zip_file:
+            zip_file.extractall()
+
+        print(2)
