@@ -72,7 +72,7 @@ with Flow(
     )
 
     wait_upload_table = create_table_and_upload_to_gcs(
-        data_path=filepath,
+        data_path="/tmp/output/municipio/",
         dataset_id=dataset_id,
         table_id=table_id,
         dump_mode="overwrite",
