@@ -13,6 +13,9 @@ import unicodedata
 import numpy as np
 import re
 import os
+from pipelines.utils.utils import (
+    log,
+)
 
 # ------- macro etapa 1 download de dados
 
@@ -163,6 +166,8 @@ def pre_cleaning_for_pivot_long_municipio(df: pd.DataFrame) -> pd.DataFrame:
         },
         inplace=True,
     )
+
+    log(f"df cols {df.columns}")
 
     return df
 
