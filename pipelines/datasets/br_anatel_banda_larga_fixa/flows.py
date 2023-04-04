@@ -24,9 +24,13 @@ from pipelines.utils.tasks import (
     get_current_flow_labels,
 )
 
-with Flow(name="br_anatel_banda_larga_fixa", code_owners=["trick"]) as banda_larga_microdados:
+with Flow(
+    name="br_anatel_banda_larga_fixa", code_owners=["trick"]
+) as banda_larga_microdados:
     # Parameters
-    dataset_id = Parameter("dataset_id", default="br_anatel_banda_larga_fixa", required=True)
+    dataset_id = Parameter(
+        "dataset_id", default="br_anatel_banda_larga_fixa", required=True
+    )
     table_id = Parameter("table_id", default="microdados", required=True)
 
     materialization_mode = Parameter(
