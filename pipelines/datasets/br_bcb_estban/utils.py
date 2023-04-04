@@ -167,8 +167,6 @@ def pre_cleaning_for_pivot_long_municipio(df: pd.DataFrame) -> pd.DataFrame:
         inplace=True,
     )
 
-    log(f"df cols {df.columns}")
-
     return df
 
 
