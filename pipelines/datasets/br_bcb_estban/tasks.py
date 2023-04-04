@@ -67,6 +67,7 @@ def download_estban_files(xpath: str, save_path: str) -> str:
         download_and_unzip(file, path=save_path)
 
     log("download task successfully !")
+    log(f"files {os.listdir(save_path)} were downloaded and unzipped")
     return save_path
 
 
