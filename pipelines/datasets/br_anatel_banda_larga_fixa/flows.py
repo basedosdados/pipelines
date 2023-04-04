@@ -14,10 +14,12 @@ from pipelines.constants import constants
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.datasets.br_anatel_banda_larga_fixa.tasks import treatment
-
-from pipelines.datasets.br_anatel_banda_larga_fixa.schedules import every_month_anatel
-
+from pipelines.datasets.br_anatel_banda_larga_fixa.tasks import (
+    treatment
+)
+from pipelines.datasets.br_anatel_banda_larga_fixa.schedules import (
+    every_month_anatel
+)
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     rename_current_flow_run_dataset_table,
@@ -26,7 +28,7 @@ from pipelines.utils.tasks import (
 
 with Flow(
     name="br_anatel_banda_larga_fixa", code_owners=["trick"]
-) as banda_larga_microdados:
+) as br_anatel:
     # Parameters
     dataset_id = Parameter(
         "dataset_id", default="br_anatel_banda_larga_fixa", required=True
@@ -88,6 +90,6 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-banda_larga_microdados.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-banda_larga_microdados.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-banda_larga_microdados.schedule = every_month_anatel
+br_anatel.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_anatel.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_anatel.schedule = every_month_anatel
