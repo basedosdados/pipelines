@@ -243,8 +243,8 @@ def treatment():
                 to_partitions.run(
                     df=df,
                     partition_columns=["ano", "mes", "sigla_uf"],
-                    savepath="/tmp/data/output/",
+                    savepath="/tmp/data/microdados.csv",
                 )
 
     # ! retornando o caminho do path
-    return "/tmp/data/output/"
+    return "/tmp/data/microdados.csv"
