@@ -60,19 +60,15 @@ with Flow(
     donwload_files = download_estban_files(
         xpath=br_bcb_estban_constants.MUNICIPIO_XPATH.value,
         save_path=br_bcb_estban_constants.DOWNLOAD_PATH_MUNICIPIO.value,
-        upstream_tasks=[rename_flow_run],
     )
 
-    municipio = get_id_municipio(
-        table="municipio",
-        upstream_tasks=[rename_flow_run],
-    )
+    municipio = get_id_municipio(table="municipio")
 
     # ?  settar upstream tasks: verificar o funcionamento
     filepath = cleaning_municipios_data(
         path=br_bcb_estban_constants.DOWNLOAD_PATH_MUNICIPIO.value,
         municipio=municipio,
-        upstream_tasks=[donwload_files, municipio, rename_flow_run],
+        upstream_tasks=[donwload_files, municipio],
     )
 
     wait_upload_table = create_table_and_upload_to_gcs(

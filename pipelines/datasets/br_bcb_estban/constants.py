@@ -5,8 +5,6 @@ Constants for br_tse_eleicoes pipeline.
 
 from enum import Enum
 
-# todo: setar links de download da base em constants
-
 
 class constants(Enum):  # pylint: disable=c0103
 
@@ -19,5 +17,5 @@ class constants(Enum):  # pylint: disable=c0103
     MUNICIPIO_XPATH = '//*[@id="ESTBAN_AGENCIA"]'
     DOWNLOAD_PATH_MUNICIPIO = "/tmp/input/municipio/"
     DOWNLOAD_PATH_AGENCIA = "/tmp/input/agencia/"
-    CLEANED_FILES_PATH_MUNICIPIO = "/tmp/data/output/municipio/"
-    CLEANED_FILES_PATH_AGENCIA = "/tmp/data/output/agencia/"
+    CLEANED_FILES_PATH_MUNICIPIO = "/tmp/output/municipio/"
+    CLEANED_FILES_PATH_AGENCIA = "/tmp/output/agencia/"

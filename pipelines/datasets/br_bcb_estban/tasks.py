@@ -84,6 +84,7 @@ def get_id_municipio(table) -> pd.DataFrame:
     )
 
     municipio = dict(zip(municipio.id_municipio_bcb, municipio.id_municipio))
+
     log("municipio dataset successfully downloaded!")
     return municipio
 
