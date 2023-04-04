@@ -24,16 +24,9 @@ from pipelines.utils.tasks import (
     get_current_flow_labels,
 )
 
-with Flow(
-    name="br_anatel_banda_larga_fixa.microdados",
-    code_owners=[
-        "trick",
-    ],
-) as banda_larga_microdados:
+with Flow(name="br_anatel_banda_larga_fixa", code_owners=["trick"]) as banda_larga_microdados:
     # Parameters
-    dataset_id = Parameter(
-        "dataset_id", default="br_anatel_banda_larga_fixa", required=True
-    )
+    dataset_id = Parameter("dataset_id", default="br_anatel_banda_larga_fixa", required=True)
     table_id = Parameter("table_id", default="microdados", required=True)
 
     materialization_mode = Parameter(
@@ -43,6 +36,7 @@ with Flow(
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
+
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
@@ -56,7 +50,7 @@ with Flow(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        dump_mode="append",
+        dump_mode="overwrite",
         wait=filepath,
     )
 

@@ -8,12 +8,12 @@ import os
 import zipfile
 from zipfile import ZipFile
 from pathlib import Path
+import requests
 
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 
 from prefect import task
-import requests
 
 from pipelines.utils.utils import (
     log,
