@@ -7,7 +7,7 @@ run_cloud(
     labels=[
         "basedosdados-dev",  # ! Label para identificar o agente que irá executar a pipeline (ex: basedosdados-dev)
     ],
-    parameters={
-        "materialize_after_dump": "True",  # ! Parâmetros que serão passados para a pipeline (opcional)
+    parameters={ # ! True sem as aspas
+        "materialize_after_dump": True,  # ! Parâmetros que serão passados para a pipeline (opcional) 
     },
 )
