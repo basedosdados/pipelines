@@ -473,7 +473,6 @@ def dump_header_to_csv(
 
     save_header_path = f"data/{uuid4()}"
     # discover if it's a partitioned table
-    log(f"o nome do arquivo é {file}")
     if partition_folders := [folder for folder in file.split("/") if "=" in folder]:
         partition_path = "/".join(partition_folders)
         save_header_file_path = Path(f"{save_header_path}/{partition_path}/header.csv")
