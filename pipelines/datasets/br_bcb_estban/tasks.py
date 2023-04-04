@@ -111,29 +111,40 @@ def cleaning_municipios_data(path, municipio):
         log(f"the file being cleaned is:{file}")
 
         build_complete_file_path = os.path.join(path, file)
+
         log(f"building {build_complete_file_path}")
         df = read_files(build_complete_file_path)
+
         log("reading file")
         df = rename_columns_municipio(df)
+
         log("renaming columns")
         df = clean_dataframe(df)
+
         log("cleaning dataframe")
         df = create_id_municipio(df, municipio)
+
         log("creating id municipio")
         df = pre_cleaning_for_pivot_long_municipio(df)
+
         log("pre cleaning for pivot long")
         df = wide_to_long_municipio(df)
+
         log("wide to long")
         df = standardize_monetary_units(
             df, date_column="data_base", value_column="valor"
         )
+
         log("standardizing monetary units")
         df = create_id_verbete_column(df, column_name="id_verbete")
+
         log("creating id verbete column")
         df = create_month_year_columns(df, date_column="data_base")
+
         log("creating month year columns")
         df = order_cols_municipio(df)
         # save df
+
         log("saving and doing partition")
         # 3. build and save partition
         to_partitions(
@@ -164,23 +175,44 @@ def cleaning_agencias_data(path, municipio):
     # limit to 10 for testing purposes
     # be aware, relie only in .csv files its not that good
     # cause bacen can change file format
-    files = glob.glob(os.path.join(path, "*.csv"))
-    files = files[1:10]
+    files = os.listdir(path)
+    log(f"the following files will be cleaned: {files}")
 
-    for path in files:
+    for file in files:
 
-        df = read_files(path)
+        log(f"the file being cleaned is:{file}")
+        build_complete_file_path = os.path.join(path, file)
+
+        log(f"building {build_complete_file_path}")
+        df = read_files(build_complete_file_path)
+
+        log("reading file")
         df = rename_columns_agencia(df)
+
+        log("renaming columns")
         # see the behavior of the function
         df = clean_dataframe(df)
+
+        log("cleaning dataframe")
         df = create_id_municipio(df, municipio)
+
+        log("creating id municipio")
         df = pre_cleaning_for_pivot_long_agencia(df)
+
+        log("pre cleaning for pivot long")
         df = wide_to_long_agencia(df)
+
+        log("wide to long")
         df = standardize_monetary_units(
             df, date_column="data_base", value_column="valor"
         )
+        log("standardizing monetary units")
         df = create_id_verbete_column(df, column_name="id_verbete")
+
+        log("creating id verbete column")
         df = create_month_year_columns(df, date_column="data_base")
+
+        log("creating month year columns")
         df = cols_order_agencia(df)
 
         to_partitions(
