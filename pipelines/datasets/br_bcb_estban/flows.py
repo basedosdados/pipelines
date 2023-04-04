@@ -66,7 +66,7 @@ with Flow(
 
     # ?  settar upstream tasks: verificar o funcionamento
     filepath = cleaning_municipios_data(
-        path="/tmp/input/municipio",
+        path="/tmp/input/municipio/",
         municipio=municipio,
         upstream_tasks=[donwload_files, municipio],
     )

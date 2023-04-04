@@ -85,7 +85,6 @@ def get_id_municipio(table) -> pd.DataFrame:
     )
 
     municipio = dict(zip(municipio.id_municipio_bcb, municipio.id_municipio))
-    log(municipio)
     log("municipio dataset successfully downloaded!")
     return municipio
 
@@ -105,7 +104,7 @@ def cleaning_municipios_data(path, municipio):
         df: a standardized partitioned estban dataset
     """
     # limit to 10 for testing purposes
-
+    log(f"the files {os.listdir(path)} are in this path")
     files = glob.glob(os.path.join(path, "*.csv"))
     log(f"the following files will be cleaned: {files}")
     files = files[1:10]
