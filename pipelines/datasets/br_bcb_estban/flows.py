@@ -66,13 +66,13 @@ with Flow(
 
     # ?  settar upstream tasks: verificar o funcionamento
     filepath = cleaning_municipios_data(
-        path="/tmp/input/municipio/",
+        path=br_bcb_estban_constants.DOWNLOAD_PATH_MUNICIPIO,
         municipio=municipio,
         upstream_tasks=[donwload_files, municipio],
     )
 
     wait_upload_table = create_table_and_upload_to_gcs(
-        data_path="/tmp/output/municipio/",
+        data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_mode="overwrite",
@@ -132,7 +132,7 @@ with Flow(
         "materialize after dump", default=True, required=False
     )
 
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
