@@ -154,7 +154,7 @@ def treatment():
         "2021",
         "2022",
         "2023",
-    ] # ! Lista de anos a serem processados
+    ]  # ! Lista de anos a serem processados
 
     # ! Abrindo o arquivo zipado
     with ZipFile(banda_larga) as z:
@@ -213,7 +213,7 @@ def treatment():
                         "acessos",
                     ]
                 ]
-                
+
                 # ! Classificação do DataFrame em ordem crescente
                 df.sort_values(
                     [
@@ -241,9 +241,11 @@ def treatment():
                     .replace("Rádio", "Radio")
                 )
 
-                df['acessos'] = df['acessos'].apply(lambda x: str(x).replace('.0', ''))
+                df["acessos"] = df["acessos"].apply(lambda x: str(x).replace(".0", ""))
 
-                df['produto'] = df['produto'].apply(lambda x: x.replace("LINHA_DEDICADA", 'linha dedicada').lower())
+                df["produto"] = df["produto"].apply(
+                    lambda x: x.replace("LINHA_DEDICADA", "linha dedicada").lower()
+                )
 
                 # ! Fazendo referencia a função criada anteriormente para particionar o arquivo o arquivo
                 to_partitions.run(
