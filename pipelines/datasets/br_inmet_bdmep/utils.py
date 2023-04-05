@@ -167,7 +167,7 @@ def get_clima_info(file: str) -> pd.DataFrame:
     clima["id_estacao"] = caract.loc[3, "value"]
 
     # substitui valores -9999 por NaN
-    clima.replace(to_replace=-9999, value="", inplace=True)
+    clima.replace(to_replace=-9999, value=np.nan, inplace=True)
 
     # converte a coluna data para datetime
     if all(clima["data"].str.contains("/")):
