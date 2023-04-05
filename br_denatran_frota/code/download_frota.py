@@ -35,32 +35,6 @@ def handle_xl(i: dict) -> None:
     urlretrieve(i["href"], dest_path_file)
 
 
-def handle_compact(i: dict):
-    tempdir = i["tempdir"]
-    path_file_zip = os.path.join(tempdir, make_filename(i))
-    dir_file = os.path.join(tempdir, make_filename(i, ext=False))
-
-    if not os.path.isfile(path_file_zip):
-        urlretrieve(i["href"], path_file_zip)
-
-    if i["filetype"] == "rar":
-        with RarFile(path_file_zip) as rar_file:
-            rar_file.extractall(dir_file)
-    else:
-        with ZipFile(path_file_zip) as zip_file:
-            zip_file.extractall(dir_file)
-
-    for filename in os.listdir(dir_file):
-        filepath = os.path.join(dir_file, filename)
-        if os.path.isfile(filepath):
-            if filename.endswith((".xlsx", ".xls")):
-                dest_path_file = os.path.join(tempdir, make_filename(i))
-                if not os.path.isfile(dest_path_file):
-                    os.rename(filepath, dest_path_file)
-                else:
-                    os.remove(filepath)
-
-
 def make_filename(i: dict, ext: bool = True) -> str:
     """Creates the filename using the sent dictionary.
 
@@ -141,7 +115,7 @@ def download_frota(month: int, year: int):
         year (int): Ano desejado.
 
     Raises:
-        ValueError: Dá erro caso o mês desejado não seja um mês válido.
+        ValueError: Errors if the month is not a valid one.
     """
 
     if month not in MONTHS.values():
@@ -157,7 +131,7 @@ def download_frota(month: int, year: int):
     year_dir_name = f"{year}"
     desired_dir_name = os.path.join("files", year_dir_name)
 
-    # Cria pasta para aquele ano de arquivos caso seja necessário.
+    # Create dir for that specific year should it be necessary.
     make_dir_when_not_exists(desired_dir_name)
     os.chdir(desired_dir_name)
     if year > 2012:
@@ -169,5 +143,3 @@ def download_frota(month: int, year: int):
         urlretrieve(url, generic_zip_filename)
         with ZipFile(generic_zip_filename) as zip_file:
             zip_file.extractall()
-
-        print(2)
