@@ -63,7 +63,7 @@ def download_file(i):
         raise ValueError("A função handle_compact tá bem esquisita por hora.")
 
 
-def download_post_2012(year: int, month: int):
+def download_post_2012(month: int, year: int):
     """_summary_
 
     Args:
@@ -73,7 +73,7 @@ def download_post_2012(year: int, month: int):
     url = f"https://www.gov.br/infraestrutura/pt-br/assuntos/transito/conteudo-Senatran/frota-de-veiculos-{year}"
     soup = BeautifulSoup(urlopen(url), "html.parser")
     # Só queremos os dados de frota nacional.
-    nodes = soup.select("p:contains('Frota por ') > a")
+    nodes = soup.select("p:contains('rota por ') > a")
     for node in nodes:
         txt = node.text
         href = node.get("href")
@@ -107,7 +107,7 @@ def make_dir_when_not_exists(dir_name: str):
         os.mkdir(dir_name)
 
 
-def download_frota(month: int, year: int):
+def download_frota(month: int, year: int, temp_dir: None):
     """Função principal para baixar os dados de frota por município e tipo e também por UF e tipo.
 
     Args:
@@ -125,17 +125,18 @@ def download_frota(month: int, year: int):
     if dir_list:
         # I always want to be in the actual folder for this dataset:
         os.chdir(dir_list[0])
-
+    if temp_dir:
+        os.chdir(temp_dir)
     # I always need a files directory inside my dataset folder.
     make_dir_when_not_exists("files")
     year_dir_name = f"{year}"
-    desired_dir_name = os.path.join("files", year_dir_name)
+    desired_dir_name = os.path.join(os.getcwd(), temp_dir, "files", year_dir_name)
 
     # Create dir for that specific year should it be necessary.
     make_dir_when_not_exists(desired_dir_name)
     os.chdir(desired_dir_name)
     if year > 2012:
-        download_post_2012(year, month)
+        download_post_2012(month, year)
     else:
         url = f"https://www.gov.br/infraestrutura/pt-br/assuntos/transito/arquivos-senatran/estatisticas/renavam/{year}/frota{'_' if year > 2008 else ''}{year}.zip"
 
