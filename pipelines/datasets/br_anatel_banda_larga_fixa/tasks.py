@@ -144,7 +144,7 @@ def treatment():
     pasta = "/tmp/data/input"
     banda_larga = os.path.join(pasta, "acessos_banda_larga_fixa.zip")
 
-    """anos = [
+    anos = [
         "2007-2010",
         "2011-2012",
         "2013-2014",
@@ -154,8 +154,8 @@ def treatment():
         "2021",
         "2022",
         "2023",
-    ]"""  # ! Lista de anos a serem processados
-    anos = ["2007-2010"]
+    ] # ! Lista de anos a serem processados
+
     # ! Abrindo o arquivo zipado
     with ZipFile(banda_larga) as z:
 
@@ -167,6 +167,7 @@ def treatment():
 
                 # ! Lendo o arquivo csv
                 df = pd.read_csv(f, sep=";", encoding="utf-8")
+
                 # ! Fazendo referencia a função criada anteriormente para verificar colunas
                 df = check_and_create_column.run(df, "Tipo de Produto")
 
@@ -192,9 +193,9 @@ def treatment():
                     inplace=True,
                 )
 
-                # ! Removendo colunas "grupo_economico" e "municipio"
-                # organização das variáveis
+                # ! organização das variáveis
                 df.drop(["grupo_economico", "municipio"], axis=1, inplace=True)
+
                 # ! Reordenando as colunas
                 df = df[
                     [
@@ -212,6 +213,7 @@ def treatment():
                         "acessos",
                     ]
                 ]
+                
                 # ! Classificação do DataFrame em ordem crescente
                 df.sort_values(
                     [
@@ -238,6 +240,10 @@ def treatment():
                     .replace("Fibra Óptica", "Fibra Optica")
                     .replace("Rádio", "Radio")
                 )
+
+                df['acessos'] = df['acessos'].apply(lambda x: str(x).replace('.0', ''))
+
+                df['produto'] = df['produto'].apply(lambda x: x.replace("LINHA_DEDICADA", 'linha dedicada').lower())
 
                 # ! Fazendo referencia a função criada anteriormente para particionar o arquivo o arquivo
                 to_partitions.run(
