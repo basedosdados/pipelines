@@ -5,6 +5,7 @@ utils for br_bd_inndicadores
 # pylint: disable=too-few-public-methods,invalid-name
 from datetime import datetime
 import pandas as pd
+import requests
 
 
 def flatten_list(array):
@@ -122,3 +123,15 @@ def check_missing_metadata(df: pd.DataFrame) -> pd.DataFrame:
 
     # Retorna o DataFrame atualizado
     return df
+
+
+def make_request(url: str) -> int:
+    """makes a request to the given URL and returns the response status code
+    Args:
+        url (str): a URL
+    Returns:
+        int: a URL response status code
+    """
+    r = requests.get(url, timeout=15).status_code
+
+    return r

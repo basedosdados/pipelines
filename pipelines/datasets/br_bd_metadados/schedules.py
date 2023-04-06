@@ -142,3 +142,22 @@ every_day_columns = Schedule(
         ),
     ],
 )
+
+every_week_external_link_status = Schedule(
+    clocks=[
+        IntervalClock(
+            interval=timedelta(days=7),
+            start_date=datetime(2022, 9, 20, 10, 00),
+            labels=[
+                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            ],
+            parameter_defaults={
+                "dataset_id": "br_bd_metadados",
+                "table_id": "external_link_status",
+                "materialization_mode": "dev",
+                "materialize_after_dump": True,
+                "dbt_alias": False,
+            },
+        ),
+    ],
+)

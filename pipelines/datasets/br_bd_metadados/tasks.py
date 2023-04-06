@@ -15,6 +15,7 @@ from pipelines.constants import constants
 from pipelines.datasets.br_bd_metadados.utils import (
     get_temporal_coverage_list,
     check_missing_metadata,
+    make_request,
 )
 from pipelines.utils.utils import (
     log,
@@ -479,3 +480,59 @@ def crawler_columns():
     df.to_csv("/tmp/data/columns.csv", index=False)
 
     return "/tmp/data/columns.csv"
+
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def crawler_external_links_status():
+    """
+    Pulls metadata about external links status from Base dos Dados' APIs and returns it structured in a csv file.
+    Args:
+    Returns:
+        Path to csv file with structured metadata about external links status.
+    """
+
+    url = "https://basedosdados.org/api/3/action/bd_dataset_search?page_size=50000&resource_type=external_link"
+    r = requests.get(url, timeout=10)
+    datasets_json = r.json()["result"]["datasets"]
+
+    resources = []
+
+    for dataset in datasets_json:
+        for resource in dataset["resources"]:
+            if resource["resource_type"] == "external_link":
+
+                resources.append(
+                    {
+                        "dataset_id": dataset.get("id"),
+                        "id": resource.get("id"),
+                        "name": resource.get("name"),
+                        "date_created": resource.get("created")[0:10],
+                        "date_last_modified": resource.get("metadata_modified")[0:10],
+                        "url": resource.get("url"),
+                    }
+                )
+
+    for dic in resources:
+
+        external_url = dic["url"]
+
+        try:
+            request_status = make_request(external_url)
+            print(f"status {request_status}")
+            dic["url_status"] = request_status
+
+        except Exception as e:
+
+            dic["url_status_error"] = e
+            print(f"erro: a url {external_url} retornou o erro {e}")
+
+    df = pd.DataFrame.from_dict(resources)
+
+    os.system("mkdir -p /tmp/data/")
+
+    df.to_csv("/tmp/data/external_link_status.csv", index=False)
+
+    return "/tmp/data/external_link_status.csv"
