@@ -92,12 +92,15 @@ class TestDownloadFrota(unittest.TestCase):
             download_frota(13, 2013)
 
     def test_download_post_2012(self):
-        download_frota(MONTHS["fevereiro"], 2018, self.temp_dir)
+        year = 2019
+        download_frota(MONTHS["fevereiro"], year, self.temp_dir)
         expected_files = {
             "Frota por UF e tipo_2-2018.xlsx",
             "Frota por Município e tipo e combustível_2-2018.xlsx",
         }
-        files = set(os.listdir(os.path.join(self.temp_dir, DATASET, "files", "2018")))
+        files = set(
+            os.listdir(os.path.join(self.temp_dir, DATASET, "files", f"{year}"))
+        )
         self.assertEqual(files, expected_files)
 
 

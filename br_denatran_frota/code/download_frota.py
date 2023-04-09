@@ -5,7 +5,7 @@ from urllib.request import urlopen, urlretrieve
 from zipfile import ZipFile
 from rarfile import RarFile
 from bs4 import BeautifulSoup
-
+import requests
 
 MONTHS = {
     "janeiro": 1,
@@ -25,6 +25,17 @@ MONTHS = {
 DATASET = "br_denatran_frota"
 
 
+def download_file(url, filename):
+    # Send a GET request to the URL
+    response = requests.get(url)
+
+    # Save the contents of the response to a file
+    with open(filename, "wb") as f:
+        f.write(response.content)
+
+    print(f"Download of {filename} complete")
+
+
 def handle_xl(i: dict) -> None:
     """Actually downloads and deals with Excel files.
 
@@ -32,7 +43,7 @@ def handle_xl(i: dict) -> None:
         i (dict): Dictionary with all the desired downloadable file's info.
     """
     dest_path_file = make_filename(i)
-    urlretrieve(i["href"], dest_path_file)
+    download_file(i["href"], dest_path_file)
 
 
 def make_filename(i: dict, ext: bool = True) -> str:
@@ -56,7 +67,7 @@ def make_filename(i: dict, ext: bool = True) -> str:
     return filename
 
 
-def download_file(i):
+def call_downloader(i):
     if i["filetype"] in ["xlsx", "xls"]:
         handle_xl(i)
     else:
@@ -94,7 +105,7 @@ def download_post_2012(month: int, year: int):
                     "ano": year,
                     "filetype": filetype,
                 }
-                download_file(info)
+                call_downloader(info)
 
 
 def make_dir_when_not_exists(dir_name: str):
