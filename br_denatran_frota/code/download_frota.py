@@ -118,7 +118,7 @@ def make_dir_when_not_exists(dir_name: str):
         os.mkdir(dir_name)
 
 
-def download_frota(month: int, year: int, temp_dir: None):
+def download_frota(month: int, year: int, temp_dir: str = None):
     """Função principal para baixar os dados de frota por município e tipo e também por UF e tipo.
 
     Args:

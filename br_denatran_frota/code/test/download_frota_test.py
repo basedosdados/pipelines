@@ -3,6 +3,7 @@ import shutil
 import tempfile
 import unittest
 import glob
+from parameterized import parameterized
 
 from download_frota import (
     DATASET,
@@ -12,6 +13,14 @@ from download_frota import (
     download_frota,
     download_post_2012,
 )
+
+
+def custom_name_func(testcase_func, param_num, param):
+    return "%s_%s" % (
+        testcase_func.__name__,
+        parameterized.to_safe_name("_".join(str(x) for x in param.args)),
+    )
+
 
 dir_list = glob.glob(f"**/{DATASET}", recursive=True)
 if dir_list:
@@ -67,11 +76,6 @@ class TestMakeDirWhenNotExists(unittest.TestCase):
 
 class TestDownloadFrota(unittest.TestCase):
     def setUp(self):
-        # Create a simple temporary directory for files, as opposed to the real one?
-        # Problema aqui é que a minha estrutura sempre assume que BR DENATRAN FROTA é um repo, e ai vai criando conforme for files, ano, etc.
-        # Idealmente, o teste nesse caso só teria o tear down pro ano testado SÓ QUE isso é mei burro né
-        # Pq? Pq oras, se vc rodou 2012, aí testou 2012, vc ia perder tudo q fez pré teste. Seu teste apagar sua execução é meio esquisito.
-        # OK, então qual que é a maneira
         self.temp_dir = tempfile.mkdtemp(dir=os.getcwd())
 
     def tearDown(self):
@@ -91,15 +95,18 @@ class TestDownloadFrota(unittest.TestCase):
         with self.assertRaises(ValueError):
             download_frota(13, 2013)
 
-    def test_download_post_2012(self):
-        year = 2019
-        download_frota(MONTHS["fevereiro"], year, self.temp_dir)
+    @parameterized.expand(
+        [(month, year) for year in range(2013, 2023) for month in range(1, 13)],
+        name_func=custom_name_func,
+    )
+    def test_download_post_2012(self, month, year):
+        download_frota(month, year, self.temp_dir)
         expected_files = {
-            "Frota por UF e tipo_2-2018.xlsx",
-            "Frota por Município e tipo e combustível_2-2018.xlsx",
+            f"frota_por_uf_e_tipo_de_veículo_{month}-{year}.xls",
+            f"frota_por_município_e_tipo_{month}-{year}.xls",
         }
         files = set(
-            os.listdir(os.path.join(self.temp_dir, DATASET, "files", f"{year}"))
+            os.listdir(os.path.join(DATASET, self.temp_dir, "files", f"{year}"))
         )
         self.assertEqual(files, expected_files)
 
