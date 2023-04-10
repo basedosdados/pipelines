@@ -51,7 +51,7 @@ class constants(Enum):  # pylint: disable=c0103
             "user_id": "865034571469160458",
             "type": "role",
         },
-        "equipe_platform": {
+        "equipe_platforma": {
             "user_id": "865223885031997455",
             "type": "role",
         },
