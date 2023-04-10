@@ -25,14 +25,14 @@ def access_datasus_cnes_ftp() -> str:
     url = (
         "ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Dados/ST/STRJ1201.dbc"
     )
-    filename = "STRJ1201.dbc"
+
     folder = "/tmp/data/"
 
     # build dir
     os.system(f"mkdir -p {folder}")
 
     # access ftp
-    wget.download(url, filename, out="/tmp/data/")
+    wget.download(url, out="/tmp/data/")
 
     # list downloaded files
     files = os.listdir("/tmp/data/")
