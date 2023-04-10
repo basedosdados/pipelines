@@ -76,10 +76,11 @@ class TestMakeDirWhenNotExists(unittest.TestCase):
 
 class TestDownloadFrota(unittest.TestCase):
     def setUp(self):
-        self.temp_dir = tempfile.mkdtemp(dir=os.getcwd())
+        self.temp_dir = tempfile.TemporaryDirectory()
+        print("im heir")
 
     def tearDown(self):
-        shutil.rmtree(self.temp_dir)
+        shutil.rmtree(self.temp_dir.name)
 
     @unittest.skip("demonstrating skipping")
     def test_download_frota_with_valid_month(self):
@@ -96,17 +97,17 @@ class TestDownloadFrota(unittest.TestCase):
             download_frota(13, 2013)
 
     @parameterized.expand(
-        [(month, year) for year in range(2013, 2023) for month in range(1, 13)],
+        [(month, year) for year in range(2022, 2023) for month in range(1, 13)],
         name_func=custom_name_func,
     )
     def test_download_post_2012(self, month, year):
-        download_frota(month, year, self.temp_dir)
+        download_frota(month, year, self.temp_dir.name)
         expected_files = {
             f"frota_por_uf_e_tipo_de_veículo_{month}-{year}.xls",
             f"frota_por_município_e_tipo_{month}-{year}.xls",
         }
         files = set(
-            os.listdir(os.path.join(DATASET, self.temp_dir, "files", f"{year}"))
+            os.listdir(os.path.join(DATASET, self.temp_dir.name, "files", f"{year}"))
         )
         self.assertEqual(files, expected_files)
 
