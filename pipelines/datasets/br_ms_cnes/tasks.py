@@ -5,13 +5,18 @@ Tasks for br_ms_cnes
 
 
 from prefect import task
-from utils.utils import log
+from datetime import timedelta
+from pipelines.utils.utils import log
+from pipelines.constants import constants
 
 import wget
 import os
 
 
-@task  # noqa
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def access_datasus_cnes_ftp() -> str:
     """
     Access data from datasus.gov.br

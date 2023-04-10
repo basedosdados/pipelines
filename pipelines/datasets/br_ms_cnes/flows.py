@@ -8,8 +8,6 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from pipelines.constants import constants
 from pipelines.datasets.br_ms_cnes.tasks import access_datasus_cnes_ftp
-
-# from pipelines.datasets.br_ms_cnes.schedules import every_two_weeks
 from pipelines.utils.decorators import Flow
 
 with Flow(
