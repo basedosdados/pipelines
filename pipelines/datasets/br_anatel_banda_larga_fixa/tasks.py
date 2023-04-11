@@ -20,6 +20,7 @@ from pipelines.utils.utils import (
 from pipelines.datasets.br_anatel_banda_larga_fixa.utils import (
     check_and_create_column,
     download_file,
+    extract_file
 )
 from pipelines.constants import constants
 
@@ -157,31 +158,38 @@ def treatment():
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def treatment_br():
+    # ! Baixando a pasta zipada no diretório "/tmp/data/input"
     url = "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/acessos/acessos_banda_larga_fixa.zip"
-
     download_dir = "/tmp/data/input"
-
     download_file(url=url, download_dir=download_dir)
 
+    # ! Extrair o arquivo zipado no diretório "/tmp/data/input"
     filepath = "/tmp/data/input/acessos_banda_larga_fixa.zip"
-    with ZipFile(filepath) as z:
-        with z.open("Densidade_Banda_Larga_Fixa") as f:
-            df = pd.read_csv(f, sep=";", encoding="utf-8")
+    extract_dir = "/tmp/data/input"
+    extract_file(filepath=filepath, extract_dir=extract_dir)
 
-            df.rename(columns={"Nível Geográfico Densidade": "Geografia"}, inplace=True)
-            df_brasil = df[df["Geografia"] == "Brasil"]
-            df_brasil = df_brasil.drop(
-                ["UF", "Município", "Geografia", "Código IBGE"], axis=1
-            )
-            df_brasil["Densidade"] = df_brasil["Densidade"].apply(
-                lambda x: float(x.replace(",", "."))
-            )
-            df_brasil.rename(
-                columns={"Ano": "ano", "Mês": "mes", "Densidade": "densidade"},
-                inplace=True,
-            )
+    # ! Abrindo o arquivo csv
+    file = "/tmp/data/input/Densidade_Banda_Larga_Fixa.csv"
+    df = pd.read_csv(file, sep=";", encoding="utf-8")
 
-    return filepath
+    # ! Tratando o csv
+    df.rename(columns={"Nível Geográfico Densidade": "Geografia"}, inplace=True)
+    df_brasil = df[df["Geografia"] == "Brasil"]
+    df_brasil = df_brasil.drop(
+        ["UF", "Município", "Geografia", "Código IBGE"], axis=1
+    )
+    df_brasil["Densidade"] = df_brasil["Densidade"].apply(
+        lambda x: float(x.replace(",", "."))
+    )
+    df_brasil.rename(
+        columns={"Ano": "ano", "Mês": "mes", "Densidade": "densidade"},
+        inplace=True,
+    )
+
+    # ! Salvando o csv tratado
+    path = df.to_csv("/tmp/data/densidade_brasil.csv", sep = ";", index=False, encoding="utf-8")
+
+    return path
 
 
 @task(
@@ -189,33 +197,40 @@ def treatment_br():
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def treatment_uf():
+    # ! Baixando a pasta zipada no diretório "/tmp/data/input"
     url = "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/acessos/acessos_banda_larga_fixa.zip"
-
     download_dir = "/tmp/data/input"
-
     download_file(url=url, download_dir=download_dir)
 
-    filepath = "/tmp/data/input/acessos_banda_larga_fixa.zip"
-    with ZipFile(filepath) as z:
-        with z.open("Densidade_Banda_Larga_Fixa") as f:
-            df = pd.read_csv(f, sep=";", enconding="utf-8")
-            df_uf = df[df["Geografia"] == "UF"]
-            df_uf.drop(["Município", "Código IBGE", "Geografia"], axis=1, inplace=True)
-            df_uf["Densidade"] = df_uf["Densidade"].apply(
-                lambda x: float(x.replace(",", "."))
-            )
-            df_uf.rename(
-                columns={
-                    "Ano": "ano",
-                    "Mês": "mes",
-                    "UF": "uf",
-                    "Município": "municipio",
-                    "Densidade": "densidade",
-                },
-                inplace=True,
-            )
+    # ! Extrair o arquivo zipado no diretório "/tmp/data/input"
 
-    return filepath
+    filepath = "/tmp/data/input/acessos_banda_larga_fixa.zip"
+    extract_dir = "/tmp/data/input"
+    extract_file(filepath=filepath, extract_dir=extract_dir)
+
+    # ! Abrindo o arquivo csv
+    file = "/tmp/data/input/Densidade_Banda_Larga_Fixa.csv"
+    df = pd.read_csv(file, sep=";", encoding="utf-8")
+    df_uf = df[df["Geografia"] == "UF"]
+    df_uf.drop(["Município", "Código IBGE", "Geografia"], axis=1, inplace=True)
+    df_uf["Densidade"] = df_uf["Densidade"].apply(
+        lambda x: float(x.replace(",", "."))
+    )
+    df_uf.rename(
+        columns={
+            "Ano": "ano",
+            "Mês": "mes",
+            "UF": "uf",
+            "Município": "municipio",
+            "Densidade": "densidade",
+        },
+        inplace=True,
+    )
+
+    # ! Salvando o csv tratado
+    path = df.to_csv("/tmp/data/densidade_brasil.csv", sep = ";", index=False, encoding="utf-8")
+
+    return path
 
 
 @task(
