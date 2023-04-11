@@ -61,10 +61,11 @@ def download_estban_files(xpath: str, save_path: str) -> str:
     url = br_bcb_estban_constants.ESTBAN_URL.value
 
     download_link = extract_download_links(url=url, xpath=xpath)
+    download_link = download_link[0]
+    # alterado
 
-    for file in download_link:
-        file = "https://www4.bcb.gov.br/" + file
-        download_and_unzip(file, path=save_path)
+    file = "https://www4.bcb.gov.br/" + download_link
+    download_and_unzip(file, path=save_path)
 
     log("download task successfully !")
     log(f"files {os.listdir(save_path)} were downloaded and unzipped")
