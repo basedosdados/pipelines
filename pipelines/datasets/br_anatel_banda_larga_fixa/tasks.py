@@ -47,8 +47,8 @@ def treatment():
     "2019-2020",
     "2021",
     "2022",
-    "2023"]'''
-    anos = ['2007-2010']
+    "2023"]"""
+    anos = '2007-2010'
 
     filepath = "/tmp/data/input/acessos_banda_larga_fixa.zip"
     extract_dir = "/tmp/data/output"
