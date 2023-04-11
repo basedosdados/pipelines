@@ -148,7 +148,7 @@ def treatment():
                 savepath = "/tmp/data/microdados.csv"
                 # ! Fazendo referencia a função criada anteriormente para particionar o arquivo o arquivo
                 to_partitions(
-                    df=df,
+                    df,
                     partition_columns=["ano", "mes", "sigla_uf"],
                     savepath=savepath,
                 )
