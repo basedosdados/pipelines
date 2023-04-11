@@ -7,10 +7,7 @@ from datetime import timedelta
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
-from prefect.tasks.prefect import (
-    create_flow_run,
-    wait_for_flow_run
-)
+from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
 from pipelines.utils.constants import constants as utils_constants
@@ -20,15 +17,15 @@ from pipelines.datasets.br_anatel_banda_larga_fixa.tasks import (
     treatment,
     treatment_br,
     treatment_uf,
-    treatment_municipio
+    treatment_municipio,
 )
 
 from pipelines.datasets.br_anatel_banda_larga_fixa.schedules import (
     every_month_anatel_microdados,
     every_month_anatel_densidade_brasil,
     every_month_anatel_densidade_uf,
-    every_month_anatel_densidade_municipio
-)  
+    every_month_anatel_densidade_municipio,
+)
 
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
@@ -36,7 +33,9 @@ from pipelines.utils.tasks import (
     get_current_flow_labels,
 )
 
-with Flow(name="br_anatel_banda_larga_fixa.microdados", code_owners=["trick"]) as br_anatel:
+with Flow(
+    name="br_anatel_banda_larga_fixa.microdados", code_owners=["trick"]
+) as br_anatel:
     # Parameters
     dataset_id = Parameter(
         "dataset_id", default="br_anatel_banda_larga_fixa", required=True
@@ -103,11 +102,11 @@ br_anatel.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 br_anatel.schedule = every_month_anatel_microdados
 
 
-
-
 # ! flow densidade_br
 
-with Flow(name="br_anatel_banda_larga_fixa.densidade_br", code_owners=["trick"]) as br_anatel_densidade_br:
+with Flow(
+    name="br_anatel_banda_larga_fixa.densidade_br", code_owners=["trick"]
+) as br_anatel_densidade_br:
     # Parameters
     dataset_id = Parameter(
         "dataset_id", default="br_anatel_banda_larga_fixa", required=True
@@ -174,11 +173,11 @@ br_anatel.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 br_anatel.schedule = every_month_anatel_densidade_brasil
 
 
-
-
 # ! flow densidade_uf
 
-with Flow(name="br_anatel_banda_larga_fixa.densidade_uf", code_owners=["trick"]) as br_anatel_densidade_uf:
+with Flow(
+    name="br_anatel_banda_larga_fixa.densidade_uf", code_owners=["trick"]
+) as br_anatel_densidade_uf:
     # Parameters
     dataset_id = Parameter(
         "dataset_id", default="br_anatel_banda_larga_fixa", required=True
@@ -245,11 +244,11 @@ br_anatel.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 br_anatel.schedule = every_month_anatel_densidade_uf
 
 
-
-
 # ! flow densidade_municipio
 
-with Flow(name="br_anatel_banda_larga_fixa.densidade_municipio", code_owners=["trick"]) as br_anatel_densidade_municipio:
+with Flow(
+    name="br_anatel_banda_larga_fixa.densidade_municipio", code_owners=["trick"]
+) as br_anatel_densidade_municipio:
     # Parameters
     dataset_id = Parameter(
         "dataset_id", default="br_anatel_banda_larga_fixa", required=True

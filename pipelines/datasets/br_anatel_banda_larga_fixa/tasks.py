@@ -19,7 +19,7 @@ from pipelines.utils.utils import (
 )
 from pipelines.datasets.br_anatel_banda_larga_fixa.utils import (
     check_and_create_column,
-    download_file
+    download_file,
 )
 from pipelines.constants import constants
 
@@ -168,11 +168,18 @@ def treatment_br():
         with z.open("Densidade_Banda_Larga_Fixa") as f:
             df = pd.read_csv(f, sep=";", encoding="utf-8")
 
-            df.rename(columns={'Nível Geográfico Densidade' : 'Geografia'}, inplace=True)
-            df_brasil = df[df['Geografia'] == 'Brasil']
-            df_brasil = df_brasil.drop(['UF', 'Município', 'Geografia', 'Código IBGE'], axis=1)
-            df_brasil['Densidade'] = df_brasil['Densidade'].apply(lambda x: float(x.replace(',', '.')))
-            df_brasil.rename(columns={'Ano':'ano', 'Mês':'mes', 'Densidade':'densidade'}, inplace=True)
+            df.rename(columns={"Nível Geográfico Densidade": "Geografia"}, inplace=True)
+            df_brasil = df[df["Geografia"] == "Brasil"]
+            df_brasil = df_brasil.drop(
+                ["UF", "Município", "Geografia", "Código IBGE"], axis=1
+            )
+            df_brasil["Densidade"] = df_brasil["Densidade"].apply(
+                lambda x: float(x.replace(",", "."))
+            )
+            df_brasil.rename(
+                columns={"Ano": "ano", "Mês": "mes", "Densidade": "densidade"},
+                inplace=True,
+            )
 
     return filepath
 
@@ -180,7 +187,7 @@ def treatment_br():
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)    
+)
 def treatment_uf():
     url = "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/acessos/acessos_banda_larga_fixa.zip"
 
@@ -191,11 +198,22 @@ def treatment_uf():
     filepath = "/tmp/data/input/acessos_banda_larga_fixa.zip"
     with ZipFile(filepath) as z:
         with z.open("Densidade_Banda_Larga_Fixa") as f:
-            df = pd.read_csv(f, sep=';', enconding='utf-8')
-            df_uf = df[df['Geografia'] == 'UF']
-            df_uf.drop(['Município', 'Código IBGE', 'Geografia'], axis=1, inplace=True)
-            df_uf['Densidade'] = df_uf['Densidade'].apply(lambda x: float(x.replace(',', '.')))
-            df_uf.rename(columns={'Ano':'ano', 'Mês':'mes', 'UF':'uf', 'Município':'municipio', 'Densidade':'densidade'}, inplace=True)
+            df = pd.read_csv(f, sep=";", enconding="utf-8")
+            df_uf = df[df["Geografia"] == "UF"]
+            df_uf.drop(["Município", "Código IBGE", "Geografia"], axis=1, inplace=True)
+            df_uf["Densidade"] = df_uf["Densidade"].apply(
+                lambda x: float(x.replace(",", "."))
+            )
+            df_uf.rename(
+                columns={
+                    "Ano": "ano",
+                    "Mês": "mes",
+                    "UF": "uf",
+                    "Município": "municipio",
+                    "Densidade": "densidade",
+                },
+                inplace=True,
+            )
 
     return filepath
 
@@ -214,18 +232,28 @@ def treatment_municipio():
     filepath = "/tmp/data/input/acessos_banda_larga_fixa.zip"
     with ZipFile(filepath) as z:
         with z.open("Densidade_Banda_Larga_Fixa") as f:
-            df = pd.read_csv(f, sep=';', enconding='utf-8')
-            df_municipio = df[df['Geografia'] == 'Municipio']
-            df_municipio.drop(['Município', 'UF', 'Geografia'], axis=1, inplace=True)
-            df_municipio['Densidade'] = df_municipio['Densidade'].apply(lambda x: float(x.replace(',', '.')))
-            df_municipio.rename(columns={'Ano':'ano', 'Mês':'mes', 'Código IBGE':'id_municipio', 'Densidade':'densidade'}, inplace=True)
+            df = pd.read_csv(f, sep=";", enconding="utf-8")
+            df_municipio = df[df["Geografia"] == "Municipio"]
+            df_municipio.drop(["Município", "UF", "Geografia"], axis=1, inplace=True)
+            df_municipio["Densidade"] = df_municipio["Densidade"].apply(
+                lambda x: float(x.replace(",", "."))
+            )
+            df_municipio.rename(
+                columns={
+                    "Ano": "ano",
+                    "Mês": "mes",
+                    "Código IBGE": "id_municipio",
+                    "Densidade": "densidade",
+                },
+                inplace=True,
+            )
             savepath = "/tmp/data/microdados.csv"
 
             # ! Fazendo referencia a função criada anteriormente para particionar o arquivo o arquivo
             to_partitions(
-                    df_municipio,
-                    partition_columns=["ano", "mes", "sigla_uf"],
-                    savepath=savepath,
-                )
-            
+                df_municipio,
+                partition_columns=["ano", "mes", "sigla_uf"],
+                savepath=savepath,
+            )
+
     return savepath
