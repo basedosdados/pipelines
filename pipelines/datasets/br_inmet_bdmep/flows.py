@@ -31,6 +31,7 @@ with Flow(name="br_inmet_bdmep", code_owners=["arthurfg"]) as br_inmet:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_inmet_bdmep", required=True)
     table_id = Parameter("table_id", default="microdados", required=True)
+    year = Parameter("year", default=2023, required=True)
 
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
@@ -44,13 +45,13 @@ with Flow(name="br_inmet_bdmep", code_owners=["arthurfg"]) as br_inmet:
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    output_filepath = get_base_inmet(upstream_tasks=[rename_flow_run])
+    output_filepath = get_base_inmet(year=year, upstream_tasks=[rename_flow_run])
 
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=output_filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        dump_mode="overwrite",
+        dump_mode="append",
         wait=output_filepath,
     )
     with case(materialize_after_dump, True):
