@@ -83,7 +83,7 @@ every_month_inmet = Schedule(
             cron="50 17 28 * *",  # At 17:50 on day-of-month 28
             start_date=datetime(2021, 3, 31, 17, 11),
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_inmet_bdmep",
