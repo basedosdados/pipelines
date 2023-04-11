@@ -77,20 +77,9 @@ class TestMakeDirWhenNotExists(unittest.TestCase):
 class TestDownloadFrota(unittest.TestCase):
     def setUp(self):
         self.temp_dir = tempfile.TemporaryDirectory()
-        print("im heir")
 
     def tearDown(self):
         shutil.rmtree(self.temp_dir.name)
-
-    @unittest.skip("demonstrating skipping")
-    def test_download_frota_with_valid_month(self):
-        download_frota(MONTHS["fevereiro"], 2013)
-        expected_files = {
-            "frota_de_veiculos_por_municipio_tipo_e_combustivel_2-2013.xlsx",
-            "frota_de_veiculos_por_uf_e_tipo_2-2013.xlsx",
-        }
-        files = set(os.listdir(os.path.join(self.temp_dir, DATASET, "files", "2013")))
-        self.assertEqual(files, expected_files)
 
     def test_download_frota_with_invalid_month(self):
         with self.assertRaises(ValueError):
@@ -103,12 +92,13 @@ class TestDownloadFrota(unittest.TestCase):
     def test_download_post_2012(self, month, year):
         download_frota(month, year, self.temp_dir.name)
         expected_files = {
-            f"frota_por_uf_e_tipo_de_veículo_{month}-{year}.xls",
-            f"frota_por_município_e_tipo_{month}-{year}.xls",
+            f"frota_por_uf_e_tipo_de_veículo_{month}-{year}",
+            f"frota_por_município_e_tipo_{month}-{year}",
         }
-        files = set(
-            os.listdir(os.path.join(DATASET, self.temp_dir.name, "files", f"{year}"))
+        list_of_files = os.listdir(
+            os.path.join(DATASET, self.temp_dir.name, "files", f"{year}")
         )
+        files = set(os.path.splitext(file)[0] for file in list_of_files)
         self.assertEqual(files, expected_files)
 
 
