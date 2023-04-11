@@ -31,6 +31,7 @@ def download_file(url: str, download_dir: str) -> str:
 
     return filepath
 
+
 def extract_file(filepath: str, extract_dir: str) -> str:
     """
     Extrai um arquivo zip para um diretório específico.

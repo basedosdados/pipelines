@@ -20,7 +20,7 @@ from pipelines.utils.utils import (
 from pipelines.datasets.br_anatel_banda_larga_fixa.utils import (
     check_and_create_column,
     download_file,
-    extract_file
+    extract_file,
 )
 from pipelines.constants import constants
 
@@ -175,9 +175,7 @@ def treatment_br():
     # ! Tratando o csv
     df.rename(columns={"Nível Geográfico Densidade": "Geografia"}, inplace=True)
     df_brasil = df[df["Geografia"] == "Brasil"]
-    df_brasil = df_brasil.drop(
-        ["UF", "Município", "Geografia", "Código IBGE"], axis=1
-    )
+    df_brasil = df_brasil.drop(["UF", "Município", "Geografia", "Código IBGE"], axis=1)
     df_brasil["Densidade"] = df_brasil["Densidade"].apply(
         lambda x: float(x.replace(",", "."))
     )
@@ -187,7 +185,9 @@ def treatment_br():
     )
 
     # ! Salvando o csv tratado
-    path = df.to_csv("/tmp/data/densidade_brasil.csv", sep = ";", index=False, encoding="utf-8")
+    path = df.to_csv(
+        "/tmp/data/densidade_brasil.csv", sep=";", index=False, encoding="utf-8"
+    )
 
     return path
 
@@ -213,9 +213,7 @@ def treatment_uf():
     df = pd.read_csv(file, sep=";", encoding="utf-8")
     df_uf = df[df["Geografia"] == "UF"]
     df_uf.drop(["Município", "Código IBGE", "Geografia"], axis=1, inplace=True)
-    df_uf["Densidade"] = df_uf["Densidade"].apply(
-        lambda x: float(x.replace(",", "."))
-    )
+    df_uf["Densidade"] = df_uf["Densidade"].apply(lambda x: float(x.replace(",", ".")))
     df_uf.rename(
         columns={
             "Ano": "ano",
@@ -228,7 +226,9 @@ def treatment_uf():
     )
 
     # ! Salvando o csv tratado
-    path = df.to_csv("/tmp/data/densidade_brasil.csv", sep = ";", index=False, encoding="utf-8")
+    path = df.to_csv(
+        "/tmp/data/densidade_brasil.csv", sep=";", index=False, encoding="utf-8"
+    )
 
     return path
 
