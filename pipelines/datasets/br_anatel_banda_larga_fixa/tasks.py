@@ -67,7 +67,7 @@ def treatment():
                 df = pd.read_csv(f, sep=";", encoding="utf-8")
 
                 # ! Fazendo referencia a função criada anteriormente para verificar colunas
-                df = check_and_create_column.run(df, "Tipo de Produto")
+                df = check_and_create_column(df, "Tipo de Produto")
 
                 # ! Renomeando as colunas
                 df.rename(
