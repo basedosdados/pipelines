@@ -4,8 +4,6 @@ Tasks for br_anatel_banda_larga_fixa
 """
 import pandas as pd
 import numpy as np
-import os
-import zipfile
 from zipfile import ZipFile
 from pathlib import Path
 
@@ -21,8 +19,7 @@ from pipelines.utils.utils import (
 )
 from pipelines.datasets.br_anatel_banda_larga_fixa.utils import (
     check_and_create_column,
-    download_file,
-    extract_file,
+    download_file
 )
 from pipelines.constants import constants
 
@@ -51,8 +48,6 @@ def treatment():
     anos = ["2007-2010"]
 
     filepath = "/tmp/data/input/acessos_banda_larga_fixa.zip"
-    extract_dir = "/tmp/data/output"
-    extract_file(filepath=filepath, extract_dir=extract_dir)
 
     # ! Abrindo o arquivo zipado
     with ZipFile(filepath) as z:
@@ -154,4 +149,83 @@ def treatment():
                 )
 
     # ! retornando o caminho do path
+    return savepath
+
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def treatment_br():
+    url = "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/acessos/acessos_banda_larga_fixa.zip"
+
+    download_dir = "/tmp/data/input"
+
+    download_file(url=url, download_dir=download_dir)
+
+    filepath = "/tmp/data/input/acessos_banda_larga_fixa.zip"
+    with ZipFile(filepath) as z:
+        with z.open("Densidade_Banda_Larga_Fixa") as f:
+            df = pd.read_csv(f, sep=";", encoding="utf-8")
+
+            df.rename(columns={'Nível Geográfico Densidade' : 'Geografia'}, inplace=True)
+            df_brasil = df[df['Geografia'] == 'Brasil']
+            df_brasil = df_brasil.drop(['UF', 'Município', 'Geografia', 'Código IBGE'], axis=1)
+            df_brasil['Densidade'] = df_brasil['Densidade'].apply(lambda x: float(x.replace(',', '.')))
+            df_brasil.rename(columns={'Ano':'ano', 'Mês':'mes', 'Densidade':'densidade'}, inplace=True)
+
+    return filepath
+
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)    
+def treatment_uf():
+    url = "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/acessos/acessos_banda_larga_fixa.zip"
+
+    download_dir = "/tmp/data/input"
+
+    download_file(url=url, download_dir=download_dir)
+
+    filepath = "/tmp/data/input/acessos_banda_larga_fixa.zip"
+    with ZipFile(filepath) as z:
+        with z.open("Densidade_Banda_Larga_Fixa") as f:
+            df = pd.read_csv(f, sep=';', enconding='utf-8')
+            df_uf = df[df['Geografia'] == 'UF']
+            df_uf.drop(['Município', 'Código IBGE', 'Geografia'], axis=1, inplace=True)
+            df_uf['Densidade'] = df_uf['Densidade'].apply(lambda x: float(x.replace(',', '.')))
+            df_uf.rename(columns={'Ano':'ano', 'Mês':'mes', 'UF':'uf', 'Município':'municipio', 'Densidade':'densidade'}, inplace=True)
+
+    return filepath
+
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def treatment_municipio():
+    url = "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/acessos/acessos_banda_larga_fixa.zip"
+
+    download_dir = "/tmp/data/input"
+
+    download_file(url=url, download_dir=download_dir)
+
+    filepath = "/tmp/data/input/acessos_banda_larga_fixa.zip"
+    with ZipFile(filepath) as z:
+        with z.open("Densidade_Banda_Larga_Fixa") as f:
+            df = pd.read_csv(f, sep=';', enconding='utf-8')
+            df_municipio = df[df['Geografia'] == 'Municipio']
+            df_municipio.drop(['Município', 'UF', 'Geografia'], axis=1, inplace=True)
+            df_municipio['Densidade'] = df_municipio['Densidade'].apply(lambda x: float(x.replace(',', '.')))
+            df_municipio.rename(columns={'Ano':'ano', 'Mês':'mes', 'Código IBGE':'id_municipio', 'Densidade':'densidade'}, inplace=True)
+            savepath = "/tmp/data/microdados.csv"
+
+            # ! Fazendo referencia a função criada anteriormente para particionar o arquivo o arquivo
+            to_partitions(
+                    df_municipio,
+                    partition_columns=["ano", "mes", "sigla_uf"],
+                    savepath=savepath,
+                )
+            
     return savepath
