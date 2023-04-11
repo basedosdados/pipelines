@@ -45,7 +45,6 @@ class constants(Enum):  # pylint: disable=c0103
         #     - possible types: https://docs.discord.club/embedg/reference/mentions
         #     - how to discover user_id: https://www.remote.tools/remote-work/how-to-find-discord-id
         #     - types: user, user_nickname, channel, role
-
         # create equipe_dados channel
         "equipe_dados": {
             "user_id": "865034571469160458",
