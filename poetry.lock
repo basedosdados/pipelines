@@ -26,7 +26,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 dev = ["cloudpickle", "coverage[toml] (>=5.0.2)", "furo", "hypothesis", "mypy", "pre-commit", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins", "six", "sphinx", "sphinx-notfound-page", "zope.interface"]
 docs = ["furo", "sphinx", "sphinx-notfound-page", "zope.interface"]
 tests = ["cloudpickle", "coverage[toml] (>=5.0.2)", "hypothesis", "mypy", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins", "six", "zope.interface"]
-tests_no_zope = ["cloudpickle", "coverage[toml] (>=5.0.2)", "hypothesis", "mypy", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins", "six"]
+tests-no-zope = ["cloudpickle", "coverage[toml] (>=5.0.2)", "hypothesis", "mypy", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins", "six"]
 
 [[package]]
 name = "basedosdados"
@@ -103,7 +103,7 @@ optional = false
 python-versions = ">=3.5.0"
 
 [package.extras]
-unicode_backport = ["unicodedata2"]
+unicode-backport = ["unicodedata2"]
 
 [[package]]
 name = "ckanapi"
@@ -203,6 +203,10 @@ dataframe = ["numpy (>=1.18)", "pandas (>=1.0)"]
 diagnostics = ["bokeh (>=1.0.0,!=2.0.0)", "jinja2"]
 distributed = ["distributed (==2021.11.2)"]
 test = ["pre-commit", "pytest", "pytest-rerunfailures", "pytest-xdist"]
+
+[package.dependencies]
+pytz = "*"
+"zope.interface" = "*"
 
 [[package]]
 name = "db-dtypes"
@@ -509,7 +513,7 @@ requests = ">=2.18.0,<3.0.0dev"
 
 [package.extras]
 all = ["Shapely (>=1.6.0,<2.0dev)", "geopandas (>=0.9.0,<1.0dev)", "google-cloud-bigquery-storage (>=2.0.0,<3.0.0dev)", "grpcio (>=1.38.1,<2.0dev)", "opentelemetry-api (>=0.11b0)", "opentelemetry-instrumentation (>=0.11b0)", "opentelemetry-sdk (>=0.11b0)", "pandas (>=0.24.2)", "pyarrow (>=3.0.0,<7.0dev)", "tqdm (>=4.7.4,<5.0.0dev)"]
-bignumeric_type = ["pyarrow (>=3.0.0,<7.0dev)"]
+bignumeric-type = ["pyarrow (>=3.0.0,<7.0dev)"]
 bqstorage = ["google-cloud-bigquery-storage (>=2.0.0,<3.0.0dev)", "grpcio (>=1.38.1,<2.0dev)", "pyarrow (>=3.0.0,<7.0dev)"]
 geopandas = ["Shapely (>=1.6.0,<2.0dev)", "geopandas (>=0.9.0,<1.0dev)"]
 opentelemetry = ["opentelemetry-api (>=0.11b0)", "opentelemetry-instrumentation (>=0.11b0)", "opentelemetry-sdk (>=0.11b0)"]
@@ -1057,13 +1061,13 @@ urllib3 = ">=1.24.3"
 
 [package.extras]
 airtable = ["airtable-python-wrapper (>=0.11,<0.12)"]
-all_extras = ["PyGithub (>=1.51,<2.0)", "Pygments (>=2.2,<3.0)", "airtable-python-wrapper (>=0.11,<0.12)", "atlassian-python-api (>=2.0.1)", "azure-cosmos (>=3.1.1,<3.2)", "azure-storage-blob (>=12.1.0,<13.0)", "azureml-sdk (>=1.0.65,<1.1)", "black", "boto3 (>=1.9,<2.0)", "confluent-kafka (>=1.7.0)", "dask-cloudprovider[aws] (>=0.2.0)", "dask-kubernetes (>=0.8.0)", "dropbox (>=9.0,<10.0)", "dulwich (>=0.19.7)", "feedparser (>=5.0.1,<6.0)", "flaky (>=3.0)", "google-auth (>=2.0,<3.0)", "google-cloud-aiplatform (>=1.4.0,<2.0)", "google-cloud-bigquery (>=1.6.0,<3.0)", "google-cloud-secret-manager (>=2.4.0)", "google-cloud-storage (>=1.13,<2.0)", "graphviz (>=0.8)", "graphviz (>=0.8.3)", "great-expectations (>=0.11.1)", "gspread (>=3.6.0)", "hvac (>=0.10)", "jinja2 (>=2.0,<4.0)", "jira (>=2.0.0)", "kubernetes (>=9.0.0a1,<=13.0)", "mypy (>=0.600,<0.813)", "nbconvert (>=6.0.7)", "pandas (>=1.0.1)", "papermill (>=2.2.0)", "prometheus-client (>=0.9.0)", "psycopg2-binary (>=2.8.2)", "pushbullet.py (>=0.11.0)", "pyarrow (>=5.0.0)", "pyexasol (>=0.16.1)", "pymysql (>=0.9.3)", "pyodbc (>=4.0.30)", "pytest (>=6.0)", "pytest-env (>=0.6.0)", "pytest-xdist (>=2.0)", "python-gitlab (>=2.5.0,<3.0)", "redis (>=3.2.1)", "responses (>=0.14.0)", "sendgrid (>=6.7.0)", "snowflake-connector-python (>=1.8.2,<2.5)", "soda-sql (>=2.0.0b25)", "spacy (>=2.0.0,<3.0.0)", "testfixtures (>=6.10.3)", "tweepy (>=3.5,<4.0)"]
-all_orchestration_extras = ["PyGithub (>=1.51,<2.0)", "atlassian-python-api (>=2.0.1)", "azure-storage-blob (>=12.1.0,<13.0)", "boto3 (>=1.9,<2.0)", "dulwich (>=0.19.7)", "google-auth (>=2.0,<3.0)", "google-cloud-aiplatform (>=1.4.0,<2.0)", "google-cloud-secret-manager (>=2.4.0)", "google-cloud-storage (>=1.13,<2.0)", "kubernetes (>=9.0.0a1,<=13.0)", "python-gitlab (>=2.5.0,<3.0)"]
+all-extras = ["PyGithub (>=1.51,<2.0)", "Pygments (>=2.2,<3.0)", "airtable-python-wrapper (>=0.11,<0.12)", "atlassian-python-api (>=2.0.1)", "azure-cosmos (>=3.1.1,<3.2)", "azure-storage-blob (>=12.1.0,<13.0)", "azureml-sdk (>=1.0.65,<1.1)", "black", "boto3 (>=1.9,<2.0)", "confluent-kafka (>=1.7.0)", "dask-cloudprovider[aws] (>=0.2.0)", "dask-kubernetes (>=0.8.0)", "dropbox (>=9.0,<10.0)", "dulwich (>=0.19.7)", "feedparser (>=5.0.1,<6.0)", "flaky (>=3.0)", "google-auth (>=2.0,<3.0)", "google-cloud-aiplatform (>=1.4.0,<2.0)", "google-cloud-bigquery (>=1.6.0,<3.0)", "google-cloud-secret-manager (>=2.4.0)", "google-cloud-storage (>=1.13,<2.0)", "graphviz (>=0.8)", "graphviz (>=0.8.3)", "great-expectations (>=0.11.1)", "gspread (>=3.6.0)", "hvac (>=0.10)", "jinja2 (>=2.0,<4.0)", "jira (>=2.0.0)", "kubernetes (>=9.0.0a1,<=13.0)", "mypy (>=0.600,<0.813)", "nbconvert (>=6.0.7)", "pandas (>=1.0.1)", "papermill (>=2.2.0)", "prometheus-client (>=0.9.0)", "psycopg2-binary (>=2.8.2)", "pushbullet.py (>=0.11.0)", "pyarrow (>=5.0.0)", "pyexasol (>=0.16.1)", "pymysql (>=0.9.3)", "pyodbc (>=4.0.30)", "pytest (>=6.0)", "pytest-env (>=0.6.0)", "pytest-xdist (>=2.0)", "python-gitlab (>=2.5.0,<3.0)", "redis (>=3.2.1)", "responses (>=0.14.0)", "sendgrid (>=6.7.0)", "snowflake-connector-python (>=1.8.2,<2.5)", "soda-sql (>=2.0.0b25)", "spacy (>=2.0.0,<3.0.0)", "testfixtures (>=6.10.3)", "tweepy (>=3.5,<4.0)"]
+all-orchestration-extras = ["PyGithub (>=1.51,<2.0)", "atlassian-python-api (>=2.0.1)", "azure-storage-blob (>=12.1.0,<13.0)", "boto3 (>=1.9,<2.0)", "dulwich (>=0.19.7)", "google-auth (>=2.0,<3.0)", "google-cloud-aiplatform (>=1.4.0,<2.0)", "google-cloud-secret-manager (>=2.4.0)", "google-cloud-storage (>=1.13,<2.0)", "kubernetes (>=9.0.0a1,<=13.0)", "python-gitlab (>=2.5.0,<3.0)"]
 aws = ["boto3 (>=1.9,<2.0)"]
 azure = ["azure-cosmos (>=3.1.1,<3.2)", "azure-storage-blob (>=12.1.0,<13.0)", "azureml-sdk (>=1.0.65,<1.1)"]
-base_library_ci = ["PyGithub (>=1.51,<2.0)", "Pygments (>=2.2,<3.0)", "atlassian-python-api (>=2.0.1)", "azure-storage-blob (>=12.1.0,<13.0)", "black", "boto3 (>=1.9,<2.0)", "dulwich (>=0.19.7)", "flaky (>=3.0)", "google-auth (>=2.0,<3.0)", "google-cloud-aiplatform (>=1.4.0,<2.0)", "google-cloud-secret-manager (>=2.4.0)", "google-cloud-storage (>=1.13,<2.0)", "graphviz (>=0.8)", "jinja2 (>=2.0,<4.0)", "jira (>=2.0.0)", "kubernetes (>=9.0.0a1,<=13.0)", "mypy (>=0.600,<0.813)", "pandas (>=1.0.1)", "pytest (>=6.0)", "pytest-env (>=0.6.0)", "pytest-xdist (>=2.0)", "python-gitlab (>=2.5.0,<3.0)", "responses (>=0.14.0)", "testfixtures (>=6.10.3)"]
+base-library-ci = ["PyGithub (>=1.51,<2.0)", "Pygments (>=2.2,<3.0)", "atlassian-python-api (>=2.0.1)", "azure-storage-blob (>=12.1.0,<13.0)", "black", "boto3 (>=1.9,<2.0)", "dulwich (>=0.19.7)", "flaky (>=3.0)", "google-auth (>=2.0,<3.0)", "google-cloud-aiplatform (>=1.4.0,<2.0)", "google-cloud-secret-manager (>=2.4.0)", "google-cloud-storage (>=1.13,<2.0)", "graphviz (>=0.8)", "jinja2 (>=2.0,<4.0)", "jira (>=2.0.0)", "kubernetes (>=9.0.0a1,<=13.0)", "mypy (>=0.600,<0.813)", "pandas (>=1.0.1)", "pytest (>=6.0)", "pytest-env (>=0.6.0)", "pytest-xdist (>=2.0)", "python-gitlab (>=2.5.0,<3.0)", "responses (>=0.14.0)", "testfixtures (>=6.10.3)"]
 bitbucket = ["atlassian-python-api (>=2.0.1)"]
-dask_cloudprovider = ["dask-cloudprovider[aws] (>=0.2.0)"]
+dask-cloudprovider = ["dask-cloudprovider[aws] (>=0.2.0)"]
 dev = ["Pygments (>=2.2,<3.0)", "black", "flaky (>=3.0)", "graphviz (>=0.8)", "jinja2 (>=2.0,<4.0)", "mypy (>=0.600,<0.813)", "pytest (>=6.0)", "pytest-env (>=0.6.0)", "pytest-xdist (>=2.0)", "responses (>=0.14.0)", "testfixtures (>=6.10.3)"]
 dremio = ["pyarrow (>=5.0.0)"]
 dropbox = ["dropbox (>=9.0,<10.0)"]
@@ -1090,8 +1094,8 @@ sendgrid = ["sendgrid (>=6.7.0)"]
 snowflake = ["snowflake-connector-python (>=1.8.2,<2.5)"]
 sodasql = ["soda-sql (>=2.0.0b25)"]
 spacy = ["spacy (>=2.0.0,<3.0.0)"]
-sql_server = ["pyodbc (>=4.0.30)"]
-task_library_ci = ["PyGithub (>=1.51,<2.0)", "Pygments (>=2.2,<3.0)", "airtable-python-wrapper (>=0.11,<0.12)", "atlassian-python-api (>=2.0.1)", "azure-cosmos (>=3.1.1,<3.2)", "azure-storage-blob (>=12.1.0,<13.0)", "azureml-sdk (>=1.0.65,<1.1)", "black", "boto3 (>=1.9,<2.0)", "confluent-kafka (>=1.7.0)", "dask-kubernetes (>=0.8.0)", "dropbox (>=9.0,<10.0)", "dulwich (>=0.19.7)", "feedparser (>=5.0.1,<6.0)", "flaky (>=3.0)", "google-auth (>=2.0,<3.0)", "google-cloud-aiplatform (>=1.4.0,<2.0)", "google-cloud-bigquery (>=1.6.0,<3.0)", "google-cloud-secret-manager (>=2.4.0)", "google-cloud-storage (>=1.13,<2.0)", "graphviz (>=0.8)", "graphviz (>=0.8.3)", "great-expectations (>=0.11.1)", "gspread (>=3.6.0)", "hvac (>=0.10)", "jinja2 (>=2.0,<4.0)", "jira (>=2.0.0)", "kubernetes (>=9.0.0a1,<=13.0)", "mypy (>=0.600,<0.813)", "nbconvert (>=6.0.7)", "pandas (>=1.0.1)", "papermill (>=2.2.0)", "prometheus-client (>=0.9.0)", "psycopg2-binary (>=2.8.2)", "pushbullet.py (>=0.11.0)", "pyarrow (>=5.0.0)", "pyexasol (>=0.16.1)", "pymysql (>=0.9.3)", "pytest (>=6.0)", "pytest-env (>=0.6.0)", "pytest-xdist (>=2.0)", "python-gitlab (>=2.5.0,<3.0)", "redis (>=3.2.1)", "responses (>=0.14.0)", "sendgrid (>=6.7.0)", "snowflake-connector-python (>=1.8.2,<2.5)", "soda-sql (>=2.0.0b25)", "spacy (>=2.0.0,<3.0.0)", "testfixtures (>=6.10.3)", "tweepy (>=3.5,<4.0)"]
+sql-server = ["pyodbc (>=4.0.30)"]
+task-library-ci = ["PyGithub (>=1.51,<2.0)", "Pygments (>=2.2,<3.0)", "airtable-python-wrapper (>=0.11,<0.12)", "atlassian-python-api (>=2.0.1)", "azure-cosmos (>=3.1.1,<3.2)", "azure-storage-blob (>=12.1.0,<13.0)", "azureml-sdk (>=1.0.65,<1.1)", "black", "boto3 (>=1.9,<2.0)", "confluent-kafka (>=1.7.0)", "dask-kubernetes (>=0.8.0)", "dropbox (>=9.0,<10.0)", "dulwich (>=0.19.7)", "feedparser (>=5.0.1,<6.0)", "flaky (>=3.0)", "google-auth (>=2.0,<3.0)", "google-cloud-aiplatform (>=1.4.0,<2.0)", "google-cloud-bigquery (>=1.6.0,<3.0)", "google-cloud-secret-manager (>=2.4.0)", "google-cloud-storage (>=1.13,<2.0)", "graphviz (>=0.8)", "graphviz (>=0.8.3)", "great-expectations (>=0.11.1)", "gspread (>=3.6.0)", "hvac (>=0.10)", "jinja2 (>=2.0,<4.0)", "jira (>=2.0.0)", "kubernetes (>=9.0.0a1,<=13.0)", "mypy (>=0.600,<0.813)", "nbconvert (>=6.0.7)", "pandas (>=1.0.1)", "papermill (>=2.2.0)", "prometheus-client (>=0.9.0)", "psycopg2-binary (>=2.8.2)", "pushbullet.py (>=0.11.0)", "pyarrow (>=5.0.0)", "pyexasol (>=0.16.1)", "pymysql (>=0.9.3)", "pytest (>=6.0)", "pytest-env (>=0.6.0)", "pytest-xdist (>=2.0)", "python-gitlab (>=2.5.0,<3.0)", "redis (>=3.2.1)", "responses (>=0.14.0)", "sendgrid (>=6.7.0)", "snowflake-connector-python (>=1.8.2,<2.5)", "soda-sql (>=2.0.0b25)", "spacy (>=2.0.0,<3.0.0)", "testfixtures (>=6.10.3)", "tweepy (>=3.5,<4.0)"]
 templates = ["jinja2 (>=2.0,<4.0)"]
 test = ["flaky (>=3.0)", "pytest (>=6.0)", "pytest-env (>=0.6.0)", "pytest-xdist (>=2.0)", "responses (>=0.14.0)", "testfixtures (>=6.10.3)"]
 twitter = ["tweepy (>=3.5,<4.0)"]
@@ -1232,7 +1236,7 @@ py = ">=1.8.2"
 toml = "*"
 
 [package.extras]
-checkqa_mypy = ["mypy (==0.780)"]
+checkqa-mypy = ["mypy (==0.780)"]
 testing = ["argcomplete", "hypothesis (>=3.56)", "mock", "nose", "requests", "xmlschema"]
 
 [[package]]
@@ -1262,7 +1266,7 @@ python-versions = ">=3.6"
 all = ["msgpack", "ruamel.yaml", "toml"]
 msgpack = ["msgpack"]
 pyyaml = ["PyYAML"]
-"ruamel.yaml" = ["ruamel.yaml"]
+ruamel-yaml = ["ruamel.yaml"]
 toml = ["toml"]
 yaml = ["ruamel.yaml"]
 
@@ -1368,7 +1372,7 @@ urllib3 = ">=1.21.1,<1.27"
 
 [package.extras]
 socks = ["PySocks (>=1.5.6,!=1.5.7)", "win-inet-pton"]
-use_chardet_on_py3 = ["chardet (>=3.0.2,<5)"]
+use-chardet-on-py3 = ["chardet (>=3.0.2,<5)"]
 
 [[package]]
 name = "requests-oauthlib"
@@ -1702,10 +1706,26 @@ python-versions = ">=3.7"
 docs = ["jaraco.packaging (>=9)", "rst.linker (>=1.9)", "sphinx"]
 testing = ["func-timeout", "jaraco.itertools", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=1.0.1)", "pytest-flake8", "pytest-mypy (>=0.9.1)"]
 
+[[package]]
+name = "zope-interface"
+version = "6.0"
+description = "Interfaces for Python"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+setuptools = "*"
+
+[package.extras]
+docs = ["Sphinx", "repoze.sphinx.autointerface"]
+test = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
+testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
+
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.11"
-content-hash = "278926d8c793d2005dcf81f948bdb3d4d1e314b44285303a5861b4cafcb6032b"
+content-hash = "d019e3518fa6ae31dae56d71ccd55f51b89905b85dcb3ae739dd48ab7fa0b132"
 
 [metadata.files]
 async-timeout = [
@@ -2982,4 +3002,36 @@ zict = [
 zipp = [
     {file = "zipp-3.8.0-py3-none-any.whl", hash = "sha256:c4f6e5bbf48e74f7a38e7cc5b0480ff42b0ae5178957d564d18932525d5cf099"},
     {file = "zipp-3.8.0.tar.gz", hash = "sha256:56bf8aadb83c24db6c4b577e13de374ccfb67da2078beba1d037c17980bf43ad"},
+]
+zope-interface = [
+    {file = "zope.interface-6.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:f299c020c6679cb389814a3b81200fe55d428012c5e76da7e722491f5d205990"},
+    {file = "zope.interface-6.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:ee4b43f35f5dc15e1fec55ccb53c130adb1d11e8ad8263d68b1284b66a04190d"},
+    {file = "zope.interface-6.0-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:5a158846d0fca0a908c1afb281ddba88744d403f2550dc34405c3691769cdd85"},
+    {file = "zope.interface-6.0-cp310-cp310-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:f72f23bab1848edb7472309e9898603141644faec9fd57a823ea6b4d1c4c8995"},
+    {file = "zope.interface-6.0-cp310-cp310-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:48f4d38cf4b462e75fac78b6f11ad47b06b1c568eb59896db5b6ec1094eb467f"},
+    {file = "zope.interface-6.0-cp310-cp310-win_amd64.whl", hash = "sha256:87b690bbee9876163210fd3f500ee59f5803e4a6607d1b1238833b8885ebd410"},
+    {file = "zope.interface-6.0-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:f2363e5fd81afb650085c6686f2ee3706975c54f331b426800b53531191fdf28"},
+    {file = "zope.interface-6.0-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:af169ba897692e9cd984a81cb0f02e46dacdc07d6cf9fd5c91e81f8efaf93d52"},
+    {file = "zope.interface-6.0-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:fa90bac61c9dc3e1a563e5babb3fd2c0c1c80567e815442ddbe561eadc803b30"},
+    {file = "zope.interface-6.0-cp311-cp311-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:89086c9d3490a0f265a3c4b794037a84541ff5ffa28bb9c24cc9f66566968464"},
+    {file = "zope.interface-6.0-cp311-cp311-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:809fe3bf1a91393abc7e92d607976bbb8586512913a79f2bf7d7ec15bd8ea518"},
+    {file = "zope.interface-6.0-cp311-cp311-win_amd64.whl", hash = "sha256:0ec9653825f837fbddc4e4b603d90269b501486c11800d7c761eee7ce46d1bbb"},
+    {file = "zope.interface-6.0-cp37-cp37m-macosx_10_15_x86_64.whl", hash = "sha256:790c1d9d8f9c92819c31ea660cd43c3d5451df1df61e2e814a6f99cebb292788"},
+    {file = "zope.interface-6.0-cp37-cp37m-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:b39b8711578dcfd45fc0140993403b8a81e879ec25d53189f3faa1f006087dca"},
+    {file = "zope.interface-6.0-cp37-cp37m-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:eba51599370c87088d8882ab74f637de0c4f04a6d08a312dce49368ba9ed5c2a"},
+    {file = "zope.interface-6.0-cp37-cp37m-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:6ee934f023f875ec2cfd2b05a937bd817efcc6c4c3f55c5778cbf78e58362ddc"},
+    {file = "zope.interface-6.0-cp37-cp37m-win_amd64.whl", hash = "sha256:042f2381118b093714081fd82c98e3b189b68db38ee7d35b63c327c470ef8373"},
+    {file = "zope.interface-6.0-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:dfbbbf0809a3606046a41f8561c3eada9db811be94138f42d9135a5c47e75f6f"},
+    {file = "zope.interface-6.0-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:424d23b97fa1542d7be882eae0c0fc3d6827784105264a8169a26ce16db260d8"},
+    {file = "zope.interface-6.0-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:e538f2d4a6ffb6edfb303ce70ae7e88629ac6e5581870e66c306d9ad7b564a58"},
+    {file = "zope.interface-6.0-cp38-cp38-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:12175ca6b4db7621aedd7c30aa7cfa0a2d65ea3a0105393e05482d7a2d367446"},
+    {file = "zope.interface-6.0-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:4c3d7dfd897a588ec27e391edbe3dd320a03684457470415870254e714126b1f"},
+    {file = "zope.interface-6.0-cp38-cp38-win_amd64.whl", hash = "sha256:b3f543ae9d3408549a9900720f18c0194ac0fe810cecda2a584fd4dca2eb3bb8"},
+    {file = "zope.interface-6.0-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:d0583b75f2e70ec93f100931660328965bb9ff65ae54695fb3fa0a1255daa6f2"},
+    {file = "zope.interface-6.0-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:23ac41d52fd15dd8be77e3257bc51bbb82469cf7f5e9a30b75e903e21439d16c"},
+    {file = "zope.interface-6.0-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:99856d6c98a326abbcc2363827e16bd6044f70f2ef42f453c0bd5440c4ce24e5"},
+    {file = "zope.interface-6.0-cp39-cp39-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:1592f68ae11e557b9ff2bc96ac8fc30b187e77c45a3c9cd876e3368c53dc5ba8"},
+    {file = "zope.interface-6.0-cp39-cp39-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:4407b1435572e3e1610797c9203ad2753666c62883b921318c5403fb7139dec2"},
+    {file = "zope.interface-6.0-cp39-cp39-win_amd64.whl", hash = "sha256:5171eb073474a5038321409a630904fd61f12dd1856dd7e9d19cd6fe092cbbc5"},
+    {file = "zope.interface-6.0.tar.gz", hash = "sha256:aab584725afd10c710b8f1e6e208dbee2d0ad009f57d674cb9d1b3964037275d"},
 ]
