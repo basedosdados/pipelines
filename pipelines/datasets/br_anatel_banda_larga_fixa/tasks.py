@@ -54,10 +54,8 @@ def treatment():
     extract_dir = "/tmp/data/output"
     extract_file(filepath=filepath, extract_dir=extract_dir)
 
-    banda_larga = f"/tmp/data/output/Acessos_Banda_Larga_Fixa_{anos}.csv"
-
     # ! Abrindo o arquivo zipado
-    with ZipFile(banda_larga) as z:
+    with ZipFile(filepath) as z:
 
         # ! Iterando sobre a lista de anos
         for ano in anos:
