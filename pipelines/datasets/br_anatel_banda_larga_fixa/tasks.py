@@ -18,14 +18,14 @@ from prefect import task
 from pipelines.utils.utils import (
     to_partitions,
     log,
-
 )
 from pipelines.datasets.br_anatel_banda_larga_fixa.utils import (
     check_and_create_column,
     download_file,
-    extract_file
+    extract_file,
 )
 from pipelines.constants import constants
+
 
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
@@ -33,14 +33,12 @@ from pipelines.constants import constants
 )
 def treatment():
     url = "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/acessos/acessos_banda_larga_fixa.zip"
-    
+
     download_dir = "/tmp/data/input"
 
-    download_file(
-        url=url,
-        download_dir=download_dir)
+    download_file(url=url, download_dir=download_dir)
 
-    '''anos = [
+    """anos = [
     "2007-2010",
     "2011-2012",
     "2013-2014",
@@ -50,14 +48,13 @@ def treatment():
     "2021",
     "2022",
     "2023"]'''
-    anos = '2007-2010'
+    anos = ['2007-2010']
 
-    filepath = '/tmp/data/input/acessos_banda_larga_fixa.zip'
+    filepath = "/tmp/data/input/acessos_banda_larga_fixa.zip"
     extract_dir = "/tmp/data/output"
-    extract_file(filepath= filepath,
-              extract_dir=extract_dir)
-    
-    banda_larga = f'/tmp/data/output/Acessos_Banda_Larga_Fixa_{anos}.csv'
+    extract_file(filepath=filepath, extract_dir=extract_dir)
+
+    banda_larga = f"/tmp/data/output/Acessos_Banda_Larga_Fixa_{anos}.csv"
 
     # ! Abrindo o arquivo zipado
     with ZipFile(banda_larga) as z:
