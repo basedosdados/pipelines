@@ -185,8 +185,9 @@ def treatment_br():
     )
 
     # ! Salvando o csv tratado
-    path = df.to_csv(
-        "/tmp/data/densidade_brasil.csv", sep=";", index=False, encoding="utf-8"
+    path = "/tmp/data/densidade_brasil.csv"
+    df.to_csv(
+        path, sep=";", index=False, encoding="utf-8"
     )
 
     return path
@@ -226,8 +227,9 @@ def treatment_uf():
     )
 
     # ! Salvando o csv tratado
-    path = df.to_csv(
-        "/tmp/data/densidade_brasil.csv", sep=";", index=False, encoding="utf-8"
+    path = "/tmp/data/densidade_brasil.csv"
+    df.to_csv(
+        path, sep=";", index=False, encoding="utf-8"
     )
 
     return path
