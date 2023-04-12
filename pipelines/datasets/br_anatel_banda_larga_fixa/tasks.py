@@ -91,7 +91,7 @@ def treatment():
                 df.drop(["grupo_economico", "municipio"], axis=1, inplace=True)
 
                 # ! Reordenando as colunas
-                df = df[ 
+                df = df[
                     [
                         "ano",
                         "mes",
@@ -251,7 +251,7 @@ def treatment_municipio():
     df = pd.read_csv(file, sep=";", encoding="utf-8")
 
     # ! Tratando o csv
-    df.rename(columns={'Nível Geográfico Densidade' : 'Geografia'}, inplace=True)
+    df.rename(columns={"Nível Geográfico Densidade": "Geografia"}, inplace=True)
     df_municipio = df[df["Geografia"] == "Municipio"]
     df_municipio.drop(["Município", "UF", "Geografia"], axis=1, inplace=True)
     df_municipio["Densidade"] = df_municipio["Densidade"].apply(

@@ -28,7 +28,7 @@ every_month_anatel_microdados = Schedule(
     ]
 )
 
- 
+
 every_month_anatel_densidade_brasil = Schedule(
     clocks=[
         CronClock(
