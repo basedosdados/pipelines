@@ -167,9 +167,9 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-br_anatel.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_anatel.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_anatel.schedule = every_month_anatel_densidade_brasil
+br_anatel_densidade_br.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_anatel_densidade_br.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_anatel_densidade_br.schedule = every_month_anatel_densidade_brasil
 
 
 # ! flow densidade_uf
@@ -238,9 +238,9 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-br_anatel.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_anatel.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_anatel.schedule = every_month_anatel_densidade_uf
+br_anatel_densidade_uf.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_anatel_densidade_uf.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_anatel_densidade_uf.schedule = every_month_anatel_densidade_uf
 
 
 # ! flow densidade_municipio
@@ -309,6 +309,6 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-br_anatel.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_anatel.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_anatel.schedule = every_month_anatel_densidade_municipio
+br_anatel_densidade_municipio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_anatel_densidade_municipio.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_anatel_densidade_municipio.schedule = every_month_anatel_densidade_municipio
