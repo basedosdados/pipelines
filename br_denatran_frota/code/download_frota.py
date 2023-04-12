@@ -36,6 +36,11 @@ def download_file(url, filename):
     print(f"Download of {filename} complete")
 
 
+def extract_zip(dest_path_file):
+    with ZipFile(dest_path_file, "r") as z:
+        z.extractall(os.getcwd())
+
+
 def handle_xl(i: dict) -> None:
     """Actually downloads and deals with Excel files.
 
@@ -67,11 +72,15 @@ def make_filename(i: dict, ext: bool = True) -> str:
     return filename
 
 
+def handle_compact(i):
+    print(2)
+
+
 def call_downloader(i):
     if i["filetype"] in ["xlsx", "xls"]:
         handle_xl(i)
     else:
-        raise ValueError("A função handle_compact tá bem esquisita por hora.")
+        handle_compact(i)
 
 
 def download_post_2012(month: int, year: int):
