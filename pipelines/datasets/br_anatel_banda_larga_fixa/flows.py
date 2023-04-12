@@ -310,7 +310,5 @@ with Flow(
         )
 
 br_anatel_densidade_municipio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_anatel_densidade_municipio.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
+br_anatel_densidade_municipio.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 br_anatel_densidade_municipio.schedule = every_month_anatel_densidade_municipio

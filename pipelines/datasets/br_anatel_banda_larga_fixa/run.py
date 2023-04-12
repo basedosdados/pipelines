@@ -18,7 +18,7 @@ run_cloud(
 )
 
 
-"""run_cloud(
+run_cloud(
     br_anatel_densidade_br,  # ! O flow que você deseja executar
     labels=[
         "basedosdados-dev",  # ! Label para identificar o agente que irá executar a pipeline (ex: basedosdados-dev)
@@ -37,7 +37,7 @@ run_cloud(
     parameters={  # ! True como bool e não como string!
         "materialize_after_dump": False,  # ! Parâmetros que serão passados para a pipeline (opcional)
     },
-)"""
+)
 
 run_cloud(
     br_anatel_densidade_municipio,  # ! O flow que você deseja executar
