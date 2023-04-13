@@ -36,7 +36,7 @@ def treatment():
 
     download_file(url=url, download_dir=download_dir)
 
-    """anos = [
+    anos = [
     "2007-2010",
     "2011-2012",
     "2013-2014",
@@ -45,8 +45,7 @@ def treatment():
     "2019-2020",
     "2021",
     "2022",
-    "2023"]"""
-    anos = ["2007-2010"]
+    "2023"]
 
     filepath = "/tmp/data/input/acessos_banda_larga_fixa.zip"
 
@@ -210,18 +209,18 @@ def treatment_uf():
     # ! Abrindo o arquivo csv
     file = "/tmp/data/input/Densidade_Banda_Larga_Fixa.csv"
     df = pd.read_csv(file, sep=";", encoding="utf-8")
+    df.rename(columns={"Nível Geográfico Densidade": "Geografia"}, inplace=True)
     df_uf = df[df["Geografia"] == "UF"]
     df_uf.drop(["Município", "Código IBGE", "Geografia"], axis=1, inplace=True)
     df_uf["Densidade"] = df_uf["Densidade"].apply(lambda x: float(x.replace(",", ".")))
     df_uf.rename(
-        columns={
-            "Ano": "ano",
-            "Mês": "mes",
-            "UF": "uf",
-            "Município": "municipio",
-            "Densidade": "densidade",
-        },
-        inplace=True,
+    columns={
+        "Ano": "ano",
+        "Mês": "mes",
+        "UF": "sigla_uf",
+        "Densidade": "densidade",
+    },
+    inplace=True,
     )
 
     # ! Salvando o csv tratado
@@ -253,7 +252,7 @@ def treatment_municipio():
     # ! Tratando o csv
     df.rename(columns={"Nível Geográfico Densidade": "Geografia"}, inplace=True)
     df_municipio = df[df["Geografia"] == "Municipio"]
-    df_municipio.drop(["Município", "UF", "Geografia"], axis=1, inplace=True)
+    df_municipio.drop(["Município", "Geografia"], axis=1, inplace=True)
     df_municipio["Densidade"] = df_municipio["Densidade"].apply(
         lambda x: float(x.replace(",", "."))
     )
@@ -261,6 +260,7 @@ def treatment_municipio():
         columns={
             "Ano": "ano",
             "Mês": "mes",
+            "UF" : "sigla_uf",
             "Código IBGE": "id_municipio",
             "Densidade": "densidade",
         },
