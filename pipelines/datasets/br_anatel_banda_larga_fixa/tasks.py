@@ -37,15 +37,16 @@ def treatment():
     download_file(url=url, download_dir=download_dir)
 
     anos = [
-    "2007-2010",
-    "2011-2012",
-    "2013-2014",
-    "2015-2016",
-    "2017-2018",
-    "2019-2020",
-    "2021",
-    "2022",
-    "2023"]
+        "2007-2010",
+        "2011-2012",
+        "2013-2014",
+        "2015-2016",
+        "2017-2018",
+        "2019-2020",
+        "2021",
+        "2022",
+        "2023",
+    ]
 
     filepath = "/tmp/data/input/acessos_banda_larga_fixa.zip"
 
@@ -214,13 +215,13 @@ def treatment_uf():
     df_uf.drop(["Município", "Código IBGE", "Geografia"], axis=1, inplace=True)
     df_uf["Densidade"] = df_uf["Densidade"].apply(lambda x: float(x.replace(",", ".")))
     df_uf.rename(
-    columns={
-        "Ano": "ano",
-        "Mês": "mes",
-        "UF": "sigla_uf",
-        "Densidade": "densidade",
-    },
-    inplace=True,
+        columns={
+            "Ano": "ano",
+            "Mês": "mes",
+            "UF": "sigla_uf",
+            "Densidade": "densidade",
+        },
+        inplace=True,
     )
 
     # ! Salvando o csv tratado
@@ -260,7 +261,7 @@ def treatment_municipio():
         columns={
             "Ano": "ano",
             "Mês": "mes",
-            "UF" : "sigla_uf",
+            "UF": "sigla_uf",
             "Código IBGE": "id_municipio",
             "Densidade": "densidade",
         },
