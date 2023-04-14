@@ -20,6 +20,10 @@ from pipelines.datasets.br_bcb_estban.tasks import (
     cleaning_agencias_data,
     get_id_municipio,
 )
+from pipelines.datasets.br_bcb_estban.schedules import (
+    every_month_agencia,
+    every_month_municipio,
+)
 
 from pipelines.datasets.br_bcb_estban.constants import (
     constants as br_bcb_estban_constants,
@@ -44,14 +48,14 @@ with Flow(
 
     # Materialization mode
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default=True, required=False
     )
 
     materialize_after_dump = Parameter(
         "materialize after dump", default=True, required=False
     )
 
-    dbt_alias = Parameter("dbt_alias", default=True, required=False)
+    dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
@@ -111,6 +115,7 @@ with Flow(
 
 br_bcb_estban_municipio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_bcb_estban_municipio.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_bcb_estban_municipio.schedule = every_month_municipio
 
 
 with Flow(
@@ -125,11 +130,11 @@ with Flow(
 
     # Materialization mode
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default=False, required=False
     )
 
     materialize_after_dump = Parameter(
-        "materialize after dump", default=True, required=False
+        "materialize after dump", default=False, required=False
     )
 
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
@@ -156,7 +161,7 @@ with Flow(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        dump_mode="overwrite",
+        dump_mode="append",
         wait=filepath,
     )
 
@@ -192,3 +197,4 @@ with Flow(
 
 br_bcb_estban_agencia.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_bcb_estban_agencia.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_bcb_estban_agencia.schedule = every_month_agencia

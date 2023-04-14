@@ -18,8 +18,15 @@ every_month_agencia = Schedule(
             cron="00 15 15 * *",  # 15th day of every month at 15:00
             start_date=datetime(1988, 7, 1),
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
+            parameter_defaults={
+                "dataset_id": "br_inmet_bdmep",
+                "table_id": "microdados",
+                "materialization_mode": "dev",
+                "materialize_after_dump": True,
+                "dbt_alias": True,
+            },
         )
     ]
 )
@@ -31,8 +38,15 @@ every_month_municipio = Schedule(
             cron="00 15 15 * *",  # 15th day of every month at 15:00
             start_date=datetime(1988, 7, 1),
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
+            parameter_defaults={
+                "dataset_id": "br_bcb_estban",
+                "table_id": "microdados",
+                "materialization_mode": "dev",
+                "materialize_after_dump": True,
+                "dbt_alias": True,
+            },
         )
     ]
 )
