@@ -36,17 +36,7 @@ def treatment():
 
     download_file(url=url, download_dir=download_dir)
 
-    anos = [
-        "2007-2010",
-        "2011-2012",
-        "2013-2014",
-        "2015-2016",
-        "2017-2018",
-        "2019-2020",
-        "2021",
-        "2022",
-        "2023",
-    ]
+    anos = ["2023"]
 
     filepath = "/tmp/data/input/acessos_banda_larga_fixa.zip"
 

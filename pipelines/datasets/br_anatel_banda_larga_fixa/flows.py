@@ -42,7 +42,7 @@ with Flow(
     table_id = Parameter("table_id", default="microdados", required=True)
 
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
 
     materialize_after_dump = Parameter(
@@ -113,7 +113,7 @@ with Flow(
     table_id = Parameter("table_id", default="densidade_brasil", required=True)
 
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
 
     materialize_after_dump = Parameter(
@@ -184,7 +184,7 @@ with Flow(
     table_id = Parameter("table_id", default="densidade_uf", required=True)
 
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
 
     materialize_after_dump = Parameter(
@@ -255,7 +255,7 @@ with Flow(
     table_id = Parameter("table_id", default="densidade_municipio", required=True)
 
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
 
     materialize_after_dump = Parameter(
