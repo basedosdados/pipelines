@@ -26,15 +26,23 @@ def get_url_from_template(year: int, quarter: int) -> str:
     Returns:
         str: url
     """
-    download_page = "https://ftp.ibge.gov.br/Trabalho_e_Rendimento/Pesquisa_Nacional_por_Amostra_de_Domicilios_continua/Trimestral/Microdados/2021/"
+    download_page = f"https://ftp.ibge.gov.br/Trabalho_e_Rendimento/Pesquisa_Nacional_por_Amostra_de_Domicilios_continua/Trimestral/Microdados/{year}/"
     response = requests.get(download_page, timeout=5)
-    hrefs = [k for k in response.text.split('href="')[1:] if k.__contains__("zip")]
-    hrefs = [k.split('"')[0] for k in hrefs]
-    href = hrefs[0]
-    href = href.replace("2021", str(year))
-    filename = href.replace("01", str(quarter).zfill(2))
 
-    url = pnad_constants.URL_PREFIX.value + "/{year}/{filename}"
+    if response.status_code >= 400 and response.status_code <= 599:
+        raise Exception(f"Erro de requisição: status code {response.status_code}")
+
+    else:
+        hrefs = [k for k in response.text.split('href="')[1:] if k.__contains__("zip")]
+        hrefs = [k.split('"')[0] for k in hrefs]
+        filename = None
+        for href in hrefs:
+            if f"0{quarter}{year}" in href:
+                filename = href
+        if not filename:
+            raise Exception("Erro: o atributo href não existe.")
+
+        url = pnad_constants.URL_PREFIX.value + "/{year}/{filename}"
     return url.format(year=year, filename=filename)
 
 
