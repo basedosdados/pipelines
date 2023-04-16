@@ -23,12 +23,16 @@ MONTHS = {
 }
 
 DATASET = "br_denatran_frota"
+headers = {
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36"
+}
 
 
 def download_file(url, filename):
     # Send a GET request to the URL
-    response = requests.get(url)
 
+    new_url = url.replace("arquivos-denatran", "arquivos-senatran")
+    response = requests.get(new_url, headers=headers)
     # Save the contents of the response to a file
     with open(filename, "wb") as f:
         f.write(response.content)
@@ -77,10 +81,7 @@ def handle_compact(i):
 
 
 def call_downloader(i):
-    if i["filetype"] in ["xlsx", "xls"]:
-        handle_xl(i)
-    else:
-        handle_compact(i)
+    handle_xl(i)
 
 
 def download_post_2012(month: int, year: int):
@@ -127,7 +128,7 @@ def make_dir_when_not_exists(dir_name: str):
         os.mkdir(dir_name)
 
 
-def download_frota(month: int, year: int, temp_dir: str = None):
+def download_frota(month: int, year: int, temp_dir: str = ""):
     """Função principal para baixar os dados de frota por município e tipo e também por UF e tipo.
 
     Args:
