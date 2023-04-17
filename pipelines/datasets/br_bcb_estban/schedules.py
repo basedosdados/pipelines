@@ -21,8 +21,8 @@ every_month_agencia = Schedule(
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
-                "dataset_id": "br_inmet_bdmep",
-                "table_id": "microdados",
+                "dataset_id": "br_bcb_estban",
+                "table_id": "agencia",
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
@@ -42,7 +42,7 @@ every_month_municipio = Schedule(
             ],
             parameter_defaults={
                 "dataset_id": "br_bcb_estban",
-                "table_id": "microdados",
+                "table_id": "municipio",
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
