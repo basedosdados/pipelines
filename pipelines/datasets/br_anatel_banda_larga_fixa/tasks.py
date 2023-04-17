@@ -36,17 +36,7 @@ def treatment():
 
     download_file(url=url, download_dir=download_dir)
 
-    """anos = [
-    "2007-2010",
-    "2011-2012",
-    "2013-2014",
-    "2015-2016",
-    "2017-2018",
-    "2019-2020",
-    "2021",
-    "2022",
-    "2023"]"""
-    anos = ["2007-2010"]
+    anos = ["2023"]
 
     filepath = "/tmp/data/input/acessos_banda_larga_fixa.zip"
 
@@ -185,9 +175,8 @@ def treatment_br():
     )
 
     # ! Salvando o csv tratado
-    path = df.to_csv(
-        "/tmp/data/densidade_brasil.csv", sep=";", index=False, encoding="utf-8"
-    )
+    path = "/tmp/data/densidade_brasil.csv"
+    df_brasil.to_csv(path, sep=";", index=False, encoding="utf-8")
 
     return path
 
@@ -211,6 +200,7 @@ def treatment_uf():
     # ! Abrindo o arquivo csv
     file = "/tmp/data/input/Densidade_Banda_Larga_Fixa.csv"
     df = pd.read_csv(file, sep=";", encoding="utf-8")
+    df.rename(columns={"Nível Geográfico Densidade": "Geografia"}, inplace=True)
     df_uf = df[df["Geografia"] == "UF"]
     df_uf.drop(["Município", "Código IBGE", "Geografia"], axis=1, inplace=True)
     df_uf["Densidade"] = df_uf["Densidade"].apply(lambda x: float(x.replace(",", ".")))
@@ -218,17 +208,15 @@ def treatment_uf():
         columns={
             "Ano": "ano",
             "Mês": "mes",
-            "UF": "uf",
-            "Município": "municipio",
+            "UF": "sigla_uf",
             "Densidade": "densidade",
         },
         inplace=True,
     )
 
     # ! Salvando o csv tratado
-    path = df.to_csv(
-        "/tmp/data/densidade_brasil.csv", sep=";", index=False, encoding="utf-8"
-    )
+    path = "/tmp/data/densidade_brasil.csv"
+    df_uf.to_csv(path, sep=";", index=False, encoding="utf-8")
 
     return path
 
@@ -238,37 +226,44 @@ def treatment_uf():
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def treatment_municipio():
+    # ! Baixando a pasta zipada no diretório "/tmp/data/input"
     url = "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/acessos/acessos_banda_larga_fixa.zip"
-
     download_dir = "/tmp/data/input"
-
     download_file(url=url, download_dir=download_dir)
 
+    # ! Extrair o arquivo zipado no diretório "/tmp/data/input"
     filepath = "/tmp/data/input/acessos_banda_larga_fixa.zip"
-    with ZipFile(filepath) as z:
-        with z.open("Densidade_Banda_Larga_Fixa") as f:
-            df = pd.read_csv(f, sep=";", enconding="utf-8")
-            df_municipio = df[df["Geografia"] == "Municipio"]
-            df_municipio.drop(["Município", "UF", "Geografia"], axis=1, inplace=True)
-            df_municipio["Densidade"] = df_municipio["Densidade"].apply(
-                lambda x: float(x.replace(",", "."))
-            )
-            df_municipio.rename(
-                columns={
-                    "Ano": "ano",
-                    "Mês": "mes",
-                    "Código IBGE": "id_municipio",
-                    "Densidade": "densidade",
-                },
-                inplace=True,
-            )
-            savepath = "/tmp/data/microdados.csv"
+    extract_dir = "/tmp/data/input"
+    extract_file(filepath=filepath, extract_dir=extract_dir)
 
-            # ! Fazendo referencia a função criada anteriormente para particionar o arquivo o arquivo
-            to_partitions(
-                df_municipio,
-                partition_columns=["ano", "mes", "sigla_uf"],
-                savepath=savepath,
-            )
+    # ! Abrindo o arquivo csv
+    file = "/tmp/data/input/Densidade_Banda_Larga_Fixa.csv"
+    df = pd.read_csv(file, sep=";", encoding="utf-8")
+
+    # ! Tratando o csv
+    df.rename(columns={"Nível Geográfico Densidade": "Geografia"}, inplace=True)
+    df_municipio = df[df["Geografia"] == "Municipio"]
+    df_municipio.drop(["Município", "Geografia"], axis=1, inplace=True)
+    df_municipio["Densidade"] = df_municipio["Densidade"].apply(
+        lambda x: float(x.replace(",", "."))
+    )
+    df_municipio.rename(
+        columns={
+            "Ano": "ano",
+            "Mês": "mes",
+            "UF": "sigla_uf",
+            "Código IBGE": "id_municipio",
+            "Densidade": "densidade",
+        },
+        inplace=True,
+    )
+    savepath = "/tmp/data/microdados.csv"
+
+    # ! Fazendo referencia a função criada anteriormente para particionar o arquivo o arquivo
+    to_partitions(
+        df_municipio,
+        partition_columns=["ano", "mes", "sigla_uf"],
+        savepath=savepath,
+    )
 
     return savepath
