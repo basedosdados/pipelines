@@ -89,7 +89,7 @@ class TestDownloadFrota(unittest.TestCase):
             download_frota(13, 2013)
 
     @parameterized.expand(
-        [(month, year) for year in range(2021, 2022) for month in range(1, 4)],
+        [(month, year) for year in range(2013, 2014) for month in range(1, 4)],
         name_func=custom_name_func,
     )
     def test_download_post_2012(self, month, year):

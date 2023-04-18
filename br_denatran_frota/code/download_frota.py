@@ -42,7 +42,7 @@ def download_file(url, filename):
 
 def extract_zip(dest_path_file):
     with ZipFile(dest_path_file, "r") as z:
-        z.extractall(os.getcwd())
+        z.extractall()
 
 
 def handle_xl(i: dict) -> None:
@@ -81,7 +81,12 @@ def handle_compact(i):
 
 
 def call_downloader(i):
-    handle_xl(i)
+    filename = make_filename(i)
+    if i["filetype"] in ["xlsx", "xls"]:
+        download_file(i["href"], filename)
+    elif i["filetype"] == "zip":
+        download_file(i["href"], filename)
+        extract_zip(filename)
 
 
 def download_post_2012(month: int, year: int):
