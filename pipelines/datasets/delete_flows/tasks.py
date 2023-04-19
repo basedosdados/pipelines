@@ -83,4 +83,6 @@ def delete_flow_run(flow_run_dict: Dict[str, str], client: Client = None) -> Non
     response = client.graphql(query=query, variables=dict(flow_run_id=flow_run_id))
     success: bool = response["data"]["delete_flow_run"]["success"]
     if not success:
-        raise Exception(f"Could not delete flow run {flow_run_id}")
+        # log error message
+        log(f">>>>>>>>>> Error deleting flow run:")
+        log(response["errors"][0]["message"])
