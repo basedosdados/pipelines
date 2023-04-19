@@ -85,4 +85,4 @@ def delete_flow_run(flow_run_dict: Dict[str, str], client: Client = None) -> Non
     log(type(response["data"]["delete_flow_run"]))
     log(response["data"])
     if not success:
-        # TODO: add exception only if it's not a 404. Need to wait for a failure too see what the response is like.
+        pass
