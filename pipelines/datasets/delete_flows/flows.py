@@ -40,7 +40,7 @@ database_delete_flows.schedule = daily_at_3am
 
 
 with Flow(
-    name="Limpeza de histórico de run", code_owners=["guialvesp1"]
+    name="Limpeza flow único", code_owners=["guialvesp1"]
 ) as database_delete_flow:
 
     # Parameters
