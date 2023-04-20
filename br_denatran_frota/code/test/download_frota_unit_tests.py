@@ -10,14 +10,8 @@ from download_frota import (
     MONTHS,
     make_filename,
     make_dir_when_not_exists,
+    download_frota,
 )
-
-
-def custom_name_func(testcase_func, param_num, param):
-    return "%s_%s" % (
-        testcase_func.__name__,
-        parameterized.to_safe_name("_".join(str(x) for x in param.args)),
-    )
 
 
 dir_list = glob.glob(f"**/{DATASET}", recursive=True)
@@ -70,6 +64,12 @@ class TestMakeDirWhenNotExists(unittest.TestCase):
         self.assertFalse(os.path.exists(new_dir))
         make_dir_when_not_exists(new_dir)
         self.assertTrue(os.path.exists(new_dir))
+
+
+class TestDownloadFrota(unittest.TestCase):
+    def test_download_frota_with_invalid_month(self):
+        with self.assertRaises(ValueError):
+            download_frota(13, 2013)
 
 
 if __name__ == "__main__":
