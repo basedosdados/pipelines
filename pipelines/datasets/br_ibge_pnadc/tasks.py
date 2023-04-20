@@ -33,7 +33,7 @@ def get_url_from_template(year: int, quarter: int) -> str:
         raise Exception(f"Erro de requisição: status code {response.status_code}")
 
     else:
-        hrefs = [k for k in response.text.split('href="')[1:] if k.__contains__("zip")]
+        hrefs = [k for k in response.text.split('href="')[1:] if "zip" in k]
         hrefs = [k.split('"')[0] for k in hrefs]
         filename = None
         for href in hrefs:
