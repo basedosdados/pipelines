@@ -1,4 +1,6 @@
+# -*- coding: utf-8 -*-
 import pandas as pd
+import polars as pl
 import re
 
 DICT_UFS = {
@@ -58,3 +60,18 @@ def get_year_month_from_filename(filename: str) -> tuple[int, int]:
         return month, year
     else:
         raise ValueError("No match found")
+
+
+def verify_total(df: pl.DataFrame):
+    columns_for_total = df.select(pl.exclude("TOTAL")).select(pl.exclude([pl.Utf8]))
+    calculated_total = columns_for_total.select(
+        pl.fold(
+            acc=pl.lit(0), function=lambda acc, x: acc + x, exprs=pl.col("*")
+        ).alias("calculated_total")
+    )["calculated_total"]
+
+    mask = df["TOTAL"] == calculated_total
+    if pl.sum(~mask) != 0:
+        raise ValueError(
+            "A coluna de TOTAL da base original tem inconsistências e não soma tudo das demais colunas."
+        )
