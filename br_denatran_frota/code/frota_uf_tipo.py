@@ -1,7 +1,13 @@
+# -*- coding: utf-8 -*-
 import polars as pl
 import pandas as pd
 import os
-from utils import guess_header, change_df_header, get_year_month_from_filename
+from utils import (
+    guess_header,
+    change_df_header,
+    get_year_month_from_filename,
+    verify_total,
+)
 
 
 DICT_UFS = {
@@ -49,11 +55,13 @@ def treat_uf_tipo(file) -> pl.DataFrame:
     )  # Now we get all the actual RELEVANT uf data.
     month, year = get_year_month_from_filename(filename)
     clean_pl_df = pl.from_pandas(clean_df).lazy()
+    verify_total(clean_pl_df.collect())
     # Add year and month
     clean_pl_df = clean_pl_df.with_columns(
         pl.lit(year, dtype=pl.Int64).alias("ano"),
         pl.lit(month, dtype=pl.Int64).alias("mes"),
     )
+    clean_pl_df = clean_pl_df.select(pl.exclude("TOTAL"))
     clean_pl_df = clean_pl_df.melt(
         id_vars=["ano", "mes", "sigla_uf"],
         variable_name="tipo_veiculo",
