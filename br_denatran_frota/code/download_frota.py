@@ -24,7 +24,7 @@ MONTHS = {
 }
 
 DATASET = "br_denatran_frota"
-headers = {
+HEADERS = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36"
 }
 
@@ -33,7 +33,7 @@ def download_file(url, filename):
     # Send a GET request to the URL
 
     new_url = url.replace("arquivos-denatran", "arquivos-senatran")
-    response = requests.get(new_url, headers=headers)
+    response = requests.get(new_url, headers=HEADERS)
     # Save the contents of the response to a file
     with open(filename, "wb") as f:
         f.write(response.content)

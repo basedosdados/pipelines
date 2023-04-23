@@ -29,6 +29,6 @@ DICT_UFS = {
     "TO": "Tocantins",
 }
 
-REGRAS = {
+SUBSTITUTIONS = {
     ("RN", "ASSU"): "açu",
 }
