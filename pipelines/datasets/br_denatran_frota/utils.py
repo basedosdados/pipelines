@@ -37,7 +37,7 @@ import re
 from pipelines.datasets.br_denatran_frota.constants import constants
 
 DICT_UFS = constants.DICT_UFS.value
-REGRAS = constants.REGRAS.value
+SUBSTITUTIONS = constants.SUBSTITUTIONS.value
 
 
 def guess_header(df: pd.DataFrame, max_header_guess: int = 4) -> int:
@@ -85,8 +85,8 @@ def verify_total(df: pl.DataFrame) -> None:
 
 def fix_suggested_nome_ibge(row) -> str:
     key = (row[0], row[1])
-    if key in REGRAS:
-        return REGRAS[key]
+    if key in SUBSTITUTIONS:
+        return SUBSTITUTIONS[key]
     else:
         return row[-1]
 

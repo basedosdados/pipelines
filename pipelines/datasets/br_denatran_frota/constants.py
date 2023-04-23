@@ -69,7 +69,7 @@ class constants(Enum):  # pylint: disable=c0103
         "TO": "Tocantins",
     }
 
-    REGRAS = {
+    SUBSTITUTIONS = {
         ("RN", "ASSU"): "açu",
     }
 
