@@ -106,6 +106,7 @@ typer = "^0.7.0"
 cookiecutter = "^2.1.1"
 python-string-utils = "^1.0.0"
 thefuzz = "^0.19.0"
+python-levenshtein = "^0.21.0"
 
 [tool.poetry.dev-dependencies]
 pytest_cov = "^3.0.0"
