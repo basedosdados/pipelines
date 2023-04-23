@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 import pandas as pd
 import polars as pl
-from string_utils import asciify
-from thefuzz import process
+import difflib
 import re
 from br_denatran_frota.code.constants import DICT_UFS, SUBSTITUTIONS
 
@@ -107,12 +106,8 @@ def fix_suggested_nome_ibge(row: tuple[str, ...]) -> str:
         str: Returns the suggested IBGE name, either the pre existing or the one in the ruleset for substitutions.
     """
     key = (row[0], row[1])
-    if (
-        (not isinstance(row[0], str))
-        or (not isinstance(row[1], str))
-        or (not isinstance(row[-1], str))
-    ):
-        raise ValueError("This row is not in the expected format.")
+    if (not isinstance(row[0], str)) or (not isinstance(row[1], str)):
+        raise ValueError("This is not a valid key to be checked.")
     if key in SUBSTITUTIONS:
         return SUBSTITUTIONS[key]
     else:
@@ -158,13 +153,10 @@ def get_city_name_ibge(denatran_name: str, ibge_uf: pl.DataFrame) -> str:
     Returns:
         str: Closest match to the denatran name or an empty string if no such match is found.
     """
-    matches = process.extract(
-        denatran_name.lower(),
-        ibge_uf["nome"].apply(asciify).str.to_lowercase(),
-        limit=1,
+    matches = difflib.get_close_matches(
+        denatran_name.lower(), ibge_uf["nome"].str.to_lowercase(), n=1
     )
-    matched_name = matches[0]
-    if matched_name[1] >= 60:  # Apply threshold
-        return matched_name[0]
+    if matches:
+        return matches[0]
     else:
         return ""  # I don't want this to error out directly, because then I can get all municipalities.

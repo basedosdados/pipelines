@@ -3715,21 +3715,6 @@ files = [
 ]
 
 [[package]]
-name = "thefuzz"
-version = "0.19.0"
-description = "Fuzzy string matching in python"
-category = "main"
-optional = false
-python-versions = "*"
-files = [
-    {file = "thefuzz-0.19.0-py2.py3-none-any.whl", hash = "sha256:4fcdde8e40f5ca5e8106bc7665181f9598a9c8b18b0a4d38c41a095ba6788972"},
-    {file = "thefuzz-0.19.0.tar.gz", hash = "sha256:6f7126db2f2c8a54212b05e3a740e45f4291c497d75d20751728f635bb74aa3d"},
-]
-
-[package.extras]
-speedup = ["python-levenshtein (>=0.12)"]
-
-[[package]]
 name = "toml"
 version = "0.10.2"
 description = "Python Library for Tom's Obvious, Minimal Language"
