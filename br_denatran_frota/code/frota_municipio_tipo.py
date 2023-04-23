@@ -31,6 +31,8 @@ new_df.sigla_uf = new_df.sigla_uf.str.strip()  # Remove whitespace.
 new_df = pl.from_pandas(new_df)
 new_df = new_df.with_columns(pl.col("nome_denatran").apply(asciify).str.to_lowercase())
 new_df = new_df.filter(pl.col("nome_denatran") != "municipio nao informado")
+if new_df.shape[0] != bd_municipios.shape[0]:
+    raise ValueError("Uh oh")
 
 
 def verify_uf(denatran_df: pl.DataFrame, ibge_df: pl.DataFrame, uf: str):
