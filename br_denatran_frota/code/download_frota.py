@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 import re
 import glob
@@ -74,8 +75,6 @@ def make_filename(i: dict, ext: bool = True) -> str:
     if ext:
         filename += f".{filetype}"
     return filename
-
-    print(2)
 
 
 def call_downloader(i):
