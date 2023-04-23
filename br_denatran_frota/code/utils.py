@@ -1,37 +1,9 @@
 # -*- coding: utf-8 -*-
 import pandas as pd
 import polars as pl
+import difflib
 import re
-
-DICT_UFS = {
-    "AC": "Acre",
-    "AL": "Alagoas",
-    "AP": "Amapá",
-    "AM": "Amazonas",
-    "BA": "Bahia",
-    "CE": "Ceará",
-    "DF": "Distrito Federal",
-    "ES": "Espírito Santo",
-    "GO": "Goiás",
-    "MA": "Maranhão",
-    "MT": "Mato Grosso",
-    "MS": "Mato Grosso do Sul",
-    "MG": "Minas Gerais",
-    "PA": "Pará",
-    "PB": "Paraíba",
-    "PR": "Paraná",
-    "PE": "Pernambuco",
-    "PI": "Piauí",
-    "RJ": "Rio de Janeiro",
-    "RN": "Rio Grande do Norte",
-    "RS": "Rio Grande do Sul",
-    "RO": "Rondônia",
-    "RR": "Roraima",
-    "SC": "Santa Catarina",
-    "SP": "São Paulo",
-    "SE": "Sergipe",
-    "TO": "Tocantins",
-}
+from constants import DICT_UFS, REGRAS
 
 
 def guess_header(df: pd.DataFrame, max_header_guess: int = 4) -> int:
@@ -62,7 +34,7 @@ def get_year_month_from_filename(filename: str) -> tuple[int, int]:
         raise ValueError("No match found")
 
 
-def verify_total(df: pl.DataFrame):
+def verify_total(df: pl.DataFrame) -> None:
     columns_for_total = df.select(pl.exclude("TOTAL")).select(pl.exclude([pl.Utf8]))
     calculated_total = columns_for_total.select(
         pl.fold(
@@ -75,3 +47,37 @@ def verify_total(df: pl.DataFrame):
         raise ValueError(
             "A coluna de TOTAL da base original tem inconsistências e não soma tudo das demais colunas."
         )
+
+
+def fix_suggested_nome_ibge(row) -> str:
+    key = (row[0], row[1])
+    if key in REGRAS:
+        return REGRAS[key]
+    else:
+        return row[-1]
+
+
+def match_ibge(denatran_uf: pl.DataFrame, ibge_uf: pl.DataFrame) -> None:
+    joined_df = denatran_uf.join(
+        ibge_uf,
+        left_on=["suggested_nome_ibge", "sigla_uf"],
+        right_on=["nome", "sigla_uf"],
+        how="left",
+    )
+    mismatched_rows = joined_df.filter(pl.col("id_municipio").is_null())
+
+    if len(mismatched_rows) > 0:
+        error_message = "Os seguintes municípios falharam: \n"
+        for row in mismatched_rows.rows(named=True):
+            error_message += f"{row['nome_denatran']} ({row['sigla_uf']})\n"
+        raise ValueError(error_message)
+
+
+def get_city_name_ibge(denatran_name: str, ibge_uf: pl.DataFrame) -> str:
+    matches = difflib.get_close_matches(
+        denatran_name.lower(), ibge_uf["nome"].str.to_lowercase(), n=1
+    )
+    if matches:
+        return matches[0]
+    else:
+        return ""  # I don't want this to error out directly, because then I can get all municipalities.
