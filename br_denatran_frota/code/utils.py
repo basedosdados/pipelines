@@ -97,7 +97,7 @@ def fix_suggested_nome_ibge(row: tuple[str, ...]) -> str:
     The fixes are necessary because match_ibge() will fail where the DENATRAN data has typos in city names.
 
     Args:
-        row (tuple[str, ...]): Row from the dataframe we want to apply the IBGE substitutions.
+        row (tuple[str, ...]): Row from the full DENATRAN dataframe we want to apply the IBGE substitutions to.
 
     Raises:
         ValueError: Errors out if the desired parts of the row do not conform to the expected format.
