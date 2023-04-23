@@ -3,7 +3,7 @@ import pandas as pd
 import polars as pl
 import difflib
 import re
-from constants import DICT_UFS, REGRAS
+from br_denatran_frota.code.constants import DICT_UFS, REGRAS
 
 
 def guess_header(df: pd.DataFrame, max_header_guess: int = 4) -> int:
