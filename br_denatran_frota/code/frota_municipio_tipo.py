@@ -3,11 +3,6 @@ import polars as pl
 import pandas as pd
 from string_utils import asciify
 import os
-from urllib.request import urlopen, urlretrieve
-from zipfile import ZipFile
-from rarfile import RarFile
-from bs4 import BeautifulSoup
-import difflib
 from br_denatran_frota.code.utils import (
     change_df_header,
     fix_suggested_nome_ibge,
