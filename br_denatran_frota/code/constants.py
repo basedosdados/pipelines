@@ -30,5 +30,9 @@ DICT_UFS = {
 }
 
 SUBSTITUTIONS = {
-    ("RN", "ASSU"): "açu",
+    ("RN", "assu"): "acu",
+    ("PB", "sao domingos de pombal"): "sao domingos",
+    ("PB", "santarem"): "joca claudino",
+    ("SP", "embu"): "embu das artes",
+    ("TO", "sao valerio da natividade"): "sao valerio",
 }
