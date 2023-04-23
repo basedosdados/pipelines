@@ -34,10 +34,14 @@ import pandas as pd
 import polars as pl
 import difflib
 import re
+import os
+from zipfile import ZipFile
+import requests
 from pipelines.datasets.br_denatran_frota.constants import constants
 
 DICT_UFS = constants.DICT_UFS.value
 SUBSTITUTIONS = constants.SUBSTITUTIONS.value
+HEADERS = constants.HEADERS.value
 
 
 def guess_header(df: pd.DataFrame, max_header_guess: int = 4) -> int:
@@ -115,3 +119,61 @@ def get_city_name_ibge(denatran_name: str, ibge_uf: pl.DataFrame) -> str:
         return matches[0]
     else:
         return ""  # I don't want this to error out directly, because then I can get all municipalities.
+
+
+def download_file(url, filename):
+    # Send a GET request to the URL
+
+    new_url = url.replace("arquivos-denatran", "arquivos-senatran")
+    response = requests.get(new_url, headers=HEADERS)
+    # Save the contents of the response to a file
+    with open(filename, "wb") as f:
+        f.write(response.content)
+
+    print(f"Download of {filename} complete")
+
+
+def extract_zip(dest_path_file):
+    with ZipFile(dest_path_file, "r") as z:
+        z.extractall()
+
+
+def handle_xl(i: dict) -> None:
+    """Actually downloads and deals with Excel files.
+
+    Args:
+        i (dict): Dictionary with all the desired downloadable file's info.
+    """
+    dest_path_file = make_filename(i)
+    download_file(i["href"], dest_path_file)
+
+
+def make_filename(i: dict, ext: bool = True) -> str:
+    """Creates the filename using the sent dictionary.
+
+    Args:
+        i (dict): Dictionary with all the file's info.
+        ext (bool, optional): Specifies if the generated file name needs the filetype at the end. Defaults to True.
+
+    Returns:
+        str: The full filename.
+    """
+    txt = i["txt"]
+    mes = i["mes"]
+    ano = i["ano"]
+    filetype = i["filetype"]
+    filename = re.sub("\\s+", "_", txt, flags=re.UNICODE).lower()
+    filename = f"{filename}_{mes}-{ano}"
+    if ext:
+        filename += f".{filetype}"
+    return filename
+
+
+def make_dir_when_not_exists(dir_name: str):
+    """Auxiliary function to create a subdirectory when it is not present.
+
+    Args:
+        dir_name (str): Name of the subdirectory to be created.
+    """
+    if not os.path.exists(dir_name):
+        os.mkdir(dir_name)
