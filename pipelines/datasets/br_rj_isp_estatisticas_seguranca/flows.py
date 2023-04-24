@@ -13,7 +13,10 @@ from prefect.tasks.prefect import (
 )
 from pipelines.constants import constants
 from pipelines.utils.constants import constants as utils_constants
-from pipelines.datasets.br_rj_isp_estatisticas_seguranca.tasks import ()
+from pipelines.datasets.br_rj_isp_estatisticas_seguranca.tasks import (
+    download_files,
+    clean_data,
+)
 
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
@@ -23,6 +26,10 @@ from pipelines.utils.tasks import (
     get_current_flow_labels,
 )
 
+from pipelines.datasets.br_rj_isp_estatisticas_seguranca.constants import (
+    constants as isp_constants,
+)
+
 from pipelines.datasets.br_rj_isp_estatisticas_seguranca.schedules import (
     every_month_evolucao_mensal_cisp,
     every_month_taxa_evolucao_mensal_uf,
@@ -30,7 +37,7 @@ from pipelines.datasets.br_rj_isp_estatisticas_seguranca.schedules import (
     every_month_feminicidio_mensal_uf,
     every_month_evolucao_policial_morto_servico_mensal,
     every_month_armas_apreendidas_mensal,
-    every_month_evolucao_mensal_municipio
+    every_month_evolucao_mensal_municipio,
 )
 
 
@@ -41,7 +48,9 @@ with Flow(
         "trick",
     ],
 ) as evolucao_mensal_cisp:
-    dataset_id = Parameter("dataset_id", default="br_isp_estatisticas_seguranca", required=True)
+    dataset_id = Parameter(
+        "dataset_id", default="br_rj_isp_estatisticas_seguranca", required=True
+    )
     table_id = Parameter("table_id", default="evolucao_mensal_cisp", required=True)
 
     # Materialization mode
@@ -59,22 +68,16 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    # ! Setar o filepath
-    '''donwload_files = download_estban_files(
-        xpath=br_bcb_estban_constants.MUNICIPIO_XPATH.value,
-        save_path=br_bcb_estban_constants.DOWNLOAD_PATH_MUNICIPIO.value,
+    download_files(
+        file_name=isp_constants.EVOLUCAO_MENSAL_CISP.value,
+        save_dir=isp_constants.INPUT_PATH.value,
     )
 
-    municipio = get_id_municipio(table="municipio")
+    filepath = clean_data(
+        path=isp_constants.INPUT_PATH.value,
+        upstream_tasks=[download_files],
+    )
 
-    # ?  settar upstream tasks: verificar o funcionamento
-    filepath = cleaning_municipios_data(
-        path=br_bcb_estban_constants.DOWNLOAD_PATH_MUNICIPIO.value,
-        municipio=municipio,
-        upstream_tasks=[donwload_files, municipio],
-    )'''
-
-    # ! Não é uma tabela grande, podemos manter como overwrite
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
@@ -126,7 +129,9 @@ with Flow(
         "trick",
     ],
 ) as taxa_evolucao_mensal_uf:
-    dataset_id = Parameter("dataset_id", default="br_rj_isp_estatisticas_seguranca", required=True)
+    dataset_id = Parameter(
+        "dataset_id", default="br_rj_isp_estatisticas_seguranca", required=True
+    )
     table_id = Parameter("table_id", default="taxa_evolucao_mensal_uf", required=True)
 
     # Materialization mode
@@ -144,22 +149,16 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    # ! Setar o filepath
-    '''donwload_files = download_estban_files(
-        xpath=br_bcb_estban_constants.MUNICIPIO_XPATH.value,
-        save_path=br_bcb_estban_constants.DOWNLOAD_PATH_MUNICIPIO.value,
+    download_files(
+        file_name=isp_constants.TAXA_EVOLUCAO_MENSAL_UF.value,
+        save_dir=isp_constants.INPUT_PATH.value,
     )
 
-    municipio = get_id_municipio(table="municipio")
+    filepath = clean_data(
+        path=isp_constants.INPUT_PATH.value,
+        upstream_tasks=[download_files],
+    )
 
-    # ?  settar upstream tasks: verificar o funcionamento
-    filepath = cleaning_municipios_data(
-        path=br_bcb_estban_constants.DOWNLOAD_PATH_MUNICIPIO.value,
-        municipio=municipio,
-        upstream_tasks=[donwload_files, municipio],
-    )'''
-
-    # ! Não é uma tabela grande, podemos manter como overwrite
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
@@ -211,8 +210,12 @@ with Flow(
         "trick",
     ],
 ) as taxa_evolucao_mensal_municipio:
-    dataset_id = Parameter("dataset_id", default="br_rj_isp_estatisticas_seguranca", required=True)
-    table_id = Parameter("table_id", default="taxa_evolucao_mensal_municipio", required=True)
+    dataset_id = Parameter(
+        "dataset_id", default="br_rj_isp_estatisticas_seguranca", required=True
+    )
+    table_id = Parameter(
+        "table_id", default="taxa_evolucao_mensal_municipio", required=True
+    )
 
     # Materialization mode
     materialization_mode = Parameter(
@@ -229,22 +232,16 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    # ! Setar o filepath
-    '''donwload_files = download_estban_files(
-        xpath=br_bcb_estban_constants.MUNICIPIO_XPATH.value,
-        save_path=br_bcb_estban_constants.DOWNLOAD_PATH_MUNICIPIO.value,
+    download_files(
+        file_name=isp_constants.EVOLUCAO_MENSAL_MUNICIPIO.value,
+        save_dir=isp_constants.INPUT_PATH.value,
     )
 
-    municipio = get_id_municipio(table="municipio")
+    filepath = clean_data(
+        path=isp_constants.INPUT_PATH.value,
+        upstream_tasks=[download_files],
+    )
 
-    # ?  settar upstream tasks: verificar o funcionamento
-    filepath = cleaning_municipios_data(
-        path=br_bcb_estban_constants.DOWNLOAD_PATH_MUNICIPIO.value,
-        municipio=municipio,
-        upstream_tasks=[donwload_files, municipio],
-    )'''
-
-    # ! Não é uma tabela grande, podemos manter como overwrite
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
@@ -284,9 +281,10 @@ with Flow(
 
 
 taxa_evolucao_mensal_municipio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-taxa_evolucao_mensal_municipio.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+taxa_evolucao_mensal_municipio.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
 taxa_evolucao_mensal_municipio.schedule = every_month_taxa_evolucao_mensal_municipio
-
 
 
 # ! Feminicidio_mensal_cisp
@@ -296,7 +294,9 @@ with Flow(
         "trick",
     ],
 ) as feminicidio_mensal_cisp:
-    dataset_id = Parameter("dataset_id", default="br_rj_isp_estatisticas_seguranca", required=True)
+    dataset_id = Parameter(
+        "dataset_id", default="br_rj_isp_estatisticas_seguranca", required=True
+    )
     table_id = Parameter("table_id", default="feminicidio_mensal_cisp", required=True)
 
     # Materialization mode
@@ -314,22 +314,16 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    # ! Setar o filepath
-    '''donwload_files = download_estban_files(
-        xpath=br_bcb_estban_constants.MUNICIPIO_XPATH.value,
-        save_path=br_bcb_estban_constants.DOWNLOAD_PATH_MUNICIPIO.value,
+    download_files(
+        file_name=isp_constants.FEMINICIDIO_MENSAL_CISP.value,
+        save_dir=isp_constants.INPUT_PATH.value,
     )
 
-    municipio = get_id_municipio(table="municipio")
+    filepath = clean_data(
+        path=isp_constants.INPUT_PATH.value,
+        upstream_tasks=[download_files],
+    )
 
-    # ?  settar upstream tasks: verificar o funcionamento
-    filepath = cleaning_municipios_data(
-        path=br_bcb_estban_constants.DOWNLOAD_PATH_MUNICIPIO.value,
-        municipio=municipio,
-        upstream_tasks=[donwload_files, municipio],
-    )'''
-
-    # ! Não é uma tabela grande, podemos manter como overwrite
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
@@ -380,8 +374,12 @@ with Flow(
         "trick",
     ],
 ) as evolucao_policial_morto_servico_mensal:
-    dataset_id = Parameter("dataset_id", default="br_rj_isp_estatisticas_seguranca", required=True)
-    table_id = Parameter("table_id", default="evolucao_policial_morto_servico_mensal", required=True)
+    dataset_id = Parameter(
+        "dataset_id", default="br_rj_isp_estatisticas_seguranca", required=True
+    )
+    table_id = Parameter(
+        "table_id", default="evolucao_policial_morto_servico_mensal", required=True
+    )
 
     # Materialization mode
     materialization_mode = Parameter(
@@ -398,22 +396,16 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    # ! Setar o filepath
-    '''donwload_files = download_estban_files(
-        xpath=br_bcb_estban_constants.MUNICIPIO_XPATH.value,
-        save_path=br_bcb_estban_constants.DOWNLOAD_PATH_MUNICIPIO.value,
+    download_files(
+        file_name=isp_constants.EVOLUCAO_POLICIAL_MORTO.value,
+        save_dir=isp_constants.INPUT_PATH.value,
     )
 
-    municipio = get_id_municipio(table="municipio")
+    filepath = clean_data(
+        path=isp_constants.INPUT_PATH.value,
+        upstream_tasks=[download_files],
+    )
 
-    # ?  settar upstream tasks: verificar o funcionamento
-    filepath = cleaning_municipios_data(
-        path=br_bcb_estban_constants.DOWNLOAD_PATH_MUNICIPIO.value,
-        municipio=municipio,
-        upstream_tasks=[donwload_files, municipio],
-    )'''
-
-    # ! Não é uma tabela grande, podemos manter como overwrite
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
@@ -452,8 +444,12 @@ with Flow(
         )
 
 evolucao_policial_morto_servico_mensal.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-evolucao_policial_morto_servico_mensal.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-evolucao_policial_morto_servico_mensal.schedule = every_month_evolucao_policial_morto_servico_mensal
+evolucao_policial_morto_servico_mensal.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
+evolucao_policial_morto_servico_mensal.schedule = (
+    every_month_evolucao_policial_morto_servico_mensal
+)
 
 # ! armas_apreendidas_mensal
 
@@ -463,7 +459,9 @@ with Flow(
         "trick",
     ],
 ) as armas_apreendidas_mensal:
-    dataset_id = Parameter("dataset_id", default="br_rj_isp_estatisticas_seguranca", required=True)
+    dataset_id = Parameter(
+        "dataset_id", default="br_rj_isp_estatisticas_seguranca", required=True
+    )
     table_id = Parameter("table_id", default="armas_apreendidas_mensal", required=True)
 
     # Materialization mode
@@ -481,22 +479,16 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    # ! Setar o filepath
-    '''donwload_files = download_estban_files(
-        xpath=br_bcb_estban_constants.MUNICIPIO_XPATH.value,
-        save_path=br_bcb_estban_constants.DOWNLOAD_PATH_MUNICIPIO.value,
+    download_files(
+        file_name=isp_constants.ARMAS_APREENDIDADAS_MENSAL.value,
+        save_dir=isp_constants.INPUT_PATH.value,
     )
 
-    municipio = get_id_municipio(table="municipio")
+    filepath = clean_data(
+        path=isp_constants.INPUT_PATH.value,
+        upstream_tasks=[download_files],
+    )
 
-    # ?  settar upstream tasks: verificar o funcionamento
-    filepath = cleaning_municipios_data(
-        path=br_bcb_estban_constants.DOWNLOAD_PATH_MUNICIPIO.value,
-        municipio=municipio,
-        upstream_tasks=[donwload_files, municipio],
-    )'''
-
-    # ! Não é uma tabela grande, podemos manter como overwrite
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
@@ -546,7 +538,9 @@ with Flow(
         "trick",
     ],
 ) as evolucao_mensal_municipio:
-    dataset_id = Parameter("dataset_id", default="br_rj_isp_estatisticas_seguranca", required=True)
+    dataset_id = Parameter(
+        "dataset_id", default="br_rj_isp_estatisticas_seguranca", required=True
+    )
     table_id = Parameter("table_id", default="evolucao_mensal_municipio", required=True)
 
     # Materialization mode
@@ -564,22 +558,16 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    # ! Setar o filepath
-    '''donwload_files = download_estban_files(
-        xpath=br_bcb_estban_constants.MUNICIPIO_XPATH.value,
-        save_path=br_bcb_estban_constants.DOWNLOAD_PATH_MUNICIPIO.value,
+    download_files(
+        file_name=isp_constants.EVOLUCAO_MENSAL_MUNICIPIO.value,
+        save_dir=isp_constants.INPUT_PATH.value,
     )
 
-    municipio = get_id_municipio(table="municipio")
+    filepath = clean_data(
+        path=isp_constants.INPUT_PATH.value,
+        upstream_tasks=[download_files],
+    )
 
-    # ?  settar upstream tasks: verificar o funcionamento
-    filepath = cleaning_municipios_data(
-        path=br_bcb_estban_constants.DOWNLOAD_PATH_MUNICIPIO.value,
-        municipio=municipio,
-        upstream_tasks=[donwload_files, municipio],
-    )'''
-
-    # ! Não é uma tabela grande, podemos manter como overwrite
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,

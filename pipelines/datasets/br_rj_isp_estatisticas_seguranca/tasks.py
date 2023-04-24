@@ -48,13 +48,113 @@ Tasks for br_isp_estatisticas_seguranca
 # Abaixo segue um código para exemplificação, que pode ser removido.
 #
 ###############################################################################
+import pandas as pd
+import os
+import requests
+from datetime import timedelta
+from typing import List
+from typing import Dict
 
 from prefect import task
+from pipelines.datasets.br_rj_isp_estatisticas_seguranca.utils import (
+    dict_original,
+    dict_arquitetura,
+    change_columns_name,
+    create_columns_order,
+)
+from pipelines.datasets.br_rj_isp_estatisticas_seguranca.constants import (
+    constants as isp_constants,
+)
+from pipelines.constants import constants
 
 
-@task  # noqa
-def say_hello(name: str = "World") -> str:
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def download_files(file_name: str, save_dir: str) -> str:  #
+
     """
-    Greeting task.
+    Downloads CSV files from a list of URLs and saves them to a specified directory.
+
+    Args:
+        urls (list): List of URLs to download CSV files from.
+        save_dir (str): Path of directory to save the downloaded CSV files to.
     """
-    return f"Hello, {name}!"
+
+    # create path
+    os.system(f"mkdir -p {isp_constants.OUTPUT_PATH.value}")
+
+    # create full url
+    url = isp_constants.URL.value + file_name
+
+    print(f"Downloading file from {url}")
+    # Extract the filename from the URL
+    filename = os.path.basename(url)
+
+    # Create the full path of the file
+    file_path = os.path.join(save_dir, filename)
+
+    # Send a GET request to the URL
+    response = requests.get(url)
+
+    # Raise an exception if the response was not successful
+    response.raise_for_status()
+
+    # Write the content of the response to a file
+    with open(file_path, "wb") as f:
+        f.write(response.content)
+
+    print(f"File downloaded and saved to {file_path}")
+
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def clean_data(
+    file: str,
+    # EVOLUCAO_MENSAL_CISP.value
+):
+
+    # get file path as output from above code
+    # create path and serve it as output for the task
+
+    print(f"fazendo {file}")
+
+    if file.endswith(".csv"):
+        # todo : set files path
+
+        df = pd.read_csv(
+            isp_constants.INPUT_PATH.value + file, encoding="latin-1", sep=";"
+        )
+        print("arquivo lido")
+
+    else:
+        df = pd.read_excel(isp_constants.INPUT_PATH.value + file)
+        print("arquivo lido")
+
+    # find new df name
+    novo_nome = dict_original()[file]
+
+    # rename columns
+    link_arquitetura = dict_arquitetura()[novo_nome]
+    nomes_colunas = change_columns_name(link_arquitetura)
+    df.rename(columns=nomes_colunas, inplace=True)
+
+    print("colunas renomeadas")
+
+    ordem_colunas = create_columns_order(link_arquitetura)
+
+    df = df[ordem_colunas]
+    print("colunas ordenadas")
+
+    df.to_csv(
+        isp_constants.OUTPUT_PATH.value + novo_nome,
+        index=False,
+        na_rep="",
+        encoding="utf-8",
+    )
+    print(f"df {file} salvo com sucesso")
+
+    return isp_constants.OUTPUT_PATH.value + novo_nome
