@@ -3,7 +3,18 @@ import pandas as pd
 import polars as pl
 import difflib
 import re
-from br_denatran_frota.code.constants import DICT_UFS, SUBSTITUTIONS
+import os
+from zipfile import ZipFile
+from br_denatran_frota.code.constants import (
+    DICT_UFS,
+    SUBSTITUTIONS,
+    HEADERS,
+    DATASET,
+    MONTHS,
+)
+import requests
+from urllib.request import urlopen, urlretrieve
+from bs4 import BeautifulSoup
 
 
 def guess_header(df: pd.DataFrame, max_header_guess: int = 4) -> int:
@@ -160,3 +171,104 @@ def get_city_name_ibge(denatran_name: str, ibge_uf: pl.DataFrame) -> str:
         return matches[0]
     else:
         return ""  # I don't want this to error out directly, because then I can get all municipalities.
+
+
+def download_file(url, filename):
+    # Send a GET request to the URL
+
+    new_url = url.replace("arquivos-denatran", "arquivos-senatran")
+    response = requests.get(new_url, headers=HEADERS)
+    # Save the contents of the response to a file
+    with open(filename, "wb") as f:
+        f.write(response.content)
+
+    print(f"Download of {filename} complete")
+
+
+def extract_zip(dest_path_file):
+    with ZipFile(dest_path_file, "r") as z:
+        z.extractall()
+
+
+def handle_xl(i: dict) -> None:
+    """Actually downloads and deals with Excel files.
+
+    Args:
+        i (dict): Dictionary with all the desired downloadable file's info.
+    """
+    dest_path_file = make_filename(i)
+    download_file(i["href"], dest_path_file)
+
+
+def make_filename(i: dict, ext: bool = True) -> str:
+    """Creates the filename using the sent dictionary.
+
+    Args:
+        i (dict): Dictionary with all the file's info.
+        ext (bool, optional): Specifies if the generated file name needs the filetype at the end. Defaults to True.
+
+    Returns:
+        str: The full filename.
+    """
+    txt = i["txt"]
+    mes = i["mes"]
+    ano = i["ano"]
+    filetype = i["filetype"]
+    filename = re.sub("\\s+", "_", txt, flags=re.UNICODE).lower()
+    filename = f"{filename}_{mes}-{ano}"
+    if ext:
+        filename += f".{filetype}"
+    return filename
+
+
+def call_downloader(i):
+    filename = make_filename(i)
+    if i["filetype"] in ["xlsx", "xls"]:
+        download_file(i["href"], filename)
+    elif i["filetype"] == "zip":
+        download_file(i["href"], filename)
+        extract_zip(filename)
+
+
+def download_post_2012(month: int, year: int):
+    """_summary_
+
+    Args:
+        year (int): _description_
+        month (int): _description_
+    """
+    url = f"https://www.gov.br/infraestrutura/pt-br/assuntos/transito/conteudo-Senatran/frota-de-veiculos-{year}"
+    soup = BeautifulSoup(urlopen(url), "html.parser")
+    # Só queremos os dados de frota nacional.
+    nodes = soup.select("p:contains('rota por ') > a")
+    for node in nodes:
+        txt = node.text
+        href = node.get("href")
+        # Pega a parte relevante do arquivo em questão.
+        match = re.search(
+            r"(?i)\/([\w-]+)\/(\d{4})\/(\w+)\/([\w-]+)\.(?:xls|xlsx|rar|zip)$", href
+        )
+        if match:
+            matched_month = match.group(3)
+            matched_year = match.group(2)
+            if MONTHS.get(matched_month) == month and matched_year == str(year):
+                filetype = match.group(0).split(".")[-1].lower()
+                info = {
+                    "txt": txt,
+                    "href": href,
+                    "mes_name": matched_month,
+                    "mes": month,
+                    "ano": year,
+                    "filetype": filetype,
+                }
+                call_downloader(info)
+
+
+def make_dir_when_not_exists(dir_name: str):
+    """Auxiliary function to create a subdirectory when it is not present.
+
+    Args:
+        dir_name (str): Name of the subdirectory to be created.
+    """
+    if not os.path.exists(dir_name):
+        os.mkdir(dir_name)

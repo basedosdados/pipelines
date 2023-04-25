@@ -6,14 +6,12 @@ import unittest
 import glob
 from parameterized import parameterized
 
-from br_denatran_frota.code.download_frota import (
-    DATASET,
-    MONTHS,
+from br_denatran_frota.code.utils import (
     make_filename,
     make_dir_when_not_exists,
-    download_frota,
 )
-
+from br_denatran_frota.code.constants import DATASET
+from br_denatran_frota.code.download_frota import download_frota
 
 dir_list = glob.glob(f"**/{DATASET}", recursive=True)
 if dir_list:
