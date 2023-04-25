@@ -12,6 +12,8 @@ from br_denatran_frota.code.utils import (
 )
 from br_denatran_frota.code.constants import DICT_UFS, SUBSTITUTIONS
 
+## TODO: Extract everything then run this? Create prefect? where to go now
+
 import basedosdados as bd
 
 municipios_query = """SELECT nome, id_municipio, sigla_uf FROM `basedosdados.br_bd_diretorios_brasil.municipio`

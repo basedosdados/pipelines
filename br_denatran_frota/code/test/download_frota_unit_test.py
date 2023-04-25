@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 import shutil
 import tempfile
@@ -5,7 +6,7 @@ import unittest
 import glob
 from parameterized import parameterized
 
-from download_frota import (
+from br_denatran_frota.code.download_frota import (
     DATASET,
     MONTHS,
     make_filename,
