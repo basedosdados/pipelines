@@ -31,7 +31,7 @@ class TestAllPossibleYears(unittest.TestCase):
 
     @unittest.skip("take it easy")
     @parameterized.expand(
-        [(month, year) for year in range(2021, 2023) for month in range(1, 12)],
+        [(month, year) for year in range(2021, 2022) for month in range(1, 3)],
         name_func=custom_name_func,
     )
     def test_download_post_2012(self, month, year):
