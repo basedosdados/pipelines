@@ -23,14 +23,14 @@ def download_frota(month: int, year: int, temp_dir: str = ""):
     dir_list = glob.glob(f"**/{DATASET}", recursive=True)
     # Get the directory where this Python file is located
     initial_dir = os.path.dirname(os.path.abspath(__file__))
-
+    if temp_dir:
+        os.chdir(temp_dir)
     # Construct the path to the "files" directory relative to this directory
-    files_dir = os.path.join(initial_dir, "..", "files")
+    files_dir = os.path.join(os.getcwd(), "files")
     if dir_list:
         # I always want to be in the actual folder for this dataset, because I might start in the pipelines full repo:
         os.chdir(dir_list[0])
-    if temp_dir:
-        os.chdir(temp_dir)
+
     # I always need a files directory inside my dataset folder.
     make_dir_when_not_exists(files_dir)
     # I should always switch to the files dir now and save stuff inside it.
