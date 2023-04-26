@@ -30,7 +30,7 @@ from pipelines.datasets.br_rj_isp_estatisticas_seguranca.constants import (
     constants as isp_constants,
 )
 
-from pipelines.datasets.br_rj_isp_estatisticas_seguranca.schedules import (
+'''from pipelines.datasets.br_rj_isp_estatisticas_seguranca.schedules import (
     every_month_evolucao_mensal_cisp,
     every_month_taxa_evolucao_mensal_uf,
     every_month_taxa_evolucao_mensal_municipio,
@@ -38,7 +38,7 @@ from pipelines.datasets.br_rj_isp_estatisticas_seguranca.schedules import (
     every_month_evolucao_policial_morto_servico_mensal,
     every_month_armas_apreendidas_mensal,
     every_month_evolucao_mensal_municipio,
-)
+)'''
 
 
 # ! Evolucao_mensal_cisp
@@ -118,7 +118,7 @@ with Flow(
 
 evolucao_mensal_cisp.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 evolucao_mensal_cisp.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-evolucao_mensal_cisp.schedule = every_month_evolucao_mensal_cisp
+#evolucao_mensal_cisp.schedule = every_month_evolucao_mensal_cisp
 
 
 # ! taxa_evolucao_mensal_uf

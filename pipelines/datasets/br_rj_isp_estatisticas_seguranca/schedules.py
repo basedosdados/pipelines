@@ -15,7 +15,7 @@ every_month_evolucao_mensal_cisp = Schedule(
             interval=timedelta(days=15),
             start_date=datetime(2023, 4, 25, 10, 0, 0),
             labels=[
-                constants.DATASETS_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_rj_isp_estatisticas_seguranca",  # ! dataset_id do dataset que será executado
@@ -35,7 +35,7 @@ every_month_taxa_evolucao_mensal_uf = Schedule(
             interval=timedelta(days=15),
             start_date=datetime(2023, 4, 25, 10, 5, 0),
             labels=[
-                constants.DATASETS_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_rj_isp_estatisticas_seguranca",  # ! dataset_id do dataset que será executado
@@ -55,7 +55,7 @@ every_month_taxa_evolucao_mensal_municipio = Schedule(
             interval=timedelta(days=15),
             start_date=datetime(2023, 4, 25, 10, 10, 0),
             labels=[
-                constants.DATASETS_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_rj_isp_estatisticas_seguranca",  # ! dataset_id do dataset que será executado
@@ -75,7 +75,7 @@ every_month_feminicidio_mensal_uf = Schedule(
             interval=timedelta(days=15),
             start_date=datetime(2023, 4, 25, 10, 15, 0),
             labels=[
-                constants.DATASETS_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_rj_isp_estatisticas_seguranca",  # ! dataset_id do dataset que será executado
@@ -95,7 +95,7 @@ every_month_evolucao_policial_morto_servico_mensal = Schedule(
             interval=timedelta(days=15),
             start_date=datetime(2023, 4, 25, 10, 20, 0),
             labels=[
-                constants.DATASETS_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_rj_isp_estatisticas_seguranca",  # ! dataset_id do dataset que será executado
@@ -116,7 +116,7 @@ every_month_armas_apreendidas_mensal = Schedule(
             interval=timedelta(days=15),
             start_date=datetime(2023, 4, 25, 10, 25, 0),
             labels=[
-                constants.DATASETS_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_rj_isp_estatisticas_seguranca",  # ! dataset_id do dataset que será executado
@@ -137,7 +137,7 @@ every_month_evolucao_mensal_municipio = Schedule(
             interval=timedelta(days=15),
             start_date=datetime(2023, 4, 25, 10, 30, 0),
             labels=[
-                constants.DATASETS_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_rj_isp_estatisticas_seguranca",  # ! dataset_id do dataset que será executado
