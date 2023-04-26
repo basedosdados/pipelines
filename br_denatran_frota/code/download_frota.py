@@ -50,9 +50,3 @@ def download_frota(month: int, year: int, temp_dir: str = ""):
         with ZipFile(generic_zip_filename) as zip_file:
             zip_file.extractall()
     os.chdir(initial_dir)
-
-
-year = 2022
-if __name__ == "__main__":
-    for month in range(1, 6):
-        download_frota(month, year)

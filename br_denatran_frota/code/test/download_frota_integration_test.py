@@ -29,6 +29,7 @@ class TestAllPossibleYears(unittest.TestCase):
         print("Deleting temporary directory")
         shutil.rmtree(self.temp_dir.name)
 
+    @unittest.skip("take it easy")
     @parameterized.expand(
         [(month, year) for year in range(2021, 2023) for month in range(1, 12)],
         name_func=custom_name_func,

@@ -50,6 +50,7 @@ def change_df_header(df: pd.DataFrame, header_row: int) -> pd.DataFrame:
     Returns:
         pd.DataFrame: Returns the same dataframe but with the corrected header
     """
+    print(2)
     new_header = df.iloc[header_row]
     new_df = df[(header_row + 1) :].reset_index(drop=True)
     new_df.rename(columns=new_header, inplace=True)
