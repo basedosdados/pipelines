@@ -21,17 +21,19 @@ def guess_header(df: pd.DataFrame, max_header_guess: int = 4) -> int:
     """Function to deal with problematic dataframes coming from Excel/CSV files.
     Tries to guess which row is the header by examining the first few rows (max given by max_header_guess).
     Assumes that the header is the first row where all of the columns are strings.
-    This will NOT work for a strings only dataframe.
+    This will NOT properly work for a strings only dataframe and will always guess the first row for it.
 
     Args:
         df (pd.DataFrame): Dataframe whose header we don't know.
-        max_header_guess (int, optional): Number of initial rows we want to check . Defaults to 4.
+        max_header_guess (int, optional): Number of initial rows we want to check. Defaults to 4.
 
     Returns:
         int: Index of the row where the header is contained.
     """
     header_guess = 0
     while header_guess < max_header_guess:
+        if len(df) - 1 < header_guess:
+            break
         # Iffy logic, but essentially: if all rows of the column are strings, then this is a good candidate for a header.
         if all(df.iloc[header_guess].apply(lambda x: isinstance(x, str))):
             return header_guess
@@ -50,7 +52,6 @@ def change_df_header(df: pd.DataFrame, header_row: int) -> pd.DataFrame:
     Returns:
         pd.DataFrame: Returns the same dataframe but with the corrected header
     """
-    print(2)
     new_header = df.iloc[header_row]
     new_df = df[(header_row + 1) :].reset_index(drop=True)
     new_df.rename(columns=new_header, inplace=True)
