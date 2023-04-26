@@ -13,7 +13,7 @@ from br_denatran_frota.code.utils import (
 )
 from br_denatran_frota.code.constants import DATASET
 from br_denatran_frota.code.download_frota import download_frota
-from br_denatran_frota.code.utils import guess_header
+from br_denatran_frota.code.utils import guess_header, get_year_month_from_filename
 
 dir_list = glob.glob(f"**/{DATASET}", recursive=True)
 if dir_list:
@@ -116,6 +116,22 @@ class TestGuessHeader(unittest.TestCase):
         self.assertEqual(
             guess_header(df), 0
         )  # Header is assumed to be in the first row
+
+
+class TestFilenameExtraction(unittest.TestCase):
+    def test_correct_file(self):
+        filename = "indicator_2-2022.xlsx"
+        self.assertEqual(get_year_month_from_filename(filename), ("2", "2022"))
+
+    def test_not_excel_file(self):
+        filename = "indicator_2-2022"
+        with self.assertRaises(ValueError):
+            get_year_month_from_filename(filename)
+
+    def test_excel_but_incorrect_format(self):
+        filename = "random_2_20.xlsx"
+        with self.assertRaises(ValueError):
+            get_year_month_from_filename(filename)
 
 
 if __name__ == "__main__":
