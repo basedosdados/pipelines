@@ -162,6 +162,9 @@ def clean_data(
     log("ordering columns")
     df = df[ordem_colunas]
 
+    log("building dir")
+    os.system(f"mkdir -p {isp_constants.OUTPUT_PATH.value}")
+
     df.to_csv(
         isp_constants.OUTPUT_PATH.value + novo_nome,
         index=False,
