@@ -123,7 +123,7 @@ def create_columns_order(dict: Dict[str, str]) -> List[str]:
     Returns:
         List[str]: A list with standardized column names
     """
-    ordered_list = dict.keys()
+    ordered_list = dict.values()
 
     return ordered_list
 
