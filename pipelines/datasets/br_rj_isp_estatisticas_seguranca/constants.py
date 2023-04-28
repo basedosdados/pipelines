@@ -55,4 +55,4 @@ class constants(Enum):  # pylint: disable=c0103
     OUTPUT_PATH = "tmp/output/"
 
     # urls =
-    URL = "http://www.ispdados.rj.gov.br/Arquivo/"
+    URL = "http://www.ispdados.rj.gov.br/Arquivos/"
