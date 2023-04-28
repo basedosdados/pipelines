@@ -74,7 +74,7 @@ with Flow(
     )
 
     filepath = clean_data(
-        file=isp_constants.INPUT_PATH.value,
+        file_name=isp_constants.EVOLUCAO_MENSAL_CISP.value,
         upstream_tasks=[d_files],
     )
 
@@ -155,7 +155,7 @@ with Flow(
     )
 
     filepath = clean_data(
-        file=isp_constants.INPUT_PATH.value,
+        file_name=isp_constants.TAXA_EVOLUCAO_MENSAL_UF.value,
         upstream_tasks=[d_files],
     )
 
@@ -238,7 +238,7 @@ with Flow(
     )
 
     filepath = clean_data(
-        file=isp_constants.INPUT_PATH.value,
+        file_name=isp_constants.EVOLUCAO_MENSAL_MUNICIPIO.value,
         upstream_tasks=[d_files],
     )
 
@@ -320,7 +320,7 @@ with Flow(
     )
 
     filepath = clean_data(
-        file=isp_constants.INPUT_PATH.value,
+        file_name=isp_constants.FEMINICIDIO_MENSAL_CISP.value,
         upstream_tasks=[d_files],
     )
 
@@ -402,7 +402,7 @@ with Flow(
     )
 
     filepath = clean_data(
-        file=isp_constants.INPUT_PATH.value,
+        file_name=isp_constants.EVOLUCAO_POLICIAL_MORTO.value,
         upstream_tasks=[d_files],
     )
 
@@ -483,7 +483,7 @@ with Flow(
     )
 
     filepath = clean_data(
-        file=isp_constants.INPUT_PATH.value,
+        file_name=isp_constants.ARMAS_APREENDIDADAS_MENSAL.value,
         upstream_tasks=[d_files],
     )
 
@@ -562,7 +562,7 @@ with Flow(
     )
 
     filepath = clean_data(
-        file=isp_constants.INPUT_PATH.value,
+        file_name=isp_constants.EVOLUCAO_MENSAL_MUNICIPIO.value,
         upstream_tasks=[d_files],
     )
 

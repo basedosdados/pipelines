@@ -115,37 +115,37 @@ def download_files(file_name: str, save_dir: str) -> str:
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def clean_data(
-    file: str,
+    file_name: str,
     # EVOLUCAO_MENSAL_CISP.value
 ):
 
     # get file path as output from above code
     # create path and serve it as output for the task
 
-    print(f"fazendo {file}")
+    print(f"fazendo {file_name}")
 
-    if file.endswith(".csv"):
+    if file_name.endswith(".csv"):
         # todo : set files path
 
         df = pd.read_csv(
-            isp_constants.INPUT_PATH.value + file,
+            isp_constants.INPUT_PATH.value + file_name,
             encoding="latin-1",
             sep=";",
             thousands=".",
             decimal=",",
         )
-        log(f"file -> {file} read")
+        log(f"file -> {file_name} read")
 
     else:
         df = pd.read_excel(
-            isp_constants.INPUT_PATH.value + file,
+            isp_constants.INPUT_PATH.value + file_name,
             thousands=".",
             decimal=",",
         )
-        log(f"file -> {file} read")
+        log(f"file -> {file_name} read")
 
     # find new df name
-    novo_nome = dict_original()[file]
+    novo_nome = dict_original()[file_name]
 
     log("renaming columns")
     # rename columns
@@ -168,6 +168,6 @@ def clean_data(
         na_rep="",
         encoding="utf-8",
     )
-    log(f"df {file} salvo com sucesso")
+    log(f"df {file_name} salvo com sucesso")
 
     return isp_constants.OUTPUT_PATH.value + novo_nome
