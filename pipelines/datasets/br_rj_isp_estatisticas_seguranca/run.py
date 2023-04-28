@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from pipelines.utils.utils import run_cloud
 from pipelines.datasets.br_rj_isp_estatisticas_seguranca.flows import (
     evolucao_mensal_cisp,
