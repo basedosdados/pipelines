@@ -85,7 +85,7 @@ def download_files(file_name: str, save_dir: str) -> str:  #
     """
 
     # create path
-    os.system(f"mkdir -p {isp_constants.OUTPUT_PATH.value}")
+    os.system(f"mkdir -p {isp_constants.INPUT_PATH.value}")
 
     # create full url
     url = isp_constants.URL.value + file_name
