@@ -154,7 +154,7 @@ def clean_data(
     df.rename(columns=nomes_colunas, inplace=True)
 
     log("creating columns order")
-    ordem_colunas = create_columns_order(link_arquitetura)
+    ordem_colunas = create_columns_order(nomes_colunas)
 
     log("checking tipo_fase col")
     df = check_tipo_fase(df)
