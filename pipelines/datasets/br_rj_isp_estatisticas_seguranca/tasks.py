@@ -141,7 +141,6 @@ def clean_data(
             isp_constants.INPUT_PATH.value + file,
             thousands=".",
             decimal=",",
-            encoding="latin-1",
         )
         log(f"file -> {file} read")
 
