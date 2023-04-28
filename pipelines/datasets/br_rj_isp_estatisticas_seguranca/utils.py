@@ -143,7 +143,7 @@ def check_tipo_fase(df: pd.DataFrame) -> pd.DataFrame:
 
         if col == "tipo_fase":
 
-            df["tipo_fase"].map(
+            df["tipo_fase"] = df["tipo_fase"].map(
                 {
                     "2": "Consolidado sem errata",
                     "3": "Consolidado com errata",
