@@ -68,14 +68,14 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    download_files(
+    d_files = download_files(
         file_name=isp_constants.EVOLUCAO_MENSAL_CISP.value,
         save_dir=isp_constants.INPUT_PATH.value,
     )
 
     filepath = clean_data(
         file=isp_constants.INPUT_PATH.value,
-        upstream_tasks=[download_files],
+        upstream_tasks=[d_files],
     )
 
     wait_upload_table = create_table_and_upload_to_gcs(
@@ -149,14 +149,14 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    download_files(
+    d_files = download_files(
         file_name=isp_constants.TAXA_EVOLUCAO_MENSAL_UF.value,
         save_dir=isp_constants.INPUT_PATH.value,
     )
 
     filepath = clean_data(
         file=isp_constants.INPUT_PATH.value,
-        upstream_tasks=[download_files],
+        upstream_tasks=[d_files],
     )
 
     wait_upload_table = create_table_and_upload_to_gcs(
@@ -232,14 +232,14 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    download_files(
+    d_files = download_files(
         file_name=isp_constants.EVOLUCAO_MENSAL_MUNICIPIO.value,
         save_dir=isp_constants.INPUT_PATH.value,
     )
 
     filepath = clean_data(
         file=isp_constants.INPUT_PATH.value,
-        upstream_tasks=[download_files],
+        upstream_tasks=[d_files],
     )
 
     wait_upload_table = create_table_and_upload_to_gcs(
@@ -314,14 +314,14 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    download_files(
+    d_files = download_files(
         file_name=isp_constants.FEMINICIDIO_MENSAL_CISP.value,
         save_dir=isp_constants.INPUT_PATH.value,
     )
 
     filepath = clean_data(
         file=isp_constants.INPUT_PATH.value,
-        upstream_tasks=[download_files],
+        upstream_tasks=[d_files],
     )
 
     wait_upload_table = create_table_and_upload_to_gcs(
@@ -396,14 +396,14 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    download_files(
+    d_files = download_files(
         file_name=isp_constants.EVOLUCAO_POLICIAL_MORTO.value,
         save_dir=isp_constants.INPUT_PATH.value,
     )
 
     filepath = clean_data(
         file=isp_constants.INPUT_PATH.value,
-        upstream_tasks=[download_files],
+        upstream_tasks=[d_files],
     )
 
     wait_upload_table = create_table_and_upload_to_gcs(
@@ -447,9 +447,7 @@ evolucao_policial_morto_servico_mensal.storage = GCS(constants.GCS_FLOWS_BUCKET.
 evolucao_policial_morto_servico_mensal.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-evolucao_policial_morto_servico_mensal.schedule = (
-    every_month_evolucao_policial_morto_servico_mensal
-)
+# evolucao_policial_morto_servico_mensal.schedule = (every_month_evolucao_policial_morto_servico_mensal)
 
 # ! armas_apreendidas_mensal
 
@@ -479,14 +477,14 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    download_files(
+    d_files = download_files(
         file_name=isp_constants.ARMAS_APREENDIDADAS_MENSAL.value,
         save_dir=isp_constants.INPUT_PATH.value,
     )
 
     filepath = clean_data(
         file=isp_constants.INPUT_PATH.value,
-        upstream_tasks=[download_files],
+        upstream_tasks=[d_files],
     )
 
     wait_upload_table = create_table_and_upload_to_gcs(
@@ -558,14 +556,14 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    download_files(
+    d_files = download_files(
         file_name=isp_constants.EVOLUCAO_MENSAL_MUNICIPIO.value,
         save_dir=isp_constants.INPUT_PATH.value,
     )
 
     filepath = clean_data(
         file=isp_constants.INPUT_PATH.value,
-        upstream_tasks=[download_files],
+        upstream_tasks=[d_files],
     )
 
     wait_upload_table = create_table_and_upload_to_gcs(
