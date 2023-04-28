@@ -52,15 +52,17 @@ import pandas as pd
 import os
 import requests
 from datetime import timedelta
-from typing import List
-from typing import Dict
-
 from prefect import task
+
+from pipelines.utils.utils import (
+    log,
+)
 from pipelines.datasets.br_rj_isp_estatisticas_seguranca.utils import (
     dict_original,
     dict_arquitetura,
     change_columns_name,
     create_columns_order,
+    check_tipo_fase,
 )
 from pipelines.datasets.br_rj_isp_estatisticas_seguranca.constants import (
     constants as isp_constants,
@@ -105,7 +107,7 @@ def download_files(file_name: str, save_dir: str) -> str:  #
     with open(file_path, "wb") as f:
         f.write(response.content)
 
-    print(f"File downloaded and saved to {file_path}")
+    log(f"File -> {file_name} downloaded and saved to {file_path}")
 
 
 @task(
@@ -132,7 +134,7 @@ def clean_data(
             thousands=".",
             decimal=",",
         )
-        print("arquivo lido")
+        log(f"file -> {file} read")
 
     else:
         df = pd.read_excel(
@@ -141,23 +143,25 @@ def clean_data(
             decimal=",",
             encoding="latin-1",
         )
-        print("arquivo lido")
+        log(f"file -> {file} read")
 
     # find new df name
     novo_nome = dict_original()[file]
 
+    log("renaming columns")
     # rename columns
     link_arquitetura = dict_arquitetura()[novo_nome]
-
     nomes_colunas = change_columns_name(link_arquitetura)
-
     df.rename(columns=nomes_colunas, inplace=True)
-    print("colunas renomeadas")
 
+    log("creating columns order")
     ordem_colunas = create_columns_order(link_arquitetura)
 
+    log("checking tipo_fase col")
+    df = check_tipo_fase(df)
+
+    log("ordering columns")
     df = df[ordem_colunas]
-    print("colunas ordenadas")
 
     df.to_csv(
         isp_constants.OUTPUT_PATH.value + novo_nome,
@@ -165,6 +169,6 @@ def clean_data(
         na_rep="",
         encoding="utf-8",
     )
-    print(f"df {file} salvo com sucesso")
+    log(f"df {file} salvo com sucesso")
 
     return isp_constants.OUTPUT_PATH.value + novo_nome

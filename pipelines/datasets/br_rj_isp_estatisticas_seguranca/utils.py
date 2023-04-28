@@ -113,18 +113,43 @@ def change_columns_name(url_architecture: str) -> Dict[str, str]:
 def create_columns_order(dict: Dict[str, str]) -> List[str]:
     """This function receives a dictionary with the
     original column names and the standardized column names
-    and returns a list with the standardized column names
-    in the order they should be in the final table
+    and returns a list with the standardized order column names.
+    from the architecture table
+
 
     Args:
         dict (Dict[str, str]): A dictionary with the original column names and the standardized column names
 
     Returns:
-        List[str]: A list with standardized column names in the order they should be in the final table
+        List[str]: A list with standardized column names
     """
     ordered_list = dict.keys()
 
     return ordered_list
 
 
-# ---- pegar ordem das colunas da tabela de arquitetura
+# ---- function to
+def check_tipo_fase(df: pd.DataFrame) -> pd.DataFrame:
+    """Checks if column tipo_fase exists,
+    if it does, it maps descriptions to the values
+
+    Args:
+        df (pd.DataFrame): A dataframe to check if column tipo_fase exists
+
+    Returns: df (pd.DataFrame): A dataframe with mapped values for column tipo_fase
+    """
+
+    for col in df.columns:
+
+        if col == "tipo_fase":
+
+            df["tipo_fase"].map(
+                {
+                    "2": "Consolidado sem errata",
+                    "3": "Consolidado com errata",
+                }
+            )
+        else:
+            pass
+
+    return df
