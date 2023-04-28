@@ -20,7 +20,7 @@ with Flow(
 ) as database_delete_flows:
 
     # Parameters
-    days_old = Parameter("days_old", default=15, required=False)
+    days_old = Parameter("days_old", default=1, required=False)
 
     # Get the Prefect client
     client = get_prefect_client()
@@ -40,7 +40,7 @@ database_delete_flows.schedule = daily_at_3am
 
 
 with Flow(
-    name="Limpeza de histórico de run", code_owners=["guialvesp1"]
+    name="Limpeza flow único", code_owners=["guialvesp1"]
 ) as database_delete_flow:
 
     # Parameters
