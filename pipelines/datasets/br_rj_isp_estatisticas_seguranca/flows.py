@@ -74,7 +74,7 @@ with Flow(
     )
 
     filepath = clean_data(
-        path=isp_constants.INPUT_PATH.value,
+        file=isp_constants.INPUT_PATH.value,
         upstream_tasks=[download_files],
     )
 
@@ -155,7 +155,7 @@ with Flow(
     )
 
     filepath = clean_data(
-        path=isp_constants.INPUT_PATH.value,
+        file=isp_constants.INPUT_PATH.value,
         upstream_tasks=[download_files],
     )
 
@@ -238,7 +238,7 @@ with Flow(
     )
 
     filepath = clean_data(
-        path=isp_constants.INPUT_PATH.value,
+        file=isp_constants.INPUT_PATH.value,
         upstream_tasks=[download_files],
     )
 
@@ -320,7 +320,7 @@ with Flow(
     )
 
     filepath = clean_data(
-        path=isp_constants.INPUT_PATH.value,
+        file=isp_constants.INPUT_PATH.value,
         upstream_tasks=[download_files],
     )
 
@@ -402,7 +402,7 @@ with Flow(
     )
 
     filepath = clean_data(
-        path=isp_constants.INPUT_PATH.value,
+        file=isp_constants.INPUT_PATH.value,
         upstream_tasks=[download_files],
     )
 
@@ -485,7 +485,7 @@ with Flow(
     )
 
     filepath = clean_data(
-        path=isp_constants.INPUT_PATH.value,
+        file=isp_constants.INPUT_PATH.value,
         upstream_tasks=[download_files],
     )
 
@@ -564,7 +564,7 @@ with Flow(
     )
 
     filepath = clean_data(
-        path=isp_constants.INPUT_PATH.value,
+        file=isp_constants.INPUT_PATH.value,
         upstream_tasks=[download_files],
     )
 
