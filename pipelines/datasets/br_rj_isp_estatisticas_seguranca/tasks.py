@@ -126,12 +126,21 @@ def clean_data(
         # todo : set files path
 
         df = pd.read_csv(
-            isp_constants.INPUT_PATH.value + file, encoding="latin-1", sep=";"
+            isp_constants.INPUT_PATH.value + file,
+            encoding="latin-1",
+            sep=";",
+            thousands=".",
+            decimal=",",
         )
         print("arquivo lido")
 
     else:
-        df = pd.read_excel(isp_constants.INPUT_PATH.value + file)
+        df = pd.read_excel(
+            isp_constants.INPUT_PATH.value + file,
+            thousands=".",
+            decimal=",",
+            encoding="latin-1",
+        )
         print("arquivo lido")
 
     # find new df name
@@ -139,9 +148,10 @@ def clean_data(
 
     # rename columns
     link_arquitetura = dict_arquitetura()[novo_nome]
-    nomes_colunas = change_columns_name(link_arquitetura)
-    df.rename(columns=nomes_colunas, inplace=True)
 
+    nomes_colunas = change_columns_name(link_arquitetura)
+
+    df.rename(columns=nomes_colunas, inplace=True)
     print("colunas renomeadas")
 
     ordem_colunas = create_columns_order(link_arquitetura)
