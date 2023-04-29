@@ -50,4 +50,4 @@ class constants(Enum):  # pylint: disable=c0103
 
     URL_TESTE = "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/acessos/acessos_telefonia_movel.zip"
 
-    OUTPUT_PATH = "/tmp/data/output"
+    OUTPUT_PATH = "/tmp/data/output/"
