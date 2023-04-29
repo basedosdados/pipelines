@@ -18,6 +18,7 @@ from pipelines.datasets.br_anatel_telefonia_movel.constants import (
 from pipelines.datasets.br_anatel_telefonia_movel.tasks import (
     download_txt,
     clean_csvs,
+    build_partition,
 )
 from pipelines.utils.decorators import Flow
 from pipelines.utils.tasks import (
@@ -50,10 +51,14 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["arthurfg"]) as br_anat
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    output_filepath = download_txt(
+    input_filepath = download_txt(
         url=url, mkdir=mkdir, upstream_tasks=[rename_flow_run]
     )
-    final_df = clean_csvs(upstream_tasks=[output_filepath, rename_flow_run])
+    final_df = clean_csvs(upstream_tasks=[input_filepath, rename_flow_run])
+
+    output_filepath = build_partition(
+        final_df, upstream_tasks=[input_filepath, rename_flow_run, final_df]
+    )
 
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=output_filepath,
