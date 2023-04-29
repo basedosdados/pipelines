@@ -20,7 +20,7 @@ TIPOS:
 */
 
 CREATE VIEW basedosdados-312117.br_denatran_frota.uf_tipo AS
-SELECT 
+SELECT
 SAFE_CAST(sigla_uf AS STRING) sigla_uf,
 SAFE_CAST(ano AS INT64) ano,
 SAFE_CAST(mes AS INT64) mes,

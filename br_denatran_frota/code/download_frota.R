@@ -8,7 +8,7 @@ library(dplyr)
 library(purrr)
 
 download_frota <- function(key = NULL, prefix = NULL, month, year, tempdir = tempdir(), dir = getwd()) {
-  
+
   months <- c(
     "janeiro" = 1,
     "fevereiro" = 2,
@@ -40,8 +40,8 @@ download_frota <- function(key = NULL, prefix = NULL, month, year, tempdir = tem
   }
 
   make_filename <- function(i, ext = TRUE) {
-    stringi::stri_trans_general(i$txt, id = "Latin-ASCII; lower") %>% 
-    stringr::str_replace_all("\\s+", "_") %>% 
+    stringi::stri_trans_general(i$txt, id = "Latin-ASCII; lower") %>%
+    stringr::str_replace_all("\\s+", "_") %>%
     paste0(., "_", i$mes, "-", i$ano, ifelse(ext, paste0(".", i$filetype), as.character("")))
   }
 
@@ -54,7 +54,7 @@ download_frota <- function(key = NULL, prefix = NULL, month, year, tempdir = tem
       )
     }
   }
-  
+
   handle_compact <- function(i) {
     path_file_zip <- paste0(tempdir, "/", make_filename(i))
     dir_file <- paste0(tempdir, "/", make_filename(i, ext = F))
@@ -70,7 +70,7 @@ download_frota <- function(key = NULL, prefix = NULL, month, year, tempdir = tem
     } else {
       archive::archive_extract(path_file_zip, dir = dir_file)
     }
-    
+
     # Remove rar, zip files. Keep only xls or xlsx
     list.files(dir_file, full.names = T, pattern = "rar|zip") %>% purrr::walk(~file.remove(.x))
 
@@ -115,8 +115,8 @@ download_frota <- function(key = NULL, prefix = NULL, month, year, tempdir = tem
   dplyr::filter(
     stringr::str_detect(txt, regex(key, ignore_case = TRUE)),
     mes %in% month
-  ) %>% 
-  purrr::transpose() %>% 
+  ) %>%
+  purrr::transpose() %>%
   purrr::walk(~download_file(.x))
 }
 

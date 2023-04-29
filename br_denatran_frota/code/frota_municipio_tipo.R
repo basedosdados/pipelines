@@ -31,7 +31,7 @@ PREFIX_FROTA_MUN <- "frota_mun_tipo"
 
 2014:2020 %>% purrr::walk(
   ~download_frota(
-    key = "Frota por Munic", 
+    key = "Frota por Munic",
     prefix = PREFIX_FROTA_MUN,
     month = 1:12,
     year = .x,
@@ -42,7 +42,7 @@ PREFIX_FROTA_MUN <- "frota_mun_tipo"
 
 2021 %>% purrr::walk(
   ~download_frota(
-    key = "Frota por Munic", 
+    key = "Frota por Munic",
     prefix = PREFIX_FROTA_MUN,
     month = 1:3,
     year = .x,
@@ -125,13 +125,13 @@ df_municipios %>%
   ) -> frota_municipios_dist
 
 
-frota_municipios_dist %>% 
+frota_municipios_dist %>%
   filter(is.na(id_municipio)) %>%
   group_by(municipio_original, sigla_uf) %>%
   summarise()
 
-frota_municipios_dist %>% 
+frota_municipios_dist %>%
   dplyr::filter(!is.na(id_municipio)) %>%
-  dplyr::select(!municipio_original) %>% 
+  dplyr::select(!municipio_original) %>%
   readr::write_rds(file = "output/municipio_tipo.rds") %T>%
   readr::write_csv(file = "output/municipio_tipo.csv")

@@ -14,7 +14,7 @@ Dependências:
 
 - [unrar](https://www.rarlab.com/rar_add.htm) para extrair os arquivos `.rar` via cli.
 
-Ubuntu e Debian: 
+Ubuntu e Debian:
 ```sh
 sudo apt-get install unrar
 ```

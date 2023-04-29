@@ -17,7 +17,7 @@ organization: Departamento Nacional de Trânsito  # REQUIRED
 # Qual departamento/grupo/pessoa mantém os dados originais?
 author:
     name: Departamento Nacional de Trânsito
-    email: 
+    email:
 
 # Onde encontrar os dados originais e mais informações?
 website:
@@ -35,7 +35,7 @@ groups:
 #   - sem acentos
 #   - não repita nomes de grupos (ex. educacao, saude, meio ambiente, economia, etc.)
 tags:
-    - veiculo 
+    - veiculo
     - trafego
 
 # Em quais línguas a base (ou a fonte original) está disponível?
@@ -65,5 +65,5 @@ brazilian_IP: não
 # Essa base está sob qual licença?
 # A licença MIT se aplica a bases públicas.
 # Caso não seja pública, ver opções aqui: https://help.data.world/hc/en-us/articles/115006114287-Common-license-types-for-datasets
-license: 
+license:
     name: MIT # REQUIRED

@@ -32,7 +32,7 @@ PREFIX_FROTA_REG <- "frota_regiao_tipo"
 
 # Download da frota por regiao e tipo em 2013
 ## Demais meses de agosto a key é "Frota por Tipo"
-2013 %>% 
+2013 %>%
   purrr::walk(~download_frota(
     key = "Frota por tipo",
     prefix = PREFIX_FROTA_REG,
@@ -91,7 +91,7 @@ list.files(PATH_DOWNLOAD_REG, full.names = T) %>%
 # Cada tibble deve ter 25 colunas e 27 linhas
 frota_regiao %>% purrr::map_lgl(~ncol(.x) == 25 & nrow(.x) == 27) %>% all(T)
 
-frota_regiao %>% 
-  purrr::map_dfr(~tidyr::unnest(.)) %>% 
+frota_regiao %>%
+  purrr::map_dfr(~tidyr::unnest(.)) %>%
   readr::write_csv(file = "output/uf_tipo.csv") %T>%
   readr::write_rds(file = "output/uf_tipo.rds")
