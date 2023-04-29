@@ -153,6 +153,8 @@ def build_partition(final_df: pd.DataFrame) -> str:
     """
     Calls utils function `to_partitions()`
     """
+    os.system("mkdir -p /tmp/data/output/")
+
     to_partitions(
         final_df,
         partition_columns=["ano", "sigla_uf"],
