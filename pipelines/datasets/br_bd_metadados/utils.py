@@ -99,3 +99,26 @@ def get_temporal_coverage_list(temporal_coverage_field: list) -> list:
         temporal_coverage_list.append(sub)
 
     return flatten_list(temporal_coverage_list)
+
+
+def check_missing_metadata(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Verifica se há valores faltando em cada coluna de um DataFrame e armazena essa informação em uma nova coluna.
+
+    Args:
+        df (pandas.DataFrame): O DataFrame a ser verificado.
+
+    Returns:
+        pandas.DataFrame: O DataFrame original com uma nova coluna chamada 'missing_metadata', que contém valores booleanos indicando se há valores nulos em cada linha.
+    """
+    # Cria uma nova coluna com valor padrão 'False'
+    df["missing_metadata"] = False
+
+    # Verifica se há valores nulos em cada coluna
+    for col in df.loc[:, df.columns != "outdated"].columns:
+        if df[col].isnull().values.any():
+            # Se houver valores nulos, atualiza a coluna 'missing_metadata' para 'True'
+            df["missing_metadata"] = True
+
+    # Retorna o DataFrame atualizado
+    return df
