@@ -53,7 +53,7 @@ def download_txt(url: str, chunk_size: int = 128, mkdir: bool = True) -> str:
 
     log("Dados baixados com sucesso!")
 
-    return "/tmp/data/input"
+    return "/tmp/data/input/"
 
 
 @task
