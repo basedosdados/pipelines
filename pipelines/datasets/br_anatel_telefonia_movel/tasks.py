@@ -12,7 +12,8 @@ import zipfile
 from tqdm import tqdm
 from utils import find_csv_files
 from constants import constants
-from utils.utils import log, to_partitions
+from pipelines.utils.utils import to_partitions
+from pipelines.utils.utils import log
 
 
 @task  # noqa
