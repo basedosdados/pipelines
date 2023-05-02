@@ -62,7 +62,7 @@ with Flow(
     )
 
     filepath = clean_data(
-        set_upstream_tasks=[temxpes],
+        upstream_tasks=[temxpes],
     )
 
     wait_upload_table = create_table_and_upload_to_gcs(
