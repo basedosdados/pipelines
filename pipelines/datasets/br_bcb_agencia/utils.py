@@ -424,7 +424,7 @@ def format_date(date_str):
         date_str (str): a column with dates
 
     Returns:
-        _type_: _description_
+        _type_: dataframe with formated dates
     """
     try:
         date_obj = pd.to_datetime(date_str)
