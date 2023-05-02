@@ -51,6 +51,7 @@ Tasks for br_bcb_agencia
 
 import os
 import pandas as pd
+from datetime import timedelta
 
 from pipelines.datasets.br_bcb_agencia.constants import (
     constants as agencia_constants,
@@ -80,9 +81,13 @@ from pipelines.utils.utils import (
     log,
     to_partitions,
 )
+from pipelines.constants import constants
 
 
-@task
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def download_data(url, xpath):
 
     # url= agencia_constants.URL_AGENCIA.value
@@ -102,7 +107,10 @@ def download_data(url, xpath):
 
 
 # 2. task wrang data
-@task
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def clean_data():
     """
     This task wrang the data from the downloaded files

@@ -61,7 +61,9 @@ with Flow(
         xpath=agencia_constants.AGENCIA_XPATH.value,
     )
 
-    filepath = clean_data()
+    filepath = clean_data(
+        set_upstream_tasks=[temxpes],
+    )
 
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
