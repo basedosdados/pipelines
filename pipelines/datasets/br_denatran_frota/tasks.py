@@ -56,14 +56,22 @@ from pipelines.datasets.br_denatran_frota.constants import constants
 from pipelines.datasets.br_denatran_frota.utils import (
     make_dir_when_not_exists,
     download_post_2012,
+    verify_total,
+    change_df_header,
+    guess_header,
+    get_year_month_from_filename,
 )
-
+import pandas as pd
+import polars as pl
 
 MONTHS = constants.MONTHS.value
 DATASET = constants.DATASET.value
+DICT_UFS = constants.DICT_UFS.value
 
 
-@task  # noqa
+@task(
+    name="crawler", description="Extrai os arquivos do Denatran para ano e mês."
+)  # noqa
 def crawl(month: int, year: int, temp_dir: str = ""):
     """Função principal para baixar os dados de frota por município e tipo e também por UF e tipo.
 
@@ -107,3 +115,33 @@ def crawl(month: int, year: int, temp_dir: str = ""):
     #     with ZipFile(generic_zip_filename) as zip_file:
     #         zip_file.extractall()
     os.chdir(initial_dir)
+
+
+@task(name="treatment of uf data", description="Trata os dados do Denatran para UF")
+def treat_uf_tipo(file) -> pl.DataFrame:
+    filename = os.path.split(file)[1]
+    df = pd.read_excel(file)
+    new_df = change_df_header(df, guess_header(df))
+    # This is ad hoc for UF_tipo.
+    new_df.rename(
+        columns={new_df.columns[0]: "sigla_uf"}, inplace=True
+    )  # Rename for ease of use.
+    new_df.sigla_uf = new_df.sigla_uf.str.strip()  # Remove whitespace.
+    clean_df = new_df[new_df.sigla_uf.isin(DICT_UFS.values())].reset_index(
+        drop=True
+    )  # Now we get all the actual RELEVANT uf data.
+    month, year = get_year_month_from_filename(filename)
+    clean_pl_df = pl.from_pandas(clean_df).lazy()
+    verify_total(clean_pl_df.collect())
+    # Add year and month
+    clean_pl_df = clean_pl_df.with_columns(
+        pl.lit(year, dtype=pl.Int64).alias("ano"),
+        pl.lit(month, dtype=pl.Int64).alias("mes"),
+    )
+    clean_pl_df = clean_pl_df.select(pl.exclude("TOTAL"))
+    clean_pl_df = clean_pl_df.melt(
+        id_vars=["ano", "mes", "sigla_uf"],
+        variable_name="tipo_veiculo",
+        value_name="quantidade",
+    )  # Long format.
+    return clean_pl_df.collect()
