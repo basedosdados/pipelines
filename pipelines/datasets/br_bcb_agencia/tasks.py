@@ -51,7 +51,6 @@ Tasks for br_bcb_agencia
 
 import os
 import pandas as pd
-import openpyxl
 
 from pipelines.datasets.br_bcb_agencia.constants import (
     constants as agencia_constants,
