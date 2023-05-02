@@ -3,33 +3,6 @@
 General purpose functions for the br_bcb_agencia project
 """
 
-###############################################################################
-#
-# Esse é um arquivo onde podem ser declaratas funções que serão usadas
-# pelo projeto br_bcb_agencia.
-#
-# Por ser um arquivo opcional, pode ser removido sem prejuízo ao funcionamento
-# do projeto, caos não esteja em uso.
-#
-# Para declarar funções, basta fazer em código Python comum, como abaixo:
-#
-# ```
-# def foo():
-#     """
-#     Function foo
-#     """
-#     print("foo")
-# ```
-#
-# Para usá-las, basta fazer conforme o exemplo abaixo:
-#
-# ```py
-# from pipelines.datasets.br_bcb_agencia.utils import foo
-# foo()
-# ```
-#
-###############################################################################
-
 
 import requests
 from lxml import html
@@ -428,7 +401,7 @@ def format_date(date_str):
     """
     try:
         date_obj = pd.to_datetime(date_str)
-        formatted_date = date_obj.strftime("%Y/%m/%d")
+        formatted_date = date_obj.strftime("%Y-%m-%d")
     # ! they are random numbers in date column that breaks the code
     except ValueError:
         formatted_date = ""
