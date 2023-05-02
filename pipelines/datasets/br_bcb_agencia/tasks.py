@@ -125,116 +125,109 @@ def clean_data():
     # the files format change across the year
     if file.endswith(".xls") or file.endswith(".xlsx"):
 
-        try:
-            file_path = os.path.join(path, file)
-            df = read_file(file_path=file_path, file_name=file)
-            # general columns stardantization
-            df = clean_column_names(df)
-            # rename columns
-            df.rename(columns=rename_cols(), inplace=True)
-            log(df.columns)
-            # fill left zeros with field range
-            df["id_compe_bcb_agencia"] = (
-                df["id_compe_bcb_agencia"].astype(str).str.zfill(4)
+        file_path = os.path.join(path, file)
+        df = read_file(file_path=file_path, file_name=file)
+        # general columns stardantization
+        df = clean_column_names(df)
+        # rename columns
+        df.rename(columns=rename_cols(), inplace=True)
+        log(df.columns)
+        # fill left zeros with field range
+        df["id_compe_bcb_agencia"] = df["id_compe_bcb_agencia"].astype(str).str.zfill(4)
+
+        df["dv_do_cnpj"] = df["dv_do_cnpj"].astype(str).str.zfill(2)
+        df["sequencial_cnpj"] = df["sequencial_cnpj"].astype(str).str.zfill(4)
+        df["cnpj"] = df["cnpj"].astype(str).str.zfill(8)
+        df["fone"] = df["fone"].astype(str).str.zfill(8)
+
+        # check existence and create columns
+        df = check_and_create_column(df, col_name="data_inicio")
+        df = check_and_create_column(df, col_name="instituicao")
+        df = check_and_create_column(df, col_name="id_instalacao")
+        df = check_and_create_column(df, col_name="id_compe_bcb_instituicao")
+        df = check_and_create_column(df, col_name="id_compe_bcb_agencia")
+
+        # drop ddd column thats going to be added later
+        df.drop(columns=["ddd"], inplace=True)
+        log("ddd removed")
+        log(df.columns)
+        # some files doesnt have 'id_municipio', just 'nome'.
+        # to add new ids is necessary to join by name
+        # clean nome municipio
+
+        # todo : copy from estban
+        df = clean_nome_municipio(df)
+
+        municipio = get_data_from_prod(
+            "br_bd_diretorios_brasil",
+            "municipio",
+            ["nome", "sigla_uf", "id_municipio", "ddd"],
+        )
+
+        log("municipio dataset successfully downloaded!")
+
+        municipio = clean_nome_municipio(municipio)
+        # check if id_municipio already exists
+
+        if "id_municipio" not in df.columns:
+            # read municipio from bd datalake
+
+            # join id_municipio to df
+            df = pd.merge(
+                df,
+                municipio[["nome", "sigla_uf", "id_municipio", "ddd"]],
+                left_on=["nome", "sigla_uf"],
+                right_on=["nome", "sigla_uf"],
+                how="left",
             )
 
-            df["dv_do_cnpj"] = df["dv_do_cnpj"].astype(str).str.zfill(2)
-            df["sequencial_cnpj"] = df["sequencial_cnpj"].astype(str).str.zfill(4)
-            df["cnpj"] = df["cnpj"].astype(str).str.zfill(8)
-            df["fone"] = df["fone"].astype(str).str.zfill(8)
+        # check if ddd already exists, if it doesnt, add it
+        if "ddd" not in df.columns:
+            #
+            # read municipio from bd datalake
 
-            # check existence and create columns
-            df = check_and_create_column(df, col_name="data_inicio")
-            df = check_and_create_column(df, col_name="instituicao")
-            df = check_and_create_column(df, col_name="id_instalacao")
-            df = check_and_create_column(df, col_name="id_compe_bcb_instituicao")
-            df = check_and_create_column(df, col_name="id_compe_bcb_agencia")
-
-            # drop ddd column thats going to be added later
-            df.drop(columns=["ddd"], inplace=True)
-            log("ddd removed")
-            log(df.columns)
-            # some files doesnt have 'id_municipio', just 'nome'.
-            # to add new ids is necessary to join by name
-            # clean nome municipio
-
-            # todo : copy from estban
-            df = clean_nome_municipio(df)
-
-            municipio = get_data_from_prod(
-                "br_bd_diretorios_brasil",
-                "municipio",
-                ["nome", "sigla_uf", "id_municipio", "ddd"],
+            df = pd.merge(
+                df,
+                municipio[["id_municipio", "ddd"]],
+                left_on=["id_municipio"],
+                right_on=["id_municipio"],
+                how="left",
             )
 
-            log("municipio dataset successfully downloaded!")
+        # clean cep column
+        df["cep"] = df["cep"].astype(str)
+        df["cep"] = df["cep"].apply(remove_non_numeric_chars)
+        log("cep ok")
 
-            municipio = clean_nome_municipio(municipio)
-            # check if id_municipio already exists
+        # cnpj cleaning working
+        df = create_cnpj_col(df)
 
-            if "id_municipio" not in df.columns:
-                # read municipio from bd datalake
+        df["cnpj"] = df["cnpj"].apply(remove_non_numeric_chars)
+        df["cnpj"] = df["cnpj"].apply(remove_empty_spaces)
 
-                # join id_municipio to df
-                df = pd.merge(
-                    df,
-                    municipio[["nome", "sigla_uf", "id_municipio", "ddd"]],
-                    left_on=["nome", "sigla_uf"],
-                    right_on=["nome", "sigla_uf"],
-                    how="left",
-                )
+        # select cols to title
+        col_list_to_title = ["endereco", "complemento", "bairro", "nome_agencia"]
 
-            # check if ddd already exists, if it doesnt, add it
-            if "ddd" not in df.columns:
-                #
-                # read municipio from bd datalake
+        for col in col_list_to_title:
+            str_to_title(df, column_name=col)
+            log(f"column - {col} converted to title")
 
-                df = pd.merge(
-                    df,
-                    municipio[["id_municipio", "ddd"]],
-                    left_on=["id_municipio"],
-                    right_on=["id_municipio"],
-                    how="left",
-                )
+        # remove latin1 accents from all cols
+        df = remove_latin1_accents_from_df(df)
 
-            # clean cep column
-            df["cep"] = df["cep"].astype(str)
-            df["cep"] = df["cep"].apply(remove_non_numeric_chars)
-            log("cep ok")
+        # format data_inicio
+        df["data_inicio"] = df["data_inicio"].apply(format_date)
 
-            # cnpj cleaning working
-            df = create_cnpj_col(df)
+        # strip all df columns
+        df = strip_dataframe_columns(df)
 
-            df["cnpj"] = df["cnpj"].apply(remove_non_numeric_chars)
-            df["cnpj"] = df["cnpj"].apply(remove_empty_spaces)
+        log(df.columns)
+        log("ddd ordeder")
 
-            # select cols to title
-            col_list_to_title = ["endereco", "complemento", "bairro", "nome_agencia"]
+        to_partitions(
+            data=df,
+            savepath=dir_path,
+            partition_columns=["ano", "mes"],
+        )
 
-            for col in col_list_to_title:
-                str_to_title(df, column_name=col)
-                log(f"column - {col} converted to title")
-
-            # remove latin1 accents from all cols
-            df = remove_latin1_accents_from_df(df)
-
-            # format data_inicio
-            df["data_inicio"] = df["data_inicio"].apply(format_date)
-
-            # strip all df columns
-            df = strip_dataframe_columns(df)
-
-            log(df.columns)
-            log("ddd ordeder")
-
-            to_partitions(
-                data=df,
-                savepath=dir_path,
-                partition_columns=["ano", "mes"],
-            )
-
-        # keep track of possible erros that may occur
-        except Exception as e:
-            log(f"error: {e}")
-
-    return "tmp/ouput/"
+    return agencia_constants.CLEANED_FILES_PATH_AGENCIA.value
