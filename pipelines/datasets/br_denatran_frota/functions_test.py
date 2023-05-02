@@ -10,10 +10,11 @@ from parameterized import parameterized
 from pipelines.datasets.br_denatran_frota.utils import (
     make_filename,
     make_dir_when_not_exists,
+    guess_header,
+    get_year_month_from_filename,
 )
 from pipelines.datasets.br_denatran_frota.constants import constants
 from br_denatran_frota.code.download_frota import download_frota
-from br_denatran_frota.code.utils import guess_header, get_year_month_from_filename
 
 
 DATASET = constants.DATASET.value
