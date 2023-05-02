@@ -66,7 +66,7 @@ from pipelines.datasets.br_bcb_agencia.utils import (
     check_and_create_column,
     clean_nome_municipio,
     get_data_from_prod,
-    find_cnpj_row_number,
+    order_cols,
     remove_non_numeric_chars,
     remove_empty_spaces,
     format_date,
@@ -227,8 +227,9 @@ def clean_data():
         # strip all df columns
         df = strip_dataframe_columns(df)
 
-        log(df.columns)
-        log("ddd ordeder")
+        # order columns
+        df = df[order_cols()]
+        log("cols ordered")
 
         to_partitions(
             data=df,

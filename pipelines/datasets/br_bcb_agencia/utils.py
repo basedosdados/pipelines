@@ -293,6 +293,8 @@ def order_cols():
     """Reorder columns to a standard format"""
 
     cols_order = [
+        "ano",
+        "mes",
         "sigla_uf",
         "id_municipio",
         "data_inicio",
