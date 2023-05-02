@@ -137,6 +137,7 @@ def clean_data():
             df["id_compe_bcb_agencia"] = (
                 df["id_compe_bcb_agencia"].astype(str).str.zfill(4)
             )
+
             df["dv_do_cnpj"] = df["dv_do_cnpj"].astype(str).str.zfill(2)
             df["sequencial_cnpj"] = df["sequencial_cnpj"].astype(str).str.zfill(4)
             df["cnpj"] = df["cnpj"].astype(str).str.zfill(8)
@@ -223,10 +224,6 @@ def clean_data():
             # strip all df columns
             df = strip_dataframe_columns(df)
 
-            # make sure month (mes) is an int to use as partition
-            ano = df["ano"][1]
-            mes = df["ano"][1]
-
             log(df.columns)
             log("ddd ordeder")
 
@@ -240,4 +237,4 @@ def clean_data():
         except Exception as e:
             log(f"error: {e}")
 
-    return f"tmp/ouput/ano={ano}/mes={mes}/data.csv"
+    return "tmp/ouput/ano=2023/mes=3/data.csv"
