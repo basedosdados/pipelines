@@ -42,9 +42,13 @@ import pandas as pd
 import re
 import numpy as np
 import unicodedata
-
+from pipelines.utils.utils import (
+    log,
+)
 
 # ---- functions to download data
+
+
 def extract_download_links(url, xpath):
     """this function extract all download links from bcb agencias website
 
@@ -175,7 +179,7 @@ def read_file(file_path: str, file_name: str) -> pd.DataFrame:
         df = create_year_month_cols(df=df, file=file_name)
 
     except Exception as e:
-        print(e)
+        log(e)
         conv = get_conv_names(file_path=file_path, skiprows=9)
         df = pd.read_excel(file_path, skiprows=9, converters=conv)
         df = create_year_month_cols(df=df, file=file_name)

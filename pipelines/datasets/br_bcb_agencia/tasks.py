@@ -125,7 +125,8 @@ def clean_data():
 
     file = os.listdir(path)
     log(f"file is: {file}")
-    file = file[0]
+    file = file[1]
+    log(f"file is: {file}")
 
     # the files format change across the year
     if file.endswith(".xls") or file.endswith(".xlsx"):
