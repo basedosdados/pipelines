@@ -237,4 +237,4 @@ def clean_data():
         except Exception as e:
             log(f"error: {e}")
 
-    return "tmp/ouput/ano=2023/mes=3/data.csv"
+    return "tmp/ouput/"
