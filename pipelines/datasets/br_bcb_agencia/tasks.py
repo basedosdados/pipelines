@@ -105,6 +105,10 @@ def download_data(url, xpath):
         url=links, extract_to=agencia_constants.DOWNLOAD_PATH_AGENCIA.value
     )
 
+    log(
+        f"The file: {os.listdir(agencia_constants.DOWNLOAD_PATH_AGENCIA.value)} was downloaded"
+    )
+
 
 # 2. task wrang data
 @task(
@@ -120,6 +124,7 @@ def clean_data():
     path = agencia_constants.DOWNLOAD_PATH_AGENCIA.value
 
     file = os.listdir(path)
+    log(f"file is: {file}")
     file = file[0]
 
     # the files format change across the year
