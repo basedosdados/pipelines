@@ -18,7 +18,6 @@ from pipelines.datasets.br_bcb_agencia.constants import (
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from pipelines.constants import constants
-from pipelines.datasets.br_bcb_agencia.tasks import say_hello
 from pipelines.utils.decorators import Flow
 from pipelines.utils.constants import constants as utils_constants
 
