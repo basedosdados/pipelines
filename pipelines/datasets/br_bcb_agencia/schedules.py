@@ -70,7 +70,7 @@ Schedules for br_bcb_agencia
 ###############################################################################
 
 
-from datetime import timedelta, datetime
+from datetime import datetime
 from prefect.schedules import Schedule
 from prefect.schedules.clocks import CronClock
 from pipelines.constants import constants
@@ -78,16 +78,15 @@ from pipelines.constants import constants
 every_month_agencia = Schedule(
     clocks=[
         CronClock(
-            cron="00 15 15 * *",  # 15th day of every month at 15:00
-            # todo: truly understand the cron syntax
-            start_date=datetime(1988, 7, 1),
+            cron="00 15 5 * *",
+            start_date=datetime(2007, 9, 1),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
-                "dataset_id": "br_bcb_estban",
+                "dataset_id": "br_bcb_agencia",
                 "table_id": "agencia",
-                "materialization_mode": "dev",
+                "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
             },

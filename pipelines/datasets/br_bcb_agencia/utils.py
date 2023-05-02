@@ -471,7 +471,7 @@ def get_data_from_prod(dataset_id: str, table_id: str, columns: list) -> list:
             df = pd.read_csv(
                 blob.public_url,
                 usecols=columns,
-                dtype={"id_municipio": str, "id_municipio_bcb": str},
+                dtype={"id_municipio": str, "id_municipio_bcb": str, "ddd": str},
             )
             dfs.append(df)
         else:
