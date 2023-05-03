@@ -86,8 +86,8 @@ with Flow(
         "Tamir",
     ],
 ) as br_denatran_frota_uf_tipo:
-    dataset_id = Parameter("dataset_id", default="br_denatran_frota", required=True)
-    table_id = Parameter("table_id", default="uf_tipo", required=True)
+    dataset_id = Parameter("dataset_id", default="br_denatran_frota")
+    table_id = Parameter("table_id", default="uf_tipo")
 
     # Materialization mode
     materialization_mode = Parameter(
@@ -103,6 +103,7 @@ with Flow(
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
+    crawl(month=2, year=2021)  # Download the desired files.
 
 br_denatran_frota_uf_tipo.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_denatran_frota_uf_tipo.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
