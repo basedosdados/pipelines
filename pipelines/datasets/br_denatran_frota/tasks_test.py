@@ -6,6 +6,9 @@ import unittest
 
 from parameterized import parameterized
 from pipelines.datasets.br_denatran_frota.tasks import crawl
+from pipelines.datasets.br_denatran_frota.constants import constants
+
+DATASET = constants.DATASET.value
 
 
 def custom_name_func(testcase_func, param_num, param):
@@ -17,9 +20,7 @@ def custom_name_func(testcase_func, param_num, param):
 
 class TestAllPossibleYears(unittest.TestCase):
     def setUp(self):
-        file_dir = os.path.dirname(os.path.abspath(__file__))
-        os.chdir(file_dir)
-        self.temp_dir = tempfile.TemporaryDirectory(dir=os.getcwd())
+        self.temp_dir = tempfile.TemporaryDirectory(dir=os.path.join(f"{DATASET}"))
 
     def tearDown(self):
         print("Deleting temporary directory")

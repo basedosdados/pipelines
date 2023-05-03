@@ -55,11 +55,12 @@ import os
 from pipelines.datasets.br_denatran_frota.constants import constants
 from pipelines.datasets.br_denatran_frota.utils import (
     make_dir_when_not_exists,
-    download_post_2012,
+    extract_links_post_2012,
     verify_total,
     change_df_header,
     guess_header,
     get_year_month_from_filename,
+    call_downloader,
 )
 import pandas as pd
 import polars as pl
@@ -82,29 +83,14 @@ def crawl(month: int, year: int, temp_dir: str = ""):
     """
     if month not in MONTHS.values():
         raise ValueError("Mês inválido.")
-
-    dir_list = glob.glob(f"**/{DATASET}", recursive=True)
-    # Get the directory where this Python file is located
-    initial_dir = os.path.dirname(os.path.abspath(__file__))
-    if temp_dir:
-        os.chdir(temp_dir)
-    # Construct the path to the "files" directory relative to this directory
-    files_dir = os.path.join(os.getcwd(), "files")
-    if dir_list:
-        # I always want to be in the actual folder for this dataset, because I might start in the pipelines full repo:
-        os.chdir(dir_list[0])
-
-    # I always need a files directory inside my dataset folder.
+    files_dir = os.path.join(temp_dir, "files")
     make_dir_when_not_exists(files_dir)
-    # I should always switch to the files dir now and save stuff inside it.
-    os.chdir(files_dir)
-    year_dir_name = f"{year}"
-
-    # Create dir for that specific year should it be necessary.
+    year_dir_name = os.path.join(files_dir, f"{year}")
     make_dir_when_not_exists(year_dir_name)
-    os.chdir(year_dir_name)
     if year > 2012:
-        download_post_2012(month, year)
+        files_to_download = extract_links_post_2012(month, year, year_dir_name)
+        for file_dict in files_to_download:
+            call_downloader(file_dict)
     # else:
     #     url = f"https://www.gov.br/infraestrutura/pt-br/assuntos/transito/arquivos-senatran/estatisticas/renavam/{year}/frota{'_' if year > 2008 else ''}{year}.zip"
 
@@ -112,7 +98,6 @@ def crawl(month: int, year: int, temp_dir: str = ""):
     #     urlretrieve(url, generic_zip_filename)
     #     with ZipFile(generic_zip_filename) as zip_file:
     #         zip_file.extractall()
-    os.chdir(initial_dir)
 
 
 @task()

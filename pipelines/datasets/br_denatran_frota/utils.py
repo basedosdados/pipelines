@@ -222,16 +222,6 @@ def extract_zip(dest_path_file):
         z.extractall()
 
 
-def handle_xl(i: dict) -> None:
-    """Actually downloads and deals with Excel files.
-
-    Args:
-        i (dict): Dictionary with all the desired downloadable file's info.
-    """
-    dest_path_file = make_filename(i)
-    download_file(i["href"], dest_path_file)
-
-
 def make_filename(i: dict, ext: bool = True) -> str:
     """Creates the filename using the sent dictionary.
 
@@ -245,15 +235,16 @@ def make_filename(i: dict, ext: bool = True) -> str:
     txt = i["txt"]
     mes = i["mes"]
     ano = i["ano"]
+    directory = i["destination_dir"]
     filetype = i["filetype"]
     filename = re.sub("\\s+", "_", txt, flags=re.UNICODE).lower()
-    filename = f"{filename}_{mes}-{ano}"
+    filename = f"{directory}/{filename}_{mes}-{ano}"
     if ext:
         filename += f".{filetype}"
     return filename
 
 
-def call_downloader(i):
+def call_downloader(i: dict):
     filename = make_filename(i)
     if i["filetype"] in ["xlsx", "xls"]:
         download_file(i["href"], filename)
@@ -262,7 +253,7 @@ def call_downloader(i):
         extract_zip(filename)
 
 
-def download_post_2012(month: int, year: int):
+def extract_links_post_2012(month: int, year: int, directory: str) -> list[dict]:
     """_summary_
 
     Args:
@@ -273,6 +264,7 @@ def download_post_2012(month: int, year: int):
     soup = BeautifulSoup(urlopen(url), "html.parser")
     # Só queremos os dados de frota nacional.
     nodes = soup.select("p:contains('rota por ') > a")
+    valid_links = []
     for node in nodes:
         txt = node.text
         href = node.get("href")
@@ -292,8 +284,10 @@ def download_post_2012(month: int, year: int):
                     "mes": month,
                     "ano": year,
                     "filetype": filetype,
+                    "destination_dir": directory,
                 }
-                call_downloader(info)
+                valid_links.append(info)
+    return valid_links
 
 
 def make_dir_when_not_exists(dir_name: str):
