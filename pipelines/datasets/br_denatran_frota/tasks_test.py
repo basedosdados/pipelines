@@ -5,11 +5,7 @@ import tempfile
 import unittest
 
 from parameterized import parameterized
-from br_denatran_frota.code.download_frota import (
-    DATASET,
-    MONTHS,
-    download_frota,
-)
+from pipelines.datasets.br_denatran_frota.tasks import crawl
 
 
 def custom_name_func(testcase_func, param_num, param):
@@ -34,7 +30,7 @@ class TestAllPossibleYears(unittest.TestCase):
         name_func=custom_name_func,
     )
     def test_download_post_2012(self, month, year):
-        download_frota(month, year, self.temp_dir.name)
+        crawl.run(month, year, self.temp_dir.name)
         expected_files = {
             f"frota_por_uf_e_tipo_de_veículo_{month}-{year}",
             f"frota_por_município_e_tipo_{month}-{year}",
