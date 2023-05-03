@@ -3,9 +3,7 @@ import os
 import shutil
 import tempfile
 import unittest
-import glob
 import pandas as pd
-from parameterized import parameterized
 
 from pipelines.datasets.br_denatran_frota.utils import (
     make_filename,
@@ -15,14 +13,6 @@ from pipelines.datasets.br_denatran_frota.utils import (
 )
 from pipelines.datasets.br_denatran_frota.constants import constants
 from br_denatran_frota.code.download_frota import download_frota
-
-
-DATASET = constants.DATASET.value
-
-dir_list = glob.glob(f"**/{DATASET}", recursive=True)
-if dir_list:
-    # I always want to be in the actual folder for this dataset:
-    os.chdir(dir_list[0])
 
 
 class TestMakeFilename(unittest.TestCase):

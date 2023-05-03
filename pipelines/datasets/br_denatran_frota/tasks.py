@@ -69,9 +69,7 @@ DATASET = constants.DATASET.value
 DICT_UFS = constants.DICT_UFS.value
 
 
-@task(
-    name="crawler", description="Extrai os arquivos do Denatran para ano e mês."
-)  # noqa
+@task()  # noqa
 def crawl(month: int, year: int, temp_dir: str = ""):
     """Função principal para baixar os dados de frota por município e tipo e também por UF e tipo.
 
@@ -117,7 +115,7 @@ def crawl(month: int, year: int, temp_dir: str = ""):
     os.chdir(initial_dir)
 
 
-@task(name="treatment of uf data", description="Trata os dados do Denatran para UF")
+@task()
 def treat_uf_tipo(file) -> pl.DataFrame:
     filename = os.path.split(file)[1]
     df = pd.read_excel(file)

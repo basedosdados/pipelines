@@ -57,25 +57,53 @@ Flows for br_denatran_frota
 #
 ###############################################################################
 
-
+from datetime import datetime, timedelta
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
+from prefect import Parameter, case
+from prefect.tasks.prefect import (
+    create_flow_run,
+    wait_for_flow_run,
+)
+
 from pipelines.constants import constants
-from pipelines.datasets.br_denatran_frota.tasks import say_hello
+from pipelines.utils.constants import constants as utils_constants
+
+from pipelines.utils.decorators import Flow
+from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.tasks import (
+    create_table_and_upload_to_gcs,
+    rename_current_flow_run_dataset_table,
+    get_current_flow_labels,
+)
+from pipelines.datasets.br_denatran_frota.tasks import crawl, treat_uf_tipo
 
 # from pipelines.datasets.br_denatran_frota.schedules import every_two_weeks
-from pipelines.utils.decorators import Flow
 
 with Flow(
-    name="my_flow",
+    name="br_denatran_frota.uf_tipo",
     code_owners=[
-        "discord-username",
+        "Tamir",
     ],
-) as datasets_br_denatran_frota_flow:
-    say_hello()
+) as br_denatran_frota_uf_tipo:
+    dataset_id = Parameter("dataset_id", default="br_denatran_frota", required=True)
+    table_id = Parameter("table_id", default="uf_tipo", required=True)
 
-datasets_br_denatran_frota_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-datasets_br_denatran_frota_flow.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
+    # Materialization mode
+    materialization_mode = Parameter(
+        "materialization_mode", default="dev", required=False
+    )
+
+    materialize_after_dump = Parameter(
+        "materialize after dump", default=False, required=False
+    )
+
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
+
+    rename_flow_run = rename_current_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+    )
+
+br_denatran_frota_uf_tipo.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_denatran_frota_uf_tipo.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 # flow.schedule = every_two_weeks
