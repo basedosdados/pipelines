@@ -12,7 +12,7 @@ from pipelines.datasets.br_denatran_frota.utils import (
     get_year_month_from_filename,
 )
 from pipelines.datasets.br_denatran_frota.constants import constants
-from br_denatran_frota.code.download_frota import download_frota
+from pipelines.datasets.br_denatran_frota.tasks import crawl
 
 
 class TestMakeFilename(unittest.TestCase):
@@ -64,7 +64,7 @@ class TestMakeDirWhenNotExists(unittest.TestCase):
 class TestDownloadFrota(unittest.TestCase):
     def test_download_frota_with_invalid_month(self):
         with self.assertRaises(ValueError):
-            download_frota(13, 2013)
+            crawl(13, 2013)
 
 
 class TestGuessHeader(unittest.TestCase):
