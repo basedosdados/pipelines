@@ -69,6 +69,7 @@ soupsieve = ">1.2"
 [package.extras]
 html5lib = ["html5lib"]
 lxml = ["lxml"]
+openpyxl = ["openpyxl"]
 
 [[package]]
 name = "cachetools"
