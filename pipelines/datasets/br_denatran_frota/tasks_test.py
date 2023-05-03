@@ -19,7 +19,7 @@ class TestAllPossibleYears(unittest.TestCase):
     def setUp(self):
         file_dir = os.path.dirname(os.path.abspath(__file__))
         os.chdir(file_dir)
-        self.temp_dir = tempfile.TemporaryDirectory(dir=file_dir)
+        self.temp_dir = tempfile.TemporaryDirectory(dir=os.getcwd())
 
     def tearDown(self):
         print("Deleting temporary directory")
