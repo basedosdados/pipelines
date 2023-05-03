@@ -20,7 +20,7 @@ with Flow(
 ) as database_delete_flows:
 
     # Parameters
-    days_old = Parameter("days_old", default=1, required=False)
+    days_old = Parameter("days_old", default=15, required=False)
 
     # Get the Prefect client
     client = get_prefect_client()
