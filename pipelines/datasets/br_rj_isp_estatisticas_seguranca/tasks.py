@@ -116,16 +116,11 @@ def download_files(file_name: str, save_dir: str) -> str:
 )
 def clean_data(
     file_name: str,
-    # EVOLUCAO_MENSAL_CISP.value
 ):
-
-    # get file path as output from above code
-    # create path and serve it as output for the task
 
     print(f"fazendo {file_name}")
 
     if file_name.endswith(".csv"):
-        # todo : set files path
 
         df = pd.read_csv(
             isp_constants.INPUT_PATH.value + file_name,
