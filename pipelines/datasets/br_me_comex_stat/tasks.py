@@ -71,56 +71,59 @@ def clean_br_me_comex_stat():
         "VL_FOB": "valor_fob_dolar",
     }
 
-    list_zip = glob(comex_constats.PATH.value + "input/" + "*.csv")
-    log(f"The files {list_zip} are in the given folder")
+    list_zip = glob(comex_constats.PATH.value + "input/" + "*.zip")
 
-    filezip = list_zip[0]
+    for filezip in list_zip:
 
-    log("reading csv")
-    df = pd.read_csv(list_zip, sep=";")
+        with ZipFile(filezip) as z:
 
-    if "MUN" in filezip:
-        log(f"cleaning {filezip} file")
+            with z.open(filezip.split("/")[-1][:-4] + ".csv") as f:
+                df = pd.read_csv(f, sep=";")
 
-        df.rename(columns=rename_mun, inplace=True)
-        # ! just for testing purposes
-        log("df renamed")
+                if "MUN" in filezip:
+                    log(f"cleaning {filezip} file")
 
-        condicao = [
-            ((df["sigla_uf"] == "SP") & (df["id_municipio"] < 3500000)),
-            ((df["sigla_uf"] == "MS") & (df["id_municipio"] > 5000000)),
-            ((df["sigla_uf"] == "GO") & (df["id_municipio"] > 5200000)),
-            ((df["sigla_uf"] == "DF") & (df["id_municipio"] > 5300000)),
-        ]
+                    df.rename(columns=rename_mun, inplace=True)
 
-        valores = [
-            df["id_municipio"] + 100000,
-            df["id_municipio"] - 200000,
-            df["id_municipio"] - 100000,
-            df["id_municipio"] - 100000,
-        ]
+                    log("df renamed")
 
-        df["id_municipio"] = np.select(condicao, valores, default=df["id_municipio"])
-        log("Id_municipio column updated")
+                    condicao = [
+                        ((df["sigla_uf"] == "SP") & (df["id_municipio"] < 3500000)),
+                        ((df["sigla_uf"] == "MS") & (df["id_municipio"] > 5000000)),
+                        ((df["sigla_uf"] == "GO") & (df["id_municipio"] > 5200000)),
+                        ((df["sigla_uf"] == "DF") & (df["id_municipio"] > 5300000)),
+                    ]
 
-        to_partitions(
-            data=df,
-            partition_columns=["ano", "mes"],
-            savepath=comex_constats.PATH.value + "output",
-        )
+                    valores = [
+                        df["id_municipio"] + 100000,
+                        df["id_municipio"] - 200000,
+                        df["id_municipio"] - 100000,
+                        df["id_municipio"] - 100000,
+                    ]
 
-    else:
+                    df["id_municipio"] = np.select(
+                        condicao, valores, default=df["id_municipio"]
+                    )
+                    log("Id_municipio column updated")
 
-        log(f"cleaning {filezip} file")
-        df.rename(columns=rename_ncm, inplace=True)
-        log("df renamed")
+                    to_partitions(
+                        data=df,
+                        partition_columns=["ano", "mes"],
+                        savepath=comex_constats.PATH.value + "output",
+                    )
 
-        to_partitions(
-            data=df,
-            partition_columns=["ano", "mes"],
-            savepath=comex_constats.PATH.value + "output",
-        )
+                else:
 
-    del df
+                    log(f"cleaning {filezip} file")
+                    df.rename(columns=rename_ncm, inplace=True)
+                    log("df renamed")
+
+                    to_partitions(
+                        data=df,
+                        partition_columns=["ano", "mes"],
+                        savepath=comex_constats.PATH.value + "output",
+                    )
+
+                del df
 
     return "/tmp/br_me_comex_stat/output/"
