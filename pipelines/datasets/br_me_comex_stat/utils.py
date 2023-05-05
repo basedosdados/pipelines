@@ -2,7 +2,10 @@
 """ Utils for the Brazilian Comex Stat pipeline. """
 # pylint: disable=invalid-name
 import os
+from zipfile import ZipFile
+from urllib.request import urlopen
 import requests
+from io import BytesIO
 
 from tqdm import tqdm
 from pipelines.utils.utils import (
