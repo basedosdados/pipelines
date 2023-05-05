@@ -2,10 +2,7 @@
 """ Utils for the Brazilian Comex Stat pipeline. """
 # pylint: disable=invalid-name
 import os
-from zipfile import ZipFile
-from urllib.request import urlopen
 import requests
-from io import BytesIO
 
 from tqdm import tqdm
 from pipelines.utils.utils import (
@@ -27,10 +24,7 @@ def download_data(path):
     """
     Crawler for br_me_comex_stat
     """
-    groups = {
-        "ncm": ["EXP_COMPLETA", "IMP_COMPLETA"],
-        "mun": ["EXP_COMPLETA_MUN", "IMP_COMPLETA_MUN"],
-    }
+    # todo: create a way to automatically feed inputs here
 
     groups = {
         "mun": ["EXP_COMPLETA_MUN"],
