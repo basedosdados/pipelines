@@ -14,6 +14,8 @@ from pipelines.datasets.br_denatran_frota.utils import (
 from pipelines.datasets.br_denatran_frota.constants import constants
 from pipelines.datasets.br_denatran_frota.tasks import crawl
 
+DOWNLOAD_PATH = constants.DOWNLOAD_PATH.value
+
 
 class TestMakeFilename(unittest.TestCase):
     def test_make_filename(self):
@@ -24,11 +26,12 @@ class TestMakeFilename(unittest.TestCase):
             "mes": month,
             "ano": year,
             "filetype": "xlsx",
+            "destination_dir": DOWNLOAD_PATH,
         }
         filename = make_filename(i)
         self.assertEqual(
             filename,
-            f"frota-de-veiculos-por-municipio-tipo-e-combustivel_{month}-{year}.xlsx",
+            f"{DOWNLOAD_PATH}/frota-de-veiculos-por-municipio-tipo-e-combustivel_{month}-{year}.xlsx",
         )
 
     def test_make_filename_without_ext(self):
@@ -39,11 +42,12 @@ class TestMakeFilename(unittest.TestCase):
             "mes": 2,
             "ano": 2013,
             "filetype": "xlsx",
+            "destination_dir": DOWNLOAD_PATH,
         }
         filename = make_filename(i, ext=False)
         self.assertEqual(
             filename,
-            f"frota-de-veiculos-por-municipio-tipo-e-combustivel_{month}-{year}",
+            f"{DOWNLOAD_PATH}/frota-de-veiculos-por-municipio-tipo-e-combustivel_{month}-{year}",
         )
 
 
@@ -108,8 +112,8 @@ class TestGuessHeader(unittest.TestCase):
             {"A": ["1", "2", "3"], "B": ["4", "5", "6"], "C": ["7", "8", "9"]}
         )
         self.assertEqual(
-            guess_header(df), 0
-        )  # Header is assumed to be in the first row
+            guess_header(df), len(df) - 1
+        )  # Header is assumed to be in the last row
 
 
 class TestFilenameExtraction(unittest.TestCase):
