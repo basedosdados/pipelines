@@ -101,3 +101,5 @@ class constants(Enum):  # pylint: disable=c0103
     }
 
     DOWNLOAD_PATH = f"pipelines/datasets/{DATASET}/tmp/input"
+
+    OUTPUT_PATH = f"pipelines/datasets/{DATASET}/tmp/output"
