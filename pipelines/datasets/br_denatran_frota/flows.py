@@ -76,7 +76,7 @@ from pipelines.utils.tasks import (
     rename_current_flow_run_dataset_table,
     get_current_flow_labels,
 )
-from pipelines.datasets.br_denatran_frota.tasks import crawl, treat_uf_tipo
+from pipelines.datasets.br_denatran_frota.tasks import crawler, treat_uf_tipo
 from pipelines.datasets.br_denatran_frota.constants import constants
 
 download_path = constants.DOWNLOAD_PATH.value
@@ -105,7 +105,7 @@ with Flow(
     # rename_flow_run = rename_current_flow_run_dataset_table(
     #     prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     # )
-    crawled = crawl(
+    crawled = crawler(
         month=2, year=2021, temp_dir=download_path
     )  # Download the desired files.
     uf_tipo_file = "/home/tamir/basedosdados/pipelines/pipelines/datasets/br_denatran_frota/tmp/input/files/2021/frota_por_uf_e_tipo_de_veículo_2-2021.xls"
