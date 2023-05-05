@@ -223,11 +223,6 @@ def download_file(url, filename):
     print(f"Download of {filename} complete")
 
 
-def extract_zip(dest_path_file):
-    with ZipFile(dest_path_file, "r") as z:
-        z.extractall()
-
-
 def generic_extractor(dest_path_file):
     extension = dest_path_file.split(".")[-1]
     if extension == "rar":
