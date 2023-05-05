@@ -228,22 +228,26 @@ def extract_zip(dest_path_file):
         z.extractall()
 
 
-def extract_rar(dest_path_file):
-    with RarFile(dest_path_file, "r") as r:
-        files_inside_rar = [f.filename for f in r.infolist()]
-        rar_filename = r.filename
-        rar_filename_split = rar_filename.split("/")
-        directory = "/".join(rar_filename_split[: len(rar_filename_split) - 1])
-        for file in files_inside_rar:
-            if re.search("UF", file, re.IGNORECASE):
+def generic_extractor(dest_path_file):
+    extension = dest_path_file.split(".")[-1]
+    if extension == "rar":
+        extractor_function = RarFile
+    elif extension == "zip":
+        extractor_function = ZipFile
+    else:
+        raise ValueError(f"Unsupported type {extension} for compressed file.")
+    with extractor_function(dest_path_file, "r") as f:
+        files_inside_compressed = [f.filename for f in f.infolist()]
+        compressed_filename = f.filename
+        compressed_filename_split = compressed_filename.split("/")
+        directory = "/".join(
+            compressed_filename_split[: len(compressed_filename_split) - 1]
+        )
+        for file in files_inside_compressed:
+            if re.search("UF|municipio", file, re.IGNORECASE):
                 new_extension = file.split(".")[-1]
-                new_filename = f"{r.filename.split('.')[0]}.{new_extension}"
-                r.extract(file, path=directory)
-                os.rename(f"{directory}/{file}", new_filename)
-            elif re.search("municipio", file, re.IGNORECASE):
-                new_extension = file.split(".")[-1]
-                new_filename = f"{r.filename.split('.')[0]}.{new_extension}"
-                r.extract(file, path=directory)
+                new_filename = f"{f.filename.split('.')[0]}.{new_extension}"
+                f.extract(file, path=directory)
                 os.rename(f"{directory}/{file}", new_filename)
 
 
@@ -273,13 +277,9 @@ def call_downloader(i: dict):
     filename = make_filename(i)
     if i["filetype"] in ["xlsx", "xls"]:
         download_file(i["href"], filename)
-    elif i["filetype"] == "zip":
+    elif i["filetype"] == "zip" or i["filetype"] == "rar":
         download_file(i["href"], filename)
-        extract_zip(filename)
-    elif i["filetype"] == "rar":
-        download_file(i["href"], filename)
-        extract_rar(filename)
-        print(2)
+        generic_extractor(filename)
 
 
 def extract_links_post_2012(month: int, year: int, directory: str) -> list[dict]:
