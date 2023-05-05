@@ -259,6 +259,10 @@ def make_filename(i: dict, ext: bool = True) -> str:
     txt = asciify(i["txt"])
     mes = i["mes"]
     ano = i["ano"]
+    if ano == 2013:
+        # Need to treat this specific difference because name is misleading. This should solve
+        txt = txt.replace("tipo", "uf e tipo")
+        txt = txt.replace("Municipio", "municipio e tipo")
     directory = i["destination_dir"]
     filetype = i["filetype"]
     filename = re.sub("\\s+", "_", txt, flags=re.UNICODE).lower()
