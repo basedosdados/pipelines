@@ -33,7 +33,7 @@ def download_data(path):
     }
 
     groups = {
-        "mun": ["EXP_COMPLETA"],
+        "mun": ["EXP_COMPLETA_MUN"],
     }
 
     for item, value in groups.items():
