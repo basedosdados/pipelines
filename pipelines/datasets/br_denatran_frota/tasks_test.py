@@ -5,7 +5,7 @@ import tempfile
 import unittest
 
 from parameterized import parameterized
-from pipelines.datasets.br_denatran_frota.tasks import crawl
+from pipelines.datasets.br_denatran_frota.handlers import crawl
 from pipelines.datasets.br_denatran_frota.constants import constants
 
 DATASET = constants.DATASET.value
@@ -30,7 +30,7 @@ class TestAllPossibleYears(unittest.TestCase):
         shutil.rmtree(self.temp_dir.name)
 
     @parameterized.expand(
-        [(month, year) for year in range(2021, 2022) for month in range(1, 3)],
+        [(month, year) for year in range(2013, 2014) for month in range(1, 3)],
         name_func=custom_name_func,
     )
     def test_download_post_2012(self, month, year):

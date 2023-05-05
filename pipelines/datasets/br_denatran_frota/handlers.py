@@ -64,7 +64,6 @@ from pipelines.datasets.br_denatran_frota.utils import (
 )
 import pandas as pd
 import polars as pl
-from pipelines.datasets.br_denatran_frota.handlers import crawl
 
 MONTHS = constants.MONTHS.value
 DATASET = constants.DATASET.value
@@ -72,12 +71,35 @@ DICT_UFS = constants.DICT_UFS.value
 OUTPUT_PATH = constants.OUTPUT_PATH.value
 
 
-@task()  # noqa
-def crawler(month: int, year: int, temp_dir: str = ""):
-    crawl(month, year, temp_dir)
+def crawl(month: int, year: int, temp_dir: str = ""):
+    """Função principal para baixar os dados de frota por município e tipo e também por UF e tipo.
+
+    Args:
+        month (int): Mês desejado.
+        year (int): Ano desejado.
+
+    Raises:
+        ValueError: Errors if the month is not a valid one.
+    """
+    if month not in MONTHS.values():
+        raise ValueError("Mês inválido.")
+    files_dir = os.path.join(temp_dir, "files")
+    make_dir_when_not_exists(files_dir)
+    year_dir_name = os.path.join(files_dir, f"{year}")
+    make_dir_when_not_exists(year_dir_name)
+    if year > 2012:
+        files_to_download = extract_links_post_2012(month, year, year_dir_name)
+        for file_dict in files_to_download:
+            call_downloader(file_dict)
+    # else:
+    #     url = f"https://www.gov.br/infraestrutura/pt-br/assuntos/transito/arquivos-senatran/estatisticas/renavam/{year}/frota{'_' if year > 2008 else ''}{year}.zip"
+
+    #     generic_zip_filename = f"geral_{year}.zip"
+    #     urlretrieve(url, generic_zip_filename)
+    #     with ZipFile(generic_zip_filename) as zip_file:
+    #         zip_file.extractall()
 
 
-@task()
 def treat_uf_tipo(file) -> pl.DataFrame:
     filename = os.path.split(file)[1]
     df = pd.read_excel(file)
@@ -108,7 +130,8 @@ def treat_uf_tipo(file) -> pl.DataFrame:
     return clean_pl_df
 
 
-@task()
 def output_file_to_csv(df: pl.DataFrame) -> None:
     pass
-    # df.write_csv(file=f"{OUTPUT_PATH}/{filename}.csv", has_header=True)
+
+
+# df.write_csv(file=f"{OUTPUT_PATH}/{filename}.csv", has_header=True)
