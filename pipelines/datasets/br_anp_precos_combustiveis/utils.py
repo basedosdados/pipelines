@@ -6,8 +6,9 @@ import os
 import requests
 from bs4 import BeautifulSoup
 
+
 def download_files():
-    
+
     # ! URL da página que contém os links de download
     url = "https://www.gov.br/anp/pt-br/centrais-de-conteudo/dados-abertos/serie-historica-de-precos-de-combustiveis"
 
@@ -20,7 +21,6 @@ def download_files():
     # * Primeiro argumento: o conteúdo HTML da página
     # * Segundo argumento: o parser HTML que será usado para analisar o HTML
     soup = BeautifulSoup(response.content, "html.parser")
-
 
     # ! Encontrar todos os links de download para arquivos CSV
     # ? Usando o método find_all() para encontrar todos os elementos <a> com o atributo href
@@ -37,7 +37,7 @@ def download_files():
         file_url = link.get("href")
         response = requests.get(file_url)
 
-        with open(f'input/{filename}', "wb") as f:
+        with open(f"input/{filename}", "wb") as f:
             f.write(response.content)
 
-        print(f'Arquivo {filename} baixado com sucesso!')
+        print(f"Arquivo {filename} baixado com sucesso!")
