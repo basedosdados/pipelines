@@ -13,16 +13,27 @@ from prefect import task
 
 from pipelines.datasets.br_me_comex_stat.utils import create_paths, download_data
 from pipelines.datasets.br_me_comex_stat.constants import constants
+from pipelines.utils.utils import (
+    log,
+    to_partitions,
+)
 
 
 @task
+# todo: insert nmax retry params
 def clean_br_me_comex_stat():
     """
     clean and partition table
     """
 
-    create_paths(constants.TABLE.value, constants.PATH.value, constants.UF.value)
+    create_paths(
+        constants.PATH.value,
+    )
+
+    log("paths created!")
+
     download_data(constants.PATH.value)
+    log("data downloaded!")
 
     rename_ncm = {
         "CO_ANO": "ano",
@@ -52,6 +63,7 @@ def clean_br_me_comex_stat():
     }
 
     list_zip = glob(constants.PATH.value + "input/" + "*.zip")
+    log(f"The files {list_zip} are in the given folder")
 
     for filezip in list_zip:
 
@@ -61,8 +73,11 @@ def clean_br_me_comex_stat():
                 df = pd.read_csv(f, sep=";")
 
                 if "MUN" in filezip:
+                    log(f"cleaning {filezip} file")
 
                     df.rename(columns=rename_mun, inplace=True)
+                    # ! just for testing purposes
+                    log("df renamed")
 
                     condicao = [
                         ((df["sigla_uf"] == "SP") & (df["id_municipio"] < 3500000)),
@@ -81,70 +96,26 @@ def clean_br_me_comex_stat():
                     df["id_municipio"] = np.select(
                         condicao, valores, default=df["id_municipio"]
                     )
+                    log("Id_municipio column updated")
 
-                    for table in constants.TABLE.value:
-
-                        for ano in [*range(1997, 2023)]:
-
-                            for mes in [*range(1, 13)]:
-
-                                for uf in constants.UF.value:
-
-                                    if "municipio" in table:
-
-                                        print(f"Particionando {table}_{ano}_{mes}_{uf}")
-
-                                        df_partition = df[df["ano"] == ano].copy()
-                                        df_partition = df_partition[
-                                            df_partition["mes"] == mes
-                                        ]
-                                        df_partition = df_partition[
-                                            df_partition["sigla_uf"] == uf
-                                        ]
-                                        df_partition.drop(
-                                            ["ano", "mes", "sigla_uf"],
-                                            axis=1,
-                                            inplace=True,
-                                        )
-
-                                        df_partition.to_csv(
-                                            constants.PATH.value
-                                            + "output/"
-                                            + f"{table}/ano={ano}/mes={mes}/sigla_uf={uf}/{table}.csv",
-                                            index=False,
-                                            encoding="utf-8",
-                                            na_rep="",
-                                        )
-
-                                        del df_partition
+                    to_partitions(
+                        data=df,
+                        partition_columns=["ano", "mes"],
+                        savepath=constants.PATH.value + "output",
+                    )
 
                 else:
 
+                    log(f"cleaning {filezip} file")
                     df.rename(columns=rename_ncm, inplace=True)
+                    log("df renamed")
 
-                    for table in constants.TABLE.value:
-                        for ano in [*range(1997, 2023)]:
-                            for mes in [*range(1, 13)]:
+                    to_partitions(
+                        data=df,
+                        partition_columns=["ano", "mes"],
+                        savepath=constants.PATH.value + "output",
+                    )
 
-                                if "ncm" in table:
-                                    print(f"Particionando {table}_{ano}_{mes}")
-                                    df_partition = df[df["ano"] == ano].copy()
-                                    df_partition = df_partition[
-                                        df_partition["mes"] == mes
-                                    ]
-                                    df_partition.drop(
-                                        ["ano", "mes"], axis=1, inplace=True
-                                    )
-                                    df_partition.to_csv(
-                                        constants.PATH.value
-                                        + "output/"
-                                        + f"{table}/ano={ano}/mes={mes}/{table}.csv",
-                                        index=False,
-                                        encoding="utf-8",
-                                        na_rep="",
-                                    )
-
-                                    del df_partition
                 del df
 
     return "/tmp/br_me_comex_stat/output/"
