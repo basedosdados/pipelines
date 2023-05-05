@@ -127,4 +127,5 @@ def treat_uf_tipo(file) -> pl.DataFrame:
         variable_name="tipo_veiculo",
         value_name="quantidade",
     )  # Long format.
-    return clean_pl_df.collect()
+    clean_pl_df = clean_pl_df.collect()
+    return clean_pl_df.write_csv(file=f"{filename}.csv", has_header=True)

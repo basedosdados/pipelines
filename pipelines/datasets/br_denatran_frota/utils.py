@@ -61,15 +61,18 @@ def guess_header(df: pd.DataFrame, max_header_guess: int = 4) -> int:
         int: Index of the row where the header is contained.
     """
     header_guess = 0
+    possible_guess_list = [header_guess]
     while header_guess < max_header_guess:
         if len(df) - 1 < header_guess:
             break
         # Iffy logic, but essentially: if all rows of the column are strings, then this is a good candidate for a header.
         if all(df.iloc[header_guess].apply(lambda x: isinstance(x, str))):
-            return header_guess
+            possible_guess_list.append(header_guess)
 
         header_guess += 1
-    return 0  # If nothing is ever found until the max, let's just assume it's the first row as per usual.
+    return max(
+        possible_guess_list
+    )  # If nothing is ever found until the max, let's just assume it's the first row as per usual.
 
 
 def change_df_header(df: pd.DataFrame, header_row: int) -> pd.DataFrame:
@@ -297,4 +300,4 @@ def make_dir_when_not_exists(dir_name: str):
         dir_name (str): Name of the subdirectory to be created.
     """
     if not os.path.exists(dir_name):
-        os.mkdir(dir_name)
+        os.makedirs(dir_name)

@@ -99,3 +99,5 @@ class constants(Enum):  # pylint: disable=c0103
         ("SP", "embu"): "embu das artes",
         ("TO", "sao valerio da natividade"): "sao valerio",
     }
+
+    DOWNLOAD_PATH = f"pipelines/datasets/{DATASET}/tmp/input"

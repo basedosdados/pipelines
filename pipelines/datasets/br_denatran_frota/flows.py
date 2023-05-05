@@ -60,16 +60,16 @@ Flows for br_denatran_frota
 from datetime import datetime, timedelta
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
-from prefect import Parameter, case
+from prefect import Parameter, case, Flow
 from prefect.tasks.prefect import (
     create_flow_run,
     wait_for_flow_run,
 )
 
-from pipelines.constants import constants
+from pipelines.constants import constants as pipelines_constants
 from pipelines.utils.constants import constants as utils_constants
 
-from pipelines.utils.decorators import Flow
+# from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
@@ -77,34 +77,44 @@ from pipelines.utils.tasks import (
     get_current_flow_labels,
 )
 from pipelines.datasets.br_denatran_frota.tasks import crawl, treat_uf_tipo
+from pipelines.datasets.br_denatran_frota.constants import constants
 
+download_path = constants.DOWNLOAD_PATH.value
 # from pipelines.datasets.br_denatran_frota.schedules import every_two_weeks
 
 with Flow(
     name="br_denatran_frota.uf_tipo",
-    code_owners=[
-        "Tamir",
-    ],
+    # code_owners=[
+    #     "Tamir",
+    # ],
 ) as br_denatran_frota_uf_tipo:
-    dataset_id = Parameter("dataset_id", default="br_denatran_frota")
-    table_id = Parameter("table_id", default="uf_tipo")
+    # dataset_id = Parameter("dataset_id", default="br_denatran_frota")
+    # table_id = Parameter("table_id", default="uf_tipo")
 
-    # Materialization mode
-    materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
-    )
+    # # Materialization mode
+    # materialization_mode = Parameter(
+    #     "materialization_mode", default="dev", required=False
+    # )
 
-    materialize_after_dump = Parameter(
-        "materialize after dump", default=False, required=False
-    )
+    # materialize_after_dump = Parameter(
+    #     "materialize after dump", default=False, required=False
+    # )
 
-    dbt_alias = Parameter("dbt_alias", default=True, required=False)
+    # dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
-    )
-    crawl(month=2, year=2021)  # Download the desired files.
+    # rename_flow_run = rename_current_flow_run_dataset_table(
+    #     prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+    # )
+    crawled = crawl(
+        month=2, year=2021, temp_dir=download_path
+    )  # Download the desired files.
+    uf_tipo_file = "/home/tamir/basedosdados/pipelines/pipelines/datasets/br_denatran_frota/tmp/input/files/2021/frota_por_uf_e_tipo_de_veículo_2-2021.xls"
+    df = treat_uf_tipo(file=uf_tipo_file, upstream_tasks=[crawled])
 
-br_denatran_frota_uf_tipo.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_denatran_frota_uf_tipo.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+    print("foi?")
+
+br_denatran_frota_uf_tipo.storage = GCS(pipelines_constants.GCS_FLOWS_BUCKET.value)
+br_denatran_frota_uf_tipo.run_config = KubernetesRun(
+    image=pipelines_constants.DOCKER_IMAGE.value
+)
 # flow.schedule = every_two_weeks
