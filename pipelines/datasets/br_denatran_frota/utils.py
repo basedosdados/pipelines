@@ -36,7 +36,9 @@ import difflib
 import re
 import os
 from zipfile import ZipFile
+from rarfile import RarFile
 import requests
+from string_utils import asciify
 from pipelines.datasets.br_denatran_frota.constants import constants
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
@@ -45,6 +47,7 @@ DICT_UFS = constants.DICT_UFS.value
 SUBSTITUTIONS = constants.SUBSTITUTIONS.value
 HEADERS = constants.HEADERS.value
 MONTHS = constants.MONTHS.value
+UF_TIPO_BASIC_FILENAME = constants.UF_TIPO_BASIC_FILENAME
 
 
 def guess_header(df: pd.DataFrame, max_header_guess: int = 4) -> int:
@@ -225,6 +228,25 @@ def extract_zip(dest_path_file):
         z.extractall()
 
 
+def extract_rar(dest_path_file):
+    with RarFile(dest_path_file, "r") as r:
+        files_inside_rar = [f.filename for f in r.infolist()]
+        rar_filename = r.filename
+        rar_filename_split = rar_filename.split("/")
+        directory = "/".join(rar_filename_split[: len(rar_filename_split) - 1])
+        for file in files_inside_rar:
+            if re.search("UF", file, re.IGNORECASE):
+                new_extension = file.split(".")[-1]
+                new_filename = f"{r.filename.split('.')[0]}.{new_extension}"
+                r.extract(file, path=directory)
+                os.rename(f"{directory}/{file}", new_filename)
+            elif re.search("municipio", file, re.IGNORECASE):
+                new_extension = file.split(".")[-1]
+                new_filename = f"{r.filename.split('.')[0]}.{new_extension}"
+                r.extract(file, path=directory)
+                os.rename(f"{directory}/{file}", new_filename)
+
+
 def make_filename(i: dict, ext: bool = True) -> str:
     """Creates the filename using the sent dictionary.
 
@@ -235,7 +257,7 @@ def make_filename(i: dict, ext: bool = True) -> str:
     Returns:
         str: The full filename.
     """
-    txt = i["txt"]
+    txt = asciify(i["txt"])
     mes = i["mes"]
     ano = i["ano"]
     directory = i["destination_dir"]
@@ -254,6 +276,10 @@ def call_downloader(i: dict):
     elif i["filetype"] == "zip":
         download_file(i["href"], filename)
         extract_zip(filename)
+    elif i["filetype"] == "rar":
+        download_file(i["href"], filename)
+        extract_rar(filename)
+        print(2)
 
 
 def extract_links_post_2012(month: int, year: int, directory: str) -> list[dict]:
