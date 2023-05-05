@@ -25,7 +25,7 @@ from pipelines.utils.tasks import (
 )
 
 with Flow(
-    name="br_me_comex_stat.municipio_exportacao", code_owners=["crislanealves"]
+    name="br_me_comex_stat.municipio_exportacao", code_owners=["Gabriel Pisa"]
 ) as br_comex_mx:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_me_comex_stat", required=True)
@@ -44,6 +44,7 @@ with Flow(
     )
 
     filepath = clean_br_me_comex_stat()
+
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
@@ -96,7 +97,7 @@ br_comex_mx.schedule = None
 
 
 with Flow(
-    name="br_me_comex_stat.municipio_importacao", code_owners=["crislanealves"]
+    name="br_me_comex_stat.municipio_importacao", code_owners=["Gabriel Pisa"]
 ) as br_comex_mi:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_me_comex_stat", required=True)
@@ -115,6 +116,7 @@ with Flow(
     )
 
     filepath = clean_br_me_comex_stat()
+
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
@@ -167,7 +169,7 @@ br_comex_mi.schedule = None
 
 
 with Flow(
-    name="br_me_comex_stat.ncm_exportacao", code_owners=["crislanealves"]
+    name="br_me_comex_stat.ncm_exportacao", code_owners=["Gabriel Pisa"]
 ) as br_comex_ncm_export:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_me_comex_stat", required=True)
@@ -238,7 +240,7 @@ br_comex_ncm_export.schedule = None
 
 
 with Flow(
-    name="br_me_comex_stat.ncm_importacao", code_owners=["crislanealves"]
+    name="br_me_comex_stat.ncm_importacao", code_owners=["Gabriel Pisa"]
 ) as br_comex_ncm_import:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_me_comex_stat", required=True)
