@@ -41,6 +41,7 @@ def download_br_me_comex_stat(
         table_name=table_name,
     )
     log("data downloaded!")
+
     tm.sleep(10)
 
 

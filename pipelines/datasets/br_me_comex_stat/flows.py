@@ -50,7 +50,9 @@ with Flow(
         table_name=comex_constants.TABLE_TYPE.value[0],
     )
 
-    filepath = clean_br_me_comex_stat()
+    filepath = clean_br_me_comex_stat(
+        upstream_tasks=[download_data],
+    )
 
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
@@ -129,7 +131,9 @@ with Flow(
         table_name=comex_constants.TABLE_TYPE.value[0],
     )
 
-    filepath = clean_br_me_comex_stat()
+    filepath = clean_br_me_comex_stat(
+        upstream_tasks=[download_data],
+    )
 
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
@@ -208,7 +212,9 @@ with Flow(
         table_name=comex_constants.TABLE_TYPE.value[1],
     )
 
-    filepath = clean_br_me_comex_stat()
+    filepath = clean_br_me_comex_stat(
+        upstream_tasks=[download_data],
+    )
 
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
@@ -285,7 +291,9 @@ with Flow(
         table_name=comex_constants.TABLE_TYPE.value[1],
     )
 
-    filepath = clean_br_me_comex_stat()
+    filepath = clean_br_me_comex_stat(
+        upstream_tasks=[download_data],
+    )
 
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
