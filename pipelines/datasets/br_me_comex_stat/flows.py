@@ -127,8 +127,8 @@ with Flow(
     )
 
     download_data = download_br_me_comex_stat(
-        table_type=comex_constants.TABLE_MUNICIPIO.value[1],
-        table_name=comex_constants.TABLE_TYPE.value[0],
+        table_name=comex_constants.TABLE_MUNICIPIO.value[1],
+        table_type=comex_constants.TABLE_TYPE.value[0],
     )
 
     filepath = clean_br_me_comex_stat(
@@ -208,8 +208,8 @@ with Flow(
     )
 
     download_data = download_br_me_comex_stat(
-        table_type=comex_constants.TABLE_NCM.value[0],
-        table_name=comex_constants.TABLE_TYPE.value[1],
+        table_name=comex_constants.TABLE_NCM.value[0],
+        table_type=comex_constants.TABLE_TYPE.value[1],
     )
 
     filepath = clean_br_me_comex_stat(
@@ -287,8 +287,8 @@ with Flow(
     )
 
     download_data = download_br_me_comex_stat(
-        table_type=comex_constants.TABLE_MUNICIPIO.value[1],
-        table_name=comex_constants.TABLE_TYPE.value[1],
+        table_name=comex_constants.TABLE_NCM.value[1],
+        table_type=comex_constants.TABLE_TYPE.value[1],
     )
 
     filepath = clean_br_me_comex_stat(

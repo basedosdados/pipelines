@@ -45,10 +45,7 @@ def download_br_me_comex_stat(
     tm.sleep(10)
 
 
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
+@task
 def clean_br_me_comex_stat() -> pd.DataFrame:
     """
     clean and partition table
