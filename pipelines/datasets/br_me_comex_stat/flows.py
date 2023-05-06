@@ -12,8 +12,10 @@ from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
 from pipelines.datasets.br_me_comex_stat.tasks import (
+    download_br_me_comex_stat,
     clean_br_me_comex_stat,
 )
+from pipelines.datasets.br_me_comex_stat.constants import constants as comex_constants
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
@@ -41,6 +43,11 @@ with Flow(
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+    )
+
+    download_data = download_br_me_comex_stat(
+        table_type=comex_constants.TABLE_MUNICIPIO.value[0],
+        table_name=comex_constants.TABLE_TYPE.value[0],
     )
 
     filepath = clean_br_me_comex_stat()
@@ -100,7 +107,7 @@ br_comex_municipio_exportacao.schedule = None
 
 with Flow(
     name="br_me_comex_stat.municipio_importacao", code_owners=["Gabriel Pisa"]
-) as br_comex_mi:
+) as br_comex_municipio_importacao:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_me_comex_stat", required=True)
     table_id = Parameter("table_id", default="municipio_importacao", required=True)
@@ -117,6 +124,11 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
+    download_data = download_br_me_comex_stat(
+        table_type=comex_constants.TABLE_MUNICIPIO.value[1],
+        table_name=comex_constants.TABLE_TYPE.value[0],
+    )
+
     filepath = clean_br_me_comex_stat()
 
     wait_upload_table = create_table_and_upload_to_gcs(
@@ -165,14 +177,16 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-br_comex_mi.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_comex_mi.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_comex_mi.schedule = None
+br_comex_municipio_importacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_comex_municipio_importacao.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
+br_comex_municipio_importacao.schedule = None
 
 
 with Flow(
     name="br_me_comex_stat.ncm_exportacao", code_owners=["Gabriel Pisa"]
-) as br_comex_ncm_export:
+) as br_comex_ncm_exportacao:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_me_comex_stat", required=True)
     table_id = Parameter("table_id", default="ncm_exportacao", required=True)
@@ -189,7 +203,13 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
+    download_data = download_br_me_comex_stat(
+        table_type=comex_constants.TABLE_NCM.value[0],
+        table_name=comex_constants.TABLE_TYPE.value[1],
+    )
+
     filepath = clean_br_me_comex_stat()
+
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
@@ -236,14 +256,14 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-br_comex_ncm_export.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_comex_ncm_export.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_comex_ncm_export.schedule = None
+br_comex_ncm_exportacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_comex_ncm_exportacao.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_comex_ncm_exportacao.schedule = None
 
 
 with Flow(
     name="br_me_comex_stat.ncm_importacao", code_owners=["Gabriel Pisa"]
-) as br_comex_ncm_import:
+) as br_comex_ncm_importacao:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_me_comex_stat", required=True)
     table_id = Parameter("table_id", default="ncm_importacao", required=True)
@@ -260,7 +280,13 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
+    download_data = download_br_me_comex_stat(
+        table_type=comex_constants.TABLE_MUNICIPIO.value[1],
+        table_name=comex_constants.TABLE_TYPE.value[1],
+    )
+
     filepath = clean_br_me_comex_stat()
+
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
@@ -307,6 +333,6 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-br_comex_ncm_import.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_comex_ncm_import.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_comex_ncm_import.schedule = None
+br_comex_ncm_importacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_comex_ncm_importacao.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_comex_ncm_importacao.schedule = None

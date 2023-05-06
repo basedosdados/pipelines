@@ -20,23 +20,21 @@ def create_paths(path):
         os.makedirs(path_temp, exist_ok=True)
 
 
-def download_data(path):
+def download_data(
+    path: str,
+    table_type: str,
+    table_name: str,
+) -> None:
     """
     Crawler for br_me_comex_stat
     """
     # todo: create a way to automatically feed inputs here
 
-    groups = {
-        "mun": ["EXP_COMPLETA_MUN"],
-    }
-
-    for item, value in groups.items():
-        for group in tqdm(value):
-            log(f"Downloading {item} of {group}")
-            url = f"https://balanca.economia.gov.br/balanca/bd/comexstat-bd/{item}/{group}.zip"
-            r = requests.get(url, verify=False, timeout=99999999)
-            with open(path + f"input/{group}.zip", "wb") as f:
-                f.write(r.content)
+    log(f"Downloading {table_type} of {table_name}")
+    url = f"https://balanca.economia.gov.br/balanca/bd/comexstat-bd/{table_type}/{table_name}.zip"
+    r = requests.get(url, verify=False, timeout=99999999)
+    with open(path + f"input/{table_name}.zip", "wb") as f:
+        f.write(r.content)
 
 
 '''

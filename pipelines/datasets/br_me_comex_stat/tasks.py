@@ -13,7 +13,7 @@ import numpy as np
 from prefect import task
 
 from pipelines.datasets.br_me_comex_stat.utils import create_paths, download_data
-from pipelines.datasets.br_me_comex_stat.constants import constants as comex_constats
+from pipelines.datasets.br_me_comex_stat.constants import constants as comex_constants
 
 from pipelines.constants import constants
 
@@ -23,26 +23,35 @@ from pipelines.utils.utils import (
 )
 
 
-# todo : insert max retries
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
-def clean_br_me_comex_stat():
-    """
-    clean and partition table
-    """
-
+@task
+def download_br_me_comex_stat(
+    table_type: str,
+    table_name: str,
+) -> None:
+    # todo: add table name as dir
     create_paths(
-        comex_constats.PATH.value,
+        comex_constants.PATH.value,
     )
 
     log("paths created!")
 
-    download_data(comex_constats.PATH.value)
+    download_data(
+        path=comex_constants.PATH.value,
+        table_type=table_type,
+        table_name=table_name,
+    )
     log("data downloaded!")
-
     tm.sleep(10)
+
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def clean_br_me_comex_stat() -> pd.DataFrame:
+    """
+    clean and partition table
+    """
 
     rename_ncm = {
         "CO_ANO": "ano",
@@ -71,7 +80,7 @@ def clean_br_me_comex_stat():
         "VL_FOB": "valor_fob_dolar",
     }
 
-    list_zip = glob(comex_constats.PATH.value + "input/" + "*.zip")
+    list_zip = glob(comex_constants.PATH.value + "input/" + "*.zip")
 
     for filezip in list_zip:
 
@@ -109,7 +118,7 @@ def clean_br_me_comex_stat():
                     to_partitions(
                         data=df,
                         partition_columns=["ano", "mes"],
-                        savepath=comex_constats.PATH.value + "output",
+                        savepath=comex_constants.PATH.value + "output",
                     )
 
                 else:
@@ -121,9 +130,11 @@ def clean_br_me_comex_stat():
                     to_partitions(
                         data=df,
                         partition_columns=["ano", "mes"],
-                        savepath=comex_constats.PATH.value + "output",
+                        savepath=comex_constants.PATH.value + "output",
                     )
 
                 del df
 
+    # ! beware
+    # is it going to work on every tible?
     return "/tmp/br_me_comex_stat/output/"
