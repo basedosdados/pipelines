@@ -126,7 +126,7 @@ def crawl(month: int, year: int, temp_dir: str = ""):
                         f.extract(file, path=year_dir_name)
                         os.rename(f"{year_dir_name}/{file.filename}", new_filename)
                 elif re.search("Munic", filename, re.IGNORECASE):
-                    match = re.search(rf"Munic\.\s*(.*?)\s*\.{year}", filename)
+                    match = re.search(rf"Munic\.?\s*(.*?)\s*\.?{year}", filename)
                     if match:
                         month = match.group(1).lower()
                         month_value = MONTHS.get(month) or MONTHS_SHORT.get(month)
