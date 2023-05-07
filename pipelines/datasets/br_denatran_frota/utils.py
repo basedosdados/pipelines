@@ -238,7 +238,11 @@ def generic_extractor(dest_path_file: str):
             compressed_filename_split[: len(compressed_filename_split) - 1]
         )
         for file in f.infolist():
-            if re.search("UF|municipio", file.filename, re.IGNORECASE):
+            print(file)
+            if (
+                re.search("UF|municipio", file.filename, re.IGNORECASE)
+                and not file.is_dir()
+            ):
                 new_extension = file.filename.split(".")[-1]
                 new_filename = f"{f.filename.split('.')[0]}.{new_extension}"
                 f.extract(file.filename, path=directory)

@@ -30,7 +30,7 @@ class TestAllPossibleYears(unittest.TestCase):
         shutil.rmtree(self.temp_dir.name)
 
     @parameterized.expand(
-        [(month, year) for year in range(2013, 2023) for month in range(1, 3)],
+        [(month, year) for year in range(2012, 2023) for month in range(1, 3)],
         name_func=custom_name_func,
     )
     def test_download_post_2012(self, month, year):
@@ -43,12 +43,12 @@ class TestAllPossibleYears(unittest.TestCase):
         files = set(os.path.splitext(file)[0] for file in list_of_files)
         self.assertTrue(expected_files.issubset(files))
 
-    @parameterized.expand(
-        [(month, year) for year in range(2012, 2013) for month in range(1, 3)],
-        name_func=custom_name_func,
-    )
-    def test_download_pre_2012(self, month, year):
-        crawl(month, year, self.temp_dir.name)
+    # @parameterized.expand(
+    #     [(month, year) for year in range(2012, 2013) for month in range(1, 3)],
+    #     name_func=custom_name_func,
+    # )
+    # def test_download_pre_2012(self, month, year):
+    #     crawl(month, year, self.temp_dir.name)
 
 
 if __name__ == "__main__":

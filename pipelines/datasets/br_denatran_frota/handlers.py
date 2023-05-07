@@ -51,6 +51,7 @@ Tasks for br_denatran_frota
 
 from prefect import task
 import os
+import re
 from pipelines.datasets.br_denatran_frota.constants import constants
 from pipelines.datasets.br_denatran_frota.utils import (
     make_dir_when_not_exists,
@@ -60,15 +61,19 @@ from pipelines.datasets.br_denatran_frota.utils import (
     guess_header,
     get_year_month_from_filename,
     call_downloader,
-    generic_extractor,
+    download_file,
 )
 import pandas as pd
 import polars as pl
+from zipfile import ZipFile
 
 MONTHS = constants.MONTHS.value
 DATASET = constants.DATASET.value
 DICT_UFS = constants.DICT_UFS.value
 OUTPUT_PATH = constants.OUTPUT_PATH.value
+MONTHS_SHORT = constants.MONTHS_SHORT.value
+UF_TIPO_BASIC_FILENAME = constants.UF_TIPO_BASIC_FILENAME.value
+MUNIC_TIPO_BASIC_FILENAME = constants.MUNIC_TIPO_BASIC_FILENAME.value
 
 
 def crawl(month: int, year: int, temp_dir: str = ""):
@@ -93,16 +98,42 @@ def crawl(month: int, year: int, temp_dir: str = ""):
             call_downloader(file_dict)
     else:
         url = f"https://www.gov.br/infraestrutura/pt-br/assuntos/transito/arquivos-senatran/estatisticas/renavam/{year}/frota{'_' if year > 2008 else ''}{year}.zip"
-        info = {
-            "txt": "Dados anuais",
-            "href": url,
-            "mes_name": MONTHS.get(month),
-            "mes": month,
-            "ano": year,
-            "filetype": "zip",
-            "destination_dir": temp_dir,
-        }
-        call_downloader(info)
+        # info = {
+        #     "txt": "Dados anuais",
+        #     "href": url,
+        #     "mes_name": MONTHS.get(month),
+        #     "mes": month,
+        #     "ano": year,
+        #     "filetype": "zip",
+        #     "destination_dir": temp_dir,
+        # }
+        # call_downloader(info)
+        # Nesse caso aqui, o que eu quero? Eu quero baixar o zip:
+        filename = f"{year_dir_name}/dados_anuais.zip"
+        download_file(url, filename)
+        # Aí depois eu preciso andar pelo zip:
+        with ZipFile(filename, "r") as f:
+            compressed_files = [file for file in f.infolist() if not file.is_dir()]
+            for file in compressed_files:
+                filename = file.filename.split("/")[-1]
+                if re.search("Tipo UF", filename, re.IGNORECASE):
+                    match = re.search(rf"Tipo UF\.\s*(.*?)\s*\.{year}", filename)
+                    if match:
+                        month = match.group(1).lower()
+                        month_value = MONTHS.get(month) or MONTHS_SHORT.get(month)
+                        extension = filename.split(".")[-1]
+                        new_filename = f"{year_dir_name}/{UF_TIPO_BASIC_FILENAME}_{month_value}-{year}.{extension}"
+                        f.extract(file, path=year_dir_name)
+                        os.rename(f"{year_dir_name}/{file.filename}", new_filename)
+                elif re.search("Munic", filename, re.IGNORECASE):
+                    match = re.search(rf"Munic\.\s*(.*?)\s*\.{year}", filename)
+                    if match:
+                        month = match.group(1).lower()
+                        month_value = MONTHS.get(month) or MONTHS_SHORT.get(month)
+                        extension = filename.split(".")[-1]
+                        new_filename = f"{year_dir_name}/{MUNIC_TIPO_BASIC_FILENAME}_{month_value}-{year}.{extension}"
+                        f.extract(file, path=year_dir_name)
+                        os.rename(f"{year_dir_name}/{file.filename}", new_filename)
 
 
 def treat_uf_tipo(file) -> pl.DataFrame:
