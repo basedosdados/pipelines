@@ -223,7 +223,7 @@ def download_file(url, filename):
     print(f"Download of {filename} complete")
 
 
-def generic_extractor(dest_path_file):
+def generic_extractor(dest_path_file: str):
     extension = dest_path_file.split(".")[-1]
     if extension == "rar":
         extractor_function = RarFile
@@ -232,18 +232,17 @@ def generic_extractor(dest_path_file):
     else:
         raise ValueError(f"Unsupported type {extension} for compressed file.")
     with extractor_function(dest_path_file, "r") as f:
-        files_inside_compressed = [f.filename for f in f.infolist()]
         compressed_filename = f.filename
         compressed_filename_split = compressed_filename.split("/")
         directory = "/".join(
             compressed_filename_split[: len(compressed_filename_split) - 1]
         )
-        for file in files_inside_compressed:
-            if re.search("UF|municipio", file, re.IGNORECASE):
-                new_extension = file.split(".")[-1]
+        for file in f.infolist():
+            if re.search("UF|municipio", file.filename, re.IGNORECASE):
+                new_extension = file.filename.split(".")[-1]
                 new_filename = f"{f.filename.split('.')[0]}.{new_extension}"
-                f.extract(file, path=directory)
-                os.rename(f"{directory}/{file}", new_filename)
+                f.extract(file.filename, path=directory)
+                os.rename(f"{directory}/{file.filename}", new_filename)
 
 
 def make_filename(i: dict, ext: bool = True) -> str:
@@ -282,11 +281,11 @@ def call_downloader(i: dict):
 
 
 def extract_links_post_2012(month: int, year: int, directory: str) -> list[dict]:
-    """_summary_
+    """Extracts links of the Denatran files post 2012.
 
     Args:
-        year (int): _description_
-        month (int): _description_
+        year (int): A year starting from 2013 onwards.
+        month (int): A month from 1 to 12.
     """
     url = f"https://www.gov.br/infraestrutura/pt-br/assuntos/transito/conteudo-Senatran/frota-de-veiculos-{year}"
     soup = BeautifulSoup(urlopen(url), "html.parser")

@@ -50,7 +50,6 @@ Tasks for br_denatran_frota
 ###############################################################################
 
 from prefect import task
-import glob
 import os
 from pipelines.datasets.br_denatran_frota.constants import constants
 from pipelines.datasets.br_denatran_frota.utils import (
@@ -61,6 +60,7 @@ from pipelines.datasets.br_denatran_frota.utils import (
     guess_header,
     get_year_month_from_filename,
     call_downloader,
+    generic_extractor,
 )
 import pandas as pd
 import polars as pl
@@ -91,13 +91,18 @@ def crawl(month: int, year: int, temp_dir: str = ""):
         files_to_download = extract_links_post_2012(month, year, year_dir_name)
         for file_dict in files_to_download:
             call_downloader(file_dict)
-    # else:
-    #     url = f"https://www.gov.br/infraestrutura/pt-br/assuntos/transito/arquivos-senatran/estatisticas/renavam/{year}/frota{'_' if year > 2008 else ''}{year}.zip"
-
-    #     generic_zip_filename = f"geral_{year}.zip"
-    #     urlretrieve(url, generic_zip_filename)
-    #     with ZipFile(generic_zip_filename) as zip_file:
-    #         zip_file.extractall()
+    else:
+        url = f"https://www.gov.br/infraestrutura/pt-br/assuntos/transito/arquivos-senatran/estatisticas/renavam/{year}/frota{'_' if year > 2008 else ''}{year}.zip"
+        info = {
+            "txt": "Dados anuais",
+            "href": url,
+            "mes_name": MONTHS.get(month),
+            "mes": month,
+            "ano": year,
+            "filetype": "zip",
+            "destination_dir": temp_dir,
+        }
+        call_downloader(info)
 
 
 def treat_uf_tipo(file) -> pl.DataFrame:
