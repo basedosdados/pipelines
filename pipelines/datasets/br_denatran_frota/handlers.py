@@ -116,10 +116,10 @@ def crawl(month: int, year: int, temp_dir: str = ""):
             compressed_files = [file for file in f.infolist() if not file.is_dir()]
             for file in compressed_files:
                 filename = file.filename.split("/")[-1]
-                if re.search("Tipo UF", filename, re.IGNORECASE):
-                    match = re.search(rf"Tipo UF\.\s*(.*?)\s*\.{year}", filename)
+                if re.search("Tipo", filename, re.IGNORECASE):
+                    match = re.search(r"Tipo UF\s+([^\s\d]+\s*)*([12]\d{3})", filename)
                     if match:
-                        month = match.group(1).lower()
+                        month = match.group(1).lower().replace(".", "")
                         month_value = MONTHS.get(month) or MONTHS_SHORT.get(month)
                         extension = filename.split(".")[-1]
                         new_filename = f"{year_dir_name}/{UF_TIPO_BASIC_FILENAME}_{month_value}-{year}.{extension}"

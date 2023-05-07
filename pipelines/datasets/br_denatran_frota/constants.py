@@ -104,7 +104,7 @@ class constants(Enum):  # pylint: disable=c0103
 
     OUTPUT_PATH = f"pipelines/datasets/{DATASET}/tmp/output"
 
-    UF_TIPO_BASIC_FILENAME = "frota_por_uf_e_tipo_de_veículo"
+    UF_TIPO_BASIC_FILENAME = "frota_por_uf_e_tipo_de_veiculo"
 
     MUNIC_TIPO_BASIC_FILENAME = "frota_por_municipio_e_tipo"
 
