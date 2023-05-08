@@ -62,6 +62,7 @@ from pipelines.datasets.br_denatran_frota.utils import (
     get_year_month_from_filename,
     call_downloader,
     download_file,
+    make_filename_2010_to_2012,
 )
 import pandas as pd
 import polars as pl
@@ -114,26 +115,20 @@ def crawl(month: int, year: int, temp_dir: str = ""):
         # Aí depois eu preciso andar pelo zip:
         with ZipFile(filename, "r") as f:
             compressed_files = [file for file in f.infolist() if not file.is_dir()]
+            new_filename = None
             for file in compressed_files:
                 filename = file.filename.split("/")[-1]
                 if re.search("Tipo", filename, re.IGNORECASE):
-                    match = re.search(r"Tipo UF\s+([^\s\d]+\s*)*([12]\d{3})", filename)
-                    if match:
-                        month = match.group(1).lower().replace(".", "")
-                        month_value = MONTHS.get(month) or MONTHS_SHORT.get(month)
-                        extension = filename.split(".")[-1]
-                        new_filename = f"{year_dir_name}/{UF_TIPO_BASIC_FILENAME}_{month_value}-{year}.{extension}"
-                        f.extract(file, path=year_dir_name)
-                        os.rename(f"{year_dir_name}/{file.filename}", new_filename)
+                    new_filename = make_filename_2010_to_2012(
+                        "Tipo", year, filename, year_dir_name, month
+                    )
                 elif re.search("Munic", filename, re.IGNORECASE):
-                    match = re.search(rf"Munic\.?\s*(.*?)\s*\.?{year}", filename)
-                    if match:
-                        month = match.group(1).lower()
-                        month_value = MONTHS.get(month) or MONTHS_SHORT.get(month)
-                        extension = filename.split(".")[-1]
-                        new_filename = f"{year_dir_name}/{MUNIC_TIPO_BASIC_FILENAME}_{month_value}-{year}.{extension}"
-                        f.extract(file, path=year_dir_name)
-                        os.rename(f"{year_dir_name}/{file.filename}", new_filename)
+                    new_filename = make_filename_2010_to_2012(
+                        "Munic", year, filename, year_dir_name, month
+                    )
+                if new_filename:
+                    f.extract(file, path=year_dir_name)
+                    os.rename(f"{year_dir_name}/{file.filename}", new_filename)
 
 
 def treat_uf_tipo(file) -> pl.DataFrame:

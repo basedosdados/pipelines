@@ -47,7 +47,9 @@ DICT_UFS = constants.DICT_UFS.value
 SUBSTITUTIONS = constants.SUBSTITUTIONS.value
 HEADERS = constants.HEADERS.value
 MONTHS = constants.MONTHS.value
-UF_TIPO_BASIC_FILENAME = constants.UF_TIPO_BASIC_FILENAME
+UF_TIPO_BASIC_FILENAME = constants.UF_TIPO_BASIC_FILENAME.value
+MONTHS_SHORT = constants.MONTHS_SHORT.value
+MUNIC_TIPO_BASIC_FILENAME = constants.MUNIC_TIPO_BASIC_FILENAME.value
 
 
 def guess_header(df: pd.DataFrame, max_header_guess: int = 4) -> int:
@@ -282,6 +284,29 @@ def call_downloader(i: dict):
     elif i["filetype"] == "zip" or i["filetype"] == "rar":
         download_file(i["href"], filename)
         generic_extractor(filename)
+
+
+def make_filename_2010_to_2012(
+    type_of_file: str, year: int, filename: str, year_dir_name: str, month: int
+):
+    if type_of_file == "Tipo":
+        regex_to_search = r"Tipo UF\s+([^\s\d]+\s*)*([12]\d{3})"
+        basic_filename = UF_TIPO_BASIC_FILENAME
+    elif type_of_file == "Munic":
+        regex_to_search = rf"Munic\.?\s*(.*?)\s*\.?{year}"
+        basic_filename = MUNIC_TIPO_BASIC_FILENAME
+    else:
+        raise ValueError
+    match = re.search(regex_to_search, filename)
+    if match:
+        month_in_file = match.group(1).lower().replace(".", "")
+        month_value = MONTHS.get(month_in_file) or MONTHS_SHORT.get(month_in_file)
+        extension = filename.split(".")[-1]
+        new_filename = (
+            f"{year_dir_name}/{basic_filename}_{month_value}-{year}.{extension}"
+        )
+        if month_value == month:
+            return new_filename
 
 
 def extract_links_post_2012(month: int, year: int, directory: str) -> list[dict]:
