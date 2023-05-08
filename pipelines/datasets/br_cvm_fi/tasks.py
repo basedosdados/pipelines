@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Tasks for br_cvm_fii
+Tasks for br_cvm_fi
 """
 
 from prefect import task
@@ -13,7 +13,7 @@ import zipfile
 from bs4 import BeautifulSoup
 import re
 import glob
-from utils import sheet_to_df, rename_columns
+from pipelines.datasets.br_cvm_fi.utils import sheet_to_df, rename_columns
 from pipelines.utils.utils import log, to_partitions
 
 
@@ -35,7 +35,7 @@ def download_unzip_csv(files, chunk_size: int = 128, mkdir: bool = True) -> str:
         The path to the directory where the downloaded file was saved.
     """
     if mkdir:
-        os.system("mkdir -p /tmp/data/br_cvm_fii/input/")
+        os.system("mkdir -p /tmp/data/br_cvm_fi/input/")
 
     request_headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36",
@@ -45,15 +45,15 @@ def download_unzip_csv(files, chunk_size: int = 128, mkdir: bool = True) -> str:
             print(f"Baixando para o arquivo {file}")
             url = f"https://dados.cvm.gov.br/dados/FI/DOC/INF_DIARIO/DADOS/{file}"
             r = requests.get(url, headers=request_headers, stream=True, timeout=10)
-            save_path = "/tmp/data/br_cvm_fii/input/file.zip"
+            save_path = "/tmp/data/br_cvm_fi/input/file.zip"
             with open(save_path, "wb") as fd:
                 for chunk in tqdm(r.iter_content(chunk_size=chunk_size)):
                     fd.write(chunk)
 
             with zipfile.ZipFile(save_path) as z:
-                z.extractall("/tmp/data/br_cvm_fii/input")
+                z.extractall("/tmp/data/br_cvm_fi/input")
             os.system(
-                'cd /tmp/data/br_cvm_fii/input; find . -type f ! -iname "*.csv" -delete'
+                'cd /tmp/data/br_cvm_fi/input; find . -type f ! -iname "*.csv" -delete'
             )
 
             print("Dados baixados com sucesso!")
@@ -61,22 +61,22 @@ def download_unzip_csv(files, chunk_size: int = 128, mkdir: bool = True) -> str:
         print(f"Baixando para o arquivo {files}")
         url = f"https://dados.cvm.gov.br/dados/FI/DOC/INF_DIARIO/DADOS/{files}"
         r = requests.get(url, headers=request_headers, stream=True, timeout=10)
-        save_path = "/tmp/data/br_cvm_fii/input/file.zip"
+        save_path = "/tmp/data/br_cvm_fi/input/file.zip"
         with open(save_path, "wb") as fd:
             for chunk in tqdm(r.iter_content(chunk_size=chunk_size)):
                 fd.write(chunk)
 
         with zipfile.ZipFile(save_path) as z:
-            z.extractall("/tmp/data/br_cvm_fii/input")
+            z.extractall("/tmp/data/br_cvm_fi/input")
         os.system(
-            'cd /tmp/data/br_cvm_fii/input; find . -type f ! -iname "*.csv" -delete'
+            'cd /tmp/data/br_cvm_fi/input; find . -type f ! -iname "*.csv" -delete'
         )
 
         print("Dados baixados com sucesso!")
     else:
         raise ValueError("Argument `files` have nappropriate type")
 
-    return "/tmp/data/br_cvm_fii/input/"
+    return "/tmp/data/br_cvm_fi/input/"
 
 
 @task
@@ -164,8 +164,8 @@ def clean_data_and_make_partitions(path: str) -> str:
         to_partitions(
             df,
             partition_columns=["ano", "mes"],
-            savepath="/tmp/data/br_cvm_fii/output/",
+            savepath="/tmp/data/br_cvm_fi/output/",
         )  # constant
         log("Partition created.")
 
-    return "/tmp/data/br_cvm_fii/output/"
+    return "/tmp/data/br_cvm_fi/output/"

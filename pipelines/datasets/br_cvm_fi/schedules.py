@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Schedules for br_cvm_fii
+Schedules for br_cvm_fi
 """
 
 from datetime import timedelta, datetime
@@ -19,7 +19,7 @@ every_day_cvm = Schedule(
                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
             parameter_defaults={
-                "dataset_id": "br_cvm_fii",
+                "dataset_id": "br_cvm_fi",
                 "table_id": "documentos_informe_diario",
                 "materialization_mode": "dev",
                 "materialize_after_dump": False,

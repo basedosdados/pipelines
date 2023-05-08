@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-General purpose functions for the br_cvm_fii project
+General purpose functions for the br_cvm_fi project
 """
 from io import StringIO
 import requests

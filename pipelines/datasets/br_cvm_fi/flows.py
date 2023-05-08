@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 """
-Flows for br_cvm_fii
+Flows for br_cvm_fi
 """
 
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from datetime import timedelta
-from pipelines.datasets.br_cvm_fii.tasks import (
+from pipelines.datasets.br_cvm_fi.tasks import (
     extract_links_and_dates,
     check_for_updates,
     is_empty,
     download_unzip_csv,
     clean_data_and_make_partitions,
 )
-from pipelines.datasets.br_cvm_fii.schedules import every_day_cvm
+from pipelines.datasets.br_cvm_fi.schedules import every_day_cvm
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 from pipelines.utils.decorators import Flow
 from prefect import Parameter, case
@@ -28,13 +28,13 @@ from pipelines.utils.tasks import (
 )
 
 with Flow(
-    name="br_cvm_fii_documentos_informe_diario",
+    name="br_cvm_fi_documentos_informe_diario",
     code_owners=[
         "arthurfg",
     ],
-) as br_cvm_fii_documentos_informe_diario:
+) as br_cvm_fi_documentos_informe_diario:
     # Parameters
-    dataset_id = Parameter("dataset_id", default="br_cvm_fii", required=False)
+    dataset_id = Parameter("dataset_id", default="br_cvm_fi", required=False)
     table_id = Parameter(
         "table_id", default="documentos_informe_diario", required=False
     )
@@ -106,8 +106,8 @@ with Flow(
             )
 
 
-br_cvm_fii_documentos_informe_diario.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_cvm_fii_documentos_informe_diario.run_config = KubernetesRun(
+br_cvm_fi_documentos_informe_diario.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_cvm_fi_documentos_informe_diario.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_cvm_fii_documentos_informe_diario.schedule = every_day_cvm
+# br_cvm_fi_documentos_informe_diario.schedule = every_day_cvm
