@@ -112,10 +112,11 @@ def clean_br_me_comex_stat() -> pd.DataFrame:
                         condicao, valores, default=df["id_municipio"]
                     )
                     log("Id_municipio column updated")
+                    log(df.columns)
 
                     to_partitions(
                         data=df,
-                        partition_columns=["ano", "mes"],
+                        partition_columns=["ano", "mes", "sigla_uf"],
                         savepath=comex_constants.PATH.value + "output",
                     )
 

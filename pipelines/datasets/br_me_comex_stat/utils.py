@@ -32,6 +32,7 @@ def download_data(
 
     log(f"Downloading {table_type} of {table_name}")
     url = f"https://balanca.economia.gov.br/balanca/bd/comexstat-bd/{table_type}/{table_name}.zip"
+    log(f" da {url}")
     r = requests.get(url, verify=False, timeout=99999999)
     with open(path + f"input/{table_name}.zip", "wb") as f:
         f.write(r.content)
