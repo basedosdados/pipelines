@@ -44,7 +44,6 @@ from pipelines.constants import constants
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def download_data(url, xpath):
-
     # url= agencia_constants.URL_AGENCIA.value
     # xpath = agencia_constants.AGENCIA_XPATH.value
     # extract all download links and select the most recent
@@ -85,7 +84,6 @@ def clean_data():
 
     # the files format change across the year
     if file.endswith(".xls") or file.endswith(".xlsx"):
-
         file_path = os.path.join(path, file)
         df = read_file(file_path=file_path, file_name=file)
         # general columns stardantization
