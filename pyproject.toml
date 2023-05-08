@@ -104,10 +104,9 @@ setuptools = "^67.6.1"
 polars = "^0.17.5"
 xlsx2csv = "^0.8.1"
 xlrd = "^2.0.1"
-typer = "^0.7.0"
-cookiecutter = "^2.1.1"
 python-string-utils = "^1.0.0"
 pytest-cov = "^4.0.0"
+code2flow = "^2.5.1"
 
 
 [tool.poetry.group.dev.dependencies]
