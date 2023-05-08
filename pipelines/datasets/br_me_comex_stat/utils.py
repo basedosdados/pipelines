@@ -10,11 +10,18 @@ from pipelines.utils.utils import (
 )
 
 
-def create_paths(path):
+def create_paths(
+    path: str,
+    table_name: str,
+):
     """
     Create and partition folders
     """
-    path_temps = [path, path + "input/", path + "output/"]
+    path_temps = [
+        path,
+        path + table_name + "/input/",
+        path + table_name + "/output/",
+    ]
 
     for path_temp in path_temps:
         os.makedirs(path_temp, exist_ok=True)
@@ -24,7 +31,7 @@ def download_data(
     path: str,
     table_type: str,
     table_name: str,
-) -> None:
+):
     """
     Crawler for br_me_comex_stat
     """
@@ -32,9 +39,9 @@ def download_data(
 
     log(f"Downloading {table_type} of {table_name}")
     url = f"https://balanca.economia.gov.br/balanca/bd/comexstat-bd/{table_type}/{table_name}.zip"
-    log(f" da {url}")
+
     r = requests.get(url, verify=False, timeout=99999999)
-    with open(path + f"input/{table_name}.zip", "wb") as f:
+    with open(path + f"{table_name}/input/{table_name}.zip", "wb") as f:
         f.write(r.content)
 
 

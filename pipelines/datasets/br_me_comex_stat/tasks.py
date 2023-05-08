@@ -28,9 +28,9 @@ def download_br_me_comex_stat(
     table_type: str,
     table_name: str,
 ) -> None:
-    # todo: add table name as dir
     create_paths(
-        comex_constants.PATH.value,
+        path=comex_constants.PATH.value,
+        table_name=table_name,
     )
 
     log("paths created!")
@@ -46,7 +46,9 @@ def download_br_me_comex_stat(
 
 
 @task
-def clean_br_me_comex_stat() -> pd.DataFrame:
+def clean_br_me_comex_stat(
+    table_name: str,
+) -> pd.DataFrame:
     """
     clean and partition table
     """
@@ -78,62 +80,60 @@ def clean_br_me_comex_stat() -> pd.DataFrame:
         "VL_FOB": "valor_fob_dolar",
     }
 
-    list_zip = glob(comex_constants.PATH.value + "input/" + "*.zip")
+    filezip = glob(comex_constants.PATH.value + table_name + "/input/" + "*.zip")
 
-    for filezip in list_zip:
+    filezip = filezip[0]
 
-        with ZipFile(filezip) as z:
+    with ZipFile(filezip) as z:
 
-            with z.open(filezip.split("/")[-1][:-4] + ".csv") as f:
-                df = pd.read_csv(f, sep=";")
+        with z.open(filezip.split("/")[-1][:-4] + ".csv") as f:
+            df = pd.read_csv(f, sep=";")
 
-                if "MUN" in filezip:
-                    log(f"cleaning {filezip} file")
+            if "MUN" in filezip:
+                log(f"cleaning {filezip} file")
 
-                    df.rename(columns=rename_mun, inplace=True)
+                df.rename(columns=rename_mun, inplace=True)
 
-                    log("df renamed")
+                log("df renamed")
 
-                    condicao = [
-                        ((df["sigla_uf"] == "SP") & (df["id_municipio"] < 3500000)),
-                        ((df["sigla_uf"] == "MS") & (df["id_municipio"] > 5000000)),
-                        ((df["sigla_uf"] == "GO") & (df["id_municipio"] > 5200000)),
-                        ((df["sigla_uf"] == "DF") & (df["id_municipio"] > 5300000)),
-                    ]
+                condicao = [
+                    ((df["sigla_uf"] == "SP") & (df["id_municipio"] < 3500000)),
+                    ((df["sigla_uf"] == "MS") & (df["id_municipio"] > 5000000)),
+                    ((df["sigla_uf"] == "GO") & (df["id_municipio"] > 5200000)),
+                    ((df["sigla_uf"] == "DF") & (df["id_municipio"] > 5300000)),
+                ]
 
-                    valores = [
-                        df["id_municipio"] + 100000,
-                        df["id_municipio"] - 200000,
-                        df["id_municipio"] - 100000,
-                        df["id_municipio"] - 100000,
-                    ]
+                valores = [
+                    df["id_municipio"] + 100000,
+                    df["id_municipio"] - 200000,
+                    df["id_municipio"] - 100000,
+                    df["id_municipio"] - 100000,
+                ]
 
-                    df["id_municipio"] = np.select(
-                        condicao, valores, default=df["id_municipio"]
-                    )
-                    log("Id_municipio column updated")
-                    log(df.columns)
+                df["id_municipio"] = np.select(
+                    condicao, valores, default=df["id_municipio"]
+                )
+                log("Id_municipio column updated")
+                log(df.columns)
 
-                    to_partitions(
-                        data=df,
-                        partition_columns=["ano", "mes", "sigla_uf"],
-                        savepath=comex_constants.PATH.value + "output",
-                    )
+                to_partitions(
+                    data=df,
+                    partition_columns=["ano", "mes", "sigla_uf"],
+                    savepath=comex_constants.PATH.value + table_name + "/output/",
+                )
 
-                else:
+            else:
 
-                    log(f"cleaning {filezip} file")
-                    df.rename(columns=rename_ncm, inplace=True)
-                    log("df renamed")
+                log(f"cleaning {filezip} file")
+                df.rename(columns=rename_ncm, inplace=True)
+                log("df renamed")
 
-                    to_partitions(
-                        data=df,
-                        partition_columns=["ano", "mes"],
-                        savepath=comex_constants.PATH.value + "output",
-                    )
+                to_partitions(
+                    data=df,
+                    partition_columns=["ano", "mes"],
+                    savepath=comex_constants.PATH.value + table_name + "/output/",
+                )
 
-                del df
+            del df
 
-    # ! beware
-    # is it going to work on every tible?
-    return "/tmp/br_me_comex_stat/output/"
+    return f"/tmp/br_me_comex_stat/{table_name}/output"
