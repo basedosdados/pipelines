@@ -116,11 +116,18 @@ def clean_br_me_comex_stat(
                 log("Id_municipio column updated")
                 log(df.columns)
 
-                to_partitions(
-                    data=df,
-                    partition_columns=["ano", "mes", "sigla_uf"],
-                    savepath=comex_constants.PATH.value + table_name + "/output/",
-                )
+                # for some reason partionate the hole dataset
+                # crashed prefect, so I had to do it by year
+                for year in df.ano.unique():
+                    # filter rows of each year then make partitions
+
+                    df_year = df[df["ano"] == year]
+                    log(f"doing partitions year, month and uf for year {year}")
+                    to_partitions(
+                        data=df_year,
+                        partition_columns=["ano", "mes", "sigla_uf"],
+                        savepath=comex_constants.PATH.value + table_name + "/output/",
+                    )
 
             else:
 
