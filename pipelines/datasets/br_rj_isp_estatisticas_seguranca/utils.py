@@ -50,7 +50,7 @@ def dict_original():
         "BaseEstadoTaxaMes.csv": "taxa_evolucao_mensal_uf.csv",
         "BaseMunicipioMensal.csv": "evolucao_mensal_municipio.csv",
         "BaseMunicipioTaxaMes.csv": "taxa_evolucao_mensal_municipio.csv",
-        "ArmasDP2003_2006.csv": "armas_apreendidas_mensal.csv",
+        "ArmasApreendidasEvolucaoCisp.csv": "armas_apreendidas_mensal.csv",
         "PoliciaisMortos.csv": "evolucao_policial_morto_servico_mensal.csv",
         "BaseFeminicidioEvolucaoMensalCisp.csv": "feminicidio_mensal_cisp.csv",
     }
