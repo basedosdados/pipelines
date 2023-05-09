@@ -17,9 +17,9 @@ run_cloud(
     labels=[
         "basedosdados-dev",
     ],
-    parameters = dict(
-        materialize_after_dump = True,
-    )
+    parameters=dict(
+        materialize_after_dump=True,
+    ),
 )
 
 run_cloud(
@@ -37,18 +37,18 @@ run_cloud(
     labels=[
         "basedosdados-dev",
     ],
-    parameters = dict(
-        materialize_after_dump = True,
-    )
+    parameters=dict(
+        materialize_after_dump=True,
+    ),
 )
 run_cloud(
     taxa_evolucao_mensal_uf,
     labels=[
         "basedosdados-dev",
     ],
-    parameters = dict(
-        materialize_after_dump = True,
-    )
+    parameters=dict(
+        materialize_after_dump=True,
+    ),
 )
 
 run_cloud(
@@ -56,9 +56,9 @@ run_cloud(
     labels=[
         "basedosdados-dev",
     ],
-    parameters = dict(
-        materialize_after_dump = True,
-    )
+    parameters=dict(
+        materialize_after_dump=True,
+    ),
 )
 
 run_cloud(
@@ -66,9 +66,9 @@ run_cloud(
     labels=[
         "basedosdados-dev",
     ],
-    parameters = dict(
-        materialize_after_dump = True,
-    )
+    parameters=dict(
+        materialize_after_dump=True,
+    ),
 )
 
 run_cloud(
@@ -76,27 +76,27 @@ run_cloud(
     labels=[
         "basedosdados-dev",
     ],
-    parameters = dict(
-        materialize_after_dump = True,
-    )
+    parameters=dict(
+        materialize_after_dump=True,
+    ),
 )
 run_cloud(
     armas_apreendidas_mensal,
     labels=[
         "basedosdados-dev",
     ],
-    parameters = dict(
-        materialize_after_dump = True,
-    )
+    parameters=dict(
+        materialize_after_dump=True,
+    ),
 )
 run_cloud(
     evolucao_mensal_municipio,
     labels=[
         "basedosdados-dev",
     ],
-    parameters = dict(
-        materialize_after_dump = True,
-    )
+    parameters=dict(
+        materialize_after_dump=True,
+    ),
 )
 
 run_cloud(
@@ -104,9 +104,9 @@ run_cloud(
     labels=[
         "basedosdados-dev",
     ],
-    parameters = dict(
-        materialize_after_dump = True,
-    )
+    parameters=dict(
+        materialize_after_dump=True,
+    ),
 )
 
 run_cloud(
@@ -114,8 +114,7 @@ run_cloud(
     labels=[
         "basedosdados-dev",
     ],
-    parameters = dict(
-        materialize_after_dump = True,
-    )
+    parameters=dict(
+        materialize_after_dump=True,
+    ),
 )
-

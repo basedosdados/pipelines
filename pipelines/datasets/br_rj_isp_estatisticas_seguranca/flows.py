@@ -438,7 +438,9 @@ evolucao_policial_morto_servico_mensal.storage = GCS(constants.GCS_FLOWS_BUCKET.
 evolucao_policial_morto_servico_mensal.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-evolucao_policial_morto_servico_mensal.schedule = (every_month_evolucao_policial_morto_servico_mensal)
+evolucao_policial_morto_servico_mensal.schedule = (
+    every_month_evolucao_policial_morto_servico_mensal
+)
 
 # ! armas_apreendidas_mensal
 
