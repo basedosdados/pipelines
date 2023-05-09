@@ -346,6 +346,28 @@ def extract_links_post_2012(month: int, year: int, directory: str) -> list[dict]
     return valid_links
 
 
+def extraction_pre_2012(url: str, month: int, year: int, year_dir_name: str):
+    filename = f"{year_dir_name}/dados_anuais.zip"
+    download_file(url, filename)
+    # Aí depois eu preciso andar pelo zip:
+    with ZipFile(filename, "r") as f:
+        compressed_files = [file for file in f.infolist() if not file.is_dir()]
+        new_filename = None
+        for file in compressed_files:
+            filename = file.filename.split("/")[-1]
+            if re.search("Tipo", filename, re.IGNORECASE):
+                new_filename = make_filename_2010_to_2012(
+                    "Tipo", year, filename, year_dir_name, month
+                )
+            elif re.search("Munic", filename, re.IGNORECASE):
+                new_filename = make_filename_2010_to_2012(
+                    "Munic", year, filename, year_dir_name, month
+                )
+            if new_filename:
+                f.extract(file, path=year_dir_name)
+                os.rename(f"{year_dir_name}/{file.filename}", new_filename)
+
+
 def make_dir_when_not_exists(dir_name: str):
     """Auxiliary function to create a subdirectory when it is not present.
 

@@ -62,7 +62,7 @@ from pipelines.datasets.br_denatran_frota.utils import (
     get_year_month_from_filename,
     call_downloader,
     download_file,
-    make_filename_2010_to_2012,
+    extraction_pre_2012,
 )
 import pandas as pd
 import polars as pl
@@ -99,36 +99,7 @@ def crawl(month: int, year: int, temp_dir: str = ""):
             call_downloader(file_dict)
     else:
         url = f"https://www.gov.br/infraestrutura/pt-br/assuntos/transito/arquivos-senatran/estatisticas/renavam/{year}/frota{'_' if year > 2008 else ''}{year}.zip"
-        # info = {
-        #     "txt": "Dados anuais",
-        #     "href": url,
-        #     "mes_name": MONTHS.get(month),
-        #     "mes": month,
-        #     "ano": year,
-        #     "filetype": "zip",
-        #     "destination_dir": temp_dir,
-        # }
-        # call_downloader(info)
-        # Nesse caso aqui, o que eu quero? Eu quero baixar o zip:
-        filename = f"{year_dir_name}/dados_anuais.zip"
-        download_file(url, filename)
-        # Aí depois eu preciso andar pelo zip:
-        with ZipFile(filename, "r") as f:
-            compressed_files = [file for file in f.infolist() if not file.is_dir()]
-            new_filename = None
-            for file in compressed_files:
-                filename = file.filename.split("/")[-1]
-                if re.search("Tipo", filename, re.IGNORECASE):
-                    new_filename = make_filename_2010_to_2012(
-                        "Tipo", year, filename, year_dir_name, month
-                    )
-                elif re.search("Munic", filename, re.IGNORECASE):
-                    new_filename = make_filename_2010_to_2012(
-                        "Munic", year, filename, year_dir_name, month
-                    )
-                if new_filename:
-                    f.extract(file, path=year_dir_name)
-                    os.rename(f"{year_dir_name}/{file.filename}", new_filename)
+        extraction_pre_2012(url, month, year, year_dir_name)
 
 
 def treat_uf_tipo(file) -> pl.DataFrame:
