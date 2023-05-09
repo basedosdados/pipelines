@@ -366,7 +366,6 @@ def to_partitions(data: pd.DataFrame, partition_columns: List[str], savepath: st
     """
 
     if isinstance(data, (pd.core.frame.DataFrame)):
-
         savepath = Path(savepath)
 
         # create unique combinations between partition columns

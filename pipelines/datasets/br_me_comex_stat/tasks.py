@@ -54,14 +54,11 @@ def clean_br_me_comex_stat():
     list_zip = glob(constants.PATH.value + "input/" + "*.zip")
 
     for filezip in list_zip:
-
         with ZipFile(filezip) as z:
-
             with z.open(filezip.split("/")[-1][:-4] + ".csv") as f:
                 df = pd.read_csv(f, sep=";")
 
                 if "MUN" in filezip:
-
                     df.rename(columns=rename_mun, inplace=True)
 
                     condicao = [
@@ -83,15 +80,10 @@ def clean_br_me_comex_stat():
                     )
 
                     for table in constants.TABLE.value:
-
                         for ano in [*range(1997, 2023)]:
-
                             for mes in [*range(1, 13)]:
-
                                 for uf in constants.UF.value:
-
                                     if "municipio" in table:
-
                                         print(f"Particionando {table}_{ano}_{mes}_{uf}")
 
                                         df_partition = df[df["ano"] == ano].copy()
@@ -119,13 +111,11 @@ def clean_br_me_comex_stat():
                                         del df_partition
 
                 else:
-
                     df.rename(columns=rename_ncm, inplace=True)
 
                     for table in constants.TABLE.value:
                         for ano in [*range(1997, 2023)]:
                             for mes in [*range(1, 13)]:
-
                                 if "ncm" in table:
                                     print(f"Particionando {table}_{ano}_{mes}")
                                     df_partition = df[df["ano"] == ano].copy()

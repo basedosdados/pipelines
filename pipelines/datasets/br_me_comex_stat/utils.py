@@ -18,13 +18,9 @@ def create_paths(tables, path, ufs):
 
     for table in tables:
         for ano in [*range(1997, 2024)]:
-
             for mes in [*range(1, 13)]:
-
                 if "municipio" in table:
-
                     for uf in ufs:
-
                         os.makedirs(
                             path + f"output/{table}/ano={ano}/mes={mes}/sigla_uf={uf}",
                             exist_ok=True,
