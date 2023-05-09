@@ -92,7 +92,6 @@ def get_temporal_coverage_list(temporal_coverage_field: list) -> list:
     temporal_coverage_list = []
 
     for s in temporal_coverage_field:
-
         frequency = classify_frequency(s)
         start, end, delta = get_temporal_coverage_elements(s)
         sub = get_interval_range(start, end, delta, frequency)

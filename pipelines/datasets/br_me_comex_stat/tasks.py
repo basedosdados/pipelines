@@ -112,6 +112,7 @@ def clean_br_me_comex_stat(
             if "MUN" in filezip:
                 log(f"cleaning {filezip} file")
 
+
                 df.rename(columns=rename_mun, inplace=True)
 
                 log("df renamed")
@@ -170,4 +171,6 @@ def clean_br_me_comex_stat(
 
             del df
 
+
     return f"/tmp/br_me_comex_stat/{table_name}/output"
+

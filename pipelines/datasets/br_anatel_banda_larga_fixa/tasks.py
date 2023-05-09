@@ -42,13 +42,10 @@ def treatment():
 
     # ! Abrindo o arquivo zipado
     with ZipFile(filepath) as z:
-
         # ! Iterando sobre a lista de anos
         for ano in anos:
-
             # ! Abrindo o arquivo csv dentro do zip pelo ano
             with z.open(f"Acessos_Banda_Larga_Fixa_{ano}.csv") as f:
-
                 # ! Lendo o arquivo csv
                 df = pd.read_csv(f, sep=";", encoding="utf-8")
 
