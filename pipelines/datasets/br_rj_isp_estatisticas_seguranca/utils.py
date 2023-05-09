@@ -51,10 +51,9 @@ def dict_original():
         "BaseMunicipioMensal.csv": "evolucao_mensal_municipio.csv",
         "BaseMunicipioTaxaMes.csv": "taxa_evolucao_mensal_municipio.csv",
         "ArmasDP2003_2006.csv": "armas_apreendidas_mensal.csv",
-        "PoliciaisMortos.csv": "evolucao_policial_morto_servico_mensal.csv",  # no
+        "PoliciaisMortos.csv": "evolucao_policial_morto_servico_mensal.csv",
         "BaseFeminicidioEvolucaoMensalCisp.csv": "feminicidio_mensal_cisp.csv",
     }
-
     return dict_original
 
 
@@ -69,8 +68,8 @@ def dict_arquitetura():
         "taxa_evolucao_mensal_municipio.csv": "https://docs.google.com/spreadsheets/d/1VKorutzmHUl71a2J--auChJm8tC-652i/edit#gid=199121203",
         "taxa_evolucao_anual_municipio.csv": "https://docs.google.com/spreadsheets/d/1LeH92JhPkr59NoUwepOgHKlsJIS6k-2W/edit#gid=786684819",
         "evolucao_mensal_upp.csv": "https://docs.google.com/spreadsheets/d/1TGG8T5xzmO_tzo9RScnIOt2NKjyIHu2O/edit#gid=1336604684",
-        "armas_apreendidas_mensal.csv": "https://docs.google.com/spreadsheets/d/19gynYMOxzfgjd7HsPjH4LbOkgV9844WSoVBiqAgp340/edit#gid=0",
-        "armas_fogo_apreendidas_mensal.csv": "https://docs.google.com/spreadsheets/d/14wV3BkjG_9GDWKDUAbOVe2KOh0Bi6FAA/edit#gid=1673208544",
+        "armas_apreendidas_mensal.csv": "https://docs.google.com/spreadsheets/d/14wV3BkjG_9GDWKDUAbOVe2KOh0Bi6FAA/edit#gid=1673208544",
+        "armas_fogo_apreendidas_mensal.csv": "https://docs.google.com/spreadsheets/d/19gynYMOxzfgjd7HsPjH4LbOkgV9844WSoVBiqAgp340/edit#gid=0",
         "evolucao_policial_morto_servico_mensal.csv": "https://docs.google.com/spreadsheets/d/1wuRr-I73jje0nkSeF_9LEJSpRmuwIftX/edit#gid=1573015202",
         "feminicidio_mensal_cisp.csv": "https://docs.google.com/spreadsheets/d/1DLb9GQAZR-TRbJp0YYc1w71OsEwXPYa8/edit#gid=1573015202",
         "taxa_letalidade.csv": "https://docs.google.com/spreadsheets/d/1wMbutt7Gs17ZlGEZ_-SBT4bwtF_QSWd5KLR-m8KaBMo/edit#gid=0",
