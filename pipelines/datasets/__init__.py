@@ -29,3 +29,4 @@ from pipelines.datasets.br_ibge_pnadc.flows import *
 from pipelines.datasets.cross_update.flows import *
 from pipelines.datasets.br_rj_isp_estatisticas_seguranca.flows import *
 from pipelines.datasets.br_anatel_banda_larga_fixa.flows import *
+from pipelines.datasets.br_rj_isp_estatisticas_seguranca.flows import *
