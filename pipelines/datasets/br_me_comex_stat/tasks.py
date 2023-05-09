@@ -105,13 +105,11 @@ def clean_br_me_comex_stat(
     filezip = filezip[0]
 
     with ZipFile(filezip) as z:
-
         with z.open(filezip.split("/")[-1][:-4] + ".csv") as f:
             df = pd.read_csv(f, sep=";")
 
             if "MUN" in filezip:
                 log(f"cleaning {filezip} file")
-
 
                 df.rename(columns=rename_mun, inplace=True)
 
@@ -152,7 +150,6 @@ def clean_br_me_comex_stat(
                     del df_year
 
             else:
-
                 log(f"cleaning {filezip} file")
                 df.rename(columns=rename_ncm, inplace=True)
                 log("df renamed")
@@ -171,6 +168,4 @@ def clean_br_me_comex_stat(
 
             del df
 
-
     return f"/tmp/br_me_comex_stat/{table_name}/output"
-

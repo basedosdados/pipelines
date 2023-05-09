@@ -32,7 +32,6 @@ def create_paths(
         os.makedirs(path_temp, exist_ok=True)
 
 
-
 def download_data(
     path: str,
     table_type: str,
@@ -45,8 +44,8 @@ def download_data(
         table_type (str): the table type is either ncm or mun. ncm stands for 'nomenclatura comum do mercosul' and
         mun for 'município'.
         table_name (str): the table name is the original name of the zip file with raw data from comex stat website
-    """ 
-    
+    """
+
     log(f"Downloading {table_type} of {table_name}")
     url = f"https://balanca.economia.gov.br/balanca/bd/comexstat-bd/{table_type}/{table_name}.zip"
 
