@@ -56,7 +56,7 @@ with Flow(
 
     # Materialization mode
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
@@ -117,7 +117,7 @@ with Flow(
 
 evolucao_mensal_cisp.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 evolucao_mensal_cisp.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-# evolucao_mensal_cisp.schedule = every_month_evolucao_mensal_cisp
+evolucao_mensal_cisp.schedule = every_month_evolucao_mensal_cisp
 
 
 # ! taxa_evolucao_mensal_uf
@@ -135,7 +135,7 @@ with Flow(
 
     # Materialization mode
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
@@ -196,7 +196,7 @@ with Flow(
 
 taxa_evolucao_mensal_uf.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 taxa_evolucao_mensal_uf.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-# taxa_evolucao_mensal_uf.schedule = every_month_taxa_evolucao_mensal_uf
+taxa_evolucao_mensal_uf.schedule = every_month_taxa_evolucao_mensal_uf
 
 
 # ! taxa_evolucao_mensal_municipio
@@ -216,7 +216,7 @@ with Flow(
 
     # Materialization mode
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
@@ -279,7 +279,7 @@ taxa_evolucao_mensal_municipio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 taxa_evolucao_mensal_municipio.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# taxa_evolucao_mensal_municipio.schedule = every_month_taxa_evolucao_mensal_municipio
+taxa_evolucao_mensal_municipio.schedule = every_month_taxa_evolucao_mensal_municipio
 
 
 # ! Feminicidio_mensal_cisp
@@ -296,7 +296,7 @@ with Flow(
 
     # Materialization mode
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
@@ -357,7 +357,7 @@ with Flow(
 
 feminicidio_mensal_cisp.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 feminicidio_mensal_cisp.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-# feminicidio_mensal_cisp.schedule = every_month_feminicidio_mensal_cisp
+feminicidio_mensal_cisp.schedule = every_month_feminicidio_mensal_cisp
 
 # ! evolucao_policial_morto_servico_mensal
 
@@ -376,7 +376,7 @@ with Flow(
 
     # Materialization mode
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
@@ -438,7 +438,7 @@ evolucao_policial_morto_servico_mensal.storage = GCS(constants.GCS_FLOWS_BUCKET.
 evolucao_policial_morto_servico_mensal.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# evolucao_policial_morto_servico_mensal.schedule = (every_month_evolucao_policial_morto_servico_mensal)
+evolucao_policial_morto_servico_mensal.schedule = (every_month_evolucao_policial_morto_servico_mensal)
 
 # ! armas_apreendidas_mensal
 
@@ -455,7 +455,7 @@ with Flow(
 
     # Materialization mode
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
@@ -515,7 +515,7 @@ with Flow(
 
 armas_apreendidas_mensal.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 armas_apreendidas_mensal.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-# armas_apreendidas_mensal.schedule = every_month_armas_apreendidas_mensal
+armas_apreendidas_mensal.schedule = every_month_armas_apreendidas_mensal
 
 # ! evolucao_mensal_municipio
 
@@ -532,7 +532,7 @@ with Flow(
 
     # Materialization mode
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
@@ -592,7 +592,7 @@ with Flow(
 
 evolucao_mensal_municipio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 evolucao_mensal_municipio.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-# evolucao_mensal_municipio.schedule = every_month_evolucao_mensal_municipio
+evolucao_mensal_municipio.schedule = every_month_evolucao_mensal_municipio
 
 # ! evolucao_mensal_municipio
 
@@ -609,7 +609,7 @@ with Flow(
 
     # Materialization mode
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
@@ -669,4 +669,4 @@ with Flow(
 
 evolucao_mensal_uf.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 evolucao_mensal_uf.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-# evolucao_mensal_uf.schedule = every_month_evolucao_mensal_uf
+evolucao_mensal_uf.schedule = every_month_evolucao_mensal_uf

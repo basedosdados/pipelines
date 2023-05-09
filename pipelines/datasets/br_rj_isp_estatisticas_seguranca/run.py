@@ -11,7 +11,7 @@ from pipelines.datasets.br_rj_isp_estatisticas_seguranca.flows import (
     armas_apreendidas_mensal,
 )
 
-"""
+
 run_cloud(
     feminicidio_mensal_cisp,
     labels=[
@@ -21,7 +21,7 @@ run_cloud(
         materialize_after_dump = True,
     )
 )
-"""
+
 run_cloud(
     armas_apreendidas_mensal,
     labels=[
@@ -31,7 +31,7 @@ run_cloud(
         materialize_after_dump=True,
     ),
 )
-"""
+
 run_cloud(
     evolucao_mensal_cisp,
     labels=[
@@ -50,6 +50,7 @@ run_cloud(
         materialize_after_dump = True,
     )
 )
+
 run_cloud(
     taxa_evolucao_mensal_municipio,
     labels=[
@@ -59,6 +60,7 @@ run_cloud(
         materialize_after_dump = True,
     )
 )
+
 run_cloud(
     evolucao_mensal_municipio,
     labels=[
@@ -116,4 +118,4 @@ run_cloud(
         materialize_after_dump = True,
     )
 )
-"""
+
