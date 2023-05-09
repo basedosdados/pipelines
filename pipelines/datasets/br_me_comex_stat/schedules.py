@@ -15,7 +15,8 @@ schedule_municipio_exportacao = Schedule(
     clocks=[
         IntervalClock(
             interval=timedelta(days=30),
-            start_date=datetime(1997, 1, 1, 14, 32),  # confirmar aqui
+            # the next run will be tomorrow (10/05/2023) and then every 30 days only on weekdays
+            start_date=datetime.today() + timedelta(days=1),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -37,7 +38,8 @@ schedule_municipio_importacao = Schedule(
     clocks=[
         IntervalClock(
             interval=timedelta(days=30),
-            start_date=datetime(1997, 1, 1, 14, 32),  # confirmar aqui
+            # the next run will be tomorrow (10/05/2023) and then every 30 days only on weekdays
+            start_date=datetime.today() + timedelta(days=1),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -58,7 +60,8 @@ schedule_ncm_importacao = Schedule(
     clocks=[
         IntervalClock(
             interval=timedelta(days=30),
-            start_date=datetime(1997, 1, 1, 14, 32),  # confirmar aqui
+            # the next run will be tomorrow (10/05/2023) and then every 30 days only on weekdays
+            start_date=datetime.today() + timedelta(days=1),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -79,7 +82,8 @@ schedule_ncm_exportacao = Schedule(
     clocks=[
         IntervalClock(
             interval=timedelta(days=30),
-            start_date=datetime(1997, 1, 1, 14, 32),  # confirmar aqui
+            # the next run will be tomorrow (10/05/2023) and then every 30 days only on weekdays
+            start_date=datetime.today() + timedelta(days=1),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],

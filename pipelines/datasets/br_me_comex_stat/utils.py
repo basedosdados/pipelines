@@ -14,8 +14,13 @@ def create_paths(
     path: str,
     table_name: str,
 ):
-    """
-    Create and partition folders
+    """this function creates temporary directories to store input and output files
+
+    Args:
+        path (str): a standard directory to store input and output files from all flows
+        table_name (str): the name of the table to compose the directory structure and separate input and output files
+        of diferent tables
+
     """
     path_temps = [
         path,
@@ -32,10 +37,16 @@ def download_data(
     table_type: str,
     table_name: str,
 ):
-    """
+    """A simple crawler to download data from comex stat website.
+
+    Args:
+        path (str): the path to store the data
+        table_type (str): the table type is either ncm or mun. ncm stands for 'nomenclatura comum do mercosul' and
+        mun for 'município'.
+        table_name (str): the table name is the original name of the zip file with raw data from comex stat website
+    """ """
     Crawler for br_me_comex_stat
     """
-    # todo: create a way to automatically feed inputs here
 
     log(f"Downloading {table_type} of {table_name}")
     url = f"https://balanca.economia.gov.br/balanca/bd/comexstat-bd/{table_type}/{table_name}.zip"
@@ -43,23 +54,3 @@ def download_data(
     r = requests.get(url, verify=False, timeout=99999999)
     with open(path + f"{table_name}/input/{table_name}.zip", "wb") as f:
         f.write(r.content)
-
-
-'''
-def download_data(path):
-    """
-    Crawler for br_me_comex_stat
-    """
-    groups = {
-        "ncm": ["EXP_COMPLETA", "IMP_COMPLETA"],
-        "mun": ["EXP_COMPLETA_MUN", "IMP_COMPLETA_MUN"],
-    }
-
-    for item, value in groups.items():
-        for group in tqdm(value):
-            log(f"Downloading {item} of {group}")
-            url = f"https://balanca.economia.gov.br/balanca/bd/comexstat-bd/{item}/{group}.zip"
-            r = requests.get(url, verify=False, timeout=99999999)
-            with open(path + f"input/{group}.zip", "wb") as f:
-                f.write(r.content)
-'''

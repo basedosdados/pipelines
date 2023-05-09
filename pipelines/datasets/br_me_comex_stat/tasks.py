@@ -27,7 +27,19 @@ from pipelines.utils.utils import (
 def download_br_me_comex_stat(
     table_type: str,
     table_name: str,
-) -> None:
+) -> ZipFile:
+    """This task creates directories to temporary input and output files
+    and downloads the data from the source
+
+    Args:
+        table_type (str): the table type is either ncm or mun. ncm stands for 'nomenclatura comum do mercosul' and
+        mun for 'município'.
+        table_name (str): the table name is the original name of the zip file with raw data from comex stat website
+
+    Output:
+        ZipFile: the zip file downloaded from comex stat website
+    """
+
     create_paths(
         path=comex_constants.PATH.value,
         table_name=table_name,
@@ -49,8 +61,16 @@ def download_br_me_comex_stat(
 def clean_br_me_comex_stat(
     table_name: str,
 ) -> pd.DataFrame:
-    """
-    clean and partition table
+    """this task reads a zip file donwload by the upstream task download_br_me_comex_stat and
+    unpacks it into a csv file. Then, it cleans the data and returns a pandas dataframe partitioned by year and month
+    or by year, month and sigla_uf.
+
+    Args:
+        table_name (str): the table name is the original name of the zip file with raw data from comex stat website
+
+
+    Returns:
+        pd.DataFrame: a partitioned standardized pandas dataframe
     """
 
     rename_ncm = {
@@ -114,7 +134,6 @@ def clean_br_me_comex_stat(
                     condicao, valores, default=df["id_municipio"]
                 )
                 log("Id_municipio column updated")
-                log(df.columns)
 
                 # for some reason partionate the hole dataset
                 # crashed prefect, so I had to do it by year
@@ -123,11 +142,13 @@ def clean_br_me_comex_stat(
 
                     df_year = df[df["ano"] == year]
                     log(f"doing partitions year, month and uf for year {year}")
+
                     to_partitions(
                         data=df_year,
                         partition_columns=["ano", "mes", "sigla_uf"],
                         savepath=comex_constants.PATH.value + table_name + "/output/",
                     )
+                    del df_year
 
             else:
 
@@ -135,11 +156,17 @@ def clean_br_me_comex_stat(
                 df.rename(columns=rename_ncm, inplace=True)
                 log("df renamed")
 
-                to_partitions(
-                    data=df,
-                    partition_columns=["ano", "mes"],
-                    savepath=comex_constants.PATH.value + table_name + "/output/",
-                )
+                for year in df.ano.unique():
+                    # filter rows of each year then make partitions
+
+                    df_year = df[df["ano"] == year]
+                    log(f"doing partitions year, month and uf for year {year}")
+                    to_partitions(
+                        data=df,
+                        partition_columns=["ano", "mes"],
+                        savepath=comex_constants.PATH.value + table_name + "/output/",
+                    )
+                    del df_year
 
             del df
 
