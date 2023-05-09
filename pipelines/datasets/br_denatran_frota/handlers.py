@@ -99,7 +99,11 @@ def crawl(month: int, year: int, temp_dir: str = ""):
             call_downloader(file_dict)
     else:
         url = f"https://www.gov.br/infraestrutura/pt-br/assuntos/transito/arquivos-senatran/estatisticas/renavam/{year}/frota{'_' if year > 2008 else ''}{year}.zip"
-        extraction_pre_2012(url, month, year, year_dir_name)
+        filename = f"{year_dir_name}/dados_anuais.zip"
+        download_file(url, filename)
+        if year < 2010:
+            print(2)
+        extraction_pre_2012(url, month, year, year_dir_name, filename)
 
 
 def treat_uf_tipo(file) -> pl.DataFrame:
