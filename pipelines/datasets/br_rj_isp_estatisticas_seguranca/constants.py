@@ -46,7 +46,7 @@ class constants(Enum):  # pylint: disable=c0103
     TAXA_EVOLUCAO_MENSAL_UF = "BaseEstadoTaxaMes.csv"
     EVOLUCAO_MENSAL_MUNICIPIO = "BaseMunicipioMensal.csv"
     TAXA_EVOLUCAO_MENSAL_MUNICIPIO = "BaseMunicipioTaxaMes.csv"
-    ARMAS_APREENDIDADAS_MENSAL = "ArmasDP2003_2006.csv"
+    ARMAS_APREENDIDADAS_MENSAL = "ArmasApreendidasEvolucaoCisp.xlsx"
     EVOLUCAO_POLICIAL_MORTO = "PoliciaisMortos.csv"
     FEMINICIDIO_MENSAL_CISP = "BaseFeminicidioEvolucaoMensalCisp.csv"
 
