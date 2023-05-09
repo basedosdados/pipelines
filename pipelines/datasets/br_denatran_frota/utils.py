@@ -346,9 +346,9 @@ def extract_links_post_2012(month: int, year: int, directory: str) -> list[dict]
     return valid_links
 
 
-def extraction_pre_2012(url: str, month: int, year: int, year_dir_name: str):
-    filename = f"{year_dir_name}/dados_anuais.zip"
-    download_file(url, filename)
+def extraction_pre_2012(
+    url: str, month: int, year: int, year_dir_name: str, filename: str
+):
     # Aí depois eu preciso andar pelo zip:
     with ZipFile(filename, "r") as f:
         compressed_files = [file for file in f.infolist() if not file.is_dir()]
