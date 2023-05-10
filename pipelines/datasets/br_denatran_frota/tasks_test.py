@@ -30,7 +30,7 @@ class TestAllPossibleYears(unittest.TestCase):
         shutil.rmtree(self.temp_dir.name)
 
     @parameterized.expand(
-        [(month, year) for year in range(2002, 2013) for month in range(1, 2)],
+        [(month, year) for year in range(2003, 2024) for month in range(1, 2)],
         name_func=custom_name_func,
     )
     def test_download_post_2012(self, month, year):

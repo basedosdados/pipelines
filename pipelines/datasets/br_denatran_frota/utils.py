@@ -286,7 +286,7 @@ def call_downloader(i: dict):
         generic_extractor(filename)
 
 
-def make_filename_2010_to_2012(
+def make_filename_pre_2012(
     type_of_file: str, year: int, filename: str, year_dir_name: str, month: int
 ):
     if type_of_file == "Tipo":
@@ -355,9 +355,7 @@ def extract_links_post_2012(month: int, year: int, directory: str) -> list[dict]
     return valid_links
 
 
-def extraction_pre_2012(
-    url: str, month: int, year: int, year_dir_name: str, zip_file: str
-):
+def extraction_pre_2012(month: int, year: int, year_dir_name: str, zip_file: str):
     # Aí depois eu preciso andar pelo zip:
     print("Bom dia")
     with ZipFile(zip_file, "r") as g:
@@ -368,11 +366,11 @@ def extraction_pre_2012(
             if re.search("Tipo", filename, re.IGNORECASE) or re.search(
                 r"Tipo[-\s]UF", zip_file.split("/")[-1]
             ):
-                new_filename = make_filename_2010_to_2012(
+                new_filename = make_filename_pre_2012(
                     "Tipo", year, filename, year_dir_name, month
                 )
             elif re.search(r"Mun\w*", filename, re.IGNORECASE):
-                new_filename = make_filename_2010_to_2012(
+                new_filename = make_filename_pre_2012(
                     "Munic", year, filename, year_dir_name, month
                 )
             if new_filename:

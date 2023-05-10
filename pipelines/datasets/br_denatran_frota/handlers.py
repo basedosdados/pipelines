@@ -107,14 +107,13 @@ def crawl(month: int, year: int, temp_dir: str = ""):
             for aggregate_file in os.listdir(f"{year_dir_name}"):
                 if aggregate_file != "dados_anuais.zip":
                     extraction_pre_2012(
-                        url,
                         month,
                         year,
                         year_dir_name,
                         os.path.join(year_dir_name, aggregate_file),
                     )
         else:
-            extraction_pre_2012(url, month, year, year_dir_name, filename)
+            extraction_pre_2012(month, year, year_dir_name, filename)
 
 
 def treat_uf_tipo(file) -> pl.DataFrame:
