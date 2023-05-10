@@ -58,19 +58,19 @@ class TestTreatmentPostCrawl(unittest.TestCase):
         shutil.rmtree(self.temp_dir.name)
 
     @parameterized.expand(
-        [(month, year) for year in range(2020, 2023) for month in range(1, 2)],
+        [(month, year) for year in range(2003, 2024) for month in range(1, 2)],
         name_func=custom_name_func,
     )
     def test_treat_files_uf_tipo(self, month, year):
         crawl(month, year, self.temp_dir.name)
         directory_to_search = os.path.join(self.temp_dir.name, "files", f"{year}")
-        desired_files = [
-            f
-            for f in os.listdir(directory_to_search)
-            if re.search(UF_TIPO_BASIC_FILENAME, f) is not None
-        ]
-        for file in desired_files:
-            treat_uf_tipo(os.path.join(directory_to_search, file))
+        for file in os.listdir(directory_to_search):
+            if re.search(UF_TIPO_BASIC_FILENAME, file) and file.split(".")[-1] in [
+                "xls",
+                "xlsx",
+            ]:
+                treated_df = treat_uf_tipo(os.path.join(directory_to_search, file))
+                self.assertEqual(len(treated_df), 21 * 27)
 
 
 if __name__ == "__main__":

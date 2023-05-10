@@ -118,7 +118,11 @@ def crawl(month: int, year: int, temp_dir: str = ""):
 
 def treat_uf_tipo(file: str) -> pl.DataFrame:
     filename = os.path.split(file)[1]
-    df = pd.read_excel(file)
+    correct_sheet = [
+        sheet for sheet in pd.ExcelFile(file).sheet_names if sheet != "Glossário"
+    ][0]
+
+    df = pd.read_excel(file, sheet_name=correct_sheet)
     new_df = change_df_header(df, guess_header(df))
     # This is ad hoc for UF_tipo.
     new_df.rename(
