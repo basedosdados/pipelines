@@ -290,17 +290,23 @@ def make_filename_2010_to_2012(
     type_of_file: str, year: int, filename: str, year_dir_name: str, month: int
 ):
     if type_of_file == "Tipo":
-        regex_to_search = r"UF\s+([^\s\d]+\s*)*([12]\d{3})"
         basic_filename = UF_TIPO_BASIC_FILENAME
+        if year > 2005:
+            regex_to_search = r"UF\s+([^\s\d]+\s*)*([12]\d{3})"
+        else:
+            regex_to_search = rf"UF_([^\s\d]+\s*)_{str(year)[2:4]}"
     elif type_of_file == "Munic":
-        regex_to_search = rf"Munic\.?\s*(.*?)\s*\.?{year}"
         basic_filename = MUNIC_TIPO_BASIC_FILENAME
+        regex_to_search = rf"Munic\.?\s*(.*?)\s*\.?{year}"
     else:
         raise ValueError
     match = re.search(regex_to_search, filename)
     if match:
-        month_in_file = match.group(1).lower().replace(".", "")
-        month_value = MONTHS.get(month_in_file) or MONTHS_SHORT.get(month_in_file)
+        if year <= 2005 and type_of_file == "Munic":
+            month_value = int(match.group(1))
+        else:
+            month_in_file = match.group(1).lower().replace(".", "")
+            month_value = MONTHS.get(month_in_file) or MONTHS_SHORT.get(month_in_file)
         extension = filename.split(".")[-1]
         new_filename = (
             f"{year_dir_name}/{basic_filename}_{month_value}-{year}.{extension}"
