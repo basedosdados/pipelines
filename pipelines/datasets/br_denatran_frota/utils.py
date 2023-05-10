@@ -371,7 +371,7 @@ def extraction_pre_2012(
                 new_filename = make_filename_2010_to_2012(
                     "Tipo", year, filename, year_dir_name, month
                 )
-            elif re.search("Munic", filename, re.IGNORECASE):
+            elif re.search(r"Mun\w*", filename, re.IGNORECASE):
                 new_filename = make_filename_2010_to_2012(
                     "Munic", year, filename, year_dir_name, month
                 )
