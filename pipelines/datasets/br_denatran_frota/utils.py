@@ -363,7 +363,7 @@ def extraction_pre_2012(
         for file in compressed_files:
             filename = file.filename.split("/")[-1]
             if re.search("Tipo", filename, re.IGNORECASE) or re.search(
-                "Tipo UF", zip_file.split("/")[-1]
+                r"Tipo[-\s]UF", zip_file.split("/")[-1]
             ):
                 new_filename = make_filename_2010_to_2012(
                     "Tipo", year, filename, year_dir_name, month
