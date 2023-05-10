@@ -116,7 +116,7 @@ def crawl(month: int, year: int, temp_dir: str = ""):
             extraction_pre_2012(month, year, year_dir_name, filename)
 
 
-def treat_uf_tipo(file) -> pl.DataFrame:
+def treat_uf_tipo(file: str) -> pl.DataFrame:
     filename = os.path.split(file)[1]
     df = pd.read_excel(file)
     new_df = change_df_header(df, guess_header(df))
