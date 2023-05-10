@@ -113,7 +113,8 @@ def crawl(month: int, year: int, temp_dir: str = ""):
                         year_dir_name,
                         os.path.join(year_dir_name, aggregate_file),
                     )
-        extraction_pre_2012(url, month, year, year_dir_name, filename)
+        else:
+            extraction_pre_2012(url, month, year, year_dir_name, filename)
 
 
 def treat_uf_tipo(file) -> pl.DataFrame:

@@ -290,7 +290,7 @@ def make_filename_2010_to_2012(
     type_of_file: str, year: int, filename: str, year_dir_name: str, month: int
 ):
     if type_of_file == "Tipo":
-        regex_to_search = r"Tipo UF\s+([^\s\d]+\s*)*([12]\d{3})"
+        regex_to_search = r"UF\s+([^\s\d]+\s*)*([12]\d{3})"
         basic_filename = UF_TIPO_BASIC_FILENAME
     elif type_of_file == "Munic":
         regex_to_search = rf"Munic\.?\s*(.*?)\s*\.?{year}"
@@ -347,16 +347,18 @@ def extract_links_post_2012(month: int, year: int, directory: str) -> list[dict]
 
 
 def extraction_pre_2012(
-    url: str, month: int, year: int, year_dir_name: str, filename: str
+    url: str, month: int, year: int, year_dir_name: str, zip_file: str
 ):
     # Aí depois eu preciso andar pelo zip:
     print("Bom dia")
-    with ZipFile(filename, "r") as g:
+    with ZipFile(zip_file, "r") as g:
         compressed_files = [file for file in g.infolist() if not file.is_dir()]
         new_filename = None
         for file in compressed_files:
             filename = file.filename.split("/")[-1]
-            if re.search("Tipo", filename, re.IGNORECASE):
+            if re.search("Tipo", filename, re.IGNORECASE) or re.search(
+                "Tipo UF", zip_file.split("/")[-1]
+            ):
                 new_filename = make_filename_2010_to_2012(
                     "Tipo", year, filename, year_dir_name, month
                 )
