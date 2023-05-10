@@ -144,7 +144,7 @@ def clean_br_me_comex_stat(
 
                     to_partitions(
                         data=df_year,
-                        partition_columns=["ano", "mes", "sigla_uf"],
+                        partition_columns=["ano"],
                         savepath=comex_constants.PATH.value + table_name + "/output/",
                     )
                     del df_year
@@ -161,7 +161,7 @@ def clean_br_me_comex_stat(
                     log(f"doing partitions year, month and uf for year {year}")
                     to_partitions(
                         data=df,
-                        partition_columns=["ano", "mes"],
+                        partition_columns=["ano"],
                         savepath=comex_constants.PATH.value + table_name + "/output/",
                     )
                     del df_year
