@@ -294,7 +294,7 @@ def make_filename_2010_to_2012(
         if year > 2005:
             regex_to_search = r"UF\s+([^\s\d]+\s*)*([12]\d{3})"
         else:
-            regex_to_search = rf"UF_([^\s\d]+\s*)_{str(year)[2:4]}"
+            regex_to_search = rf"UF[_\s]?([^\s\d]+\s*)_{str(year)[2:4]}"
     elif type_of_file == "Munic":
         basic_filename = MUNIC_TIPO_BASIC_FILENAME
         if year > 2003:
