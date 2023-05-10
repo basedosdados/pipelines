@@ -297,12 +297,15 @@ def make_filename_2010_to_2012(
             regex_to_search = rf"UF_([^\s\d]+\s*)_{str(year)[2:4]}"
     elif type_of_file == "Munic":
         basic_filename = MUNIC_TIPO_BASIC_FILENAME
-        regex_to_search = rf"Munic\.?\s*(.*?)\s*\.?{year}"
+        if year > 2003:
+            regex_to_search = rf"Munic\.?\s*(.*?)\s*\.?{year}"
+        else:
+            regex_to_search = rf"Mun\w*_(.*?)_{str(year)[2:4]}"
     else:
         raise ValueError
     match = re.search(regex_to_search, filename)
     if match:
-        if year <= 2005 and type_of_file == "Munic":
+        if (year == 2004 or year == 2005) and type_of_file == "Munic":
             month_value = int(match.group(1))
         else:
             month_in_file = match.group(1).lower().replace(".", "")
