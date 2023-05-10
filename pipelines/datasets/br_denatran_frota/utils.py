@@ -350,8 +350,9 @@ def extraction_pre_2012(
     url: str, month: int, year: int, year_dir_name: str, filename: str
 ):
     # Aí depois eu preciso andar pelo zip:
-    with ZipFile(filename, "r") as f:
-        compressed_files = [file for file in f.infolist() if not file.is_dir()]
+    print("Bom dia")
+    with ZipFile(filename, "r") as g:
+        compressed_files = [file for file in g.infolist() if not file.is_dir()]
         new_filename = None
         for file in compressed_files:
             filename = file.filename.split("/")[-1]
@@ -364,8 +365,9 @@ def extraction_pre_2012(
                     "Munic", year, filename, year_dir_name, month
                 )
             if new_filename:
-                f.extract(file, path=year_dir_name)
+                g.extract(file, path=year_dir_name)
                 os.rename(f"{year_dir_name}/{file.filename}", new_filename)
+    print("Bom dia")
 
 
 def make_dir_when_not_exists(dir_name: str):

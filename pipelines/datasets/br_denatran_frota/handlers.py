@@ -105,8 +105,14 @@ def crawl(month: int, year: int, temp_dir: str = ""):
             with ZipFile(filename, "r") as f:
                 f.extractall(path=f"{year_dir_name}")
             for aggregate_file in os.listdir(f"{year_dir_name}"):
-                print(aggregate_file)
-                extraction_pre_2012(url, month, year, year_dir_name, aggregate_file)
+                if aggregate_file != "dados_anuais.zip":
+                    extraction_pre_2012(
+                        url,
+                        month,
+                        year,
+                        year_dir_name,
+                        os.path.join(year_dir_name, aggregate_file),
+                    )
         extraction_pre_2012(url, month, year, year_dir_name, filename)
 
 
