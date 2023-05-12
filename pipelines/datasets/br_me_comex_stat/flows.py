@@ -14,13 +14,13 @@ from pipelines.constants import constants
 from pipelines.datasets.br_me_comex_stat.tasks import (
     download_br_me_comex_stat,
     clean_br_me_comex_stat,
+    create_table_and_upload_to_gcs,
 )
 from pipelines.datasets.br_me_comex_stat.constants import constants as comex_constants
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.utils.tasks import (
-    create_table_and_upload_to_gcs,
     update_metadata,
     rename_current_flow_run_dataset_table,
     get_current_flow_labels,
@@ -69,13 +69,15 @@ with Flow(
         table_id=table_id,
         dump_mode="overwrite",
         wait=filepath,
+        force_columns=True,
     )
 
     wait_update_metadata = update_metadata(
         dataset_id=dataset_id,
         table_id=table_id,
         fields_to_update=[
-            {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}}
+            {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
+            {"temporal_coverage": {"1997-01(1)2023-04"}},
         ],
         upstream_tasks=[wait_upload_table],
     )
@@ -151,13 +153,15 @@ with Flow(
         table_id=table_id,
         dump_mode="overwrite",
         wait=filepath,
+        force_columns=True,
     )
 
     wait_update_metadata = update_metadata(
         dataset_id=dataset_id,
         table_id=table_id,
         fields_to_update=[
-            {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}}
+            {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
+            {"temporal_coverage": {"1997-01(1)2023-04"}},
         ],
         upstream_tasks=[wait_upload_table],
     )
@@ -233,13 +237,15 @@ with Flow(
         table_id=table_id,
         dump_mode="overwrite",
         wait=filepath,
+        force_columns=True,
     )
 
     wait_update_metadata = update_metadata(
         dataset_id=dataset_id,
         table_id=table_id,
         fields_to_update=[
-            {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}}
+            {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
+            {"temporal_coverage": {"1997-01(1)2023-04"}},
         ],
         upstream_tasks=[wait_upload_table],
     )
@@ -313,13 +319,15 @@ with Flow(
         table_id=table_id,
         dump_mode="overwrite",
         wait=filepath,
+        force_columns=True,
     )
 
     wait_update_metadata = update_metadata(
         dataset_id=dataset_id,
         table_id=table_id,
         fields_to_update=[
-            {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}}
+            {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
+            {"temporal_coverage": {"1997-01(1)2023-04"}},
         ],
         upstream_tasks=[wait_upload_table],
     )
