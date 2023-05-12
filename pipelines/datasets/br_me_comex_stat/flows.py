@@ -69,7 +69,6 @@ with Flow(
         table_id=table_id,
         dump_mode="overwrite",
         wait=filepath,
-        force_columns=True,
     )
 
     wait_update_metadata = update_metadata(
@@ -77,7 +76,6 @@ with Flow(
         table_id=table_id,
         fields_to_update=[
             {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
-            {"temporal_coverage": {"1997-01(1)2023-04"}},
         ],
         upstream_tasks=[wait_upload_table],
     )
@@ -153,7 +151,6 @@ with Flow(
         table_id=table_id,
         dump_mode="overwrite",
         wait=filepath,
-        force_columns=True,
     )
 
     wait_update_metadata = update_metadata(
@@ -161,7 +158,6 @@ with Flow(
         table_id=table_id,
         fields_to_update=[
             {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
-            {"temporal_coverage": {"1997-01(1)2023-04"}},
         ],
         upstream_tasks=[wait_upload_table],
     )
@@ -237,7 +233,6 @@ with Flow(
         table_id=table_id,
         dump_mode="overwrite",
         wait=filepath,
-        force_columns=True,
     )
 
     wait_update_metadata = update_metadata(
@@ -245,7 +240,6 @@ with Flow(
         table_id=table_id,
         fields_to_update=[
             {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
-            {"temporal_coverage": {"1997-01(1)2023-04"}},
         ],
         upstream_tasks=[wait_upload_table],
     )
@@ -319,7 +313,6 @@ with Flow(
         table_id=table_id,
         dump_mode="overwrite",
         wait=filepath,
-        force_columns=True,
     )
 
     wait_update_metadata = update_metadata(
@@ -327,7 +320,6 @@ with Flow(
         table_id=table_id,
         fields_to_update=[
             {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
-            {"temporal_coverage": {"1997-01(1)2023-04"}},
         ],
         upstream_tasks=[wait_upload_table],
     )

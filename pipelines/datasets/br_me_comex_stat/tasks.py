@@ -185,7 +185,6 @@ def create_table_and_upload_to_gcs(
     dataset_id: str,
     table_id: str,
     dump_mode: str,
-    force_columns: bool = False,
     wait=None,  # pylint: disable=unused-argument
 ) -> None:
     """
@@ -223,7 +222,7 @@ def create_table_and_upload_to_gcs(
                 if_storage_data_exists="replace",
                 if_table_config_exists="replace",
                 if_table_exists="replace",
-                force_columns=force_columns,
+                force_columns=True,
             )
 
             log(
