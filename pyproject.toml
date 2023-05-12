@@ -107,6 +107,7 @@ xlrd = "^2.0.1"
 python-string-utils = "^1.0.0"
 pytest-cov = "^4.0.0"
 code2flow = "^2.5.1"
+rpy2 = "^3.5.11"
 
 
 [tool.poetry.group.dev.dependencies]
