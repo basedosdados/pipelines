@@ -121,7 +121,7 @@ def treat_uf_tipo(file: str) -> pl.DataFrame:
     try:
         pd.ExcelFile(file)
     except UnicodeDecodeError:
-        #TODO: Aqui você invoca o capeta e chama o R pra ler e salvar isso como df. Isso é ridículo mas funcionou.
+        # TODO: Aqui você invoca o capeta e chama o R pra ler e salvar isso como df. Isso é ridículo mas funcionou.
         print(2)
     correct_sheet = [
         sheet for sheet in pd.ExcelFile(file).sheet_names if sheet != "Glossário"
