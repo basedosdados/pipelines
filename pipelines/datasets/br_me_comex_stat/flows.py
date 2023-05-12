@@ -14,7 +14,6 @@ from pipelines.constants import constants
 from pipelines.datasets.br_me_comex_stat.tasks import (
     download_br_me_comex_stat,
     clean_br_me_comex_stat,
-    create_table_and_upload_to_gcs,
 )
 from pipelines.datasets.br_me_comex_stat.constants import constants as comex_constants
 from pipelines.utils.constants import constants as utils_constants
@@ -24,6 +23,7 @@ from pipelines.utils.tasks import (
     update_metadata,
     rename_current_flow_run_dataset_table,
     get_current_flow_labels,
+    create_table_and_upload_to_gcs,
 )
 
 # from pipelines.datasets.br_me_comex_stat.schedules import (
