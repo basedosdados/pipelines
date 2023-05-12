@@ -118,6 +118,11 @@ def crawl(month: int, year: int, temp_dir: str = ""):
 
 def treat_uf_tipo(file: str) -> pl.DataFrame:
     filename = os.path.split(file)[1]
+    try:
+        pd.ExcelFile(file)
+    except UnicodeDecodeError:
+        #TODO: Aqui você invoca o capeta e chama o R pra ler e salvar isso como df. Isso é ridículo mas funcionou.
+        print(2)
     correct_sheet = [
         sheet for sheet in pd.ExcelFile(file).sheet_names if sheet != "Glossário"
     ][0]
