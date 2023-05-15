@@ -63,7 +63,7 @@ from pipelines.datasets.br_denatran_frota.utils import (
     call_downloader,
     download_file,
     extraction_pre_2012,
-    call_r_to_read_file
+    call_r_to_read_file,
 )
 import pandas as pd
 import polars as pl
@@ -128,7 +128,7 @@ def treat_uf_tipo(file: str) -> pl.DataFrame:
     except UnicodeDecodeError:
         # TODO: Aqui você invoca o capeta e chama o R pra ler e salvar isso como df. Isso é ridículo mas funcionou.
         df = call_r_to_read_file(file)
-    
+
     new_df = change_df_header(df, guess_header(df))
     # This is ad hoc for UF_tipo.
     new_df.rename(
@@ -140,8 +140,8 @@ def treat_uf_tipo(file: str) -> pl.DataFrame:
     )  # Now we get all the actual RELEVANT uf data.
     month, year = get_year_month_from_filename(filename)
     # If the df is all strings, try to get numbers where it makes sense.
-    if all(clean_df.dtypes == 'object'):
-        clean_df = clean_df.apply(pd.to_numeric, errors = 'ignore')
+    if all(clean_df.dtypes == "object"):
+        clean_df = clean_df.apply(pd.to_numeric, errors="ignore")
     clean_pl_df = pl.from_pandas(clean_df).lazy()
     verify_total(clean_pl_df.collect())
     # Add year and month

@@ -56,6 +56,7 @@ MONTHS_SHORT = constants.MONTHS_SHORT.value
 MUNIC_TIPO_BASIC_FILENAME = constants.MUNIC_TIPO_BASIC_FILENAME.value
 UF_TIPO_HEADER = constants.UF_TIPO_HEADER.value
 
+
 def guess_header(df: pd.DataFrame, max_header_guess: int = 10) -> int:
     """Function to deal with problematic dataframes coming from Excel/CSV files.
     Tries to guess which row is the header by examining the first few rows (max given by max_header_guess).
@@ -75,13 +76,17 @@ def guess_header(df: pd.DataFrame, max_header_guess: int = 10) -> int:
         if len(df) - 1 < header_guess:
             break
         # If this row minus the first column can be converted to int, then
-        #if is_int_row(df.iloc[header_guess]):
+        # if is_int_row(df.iloc[header_guess]):
         current_row = df.iloc[header_guess].to_list()
-        equal_column_names = [(x, y) for x,y in zip(UF_TIPO_HEADER, current_row) if x == y]
-        if len(equal_column_names)/len(UF_TIPO_HEADER) > 0.7: # If 70% of the columns match, this is the header.
+        equal_column_names = [
+            (x, y) for x, y in zip(UF_TIPO_HEADER, current_row) if x == y
+        ]
+        if (
+            len(equal_column_names) / len(UF_TIPO_HEADER) > 0.7
+        ):  # If 70% of the columns match, this is the header.
             return header_guess
         header_guess += 1
-    return 0 # If nothing is ever found until the max, let's just assume it's the first row as per usual.
+    return 0  # If nothing is ever found until the max, let's just assume it's the first row as per usual.
 
 
 def change_df_header(df: pd.DataFrame, header_row: int) -> pd.DataFrame:
@@ -99,17 +104,18 @@ def change_df_header(df: pd.DataFrame, header_row: int) -> pd.DataFrame:
     new_df.rename(columns=new_header, inplace=True)
     return new_df
 
+
 def is_int_row(row):
     # convert all elements of the row to strings
     str_row = [str(x) for x in row[1:]]
-    
+
     # try to convert each element to an int, return False if it fails
     for element in str_row:
         try:
             int(element)
         except ValueError:
             return False
-    
+
     # if all elements can be converted to int, return True
     return True
 
@@ -410,7 +416,7 @@ def make_dir_when_not_exists(dir_name: str):
 def call_r_to_read_file(file: str) -> pd.DataFrame:
     # Install and load the required R packages
     if not os.path.isfile(file):
-        raise ValueError('Invalid file')
+        raise ValueError("Invalid file")
     packages = ("readxl",)
     r_utils = rpackages.importr("utils", suppress_messages=True)
     r_utils.chooseCRANmirror(ind=1)

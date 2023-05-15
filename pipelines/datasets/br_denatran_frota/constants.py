@@ -110,6 +110,28 @@ class constants(Enum):  # pylint: disable=c0103
 
     MONTHS_SHORT = {month[:3]: number for month, number in MONTHS.items()}
 
-    UF_TIPO_HEADER = ['Grandes Regiões e\nUnidades da Federação', 'TOTAL', 'AUTOMÓVEL', 'BONDE', 'CAMINHÃO', 'CAMINHÃO TRATOR', 'CAMINHONETE', 'CAMIONETA', 'CHASSI PLATAFORMA', 'CICLOMOTOR', 'MICROÔNIBUS', 'MOTOCICLETA', 'MOTONETA', 'ÔNIBUS', 'QUADRICICLO',
-                      'REBOQUE', 'SEMI-REBOQUE', 'SIDE-CAR', 'OUTROS', 'TRATOR ESTEIRA', 'TRATOR RODAS', 'TRICICLO', 'UTILITÁRIO'
+    UF_TIPO_HEADER = [
+        "Grandes Regiões e\nUnidades da Federação",
+        "TOTAL",
+        "AUTOMÓVEL",
+        "BONDE",
+        "CAMINHÃO",
+        "CAMINHÃO TRATOR",
+        "CAMINHONETE",
+        "CAMIONETA",
+        "CHASSI PLATAFORMA",
+        "CICLOMOTOR",
+        "MICROÔNIBUS",
+        "MOTOCICLETA",
+        "MOTONETA",
+        "ÔNIBUS",
+        "QUADRICICLO",
+        "REBOQUE",
+        "SEMI-REBOQUE",
+        "SIDE-CAR",
+        "OUTROS",
+        "TRATOR ESTEIRA",
+        "TRATOR RODAS",
+        "TRICICLO",
+        "UTILITÁRIO",
     ]
