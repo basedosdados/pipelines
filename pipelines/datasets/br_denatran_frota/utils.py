@@ -70,18 +70,18 @@ def guess_header(df: pd.DataFrame, max_header_guess: int = 4) -> int:
         int: Index of the row where the header is contained.
     """
     header_guess = 0
-    possible_guess_list = [header_guess]
+    possible_guess_list = []
     while header_guess < max_header_guess:
         if len(df) - 1 < header_guess:
             break
-        # Iffy logic, but essentially: if all rows of the column are strings, then this is a good candidate for a header.
-        if all(df.iloc[header_guess].apply(lambda x: isinstance(x, str))):
-            possible_guess_list.append(header_guess)
+        # If this row minus the first column can be converted to int, then
+        if is_int_row(df.iloc[header_guess]):
+            possible_guess_list.append(header_guess -1)
 
         header_guess += 1
-    return max(
+    return min(
         possible_guess_list
-    )  # If nothing is ever found until the max, let's just assume it's the first row as per usual.
+    ) or 0 # If nothing is ever found until the max, let's just assume it's the first row as per usual.
 
 
 def change_df_header(df: pd.DataFrame, header_row: int) -> pd.DataFrame:
@@ -98,6 +98,20 @@ def change_df_header(df: pd.DataFrame, header_row: int) -> pd.DataFrame:
     new_df = df[(header_row + 1) :].reset_index(drop=True)
     new_df.rename(columns=new_header, inplace=True)
     return new_df
+
+def is_int_row(row):
+    # convert all elements of the row to strings
+    str_row = [str(x) for x in row[1:]]
+    
+    # try to convert each element to an int, return False if it fails
+    for element in str_row:
+        try:
+            int(element)
+        except ValueError:
+            return False
+    
+    # if all elements can be converted to int, return True
+    return True
 
 
 def get_year_month_from_filename(filename: str) -> tuple[int, int]:
@@ -395,6 +409,8 @@ def make_dir_when_not_exists(dir_name: str):
 
 def call_r_to_read_file(file: str) -> pd.DataFrame:
     # Install and load the required R packages
+    if not os.path.isfile(file):
+        raise ValueError('Invalid file')
     packages = ("readxl",)
     r_utils = rpackages.importr("utils", suppress_messages=True)
     r_utils.chooseCRANmirror(ind=1)
@@ -405,11 +421,15 @@ def call_r_to_read_file(file: str) -> pd.DataFrame:
     robjects.r(
         f"""
         library(readxl)
-        x <- read_excel('{file}')
+
+        sheets <- excel_sheets('{file}')
+        correct_sheet <- sheets[sheets != "Glossário"][1]
+        df <- read_excel('{file}', sheet = correct_sheet)
+
     """
     )
 
     # Convert the R dataframe to a pandas dataframe
-    df = robjects.r["x"]
+    df = robjects.r["df"]
     df = pd.DataFrame(dict(zip(df.names, list(df))))
     return df
