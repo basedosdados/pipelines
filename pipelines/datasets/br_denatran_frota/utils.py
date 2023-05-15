@@ -56,7 +56,7 @@ MONTHS_SHORT = constants.MONTHS_SHORT.value
 MUNIC_TIPO_BASIC_FILENAME = constants.MUNIC_TIPO_BASIC_FILENAME.value
 
 
-def guess_header(df: pd.DataFrame, max_header_guess: int = 4) -> int:
+def guess_header(df: pd.DataFrame, max_header_guess: int = 10) -> int:
     """Function to deal with problematic dataframes coming from Excel/CSV files.
     Tries to guess which row is the header by examining the first few rows (max given by max_header_guess).
     Assumes that the header is the first row where all of the columns are strings.
