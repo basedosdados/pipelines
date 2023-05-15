@@ -42,6 +42,10 @@ from string_utils import asciify
 from pipelines.datasets.br_denatran_frota.constants import constants
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
+import rpy2.robjects.packages as rpackages
+import rpy2.robjects as robjects
+from rpy2.robjects.vectors import StrVector
+
 
 DICT_UFS = constants.DICT_UFS.value
 SUBSTITUTIONS = constants.SUBSTITUTIONS.value
@@ -387,3 +391,25 @@ def make_dir_when_not_exists(dir_name: str):
     """
     if not os.path.exists(dir_name):
         os.makedirs(dir_name)
+
+
+def call_r_to_read_file(file: str) -> pd.DataFrame:
+    # Install and load the required R packages
+    packages = ("readxl",)
+    r_utils = rpackages.importr("utils", suppress_messages=True)
+    r_utils.chooseCRANmirror(ind=1)
+    r_utils.install_packages(StrVector(packages))
+    rpackages.importr("readxl", suppress_messages=True)
+
+    # Read the Excel file
+    robjects.r(
+        f"""
+        library(readxl)
+        x <- read_excel('{file}')
+    """
+    )
+
+    # Convert the R dataframe to a pandas dataframe
+    df = robjects.r["x"]
+    df = pd.DataFrame(dict(zip(df.names, list(df))))
+    return df
