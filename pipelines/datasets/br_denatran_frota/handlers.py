@@ -118,6 +118,7 @@ def crawl(month: int, year: int, temp_dir: str = ""):
 
 
 def treat_uf_tipo(file: str) -> pl.DataFrame:
+    valid_ufs = list(DICT_UFS.keys()) + list(DICT_UFS.values())
     filename = os.path.split(file)[1]
     try:
         correct_sheet = [
@@ -134,7 +135,7 @@ def treat_uf_tipo(file: str) -> pl.DataFrame:
         columns={new_df.columns[0]: "sigla_uf"}, inplace=True
     )  # Rename for ease of use.
     new_df.sigla_uf = new_df.sigla_uf.str.strip()  # Remove whitespace.
-    clean_df = new_df[new_df.sigla_uf.isin(DICT_UFS.values())].reset_index(
+    clean_df = new_df[new_df.sigla_uf.isin(valid_ufs)].reset_index(
         drop=True
     )  # Now we get all the actual RELEVANT uf data.
     month, year = get_year_month_from_filename(filename)
