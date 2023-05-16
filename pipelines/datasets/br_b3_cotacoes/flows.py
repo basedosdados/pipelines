@@ -30,13 +30,9 @@ from pipelines.utils.tasks import (
     get_current_flow_labels,
 )
 
-with Flow(
-    name="br_b3_cotacoes.cotacoes", code_owners=["trick"]
-) as cotacoes:
+with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
     # Parameters
-    dataset_id = Parameter(
-        "dataset_id", default="br_b3_cotacoes", required=True
-    )
+    dataset_id = Parameter("dataset_id", default="br_b3_cotacoes", required=True)
     table_id = Parameter("table_id", default="cotacoes", required=True)
 
     materialization_mode = Parameter(
@@ -96,4 +92,3 @@ with Flow(
 cotacoes.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 cotacoes.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 cotacoes.schedule = all_day_cotacoes
-
