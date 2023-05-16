@@ -71,7 +71,6 @@ def guess_header(df: pd.DataFrame, max_header_guess: int = 10) -> int:
         int: Index of the row where the header is contained.
     """
     header_guess = 0
-    possible_guess_list = []
     while header_guess < max_header_guess:
         if len(df) - 1 < header_guess:
             break
@@ -439,3 +438,41 @@ def call_r_to_read_file(file: str) -> pd.DataFrame:
     df = robjects.r["df"]
     df = pd.DataFrame(dict(zip(df.names, list(df))))
     return df
+
+
+def verify_uf(denatran_df: pl.DataFrame, ibge_df: pl.DataFrame, uf: str) -> None:
+    """Function to take the DENATRAN data at municipality level and compare it to the IBGE data.
+    This will filter by the uf argument and do all comparisons to ensure consistency.
+
+    Args:
+        denatran_df (pl.DataFrame): Dataframe with the DENATRAN data at municipality level.
+        ibge_df (pl.DataFrame): Dataframe with the IBGE data of municipalities.
+        uf (str): Desired municipality to filter the DF for.
+
+    Raises:
+        ValueError: If there are somehow municipalities in the DENATRAN data that do not exist in the IBGE data. Very unlikely.
+        ValueError: If there are two municipalities in the DENATRAN data
+    """
+    denatran_uf = denatran_df.filter(pl.col("sigla_uf") == uf)
+    ibge_uf = ibge_df.filter(pl.col("sigla_uf") == uf)
+    ibge_uf = ibge_uf.with_columns(pl.col("nome").apply(asciify).str.to_lowercase())
+    municipios_na_bd = ibge_uf["nome"].to_list()
+    x = denatran_uf["nome_denatran"].apply(lambda x: get_city_name_ibge(x, ibge_uf))
+    denatran_uf = denatran_uf.with_columns(x.alias("suggested_nome_ibge"))
+    denatran_uf = denatran_uf.with_columns(
+        denatran_uf.apply(fix_suggested_nome_ibge)["apply"].alias("suggested_nome_ibge")
+    )
+    municipios_no_denatran = denatran_uf["suggested_nome_ibge"].to_list()
+    d = set(municipios_no_denatran) - set(municipios_na_bd)
+    municipios_duplicados = (
+        denatran_uf.groupby("suggested_nome_ibge").count().filter(pl.col("count") > 1)
+    )
+    if not municipios_duplicados.is_empty():
+        raise ValueError(
+            f"Existem municípios com mesmo nome do IBGE em {uf}! São eles {municipios_duplicados['suggested_nome_ibge'].to_list()}"
+        )
+    if d:
+        # This here is probably impossible and shouldn't happen due to the matching coming from the BD data.
+        # The set difference might occur the other way around, but still, better safe.
+        raise ValueError(f"Existem municípios em {uf} que não estão na BD.")
+    match_ibge(denatran_uf, ibge_uf)
