@@ -18,7 +18,7 @@ from br_denatran_frota.code.constants import DICT_UFS, SUBSTITUTIONS
 import basedosdados as bd
 
 
-def verify_uf(denatran_df: pl.DataFrame, ibge_df: pl.DataFrame, uf: str):
+def verify_uf(denatran_df: pl.DataFrame, ibge_df: pl.DataFrame, uf: str) -> None:
     denatran_uf = denatran_df.filter(pl.col("sigla_uf") == uf)
     ibge_uf = ibge_df.filter(pl.col("sigla_uf") == uf)
     ibge_uf = ibge_uf.with_columns(pl.col("nome").apply(asciify).str.to_lowercase())
