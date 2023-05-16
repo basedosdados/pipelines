@@ -16,9 +16,6 @@ from pipelines.datasets.br_b3_cotacoes.tasks import (
     tratamento,
 )
 
-from pipelines.datasets.br_bcb_estban.constants import (
-    constants as br_b3_cotacoes_constants,
-)
 
 from pipelines.datasets.br_b3_cotacoes.schedules import (
     all_day_cotacoes,
@@ -49,7 +46,7 @@ with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    filepath = br_b3_cotacoes_constants.B3_PATH_OUTPUT
+    filepath = tratamento()
 
     # pylint: disable=C0103
     wait_upload_table = create_table_and_upload_to_gcs(
@@ -91,4 +88,4 @@ with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
 
 cotacoes.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 cotacoes.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-cotacoes.schedule = all_day_cotacoes
+# cotacoes.schedule = all_day_cotacoes
