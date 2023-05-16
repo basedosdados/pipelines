@@ -21,10 +21,10 @@ from pipelines.datasets.br_bcb_estban.tasks import (
     get_id_municipio,
 )
 
-# from pipelines.datasets.br_bcb_estban.schedules import (
-#    every_month_agencia,
-#    every_month_municipio,
-# )
+from pipelines.datasets.br_bcb_estban.schedules import (
+    every_month_agencia,
+    every_month_municipio,
+)
 
 from pipelines.datasets.br_bcb_estban.constants import (
     constants as br_bcb_estban_constants,
@@ -115,7 +115,7 @@ with Flow(
 
 br_bcb_estban_municipio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_bcb_estban_municipio.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-# br_bcb_estban_municipio.schedule = every_month_municipio
+br_bcb_estban_municipio.schedule = every_month_municipio
 
 
 with Flow(
@@ -197,4 +197,4 @@ with Flow(
 
 br_bcb_estban_agencia.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_bcb_estban_agencia.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-# br_bcb_estban_agencia.schedule = every_month_agencia
+br_bcb_estban_agencia.schedule = every_month_agencia
