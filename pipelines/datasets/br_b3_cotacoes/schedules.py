@@ -4,7 +4,7 @@ from prefect.schedules import Schedule
 from prefect.schedules.clocks import CronClock
 from pipelines.constants import constants
 
-every_month_anatel_microdados = Schedule(
+all_day_cotacoes = Schedule(
     clocks=[
         CronClock(
             cron="0 21 * * 1-5",  # ! Intervalo de tempo entre as execuções
