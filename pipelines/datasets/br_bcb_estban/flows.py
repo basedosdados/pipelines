@@ -69,7 +69,6 @@ with Flow(
 
     municipio = get_id_municipio(table="municipio")
 
-    # ?  settar upstream tasks: verificar o funcionamento
     filepath = cleaning_municipios_data(
         path=br_bcb_estban_constants.DOWNLOAD_PATH_MUNICIPIO.value,
         municipio=municipio,
@@ -138,7 +137,7 @@ with Flow(
         "materialize after dump", default=False, required=False
     )
 
-    dbt_alias = Parameter("dbt_alias", default=True, required=False)
+    dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
