@@ -181,7 +181,6 @@ def cleaning_agencias_data(path, municipio):
     log(f"the following files will be cleaned: {files}")
 
     for file in files:
-
         log(f"the file being cleaned is:{file}")
         build_complete_file_path = os.path.join(path, file)
 

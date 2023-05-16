@@ -67,7 +67,6 @@ with Flow(
     )
 
     with case(materialize_after_dump, True):
-
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
         materialization_flow = create_flow_run(
@@ -138,7 +137,6 @@ with Flow(
     )
 
     with case(materialize_after_dump, True):
-
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
         materialization_flow = create_flow_run(
@@ -209,7 +207,6 @@ with Flow(
     )
 
     with case(materialize_after_dump, True):
-
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
         materialization_flow = create_flow_run(
@@ -280,7 +277,6 @@ with Flow(
     )
 
     with case(materialize_after_dump, True):
-
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
         materialization_flow = create_flow_run(
