@@ -159,8 +159,5 @@ def treat_uf_tipo(file: str) -> pl.DataFrame:
     return clean_pl_df
 
 
-def output_file_to_csv(df: pl.DataFrame) -> None:
-    pass
-
-
-# df.write_csv(file=f"{OUTPUT_PATH}/{filename}.csv", has_header=True)
+def output_file_to_csv(df: pl.DataFrame, filename: str) -> None:
+    df.write_csv(file=f"{OUTPUT_PATH}/{filename}.csv", has_header=True)
