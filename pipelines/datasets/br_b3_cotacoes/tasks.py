@@ -8,7 +8,7 @@ import pandas as pd
 import os
 import numpy as np
 from datetime import datetime, timedelta
-from pipelines.datasets.br_bcb_estban.constants import (
+from pipelines.datasets.br_b3_cotacoes.constants import (
     constants as br_b3_cotacoes_constants,
 )
 
@@ -27,12 +27,12 @@ from pipelines.datasets.br_b3_cotacoes.utils import download_and_unzip, read_fil
 )
 def tratamento():
     download_and_unzip(
-        br_b3_cotacoes_constants.B3_URL,
-        br_b3_cotacoes_constants.B3_PATH,
+        br_b3_cotacoes_constants.B3_URL.value,
+        br_b3_cotacoes_constants.B3_PATH_INPUT.value,
     )
 
-    read_files(
-        br_b3_cotacoes_constants.B3_PATH,
+    df = read_files(
+        br_b3_cotacoes_constants.B3_PATH_INPUT.value,
     )
 
     rename = {
@@ -66,7 +66,7 @@ def tratamento():
     to_partitions(
         df,
         partition_columns=["data_negocio"],
-        path=br_b3_cotacoes_constants.B3_PATH_OUTPUT,
+        path=br_b3_cotacoes_constants.B3_PATH_OUTPUT.value,
     )
 
-    return br_b3_cotacoes_constants.B3_PATH_OUTPUT
+    return br_b3_cotacoes_constants.B3_PATH_OUTPUT.value
