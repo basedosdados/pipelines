@@ -32,7 +32,7 @@ def tratamento():
     )
 
     df = read_files(
-        br_b3_cotacoes_constants.B3_PATH_INPUT.value,
+        br_b3_cotacoes_constants.B3_PATH_OUTPUT_DF.value
     )
 
     rename = {
@@ -49,6 +49,20 @@ def tratamento():
         "CodigoParticipanteVendedor": "codigo_participante_vendedor",
     }
 
+    ordem = ['data_referencia',
+         'tipo_sessao_pregao',
+         'codigo_instrumento',
+         'acao_atualizacao',
+         'data_negocio',
+         'codigo_identificador_negocio',
+         'preco_negocio',
+         'quantidade_negociada',
+         'hora_fechamento',
+         'codigo_participante_comprador',
+         'codigo_participante_vendedor']
+
+
+
     df.rename(columns=rename, inplace=True)
     df = df.replace(np.nan, "")
     df["codigo_participante_vendedor"] = df["codigo_participante_vendedor"].apply(
@@ -62,6 +76,7 @@ def tratamento():
     df["data_negocio"] = pd.to_datetime(df["data_negocio"], format="%Y-%m-%d")
     df["preco_negocio"] = df["preco_negocio"].astype(float)
     df["codigo_identificador_negocio"] = df["codigo_identificador_negocio"].astype(str)
+    df = df[ordem]
 
     to_partitions(
         df,
