@@ -65,7 +65,7 @@ from prefect.tasks.prefect import (
     create_flow_run,
     wait_for_flow_run,
 )
-
+import os
 from pipelines.constants import constants as pipelines_constants
 from pipelines.utils.constants import constants as utils_constants
 
@@ -93,6 +93,7 @@ with Flow(
         "Tamir",
     ],
 ) as br_denatran_frota_uf_tipo:
+    year = 2021
     dataset_id = Parameter("dataset_id", default="br_denatran_frota")
     table_id = Parameter("table_id", default="uf_tipo")
 
@@ -111,16 +112,19 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
     # Download the file:
-    crawled = crawl_task(month=2, year=2021, temp_dir=constants.DOWNLOAD_PATH.value)
+    crawled = crawl_task(month=2, year=year, temp_dir=constants.DOWNLOAD_PATH.value)
     # Now get the downloaded file:
     uf_tipo_file = get_desired_file_task(
-        year=2021,
+        year=year,
         download_directory=constants.DOWNLOAD_PATH.value,
         filetype=constants.UF_TIPO_BASIC_FILENAME.value,
         upstream_tasks=[crawled],
     )
+    print(uf_tipo_file)
     df = treat_uf_tipo_task(file=uf_tipo_file, upstream_tasks=[uf_tipo_file])
-    csv_output = output_file_to_csv_task(df, upstream_tasks=[df])
+    csv_output = output_file_to_csv_task(
+        df, constants.UF_TIPO_BASIC_FILENAME, upstream_tasks=[df]
+    )
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=csv_output,
         dataset_id=dataset_id,

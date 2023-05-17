@@ -53,15 +53,6 @@ from prefect import task
 import glob
 import os
 from pipelines.datasets.br_denatran_frota.constants import constants
-from pipelines.datasets.br_denatran_frota.utils import (
-    make_dir_when_not_exists,
-    extract_links_post_2012,
-    verify_total,
-    change_df_header,
-    guess_header,
-    get_year_month_from_filename,
-    call_downloader,
-)
 import pandas as pd
 import polars as pl
 from pipelines.datasets.br_denatran_frota.handlers import (

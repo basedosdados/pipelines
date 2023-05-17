@@ -171,4 +171,5 @@ def get_desired_file(year: int, download_directory: str, filetype: str):
             "xls",
             "xlsx",
         ]:
-            return file
+            return os.path.join(directory_to_search, file)
+    raise ValueError("No files found buckaroo")

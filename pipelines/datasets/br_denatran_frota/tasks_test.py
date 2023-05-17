@@ -6,7 +6,11 @@ import unittest
 import re
 
 from parameterized import parameterized
-from pipelines.datasets.br_denatran_frota.handlers import crawl, treat_uf_tipo
+from pipelines.datasets.br_denatran_frota.handlers import (
+    crawl,
+    treat_uf_tipo,
+    get_desired_file,
+)
 from pipelines.datasets.br_denatran_frota.constants import constants
 
 DATASET = constants.DATASET.value
@@ -64,6 +68,9 @@ class TestTreatmentPostCrawl(unittest.TestCase):
     def test_treat_files_uf_tipo(self, month, year):
         crawl(month, year, self.temp_dir.name)
         directory_to_search = os.path.join(self.temp_dir.name, "files", f"{year}")
+        get_desired_file(
+            year,
+        )
         for file in os.listdir(directory_to_search):
             if re.search(UF_TIPO_BASIC_FILENAME, file) and file.split(".")[-1] in [
                 "xls",
@@ -71,6 +78,18 @@ class TestTreatmentPostCrawl(unittest.TestCase):
             ]:
                 treated_df = treat_uf_tipo(os.path.join(directory_to_search, file))
                 self.assertEqual(len(treated_df), 21 * 27)
+
+    def test_flow(self):
+        year = 2021
+        crawl(month=2, year=year, temp_dir=constants.DOWNLOAD_PATH.value)
+        # Now get the downloaded file:
+        uf_tipo_file = get_desired_file(
+            year=year,
+            download_directory=constants.DOWNLOAD_PATH.value,
+            filetype=constants.UF_TIPO_BASIC_FILENAME.value,
+        )
+        print(uf_tipo_file)
+        treat_uf_tipo(file=uf_tipo_file)
 
 
 if __name__ == "__main__":
