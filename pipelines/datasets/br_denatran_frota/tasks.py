@@ -68,6 +68,7 @@ from pipelines.datasets.br_denatran_frota.handlers import (
     crawl,
     treat_uf_tipo,
     output_file_to_csv,
+    get_desired_file,
 )
 
 MONTHS = constants.MONTHS.value
@@ -89,3 +90,8 @@ def treat_uf_tipo_task(file) -> pl.DataFrame:
 @task()
 def output_file_to_csv_task(df: pl.DataFrame, filename: str) -> None:
     output_file_to_csv(df, filename)
+
+
+@task()
+def get_desired_file_task(year: int, download_directory: str, filetype: str):
+    get_desired_file(year, download_directory, filetype)

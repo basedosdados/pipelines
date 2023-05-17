@@ -162,3 +162,13 @@ def treat_uf_tipo(file: str) -> pl.DataFrame:
 def output_file_to_csv(df: pl.DataFrame, filename: str) -> None:
     df.write_csv(file=f"{OUTPUT_PATH}/{filename}.csv", has_header=True)
     return OUTPUT_PATH
+
+
+def get_desired_file(year: int, download_directory: str, filetype: str):
+    directory_to_search = os.path.join(download_directory, "files", f"{year}")
+    for file in os.listdir(directory_to_search):
+        if re.search(filetype, file) and file.split(".")[-1] in [
+            "xls",
+            "xlsx",
+        ]:
+            return file
