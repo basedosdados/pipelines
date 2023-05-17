@@ -100,9 +100,9 @@ class constants(Enum):  # pylint: disable=c0103
         ("TO", "sao valerio da natividade"): "sao valerio",
     }
 
-    DOWNLOAD_PATH = f"pipelines/datasets/{DATASET}/tmp/input"
+    DOWNLOAD_PATH = f"/tmp/input/{DATASET}"
 
-    OUTPUT_PATH = f"pipelines/datasets/{DATASET}/tmp/output"
+    OUTPUT_PATH = f"/tmp/output/{DATASET}"
 
     UF_TIPO_BASIC_FILENAME = "frota_por_uf_e_tipo_de_veiculo"
 
