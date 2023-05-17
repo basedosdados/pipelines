@@ -64,7 +64,11 @@ from pipelines.datasets.br_denatran_frota.utils import (
 )
 import pandas as pd
 import polars as pl
-from pipelines.datasets.br_denatran_frota.handlers import crawl, treat_uf_tipo
+from pipelines.datasets.br_denatran_frota.handlers import (
+    crawl,
+    treat_uf_tipo,
+    output_file_to_csv,
+)
 
 MONTHS = constants.MONTHS.value
 DATASET = constants.DATASET.value
@@ -83,6 +87,5 @@ def treat_uf_tipo_task(file) -> pl.DataFrame:
 
 
 @task()
-def output_file_to_csv(df: pl.DataFrame) -> None:
-    pass
-    # df.write_csv(file=f"{OUTPUT_PATH}/{filename}.csv", has_header=True)
+def output_file_to_csv_task(df: pl.DataFrame, filename: str) -> None:
+    output_file_to_csv(df, filename)

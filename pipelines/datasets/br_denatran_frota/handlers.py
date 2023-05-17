@@ -161,3 +161,4 @@ def treat_uf_tipo(file: str) -> pl.DataFrame:
 
 def output_file_to_csv(df: pl.DataFrame, filename: str) -> None:
     df.write_csv(file=f"{OUTPUT_PATH}/{filename}.csv", has_header=True)
+    return OUTPUT_PATH
