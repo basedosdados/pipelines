@@ -61,6 +61,11 @@ from pipelines.datasets.br_denatran_frota.handlers import (
     output_file_to_csv,
     get_desired_file,
 )
+from pipelines.utils.utils import (
+    clean_dataframe,
+    to_partitions,
+    log,
+)
 
 MONTHS = constants.MONTHS.value
 DATASET = constants.DATASET.value
@@ -75,6 +80,7 @@ def crawl_task(month: int, year: int, temp_dir: str = ""):
 
 @task()
 def treat_uf_tipo_task(file) -> pl.DataFrame:
+    log(file)
     treat_uf_tipo(file)
 
 

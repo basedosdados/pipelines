@@ -4,6 +4,7 @@ import shutil
 import tempfile
 import unittest
 import re
+import polars as pl
 
 from parameterized import parameterized
 from pipelines.datasets.br_denatran_frota.handlers import (
@@ -89,7 +90,8 @@ class TestTreatmentPostCrawl(unittest.TestCase):
             filetype=constants.UF_TIPO_BASIC_FILENAME.value,
         )
         print(uf_tipo_file)
-        treat_uf_tipo(file=uf_tipo_file)
+        df = treat_uf_tipo(file=uf_tipo_file)
+        self.assertTrue(type(df), pl.DataFrame)
 
 
 if __name__ == "__main__":
