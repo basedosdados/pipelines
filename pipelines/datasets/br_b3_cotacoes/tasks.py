@@ -31,9 +31,7 @@ def tratamento():
         br_b3_cotacoes_constants.B3_PATH_INPUT.value,
     )
 
-    df = read_files(
-        br_b3_cotacoes_constants.B3_PATH_OUTPUT_DF.value
-    )
+    df = read_files(br_b3_cotacoes_constants.B3_PATH_OUTPUT_DF.value)
 
     rename = {
         "DataReferencia": "data_referencia",
@@ -49,19 +47,19 @@ def tratamento():
         "CodigoParticipanteVendedor": "codigo_participante_vendedor",
     }
 
-    ordem = ['data_referencia',
-         'tipo_sessao_pregao',
-         'codigo_instrumento',
-         'acao_atualizacao',
-         'data_negocio',
-         'codigo_identificador_negocio',
-         'preco_negocio',
-         'quantidade_negociada',
-         'hora_fechamento',
-         'codigo_participante_comprador',
-         'codigo_participante_vendedor']
-
-
+    ordem = [
+        "data_referencia",
+        "tipo_sessao_pregao",
+        "codigo_instrumento",
+        "acao_atualizacao",
+        "data_negocio",
+        "codigo_identificador_negocio",
+        "preco_negocio",
+        "quantidade_negociada",
+        "hora_fechamento",
+        "codigo_participante_comprador",
+        "codigo_participante_vendedor",
+    ]
 
     df.rename(columns=rename, inplace=True)
     df = df.replace(np.nan, "")
