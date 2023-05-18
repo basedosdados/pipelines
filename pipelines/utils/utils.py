@@ -399,7 +399,7 @@ def to_partitions(data: pd.DataFrame, partition_columns: List[str], savepath: st
             # append data to csv
             df_filter.to_csv(
                 file_filter_save_path,
-                sep="",
+                sep=",",
                 encoding="utf-8",
                 index=False,
                 mode="a",
