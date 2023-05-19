@@ -22,12 +22,16 @@ from pipelines.utils.execute_dbt_model.constants import constants as dump_db_con
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.datasets.br_cvm_fi.constants import constants as cvm_constants
 from pipelines.constants import constants
-from pipelines.utils.utils import log
+from pipelines.utils.utils import (
+    log,
+)
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     rename_current_flow_run_dataset_table,
     get_current_flow_labels,
 )
+
+# rom pipelines.datasets.br_cvm_fi.schedules import every_day_cvm
 
 with Flow(
     name="br_cvm_fi_documentos_informe_diario",

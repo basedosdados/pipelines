@@ -20,7 +20,10 @@ from pipelines.datasets.br_cvm_fi.utils import (
     limpar_string,
     obter_anos_meses,
 )
-from pipelines.utils.utils import log, to_partitions
+from pipelines.utils.utils import (
+    log,
+    to_partitions,
+)
 from pipelines.datasets.br_cvm_fi.constants import constants as cvm_constants
 
 
