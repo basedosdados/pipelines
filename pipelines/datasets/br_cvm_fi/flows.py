@@ -58,7 +58,6 @@ with Flow(
     arquivos = check_for_updates(df, upstream_tasks=[df])
 
     with case(is_empty(arquivos), True):
-
         log(f"Não houveram atualizações em {url.default}!")
 
     with case(is_empty(arquivos), False):
@@ -144,7 +143,6 @@ with Flow(
     arquivos = check_for_updates(df, upstream_tasks=[df])
 
     with case(is_empty(arquivos), True):
-
         log(f"Não houveram atualizações em {url.default}!")
 
     with case(is_empty(arquivos), False):
