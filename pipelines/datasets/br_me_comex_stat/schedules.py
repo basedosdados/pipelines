@@ -13,9 +13,7 @@ from pipelines.constants import constants
 schedule_municipio_exportacao = Schedule(
     clocks=[
         CronClock(
-            cron="5 0 12 * 4",
-            # the next run will be tomorrow (10/05/2023) and then every 30 days only on weekdays
-            start_date=datetime.today(),
+            cron="0 0 5 * *",
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -35,9 +33,7 @@ schedule_municipio_exportacao = Schedule(
 schedule_municipio_importacao = Schedule(
     clocks=[
         CronClock(
-            cron="5 0 12 * 4",
-            # the next run will be tomorrow (10/05/2023) and then every 30 days only on weekdays
-            start_date=datetime.today(),
+            cron="0 0 5 * *",
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -57,9 +53,7 @@ schedule_municipio_importacao = Schedule(
 schedule_ncm_importacao = Schedule(
     clocks=[
         CronClock(
-            cron="5 0 12 * 4",
-            # the next run will be tomorrow (10/05/2023) and then every 30 days only on weekdays
-            start_date=datetime.today(),
+            cron="0 0 5 * *",
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -79,9 +73,7 @@ schedule_ncm_importacao = Schedule(
 schedule_ncm_exportacao = Schedule(
     clocks=[
         CronClock(
-            cron="5 0 12 * 4",
-            # the next run will be tomorrow (10/05/2023) and then every 30 days only on weekdays
-            start_date=datetime.today(),
+            cron="0 0 5 * *",
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
