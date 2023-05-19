@@ -83,7 +83,7 @@ UF_TIPO_BASIC_FILENAME = constants.UF_TIPO_BASIC_FILENAME.value
 MUNIC_TIPO_BASIC_FILENAME = constants.MUNIC_TIPO_BASIC_FILENAME.value
 
 
-def crawl(month: int, year: int, temp_dir: str = ""):
+def crawl(month: int, year: int, temp_dir: str = "") -> None:
     """Função principal para baixar os dados de frota por município e tipo e também por UF e tipo.
 
     Args:
@@ -170,7 +170,7 @@ def output_file_to_csv(df: pl.DataFrame, filename: str) -> None:
     return OUTPUT_PATH
 
 
-def get_desired_file(year: int, download_directory: str, filetype: str):
+def get_desired_file(year: int, download_directory: str, filetype: str) -> str:
     directory_to_search = os.path.join(download_directory, "files", f"{year}")
     log(f"Directory: {directory_to_search}")
     for file in os.listdir(directory_to_search):
