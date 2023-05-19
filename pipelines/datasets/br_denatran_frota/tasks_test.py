@@ -69,9 +69,7 @@ class TestTreatmentPostCrawl(unittest.TestCase):
     def test_treat_files_uf_tipo(self, month, year):
         crawl(month, year, self.temp_dir.name)
         directory_to_search = os.path.join(self.temp_dir.name, "files", f"{year}")
-        get_desired_file(
-            year,
-        )
+        get_desired_file(year, self.temp_dir.name, UF_TIPO_BASIC_FILENAME)
         for file in os.listdir(directory_to_search):
             if re.search(UF_TIPO_BASIC_FILENAME, file) and file.split(".")[-1] in [
                 "xls",
