@@ -2,8 +2,8 @@
 """ Utils for the Brazilian Comex Stat pipeline. """
 # pylint: disable=invalid-name
 import os
-import requests
-
+import wget
+import time as tm
 from tqdm import tqdm
 from pipelines.utils.utils import (
     log,
@@ -46,9 +46,26 @@ def download_data(
         table_name (str): the table name is the original name of the zip file with raw data from comex stat website
     """
 
-    log(f"Downloading {table_type} of {table_name}")
-    url = f"https://balanca.economia.gov.br/balanca/bd/comexstat-bd/{table_type}/{table_name}.zip"
+    for year in range(1997, 2024):
+        # i know this isnt the best approach. I'll change it
+        # after api and website migration is done.
+        # Its a good test to download, upload raw data to gcs and then do the wrangling
+        # with DBT.
 
-    r = requests.get(url, verify=False, timeout=99999999)
-    with open(path + f"{table_name}/input/{table_name}.zip", "wb") as f:
-        f.write(r.content)
+        table_name_urls = {
+            "mun_imp": f"https://balanca.economia.gov.br/balanca/bd/comexstat-bd/{table_type}/IMP_{year}_MUN.csv",
+            "mun_exp": f"https://balanca.economia.gov.br/balanca/bd/comexstat-bd/{table_type}/EXP_{year}_MUN.csv",
+            "ncm_imp": f"https://balanca.economia.gov.br/balanca/bd/comexstat-bd/{table_type}/IMP_{year}.csv",
+            "ncm_exp": f"https://balanca.economia.gov.br/balanca/bd/comexstat-bd/{table_type}/EXP_{year}.csv",
+        }
+
+        # selects a url given a table name
+        url = table_name_urls[table_name]
+
+        log(f"Downloading {url}")
+
+        # downloads the file and saves it
+        wget.download(url, out=path + table_name + "/input")
+        # just for precaution,
+        # sleep for 8 secs in between iterations
+        tm.sleep(8)

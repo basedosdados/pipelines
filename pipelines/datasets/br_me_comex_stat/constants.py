@@ -24,3 +24,10 @@ class constants(Enum):  # pylint: disable=c0103
         "EXP_COMPLETA",
         "IMP_COMPLETA",
     ]
+
+    TABLE_NAME = [
+        "mun_imp",
+        "mun_exp",
+        "ncm_imp",
+        "ncm_exp",
+    ]

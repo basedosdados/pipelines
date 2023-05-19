@@ -14,6 +14,7 @@ from prefect import task
 from pathlib import Path
 from typing import Union, List
 import basedosdados as bd
+import os
 
 
 from pipelines.datasets.br_me_comex_stat.utils import create_paths, download_data
@@ -63,6 +64,8 @@ def download_br_me_comex_stat(
 
 @task
 def clean_br_me_comex_stat(
+    path: str,
+    table_type: str,
     table_name: str,
 ) -> pd.DataFrame:
     """this task reads a zip file donwload by the upstream task download_br_me_comex_stat and
@@ -104,71 +107,61 @@ def clean_br_me_comex_stat(
         "VL_FOB": "valor_fob_dolar",
     }
 
-    filezip = glob(comex_constants.PATH.value + table_name + "/input/" + "*.zip")
+    file_list = os.listdir(f"{path}{table_name}/input/")
 
-    filezip = filezip[0]
+    for file in file_list:
+        if table_type == "mun":
+            log(f"doing file {file}")
 
-    with ZipFile(filezip) as z:
-        with z.open(filezip.split("/")[-1][:-4] + ".csv") as f:
-            df = pd.read_csv(f, sep=";")
+            df = pd.read_csv(f"{path}{table_name}/input/{file}", sep=";")
 
-            if "MUN" in filezip:
-                log(f"cleaning {filezip} file")
+            df.rename(columns=rename_mun, inplace=True)
 
-                df.rename(columns=rename_mun, inplace=True)
+            log("df renamed")
 
-                log("df renamed")
+            condicao = [
+                ((df["sigla_uf"] == "SP") & (df["id_municipio"] < 3500000)),
+                ((df["sigla_uf"] == "MS") & (df["id_municipio"] > 5000000)),
+                ((df["sigla_uf"] == "GO") & (df["id_municipio"] > 5200000)),
+                ((df["sigla_uf"] == "DF") & (df["id_municipio"] > 5300000)),
+            ]
 
-                condicao = [
-                    ((df["sigla_uf"] == "SP") & (df["id_municipio"] < 3500000)),
-                    ((df["sigla_uf"] == "MS") & (df["id_municipio"] > 5000000)),
-                    ((df["sigla_uf"] == "GO") & (df["id_municipio"] > 5200000)),
-                    ((df["sigla_uf"] == "DF") & (df["id_municipio"] > 5300000)),
-                ]
+            valores = [
+                df["id_municipio"] + 100000,
+                df["id_municipio"] - 200000,
+                df["id_municipio"] - 100000,
+                df["id_municipio"] - 100000,
+            ]
 
-                valores = [
-                    df["id_municipio"] + 100000,
-                    df["id_municipio"] - 200000,
-                    df["id_municipio"] - 100000,
-                    df["id_municipio"] - 100000,
-                ]
+            df["id_municipio"] = np.select(
+                condicao, valores, default=df["id_municipio"]
+            )
+            log("Id_municipio column updated")
 
-                df["id_municipio"] = np.select(
-                    condicao, valores, default=df["id_municipio"]
-                )
-                log("Id_municipio column updated")
+            to_partitions(
+                data=df,
+                partition_columns=["ano", "mes", "sigla_uf"],
+                savepath=comex_constants.PATH.value + table_name + "/output/",
+            )
 
-                # for some reason partionate the hole dataset
-                # crashed prefect, so I had to do it by year
-                for year in df.ano.unique():
-                    # filter rows of each year then make partitions
+            log("df partitioned and saved")
 
-                    df_year = df[df["ano"] == year]
-                    log(f"doing partitions year, month and uf for year {year}")
+            del df
 
-                    to_partitions(
-                        data=df_year,
-                        partition_columns=["ano", "mes", "sigla_uf"],
-                        savepath=comex_constants.PATH.value + table_name + "/output/",
-                    )
-                    del df_year
+        else:
+            log(f"doing file {file}")
 
-            else:
-                log(f"cleaning {filezip} file")
-                df.rename(columns=rename_ncm, inplace=True)
-                log("df renamed")
+            df = pd.read_csv(f"{path}{table_name}/input/{file}", sep=";")
 
-                for year in df.ano.unique():
-                    # filter rows of each year then make partitions
+            df.rename(columns=rename_ncm, inplace=True)
+            log("df renamed")
 
-                    df_year = df[df["ano"] == year]
-                    log(f"doing partitions year, month and uf for year {year}")
-                    to_partitions(
-                        data=df,
-                        partition_columns=["ano", "mes"],
-                        savepath=comex_constants.PATH.value + table_name + "/output/",
-                    )
-                    del df_year
+            to_partitions(
+                data=df,
+                partition_columns=["ano", "mes"],
+                savepath=comex_constants.PATH.value + table_name + "/output/",
+            )
+            log("df partitioned and saved")
 
             del df
 
