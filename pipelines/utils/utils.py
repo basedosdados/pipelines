@@ -401,6 +401,7 @@ def to_partitions(data: pd.DataFrame, partition_columns: List[str], savepath: st
                 file_filter_save_path,
                 sep=",",
                 encoding="utf-8",
+                na_rep="",
                 index=False,
                 mode="a",
                 header=not file_filter_save_path.exists(),
