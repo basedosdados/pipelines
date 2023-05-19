@@ -66,9 +66,11 @@ with Flow(
         log(f"Não houveram atualizações em {url.default}!")
 
     with case(is_empty(arquivos), False):
-        input_filepath = download_unzip_csv(arquivos, upstream_tasks=[arquivos])
+        input_filepath = download_unzip_csv(
+            files=arquivos, url=url, upstream_tasks=[arquivos]
+        )
         output_filepath = clean_data_and_make_partitions(
-            input_filepath, upstream_tasks=[input_filepath]
+            path=input_filepath, upstream_tasks=[input_filepath]
         )
 
         rename_flow_run = rename_current_flow_run_dataset_table(
