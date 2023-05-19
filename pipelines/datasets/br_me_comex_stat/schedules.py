@@ -5,17 +5,15 @@ Schedules for br_me_comex_stat
 """
 
 from datetime import timedelta, datetime
-
 from prefect.schedules import Schedule, filters, adjustments
-from prefect.schedules.clocks import IntervalClock
+from prefect.schedules.clocks import CronClock
 
 from pipelines.constants import constants
 
 schedule_municipio_exportacao = Schedule(
     clocks=[
-        IntervalClock(
-            interval=timedelta(days=30),
-            start_date=datetime(1997, 1, 1, 14, 32),  # confirmar aqui
+        CronClock(
+            cron="0 0 5 * *",
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -32,12 +30,10 @@ schedule_municipio_exportacao = Schedule(
     adjustments=[adjustments.next_weekday],
 )
 
-
 schedule_municipio_importacao = Schedule(
     clocks=[
-        IntervalClock(
-            interval=timedelta(days=30),
-            start_date=datetime(1997, 1, 1, 14, 32),  # confirmar aqui
+        CronClock(
+            cron="0 0 5 * *",
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -56,9 +52,8 @@ schedule_municipio_importacao = Schedule(
 
 schedule_ncm_importacao = Schedule(
     clocks=[
-        IntervalClock(
-            interval=timedelta(days=30),
-            start_date=datetime(1997, 1, 1, 14, 32),  # confirmar aqui
+        CronClock(
+            cron="0 0 5 * *",
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -77,9 +72,8 @@ schedule_ncm_importacao = Schedule(
 
 schedule_ncm_exportacao = Schedule(
     clocks=[
-        IntervalClock(
-            interval=timedelta(days=30),
-            start_date=datetime(1997, 1, 1, 14, 32),  # confirmar aqui
+        CronClock(
+            cron="0 0 5 * *",
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
