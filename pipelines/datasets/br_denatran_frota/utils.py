@@ -57,7 +57,9 @@ MUNIC_TIPO_BASIC_FILENAME = constants.MUNIC_TIPO_BASIC_FILENAME.value
 UF_TIPO_HEADER = constants.UF_TIPO_HEADER.value
 
 
-def guess_header(df: pd.DataFrame, max_header_guess: int = 10) -> int:
+def guess_header(
+    df: pd.DataFrame, type_of_file: str, max_header_guess: int = 10
+) -> int:
     """Function to deal with problematic dataframes coming from Excel/CSV files.
     Tries to guess which row is the header by examining the first few rows (max given by max_header_guess).
     Assumes that the header is the first row where all of the columns are strings.
@@ -70,6 +72,12 @@ def guess_header(df: pd.DataFrame, max_header_guess: int = 10) -> int:
     Returns:
         int: Index of the row where the header is contained.
     """
+    if type_of_file == "UF":
+        expected_header = UF_TIPO_HEADER
+    elif type_of_file == "Municipio":
+        pass
+    else:
+        raise ValueError("Unrecognized type of dataframe.")
     header_guess = 0
     while header_guess < max_header_guess:
         if len(df) - 1 < header_guess:
@@ -78,10 +86,10 @@ def guess_header(df: pd.DataFrame, max_header_guess: int = 10) -> int:
         # if is_int_row(df.iloc[header_guess]):
         current_row = df.iloc[header_guess].to_list()
         equal_column_names = [
-            (x, y) for x, y in zip(UF_TIPO_HEADER, current_row) if x == y
+            (x, y) for x, y in zip(expected_header, current_row) if x == y
         ]
         if (
-            len(equal_column_names) / len(UF_TIPO_HEADER) > 0.7
+            len(equal_column_names) / len(expected_header) > 0.7
         ):  # If 70% of the columns match, this is the header.
             return header_guess
         header_guess += 1

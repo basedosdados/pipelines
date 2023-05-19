@@ -89,7 +89,7 @@ def treat_uf_tipo(file: str) -> pl.DataFrame:
         # TODO: Aqui você invoca o capeta e chama o R pra ler e salvar isso como df. Isso é ridículo mas funcionou.
         df = call_r_to_read_file(file)
 
-    new_df = change_df_header(df, guess_header(df))
+    new_df = change_df_header(df, guess_header(df=df, type_of_file="UF"))
     # This is ad hoc for UF_tipo.
     new_df.rename(
         columns={new_df.columns[0]: "sigla_uf"}, inplace=True
