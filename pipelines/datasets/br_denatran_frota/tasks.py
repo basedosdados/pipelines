@@ -62,8 +62,6 @@ from pipelines.datasets.br_denatran_frota.handlers import (
     get_desired_file,
 )
 from pipelines.utils.utils import (
-    clean_dataframe,
-    to_partitions,
     log,
 )
 
@@ -74,7 +72,7 @@ OUTPUT_PATH = constants.OUTPUT_PATH.value
 
 
 @task()  # noqa
-def crawl_task(month: int, year: int, temp_dir: str = ""):
+def crawl_task(month: int, year: int, temp_dir: str = "") -> None:
     return crawl(month, year, temp_dir)
 
 
@@ -91,5 +89,5 @@ def output_file_to_csv_task(df: pl.DataFrame, filename: str) -> None:
 
 
 @task()
-def get_desired_file_task(year: int, download_directory: str, filetype: str):
+def get_desired_file_task(year: int, download_directory: str, filetype: str) -> str:
     return get_desired_file(year, download_directory, filetype)
