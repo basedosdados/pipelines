@@ -12,9 +12,6 @@ from br_denatran_frota.code.utils import (
     verify_total,
 )
 from br_denatran_frota.code.constants import DICT_UFS, SUBSTITUTIONS
-
-## TODO: Extract everything then run this? Create prefect? where to go now
-
 import basedosdados as bd
 
 
@@ -44,28 +41,32 @@ def verify_uf(denatran_df: pl.DataFrame, ibge_df: pl.DataFrame, uf: str) -> None
     match_ibge(denatran_uf, ibge_uf)
 
 
-municipios_query = """SELECT nome, id_municipio, sigla_uf FROM `basedosdados.br_bd_diretorios_brasil.municipio`
-"""
-bd_municipios = bd.read_sql(municipios_query, "tamir-pipelines")
-bd_municipios = pl.from_pandas(bd_municipios)
+def treat_municipio_tipo(file: str):
+    municipios_query = """SELECT nome, id_municipio, sigla_uf FROM `basedosdados.br_bd_diretorios_brasil.municipio`
+    """
+    bd_municipios = bd.read_sql(
+        municipios_query, "tamir-pipelines"
+    )  # Hardcoded, not good.
+    bd_municipios = pl.from_pandas(bd_municipios)
 
-file = "br_denatran_frota/files/2022/frota_por_município_e_tipo_2-2022.xls"  # Hardcode problem
-filename = os.path.split(file)[1]
-df = pd.read_excel(file)
-new_df = change_df_header(df, guess_header(df))
-new_df.rename(
-    columns={new_df.columns[0]: "sigla_uf", new_df.columns[1]: "nome_denatran"},
-    inplace=True,
-)  # Rename for ease of use.
-new_df.sigla_uf = new_df.sigla_uf.str.strip()  # Remove whitespace.
-new_df = pl.from_pandas(new_df)
-new_df = new_df.with_columns(pl.col("nome_denatran").apply(asciify).str.to_lowercase())
-new_df = new_df.filter(pl.col("nome_denatran") != "municipio nao informado")
-if new_df.shape[0] > bd_municipios.shape[0]:
-    raise ValueError(
-        f"Atenção: a base do Denatran tem {new_df.shape[0]} linhas e isso é mais municípios do que a BD com {bd_municipios.shape[0]}"
+    # filename = os.path.split(file)[1]
+    df = pd.read_excel(file)
+    new_df = change_df_header(df, guess_header(df))
+    new_df.rename(
+        columns={new_df.columns[0]: "sigla_uf", new_df.columns[1]: "nome_denatran"},
+        inplace=True,
+    )  # Rename for ease of use.
+    new_df.sigla_uf = new_df.sigla_uf.str.strip()  # Remove whitespace.
+    new_df = pl.from_pandas(new_df)
+    new_df = new_df.with_columns(
+        pl.col("nome_denatran").apply(asciify).str.to_lowercase()
     )
-
-verify_total(new_df)
-for uf in DICT_UFS:
-    verify_uf(new_df, bd_municipios, uf)
+    new_df = new_df.filter(pl.col("nome_denatran") != "municipio nao informado")
+    if new_df.shape[0] > bd_municipios.shape[0]:
+        raise ValueError(
+            f"Atenção: a base do Denatran tem {new_df.shape[0]} linhas e isso é mais municípios do que a BD com {bd_municipios.shape[0]}"
+        )
+    verify_total(new_df)
+    for uf in DICT_UFS:
+        verify_uf(new_df, bd_municipios, uf)
+    return new_df

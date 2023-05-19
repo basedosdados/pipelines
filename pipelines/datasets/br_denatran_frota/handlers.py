@@ -4,9 +4,9 @@ Handlers for br_denatran_frota
 This is merely a way to have functions that are called by tasks but can be tested with unit tests and debugging.
 """
 
-from prefect import task
 import os
 import re
+import basedosdados as bd
 from pipelines.datasets.br_denatran_frota.constants import constants
 from pipelines.datasets.br_denatran_frota.utils import (
     make_dir_when_not_exists,
@@ -19,9 +19,11 @@ from pipelines.datasets.br_denatran_frota.utils import (
     download_file,
     extraction_pre_2012,
     call_r_to_read_file,
+    verify_uf,
 )
 import pandas as pd
 import polars as pl
+from string_utils import asciify
 from zipfile import ZipFile
 from pipelines.utils.utils import (
     clean_dataframe,
@@ -136,3 +138,34 @@ def get_desired_file(year: int, download_directory: str, filetype: str) -> str:
             log(f"File: {file}")
             return os.path.join(directory_to_search, file)
     raise ValueError("No files found buckaroo")
+
+
+def treat_municipio_tipo(file: str):
+    municipios_query = """SELECT nome, id_municipio, sigla_uf FROM `basedosdados.br_bd_diretorios_brasil.municipio`
+    """
+    bd_municipios = bd.read_sql(
+        municipios_query, "tamir-pipelines"
+    )  # Hardcoded, not good.
+    bd_municipios = pl.from_pandas(bd_municipios)
+
+    # filename = os.path.split(file)[1]
+    df = pd.read_excel(file)
+    new_df = change_df_header(df, guess_header(df))
+    new_df.rename(
+        columns={new_df.columns[0]: "sigla_uf", new_df.columns[1]: "nome_denatran"},
+        inplace=True,
+    )  # Rename for ease of use.
+    new_df.sigla_uf = new_df.sigla_uf.str.strip()  # Remove whitespace.
+    new_df = pl.from_pandas(new_df)
+    new_df = new_df.with_columns(
+        pl.col("nome_denatran").apply(asciify).str.to_lowercase()
+    )
+    new_df = new_df.filter(pl.col("nome_denatran") != "municipio nao informado")
+    if new_df.shape[0] > bd_municipios.shape[0]:
+        raise ValueError(
+            f"Atenção: a base do Denatran tem {new_df.shape[0]} linhas e isso é mais municípios do que a BD com {bd_municipios.shape[0]}"
+        )
+    verify_total(new_df)
+    for uf in DICT_UFS:
+        verify_uf(new_df, bd_municipios, uf)
+    return new_df
