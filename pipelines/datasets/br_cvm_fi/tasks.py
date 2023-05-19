@@ -13,12 +13,21 @@ import zipfile
 from bs4 import BeautifulSoup
 import re
 import glob
-from pipelines.datasets.br_cvm_fi.utils import sheet_to_df, rename_columns
+from pipelines.datasets.br_cvm_fi.utils import (
+    sheet_to_df,
+    rename_columns,
+    check_and_create_column,
+    limpar_string,
+    obter_anos_meses,
+)
 from pipelines.utils.utils import log, to_partitions
+from pipelines.datasets.br_cvm_fi.constants import constants as cvm_constants
 
 
 @task  # noqa
-def download_unzip_csv(files, chunk_size: int = 128, mkdir: bool = True) -> str:
+def download_unzip_csv(
+    url: str, files, chunk_size: int = 128, mkdir: bool = True
+) -> str:
     """
     Downloads and unzip a .csv file from a given list of files and saves it to a local directory.
     Parameters:
@@ -42,8 +51,8 @@ def download_unzip_csv(files, chunk_size: int = 128, mkdir: bool = True) -> str:
     }
     if type(files) == list:
         for file in files:
-            print(f"Baixando para o arquivo {file}")
-            url = f"https://dados.cvm.gov.br/dados/FI/DOC/INF_DIARIO/DADOS/{file}"
+            log(f"Baixando para o arquivo {file}")
+            url = f"{url}{file}"
             r = requests.get(url, headers=request_headers, stream=True, timeout=10)
             save_path = "/tmp/data/br_cvm_fi/input/file.zip"
             with open(save_path, "wb") as fd:
@@ -56,10 +65,10 @@ def download_unzip_csv(files, chunk_size: int = 128, mkdir: bool = True) -> str:
                 'cd /tmp/data/br_cvm_fi/input; find . -type f ! -iname "*.csv" -delete'
             )
 
-            print("Dados baixados com sucesso!")
+            log("Dados baixados com sucesso!")
     elif type(files) == str:
-        print(f"Baixando para o arquivo {files}")
-        url = f"https://dados.cvm.gov.br/dados/FI/DOC/INF_DIARIO/DADOS/{files}"
+        log(f"Baixando para o arquivo {files}")
+        url = f"{url}{files}"
         r = requests.get(url, headers=request_headers, stream=True, timeout=10)
         save_path = "/tmp/data/br_cvm_fi/input/file.zip"
         with open(save_path, "wb") as fd:
@@ -72,7 +81,7 @@ def download_unzip_csv(files, chunk_size: int = 128, mkdir: bool = True) -> str:
             'cd /tmp/data/br_cvm_fi/input; find . -type f ! -iname "*.csv" -delete'
         )
 
-        print("Dados baixados com sucesso!")
+        log("Dados baixados com sucesso!")
     else:
         raise ValueError("Argument `files` have nappropriate type")
 
@@ -169,3 +178,66 @@ def clean_data_and_make_partitions(path: str) -> str:
         log("Partition created.")
 
     return "/tmp/data/br_cvm_fi/output/"
+
+
+@task
+def clean_data_make_partitions_cda(diretorio):
+    df_arq = sheet_to_df(cvm_constants.ARQUITETURA_URL.value)
+    anos_meses = obter_anos_meses(diretorio)
+
+    for i in anos_meses:
+        df_final = pd.DataFrame()
+        arquivos = glob.glob(f"{diretorio}*.csv")
+        padrao = diretorio + f"cda_fi_BLC_[1-8]_{i}.csv"
+        arquivos_filtrados = [arq for arq in arquivos if re.match(padrao, arq)]
+
+        for file in tqdm(arquivos_filtrados):
+            print(f"Baixando o arquivo ------> {file}")
+
+            df = pd.read_csv(file, sep=";", encoding="ISO-8859-1", dtype="string")
+            df["ano"] = df["DT_COMPTC"].apply(
+                lambda x: datetime.strptime(x, "%Y-%m-%d").year
+            )
+            df["mes"] = df["DT_COMPTC"].apply(
+                lambda x: datetime.strptime(x, "%Y-%m-%d").month
+            )
+
+            # pattern = r"(BLC_[1-8])"
+
+            match = re.search(r"(BLC_[1-8])", file)
+            df["bloco"] = match.group(1)
+
+            df_final = pd.concat([df_final, df], ignore_index=True)
+
+        df_final = check_and_create_column(
+            df_final, colunas_totais=cvm_constants.COLUNAS_FINAL.value
+        )
+        df_final[cvm_constants.COLUNAS.value] = df_final[
+            cvm_constants.COLUNAS.value
+        ].applymap(lambda x: cvm_constants.MAPEAMENTO.value.get(x, x))
+        df_final["CNPJ_FUNDO"] = df_final["CNPJ_FUNDO"].str.replace(r"[/.-]", "")
+        df_final["CNPJ_INSTITUICAO_FINANC_COOBR"] = df_final[
+            "CNPJ_INSTITUICAO_FINANC_COOBR"
+        ].str.replace(r"[/.-]", "")
+        df_final["CPF_CNPJ_EMISSOR"] = df_final["CPF_CNPJ_EMISSOR"].str.replace(
+            r"[/.-]", ""
+        )
+        df_final["CNPJ_EMISSOR"] = df_final["CNPJ_EMISSOR"].str.replace(r"[/.-]", "")
+        df_final["CNPJ_FUNDO_COTA"] = df_final["CNPJ_FUNDO_COTA"].str.replace(
+            r"[/.-]", ""
+        )
+        df_final = rename_columns(df_arq, df_final)
+        df_final = df_final.replace(",", ".", regex=True)
+        df_final[cvm_constants.COLUNAS_ASCI.value] = df_final[
+            cvm_constants.COLUNAS_ASCI.value
+        ].fillna("")
+        df_final[cvm_constants.COLUNAS_ASCI.value] = df_final[
+            cvm_constants.COLUNAS_ASCI.value
+        ].applymap(limpar_string)
+        df_final = df_final[cvm_constants.COLUNAS_TOTAIS.value]
+        print(f"Fazendo partições para o ano ------> {i}")
+        to_partitions(
+            df_final,
+            partition_columns=["ano", "mes"],
+            savepath="/tmp/data/br_cvm_fi/output/",
+        )  # constant
