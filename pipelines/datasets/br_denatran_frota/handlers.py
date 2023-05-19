@@ -68,6 +68,11 @@ from pipelines.datasets.br_denatran_frota.utils import (
 import pandas as pd
 import polars as pl
 from zipfile import ZipFile
+from pipelines.utils.utils import (
+    clean_dataframe,
+    to_partitions,
+    log,
+)
 
 MONTHS = constants.MONTHS.value
 DATASET = constants.DATASET.value
@@ -160,16 +165,19 @@ def treat_uf_tipo(file: str) -> pl.DataFrame:
 
 
 def output_file_to_csv(df: pl.DataFrame, filename: str) -> None:
+    make_dir_when_not_exists(OUTPUT_PATH)
     df.write_csv(file=f"{OUTPUT_PATH}/{filename}.csv", has_header=True)
     return OUTPUT_PATH
 
 
 def get_desired_file(year: int, download_directory: str, filetype: str):
     directory_to_search = os.path.join(download_directory, "files", f"{year}")
+    log(f"Directory: {directory_to_search}")
     for file in os.listdir(directory_to_search):
         if re.search(filetype, file) and file.split(".")[-1] in [
             "xls",
             "xlsx",
         ]:
+            log(f"File: {file}")
             return os.path.join(directory_to_search, file)
     raise ValueError("No files found buckaroo")

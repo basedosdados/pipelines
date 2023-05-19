@@ -75,20 +75,21 @@ OUTPUT_PATH = constants.OUTPUT_PATH.value
 
 @task()  # noqa
 def crawl_task(month: int, year: int, temp_dir: str = ""):
-    crawl(month, year, temp_dir)
+    return crawl(month, year, temp_dir)
 
 
 @task()
 def treat_uf_tipo_task(file) -> pl.DataFrame:
     log(file)
-    treat_uf_tipo(file)
+    return treat_uf_tipo(file)
 
 
 @task()
 def output_file_to_csv_task(df: pl.DataFrame, filename: str) -> None:
-    output_file_to_csv(df, filename)
+    log(filename)
+    return output_file_to_csv(df, filename)
 
 
 @task()
 def get_desired_file_task(year: int, download_directory: str, filetype: str):
-    get_desired_file(year, download_directory, filetype)
+    return get_desired_file(year, download_directory, filetype)
