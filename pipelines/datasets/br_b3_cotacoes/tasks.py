@@ -79,7 +79,7 @@ def tratamento():
     to_partitions(
         df,
         partition_columns=["data_negocio"],
-        path=br_b3_cotacoes_constants.B3_PATH_OUTPUT.value,
+        savepath=br_b3_cotacoes_constants.B3_PATH_OUTPUT.value,
     )
 
     return br_b3_cotacoes_constants.B3_PATH_OUTPUT.value
