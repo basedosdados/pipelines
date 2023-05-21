@@ -257,6 +257,14 @@ def download_file(url, filename):
 
 
 def generic_extractor(dest_path_file: str):
+    """_summary_
+
+    Args:
+        dest_path_file (str): _description_
+
+    Raises:
+        ValueError: _description_
+    """
     extension = dest_path_file.split(".")[-1]
     if extension == "rar":
         extractor_function = RarFile
@@ -387,8 +395,15 @@ def extract_links_post_2012(month: int, year: int, directory: str) -> list[dict]
 
 
 def extraction_pre_2012(month: int, year: int, year_dir_name: str, zip_file: str):
+    """_summary_
+
+    Args:
+        month (int): _description_
+        year (int): _description_
+        year_dir_name (str): _description_
+        zip_file (str): _description_
+    """
     # Aí depois eu preciso andar pelo zip:
-    print("Bom dia")
     with ZipFile(zip_file, "r") as g:
         compressed_files = [file for file in g.infolist() if not file.is_dir()]
         new_filename = None
@@ -407,10 +422,9 @@ def extraction_pre_2012(month: int, year: int, year_dir_name: str, zip_file: str
             if new_filename:
                 g.extract(file, path=year_dir_name)
                 os.rename(f"{year_dir_name}/{file.filename}", new_filename)
-    print("Bom dia")
 
 
-def make_dir_when_not_exists(dir_name: str):
+def make_dir_when_not_exists(dir_name: str) -> None:
     """Auxiliary function to create a subdirectory when it is not present.
 
     Args:
@@ -418,10 +432,21 @@ def make_dir_when_not_exists(dir_name: str):
     """
     if not os.path.exists(dir_name):
         os.makedirs(dir_name)
+    return None
 
 
-def call_r_to_read_file(file: str) -> pd.DataFrame:
-    # Install and load the required R packages
+def call_r_to_read_excel(file: str) -> pd.DataFrame:
+    """Use rpy2 to call R's readxl for problematic Excel files and then keep reading them as dataframes.
+
+    Args:
+        file (str): The full filepath that needs to be opened.
+
+    Raises:
+        ValueError: If the desired file is not an actual file.
+
+    Returns:
+        pd.DataFrame: Returns a pandas dataframe with the excel file's content.
+    """
     if not os.path.isfile(file):
         raise ValueError("Invalid file")
     packages = ("readxl",)
@@ -441,7 +466,6 @@ def call_r_to_read_file(file: str) -> pd.DataFrame:
 
     """
     )
-
     # Convert the R dataframe to a pandas dataframe
     df = robjects.r["df"]
     df = pd.DataFrame(dict(zip(df.names, list(df))))
@@ -449,7 +473,8 @@ def call_r_to_read_file(file: str) -> pd.DataFrame:
 
 
 def verify_uf(denatran_df: pl.DataFrame, ibge_df: pl.DataFrame, uf: str) -> None:
-    """Function to take the DENATRAN data at municipality level and compare it to the IBGE data.
+    """Take the DENATRAN data at municipality level and compare it to the IBGE data.
+
     This will filter by the uf argument and do all comparisons to ensure consistency.
 
     Args:
@@ -459,7 +484,7 @@ def verify_uf(denatran_df: pl.DataFrame, ibge_df: pl.DataFrame, uf: str) -> None
 
     Raises:
         ValueError: If there are somehow municipalities in the DENATRAN data that do not exist in the IBGE data. Very unlikely.
-        ValueError: If there are two municipalities in the DENATRAN data
+        ValueError: If there are two municipalities in the DENATRAN data with the same IBGE name in the same state.
     """
     denatran_uf = denatran_df.filter(pl.col("sigla_uf") == uf)
     ibge_uf = ibge_df.filter(pl.col("sigla_uf") == uf)

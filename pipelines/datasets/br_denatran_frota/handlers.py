@@ -18,7 +18,7 @@ from pipelines.datasets.br_denatran_frota.utils import (
     call_downloader,
     download_file,
     extraction_pre_2012,
-    call_r_to_read_file,
+    call_r_to_read_excel,
     verify_uf,
 )
 import pandas as pd
@@ -89,7 +89,7 @@ def treat_uf_tipo(file: str) -> pl.DataFrame:
         df = pd.read_excel(file, sheet_name=correct_sheet)
     except UnicodeDecodeError:
         # TODO: Aqui você invoca o capeta e chama o R pra ler e salvar isso como df. Isso é ridículo mas funcionou.
-        df = call_r_to_read_file(file)
+        df = call_r_to_read_excel(file)
 
     new_df = change_df_header(df, guess_header(df=df, type_of_file="UF"))
     # This is ad hoc for UF_tipo.
