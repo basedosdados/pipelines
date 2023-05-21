@@ -57,6 +57,7 @@ def read_files(path: str) -> pd.DataFrame:
 
     return df
 
+
 def to_partitions(data: pd.DataFrame, partition_columns: List[str], savepath: str):
     """Save data in to hive patitions schema, given a dataframe and a list of partition columns.
     Args:
@@ -120,5 +121,3 @@ def to_partitions(data: pd.DataFrame, partition_columns: List[str], savepath: st
             )
     else:
         raise BaseException("Data need to be a pandas DataFrame")
-
-
