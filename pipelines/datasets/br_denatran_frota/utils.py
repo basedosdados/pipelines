@@ -60,17 +60,18 @@ UF_TIPO_HEADER = constants.UF_TIPO_HEADER.value
 def guess_header(
     df: pd.DataFrame, type_of_file: str, max_header_guess: int = 10
 ) -> int:
-    """Function to deal with problematic dataframes coming from Excel/CSV files.
-    Tries to guess which row is the header by examining the first few rows (max given by max_header_guess).
-    Assumes that the header is the first row where all of the columns are strings.
-    This will NOT properly work for a strings only dataframe and will always guess the first row for it.
+    """Search for expected header in dataframe.
 
     Args:
-        df (pd.DataFrame): Dataframe whose header we don't know.
-        max_header_guess (int, optional): Number of initial rows we want to check. Defaults to 4.
+        df (pd.DataFrame): Dataframe whose header we don't know
+        type_of_file (str): _description_
+        max_header_guess (int, optional): _description_. Defaults to 10.
+
+    Raises:
+        ValueError: _description_
 
     Returns:
-        int: Index of the row where the header is contained.
+        int: _description_
     """
     if type_of_file == "UF":
         expected_header = UF_TIPO_HEADER
@@ -82,8 +83,6 @@ def guess_header(
     while header_guess < max_header_guess:
         if len(df) - 1 < header_guess:
             break
-        # If this row minus the first column can be converted to int, then
-        # if is_int_row(df.iloc[header_guess]):
         current_row = df.iloc[header_guess].to_list()
         equal_column_names = [
             (x, y) for x, y in zip(expected_header, current_row) if x == y
@@ -128,7 +127,7 @@ def is_int_row(row):
 
 
 def get_year_month_from_filename(filename: str) -> tuple[int, int]:
-    """Helper to extract month and year information from files named indicator_month-year.xls
+    """Extract month and year information from files named indicator_month-year.xls.
 
     Args:
         filename (str): Name of the file.
@@ -149,7 +148,8 @@ def get_year_month_from_filename(filename: str) -> tuple[int, int]:
 
 
 def verify_total(df: pl.DataFrame) -> None:
-    """Helper function that is meant to act as a guard to guarantee that we can pivot from wide to long.
+    """Verify that we can pivot from wide to long.
+
     Essentially, gets a Wide dataframe, excludes all string columns and the TOTAL column and sums it all row wise.
     Then verifies if the calculated total column is the same as the TOTAL column.
     If not, raises an error.
@@ -174,7 +174,8 @@ def verify_total(df: pl.DataFrame) -> None:
 
 
 def fix_suggested_nome_ibge(row: tuple[str, ...]) -> str:
-    """Gets a row from a dataframe and applies the SUBSTITUTIONS constant ruleset where applicable.
+    """Get a row from a dataframe and applies the SUBSTITUTIONS constant ruleset where applicable.
+
     This fixes the dataframe to have the names of municipalities according to IBGE.
     The fixes are necessary because match_ibge() will fail where the DENATRAN data has typos in city names.
 
@@ -197,7 +198,8 @@ def fix_suggested_nome_ibge(row: tuple[str, ...]) -> str:
 
 
 def match_ibge(denatran_uf: pl.DataFrame, ibge_uf: pl.DataFrame) -> None:
-    """Takes a dataframe of the Denatran data and an IBGE dataframe of municipalities.
+    """Take a dataframe of the Denatran data and an IBGE dataframe of municipalities.
+
     Joins them using the IBGE name of both. The IBGE name of denatran_uf is ideally filled via get_city_name().
     This verifies if there are any municipalities in denatran_uf that have no corresponding municipality in the IBGE database.
     These must be manually fixed via the constants file and the fix_suggested_nome function.
@@ -224,7 +226,8 @@ def match_ibge(denatran_uf: pl.DataFrame, ibge_uf: pl.DataFrame) -> None:
 
 
 def get_city_name_ibge(denatran_name: str, ibge_uf: pl.DataFrame) -> str:
-    """Gets the closest match to the denatran name of the municipality in the IBGE dataframe of the same state.
+    """Get the closest match to the denatran name of the municipality in the IBGE dataframe of the same state.
+
     This ibge_uf dataframe is pulled directly from Base dos Dados to ensure correctness.
     Returns either the match or an empty string in case no match is found.
 
@@ -244,7 +247,15 @@ def get_city_name_ibge(denatran_name: str, ibge_uf: pl.DataFrame) -> str:
         return ""  # I don't want this to error out directly, because then I can get all municipalities.
 
 
-def download_file(url, filename):
+def download_file(url: str, filename: str) -> None:
+    """Download a file from a url using a simple open + get request.
+
+    Only necessary because some problematic URLs report a 404 despite the files being there.
+
+    Args:
+        url (str): URL where the desired file is located.
+        filename (str): Filename to write the contents of the HTTP request to.
+    """
     # Send a GET request to the URL
 
     new_url = url.replace("arquivos-denatran", "arquivos-senatran")
@@ -257,13 +268,13 @@ def download_file(url, filename):
 
 
 def generic_extractor(dest_path_file: str):
-    """_summary_
+    """Extract the desired DENATRAN compressed files from .rar or .zip file.
 
     Args:
-        dest_path_file (str): _description_
+        dest_path_file (str): Filepath of the compressed file whose contents should be extracted.
 
     Raises:
-        ValueError: _description_
+        ValueError: If the passed argument is not a .rar or .zip file.
     """
     extension = dest_path_file.split(".")[-1]
     if extension == "rar":
@@ -291,7 +302,7 @@ def generic_extractor(dest_path_file: str):
 
 
 def make_filename(i: dict, ext: bool = True) -> str:
-    """Creates the filename using the sent dictionary.
+    """Create the filename using the sent dictionary.
 
     Args:
         i (dict): Dictionary with all the file's info.
@@ -317,6 +328,11 @@ def make_filename(i: dict, ext: bool = True) -> str:
 
 
 def call_downloader(i: dict):
+    """Call other download functions in the correct order according to filetype.
+
+    Args:
+        i (dict): Dictionary with the file's information.
+    """
     filename = make_filename(i)
     if i["filetype"] in ["xlsx", "xls"]:
         download_file(i["href"], filename)
@@ -358,7 +374,7 @@ def make_filename_pre_2012(
 
 
 def extract_links_post_2012(month: int, year: int, directory: str) -> list[dict]:
-    """Extracts links of the Denatran files post 2012.
+    """Extract links of the Denatran files post 2012.
 
     Args:
         year (int): A year starting from 2013 onwards.
