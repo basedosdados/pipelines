@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-General purpose functions for the br_denatran_frota project
+General purpose functions for the br_denatran_frota project.
 """
 
 import pandas as pd
@@ -18,6 +18,7 @@ from urllib.request import urlopen
 import rpy2.robjects.packages as rpackages
 import rpy2.robjects as robjects
 from rpy2.robjects.vectors import StrVector
+from enum import Enum
 
 
 DICT_UFS = constants.DICT_UFS.value
@@ -30,8 +31,13 @@ MUNIC_TIPO_BASIC_FILENAME = constants.MUNIC_TIPO_BASIC_FILENAME.value
 UF_TIPO_HEADER = constants.UF_TIPO_HEADER.value
 
 
+class DenatranType(Enum):
+    Municipio = "Municipio"
+    UF = "UF"
+
+
 def guess_header(
-    df: pd.DataFrame, type_of_file: str, max_header_guess: int = 10
+    df: pd.DataFrame, type_of_file: DenatranType, max_header_guess: int = 10
 ) -> int:
     """Search for expected header in dataframe.
 
@@ -46,9 +52,9 @@ def guess_header(
     Returns:
         int: _description_
     """
-    if type_of_file == "UF":
+    if type_of_file == DenatranType.UF:
         expected_header = UF_TIPO_HEADER
-    elif type_of_file == "Municipio":
+    elif type_of_file == DenatranType.Municipio:
         pass
     else:
         raise ValueError("Unrecognized type of dataframe.")
@@ -69,7 +75,8 @@ def guess_header(
 
 
 def change_df_header(df: pd.DataFrame, header_row: int) -> pd.DataFrame:
-    """Changes the dataframe's header to a row inside of it and returns the corrected df.
+    """Change the dataframe's header to a row inside of it and returns the corrected df.
+
     Ideally, to be used in conjunction with guess_header().
     Args:
         df (pd.DataFrame): Dataframe whose header we want changed.
@@ -317,13 +324,13 @@ def call_downloader(i: dict):
 def make_filename_pre_2012(
     type_of_file: str, year: int, filename: str, year_dir_name: str, month: int
 ):
-    if type_of_file == "Tipo":
+    if type_of_file == DenatranType.UF:
         basic_filename = UF_TIPO_BASIC_FILENAME
         if year > 2005:
             regex_to_search = r"UF\s+([^\s\d]+\s*)*([12]\d{3})"
         else:
             regex_to_search = rf"UF[_\s]?([^\s\d]+\s*)_{str(year)[2:4]}"
-    elif type_of_file == "Munic":
+    elif type_of_file == DenatranType.Municipio:
         basic_filename = MUNIC_TIPO_BASIC_FILENAME
         if year > 2003:
             regex_to_search = rf"Munic\.?\s*(.*?)\s*\.?{year}"
@@ -333,7 +340,7 @@ def make_filename_pre_2012(
         raise ValueError
     match = re.search(regex_to_search, filename)
     if match:
-        if (year == 2004 or year == 2005) and type_of_file == "Munic":
+        if (year == 2004 or year == 2005) and type_of_file == DenatranType.Municipio:
             month_value = int(match.group(1))
         else:
             month_in_file = match.group(1).lower().replace(".", "")
@@ -402,11 +409,11 @@ def extraction_pre_2012(month: int, year: int, year_dir_name: str, zip_file: str
                 r"Tipo[-\s]UF", zip_file.split("/")[-1]
             ):
                 new_filename = make_filename_pre_2012(
-                    "Tipo", year, filename, year_dir_name, month
+                    DenatranType.UF, year, filename, year_dir_name, month
                 )
             elif re.search(r"Mun\w*", filename, re.IGNORECASE):
                 new_filename = make_filename_pre_2012(
-                    "Munic", year, filename, year_dir_name, month
+                    DenatranType.Municipio, year, filename, year_dir_name, month
                 )
             if new_filename:
                 g.extract(file, path=year_dir_name)

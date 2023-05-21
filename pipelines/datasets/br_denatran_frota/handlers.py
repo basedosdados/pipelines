@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-Handlers for br_denatran_frota
+Handlers for br_denatran_frota.
+
 This is merely a way to have functions that are called by tasks but can be tested with unit tests and debugging.
 """
 
@@ -20,6 +21,7 @@ from pipelines.datasets.br_denatran_frota.utils import (
     extraction_pre_2012,
     call_r_to_read_excel,
     verify_uf,
+    DenatranType,
 )
 import pandas as pd
 import polars as pl
@@ -88,10 +90,9 @@ def treat_uf_tipo(file: str) -> pl.DataFrame:
         ][0]
         df = pd.read_excel(file, sheet_name=correct_sheet)
     except UnicodeDecodeError:
-        # TODO: Aqui você invoca o capeta e chama o R pra ler e salvar isso como df. Isso é ridículo mas funcionou.
         df = call_r_to_read_excel(file)
 
-    new_df = change_df_header(df, guess_header(df=df, type_of_file="UF"))
+    new_df = change_df_header(df, guess_header(df=df, type_of_file=DenatranType.UF))
     # This is ad hoc for UF_tipo.
     new_df.rename(
         columns={new_df.columns[0]: "sigla_uf"}, inplace=True
@@ -140,7 +141,7 @@ def get_desired_file(year: int, download_directory: str, filetype: str) -> str:
     raise ValueError("No files found buckaroo")
 
 
-def treat_municipio_tipo(file: str):
+def treat_municipio_tipo(file: str) -> pl.DataFrame:
     municipios_query = """SELECT nome, id_municipio, sigla_uf FROM `basedosdados.br_bd_diretorios_brasil.municipio`
     """
     bd_municipios = bd.read_sql(
@@ -150,7 +151,7 @@ def treat_municipio_tipo(file: str):
 
     # filename = os.path.split(file)[1]
     df = pd.read_excel(file)
-    new_df = change_df_header(df, guess_header(df))
+    new_df = change_df_header(df, guess_header(df), DenatranType.Municipio)
     new_df.rename(
         columns={new_df.columns[0]: "sigla_uf", new_df.columns[1]: "nome_denatran"},
         inplace=True,
