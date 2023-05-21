@@ -13,12 +13,15 @@ from pipelines.datasets.br_b3_cotacoes.constants import (
 )
 
 from pipelines.utils.utils import (
-    to_partitions,
     log,
 )
 from pipelines.constants import constants
 
-from pipelines.datasets.br_b3_cotacoes.utils import download_and_unzip, read_files
+from pipelines.datasets.br_b3_cotacoes.utils import (
+    download_and_unzip,
+    read_files,
+    to_partitions
+)
 
 
 @task(
