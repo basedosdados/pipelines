@@ -58,7 +58,7 @@ def read_files(path: str) -> pd.DataFrame:
     return df
 
 
-def to_partitions(data: pd.DataFrame, partition_columns: List[str], savepath: str):
+def to_partitions(data: pd.DataFrame, partition_columns: list[str], savepath: str):
     """Save data in to hive patitions schema, given a dataframe and a list of partition columns.
     Args:
         data (pandas.core.frame.DataFrame): Dataframe to be partitioned.
