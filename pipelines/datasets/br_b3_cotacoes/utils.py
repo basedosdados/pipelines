@@ -84,9 +84,8 @@ def to_partitions(data: pd.DataFrame, partition_columns: list[str], savepath: st
         # create unique combinations between partition columns
         unique_combinations = (
             data[partition_columns]
-            #.astype(str)
-            .drop_duplicates(subset=partition_columns)
-            .to_dict(orient="records")
+            # .astype(str)
+            .drop_duplicates(subset=partition_columns).to_dict(orient="records")
         )
 
         for filter_combination in unique_combinations:
