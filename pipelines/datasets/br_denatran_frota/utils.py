@@ -53,6 +53,7 @@ def guess_header(
     Returns:
         int: _description_
     """
+    possible_headers = []
     if type_of_file == DenatranType.UF:
         expected_header = UF_TIPO_HEADER
     elif type_of_file == DenatranType.Municipio:
@@ -70,8 +71,10 @@ def guess_header(
         if (
             len(equal_column_names) / len(expected_header) >= 0.6
         ):  # If 60% of the columns match, this is the header.
-            return header_guess
+            possible_headers.append(header_guess)
         header_guess += 1
+    if possible_headers:
+        return max(possible_headers)
     return 0  # If nothing is ever found until the max, let's just assume it's the first row as per usual.
 
 

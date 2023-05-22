@@ -28,7 +28,7 @@ def custom_name_func(testcase_func, param_num, param):
     )
 
 
-class TestAllPossibleYears(unittest.TestCase):
+class TestExtractingAllPossibleYears(unittest.TestCase):
     def setUp(self):
         self.temp_dir = tempfile.TemporaryDirectory(
             dir=os.path.join(f"{DOWNLOAD_PATH}")
@@ -53,7 +53,7 @@ class TestAllPossibleYears(unittest.TestCase):
         self.assertTrue(expected_files.issubset(files))
 
 
-class TestTreatmentPostCrawl(unittest.TestCase):
+class TestUFTreatmentPostCrawl(unittest.TestCase):
     def setUp(self):
         self.temp_dir = tempfile.TemporaryDirectory(
             dir=os.path.join(f"{DOWNLOAD_PATH}")
@@ -79,6 +79,30 @@ class TestTreatmentPostCrawl(unittest.TestCase):
                 treated_df = treat_uf_tipo(os.path.join(directory_to_search, file))
                 self.assertEqual(len(treated_df), 21 * 27)
 
+    def test_flow(self):
+        year = 2021
+        crawl(month=2, year=year, temp_dir=constants.DOWNLOAD_PATH.value)
+        # Now get the downloaded file:
+        uf_tipo_file = get_desired_file(
+            year=year,
+            download_directory=constants.DOWNLOAD_PATH.value,
+            filetype=constants.UF_TIPO_BASIC_FILENAME.value,
+        )
+        print(uf_tipo_file)
+        df = treat_uf_tipo(file=uf_tipo_file)
+        self.assertTrue(type(df), pl.DataFrame)
+
+
+class TestMunicipioTreatmentPostCrawl(unittest.TestCase):
+    def setUp(self):
+        self.temp_dir = tempfile.TemporaryDirectory(
+            dir=os.path.join(f"{DOWNLOAD_PATH}")
+        )
+
+    def tearDown(self):
+        print("Deleting temporary directory")
+        shutil.rmtree(self.temp_dir.name)
+
     @parameterized.expand(
         [(month, year) for year in range(2003, 2024) for month in range(1, 2)],
         name_func=custom_name_func,
@@ -96,19 +120,6 @@ class TestTreatmentPostCrawl(unittest.TestCase):
                     os.path.join(directory_to_search, file)
                 )
                 self.assertEqual(len(treated_df), 5570)
-
-    def test_flow(self):
-        year = 2021
-        crawl(month=2, year=year, temp_dir=constants.DOWNLOAD_PATH.value)
-        # Now get the downloaded file:
-        uf_tipo_file = get_desired_file(
-            year=year,
-            download_directory=constants.DOWNLOAD_PATH.value,
-            filetype=constants.UF_TIPO_BASIC_FILENAME.value,
-        )
-        print(uf_tipo_file)
-        df = treat_uf_tipo(file=uf_tipo_file)
-        self.assertTrue(type(df), pl.DataFrame)
 
 
 if __name__ == "__main__":
