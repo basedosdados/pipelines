@@ -176,4 +176,13 @@ def treat_municipio_tipo(file: str) -> pl.DataFrame:
     dfs = []
     for uf in DICT_UFS:
         dfs.append(treat_uf(new_pl_df, bd_municipios, uf))
-    return pl.concat(dfs)
+    full_pl_df = pl.concat(dfs)
+    full_pl_df = full_pl_df.select(
+        pl.exclude("TOTAL", "suggested_nome_ibge", "nome_denatran")
+    )
+    full_pl_df = full_pl_df.melt(
+        id_vars=["ano", "mes", "sigla_uf", "id_municipio"],
+        variable_name="tipo_veiculo",
+        value_name="quantidade",
+    )  # Long format.
+    return full_pl_df

@@ -19,6 +19,7 @@ DATASET = constants.DATASET.value
 DOWNLOAD_PATH = constants.DOWNLOAD_PATH.value
 MUNIC_TIPO_BASIC_FILENAME = constants.MUNIC_TIPO_BASIC_FILENAME.value
 UF_TIPO_BASIC_FILENAME = constants.UF_TIPO_BASIC_FILENAME.value
+DICT_UFS = constants.DICT_UFS.value
 
 
 def custom_name_func(testcase_func, param_num, param):
@@ -119,7 +120,11 @@ class TestMunicipioTreatmentPostCrawl(unittest.TestCase):
                 treated_df = treat_municipio_tipo(
                     os.path.join(directory_to_search, file)
                 )
-                self.assertEqual(len(treated_df), 5570)
+                self.assertTrue(type(treated_df), pl.DataFrame)
+                self.assertGreaterEqual(len(treated_df), 5500 * 21)
+                self.assertSetEqual(
+                    set(treated_df["sigla_uf"].unique().to_list()), set(DICT_UFS.keys())
+                )
 
 
 if __name__ == "__main__":

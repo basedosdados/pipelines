@@ -207,6 +207,7 @@ def verify_match_ibge(denatran_uf: pl.DataFrame, ibge_uf: pl.DataFrame) -> None:
         for row in mismatched_rows.rows(named=True):
             error_message += f"{row['nome_denatran']} ({row['sigla_uf']})\n"
         raise ValueError(error_message)
+    return joined_df
 
 
 def get_city_name_ibge(denatran_name: str, ibge_uf: pl.DataFrame) -> str:
@@ -276,7 +277,7 @@ def generic_extractor(dest_path_file: str):
         for file in f.infolist():
             print(file)
             if (
-                re.search("UF|municipio", file.filename, re.IGNORECASE)
+                re.search("UF|munic", file.filename, re.IGNORECASE)
                 and not file.is_dir()
             ):
                 new_extension = file.filename.split(".")[-1]
@@ -512,5 +513,4 @@ def treat_uf(denatran_df: pl.DataFrame, ibge_df: pl.DataFrame, uf: str) -> None:
         # This here is probably impossible and shouldn't happen due to the matching coming from the BD data.
         # The set difference might occur the other way around, but still, better safe.
         raise ValueError(f"Existem municípios em {uf} que não estão na BD.")
-    verify_match_ibge(denatran_uf, ibge_uf)
-    return denatran_uf
+    return verify_match_ibge(denatran_uf, ibge_uf)
