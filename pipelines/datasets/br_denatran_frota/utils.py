@@ -29,6 +29,7 @@ UF_TIPO_BASIC_FILENAME = constants.UF_TIPO_BASIC_FILENAME.value
 MONTHS_SHORT = constants.MONTHS_SHORT.value
 MUNIC_TIPO_BASIC_FILENAME = constants.MUNIC_TIPO_BASIC_FILENAME.value
 UF_TIPO_HEADER = constants.UF_TIPO_HEADER.value
+MUNICIPIO_TIPO_HEADER = constants.MUNICIPIO_TIPO_HEADER.value
 
 
 class DenatranType(Enum):
@@ -55,7 +56,7 @@ def guess_header(
     if type_of_file == DenatranType.UF:
         expected_header = UF_TIPO_HEADER
     elif type_of_file == DenatranType.Municipio:
-        pass
+        expected_header = MUNICIPIO_TIPO_HEADER
     else:
         raise ValueError("Unrecognized type of dataframe.")
     header_guess = 0
@@ -67,8 +68,8 @@ def guess_header(
             (x, y) for x, y in zip(expected_header, current_row) if x == y
         ]
         if (
-            len(equal_column_names) / len(expected_header) > 0.7
-        ):  # If 70% of the columns match, this is the header.
+            len(equal_column_names) / len(expected_header) >= 0.6
+        ):  # If 60% of the columns match, this is the header.
             return header_guess
         header_guess += 1
     return 0  # If nothing is ever found until the max, let's just assume it's the first row as per usual.
@@ -177,7 +178,7 @@ def fix_suggested_nome_ibge(row: tuple[str, ...]) -> str:
         return row[-1]
 
 
-def match_ibge(denatran_uf: pl.DataFrame, ibge_uf: pl.DataFrame) -> None:
+def verify_match_ibge(denatran_uf: pl.DataFrame, ibge_uf: pl.DataFrame) -> None:
     """Take a dataframe of the Denatran data and an IBGE dataframe of municipalities.
 
     Joins them using the IBGE name of both. The IBGE name of denatran_uf is ideally filled via get_city_name().
@@ -468,7 +469,7 @@ def call_r_to_read_excel(file: str) -> pd.DataFrame:
     return df
 
 
-def verify_uf(denatran_df: pl.DataFrame, ibge_df: pl.DataFrame, uf: str) -> None:
+def treat_uf(denatran_df: pl.DataFrame, ibge_df: pl.DataFrame, uf: str) -> None:
     """Take the DENATRAN data at municipality level and compare it to the IBGE data.
 
     This will filter by the uf argument and do all comparisons to ensure consistency.
@@ -486,8 +487,12 @@ def verify_uf(denatran_df: pl.DataFrame, ibge_df: pl.DataFrame, uf: str) -> None
     ibge_uf = ibge_df.filter(pl.col("sigla_uf") == uf)
     ibge_uf = ibge_uf.with_columns(pl.col("nome").apply(asciify).str.to_lowercase())
     municipios_na_bd = ibge_uf["nome"].to_list()
-    x = denatran_uf["nome_denatran"].apply(lambda x: get_city_name_ibge(x, ibge_uf))
-    denatran_uf = denatran_uf.with_columns(x.alias("suggested_nome_ibge"))
+    suggested_name_ibge = denatran_uf["nome_denatran"].apply(
+        lambda x: get_city_name_ibge(x, ibge_uf)
+    )
+    denatran_uf = denatran_uf.with_columns(
+        suggested_name_ibge.alias("suggested_nome_ibge")
+    )
     denatran_uf = denatran_uf.with_columns(
         denatran_uf.apply(fix_suggested_nome_ibge)["apply"].alias("suggested_nome_ibge")
     )
@@ -504,4 +509,5 @@ def verify_uf(denatran_df: pl.DataFrame, ibge_df: pl.DataFrame, uf: str) -> None
         # This here is probably impossible and shouldn't happen due to the matching coming from the BD data.
         # The set difference might occur the other way around, but still, better safe.
         raise ValueError(f"Existem municípios em {uf} que não estão na BD.")
-    match_ibge(denatran_uf, ibge_uf)
+    verify_match_ibge(denatran_uf, ibge_uf)
+    return denatran_uf

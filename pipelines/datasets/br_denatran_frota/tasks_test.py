@@ -11,6 +11,7 @@ from pipelines.datasets.br_denatran_frota.handlers import (
     crawl,
     treat_uf_tipo,
     get_desired_file,
+    treat_municipio_tipo,
 )
 from pipelines.datasets.br_denatran_frota.constants import constants
 
@@ -77,6 +78,24 @@ class TestTreatmentPostCrawl(unittest.TestCase):
             ]:
                 treated_df = treat_uf_tipo(os.path.join(directory_to_search, file))
                 self.assertEqual(len(treated_df), 21 * 27)
+
+    @parameterized.expand(
+        [(month, year) for year in range(2003, 2024) for month in range(1, 2)],
+        name_func=custom_name_func,
+    )
+    def test_treat_files_municipio_tipo(self, month, year):
+        crawl(month, year, self.temp_dir.name)
+        directory_to_search = os.path.join(self.temp_dir.name, "files", f"{year}")
+        get_desired_file(year, self.temp_dir.name, MUNIC_TIPO_BASIC_FILENAME)
+        for file in os.listdir(directory_to_search):
+            if re.search(MUNIC_TIPO_BASIC_FILENAME, file) and file.split(".")[-1] in [
+                "xls",
+                "xlsx",
+            ]:
+                treated_df = treat_municipio_tipo(
+                    os.path.join(directory_to_search, file)
+                )
+                self.assertEqual(len(treated_df), 5570)
 
     def test_flow(self):
         year = 2021

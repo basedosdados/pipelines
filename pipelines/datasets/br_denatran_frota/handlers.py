@@ -20,7 +20,7 @@ from pipelines.datasets.br_denatran_frota.utils import (
     download_file,
     extraction_pre_2012,
     call_r_to_read_excel,
-    verify_uf,
+    treat_uf,
     DenatranType,
 )
 import pandas as pd
@@ -149,24 +149,28 @@ def treat_municipio_tipo(file: str) -> pl.DataFrame:
     )  # Hardcoded, not good.
     bd_municipios = pl.from_pandas(bd_municipios)
 
-    # filename = os.path.split(file)[1]
+    filename = os.path.split(file)[1]
+    month, year = get_year_month_from_filename(filename)
     df = pd.read_excel(file)
-    new_df = change_df_header(df, guess_header(df), DenatranType.Municipio)
+    new_df = change_df_header(df, guess_header(df, DenatranType.Municipio))
     new_df.rename(
         columns={new_df.columns[0]: "sigla_uf", new_df.columns[1]: "nome_denatran"},
         inplace=True,
     )  # Rename for ease of use.
     new_df.sigla_uf = new_df.sigla_uf.str.strip()  # Remove whitespace.
-    new_df = pl.from_pandas(new_df)
-    new_df = new_df.with_columns(
-        pl.col("nome_denatran").apply(asciify).str.to_lowercase()
+    new_pl_df = pl.from_pandas(new_df)
+    verify_total(new_pl_df)
+    new_pl_df = new_pl_df.with_columns(
+        pl.col("nome_denatran").apply(asciify).str.to_lowercase(),
+        pl.lit(year, dtype=pl.Int64).alias("ano"),
+        pl.lit(month, dtype=pl.Int64).alias("mes"),
     )
-    new_df = new_df.filter(pl.col("nome_denatran") != "municipio nao informado")
-    if new_df.shape[0] > bd_municipios.shape[0]:
+    new_pl_df = new_pl_df.filter(pl.col("nome_denatran") != "municipio nao informado")
+    if new_pl_df.shape[0] > bd_municipios.shape[0]:
         raise ValueError(
-            f"Atenção: a base do Denatran tem {new_df.shape[0]} linhas e isso é mais municípios do que a BD com {bd_municipios.shape[0]}"
+            f"Atenção: a base do Denatran tem {new_pl_df.shape[0]} linhas e isso é mais municípios do que a BD com {bd_municipios.shape[0]}"
         )
-    verify_total(new_df)
+    dfs = []
     for uf in DICT_UFS:
-        verify_uf(new_df, bd_municipios, uf)
-    return new_df
+        dfs.append(treat_uf(new_pl_df, bd_municipios, uf))
+    return pl.concat(dfs)
