@@ -151,7 +151,10 @@ def treat_municipio_tipo(file: str) -> pl.DataFrame:
 
     filename = os.path.split(file)[1]
     month, year = get_year_month_from_filename(filename)
-    df = pd.read_excel(file)
+    correct_sheet = [
+        sheet for sheet in pd.ExcelFile(file).sheet_names if sheet != "Glossário"
+    ][0]
+    df = pd.read_excel(file, sheet_name=correct_sheet)
     new_df = change_df_header(df, guess_header(df, DenatranType.Municipio))
     new_df.rename(
         columns={new_df.columns[0]: "sigla_uf", new_df.columns[1]: "nome_denatran"},

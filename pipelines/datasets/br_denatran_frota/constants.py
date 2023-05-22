@@ -98,6 +98,7 @@ class constants(Enum):  # pylint: disable=c0103
         ("PB", "santarem"): "joca claudino",
         ("SP", "embu"): "embu das artes",
         ("TO", "sao valerio da natividade"): "sao valerio",
+        ("PB", "campo de santana"): "tacima",
     }
 
     DOWNLOAD_PATH = f"/tmp/input/{DATASET}"
