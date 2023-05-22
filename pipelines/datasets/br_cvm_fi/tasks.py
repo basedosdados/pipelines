@@ -32,11 +32,13 @@ def download_unzip_csv(
     url: str, files, chunk_size: int = 128, mkdir: bool = True
 ) -> str:
     """
-    Downloads and unzip a .csv file from a given list of files and saves it to a local directory.
+    Downloads and unzips a .csv file from a given list of files and saves it to a local directory.
     Parameters:
     -----------
-    files: list
-        The .zip file names to download the csv file from.
+    url: str
+        The base URL from which to download the files.
+    files: list or str
+        The .zip file names or a single .zip file name to download the csv file from.
     chunk_size: int, optional
         The size of each chunk to download in bytes. Default is 128 bytes.
     mkdir: bool, optional
@@ -47,46 +49,61 @@ def download_unzip_csv(
         The path to the directory where the downloaded file was saved.
     """
     if mkdir:
-        os.system("mkdir -p /tmp/data/br_cvm_fi/input/")
+        os.makedirs("/tmp/data/br_cvm_fi/input/", exist_ok=True)
 
     request_headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36",
     }
-    if type(files) == list:
+
+    if isinstance(files, list):
         for file in files:
-            log(f"Baixando para o arquivo {file}")
-            url = f"{url}{file}"
-            r = requests.get(url, headers=request_headers, stream=True, timeout=10)
-            save_path = "/tmp/data/br_cvm_fi/input/file.zip"
+            print(f"Baixando o arquivo {file}")
+            download_url = f"{url}{file}"
+            save_path = f"/tmp/data/br_cvm_fi/input/{file}"
+
+            r = requests.get(
+                download_url, headers=request_headers, stream=True, timeout=50
+            )
             with open(save_path, "wb") as fd:
                 for chunk in tqdm(r.iter_content(chunk_size=chunk_size)):
                     fd.write(chunk)
 
-            with zipfile.ZipFile(save_path) as z:
-                z.extractall("/tmp/data/br_cvm_fi/input")
+            try:
+                with zipfile.ZipFile(save_path) as z:
+                    z.extractall("/tmp/data/br_cvm_fi/input")
+                print("Dados extraídos com sucesso!")
+
+            except zipfile.BadZipFile:
+                print(f"O arquivo {file} não é um arquivo ZIP válido.")
+
             os.system(
                 'cd /tmp/data/br_cvm_fi/input; find . -type f ! -iname "*.csv" -delete'
             )
 
-            log("Dados baixados com sucesso!")
-    elif type(files) == str:
-        log(f"Baixando para o arquivo {files}")
-        url = f"{url}{files}"
-        r = requests.get(url, headers=request_headers, stream=True, timeout=10)
-        save_path = "/tmp/data/br_cvm_fi/input/file.zip"
+    elif isinstance(files, str):
+        print(f"Baixando o arquivo {files}")
+        download_url = f"{url}{files}"
+        save_path = f"/tmp/data/br_cvm_fi/input/{files}"
+
+        r = requests.get(download_url, headers=request_headers, stream=True, timeout=10)
         with open(save_path, "wb") as fd:
             for chunk in tqdm(r.iter_content(chunk_size=chunk_size)):
                 fd.write(chunk)
 
-        with zipfile.ZipFile(save_path) as z:
-            z.extractall("/tmp/data/br_cvm_fi/input")
+        try:
+            with zipfile.ZipFile(save_path) as z:
+                z.extractall("/tmp/data/br_cvm_fi/input")
+            print("Dados extraídos com sucesso!")
+
+        except zipfile.BadZipFile:
+            print(f"O arquivo {files} não é um arquivo ZIP válido.")
+
         os.system(
             'cd /tmp/data/br_cvm_fi/input; find . -type f ! -iname "*.csv" -delete'
         )
 
-        log("Dados baixados com sucesso!")
     else:
-        raise ValueError("Argument `files` have nappropriate type")
+        raise ValueError("O argumento 'files' possui um tipo inadequado.")
 
     return "/tmp/data/br_cvm_fi/input/"
 

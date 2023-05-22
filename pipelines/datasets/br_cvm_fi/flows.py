@@ -60,8 +60,9 @@ with Flow(
     )
 
     df = extract_links_and_dates(url)
+    log(f"Links e datas: {df}")
     arquivos = check_for_updates(df, upstream_tasks=[df])
-
+    log(f"Arquivos: {arquivos}")
     with case(is_empty(arquivos), True):
         log(f"Não houveram atualizações em {url.default}!")
 
@@ -147,8 +148,9 @@ with Flow(
     )
 
     df = extract_links_and_dates(url)
+    log(f"Links e datas: {df}")
     arquivos = check_for_updates(df, upstream_tasks=[df])
-
+    log(f"Arquivos: {arquivos}")
     with case(is_empty(arquivos), True):
         log(f"Não houveram atualizações em {url.default}!")
 
