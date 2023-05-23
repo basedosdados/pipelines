@@ -99,6 +99,16 @@ class constants(Enum):  # pylint: disable=c0103
         ("SP", "embu"): "embu das artes",
         ("TO", "sao valerio da natividade"): "sao valerio",
         ("PB", "campo de santana"): "tacima",
+        ("AP", "amapari"): "pedra branca do amapari",
+        ("BA", "maracani"): "macarani",
+        ("BA", "livramento do brumado"): "livramento de nossa senhora",
+        ("PB", "sao bento de pombal"): "sao bentinho",
+        ("PB", "serido"): "sao vicente do serido",
+        ("PR", "vila alta"): "alto paraiso",
+        ("RN", "espirito santo do oeste"): "parau",
+        ("RO", "jamari"): "itapua do oeste",
+        ("SC", "picarras"): "balneario picarras",
+        ("SC", "barra do sul"): "balneario barra do sul",
     }
 
     DOWNLOAD_PATH = f"/tmp/input/{DATASET}"
