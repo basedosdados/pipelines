@@ -11,10 +11,12 @@ from urllib.request import urlopen
 import pandas as pd
 import numpy as np
 import os
+from os.path import join
 from pathlib import Path
 from pipelines.utils.utils import (
     log,
 )
+from pipelines.constants import constants
 
 # ------- macro etapa 1 download de dados
 
@@ -120,3 +122,30 @@ def to_partitions(data: pd.DataFrame, partition_columns: list[str], savepath: st
             )
     else:
         raise BaseException("Data need to be a pandas DataFrame")
+    
+
+def partition_data(df: pd.DataFrame, column_name: list[str], output_directory: str):
+    """
+    Particiona os dados em subconjuntos de acordo com os valores únicos de uma coluna.
+    Salva cada subconjunto em um arquivo CSV separado.
+
+    df: DataFrame a ser particionado
+
+    column_name: nome da coluna a ser usada para particionar os dados
+    
+    output_directory: diretório onde os arquivos CSV serão salvos
+    """
+
+    unique_values = df[column_name].unique()
+    
+    for value in unique_values:
+        partition_path = os.path.join(output_directory, f"{column_name}={value}")
+        
+        if not os.path.exists(partition_path):
+            os.makedirs(partition_path)
+        
+        df_partition = df[df[column_name] == value].copy()
+        df_partition.drop([column_name], axis=1, inplace=True)
+        
+        csv_path = os.path.join(partition_path, "data.csv")
+        df_partition.to_csv(csv_path, index=False, encoding='utf-8', na_rep='')

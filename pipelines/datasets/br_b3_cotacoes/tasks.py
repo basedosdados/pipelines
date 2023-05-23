@@ -21,6 +21,7 @@ from pipelines.datasets.br_b3_cotacoes.utils import (
     download_and_unzip,
     read_files,
     to_partitions,
+    partition_data,
 )
 
 
@@ -79,7 +80,7 @@ def tratamento():
     df["codigo_identificador_negocio"] = df["codigo_identificador_negocio"].astype(str)
     df = df[ordem]
 
-    to_partitions(
+    partition_data(
         df,
         partition_columns=["data_negocio"],
         savepath=br_b3_cotacoes_constants.B3_PATH_OUTPUT.value,
