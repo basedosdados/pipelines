@@ -11,6 +11,7 @@ from urllib.request import urlopen
 import pandas as pd
 import numpy as np
 import os
+from datetime import datetime, timedelta
 from os.path import join
 from pathlib import Path
 from pipelines.utils.utils import (
@@ -128,24 +129,25 @@ def partition_data(df: pd.DataFrame, column_name: list[str], output_directory: s
     """
     Particiona os dados em subconjuntos de acordo com os valores únicos de uma coluna.
     Salva cada subconjunto em um arquivo CSV separado.
-
     df: DataFrame a ser particionado
-
     column_name: nome da coluna a ser usada para particionar os dados
-
     output_directory: diretório onde os arquivos CSV serão salvos
     """
 
     unique_values = df[column_name].unique()
-
+ 
     for value in unique_values:
-        partition_path = os.path.join(output_directory, f"{column_name}={value}")
-
+        value_str = str(value)
+        date_value = datetime.strptime(value_str, "%Y-%m-%d %H:%M:%S").date()
+        formatted_value = date_value.strftime("%Y-%m-%d")
+ 
+        partition_path = os.path.join(output_directory, f"{column_name}={formatted_value}")
+   
         if not os.path.exists(partition_path):
             os.makedirs(partition_path)
-
+        
         df_partition = df[df[column_name] == value].copy()
         df_partition.drop([column_name], axis=1, inplace=True)
-
+        
         csv_path = os.path.join(partition_path, "data.csv")
-        df_partition.to_csv(csv_path, index=False, encoding="utf-8", na_rep="")
+        df_partition.to_csv(csv_path, index=False, encoding='utf-8', na_rep='')
