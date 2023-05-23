@@ -135,7 +135,8 @@ def verify_total(df: pl.DataFrame) -> None:
     """Verify that we can pivot from wide to long.
 
     Essentially, gets a Wide dataframe, excludes all string columns and the TOTAL column and sums it all row wise.
-    Then verifies if the calculated total column is the same as the TOTAL column.
+    Some historical data from Denatran seems to have a rounding error.
+    Thus, we need to verify if the calculated total column is greater or equal than the original TOTAL column.
     If not, raises an error.
 
     Args:
@@ -150,10 +151,10 @@ def verify_total(df: pl.DataFrame) -> None:
             acc=pl.lit(0), function=lambda acc, x: acc + x, exprs=pl.col("*")
         ).alias("calculated_total")
     )["calculated_total"]
-    mask = df["TOTAL"] == calculated_total
-    if pl.sum(~mask) != 0:
+    mask = df["TOTAL"] > calculated_total
+    if pl.sum(mask) != 0:
         raise ValueError(
-            "A coluna de TOTAL da base original tem inconsistências e não é igual à soma das demais colunas."
+            "A coluna de TOTAL da base original tem inconsistências e é maior que a soma das demais colunas."
         )
 
 
