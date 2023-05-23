@@ -121,9 +121,14 @@ def extract_links_and_dates(url) -> pd.DataFrame:
     links = soup.find_all("a")
     links_zip = []
 
-    for link in links:
-        if link.has_attr("href") and link["href"].endswith(".zip"):
-            links_zip.append(link["href"])
+    if url == "https://dados.cvm.gov.br/dados/FI/DOC/EXTRATO/DADOS/":
+        for link in links:
+            if link.has_attr("href") and link["href"].endswith(".csv"):
+                links_zip.append(link["href"])
+    else:
+        for link in links:
+            if link.has_attr("href") and link["href"].endswith(".zip"):
+                links_zip.append(link["href"])
 
     # Encontra todas as datas de atualização dentro do HTML
     padrao = r"\d{2}-\w{3}-\d{4} \d{2}:\d{2}"
@@ -134,11 +139,19 @@ def extract_links_and_dates(url) -> pd.DataFrame:
         data_atualizacao = re.findall(padrao, data)[0]
         datas_atualizacao.append(data_atualizacao)
 
-    dados = {
-        "arquivo": links_zip,
-        "ultima_atualizacao": datas_atualizacao[1:],
-        "data_hoje": datetime.now().strftime("%Y-%m-%d"),
-    }
+    if url == "https://dados.cvm.gov.br/dados/FI/DOC/EXTRATO/DADOS/":
+        dados = {
+            "arquivo": links_zip,
+            "ultima_atualizacao": datas_atualizacao[0:],
+            "data_hoje": datetime.now().strftime("%Y-%m-%d"),
+        }
+    else:
+        dados = {
+            "arquivo": links_zip,
+            "ultima_atualizacao": datas_atualizacao[1:],
+            "data_hoje": datetime.now().strftime("%Y-%m-%d"),
+        }
+
     df = pd.DataFrame(dados)
     df.ultima_atualizacao = df.ultima_atualizacao.apply(
         lambda x: datetime.strptime(x, "%d-%b-%Y %H:%M").strftime("%Y-%m-%d")
@@ -160,6 +173,17 @@ def check_for_updates(df):
 
 
 @task
+def check_for_updates_ext(df):
+    """
+    Checks for outdated tables in documentos_extratos_informacoes table.
+    """
+
+    return df.query(
+        "desatualizado == True and arquivo == 'extrato_fi.csv'"
+    ).arquivo.to_list()
+
+
+@task
 def is_empty(lista):
     if len(lista) == 0:
         return True
@@ -175,14 +199,16 @@ def clean_data_and_make_partitions(path: str) -> str:
 
     os.chdir(path)
     files = glob.glob("*.csv")
-    df_arq = sheet_to_df(
-        "https://docs.google.com/spreadsheets/d/1W739_mLZNBPYhBqGyjsuuWFBOqCrhrDl/edit#gid=1045172528"
-    )  # constant
+    df_arq = sheet_to_df(cvm_constants.ARQUITETURA_URL_INF.value)
 
     for file in files:
         df = pd.read_csv(f"{path}{file}", sep=";")
         log(f"File {file} read.")
+        df["CNPJ_FUNDO"] = df["CNPJ_FUNDO"].str.replace(r"[/.-]", "")
         df = rename_columns(df_arq, df)
+        df = check_and_create_column(
+            df, colunas_totais=cvm_constants.COLUNAS_FINAL_INF.value
+        )
         df["ano"] = df["data_competencia"].apply(
             lambda x: datetime.strptime(x, "%Y-%m-%d").year
         )
@@ -261,3 +287,65 @@ def clean_data_make_partitions_cda(diretorio):
             partition_columns=["ano", "mes"],
             savepath="/tmp/data/br_cvm_fi/output/",
         )  # constant
+
+
+@task
+def clean_data_make_partitions_ext(diretorio):
+    df_arq = sheet_to_df(cvm_constants.ARQUITETURA_URL_EXT.value)
+    df_final = pd.DataFrame()
+    arquivos = glob.glob(f"{diretorio}*.csv")
+
+    for file in tqdm(arquivos):
+        print(f"Baixando o arquivo ------> {file}")
+
+        df = pd.read_csv(file, sep=";", encoding="ISO-8859-1", dtype="string")
+        df["ano"] = df["DT_COMPTC"].apply(
+            lambda x: datetime.strptime(x, "%Y-%m-%d").year
+        )
+        df["mes"] = df["DT_COMPTC"].apply(
+            lambda x: datetime.strptime(x, "%Y-%m-%d").month
+        )
+
+        df_final = df
+
+    df_final = check_and_create_column(
+        df_final, colunas_totais=cvm_constants.COLUNAS_TOTAIS_EXT.value
+    )
+    df_final[cvm_constants.COLUNAS_MAPEAMENTO_EXT.value] = df_final[
+        cvm_constants.COLUNAS_MAPEAMENTO_EXT.value
+    ].applymap(lambda x: cvm_constants.MAPEAMENTO.value.get(x, x))
+    df_final["CNPJ_FUNDO"] = df_final["CNPJ_FUNDO"].str.replace(r"[/.-]", "")
+    df_final = rename_columns(df_arq, df_final)
+    df_final = df_final.replace(",", ".", regex=True)
+    df_final[cvm_constants.COLUNAS_ASCI_EXT.value] = df_final[
+        cvm_constants.COLUNAS_ASCI_EXT.value
+    ].fillna("")
+    df_final[cvm_constants.COLUNAS_ASCI_EXT.value] = df_final[
+        cvm_constants.COLUNAS_ASCI_EXT.value
+    ].applymap(limpar_string)
+    df_final = df_final[cvm_constants.COLUNAS_FINAIS_EXT.value]
+    # print(f"Fazendo partições para o ano ------> {i}")
+    to_partitions(
+        df_final,
+        partition_columns=["ano", "mes"],
+        savepath="/tmp/data/br_cvm_fi/output/",
+    )  # constant
+
+
+@task
+def download_csv_cvm(url: str, files, chunk_size: int = 128, mkdir: bool = True) -> str:
+
+    if mkdir:
+        os.makedirs("/tmp/data/br_cvm_fi/input/", exist_ok=True)
+    request_headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36",
+    }
+
+    print(f"Baixando o arquivo {files}")
+    download_url = f"{url}{files[0]}"
+    save_path = f"/tmp/data/br_cvm_fi/input/{files[0]}"
+
+    r = requests.get(download_url, headers=request_headers, stream=True, timeout=10)
+    with open(save_path, "wb") as fd:
+        for chunk in tqdm(r.iter_content(chunk_size=chunk_size)):
+            fd.write(chunk)
