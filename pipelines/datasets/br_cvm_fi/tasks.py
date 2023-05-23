@@ -334,7 +334,6 @@ def clean_data_make_partitions_ext(diretorio):
 
 @task
 def download_csv_cvm(url: str, files, chunk_size: int = 128, mkdir: bool = True) -> str:
-
     if mkdir:
         os.makedirs("/tmp/data/br_cvm_fi/input/", exist_ok=True)
     request_headers = {
