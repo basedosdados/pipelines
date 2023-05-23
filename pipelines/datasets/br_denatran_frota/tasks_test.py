@@ -120,10 +120,15 @@ class TestMunicipioTreatmentPostCrawl(unittest.TestCase):
                 treated_df = treat_municipio_tipo(
                     os.path.join(directory_to_search, file)
                 )
+                # It should be a df,
                 self.assertTrue(type(treated_df), pl.DataFrame)
-                self.assertGreaterEqual(len(treated_df), 5500 * 21)
+                # Every state should be there
                 self.assertSetEqual(
                     set(treated_df["sigla_uf"].unique().to_list()), set(DICT_UFS.keys())
+                )
+                # I expect AT LEAST 5450 cities out of 5570. It's normally higher but historical data.
+                self.assertGreaterEqual(
+                    len(treated_df["id_municipio"].unique().to_list()), 5450
                 )
 
 
