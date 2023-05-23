@@ -133,23 +133,24 @@ def partition_data(df: pd.DataFrame, column_name: list[str], output_directory: s
     column_name: nome da coluna a ser usada para particionar os dados
     output_directory: diretório onde os arquivos CSV serão salvos
     """
-
     unique_values = df[column_name].unique()
-
+    log(f"Valores únicos: {unique_values}")
     for value in unique_values:
-        value_str = str(value)
-        date_value = datetime.strptime(value_str, "%Y-%m-%d %H:%M:%S").date()
+        value_str = str(value)[:10]
+        date_value = datetime.strptime(value_str, "%Y-%m-%d").date()
+        log(date_value)
         formatted_value = date_value.strftime("%Y-%m-%d")
+        log(formatted_value)
 
-        partition_path = os.path.join(
-            output_directory, f"{column_name}={formatted_value}"
-        )
-
+        partition_path = os.path.join(output_directory, f"{column_name}={formatted_value}")
+        log(f"Salvando dados em {partition_path}")
         if not os.path.exists(partition_path):
             os.makedirs(partition_path)
-
+          
         df_partition = df[df[column_name] == value].copy()
-        df_partition.drop([column_name], axis=1, inplace=True)
 
+        df_partition.drop([column_name], axis=1, inplace=True)
+        log(f"df_partition: {df_partition}")
         csv_path = os.path.join(partition_path, "data.csv")
-        df_partition.to_csv(csv_path, index=False, encoding="utf-8", na_rep="")
+        df_partition.to_csv(csv_path, index=False, encoding='utf-8', na_rep='')
+        log(f"Arquivo {csv_path} salvo com sucesso!")
