@@ -14,7 +14,7 @@ def create_paths(
     path: str,
     table_name: str,
 ):
-    """this function creates temporary directories to store input and output files
+    """this function creates temporary directories to store input/output files
 
     Args:
         path (str): a standard directory to store input and output files from all flows

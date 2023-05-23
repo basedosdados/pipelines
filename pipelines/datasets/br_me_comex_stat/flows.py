@@ -26,12 +26,12 @@ from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
 )
 
-from pipelines.datasets.br_me_comex_stat.schedules import (
-    schedule_municipio_exportacao,
-    schedule_municipio_importacao,
-    schedule_ncm_exportacao,
-    schedule_ncm_importacao,
-)
+# from pipelines.datasets.br_me_comex_stat.schedules import (
+#    schedule_municipio_exportacao,
+#    schedule_municipio_importacao,
+#    schedule_ncm_exportacao,
+#    schedule_ncm_importacao,
+# )
 
 
 with Flow(
@@ -115,7 +115,7 @@ br_comex_municipio_exportacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_comex_municipio_exportacao.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_comex_municipio_exportacao.schedule = schedule_municipio_exportacao
+# br_comex_municipio_exportacao.schedule = schedule_municipio_exportacao
 
 
 with Flow(
@@ -199,7 +199,7 @@ br_comex_municipio_importacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_comex_municipio_importacao.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_comex_municipio_importacao.schedule = schedule_municipio_importacao
+# br_comex_municipio_importacao.schedule = schedule_municipio_importacao
 
 
 with Flow(
@@ -281,7 +281,7 @@ with Flow(
 
 br_comex_ncm_exportacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_comex_ncm_exportacao.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_comex_ncm_exportacao.schedule = schedule_ncm_exportacao
+# br_comex_ncm_exportacao.schedule = schedule_ncm_exportacao
 
 
 with Flow(
@@ -363,4 +363,4 @@ with Flow(
 
 br_comex_ncm_importacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_comex_ncm_importacao.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_comex_ncm_importacao.schedule = schedule_ncm_importacao
+# br_comex_ncm_importacao.schedule = schedule_ncm_importacao
