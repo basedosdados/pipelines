@@ -45,12 +45,10 @@ def download_data(
         mun for 'município'.
         table_name (str): the table name is the original name of the zip file with raw data from comex stat website
     """
-
-    for year in range(1997, 2024):
-        # i know this isnt the best approach. I'll change it
-        # after api and website migration is done.
-        # Its a good test to download, upload raw data to gcs and then do the wrangling
-        # with DBT.
+    years = [2023]
+    for year in years:
+        # append mode setted, so during 2023 year, the crawler will only
+        # download 2023 file and uptade it
 
         table_name_urls = {
             "mun_imp": f"https://balanca.economia.gov.br/balanca/bd/comexstat-bd/{table_type}/IMP_{year}_MUN.csv",

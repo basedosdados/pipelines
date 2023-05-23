@@ -69,6 +69,9 @@ with Flow(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
+        # attention:
+        # dump_mode is set to overwrite beacause comex data is released montly in a yearly csv file
+        # so it will download, wrang and upload 2023 montly data
         dump_mode="overwrite",
         wait=filepath,
     )
@@ -153,6 +156,9 @@ with Flow(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
+        # attention:
+        # dump_mode is set to overwrite beacause comex data is released montly in a yearly csv file
+        # so it will download, wrang and upload 2023 montly data
         dump_mode="overwrite",
         wait=filepath,
     )
@@ -237,6 +243,9 @@ with Flow(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
+        # attention:
+        # dump_mode is set to overwrite beacause comex data is released montly in a yearly csv file
+        # so it will download, wrang and upload 2023 montly data
         dump_mode="overwrite",
         wait=filepath,
     )
@@ -319,6 +328,9 @@ with Flow(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
+        # attention:
+        # dump_mode is set to overwrite beacause comex data is released montly in a yearly csv file
+        # so it will download, wrang and upload 2023 montly data
         dump_mode="overwrite",
         wait=filepath,
     )
