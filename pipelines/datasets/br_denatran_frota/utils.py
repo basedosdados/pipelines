@@ -154,7 +154,7 @@ def verify_total(df: pl.DataFrame) -> None:
     mask = df["TOTAL"] > calculated_total
     if pl.sum(mask) != 0:
         raise ValueError(
-            "A coluna de TOTAL da base original tem inconsistências e é maior que a soma das demais colunas."
+            "A coluna de TOTAL da base original tem inconsistências e é maior que  soma das demais colunas."
         )
 
 

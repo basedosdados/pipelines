@@ -155,6 +155,10 @@ def treat_municipio_tipo(file: str) -> pl.DataFrame:
         sheet for sheet in pd.ExcelFile(file).sheet_names if sheet != "Glossário"
     ][0]
     df = pd.read_excel(file, sheet_name=correct_sheet)
+    # Some very janky historical files have an entire first empty column that will break EVERYTHING
+    # This checks if they exist and drops them
+    if df[df.columns[0]].isnull().sum() == len(df):
+        df.drop(columns=df.columns[0], inplace=True)
     new_df = change_df_header(df, guess_header(df, DenatranType.Municipio))
     new_df.rename(
         columns={new_df.columns[0]: "sigla_uf", new_df.columns[1]: "nome_denatran"},
