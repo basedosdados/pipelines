@@ -131,6 +131,19 @@ class TestMunicipioTreatmentPostCrawl(unittest.TestCase):
                     len(treated_df["id_municipio"].unique().to_list()), 5450
                 )
 
+    def test_flow(self):
+        year = 2021
+        crawl(month=2, year=year, temp_dir=constants.DOWNLOAD_PATH.value)
+        # Now get the downloaded file:
+        uf_tipo_file = get_desired_file(
+            year=year,
+            download_directory=constants.DOWNLOAD_PATH.value,
+            filetype=constants.MUNIC_TIPO_BASIC_FILENAME.value,
+        )
+        print(uf_tipo_file)
+        df = treat_municipio_tipo(file=uf_tipo_file)
+        self.assertTrue(type(df), pl.DataFrame)
+
 
 if __name__ == "__main__":
     unittest.main()

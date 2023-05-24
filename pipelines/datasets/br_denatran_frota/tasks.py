@@ -60,6 +60,7 @@ from pipelines.datasets.br_denatran_frota.handlers import (
     treat_uf_tipo,
     output_file_to_csv,
     get_desired_file,
+    treat_municipio_tipo,
 )
 from pipelines.utils.utils import (
     log,
@@ -91,3 +92,8 @@ def output_file_to_csv_task(df: pl.DataFrame, filename: str) -> None:
 @task()
 def get_desired_file_task(year: int, download_directory: str, filetype: str) -> str:
     return get_desired_file(year, download_directory, filetype)
+
+
+@task()
+def treat_municipio_tipo_task(file: str) -> pl.DataFrame:
+    return treat_municipio_tipo(file)
