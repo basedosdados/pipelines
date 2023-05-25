@@ -484,3 +484,42 @@ class constants(Enum):  # pylint: disable=c0103
     URL_EXT = "https://dados.cvm.gov.br/dados/FI/DOC/EXTRATO/DADOS/"
 
     FILE_EXT = "extrato_fi.csv"
+
+    URL_PERFIL_MENSAL = "https://dados.cvm.gov.br/dados/FI/DOC/PERFIL_MENSAL/DADOS/"
+
+    ARQUITETURA_URL_PERFIL_MENSAL = "https://docs.google.com/spreadsheets/d/1IN7enHe6K-StD_sDfCaqhJ7XfUNXe-W8/edit#gid=1045172528"
+
+    CSV_LIST = [
+        "https://dados.cvm.gov.br/dados/FI/DOC/EXTRATO/DADOS/",
+        "https://dados.cvm.gov.br/dados/FI/DOC/PERFIL_MENSAL/DADOS/",
+    ]
+
+    COLUNAS_ASCI_PERFIL_MENSAL = [
+        "cnpj",
+        "denominacao_social",
+        "versao",
+        "resumo_voto_adminstrador_assembleia",
+        "justificativa_voto_administrador_assembleia",
+        "tipo_modelos_valor_em_risco",
+        "resumo_deliberacoes_aprovadas_assembleia",
+        "fator_primitivo_risco",
+        "cenario_fator_primitivo_risco_ibovespa",
+        "cenario_fator_primitivo_risco_juros",
+        "cenario_fator_primitivo_cupom_cambial",
+        "cenario_fator_primitivo_dolar",
+        "cenario_fator_primitivo_outros",
+        "fator_risco_outros",
+        "fator_risco_nocional",
+        "tipo_pessoa_comitente_1",
+        "cpf_cnpj_comitente_1",
+        "tipo_pessoa_comitente_2",
+        "cpf_cnpj_comitente_2",
+        "tipo_pessoa_comitente_3",
+        "cpf_cnpj_comitente_3",
+        "tipo_pessoa_emissor_1",
+        "cpf_cnpj_emissor_1",
+        "tipo_pessoa_emissor_2",
+        "cpf_cnpj_emissor_2",
+        "tipo_pessoa_emissor_3",
+        "cpf_cnpj_emissor_3",
+    ]
