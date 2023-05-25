@@ -16,6 +16,9 @@ from pipelines.datasets.br_b3_cotacoes.tasks import (
     tratamento,
 )
 
+from pipelines.utils.utils import (
+    log,
+)
 
 from pipelines.datasets.br_b3_cotacoes.schedules import (
     all_day_cotacoes,
@@ -35,28 +38,28 @@ with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
-
+    log(f'Materialization mode: {materialization_mode}')
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
-
+    log(f'Materialize after dump: {materialize_after_dump}')
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
-
+    log(f'DBT alias: {dbt_alias}')
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
-
+    log(f'Rename flow run: {rename_flow_run}')
     filepath = tratamento()
-
+    log(f'Filepath: {filepath}')
     # pylint: disable=C0103
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        dump_mode="overwrite",
+        dump_mode="append",
         wait=filepath,
     )
-
+    log(f'Wait upload table: {wait_upload_table}')
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -72,7 +75,7 @@ with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
             labels=current_flow_labels,
             run_name=f"Materialize {dataset_id}.{table_id}",
         )
-
+        log(f'Materialization flow: {materialization_flow}')
         wait_for_materialization = wait_for_flow_run(
             materialization_flow,
             stream_states=True,
