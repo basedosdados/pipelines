@@ -144,18 +144,44 @@ def verify_total(df: pl.DataFrame) -> None:
 
     Raises:
         ValueError: Errors out if the sum of the columns is actually different than the total.
+
     """
-    columns_for_total = df.select(pl.exclude("TOTAL")).select(pl.exclude([pl.Utf8]))
-    calculated_total = columns_for_total.select(
-        pl.fold(
-            acc=pl.lit(0), function=lambda acc, x: acc + x, exprs=pl.col("*")
-        ).alias("calculated_total")
-    )["calculated_total"]
-    mask = df["TOTAL"] > calculated_total
+
+    def calculate_total(df):
+        columns_for_total = df.select(pl.exclude("TOTAL")).select(pl.exclude([pl.Utf8]))
+        calculated_total = columns_for_total.select(
+            pl.fold(
+                acc=pl.lit(0), function=lambda acc, x: acc + x, exprs=pl.col("*")
+            ).alias("calculated_total")
+        )["calculated_total"]
+        return calculated_total
+
+    calculated_total = calculate_total(df)
+    mask = df["TOTAL"] != calculated_total
+
     if pl.sum(mask) != 0:
-        raise ValueError(
-            "A coluna de TOTAL da base original tem inconsistências e é maior que  soma das demais colunas."
-        )
+        # In some cases, the quadriciclo data is multiplied by 10, and this will correct it before you
+        new_df = clean_quadriciclo_data(df)
+        new_calculated_total = calculate_total(new_df)
+        mask = new_df["TOTAL"] != new_calculated_total
+        if pl.sum(mask) != 0:
+            raise ValueError(
+                "A coluna de TOTAL da base original tem inconsistências e é diferente da soma das demais colunas."
+            )
+
+
+def clean_quadriciclo_data(df: pl.DataFrame) -> pl.DataFrame:
+    """Divide the quadriciclo column by 10 when the data is dirty.
+
+    Args:
+        df (pl.DataFrame): Denatran data to be cleaned
+
+    Returns:
+        pl.DataFrame: Cleaned Denatran data with the quadriciclo column altered.
+    """
+    old_quadriciclo = df["QUADRICICLO"]
+    new_quadriciclo = old_quadriciclo / 10
+    return df.with_columns(new_quadriciclo.cast(pl.Int32).alias("QUADRICICLO"))
 
 
 def fix_suggested_nome_ibge(row: tuple[str, ...]) -> str:
