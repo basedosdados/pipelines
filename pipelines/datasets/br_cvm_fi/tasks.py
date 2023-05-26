@@ -288,6 +288,8 @@ def clean_data_make_partitions_cda(diretorio):
             savepath="/tmp/data/br_cvm_fi/output/",
         )  # constant
 
+    return "/tmp/data/br_cvm_fi/output/"
+
 
 @task
 def clean_data_make_partitions_ext(diretorio):
@@ -330,6 +332,8 @@ def clean_data_make_partitions_ext(diretorio):
         partition_columns=["ano", "mes"],
         savepath="/tmp/data/br_cvm_fi/output/",
     )  # constant
+
+    return "/tmp/data/br_cvm_fi/output/"
 
 
 @task
@@ -425,3 +429,58 @@ def clean_data_make_partitions_perfil(diretorio):
             savepath="/tmp/data/br_cvm_fi/output/",
         )  # constant
         log(f"Partições feitas para o ano ------> {file}")
+    return "/tmp/data/br_cvm_fi/output/"
+
+
+@task
+def clean_data_make_partitions_cad(diretorio):
+    df_arq = sheet_to_df(cvm_constants.ARQUITETURA_URL_CAD.value)
+    colunas_totais = df_arq["original_name"].to_list() + ["ano", "mes"]
+    colunas_finais = df_arq["name"].to_list() + ["ano", "mes"]
+    colunas_mapeamento = df_arq[df_arq["observations"].notnull()][
+        "original_name"
+    ].to_list()
+    df_final = pd.DataFrame()
+    arquivos = glob.glob(f"{diretorio}*.csv")
+
+    for file in tqdm(arquivos):
+        print(f"Baixando o arquivo ------> {file}")
+
+        df = pd.read_csv(file, sep=";", encoding="ISO-8859-1", dtype="string")
+        # df["ano"] = df["DT_COMPTC"].apply(
+        #    lambda x: datetime.strptime(x, "%Y-%m-%d").year
+        # )
+        # df["mes"] = df["DT_COMPTC"].apply(
+        #     lambda x: datetime.strptime(x, "%Y-%m-%d").month
+        # )
+
+        df_final = df
+
+    df_final = check_and_create_column(df_final, colunas_totais=colunas_totais)
+    df_final[colunas_mapeamento] = df_final[colunas_mapeamento].applymap(
+        lambda x: cvm_constants.MAPEAMENTO.value.get(x, x)
+    )
+    df_final["CNPJ_FUNDO"] = df_final["CNPJ_FUNDO"].str.replace(r"[/.-]", "")
+    df_final["CNPJ_ADMIN"] = df_final["CNPJ_ADMIN"].str.replace(r"[/.-]", "")
+    df_final["CPF_CNPJ_GESTOR"] = df_final["CPF_CNPJ_GESTOR"].str.replace(r"[/.-]", "")
+    df_final["CNPJ_AUDITOR"] = df_final["CNPJ_AUDITOR"].str.replace(r"[/.-]", "")
+    df_final["CNPJ_CUSTODIANTE"] = df_final["CNPJ_CUSTODIANTE"].str.replace(
+        r"[/.-]", ""
+    )
+    df_final["CNPJ_CONTROLADOR"] = df_final["CNPJ_CONTROLADOR"].str.replace(
+        r"[/.-]", ""
+    )
+
+    df_final = rename_columns(df_arq, df_final)
+    df_final = df_final.replace(",", ".", regex=True)
+    df_final[cvm_constants.COLUNAS_ASCI_CAD.value] = df_final[
+        cvm_constants.COLUNAS_ASCI_CAD.value
+    ].fillna("")
+    df_final[cvm_constants.COLUNAS_ASCI_CAD.value] = df_final[
+        cvm_constants.COLUNAS_ASCI_CAD.value
+    ].applymap(limpar_string)
+    df_final = df_final[colunas_finais]
+    # print(f"Fazendo partições para o ano ------> {i}")
+    df_final.to_csv("/tmp/data/br_cvm_fi/output/data.csv", encoding="utf-8")
+
+    return "/tmp/data/br_cvm_fi/output/data.csv"

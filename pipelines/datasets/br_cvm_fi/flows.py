@@ -18,6 +18,7 @@ from pipelines.datasets.br_cvm_fi.tasks import (
     clean_data_make_partitions_ext,
     check_for_updates_ext,
     clean_data_make_partitions_perfil,
+    clean_data_make_partitions_cad,
 )
 from pipelines.datasets.br_cvm_fi.schedules import every_day_cvm
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
@@ -341,6 +342,174 @@ with Flow(
             url=url, files=arquivos, upstream_tasks=[arquivos]
         )
         output_filepath = clean_data_make_partitions_perfil(
+            input_filepath, upstream_tasks=[input_filepath]
+        )
+
+        rename_flow_run = rename_current_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        )
+
+        wait_upload_table = create_table_and_upload_to_gcs(
+            data_path=output_filepath,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dump_mode="append",
+            wait=output_filepath,
+        )
+        with case(materialize_after_dump, True):
+            # Trigger DBT flow run
+            current_flow_labels = get_current_flow_labels()
+            materialization_flow = create_flow_run(
+                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
+                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+                parameters={
+                    "dataset_id": dataset_id,
+                    "table_id": table_id,
+                    "mode": materialization_mode,
+                    "dbt_alias": dbt_alias,
+                },
+                labels=current_flow_labels,
+                run_name=f"Materialize {dataset_id}.{table_id}",
+            )
+
+            wait_for_materialization = wait_for_flow_run(
+                materialization_flow,
+                stream_states=True,
+                stream_logs=True,
+                raise_final_state=True,
+            )
+            wait_for_materialization.max_retries = (
+                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
+            )
+            wait_for_materialization.retry_delay = timedelta(
+                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+            )
+
+
+br_cvm_fi_documentos_informe_diario.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_cvm_fi_documentos_informe_diario.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
+# br_cvm_fi_documentos_informe_diario.schedule = every_day_cvm
+
+
+with Flow(
+    name="br_cvm_fi_documentos_informacao_cadastral",
+    code_owners=[
+        "arthurfg",
+    ],
+) as br_cvm_fi_documentos_informacao_cadastral:
+    # Parameters
+    dataset_id = Parameter("dataset_id", default="br_cvm_fi", required=False)
+    table_id = Parameter(
+        "table_id", default="documentos_informacao_cadastral", required=False
+    )
+    materialization_mode = Parameter(
+        "materialization_mode", default="dev", required=False
+    )
+    materialize_after_dump = Parameter(
+        "materialize_after_dump", default=False, required=False
+    )
+    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+
+    url = Parameter(
+        "url",
+        default=cvm_constants.URL_INFO_CADASTRAL.value,
+        required=True,
+    )
+
+    files = Parameter("files", default=cvm_constants.CAD_FILE.value, required=False)
+
+    with case(is_empty(files), True):
+        log(f"Não houveram atualizações em {url.default}!")
+
+    with case(is_empty(files), False):
+        input_filepath = download_csv_cvm(url=url, files=files)
+        output_filepath = clean_data_make_partitions_cad(
+            input_filepath, upstream_tasks=[input_filepath]
+        )
+
+        rename_flow_run = rename_current_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        )
+
+        wait_upload_table = create_table_and_upload_to_gcs(
+            data_path=output_filepath,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dump_mode="append",
+            wait=output_filepath,
+        )
+        with case(materialize_after_dump, True):
+            # Trigger DBT flow run
+            current_flow_labels = get_current_flow_labels()
+            materialization_flow = create_flow_run(
+                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
+                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+                parameters={
+                    "dataset_id": dataset_id,
+                    "table_id": table_id,
+                    "mode": materialization_mode,
+                    "dbt_alias": dbt_alias,
+                },
+                labels=current_flow_labels,
+                run_name=f"Materialize {dataset_id}.{table_id}",
+            )
+
+            wait_for_materialization = wait_for_flow_run(
+                materialization_flow,
+                stream_states=True,
+                stream_logs=True,
+                raise_final_state=True,
+            )
+            wait_for_materialization.max_retries = (
+                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
+            )
+            wait_for_materialization.retry_delay = timedelta(
+                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+            )
+
+
+br_cvm_fi_documentos_informe_diario.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_cvm_fi_documentos_informe_diario.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
+# br_cvm_fi_documentos_informe_diario.schedule = every_day_cvm
+
+
+with Flow(
+    name="br_cvm_fi_documentos_balancete",
+    code_owners=[
+        "arthurfg",
+    ],
+) as br_cvm_fi_documentos_balancete:
+    # Parameters
+    dataset_id = Parameter("dataset_id", default="br_cvm_fi", required=False)
+    table_id = Parameter(
+        "table_id", default="documentos_documentos_balancete", required=False
+    )
+    materialization_mode = Parameter(
+        "materialization_mode", default="dev", required=False
+    )
+    materialize_after_dump = Parameter(
+        "materialize_after_dump", default=False, required=False
+    )
+    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+
+    url = Parameter(
+        "url",
+        default=cvm_constants.URL_INFO_CADASTRAL.value,
+        required=True,
+    )
+
+    files = Parameter("files", default=cvm_constants.CAD_FILE.value, required=False)
+
+    with case(is_empty(files), True):
+        log(f"Não houveram atualizações em {url.default}!")
+
+    with case(is_empty(files), False):
+        input_filepath = download_csv_cvm(url=url, files=files)
+        output_filepath = clean_data_make_partitions_cad(
             input_filepath, upstream_tasks=[input_filepath]
         )
 

@@ -523,3 +523,34 @@ class constants(Enum):  # pylint: disable=c0103
         "tipo_pessoa_emissor_3",
         "cpf_cnpj_emissor_3",
     ]
+
+    URL_INFO_CADASTRAL = "https://dados.cvm.gov.br/dados/FI/CAD/DADOS/"
+
+    CAD_FILE = "cad_fi.csv"
+
+    ARQUITETURA_URL_CAD = "https://docs.google.com/spreadsheets/d/1OdPdDRnZ9sh3tEdSUo64wsSxVuf5atHP/edit#gid=1045172528"
+
+    COLUNAS_ASCI_CAD = [
+        "id_fundo",
+        "cnpj",
+        "denominacao_social",
+        "codigo_cvm",
+        "situacao",
+        "classe",
+        "tipo_rentabilidade",
+        "tipo_condominio",
+        "informacoes_adicionais_taxa_performance",
+        "informacoes_adicionais_taxa_administracao",
+        "nome_diretor",
+        "cnpj_administrador",
+        "nome_administrador",
+        "indicador_pessoa_fisica_ou_juridica",
+        "cpf_cnpj_gestor",
+        "nome_gestor",
+        "cnpj_auditor",
+        "nome_auditor",
+        "cnpj_custodiante",
+        "nome_custodiante",
+        "cnpj_controlador",
+        "nome_controlador",
+    ]
