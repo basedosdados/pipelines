@@ -484,3 +484,45 @@ def clean_data_make_partitions_cad(diretorio):
     df_final.to_csv("/tmp/data/br_cvm_fi/output/data.csv", encoding="utf-8")
 
     return "/tmp/data/br_cvm_fi/output/data.csv"
+
+
+@task
+def clean_data_make_partitions_balancete(diretorio):
+    df_arq = sheet_to_df(cvm_constants.ARQUITETURA_URL_BALANCETE.value)
+    colunas_totais = df_arq["original_name"].to_list() + ["ano", "mes"]
+    colunas_finais = df_arq["name"].to_list() + ["ano", "mes"]
+    colunas_mapeamento = df_arq[df_arq["observations"].notnull()][
+        "original_name"
+    ].to_list()
+    df_final = pd.DataFrame()
+    arquivos = glob.glob(f"{diretorio}*.csv")
+
+    for file in tqdm(arquivos):
+        print(f"Baixando o arquivo ------> {file}")
+
+        df = pd.read_csv(file, sep=";", encoding="ISO-8859-1", dtype="string")
+        df["ano"] = df["DT_COMPTC"].apply(
+            lambda x: datetime.strptime(x, "%Y-%m-%d").year
+        )
+        df["mes"] = df["DT_COMPTC"].apply(
+            lambda x: datetime.strptime(x, "%Y-%m-%d").month
+        )
+
+        df_final = df
+
+        df_final = check_and_create_column(df_final, colunas_totais=colunas_totais)
+        df_final[colunas_mapeamento] = df_final[colunas_mapeamento].applymap(
+            lambda x: cvm_constants.MAPEAMENTO.value.get(x, x)
+        )
+        df_final["CNPJ_FUNDO"] = df_final["CNPJ_FUNDO"].str.replace(r"[/.-]", "")
+        df_final = rename_columns(df_arq, df_final)
+        df_final = df_final.replace(",", ".", regex=True)
+        df_final = df_final[colunas_finais]
+
+        to_partitions(
+            df_final,
+            partition_columns=["ano", "mes"],
+            savepath="/tmp/data/br_cvm_fi/output/",
+        )
+        print(f"Partições feitas para o ano ------> {file}")
+    return "/tmp/data/br_cvm_fi/output/"

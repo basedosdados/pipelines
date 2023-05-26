@@ -19,6 +19,7 @@ from pipelines.datasets.br_cvm_fi.tasks import (
     check_for_updates_ext,
     clean_data_make_partitions_perfil,
     clean_data_make_partitions_cad,
+    clean_data_make_partitions_balancete,
 )
 from pipelines.datasets.br_cvm_fi.schedules import every_day_cvm
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
@@ -498,18 +499,20 @@ with Flow(
 
     url = Parameter(
         "url",
-        default=cvm_constants.URL_INFO_CADASTRAL.value,
+        default=cvm_constants.URL_BALANCETE.value,
         required=True,
     )
 
-    files = Parameter("files", default=cvm_constants.CAD_FILE.value, required=False)
+    df = extract_links_and_dates(url)
 
-    with case(is_empty(files), True):
+    arquivos = check_for_updates(df, upstream_tasks=[df])
+
+    with case(is_empty(arquivos), True):
         log(f"Não houveram atualizações em {url.default}!")
 
-    with case(is_empty(files), False):
-        input_filepath = download_csv_cvm(url=url, files=files)
-        output_filepath = clean_data_make_partitions_cad(
+    with case(is_empty(arquivos), False):
+        input_filepath = download_unzip_csv(url=url, files=files)
+        output_filepath = clean_data_make_partitions_balancete(
             input_filepath, upstream_tasks=[input_filepath]
         )
 
