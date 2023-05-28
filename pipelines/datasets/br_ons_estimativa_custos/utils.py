@@ -1,0 +1,295 @@
+# -*- coding: utf-8 -*-
+"""
+General purpose functions for the br_ons_estimativa_custos project
+"""
+
+import wget
+import requests
+from bs4 import BeautifulSoup
+import os
+import pandas as pd
+from io import StringIO
+from typing import List
+from typing import Dict
+import time as tm
+import unicodedata
+
+
+# todo: build crawlers
+# criar renames
+def crawler_ons(
+    # todo: think about possible checks to ensure all csv files are downloaded
+    # todo: think about possible checks to incremental update
+    url: str,
+) -> List[str]:
+    """this function extract all download links from bcb agencias website
+    Args:
+        url (str): bcb url https://www.bcb.gov.br/fis/info/agencias.asp?frame=1
+
+    Returns:
+        list: a list of file links
+    """
+    # Send a GET request to the URL
+    response = requests.get(url)
+
+    # Parse the HTML content of the response using lxml
+    html = response.text
+
+    # Parse the HTML code
+    soup = BeautifulSoup(html, "html.parser")
+
+    # Find all 'a' elements with href containing ".csv"
+    csv_links = soup.find_all("a", href=lambda href: href and href.endswith(".csv"))
+
+    # Extract the href attribute from the csv_links
+    csv_urls = [link["href"] for link in csv_links]
+    # Print the csv_urls
+    print(csv_urls)
+
+    return csv_urls
+
+
+def download_data(
+    path: str,
+    url_list: List[str],
+    table_name: str,
+):
+    """A simple crawler to download data from comex stat website.
+
+    Args:
+        path (str): the path to store the data
+        table_type (str): the table type is either ncm or mun. ncm stands for 'nomenclatura comum do mercosul' and
+        mun for 'município'.
+        table_name (str): the table name is the original name of the zip file with raw data from comex stat website
+    """
+    # selects a url given a table name
+    for url in url_list:
+        # log(f"Downloading data from {url}")
+
+        # downloads the file and saves it
+        wget.download(url, out=path + table_name + "/input")
+        # just for precaution,
+        # sleep for 8 secs in between iterations
+        tm.sleep(8)
+
+
+def create_paths(
+    path: str,
+    table_name: str,
+):
+    """this function creates temporary directories to store input and output files
+
+    Args:
+        path (str): a standard directory to store input and output files from all flows
+        table_name (str): the name of the table to compose the directory structure and separate input and output files
+        of diferent tables
+
+    """
+    path_temps = [
+        path,
+        path + table_name + "/input/",
+        path + table_name + "/output/",
+    ]
+
+    for path_temp in path_temps:
+        os.makedirs(path_temp, exist_ok=True)
+
+
+def remove_latin1_accents_from_df(df):
+    if not isinstance(df, pd.DataFrame):
+        raise TypeError("Input must be a Pandas DataFrame.")
+
+    for col in df.columns:
+        if df[col].dtype == "object":
+            df[col] = df[col].apply(
+                lambda x: "".join(
+                    c
+                    for c in unicodedata.normalize("NFD", str(x))
+                    if unicodedata.category(c) != "Mn"
+                )
+            )
+    return df
+
+
+# algo
+# objetivo: ter um dicionario de dados com nome da tabela de input como chave e uma lista com colunas do dataset como valor
+# 1. ler primeiras linhas do arquivo
+# 2. identificar a linha que contem o nome das colunas
+# 3. adicionar em um dicionario o chave sendo o nome da tabela e o valor sendo uma lista com os nomes das colunas
+# 4. retornar o dicionario
+
+
+def get_columns_pattern_across_files(
+    files_folder_path: str,
+) -> dict[str, list]:
+    """this function reads the first rows of all files in a folder and returns a dict
+    with the file name as key and a list of column names as value
+
+    Args:
+        file_path (str): the path to the file
+        file_name (str): the file name
+
+    Returns:
+        dict[str, list]: a dict with the file name as key and a list of column names as value
+    """
+    # read the first 20 rows of the file
+    dict_columns = {}
+
+    dir_files = os.listdir(files_folder_path)
+    # todo: add a check to ensure the file is a csv file
+    # todo: add a check to automatically detect the row with col names
+    for file_name in dir_files:
+        df = pd.read_csv(files_folder_path + "/" + file_name, nrows=20, sep=";")
+        # get the column names
+        cols = df.columns
+
+        # create a dict with the file name as key and a list of column names as value
+        dict_columns[file_name] = cols
+
+    return dict_columns
+
+
+def check_and_create_column(
+    df: pd.DataFrame,
+    col_name: List[str],
+) -> pd.DataFrame:
+    """
+    Check if a column exists in a Pandas DataFrame. If it doesn't, create a new column with the given name
+    and fill it hwith NaN values. If it does exist, do nothing.
+
+    Parameters:
+    df (pd.DataFrame): The DataFrame to check.
+    col_name (List[str]): A list of column names to check and create
+
+    Returns:
+    Pandas DataFrame: The modified DataFrame.
+    """
+    # for each column in col_name
+    for col in col_name:
+        # check if the column exists in the dataframe
+        if col not in df.columns:
+            # if it doesnt, create a new column with the given name and fill it with "" (empty) values
+            df[col_name] = ""
+
+    return df
+
+
+# ---- build rename dicts
+def change_columns_name(df: pd.DataFrame, url: str) -> pd.DataFrame:
+    """Essa função recebe como input uma string com link para uma tabela de arquitetura
+    e retorna um dicionário com os nomes das colunas originais e os nomes das colunas
+    padronizados
+    Returns:
+        dict: com chaves sendo os nomes originais e valores sendo os nomes padronizados
+    """
+
+    try:
+        # Converte a URL de edição para um link de exportação em formato csv
+        url = url.replace("edit#gid=", "export?format=csv&gid=")
+
+        # Coloca a arquitetura em um dataframe
+        df_architecture = pd.read_csv(
+            StringIO(requests.get(url, timeout=10).content.decode("utf-8"))
+        )
+
+        df_architecture["original_name"] = df_architecture["original_name"].fillna("")
+        df_architecture["original_name"] = df_architecture["original_name"].str.strip()
+        df_architecture["name"] = df_architecture["name"].str.strip()
+
+        values = df_architecture["name"]
+        keys = df_architecture["original_name"]
+        my_dict = {k: v for k, v in zip(keys, values)}
+
+        print(my_dict)
+        # Cria um dicionário de nomes de colunas e tipos de dados a partir do dataframe df_architecture
+        # column_name_dict = df_architecture.set_index("original_name")["name"].to_dict()
+
+        # ex. caso seja preciso criar uma nova coluna que nao
+        # existe na arquitetura ex. criar colunas ano e mes a
+        # partir de uma data. Esse check evita que a coluna criada
+        # seja renomeada com um valor nulo
+        for key, value in my_dict.items():
+            if value:  # Check if value is not empty
+                df.rename(columns={key: value}, inplace=True)
+
+        print("cols renamed")
+        print(df.columns)
+        # Verifica se há colunas em df que não estão presentes em df[list(column_name_dict.values())]
+        # todo: check para ver se a coluna existe na arquitetura e nao no df
+        # o contrario não faz sentido, pq eventualemnte preciso dropar colunas que estao nao dado original e
+        # nao serao mantidas
+
+        # Reordena colunas
+        # ordem_colunas = list(my_dict.values())
+        # print('col order')
+        # print(ordem_colunas)
+        # df = df[ordem_colunas]
+        # print('3 cols reordered')
+        # print(df.columns)
+        # print('Columns reordered')
+
+    except Exception as e:
+        # Handle any exceptions that occur during the process
+        print(f"Algum erro ocorreu: {str(e)}")
+
+    return df
+
+
+def process_date_column(df: pd.DataFrame, date_column: str) -> pd.DataFrame:
+    # Check if all observations are in the 'YYYY-MM-DD' format
+    is_valid_format = pd.to_datetime(df[date_column], errors="coerce").notna().all()
+
+    # Raise an ValueError if not
+    if not is_valid_format:
+        raise ValueError("Not all date observations are in the 'YYYY-MM-DD' format.")
+
+    # Create year and month columns
+    df["ano"] = pd.to_datetime(df[date_column]).dt.year
+    df["mes"] = pd.to_datetime(df[date_column]).dt.month
+
+    return df
+
+
+def process_datetime_column(df: pd.DataFrame, datetime_column: str) -> pd.DataFrame:
+    # Check if all datetime observations are in the "YYYY-MM-DD HH:MM:SS" format
+    is_valid_format = (
+        pd.to_datetime(df[datetime_column], format="%Y-%m-%d %H:%M:%S", errors="coerce")
+        .notna()
+        .all()
+    )
+
+    if not is_valid_format:
+        raise ValueError(
+            "Not all datetime observations are in the 'YYYY-MM-DD HH:MM:SS' format."
+        )
+
+    # Create separate columns for date and hour
+    df["data"] = pd.to_datetime(df[datetime_column]).dt.date
+    df["hora"] = pd.to_datetime(df[datetime_column]).dt.time
+
+    return df
+
+
+def order_df(df: pd.DataFrame, url: str) -> pd.DataFrame:
+    """Essa função recebe como input uma string com link para uma tabela de arquitetura
+    e retorna um dicionário com os nomes das colunas originais e os nomes das colunas
+    padronizados
+    Returns:
+        dict: com chaves sendo os nomes originais e valores sendo os nomes padronizados
+    """
+
+    # Converte a URL de edição para um link de exportação em formato csv
+    url = url.replace("edit#gid=", "export?format=csv&gid=")
+
+    # Coloca a arquitetura em um dataframe
+    df_architecture = pd.read_csv(
+        StringIO(requests.get(url, timeout=10).content.decode("utf-8"))
+    )
+
+    df_architecture["name"] = df_architecture["name"].str.strip()
+
+    list = df_architecture["name"]
+
+    df = df[list]
+
+    return df
