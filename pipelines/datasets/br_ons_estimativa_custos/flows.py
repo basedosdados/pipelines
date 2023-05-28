@@ -28,10 +28,10 @@ from pipelines.utils.tasks import (
 )
 
 # from pipelines.datasets.br_ons_estimativa_custos.schedules import (
-#    schedule_municipio_exportacao,
-#    schedule_municipio_importacao,
-#    schedule_ncm_exportacao,
-#    schedule_ncm_importacao,
+#    schedule_br_ons_estimativa_custos_custo_marginal_operacao_semi_horario,
+#    schedule_br_ons_estimativa_custos_custo_marginal_operacao_semanal,
+#    schedule_br_ons_estimativa_custos_balanco_energia_subsistemas,
+#    schedule_br_ons_estimativa_custos_balanco_energia_subsistemas_dessem,
 # )
 
 
@@ -46,7 +46,6 @@ with Flow(
     table_id = Parameter(
         "table_id", default="custo_marginal_operacao_semi_horario", required=True
     )
-    start = Parameter("start", default=1997, required=True)  # confirmar depois
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -65,7 +64,7 @@ with Flow(
 
     filepath = wrang_data(
         table_name=ons_constants.TABLE_NAME_LIST.value[0],
-        upstream_tasks=[download_data],
+        upstream_tasks=[dow_data],
     )
 
     wait_upload_table = create_table_and_upload_to_gcs(
@@ -124,7 +123,7 @@ with Flow(
     table_id = Parameter(
         "table_id", default="custo_marginal_operacao_semanal", required=True
     )
-    start = Parameter("start", default=1997, required=True)  # confirmar depois
+
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -143,7 +142,7 @@ with Flow(
 
     filepath = wrang_data(
         table_name=ons_constants.TABLE_NAME_LIST.value[1],
-        upstream_tasks=[download_data],
+        upstream_tasks=[dow_data],
     )
 
     wait_upload_table = create_table_and_upload_to_gcs(
@@ -202,7 +201,6 @@ with Flow(
     table_id = Parameter(
         "table_id", default="balanco_energia_subsistemas", required=True
     )
-    start = Parameter("start", default=1997, required=True)  # confirmar depois
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -221,7 +219,7 @@ with Flow(
 
     filepath = wrang_data(
         table_name=ons_constants.TABLE_NAME_LIST.value[2],
-        upstream_tasks=[download_data],
+        upstream_tasks=[dow_data],
     )
 
     wait_upload_table = create_table_and_upload_to_gcs(
