@@ -40,20 +40,20 @@ def download_data(
         # acessa link
         table_name=table_name,
     )
-    print("paths created")
+    log("paths created")
 
     url_list = crawler_ons(
         # acessa valor
         url=constants.TABLE_NAME_URL_DICT.value[table_name],
     )
-    print("urls fetched")
+    log("urls fetched")
 
     dw(
         path=constants.PATH.value,
         url_list=url_list,
         table_name=table_name,
     )
-    print("data downloaded")
+    log("data downloaded")
 
 
 @task
