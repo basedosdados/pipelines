@@ -2,59 +2,183 @@
 """
 Tasks for br_ons_avaliacao_operacao
 """
-
-###############################################################################
-#
-# Aqui é onde devem ser definidas as tasks para os flows do projeto.
-# Cada task representa um passo da pipeline. Não é estritamente necessário
-# tratar todas as exceções que podem ocorrer durante a execução de uma task,
-# mas é recomendável, ainda que não vá implicar em  uma quebra no sistema.
-# Mais informações sobre tasks podem ser encontradas na documentação do
-# Prefect: https://docs.prefect.io/core/concepts/tasks.html
-#
-# De modo a manter consistência na codebase, todo o código escrito passará
-# pelo pylint. Todos os warnings e erros devem ser corrigidos.
-#
-# As tasks devem ser definidas como funções comuns ao Python, com o decorador
-# @task acima. É recomendado inserir type hints para as variáveis.
-#
-# Um exemplo de task é o seguinte:
-#
-# -----------------------------------------------------------------------------
-# from prefect import task
-#
-# @task
-# def my_task(param1: str, param2: int) -> str:
-#     """
-#     My task description.
-#     """
-#     return f'{param1} {param2}'
-# -----------------------------------------------------------------------------
-#
-# Você também pode usar pacotes Python arbitrários, como numpy, pandas, etc.
-#
-# -----------------------------------------------------------------------------
-# from prefect import task
-# import numpy as np
-#
-# @task
-# def my_task(a: np.ndarray, b: np.ndarray) -> str:
-#     """
-#     My task description.
-#     """
-#     return np.add(a, b)
-# -----------------------------------------------------------------------------
-#
-# Abaixo segue um código para exemplificação, que pode ser removido.
-#
-###############################################################################
+import os
+import pandas as pd
 
 from prefect import task
+from pipelines.utils.utils import (
+    log,
+    to_partitions,
+)
+from pipelines.datasets.br_ons_avaliacao_operacao.constants import constants
+from pipelines.datasets.br_ons_avaliacao_operacao.utils import (
+    create_paths,
+    crawler_ons,
+    download_data as dw,
+    change_columns_name,
+    remove_latin1_accents_from_df,
+    order_df,
+    process_date_column,
+    process_datetime_column,
+)
 
 
-@task  # noqa
-def say_hello(name: str = "World") -> str:
+@task
+def download_data(
+    table_name: str,
+):
     """
-    Greeting task.
+    This task crawls the ons website to extract all download links for the given table name.
+    Args:
+        table_name (str): the table name to be downloaded
+    Returns:
+        list: a list of file links
     """
-    return f"Hello, {name}!"
+    # create paths
+    create_paths(
+        path=constants.PATH.value,
+        # acessa link
+        table_name=table_name,
+    )
+    print("paths created")
+
+    url_list = crawler_ons(
+        # acessa valor
+        url=constants.TABLE_NAME_URL_DICT.value[table_name],
+    )
+    print("urls fetched")
+
+    dw(
+        path=constants.PATH.value,
+        url_list=url_list,
+        table_name=table_name,
+    )
+    print("data downloaded")
+
+
+@task
+def wrang_data(
+    table_name: str,
+) -> pd.DataFrame:
+    path_input = f"C:/tmp/br_ons/{table_name}/input"
+    path_output = f"C:/tmp/br_ons/{table_name}/output"
+
+    for file in os.listdir(path_input):
+        if table_name == "reservatorio":
+            print(f"fazendo {file}")
+            file = path_input + "/" + file
+
+            df = pd.read_csv(
+                file,
+                sep=";",
+                # encoding = 'latin1',
+                decimal=",",
+                thousands=".",
+            )
+
+            print("fazendo file")
+
+            architecture_link = constants.TABLE_NAME_ARCHITECHTURE_DICT.value[
+                table_name
+            ]
+
+            # rename cols
+            df = change_columns_name(url=architecture_link, df=df)
+
+            df = remove_latin1_accents_from_df(df)
+
+            df = order_df(url=architecture_link, df=df)
+
+            df = df.to_csv(
+                path_output + "/" + f"{table_name}.csv",
+                sep=",",
+                index=False,
+                na_rep="",
+                encoding="utf-8",
+            )
+
+        if (
+            table_name == "energia_natural_afluente"
+            or table_name == "energia_armazenada_reservatorio_dia"
+        ):
+            # data da dd/mm/yyyy para yyyy-mm-dd
+
+            print(f"fazendo {file}")
+            file = path_input + "/" + file
+
+            df = pd.read_csv(
+                file,
+                sep=";",
+                # encoding = 'latin1',
+                decimal=",",
+                thousands=".",
+            )
+
+            print("fazendo file")
+            architecture_link = constants.TABLE_NAME_ARCHITECHTURE_DICT.value[
+                table_name
+            ]
+
+            # rename cols
+            df = change_columns_name(url=architecture_link, df=df)
+
+            df = process_date_column(
+                df=df,
+                # todo: nomes podem ser ena_data ou ear_data
+                date_column="data",
+            )
+
+            print(df["data"].head(5))
+            print("datas formatadas")
+
+            df = remove_latin1_accents_from_df(df)
+
+            df = order_df(url=architecture_link, df=df)
+
+            to_partitions(
+                data=df, partition_columns=["ano", "mes"], savepath=path_output
+            )
+
+        if (
+            table_name == "geracao_usina"
+            or table_name == "geracao_termica_motivo_despacho"
+        ):
+            print(f"fazendo {file}")
+            file = path_input + "/" + file
+
+            df = pd.read_csv(
+                file,
+                sep=";",
+                # encoding = 'latin1',
+                decimal=",",
+                thousands=".",
+            )
+
+            print("fazendo file")
+            # rename cols
+            architecture_link = constants.TABLE_NAME_ARCHITECHTURE_DICT.value[
+                table_name
+            ]
+
+            df = change_columns_name(url=architecture_link, df=df)
+
+            df = process_datetime_column(
+                df=df,
+                datetime_column="data",
+            )
+            print("datas formatadas")
+
+            df = process_date_column(
+                df=df,
+                date_column="data",
+            )
+
+            print("datas formatadas")
+
+            df = remove_latin1_accents_from_df(df)
+
+            df = order_df(url=architecture_link, df=df)
+
+            to_partitions(
+                data=df, partition_columns=["ano", "mes"], savepath=path_output
+            )
