@@ -60,12 +60,12 @@ def download_data(
 def wrang_data(
     table_name: str,
 ) -> pd.DataFrame:
-    path_input = f"C:/tmp/br_ons/{table_name}/input"
-    path_output = f"C:/tmp/br_ons/{table_name}/output"
+    path_input = f"/tmp/br_ons/{table_name}/input"
+    path_output = f"/tmp/br_ons/{table_name}/output"
 
     for file in os.listdir(path_input):
         if table_name == "reservatorio":
-            print(f"fazendo {file}")
+            log(f"fazendo {file}")
             file = path_input + "/" + file
 
             df = pd.read_csv(
@@ -76,7 +76,7 @@ def wrang_data(
                 thousands=".",
             )
 
-            print("fazendo file")
+            log("fazendo file")
 
             architecture_link = constants.TABLE_NAME_ARCHITECHTURE_DICT.value[
                 table_name
@@ -103,7 +103,7 @@ def wrang_data(
         ):
             # data da dd/mm/yyyy para yyyy-mm-dd
 
-            print(f"fazendo {file}")
+            log(f"fazendo {file}")
             file = path_input + "/" + file
 
             df = pd.read_csv(
@@ -114,7 +114,7 @@ def wrang_data(
                 thousands=".",
             )
 
-            print("fazendo file")
+            log("fazendo file")
             architecture_link = constants.TABLE_NAME_ARCHITECHTURE_DICT.value[
                 table_name
             ]
@@ -124,7 +124,6 @@ def wrang_data(
 
             df = process_date_column(
                 df=df,
-                # todo: nomes podem ser ena_data ou ear_data
                 date_column="data",
             )
 
@@ -138,6 +137,8 @@ def wrang_data(
             to_partitions(
                 data=df, partition_columns=["ano", "mes"], savepath=path_output
             )
+
+            del df
 
         if (
             table_name == "geracao_usina"
@@ -154,7 +155,7 @@ def wrang_data(
                 thousands=".",
             )
 
-            print("fazendo file")
+            log("fazendo file")
             # rename cols
             architecture_link = constants.TABLE_NAME_ARCHITECHTURE_DICT.value[
                 table_name
@@ -166,14 +167,14 @@ def wrang_data(
                 df=df,
                 datetime_column="data",
             )
-            print("datas formatadas")
+            log("datas formatadas")
 
             df = process_date_column(
                 df=df,
                 date_column="data",
             )
 
-            print("datas formatadas")
+            log("datas formatadas")
 
             df = remove_latin1_accents_from_df(df)
 
@@ -182,3 +183,5 @@ def wrang_data(
             to_partitions(
                 data=df, partition_columns=["ano", "mes"], savepath=path_output
             )
+
+            del df
