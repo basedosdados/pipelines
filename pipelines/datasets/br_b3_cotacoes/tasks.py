@@ -110,7 +110,7 @@ def tratamento():
     )
     partition_data(
         df,
-        column_name="data_negocio",
+        column_name="data_referencia",
         output_directory=br_b3_cotacoes_constants.B3_PATH_OUTPUT.value,
     )
 
