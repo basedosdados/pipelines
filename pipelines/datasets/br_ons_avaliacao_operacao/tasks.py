@@ -99,7 +99,7 @@ def wrang_data(
 
         if (
             table_name == "energia_natural_afluente"
-            or table_name == "energia_armazenada_reservatorio_dia"
+            or table_name == "energia_armazenada_reservatorio"
         ):
             # data da dd/mm/yyyy para yyyy-mm-dd
 

@@ -12,11 +12,7 @@ import time as tm
 import unicodedata
 
 
-# todo: build crawlers
-# criar renames
 def crawler_ons(
-    # todo: think about possible checks to ensure all csv files are downloaded
-    # todo: think about possible checks to incremental update
     url: str,
 ) -> List[str]:
     """this function extract all download links from bcb agencias website
