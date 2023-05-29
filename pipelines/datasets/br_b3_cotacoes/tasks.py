@@ -20,7 +20,6 @@ from pipelines.constants import constants
 from pipelines.datasets.br_b3_cotacoes.utils import (
     download_and_unzip,
     read_files,
-    to_partitions,
     partition_data,
 )
 
@@ -29,12 +28,14 @@ from pipelines.datasets.br_b3_cotacoes.utils import (
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
+
 def tratamento():
+    log('********************************DOWNLOAD DO ARQUIVO********************************')
     download_and_unzip(
         br_b3_cotacoes_constants.B3_URL.value,
         br_b3_cotacoes_constants.B3_PATH_INPUT.value,
     )
-
+    log('********************************ABRINDO O ARQUIVO********************************')
     df = read_files(br_b3_cotacoes_constants.B3_PATH_OUTPUT_DF.value)
 
     rename = {
@@ -65,21 +66,23 @@ def tratamento():
         "codigo_participante_vendedor",
     ]
 
+    log('********************************INICIANDO O TRATAMENTO DOS DADOS********************************')
     df.rename(columns=rename, inplace=True)
-    df = df.replace(np.nan, "")
-    df["codigo_participante_vendedor"] = df["codigo_participante_vendedor"].apply(
-        lambda x: str(x).replace(".0", "")
-    )
-    df["codigo_participante_comprador"] = df["codigo_participante_comprador"].apply(
-        lambda x: str(x).replace(".0", "")
-    )
-    df["preco_negocio"] = df["preco_negocio"].apply(lambda x: str(x).replace(",", "."))
-    df["data_referencia"] = pd.to_datetime(df["data_referencia"], format="%Y-%m-%d")
-    df["data_negocio"] = pd.to_datetime(df["data_negocio"], format="%Y-%m-%d")
-    df["preco_negocio"] = df["preco_negocio"].astype(float)
-    df["codigo_identificador_negocio"] = df["codigo_identificador_negocio"].astype(str)
+    df = df.replace(np.nan, '')
+    df['codigo_participante_vendedor'] = df['codigo_participante_vendedor'].apply(lambda x: str(x).replace('.0', ''))
+    df['codigo_participante_comprador'] = df['codigo_participante_comprador'].apply(lambda x: str(x).replace('.0', ''))
+    df['preco_negocio'] = df['preco_negocio'].apply(lambda x: str(x).replace(',', '.'))
+    df['data_referencia'] = pd.to_datetime(df['data_referencia'], format='%Y-%m-%d')
+    df['data_negocio'] = pd.to_datetime(df['data_negocio'], format='ISO8601')
+    df['preco_negocio'] = df['preco_negocio'].astype(float)
+    df['codigo_identificador_negocio'] = df['codigo_identificador_negocio'].astype(str)
+    df['hora_fechamento'] = df['hora_fechamento'].astype(str)
+    df['hora_fechamento'] = np.where(df['hora_fechamento'].str.len() == 8, '0' + df['hora_fechamento'], df['hora_fechamento'])
+    df['hora_fechamento'] = df['hora_fechamento'].str[0:2] + ':' + df['hora_fechamento'].str[2:4] + ':' + df['hora_fechamento'].str[4:6] + '.' + df['hora_fechamento'].str[6:]
     df = df[ordem]
-
+    log('********************************FINALIZANDO O TRATAMENTO DOS DADOS********************************')
+    
+    log('********************************INICIANDO PARTICIONAMENTO********************************')
     partition_data(
         df,
         column_name="data_negocio",
