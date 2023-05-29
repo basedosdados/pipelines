@@ -82,7 +82,7 @@ def tratamento():
     )
     df["preco_negocio"] = df["preco_negocio"].apply(lambda x: str(x).replace(",", "."))
     df["data_referencia"] = pd.to_datetime(df["data_referencia"], format="%Y-%m-%d")
-    df["data_negocio"] = pd.to_datetime(df["data_negocio"], format="ISO8601")
+    df["data_negocio"] = pd.to_datetime(df["data_negocio"], format="%Y-%m-%d")
     df["preco_negocio"] = df["preco_negocio"].astype(float)
     df["codigo_identificador_negocio"] = df["codigo_identificador_negocio"].astype(str)
     df["hora_fechamento"] = df["hora_fechamento"].astype(str)
