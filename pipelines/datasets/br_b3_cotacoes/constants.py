@@ -9,7 +9,7 @@ class constants(Enum):  # pylint: disable=c0103
     """
 
     data = datetime.now().strftime("%d-%m-%Y")
-    data_nova = datetime.now().strf("%Y-%m-%d")
+    data_nova = datetime.now().strftime("%Y-%m-%d")
     B3_URL = f"https://arquivos.b3.com.br/apinegocios/tickercsv/{data_nova}"
     B3_PATH_INPUT = "/tmp/input/br_b3_cotacoes"
     B3_PATH_OUTPUT_DF = f"/tmp/input/br_b3_cotacoes/{data}_NEGOCIOSAVISTA.txt"
