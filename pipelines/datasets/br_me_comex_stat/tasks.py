@@ -148,6 +148,26 @@ def clean_br_me_comex_stat(
 
             del df
 
+        if table_type == "ncm" and table_name == "ncm_imp":
+            log(f"doing file {file}")
+
+            df = pd.read_csv(f"{path}{table_name}/input/{file}", sep=";")
+
+            df.rename(columns=rename_ncm, inplace=True)
+            log("df renamed")
+
+            df.to_csv(
+                path=comex_constants.PATH.value + table_name + "/output/",
+                encoding="utf-8",
+                sep=",",
+                na_rep="",
+                index=False,
+            )
+
+            log("df partitioned and saved")
+
+            del df
+
         else:
             log(f"doing file {file}")
 

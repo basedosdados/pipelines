@@ -45,8 +45,8 @@ def download_data(
         mun for 'município'.
         table_name (str): the table name is the original name of the zip file with raw data from comex stat website
     """
-    years = [2023]
-    for year in years:
+    # years = [2023]
+    for year in range(1997, 2024):
         # append mode setted, so during 2023 year, the crawler will only
         # download 2023 file and uptade it
 
