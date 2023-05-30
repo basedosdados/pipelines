@@ -5,7 +5,6 @@ Tasks for br_b3_cotacoes
 
 from prefect import task
 import pandas as pd
-import os
 import numpy as np
 from datetime import datetime, timedelta
 from pipelines.datasets.br_b3_cotacoes.constants import (
@@ -32,11 +31,31 @@ def tratamento():
     log(
         "********************************DOWNLOAD DO ARQUIVO********************************"
     )
-
+    log(
+        "********************************DATA DE ONTEM********************************"
+    )
+    log(br_b3_cotacoes_constants.ontem.value)
+    log(
+        "********************************DATA DE ONTEM PARA A URL********************************"
+    )    
+    log(br_b3_cotacoes_constants.ontem_url.value)
+    log(
+        "********************************CAMINHO DA URL********************************"
+    )   
     log(br_b3_cotacoes_constants.B3_URL.value)
+    log(
+        "********************************PATH INPUT********************************"
+    )    
     log(br_b3_cotacoes_constants.B3_PATH_INPUT.value)
+    log(
+        "********************************PATH INPUT PARA O ARQUIVO********************************"
+    )    
     log(br_b3_cotacoes_constants.B3_PATH_OUTPUT_DF.value)
+    log(
+        "********************************PATH OUTPUT********************************"
+    )
     log(br_b3_cotacoes_constants.B3_PATH_OUTPUT.value)
+
     download_and_unzip(
         br_b3_cotacoes_constants.B3_URL.value,
         br_b3_cotacoes_constants.B3_PATH_INPUT.value,
