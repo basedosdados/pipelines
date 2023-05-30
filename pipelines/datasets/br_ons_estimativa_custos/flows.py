@@ -196,7 +196,7 @@ with Flow(
 ) as br_ons_estimativa_custos_balanco_energia_subsistemas:
     # Parameters
     dataset_id = Parameter(
-        "dataset_id", default="balanco_energia_subsistemas", required=True
+        "dataset_id", default="br_ons_estimativa_custos", required=True
     )
     table_id = Parameter(
         "table_id", default="balanco_energia_subsistemas", required=True
@@ -273,7 +273,7 @@ with Flow(
 ) as br_ons_estimativa_custos_balanco_energia_subsistemas_dessem:
     # Parameters
     dataset_id = Parameter(
-        "dataset_id", default="balanco_energia_subsistemas_dessem", required=True
+        "dataset_id", default="br_ons_estimativa_custos", required=True
     )
     table_id = Parameter(
         "table_id", default="balanco_energia_subsistemas_dessem", required=True
