@@ -59,8 +59,8 @@ def download_data(
 def wrang_data(
     table_name: str,
 ) -> pd.DataFrame:
-    path_input = f"/tmp/br_ons/{table_name}/input"
-    path_output = f"/tmp/br_ons/{table_name}/output"
+    path_input = f"/tmp/br_ons_estimativa_custos/{table_name}/input"
+    path_output = f"/tmp/br_ons_estimativa_custos/{table_name}/output"
 
     df_list = []
 

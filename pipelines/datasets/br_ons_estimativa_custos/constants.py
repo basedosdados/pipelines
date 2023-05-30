@@ -11,7 +11,7 @@ class constants(Enum):  # pylint: disable=c0103
     Constant values for the br_ons_avaliacao_operacao project
     """
 
-    PATH = "/tmp/br_ons/"
+    PATH = "/tmp/br_ons_estimativa_custos/"
 
     TABLE_NAME_LIST = [
         "custo_marginal_operacao_semi_horario",
