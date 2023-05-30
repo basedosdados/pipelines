@@ -32,6 +32,12 @@ def tratamento():
     log(
         "********************************DOWNLOAD DO ARQUIVO********************************"
     )
+    log(br_b3_cotacoes_constants.data.value)
+    log(br_b3_cotacoes_constants.data_nova.value)
+    log(br_b3_cotacoes_constants.B3_URL.value)
+    log(br_b3_cotacoes_constants.B3_PATH_INPUT.value)
+    log(br_b3_cotacoes_constants.B3_PATH_OUTPUT_DF.value)
+    log(br_b3_cotacoes_constants.B3_PATH_OUTPUT.value)
     download_and_unzip(
         br_b3_cotacoes_constants.B3_URL.value,
         br_b3_cotacoes_constants.B3_PATH_INPUT.value,
@@ -108,13 +114,6 @@ def tratamento():
     log(
         "********************************INICIANDO PARTICIONAMENTO********************************"
     )
-
-    print(br_b3_cotacoes_constants.data.value)
-    print(br_b3_cotacoes_constants.data_nova.value)
-    print(br_b3_cotacoes_constants.B3_URL.value)
-    print(br_b3_cotacoes_constants.B3_PATH_INPUT.value)
-    print(br_b3_cotacoes_constants.B3_PATH_OUTPUT_DF.value)
-    print(br_b3_cotacoes_constants.B3_PATH_OUTPUT.value)
 
     partition_data(
         df,
