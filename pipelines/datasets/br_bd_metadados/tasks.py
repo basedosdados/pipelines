@@ -54,7 +54,6 @@ def crawler_organizations():
     organizations_json = json_response["result"]
     organizations = []
     for organization in organizations_json:
-
         response = requests.get(
             "https://basedosdados.org/api/3/action/organization_show?id={}".format(
                 organization
@@ -103,7 +102,6 @@ def crawler_datasets():
 
     datasets = []
     for dataset in datasets_json:
-
         datasets.append(
             {
                 "organization_id": dataset["owner_org"],
@@ -147,7 +145,6 @@ def crawler_resources():
     for dataset in datasets_json:
         for resource in dataset["resources"]:
             if resource.get("created") is not None:
-
                 resources.append(
                     {
                         "dataset_id": dataset["id"],
@@ -189,7 +186,6 @@ def crawler_external_links():
     for dataset in datasets_json:
         for resource in dataset["resources"]:
             if resource["resource_type"] == "external_link":
-
                 resources.append(
                     {
                         "dataset_id": dataset.get("id"),
@@ -241,7 +237,6 @@ def crawler_information_requests():
     for dataset in datasets_json:
         for resource in dataset["resources"]:
             if resource["resource_type"] == "information_request":
-
                 resources.append(
                     {
                         "dataset_id": dataset.get("id"),
@@ -295,7 +290,6 @@ def crawler_tables():
     for dataset in datasets:
         for resource in dataset["resources"]:
             if resource["resource_type"] == "bdm_table":
-
                 date_created = None
                 if "created" in resource:
                     if resource["created"] is not None:
@@ -448,7 +442,6 @@ def crawler_columns():
         for resource in dataset["resources"]:
             if resource["resource_type"] == "bdm_table":
                 for column in resource.get("columns"):
-
                     directory_column = None
                     if column.get("directory_column") is not None:
                         if column.get("directory_column")["dataset_id"] is not None:

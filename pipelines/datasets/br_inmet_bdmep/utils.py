@@ -123,7 +123,6 @@ def rename_cols_with_regex(df, regex, new_name):
 
 
 def convert_to_time(hora: str):
-
     # hora_str = "0100 UTC"
     hora_parts = hora.split()[0]  # extrai "0100" da string original
     hora_obj = time(
