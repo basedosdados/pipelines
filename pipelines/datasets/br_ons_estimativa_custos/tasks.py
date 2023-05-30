@@ -69,7 +69,7 @@ def wrang_data(
         if table_name == "custo_marginal_operacao_semanal":
             log(f"fazendo {file}")
             file = path_input + "/" + file
-
+            log(f"{file}")
             df = pd.read_csv(
                 file,
                 sep=";",
@@ -95,6 +95,8 @@ def wrang_data(
             del df
 
         if table_name == "balanco_energia_subsistemas":
+            file = path_input + "/" + file
+
             df = pd.read_csv(
                 file,
                 sep=";",
