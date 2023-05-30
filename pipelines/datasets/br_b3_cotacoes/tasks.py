@@ -32,8 +32,9 @@ def tratamento():
     log(
         "********************************DOWNLOAD DO ARQUIVO********************************"
     )
-    log(br_b3_cotacoes_constants.data.value)
-    log(br_b3_cotacoes_constants.data_nova.value)
+    log(br_b3_cotacoes_constants.ontem.value)
+    log(br_b3_cotacoes_constants.ontem_dia.value)
+    log(br_b3_cotacoes_constants.ontem_url.value)
     log(br_b3_cotacoes_constants.B3_URL.value)
     log(br_b3_cotacoes_constants.B3_PATH_INPUT.value)
     log(br_b3_cotacoes_constants.B3_PATH_OUTPUT_DF.value)
