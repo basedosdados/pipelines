@@ -108,6 +108,14 @@ def tratamento():
     log(
         "********************************INICIANDO PARTICIONAMENTO********************************"
     )
+
+    print(br_b3_cotacoes_constants.data.value)
+    print(br_b3_cotacoes_constants.data_nova.value)
+    print(br_b3_cotacoes_constants.B3_URL.value)
+    print(br_b3_cotacoes_constants.B3_PATH_INPUT.value)
+    print(br_b3_cotacoes_constants.B3_PATH_OUTPUT_DF.value)
+    print(br_b3_cotacoes_constants.B3_PATH_OUTPUT.value)
+
     partition_data(
         df,
         column_name="data_referencia",
