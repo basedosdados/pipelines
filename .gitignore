@@ -143,3 +143,4 @@ notebooks/
 poetry.lock
 pipelines/datasets/br_denatran_frota/todo_list.txt
 pipelines/datasets/br_denatran_frota/run_local.py
+basedosdados-dev-ff644018223b.json
