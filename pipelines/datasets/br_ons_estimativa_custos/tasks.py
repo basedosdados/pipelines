@@ -93,6 +93,7 @@ def wrang_data(
             df_list.append(df)
 
             del df
+            del file
 
         if table_name == "balanco_energia_subsistemas":
             file = path_input + "/" + file
