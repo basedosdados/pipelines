@@ -292,11 +292,11 @@ with Flow(
     )
 
     dow_data = download_data(
-        table_name=ons_constants.TABLE_NAME_LIST.value[2],
+        table_name=ons_constants.TABLE_NAME_LIST.value[3],
     )
 
     filepath = wrang_data(
-        table_name=ons_constants.TABLE_NAME_LIST.value[2],
+        table_name=ons_constants.TABLE_NAME_LIST.value[3],
         upstream_tasks=[download_data],
     )
 

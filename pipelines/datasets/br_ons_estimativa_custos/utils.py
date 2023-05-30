@@ -188,32 +188,10 @@ def change_columns_name(df: pd.DataFrame, url: str) -> pd.DataFrame:
         my_dict = {k: v for k, v in zip(keys, values)}
 
         print(my_dict)
-        # Cria um dicionário de nomes de colunas e tipos de dados a partir do dataframe df_architecture
-        # column_name_dict = df_architecture.set_index("original_name")["name"].to_dict()
 
-        # ex. caso seja preciso criar uma nova coluna que nao
-        # existe na arquitetura ex. criar colunas ano e mes a
-        # partir de uma data. Esse check evita que a coluna criada
-        # seja renomeada com um valor nulo
         for key, value in my_dict.items():
             if value:  # Check if value is not empty
                 df.rename(columns={key: value}, inplace=True)
-
-        print("cols renamed")
-        print(df.columns)
-        # Verifica se há colunas em df que não estão presentes em df[list(column_name_dict.values())]
-        # todo: check para ver se a coluna existe na arquitetura e nao no df
-        # o contrario não faz sentido, pq eventualemnte preciso dropar colunas que estao nao dado original e
-        # nao serao mantidas
-
-        # Reordena colunas
-        # ordem_colunas = list(my_dict.values())
-        # print('col order')
-        # print(ordem_colunas)
-        # df = df[ordem_colunas]
-        # print('3 cols reordered')
-        # print(df.columns)
-        # print('Columns reordered')
 
     except Exception as e:
         # Handle any exceptions that occur during the process
