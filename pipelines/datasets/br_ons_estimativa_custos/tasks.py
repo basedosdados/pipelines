@@ -68,10 +68,11 @@ def wrang_data(
     for file in os.listdir(path_input):
         if table_name == "custo_marginal_operacao_semanal":
             log(f"fazendo {file}")
-            file = path_input + "/" + file
-            log(f"{file}")
+            file1 = path_input + "/" + file
+            log(f"{file1}")
+
             df = pd.read_csv(
-                file,
+                file1,
                 sep=";",
                 # encoding = 'latin1',
                 decimal=",",
@@ -91,9 +92,9 @@ def wrang_data(
             df = remove_latin1_accents_from_df(df)
 
             df_list.append(df)
-
+            log("df appended")
             del df
-            del file
+            log("df deleted")
 
         if table_name == "balanco_energia_subsistemas":
             file = path_input + "/" + file
