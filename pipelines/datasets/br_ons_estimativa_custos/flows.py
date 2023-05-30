@@ -297,7 +297,7 @@ with Flow(
 
     filepath = wrang_data(
         table_name=ons_constants.TABLE_NAME_LIST.value[3],
-        upstream_tasks=[download_data],
+        upstream_tasks=[dow_data],
     )
 
     wait_upload_table = create_table_and_upload_to_gcs(

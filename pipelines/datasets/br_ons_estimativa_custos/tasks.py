@@ -4,7 +4,7 @@ Tasks for br_ons_avaliacao_operacao
 """
 import os
 import pandas as pd
-
+import time as tm
 from prefect import task
 from pipelines.utils.utils import (
     log,
@@ -46,13 +46,14 @@ def download_data(
         url=constants.TABLE_NAME_URL_DICT.value[table_name],
     )
     log("urls fetched")
-
+    tm.sleep(2)
     dw(
         path=constants.PATH.value,
         url_list=url_list,
         table_name=table_name,
     )
     log("data downloaded")
+    tm.sleep(2)
 
 
 @task
@@ -118,9 +119,6 @@ def wrang_data(
 
             log("datas formatadas")
 
-            # acusa erro aqui
-            # df = remove_latin1_accents_from_df(df)
-
             df_list.append(df)
 
             del df
@@ -151,9 +149,6 @@ def wrang_data(
 
             log(df["data"].head(5))
             log("datas formatadas")
-
-            # acusa erro aqui
-            # df = remove_latin1_accents_from_df(df)
 
             df_list.append(df)
 
