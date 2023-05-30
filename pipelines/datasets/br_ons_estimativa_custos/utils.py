@@ -15,11 +15,7 @@ import time as tm
 import unicodedata
 
 
-# todo: build crawlers
-# criar renames
 def crawler_ons(
-    # todo: think about possible checks to ensure all csv files are downloaded
-    # todo: think about possible checks to incremental update
     url: str,
 ) -> List[str]:
     """this function extract all download links from bcb agencias website
@@ -111,14 +107,6 @@ def remove_latin1_accents_from_df(df):
     return df
 
 
-# algo
-# objetivo: ter um dicionario de dados com nome da tabela de input como chave e uma lista com colunas do dataset como valor
-# 1. ler primeiras linhas do arquivo
-# 2. identificar a linha que contem o nome das colunas
-# 3. adicionar em um dicionario o chave sendo o nome da tabela e o valor sendo uma lista com os nomes das colunas
-# 4. retornar o dicionario
-
-
 def get_columns_pattern_across_files(
     files_folder_path: str,
 ) -> dict[str, list]:
@@ -136,8 +124,7 @@ def get_columns_pattern_across_files(
     dict_columns = {}
 
     dir_files = os.listdir(files_folder_path)
-    # todo: add a check to ensure the file is a csv file
-    # todo: add a check to automatically detect the row with col names
+
     for file_name in dir_files:
         df = pd.read_csv(files_folder_path + "/" + file_name, nrows=20, sep=";")
         # get the column names
@@ -251,21 +238,18 @@ def process_date_column(df: pd.DataFrame, date_column: str) -> pd.DataFrame:
 
 
 def process_datetime_column(df: pd.DataFrame, datetime_column: str) -> pd.DataFrame:
-    # Check if all datetime observations are in the "YYYY-MM-DD HH:MM:SS" format
-    is_valid_format = (
-        pd.to_datetime(df[datetime_column], format="%Y-%m-%d %H:%M:%S", errors="coerce")
-        .notna()
-        .all()
-    )
+    """This function creates separate columns for date and hour from a datetime column
 
-    if not is_valid_format:
-        raise ValueError(
-            "Not all datetime observations are in the 'YYYY-MM-DD HH:MM:SS' format."
-        )
+    Args:
+        df (pd.DataFrame): a datafrme with a datetime column in the format YYYY-MM-DD HH:MM:SS
+        datetime_column (str): a datetime column
 
+    Returns:
+        pd.DataFrame: a dataframe with separate columns for date and hour
+    """
     # Create separate columns for date and hour
-    df["data"] = pd.to_datetime(df[datetime_column]).dt.date
-    df["hora"] = pd.to_datetime(df[datetime_column]).dt.time
+    df["hora"] = df[datetime_column].str[11:19]
+    df["data"] = df[datetime_column].str[0:10]
 
     return df
 
