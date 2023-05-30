@@ -93,6 +93,38 @@ def wrang_data(
 
             del df
 
+        if table_name == "balanco_energia_subsistemas":
+            df = pd.read_csv(
+                file,
+                sep=";",
+                # encoding = 'latin1',
+                decimal=",",
+                thousands=".",
+            )
+
+            log("fazendo file")
+            architecture_link = constants.TABLE_NAME_ARCHITECHTURE_DICT.value[
+                table_name
+            ]
+            # rename cols
+            df = change_columns_name(url=architecture_link, df=df)
+
+            df = process_datetime_column(
+                df=df,
+                datetime_column="data",
+            )
+
+            df.rename(columns={"id_subsistena": "id_subsistema"}, inplace=True)
+
+            log("datas formatadas")
+
+            # acusa erro aqui
+            # df = remove_latin1_accents_from_df(df)
+
+            df_list.append(df)
+
+            del df
+
         else:
             print(f"fazendo {file}")
             file = path_input + "/" + file
