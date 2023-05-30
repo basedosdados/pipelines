@@ -192,8 +192,8 @@ def notify_discord_on_failure(
     """
     Notifies a Discord channel when a flow fails.
     """
-    url = get_vault_secret(secret_path)["data"]["url"]
-    flow_run_id = prefect.context.get("flow_run_id")
+    # url = get_vault_secret(secret_path)["data"]["url"]
+    # flow_run_id = prefect.context.get("flow_run_id")
     code_owners = code_owners or constants.DEFAULT_CODE_OWNERS.value
     code_owner_dict = constants.OWNERS_DISCORD_MENTIONS.value
     at_code_owners = []
@@ -210,14 +210,14 @@ def notify_discord_on_failure(
         elif code_owner_type == "role":
             at_code_owners.append(f"    - <@&{code_owner_id}>\n")
 
-    message = (
-        f":man_facepalming: Flow **{flow.name}** has failed."
-        + f'\n  - State message: *"{state.message}"*'
-        + "\n  - Link to the failed flow: "
-        + f"https://prefect.basedosdados.org/flow-run/{flow_run_id}"
-        + "\n  - Extra attention:\n"
-        + "".join(at_code_owners)
-    )
+    # message = (
+    #     f":man_facepalming: Flow **{flow.name}** has failed."
+    #     + f'\n  - State message: *"{state.message}"*'
+    #     + "\n  - Link to the failed flow: "
+    #     + f"https://prefect.basedosdados.org/flow-run/{flow_run_id}"
+    #     + "\n  - Extra attention:\n"
+    #     + "".join(at_code_owners)
+    # )
     # send_discord_message(
     #     message=message,
     #     webhook_url=url,
