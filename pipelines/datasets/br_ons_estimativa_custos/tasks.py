@@ -36,13 +36,11 @@ def download_data(
     # create paths
     create_paths(
         path=constants.PATH.value,
-        # acessa link
         table_name=table_name,
     )
     log("paths created")
 
     url_list = crawler_ons(
-        # acessa valor
         url=constants.TABLE_NAME_URL_DICT.value[table_name],
     )
     log("urls fetched")
@@ -74,7 +72,6 @@ def wrang_data(
             df = pd.read_csv(
                 file1,
                 sep=";",
-                # encoding = 'latin1',
                 decimal=",",
                 thousands=".",
             )
@@ -102,7 +99,6 @@ def wrang_data(
             df = pd.read_csv(
                 file,
                 sep=";",
-                # encoding = 'latin1',
                 decimal=",",
                 thousands=".",
             )
@@ -134,7 +130,6 @@ def wrang_data(
             df = pd.read_csv(
                 file,
                 sep=";",
-                # encoding = 'latin1',
                 decimal=",",
                 thousands=".",
             )
@@ -159,7 +154,7 @@ def wrang_data(
             del df
 
     df = pd.concat(df_list)
-    log("ordenado colunas")
+    log("ordenando colunas")
     df = order_df(url=architecture_link, df=df)
 
     log("salvando csv")

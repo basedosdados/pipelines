@@ -14,12 +14,12 @@ schedule_br_ons_estimativa_custos_custo_marginal_operacao_semi_horario = Schedul
         CronClock(
             cron="0 0 * * *",  # every day at midnight
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
-                "dataset_id": "br_ons_avaliacao_operacao",
+                "dataset_id": "br_ons_estimativa_custos",
                 "table_id": "custo_marginal_operacao_semi_horario",
-                "materialization_mode": "dev",
+                "materialization_mode": "prod",
                 "materialize after dump": True,
                 "dbt_alias": False,
             },
@@ -32,14 +32,14 @@ schedule_br_ons_estimativa_custos_custo_marginal_operacao_semi_horario = Schedul
 schedule_br_ons_estimativa_custos_custo_marginal_operacao_semanal = Schedule(
     clocks=[
         CronClock(
-            cron="0 0 * * *",  # every day at midnight
+            cron="0 0 * * 1",  # every monday at midnight
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
-                "dataset_id": "br_ons_avaliacao_operacao",
+                "dataset_id": "br_ons_estimativa_custos",
                 "table_id": "custo_marginal_operacao_semanal",
-                "materialization_mode": "dev",
+                "materialization_mode": "prod",
                 "materialize after dump": True,
                 "dbt_alias": False,
             },
@@ -54,12 +54,12 @@ schedule_br_ons_estimativa_custos_balanco_energia_subsistemas = Schedule(
         CronClock(
             cron="0 0 * * *",  # every day at midnight
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
-                "dataset_id": "br_ons_avaliacao_operacao",
+                "dataset_id": "br_ons_estimativa_custos",
                 "table_id": "balanco_energia_subsistemas",
-                "materialization_mode": "dev",
+                "materialization_mode": "prod",
                 "materialize after dump": True,
                 "dbt_alias": False,
             },
@@ -74,12 +74,12 @@ schedule_br_ons_estimativa_custos_balanco_energia_subsistemas_dessem = Schedule(
         CronClock(
             cron="0 0 * * *",  # every day at midnight
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
-                "dataset_id": "br_ons_avaliacao_operacao",
+                "dataset_id": "br_ons_estimativa_custos",
                 "table_id": "balanco_energia_subsistemas_dessem",
-                "materialization_mode": "dev",
+                "materialization_mode": "prod",
                 "materialize after dump": True,
                 "dbt_alias": False,
             },

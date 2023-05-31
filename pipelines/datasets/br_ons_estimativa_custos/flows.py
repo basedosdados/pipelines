@@ -27,12 +27,12 @@ from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
 )
 
-# from pipelines.datasets.br_ons_estimativa_custos.schedules import (
-#    schedule_br_ons_estimativa_custos_custo_marginal_operacao_semi_horario,
-#    schedule_br_ons_estimativa_custos_custo_marginal_operacao_semanal,
-#    schedule_br_ons_estimativa_custos_balanco_energia_subsistemas,
-#    schedule_br_ons_estimativa_custos_balanco_energia_subsistemas_dessem,
-# )
+from pipelines.datasets.br_ons_estimativa_custos.schedules import (
+    schedule_br_ons_estimativa_custos_custo_marginal_operacao_semi_horario,
+    schedule_br_ons_estimativa_custos_custo_marginal_operacao_semanal,
+    schedule_br_ons_estimativa_custos_balanco_energia_subsistemas,
+    schedule_br_ons_estimativa_custos_balanco_energia_subsistemas_dessem,
+)
 
 
 with Flow(
@@ -109,6 +109,9 @@ br_ons_estimativa_custos_custo_marginal_operacao_semi_horario.storage = GCS(
 )
 br_ons_estimativa_custos_custo_marginal_operacao_semi_horario.run_config = (
     KubernetesRun(image=constants.DOCKER_IMAGE.value)
+)
+br_ons_estimativa_custos_custo_marginal_operacao_semi_horario.schedule = (
+    schedule_br_ons_estimativa_custos_custo_marginal_operacao_semi_horario
 )
 
 
@@ -188,6 +191,9 @@ br_ons_estimativa_custos_custo_marginal_operacao_semanal.storage = GCS(
 br_ons_estimativa_custos_custo_marginal_operacao_semanal.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
+br_ons_estimativa_custos_custo_marginal_operacao_semanal.schedule = (
+    schedule_br_ons_estimativa_custos_custo_marginal_operacao_semanal
+)
 
 
 with Flow(
@@ -264,6 +270,9 @@ br_ons_estimativa_custos_balanco_energia_subsistemas.storage = GCS(
 )
 br_ons_estimativa_custos_balanco_energia_subsistemas.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
+)
+br_ons_estimativa_custos_balanco_energia_subsistemas.schedule = (
+    schedule_br_ons_estimativa_custos_balanco_energia_subsistemas
 )
 
 
@@ -342,4 +351,7 @@ br_ons_estimativa_custos_balanco_energia_subsistemas_dessem.storage = GCS(
 )
 br_ons_estimativa_custos_balanco_energia_subsistemas_dessem.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
+)
+br_ons_estimativa_custos_balanco_energia_subsistemas_dessem.schedule = (
+    schedule_br_ons_estimativa_custos_balanco_energia_subsistemas_dessem
 )
