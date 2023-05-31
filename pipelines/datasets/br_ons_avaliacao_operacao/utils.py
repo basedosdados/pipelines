@@ -263,6 +263,21 @@ def process_datetime_column(df: pd.DataFrame, datetime_column: str) -> pd.DataFr
     return df
 
 
+def remove_decimal(df, column_name):
+    """This function removes the decimal part of a column
+
+    Args:
+        df (pd.DataFrame): Data frame to be processed
+        column_name (str): column name to be processed
+
+    Returns:
+        df: Data frame to be processed
+    """
+    df[column_name] = df[column_name].astype(str).str.rstrip(".0")
+
+    return df
+
+
 def order_df(df: pd.DataFrame, url: str) -> pd.DataFrame:
     """Essa função recebe como input uma string com link para uma tabela de arquitetura
     e retorna um dicionário com os nomes das colunas originais e os nomes das colunas

@@ -20,6 +20,7 @@ from pipelines.datasets.br_ons_avaliacao_operacao.utils import (
     order_df,
     process_date_column,
     process_datetime_column,
+    remove_decimal,
 )
 
 
@@ -60,8 +61,8 @@ def download_data(
 def wrang_data(
     table_name: str,
 ) -> pd.DataFrame:
-    path_input = f"/tmp/br_ons/{table_name}/input"
-    path_output = f"/tmp/br_ons/{table_name}/output"
+    path_input = f"/tmp/br_ons_avaliacao_operacao/{table_name}/input"
+    path_output = f"/tmp/br_ons_avaliacao_operacao/{table_name}/output"
 
     for file in os.listdir(path_input):
         if table_name == "reservatorio":
@@ -71,9 +72,7 @@ def wrang_data(
             df = pd.read_csv(
                 file,
                 sep=";",
-                # encoding = 'latin1',
-                decimal=",",
-                thousands=".",
+                decimal=".",
             )
 
             log("fazendo file")
@@ -84,6 +83,12 @@ def wrang_data(
 
             # rename cols
             df = change_columns_name(url=architecture_link, df=df)
+
+            df["data"] = pd.to_datetime(df["data"]).dt.date
+
+            df = remove_decimal(df, "id_reservatorio_planejamento")
+
+            df = remove_decimal(df, "id_posto_vazao")
 
             df = remove_latin1_accents_from_df(df)
 
@@ -96,7 +101,7 @@ def wrang_data(
                 na_rep="",
                 encoding="utf-8",
             )
-
+        # todo : consertar erros nas datas
         if (
             table_name == "energia_natural_afluente"
             or table_name == "energia_armazenada_reservatorio"

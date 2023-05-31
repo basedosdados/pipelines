@@ -44,7 +44,6 @@ with Flow(
         "dataset_id", default="br_ons_avaliacao_operacao", required=True
     )
     table_id = Parameter("table_id", default="reservatorio", required=True)
-    start = Parameter("start", default=1997, required=True)  # confirmar depois
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -63,7 +62,7 @@ with Flow(
 
     filepath = wrang_data(
         table_name=ons_constants.TABLE_NAME_LIST.value[0],
-        upstream_tasks=[download_data],
+        upstream_tasks=[dow_data],
     )
 
     wait_upload_table = create_table_and_upload_to_gcs(
@@ -117,7 +116,6 @@ with Flow(
         "dataset_id", default="br_ons_avaliacao_operacao", required=True
     )
     table_id = Parameter("table_id", default="geracao_usina", required=True)
-    start = Parameter("start", default=1997, required=True)  # confirmar depois
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -136,7 +134,7 @@ with Flow(
 
     filepath = wrang_data(
         table_name=ons_constants.TABLE_NAME_LIST.value[1],
-        upstream_tasks=[download_data],
+        upstream_tasks=[dow_data],
     )
 
     wait_upload_table = create_table_and_upload_to_gcs(
@@ -193,7 +191,6 @@ with Flow(
     table_id = Parameter(
         "table_id", default="geracao_termica_motivo_despacho", required=True
     )
-    start = Parameter("start", default=1997, required=True)  # confirmar depois
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -212,7 +209,7 @@ with Flow(
 
     filepath = wrang_data(
         table_name=ons_constants.TABLE_NAME_LIST.value[2],
-        upstream_tasks=[download_data],
+        upstream_tasks=[dow_data],
     )
 
     wait_upload_table = create_table_and_upload_to_gcs(
@@ -269,7 +266,6 @@ with Flow(
         "dataset_id", default="br_ons_avaliacao_operacao", required=True
     )
     table_id = Parameter("table_id", default="energia_natural_afluente", required=True)
-    start = Parameter("start", default=1997, required=True)  # confirmar depois
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -288,7 +284,7 @@ with Flow(
 
     filepath = wrang_data(
         table_name=ons_constants.TABLE_NAME_LIST.value[3],
-        upstream_tasks=[download_data],
+        upstream_tasks=[dow_data],
     )
 
     wait_upload_table = create_table_and_upload_to_gcs(
@@ -338,15 +334,14 @@ br_ons_avaliacao_operacao_energia_natural_afluente.run_config = KubernetesRun(
 with Flow(
     name="br_ons_avaliacao_operacao.energia_armazenada_reservatorio_dia",
     code_owners=["Gabriel Pisa"],
-) as br_ons_avaliacao_operacao_energia_armazenada_reservatorio_dia:
+) as br_ons_energia_armazenada_reservatorio_dia:
     # Parameters
     dataset_id = Parameter(
-        "dataset_id", default="energia_armazenada_reservatorio_dia", required=True
+        "dataset_id", default="br_ons_avaliacao_operacao", required=True
     )
     table_id = Parameter(
         "table_id", default="energia_armazenada_reservatorio_dia", required=True
     )
-    start = Parameter("start", default=1997, required=True)  # confirmar depois
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -365,7 +360,7 @@ with Flow(
 
     filepath = wrang_data(
         table_name=ons_constants.TABLE_NAME_LIST.value[4],
-        upstream_tasks=[download_data],
+        upstream_tasks=[dow_data],
     )
 
     wait_upload_table = create_table_and_upload_to_gcs(
@@ -405,9 +400,9 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-br_ons_avaliacao_operacao_energia_armazenada_reservatorio_dia.storage = GCS(
+br_ons_energia_armazenada_reservatorio_dia.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
 )
-br_ons_avaliacao_operacao_energia_armazenada_reservatorio_dia.run_config = (
-    KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_ons_energia_armazenada_reservatorio_dia.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
 )
