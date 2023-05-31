@@ -36,7 +36,7 @@ with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
     table_id = Parameter("table_id", default="cotacoes", required=True)
 
     materialization_mode = Parameter(
-        "materialization_mode", default="prod", required=False
+        "materialization_mode", default="dev", required=False
     )
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
@@ -87,4 +87,4 @@ with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
 
 cotacoes.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 cotacoes.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-cotacoes.schedule = all_day_cotacoes
+#cotacoes.schedule = all_day_cotacoes
