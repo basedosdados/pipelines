@@ -36,7 +36,7 @@ with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
     table_id = Parameter("table_id", default="cotacoes", required=True)
 
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
