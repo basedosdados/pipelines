@@ -21,4 +21,4 @@ all_day_cotacoes = Schedule(
             },
         ),
     ]
-) 
+)
