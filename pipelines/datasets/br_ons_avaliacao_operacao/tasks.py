@@ -190,3 +190,5 @@ def wrang_data(
             )
 
             del df
+
+    return f"/tmp/br_ons_avaliacao_operacao/{table_name}/output"
