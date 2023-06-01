@@ -22,7 +22,6 @@ from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.utils.tasks import (
-    update_metadata,
     rename_current_flow_run_dataset_table,
     get_current_flow_labels,
     create_table_and_upload_to_gcs,
@@ -332,15 +331,15 @@ br_ons_avaliacao_operacao_energia_natural_afluente.run_config = KubernetesRun(
 )
 
 with Flow(
-    name="br_ons_avaliacao_operacao.energia_armazenada_reservatorio_dia",
+    name="br_ons_avaliacao_operacao.energia_armazenada_reservatorio",
     code_owners=["Gabriel Pisa"],
-) as br_ons_energia_armazenada_reservatorio_dia:
+) as br_ons_energia_armazenada_reservatorio:
     # Parameters
     dataset_id = Parameter(
         "dataset_id", default="br_ons_avaliacao_operacao", required=True
     )
     table_id = Parameter(
-        "table_id", default="energia_armazenada_reservatorio_dia", required=True
+        "table_id", default="energia_armazenada_reservatorio", required=True
     )
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
@@ -400,9 +399,7 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-br_ons_energia_armazenada_reservatorio_dia.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
-)
-br_ons_energia_armazenada_reservatorio_dia.run_config = KubernetesRun(
+br_ons_energia_armazenada_reservatorio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_ons_energia_armazenada_reservatorio.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
