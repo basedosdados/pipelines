@@ -299,7 +299,7 @@ with Flow(
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_me_comex_stat", required=True)
     table_id = Parameter("table_id", default="ncm_importacao", required=True)
-    start = Parameter("start", default=1997, required=True)  # confirmar depois
+
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
