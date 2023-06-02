@@ -101,7 +101,7 @@ def wrang_data(
                 na_rep="",
                 encoding="utf-8",
             )
-        # todo : consertar erros nas datas
+
         if (
             table_name == "energia_natural_afluente"
             or table_name == "energia_armazenada_reservatorio"
@@ -114,9 +114,7 @@ def wrang_data(
             df = pd.read_csv(
                 file,
                 sep=";",
-                # encoding = 'latin1',
-                decimal=",",
-                thousands=".",
+                decimal=".",
             )
 
             log("fazendo file")
@@ -155,8 +153,6 @@ def wrang_data(
             df = pd.read_csv(
                 file,
                 sep=";",
-                # encoding = 'latin1',
-                decimal=",",
                 thousands=".",
             )
 
