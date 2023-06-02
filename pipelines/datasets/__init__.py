@@ -29,4 +29,5 @@ from pipelines.datasets.br_ibge_pnadc.flows import *
 from pipelines.datasets.cross_update.flows import *
 from pipelines.datasets.br_anatel_banda_larga_fixa.flows import *
 from pipelines.datasets.br_bcb_agencia.flows import *
+from pipelines.datasets.br_ons_estimativa_custos.flows import *
 from pipelines.datasets.br_b3_cotacoes.flows import *
