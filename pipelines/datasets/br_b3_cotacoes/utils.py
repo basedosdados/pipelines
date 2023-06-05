@@ -46,24 +46,24 @@ def download_and_unzip(url, path):
     except urllib.error.HTTPError:
         print("Erro ao baixar o arquivo, tentando novamente...")
 
-        while True:
-            try:
-                input_url = input("Digite a data de ontem no formato aaaa-mm-dd: ")
-                url_completa = (
-                    f"https://arquivos.b3.com.br/apinegocios/tickercsv/{input_url}"
-                )
+        try:
+            input_url = input("Digite a data de ontem no formato aaaa-mm-dd: ")
+            url_completa = (
+                f"https://arquivos.b3.com.br/apinegocios/tickercsv/{input_url}"
+            )
 
-                os.makedirs(path, exist_ok=True)
+            os.makedirs(path, exist_ok=True)
 
-                http_response = urlopen(url_completa)
-                zipfile = ZipFile(BytesIO(http_response.read()))
-                zipfile.extractall(path=path)
+            http_response = urlopen(url_completa)
+            zipfile = ZipFile(BytesIO(http_response.read()))
+            zipfile.extractall(path=path)
 
-                return path
-            except EOFError:
-                print(
-                    "Entrada inválida. Certifique-se de fornecer a data corretamente."
-                )
+            return path
+        
+        except EOFError:
+            print(
+                "Entrada inválida. Certifique-se de fornecer a data corretamente."
+            )
 
 
 # ------- macro etapa 2 tratamento de dados
