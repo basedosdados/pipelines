@@ -59,11 +59,9 @@ def download_and_unzip(url, path):
             zipfile.extractall(path=path)
 
             return path
-        
+
         except EOFError:
-            print(
-                "Entrada inválida. Certifique-se de fornecer a data corretamente."
-            )
+            print("Entrada inválida. Certifique-se de fornecer a data corretamente.")
 
 
 # ------- macro etapa 2 tratamento de dados
