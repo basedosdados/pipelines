@@ -49,8 +49,10 @@ def download_and_unzip(url, path):
         while True:
             try:
                 input_url = input("Digite a data de ontem no formato aaaa-mm-dd: ")
-                url_completa = f"https://arquivos.b3.com.br/apinegocios/tickercsv/{input_url}"
-                
+                url_completa = (
+                    f"https://arquivos.b3.com.br/apinegocios/tickercsv/{input_url}"
+                )
+
                 os.makedirs(path, exist_ok=True)
 
                 http_response = urlopen(url_completa)
@@ -59,7 +61,9 @@ def download_and_unzip(url, path):
 
                 return path
             except EOFError:
-                print("Entrada inválida. Certifique-se de fornecer a data corretamente.")
+                print(
+                    "Entrada inválida. Certifique-se de fornecer a data corretamente."
+                )
 
 
 # ------- macro etapa 2 tratamento de dados
@@ -80,8 +84,9 @@ def read_files(path: str) -> pd.DataFrame:
     except FileNotFoundError:
         print(f"File not found: {path}")
         user_input = input("Digite a data de ontem no formato dd-mm-aaaa: ")
-        
-        df = pd.read_csv(f"/tmp/input/br_b3_cotacoes/{user_input}_NEGOCIOSAVISTA.txt",
+
+        df = pd.read_csv(
+            f"/tmp/input/br_b3_cotacoes/{user_input}_NEGOCIOSAVISTA.txt",
             sep=";",
         )
         return df
