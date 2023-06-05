@@ -42,7 +42,7 @@ def download_and_unzip(url, path):
         zipfile.extractall(path=path)
 
         return path
-    
+
     except urllib.error.HTTPError:
         print("Erro ao baixar o arquivo, tentando novamente...")
 
