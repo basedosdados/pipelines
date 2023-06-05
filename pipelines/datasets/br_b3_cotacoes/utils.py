@@ -45,7 +45,7 @@ def download_and_unzip(url, path):
     
     except urllib.error.HTTPError:
         print("Erro ao baixar o arquivo, tentando novamente...")
-        input_url = input('Digite a data de ontem no formato aaaa-mm-dd: ')
+        input_url = input("Digite a data de ontem no formato aaaa-mm-dd: ")
         url_completa = f"https://arquivos.b3.com.br/apinegocios/tickercsv/{input_url}"
 
         os.makedirs(path, exist_ok=True)
@@ -55,7 +55,6 @@ def download_and_unzip(url, path):
         zipfile.extractall(path=path)
 
         return path
-    
 
 
 # ------- macro etapa 2 tratamento de dados
@@ -72,11 +71,14 @@ def read_files(path: str) -> pd.DataFrame:
     try:
         df = pd.read_csv(path, sep=";")
         return df
-    
+
     except FileNotFoundError:
         print(f"File not found: {path}")
         user_input = input("Digite a data de ontem no formato dd-mm-aaaa: ")
-        df = pd.read_csv(f'/home/tricktx/basedosdados/br_b3_cotacoes/{user_input}_NEGOCIOSAVISTA.txt', sep=';')
+        df = pd.read_csv(
+            f"/home/tricktx/basedosdados/br_b3_cotacoes/{user_input}_NEGOCIOSAVISTA.txt",
+            sep=";",
+        )
         return df
 
 
