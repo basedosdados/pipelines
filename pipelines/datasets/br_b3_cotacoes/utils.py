@@ -14,6 +14,8 @@ import os
 from datetime import datetime, timedelta
 from os.path import join
 from pathlib import Path
+import urllib.request
+import urllib.error
 from pipelines.utils.utils import (
     log,
 )
@@ -40,7 +42,8 @@ def download_and_unzip(url, path):
         zipfile.extractall(path=path)
 
         return path
-    except:
+    
+    except urllib.error.HTTPError:
         print("Erro ao baixar o arquivo, tentando novamente...")
         input_url = input('Digite a data de ontem no formato aaaa-mm-dd: ')
         url_completa = f"https://arquivos.b3.com.br/apinegocios/tickercsv/{input_url}"
