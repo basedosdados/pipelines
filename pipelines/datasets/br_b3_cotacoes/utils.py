@@ -26,26 +26,39 @@ def download_and_unzip(url, path):
     """download and unzip a zip file
 
     Args:
-        url (str): a url
-
+        url (str): a URL
+        path (str): a path to extract the zip file
 
     Returns:
-        list: unziped files in a given folder
+        str: path to the extracted files
     """
+    try:
+        os.makedirs(path, exist_ok=True)
 
-    os.system(f"mkdir -p {path}")
+        http_response = urlopen(url)
+        zipfile = ZipFile(BytesIO(http_response.read()))
+        zipfile.extractall(path=path)
 
-    http_response = urlopen(url)
-    zipfile = ZipFile(BytesIO(http_response.read()))
-    zipfile.extractall(path=path)
+        return path
+    except:
+        print("Erro ao baixar o arquivo, tentando novamente...")
+        input_url = input('Digite a data de ontem no formato aaaa-mm-dd: ')
+        url_completa = f"https://arquivos.b3.com.br/apinegocios/tickercsv/{input_url}"
 
-    return path
+        os.makedirs(path, exist_ok=True)
+
+        http_response = urlopen(url_completa)
+        zipfile = ZipFile(BytesIO(http_response.read()))
+        zipfile.extractall(path=path)
+
+        return path
+    
 
 
 # ------- macro etapa 2 tratamento de dados
 # --- read files
 def read_files(path: str) -> pd.DataFrame:
-    """This function read a file from a given path
+    """This function reads a file from a given path
 
     Args:
         path (str): a path to a file
@@ -53,12 +66,15 @@ def read_files(path: str) -> pd.DataFrame:
     Returns:
         pd.DataFrame: a dataframe with the file data
     """
-    df = pd.read_csv(
-        path,
-        sep=";",
-    )
-
-    return df
+    try:
+        df = pd.read_csv(path, sep=";")
+        return df
+    
+    except FileNotFoundError:
+        print(f"File not found: {path}")
+        user_input = input("Digite a data de ontem no formato dd-mm-aaaa: ")
+        df = pd.read_csv(f'/home/tricktx/basedosdados/br_b3_cotacoes/{user_input}_NEGOCIOSAVISTA.txt', sep=';')
+        return df
 
 
 def partition_data(df: pd.DataFrame, column_name: list[str], output_directory: str):
