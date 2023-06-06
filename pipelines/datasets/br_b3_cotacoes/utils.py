@@ -55,7 +55,7 @@ def read_files(path: str) -> pd.DataFrame:
     Returns:
         pd.DataFrame: a dataframe with the file data
     """
-    
+
     df = pd.read_csv(
         path,
         sep=";",
