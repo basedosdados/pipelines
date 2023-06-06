@@ -32,11 +32,11 @@ def tratamento():
         "********************************DOWNLOAD DO ARQUIVO********************************"
     )
     log("********************************DATA DE ONTEM********************************")
-    # log(br_b3_cotacoes_constants.ontem.value)
+    log(br_b3_cotacoes_constants.ontem.value)
     log(
         "********************************DATA DE ONTEM PARA A URL********************************"
     )
-    # log(br_b3_cotacoes_constants.ontem_url.value)
+    log(br_b3_cotacoes_constants.ontem_url.value)
     log(
         "********************************CAMINHO DA URL********************************"
     )
