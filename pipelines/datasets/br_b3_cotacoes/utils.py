@@ -14,6 +14,8 @@ import os
 from datetime import datetime, timedelta
 from os.path import join
 from pathlib import Path
+import urllib.request
+import urllib.error
 from pipelines.utils.utils import (
     log,
 )
@@ -53,6 +55,7 @@ def read_files(path: str) -> pd.DataFrame:
     Returns:
         pd.DataFrame: a dataframe with the file data
     """
+
     df = pd.read_csv(
         path,
         sep=";",
