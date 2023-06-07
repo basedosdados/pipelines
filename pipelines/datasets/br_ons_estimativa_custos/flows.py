@@ -47,7 +47,7 @@ with Flow(
         "table_id", default="custo_marginal_operacao_semi_horario", required=True
     )
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
         "materialize after dump", default=True, required=False
@@ -128,7 +128,7 @@ with Flow(
     )
 
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
         "materialize after dump", default=True, required=False
@@ -208,7 +208,7 @@ with Flow(
         "table_id", default="balanco_energia_subsistemas", required=True
     )
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
         "materialize after dump", default=True, required=False
@@ -289,7 +289,7 @@ with Flow(
     )
     start = Parameter("start", default=1997, required=True)  # confirmar depois
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
         "materialize after dump", default=True, required=False
