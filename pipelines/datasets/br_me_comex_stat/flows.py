@@ -42,7 +42,7 @@ with Flow(
     table_id = Parameter("table_id", default="municipio_exportacao", required=True)
     start = Parameter("start", default=1997, required=True)  # confirmar depois
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
         "materialize after dump", default=True, required=False
@@ -126,7 +126,7 @@ with Flow(
     table_id = Parameter("table_id", default="municipio_importacao", required=True)
     start = Parameter("start", default=1997, required=True)  # confirmar depois
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
         "materialize after dump", default=True, required=False
@@ -210,7 +210,7 @@ with Flow(
     table_id = Parameter("table_id", default="ncm_exportacao", required=True)
     start = Parameter("start", default=1997, required=True)  # confirmar depois
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
         "materialize after dump", default=True, required=False
@@ -292,7 +292,7 @@ with Flow(
     table_id = Parameter("table_id", default="ncm_importacao", required=True)
     start = Parameter("start", default=1997, required=True)  # confirmar depois
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
         "materialize after dump", default=True, required=False

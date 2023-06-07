@@ -32,7 +32,7 @@ with Flow(
     dataset_id = Parameter("dataset_id", default="br_poder360_pesquisas", required=True)
     table_id = Parameter("table_id", default="microdados", required=True)
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
         "materialize after dump", default=True, required=False
