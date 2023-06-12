@@ -12,6 +12,7 @@ from io import StringIO
 import numpy as np
 import time as tm
 from pipelines.datasets.br_bcb_indicadores.constants import URL_BCB
+from pipelines.utils.utils import log
 
 ###############################################################################
 #
@@ -87,12 +88,17 @@ def get_currency_data(currency):
     url = create_url(start_day, end_day, currency_code)
 
     # Connect to the API endpoint and retrieve the JSON response
-    try:
-        json_response = connect_to_endpoint(url)
-    except requests.exceptions.Timeout:
-        print("timeout, vamos esperar 15 segundos para rodar novamente")
-        tm.sleep(15)
-        json_response = connect_to_endpoint(url)
+    attempts = 0
+    while attempts < 3:
+        try:
+            json_response = connect_to_endpoint(url)
+        except requests.exceptions.Timeout:
+            attempts += 1
+            log(
+                f"timeout, tentativa {attempts} vamos esperar 15 segundos para rodar novamente"
+            )
+            tm.sleep(15)
+            json_response = connect_to_endpoint(url)
 
     data = json_response["value"]
 
