@@ -58,7 +58,7 @@ def create_url(start_date: str, end_date: str, moeda="USD") -> str:
     search_url = "https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/CotacaoMoedaPeriodo(moeda='{}',dataInicial='{}',dataFinalCotacao='{}')".format(
         moeda, start_date, end_date
     )
-
+    log(search_url)
     return search_url
 
 
@@ -69,7 +69,8 @@ def connect_to_endpoint(url: str) -> dict:
     response = requests.request("GET", url, timeout=30)
     print("Endpoint Response Code: " + str(response.status_code))
     if response.status_code != 200:
-        raise Exception(response.status_code, response.text)
+        log(Exception(response.status_code, response.text))
+    log(response.json)
     return response.json()
 
 
@@ -90,6 +91,7 @@ def get_currency_data(currency):
     # Connect to the API endpoint and retrieve the JSON response
     attempts = 0
     while attempts < 3:
+        log(attempts)
         try:
             json_response = connect_to_endpoint(url)
         except requests.exceptions.Timeout:
