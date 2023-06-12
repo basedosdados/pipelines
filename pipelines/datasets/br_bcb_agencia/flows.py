@@ -41,7 +41,7 @@ with Flow(
 
     # Materialization mode
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
 
     materialize_after_dump = Parameter(
