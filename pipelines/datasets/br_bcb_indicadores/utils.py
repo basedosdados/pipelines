@@ -11,7 +11,7 @@ import os
 from io import StringIO
 import numpy as np
 import time as tm
-from pipelines.datasets.br_bcb_indicadores.constants import URL_BCB
+from pipelines.datasets.br_bcb_indicadores.constants import constants as bcb_constants
 from pipelines.utils.utils import log
 
 ###############################################################################
@@ -121,7 +121,9 @@ def treat_df(df, table_id):
     df["hora_cotacao"] = df["dataHoraCotacao"].dt.time
 
     # Read the architecture table from the given URL and store it in the 'architecture' variable
-    architecture = read_architecture_table(url_architecture=URL_BCB.value[table_id])
+    architecture = read_architecture_table(
+        url_architecture=bcb_constants.URL_BCB.value[table_id]
+    )
 
     # Rename the columns of the DataFrame 'df' based on the architecture table
     df = rename_columns(df, architecture)
