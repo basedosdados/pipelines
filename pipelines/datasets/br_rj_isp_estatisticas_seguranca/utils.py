@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pandas as pd
 from io import StringIO
 import os
@@ -12,7 +13,6 @@ from typing import Dict
 
 # ---- build rename dicts
 def change_columns_name(url_architecture: str) -> Dict[str, str]:
-
     """Essa função recebe como input uma string com link para uma tabela de arquitetura
     e retorna um dicionário com os nomes das colunas originais e os nomes das colunas
     padronizados
@@ -71,9 +71,7 @@ def check_tipo_fase(df: pd.DataFrame) -> pd.DataFrame:
     """
 
     for col in df.columns:
-
         if col == "tipo_fase":
-
             df["tipo_fase"] = df["tipo_fase"].map(
                 {
                     "2": "Consolidado sem errata",

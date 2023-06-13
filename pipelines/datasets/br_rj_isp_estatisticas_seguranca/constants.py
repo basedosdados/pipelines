@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from enum import Enum
 
 
@@ -24,12 +25,11 @@ class constants(Enum):  # pylint: disable=c0103
     # urls =
     URL = "http://www.ispdados.rj.gov.br/Arquivos/"
 
-# build a dict that maps a table name to a architectura and
-# another dict that maps an original table name to a
-# trated table name
+    # build a dict that maps a table name to a architectura and
+    # another dict that maps an original table name to a
+    # trated table name
 
     def dict_original():
-
         dict_original = {
             "BaseDPEvolucaoMensalCisp.csv": "evolucao_mensal_cisp.csv",
             "DOMensalEstadoDesde1991.csv": "evolucao_mensal_uf.csv",
@@ -43,7 +43,6 @@ class constants(Enum):  # pylint: disable=c0103
         return dict_original
 
     def dict_arquitetura():
-
         dict_arquitetura = {
             "evolucao_mensal_cisp.csv": "https://docs.google.com/spreadsheets/d/1jibGPOYF6Tack3n9MmiQKdBagbeK-oLr/edit#gid=55379267",
             "evolucao_mensal_uf.csv": "https://docs.google.com/spreadsheets/d/1seN6LQ9WQnobVNpFw6KX5BMhYr0yyZa2/edit#gid=1349095453",

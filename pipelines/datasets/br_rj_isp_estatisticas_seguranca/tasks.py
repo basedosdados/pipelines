@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pandas as pd
 import os
 import requests
@@ -23,7 +24,6 @@ from pipelines.constants import constants
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def download_files(file_name: str, save_dir: str) -> str:
-
     """
     Downloads CSV files from a list of URLs and saves them to a specified directory.
 
@@ -65,11 +65,9 @@ def download_files(file_name: str, save_dir: str) -> str:
 def clean_data(
     file_name: str,
 ):
-
     print(f"fazendo {file_name}")
 
     if file_name.endswith(".csv"):
-
         df = pd.read_csv(
             isp_constants.INPUT_PATH.value + file_name,
             encoding="latin-1",
