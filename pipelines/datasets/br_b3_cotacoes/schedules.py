@@ -7,7 +7,7 @@ from pipelines.constants import constants
 all_day_cotacoes = Schedule(
     clocks=[
         CronClock(
-            cron="0 23 * * 1-5",  # ! Intervalo de tempo entre as execuções
+            cron="15 3 * * 2-6",  # ! Intervalo de tempo entre as execuções
             start_date=datetime(2023, 5, 16),  # ! Data de início da execução
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,  # ! Label para identificar o agente que irá executar a pipeline (ex: basedosdados-dev)
