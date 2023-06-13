@@ -13,8 +13,8 @@ from pipelines.constants import constants
 schedule_br_ons_avaliacao_operacao_reservatorio = Schedule(
     clocks=[
         CronClock(
-            cron="@monthly",  # monthly
-            start_date=datetime(2023, 6, 6, 0, 0),
+            cron="@monthly",
+            start_date=datetime(2023, 6, 14, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
@@ -35,7 +35,7 @@ schedule_br_ons_avaliacao_operacao_geracao_usina = Schedule(
     clocks=[
         CronClock(
             cron="0 0 * * *",  # every day at midnight
-            start_date=datetime(2023, 6, 6, 0, 0),
+            start_date=datetime(2023, 6, 14, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
@@ -56,7 +56,7 @@ schedule_br_ons_avaliacao_operacao_geracao_termica_motivo_despacho = Schedule(
     clocks=[
         CronClock(
             cron="0 0 * * *",  # every day at midnight
-            start_date=datetime(2023, 6, 6, 0, 0),
+            start_date=datetime(2023, 6, 14, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
@@ -80,7 +80,7 @@ schedule_br_ons_avaliacao_operacao_energia_natural_afluente = Schedule(
             labels=[
                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
-            start_date=datetime(2023, 6, 6, 0, 0),
+            start_date=datetime(2023, 6, 14, 0, 0),
             parameter_defaults={
                 "dataset_id": "br_ons_avaliacao_operacao",
                 "table_id": "energia_natural_afluente",
@@ -98,7 +98,7 @@ schedule_br_ons_avaliacao_operacao_energia_armazenada_reservatorio = Schedule(
     clocks=[
         CronClock(
             cron="0 0 * * *",  # every day at midnight
-            start_date=datetime(2023, 6, 6, 0, 0),
+            start_date=datetime(2023, 6, 14, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
