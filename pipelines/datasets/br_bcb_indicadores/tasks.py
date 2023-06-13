@@ -81,17 +81,20 @@ def get_data(table_id: str) -> str:
 
     # Iterate over available currencies
     for currency in available_currencies():
-        log(currency)
+        log(f"downloading data for {currency['simbolo']}")
         # Retrieve data for each currency
         df = get_currency_data(currency)
+        log("download task successfully !")
+
         # Append the dataframe to the list
         list_dfs.append(df)
 
     # Concatenate all dataframes into a single dataframe
     df_final = pd.concat(list_dfs)
-    log("concat all dfs")
+    log("all dfs concated")
     # Save the final dataframe to a file and obtain the full file path
     full_filepath = save_input(df_final, table_id)
+    log(f"input saved in {full_filepath}")
 
     # Return the full file path
     return full_filepath
