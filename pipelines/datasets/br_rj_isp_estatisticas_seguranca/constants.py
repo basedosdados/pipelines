@@ -29,7 +29,6 @@ class constants(Enum):  # pylint: disable=c0103
     # another dict that maps an original table name to a
     # trated table name
 
-
     dict_original = {
         "BaseDPEvolucaoMensalCisp.csv": "evolucao_mensal_cisp.csv",
         "DOMensalEstadoDesde1991.csv": "evolucao_mensal_uf.csv",
@@ -38,9 +37,8 @@ class constants(Enum):  # pylint: disable=c0103
         "BaseMunicipioTaxaMes.csv": "taxa_evolucao_mensal_municipio.csv",
         "ArmasApreendidasEvolucaoCisp.xlsx": "armas_apreendidas_mensal.csv",
         "PoliciaisMortos.csv": "evolucao_policial_morto_servico_mensal.csv",
-        "BaseFeminicidioEvolucaoMensalCisp.csv": "feminicidio_mensal_cisp.csv"
+        "BaseFeminicidioEvolucaoMensalCisp.csv": "feminicidio_mensal_cisp.csv",
     }
-
 
     dict_arquitetura = {
         "evolucao_mensal_cisp.csv": "https://docs.google.com/spreadsheets/d/1jibGPOYF6Tack3n9MmiQKdBagbeK-oLr/edit#gid=55379267",
