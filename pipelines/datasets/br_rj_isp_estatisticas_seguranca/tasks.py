@@ -86,11 +86,11 @@ def clean_data(
         log(f"file -> {file_name} read")
 
     # find new df name
-    novo_nome = isp_constants.dict_original[file_name]
+    novo_nome = isp_constants.dict_original.value[file_name]
 
     log("renaming columns")
     # rename columns
-    link_arquitetura = isp_constants.dict_arquitetura[novo_nome]
+    link_arquitetura = isp_constants.dict_arquitetura.value[novo_nome]
     nomes_colunas = change_columns_name(link_arquitetura)
     df.rename(columns=nomes_colunas, inplace=True)
 
