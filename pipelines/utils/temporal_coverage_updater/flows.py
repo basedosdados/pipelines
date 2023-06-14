@@ -3,20 +3,6 @@
 Flows for temporal_coverage_updater
 """
 
-###############################################################################
-#
-# Aqui é onde devem ser definidos os flows do projeto.
-# Cada flow representa uma sequência de passos que serão executados
-# em ordem.
-#
-# Mais informações sobre flows podem ser encontradas na documentação do
-# Prefect: https://docs.prefect.io/core/concepts/flows.html
-#
-# De modo a manter consistência na codebase, todo o código escrito passará
-# pelo pylint. Todos os warnings e erros devem ser corrigidos.
-#
-
-
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from pipelines.constants import constants
@@ -29,7 +15,7 @@ from pipelines.utils.temporal_coverage_updater.tasks import (
 
 # from pipelines.datasets.temporal_coverage_updater.schedules import every_two_weeks
 from pipelines.utils.decorators import Flow
-from prefect import Parameter, case
+from prefect import Parameter
 
 with Flow(
     name="update_temporal_coverage_teste",
@@ -41,9 +27,11 @@ with Flow(
     table_id = Parameter("table_id", default="test_laura_student", required=True)
 
     ids = find_ids(dataset_id, table_id)
-    last_date = extract_last_update(dataset_id, table_id)
-    first_date = get_first_date(ids)
-    update_temporal_coverage(ids, first_date, last_date)
+    last_date = extract_last_update(dataset_id, table_id, upstream_tasks=[ids])
+    first_date = get_first_date(ids, upstream_tasks=[ids, last_date])
+    update_temporal_coverage(
+        ids, first_date, last_date, upstream_tasks=[ids, last_date, first_date]
+    )
 
 
 temporal_coverage_updater_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

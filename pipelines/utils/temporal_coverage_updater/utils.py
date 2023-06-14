@@ -286,4 +286,5 @@ def get_ids(dataset_name: str, table_name: str) -> dict:
             "coverage_id": coverage_id,
         }
     except Exception as e:
-        raise Exception(f"Error occurred while retrieving IDs: {str(e)}")
+        print(f"Error occurred while retrieving IDs: {str(e)}")
+        raise

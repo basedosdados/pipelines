@@ -36,7 +36,8 @@ def find_ids(dataset_id, table_id):
         log(f"IDs >>>> {ids}")
         return ids
     except Exception as e:
-        raise Exception(f"An error occurred while retrieving the IDs: {str(e)}")
+        log(f"An error occurred while retrieving the IDs: {str(e)}")
+        raise
 
 
 @task
@@ -73,9 +74,8 @@ def extract_last_update(dataset_id, table_id):
         log(f"Última data: {last_date}")
         return last_date
     except Exception as e:
-        raise Exception(
-            f"An error occurred while extracting the last update date: {str(e)}"
-        )
+        log(f"An error occurred while extracting the last update date: {str(e)}")
+        raise
 
 
 @task
@@ -102,7 +102,8 @@ def get_first_date(ids):
         log(f"Primeira data: {first_date}")
         return first_date
     except Exception as e:
-        raise Exception(f"An error occurred while retrieving the first date: {str(e)}")
+        log(f"An error occurred while retrieving the first date: {str(e)}")
+        raise
 
 
 @task
@@ -132,6 +133,5 @@ def update_temporal_coverage(ids, first_date, last_date):
             update=True,
         )
     except Exception as e:
-        raise Exception(
-            f"An error occurred while updating the temporal coverage: {str(e)}"
-        )
+        log(f"An error occurred while updating the temporal coverage: {str(e)}")
+        raise
