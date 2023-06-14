@@ -27,6 +27,7 @@ from pipelines.datasets.br_fgv_igp.flows import *
 from pipelines.datasets.br_me_caged.flows import *
 from pipelines.datasets.br_ibge_pnadc.flows import *
 from pipelines.datasets.cross_update.flows import *
+from pipelines.datasets.br_denatran_frota.flows import *
 from pipelines.datasets.br_anatel_banda_larga_fixa.flows import *
 from pipelines.datasets.br_bcb_agencia.flows import *
 from pipelines.datasets.br_ons_avaliacao_operacao.flows import *

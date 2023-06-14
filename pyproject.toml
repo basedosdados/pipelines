@@ -99,15 +99,27 @@ google-analytics-data = "0.12.1"
 google-api-python-client = "^2.58.0"
 oauth2client = "^4.1.3"
 redis-pal = "^1.0.0"
+rarfile = "^4.0"
+setuptools = "^67.6.1"
+polars = "^0.17.5"
+xlsx2csv = "^0.8.1"
+xlrd = "^2.0.1"
+python-string-utils = "^1.0.0"
+pytest-cov = "^4.0.0"
+code2flow = "^2.5.1"
+rpy2 = "^3.5.11"
 
-[tool.poetry.dev-dependencies]
-pytest_cov = "^3.0.0"
 
 [tool.poetry.group.dev.dependencies]
 python-string-utils = {git = "https://github.com/daveoncode/python-string-utils.git", rev = "master"}
 cookiecutter = "<=1.7.3"
 loguru = "<=0.6.0"
 typer = "<=0.4.0"
+pytest = "^7.2.2"
+parameterized = "^0.9.0"
+ipykernel = "^6.22.0"
+pydocstyle = "^6.3.0"
+
 
 [build-system]
 build-backend = "poetry.core.masonry.api"
