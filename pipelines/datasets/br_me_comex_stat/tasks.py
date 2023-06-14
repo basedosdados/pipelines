@@ -6,23 +6,79 @@ Tasks for br_me_comex_stat
 # pylint: disable=invalid-name,too-many-nested-blocks
 from glob import glob
 from zipfile import ZipFile
-
+import time as tm
+from datetime import timedelta
 import pandas as pd
 import numpy as np
 from prefect import task
+from pathlib import Path
+from typing import Union, List
+import basedosdados as bd
+import os
+
 
 from pipelines.datasets.br_me_comex_stat.utils import create_paths, download_data
-from pipelines.datasets.br_me_comex_stat.constants import constants
+from pipelines.datasets.br_me_comex_stat.constants import constants as comex_constants
+
+from pipelines.constants import constants
+
+from pipelines.utils.utils import (
+    log,
+    to_partitions,
+)
 
 
 @task
-def clean_br_me_comex_stat():
-    """
-    clean and partition table
+def download_br_me_comex_stat(
+    table_type: str,
+    table_name: str,
+) -> ZipFile:
+    """This task creates directories to temporary input and output files
+    and downloads the data from the source
+
+    Args:
+        table_type (str): the table type is either ncm or mun. ncm stands for 'nomenclatura comum do mercosul' and
+        mun for 'município'.
+        table_name (str): the table name is the original name of the zip file with raw data from comex stat website
+
+    Output:
+        ZipFile: the zip file downloaded from comex stat website.
     """
 
-    create_paths(constants.TABLE.value, constants.PATH.value, constants.UF.value)
-    download_data(constants.PATH.value)
+    create_paths(
+        path=comex_constants.PATH.value,
+        table_name=table_name,
+    )
+
+    log("paths created!")
+
+    download_data(
+        path=comex_constants.PATH.value,
+        table_type=table_type,
+        table_name=table_name,
+    )
+    log("data downloaded!")
+
+    tm.sleep(10)
+
+
+@task
+def clean_br_me_comex_stat(
+    path: str,
+    table_type: str,
+    table_name: str,
+) -> pd.DataFrame:
+    """this task reads a zip file donwload by the upstream task download_br_me_comex_stat and
+    unpacks it into a csv file. Then, it cleans the data and returns a pandas dataframe partitioned by year and month
+    or by year, month and sigla_uf.
+
+    Args:
+        table_name (str): the table name is the original name of the zip file with raw data from comex stat website
+
+
+    Returns:
+        pd.DataFrame: a partitioned standardized pandas dataframe
+    """
 
     rename_ncm = {
         "CO_ANO": "ano",
@@ -51,100 +107,62 @@ def clean_br_me_comex_stat():
         "VL_FOB": "valor_fob_dolar",
     }
 
-    list_zip = glob(constants.PATH.value + "input/" + "*.zip")
+    file_list = os.listdir(f"{path}{table_name}/input/")
 
-    for filezip in list_zip:
+    for file in file_list:
+        if table_type == "mun":
+            log(f"doing file {file}")
 
-        with ZipFile(filezip) as z:
+            df = pd.read_csv(f"{path}{table_name}/input/{file}", sep=";")
 
-            with z.open(filezip.split("/")[-1][:-4] + ".csv") as f:
-                df = pd.read_csv(f, sep=";")
+            df.rename(columns=rename_mun, inplace=True)
 
-                if "MUN" in filezip:
+            log("df renamed")
 
-                    df.rename(columns=rename_mun, inplace=True)
+            condicao = [
+                ((df["sigla_uf"] == "SP") & (df["id_municipio"] < 3500000)),
+                ((df["sigla_uf"] == "MS") & (df["id_municipio"] > 5000000)),
+                ((df["sigla_uf"] == "GO") & (df["id_municipio"] > 5200000)),
+                ((df["sigla_uf"] == "DF") & (df["id_municipio"] > 5300000)),
+            ]
 
-                    condicao = [
-                        ((df["sigla_uf"] == "SP") & (df["id_municipio"] < 3500000)),
-                        ((df["sigla_uf"] == "MS") & (df["id_municipio"] > 5000000)),
-                        ((df["sigla_uf"] == "GO") & (df["id_municipio"] > 5200000)),
-                        ((df["sigla_uf"] == "DF") & (df["id_municipio"] > 5300000)),
-                    ]
+            valores = [
+                df["id_municipio"] + 100000,
+                df["id_municipio"] - 200000,
+                df["id_municipio"] - 100000,
+                df["id_municipio"] - 100000,
+            ]
 
-                    valores = [
-                        df["id_municipio"] + 100000,
-                        df["id_municipio"] - 200000,
-                        df["id_municipio"] - 100000,
-                        df["id_municipio"] - 100000,
-                    ]
+            df["id_municipio"] = np.select(
+                condicao, valores, default=df["id_municipio"]
+            )
+            log("Id_municipio column updated")
 
-                    df["id_municipio"] = np.select(
-                        condicao, valores, default=df["id_municipio"]
-                    )
+            to_partitions(
+                data=df,
+                partition_columns=["ano", "mes", "sigla_uf"],
+                savepath=comex_constants.PATH.value + table_name + "/output/",
+            )
 
-                    for table in constants.TABLE.value:
+            log("df partitioned and saved")
 
-                        for ano in [*range(1997, 2023)]:
+            del df
 
-                            for mes in [*range(1, 13)]:
+        else:
+            log(f"doing file {file}")
 
-                                for uf in constants.UF.value:
+            df = pd.read_csv(f"{path}{table_name}/input/{file}", sep=";")
 
-                                    if "municipio" in table:
+            df.rename(columns=rename_ncm, inplace=True)
+            log("df renamed")
 
-                                        print(f"Particionando {table}_{ano}_{mes}_{uf}")
+            to_partitions(
+                data=df,
+                partition_columns=["ano", "mes"],
+                savepath=comex_constants.PATH.value + table_name + "/output/",
+            )
+            log("df partitioned and saved")
 
-                                        df_partition = df[df["ano"] == ano].copy()
-                                        df_partition = df_partition[
-                                            df_partition["mes"] == mes
-                                        ]
-                                        df_partition = df_partition[
-                                            df_partition["sigla_uf"] == uf
-                                        ]
-                                        df_partition.drop(
-                                            ["ano", "mes", "sigla_uf"],
-                                            axis=1,
-                                            inplace=True,
-                                        )
+            del df
 
-                                        df_partition.to_csv(
-                                            constants.PATH.value
-                                            + "output/"
-                                            + f"{table}/ano={ano}/mes={mes}/sigla_uf={uf}/{table}.csv",
-                                            index=False,
-                                            encoding="utf-8",
-                                            na_rep="",
-                                        )
-
-                                        del df_partition
-
-                else:
-
-                    df.rename(columns=rename_ncm, inplace=True)
-
-                    for table in constants.TABLE.value:
-                        for ano in [*range(1997, 2023)]:
-                            for mes in [*range(1, 13)]:
-
-                                if "ncm" in table:
-                                    print(f"Particionando {table}_{ano}_{mes}")
-                                    df_partition = df[df["ano"] == ano].copy()
-                                    df_partition = df_partition[
-                                        df_partition["mes"] == mes
-                                    ]
-                                    df_partition.drop(
-                                        ["ano", "mes"], axis=1, inplace=True
-                                    )
-                                    df_partition.to_csv(
-                                        constants.PATH.value
-                                        + "output/"
-                                        + f"{table}/ano={ano}/mes={mes}/{table}.csv",
-                                        index=False,
-                                        encoding="utf-8",
-                                        na_rep="",
-                                    )
-
-                                    del df_partition
-                del df
-
-    return "/tmp/br_me_comex_stat/output/"
+    return f"/tmp/br_me_comex_stat/{table_name}/output"

@@ -444,7 +444,6 @@ def identify_code_owners(files: List[str]) -> List[str]:
 
 
 if __name__ == "__main__":
-
     # Assert arguments.
     if len(sys.argv) not in [2, 3]:
         print(f"Usage: python {sys.argv[0]} <changed_files> [--write-to-file]")

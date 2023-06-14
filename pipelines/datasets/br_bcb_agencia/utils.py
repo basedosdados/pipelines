@@ -55,7 +55,6 @@ def extract_download_links(url, xpath):
 
 
 def download_and_unzip(url, extract_to):
-
     """download and unzip a zip file
 
     Args:
