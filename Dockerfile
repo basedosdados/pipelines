@@ -38,6 +38,3 @@
         mkdir -p /opt/prefect/app/bases && \
         mkdir -p /root/.basedosdados/templates && \
         mkdir -p /root/.basedosdados/credentials/
-
-    # hang container for debug
-    CMD ["tail", "-f", "/dev/null"]
