@@ -18,18 +18,14 @@
     ENV PATH="$VIRTUAL_ENV/bin:$PATH"
     RUN python3 -m pip install --no-cache-dir -U "pip>=21.2.4" "prefect==$PREFECT_VERSION"
 
-    # Install R
-    RUN apt-get install -y dirmngr gnupg apt-transport-https ca-certificates software-properties-common && \
-        apt-key adv --keyserver hkp://pgp.mit.edu:80 --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9 && \
-        add-apt-repository 'deb https://cloud.r-project.org/bin/linux/ubuntu focal-cran40/' && \
-        apt-get update && \
-        apt-get install -y r-base
-
     # Add CLI tools
     RUN apt-get update && \
         apt-get install --no-install-recommends -y curl wget ftp p7zip-full traceroute && \
         apt-get clean && \
         rm -rf /var/lib/apt/lists/*
+
+    # Install R
+    RUN apt-get update && apt-get install -y r-base
 
     # Install requirements
     WORKDIR /app
