@@ -256,7 +256,9 @@ with Flow(
         )
 
 
-br_denatran_frota_municipio_tipo.storage = GCS(pipelines_constants.GCS_FLOWS_BUCKET.value)
+br_denatran_frota_municipio_tipo.storage = GCS(
+    pipelines_constants.GCS_FLOWS_BUCKET.value
+)
 br_denatran_frota_municipio_tipo.run_config = KubernetesRun(
     image=pipelines_constants.DOCKER_IMAGE.value
 )
