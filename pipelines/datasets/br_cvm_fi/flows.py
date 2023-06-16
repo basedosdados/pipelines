@@ -52,7 +52,7 @@ with Flow(
         "table_id", default="documentos_informe_diario", required=False
     )
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
