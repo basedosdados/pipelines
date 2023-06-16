@@ -511,7 +511,7 @@ with Flow(
         log(f"Não houveram atualizações em {url.default}!")
 
     with case(is_empty(arquivos), False):
-        input_filepath = download_unzip_csv(url=url, files=files)
+        input_filepath = download_unzip_csv(url=url, files=arquivos)
         output_filepath = clean_data_make_partitions_balancete(
             input_filepath, upstream_tasks=[input_filepath]
         )
