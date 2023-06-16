@@ -145,7 +145,7 @@ def treat_municipio_tipo(file: str) -> pl.DataFrame:
     municipios_query = """SELECT nome, id_municipio, sigla_uf FROM `basedosdados.br_bd_diretorios_brasil.municipio`
     """
     bd_municipios = bd.read_sql(
-        municipios_query, "tamir-pipelines"
+        municipios_query, "basedosdados-dev"
     )  # Hardcoded, not good.
     bd_municipios = pl.from_pandas(bd_municipios)
 
