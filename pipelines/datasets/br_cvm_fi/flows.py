@@ -486,9 +486,7 @@ with Flow(
 ) as br_cvm_fi_documentos_balancete:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_cvm_fi", required=False)
-    table_id = Parameter(
-        "table_id", default="documentos_documentos_balancete", required=False
-    )
+    table_id = Parameter("table_id", default="documentos_balancete", required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -505,13 +503,13 @@ with Flow(
 
     df = extract_links_and_dates(url)
 
-    arquivos = check_for_updates(df, upstream_tasks=[df])
+    files = check_for_updates(df, upstream_tasks=[df])
 
-    with case(is_empty(arquivos), True):
+    with case(is_empty(files), True):
         log(f"Não houveram atualizações em {url.default}!")
 
-    with case(is_empty(arquivos), False):
-        input_filepath = download_unzip_csv(url=url, files=arquivos)
+    with case(is_empty(files), False):
+        input_filepath = download_unzip_csv(url=url, files=files)
         output_filepath = clean_data_make_partitions_balancete(
             input_filepath, upstream_tasks=[input_filepath]
         )
