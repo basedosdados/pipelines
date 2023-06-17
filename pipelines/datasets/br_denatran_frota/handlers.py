@@ -54,6 +54,7 @@ def crawl(month: int, year: int, temp_dir: str = "") -> None:
     """
     if month not in MONTHS.values():
         raise ValueError("Mês inválido.")
+    log("Downloading file")
     files_dir = os.path.join(temp_dir, "files")
     make_dir_when_not_exists(files_dir)
     year_dir_name = os.path.join(files_dir, f"{year}")
@@ -129,6 +130,7 @@ def output_file_to_csv(df: pl.DataFrame, filename: str) -> None:
 
 
 def get_desired_file(year: int, download_directory: str, filetype: str) -> str:
+    log("Accessing downloaded file")
     directory_to_search = os.path.join(download_directory, "files", f"{year}")
     log(f"Directory: {directory_to_search}")
     for file in os.listdir(directory_to_search):

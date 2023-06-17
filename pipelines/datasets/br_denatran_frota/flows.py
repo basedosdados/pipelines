@@ -65,9 +65,6 @@ from prefect.tasks.prefect import (
     create_flow_run,
     wait_for_flow_run,
 )
-from pipelines.utils.utils import (
-    log,
-)
 import os
 from pipelines.constants import constants as pipelines_constants
 from pipelines.utils.constants import constants as utils_constants
@@ -111,21 +108,17 @@ with Flow(
     )
 
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
-
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
-    log("Downloading file")
     crawled = crawl_task(month=2, year=year, temp_dir=constants.DOWNLOAD_PATH.value)
     # Now get the downloaded file:
-    log("Accessing downloaded file")
     municipio_tipo_file = get_desired_file_task(
         year=year,
         download_directory=constants.DOWNLOAD_PATH.value,
         filetype=constants.UF_TIPO_BASIC_FILENAME.value,
         upstream_tasks=[crawled],
     )
-    log(municipio_tipo_file)
     df = treat_uf_tipo_task(
         file=municipio_tipo_file, upstream_tasks=[crawled, municipio_tipo_file]
     )
@@ -155,7 +148,6 @@ with Flow(
             labels=current_flow_labels,
             run_name=f"Materialize {dataset_id}.{table_id}",
         )
-
         wait_for_materialization = wait_for_flow_run(
             materialization_flow,
             stream_states=True,
@@ -201,17 +193,14 @@ with Flow(
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
-    log("Downloading file")
     crawled = crawl_task(month=2, year=year, temp_dir=constants.DOWNLOAD_PATH.value)
     # Now get the downloaded file:
-    log("Accessing downloaded file")
     municipio_tipo_file = get_desired_file_task(
         year=year,
         download_directory=constants.DOWNLOAD_PATH.value,
         filetype=constants.MUNIC_TIPO_BASIC_FILENAME.value,
         upstream_tasks=[crawled],
     )
-    log(municipio_tipo_file)
     df = treat_municipio_tipo_task(
         file=municipio_tipo_file, upstream_tasks=[crawled, municipio_tipo_file]
     )
