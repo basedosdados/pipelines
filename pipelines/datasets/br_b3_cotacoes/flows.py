@@ -49,7 +49,7 @@ with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
 
     days_to_run = Parameter("days_to_run", default=1, required=False)
 
-    filepath = tratamento(days_to_run="days_to_run")
+    filepath = tratamento(days_to_run=days_to_run, upstream_tasks=[rename_flow_run])
 
     # pylint: disable=C0103
     wait_upload_table = create_table_and_upload_to_gcs(
