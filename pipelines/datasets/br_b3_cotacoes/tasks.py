@@ -27,7 +27,7 @@ from pipelines.datasets.br_b3_cotacoes.utils import (
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def tratamento(days_to_run: int):
+def tratamento(delta_day: int):
     """
     Retrieve b3 quotes data for a specific date and create the path to download and open the file.
 
@@ -40,11 +40,11 @@ def tratamento(days_to_run: int):
         str: the file path to download and open b3 files.
     """
 
-    ontem = (datetime.now() - timedelta(days=days_to_run)).strftime("%d-%m-%Y")
+    day = (datetime.now() - timedelta(days=delta_day)).strftime("%d-%m-%Y")
 
-    ontem_url = datetime.strptime(ontem, "%d-%m-%Y").strftime("%Y-%m-%d")
+    day_url = datetime.strptime(day, "%d-%m-%Y").strftime("%Y-%m-%d")
 
-    B3_URL = f"https://arquivos.b3.com.br/apinegocios/tickercsv/{ontem_url}"
+    B3_URL = f"https://arquivos.b3.com.br/apinegocios/tickercsv/{day_url}"
 
     download_and_unzip(
         B3_URL,
@@ -54,7 +54,7 @@ def tratamento(days_to_run: int):
         "********************************ABRINDO O ARQUIVO********************************"
     )
 
-    B3_PATH_OUTPUT_DF = f"/tmp/input/br_b3_cotacoes/{ontem}_NEGOCIOSAVISTA.txt"
+    B3_PATH_OUTPUT_DF = f"/tmp/input/br_b3_cotacoes/{day}_NEGOCIOSAVISTA.txt"
 
     df = read_files(B3_PATH_OUTPUT_DF)
 
