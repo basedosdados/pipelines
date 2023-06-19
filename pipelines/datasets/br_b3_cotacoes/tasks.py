@@ -39,7 +39,7 @@ def tratamento(days_to_run: int):
 
         str: the file path to download and open b3 files.
     """
-    
+
     ontem = (datetime.now() - timedelta(days=days_to_run)).strftime("%d-%m-%Y")
 
     ontem_url = datetime.strptime(ontem, "%d-%m-%Y").strftime("%Y-%m-%d")
