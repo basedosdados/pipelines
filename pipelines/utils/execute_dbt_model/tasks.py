@@ -54,4 +54,5 @@ def run_dbt_model(
     dbt_client.cli(
         f"run --models {dataset_id}.{table_id}",
         sync=sync,
+        logs=True,
     )
