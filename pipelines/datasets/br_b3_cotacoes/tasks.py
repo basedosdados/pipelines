@@ -27,37 +27,36 @@ from pipelines.datasets.br_b3_cotacoes.utils import (
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def tratamento():
-    log(
-        "********************************DOWNLOAD DO ARQUIVO********************************"
-    )
-    log("********************************DATA DE ONTEM********************************")
-    log(br_b3_cotacoes_constants.ontem.value)
-    log(
-        "********************************DATA DE ONTEM PARA A URL********************************"
-    )
-    log(br_b3_cotacoes_constants.ontem_url.value)
-    log(
-        "********************************CAMINHO DA URL********************************"
-    )
-    log(br_b3_cotacoes_constants.B3_URL.value)
-    log("********************************PATH INPUT********************************")
-    log(br_b3_cotacoes_constants.B3_PATH_INPUT.value)
-    log(
-        "********************************PATH INPUT PARA O ARQUIVO********************************"
-    )
-    log(br_b3_cotacoes_constants.B3_PATH_OUTPUT_DF.value)
-    log("********************************PATH OUTPUT********************************")
-    log(br_b3_cotacoes_constants.B3_PATH_OUTPUT.value)
+def tratamento(days_to_run: int):
+    """
+    Retrieve b3 quotes data for a specific date and create the path to download and open the file.
+
+    Args:
+
+    days_to_run (int): The number of days for which I want to retrieve data from b3.
+
+    Returns:
+
+        str: the file path to download and open b3 files.
+    """
+    
+    ontem = (datetime.now() - timedelta(days=days_to_run)).strftime("%d-%m-%Y")
+
+    ontem_url = datetime.strptime(ontem, "%d-%m-%Y").strftime("%Y-%m-%d")
+
+    B3_URL = f"https://arquivos.b3.com.br/apinegocios/tickercsv/{ontem_url}"
 
     download_and_unzip(
-        br_b3_cotacoes_constants.B3_URL.value,
+        B3_URL,
         br_b3_cotacoes_constants.B3_PATH_INPUT.value,
     )
     log(
         "********************************ABRINDO O ARQUIVO********************************"
     )
-    df = read_files(br_b3_cotacoes_constants.B3_PATH_OUTPUT_DF.value)
+
+    B3_PATH_OUTPUT_DF = f"/tmp/input/br_b3_cotacoes/{ontem}_NEGOCIOSAVISTA.txt"
+
+    df = read_files(B3_PATH_OUTPUT_DF)
 
     rename = {
         "DataReferencia": "data_referencia",

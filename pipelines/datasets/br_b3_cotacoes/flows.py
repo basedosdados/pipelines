@@ -42,9 +42,17 @@ with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
         "materialize_after_dump", default=True, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
+
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
+
+    days_to_run = Parameter(
+        "days_to_run",
+        default=1,
+        required=False
+    )   
+
     filepath = tratamento()
 
     # pylint: disable=C0103
