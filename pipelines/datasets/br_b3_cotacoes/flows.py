@@ -49,14 +49,13 @@ with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
     # ! a variável delta_day é criada aqui e cria um objeto 'Parameter' no Prefect Cloud chamado delta_day
 
     delta_day = Parameter("delta_day", default=1, required=False)
-    # ! a variável filepath é criada aqui e é passado o parâmetro 'delta_day', sendo ele mesmo o valor. 
+    # ! a variável filepath é criada aqui e é passado o parâmetro 'delta_day', sendo ele mesmo o valor.
 
     # ! upstream_tasks=[rename_flow_run] significa que o task 'rename_flow_run' será executado antes do 'tratamento'
 
-        # ? Importante para o Prefect saber a ordem de execução dos tasks
+    # ? Importante para o Prefect saber a ordem de execução dos tasks
 
-    filepath = tratamento(delta_day=delta_day, upstream_tasks=[rename_flow_run]) 
-
+    filepath = tratamento(delta_day=delta_day, upstream_tasks=[rename_flow_run])
 
     # pylint: disable=C0103
     wait_upload_table = create_table_and_upload_to_gcs(
