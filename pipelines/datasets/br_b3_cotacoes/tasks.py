@@ -44,19 +44,17 @@ def tratamento(delta_day: int):
 
     day_url = datetime.strptime(day, "%d-%m-%Y").strftime("%Y-%m-%d")
 
-    B3_URL = f"https://arquivos.b3.com.br/apinegocios/tickercsv/{day_url}"
 
     download_and_unzip(
-        B3_URL,
+        br_b3_cotacoes_constants.B3_URL.value.format(day_url),
         br_b3_cotacoes_constants.B3_PATH_INPUT.value,
     )
     log(
         "********************************ABRINDO O ARQUIVO********************************"
     )
 
-    B3_PATH_OUTPUT_DF = f"/tmp/input/br_b3_cotacoes/{day}_NEGOCIOSAVISTA.txt"
 
-    df = read_files(B3_PATH_OUTPUT_DF)
+    df = read_files(br_b3_cotacoes_constants.B3_PATH_INPUT_TXT.value.format(day))
 
     rename = {
         "DataReferencia": "data_referencia",
