@@ -18,6 +18,7 @@ from urllib.request import urlopen
 import rpy2.robjects.packages as rpackages
 import rpy2.robjects as robjects
 from rpy2.robjects.vectors import StrVector
+import basedosdados as bd
 from enum import Enum
 
 
@@ -541,3 +542,46 @@ def treat_uf(denatran_df: pl.DataFrame, ibge_df: pl.DataFrame, uf: str) -> None:
         # The set difference might occur the other way around, but still, better safe.
         raise ValueError(f"Existem municípios em {uf} que não estão na BD.")
     return verify_match_ibge(denatran_uf, ibge_uf)
+
+
+
+def get_data_from_prod(dataset_id: str, table_id: str) -> list:
+    """Get data from a table from basedosdados.
+
+    Args:
+        dataset_id (str): Name of the dataset.
+        table_id (str): _description_
+        columns (list): _description_
+
+    Returns:
+        list: _description_
+    """
+
+    storage = bd.Storage(dataset_id=dataset_id, table_id=table_id)
+    blobs = list(
+        storage.client["storage_staging"]
+        .bucket("basedosdados-dev")
+        .list_blobs(prefix=f"staging/{storage.dataset_id}/{storage.table_id}/")
+    )
+
+    dfs = []
+
+    for blob in blobs:
+        partitions = re.findall(r"\w+(?==)", blob.name)
+        if len(set(partitions)) == 0:
+            df = pd.read_csv(
+                blob.public_url
+            )
+            dfs.append(df)
+        else:
+            columns2add = list(set(partitions))
+            df = pd.read_csv(
+                blob.public_url
+            )
+            for column in columns2add:
+                df[column] = blob.name.split(column + "=")[1].split("/")[0]
+            dfs.append(df)
+
+    df = pd.concat(dfs)
+
+    return df

@@ -21,6 +21,7 @@ from pipelines.datasets.br_denatran_frota.utils import (
     extraction_pre_2012,
     call_r_to_read_excel,
     treat_uf,
+    get_data_from_prod,
     DenatranType,
 )
 import pandas as pd
@@ -144,11 +145,8 @@ def get_desired_file(year: int, download_directory: str, filetype: str) -> str:
 
 
 def treat_municipio_tipo(file: str) -> pl.DataFrame:
-    municipios_query = """SELECT nome, id_municipio, sigla_uf FROM `basedosdados.br_bd_diretorios_brasil.municipio`
-    """
-    bd_municipios = bd.read_sql(
-        municipios_query, "basedosdados-dev"
-    )  # Hardcoded, not good.
+    bd_municipios = get_data_from_prod(table_id="municipio",
+                                       dataset_id="br_bd_diretorios_brasil")
     bd_municipios = pl.from_pandas(bd_municipios)
 
     filename = os.path.split(file)[1]
