@@ -544,7 +544,6 @@ def treat_uf(denatran_df: pl.DataFrame, ibge_df: pl.DataFrame, uf: str) -> None:
     return verify_match_ibge(denatran_uf, ibge_uf)
 
 
-
 def get_data_from_prod(dataset_id: str, table_id: str) -> list:
     """Get data from a table from basedosdados.
 
@@ -569,15 +568,11 @@ def get_data_from_prod(dataset_id: str, table_id: str) -> list:
     for blob in blobs:
         partitions = re.findall(r"\w+(?==)", blob.name)
         if len(set(partitions)) == 0:
-            df = pd.read_csv(
-                blob.public_url
-            )
+            df = pd.read_csv(blob.public_url)
             dfs.append(df)
         else:
             columns2add = list(set(partitions))
-            df = pd.read_csv(
-                blob.public_url
-            )
+            df = pd.read_csv(blob.public_url)
             for column in columns2add:
                 df[column] = blob.name.split(column + "=")[1].split("/")[0]
             dfs.append(df)

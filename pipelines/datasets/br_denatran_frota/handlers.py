@@ -145,8 +145,9 @@ def get_desired_file(year: int, download_directory: str, filetype: str) -> str:
 
 
 def treat_municipio_tipo(file: str) -> pl.DataFrame:
-    bd_municipios = get_data_from_prod(table_id="municipio",
-                                       dataset_id="br_bd_diretorios_brasil")
+    bd_municipios = get_data_from_prod(
+        table_id="municipio", dataset_id="br_bd_diretorios_brasil"
+    )
     bd_municipios = pl.from_pandas(bd_municipios)
 
     filename = os.path.split(file)[1]
