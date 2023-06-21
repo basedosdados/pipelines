@@ -140,3 +140,6 @@ dmypy.json
 
 notebooks/
 /tests/
+
+# Mac
+.DS_Store
