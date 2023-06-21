@@ -481,6 +481,7 @@ def clean_data_make_partitions_cad(diretorio):
     ].applymap(limpar_string)
     df_final = df_final[colunas_finais]
     # print(f"Fazendo partições para o ano ------> {i}")
+    os.makedirs("/tmp/data/br_cvm_fi/output/", exist_ok=True)
     df_final.to_csv("/tmp/data/br_cvm_fi/output/data.csv", encoding="utf-8")
 
     return "/tmp/data/br_cvm_fi/output/data.csv"
