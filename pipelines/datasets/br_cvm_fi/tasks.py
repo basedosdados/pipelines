@@ -443,18 +443,15 @@ def clean_data_make_partitions_cad(diretorio):
     df_final = pd.DataFrame()
     arquivos = glob.glob(f"{diretorio}*.csv")
 
-    for file in tqdm(arquivos):
-        print(f"Baixando o arquivo ------> {file}")
+    df = pd.read_csv(arquivos, sep=";", encoding="ISO-8859-1", dtype="string")
+    # df["ano"] = df["DT_COMPTC"].apply(
+    #    lambda x: datetime.strptime(x, "%Y-%m-%d").year
+    # )
+    # df["mes"] = df["DT_COMPTC"].apply(
+    #     lambda x: datetime.strptime(x, "%Y-%m-%d").month
+    # )
 
-        df = pd.read_csv(file, sep=";", encoding="ISO-8859-1", dtype="string")
-        # df["ano"] = df["DT_COMPTC"].apply(
-        #    lambda x: datetime.strptime(x, "%Y-%m-%d").year
-        # )
-        # df["mes"] = df["DT_COMPTC"].apply(
-        #     lambda x: datetime.strptime(x, "%Y-%m-%d").month
-        # )
-
-        df_final = df
+    df_final = df
 
     df_final = check_and_create_column(df_final, colunas_totais=colunas_totais)
     df_final[colunas_mapeamento] = df_final[colunas_mapeamento].applymap(
