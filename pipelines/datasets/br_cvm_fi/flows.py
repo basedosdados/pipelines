@@ -21,7 +21,14 @@ from pipelines.datasets.br_cvm_fi.tasks import (
     clean_data_make_partitions_cad,
     clean_data_make_partitions_balancete,
 )
-from pipelines.datasets.br_cvm_fi.schedules import every_day_cvm
+from pipelines.datasets.br_cvm_fi.schedules import (
+    every_day_informe,
+    every_day_carteiras,
+    every_day_balancete,
+    every_day_extratos,
+    every_day_informacao_cadastral,
+    every_day_perfil,
+)
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 from pipelines.utils.decorators import Flow
 from prefect import Parameter, case
@@ -52,10 +59,10 @@ with Flow(
         "table_id", default="documentos_informe_diario", required=False
     )
     materialization_mode = Parameter(
-        "materialization_mode", default="prod", required=False
+        "materialization_mode", default="prod", required=True
     )
     materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
+        "materialize_after_dump", default=True, required=True
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
@@ -125,7 +132,7 @@ br_cvm_fi_documentos_informe_diario.storage = GCS(constants.GCS_FLOWS_BUCKET.val
 br_cvm_fi_documentos_informe_diario.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_cvm_fi_documentos_informe_diario.schedule = every_day_cvm
+br_cvm_fi_documentos_informe_diario.schedule = every_day_informe
 
 
 with Flow(
@@ -215,7 +222,7 @@ br_cvm_fi_documentos_carteiras_fundos_investimento.storage = GCS(
 br_cvm_fi_documentos_carteiras_fundos_investimento.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_cvm_fi_documentos_informe_diario.schedule = every_day_cvm
+br_cvm_fi_documentos_carteiras_fundos_investimento.schedule = every_day_carteiras
 
 
 with Flow(
@@ -230,10 +237,10 @@ with Flow(
         "table_id", default="documentos_extratos_informacoes", required=False
     )
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="dev", required=True
     )
     materialize_after_dump = Parameter(
-        "materialize_after_dump", default=False, required=False
+        "materialize_after_dump", default=False, required=True
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
@@ -310,7 +317,7 @@ br_cvm_fi_documentos_extratos_informacoes.storage = GCS(
 br_cvm_fi_documentos_extratos_informacoes.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_cvm_fi_documentos_informe_diario.schedule = every_day_cvm
+br_cvm_fi_documentos_extratos_informacoes.schedule = every_day_extratos
 
 
 with Flow(
@@ -395,7 +402,7 @@ br_cvm_fi_documentos_perfil_mensal.storage = GCS(constants.GCS_FLOWS_BUCKET.valu
 br_cvm_fi_documentos_perfil_mensal.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_cvm_fi_documentos_informe_diario.schedule = every_day_cvm
+br_cvm_fi_documentos_perfil_mensal.schedule = every_day_perfil
 
 
 with Flow(
@@ -410,10 +417,10 @@ with Flow(
         "table_id", default="documentos_informacao_cadastral", required=False
     )
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="dev", required=True
     )
     materialize_after_dump = Parameter(
-        "materialize_after_dump", default=False, required=False
+        "materialize_after_dump", default=False, required=True
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
@@ -481,7 +488,7 @@ br_cvm_fi_documentos_informacao_cadastral.storage = GCS(
 br_cvm_fi_documentos_informacao_cadastral.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_cvm_fi_documentos_informe_diario.schedule = every_day_cvm
+br_cvm_fi_documentos_informacao_cadastral.schedule = every_day_informacao_cadastral
 
 
 with Flow(
@@ -494,7 +501,7 @@ with Flow(
     dataset_id = Parameter("dataset_id", default="br_cvm_fi", required=False)
     table_id = Parameter("table_id", default="documentos_balancete", required=False)
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="dev", required=True
     )
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=True
@@ -565,4 +572,4 @@ br_cvm_fi_documentos_balancete.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_cvm_fi_documentos_balancete.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_cvm_fi_documentos_informe_diario.schedule = every_day_cvm
+br_cvm_fi_documentos_balancete.schedule = every_day_balancete
