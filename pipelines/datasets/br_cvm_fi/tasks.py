@@ -438,8 +438,8 @@ def clean_data_make_partitions_perfil(diretorio, table_id):
 @task
 def clean_data_make_partitions_cad(diretorio, table_id):
     df_arq = sheet_to_df(cvm_constants.ARQUITETURA_URL_CAD.value)
-    colunas_totais = df_arq["original_name"].to_list() + ["ano", "mes"]
-    colunas_finais = df_arq["name"].to_list() + ["ano", "mes"]
+    colunas_totais = df_arq["original_name"].to_list()
+    colunas_finais = df_arq["name"].to_list()
     colunas_mapeamento = df_arq[df_arq["observations"].notnull()][
         "original_name"
     ].to_list()
