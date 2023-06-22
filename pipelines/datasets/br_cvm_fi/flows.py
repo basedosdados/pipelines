@@ -54,15 +54,13 @@ with Flow(
     ],
 ) as br_cvm_fi_documentos_informe_diario:
     # Parameters
-    dataset_id = Parameter("dataset_id", default="br_cvm_fi", required=False)
-    table_id = Parameter(
-        "table_id", default="documentos_informe_diario", required=False
-    )
+    dataset_id = Parameter("dataset_id", default="br_cvm_fi", required=True)
+    table_id = Parameter("table_id", default="documentos_informe_diario", required=True)
     materialization_mode = Parameter(
-        "materialization_mode", default="prod", required=True
+        "materialization_mode", default="dev", required=True
     )
     materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=True
+        "materialize_after_dump", default=False, required=True
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
@@ -71,7 +69,6 @@ with Flow(
         default=cvm_constants.INFORME_DIARIO_URL.value,
         required=True,
     )
-
     df = extract_links_and_dates(url)
     log(f"Links e datas: {df}")
     arquivos = check_for_updates(df, upstream_tasks=[df])
@@ -81,10 +78,10 @@ with Flow(
 
     with case(is_empty(arquivos), False):
         input_filepath = download_unzip_csv(
-            files=arquivos, url=url, upstream_tasks=[arquivos]
+            files=arquivos, url=url, id=table_id, upstream_tasks=[arquivos]
         )
         output_filepath = clean_data_and_make_partitions(
-            path=input_filepath, upstream_tasks=[input_filepath]
+            path=input_filepath, table_id=table_id, upstream_tasks=[input_filepath]
         )
 
         rename_flow_run = rename_current_flow_run_dataset_table(
@@ -146,6 +143,7 @@ with Flow(
     table_id = Parameter(
         "table_id", default="documentos_carteiras_fundos_investimento", required=False
     )
+
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -169,10 +167,10 @@ with Flow(
 
     with case(is_empty(arquivos), False):
         input_filepath = download_unzip_csv(
-            url=url, files=arquivos, upstream_tasks=[arquivos]
+            url=url, files=arquivos, id=table_id, upstream_tasks=[arquivos]
         )
         output_filepath = clean_data_make_partitions_cda(
-            input_filepath, upstream_tasks=[input_filepath]
+            input_filepath, table_id=table_id, upstream_tasks=[input_filepath]
         )
 
         rename_flow_run = rename_current_flow_run_dataset_table(
@@ -264,10 +262,10 @@ with Flow(
 
     with case(is_empty(arquivos), False):
         input_filepath = download_csv_cvm(
-            url=url, files=arquivos, upstream_tasks=[arquivos]
+            url=url, table_id=table_id, files=arquivos, upstream_tasks=[arquivos]
         )
         output_filepath = clean_data_make_partitions_ext(
-            input_filepath, upstream_tasks=[input_filepath]
+            input_filepath, table_id=table_id, upstream_tasks=[input_filepath]
         )
 
         rename_flow_run = rename_current_flow_run_dataset_table(
@@ -351,10 +349,10 @@ with Flow(
 
     with case(is_empty(arquivos), False):
         input_filepath = download_csv_cvm(
-            url=url, files=arquivos, upstream_tasks=[arquivos]
+            url=url, table_id=table_id, files=arquivos, upstream_tasks=[arquivos]
         )
         output_filepath = clean_data_make_partitions_perfil(
-            input_filepath, upstream_tasks=[input_filepath]
+            input_filepath, table_id=table_id, upstream_tasks=[input_filepath]
         )
 
         rename_flow_run = rename_current_flow_run_dataset_table(
@@ -436,9 +434,9 @@ with Flow(
         log(f"Não houveram atualizações em {url.default}!")
 
     with case(is_empty(files), False):
-        input_filepath = download_csv_cvm(url=url, files=files)
+        input_filepath = download_csv_cvm(url=url, files=files, table_id=table_id)
         output_filepath = clean_data_make_partitions_cad(
-            input_filepath, upstream_tasks=[input_filepath]
+            diretorio=input_filepath, table_id=table_id, upstream_tasks=[input_filepath]
         )
 
         rename_flow_run = rename_current_flow_run_dataset_table(
@@ -522,9 +520,9 @@ with Flow(
         log(f"Não houveram atualizações em {url.default}!")
 
     with case(is_empty(files), False):
-        input_filepath = download_unzip_csv(url=url, files=files)
+        input_filepath = download_unzip_csv(url=url, files=files, id=table_id)
         output_filepath = clean_data_make_partitions_balancete(
-            input_filepath, upstream_tasks=[input_filepath]
+            input_filepath, table_id=table_id, upstream_tasks=[input_filepath]
         )
 
         rename_flow_run = rename_current_flow_run_dataset_table(
