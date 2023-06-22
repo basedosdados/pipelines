@@ -135,11 +135,11 @@ with Flow(
     csv_output = output_file_to_csv_task.map(
         df, unmapped(constants.UF_TIPO_BASIC_FILENAME.value), upstream_tasks=[df]
     )
-    wait_upload_table = create_table_and_upload_to_gcs(
+    wait_upload_table = create_table_and_upload_to_gcs.map(
         data_path=csv_output,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dump_mode="overwrite",
+        dataset_id=unmapped(dataset_id),
+        table_id=unmapped(table_id),
+        dump_mode=unmapped("append"),
         wait=csv_output,
     )
 
