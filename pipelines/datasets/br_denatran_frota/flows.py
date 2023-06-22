@@ -60,7 +60,7 @@ Flows for br_denatran_frota
 from datetime import datetime, timedelta
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
-from prefect import Parameter, case
+from prefect import Parameter, case, unmapped
 from prefect.tasks.prefect import (
     create_flow_run,
     wait_for_flow_run,
@@ -84,7 +84,13 @@ from pipelines.datasets.br_denatran_frota.tasks import (
     treat_municipio_tipo_task,
 )
 from pipelines.datasets.br_denatran_frota.constants import constants
+from itertools import product
 
+year_range = list(range(2003, 2023))
+month_range = list(range(1, 13))
+date_pairs = list(product(year_range, month_range))
+
+date_pairs_param = Parameter("date_pairs", default=date_pairs)
 
 # from pipelines.datasets.br_denatran_frota.schedules import every_two_weeks
 
@@ -94,7 +100,6 @@ with Flow(
         "Tamir",
     ],
 ) as br_denatran_frota_uf_tipo:
-    year = 2021
     dataset_id = Parameter("dataset_id", default="br_denatran_frota")
     table_id = Parameter("table_id", default="uf_tipo")
 
@@ -111,19 +116,24 @@ with Flow(
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
-    crawled = crawl_task(month=2, year=year, temp_dir=constants.DOWNLOAD_PATH.value)
+    crawled = crawl_task.map(
+        month=[date[1] for date in date_pairs_param],
+        year=[date[0] for date in date_pairs_param],
+        temp_dir=unmapped(constants.DOWNLOAD_PATH.value))
     # Now get the downloaded file:
-    municipio_tipo_file = get_desired_file_task(
-        year=year,
-        download_directory=constants.DOWNLOAD_PATH.value,
-        filetype=constants.UF_TIPO_BASIC_FILENAME.value,
+    # Now get the downloaded file:
+    municipio_tipo_file = get_desired_file_task.map(
+        year=[date[0] for date in date_pairs_param],
+        month=[date[1] for date in date_pairs_param],
+        download_directory=unmapped(constants.DOWNLOAD_PATH.value),
+        filetype=unmapped(constants.UF_TIPO_BASIC_FILENAME.value),
         upstream_tasks=[crawled],
     )
-    df = treat_uf_tipo_task(
+    df = treat_uf_tipo_task.map(
         file=municipio_tipo_file, upstream_tasks=[crawled, municipio_tipo_file]
     )
-    csv_output = output_file_to_csv_task(
-        df, constants.UF_TIPO_BASIC_FILENAME.value, upstream_tasks=[df]
+    csv_output = output_file_to_csv_task.map(
+        df, unmapped(constants.UF_TIPO_BASIC_FILENAME.value), upstream_tasks=[df]
     )
     # wait_upload_table = create_table_and_upload_to_gcs(
     #     data_path=csv_output,
