@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ Tasks for Mercado Livre Ofertas dataset """
 # pylint: disable=invalid-name
 

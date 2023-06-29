@@ -28,9 +28,7 @@ with Flow(
     name="mercadolivre_ofertas.item", code_owners=["lucascr91"]
 ) as mercadolivre_ofertas:
     # Parameters
-    dataset_id = Parameter(
-        "dataset_id", default="mercadolivre_ofertas", required=True
-    )
+    dataset_id = Parameter("dataset_id", default="mercadolivre_ofertas", required=True)
     table_id = Parameter("table_id", default="item", required=True)
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
