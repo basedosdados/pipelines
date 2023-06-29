@@ -22,3 +22,4 @@ class constants(Enum):  # pylint: disable=c0103
             "class_": "ui-review-capability__rating__average ui-review-capability__rating__average--desktop"
         },
     ]
+    TABLES_NAMES = ["less100", "oferta_dia", "relampago", "barato_dia"]
