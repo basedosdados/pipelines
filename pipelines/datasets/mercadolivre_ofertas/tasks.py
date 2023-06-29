@@ -75,3 +75,44 @@ def crawler_mercadolivre_ofertas():
     loop.close()
 
     return filepath
+
+
+@task
+def clean_item(filepath):
+    item = pd.read_csv(filepath)
+    new_cols = ['titulo', 'quantidade_avaliacoes', 'desconto', 'envio_pais', 'estrelas', 'preco', 'preco_original', 'item_id',
+'link_vendedor', 'id_vendedor', 'vendedor', 'data_hora', 'secao_site', 'caracteristicas',
+'url_item', 'categorias']
+    # rename columns
+    item.columns = new_cols
+    # change order
+    new_order = ['data_hora', 'titulo', 'item_id', 'categorias', 'quantidade_avaliacoes', 'desconto', 'envio_pais', 'estrelas', 'preco', 'preco_original',
+       'id_vendedor', 'vendedor', 'link_vendedor', 'secao_site', 'caracteristicas',
+       'url_item']
+    item = item.reindex(new_order, axis=1)
+    # drop dupliacte item_id
+    item = item.drop_duplicates(subset=['item_id'])
+    # clean quantidade_avaliacoes: (11004)->11004
+    item['quantidade_avaliacoes'] = item['quantidade_avaliacoes'].str.replace('(', '')
+    item['quantidade_avaliacoes'] = item['quantidade_avaliacoes'].str.replace(')', '')
+    # clean desconto: 10% OFF -> 10
+    item['desconto'] = item['desconto'].str.replace('% OFF', '')
+    # clean categorias. Currently, it's a list of lists. Transform into a list of strings. First it's necessary to transform the string into a list of lists
+    item['categorias'] = item['categorias'].str.replace('[[', '[')
+    item['categorias'] = item['categorias'].str.replace(']]', ']')
+    # remove if title is nan
+    item = item[item['titulo'].notna()]
+    # remove item_link
+    item = item.drop('url_item', axis=1)
+    # remove link_vendedor
+    item = item.drop('link_vendedor', axis=1)
+    # make envio_pais a boolean
+    item['envio_pais'] = item['envio_pais'].str.contains('Envio para todo o país')
+    # make nan equal to False
+    item['envio_pais'] = item['envio_pais'].fillna(False)
+
+    # to string
+    item = item.astype(str)
+
+
+    item.to_csv('/tmp/items.csv', index=False)

@@ -21,7 +21,7 @@ from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
 )
 
-from pipelines.datasets.mercadolivre_ofertas.tasks import crawler_mercadolivre_ofertas
+from pipelines.datasets.mercadolivre_ofertas.tasks import crawler_mercadolivre_ofertas, clean_item
 from pipelines.datasets.mercadolivre_ofertas.schedules import every_day_item
 
 with Flow(
@@ -42,7 +42,9 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    filepath = crawler_mercadolivre_ofertas()
+    filepath_raw = crawler_mercadolivre_ofertas()
+
+    filepath = clean_item(filepath_raw)
 
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
