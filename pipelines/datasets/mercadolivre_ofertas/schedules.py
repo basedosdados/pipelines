@@ -20,7 +20,7 @@ every_day_item = Schedule(
                 constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
             parameter_defaults={
-                "dataset_id": "mercado_livre_ofertas",
+                "dataset_id": "mercadolivre_ofertas",
                 "materialization_mode": "dev",
                 "materialize after dump": False,
                 "table_id": "item",
