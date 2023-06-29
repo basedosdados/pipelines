@@ -17,7 +17,7 @@ every_day_item = Schedule(
             interval=timedelta(days=1),
             start_date=datetime(2021, 1, 1, 15, 0),
             labels=[
-                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "mercado_livre_ofertas",
