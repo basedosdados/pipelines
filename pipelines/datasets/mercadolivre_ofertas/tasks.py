@@ -67,7 +67,7 @@ def crawler_mercadolivre_ofertas():
     ]
     df = df[new_order]
     df = df.astype(str)
-    filepath = "/tmp/data/items_raw.csv"
+    filepath = "/tmp/items_raw.csv"
     df.to_csv(filepath, index=False)
 
     log(df.head(5))
