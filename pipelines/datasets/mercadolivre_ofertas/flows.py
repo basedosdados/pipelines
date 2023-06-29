@@ -26,7 +26,7 @@ from pipelines.datasets.mercadolivre_ofertas.schedules import every_day_item
 
 with Flow(
     name="mercadolivre_ofertas.item", code_owners=["lucascr91"]
-) as mercadolivre_ofertas:
+) as mercadolivre_ofertas_item:
     # Parameters
     dataset_id = Parameter("dataset_id", default="mercadolivre_ofertas", required=True)
     table_id = Parameter("table_id", default="item", required=True)
@@ -81,6 +81,6 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-mercadolivre_ofertas.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-mercadolivre_ofertas.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-mercadolivre_ofertas.schedule = every_day_item
+mercadolivre_ofertas_item.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+mercadolivre_ofertas_item.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+mercadolivre_ofertas_item.schedule = every_day_item
