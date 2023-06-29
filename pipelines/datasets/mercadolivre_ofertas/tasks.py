@@ -43,7 +43,6 @@ def crawler_mercadolivre_ofertas():
     time.sleep(5)
     df = pd.DataFrame(contents)
     total = df.shape[0]
-    # drop if title is None
     df = df.dropna(subset=["title"])
     remained = df.shape[0]
     # print percentage keeped
