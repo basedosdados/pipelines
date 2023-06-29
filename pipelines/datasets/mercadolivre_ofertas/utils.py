@@ -321,6 +321,7 @@ async def process_item_url(item_url, kwargs_list):
         info["seller"] = seller
     else:
         info["seller_id"] = None
+        info["seller"] = None
 
     info["datetime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     info["features"] = await get_features(item_url, attempts=2)
