@@ -49,14 +49,14 @@ def retry(content_function):
                 response = await asyncio.to_thread(
                     requests.get, url, headers=headers, timeout=100
                 )
-            except:
+            except Exception:
                 print(url)
                 return None
             await asyncio.sleep(wait_time)
             soup = BeautifulSoup(response.text, "html.parser")
             try:
                 content = content_function(soup, **kwargs)
-            except:
+            except Exception:
                 if count == (attempts - 1):
                     # Could not get content
                     content = None
