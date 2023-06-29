@@ -21,7 +21,10 @@ from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
 )
 
-from pipelines.datasets.mercadolivre_ofertas.tasks import crawler_mercadolivre_ofertas, clean_item
+from pipelines.datasets.mercadolivre_ofertas.tasks import (
+    crawler_mercadolivre_ofertas,
+    clean_item,
+)
 from pipelines.datasets.mercadolivre_ofertas.schedules import every_day_item
 
 with Flow(
