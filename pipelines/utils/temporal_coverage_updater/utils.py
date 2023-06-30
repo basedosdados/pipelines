@@ -8,26 +8,28 @@ from pipelines.utils.utils import log
 import requests
 from datetime import datetime
 import re
-from basedosdados import backend as b
 from pipelines.utils.temporal_coverage_updater.constants import (
     constants as temp_constants,
 )
 
 
-def get_token(backend, email: str, password: str) -> str:
-    """
-    Get JWT token for authentication to be able to edit metadata directly from api
-    """
-    mutation = """
+def get_token(email, password):
+    r = requests.post(
+        "http://api.basedosdados.org/api/v1/graphql",
+        headers={"Content-Type": "application/json"},
+        json={
+            "query": """
         mutation ($email: String!, $password: String!) {
             tokenAuth(email: $email, password: $password) {
                 token
             }
         }
-    """
-    variables = {"email": email, "password": password}
-    response = backend._execute_query(mutation, variables)
-    return response["tokenAuth"]["token"]
+    """,
+            "variables": {"email": email, "password": password},
+        },
+    )
+    r.raise_for_status()
+    return r.json()["data"]["tokenAuth"]["token"]
 
 
 def get_id(
@@ -36,8 +38,8 @@ def get_id(
 ):  # sourcery skip: avoid-builtin-shadow
     email = temp_constants.EMAIL.value
     password = temp_constants.PASSWORD.value
-    backend = b.Backend(graphql_url="http://api.basedosdados.org/api/v1/graphql")
-    token = get_token(backend, email=email, password=password)
+    # backend = b.Backend(graphql_url="http://api.basedosdados.org/api/v1/graphql")
+    token = get_token(email=email, password=password)
     header = {
         "Authorization": f"Bearer {token}",
     }
@@ -81,8 +83,8 @@ def get_id(
 def get_date(query_class, query_parameters):  # sourcery skip: avoid-builtin-shadow
     email = temp_constants.EMAIL.value
     password = temp_constants.PASSWORD.value
-    backend = b.Backend(graphql_url="http://api.basedosdados.org/api/v1/graphql")
-    token = get_token(backend, email=email, password=password)
+    # backend = b.Backend(graphql_url="http://api.basedosdados.org/api/v1/graphql")
+    token = get_token(email=email, password=password)
     header = {
         "Authorization": f"Bearer {token}",
     }
@@ -123,8 +125,8 @@ def create_update(
 ):
     email = temp_constants.EMAIL.value
     password = temp_constants.PASSWORD.value
-    backend = b.Backend(graphql_url="http://api.basedosdados.org/api/v1/graphql")
-    token = get_token(backend, email=email, password=password)
+    # backend = b.Backend(graphql_url="http://api.basedosdados.org/api/v1/graphql")
+    token = get_token(email=email, password=password)
     header = {
         "Authorization": f"Bearer {token}",
     }
