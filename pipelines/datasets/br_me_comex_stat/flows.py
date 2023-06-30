@@ -35,7 +35,7 @@ from pipelines.utils.tasks import (
 
 
 with Flow(
-    name="br_me_comex_stat.municipio_exportacao_teste", code_owners=["Gabriel Pisa"]
+    name="br_me_comex_stat.municipio_exportacao", code_owners=["Gabriel Pisa"]
 ) as br_comex_municipio_exportacao:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_me_comex_stat", required=True)
@@ -46,9 +46,6 @@ with Flow(
     )
     materialize_after_dump = Parameter(
         "materialize after dump", default=True, required=False
-    )
-    update_temporal_coverage = Parameter(
-        "update_temporal_coverage", default=True, required=False
     )
 
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
@@ -115,33 +112,6 @@ with Flow(
             dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
         )
         wait_for_materialization.retry_delay = timedelta(
-            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-        )
-
-    with case(update_temporal_coverage, True):
-        # Trigger temporal_coverage_updater flow run
-        current_flow_labels = get_current_flow_labels()
-        updater_flow = create_flow_run(
-            flow_name="update_temporal_coverage_teste",
-            project_name="staging",
-            parameters={
-                "dataset_id": dataset_id,
-                "table_id": table_id,
-            },
-            labels=current_flow_labels,
-            run_name=f"Atualiza {dataset_id}.{table_id}",
-        )
-
-        wait_for_update = wait_for_flow_run(
-            updater_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
-        wait_for_update.max_retries = (
-            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-        )
-        wait_for_update.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
