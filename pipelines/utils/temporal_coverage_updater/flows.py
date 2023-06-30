@@ -16,6 +16,7 @@ from pipelines.utils.temporal_coverage_updater.tasks import (
 # from pipelines.datasets.temporal_coverage_updater.schedules import every_two_weeks
 from pipelines.utils.decorators import Flow
 from prefect import Parameter
+from pipelines.utils.utils import log
 
 with Flow(
     name="update_temporal_coverage_teste",

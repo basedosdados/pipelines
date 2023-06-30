@@ -4,10 +4,14 @@ General purpose functions for the temporal_coverage_updater project
 """
 import os
 import json
+from pipelines.utils.utils import log
 import requests
 from datetime import datetime
 import re
 from basedosdados import backend as b
+from pipelines.utils.temporal_coverage_updater.constants import (
+    constants as temp_constants,
+)
 
 
 def get_token(backend, email: str, password: str) -> str:
@@ -30,10 +34,10 @@ def get_id(
     query_class,
     query_parameters,
 ):  # sourcery skip: avoid-builtin-shadow
-    EMAIL = os.environ["API_EMAIL"]
-    PASSWORD = os.environ["API_PASSWORD"]
+    email = temp_constants.EMAIL.value
+    password = temp_constants.PASSWORD.value
     backend = b.Backend(graphql_url="http://api.basedosdados.org/api/v1/graphql")
-    token = get_token(backend, email=EMAIL, password=PASSWORD)
+    token = get_token(backend, email=email, password=password)
     header = {
         "Authorization": f"Bearer {token}",
     }
@@ -75,10 +79,10 @@ def get_id(
 
 
 def get_date(query_class, query_parameters):  # sourcery skip: avoid-builtin-shadow
-    EMAIL = os.environ["API_EMAIL"]
-    PASSWORD = os.environ["API_PASSWORD"]
+    email = temp_constants.EMAIL.value
+    password = temp_constants.PASSWORD.value
     backend = b.Backend(graphql_url="http://api.basedosdados.org/api/v1/graphql")
-    token = get_token(backend, email=EMAIL, password=PASSWORD)
+    token = get_token(backend, email=email, password=password)
     header = {
         "Authorization": f"Bearer {token}",
     }
@@ -117,17 +121,15 @@ def create_update(
     query_parameters,
     update=False,
 ):
-    EMAIL = os.environ["API_EMAIL"]
-    PASSWORD = os.environ["API_PASSWORD"]
+    email = temp_constants.EMAIL.value
+    password = temp_constants.PASSWORD.value
     backend = b.Backend(graphql_url="http://api.basedosdados.org/api/v1/graphql")
-    token = get_token(backend, email=EMAIL, password=PASSWORD)
+    token = get_token(backend, email=email, password=password)
     header = {
         "Authorization": f"Bearer {token}",
     }
 
-    r, id = get_id(
-        query_class=query_class, query_parameters=query_parameters, header=header
-    )
+    r, id = get_id(query_class=query_class, query_parameters=query_parameters)
     if id is not None:
         r["r"] = "query"
         if update is False:
@@ -200,7 +202,7 @@ def parse_temporal_coverage(temporal_coverage):
             date = datetime.strptime(date_str, "%Y-%m-%d")
             result[f"{position}Year"] = date.year
             result[f"{position}Month"] = date.month
-            result[f"{position}Day"] = date.month
+            result[f"{position}Day"] = date.day
         elif date_len == 2:
             date = datetime.strptime(date_str, "%Y-%m")
             result[f"{position}Year"] = date.year
