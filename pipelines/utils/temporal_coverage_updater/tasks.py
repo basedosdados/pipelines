@@ -84,7 +84,9 @@ def extract_last_update(dataset_id, table_id):
         # bd_base = Base()
         # billing_project_id = bd_base.config["gcloud-projects"]["prod"]["name"]
         t = bd.read_sql(
-            query=query_bd, billing_project_id="basedosdados", from_file=True
+            query=query_bd,
+            billing_project_id="basedosdados-dev",
+            from_file=True,
         )
         timestamp = (
             t["last_modified_time"][0] / 1000
