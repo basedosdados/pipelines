@@ -39,6 +39,7 @@ def download_data(
 ):
     """A simple crawler to download data from comex stat website.
 
+
     Args:
         path (str): the path to store the data
         table_type (str): the table type is either ncm or mun. ncm stands for 'nomenclatura comum do mercosul' and
