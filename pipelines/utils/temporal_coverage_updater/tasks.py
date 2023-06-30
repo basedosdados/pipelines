@@ -5,7 +5,8 @@ Tasks for temporal_coverage_updater
 
 
 from prefect import task
-from basedosdados.upload.base import Base
+
+# from basedosdados.upload.base import Base
 import basedosdados as bd
 from pipelines.utils.temporal_coverage_updater.utils import (
     get_ids,
@@ -80,9 +81,11 @@ def extract_last_update(dataset_id, table_id):
         WHERE
         table_id = '{table_id}'
         """
-        bd_base = Base()
-        billing_project_id = bd_base.config["gcloud-projects"]["prod"]["name"]
-        t = bd.read_sql(query=query_bd, billing_project_id=billing_project_id)
+        # bd_base = Base()
+        # billing_project_id = bd_base.config["gcloud-projects"]["prod"]["name"]
+        t = bd.read_sql(
+            query=query_bd, billing_project_id="basedosdados", from_file=True
+        )
         timestamp = (
             t["last_modified_time"][0] / 1000
         )  # Convert to seconds by dividing by 1000
