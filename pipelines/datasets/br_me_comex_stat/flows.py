@@ -35,7 +35,7 @@ from pipelines.utils.tasks import (
 
 
 with Flow(
-    name="br_me_comex_stat.municipio_exportacao", code_owners=["Gabriel Pisa"]
+    name="br_me_comex_stat.municipio_exportacao_teste", code_owners=["Gabriel Pisa"]
 ) as br_comex_municipio_exportacao:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_me_comex_stat", required=True)
