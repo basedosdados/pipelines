@@ -13,11 +13,24 @@ from pipelines.utils.temporal_coverage_updater.utils import (
     create_update,
 )
 from datetime import datetime
-from pipelines.utils.utils import log
+from pipelines.utils.utils import log, get_credentials_from_secret
+from typing import Tuple
 
 
 @task
-def find_ids(dataset_id, table_id):
+def get_credentials(secret_path: str, wait=None) -> Tuple[str, str]:
+    """
+    Returns the user and password for the given secret path.
+    """
+    log(f"Getting user and password for secret path: {secret_path}")
+    tokens_dict = get_credentials_from_secret(secret_path)
+    email = tokens_dict.get("email")
+    password = tokens_dict.get("password")
+    return email, password
+
+
+@task
+def find_ids(dataset_id, table_id, email, password):
     """
     Finds the IDs for a given dataset and table.
 
@@ -32,7 +45,9 @@ def find_ids(dataset_id, table_id):
         Exception: If an error occurs while retrieving the IDs.
     """
     try:
-        ids = get_ids(dataset_name=dataset_id, table_name=table_id)
+        ids = get_ids(
+            dataset_name=dataset_id, table_name=table_id, email=email, password=password
+        )
         log(f"IDs >>>> {ids}")
         return ids
     except Exception as e:
@@ -79,7 +94,7 @@ def extract_last_update(dataset_id, table_id):
 
 
 @task
-def get_first_date(ids):
+def get_first_date(ids, email, password):
     """
     Retrieves the first date from the given coverage ID.
 
@@ -96,6 +111,8 @@ def get_first_date(ids):
         date = get_date(
             query_class="allDatetimerange",
             query_parameters={"$coverage_Id: ID": ids.get("coverage_id")},
+            email=email,
+            password=password,
         )
         data = date["data"]["allDatetimerange"]["edges"][0]["node"]
         first_date = f"{data['startYear']}-{data['startMonth']}-{data['startDay']}({data['interval']})"
@@ -107,7 +124,7 @@ def get_first_date(ids):
 
 
 @task
-def update_temporal_coverage(ids, first_date, last_date):
+def update_temporal_coverage(ids, first_date, last_date, email, password):
     """
     Updates the temporal coverage of a given coverage ID with the specified first and last dates.
 
@@ -131,6 +148,8 @@ def update_temporal_coverage(ids, first_date, last_date):
             mutation_class="CreateUpdateDateTimeRange",
             mutation_parameters=resource_to_temporal_coverage,
             update=True,
+            email=email,
+            password=password,
         )
     except Exception as e:
         log(f"An error occurred while updating the temporal coverage: {str(e)}")

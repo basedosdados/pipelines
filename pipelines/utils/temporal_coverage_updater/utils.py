@@ -35,11 +35,13 @@ def get_token(email, password):
 def get_id(
     query_class,
     query_parameters,
+    email,
+    password,
 ):  # sourcery skip: avoid-builtin-shadow
-    email = temp_constants.EMAIL.value
-    password = temp_constants.PASSWORD.value
+    # email = temp_constants.EMAIL.value
+    # password = temp_constants.PASSWORD.value
     # backend = b.Backend(graphql_url="http://api.basedosdados.org/api/v1/graphql")
-    token = get_token(email=email, password=password)
+    token = get_token(email, password)
     header = {
         "Authorization": f"Bearer {token}",
     }
@@ -80,9 +82,11 @@ def get_id(
         raise Exception("get: Error")
 
 
-def get_date(query_class, query_parameters):  # sourcery skip: avoid-builtin-shadow
-    email = temp_constants.EMAIL.value
-    password = temp_constants.PASSWORD.value
+def get_date(
+    query_class, query_parameters, email, password
+):  # sourcery skip: avoid-builtin-shadow
+    # email = temp_constants.EMAIL.value
+    # password = temp_constants.PASSWORD.value
     # backend = b.Backend(graphql_url="http://api.basedosdados.org/api/v1/graphql")
     token = get_token(email=email, password=password)
     header = {
@@ -117,21 +121,28 @@ def get_date(query_class, query_parameters):  # sourcery skip: avoid-builtin-sha
 
 
 def create_update(
+    email,
+    password,
     mutation_class,
     mutation_parameters,
     query_class,
     query_parameters,
     update=False,
 ):
-    email = temp_constants.EMAIL.value
-    password = temp_constants.PASSWORD.value
+    # email = temp_constants.EMAIL.value
+    # password = temp_constants.PASSWORD.value
     # backend = b.Backend(graphql_url="http://api.basedosdados.org/api/v1/graphql")
     token = get_token(email=email, password=password)
     header = {
         "Authorization": f"Bearer {token}",
     }
 
-    r, id = get_id(query_class=query_class, query_parameters=query_parameters)
+    r, id = get_id(
+        query_class=query_class,
+        query_parameters=query_parameters,
+        email=email,
+        password=password,
+    )
     if id is not None:
         r["r"] = "query"
         if update is False:
@@ -224,7 +235,7 @@ def parse_temporal_coverage(temporal_coverage):
     return start_result
 
 
-def get_ids(dataset_name: str, table_name: str) -> dict:
+def get_ids(dataset_name: str, table_name: str, email: str, password: str) -> dict:
     """
     Obtains the IDs of the dataset, table, and coverage based on the provided names.
 
@@ -242,7 +253,10 @@ def get_ids(dataset_name: str, table_name: str) -> dict:
     try:
         # Get the dataset ID
         dataset_result = get_id(
-            query_class="allDataset", query_parameters={"$slug: String": dataset_name}
+            email=email,
+            password=password,
+            query_class="allDataset",
+            query_parameters={"$slug: String": dataset_name},
         )
         if not dataset_result:
             raise ValueError("Dataset ID not found.")
@@ -251,6 +265,8 @@ def get_ids(dataset_name: str, table_name: str) -> dict:
 
         # Get the table ID
         table_result = get_id(
+            email=email,
+            password=password,
             query_class="allTable",
             query_parameters={
                 "$slug: String": table_name,
@@ -264,7 +280,10 @@ def get_ids(dataset_name: str, table_name: str) -> dict:
 
         # Get the coverage IDs
         coverage_result = get_id(
-            query_class="allCoverage", query_parameters={"$table_Id: ID": table_id}
+            email=email,
+            password=password,
+            query_class="allCoverage",
+            query_parameters={"$table_Id: ID": table_id},
         )
         if not coverage_result:
             raise ValueError("Coverage ID not found.")
