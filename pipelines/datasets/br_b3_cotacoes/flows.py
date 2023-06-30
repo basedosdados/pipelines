@@ -1,67 +1,71 @@
 # -*- coding: utf-8 -*-
 """
-Flows for br_ibge_pnadc
+Flows for br_b3_cotacoes
 """
 
 from datetime import timedelta
-
+from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
-from prefect import Parameter, case
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
-
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.constants import constants as utils_constants
 from pipelines.constants import constants
-from pipelines.datasets.br_ibge_pnadc.tasks import (
-    get_url_from_template,
-    download_txt,
-    build_parquet_files,
-    save_partitions,
-)
+from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
+from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.datasets.br_b3_cotacoes.tasks import (
+    tratamento,
+)
+
+from pipelines.utils.utils import (
+    log,
+)
+
+from pipelines.datasets.br_b3_cotacoes.schedules import (
+    all_day_cotacoes,
+)
+
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     rename_current_flow_run_dataset_table,
     get_current_flow_labels,
 )
-from pipelines.datasets.br_ibge_pnadc.schedules import every_quarter
 
-# pylint: disable=C0103
-with Flow(name="br_ibge_pnadc.microdados", code_owners=["lucas_cr"]) as br_pnadc:
+with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
     # Parameters
-    dataset_id = Parameter("dataset_id", default="br_ibge_pnadc", required=True)
-    table_id = Parameter("table_id", default="microdados", required=True)
-    year = Parameter("year", default=2020, required=False)
-    quarter = Parameter("quarter", default=1, required=False)
+    dataset_id = Parameter("dataset_id", default="br_b3_cotacoes", required=True)
+    table_id = Parameter("table_id", default="cotacoes", required=True)
+
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
-        "materialize after dump", default=True, required=False
+        "materialize_after_dump", default=True, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
+    # ! a variável delta_day é criada aqui e cria um objeto 'Parameter' no Prefect Cloud chamado delta_day
 
-    url = get_url_from_template(year, quarter, upstream_tasks=[rename_flow_run])
-    input_filepath = download_txt(url, mkdir=True, upstream_tasks=[url])
-    staging_filepath = build_parquet_files(
-        input_filepath, upstream_tasks=[input_filepath]
-    )
-    output_filepath = save_partitions(
-        staging_filepath, upstream_tasks=[staging_filepath]
-    )
+    delta_day = Parameter("delta_day", default=1, required=False)
+    # ! a variável filepath é criada aqui e é passado o parâmetro 'delta_day', sendo ele mesmo o valor.
 
+    # ! upstream_tasks=[rename_flow_run] significa que o task 'rename_flow_run' será executado antes do 'tratamento'
+
+    # ? Importante para o Prefect saber a ordem de execução dos tasks
+
+    filepath = tratamento(delta_day=delta_day, upstream_tasks=[rename_flow_run])
+
+    # pylint: disable=C0103
     wait_upload_table = create_table_and_upload_to_gcs(
-        data_path=output_filepath,
+        data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_mode="append",
-        wait=output_filepath,
+        wait=filepath,
     )
+
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -91,6 +95,6 @@ with Flow(name="br_ibge_pnadc.microdados", code_owners=["lucas_cr"]) as br_pnadc
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-br_pnadc.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_pnadc.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_pnadc.schedule = every_quarter
+cotacoes.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+cotacoes.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+cotacoes.schedule = all_day_cotacoes
