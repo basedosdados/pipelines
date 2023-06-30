@@ -34,4 +34,3 @@ from pipelines.datasets.br_cvm_fi.flows import *
 from pipelines.datasets.br_ons_avaliacao_operacao.flows import *
 from pipelines.datasets.br_ons_estimativa_custos.flows import *
 from pipelines.datasets.br_b3_cotacoes.flows import *
-from pipelines.datasets.temporal_coverage_updater.flows import *
