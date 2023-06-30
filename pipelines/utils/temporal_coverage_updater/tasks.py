@@ -18,7 +18,7 @@ from typing import Tuple
 
 
 @task
-def get_credentials(secret_path: str, wait=None) -> Tuple[str, str]:
+def get_credentials(secret_path: str) -> Tuple[str, str]:
     """
     Returns the user and password for the given secret path.
     """
@@ -80,7 +80,7 @@ def extract_last_update(dataset_id, table_id):
         table_id = '{table_id}'
         """
 
-        t = bd.read_sql(query=query_bd, billing_project_id="casebd")
+        t = bd.read_sql(query=query_bd, billing_project_id="basedosdados")
         timestamp = (
             t["last_modified_time"][0] / 1000
         )  # Convert to seconds by dividing by 1000

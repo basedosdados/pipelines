@@ -28,17 +28,23 @@ with Flow(
     dataset_id = Parameter("dataset_id", default="test_dataset", required=True)
     table_id = Parameter("table_id", default="test_laura_student", required=True)
 
-    (email, password) = get_credentials(secret_path="api_user_prod", wait=None)
-    ids = find_ids(dataset_id, table_id, email, password)
-    last_date = extract_last_update(dataset_id, table_id, upstream_tasks=[ids])
-    first_date = get_first_date(ids, email, password, upstream_tasks=[ids, last_date])
+    (email, password) = get_credentials(secret_path="api_user_prod")
+    ids = find_ids(
+        dataset_id, table_id, email, password, upstream_tasks=[email, password]
+    )
+    last_date = extract_last_update(
+        dataset_id, table_id, upstream_tasks=[ids, email, password]
+    )
+    first_date = get_first_date(
+        ids, email, password, upstream_tasks=[ids, last_date, email, password]
+    )
     update_temporal_coverage(
         ids,
         first_date,
         last_date,
         email,
         password,
-        upstream_tasks=[ids, last_date, first_date],
+        upstream_tasks=[ids, last_date, first_date, email, password],
     )
 
 
