@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Flows for br_rj_isp_estatisticas_seguranca.
+Flows for br_rj_isp_estatisticas_seguranca
 """
 
 from datetime import timedelta
