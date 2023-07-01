@@ -24,14 +24,13 @@ from pipelines.utils.utils import (
 )
 
 
-
 @task
 def log_task(msg: Any, level: str = "info"):
     """
     A task that logs a message.
     """
     log(msg=msg, level=level)
-    
+
 
 ##################
 #
