@@ -7,10 +7,12 @@ from prefect import task
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
+from pipelines.constants import constants
 from pipelines.datasets.br_anatel_telefonia_movel.utils import download_and_unzip
-from pipelines.datasets.br_anatel_telefonia_movel.constants import constants
-from pipelines.utils.utils import to_partitions
-from pipelines.utils.utils import log
+from pipelines.datasets.br_anatel_telefonia_movel.constants import constants as anatel_constants
+from pipelines.utils.utils import (to_partitions,
+                                   log
+)
 
 
 @task(
@@ -37,19 +39,19 @@ def clean_csvs(mes_um, mes_dois):
     """
     log("=" * 50)
     log("Download dos dados...")
-    download_and_unzip(url=constants.URL.value, path=constants.INPUT_PATH.value)
+    download_and_unzip(url=anatel_constants.URL.value, path=anatel_constants.INPUT_PATH.value)
 
     for anos in range(2019, 2024):
         print(f"Abrindo o arquivo:{mes_um}, {mes_dois}..")
         print("=" * 50)
         df = pd.read_csv(
-            f"{constants.INPUT_PATH.value}/Acessos_Telefonia_Movel_{mes_um}-{mes_dois}.csv",
+            f"{anatel_constants.INPUT_PATH.value}/Acessos_Telefonia_Movel_{mes_um}-{mes_dois}.csv",
             sep=";",
             encoding="utf-8",
         )
         print(f"Renomenado as colunas:")
         print("=" * 50)
-        df.rename(columns=constants.RENAME.value, inplace=True)
+        df.rename(columns=anatel_constants.RENAME.value, inplace=True)
         print(f"Removendo colunas desnecessárias: {mes_um}, {mes_dois}..")
         print("=" * 50)
 
@@ -69,7 +71,7 @@ def clean_csvs(mes_um, mes_dois):
         df["cnpj"] = df["cnpj"].astype(str)
         print(f"Ordenando-as: {mes_um}, {mes_dois}..")
         print("=" * 50)
-        df = df[constants.ORDEM.value]
+        df = df[anatel_constants.ORDEM.value]
 
         print("=" * 50)
 
@@ -78,7 +80,7 @@ def clean_csvs(mes_um, mes_dois):
         to_partitions(
             df,
             partition_columns=["ano", "mes"],
-            savepath=constants.OUTPUT_PATH.value,
+            savepath= anatel_constants.OUTPUT_PATH.value,
         )
 
-        return constants.OUTPUT_PATH.value
+        return anatel_constants.OUTPUT_PATH.value
