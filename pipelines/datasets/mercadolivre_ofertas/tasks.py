@@ -129,8 +129,8 @@ def clean_item(filepath):
     # clean desconto: 10% OFF -> 10
     item["desconto"] = item["desconto"].str.replace("% OFF", "")
     # clean categorias. Currently, it's a list of lists. Transform into a list of strings. First it's necessary to transform the string into a list of lists
-    item["categorias"] = item["categorias"].str.replace("[[", "[")
-    item["categorias"] = item["categorias"].str.replace("]]", "]")
+    # item["categorias"] = item["categorias"].str.replace("[[", "[")
+    # item["categorias"] = item["categorias"].str.replace("]]", "]")
     # remove if title is nan
     item = item[item["titulo"].notna()]
     # remove item_link
