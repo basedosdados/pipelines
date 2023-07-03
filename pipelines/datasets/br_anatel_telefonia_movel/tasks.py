@@ -14,7 +14,7 @@ from pipelines.utils.utils import log
 
 
 @task
-def clean_csvs(mes_um: int, mes_dois: int) -> pd.DataFrame():
+def clean_csvs(mes_um, mes_dois) -> pd.DataFrame():
     """
     -------
     Reads and cleans all CSV files in the '/tmp/data/input/' directory.
