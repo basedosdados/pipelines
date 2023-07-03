@@ -5,6 +5,7 @@
 
 import asyncio
 import time
+import os
 from prefect import task
 
 import pandas as pd
@@ -144,4 +145,10 @@ def clean_item(filepath):
     # to string
     item = item.astype(str)
 
-    item.to_csv("/tmp/items.csv", index=False)
+    today = pd.Timestamp.today().strftime("%Y-%m-%d")
+
+    os.system(f"mkdir -p br_mercadolivre_ofertas/item/{today}")
+
+    item.to_csv(f"br_mercadolivre_ofertas/item/{today}/items.csv", index=False)
+
+    return f"br_mercadolivre_ofertas/item/"
