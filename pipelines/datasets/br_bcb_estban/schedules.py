@@ -6,20 +6,27 @@ Schedules for br_bcb_estban
 # ESTBAN data is released every month, lagging 60 days during january until november
 # and 90 days during december (...)
 
-from datetime import timedelta, datetime
+from datetime import datetime
 from prefect.schedules import Schedule
-from prefect.schedules.clocks import IntervalClock
+from prefect.schedules.clocks import CronClock
 from pipelines.constants import constants
 
 
 every_month_agencia = Schedule(
     clocks=[
-        IntervalClock(
-            interval=timedelta(days=30),
-            start_date=datetime(1988, 7, 1),
+        CronClock(
+            cron="30 19 * * 2",  # 7:30 PM every Tuesday.
+            start_date=datetime.today(),
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
+            parameter_defaults={
+                "dataset_id": "br_bcb_estban",
+                "table_id": "agencia",
+                "materialization_mode": "prod",
+                "materialize_after_dump": True,
+                "dbt_alias": True,
+            },
         )
     ]
 )
@@ -27,12 +34,19 @@ every_month_agencia = Schedule(
 
 every_month_municipio = Schedule(
     clocks=[
-        IntervalClock(
-            interval=timedelta(days=30),
-            start_date=datetime(1988, 7, 1),
+        CronClock(
+            cron="30 19 * * 2",  # 15th day of every month at 15:00
+            start_date=datetime.today(),
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
+            parameter_defaults={
+                "dataset_id": "br_bcb_estban",
+                "table_id": "municipio",
+                "materialization_mode": "prod",
+                "materialize_after_dump": True,
+                "dbt_alias": True,
+            },
         )
     ]
 )

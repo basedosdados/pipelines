@@ -13,6 +13,9 @@ import unicodedata
 import numpy as np
 import re
 import os
+from pipelines.utils.utils import (
+    log,
+)
 
 # ------- macro etapa 1 download de dados
 
@@ -50,7 +53,6 @@ def extract_download_links(url, xpath):
 
 
 def download_and_unzip(url, path):
-
     """download and unzip a zip file
 
     Args:
@@ -151,6 +153,7 @@ def pre_cleaning_for_pivot_long_municipio(df: pd.DataFrame) -> pd.DataFrame:
         pd.Dataframe: _description_
     """
     df.drop(columns={"MUNICIPIO", "CODMUN_IBGE", "CODMUN"}, axis=1, inplace=True)
+
     df.rename(
         columns={
             "#DATA_BASE": "data_base",
@@ -160,7 +163,6 @@ def pre_cleaning_for_pivot_long_municipio(df: pd.DataFrame) -> pd.DataFrame:
             "AGEN_ESPERADAS": "agencias_esperadas",
             "AGEN_PROCESSADAS": "agencias_processadas",
         },
-        axis=1,
         inplace=True,
     )
 
@@ -178,16 +180,15 @@ def pre_cleaning_for_pivot_long_agencia(df: pd.DataFrame) -> pd.DataFrame:
         pd.Dataframe: _description_
     """
     df.drop(columns={"MUNICIPIO", "CODMUN_IBGE", "CODMUN"}, axis=1, inplace=True)
+
     df.rename(
         columns={
             "#DATA_BASE": "data_base",
             "UF": "sigla_uf",
             "CNPJ": "cnpj_basico",
             "NOME_INSTITUICAO": "instituicao",
-            # todo : change cnpj_agencia to cnpj
             "AGENCIA": "cnpj_agencia",
         },
-        axis=1,
         inplace=True,
     )
 
@@ -289,7 +290,6 @@ def condicoes(database, valor) -> None:
 def standardize_monetary_units(
     df: pd.DataFrame, date_column, value_column
 ) -> pd.DataFrame:
-
     """This function corrects monetary units from ESTBAN files.
     It relies on the data_base column being a string in the format YYYYMM,
     where YYYY is the year and MM is the month."""
@@ -347,7 +347,6 @@ def create_month_year_columns(df: pd.DataFrame, date_column: str) -> pd.DataFram
 
 
 def order_cols_municipio(df: pd.DataFrame) -> pd.DataFrame:
-
     """this function orders the columns of the dataframe
 
     Returns:
@@ -372,7 +371,6 @@ def order_cols_municipio(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def cols_order_agencia(df: pd.DataFrame) -> pd.DataFrame:
-
     """this function orders the columns of the dataframe
 
     Returns:

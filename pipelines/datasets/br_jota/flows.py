@@ -24,7 +24,7 @@ with Flow(
         "table_id", default="eleicao_perfil_candidato_2022", required=True
     )
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
@@ -119,7 +119,7 @@ with Flow(
         required=True,
     )
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 

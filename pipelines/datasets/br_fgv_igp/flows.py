@@ -48,7 +48,7 @@ with Flow(
     dataset_id = Parameter("dataset_id", default="br_fgv_igp", required=True)
     table_id = Parameter("table_id", default="igp_di_mes", required=True)
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
 
     materialize_after_dump = Parameter(
@@ -138,7 +138,7 @@ with Flow(
     dataset_id = Parameter("dataset_id", default="br_fgv_igp")
     table_id = Parameter("table_id", default="igp_di_ano")
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
 
     materialize_after_dump = Parameter(
@@ -228,7 +228,7 @@ with Flow(
     dataset_id = Parameter("dataset_id", default="br_fgv_igp")
     table_id = Parameter("table_id", default="igp_m_mes")
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
 
     materialize_after_dump = Parameter(
@@ -318,7 +318,7 @@ with Flow(
     dataset_id = Parameter("dataset_id", default="br_fgv_igp")
     table_id = Parameter("table_id", default="igp_m_ano")
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
 
     materialize_after_dump = Parameter(
@@ -408,7 +408,7 @@ with Flow(
     dataset_id = Parameter("dataset_id", default="br_fgv_igp")
     table_id = Parameter("table_id", default="igp_og_mes")
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
 
     materialize_after_dump = Parameter(
@@ -498,7 +498,7 @@ with Flow(
     dataset_id = Parameter("dataset_id", default="br_fgv_igp")
     table_id = Parameter("table_id", default="igp_og_ano")
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
 
     materialize_after_dump = Parameter(
@@ -588,7 +588,7 @@ with Flow(
     dataset_id = Parameter("dataset_id", default="br_fgv_igp")
     table_id = Parameter("table_id", default="igp_10_mes")
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
 
     materialize_after_dump = Parameter(

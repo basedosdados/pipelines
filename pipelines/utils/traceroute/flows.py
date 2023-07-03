@@ -13,7 +13,6 @@ from pipelines.utils.tasks import rename_current_flow_run
 from pipelines.utils.traceroute.tasks import log_traceroute
 
 with Flow(name="BD utils: Traceroute") as traceroute_flow:
-
     # Parameters
     hostname = Parameter("hostname")
 

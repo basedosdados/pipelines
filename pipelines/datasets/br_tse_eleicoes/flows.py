@@ -44,7 +44,7 @@ with Flow(
     id_candidato_bd = Parameter("id_candidato_bd", default=False, required=True)
 
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
 
     materialize_after_dump = Parameter(
@@ -171,7 +171,7 @@ with Flow(
     id_candidato_bd = Parameter("id_candidato_bd", default=False, required=True)
 
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
 
     materialize_after_dump = Parameter(
@@ -292,7 +292,7 @@ with Flow(
     id_candidato_bd = Parameter("id_candidato_bd", default=False, required=True)
 
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
 
     materialize_after_dump = Parameter(
@@ -376,7 +376,7 @@ with Flow(
     id_candidato_bd = Parameter("id_candidato_bd", default=False, required=True)
 
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
 
     materialize_after_dump = Parameter(
