@@ -4,163 +4,71 @@ Tasks for br_anatel_telefonia_movel
 """
 
 from prefect import task
-import requests
 import pandas as pd
 import numpy as np
-import os
-import zipfile
 from tqdm import tqdm
-from utils import find_csv_files
+from utils import download_and_unzip
 from constants import constants
 from pipelines.utils.utils import to_partitions
 from pipelines.utils.utils import log
 
-
-@task  # noqa
-def download_txt(url: str, chunk_size: int = 128, mkdir: bool = True) -> str:
-    """
-    Downloads a text file from a given URL and saves it to a local directory.
-
-    Parameters:
-    -----------
-    url: str
-        The URL to download the text file from.
-    chunk_size: int, optional
-        The size of each chunk to download in bytes. Default is 128 bytes.
-    mkdir: bool, optional
-        Whether to create a new directory for the downloaded file. Default is False.
-
-    Returns:
-    --------
-    str
-        The path to the directory where the downloaded file was saved.
-    """
-    if mkdir:
-        os.system("mkdir -p /tmp/data/input/")
-
-    request_headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36",
-    }
-    r = requests.get(url, headers=request_headers, stream=True, timeout=10)
-    save_path = "/tmp/data/input/file.zip"
-    # save_path = save_path + url.split("/")[-1]
-    with open(save_path, "wb") as fd:
-        for chunk in tqdm(r.iter_content(chunk_size=chunk_size)):
-            fd.write(chunk)
-
-    with zipfile.ZipFile(save_path) as z:
-        z.extractall("/tmp/data/input")
-    os.system('cd /tmp/data/input; find . -type f ! -iname "*.csv" -delete')
-
-    log("Dados baixados com sucesso!")
-
-    return "/tmp/data/input/"
-
-
 @task
-def clean_csvs() -> pd.DataFrame:
+def clean_csvs(mes_um: int, mes_dois: int) -> pd.DataFrame():
 
     """
+    -------
     Reads and cleans all CSV files in the '/tmp/data/input/' directory.
+    1. Rename the columns
+    2. Drops the columns Grupo_economico, Municipio and Ddd_chip
+    3. groups all variables by "accesses"
+    4. str.lower() on product column
 
+    -------
     Returns:
     -------
+
     pd.DataFrame
         The cleaned DataFrame with the following columns:
             'ano', 'mes', 'sigla_uf', 'id_municipio', 'ddd', 'cnpj', 'empresa', 'porte_empresa', 'tecnologia',
             'sinal', 'modalidade', 'pessoa', 'produto', 'acessos'
     """
 
-    df_mun = pd.DataFrame()
+    for anos in range(2019, 2024):
+        print(f'Abrindo o arquivo:{mes_um}, {mes_dois}..')
+        print("="*50)
+        df = pd.read_csv(f'{constants.INPUT_PATH}/Acessos_Telefonia_Movel_{mes_um}-{mes_dois}.csv', sep=";", encoding="utf-8")
+        print(f'Renomenado as colunas:')
+        print("="*50)
+        df.rename(columns=constants.RENAME, inplace=True)
+        print(f'Removendo colunas desnecessárias: {mes_um}, {mes_dois}..')
+        print("="*50)
 
-    for path in tqdm(find_csv_files("/tmp/data/input/")):
-        df = pd.read_csv(path, sep=";", encoding="utf-8")
-        df.rename(columns=constants.RENAME.value, inplace=True)
         df.drop(["grupo_economico", "municipio", "ddd_chip"], axis=1, inplace=True)
-        df["acessos_total"] = df.groupby(
-            [
-                "ano",
-                "mes",
-                "sigla_uf",
-                "id_municipio",
-                "ddd",
-                "cnpj",
-                "empresa",
-                "porte_empresa",
-                "tecnologia",
-                "sinal",
-                "modalidade",
-                "pessoa",
-                "produto",
-            ]
-        )["acessos"].transform(np.sum)
-        df.sort_values(
-            [
-                "ano",
-                "mes",
-                "sigla_uf",
-                "id_municipio",
-                "ddd",
-                "cnpj",
-                "empresa",
-                "porte_empresa",
-                "tecnologia",
-                "sinal",
-                "modalidade",
-                "pessoa",
-                "produto",
-            ],
-            inplace=True,
-        )
-        df.drop_duplicates(
-            subset=[
-                "ano",
-                "mes",
-                "sigla_uf",
-                "id_municipio",
-                "ddd",
-                "cnpj",
-                "empresa",
-                "porte_empresa",
-                "tecnologia",
-                "sinal",
-                "modalidade",
-                "pessoa",
-                "produto",
-            ],
-            keep="first",
-            inplace=True,
-        )
-        df.drop("acessos", axis=1, inplace=True)
-        df.rename(columns={"acessos_total": "acessos"}, inplace=True)
-        df = df[constants.ORDEM.value]
+        print(f'Agrupando por acessos: {mes_um}, {mes_dois}..')
+        print("="*50)
+        print(f'Ordenando-as: {mes_um}, {mes_dois}..')
+        print("="*50)
+        print(f'Tratando os dados: {mes_um}, {mes_dois}...')
+        print("="*50)
+        df["produto"] = df["produto"].str.lower()
 
-        df_mun = df_mun.append(df)
+        df["id_municipio"] = df["id_municipio"].astype(str)
 
-    df_mun["produto"] = df_mun["produto"].str.lower()
-    df_mun["id_municipio"] = df_mun["id_municipio"].astype(str)
-    df_mun["ddd"] = pd.to_numeric(df_mun["ddd"], downcast="integer").astype(str)
-    df_mun["cnpj"] = df_mun["cnpj"].astype(str)
-    df_mun = df_mun[constants.ORDEM.value]
-    df_mun.sort_values(by=["ano", "mes"], inplace=True)
+        df["ddd"] = pd.to_numeric(df["ddd"], downcast="integer").astype(str)
 
-    log("DataFrame criado com sucesso!")
+        df["cnpj"] = df["cnpj"].astype(str)
+        print(f'Ordenando-as: {mes_um}, {mes_dois}..')
+        print("="*50)
+        df = df[constants.ORDEM]
 
-    return df_mun
+        print("="*50)
 
+        print(f'Ordenando por ano e mes: {mes_um}, {mes_dois}...')
 
-@task
-def build_partition(final_df: pd.DataFrame) -> str:
-    """
-    Calls utils function `to_partitions()`
-    """
-    os.system("mkdir -p /tmp/data/output/")
-
-    to_partitions(
-        final_df,
-        partition_columns=["ano", "sigla_uf"],
-        savepath=constants.OUTPUT_PATH.value,
-    )
-    log("Partições Criadas!")
-
-    return constants.OUTPUT_PATH.value
+        to_partitions(
+                df,
+                partition_columns=['ano','mes'],
+                savepath=constants.OUTPUT_PATH,
+                )
+        
+        return df

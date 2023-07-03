@@ -16,9 +16,7 @@ from pipelines.datasets.br_anatel_telefonia_movel.constants import (
     constants as anatel_constants,
 )
 from pipelines.datasets.br_anatel_telefonia_movel.tasks import (
-    download_txt,
     clean_csvs,
-    build_partition,
 )
 from pipelines.utils.decorators import Flow
 from pipelines.utils.tasks import (
@@ -29,15 +27,12 @@ from pipelines.utils.tasks import (
 
 from pipelines.datasets.br_anatel_telefonia_movel.schedules import every_month_anatel
 
-with Flow(name="br_anatel_telefonia_movel", code_owners=["arthurfg"]) as br_anatel:
+with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anatel:
     # Parameters
     dataset_id = Parameter(
         "dataset_id", default="br_anatel_telefonia_movel", required=True
     )
     table_id = Parameter("table_id", default="microdados", required=True)
-    # year = Parameter("year", default=2023, required=True)
-    url = Parameter("url", default=anatel_constants.URL_TESTE.value, required=True)
-    mkdir = Parameter("mkdir", default=True, required=True)
 
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
@@ -51,21 +46,25 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["arthurfg"]) as br_anat
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    input_filepath = download_txt(
-        url=url, mkdir=mkdir, upstream_tasks=[rename_flow_run]
-    )
-    final_df = clean_csvs(upstream_tasks=[input_filepath, rename_flow_run])
+    # ! as variáveis ano, mes_um, mes_dois é criada aqui e cria um objeto 'Parameter' no Prefect Cloud chamado 'ano', 'mes_um', 'mes_dois'
+    # Importante salientar que o mes_um sempre será 01 ou 06 e o mes_dois será 07 ou 12
+    ano = Parameter("ano", default=2023, required=True)
+    mes_um = Parameter("mes_um", default=06, required=True)
+    mes_dois = Parameter("mes_dois", default=12, required=True)
 
-    output_filepath = build_partition(
-        final_df, upstream_tasks=[input_filepath, rename_flow_run, final_df]
+    filepath = clean_csvs(
+        ano = ano,
+        mes_um = mes_um,
+        mes_dois = mes_dois,
+        upstream_tasks=[rename_flow_run]
     )
 
     wait_upload_table = create_table_and_upload_to_gcs(
-        data_path=output_filepath,
+        data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_mode="append",
-        wait=output_filepath,
+        wait=filepath,
     )
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
@@ -99,4 +98,3 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["arthurfg"]) as br_anat
 br_anatel.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_anatel.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 br_anatel.schedule = every_month_anatel
-# flow.schedule = every_two_weeks

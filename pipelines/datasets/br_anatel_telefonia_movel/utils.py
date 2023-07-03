@@ -4,25 +4,26 @@ General purpose functions for the br_anatel_telefonia_movel project
 """
 # pylint: disable=too-few-public-methods,invalid-name
 
+from io import BytesIO
+from zipfile import ZipFile
+from urllib.request import urlopen
 import os
-import re
 
+def download_and_unzip(url, path):
+    """download and unzip a zip file
 
-def find_csv_files(directory):
-    """
-    Find all CSV files in a directory with names matching the pattern "Acessos_Telefonia_Movel_YYYYMM-YYYYMM.csv",
-    where "YYYY" represents a four-digit year and "MM" represents a two-digit month.
+    Args:
+        url (str): a url
 
-    Parameters:
-        directory (str): Path to the directory to search for CSV files.
 
     Returns:
-        List of strings: Full paths to all CSV files that match the pattern.
+        list: unziped files in a given folder
     """
-    pattern = r"Acessos_Telefonia_Movel_\d{6}-\d{6}\.csv"
-    csv_files = []
-    for filename in os.listdir(directory):
-        if re.match(pattern, filename):
-            file_path = os.path.join(directory, filename)
-            csv_files.append(file_path)
-    return csv_files
+
+    os.system(f"mkdir -p {path}")
+
+    http_response = urlopen(url)
+    zipfile = ZipFile(BytesIO(http_response.read()))
+    zipfile.extractall(path=path)
+
+    return path
