@@ -45,7 +45,7 @@ def clean_csvs(mes_um, mes_dois):
         print(f"Abrindo o arquivo:{mes_um}, {mes_dois}..")
         print("=" * 50)
         df = pd.read_csv(
-            f"{anatel_constants.INPUT_PATH.value}/Acessos_Telefonia_Movel_{mes_um}-{mes_dois}.csv",
+            f"{anatel_constants.INPUT_PATH.value}Acessos_Telefonia_Movel_{anos}{mes_um}-{anos}{mes_dois}.csv",
             sep=";",
             encoding="utf-8",
         )
