@@ -147,7 +147,7 @@ def clean_item(filepath):
 
     today = pd.Timestamp.today().strftime("%Y-%m-%d")
 
-    os.system(f"mkdir -p br_mercadolivre_ofertas/item/{today}")
+    os.system(f"mkdir -p br_mercadolivre_ofertas/item/dia={today}")
 
     item.to_csv(f"br_mercadolivre_ofertas/item/dia={today}/items.csv", index=False)
 
