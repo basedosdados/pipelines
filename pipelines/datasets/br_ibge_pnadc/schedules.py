@@ -10,8 +10,15 @@ from prefect.schedules.clocks import CronClock
 from pipelines.constants import constants
 
 current_year = datetime.now().year
-current_quarter = (datetime.now().month - 1) // 3 + 1
-last_quarter = current_quarter - 1
+
+if (
+    12 >= datetime.now().month <= 4
+):  # following the ibge logic, returns the last quarter of the previous year, if the current month is < than May
+    last_quarter = 4
+    current_year -= 1
+else:  # returns the current year and the correct quarter, given the current month
+    current_quarter = (datetime.now().month - 1) // 3 + 1
+    last_quarter = current_quarter - 1
 
 every_quarter = Schedule(
     clocks=[

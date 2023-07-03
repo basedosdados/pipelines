@@ -104,7 +104,11 @@ def build_and_register(  # pylint: disable=too-many-branches
                 while attempts < max_retries:
                     attempts += 1
                     try:
-                        (flow_id, flow_version, is_new,) = register_serialized_flow(
+                        (
+                            flow_id,
+                            flow_version,
+                            is_new,
+                        ) = register_serialized_flow(
                             client=client,
                             serialized_flow=serialized_flow,
                             project_id=project_id,

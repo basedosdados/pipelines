@@ -35,7 +35,7 @@ with Flow(name="br_ibge_pnadc.microdados", code_owners=["lucas_cr"]) as br_pnadc
     year = Parameter("year", default=2020, required=False)
     quarter = Parameter("quarter", default=1, required=False)
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
         "materialize after dump", default=True, required=False
