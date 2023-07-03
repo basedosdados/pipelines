@@ -9,10 +9,10 @@ import numpy as np
 from datetime import datetime, timedelta
 from pipelines.constants import constants
 from pipelines.datasets.br_anatel_telefonia_movel.utils import download_and_unzip
-from pipelines.datasets.br_anatel_telefonia_movel.constants import constants as anatel_constants
-from pipelines.utils.utils import (to_partitions,
-                                   log
+from pipelines.datasets.br_anatel_telefonia_movel.constants import (
+    constants as anatel_constants,
 )
+from pipelines.utils.utils import to_partitions, log
 
 
 @task(
@@ -39,7 +39,9 @@ def clean_csvs(mes_um, mes_dois):
     """
     log("=" * 50)
     log("Download dos dados...")
-    download_and_unzip(url=anatel_constants.URL.value, path=anatel_constants.INPUT_PATH.value)
+    download_and_unzip(
+        url=anatel_constants.URL.value, path=anatel_constants.INPUT_PATH.value
+    )
 
     for anos in range(2019, 2024):
         print(f"Abrindo o arquivo:{mes_um}, {mes_dois}..")
@@ -80,7 +82,7 @@ def clean_csvs(mes_um, mes_dois):
         to_partitions(
             df,
             partition_columns=["ano", "mes"],
-            savepath= anatel_constants.OUTPUT_PATH.value,
+            savepath=anatel_constants.OUTPUT_PATH.value,
         )
 
         return anatel_constants.OUTPUT_PATH.value
