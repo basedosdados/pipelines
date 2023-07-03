@@ -149,6 +149,6 @@ def clean_item(filepath):
 
     os.system(f"mkdir -p br_mercadolivre_ofertas/item/{today}")
 
-    item.to_csv(f"br_mercadolivre_ofertas/item/{today}/items.csv", index=False)
+    item.to_csv(f"br_mercadolivre_ofertas/item/dia={today}/items.csv", index=False)
 
     return f"br_mercadolivre_ofertas/item/"
