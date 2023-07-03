@@ -6,9 +6,8 @@ Tasks for br_anatel_telefonia_movel
 from prefect import task
 import pandas as pd
 import numpy as np
-from tqdm import tqdm
-from utils import download_and_unzip
-from constants import constants
+from pipelines.datasets.br_anatel_telefonia_movel.utils import download_and_unzip
+from pipelines.datasets.br_anatel_telefonia_movel.constants import constants
 from pipelines.utils.utils import to_partitions
 from pipelines.utils.utils import log
 
@@ -35,7 +34,7 @@ def clean_csvs(mes_um, mes_dois) -> pd.DataFrame():
     log("="*50)
     log('Download dos dados...')
     download_and_unzip(constants.URL, constants.INPUT_PATH)
-       
+
     for anos in range(2019, 2024):
         print(f"Abrindo o arquivo:{mes_um}, {mes_dois}..")
         print("=" * 50)
