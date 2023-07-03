@@ -33,7 +33,7 @@ def clean_csvs(mes_um, mes_dois) -> pd.DataFrame():
     """
     log("=" * 50)
     log("Download dos dados...")
-    download_and_unzip(constants.URL, constants.INPUT_PATH)
+    download_and_unzip(url=constants.URL, path=constants.INPUT_PATH)
 
     for anos in range(2019, 2024):
         print(f"Abrindo o arquivo:{mes_um}, {mes_dois}..")
