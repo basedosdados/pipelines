@@ -70,7 +70,6 @@ def access_ftp_donwload_files(file_list: list, path: str, table: str) -> list[st
     dbc_files_path_list = list()
 
     for file in file_list:
-
         # build partition dirs
 
         year_month_sigla_uf = year_month_sigla_uf_parser(file=file)
@@ -116,7 +115,6 @@ def read_dbc_save_csv(file_list: list, path: str, table: str) -> str:
 
     # list files
     for file in file_list:
-
         log(f"the file {file} is being converted to csv")
         dbc_file = readdbc.read_dbc(file)
 
