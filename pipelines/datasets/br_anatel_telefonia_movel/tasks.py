@@ -6,14 +6,18 @@ Tasks for br_anatel_telefonia_movel
 from prefect import task
 import pandas as pd
 import numpy as np
+from datetime import datetime, timedelta
 from pipelines.datasets.br_anatel_telefonia_movel.utils import download_and_unzip
 from pipelines.datasets.br_anatel_telefonia_movel.constants import constants
 from pipelines.utils.utils import to_partitions
 from pipelines.utils.utils import log
 
 
-@task
-def clean_csvs(mes_um, mes_dois) -> pd.DataFrame():
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def clean_csvs(mes_um, mes_dois):
     """
     -------
     Reads and cleans all CSV files in the '/tmp/data/input/' directory.
@@ -33,19 +37,19 @@ def clean_csvs(mes_um, mes_dois) -> pd.DataFrame():
     """
     log("=" * 50)
     log("Download dos dados...")
-    download_and_unzip(url=constants.URL, path=constants.INPUT_PATH)
+    download_and_unzip(url=constants.URL.value, path=constants.INPUT_PATH.value)
 
     for anos in range(2019, 2024):
         print(f"Abrindo o arquivo:{mes_um}, {mes_dois}..")
         print("=" * 50)
         df = pd.read_csv(
-            f"{constants.INPUT_PATH}/Acessos_Telefonia_Movel_{mes_um}-{mes_dois}.csv",
+            f"{constants.INPUT_PATH.value}/Acessos_Telefonia_Movel_{mes_um}-{mes_dois}.csv",
             sep=";",
             encoding="utf-8",
         )
         print(f"Renomenado as colunas:")
         print("=" * 50)
-        df.rename(columns=constants.RENAME, inplace=True)
+        df.rename(columns=constants.RENAME.value, inplace=True)
         print(f"Removendo colunas desnecessárias: {mes_um}, {mes_dois}..")
         print("=" * 50)
 
@@ -65,7 +69,7 @@ def clean_csvs(mes_um, mes_dois) -> pd.DataFrame():
         df["cnpj"] = df["cnpj"].astype(str)
         print(f"Ordenando-as: {mes_um}, {mes_dois}..")
         print("=" * 50)
-        df = df[constants.ORDEM]
+        df = df[constants.ORDEM.value]
 
         print("=" * 50)
 
@@ -74,7 +78,7 @@ def clean_csvs(mes_um, mes_dois) -> pd.DataFrame():
         to_partitions(
             df,
             partition_columns=["ano", "mes"],
-            savepath=constants.OUTPUT_PATH,
+            savepath=constants.OUTPUT_PATH.value,
         )
 
-        return df
+        return constants.OUTPUT_PATH.value
