@@ -1709,6 +1709,14 @@ python-versions = "*"
 heapdict = "*"
 
 [[package]]
+name = "rpy2"
+version = "3.5.11"
+description = "Python interface to the R language (embedded R)"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[[package]]
 name = "zipp"
 version = "3.15.0"
 description = "Backport of pathlib-compatible object wrapper for zip files"
