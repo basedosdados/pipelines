@@ -15,6 +15,9 @@ import wget
 import os
 from rpy2.robjects.packages import importr
 import rpy2.robjects.packages as rpackages
+import rpy2.robjects as ro
+from rpy2.robjects import pandas2ri
+
 import datetime as dt
 
 from pipelines.datasets.br_ms_cnes.utils import (
@@ -116,11 +119,15 @@ def read_dbc_save_csv(file_list: list, path: str, table: str) -> str:
     utils.install_packages("read.dbc")
     readdbc = importr("read.dbc")
 
-    file_list = file_list[0:2]
     # list files
     for file in file_list:
         log(f"the file {file} is being converted to csv")
         dbc_file = readdbc.read_dbc(file)
+        # convert from r to pandas
+        # https://rpy2.github.io/doc/latest/html/generated_rst/pandas.html#from-r-to-pandas
+
+        with (ro.default_converter + pandas2ri.converter).context():
+            pd_from_r_df = ro.conversion.get_conversion().rpy2py(dbc_file)
 
         year_month_sigla_uf = year_month_sigla_uf_parser(file=file)
 
@@ -131,7 +138,12 @@ def read_dbc_save_csv(file_list: list, path: str, table: str) -> str:
         log(f"created output partition dir {path + table + '/'+ year_month_sigla_uf}")
         output_file = output_path + "/" + table + ".csv"
 
-        dbc_file.to_csvfile(output_file, sep=",", na="", row_names=False)
+        if not isinstance(pd_from_r_df, pd.DataFrame):
+            raise TypeError("The pd_from_r_df object is not a pandas DataFrame.")
+
+        pd_from_r_df.to_csv(
+            output_file, sep=",", na_rep="", index=False, encoding="utf-8"
+        )
 
         log(
             f"The file {file} was converted to csv and saved at {output_path + file + '.csv'}"
