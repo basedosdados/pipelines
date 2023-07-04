@@ -69,7 +69,6 @@ with Flow(
         temp_dir=unmapped(constants.DOWNLOAD_PATH.value),
     )
     # Now get the downloaded file:
-    # Now get the downloaded file:
     municipio_tipo_file = get_desired_file_task.map(
         year=[date[0] for date in date_pairs_param],
         month=[date[1] for date in date_pairs_param],
