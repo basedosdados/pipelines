@@ -27,10 +27,10 @@ from pipelines.utils.tasks import (
 )
 
 with Flow(
-    name="br_ms_cnes.estabelecimento", code_owners=["Gabriel Pisa"]
-) as br_comex_mx:
+    name="br_ms_cnes_test.estabelecimento", code_owners=["Gabriel Pisa"]
+) as br_ms_cnes_test:
     # Parameters
-    dataset_id = Parameter("dataset_id", default="br_ms_cnes", required=True)
+    dataset_id = Parameter("dataset_id", default="br_ms_cnes_test", required=True)
     table_id = Parameter("table_id", default="estabelecimento", required=True)
 
     materialization_mode = Parameter(
@@ -96,6 +96,6 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-br_comex_mx.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_comex_mx.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_comex_mx.schedule = None
+br_ms_cnes_test.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_ms_cnes_test.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_ms_cnes_test.schedule = None
