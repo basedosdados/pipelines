@@ -380,6 +380,7 @@ async def main_item(dict_tables, kwargs_list):
         contents.extend(table_results)
     return contents
 
+
 async def get_seller_async(url, seller_id):
     kwargs_list = [
         {"id": "store-info__name"},
