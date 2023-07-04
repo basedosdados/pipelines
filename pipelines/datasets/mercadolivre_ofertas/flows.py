@@ -135,7 +135,7 @@ with Flow(
     dataset_id = Parameter(
         "dataset_id", default="br_mercadolivre_ofertas", required=True
     )
-    table_id = Parameter("table_id", default="item", required=True)
+    table_id = Parameter("table_id", default="vendedor", required=True)
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
