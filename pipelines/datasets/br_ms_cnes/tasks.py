@@ -111,6 +111,8 @@ def read_dbc_save_csv(file_list: list, path: str, table: str) -> str:
 
     # select a mirror for R packages
     utils.chooseCRANmirror(ind=1)
+
+    log("installing read.dbc package")
     utils.install_packages("read.dbc")
     readdbc = importr("read.dbc")
 
@@ -132,3 +134,5 @@ def read_dbc_save_csv(file_list: list, path: str, table: str) -> str:
         log(
             f"The file {file} was converted to csv and saved at {output_path + file + '.csv'}"
         )
+
+    return
