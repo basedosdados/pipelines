@@ -116,6 +116,7 @@ def read_dbc_save_csv(file_list: list, path: str, table: str) -> str:
     utils.install_packages("read.dbc")
     readdbc = importr("read.dbc")
 
+    file_list = file_list[0:2]
     # list files
     for file in file_list:
         log(f"the file {file} is being converted to csv")
@@ -131,6 +132,7 @@ def read_dbc_save_csv(file_list: list, path: str, table: str) -> str:
         output_file = output_path + "/" + table + ".csv"
 
         dbc_file.to_csvfile(output_file, sep=",", na="", row_names=False)
+
         log(
             f"The file {file} was converted to csv and saved at {output_path + file + '.csv'}"
         )

@@ -54,4 +54,4 @@ def year_month_sigla_uf_parser(file: str) -> str:
     # parse and build state
     sigla_uf = file[:2]
 
-    return f"ano={year}/mes={month}/sigla_if={sigla_uf}"
+    return f"ano={year}/mes={month}/sigla_uf={sigla_uf}"
