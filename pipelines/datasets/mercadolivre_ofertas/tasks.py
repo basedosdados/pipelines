@@ -6,6 +6,7 @@
 import asyncio
 import time
 import os
+import re
 from prefect import task
 
 import pandas as pd
@@ -14,7 +15,7 @@ from pipelines.utils.tasks import log
 from pipelines.datasets.mercadolivre_ofertas.constants import (
     constants as const_mercadolivre,
 )
-from pipelines.datasets.mercadolivre_ofertas.utils import main
+from pipelines.datasets.mercadolivre_ofertas.utils import main_item, main_seller, get_id
 
 less100 = const_mercadolivre.LESS100.value
 oferta_dia = const_mercadolivre.OFERTA_DIA.value
@@ -28,7 +29,7 @@ dict_tables = dict(zip(tables_names, urls))
 
 
 @task
-def crawler_mercadolivre_ofertas():
+def crawler_mercadolivre_item():
     """
     Executes the crawler for Mercado Livre offers by running the main process, processing the results,
     and saving them to a CSV file.
@@ -40,7 +41,7 @@ def crawler_mercadolivre_ofertas():
         None
     """
     loop = asyncio.get_event_loop()
-    contents = loop.run_until_complete(main(dict_tables, kwargs_list))
+    contents = loop.run_until_complete(main_item(dict_tables, kwargs_list))
     time.sleep(5)
     df = pd.DataFrame(contents)
     total = df.shape[0]
@@ -151,4 +152,70 @@ def clean_item(filepath):
 
     item.to_csv(f"br_mercadolivre_ofertas/item/dia={today}/items.csv", index=False)
 
-    return f"br_mercadolivre_ofertas/item/"
+    return "br_mercadolivre_ofertas/item/"
+
+
+@task
+def crawler_mercadolivre_seller(seller_ids, seller_links):
+    filepath_raw = "vendedor.csv"
+    asyncio.run(main_seller(seller_ids, seller_links, filepath))
+
+    return filepath_raw
+
+
+@task
+def clean_seller(filepath_raw):
+    seller = pd.read_csv(filepath_raw)
+
+    new_cols = [
+        "nome",
+        "experiencia",
+        "reputacao",
+        "classificacao",
+        "localizacao",
+        "opinioes",
+        "data",
+        "id_vendor",
+    ]
+
+    seller.columns = new_cols
+    # remove if title is nan
+    seller = seller[seller["nome"].notna()]
+    # clean experiencia: 3 anos vendendo no Mercado Livre -> 3
+    seller["experiencia"] = seller["experiencia"].apply(
+        lambda x: re.findall(r"\d+", x)[0]
+    )
+    # clean classificacao: MercadoLíder Platinum -> Platinum
+    seller["classificacao"] = seller["classificacao"].str.replace("MercadoLíder ", "")
+    # clean localizacao: LocalizaçãoJuiz de Fora, Minas Gerais. -> Juiz de Fora, Minas Gerais.
+    seller["localizacao"] = seller["localizacao"].str.replace("Localização", "")
+    # clean opinioes: [{'Bom': 771, 'Regular': 67, 'Ruim': 174}] -> {'Bom': 771, 'Regular': 67, 'Ruim': 174}
+    dict_municipios = const_mercadolivre.MAP_MUNICIPIO_TO_ID.value
+    seller["localizacao"] = seller["localizacao"].apply(
+        lambda x: get_id(x, dict_municipios)
+    )
+    # rename localizacao to id_municipio
+    seller = seller.rename(columns={"localizacao": "id_municipio"})
+    seller["opinioes"] = seller["opinioes"].str.replace("[", "")
+    seller["opinioes"] = seller["opinioes"].str.replace("]", "")
+
+    # put id_vendor in the first column
+    new_order = [
+        "id_vendor",
+        "nome",
+        "experiencia",
+        "reputacao",
+        "classificacao",
+        "id_municipio",
+        "opinioes",
+        "data",
+    ]
+    seller = seller.reindex(new_order, axis=1)
+
+    today = pd.Timestamp.today().strftime("%Y-%m-%d")
+    os.system(f"mkdir -p br_mercadolivre_ofertas/vendedor/dia={today}")
+    seller.to_csv(
+        f"br_mercadolivre_ofertas/vendedor/dia={today}/seller.csv", index=False
+    )
+
+    return "br_mercadolivre_ofertas/vendedor/"

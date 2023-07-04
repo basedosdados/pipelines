@@ -7,9 +7,11 @@ import re
 from datetime import datetime
 
 import requests
+from tqdm import tqdm
 from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
 import Levenshtein
+import pandas as pd
 
 ua = UserAgent()
 
@@ -355,7 +357,7 @@ async def process_table(table, url, kwargs_list):
     return results
 
 
-async def main(dict_tables, kwargs_list):
+async def main_item(dict_tables, kwargs_list):
     """
     Executes the main process by processing multiple tables and consolidating the results.
 
@@ -377,3 +379,36 @@ async def main(dict_tables, kwargs_list):
     for table_results in results:
         contents.extend(table_results)
     return contents
+
+async def get_seller_async(url, seller_id):
+    kwargs_list = [
+        {"id": "store-info__name"},
+        {"class_": "experience"},
+        {"class_": "seller-info__subtitle-sales"},
+        {"class_": "message__title"},
+        {"class_": "location__wrapper"},
+    ]
+    keys = ["title", "experience", "reputation", "classification", "location"]
+    tasks = [get_byelement(url=url, attempts=2, **kwargs) for kwargs in kwargs_list]
+    results = await asyncio.gather(*tasks)
+    info = dict(zip(keys, results))
+    info["opinions"] = await asyncio.gather(get_features(url, attempts=2))
+    info["date"] = datetime.now().strftime("%Y-%m-%d")
+    info["seller_id"] = seller_id
+
+    return info
+
+
+async def main_seller(seller_ids, seller_links, file_dest):
+    # get list of unique sellers
+    dict_id_link = dict(zip(seller_ids, seller_links))
+
+    sellers = []
+    for seller_id, link in tqdm(dict_id_link.items()):
+        seller = await get_seller_async(link, seller_id)
+        sellers.append(seller)
+
+    # save sellers as a pandas dataframe
+    df_sellers = pd.DataFrame(sellers)
+    df_sellers = df_sellers.astype(str)
+    df_sellers.to_csv(file_dest, index=False)
