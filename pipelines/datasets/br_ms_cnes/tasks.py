@@ -135,4 +135,4 @@ def read_dbc_save_csv(file_list: list, path: str, table: str) -> str:
             f"The file {file} was converted to csv and saved at {output_path + file + '.csv'}"
         )
 
-    return
+    return path + table
