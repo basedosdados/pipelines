@@ -40,7 +40,7 @@ def parse_latest_cnes_dbc_files():
     today = today[2:]
     today = str(int(today) - 2)
     log(f"the YYYY MM {today}")
-    # todo: parse current month -1
+    # todo: generalize parse current month -2
 
     list_files = []
 
@@ -111,6 +111,7 @@ def read_dbc_save_csv(file_list: list, path: str, table: str) -> str:
 
     # select a mirror for R packages
     utils.chooseCRANmirror(ind=1)
+    utils.install_packages("read.dbc")
     readdbc = importr("read.dbc")
 
     # list files
