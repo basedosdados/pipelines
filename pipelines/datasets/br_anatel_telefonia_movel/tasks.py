@@ -99,15 +99,28 @@ def clean_csv_brasil():
         url=anatel_constants.URL.value, path=anatel_constants.INPUT_PATH.value
     )
 
-    densidade = pd.read_csv(f'{anatel_constants.INPUT_PATH.value}Densidade_Telefonia_Movel', sep=';', encoding='utf-8')
-    densidade.rename(columns={'Nível Geográfico Densidade' : 'geografia'}, inplace=True)
-    densidade_brasil = densidade[densidade['geografia'] == 'Brasil']
-    densidade_brasil = densidade_brasil[['Ano', 'Mês', 'Densidade']]
-    densidade_brasil = densidade_brasil.rename(columns={'Ano': 'ano', 'Mês': 'mes', 'Densidade': 'densidade'})
-    densidade_brasil['densidade'] = densidade_brasil['densidade'].astype(str).str.replace(',', '.').astype(float)
-    densidade_brasil.to_csv(f'{anatel_constants.OUTPUT_PATH.value}densidade_brasil.csv', index=False, sep=',', encoding='utf-8', na_rep='')
+    densidade = pd.read_csv(
+        f"{anatel_constants.INPUT_PATH.value}Densidade_Telefonia_Movel",
+        sep=";",
+        encoding="utf-8",
+    )
+    densidade.rename(columns={"Nível Geográfico Densidade": "geografia"}, inplace=True)
+    densidade_brasil = densidade[densidade["geografia"] == "Brasil"]
+    densidade_brasil = densidade_brasil[["Ano", "Mês", "Densidade"]]
+    densidade_brasil = densidade_brasil.rename(
+        columns={"Ano": "ano", "Mês": "mes", "Densidade": "densidade"}
+    )
+    densidade_brasil["densidade"] = (
+        densidade_brasil["densidade"].astype(str).str.replace(",", ".").astype(float)
+    )
+    densidade_brasil.to_csv(
+        f"{anatel_constants.OUTPUT_PATH.value}densidade_brasil.csv",
+        index=False,
+        sep=",",
+        encoding="utf-8",
+        na_rep="",
+    )
     return anatel_constants.OUTPUT_PATH.value
-
 
 
 @task(
@@ -121,15 +134,28 @@ def clean_csv_uf():
         url=anatel_constants.URL.value, path=anatel_constants.INPUT_PATH.value
     )
 
-    densidade = pd.read_csv(f'{anatel_constants.INPUT_PATH.value}Densidade_Telefonia_Movel', sep=';', encoding='utf-8')
-    densidade.rename(columns={'Nível Geográfico Densidade' : 'geografia'}, inplace=True)
-    densidade_uf = densidade[densidade['geografia'] == 'UF']
-    densidade_uf = densidade_uf[['Ano', 'Mês', 'UF', 'Densidade']]
-    densidade_uf = densidade_uf.rename(columns={'Ano': 'ano', 'Mês': 'mes', 'UF': 'sigla_uf', 'Densidade': 'densidade'})
-    densidade_uf['densidade'] = densidade_uf['densidade'].astype(str).str.replace(',', '.').astype(float)
-    densidade_uf.to_csv(f'{anatel_constants.OUTPUT_PATH.value}densidade_uf.csv', index=False, sep=',', encoding='utf-8', na_rep='')
+    densidade = pd.read_csv(
+        f"{anatel_constants.INPUT_PATH.value}Densidade_Telefonia_Movel",
+        sep=";",
+        encoding="utf-8",
+    )
+    densidade.rename(columns={"Nível Geográfico Densidade": "geografia"}, inplace=True)
+    densidade_uf = densidade[densidade["geografia"] == "UF"]
+    densidade_uf = densidade_uf[["Ano", "Mês", "UF", "Densidade"]]
+    densidade_uf = densidade_uf.rename(
+        columns={"Ano": "ano", "Mês": "mes", "UF": "sigla_uf", "Densidade": "densidade"}
+    )
+    densidade_uf["densidade"] = (
+        densidade_uf["densidade"].astype(str).str.replace(",", ".").astype(float)
+    )
+    densidade_uf.to_csv(
+        f"{anatel_constants.OUTPUT_PATH.value}densidade_uf.csv",
+        index=False,
+        sep=",",
+        encoding="utf-8",
+        na_rep="",
+    )
     return anatel_constants.OUTPUT_PATH.value
-
 
 
 @task(
@@ -143,13 +169,29 @@ def clean_csv_municipio():
         url=anatel_constants.URL.value, path=anatel_constants.INPUT_PATH.value
     )
 
-    densidade = pd.read_csv(f'{anatel_constants.INPUT_PATH.value}Densidade_Telefonia_Movel', sep=';', encoding='utf-8')
-    densidade.rename(columns={'Nível Geográfico Densidade' : 'geografia'}, inplace=True)
-    densidade_municipio = densidade[densidade['geografia'] == 'Municipio']
-    densidade_municipio = densidade_municipio[['Ano', 'Mês', 'UF', 'Código IBGE', 'Densidade']]
-    densidade_municipio = densidade_municipio.rename(columns={'Ano': 'ano', 'Mês': 'mes', 'UF': 'sigla_uf', 'Código IBGE Município': 'id_municipio', 'Densidade': 'densidade'})
-    densidade_municipio['densidade'] = densidade_municipio['densidade'].astype(str).str.replace(',', '.').astype(float)
-    
+    densidade = pd.read_csv(
+        f"{anatel_constants.INPUT_PATH.value}Densidade_Telefonia_Movel",
+        sep=";",
+        encoding="utf-8",
+    )
+    densidade.rename(columns={"Nível Geográfico Densidade": "geografia"}, inplace=True)
+    densidade_municipio = densidade[densidade["geografia"] == "Municipio"]
+    densidade_municipio = densidade_municipio[
+        ["Ano", "Mês", "UF", "Código IBGE", "Densidade"]
+    ]
+    densidade_municipio = densidade_municipio.rename(
+        columns={
+            "Ano": "ano",
+            "Mês": "mes",
+            "UF": "sigla_uf",
+            "Código IBGE Município": "id_municipio",
+            "Densidade": "densidade",
+        }
+    )
+    densidade_municipio["densidade"] = (
+        densidade_municipio["densidade"].astype(str).str.replace(",", ".").astype(float)
+    )
+
     to_partitions(
         densidade_municipio,
         partition_columns=["ano", "mes"],
