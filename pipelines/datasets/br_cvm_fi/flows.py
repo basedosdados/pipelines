@@ -52,22 +52,22 @@ with Flow(
     code_owners=[
         "arthurfg",
     ],
-) as br_cvm_fi_documentos_informe_diario_flow:
+) as br_cvm_fi_documentos_informe_diario:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_cvm_fi", required=True)
     table_id = Parameter("table_id", default="documentos_informe_diario", required=True)
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=True
+        "materialization_mode", default="dev", required=False
     )
     materialize_after_dump = Parameter(
-        "materialize_after_dump", default=False, required=True
+        "materialize_after_dump", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     url = Parameter(
         "url",
         default=cvm_constants.INFORME_DIARIO_URL.value,
-        required=True,
+        required=False,
     )
     df = extract_links_and_dates(url)
     log_task(f"Links e datas: {df}")
@@ -125,11 +125,11 @@ with Flow(
             )
 
 
-br_cvm_fi_documentos_informe_diario_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_cvm_fi_documentos_informe_diario_flow.run_config = KubernetesRun(
+br_cvm_fi_documentos_informe_diario.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_cvm_fi_documentos_informe_diario.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_cvm_fi_documentos_informe_diario_flow.schedule = every_day_informe
+br_cvm_fi_documentos_informe_diario.schedule = every_day_informe
 
 
 with Flow(
@@ -139,9 +139,9 @@ with Flow(
     ],
 ) as br_cvm_fi_documentos_carteiras_fundos_investimento:
     # Parameters
-    dataset_id = Parameter("dataset_id", default="br_cvm_fi", required=False)
+    dataset_id = Parameter("dataset_id", default="br_cvm_fi", required=True)
     table_id = Parameter(
-        "table_id", default="documentos_carteiras_fundos_investimento", required=False
+        "table_id", default="documentos_carteiras_fundos_investimento", required=True
     )
 
     materialization_mode = Parameter(
@@ -155,7 +155,7 @@ with Flow(
     url = Parameter(
         "url",
         default=cvm_constants.CDA_URL.value,
-        required=True,
+        required=False,
     )
 
     df = extract_links_and_dates(url)
@@ -230,22 +230,22 @@ with Flow(
     ],
 ) as br_cvm_fi_documentos_extratos_informacoes:
     # Parameters
-    dataset_id = Parameter("dataset_id", default="br_cvm_fi", required=False)
+    dataset_id = Parameter("dataset_id", default="br_cvm_fi", required=True)
     table_id = Parameter(
-        "table_id", default="documentos_extratos_informacoes", required=False
+        "table_id", default="documentos_extratos_informacoes", required=True
     )
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=True
+        "materialization_mode", default="dev", required=False
     )
     materialize_after_dump = Parameter(
-        "materialize_after_dump", default=False, required=True
+        "materialize_after_dump", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     url = Parameter(
         "url",
         default=cvm_constants.URL_EXT.value,
-        required=True,
+        required=False,
     )
 
     file = Parameter(
@@ -325,8 +325,8 @@ with Flow(
     ],
 ) as br_cvm_fi_documentos_perfil_mensal:
     # Parameters
-    dataset_id = Parameter("dataset_id", default="br_cvm_fi", required=False)
-    table_id = Parameter("table_id", default="documentos_perfil_mensal", required=False)
+    dataset_id = Parameter("dataset_id", default="br_cvm_fi", required=True)
+    table_id = Parameter("table_id", default="documentos_perfil_mensal", required=True)
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -338,7 +338,7 @@ with Flow(
     url = Parameter(
         "url",
         default=cvm_constants.URL_PERFIL_MENSAL.value,
-        required=True,
+        required=False,
     )
 
     df = extract_links_and_dates(url)
@@ -410,22 +410,22 @@ with Flow(
     ],
 ) as br_cvm_fi_documentos_informacao_cadastral:
     # Parameters
-    dataset_id = Parameter("dataset_id", default="br_cvm_fi", required=False)
+    dataset_id = Parameter("dataset_id", default="br_cvm_fi", required=True)
     table_id = Parameter(
-        "table_id", default="documentos_informacao_cadastral", required=False
+        "table_id", default="documentos_informacao_cadastral", required=True
     )
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=True
+        "materialization_mode", default="dev", required=False
     )
     materialize_after_dump = Parameter(
-        "materialize_after_dump", default=False, required=True
+        "materialize_after_dump", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     url = Parameter(
         "url",
         default=cvm_constants.URL_INFO_CADASTRAL.value,
-        required=True,
+        required=False,
     )
 
     files = Parameter("files", default=cvm_constants.CAD_FILE.value, required=False)
@@ -496,20 +496,20 @@ with Flow(
     ],
 ) as br_cvm_fi_documentos_balancete:
     # Parameters
-    dataset_id = Parameter("dataset_id", default="br_cvm_fi", required=False)
-    table_id = Parameter("table_id", default="documentos_balancete", required=False)
+    dataset_id = Parameter("dataset_id", default="br_cvm_fi", required=True)
+    table_id = Parameter("table_id", default="documentos_balancete", required=True)
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=True
+        "materialization_mode", default="dev", required=False
     )
     materialize_after_dump = Parameter(
-        "materialize_after_dump", default=False, required=True
+        "materialize_after_dump", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     url = Parameter(
         "url",
         default=cvm_constants.URL_BALANCETE.value,
-        required=True,
+        required=False,
     )
 
     df = extract_links_and_dates(url)
