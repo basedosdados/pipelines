@@ -40,7 +40,7 @@ def clean_csvs(mes_um, mes_dois):
     log("=" * 50)
     log("Download dos dados...")
     download_and_unzip(
-        url=anatel_constants.URL.value, path=anatel_constants.INPUT_PATH.value
+        url='https://www.anatel.gov.br/dadosabertos/paineis_de_dados/acessos/acessos_telefonia_movel.zip', path=anatel_constants.INPUT_PATH.value
     )
 
     for anos in range(2019, 2024):
