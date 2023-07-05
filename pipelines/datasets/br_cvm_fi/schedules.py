@@ -8,6 +8,7 @@ from prefect.schedules import Schedule
 from prefect.schedules.clocks import IntervalClock
 from pipelines.constants import constants
 from prefect.schedules.clocks import CronClock
+from pipelines.datasets.br_cvm_fi.constants import constants as cvm_constants
 
 
 every_day_informe = Schedule(
@@ -24,6 +25,7 @@ every_day_informe = Schedule(
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": False,
+                "url": cvm_constants.INFORME_DIARIO_URL.value,
             },
         ),
     ],
@@ -43,6 +45,7 @@ every_day_carteiras = Schedule(
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": False,
+                "url": cvm_constants.CDA_URL.value,
             },
         ),
     ],
@@ -62,6 +65,8 @@ every_day_extratos = Schedule(
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": False,
+                "url": cvm_constants.URL_EXT.value,
+                "file": cvm_constants.FILE_EXT.value,
             },
         ),
     ],
@@ -82,6 +87,7 @@ every_day_perfil = Schedule(
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": False,
+                "url": cvm_constants.URL_PERFIL_MENSAL.value,
             },
         ),
     ],
@@ -101,6 +107,8 @@ every_day_informacao_cadastral = Schedule(
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": False,
+                "url": cvm_constants.URL_INFO_CADASTRAL.value,
+                "files": cvm_constants.CAD_FILE.value,
             },
         ),
     ],
@@ -120,6 +128,7 @@ every_day_balancete = Schedule(
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": False,
+                "url": cvm_constants.URL_BALANCETE.value,
             },
         ),
     ],
