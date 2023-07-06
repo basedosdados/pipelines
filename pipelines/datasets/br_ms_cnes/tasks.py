@@ -43,7 +43,7 @@ def parse_latest_cnes_dbc_files():
     today = dt.datetime.today()
     today = today.strftime("%Y%m")
     today = today[2:]
-    today = str(int(today) - 2)
+    today = str(int(today) - 6)
     log(f"the YYYY MM {today}")
     # todo: generalize parse current month -2
 
