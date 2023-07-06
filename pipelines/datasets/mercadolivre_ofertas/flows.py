@@ -55,7 +55,7 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    get_sellers = Parameter("get_sellers", default=False, required=False)
+    get_sellers = Parameter("get_sellers", default=True, required=True)
 
     filepath_raw = crawler_mercadolivre_item()
 
