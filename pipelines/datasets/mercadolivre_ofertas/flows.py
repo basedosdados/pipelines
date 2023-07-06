@@ -154,7 +154,7 @@ with Flow(
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     seller_ids = Parameter("seller_ids", default=None, required=False)
-    seller_links = Parameter("seller_names", default=None, required=False)
+    seller_links = Parameter("seller_links", default=None, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
