@@ -185,9 +185,13 @@ def clean_seller(filepath_raw):
     # remove if title is nan
     seller = seller[seller["nome"].notna()]
     # clean experiencia: 3 anos vendendo no Mercado Livre -> 3
-    seller["experiencia"] = seller["experiencia"].apply(
+    try:
+        seller["experiencia"] = seller["experiencia"].apply(
         lambda x: re.findall(r"\d+", x)[0]
     )
+    except Exception as e:
+        log(f"Error in experiencia: {e}")
+        seller["experiencia"] = None
     # clean classificacao: MercadoLíder Platinum -> Platinum
     seller["classificacao"] = seller["classificacao"].str.replace("MercadoLíder ", "")
     # clean localizacao: LocalizaçãoJuiz de Fora, Minas Gerais. -> Juiz de Fora, Minas Gerais.
