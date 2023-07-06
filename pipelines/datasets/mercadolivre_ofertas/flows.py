@@ -27,7 +27,7 @@ from pipelines.datasets.mercadolivre_ofertas.tasks import (
     clean_item,
     clean_seller,
     get_today_sellers,
-    is_empty_list
+    is_empty_list,
 )
 from pipelines.datasets.mercadolivre_ofertas.schedules import every_day_item
 
@@ -48,7 +48,7 @@ with Flow(
     materialize_after_dump_sellers = Parameter(
         "materialize_after_dump_sellers", default=True, required=False
     )
-    
+
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
