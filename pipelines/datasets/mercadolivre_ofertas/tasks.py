@@ -159,8 +159,8 @@ def clean_item(filepath):
 @task
 def crawler_mercadolivre_seller(seller_ids, seller_links):
     filepath_raw = "vendedor.csv"
-    log('Type of seller_ids: ', type(seller_ids))
-    log('Type of seller_links: ', type(seller_links))
+    log(f'Type of seller_ids: {type(seller_ids)}')
+    log(f'Type of seller_links: {type(seller_links)}')
     asyncio.run(main_seller(seller_ids, seller_links, filepath_raw))
 
     return filepath_raw
