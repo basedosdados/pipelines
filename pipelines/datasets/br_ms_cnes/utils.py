@@ -4,6 +4,7 @@ General purpose functions for the br_ms_cnes project
 """
 
 from ftplib import FTP
+import pandas as pd
 
 
 def list_all_cnes_dbc_files(
@@ -55,3 +56,40 @@ def year_month_sigla_uf_parser(file: str) -> str:
     sigla_uf = file[:2]
 
     return f"ano={year}/mes={month}/sigla_uf={sigla_uf}"
+
+
+def pre_cleaning_to_utf8(df: pd.DataFrame):
+    """This function is used to pre-clean the data to convert its encoding
+    from latin1 to utf-8
+
+    Args:
+        df (pd.Dataframe): a df
+    """
+
+    colums_to_clean = [
+        "REGSAUDE",
+        "MICR_REG",
+        "DISTRSAN",
+        "DISTRADM",
+        "PF_PJ",
+        "NIV_DEP",
+        "COD_IR",
+        "ESFERA_A",
+        "ATIVIDAD",
+        "TP_UNID",
+        "TURNO_AT",
+        "NIV_HIER",
+        "TP_PREST",
+        "ORGEXPED",
+        "AV_ACRED",
+        "AV_PNASS",
+    ]
+
+    for column in colums_to_clean:
+        df[column] = df[column].str.replace(",", "")
+        df[column] = df[column].str.replace("¿", "")
+        df[column] = df[column].str.rstrip("ª")
+        df[column] = df[column].str.rstrip("º")
+        df[column] = df[column].str.lstrip("0")
+
+    return df
