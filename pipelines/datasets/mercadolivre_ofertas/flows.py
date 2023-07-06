@@ -39,6 +39,7 @@ with Flow(
         "dataset_id", default="br_mercadolivre_ofertas", required=True
     )
     table_id = Parameter("table_id", default="item", required=True)
+    table_id_sellers = Parameter("table_id_sellers", default="vendedor", required=True)
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -108,7 +109,7 @@ with Flow(
             project_name=constants.PREFECT_STAGING_PROJECT.value,
             parameters={
                 "dataset_id": dataset_id,
-                "table_id": table_id,
+                "table_id": table_id_sellers,
                 "mode": materialization_mode,
                 "dbt_alias": dbt_alias,
                 "seller_ids": seller_ids,
@@ -116,7 +117,7 @@ with Flow(
                 "materialize_after_dump": materialize_after_dump_sellers,
             },
             labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id}",
+            run_name=f"Materialize {dataset_id}.{table_id_sellers}",
         )
 
         wait_for_materialization = wait_for_flow_run(
