@@ -30,7 +30,7 @@ with Flow(
     name="br_ms_cnes_test.estabelecimento", code_owners=["Gabriel Pisa"]
 ) as br_ms_cnes_test:
     # Parameters
-    dataset_id = Parameter("dataset_id", default="br_ms_cnes_test", required=True)
+    dataset_id = Parameter("dataset_id", default="br_ms_cnes", required=True)
     table_id = Parameter("table_id", default="estabelecimento", required=True)
 
     materialization_mode = Parameter(

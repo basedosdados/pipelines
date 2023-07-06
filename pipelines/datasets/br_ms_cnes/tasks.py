@@ -40,19 +40,23 @@ def parse_latest_cnes_dbc_files():
 
     available_dbs = list_all_cnes_dbc_files(database="CNES", CNES_group="ST")
 
+    list_files = available_dbs
+    # ! so pra inserir dados históricos
+
+    """
     today = dt.datetime.today()
     today = today.strftime("%Y%m")
     today = today[2:]
     today = str(int(today) - 6)
     log(f"the YYYY MM {today}")
-    # todo: generalize parse current month -2
+
 
     list_files = []
 
     for file in available_dbs:
         if file[-8:-4] == today:
             list_files.append(file)
-
+    """
     log(f"the following files were selected: {list_files}")
 
     return list_files
