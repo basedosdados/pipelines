@@ -232,8 +232,8 @@ def get_seller_link(soup):
     """
     class_seller = "ui-box-component ui-box-component-pdp__visible--desktop"
     seller_link = soup.find(class_=class_seller)
-    seller_link = seller_link.find('a')
-    seller_link = seller_link['href']
+    seller_link = seller_link.find("a")
+    seller_link = seller_link["href"]
 
     return seller_link
 
