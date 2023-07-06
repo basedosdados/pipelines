@@ -221,8 +221,9 @@ def clean_seller(filepath_raw):
 
     return "br_mercadolivre_ofertas/vendedor/"
 
+
 @task(nout=2)
-def get_today_sellers(filepath_raw)-> Tuple[List[str], List[str]]:
+def get_today_sellers(filepath_raw) -> Tuple[List[str], List[str]]:
     df = pd.read_csv(filepath_raw)
     # remove nan in seller_link column
     df = df[df["seller_link"].notna()]
