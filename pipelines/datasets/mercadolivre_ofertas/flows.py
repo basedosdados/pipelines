@@ -26,7 +26,7 @@ from pipelines.datasets.mercadolivre_ofertas.tasks import (
     crawler_mercadolivre_seller,
     clean_item,
     clean_seller,
-    get_today_sellers
+    get_today_sellers,
 )
 from pipelines.datasets.mercadolivre_ofertas.schedules import every_day_item
 
