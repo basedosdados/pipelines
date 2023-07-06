@@ -159,6 +159,8 @@ def clean_item(filepath):
 @task
 def crawler_mercadolivre_seller(seller_ids, seller_links):
     filepath_raw = "vendedor.csv"
+    log('Type of seller_ids: ', type(seller_ids))
+    log('Type of seller_links: ', type(seller_links))
     asyncio.run(main_seller(seller_ids, seller_links, filepath_raw))
 
     return filepath_raw
@@ -227,6 +229,9 @@ def get_today_sellers(filepath_raw) -> Tuple[List[str], List[str]]:
     df = pd.read_csv(filepath_raw)
     # remove nan in seller_link column
     df = df[df["seller_link"].notna()]
+    df = df[df["seller_id"].notna()]
+    # remove duplicate sellers
+    df = df.drop_duplicates(subset=["seller_id"])
     log(f"Number of sellers: {len(df)}")
 
     if df.empty:
