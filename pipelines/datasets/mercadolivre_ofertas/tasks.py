@@ -226,7 +226,16 @@ def get_today_sellers(filepath_raw)-> Tuple[List[str], List[str]]:
     df = pd.read_csv(filepath_raw)
     # remove nan in seller_link column
     df = df[df["seller_link"].notna()]
+    log(f"Number of sellers: {len(df)}")
+
+    if df.empty:
+        return [], []
     # get list of unique sellers
     dict_id_link = dict(zip(df["seller_id"], df["seller_link"]))
 
     return list(dict_id_link.keys()), list(dict_id_link.values())
+
+@task
+@task
+def is_empty_list(list_sellers: List[str]) -> bool:
+    return len(list_sellers) == 0

@@ -27,6 +27,7 @@ from pipelines.datasets.mercadolivre_ofertas.tasks import (
     clean_item,
     clean_seller,
     get_today_sellers,
+    is_empty_list
 )
 from pipelines.datasets.mercadolivre_ofertas.schedules import every_day_item
 
@@ -44,6 +45,10 @@ with Flow(
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
+    materialize_after_dump_sellers = Parameter(
+        "materialize_after_dump_sellers", default=True, required=False
+    )
+    
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
@@ -95,7 +100,7 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-    with case(get_sellers, True):
+    with case(get_sellers, True) and case(is_empty_list(seller_ids), False):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
         sellers_flow = create_flow_run(
@@ -108,6 +113,7 @@ with Flow(
                 "dbt_alias": dbt_alias,
                 "seller_ids": seller_ids,
                 "seller_links": seller_links,
+                "materialize_after_dump": materialize_after_dump_sellers,
             },
             labels=current_flow_labels,
             run_name=f"Materialize {dataset_id}.{table_id}",
