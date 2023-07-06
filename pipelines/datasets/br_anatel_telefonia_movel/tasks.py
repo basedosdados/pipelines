@@ -39,6 +39,7 @@ def clean_csvs(mes_um, mes_dois):
     """
     log("=" * 50)
     log("Download dos dados...")
+    log(anatel_constants.URL.value)
     download_and_unzip(
         url=anatel_constants.URL.value, path=anatel_constants.INPUT_PATH.value
     )
