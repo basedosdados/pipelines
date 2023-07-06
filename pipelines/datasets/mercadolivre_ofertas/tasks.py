@@ -7,8 +7,9 @@ import asyncio
 import time
 import os
 import re
-from prefect import task
+from typing import List, Tuple
 
+from prefect import task
 import pandas as pd
 
 from pipelines.utils.tasks import log
@@ -220,8 +221,8 @@ def clean_seller(filepath_raw):
 
     return "br_mercadolivre_ofertas/vendedor/"
 
-@task
-def get_today_sellers(filepath_raw):
+@task(nout=2)
+def get_today_sellers(filepath_raw)-> Tuple[List[str], List[str]]:
     df = pd.read_csv(filepath_raw)
     # remove nan in seller_link column
     df = df[df['seller_link'].notna()]
