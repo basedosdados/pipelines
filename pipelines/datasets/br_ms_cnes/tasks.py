@@ -24,6 +24,7 @@ from pipelines.datasets.br_ms_cnes.utils import (
     list_all_cnes_dbc_files,
     year_month_sigla_uf_parser,
     pre_cleaning_to_utf8,
+    check_and_create_column,
 )
 
 
@@ -151,10 +152,12 @@ def read_dbc_save_csv(file_list: list, path: str, table: str) -> str:
         # ler df
 
         log("file 2 being read")
-        df = pd.read_csv(file, dtype=str, encoding="latin1")
+        df = pd.read_csv(output_file, dtype=str, encoding="latin1")
 
         # tratar
         df = pre_cleaning_to_utf8(df)
+
+        df = check_and_create_column(df=df, col_name="NAT_JUR")
 
         # salvar de novo
         df.to_csv(output_file, sep=",", na_rep="", index=False, encoding="utf-8")

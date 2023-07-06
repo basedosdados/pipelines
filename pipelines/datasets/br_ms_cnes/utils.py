@@ -93,3 +93,20 @@ def pre_cleaning_to_utf8(df: pd.DataFrame):
         df[column] = df[column].str.lstrip("0")
 
     return df
+
+
+def check_and_create_column(df: pd.DataFrame, col_name: str) -> pd.DataFrame:
+    """
+    Check if a column exists in a Pandas DataFrame. If it doesn't, create a new column with the given name
+    and fill it with NaN values. If it does exist, do nothing.
+
+    Parameters:
+    df (Pandas DataFrame): The DataFrame to check.
+    col_name (str): The name of the column to check for or create.
+
+    Returns:
+    Pandas DataFrame: The modified DataFrame.
+    """
+    if col_name not in df.columns:
+        df[col_name] = ""
+    return df
