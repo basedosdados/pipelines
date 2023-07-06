@@ -158,7 +158,7 @@ def clean_item(filepath):
 @task
 def crawler_mercadolivre_seller(seller_ids, seller_links):
     filepath_raw = "vendedor.csv"
-    asyncio.run(main_seller(seller_ids, seller_links, filepath))
+    asyncio.run(main_seller(seller_ids, seller_links, filepath_raw))
 
     return filepath_raw
 
@@ -219,3 +219,13 @@ def clean_seller(filepath_raw):
     )
 
     return "br_mercadolivre_ofertas/vendedor/"
+
+@task
+def get_today_sellers(filepath_raw):
+    df = pd.read_csv(filepath_raw)
+    # remove nan in seller_link column
+    df = df[df['seller_link'].notna()]
+    # get list of unique sellers
+    dict_id_link = dict(zip(df['seller_id'], df['seller_link']))
+
+    return list(dict_id_link.keys()), list(dict_id_link.values())

@@ -26,6 +26,7 @@ from pipelines.datasets.mercadolivre_ofertas.tasks import (
     crawler_mercadolivre_seller,
     clean_item,
     clean_seller,
+    get_today_sellers
 )
 from pipelines.datasets.mercadolivre_ofertas.schedules import every_day_item
 
@@ -52,6 +53,8 @@ with Flow(
     get_sellers = Parameter("get_sellers", default=False, required=False)
 
     filepath_raw = crawler_mercadolivre_item()
+
+    seller_ids, seller_links = get_today_sellers(filepath_raw)
 
     filepath = clean_item(filepath_raw)
 
@@ -103,8 +106,8 @@ with Flow(
                 "table_id": table_id,
                 "mode": materialization_mode,
                 "dbt_alias": dbt_alias,
-                "seller_ids": None,
-                "seller_links": None,
+                "seller_ids": seller_ids,
+                "seller_links": seller_links,
             },
             labels=current_flow_labels,
             run_name=f"Materialize {dataset_id}.{table_id}",
