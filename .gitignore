@@ -140,7 +140,17 @@ dmypy.json
 
 notebooks/
 /tests/
+
 poetry.lock
 pipelines/datasets/br_denatran_frota/todo_list.txt
 pipelines/datasets/br_denatran_frota/run_local.py
 basedosdados-dev-ff644018223b.json
+
+
+
+.DS_Store
+
+# Mac
+.DS_Store
+
+

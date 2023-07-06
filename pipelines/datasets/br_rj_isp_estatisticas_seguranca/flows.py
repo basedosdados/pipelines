@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Flows for br_rj_isp_estatisticas_seguranca
+Flows for br_rj_isp_estatisticas_seguranca.
 """
 
 from datetime import timedelta
@@ -56,11 +56,12 @@ with Flow(
 
     # Materialization mode
     materialization_mode = Parameter(
-        "materialization_mode", default="prod", required=False
+        "materialization_mode", default="dev", required=False
     )
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
+
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
@@ -113,7 +114,6 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
-
 
 evolucao_mensal_cisp.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 evolucao_mensal_cisp.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
