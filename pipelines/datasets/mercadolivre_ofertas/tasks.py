@@ -236,6 +236,7 @@ def get_today_sellers(filepath_raw) -> Tuple[List[str], List[str]]:
 
     return list(dict_id_link.keys()), list(dict_id_link.values())
 
+
 @task
 @task
 def is_empty_list(list_sellers: List[str]) -> bool:
