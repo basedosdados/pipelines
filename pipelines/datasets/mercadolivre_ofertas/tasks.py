@@ -187,8 +187,8 @@ def clean_seller(filepath_raw):
     # clean experiencia: 3 anos vendendo no Mercado Livre -> 3
     try:
         seller["experiencia"] = seller["experiencia"].apply(
-        lambda x: re.findall(r"\d+", x)[0]
-    )
+            lambda x: re.findall(r"\d+", x)[0]
+        )
     except Exception as e:
         log(f"Error in experiencia: {e}")
         seller["experiencia"] = None
