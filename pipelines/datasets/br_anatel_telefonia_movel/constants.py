@@ -48,7 +48,7 @@ class constants(Enum):  # pylint: disable=c0103
         "Acessos": "acessos",
     }
 
-    URL = "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/acessos/acessos_telefonia_movel.zip"
+    URL = "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/acessos/acessos_banda_larga_fixa.zip"
 
     INPUT_PATH = "/tmp/data/input/"
 
