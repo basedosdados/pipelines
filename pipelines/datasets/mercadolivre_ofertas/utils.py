@@ -230,8 +230,11 @@ def get_seller_link(soup):
     Raises:
         None
     """
-    class_seller = "ui-pdp-family--REGULAR ui-pdp-reputation-title-link non-selectable"
-    seller_link = soup.find(class_=class_seller)["href"]
+    class_seller = "ui-box-component ui-box-component-pdp__visible--desktop"
+    seller_link = soup.find(class_=class_seller)
+    seller_link = seller_link.find('a')
+    seller_link = seller_link['href']
+
     return seller_link
 
 
