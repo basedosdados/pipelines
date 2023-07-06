@@ -15,9 +15,7 @@ from pipelines.constants import constants
 from pipelines.datasets.br_anatel_telefonia_movel.constants import (
     constants as anatel_constants,
 )
-from pipelines.datasets.br_anatel_telefonia_movel.tasks import (
-    clean_csvs
-)
+from pipelines.datasets.br_anatel_telefonia_movel.tasks import clean_csvs
 from pipelines.utils.decorators import Flow
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
