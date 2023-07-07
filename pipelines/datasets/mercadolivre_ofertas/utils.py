@@ -433,6 +433,7 @@ async def main_seller(seller_ids, seller_links, file_dest):
     df_sellers = df_sellers.astype(str)
     df_sellers.to_csv(file_dest, index=False)
 
+
 def clean_experience(x):
     try:
         result = re.findall(r"\d+", x)[0]

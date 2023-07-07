@@ -16,7 +16,12 @@ from pipelines.utils.tasks import log
 from pipelines.datasets.mercadolivre_ofertas.constants import (
     constants as const_mercadolivre,
 )
-from pipelines.datasets.mercadolivre_ofertas.utils import main_item, main_seller, get_id, clean_experience
+from pipelines.datasets.mercadolivre_ofertas.utils import (
+    main_item,
+    main_seller,
+    get_id,
+    clean_experience,
+)
 
 less100 = const_mercadolivre.LESS100.value
 oferta_dia = const_mercadolivre.OFERTA_DIA.value
