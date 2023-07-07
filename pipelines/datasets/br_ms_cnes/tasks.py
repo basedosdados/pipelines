@@ -51,11 +51,12 @@ def parse_latest_cnes_dbc_files(database: str, cnes_group: str) -> list[str]:
     today = today.strftime("%Y%m")
     today = today[2:]
     today = str(int(today) - 5)
-    log(f"the YYYY MM {today}")
+    # log(f"the YYYY MM {today}")
 
     today = ["19", "20", "21", "22", "23"]
+    log(f"the YYYY MM {today}")
 
-    log(f"the following files were selected: {available_dbs}")
+    # log(f"the following files were selected: {available_dbs}")
     list_files = []
 
     for element in today:
