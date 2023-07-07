@@ -189,7 +189,7 @@ def clean_seller(filepath_raw):
             lambda x: re.findall(r"\d+", x)[0]
         )
     except Exception as e:
-        log(f"Error in experiencia: {e}")
+        log(seller["experiencia"].values)
         seller["experiencia"] = None
     # clean classificacao: MercadoLíder Platinum -> Platinum
     seller["classificacao"] = seller["classificacao"].str.replace("MercadoLíder ", "")
