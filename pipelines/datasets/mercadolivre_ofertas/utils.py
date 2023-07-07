@@ -414,7 +414,7 @@ async def get_seller_async(url, seller_id):
     info["title"] = (
         " ".join(re.findall(r"([A-Z]+)+", url.split("?")[0])).strip().title()
     )
-    for key, value in dict(zip(keys, results)):
+    for key, value in dict(zip(keys, results)).items():
         info[key] = value
     info["opinions"] = await asyncio.gather(get_features_seller(url, attempts=2))
     info["date"] = datetime.now().strftime("%Y-%m-%d")
