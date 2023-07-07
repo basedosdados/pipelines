@@ -159,8 +159,6 @@ def clean_item(filepath):
 @task
 def crawler_mercadolivre_seller(seller_ids, seller_links):
     filepath_raw = "vendedor.csv"
-    log(f"Type of seller_ids: {type(seller_ids)}")
-    log(f"Type of seller_links: {type(seller_links)}")
     asyncio.run(main_seller(seller_ids, seller_links, filepath_raw))
 
     return filepath_raw
@@ -169,6 +167,7 @@ def crawler_mercadolivre_seller(seller_ids, seller_links):
 @task
 def clean_seller(filepath_raw):
     seller = pd.read_csv(filepath_raw)
+    log(seller.head(5))
 
     new_cols = [
         "nome",
