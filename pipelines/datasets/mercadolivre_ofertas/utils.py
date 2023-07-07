@@ -215,17 +215,18 @@ def get_features(soup):
     }
     return features_dict
 
+
 @retry
 def get_features_seller(soup):
-    span_elements = soup.find_all('span', class_='buyers-feedback-qualification')
+    span_elements = soup.find_all("span", class_="buyers-feedback-qualification")
 
     # Initialize an empty dictionary
     result_dict = {}
 
     # Extract the text and numbers from each <span> element
     for span in span_elements:
-        text = span.text.split('(')[0].strip()
-        number = int(span.text.split('(')[1].split(')')[0])
+        text = span.text.split("(")[0].strip()
+        number = int(span.text.split("(")[1].split(")")[0])
         result_dict[text] = number
 
     return result_dict
