@@ -46,8 +46,8 @@ with Flow(
     )
 
     files_path = parse_latest_cnes_dbc_files(
-        database=br_ms_cnes_constants.DATABASE_GROUPS.value["CNES"][0],
-        cnes_group="CNES",
+        database="CNES",
+        cnes_group=br_ms_cnes_constants.DATABASE_GROUPS.value["CNES"][0],
     )
 
     dbc_files = access_ftp_donwload_files(
@@ -124,8 +124,8 @@ with Flow(
     )
 
     files_path = parse_latest_cnes_dbc_files(
-        database=br_ms_cnes_constants.DATABASE_GROUPS.value["CNES"][0],
-        cnes_group="CNES",
+        database="CNES",
+        cnes_group=br_ms_cnes_constants.DATABASE_GROUPS.value["CNES"][0],
     )
 
     dbc_files = access_ftp_donwload_files(
