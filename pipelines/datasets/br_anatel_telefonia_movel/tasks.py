@@ -19,7 +19,6 @@ from pipelines.utils.utils import to_partitions, log
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-
 def clean_csvs(mes_um, mes_dois):
     anos = [2019, 2020, 2021, 2022, 2023]
     """
