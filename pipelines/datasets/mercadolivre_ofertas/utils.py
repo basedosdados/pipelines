@@ -410,13 +410,15 @@ async def get_seller_async(url, seller_id):
     keys = ["experience", "reputation", "classification", "location"]
     tasks = [get_byelement(url=url, attempts=2, **kwargs) for kwargs in kwargs_list]
     results = await asyncio.gather(*tasks)
-    info = dict(zip(keys, results))
-    info["opinions"] = await asyncio.gather(get_features_seller(url, attempts=2))
-    info["date"] = datetime.now().strftime("%Y-%m-%d")
-    info["seller_id"] = seller_id
+    info = {}
     info["title"] = (
         " ".join(re.findall(r"([A-Z]+)+", url.split("?")[0])).strip().title()
     )
+    for key, value in dict(zip(keys, results)):
+        info[key] = value
+    info["opinions"] = await asyncio.gather(get_features_seller(url, attempts=2))
+    info["date"] = datetime.now().strftime("%Y-%m-%d")
+    info["seller_id"] = seller_id
 
     return info
 
