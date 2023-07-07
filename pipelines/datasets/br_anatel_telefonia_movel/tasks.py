@@ -45,26 +45,26 @@ def clean_csvs(mes_um, mes_dois):
     )
 
     for anos in range(2019, 2024):
-        print(f"Abrindo o arquivo:{mes_um}, {mes_dois}..")
-        print("=" * 50)
+        log(f"Abrindo o arquivo:{mes_um}, {mes_dois}..")
+        log("=" * 50)
         df = pd.read_csv(
             f"{anatel_constants.INPUT_PATH.value}Acessos_Telefonia_Movel_{anos}{mes_um}-{anos}{mes_dois}.csv",
             sep=";",
             encoding="utf-8",
         )
-        print(f"Renomenado as colunas:")
-        print("=" * 50)
+        log(f"Renomenado as colunas:")
+        log("=" * 50)
         df.rename(columns=anatel_constants.RENAME.value, inplace=True)
-        print(f"Removendo colunas desnecessárias: {mes_um}, {mes_dois}..")
-        print("=" * 50)
+        log(f"Removendo colunas desnecessárias: {mes_um}, {mes_dois}..")
+        log("=" * 50)
 
         df.drop(["grupo_economico", "municipio", "ddd_chip"], axis=1, inplace=True)
-        print(f"Agrupando por acessos: {mes_um}, {mes_dois}..")
-        print("=" * 50)
-        print(f"Ordenando-as: {mes_um}, {mes_dois}..")
-        print("=" * 50)
-        print(f"Tratando os dados: {mes_um}, {mes_dois}...")
-        print("=" * 50)
+        log(f"Agrupando por acessos: {mes_um}, {mes_dois}..")
+        log("=" * 50)
+        log(f"Ordenando-as: {mes_um}, {mes_dois}..")
+        log("=" * 50)
+        log(f"Tratando os dados: {mes_um}, {mes_dois}...")
+        log("=" * 50)
         df["produto"] = df["produto"].str.lower()
 
         df["id_municipio"] = df["id_municipio"].astype(str)
@@ -72,13 +72,13 @@ def clean_csvs(mes_um, mes_dois):
         df["ddd"] = pd.to_numeric(df["ddd"], downcast="integer").astype(str)
 
         df["cnpj"] = df["cnpj"].astype(str)
-        print(f"Ordenando-as: {mes_um}, {mes_dois}..")
-        print("=" * 50)
+        log(f"Ordenando-as: {mes_um}, {mes_dois}..")
+        log("=" * 50)
         df = df[anatel_constants.ORDEM.value]
 
-        print("=" * 50)
+        log("=" * 50)
 
-        print(f"Ordenando por ano e mes: {mes_um}, {mes_dois}...")
+        log(f"Ordenando por ano e mes: {mes_um}, {mes_dois}...")
 
         to_partitions(
             df,
