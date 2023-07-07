@@ -19,7 +19,9 @@ from pipelines.utils.utils import to_partitions, log
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
+
 def clean_csvs(mes_um, mes_dois):
+    anos = [2019, 2020, 2021, 2022, 2023]
     """
     -------
     Reads and cleans all CSV files in the '/tmp/data/input/' directory.
@@ -44,11 +46,11 @@ def clean_csvs(mes_um, mes_dois):
         url=anatel_constants.URL.value, path=anatel_constants.INPUT_PATH.value
     )
 
-    for anos in range(2019, 2024):
+    for anos_loop in anos:
         log(f"Abrindo o arquivo:{mes_um}, {mes_dois}..")
         log("=" * 50)
         df = pd.read_csv(
-            f"{anatel_constants.INPUT_PATH.value}Acessos_Telefonia_Movel_{anos}{mes_um}-{anos}{mes_dois}.csv",
+            f"{anatel_constants.INPUT_PATH.value}Acessos_Telefonia_Movel_{anos_loop}{mes_um}-{anos_loop}{mes_dois}.csv",
             sep=";",
             encoding="utf-8",
         )
