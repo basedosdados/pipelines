@@ -402,13 +402,12 @@ async def main_item(dict_tables, kwargs_list):
 
 async def get_seller_async(url, seller_id):
     kwargs_list = [
-        {"id": "store-info__name"},
         {"class_": "experience"},
         {"class_": "seller-info__subtitle-sales"},
         {"class_": "message__title"},
         {"class_": "location__wrapper"},
     ]
-    keys = ["title", "experience", "reputation", "classification", "location"]
+    keys = ["experience", "reputation", "classification", "location"]
     tasks = [get_byelement(url=url, attempts=2, **kwargs) for kwargs in kwargs_list]
     results = await asyncio.gather(*tasks)
     info = dict(zip(keys, results))
