@@ -125,7 +125,7 @@ with Flow(
 
     files_path = parse_latest_cnes_dbc_files(
         database="CNES",
-        cnes_group=br_ms_cnes_constants.DATABASE_GROUPS.value["CNES"][0],
+        cnes_group=br_ms_cnes_constants.DATABASE_GROUPS.value["CNES"][1],
     )
 
     dbc_files = access_ftp_donwload_files(

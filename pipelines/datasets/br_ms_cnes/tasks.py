@@ -47,10 +47,11 @@ def parse_latest_cnes_dbc_files(database: str, cnes_group: str) -> list[str]:
 
     # ! so pra inserir dados históricos
 
+    # todo : como pegar o primeiro mes do ano
     # today = dt.datetime.today()
     # today = today.strftime("%Y%m")
     # today = today[2:]
-    # today = str(int(today) - 5)
+    # today = str(int(today) - 2)
     # log(f"the YYYY MM {today}")
 
     today = ["1001", "1501", "2001", "2201", "2301"]
