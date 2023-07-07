@@ -16,7 +16,7 @@ from pipelines.utils.tasks import log
 from pipelines.datasets.mercadolivre_ofertas.constants import (
     constants as const_mercadolivre,
 )
-from pipelines.datasets.mercadolivre_ofertas.utils import main_item, main_seller, get_id
+from pipelines.datasets.mercadolivre_ofertas.utils import main_item, main_seller, get_id, clean_experience
 
 less100 = const_mercadolivre.LESS100.value
 oferta_dia = const_mercadolivre.OFERTA_DIA.value
@@ -184,13 +184,7 @@ def clean_seller(filepath_raw):
     # remove if title is nan
     seller = seller[seller["nome"].notna()]
     # clean experiencia: 3 anos vendendo no Mercado Livre -> 3
-    try:
-        seller["experiencia"] = seller["experiencia"].apply(
-            lambda x: re.findall(r"\d+", x)[0]
-        )
-    except Exception as e:
-        log(seller["experiencia"].values)
-        seller["experiencia"] = None
+    seller["experiencia"] = seller["experiencia"].apply(clean_experience)
     # clean classificacao: MercadoLíder Platinum -> Platinum
     seller["classificacao"] = seller["classificacao"].str.replace("MercadoLíder ", "")
     # clean localizacao: LocalizaçãoJuiz de Fora, Minas Gerais. -> Juiz de Fora, Minas Gerais.
