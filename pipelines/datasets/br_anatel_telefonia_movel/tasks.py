@@ -88,4 +88,4 @@ def clean_csvs(mes_um, mes_dois):
             savepath=anatel_constants.OUTPUT_PATH.value,
         )
 
-        return anatel_constants.OUTPUT_PATH.value
+    return anatel_constants.OUTPUT_PATH.value
