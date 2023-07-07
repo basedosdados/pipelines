@@ -19,6 +19,10 @@ class constants(Enum):  # pylint: disable=c0103
 
     TABLE = ["estabelecimento", "profissionais"]
 
+    DATABASE_GROUPS = {
+        "CNES": ["ST", "PF"],
+    }
+
     UF = [
         "MA",
         "SP",

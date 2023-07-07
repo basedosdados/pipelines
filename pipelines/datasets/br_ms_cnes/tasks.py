@@ -25,6 +25,7 @@ from pipelines.datasets.br_ms_cnes.utils import (
     year_month_sigla_uf_parser,
     pre_cleaning_to_utf8,
     check_and_create_column,
+    if_column_exist_delete,
 )
 
 
@@ -33,30 +34,35 @@ from pipelines.datasets.br_ms_cnes.utils import (
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def parse_latest_cnes_dbc_files():
+def parse_latest_cnes_dbc_files(database: str, cnes_group: str) -> list[str]:
     """
-    This task access DATASUS FTP to retrive CNES database ST group latest .DBC file paths
+    This task access DATASUS FTP to retrive CNES database ST or PF group latest .DBC file paths
     """
+    cnes_database = database
+    cnes_group_file = cnes_group
 
-    available_dbs = list_all_cnes_dbc_files(database="CNES", CNES_group="ST")
+    available_dbs = list_all_cnes_dbc_files(
+        database=cnes_database, CNES_group=cnes_group_file
+    )
 
-    list_files = available_dbs
     # ! so pra inserir dados históricos
 
-    """
     today = dt.datetime.today()
     today = today.strftime("%Y%m")
     today = today[2:]
-    today = str(int(today) - 6)
+    today = str(int(today) - 5)
     log(f"the YYYY MM {today}")
 
+    today = ["19", "20", "21", "22", "23"]
 
+    log(f"the following files were selected: {available_dbs}")
     list_files = []
 
-    for file in available_dbs:
-        if file[-8:-4] == today:
-            list_files.append(file)
-    """
+    for element in today:
+        for file in available_dbs:
+            if file[-8:-6] == element:
+                list_files.append(file)
+
     log(f"the following files were selected: {list_files}")
 
     return list_files
@@ -162,6 +168,18 @@ def read_dbc_save_csv(file_list: list, path: str, table: str) -> str:
         df = pre_cleaning_to_utf8(df)
 
         df = check_and_create_column(df=df, col_name="NAT_JUR")
+
+        list_columns_to_delete = [
+            "AP01CV07",
+            "AP02CV07",
+            "AP03CV07",
+            "AP04CV07",
+            "AP05CV07",
+            "AP06CV07",
+            "AP07CV07",
+        ]
+
+        df = if_column_exist_delete(df=df, col_list=list_columns_to_delete)
 
         # salvar de novo
         df.to_csv(output_file, sep=",", na_rep="", index=False, encoding="utf-8")

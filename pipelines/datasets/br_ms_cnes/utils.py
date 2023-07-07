@@ -110,3 +110,24 @@ def check_and_create_column(df: pd.DataFrame, col_name: str) -> pd.DataFrame:
     if col_name not in df.columns:
         df[col_name] = ""
     return df
+
+
+def if_column_exist_delete(df: pd.DataFrame, col_list: str):
+    """Some columns present in cnes st files from 2019 onwards only contain blank values and are not
+    registred in any metadata file
+    https://cnes.datasus.gov.br/pages/downloads/documentacao.jsp
+    It checkes if one of those columns are present in the dataframe and deletes it
+
+    Args:
+        df (pd.DataFrame): a cnes st group dataframe
+        col_list (str): list of cnes st group dataframe columns to delete
+
+    Returns:
+        df (pd.DataFrame): withut the columns in col_list
+    """
+
+    for col in col_list:
+        if col in df.columns:
+            del df[col]
+
+    return df
