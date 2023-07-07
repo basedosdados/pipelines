@@ -215,6 +215,21 @@ def get_features(soup):
     }
     return features_dict
 
+@retry
+def get_features_seller(soup):
+    span_elements = soup.find_all('span', class_='buyers-feedback-qualification')
+
+    # Initialize an empty dictionary
+    result_dict = {}
+
+    # Extract the text and numbers from each <span> element
+    for span in span_elements:
+        text = span.text.split('(')[0].strip()
+        number = int(span.text.split('(')[1].split(')')[0])
+        result_dict[text] = number
+
+    return result_dict
+
 
 @retry
 def get_seller_link(soup):
@@ -396,7 +411,7 @@ async def get_seller_async(url, seller_id):
     tasks = [get_byelement(url=url, attempts=2, **kwargs) for kwargs in kwargs_list]
     results = await asyncio.gather(*tasks)
     info = dict(zip(keys, results))
-    info["opinions"] = await asyncio.gather(get_features(url, attempts=2))
+    info["opinions"] = await asyncio.gather(get_features_seller(url, attempts=2))
     info["date"] = datetime.now().strftime("%Y-%m-%d")
     info["seller_id"] = seller_id
 
