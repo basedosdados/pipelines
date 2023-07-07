@@ -416,7 +416,7 @@ async def get_seller_async(url, seller_id):
     info["date"] = datetime.now().strftime("%Y-%m-%d")
     info["seller_id"] = seller_id
     info["title"] = (
-        " ".join(re.findall(r"([A-Z]+)+", seller.split("?")[0])).strip().title()
+        " ".join(re.findall(r"([A-Z]+)+", url.split("?")[0])).strip().title()
     )
 
     return info
