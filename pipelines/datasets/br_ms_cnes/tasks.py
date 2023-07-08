@@ -168,13 +168,6 @@ def read_dbc_save_csv(file_list: list, path: str, table: str) -> str:
         df = pd.read_csv(output_file, dtype=str, encoding="latin1")
 
         # tratar
-        if table == "estabelecimento":
-            df = pre_cleaning_to_utf8(df)
-        else:
-            pass
-
-        df = check_and_create_column(df=df, col_name="NAT_JUR")
-
         list_columns_to_delete = [
             "AP01CV07",
             "AP02CV07",
@@ -184,8 +177,32 @@ def read_dbc_save_csv(file_list: list, path: str, table: str) -> str:
             "AP06CV07",
             "AP07CV07",
         ]
-
-        df = if_column_exist_delete(df=df, col_list=list_columns_to_delete)
+        list_columns_to_keep = [
+            "CNES",
+            "UFMUNRES",
+            "NOMEPROF",
+            "CNS_PROF",
+            "CBO",
+            "REGISTRO",
+            "CONSELHO",
+            "TERCEIRO",
+            "VINCULAC",
+            "VINCUL_C",
+            "VINCUL_A",
+            "VINCUL_N",
+            "PROF_SUS",
+            "PROFNSUS",
+            "HORAOUTR",
+            "HORAHOSP",
+            "HORA_AMB",
+        ]
+        if table == "estabelecimento":
+            df = pre_cleaning_to_utf8(df)
+            df = if_column_exist_delete(df=df, col_list=list_columns_to_delete)
+            df = check_and_create_column(df=df, col_name="NAT_JUR")
+        else:
+            df = df[list_columns_to_keep]
+            pass
 
         # salvar de novo
         df.to_csv(output_file, sep=",", na_rep="", index=False, encoding="utf-8")
