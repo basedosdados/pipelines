@@ -178,7 +178,7 @@ def read_dbc_save_csv(file_list: list, path: str, table: str) -> str:
             "AP07CV07",
         ]
         list_columns_to_keep = [
-            "CNES",
+            "COMPETEN" "CNES",
             "UFMUNRES",
             "NOMEPROF",
             "CNS_PROF",
@@ -202,7 +202,6 @@ def read_dbc_save_csv(file_list: list, path: str, table: str) -> str:
             df = check_and_create_column(df=df, col_name="NAT_JUR")
         else:
             df = df[list_columns_to_keep]
-            pass
 
         # salvar de novo
         df.to_csv(output_file, sep=",", na_rep="", index=False, encoding="utf-8")

@@ -134,12 +134,14 @@ with Flow(
         file_list=files_path,
         path=br_ms_cnes_constants.PATH.value[0],
         table=br_ms_cnes_constants.TABLE.value[1],
+        upstream_tasks=[files_path],
     )
 
     filepath = read_dbc_save_csv(
         file_list=dbc_files,
         path=br_ms_cnes_constants.PATH.value[1],
         table=br_ms_cnes_constants.TABLE.value[1],
+        upstream_tasks=[files_path, dbc_files],
     )
 
     wait_upload_table = create_table_and_upload_to_gcs(
