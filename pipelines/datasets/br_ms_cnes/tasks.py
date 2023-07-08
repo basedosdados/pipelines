@@ -48,13 +48,14 @@ def parse_latest_cnes_dbc_files(database: str, cnes_group: str) -> list[str]:
     # ! so pra inserir dados históricos
 
     # todo : como pegar o primeiro mes do ano
+    # easy peasy lemon squeeze: if str(int(today)-2) <= 0 then add 1
     # today = dt.datetime.today()
     # today = today.strftime("%Y%m")
     # today = today[2:]
     # today = str(int(today) - 2)
     # log(f"the YYYY MM {today}")
 
-    today = ["1001", "1501", "2001", "2201", "2301"]
+    today = ["1001", "1501", "2301"]
     log(f"the YYYY MM {today}")
 
     log(f"the following files were selected: {available_dbs}")
