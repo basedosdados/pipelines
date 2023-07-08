@@ -54,20 +54,20 @@ def parse_latest_cnes_dbc_files(database: str, cnes_group: str) -> list[str]:
     # today = str(int(today) - 2)
     # log(f"the YYYY MM {today}")
 
-    # today = ["1001", "1501", "2001", "2201", "2301"]
-    # log(f"the YYYY MM {today}")
+    today = ["1001", "1501", "2001", "2201", "2301"]
+    log(f"the YYYY MM {today}")
 
-    # log(f"the following files were selected: {available_dbs}")
-    # list_files = []
+    log(f"the following files were selected: {available_dbs}")
+    list_files = []
 
-    # for element in today:
-    #    for file in available_dbs:
-    #        if file[-8:-4] == element:
-    #            list_files.append(file)
+    for element in today:
+        for file in available_dbs:
+            if file[-8:-4] == element:
+                list_files.append(file)
 
     # log(f"the following files were selected: {list_files}")
 
-    return available_dbs
+    return list_files
 
 
 @task(
