@@ -128,8 +128,8 @@ def clean_csv_brasil():
     )
     return anatel_constants.OUTPUT_PATH.value'''
 
-@task(
 
+@task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
@@ -165,7 +165,7 @@ def clean_csv_uf():
     return anatel_constants.OUTPUT_PATH.value
 
 
-'''@task(
+"""@task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
@@ -205,4 +205,4 @@ def clean_csv_municipio():
         savepath=anatel_constants.OUTPUT_PATH.value,
     )
 
-    return anatel_constants.OUTPUT_PATH.value'''
+    return anatel_constants.OUTPUT_PATH.value"""
