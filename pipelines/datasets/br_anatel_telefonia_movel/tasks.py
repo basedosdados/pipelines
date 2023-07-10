@@ -101,9 +101,9 @@ def clean_csv_brasil():
         sep=";",
         encoding="utf-8",
     )
-    log("=" * 50)    
+    log("=" * 50)
     log(densidade.head())
-    log("=" * 50)    
+    log("=" * 50)
     densidade.rename(columns={"Nível Geográfico Densidade": "geografia"}, inplace=True)
     densidade_brasil = densidade[densidade["geografia"] == "Brasil"]
     densidade_brasil = densidade_brasil[["Ano", "Mês", "Densidade"]]
@@ -128,8 +128,8 @@ def clean_csv_brasil():
     )
     return anatel_constants.OUTPUT_PATH.value'''
 
-
 @task(
+
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
