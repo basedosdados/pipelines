@@ -52,7 +52,6 @@ def retry(content_function):
                     requests.get, url, headers=headers, timeout=100
                 )
             except Exception:
-                print(url)
                 return None
             await asyncio.sleep(wait_time)
             soup = BeautifulSoup(response.text, "html.parser")
