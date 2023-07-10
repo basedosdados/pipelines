@@ -37,7 +37,7 @@ year_range = list(range(2003, 2023))
 month_range = list(range(1, 13))
 date_pairs = list(product(year_range, month_range))
 
-date_pairs_param = Parameter("date_pairs", default=date_pairs)
+date_pairs_param: list[tuple] = Parameter("date_pairs", default=date_pairs)
 
 # from pipelines.datasets.br_denatran_frota.schedules import every_two_weeks
 
