@@ -148,7 +148,7 @@ def get_latest_data(table_name: str):
     denatran_data = get_data_from_prod(
         table_id=table_name, dataset_id="br_denatran_frota"
     )
-    if denatran_data:
+    if not denatran_data.is_empty():
         denatran_data: pl.DataFrame = pl.from_pandas(denatran_data)
         year = denatran_data.select(pl.max("ano"))
         month = denatran_data.filter(pl.col('ano') == year).select(pl.max('mes'))
