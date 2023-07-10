@@ -61,6 +61,7 @@ from pipelines.datasets.br_denatran_frota.handlers import (
     output_file_to_csv,
     get_desired_file,
     treat_municipio_tipo,
+    get_latest_data
 )
 from pipelines.utils.utils import (
     log,
@@ -97,3 +98,7 @@ def get_desired_file_task(year: int, download_directory: str, filetype: str) -> 
 @task()
 def treat_municipio_tipo_task(file: str) -> pl.DataFrame:
     return treat_municipio_tipo(file)
+
+@task()
+def get_latest_data_task(table_name: str):
+    return get_latest_data(table_name)

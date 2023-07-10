@@ -12,6 +12,7 @@ from pipelines.datasets.br_denatran_frota.handlers import (
     treat_uf_tipo,
     get_desired_file,
     treat_municipio_tipo,
+    get_latest_data
 )
 from pipelines.datasets.br_denatran_frota.constants import constants
 
@@ -93,6 +94,10 @@ class TestUFTreatmentPostCrawl(unittest.TestCase):
         df = treat_uf_tipo(file=uf_tipo_file)
         self.assertTrue(type(df), pl.DataFrame)
 
+
+class TestGetLatestData(unittest.TestCase):
+    def test_year(self):
+        self.assertEqual(2021, get_latest_data('municipio'))
 
 class TestMunicipioTreatmentPostCrawl(unittest.TestCase):
     def setUp(self):

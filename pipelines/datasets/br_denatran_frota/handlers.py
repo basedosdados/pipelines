@@ -144,6 +144,14 @@ def get_desired_file(year: int, download_directory: str, filetype: str) -> str:
     raise ValueError("No files found buckaroo")
 
 
+def get_latest_data(table_name: str):
+    denatran_data = get_data_from_prod(
+        table_id=table_name, dataset_id="br_denatran_frota")
+    denatran_data: pl.DataFrame = pl.from_pandas(denatran_data)
+    year = denatran_data.select(pl.max("ano"))
+    log(year)
+    return year
+    
 def treat_municipio_tipo(file: str) -> pl.DataFrame:
     bd_municipios = get_data_from_prod(
         table_id="municipio", dataset_id="br_bd_diretorios_brasil"

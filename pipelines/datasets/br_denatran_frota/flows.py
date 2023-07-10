@@ -63,30 +63,29 @@ with Flow(
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
-    crawled = crawl_task.map(
-        month=[date[1] for date in date_pairs_param],
-        year=[date[0] for date in date_pairs_param],
-        temp_dir=unmapped(constants.DOWNLOAD_PATH.value),
+    crawled = crawl_task(
+        month=1,
+        year=2003,
+        temp_dir=constants.DOWNLOAD_PATH.value,
     )
     # Now get the downloaded file:
-    municipio_tipo_file = get_desired_file_task.map(
-        year=[date[0] for date in date_pairs_param],
-        month=[date[1] for date in date_pairs_param],
-        download_directory=unmapped(constants.DOWNLOAD_PATH.value),
-        filetype=unmapped(constants.UF_TIPO_BASIC_FILENAME.value),
+    municipio_tipo_file = get_desired_file_task(
+        year=2003,
+        download_directory=constants.DOWNLOAD_PATH.value,
+        filetype=constants.UF_TIPO_BASIC_FILENAME.value,
         upstream_tasks=[crawled],
     )
-    df = treat_uf_tipo_task.map(
+    df = treat_uf_tipo_task(
         file=municipio_tipo_file, upstream_tasks=[crawled, municipio_tipo_file]
     )
-    csv_output = output_file_to_csv_task.map(
-        df, unmapped(constants.UF_TIPO_BASIC_FILENAME.value), upstream_tasks=[df]
+    csv_output = output_file_to_csv_task(
+        df,constants.UF_TIPO_BASIC_FILENAME.value, upstream_tasks=[df]
     )
-    wait_upload_table = create_table_and_upload_to_gcs.map(
+    wait_upload_table = create_table_and_upload_to_gcs(
         data_path=csv_output,
-        dataset_id=unmapped(dataset_id),
-        table_id=unmapped(table_id),
-        dump_mode=unmapped("append"),
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dump_mode="append",
         wait=csv_output,
     )
 
