@@ -63,6 +63,17 @@ def create_url_currency(start_date: str, end_date: str, moeda="USD") -> str:
     return search_url
 
 
+def create_url_selic(start_date: str, end_date: str, moeda="USD") -> str:
+    """
+    Creates parameterized url
+    """
+    search_url = bcb_constants.API_URL.value["taxa_selic"].format(
+        moeda, start_date, end_date
+    )
+    log(search_url)
+    return search_url
+
+
 def create_url_month_market_expectations(date: str) -> str:
     """
     Creates parameterized url
@@ -145,6 +156,43 @@ def get_currency_data(currency: dict) -> pd.DataFrame:
     return df
 
 
+def get_selic_data() -> pd.DataFrame:
+    """
+    Retrieves currency data for a specific currency from an API endpoint.
+
+    Returns:
+        pd.DataFrame: A Pandas DataFrame containing the retrieved currency data.
+
+    Raises:
+        requests.exceptions.Timeout: If the connection to the API endpoint times out.
+
+    """
+    # Create the URL for retrieving data using the start and end dates and currency code
+    log("creating_url")
+    url = bcb_constants.API_URL.value["taxa_selic"]
+
+    # Connect to the API endpoint and retrieve the JSON response
+    attempts = 0
+    while attempts < 3:
+        attempts += 1
+        log(f"tentativa {attempts}")
+        try:
+            log("connecting to endpoint")
+            json_response = connect_to_endpoint(url)
+            break
+        except requests.exceptions.Timeout:
+            tm.sleep(3)
+
+    # Extract the currency data from the JSON response
+    data = json_response
+
+    # Convert the data into a DataFrame
+    log("transform json into df")
+    df = pd.DataFrame(data)
+
+    return df
+
+
 def get_market_expectations_data_day(date: datetime.date) -> pd.DataFrame:
     """
     Retrieves market expectations data for a specific date from an API endpoint.
@@ -189,7 +237,6 @@ def get_market_expectations_data_day(date: datetime.date) -> pd.DataFrame:
     # Convert the data into a DataFrame
     log("Transforming JSON into DataFrame")
     df = pd.DataFrame(data)
-
     return df
 
 
@@ -238,6 +285,25 @@ def treat_currency_df(df: pd.DataFrame, table_id: str) -> pd.DataFrame:
     # Reorder the columns of 'df' based on the specified order
     log("Reorder the columns of 'df' based on the specified order")
     return df[order]
+
+
+def treat_selic_df(df: pd.DataFrame, table_id: str) -> pd.DataFrame:
+    """
+    Performs data treatment on the currency DataFrame.
+
+    Args:
+        df (pd.DataFrame): The DataFrame containing data.
+        table_id (str): The identifier for the architecture table.
+
+    Returns:
+        pd.DataFrame: The treated DataFrame with renamed and reordered columns.
+
+    """
+
+    log("Convert the 'data' column in 'df' to date format")
+    df["data"] = pd.to_datetime(df["data"], format="%d/%m/%Y").dt.date
+
+    return df
 
 
 def treat_market_expectations_df(df: pd.DataFrame, table_id: str) -> pd.DataFrame:
