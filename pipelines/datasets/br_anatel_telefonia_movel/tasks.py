@@ -19,8 +19,7 @@ from pipelines.utils.utils import to_partitions, log
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def clean_csvs(mes_um, mes_dois):
-    anos = [2019, 2020, 2021, 2022, 2023]
+def clean_csvs(anos, mes_um, mes_dois):
     """
     -------
     Reads and cleans all CSV files in the '/tmp/data/input/' directory.
@@ -45,46 +44,38 @@ def clean_csvs(mes_um, mes_dois):
         url=anatel_constants.URL.value, path=anatel_constants.INPUT_PATH.value
     )
 
-    for anos in range(2019, 2024):
-        log(f"Abrindo o arquivo:{anos}, {mes_um}, {mes_dois}..")
-        log("=" * 50)
-        df = pd.read_csv(
-            f"{anatel_constants.INPUT_PATH.value}Acessos_Telefonia_Movel_{anos}{mes_um}-{anos}{mes_dois}.csv",
-            sep=";",
-            encoding="utf-8",
-        )
-        log(f"Renomenado as colunas:")
-        log("=" * 50)
-        df.rename(columns=anatel_constants.RENAME.value, inplace=True)
-        log(f"Removendo colunas desnecessárias: {anos}, {mes_um}, {mes_dois}..")
-        log("=" * 50)
+    log(f"Abrindo o arquivo:{anos}, {mes_um}, {mes_dois}..")
+    log("=" * 50)
+    df = pd.read_csv(
+        f"{anatel_constants.INPUT_PATH.value}Acessos_Telefonia_Movel_{anos}{mes_um}-{anos}{mes_dois}.csv",
+        sep=";",
+        encoding="utf-8",
+    )
+    log(f"Renomenado as colunas:")
+    log("=" * 50)
+    df.rename(columns=anatel_constants.RENAME.value, inplace=True)
+    log(f"Removendo colunas desnecessárias: {anos}, {mes_um}, {mes_dois}..")
+    log("=" * 50)
 
-        df.drop(["grupo_economico", "municipio", "ddd_chip"], axis=1, inplace=True)
-        log(f"Agrupando por acessos: {anos}, {mes_um}, {mes_dois}..")
-        log("=" * 50)
-        log(f"Ordenando-as: {anos}, {mes_um}, {mes_dois}..")
-        log("=" * 50)
-        log(f"Tratando os dados: {anos}, {mes_um}, {mes_dois}...")
-        log("=" * 50)
-        df["produto"] = df["produto"].str.lower()
+    df.drop(["grupo_economico", "municipio", "ddd_chip"], axis=1, inplace=True)
 
-        df["id_municipio"] = df["id_municipio"].astype(str)
+    log(f"Tratando os dados: {anos}, {mes_um}, {mes_dois}...")
+    log("=" * 50)
 
-        df["ddd"] = pd.to_numeric(df["ddd"], downcast="integer").astype(str)
+    df["produto"] = df["produto"].str.lower()
 
-        df["cnpj"] = df["cnpj"].astype(str)
-        log(f"Ordenando-as: {anos}, {mes_um}, {mes_dois}..")
-        log("=" * 50)
-        df = df[anatel_constants.ORDEM.value]
+    df["id_municipio"] = df["id_municipio"].astype(str)
 
-        log("=" * 50)
+    df["ddd"] = pd.to_numeric(df["ddd"], downcast="integer").astype(str)
 
-        log(f"Ordenando por ano e mes: {anos}, {mes_um}, {mes_dois}...")
+    df["cnpj"] = df["cnpj"].astype(str)
 
-        to_partitions(
-            df,
-            partition_columns=["ano", "mes"],
-            savepath=anatel_constants.OUTPUT_PATH.value,
-        )
+    df = df[anatel_constants.ORDEM.value]
+
+    to_partitions(
+        df,
+        partition_columns=["ano", "mes"],
+        savepath=anatel_constants.OUTPUT_PATH.value,
+    )
 
     return anatel_constants.OUTPUT_PATH.value
