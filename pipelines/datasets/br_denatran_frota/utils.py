@@ -576,7 +576,8 @@ def get_data_from_prod(dataset_id: str, table_id: str) -> list:
             for column in columns2add:
                 df[column] = blob.name.split(column + "=")[1].split("/")[0]
             dfs.append(df)
+    if dfs:
+        df = pd.concat(dfs)
 
-    df = pd.concat(dfs)
+        return df
 
-    return df
