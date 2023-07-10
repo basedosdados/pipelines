@@ -53,10 +53,10 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
     mes_dois = Parameter("mes_dois", default="06", required=True)
 
     filepath = clean_csvs(
-        anos = anos,
-        mes_um = mes_um,
-        mes_dois = mes_dois,
-        upstream_tasks = [rename_flow_run],
+        anos=anos,
+        mes_um=mes_um,
+        mes_dois=mes_dois,
+        upstream_tasks=[rename_flow_run],
     )
 
     wait_upload_table = create_table_and_upload_to_gcs(
