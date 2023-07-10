@@ -79,7 +79,7 @@ with Flow(
         file=municipio_tipo_file, upstream_tasks=[crawled, municipio_tipo_file]
     )
     csv_output = output_file_to_csv_task(
-        df,constants.UF_TIPO_BASIC_FILENAME.value, upstream_tasks=[df]
+        df, constants.UF_TIPO_BASIC_FILENAME.value, upstream_tasks=[df]
     )
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=csv_output,
