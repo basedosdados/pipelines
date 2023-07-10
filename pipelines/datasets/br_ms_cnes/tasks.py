@@ -186,7 +186,8 @@ def read_dbc_save_csv(file_list: list, path: str, table: str) -> str:
             "AP07CV07",
         ]
         list_columns_to_keep = [
-            "COMPETEN" "CNES",
+            "COMPETEN",
+            "CNES",
             "UFMUNRES",
             "NOMEPROF",
             "CNS_PROF",
