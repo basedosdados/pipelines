@@ -218,6 +218,8 @@ def clean_seller(filepath_raw):
     seller = seller.reindex(new_order, axis=1)
     # drop where experiencia is nan
     seller = seller[seller["experiencia"].notna()]
+    # drop data column
+    seller = seller.drop("data", axis=1)
 
     today = pd.Timestamp.today().strftime("%Y-%m-%d")
     os.system(f"mkdir -p br_mercadolivre_ofertas/vendedor/dia={today}")
