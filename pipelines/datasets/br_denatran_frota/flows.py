@@ -29,7 +29,7 @@ from pipelines.datasets.br_denatran_frota.tasks import (
     output_file_to_csv_task,
     get_desired_file_task,
     treat_municipio_tipo_task,
-    get_latest_data_task
+    get_latest_data_task,
 )
 from pipelines.datasets.br_denatran_frota.constants import constants
 from itertools import product
@@ -65,12 +65,12 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    year_to_fetch = get_latest_data_task('uf_tipo')
+    year_to_fetch = get_latest_data_task("uf_tipo")
     crawled = crawl_task(
         month=1,
         year=year_to_fetch,
         temp_dir=constants.DOWNLOAD_PATH.value,
-        upstream_tasks=[year_to_fetch]
+        upstream_tasks=[year_to_fetch],
     )
     # Now get the downloaded file:
     municipio_tipo_file = get_desired_file_task(
