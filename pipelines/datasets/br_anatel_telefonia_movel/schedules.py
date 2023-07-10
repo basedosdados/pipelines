@@ -26,7 +26,7 @@ from prefect.schedules.clocks import CronClock
             },
         ),
     ],
-)"""
+)
 
 every_month_anatel_brasil = Schedule(
     clocks=[
@@ -45,9 +45,9 @@ every_month_anatel_brasil = Schedule(
             },
         ),
     ],
-)
+)"""
 
-'''every_month_anatel_uf = Schedule(
+every_month_anatel_uf = Schedule(
     clocks=[
         CronClock(
             cron="00 18 28 * *",  # At 17:50 on day-of-month 28
@@ -65,7 +65,7 @@ every_month_anatel_brasil = Schedule(
         ),
     ],
 )
-
+'''
 every_month_anatel_municipio = Schedule(
     clocks=[
         CronClock(
