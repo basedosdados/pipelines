@@ -580,4 +580,3 @@ def get_data_from_prod(dataset_id: str, table_id: str) -> list:
         df = pd.concat(dfs)
 
         return df
-
