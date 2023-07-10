@@ -192,4 +192,3 @@ def clean_csv_municipio():
     )
 
     return anatel_constants.OUTPUT_PATH.value
-

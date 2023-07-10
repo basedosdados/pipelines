@@ -9,7 +9,7 @@ from pipelines.constants import constants
 from prefect.schedules.clocks import CronClock
 
 
-'''every_month_anatel = Schedule(
+"""every_month_anatel = Schedule(
     clocks=[
         CronClock(
             cron="50 16 28 * *",  # At 17:50 on day-of-month 28
@@ -26,7 +26,7 @@ from prefect.schedules.clocks import CronClock
             },
         ),
     ],
-)'''
+)"""
 
 every_month_anatel_brasil = Schedule(
     clocks=[
