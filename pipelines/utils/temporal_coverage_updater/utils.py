@@ -4,13 +4,122 @@ General purpose functions for the temporal_coverage_updater project
 """
 import os
 import json
-from pipelines.utils.utils import log
 import requests
 from datetime import datetime
 import re
+import basedosdados as bd
 from pipelines.utils.temporal_coverage_updater.constants import (
     constants as temp_constants,
 )
+from typing import Tuple
+from pipelines.utils.utils import log, get_credentials_from_secret
+
+
+def get_first_date(ids, email, password):
+    """
+    Retrieves the first date from the given coverage ID.
+
+    Args:
+        ids (dict): A dictionary containing the dataset ID, table ID, and coverage ID.
+
+    Returns:
+        str: The first date in the format 'YYYY-MM-DD(interval)'.
+
+    Raises:
+        Exception: If an error occurs while retrieving the first date.
+    """
+    try:
+        date = get_date(
+            query_class="allDatetimerange",
+            query_parameters={"$coverage_Id: ID": ids.get("coverage_id")},
+            email=email,
+            password=password,
+        )
+        data = date["data"]["allDatetimerange"]["edges"][0]["node"]
+        first_date = f"{data['startYear']}-{data['startMonth']}-{data['startDay']}({data['interval']})"
+        log(f"Primeira data: {first_date}")
+        return first_date
+    except Exception as e:
+        log(f"An error occurred while retrieving the first date: {str(e)}")
+        raise
+
+
+def extract_last_update(dataset_id, table_id):
+    """
+    Extracts the last update date of a given dataset table.
+
+    Args:
+        dataset_id (str): The ID of the dataset.
+        table_id (str): The ID of the table.
+
+    Returns:
+        str: The last update date in the format 'YYYY-MM-DD'.
+
+    Raises:
+        Exception: If an error occurs while extracting the last update date.
+    """
+    try:
+        query_bd = f"""
+        SELECT
+        *
+        FROM
+        `basedosdados.{dataset_id}.__TABLES__`
+        WHERE
+        table_id = '{table_id}'
+        """
+        # bd_base = Base()
+        # billing_project_id = bd_base.config["gcloud-projects"]["prod"]["name"]
+        t = bd.read_sql(
+            query=query_bd,
+            billing_project_id="basedosdados-dev",
+            from_file=True,
+        )
+        timestamp = (
+            t["last_modified_time"][0] / 1000
+        )  # Convert to seconds by dividing by 1000
+        dt = datetime.fromtimestamp(timestamp)
+        last_date = dt.strftime("%Y-%m-%d")
+        log(f"Última data: {last_date}")
+        return last_date
+    except Exception as e:
+        log(f"An error occurred while extracting the last update date: {str(e)}")
+        raise
+
+
+def find_ids(dataset_id, table_id, email, password):
+    """
+    Finds the IDs for a given dataset and table.
+
+    Args:
+        dataset_id (str): The ID of the dataset.
+        table_id (str): The ID of the table.
+
+    Returns:
+        dict: A dictionary containing the dataset ID, table ID, and coverage ID.
+
+    Raises:
+        Exception: If an error occurs while retrieving the IDs.
+    """
+    try:
+        ids = get_ids(
+            dataset_name=dataset_id, table_name=table_id, email=email, password=password
+        )
+        log(f"IDs >>>> {ids}")
+        return ids
+    except Exception as e:
+        log(f"An error occurred while retrieving the IDs: {str(e)}")
+        raise
+
+
+def get_credentials(secret_path: str) -> Tuple[str, str]:
+    """
+    Returns the user and password for the given secret path.
+    """
+    log(f"Getting user and password for secret path: {secret_path}")
+    tokens_dict = get_credentials_from_secret(secret_path)
+    email = tokens_dict.get("email")
+    password = tokens_dict.get("password")
+    return email, password
 
 
 def get_token(email, password):
@@ -197,6 +306,21 @@ def create_update(
 
 
 def parse_temporal_coverage(temporal_coverage):
+    padrao_ano = r"\d{4}\(\d{1,2}\)\d{4}"
+    padrao_mes = r"\d{4}-\d{2}\(\d{1,2}\)\d{4}-\d{2}"
+    padrao_semana = r"\d{4}-\d{2}-\d{2}\(\d{1,2}\)\d{4}-\d{2}-\d{2}"
+    padrao_dia = r"\d{4}-\d{2}-\d{2}\(\d{1,2}\)\d{4}-\d{2}-\d{2}"
+
+    if (
+        re.match(padrao_ano, temporal_coverage)
+        or re.match(padrao_mes, temporal_coverage)
+        or re.match(padrao_semana, temporal_coverage)
+        or re.match(padrao_dia, temporal_coverage)
+    ):
+        print("A data está no formato correto.")
+    else:
+        print("Aviso: A data não está no formato correto.")
+
     # Extrai as informações de data e intervalo da string
     if "(" in temporal_coverage:
         start_str, interval_str, end_str = re.split(r"[(|)]", temporal_coverage)

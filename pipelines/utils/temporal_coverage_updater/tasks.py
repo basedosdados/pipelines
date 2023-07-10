@@ -9,155 +9,106 @@ from prefect import task
 # from basedosdados.upload.base import Base
 import basedosdados as bd
 from pipelines.utils.temporal_coverage_updater.utils import (
-    get_ids,
+    find_ids,
     parse_temporal_coverage,
-    get_date,
+    get_credentials,
     create_update,
+    extract_last_update,
+    get_first_date,
 )
 from datetime import datetime
 from pipelines.utils.utils import log, get_credentials_from_secret
 from typing import Tuple
 
 
+## TODO: Transformar flow em task OK
+## TODO: Criar novo argumento na função update_temporal_coverage p/ selecionar o "tipo" (bool) do first date e last date OK
+## TODO: migrar p/ utils.tasks
+## TODO: fazer check dentro do parse se está no formato padrão da BD e avisar ao usuário quando n estiver OK
 @task
-def get_credentials(secret_path: str) -> Tuple[str, str]:
+def update_django_metadata(
+    dataset_id: str,
+    table_id: str,
+    metadata_type: str,
+    _last_date=None,
+    bq_last_update: bool = True,
+):
     """
-    Returns the user and password for the given secret path.
-    """
-    log(f"Getting user and password for secret path: {secret_path}")
-    tokens_dict = get_credentials_from_secret(secret_path)
-    email = tokens_dict.get("email")
-    password = tokens_dict.get("password")
-    return email, password
-
-
-@task
-def find_ids(dataset_id, table_id, email, password):
-    """
-    Finds the IDs for a given dataset and table.
+    Updates Django metadata.
 
     Args:
         dataset_id (str): The ID of the dataset.
         table_id (str): The ID of the table.
+        metadata_type (str): The type of metadata to update.
+        _last_date (optional): The last date for metadata update if `bq_last_update` is False. Defaults to None.
+        bq_last_update (bool, optional): Flag indicating whether to use BigQuery's last update date for metadata.
+            If True, `_last_date` is ignored. Defaults to True.
 
     Returns:
-        dict: A dictionary containing the dataset ID, table ID, and coverage ID.
+        None
 
     Raises:
-        Exception: If an error occurs while retrieving the IDs.
+        Exception: If the metadata_type is not supported.
+
     """
-    try:
-        ids = get_ids(
-            dataset_name=dataset_id, table_name=table_id, email=email, password=password
-        )
-        log(f"IDs >>>> {ids}")
-        return ids
-    except Exception as e:
-        log(f"An error occurred while retrieving the IDs: {str(e)}")
-        raise
+    (email, password) = get_credentials(secret_path="api_user_prod")
 
+    ids = find_ids(
+        dataset_id,
+        table_id,
+        email,
+        password,
+    )
 
-@task
-def extract_last_update(dataset_id, table_id):
-    """
-    Extracts the last update date of a given dataset table.
+    if metadata_type == "DateTimeRange":
+        if bq_last_update:
+            last_date = extract_last_update(
+                dataset_id,
+                table_id,
+            )
+            first_date = get_first_date(
+                ids,
+                email,
+                password,
+            )
 
-    Args:
-        dataset_id (str): The ID of the dataset.
-        table_id (str): The ID of the table.
+            resource_to_temporal_coverage = parse_temporal_coverage(
+                f"{first_date}{last_date}"
+            )
+            resource_to_temporal_coverage["coverage"] = ids.get("coverage_id")
+            log(f"Mutation parameters: {resource_to_temporal_coverage}")
 
-    Returns:
-        str: The last update date in the format 'YYYY-MM-DD'.
+            create_update(
+                query_class="allDatetimerange",
+                query_parameters={"$coverage_Id: ID": ids.get("coverage_id")},
+                mutation_class="CreateUpdateDateTimeRange",
+                mutation_parameters=resource_to_temporal_coverage,
+                update=True,
+                email=email,
+                password=password,
+            )
+        else:
+            last_date = _last_date
+            log(f"Última data {last_date}")
+            first_date = get_first_date(
+                ids,
+                email,
+                password,
+            )
 
-    Raises:
-        Exception: If an error occurs while extracting the last update date.
-    """
-    try:
-        query_bd = f"""
-        SELECT
-        *
-        FROM
-        `basedosdados-dev.{dataset_id}.__TABLES__`
-        WHERE
-        table_id = '{table_id}'
-        """
-        # bd_base = Base()
-        # billing_project_id = bd_base.config["gcloud-projects"]["prod"]["name"]
-        t = bd.read_sql(
-            query=query_bd,
-            billing_project_id="basedosdados-dev",
-            from_file=True,
-        )
-        timestamp = (
-            t["last_modified_time"][0] / 1000
-        )  # Convert to seconds by dividing by 1000
-        dt = datetime.fromtimestamp(timestamp)
-        last_date = dt.strftime("%Y-%m-%d")
-        log(f"Última data: {last_date}")
-        return last_date
-    except Exception as e:
-        log(f"An error occurred while extracting the last update date: {str(e)}")
-        raise
+            resource_to_temporal_coverage = parse_temporal_coverage(
+                f"{first_date}{last_date}"
+            )
 
+            resource_to_temporal_coverage["coverage"] = ids.get("coverage_id")
+            log(f"Mutation parameters: {resource_to_temporal_coverage}")
 
-@task
-def get_first_date(ids, email, password):
-    """
-    Retrieves the first date from the given coverage ID.
-
-    Args:
-        ids (dict): A dictionary containing the dataset ID, table ID, and coverage ID.
-
-    Returns:
-        str: The first date in the format 'YYYY-MM-DD(interval)'.
-
-    Raises:
-        Exception: If an error occurs while retrieving the first date.
-    """
-    try:
-        date = get_date(
-            query_class="allDatetimerange",
-            query_parameters={"$coverage_Id: ID": ids.get("coverage_id")},
-            email=email,
-            password=password,
-        )
-        data = date["data"]["allDatetimerange"]["edges"][0]["node"]
-        first_date = f"{data['startYear']}-{data['startMonth']}-{data['startDay']}({data['interval']})"
-        log(f"Primeira data: {first_date}")
-        return first_date
-    except Exception as e:
-        log(f"An error occurred while retrieving the first date: {str(e)}")
-        raise
-
-
-@task
-def update_temporal_coverage(ids, first_date, last_date, email, password):
-    """
-    Updates the temporal coverage of a given coverage ID with the specified first and last dates.
-
-    Args:
-        ids (dict): A dictionary containing the dataset ID, table ID, and coverage ID.
-        first_date (str): The first date in the format 'YYYY-MM-DD'.
-        last_date (str): The last date in the format 'YYYY-MM-DD'.
-
-    Raises:
-        Exception: If an error occurs while updating the temporal coverage.
-    """
-    try:
-        resource_to_temporal_coverage = parse_temporal_coverage(
-            f"{first_date}{last_date}"
-        )
-        resource_to_temporal_coverage["coverage"] = ids.get("coverage_id")
-        log(f"Mutation parameters: {resource_to_temporal_coverage}")
-        create_update(
-            query_class="allDatetimerange",
-            query_parameters={"$coverage_Id: ID": ids.get("coverage_id")},
-            mutation_class="CreateUpdateDateTimeRange",
-            mutation_parameters=resource_to_temporal_coverage,
-            update=True,
-            email=email,
-            password=password,
-        )
-    except Exception as e:
-        log(f"An error occurred while updating the temporal coverage: {str(e)}")
-        raise
+            create_update(
+                query_class="allDatetimerange",
+                query_parameters={"$coverage_Id: ID": ids.get("coverage_id")},
+                mutation_class="CreateUpdateDateTimeRange",
+                mutation_parameters=resource_to_temporal_coverage,
+                update=True,
+                email=email,
+                password=password,
+            )
