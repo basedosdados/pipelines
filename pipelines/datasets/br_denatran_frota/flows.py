@@ -67,14 +67,14 @@ with Flow(
 
     year_to_fetch = get_latest_data_task("uf_tipo")
     crawled = crawl_task(
-        month=1,
-        year=year_to_fetch,
+        month=year_to_fetch[1],
+        year=year_to_fetch[0],
         temp_dir=constants.DOWNLOAD_PATH.value,
         upstream_tasks=[year_to_fetch],
     )
     # Now get the downloaded file:
     municipio_tipo_file = get_desired_file_task(
-        year=2003,
+        year=year_to_fetch[0],
         download_directory=constants.DOWNLOAD_PATH.value,
         filetype=constants.UF_TIPO_BASIC_FILENAME.value,
         upstream_tasks=[crawled],
