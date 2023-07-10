@@ -151,12 +151,12 @@ def get_latest_data(table_name: str):
     if denatran_data:
         denatran_data: pl.DataFrame = pl.from_pandas(denatran_data)
         year = denatran_data.select(pl.max("ano"))
-        month = denatran_data.filter(pl.col('ano') == year).select(pl.max('mes'))
+        month = denatran_data.filter(pl.col("ano") == year).select(pl.max("mes"))
         if month == 12:
             year += 1
             month = 1
         log(f"Ano: {year}, mês: {month+1}")
-        return year, month+1
+        return year, month + 1
     else:
         log("Não achei ano não mané")
         return 2003, 1
