@@ -93,7 +93,7 @@ def clean_csv_brasil():
     )
 
     densidade = pd.read_csv(
-        f"{anatel_constants.INPUT_PATH.value}Densidade_Telefonia_Movel",
+        f"{anatel_constants.INPUT_PATH.value}Densidade_Telefonia_Movel.csv",
         sep=";",
         encoding="utf-8",
     )
@@ -128,7 +128,7 @@ def clean_csv_uf():
     )
 
     densidade = pd.read_csv(
-        f"{anatel_constants.INPUT_PATH.value}Densidade_Telefonia_Movel",
+        f"{anatel_constants.INPUT_PATH.value}Densidade_Telefonia_Movel.csv",
         sep=";",
         encoding="utf-8",
     )
@@ -163,7 +163,7 @@ def clean_csv_municipio():
     )
 
     densidade = pd.read_csv(
-        f"{anatel_constants.INPUT_PATH.value}Densidade_Telefonia_Movel",
+        f"{anatel_constants.INPUT_PATH.value}Densidade_Telefonia_Movel.csv",
         sep=";",
         encoding="utf-8",
     )
