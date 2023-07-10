@@ -7,6 +7,7 @@ from prefect import task
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
+import os
 from pipelines.constants import constants
 from pipelines.datasets.br_anatel_telefonia_movel.utils import download_and_unzip
 from pipelines.datasets.br_anatel_telefonia_movel.constants import (
@@ -116,6 +117,7 @@ def clean_csv_brasil():
     log(densidade_brasil.head())
     log("=" * 50)
 
+    os.system(f"mkdir -p {anatel_constants.OUTPUT_PATH.value}")
 
     densidade_brasil.to_csv(
         f"{anatel_constants.OUTPUT_PATH.value}densidade_brasil.csv",
