@@ -26,9 +26,14 @@ from pipelines.utils.tasks import (
     get_current_flow_labels,
 )
 
+from pipelines.datasets.br_ms_cnes.schedules import (
+    schedule_br_ms_cnes_estabelecimento,
+    schedule_br_ms_cnes_profissional,
+)
+
 with Flow(
-    name="br_ms_cnes_test.estabelecimento", code_owners=["Gabriel Pisa"]
-) as br_ms_cnes_test:
+    name="br_ms_cnes.estabelecimento", code_owners=["Gabriel Pisa"]
+) as br_ms_cnes_estabelecimento:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_ms_cnes", required=True)
     table_id = Parameter("table_id", default="estabelecimento", required=True)
@@ -101,13 +106,15 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-br_ms_cnes_test.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_ms_cnes_test.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_ms_cnes_test.schedule = None
+br_ms_cnes_estabelecimento.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_ms_cnes_estabelecimento.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
+br_ms_cnes_estabelecimento.schedule = schedule_br_ms_cnes_estabelecimento
 
 
 with Flow(
-    name="br_ms_cnes_test.profissional", code_owners=["Gabriel Pisa"]
+    name="br_ms_cnes.profissional", code_owners=["Gabriel Pisa"]
 ) as br_ms_cnes_profissional:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_ms_cnes", required=True)
@@ -148,7 +155,7 @@ with Flow(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        dump_mode="overwrite",
+        dump_mode="append",
         wait=filepath,
     )
 
@@ -183,4 +190,4 @@ with Flow(
 
 br_ms_cnes_profissional.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_ms_cnes_profissional.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_ms_cnes_profissional.schedule = None
+br_ms_cnes_profissional.schedule = schedule_br_ms_cnes_profissional

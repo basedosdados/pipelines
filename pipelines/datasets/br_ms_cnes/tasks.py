@@ -20,6 +20,7 @@ from rpy2.robjects import pandas2ri
 
 import datetime as dt
 
+from pipelines.datasets.br_ms_cnes.constants import constants as cnes_constants
 from pipelines.datasets.br_ms_cnes.utils import (
     list_all_cnes_dbc_files,
     year_month_sigla_uf_parser,
@@ -45,30 +46,37 @@ def parse_latest_cnes_dbc_files(database: str, cnes_group: str) -> list[str]:
         database=cnes_database, CNES_group=cnes_group_file
     )
 
-    # ! so pra inserir dados históricos
+    # generate current date
+    today = dt.date.today()
 
-    # todo : como pegar o primeiro mes do ano
-    # easy peasy lemon squeeze: if str(int(today)-2) <= 0 then add 1
-    # today = dt.datetime.today()
-    # today = today.strftime("%Y%m")
-    # today = today[2:]
-    # today = str(int(today) - 2)
-    # log(f"the YYYY MM {today}")
+    current_month = today.month
+    # generate two last digits of current year to match datasus FTP year representation format
+    # eg. 2023 -> 23
+    current_year = str(today.year)
+    current_year = current_year[2:]
 
-    # today = ["1001", "1501", "2301"]
-    # log(f"the YYYY MM {today}")
+    # GENERATE_MONTH_TO_PARSE is a dict that given a int representing an month (Eg. 1 = january)
+    # gives a string representing the current minus 2. (Eg. 1 = january : '11' november)
+    month_to_parse = cnes_constants.GENERATE_MONTH_TO_PARSE.value[current_month]
+    year_month_to_parse = str(current_year) + str(month_to_parse)
 
-    log(f"the following files were selected: {available_dbs}")
-    # list_files = []
+    log(f"the YEARMONTH being used to parse files is: {year_month_to_parse}")
 
-    # for element in today:
-    #    for file in available_dbs:
-    #        if file[-8:-4] == element:
-    #            list_files.append(file)
+    list_files = []
 
-    # log(f"the following files were selected: {list_files}")
+    for file in available_dbs:
+        if file[-8:-4] == year_month_to_parse:
+            list_files.append(file)
 
-    return available_dbs
+    # check if list is null
+    if len(list_files) == 0:
+        raise ValueError(
+            f"cnes files parsed with {year_month_to_parse} were not found. It probably indicates that those files have not been released yet."
+        )
+
+    log(f"the following files were selected: {list_files}")
+
+    return list_files
 
 
 @task(
