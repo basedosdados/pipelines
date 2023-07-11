@@ -48,13 +48,9 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    input_filepath = get_data_taxa_cambio(
-        table_id=table_id, upstream_tasks=[rename_flow_run]
-    )
+    input_filepath = get_data_taxa_cambio(table_id=table_id, wait=[rename_flow_run])
 
-    output_filepath = treat_data_taxa_cambio(
-        table_id=table_id, upstream_tasks=[input_filepath]
-    )
+    output_filepath = treat_data_taxa_cambio(table_id=table_id, wait=[input_filepath])
 
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=output_filepath,
@@ -121,13 +117,9 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    input_filepath = get_data_taxa_selic(
-        table_id=table_id, upstream_tasks=[rename_flow_run]
-    )
+    input_filepath = get_data_taxa_selic(table_id=table_id, wait=rename_flow_run)
 
-    output_filepath = treat_data_taxa_selic(
-        table_id=table_id, upstream_tasks=[input_filepath]
-    )
+    output_filepath = treat_data_taxa_selic(table_id=table_id, wait=input_filepath)
 
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=output_filepath,
@@ -199,11 +191,11 @@ with Flow(
     )
 
     input_filepath = get_data_expectativa_mercado_mensal(
-        days_to_run=days_to_run, upstream_tasks=[rename_flow_run]
+        days_to_run=days_to_run, wait=[rename_flow_run]
     )
 
     output_filepath = treat_data_expectativa_mercado_mensal(
-        table_id=table_id, upstream_tasks=[input_filepath]
+        table_id=table_id, wait=[input_filepath]
     )
 
     wait_upload_table = create_table_and_upload_to_gcs(
