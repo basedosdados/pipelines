@@ -106,7 +106,7 @@ with Flow(
         current_flow_labels = get_current_flow_labels()
         sellers_flow = create_flow_run(
             flow_name="mercadolivre_ofertas.vendedor",
-            project_name=constants.PREFECT_STAGING_PROJECT.value,
+            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
             parameters={
                 "dataset_id": dataset_id,
                 "table_id": table_id_sellers,
