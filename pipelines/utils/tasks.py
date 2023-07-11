@@ -6,7 +6,7 @@ Helper tasks that could fit any pipeline.
 
 from datetime import timedelta, datetime
 from pathlib import Path
-from typing import Union, List
+from typing import Any, Union, List
 
 import basedosdados as bd
 import pandas as pd
@@ -22,6 +22,14 @@ from pipelines.utils.utils import (
     log,
     dump_header_to_csv,
 )
+
+
+@task
+def log_task(msg: Any, level: str = "info"):
+    """
+    A task that logs a message.
+    """
+    log(msg=msg, level=level)
 
 
 ##################
