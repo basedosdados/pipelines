@@ -78,7 +78,10 @@ def crawler_mercadolivre_item():
     filepath = "/tmp/items_raw.csv"
     df.to_csv(filepath, index=False)
 
-    log(df.head(5))
+    # check if features column has values different than {}
+    unique_features = df["features"].unique()
+    log("Unique features:")
+    log(unique_features)
 
     loop.close()
 
@@ -171,6 +174,29 @@ def crawler_mercadolivre_seller(seller_ids, seller_links):
 
 @task
 def clean_seller(filepath_raw):
+    """
+    This function cleans the seller data extracted from MercadoLivre. It takes as input a raw data file and performs several cleaning operations:
+
+    - It reads the raw seller data file from a CSV.
+    - It renames the columns into more comprehensible ones.
+    - It filters out entries with missing seller names.
+    - It cleans the 'experiencia' column by applying the 'clean_experience' function.
+    - It cleans the 'classificacao' column by removing the prefix 'MercadoLíder '.
+    - It cleans the 'localizacao' column by removing the prefix 'Localização', then transforms location names to municipality IDs using a predefined dictionary mapping.
+    - It cleans the 'opinioes' column by removing square brackets.
+    - It reorders the columns, placing 'vendedor_id' as the first column.
+    - It filters out entries with missing experience data.
+    - It drops the 'data' column as it's no longer needed.
+    - It saves the cleaned data to a CSV file, in a directory that corresponds to the current date.
+    - The function returns the path to the directory where the cleaned CSV file is saved.
+
+    Args:
+        filepath_raw (str): The file path to the raw seller data CSV file.
+
+    Returns:
+        str: The path to the directory where the cleaned CSV file is saved.
+    """
+
     seller = pd.read_csv(filepath_raw)
     log(seller.head(5))
 
@@ -182,7 +208,7 @@ def clean_seller(filepath_raw):
         "localizacao",
         "opinioes",
         "data",
-        "id_vendor",
+        "vendedor_id",
     ]
 
     seller.columns = new_cols
@@ -204,9 +230,9 @@ def clean_seller(filepath_raw):
     seller["opinioes"] = seller["opinioes"].str.replace("[", "")
     seller["opinioes"] = seller["opinioes"].str.replace("]", "")
 
-    # put id_vendor in the first column
+    # put vendedor_id in the first column
     new_order = [
-        "id_vendor",
+        "vendedor_id",
         "nome",
         "experiencia",
         "reputacao",
