@@ -35,6 +35,8 @@ import requests
 import numpy as np
 import pandas as pd
 
+# from pipelines.datasets.mundo_transfermarkt_competicoes.decorators import retry
+
 
 def process_basico(df, content):
     """

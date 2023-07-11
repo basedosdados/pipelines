@@ -50,6 +50,7 @@ Tasks for mundo_transfermarkt_competicoes
 ###############################################################################
 from pipelines.utils.utils import log, to_partitions
 
+# from pipelines.datasets.mundo_transfermarkt_competicoes.decorators import retry
 # from pipelines.constants import constants as constants
 from pipelines.datasets.mundo_transfermarkt_competicoes.constants import (
     constants as mundo_constants,
@@ -60,6 +61,7 @@ from bs4 import BeautifulSoup
 import requests
 import numpy as np
 import pandas as pd
+import time as tm
 
 # import datetime
 from pipelines.datasets.mundo_transfermarkt_competicoes.utils import (
@@ -154,7 +156,17 @@ def execucao_coleta():
     log(f"Encontrados {n_links} partidas.")
     log("Extraindo dados...")
     for n, link in enumerate(links_esta):
-        link_data = requests.get(base_link + link, headers=headers)
+        # Tentativas de obter os links
+        attempts = 0
+        while attempts < 3:
+            attempts += 1
+            log(f"Attempt {attempts}")
+            try:
+                link_data = requests.get(base_link + link, headers=headers)
+                log("link encontrado!")
+                break
+            except requests.exceptions.Timeout:
+                tm.sleep(3)
         link_soup = BeautifulSoup(link_data.content, "html.parser")
         content = link_soup.find("div", id="main")
         if content:
@@ -169,7 +181,17 @@ def execucao_coleta():
             df = vazio(df)
         log(f"{n+1} dados de {n_links} extraídos.")
     for n, link in enumerate(links_valor):
-        link_data = requests.get(base_link + link, headers=headers)
+        # Tentativas de obter os links
+        attempts = 0
+        while attempts < 3:
+            attempts += 1
+            log(f"Attempt {attempts}")
+            try:
+                link_data = requests.get(base_link + link, headers=headers)
+                log("link encontrado!")
+                break
+            except requests.exceptions.Timeout:
+                tm.sleep(3)
         link_soup = BeautifulSoup(link_data.content, "html.parser")
         content = link_soup.find("div", id="main")
         if content:

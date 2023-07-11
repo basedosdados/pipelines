@@ -81,7 +81,7 @@ every_week = Schedule(
             cron="0 8 * 5-12 1",
             start_date=datetime(2023, 5, 1, 7, 30),
             labels=[
-                constants.DATASETS_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "mundo_transfermarkt_competicoes",
