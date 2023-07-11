@@ -130,6 +130,7 @@ def treat_data_taxa_cambio(table_id: str) -> str:
     return full_filepath
 
 
+@task
 def get_data_taxa_selic(table_id: str) -> str:
     """
     Retrieves data from an API for multiple currencies, concatenates the resulting dataframes,
@@ -151,6 +152,7 @@ def get_data_taxa_selic(table_id: str) -> str:
     return full_filepath
 
 
+@task
 def treat_data_taxa_selic(table_id: str) -> str:
     """
     Reads input data from a CSV file, performs data treatment on the dataframe,
