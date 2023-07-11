@@ -32,7 +32,7 @@ from pipelines.datasets.br_mercadolivre_ofertas.tasks import (
 from pipelines.datasets.br_mercadolivre_ofertas.schedules import every_day_item
 
 with Flow(
-    name="mercadolivre_ofertas.item", code_owners=["lucascr91"]
+    name="br_mercadolivre_ofertas.item", code_owners=["lucascr91"]
 ) as br_mercadolivre_ofertas_item:
     # Parameters
     dataset_id = Parameter(
@@ -105,7 +105,7 @@ with Flow(
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
         sellers_flow = create_flow_run(
-            flow_name="mercadolivre_ofertas.vendedor",
+            flow_name="br_mercadolivre_ofertas.vendedor",
             project_name=constants.PREFECT_DEFAULT_PROJECT.value,
             parameters={
                 "dataset_id": dataset_id,
@@ -139,7 +139,7 @@ br_mercadolivre_ofertas_item.schedule = every_day_item
 
 
 with Flow(
-    name="mercadolivre_ofertas.vendedor", code_owners=["lucascr91"]
+    name="br_mercadolivre_ofertas.vendedor", code_owners=["lucascr91"]
 ) as br_mercadolivre_ofertas_vendedor:
     # Parameters
     dataset_id = Parameter(
