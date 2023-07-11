@@ -48,7 +48,6 @@ every_month_anatel_brasil = Schedule(
 )"""
 
 every_month_anatel_uf = Schedule(
-
     clocks=[
         CronClock(
             cron="00 18 28 * *",  # At 17:50 on day-of-month 28
