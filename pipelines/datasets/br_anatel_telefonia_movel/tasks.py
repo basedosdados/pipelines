@@ -164,6 +164,7 @@ def clean_csv_uf():
     )
     return anatel_constants.OUTPUT_PATH.value'''
 
+
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
@@ -199,7 +200,7 @@ def clean_csv_municipio():
     )
 
     os.system(f"mkdir -p {anatel_constants.OUTPUT_PATH.value}")
-    
+
     to_partitions(
         densidade_municipio,
         partition_columns=["ano", "mes"],

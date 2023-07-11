@@ -30,7 +30,7 @@ from pipelines.utils.tasks import (
 
 from pipelines.datasets.br_anatel_telefonia_movel.schedules import (
     # every_month_anatel,
-     every_month_anatel_municipio,
+    every_month_anatel_municipio,
     # every_month_anatel_uf,
     # every_month_anatel_brasil,
 )
