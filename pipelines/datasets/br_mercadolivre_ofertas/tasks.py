@@ -6,17 +6,16 @@
 import asyncio
 import time
 import os
-import re
 from typing import List, Tuple
 
 from prefect import task
 import pandas as pd
 
 from pipelines.utils.tasks import log
-from pipelines.datasets.mercadolivre_ofertas.constants import (
+from pipelines.datasets.br_mercadolivre_ofertas.constants import (
     constants as const_mercadolivre,
 )
-from pipelines.datasets.mercadolivre_ofertas.utils import (
+from pipelines.datasets.br_mercadolivre_ofertas.utils import (
     main_item,
     main_seller,
     get_id,
