@@ -45,7 +45,7 @@ every_month_anatel_brasil = Schedule(
             },
         ),
     ],
-)"""
+)
 
 every_month_anatel_uf = Schedule(
     clocks=[
@@ -83,4 +83,4 @@ every_month_anatel_municipio = Schedule(
             },
         ),
     ],
-)"""
+)

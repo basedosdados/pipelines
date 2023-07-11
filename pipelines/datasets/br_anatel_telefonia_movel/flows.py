@@ -18,8 +18,8 @@ from pipelines.datasets.br_anatel_telefonia_movel.constants import (
 from pipelines.datasets.br_anatel_telefonia_movel.tasks import (
     # clean_csvs,
     # clean_csv_brasil,
-    clean_csv_uf,
-    # clean_csv_municipio,
+    # clean_csv_uf,
+    clean_csv_municipio,
 )
 from pipelines.utils.decorators import Flow
 from pipelines.utils.tasks import (
@@ -30,8 +30,8 @@ from pipelines.utils.tasks import (
 
 from pipelines.datasets.br_anatel_telefonia_movel.schedules import (
     # every_month_anatel,
-    # every_month_anatel_municipio,
-    every_month_anatel_uf,
+     every_month_anatel_municipio,
+    # every_month_anatel_uf,
     # every_month_anatel_brasil,
 )
 
@@ -168,7 +168,7 @@ with Flow(
 
 br_anatel_brasil.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_anatel_brasil.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_anatel_brasil.schedule = every_month_anatel_brasil"""
+br_anatel_brasil.schedule = every_month_anatel_brasil
 
 
 with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anatel_uf:
@@ -230,10 +230,10 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
 
 br_anatel_uf.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_anatel_uf.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_anatel_uf.schedule = every_month_anatel_uf
+br_anatel_uf.schedule = every_month_anatel_uf"""
 
 
-"""with Flow(
+with Flow(
     name="br_anatel_telefonia_movel", code_owners=["tricktx"]
 ) as br_anatel_municipio:
     # Parameters
@@ -294,4 +294,4 @@ br_anatel_uf.schedule = every_month_anatel_uf
 
 br_anatel_municipio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_anatel_municipio.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_anatel_municipio.schedule = every_month_anatel_municipio"""
+br_anatel_municipio.schedule = every_month_anatel_municipio

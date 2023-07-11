@@ -126,7 +126,7 @@ def clean_csv_brasil():
         encoding="utf-8",
         na_rep="",
     )
-    return anatel_constants.OUTPUT_PATH.value'''
+    return anatel_constants.OUTPUT_PATH.value
 
 
 @task(
@@ -162,10 +162,9 @@ def clean_csv_uf():
         encoding="utf-8",
         na_rep="",
     )
-    return anatel_constants.OUTPUT_PATH.value
+    return anatel_constants.OUTPUT_PATH.value'''
 
-
-"""@task(
+@task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
@@ -199,10 +198,12 @@ def clean_csv_municipio():
         densidade_municipio["densidade"].astype(str).str.replace(",", ".").astype(float)
     )
 
+    os.system(f"mkdir -p {anatel_constants.OUTPUT_PATH.value}")
+    
     to_partitions(
         densidade_municipio,
         partition_columns=["ano", "mes"],
         savepath=anatel_constants.OUTPUT_PATH.value,
     )
 
-    return anatel_constants.OUTPUT_PATH.value"""
+    return anatel_constants.OUTPUT_PATH.value
