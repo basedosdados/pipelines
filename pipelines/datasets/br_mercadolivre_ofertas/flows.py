@@ -105,7 +105,7 @@ with Flow(
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
         sellers_flow = create_flow_run(
-            flow_name="mercadolivre_ofertas.vendedor",
+            flow_name="br_mercadolivre_ofertas.vendedor",
             project_name=constants.PREFECT_DEFAULT_PROJECT.value,
             parameters={
                 "dataset_id": dataset_id,
