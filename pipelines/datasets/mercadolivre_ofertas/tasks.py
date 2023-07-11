@@ -175,11 +175,11 @@ def crawler_mercadolivre_seller(seller_ids, seller_links):
 @task
 def clean_seller(filepath_raw):
     """
-    This function cleans the seller data extracted from MercadoLivre. It takes as input a raw data file and performs several cleaning operations: 
+    This function cleans the seller data extracted from MercadoLivre. It takes as input a raw data file and performs several cleaning operations:
 
     - It reads the raw seller data file from a CSV.
-    - It renames the columns into more comprehensible ones. 
-    - It filters out entries with missing seller names. 
+    - It renames the columns into more comprehensible ones.
+    - It filters out entries with missing seller names.
     - It cleans the 'experiencia' column by applying the 'clean_experience' function.
     - It cleans the 'classificacao' column by removing the prefix 'MercadoLíder '.
     - It cleans the 'localizacao' column by removing the prefix 'Localização', then transforms location names to municipality IDs using a predefined dictionary mapping.
