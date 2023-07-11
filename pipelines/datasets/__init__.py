@@ -35,3 +35,5 @@ from pipelines.datasets.br_ons_avaliacao_operacao.flows import *
 from pipelines.datasets.br_ons_estimativa_custos.flows import *
 from pipelines.datasets.br_b3_cotacoes.flows import *
 from pipelines.datasets.mundo_transfermarkt_competicoes.flows import *
+from pipelines.datasets.mercadolivre_ofertas.flows import *
+
