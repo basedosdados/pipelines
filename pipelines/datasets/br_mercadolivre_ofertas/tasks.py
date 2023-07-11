@@ -77,11 +77,6 @@ def crawler_mercadolivre_item():
     filepath = "/tmp/items_raw.csv"
     df.to_csv(filepath, index=False)
 
-    # check if features column has values different than {}
-    unique_features = df["features"].unique()
-    log("Unique features:")
-    log(unique_features)
-
     loop.close()
 
     return filepath
