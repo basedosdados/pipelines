@@ -4,7 +4,7 @@ General purpose functions for the mundo_transfermarkt_competicoes project
 """
 
 ###############################################################################
-#
+
 # Esse é um arquivo onde podem ser declaratas funções que serão usadas
 # pelo projeto mundo_transfermarkt_competicoes.
 #
