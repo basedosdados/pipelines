@@ -66,7 +66,7 @@ every_month_anatel_uf = Schedule(
         ),
     ],
 )
-'''
+"""
 every_month_anatel_municipio = Schedule(
     clocks=[
         CronClock(
