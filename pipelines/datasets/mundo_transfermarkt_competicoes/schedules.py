@@ -69,28 +69,24 @@ Schedules for mundo_transfermarkt_competicoes
 #
 ###############################################################################
 
-
+from prefect.schedules.clocks import CronClock
 from datetime import timedelta, datetime
 from prefect.schedules import Schedule
-from prefect.schedules.clocks import IntervalClock
 from pipelines.constants import constants
-from pipelines.datasets.mundo_transfermarkt_competicoes.constants import (
-    constants as mundo_constants,
-)
+
 
 every_week = Schedule(
     clocks=[
-        IntervalClock(
-            cron="0 8 * * 1",
-            interval=timedelta(weeks=1),
-            start_date=datetime(mundo_constants.DATA_ATUAL_ANO.value, 4, 15, 7, 30),
+        CronClock(
+            cron="0 8 * 4-12 1",
+            start_date=datetime(2023, 5, 1, 7, 30),
             labels=[
                 constants.DATASETS_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "mundo_transfermarkt_competicoes",
                 "table_id": "brasileirao_serie_a",
-                "materialization_mode": "dev",
+                "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": False,
             },
