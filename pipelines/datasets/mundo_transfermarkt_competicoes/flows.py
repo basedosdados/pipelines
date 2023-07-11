@@ -57,7 +57,7 @@ Flows for mundo_transfermarkt_competicoes
 #
 ###############################################################################
 
-
+from pipelines.datasets.mundo_transfermarkt_competicoes.schedules import every_week
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     rename_current_flow_run_dataset_table,
@@ -148,4 +148,4 @@ transfermarkt_brasileirao_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 transfermarkt_brasileirao_flow.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# flow.schedule = every_two_weeks
+transfermarkt_brasileirao_flow.schedule = every_week
