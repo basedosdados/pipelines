@@ -43,7 +43,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
     )
     table_id = Parameter(
         "table_id", default=["microdados", "brasil"], required=True
-    )  # Table_id Microdados
+    )
 
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
@@ -65,12 +65,11 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
     anos = Parameter("anos", default=2023, required=True)
     mes_um = Parameter("mes_um", default="01", required=True)
     mes_dois = Parameter("mes_dois", default="06", required=True)
-    download_file = download()
+
     filepath_microdados = clean_csv_microdados(
         anos=anos,
         mes_um=mes_um,
         mes_dois=mes_dois,
-        input_path=download_file,
         upstream_tasks=[rename_flow_run],
     )
 
@@ -110,9 +109,8 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
-    download_file = download()
-    filepath_brasil = clean_csv_brasil(input_path=download_file,
-                                       upstream_tasks=[filepath_microdados])
+
+    filepath_brasil = clean_csv_brasil(upstream_tasks=[filepath_microdados])
 
     # BRASIL
     wait_upload_table_BRASIL = create_table_and_upload_to_gcs(

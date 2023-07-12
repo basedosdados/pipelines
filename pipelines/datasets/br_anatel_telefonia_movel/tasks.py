@@ -20,11 +20,6 @@ from pipelines.utils.utils import to_partitions, log
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def download():
-    download_and_unzip(
-        url=anatel_constants.URL.value, path=anatel_constants.INPUT_PATH.value
-    )
-
 
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
@@ -54,7 +49,6 @@ def clean_csv_microdados(anos, mes_um, mes_dois, input_path):
     download_and_unzip(
         url=anatel_constants.URL.value, path=anatel_constants.INPUT_PATH.value
     )
-
     log(f"Abrindo o arquivo:{anos}, {mes_um}, {mes_dois}..")
     log("=" * 50)
     df = pd.read_csv(
@@ -98,7 +92,7 @@ def clean_csv_microdados(anos, mes_um, mes_dois, input_path):
 )
 def clean_csv_brasil(input_path):
     log("=" * 50)
-    log("Download dos dados...")
+    log("Abrindo os dados do Brasil...")
     log(anatel_constants.URL.value)
     log("=" * 50)
     log(anatel_constants.INPUT_PATH.value)
