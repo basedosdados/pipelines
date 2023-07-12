@@ -111,8 +111,9 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
     download_file = download()
-    filepath_brasil = clean_csv_brasil(input_path=download_file,
-                                       upstream_tasks=[filepath_microdados])
+    filepath_brasil = clean_csv_brasil(
+        input_path=download_file, upstream_tasks=[filepath_microdados]
+    )
 
     # BRASIL
     wait_upload_table_BRASIL = create_table_and_upload_to_gcs(
