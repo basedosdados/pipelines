@@ -70,7 +70,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
         anos=anos,
         mes_um=mes_um,
         mes_dois=mes_dois,
-        input_path=download_file
+        input_path=download_file,
         upstream_tasks=[rename_flow_run],
     )
 
