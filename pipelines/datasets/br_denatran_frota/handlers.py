@@ -149,8 +149,8 @@ def get_latest_data(table_name: str):
         table_id=table_name, dataset_id="br_denatran_frota"
     )
     if not denatran_data.empty:
-        year = denatran_data['ano'].max()
-        month = denatran_data.loc[denatran_data['ano'] == year]["mes"].max()
+        year = denatran_data["ano"].max()
+        month = denatran_data.loc[denatran_data["ano"] == year]["mes"].max()
         log(year)
         log(month)
         if month == 12:
