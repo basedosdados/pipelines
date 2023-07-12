@@ -55,7 +55,6 @@ def clean_csv_microdados(anos, mes_um, mes_dois, input_path):
         url=anatel_constants.URL.value, path=anatel_constants.INPUT_PATH.value
     )
 
-
     log(f"Abrindo o arquivo:{anos}, {mes_um}, {mes_dois}..")
     log("=" * 50)
     df = pd.read_csv(
