@@ -41,7 +41,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
         "dataset_id", default="br_anatel_telefonia_movel", required=True
     )
     table_id = Parameter(
-        'table_id', default=["microdados", "brasil"], required=True
+        "table_id", default=["microdados", "brasil"], required=True
     )  # Table_id Microdados
 
     materialization_mode = Parameter(
@@ -55,8 +55,8 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ",
         dataset_id=dataset_id,
-        table_id= table_id[0],
-        wait= table_id[0],
+        table_id=table_id[0],
+        wait=table_id[0],
     )
 
     # ! as variáveis ano, mes_um, mes_dois é criada aqui e cria um objeto 'Parameter' no Prefect Cloud chamado 'ano', 'mes_um', 'mes_dois'
@@ -72,12 +72,11 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
         upstream_tasks=[rename_flow_run],
     )
 
-
     # MICRODADOS
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath_microdados,
         dataset_id=dataset_id,
-        table_id= table_id[0],
+        table_id=table_id[0],
         dump_mode="append",
         wait=filepath_microdados,
     )
@@ -109,7 +108,6 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
-
 
     filepath_brasil = clean_csv_brasil(upstream_tasks=[filepath_microdados])
 
