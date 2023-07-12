@@ -16,11 +16,20 @@ from pipelines.datasets.br_anatel_telefonia_movel.constants import (
 from pipelines.utils.utils import to_partitions, log
 
 
-'''@task(
+@task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def clean_csvs(anos, mes_um, mes_dois):
+def download():
+        download_and_unzip(
+        url=anatel_constants.URL.value, path=anatel_constants.INPUT_PATH.value
+    )
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def clean_csv_microdados(anos, mes_um, mes_dois):
     """
     -------
     Reads and cleans all CSV files in the '/tmp/data/input/' directory.
@@ -41,9 +50,9 @@ def clean_csvs(anos, mes_um, mes_dois):
     log("=" * 50)
     log("Download dos dados...")
     log(anatel_constants.URL.value)
-    download_and_unzip(
+    '''download_and_unzip(
         url=anatel_constants.URL.value, path=anatel_constants.INPUT_PATH.value
-    )
+    )'''
 
     log(f"Abrindo o arquivo:{anos}, {mes_um}, {mes_dois}..")
     log("=" * 50)
@@ -76,10 +85,10 @@ def clean_csvs(anos, mes_um, mes_dois):
     to_partitions(
         df,
         partition_columns=["ano", "mes"],
-        savepath=anatel_constants.OUTPUT_PATH.value,
+        savepath=anatel_constants.OUTPUT_PATH_MICRODADOS.value,
     )
 
-    return anatel_constants.OUTPUT_PATH.value
+    return anatel_constants.OUTPUT_PATH_MICRODADOS.value
 
 
 @task(
@@ -92,9 +101,6 @@ def clean_csv_brasil():
     log(anatel_constants.URL.value)
     log("=" * 50)
     log(anatel_constants.INPUT_PATH.value)
-    download_and_unzip(
-        url=anatel_constants.URL.value, path=anatel_constants.INPUT_PATH.value
-    )
 
     densidade = pd.read_csv(
         f"{anatel_constants.INPUT_PATH.value}Densidade_Telefonia_Movel.csv",
@@ -117,18 +123,18 @@ def clean_csv_brasil():
     log(densidade_brasil.head())
     log("=" * 50)
 
-    os.system(f"mkdir -p {anatel_constants.OUTPUT_PATH.value}")
+    os.system(f"mkdir -p {anatel_constants.OUTPUT_PATH_BRASIL.value}")
 
     densidade_brasil.to_csv(
-        f"{anatel_constants.OUTPUT_PATH.value}densidade_brasil.csv",
+        f"{anatel_constants.OUTPUT_PATH_BRASIL.value}densidade_brasil.csv",
         index=False,
         sep=",",
         encoding="utf-8",
         na_rep="",
     )
-    return anatel_constants.OUTPUT_PATH.value
+    return anatel_constants.OUTPUT_PATH_BRASIL.value
 
-
+'''
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),

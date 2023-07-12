@@ -52,4 +52,10 @@ class constants(Enum):  # pylint: disable=c0103
 
     INPUT_PATH = "/tmp/data/input/"
 
-    OUTPUT_PATH = "/tmp/data/output/"
+    OUTPUT_PATH_MICRODADOS = "/tmp/data/microdados/output/"
+
+    OUTPUT_PATH_BRASIL = "/tmp/data/BRASIL/output/"
+
+    OUTPUT_PATH_UF = "/tmp/data/UF/output/"
+
+    OUTPUT_PATH_MUNICIPIO = "/tmp/data/MUNICIPIO/output/"

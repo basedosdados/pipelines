@@ -16,10 +16,10 @@ from pipelines.datasets.br_anatel_telefonia_movel.constants import (
     constants as anatel_constants,
 )
 from pipelines.datasets.br_anatel_telefonia_movel.tasks import (
-    # clean_csvs,
-    # clean_csv_brasil,
+    clean_csv_microdados,
+    clean_csv_brasil,
     # clean_csv_uf,
-    clean_csv_municipio,
+    # clean_csv_municipio,
 )
 from pipelines.utils.decorators import Flow
 from pipelines.utils.tasks import (
@@ -29,18 +29,20 @@ from pipelines.utils.tasks import (
 )
 
 from pipelines.datasets.br_anatel_telefonia_movel.schedules import (
-    # every_month_anatel,
-    every_month_anatel_municipio,
+    every_month_anatel,
+    # every_month_anatel_municipio,
     # every_month_anatel_uf,
     # every_month_anatel_brasil,
 )
 
-"""with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anatel:
+with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anatel:
     # Parameters
     dataset_id = Parameter(
         "dataset_id", default="br_anatel_telefonia_movel", required=True
     )
-    table_id = Parameter("table_id", default="microdados", required=True)
+    table_id_MICRODADOS = Parameter("table_id", default="microdados", required=True) # Table_id Microdados
+
+    table_id_BRASIL = Parameter("table_id", default="densidade_brasil", required=True) # table_id Brasil
 
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
@@ -51,7 +53,7 @@ from pipelines.datasets.br_anatel_telefonia_movel.schedules import (
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id_MICRODADOS, wait=table_id_MICRODADOS
     )
 
     # ! as variáveis ano, mes_um, mes_dois é criada aqui e cria um objeto 'Parameter' no Prefect Cloud chamado 'ano', 'mes_um', 'mes_dois'
@@ -60,19 +62,22 @@ from pipelines.datasets.br_anatel_telefonia_movel.schedules import (
     mes_um = Parameter("mes_um", default="01", required=True)
     mes_dois = Parameter("mes_dois", default="06", required=True)
 
-    filepath = clean_csvs(
+    filepath_microdados = clean_csv_microdados(
         anos=anos,
         mes_um=mes_um,
         mes_dois=mes_dois,
         upstream_tasks=[rename_flow_run],
     )
 
+    filepath_brasil = clean_csv_brasil(upstream_tasks=[filepath_microdados])
+
+    # MICRODADOS
     wait_upload_table = create_table_and_upload_to_gcs(
-        data_path=filepath,
+        data_path=filepath_microdados,
         dataset_id=dataset_id,
-        table_id=table_id,
+        table_id=table_id_MICRODADOS,
         dump_mode="append",
-        wait=filepath,
+        wait=filepath_microdados,
     )
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
@@ -82,14 +87,53 @@ from pipelines.datasets.br_anatel_telefonia_movel.schedules import (
             project_name=constants.PREFECT_DEFAULT_PROJECT.value,
             parameters={
                 "dataset_id": dataset_id,
-                "table_id": table_id,
+                "table_id": table_id_MICRODADOS,
                 "mode": materialization_mode,
                 "dbt_alias": dbt_alias,
             },
             labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id}",
+            run_name=f"Materialize {dataset_id}.{table_id_MICRODADOS}",
+        )
+ 
+
+        wait_for_materialization = wait_for_flow_run(
+            materialization_flow,
+            stream_states=True,
+            stream_logs=True,
+            raise_final_state=True,
+        )
+        wait_for_materialization.max_retries = (
+            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
+        )
+        wait_for_materialization.retry_delay = timedelta(
+            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
+
+    # BRASIL
+    wait_upload_table_BRASIL = create_table_and_upload_to_gcs(
+        data_path=filepath_brasil,
+        dataset_id=dataset_id,
+        table_id= table_id_BRASIL,
+        dump_mode="append",
+        wait=filepath_brasil,
+    )
+    with case(materialize_after_dump, True):
+        # Trigger DBT flow run
+        current_flow_labels = get_current_flow_labels()
+        materialization_flow = create_flow_run(
+            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
+            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+            parameters={
+                "dataset_id": dataset_id,
+                "table_id": table_id_BRASIL,
+                "mode": materialization_mode,
+                "dbt_alias": dbt_alias,
+            },
+            labels=current_flow_labels,
+            run_name=f"Materialize {dataset_id}.{table_id_BRASIL}",
+        )
+ 
         wait_for_materialization = wait_for_flow_run(
             materialization_flow,
             stream_states=True,
@@ -107,6 +151,7 @@ br_anatel.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_anatel.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 br_anatel.schedule = every_month_anatel
 
+"""
 with Flow(
     name="br_anatel_telefonia_movel", code_owners=["tricktx"]
 ) as br_anatel_brasil:
