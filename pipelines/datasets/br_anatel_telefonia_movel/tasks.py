@@ -24,7 +24,7 @@ from pipelines.utils.utils import to_partitions, log
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def clean_csv_microdados(anos, mes_um, mes_dois, input_path):
+def clean_csv_microdados(anos, mes_um, mes_dois):
     """
     -------
     Reads and cleans all CSV files in the '/tmp/data/input/' directory.
