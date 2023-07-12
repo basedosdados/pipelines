@@ -276,7 +276,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
 
 br_anatel_uf.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_anatel_uf.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_anatel_uf.schedule = every_month_anatel_uf"""
+br_anatel_uf.schedule = every_month_anatel_uf
 
 
 with Flow(
@@ -342,4 +342,4 @@ with Flow(
 
 br_anatel_municipio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_anatel_municipio.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_anatel_municipio.schedule = every_month_anatel_municipio
+br_anatel_municipio.schedule = every_month_anatel_municipio"""
