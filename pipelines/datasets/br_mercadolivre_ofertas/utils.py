@@ -83,6 +83,7 @@ def generate_unique_id(text: str):
         None
     """
     # Convert the string to bytes
+    text = text.lower().strip().replace(" ", "")
     string_bytes = text.encode("utf-8")
 
     # Generate the SHA-256 hash
@@ -334,10 +335,10 @@ async def process_item_url(item_url, kwargs_list):
     seller_link = await get_seller_link(item_url, attempts=5, wait_time=20)
     info["seller_link"] = seller_link
     if info["seller_link"] is not None:
-        info["seller_id"] = generate_unique_id(info["seller_link"])
         seller = info["seller_link"]
         seller = " ".join(re.findall(r"([A-Z]+)+", seller.split("?")[0]))
         seller = seller.strip().title()
+        info["seller_id"] = generate_unique_id(seller)
         info["seller"] = seller
     else:
         info["seller_id"] = None
