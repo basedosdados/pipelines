@@ -135,7 +135,6 @@ with Flow(
         "Tamir",
     ],
 ) as br_denatran_frota_municipio_tipo:
-    
     dataset_id = Parameter("dataset_id", default="br_denatran_frota")
     table_id = Parameter("table_id", default="municipio_tipo")
 
