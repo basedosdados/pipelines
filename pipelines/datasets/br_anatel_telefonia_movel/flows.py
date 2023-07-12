@@ -18,7 +18,6 @@ from pipelines.datasets.br_anatel_telefonia_movel.constants import (
 from pipelines.datasets.br_anatel_telefonia_movel.tasks import (
     clean_csv_microdados,
     clean_csv_brasil,
-    download,
     # clean_csv_uf,
     # clean_csv_municipio,
 )
