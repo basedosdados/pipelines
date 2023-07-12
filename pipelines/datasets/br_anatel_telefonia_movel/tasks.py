@@ -89,7 +89,7 @@ def clean_csv_microdados(anos, mes_um, mes_dois):
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def clean_csv_brasil(input_path):
+def clean_csv_brasil():
     log("=" * 50)
     log("Abrindo os dados do Brasil...")
     log(anatel_constants.URL.value)
