@@ -135,7 +135,7 @@ with Flow(
         "Tamir",
     ],
 ) as br_denatran_frota_municipio_tipo:
-    year = 2021
+    
     dataset_id = Parameter("dataset_id", default="br_denatran_frota")
     table_id = Parameter("table_id", default="municipio_tipo")
 
@@ -153,10 +153,16 @@ with Flow(
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
-    crawled = crawl_task(month=2, year=year, temp_dir=constants.DOWNLOAD_PATH.value)
+    year_to_fetch = get_latest_data_task("municipio_tipo")
+    crawled = crawl_task(
+        month=year_to_fetch[1],
+        year=year_to_fetch[0],
+        temp_dir=constants.DOWNLOAD_PATH.value,
+        upstream_tasks=[year_to_fetch],
+    )
     # Now get the downloaded file:
     municipio_tipo_file = get_desired_file_task(
-        year=year,
+        year=year_to_fetch[0],
         download_directory=constants.DOWNLOAD_PATH.value,
         filetype=constants.MUNIC_TIPO_BASIC_FILENAME.value,
         upstream_tasks=[crawled],
