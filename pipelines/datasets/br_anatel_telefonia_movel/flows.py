@@ -109,7 +109,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
-
+    download_file = download()
     filepath_brasil = clean_csv_brasil(upstream_tasks=[filepath_microdados])
 
     # BRASIL
