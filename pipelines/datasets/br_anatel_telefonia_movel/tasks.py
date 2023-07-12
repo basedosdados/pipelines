@@ -30,7 +30,7 @@ def download():
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def clean_csv_microdados(anos, mes_um, mes_dois):
+def clean_csv_microdados(anos, mes_um, mes_dois, input_path):
     """
     -------
     Reads and cleans all CSV files in the '/tmp/data/input/' directory.
@@ -51,9 +51,10 @@ def clean_csv_microdados(anos, mes_um, mes_dois):
     log("=" * 50)
     log("Download dos dados...")
     log(anatel_constants.URL.value)
-    """download_and_unzip(
+    download_and_unzip(
         url=anatel_constants.URL.value, path=anatel_constants.INPUT_PATH.value
-    )"""
+    )
+
 
     log(f"Abrindo o arquivo:{anos}, {mes_um}, {mes_dois}..")
     log("=" * 50)
@@ -96,7 +97,7 @@ def clean_csv_microdados(anos, mes_um, mes_dois):
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def clean_csv_brasil():
+def clean_csv_brasil(input_path):
     log("=" * 50)
     log("Download dos dados...")
     log(anatel_constants.URL.value)
