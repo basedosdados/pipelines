@@ -187,7 +187,7 @@ def clean_csv_municipio():
         sep=";",
         encoding="utf-8",
     )
-    
+
     densidade.rename(columns={"Nível Geográfico Densidade": "geografia"}, inplace=True)
 
     densidade_municipio = densidade[densidade["geografia"] == "Municipio"]
