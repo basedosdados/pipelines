@@ -170,7 +170,7 @@ def clean_csv_uf():
         encoding="utf-8",
         na_rep="",
     )
-    return anatel_constants.OUTPUT_PATH.value"""
+    return anatel_constants.OUTPUT_PATH.value
 
 
 @task(
@@ -219,4 +219,4 @@ def clean_csv_municipio():
         savepath=anatel_constants.OUTPUT_PATH.value,
     )
 
-    return anatel_constants.OUTPUT_PATH.value
+    return anatel_constants.OUTPUT_PATH.value"""
