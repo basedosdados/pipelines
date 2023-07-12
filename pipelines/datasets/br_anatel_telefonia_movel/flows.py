@@ -40,9 +40,13 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
     dataset_id = Parameter(
         "dataset_id", default="br_anatel_telefonia_movel", required=True
     )
-    table_id_MICRODADOS = Parameter("table_id", default="microdados", required=True) # Table_id Microdados
+    table_id_MICRODADOS = Parameter(
+        "table_id", default="microdados", required=True
+    )  # Table_id Microdados
 
-    table_id_BRASIL = Parameter("table_id", default="densidade_brasil", required=True) # table_id Brasil
+    table_id_BRASIL = Parameter(
+        "table_id", default="densidade_brasil", required=True
+    )  # table_id Brasil
 
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
@@ -53,7 +57,10 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id_MICRODADOS, wait=table_id_MICRODADOS
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id_MICRODADOS,
+        wait=table_id_MICRODADOS,
     )
 
     # ! as variáveis ano, mes_um, mes_dois é criada aqui e cria um objeto 'Parameter' no Prefect Cloud chamado 'ano', 'mes_um', 'mes_dois'
@@ -94,7 +101,6 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             labels=current_flow_labels,
             run_name=f"Materialize {dataset_id}.{table_id_MICRODADOS}",
         )
- 
 
         wait_for_materialization = wait_for_flow_run(
             materialization_flow,
@@ -109,12 +115,11 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-
     # BRASIL
     wait_upload_table_BRASIL = create_table_and_upload_to_gcs(
         data_path=filepath_brasil,
         dataset_id=dataset_id,
-        table_id= table_id_BRASIL,
+        table_id=table_id_BRASIL,
         dump_mode="append",
         wait=filepath_brasil,
     )
@@ -133,7 +138,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             labels=current_flow_labels,
             run_name=f"Materialize {dataset_id}.{table_id_BRASIL}",
         )
- 
+
         wait_for_materialization = wait_for_flow_run(
             materialization_flow,
             stream_states=True,
