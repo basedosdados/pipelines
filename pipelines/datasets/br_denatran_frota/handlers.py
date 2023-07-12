@@ -145,13 +145,12 @@ def get_desired_file(year: int, download_directory: str, filetype: str) -> str:
 
 
 def get_latest_data(table_name: str):
-    denatran_data_pandas: pd.DataFrame = get_data_from_prod(
+    denatran_data: pd.DataFrame = get_data_from_prod(
         table_id=table_name, dataset_id="br_denatran_frota"
     )
-    if not denatran_data_pandas.empty:
-        denatran_data: pl.DataFrame = pl.from_pandas(denatran_data_pandas)
-        year = denatran_data.select(pl.max("ano"))
-        month = denatran_data.filter(pl.col("ano") == year).select(pl.max("mes"))
+    if not denatran_data.empty:
+        year = denatran_data['ano'].max()
+        month = denatran_data.loc[denatran_data['ano'] == year]["mes"].max()
         log(year)
         log(month)
         if month == 12:
