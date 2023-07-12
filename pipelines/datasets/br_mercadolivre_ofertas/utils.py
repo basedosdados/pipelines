@@ -77,7 +77,7 @@ def generate_unique_id(text: str):
         text (str): The input text to generate the unique ID from.
 
     Returns:
-        str: The generated unique ID as a 16-digit string.
+        str: The generated unique ID
 
     Raises:
         None
