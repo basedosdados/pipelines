@@ -25,7 +25,7 @@ every_day_item = Schedule(
                 "materialize_after_dump": True,
                 "table_id": "item",
                 "dbt_alias": False,
-                "table_id_sellers": "vendors",
+                "table_id_sellers": "vendedor",
                 "materialize_after_dump_sellers": True,
             },
         )

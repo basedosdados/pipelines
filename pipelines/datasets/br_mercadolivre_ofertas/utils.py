@@ -77,23 +77,21 @@ def generate_unique_id(text: str):
         text (str): The input text to generate the unique ID from.
 
     Returns:
-        str: The generated unique ID as a 16-digit string.
+        str: The generated unique ID
 
     Raises:
         None
     """
     # Convert the string to bytes
+    text = text.lower().strip().replace(" ", "")
     string_bytes = text.encode("utf-8")
 
     # Generate the SHA-256 hash
     hash_object = hashlib.sha256(string_bytes)
     hash_hex = hash_object.hexdigest()
 
-    # Take the first 12 digits of the hexadecimal hash
-    hash_digits = hash_hex[:12]
-
     # Convert the hexadecimal digits to an integer
-    unique_id = int(hash_digits, 16)
+    unique_id = int(hash_hex, 16)
 
     # Ensure the ID is positive
     unique_id = str(int(abs(unique_id)))
@@ -334,10 +332,10 @@ async def process_item_url(item_url, kwargs_list):
     seller_link = await get_seller_link(item_url, attempts=5, wait_time=20)
     info["seller_link"] = seller_link
     if info["seller_link"] is not None:
-        info["seller_id"] = generate_unique_id(info["seller_link"])
         seller = info["seller_link"]
         seller = " ".join(re.findall(r"([A-Z]+)+", seller.split("?")[0]))
         seller = seller.strip().title()
+        info["seller_id"] = generate_unique_id(seller)
         info["seller"] = seller
     else:
         info["seller_id"] = None
