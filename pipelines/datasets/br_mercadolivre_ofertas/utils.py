@@ -90,11 +90,8 @@ def generate_unique_id(text: str):
     hash_object = hashlib.sha256(string_bytes)
     hash_hex = hash_object.hexdigest()
 
-    # Take the first 12 digits of the hexadecimal hash
-    hash_digits = hash_hex[:12]
-
     # Convert the hexadecimal digits to an integer
-    unique_id = int(hash_digits, 16)
+    unique_id = int(hash_hex, 16)
 
     # Ensure the ID is positive
     unique_id = str(int(abs(unique_id)))
