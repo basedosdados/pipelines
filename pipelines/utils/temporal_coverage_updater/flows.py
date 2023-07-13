@@ -29,8 +29,7 @@ with Flow(
         dataset_id,
         table_id,
         metadata_type="DateTimeRange",
-        bq_last_update=False,
-        _last_date="2030-01-01",
+        bq_last_update=True,
     )
     # (email, password) = get_credentials(secret_path="api_user_prod")
     # ids = find_ids(
