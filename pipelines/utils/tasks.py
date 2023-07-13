@@ -30,6 +30,7 @@ from pipelines.utils.utils import (
 )
 from typing import Tuple
 
+
 @task
 def log_task(msg: Any, level: str = "info"):
     """
