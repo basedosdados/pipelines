@@ -20,10 +20,6 @@ from pipelines.utils.utils import to_partitions, log
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
 def clean_csv_microdados(anos, mes_um, mes_dois):
     """
     -------
@@ -129,7 +125,7 @@ def clean_csv_brasil():
     return anatel_constants.OUTPUT_PATH_BRASIL.value
 
 
-"""
+
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
@@ -155,15 +151,15 @@ def clean_csv_uf():
     densidade_uf["densidade"] = (
         densidade_uf["densidade"].astype(str).str.replace(",", ".").astype(float)
     )
-    os.system(f"mkdir -p {anatel_constants.OUTPUT_PATH.value}")
+    os.system(f"mkdir -p {anatel_constants.OUTPUT_PATH_UF.value}")
     densidade_uf.to_csv(
-        f"{anatel_constants.OUTPUT_PATH.value}densidade_uf.csv",
+        f"{anatel_constants.OUTPUT_PATH_UF.value}densidade_uf.csv",
         index=False,
         sep=",",
         encoding="utf-8",
         na_rep="",
     )
-    return anatel_constants.OUTPUT_PATH.value
+    return anatel_constants.OUTPUT_PATH_UF.value
 
 
 @task(
@@ -204,12 +200,12 @@ def clean_csv_municipio():
         densidade_municipio["densidade"].astype(str).str.replace(",", ".").astype(float)
     )
 
-    os.system(f"mkdir -p {anatel_constants.OUTPUT_PATH.value}")
+    os.system(f"mkdir -p {anatel_constants.OUTPUT_PATH_MUNICIPIO.value}")
 
     to_partitions(
         densidade_municipio,
         partition_columns=["ano", "mes"],
-        savepath=anatel_constants.OUTPUT_PATH.value,
+        savepath=anatel_constants.OUTPUT_PATH_MUNICIPIO.value,
     )
 
-    return anatel_constants.OUTPUT_PATH.value"""
+    return anatel_constants.OUTPUT_PATH_MUNICIPIO.value
