@@ -40,7 +40,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
     dataset_id = Parameter(
         "dataset_id", default="br_anatel_telefonia_movel", required=True
     )
-    table_id = Parameter("table_id", default=["microdados", "brasil"], required=True)
+    table_id = Parameter("table_id", default=["microdados", "densidade_brasil"], required=True)
 
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
@@ -114,7 +114,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
         data_path=filepath_brasil,
         dataset_id=dataset_id,
         table_id=table_id[1],
-        dump_mode="append",
+        dump_mode="overwrite",
         wait=filepath_brasil,
     )
     with case(materialize_after_dump, True):
