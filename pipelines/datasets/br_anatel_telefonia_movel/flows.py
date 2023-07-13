@@ -40,7 +40,9 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
     dataset_id = Parameter(
         "dataset_id", default="br_anatel_telefonia_movel", required=True
     )
-    table_id = Parameter("table_id", default=["microdados", "densidade_brasil"], required=True)
+    table_id = Parameter(
+        "table_id", default=["microdados", "densidade_brasil"], required=True
+    )
 
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
