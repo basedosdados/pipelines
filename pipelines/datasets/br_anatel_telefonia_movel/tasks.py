@@ -125,7 +125,6 @@ def clean_csv_brasil():
     return anatel_constants.OUTPUT_PATH_BRASIL.value
 
 
-
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
