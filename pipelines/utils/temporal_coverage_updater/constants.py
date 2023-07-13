@@ -10,6 +10,3 @@ class constants(Enum):  # pylint: disable=c0103
     """
     Constant values for the temporal_coverage_updater project
     """
-
-    EMAIL = "email"
-    PASSWORD = "pass"
