@@ -195,8 +195,8 @@ def clean_csv_municipio():
         savepath=anatel_constants.OUTPUT_PATH_MUNICIPIO.value,
     )
 
-    log(os.system('ls /tmp/data/MUNICIPIO/output/'))
-    log(os.system('ls /tmp/data/'))
-    log(os.system('tree /tmp/data/'))
+    log(os.system("ls /tmp/data/MUNICIPIO/output/"))
+    log(os.system("ls /tmp/data/"))
+    log(os.system("tree /tmp/data/"))
 
     return anatel_constants.OUTPUT_PATH_MUNICIPIO.value
