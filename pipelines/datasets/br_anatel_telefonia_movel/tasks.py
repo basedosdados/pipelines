@@ -130,11 +130,6 @@ def clean_csv_brasil():
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def clean_csv_uf():
-    log("=" * 50)
-    log("Download dos dados...")
-    download_and_unzip(
-        url=anatel_constants.URL.value, path=anatel_constants.INPUT_PATH.value
-    )
 
     densidade = pd.read_csv(
         f"{anatel_constants.INPUT_PATH.value}Densidade_Telefonia_Movel.csv",
@@ -166,11 +161,6 @@ def clean_csv_uf():
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def clean_csv_municipio():
-    log("=" * 50)
-    log("Download dos dados...")
-    download_and_unzip(
-        url=anatel_constants.URL.value, path=anatel_constants.INPUT_PATH.value
-    )
 
     densidade = pd.read_csv(
         f"{anatel_constants.INPUT_PATH.value}Densidade_Telefonia_Movel.csv",
