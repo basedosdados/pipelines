@@ -56,12 +56,15 @@ Flows for mundo_transfermarkt_competicoes
 # Abaixo segue um código para exemplificação, que pode ser removido.
 #
 ###############################################################################
-
+from pipelines.datasets.mundo_transfermarkt_competicoes.constants import (
+    constants as mundo_constants,
+)
 from pipelines.datasets.mundo_transfermarkt_competicoes.schedules import every_week
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     rename_current_flow_run_dataset_table,
     get_current_flow_labels,
+    update_django_metadata,
 )
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
@@ -142,6 +145,13 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
+    update_django_metadata(
+        dataset_id,
+        table_id,
+        metadata_type="DateTimeRange",
+        bq_last_update=True,
+        upstream_tasks=[wait_upload_table],
+    )
 
 
 transfermarkt_brasileirao_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

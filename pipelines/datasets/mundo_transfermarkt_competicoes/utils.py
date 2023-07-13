@@ -34,9 +34,10 @@ from bs4 import BeautifulSoup
 import requests
 import numpy as np
 import pandas as pd
-import asyncio
 
+# import asyncio
 
+"""
 def retry(content_function):
     async def wrapper(url, attempts=2, wait_time=2, **kwargs):
         content = None
@@ -44,7 +45,7 @@ def retry(content_function):
 
         while content is None and count < attempts:
             # print(f'Attempt {count + 1} of {attempts}')
-            headers = {"User-Agent": "Chrome/39.0.2171.95"}
+            headers = {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36"}
             try:
                 response = await asyncio.to_thread(
                     requests.get, url, headers=headers, timeout=100
@@ -65,6 +66,11 @@ def retry(content_function):
         return content
 
     return wrapper
+
+@retry
+def get_content(link_soup):
+    content = link_soup.find("div", id="main")
+    return content"""
 
 
 def process_basico(df, content):

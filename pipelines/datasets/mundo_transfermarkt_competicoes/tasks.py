@@ -63,6 +63,8 @@ import numpy as np
 import pandas as pd
 import time as tm
 
+# import asyncio
+
 # import datetime
 from pipelines.datasets.mundo_transfermarkt_competicoes.utils import (
     process_basico,
@@ -116,9 +118,12 @@ def execucao_coleta():
     log(f"Obtendo links: temporada {season}")
     site_data = requests.get(base_url.format(season=season), headers=headers)
     soup = BeautifulSoup(site_data.content, "html.parser")
-    link_tags = soup.find_all("a", attrs={"class": "ergebnis-link"})
+    link_tags = soup.find_all("a", attrs={"class": "ergebnis-link"})[:10]
     for tag in link_tags:
         links.append(re.sub(r"\s", "", tag["href"]))
+    if len(links) % 10 != 0:
+        num_excess = len(links) % 10
+        del links[-num_excess:]
     tabela = soup.findAll("div", class_="box")
     for i in range(1, int(len(links) / 10) + 1):
         for row in tabela[i].findAll("tr"):  # para tudo que estiver em <tr>
@@ -194,6 +199,7 @@ def execucao_coleta():
                 tm.sleep(3)
         link_soup = BeautifulSoup(link_data.content, "html.parser")
         content = link_soup.find("div", id="main")
+
         if content:
             try:
                 df_valor = pegar_valor(df_valor, content)
