@@ -24,6 +24,7 @@ from pipelines.utils.utils import (
 )
 
 
+
 @task
 def log_task(msg: Any, level: str = "info"):
     """
