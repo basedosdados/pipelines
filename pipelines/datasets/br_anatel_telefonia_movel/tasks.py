@@ -189,14 +189,12 @@ def clean_csv_municipio():
 
     os.system(f"mkdir -p {anatel_constants.OUTPUT_PATH_MUNICIPIO.value}")
 
-    to_partitions(
-        densidade_municipio,
-        partition_columns=["ano", "mes"],
-        savepath=anatel_constants.OUTPUT_PATH_MUNICIPIO.value,
+    densidade_municipio.to_csv(
+        f"{anatel_constants.OUTPUT_PATH_MUNICIPIO.value}densidade_uf.csv",
+        index=False,
+        sep=",",
+        encoding="utf-8",
+        na_rep="",
     )
-
-    log(os.system("ls /tmp/data/MUNICIPIO/output/"))
-    log(os.system("ls /tmp/data/"))
-    log(os.system("tree /tmp/data/"))
 
     return anatel_constants.OUTPUT_PATH_MUNICIPIO.value
