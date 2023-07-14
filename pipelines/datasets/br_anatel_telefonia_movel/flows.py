@@ -119,7 +119,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
         data_path=filepath_brasil,
         dataset_id=dataset_id,
         table_id=table_id[1],
-        dump_mode="overwrite",
+        dump_mode="append",
         wait=filepath_brasil,
     )
     with case(materialize_after_dump, True):
@@ -158,7 +158,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
         data_path=filepath_uf,
         dataset_id=dataset_id,
         table_id=table_id[2],
-        dump_mode="overwrite",
+        dump_mode="append",
         wait=filepath_uf,
     )
     with case(materialize_after_dump, True):
@@ -230,4 +230,4 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
 
 br_anatel.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_anatel.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-# br_anatel.schedule = every_month_anatel
+br_anatel.schedule = every_month_anatel
