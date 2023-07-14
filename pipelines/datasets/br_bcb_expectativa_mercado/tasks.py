@@ -7,10 +7,10 @@ Tasks for br-bcb-expectativa-mercado
 import datetime
 import pandas as pd
 from prefect import task
-from pipelines.datasets.br_bcb_taxa_selic.utils import treat_market_expectations_df
 from pipelines.utils.utils import log, to_partitions
 from pipelines.datasets.br_bcb_expectativa_mercado.utils import (
     get_market_expectations_data_day,
+    treat_market_expectations_df,
     read_input_csv,
     save_input,
 )

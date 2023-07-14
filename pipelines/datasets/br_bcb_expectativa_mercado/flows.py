@@ -23,12 +23,14 @@ from pipelines.utils.execute_dbt_model.constants import constants as dump_db_con
 from pipelines.utils.constants import constants as utils_constants
 
 with Flow(
-    name="br_bcb_indicadores.expectativa_mercado_mensal",
+    name="br_bcb_expectativa_mercado.expectativa_mercado_mensal",
     code_owners=[
         "lauris",
     ],
-) as datasets_br_bcb_indicadores_flow:
-    dataset_id = Parameter("dataset_id", default="br_bcb_indicadores", required=True)
+) as br_bcb_expectativa_mercado_mensal:
+    dataset_id = Parameter(
+        "dataset_id", default="br_bcb_expectativa_mercado", required=True
+    )
     table_id = Parameter(
         "table_id", default="expectativa_mercado_mensal", required=True
     )
@@ -93,7 +95,7 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-datasets_br_bcb_indicadores_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-datasets_br_bcb_indicadores_flow.run_config = KubernetesRun(
+br_bcb_expectativa_mercado_mensal.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_bcb_expectativa_mercado_mensal.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )

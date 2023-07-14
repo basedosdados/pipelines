@@ -10,7 +10,11 @@ import pandas as pd
 from pipelines.datasets.br_bcb_expectativa_mercado.constants import (
     constants as expectativa_mercado_constants,
 )
-from pipelines.utils.utils import connect_to_endpoint_json, log
+from pipelines.utils.utils import (
+    connect_to_endpoint_json,
+    log,
+    treat_df_from_architecture,
+)
 
 
 def create_url_month_market_expectations(date: str) -> str:
@@ -67,6 +71,34 @@ def get_market_expectations_data_day(date: datetime.date) -> pd.DataFrame:
     # Convert the data into a DataFrame
     log("Transforming JSON into DataFrame")
     df = pd.DataFrame(data)
+    return df
+
+
+def treat_market_expectations_df(df: pd.DataFrame, table_id: str) -> pd.DataFrame:
+    """
+    Performs data treatment on a market expectations DataFrame.
+
+    Args:
+        df (pd.DataFrame): The DataFrame containing market expectations data.
+        table_id (str): The identifier for the architecture table.
+
+    Returns:
+        pd.DataFrame: The treated DataFrame with renamed and reordered columns.
+
+    """
+    log("Convert the 'DataReferencia' column in 'df' to datetime format")
+    df["DataReferencia"] = pd.to_datetime(df["DataReferencia"], format="%m/%Y")
+
+    log("Adjust datetype in 'dataHoraCotacao' column")
+    df["DataReferencia"] = df["DataReferencia"].dt.date
+
+    df = treat_df_from_architecture(
+        df=df,
+        url_architecture=expectativa_mercado_constants.ARCHITECTURE_URL.value[
+            "expectativa_mercado_mensal"
+        ],
+    )
+
     return df
 
 

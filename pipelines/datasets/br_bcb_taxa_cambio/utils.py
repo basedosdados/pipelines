@@ -82,14 +82,14 @@ def get_currency_data(currency: dict) -> pd.DataFrame:
     """
 
     # Get the start date as 14 days before the current date
-    start_day = datetime.now(tz=pytz.UTC) - timedelta(days=14)
+    start_day = datetime.datetime.now(tz=pytz.UTC) - timedelta(days=14)
     start_day = start_day.strftime("%m-%d-%Y")
 
     # Log the start day
     log(f"start day: {start_day}")
 
     # Calculate the end date as 7 days before the current date
-    now = datetime.now(tz=pytz.UTC) - timedelta(days=7)
+    now = datetime.datetime.now(tz=pytz.UTC) - timedelta(days=7)
     end_day = now.strftime("%m-%d-%Y")
 
     # Log the end day
@@ -155,7 +155,7 @@ def treat_currency_df(df: pd.DataFrame, table_id: str) -> pd.DataFrame:
     df = treat_df_from_architecture(
         df,
         url_architecture=bcb_constants.ARCHITECTURE_URL.value["taxa_cambio"],
-        include_missing_columns=False,
+        apply_include_missing_columns=False,
     )
 
     return df

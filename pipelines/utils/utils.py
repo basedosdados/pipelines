@@ -32,7 +32,6 @@ from redis_pal import RedisPal
 from io import BytesIO, StringIO
 from zipfile import ZipFile
 from urllib.request import urlopen
-import os
 
 from pipelines.constants import constants
 
@@ -615,19 +614,35 @@ def connect_to_endpoint_json(url: str, max_attempts: int = 3) -> dict:
 def treat_df_from_architecture(
     df: pd.DataFrame,
     url_architecture: str,
-    rename_columns: bool = True,
-    column_order_and_selection: bool = True,
-    include_missing_columns: bool = True,
+    apply_rename_columns: bool = True,
+    apply_column_order_and_selection: bool = True,
+    apply_include_missing_columns: bool = True,
 ):
+    """
+    Transforms a DataFrame based on the specified architecture.
+
+    Args:
+        df (pandas DataFrame): The input DataFrame.
+        url_architecture (str): The URL of the architecture.
+        apply_rename_columns (bool, optional): Flag to apply column renaming. Defaults to True.
+        apply_column_order_and_selection (bool, optional): Flag to apply column order and selection. Defaults to True.
+        apply_include_missing_columns (bool, optional): Flag to include missing columns. Defaults to True.
+
+    Returns:
+        pandas DataFrame: The transformed DataFrame.
+
+    Raises:
+        Exception: If an error occurs during the transformation process.
+    """
     architecture = read_architecture_table(url_architecture=url_architecture)
 
-    if rename_columns:
+    if apply_rename_columns:
         df = rename_columns(df, architecture)
 
-    if include_missing_columns:
+    if apply_include_missing_columns:
         df = include_missing_columns(df, architecture)
 
-    if column_order_and_selection:
+    if apply_column_order_and_selection:
         df = column_order_and_selection(df, architecture)
 
     return df
@@ -689,13 +704,36 @@ def rename_columns(df: pd.DataFrame, architecture: pd.DataFrame) -> pd.DataFrame
 
 
 def include_missing_columns(df, architecture):
+    """
+    Includes missing columns in the DataFrame based on the specified architecture.
+
+    Args:
+        df (pandas DataFrame): The input DataFrame.
+        architecture (str): The specified architecture.
+
+    Returns:
+        pandas DataFrame: The modified DataFrame with missing columns included.
+    """
     df_missing_columns = missing_columns(df.columns, get_order(architecture))
-    df[df_missing_columns] = ""
-    log("The following columns were included into the df:", missing_columns)
+    if df_missing_columns:
+        df[df_missing_columns] = ""
+        log(f"The following columns were included into the df: {df_missing_columns}")
+    else:
+        log("No columns were included into the df")
     return df
 
 
 def missing_columns(current_columns, specified_columns):
+    """
+    Determines the missing columns between the current columns and the specified columns.
+
+    Args:
+        current_columns (list): The list of current columns.
+        specified_columns (list): The list of specified columns.
+
+    Returns:
+        list: The list of missing columns.
+    """
     missing_columns = []
     for col in specified_columns:
         if col not in current_columns:
@@ -705,9 +743,24 @@ def missing_columns(current_columns, specified_columns):
 
 
 def column_order_and_selection(df, architecture):
+    """
+    Performs column order and selection on the DataFrame based on the specified architecture.
+
+    Args:
+        df (pandas DataFrame): The input DataFrame.
+        architecture (str): The specified architecture.
+
+    Returns:
+        pandas DataFrame: The DataFrame with columns ordered and selected according to the architecture.
+    """
     architecture_columns = get_order(architecture)
-    missing_columns(current_columns=architecture_columns, specified_columns=df)
-    log("The following columns were discarded from the df:", missing_columns)
+    list_missing_columns = missing_columns(
+        current_columns=architecture_columns, specified_columns=df
+    )
+    if list_missing_columns:
+        log(f"The following columns were discarded from the df: {list_missing_columns}")
+    else:
+        log("No columns were discarded from the df")
     return df[architecture_columns]
 
 

@@ -24,12 +24,12 @@ from pipelines.utils.execute_dbt_model.constants import constants as dump_db_con
 from pipelines.utils.constants import constants as utils_constants
 
 with Flow(
-    name="br_bcb_indicadores.taxa_cambio",
+    name="br_bcb_taxa_cambio.taxa_cambio",
     code_owners=[
         "lauris",
     ],
-) as datasets_br_bcb_indicadores_flow:
-    dataset_id = Parameter("dataset_id", default="br_bcb_indicadores", required=True)
+) as br_bcb_taxa_cambio:
+    dataset_id = Parameter("dataset_id", default="br_bcb_taxa_cambio", required=True)
     table_id = Parameter("table_id", default="taxa_cambio", required=True)
 
     materialization_mode = Parameter(
@@ -91,7 +91,5 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-datasets_br_bcb_indicadores_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-datasets_br_bcb_indicadores_flow.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
+br_bcb_taxa_cambio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_bcb_taxa_cambio.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
