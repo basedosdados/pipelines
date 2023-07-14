@@ -118,7 +118,7 @@ def execucao_coleta():
     log(f"Obtendo links: temporada {season}")
     site_data = requests.get(base_url.format(season=season), headers=headers)
     soup = BeautifulSoup(site_data.content, "html.parser")
-    link_tags = soup.find_all("a", attrs={"class": "ergebnis-link"})[:10]
+    link_tags = soup.find_all("a", attrs={"class": "ergebnis-link"})
     for tag in link_tags:
         links.append(re.sub(r"\s", "", tag["href"]))
     if len(links) % 10 != 0:
