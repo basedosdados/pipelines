@@ -34,5 +34,7 @@ from pipelines.datasets.br_cvm_fi.flows import *
 from pipelines.datasets.br_ons_avaliacao_operacao.flows import *
 from pipelines.datasets.br_ons_estimativa_custos.flows import *
 from pipelines.datasets.br_b3_cotacoes.flows import *
-from pipelines.datasets.br_bcb_indicadores.flows import *
+from pipelines.datasets.br_bcb_taxa_cambio.flows import *
 from pipelines.datasets.mercadolivre_ofertas.flows import *
+from pipelines.datasets.br_bcb_expectativa_mercado.flows import *
+from pipelines.datasets.br_bcb_taxa_selic.flows import *

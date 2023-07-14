@@ -29,6 +29,11 @@ from prefect.engine.state import State
 from prefect.run_configs import KubernetesRun, VertexRun
 from redis_pal import RedisPal
 
+from io import BytesIO, StringIO
+from zipfile import ZipFile
+from urllib.request import urlopen
+import os
+
 from pipelines.constants import constants
 
 
@@ -568,3 +573,136 @@ def get_credentials_from_env(
     if scopes:
         cred = cred.with_scopes(scopes)
     return cred
+
+
+def download_and_unzip(url, path):
+    """download and unzip a zip file
+    Args:
+        url (str): a url
+    Returns:
+        list: unziped files in a given folder
+    """
+
+    os.system(f"mkdir -p {path}")
+
+    http_response = urlopen(url)
+    zipfile = ZipFile(BytesIO(http_response.read()))
+    zipfile.extractall(path=path)
+
+    return path
+
+
+def connect_to_endpoint_json(url: str, max_attempts: int = 3) -> dict:
+    """
+    Connect to endpoint
+    """
+    attempts = 0
+
+    while attempts < max_attempts:
+        attempts += 1
+        response = requests.request("GET", url, timeout=30)
+        log("Endpoint Response Code: " + str(response.status_code))
+        if response.status_code != 200:
+            log(Exception(response.status_code, response.text))
+            break
+
+    return response.json()
+
+
+def treat_df_from_architecture(
+    df: pd.DataFrame,
+    url_architecture: str,
+    rename_columns: bool = True,
+    column_order_and_selection: bool = True,
+    include_missing_columns: bool = True,
+):
+    architecture = read_architecture_table(url_architecture=url_architecture)
+
+    if rename_columns:
+        df = rename_columns(df, architecture)
+
+    if include_missing_columns:
+        df = include_missing_columns(df, architecture)
+
+    if column_order_and_selection:
+        df = column_order_and_selection(df, architecture)
+
+    return df
+
+
+def read_architecture_table(url_architecture: str) -> pd.DataFrame:
+    """URL contendo a tabela de arquitetura no formato da base dos dados
+    Args:
+        url_architecture (str): url de tabela de arquitera no padrão da base dos dados
+    Returns:
+        df: um df com a tabela de arquitetura
+    """
+    # Converte a URL de edição para um link de exportação em formato csv
+    url = url_architecture.replace("edit#gid=", "export?format=csv&gid=")
+
+    # Coloca a arquitetura em um dataframe
+    df_architecture = pd.read_csv(
+        StringIO(requests.get(url, timeout=10).content.decode("utf-8"))
+    )
+
+    log("Download of the architecture table")
+    return df_architecture.replace(np.nan, "", regex=True)
+
+
+def get_order(architecture: pd.DataFrame) -> list:
+    """
+    Retrieves the column order from an architecture table.
+    Args:
+        architecture (pd.DataFrame): The architecture table containing column information.
+    Returns:
+        list: The list of column names representing the order.
+    """
+
+    # Return the list of column names from the 'name' column of the architecture table
+    return list(architecture["name"])
+
+
+def rename_columns(df: pd.DataFrame, architecture: pd.DataFrame) -> pd.DataFrame:
+    """
+    Renames the columns of a DataFrame based on an architecture table.
+    Args:
+        df (pd.DataFrame): The DataFrame to rename columns.
+        architecture (pd.DataFrame): The architecture table containing column mappings.
+    Returns:
+        pd.DataFrame: The DataFrame with renamed columns.
+    """
+
+    # Create a DataFrame 'aux' with unique mappings of column names from the architecture table
+    aux = architecture[["name", "original_name"]].drop_duplicates(
+        subset=["original_name"], keep=False
+    )
+
+    # Create a dictionary 'dict_columns' with column name mappings
+    dict_columns = dict(zip(aux.original_name, aux.name))
+
+    # Rename columns of the DataFrame 'df' based on the dictionary 'dict_columns'
+    log("Rename columns")
+    return df.rename(columns=dict_columns)
+
+
+def include_missing_columns(df, architecture):
+    df_missing_columns = missing_columns(df.columns, get_order(architecture))
+    df[df_missing_columns] = ""
+    log("The following columns were included into the df:", missing_columns)
+    return df
+
+
+def missing_columns(current_columns, specified_columns):
+    missing_columns = []
+    for col in specified_columns:
+        if col not in current_columns:
+            missing_columns.append(col)
+
+    return missing_columns
+
+
+def column_order_and_selection(df, architecture):
+    architecture_columns = get_order(architecture)
+    missing_columns(current_columns=architecture_columns, specified_columns=df)
+    log("The following columns were discarded from the df:", missing_columns)
+    return df[architecture_columns]
