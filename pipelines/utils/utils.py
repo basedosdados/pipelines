@@ -710,6 +710,7 @@ def column_order_and_selection(df, architecture):
     log("The following columns were discarded from the df:", missing_columns)
     return df[architecture_columns]
 
+
 def get_first_date(ids, email, password):
     """
     Retrieves the first date from the given coverage ID.

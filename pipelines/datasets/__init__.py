@@ -38,4 +38,3 @@ from pipelines.datasets.br_mercadolivre_ofertas.flows import *
 from pipelines.datasets.br_bcb_taxa_cambio.flows import *
 from pipelines.datasets.br_bcb_expectativa_mercado.flows import *
 from pipelines.datasets.br_bcb_taxa_selic.flows import *
-
