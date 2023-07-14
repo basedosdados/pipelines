@@ -15,6 +15,7 @@ from pipelines.datasets.br_anatel_telefonia_movel.constants import (
 )
 from pipelines.utils.utils import to_partitions, log
 
+
 # ! TASK MICRODADOS
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
@@ -242,7 +243,6 @@ def clean_csv_uf():
 
     # Retorna o caminho de saída dos dados de densidade por UF
     return anatel_constants.OUTPUT_PATH_UF.value
-
 
 
 # ! TASK MUNICIPIO
