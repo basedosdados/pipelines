@@ -6,17 +6,16 @@
 import asyncio
 import time
 import os
-import re
 from typing import List, Tuple
 
 from prefect import task
 import pandas as pd
 
 from pipelines.utils.tasks import log
-from pipelines.datasets.mercadolivre_ofertas.constants import (
+from pipelines.datasets.br_mercadolivre_ofertas.constants import (
     constants as const_mercadolivre,
 )
-from pipelines.datasets.mercadolivre_ofertas.utils import (
+from pipelines.datasets.br_mercadolivre_ofertas.utils import (
     main_item,
     main_seller,
     get_id,
@@ -77,11 +76,6 @@ def crawler_mercadolivre_item():
     df = df.astype(str)
     filepath = "/tmp/items_raw.csv"
     df.to_csv(filepath, index=False)
-
-    # check if features column has values different than {}
-    unique_features = df["features"].unique()
-    log("Unique features:")
-    log(unique_features)
 
     loop.close()
 
