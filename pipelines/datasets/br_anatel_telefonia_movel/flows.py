@@ -10,6 +10,7 @@ from prefect import Parameter, case
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.tasks import update_django_metadata
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.constants import constants
 from pipelines.datasets.br_anatel_telefonia_movel.constants import (
@@ -100,6 +101,14 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             run_name=f"Materialize {dataset_id}.{table_id[0]}",
         )
 
+        update_django_metadata(
+        dataset_id,
+        table_id[0],
+        metadata_type="DateTimeRange",
+        bq_last_update=True,
+        upstream_tasks=[wait_upload_table],
+        )
+
         wait_for_materialization = wait_for_flow_run(
             materialization_flow,
             stream_states=True,
@@ -136,6 +145,14 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             },
             labels=current_flow_labels,
             run_name=f"Materialize {dataset_id}.{table_id[1]}",
+        )
+
+        update_django_metadata(
+        dataset_id,
+        table_id[1],
+        metadata_type="DateTimeRange",
+        bq_last_update=True,
+        upstream_tasks=[wait_upload_table],
         )
 
         wait_for_materialization = wait_for_flow_run(
@@ -177,6 +194,14 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             run_name=f"Materialize {dataset_id}.{table_id[2]}",
         )
 
+        update_django_metadata(
+        dataset_id,
+        table_id[2],
+        metadata_type="DateTimeRange",
+        bq_last_update=True,
+        upstream_tasks=[wait_upload_table],
+        )
+
         wait_for_materialization = wait_for_flow_run(
             materialization_flow,
             stream_states=True,
@@ -213,6 +238,14 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             },
             labels=current_flow_labels,
             run_name=f"Materialize {dataset_id}.{table_id[3]}",
+        )
+
+        update_django_metadata(
+        dataset_id,
+        table_id[3],
+        metadata_type="DateTimeRange",
+        bq_last_update=True,
+        upstream_tasks=[wait_upload_table],
         )
 
         wait_for_materialization = wait_for_flow_run(
