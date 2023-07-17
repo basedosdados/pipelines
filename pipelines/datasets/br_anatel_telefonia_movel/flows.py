@@ -102,11 +102,11 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
         )
 
         update_django_metadata(
-        dataset_id,
-        table_id[0],
-        metadata_type="DateTimeRange",
-        bq_last_update=True,
-        upstream_tasks=[wait_upload_table],
+            dataset_id,
+            table_id[0],
+            metadata_type="DateTimeRange",
+            bq_last_update=True,
+            upstream_tasks=[wait_upload_table],
         )
 
         wait_for_materialization = wait_for_flow_run(
@@ -148,11 +148,11 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
         )
 
         update_django_metadata(
-        dataset_id,
-        table_id[1],
-        metadata_type="DateTimeRange",
-        bq_last_update=True,
-        upstream_tasks=[wait_upload_table],
+            dataset_id,
+            table_id[1],
+            metadata_type="DateTimeRange",
+            bq_last_update=True,
+            upstream_tasks=[wait_upload_table],
         )
 
         wait_for_materialization = wait_for_flow_run(
@@ -195,11 +195,11 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
         )
 
         update_django_metadata(
-        dataset_id,
-        table_id[2],
-        metadata_type="DateTimeRange",
-        bq_last_update=True,
-        upstream_tasks=[wait_upload_table],
+            dataset_id,
+            table_id[2],
+            metadata_type="DateTimeRange",
+            bq_last_update=True,
+            upstream_tasks=[wait_upload_table],
         )
 
         wait_for_materialization = wait_for_flow_run(
@@ -241,11 +241,11 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
         )
 
         update_django_metadata(
-        dataset_id,
-        table_id[3],
-        metadata_type="DateTimeRange",
-        bq_last_update=True,
-        upstream_tasks=[wait_upload_table],
+            dataset_id,
+            table_id[3],
+            metadata_type="DateTimeRange",
+            bq_last_update=True,
+            upstream_tasks=[wait_upload_table],
         )
 
         wait_for_materialization = wait_for_flow_run(
