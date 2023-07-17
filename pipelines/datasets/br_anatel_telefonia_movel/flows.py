@@ -118,7 +118,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
         dataset_id,
         table_id[0],
         metadata_type="DateTimeRange",
-        bq_last_update=False,
+        bq_last_update=True,
         upstream_tasks=[wait_upload_table],
     )
 
@@ -164,7 +164,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
         dataset_id,
         table_id[1],
         metadata_type="DateTimeRange",
-        bq_last_update=False,
+        bq_last_update=True,
         upstream_tasks=[wait_upload_table],
     )
 
@@ -211,7 +211,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
         dataset_id,
         table_id[2],
         metadata_type="DateTimeRange",
-        bq_last_update=False,
+        bq_last_update=True,
         upstream_tasks=[wait_upload_table],
     )
 
@@ -257,7 +257,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
         dataset_id,
         table_id[3],
         metadata_type="DateTimeRange",
-        bq_last_update=False,
+        bq_last_update=True,
         upstream_tasks=[wait_upload_table],
     )
 
