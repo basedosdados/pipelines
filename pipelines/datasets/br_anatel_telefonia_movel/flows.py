@@ -101,14 +101,6 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             run_name=f"Materialize {dataset_id}.{table_id[0]}",
         )
 
-        update_django_metadata(
-        dataset_id,
-        table_id[0],
-        metadata_type="DateTimeRange",
-        bq_last_update=True,
-        upstream_tasks=[wait_upload_table],
-        )
-
         wait_for_materialization = wait_for_flow_run(
             materialization_flow,
             stream_states=True,
@@ -120,6 +112,14 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
         )
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+        )
+
+        update_django_metadata(
+        dataset_id,
+        table_id[0],
+        metadata_type="DateTimeRange",
+        bq_last_update=True,
+        upstream_tasks=[wait_upload_table],
         )
 
     # ! BRASIL
@@ -147,14 +147,6 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             run_name=f"Materialize {dataset_id}.{table_id[1]}",
         )
 
-        update_django_metadata(
-        dataset_id,
-        table_id[1],
-        metadata_type="DateTimeRange",
-        bq_last_update=True,
-        upstream_tasks=[wait_upload_table],
-        )
-
         wait_for_materialization = wait_for_flow_run(
             materialization_flow,
             stream_states=True,
@@ -166,6 +158,14 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
         )
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+        )
+
+        update_django_metadata(
+        dataset_id,
+        table_id[1],
+        metadata_type="DateTimeRange",
+        bq_last_update=True,
+        upstream_tasks=[wait_upload_table],
         )
 
     # ! UF
@@ -194,14 +194,6 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             run_name=f"Materialize {dataset_id}.{table_id[2]}",
         )
 
-        update_django_metadata(
-        dataset_id,
-        table_id[2],
-        metadata_type="DateTimeRange",
-        bq_last_update=True,
-        upstream_tasks=[wait_upload_table],
-        )
-
         wait_for_materialization = wait_for_flow_run(
             materialization_flow,
             stream_states=True,
@@ -214,6 +206,14 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
+
+    update_django_metadata(
+    dataset_id,
+    table_id[2],
+    metadata_type="DateTimeRange",
+    bq_last_update=True,
+    upstream_tasks=[wait_upload_table],
+    )
 
     # ! MUNICIPIO
     filepath_municipio = clean_csv_municipio(upstream_tasks=[filepath_uf])
@@ -240,14 +240,6 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             run_name=f"Materialize {dataset_id}.{table_id[3]}",
         )
 
-        update_django_metadata(
-        dataset_id,
-        table_id[3],
-        metadata_type="DateTimeRange",
-        bq_last_update=True,
-        upstream_tasks=[wait_upload_table],
-        )
-
         wait_for_materialization = wait_for_flow_run(
             materialization_flow,
             stream_states=True,
@@ -259,6 +251,14 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
         )
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+        )
+    
+    update_django_metadata(
+        dataset_id,
+        table_id[3],
+        metadata_type="DateTimeRange",
+        bq_last_update=True,
+        upstream_tasks=[wait_upload_table],
         )
 
 br_anatel.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
