@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Flows for br_bcb_indicadores
+Flows for br_bcb_taxa_cambio.taxa_cambio
 """
 
 from datetime import timedelta
