@@ -22,7 +22,7 @@ every_month_evolucao_mensal_cisp = Schedule(
                 "table_id": "evolucao_mensal_cisp",  # ! table_id do dataset que será executado
                 "materialization_mode": "dev",  # ! Aonde o dataset será materializado (dev, prod ou prod-staging)
                 "materialize_after_dump": True,  # ! Se o dataset será materializado após o dump
-                "dbt_alias": True,
+                "dbt_alias": False,
             },
         ),
     ]
@@ -42,7 +42,7 @@ every_month_taxa_evolucao_mensal_uf = Schedule(
                 "table_id": "taxa_evolucao_mensal_uf",  # ! table_id do dataset que será executado
                 "materialization_mode": "dev",  # ! Aonde o dataset será materializado (dev, prod ou prod-staging)
                 "materialize_after_dump": True,  # ! Se o dataset será materializado após o dump
-                "dbt_alias": True,
+                "dbt_alias": False,
             },
         ),
     ]
@@ -62,7 +62,7 @@ every_month_taxa_evolucao_mensal_municipio = Schedule(
                 "table_id": "taxa_evolucao_mensal_municipio",  # ! table_id do dataset que será executado
                 "materialization_mode": "dev",  # ! Aonde o dataset será materializado (dev, prod ou prod-staging)
                 "materialize_after_dump": True,  # ! Se o dataset será materializado após o dump
-                "dbt_alias": True,
+                "dbt_alias": False,
             },
         ),
     ]
@@ -82,7 +82,7 @@ every_month_feminicidio_mensal_cisp = Schedule(
                 "table_id": "feminicidio_mensal_cisp",  # ! table_id do dataset que será executado
                 "materialization_mode": "dev",  # ! Aonde o dataset será materializado (dev, prod ou prod-staging)
                 "materialize_after_dump": True,  # ! Se o dataset será materializado após o dump
-                "dbt_alias": True,
+                "dbt_alias": False,
             },
         ),
     ]
@@ -102,7 +102,7 @@ every_month_evolucao_policial_morto_servico_mensal = Schedule(
                 "table_id": "evolucao_policial_morto_servico_mensal",  # ! table_id do dataset que será executado
                 "materialization_mode": "dev",  # ! Aonde o dataset será materializado (dev, prod ou prod-staging)
                 "materialize_after_dump": True,  # ! Se o dataset será materializado após o dump
-                "dbt_alias": True,
+                "dbt_alias": False,
             },
         ),
     ]
@@ -123,7 +123,7 @@ every_month_armas_apreendidas_mensal = Schedule(
                 "table_id": "armas_apreendidas_mensal",  # ! table_id do dataset que será executado
                 "materialization_mode": "dev",  # ! Aonde o dataset será materializado (dev, prod ou prod-staging)
                 "materialize_after_dump": True,  # ! Se o dataset será materializado após o dump
-                "dbt_alias": True,
+                "dbt_alias": False,
             },
         ),
     ]
@@ -144,7 +144,7 @@ every_month_evolucao_mensal_municipio = Schedule(
                 "table_id": "evolucao_mensal_municipio",  # ! table_id do dataset que será executado
                 "materialization_mode": "dev",  # ! Aonde o dataset será materializado (dev, prod ou prod-staging)
                 "materialize_after_dump": True,  # ! Se o dataset será materializado após o dump
-                "dbt_alias": True,
+                "dbt_alias": False,
             },
         ),
     ]
@@ -164,7 +164,7 @@ every_month_evolucao_mensal_uf = Schedule(
                 "table_id": "evolucao_mensal_uf",  # ! table_id do dataset que será executado
                 "materialization_mode": "dev",  # ! Aonde o dataset será materializado (dev, prod ou prod-staging)
                 "materialize_after_dump": True,  # ! Se o dataset será materializado após o dump
-                "dbt_alias": True,
+                "dbt_alias": False,
             },
         ),
     ]

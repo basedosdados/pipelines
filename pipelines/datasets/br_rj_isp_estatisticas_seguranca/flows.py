@@ -2,7 +2,6 @@
 """
 Flows for br_rj_isp_estatisticas_seguranca.
 """
-
 from datetime import timedelta
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
