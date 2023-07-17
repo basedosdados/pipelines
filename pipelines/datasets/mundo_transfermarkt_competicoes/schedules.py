@@ -78,7 +78,7 @@ from pipelines.constants import constants
 every_week = Schedule(
     clocks=[
         CronClock(
-            cron="0 8 * 5-12 1",
+            cron="0 8 * 5-12 2",
             start_date=datetime(2023, 5, 1, 7, 30),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,

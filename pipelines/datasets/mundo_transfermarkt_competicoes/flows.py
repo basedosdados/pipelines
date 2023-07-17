@@ -59,6 +59,8 @@ Flows for mundo_transfermarkt_competicoes
 from pipelines.datasets.mundo_transfermarkt_competicoes.constants import (
     constants as mundo_constants,
 )
+from pipelines.datasets.mundo_transfermarkt_competicoes.tasks import make_partitions
+from pipelines.datasets.mundo_transfermarkt_competicoes.utils import execucao_coleta
 from pipelines.datasets.mundo_transfermarkt_competicoes.schedules import every_week
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
@@ -69,13 +71,7 @@ from pipelines.utils.tasks import (
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from pipelines.constants import constants
-from pipelines.datasets.mundo_transfermarkt_competicoes.tasks import (
-    execucao_coleta,
-    make_partitions,
-)
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-
-# from pipelines.datasets.mundo_transfermarkt_competicoes.schedules import every_two_weeks
 from pipelines.utils.decorators import Flow
 from prefect import Parameter, case
 from prefect.tasks.prefect import (
@@ -84,6 +80,7 @@ from prefect.tasks.prefect import (
 )
 from pipelines.utils.constants import constants as utils_constants
 from datetime import timedelta
+import asyncio
 
 with Flow(
     name="mundo_transfermarkt_competicoes.brasileirao_serie_a",
@@ -106,9 +103,8 @@ with Flow(
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
-
-    df = execucao_coleta()
-    output_filepath = make_partitions(df, upstream_tasks=[df])
+    df = asyncio.run(execucao_coleta())
+    output_filepath = make_partitions(df)
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=output_filepath,
         dataset_id=dataset_id,
