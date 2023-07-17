@@ -114,7 +114,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-        update_django_metadata(
+    update_django_metadata(
         dataset_id,
         table_id[0],
         metadata_type="DateTimeRange",
@@ -160,7 +160,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-        update_django_metadata(
+    update_django_metadata(
         dataset_id,
         table_id[1],
         metadata_type="DateTimeRange",
