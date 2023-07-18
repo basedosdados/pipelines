@@ -116,7 +116,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-        with case(update_metadata, True):
+    with case(update_metadata, True):
             date = get_today_date()  # task que retorna a data atual
             update_django_metadata(
                 dataset_id,
@@ -166,7 +166,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-        with case(update_metadata, True):
+    with case(update_metadata, True):
             date = get_today_date()  # task que retorna a data atual
             update_django_metadata(
                 dataset_id,
@@ -217,7 +217,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-        with case(update_metadata, True):
+    with case(update_metadata, True):
             date = get_today_date()  # task que retorna a data atual
             update_django_metadata(
                 dataset_id,
@@ -267,7 +267,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-        with case(update_metadata, True):
+    with case(update_metadata, True):
             date = get_today_date()  # task que retorna a data atual
             update_django_metadata(
                 dataset_id,
