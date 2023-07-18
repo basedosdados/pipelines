@@ -64,9 +64,11 @@ def process_basico(df, content):
             content.find("a", text=re.compile(r"\d+/\d+/\d")).get_text().strip(),
         ).group(0),
         # Extrai o horário do HTML.
-        "horario": content.find_all("p", attrs={"class": "sb-datum hide-for-small"})[0]
-        .get_text()
-        .split()[6],
+        "horario": " ".join(
+            content.find_all("p", attrs={"class": "sb-datum hide-for-small"})[0]
+            .get_text()
+            .split()[6:]
+        ),
         # Extrai o número da rodada do HTML
         "rodada": re.search(
             re.compile(r"\d+. Matchday"),
@@ -123,9 +125,11 @@ def process(df, content):
             re.compile(r"\d+/\d+/\d+"),
             content.find("a", text=re.compile(r"\d+/\d+/\d")).get_text().strip(),
         ).group(0),
-        "horario": content.find_all("p", attrs={"class": "sb-datum hide-for-small"})[0]
-        .get_text()
-        .split()[6],
+        "horario": " ".join(
+            content.find_all("p", attrs={"class": "sb-datum hide-for-small"})[0]
+            .get_text()
+            .split()[6:]
+        ),
         "rodada": re.search(
             re.compile(r"\d+. Matchday"),
             content.find("a", text=re.compile(r"\d.")).get_text().strip(),
@@ -479,8 +483,8 @@ async def execucao_coleta():
     del df["test"]
 
     df["data"] = pd.to_datetime(df["data"]).dt.date
-    df["horario"] = pd.to_datetime(df["horario"]).dt.strftime("%H:%M")
-
+    df["horario"] = pd.to_datetime(df["horario"], format="%I:%M %p")
+    df["horario"] = df["horario"].dt.strftime("%H:%M")
     df.fillna("", inplace=True)
 
     df["rodada"] = df["rodada"].astype(np.int64)

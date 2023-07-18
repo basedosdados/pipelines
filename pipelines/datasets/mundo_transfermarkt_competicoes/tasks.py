@@ -48,11 +48,25 @@ Tasks for mundo_transfermarkt_competicoes
 # Abaixo segue um código para exemplificação, que pode ser removido.
 #
 ###############################################################################
+from pipelines.datasets.mundo_transfermarkt_competicoes.constants import (
+    constants as mundo_constants,
+)
 from pipelines.utils.utils import log, to_partitions
 from prefect import task
 import re
 import numpy as np
 import pandas as pd
+import asyncio
+from datetime import timedelta
+
+
+@task
+def execucao_coleta_sync(execucao_coleta):
+    # Obter o loop de eventos atual e executar a tarefa nele
+    loop = asyncio.get_event_loop()
+    df = loop.run_until_complete(execucao_coleta())
+
+    return df
 
 
 @task
@@ -65,3 +79,17 @@ def make_partitions(df):
     )
     log("Dados particionados com sucesso!")
     return "/tmp/data/mundo_transfermarkt_competicoes/output/"
+
+
+@task
+def get_max_data(file_path):
+    ano = mundo_constants.DATA_ATUAL_ANO.value
+    df = pd.read_csv(f"{file_path}ano_campeonato={ano}/data.csv")
+    df["data"] = pd.to_datetime(df["data"]).dt.date
+    max_data = df["data"].max()
+
+    # Adicionar a defasagem de 6 semanas à data máxima
+    defasagem_seis_semanas = timedelta(weeks=6)
+    max_data_com_defasagem = max_data - defasagem_seis_semanas
+
+    return max_data_com_defasagem

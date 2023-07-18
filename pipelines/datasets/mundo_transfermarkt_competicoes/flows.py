@@ -59,7 +59,11 @@ Flows for mundo_transfermarkt_competicoes
 from pipelines.datasets.mundo_transfermarkt_competicoes.constants import (
     constants as mundo_constants,
 )
-from pipelines.datasets.mundo_transfermarkt_competicoes.tasks import make_partitions
+from pipelines.datasets.mundo_transfermarkt_competicoes.tasks import (
+    make_partitions,
+    get_max_data,
+    execucao_coleta_sync,
+)
 from pipelines.datasets.mundo_transfermarkt_competicoes.utils import execucao_coleta
 from pipelines.datasets.mundo_transfermarkt_competicoes.schedules import every_week
 from pipelines.utils.tasks import (
@@ -103,21 +107,16 @@ with Flow(
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
-    # Criar uma tarefa a partir da função execucao_coleta()
-    task = asyncio.ensure_future(execucao_coleta())
+    df = execucao_coleta_sync(execucao_coleta)
+    output_filepath = make_partitions(df, upstream_tasks=[df])
+    data_maxima = get_max_data(output_filepath, upstream_tasks=[output_filepath])
 
-    # Obter o loop de eventos atual e executar a tarefa nele
-    loop = asyncio.get_event_loop()
-    df = loop.run_until_complete(task)
-
-    # df = await asyncio.run(execucao_coleta())
-    output_filepath = make_partitions(df)
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=output_filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_mode="append",
-        wait=output_filepath,
+        wait=data_maxima,
     )
 
     with case(materialize_after_dump, True):
@@ -152,7 +151,8 @@ with Flow(
         dataset_id,
         table_id,
         metadata_type="DateTimeRange",
-        bq_last_update=True,
+        _last_date=data_maxima,
+        bq_last_update=False,
         upstream_tasks=[wait_upload_table],
     )
 
