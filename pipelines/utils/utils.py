@@ -575,7 +575,8 @@ def get_credentials_from_env(
     if scopes:
         cred = cred.with_scopes(scopes)
     return cred
-  
+
+
 def download_and_unzip(url, path):
     """download and unzip a zip file
     Args:
@@ -761,7 +762,6 @@ def column_order_and_selection(df, architecture):
     else:
         log("No columns were discarded from the df")
     return df[architecture_columns]
-
 
 
 #######################

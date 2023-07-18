@@ -94,4 +94,6 @@ with Flow(
         )
 
 datasets_br_bcb_taxa_selic_diaria_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-datasets_br_bcb_taxa_selic_diaria_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+datasets_br_bcb_taxa_selic_diaria_flow.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
