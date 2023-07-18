@@ -67,7 +67,7 @@ def clean_csv_microdados(anos, mes_um, mes_dois):
     )
 
     # Imprime a mensagem de renomeação das colunas
-    log(f"Renomeando as colunas:")
+    log("Renomeando as colunas:")
 
     # Imprime uma linha de separação no log
     log("=" * 50)
@@ -299,3 +299,10 @@ def clean_csv_municipio():
 
     # Retorna o caminho de saída dos dados de densidade por município
     return anatel_constants.OUTPUT_PATH_MUNICIPIO.value
+
+
+@task
+def get_today_date():
+    d = datetime.now()
+
+    return d.strftime("%Y-%m")
