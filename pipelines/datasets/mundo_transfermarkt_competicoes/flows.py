@@ -109,14 +109,14 @@ with Flow(
     )
     df = execucao_coleta_sync(execucao_coleta)
     output_filepath = make_partitions(df, upstream_tasks=[df])
-    data_maxima = get_max_data(output_filepath, upstream_tasks=[output_filepath])
+    data_maxima = get_max_data()
 
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=output_filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_mode="append",
-        wait=data_maxima,
+        wait=output_filepath,
     )
 
     with case(materialize_after_dump, True):

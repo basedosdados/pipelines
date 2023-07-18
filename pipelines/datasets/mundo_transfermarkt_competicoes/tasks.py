@@ -57,7 +57,7 @@ import re
 import numpy as np
 import pandas as pd
 import asyncio
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 
 @task
@@ -82,11 +82,12 @@ def make_partitions(df):
 
 
 @task
-def get_max_data(file_path):
-    ano = mundo_constants.DATA_ATUAL_ANO.value
-    df = pd.read_csv(f"{file_path}ano_campeonato={ano}/data.csv")
-    df["data"] = pd.to_datetime(df["data"]).dt.date
-    max_data = df["data"].max()
+def get_max_data():
+    # ano = mundo_constants.DATA_ATUAL_ANO.value
+    # df = pd.read_csv(f"{file_path}ano_campeonato={ano}/data.csv")
+    # df["data"] = pd.to_datetime(df["data"]).dt.date
+    max_data = mundo_constants.DATA_ATUAL.value
+    max_data = datetime.strptime(max_data, "%Y-%m-%d").date()
 
     # Adicionar a defasagem de 6 semanas à data máxima
     defasagem_seis_semanas = timedelta(weeks=6)

@@ -40,6 +40,7 @@ class constants(Enum):  # pylint: disable=c0103
     Constant values for the mundo_transfermarkt project
     """
 
+    DATA_ATUAL = datetime.datetime.now().strftime("%Y-%m-%d")
     DATA_ATUAL_ANO = datetime.datetime.now().year
     SEASON = datetime.datetime.now().year - 1
     ORDEM_COLUNA_FINAL = [
