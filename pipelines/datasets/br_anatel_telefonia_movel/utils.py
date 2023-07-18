@@ -8,6 +8,7 @@ from io import BytesIO
 from zipfile import ZipFile
 from urllib.request import urlopen
 import os
+import datetime
 
 
 def download_and_unzip(url, path):
@@ -28,3 +29,8 @@ def download_and_unzip(url, path):
     zipfile.extractall(path=path)
 
     return path
+
+def get_today_date(): 
+    datetime.now().strftime("%Y-%m")
+
+    return get_today_date

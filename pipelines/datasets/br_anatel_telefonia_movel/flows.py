@@ -16,6 +16,7 @@ from pipelines.constants import constants
 from pipelines.datasets.br_anatel_telefonia_movel.constants import (
     constants as anatel_constants,
 )
+from pipelines.datasets.br_anatel_telefonia_movel.utils import get_today_date
 from pipelines.datasets.br_anatel_telefonia_movel.tasks import (
     clean_csv_microdados,
     clean_csv_brasil,
@@ -69,6 +70,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
     anos = Parameter("anos", default=2023, required=True)
     mes_um = Parameter("mes_um", default="01", required=True)
     mes_dois = Parameter("mes_dois", default="06", required=True)
+    update_metadata = Parameter("update_metadata", default=True, required=False)
 
     # ! MICRODADOS
     filepath_microdados = clean_csv_microdados(
@@ -114,12 +116,16 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-    update_django_metadata(
+    with case(update_metadata, True):
+        date = get_today_date() #task que retorna a data atual 
+        update_django_metadata(
         dataset_id,
         table_id[0],
         metadata_type="DateTimeRange",
-        bq_last_update=True,
-        upstream_tasks=[wait_upload_table],
+        bq_last_update=False,
+        api_mode = 'prod',
+        date_format = 'yy-mm',
+        _last_date = date
     )
 
     # ! BRASIL
@@ -160,12 +166,16 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-    update_django_metadata(
+    with case(update_metadata, True):
+        date = get_today_date() #task que retorna a data atual 
+        update_django_metadata(
         dataset_id,
         table_id[1],
         metadata_type="DateTimeRange",
-        bq_last_update=True,
-        upstream_tasks=[wait_upload_table],
+        bq_last_update=False,
+        api_mode = 'prod',
+        date_format = 'yy-mm',
+        _last_date = date
     )
 
     # ! UF
@@ -207,12 +217,16 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-    update_django_metadata(
+    with case(update_metadata, True):
+        date = get_today_date() #task que retorna a data atual 
+        update_django_metadata(
         dataset_id,
         table_id[2],
         metadata_type="DateTimeRange",
-        bq_last_update=True,
-        upstream_tasks=[wait_upload_table],
+        bq_last_update=False,
+        api_mode = 'prod',
+        date_format = 'yy-mm',
+        _last_date = date
     )
 
     # ! MUNICIPIO
@@ -253,12 +267,16 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-    update_django_metadata(
+    with case(update_metadata, True):
+        date = get_today_date() #task que retorna a data atual 
+        update_django_metadata(
         dataset_id,
         table_id[3],
         metadata_type="DateTimeRange",
-        bq_last_update=True,
-        upstream_tasks=[wait_upload_table],
+        bq_last_update=False,
+        api_mode = 'prod',
+        date_format = 'yy-mm',
+        _last_date = date
     )
 
 br_anatel.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
