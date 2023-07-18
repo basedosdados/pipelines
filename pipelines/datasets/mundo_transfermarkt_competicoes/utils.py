@@ -386,7 +386,7 @@ async def execucao_coleta():
     log("Extraindo dados...")
     for n, link in enumerate(links_esta):
         # Tentativas de obter os links
-        content = await get_content(base_link + link)
+        content = await get_content(base_link + link, wait_time=0.01)
         if content:
             try:
                 df = process(df, content)
@@ -400,7 +400,7 @@ async def execucao_coleta():
         log(f"{n+1} dados de {n_links} extraídos.")
     for n, link in enumerate(links_valor):
         # Tentativas de obter os links
-        content = await get_content(base_link + link)
+        content = await get_content(base_link + link, wait_time=0.01)
         if content:
             try:
                 df_valor = pegar_valor(df_valor, content)

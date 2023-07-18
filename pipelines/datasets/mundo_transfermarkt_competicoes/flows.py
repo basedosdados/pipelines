@@ -103,7 +103,14 @@ with Flow(
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
-    df = asyncio.run(execucao_coleta())
+    # Criar uma tarefa a partir da função execucao_coleta()
+    task = asyncio.ensure_future(execucao_coleta())
+
+    # Obter o loop de eventos atual e executar a tarefa nele
+    loop = asyncio.get_event_loop()
+    df = loop.run_until_complete(task)
+
+    # df = await asyncio.run(execucao_coleta())
     output_filepath = make_partitions(df)
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=output_filepath,
