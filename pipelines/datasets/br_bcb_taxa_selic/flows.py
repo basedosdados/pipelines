@@ -30,7 +30,7 @@ with Flow(
     code_owners=[
         "lauris",
     ],
-) as br_bcb_taxa_selic:
+) as datasets_br_bcb_taxa_selic_diaria_flow:
     dataset_id = Parameter("dataset_id", default="br_bcb_taxa_selic", required=True)
     table_id = Parameter("table_id", default="taxa_selic", required=True)
 
@@ -93,5 +93,5 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-br_bcb_taxa_selic.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_bcb_taxa_selic.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+datasets_br_bcb_taxa_selic_diaria_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+datasets_br_bcb_taxa_selic_diaria_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)

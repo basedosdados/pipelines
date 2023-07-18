@@ -28,7 +28,7 @@ with Flow(
     code_owners=[
         "lauris",
     ],
-) as br_bcb_taxa_cambio:
+) as datasets_br_bcb_taxa_cambio_moeda_flow:
     dataset_id = Parameter("dataset_id", default="br_bcb_taxa_cambio", required=True)
     table_id = Parameter("table_id", default="taxa_cambio", required=True)
 
@@ -91,5 +91,5 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-br_bcb_taxa_cambio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_bcb_taxa_cambio.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+datasets_br_bcb_taxa_cambio_moeda_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+datasets_br_bcb_taxa_cambio_moeda_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
