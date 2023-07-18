@@ -30,7 +30,8 @@ def download_and_unzip(url, path):
 
     return path
 
-def get_today_date(): 
+
+def get_today_date():
     datetime.now().strftime("%Y-%m")
 
     return get_today_date
