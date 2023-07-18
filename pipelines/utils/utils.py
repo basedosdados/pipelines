@@ -643,8 +643,7 @@ def extract_last_update(dataset_id, table_id, date_format: str):
         WHERE
         table_id = '{table_id}'
         """
-        # bd_base = Base()
-        # billing_project_id = bd_base.config["gcloud-projects"]["prod"]["name"]
+
         t = bd.read_sql(
             query=query_bd,
             billing_project_id="basedosdados-dev",
@@ -751,10 +750,7 @@ def get_id(
     password,
     api_mode: str = "prod",
     cloud_table: bool = True,
-):  # sourcery skip: avoid-builtin-shadow
-    # email = temp_constants.EMAIL.value
-    # password = temp_constants.PASSWORD.value
-    # backend = b.Backend(graphql_url="http://api.basedosdados.org/api/v1/graphql")
+):
     token = get_token(email, password, api_mode)
     header = {
         "Authorization": f"Bearer {token}",
@@ -824,11 +820,7 @@ def get_date(
     email,
     password,
     api_mode: str = "prod",
-):  # sourcery skip: avoid-builtin-shadow
-    # email = temp_constants.EMAIL.value
-    # password = temp_constants.PASSWORD.value
-    # backend = b.Backend(graphql_url="http://api.basedosdados.org/api/v1/graphql")
-    log("entrou get_date")
+):
     token = get_token(
         email=email,
         password=password,
@@ -859,7 +851,6 @@ def get_date(
                         }}
                         }}
                     }}"""
-    # log(f"{query}")
 
     if api_mode == "staging":
         r = requests.post(
@@ -873,7 +864,7 @@ def get_date(
             json={"query": query, "variables": dict(zip(keys, values))},
             headers=header,
         ).json()
-    # log(f'aqui foi{r}')
+
     return r
 
 
@@ -887,9 +878,6 @@ def create_update(
     update=False,
     api_mode: str = "prod",
 ):
-    # email = temp_constants.EMAIL.value
-    # password = temp_constants.PASSWORD.value
-    # backend = b.Backend(graphql_url="http://api.basedosdados.org/api/v1/graphql")
     token = get_token(
         email=email,
         password=password,
@@ -953,7 +941,6 @@ def create_update(
             raise Exception("create: Error")
         else:
             id = r["data"][mutation_class][_classe]["id"]
-            # print(f"create: created {id}")
             id = id.split(":")[1]
 
             return r, id
@@ -1033,18 +1020,6 @@ def get_ids(
     Obtains the IDs of the table and coverage based on the provided names.
     """
     try:
-        # # Get the dataset ID
-        # dataset_result = get_id(
-        #     email=email,
-        #     password=password,
-        #     query_class="allDataset",
-        #     query_parameters={"$slug: String": dataset_name},
-        # )
-        # if not dataset_result:
-        #     raise ValueError("Dataset ID not found.")
-        #
-        # dataset_id = dataset_result[1]
-
         # Get the table ID
         table_result = get_id(
             email=email,
@@ -1077,7 +1052,6 @@ def get_ids(
             raise ValueError("Coverage ID not found.")
 
         coverage_ids = coverage_result[0]
-        # print(coverage_ids)
 
         # Check if there are multiple coverage IDs
         if len(coverage_ids["data"]["allCoverage"]["edges"]) > 1:
@@ -1089,10 +1063,9 @@ def get_ids(
         coverage_id = coverage_ids["data"]["allCoverage"]["edges"][0]["node"][
             "id"
         ].split(":")[-1]
-        # print(coverage_id)
-        # Return the 3 IDs in a dictionary
+
+        # Return the 2 IDs in a dictionary
         return {
-            # "dataset_id": dataset_id,
             "table_id": table_id,
             "coverage_id": coverage_id,
         }

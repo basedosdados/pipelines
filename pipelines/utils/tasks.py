@@ -414,15 +414,6 @@ def update_django_metadata(
                 date_format,
             )
 
-            #  first_date = get_first_date(
-            #      ids,
-            #      email,
-            #      password,
-            #      api_mode,
-            #      date_format,
-            #
-            #  )
-
             resource_to_temporal_coverage = parse_temporal_coverage(f"{last_date}")
             resource_to_temporal_coverage["coverage"] = ids.get("coverage_id")
             log(f"Mutation parameters: {resource_to_temporal_coverage}")
