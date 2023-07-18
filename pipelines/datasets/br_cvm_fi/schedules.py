@@ -14,7 +14,7 @@ from pipelines.datasets.br_cvm_fi.constants import constants as cvm_constants
 every_day_informe = Schedule(
     clocks=[
         CronClock(
-            cron="0 13 * * 1-5",  # At 13:00 on every day-of-week from Monday through Friday.
+            cron="0 17 * * *",  # At 17:00 on every day-of-week from Monday through Friday.
             start_date=datetime(2021, 3, 31, 17, 11),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
@@ -26,6 +26,7 @@ every_day_informe = Schedule(
                 "materialize_after_dump": True,
                 "dbt_alias": False,
                 "url": cvm_constants.INFORME_DIARIO_URL.value,
+                "update_metadata": True,
             },
         ),
     ],
@@ -34,7 +35,7 @@ every_day_informe = Schedule(
 every_day_carteiras = Schedule(
     clocks=[
         CronClock(
-            cron="20 13 * * 1-5",  # At 13:20 on every day-of-week from Monday through Friday.
+            cron="20 17 * * *",  # At 13:20 on every day-of-week from Monday through Friday.
             start_date=datetime(2021, 3, 31, 17, 11),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
@@ -46,6 +47,7 @@ every_day_carteiras = Schedule(
                 "materialize_after_dump": True,
                 "dbt_alias": False,
                 "url": cvm_constants.CDA_URL.value,
+                "update_metadata": True,
             },
         ),
     ],
@@ -54,7 +56,7 @@ every_day_carteiras = Schedule(
 every_day_extratos = Schedule(
     clocks=[
         CronClock(
-            cron="40 13 * * 1-5",  # At 13:40 on every day-of-week from Monday through Friday.
+            cron="40 17 * * *",  # At 13:40 on every day-of-week from Monday through Friday.
             start_date=datetime(2021, 3, 31, 17, 11),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
@@ -67,6 +69,7 @@ every_day_extratos = Schedule(
                 "dbt_alias": False,
                 "url": cvm_constants.URL_EXT.value,
                 "file": cvm_constants.FILE_EXT.value,
+                "update_metadata": True,
             },
         ),
     ],
@@ -76,7 +79,7 @@ every_day_extratos = Schedule(
 every_day_perfil = Schedule(
     clocks=[
         CronClock(
-            cron="0 14 * * 1-5",  # At 14:00 on every day-of-week from Monday through Friday.
+            cron="0 18 * * *",  # At 14:00 on every day-of-week from Monday through Friday.
             start_date=datetime(2021, 3, 31, 17, 11),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
@@ -88,6 +91,7 @@ every_day_perfil = Schedule(
                 "materialize_after_dump": True,
                 "dbt_alias": False,
                 "url": cvm_constants.URL_PERFIL_MENSAL.value,
+                "update_metadata": True,
             },
         ),
     ],
@@ -96,7 +100,7 @@ every_day_perfil = Schedule(
 every_day_informacao_cadastral = Schedule(
     clocks=[
         CronClock(
-            cron="20 14 * * 1-5",  # At 14:20 on every day-of-week from Monday through Friday.
+            cron="20 18 * * *",  # At 14:20 on every day-of-week from Monday through Friday.
             start_date=datetime(2021, 3, 31, 17, 11),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
@@ -109,6 +113,7 @@ every_day_informacao_cadastral = Schedule(
                 "dbt_alias": False,
                 "url": cvm_constants.URL_INFO_CADASTRAL.value,
                 "files": cvm_constants.CAD_FILE.value,
+                "update_metadata": True,
             },
         ),
     ],
@@ -117,7 +122,7 @@ every_day_informacao_cadastral = Schedule(
 every_day_balancete = Schedule(
     clocks=[
         CronClock(
-            cron="40 14 * * 1-5",  # At 14:40 on every day-of-week from Monday through Friday.
+            cron="40 18 * * *",  # At 14:40 on every day-of-week from Monday through Friday.
             start_date=datetime(2021, 3, 31, 17, 11),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
@@ -129,6 +134,7 @@ every_day_balancete = Schedule(
                 "materialize_after_dump": True,
                 "dbt_alias": False,
                 "url": cvm_constants.URL_BALANCETE.value,
+                "update_metadata": True,
             },
         ),
     ],
