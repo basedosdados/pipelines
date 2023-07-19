@@ -129,7 +129,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             date_format="yy-mm",
             _last_date=date,
         )
-    
+
     # ! tabela bd pro
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
@@ -171,7 +171,6 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             date_format="yy-mm",
             _last_date=date,
         )
-
 
     # ! BRASIL
     filepath_brasil = clean_csv_brasil(upstream_tasks=[filepath_microdados])
@@ -223,7 +222,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             date_format="yy-mm",
             _last_date=date,
         )
-    
+
     # ! tabela bd pro
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
@@ -353,7 +352,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
         date = get_today_date()  # task que retorna a data atual
         update_django_metadata(
             dataset_id,
-            table_id[2] + '_atualizado',
+            table_id[2] + "_atualizado",
             metadata_type="DateTimeRange",
             bq_last_update=False,
             api_mode="prod",
