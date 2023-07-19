@@ -290,7 +290,7 @@ def clean_csv_municipio():
 
     # Salva os dados de densidade por município em um arquivo CSV
     densidade_municipio.to_csv(
-        f"{anatel_constants.OUTPUT_PATH_MUNICIPIO.value}densidade_uf.csv",
+        f"{anatel_constants.OUTPUT_PATH_MUNICIPIO.value}densidade_municipio.csv",
         index=False,
         sep=",",
         encoding="utf-8",
