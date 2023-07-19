@@ -51,7 +51,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
     )
 
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False

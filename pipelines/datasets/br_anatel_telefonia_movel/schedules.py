@@ -20,9 +20,10 @@ every_month_anatel = Schedule(
             parameter_defaults={
                 "dataset_id": "br_anatel_telefonia_movel",
                 "table_id": "microdados",
-                "materialization_mode": "dev",
+                "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
+                "update_metadata": True
             },
         ),
     ],
