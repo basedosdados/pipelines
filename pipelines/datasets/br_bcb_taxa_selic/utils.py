@@ -10,8 +10,8 @@ import time as tm
 from pipelines.utils.utils import (
     connect_to_endpoint_json,
     log,
-    treat_df_from_architecture,
 )
+from pipelines.utils.apply_architecture_to_dataframe.utils import apply_architecture_to_dataframe
 from pipelines.datasets.br_bcb_taxa_selic.constants import (
     constants as taxa_selic_constants,
 )
@@ -104,7 +104,7 @@ def treat_market_expectations_df(df: pd.DataFrame, table_id: str) -> pd.DataFram
     )
     df["DataReferencia"] = df["DataReferencia"].dt.date
 
-    df = treat_df_from_architecture(
+    df = apply_architecture_to_dataframe(
         df=df,
         url_architecture=taxa_selic_constants.ARCHITECTURE_URL.value[
             "expectativa_mercado_mensal"

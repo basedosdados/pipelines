@@ -14,8 +14,8 @@ from pipelines.datasets.br_bcb_taxa_cambio.constants import constants as bcb_con
 from pipelines.utils.utils import (
     connect_to_endpoint_json,
     log,
-    treat_df_from_architecture,
 )
+from pipelines.utils.apply_architecture_to_dataframe.utils import apply_architecture_to_dataframe
 
 ###############################################################################
 #
@@ -152,7 +152,7 @@ def treat_currency_df(df: pd.DataFrame, table_id: str) -> pd.DataFrame:
     df["data_cotacao"] = df["dataHoraCotacao"].dt.date
     df["hora_cotacao"] = df["dataHoraCotacao"].dt.time
 
-    df = treat_df_from_architecture(
+    df = apply_architecture_to_dataframe(
         df,
         url_architecture=bcb_constants.ARCHITECTURE_URL.value["taxa_cambio"],
         apply_include_missing_columns=False,

@@ -13,9 +13,9 @@ from pipelines.datasets.br_bcb_expectativa_mercado.constants import (
 from pipelines.utils.utils import (
     connect_to_endpoint_json,
     log,
-    treat_df_from_architecture,
 )
 
+from pipelines.utils.apply_architecture_to_dataframe.utils import apply_architecture_to_dataframe
 
 def create_url_month_market_expectations(date: str) -> str:
     """
@@ -92,7 +92,7 @@ def treat_market_expectations_df(df: pd.DataFrame, table_id: str) -> pd.DataFram
     log("Adjust datetype in 'dataHoraCotacao' column")
     df["DataReferencia"] = df["DataReferencia"].dt.date
 
-    df = treat_df_from_architecture(
+    df = apply_architecture_to_dataframe(
         df=df,
         url_architecture=expectativa_mercado_constants.ARCHITECTURE_URL.value[
             "expectativa_mercado_mensal"
