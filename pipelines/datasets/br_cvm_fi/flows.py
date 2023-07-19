@@ -20,6 +20,7 @@ from pipelines.datasets.br_cvm_fi.tasks import (
     clean_data_make_partitions_perfil,
     clean_data_make_partitions_cad,
     clean_data_make_partitions_balancete,
+    get_today_date,
 )
 from pipelines.datasets.br_cvm_fi.schedules import (
     every_day_informe,
@@ -38,6 +39,7 @@ from pipelines.datasets.br_cvm_fi.constants import constants as cvm_constants
 from pipelines.constants import constants
 from pipelines.utils.tasks import (
     log_task,
+    update_django_metadata,
 )
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
@@ -63,6 +65,7 @@ with Flow(
         "materialize_after_dump", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    update_metadata = Parameter("update_metadata", default=False, required=False)
 
     url = Parameter(
         "url",
@@ -123,6 +126,17 @@ with Flow(
             wait_for_materialization.retry_delay = timedelta(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
+            with case(update_metadata, True):
+                date = get_today_date()
+                update_django_metadata(
+                    dataset_id,
+                    table_id,
+                    metadata_type="DateTimeRange",
+                    bq_last_update=False,
+                    api_mode="prod",
+                    date_format="yy-mm-dd",
+                    _last_date=date,
+                )
 
 
 br_cvm_fi_documentos_informe_diario.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -151,7 +165,7 @@ with Flow(
         "materialize_after_dump", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
-
+    update_metadata = Parameter("update_metadata", default=False, required=False)
     url = Parameter(
         "url",
         default=cvm_constants.CDA_URL.value,
@@ -212,6 +226,17 @@ with Flow(
             wait_for_materialization.retry_delay = timedelta(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
+            with case(update_metadata, True):
+                date = get_today_date()
+                update_django_metadata(
+                    dataset_id,
+                    table_id,
+                    metadata_type="DateTimeRange",
+                    bq_last_update=False,
+                    api_mode="prod",
+                    date_format="yy-mm-dd",
+                    _last_date=date,
+                )
 
 
 br_cvm_fi_documentos_carteiras_fundos_investimento.storage = GCS(
@@ -241,7 +266,7 @@ with Flow(
         "materialize_after_dump", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
-
+    update_metadata = Parameter("update_metadata", default=False, required=False)
     url = Parameter(
         "url",
         default=cvm_constants.URL_EXT.value,
@@ -307,7 +332,17 @@ with Flow(
             wait_for_materialization.retry_delay = timedelta(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
-
+            with case(update_metadata, True):
+                date = get_today_date()
+                update_django_metadata(
+                    dataset_id,
+                    table_id,
+                    metadata_type="DateTimeRange",
+                    bq_last_update=False,
+                    api_mode="prod",
+                    date_format="yy-mm-dd",
+                    _last_date=date,
+                )
 
 br_cvm_fi_documentos_extratos_informacoes.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
@@ -334,7 +369,7 @@ with Flow(
         "materialize_after_dump", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
-
+    update_metadata = Parameter("update_metadata", default=False, required=False)
     url = Parameter(
         "url",
         default=cvm_constants.URL_PERFIL_MENSAL.value,
@@ -394,7 +429,17 @@ with Flow(
             wait_for_materialization.retry_delay = timedelta(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
-
+            with case(update_metadata, True):
+                date = get_today_date()
+                update_django_metadata(
+                    dataset_id,
+                    table_id,
+                    metadata_type="DateTimeRange",
+                    bq_last_update=False,
+                    api_mode="prod",
+                    date_format="yy-mm-dd",
+                    _last_date=date,
+                )
 
 br_cvm_fi_documentos_perfil_mensal.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_cvm_fi_documentos_perfil_mensal.run_config = KubernetesRun(
@@ -421,7 +466,7 @@ with Flow(
         "materialize_after_dump", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
-
+    update_metadata = Parameter("update_metadata", default=False, required=False)
     url = Parameter(
         "url",
         default=cvm_constants.URL_INFO_CADASTRAL.value,
@@ -478,6 +523,17 @@ with Flow(
             wait_for_materialization.retry_delay = timedelta(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
+            with case(update_metadata, True):
+                date = get_today_date()
+                update_django_metadata(
+                    dataset_id,
+                    table_id,
+                    metadata_type="DateTimeRange",
+                    bq_last_update=False,
+                    api_mode="prod",
+                    date_format="yy-mm-dd",
+                    _last_date=date,
+                )
 
 
 br_cvm_fi_documentos_informacao_cadastral.storage = GCS(
@@ -505,7 +561,7 @@ with Flow(
         "materialize_after_dump", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
-
+    update_metadata = Parameter("update_metadata", default=False, required=False)
     url = Parameter(
         "url",
         default=cvm_constants.URL_BALANCETE.value,
@@ -564,6 +620,17 @@ with Flow(
             wait_for_materialization.retry_delay = timedelta(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
+            with case(update_metadata, True):
+                date = get_today_date()
+                update_django_metadata(
+                    dataset_id,
+                    table_id,
+                    metadata_type="DateTimeRange",
+                    bq_last_update=False,
+                    api_mode="prod",
+                    date_format="yy-mm-dd",
+                    _last_date=date,
+                )
 
 
 br_cvm_fi_documentos_balancete.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

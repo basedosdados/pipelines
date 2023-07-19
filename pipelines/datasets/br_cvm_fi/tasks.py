@@ -27,6 +27,13 @@ from pipelines.utils.utils import (
 from pipelines.datasets.br_cvm_fi.constants import constants as cvm_constants
 
 
+@task
+def get_today_date():
+    d = datetime.today()
+
+    return d.strftime("%Y-%m-%d")
+
+
 @task  # noqa
 def download_unzip_csv(
     url: str, files, chunk_size: int = 128, mkdir: bool = True, id="teste"
