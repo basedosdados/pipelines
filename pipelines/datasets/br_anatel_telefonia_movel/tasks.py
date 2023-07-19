@@ -300,9 +300,10 @@ def clean_csv_municipio():
     # Retorna o caminho de saída dos dados de densidade por município
     return anatel_constants.OUTPUT_PATH_MUNICIPIO.value
 
-
+# task para retornar o ano e mes paara a atualização dos metadados.
 @task
 def get_today_date():
-    d = datetime.now()
+    
+    d = (datetime.now() - timedelta(days=60))
 
     return d.strftime("%Y-%m")
