@@ -8,7 +8,11 @@ from datetime import datetime, timedelta
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from pipelines.constants import constants
-from pipelines.datasets.br_ans_beneficiario.tasks import ans
+from pipelines.datasets.br_ans_beneficiario.tasks import (
+    get_url_from_template,
+    download_unzip_csv,
+    clean_ans,
+)
 
 # from pipelines.datasets.br_ans_beneficiario.schedules import every_two_weeks
 from pipelines.utils.decorators import Flow
@@ -34,8 +38,8 @@ with Flow(
 ) as datasets_br_ans_beneficiario_flow:
     dataset_id = Parameter("dataset_id", default="br_ans_beneficiario", required=True)
     table_id = Parameter("table_id", default="teste_beneficiario", required=True)
-    data_inicio = Parameter("data_inicio", default="2023-01-01", required=False)
-    data_fim = Parameter("data_fim", default="2023-01-01", required=False)
+    ano = Parameter("ano", default="2023", required=False)
+    mes = Parameter("mes", default="5", required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -46,7 +50,13 @@ with Flow(
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
-    filepath = ans(data_inicio, data_fim)
+    # filepath = ans(data_inicio, data_fim)
+    hrefs = get_url_from_template(ano, mes)
+    input_filepath = download_unzip_csv(
+        url="https://dadosabertos.ans.gov.br/FTP/PDA/informacoes_consolidadas_de_beneficiarios/202305/",
+        files=hrefs,
+    )
+    filepath = clean_ans(input_filepath)
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,

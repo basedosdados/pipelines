@@ -11,6 +11,7 @@ from datetime import datetime
 from io import BytesIO
 import tempfile
 import zipfile
+import requests
 from functools import reduce
 from dateutil.relativedelta import relativedelta
 
