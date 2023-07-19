@@ -23,7 +23,7 @@ every_month_anatel = Schedule(
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
-                "update_metadata": True
+                "update_metadata": True,
             },
         ),
     ],
