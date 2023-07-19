@@ -94,7 +94,7 @@ with Flow(name="br_ibge_pnadc.microdados", code_owners=["lucas_cr"]) as br_pnadc
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
         with case(update_metadata, True):
-            date = get_year_quarter()
+            date = get_year_quarter(year, quarter)
             update_django_metadata(
                 dataset_id,
                 table_id,
