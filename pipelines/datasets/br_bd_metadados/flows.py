@@ -103,7 +103,7 @@ with Flow(
 
 bd_organizations.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 bd_organizations.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-#bd_organizations.schedule = every_day_organizations
+# bd_organizations.schedule = every_day_organizations
 
 with Flow(
     name="br_bd_metadados.datasets",
@@ -170,7 +170,7 @@ with Flow(
 
 bd_datasets.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 bd_datasets.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-#bd_datasets.schedule = every_day_datasets
+# bd_datasets.schedule = every_day_datasets
 
 with Flow(
     name="br_bd_metadados.resources",
@@ -237,7 +237,7 @@ with Flow(
 
 bd_resources.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 bd_resources.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-#bd_resources.schedule = every_day_resources
+# bd_resources.schedule = every_day_resources
 
 with Flow(
     name="br_bd_metadados.external_links",
@@ -304,7 +304,7 @@ with Flow(
 
 bd_external_links.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 bd_external_links.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-#bd_external_links.schedule = every_day_external_links
+# bd_external_links.schedule = every_day_external_links
 
 with Flow(
     name="br_bd_metadados.information_requests",
@@ -371,7 +371,7 @@ with Flow(
 
 bd_information_requests.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 bd_information_requests.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-#bd_information_requests.schedule = every_day_information_requests
+# bd_information_requests.schedule = every_day_information_requests
 
 with Flow(
     name="br_bd_metadados.tables",
@@ -438,7 +438,7 @@ with Flow(
 
 bd_tables.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 bd_tables.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-#bd_tables.schedule = every_day_tables
+# bd_tables.schedule = every_day_tables
 
 with Flow(
     name="br_bd_metadados.columns",
@@ -505,4 +505,4 @@ with Flow(
 
 bd_columns.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 bd_columns.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-#bd_columns.schedule = every_day_columns
+# bd_columns.schedule = every_day_columns
