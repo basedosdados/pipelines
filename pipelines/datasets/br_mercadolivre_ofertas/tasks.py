@@ -53,7 +53,7 @@ def crawler_mercadolivre_item():
     df = df.dropna(subset=["title"])
     remained = df.shape[0]
     # print percentage keeped
-    print(f"Percentage keeped: {remained/total*100:.2f}%")
+    log(f"Percentage keeped: {remained/total*100:.2f}%")
     new_order = [
         "title",
         "review_amount",
