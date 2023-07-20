@@ -15,7 +15,7 @@ every_month_anatel = Schedule(
             cron="50 16 28 * *",  # At 17:50 on day-of-month 28
             start_date=datetime(2021, 3, 31, 17, 11),
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_anatel_telefonia_movel",
