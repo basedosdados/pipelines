@@ -20,7 +20,6 @@ from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.utils.tasks import (
-    update_metadata,
     rename_current_flow_run_dataset_table,
     get_current_flow_labels,
     create_table_and_upload_to_gcs,
@@ -40,7 +39,6 @@ with Flow(
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_me_comex_stat", required=True)
     table_id = Parameter("table_id", default="municipio_exportacao", required=True)
-    start = Parameter("start", default=1997, required=True)  # confirmar depois
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
     )
@@ -72,15 +70,6 @@ with Flow(
         dump_mode="overwrite",
         wait=filepath,
     )
-
-    # wait_update_metadata = update_metadata(
-    #     dataset_id=dataset_id,
-    #     table_id=table_id,
-    #     fields_to_update=[
-    #         {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
-    #     ],
-    #     upstream_tasks=[wait_upload_table],
-    # )
 
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
@@ -187,14 +176,6 @@ with Flow(
         wait=filepath,
     )
 
-    # wait_update_metadata = update_metadata(
-    #     dataset_id=dataset_id,
-    #     table_id=table_id,
-    #     fields_to_update=[
-    #         {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
-    #     ],
-    #     upstream_tasks=[wait_upload_table],
-    # )
 
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
@@ -301,15 +282,6 @@ with Flow(
         wait=filepath,
     )
 
-    # wait_update_metadata = update_metadata(
-    #     dataset_id=dataset_id,
-    #     table_id=table_id,
-    #     fields_to_update=[
-    #         {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
-    #     ],
-    #     upstream_tasks=[wait_upload_table],
-    # )
-
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -413,14 +385,6 @@ with Flow(
         wait=filepath,
     )
 
-    # wait_update_metadata = update_metadata(
-    #     dataset_id=dataset_id,
-    #     table_id=table_id,
-    #     fields_to_update=[
-    #         {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
-    #     ],
-    #     upstream_tasks=[wait_upload_table],
-    # )
 
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
