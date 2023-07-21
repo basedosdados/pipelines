@@ -116,6 +116,7 @@ def clean_data(
 
     return isp_constants.OUTPUT_PATH.value + novo_nome
 
+
 # task para retornar o ano e mes paara a atualização dos metadados.
 @task
 def get_today_date():
