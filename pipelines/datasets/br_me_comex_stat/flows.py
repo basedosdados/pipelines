@@ -73,7 +73,6 @@ with Flow(
         wait=filepath,
     )
 
-
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -180,8 +179,6 @@ with Flow(
         dump_mode="overwrite",
         wait=filepath,
     )
-
-
 
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
@@ -390,7 +387,6 @@ with Flow(
         dump_mode="overwrite",
         wait=filepath,
     )
-
 
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
