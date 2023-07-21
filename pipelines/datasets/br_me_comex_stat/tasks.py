@@ -50,14 +50,14 @@ def download_br_me_comex_stat(
         table_name=table_name,
     )
 
-    log("paths created!")
+    log("paths created")
 
     download_data(
         path=comex_constants.PATH.value,
         table_type=table_type,
         table_name=table_name,
     )
-    log("data downloaded!")
+    log("data downloaded")
 
     tm.sleep(10)
 
@@ -74,10 +74,9 @@ def clean_br_me_comex_stat(
 
     Args:
         table_name (str): the table name is the original name of the zip file with raw data from comex stat website
-
-
+    
     Returns:
-        pd.DataFrame: a partitioned standardized pandas dataframe
+        pd.DataFrame: a partitioned standardized pandas dataframe.
     """
 
     rename_ncm = {
