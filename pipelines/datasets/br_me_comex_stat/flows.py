@@ -111,7 +111,7 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-#tabela atualizado
+    # tabela atualizado
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -120,7 +120,7 @@ with Flow(
             project_name=constants.PREFECT_DEFAULT_PROJECT.value,
             parameters={
                 "dataset_id": dataset_id,
-                "table_id": table_id+'atualizado',
+                "table_id": table_id + "atualizado",
                 "mode": materialization_mode,
                 "dbt_alias": dbt_alias,
             },
@@ -225,7 +225,7 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-        #tabela atualizado
+        # tabela atualizado
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -234,7 +234,7 @@ with Flow(
             project_name=constants.PREFECT_DEFAULT_PROJECT.value,
             parameters={
                 "dataset_id": dataset_id,
-                "table_id": table_id+'atualizado',
+                "table_id": table_id + "atualizado",
                 "mode": materialization_mode,
                 "dbt_alias": dbt_alias,
             },
@@ -338,8 +338,8 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
-    
-    #tabela atualizado
+
+    # tabela atualizado
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -348,7 +348,7 @@ with Flow(
             project_name=constants.PREFECT_DEFAULT_PROJECT.value,
             parameters={
                 "dataset_id": dataset_id,
-                "table_id": table_id+'atualizado',
+                "table_id": table_id + "atualizado",
                 "mode": materialization_mode,
                 "dbt_alias": dbt_alias,
             },
@@ -450,8 +450,8 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
-    
-    #tabela atualizado
+
+    # tabela atualizado
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -460,7 +460,7 @@ with Flow(
             project_name=constants.PREFECT_DEFAULT_PROJECT.value,
             parameters={
                 "dataset_id": dataset_id,
-                "table_id": table_id+'atualizado',
+                "table_id": table_id + "atualizado",
                 "mode": materialization_mode,
                 "dbt_alias": dbt_alias,
             },
