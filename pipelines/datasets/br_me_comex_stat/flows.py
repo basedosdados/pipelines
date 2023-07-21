@@ -180,7 +180,10 @@ with Flow(
         wait=filepath,
     )
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> f2c3b47 ([pre-commit.ci] auto fixes from pre-commit.com hooks)
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -388,7 +391,6 @@ with Flow(
         dump_mode="append",
         wait=filepath,
     )
-
 
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
