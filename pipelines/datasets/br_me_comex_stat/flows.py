@@ -141,7 +141,9 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-dataset_br_me_comex_municipio_exportacao_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+dataset_br_me_comex_municipio_exportacao_flow.storage = GCS(
+    constants.GCS_FLOWS_BUCKET.value
+)
 dataset_br_me_comex_municipio_exportacao_flow.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
