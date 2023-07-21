@@ -2,7 +2,7 @@
 import pandas as pd
 import os
 import requests
-from datetime import timedelta
+from datetime import datetime, timedelta
 from prefect import task
 
 from pipelines.utils.utils import (
@@ -115,3 +115,10 @@ def clean_data(
     log(f"df {file_name} salvo com sucesso")
 
     return isp_constants.OUTPUT_PATH.value + novo_nome
+
+# task para retornar o ano e mes paara a atualização dos metadados.
+@task
+def get_today_date():
+    d = datetime.now() - timedelta(days=60)
+
+    return d.strftime("%Y-%m")
