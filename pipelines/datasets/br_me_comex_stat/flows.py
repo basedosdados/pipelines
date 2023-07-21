@@ -40,7 +40,7 @@ with Flow(
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_me_comex_stat", required=True)
     table_id = Parameter("table_id", default="municipio_exportacao", required=True)
-    start = Parameter("start", default=1997, required=True)  # confirmar depois
+    start = Parameter("start", default=2023, required=True)  # confirmar depois
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
     )
@@ -69,7 +69,7 @@ with Flow(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        dump_mode="overwrite",
+        dump_mode="append",
         wait=filepath,
     )
 
@@ -88,6 +88,7 @@ with Flow(
             },
             labels=current_flow_labels,
             run_name=f"Materialize {dataset_id}.{table_id}",
+            wait=wait_upload_table
         )
 
         wait_for_materialization = wait_for_flow_run(
@@ -148,7 +149,7 @@ with Flow(
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_me_comex_stat", required=True)
     table_id = Parameter("table_id", default="municipio_importacao", required=True)
-    start = Parameter("start", default=1997, required=True)  # confirmar depois
+    start = Parameter("start", default=2023, required=True)  # confirmar depois
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
     )
@@ -177,7 +178,7 @@ with Flow(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        dump_mode="overwrite",
+        dump_mode="append",
         wait=filepath,
     )
 
@@ -255,7 +256,7 @@ with Flow(
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_me_comex_stat", required=True)
     table_id = Parameter("table_id", default="ncm_exportacao", required=True)
-    start = Parameter("start", default=1997, required=True)  # confirmar depois
+    start = Parameter("start", default=2023, required=True)  # confirmar depois
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
     )
@@ -284,7 +285,7 @@ with Flow(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        dump_mode="overwrite",
+        dump_mode="append",
         wait=filepath,
     )
 
@@ -358,7 +359,7 @@ with Flow(
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_me_comex_stat", required=True)
     table_id = Parameter("table_id", default="ncm_importacao", required=True)
-    start = Parameter("start", default=1997, required=True)  # confirmar depois
+    start = Parameter("start", default=2023, required=True)  # confirmar depois
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
     )
@@ -387,7 +388,7 @@ with Flow(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        dump_mode="overwrite",
+        dump_mode="append",
         wait=filepath,
     )
 
