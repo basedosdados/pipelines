@@ -36,7 +36,7 @@ from pipelines.datasets.br_me_comex_stat.schedules import (
 
 with Flow(
     name="br_me_comex_stat.municipio_exportacao", code_owners=["Gabriel Pisa"]
-) as br_comex_municipio_exportacao:
+) as dataset_br_me_comex_municipio_exportacao_flow:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_me_comex_stat", required=True)
     table_id = Parameter("table_id", default="municipio_exportacao", required=True)
@@ -141,11 +141,11 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-br_comex_municipio_exportacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_comex_municipio_exportacao.run_config = KubernetesRun(
+dataset_br_me_comex_municipio_exportacao_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+dataset_br_me_comex_municipio_exportacao_flow.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_comex_municipio_exportacao.schedule = schedule_municipio_exportacao
+dataset_br_me_comex_municipio_exportacao_flow.schedule = schedule_municipio_exportacao
 
 
 with Flow(
