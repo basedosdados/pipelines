@@ -74,7 +74,7 @@ def clean_br_me_comex_stat(
 
     Args:
         table_name (str): the table name is the original name of the zip file with raw data from comex stat website
-    
+
     Returns:
         pd.DataFrame: a partitioned standardized pandas dataframe.
     """
