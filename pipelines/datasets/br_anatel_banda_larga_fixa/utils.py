@@ -46,4 +46,3 @@ def check_and_create_column(df: pd.DataFrame, col_name: str) -> pd.DataFrame:
     if col_name not in df.columns:
         df[col_name] = ""
     return df
-

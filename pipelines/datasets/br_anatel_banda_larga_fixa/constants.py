@@ -22,4 +22,3 @@ class constants(Enum):  # pylint: disable=c0103
     OUTPUT_PATH_UF = "/tmp/data/UF/output/"
 
     OUTPUT_PATH_MUNICIPIO = "/tmp/data/MUNICIPIO/output/"
-    

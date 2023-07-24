@@ -27,4 +27,3 @@ every_month_anatel_microdados = Schedule(
         ),
     ]
 )
-
