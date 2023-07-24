@@ -32,8 +32,8 @@ from pipelines.utils.tasks import (
 )
 
 with Flow(
-    name="br_anatel_banda_larga_fixa.microdados", code_owners=["trick"]
-) as br_anatel:
+    name="br_anatel_banda_larga_fixa", code_owners=["trick"]
+) as br_anatel_banda_larga:
     # Parameters
     dataset_id = Parameter(
         "dataset_id", default="br_anatel_banda_larga_fixa", required=True
@@ -64,7 +64,7 @@ with Flow(
     update_metadata = Parameter("update_metadata", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id[0], wait=table_id
     )
 
     # ! MICRODADOS
@@ -280,6 +280,6 @@ with Flow(
             _last_date=date,
         )
 
-br_anatel.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_anatel.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_anatel.schedule = every_month_anatel_microdados
+br_anatel_banda_larga.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_anatel_banda_larga.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_anatel_banda_larga.schedule = every_month_anatel_microdados
