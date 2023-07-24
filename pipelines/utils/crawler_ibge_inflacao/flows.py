@@ -32,7 +32,6 @@ from pipelines.utils.tasks import (
 with Flow(
     name="BD Template - IBGE Inflação: mes_brasil"
 ) as flow_ibge_inflacao_mes_brasil:
-
     # Parameters
     INDICE = Parameter("indice")
     FOLDER = Parameter("folder")
@@ -212,7 +211,6 @@ flow_ibge_inflacao_mes_rm.run_config = KubernetesRun(image=constants.DOCKER_IMAG
 with Flow(
     "BD Template - IBGE Inflação: mes_municipio"
 ) as flow_ibge_inflacao_mes_municipio:
-
     # Parameters
     INDICE = Parameter("indice")
     FOLDER = Parameter("folder")
@@ -304,7 +302,6 @@ flow_ibge_inflacao_mes_municipio.run_config = KubernetesRun(
 
 
 with Flow("BD Template - IBGE Inflação: mes_geral") as flow_ibge_inflacao_mes_geral:
-
     # Parameters
     INDICE = Parameter("indice")
     FOLDER = Parameter("folder")

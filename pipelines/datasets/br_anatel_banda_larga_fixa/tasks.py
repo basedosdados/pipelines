@@ -30,6 +30,7 @@ from pipelines.constants import constants
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
+
 def treatment(ano: int):
     log("Iniciando o tratamento do arquivo microdados da Anatel")
     download_and_unzip(url=anatel_constants.URL.value, download_dir=anatel_constants.INPUT_PATH.value)

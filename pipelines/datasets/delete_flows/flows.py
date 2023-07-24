@@ -18,9 +18,8 @@ from pipelines.utils.decorators import Flow
 with Flow(
     name="Limpeza de histórico de runs", code_owners=["guialvesp1"]
 ) as database_delete_flows:
-
     # Parameters
-    days_old = Parameter("days_old", default=1, required=False)
+    days_old = Parameter("days_old", default=15, required=False)
 
     # Get the Prefect client
     client = get_prefect_client()
@@ -42,7 +41,6 @@ database_delete_flows.schedule = daily_at_3am
 with Flow(
     name="Limpeza flow único", code_owners=["guialvesp1"]
 ) as database_delete_flow:
-
     # Parameters
     flow_run_id = Parameter("flow_run_id", default=None, required=True)
 

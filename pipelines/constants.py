@@ -33,6 +33,7 @@ class constants(Enum):  # pylint: disable=c0103
     TASK_MAX_RETRIES = 5
     TASK_RETRY_DELAY = 10  # seconds
     PREFECT_DEFAULT_PROJECT = "main"
+    PREFECT_STAGING_PROJECT = "staging"
     # Code Owners #
 
     ######################################

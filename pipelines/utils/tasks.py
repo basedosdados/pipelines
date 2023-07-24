@@ -6,7 +6,7 @@ Helper tasks that could fit any pipeline.
 
 from datetime import timedelta, datetime
 from pathlib import Path
-from typing import Union, List
+from typing import Any, Union, List
 
 import basedosdados as bd
 import pandas as pd
@@ -18,10 +18,26 @@ from prefect.client import Client
 
 from pipelines.constants import constants
 from pipelines.utils.utils import (
-    get_credentials_from_secret,
-    log,
     dump_header_to_csv,
+    get_ids,
+    parse_temporal_coverage,
+    get_credentials_utils,
+    create_update,
+    extract_last_update,
+    get_first_date,
+    log,
+    get_credentials_from_secret,
+    get_token,
 )
+from typing import Tuple
+
+
+@task
+def log_task(msg: Any, level: str = "info"):
+    """
+    A task that logs a message.
+    """
+    log(msg=msg, level=level)
 
 
 ##################
@@ -343,3 +359,91 @@ def get_date_time_str(wait=None) -> str:
     Get current time as string
     """
     return datetime.now().strftime("%Y-%m-%d %HH:%MM")
+
+
+########################
+#
+# Update Django Metadata
+#
+########################
+@task  # noqa
+def update_django_metadata(
+    dataset_id: str,
+    table_id: str,
+    metadata_type: str,
+    _last_date=None,
+    date_format: str = "yy-mm-dd",
+    bq_last_update: bool = True,
+    api_mode: str = "prod",
+):
+    """
+    Updates Django metadata.
+
+    Args:
+        dataset_id (str): The ID of the dataset.
+        table_id (str): The ID of the table.
+        metadata_type (str): The type of metadata to update.
+        _last_date (optional): The last date for metadata update if `bq_last_update` is False. Defaults to None.
+        date_format (str, optional): The date format to use when parsing dates ('yy-mm-dd', 'yy-mm', or 'yy'). Defaults to 'yy-mm-dd'.
+        bq_last_update (bool, optional): Flag indicating whether to use BigQuery's last update date for metadata.
+            If True, `_last_date` is ignored. Defaults to True.
+        api_mode (str, optional): The API mode to be used ('prod', 'staging'). Defaults to 'prod'.
+
+    Returns:
+        None
+
+    Raises:
+        Exception: If the metadata_type is not supported.
+
+    """
+    (email, password) = get_credentials_utils(secret_path=f"api_user_{api_mode}")
+
+    ids = get_ids(
+        dataset_id,
+        table_id,
+        email,
+        password,
+    )
+    log(f"IDS:{ids}")
+
+    if metadata_type == "DateTimeRange":
+        if bq_last_update:
+            last_date = extract_last_update(
+                dataset_id,
+                table_id,
+                date_format,
+            )
+
+            resource_to_temporal_coverage = parse_temporal_coverage(f"{last_date}")
+            resource_to_temporal_coverage["coverage"] = ids.get("coverage_id")
+            log(f"Mutation parameters: {resource_to_temporal_coverage}")
+
+            create_update(
+                query_class="allDatetimerange",
+                query_parameters={"$coverage_Id: ID": ids.get("coverage_id")},
+                mutation_class="CreateUpdateDateTimeRange",
+                mutation_parameters=resource_to_temporal_coverage,
+                update=True,
+                email=email,
+                password=password,
+                api_mode=api_mode,
+            )
+        else:
+            last_date = _last_date
+            log(f"Última data {last_date}")
+
+            resource_to_temporal_coverage = parse_temporal_coverage(f"{last_date}")
+
+            resource_to_temporal_coverage["coverage"] = ids.get("coverage_id")
+            log(f"Mutation parameters: {resource_to_temporal_coverage}")
+
+            create_update(
+                query_class="allDatetimerange",
+                query_parameters={"$coverage_Id: ID": ids.get("coverage_id")},
+                mutation_class="CreateUpdateDateTimeRange",
+                mutation_parameters=resource_to_temporal_coverage,
+                update=True,
+                email=email,
+                password=password,
+                api_mode=api_mode,
+            )
