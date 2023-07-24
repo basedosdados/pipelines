@@ -77,6 +77,8 @@ def create_table_and_upload_to_gcs(
     """
     Create table using BD+ and upload to GCS.
     """
+    bd_version = bd.__version__
+    log(f"USING BASEDOSDADOS {bd_version}")
     # pylint: disable=C0103
     tb = bd.Table(dataset_id=dataset_id, table_id=table_id)
     table_staging = f"{tb.table_full_name['staging']}"
