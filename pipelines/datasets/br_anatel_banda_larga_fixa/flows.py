@@ -283,3 +283,4 @@ with Flow(
 br_anatel.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_anatel.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 br_anatel.schedule = every_month_anatel_microdados
+

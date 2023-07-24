@@ -232,5 +232,4 @@ def treatment_municipio():
 @task
 def get_today_date():
     d = datetime.now() - timedelta(days=60)
-
     return d.strftime("%Y-%m")
