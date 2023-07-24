@@ -21,7 +21,7 @@ from pipelines.utils.utils import (
 )
 from pipelines.datasets.br_anatel_banda_larga_fixa.utils import (
     check_and_create_column,
-    download_and_unzip
+    download_and_unzip,
 )
 from pipelines.constants import constants
 
@@ -30,13 +30,16 @@ from pipelines.constants import constants
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-
 def treatment(ano: int):
     log("Iniciando o tratamento do arquivo microdados da Anatel")
-    download_and_unzip(url=anatel_constants.URL.value, download_dir=anatel_constants.INPUT_PATH.value)
+    download_and_unzip(
+        url=anatel_constants.URL.value, download_dir=anatel_constants.INPUT_PATH.value
+    )
 
     # ! Lendo o arquivo csv
-    df = pd.read_csv(f'{anatel_constants.INPUT_PATH.value}Acesso_Banda_Larga_Fixa{ano}, sep=";", encoding="utf-8"')
+    df = pd.read_csv(
+        f'{anatel_constants.INPUT_PATH.value}Acesso_Banda_Larga_Fixa{ano}, sep=";", encoding="utf-8"'
+    )
 
     # ! Fazendo referencia a função criada anteriormente para verificar colunas
     df = check_and_create_column(df, "Tipo de Produto")
@@ -116,7 +119,7 @@ def treatment(ano: int):
     df["produto"] = df["produto"].apply(
         lambda x: x.replace("LINHA_DEDICADA", "linha dedicada").lower()
     )
-    log('Salvando o arquivo microdados da Anatel')
+    log("Salvando o arquivo microdados da Anatel")
     # ! Fazendo referencia a função criada anteriormente para particionar o arquivo o arquivo
     to_partitions(
         df,
@@ -133,8 +136,10 @@ def treatment(ano: int):
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def treatment_br():
-    log('Iniciando o tratamento do arquivo densidade brasil da Anatel')
-    df = pd.read_csv(f'{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa, sep=";", encoding="utf-8"')
+    log("Iniciando o tratamento do arquivo densidade brasil da Anatel")
+    df = pd.read_csv(
+        f'{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa, sep=";", encoding="utf-8"'
+    )
 
     # ! Tratando o csv
     df.rename(columns={"Nível Geográfico Densidade": "Geografia"}, inplace=True)
@@ -160,8 +165,10 @@ def treatment_br():
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def treatment_uf():
-    log('Iniciando o tratamento do arquivo densidade uf da Anatel')
-    df = pd.read_csv(f'{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa, sep=";", encoding="utf-8"')
+    log("Iniciando o tratamento do arquivo densidade uf da Anatel")
+    df = pd.read_csv(
+        f'{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa, sep=";", encoding="utf-8"'
+    )
     df.rename(columns={"Nível Geográfico Densidade": "Geografia"}, inplace=True)
     df_uf = df[df["Geografia"] == "UF"]
     df_uf.drop(["Município", "Código IBGE", "Geografia"], axis=1, inplace=True)
@@ -188,8 +195,10 @@ def treatment_uf():
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def treatment_municipio():
-    log('Iniciando o tratamento do arquivo densidade municipio da Anatel')
-    df = pd.read_csv(f'{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa, sep=";", encoding="utf-8"')
+    log("Iniciando o tratamento do arquivo densidade municipio da Anatel")
+    df = pd.read_csv(
+        f'{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa, sep=";", encoding="utf-8"'
+    )
 
     # ! Tratando o csv
     df.rename(columns={"Nível Geográfico Densidade": "Geografia"}, inplace=True)
@@ -208,7 +217,7 @@ def treatment_municipio():
         },
         inplace=True,
     )
-    log('Salvando o arquivo densidade municipio da Anatel')
+    log("Salvando o arquivo densidade municipio da Anatel")
     # ! Fazendo referencia a função criada anteriormente para particionar o arquivo o arquivo
     to_partitions(
         df_municipio,
@@ -217,6 +226,7 @@ def treatment_municipio():
     )
 
     return anatel_constants.OUTPUT_PATH_MUNICIPIO.value
+
 
 # task para retornar o ano e mes paara a atualização dos metadados.
 @task

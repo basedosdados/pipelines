@@ -11,7 +11,7 @@ class constants(Enum):  # pylint: disable=c0103
     Constant values for the br_anatel_telefonia_movel project
     """
 
-    URL = 'https://www.anatel.gov.br/dadosabertos/paineis_de_dados/acessos/acessos_banda_larga_fixa.zip'
+    URL = "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/acessos/acessos_banda_larga_fixa.zip"
 
     INPUT_PATH = "/tmp/data/input/"
 

@@ -38,12 +38,16 @@ with Flow(
     dataset_id = Parameter(
         "dataset_id", default="br_anatel_banda_larga_fixa", required=True
     )
-    table_id = Parameter("table_id", default=[
-        "microdados",
-        "densidade_brasil",
-        "densidade_uf",
-        "densidade_municipio"
-    ], required=True)
+    table_id = Parameter(
+        "table_id",
+        default=[
+            "microdados",
+            "densidade_brasil",
+            "densidade_uf",
+            "densidade_municipio",
+        ],
+        required=True,
+    )
 
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
@@ -55,15 +59,13 @@ with Flow(
 
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
-    ano = Parameter("ano", default= '2023', required=False)
+    ano = Parameter("ano", default="2023", required=False)
 
     update_metadata = Parameter("update_metadata", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
-
-
 
     # ! MICRODADOS
     filepath = treatment(ano=ano)
@@ -105,19 +107,18 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
-    
+
     with case(update_metadata, True):
         date = get_today_date()  # task que retorna a data atual
         update_django_metadata(
-        dataset_id,
-        table_id[0],
-        metadata_type="DateTimeRange",
-        bq_last_update=False,
-        api_mode="prod",
-        date_format="yy-mm",
-        _last_date=date,
-    )
-
+            dataset_id,
+            table_id[0],
+            metadata_type="DateTimeRange",
+            bq_last_update=False,
+            api_mode="prod",
+            date_format="yy-mm",
+            _last_date=date,
+        )
 
     # ! DENSIDADE BRASIL
 
@@ -163,14 +164,14 @@ with Flow(
     with case(update_metadata, True):
         date = get_today_date()  # task que retorna a data atual
         update_django_metadata(
-        dataset_id,
-        table_id[1],
-        metadata_type="DateTimeRange",
-        bq_last_update=False,
-        api_mode="prod",
-        date_format="yy-mm",
-        _last_date=date,
-    )
+            dataset_id,
+            table_id[1],
+            metadata_type="DateTimeRange",
+            bq_last_update=False,
+            api_mode="prod",
+            date_format="yy-mm",
+            _last_date=date,
+        )
 
     # ! DENSIDADE UF
     filepath = treatment_uf()
@@ -212,18 +213,18 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
-    
+
     with case(update_metadata, True):
         date = get_today_date()  # task que retorna a data atual
         update_django_metadata(
-        dataset_id,
-        table_id[2],
-        metadata_type="DateTimeRange",
-        bq_last_update=False,
-        api_mode="prod",
-        date_format="yy-mm",
-        _last_date=date,
-    )
+            dataset_id,
+            table_id[2],
+            metadata_type="DateTimeRange",
+            bq_last_update=False,
+            api_mode="prod",
+            date_format="yy-mm",
+            _last_date=date,
+        )
 
     # ! DENSIDADE_MUNICIPIO
 
@@ -270,14 +271,14 @@ with Flow(
     with case(update_metadata, True):
         date = get_today_date()  # task que retorna a data atual
         update_django_metadata(
-        dataset_id,
-        table_id[3],
-        metadata_type="DateTimeRange",
-        bq_last_update=False,
-        api_mode="prod",
-        date_format="yy-mm",
-        _last_date=date,
-    )
+            dataset_id,
+            table_id[3],
+            metadata_type="DateTimeRange",
+            bq_last_update=False,
+            api_mode="prod",
+            date_format="yy-mm",
+            _last_date=date,
+        )
 
 br_anatel.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_anatel.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
