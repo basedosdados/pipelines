@@ -19,6 +19,7 @@ from pipelines.utils.tasks import (
     rename_current_flow_run_dataset_table,
     get_current_flow_labels,
     create_table_and_upload_to_gcs,
+    update_django_metadata,
 )
 
 from pipelines.datasets.br_mercadolivre_ofertas.tasks import (
@@ -100,6 +101,13 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
+    update_django_metadata(
+        dataset_id,
+        table_id,
+        metadata_type="DateTimeRange",
+        bq_last_update=True,
+        upstream_tasks=[wait_upload_table],
+    )
 
     with case(get_sellers, True) and case(is_empty_list(seller_ids), False):
         # Trigger DBT flow run
@@ -132,6 +140,13 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
+    update_django_metadata(
+        dataset_id,
+        table_id_sellers,
+        metadata_type="DateTimeRange",
+        bq_last_update=True,
+        upstream_tasks=[wait_upload_table],
+    )
 
 br_mercadolivre_ofertas_item.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_mercadolivre_ofertas_item.run_config = KubernetesRun(
@@ -203,6 +218,13 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
+    update_django_metadata(
+        dataset_id,
+        table_id,
+        metadata_type="DateTimeRange",
+        bq_last_update=True,
+        upstream_tasks=[wait_upload_table],
+    )
 
 br_mercadolivre_ofertas_vendedor.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_mercadolivre_ofertas_vendedor.run_config = KubernetesRun(
