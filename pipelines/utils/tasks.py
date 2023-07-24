@@ -107,7 +107,6 @@ def create_table_and_upload_to_gcs(
             tb.create(
                 path=header_path,
                 if_storage_data_exists="replace",
-                if_table_config_exists="replace",
                 if_table_exists="replace",
             )
 
@@ -156,7 +155,6 @@ def create_table_and_upload_to_gcs(
         tb.create(
             path=header_path,
             if_storage_data_exists="replace",
-            if_table_config_exists="replace",
             if_table_exists="replace",
         )
 
@@ -208,6 +206,7 @@ def update_metadata(dataset_id: str, table_id: str, fields_to_update: list) -> N
     fields_to_update: list of dictionaries with key and values to be updated
     """
     # add credentials to config.toml
+    # TODO: remove this because bd 2.0 does not have Metadata class
     handle = bd.Metadata(dataset_id=dataset_id, table_id=table_id)
     handle.create(if_exists="replace")
 
