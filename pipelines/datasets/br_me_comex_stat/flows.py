@@ -86,10 +86,7 @@ with Flow(
             },
             labels=current_flow_labels,
             run_name=f"Materialize {dataset_id}.{table_id}",
-<<<<<<< HEAD
-=======
-            wait=wait_upload_table,
->>>>>>> 5e054d2 ([pre-commit.ci] auto fixes from pre-commit.com hooks)
+            wait=wait_upload_table
         )
 
         wait_for_materialization = wait_for_flow_run(
@@ -183,10 +180,6 @@ with Flow(
         wait=filepath,
     )
 
-<<<<<<< HEAD
-
-=======
->>>>>>> f2c3b47 ([pre-commit.ci] auto fixes from pre-commit.com hooks)
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()

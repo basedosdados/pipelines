@@ -15,17 +15,23 @@ from pathlib import Path
 from typing import Union, List
 import basedosdados as bd
 import os
-
+from datetime import datetime
 
 from pipelines.datasets.br_me_comex_stat.utils import create_paths, download_data
 from pipelines.datasets.br_me_comex_stat.constants import constants as comex_constants
 
 from pipelines.constants import constants
-
 from pipelines.utils.utils import (
     log,
     to_partitions,
 )
+
+
+@task
+def get_today_date():
+    d = datetime.today()
+
+    return d.strftime("%Y-%m-%d")
 
 
 @task
