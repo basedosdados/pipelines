@@ -15,12 +15,13 @@ from pipelines.constants import constants
 every_month_agencia = Schedule(
     clocks=[
         CronClock(
-            cron="0 0 * * *",  # every day at midnight
+            cron="@monthly",
+            start_date=datetime(2023, 8, 5, 0, 0),
             labels=[
-                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
             parameter_defaults={
-                "dataset_id": "br_bcb_estaban",
+                "dataset_id": "br_bcb_estban",
                 "table_id": "agencia",
                 "materialization_mode": "prod",
                 "materialize after dump": True,
@@ -36,18 +37,20 @@ every_month_agencia = Schedule(
 every_month_municipio = Schedule(
     clocks=[
         CronClock(
-            cron="30 19 * * 2",  # 15th day of every month at 15:00
-            start_date=datetime.today(),
+            cron="@monthly",
+            start_date=datetime(2023, 8, 5, 0, 0),
             labels=[
-                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_bcb_estban",
                 "table_id": "municipio",
                 "materialization_mode": "prod",
-                "materialize_after_dump": True,
-                "dbt_alias": True,
+                "materialize after dump": True,
+                "dbt_alias": False,
             },
         )
-    ]
+    ],
+    filters=[filters.is_weekday],
+    adjustments=[adjustments.next_weekday],
 )
