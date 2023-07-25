@@ -106,7 +106,8 @@ with Flow(
     # tabela atualizado
 =======
     # municipio_exportacao
->>>>>>> 23e5abb (fix schedules and add coverage updater task)
+
+
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -346,7 +347,9 @@ with Flow(
         wait=filepath,
     )
 
-<<<<<<< HEAD
+    # ncm_exportacao
+
+
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
