@@ -44,7 +44,7 @@ with Flow(
     table_id = Parameter("table_id", default="agencia", required=True)
     update_metadata = Parameter("update_metadata", default=False, required=False)
 
-    # Materialization mode
+    # Materialization mode sed
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
     )
