@@ -15,7 +15,7 @@ from pipelines.constants import constants
 every_month_agencia = Schedule(
     clocks=[
         CronClock(
-            cron="30 19 * * 2",  # 15th day of every month at 15:00
+            cron="30 19 * * 2",  # 7:30 PM every Tuesday.
             start_date=datetime.today(),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
