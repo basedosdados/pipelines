@@ -71,19 +71,19 @@ with Flow(
             upstream_tasks=[wait_upload_table],
         )
 
-        wait_update_metadata = update_metadata(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            fields_to_update=[
-                {
-                    "last_updated": {
-                        "data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    }
-                },
-                {"temporal_coverage": [temporal_coverage]},
-            ],
-            upstream_tasks=[temporal_coverage],
-        )
+        # wait_update_metadata = update_metadata(
+        #     dataset_id=dataset_id,
+        #     table_id=table_id,
+        #     fields_to_update=[
+        #         {
+        #             "last_updated": {
+        #                 "data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        #             }
+        #         },
+        #         {"temporal_coverage": [temporal_coverage]},
+        #     ],
+        #     upstream_tasks=[temporal_coverage],
+        # )
 
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
@@ -161,19 +161,19 @@ with Flow("BD Template - IBGE Inflação: mes_rm") as flow_ibge_inflacao_mes_rm:
             upstream_tasks=[wait_upload_table],
         )
 
-        wait_update_metadata = update_metadata(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            fields_to_update=[
-                {
-                    "last_updated": {
-                        "data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    }
-                },
-                {"temporal_coverage": [temporal_coverage]},
-            ],
-            upstream_tasks=[temporal_coverage],
-        )
+        # wait_update_metadata = update_metadata(
+        #     dataset_id=dataset_id,
+        #     table_id=table_id,
+        #     fields_to_update=[
+        #         {
+        #             "last_updated": {
+        #                 "data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        #             }
+        #         },
+        #         {"temporal_coverage": [temporal_coverage]},
+        #     ],
+        #     upstream_tasks=[temporal_coverage],
+        # )
 
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
@@ -251,19 +251,19 @@ with Flow(
             upstream_tasks=[wait_upload_table],
         )
 
-        wait_update_metadata = update_metadata(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            fields_to_update=[
-                {
-                    "last_updated": {
-                        "data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    }
-                },
-                {"temporal_coverage": [temporal_coverage]},
-            ],
-            upstream_tasks=[temporal_coverage],
-        )
+        # wait_update_metadata = update_metadata(
+        #     dataset_id=dataset_id,
+        #     table_id=table_id,
+        #     fields_to_update=[
+        #         {
+        #             "last_updated": {
+        #                 "data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        #             }
+        #         },
+        #         {"temporal_coverage": [temporal_coverage]},
+        #     ],
+        #     upstream_tasks=[temporal_coverage],
+        # )
 
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
@@ -343,19 +343,19 @@ with Flow("BD Template - IBGE Inflação: mes_geral") as flow_ibge_inflacao_mes_
             upstream_tasks=[wait_upload_table],
         )
 
-        wait_update_metadata = update_metadata(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            fields_to_update=[
-                {
-                    "last_updated": {
-                        "data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    }
-                },
-                {"temporal_coverage": [temporal_coverage]},
-            ],
-            upstream_tasks=[temporal_coverage],
-        )
+        # wait_update_metadata = update_metadata(
+        #     dataset_id=dataset_id,
+        #     table_id=table_id,
+        #     fields_to_update=[
+        #         {
+        #             "last_updated": {
+        #                 "data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        #             }
+        #         },
+        #         {"temporal_coverage": [temporal_coverage]},
+        #     ],
+        #     upstream_tasks=[temporal_coverage],
+        # )
 
         with case(materialize_after_dump, True):
             # Trigger DBT flow run

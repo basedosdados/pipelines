@@ -75,7 +75,10 @@ with Flow(
         wait=filepath,
     )
 
+
     # municipio_exportacao
+
+
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -196,6 +199,7 @@ with Flow(
     )
 
     # municipio_importacao
+
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -314,6 +318,8 @@ with Flow(
     )
 
     # ncm_exportacao
+
+
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -444,6 +450,7 @@ with Flow(
             labels=current_flow_labels,
             run_name=f"Materialize {dataset_id}.{table_id}",
         )
+
 
         wait_for_materialization = wait_for_flow_run(
             materialization_flow,
