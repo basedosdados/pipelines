@@ -63,7 +63,7 @@ def download_estban_files(xpath: str, save_path: str) -> str:
     download_link = extract_download_links(url=url, xpath=xpath)
 
     # setado para fazer upload incremental dos dados em staging
-    download_link = download_link[1]
+    download_link = download_link[4]
 
     file = "https://www4.bcb.gov.br/" + download_link
     download_and_unzip(file, path=save_path)
