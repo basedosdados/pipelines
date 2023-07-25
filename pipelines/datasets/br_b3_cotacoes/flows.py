@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Flows for br_b3_cotacoes
+Flows for br_b3_cotacoes dataset
 """
 
 from datetime import timedelta
