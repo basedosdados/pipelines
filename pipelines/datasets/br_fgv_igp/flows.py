@@ -112,15 +112,15 @@ with Flow(
         upstream_tasks=[filepath],
     )
 
-    wait_update_metadata = update_metadata(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        fields_to_update=[
-            {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
-            {"temporal_coverage": [temporal_coverage]},
-        ],
-        upstream_tasks=[wait_upload_table],
-    )
+    # wait_update_metadata = update_metadata(
+    #     dataset_id=dataset_id,
+    #     table_id=table_id,
+    #     fields_to_update=[
+    #         {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
+    #         {"temporal_coverage": [temporal_coverage]},
+    #     ],
+    #     upstream_tasks=[wait_upload_table],
+    # )
 
 
 fgv_igpdi_mes_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -202,15 +202,15 @@ with Flow(
         upstream_tasks=[filepath],
     )
 
-    wait_update_metadata = update_metadata(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        fields_to_update=[
-            {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
-            {"temporal_coverage": [temporal_coverage]},
-        ],
-        upstream_tasks=[filepath],
-    )
+    # wait_update_metadata = update_metadata(
+    #     dataset_id=dataset_id,
+    #     table_id=table_id,
+    #     fields_to_update=[
+    #         {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
+    #         {"temporal_coverage": [temporal_coverage]},
+    #     ],
+    #     upstream_tasks=[filepath],
+    # )
 
 
 fgv_igpdi_ano_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -292,15 +292,15 @@ with Flow(
         upstream_tasks=[filepath],
     )
 
-    wait_update_metadata = update_metadata(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        fields_to_update=[
-            {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
-            {"temporal_coverage": [temporal_coverage]},
-        ],
-        upstream_tasks=[filepath],
-    )
+    # wait_update_metadata = update_metadata(
+    #     dataset_id=dataset_id,
+    #     table_id=table_id,
+    #     fields_to_update=[
+    #         {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
+    #         {"temporal_coverage": [temporal_coverage]},
+    #     ],
+    #     upstream_tasks=[filepath],
+    # )
 
 
 fgv_igpm_mes_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -382,15 +382,15 @@ with Flow(
         upstream_tasks=[filepath],
     )
 
-    wait_update_metadata = update_metadata(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        fields_to_update=[
-            {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
-            {"temporal_coverage": [temporal_coverage]},
-        ],
-        upstream_tasks=[filepath],
-    )
+    # wait_update_metadata = update_metadata(
+    #     dataset_id=dataset_id,
+    #     table_id=table_id,
+    #     fields_to_update=[
+    #         {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
+    #         {"temporal_coverage": [temporal_coverage]},
+    #     ],
+    #     upstream_tasks=[filepath],
+    # )
 
 
 fgv_igpm_ano_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -472,15 +472,15 @@ with Flow(
         upstream_tasks=[filepath],
     )
 
-    wait_update_metadata = update_metadata(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        fields_to_update=[
-            {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
-            {"temporal_coverage": [temporal_coverage]},
-        ],
-        upstream_tasks=[filepath],
-    )
+    # wait_update_metadata = update_metadata(
+    #     dataset_id=dataset_id,
+    #     table_id=table_id,
+    #     fields_to_update=[
+    #         {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
+    #         {"temporal_coverage": [temporal_coverage]},
+    #     ],
+    #     upstream_tasks=[filepath],
+    # )
 
 
 fgv_igpog_mes_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -562,15 +562,15 @@ with Flow(
         upstream_tasks=[filepath],
     )
 
-    wait_update_metadata = update_metadata(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        fields_to_update=[
-            {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
-            {"temporal_coverage": [temporal_coverage]},
-        ],
-        upstream_tasks=[filepath],
-    )
+    # wait_update_metadata = update_metadata(
+    #     dataset_id=dataset_id,
+    #     table_id=table_id,
+    #     fields_to_update=[
+    #         {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
+    #         {"temporal_coverage": [temporal_coverage]},
+    #     ],
+    #     upstream_tasks=[filepath],
+    # )
 
 
 fgv_igpog_ano_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -652,15 +652,15 @@ with Flow(
         upstream_tasks=[filepath],
     )
 
-    wait_update_metadata = update_metadata(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        fields_to_update=[
-            {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
-            {"temporal_coverage": [temporal_coverage]},
-        ],
-        upstream_tasks=[filepath],
-    )
+    # wait_update_metadata = update_metadata(
+    #     dataset_id=dataset_id,
+    #     table_id=table_id,
+    #     fields_to_update=[
+    #         {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
+    #         {"temporal_coverage": [temporal_coverage]},
+    #     ],
+    #     upstream_tasks=[filepath],
+    # )
 
 
 fgv_igp10_mes_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
