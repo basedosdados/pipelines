@@ -165,6 +165,7 @@ def update_nrows(table_dict: Dict[str, str], mode: str) -> None:
     fields_to_update = [{"number_rows": int(n_rows)}]
 
     # add credentials to config.toml
+    # TODO: remove this because bd 2.0 does not have Metadata class
     handle = bd.Metadata(dataset_id=dataset_id, table_id=table_id)
     handle.create(if_exists="replace")
 
