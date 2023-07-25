@@ -376,6 +376,7 @@ def update_django_metadata(
     date_format: str = "yy-mm-dd",
     bq_last_update: bool = True,
     api_mode: str = "prod",
+    billing_project_id: str = "basedosdados-dev",
 ):
     """
     Updates Django metadata.
@@ -389,6 +390,9 @@ def update_django_metadata(
         bq_last_update (bool, optional): Flag indicating whether to use BigQuery's last update date for metadata.
             If True, `_last_date` is ignored. Defaults to True.
         api_mode (str, optional): The API mode to be used ('prod', 'staging'). Defaults to 'prod'.
+        billing_project_id (str): the billing_project_id to be used when the extract_last_update function is triggered. Note that it has
+        to be equal to the prefect agent. For prod agents use basedosdados where as for dev agents use basedosdados-dev. The default value is
+        to 'basedosdados-dev'.
 
     Returns:
         None
@@ -413,6 +417,7 @@ def update_django_metadata(
                 dataset_id,
                 table_id,
                 date_format,
+                billing_project_id=billing_project_id,
             )
 
             resource_to_temporal_coverage = parse_temporal_coverage(f"{last_date}")

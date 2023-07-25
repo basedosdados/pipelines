@@ -619,7 +619,9 @@ def get_first_date(
         raise
 
 
-def extract_last_update(dataset_id, table_id, date_format: str):
+def extract_last_update(
+    dataset_id, table_id, date_format: str, billing_project_id: str
+):
     """
     Extracts the last update date of a given dataset table.
 
@@ -646,7 +648,7 @@ def extract_last_update(dataset_id, table_id, date_format: str):
 
         t = bd.read_sql(
             query=query_bd,
-            billing_project_id="basedosdados-dev",
+            billing_project_id=billing_project_id,
             from_file=True,
         )
         timestamp = (

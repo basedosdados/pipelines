@@ -144,7 +144,8 @@ with Flow(
                 metadata_type="DateTimeRange",
                 bq_last_update=True,
                 api_mode="prod",
-                date_format="yy-mm-dd",
+                date_format="yy-mm",
+                billing_project_id="basedosdados",
             )
 
 
