@@ -4,6 +4,7 @@ Tasks for br_ons_avaliacao_operacao
 """
 import os
 import pandas as pd
+from datetime import datetime
 
 from prefect import task
 from pipelines.utils.utils import (
@@ -22,6 +23,13 @@ from pipelines.datasets.br_ons_avaliacao_operacao.utils import (
     process_datetime_column,
     remove_decimal,
 )
+
+
+@task
+def get_today_date():
+    d = datetime.today()
+
+    return d.strftime("%Y-%m-%d")
 
 
 @task
