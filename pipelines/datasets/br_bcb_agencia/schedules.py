@@ -22,6 +22,7 @@ every_month_agencia = Schedule(
                 "materialization_mode": "prod",
                 "materialize after dump": True,
                 "dbt_alias": False,
+                "update_metadata": True,
             },
         )
     ],

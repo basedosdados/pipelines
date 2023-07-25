@@ -13,7 +13,6 @@ from pipelines.datasets.br_bcb_agencia.schedules import (
 from pipelines.datasets.br_bcb_agencia.tasks import (
     download_data,
     clean_data,
-    get_today_date,
 )
 from pipelines.datasets.br_bcb_agencia.constants import (
     constants as agencia_constants,
@@ -139,15 +138,13 @@ with Flow(
         # todo : import get_today_task from pipelines.task
 
         with case(update_metadata, True):
-            date = get_today_date()
             update_django_metadata(
                 dataset_id,
                 table_id,
                 metadata_type="DateTimeRange",
-                bq_last_update=False,
+                bq_last_update=True,
                 api_mode="prod",
                 date_format="yy-mm-dd",
-                _last_date=date,
             )
 
 

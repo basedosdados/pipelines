@@ -39,13 +39,6 @@ from pipelines.utils.utils import (
 from pipelines.constants import constants
 
 
-@task
-def get_today_date():
-    d = datetime.today()
-
-    return d.strftime("%Y-%m-%d")
-
-
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
@@ -56,22 +49,21 @@ def download_data(url, xpath):
     # extract all download links and select the most recent
     links = extract_download_links(url=url, xpath=xpath)
 
-    links = links[0:4]
+    link = links[0]
 
-    for link in links:
-        # select the most recent link
-        current_link = "https://www.bcb.gov.br" + link
+    # select the most recent link
+    current_link = "https://www.bcb.gov.br" + link
 
-        log(f"Downloading file from: {current_link} ")
+    log(f"Downloading file from: {current_link} ")
 
-        # download and unzip the file
-        download_and_unzip(
-            url=current_link, extract_to=agencia_constants.DOWNLOAD_PATH_AGENCIA.value
-        )
+    # download and unzip the file
+    download_and_unzip(
+        url=current_link, extract_to=agencia_constants.DOWNLOAD_PATH_AGENCIA.value
+    )
 
-        log(
-            f"The file: {os.listdir(agencia_constants.DOWNLOAD_PATH_AGENCIA.value)} was downloaded"
-        )
+    log(
+        f"The file: {os.listdir(agencia_constants.DOWNLOAD_PATH_AGENCIA.value)} was downloaded"
+    )
 
 
 # 2. task wrang data
