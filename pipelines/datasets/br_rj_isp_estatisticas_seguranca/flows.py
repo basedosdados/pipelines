@@ -781,3 +781,4 @@ with Flow(
 evolucao_mensal_uf.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 evolucao_mensal_uf.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 evolucao_mensal_uf.schedule = every_month_evolucao_mensal_uf
+

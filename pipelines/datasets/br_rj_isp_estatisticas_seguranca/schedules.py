@@ -169,3 +169,4 @@ every_month_evolucao_mensal_uf = Schedule(
         ),
     ]
 )
+
