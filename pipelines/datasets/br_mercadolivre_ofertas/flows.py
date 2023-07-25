@@ -154,7 +154,6 @@ br_mercadolivre_ofertas_item.run_config = KubernetesRun(
 )
 br_mercadolivre_ofertas_item.schedule = every_day_item
 
-
 with Flow(
     name="br_mercadolivre_ofertas.vendedor", code_owners=["lucascr91"]
 ) as br_mercadolivre_ofertas_vendedor:
