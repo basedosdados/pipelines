@@ -66,7 +66,6 @@ def download_data(url, xpath):
     )
 
 
-# 2. task wrang data
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
