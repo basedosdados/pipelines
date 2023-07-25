@@ -77,6 +77,8 @@ def create_table_and_upload_to_gcs(
     """
     Create table using BD+ and upload to GCS.
     """
+    bd_version = bd.__version__
+    log(f"USING BASEDOSDADOS {bd_version}")
     # pylint: disable=C0103
     tb = bd.Table(dataset_id=dataset_id, table_id=table_id)
     table_staging = f"{tb.table_full_name['staging']}"
@@ -107,7 +109,6 @@ def create_table_and_upload_to_gcs(
             tb.create(
                 path=header_path,
                 if_storage_data_exists="replace",
-                if_table_config_exists="replace",
                 if_table_exists="replace",
             )
 
@@ -156,7 +157,6 @@ def create_table_and_upload_to_gcs(
         tb.create(
             path=header_path,
             if_storage_data_exists="replace",
-            if_table_config_exists="replace",
             if_table_exists="replace",
         )
 
@@ -208,6 +208,7 @@ def update_metadata(dataset_id: str, table_id: str, fields_to_update: list) -> N
     fields_to_update: list of dictionaries with key and values to be updated
     """
     # add credentials to config.toml
+    # TODO: remove this because bd 2.0 does not have Metadata class
     handle = bd.Metadata(dataset_id=dataset_id, table_id=table_id)
     handle.create(if_exists="replace")
 
