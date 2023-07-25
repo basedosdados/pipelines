@@ -56,19 +56,22 @@ def download_data(url, xpath):
     # extract all download links and select the most recent
     links = extract_download_links(url=url, xpath=xpath)
 
-    # select the most recent link
-    links = "https://www.bcb.gov.br" + links[4]
+    links = links[0:4]
 
-    log(f"Downloading file from: {links} ")
+    for link in links:
+        # select the most recent link
+        current_link = "https://www.bcb.gov.br" + link
 
-    # download and unzip the file
-    download_and_unzip(
-        url=links, extract_to=agencia_constants.DOWNLOAD_PATH_AGENCIA.value
-    )
+        log(f"Downloading file from: {current_link} ")
 
-    log(
-        f"The file: {os.listdir(agencia_constants.DOWNLOAD_PATH_AGENCIA.value)} was downloaded"
-    )
+        # download and unzip the file
+        download_and_unzip(
+            url=current_link, extract_to=agencia_constants.DOWNLOAD_PATH_AGENCIA.value
+        )
+
+        log(
+            f"The file: {os.listdir(agencia_constants.DOWNLOAD_PATH_AGENCIA.value)} was downloaded"
+        )
 
 
 # 2. task wrang data
