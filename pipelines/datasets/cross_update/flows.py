@@ -56,4 +56,4 @@ with Flow(
 
 crossupdate_nrows.storage = GCS(str(constants.GCS_FLOWS_BUCKET.value))
 crossupdate_nrows.run_config = KubernetesRun(image=str(constants.DOCKER_IMAGE.value))
-crossupdate_nrows.schedule = schedule_nrows
+# crossupdate_nrows.schedule = schedule_nrows
