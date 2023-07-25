@@ -8,13 +8,12 @@ from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
+from pipelines.utils.tasks import update_django_metadata
 from pipelines.constants import constants
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.datasets.br_b3_cotacoes.tasks import (
-    tratamento,
-)
+from pipelines.datasets.br_b3_cotacoes.tasks import tratamento, get_today_date
 
 from pipelines.utils.utils import (
     log,
@@ -42,6 +41,8 @@ with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
         "materialize_after_dump", default=True, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
+
+    update_metadata = Parameter("update_metadata", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
@@ -93,6 +94,18 @@ with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
         )
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+        )
+
+    with case(update_metadata, True):
+        date = get_today_date()  # task que retorna a data atual
+        update_django_metadata(
+            dataset_id,
+            table_id,
+            metadata_type="DateTimeRange",
+            bq_last_update=False,
+            api_mode="prod",
+            date_format="yy-mm",
+            _last_date=date,
         )
 
 cotacoes.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

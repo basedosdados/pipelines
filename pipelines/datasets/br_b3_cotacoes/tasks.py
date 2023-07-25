@@ -129,3 +129,9 @@ def tratamento(delta_day: int):
     )
 
     return br_b3_cotacoes_constants.B3_PATH_OUTPUT.value
+
+
+def get_today_date():
+    d = datetime.now() - timedelta(days=1)
+
+    return d.strftime("%Y-%m-%d")
