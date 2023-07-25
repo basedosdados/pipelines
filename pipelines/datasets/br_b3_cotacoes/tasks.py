@@ -132,7 +132,6 @@ def tratamento(delta_day: int):
 
 
 def get_today_date():
-
-    d = (datetime.now() - timedelta(days=1))
+    d = datetime.now() - timedelta(days=1)
 
     return d.strftime("%Y-%m-%d")

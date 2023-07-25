@@ -13,10 +13,7 @@ from pipelines.constants import constants
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.datasets.br_b3_cotacoes.tasks import (
-    tratamento,
-    get_today_date
-)
+from pipelines.datasets.br_b3_cotacoes.tasks import tratamento, get_today_date
 
 from pipelines.utils.utils import (
     log,
@@ -109,7 +106,7 @@ with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
             api_mode="prod",
             date_format="yy-mm",
             _last_date=date,
-        ) 
+        )
 
 cotacoes.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 cotacoes.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
