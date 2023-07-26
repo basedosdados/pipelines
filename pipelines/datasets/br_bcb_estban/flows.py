@@ -144,13 +144,23 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
     with case(update_metadata, True):
-        update_django_metadata(
+        update = update_django_metadata(
             dataset_id,
             table_id,
             metadata_type="DateTimeRange",
             bq_last_update=True,
             api_mode="prod",
             date_format="yy-mm",
+        )
+    with case(update_metadata, True):
+        update_django_metadata(
+            dataset_id,
+            table_id + "_atualizado",
+            metadata_type="DateTimeRange",
+            bq_last_update=True,
+            api_mode="prod",
+            date_format="yy-mm",
+            upstream_tasks=[update],
         )
 
 br_bcb_estban_municipio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -267,13 +277,23 @@ with Flow(
         )
 
         with case(update_metadata, True):
-            update_django_metadata(
+            update = update_django_metadata(
                 dataset_id,
                 table_id,
                 metadata_type="DateTimeRange",
                 bq_last_update=True,
                 api_mode="prod",
                 date_format="yy-mm",
+            )
+        with case(update_metadata, True):
+            update_django_metadata(
+                dataset_id,
+                table_id + "_atualizado",
+                metadata_type="DateTimeRange",
+                bq_last_update=True,
+                api_mode="prod",
+                date_format="yy-mm",
+                upstream_tasks=[update],
             )
 
 br_bcb_estban_agencia.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
