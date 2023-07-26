@@ -33,7 +33,7 @@ from pipelines.constants import constants
 def treatment(ano: int):
     log("Iniciando o tratamento do arquivo microdados da Anatel")
     download_and_unzip(
-        url=anatel_constants.URL.value, download_dir=anatel_constants.INPUT_PATH.value
+        url=anatel_constants.URL.value, path=anatel_constants.INPUT_PATH.value
     )
 
     # ! Lendo o arquivo csv
