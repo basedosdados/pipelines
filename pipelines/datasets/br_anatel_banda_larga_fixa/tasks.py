@@ -38,7 +38,7 @@ def treatment(ano: int):
 
     # ! Lendo o arquivo csv
     df = pd.read_csv(
-        f"{anatel_constants.INPUT_PATH.value}Acessos_Banda_Larga_Fixa_{ano}",
+        f"{anatel_constants.INPUT_PATH.value}Acessos_Banda_Larga_Fixa_{ano}.csv",
         sep=";",
         encoding="utf-8",
     )
@@ -140,7 +140,7 @@ def treatment(ano: int):
 def treatment_br():
     log("Iniciando o tratamento do arquivo densidade brasil da Anatel")
     df = pd.read_csv(
-        f"{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa",
+        f"{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa.csv",
         sep=";",
         encoding="utf-8",
     )
@@ -171,7 +171,7 @@ def treatment_br():
 def treatment_uf():
     log("Iniciando o tratamento do arquivo densidade uf da Anatel")
     df = pd.read_csv(
-        f"{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa",
+        f"{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa.csv",
         sep=";",
         encoding="utf-8",
     )
@@ -203,7 +203,7 @@ def treatment_uf():
 def treatment_municipio():
     log("Iniciando o tratamento do arquivo densidade municipio da Anatel")
     df = pd.read_csv(
-        f"{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa",
+        f"{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa.csv",
         sep=";",
         encoding="utf-8",
     )
