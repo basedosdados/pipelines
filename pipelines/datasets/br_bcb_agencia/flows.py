@@ -44,7 +44,7 @@ with Flow(
     table_id = Parameter("table_id", default="agencia", required=True)
     update_metadata = Parameter("update_metadata", default=False, required=False)
 
-    # Materialization mode sed
+    # Materialization mode
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
     )
@@ -135,6 +135,7 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
+        # todo : import get_today_task from pipelines.task
 
         with case(update_metadata, True):
             update_django_metadata(
@@ -143,8 +144,8 @@ with Flow(
                 metadata_type="DateTimeRange",
                 bq_last_update=True,
                 api_mode="prod",
-                date_format="yy-mm",
                 billing_project_id="basedosdados",
+                date_format="yy-mm",
             )
 
 
