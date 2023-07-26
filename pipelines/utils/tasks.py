@@ -24,6 +24,7 @@ from pipelines.utils.utils import (
     get_credentials_utils,
     create_update,
     extract_last_update,
+    extract_last_year_month,
     get_first_date,
     log,
     get_credentials_from_secret,
@@ -375,7 +376,9 @@ def update_django_metadata(
     _last_date=None,
     date_format: str = "yy-mm-dd",
     bq_last_update: bool = True,
+    bq_table_last_year_month: bool = False,
     api_mode: str = "prod",
+    billing_project_id: str = "basedosdados-dev",
 ):
     """
     Updates Django metadata.
@@ -389,6 +392,11 @@ def update_django_metadata(
         bq_last_update (bool, optional): Flag indicating whether to use BigQuery's last update date for metadata.
             If True, `_last_date` is ignored. Defaults to True.
         api_mode (str, optional): The API mode to be used ('prod', 'staging'). Defaults to 'prod'.
+        billing_project_id (str): the billing_project_id to be used when the extract_last_update function is triggered. Note that it has
+        to be equal to the prefect agent. For prod agents use basedosdados where as for dev agents use basedosdados-dev. The default value is
+        to 'basedosdados-dev'.
+        bq_table_last_year_month (bool): if true extract YYYY-MM from the table in Big Query to update the Coverage. Note
+        that in needs the table to have ano and mes columns.
 
     Returns:
         None
@@ -413,6 +421,28 @@ def update_django_metadata(
                 dataset_id,
                 table_id,
                 date_format,
+                billing_project_id=billing_project_id,
+            )
+
+            resource_to_temporal_coverage = parse_temporal_coverage(f"{last_date}")
+            resource_to_temporal_coverage["coverage"] = ids.get("coverage_id")
+            log(f"Mutation parameters: {resource_to_temporal_coverage}")
+
+            create_update(
+                query_class="allDatetimerange",
+                query_parameters={"$coverage_Id: ID": ids.get("coverage_id")},
+                mutation_class="CreateUpdateDateTimeRange",
+                mutation_parameters=resource_to_temporal_coverage,
+                update=True,
+                email=email,
+                password=password,
+                api_mode=api_mode,
+            )
+        elif bq_table_last_year_month:
+            last_date = extract_last_year_month(
+                dataset_id,
+                table_id,
+                billing_project_id=billing_project_id,
             )
 
             resource_to_temporal_coverage = parse_temporal_coverage(f"{last_date}")
