@@ -148,7 +148,8 @@ with Flow(
             dataset_id,
             table_id,
             metadata_type="DateTimeRange",
-            bq_last_update=True,
+            bq_last_update=False,
+            bq_table_last_year_month=True,
             api_mode="prod",
             date_format="yy-mm",
         )
@@ -157,7 +158,8 @@ with Flow(
             dataset_id,
             table_id + "_atualizado",
             metadata_type="DateTimeRange",
-            bq_last_update=True,
+            bq_last_update=False,
+            bq_table_last_year_month=True,
             api_mode="prod",
             date_format="yy-mm",
             upstream_tasks=[update],
@@ -246,7 +248,6 @@ with Flow(
         )
 
         # agencia atualizado
-        # agencia
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -281,7 +282,8 @@ with Flow(
                 dataset_id,
                 table_id,
                 metadata_type="DateTimeRange",
-                bq_last_update=True,
+                bq_last_update=False,
+                bq_table_last_year_month=True,
                 api_mode="prod",
                 date_format="yy-mm",
             )
@@ -290,7 +292,8 @@ with Flow(
                 dataset_id,
                 table_id + "_atualizado",
                 metadata_type="DateTimeRange",
-                bq_last_update=True,
+                bq_last_update=False,
+                bq_table_last_year_month=True,
                 api_mode="prod",
                 date_format="yy-mm",
                 upstream_tasks=[update],
