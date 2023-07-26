@@ -354,7 +354,6 @@ async def process_item_url(item_url, kwargs_list):
 async def process_table(table, url, kwargs_list):
     """
     Processes a table of items by retrieving information for each item using asynchronous operations.
-
     Args:
         table (str): The name or identifier of the table.
         url (str): The URL of the webpage containing the items.
