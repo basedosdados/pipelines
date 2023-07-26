@@ -68,7 +68,8 @@ with Flow(
     )
 
     # ! MICRODADOS
-    filepath_microdados = treatment(ano=ano, upstream_tasks=[rename_flow_run])
+    filepath_microdados = treatment(ano=ano,
+                                    upstream_tasks=[rename_flow_run])
 
     # pylint: disable=C0103
     wait_upload_table = create_table_and_upload_to_gcs(
