@@ -137,7 +137,7 @@ with Flow(
         )
 
         with case(update_metadata, True):
-            update_django_metadata(
+            update = update_django_metadata(
                 dataset_id,
                 table_id,
                 metadata_type="DateTimeRange",
@@ -156,6 +156,7 @@ with Flow(
                 api_mode="prod",
                 billing_project_id="basedosdados",
                 date_format="yy-mm",
+                upstream_tasks=[update],
             )
 
 
