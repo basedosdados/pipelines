@@ -19,7 +19,7 @@ every_month_anatel_microdados = Schedule(
             ],
             parameter_defaults={
                 "dataset_id": "br_anatel_banda_larga_fixa",  # ! dataset_id do dataset que será executado
-                "table_id": "microdados",  # ! table_id do dataset que será executado
+                "table_id": ["microdados", "densidade_brasil", "densidade_uf", "densidade_municipio"],  # ! table_id do dataset que será executado
                 "materialization_mode": "prod",  # ! Aonde o dataset será materializado (dev, prod ou prod-staging)
                 "materialize_after_dump": True,  # ! Se o dataset será materializado após o dump
                 "dbt_alias": True,
