@@ -668,6 +668,49 @@ def extract_last_update(
         raise
 
 
+def extract_last_year_month(dataset_id, table_id, billing_project_id: str):
+    """
+    Extracts the last update date of a given dataset table.
+
+    Args:
+        dataset_id (str): The ID of the dataset.
+        table_id (str): The ID of the table.
+        date_format (str): Date format ('yy-mm')
+
+    Returns:
+        str: The last update date in the format 'YYYY-MM'.
+
+    Raises:
+        Exception: If an error occurs while extracting the last update date.
+    """
+    try:
+        query_bd = f"""
+        SELECT
+        MAX(CONCAT(ano,"-",mes))
+        FROM
+        `basedosdados.{dataset_id}.__TABLES__`
+        WHERE
+        table_id = '{table_id}'
+        """
+
+        t = bd.read_sql(
+            query=query_bd,
+            billing_project_id=billing_project_id,
+            from_file=True,
+        )
+        input_date_str = t["max_date"][0]
+
+        date_obj = datetime.strptime(input_date_str, "%Y-%m")
+
+        last_date = date_obj.strftime("%Y-%m")
+        log(f"Última data YYYY-MM: {last_date}")
+
+        return last_date
+    except Exception as e:
+        log(f"An error occurred while extracting the last update date: {str(e)}")
+        raise
+
+
 def find_ids(dataset_id, table_id, email, password):
     """
     Finds the IDs for a given dataset and table.
