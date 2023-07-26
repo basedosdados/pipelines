@@ -23,6 +23,7 @@ schedule_br_ons_avaliacao_operacao_reservatorio = Schedule(
                 "table_id": "reservatorio",
                 "materialization_mode": "prod",
                 "materialize after dump": True,
+                "update_metadata": True,
                 "dbt_alias": False,
             },
         )
@@ -44,6 +45,7 @@ schedule_br_ons_avaliacao_operacao_geracao_usina = Schedule(
                 "table_id": "geracao_usina",
                 "materialization_mode": "prod",
                 "materialize after dump": True,
+                "update_metadata": True,
                 "dbt_alias": False,
             },
         )
@@ -65,6 +67,7 @@ schedule_br_ons_avaliacao_operacao_geracao_termica_motivo_despacho = Schedule(
                 "table_id": "geracao_termica_motivo_despacho",
                 "materialization_mode": "prod",
                 "materialize after dump": True,
+                "update_metadata": True,
                 "dbt_alias": False,
             },
         )
@@ -86,6 +89,7 @@ schedule_br_ons_avaliacao_operacao_energia_natural_afluente = Schedule(
                 "table_id": "energia_natural_afluente",
                 "materialization_mode": "prod",
                 "materialize after dump": True,
+                "update_metadata": True,
                 "dbt_alias": False,
             },
         )
@@ -107,6 +111,7 @@ schedule_br_ons_avaliacao_operacao_energia_armazenada_reservatorio = Schedule(
                 "table_id": "energia_armazenada_reservatorio",
                 "materialization_mode": "prod",
                 "materialize after dump": True,
+                "update_metadata": True,
                 "dbt_alias": False,
             },
         )
