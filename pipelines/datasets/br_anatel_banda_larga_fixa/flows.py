@@ -68,8 +68,7 @@ with Flow(
     )
 
     # ! MICRODADOS
-    filepath_microdados = treatment(ano=ano,
-        upstream_tasks=[rename_flow_run])
+    filepath_microdados = treatment(ano=ano, upstream_tasks=[rename_flow_run])
 
     # pylint: disable=C0103
     wait_upload_table = create_table_and_upload_to_gcs(
@@ -123,8 +122,7 @@ with Flow(
 
     # ! DENSIDADE BRASIL
 
-    filepath_densidade_brasil = treatment_br(
-        upstream_tasks=[filepath_microdados])
+    filepath_densidade_brasil = treatment_br(upstream_tasks=[filepath_microdados])
 
     # pylint: disable=C0103
     wait_upload_table = create_table_and_upload_to_gcs(
@@ -176,8 +174,7 @@ with Flow(
         )
 
     # ! DENSIDADE UF
-    filepath_densidade_uf = treatment_uf(
-        upstream_tasks=[filepath_densidade_brasil])
+    filepath_densidade_uf = treatment_uf(upstream_tasks=[filepath_densidade_brasil])
 
     # pylint: disable=C0103
     wait_upload_table = create_table_and_upload_to_gcs(
@@ -232,7 +229,8 @@ with Flow(
     # ! DENSIDADE_MUNICIPIO
 
     filepath_densidade_municipio = treatment_municipio(
-        upstream_tasks=[filepath_densidade_uf])
+        upstream_tasks=[filepath_densidade_uf]
+    )
 
     # pylint: disable=C0103
     wait_upload_table = create_table_and_upload_to_gcs(
