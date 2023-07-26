@@ -183,7 +183,6 @@ def clean_seller(filepath_raw):
     - It drops the 'data' column as it's no longer needed.
     - It saves the cleaned data to a CSV file, in a directory that corresponds to the current date.
     - The function returns the path to the directory where the cleaned CSV file is saved.
-
     Args:
         filepath_raw (str): The file path to the raw seller data CSV file.
 
