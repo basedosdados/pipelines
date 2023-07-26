@@ -688,7 +688,7 @@ def extract_last_year_month(dataset_id, table_id, billing_project_id: str):
         SELECT
         MAX(CONCAT(ano,"-",mes))
         FROM
-        `basedosdados.{dataset_id}.'{table_id}'
+        `basedosdados.{dataset_id}.{table_id}`
         """
 
         t = bd.read_sql(
