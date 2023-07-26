@@ -135,7 +135,6 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
-        # todo : import get_today_task from pipelines.task
 
         with case(update_metadata, True):
             update_django_metadata(
