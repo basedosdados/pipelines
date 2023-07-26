@@ -68,15 +68,16 @@ with Flow(
     )
 
     # ! MICRODADOS
-    filepath = treatment(ano=ano)
+    filepath_microdados = treatment(ano=ano,
+        upstream_tasks=[rename_flow_run])
 
     # pylint: disable=C0103
     wait_upload_table = create_table_and_upload_to_gcs(
-        data_path=filepath,
+        data_path=filepath_microdados,
         dataset_id=dataset_id,
         table_id=table_id[0],
         dump_mode="append",
-        wait=filepath,
+        wait=filepath_microdados,
     )
 
     with case(materialize_after_dump, True):
@@ -122,15 +123,16 @@ with Flow(
 
     # ! DENSIDADE BRASIL
 
-    filepath = treatment_br()
+    filepath_densidade_brasil = treatment_br(
+        upstream_tasks=[filepath_microdados])
 
     # pylint: disable=C0103
     wait_upload_table = create_table_and_upload_to_gcs(
-        data_path=filepath,
+        data_path=filepath_densidade_brasil,
         dataset_id=dataset_id,
         table_id=table_id[1],
         dump_mode="append",
-        wait=filepath,
+        wait=filepath_densidade_brasil,
     )
 
     with case(materialize_after_dump, True):
@@ -174,15 +176,16 @@ with Flow(
         )
 
     # ! DENSIDADE UF
-    filepath = treatment_uf()
+    filepath_densidade_uf = treatment_uf(
+        upstream_tasks=[filepath_densidade_brasil])
 
     # pylint: disable=C0103
     wait_upload_table = create_table_and_upload_to_gcs(
-        data_path=filepath,
+        data_path=filepath_densidade_uf,
         dataset_id=dataset_id,
         table_id=table_id[2],
         dump_mode="append",
-        wait=filepath,
+        wait=filepath_densidade_uf,
     )
 
     with case(materialize_after_dump, True):
@@ -228,15 +231,16 @@ with Flow(
 
     # ! DENSIDADE_MUNICIPIO
 
-    filepath = treatment_municipio()
+    filepath_densidade_municipio = treatment_municipio(
+        upstream_tasks=[filepath_densidade_uf])
 
     # pylint: disable=C0103
     wait_upload_table = create_table_and_upload_to_gcs(
-        data_path=filepath,
+        data_path=filepath_densidade_municipio,
         dataset_id=dataset_id,
         table_id=table_id[3],
         dump_mode="append",
-        wait=filepath,
+        wait=filepath_densidade_municipio,
     )
 
     with case(materialize_after_dump, True):
