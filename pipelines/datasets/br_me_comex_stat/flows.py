@@ -170,13 +170,23 @@ with Flow(
 <<<<<<< HEAD
 =======
         with case(update_metadata, True):
-            update_django_metadata(
+            update = update_django_metadata(
                 dataset_id,
                 table_id,
                 metadata_type="DateTimeRange",
                 bq_last_update=True,
                 api_mode="prod",
                 date_format="yy-mm",
+            )
+        with case(update_metadata, True):
+            update_django_metadata(
+                dataset_id,
+                table_id + "_atualizado",
+                metadata_type="DateTimeRange",
+                bq_last_update=True,
+                api_mode="prod",
+                date_format="yy-mm",
+                upstream_tasks=[update],
             )
 
 >>>>>>> 23e5abb (fix schedules and add coverage updater task)
@@ -291,13 +301,23 @@ with Flow(
 <<<<<<< HEAD
 =======
         with case(update_metadata, True):
-            update_django_metadata(
+            update = update_django_metadata(
                 dataset_id,
                 table_id,
                 metadata_type="DateTimeRange",
                 bq_last_update=True,
                 api_mode="prod",
                 date_format="yy-mm",
+            )
+        with case(update_metadata, True):
+            update_django_metadata(
+                dataset_id,
+                table_id + "_atualizado",
+                metadata_type="DateTimeRange",
+                bq_last_update=True,
+                api_mode="prod",
+                date_format="yy-mm",
+                upstream_tasks=[update],
             )
 
 >>>>>>> 23e5abb (fix schedules and add coverage updater task)
@@ -445,7 +465,7 @@ with Flow(
         )
 
         with case(update_metadata, True):
-            update_django_metadata(
+            update = update_django_metadata(
                 dataset_id,
                 table_id,
                 metadata_type="DateTimeRange",
@@ -453,7 +473,16 @@ with Flow(
                 api_mode="prod",
                 date_format="yy-mm",
             )
->>>>>>> 23e5abb (fix schedules and add coverage updater task)
+        with case(update_metadata, True):
+            update_django_metadata(
+                dataset_id,
+                table_id + "_atualizado",
+                metadata_type="DateTimeRange",
+                bq_last_update=True,
+                api_mode="prod",
+                date_format="yy-mm",
+                upstream_tasks=[update],
+            )
 
 br_comex_ncm_exportacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_comex_ncm_exportacao.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
@@ -595,7 +624,7 @@ with Flow(
         )
 
         with case(update_metadata, True):
-            update_django_metadata(
+            update = update_django_metadata(
                 dataset_id,
                 table_id,
                 metadata_type="DateTimeRange",
@@ -603,7 +632,16 @@ with Flow(
                 api_mode="prod",
                 date_format="yy-mm",
             )
->>>>>>> 23e5abb (fix schedules and add coverage updater task)
+        with case(update_metadata, True):
+            update_django_metadata(
+                dataset_id,
+                table_id + "_atualizado",
+                metadata_type="DateTimeRange",
+                bq_last_update=True,
+                api_mode="prod",
+                date_format="yy-mm",
+                upstream_tasks=[update],
+            )
 
 br_comex_ncm_importacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_comex_ncm_importacao.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
