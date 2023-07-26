@@ -38,7 +38,7 @@ def treatment(ano: int):
 
     # ! Lendo o arquivo csv
     df = pd.read_csv(
-        f"{anatel_constants.INPUT_PATH.value}Acesso_Banda_Larga_Fixa_{ano}",
+        f"{anatel_constants.INPUT_PATH.value}Acessos_Banda_Larga_Fixa_{ano}",
         sep=";",
         encoding="utf-8",
     )
