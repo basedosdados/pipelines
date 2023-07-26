@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 from zipfile import ZipFile
 from pathlib import Path
-
+import os
 
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
@@ -156,11 +156,15 @@ def treatment_br():
         columns={"Ano": "ano", "Mês": "mes", "Densidade": "densidade"},
         inplace=True,
     )
-
-    # ! Salvando o csv tratado
-    path = anatel_constants.OUTPUT_PATH_BRASIL.value
-    df_brasil.to_csv(path, sep=",", index=False, encoding="utf-8")
-
+    # Cria um diretório de saída, se não existir
+    os.system(f"mkdir -p {anatel_constants.OUTPUT_PATH_BRASIL.value}")
+    df_brasil.to_csv(
+        f"{anatel_constants.OUTPUT_PATH_BRASIL.value}densidade_brasil.csv",
+        index=False,
+        sep=",",
+        encoding="utf-8",
+        na_rep="",
+    )
     return anatel_constants.OUTPUT_PATH_BRASIL.value
 
 
@@ -190,8 +194,14 @@ def treatment_uf():
     )
 
     # ! Salvando o csv tratado
-    path = anatel_constants.OUTPUT_PATH_UF.value
-    df_uf.to_csv(path, sep=",", index=False, encoding="utf-8")
+    os.system(f"mkdir -p {anatel_constants.OUTPUT_PATH_UF.value}")
+    df_uf.to_csv(
+        f"{anatel_constants.OUTPUT_PATH_UF.value}densidade_uf.csv",
+        index=False,
+        sep=",",
+        encoding="utf-8",
+        na_rep="",
+    )
 
     return anatel_constants.OUTPUT_PATH_UF.value
 
