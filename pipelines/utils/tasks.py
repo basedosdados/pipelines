@@ -395,6 +395,8 @@ def update_django_metadata(
         billing_project_id (str): the billing_project_id to be used when the extract_last_update function is triggered. Note that it has
         to be equal to the prefect agent. For prod agents use basedosdados where as for dev agents use basedosdados-dev. The default value is
         to 'basedosdados-dev'.
+        bq_table_last_year_month (bool): if true extract YYYY-MM from the table in Big Query to update the Coverage. Note
+        that in needs the table to have ano and mes columns.
 
     Returns:
         None
