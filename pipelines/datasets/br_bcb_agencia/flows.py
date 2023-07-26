@@ -43,6 +43,7 @@ with Flow(
     dataset_id = Parameter("dataset_id", default="br_bcb_agencia", required=True)
     table_id = Parameter("table_id", default="agencia", required=True)
     update_metadata = Parameter("update_metadata", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     # Materialization mode
     materialization_mode = Parameter(
@@ -52,8 +53,6 @@ with Flow(
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
-
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id

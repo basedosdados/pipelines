@@ -56,7 +56,6 @@ def download_data(url, xpath):
 
     log(f"Downloading file from: {current_link} ")
 
-    # download and unzip the file
     download_and_unzip(
         url=current_link, extract_to=agencia_constants.DOWNLOAD_PATH_AGENCIA.value
     )
