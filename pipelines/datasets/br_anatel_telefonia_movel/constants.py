@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Constant values for the datasets projects
+Constant values for the datasets projects of the pipelines
 """
 
 from enum import Enum
