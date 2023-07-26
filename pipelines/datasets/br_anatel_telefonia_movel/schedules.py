@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Schedules for br_anatel_telefonia_movel
+Schedules for dataset br_anatel_telefonia_movel
 """
 from datetime import timedelta, datetime
 from prefect.schedules import Schedule
