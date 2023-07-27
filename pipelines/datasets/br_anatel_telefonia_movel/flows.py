@@ -22,7 +22,7 @@ from pipelines.datasets.br_anatel_telefonia_movel.tasks import (
     clean_csv_uf,
     clean_csv_municipio,
     get_today_date,
-    get_today_date_atualizado
+    get_today_date_atualizado,
 )
 from pipelines.utils.decorators import Flow
 from pipelines.utils.tasks import (

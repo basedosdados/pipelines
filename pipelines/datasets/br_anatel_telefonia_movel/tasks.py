@@ -308,6 +308,7 @@ def get_today_date():
 
     return d.strftime("%Y-%m")
 
+
 @task
 def get_today_date_atualizado():
     d = datetime.now() - timedelta(days=60)

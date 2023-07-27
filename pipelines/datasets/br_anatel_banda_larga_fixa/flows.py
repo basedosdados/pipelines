@@ -19,7 +19,7 @@ from pipelines.datasets.br_anatel_banda_larga_fixa.tasks import (
     treatment_uf,
     treatment_municipio,
     get_today_date,
-    get_today_date_atualizado
+    get_today_date_atualizado,
 )
 
 from pipelines.datasets.br_anatel_banda_larga_fixa.schedules import (
