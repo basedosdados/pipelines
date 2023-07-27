@@ -134,7 +134,7 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
-
+        # coverage updater
         with case(update_metadata, True):
             update = update_django_metadata(
                 dataset_id,
