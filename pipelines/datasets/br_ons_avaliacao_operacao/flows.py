@@ -387,7 +387,7 @@ with Flow(
                 bq_table_last_year_month=True,
                 billing_project_id="basedosdados",
                 api_mode="prod",
-                date_format="yy-mm",
+                date_format="yy-mm-dd",
                 upstream_tasks=[wait_for_materialization],
             )
 

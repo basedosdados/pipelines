@@ -668,16 +668,17 @@ def extract_last_update(
         raise
 
 
-def extract_last_year_month(
-    dataset_id, table_id, date_format: str, billing_project_id: str
-):
+def extract_last_date(dataset_id, table_id, date_format: str, billing_project_id: str):
     """
     Extracts the last update date of a given dataset table.
 
     Args:
         dataset_id (str): The ID of the dataset.
         table_id (str): The ID of the table.
-        date_format (str): Date format ('yy-mm')
+        date_format (str): Date format ('yy-mm' or 'yy-mm-dd')
+        if set to 'yy-mm' the function will look for  ano and mes named columns in the table_id
+        and return a concatenated string in the formar yyyy-mm. if set to 'yyyy-mm-dd'
+        the function will look for  data named column in the format 'yyyy-mm-dd' and return it.
 
     Returns:
         str: The last update date in the format 'yyyy-mm' or 'yyyy-mm-dd'.
@@ -724,11 +725,10 @@ def extract_last_year_month(
                 billing_project_id=billing_project_id,
                 from_file=True,
             )
-            input_date_str = t["max_date"][0]
+            # it infers that the data variable is already on basedosdados standart format
+            # yyyy-mm-dd
+            last_date = t["max_date"][0]
 
-            date_obj = datetime.strptime(input_date_str, "%Y-%m-%d")
-
-            last_date = date_obj.strftime("%Y-%m-%d")
             log(f"Última data YYYY-MM-DD: {last_date}")
 
             return last_date

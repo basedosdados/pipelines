@@ -24,7 +24,7 @@ from pipelines.utils.utils import (
     get_credentials_utils,
     create_update,
     extract_last_update,
-    extract_last_year_month,
+    extract_last_date,
     get_first_date,
     log,
     get_credentials_from_secret,
@@ -439,7 +439,7 @@ def update_django_metadata(
                 api_mode=api_mode,
             )
         elif bq_table_last_year_month:
-            last_date = extract_last_year_month(
+            last_date = extract_last_date(
                 dataset_id,
                 table_id,
                 date_format=date_format,
