@@ -78,7 +78,7 @@ with Flow(
         dump_mode="append",
         wait=filepath_microdados,
     )
-
+    # ! bd +
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -120,6 +120,50 @@ with Flow(
             _last_date=date,
         )
 
+
+    # ! tabela bd pro
+    with case(materialize_after_dump, True):
+        # Trigger DBT flow run
+        current_flow_labels = get_current_flow_labels()
+        materialization_flow = create_flow_run(
+            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
+            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+            parameters={
+                "dataset_id": dataset_id,
+                "table_id": table_id[0] + "_atualizado",
+                "mode": materialization_mode,
+                "dbt_alias": dbt_alias,
+            },
+            labels=current_flow_labels,
+            run_name=f"Materialize {dataset_id}.{table_id[0]}" + "_atualizado",
+        )
+
+        wait_for_materialization = wait_for_flow_run(
+            materialization_flow,
+            stream_states=True,
+            stream_logs=True,
+            raise_final_state=True,
+        )
+        wait_for_materialization.max_retries = (
+            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
+        )
+        wait_for_materialization.retry_delay = timedelta(
+            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+        )
+
+    with case(update_metadata, True):
+        date = get_today_date()  # task que retorna a data atual
+        update_django_metadata(
+            dataset_id,
+            table_id[0] + "_atualizado",
+            metadata_type="DateTimeRange",
+            bq_last_update=False,
+            api_mode="prod",
+            date_format="yy-mm",
+            _last_date=date,
+        )
+
+
     # ! DENSIDADE BRASIL
 
     filepath_densidade_brasil = treatment_br(upstream_tasks=[filepath_microdados])
@@ -132,7 +176,7 @@ with Flow(
         dump_mode="append",
         wait=filepath_densidade_brasil,
     )
-
+    # ! bd +
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -173,6 +217,49 @@ with Flow(
             _last_date=date,
         )
 
+    
+    # ! tabela bd pro
+    with case(materialize_after_dump, True):
+        # Trigger DBT flow run
+        current_flow_labels = get_current_flow_labels()
+        materialization_flow = create_flow_run(
+            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
+            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+            parameters={
+                "dataset_id": dataset_id,
+                "table_id": table_id[1] + "_atualizado",
+                "mode": materialization_mode,
+                "dbt_alias": dbt_alias,
+            },
+            labels=current_flow_labels,
+            run_name=f"Materialize {dataset_id}.{table_id[1]}" + "_atualizado",
+        )
+
+        wait_for_materialization = wait_for_flow_run(
+            materialization_flow,
+            stream_states=True,
+            stream_logs=True,
+            raise_final_state=True,
+        )
+        wait_for_materialization.max_retries = (
+            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
+        )
+        wait_for_materialization.retry_delay = timedelta(
+            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+        )
+
+    with case(update_metadata, True):
+        date = get_today_date()  # task que retorna a data atual
+        update_django_metadata(
+            dataset_id,
+            table_id[1] + "_atualizado",
+            metadata_type="DateTimeRange",
+            bq_last_update=False,
+            api_mode="prod",
+            date_format="yy-mm",
+            _last_date=date,
+        )
+
     # ! DENSIDADE UF
     filepath_densidade_uf = treatment_uf(upstream_tasks=[filepath_densidade_brasil])
 
@@ -184,7 +271,7 @@ with Flow(
         dump_mode="append",
         wait=filepath_densidade_uf,
     )
-
+    # ! bd +
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -214,6 +301,49 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
+    
+    # ! tabela bd pro
+    with case(materialize_after_dump, True):
+        # Trigger DBT flow run
+        current_flow_labels = get_current_flow_labels()
+        materialization_flow = create_flow_run(
+            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
+            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+            parameters={
+                "dataset_id": dataset_id,
+                "table_id": table_id[1] + "_atualizado",
+                "mode": materialization_mode,
+                "dbt_alias": dbt_alias,
+            },
+            labels=current_flow_labels,
+            run_name=f"Materialize {dataset_id}.{table_id[1]}" + "_atualizado",
+        )
+
+        wait_for_materialization = wait_for_flow_run(
+            materialization_flow,
+            stream_states=True,
+            stream_logs=True,
+            raise_final_state=True,
+        )
+        wait_for_materialization.max_retries = (
+            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
+        )
+        wait_for_materialization.retry_delay = timedelta(
+            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+        )
+
+    with case(update_metadata, True):
+        date = get_today_date()  # task que retorna a data atual
+        update_django_metadata(
+            dataset_id,
+            table_id[1] + "_atualizado",
+            metadata_type="DateTimeRange",
+            bq_last_update=False,
+            api_mode="prod",
+            date_format="yy-mm",
+            _last_date=date,
+        )
+
     with case(update_metadata, True):
         date = get_today_date()  # task que retorna a data atual
         update_django_metadata(
@@ -225,6 +355,7 @@ with Flow(
             date_format="yy-mm",
             _last_date=date,
         )
+    
 
     # ! DENSIDADE_MUNICIPIO
 
@@ -240,7 +371,7 @@ with Flow(
         dump_mode="append",
         wait=filepath_densidade_municipio,
     )
-
+    # ! bd +
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -275,6 +406,49 @@ with Flow(
         update_django_metadata(
             dataset_id,
             table_id[3],
+            metadata_type="DateTimeRange",
+            bq_last_update=False,
+            api_mode="prod",
+            date_format="yy-mm",
+            _last_date=date,
+        )
+
+    # ! tabela bd pro
+
+    with case(materialize_after_dump, True):
+        # Trigger DBT flow run
+        current_flow_labels = get_current_flow_labels()
+        materialization_flow = create_flow_run(
+            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
+            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+            parameters={
+                "dataset_id": dataset_id,
+                "table_id": table_id[3] + "_atualizado",
+                "mode": materialization_mode,
+                "dbt_alias": dbt_alias,
+            },
+            labels=current_flow_labels,
+            run_name=f"Materialize {dataset_id}.{table_id[3]}" + "_atualizado",
+        )
+
+        wait_for_materialization = wait_for_flow_run(
+            materialization_flow,
+            stream_states=True,
+            stream_logs=True,
+            raise_final_state=True,
+        )
+        wait_for_materialization.max_retries = (
+            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
+        )
+        wait_for_materialization.retry_delay = timedelta(
+            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+        )
+
+    with case(update_metadata, True):
+        date = get_today_date()  # task que retorna a data atual
+        update_django_metadata(
+            dataset_id,
+            table_id[3] + "_atualizado",
             metadata_type="DateTimeRange",
             bq_last_update=False,
             api_mode="prod",
