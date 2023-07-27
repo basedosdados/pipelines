@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-General purpose functions for the br_anatel_telefonia_movel project
+General purpose functions for the br_anatel_telefonia_movel project of the pipelines
 """
 # pylint: disable=too-few-public-methods,invalid-name
 
