@@ -9,6 +9,7 @@ Prefect flows for basedosdados project
 from pipelines.datasets.br_bcb_estban.flows import *
 from pipelines.datasets.br_cvm_administradores_carteira.flows import *
 from pipelines.datasets.br_cvm_oferta_publica_distribuicao.flows import *
+from pipelines.datasets.br_me_comex_stat.flows import *
 from pipelines.datasets.br_ibge_inpc.flows import *
 from pipelines.datasets.br_ibge_ipca.flows import *
 from pipelines.datasets.br_ibge_ipca15.flows import *

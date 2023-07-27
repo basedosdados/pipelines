@@ -115,20 +115,20 @@ with Flow(
             wait=filepath,
         )
 
-    wait_update_metadata = update_metadata(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        fields_to_update=[
-            {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
-            {"temporal_coverage": ["1994(1)2022"]},
-        ],
-        upstream_tasks=[wait_upload_table],
-    )
+    # wait_update_metadata = update_metadata(
+    #     dataset_id=dataset_id,
+    #     table_id=table_id,
+    #     fields_to_update=[
+    #         {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
+    #         {"temporal_coverage": ["1994(1)2022"]},
+    #     ],
+    #     upstream_tasks=[wait_upload_table],
+    # )
 
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels(
-            upstream_tasks=[wait_update_metadata]
+            upstream_tasks=[wait_upload_table]
         )
         materialization_flow = create_flow_run(
             flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
@@ -238,19 +238,19 @@ with Flow(
             wait=filepath,
         )
 
-    wait_update_metadata = update_metadata(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        fields_to_update=[
-            {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}}
-        ],
-        upstream_tasks=[wait_upload_table],
-    )
+    # wait_update_metadata = update_metadata(
+    #     dataset_id=dataset_id,
+    #     table_id=table_id,
+    #     fields_to_update=[
+    #         {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}}
+    #     ],
+    #     upstream_tasks=[wait_upload_table],
+    # )
 
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels(
-            upstream_tasks=[wait_update_metadata]
+            upstream_tasks=[wait_upload_table]
         )
         materialization_flow = create_flow_run(
             flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
@@ -322,19 +322,19 @@ with Flow(
             wait=filepath,
         )
 
-    wait_update_metadata = update_metadata(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        fields_to_update=[
-            {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}}
-        ],
-        upstream_tasks=[wait_upload_table],
-    )
+    # wait_update_metadata = update_metadata(
+    #     dataset_id=dataset_id,
+    #     table_id=table_id,
+    #     fields_to_update=[
+    #         {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}}
+    #     ],
+    #     upstream_tasks=[wait_upload_table],
+    # )
 
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels(
-            upstream_tasks=[wait_update_metadata]
+            upstream_tasks=[wait_upload_table]
         )
         materialization_flow = create_flow_run(
             flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
@@ -406,19 +406,19 @@ with Flow(
             wait=filepath,
         )
 
-    wait_update_metadata = update_metadata(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        fields_to_update=[
-            {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}}
-        ],
-        upstream_tasks=[wait_upload_table],
-    )
+    # wait_update_metadata = update_metadata(
+    #     dataset_id=dataset_id,
+    #     table_id=table_id,
+    #     fields_to_update=[
+    #         {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}}
+    #     ],
+    #     upstream_tasks=[wait_upload_table],
+    # )
 
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels(
-            upstream_tasks=[wait_update_metadata]
+            upstream_tasks=[wait_upload_table]
         )
         materialization_flow = create_flow_run(
             flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
