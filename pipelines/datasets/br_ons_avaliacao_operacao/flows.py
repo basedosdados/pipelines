@@ -135,14 +135,14 @@ with Flow(
         "dataset_id", default="br_ons_avaliacao_operacao", required=True
     )
     table_id = Parameter("table_id", default="geracao_usina", required=True)
+    update_metadata = Parameter("update_metadata", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=False, required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
-    update_metadata = Parameter("update_metadata", default=False, required=False)
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
@@ -226,14 +226,14 @@ with Flow(
     table_id = Parameter(
         "table_id", default="geracao_termica_motivo_despacho", required=True
     )
+    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    update_metadata = Parameter("update_metadata", default=False, required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id

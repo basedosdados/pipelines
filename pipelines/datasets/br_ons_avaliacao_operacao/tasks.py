@@ -26,13 +26,6 @@ from pipelines.datasets.br_ons_avaliacao_operacao.utils import (
 
 
 @task
-def get_today_date():
-    d = datetime.today()
-
-    return d.strftime("%Y-%m-%d")
-
-
-@task
 def download_data(
     table_name: str,
 ):
