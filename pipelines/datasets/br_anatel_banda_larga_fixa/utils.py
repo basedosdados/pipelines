@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-General purpose functions for the br_anatel_banda_larga_fixa project
+General purpose functions for the br_anatel_banda_larga_fixa
 """
 from io import BytesIO
 from zipfile import ZipFile

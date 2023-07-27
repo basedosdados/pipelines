@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Schedules for br_anatel_banda_larga_fixa
+Schedules for dataset br_anatel_banda_larga_fixa
 """
 
 from datetime import timedelta, datetime
