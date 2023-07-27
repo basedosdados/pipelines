@@ -332,19 +332,7 @@ with Flow(
         date = get_today_date()  # task que retorna a data atual
         update_django_metadata(
             dataset_id,
-            table_id[1] + "_atualizado",
-            metadata_type="DateTimeRange",
-            bq_last_update=False,
-            api_mode="prod",
-            date_format="yy-mm",
-            _last_date=date,
-        )
-
-    with case(update_metadata, True):
-        date = get_today_date()  # task que retorna a data atual
-        update_django_metadata(
-            dataset_id,
-            table_id[2],
+            table_id[2] + "_atualizado",
             metadata_type="DateTimeRange",
             bq_last_update=False,
             api_mode="prod",
