@@ -14,7 +14,6 @@ from pipelines.constants import constants
 from pipelines.datasets.br_ons_avaliacao_operacao.tasks import (
     download_data,
     wrang_data,
-    get_today_date,
 )
 from pipelines.datasets.br_ons_avaliacao_operacao.constants import (
     constants as ons_constants,
