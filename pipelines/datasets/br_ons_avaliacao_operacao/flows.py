@@ -116,6 +116,7 @@ with Flow(
                 billing_project_id="basedosdados",
                 api_mode="prod",
                 date_format="yy-mm-dd",
+                upstream_tasks=[wait_for_materialization],
             )
 
 br_ons_avaliacao_operacao_reservatorio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -203,6 +204,7 @@ with Flow(
                 billing_project_id="basedosdados",
                 api_mode="prod",
                 date_format="yy-mm-dd",
+                upstream_tasks=[wait_for_materialization],
             )
 
 br_ons_avaliacao_operacao_geracao_usina.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -252,6 +254,7 @@ with Flow(
         table_id=table_id,
         dump_mode="overwrite",
         wait=filepath,
+        upstream_tasks=[wait_for_materialization],
     )
 
     with case(materialize_after_dump, True):
@@ -293,6 +296,7 @@ with Flow(
                 billing_project_id="basedosdados",
                 api_mode="prod",
                 date_format="yy-mm-dd",
+                upstream_tasks=[wait_for_materialization],
             )
 
 br_ons_avaliacao_operacao_geracao_termica_motivo_despacho.storage = GCS(
@@ -384,6 +388,7 @@ with Flow(
                 billing_project_id="basedosdados",
                 api_mode="prod",
                 date_format="yy-mm",
+                upstream_tasks=[wait_for_materialization],
             )
 
 br_ons_avaliacao_operacao_energia_natural_afluente.storage = GCS(
@@ -476,6 +481,7 @@ with Flow(
                 billing_project_id="basedosdados",
                 api_mode="prod",
                 date_format="yy-mm-dd",
+                upstream_tasks=[wait_for_materialization],
             )
 
 br_ons_energia_armazenada_reservatorio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

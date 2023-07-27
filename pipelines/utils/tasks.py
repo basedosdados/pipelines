@@ -397,7 +397,7 @@ def update_django_metadata(
         to 'basedosdados-dev'.
         bq_table_last_year_month (bool): if true extract YYYY-MM from the table in Big Query to update the Coverage. Note
         that in needs the table to have ano and mes columns.
-
+        # todo insert log to trigg
     Returns:
         None
 

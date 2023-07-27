@@ -115,6 +115,7 @@ with Flow(
                 billing_project_id="basedosdados",
                 api_mode="prod",
                 date_format="yy-mm-dd",
+                upstream_tasks=[wait_for_materialization],
             )
 
 br_ons_estimativa_custos_custo_marginal_operacao_semi_horario.storage = GCS(
@@ -207,6 +208,7 @@ with Flow(
                 billing_project_id="basedosdados",
                 api_mode="prod",
                 date_format="yy-mm-dd",
+                upstream_tasks=[wait_for_materialization],
             )
 
 br_ons_estimativa_custos_custo_marginal_operacao_semanal.storage = GCS(
@@ -299,6 +301,7 @@ with Flow(
                 billing_project_id="basedosdados",
                 api_mode="prod",
                 date_format="yy-mm-dd",
+                upstream_tasks=[wait_for_materialization],
             )
 
 br_ons_estimativa_custos_balanco_energia_subsistemas.storage = GCS(
@@ -392,6 +395,7 @@ with Flow(
                 billing_project_id="basedosdados",
                 api_mode="prod",
                 date_format="yy-mm-dd",
+                upstream_tasks=[wait_for_materialization],
             )
 
 br_ons_estimativa_custos_balanco_energia_subsistemas_dessem.storage = GCS(
