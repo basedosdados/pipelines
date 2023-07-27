@@ -69,7 +69,8 @@ with Flow(
     )
 
     # ! MICRODADOS
-    filepath_microdados = treatment(ano=ano,
+    filepath_microdados = treatment(
+        ano=ano,
         upstream_tasks=[rename_flow_run],
     )
 
