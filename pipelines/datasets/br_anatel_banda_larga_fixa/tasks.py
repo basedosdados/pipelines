@@ -241,7 +241,7 @@ def treatment_municipio():
     to_partitions(
         df_municipio,
         partition_columns=["ano"],
-        savepath=anatel_constants.OUTPUT_PATH_MICRODADOS.value,
+        savepath=anatel_constants.OUTPUT_PATH_MUNICIPIO.value,
     )
 
     return anatel_constants.OUTPUT_PATH_MUNICIPIO.value

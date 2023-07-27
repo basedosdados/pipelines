@@ -112,17 +112,17 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-    with case(update_metadata, True):
-        date = get_today_date()  # task que retorna a data atual
-        update_django_metadata(
-            dataset_id,
-            table_id[0],
-            metadata_type="DateTimeRange",
-            bq_last_update=False,
-            api_mode="prod",
-            date_format="yy-mm",
-            _last_date=date,
-        )
+        with case(update_metadata, True):
+            date = get_today_date()  # task que retorna a data atual
+            update_django_metadata(
+                dataset_id,
+                table_id[0],
+                metadata_type="DateTimeRange",
+                bq_last_update=False,
+                api_mode="prod",
+                date_format="yy-mm",
+                _last_date=date,
+            )
 
     # ! tabela bd pro
     with case(materialize_after_dump, True):
@@ -154,21 +154,21 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-    with case(update_metadata, True):
-        date = get_today_date_atualizado()  # task que retorna a data atual
-        update_django_metadata(
-            dataset_id,
-            table_id[0] + "_atualizado",
-            metadata_type="DateTimeRange",
-            bq_last_update=False,
-            api_mode="prod",
-            date_format="yy-mm",
-            _last_date=date,
-        )
+        with case(update_metadata, True):
+            date = get_today_date_atualizado()  # task que retorna a data atual
+            update_django_metadata(
+                dataset_id,
+                table_id[0] + "_atualizado",
+                metadata_type="DateTimeRange",
+                bq_last_update=False,
+                api_mode="prod",
+                date_format="yy-mm",
+                _last_date=date,
+            )
 
     # ! BRASIL
     filepath_brasil = treatment_br(upstream_tasks=[filepath_microdados])
-    wait_upload_table_BRASIL = create_table_and_upload_to_gcs(
+    wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath_brasil,
         dataset_id=dataset_id,
         table_id=table_id[1],
@@ -205,17 +205,17 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-    with case(update_metadata, True):
-        date = get_today_date()  # task que retorna a data atual
-        update_django_metadata(
-            dataset_id,
-            table_id[1],
-            metadata_type="DateTimeRange",
-            bq_last_update=False,
-            api_mode="prod",
-            date_format="yy-mm",
-            _last_date=date,
-        )
+        with case(update_metadata, True):
+            date = get_today_date()  # task que retorna a data atual
+            update_django_metadata(
+                dataset_id,
+                table_id[1],
+                metadata_type="DateTimeRange",
+                bq_last_update=False,
+                api_mode="prod",
+                date_format="yy-mm",
+                _last_date=date,
+            )
 
     # ! tabela bd pro
     with case(materialize_after_dump, True):
@@ -247,22 +247,22 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-    with case(update_metadata, True):
-        date = get_today_date_atualizado()  # task que retorna a data atual
-        update_django_metadata(
-            dataset_id,
-            table_id[1] + "_atualizado",
-            metadata_type="DateTimeRange",
-            bq_last_update=False,
-            api_mode="prod",
-            date_format="yy-mm",
-            _last_date=date,
-        )
+        with case(update_metadata, True):
+            date = get_today_date_atualizado()  # task que retorna a data atual
+            update_django_metadata(
+                dataset_id,
+                table_id[1] + "_atualizado",
+                metadata_type="DateTimeRange",
+                bq_last_update=False,
+                api_mode="prod",
+                date_format="yy-mm",
+                _last_date=date,
+            )
 
     # ! UF
 
     filepath_uf = treatment_uf(upstream_tasks=[filepath_brasil])
-    wait_upload_table_BRASIL = create_table_and_upload_to_gcs(
+    wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath_uf,
         dataset_id=dataset_id,
         table_id=table_id[2],
@@ -300,17 +300,17 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-    with case(update_metadata, True):
-        date = get_today_date()  # task que retorna a data atual
-        update_django_metadata(
-            dataset_id,
-            table_id[2],
-            metadata_type="DateTimeRange",
-            bq_last_update=False,
-            api_mode="prod",
-            date_format="yy-mm",
-            _last_date=date,
-        )
+        with case(update_metadata, True):
+            date = get_today_date()  # task que retorna a data atual
+            update_django_metadata(
+                dataset_id,
+                table_id[2],
+                metadata_type="DateTimeRange",
+                bq_last_update=False,
+                api_mode="prod",
+                date_format="yy-mm",
+                _last_date=date,
+            )
 
     # ! tabela bd pro
     with case(materialize_after_dump, True):
@@ -342,21 +342,21 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-    with case(update_metadata, True):
-        date = get_today_date_atualizado()  # task que retorna a data atual
-        update_django_metadata(
-            dataset_id,
-            table_id[2] + "_atualizado",
-            metadata_type="DateTimeRange",
-            bq_last_update=False,
-            api_mode="prod",
-            date_format="yy-mm",
-            _last_date=date,
-        )
+        with case(update_metadata, True):
+            date = get_today_date_atualizado()  # task que retorna a data atual
+            update_django_metadata(
+                dataset_id,
+                table_id[2] + "_atualizado",
+                metadata_type="DateTimeRange",
+                bq_last_update=False,
+                api_mode="prod",
+                date_format="yy-mm",
+                _last_date=date,
+            )
 
     # ! MUNICIPIO
     filepath_municipio = treatment_municipio(upstream_tasks=[filepath_uf])
-    wait_upload_table_BRASIL = create_table_and_upload_to_gcs(
+    wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath_municipio,
         dataset_id=dataset_id,
         table_id=table_id[3],
@@ -394,17 +394,17 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-    with case(update_metadata, True):
-        date = get_today_date()  # task que retorna a data atual
-        update_django_metadata(
-            dataset_id,
-            table_id[3],
-            metadata_type="DateTimeRange",
-            bq_last_update=False,
-            api_mode="prod",
-            date_format="yy-mm",
-            _last_date=date,
-        )
+        with case(update_metadata, True):
+            date = get_today_date()  # task que retorna a data atual
+            update_django_metadata(
+                dataset_id,
+                table_id[3],
+                metadata_type="DateTimeRange",
+                bq_last_update=False,
+                api_mode="prod",
+                date_format="yy-mm",
+                _last_date=date,
+            )
 
     # ! tabela bd pro
 
@@ -437,17 +437,17 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-    with case(update_metadata, True):
-        date = get_today_date_atualizado()  # task que retorna a data atual
-        update_django_metadata(
-            dataset_id,
-            table_id[3] + "_atualizado",
-            metadata_type="DateTimeRange",
-            bq_last_update=False,
-            api_mode="prod",
-            date_format="yy-mm",
-            _last_date=date,
-        )
+        with case(update_metadata, True):
+            date = get_today_date_atualizado()  # task que retorna a data atual
+            update_django_metadata(
+                dataset_id,
+                table_id[3] + "_atualizado",
+                metadata_type="DateTimeRange",
+                bq_last_update=False,
+                api_mode="prod",
+                date_format="yy-mm",
+                _last_date=date,
+            )
 
 br_anatel_banda_larga.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_anatel_banda_larga.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
