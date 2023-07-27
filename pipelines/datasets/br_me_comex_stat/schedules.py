@@ -22,7 +22,6 @@ schedule_municipio_exportacao = Schedule(
                 "table_id": "municipio_exportacao",
                 "materialization_mode": "prod",
                 "materialize after dump": True,
-                "start_date": 2023,
                 "update_metadata": True,
                 "dbt_alias": False,
             },
@@ -45,7 +44,6 @@ schedule_municipio_importacao = Schedule(
                 "materialization_mode": "prod",
                 "update_metadata": True,
                 "materialize after dump": True,
-                "start_date": 2023,
                 "dbt_alias": False,
             },
         )
@@ -67,7 +65,6 @@ schedule_ncm_importacao = Schedule(
                 "materialization_mode": "prod",
                 "update_metadata": True,
                 "materialize after dump": True,
-                "start_date": 2023,
                 "dbt_alias": False,
             },
         )
@@ -89,7 +86,6 @@ schedule_ncm_exportacao = Schedule(
                 "materialization_mode": "prod",
                 "materialize after dump": True,
                 "update_metadata": True,
-                "start_date": 2023,
                 "dbt_alias": False,
             },
         )

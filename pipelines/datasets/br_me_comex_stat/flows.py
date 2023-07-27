@@ -20,6 +20,7 @@ from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.utils.tasks import (
+    update_django_metadata,
     rename_current_flow_run_dataset_table,
     get_current_flow_labels,
     create_table_and_upload_to_gcs,
@@ -39,14 +40,15 @@ with Flow(
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_me_comex_stat", required=True)
     table_id = Parameter("table_id", default="municipio_exportacao", required=True)
-    start = Parameter("start", default=2023, required=True)  # confirmar depois
+    update_metadata = Parameter("update_metadata", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
         "materialize after dump", default=True, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
@@ -72,42 +74,7 @@ with Flow(
         wait=filepath,
     )
 
-<<<<<<< HEAD
-    with case(materialize_after_dump, True):
-        # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
-        materialization_flow = create_flow_run(
-            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-            parameters={
-                "dataset_id": dataset_id,
-                "table_id": table_id,
-                "mode": materialization_mode,
-                "dbt_alias": dbt_alias,
-            },
-            labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id}",
-            wait=wait_upload_table
-        )
-
-        wait_for_materialization = wait_for_flow_run(
-            materialization_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
-        wait_for_materialization.max_retries = (
-            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-        )
-        wait_for_materialization.retry_delay = timedelta(
-            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-        )
-
-    # tabela atualizado
-=======
     # municipio_exportacao
-
-
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -167,8 +134,6 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-<<<<<<< HEAD
-=======
         with case(update_metadata, True):
             update = update_django_metadata(
                 dataset_id,
@@ -191,7 +156,6 @@ with Flow(
                 upstream_tasks=[update],
             )
 
->>>>>>> 23e5abb (fix schedules and add coverage updater task)
 dataset_br_me_comex_municipio_exportacao_flow.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
 )
@@ -207,14 +171,15 @@ with Flow(
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_me_comex_stat", required=True)
     table_id = Parameter("table_id", default="municipio_importacao", required=True)
-    start = Parameter("start", default=2023, required=True)  # confirmar depois
+    update_metadata = Parameter("update_metadata", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
         "materialize after dump", default=True, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
@@ -300,8 +265,6 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-<<<<<<< HEAD
-=======
         with case(update_metadata, True):
             update = update_django_metadata(
                 dataset_id,
@@ -324,7 +287,6 @@ with Flow(
                 upstream_tasks=[update],
             )
 
->>>>>>> 23e5abb (fix schedules and add coverage updater task)
 br_comex_municipio_importacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_comex_municipio_importacao.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
@@ -339,6 +301,8 @@ with Flow(
     dataset_id = Parameter("dataset_id", default="br_me_comex_stat", required=True)
     table_id = Parameter("table_id", default="ncm_exportacao", required=True)
     start = Parameter("start", default=2023, required=True)  # confirmar depois
+    update_metadata = Parameter("update_metadata", default=False, required=False)
+
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
     )
@@ -373,7 +337,6 @@ with Flow(
 
     # ncm_exportacao
 
-
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -403,10 +366,7 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-    # tabela atualizado
-=======
     # ncm_exportacao
->>>>>>> 23e5abb (fix schedules and add coverage updater task)
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -435,8 +395,6 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
-<<<<<<< HEAD
-=======
 
     # ncm_exportacao_atualizado
     with case(materialize_after_dump, True):
@@ -501,15 +459,15 @@ with Flow(
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_me_comex_stat", required=True)
     table_id = Parameter("table_id", default="ncm_importacao", required=True)
-    start = Parameter("start", default=2023, required=True)  # confirmar depois
+    update_metadata = Parameter("update_metadata", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
         "materialize after dump", default=True, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
-
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
@@ -533,41 +491,8 @@ with Flow(
         dump_mode="append",
         wait=filepath,
     )
-<<<<<<< HEAD
 
-    with case(materialize_after_dump, True):
-        # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
-        materialization_flow = create_flow_run(
-            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-            parameters={
-                "dataset_id": dataset_id,
-                "table_id": table_id,
-                "mode": materialization_mode,
-                "dbt_alias": dbt_alias,
-            },
-            labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id}",
-        )
-
-        wait_for_materialization = wait_for_flow_run(
-            materialization_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
-        wait_for_materialization.max_retries = (
-            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-        )
-        wait_for_materialization.retry_delay = timedelta(
-            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-        )
-
-    # tabela atualizado
-=======
     # ncm_importacao
->>>>>>> 23e5abb (fix schedules and add coverage updater task)
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -596,8 +521,6 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
-<<<<<<< HEAD
-=======
 
     # ncm_importacao_atualizado
     with case(materialize_after_dump, True):
