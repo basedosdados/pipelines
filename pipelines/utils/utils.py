@@ -374,6 +374,7 @@ def to_partitions(data: pd.DataFrame, partition_columns: List[str], savepath: st
         # create unique combinations between partition columns
         unique_combinations = (
             data[partition_columns]
+            .astype(str)
             .drop_duplicates(subset=partition_columns)
             .to_dict(orient="records")
         )
@@ -401,6 +402,9 @@ def to_partitions(data: pd.DataFrame, partition_columns: List[str], savepath: st
             # append data to csv
             df_filter.to_csv(
                 file_filter_save_path,
+                sep=",",
+                encoding="utf-8",
+                na_rep="",
                 index=False,
                 mode="a",
                 header=not file_filter_save_path.exists(),
