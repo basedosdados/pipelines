@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Flows for br_anatel_telefonia_movel
+Flows for dataset br_anatel_telefonia_movel
 """
 
 from prefect.run_configs import KubernetesRun
@@ -70,7 +70,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
     anos = Parameter("anos", default=2023, required=True)
     mes_um = Parameter("mes_um", default="01", required=True)
     mes_dois = Parameter("mes_dois", default="06", required=True)
-    update_metadata = Parameter("update_metadata", default=True, required=False)
+    update_metadata = Parameter("update_metadata", default=False, required=False)
 
     # ! MICRODADOS
     filepath_microdados = clean_csv_microdados(

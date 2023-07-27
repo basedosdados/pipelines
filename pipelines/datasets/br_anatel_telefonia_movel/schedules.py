@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Schedules for br_anatel_telefonia_movel
+Schedules for dataset br_anatel_telefonia_movel
 """
 from datetime import timedelta, datetime
 from prefect.schedules import Schedule
@@ -23,7 +23,7 @@ every_month_anatel = Schedule(
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
-                "update_metadata": True,
+                "update_metadata": False,
             },
         ),
     ],
