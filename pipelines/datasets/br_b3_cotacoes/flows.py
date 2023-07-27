@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*- dataset
+# -*- coding: utf-8 -*-
 """
 Flows for dataset br_b3_cotacoes dataset
 """
