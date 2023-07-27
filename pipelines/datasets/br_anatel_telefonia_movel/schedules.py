@@ -19,11 +19,11 @@ every_month_anatel = Schedule(
             ],
             parameter_defaults={
                 "dataset_id": "br_anatel_telefonia_movel",
-                "table_id": "microdados",
+                "table_id": ["microdados", "densidade_brasil", "densidade_uf", "densidade_municipio"],
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
-                "update_metadata": False,
+                "update_metadata": True,
             },
         ),
     ],

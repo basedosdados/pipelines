@@ -19,6 +19,7 @@ from pipelines.datasets.br_anatel_banda_larga_fixa.tasks import (
     treatment_uf,
     treatment_municipio,
     get_today_date,
+    get_today_date_atualizado
 )
 
 from pipelines.datasets.br_anatel_banda_larga_fixa.schedules import (
@@ -151,7 +152,7 @@ with Flow(
         )
 
     with case(update_metadata, True):
-        date = get_today_date()  # task que retorna a data atual
+        date = get_today_date_atualizado()  # task que retorna a data atual
         update_django_metadata(
             dataset_id,
             table_id[0] + "_atualizado",
@@ -246,7 +247,7 @@ with Flow(
         )
 
     with case(update_metadata, True):
-        date = get_today_date()  # task que retorna a data atual
+        date = get_today_date_atualizado()  # task que retorna a data atual
         update_django_metadata(
             dataset_id,
             table_id[1] + "_atualizado",
@@ -329,7 +330,7 @@ with Flow(
         )
 
     with case(update_metadata, True):
-        date = get_today_date()  # task que retorna a data atual
+        date = get_today_date_atualizado()  # task que retorna a data atual
         update_django_metadata(
             dataset_id,
             table_id[2] + "_atualizado",
@@ -428,7 +429,7 @@ with Flow(
         )
 
     with case(update_metadata, True):
-        date = get_today_date()  # task que retorna a data atual
+        date = get_today_date_atualizado()  # task que retorna a data atual
         update_django_metadata(
             dataset_id,
             table_id[3] + "_atualizado",

@@ -304,6 +304,12 @@ def clean_csv_municipio():
 # task para retornar o ano e mes paara a atualização dos metadados.
 @task
 def get_today_date():
+    d = datetime.now() - timedelta(days=180)
+
+    return d.strftime("%Y-%m")
+
+@task
+def get_today_date_atualizado():
     d = datetime.now() - timedelta(days=60)
 
     return d.strftime("%Y-%m")

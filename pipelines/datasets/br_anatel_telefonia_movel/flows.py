@@ -22,6 +22,7 @@ from pipelines.datasets.br_anatel_telefonia_movel.tasks import (
     clean_csv_uf,
     clean_csv_municipio,
     get_today_date,
+    get_today_date_atualizado
 )
 from pipelines.utils.decorators import Flow
 from pipelines.utils.tasks import (
@@ -161,7 +162,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
         )
 
     with case(update_metadata, True):
-        date = get_today_date()  # task que retorna a data atual
+        date = get_today_date_atualizado()  # task que retorna a data atual
         update_django_metadata(
             dataset_id,
             table_id[0] + "_atualizado",
@@ -254,7 +255,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
         )
 
     with case(update_metadata, True):
-        date = get_today_date()  # task que retorna a data atual
+        date = get_today_date_atualizado()  # task que retorna a data atual
         update_django_metadata(
             dataset_id,
             table_id[1] + "_atualizado",
@@ -349,7 +350,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
         )
 
     with case(update_metadata, True):
-        date = get_today_date()  # task que retorna a data atual
+        date = get_today_date_atualizado()  # task que retorna a data atual
         update_django_metadata(
             dataset_id,
             table_id[2] + "_atualizado",
@@ -444,7 +445,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
         )
 
     with case(update_metadata, True):
-        date = get_today_date()  # task que retorna a data atual
+        date = get_today_date_atualizado()  # task que retorna a data atual
         update_django_metadata(
             dataset_id,
             table_id[3] + "_atualizado",
