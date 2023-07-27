@@ -685,7 +685,7 @@ def extract_last_year_month(
     Raises:
         Exception: If an error occurs while extracting the last update date.
     """
-    if date_format == "yyyy-mm":
+    if date_format == "yy-mm":
         try:
             query_bd = f"""
             SELECT

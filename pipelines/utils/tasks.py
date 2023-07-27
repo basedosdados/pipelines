@@ -442,6 +442,7 @@ def update_django_metadata(
             last_date = extract_last_year_month(
                 dataset_id,
                 table_id,
+                date_format=date_format,
                 billing_project_id=billing_project_id,
             )
 
