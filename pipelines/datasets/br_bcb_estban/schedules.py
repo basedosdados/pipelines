@@ -18,7 +18,7 @@ every_month_agencia = Schedule(
             cron="@monthly",
             start_date=datetime(2023, 8, 5, 0, 0),
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_bcb_estban",
@@ -41,7 +41,7 @@ every_month_municipio = Schedule(
             cron="@monthly",
             start_date=datetime(2023, 8, 5, 0, 0),
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_bcb_estban",
