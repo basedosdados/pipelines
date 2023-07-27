@@ -235,7 +235,7 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-        # municipio_importacao_atualizado
+    # municipio_importacao_atualizado
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -334,9 +334,7 @@ with Flow(
         dump_mode="append",
         wait=filepath,
     )
-
     # ncm_exportacao
-
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -461,7 +459,6 @@ with Flow(
         dump_mode="append",
         wait=filepath,
     )
-
     # ncm_importacao
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
@@ -491,7 +488,6 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
-
     # ncm_importacao_atualizado
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
@@ -543,7 +539,6 @@ with Flow(
                 date_format="yy-mm",
                 upstream_tasks=[update],
             )
-
 br_comex_ncm_importacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_comex_ncm_importacao.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 br_comex_ncm_importacao.schedule = schedule_ncm_importacao
