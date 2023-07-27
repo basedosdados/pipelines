@@ -718,7 +718,7 @@ def extract_last_year_month(
             FROM
             `basedosdados.{dataset_id}.{table_id}`
             """
-
+            log(f"Query: {query_bd}")
             t = bd.read_sql(
                 query=query_bd,
                 billing_project_id=billing_project_id,
