@@ -150,6 +150,7 @@ with Flow(
             metadata_type="DateTimeRange",
             bq_last_update=False,
             bq_table_last_year_month=True,
+            billing_project_id="basedosdados",
             api_mode="prod",
             date_format="yy-mm",
         )
@@ -160,6 +161,7 @@ with Flow(
             metadata_type="DateTimeRange",
             bq_last_update=False,
             bq_table_last_year_month=True,
+            billing_project_id="basedosdados",
             api_mode="prod",
             date_format="yy-mm",
             upstream_tasks=[update],
