@@ -383,7 +383,7 @@ with Flow(
                 bq_table_last_year_month=True,
                 billing_project_id="basedosdados",
                 api_mode="prod",
-                date_format="yy-mm-dd",
+                date_format="yy-mm",
             )
 
 br_ons_avaliacao_operacao_energia_natural_afluente.storage = GCS(
