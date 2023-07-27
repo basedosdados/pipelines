@@ -46,14 +46,15 @@ with Flow(
         "dataset_id", default="br_ons_avaliacao_operacao", required=True
     )
     table_id = Parameter("table_id", default="reservatorio", required=True)
+    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    update_metadata = Parameter("update_metadata", default=False, required=False)
+
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
@@ -110,7 +111,9 @@ with Flow(
                 dataset_id,
                 table_id,
                 metadata_type="DateTimeRange",
-                bq_last_update=True,
+                bq_last_update=False,
+                bq_table_last_year_month=True,
+                billing_project_id="basedosdados",
                 api_mode="prod",
                 date_format="yy-mm-dd",
             )
@@ -191,15 +194,15 @@ with Flow(
         )
 
         with case(update_metadata, True):
-            date = get_today_date()
             update_django_metadata(
                 dataset_id,
                 table_id,
                 metadata_type="DateTimeRange",
                 bq_last_update=False,
+                bq_table_last_year_month=True,
+                billing_project_id="basedosdados",
                 api_mode="prod",
                 date_format="yy-mm-dd",
-                _last_date=date,
             )
 
 br_ons_avaliacao_operacao_geracao_usina.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -281,15 +284,15 @@ with Flow(
         )
 
         with case(update_metadata, True):
-            date = get_today_date()
             update_django_metadata(
                 dataset_id,
                 table_id,
                 metadata_type="DateTimeRange",
                 bq_last_update=False,
+                bq_table_last_year_month=True,
+                billing_project_id="basedosdados",
                 api_mode="prod",
                 date_format="yy-mm-dd",
-                _last_date=date,
             )
 
 br_ons_avaliacao_operacao_geracao_termica_motivo_despacho.storage = GCS(
@@ -370,6 +373,18 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
+
+        with case(update_metadata, True):
+            update_django_metadata(
+                dataset_id,
+                table_id,
+                metadata_type="DateTimeRange",
+                bq_last_update=False,
+                bq_table_last_year_month=True,
+                billing_project_id="basedosdados",
+                api_mode="prod",
+                date_format="yy-mm-dd",
+            )
 
 br_ons_avaliacao_operacao_energia_natural_afluente.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
@@ -452,15 +467,15 @@ with Flow(
         )
 
         with case(update_metadata, True):
-            date = get_today_date()
             update_django_metadata(
                 dataset_id,
                 table_id,
                 metadata_type="DateTimeRange",
                 bq_last_update=False,
+                bq_table_last_year_month=True,
+                billing_project_id="basedosdados",
                 api_mode="prod",
                 date_format="yy-mm-dd",
-                _last_date=date,
             )
 
 br_ons_energia_armazenada_reservatorio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

@@ -105,6 +105,17 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
+        with case(update_metadata, True):
+            update_django_metadata(
+                dataset_id,
+                table_id,
+                metadata_type="DateTimeRange",
+                bq_last_update=False,
+                bq_table_last_year_month=True,
+                billing_project_id="basedosdados",
+                api_mode="prod",
+                date_format="yy-mm-dd",
+            )
 
 br_ons_estimativa_custos_custo_marginal_operacao_semi_horario.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
@@ -186,6 +197,17 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
+        with case(update_metadata, True):
+            update_django_metadata(
+                dataset_id,
+                table_id,
+                metadata_type="DateTimeRange",
+                bq_last_update=False,
+                bq_table_last_year_month=True,
+                billing_project_id="basedosdados",
+                api_mode="prod",
+                date_format="yy-mm-dd",
+            )
 
 br_ons_estimativa_custos_custo_marginal_operacao_semanal.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
@@ -267,6 +289,17 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
+        with case(update_metadata, True):
+            update_django_metadata(
+                dataset_id,
+                table_id,
+                metadata_type="DateTimeRange",
+                bq_last_update=False,
+                bq_table_last_year_month=True,
+                billing_project_id="basedosdados",
+                api_mode="prod",
+                date_format="yy-mm-dd",
+            )
 
 br_ons_estimativa_custos_balanco_energia_subsistemas.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
@@ -349,6 +382,17 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
+        with case(update_metadata, True):
+            update_django_metadata(
+                dataset_id,
+                table_id,
+                metadata_type="DateTimeRange",
+                bq_last_update=False,
+                bq_table_last_year_month=True,
+                billing_project_id="basedosdados",
+                api_mode="prod",
+                date_format="yy-mm-dd",
+            )
 
 br_ons_estimativa_custos_balanco_energia_subsistemas_dessem.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value

@@ -16,7 +16,7 @@ schedule_br_ons_avaliacao_operacao_reservatorio = Schedule(
             cron="@monthly",
             start_date=datetime(2023, 6, 14, 0, 0),
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_ons_avaliacao_operacao",
@@ -38,7 +38,7 @@ schedule_br_ons_avaliacao_operacao_geracao_usina = Schedule(
             cron="0 0 * * *",  # every day at midnight
             start_date=datetime(2023, 6, 14, 0, 0),
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_ons_avaliacao_operacao",
@@ -60,7 +60,7 @@ schedule_br_ons_avaliacao_operacao_geracao_termica_motivo_despacho = Schedule(
             cron="0 0 * * *",  # every day at midnight
             start_date=datetime(2023, 6, 14, 0, 0),
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_ons_avaliacao_operacao",
@@ -81,7 +81,7 @@ schedule_br_ons_avaliacao_operacao_energia_natural_afluente = Schedule(
         CronClock(
             cron="0 0 * * *",  # every day at midnight
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             start_date=datetime(2023, 6, 14, 0, 0),
             parameter_defaults={
@@ -104,7 +104,7 @@ schedule_br_ons_avaliacao_operacao_energia_armazenada_reservatorio = Schedule(
             cron="0 0 * * *",  # every day at midnight
             start_date=datetime(2023, 6, 14, 0, 0),
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_ons_avaliacao_operacao",

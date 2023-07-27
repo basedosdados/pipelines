@@ -668,7 +668,9 @@ def extract_last_update(
         raise
 
 
-def extract_last_year_month(dataset_id, table_id, billing_project_id: str):
+def extract_last_year_month(
+    dataset_id, table_id, date_format: str, billing_project_id: str
+):
     """
     Extracts the last update date of a given dataset table.
 
@@ -678,35 +680,61 @@ def extract_last_year_month(dataset_id, table_id, billing_project_id: str):
         date_format (str): Date format ('yy-mm')
 
     Returns:
-        str: The last update date in the format 'YYYY-MM'.
+        str: The last update date in the format 'yyyy-mm' or 'yyyy-mm-dd'.
 
     Raises:
         Exception: If an error occurs while extracting the last update date.
     """
-    try:
-        query_bd = f"""
-        SELECT
-        MAX(CONCAT(ano,"-",mes)) as max_date
-        FROM
-        `basedosdados.{dataset_id}.{table_id}`
-        """
+    if date_format == "yyyy-mm":
+        try:
+            query_bd = f"""
+            SELECT
+            MAX(CONCAT(ano,"-",mes)) as max_date
+            FROM
+            `basedosdados.{dataset_id}.{table_id}`
+            """
 
-        t = bd.read_sql(
-            query=query_bd,
-            billing_project_id=billing_project_id,
-            from_file=True,
-        )
-        input_date_str = t["max_date"][0]
+            t = bd.read_sql(
+                query=query_bd,
+                billing_project_id=billing_project_id,
+                from_file=True,
+            )
+            input_date_str = t["max_date"][0]
 
-        date_obj = datetime.strptime(input_date_str, "%Y-%m")
+            date_obj = datetime.strptime(input_date_str, "%Y-%m")
 
-        last_date = date_obj.strftime("%Y-%m")
-        log(f"Última data YYYY-MM: {last_date}")
+            last_date = date_obj.strftime("%Y-%m")
+            log(f"Última data YYYY-MM: {last_date}")
 
-        return last_date
-    except Exception as e:
-        log(f"An error occurred while extracting the last update date: {str(e)}")
-        raise
+            return last_date
+        except Exception as e:
+            log(f"An error occurred while extracting the last update date: {str(e)}")
+            raise
+    else:
+        try:
+            query_bd = f"""
+            SELECT
+            MAX(data) as max_date
+            FROM
+            `basedosdados.{dataset_id}.{table_id}`
+            """
+
+            t = bd.read_sql(
+                query=query_bd,
+                billing_project_id=billing_project_id,
+                from_file=True,
+            )
+            input_date_str = t["max_date"][0]
+
+            date_obj = datetime.strptime(input_date_str, "%Y-%m-%d")
+
+            last_date = date_obj.strftime("%Y-%m-%d")
+            log(f"Última data YYYY-MM-DD: {last_date}")
+
+            return last_date
+        except Exception as e:
+            log(f"An error occurred while extracting the last update date: {str(e)}")
+            raise
 
 
 def find_ids(dataset_id, table_id, email, password):
