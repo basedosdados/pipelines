@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Tasks for dataset br_b3_cotacoes
+Tasks for br_b3_cotacoes
 """
 
 from prefect import task

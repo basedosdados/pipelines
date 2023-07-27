@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*- dataset
+# -*- coding: utf-8 -*-
 from datetime import timedelta, datetime
 from prefect.schedules import Schedule
 from prefect.schedules.clocks import CronClock

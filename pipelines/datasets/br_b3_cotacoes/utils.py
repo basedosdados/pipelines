@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-General purpose functions for the br_bcb_estban project of pipelines
+General purpose functions for the br_bcb_estban project
 """
 import requests
 from lxml import html

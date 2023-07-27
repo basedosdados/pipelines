@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*- dataset
+# -*- coding: utf-8 -*-
 from enum import Enum
 from datetime import datetime, timedelta
 
