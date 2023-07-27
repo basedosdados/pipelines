@@ -192,7 +192,7 @@ def treatment_uf():
         },
         inplace=True,
     )
-
+    log("Iniciando o particionado do arquivo densidade uf da Anatel")
     # ! Salvando o csv tratado
     os.system(f"mkdir -p {anatel_constants.OUTPUT_PATH_UF.value}")
     df_uf.to_csv(
@@ -237,10 +237,11 @@ def treatment_municipio():
     )
     log("Salvando o arquivo densidade municipio da Anatel")
     # ! Fazendo referencia a função criada anteriormente para particionar o arquivo o arquivo
+
     to_partitions(
         df_municipio,
-        partition_columns=["ano", "mes", "sigla_uf"],
-        savepath=anatel_constants.OUTPUT_PATH_MUNICIPIO.value,
+        partition_columns=["ano"],
+        savepath=anatel_constants.OUTPUT_PATH_MICRODADOS.value,
     )
 
     return anatel_constants.OUTPUT_PATH_MUNICIPIO.value

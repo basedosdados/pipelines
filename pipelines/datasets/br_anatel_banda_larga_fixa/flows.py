@@ -69,9 +69,10 @@ with Flow(
     )
 
     # ! MICRODADOS
-    filepath_microdados = treatment(ano=ano, upstream_tasks=[rename_flow_run])
+    filepath_microdados = treatment(ano=ano,
+        upstream_tasks=[rename_flow_run],
+    )
 
-    # pylint: disable=C0103
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath_microdados,
         dataset_id=dataset_id,
@@ -79,7 +80,8 @@ with Flow(
         dump_mode="append",
         wait=filepath_microdados,
     )
-    # ! bd +
+
+    # ! tabela bd +
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -163,19 +165,16 @@ with Flow(
             _last_date=date,
         )
 
-    # ! DENSIDADE BRASIL
-
-    filepath_densidade_brasil = treatment_br(upstream_tasks=[filepath_microdados])
-
-    # pylint: disable=C0103
-    wait_upload_table = create_table_and_upload_to_gcs(
-        data_path=filepath_densidade_brasil,
+    # ! BRASIL
+    filepath_brasil = treatment_br(upstream_tasks=[filepath_microdados])
+    wait_upload_table_BRASIL = create_table_and_upload_to_gcs(
+        data_path=filepath_brasil,
         dataset_id=dataset_id,
         table_id=table_id[1],
         dump_mode="append",
-        wait=filepath_densidade_brasil,
+        wait=filepath_brasil,
     )
-    # ! bd +
+    # ! tabela bd +
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -204,6 +203,7 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
+
     with case(update_metadata, True):
         date = get_today_date()  # task que retorna a data atual
         update_django_metadata(
@@ -258,18 +258,18 @@ with Flow(
             _last_date=date,
         )
 
-    # ! DENSIDADE UF
-    filepath_densidade_uf = treatment_uf(upstream_tasks=[filepath_densidade_brasil])
+    # ! UF
 
-    # pylint: disable=C0103
-    wait_upload_table = create_table_and_upload_to_gcs(
-        data_path=filepath_densidade_uf,
+    filepath_uf = treatment_uf(upstream_tasks=[filepath_brasil])
+    wait_upload_table_BRASIL = create_table_and_upload_to_gcs(
+        data_path=filepath_uf,
         dataset_id=dataset_id,
         table_id=table_id[2],
         dump_mode="append",
-        wait=filepath_densidade_uf,
+        wait=filepath_uf,
     )
-    # ! bd +
+
+    # ! tabela bd +
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -299,6 +299,18 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
+    with case(update_metadata, True):
+        date = get_today_date()  # task que retorna a data atual
+        update_django_metadata(
+            dataset_id,
+            table_id[2],
+            metadata_type="DateTimeRange",
+            bq_last_update=False,
+            api_mode="prod",
+            date_format="yy-mm",
+            _last_date=date,
+        )
+
     # ! tabela bd pro
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
@@ -308,12 +320,12 @@ with Flow(
             project_name=constants.PREFECT_DEFAULT_PROJECT.value,
             parameters={
                 "dataset_id": dataset_id,
-                "table_id": table_id[1] + "_atualizado",
+                "table_id": table_id[2] + "_atualizado",
                 "mode": materialization_mode,
                 "dbt_alias": dbt_alias,
             },
             labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id[1]}" + "_atualizado",
+            run_name=f"Materialize {dataset_id}.{table_id[2]}" + "_atualizado",
         )
 
         wait_for_materialization = wait_for_flow_run(
@@ -341,21 +353,17 @@ with Flow(
             _last_date=date,
         )
 
-    # ! DENSIDADE_MUNICIPIO
-
-    filepath_densidade_municipio = treatment_municipio(
-        upstream_tasks=[filepath_densidade_uf]
-    )
-
-    # pylint: disable=C0103
-    wait_upload_table = create_table_and_upload_to_gcs(
-        data_path=filepath_densidade_municipio,
+    # ! MUNICIPIO
+    filepath_municipio = treatment_municipio(upstream_tasks=[filepath_uf])
+    wait_upload_table_BRASIL = create_table_and_upload_to_gcs(
+        data_path=filepath_municipio,
         dataset_id=dataset_id,
         table_id=table_id[3],
         dump_mode="append",
-        wait=filepath_densidade_municipio,
+        wait=filepath_municipio,
     )
-    # ! bd +
+
+    # ! tabela bd +
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
