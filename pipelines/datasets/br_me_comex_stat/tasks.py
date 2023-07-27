@@ -56,14 +56,14 @@ def download_br_me_comex_stat(
         table_name=table_name,
     )
 
-    log("paths created")
+    log("paths were created")
 
     download_data(
         path=comex_constants.PATH.value,
         table_type=table_type,
         table_name=table_name,
     )
-    log("data downloaded")
+    log("data was downloaded")
 
     tm.sleep(10)
 

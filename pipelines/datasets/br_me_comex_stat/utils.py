@@ -48,6 +48,7 @@ def download_data(
     """
     years = [2023]
     for year in years:
+        log(f"downloading {year} data")
         # append mode setted, so during 2023 year, the crawler will only
         # download 2023 file and uptade it
 
