@@ -7,7 +7,7 @@ Schedules for br_bcb_estban
 # and 90 days during december (...)
 
 from datetime import datetime
-from prefect.schedules import Schedule
+from prefect.schedules import Schedule, filters, adjustments
 from prefect.schedules.clocks import CronClock
 from pipelines.constants import constants
 
@@ -15,8 +15,8 @@ from pipelines.constants import constants
 every_month_agencia = Schedule(
     clocks=[
         CronClock(
-            cron="30 19 * * 2",  # 7:30 PM every Tuesday.
-            start_date=datetime.today(),
+            cron="@monthly",
+            start_date=datetime(2023, 8, 5, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -24,19 +24,22 @@ every_month_agencia = Schedule(
                 "dataset_id": "br_bcb_estban",
                 "table_id": "agencia",
                 "materialization_mode": "prod",
-                "materialize_after_dump": True,
-                "dbt_alias": True,
+                "materialize after dump": True,
+                "dbt_alias": False,
+                "update_metadata": True,
             },
         )
-    ]
+    ],
+    filters=[filters.is_weekday],
+    adjustments=[adjustments.next_weekday],
 )
 
 
 every_month_municipio = Schedule(
     clocks=[
         CronClock(
-            cron="30 19 * * 2",  # 15th day of every month at 15:00
-            start_date=datetime.today(),
+            cron="@monthly",
+            start_date=datetime(2023, 8, 5, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -44,9 +47,12 @@ every_month_municipio = Schedule(
                 "dataset_id": "br_bcb_estban",
                 "table_id": "municipio",
                 "materialization_mode": "prod",
-                "materialize_after_dump": True,
-                "dbt_alias": True,
+                "materialize after dump": True,
+                "dbt_alias": False,
+                "update_metadata": True,
             },
         )
-    ]
+    ],
+    filters=[filters.is_weekday],
+    adjustments=[adjustments.next_weekday],
 )
