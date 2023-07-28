@@ -112,18 +112,6 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-        with case(update_metadata, True):
-            date = get_today_date()  # task que retorna a data atual
-            update_django_metadata(
-                dataset_id,
-                table_id[0],
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                api_mode="prod",
-                date_format="yy-mm",
-                _last_date=date,
-            )
-
     # ! tabela bd pro
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
@@ -205,17 +193,6 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-        with case(update_metadata, True):
-            date = get_today_date()  # task que retorna a data atual
-            update_django_metadata(
-                dataset_id,
-                table_id[1],
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                api_mode="prod",
-                date_format="yy-mm",
-                _last_date=date,
-            )
 
     # ! tabela bd pro
     with case(materialize_after_dump, True):
@@ -261,7 +238,7 @@ with Flow(
 
     # ! UF
 
-    filepath_uf = treatment_uf(upstream_tasks=[filepath_brasil])
+    filepath_uf = treatment_uf(upstream_tasks=[filepath_microdados])
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath_uf,
         dataset_id=dataset_id,
@@ -299,18 +276,6 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
-
-        with case(update_metadata, True):
-            date = get_today_date()  # task que retorna a data atual
-            update_django_metadata(
-                dataset_id,
-                table_id[2],
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                api_mode="prod",
-                date_format="yy-mm",
-                _last_date=date,
-            )
 
     # ! tabela bd pro
     with case(materialize_after_dump, True):
@@ -355,7 +320,7 @@ with Flow(
             )
 
     # ! MUNICIPIO
-    filepath_municipio = treatment_municipio(upstream_tasks=[filepath_uf])
+    filepath_municipio = treatment_municipio(upstream_tasks=[filepath_microdados])
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath_municipio,
         dataset_id=dataset_id,
@@ -393,18 +358,6 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
-
-        with case(update_metadata, True):
-            date = get_today_date()  # task que retorna a data atual
-            update_django_metadata(
-                dataset_id,
-                table_id[3],
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                api_mode="prod",
-                date_format="yy-mm",
-                _last_date=date,
-            )
 
     # ! tabela bd pro
 
