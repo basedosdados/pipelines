@@ -9,7 +9,10 @@ import numpy as np
 from datetime import datetime, timedelta
 import os
 from pipelines.constants import constants
-from pipelines.datasets.br_anatel_telefonia_movel.utils import (download_and_unzip, to_partitions_microdados)
+from pipelines.datasets.br_anatel_telefonia_movel.utils import (
+    download_and_unzip,
+    to_partitions_microdados,
+)
 from pipelines.datasets.br_anatel_telefonia_movel.constants import (
     constants as anatel_constants,
 )

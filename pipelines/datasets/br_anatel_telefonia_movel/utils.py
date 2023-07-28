@@ -33,7 +33,10 @@ def download_and_unzip(url, path):
 
     return path
 
-def to_partitions_microdados(data: pd.DataFrame, partition_columns: list[str], savepath: str):
+
+def to_partitions_microdados(
+    data: pd.DataFrame, partition_columns: list[str], savepath: str
+):
     """Save data in to hive patitions schema, given a dataframe and a list of partition columns.
     Args:
         data (pandas.core.frame.DataFrame): Dataframe to be partitioned.
@@ -92,4 +95,3 @@ def to_partitions_microdados(data: pd.DataFrame, partition_columns: list[str], s
             )
     else:
         raise BaseException("Data need to be a pandas DataFrame")
-
