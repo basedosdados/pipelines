@@ -110,7 +110,6 @@ def process_basico(df, content):
         "hfk": None,
         "afk": None,
     }
-
     df = pd.concat([df, pd.DataFrame([new_content])], ignore_index=True)
     return df
 
