@@ -253,7 +253,6 @@ with Flow(
         table_id=table_id,
         dump_mode="overwrite",
         wait=filepath,
-        upstream_tasks=[wait_for_materialization],
     )
 
     with case(materialize_after_dump, True):
