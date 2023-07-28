@@ -21,6 +21,7 @@ schedule_br_ons_estimativa_custos_custo_marginal_operacao_semi_horario = Schedul
                 "table_id": "custo_marginal_operacao_semi_horario",
                 "materialization_mode": "prod",
                 "materialize after dump": True,
+                "update_metadata": True,
                 "dbt_alias": False,
             },
         )
@@ -41,6 +42,7 @@ schedule_br_ons_estimativa_custos_custo_marginal_operacao_semanal = Schedule(
                 "table_id": "custo_marginal_operacao_semanal",
                 "materialization_mode": "prod",
                 "materialize after dump": True,
+                "update_metadata": True,
                 "dbt_alias": False,
             },
         )
@@ -61,6 +63,7 @@ schedule_br_ons_estimativa_custos_balanco_energia_subsistemas = Schedule(
                 "table_id": "balanco_energia_subsistemas",
                 "materialization_mode": "prod",
                 "materialize after dump": True,
+                "update_metadata": True,
                 "dbt_alias": False,
             },
         )
@@ -81,6 +84,7 @@ schedule_br_ons_estimativa_custos_balanco_energia_subsistemas_dessem = Schedule(
                 "table_id": "balanco_energia_subsistemas_dessem",
                 "materialization_mode": "prod",
                 "materialize after dump": True,
+                "update_metadata": True,
                 "dbt_alias": False,
             },
         )
