@@ -88,5 +88,5 @@ def get_max_data():
     # df["data"] = pd.to_datetime(df["data"]).dt.date
     max_data = mundo_constants.DATA_ATUAL.value
     max_data = datetime.strptime(max_data, "%Y-%m-%d").date()
-    
+
     return max_data

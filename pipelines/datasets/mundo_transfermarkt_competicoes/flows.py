@@ -167,7 +167,7 @@ with Flow(
             project_name=constants.PREFECT_DEFAULT_PROJECT.value,
             parameters={
                 "dataset_id": dataset_id,
-                "table_id": table_id+"_atualizado",
+                "table_id": table_id + "_atualizado",
                 "mode": materialization_mode,
                 "dbt_alias": dbt_alias,
             },
@@ -189,7 +189,7 @@ with Flow(
         )
     update_django_metadata(
         dataset_id,
-        table_id+"_atualizado",
+        table_id + "_atualizado",
         metadata_type="DateTimeRange",
         _last_date=data_maxima,
         bq_last_update=False,
