@@ -193,7 +193,6 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-
     # ! tabela bd pro
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
