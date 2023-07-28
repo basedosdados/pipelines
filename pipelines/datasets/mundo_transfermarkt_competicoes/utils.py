@@ -111,7 +111,7 @@ def process_basico(df, content):
         "afk": None,
     }
 
-    df = df.append(new_content, ignore_index=True)
+    df = pd.concat([df, pd.DataFrame([new_content])], ignore_index=True)
     return df
 
 
@@ -195,7 +195,7 @@ def process(df, content):
         ].get_text(),
     }
 
-    df = df.append(new_content, ignore_index=True)
+    df = pd.concat([df, pd.DataFrame([new_content])], ignore_index=True)
     return df
 
 
@@ -224,7 +224,7 @@ def pegar_valor(df, content):
         "tecnico_man": content.find_all("a", attrs={"id": "0"})[1].get_text(),
         "tecnico_vis": content.find_all("a", attrs={"id": "0"})[3].get_text(),
     }
-    df = df.append(valor_content, ignore_index=True)
+    df = pd.concat([df, pd.DataFrame([valor_content])], ignore_index=True)
     return df
 
 
@@ -252,7 +252,7 @@ def pegar_valor_sem_tecnico(df, content):
         "tecnico_man": None,
         "tecnico_vis": None,
     }
-    df = df.append(valor_content, ignore_index=True)
+    df = pd.concat([df, pd.DataFrame([valor_content])], ignore_index=True)
     return df
 
 
@@ -268,7 +268,7 @@ def valor_vazio(df):
         "tecnico_man": None,
         "tecnico_vis": None,
     }
-    df = df.append(valor_content, ignore_index=True)
+    df = pd.concat([df, pd.DataFrame([valor_content])], ignore_index=True)
     return df
 
 
@@ -301,7 +301,7 @@ def vazio(df):
         "hfk": None,
         "afk": None,
     }
-    df = df.append(null_content, ignore_index=True)
+    df = pd.concat([df, pd.DataFrame([null_content])], ignore_index=True)
     return df
 
 
