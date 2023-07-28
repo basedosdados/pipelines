@@ -21,7 +21,6 @@ from pipelines.datasets.br_anatel_telefonia_movel.tasks import (
     clean_csv_brasil,
     clean_csv_uf,
     clean_csv_municipio,
-    get_today_date,
     get_today_date_atualizado,
 )
 from pipelines.utils.decorators import Flow
@@ -119,18 +118,6 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-    with case(update_metadata, True):
-        date = get_today_date()  # task que retorna a data atual
-        update_django_metadata(
-            dataset_id,
-            table_id[0],
-            metadata_type="DateTimeRange",
-            bq_last_update=False,
-            api_mode="prod",
-            date_format="yy-mm",
-            _last_date=date,
-        )
-
     # ! tabela bd pro
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
@@ -210,18 +197,6 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
         )
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-        )
-
-    with case(update_metadata, True):
-        date = get_today_date()  # task que retorna a data atual
-        update_django_metadata(
-            dataset_id,
-            table_id[1],
-            metadata_type="DateTimeRange",
-            bq_last_update=False,
-            api_mode="prod",
-            date_format="yy-mm",
-            _last_date=date,
         )
 
     # ! tabela bd pro
@@ -307,18 +282,6 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-    with case(update_metadata, True):
-        date = get_today_date()  # task que retorna a data atual
-        update_django_metadata(
-            dataset_id,
-            table_id[2],
-            metadata_type="DateTimeRange",
-            bq_last_update=False,
-            api_mode="prod",
-            date_format="yy-mm",
-            _last_date=date,
-        )
-
     # ! tabela bd pro
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
@@ -399,18 +362,6 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
         )
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-        )
-
-    with case(update_metadata, True):
-        date = get_today_date()  # task que retorna a data atual
-        update_django_metadata(
-            dataset_id,
-            table_id[3],
-            metadata_type="DateTimeRange",
-            bq_last_update=False,
-            api_mode="prod",
-            date_format="yy-mm",
-            _last_date=date,
         )
 
     # ! tabela bd pro

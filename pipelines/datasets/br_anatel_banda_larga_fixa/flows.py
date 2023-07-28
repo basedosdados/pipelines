@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Flows for br_anatel_banda_larga_fixa
+Flows for dataset br_anatel_banda_larga_fixa
 """
 
 from datetime import timedelta

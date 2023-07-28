@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Tasks for dataset br_anatel_banda_larga_fixa
+Tasks for br_anatel_banda_larga_fixa
 """
 import pandas as pd
 import numpy as np
