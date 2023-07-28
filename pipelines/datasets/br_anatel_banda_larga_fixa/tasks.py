@@ -239,7 +239,7 @@ def treatment_municipio():
     log("Salvando o arquivo densidade municipio da Anatel")
     # ! Fazendo referencia a função criada anteriormente para particionar o arquivo o arquivo
 
-    to_partitions(
+    to_partitions_microdados(
         df_municipio,
         partition_columns=["ano"],
         savepath=anatel_constants.OUTPUT_PATH_MUNICIPIO.value,
