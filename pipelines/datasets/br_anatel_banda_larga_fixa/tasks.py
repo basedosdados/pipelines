@@ -22,6 +22,7 @@ from pipelines.utils.utils import (
 from pipelines.datasets.br_anatel_banda_larga_fixa.utils import (
     check_and_create_column,
     download_and_unzip,
+    to_partitions_microdados
 )
 from pipelines.constants import constants
 
@@ -123,7 +124,7 @@ def treatment(ano: int):
     )
     log("Salvando o arquivo microdados da Anatel")
     # ! Fazendo referencia a função criada anteriormente para particionar o arquivo o arquivo
-    to_partitions(
+    to_partitions_microdados(
         df,
         partition_columns=["ano", "mes", "sigla_uf"],
         savepath=anatel_constants.OUTPUT_PATH_MICRODADOS.value,
@@ -248,7 +249,6 @@ def treatment_municipio():
 
 
 # task para retornar o ano e mes paara a atualização dos metadados.
-
 
 @task
 def get_today_date_atualizado():
