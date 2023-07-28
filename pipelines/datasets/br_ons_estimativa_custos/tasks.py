@@ -5,6 +5,8 @@ Tasks for br_ons_avaliacao_operacao
 import os
 import pandas as pd
 import time as tm
+from datetime import datetime
+
 from prefect import task
 from pipelines.utils.utils import (
     log,
@@ -20,6 +22,13 @@ from pipelines.datasets.br_ons_estimativa_custos.utils import (
     process_date_column,
     process_datetime_column,
 )
+
+
+@task
+def get_today_date():
+    d = datetime.today()
+
+    return d.strftime("%Y-%m-%d")
 
 
 @task
