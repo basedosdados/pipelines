@@ -240,7 +240,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
                 api_mode="prod",
                 date_format="yy-mm",
                 _last_date=date,
-                upstream_tasks=[wait_for_materialization]
+                upstream_tasks=[wait_for_materialization],
             )
 
     # ! UF
@@ -324,7 +324,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
                 api_mode="prod",
                 date_format="yy-mm",
                 _last_date=date,
-                upstream_tasks=[wait_for_materialization]
+                upstream_tasks=[wait_for_materialization],
             )
 
     # ! MUNICIPIO
@@ -408,7 +408,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
                 api_mode="prod",
                 date_format="yy-mm",
                 _last_date=date,
-                upstream_tasks=[wait_for_materialization]
+                upstream_tasks=[wait_for_materialization],
             )
 
 br_anatel.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
