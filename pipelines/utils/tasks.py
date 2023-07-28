@@ -397,7 +397,6 @@ def update_django_metadata(
         to 'basedosdados-dev'.
         bq_table_last_year_month (bool): if true extract YYYY-MM from the table in Big Query to update the Coverage. Note
         that in needs the table to have ano and mes columns.
-        # todo insert log to trigg
     Returns:
         None
 
@@ -417,6 +416,9 @@ def update_django_metadata(
 
     if metadata_type == "DateTimeRange":
         if bq_last_update:
+            log(
+                f"Attention! bq_last_update was set to TRUE, it will update the temporal coverage according to the metadata of the last modification made to {table_id}.{dataset_id}"
+            )
             last_date = extract_last_update(
                 dataset_id,
                 table_id,
@@ -439,6 +441,9 @@ def update_django_metadata(
                 api_mode=api_mode,
             )
         elif bq_table_last_year_month:
+            log(
+                f"Attention! bq_table_last_year_month was set to TRUE, this function will update the temporal coverage according to the most recent date in the data or ano-mes columns of {table_id}.{dataset_id}"
+            )
             last_date = extract_last_date(
                 dataset_id,
                 table_id,
