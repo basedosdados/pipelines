@@ -384,24 +384,42 @@ def update_django_metadata(
     Updates Django metadata.
 
     Args:
-        dataset_id (str): The ID of the dataset.
-        table_id (str): The ID of the table.
-        metadata_type (str): The type of metadata to update.
-        _last_date (optional): The last date for metadata update if `bq_last_update` is False. Defaults to None.
-        date_format (str, optional): The date format to use when parsing dates ('yy-mm-dd', 'yy-mm', or 'yy'). Defaults to 'yy-mm-dd'.
-        bq_last_update (bool, optional): Flag indicating whether to use BigQuery's last update date for metadata.
+        -   `dataset_id (str):` The ID of the dataset.
+        -   `table_id (str):` The ID of the table.
+        -   `metadata_type (str):` The type of metadata to update.
+        -   `_last_date (optional):` The last date for metadata update if `bq_last_update` is False. Defaults to None.
+        -   `date_format (str, optional):` The date format to use when parsing dates ('yy-mm-dd', 'yy-mm', or 'yy'). Defaults to 'yy-mm-dd'.
+        -   `bq_last_update (bool, optional):` Flag indicating whether to use BigQuery's last update date for metadata.
             If True, `_last_date` is ignored. Defaults to True.
-        api_mode (str, optional): The API mode to be used ('prod', 'staging'). Defaults to 'prod'.
-        billing_project_id (str): the billing_project_id to be used when the extract_last_update function is triggered. Note that it has
+        -   `api_mode (str, optional):` The API mode to be used ('prod', 'staging'). Defaults to 'prod'.
+        -   `billing_project_id (str):` the billing_project_id to be used when the extract_last_update function is triggered. Note that it has
         to be equal to the prefect agent. For prod agents use basedosdados where as for dev agents use basedosdados-dev. The default value is
         to 'basedosdados-dev'.
-        bq_table_last_year_month (bool): if true extract YYYY-MM from the table in Big Query to update the Coverage. Note
+        -   `bq_table_last_year_month (bool):` if true extract YYYY-MM from the table in Big Query to update the Coverage. Note
         that in needs the table to have ano and mes columns.
+
+    Example:
+
+        Eg 1. In this example the function will look for example_table in basedosdados project.
+        It will look for a column name `data` in date_format = 'yyyy-mm-dd' in the BQ and retrieve its max value.
+        ```
+        update_django_metadata(
+                dataset_id = 'example_dataset',
+                table_id = 'example_table,
+                metadata_type="DateTimeRange",
+                bq_last_update=False,
+                bq_table_last_year_month=True,
+                billing_project_id="basedosdados",
+                api_mode="prod",
+                date_format="yy-mm-dd",
+                upstream_tasks=[wait_for_materialization],
+            )
+        ```
     Returns:
-        None
+        -   None
 
     Raises:
-        Exception: If the metadata_type is not supported.
+        -   Exception: If the metadata_type is not supported.
 
     """
     (email, password) = get_credentials_utils(secret_path=f"api_user_{api_mode}")
