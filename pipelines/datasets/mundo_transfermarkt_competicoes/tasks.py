@@ -89,8 +89,4 @@ def get_max_data():
     max_data = mundo_constants.DATA_ATUAL.value
     max_data = datetime.strptime(max_data, "%Y-%m-%d").date()
 
-    # Adicionar a defasagem de 6 semanas à data máxima
-    defasagem_seis_semanas = timedelta(weeks=6)
-    max_data_com_defasagem = max_data - defasagem_seis_semanas
-
-    return max_data_com_defasagem
+    return max_data
