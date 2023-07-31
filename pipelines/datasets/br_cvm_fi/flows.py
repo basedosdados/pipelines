@@ -567,10 +567,14 @@ with Flow(
         default=cvm_constants.URL_BALANCETE.value,
         required=False,
     )
-
+    files = Parameter(
+        "files",
+        default=["balancete_fi_202306.zip", "balancete_fi_202305.zip"],
+        required=False,
+    )
     df = extract_links_and_dates(url)
 
-    files = check_for_updates(df, upstream_tasks=[df])
+    # files = check_for_updates(df, upstream_tasks=[df])
 
     with case(is_empty(files), True):
         log_task(f"Não houveram atualizações em {url.default}!")

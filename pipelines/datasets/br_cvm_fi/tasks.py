@@ -500,7 +500,9 @@ def clean_data_make_partitions_cad(diretorio, table_id):
 def clean_data_make_partitions_balancete(diretorio, table_id):
     df_arq = sheet_to_df(cvm_constants.ARQUITETURA_URL_BALANCETE.value)
     colunas_totais = df_arq["original_name"].to_list() + ["ano", "mes"]
+    log(colunas_totais)
     colunas_finais = df_arq["name"].to_list() + ["ano", "mes"]
+    log(colunas_finais)
     colunas_mapeamento = df_arq[df_arq["observations"].notnull()][
         "original_name"
     ].to_list()
@@ -511,11 +513,15 @@ def clean_data_make_partitions_balancete(diretorio, table_id):
         print(f"Baixando o arquivo ------> {file}")
 
         df = pd.read_csv(file, sep=";", encoding="ISO-8859-1", dtype="string")
-        df["ano"] = df["DT_COMPTC"].apply(
-            lambda x: datetime.strptime(x, "%Y-%m-%d").year
+        df["ano"] = (
+            df["DT_COMPTC"]
+            .apply(lambda x: datetime.strptime(x, "%Y-%m-%d").year)
+            .astype(str)
         )
-        df["mes"] = df["DT_COMPTC"].apply(
-            lambda x: datetime.strptime(x, "%Y-%m-%d").month
+        df["mes"] = (
+            df["DT_COMPTC"]
+            .apply(lambda x: datetime.strptime(x, "%Y-%m-%d").month)
+            .astype(str)
         )
 
         df_final = df
@@ -529,6 +535,7 @@ def clean_data_make_partitions_balancete(diretorio, table_id):
         df_final = df_final.replace(",", ".", regex=True)
         df_final = df_final[colunas_finais]
         os.makedirs(f"/tmp/data/br_cvm_fi/{table_id}/output/", exist_ok=True)
+        # df_final.to_csv(f"/tmp/data/br_cvm_fi/{table_id}/output/teste.csv")
         to_partitions(
             df_final,
             partition_columns=["ano", "mes"],
