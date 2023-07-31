@@ -8,6 +8,7 @@ Prefect flows for basedosdados project
 
 from pipelines.datasets.br_cvm_administradores_carteira.flows import *
 from pipelines.datasets.br_cvm_oferta_publica_distribuicao.flows import *
+from pipelines.datasets.br_me_comex_stat.flows import *
 from pipelines.datasets.br_ibge_inpc.flows import *
 from pipelines.datasets.br_ibge_ipca.flows import *
 from pipelines.datasets.br_ibge_ipca15.flows import *
@@ -35,3 +36,6 @@ from pipelines.datasets.br_cvm_fi.flows import *
 from pipelines.datasets.br_ons_avaliacao_operacao.flows import *
 from pipelines.datasets.br_ons_estimativa_custos.flows import *
 from pipelines.datasets.br_b3_cotacoes.flows import *
+from pipelines.datasets.br_anatel_telefonia_movel.flows import *
+from pipelines.datasets.br_mercadolivre_ofertas.flows import *
+from pipelines.datasets.mundo_transfermarkt_competicoes.flows import *

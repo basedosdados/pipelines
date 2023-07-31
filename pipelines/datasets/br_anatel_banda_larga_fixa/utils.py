@@ -2,51 +2,32 @@
 """
 General purpose functions for the br_anatel_banda_larga_fixa project
 """
+from io import BytesIO
+from zipfile import ZipFile
+from urllib.request import urlopen
 import os
-import zipfile
-import requests
+import datetime
 import pandas as pd
 
 
-def download_file(url: str, download_dir: str) -> str:
-    """
-    Faz o download de um arquivo a partir de uma URL.
+def download_and_unzip(url, path):
+    """download and unzip a zip file
 
     Args:
-        url (str): URL do arquivo a ser baixado.
-        download_dir (str): diretório onde o arquivo será salvo.
+        url (str): a url
+
 
     Returns:
-        str: caminho completo do arquivo baixado.
+        list: unziped files in a given folder
     """
-    os.makedirs(download_dir, exist_ok=True)
 
-    response = requests.get(url)
+    os.system(f"mkdir -p {path}")
 
-    filename = os.path.basename(url)
-    filepath = os.path.join(download_dir, filename)
+    http_response = urlopen(url)
+    zipfile = ZipFile(BytesIO(http_response.read()))
+    zipfile.extractall(path=path)
 
-    with open(filepath, "wb") as file:
-        file.write(response.content)
-
-    return filepath
-
-
-def extract_file(filepath: str, extract_dir: str) -> str:
-    """
-    Extrai um arquivo zip para um diretório específico.
-    Args:
-        filepath (str): caminho do arquivo zip a ser extraído.
-        extract_dir (str): diretório onde os arquivos serão extraídos.
-    Returns:
-        str: caminho do arquivo zip extraído.
-    """
-    os.makedirs(extract_dir, exist_ok=True)
-
-    with zipfile.ZipFile(filepath, "r") as zip_ref:
-        zip_ref.extractall(extract_dir)
-
-    return os.path.join(extract_dir, os.path.basename(filepath))
+    return path
 
 
 def check_and_create_column(df: pd.DataFrame, col_name: str) -> pd.DataFrame:

@@ -20,6 +20,7 @@ from pipelines.datasets.br_cvm_fi.tasks import (
     clean_data_make_partitions_perfil,
     clean_data_make_partitions_cad,
     clean_data_make_partitions_balancete,
+    get_today_date,
 )
 from pipelines.datasets.br_cvm_fi.schedules import (
     every_day_informe,
@@ -36,8 +37,9 @@ from pipelines.utils.execute_dbt_model.constants import constants as dump_db_con
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.datasets.br_cvm_fi.constants import constants as cvm_constants
 from pipelines.constants import constants
-from pipelines.utils.utils import (
-    log,
+from pipelines.utils.tasks import (
+    log_task,
+    update_django_metadata,
 )
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
@@ -57,24 +59,25 @@ with Flow(
     dataset_id = Parameter("dataset_id", default="br_cvm_fi", required=True)
     table_id = Parameter("table_id", default="documentos_informe_diario", required=True)
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=True
+        "materialization_mode", default="dev", required=False
     )
     materialize_after_dump = Parameter(
-        "materialize_after_dump", default=False, required=True
+        "materialize_after_dump", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    update_metadata = Parameter("update_metadata", default=False, required=False)
 
     url = Parameter(
         "url",
         default=cvm_constants.INFORME_DIARIO_URL.value,
-        required=True,
+        required=False,
     )
     df = extract_links_and_dates(url)
-    log(f"Links e datas: {df}")
+    log_task(f"Links e datas: {df}")
     arquivos = check_for_updates(df, upstream_tasks=[df])
-    log(f"Arquivos: {arquivos}")
+    log_task(f"Arquivos: {arquivos}")
     with case(is_empty(arquivos), True):
-        log(f"Não houveram atualizações em {url.default}!")
+        log_task(f"Não houveram atualizações em {url.default}!")
 
     with case(is_empty(arquivos), False):
         input_filepath = download_unzip_csv(
@@ -123,6 +126,17 @@ with Flow(
             wait_for_materialization.retry_delay = timedelta(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
+            with case(update_metadata, True):
+                date = get_today_date()
+                update_django_metadata(
+                    dataset_id,
+                    table_id,
+                    metadata_type="DateTimeRange",
+                    bq_last_update=False,
+                    api_mode="prod",
+                    date_format="yy-mm-dd",
+                    _last_date=date,
+                )
 
 
 br_cvm_fi_documentos_informe_diario.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -139,9 +153,9 @@ with Flow(
     ],
 ) as br_cvm_fi_documentos_carteiras_fundos_investimento:
     # Parameters
-    dataset_id = Parameter("dataset_id", default="br_cvm_fi", required=False)
+    dataset_id = Parameter("dataset_id", default="br_cvm_fi", required=True)
     table_id = Parameter(
-        "table_id", default="documentos_carteiras_fundos_investimento", required=False
+        "table_id", default="documentos_carteiras_fundos_investimento", required=True
     )
 
     materialization_mode = Parameter(
@@ -151,19 +165,19 @@ with Flow(
         "materialize_after_dump", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
-
+    update_metadata = Parameter("update_metadata", default=False, required=False)
     url = Parameter(
         "url",
         default=cvm_constants.CDA_URL.value,
-        required=True,
+        required=False,
     )
 
     df = extract_links_and_dates(url)
-    log(f"Links e datas: {df}")
+    log_task(f"Links e datas: {df}")
     arquivos = check_for_updates(df, upstream_tasks=[df])
-    log(f"Arquivos: {arquivos}")
+    log_task(f"Arquivos: {arquivos}")
     with case(is_empty(arquivos), True):
-        log(f"Não houveram atualizações em {url.default}!")
+        log_task(f"Não houveram atualizações em {url.default}!")
 
     with case(is_empty(arquivos), False):
         input_filepath = download_unzip_csv(
@@ -212,6 +226,17 @@ with Flow(
             wait_for_materialization.retry_delay = timedelta(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
+            with case(update_metadata, True):
+                date = get_today_date()
+                update_django_metadata(
+                    dataset_id,
+                    table_id,
+                    metadata_type="DateTimeRange",
+                    bq_last_update=False,
+                    api_mode="prod",
+                    date_format="yy-mm-dd",
+                    _last_date=date,
+                )
 
 
 br_cvm_fi_documentos_carteiras_fundos_investimento.storage = GCS(
@@ -230,22 +255,22 @@ with Flow(
     ],
 ) as br_cvm_fi_documentos_extratos_informacoes:
     # Parameters
-    dataset_id = Parameter("dataset_id", default="br_cvm_fi", required=False)
+    dataset_id = Parameter("dataset_id", default="br_cvm_fi", required=True)
     table_id = Parameter(
-        "table_id", default="documentos_extratos_informacoes", required=False
+        "table_id", default="documentos_extratos_informacoes", required=True
     )
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=True
+        "materialization_mode", default="dev", required=False
     )
     materialize_after_dump = Parameter(
-        "materialize_after_dump", default=False, required=True
+        "materialize_after_dump", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
-
+    update_metadata = Parameter("update_metadata", default=False, required=False)
     url = Parameter(
         "url",
         default=cvm_constants.URL_EXT.value,
-        required=True,
+        required=False,
     )
 
     file = Parameter(
@@ -258,7 +283,7 @@ with Flow(
     arquivos = check_for_updates_ext(df, upstream_tasks=[df])
 
     with case(is_empty(arquivos), True):
-        log(f"Não houveram atualizações em {url.default}!")
+        log_task(f"Não houveram atualizações em {url.default}!")
 
     with case(is_empty(arquivos), False):
         input_filepath = download_csv_cvm(
@@ -307,7 +332,17 @@ with Flow(
             wait_for_materialization.retry_delay = timedelta(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
-
+            with case(update_metadata, True):
+                date = get_today_date()
+                update_django_metadata(
+                    dataset_id,
+                    table_id,
+                    metadata_type="DateTimeRange",
+                    bq_last_update=False,
+                    api_mode="prod",
+                    date_format="yy-mm-dd",
+                    _last_date=date,
+                )
 
 br_cvm_fi_documentos_extratos_informacoes.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
@@ -325,8 +360,8 @@ with Flow(
     ],
 ) as br_cvm_fi_documentos_perfil_mensal:
     # Parameters
-    dataset_id = Parameter("dataset_id", default="br_cvm_fi", required=False)
-    table_id = Parameter("table_id", default="documentos_perfil_mensal", required=False)
+    dataset_id = Parameter("dataset_id", default="br_cvm_fi", required=True)
+    table_id = Parameter("table_id", default="documentos_perfil_mensal", required=True)
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -334,18 +369,18 @@ with Flow(
         "materialize_after_dump", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
-
+    update_metadata = Parameter("update_metadata", default=False, required=False)
     url = Parameter(
         "url",
         default=cvm_constants.URL_PERFIL_MENSAL.value,
-        required=True,
+        required=False,
     )
 
     df = extract_links_and_dates(url)
     arquivos = check_for_updates(df, upstream_tasks=[df])
 
     with case(is_empty(arquivos), True):
-        log(f"Não houveram atualizações em {url.default}!")
+        log_task(f"Não houveram atualizações em {url.default}!")
 
     with case(is_empty(arquivos), False):
         input_filepath = download_csv_cvm(
@@ -394,7 +429,17 @@ with Flow(
             wait_for_materialization.retry_delay = timedelta(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
-
+            with case(update_metadata, True):
+                date = get_today_date()
+                update_django_metadata(
+                    dataset_id,
+                    table_id,
+                    metadata_type="DateTimeRange",
+                    bq_last_update=False,
+                    api_mode="prod",
+                    date_format="yy-mm-dd",
+                    _last_date=date,
+                )
 
 br_cvm_fi_documentos_perfil_mensal.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_cvm_fi_documentos_perfil_mensal.run_config = KubernetesRun(
@@ -410,28 +455,28 @@ with Flow(
     ],
 ) as br_cvm_fi_documentos_informacao_cadastral:
     # Parameters
-    dataset_id = Parameter("dataset_id", default="br_cvm_fi", required=False)
+    dataset_id = Parameter("dataset_id", default="br_cvm_fi", required=True)
     table_id = Parameter(
-        "table_id", default="documentos_informacao_cadastral", required=False
+        "table_id", default="documentos_informacao_cadastral", required=True
     )
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=True
+        "materialization_mode", default="dev", required=False
     )
     materialize_after_dump = Parameter(
-        "materialize_after_dump", default=False, required=True
+        "materialize_after_dump", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
-
+    update_metadata = Parameter("update_metadata", default=False, required=False)
     url = Parameter(
         "url",
         default=cvm_constants.URL_INFO_CADASTRAL.value,
-        required=True,
+        required=False,
     )
 
     files = Parameter("files", default=cvm_constants.CAD_FILE.value, required=False)
 
     with case(is_empty(files), True):
-        log(f"Não houveram atualizações em {url.default}!")
+        log_task(f"Não houveram atualizações em {url.default}!")
 
     with case(is_empty(files), False):
         input_filepath = download_csv_cvm(url=url, files=files, table_id=table_id)
@@ -478,6 +523,17 @@ with Flow(
             wait_for_materialization.retry_delay = timedelta(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
+            with case(update_metadata, True):
+                date = get_today_date()
+                update_django_metadata(
+                    dataset_id,
+                    table_id,
+                    metadata_type="DateTimeRange",
+                    bq_last_update=False,
+                    api_mode="prod",
+                    date_format="yy-mm-dd",
+                    _last_date=date,
+                )
 
 
 br_cvm_fi_documentos_informacao_cadastral.storage = GCS(
@@ -496,20 +552,20 @@ with Flow(
     ],
 ) as br_cvm_fi_documentos_balancete:
     # Parameters
-    dataset_id = Parameter("dataset_id", default="br_cvm_fi", required=False)
-    table_id = Parameter("table_id", default="documentos_balancete", required=False)
+    dataset_id = Parameter("dataset_id", default="br_cvm_fi", required=True)
+    table_id = Parameter("table_id", default="documentos_balancete", required=True)
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=True
+        "materialization_mode", default="dev", required=False
     )
     materialize_after_dump = Parameter(
-        "materialize_after_dump", default=False, required=True
+        "materialize_after_dump", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
-
+    update_metadata = Parameter("update_metadata", default=False, required=False)
     url = Parameter(
         "url",
         default=cvm_constants.URL_BALANCETE.value,
-        required=True,
+        required=False,
     )
 
     df = extract_links_and_dates(url)
@@ -517,7 +573,7 @@ with Flow(
     files = check_for_updates(df, upstream_tasks=[df])
 
     with case(is_empty(files), True):
-        log(f"Não houveram atualizações em {url.default}!")
+        log_task(f"Não houveram atualizações em {url.default}!")
 
     with case(is_empty(files), False):
         input_filepath = download_unzip_csv(url=url, files=files, id=table_id)
@@ -564,6 +620,17 @@ with Flow(
             wait_for_materialization.retry_delay = timedelta(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
+            with case(update_metadata, True):
+                date = get_today_date()
+                update_django_metadata(
+                    dataset_id,
+                    table_id,
+                    metadata_type="DateTimeRange",
+                    bq_last_update=False,
+                    api_mode="prod",
+                    date_format="yy-mm-dd",
+                    _last_date=date,
+                )
 
 
 br_cvm_fi_documentos_balancete.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

@@ -117,7 +117,7 @@ def clean_br_me_comex_stat(
 
             df.rename(columns=rename_mun, inplace=True)
 
-            log("df renamed")
+            log("df was renamed")
 
             condicao = [
                 ((df["sigla_uf"] == "SP") & (df["id_municipio"] < 3500000)),
