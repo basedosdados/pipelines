@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Schedules for dataset br_anatel_telefonia_movel
 """
@@ -28,10 +29,10 @@ every_month_anatel = Schedule(
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
-                "anos" : "2023",
-                "mes_um" : "01",
-                "mes_dois" : "06",
-                "update_metadata" : True,
+                "anos": "2023",
+                "mes_um": "01",
+                "mes_dois": "06",
+                "update_metadata": True,
             },
         ),
     ],
