@@ -64,19 +64,19 @@ def parse_latest_cnes_dbc_files(database: str, cnes_group: str) -> list[str]:
 
     list_files = []
 
-    for file in available_dbs:
-        if file[-8:-4] == year_month_to_parse:
-            list_files.append(file)
+    # for file in available_dbs:
+    #    if file[-8:-4] == year_month_to_parse:
+    #        list_files.append(file)
 
     # check if list is null
-    if len(list_files) == 0:
-        raise ValueError(
-            f"cnes files parsed with {year_month_to_parse} were not found. It probably indicates that those files have not been released yet."
-        )
+    # if len(list_files) == 0:
+    #    raise ValueError(
+    #        f"cnes files parsed with {year_month_to_parse} were not found. It probably indicates that those files have not been released yet."
+    #    )
 
     log(f"the following files were selected: {list_files}")
 
-    return list_files
+    return available_dbs
 
 
 @task(
