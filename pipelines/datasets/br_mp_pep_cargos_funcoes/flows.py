@@ -57,29 +57,48 @@ Flows for br_mp_pep_cargos_funcoes
 #
 ###############################################################################
 
-
+from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from pipelines.constants import constants
-from pipelines.datasets.br_mp_pep_cargos_funcoes.tasks import say_hello
-from pipelines.utils.utils import run_local
-
-# from pipelines.datasets.br_mp_pep_cargos_funcoes.schedules import every_two_weeks
+from pipelines.utils.tasks import (
+    create_table_and_upload_to_gcs,
+)
+from pipelines.utils.utils import run_local, log
 from pipelines.utils.decorators import Flow
 
+# from pipelines.datasets.br_mp_pep_cargos_funcoes.schedules import every_two_weeks
+from pipelines.datasets.br_mp_pep_cargos_funcoes.tasks import (
+    setup_web_driver,
+    scraper,
+    clean_data,
+)
+
 with Flow(
-    name="my_flow",
+    name="br_mp_pep.cargos_funcoes",
     code_owners=[
-        "discord-username",
+        "aspeddro",
     ],
 ) as datasets_br_mp_pep_cargos_funcoes_flow:
-    hello = say_hello()
+    dataset_id = Parameter("dataset_id", default="br_mp_pep", required=True)
+    table_id = Parameter("table_id", default="cargos_funcoes", required=True)
 
-    print(hello)
+    setup_web_driver()
 
-    run_local(datasets_br_mp_pep_cargos_funcoes_flow)
+    scraper(year_start=2022, year_end=2023)
+
+    data_path = clean_data()
+
+    wait_upload_table = create_table_and_upload_to_gcs(
+        data_path=data_path,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dump_mode="overwrite",
+        wait=data_path,
+    )
 
 
+run_local(datasets_br_mp_pep_cargos_funcoes_flow)
 # datasets_br_mp_pep_cargos_funcoes_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 # datasets_br_mp_pep_cargos_funcoes_flow.run_config = KubernetesRun(
 #     image=constants.DOCKER_IMAGE.value

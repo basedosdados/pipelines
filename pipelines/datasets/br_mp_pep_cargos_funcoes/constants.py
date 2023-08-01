@@ -43,7 +43,7 @@ class constants(Enum):  # pylint: disable=c0103
 
     PATH = "/tmp/br_mp_pep_cargos_funcoes/"
 
-    TMP_DATA_DIR = "/tmp/br_mp_pep_cargos_funcoes/data"
+    TMP_DATA_DIR = "/tmp/br_mp_pep_cargos_funcoes/tmp"
 
     INPUT_DIR = "/tmp/br_mp_pep_cargos_funcoes/input"
 
@@ -74,3 +74,22 @@ class constants(Enum):  # pylint: disable=c0103
     SELECTIONS_METRICS = ["CCE & FCE", "DAS e correlatas"]
 
     CHROME_DRIVER = "https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_linux64.zip"
+
+    RENAMES = {
+        "Ano": "ano",
+        "Mês": "mes",
+        "Função": "funcao",
+        "Natureza Juridica": "natureza_juridica",
+        "Orgão Superior": "orgao_superior",
+        "Escolaridade do Servidor": "escolaridade_servidor",
+        "Orgão": "orgao",
+        "Região": "regiao",
+        "Sexo": "sexo",
+        "Nível Função": "nivel_funcao",
+        "Subnível Função": "subnivel_funcao",
+        "UF": "sigla_uf",
+        "Faixa Etária": "faixa_etaria",
+        "Nome Cor Origem Etnica": "nome_cor_origem_etnica",
+        "CCE & FCE": "cce_e_fce",
+        "DAS e correlatas": "das_e_correlatas",
+    }
