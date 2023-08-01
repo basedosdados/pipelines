@@ -175,6 +175,7 @@ def read_dbc_save_csv(file_list: list, path: str, table: str) -> str:
         log("file 2 being read")
         df = pd.read_csv(output_file, dtype=str, encoding="latin1")
 
+        # todo: put it to constants
         # tratar
         list_columns_to_delete = [
             "AP01CV07",
@@ -185,32 +186,24 @@ def read_dbc_save_csv(file_list: list, path: str, table: str) -> str:
             "AP06CV07",
             "AP07CV07",
         ]
-        list_columns_to_keep = [
-            "COMPETEN",
-            "CNES",
-            "UFMUNRES",
-            "NOMEPROF",
-            "CNS_PROF",
-            "CBO",
-            "REGISTRO",
-            "CONSELHO",
-            "TERCEIRO",
-            "VINCULAC",
-            "VINCUL_C",
-            "VINCUL_A",
-            "VINCUL_N",
-            "PROF_SUS",
-            "PROFNSUS",
-            "HORAOUTR",
-            "HORAHOSP",
-            "HORA_AMB",
-        ]
+
         if table == "estabelecimento":
             df = pre_cleaning_to_utf8(df)
             df = if_column_exist_delete(df=df, col_list=list_columns_to_delete)
             df = check_and_create_column(df=df, col_name="NAT_JUR")
+
+        elif table == "profissional":
+            df = df[cnes_constants.COLUMNS_TO_KEEP.value["PF"]]
+
+        elif table == "leito":
+            df = df[cnes_constants.COLUMNS_TO_KEEP.value["LT"]]
+
+        elif table == "equipamento":
+            df = df[cnes_constants.COLUMNS_TO_KEEP.value["EP"]]
+
         else:
-            df = df[list_columns_to_keep]
+            # equipe
+            df = df[cnes_constants.COLUMNS_TO_KEEP.value["EQ"]]
 
         # salvar de novo
         df.to_csv(output_file, sep=",", na_rep="", index=False, encoding="utf-8")
@@ -220,3 +213,64 @@ def read_dbc_save_csv(file_list: list, path: str, table: str) -> str:
         )
 
     return path + table
+
+
+# leitos
+# todo: sera feito com dbt
+# merge codufmun
+# atencao duplicacao de nome
+# inseret month year
+# ctransformar em int depois string o codigo especialidade
+# dropa NA
+# dropa duplicados  df.drop_duplicates(subset=["id_estabelecimento_cnes","tipo","codigo_especialidade","ano","mes"])
+
+
+# equipe
+rename = [
+    "CODUFMUN",
+    "CNES",
+    "NAT_JUR",
+    "ID_EQUIPE",
+    "IDEQUIPE",
+    "TIPO_EQP",
+    "NOME_EQP",
+    "AREA_EQP",
+    "ID_AREA",
+    "NOMEAREA",
+    "ID_SEGM",
+    "DESCSEGM",
+    "TIPOSEGM",
+    "DT_ATIVA",
+    "DT_DESAT",
+    "MOTDESAT",
+    "TP_DESAT",
+    "QUILOMBO",
+    "ASSENTAD",
+    "POPGERAL",
+    "ESCOLA",
+    "INDIGENA",
+    "PRONASCI",
+]
+
+# padronizar datas
+# merge uf
+# criar ano emes
+# ver o que o downcast significa
+# df['mes_desativacao_equipe'] = pd.to_datetime(df['data_desativacao_equipe'], format='%Y%m' ,errors='coerce').dt.month.astype('str')
+# df['mes_desativacao_equipe'] = df['mes_desativacao_equipe'].apply(lambda x: pd.to_numeric(x, errors='coerce', downcast='integer'))
+
+# equipamento
+
+rename = [
+    "CODUFMUN",
+    "CNES",
+    "TIPEQUIP",
+    "CODEQUIP",
+    "QT_EXIST",
+    "QT_USO",
+    "IND_SUS",
+    "IND_NSUS",
+]
+
+# mergearr com uf
+# Retirar duplicados

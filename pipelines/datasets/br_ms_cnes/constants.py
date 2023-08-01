@@ -19,11 +19,74 @@ class constants(Enum):  # pylint: disable=c0103
     ]
 
     # to build paths
-    TABLE = ["estabelecimento", "profissionais"]
+    TABLE = ["estabelecimento", "profissional", "equipamento", "leito", "equipe"]
 
     # to download files from datasus FTP server
     DATABASE_GROUPS = {
-        "CNES": ["ST", "PF"],
+        "CNES": ["ST", "PF", "EQ", "LT", "EP"],
+    }
+
+    COLUMNS_TO_KEEP = {
+        # equipamento
+        "EP": [
+            "CODUFMUN",
+            "CNES",
+            "TIPEQUIP",
+            "CODEQUIP",
+            "QT_EXIST",
+            "QT_USO",
+            "IND_SUS",
+            "IND_NSUS",
+        ],
+        # leito
+        "LT": ["CNES", "TP_LEITO", "CODLEITO", "QT_EXIST", "QT_CONTR", "QT_SUS"],
+        # equipe
+        "EQ": [
+            "CODUFMUN",
+            "CNES",
+            "NAT_JUR",
+            "ID_EQUIPE",
+            "IDEQUIPE",
+            "TIPO_EQP",
+            "NOME_EQP",
+            "AREA_EQP",
+            "ID_AREA",
+            "NOMEAREA",
+            "ID_SEGM",
+            "DESCSEGM",
+            "TIPOSEGM",
+            "DT_ATIVA",
+            "DT_DESAT",
+            "MOTDESAT",
+            "TP_DESAT",
+            "QUILOMBO",
+            "ASSENTAD",
+            "POPGERAL",
+            "ESCOLA",
+            "INDIGENA",
+            "PRONASCI",
+        ],
+        # profissional
+        "PF": [
+            "COMPETEN",
+            "CNES",
+            "UFMUNRES",
+            "NOMEPROF",
+            "CNS_PROF",
+            "CBO",
+            "REGISTRO",
+            "CONSELHO",
+            "TERCEIRO",
+            "VINCULAC",
+            "VINCUL_C",
+            "VINCUL_A",
+            "VINCUL_N",
+            "PROF_SUS",
+            "PROFNSUS",
+            "HORAOUTR",
+            "HORAHOSP",
+            "HORA_AMB",
+        ],
     }
 
     # generate YYYYMM to parse correct files from FTP server
