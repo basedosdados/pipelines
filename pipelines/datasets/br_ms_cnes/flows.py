@@ -266,6 +266,9 @@ with Flow(name="br_ms_cnes.leito", code_owners=["Gabriel Pisa"]) as br_ms_cnes_l
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
+br_ms_cnes_leito.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_ms_cnes_leito.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+# br_ms_cnes_leito.schedule = none
 
 # equipamento
 with Flow(
@@ -342,6 +345,8 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
+br_ms_cnes_equipamento.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_ms_cnes_equipamento.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 
 # equipe
 with Flow(name="br_ms_cnes.equipe", code_owners=["Gabriel Pisa"]) as br_ms_cnes_equipe:
@@ -416,3 +421,5 @@ with Flow(name="br_ms_cnes.equipe", code_owners=["Gabriel Pisa"]) as br_ms_cnes_
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
+br_ms_cnes_equipe.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_ms_cnes_equipe.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)

@@ -215,7 +215,6 @@ def read_dbc_save_csv(file_list: list, path: str, table: str) -> str:
 
 
 # leitos
-# todo: sera feito com dbt
 # merge codufmun
 # atencao duplicacao de nome
 # inseret month year
