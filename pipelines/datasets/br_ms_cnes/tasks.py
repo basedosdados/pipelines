@@ -175,7 +175,6 @@ def read_dbc_save_csv(file_list: list, path: str, table: str) -> str:
         log("file 2 being read")
         df = pd.read_csv(output_file, dtype=str, encoding="latin1")
 
-        # todo: put it to constants
         # tratar
         list_columns_to_delete = [
             "AP01CV07",
