@@ -223,15 +223,6 @@ def read_dbc_save_csv(file_list: list, path: str, table: str) -> str:
     return path + table
 
 
-# leitos
-# merge codufmun
-# atencao duplicacao de nome
-# inseret month year
-# ctransformar em int depois string o codigo especialidade
-# dropa NA
-# dropa duplicados  df.drop_duplicates(subset=["id_estabelecimento_cnes","tipo","codigo_especialidade","ano","mes"])
-
-
 # equipe
 rename = [
     "CODUFMUN",
