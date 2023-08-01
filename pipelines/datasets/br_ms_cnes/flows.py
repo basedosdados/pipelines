@@ -194,9 +194,7 @@ br_ms_cnes_profissional.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.
 br_ms_cnes_profissional.schedule = schedule_br_ms_cnes_profissional
 
 # leito
-with Flow(
-    name="br_ms_cnes.leito", code_owners=["Gabriel Pisa"]
-) as br_ms_cnes_estabelecimento:
+with Flow(name="br_ms_cnes.leito", code_owners=["Gabriel Pisa"]) as br_ms_cnes_leito:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_ms_cnes", required=True)
     table_id = Parameter("table_id", default="leito", required=True)
@@ -272,7 +270,7 @@ with Flow(
 # equipamento
 with Flow(
     name="br_ms_cnes.equipamento", code_owners=["Gabriel Pisa"]
-) as br_ms_cnes_estabelecimento:
+) as br_ms_cnes_equipamento:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_ms_cnes", required=True)
     table_id = Parameter("table_id", default="equipamento", required=True)
@@ -346,9 +344,7 @@ with Flow(
         )
 
 # equipe
-with Flow(
-    name="br_ms_cnes.equipe", code_owners=["Gabriel Pisa"]
-) as br_ms_cnes_estabelecimento:
+with Flow(name="br_ms_cnes.equipe", code_owners=["Gabriel Pisa"]) as br_ms_cnes_equipe:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_ms_cnes", required=True)
     table_id = Parameter("table_id", default="equipe", required=True)
