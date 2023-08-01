@@ -202,6 +202,15 @@ def read_dbc_save_csv(file_list: list, path: str, table: str) -> str:
 
         else:
             # equipe
+            # the EQ table has different names for same variables across the years
+            # this is a workaround to standardize the names
+            standardize_colums = {
+                "IDEQUIPE": "ID_EQUIPE",
+                "AREA_EQP": "ID_AREA",
+            }
+
+            df.rename(columns=standardize_colums, inplace=True)
+
             df = df[cnes_constants.COLUMNS_TO_KEEP.value["EQ"]]
 
         # salvar de novo
