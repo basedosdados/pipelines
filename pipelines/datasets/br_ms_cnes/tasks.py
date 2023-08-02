@@ -60,9 +60,18 @@ def parse_latest_cnes_dbc_files(database: str, cnes_group: str) -> list[str]:
     month_to_parse = cnes_constants.GENERATE_MONTH_TO_PARSE.value[current_month]
     year_month_to_parse = str(current_year) + str(month_to_parse)
 
-    log(f"the YEARMONTH being used to parse files is: {year_month_to_parse}")
-
     list_files = []
+    for file in available_dbs:
+        if (
+            file[-8:-6] == "06"
+            or file[-8:-6] == "07"
+            or file[-8:-6] == "08"
+            or file[-8:-6] == "09"
+            or file[-8:-6] == "10"
+        ):
+            list_files.append(file)
+
+    log(f"the YEARMONTH being used to parse files is: {year_month_to_parse}")
 
     # for file in available_dbs:
     #    if file[-8:-4] == year_month_to_parse:
@@ -76,7 +85,7 @@ def parse_latest_cnes_dbc_files(database: str, cnes_group: str) -> list[str]:
 
     log(f"the following files were selected: {list_files}")
 
-    return available_dbs
+    return list_files
 
 
 @task(
