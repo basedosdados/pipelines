@@ -383,7 +383,7 @@ with Flow(
                 metadata_type="DateTimeRange",
                 bq_last_update=False,
                 bq_table_last_year_month=True,
-                billing_project_id="basedosdados",
+                billing_project_id="basedosdados-dev",
                 api_mode="prod",
                 date_format="yy-mm-dd",
                 upstream_tasks=[wait_for_materialization],
