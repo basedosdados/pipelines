@@ -63,11 +63,15 @@ def parse_latest_cnes_dbc_files(database: str, cnes_group: str) -> list[str]:
     list_files = []
     for file in available_dbs:
         if (
-            file[-8:-6] == "05"
-            or file[-8:-6] == "11"
-            or file[-8:-6] == "12"
-            or file[-8:-6] == "13"
-            or file[-8:-6] == "14"
+            file[-8:-6] == "15"
+            or file[-8:-6] == "16"
+            or file[-8:-6] == "17"
+            or file[-8:-6] == "18"
+            or file[-8:-6] == "19"
+            or file[-8:-6] == "20"
+            or file[-8:-6] == "21"
+            or file[-8:-6] == "22"
+            or file[-8:-6] == "23"
         ):
             list_files.append(file)
 
