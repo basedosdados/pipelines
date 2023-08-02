@@ -119,7 +119,7 @@ with Flow(
         data_path=output_filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        dump_mode="overwrite",
+        dump_mode="append",
         wait=output_filepath,
     )
 

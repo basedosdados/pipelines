@@ -81,7 +81,7 @@ every_month = Schedule(
             cron="30 19 * * 2",  # 15th day of every month at 15:00
             start_date=datetime(2023, 8, 2, 10, 30),
             labels=[
-                constants.DATASETS_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_mp_pep",
