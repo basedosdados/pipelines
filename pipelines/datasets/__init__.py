@@ -38,3 +38,4 @@ from pipelines.datasets.br_b3_cotacoes.flows import *
 from pipelines.datasets.br_anatel_telefonia_movel.flows import *
 from pipelines.datasets.br_mercadolivre_ofertas.flows import *
 from pipelines.datasets.mundo_transfermarkt_competicoes.flows import *
+from pipelines.datasets.br_mp_pep_cargos_funcoes.flows import *
