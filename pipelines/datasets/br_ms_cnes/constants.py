@@ -44,7 +44,6 @@ class constants(Enum):  # pylint: disable=c0103
         "EQ": [
             "CODUFMUN",
             "CNES",
-            "NAT_JUR",
             "ID_EQUIPE",
             "TIPO_EQP",
             "NOME_EQP",
