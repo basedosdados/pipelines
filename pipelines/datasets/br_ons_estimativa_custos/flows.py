@@ -53,7 +53,7 @@ with Flow(
         "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
-        "materialize after dump", default=True, required=False
+        "materialize_after_dump", default=True, required=False
     )
 
     rename_flow_run = rename_current_flow_run_dataset_table(
@@ -146,7 +146,7 @@ with Flow(
         "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
-        "materialize after dump", default=True, required=False
+        "materialize_after_dump", default=True, required=False
     )
 
     rename_flow_run = rename_current_flow_run_dataset_table(
@@ -239,7 +239,7 @@ with Flow(
         "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
-        "materialize after dump", default=True, required=False
+        "materialize_after_dump", default=True, required=False
     )
 
     rename_flow_run = rename_current_flow_run_dataset_table(
@@ -332,7 +332,7 @@ with Flow(
         "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
-        "materialize after dump", default=True, required=False
+        "materialize_after_dump", default=True, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
