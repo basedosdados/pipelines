@@ -47,6 +47,8 @@ class constants(Enum):  # pylint: disable=c0103
 
     INPUT_DIR = "/tmp/br_mp_pep_cargos_funcoes/input"
 
+    OUTPUT_DIR = "/tmp/br_mp_pep_cargos_funcoes/output"
+
     XPATHS = {
         # Cargos e Funções
         "card_home_funcoes": "/html/body/div[5]/div/div[88]",

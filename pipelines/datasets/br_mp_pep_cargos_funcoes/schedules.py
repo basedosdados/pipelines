@@ -70,19 +70,26 @@ Schedules for br_mp_pep_cargos_funcoes
 ###############################################################################
 
 
-from datetime import timedelta, datetime
+from datetime import datetime
 from prefect.schedules import Schedule
-from prefect.schedules.clocks import IntervalClock
+from prefect.schedules.clocks import CronClock
 from pipelines.constants import constants
 
-every_two_weeks = Schedule(
+every_month = Schedule(
     clocks=[
-        IntervalClock(
-            interval=timedelta(weeks=2),
-            start_date=datetime(2021, 1, 1),
+        CronClock(
+            cron="30 19 * * 2",  # 15th day of every month at 15:00
+            start_date=datetime(2023, 8, 2, 10, 30),
             labels=[
                 constants.DATASETS_AGENT_LABEL.value,
             ],
+            parameter_defaults={
+                "dataset_id": "br_mp_pep",
+                "table_id": "cargos_funcoes",
+                "materialization_mode": "prod",
+                "materialize_after_dump": True,
+                "dbt_alias": False,
+            },
         ),
     ]
 )

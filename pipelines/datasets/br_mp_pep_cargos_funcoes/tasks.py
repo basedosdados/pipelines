@@ -61,7 +61,7 @@ from selenium.webdriver.common.by import By
 
 from prefect import task
 
-from pipelines.utils.utils import log
+from pipelines.utils.utils import log, to_partitions
 from pipelines.datasets.br_mp_pep_cargos_funcoes.constants import constants
 from pipelines.datasets.br_mp_pep_cargos_funcoes.utils import (
     wait_file_download,
@@ -71,7 +71,7 @@ from pipelines.datasets.br_mp_pep_cargos_funcoes.utils import (
 
 
 @task
-def setup_web_driver():
+def setup_web_driver() -> None:
     r = requests.get(constants.CHROME_DRIVER.value, stream=True)
     with zipfile.ZipFile(io.BytesIO(r.content)) as z:
         z.extractall(constants.PATH.value)
@@ -82,7 +82,7 @@ def setup_web_driver():
 @task
 def scraper(
     headless: bool = True, year_start: int = 1999, year_end: int = datetime.now().year
-):
+) -> None:
     if not os.path.exists(constants.TMP_DATA_DIR.value):
         os.mkdir(constants.TMP_DATA_DIR.value)
 
@@ -309,7 +309,7 @@ def scraper(
 
 
 @task
-def clean_data() -> str:
+def clean_data() -> pd.DataFrame:
     dfs = [
         pd.read_excel(f"{constants.INPUT_DIR.value}/{file}", skipfooter=4)
         for file in os.listdir(constants.INPUT_DIR.value)
@@ -322,8 +322,19 @@ def clean_data() -> str:
     for col in replaces_by_col:
         df[col] = df[col].replace(replaces_by_col[col])
 
-    output_file = f"{constants.PATH.value}/output.csv"
+    return df
 
-    df.to_csv(output_file, sep=",", index=False)
 
-    return output_file
+@task
+def make_partitions(df: pd.DataFrame) -> str:
+    savepath = constants.OUTPUT_DIR.value
+
+    if not os.path.exists(savepath):
+        os.mkdir(savepath)
+
+    to_partitions(
+        data=df,
+        partition_columns=["ano"],
+        savepath=savepath,
+    )
+    return savepath
