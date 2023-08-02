@@ -513,15 +513,11 @@ def clean_data_make_partitions_balancete(diretorio, table_id):
         print(f"Baixando o arquivo ------> {file}")
 
         df = pd.read_csv(file, sep=";", encoding="ISO-8859-1", dtype="string")
-        df["ano"] = (
-            df["DT_COMPTC"]
-            .apply(lambda x: datetime.strptime(x, "%Y-%m-%d").year)
-            .astype(str)
+        df["ano"] = df["DT_COMPTC"].apply(
+            lambda x: datetime.strptime(x, "%Y-%m-%d").year
         )
-        df["mes"] = (
-            df["DT_COMPTC"]
-            .apply(lambda x: datetime.strptime(x, "%Y-%m-%d").month)
-            .astype(str)
+        df["mes"] = df["DT_COMPTC"].apply(
+            lambda x: datetime.strptime(x, "%Y-%m-%d").month
         )
 
         df_final = df
@@ -535,7 +531,6 @@ def clean_data_make_partitions_balancete(diretorio, table_id):
         df_final = df_final.replace(",", ".", regex=True)
         df_final = df_final[colunas_finais]
         os.makedirs(f"/tmp/data/br_cvm_fi/{table_id}/output/", exist_ok=True)
-        # df_final.to_csv(f"/tmp/data/br_cvm_fi/{table_id}/output/teste.csv")
         to_partitions(
             df_final,
             partition_columns=["ano", "mes"],
