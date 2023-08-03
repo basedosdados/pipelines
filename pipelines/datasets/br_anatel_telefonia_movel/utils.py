@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-General purpose functions for the br_anatel_banda_larga_fixa
+General purpose functions for the br_anatel_telefonia_movel project of the pipelines
 """
+# pylint: disable=too-few-public-methods,invalid-name
+
 from io import BytesIO
 from zipfile import ZipFile
 from urllib.request import urlopen
@@ -30,24 +32,6 @@ def download_and_unzip(url, path):
     zipfile.extractall(path=path)
 
     return path
-
-
-def check_and_create_column(df: pd.DataFrame, col_name: str) -> pd.DataFrame:
-    """
-    # ! Verifique se existe uma coluna em um Pandas DataFrame. Caso contrário, crie uma nova coluna com o nome fornecido
-    # ! e preenchê-lo com valores NaN. Se existir, não faça nada.
-
-    # * Parâmetros:
-    # ! df (Pandas DataFrame): O DataFrame a ser verificado.
-    # ! col_name (str): O nome da coluna a ser verificada ou criada.
-
-    # * Retorna:
-    # ! Pandas DataFrame: O DataFrame modificado.
-    """
-
-    if col_name not in df.columns:
-        df[col_name] = ""
-    return df
 
 
 def to_partitions_microdados(

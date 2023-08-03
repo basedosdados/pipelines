@@ -374,6 +374,7 @@ def to_partitions(data: pd.DataFrame, partition_columns: List[str], savepath: st
         # create unique combinations between partition columns
         unique_combinations = (
             data[partition_columns]
+            .astype(str)
             .drop_duplicates(subset=partition_columns)
             .to_dict(orient="records")
         )
@@ -401,6 +402,9 @@ def to_partitions(data: pd.DataFrame, partition_columns: List[str], savepath: st
             # append data to csv
             df_filter.to_csv(
                 file_filter_save_path,
+                sep=",",
+                encoding="utf-8",
+                na_rep="",
                 index=False,
                 mode="a",
                 header=not file_filter_save_path.exists(),
@@ -619,7 +623,9 @@ def get_first_date(
         raise
 
 
-def extract_last_update(dataset_id, table_id, date_format: str):
+def extract_last_update(
+    dataset_id, table_id, date_format: str, billing_project_id: str
+):
     """
     Extracts the last update date of a given dataset table.
 
@@ -646,7 +652,7 @@ def extract_last_update(dataset_id, table_id, date_format: str):
 
         t = bd.read_sql(
             query=query_bd,
-            billing_project_id="basedosdados-dev",
+            billing_project_id=billing_project_id,
             from_file=True,
         )
         timestamp = (
@@ -664,6 +670,75 @@ def extract_last_update(dataset_id, table_id, date_format: str):
     except Exception as e:
         log(f"An error occurred while extracting the last update date: {str(e)}")
         raise
+
+
+def extract_last_date(dataset_id, table_id, date_format: str, billing_project_id: str):
+    """
+    Extracts the last update date of a given dataset table.
+
+    Args:
+        dataset_id (str): The ID of the dataset.
+        table_id (str): The ID of the table.
+        date_format (str): Date format ('yy-mm' or 'yy-mm-dd')
+        if set to 'yy-mm' the function will look for  ano and mes named columns in the table_id
+        and return a concatenated string in the formar yyyy-mm. if set to 'yyyy-mm-dd'
+        the function will look for  data named column in the format 'yyyy-mm-dd' and return it.
+
+    Returns:
+        str: The last update date in the format 'yyyy-mm' or 'yyyy-mm-dd'.
+
+    Raises:
+        Exception: If an error occurs while extracting the last update date.
+    """
+    if date_format == "yy-mm":
+        try:
+            query_bd = f"""
+            SELECT
+            MAX(CONCAT(ano,"-",mes)) as max_date
+            FROM
+            `basedosdados.{dataset_id}.{table_id}`
+            """
+
+            t = bd.read_sql(
+                query=query_bd,
+                billing_project_id=billing_project_id,
+                from_file=True,
+            )
+            input_date_str = t["max_date"][0]
+
+            date_obj = datetime.strptime(input_date_str, "%Y-%m")
+
+            last_date = date_obj.strftime("%Y-%m")
+            log(f"Última data YYYY-MM: {last_date}")
+
+            return last_date
+        except Exception as e:
+            log(f"An error occurred while extracting the last update date: {str(e)}")
+            raise
+    else:
+        try:
+            query_bd = f"""
+            SELECT
+            MAX(data) as max_date
+            FROM
+            `basedosdados.{dataset_id}.{table_id}`
+            """
+            log(f"Query: {query_bd}")
+            t = bd.read_sql(
+                query=query_bd,
+                billing_project_id=billing_project_id,
+                from_file=True,
+            )
+            # it infers that the data variable is already on basedosdados standart format
+            # yyyy-mm-dd
+            last_date = t["max_date"][0]
+
+            log(f"Última data YYYY-MM-DD: {last_date}")
+
+            return last_date
+        except Exception as e:
+            log(f"An error occurred while extracting the last update date: {str(e)}")
+            raise
 
 
 def find_ids(dataset_id, table_id, email, password):

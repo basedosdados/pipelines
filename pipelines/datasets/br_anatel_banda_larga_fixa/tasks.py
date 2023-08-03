@@ -6,21 +6,23 @@ import pandas as pd
 import numpy as np
 from zipfile import ZipFile
 from pathlib import Path
-
+import os
 
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 
 from prefect import task
-
+from pipelines.datasets.br_anatel_banda_larga_fixa.constants import (
+    constants as anatel_constants,
+)
 from pipelines.utils.utils import (
     to_partitions,
     log,
 )
 from pipelines.datasets.br_anatel_banda_larga_fixa.utils import (
     check_and_create_column,
-    download_file,
-    extract_file,
+    download_and_unzip,
+    to_partitions_microdados,
 )
 from pipelines.constants import constants
 
@@ -29,115 +31,107 @@ from pipelines.constants import constants
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def treatment():
-    url = "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/acessos/acessos_banda_larga_fixa.zip"
+def treatment(ano: int):
+    log("Iniciando o tratamento do arquivo microdados da Anatel")
+    download_and_unzip(
+        url=anatel_constants.URL.value, path=anatel_constants.INPUT_PATH.value
+    )
 
-    download_dir = "/tmp/data/input"
+    # ! Lendo o arquivo csv
+    df = pd.read_csv(
+        f"{anatel_constants.INPUT_PATH.value}Acessos_Banda_Larga_Fixa_{ano}.csv",
+        sep=";",
+        encoding="utf-8",
+    )
 
-    download_file(url=url, download_dir=download_dir)
+    # ! Fazendo referencia a função criada anteriormente para verificar colunas
+    df = check_and_create_column(df, "Tipo de Produto")
 
-    anos = ["2023"]
+    # ! Renomeando as colunas
+    df.rename(
+        columns={
+            "Ano": "ano",
+            "Mês": "mes",
+            "Grupo Econômico": "grupo_economico",
+            "Empresa": "empresa",
+            "CNPJ": "cnpj",
+            "Porte da Prestadora": "porte_empresa",
+            "UF": "sigla_uf",
+            "Município": "municipio",
+            "Código IBGE Município": "id_municipio",
+            "Faixa de Velocidade": "velocidade",
+            "Tecnologia": "tecnologia",
+            "Meio de Acesso": "transmissao",
+            "Acessos": "acessos",
+            "Tipo de Pessoa": "pessoa",
+            "Tipo de Produto": "produto",
+        },
+        inplace=True,
+    )
 
-    filepath = "/tmp/data/input/acessos_banda_larga_fixa.zip"
+    # ! organização das variáveis
+    df.drop(["grupo_economico", "municipio"], axis=1, inplace=True)
 
-    # ! Abrindo o arquivo zipado
-    with ZipFile(filepath) as z:
-        # ! Iterando sobre a lista de anos
-        for ano in anos:
-            # ! Abrindo o arquivo csv dentro do zip pelo ano
-            with z.open(f"Acessos_Banda_Larga_Fixa_{ano}.csv") as f:
-                # ! Lendo o arquivo csv
-                df = pd.read_csv(f, sep=";", encoding="utf-8")
+    # ! Reordenando as colunas
+    df = df[
+        [
+            "ano",
+            "mes",
+            "sigla_uf",
+            "id_municipio",
+            "cnpj",
+            "empresa",
+            "porte_empresa",
+            "tecnologia",
+            "transmissao",
+            "velocidade",
+            "produto",
+            "acessos",
+        ]
+    ]
 
-                # ! Fazendo referencia a função criada anteriormente para verificar colunas
-                df = check_and_create_column(df, "Tipo de Produto")
+    # ! Classificação do DataFrame em ordem crescente
+    df.sort_values(
+        [
+            "ano",
+            "mes",
+            "sigla_uf",
+            "id_municipio",
+            "cnpj",
+            "empresa",
+            "porte_empresa",
+            "tecnologia",
+            "transmissao",
+            "velocidade",
+        ],
+        inplace=True,
+    )
+    # ! substituindo valores nulos por vazio
+    df.replace(np.nan, "", inplace=True)
+    # ! Retirando os acentos da coluna "transmissao"
+    df["transmissao"] = df["transmissao"].apply(
+        lambda x: x.replace("Cabo Metálico", "Cabo Metalico")
+        .replace("Satélite", "Satelite")
+        .replace("Híbrido", "Hibrido")
+        .replace("Fibra Óptica", "Fibra Optica")
+        .replace("Rádio", "Radio")
+    )
 
-                # ! Renomeando as colunas
-                df.rename(
-                    columns={
-                        "Ano": "ano",
-                        "Mês": "mes",
-                        "Grupo Econômico": "grupo_economico",
-                        "Empresa": "empresa",
-                        "CNPJ": "cnpj",
-                        "Porte da Prestadora": "porte_empresa",
-                        "UF": "sigla_uf",
-                        "Município": "municipio",
-                        "Código IBGE Município": "id_municipio",
-                        "Faixa de Velocidade": "velocidade",
-                        "Tecnologia": "tecnologia",
-                        "Meio de Acesso": "transmissao",
-                        "Acessos": "acessos",
-                        "Tipo de Pessoa": "pessoa",
-                        "Tipo de Produto": "produto",
-                    },
-                    inplace=True,
-                )
+    df["acessos"] = df["acessos"].apply(lambda x: str(x).replace(".0", ""))
 
-                # ! organização das variáveis
-                df.drop(["grupo_economico", "municipio"], axis=1, inplace=True)
-
-                # ! Reordenando as colunas
-                df = df[
-                    [
-                        "ano",
-                        "mes",
-                        "sigla_uf",
-                        "id_municipio",
-                        "cnpj",
-                        "empresa",
-                        "porte_empresa",
-                        "tecnologia",
-                        "transmissao",
-                        "velocidade",
-                        "produto",
-                        "acessos",
-                    ]
-                ]
-
-                # ! Classificação do DataFrame em ordem crescente
-                df.sort_values(
-                    [
-                        "ano",
-                        "mes",
-                        "sigla_uf",
-                        "id_municipio",
-                        "cnpj",
-                        "empresa",
-                        "porte_empresa",
-                        "tecnologia",
-                        "transmissao",
-                        "velocidade",
-                    ],
-                    inplace=True,
-                )
-                # ! substituindo valores nulos por vazio
-                df.replace(np.nan, "", inplace=True)
-                # ! Retirando os acentos da coluna "transmissao"
-                df["transmissao"] = df["transmissao"].apply(
-                    lambda x: x.replace("Cabo Metálico", "Cabo Metalico")
-                    .replace("Satélite", "Satelite")
-                    .replace("Híbrido", "Hibrido")
-                    .replace("Fibra Óptica", "Fibra Optica")
-                    .replace("Rádio", "Radio")
-                )
-
-                df["acessos"] = df["acessos"].apply(lambda x: str(x).replace(".0", ""))
-
-                df["produto"] = df["produto"].apply(
-                    lambda x: x.replace("LINHA_DEDICADA", "linha dedicada").lower()
-                )
-
-                savepath = "/tmp/data/microdados.csv"
-                # ! Fazendo referencia a função criada anteriormente para particionar o arquivo o arquivo
-                to_partitions(
-                    df,
-                    partition_columns=["ano", "mes", "sigla_uf"],
-                    savepath=savepath,
-                )
+    df["produto"] = df["produto"].apply(
+        lambda x: x.replace("LINHA_DEDICADA", "linha dedicada").lower()
+    )
+    log("Salvando o arquivo microdados da Anatel")
+    # ! Fazendo referencia a função criada anteriormente para particionar o arquivo o arquivo
+    to_partitions_microdados(
+        df,
+        partition_columns=["ano", "mes", "sigla_uf"],
+        savepath=anatel_constants.OUTPUT_PATH_MICRODADOS.value,
+    )
 
     # ! retornando o caminho do path
-    return savepath
+    return anatel_constants.OUTPUT_PATH_MICRODADOS.value
 
 
 @task(
@@ -145,19 +139,12 @@ def treatment():
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def treatment_br():
-    # ! Baixando a pasta zipada no diretório "/tmp/data/input"
-    url = "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/acessos/acessos_banda_larga_fixa.zip"
-    download_dir = "/tmp/data/input"
-    download_file(url=url, download_dir=download_dir)
-
-    # ! Extrair o arquivo zipado no diretório "/tmp/data/input"
-    filepath = "/tmp/data/input/acessos_banda_larga_fixa.zip"
-    extract_dir = "/tmp/data/input"
-    extract_file(filepath=filepath, extract_dir=extract_dir)
-
-    # ! Abrindo o arquivo csv
-    file = "/tmp/data/input/Densidade_Banda_Larga_Fixa.csv"
-    df = pd.read_csv(file, sep=";", encoding="utf-8")
+    log("Iniciando o tratamento do arquivo densidade brasil da Anatel")
+    df = pd.read_csv(
+        f"{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa.csv",
+        sep=";",
+        encoding="utf-8",
+    )
 
     # ! Tratando o csv
     df.rename(columns={"Nível Geográfico Densidade": "Geografia"}, inplace=True)
@@ -170,12 +157,16 @@ def treatment_br():
         columns={"Ano": "ano", "Mês": "mes", "Densidade": "densidade"},
         inplace=True,
     )
-
-    # ! Salvando o csv tratado
-    path = "/tmp/data/densidade_brasil.csv"
-    df_brasil.to_csv(path, sep=",", index=False, encoding="utf-8")
-
-    return path
+    # Cria um diretório de saída, se não existir
+    os.system(f"mkdir -p {anatel_constants.OUTPUT_PATH_BRASIL.value}")
+    df_brasil.to_csv(
+        f"{anatel_constants.OUTPUT_PATH_BRASIL.value}densidade_brasil.csv",
+        index=False,
+        sep=",",
+        encoding="utf-8",
+        na_rep="",
+    )
+    return anatel_constants.OUTPUT_PATH_BRASIL.value
 
 
 @task(
@@ -183,20 +174,12 @@ def treatment_br():
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def treatment_uf():
-    # ! Baixando a pasta zipada no diretório "/tmp/data/input"
-    url = "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/acessos/acessos_banda_larga_fixa.zip"
-    download_dir = "/tmp/data/input"
-    download_file(url=url, download_dir=download_dir)
-
-    # ! Extrair o arquivo zipado no diretório "/tmp/data/input"
-
-    filepath = "/tmp/data/input/acessos_banda_larga_fixa.zip"
-    extract_dir = "/tmp/data/input"
-    extract_file(filepath=filepath, extract_dir=extract_dir)
-
-    # ! Abrindo o arquivo csv
-    file = "/tmp/data/input/Densidade_Banda_Larga_Fixa.csv"
-    df = pd.read_csv(file, sep=";", encoding="utf-8")
+    log("Iniciando o tratamento do arquivo densidade uf da Anatel")
+    df = pd.read_csv(
+        f"{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa.csv",
+        sep=";",
+        encoding="utf-8",
+    )
     df.rename(columns={"Nível Geográfico Densidade": "Geografia"}, inplace=True)
     df_uf = df[df["Geografia"] == "UF"]
     df_uf.drop(["Município", "Código IBGE", "Geografia"], axis=1, inplace=True)
@@ -210,12 +193,18 @@ def treatment_uf():
         },
         inplace=True,
     )
-
+    log("Iniciando o particionado do arquivo densidade uf da Anatel")
     # ! Salvando o csv tratado
-    path = "/tmp/data/densidade_brasil.csv"
-    df_uf.to_csv(path, sep=",", index=False, encoding="utf-8")
+    os.system(f"mkdir -p {anatel_constants.OUTPUT_PATH_UF.value}")
+    df_uf.to_csv(
+        f"{anatel_constants.OUTPUT_PATH_UF.value}densidade_uf.csv",
+        index=False,
+        sep=",",
+        encoding="utf-8",
+        na_rep="",
+    )
 
-    return path
+    return anatel_constants.OUTPUT_PATH_UF.value
 
 
 @task(
@@ -223,19 +212,12 @@ def treatment_uf():
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def treatment_municipio():
-    # ! Baixando a pasta zipada no diretório "/tmp/data/input"
-    url = "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/acessos/acessos_banda_larga_fixa.zip"
-    download_dir = "/tmp/data/input"
-    download_file(url=url, download_dir=download_dir)
-
-    # ! Extrair o arquivo zipado no diretório "/tmp/data/input"
-    filepath = "/tmp/data/input/acessos_banda_larga_fixa.zip"
-    extract_dir = "/tmp/data/input"
-    extract_file(filepath=filepath, extract_dir=extract_dir)
-
-    # ! Abrindo o arquivo csv
-    file = "/tmp/data/input/Densidade_Banda_Larga_Fixa.csv"
-    df = pd.read_csv(file, sep=";", encoding="utf-8")
+    log("Iniciando o tratamento do arquivo densidade municipio da Anatel")
+    df = pd.read_csv(
+        f"{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa.csv",
+        sep=";",
+        encoding="utf-8",
+    )
 
     # ! Tratando o csv
     df.rename(columns={"Nível Geográfico Densidade": "Geografia"}, inplace=True)
@@ -254,13 +236,23 @@ def treatment_municipio():
         },
         inplace=True,
     )
-    savepath = "/tmp/data/microdados.csv"
-
+    log("Salvando o arquivo densidade municipio da Anatel")
     # ! Fazendo referencia a função criada anteriormente para particionar o arquivo o arquivo
-    to_partitions(
+
+    to_partitions_microdados(
         df_municipio,
-        partition_columns=["ano", "mes", "sigla_uf"],
-        savepath=savepath,
+        partition_columns=["ano"],
+        savepath=anatel_constants.OUTPUT_PATH_MUNICIPIO.value,
     )
 
-    return savepath
+    return anatel_constants.OUTPUT_PATH_MUNICIPIO.value
+
+
+# task para retornar o ano e mes paara a atualização dos metadados.
+
+
+@task
+def get_today_date_atualizado():
+    d = datetime.now() - timedelta(days=60)
+
+    return d.strftime("%Y-%m")

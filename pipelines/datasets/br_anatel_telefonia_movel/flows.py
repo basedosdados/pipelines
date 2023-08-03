@@ -1,42 +1,43 @@
 # -*- coding: utf-8 -*-
 """
-Flows for dataset br_anatel_banda_larga_fixa
+Flows for dataset br_anatel_telefonia_movel
 """
 
-from datetime import timedelta
-from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
+from datetime import timedelta
+from prefect import Parameter, case
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
-from pipelines.constants import constants
+
+from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.utils.tasks import update_django_metadata
 from pipelines.utils.constants import constants as utils_constants
-from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.datasets.br_anatel_banda_larga_fixa.tasks import (
-    treatment,
-    treatment_br,
-    treatment_uf,
-    treatment_municipio,
+from pipelines.constants import constants
+from pipelines.datasets.br_anatel_telefonia_movel.constants import (
+    constants as anatel_constants,
+)
+from pipelines.datasets.br_anatel_telefonia_movel.tasks import (
+    clean_csv_microdados,
+    clean_csv_brasil,
+    clean_csv_uf,
+    clean_csv_municipio,
     get_today_date_atualizado,
 )
-
-from pipelines.datasets.br_anatel_banda_larga_fixa.schedules import (
-    every_month_anatel_microdados,
-)
-
+from pipelines.utils.decorators import Flow
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     rename_current_flow_run_dataset_table,
     get_current_flow_labels,
 )
 
-with Flow(
-    name="br_anatel_banda_larga_fixa", code_owners=["trick"]
-) as br_anatel_banda_larga:
+from pipelines.datasets.br_anatel_telefonia_movel.schedules import (
+    every_month_anatel,
+)
+
+with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anatel:
     # Parameters
     dataset_id = Parameter(
-        "dataset_id", default="br_anatel_banda_larga_fixa", required=True
+        "dataset_id", default="br_anatel_telefonia_movel", required=True
     )
     table_id = Parameter(
         "table_id",
@@ -52,24 +53,30 @@ with Flow(
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
     )
-
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
-
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
-    ano = Parameter("ano", default="2023", required=False)
-
-    update_metadata = Parameter("update_metadata", default=True, required=False)
-
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id[0], wait=table_id[0]
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id[0],
+        wait=table_id[0],
     )
 
+    # ! as variáveis ano, mes_um, mes_dois é criada aqui e cria um objeto 'Parameter' no Prefect Cloud chamado 'ano', 'mes_um', 'mes_dois'
+    # ! Importante salientar que o mes_um sempre será 01 ou 06 e o mes_dois será 07 ou 12
+    anos = Parameter("anos", default=2023, required=True)
+    mes_um = Parameter("mes_um", default="01", required=True)
+    mes_dois = Parameter("mes_dois", default="06", required=True)
+    update_metadata = Parameter("update_metadata", default=True, required=False)
+
     # ! MICRODADOS
-    filepath_microdados = treatment(
-        ano=ano,
+    filepath_microdados = clean_csv_microdados(
+        anos=anos,
+        mes_um=mes_um,
+        mes_dois=mes_dois,
         upstream_tasks=[rename_flow_run],
     )
 
@@ -151,11 +158,12 @@ with Flow(
                 api_mode="prod",
                 date_format="yy-mm",
                 _last_date=date,
+                upstream_tasks=[wait_for_materialization],
             )
 
     # ! BRASIL
-    filepath_brasil = treatment_br(upstream_tasks=[filepath_microdados])
-    wait_upload_table = create_table_and_upload_to_gcs(
+    filepath_brasil = clean_csv_brasil(upstream_tasks=[filepath_microdados])
+    wait_upload_table_BRASIL = create_table_and_upload_to_gcs(
         data_path=filepath_brasil,
         dataset_id=dataset_id,
         table_id=table_id[1],
@@ -232,12 +240,13 @@ with Flow(
                 api_mode="prod",
                 date_format="yy-mm",
                 _last_date=date,
+                upstream_tasks=[wait_for_materialization],
             )
 
     # ! UF
 
-    filepath_uf = treatment_uf(upstream_tasks=[filepath_microdados])
-    wait_upload_table = create_table_and_upload_to_gcs(
+    filepath_uf = clean_csv_uf(upstream_tasks=[filepath_microdados])
+    wait_upload_table_BRASIL = create_table_and_upload_to_gcs(
         data_path=filepath_uf,
         dataset_id=dataset_id,
         table_id=table_id[2],
@@ -315,11 +324,12 @@ with Flow(
                 api_mode="prod",
                 date_format="yy-mm",
                 _last_date=date,
+                upstream_tasks=[wait_for_materialization],
             )
 
     # ! MUNICIPIO
-    filepath_municipio = treatment_municipio(upstream_tasks=[filepath_microdados])
-    wait_upload_table = create_table_and_upload_to_gcs(
+    filepath_municipio = clean_csv_municipio(upstream_tasks=[filepath_microdados])
+    wait_upload_table_BRASIL = create_table_and_upload_to_gcs(
         data_path=filepath_municipio,
         dataset_id=dataset_id,
         table_id=table_id[3],
@@ -398,8 +408,9 @@ with Flow(
                 api_mode="prod",
                 date_format="yy-mm",
                 _last_date=date,
+                upstream_tasks=[wait_for_materialization],
             )
 
-br_anatel_banda_larga.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_anatel_banda_larga.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_anatel_banda_larga.schedule = every_month_anatel_microdados
+br_anatel.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_anatel.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_anatel.schedule = every_month_anatel

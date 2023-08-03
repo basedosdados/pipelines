@@ -24,6 +24,7 @@ from pipelines.utils.utils import (
     get_credentials_utils,
     create_update,
     extract_last_update,
+    extract_last_date,
     get_first_date,
     log,
     get_credentials_from_secret,
@@ -77,6 +78,8 @@ def create_table_and_upload_to_gcs(
     """
     Create table using BD+ and upload to GCS.
     """
+    bd_version = bd.__version__
+    log(f"USING BASEDOSDADOS {bd_version}")
     # pylint: disable=C0103
     tb = bd.Table(dataset_id=dataset_id, table_id=table_id)
     table_staging = f"{tb.table_full_name['staging']}"
@@ -107,7 +110,6 @@ def create_table_and_upload_to_gcs(
             tb.create(
                 path=header_path,
                 if_storage_data_exists="replace",
-                if_table_config_exists="replace",
                 if_table_exists="replace",
             )
 
@@ -156,7 +158,6 @@ def create_table_and_upload_to_gcs(
         tb.create(
             path=header_path,
             if_storage_data_exists="replace",
-            if_table_config_exists="replace",
             if_table_exists="replace",
         )
 
@@ -208,6 +209,7 @@ def update_metadata(dataset_id: str, table_id: str, fields_to_update: list) -> N
     fields_to_update: list of dictionaries with key and values to be updated
     """
     # add credentials to config.toml
+    # TODO: remove this because bd 2.0 does not have Metadata class
     handle = bd.Metadata(dataset_id=dataset_id, table_id=table_id)
     handle.create(if_exists="replace")
 
@@ -374,26 +376,50 @@ def update_django_metadata(
     _last_date=None,
     date_format: str = "yy-mm-dd",
     bq_last_update: bool = True,
+    bq_table_last_year_month: bool = False,
     api_mode: str = "prod",
+    billing_project_id: str = "basedosdados-dev",
 ):
     """
     Updates Django metadata.
 
     Args:
-        dataset_id (str): The ID of the dataset.
-        table_id (str): The ID of the table.
-        metadata_type (str): The type of metadata to update.
-        _last_date (optional): The last date for metadata update if `bq_last_update` is False. Defaults to None.
-        date_format (str, optional): The date format to use when parsing dates ('yy-mm-dd', 'yy-mm', or 'yy'). Defaults to 'yy-mm-dd'.
-        bq_last_update (bool, optional): Flag indicating whether to use BigQuery's last update date for metadata.
+        -   `dataset_id (str):` The ID of the dataset.
+        -   `table_id (str):` The ID of the table.
+        -   `metadata_type (str):` The type of metadata to update.
+        -   `_last_date (optional):` The last date for metadata update if `bq_last_update` is False. Defaults to None.
+        -   `date_format (str, optional):` The date format to use when parsing dates ('yy-mm-dd', 'yy-mm', or 'yy'). Defaults to 'yy-mm-dd'.
+        -   `bq_last_update (bool, optional):` Flag indicating whether to use BigQuery's last update date for metadata.
             If True, `_last_date` is ignored. Defaults to True.
-        api_mode (str, optional): The API mode to be used ('prod', 'staging'). Defaults to 'prod'.
+        -   `api_mode (str, optional):` The API mode to be used ('prod', 'staging'). Defaults to 'prod'.
+        -   `billing_project_id (str):` the billing_project_id to be used when the extract_last_update function is triggered. Note that it has
+        to be equal to the prefect agent. For prod agents use basedosdados where as for dev agents use basedosdados-dev. The default value is
+        to 'basedosdados-dev'.
+        -   `bq_table_last_year_month (bool):` if true extract YYYY-MM from the table in Big Query to update the Coverage. Note
+        that in needs the table to have ano and mes columns.
 
+    Example:
+
+        Eg 1. In this example the function will look for example_table in basedosdados project.
+        It will look for a column name `data` in date_format = 'yyyy-mm-dd' in the BQ and retrieve its max value.
+        ```
+        update_django_metadata(
+                dataset_id = 'example_dataset',
+                table_id = 'example_table,
+                metadata_type="DateTimeRange",
+                bq_last_update=False,
+                bq_table_last_year_month=True,
+                billing_project_id="basedosdados",
+                api_mode="prod",
+                date_format="yy-mm-dd",
+                upstream_tasks=[wait_for_materialization],
+            )
+        ```
     Returns:
-        None
+        -   None
 
     Raises:
-        Exception: If the metadata_type is not supported.
+        -   Exception: If the metadata_type is not supported.
 
     """
     (email, password) = get_credentials_utils(secret_path=f"api_user_{api_mode}")
@@ -408,10 +434,39 @@ def update_django_metadata(
 
     if metadata_type == "DateTimeRange":
         if bq_last_update:
+            log(
+                f"Attention! bq_last_update was set to TRUE, it will update the temporal coverage according to the metadata of the last modification made to {table_id}.{dataset_id}"
+            )
             last_date = extract_last_update(
                 dataset_id,
                 table_id,
                 date_format,
+                billing_project_id=billing_project_id,
+            )
+
+            resource_to_temporal_coverage = parse_temporal_coverage(f"{last_date}")
+            resource_to_temporal_coverage["coverage"] = ids.get("coverage_id")
+            log(f"Mutation parameters: {resource_to_temporal_coverage}")
+
+            create_update(
+                query_class="allDatetimerange",
+                query_parameters={"$coverage_Id: ID": ids.get("coverage_id")},
+                mutation_class="CreateUpdateDateTimeRange",
+                mutation_parameters=resource_to_temporal_coverage,
+                update=True,
+                email=email,
+                password=password,
+                api_mode=api_mode,
+            )
+        elif bq_table_last_year_month:
+            log(
+                f"Attention! bq_table_last_year_month was set to TRUE, this function will update the temporal coverage according to the most recent date in the data or ano-mes columns of {table_id}.{dataset_id}"
+            )
+            last_date = extract_last_date(
+                dataset_id,
+                table_id,
+                date_format=date_format,
+                billing_project_id=billing_project_id,
             )
 
             resource_to_temporal_coverage = parse_temporal_coverage(f"{last_date}")

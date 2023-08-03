@@ -16,13 +16,14 @@ schedule_br_ons_avaliacao_operacao_reservatorio = Schedule(
             cron="@monthly",
             start_date=datetime(2023, 6, 14, 0, 0),
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_ons_avaliacao_operacao",
                 "table_id": "reservatorio",
                 "materialization_mode": "prod",
                 "materialize after dump": True,
+                "update_metadata": True,
                 "dbt_alias": False,
             },
         )
@@ -37,13 +38,14 @@ schedule_br_ons_avaliacao_operacao_geracao_usina = Schedule(
             cron="0 0 * * *",  # every day at midnight
             start_date=datetime(2023, 6, 14, 0, 0),
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_ons_avaliacao_operacao",
                 "table_id": "geracao_usina",
                 "materialization_mode": "prod",
-                "materialize after dump": True,
+                "materialize_after_dump": True,
+                "update_metadata": True,
                 "dbt_alias": False,
             },
         )
@@ -58,13 +60,14 @@ schedule_br_ons_avaliacao_operacao_geracao_termica_motivo_despacho = Schedule(
             cron="0 0 * * *",  # every day at midnight
             start_date=datetime(2023, 6, 14, 0, 0),
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_ons_avaliacao_operacao",
                 "table_id": "geracao_termica_motivo_despacho",
                 "materialization_mode": "prod",
-                "materialize after dump": True,
+                "materialize_after_dump": True,
+                "update_metadata": True,
                 "dbt_alias": False,
             },
         )
@@ -78,14 +81,15 @@ schedule_br_ons_avaliacao_operacao_energia_natural_afluente = Schedule(
         CronClock(
             cron="0 0 * * *",  # every day at midnight
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             start_date=datetime(2023, 6, 14, 0, 0),
             parameter_defaults={
                 "dataset_id": "br_ons_avaliacao_operacao",
                 "table_id": "energia_natural_afluente",
                 "materialization_mode": "prod",
-                "materialize after dump": True,
+                "materialize_after_dump": True,
+                "update_metadata": True,
                 "dbt_alias": False,
             },
         )
@@ -100,13 +104,14 @@ schedule_br_ons_avaliacao_operacao_energia_armazenada_reservatorio = Schedule(
             cron="0 0 * * *",  # every day at midnight
             start_date=datetime(2023, 6, 14, 0, 0),
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_ons_avaliacao_operacao",
                 "table_id": "energia_armazenada_reservatorio",
                 "materialization_mode": "prod",
-                "materialize after dump": True,
+                "materialize_after_dump": True,
+                "update_metadata": True,
                 "dbt_alias": False,
             },
         )
