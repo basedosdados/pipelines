@@ -7,7 +7,6 @@ from enum import Enum
 
 
 class constants(Enum):  # pylint: disable=c0103
-    
     rename = {
         "Revenda": "nome_estabelecimento",
         "CNPJ da Revenda": "cnpj_revenda",

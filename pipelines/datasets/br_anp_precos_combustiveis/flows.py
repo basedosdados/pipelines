@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Flows for br_anp_precos_combustiveis
 """
@@ -11,8 +12,10 @@ from pipelines.constants import constants
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.datasets.br_anp_precos_combustiveis.tasks import (tratamento)
-from pipelines.datasets.br_anp_precos_combustiveis.schedules import (every_week_anp_microdados,)
+from pipelines.datasets.br_anp_precos_combustiveis.tasks import tratamento
+from pipelines.datasets.br_anp_precos_combustiveis.schedules import (
+    every_week_anp_microdados,
+)
 
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
@@ -20,20 +23,29 @@ from pipelines.utils.tasks import (
     get_current_flow_labels,
 )
 
-with Flow(name="br_anp_precos_combustiveis.microdados", code_owners=["trick"]) as anp_microdados:
+with Flow(
+    name="br_anp_precos_combustiveis.microdados", code_owners=["trick"]
+) as anp_microdados:
     # Parameters
-    dataset_id = Parameter("dataset_id", default="br_anp_precos_combustiveis", required=True)
+    dataset_id = Parameter(
+        "dataset_id", default="br_anp_precos_combustiveis", required=True
+    )
     table_id = Parameter("table_id", default="microdados", required=True)
 
-    materialization_mode = Parameter("materialization_mode", default="dev", required=False)
+    materialization_mode = Parameter(
+        "materialization_mode", default="dev", required=False
+    )
 
-    materialize_after_dump = Parameter("materialize_after_dump", default=True, required=False)
+    materialize_after_dump = Parameter(
+        "materialize_after_dump", default=True, required=False
+    )
 
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
-    
-    rename_flow_run = rename_current_flow_run_dataset_table(prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id)
-    update_metadata = Parameter("update_metadata", default=True, required=False)
 
+    rename_flow_run = rename_current_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+    )
+    update_metadata = Parameter("update_metadata", default=True, required=False)
 
     filepath = tratamento()
 
@@ -47,7 +59,6 @@ with Flow(name="br_anp_precos_combustiveis.microdados", code_owners=["trick"]) a
     )
 
     with case(materialize_after_dump, True):
-
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
         materialization_flow = create_flow_run(
