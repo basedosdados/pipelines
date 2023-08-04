@@ -49,7 +49,7 @@ with Flow(
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
-    # files = Parameter("files", default=['202305', '202304'], required=False)
+    files = Parameter("files", default=["202305", "202306"], required=False)
 
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
@@ -62,7 +62,7 @@ with Flow(
 
     hrefs = extract_links_and_dates(url=url)
 
-    files = check_for_updates(hrefs)
+    # files = check_for_updates(hrefs)
 
     with case(is_empty(files), True):
         log_task(f"Não houveram atualizações em {url.default}!")
