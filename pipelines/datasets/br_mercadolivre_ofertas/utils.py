@@ -136,6 +136,9 @@ def get_id(input_string, dictionary):
     Raises:
         None
     """
+    if not input_string:
+        return None
+
     if not isinstance(input_string, str):
         return None
 
