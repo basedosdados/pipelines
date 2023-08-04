@@ -147,7 +147,7 @@ def clean_item(filepath):
     item["envio_pais"] = item["envio_pais"].fillna(False)
 
     # to string
-    item = item.astype(str)
+    # item = item.astype(str)
 
     today = pd.Timestamp.today().strftime("%Y-%m-%d")
 
