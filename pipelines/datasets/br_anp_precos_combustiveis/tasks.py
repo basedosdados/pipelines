@@ -24,12 +24,16 @@ from pipelines.constants import constants
 def tratamento():
     # ! Carregando os dados direto do Diretório de municipio da BD
     # Para carregar o dado direto no pandas
+    log("Carregando dados do diretório de municípios da BD")
     id_municipio = bd.read_table(
         dataset_id="br_bd_diretorios_brasil",
         table_id="municipio",
         billing_project_id="basedosdados-dev",
     )
-
+    log("----" * 150)
+    log("Dados carregados com sucesso")
+    log("----" * 150)
+    log("Iniciando tratamento dos dados id_municipio")
     # ! Tratamento do id_municipio para mergear com a base
     id_municipio["nome"] = id_municipio["nome"].str.upper()
     id_municipio["nome"] = id_municipio["nome"].apply(unidecode.unidecode)
@@ -40,19 +44,27 @@ def tratamento():
         "SANT'ANA DO LIVRAMENTO", "SANTANA DO LIVRAMENTO"
     )
     id_municipio = id_municipio[["id_municipio", "nome", "sigla_uf"]]
-
+    log("----" * 150)
     data_frames = []
+    log('Abrindo os arquivos csvs')
     diesel = pd.read_csv(
         f"/tmp/input/ultimas-4-semanas-diesel-gnv.csv", sep=";", encoding="utf-8"
     )
+    log('Abrindo os arquivos csvs', diesel)
     gasolina = pd.read_csv(
         f"/tmp/input/ultimas-4-semanas-gasolina-etanol.csv", sep=";", encoding="utf-8"
     )
+    log('Abrindo os arquivos csvs', gasolina)
     glp = pd.read_csv(
         f"/tmp/input/ultimas-4-semanas-glp.csv", sep=";", encoding="utf-8"
     )
+    log('Abrindo os arquivos csvs', glp)
     data_frames.extend([diesel, gasolina, glp])
     precos_combustiveis = pd.concat(data_frames, ignore_index=True)
+    log("----" * 150)
+    log("Dados concatenados com sucesso")
+    log("----" * 150)
+    log("Iniciando tratamento dos dados precos_combustiveis")
     precos_combustiveis = pd.merge(
         id_municipio,
         precos_combustiveis,
@@ -60,6 +72,8 @@ def tratamento():
         left_on=["nome", "sigla_uf"],
         right_on=["Municipio", "Estado - Sigla"],
     )
+    log("----" * 150)
+    log("Dados mergeados")
     precos_combustiveis.rename(columns={"Municipio": "nome"}, inplace=True)
     precos_combustiveis.dropna(subset=["Valor de Venda"], inplace=True)
     precos_combustiveis["endereco_revenda"] = (
@@ -109,6 +123,11 @@ def tratamento():
     precos_combustiveis["preco_compra"] = precos_combustiveis["preco_compra"].replace(
         "nan", ""
     )
+    precos_combustiveis.replace(np.nan, "", inplace=True)
+    log("----" * 150)
+    log("Dados tratados com sucesso")
+    log("----" * 150)
+    log("Iniciando particionamento dos dados")
     to_partitions(
         precos_combustiveis,
         partition_columns=["ano", "data_coleta"],
