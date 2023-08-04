@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 from zipfile import ZipFile
 from pathlib import Path
-
+import os
 
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
@@ -22,6 +22,7 @@ from pipelines.utils.utils import (
 from pipelines.datasets.br_anatel_banda_larga_fixa.utils import (
     check_and_create_column,
     download_and_unzip,
+    to_partitions_microdados,
 )
 from pipelines.constants import constants
 
@@ -33,12 +34,14 @@ from pipelines.constants import constants
 def treatment(ano: int):
     log("Iniciando o tratamento do arquivo microdados da Anatel")
     download_and_unzip(
-        url=anatel_constants.URL.value, download_dir=anatel_constants.INPUT_PATH.value
+        url=anatel_constants.URL.value, path=anatel_constants.INPUT_PATH.value
     )
 
     # ! Lendo o arquivo csv
     df = pd.read_csv(
-        f'{anatel_constants.INPUT_PATH.value}Acesso_Banda_Larga_Fixa{ano}, sep=";", encoding="utf-8"'
+        f"{anatel_constants.INPUT_PATH.value}Acessos_Banda_Larga_Fixa_{ano}.csv",
+        sep=";",
+        encoding="utf-8",
     )
 
     # ! Fazendo referencia a função criada anteriormente para verificar colunas
@@ -121,7 +124,7 @@ def treatment(ano: int):
     )
     log("Salvando o arquivo microdados da Anatel")
     # ! Fazendo referencia a função criada anteriormente para particionar o arquivo o arquivo
-    to_partitions(
+    to_partitions_microdados(
         df,
         partition_columns=["ano", "mes", "sigla_uf"],
         savepath=anatel_constants.OUTPUT_PATH_MICRODADOS.value,
@@ -138,7 +141,9 @@ def treatment(ano: int):
 def treatment_br():
     log("Iniciando o tratamento do arquivo densidade brasil da Anatel")
     df = pd.read_csv(
-        f'{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa, sep=";", encoding="utf-8"'
+        f"{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa.csv",
+        sep=";",
+        encoding="utf-8",
     )
 
     # ! Tratando o csv
@@ -152,11 +157,15 @@ def treatment_br():
         columns={"Ano": "ano", "Mês": "mes", "Densidade": "densidade"},
         inplace=True,
     )
-
-    # ! Salvando o csv tratado
-    path = anatel_constants.OUTPUT_PATH_BRASIL.value
-    df_brasil.to_csv(path, sep=",", index=False, encoding="utf-8")
-
+    # Cria um diretório de saída, se não existir
+    os.system(f"mkdir -p {anatel_constants.OUTPUT_PATH_BRASIL.value}")
+    df_brasil.to_csv(
+        f"{anatel_constants.OUTPUT_PATH_BRASIL.value}densidade_brasil.csv",
+        index=False,
+        sep=",",
+        encoding="utf-8",
+        na_rep="",
+    )
     return anatel_constants.OUTPUT_PATH_BRASIL.value
 
 
@@ -167,7 +176,9 @@ def treatment_br():
 def treatment_uf():
     log("Iniciando o tratamento do arquivo densidade uf da Anatel")
     df = pd.read_csv(
-        f'{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa, sep=";", encoding="utf-8"'
+        f"{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa.csv",
+        sep=";",
+        encoding="utf-8",
     )
     df.rename(columns={"Nível Geográfico Densidade": "Geografia"}, inplace=True)
     df_uf = df[df["Geografia"] == "UF"]
@@ -182,10 +193,16 @@ def treatment_uf():
         },
         inplace=True,
     )
-
+    log("Iniciando o particionado do arquivo densidade uf da Anatel")
     # ! Salvando o csv tratado
-    path = anatel_constants.OUTPUT_PATH_UF.value
-    df_uf.to_csv(path, sep=",", index=False, encoding="utf-8")
+    os.system(f"mkdir -p {anatel_constants.OUTPUT_PATH_UF.value}")
+    df_uf.to_csv(
+        f"{anatel_constants.OUTPUT_PATH_UF.value}densidade_uf.csv",
+        index=False,
+        sep=",",
+        encoding="utf-8",
+        na_rep="",
+    )
 
     return anatel_constants.OUTPUT_PATH_UF.value
 
@@ -197,7 +214,9 @@ def treatment_uf():
 def treatment_municipio():
     log("Iniciando o tratamento do arquivo densidade municipio da Anatel")
     df = pd.read_csv(
-        f'{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa, sep=";", encoding="utf-8"'
+        f"{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa.csv",
+        sep=";",
+        encoding="utf-8",
     )
 
     # ! Tratando o csv
@@ -219,9 +238,10 @@ def treatment_municipio():
     )
     log("Salvando o arquivo densidade municipio da Anatel")
     # ! Fazendo referencia a função criada anteriormente para particionar o arquivo o arquivo
-    to_partitions(
+
+    to_partitions_microdados(
         df_municipio,
-        partition_columns=["ano", "mes", "sigla_uf"],
+        partition_columns=["ano"],
         savepath=anatel_constants.OUTPUT_PATH_MUNICIPIO.value,
     )
 
@@ -229,7 +249,10 @@ def treatment_municipio():
 
 
 # task para retornar o ano e mes paara a atualização dos metadados.
+
+
 @task
-def get_today_date():
+def get_today_date_atualizado():
     d = datetime.now() - timedelta(days=60)
+
     return d.strftime("%Y-%m")
