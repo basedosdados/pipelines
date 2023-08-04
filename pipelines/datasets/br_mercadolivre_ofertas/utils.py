@@ -136,6 +136,8 @@ def get_id(input_string, dictionary):
     Raises:
         None
     """
+    if not isinstance(input_string, str):
+        input_string = str(input_string)
     best_match = None
     min_distance = float("inf")
 
