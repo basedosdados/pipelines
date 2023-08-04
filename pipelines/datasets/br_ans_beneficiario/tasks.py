@@ -9,7 +9,6 @@ from multiprocessing import Pool
 from datetime import datetime
 from loguru import logger
 from pathlib import Path
-from ftputil import FTPHost
 from functools import reduce
 from prefect import task
 import os
