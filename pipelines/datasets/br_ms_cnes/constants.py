@@ -23,6 +23,7 @@ class constants(Enum):  # pylint: disable=c0103
 
     # to download files from datasus FTP server
     DATABASE_GROUPS = {
+        # group: table name
         "CNES": ["ST", "PF", "EQ", "LT", "EP"],
     }
 

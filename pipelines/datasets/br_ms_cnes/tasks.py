@@ -61,33 +61,20 @@ def parse_latest_cnes_dbc_files(database: str, cnes_group: str) -> list[str]:
     year_month_to_parse = str(current_year) + str(month_to_parse)
 
     list_files = []
-    for file in available_dbs:
-        if (
-            file[-8:-6] == "15"
-            or file[-8:-6] == "16"
-            or file[-8:-6] == "17"
-            or file[-8:-6] == "18"
-            or file[-8:-6] == "19"
-            or file[-8:-6] == "20"
-            or file[-8:-6] == "21"
-            or file[-8:-6] == "22"
-            or file[-8:-6] == "23"
-        ):
-            list_files.append(file)
 
     log(f"the YEARMONTH being used to parse files is: {year_month_to_parse}")
 
-    # for file in available_dbs:
-    #    if file[-8:-4] == year_month_to_parse:
-    #        list_files.append(file)
+    for file in available_dbs:
+        if file[-8:-4] == year_month_to_parse:
+            list_files.append(file)
 
     # check if list is null
-    # if len(list_files) == 0:
-    #    raise ValueError(
-    #        f"cnes files parsed with {year_month_to_parse} were not found. It probably indicates that those files have not been released yet."
-    #    )
+    if len(list_files) == 0:
+        raise ValueError(
+            f"cnes files parsed with {year_month_to_parse} were not found. It probably indicates that those files have not been released yet."
+        )
 
-    log(f"the following files were selected: {list_files}")
+    log(f"the following files were selected fom DATASUS FTP: {list_files}")
 
     return list_files
 
@@ -107,6 +94,8 @@ def access_ftp_donwload_files(file_list: list, path: str, table: str) -> list[st
         pd.DataFrame: a list with the downloaded files paths
     """
     dbc_files_path_list = list()
+
+    log(f"wrangling {table} data")
 
     for file in file_list:
         # build partition dirs
@@ -133,7 +122,7 @@ def access_ftp_donwload_files(file_list: list, path: str, table: str) -> list[st
 
         dbc_files_path_list.append(complete_path)
 
-        log(f"The file {dbc_file} is at the {input_path}")
+        log(f"The file {dbc_file} is in {input_path}")
 
     return dbc_files_path_list
 
@@ -144,7 +133,7 @@ def read_dbc_save_csv(file_list: list, path: str, table: str) -> str:
     """
     Convert dbc to csv
     """
-
+    log(f"wrangling {table} data")
     # import R's utility package
     utils = rpackages.importr("utils")
 
