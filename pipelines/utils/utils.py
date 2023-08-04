@@ -376,10 +376,7 @@ def to_partitions(
         unique_combinations = (
             data[partition_columns]
             # .astype(str)
-            .drop_duplicates(subset=partition_columns)
-            .to_dict(orient="records")
-            .drop_duplicates(subset=partition_columns)
-            .to_dict(orient="records")
+            .drop_duplicates(subset=partition_columns).to_dict(orient="records")
         )
 
         for filter_combination in unique_combinations:

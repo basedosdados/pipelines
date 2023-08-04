@@ -128,7 +128,7 @@ def download_unzip_csv(
 
     if isinstance(urls, list):
         for url, file in zip(urls, zips):
-            logger.info(f"Baixando o arquivo {file}")
+            log(f"Baixando o arquivo {file}")
             download_url = url
             save_path = f"/tmp/data/br_ans_beneficiario/{id}/input/{file}"
 
@@ -142,17 +142,17 @@ def download_unzip_csv(
             try:
                 with zipfile.ZipFile(save_path) as z:
                     z.extractall(f"/tmp/data/br_ans_beneficiario/{id}/input")
-                logger.info("Dados extraídos com sucesso!")
+                log("Dados extraídos com sucesso!")
 
             except zipfile.BadZipFile:
-                logger.info(f"O arquivo {file} não é um arquivo ZIP válido.")
+                log(f"O arquivo {file} não é um arquivo ZIP válido.")
 
             os.system(
                 f'cd /tmp/data/br_ans_beneficiario/{id}/input; find . -type f ! -iname "*.csv" -delete'
             )
 
     elif isinstance(urls, str):
-        logger.info(f"Baixando o arquivo {urls}")
+        log(f"Baixando o arquivo {urls}")
         download_url = urls
         save_path = f"/tmp/data/br_ans_beneficiario/{id}/input/{zips}"
 
@@ -164,7 +164,7 @@ def download_unzip_csv(
         try:
             with zipfile.ZipFile(save_path) as z:
                 z.extractall(f"/tmp/data/br_ans_beneficiario/{id}/input")
-            logger.info("Dados extraídos com sucesso!")
+            log("Dados extraídos com sucesso!")
 
         except zipfile.BadZipFile:
             (f"O arquivo {zips} não é um arquivo ZIP válido.")
@@ -181,7 +181,7 @@ def parquet_partition(path):
     # dfs = []
     for nome_arquivo in os.listdir(path):
         if nome_arquivo.endswith(".csv"):
-            logger.info(f"Carregando o arquivo: {nome_arquivo}")
+            log(f"Carregando o arquivo: {nome_arquivo}")
             df = pd.read_csv(
                 f"{path}{nome_arquivo}",
                 sep=";",
@@ -197,7 +197,7 @@ def parquet_partition(path):
                 inplace=True,
             )
 
-            logger.info("Lendo dataset")
+            log("Lendo dataset")
             os.makedirs("/tmp/data/br_ans_beneficiario/output/", exist_ok=True)
             to_partitions(
                 df,
@@ -205,5 +205,5 @@ def parquet_partition(path):
                 savepath="/tmp/data/br_ans_beneficiario/output/",
                 file_type="parquet",
             )
-            logger.info("Partição feita.")
+            log("Partição feita.")
     return "/tmp/data/br_ans_beneficiario/output/"
