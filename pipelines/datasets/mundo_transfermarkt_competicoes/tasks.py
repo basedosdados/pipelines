@@ -72,6 +72,7 @@ def execucao_coleta_sync(execucao_coleta):
 @task
 def make_partitions(df):
     log("Particionando os dados...")
+    df["ano_campeonato"] = df["ano_campeonato"].astype(str)
     to_partitions(
         data=df,
         partition_columns=["ano_campeonato"],
