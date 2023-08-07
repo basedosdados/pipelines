@@ -111,7 +111,8 @@ def scraper(
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--crash-dumps-dir=/tmp")
     options.add_argument("--remote-debugging-port=9222")
-    options.add_argument("--window-size=1920x1080")
+    # NOTE: A resolucao afeta a renderizacao dos elementos
+    options.add_argument("--window-size=1920,1080")
 
     if headless:
         options.add_argument("--headless=new")
@@ -250,7 +251,11 @@ def scraper(
             if title is not None and int(title) == year:
                 return e
 
-        raise Exception(f"Failed to select year {year}. Found {len(elements)}")
+        elements_title = [i.get_attribute("title") for i in elements]
+
+        raise Exception(
+            f"Failed to select year {year}. Found {len(elements_title)} elements, {elements_title}"
+        )
 
     def wait_hide_popup_element():
         popup_element_visible = True
