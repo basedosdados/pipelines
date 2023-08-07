@@ -28,7 +28,7 @@ relampago = const_mercadolivre.RELAMPAGO.value
 barato_dia = const_mercadolivre.BARATO_DIA.value
 kwargs_list = const_mercadolivre.KWARGS_LIST.value
 tables_names = const_mercadolivre.TABLES_NAMES.value
-
+# , relampago, barato_dia, less100,
 urls = [less100, oferta_dia, relampago, barato_dia]
 dict_tables = dict(zip(tables_names, urls))
 
@@ -124,10 +124,14 @@ def clean_item(filepath):
         "caracteristicas",
         "url_item",
     ]
+    # log(item)
     item = item.reindex(new_order, axis=1)
     # drop dupliacte item_id
     item = item.drop_duplicates(subset=["item_id"])
     # clean quantidade_avaliacoes: (11004)->11004
+    # log("quantidade_avaliacoes")
+    # log(item["quantidade_avaliacoes"].unique())
+
     item["quantidade_avaliacoes"] = item["quantidade_avaliacoes"].str.replace("(", "")
     item["quantidade_avaliacoes"] = item["quantidade_avaliacoes"].str.replace(")", "")
     # clean desconto: 10% OFF -> 10
@@ -142,6 +146,9 @@ def clean_item(filepath):
     # remove link_vendedor
     item = item.drop("link_vendedor", axis=1)
     # make envio_pais a boolean
+    log("envio_pais")
+    log(item["envio_pais"].unique())
+    item["envio_pais"] = item["envio_pais"].astype(str)
     item["envio_pais"] = item["envio_pais"].str.contains("Envio para todo o país")
     # make nan equal to False
     item["envio_pais"] = item["envio_pais"].fillna(False)
@@ -212,8 +219,14 @@ def clean_seller(filepath_raw):
     # clean classificacao: MercadoLíder Platinum -> Platinum
     seller["classificacao"] = seller["classificacao"].str.replace("MercadoLíder ", "")
     # clean localizacao: LocalizaçãoJuiz de Fora, Minas Gerais. -> Juiz de Fora, Minas Gerais.
+    # log("mostrar seller")
+    # log(seller)
+    # log(seller["classificacao"].unique())
     seller["localizacao"] = seller["localizacao"].str.replace("Localização", "")
     # clean opinioes: [{'Bom': 771, 'Regular': 67, 'Ruim': 174}] -> {'Bom': 771, 'Regular': 67, 'Ruim': 174}
+    # log("depois do replace")
+    # log(seller)
+    # log(seller["classificacao"].unique())
     dict_municipios = const_mercadolivre.MAP_MUNICIPIO_TO_ID.value
     seller["localizacao"] = seller["localizacao"].apply(
         lambda x: get_id(x, dict_municipios)

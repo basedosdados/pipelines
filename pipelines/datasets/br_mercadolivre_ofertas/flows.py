@@ -106,6 +106,7 @@ with Flow(
         table_id,
         metadata_type="DateTimeRange",
         bq_last_update=True,
+        billing_project_id="basedosdados",
         upstream_tasks=[wait_upload_table],
     )
 
@@ -145,6 +146,7 @@ with Flow(
         table_id_sellers,
         metadata_type="DateTimeRange",
         bq_last_update=True,
+        billing_project_id="basedosdados",
         upstream_tasks=[wait_upload_table],
     )
 
@@ -222,6 +224,7 @@ with Flow(
         table_id,
         metadata_type="DateTimeRange",
         bq_last_update=True,
+        billing_project_id="basedosdados",
         upstream_tasks=[wait_upload_table],
     )
 

@@ -136,7 +136,7 @@ def get_id(input_string, dictionary):
     Raises:
         None
     """
-    if not input_string:
+    if input_string is None:
         return None
 
     if not isinstance(input_string, str):
@@ -322,6 +322,9 @@ async def process_item_url(item_url, kwargs_list):
         get_byelement(url=item_url, attempts=5, wait_time=20, **kwargs)
         for kwargs in kwargs_list
     ]
+    # log("mostrar a lista de classes")
+    # log(f'Class being used for transport_condition: {kwargs_list}')
+    # log(f'Class being used for transport_condition: {kwargs_list[3]["class_"]}')
     results = await asyncio.gather(*tasks)
 
     keys = ["title", "review_amount", "discount", "transport_condition", "stars"]
