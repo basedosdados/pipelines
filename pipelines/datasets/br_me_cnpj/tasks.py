@@ -306,7 +306,6 @@ def clean_data_make_partitions_estabelecimentos(caminhos_arquivos_zip):
 
     for i, caminho_arquivo_zip in enumerate(caminhos_arquivos_zip):
         pasta_destino = f"/tmp/data/br_me_cnpj/input/data={data_coleta}/"
-        caminho_arquivo_zip = os.path.join(pasta_destino, "Estabelecimentos1.zip")
         caminho_arquivo_csv = None
         with zipfile.ZipFile(caminho_arquivo_zip, "r") as z:
             for nome_arquivo in z.namelist():
