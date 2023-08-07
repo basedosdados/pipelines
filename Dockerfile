@@ -13,7 +13,7 @@
         apt-get install -y gcc python3-dev freetds-dev libssl-dev libcrypto++-dev
 
 
-    RUN apg-get update && \
+    RUN apt-get update && \
         apt-get install -y wget
 
     # Install Google Chrome
