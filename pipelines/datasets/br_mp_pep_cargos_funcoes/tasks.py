@@ -331,7 +331,26 @@ def clean_data() -> pd.DataFrame:
     for col in replaces_by_col:
         df[col] = df[col].replace(replaces_by_col[col])
 
-    return df
+    order_cols = [
+        "ano",
+        "mes",
+        "funcao",
+        "natureza_juridica",
+        "orgao_superior",
+        "escolaridade_servidor",
+        "orgao",
+        "regiao",
+        "sexo",
+        "nivel_funcao",
+        "subnivel_funcao",
+        "sigla_uf",
+        "faixa_etaria",
+        "nome_cor_origem_etnica",
+        "cce_e_fce",
+        "das_e_correlatas",
+    ]
+
+    return df[order_cols]
 
 
 @task
