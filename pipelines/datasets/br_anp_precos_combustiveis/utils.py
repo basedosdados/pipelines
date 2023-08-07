@@ -9,6 +9,7 @@ import requests
 from bs4 import BeautifulSoup
 from pipelines.utils.utils import log
 
+
 def download_files(url: str, path: str):
     # ! URL da página que contém os links de download
 
@@ -40,6 +41,7 @@ def download_files(url: str, path: str):
 
         log(f"Arquivo {filename} baixado com sucesso!")
 
+
 def get_id_municipio():
     # ! Carregando os dados direto do Diretório de municipio da BD
     # Para carregar o dado direto no pandas
@@ -57,8 +59,12 @@ def get_id_municipio():
     # ! Tratamento do id_municipio para mergear com a base
     id_municipio["nome"] = id_municipio["nome"].str.upper()
     id_municipio["nome"] = id_municipio["nome"].apply(unidecode.unidecode)
-    id_municipio["nome"] = id_municipio["nome"].replace("ESPIGAO D'OESTE", "ESPIGAO DO OESTE")
-    id_municipio["nome"] = id_municipio["nome"].replace("SANT'ANA DO LIVRAMENTO", "SANTANA DO LIVRAMENTO")
+    id_municipio["nome"] = id_municipio["nome"].replace(
+        "ESPIGAO D'OESTE", "ESPIGAO DO OESTE"
+    )
+    id_municipio["nome"] = id_municipio["nome"].replace(
+        "SANT'ANA DO LIVRAMENTO", "SANTANA DO LIVRAMENTO"
+    )
     id_municipio = id_municipio[["id_municipio", "nome", "sigla_uf"]]
 
     return id_municipio

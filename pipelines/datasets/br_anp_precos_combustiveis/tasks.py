@@ -9,7 +9,10 @@ import numpy as np
 import basedosdados as bd
 import unidecode
 from datetime import timedelta
-from pipelines.datasets.br_anp_precos_combustiveis.utils import download_files, get_id_municipio
+from pipelines.datasets.br_anp_precos_combustiveis.utils import (
+    download_files,
+    get_id_municipio,
+)
 from pipelines.datasets.br_anp_precos_combustiveis.constants import (
     constants as anatel_constants,
 )
@@ -23,8 +26,8 @@ from pipelines.constants import constants
 )
 def tratamento():
     download_files(
-        url = "https://www.gov.br/anp/pt-br/centrais-de-conteudo/dados-abertos/serie-historica-de-precos-de-combustiveis",
-        path = "/tmp/input"
+        url="https://www.gov.br/anp/pt-br/centrais-de-conteudo/dados-abertos/serie-historica-de-precos-de-combustiveis",
+        path="/tmp/input",
     )
 
     get_id_municipio()
@@ -32,11 +35,17 @@ def tratamento():
     log("----" * 150)
     data_frames = []
     log("Abrindo os arquivos csvs")
-    diesel = pd.read_csv(f"/tmp/input/ultimas-4-semanas-diesel-gnv.csv", sep=";", encoding="utf-8")
+    diesel = pd.read_csv(
+        f"/tmp/input/ultimas-4-semanas-diesel-gnv.csv", sep=";", encoding="utf-8"
+    )
     log("Abrindo os arquivos csvs", diesel)
-    gasolina = pd.read_csv(f"/tmp/input/ultimas-4-semanas-gasolina-etanol.csv", sep=";", encoding="utf-8")
+    gasolina = pd.read_csv(
+        f"/tmp/input/ultimas-4-semanas-gasolina-etanol.csv", sep=";", encoding="utf-8"
+    )
     log("Abrindo os arquivos csvs", gasolina)
-    glp = pd.read_csv(f"/tmp/input/ultimas-4-semanas-glp.csv", sep=";", encoding="utf-8")
+    glp = pd.read_csv(
+        f"/tmp/input/ultimas-4-semanas-glp.csv", sep=";", encoding="utf-8"
+    )
     log("Abrindo os arquivos csvs", glp)
     data_frames.extend([diesel, gasolina, glp])
     precos_combustiveis = pd.concat(data_frames, ignore_index=True)
