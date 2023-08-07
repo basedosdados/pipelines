@@ -40,15 +40,15 @@ def tratamento():
     diesel = pd.read_csv(
         f"/tmp/input/ultimas-4-semanas-diesel-gnv.csv", sep=";", encoding="utf-8"
     )
-    log("Abrindo os arquivos csvs", diesel)
+    log("Abrindo os arquivos csvs diesel")
     gasolina = pd.read_csv(
         f"/tmp/input/ultimas-4-semanas-gasolina-etanol.csv", sep=";", encoding="utf-8"
     )
-    log("Abrindo os arquivos csvs", gasolina)
+    log("Abrindo os arquivos csvs gasolina")
     glp = pd.read_csv(
         f"/tmp/input/ultimas-4-semanas-glp.csv", sep=";", encoding="utf-8"
     )
-    log("Abrindo os arquivos csvs", glp)
+    log("Abrindo os arquivos csvs glp")
     data_frames.extend([diesel, gasolina, glp])
     precos_combustiveis = pd.concat(data_frames, ignore_index=True)
     log("----" * 150)
