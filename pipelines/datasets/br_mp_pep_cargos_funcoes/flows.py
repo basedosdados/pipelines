@@ -74,6 +74,7 @@ from pipelines.utils.tasks import (
     get_current_flow_labels,
     update_django_metadata,
 )
+from pipelines.utils.utils import log
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -97,9 +98,11 @@ with Flow(
 
     setup_web_driver()
 
-    scraper(year_start=1999, year_end=2023)
+    scraper(headless=False, year_start=1999, year_end=2001)
 
     df = clean_data()
+
+    log("Clean data Finished")
 
     output_filepath = make_partitions(df)
 
