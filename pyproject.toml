@@ -101,8 +101,8 @@ urllib3 = "1.26.7"
 websocket-client = "1.2.1"
 wget = "^3.2"
 zict = "2.0.0"
-selenium = "^4.11.2"
 rpy2 = "^3.5.11"
+selenium = "^4.11.2"
 
 [tool.poetry.dev-dependencies]
 pytest_cov = "^3.0.0"
