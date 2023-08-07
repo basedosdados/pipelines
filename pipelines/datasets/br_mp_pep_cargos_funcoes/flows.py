@@ -97,7 +97,7 @@ with Flow(
 
     setup_web_driver()
 
-    scraper(year_start=2022, year_end=2023)
+    scraper(year_start=1999, year_end=2023)
 
     df = clean_data()
 
