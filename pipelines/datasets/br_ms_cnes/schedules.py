@@ -36,7 +36,7 @@ schedule_br_ms_cnes_profissional = Schedule(
     clocks=[
         CronClock(
             cron="@monthly",
-            start_date=datetime(2023, 7, 24, 0, 0),
+            start_date=datetime(2023, 8, 9, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -81,7 +81,7 @@ schedule_br_ms_cnes_leito = Schedule(
     clocks=[
         CronClock(
             cron="@monthly",
-            start_date=datetime(2023, 8, 8, 0, 0),
+            start_date=datetime(2023, 8, 9, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
