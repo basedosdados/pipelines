@@ -152,13 +152,13 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-    update_django_metadata(
-        dataset_id,
-        table_id,
-        metadata_type="DateTimeRange",
-        bq_last_update=False,
-        upstream_tasks=[wait_upload_table],
-    )
+    # update_django_metadata(
+    #     dataset_id,
+    #     table_id,
+    #     metadata_type="DateTimeRange",
+    #     bq_last_update=False,
+    #     upstream_tasks=[wait_upload_table],
+    # )
 
 datasets_br_mp_pep_cargos_funcoes_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 datasets_br_mp_pep_cargos_funcoes_flow.run_config = KubernetesRun(
