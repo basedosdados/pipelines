@@ -12,9 +12,15 @@
     RUN apt-get update && \
         apt-get install -y gcc python3-dev freetds-dev libssl-dev libcrypto++-dev
 
-    # Install libs for chrome driver
-    RUN apt-get update && \
-        apt-get install -y libglib2.0 libnss3 libgconf-2-4 libfontconfig1
+
+    RUN apg-get update && \
+        apt-get install -y wget
+
+    # Install Google Chrome
+    RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+    && echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list
+
+    RUN apt-get update && apt-get -y install google-chrome-stable
 
     # Setup virtual environment and prefect
     ENV VIRTUAL_ENV=/opt/venv
