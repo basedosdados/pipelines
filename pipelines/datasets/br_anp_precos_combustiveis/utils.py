@@ -15,29 +15,38 @@ def download_files(url: str, path: str):
     # ! Fazer solicitação GET para a página
     # ? O método get() retorna um objeto Response
     response = requests.get(url)
+    log("----" * 150)
+    log("Após o requests.get(url)")
     # ! Analisar o HTML da página usando a biblioteca BeautifulSoup
     # ? Usando a biblioteca BeautifulSoup para analisar o HTML da página
     # * Primeiro argumento: o conteúdo HTML da página
     # * Segundo argumento: o parser HTML que será usado para analisar o HTML
     soup = BeautifulSoup(response.content, "html.parser")
+    log("----" * 150)
+    log("Após o BeautifulSoup(response.content, 'html.parser')")
     # ! Encontrar todos os links de download para arquivos CSV
     # ? Usando o método find_all() para encontrar todos os elementos <a> com o atributo href
     # * Segundo argumento: Uma função lambda que é usada como filtro adicional para encontrar apenas os links que terminam com .csv
     links = soup.find_all("a", href=lambda href: href and href.endswith(".csv"))
-
+    log("----" * 150)
+    log("Após o soup.find_all('a', href=lambda href: href and href.endswith('.csv'))")
     # ! Criar diretório para armazenar os arquivos baixados, caso não exista
     if not os.path.exists(path):
         os.mkdir(path)
-
+    log("----" * 150)
+    log("Após o os.mkdir(path)")
     for link in links:
         filename = link.get("href").split("/")[-1]
         file_url = link.get("href")
         response = requests.get(file_url)
-
+        log("----" * 150)
+        log("Após o requests.get(file_url)")
         with open(os.path.join(path, filename), "wb") as f:
             f.write(response.content)
-
-        print(f"Arquivo {filename} baixado com sucesso!")
+        log("----" * 150)
+        log("Após o with open(os.path.join(path, filename), 'wb') as f:")
+        log("----" * 150)
+        log(f"Arquivo {filename} baixado com sucesso!")
 
     return path
 
