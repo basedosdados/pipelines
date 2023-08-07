@@ -10,45 +10,37 @@ from bs4 import BeautifulSoup
 from pipelines.utils.utils import log
 
 
-def download_files(url: str, path: str):
-    # ! URL da página que contém os links de download
-    # ! Fazer solicitação GET para a página
-    # ? O método get() retorna um objeto Response
-    response = requests.get(url)
-    log("----" * 150)
-    log("Após o requests.get(url)")
-    # ! Analisar o HTML da página usando a biblioteca BeautifulSoup
-    # ? Usando a biblioteca BeautifulSoup para analisar o HTML da página
-    # * Primeiro argumento: o conteúdo HTML da página
-    # * Segundo argumento: o parser HTML que será usado para analisar o HTML
-    soup = BeautifulSoup(response.content, "html.parser")
-    log("----" * 150)
-    log("Após o BeautifulSoup(response.content, 'html.parser')")
-    # ! Encontrar todos os links de download para arquivos CSV
-    # ? Usando o método find_all() para encontrar todos os elementos <a> com o atributo href
-    # * Segundo argumento: Uma função lambda que é usada como filtro adicional para encontrar apenas os links que terminam com .csv
-    links = soup.find_all("a", href=lambda href: href and href.endswith(".csv"))
-    log("----" * 150)
-    log("Após o soup.find_all('a', href=lambda href: href and href.endswith('.csv'))")
-    # ! Criar diretório para armazenar os arquivos baixados, caso não exista
-    if not os.path.exists(path):
-        os.mkdir(path)
-    log("----" * 150)
-    log("Após o os.mkdir(path)")
-    for link in links:
-        filename = link.get("href").split("/")[-1]
-        file_url = link.get("href")
-        response = requests.get(file_url)
-        log("----" * 150)
-        log("Após o requests.get(file_url)")
-        with open(os.path.join(path, filename), "wb") as f:
-            f.write(response.content)
-        log("----" * 150)
-        log("Após o with open(os.path.join(path, filename), 'wb') as f:")
-        log("----" * 150)
-        log(f"Arquivo {filename} baixado com sucesso!")
+def download_files(urls, path):
+    """Download files from URLs
 
-    return path
+    Args:
+        urls (list): List of URLs of files to download
+        path (str): Directory to save the downloaded files
+
+    Returns:
+        list: List of paths to the downloaded files
+    """
+
+    os.makedirs(path, exist_ok=True)
+    downloaded_files = []
+
+    for url in urls:
+        response = requests.get(url)
+        if response.status_code == 200:
+            file_name = url.split("/")[-1]  # Get the filename from the URL
+            file_path = os.path.join(path, file_name)
+            log("----" * 150)
+            log("if response.status_code == 200: SUCESSO")
+            with open(file_path, "wb") as file:
+                file.write(response.content)
+
+            downloaded_files.append(file_path)
+            log("----" * 150)
+            log("Dados concatenados com sucesso")
+        else:
+            raise Exception(f"Failed to download from {url}, status code: {response.status_code}")
+
+    return downloaded_files
 
 
 def get_id_municipio():

@@ -25,12 +25,12 @@ from pipelines.constants import constants
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def tratamento():
-    download_files(
-        url="https://www.gov.br/anp/pt-br/centrais-de-conteudo/dados-abertos/serie-historica-de-precos-de-combustiveis",
-        path="/tmp/input/",
-    )
 
-    get_id_municipio()
+    download_files([
+    "https://www.gov.br/anp/pt-br/centrais-de-conteudo/dados-abertos/arquivos/shpc/qus/ultimas-4-semanas-glp.csv",
+    "https://www.gov.br/anp/pt-br/centrais-de-conteudo/dados-abertos/arquivos/shpc/qus/ultimas-4-semanas-gasolina-etanol.csv",
+    "https://www.gov.br/anp/pt-br/centrais-de-conteudo/dados-abertos/arquivos/shpc/qus/ultimas-4-semanas-diesel-gnv.csv"], 
+    "/tmp/input/input/")
 
     log("----" * 150)
     data_frames = []
@@ -52,6 +52,7 @@ def tratamento():
     log("----" * 150)
     log("Dados concatenados com sucesso")
     log("----" * 150)
+    get_id_municipio()
     log("Iniciando tratamento dos dados precos_combustiveis")
     precos_combustiveis = pd.merge(
         id_municipio,
