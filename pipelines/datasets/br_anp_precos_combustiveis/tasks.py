@@ -26,8 +26,8 @@ from pipelines.constants import constants
 )
 def tratamento():
     download_files(
-        url = "https://www.gov.br/anp/pt-br/centrais-de-conteudo/dados-abertos/serie-historica-de-precos-de-combustiveis",
-        path = "/tmp/input/"
+        url="https://www.gov.br/anp/pt-br/centrais-de-conteudo/dados-abertos/serie-historica-de-precos-de-combustiveis",
+        path="/tmp/input/",
     )
 
     get_id_municipio()
