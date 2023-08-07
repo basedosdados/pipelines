@@ -106,6 +106,10 @@ def scraper(
         prefs,
     )
 
+    options.add_argument("--disable-gpu")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--crash-dumps-dir=/tmp")
+
     if headless:
         options.add_argument("--headless=new")
 
