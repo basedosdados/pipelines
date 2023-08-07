@@ -38,7 +38,9 @@ def download_files(urls, path):
             log("----" * 150)
             log("Dados concatenados com sucesso")
         else:
-            raise Exception(f"Failed to download from {url}, status code: {response.status_code}")
+            raise Exception(
+                f"Failed to download from {url}, status code: {response.status_code}"
+            )
 
     return downloaded_files
 
