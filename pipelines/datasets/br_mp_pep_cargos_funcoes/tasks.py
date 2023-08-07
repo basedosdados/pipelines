@@ -83,6 +83,9 @@ def setup_web_driver() -> None:
 def scraper(
     headless: bool = True, year_start: int = 1999, year_end: int = datetime.now().year
 ) -> None:
+    if not os.path.exists(constants.PATH.value):
+        os.mkdir(constants.PATH.value)
+
     if not os.path.exists(constants.TMP_DATA_DIR.value):
         os.mkdir(constants.TMP_DATA_DIR.value)
 
