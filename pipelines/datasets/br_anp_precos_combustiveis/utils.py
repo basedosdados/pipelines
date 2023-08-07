@@ -2,15 +2,15 @@
 """
 General purpose functions for the br_anp_precos_combustiveis project
 """
-
+import basedosdados as bd
+import unidecode
 import os
 import requests
 from bs4 import BeautifulSoup
+from pipelines.utils.utils import log
 
-
-def download_files():
+def download_files(url: str, path: str):
     # ! URL da página que contém os links de download
-    url = "https://www.gov.br/anp/pt-br/centrais-de-conteudo/dados-abertos/serie-historica-de-precos-de-combustiveis"
 
     # ! Fazer solicitação GET para a página
     # ? O método get() retorna um objeto Response
@@ -27,10 +27,8 @@ def download_files():
     # * Segundo argumento: Uma função lambda que é usada como filtro adicional para encontrar apenas os links que terminam com .csv
     links = soup.find_all("a", href=lambda href: href and href.endswith(".csv"))
 
-    diretorio = "/tmp/input"
-
-    if not os.path.exists(diretorio):
-        os.mkdir(diretorio)
+    if not os.path.exists(path):
+        os.mkdir(path)
 
     for link in links:
         filename = link.get("href").split("/")[-1]
@@ -40,4 +38,27 @@ def download_files():
         with open(f"input/{filename}", "wb") as f:
             f.write(response.content)
 
-        print(f"Arquivo {filename} baixado com sucesso!")
+        log(f"Arquivo {filename} baixado com sucesso!")
+
+def get_id_municipio():
+    # ! Carregando os dados direto do Diretório de municipio da BD
+    # Para carregar o dado direto no pandas
+    log("Carregando dados do diretório de municípios da BD")
+    id_municipio = bd.read_table(
+        dataset_id="br_bd_diretorios_brasil",
+        table_id="municipio",
+        billing_project_id="basedosdados-dev",
+        from_file=True,
+    )
+    log("----" * 150)
+    log("Dados carregados com sucesso")
+    log("----" * 150)
+    log("Iniciando tratamento dos dados id_municipio")
+    # ! Tratamento do id_municipio para mergear com a base
+    id_municipio["nome"] = id_municipio["nome"].str.upper()
+    id_municipio["nome"] = id_municipio["nome"].apply(unidecode.unidecode)
+    id_municipio["nome"] = id_municipio["nome"].replace("ESPIGAO D'OESTE", "ESPIGAO DO OESTE")
+    id_municipio["nome"] = id_municipio["nome"].replace("SANT'ANA DO LIVRAMENTO", "SANTANA DO LIVRAMENTO")
+    id_municipio = id_municipio[["id_municipio", "nome", "sigla_uf"]]
+
+    return id_municipio
