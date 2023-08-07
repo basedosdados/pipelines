@@ -12,6 +12,10 @@
     RUN apt-get update && \
         apt-get install -y gcc python3-dev freetds-dev libssl-dev libcrypto++-dev
 
+    # Install libs for chrome driver
+    RUN apt-get update && \
+        apt-get install -y libglib2.0 libnss3 libgconf-2-4 libfontconfig1
+
     # Setup virtual environment and prefect
     ENV VIRTUAL_ENV=/opt/venv
     RUN python3 -m venv $VIRTUAL_ENV
