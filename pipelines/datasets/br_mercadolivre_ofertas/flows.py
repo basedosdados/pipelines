@@ -31,6 +31,7 @@ from pipelines.datasets.br_mercadolivre_ofertas.tasks import (
     is_empty_list,
 )
 from pipelines.datasets.br_mercadolivre_ofertas.schedules import every_day_item
+import datetime
 
 with Flow(
     name="br_mercadolivre_ofertas.item", code_owners=["lucascr91"]
@@ -56,7 +57,7 @@ with Flow(
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
-
+    data_atual = datetime.datetime.now().strftime("%Y-%m-%d")
     get_sellers = Parameter("get_sellers", default=True, required=True)
 
     filepath_raw = crawler_mercadolivre_item()
@@ -103,10 +104,10 @@ with Flow(
         )
     update_django_metadata(
         dataset_id,
-        table_id,
+        table_id_sellers,
         metadata_type="DateTimeRange",
-        bq_last_update=True,
-        billing_project_id="basedosdados",
+        _last_date=data_atual,
+        bq_last_update=False,
         upstream_tasks=[wait_upload_table],
     )
 
@@ -145,8 +146,8 @@ with Flow(
         dataset_id,
         table_id_sellers,
         metadata_type="DateTimeRange",
-        bq_last_update=True,
-        billing_project_id="basedosdados",
+        _last_date=data_atual,
+        bq_last_update=False,
         upstream_tasks=[wait_upload_table],
     )
 
@@ -178,7 +179,7 @@ with Flow(
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
-
+    data_atual = datetime.datetime.now().strftime("%Y-%m-%d")
     filepath_raw = crawler_mercadolivre_seller(seller_ids, seller_links)
 
     filepath = clean_seller(filepath_raw)
@@ -221,10 +222,10 @@ with Flow(
         )
     update_django_metadata(
         dataset_id,
-        table_id,
+        table_id_sellers,
         metadata_type="DateTimeRange",
-        bq_last_update=True,
-        billing_project_id="basedosdados",
+        _last_date=data_atual,
+        bq_last_update=False,
         upstream_tasks=[wait_upload_table],
     )
 
