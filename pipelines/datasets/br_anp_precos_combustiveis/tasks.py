@@ -31,7 +31,7 @@ def tratamento():
             "https://www.gov.br/anp/pt-br/centrais-de-conteudo/dados-abertos/arquivos/shpc/qus/ultimas-4-semanas-gasolina-etanol.csv",
             "https://www.gov.br/anp/pt-br/centrais-de-conteudo/dados-abertos/arquivos/shpc/qus/ultimas-4-semanas-diesel-gnv.csv",
         ],
-        "/tmp/input/input/",
+        "/tmp/input/",
     )
 
     log("----" * 150)
