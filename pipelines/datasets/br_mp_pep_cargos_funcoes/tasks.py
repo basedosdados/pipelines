@@ -290,6 +290,9 @@ def clean_data() -> pd.DataFrame:
 
     df = pd.concat(dfs).rename(columns=constants.RENAMES.value, errors="raise")
 
+    df["raca_cor"] = df["raca_cor"].str.lower().str.title()
+    df["escolaridade_servidor"] = df["escolaridade_servidor"].str.lower().str.title()
+
     replaces_by_col = get_normalized_values_by_col()
 
     for col in replaces_by_col:

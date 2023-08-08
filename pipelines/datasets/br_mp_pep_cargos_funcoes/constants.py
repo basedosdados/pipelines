@@ -63,7 +63,7 @@ class constants(Enum):  # pylint: disable=c0103
         "Subnível Função": "subnivel_funcao",
         "UF": "sigla_uf",
         "Faixa Etária": "faixa_etaria",
-        "Nome Cor Origem Etnica": "nome_cor_origem_etnica",
+        "Nome Cor Origem Etnica": "raca_cor",
         "CCE & FCE": "cce_e_fce",
         "DAS e correlatas": "das_e_correlatas",
     }

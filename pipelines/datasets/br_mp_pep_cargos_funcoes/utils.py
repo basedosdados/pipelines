@@ -165,6 +165,7 @@ def get_normalized_values_by_col():
             "Fundacao Oswaldo Cruz": "Fundação Oswaldo Cruz",
             "Instituto De Pesquisa Economica Aplicada": "Instituto de Pesquisa Econômica Aplicada",
             "Ministerio Do Desenvolvimento Agrario": "Ministério do Desenvolvimento Agrário",
+            "Min Do Desenv Agr E Agric Familiar": "Ministério do Desenvolvimento Agrário",
             "Agencia Brasileira De Inteligencia": "Agência Brasileira de Inteligência",
             "Departamento Nac.De Infraest. De Transp.": "Departamento Nacional de Infraestrutura de Transportes",
             "Ministerio Da Cidadania": "Ministério da Cidadania",
@@ -186,7 +187,7 @@ def get_normalized_values_by_col():
             "Ministerio Dos Povos Indigenas": "Ministério dos Povos Indígenas",
         },
         "sexo": {"Fem": "Feminino", "Mas": "Masculino"},
-        "nome_cor_origem_etnica": {
+        "raca_cor": {
             "Indigena": "Indígena",
             "Nao Informado": "Não informado",
         },
