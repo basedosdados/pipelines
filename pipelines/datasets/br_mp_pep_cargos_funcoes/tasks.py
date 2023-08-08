@@ -312,7 +312,7 @@ def clean_data() -> pd.DataFrame:
         "subnivel_funcao",
         "sigla_uf",
         "faixa_etaria",
-        "nome_cor_origem_etnica",
+        "raca_cor",
         "cce_e_fce",
         "das_e_correlatas",
     ]
