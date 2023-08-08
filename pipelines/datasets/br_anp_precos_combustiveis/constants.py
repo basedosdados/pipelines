@@ -7,7 +7,7 @@ from enum import Enum
 
 
 class constants(Enum):  # pylint: disable=c0103
-    rename = {
+    RENAME = {
         "Revenda": "nome_estabelecimento",
         "CNPJ da Revenda": "cnpj_revenda",
         "Bairro": "bairro_revenda",
@@ -25,7 +25,7 @@ class constants(Enum):  # pylint: disable=c0103
         "Complemento": "complemento",
     }
 
-    ordem = [
+    ORDEM = [
         "ano",
         "sigla_uf",
         "id_municipio",
@@ -52,6 +52,6 @@ class constants(Enum):  # pylint: disable=c0103
 
     PATH_OUTPUT = "/tmp/output/"
 
-    url_diesel_gnv = "/tmp/input/ultimas-4-semanas-glp.csv"
-    url_gasolina_etanol = "/tmp/input/ultimas-4-semanas-gasolina-etanol.csv"
-    url_glp = "/tmp/input/ultimas-4-semanas-diesel-gnv.csv"
+    URL_DIESEL_GNV = "/tmp/input/ultimas-4-semanas-glp.csv"
+    URL_GASOLINA_ETANOL = "/tmp/input/ultimas-4-semanas-gasolina-etanol.csv"
+    URL_GLP = "/tmp/input/ultimas-4-semanas-diesel-gnv.csv"
