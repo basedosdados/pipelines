@@ -54,7 +54,7 @@ def tratamento():
     log("----" * 150)
     log("Dados concatenados com sucesso")
     log("----" * 150)
-    get_id_municipio()
+    id_municipio = get_id_municipio()
     log("Iniciando tratamento dos dados precos_combustiveis")
     precos_combustiveis = pd.merge(
         id_municipio,
