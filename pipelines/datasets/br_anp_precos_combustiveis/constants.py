@@ -41,3 +41,15 @@ class constants(Enum):  # pylint: disable=c0103
         "preco_compra",
         "preco_venda",
     ]
+
+    URLS = ["https://www.gov.br/anp/pt-br/centrais-de-conteudo/dados-abertos/arquivos/shpc/qus/ultimas-4-semanas-glp.csv",
+            "https://www.gov.br/anp/pt-br/centrais-de-conteudo/dados-abertos/arquivos/shpc/qus/ultimas-4-semanas-gasolina-etanol.csv",
+            "https://www.gov.br/anp/pt-br/centrais-de-conteudo/dados-abertos/arquivos/shpc/qus/ultimas-4-semanas-diesel-gnv.csv"]
+
+    PATH_INPUT = "/tmp/input/"
+
+    PATH_OUTPUT = "/tmp/output/"
+
+    url_diesel_gnv = "/tmp/input/ultimas-4-semanas-glp.csv"
+    url_gasolina_etanol = "/tmp/input/ultimas-4-semanas-gasolina-etanol.csv"
+    url_glp = "/tmp/input/ultimas-4-semanas-diesel-gnv.csv"

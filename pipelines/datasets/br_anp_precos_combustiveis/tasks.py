@@ -12,6 +12,7 @@ from datetime import timedelta
 from pipelines.datasets.br_anp_precos_combustiveis.utils import (
     download_files,
     get_id_municipio,
+    open_csvs,
 )
 from pipelines.datasets.br_anp_precos_combustiveis.constants import (
     constants as anatel_constants,
@@ -26,34 +27,14 @@ from pipelines.constants import constants
 )
 def tratamento():
     download_files(
-        [
-            "https://www.gov.br/anp/pt-br/centrais-de-conteudo/dados-abertos/arquivos/shpc/qus/ultimas-4-semanas-glp.csv",
-            "https://www.gov.br/anp/pt-br/centrais-de-conteudo/dados-abertos/arquivos/shpc/qus/ultimas-4-semanas-gasolina-etanol.csv",
-            "https://www.gov.br/anp/pt-br/centrais-de-conteudo/dados-abertos/arquivos/shpc/qus/ultimas-4-semanas-diesel-gnv.csv",
-        ],
-        "/tmp/input/",
+        anatel_constants.URLS.value,
+        anatel_constants.PATH_INPUT.value,
     )
 
-    log("----" * 150)
-    data_frames = []
-    log("Abrindo os arquivos csvs")
-    diesel = pd.read_csv(
-        f"/tmp/input/ultimas-4-semanas-diesel-gnv.csv", sep=";", encoding="utf-8"
-    )
-    log("Abrindo os arquivos csvs diesel")
-    gasolina = pd.read_csv(
-        f"/tmp/input/ultimas-4-semanas-gasolina-etanol.csv", sep=";", encoding="utf-8"
-    )
-    log("Abrindo os arquivos csvs gasolina")
-    glp = pd.read_csv(
-        f"/tmp/input/ultimas-4-semanas-glp.csv", sep=";", encoding="utf-8"
-    )
-    log("Abrindo os arquivos csvs glp")
-    data_frames.extend([diesel, gasolina, glp])
-    precos_combustiveis = pd.concat(data_frames, ignore_index=True)
-    log("----" * 150)
-    log("Dados concatenados com sucesso")
-    log("----" * 150)
+    precos_combustiveis = open_csvs(url_diesel_gnv=anatel_constants.url_diesel_gnv.value,
+                                    url_gasolina_etanol=anatel_constants.url_gasolina_etanol.value,
+                                    url_glp=anatel_constants.url_glp.value)
+
     id_municipio = get_id_municipio()
     log("Iniciando tratamento dos dados precos_combustiveis")
     precos_combustiveis = pd.merge(
@@ -122,5 +103,7 @@ def tratamento():
     to_partitions(
         precos_combustiveis,
         partition_columns=["ano", "data_coleta"],
-        savepath="/tmp/output/",
+        savepath=anatel_constants.PATH_OUTPUT.value,
     )
+
+    return anatel_constants.PATH_OUTPUT.value
