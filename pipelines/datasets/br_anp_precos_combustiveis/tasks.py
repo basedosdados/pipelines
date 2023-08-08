@@ -31,9 +31,11 @@ def tratamento():
         anatel_constants.PATH_INPUT.value,
     )
 
-    precos_combustiveis = open_csvs(url_diesel_gnv=anatel_constants.url_diesel_gnv.value,
-                                    url_gasolina_etanol=anatel_constants.url_gasolina_etanol.value,
-                                    url_glp=anatel_constants.url_glp.value)
+    precos_combustiveis = open_csvs(
+        url_diesel_gnv=anatel_constants.url_diesel_gnv.value,
+        url_gasolina_etanol=anatel_constants.url_gasolina_etanol.value,
+        url_glp=anatel_constants.url_glp.value,
+    )
 
     id_municipio = get_id_municipio()
     log("Iniciando tratamento dos dados precos_combustiveis")

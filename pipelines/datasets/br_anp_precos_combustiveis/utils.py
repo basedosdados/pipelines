@@ -73,26 +73,21 @@ def get_id_municipio():
 
     return id_municipio
 
+
 def open_csvs(url_diesel_gnv, url_gasolina_etanol, url_glp):
     log("----" * 150)
     data_frames = []
     log("Abrindo os arquivos csvs")
-    diesel = pd.read_csv(
-        f"{url_diesel_gnv}", sep=";", encoding="utf-8"
-    )
+    diesel = pd.read_csv(f"{url_diesel_gnv}", sep=";", encoding="utf-8")
     log("Abrindo os arquivos csvs diesel")
-    gasolina = pd.read_csv(
-        f"{url_gasolina_etanol}", sep=";", encoding="utf-8"
-    )
+    gasolina = pd.read_csv(f"{url_gasolina_etanol}", sep=";", encoding="utf-8")
     log("Abrindo os arquivos csvs gasolina")
-    glp = pd.read_csv(
-        f"{url_glp}", sep=";", encoding="utf-8"
-    )
+    glp = pd.read_csv(f"{url_glp}", sep=";", encoding="utf-8")
     log("Abrindo os arquivos csvs glp")
     data_frames.extend([diesel, gasolina, glp])
     precos_combustiveis = pd.concat(data_frames, ignore_index=True)
     log("----" * 150)
     log("Dados concatenados com sucesso")
     log("----" * 150)
-    
+
     return precos_combustiveis
