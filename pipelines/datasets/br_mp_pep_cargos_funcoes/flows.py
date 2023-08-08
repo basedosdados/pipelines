@@ -43,15 +43,15 @@ with Flow(
     dataset_id = Parameter("dataset_id", default="br_mp_pep", required=True)
     table_id = Parameter("table_id", default="cargos_funcoes", required=True)
 
-    setup_web_driver()
+    setup = setup_web_driver()
 
-    scraper(year_start=1999, year_end=2023)
+    scrapper = scraper(year_start=1999, year_end=2023, upstream_tasks=[setup])
 
-    df = clean_data()
+    df = clean_data(upstream_tasks=[scrapper])
 
     log("Clean data Finished")
 
-    output_filepath = make_partitions(df)
+    output_filepath = make_partitions(df, upstream_tasks=[df])
 
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
