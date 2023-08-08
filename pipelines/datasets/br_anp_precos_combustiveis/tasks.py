@@ -13,11 +13,12 @@ from pipelines.datasets.br_anp_precos_combustiveis.utils import (
     download_files,
     get_id_municipio,
     open_csvs,
+    partition_data
 )
 from pipelines.datasets.br_anp_precos_combustiveis.constants import (
     constants as anatel_constants,
 )
-from pipelines.utils.utils import to_partitions, log
+from pipelines.utils.utils import log
 from pipelines.constants import constants
 
 
@@ -102,10 +103,10 @@ def tratamento():
     log("Dados tratados com sucesso")
     log("----" * 150)
     log("Iniciando particionamento dos dados")
-    to_partitions(
+    partition_data(
         precos_combustiveis,
-        partition_columns=["data_coleta"],
-        savepath=anatel_constants.PATH_OUTPUT.value,
+        column_name=["data_coleta"],
+        output_directory=anatel_constants.PATH_OUTPUT.value,
     )
 
     return anatel_constants.PATH_OUTPUT.value
