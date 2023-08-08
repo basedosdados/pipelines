@@ -13,7 +13,7 @@ from pipelines.datasets.br_anp_precos_combustiveis.utils import (
     download_files,
     get_id_municipio,
     open_csvs,
-    partition_data
+    partition_data,
 )
 from pipelines.datasets.br_anp_precos_combustiveis.constants import (
     constants as anatel_constants,

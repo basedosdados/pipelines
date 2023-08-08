@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup
 from pipelines.utils.utils import log
 from datetime import datetime
 
+
 def download_files(urls, path):
     """Download files from URLs
 
@@ -91,6 +92,7 @@ def open_csvs(url_diesel_gnv, url_gasolina_etanol, url_glp):
     log("----" * 150)
 
     return precos_combustiveis
+
 
 def partition_data(df: pd.DataFrame, column_name: list[str], output_directory: str):
     """
