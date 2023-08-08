@@ -279,9 +279,13 @@ def scraper(
 
 @task
 def clean_data() -> pd.DataFrame:
+    files = os.listdir(constants.INPUT_DIR.value)
+
+    log(f"Input dir files: {len(files)}, {files}")
+
     dfs = [
-        pd.read_excel(f"{constants.INPUT_DIR.value}/{file}", skipfooter=4)
-        for file in os.listdir(constants.INPUT_DIR.value)
+        pd.read_excel(os.path.join(constants.INPUT_DIR.value, file), skipfooter=4)
+        for file in files
     ]
 
     df = pd.concat(dfs).rename(columns=constants.RENAMES.value, errors="raise")
