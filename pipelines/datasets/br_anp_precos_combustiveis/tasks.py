@@ -104,7 +104,7 @@ def tratamento():
     log("----" * 150)
     log("Iniciando particionamento dos dados")
     log("----" * 150)
-    log(precos_combustiveis['data_coleta'].unique())
+    log(precos_combustiveis["data_coleta"].unique())
     partition_data(
         precos_combustiveis,
         column_name="data_coleta",
