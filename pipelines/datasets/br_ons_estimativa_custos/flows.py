@@ -25,6 +25,7 @@ from pipelines.utils.tasks import (
     rename_current_flow_run_dataset_table,
     get_current_flow_labels,
     create_table_and_upload_to_gcs,
+    update_django_metadata,
 )
 
 from pipelines.datasets.br_ons_estimativa_custos.schedules import (
@@ -46,13 +47,14 @@ with Flow(
     table_id = Parameter(
         "table_id", default="custo_marginal_operacao_semi_horario", required=True
     )
+    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    update_metadata = Parameter("update_metadata", default=False, required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
-        "materialize after dump", default=True, required=False
+        "materialize_after_dump", default=True, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
@@ -71,7 +73,7 @@ with Flow(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        dump_mode="overwrite",
+        dump_mode="append",
         wait=filepath,
     )
 
@@ -103,6 +105,18 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
+        with case(update_metadata, True):
+            update_django_metadata(
+                dataset_id,
+                table_id,
+                metadata_type="DateTimeRange",
+                bq_last_update=False,
+                bq_table_last_year_month=True,
+                billing_project_id="basedosdados",
+                api_mode="prod",
+                date_format="yy-mm-dd",
+                upstream_tasks=[wait_for_materialization],
+            )
 
 br_ons_estimativa_custos_custo_marginal_operacao_semi_horario.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
@@ -126,14 +140,14 @@ with Flow(
     table_id = Parameter(
         "table_id", default="custo_marginal_operacao_semanal", required=True
     )
-
+    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    update_metadata = Parameter("update_metadata", default=False, required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
-        "materialize after dump", default=True, required=False
+        "materialize_after_dump", default=True, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
@@ -152,7 +166,7 @@ with Flow(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        dump_mode="overwrite",
+        dump_mode="append",
         wait=filepath,
     )
 
@@ -184,6 +198,18 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
+        with case(update_metadata, True):
+            update_django_metadata(
+                dataset_id,
+                table_id,
+                metadata_type="DateTimeRange",
+                bq_last_update=False,
+                bq_table_last_year_month=True,
+                billing_project_id="basedosdados",
+                api_mode="prod",
+                date_format="yy-mm-dd",
+                upstream_tasks=[wait_for_materialization],
+            )
 
 br_ons_estimativa_custos_custo_marginal_operacao_semanal.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
@@ -207,13 +233,14 @@ with Flow(
     table_id = Parameter(
         "table_id", default="balanco_energia_subsistemas", required=True
     )
+    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    update_metadata = Parameter("update_metadata", default=False, required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
-        "materialize after dump", default=True, required=False
+        "materialize_after_dump", default=True, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
@@ -232,7 +259,7 @@ with Flow(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        dump_mode="overwrite",
+        dump_mode="append",
         wait=filepath,
     )
 
@@ -264,6 +291,18 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
+        with case(update_metadata, True):
+            update_django_metadata(
+                dataset_id,
+                table_id,
+                metadata_type="DateTimeRange",
+                bq_last_update=False,
+                bq_table_last_year_month=True,
+                billing_project_id="basedosdados",
+                api_mode="prod",
+                date_format="yy-mm-dd",
+                upstream_tasks=[wait_for_materialization],
+            )
 
 br_ons_estimativa_custos_balanco_energia_subsistemas.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
@@ -287,12 +326,13 @@ with Flow(
     table_id = Parameter(
         "table_id", default="balanco_energia_subsistemas_dessem", required=True
     )
-    start = Parameter("start", default=1997, required=True)  # confirmar depois
+    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    update_metadata = Parameter("update_metadata", default=False, required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
-        "materialize after dump", default=True, required=False
+        "materialize_after_dump", default=True, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
@@ -313,7 +353,7 @@ with Flow(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        dump_mode="overwrite",
+        dump_mode="append",
         wait=filepath,
     )
 
@@ -345,6 +385,18 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
+        with case(update_metadata, True):
+            update_django_metadata(
+                dataset_id,
+                table_id,
+                metadata_type="DateTimeRange",
+                bq_last_update=False,
+                bq_table_last_year_month=True,
+                billing_project_id="basedosdados",
+                api_mode="prod",
+                date_format="yy-mm-dd",
+                upstream_tasks=[wait_for_materialization],
+            )
 
 br_ons_estimativa_custos_balanco_energia_subsistemas_dessem.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
