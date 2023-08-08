@@ -105,7 +105,7 @@ def tratamento():
     log("Iniciando particionamento dos dados")
     partition_data(
         precos_combustiveis,
-        column_name=["data_coleta"],
+        column_name="data_coleta",
         output_directory=anatel_constants.PATH_OUTPUT.value,
     )
 
