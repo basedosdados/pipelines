@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Tasks for br_anatel_telefonia_movel
+Tasks for dataset br_anatel_telefonia_movel
 """
 
 from prefect import task
@@ -9,11 +9,14 @@ import numpy as np
 from datetime import datetime, timedelta
 import os
 from pipelines.constants import constants
-from pipelines.datasets.br_anatel_telefonia_movel.utils import download_and_unzip
+from pipelines.datasets.br_anatel_telefonia_movel.utils import (
+    download_and_unzip,
+    to_partitions_microdados,
+)
 from pipelines.datasets.br_anatel_telefonia_movel.constants import (
     constants as anatel_constants,
 )
-from pipelines.utils.utils import to_partitions, log
+from pipelines.utils.utils import log
 
 
 # ! TASK MICRODADOS
@@ -106,7 +109,7 @@ def clean_csv_microdados(anos, mes_um, mes_dois):
     df = df[anatel_constants.ORDEM.value]
 
     # Divide o DataFrame em partições com base nas colunas "ano" e "mes" e salva os dados
-    to_partitions(
+    to_partitions_microdados(
         df,
         partition_columns=["ano", "mes"],
         savepath=anatel_constants.OUTPUT_PATH_MICRODADOS.value,
@@ -301,9 +304,8 @@ def clean_csv_municipio():
     return anatel_constants.OUTPUT_PATH_MUNICIPIO.value
 
 
-# task para retornar o ano e mes paara a atualização dos metadados.
 @task
-def get_today_date():
+def get_today_date_atualizado():
     d = datetime.now() - timedelta(days=60)
 
     return d.strftime("%Y-%m")
