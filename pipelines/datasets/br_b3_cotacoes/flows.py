@@ -96,17 +96,18 @@ with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-    with case(update_metadata, True):
-        date = get_today_date()  # task que retorna a data atual
-        update_django_metadata(
-            dataset_id,
-            table_id,
-            metadata_type="DateTimeRange",
-            bq_last_update=False,
-            api_mode="prod",
-            date_format="yy-mm",
-            _last_date=date,
-        )
+        with case(update_metadata, True):
+            date = get_today_date()  # task que retorna a data atual
+            update_django_metadata(
+                dataset_id,
+                table_id,
+                metadata_type="DateTimeRange",
+                bq_last_update=False,
+                api_mode="prod",
+                date_format="yy-mm-dd",
+                _last_date=date,
+                upstream_tasks=[wait_for_materialization],
+            )
 
 cotacoes.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 cotacoes.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
