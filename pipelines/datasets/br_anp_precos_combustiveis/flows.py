@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*- # noqa
+# -*- coding: utf-8 -*-
 """
 Flows for br_anp_precos_combustiveis
 """
