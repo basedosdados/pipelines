@@ -35,8 +35,7 @@ def tratamento():
     precos_combustiveis = open_csvs(
         url_diesel_gnv=anatel_constants.URL_DIESEL_GNV.value,
         url_gasolina_etanol=anatel_constants.URL_GASOLINA_ETANOL.value,
-        url_glp=anatel_constants.URL_GLP.value,
-        temporario=anatel_constants.TEMPORARIO.value,
+        url_glp=anatel_constants.URL_GLP.value
     )
 
     id_municipio = get_id_municipio()
