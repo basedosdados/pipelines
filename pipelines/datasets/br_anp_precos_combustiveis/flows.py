@@ -93,7 +93,7 @@ with Flow(
         df = tratamento()
         with case(update_metadata, True):
             date = data_max_bd_mais(
-                df=df, upstream_tasks=[df]
+                df=df
             )  # task que retorna a data atual
             update_django_metadata(
                 dataset_id,
@@ -103,6 +103,7 @@ with Flow(
                 api_mode="prod",
                 date_format="yy-mm-dd",
                 _last_date=date,
+                upstream_tasks=[df]
             )
 
     # ! BD PRO - Atualizado
@@ -137,7 +138,7 @@ with Flow(
 
         with case(update_metadata, True):
             date = data_max_bd_pro(
-                df=df, upstream_tasks=[df]
+                df=df
             )  # task que retorna a data atual
             update_django_metadata(
                 dataset_id,
@@ -147,6 +148,7 @@ with Flow(
                 api_mode="prod",
                 date_format="yy-mm-dd",
                 _last_date=date,
+                upstream_tasks=[df]
             )
 
 anp_microdados.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
