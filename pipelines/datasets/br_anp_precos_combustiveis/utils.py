@@ -142,6 +142,6 @@ def data_max():
         "SELECT MAX(data_coleta) as coleta FROM `basedosdados.br_anp_precos_combustiveis.microdados`",
         billing_project_id="basedosdados-dev",
         from_file=True,
+        reauth=True,
     )
-
     return data["coleta"][0]
