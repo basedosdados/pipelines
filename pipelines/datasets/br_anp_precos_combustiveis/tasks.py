@@ -113,12 +113,15 @@ def tratamento():
 
 
 def data_max_bd_mais():
-
     log("----" * 150)
     log("update_metadata bd pro")
     data_frames = []
-    diesel = pd.read_csv(f"{anatel_constants.URL_DIESEL_GNV.value}", sep=";", encoding="utf-8")
-    gasolina = pd.read_csv(f"{anatel_constants.URL_GASOLINA_ETANOL.value}", sep=";", encoding="utf-8")
+    diesel = pd.read_csv(
+        f"{anatel_constants.URL_DIESEL_GNV.value}", sep=";", encoding="utf-8"
+    )
+    gasolina = pd.read_csv(
+        f"{anatel_constants.URL_GASOLINA_ETANOL.value}", sep=";", encoding="utf-8"
+    )
     glp = pd.read_csv(f"{anatel_constants.URL_GLP.value}", sep=";", encoding="utf-8")
     data_frames.extend([diesel, gasolina, glp])
     precos_combustiveis = pd.concat(data_frames, ignore_index=True)
@@ -133,12 +136,17 @@ def data_max_bd_mais():
 
     return data_max
 
+
 def data_max_bd_pro():
     log("----" * 150)
     log("update_metadata bd pro")
     data_frames = []
-    diesel = pd.read_csv(f"{anatel_constants.URL_DIESEL_GNV.value}", sep=";", encoding="utf-8")
-    gasolina = pd.read_csv(f"{anatel_constants.URL_GASOLINA_ETANOL.value}", sep=";", encoding="utf-8")
+    diesel = pd.read_csv(
+        f"{anatel_constants.URL_DIESEL_GNV.value}", sep=";", encoding="utf-8"
+    )
+    gasolina = pd.read_csv(
+        f"{anatel_constants.URL_GASOLINA_ETANOL.value}", sep=";", encoding="utf-8"
+    )
     glp = pd.read_csv(f"{anatel_constants.URL_GLP.value}", sep=";", encoding="utf-8")
     data_frames.extend([diesel, gasolina, glp])
     precos_combustiveis = pd.concat(data_frames, ignore_index=True)
@@ -149,7 +157,9 @@ def data_max_bd_pro():
         + "-"
         + precos_combustiveis["Data da Coleta"].str[0:2]
     )
-    precos_combustiveis["Data da Coleta"] = pd.to_datetime(precos_combustiveis["Data da Coleta"], format="%Y-%m-%d")
+    precos_combustiveis["Data da Coleta"] = pd.to_datetime(
+        precos_combustiveis["Data da Coleta"], format="%Y-%m-%d"
+    )
 
     data_max = precos_combustiveis["Data da Coleta"].max()
     data_referencia = data_max - pd.DateOffset(months=6)

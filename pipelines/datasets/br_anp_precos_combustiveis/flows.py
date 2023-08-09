@@ -13,7 +13,11 @@ from pipelines.utils.tasks import update_django_metadata
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.datasets.br_anp_precos_combustiveis.tasks import tratamento, data_max_bd_mais, data_max_bd_pro
+from pipelines.datasets.br_anp_precos_combustiveis.tasks import (
+    tratamento,
+    data_max_bd_mais,
+    data_max_bd_pro,
+)
 from pipelines.datasets.br_anp_precos_combustiveis.schedules import (
     every_week_anp_microdados,
 )
