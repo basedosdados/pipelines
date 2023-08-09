@@ -109,60 +109,18 @@ def tratamento():
         output_directory=anatel_constants.PATH_OUTPUT.value,
     )
 
-    return anatel_constants.PATH_OUTPUT.value
+    return precos_combustiveis
 
 
-def data_max_bd_mais():
-    log("----" * 150)
-    log("update_metadata bd pro")
-    data_frames = []
-    diesel = pd.read_csv(
-        "/tmp/input/ultimas-4-semanas-diesel-gnv.csv", sep=";", encoding="utf-8"
-    )
-    gasolina = pd.read_csv(
-        "/tmp/input/ultimas-4-semanas-gasolina-etanol.csv", sep=";", encoding="utf-8"
-    )
-    glp = pd.read_csv("/tmp/input/ultimas-4-semanas-glp.csv", sep=";", encoding="utf-8")
-    data_frames.extend([diesel, gasolina, glp])
-    precos_combustiveis = pd.concat(data_frames, ignore_index=True)
-    precos_combustiveis["Data da Coleta"] = (
-        precos_combustiveis["Data da Coleta"].str[6:10]
-        + "-"
-        + precos_combustiveis["Data da Coleta"].str[3:5]
-        + "-"
-        + precos_combustiveis["Data da Coleta"].str[0:2]
-    )
-    data_max = precos_combustiveis["Data da Coleta"].max()
-
-    return data_max
+def data_max_bd_pro(df):
+    
+    max_value = df["data_coleta"].max()
+    return max_value
 
 
-def data_max_bd_pro():
-    log("----" * 150)
-    log("update_metadata bd pro")
-    data_frames = []
-    diesel = pd.read_csv(
-        "/tmp/input/ultimas-4-semanas-diesel-gnv.csv", sep=";", encoding="utf-8"
-    )
-    gasolina = pd.read_csv(
-        "/tmp/input/ultimas-4-semanas-gasolina-etanol.csv", sep=";", encoding="utf-8"
-    )
-    glp = pd.read_csv("/tmp/input/ultimas-4-semanas-glp.csv", sep=";", encoding="utf-8")
-    data_frames.extend([diesel, gasolina, glp])
-    precos_combustiveis = pd.concat(data_frames, ignore_index=True)
-    precos_combustiveis["Data da Coleta"] = (
-        precos_combustiveis["Data da Coleta"].str[6:10]
-        + "-"
-        + precos_combustiveis["Data da Coleta"].str[3:5]
-        + "-"
-        + precos_combustiveis["Data da Coleta"].str[0:2]
-    )
-    precos_combustiveis["Data da Coleta"] = pd.to_datetime(
-        precos_combustiveis["Data da Coleta"], format="%Y-%m-%d"
-    )
+def data_max_bd_mais(df):
 
-    data_max = precos_combustiveis["Data da Coleta"].max()
+    data_max = df["data_coleta"].max()
     data_referencia = data_max - pd.DateOffset(months=6)
     data_referencia = data_referencia.strftime("%Y-%m-%d")
-
     return data_referencia

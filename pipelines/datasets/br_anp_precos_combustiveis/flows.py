@@ -30,7 +30,7 @@ from pipelines.utils.tasks import (
 with Flow(
     name="br_anp_precos_combustiveis.microdados", code_owners=["trick"]
 ) as anp_microdados:
-    # Parameters
+
     dataset_id = Parameter(
         "dataset_id", default="br_anp_precos_combustiveis", required=True
     )
@@ -91,8 +91,9 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
+        df = tratamento()
         with case(update_metadata, True):
-            date = data_max_bd_mais()  # task que retorna a data atual
+            date = data_max_bd_mais(df = df, upstream_tasks=[df])  # task que retorna a data atual
             update_django_metadata(
                 dataset_id,
                 table_id,
@@ -101,7 +102,6 @@ with Flow(
                 api_mode="prod",
                 date_format="yy-mm-dd",
                 _last_date=date,
-                upstream_tasks=[wait_for_materialization],
             )
 
     # ! BD PRO - Atualizado
@@ -133,8 +133,9 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
+
         with case(update_metadata, True):
-            date = data_max_bd_pro()  # task que retorna a data atual
+            date = data_max_bd_pro(df = df, upstream_tasks=[df])  # task que retorna a data atual
             update_django_metadata(
                 dataset_id,
                 table_id + "_atualizado",
@@ -142,8 +143,7 @@ with Flow(
                 bq_last_update=False,
                 api_mode="prod",
                 date_format="yy-mm-dd",
-                _last_date=date,
-                upstream_tasks=[wait_for_materialization],
+                _last_date=date
             )
 
 anp_microdados.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
