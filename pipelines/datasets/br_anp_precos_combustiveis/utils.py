@@ -30,8 +30,8 @@ def download_files(urls, path):
         if response.status_code == 200:
             file_name = url.split("/")[-1]  # Get the filename from the URL
             file_path = os.path.join(path, file_name)
-            #log("----" * 150)
-            #log("if response.status_code == 200: SUCESSO")
+            # log("----" * 150)
+            # log("if response.status_code == 200: SUCESSO")
             with open(file_path, "wb") as file:
                 file.write(response.content)
 
@@ -80,21 +80,21 @@ def open_csvs(url_diesel_gnv, url_gasolina_etanol, url_glp):
     log("Abrindo os arquivos csvs")
     diesel = pd.read_csv(f"{url_diesel_gnv}", sep=";", encoding="utf-8")
     log("----" * 150)
-    #log("Abrindo os arquivos csvs diesel")
+    # log("Abrindo os arquivos csvs diesel")
     log("----" * 150)
     log(diesel["Data da Coleta"].unique())
     gasolina = pd.read_csv(f"{url_gasolina_etanol}", sep=";", encoding="utf-8")
     log("----" * 150)
     log("Abrindo os arquivos csvs gasolina")
     log("----" * 150)
-    #log(gasolina["Data da Coleta"].unique())
+    # log(gasolina["Data da Coleta"].unique())
     glp = pd.read_csv(f"{url_glp}", sep=";", encoding="utf-8")
     log("Abrindo os arquivos csvs glp")
     log("----" * 150)
-    #log(glp["Data da Coleta"].unique())
+    # log(glp["Data da Coleta"].unique())
     data_frames.extend([diesel, gasolina, glp])
     precos_combustiveis = pd.concat(data_frames, ignore_index=True)
-    #log(precos_combustiveis["Data da Coleta"].unique())
+    # log(precos_combustiveis["Data da Coleta"].unique())
     log("----" * 150)
     log("Dados concatenados com sucesso")
     log("----" * 150)
@@ -115,32 +115,33 @@ def partition_data(df: pd.DataFrame, column_name: list[str], output_directory: s
     for value in unique_values:
         value_str = str(value)[:10]
         date_value = datetime.strptime(value_str, "%Y-%m-%d").date()
-        #log(date_value)
+        # log(date_value)
         formatted_value = date_value.strftime("%Y-%m-%d")
-        #log(formatted_value)
+        # log(formatted_value)
 
         partition_path = os.path.join(
             output_directory, f"{column_name}={formatted_value}"
         )
-        #log(f"Salvando dados em {partition_path}")
+        # log(f"Salvando dados em {partition_path}")
         if not os.path.exists(partition_path):
             os.makedirs(partition_path)
 
         df_partition = df[df[column_name] == value].copy()
 
         df_partition.drop([column_name], axis=1, inplace=True)
-        #log(f"df_partition: {df_partition}")
+        # log(f"df_partition: {df_partition}")
         csv_path = os.path.join(partition_path, "data.csv")
         df_partition.to_csv(csv_path, index=False, encoding="utf-8", na_rep="")
         log(f"Arquivo {csv_path} salvo com sucesso!")
 
         return df_partition
-    
+
 
 def data_max():
-    data = bd.read_sql('SELECT MAX(data_coleta) as coleta FROM `basedosdados.br_anp_precos_combustiveis.microdados`',
-                        billing_project_id='basedosdados-dev',
-                        from_file=True
-                        )
+    data = bd.read_sql(
+        "SELECT MAX(data_coleta) as coleta FROM `basedosdados.br_anp_precos_combustiveis.microdados`",
+        billing_project_id="basedosdados-dev",
+        from_file=True,
+    )
 
-    return data['coleta'][0]
+    return data["coleta"][0]

@@ -48,7 +48,6 @@ with Flow(
     )
     update_metadata = Parameter("update_metadata", default=True, required=False)
 
-
     filepath = tratamento(upstream_tasks=[rename_flow_run])
 
     # pylint: disable=C0103
