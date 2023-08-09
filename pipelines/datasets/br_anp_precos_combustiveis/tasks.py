@@ -6,8 +6,6 @@ Tasks for br_anp_precos_combustiveis
 from prefect import task
 import pandas as pd
 import numpy as np
-import basedosdados as bd
-import unidecode
 from datetime import timedelta
 from pipelines.datasets.br_anp_precos_combustiveis.utils import (
     download_files,
