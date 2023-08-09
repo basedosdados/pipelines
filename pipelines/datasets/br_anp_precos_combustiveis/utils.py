@@ -140,7 +140,7 @@ def partition_data(df: pd.DataFrame, column_name: list[str], output_directory: s
 def data_max():
     data = bd.read_sql(
         "SELECT MAX(data_coleta) as coleta FROM `basedosdados.br_anp_precos_combustiveis.microdados`",
-        billing_project_id="basedosdados",
-        from_file=True,
+        billing_project_id="basedosdados-dev",
+        #from_file=True,
     )
     return data["coleta"][0]
