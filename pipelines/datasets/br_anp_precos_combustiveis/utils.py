@@ -9,9 +9,6 @@ import os
 import requests
 from pipelines.utils.utils import log
 from datetime import datetime
-from pipelines.datasets.br_anp_precos_combustiveis.constants import (
-    constants as anatel_constants
-
 
 def download_files(urls, path):
     """Download files from URLs
