@@ -13,8 +13,7 @@ from pipelines.utils.tasks import update_django_metadata
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.datasets.br_anp_precos_combustiveis.utils import data_max
-from pipelines.datasets.br_anp_precos_combustiveis.tasks import tratamento
+from pipelines.datasets.br_anp_precos_combustiveis.tasks import tratamento, data_max_bd_mais, data_max_bd_pro
 from pipelines.datasets.br_anp_precos_combustiveis.schedules import (
     every_week_anp_microdados,
 )
@@ -89,7 +88,7 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
         with case(update_metadata, True):
-            date = data_max()  # task que retorna a data atual
+            date = data_max_bd_mais()  # task que retorna a data atual
             update_django_metadata(
                 dataset_id,
                 table_id,
