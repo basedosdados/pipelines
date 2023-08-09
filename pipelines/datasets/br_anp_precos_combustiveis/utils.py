@@ -141,6 +141,6 @@ def data_max():
     data = bd.read_sql(
         "SELECT MAX(data_coleta) as coleta FROM `basedosdados.br_anp_precos_combustiveis.microdados`",
         billing_project_id="basedosdados-dev",
-        #from_file=True,
+        # from_file=True,
     )
     return data["coleta"][0]
