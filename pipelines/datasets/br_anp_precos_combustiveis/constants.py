@@ -46,6 +46,7 @@ class constants(Enum):  # pylint: disable=c0103
         "https://www.gov.br/anp/pt-br/centrais-de-conteudo/dados-abertos/arquivos/shpc/qus/ultimas-4-semanas-glp.csv",
         "https://www.gov.br/anp/pt-br/centrais-de-conteudo/dados-abertos/arquivos/shpc/qus/ultimas-4-semanas-gasolina-etanol.csv",
         "https://www.gov.br/anp/pt-br/centrais-de-conteudo/dados-abertos/arquivos/shpc/qus/ultimas-4-semanas-diesel-gnv.csv",
+        "https://www.gov.br/anp/pt-br/centrais-de-conteudo/dados-abertos/arquivos/shpc/dsan/2023/precos-glp-07.csv"
     ]
 
     PATH_INPUT = "/tmp/input/"
@@ -55,3 +56,4 @@ class constants(Enum):  # pylint: disable=c0103
     URL_DIESEL_GNV = "/tmp/input/ultimas-4-semanas-glp.csv"
     URL_GASOLINA_ETANOL = "/tmp/input/ultimas-4-semanas-gasolina-etanol.csv"
     URL_GLP = "/tmp/input/ultimas-4-semanas-diesel-gnv.csv"
+    TEMPORARIO = "/tmp/input/precos-glp-07.csv"
