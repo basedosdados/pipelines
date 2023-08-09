@@ -55,4 +55,3 @@ class constants(Enum):  # pylint: disable=c0103
     URL_DIESEL_GNV = "/tmp/input/ultimas-4-semanas-glp.csv"
     URL_GASOLINA_ETANOL = "/tmp/input/ultimas-4-semanas-gasolina-etanol.csv"
     URL_GLP = "/tmp/input/ultimas-4-semanas-diesel-gnv.csv"
-
