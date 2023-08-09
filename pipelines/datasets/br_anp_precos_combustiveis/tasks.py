@@ -117,12 +117,12 @@ def data_max_bd_mais():
     log("update_metadata bd pro")
     data_frames = []
     diesel = pd.read_csv(
-        f"{anatel_constants.URL_DIESEL_GNV.value}", sep=";", encoding="utf-8"
+        "/tmp/input/ultimas-4-semanas-diesel-gnv.csv", sep=";", encoding="utf-8"
     )
     gasolina = pd.read_csv(
-        f"{anatel_constants.URL_GASOLINA_ETANOL.value}", sep=";", encoding="utf-8"
+        "/tmp/input/ultimas-4-semanas-gasolina-etanol.csv", sep=";", encoding="utf-8"
     )
-    glp = pd.read_csv(f"{anatel_constants.URL_GLP.value}", sep=";", encoding="utf-8")
+    glp = pd.read_csv("/tmp/input/ultimas-4-semanas-glp.csv", sep=";", encoding="utf-8")
     data_frames.extend([diesel, gasolina, glp])
     precos_combustiveis = pd.concat(data_frames, ignore_index=True)
     precos_combustiveis["Data da Coleta"] = (
@@ -142,12 +142,12 @@ def data_max_bd_pro():
     log("update_metadata bd pro")
     data_frames = []
     diesel = pd.read_csv(
-        f"{anatel_constants.URL_DIESEL_GNV.value}", sep=";", encoding="utf-8"
+        "/tmp/input/ultimas-4-semanas-diesel-gnv.csv", sep=";", encoding="utf-8"
     )
     gasolina = pd.read_csv(
-        f"{anatel_constants.URL_GASOLINA_ETANOL.value}", sep=";", encoding="utf-8"
+        "/tmp/input/ultimas-4-semanas-gasolina-etanol.csv", sep=";", encoding="utf-8"
     )
-    glp = pd.read_csv(f"{anatel_constants.URL_GLP.value}", sep=";", encoding="utf-8")
+    glp = pd.read_csv("/tmp/input/ultimas-4-semanas-glp.csv", sep=";", encoding="utf-8")
     data_frames.extend([diesel, gasolina, glp])
     precos_combustiveis = pd.concat(data_frames, ignore_index=True)
     precos_combustiveis["Data da Coleta"] = (
