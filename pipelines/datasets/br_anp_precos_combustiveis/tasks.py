@@ -113,12 +113,12 @@ def tratamento():
 
 
 def data_max_bd_pro(df):
-    max_value = df["data_coleta"].max()
+    max_value = pd.to_datetime(df["Data da Coleta"]).max()
     return max_value
 
 
-def data_max_bd_mais(df):
-    data_max = df["data_coleta"].max()
+'''def data_max_bd_mais(df):
+    data_max = pd.to_datetime(df["Data da Coleta"]).max()
     data_referencia = data_max - pd.DateOffset(months=6)
     data_referencia = data_referencia.strftime("%Y-%m-%d")
-    return data_referencia
+    return data_referencia'''
