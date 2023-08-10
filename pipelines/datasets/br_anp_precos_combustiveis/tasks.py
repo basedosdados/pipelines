@@ -103,17 +103,20 @@ def tratamento():
     log("Iniciando particionamento dos dados")
     log("----" * 150)
     log(precos_combustiveis["data_coleta"].unique())
-    partition_data(
-        precos_combustiveis,
-        column_name="data_coleta",
-        output_directory=anatel_constants.PATH_OUTPUT.value,
-    )
 
     return precos_combustiveis
 
 
+def make_partitions(df):
+    partition_data(
+        df,
+        column_name="data_coleta",
+        output_directory=anatel_constants.PATH_OUTPUT.value,
+    )
+    return anatel_constants.PATH_OUTPUT.value
+
 def data_max_bd_pro(df):
-    max_value = pd.to_datetime(df["Data da Coleta"]).max()
+    max_value = pd.to_datetime(df["data_coleta"]).max()
     return max_value.strftime("%Y-%m-%d")
 
 

@@ -17,6 +17,7 @@ from pipelines.datasets.br_anp_precos_combustiveis.tasks import (
     tratamento,
     # data_max_bd_mais,
     data_max_bd_pro,
+    make_partition
 )
 from pipelines.datasets.br_anp_precos_combustiveis.schedules import (
     every_week_anp_microdados,
@@ -50,15 +51,19 @@ with Flow(
     )
     update_metadata = Parameter("update_metadata", default=True, required=False)
 
-    filepath = tratamento(upstream_tasks=[rename_flow_run])
+    df = tratamento(upstream_tasks=[rename_flow_run])
+
+    output_path = make_partition(df=df, upstream_tasks=[df])
+
+    get_date_max = data_max_bd_pro(df=df, upstream_tasks=[df])
 
     # pylint: disable=C0103
     wait_upload_table = create_table_and_upload_to_gcs(
-        data_path=filepath,
+        data_path=output_path,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_mode="append",
-        wait=filepath,
+        wait=output_path,
     )
 
     # ! BD MAIS - Atrasado
@@ -92,7 +97,6 @@ with Flow(
         )
 
         with case(update_metadata, True):
-            date = data_max_bd_pro(df=filepath)  # task que retorna a data atual
             update_django_metadata(
                 dataset_id,
                 table_id,
@@ -100,8 +104,8 @@ with Flow(
                 bq_last_update=False,
                 api_mode="prod",
                 date_format="yy-mm-dd",
-                _last_date=date,
-                upstream_tasks=[filepath],
+                _last_date=get_date_max,
+                upstream_tasks=[df],
             )
 
     # ! BD PRO - Atualizado
