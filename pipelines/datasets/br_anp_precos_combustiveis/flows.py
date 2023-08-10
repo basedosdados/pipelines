@@ -53,8 +53,8 @@ with Flow(
 
     df = tratamento(upstream_tasks=[rename_flow_run])
     output_path = make_partitions(df=df, upstream_tasks=[df])
-    get_date_max_mais = data_max_bd_mais(upstream_tasks=[df])
-    get_date_max_pro = data_max_bd_pro(df=df, upstream_tasks=[df])
+    get_date_max_mais = data_max_bd_mais()
+    get_date_max_pro = data_max_bd_pro(df=df)
 
     # pylint: disable=C0103
     wait_upload_table = create_table_and_upload_to_gcs(
