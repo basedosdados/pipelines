@@ -114,7 +114,7 @@ def tratamento():
 
 def data_max_bd_pro(df):
     max_value = pd.to_datetime(df["Data da Coleta"]).max()
-    return max_value
+    return max_value.strftime("%Y-%m-%d")
 
 
 """def data_max_bd_mais(df):
