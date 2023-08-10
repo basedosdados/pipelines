@@ -110,8 +110,8 @@ with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
                 api_mode="prod",
                 date_format="yy-mm-dd",
                 _last_date=data_max,
-                upstream_tasks=[wait_for_materialization]
-                )
+                upstream_tasks=[wait_for_materialization],
+            )
 
 cotacoes.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 cotacoes.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
