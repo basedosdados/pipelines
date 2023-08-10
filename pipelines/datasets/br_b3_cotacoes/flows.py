@@ -60,7 +60,7 @@ with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
     # ? Importante para o Prefect saber a ordem de execução dos tasks
 
     df = tratamento(delta_day=delta_day, upstream_tasks=[rename_flow_run])
-    filepath = make_partition(df=df, upstream_tasks=[df])
+    filepath = make_partition(df=df)
     data_max = data_max_b3(df=df)
 
     # pylint: disable=C0103
