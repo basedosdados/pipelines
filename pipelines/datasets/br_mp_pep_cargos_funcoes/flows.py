@@ -135,12 +135,12 @@ with Flow(
             project_name=constants.PREFECT_DEFAULT_PROJECT.value,
             parameters={
                 "dataset_id": dataset_id,
-                "table_id": f"{table_id}_atualizado",
+                "table_id": table_id + "_atualizado",
                 "mode": materialization_mode,
                 "dbt_alias": dbt_alias,
             },
             labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id}",
+            run_name=r"Materialize {dataset_id}.{table_id}",
         )
 
         wait_for_materialization = wait_for_flow_run(
