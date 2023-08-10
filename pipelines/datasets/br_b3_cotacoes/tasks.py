@@ -101,11 +101,9 @@ def make_partition(df):
         column_name="data_referencia",
         output_directory=br_b3_cotacoes_constants.B3_PATH_OUTPUT.value,
     )
-
     return br_b3_cotacoes_constants.B3_PATH_OUTPUT.value
 
 
 def data_max_b3(df):
     max_value = pd.to_datetime(df["data_referencia"]).max()
-
     return max_value.strftime("%Y-%m-%d")
