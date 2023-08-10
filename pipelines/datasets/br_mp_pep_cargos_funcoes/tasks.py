@@ -322,6 +322,8 @@ def clean_data() -> pd.DataFrame:
         "das_e_correlatas",
     ]
 
+    log("Clean data Finished")
+
     return df[order_cols]
 
 

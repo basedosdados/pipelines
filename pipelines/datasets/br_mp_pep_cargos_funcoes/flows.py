@@ -61,8 +61,6 @@ with Flow(
 
     df = clean_data(upstream_tasks=[scrapper])
 
-    log("Clean data Finished")
-
     output_filepath = make_partitions(df, upstream_tasks=[df])
 
     materialization_mode = Parameter(
@@ -142,7 +140,7 @@ with Flow(
                 "dbt_alias": dbt_alias,
             },
             labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id}_atualizado",
+            run_name=f"Materialize {dataset_id}.{table_id}",
         )
 
         wait_for_materialization = wait_for_flow_run(
