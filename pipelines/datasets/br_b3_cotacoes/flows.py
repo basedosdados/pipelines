@@ -15,9 +15,8 @@ from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.datasets.br_b3_cotacoes.tasks import (
     tratamento,
-    get_today_date,
     make_partition,
-    data_max_b3,
+    data_max_b3
 )
 from pipelines.utils.utils import (
     log,
