@@ -15,9 +15,8 @@ from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.datasets.br_anp_precos_combustiveis.tasks import (
     tratamento,
-    # data_max_bd_mais,
     data_max_bd_pro,
-    make_partition,
+    make_partitions,
 )
 from pipelines.datasets.br_anp_precos_combustiveis.schedules import (
     every_week_anp_microdados,
@@ -53,7 +52,7 @@ with Flow(
 
     df = tratamento(upstream_tasks=[rename_flow_run])
 
-    output_path = make_partition(df=df, upstream_tasks=[df])
+    output_path = make_partitions(df=df, upstream_tasks=[df])
 
     get_date_max = data_max_bd_pro(df=df, upstream_tasks=[df])
 

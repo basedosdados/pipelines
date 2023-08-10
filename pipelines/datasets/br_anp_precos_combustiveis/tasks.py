@@ -106,7 +106,10 @@ def tratamento():
 
     return precos_combustiveis
 
-
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def make_partitions(df):
     partition_data(
         df,
@@ -115,7 +118,10 @@ def make_partitions(df):
     )
     return anatel_constants.PATH_OUTPUT.value
 
-
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def data_max_bd_pro(df):
     max_value = pd.to_datetime(df["data_coleta"]).max()
     return max_value.strftime("%Y-%m-%d")
