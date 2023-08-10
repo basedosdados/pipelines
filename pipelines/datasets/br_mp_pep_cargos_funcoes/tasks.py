@@ -9,13 +9,13 @@ import requests
 import zipfile
 import io
 import pandas as pd
-from datetime import datetime
+import datetime
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
 from prefect import task
 
-from pipelines.utils.utils import log, to_partitions
+from pipelines.utils.utils import log, to_partitions, extract_last_date
 from pipelines.datasets.br_mp_pep_cargos_funcoes.constants import constants
 from pipelines.datasets.br_mp_pep_cargos_funcoes.utils import (
     wait_file_download,
@@ -35,9 +35,11 @@ def setup_web_driver() -> None:
 
 @task
 def scraper(
-    headless: bool = True, year_start: int = 1999, year_end: int = datetime.now().year
+    headless: bool = True,
+    year_start: int = 1999,
+    year_end: int = datetime.datetime.now().year,
 ) -> None:
-    log(f"Scraper dates: {year_start}, {year_end}")
+    log(f"Scraper dates: from {year_start} to {year_end}")
 
     if not os.path.exists(constants.PATH.value):
         os.mkdir(constants.PATH.value)
@@ -336,3 +338,60 @@ def make_partitions(df: pd.DataFrame) -> str:
         savepath=savepath,
     )
     return savepath
+
+
+@task
+def is_up_to_date() -> bool:
+    options = webdriver.ChromeOptions()
+
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--crash-dumps-dir=/tmp")
+    options.add_argument("--remote-debugging-port=9222")
+    options.add_argument("--headless=new")
+
+    driver = webdriver.Chrome(options=options)
+    driver.get(constants.TARGET.value)
+
+    time.sleep(10)
+
+    div_with_last_date = driver.find_element(
+        By.XPATH, '//*[@id="44"]/div[2]/div/div[1]/div[5]/div/div[2]/div[2]/div'
+    )
+
+    text = div_with_last_date.text
+
+    driver.close()
+
+    months_names = {
+        "Jan": 1,
+        "Fev": 2,
+        "Mar": 3,
+        "Abr": 4,
+        "Mai": 5,
+        "Jun": 6,
+        "Jul": 7,
+        "Ago": 8,
+        "Set": 9,
+        "Out": 10,
+        "Nov": 11,
+        "Dez": 12,
+    }
+
+    month_text, year = text.split(" ")
+
+    month = months_names[month_text]
+
+    date_website = datetime.datetime(int(year), month, day=1)
+
+    log(f"Last date website: {text}, parsed as {date_website}")
+
+    last_date_in_bq = extract_last_date(
+        "br_mp_pep", "cargos_funcoes_atualizado", "yy-mm", "basedosdados-dev"
+    )
+    date_in_bq = datetime.datetime.strptime(last_date_in_bq, "%Y-%m")
+
+    log(f"Last date BQ: {date_in_bq}")
+
+    return date_in_bq == date_website

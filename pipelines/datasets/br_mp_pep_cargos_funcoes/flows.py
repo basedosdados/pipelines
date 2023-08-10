@@ -8,10 +8,7 @@ import datetime
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
-from prefect.tasks.prefect import (
-    create_flow_run,
-    wait_for_flow_run,
-)
+from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 
 from pipelines.constants import constants
@@ -32,6 +29,7 @@ from pipelines.datasets.br_mp_pep_cargos_funcoes.tasks import (
     scraper,
     clean_data,
     make_partitions,
+    is_up_to_date,
 )
 
 with Flow(
@@ -45,13 +43,21 @@ with Flow(
 
     setup = setup_web_driver()
 
+    data_is_up_to_date = is_up_to_date(upstream_tasks=[setup])
+
+    # if data_is_up_to_date:
+    #     log(f"Sem atualizações: {data_is_up_to_date}")
+    #     exit(0)
+
     current_date = datetime.datetime(
         year=datetime.datetime.now().year, month=datetime.datetime.now().month, day=1
     )
     year_delta = current_date - datetime.timedelta(days=1)
     year_end = year_delta.year
 
-    scrapper = scraper(year_start=2019, year_end=year_end, upstream_tasks=[setup])
+    scrapper = scraper(
+        year_start=2019, year_end=year_end, upstream_tasks=[data_is_up_to_date]
+    )
 
     df = clean_data(upstream_tasks=[scrapper])
 
