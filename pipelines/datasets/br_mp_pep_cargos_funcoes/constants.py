@@ -49,6 +49,8 @@ class constants(Enum):  # pylint: disable=c0103
 
     CHROME_DRIVER = "https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_linux64.zip"
 
+    TABLE_ARCHITECHTURE_URL = "https://docs.google.com/spreadsheets/d/1f_fecSsP3s5HO1pJk79ydaNb63Kj5ohrVkc48twBdsI/edit#gid=0"
+
     RENAMES = {
         "Ano": "ano",
         "Mês": "mes",
