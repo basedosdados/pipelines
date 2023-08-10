@@ -138,7 +138,7 @@ with Flow(
         )
 
         with case(update_metadata, True):
-            #date = data_max_bd_pro(df=df)  # task que retorna a data atual
+            # date = data_max_bd_pro(df=df)  # task que retorna a data atual
             update_django_metadata(
                 dataset_id,
                 table_id + "_atualizado",
