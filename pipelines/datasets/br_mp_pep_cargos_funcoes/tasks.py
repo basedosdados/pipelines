@@ -37,6 +37,8 @@ def setup_web_driver() -> None:
 def scraper(
     headless: bool = True, year_start: int = 1999, year_end: int = datetime.now().year
 ) -> None:
+    log(f"Scraper dates: {year_start}, {year_end}")
+
     if not os.path.exists(constants.PATH.value):
         os.mkdir(constants.PATH.value)
 
@@ -286,6 +288,7 @@ def clean_data() -> pd.DataFrame:
     dfs = [
         pd.read_excel(os.path.join(constants.INPUT_DIR.value, file), skipfooter=4)
         for file in files
+        if file.endswith(".xlsx")
     ]
 
     df = pd.concat(dfs).rename(columns=constants.RENAMES.value, errors="raise")

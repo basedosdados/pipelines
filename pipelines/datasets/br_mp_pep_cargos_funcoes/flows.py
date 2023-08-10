@@ -3,7 +3,7 @@
 Flows for br_mp_pep_cargos_funcoes
 """
 
-from datetime import timedelta
+import datetime
 
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
@@ -45,7 +45,13 @@ with Flow(
 
     setup = setup_web_driver()
 
-    scrapper = scraper(year_start=1999, year_end=2023, upstream_tasks=[setup])
+    current_date = datetime.datetime(
+        year=datetime.datetime.now().year, month=datetime.datetime.now().month, day=1
+    )
+    year_delta = current_date - datetime.timedelta(days=1)
+    year_end = year_delta.year
+
+    scrapper = scraper(year_start=2019, year_end=year_end, upstream_tasks=[setup])
 
     df = clean_data(upstream_tasks=[scrapper])
 
@@ -100,7 +106,7 @@ with Flow(
         wait_for_materialization.max_retries = (
             dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
         )
-        wait_for_materialization.retry_delay = timedelta(
+        wait_for_materialization.retry_delay = datetime.timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
@@ -142,7 +148,7 @@ with Flow(
         wait_for_materialization.max_retries = (
             dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
         )
-        wait_for_materialization.retry_delay = timedelta(
+        wait_for_materialization.retry_delay = datetime.timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
