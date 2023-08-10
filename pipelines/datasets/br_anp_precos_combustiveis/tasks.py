@@ -126,9 +126,11 @@ def make_partitions(df):
 )
 def data_max_bd_pro(df):
     max_value = pd.to_datetime(df["data_coleta"]).max()
+    
     return max_value.strftime("%Y-%m-%d")
 
 
 def data_max_bd_mais():
     data_referencia = datetime.now() - pd.DateOffset(months=6)
+
     return data_referencia.strftime("%Y-%m-%d")

@@ -53,8 +53,8 @@ with Flow(
 
     df = tratamento(upstream_tasks=[rename_flow_run])
     output_path = make_partitions(df=df, upstream_tasks=[df])
-    get_date_max_mais = data_max_bd_mais(upstream_tasks=[df])
-    get_date_max_pro = data_max_bd_pro(df=df, upstream_tasks=[df])
+    get_date_max_mais = data_max_bd_mais(upstream_tasks=[output_path])
+    get_date_max_pro = data_max_bd_pro(df=df, upstream_tasks=[output_path])
 
     # pylint: disable=C0103
     wait_upload_table = create_table_and_upload_to_gcs(
@@ -104,7 +104,7 @@ with Flow(
                 api_mode="prod",
                 date_format="yy-mm-dd",
                 _last_date=get_date_max_mais,
-                upstream_tasks=[df],
+                upstream_tasks=[wait_for_materialization],
             )
 
     # ! BD PRO - Atualizado
@@ -147,7 +147,7 @@ with Flow(
                 api_mode="prod",
                 date_format="yy-mm-dd",
                 _last_date=get_date_max_pro,
-                upstream_tasks=[df],
+                upstream_tasks=[wait_for_materialization],
             )
 
 anp_microdados.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
