@@ -6,7 +6,7 @@ Tasks for br_anp_precos_combustiveis
 from prefect import task
 import pandas as pd
 import numpy as np
-from datetime import timedelta
+from datetime import datetime, timedelta
 from pipelines.datasets.br_anp_precos_combustiveis.utils import (
     download_files,
     get_id_municipio,
@@ -124,13 +124,12 @@ def make_partitions(df):
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
+
 def data_max_bd_pro(df):
     max_value = pd.to_datetime(df["data_coleta"]).max()
     return max_value.strftime("%Y-%m-%d")
 
 
-"""def data_max_bd_mais(df):
-    data_max = pd.to_datetime(df["Data da Coleta"]).max()
-    data_referencia = data_max - pd.DateOffset(months=6)
-    data_referencia = data_referencia.strftime("%Y-%m-%d")
-    return data_referencia"""
+def data_max_bd_mais():
+    data_referencia = datetime.now() - pd.DateOffset(months=6)
+    return data_referencia.strftime("%Y-%m-%d")

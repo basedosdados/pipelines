@@ -51,9 +51,9 @@ with Flow(
     )
     update_metadata = Parameter("update_metadata", default=True, required=False)
 
-    df = tratamento(upstream_tasks=[rename_flow_run])1
+    df = tratamento(upstream_tasks=[rename_flow_run])
     output_path = make_partitions(df=df, upstream_tasks=[df])
-    get_date_max_mais = data_max_bd_mais(df=df, upstream_tasks=[df])
+    get_date_max_mais = data_max_bd_mais(upstream_tasks=[df])
     get_date_max_pro = data_max_bd_pro(df=df, upstream_tasks=[df])
 
     # pylint: disable=C0103
