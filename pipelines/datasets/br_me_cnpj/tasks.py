@@ -11,9 +11,13 @@ from pipelines.datasets.br_me_cnpj.constants import (
 )
 from pipelines.datasets.br_me_cnpj.utils import (
     data_url,
-    fill_left_zeros,
-    remove_decimal_suffix,
     convert_columns_to_string,
+    processa_tabela,
+    destino_output,
+    baixa_arquivo_zip,
+    trata_dataframe,
+    escreve_particoes_parquet,
+    extract_estabelecimentos,
 )
 import os
 import requests
@@ -33,17 +37,114 @@ def check_for_updates(dataset_id, table_id):
     data_bq_obj = extract_last_date(
         dataset_id, table_id, "yy-mm-dd", "basedosdados-dev"
     ).strftime("%Y-%m-%d")
-
     log(f"Última data do site: {data_obj}")
-    # Converte as datas para objetos datetime
-    # data_obj = datetime.strptime(data, "%Y-%m-%d")
-    # data_bq_obj = datetime.strptime(data_bq, "%Y-%m-%d")
 
     # Compara as datas
     if data_obj > data_bq_obj:
         return True
     else:
         return False
+
+
+@task
+def main(tabelas):
+    arquivos_baixados = []
+    data_coleta = data_url(url, headers).date()
+
+    for tabela in tabelas:
+        if tabela not in arquivos_baixados:
+            output = processa_tabela(tabela, arquivos_baixados, data_coleta)
+
+    return output
+
+
+# @task
+# def main(tabelas):
+#     # Lista auxiliar para armazenar os arquivos ZIP já baixados e os seus caminhos
+#     arquivos_baixados = []
+#     data_coleta = data_url(url, headers).date()
+
+#     for tabela in tabelas:
+#         sufixo = tabela.lower()
+#         # Verifica se o arquivo já foi baixado
+#         if tabela not in arquivos_baixados:
+#             # Pasta de destino para salvar o arquivo ZIP e os arquivos extraídos
+#             pasta_destino = f"/tmp/data/br_me_cnpj/input/data={data_coleta}/"
+#             os.makedirs(pasta_destino, exist_ok=True)
+#             log("Pasta destino input construido")
+
+#             # Pasta de destino para salvar o arquivo CSV
+#             output_path = destino_output(tabela, sufixo, data_coleta)
+#             log(output_path)
+#             for i in range(1, 10):
+#                 if tabela != "Simples":
+#                     # URL do arquivo ZIP para download
+#                     url_download = (
+#                         f"https://dadosabertos.rfb.gov.br/CNPJ/{tabela}{i}.zip"
+#                     )
+#                     nome_arquivo = f"{tabela}{i}"
+#                 else:
+#                     url_download = f"https://dadosabertos.rfb.gov.br/CNPJ/{tabela}.zip"
+#                     nome_arquivo = f"{tabela}"
+
+#                 # Faz o download do arquivo ZIP se ainda não foi baixado
+#                 if nome_arquivo not in arquivos_baixados:
+#                     response_zip = requests.get(url_download)
+
+#                     # Verifica se o download foi bem-sucedido (código 200)
+#                     if response_zip.status_code == 200:
+#                         # Define o caminho completo para o arquivo ZIP
+#                         if tabela != "Simples":
+#                             caminho_arquivo_zip = os.path.join(
+#                                 pasta_destino, f"{tabela}{i}.zip"
+#                             )
+#                         else:
+#                             caminho_arquivo_zip = os.path.join(
+#                                 pasta_destino, f"{tabela}.zip"
+#                             )
+#                         # Salva o arquivo ZIP na pasta de destino
+#                         with open(caminho_arquivo_zip, "wb") as f:
+#                             f.write(response_zip.content)
+#                         log(f"Arquivo {nome_arquivo} ZIP baixado com sucesso.")
+
+#                         # Adiciona o arquivo na lista de arquivos baixados e seu caminho
+#                         arquivos_baixados.append(nome_arquivo)
+#                     else:
+#                         log(f"Falha ao baixar o arquivo ZIP: {nome_arquivo}")
+
+#                     caminho_arquivo_csv = extract_estabelecimentos(caminho_arquivo_zip,pasta_destino)
+
+#                     if caminho_arquivo_csv:
+#                         # Agora, você pode ler o arquivo CSV e realizar o tratamento necessário
+#                         df = pd.read_csv(
+#                             caminho_arquivo_csv, encoding="iso-8859-1", sep=";", header=None
+#                         )
+
+#                         # Renomear as colunas
+#                         df.columns = constants_cnpj.COLUNAS_ESTABELECIMENTO.value
+
+#                         col= ["ddd_1",
+#                         "telefone_1",
+#                         "ddd_2",
+#                         "telefone_2",
+#                         "ddd_fax",
+#                         "fax",
+#                         "id_pais",
+#                         "data_situacao_especial"]
+#                         convert_columns_to_string(df, col)
+#                         log(f"Tratamento finalizado para estabelecimentos_{i}")
+
+#                         for uf in ufs:
+#                             df_particao = df[df["sigla_uf"] == uf].copy()
+#                             df_particao.drop(["sigla_uf"], axis=1, inplace=True)
+#                             particao = f"{output_path}data={data_coleta}/sigla_uf={uf}/estabelecimentos_{i}.parquet"
+#                             df_particao.to_parquet(particao, index=False)
+#                         log(f"Arquivo de estabelecimentos_{i} baixado")
+
+#                         # Remover o arquivo CSV extraído da pasta de input
+#                         os.remove(caminho_arquivo_csv)
+
+#     return output_path
 
 
 @task
@@ -62,7 +163,7 @@ def download_and_save_zip(tabelas):
             # Certifica-se de que o diretório de destino existe ou cria o diretório se não existir
             os.makedirs(pasta_destino, exist_ok=True)
 
-            for i in range(1, 2):
+            for i in range(0, 10):
                 if tabela != "Simples":
                     # URL do arquivo ZIP para download
                     url_download = (
@@ -141,25 +242,9 @@ def clean_data_make_partitions_empresas(caminhos_arquivos_zip):
             # Renomeando as colunas
             df.columns = constants_cnpj.COLUNAS_EMPRESAS.value
 
-            # Conversão de colunas para string
-            string_columns = ["cnpj_basico", "natureza_juridica"]
-            df = convert_columns_to_string(df, string_columns)
-
-            # Preenchimento de zeros à esquerda no campo 'cnpj_basico'
-            df = fill_left_zeros(df, "cnpj_basico", 8)
-            # Convert 'capital_social' to numeric, handling ',' as decimal separator
-            df["capital_social"] = (
-                df["capital_social"].str.replace(",", ".").astype(float)
-            )
-
-            # Verifica se algum valor é igual a zero
-            if (df["natureza_juridica"] == "0").any():
-                # Acrescenta zeros à esquerda para ter 4 dígitos
-                df["natureza_juridica"] = df["natureza_juridica"].str.zfill(4)
-
             # Export the processed DataFrame to a CSV file
             df.to_csv(f"{output_dir}empresas_{i}.csv", index=False)
-            log(f"Arquivo csv de empresa_{i} baixado")
+            log(f"Arquivo CSV de empresa_{i} salvo")
 
             # Remover o arquivo CSV extraído da pasta de input
             os.remove(caminho_arquivo_csv)
@@ -202,27 +287,7 @@ def clean_data_make_partitions_socios(caminhos_arquivos_zip):
             # Renomear colunas
             df.columns = constants_cnpj.COLUNAS_SOCIOS.value
 
-            # Realiza as transformações nos dados
-            df["cpf_representante_legal"] = df["cpf_representante_legal"].replace(
-                "***000000**", ""
-            )
-
-            # Tratamento das colunas de data
-            for col in df.columns:
-                if col.startswith("data_"):
-                    df[col] = df[col].replace("0", "")
-                    df[col] = pd.to_datetime(df[col], format="%Y%m%d", errors="coerce")
-
-            # Conversão de colunas para string
-            string_columns = ["cnpj_basico", "id_pais"]
-            df = convert_columns_to_string(df, string_columns)
-
-            # Preenchimento de zeros à esquerda no campo 'cnpj_basico'
-            df = fill_left_zeros(df, "cnpj_basico", 8)
-
-            # Remoção do '.0' do campo 'id_pais'
-            df = remove_decimal_suffix(df, "id_pais")
-            log(f"Tratamento finalizado para o csv socios_{i}")
+            log(f"Tratamento finalizado para a tabela socios_{i}")
 
             # Export the processed DataFrame to a CSV file
             df.to_csv(f"{output_dir}socios_{i}.csv", index=False)
@@ -277,12 +342,6 @@ def clean_data_make_partitions_simples(caminhos_arquivos_zip):
                 df[col] = df[col].replace({"0": "", "00000000": ""})
                 df[col] = pd.to_datetime(df[col], format="%Y%m%d", errors="coerce")
 
-        # Converte a coluna 'cnpj_basico' para string
-        df["cnpj_basico"] = df["cnpj_basico"].astype(str)
-
-        # Preenchimento de zeros à esquerda no campo 'cnpj_basico'
-        df = fill_left_zeros(df, "cnpj_basico", 8)
-
         # Export the processed DataFrame to a CSV file
         output_csv = f"{output_dir}simples.csv"
         df.to_csv(output_csv, index=False)
@@ -314,6 +373,8 @@ def clean_data_make_partitions_estabelecimentos(caminhos_arquivos_zip):
                     with open(caminho_arquivo_csv, "wb") as f:
                         f.write(z.read(nome_arquivo))
                     log(f"Arquivo CSV '{nome_arquivo}' extraído com sucesso.")
+                    os.remove(caminho_arquivo_zip)
+                    log("Caminho deletado")
                     break
 
         # Verifica se foi encontrado um arquivo CSV dentro do ZIP
@@ -329,60 +390,14 @@ def clean_data_make_partitions_estabelecimentos(caminhos_arquivos_zip):
             # Renomear as colunas
             df.columns = constants_cnpj.COLUNAS_ESTABELECIMENTO.value
 
-            # Conversão de colunas para string
-            string_columns = [
-                "cnpj_basico",
-                "cnpj_ordem",
-                "cnpj_dv",
-                "id_pais",
-                "cep",
-                "id_municipio_rf",
-            ]
-            df = convert_columns_to_string(df, string_columns)
-
-            # Preenchimento de zeros à esquerda no campo 'cnpj_basico'
-            df = fill_left_zeros(df, "cnpj_basico", 8)
-
-            # Preenchimento de zeros à esquerda no campo 'cnpj_ordem'
-            df = fill_left_zeros(df, "cnpj_ordem", 4)
-
-            # Preenchimento de zeros à esquerda no campo 'cnpj_dv'
-            df = fill_left_zeros(df, "cnpj_dv", 2)
-
-            # Generate the 'cnpj' column
-            df["cnpj"] = df["cnpj_basico"] + df["cnpj_ordem"] + df["cnpj_dv"]
-            df = df.sort_values("cnpj_basico")  # Sort by 'cnpj_basico'
-
-            # Format date columns
-            date_cols = [
-                "data_situacao_cadastral",
-                "data_inicio_atividade",
-                "data_situacao_especial",
-            ]
-            df[date_cols] = df[date_cols].apply(
-                pd.to_datetime, format="%Y%m%d", errors="coerce"
-            )
-            df[date_cols] = df[date_cols].apply(lambda x: x.dt.strftime("%Y-%m-%d"))
-
-            # Convert 'email' to lowercase
-            df["email"] = df["email"].str.lower()
-
-            # Remoção do '.0' do campo 'id_pais'
-            df = remove_decimal_suffix(df, "id_pais")
-
-            # Remoção do '.0' do campo 'cep'
-            df = remove_decimal_suffix(df, "cep")
-
-            # Criando a coluna 'id_municipio'
-            df["id_municipio"] = ""
-            log(f"Tratamento finalizado para o csv estabelecimentos_{i}")
+            log(f"Tratamento finalizado para estabelecimentos_{i}")
 
             for uf in ufs:
                 df_particao = df[df["sigla_uf"] == uf].copy()
                 df_particao.drop(["sigla_uf"], axis=1, inplace=True)
-                particao = f"{output_dir}sigla_uf={uf}/estabelecimentos_{i}.csv"  # Modificado para incluir a UF na pasta
-                df_particao.to_csv(particao, index=False)
-            log(f"Arquivo csv de estabelecimentos_{i} baixado")
+                particao = f"{output_dir}sigla_uf={uf}/estabelecimentos_{i}.parquet"  # Modificado para incluir a UF na pasta
+                df_particao.to_parquet(particao, index=False)
+            log(f"Arquivo de estabelecimentos_{i} baixado")
 
             # Remover o arquivo CSV extraído da pasta de input
             os.remove(caminho_arquivo_csv)

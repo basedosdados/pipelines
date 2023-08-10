@@ -23,6 +23,7 @@ from pipelines.datasets.br_me_cnpj.tasks import (
     clean_data_make_partitions_socios,
     clean_data_make_partitions_empresas,
     clean_data_make_partitions_estabelecimentos,
+    main,
 )
 from pipelines.datasets.br_me_cnpj.schedules import (
     every_ten_days_empresas,
@@ -234,10 +235,7 @@ with Flow(
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
     with case(dados_desatualizados, True):
-        arquivos_zip = download_and_save_zip(tabelas)
-        output_filepath = clean_data_make_partitions_estabelecimentos(
-            arquivos_zip, upstream_tasks=[arquivos_zip]
-        )
+        output_filepath = main(tabelas)
 
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
