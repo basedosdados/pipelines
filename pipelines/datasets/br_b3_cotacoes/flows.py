@@ -16,7 +16,7 @@ from pipelines.utils.execute_dbt_model.constants import constants as dump_db_con
 from pipelines.datasets.br_b3_cotacoes.tasks import (
     tratamento,
     make_partition,
-    data_max_b3
+    data_max_b3,
 )
 from pipelines.utils.utils import (
     log,
