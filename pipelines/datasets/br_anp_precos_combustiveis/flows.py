@@ -15,6 +15,7 @@ from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.datasets.br_anp_precos_combustiveis.tasks import (
     tratamento,
+    data_max_bd_mais,
     data_max_bd_pro,
     make_partitions,
 )
@@ -50,11 +51,10 @@ with Flow(
     )
     update_metadata = Parameter("update_metadata", default=True, required=False)
 
-    df = tratamento(upstream_tasks=[rename_flow_run])
-
+    df = tratamento(upstream_tasks=[rename_flow_run])1
     output_path = make_partitions(df=df, upstream_tasks=[df])
-
-    get_date_max = data_max_bd_pro(df=df, upstream_tasks=[df])
+    get_date_max_mais = data_max_bd_mais(df=df, upstream_tasks=[df])
+    get_date_max_pro = data_max_bd_pro(df=df, upstream_tasks=[df])
 
     # pylint: disable=C0103
     wait_upload_table = create_table_and_upload_to_gcs(
@@ -103,7 +103,7 @@ with Flow(
                 bq_last_update=False,
                 api_mode="prod",
                 date_format="yy-mm-dd",
-                _last_date=get_date_max,
+                _last_date=get_date_max_mais,
                 upstream_tasks=[df],
             )
 
@@ -138,7 +138,7 @@ with Flow(
         )
 
         with case(update_metadata, True):
-            # date = data_max_bd_pro(df=df)  # task que retorna a data atual
+            #date = data_max_bd_pro(df=df)  # task que retorna a data atual
             update_django_metadata(
                 dataset_id,
                 table_id + "_atualizado",
@@ -146,7 +146,7 @@ with Flow(
                 bq_last_update=False,
                 api_mode="prod",
                 date_format="yy-mm-dd",
-                _last_date=get_date_max,
+                _last_date=get_date_max_pro,
                 upstream_tasks=[df],
             )
 
