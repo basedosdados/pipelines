@@ -95,7 +95,7 @@ def tratamento(delta_day: int):
     )
     return df
 
-def make_partition(df)
+def make_partition(df):
     partition_data(
         df,
         column_name="data_referencia",
