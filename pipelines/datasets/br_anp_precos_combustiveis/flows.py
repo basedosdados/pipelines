@@ -17,7 +17,7 @@ from pipelines.datasets.br_anp_precos_combustiveis.tasks import (
     tratamento,
     # data_max_bd_mais,
     data_max_bd_pro,
-    make_partition
+    make_partition,
 )
 from pipelines.datasets.br_anp_precos_combustiveis.schedules import (
     every_week_anp_microdados,

@@ -115,6 +115,7 @@ def make_partitions(df):
     )
     return anatel_constants.PATH_OUTPUT.value
 
+
 def data_max_bd_pro(df):
     max_value = pd.to_datetime(df["data_coleta"]).max()
     return max_value.strftime("%Y-%m-%d")
