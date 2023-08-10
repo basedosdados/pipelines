@@ -61,7 +61,7 @@ with Flow(
 
     df = clean_data(upstream_tasks=[scrapper])
 
-    log("Clean data Finished")
+    log("Clean data Finished", upstream_tasks=[df])
 
     output_filepath = make_partitions(df, upstream_tasks=[df])
 
@@ -123,7 +123,7 @@ with Flow(
                 metadata_type="DateTimeRange",
                 bq_last_update=False,
                 bq_table_last_year_month=True,
-                billing_project_id="basedosdados",
+                billing_project_id="basedosdados-dev",
                 api_mode="prod",
                 date_format="yy-mm",
                 upstream_tasks=[wait_for_materialization],
@@ -165,7 +165,7 @@ with Flow(
                 metadata_type="DateTimeRange",
                 bq_last_update=False,
                 bq_table_last_year_month=True,
-                billing_project_id="basedosdados",
+                billing_project_id="basedosdados-dev",
                 api_mode="prod",
                 date_format="yy-mm",
                 upstream_tasks=[wait_for_materialization],
