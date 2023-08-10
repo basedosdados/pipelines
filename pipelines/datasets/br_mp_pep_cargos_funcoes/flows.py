@@ -61,7 +61,7 @@ with Flow(
 
     df = clean_data(upstream_tasks=[scrapper])
 
-    log("Clean data Finished", upstream_tasks=[df])
+    log("Clean data Finished")
 
     output_filepath = make_partitions(df, upstream_tasks=[df])
 
