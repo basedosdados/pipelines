@@ -54,38 +54,10 @@ def tratamento(delta_day: int):
 
     df = read_files(br_b3_cotacoes_constants.B3_PATH_INPUT_TXT.value.format(day))
 
-    rename = {
-        "DataReferencia": "data_referencia",
-        "CodigoInstrumento": "codigo_instrumento",
-        "AcaoAtualizacao": "acao_atualizacao",
-        "PrecoNegocio": "preco_negocio",
-        "QuantidadeNegociada": "quantidade_negociada",
-        "HoraFechamento": "hora_fechamento",
-        "CodigoIdentificadorNegocio": "codigo_identificador_negocio",
-        "TipoSessaoPregao": "tipo_sessao_pregao",
-        "DataNegocio": "data_negocio",
-        "CodigoParticipanteComprador": "codigo_participante_comprador",
-        "CodigoParticipanteVendedor": "codigo_participante_vendedor",
-    }
-
-    ordem = [
-        "data_referencia",
-        "tipo_sessao_pregao",
-        "codigo_instrumento",
-        "acao_atualizacao",
-        "data_negocio",
-        "codigo_identificador_negocio",
-        "preco_negocio",
-        "quantidade_negociada",
-        "hora_fechamento",
-        "codigo_participante_comprador",
-        "codigo_participante_vendedor",
-    ]
-
     log(
         "********************************INICIANDO O TRATAMENTO DOS DADOS********************************"
     )
-    df.rename(columns=rename, inplace=True)
+    df.rename(columns=br_b3_cotacoes_constants.RENAME.value, inplace=True)
     df = df.replace(np.nan, "")
     df["codigo_participante_vendedor"] = df["codigo_participante_vendedor"].apply(
         lambda x: str(x).replace(".0", "")
@@ -113,7 +85,7 @@ def tratamento(delta_day: int):
         + "."
         + df["hora_fechamento"].str[6:]
     )
-    df = df[ordem]
+    df = df[br_b3_cotacoes_constants.ORDEM.value]
     log(
         "********************************FINALIZANDO O TRATAMENTO DOS DADOS********************************"
     )
@@ -121,7 +93,9 @@ def tratamento(delta_day: int):
     log(
         "********************************INICIANDO PARTICIONAMENTO********************************"
     )
+    return df
 
+def make_partition(df)
     partition_data(
         df,
         column_name="data_referencia",
@@ -131,7 +105,7 @@ def tratamento(delta_day: int):
     return br_b3_cotacoes_constants.B3_PATH_OUTPUT.value
 
 
-def get_today_date():
-    days = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
+def data_max_b3(df):
+    max_value = pd.to_datetime(df["data_referencia"]).max()
 
-    return days
+    return max_value.strftime("%Y-%m-%d")

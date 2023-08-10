@@ -13,8 +13,12 @@ from pipelines.constants import constants
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.datasets.br_b3_cotacoes.tasks import tratamento, get_today_date
-
+from pipelines.datasets.br_b3_cotacoes.tasks import (
+    tratamento,
+    get_today_date,
+    make_partition,
+    data_max_b3
+)
 from pipelines.utils.utils import (
     log,
 )
@@ -56,7 +60,10 @@ with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
 
     # ? Importante para o Prefect saber a ordem de execução dos tasks
 
-    filepath = tratamento(delta_day=delta_day, upstream_tasks=[rename_flow_run])
+    df = tratamento(delta_day=delta_day, upstream_tasks=[rename_flow_run])
+    filepath = make_partition(df=df, upstream_tasks=[df])
+    data_max = data_max_b3(df=df)
+
 
     # pylint: disable=C0103
     wait_upload_table = create_table_and_upload_to_gcs(
@@ -96,8 +103,7 @@ with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-        with case(update_metadata, True):
-            date = get_today_date()  # task que retorna a data atual
+        with case(update_metadata, True): # task que retorna a data atual
             update_django_metadata(
                 dataset_id,
                 table_id,
@@ -105,7 +111,7 @@ with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
                 bq_last_update=False,
                 api_mode="prod",
                 date_format="yy-mm-dd",
-                _last_date=date,
+                _last_date=data_max,
                 upstream_tasks=[wait_for_materialization],
             )
 
