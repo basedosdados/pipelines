@@ -22,11 +22,11 @@ from pipelines.datasets.br_b3_cotacoes.utils import (
     partition_data,
 )
 
-
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
+
 def tratamento(delta_day: int):
     """
     Retrieve b3 quotes data for a specific date and create the path to download and open the file.
@@ -95,7 +95,10 @@ def tratamento(delta_day: int):
     )
     return df
 
-
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def make_partition(df):
     partition_data(
         df,
@@ -104,7 +107,10 @@ def make_partition(df):
     )
     return br_b3_cotacoes_constants.B3_PATH_OUTPUT.value
 
-
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def data_max_b3(df):
     max_value = pd.to_datetime(df["data_referencia"]).max()
     return max_value.strftime("%Y-%m-%d")
