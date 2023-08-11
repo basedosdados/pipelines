@@ -743,7 +743,7 @@ def extract_last_date(dataset_id, table_id, date_format: str, billing_project_id
             SELECT
             MAX(CONCAT(ano,"-",mes)) as max_date
             FROM
-            `basedosdados.{dataset_id}.{table_id}`
+            `{billing_project_id}.{dataset_id}.{table_id}`
             """
 
             t = bd.read_sql(
