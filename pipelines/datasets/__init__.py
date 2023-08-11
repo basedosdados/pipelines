@@ -41,4 +41,3 @@ from pipelines.datasets.br_mercadolivre_ofertas.flows import *
 from pipelines.datasets.mundo_transfermarkt_competicoes.flows import *
 from pipelines.datasets.br_me_cnpj.flows import *
 from pipelines.datasets.br_anp_precos_combustiveis.flows import *
-
