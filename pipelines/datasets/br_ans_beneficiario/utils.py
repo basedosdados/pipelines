@@ -24,6 +24,11 @@ from pipelines.utils.utils import (
     log,
     to_partitions,
 )
+import unidecode
+
+
+def remove_accents(a):
+    return unidecode.unidecode(a).lower()
 
 
 def process(df: pd.DataFrame):
@@ -192,18 +197,27 @@ def parquet_partition(path):
             time_col = pd.to_datetime(df["#ID_CMPT_MOVEL"], format="%Y%m")
             df["ano"] = time_col.dt.year
             df["mes"] = time_col.dt.month
+            df["MODALIDADE_OPERADORA"] = df["MODALIDADE_OPERADORA"].apply(
+                remove_accents
+            )
             df.rename(
-                columns={"SG_UF": "sigla_uf"},
+                columns={
+                    "SG_UF": "sigla_uf",
+                    "MODALIDADE_OPERADORA": "modalidade_operadora",
+                },
                 inplace=True,
             )
 
             log("Lendo dataset")
             os.makedirs("/tmp/data/br_ans_beneficiario/output/", exist_ok=True)
+
             to_partitions(
                 df,
-                partition_columns=["ano", "mes", "sigla_uf"],
+                partition_columns=["ano", "mes", "sigla_uf", "modalidade_operadora"],
                 savepath="/tmp/data/br_ans_beneficiario/output/",
                 file_type="parquet",
             )
+
             log("Partição feita.")
+
     return "/tmp/data/br_ans_beneficiario/output/"
