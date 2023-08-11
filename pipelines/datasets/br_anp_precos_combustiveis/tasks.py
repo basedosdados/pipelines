@@ -131,6 +131,6 @@ def data_max_bd_pro(df):
 
 
 def data_max_bd_mais():
-    data_referencia = datetime.now() - pd.DateOffset(months=6)
+    data_referencia = datetime.now() - pd.DateOffset(weeks=6)
 
     return data_referencia.strftime("%Y-%m-%d")
