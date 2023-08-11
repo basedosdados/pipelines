@@ -280,7 +280,7 @@ with Flow(
                 bq_last_update=True,
                 api_mode="prod",
                 date_format="yy-mm-dd",
-                billing_project_id="basedosdados",
+                billing_project_id="basedosdados-dev",
             )
 
 
@@ -366,7 +366,7 @@ with Flow(
                 bq_last_update=True,
                 api_mode="prod",
                 date_format="yy-mm-dd",
-                billing_project_id="basedosdados",
+                billing_project_id="basedosdados-dev",
             )
 
 

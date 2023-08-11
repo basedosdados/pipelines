@@ -11,19 +11,20 @@ from pipelines.datasets.br_me_cnpj.constants import (
 )
 from pipelines.datasets.br_me_cnpj.utils import (
     data_url,
-    convert_columns_to_string,
-    processa_tabela,
     destino_output,
     baixa_arquivo_zip,
-    trata_dataframe,
     escreve_particoes_parquet,
     extract_estabelecimentos,
+    download_unzip_csv,
+    parquet_partition,
 )
 import os
 import requests
 import zipfile
 import pandas as pd
 from datetime import datetime  # Importe diretamente a função strptime
+from tqdm import tqdm
+
 
 ufs = constants_cnpj.UFS.value
 url = constants_cnpj.URL.value
@@ -53,98 +54,27 @@ def main(tabelas):
 
     for tabela in tabelas:
         if tabela not in arquivos_baixados:
-            output = processa_tabela(tabela, arquivos_baixados, data_coleta)
+            sufixo = tabela.lower()
 
-    return output
+            if tabela in arquivos_baixados:
+                return arquivos_baixados
 
+            # Destino input
+            input_path = f"/tmp/data/br_me_cnpj/input/data={data_coleta}/"
+            os.makedirs(input_path, exist_ok=True)
+            log("Pasta destino input construído")
+            # Destino output
+            output_path = destino_output(tabela, sufixo, data_coleta)
 
-# @task
-# def main(tabelas):
-#     # Lista auxiliar para armazenar os arquivos ZIP já baixados e os seus caminhos
-#     arquivos_baixados = []
-#     data_coleta = data_url(url, headers).date()
+            for i in range(0, 10):
+                nome_arquivo = f"{tabela}{i}"
+                url_download = f"https://dadosabertos.rfb.gov.br/CNPJ/{tabela}{i}.zip"
+                if nome_arquivo not in arquivos_baixados:
+                    arquivos_baixados.append(nome_arquivo)
+                    download_unzip_csv(url_download, data_coleta)
+                    parquet_partition(input_path, output_path, data_coleta, i)
 
-#     for tabela in tabelas:
-#         sufixo = tabela.lower()
-#         # Verifica se o arquivo já foi baixado
-#         if tabela not in arquivos_baixados:
-#             # Pasta de destino para salvar o arquivo ZIP e os arquivos extraídos
-#             pasta_destino = f"/tmp/data/br_me_cnpj/input/data={data_coleta}/"
-#             os.makedirs(pasta_destino, exist_ok=True)
-#             log("Pasta destino input construido")
-
-#             # Pasta de destino para salvar o arquivo CSV
-#             output_path = destino_output(tabela, sufixo, data_coleta)
-#             log(output_path)
-#             for i in range(1, 10):
-#                 if tabela != "Simples":
-#                     # URL do arquivo ZIP para download
-#                     url_download = (
-#                         f"https://dadosabertos.rfb.gov.br/CNPJ/{tabela}{i}.zip"
-#                     )
-#                     nome_arquivo = f"{tabela}{i}"
-#                 else:
-#                     url_download = f"https://dadosabertos.rfb.gov.br/CNPJ/{tabela}.zip"
-#                     nome_arquivo = f"{tabela}"
-
-#                 # Faz o download do arquivo ZIP se ainda não foi baixado
-#                 if nome_arquivo not in arquivos_baixados:
-#                     response_zip = requests.get(url_download)
-
-#                     # Verifica se o download foi bem-sucedido (código 200)
-#                     if response_zip.status_code == 200:
-#                         # Define o caminho completo para o arquivo ZIP
-#                         if tabela != "Simples":
-#                             caminho_arquivo_zip = os.path.join(
-#                                 pasta_destino, f"{tabela}{i}.zip"
-#                             )
-#                         else:
-#                             caminho_arquivo_zip = os.path.join(
-#                                 pasta_destino, f"{tabela}.zip"
-#                             )
-#                         # Salva o arquivo ZIP na pasta de destino
-#                         with open(caminho_arquivo_zip, "wb") as f:
-#                             f.write(response_zip.content)
-#                         log(f"Arquivo {nome_arquivo} ZIP baixado com sucesso.")
-
-#                         # Adiciona o arquivo na lista de arquivos baixados e seu caminho
-#                         arquivos_baixados.append(nome_arquivo)
-#                     else:
-#                         log(f"Falha ao baixar o arquivo ZIP: {nome_arquivo}")
-
-#                     caminho_arquivo_csv = extract_estabelecimentos(caminho_arquivo_zip,pasta_destino)
-
-#                     if caminho_arquivo_csv:
-#                         # Agora, você pode ler o arquivo CSV e realizar o tratamento necessário
-#                         df = pd.read_csv(
-#                             caminho_arquivo_csv, encoding="iso-8859-1", sep=";", header=None
-#                         )
-
-#                         # Renomear as colunas
-#                         df.columns = constants_cnpj.COLUNAS_ESTABELECIMENTO.value
-
-#                         col= ["ddd_1",
-#                         "telefone_1",
-#                         "ddd_2",
-#                         "telefone_2",
-#                         "ddd_fax",
-#                         "fax",
-#                         "id_pais",
-#                         "data_situacao_especial"]
-#                         convert_columns_to_string(df, col)
-#                         log(f"Tratamento finalizado para estabelecimentos_{i}")
-
-#                         for uf in ufs:
-#                             df_particao = df[df["sigla_uf"] == uf].copy()
-#                             df_particao.drop(["sigla_uf"], axis=1, inplace=True)
-#                             particao = f"{output_path}data={data_coleta}/sigla_uf={uf}/estabelecimentos_{i}.parquet"
-#                             df_particao.to_parquet(particao, index=False)
-#                         log(f"Arquivo de estabelecimentos_{i} baixado")
-
-#                         # Remover o arquivo CSV extraído da pasta de input
-#                         os.remove(caminho_arquivo_csv)
-
-#     return output_path
+    return output_path
 
 
 @task

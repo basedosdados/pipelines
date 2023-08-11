@@ -46,6 +46,8 @@ class constants(Enum):  # pylint: disable=c0103
         "TO",
     ]
 
+    SITUACOES_CADASTRAIS = ["02", "08", "04", "01", "03"]
+
     URL = "https://dadosabertos.rfb.gov.br/CNPJ/"
 
     HEADERS = {
