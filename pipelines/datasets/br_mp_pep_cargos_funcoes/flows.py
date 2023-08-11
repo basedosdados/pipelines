@@ -159,7 +159,7 @@ with Flow(
         with case(update_metadata, True):
             update_django_metadata(
                 dataset_id,
-                f"{table_id}_atualizado",
+                table_id + "_atualizado",
                 metadata_type="DateTimeRange",
                 bq_last_update=False,
                 bq_table_last_year_month=True,
