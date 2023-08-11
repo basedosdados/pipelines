@@ -102,11 +102,8 @@ urllib3 = "1.26.7"
 websocket-client = "1.2.1"
 wget = "^3.2"
 zict = "2.0.0"
-
-
 fastparquet = "^2023.7.0"
 
-rpy2 = "^3.5.11"
 
 
 

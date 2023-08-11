@@ -49,7 +49,7 @@ with Flow(
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
-    files = Parameter("files", default=["202305", "202306"], required=False)
+    files = Parameter("files", default=["202305", "202306", "202307"], required=False)
 
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
