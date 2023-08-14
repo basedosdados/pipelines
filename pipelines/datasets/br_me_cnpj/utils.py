@@ -19,6 +19,7 @@ import pyarrow.parquet as pq
 import pyarrow as pa
 import csv
 from typing import List
+from dask import dataframe as dd
 
 # from pipelines.utils.tasks import dump_batches_to_file
 
@@ -93,37 +94,51 @@ def download_unzip_csv(
         raise ValueError("O argumento 'files' possui um tipo inadequado.")
 
 
-# ! Particionando os dados em parquet
-def process_csv_partition_parquet(
+# ! Particionando os dados em csv
+def process_csv_partition(
     input_path: str, output_path: str, data_coleta: str, i: int, chunk_size: int = 1000
 ):
     colunas = constants_cnpj.COLUNAS_ESTABELECIMENTO.value
+    save_path = f"{output_path}data={data_coleta}/"
+    # df_columns = pd.DataFrame(columns=colunas)
     for nome_arquivo in os.listdir(input_path):
         if "estabele" in nome_arquivo.lower():
             caminho_arquivo_csv = os.path.join(input_path, nome_arquivo)
             log(f"Carregando o arquivo: {nome_arquivo}")
-            df_list = []
-            for chunk_df in tqdm(
-                pd.read_csv(
-                    caminho_arquivo_csv,
-                    encoding="iso-8859-1",
-                    sep=";",
-                    header=None,
-                    names=colunas,
-                    dtype=str,
-                    chunksize=10000,
-                ),
-                desc="Lendo o arquivo CSV",
+            for chunk_number, chunk in enumerate(
+                tqdm(
+                    pd.read_csv(
+                        caminho_arquivo_csv,
+                        encoding="iso-8859-1",
+                        sep=";",
+                        header=None,
+                        names=colunas,
+                        dtype=str,
+                        chunksize=chunk_size,
+                    ),
+                    desc="Lendo o arquivo CSV",
+                )
             ):
-                # Processar o chunk_df
-                df_list.append(chunk_df)
-            log("Leu todo o CSV")
-            df_columns = pd.concat(df_list)
-            log("Juntou todos os chucks")
-            partition_parquet(df_columns, output_path, data_coleta, i)
-            log("Partição feita.")
+                for uf in ufs:
+                    df_particao = chunk[chunk["sigla_uf"] == uf].copy()
+                    df_particao.drop(["sigla_uf"], axis=1, inplace=True)
+                    particao_path = os.path.join(save_path, f"sigla_uf={uf}")
+                    if not os.path.exists(particao_path):
+                        os.makedirs(particao_path)
+                    particao_filename = f"estabelecimentos_{i}.csv"
+                    particao_file_path = os.path.join(particao_path, particao_filename)
+
+                    mode = "a" if os.path.exists(particao_file_path) else "w"
+                    df_particao.to_csv(
+                        particao_file_path,
+                        index=False,
+                        encoding="iso-8859-1",
+                        mode=mode,
+                        header=mode == "w",
+                    )
+
+            log("Arquivos salvos.")
             os.remove(caminho_arquivo_csv)
-            del df_list
 
 
 def partition_parquet(df, output_path, data_coleta, i):

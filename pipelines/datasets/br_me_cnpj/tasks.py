@@ -12,7 +12,7 @@ from pipelines.datasets.br_me_cnpj.constants import (
 from pipelines.datasets.br_me_cnpj.utils import (
     data_url,
     download_unzip_csv,
-    process_csv_partition_parquet,
+    process_csv_partition,
     destino_output,
     partition_parquet,
     extract_estabelecimentos,
@@ -69,7 +69,7 @@ def main(tabelas):
                 nome_arquivo
             )  # Adiciona o nome à lista de baixados
             download_unzip_csv(url_download, data_coleta, input_path)
-            process_csv_partition_parquet(input_path, output_path, data_coleta, i)
+            process_csv_partition(input_path, output_path, data_coleta, i)
 
     return output_path
 
