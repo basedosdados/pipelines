@@ -18,12 +18,10 @@ from prefect.storage import GCS
 from pipelines.constants import constants
 from pipelines.datasets.br_me_cnpj.tasks import (
     check_for_updates,
-    download_and_save_zip,
+    main,
     clean_data_make_partitions_simples,
     clean_data_make_partitions_socios,
     clean_data_make_partitions_empresas,
-    clean_data_make_partitions_estabelecimentos,
-    main,
 )
 from pipelines.datasets.br_me_cnpj.schedules import (
     every_ten_days_empresas,
@@ -68,10 +66,7 @@ with Flow(
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
     with case(dados_desatualizados, True):
-        arquivos_zip = download_and_save_zip(tabelas)
-        output_filepath = clean_data_make_partitions_empresas(
-            arquivos_zip, upstream_tasks=[arquivos_zip]
-        )
+        output_filepath = main(tabelas)
 
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
@@ -151,10 +146,7 @@ with Flow(
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
     with case(dados_desatualizados, True):
-        arquivos_zip = download_and_save_zip(tabelas)
-        output_filepath = clean_data_make_partitions_socios(
-            arquivos_zip, upstream_tasks=[arquivos_zip]
-        )
+        output_filepath = main(tabelas)
 
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
@@ -311,17 +303,14 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
     tabelas = constants_cnpj.TABELAS.value[3:]
-    dados_desatualizados = check_for_updates(dataset_id, table_id="empresas")
+    dados_desatualizados = check_for_updates(dataset_id, table_id)
     log_task(f"Checando se os dados estão desatualizados: {dados_desatualizados}")
 
     with case(dados_desatualizados, False):
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
     with case(dados_desatualizados, True):
-        arquivos_zip = download_and_save_zip(tabelas)
-        output_filepath = clean_data_make_partitions_simples(
-            arquivos_zip, upstream_tasks=[arquivos_zip]
-        )
+        output_filepath = main(tabelas)
 
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,

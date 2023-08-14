@@ -17,6 +17,8 @@ import zipfile
 from tqdm import tqdm
 import pyarrow.parquet as pq
 import pyarrow as pa
+import csv
+from typing import List
 
 # from pipelines.utils.tasks import dump_batches_to_file
 
@@ -54,7 +56,9 @@ def download_unzip_csv(
 
             r = requests.get(download_url, headers=headers, stream=True, timeout=50)
             with open(save_path, "wb") as fd:
-                for chunk in tqdm(r.iter_content(chunk_size=chunk_size)):
+                for chunk in tqdm(
+                    r.iter_content(chunk_size=chunk_size), desc="Baixando o arquivo"
+                ):
                     fd.write(chunk)
 
             try:
@@ -75,7 +79,9 @@ def download_unzip_csv(
 
         r = requests.get(download_url, headers=headers, stream=True, timeout=10)
         with open(save_path, "wb") as fd:
-            for chunk in tqdm(r.iter_content(chunk_size=chunk_size)):
+            for chunk in tqdm(
+                r.iter_content(chunk_size=chunk_size), desc="Baixando o arquivo"
+            ):
                 fd.write(chunk)
 
         try:
@@ -93,9 +99,12 @@ def download_unzip_csv(
 
 
 # ! Particionando os dados em parquet
-def parquet_partition(input_path, output_path, data_coleta, i, chunk_size: int = 10000):
-    columns = constants_cnpj.COLUNAS_ESTABELECIMENTO.value
-    df_columns = pd.DataFrame(columns=columns)
+def parquet_partition(
+    input_path: str, output_path: str, data_coleta: str, i: int, chunk_size: int = 10000
+):
+    colunas = constants_cnpj.COLUNAS_ESTABELECIMENTO.value
+    # df_columns = pd.DataFrame(columns=columns)
+    df_list = []
     for nome_arquivo in os.listdir(input_path):
         if "estabele" in nome_arquivo.lower():
             caminho_arquivo_csv = os.path.join(input_path, nome_arquivo)
@@ -106,13 +115,16 @@ def parquet_partition(input_path, output_path, data_coleta, i, chunk_size: int =
                     encoding="iso-8859-1",
                     sep=";",
                     header=None,
+                    names=colunas,
                     dtype=str,
-                    chunksize=chunk_size,
-                )
+                    chunksize=10000,
+                ),
+                desc="Lendo o arquivo CSV",
             ):
                 # Processar o chunk_df
-                df_columns = pd.concat([df_columns, chunk_df], ignore_index=True)
-
+                df_list.append(chunk_df)
+            log("concatenando")
+            df_columns = pd.concat(df_list)
             log("Leu todo dataframe")
             escreve_particoes_parquet(df_columns, output_path, data_coleta, i)
             log("Partição feita.")
@@ -128,9 +140,9 @@ def escreve_particoes_parquet(df, output_path, data_coleta, i):
             df_particao.drop(["sigla_uf", "situacao_cadastral"], axis=1, inplace=True)
             particao = f"{output_path}data={data_coleta}/sigla_uf={uf}/situacao_cadastral={situacao}/estabelecimentos_{i}.parquet"
             df_particao.to_parquet(particao, index=False)
-        log(f"Arquivo de estabelecimentos_{i} salvo, para o estado: {uf}")
+        log(f"Arquivo de estabelecimentos_{i} salvo para o estado: {uf}")
 
-    log(f"Arquivo de estabelecimentos_{i} tratado")
+    log(f"Arquivo de estabelecimentos_{i} particionado")
 
 
 def destino_output(tabela, sufixo, data_coleta):
