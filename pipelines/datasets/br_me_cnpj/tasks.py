@@ -11,12 +11,11 @@ from pipelines.datasets.br_me_cnpj.constants import (
 )
 from pipelines.datasets.br_me_cnpj.utils import (
     data_url,
-    destino_output,
-    baixa_arquivo_zip,
-    escreve_particoes_parquet,
-    extract_estabelecimentos,
     download_unzip_csv,
-    parquet_partition,
+    process_csv_partition_parquet,
+    destino_output,
+    partition_parquet,
+    extract_estabelecimentos,
 )
 import os
 import requests
@@ -33,7 +32,7 @@ headers = constants_cnpj.HEADERS.value
 
 @task
 def check_for_updates(dataset_id, table_id):
-    # Supondo que data_url e extract_last_date retornam um objeto datetime
+    # Dado que data_url e extract_last_date retornam um objeto datetime
     data_obj = data_url(url, headers).strftime("%Y-%m-%d")
     data_bq_obj = extract_last_date(
         dataset_id, table_id, "yy-mm-dd", "basedosdados-dev"
@@ -49,30 +48,28 @@ def check_for_updates(dataset_id, table_id):
 
 @task
 def main(tabelas):
-    arquivos_baixados = []
+    arquivos_baixados = []  # Serve para checar o download
     data_coleta = data_url(url, headers).date()
 
-    for tabela in tabelas:
-        if tabela not in arquivos_baixados:
-            sufixo = tabela.lower()
+    tabela = tabelas[0]  # Acessa o único elemento da lista
+    sufixo = tabela.lower()
 
-            if tabela in arquivos_baixados:
-                return arquivos_baixados
+    # Destino input
+    input_path = f"/tmp/data/br_me_cnpj/input/data={data_coleta}/"
+    os.makedirs(input_path, exist_ok=True)
+    log("Pasta destino input construído")
+    # Destino output
+    output_path = destino_output(tabela, sufixo, data_coleta)
 
-            # Destino input
-            input_path = f"/tmp/data/br_me_cnpj/input/data={data_coleta}/"
-            os.makedirs(input_path, exist_ok=True)
-            log("Pasta destino input construído")
-            # Destino output
-            output_path = destino_output(tabela, sufixo, data_coleta)
-
-            for i in range(0, 10):
-                nome_arquivo = f"{tabela}{i}"
-                url_download = f"https://dadosabertos.rfb.gov.br/CNPJ/{tabela}{i}.zip"
-                if nome_arquivo not in arquivos_baixados:
-                    arquivos_baixados.append(nome_arquivo)
-                    download_unzip_csv(url_download, data_coleta)
-                    parquet_partition(input_path, output_path, data_coleta, i)
+    for i in range(0, 10):
+        nome_arquivo = f"{tabela}{i}"
+        url_download = f"https://dadosabertos.rfb.gov.br/CNPJ/{tabela}{i}.zip"
+        if nome_arquivo not in arquivos_baixados:
+            arquivos_baixados.append(
+                nome_arquivo
+            )  # Adiciona o nome à lista de baixados
+            download_unzip_csv(url_download, data_coleta, input_path)
+            process_csv_partition_parquet(input_path, output_path, data_coleta, i)
 
     return output_path
 

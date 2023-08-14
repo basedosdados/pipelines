@@ -41,13 +41,8 @@ def data_url(url, headers):
 
 
 def download_unzip_csv(
-    urls, data_coleta, zips=None, chunk_size: int = 1000, mkdir: bool = True
+    urls, data_coleta, pasta_destino, zips=None, chunk_size: int = 1000
 ):
-    if mkdir:
-        pasta_destino = f"/tmp/data/br_me_cnpj/input/data={data_coleta}/"
-        os.makedirs(pasta_destino, exist_ok=True)
-        log("Pasta destino input construído")
-
     if isinstance(urls, list):
         for url, file in zip(urls, zips):
             log(f"Baixando o arquivo {file}")
@@ -99,16 +94,15 @@ def download_unzip_csv(
 
 
 # ! Particionando os dados em parquet
-def parquet_partition(
-    input_path: str, output_path: str, data_coleta: str, i: int, chunk_size: int = 10000
+def process_csv_partition_parquet(
+    input_path: str, output_path: str, data_coleta: str, i: int, chunk_size: int = 1000
 ):
     colunas = constants_cnpj.COLUNAS_ESTABELECIMENTO.value
-    # df_columns = pd.DataFrame(columns=columns)
-    df_list = []
     for nome_arquivo in os.listdir(input_path):
         if "estabele" in nome_arquivo.lower():
             caminho_arquivo_csv = os.path.join(input_path, nome_arquivo)
             log(f"Carregando o arquivo: {nome_arquivo}")
+            df_list = []
             for chunk_df in tqdm(
                 pd.read_csv(
                     caminho_arquivo_csv,
@@ -123,15 +117,16 @@ def parquet_partition(
             ):
                 # Processar o chunk_df
                 df_list.append(chunk_df)
-            log("concatenando")
+            log("Leu todo o CSV")
             df_columns = pd.concat(df_list)
-            log("Leu todo dataframe")
-            escreve_particoes_parquet(df_columns, output_path, data_coleta, i)
+            log("Juntou todos os chucks")
+            partition_parquet(df_columns, output_path, data_coleta, i)
             log("Partição feita.")
             os.remove(caminho_arquivo_csv)
+            del df_list
 
 
-def escreve_particoes_parquet(df, output_path, data_coleta, i):
+def partition_parquet(df, output_path, data_coleta, i):
     for uf in ufs:
         for situacao in situacoes_cadastrais:
             df_particao = df[
@@ -165,19 +160,6 @@ def destino_output(tabela, sufixo, data_coleta):
     return output_path
 
 
-def baixa_arquivo_zip(url, pasta_destino, nome_arquivo):
-    response_zip = requests.get(url)
-    if response_zip.status_code == 200:
-        caminho_arquivo_zip = os.path.join(pasta_destino, f"{nome_arquivo}.zip")
-        with open(caminho_arquivo_zip, "wb") as f:
-            f.write(response_zip.content)
-        log(f"Arquivo {nome_arquivo} ZIP baixado com sucesso.")
-        return caminho_arquivo_zip
-    else:
-        log(f"Falha ao baixar o arquivo ZIP: {nome_arquivo}")
-        return None
-
-
 def extract_estabelecimentos(caminho_arquivo_zip, pasta_destino):
     # Extraindo dados
     caminho_arquivo_csv = None
@@ -197,8 +179,3 @@ def extract_estabelecimentos(caminho_arquivo_zip, pasta_destino):
         log("Nenhum arquivo CSV foi encontrado dentro do arquivo ZIP.")
 
     return caminho_arquivo_csv
-
-
-# def realiza_acao_lote(numero_lote):
-#     # Esta função será chamada após processar cada lote de arquivos CSV
-#     log(f"Ação de lote realizada para o lote {numero_lote}")
