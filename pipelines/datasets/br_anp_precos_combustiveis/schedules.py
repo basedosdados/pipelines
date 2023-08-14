@@ -12,9 +12,7 @@ from datetime import timedelta, datetime
 
 from prefect.schedules import Schedule
 from prefect.schedules.clocks import IntervalClock
-
 from pipelines.constants import constants
-
 every_week_anp_microdados = Schedule(
     clocks=[
         IntervalClock(
