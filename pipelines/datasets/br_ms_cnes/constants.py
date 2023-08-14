@@ -19,12 +19,40 @@ class constants(Enum):  # pylint: disable=c0103
     ]
 
     # to build paths
-    TABLE = ["estabelecimento", "profissional", "equipamento", "leito", "equipe"]
+    TABLE = [
+        "estabelecimento",
+        "profissional",
+        "equipamento",
+        "leito",
+        "equipe",
+        "estabelecimento_ensino",
+        "dados_complementares",
+        "estabelecimento_filantropico",
+        "gestao_metas",
+        "habilitacao",
+        "incentivos",
+        "regra_contratual",
+        "servico_especializado",
+    ]
 
     # to download files from datasus FTP server
     DATABASE_GROUPS = {
         # group: table name
-        "CNES": ["ST", "PF", "EQ", "LT", "EP"],
+        "CNES": [
+            "ST",
+            "PF",
+            "EQ",
+            "LT",
+            "EP",
+            "EE",
+            "DC",
+            "EF",
+            "GM",
+            "HB",
+            "IN",
+            "RC",
+            "SR",
+        ],
     }
 
     COLUMNS_TO_KEEP = {

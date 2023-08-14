@@ -171,6 +171,8 @@ def read_dbc_save_csv(file_list: list, path: str, table: str) -> str:
             na="",
             row_names=False,
         )
+        # delete dbc file
+        os.system(f"rm {file}")
 
         # ler df
 
@@ -202,7 +204,7 @@ def read_dbc_save_csv(file_list: list, path: str, table: str) -> str:
         elif table == "equipamento":
             df = df[cnes_constants.COLUMNS_TO_KEEP.value["EP"]]
 
-        else:
+        elif table == "equipe":
             # equipe
             # the EQ table has different names for same variables across the years
             # this is a workaround to standardize the names
@@ -214,6 +216,31 @@ def read_dbc_save_csv(file_list: list, path: str, table: str) -> str:
             df.rename(columns=standardize_colums, inplace=True)
 
             df = df[cnes_constants.COLUMNS_TO_KEEP.value["EQ"]]
+
+        elif table == "estabelecimento_ensino":
+            df = df[cnes_constants.COLUMNS_TO_KEEP.value["EE"]]
+
+        elif table == "dados_complementares":
+            df = df[cnes_constants.COLUMNS_TO_KEEP.value["DC"]]
+
+        elif table == "estabelecimento_filantropico":
+            df = df[cnes_constants.COLUMNS_TO_KEEP.value["EF"]]
+
+        elif table == "gestao_metas":
+            df = df[cnes_constants.COLUMNS_TO_KEEP.value["GM"]]
+
+        elif table == "habilitacao":
+            df = df[cnes_constants.COLUMNS_TO_KEEP.value["HB"]]
+
+        elif table == "incentivos":
+            df = df[cnes_constants.COLUMNS_TO_KEEP.value["IN"]]
+
+        elif table == "regra_contratual":
+            df = df[cnes_constants.COLUMNS_TO_KEEP.value["RC"]]
+
+        elif table == "servico_especializado":
+            df = df[cnes_constants.COLUMNS_TO_KEEP.value["SR"]]
+        # adicionar o trigger das outras tabelas
 
         # salvar de novo
         df.to_csv(output_file, sep=",", na_rep="", index=False, encoding="utf-8")
