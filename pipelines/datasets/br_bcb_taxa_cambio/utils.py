@@ -2,19 +2,18 @@
 """
 General purpose functions for the br_bcb_indicadores project
 """
+from urllib.request import urlopen
+from zipfile import ZipFile
 import requests
 import pandas as pd
 import datetime
 import pytz
 from datetime import timedelta
 import os
-from io import StringIO
+from io import BytesIO, StringIO
 import time as tm
 from pipelines.datasets.br_bcb_taxa_cambio.constants import constants as bcb_constants
-from pipelines.utils.utils import (
-    connect_to_endpoint_json,
-    log,
-)
+from pipelines.utils.utils import log
 from pipelines.utils.apply_architecture_to_dataframe.utils import apply_architecture_to_dataframe
 
 ###############################################################################
@@ -233,3 +232,35 @@ def read_input_csv(table_id: str):
     log("read input")
     # Read the CSV file as a DataFrame
     return pd.read_csv(path)
+
+def download_and_unzip(url, path):
+    """download and unzip a zip file
+    Args:
+        url (str): a url
+    Returns:
+        list: unziped files in a given folder
+    """
+
+    os.system(f"mkdir -p {path}")
+
+    http_response = urlopen(url)
+    zipfile = ZipFile(BytesIO(http_response.read()))
+    zipfile.extractall(path=path)
+
+    return path
+
+
+def connect_to_endpoint_json(url: str, max_attempts: int = 3) -> dict:
+    """
+    Connect to endpoint
+    """
+    attempts = 0
+
+    while attempts < max_attempts:
+        attempts += 1
+        response = requests.request("GET", url, timeout=30)
+        log("Endpoint Response Code: " + str(response.status_code))
+        if response.status_code != 200:
+            log(Exception(response.status_code, response.text))
+            break
+    return response.json()

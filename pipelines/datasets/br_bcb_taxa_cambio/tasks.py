@@ -13,7 +13,6 @@ from pipelines.datasets.br_bcb_taxa_cambio.utils import (
     get_currency_data,
     read_input_csv,
     save_input,
-    save_output,
     treat_currency_df,
 )
 

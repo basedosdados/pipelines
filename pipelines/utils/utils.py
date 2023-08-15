@@ -29,10 +29,6 @@ from prefect.engine.state import State
 from prefect.run_configs import KubernetesRun, VertexRun
 from redis_pal import RedisPal
 
-from io import BytesIO, StringIO
-from zipfile import ZipFile
-from urllib.request import urlopen
-
 from pipelines.constants import constants
 
 import os
@@ -350,39 +346,6 @@ def remove_columns_accents(dataframe: pd.DataFrame) -> list:
         .str.encode("ascii", errors="ignore")
         .str.decode("utf-8")
     )
-
-
-def download_and_unzip(url, path):
-    """download and unzip a zip file
-    Args:
-        url (str): a url
-    Returns:
-        list: unziped files in a given folder
-    """
-
-    os.system(f"mkdir -p {path}")
-
-    http_response = urlopen(url)
-    zipfile = ZipFile(BytesIO(http_response.read()))
-    zipfile.extractall(path=path)
-
-    return path
-
-
-def connect_to_endpoint_json(url: str, max_attempts: int = 3) -> dict:
-    """
-    Connect to endpoint
-    """
-    attempts = 0
-
-    while attempts < max_attempts:
-        attempts += 1
-        response = requests.request("GET", url, timeout=30)
-        log("Endpoint Response Code: " + str(response.status_code))
-        if response.status_code != 200:
-            log(Exception(response.status_code, response.text))
-            break
-    return response.json()
 
 
 def to_partitions(data: pd.DataFrame, partition_columns: List[str], savepath: str):
