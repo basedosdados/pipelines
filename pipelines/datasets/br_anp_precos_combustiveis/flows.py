@@ -104,7 +104,7 @@ with Flow(
                 api_mode="prod",
                 date_format="yy-mm-dd",
                 _last_date=get_date_max_mais,
-                upstream_tasks=[wait_for_materialization],
+                upstream_tasks=[wait_upload_table],
             )
 
     # ! BD PRO - Atualizado
@@ -146,7 +146,7 @@ with Flow(
                 api_mode="prod",
                 date_format="yy-mm-dd",
                 _last_date=get_date_max_pro,
-                upstream_tasks=[wait_for_materialization],
+                upstream_tasks=[wait_upload_table],
             )
 
 anp_microdados.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

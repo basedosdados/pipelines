@@ -133,5 +133,3 @@ def partition_data(df: pd.DataFrame, column_name: list[str], output_directory: s
         csv_path = os.path.join(partition_path, "data.csv")
         df_partition.to_csv(csv_path, index=False, encoding="utf-8", na_rep="")
         log(f"Arquivo {csv_path} salvo com sucesso!")
-
-        return df_partition
