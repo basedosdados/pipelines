@@ -65,6 +65,10 @@ def create_url_currency(start_date: str, end_date: str, moeda="USD") -> str:
     log(search_url)
     return search_url
 
+def first_day_of_current_year():
+    current_year = datetime.datetime.now().year
+    first_day = datetime.datetime(current_year, 1, 1)
+    return first_day
 
 def get_currency_data(currency: dict) -> pd.DataFrame:
     """
@@ -82,14 +86,14 @@ def get_currency_data(currency: dict) -> pd.DataFrame:
     """
 
     # Get the start date as 14 days before the current date
-    start_day = datetime.datetime.now(tz=pytz.UTC) - timedelta(days=14)
+    start_day = first_day_of_current_year()
     start_day = start_day.strftime("%m-%d-%Y")
 
     # Log the start day
     log(f"start day: {start_day}")
 
-    # Calculate the end date as 7 days before the current date
-    now = datetime.datetime.now(tz=pytz.UTC) - timedelta(days=7)
+    # Calculate the end date as the current date
+    now = datetime.datetime.now(tz=pytz.UTC)
     end_day = now.strftime("%m-%d-%Y")
 
     # Log the end day
@@ -151,6 +155,7 @@ def treat_currency_df(df: pd.DataFrame, table_id: str) -> pd.DataFrame:
     )
     df["data_cotacao"] = df["dataHoraCotacao"].dt.date
     df["hora_cotacao"] = df["dataHoraCotacao"].dt.time
+    df["ano"] = df["dataHoraCotacao"].dt.year
 
     df = apply_architecture_to_dataframe(
         df,

@@ -4,7 +4,7 @@ Tasks for br_bcb_indicadores
 """
 
 import datetime
-from pipelines.utils.utils import log
+from pipelines.utils.utils import log, to_partitions
 from prefect import task
 import pandas as pd
 from pipelines.datasets.br_bcb_taxa_cambio.constants import constants as bcb_constants
@@ -74,8 +74,12 @@ def treat_data_taxa_cambio(table_id: str) -> str:
     # Perform data treatment on the dataframe
     df = treat_currency_df(df, table_id)
 
-    # Save the treated dataframe to a file and obtain the full file path
-    full_filepath = save_output(df, table_id)
+    save_output_path = f"tmp/{table_id}/output/" 
+
+    to_partitions(data=df,
+                  partition_columns=['ano'],
+                  savepath=save_output_path)
+
 
     # Return the full file path
-    return full_filepath
+    return save_output_path
