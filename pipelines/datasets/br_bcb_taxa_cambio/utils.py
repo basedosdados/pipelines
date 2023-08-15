@@ -14,7 +14,9 @@ from io import BytesIO, StringIO
 import time as tm
 from pipelines.datasets.br_bcb_taxa_cambio.constants import constants as bcb_constants
 from pipelines.utils.utils import log
-from pipelines.utils.apply_architecture_to_dataframe.utils import apply_architecture_to_dataframe
+from pipelines.utils.apply_architecture_to_dataframe.utils import (
+    apply_architecture_to_dataframe,
+)
 
 ###############################################################################
 #
@@ -64,10 +66,12 @@ def create_url_currency(start_date: str, end_date: str, moeda="USD") -> str:
     log(search_url)
     return search_url
 
+
 def first_day_of_current_year():
     current_year = datetime.datetime.now().year
     first_day = datetime.datetime(current_year, 1, 1)
     return first_day
+
 
 def get_currency_data(currency: dict) -> pd.DataFrame:
     """
@@ -232,6 +236,7 @@ def read_input_csv(table_id: str):
     log("read input")
     # Read the CSV file as a DataFrame
     return pd.read_csv(path)
+
 
 def download_and_unzip(url, path):
     """download and unzip a zip file

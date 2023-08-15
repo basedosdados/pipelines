@@ -11,7 +11,9 @@ from pipelines.utils.utils import (
     connect_to_endpoint_json,
     log,
 )
-from pipelines.utils.apply_architecture_to_dataframe.utils import apply_architecture_to_dataframe
+from pipelines.utils.apply_architecture_to_dataframe.utils import (
+    apply_architecture_to_dataframe,
+)
 from pipelines.datasets.br_bcb_taxa_selic.constants import (
     constants as taxa_selic_constants,
 )

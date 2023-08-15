@@ -73,12 +73,9 @@ def treat_data_taxa_cambio(table_id: str) -> str:
     # Perform data treatment on the dataframe
     df = treat_currency_df(df, table_id)
 
-    save_output_path = f"tmp/{table_id}/output/" 
+    save_output_path = f"tmp/{table_id}/output/"
 
-    to_partitions(data=df,
-                  partition_columns=['ano'],
-                  savepath=save_output_path)
-
+    to_partitions(data=df, partition_columns=["ano"], savepath=save_output_path)
 
     # Return the full file path
     return save_output_path
