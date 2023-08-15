@@ -19,9 +19,6 @@ from pipelines.constants import constants
 from pipelines.datasets.br_me_cnpj.tasks import (
     check_for_updates,
     main,
-    clean_data_make_partitions_simples,
-    clean_data_make_partitions_socios,
-    clean_data_make_partitions_empresas,
 )
 from pipelines.datasets.br_me_cnpj.schedules import (
     every_ten_days_empresas,

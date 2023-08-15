@@ -21,15 +21,13 @@ import csv
 from typing import List
 from dask import dataframe as dd
 
-# from pipelines.utils.tasks import dump_batches_to_file
-
 
 ufs = constants_cnpj.UFS.value
 url = constants_cnpj.URL.value
 headers = constants_cnpj.HEADERS.value
-situacoes_cadastrais = constants_cnpj.SITUACOES_CADASTRAIS.value
 
 
+# ! Checa a data do site
 def data_url(url, headers):
     link_data = requests.get(url, headers=headers)
     soup = BeautifulSoup(link_data.text, "html.parser")
@@ -41,6 +39,33 @@ def data_url(url, headers):
     return data
 
 
+# ! Cria o caminho do output
+def destino_output(sufixo, data_coleta):
+    output_path = f"/tmp/data/br_me_cnpj/output/{sufixo}/"
+    # Pasta de destino para salvar o arquivo CSV
+    if sufixo != "simples":
+        if sufixo != "estabelecimentos":
+            output_dir = f"/tmp/data/br_me_cnpj/output/{sufixo}/data={data_coleta}/"
+            os.makedirs(output_dir, exist_ok=True)
+        else:
+            for uf in ufs:
+                output_dir = f"/tmp/data/br_me_cnpj/output/estabelecimentos/data={data_coleta}/sigla_uf={uf}/"
+                if not os.path.exists(output_dir):
+                    os.makedirs(output_dir)
+    else:
+        output_dir = output_path
+        os.makedirs(output_dir, exist_ok=True)
+    log("Pasta destino output construido")
+    return output_path
+
+
+# ! Adiciona zero a esquerda nas colunas
+def fill_left_zeros(df, column, num_digits):
+    df[column] = df[column].astype(str).str.zfill(num_digits)
+    return df
+
+
+# ! Executa o download do zip file
 def download_unzip_csv(
     urls, data_coleta, pasta_destino, zips=None, chunk_size: int = 1000
 ):
@@ -65,9 +90,8 @@ def download_unzip_csv(
             except zipfile.BadZipFile:
                 log(f"O arquivo {file} não é um arquivo ZIP válido.")
 
-            os.system(
-                f'cd {pasta_destino}; find . -type f ! -iname "*ESTABELE" -delete'
-            )
+            os.remove(save_path)  # Remove o arquivo ZIP após extração
+
     elif isinstance(urls, str):
         log(f"Baixando o arquivo {urls}")
         download_url = urls
@@ -88,43 +112,62 @@ def download_unzip_csv(
         except zipfile.BadZipFile:
             log(f"O arquivo {zips} não é um arquivo ZIP válido.")
 
-        os.system(f'cd {pasta_destino}; find . -type f ! -iname "*ESTABELE" -delete')
+        os.remove(save_path)  # Remove o arquivo ZIP após extração
 
     else:
         raise ValueError("O argumento 'files' possui um tipo inadequado.")
 
 
-# ! Particionando os dados em csv
-def process_csv_partition(
+# ! Salva os dados CSV Estabelecimentos
+def process_csv_estabelecimentos(
     input_path: str, output_path: str, data_coleta: str, i: int, chunk_size: int = 1000
 ):
     colunas = constants_cnpj.COLUNAS_ESTABELECIMENTO.value
     save_path = f"{output_path}data={data_coleta}/"
-    # df_columns = pd.DataFrame(columns=colunas)
     for nome_arquivo in os.listdir(input_path):
         if "estabele" in nome_arquivo.lower():
             caminho_arquivo_csv = os.path.join(input_path, nome_arquivo)
             log(f"Carregando o arquivo: {nome_arquivo}")
-            for chunk_number, chunk in enumerate(
-                tqdm(
-                    pd.read_csv(
-                        caminho_arquivo_csv,
-                        encoding="iso-8859-1",
-                        sep=";",
-                        header=None,
-                        names=colunas,
-                        dtype=str,
-                        chunksize=chunk_size,
-                    ),
-                    desc="Lendo o arquivo CSV",
-                )
+            for chunk in tqdm(
+                pd.read_csv(
+                    caminho_arquivo_csv,
+                    encoding="iso-8859-1",
+                    sep=";",
+                    header=None,
+                    names=colunas,
+                    dtype=str,
+                    chunksize=chunk_size,
+                ),
+                desc="Lendo o arquivo CSV",
             ):
+                # Arrumando as colunas datas
+                date_cols = [
+                    "data_situacao_cadastral",
+                    "data_inicio_atividade",
+                    "data_situacao_especial",
+                ]
+                chunk[date_cols] = chunk[date_cols].apply(
+                    pd.to_datetime, format="%Y%m%d", errors="coerce"
+                )
+                chunk[date_cols] = chunk[date_cols].apply(
+                    lambda x: x.dt.strftime("%Y-%m-%d")
+                )
+
+                # Preenchimento de zeros à esquerda no campo 'cnpj_basico'
+                chunk = fill_left_zeros(chunk, "cnpj_basico", 8)
+                # Preenchimento de zeros à esquerda no campo 'cnpj_ordem'
+                chunk = fill_left_zeros(chunk, "cnpj_ordem", 4)
+                # Preenchimento de zeros à esquerda no campo 'cnpj_dv'
+                chunk = fill_left_zeros(chunk, "cnpj_dv", 2)
+                # Gerando a coluna 'cnpj' e 'id_municipio'
+                chunk["cnpj"] = (
+                    chunk["cnpj_basico"] + chunk["cnpj_ordem"] + chunk["cnpj_dv"]
+                )
+                chunk["id_municipio"] = ""
                 for uf in ufs:
                     df_particao = chunk[chunk["sigla_uf"] == uf].copy()
                     df_particao.drop(["sigla_uf"], axis=1, inplace=True)
                     particao_path = os.path.join(save_path, f"sigla_uf={uf}")
-                    if not os.path.exists(particao_path):
-                        os.makedirs(particao_path)
                     particao_filename = f"estabelecimentos_{i}.csv"
                     particao_file_path = os.path.join(particao_path, particao_filename)
 
@@ -137,60 +180,137 @@ def process_csv_partition(
                         header=mode == "w",
                     )
 
-            log("Arquivos salvos.")
+            log(f"Arquivo estabelecimento_{i} salvo")
             os.remove(caminho_arquivo_csv)
 
 
-def partition_parquet(df, output_path, data_coleta, i):
-    for uf in ufs:
-        for situacao in situacoes_cadastrais:
-            df_particao = df[
-                (df["sigla_uf"] == uf) & (df["situacao_cadastral"] == situacao)
-            ].copy()
-            df_particao.drop(["sigla_uf", "situacao_cadastral"], axis=1, inplace=True)
-            particao = f"{output_path}data={data_coleta}/sigla_uf={uf}/situacao_cadastral={situacao}/estabelecimentos_{i}.parquet"
-            df_particao.to_parquet(particao, index=False)
-        log(f"Arquivo de estabelecimentos_{i} salvo para o estado: {uf}")
+# ! Salva os dados CSV Empresas
+def process_csv_empresas(
+    input_path: str, output_path: str, data_coleta: str, i: int, chunk_size: int = 1000
+):
+    colunas = constants_cnpj.COLUNAS_EMPRESAS.value
+    save_path = f"{output_path}data={data_coleta}/empresas_{i}.csv"
+    for nome_arquivo in os.listdir(input_path):
+        if nome_arquivo.lower().endswith("csv"):
+            caminho_arquivo_csv = os.path.join(input_path, nome_arquivo)
+            log(f"Carregando o arquivo: {nome_arquivo}")
+            with open(os.path.join(save_path), "wb") as fd:
+                for chunk in tqdm(
+                    pd.read_csv(
+                        caminho_arquivo_csv,
+                        encoding="iso-8859-1",
+                        sep=";",
+                        header=None,
+                        names=colunas,
+                        dtype=str,
+                        chunksize=chunk_size,
+                    ),
+                    desc="Lendo o arquivo CSV",
+                ):
+                    # Preenchimento de zeros à esquerda no campo 'cnpj_basico'
+                    chunk = fill_left_zeros(chunk, "cnpj_basico", 8)
+                    # Preenchimento de zeros à esquerda no campo 'natureza_juridica'
+                    chunk = fill_left_zeros(chunk, "natureza_juridica", 4)
+                    # Convertendo a coluna 'capital_social' para float e mudando o separator
+                    chunk["capital_social"] = (
+                        chunk["capital_social"].str.replace(",", ".").astype(float)
+                    )
 
-    log(f"Arquivo de estabelecimentos_{i} particionado")
+                    chunk.to_csv(fd, index=False, encoding="iso-8859-1")
+
+            log("Arquivo salvo.")
+            os.remove(caminho_arquivo_csv)
 
 
-def destino_output(tabela, sufixo, data_coleta):
-    output_path = f"/tmp/data/br_me_cnpj/output/{sufixo}/"
-    # Pasta de destino para salvar o arquivo CSV
-    if tabela != "Simples":
-        if tabela != "Estabelecimentos":
-            output_dir = f"/tmp/data/br_me_cnpj/output/{sufixo}/data={data_coleta}/"
-            os.makedirs(output_dir, exist_ok=True)
-        else:
-            for uf in ufs:
-                for situacao in situacoes_cadastrais:
-                    output_dir = f"/tmp/data/br_me_cnpj/output/estabelecimentos/data={data_coleta}/sigla_uf={uf}/situacao_cadastral={situacao}/"
-                    if not os.path.exists(output_dir):
-                        os.makedirs(output_dir)
-    else:
-        output_dir = output_path
-        os.makedirs(output_dir, exist_ok=True)
-    log("Pasta destino output construido")
-    return output_path
+# ! Salva os dados CSV Socios
+def process_csv_socios(
+    input_path: str, output_path: str, data_coleta: str, i: int, chunk_size: int = 1000
+):
+    colunas = constants_cnpj.COLUNAS_SOCIOS.value
+    save_path = f"{output_path}data={data_coleta}/socios_{i}.csv"
+    for nome_arquivo in os.listdir(input_path):
+        if nome_arquivo.lower().endswith("csv"):
+            caminho_arquivo_csv = os.path.join(input_path, nome_arquivo)
+            log(f"Carregando o arquivo: {nome_arquivo}")
+            with open(os.path.join(save_path), "wb") as fd:
+                for chunk in tqdm(
+                    pd.read_csv(
+                        caminho_arquivo_csv,
+                        encoding="iso-8859-1",
+                        sep=";",
+                        header=None,
+                        names=colunas,
+                        dtype=str,
+                        chunksize=chunk_size,
+                    ),
+                    desc="Lendo o arquivo CSV",
+                ):
+                    # Preenchimento de zeros à esquerda no campo 'cnpj_basico'
+                    chunk = fill_left_zeros(chunk, "cnpj_basico", 8)
+                    # Retirando valores de cpf's nulos
+                    chunk["cpf_representante_legal"] = chunk[
+                        "cpf_representante_legal"
+                    ].replace("***000000**", "")
+                    # Ajustando a coluna data
+                    chunk["data_entrada_sociedade"] = pd.to_datetime(
+                        chunk["data_entrada_sociedade"].str.replace("0", ""),
+                        format="%Y%m%d",
+                        errors="coerce",
+                    ).dt.strftime("%Y-%m-%d")
+                    chunk.to_csv(fd, index=False, encoding="iso-8859-1")
+
+            log("Arquivo salvo.")
+            os.remove(caminho_arquivo_csv)
 
 
-def extract_estabelecimentos(caminho_arquivo_zip, pasta_destino):
-    # Extraindo dados
-    caminho_arquivo_csv = None
-    with zipfile.ZipFile(caminho_arquivo_zip, "r") as z:
-        for nome_arquivo in z.namelist():
-            if "estabele" in nome_arquivo.lower():
-                caminho_arquivo_csv = os.path.join(pasta_destino, nome_arquivo)
-                with open(caminho_arquivo_csv, "wb") as f:
-                    f.write(z.read(nome_arquivo))
-                log(f"Arquivo CSV '{nome_arquivo}' extraído com sucesso.")
-                os.remove(caminho_arquivo_zip)
-                log("Caminho ZIP deletado")
-                break
+# ! Salva os dados CSV Simples
+def process_csv_simples(
+    input_path: str,
+    output_path: str,
+    data_coleta: str,
+    sufixo: str,
+    chunk_size: int = 1000,
+):
+    colunas = constants_cnpj.COLUNAS_SIMPLES.value
+    save_path = f"{output_path}{sufixo}.csv"
+    for nome_arquivo in os.listdir(input_path):
+        if "simples.csv" in nome_arquivo.lower():
+            caminho_arquivo_csv = os.path.join(input_path, nome_arquivo)
+            log(f"Carregando o arquivo: {nome_arquivo}")
+            with open(os.path.join(save_path), "wb") as fd:
+                for chunk in tqdm(
+                    pd.read_csv(
+                        caminho_arquivo_csv,
+                        encoding="iso-8859-1",
+                        sep=";",
+                        header=None,
+                        names=colunas,
+                        dtype=str,
+                        chunksize=chunk_size,
+                    ),
+                    desc="Lendo o arquivo CSV",
+                ):
+                    cols = [
+                        "data_opcao_simples",
+                        "data_exclusao_simples",
+                        "data_opcao_mei",
+                        "data_exclusao_mei",
+                    ]
+                    chunk[cols] = chunk[cols].replace({"0": "", "00000000": ""})
+                    chunk[cols] = pd.to_datetime(
+                        chunk[cols], format="%Y%m%d", errors="coerce"
+                    )
+                    chunk[cols] = chunk[cols].apply(lambda x: x.dt.strftime("%Y-%m-%d"))
+                    # Preenchimento de zeros à esquerda no campo 'cnpj_basico'
+                    chunk = fill_left_zeros(chunk, "cnpj_basico", 8)
+                    # Transformando colunas em dummy
+                    chunk["opcao_simples"] = chunk["opcao_simples"].replace(
+                        {"N": "0", "S": "1"}
+                    )
+                    chunk["opcao_mei"] = chunk["opcao_mei"].replace(
+                        {"N": "0", "S": "1"}
+                    )
+                    chunk.to_csv(fd, index=False, encoding="iso-8859-1")
 
-    # Verifica se foi encontrado um arquivo CSV dentro do ZIP
-    if caminho_arquivo_csv is None:
-        log("Nenhum arquivo CSV foi encontrado dentro do arquivo ZIP.")
-
-    return caminho_arquivo_csv
+            log(f"Arquivo {sufixo} salvo")
+            os.remove(caminho_arquivo_csv)
