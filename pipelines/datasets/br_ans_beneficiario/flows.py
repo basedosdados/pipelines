@@ -13,6 +13,7 @@ from pipelines.datasets.br_ans_beneficiario.tasks import (
     check_for_updates,
     crawler_ans,
     is_empty,
+    get_today_date,
 )
 
 from pipelines.datasets.br_ans_beneficiario.schedules import every_day_ans
@@ -25,6 +26,7 @@ from pipelines.utils.tasks import (
     rename_current_flow_run_dataset_table,
     get_current_flow_labels,
     log_task,
+    update_django_metadata,
 )
 from prefect.tasks.prefect import (
     create_flow_run,
@@ -45,11 +47,12 @@ with Flow(
         default="https://dadosabertos.ans.gov.br/FTP/PDA/informacoes_consolidadas_de_beneficiarios/",
         required=False,
     )
+    update_metadata = Parameter("update_metadata", default=True, required=False)
 
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
-    files = Parameter("files", default=["202305", "202306", "202307"], required=False)
+    # files = Parameter("files", default=["202306", "202307"], required=False)
 
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
@@ -62,7 +65,7 @@ with Flow(
 
     hrefs = extract_links_and_dates(url=url)
 
-    # files = check_for_updates(hrefs)
+    files = check_for_updates(hrefs)
 
     with case(is_empty(files), True):
         log_task(f"Não houveram atualizações em {url.default}!")
@@ -106,6 +109,17 @@ with Flow(
             wait_for_materialization.retry_delay = timedelta(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
+            with case(update_metadata, True):
+                date = get_today_date()
+                update_django_metadata(
+                    dataset_id,
+                    table_id,
+                    metadata_type="DateTimeRange",
+                    bq_last_update=False,
+                    api_mode="prod",
+                    date_format="yy-mm",
+                    _last_date=date,
+                )
 
 datasets_br_ans_beneficiario_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 datasets_br_ans_beneficiario_flow.run_config = KubernetesRun(

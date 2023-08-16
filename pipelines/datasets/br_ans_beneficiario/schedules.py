@@ -14,7 +14,7 @@ from pipelines.datasets.br_cvm_fi.constants import constants as cvm_constants
 every_day_ans = Schedule(
     clocks=[
         CronClock(
-            cron="0 23 * * *",  # At 23:00 on every day-of-week from Monday through Friday.
+            cron="0 21 * * *",  # At 23:00 on every day-of-week from Monday through Friday.
             start_date=datetime(2021, 3, 31, 17, 11),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
