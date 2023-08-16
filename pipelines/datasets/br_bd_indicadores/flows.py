@@ -130,7 +130,7 @@ with Flow(
 
 bd_twt_metricas.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 bd_twt_metricas.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-#bd_twt_metricas.schedule = every_day
+# bd_twt_metricas.schedule = every_day
 
 
 with Flow(
