@@ -240,7 +240,6 @@ def read_dbc_save_csv(file_list: list, path: str, table: str) -> str:
 
         elif table == "servico_especializado":
             df = df[cnes_constants.COLUMNS_TO_KEEP.value["SR"]]
-        # adicionar o trigger das outras tabelas
 
         # salvar de novo
         df.to_csv(output_file, sep=",", na_rep="", index=False, encoding="utf-8")
