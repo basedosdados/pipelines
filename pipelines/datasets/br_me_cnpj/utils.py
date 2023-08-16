@@ -66,56 +66,27 @@ def fill_left_zeros(df, column, num_digits):
 
 
 # ! Executa o download do zip file
-def download_unzip_csv(
-    urls, data_coleta, pasta_destino, zips=None, chunk_size: int = 1000
-):
-    if isinstance(urls, list):
-        for url, file in zip(urls, zips):
-            log(f"Baixando o arquivo {file}")
-            download_url = url
-            save_path = os.path.join(pasta_destino, f"{file}.zip")
+def download_unzip_csv(url, data_coleta, pasta_destino, chunk_size: int = 1000):
+    log(f"Baixando o arquivo {url}")
+    download_url = url
+    save_path = os.path.join(pasta_destino, f"{os.path.basename(url)}.zip")
 
-            r = requests.get(download_url, headers=headers, stream=True, timeout=50)
-            with open(save_path, "wb") as fd:
-                for chunk in tqdm(
-                    r.iter_content(chunk_size=chunk_size), desc="Baixando o arquivo"
-                ):
-                    fd.write(chunk)
+    r = requests.get(download_url, headers=headers, stream=True, timeout=60)
+    with open(save_path, "wb") as fd:
+        for chunk in tqdm(
+            r.iter_content(chunk_size=chunk_size), desc="Baixando o arquivo"
+        ):
+            fd.write(chunk)
 
-            try:
-                with zipfile.ZipFile(save_path) as z:
-                    z.extractall(pasta_destino)
-                log("Dados extraídos com sucesso!")
+    try:
+        with zipfile.ZipFile(save_path) as z:
+            z.extractall(pasta_destino)
+        log("Dados extraídos com sucesso!")
 
-            except zipfile.BadZipFile:
-                log(f"O arquivo {file} não é um arquivo ZIP válido.")
+    except zipfile.BadZipFile:
+        log(f"O arquivo {os.path.basename(url)} não é um arquivo ZIP válido.")
 
-            os.remove(save_path)  # Remove o arquivo ZIP após extração
-
-    elif isinstance(urls, str):
-        log(f"Baixando o arquivo {urls}")
-        download_url = urls
-        save_path = os.path.join(pasta_destino, f"{zips}.zip")
-
-        r = requests.get(download_url, headers=headers, stream=True, timeout=10)
-        with open(save_path, "wb") as fd:
-            for chunk in tqdm(
-                r.iter_content(chunk_size=chunk_size), desc="Baixando o arquivo"
-            ):
-                fd.write(chunk)
-
-        try:
-            with zipfile.ZipFile(save_path) as z:
-                z.extractall(pasta_destino)
-            log("Dados extraídos com sucesso!")
-
-        except zipfile.BadZipFile:
-            log(f"O arquivo {zips} não é um arquivo ZIP válido.")
-
-        os.remove(save_path)  # Remove o arquivo ZIP após extração
-
-    else:
-        raise ValueError("O argumento 'files' possui um tipo inadequado.")
+    os.remove(save_path)
 
 
 # ! Salva os dados CSV Estabelecimentos
@@ -218,7 +189,7 @@ def process_csv_empresas(
 
                     chunk.to_csv(fd, index=False, encoding="iso-8859-1")
 
-            log("Arquivo salvo.")
+            log(f"Arquivo empresas_{i} salvo")
             os.remove(caminho_arquivo_csv)
 
 
@@ -259,7 +230,7 @@ def process_csv_socios(
                     ).dt.strftime("%Y-%m-%d")
                     chunk.to_csv(fd, index=False, encoding="iso-8859-1")
 
-            log("Arquivo salvo.")
+            log(f"Arquivo socios_{i} salvo")
             os.remove(caminho_arquivo_csv)
 
 

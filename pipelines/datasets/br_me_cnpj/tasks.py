@@ -32,10 +32,10 @@ headers = constants_cnpj.HEADERS.value
 
 @task
 def check_for_updates(dataset_id, table_id):
-    # Obtém a data mais recente do site usando a função data_url e formata como "YYYY-MM-DD"
+    # Obtém a data mais recente do site
     data_obj = data_url(url, headers).strftime("%Y-%m-%d")
 
-    # Obtém a última data armazenada no BigQuery usando extract_last_date e formata como "YYYY-MM-DD"
+    # Obtém a última data armazenada no BigQuery
     data_bq_obj = extract_last_date(
         dataset_id, table_id, "yy-mm-dd", "basedosdados-dev"
     ).strftime("%Y-%m-%d")
@@ -55,10 +55,8 @@ def main(tabelas):
     arquivos_baixados = []  # Lista para rastrear os arquivos baixados
     data_coleta = data_url(url, headers).date()  # Obtém a data da atualização dos dados
 
-    tabela = tabelas[0]  # Pega o primeiro elemento da lista de tabelas
-    sufixo = (
-        tabela.lower()
-    )  # Cria o sufixo a partir do nome da tabela em letras minúsculas
+    tabela = tabelas[0]
+    sufixo = tabela.lower()
 
     # Define o caminho para a pasta de entrada (input)
     input_path = f"/tmp/data/br_me_cnpj/input/data={data_coleta}/"
