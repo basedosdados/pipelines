@@ -207,7 +207,7 @@ with Flow(
 
 
 bd_pageviews.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-# bd_pageviews.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+bd_pageviews.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 
 
 with Flow(
