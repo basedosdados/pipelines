@@ -224,10 +224,13 @@ def process_csv_socios(
                     ].replace("***000000**", "")
                     # Ajustando a coluna data
                     chunk["data_entrada_sociedade"] = pd.to_datetime(
-                        chunk["data_entrada_sociedade"].str.replace("0", ""),
+                        chunk["data_entrada_sociedade"]
+                        .str.replace("0", "")
+                        .str.replace("00000000", ""),
                         format="%Y%m%d",
                         errors="coerce",
                     ).dt.strftime("%Y-%m-%d")
+
                     chunk.to_csv(fd, index=False, encoding="iso-8859-1")
 
             log(f"Arquivo socios_{i} salvo")
@@ -261,17 +264,12 @@ def process_csv_simples(
                     ),
                     desc="Lendo o arquivo CSV",
                 ):
-                    cols = [
-                        "data_opcao_simples",
-                        "data_exclusao_simples",
-                        "data_opcao_mei",
-                        "data_exclusao_mei",
-                    ]
-                    chunk[cols] = chunk[cols].replace({"0": "", "00000000": ""})
-                    chunk[cols] = pd.to_datetime(
-                        chunk[cols], format="%Y%m%d", errors="coerce"
-                    )
-                    chunk[cols] = chunk[cols].apply(lambda x: x.dt.strftime("%Y-%m-%d"))
+                    for col in chunk.columns:
+                        if col.startswith("data_"):
+                            chunk[col] = chunk[col].replace({"0": "", "00000000": ""})
+                            chunk[col] = pd.to_datetime(
+                                chunk[col], format="%Y%m%d", errors="coerce"
+                            )
                     # Preenchimento de zeros à esquerda no campo 'cnpj_basico'
                     chunk = fill_left_zeros(chunk, "cnpj_basico", 8)
                     # Transformando colunas em dummy
