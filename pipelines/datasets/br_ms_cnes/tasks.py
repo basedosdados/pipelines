@@ -76,7 +76,7 @@ def parse_latest_cnes_dbc_files(database: str, cnes_group: str) -> list[str]:
 
     log(f"the following files were selected fom DATASUS FTP: {list_files}")
 
-    return list_files
+    return available_dbs
 
 
 @task(
