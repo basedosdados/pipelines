@@ -27,54 +27,8 @@ from pipelines.utils.utils import (
 import unidecode
 
 
-def remove_accents(a):
-    return unidecode.unidecode(a).lower()
-
-
-def process(df: pd.DataFrame):
-    time_col = pd.to_datetime(df["#ID_CMPT_MOVEL"], format="%Y%m")
-    df["ano"] = time_col.dt.year
-    df["mes"] = time_col.dt.month
-    del df["#ID_CMPT_MOVEL"]
-    del df["NM_MUNICIPIO"]
-    del df["DT_CARGA"]
-
-    df.rename(
-        columns={
-            "CD_OPERADORA": "codigo_operadora",
-            "NM_RAZAO_SOCIAL": "razao_social",
-            "NR_CNPJ": "cnpj",
-            "MODALIDADE_OPERADORA": "modalidade_operadora",
-            "SG_UF": "sigla_uf",
-            "CD_MUNICIPIO": "id_municipio_6",
-            "TP_SEXO": "sexo",
-            "DE_FAIXA_ETARIA": "faixa_etaria",
-            "DE_FAIXA_ETARIA_REAJ": "faixa_etaria_reajuste",
-            "CD_PLANO": "codigo_plano",
-            "TP_VIGENCIA_PLANO": "tipo_vigencia_plano",
-            "DE_CONTRATACAO_PLANO": "contratacao_beneficiario",
-            "DE_SEGMENTACAO_PLANO": "segmentacao_beneficiario",
-            "DE_ABRG_GEOGRAFICA_PLANO": "abrangencia_beneficiario",
-            "COBERTURA_ASSIST_PLAN": "cobertura_assistencia_beneficiario",
-            "TIPO_VINCULO": "tipo_vinculo",
-            "QT_BENEFICIARIO_ATIVO": "quantidade_beneficiario_ativo",
-            "QT_BENEFICIARIO_ADERIDO": "quantidade_beneficiario_aderido",
-            "QT_BENEFICIARIO_CANCELADO": "quantidade_beneficiario_cancelado",
-        },
-        inplace=True,
-    )
-
-    df["cnpj"] = df["cnpj"].str.zfill(14)
-
-    # Using parquet, don't need external dictionary
-    df["tipo_vigencia_plano"].replace(
-        {
-            "P": "Posterior à Lei 9656/1998 ou planos adaptados à lei",
-            "A": "Anterior à Lei 9656/1998",
-        }
-    )
-
-    return df
+def remove_accents(text):
+    return unidecode.unidecode(text).lower()
 
 
 def get_url_from_template(file) -> str:

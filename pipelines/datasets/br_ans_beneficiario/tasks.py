@@ -17,7 +17,6 @@ import zipfile
 import requests
 from glob import glob
 from pipelines.datasets.br_ans_beneficiario.utils import (
-    process,
     download_unzip_csv,
     get_url_from_template,
     parquet_partition,
