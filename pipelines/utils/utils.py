@@ -349,13 +349,17 @@ def remove_columns_accents(dataframe: pd.DataFrame) -> list:
 
 
 def to_partitions(
-    data: pd.DataFrame, partition_columns: List[str], savepath: str, file_type: str
+    data: pd.DataFrame,
+    partition_columns: List[str],
+    savepath: str,
+    file_type: str = "csv",
 ):
     """Save data in to hive patitions schema, given a dataframe and a list of partition columns.
     Args:
         data (pandas.core.frame.DataFrame): Dataframe to be partitioned.
         partition_columns (list): List of columns to be used as partitions.
-        savepath (str, pathlib.PosixPath): folder path to save the partitions
+        savepath (str, pathlib.PosixPath): folder path to save the partitions.
+        file_type (str): default to csv. Accepts parquet.
     Exemple:
         data = {
             "ano": [2020, 2021, 2020, 2021, 2020, 2021, 2021,2025],
