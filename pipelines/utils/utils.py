@@ -348,12 +348,18 @@ def remove_columns_accents(dataframe: pd.DataFrame) -> list:
     )
 
 
-def to_partitions(data: pd.DataFrame, partition_columns: List[str], savepath: str):
+def to_partitions(
+    data: pd.DataFrame,
+    partition_columns: List[str],
+    savepath: str,
+    file_type: str = "csv",
+):
     """Save data in to hive patitions schema, given a dataframe and a list of partition columns.
     Args:
         data (pandas.core.frame.DataFrame): Dataframe to be partitioned.
         partition_columns (list): List of columns to be used as partitions.
-        savepath (str, pathlib.PosixPath): folder path to save the partitions
+        savepath (str, pathlib.PosixPath): folder path to save the partitions.
+        file_type (str): default to csv. Accepts parquet.
     Exemple:
         data = {
             "ano": [2020, 2021, 2020, 2021, 2020, 2021, 2021,2025],
@@ -364,7 +370,7 @@ def to_partitions(data: pd.DataFrame, partition_columns: List[str], savepath: st
         to_partitions(
             data=pd.DataFrame(data),
             partition_columns=['ano','mes','sigla_uf'],
-            savepath='partitions/'
+            savepath='partitions/',
         )
     """
 
@@ -373,8 +379,8 @@ def to_partitions(data: pd.DataFrame, partition_columns: List[str], savepath: st
         # create unique combinations between partition columns
         unique_combinations = (
             data[partition_columns]
-            .drop_duplicates(subset=partition_columns)
-            .to_dict(orient="records")
+            # .astype(str)
+            .drop_duplicates(subset=partition_columns).to_dict(orient="records")
         )
 
         for filter_combination in unique_combinations:
@@ -395,18 +401,23 @@ def to_partitions(data: pd.DataFrame, partition_columns: List[str], savepath: st
             # create folder tree
             filter_save_path = Path(savepath / "/".join(patitions_values))
             filter_save_path.mkdir(parents=True, exist_ok=True)
-            file_filter_save_path = Path(filter_save_path) / "data.csv"
+            file_filter_save_path = Path(filter_save_path) / "data.parquet"
 
-            # append data to csv
-            df_filter.to_csv(
-                file_filter_save_path,
-                sep=",",
-                encoding="utf-8",
-                na_rep="",
-                index=False,
-                mode="a",
-                header=not file_filter_save_path.exists(),
-            )
+            if file_type == "csv":
+                # append data to csv
+                df_filter.to_csv(
+                    file_filter_save_path,
+                    sep=",",
+                    encoding="utf-8",
+                    na_rep="",
+                    index=False,
+                    mode="a",
+                    header=not file_filter_save_path.exists(),
+                )
+            elif file_type == "parquet":
+                df_filter.to_parquet(
+                    file_filter_save_path, index=False, compression="gzip"
+                )
     else:
         raise BaseException("Data need to be a pandas DataFrame")
 
@@ -449,53 +460,95 @@ def parser_blobs_to_partition_dict(blobs: list) -> dict:
     return partitions_dict
 
 
-def dump_header_to_csv(
-    data_path: Union[str, Path],
-):
+def dump_header_to_csv(data_path: Union[str, Path], source_format: str):
     """
-    Writes a header to a CSV file.
+    Writes the header of a CSV or Parquet file to a new file.
+
+    Parameters:
+        data_path (Union[str, Path]): The path to the directory containing CSV or Parquet files.
+        source_format (str): The source format, either 'csv' or 'parquet'.
+
+    Returns:
+        str: The path where the header file is saved.
+
+    Raises:
+        FileNotFoundError: If no CSV or Parquet file is found in the specified directory.
+
+    Note:
+        The function will search for either a CSV or Parquet file in the provided data_path.
+        If the file is found, it will read the first row (header) and save it to a new file
+        with the format 'header.csv' for CSV files and 'header.parquet' for Parquet files.
+        If the data_path contains partition folders (folders with '=' in their names), the
+        header file will be saved in a corresponding partition path under a 'data' directory.
     """
     # Remove filename from path
     path = Path(data_path)
     if not path.is_dir():
         path = path.parent
-    # Grab first CSV file found
+    # Grab first CSV or Parquet file found
     found: bool = False
     file: str = None
     for subdir, _, filenames in walk(str(path)):
         for fname in filenames:
-            if fname.endswith(".csv"):
-                file = join(subdir, fname)
-                log(f"Found CSV file: {file}")
-                found = True
-                break
+            if source_format == "csv":
+                if fname.endswith(".csv"):
+                    file = join(subdir, fname)
+                    log(f"Found CSV file: {file}")
+                    found = True
+                    break
+
+            elif source_format == "parquet":
+                if fname.endswith(".parquet"):
+                    file = join(subdir, fname)
+                    log(f"Found Parquet file: {file}")
+                    found = True
+                    break
         if found:
             break
 
     if file is None:
-        raise FileNotFoundError("No csv file found")
+        raise FileNotFoundError("No parquet or csv file found")
 
     save_header_path = f"data/{uuid4()}"
     # discover if it's a partitioned table
     if partition_folders := [folder for folder in file.split("/") if "=" in folder]:
         partition_path = "/".join(partition_folders)
-        save_header_file_path = Path(f"{save_header_path}/{partition_path}/header.csv")
-        log(f"Found partition path: {save_header_file_path}")
+        if source_format == "csv":
+            save_header_file_path = Path(
+                f"{save_header_path}/{partition_path}/header.csv"
+            )
+            log(f"Found partition path: {save_header_file_path}")
+        elif source_format == "parquet":
+            save_header_file_path = Path(
+                f"{save_header_path}/{partition_path}/header.parquet"
+            )
+            log(f"Found partition path: {save_header_file_path}")
 
     else:
-        save_header_file_path = Path(f"{save_header_path}/header.csv")
-        log(f"Do not found partition path: {save_header_file_path}")
+        if source_format == "csv":
+            save_header_file_path = Path(f"{save_header_path}/header.csv")
+            log(f"Do not found partition path: {save_header_file_path}")
+        elif source_format == "parquet":
+            save_header_file_path = Path(f"{save_header_path}/header.parquet")
+            log(f"Do not found partition path: {save_header_file_path}")
 
     # Create directory if it doesn't exist
     save_header_file_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Read just first row
-    dataframe = pd.read_csv(file, nrows=1)
+    if source_format == "csv":
+        dataframe = pd.read_csv(file, nrows=1)
 
-    # Write dataframe to CSV
-    dataframe.to_csv(save_header_file_path, index=False, encoding="utf-8")
-    log(f"Wrote header CSV: {save_header_file_path}")
+        # Write dataframe to CSV
+        dataframe.to_csv(save_header_file_path, index=False, encoding="utf-8")
+    elif source_format == "parquet":
+        dataframe = pd.read_parquet(file)
+        dataframe = dataframe.head(1)
 
+        # Write dataframe to Parquet
+        dataframe.to_parquet(save_header_file_path, index=False)
+
+    log(f"Wrote header Parquet: {save_header_file_path}")
     return save_header_path
 
 

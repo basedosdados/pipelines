@@ -130,7 +130,7 @@ with Flow(
 
 bd_twt_metricas.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 bd_twt_metricas.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-bd_twt_metricas.schedule = every_day
+# bd_twt_metricas.schedule = every_day
 
 
 with Flow(
@@ -172,7 +172,7 @@ with Flow(
 
 bd_twt_metricas_agg.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 bd_twt_metricas_agg.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-bd_twt_metricas_agg.schedule = every_week
+# bd_twt_metricas_agg.schedule = every_week
 
 
 with Flow(
@@ -296,7 +296,7 @@ with Flow(
 
 bd_ga_users.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 bd_ga_users.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-bd_ga_users.schedule = schedule_users
+# bd_ga_users.schedule = schedule_users
 
 
 with Flow(

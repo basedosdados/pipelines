@@ -27,7 +27,8 @@ def clean_table_oferta_distribuicao(root: str) -> str:
     # pylint: disable=invalid-name,no-member,unsubscriptable-object, E1137
     """Standardizes column names and selected variables"""
     in_filepath = f"{root}/oferta_distribuicao.csv"
-    ou_filepath = f"{root}/br_cvm_oferta_publica_distribuicao.csv"
+    ou_filepath = f"{root}/output/br_cvm_oferta_publica_distribuicao.csv"
+    os.makedirs(f"{root}/output/", exist_ok=True)
 
     dataframe = pd.DataFrame = pd.read_csv(
         in_filepath,
