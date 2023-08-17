@@ -3,10 +3,6 @@
 Schedules for br_anp_precos_combustiveis
 """
 
-# -*- coding: utf-8 -*-
-"""
-Schedules for br_anp_precos_combustiveis
-"""
 
 from datetime import timedelta, datetime
 
