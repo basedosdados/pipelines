@@ -40,6 +40,8 @@ files = [
     {file = "backoff-2.2.1.tar.gz", hash = "sha256:03f829f5bb1923180821643f8753b0502c3b682293992485b0eef2807afa5cba"},
 ]
 
+
+
 [[package]]
 name = "backports-zoneinfo"
 version = "0.2.1"
@@ -67,6 +69,7 @@ files = [
 
 [package.extras]
 tzdata = ["tzdata"]
+
 
 [[package]]
 name = "basedosdados"
@@ -134,6 +137,7 @@ files = [
     {file = "certifi-2021.10.8-py2.py3-none-any.whl", hash = "sha256:d62a0163eb4c2344ac042ab2bdf75399a71a2d8c7d47eac2e2ee91b9d6339569"},
     {file = "certifi-2021.10.8.tar.gz", hash = "sha256:78884e7c1d4b00ce3cea67b44566851c4343c120abd683433ce934a68ea58872"},
 ]
+
 
 [[package]]
 name = "cffi"
@@ -210,6 +214,7 @@ files = [
 
 [package.dependencies]
 pycparser = "*"
+
 
 [[package]]
 name = "cfgv"
@@ -421,6 +426,17 @@ tomli = {version = "*", optional = true, markers = "python_full_version <= \"3.1
 
 [package.extras]
 toml = ["tomli"]
+
+[[package]]
+name = "cramjam"
+version = "2.7.0"
+description = "Thin Python bindings to de/compression algorithms in Rust"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.extras]
+dev = ["black (==22.3.0)", "hypothesis", "numpy", "pytest (>=5.30)", "pytest-xdist"]
 
 [[package]]
 name = "croniter"
@@ -656,6 +672,24 @@ codecs = ["lz4", "python-snappy", "zstandard"]
 lz4 = ["lz4"]
 snappy = ["python-snappy"]
 zstandard = ["zstandard"]
+
+[[package]]
+name = "fastparquet"
+version = "2023.7.0"
+description = "Python support for Parquet file format"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[package.dependencies]
+cramjam = ">=2.3"
+fsspec = "*"
+numpy = ">=1.20.3"
+packaging = "*"
+pandas = ">=1.5.0"
+
+[package.extras]
+lzo = ["python-lzo"]
 
 [[package]]
 name = "filelock"
@@ -2619,6 +2653,7 @@ files = [
     {file = "pyasn1_modules-0.2.8-py2.py3-none-any.whl", hash = "sha256:a50b808ffeb97cb3601dd25981f6b016cbb3d31fbf57a8b8a87428e6158d0c74"},
 ]
 
+
 [package.dependencies]
 pyasn1 = ">=0.4.6,<0.5.0"
 
@@ -2632,6 +2667,7 @@ files = [
     {file = "pycparser-2.21-py2.py3-none-any.whl", hash = "sha256:8ee45429555515e1f6b185e78100aea234072576aa43ab53aefcae078162fca9"},
     {file = "pycparser-2.21.tar.gz", hash = "sha256:e644fdec12f7872f86c58ff790da456218b10f863970249516d60a5eaca77206"},
 ]
+
 
 [[package]]
 name = "pydata-google-auth"
@@ -3118,6 +3154,7 @@ files = [
     {file = "requests_toolbelt-1.0.0-py2.py3-none-any.whl", hash = "sha256:cccfdd665f0a24fcf4726e690f65639d272bb0637b9b92dfd91a5568ccf6bd06"},
 ]
 
+
 [package.dependencies]
 requests = ">=2.0.1,<3.0.0"
 
@@ -3128,6 +3165,7 @@ description = "Python interface to the R language (embedded R)"
 optional = false
 python-versions = ">=3.7"
 files = [
+
     {file = "rpy2-3.5.13-cp310-cp310-macosx_11_0_x86_64.whl", hash = "sha256:1748f56343be608558f2f40b43c2e8a9103af91e721b7f9617f10c86cc284dde"},
     {file = "rpy2-3.5.13-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:488f2ad3220275b7717073d561b22ebf29e4be4d26aed7f45e49b453ff08a640"},
     {file = "rpy2-3.5.13-cp37-cp37m-macosx_11_0_x86_64.whl", hash = "sha256:5353f3ada4cb01245fbec03fdec326e68f32f032b19836154d95c56c7568fd50"},
@@ -3135,6 +3173,7 @@ files = [
     {file = "rpy2-3.5.13-cp39-cp39-macosx_11_0_x86_64.whl", hash = "sha256:11f9d68ed416f7802c7673f25796e49e9717a9e05f950277b90ad1e50fd95e42"},
     {file = "rpy2-3.5.13.tar.gz", hash = "sha256:41d037599f54336f54e754d82853fae06be9438d9fb3b514d90da74eaf328ddd"},
 ]
+
 
 [package.dependencies]
 "backports.zoneinfo" = {version = "*", markers = "python_version < \"3.9\""}
@@ -3157,6 +3196,7 @@ description = "Pure-Python RSA implementation"
 optional = false
 python-versions = ">=3.6,<4"
 files = [
+
     {file = "rsa-4.8-py3-none-any.whl", hash = "sha256:95c5d300c4e879ee69708c428ba566c59478fd653cc3a22243eeb8ed846950bb"},
     {file = "rsa-4.8.tar.gz", hash = "sha256:5c6bd9dc7a543b7fe4304a631f8a8a3b674e2bbfc49c2ae96200cdbe55df6b17"},
 ]
@@ -3578,9 +3618,11 @@ description = "tzinfo object for the local timezone"
 optional = false
 python-versions = ">=3.7"
 files = [
+
     {file = "tzlocal-5.0.1-py3-none-any.whl", hash = "sha256:f3596e180296aaf2dbd97d124fe76ae3a0e3d32b258447de7b939b3fd4be992f"},
     {file = "tzlocal-5.0.1.tar.gz", hash = "sha256:46eb99ad4bdb71f3f72b7d24f4267753e240944ecfc16f25d2719ba89827a803"},
 ]
+
 
 [package.dependencies]
 "backports.zoneinfo" = {version = "*", markers = "python_version < \"3.9\""}
