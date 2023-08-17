@@ -370,7 +370,7 @@ def to_partitions(
         to_partitions(
             data=pd.DataFrame(data),
             partition_columns=['ano','mes','sigla_uf'],
-            savepath='partitions/'
+            savepath='partitions/',
         )
     """
 
