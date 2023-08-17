@@ -22,7 +22,9 @@ from pipelines.utils.tasks import (
 )
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.utils.constants import constants as utils_constants
-from pipelines.datasets.br_bcb_taxa_cambio.schedules import schedule_every_weekday_taxa_cambio
+from pipelines.datasets.br_bcb_taxa_cambio.schedules import (
+    schedule_every_weekday_taxa_cambio,
+)
 
 
 with Flow(

@@ -23,7 +23,9 @@ from pipelines.datasets.br_bcb_taxa_selic.tasks import (
     get_data_taxa_selic,
     treat_data_taxa_selic,
 )
-from pipelines.datasets.br_bcb_taxa_selic.schedules import schedule_every_weekday_taxa_selic
+from pipelines.datasets.br_bcb_taxa_selic.schedules import (
+    schedule_every_weekday_taxa_selic,
+)
 
 
 with Flow(
