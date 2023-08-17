@@ -22,6 +22,8 @@ from pipelines.utils.tasks import (
 )
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.utils.constants import constants as utils_constants
+from pipelines.datasets.br_bcb_taxa_cambio.schedules import schedule_every_weekday_taxa_cambio
+
 
 with Flow(
     name="br_bcb_taxa_cambio.taxa_cambio",
@@ -56,7 +58,7 @@ with Flow(
         data_path=output_filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        dump_mode="overwrite",
+        dump_mode="append",
         wait=output_filepath,
     )
 
@@ -95,3 +97,4 @@ datasets_br_bcb_taxa_cambio_moeda_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.
 datasets_br_bcb_taxa_cambio_moeda_flow.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
+datasets_br_bcb_taxa_cambio_moeda_flow.schedule = schedule_every_weekday_taxa_cambio

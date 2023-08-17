@@ -23,6 +23,7 @@ from pipelines.datasets.br_bcb_taxa_selic.tasks import (
     get_data_taxa_selic,
     treat_data_taxa_selic,
 )
+from pipelines.datasets.br_bcb_taxa_selic.schedules import schedule_every_weekday_taxa_selic
 
 
 with Flow(
@@ -58,7 +59,7 @@ with Flow(
         data_path=output_filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        dump_mode="overwrite",
+        dump_mode="append",
         wait=output_filepath,
     )
 
@@ -97,3 +98,4 @@ datasets_br_bcb_taxa_selic_diaria_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.
 datasets_br_bcb_taxa_selic_diaria_flow.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
+datasets_br_bcb_taxa_selic_diaria_flow.schedule = schedule_every_weekday_taxa_selic
