@@ -107,6 +107,7 @@ def access_ftp_donwload_files(file_list: list, path: str, table: str) -> list[st
         input_path = path + table + "/" + year_month_sigla_uf
 
         os.system(f"mkdir -p {input_path}")
+        os.system(f"find {input_path} -type f -delete")
 
         log(f"created input dir {path + table + '/' + year_month_sigla_uf}")
 
