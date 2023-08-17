@@ -187,6 +187,7 @@ def read_input_csv(table_id: str):
     # Read the CSV file as a DataFrame
     return pd.read_csv(path)
 
+
 def download_and_unzip(url, path):
     """download and unzip a zip file
     Args:
