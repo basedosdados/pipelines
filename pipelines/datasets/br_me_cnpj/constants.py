@@ -25,6 +25,7 @@ class constants(Enum):  # pylint: disable=c0103
         "CE",
         "DF",
         "ES",
+        "EX",
         "GO",
         "MA",
         "MG",

@@ -223,13 +223,12 @@ def process_csv_socios(
                         "cpf_representante_legal"
                     ].replace("***000000**", "")
                     # Ajustando a coluna data
-                    chunk["data_entrada_sociedade"] = pd.to_datetime(
-                        chunk["data_entrada_sociedade"]
-                        .str.replace("0", "")
-                        .str.replace("00000000", ""),
-                        format="%Y%m%d",
-                        errors="coerce",
-                    ).dt.strftime("%Y-%m-%d")
+                    for col in chunk.columns:
+                        if col.startswith("data_"):
+                            chunk[col] = chunk[col].replace("0", "")
+                            chunk[col] = pd.to_datetime(
+                                chunk[col], format="%Y%m%d", errors="coerce"
+                            )
 
                     chunk.to_csv(fd, index=False, encoding="iso-8859-1")
 
