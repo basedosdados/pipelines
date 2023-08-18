@@ -75,7 +75,7 @@ def main(tabelas):
                 arquivos_baixados.append(
                     nome_arquivo
                 )  # Adiciona o nome à lista de arquivos baixados
-                download_unzip_csv(url_download, data_coleta, input_path)
+                download_unzip_csv(url_download, input_path)
                 process_csv_function = globals()[f"process_csv_{sufixo}"]
                 process_csv_function(input_path, output_path, data_coleta, i)
         else:
@@ -85,7 +85,7 @@ def main(tabelas):
                 arquivos_baixados.append(
                     nome_arquivo
                 )  # Adiciona o nome à lista de arquivos baixados
-                download_unzip_csv(url_download, data_coleta, input_path)
+                download_unzip_csv(url_download, input_path)
                 process_csv_simples(input_path, output_path, data_coleta, sufixo)
 
     return output_path

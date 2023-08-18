@@ -66,7 +66,7 @@ def fill_left_zeros(df, column, num_digits):
 
 
 # ! Executa o download do zip file
-def download_unzip_csv(url, data_coleta, pasta_destino, chunk_size: int = 1000):
+def download_unzip_csv(url, pasta_destino, chunk_size: int = 1000):
     log(f"Baixando o arquivo {url}")
     download_url = url
     save_path = os.path.join(pasta_destino, f"{os.path.basename(url)}.zip")
@@ -93,6 +93,7 @@ def download_unzip_csv(url, data_coleta, pasta_destino, chunk_size: int = 1000):
 def process_csv_estabelecimentos(
     input_path: str, output_path: str, data_coleta: str, i: int, chunk_size: int = 1000
 ):
+    ordem = constants_cnpj.COLUNAS_ESTABELECIMENTO_ORDEM.value
     colunas = constants_cnpj.COLUNAS_ESTABELECIMENTO.value
     save_path = f"{output_path}data={data_coleta}/"
     for nome_arquivo in os.listdir(input_path):
@@ -135,6 +136,7 @@ def process_csv_estabelecimentos(
                     chunk["cnpj_basico"] + chunk["cnpj_ordem"] + chunk["cnpj_dv"]
                 )
                 chunk["id_municipio"] = ""
+                chunk = chunk[ordem]
                 for uf in ufs:
                     df_particao = chunk[chunk["sigla_uf"] == uf].copy()
                     df_particao.drop(["sigla_uf"], axis=1, inplace=True)
