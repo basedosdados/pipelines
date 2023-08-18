@@ -37,7 +37,7 @@ with Flow(
     table_id = Parameter("table_id", default="microdados", required=True)
 
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
 
     materialize_after_dump = Parameter(
@@ -104,7 +104,7 @@ with Flow(
                 api_mode="prod",
                 date_format="yy-mm-dd",
                 _last_date=get_date_max_mais,
-                upstream_tasks=[wait_for_materialization],
+                upstream_tasks=[wait_upload_table],
             )
 
     # ! BD PRO - Atualizado
@@ -138,7 +138,6 @@ with Flow(
         )
 
         with case(update_metadata, True):
-            # date = data_max_bd_pro(df=df)  # task que retorna a data atual
             update_django_metadata(
                 dataset_id,
                 table_id + "_atualizado",
@@ -147,7 +146,7 @@ with Flow(
                 api_mode="prod",
                 date_format="yy-mm-dd",
                 _last_date=get_date_max_pro,
-                upstream_tasks=[wait_for_materialization],
+                upstream_tasks=[wait_upload_table],
             )
 
 anp_microdados.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
