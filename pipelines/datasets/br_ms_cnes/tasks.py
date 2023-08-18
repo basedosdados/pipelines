@@ -233,6 +233,7 @@ def read_dbc_save_csv(file_list: list, path: str, table: str) -> str:
 
         elif table == "habilitacao":
             df = df[cnes_constants.COLUMNS_TO_KEEP.value["HB"]]
+            df = check_and_create_column(df=df, col_name="NAT_JUR")
 
         elif table == "incentivos":
             df = df[cnes_constants.COLUMNS_TO_KEEP.value["IN"]]
