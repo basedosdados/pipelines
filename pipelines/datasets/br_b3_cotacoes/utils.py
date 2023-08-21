@@ -20,6 +20,7 @@ from pipelines.datasets.br_b3_cotacoes.constants import (
 
 def download_chunk_and_unzip_csv(url, path, chunk_size: int = 1000):
     print(f"Baixando o arquivo {url}")
+    os.system(f"mkdir -p {path}")
     save_path = os.path.join(path, f"{os.path.basename(url)}.zip")
     r = requests.get(url, stream=True, timeout=60)
     with open(save_path, "wb") as fd:
