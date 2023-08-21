@@ -94,7 +94,7 @@ def process_chunk_csv(input_path, chunk_size: int = 100000):
 
     os.remove(caminho_arquivo_csv)
 
-    return chunk
+    #return chunk
 
 
 # ------- macro etapa 3 particionando os arquivos por data
@@ -130,6 +130,7 @@ def partition_data(df: pd.DataFrame, column_name: list[str], output_directory: s
         mode = "a" if os.path.exists(csv_path) else "w"
         df_partition.to_csv(
             csv_path,
+            sep=",",
             index=False,
             encoding="utf-8",
             na_rep="",
