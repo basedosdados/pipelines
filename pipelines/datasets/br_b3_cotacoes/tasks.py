@@ -17,8 +17,8 @@ from pipelines.utils.utils import (
 from pipelines.constants import constants
 
 from pipelines.datasets.br_b3_cotacoes.utils import (
-    download_unzip_csv,
-    read_files,
+    download_chunk_and_unzip_csv,
+    process_chunk_csv,
     partition_data,
 )
 
@@ -28,31 +28,14 @@ from pipelines.datasets.br_b3_cotacoes.utils import (
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def tratamento(delta_day: int):
-    """
-    Retrieve b3 quotes data for a specific date and create the path to download and open the file.
-
-    Args:
-
-    days_to_run (int): The number of days for which I want to retrieve data from b3.
-
-    Returns:
-
-        str: the file path to download and open b3 files.
-    """
-
     day = (datetime.now() - timedelta(days=delta_day)).strftime("%d-%m-%Y")
-
     day_url = datetime.strptime(day, "%d-%m-%Y").strftime("%Y-%m-%d")
-
-    download_unzip_csv(
+    download_chunk_and_unzip_csv(
         url=br_b3_cotacoes_constants.B3_URL.value.format(day_url),
         path=br_b3_cotacoes_constants.B3_PATH_INPUT.value,
     )
-    log(
-        "********************************ABRINDO O ARQUIVO********************************"
-    )
-
-    read_files(br_b3_cotacoes_constants.B3_PATH_INPUT_TXT.value.format(day))
+    df = process_chunk_csv(br_b3_cotacoes_constants.B3_PATH_INPUT_TXT.value.format(day))
+    return df
 
 
 @task(
@@ -66,7 +49,6 @@ def make_partition(df):
         output_directory=br_b3_cotacoes_constants.B3_PATH_OUTPUT.value,
     )
     return br_b3_cotacoes_constants.B3_PATH_OUTPUT.value
-
 
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
