@@ -68,10 +68,9 @@ def fill_left_zeros(df, column, num_digits):
 # ! Executa o download do zip file
 def download_unzip_csv(url, pasta_destino, chunk_size: int = 1000):
     log(f"Baixando o arquivo {url}")
-    download_url = url
     save_path = os.path.join(pasta_destino, f"{os.path.basename(url)}.zip")
 
-    r = requests.get(download_url, headers=headers, stream=True, timeout=60)
+    r = requests.get(url, headers=headers, stream=True, timeout=60)
     with open(save_path, "wb") as fd:
         for chunk in tqdm(
             r.iter_content(chunk_size=chunk_size), desc="Baixando o arquivo"
@@ -136,7 +135,7 @@ def process_csv_estabelecimentos(
                     chunk["cnpj_basico"] + chunk["cnpj_ordem"] + chunk["cnpj_dv"]
                 )
                 chunk["id_municipio"] = ""
-                chunk = chunk[ordem]
+                chunk = chunk.loc[:, ordem]
                 for uf in ufs:
                     df_particao = chunk[chunk["sigla_uf"] == uf].copy()
                     df_particao.drop(["sigla_uf"], axis=1, inplace=True)
