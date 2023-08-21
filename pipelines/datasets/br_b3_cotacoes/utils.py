@@ -9,11 +9,14 @@ import os
 import zipfile
 from tqdm import tqdm
 from datetime import datetime
-from pipelines.utils.utils import (log)
-from pipelines.datasets.br_b3_cotacoes.constants import (constants as br_b3_cotacoes_constants)
+from pipelines.utils.utils import log
+from pipelines.datasets.br_b3_cotacoes.constants import (
+    constants as br_b3_cotacoes_constants,
+)
 
 # ------- macro etapa 1 download de dados com chunk
 # ------- download and unzip csv
+
 
 def download_chunk_and_unzip_csv(url, path, chunk_size: int = 1000):
     print(f"Baixando o arquivo {url}")
@@ -39,22 +42,39 @@ def download_chunk_and_unzip_csv(url, path, chunk_size: int = 1000):
 # ------- macro etapa 2 tratando os dados através do chunk
 # ------- process chunk
 def process_chunk_csv(input_path, chunk_size: int = 100000):
-    log("********************************ABRINDO O ARQUIVO********************************")
+    log(
+        "********************************ABRINDO O ARQUIVO********************************"
+    )
     caminho_arquivo_csv = os.path.join(input_path)
-    print(f'caminho_arquivo_csv: {caminho_arquivo_csv}')
+    print(f"caminho_arquivo_csv: {caminho_arquivo_csv}")
 
-    for chunk in tqdm(pd.read_csv(caminho_arquivo_csv, sep=';', encoding='utf-8', chunksize=chunk_size, dtype=str), desc="lendo o arquivo CSV"):
-        log("********************************PROCESSANDO O ARQUIVO********************************")
+    for chunk in tqdm(
+        pd.read_csv(
+            caminho_arquivo_csv,
+            sep=";",
+            encoding="utf-8",
+            chunksize=chunk_size,
+            dtype=str,
+        ),
+        desc="lendo o arquivo CSV",
+    ):
+        log(
+            "********************************PROCESSANDO O ARQUIVO********************************"
+        )
         chunk.rename(columns={br_b3_cotacoes_constants.RENAME.value}, inplace=True)
         chunk = chunk.replace(np.nan, "")
-        chunk["codigo_participante_vendedor"] = chunk["codigo_participante_vendedor"].apply(
-            lambda x: str(x).replace(".0", "")
+        chunk["codigo_participante_vendedor"] = chunk[
+            "codigo_participante_vendedor"
+        ].apply(lambda x: str(x).replace(".0", ""))
+        chunk["codigo_participante_comprador"] = chunk[
+            "codigo_participante_comprador"
+        ].apply(lambda x: str(x).replace(".0", ""))
+        chunk["preco_negocio"] = chunk["preco_negocio"].apply(
+            lambda x: str(x).replace(",", ".")
         )
-        chunk["codigo_participante_comprador"] = chunk["codigo_participante_comprador"].apply(
-            lambda x: str(x).replace(".0", "")
+        chunk["data_referencia"] = pd.to_datetime(
+            chunk["data_referencia"], format="%Y-%m-%d"
         )
-        chunk["preco_negocio"] = chunk["preco_negocio"].apply(lambda x: str(x).replace(",", "."))
-        chunk["data_referencia"] = pd.to_datetime(chunk["data_referencia"], format="%Y-%m-%d")
         chunk["data_negocio"] = pd.to_datetime(chunk["data_negocio"], format="%Y-%m-%d")
         chunk["hora_fechamento"] = np.where(
             chunk["hora_fechamento"].str.len() == 8,
@@ -70,10 +90,11 @@ def process_chunk_csv(input_path, chunk_size: int = 100000):
             + "."
             + chunk["hora_fechamento"].str[6:]
         )
-    
+
     os.remove(caminho_arquivo_csv)
 
     return chunk
+
 
 # ------- macro etapa 3 particionando os arquivos por data
 # ------- partition data
@@ -86,13 +107,12 @@ def partition_data(df: pd.DataFrame, column_name: list[str], output_directory: s
     output_directory: diretório onde os arquivos CSV serão salvos
     """
     unique_values = df[column_name].unique()
-    #print(f"Valores únicos: {unique_values}")
+    # print(f"Valores únicos: {unique_values}")
     for value in unique_values:
         value_str = str(value)[:10]
         date_value = datetime.strptime(value_str, "%Y-%m-%d").date()
 
         formatted_value = date_value.strftime("%Y-%m-%d")
-
 
         partition_path = os.path.join(
             output_directory, f"{column_name}={formatted_value}"
@@ -107,4 +127,11 @@ def partition_data(df: pd.DataFrame, column_name: list[str], output_directory: s
 
         csv_path = os.path.join(partition_path, "data.csv")
         mode = "a" if os.path.exists(csv_path) else "w"
-        df_partition.to_csv(csv_path, index=False, encoding="utf-8", na_rep="", mode=mode, header=mode=="w")
+        df_partition.to_csv(
+            csv_path,
+            index=False,
+            encoding="utf-8",
+            na_rep="",
+            mode=mode,
+            header=mode == "w",
+        )

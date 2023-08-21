@@ -50,6 +50,7 @@ def make_partition(df):
     )
     return br_b3_cotacoes_constants.B3_PATH_OUTPUT.value
 
+
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
