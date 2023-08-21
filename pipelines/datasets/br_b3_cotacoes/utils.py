@@ -39,6 +39,7 @@ def download_chunk_and_unzip_csv(url, path, chunk_size: int = 1000):
 
     os.remove(save_path)
 
+
 # ------- macro etapa 3 particionando os arquivos por data
 # ------- partition data
 def partition_data(df: pd.DataFrame, column_name: list[str], output_directory: str):
@@ -134,12 +135,10 @@ def process_chunk_csv(input_path, chunk_size: int = 100000):
         chunk = chunk[br_b3_cotacoes_constants.ORDEM.value]
 
         partition_data(
-        chunk,
-        column_name="data_referencia",
-        output_directory=br_b3_cotacoes_constants.B3_PATH_OUTPUT.value,
-    )
-        
+            chunk,
+            column_name="data_referencia",
+            output_directory=br_b3_cotacoes_constants.B3_PATH_OUTPUT.value,
+        )
+
     os.remove(caminho_arquivo_csv)
     return chunk
-
-

@@ -36,6 +36,7 @@ def tratamento(delta_day: int):
     df = process_chunk_csv(br_b3_cotacoes_constants.B3_PATH_INPUT_TXT.value.format(day))
     return br_b3_cotacoes_constants.B3_PATH_INPUT.value
 
+
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
