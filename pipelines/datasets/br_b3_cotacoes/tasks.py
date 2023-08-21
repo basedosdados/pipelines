@@ -33,8 +33,8 @@ def tratamento(delta_day: int):
         url=br_b3_cotacoes_constants.B3_URL.value.format(day_url),
         path=br_b3_cotacoes_constants.B3_PATH_INPUT.value,
     )
-    process_chunk_csv(br_b3_cotacoes_constants.B3_PATH_INPUT_TXT.value.format(day))
-    return br_b3_cotacoes_constants.B3_PATH_INPUT.value
+    df = process_chunk_csv(br_b3_cotacoes_constants.B3_PATH_INPUT_TXT.value.format(day))
+    return df
 
 
 @task(

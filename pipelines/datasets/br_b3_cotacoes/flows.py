@@ -13,6 +13,9 @@ from pipelines.constants import constants
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.datasets.br_b3_cotacoes.constants import (
+    constants as br_b3_cotacoes_constants,
+)
 from pipelines.datasets.br_b3_cotacoes.tasks import (
     tratamento,
     data_max_b3,
@@ -57,16 +60,16 @@ with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
 
     # ? Importante para o Prefect saber a ordem de execução dos tasks
 
-    output_path = tratamento(delta_day=delta_day, upstream_tasks=[rename_flow_run])
-    data_max = data_max_b3(output_path=output_path)
+    df = tratamento(delta_day=delta_day, upstream_tasks=[rename_flow_run])
+    data_max = data_max_b3(df= df)
 
     # pylint: disable=C0103
     wait_upload_table = create_table_and_upload_to_gcs(
-        data_path=output_path,
+        data_path=br_b3_cotacoes_constants.B3_PATH_INPUT.value,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_mode="append",
-        wait=output_path,
+        wait=br_b3_cotacoes_constants.B3_PATH_INPUT.value,
     )
 
     with case(materialize_after_dump, True):
