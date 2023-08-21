@@ -5,6 +5,7 @@ Tasks for br_b3_cotacoes
 
 from prefect import task
 import os
+import pandas as pd
 from datetime import datetime, timedelta
 from pipelines.datasets.br_b3_cotacoes.constants import (
     constants as br_b3_cotacoes_constants,
