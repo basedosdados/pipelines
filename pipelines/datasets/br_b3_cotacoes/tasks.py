@@ -19,7 +19,6 @@ from pipelines.constants import constants
 from pipelines.datasets.br_b3_cotacoes.utils import (
     download_chunk_and_unzip_csv,
     process_chunk_csv,
-    partition_data,
 )
 
 
@@ -35,21 +34,7 @@ def tratamento(delta_day: int):
         path=br_b3_cotacoes_constants.B3_PATH_INPUT.value,
     )
     df = process_chunk_csv(br_b3_cotacoes_constants.B3_PATH_INPUT_TXT.value.format(day))
-    return df
-
-
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
-def make_partition(df):
-    partition_data(
-        df,
-        column_name="data_referencia",
-        output_directory=br_b3_cotacoes_constants.B3_PATH_OUTPUT.value,
-    )
-    return br_b3_cotacoes_constants.B3_PATH_OUTPUT.value
-
+    return br_b3_cotacoes_constants.B3_PATH_INPUT.value
 
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,

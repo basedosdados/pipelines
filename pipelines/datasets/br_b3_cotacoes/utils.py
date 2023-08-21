@@ -39,6 +39,46 @@ def download_chunk_and_unzip_csv(url, path, chunk_size: int = 1000):
 
     os.remove(save_path)
 
+# ------- macro etapa 3 particionando os arquivos por data
+# ------- partition data
+def partition_data(df: pd.DataFrame, column_name: list[str], output_directory: str):
+    """
+    Particiona os dados em subconjuntos de acordo com os valores únicos de uma coluna.
+    Salva cada subconjunto em um arquivo CSV separado.
+    df: DataFrame a ser particionado
+    column_name: nome da coluna a ser usada para particionar os dados
+    output_directory: diretório onde os arquivos CSV serão salvos
+    """
+    unique_values = df[column_name].unique()
+    for value in unique_values:
+        value_str = str(value)[:10]
+        date_value = datetime.strptime(value_str, "%Y-%m-%d").date()
+
+        formatted_value = date_value.strftime("%Y-%m-%d")
+
+        partition_path = os.path.join(
+            output_directory, f"{column_name}={formatted_value}"
+        )
+
+        if not os.path.exists(partition_path):
+            os.makedirs(partition_path)
+
+        df_partition = df[df[column_name] == value].copy()
+
+        df_partition.drop([column_name], axis=1, inplace=True)
+
+        csv_path = os.path.join(partition_path, "data.csv")
+        mode = "a" if os.path.exists(csv_path) else "w"
+        df_partition.to_csv(
+            csv_path,
+            sep=",",
+            index=False,
+            encoding="utf-8",
+            na_rep="",
+            mode=mode,
+            header=mode == "w",
+        )
+
 
 # ------- macro etapa 2 tratando os dados através do chunk
 # ------- process chunk
@@ -93,46 +133,13 @@ def process_chunk_csv(input_path, chunk_size: int = 100000):
         )
         chunk = chunk[br_b3_cotacoes_constants.ORDEM.value]
 
+        partition_data(
+        chunk,
+        column_name="data_referencia",
+        output_directory=br_b3_cotacoes_constants.B3_PATH_OUTPUT.value,
+    )
+        
+    os.remove(caminho_arquivo_csv)
     return chunk
 
 
-# ------- macro etapa 3 particionando os arquivos por data
-# ------- partition data
-def partition_data(df: pd.DataFrame, column_name: list[str], output_directory: str):
-    """
-    Particiona os dados em subconjuntos de acordo com os valores únicos de uma coluna.
-    Salva cada subconjunto em um arquivo CSV separado.
-    df: DataFrame a ser particionado
-    column_name: nome da coluna a ser usada para particionar os dados
-    output_directory: diretório onde os arquivos CSV serão salvos
-    """
-    unique_values = df[column_name].unique()
-    # print(f"Valores únicos: {unique_values}")
-    for value in unique_values:
-        value_str = str(value)[:10]
-        date_value = datetime.strptime(value_str, "%Y-%m-%d").date()
-
-        formatted_value = date_value.strftime("%Y-%m-%d")
-
-        partition_path = os.path.join(
-            output_directory, f"{column_name}={formatted_value}"
-        )
-
-        if not os.path.exists(partition_path):
-            os.makedirs(partition_path)
-
-        df_partition = df[df[column_name] == value].copy()
-
-        df_partition.drop([column_name], axis=1, inplace=True)
-
-        csv_path = os.path.join(partition_path, "data.csv")
-        mode = "a" if os.path.exists(csv_path) else "w"
-        df_partition.to_csv(
-            csv_path,
-            sep=",",
-            index=False,
-            encoding="utf-8",
-            na_rep="",
-            mode=mode,
-            header=mode == "w",
-        )
