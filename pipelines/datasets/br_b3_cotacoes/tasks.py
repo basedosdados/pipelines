@@ -45,8 +45,8 @@ def tratamento(delta_day: int):
     day_url = datetime.strptime(day, "%d-%m-%Y").strftime("%Y-%m-%d")
 
     download_unzip_csv(
-        url = br_b3_cotacoes_constants.B3_URL.value.format(day_url),
-        path = br_b3_cotacoes_constants.B3_PATH_INPUT.value,
+        url=br_b3_cotacoes_constants.B3_URL.value.format(day_url),
+        path=br_b3_cotacoes_constants.B3_PATH_INPUT.value,
     )
     log(
         "********************************ABRINDO O ARQUIVO********************************"

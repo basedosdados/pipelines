@@ -40,8 +40,10 @@ def download_and_unzip(url, path):
 
     return path
 
+
 # ------- macro etapa 1 download de dados
 # ------- download and unzip csv
+
 
 def download_unzip_csv(url, path, chunk_size: int = 1000):
     print(f"Baixando o arquivo {url}")
@@ -68,7 +70,8 @@ def download_unzip_csv(url, path, chunk_size: int = 1000):
 # ------- macro etapa 3 tratando os dados através do chunk
 # ------- process chunk
 def process_chunk(chunk):
-    log("********************************INICIANDO O TRATAMENTO DOS DADOS********************************"
+    log(
+        "********************************INICIANDO O TRATAMENTO DOS DADOS********************************"
     )
     chunk.rename(columns={br_b3_cotacoes_constants.RENAME.value}, inplace=True)
 
@@ -78,23 +81,33 @@ def process_chunk(chunk):
         lambda x: str(x).replace(".0", "")
     )
 
-    chunk["codigo_participante_comprador"] = chunk["codigo_participante_comprador"].apply(
-        lambda x: str(x).replace(".0", "")
+    chunk["codigo_participante_comprador"] = chunk[
+        "codigo_participante_comprador"
+    ].apply(lambda x: str(x).replace(".0", ""))
+
+    chunk["preco_negocio"] = chunk["preco_negocio"].apply(
+        lambda x: str(x).replace(",", ".")
     )
 
-    chunk["preco_negocio"] = chunk["preco_negocio"].apply(lambda x: str(x).replace(",", "."))
-
-    chunk["data_referencia"] = pd.to_datetime(chunk["data_referencia"], format="%Y-%m-%d")
+    chunk["data_referencia"] = pd.to_datetime(
+        chunk["data_referencia"], format="%Y-%m-%d"
+    )
 
     chunk["data_negocio"] = pd.to_datetime(chunk["data_negocio"], format="%Y-%m-%d")
 
     chunk["preco_negocio"] = chunk["preco_negocio"].astype(float)
 
-    chunk["codigo_identificador_negocio"] = chunk["codigo_identificador_negocio"].astype(str)
+    chunk["codigo_identificador_negocio"] = chunk[
+        "codigo_identificador_negocio"
+    ].astype(str)
 
     chunk["hora_fechamento"] = chunk["hora_fechamento"].astype(str)
 
-    chunk["hora_fechamento"] = np.where(chunk["hora_fechamento"].str.len() == 8, "0" + chunk["hora_fechamento"], chunk["hora_fechamento"])
+    chunk["hora_fechamento"] = np.where(
+        chunk["hora_fechamento"].str.len() == 8,
+        "0" + chunk["hora_fechamento"],
+        chunk["hora_fechamento"],
+    )
 
     chunk["hora_fechamento"] = (
         chunk["hora_fechamento"].str[0:2]
@@ -110,6 +123,7 @@ def process_chunk(chunk):
 
     return chunk
 
+
 # ------- macro etapa 3 abrindo e concatenando o chunk
 # ------- read files
 def read_files(file_path, chunk_size: int = 100000):
@@ -117,14 +131,21 @@ def read_files(file_path, chunk_size: int = 100000):
     processed_data = pd.DataFrame()
 
     # Use um loop para iterar sobre os chunks do arquivo
-    for chunk in tqdm(pd.read_csv(file_path, sep=';', encoding='latin-1', chunksize=chunk_size)):
+    for chunk in tqdm(
+        pd.read_csv(file_path, sep=";", encoding="latin-1", chunksize=chunk_size)
+    ):
         processed_chunk = process_chunk(chunk)
-        processed_data = pd.concat([processed_data, processed_chunk], ignore_index=True)  # Concatene os chunks processados
-        partition_data(processed_data,
-                        "data_referencia",
-                        br_b3_cotacoes_constants.B3_PATH_OUTPUT.value)
-        
+        processed_data = pd.concat(
+            [processed_data, processed_chunk], ignore_index=True
+        )  # Concatene os chunks processados
+        partition_data(
+            processed_data,
+            "data_referencia",
+            br_b3_cotacoes_constants.B3_PATH_OUTPUT.value,
+        )
+
         return br_b3_cotacoes_constants.B3_PATH_OUTPUT.value
+
 
 # ------- macro etapa 4 particionando os arquivos por data
 # ------- partition data
