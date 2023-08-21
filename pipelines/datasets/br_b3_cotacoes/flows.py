@@ -15,7 +15,6 @@ from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.datasets.br_b3_cotacoes.tasks import (
     tratamento,
-    make_partition,
     data_max_b3,
 )
 from pipelines.utils.utils import (
@@ -54,7 +53,6 @@ with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
 
     delta_day = Parameter("delta_day", default=1, required=False)
     # ! a variável filepath é criada aqui e é passado o parâmetro 'delta_day', sendo ele mesmo o valor.
-
     # ! upstream_tasks=[rename_flow_run] significa que o task 'rename_flow_run' será executado antes do 'tratamento'
 
     # ? Importante para o Prefect saber a ordem de execução dos tasks
