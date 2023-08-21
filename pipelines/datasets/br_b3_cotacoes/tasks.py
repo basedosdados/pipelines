@@ -4,8 +4,7 @@ Tasks for br_b3_cotacoes
 """
 
 from prefect import task
-import pandas as pd
-import numpy as np
+import os
 from datetime import datetime, timedelta
 from pipelines.datasets.br_b3_cotacoes.constants import (
     constants as br_b3_cotacoes_constants,
@@ -33,6 +32,7 @@ def tratamento(delta_day: int):
         url=br_b3_cotacoes_constants.B3_URL.value.format(day_url),
         path=br_b3_cotacoes_constants.B3_PATH_INPUT.value,
     )
+    os.system(f'mkdir -p {br_b3_cotacoes_constants.B3_PATH_INPUT_TXT.value}')
     df = process_chunk_csv(br_b3_cotacoes_constants.B3_PATH_INPUT_TXT.value.format(day))
     return df
 
