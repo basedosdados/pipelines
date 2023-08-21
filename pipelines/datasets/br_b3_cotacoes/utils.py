@@ -91,10 +91,9 @@ def process_chunk_csv(input_path, chunk_size: int = 100000):
             + "."
             + chunk["hora_fechamento"].str[6:]
         )
+        chunk = chunk[br_b3_cotacoes_constants.ORDEM.value]
 
-    os.remove(caminho_arquivo_csv)
-
-    # return chunk
+    return chunk
 
 
 # ------- macro etapa 3 particionando os arquivos por data
