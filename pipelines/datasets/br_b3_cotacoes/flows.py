@@ -70,6 +70,7 @@ with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
         table_id=table_id,
         dump_mode="append",
         wait=br_b3_cotacoes_constants.B3_PATH_INPUT.value,
+        upstream_tasks=[df],
     )
 
     with case(materialize_after_dump, True):

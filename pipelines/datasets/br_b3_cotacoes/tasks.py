@@ -10,12 +10,7 @@ from datetime import datetime, timedelta
 from pipelines.datasets.br_b3_cotacoes.constants import (
     constants as br_b3_cotacoes_constants,
 )
-
-from pipelines.utils.utils import (
-    log,
-)
 from pipelines.constants import constants
-
 from pipelines.datasets.br_b3_cotacoes.utils import (
     download_chunk_and_unzip_csv,
     process_chunk_csv,
@@ -33,8 +28,9 @@ def tratamento(delta_day: int):
         url=br_b3_cotacoes_constants.B3_URL.value.format(day_url),
         path=br_b3_cotacoes_constants.B3_PATH_INPUT.value,
     )
-    # os.system(f"mkdir -p {br_b3_cotacoes_constants.B3_PATH_INPUT_TXT.value}")
+    os.system(f"mkdir -p {br_b3_cotacoes_constants.B3_PATH_INPUT_TXT.value}")
     df = process_chunk_csv(br_b3_cotacoes_constants.B3_PATH_INPUT_TXT.value.format(day))
+
     return df
 
 
