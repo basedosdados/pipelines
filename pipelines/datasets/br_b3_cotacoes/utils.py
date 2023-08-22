@@ -100,6 +100,7 @@ def process_chunk_csv(input_path, chunk_size: int = 100000):
         ),
         desc="lendo o arquivo CSV",
     ):
+    
         chunk.rename(columns=br_b3_cotacoes_constants.RENAME.value, inplace=True)
         chunk = chunk.replace(np.nan, "")
         chunk["codigo_participante_vendedor"] = chunk[
@@ -130,12 +131,8 @@ def process_chunk_csv(input_path, chunk_size: int = 100000):
             + chunk["hora_fechamento"].str[6:]
         )
         chunk = chunk[br_b3_cotacoes_constants.ORDEM.value]
-
         partition_data(
             chunk,
             column_name="data_referencia",
             output_directory=br_b3_cotacoes_constants.B3_PATH_OUTPUT.value,
         )
-
-    # os.remove(caminho_arquivo_csv)
-    return chunk
