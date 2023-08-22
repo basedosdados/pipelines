@@ -41,6 +41,10 @@ def tratamento(delta_day: int):
 )
 def data_max_b3(delta_day: int):
     day = (datetime.now() - timedelta(days=delta_day)).strftime("%d-%m-%Y")
-    df = pd.read_csv(br_b3_cotacoes_constants.B3_PATH_INPUT_TXT.value.format(day), sep=";", encoding="utf-8")
+    df = pd.read_csv(
+        br_b3_cotacoes_constants.B3_PATH_INPUT_TXT.value.format(day),
+        sep=";",
+        encoding="utf-8",
+    )
     max_value = pd.to_datetime(df["DataReferencia"]).max()
     return max_value.strftime("%Y-%m-%d")
