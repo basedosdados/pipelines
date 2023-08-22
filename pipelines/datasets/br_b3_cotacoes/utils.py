@@ -19,7 +19,7 @@ from pipelines.datasets.br_b3_cotacoes.constants import (
 
 
 def download_chunk_and_unzip_csv(url, path, chunk_size: int = 1000):
-    print(f"Baixando o arquivo {url}")
+    log(f"Baixando o arquivo {url}")
     os.system(f"mkdir -p {path}")
     save_path = os.path.join(path, f"{os.path.basename(url)}.zip")
     r = requests.get(url, stream=True, timeout=60)
@@ -32,12 +32,12 @@ def download_chunk_and_unzip_csv(url, path, chunk_size: int = 1000):
     try:
         with zipfile.ZipFile(save_path) as z:
             z.extractall(path)
-        print("Dados extraídos com sucesso!")
+        log("Dados extraídos com sucesso!")
 
     except zipfile.BadZipFile:
-        print(f"O arquivo {os.path.basename(url)} não é um arquivo ZIP válido.")
+        log(f"O arquivo {os.path.basename(url)} não é um arquivo ZIP válido.")
 
-    os.remove(save_path)
+    #os.remove(save_path)
 
 
 # ------- macro etapa 3 particionando os arquivos por data
@@ -88,7 +88,7 @@ def process_chunk_csv(input_path, chunk_size: int = 100000):
         "********************************ABRINDO O ARQUIVO********************************"
     )
     caminho_arquivo_csv = os.path.join(input_path)
-    print(f"caminho_arquivo_csv: {caminho_arquivo_csv}")
+    log(f"caminho_arquivo_csv: {caminho_arquivo_csv}")
 
     for chunk in tqdm(
         pd.read_csv(
