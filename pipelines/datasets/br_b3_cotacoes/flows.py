@@ -55,7 +55,7 @@ with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
     delta_day = Parameter("delta_day", default=1, required=False)
 
     output_path = tratamento(delta_day=delta_day, upstream_tasks=[rename_flow_run])
-    data_max = data_max_b3(delta_day=delta_day)
+    data_max = data_max_b3(delta_day=delta_day, upstream_tasks=[output_path])
 
     # pylint: disable=C0103
     wait_upload_table = create_table_and_upload_to_gcs(
