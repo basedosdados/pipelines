@@ -52,25 +52,19 @@ with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
-    # ! a variável delta_day é criada aqui e cria um objeto 'Parameter' no Prefect Cloud chamado delta_day
-
     delta_day = Parameter("delta_day", default=1, required=False)
-    # ! a variável filepath é criada aqui e é passado o parâmetro 'delta_day', sendo ele mesmo o valor.
-    # ! upstream_tasks=[rename_flow_run] significa que o task 'rename_flow_run' será executado antes do 'tratamento'
 
-    # ? Importante para o Prefect saber a ordem de execução dos tasks
-
-    df = tratamento(delta_day=delta_day, upstream_tasks=[rename_flow_run])
-    data_max = data_max_b3(df=df)
+    output_path = tratamento(delta_day=delta_day, upstream_tasks=[rename_flow_run])
+    data_max = data_max_b3(delta_day=delta_day)
 
     # pylint: disable=C0103
     wait_upload_table = create_table_and_upload_to_gcs(
-        data_path=br_b3_cotacoes_constants.B3_PATH_INPUT.value,
+        data_path=output_path,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_mode="append",
-        wait=br_b3_cotacoes_constants.B3_PATH_INPUT.value,
-        upstream_tasks=[df],
+        wait=output_path,
+        upstream_tasks=[output_path],
     )
 
     with case(materialize_after_dump, True):

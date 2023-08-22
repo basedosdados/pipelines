@@ -28,16 +28,17 @@ def tratamento(delta_day: int):
         url=br_b3_cotacoes_constants.B3_URL.value.format(day_url),
         path=br_b3_cotacoes_constants.B3_PATH_INPUT.value,
     )
-    os.system(f"mkdir -p {br_b3_cotacoes_constants.B3_PATH_INPUT_TXT.value}")
-    df = process_chunk_csv(br_b3_cotacoes_constants.B3_PATH_INPUT_TXT.value.format(day))
+    process_chunk_csv(br_b3_cotacoes_constants.B3_PATH_INPUT_TXT.value.format(day))
 
-    return df
+    return br_b3_cotacoes_constants.B3_PATH_INPUT.value
 
 
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def data_max_b3(df):
+def data_max_b3(delta_day: int):
+    day = (datetime.now() - timedelta(days=delta_day)).strftime("%d-%m-%Y")
+    df = pd.read_csv(br_b3_cotacoes_constants.B3_PATH_INPUT_TXT.value.format(day))
     max_value = pd.to_datetime(df["data_referencia"]).max()
     return max_value.strftime("%Y-%m-%d")
