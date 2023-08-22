@@ -16,8 +16,6 @@ from pipelines.datasets.br_b3_cotacoes.constants import (
 
 # ------- macro etapa 1 download de dados com chunk
 # ------- download and unzip csv
-
-
 def download_chunk_and_unzip_csv(url, path, chunk_size: int = 1000):
     log(f"Baixando o arquivo {url}")
     os.system(f"mkdir -p {path}")
@@ -25,8 +23,7 @@ def download_chunk_and_unzip_csv(url, path, chunk_size: int = 1000):
     r = requests.get(url, stream=True, timeout=60)
     with open(save_path, "wb") as fd:
         for chunk in tqdm(
-            r.iter_content(chunk_size=chunk_size), desc="Baixando o arquivo"
-        ):
+            r.iter_content(chunk_size=chunk_size), desc="Baixando o arquivo"):
             fd.write(chunk)
 
     try:
@@ -36,8 +33,6 @@ def download_chunk_and_unzip_csv(url, path, chunk_size: int = 1000):
 
     except zipfile.BadZipFile:
         log(f"O arquivo {os.path.basename(url)} não é um arquivo ZIP válido.")
-
-    # os.remove(save_path)
 
 
 # ------- macro etapa 3 particionando os arquivos por data
