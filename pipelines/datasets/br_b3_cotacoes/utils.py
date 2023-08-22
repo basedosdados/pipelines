@@ -14,6 +14,7 @@ from pipelines.datasets.br_b3_cotacoes.constants import (
     constants as br_b3_cotacoes_constants,
 )
 
+
 # ------- macro etapa 1 download de dados com chunk
 # ------- download and unzip csv
 def download_chunk_and_unzip_csv(url, path, chunk_size: int = 1000):
@@ -23,7 +24,8 @@ def download_chunk_and_unzip_csv(url, path, chunk_size: int = 1000):
     r = requests.get(url, stream=True, timeout=60)
     with open(save_path, "wb") as fd:
         for chunk in tqdm(
-            r.iter_content(chunk_size=chunk_size), desc="Baixando o arquivo"):
+            r.iter_content(chunk_size=chunk_size), desc="Baixando o arquivo"
+        ):
             fd.write(chunk)
 
     try:
