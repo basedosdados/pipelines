@@ -37,7 +37,7 @@ def download_chunk_and_unzip_csv(url, path, chunk_size: int = 1000):
     except zipfile.BadZipFile:
         log(f"O arquivo {os.path.basename(url)} não é um arquivo ZIP válido.")
 
-    #os.remove(save_path)
+    # os.remove(save_path)
 
 
 # ------- macro etapa 3 particionando os arquivos por data
