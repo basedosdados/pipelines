@@ -14,6 +14,7 @@ from pipelines.datasets.br_b3_cotacoes.constants import (
     constants as br_b3_cotacoes_constants,
 )
 
+
 # ------- macro etapa 1 download to zip by chunk and unzip csv
 def download_chunk_and_unzip_csv(url, path, chunk_size: int = 1000):
     log(f"Baixando o arquivo {url}")
@@ -36,6 +37,7 @@ def download_chunk_and_unzip_csv(url, path, chunk_size: int = 1000):
 
 
 # ------- macro etapa 3 partition data by data_referencia
+
 
 def partition_data(df: pd.DataFrame, column_name: list[str], output_directory: str):
     """
