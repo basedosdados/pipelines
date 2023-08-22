@@ -100,7 +100,6 @@ def process_chunk_csv(input_path, chunk_size: int = 100000):
         ),
         desc="lendo o arquivo CSV",
     ):
-    
         chunk.rename(columns=br_b3_cotacoes_constants.RENAME.value, inplace=True)
         chunk = chunk.replace(np.nan, "")
         chunk["codigo_participante_vendedor"] = chunk[

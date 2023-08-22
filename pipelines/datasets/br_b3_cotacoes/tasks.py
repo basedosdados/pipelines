@@ -17,6 +17,7 @@ from pipelines.datasets.br_b3_cotacoes.utils import (
     process_chunk_csv,
 )
 
+
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
