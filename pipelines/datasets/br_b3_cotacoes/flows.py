@@ -13,9 +13,6 @@ from pipelines.constants import constants
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.datasets.br_b3_cotacoes.constants import (
-    constants as br_b3_cotacoes_constants,
-)
 from pipelines.datasets.br_b3_cotacoes.tasks import (
     tratamento,
     data_max_b3,

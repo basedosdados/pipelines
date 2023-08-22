@@ -14,9 +14,7 @@ from pipelines.datasets.br_b3_cotacoes.constants import (
     constants as br_b3_cotacoes_constants,
 )
 
-
-# ------- macro etapa 1 download de dados com chunk
-# ------- download and unzip csv
+# ------- macro etapa 1 download to zip by chunk and unzip csv
 def download_chunk_and_unzip_csv(url, path, chunk_size: int = 1000):
     log(f"Baixando o arquivo {url}")
     os.system(f"mkdir -p {path}")
@@ -37,8 +35,8 @@ def download_chunk_and_unzip_csv(url, path, chunk_size: int = 1000):
         log(f"O arquivo {os.path.basename(url)} não é um arquivo ZIP válido.")
 
 
-# ------- macro etapa 3 particionando os arquivos por data
-# ------- partition data
+# ------- macro etapa 3 partition data by data_referencia
+
 def partition_data(df: pd.DataFrame, column_name: list[str], output_directory: str):
     """
     Particiona os dados em subconjuntos de acordo com os valores únicos de uma coluna.
@@ -78,8 +76,8 @@ def partition_data(df: pd.DataFrame, column_name: list[str], output_directory: s
         )
 
 
-# ------- macro etapa 2 tratando os dados através do chunk
-# ------- process chunk
+# ------- macro etapa 2 tratando os dados através do chunk.
+# ------- macro 2 treatind data by chunk
 def process_chunk_csv(input_path, chunk_size: int = 100000):
     log(
         "********************************ABRINDO O ARQUIVO********************************"
