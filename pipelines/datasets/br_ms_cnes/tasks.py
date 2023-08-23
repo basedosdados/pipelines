@@ -65,8 +65,7 @@ def parse_latest_cnes_dbc_files(database: str, cnes_group: str) -> list[str]:
     log(f"the YEARMONTH being used to parse files is: {year_month_to_parse}")
 
     for file in available_dbs:
-        if file[-8:-4] != "AAmm":
-            # "year_month_to_parse"
+        if file[-8:-4] == year_month_to_parse:
             list_files.append(file)
 
     # check if list is null
