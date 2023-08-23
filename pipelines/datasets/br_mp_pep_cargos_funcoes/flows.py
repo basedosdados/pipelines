@@ -40,6 +40,7 @@ with Flow(
 ) as datasets_br_mp_pep_cargos_funcoes_flow:
     dataset_id = Parameter("dataset_id", default="br_mp_pep", required=True)
     table_id = Parameter("table_id", default="cargos_funcoes", required=True)
+    update_metadata = Parameter("update_metadata", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
@@ -123,7 +124,7 @@ with Flow(
                     metadata_type="DateTimeRange",
                     bq_last_update=False,
                     bq_table_last_year_month=True,
-                    billing_project_id="basedosdados-dev",
+                    billing_project_id="basedosdados",
                     api_mode="prod",
                     date_format="yy-mm",
                     upstream_tasks=[wait_for_materialization],
@@ -165,7 +166,7 @@ with Flow(
                     metadata_type="DateTimeRange",
                     bq_last_update=False,
                     bq_table_last_year_month=True,
-                    billing_project_id="basedosdados-dev",
+                    billing_project_id="basedosdados",
                     api_mode="prod",
                     date_format="yy-mm",
                     upstream_tasks=[wait_for_materialization],
