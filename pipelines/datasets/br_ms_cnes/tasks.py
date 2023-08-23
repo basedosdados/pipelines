@@ -64,7 +64,7 @@ def parse_latest_cnes_dbc_files(database: str, cnes_group: str) -> list[str]:
             list_files.append(file)
 
     # check if list is null
-    # se o arquivo for nulo fazer
+    # todo
     if len(list_files) == 0:
         log("No files were selected from DATASUS FTP")
 
