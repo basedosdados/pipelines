@@ -12,9 +12,15 @@ from tqdm import tqdm
 import pandas as pd
 import numpy as np
 from prefect import task
+from datetime import datetime
 
 from pipelines.utils.utils import log
 from pipelines.datasets.br_ibge_pnadc.constants import constants as pnad_constants
+
+
+@task
+def get_year_quarter(year, quarter):
+    return datetime.strptime(f"{year}-{quarter}", "%Y-%m")
 
 
 @task
