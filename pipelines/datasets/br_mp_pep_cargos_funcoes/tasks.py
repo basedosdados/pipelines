@@ -396,7 +396,7 @@ def is_up_to_date() -> bool:
     log(f"Last date website: {text}, parsed as {date_website}")
 
     last_date_in_bq = extract_last_date(
-        "br_mp_pep", "cargos_funcoes_atualizado", "yy-mm", "basedosdados-dev"
+        "br_mp_pep", "cargos_funcoes_atualizado", "yy-mm", "basedosdados"
     )
     date_in_bq = datetime.datetime.strptime(last_date_in_bq, "%Y-%m")
 
