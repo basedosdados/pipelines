@@ -15,7 +15,6 @@ from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.datasets.br_b3_cotacoes.tasks import (
     tratamento,
-    make_partition,
     data_max_b3,
 )
 from pipelines.utils.utils import (
@@ -50,18 +49,10 @@ with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
-    # ! a variável delta_day é criada aqui e cria um objeto 'Parameter' no Prefect Cloud chamado delta_day
-
     delta_day = Parameter("delta_day", default=1, required=False)
-    # ! a variável filepath é criada aqui e é passado o parâmetro 'delta_day', sendo ele mesmo o valor.
 
-    # ! upstream_tasks=[rename_flow_run] significa que o task 'rename_flow_run' será executado antes do 'tratamento'
-
-    # ? Importante para o Prefect saber a ordem de execução dos tasks
-
-    df = tratamento(delta_day=delta_day, upstream_tasks=[rename_flow_run])
-    output_path = make_partition(df=df, upstream_tasks=[df])
-    data_max = data_max_b3(df=df)
+    output_path = tratamento(delta_day=delta_day, upstream_tasks=[rename_flow_run])
+    data_max = data_max_b3(delta_day=delta_day, upstream_tasks=[output_path])
 
     # pylint: disable=C0103
     wait_upload_table = create_table_and_upload_to_gcs(
@@ -70,6 +61,7 @@ with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
         table_id=table_id,
         dump_mode="append",
         wait=output_path,
+        upstream_tasks=[output_path],
     )
 
     with case(materialize_after_dump, True):
@@ -100,7 +92,9 @@ with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
-
+        data_max = data_max_b3(
+            delta_day=delta_day, upstream_tasks=[wait_for_materialization]
+        )
         with case(update_metadata, True):  # task que retorna a data atual
             update_django_metadata(
                 dataset_id,
