@@ -299,7 +299,6 @@ class constants(Enum):  # pylint: disable=c0103
     GENERATE_MONTH_TO_PARSE = {
         # january : november
         1: "11",
-        # february : december an so on
         2: "12",
         3: "01",
         4: "02",
