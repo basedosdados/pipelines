@@ -531,10 +531,10 @@ def get_ids(
     dataset_name: str,
     table_name: str,
     email: str,
+    is_bd_pro: bool,
     password: str,
-    api_mode: str = "prod",
-    is_bd_pro: bool = True,
-    is_free: bool = True,
+    is_free: bool,
+    api_mode: str,
 ) -> dict:
     """
     Obtains the IDs of the table and coverage based on the provided names.
@@ -558,6 +558,8 @@ def get_ids(
         table_id = table_result[0]["data"]["allCloudtable"]["edges"][0]["node"][
             "table"
         ].get("_id")
+
+        log(table_id)
 
         if is_bd_pro and is_free:
             # Get the coverage IDs
@@ -639,7 +641,7 @@ def get_ids(
                 )
 
             # Retrieve the first coverage ID
-            coverage_id = coverage_ids["data"]["allCoverage"]["edges"][0]["node"][
+            coverage_id_pro = coverage_ids["data"]["allCoverage"]["edges"][0]["node"][
                 "id"
             ].split(":")[-1]
         elif is_free and not is_bd_pro:

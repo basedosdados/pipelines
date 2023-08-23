@@ -15,6 +15,7 @@ from pipelines.utils.metadata.utils import (
     extract_last_update,
     extract_last_date,
     get_first_date,
+    get_id,
 )
 from dateutil.relativedelta import relativedelta
 
@@ -118,9 +119,10 @@ def update_django_metadata(
         dataset_id,
         table_id,
         email,
-        password,
         is_bd_pro,
+        password,
         is_free,
+        api_mode,
     )
     log(f"IDS:{ids}")
 
@@ -277,8 +279,21 @@ def update_django_metadata(
                     f"Cobertura PRO ->> {_last_date} || Cobertura Grátis ->> {free_data}"
                 )
                 resource_to_temporal_coverage = parse_temporal_coverage(f"{last_date}")
+                resource_to_temporal_coverage_free = parse_temporal_coverage(
+                    f"{free_data}"
+                )
 
                 resource_to_temporal_coverage["coverage"] = ids.get("coverage_id_pro")
+                resource_to_temporal_coverage[
+                    "startYear"
+                ] = resource_to_temporal_coverage_free["endYear"]
+                resource_to_temporal_coverage[
+                    "startMonth"
+                ] = resource_to_temporal_coverage_free["endMonth"]
+                resource_to_temporal_coverage[
+                    "startDay"
+                ] = resource_to_temporal_coverage_free["endDay"]
+
                 log(f"Mutation parameters: {resource_to_temporal_coverage}")
 
                 create_update(
@@ -291,16 +306,16 @@ def update_django_metadata(
                     password=password,
                     api_mode=api_mode,
                 )
-                resource_to_temporal_coverage = parse_temporal_coverage(f"{free_data}")
+                # resource_to_temporal_coverage = parse_temporal_coverage(f"{free_data}")
 
-                resource_to_temporal_coverage["coverage"] = ids.get("coverage_id")
-                log(f"Mutation parameters: {resource_to_temporal_coverage}")
+                # resource_to_temporal_coverage_free["coverage"] = ids.get("coverage_id")
+                log(f"Mutation parameters: {resource_to_temporal_coverage_free}")
 
                 create_update(
                     query_class="allDatetimerange",
                     query_parameters={"$coverage_Id: ID": ids.get("coverage_id")},
                     mutation_class="CreateUpdateDateTimeRange",
-                    mutation_parameters=resource_to_temporal_coverage,
+                    mutation_parameters=resource_to_temporal_coverage_free,
                     update=True,
                     email=email,
                     password=password,
@@ -327,14 +342,19 @@ def update_django_metadata(
 
 
 @task
-def test_ids(dataset_id, table_id, api_mode="prod", is_bd_pro=True):
+def test_ids(dataset_id, table_id, api_mode="staging", is_bd_pro=True, is_free=False):
     (email, password) = get_credentials_utils(secret_path=f"api_user_{api_mode}")
     log(email)
+    log(password)
+
     ids = get_ids(
         dataset_id,
         table_id,
         email,
+        is_bd_pro,
         password,
+        is_free,
+        api_mode,
     )
 
     log(f"ids ->> ->> {ids}")
