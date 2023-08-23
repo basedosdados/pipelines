@@ -41,6 +41,10 @@ with Flow(
     dataset_id = Parameter("dataset_id", default="br_mp_pep", required=True)
     table_id = Parameter("table_id", default="cargos_funcoes", required=True)
 
+    rename_flow_run = rename_current_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+    )
+
     setup = setup_web_driver()
 
     data_is_up_to_date = is_up_to_date(upstream_tasks=[setup])
@@ -72,10 +76,6 @@ with Flow(
             "materialize after dump", default=True, required=False
         )
         dbt_alias = Parameter("dbt_alias", default=False, required=False)
-
-        rename_flow_run = rename_current_flow_run_dataset_table(
-            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
-        )
 
         update_metadata = Parameter("update_metadata", default=True, required=False)
 
