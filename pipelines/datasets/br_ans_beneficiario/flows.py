@@ -123,7 +123,7 @@ with Flow(
                     is_free=True,
                     date_format="yy-mm",
                     api_mode="prod",
-                    time_deta=6,
+                    time_delta=6,
                     time_unit="months",
                 )
 
