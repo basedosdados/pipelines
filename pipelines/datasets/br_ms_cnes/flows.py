@@ -16,6 +16,7 @@ from pipelines.datasets.br_ms_cnes.tasks import (
     parse_latest_cnes_dbc_files,
     access_ftp_donwload_files,
     read_dbc_save_csv,
+    is_empty,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -25,6 +26,7 @@ from pipelines.utils.tasks import (
     rename_current_flow_run_dataset_table,
     get_current_flow_labels,
     update_django_metadata,
+    log_task,
 )
 
 from pipelines.datasets.br_ms_cnes.schedules import (
@@ -66,7 +68,11 @@ with Flow(
         database="CNES",
         cnes_group=br_ms_cnes_constants.DATABASE_GROUPS.value["CNES"][0],
     )
+    with case(is_empty(files_path), True):
+        log_task("Não houveram atualizações!")
 
+    # task para veficiar se for nula
+    # e deliberar
     dbc_files = access_ftp_donwload_files(
         file_list=files_path,
         path=br_ms_cnes_constants.PATH.value[0],

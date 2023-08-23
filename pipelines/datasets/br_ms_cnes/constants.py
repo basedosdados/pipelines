@@ -290,24 +290,19 @@ class constants(Enum):  # pylint: disable=c0103
             "CNS_RTEC",
             "HEMOTERA",
         ],
-        #
     }
 
-    # generate YYYYMM to parse correct files from FTP server
-    # usually the files are released with a 2 month delay. So this dict
-    # maps the representative values of months to it as an int - 2
     GENERATE_MONTH_TO_PARSE = {
-        # january : november
-        1: "11",
-        2: "12",
-        3: "01",
-        4: "02",
-        5: "03",
-        6: "04",
-        7: "05",
-        8: "07",
-        9: "07",
-        10: "08",
-        12: "09",
-        11: "10",
+        11: "11",
+        12: "12",
+        1: "01",
+        2: "02",
+        3: "03",
+        4: "04",
+        5: "05",
+        6: "06",
+        7: "07",
+        8: "08",
+        9: "09",
+        10: "10",
     }

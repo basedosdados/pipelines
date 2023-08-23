@@ -46,33 +46,27 @@ def parse_latest_cnes_dbc_files(database: str, cnes_group: str) -> list[str]:
         database=cnes_database, CNES_group=cnes_group_file
     )
 
-    # generate current date
     today = dt.date.today()
 
     current_month = today.month
-    # generate two last digits of current year to match datasus FTP year representation format
-    # ex. 2023 -> 23
     current_year = str(today.year)
     current_year = current_year[2:]
 
-    # GENERATE_MONTH_TO_PARSE is a dict that given a int representing an month (Eg. 1 = january)
-    # gives a string representing the current minus 2. (Eg. 1 = january : '11' november)
     month_to_parse = cnes_constants.GENERATE_MONTH_TO_PARSE.value[current_month]
     year_month_to_parse = str(current_year) + str(month_to_parse)
 
     list_files = []
 
     log(f"the YEARMONTH being used to parse files is: {year_month_to_parse}")
-
+    # filtra pra ver se acha e retorna a lista
     for file in available_dbs:
         if file[-8:-4] == year_month_to_parse:
             list_files.append(file)
 
     # check if list is null
+    # se o arquivo for nulo fazer
     if len(list_files) == 0:
-        raise ValueError(
-            f"cnes files parsed with {year_month_to_parse} were not found. It probably indicates that those files have not been released yet."
-        )
+        log("No files were selected from DATASUS FTP")
 
     log(f"the following files were selected fom DATASUS FTP: {list_files}")
 
@@ -251,3 +245,11 @@ def read_dbc_save_csv(file_list: list, path: str, table: str) -> str:
         )
 
     return path + table
+
+
+@task
+def is_empty(lista):
+    if len(lista) == 0:
+        return True
+    else:
+        return False
