@@ -20,7 +20,7 @@ from pipelines.datasets.br_ibge_pnadc.constants import constants as pnad_constan
 
 @task
 def get_year_quarter(year, quarter):
-    return datetime.strptime(f"{year}-{quarter}", "%Y-%m")
+    return f"{year}-{quarter}"
 
 
 @task
