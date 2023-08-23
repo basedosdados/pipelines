@@ -131,48 +131,7 @@ with Flow(
                 date_format="yy-mm",
                 upstream_tasks=[wait_for_materialization],
             )
-    # estabelecimento_atualizado
-    with case(materialize_after_dump, True):
-        # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
-        materialization_flow = create_flow_run(
-            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-            parameters={
-                "dataset_id": dataset_id,
-                "table_id": table_id + "_atualizado",
-                "mode": materialization_mode,
-                "dbt_alias": dbt_alias,
-            },
-            labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id}",
-        )
 
-        wait_for_materialization = wait_for_flow_run(
-            materialization_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
-        wait_for_materialization.max_retries = (
-            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-        )
-        wait_for_materialization.retry_delay = timedelta(
-            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-        )
-
-        with case(update_metadata, True):
-            update = update_django_metadata(
-                dataset_id,
-                table_id + "_atualizado",
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                bq_table_last_year_month=True,
-                api_mode="prod",
-                billing_project_id="basedosdados",
-                date_format="yy-mm",
-                upstream_tasks=[wait_for_materialization],
-            )
 
 br_ms_cnes_estabelecimento.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_ms_cnes_estabelecimento.run_config = KubernetesRun(
@@ -261,47 +220,6 @@ with Flow(
             update = update_django_metadata(
                 dataset_id,
                 table_id,
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                bq_table_last_year_month=True,
-                api_mode="prod",
-                billing_project_id="basedosdados",
-                date_format="yy-mm",
-                upstream_tasks=[wait_for_materialization],
-            )
-    # profissional_atualizado
-    with case(materialize_after_dump, True):
-        # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
-        materialization_flow = create_flow_run(
-            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-            parameters={
-                "dataset_id": dataset_id,
-                "table_id": table_id + "atualizado",
-                "mode": materialization_mode,
-                "dbt_alias": dbt_alias,
-            },
-            labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id}",
-        )
-
-        wait_for_materialization = wait_for_flow_run(
-            materialization_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
-        wait_for_materialization.max_retries = (
-            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-        )
-        wait_for_materialization.retry_delay = timedelta(
-            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-        )
-        with case(update_metadata, True):
-            update = update_django_metadata(
-                dataset_id,
-                table_id + "_atualizado",
                 metadata_type="DateTimeRange",
                 bq_last_update=False,
                 bq_table_last_year_month=True,
@@ -401,47 +319,7 @@ with Flow(name="br_ms_cnes.equipe", code_owners=["Gabriel Pisa"]) as br_ms_cnes_
                 date_format="yy-mm",
                 upstream_tasks=[wait_for_materialization],
             )
-    # equipe_atualizado
-    with case(materialize_after_dump, True):
-        # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
-        materialization_flow = create_flow_run(
-            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-            parameters={
-                "dataset_id": dataset_id,
-                "table_id": table_id + "_atualizado",
-                "mode": materialization_mode,
-                "dbt_alias": dbt_alias,
-            },
-            labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id}",
-        )
 
-        wait_for_materialization = wait_for_flow_run(
-            materialization_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
-        wait_for_materialization.max_retries = (
-            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-        )
-        wait_for_materialization.retry_delay = timedelta(
-            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-        )
-        with case(update_metadata, True):
-            update = update_django_metadata(
-                dataset_id,
-                table_id + "_atualizado",
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                bq_table_last_year_month=True,
-                api_mode="prod",
-                billing_project_id="basedosdados",
-                date_format="yy-mm",
-                upstream_tasks=[wait_for_materialization],
-            )
 
 br_ms_cnes_equipe.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_ms_cnes_equipe.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
@@ -533,47 +411,7 @@ with Flow(name="br_ms_cnes.leito", code_owners=["Gabriel Pisa"]) as br_ms_cnes_l
                 date_format="yy-mm",
                 upstream_tasks=[wait_for_materialization],
             )
-    # leito_atualizado
-    with case(materialize_after_dump, True):
-        # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
-        materialization_flow = create_flow_run(
-            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-            parameters={
-                "dataset_id": dataset_id,
-                "table_id": table_id + "_atualizado",
-                "mode": materialization_mode,
-                "dbt_alias": dbt_alias,
-            },
-            labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id}",
-        )
 
-        wait_for_materialization = wait_for_flow_run(
-            materialization_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
-        wait_for_materialization.max_retries = (
-            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-        )
-        wait_for_materialization.retry_delay = timedelta(
-            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-        )
-        with case(update_metadata, True):
-            update = update_django_metadata(
-                dataset_id,
-                table_id + "_atualizado",
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                bq_table_last_year_month=True,
-                api_mode="prod",
-                billing_project_id="basedosdados",
-                date_format="yy-mm",
-                upstream_tasks=[wait_for_materialization],
-            )
 
 br_ms_cnes_leito.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_ms_cnes_leito.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
@@ -667,47 +505,7 @@ with Flow(
                 date_format="yy-mm",
                 upstream_tasks=[wait_for_materialization],
             )
-    # equipamento_atualizado
-    with case(materialize_after_dump, True):
-        # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
-        materialization_flow = create_flow_run(
-            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-            parameters={
-                "dataset_id": dataset_id,
-                "table_id": table_id + "_atualizado",
-                "mode": materialization_mode,
-                "dbt_alias": dbt_alias,
-            },
-            labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id}",
-        )
 
-        wait_for_materialization = wait_for_flow_run(
-            materialization_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
-        wait_for_materialization.max_retries = (
-            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-        )
-        wait_for_materialization.retry_delay = timedelta(
-            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-        )
-        with case(update_metadata, True):
-            update = update_django_metadata(
-                dataset_id,
-                table_id + "_atualizado",
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                bq_table_last_year_month=True,
-                api_mode="prod",
-                billing_project_id="basedosdados",
-                date_format="yy-mm",
-                upstream_tasks=[wait_for_materialization],
-            )
 
 br_ms_cnes_equipamento.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_ms_cnes_equipamento.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
@@ -760,7 +558,6 @@ with Flow(
         wait=filepath,
     )
 
-    # estabelecimento
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -794,48 +591,6 @@ with Flow(
             update = update_django_metadata(
                 dataset_id,
                 table_id,
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                bq_table_last_year_month=True,
-                api_mode="prod",
-                billing_project_id="basedosdados",
-                date_format="yy-mm",
-                upstream_tasks=[wait_for_materialization],
-            )
-    # estabelecimento_atualizado
-    with case(materialize_after_dump, True):
-        # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
-        materialization_flow = create_flow_run(
-            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-            parameters={
-                "dataset_id": dataset_id,
-                "table_id": table_id + "_atualizado",
-                "mode": materialization_mode,
-                "dbt_alias": dbt_alias,
-            },
-            labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id}",
-        )
-
-        wait_for_materialization = wait_for_flow_run(
-            materialization_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
-        wait_for_materialization.max_retries = (
-            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-        )
-        wait_for_materialization.retry_delay = timedelta(
-            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-        )
-
-        with case(update_metadata, True):
-            update = update_django_metadata(
-                dataset_id,
-                table_id + "_atualizado",
                 metadata_type="DateTimeRange",
                 bq_last_update=False,
                 bq_table_last_year_month=True,
@@ -897,7 +652,6 @@ with Flow(
         wait=filepath,
     )
 
-    # estabelecimento
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -931,48 +685,6 @@ with Flow(
             update = update_django_metadata(
                 dataset_id,
                 table_id,
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                bq_table_last_year_month=True,
-                api_mode="prod",
-                billing_project_id="basedosdados",
-                date_format="yy-mm",
-                upstream_tasks=[wait_for_materialization],
-            )
-    # estabelecimento_atualizado
-    with case(materialize_after_dump, True):
-        # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
-        materialization_flow = create_flow_run(
-            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-            parameters={
-                "dataset_id": dataset_id,
-                "table_id": table_id + "_atualizado",
-                "mode": materialization_mode,
-                "dbt_alias": dbt_alias,
-            },
-            labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id}",
-        )
-
-        wait_for_materialization = wait_for_flow_run(
-            materialization_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
-        wait_for_materialization.max_retries = (
-            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-        )
-        wait_for_materialization.retry_delay = timedelta(
-            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-        )
-
-        with case(update_metadata, True):
-            update = update_django_metadata(
-                dataset_id,
-                table_id + "_atualizado",
                 metadata_type="DateTimeRange",
                 bq_last_update=False,
                 bq_table_last_year_month=True,
@@ -1036,7 +748,6 @@ with Flow(
         wait=filepath,
     )
 
-    # estabelecimento
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -1078,48 +789,7 @@ with Flow(
                 date_format="yy-mm",
                 upstream_tasks=[wait_for_materialization],
             )
-    # estabelecimento_atualizado
-    with case(materialize_after_dump, True):
-        # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
-        materialization_flow = create_flow_run(
-            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-            parameters={
-                "dataset_id": dataset_id,
-                "table_id": table_id + "_atualizado",
-                "mode": materialization_mode,
-                "dbt_alias": dbt_alias,
-            },
-            labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id}",
-        )
 
-        wait_for_materialization = wait_for_flow_run(
-            materialization_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
-        wait_for_materialization.max_retries = (
-            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-        )
-        wait_for_materialization.retry_delay = timedelta(
-            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-        )
-
-        with case(update_metadata, True):
-            update = update_django_metadata(
-                dataset_id,
-                table_id + "_atualizado",
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                bq_table_last_year_month=True,
-                api_mode="prod",
-                billing_project_id="basedosdados",
-                date_format="yy-mm",
-                upstream_tasks=[wait_for_materialization],
-            )
 
 br_ms_cnes_estabelecimento_filantropico.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_ms_cnes_estabelecimento_filantropico.run_config = KubernetesRun(
@@ -1176,7 +846,6 @@ with Flow(
         wait=filepath,
     )
 
-    # estabelecimento
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -1218,48 +887,7 @@ with Flow(
                 date_format="yy-mm",
                 upstream_tasks=[wait_for_materialization],
             )
-    # estabelecimento_atualizado
-    with case(materialize_after_dump, True):
-        # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
-        materialization_flow = create_flow_run(
-            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-            parameters={
-                "dataset_id": dataset_id,
-                "table_id": table_id + "_atualizado",
-                "mode": materialization_mode,
-                "dbt_alias": dbt_alias,
-            },
-            labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id}",
-        )
 
-        wait_for_materialization = wait_for_flow_run(
-            materialization_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
-        wait_for_materialization.max_retries = (
-            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-        )
-        wait_for_materialization.retry_delay = timedelta(
-            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-        )
-
-        with case(update_metadata, True):
-            update = update_django_metadata(
-                dataset_id,
-                table_id + "_atualizado",
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                bq_table_last_year_month=True,
-                api_mode="prod",
-                billing_project_id="basedosdados",
-                date_format="yy-mm",
-                upstream_tasks=[wait_for_materialization],
-            )
 
 br_ms_cnes_gestao_metas.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_ms_cnes_gestao_metas.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
@@ -1312,7 +940,6 @@ with Flow(
         wait=filepath,
     )
 
-    # estabelecimento
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -1354,48 +981,7 @@ with Flow(
                 date_format="yy-mm",
                 upstream_tasks=[wait_for_materialization],
             )
-    # estabelecimento_atualizado
-    with case(materialize_after_dump, True):
-        # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
-        materialization_flow = create_flow_run(
-            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-            parameters={
-                "dataset_id": dataset_id,
-                "table_id": table_id + "_atualizado",
-                "mode": materialization_mode,
-                "dbt_alias": dbt_alias,
-            },
-            labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id}",
-        )
 
-        wait_for_materialization = wait_for_flow_run(
-            materialization_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
-        wait_for_materialization.max_retries = (
-            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-        )
-        wait_for_materialization.retry_delay = timedelta(
-            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-        )
-
-        with case(update_metadata, True):
-            update = update_django_metadata(
-                dataset_id,
-                table_id + "_atualizado",
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                bq_table_last_year_month=True,
-                api_mode="prod",
-                billing_project_id="basedosdados",
-                date_format="yy-mm",
-                upstream_tasks=[wait_for_materialization],
-            )
 
 br_ms_cnes_habilitacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_ms_cnes_habilitacao.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
@@ -1449,7 +1035,6 @@ with Flow(
         wait=filepath,
     )
 
-    # estabelecimento
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -1491,48 +1076,7 @@ with Flow(
                 date_format="yy-mm",
                 upstream_tasks=[wait_for_materialization],
             )
-    # estabelecimento_atualizado
-    with case(materialize_after_dump, True):
-        # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
-        materialization_flow = create_flow_run(
-            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-            parameters={
-                "dataset_id": dataset_id,
-                "table_id": table_id + "_atualizado",
-                "mode": materialization_mode,
-                "dbt_alias": dbt_alias,
-            },
-            labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id}",
-        )
 
-        wait_for_materialization = wait_for_flow_run(
-            materialization_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
-        wait_for_materialization.max_retries = (
-            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-        )
-        wait_for_materialization.retry_delay = timedelta(
-            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-        )
-
-        with case(update_metadata, True):
-            update = update_django_metadata(
-                dataset_id,
-                table_id + "_atualizado",
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                bq_table_last_year_month=True,
-                api_mode="prod",
-                billing_project_id="basedosdados",
-                date_format="yy-mm",
-                upstream_tasks=[wait_for_materialization],
-            )
 
 br_ms_cnes_incentivos.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_ms_cnes_incentivos.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
@@ -1585,7 +1129,6 @@ with Flow(
         wait=filepath,
     )
 
-    # estabelecimento
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -1627,48 +1170,7 @@ with Flow(
                 date_format="yy-mm",
                 upstream_tasks=[wait_for_materialization],
             )
-    # estabelecimento_atualizado
-    with case(materialize_after_dump, True):
-        # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
-        materialization_flow = create_flow_run(
-            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-            parameters={
-                "dataset_id": dataset_id,
-                "table_id": table_id + "_atualizado",
-                "mode": materialization_mode,
-                "dbt_alias": dbt_alias,
-            },
-            labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id}",
-        )
 
-        wait_for_materialization = wait_for_flow_run(
-            materialization_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
-        wait_for_materialization.max_retries = (
-            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-        )
-        wait_for_materialization.retry_delay = timedelta(
-            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-        )
-
-        with case(update_metadata, True):
-            update = update_django_metadata(
-                dataset_id,
-                table_id + "_atualizado",
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                bq_table_last_year_month=True,
-                api_mode="prod",
-                billing_project_id="basedosdados",
-                date_format="yy-mm",
-                upstream_tasks=[wait_for_materialization],
-            )
 
 br_ms_cnes_regra_contratual.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_ms_cnes_regra_contratual.run_config = KubernetesRun(
@@ -1723,7 +1225,6 @@ with Flow(
         wait=filepath,
     )
 
-    # estabelecimento
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -1765,48 +1266,7 @@ with Flow(
                 date_format="yy-mm",
                 upstream_tasks=[wait_for_materialization],
             )
-    # estabelecimento_atualizado
-    with case(materialize_after_dump, True):
-        # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
-        materialization_flow = create_flow_run(
-            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-            parameters={
-                "dataset_id": dataset_id,
-                "table_id": table_id + "_atualizado",
-                "mode": materialization_mode,
-                "dbt_alias": dbt_alias,
-            },
-            labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id}",
-        )
 
-        wait_for_materialization = wait_for_flow_run(
-            materialization_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
-        wait_for_materialization.max_retries = (
-            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-        )
-        wait_for_materialization.retry_delay = timedelta(
-            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-        )
-
-        with case(update_metadata, True):
-            update = update_django_metadata(
-                dataset_id,
-                table_id + "_atualizado",
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                bq_table_last_year_month=True,
-                api_mode="prod",
-                billing_project_id="basedosdados",
-                date_format="yy-mm",
-                upstream_tasks=[wait_for_materialization],
-            )
 
 br_ms_cnes_servico_especializado.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_ms_cnes_servico_especializado.run_config = KubernetesRun(
