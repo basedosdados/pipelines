@@ -358,11 +358,17 @@ def is_up_to_date() -> bool:
 
     time.sleep(10)
 
-    div_with_last_date = driver.find_element(
-        By.XPATH, '//*[@id="44"]/div[2]/div/div[1]/div[5]/div/div[2]/div[2]/div'
-    )
+    current_year = datetime.datetime.now().year
 
-    text = div_with_last_date.text
+    div_with_last_date = [
+        e
+        for e in driver.find_elements(By.TAG_NAME, "div")
+        if e.get_attribute("title").strip().endswith(str(current_year))
+    ][0]
+
+    text = div_with_last_date.get_attribute("title")
+
+    assert text is not None
 
     driver.close()
 
