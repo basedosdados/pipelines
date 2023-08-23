@@ -51,7 +51,7 @@ def parse_latest_cnes_dbc_files(database: str, cnes_group: str) -> list[str]:
 
     current_month = today.month
     # generate two last digits of current year to match datasus FTP year representation format
-    # eg. 2023 -> 23
+    # ex. 2023 -> 23
     current_year = str(today.year)
     current_year = current_year[2:]
 
