@@ -43,34 +43,6 @@ with Flow(
         time_delta=25,
         time_unit="days",
     )
-    # update_django_metadata(
-    #     dataset_id,
-    #     table_id,
-    #     metadata_type="DateTimeRange",
-    #     _last_date="2023-08-25",
-    #     bq_last_update=False,
-    #     is_bd_pro=True,
-    #     is_free=False,
-    #
-    # )
-    # (email, password) = get_credentials(secret_path="api_user_prod")
-    # ids = find_ids(
-    #    dataset_id, table_id, email, password, upstream_tasks=[email, password]
-    # )
-    # last_date = extract_last_update(
-    #    dataset_id, table_id, upstream_tasks=[ids, email, password]
-    # )
-    # first_date = get_first_date(
-    #    ids, email, password, upstream_tasks=[ids, last_date, email, password]
-    # )
-    # update_temporal_coverage(
-    #    ids,
-    #    first_date,
-    #    last_date,
-    #    email,
-    #    password,
-    #    upstream_tasks=[ids, last_date, first_date, email, password],
-    # )
 
 
 temporal_coverage_updater_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

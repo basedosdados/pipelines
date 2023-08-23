@@ -224,30 +224,101 @@ def update_django_metadata(
                     api_mode=api_mode,
                 )
         elif bq_table_last_year_month:
-            log(
-                f"Attention! bq_table_last_year_month was set to TRUE, this function will update the temporal coverage according to the most recent date in the data or ano-mes columns of {table_id}.{dataset_id}"
-            )
-            last_date = extract_last_date(
-                dataset_id,
-                table_id,
-                date_format=date_format,
-                billing_project_id=billing_project_id,
-            )
+            if is_free and not is_bd_pro:
+                log(
+                    f"Attention! bq_last_update was set to TRUE, it will update the temporal coverage according to the metadata of the last modification made to {table_id}.{dataset_id}"
+                )
+                last_date = extract_last_date(
+                    dataset_id,
+                    table_id,
+                    date_format,
+                    billing_project_id=billing_project_id,
+                )
 
-            resource_to_temporal_coverage = parse_temporal_coverage(f"{last_date}")
-            resource_to_temporal_coverage["coverage"] = ids.get("coverage_id")
-            log(f"Mutation parameters: {resource_to_temporal_coverage}")
+                resource_to_temporal_coverage = parse_temporal_coverage(f"{last_date}")
+                resource_to_temporal_coverage["coverage"] = ids.get("coverage_id")
+                log(f"Mutation parameters: {resource_to_temporal_coverage}")
 
-            create_update(
-                query_class="allDatetimerange",
-                query_parameters={"$coverage_Id: ID": ids.get("coverage_id")},
-                mutation_class="CreateUpdateDateTimeRange",
-                mutation_parameters=resource_to_temporal_coverage,
-                update=True,
-                email=email,
-                password=password,
-                api_mode=api_mode,
-            )
+                create_update(
+                    query_class="allDatetimerange",
+                    query_parameters={"$coverage_Id: ID": ids.get("coverage_id")},
+                    mutation_class="CreateUpdateDateTimeRange",
+                    mutation_parameters=resource_to_temporal_coverage,
+                    update=True,
+                    email=email,
+                    password=password,
+                    api_mode=api_mode,
+                )
+            elif is_bd_pro and is_free:
+                last_date = extract_last_date(
+                    dataset_id,
+                    table_id,
+                    date_format,
+                    billing_project_id=billing_project_id,
+                )
+
+                delta_kwargs = {unidades_permitidas[time_unit]: time_delta}
+                delta = relativedelta(**delta_kwargs)
+
+                free_data = datetime.strptime(last_date, "%Y-%m-%d") - delta
+                free_data = free_data.strftime("%Y-%m-%d")
+
+                log(
+                    f"Cobertura PRO ->> {_last_date} || Cobertura Grátis ->> {free_data}"
+                )
+                resource_to_temporal_coverage = parse_temporal_coverage(f"{last_date}")
+
+                resource_to_temporal_coverage["coverage"] = ids.get("coverage_id_pro")
+                log(f"Mutation parameters: {resource_to_temporal_coverage}")
+
+                create_update(
+                    query_class="allDatetimerange",
+                    query_parameters={"$coverage_Id: ID": ids.get("coverage_id_pro")},
+                    mutation_class="CreateUpdateDateTimeRange",
+                    mutation_parameters=resource_to_temporal_coverage,
+                    update=True,
+                    email=email,
+                    password=password,
+                    api_mode=api_mode,
+                )
+                resource_to_temporal_coverage = parse_temporal_coverage(f"{free_data}")
+
+                resource_to_temporal_coverage["coverage"] = ids.get("coverage_id")
+                log(f"Mutation parameters: {resource_to_temporal_coverage}")
+
+                create_update(
+                    query_class="allDatetimerange",
+                    query_parameters={"$coverage_Id: ID": ids.get("coverage_id")},
+                    mutation_class="CreateUpdateDateTimeRange",
+                    mutation_parameters=resource_to_temporal_coverage,
+                    update=True,
+                    email=email,
+                    password=password,
+                    api_mode=api_mode,
+                )
+            elif is_bd_pro and not is_free:
+                last_date = extract_last_date(
+                    dataset_id,
+                    table_id,
+                    date_format,
+                    billing_project_id=billing_project_id,
+                )
+                log(f"Cobertura PRO ->> {_last_date}")
+                resource_to_temporal_coverage = parse_temporal_coverage(f"{last_date}")
+
+                resource_to_temporal_coverage["coverage"] = ids.get("coverage_id_pro")
+                log(f"Mutation parameters: {resource_to_temporal_coverage}")
+
+                create_update(
+                    query_class="allDatetimerange",
+                    query_parameters={"$coverage_Id: ID": ids.get("coverage_id_pro")},
+                    mutation_class="CreateUpdateDateTimeRange",
+                    mutation_parameters=resource_to_temporal_coverage,
+                    update=True,
+                    email=email,
+                    password=password,
+                    api_mode=api_mode,
+                )
         else:
             if is_free and not is_bd_pro:
                 last_date = _last_date
