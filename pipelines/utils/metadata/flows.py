@@ -27,21 +27,19 @@ with Flow(
     dataset_id = Parameter("dataset_id", default="test_dataset", required=True)
     table_id = Parameter("table_id", default="test_laura_student", required=True)
     date = get_today_date()
-    # test_ids(dataset_id, table_id, api_mode="prod")
-    # date = get_today_date
     update_django_metadata(
         dataset_id,
         table_id,
         metadata_type="DateTimeRange",
-        _last_date=date,
-        bq_table_last_year_month=False,
+        # _last_date=date,
+        bq_table_last_year_month=True,
         bq_last_update=False,
         is_bd_pro=True,
         is_free=True,
-        date_format="yy-mm-dd",
+        date_format="yy-mm",
         api_mode="prod",
-        time_delta=25,
-        time_unit="days",
+        time_delta=2,
+        time_unit="months",
     )
 
 

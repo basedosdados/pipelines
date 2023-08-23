@@ -59,14 +59,18 @@ def update_django_metadata(
         -   `billing_project_id (str):` the billing_project_id to be used when the extract_last_update function is triggered. Note that it has
         to be equal to the prefect agent. For prod agents use basedosdados where as for dev agents use basedosdados-dev. The default value is
         to 'basedosdados-dev'.
-        -   `bq_table_last_year_month (bool):` if true extract YYYY-MM from the table in Big Query to update the Coverage. Note
+        -   `bq_table_last_year_month (bool):` If true extract YYYY-MM from the table in Big Query to update the Coverage. Note
         that in needs the table to have ano and mes columns.
-        -   `is_bd_pro (bool):` if true updates... TODO: terminar aqui
+        -   `is_bd_pro (bool):` If true updates the closed DateTimeRange metadata.
+        -   `is_bd_free (bool):` If true updates the open DateTimeRange metadata.
+        -   `time_delta (int):` Indicates the integer number of lags between the DateTimeRange of the closed table and the open table.
+        -   `time_unit (str):` Time unit of the lag, which can be "months", "years", "days" or "weeks".
 
     Example:
 
-        Eg 1. In this example the function will look for example_table in basedosdados project.
-        It will look for a column name `data` in date_format = 'yyyy-mm-dd' in the BQ and retrieve its max value.
+        Eg 1. In this example, the function will search for example_table in the basedosdata project.
+        It will look for a column name `data` in date_format = 'yyyy-mm-dd' in BQ and retrieve its maximum value. This table is BD Pro and also free, so the `is_free` and `is_bd_pro` arguments are set to `True`. In addition, the lag between the time coverage of the BD Pro observations and the free observations is 2 months, so the `time_delta` and `time_unit` parameters are equal to 3 and "months" respectively.
+
         ```
         update_django_metadata(
                 dataset_id = 'example_dataset',
@@ -77,6 +81,10 @@ def update_django_metadata(
                 billing_project_id="basedosdados",
                 api_mode="prod",
                 date_format="yy-mm-dd",
+                is_bd_pro = True,
+                is_free = True,
+                time_delta = 3,
+                time_unit = "months",
                 upstream_tasks=[wait_for_materialization],
             )
         ```
@@ -163,14 +171,49 @@ def update_django_metadata(
 
                 delta_kwargs = {unidades_permitidas[time_unit]: time_delta}
                 delta = relativedelta(**delta_kwargs)
+                resource_to_temporal_coverage = parse_temporal_coverage(f"{last_date}")
+                if date_format == "yy-mm-dd":
+                    free_data = datetime.strptime(last_date, "%Y-%m-%d") - delta
+                    free_data = free_data.strftime("%Y-%m-%d")
+                    resource_to_temporal_coverage_free = parse_temporal_coverage(
+                        f"{free_data}"
+                    )
+                    resource_to_temporal_coverage[
+                        "startYear"
+                    ] = resource_to_temporal_coverage_free["endYear"]
+                    resource_to_temporal_coverage[
+                        "startMonth"
+                    ] = resource_to_temporal_coverage_free["endMonth"]
+                    resource_to_temporal_coverage[
+                        "startDay"
+                    ] = resource_to_temporal_coverage_free["endDay"]
 
-                free_data = datetime.strptime(last_date, "%Y-%m-%d") - delta
-                free_data = free_data.strftime("%Y-%m-%d")
+                elif date_format == "yy-mm":
+                    free_data = datetime.strptime(last_date, "%Y-%m-%d") - delta
+                    free_data = free_data.strftime("%Y-%m")
+                    resource_to_temporal_coverage_free = parse_temporal_coverage(
+                        f"{free_data}"
+                    )
+                    resource_to_temporal_coverage[
+                        "startYear"
+                    ] = resource_to_temporal_coverage_free["endYear"]
+                    resource_to_temporal_coverage[
+                        "startMonth"
+                    ] = resource_to_temporal_coverage_free["endMonth"]
+                elif date_format == "yy":
+                    free_data = datetime.strptime(last_date, "%Y") - delta
+                    free_data = free_data.strftime("%Y")
+                    resource_to_temporal_coverage_free = parse_temporal_coverage(
+                        f"{free_data}"
+                    )
+                    resource_to_temporal_coverage[
+                        "startYear"
+                    ] = resource_to_temporal_coverage_free["endYear"]
 
                 log(
                     f"Cobertura PRO ->> {_last_date} || Cobertura Grátis ->> {free_data}"
                 )
-                resource_to_temporal_coverage = parse_temporal_coverage(f"{last_date}")
+                # resource_to_temporal_coverage = parse_temporal_coverage(f"{last_date}")
 
                 resource_to_temporal_coverage["coverage"] = ids.get("coverage_id_pro")
                 log(f"Mutation parameters: {resource_to_temporal_coverage}")
@@ -185,16 +228,16 @@ def update_django_metadata(
                     password=password,
                     api_mode=api_mode,
                 )
-                resource_to_temporal_coverage = parse_temporal_coverage(f"{free_data}")
+                # resource_to_temporal_coverage = parse_temporal_coverage(f"{free_data}")
 
-                resource_to_temporal_coverage["coverage"] = ids.get("coverage_id")
+                resource_to_temporal_coverage_free["coverage"] = ids.get("coverage_id")
                 log(f"Mutation parameters: {resource_to_temporal_coverage}")
 
                 create_update(
                     query_class="allDatetimerange",
                     query_parameters={"$coverage_Id: ID": ids.get("coverage_id")},
                     mutation_class="CreateUpdateDateTimeRange",
-                    mutation_parameters=resource_to_temporal_coverage,
+                    mutation_parameters=resource_to_temporal_coverage_free,
                     update=True,
                     email=email,
                     password=password,
@@ -259,14 +302,49 @@ def update_django_metadata(
 
                 delta_kwargs = {unidades_permitidas[time_unit]: time_delta}
                 delta = relativedelta(**delta_kwargs)
+                resource_to_temporal_coverage = parse_temporal_coverage(f"{last_date}")
+                if date_format == "yy-mm-dd":
+                    free_data = datetime.strptime(last_date, "%Y-%m-%d") - delta
+                    free_data = free_data.strftime("%Y-%m-%d")
+                    resource_to_temporal_coverage_free = parse_temporal_coverage(
+                        f"{free_data}"
+                    )
+                    resource_to_temporal_coverage[
+                        "startYear"
+                    ] = resource_to_temporal_coverage_free["endYear"]
+                    resource_to_temporal_coverage[
+                        "startMonth"
+                    ] = resource_to_temporal_coverage_free["endMonth"]
+                    resource_to_temporal_coverage[
+                        "startDay"
+                    ] = resource_to_temporal_coverage_free["endDay"]
 
-                free_data = datetime.strptime(last_date, "%Y-%m-%d") - delta
-                free_data = free_data.strftime("%Y-%m-%d")
+                elif date_format == "yy-mm":
+                    free_data = datetime.strptime(last_date, "%Y-%m") - delta
+                    free_data = free_data.strftime("%Y-%m")
+                    resource_to_temporal_coverage_free = parse_temporal_coverage(
+                        f"{free_data}"
+                    )
+                    resource_to_temporal_coverage[
+                        "startYear"
+                    ] = resource_to_temporal_coverage_free["endYear"]
+                    resource_to_temporal_coverage[
+                        "startMonth"
+                    ] = resource_to_temporal_coverage_free["endMonth"]
+                elif date_format == "yy":
+                    free_data = datetime.strptime(last_date, "%Y") - delta
+                    free_data = free_data.strftime("%Y")
+                    resource_to_temporal_coverage_free = parse_temporal_coverage(
+                        f"{free_data}"
+                    )
+                    resource_to_temporal_coverage[
+                        "startYear"
+                    ] = resource_to_temporal_coverage_free["endYear"]
 
                 log(
                     f"Cobertura PRO ->> {_last_date} || Cobertura Grátis ->> {free_data}"
                 )
-                resource_to_temporal_coverage = parse_temporal_coverage(f"{last_date}")
+                # resource_to_temporal_coverage = parse_temporal_coverage(f"{last_date}")
 
                 resource_to_temporal_coverage["coverage"] = ids.get("coverage_id_pro")
                 log(f"Mutation parameters: {resource_to_temporal_coverage}")
@@ -281,16 +359,16 @@ def update_django_metadata(
                     password=password,
                     api_mode=api_mode,
                 )
-                resource_to_temporal_coverage = parse_temporal_coverage(f"{free_data}")
+                # resource_to_temporal_coverage = parse_temporal_coverage(f"{free_data}")
 
-                resource_to_temporal_coverage["coverage"] = ids.get("coverage_id")
+                resource_to_temporal_coverage_free["coverage"] = ids.get("coverage_id")
                 log(f"Mutation parameters: {resource_to_temporal_coverage}")
 
                 create_update(
                     query_class="allDatetimerange",
                     query_parameters={"$coverage_Id: ID": ids.get("coverage_id")},
                     mutation_class="CreateUpdateDateTimeRange",
-                    mutation_parameters=resource_to_temporal_coverage,
+                    mutation_parameters=resource_to_temporal_coverage_free,
                     update=True,
                     email=email,
                     password=password,

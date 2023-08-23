@@ -559,8 +559,6 @@ def get_ids(
             "table"
         ].get("_id")
 
-        log(table_id)
-
         if is_bd_pro and is_free:
             # Get the coverage IDs
             coverage_result = get_id(
