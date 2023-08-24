@@ -66,7 +66,6 @@ from pipelines.datasets.mundo_transfermarkt_competicoes.tasks import (
 )
 from pipelines.datasets.mundo_transfermarkt_competicoes.utils import execucao_coleta
 from pipelines.datasets.mundo_transfermarkt_competicoes.schedules import every_week
-from pipelines.pipelines.utils.metadata.tasks import get_today_date
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     rename_current_flow_run_dataset_table,
