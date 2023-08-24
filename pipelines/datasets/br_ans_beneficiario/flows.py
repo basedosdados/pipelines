@@ -26,8 +26,9 @@ from pipelines.utils.tasks import (
     rename_current_flow_run_dataset_table,
     get_current_flow_labels,
     log_task,
-    update_django_metadata,
+    # update_django_metadata,
 )
+from pipelines.utils.metadata.flows import update_django_metadata
 from prefect.tasks.prefect import (
     create_flow_run,
     wait_for_flow_run,
@@ -35,7 +36,7 @@ from prefect.tasks.prefect import (
 
 
 with Flow(
-    name="br_ans_beneficiario.teste_beneficiario",
+    name="br_ans_beneficiario.informacao_consolidada",
     code_owners=[
         "arthurfg",
     ],
@@ -115,10 +116,15 @@ with Flow(
                     dataset_id,
                     table_id,
                     metadata_type="DateTimeRange",
-                    bq_last_update=False,
-                    api_mode="prod",
-                    date_format="yy-mm",
                     _last_date=date,
+                    bq_table_last_year_month=False,
+                    bq_last_update=False,
+                    is_bd_pro=True,
+                    is_free=True,
+                    date_format="yy-mm",
+                    api_mode="prod",
+                    time_delta=6,
+                    time_unit="months",
                 )
 
 datasets_br_ans_beneficiario_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

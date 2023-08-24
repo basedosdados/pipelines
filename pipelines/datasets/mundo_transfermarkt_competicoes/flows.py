@@ -70,7 +70,6 @@ from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     rename_current_flow_run_dataset_table,
     get_current_flow_labels,
-    update_django_metadata,
 )
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
@@ -83,6 +82,7 @@ from prefect.tasks.prefect import (
     wait_for_flow_run,
 )
 from pipelines.utils.constants import constants as utils_constants
+from pipelines.utils.metadata.tasks import update_django_metadata
 from datetime import timedelta
 import asyncio
 
@@ -110,9 +110,6 @@ with Flow(
     df = execucao_coleta_sync(execucao_coleta)
     output_filepath = make_partitions(df, upstream_tasks=[df])
     data_maxima = get_max_data()
-    # Adicionar a defasagem de 6 semanas à data máxima
-    defasagem_seis_semanas = timedelta(weeks=6)
-    max_data_com_defasagem = data_maxima - defasagem_seis_semanas
 
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=output_filepath,
@@ -150,52 +147,21 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
-    update_django_metadata(
-        dataset_id,
-        table_id,
-        metadata_type="DateTimeRange",
-        _last_date=max_data_com_defasagem,
-        bq_last_update=False,
-        upstream_tasks=[wait_upload_table],
-    )
 
-    with case(materialize_after_dump, True):
-        # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
-        materialization_flow = create_flow_run(
-            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-            parameters={
-                "dataset_id": dataset_id,
-                "table_id": table_id + "_atualizado",
-                "mode": materialization_mode,
-                "dbt_alias": dbt_alias,
-            },
-            labels=current_flow_labels,
-            run_name=r"Materialize {dataset_id}.{table_id}",
+        update_django_metadata(
+            dataset_id,
+            table_id,
+            metadata_type="DateTimeRange",
+            _last_date=data_maxima,
+            bq_table_last_year_month=False,
+            bq_last_update=False,
+            is_bd_pro=True,
+            is_free=True,
+            time_delta=6,
+            time_unit="weeks",
+            date_format="yy-mm-dd",
+            api_mode="prod",
         )
-
-        wait_for_materialization = wait_for_flow_run(
-            materialization_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
-        wait_for_materialization.max_retries = (
-            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-        )
-        wait_for_materialization.retry_delay = timedelta(
-            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-        )
-    update_django_metadata(
-        dataset_id,
-        table_id + "_atualizado",
-        metadata_type="DateTimeRange",
-        _last_date=data_maxima,
-        bq_last_update=False,
-        upstream_tasks=[wait_upload_table],
-    )
-
 
 transfermarkt_brasileirao_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 transfermarkt_brasileirao_flow.run_config = KubernetesRun(
