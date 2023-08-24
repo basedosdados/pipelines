@@ -159,7 +159,7 @@ with Flow(
             is_bd_pro=True,
             is_free=True,
             time_delta = 6,
-            time_unit = "weeks"
+            time_unit = "weeks",
             date_format="yy-mm-dd",
             api_mode="prod",
         )
