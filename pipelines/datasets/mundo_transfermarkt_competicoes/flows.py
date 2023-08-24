@@ -70,7 +70,6 @@ from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     rename_current_flow_run_dataset_table,
     get_current_flow_labels,
-    update_django_metadata,
 )
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
@@ -83,6 +82,7 @@ from prefect.tasks.prefect import (
     wait_for_flow_run,
 )
 from pipelines.utils.constants import constants as utils_constants
+from pipelines.utils.metadata.tasks import update_django_metadata
 from datetime import timedelta
 import asyncio
 

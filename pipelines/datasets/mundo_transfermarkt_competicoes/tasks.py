@@ -77,7 +77,7 @@ def make_partitions(df):
         partition_columns=["ano_campeonato"],
         savepath="/tmp/data/mundo_transfermarkt_competicoes/output/",
     )
-    log("Dados particionados com sucesso!!")
+    log("Dados particionados com sucesso!")
     return "/tmp/data/mundo_transfermarkt_competicoes/output/"
 
 
