@@ -9,7 +9,7 @@ from pipelines.datasets.br_mp_pep_cargos_funcoes.constants import constants
 from pipelines.utils.utils import log
 
 
-def wait_file_download(year: int, timeout=60 * 6):
+def wait_file_download(year: int, timeout=60 * 8):
     start_time = time.time()
     end_time = start_time + timeout
 
@@ -26,7 +26,7 @@ def wait_file_download(year: int, timeout=60 * 6):
             log(f"Time to download {year}, {time.time() - start_time} seconds")
             break
         if time.time() > end_time:
-            raise Exception(f"Timeout to download xlsx for {year}")
+            raise Exception(f"Timeout to download xlsx for {year}, {timeout} seconds")
         continue
 
     return True
