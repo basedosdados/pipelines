@@ -18,6 +18,7 @@ from pipelines.datasets.br_ibge_pnadc.tasks import (
     download_txt,
     build_parquet_files,
     save_partitions,
+    get_year_quarter,
 )
 from pipelines.utils.decorators import Flow
 from pipelines.utils.tasks import (
@@ -25,6 +26,7 @@ from pipelines.utils.tasks import (
     rename_current_flow_run_dataset_table,
     get_current_flow_labels,
 )
+from pipelines.utils.metadata.flows import update_django_metadata
 from pipelines.datasets.br_ibge_pnadc.schedules import every_quarter
 
 # pylint: disable=C0103
@@ -34,6 +36,7 @@ with Flow(name="br_ibge_pnadc.microdados", code_owners=["lucas_cr"]) as br_pnadc
     table_id = Parameter("table_id", default="microdados", required=True)
     year = Parameter("year", default=2020, required=False)
     quarter = Parameter("quarter", default=1, required=False)
+    update_metadata = Parameter("update_metadata", default=True, required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
     )
@@ -90,6 +93,20 @@ with Flow(name="br_ibge_pnadc.microdados", code_owners=["lucas_cr"]) as br_pnadc
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
+        with case(update_metadata, True):
+            date = get_year_quarter(year, quarter)
+            update_django_metadata(
+                dataset_id,
+                table_id,
+                metadata_type="DateTimeRange",
+                bq_last_update=False,
+                api_mode="prod",
+                date_format="yy-mm",
+                _last_date=date,
+                is_bd_pro=False,
+                is_free=True,
+                bq_table_last_year_month=False,
+            )
 
 br_pnadc.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_pnadc.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
