@@ -32,7 +32,7 @@ def update_django_metadata(
     dataset_id: str,
     table_id: str,
     metadata_type: str,
-    _last_date=None,
+    _last_date: str = None,
     date_format: str = "yy-mm-dd",
     bq_last_update: bool = True,
     bq_table_last_year_month: bool = False,
@@ -50,7 +50,7 @@ def update_django_metadata(
         -   `dataset_id (str):` The ID of the dataset.
         -   `table_id (str):` The ID of the table.
         -   `metadata_type (str):` The type of metadata to update.
-        -   `_last_date (optional):` The last date for metadata update if `bq_last_update` is False. Defaults to None.
+        -   `_last_date (str):` The last date for metadata update if `bq_last_update` is False. Defaults to None.
         -   `date_format (str, optional):` The date format to use when parsing dates.Defaults to 'yy-mm-dd'. Accepted values
             are 'yy-mm-dd', 'yy-mm' or 'dd'.
         -   `bq_last_update (bool, optional):` Flag indicating whether to use BigQuery's last update date for metadata.
@@ -107,6 +107,8 @@ def update_django_metadata(
         "weeks": "weeks",
         "days": "days",
     }
+    if not isinstance(_last_date, str):
+        raise ValueError("O parâmetro `last_date` deve ser do tipo string")
 
     if time_unit not in unidades_permitidas:
         raise ValueError(
