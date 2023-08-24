@@ -28,9 +28,17 @@ relampago = const_mercadolivre.RELAMPAGO.value
 barato_dia = const_mercadolivre.BARATO_DIA.value
 kwargs_list = const_mercadolivre.KWARGS_LIST.value
 tables_names = const_mercadolivre.TABLES_NAMES.value
-# , relampago, barato_dia, less100,
-urls = [less100, oferta_dia, relampago, barato_dia]
-dict_tables = dict(zip(tables_names, urls))
+url_lists = {"less100": [], "oferta_dia": [], "relampago": [], "barato_dia": []}
+
+for i in range(1, 3):
+    urls = {
+        "less100": less100 + str(i),
+        "oferta_dia": oferta_dia + str(i),
+        "relampago": relampago + str(i),
+        "barato_dia": barato_dia + str(i),
+    }
+    for table, url in urls.items():
+        url_lists[table].append(url)
 
 
 @task
@@ -38,15 +46,10 @@ def crawler_mercadolivre_item():
     """
     Executes the crawler for Mercado Livre offers by running the main process, processing the results,
     and saving them to a CSV file.
-
-    Returns:
-        str: The file path of the generated CSV file.
-
-    Raises:
-        None
     """
     loop = asyncio.get_event_loop()
-    contents = loop.run_until_complete(main_item(dict_tables, kwargs_list))
+    # urls_item = url_lists['less100']
+    contents = loop.run_until_complete(main_item(url_lists, kwargs_list))
     time.sleep(5)
     df = pd.DataFrame(contents)
     total = df.shape[0]
@@ -158,11 +161,13 @@ def clean_item(filepath):
 
     today = pd.Timestamp.today().strftime("%Y-%m-%d")
 
-    os.system(f"mkdir -p br_mercadolivre_ofertas/item/dia={today}")
+    os.system(f"mkdir -p /tmp/data/br_mercadolivre_ofertas/item/dia={today}")
 
-    item.to_csv(f"br_mercadolivre_ofertas/item/dia={today}/items.csv", index=False)
+    item.to_csv(
+        f"/tmp/data/br_mercadolivre_ofertas/item/dia={today}/items.csv", index=False
+    )
 
-    return "br_mercadolivre_ofertas/item/"
+    return "/tmp/data/br_mercadolivre_ofertas/item/"
 
 
 @task

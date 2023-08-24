@@ -7,10 +7,12 @@ class constants(Enum):  # pylint: disable=c0103
     Constant values for the mercadolivre_ofertas project
     """
 
-    LESS100 = "https://www.mercadolivre.com.br/ofertas?container_id=MLB779362-1&price=0.0-100.0#origin=scut&filter_applied=price&filter_position=6&is_recommended_domain=false"
-    OFERTA_DIA = "https://www.mercadolivre.com.br/ofertas#nav-header"
-    RELAMPAGO = "https://www.mercadolivre.com.br/ofertas?promotion_type=lightning&container_id=MLB779362-1#origin=scut&filter_applied=promotion_type&filter_position=2&is_recommended_domain=false"
-    BARATO_DIA = "https://www.mercadolivre.com.br/ofertas?deal_ids=MLB861109-2&container_id=MLB861109-2#origin=scut&filter_applied=deal_ids&filter_position=3&is_recommended_domain=false"
+    LESS100 = "https://www.mercadolivre.com.br/ofertas?price=0.0-100.0&container_id=MLB779362-1&page="
+    OFERTA_DIA = (
+        "https://www.mercadolivre.com.br/ofertas?container_id=MLB779362-1&page="
+    )
+    RELAMPAGO = "https://www.mercadolivre.com.br/ofertas?promotion_type=lightning&container_id=MLB779362-1&page="
+    BARATO_DIA = "https://www.mercadolivre.com.br/ofertas?container_id=MLB861109-2&deal_ids=MLB861109-2&page="
     KWARGS_LIST = [
         {"class_": "ui-pdp-title"},
         {"class_": "ui-pdp-review__amount"},
@@ -23,6 +25,7 @@ class constants(Enum):  # pylint: disable=c0103
         },
     ]
     TABLES_NAMES = ["less100", "oferta_dia", "relampago", "barato_dia"]
+    # TABLES_NAMES = ["less100"]
     MAP_MUNICIPIO_TO_ID = {
         "Ariquemes, Rondônia": 1100023,
         "Guajará-Mirim, Rondônia": 1100106,
