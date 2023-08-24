@@ -65,7 +65,6 @@ def execucao_coleta_sync(execucao_coleta):
     # Obter o loop de eventos atual e executar a tarefa nele
     loop = asyncio.get_event_loop()
     df = loop.run_until_complete(execucao_coleta())
-
     return df
 
 
@@ -78,7 +77,7 @@ def make_partitions(df):
         partition_columns=["ano_campeonato"],
         savepath="/tmp/data/mundo_transfermarkt_competicoes/output/",
     )
-    log("Dados particionados com sucesso!")
+    log("Dados particionados com sucesso!!")
     return "/tmp/data/mundo_transfermarkt_competicoes/output/"
 
 
