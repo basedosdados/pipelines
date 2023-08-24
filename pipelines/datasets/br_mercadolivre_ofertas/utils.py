@@ -61,6 +61,13 @@ def generate_unique_id(text: str):
 def get_id(input_string, dictionary):
     """
     Retrieves the value from a dictionary based on the input string, using the key with the closest Levenshtein distance.
+    Args:
+        input_string (str): The input string for which to find the closest matching key in the dictionary.
+        dictionary (dict): The dictionary containing key-value pairs.
+
+    Returns:
+        Any: The value associated with the key that has the closest Levenshtein distance to the input string.
+             Returns None if the input_string is not a string, the dictionary is empty, or no match is found.
     """
     if input_string is None:
         return None
@@ -85,7 +92,6 @@ def get_id(input_string, dictionary):
 def get_byelement(soup, **kwargs):
     """
     Retrieves the content of an HTML element identified by the given attributes from a BeautifulSoup object.
-
     Args:
         soup (BeautifulSoup): The BeautifulSoup object representing the HTML document.
         **kwargs: Keyword arguments specifying the attributes to identify the HTML element.
@@ -102,7 +108,6 @@ def get_byelement(soup, **kwargs):
 def get_items_urls(urls):
     """
     Collects item URLs from the given table URL, performing HTML content extraction.
-
     Args:
         url (str): The URL of the webpage containing the items.
 
@@ -123,6 +128,56 @@ def get_items_urls(urls):
             items_urls.append(item_url)
 
     return items_urls
+
+
+# ! utilizado no processo da tabela de itens
+@retry
+def get_features(soup):
+    """
+    Retrieves the features from the HTML content represented by a BeautifulSoup object.
+    Args:
+        soup (BeautifulSoup): The BeautifulSoup object representing the HTML document.
+
+    Returns:
+        dict: A dictionary containing the extracted features, with keys as feature names and values as feature values.
+    """
+    features = soup.find_all(
+        class_="ui-pdp-variations__picker ui-pdp-variations__picker-single"
+    )
+    features_dict = {
+        k: v for k, v in [feature.text.strip().split(":") for feature in features]
+    }
+    return features_dict
+
+
+# ! utilizado no processo da tabela de itens
+@retry
+def get_categories(soup):
+    """
+    Retrieves the categories from the HTML content represented by a BeautifulSoup object.
+    Args:
+        soup (BeautifulSoup): The BeautifulSoup object representing the HTML document.
+
+    Returns:
+        list: A list of category names extracted from the HTML.
+    """
+    categories = soup.find_all("a", class_="andes-breadcrumb__link")
+    categories_list = [category.text.strip() for category in categories]
+    return categories_list
+
+
+# ! utilizado no processo da tabela de itens (coleta dos links de vendedores)
+@retry
+def get_seller_link(soup):
+    """
+    Retrieves the link to the seller from the HTML content represented by a BeautifulSoup object.
+    """
+    class_seller = "ui-box-component ui-box-component-pdp__visible--desktop"
+    seller_link = soup.find(class_=class_seller)
+    seller_link = seller_link.find("a")
+    seller_link = seller_link["href"]
+
+    return seller_link
 
 
 # ! utilizado no processo da tabela de itens (coleta preços)
@@ -166,40 +221,36 @@ def get_original_price(soup):
     return float_amount
 
 
-# ! utilizado no processo da tabela de itens
-@retry
-def get_features(soup):
-    """
-    Retrieves the features from the HTML content represented by a BeautifulSoup object.
-    Args:
-        soup (BeautifulSoup): The BeautifulSoup object representing the HTML document.
+# @retry
+# def get_prices(soup, **kwargs):
+#     """
+#     Retrieves the price values from the HTML content represented by a BeautifulSoup object.
+#     Args:
+#         soup (BeautifulSoup): The BeautifulSoup object representing the HTML document.
+#         **kwargs: Keyword arguments specifying additional attributes to identify the HTML elements.
 
-    Returns:
-        dict: A dictionary containing the extracted features, with keys as feature names and values as feature values.
-    """
-    features = soup.find_all(
-        class_="ui-pdp-variations__picker ui-pdp-variations__picker-single"
-    )
-    features_dict = {
-        k: v for k, v in [feature.text.strip().split(":") for feature in features]
-    }
-    return features_dict
+#     Returns:
+#         dict: A dictionary containing the extracted price values.
+#     """
+#     price_element = soup.find(itemprop="price")
+#     original_price_element = soup.find("s", class_="andes-money-amount--previous")
 
+#     price = price_element["content"] if price_element else None
 
-# ! utilizado no processo da tabela de itens
-@retry
-def get_categories(soup):
-    """
-    Retrieves the categories from the HTML content represented by a BeautifulSoup object.
-    Args:
-        soup (BeautifulSoup): The BeautifulSoup object representing the HTML document.
+#     if original_price_element:
+#         span_element = original_price_element.find("span", class_="andes-visually-hidden")
+#         text = span_element.get_text(strip=True).strip()
+#         parts = text.split()
 
-    Returns:
-        list: A list of category names extracted from the HTML.
-    """
-    categories = soup.find_all("a", class_="andes-breadcrumb__link")
-    categories_list = [category.text.strip() for category in categories]
-    return categories_list
+#         numerical_parts = [
+#             part for part in parts if part.isdigit() or part.replace(".", "", 1).isdigit()
+#         ]
+
+#         original_price = float(".".join(numerical_parts))
+#     else:
+#         original_price = None
+
+#     return {"price": price, "price_original": original_price}
 
 
 # ! parte do processo da tabela de itens
@@ -218,15 +269,16 @@ async def process_item_url(item_url, kwargs_list):
         get_byelement(url=item_url, attempts=5, wait_time=20, **kwargs)
         for kwargs in kwargs_list
     ]
-    # log("mostrar a lista de classes")
-    # log(f'Class being used for transport_condition: {kwargs_list}')
-    # log(f'Class being used for transport_condition: {kwargs_list[3]["class_"]}')
     results = await asyncio.gather(*tasks)
 
     keys = ["title", "review_amount", "discount", "transport_condition", "stars"]
 
     info = dict(zip(keys, results))
+    # price = await get_prices(item_url, attempts=10, wait_time=20)
+    # info["price"] =
+    # info["price_original"] =
     price = await get_price(item_url, attempts=10, wait_time=20)
+    log(f"esse é o preco {price}")
     info["price"] = price
     # log("Preço de desconto coletado!")
     price_original = await get_original_price(item_url, attempts=10, wait_time=25)
@@ -270,7 +322,10 @@ async def process_table(table, url, kwargs_list):
     """
     log(f"Starting processing table '{table}'")
     items_urls = get_items_urls(url)
-    tasks = [process_item_url(item_url, kwargs_list) for item_url in items_urls]
+    tasks = [
+        process_item_url(item_url, kwargs_list)
+        for item_url in tqdm(items_urls, desc="link")
+    ]
     results = await asyncio.gather(*tasks)
 
     for result in results:
@@ -299,20 +354,6 @@ async def main_item(dict_tables, kwargs_list):
     for table_results in results:
         contents.extend(table_results)
     return contents
-
-
-# ! utilizado no processo da tabela de vendedor
-@retry
-def get_seller_link(soup):
-    """
-    Retrieves the link to the seller from the HTML content represented by a BeautifulSoup object.
-    """
-    class_seller = "ui-box-component ui-box-component-pdp__visible--desktop"
-    seller_link = soup.find(class_=class_seller)
-    seller_link = seller_link.find("a")
-    seller_link = seller_link["href"]
-
-    return seller_link
 
 
 # ! utilizado no processo da tabela de vendedor

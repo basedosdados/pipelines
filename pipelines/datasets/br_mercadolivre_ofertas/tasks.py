@@ -22,21 +22,16 @@ from pipelines.datasets.br_mercadolivre_ofertas.utils import (
     clean_experience,
 )
 
-less100 = const_mercadolivre.LESS100.value
+# less100 = const_mercadolivre.LESS100.value
 oferta_dia = const_mercadolivre.OFERTA_DIA.value
-relampago = const_mercadolivre.RELAMPAGO.value
-barato_dia = const_mercadolivre.BARATO_DIA.value
+# relampago = const_mercadolivre.RELAMPAGO.value
+# barato_dia = const_mercadolivre.BARATO_DIA.value
 kwargs_list = const_mercadolivre.KWARGS_LIST.value
 tables_names = const_mercadolivre.TABLES_NAMES.value
-url_lists = {"less100": [], "oferta_dia": [], "relampago": [], "barato_dia": []}
+url_lists = {"oferta_dia": []}
 
-for i in range(1, 3):
-    urls = {
-        "less100": less100 + str(i),
-        "oferta_dia": oferta_dia + str(i),
-        "relampago": relampago + str(i),
-        "barato_dia": barato_dia + str(i),
-    }
+for i in range(1, 2):
+    urls = {"oferta_dia": oferta_dia + str(i)}
     for table, url in urls.items():
         url_lists[table].append(url)
 
@@ -259,12 +254,13 @@ def clean_seller(filepath_raw):
     seller = seller.drop("data", axis=1)
 
     today = pd.Timestamp.today().strftime("%Y-%m-%d")
-    os.system(f"mkdir -p br_mercadolivre_ofertas/vendedor/dia={today}")
+    os.system(f"mkdir -p /tmp/data/br_mercadolivre_ofertas/vendedor/dia={today}")
     seller.to_csv(
-        f"br_mercadolivre_ofertas/vendedor/dia={today}/seller.csv", index=False
+        f"/tmp/data/br_mercadolivre_ofertas/vendedor/dia={today}/seller.csv",
+        index=False,
     )
 
-    return "br_mercadolivre_ofertas/vendedor/"
+    return "/tmp/data/br_mercadolivre_ofertas/vendedor/"
 
 
 @task(nout=2)
