@@ -401,10 +401,10 @@ def to_partitions(
             # create folder tree
             filter_save_path = Path(savepath / "/".join(patitions_values))
             filter_save_path.mkdir(parents=True, exist_ok=True)
-            file_filter_save_path = Path(filter_save_path) / "data.parquet"
 
             if file_type == "csv":
                 # append data to csv
+                file_filter_save_path = Path(filter_save_path) / "data.csv"
                 df_filter.to_csv(
                     file_filter_save_path,
                     sep=",",
@@ -415,6 +415,8 @@ def to_partitions(
                     header=not file_filter_save_path.exists(),
                 )
             elif file_type == "parquet":
+                # append data to parquet
+                file_filter_save_path = Path(filter_save_path) / "data.parquet"
                 df_filter.to_parquet(
                     file_filter_save_path, index=False, compression="gzip"
                 )
