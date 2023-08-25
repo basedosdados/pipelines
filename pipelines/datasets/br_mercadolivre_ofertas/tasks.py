@@ -22,15 +22,14 @@ from pipelines.datasets.br_mercadolivre_ofertas.utils import (
     clean_experience,
 )
 
-# less100 = const_mercadolivre.LESS100.value
+new_cols_item = const_mercadolivre.NEW_ORDER_COLS.value
+new_order_clean = const_mercadolivre.NEW_ORDER_CLEAN.value
+new_order_item = const_mercadolivre.NEW_ORDER_ITEM.value
 oferta_dia = const_mercadolivre.OFERTA_DIA.value
-# relampago = const_mercadolivre.RELAMPAGO.value
-# barato_dia = const_mercadolivre.BARATO_DIA.value
 kwargs_list = const_mercadolivre.KWARGS_LIST.value
-tables_names = const_mercadolivre.TABLES_NAMES.value
 url_lists = {"oferta_dia": []}
 
-for i in range(1, 2):
+for i in range(1, 21):
     urls = {"oferta_dia": oferta_dia + str(i)}
     for table, url in urls.items():
         url_lists[table].append(url)
@@ -52,25 +51,7 @@ def crawler_mercadolivre_item():
     remained = df.shape[0]
     # print percentage keeped
     log(f"Percentage keeped: {remained/total*100:.2f}%")
-    new_order = [
-        "title",
-        "review_amount",
-        "discount",
-        "transport_condition",
-        "stars",
-        "price",
-        "price_original",
-        "item_id_bd",
-        "seller_link",
-        "seller_id",
-        "seller",
-        "datetime",
-        "site_section",
-        "features",
-        "item_url",
-        "categories",
-    ]
-    df = df[new_order]
+    df = df[new_order_item]
     df = df.astype(str)
     filepath = "/tmp/items_raw.csv"
     df.to_csv(filepath, index=False)
@@ -83,60 +64,20 @@ def crawler_mercadolivre_item():
 @task
 def clean_item(filepath):
     item = pd.read_csv(filepath)
-    new_cols = [
-        "titulo",
-        "quantidade_avaliacoes",
-        "desconto",
-        "envio_pais",
-        "estrelas",
-        "preco",
-        "preco_original",
-        "item_id",
-        "link_vendedor",
-        "id_vendedor",
-        "vendedor",
-        "data_hora",
-        "secao_site",
-        "caracteristicas",
-        "url_item",
-        "categorias",
-    ]
     # rename columns
-    item.columns = new_cols
+    item.columns = new_cols_item
     # change order
-    new_order = [
-        "data_hora",
-        "titulo",
-        "item_id",
-        "categorias",
-        "quantidade_avaliacoes",
-        "desconto",
-        "envio_pais",
-        "estrelas",
-        "preco",
-        "preco_original",
-        "id_vendedor",
-        "vendedor",
-        "link_vendedor",
-        "secao_site",
-        "caracteristicas",
-        "url_item",
-    ]
-    # log(item)
-    item = item.reindex(new_order, axis=1)
+    item = item.reindex(new_order_clean, axis=1)
+
     # drop dupliacte item_id
     item = item.drop_duplicates(subset=["item_id"])
-    # clean quantidade_avaliacoes: (11004)->11004
-    # log("quantidade_avaliacoes")
-    # log(item["quantidade_avaliacoes"].unique())
 
+    # clean quantidade_avaliacoes: (11004)->11004
     item["quantidade_avaliacoes"] = item["quantidade_avaliacoes"].str.replace("(", "")
     item["quantidade_avaliacoes"] = item["quantidade_avaliacoes"].str.replace(")", "")
+
     # clean desconto: 10% OFF -> 10
     item["desconto"] = item["desconto"].str.replace("% OFF", "")
-    # clean categorias. Currently, it's a list of lists. Transform into a list of strings. First it's necessary to transform the string into a list of lists
-    # item["categorias"] = item["categorias"].str.replace("[[", "[")
-    # item["categorias"] = item["categorias"].str.replace("]]", "]")
     # remove if title is nan
     item = item[item["titulo"].notna()]
     # remove item_link
@@ -144,8 +85,6 @@ def clean_item(filepath):
     # remove link_vendedor
     item = item.drop("link_vendedor", axis=1)
     # make envio_pais a boolean
-    log("envio_pais")
-    log(item["envio_pais"].unique())
     item["envio_pais"] = item["envio_pais"].astype(str)
     item["envio_pais"] = item["envio_pais"].str.contains("Envio para todo o país")
     # make nan equal to False
@@ -219,14 +158,8 @@ def clean_seller(filepath_raw):
     # clean classificacao: MercadoLíder Platinum -> Platinum
     seller["classificacao"] = seller["classificacao"].str.replace("MercadoLíder ", "")
     # clean localizacao: LocalizaçãoJuiz de Fora, Minas Gerais. -> Juiz de Fora, Minas Gerais.
-    # log("mostrar seller")
-    # log(seller)
-    # log(seller["classificacao"].unique())
     seller["localizacao"] = seller["localizacao"].str.replace("Localização", "")
     # clean opinioes: [{'Bom': 771, 'Regular': 67, 'Ruim': 174}] -> {'Bom': 771, 'Regular': 67, 'Ruim': 174}
-    # log("depois do replace")
-    # log(seller)
-    # log(seller["classificacao"].unique())
     dict_municipios = const_mercadolivre.MAP_MUNICIPIO_TO_ID.value
     seller["localizacao"] = seller["localizacao"].apply(
         lambda x: get_id(x, dict_municipios)
@@ -266,9 +199,11 @@ def clean_seller(filepath_raw):
 @task(nout=2)
 def get_today_sellers(filepath_raw) -> Tuple[List[str], List[str]]:
     df = pd.read_csv(filepath_raw)
+
     # remove nan in seller_link column
     df = df[df["seller_link"].notna()]
     df = df[df["seller_id"].notna()]
+
     # remove duplicate sellers
     df = df.drop_duplicates(subset=["seller_id"])
     log(f"Number of sellers: {len(df)}")

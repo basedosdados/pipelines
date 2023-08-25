@@ -7,25 +7,76 @@ class constants(Enum):  # pylint: disable=c0103
     Constant values for the mercadolivre_ofertas project
     """
 
-    LESS100 = "https://www.mercadolivre.com.br/ofertas?price=0.0-100.0&container_id=MLB779362-1&page="
+    # LESS100 = "https://www.mercadolivre.com.br/ofertas?price=0.0-100.0&container_id=MLB779362-1&page="
     OFERTA_DIA = (
         "https://www.mercadolivre.com.br/ofertas?container_id=MLB779362-1&page="
     )
-    RELAMPAGO = "https://www.mercadolivre.com.br/ofertas?promotion_type=lightning&container_id=MLB779362-1&page="
-    BARATO_DIA = "https://www.mercadolivre.com.br/ofertas?container_id=MLB861109-2&deal_ids=MLB861109-2&page="
+    # RELAMPAGO = "https://www.mercadolivre.com.br/ofertas?promotion_type=lightning&container_id=MLB779362-1&page="
+    # BARATO_DIA = "https://www.mercadolivre.com.br/ofertas?container_id=MLB861109-2&deal_ids=MLB861109-2&page="
     KWARGS_LIST = [
-        {"class_": "ui-pdp-title"},
         {"class_": "ui-pdp-review__amount"},
-        {"class_": "andes-money-amount__discount"},
-        {
-            "class_": "ui-pdp-color--BLACK ui-pdp-family--REGULAR ui-pdp-media__title ui-pdp-media__title--on-hover"
-        },
         {
             "class_": "ui-review-capability__rating__average ui-review-capability__rating__average--desktop"
         },
     ]
-    TABLES_NAMES = ["less100", "oferta_dia", "relampago", "barato_dia"]
-    # TABLES_NAMES = ["less100"]
+
+    NEW_ORDER_ITEM = [
+        "title",
+        "review_amount",
+        "discount",
+        "transport_condition",
+        "stars",
+        "price",
+        "price_original",
+        "item_id_bd",
+        "seller_link",
+        "seller_id",
+        "seller",
+        "datetime",
+        "site_section",
+        "features",
+        "item_url",
+        "categories",
+    ]
+
+    NEW_ORDER_COLS = [
+        "titulo",
+        "quantidade_avaliacoes",
+        "desconto",
+        "envio_pais",
+        "estrelas",
+        "preco",
+        "preco_original",
+        "item_id",
+        "link_vendedor",
+        "id_vendedor",
+        "vendedor",
+        "data_hora",
+        "secao_site",
+        "caracteristicas",
+        "url_item",
+        "categorias",
+    ]
+
+    NEW_ORDER_CLEAN = [
+        "data_hora",
+        "titulo",
+        "item_id",
+        "categorias",
+        "quantidade_avaliacoes",
+        "desconto",
+        "envio_pais",
+        "estrelas",
+        "preco",
+        "preco_original",
+        "id_vendedor",
+        "vendedor",
+        "link_vendedor",
+        "secao_site",
+        "caracteristicas",
+        "url_item",
+    ]
+
     MAP_MUNICIPIO_TO_ID = {
         "Ariquemes, Rondônia": 1100023,
         "Guajará-Mirim, Rondônia": 1100106,

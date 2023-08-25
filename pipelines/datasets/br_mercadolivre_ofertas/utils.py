@@ -142,7 +142,7 @@ def get_features(soup):
         dict: A dictionary containing the extracted features, with keys as feature names and values as feature values.
     """
     features = soup.find_all(
-        class_="ui-pdp-variations__picker ui-pdp-variations__picker-single"
+        class_="ui-pdp-container__row ui-vpp-highlighted-specs__attribute-columns__row"
     )
     features_dict = {
         k: v for k, v in [feature.text.strip().split(":") for feature in features]
@@ -180,77 +180,61 @@ def get_seller_link(soup):
     return seller_link
 
 
-# ! utilizado no processo da tabela de itens (coleta preços)
 @retry
-def get_price(soup, **kwargs):
+def get_prices(soup, **kwargs):
     """
-    Retrieves the price value from the HTML content represented by a BeautifulSoup object.
+    Retrieves the price values from the HTML content represented by a BeautifulSoup object.
     Args:
         soup (BeautifulSoup): The BeautifulSoup object representing the HTML document.
-        **kwargs: Keyword arguments specifying additional attributes to identify the HTML element.
+        **kwargs: Keyword arguments specifying additional attributes to identify the HTML elements.
 
     Returns:
-        str: The price value extracted from the identified HTML element.
+        dict: A dictionary containing the extracted price values.
     """
-    price = soup.find(itemprop="price")["content"]
-    return price
+    price_element = soup.find(itemprop="price")
+    original_price_element = soup.find("s", class_="andes-money-amount--previous")
 
+    price = price_element["content"] if price_element else None
 
-# ! utilizado no processo da tabela de itens (coleta preço original)
-@retry
-def get_original_price(soup):
-    """
-    Retrieves the original price from the HTML content represented by a BeautifulSoup object.
-    Args:
-        soup (BeautifulSoup): The BeautifulSoup object representing the HTML document.
+    if original_price_element:
+        span_element = original_price_element.find(
+            "span", class_="andes-visually-hidden"
+        )
+        text = span_element.get_text(strip=True).strip()
+        parts = text.split()
 
-    Returns:
-        float: The original price extracted from the HTML.
-    """
-    s_element = soup.find("s", class_="andes-money-amount--previous")
-    span_element = s_element.find("span", class_="andes-visually-hidden")
-    text = span_element.get_text(strip=True).strip()
-    parts = text.split()
+        numerical_parts = [
+            part
+            for part in parts
+            if part.isdigit() or part.replace(".", "", 1).isdigit()
+        ]
 
-    numerical_parts = [
-        part for part in parts if part.isdigit() or part.replace(".", "", 1).isdigit()
-    ]
+        original_price = float(".".join(numerical_parts))
+    else:
+        original_price = None
 
-    float_amount = float(".".join(numerical_parts))
+    title_element = soup.find("h1", class_="ui-pdp-title")
+    title = title_element.text.strip() if title_element else None
 
-    return float_amount
+    discount_element = soup.find("span", class_="andes-money-amount__discount")
+    discount = discount_element.text.strip() if discount_element else None
 
+    transport_condition_element = soup.find(
+        "p", class_="ui-pdp-color--BLACK ui-pdp-family--REGULAR ui-pdp-media__title"
+    )
+    transport_condition = (
+        transport_condition_element.text.strip()
+        if transport_condition_element
+        else None
+    )
 
-# @retry
-# def get_prices(soup, **kwargs):
-#     """
-#     Retrieves the price values from the HTML content represented by a BeautifulSoup object.
-#     Args:
-#         soup (BeautifulSoup): The BeautifulSoup object representing the HTML document.
-#         **kwargs: Keyword arguments specifying additional attributes to identify the HTML elements.
-
-#     Returns:
-#         dict: A dictionary containing the extracted price values.
-#     """
-#     price_element = soup.find(itemprop="price")
-#     original_price_element = soup.find("s", class_="andes-money-amount--previous")
-
-#     price = price_element["content"] if price_element else None
-
-#     if original_price_element:
-#         span_element = original_price_element.find("span", class_="andes-visually-hidden")
-#         text = span_element.get_text(strip=True).strip()
-#         parts = text.split()
-
-#         numerical_parts = [
-#             part for part in parts if part.isdigit() or part.replace(".", "", 1).isdigit()
-#         ]
-
-#         original_price = float(".".join(numerical_parts))
-#     else:
-#         original_price = None
-
-#     return {"price": price, "price_original": original_price}
+    return {
+        "price": price,
+        "price_original": original_price,
+        "title": title,
+        "discount": discount,
+        "transport_condition": transport_condition,
+    }
 
 
 # ! parte do processo da tabela de itens
@@ -259,36 +243,33 @@ async def process_item_url(item_url, kwargs_list):
     Processes an item URL by retrieving various information using asynchronous operations.
     Args:
         item_url (str): The URL of the item to process.
-        kwargs_list (list): A list of keyword argument dictionaries for the 'get_byelement' function.
-
     Returns:
         dict: A dictionary containing the extracted information about the item.
     """
-
     tasks = [
         get_byelement(url=item_url, attempts=5, wait_time=20, **kwargs)
         for kwargs in kwargs_list
     ]
+
     results = await asyncio.gather(*tasks)
-
-    keys = ["title", "review_amount", "discount", "transport_condition", "stars"]
-
+    keys = ["review_amount", "stars"]
     info = dict(zip(keys, results))
-    # price = await get_prices(item_url, attempts=10, wait_time=20)
-    # info["price"] =
-    # info["price_original"] =
-    price = await get_price(item_url, attempts=10, wait_time=20)
-    log(f"esse é o preco {price}")
-    info["price"] = price
-    # log("Preço de desconto coletado!")
-    price_original = await get_original_price(item_url, attempts=10, wait_time=25)
-    info["price_original"] = price_original
-    # log("Preço de original coletado!")
 
+    prices = await get_prices(item_url, attempts=10, wait_time=20)
+    info["price"] = prices["price"]
+    info["price_original"] = prices["price_original"]
+    info["title"] = prices["title"]
+    info["discount"] = prices["discount"]
+    info["transport_condition"] = prices["transport_condition"]
+    log(info)
+    log("Dados únicos coletados!")
+
+    # Gerando o ID item
     if info["title"] is not None:
         info["item_id_bd"] = generate_unique_id(info["title"])
     else:
         info["item_id_bd"] = None
+    # Dados do vendedor
     seller_link = await get_seller_link(item_url, attempts=5, wait_time=20)
     info["seller_link"] = seller_link
     if info["seller_link"] is not None:
@@ -305,6 +286,7 @@ async def process_item_url(item_url, kwargs_list):
     info["features"] = await get_features(item_url, attempts=2)
     info["item_url"] = item_url
     info["categories"] = await get_categories(item_url, attempts=2)
+    log(info["categories"])
     return info
 
 
