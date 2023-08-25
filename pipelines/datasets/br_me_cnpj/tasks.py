@@ -37,42 +37,11 @@ def calculate_defasagem():
         int: Number of lagged months.
     """
     current_month = datetime.now().month
-    if current_month == 10:
+    if current_month >= 10:
         defasagem = 6
     else:
         defasagem = current_month - 4
     return defasagem
-
-
-@task
-def check_for_updates(dataset_id, table_id):
-    """
-    Checks if there are available updates for a specific dataset and table.
-
-    Args:
-        dataset_id (str): The dataset ID in BigQuery.
-        table_id (str): The table ID in BigQuery.
-
-    Returns:
-        bool: Returns True if updates are available, otherwise returns False.
-    """
-    # Obtém a data mais recente do site
-    data_obj = data_url(url, headers).replace(day=1).strftime("%Y-%m-%d")
-
-    # Obtém a última data armazenada no BigQuery e adiciona 6 meses
-    data_bq_obj = extract_last_date(
-        dataset_id, table_id, "yy-mm-dd", "basedosdados-dev"
-    ) + timedelta(days=6 * 30)
-    data_bq_obj = data_bq_obj.replace(day=1).strftime("%Y-%m-%d")
-
-    # Registra a data mais recente do site
-    log(f"Última data do site: {data_obj}")
-
-    # Compara as datas para verificar se há atualizações
-    if data_obj > data_bq_obj:
-        return True  # Há atualizações disponíveis
-    else:
-        return False  # Não há novas atualizações disponíveis
 
 
 # @task
@@ -88,12 +57,13 @@ def check_for_updates(dataset_id, table_id):
 #         bool: Returns True if updates are available, otherwise returns False.
 #     """
 #     # Obtém a data mais recente do site
-#     data_obj = data_url(url, headers).strftime("%Y-%m-%d")
+#     data_obj = data_url(url, headers).replace(day=1).strftime("%Y-%m-%d")
 
-#     # Obtém a última data armazenada no BigQuery
+#     # Obtém a última data armazenada no BigQuery e adiciona 6 meses
 #     data_bq_obj = extract_last_date(
 #         dataset_id, table_id, "yy-mm-dd", "basedosdados-dev"
-#     ).strftime("%Y-%m-%d")
+#     ) + timedelta(days=6 * 30)
+#     data_bq_obj = data_bq_obj.replace(day=1).strftime("%Y-%m-%d")
 
 #     # Registra a data mais recente do site
 #     log(f"Última data do site: {data_obj}")
@@ -103,6 +73,36 @@ def check_for_updates(dataset_id, table_id):
 #         return True  # Há atualizações disponíveis
 #     else:
 #         return False  # Não há novas atualizações disponíveis
+
+
+@task
+def check_for_updates(dataset_id, table_id):
+    """
+    Checks if there are available updates for a specific dataset and table.
+
+    Args:
+        dataset_id (str): The dataset ID in BigQuery.
+        table_id (str): The table ID in BigQuery.
+
+    Returns:
+        bool: Returns True if updates are available, otherwise returns False.
+    """
+    # Obtém a data mais recente do site
+    data_obj = data_url(url, headers).strftime("%Y-%m-%d")
+
+    # Obtém a última data armazenada no BigQuery
+    data_bq_obj = extract_last_date(
+        dataset_id, table_id, "yy-mm-dd", "basedosdados-dev"
+    ).strftime("%Y-%m-%d")
+
+    # Registra a data mais recente do site
+    log(f"Última data do site: {data_obj}")
+
+    # Compara as datas para verificar se há atualizações
+    if data_obj > data_bq_obj:
+        return True  # Há atualizações disponíveis
+    else:
+        return False  # Não há novas atualizações disponíveis
 
 
 @task
