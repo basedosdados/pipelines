@@ -2,8 +2,6 @@
 """
 General purpose functions for the br_me_cnpj project
 """
-
-###############################################################################
 from pipelines.datasets.br_me_cnpj.constants import (
     constants as constants_cnpj,
 )
@@ -32,8 +30,12 @@ def data_url(url, headers):
     link_data = requests.get(url, headers=headers)
     soup = BeautifulSoup(link_data.text, "html.parser")
     span_element = soup.find_all("td", align="right")
+
+    # Extrai a segunda ocorrência
     data_completa = span_element[1].text.strip()
+    # Extrai a parte da data no formato "YYYY-MM-DD"
     data_str = data_completa[0:10]
+    # Converte a string da data em um objeto de data
     data = datetime.strptime(data_str, "%Y-%m-%d")
 
     return data

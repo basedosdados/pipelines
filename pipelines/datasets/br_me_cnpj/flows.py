@@ -17,6 +17,7 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from pipelines.constants import constants
 from pipelines.datasets.br_me_cnpj.tasks import (
+    calculate_defasagem,
     check_for_updates,
     main,
 )
@@ -31,10 +32,10 @@ from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     rename_current_flow_run_dataset_table,
     get_current_flow_labels,
-    update_django_metadata,
     log_task,
     log,
 )
+from pipelines.utils.metadata.tasks import update_django_metadata
 
 with Flow(
     name="br_me_cnpj.empresas",
@@ -64,6 +65,7 @@ with Flow(
 
     with case(dados_desatualizados, True):
         output_filepath = main(tabelas)
+        defasagem = calculate_defasagem(upstream_tasks=[output_filepath])
 
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
@@ -108,7 +110,10 @@ with Flow(
                 bq_last_update=True,
                 api_mode="prod",
                 date_format="yy-mm-dd",
-                billing_project_id="basedosdados",
+                is_bd_pro=True,
+                is_free=True,
+                time_delta=defasagem,
+                time_unit="months",
             )
 
 
@@ -144,7 +149,7 @@ with Flow(
 
     with case(dados_desatualizados, True):
         output_filepath = main(tabelas)
-
+        defasagem = calculate_defasagem(upstream_tasks=[output_filepath])
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
@@ -188,7 +193,10 @@ with Flow(
                 bq_last_update=True,
                 api_mode="prod",
                 date_format="yy-mm-dd",
-                billing_project_id="basedosdados",
+                is_bd_pro=True,
+                is_free=True,
+                time_delta=defasagem,
+                time_unit="months",
             )
 
 
@@ -225,7 +233,7 @@ with Flow(
 
     with case(dados_desatualizados, True):
         output_filepath = main(tabelas)
-
+        defasagem = calculate_defasagem(upstream_tasks=[output_filepath])
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
@@ -269,7 +277,10 @@ with Flow(
                 bq_last_update=True,
                 api_mode="prod",
                 date_format="yy-mm-dd",
-                billing_project_id="basedosdados-dev",
+                is_bd_pro=True,
+                is_free=True,
+                time_delta=defasagem,
+                time_unit="months",
             )
 
 
@@ -352,7 +363,7 @@ with Flow(
                 bq_last_update=True,
                 api_mode="prod",
                 date_format="yy-mm-dd",
-                billing_project_id="basedosdados-dev",
+                is_free=True,
             )
 
 
