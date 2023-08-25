@@ -39,8 +39,9 @@ from pipelines.datasets.br_cvm_fi.constants import constants as cvm_constants
 from pipelines.constants import constants
 from pipelines.utils.tasks import (
     log_task,
-    update_django_metadata,
+    #    update_django_metadata,
 )
+from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     rename_current_flow_run_dataset_table,
@@ -132,10 +133,13 @@ with Flow(
                     dataset_id,
                     table_id,
                     metadata_type="DateTimeRange",
-                    bq_last_update=False,
-                    api_mode="prod",
-                    date_format="yy-mm-dd",
                     _last_date=date,
+                    bq_table_last_year_month=False,
+                    bq_last_update=False,
+                    is_bd_pro=True,
+                    is_free=False,
+                    date_format="yy-mm-dd",
+                    api_mode="prod",
                 )
 
 
@@ -232,10 +236,13 @@ with Flow(
                     dataset_id,
                     table_id,
                     metadata_type="DateTimeRange",
-                    bq_last_update=False,
-                    api_mode="prod",
-                    date_format="yy-mm-dd",
                     _last_date=date,
+                    bq_table_last_year_month=False,
+                    bq_last_update=False,
+                    is_bd_pro=True,
+                    is_free=False,
+                    date_format="yy-mm-dd",
+                    api_mode="prod",
                 )
 
 
@@ -338,10 +345,13 @@ with Flow(
                     dataset_id,
                     table_id,
                     metadata_type="DateTimeRange",
-                    bq_last_update=False,
-                    api_mode="prod",
-                    date_format="yy-mm-dd",
                     _last_date=date,
+                    bq_table_last_year_month=False,
+                    bq_last_update=False,
+                    is_bd_pro=True,
+                    is_free=False,
+                    date_format="yy-mm-dd",
+                    api_mode="prod",
                 )
 
 br_cvm_fi_documentos_extratos_informacoes.storage = GCS(
@@ -435,10 +445,13 @@ with Flow(
                     dataset_id,
                     table_id,
                     metadata_type="DateTimeRange",
-                    bq_last_update=False,
-                    api_mode="prod",
-                    date_format="yy-mm-dd",
                     _last_date=date,
+                    bq_table_last_year_month=False,
+                    bq_last_update=False,
+                    is_bd_pro=True,
+                    is_free=False,
+                    date_format="yy-mm-dd",
+                    api_mode="prod",
                 )
 
 br_cvm_fi_documentos_perfil_mensal.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -529,10 +542,13 @@ with Flow(
                     dataset_id,
                     table_id,
                     metadata_type="DateTimeRange",
-                    bq_last_update=False,
-                    api_mode="prod",
-                    date_format="yy-mm-dd",
                     _last_date=date,
+                    bq_table_last_year_month=False,
+                    bq_last_update=False,
+                    is_bd_pro=True,
+                    is_free=False,
+                    date_format="yy-mm-dd",
+                    api_mode="prod",
                 )
 
 
@@ -626,10 +642,13 @@ with Flow(
                     dataset_id,
                     table_id,
                     metadata_type="DateTimeRange",
-                    bq_last_update=False,
-                    api_mode="prod",
-                    date_format="yy-mm-dd",
                     _last_date=date,
+                    bq_table_last_year_month=False,
+                    bq_last_update=False,
+                    is_bd_pro=True,
+                    is_free=False,
+                    date_format="yy-mm-dd",
+                    api_mode="prod",
                 )
 
 

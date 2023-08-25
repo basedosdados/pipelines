@@ -358,11 +358,17 @@ def is_up_to_date() -> bool:
 
     time.sleep(10)
 
-    div_with_last_date = driver.find_element(
-        By.XPATH, '//*[@id="44"]/div[2]/div/div[1]/div[5]/div/div[2]/div[2]/div'
-    )
+    current_year = datetime.datetime.now().year
 
-    text = div_with_last_date.text
+    div_with_last_date = [
+        e
+        for e in driver.find_elements(By.TAG_NAME, "div")
+        if e.get_attribute("title").strip().endswith(str(current_year))
+    ][0]
+
+    text = div_with_last_date.get_attribute("title")
+
+    assert text is not None
 
     driver.close()
 
@@ -390,7 +396,7 @@ def is_up_to_date() -> bool:
     log(f"Last date website: {text}, parsed as {date_website}")
 
     last_date_in_bq = extract_last_date(
-        "br_mp_pep", "cargos_funcoes_atualizado", "yy-mm", "basedosdados-dev"
+        "br_mp_pep", "cargos_funcoes_atualizado", "yy-mm", "basedosdados"
     )
     date_in_bq = datetime.datetime.strptime(last_date_in_bq, "%Y-%m")
 
