@@ -27,7 +27,58 @@ from pipelines.datasets.br_ms_cnes.utils import (
     pre_cleaning_to_utf8,
     check_and_create_column,
     if_column_exist_delete,
+    extract_last_date,
 )
+
+
+@task
+def check_files_to_parse(
+    dataset_id: str,
+    table_id: str,
+    billing_project_id,
+    cnes_database: str,
+    cnes_group_file: str,
+) -> list[str]:
+    log(f"extracting last date from bq for {dataset_id}.{table_id}")
+    # 1. extrair data mais atual do bq
+    last_date = extract_last_date(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        billing_project_id=billing_project_id,
+    )
+    log("building next year/month to parse")
+    # 2. adicionar mais um no mes ou transformar pra 1 se for 12
+    # eg. last_date = 20234
+    month = last_date[4:]
+    month = int(month)
+    if month <= 11:
+        month = month + 1
+    else:
+        month = 1
+    # 3. buildar no formato do ftp YYMM
+    year = last_date[-2:]
+    if month <= 9:
+        month = "0" + str(month)
+
+    year_month_to_parse = year + month
+    log(f"year_month_to_parse (YYMM) is {year_month_to_parse}")
+    # 4. ver se o arquivo existe
+    available_dbs = list_all_cnes_dbc_files(
+        database=cnes_database, CNES_group=cnes_group_file
+    )
+
+    list_files = []
+
+    # filtra pra ver se acha e retorna a lista
+    for file in available_dbs:
+        if file[-8:-4] == year_month_to_parse:
+            list_files.append(file)
+
+    log(f"the following files were selected fom DATASUS FTP: {list_files}")
+
+    return list_files
+    # 5. se existir, baixar e ver se nao é nulo
+    # 6. se tudo ok, trigga a run do flow
 
 
 # task to parse files and select files

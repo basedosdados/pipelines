@@ -17,6 +17,7 @@ from pipelines.datasets.br_ms_cnes.tasks import (
     access_ftp_donwload_files,
     read_dbc_save_csv,
     is_empty,
+    check_files_to_parse,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -64,79 +65,86 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    files_path = parse_latest_cnes_dbc_files(
+    files_path = check_files_to_parse(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        billing_project_id="basedosdados-dev",
         database="CNES",
         cnes_group=br_ms_cnes_constants.DATABASE_GROUPS.value["CNES"][0],
     )
+
     with case(is_empty(files_path), True):
-        log_task("Não houveram atualizações!")
-
-    # task para veficiar se for nula
-    # e deliberar
-    dbc_files = access_ftp_donwload_files(
-        file_list=files_path,
-        path=br_ms_cnes_constants.PATH.value[0],
-        table=br_ms_cnes_constants.TABLE.value[0],
-        upstream_tasks=[files_path],
-    )
-
-    filepath = read_dbc_save_csv(
-        file_list=dbc_files,
-        path=br_ms_cnes_constants.PATH.value[1],
-        table=br_ms_cnes_constants.TABLE.value[0],
-        upstream_tasks=[files_path, dbc_files],
-    )
-
-    wait_upload_table = create_table_and_upload_to_gcs(
-        data_path=filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dump_mode="append",
-        wait=filepath,
-    )
-
-    # estabelecimento
-    with case(materialize_after_dump, True):
-        # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
-        materialization_flow = create_flow_run(
-            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-            parameters={
-                "dataset_id": dataset_id,
-                "table_id": table_id,
-                "mode": materialization_mode,
-                "dbt_alias": dbt_alias,
-            },
-            labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id}",
+        log_task(
+            "Os dados do FTP CNES-ST ainda não foram atualizados para o ano/mes mais recente"
         )
 
-        wait_for_materialization = wait_for_flow_run(
-            materialization_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
-        wait_for_materialization.max_retries = (
-            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-        )
-        wait_for_materialization.retry_delay = timedelta(
-            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+    with case(is_empty(files_path), False):
+        # task para veficiar se for nula
+        # e deliberar
+        dbc_files = access_ftp_donwload_files(
+            file_list=files_path,
+            path=br_ms_cnes_constants.PATH.value[0],
+            table=br_ms_cnes_constants.TABLE.value[0],
+            upstream_tasks=[files_path],
         )
 
-        with case(update_metadata, True):
-            update = update_django_metadata(
-                dataset_id,
-                table_id,
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                bq_table_last_year_month=True,
-                api_mode="prod",
-                billing_project_id="basedosdados",
-                date_format="yy-mm",
-                upstream_tasks=[wait_for_materialization],
+        filepath = read_dbc_save_csv(
+            file_list=dbc_files,
+            path=br_ms_cnes_constants.PATH.value[1],
+            table=br_ms_cnes_constants.TABLE.value[0],
+            upstream_tasks=[files_path, dbc_files],
+        )
+
+        wait_upload_table = create_table_and_upload_to_gcs(
+            data_path=filepath,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dump_mode="append",
+            wait=filepath,
+        )
+
+        # estabelecimento
+        with case(materialize_after_dump, True):
+            # Trigger DBT flow run
+            current_flow_labels = get_current_flow_labels()
+            materialization_flow = create_flow_run(
+                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
+                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+                parameters={
+                    "dataset_id": dataset_id,
+                    "table_id": table_id,
+                    "mode": materialization_mode,
+                    "dbt_alias": dbt_alias,
+                },
+                labels=current_flow_labels,
+                run_name=f"Materialize {dataset_id}.{table_id}",
             )
+
+            wait_for_materialization = wait_for_flow_run(
+                materialization_flow,
+                stream_states=True,
+                stream_logs=True,
+                raise_final_state=True,
+            )
+            wait_for_materialization.max_retries = (
+                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
+            )
+            wait_for_materialization.retry_delay = timedelta(
+                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+            )
+
+            with case(update_metadata, True):
+                update = update_django_metadata(
+                    dataset_id,
+                    table_id,
+                    metadata_type="DateTimeRange",
+                    bq_last_update=False,
+                    bq_table_last_year_month=True,
+                    api_mode="prod",
+                    billing_project_id="basedosdados",
+                    date_format="yy-mm",
+                    upstream_tasks=[wait_for_materialization],
+                )
 
 
 br_ms_cnes_estabelecimento.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
