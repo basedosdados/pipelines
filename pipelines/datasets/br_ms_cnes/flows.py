@@ -69,7 +69,7 @@ with Flow(
         dataset_id=dataset_id,
         table_id=table_id,
         billing_project_id="basedosdados-dev",
-        database="CNES",
+        cnes_database="CNES",
         cnes_group=br_ms_cnes_constants.DATABASE_GROUPS.value["CNES"][0],
     )
 
