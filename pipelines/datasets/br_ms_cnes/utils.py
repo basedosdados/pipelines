@@ -154,7 +154,7 @@ def extract_last_date(dataset_id, table_id, billing_project_id: str):
 
     query_bd = f"""
     SELECT
-    MAX(CONCAT(ano,"-",mes)) as max_date
+    MAX(CONCAT(ano,mes)) as max_date
     FROM
     `{billing_project_id}.{dataset_id}.{table_id}`
     """
@@ -164,9 +164,8 @@ def extract_last_date(dataset_id, table_id, billing_project_id: str):
         billing_project_id=billing_project_id,
         from_file=True,
     )
-    input_date_str = t["max_date"][0]
+    year_month = t["max_date"][0]
 
-    date_obj = datetime.strptime(input_date_str, "%Y-%m")
+    log(f"O Ano/Mês mais recente da tabela é: {year_month}")
 
-    last_date = date_obj.strftime("%Y-%m")
-    log(f"O Ano/Mês mais recente da tabela é: {last_date}")
+    return year_month

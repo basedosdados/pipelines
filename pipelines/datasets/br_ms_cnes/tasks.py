@@ -73,7 +73,7 @@ def check_files_to_parse(
     for file in available_dbs:
         if file[-8:-4] == year_month_to_parse:
             list_files.append(file)
-
+    # final
     log(f"the following files were selected fom DATASUS FTP: {list_files}")
 
     return list_files
