@@ -77,8 +77,6 @@ def check_files_to_parse(
     log(f"the following files were selected fom DATASUS FTP: {list_files}")
 
     return list_files
-    # 5. se existir, baixar e ver se nao é nulo
-    # 6. se tudo ok, trigga a run do flow
 
 
 # task to parse files and select files

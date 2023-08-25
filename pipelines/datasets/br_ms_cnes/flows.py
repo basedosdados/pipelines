@@ -70,7 +70,7 @@ with Flow(
         table_id=table_id,
         billing_project_id="basedosdados-dev",
         cnes_database="CNES",
-        cnes_group=br_ms_cnes_constants.DATABASE_GROUPS.value["CNES"][0],
+        cnes_group_file=br_ms_cnes_constants.DATABASE_GROUPS.value["CNES"][0],
     )
 
     with case(is_empty(files_path), True):
@@ -85,7 +85,6 @@ with Flow(
             file_list=files_path,
             path=br_ms_cnes_constants.PATH.value[0],
             table=br_ms_cnes_constants.TABLE.value[0],
-            upstream_tasks=[files_path],
         )
 
         filepath = read_dbc_save_csv(
