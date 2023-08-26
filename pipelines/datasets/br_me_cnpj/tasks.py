@@ -9,6 +9,7 @@ from pipelines.datasets.br_me_cnpj.constants import (
 )
 from pipelines.datasets.br_me_cnpj.utils import (
     data_url,
+    data_url_bd,
     destino_output,
     download_unzip_csv,
     process_csv_estabelecimentos,
@@ -25,6 +26,7 @@ from tqdm import tqdm
 
 ufs = constants_cnpj.UFS.value
 url = constants_cnpj.URL.value
+url_bd = constants_cnpj.URL_BD.value
 headers = constants_cnpj.HEADERS.value
 
 
@@ -42,6 +44,35 @@ def calculate_defasagem():
     else:
         defasagem = current_month - 4
     return defasagem
+
+
+@task
+def check_for_updates(dataset_id, table_id):
+    """
+    Checks if there are available updates for a specific dataset and table.
+
+    Args:
+        dataset_id (str): The dataset ID in BigQuery.
+        table_id (str): The table ID in BigQuery.
+
+    Returns:
+        bool: Returns True if updates are available, otherwise returns False.
+    """
+    # Obtém a data mais recente do site
+    data_obj = data_url(url, headers).strftime("%Y-%m-%d")
+
+    # Obtém a última data no site BD
+    data_bq_obj = data_url_bd(url_bd, headers).strftime("%Y-%m-%d")
+
+    # Registra a data mais recente do site
+    log(f"Última data no site do ME: {data_obj}")
+    log(f"Última data no site da BD: {data_bq_obj}")
+
+    # Compara as datas para verificar se há atualizações
+    if data_obj > data_bq_obj:
+        return True  # Há atualizações disponíveis
+    else:
+        return False  # Não há novas atualizações disponíveis
 
 
 # @task
@@ -73,36 +104,6 @@ def calculate_defasagem():
 #         return True  # Há atualizações disponíveis
 #     else:
 #         return False  # Não há novas atualizações disponíveis
-
-
-@task
-def check_for_updates(dataset_id, table_id):
-    """
-    Checks if there are available updates for a specific dataset and table.
-
-    Args:
-        dataset_id (str): The dataset ID in BigQuery.
-        table_id (str): The table ID in BigQuery.
-
-    Returns:
-        bool: Returns True if updates are available, otherwise returns False.
-    """
-    # Obtém a data mais recente do site
-    data_obj = data_url(url, headers).strftime("%Y-%m-%d")
-
-    # Obtém a última data armazenada no BigQuery
-    data_bq_obj = extract_last_date(
-        dataset_id, table_id, "yy-mm-dd", "basedosdados-dev"
-    ).strftime("%Y-%m-%d")
-
-    # Registra a data mais recente do site
-    log(f"Última data do site: {data_obj}")
-
-    # Compara as datas para verificar se há atualizações
-    if data_obj > data_bq_obj:
-        return True  # Há atualizações disponíveis
-    else:
-        return False  # Não há novas atualizações disponíveis
 
 
 @task

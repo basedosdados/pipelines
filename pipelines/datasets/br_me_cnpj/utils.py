@@ -17,11 +17,8 @@ import pyarrow.parquet as pq
 import pyarrow as pa
 import csv
 from typing import List
-from dask import dataframe as dd
-
 
 ufs = constants_cnpj.UFS.value
-url = constants_cnpj.URL.value
 headers = constants_cnpj.HEADERS.value
 
 
@@ -38,6 +35,18 @@ def data_url(url, headers):
     # Converte a string da data em um objeto de data
     data = datetime.strptime(data_str, "%Y-%m-%d")
 
+    return data
+
+
+# ! Checa a data do site
+def data_url_bd(url, headers):
+    link_data = requests.get(url, headers=headers)
+    soup = BeautifulSoup(link_data.text, "html.parser")
+
+    # Extrai a segunda ocorrência
+    data_str = soup.find_all("p", class_="chakra-text css-92vgdp")[1].text
+    # Converte a string da data em um objeto de data
+    data = datetime.strptime(data_str, "%Y-%m-%d")
     return data
 
 
