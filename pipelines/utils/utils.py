@@ -195,8 +195,8 @@ def notify_discord_on_failure(
     """
     Notifies a Discord channel when a flow fails.
     """
-    # url = get_vault_secret(secret_path)["data"]["url"]
-    # flow_run_id = prefect.context.get("flow_run_id")
+    url = get_vault_secret(secret_path)["data"]["url"]
+    flow_run_id = prefect.context.get("flow_run_id")
     code_owners = code_owners or constants.DEFAULT_CODE_OWNERS.value
     code_owner_dict = constants.OWNERS_DISCORD_MENTIONS.value
     at_code_owners = []
@@ -213,18 +213,18 @@ def notify_discord_on_failure(
         elif code_owner_type == "role":
             at_code_owners.append(f"    - <@&{code_owner_id}>\n")
 
-    # message = (
-    #     f":man_facepalming: Flow **{flow.name}** has failed."
-    #     + f'\n  - State message: *"{state.message}"*'
-    #     + "\n  - Link to the failed flow: "
-    #     + f"https://prefect.basedosdados.org/flow-run/{flow_run_id}"
-    #     + "\n  - Extra attention:\n"
-    #     + "".join(at_code_owners)
-    # )
-    # send_discord_message(
-    #     message=message,
-    #     webhook_url=url,
-    # )
+    message = (
+        f":man_facepalming: Flow **{flow.name}** has failed."
+        + f'\n  - State message: *"{state.message}"*'
+        + "\n  - Link to the failed flow: "
+        + f"https://prefect.basedosdados.org/flow-run/{flow_run_id}"
+        + "\n  - Extra attention:\n"
+        + "".join(at_code_owners)
+    )
+    send_discord_message(
+        message=message,
+        webhook_url=url,
+    )
 
 
 def smart_split(
@@ -401,10 +401,10 @@ def to_partitions(
             # create folder tree
             filter_save_path = Path(savepath / "/".join(patitions_values))
             filter_save_path.mkdir(parents=True, exist_ok=True)
-            file_filter_save_path = Path(filter_save_path) / "data.parquet"
 
             if file_type == "csv":
                 # append data to csv
+                file_filter_save_path = Path(filter_save_path) / "data.csv"
                 df_filter.to_csv(
                     file_filter_save_path,
                     sep=",",
@@ -415,6 +415,8 @@ def to_partitions(
                     header=not file_filter_save_path.exists(),
                 )
             elif file_type == "parquet":
+                # append data to parquet
+                file_filter_save_path = Path(filter_save_path) / "data.parquet"
                 df_filter.to_parquet(
                     file_filter_save_path, index=False, compression="gzip"
                 )
