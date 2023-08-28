@@ -12,6 +12,7 @@ import pandas as pd
 import datetime
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import ElementNotInteractableException
 
 from prefect import task
 
@@ -260,8 +261,11 @@ def scraper(
             log(f"Downloaded file for {year}")
 
             modal = driver.find_element(By.CLASS_NAME, "ModalDialog")
-            modal.click()
-            log("Modal Clicked")
+            try:
+                modal.click()
+                log("Modal Clicked")
+            except ElementNotInteractableException:
+                log("Modal not found")
 
             wait_hide_popup_element()
 
