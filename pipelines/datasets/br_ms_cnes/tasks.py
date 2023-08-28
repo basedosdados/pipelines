@@ -56,7 +56,7 @@ def check_files_to_parse(
     else:
         month = 1
     # 3. buildar no formato do ftp YYMM
-    year = last_date[2:]
+    year = last_date[2:4]
 
     if month <= 9:
         month = "0" + str(month)
