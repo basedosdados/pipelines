@@ -8,10 +8,8 @@ class constants(Enum):  # pylint: disable=c0103
     """
 
     # LESS100 = "https://www.mercadolivre.com.br/ofertas?price=0.0-100.0&container_id=MLB779362-1&page="
-    OFERTA_DIA = (
-        "https://www.mercadolivre.com.br/ofertas?container_id=MLB779362-1&page="
-    )
-    # RELAMPAGO = "https://www.mercadolivre.com.br/ofertas?promotion_type=lightning&container_id=MLB779362-1&page="
+    OFERTA_DIA = "https://www.mercadolivre.com.br/ofertas?promotion_type=deal_of_the_day&container_id=MLB779362-1&page="
+    RELAMPAGO = "https://www.mercadolivre.com.br/ofertas?promotion_type=lightning&container_id=MLB779362-1&page="
     # BARATO_DIA = "https://www.mercadolivre.com.br/ofertas?container_id=MLB861109-2&deal_ids=MLB861109-2&page="
     KWARGS_LIST = [
         {"class_": "ui-pdp-review__amount"},

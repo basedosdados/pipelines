@@ -109,6 +109,7 @@ with Flow(
             bq_last_update=False,
             is_bd_pro=True,
             is_free=False,
+            # upstream_tasks=[wait_upload_table],
         )
 
     with case(get_sellers, True) and case(is_empty_list(seller_ids), False):
@@ -127,7 +128,7 @@ with Flow(
                 "materialize_after_dump": materialize_after_dump_sellers,
             },
             labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id_sellers}",
+            run_name=f"Materialize {dataset_id}.{table_id}",
         )
 
         wait_for_materialization = wait_for_flow_run(
@@ -144,13 +145,13 @@ with Flow(
         )
         update_django_metadata(
             dataset_id,
-            table_id_sellers,
+            table_id=table_id_sellers,
             metadata_type="DateTimeRange",
             _last_date=data_atual,
             bq_last_update=False,
             is_bd_pro=True,
             is_free=False,
-            upstream_tasks=[wait_upload_table],
+            # upstream_tasks=[wait_upload_table],
         )
 
 br_mercadolivre_ofertas_item.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -224,12 +225,13 @@ with Flow(
         )
         update_django_metadata(
             dataset_id,
-            table_id_sellers,
+            table_id,
             metadata_type="DateTimeRange",
             _last_date=data_atual,
             bq_last_update=False,
             is_bd_pro=True,
             is_free=False,
+            # upstream_tasks=[wait_upload_table],
         )
 
 br_mercadolivre_ofertas_vendedor.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
