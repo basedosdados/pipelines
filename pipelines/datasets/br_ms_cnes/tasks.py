@@ -80,49 +80,6 @@ def check_files_to_parse(
     return list_files
 
 
-# task to parse files and select files
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
-def parse_latest_cnes_dbc_files(database: str, cnes_group: str) -> list[str]:
-    """
-    This task access DATASUS FTP to retrive CNES database ST or PF group latest .DBC file paths
-    """
-    cnes_database = database
-    cnes_group_file = cnes_group
-
-    available_dbs = list_all_cnes_dbc_files(
-        database=cnes_database, CNES_group=cnes_group_file
-    )
-
-    today = dt.date.today()
-
-    current_month = today.month
-    current_year = str(today.year)
-    current_year = current_year[2:]
-
-    month_to_parse = cnes_constants.GENERATE_MONTH_TO_PARSE.value[current_month]
-    year_month_to_parse = str(current_year) + str(month_to_parse)
-
-    list_files = []
-
-    log(f"the YEARMONTH being used to parse files is: {year_month_to_parse}")
-    # filtra pra ver se acha e retorna a lista
-    for file in available_dbs:
-        if file[-8:-4] == year_month_to_parse:
-            list_files.append(file)
-
-    # check if list is null
-    # todo
-    if len(list_files) == 0:
-        log("No files were selected from DATASUS FTP")
-
-    log(f"the following files were selected fom DATASUS FTP: {list_files}")
-
-    return list_files
-
-
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
