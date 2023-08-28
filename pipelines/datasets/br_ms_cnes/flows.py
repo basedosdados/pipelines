@@ -13,7 +13,6 @@ from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.datasets.br_ms_cnes.constants import constants as br_ms_cnes_constants
 from pipelines.datasets.br_ms_cnes.tasks import (
-    parse_latest_cnes_dbc_files,
     access_ftp_donwload_files,
     read_dbc_save_csv,
     is_empty,
@@ -26,10 +25,10 @@ from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     rename_current_flow_run_dataset_table,
     get_current_flow_labels,
-    update_django_metadata,
     log_task,
 )
 
+from pipelines.utils.metadata.flows import update_django_metadata
 from pipelines.datasets.br_ms_cnes.schedules import (
     schedule_br_ms_cnes_estabelecimento,
     schedule_br_ms_cnes_profissional,
@@ -140,6 +139,10 @@ with Flow(
                     api_mode="prod",
                     billing_project_id="basedosdados",
                     date_format="yy-mm",
+                    is_bd_pro=True,
+                    is_free=True,
+                    time_delta=6,
+                    time_unit="months",
                     upstream_tasks=[wait_for_materialization],
                 )
 
@@ -247,6 +250,10 @@ with Flow(
                     api_mode="prod",
                     billing_project_id="basedosdados",
                     date_format="yy-mm",
+                    is_bd_pro=True,
+                    is_free=True,
+                    time_delta=6,
+                    time_unit="months",
                     upstream_tasks=[wait_for_materialization],
                 )
 
@@ -347,6 +354,10 @@ with Flow(name="br_ms_cnes.equipe", code_owners=["Gabriel Pisa"]) as br_ms_cnes_
                     api_mode="prod",
                     billing_project_id="basedosdados",
                     date_format="yy-mm",
+                    is_bd_pro=True,
+                    is_free=True,
+                    time_delta=6,
+                    time_unit="months",
                     upstream_tasks=[wait_for_materialization],
                 )
 
@@ -448,6 +459,10 @@ with Flow(name="br_ms_cnes.leito", code_owners=["Gabriel Pisa"]) as br_ms_cnes_l
                     api_mode="prod",
                     billing_project_id="basedosdados",
                     date_format="yy-mm",
+                    is_bd_pro=True,
+                    is_free=True,
+                    time_delta=6,
+                    time_unit="months",
                     upstream_tasks=[wait_for_materialization],
                 )
 
@@ -554,6 +569,10 @@ with Flow(
                     api_mode="prod",
                     billing_project_id="basedosdados",
                     date_format="yy-mm",
+                    is_bd_pro=True,
+                    is_free=True,
+                    time_delta=6,
+                    time_unit="months",
                     upstream_tasks=[wait_for_materialization],
                 )
 
@@ -656,6 +675,10 @@ with Flow(
                     api_mode="prod",
                     billing_project_id="basedosdados",
                     date_format="yy-mm",
+                    is_bd_pro=True,
+                    is_free=True,
+                    time_delta=6,
+                    time_unit="months",
                     upstream_tasks=[wait_for_materialization],
                 )
 
@@ -758,6 +781,10 @@ with Flow(
                     api_mode="prod",
                     billing_project_id="basedosdados",
                     date_format="yy-mm",
+                    is_bd_pro=True,
+                    is_free=True,
+                    time_delta=6,
+                    time_unit="months",
                     upstream_tasks=[wait_for_materialization],
                 )
 
@@ -862,6 +889,10 @@ with Flow(
                     api_mode="prod",
                     billing_project_id="basedosdados",
                     date_format="yy-mm",
+                    is_bd_pro=True,
+                    is_free=True,
+                    time_delta=6,
+                    time_unit="months",
                     upstream_tasks=[wait_for_materialization],
                 )
 
@@ -968,6 +999,10 @@ with Flow(
                     api_mode="prod",
                     billing_project_id="basedosdados",
                     date_format="yy-mm",
+                    is_bd_pro=True,
+                    is_free=True,
+                    time_delta=6,
+                    time_unit="months",
                     upstream_tasks=[wait_for_materialization],
                 )
 
@@ -1070,6 +1105,10 @@ with Flow(
                     api_mode="prod",
                     billing_project_id="basedosdados",
                     date_format="yy-mm",
+                    is_bd_pro=True,
+                    is_free=True,
+                    time_delta=6,
+                    time_unit="months",
                     upstream_tasks=[wait_for_materialization],
                 )
 
@@ -1173,6 +1212,10 @@ with Flow(
                     api_mode="prod",
                     billing_project_id="basedosdados",
                     date_format="yy-mm",
+                    is_bd_pro=True,
+                    is_free=True,
+                    time_delta=6,
+                    time_unit="months",
                     upstream_tasks=[wait_for_materialization],
                 )
 
@@ -1275,6 +1318,10 @@ with Flow(
                     api_mode="prod",
                     billing_project_id="basedosdados",
                     date_format="yy-mm",
+                    is_bd_pro=True,
+                    is_free=True,
+                    time_delta=6,
+                    time_unit="months",
                     upstream_tasks=[wait_for_materialization],
                 )
 
@@ -1379,6 +1426,10 @@ with Flow(
                     api_mode="prod",
                     billing_project_id="basedosdados",
                     date_format="yy-mm",
+                    is_bd_pro=True,
+                    is_free=True,
+                    time_delta=6,
+                    time_unit="months",
                     upstream_tasks=[wait_for_materialization],
                 )
 
