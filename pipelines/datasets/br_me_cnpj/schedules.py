@@ -4,8 +4,6 @@ Schedules for br_me_cnpj
 """
 
 ###############################################################################
-
-
 from prefect.schedules.clocks import CronClock
 from datetime import timedelta, datetime
 from prefect.schedules import Schedule
