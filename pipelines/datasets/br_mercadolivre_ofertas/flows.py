@@ -19,9 +19,8 @@ from pipelines.utils.tasks import (
     rename_current_flow_run_dataset_table,
     get_current_flow_labels,
     create_table_and_upload_to_gcs,
-    update_django_metadata,
 )
-
+from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.datasets.br_mercadolivre_ofertas.tasks import (
     crawler_mercadolivre_item,
     crawler_mercadolivre_seller,
@@ -104,10 +103,11 @@ with Flow(
         )
     update_django_metadata(
         dataset_id,
-        table_id_sellers,
+        table_id,
         metadata_type="DateTimeRange",
         _last_date=data_atual,
         bq_last_update=False,
+        is_bd_pro=True,
         upstream_tasks=[wait_upload_table],
     )
 
@@ -148,6 +148,7 @@ with Flow(
         metadata_type="DateTimeRange",
         _last_date=data_atual,
         bq_last_update=False,
+        is_bd_pro=True,
         upstream_tasks=[wait_upload_table],
     )
 
@@ -226,6 +227,7 @@ with Flow(
         metadata_type="DateTimeRange",
         _last_date=data_atual,
         bq_last_update=False,
+        is_bd_pro=True,
         upstream_tasks=[wait_upload_table],
     )
 

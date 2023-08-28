@@ -29,7 +29,7 @@ oferta_dia = const_mercadolivre.OFERTA_DIA.value
 kwargs_list = const_mercadolivre.KWARGS_LIST.value
 url_lists = {"oferta_dia": []}
 
-for i in range(1, 21):
+for i in range(1, 2):
     urls = {"oferta_dia": oferta_dia + str(i)}
     for table, url in urls.items():
         url_lists[table].append(url)

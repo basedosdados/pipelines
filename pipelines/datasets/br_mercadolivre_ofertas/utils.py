@@ -13,6 +13,7 @@ from fake_useragent import UserAgent
 import Levenshtein
 import pandas as pd
 from pipelines.datasets.br_mercadolivre_ofertas.decorators import retry
+import json
 
 ua = UserAgent()
 
@@ -153,17 +154,22 @@ def get_features(soup):
 # ! utilizado no processo da tabela de itens
 @retry
 def get_categories(soup):
-    """
-    Retrieves the categories from the HTML content represented by a BeautifulSoup object.
-    Args:
-        soup (BeautifulSoup): The BeautifulSoup object representing the HTML document.
+    script_elements = soup.find_all("script", type="application/ld+json")
+    categories = []
+    # Loop through script elements and extract the desired content
+    for script_content in script_elements:
+        try:
+            parsed_content = json.loads(script_content.string)
+            if (
+                "@type" in parsed_content
+                and parsed_content["@type"] == "BreadcrumbList"
+            ):
+                for item in parsed_content["itemListElement"]:
+                    categories.append(item["item"]["name"])
+        except ValueError:
+            pass
 
-    Returns:
-        list: A list of category names extracted from the HTML.
-    """
-    categories = soup.find_all("a", class_="andes-breadcrumb__link")
-    categories_list = [category.text.strip() for category in categories]
-    return categories_list
+    return categories
 
 
 # ! utilizado no processo da tabela de itens (coleta dos links de vendedores)
