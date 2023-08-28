@@ -122,7 +122,7 @@ schedule_br_ms_cnes_equipamento = Schedule(
 )
 
 schedule_br_ms_cnes_estabelecimento_ensino = Schedule(
-    cclocks=[
+    clocks=[
         CronClock(
             cron="0 0 * * *",  # every day at midnight
             start_date=datetime(2023, 9, 1, 0, 0),
