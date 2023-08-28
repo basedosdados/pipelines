@@ -67,7 +67,7 @@ with Flow(
     files_path = check_files_to_parse(
         dataset_id=dataset_id,
         table_id=table_id,
-        billing_project_id="basedosdados-dev",
+        billing_project_id="basedosdados",
         cnes_database="CNES",
         cnes_group_file=br_ms_cnes_constants.DATABASE_GROUPS.value["CNES"][0],
     )
@@ -178,7 +178,7 @@ with Flow(
     files_path = check_files_to_parse(
         dataset_id=dataset_id,
         table_id=table_id,
-        billing_project_id="basedosdados-dev",
+        billing_project_id="basedosdados",
         cnes_database="CNES",
         cnes_group_file=br_ms_cnes_constants.DATABASE_GROUPS.value["CNES"][1],
     )
@@ -283,7 +283,7 @@ with Flow(name="br_ms_cnes.equipe", code_owners=["Gabriel Pisa"]) as br_ms_cnes_
     files_path = check_files_to_parse(
         dataset_id=dataset_id,
         table_id=table_id,
-        billing_project_id="basedosdados-dev",
+        billing_project_id="basedosdados",
         cnes_database="CNES",
         cnes_group_file=br_ms_cnes_constants.DATABASE_GROUPS.value["CNES"][4],
     )
@@ -388,7 +388,7 @@ with Flow(name="br_ms_cnes.leito", code_owners=["Gabriel Pisa"]) as br_ms_cnes_l
     files_path = check_files_to_parse(
         dataset_id=dataset_id,
         table_id=table_id,
-        billing_project_id="basedosdados-dev",
+        billing_project_id="basedosdados",
         cnes_database="CNES",
         cnes_group_file=br_ms_cnes_constants.DATABASE_GROUPS.value["CNES"][3],
     )
@@ -495,7 +495,7 @@ with Flow(
     files_path = check_files_to_parse(
         dataset_id=dataset_id,
         table_id=table_id,
-        billing_project_id="basedosdados-dev",
+        billing_project_id="basedosdados",
         cnes_database="CNES",
         # mudar no aqui pra 1
         cnes_group_file=br_ms_cnes_constants.DATABASE_GROUPS.value["CNES"][2],
@@ -604,7 +604,7 @@ with Flow(
     files_path = check_files_to_parse(
         dataset_id=dataset_id,
         table_id=table_id,
-        billing_project_id="basedosdados-dev",
+        billing_project_id="basedosdados",
         cnes_database="CNES",
         cnes_group_file=br_ms_cnes_constants.DATABASE_GROUPS.value["CNES"][5],
     )
@@ -710,7 +710,7 @@ with Flow(
     files_path = check_files_to_parse(
         dataset_id=dataset_id,
         table_id=table_id,
-        billing_project_id="basedosdados-dev",
+        billing_project_id="basedosdados",
         cnes_database="CNES",
         cnes_group_file=br_ms_cnes_constants.DATABASE_GROUPS.value["CNES"][6],
     )
@@ -818,7 +818,7 @@ with Flow(
     files_path = check_files_to_parse(
         dataset_id=dataset_id,
         table_id=table_id,
-        billing_project_id="basedosdados-dev",
+        billing_project_id="basedosdados",
         cnes_database="CNES",
         cnes_group_file=br_ms_cnes_constants.DATABASE_GROUPS.value["CNES"][6],
     )
@@ -928,7 +928,7 @@ with Flow(
     files_path = check_files_to_parse(
         dataset_id=dataset_id,
         table_id=table_id,
-        billing_project_id="basedosdados-dev",
+        billing_project_id="basedosdados",
         cnes_database="CNES",
         cnes_group_file=br_ms_cnes_constants.DATABASE_GROUPS.value["CNES"][8],
     )
@@ -1034,7 +1034,7 @@ with Flow(
     files_path = check_files_to_parse(
         dataset_id=dataset_id,
         table_id=table_id,
-        billing_project_id="basedosdados-dev",
+        billing_project_id="basedosdados",
         cnes_database="CNES",
         cnes_group_file=br_ms_cnes_constants.DATABASE_GROUPS.value["CNES"][9],
     )
@@ -1141,7 +1141,7 @@ with Flow(
     files_path = check_files_to_parse(
         dataset_id=dataset_id,
         table_id=table_id,
-        billing_project_id="basedosdados-dev",
+        billing_project_id="basedosdados",
         cnes_database="CNES",
         cnes_group_file=br_ms_cnes_constants.DATABASE_GROUPS.value["CNES"][10],
     )
@@ -1247,7 +1247,7 @@ with Flow(
     files_path = check_files_to_parse(
         dataset_id=dataset_id,
         table_id=table_id,
-        billing_project_id="basedosdados-dev",
+        billing_project_id="basedosdados",
         cnes_database="CNES",
         cnes_group_file=br_ms_cnes_constants.DATABASE_GROUPS.value["CNES"][11],
     )
@@ -1355,7 +1355,7 @@ with Flow(
     files_path = check_files_to_parse(
         dataset_id=dataset_id,
         table_id=table_id,
-        billing_project_id="basedosdados-dev",
+        billing_project_id="basedosdados",
         cnes_database="CNES",
         cnes_group_file=br_ms_cnes_constants.DATABASE_GROUPS.value["CNES"][12],
     )
