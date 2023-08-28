@@ -79,9 +79,10 @@ def treat_data_taxa_cambio(table_id: str) -> str:
 
     to_partitions(data=df, partition_columns=["ano"], savepath=save_output_path)
 
-
-    file_info = {"save_output_path": save_output_path,
-            "max_date": max_date.strftime("%Y-%m-%d")}
+    file_info = {
+        "save_output_path": save_output_path,
+        "max_date": max_date.strftime("%Y-%m-%d"),
+    }
 
     # Return the full file path
     return file_info
