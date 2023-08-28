@@ -11,7 +11,7 @@ from datetime import timedelta, datetime
 from prefect.schedules import Schedule
 from pipelines.constants import constants
 
-every_ten_days_empresas = Schedule(
+every_day_empresas = Schedule(
     clocks=[
         CronClock(
             cron="0 6 * * *",
@@ -29,7 +29,7 @@ every_ten_days_empresas = Schedule(
         ),
     ]
 )
-every_ten_days_socios = Schedule(
+every_day_socios = Schedule(
     clocks=[
         CronClock(
             cron="0 7 * * *",
@@ -47,7 +47,7 @@ every_ten_days_socios = Schedule(
         ),
     ]
 )
-every_ten_days_simples = Schedule(
+every_day_simples = Schedule(
     clocks=[
         CronClock(
             cron="0 8 * * *",
@@ -65,7 +65,7 @@ every_ten_days_simples = Schedule(
         ),
     ]
 )
-every_ten_days_estabelecimentos = Schedule(
+every_day_estabelecimentos = Schedule(
     clocks=[
         CronClock(
             cron="0 9 * * *",
