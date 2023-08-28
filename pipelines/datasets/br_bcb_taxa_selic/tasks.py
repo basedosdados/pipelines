@@ -52,9 +52,13 @@ def treat_data_taxa_selic(table_id: str) -> str:
 
     # Perform data treatment on the dataframe
     df = treat_selic_df(df, table_id)
+    max_date = df["data"].max()
 
     # Save the treated dataframe to a file and obtain the full file path
     full_filepath = save_output(df, table_id)
 
+    file_info = {"save_output_path": full_filepath,
+        "max_date": max_date.strftime("%Y-%m-%d")}
+
     # Return the full file path
-    return full_filepath
+    return file_info

@@ -11,6 +11,7 @@ from pipelines.datasets.br_bcb_taxa_cambio.tasks import (
     get_data_taxa_cambio,
     treat_data_taxa_cambio,
 )
+from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.decorators import Flow
 from pipelines.datasets.br_bcb_taxa_cambio.constants import constants as constants_bcb
 from prefect import Parameter, case
@@ -22,10 +23,7 @@ from pipelines.utils.tasks import (
 )
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.utils.constants import constants as utils_constants
-from pipelines.datasets.br_bcb_taxa_cambio.schedules import (
-    schedule_every_weekday_taxa_cambio,
-)
-
+from pipelines.datasets.br_bcb_taxa_cambio.schedules import schedule_every_weekday_taxa_cambio
 
 with Flow(
     name="br_bcb_taxa_cambio.taxa_cambio",
@@ -52,17 +50,32 @@ with Flow(
         table_id=table_id, upstream_tasks=[rename_flow_run]
     )
 
-    output_filepath = treat_data_taxa_cambio(
+    file_info = treat_data_taxa_cambio(
         table_id=table_id, upstream_tasks=[input_filepath]
     )
 
+
     wait_upload_table = create_table_and_upload_to_gcs(
-        data_path=output_filepath,
+        data_path=file_info["save_output_path"],
         dataset_id=dataset_id,
         table_id=table_id,
         dump_mode="append",
-        wait=output_filepath,
+        wait=file_info,
     )
+
+    update_django_metadata(
+            upstream_tasks=[wait_upload_table],
+            dataset_id=dataset_id,
+            table_id=table_id,
+            metadata_type="DateTimeRange",
+            _last_date=file_info["max_date"],
+            bq_table_last_year_month=False,
+            bq_last_update=False,
+            is_bd_pro=True,
+            is_free=False,
+            date_format="yy-mm-dd",
+            api_mode="prod",
+        )
 
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
@@ -94,6 +107,8 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
+
+
 
 datasets_br_bcb_taxa_cambio_moeda_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 datasets_br_bcb_taxa_cambio_moeda_flow.run_config = KubernetesRun(

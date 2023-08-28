@@ -72,10 +72,16 @@ def treat_data_taxa_cambio(table_id: str) -> str:
 
     # Perform data treatment on the dataframe
     df = treat_currency_df(df, table_id)
+    max_date = df["data_cotacao"].max()
+    log(max_date)
 
     save_output_path = f"tmp/{table_id}/output/"
 
     to_partitions(data=df, partition_columns=["ano"], savepath=save_output_path)
 
+
+    file_info = {"save_output_path": save_output_path,
+            "max_date": max_date.strftime("%Y-%m-%d")}
+
     # Return the full file path
-    return save_output_path
+    return file_info

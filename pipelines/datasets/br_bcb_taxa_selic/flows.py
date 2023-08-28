@@ -8,6 +8,7 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect import Parameter, case
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
+from pipelines.utils.metadata.tasks import update_django_metadata
 
 from pipelines.utils.decorators import Flow
 from pipelines.constants import constants
@@ -53,17 +54,31 @@ with Flow(
         table_id=table_id, upstream_tasks=[rename_flow_run]
     )
 
-    output_filepath = treat_data_taxa_selic(
+    file_info = treat_data_taxa_selic(
         table_id=table_id, upstream_tasks=[input_filepath]
     )
 
     wait_upload_table = create_table_and_upload_to_gcs(
-        data_path=output_filepath,
+        data_path=file_info["save_output_path"],
         dataset_id=dataset_id,
         table_id=table_id,
         dump_mode="append",
-        wait=output_filepath,
+        wait=file_info,
     )
+
+    update_django_metadata(
+            upstream_tasks=[wait_upload_table],
+            dataset_id=dataset_id,
+            table_id=table_id,
+            metadata_type="DateTimeRange",
+            _last_date=file_info["max_date"],
+            bq_table_last_year_month=False,
+            bq_last_update=False,
+            is_bd_pro=True,
+            is_free=False,
+            date_format="yy-mm-dd",
+            api_mode="prod",
+        )
 
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
