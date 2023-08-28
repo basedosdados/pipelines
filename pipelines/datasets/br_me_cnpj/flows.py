@@ -57,7 +57,7 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
     tabelas = constants_cnpj.TABELAS.value[0:1]
-    dados_desatualizados = check_for_updates(dataset_id, table_id)
+    dados_desatualizados = check_for_updates()
     log_task(f"Checando se os dados estão desatualizados: {dados_desatualizados}")
 
     with case(dados_desatualizados, False):
@@ -141,7 +141,7 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
     tabelas = constants_cnpj.TABELAS.value[1:2]
-    dados_desatualizados = check_for_updates(dataset_id, table_id)
+    dados_desatualizados = check_for_updates()
     log_task(f"Checando se os dados estão desatualizados: {dados_desatualizados}")
 
     with case(dados_desatualizados, False):
@@ -225,7 +225,7 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
     tabelas = constants_cnpj.TABELAS.value[2:3]
-    dados_desatualizados = check_for_updates(dataset_id, table_id)
+    dados_desatualizados = check_for_updates()
     log_task(f"Checando se os dados estão desatualizados: {dados_desatualizados}")
 
     with case(dados_desatualizados, False):
@@ -311,7 +311,7 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
     tabelas = constants_cnpj.TABELAS.value[3:]
-    dados_desatualizados = check_for_updates(dataset_id, table_id="estabelecimentos")
+    dados_desatualizados = check_for_updates()
     log_task(f"Checando se os dados estão desatualizados: {dados_desatualizados}")
 
     with case(dados_desatualizados, False):
@@ -365,7 +365,6 @@ with Flow(
                 date_format="yy-mm-dd",
                 is_free=True,
             )
-
 
 br_me_cnpj_simples.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_me_cnpj_simples.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)

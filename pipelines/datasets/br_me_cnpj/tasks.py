@@ -39,21 +39,23 @@ def calculate_defasagem():
         int: Number of lagged months.
     """
     current_month = datetime.now().month
-    if current_month >= 10:
-        defasagem = 6
+    current_year = datetime.now().year
+
+    if current_year == 2023:
+        if current_month >= 10:
+            defasagem = 6
+        else:
+            defasagem = current_month - 4
     else:
-        defasagem = current_month - 4
+        defasagem = 6
+
     return defasagem
 
 
 @task
-def check_for_updates(dataset_id, table_id):
+def check_for_updates():
     """
     Checks if there are available updates for a specific dataset and table.
-
-    Args:
-        dataset_id (str): The dataset ID in BigQuery.
-        table_id (str): The table ID in BigQuery.
 
     Returns:
         bool: Returns True if updates are available, otherwise returns False.

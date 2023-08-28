@@ -22,7 +22,7 @@ ufs = constants_cnpj.UFS.value
 headers = constants_cnpj.HEADERS.value
 
 
-# ! Checa a data do site
+# ! Checa a data do site ME
 def data_url(url, headers):
     link_data = requests.get(url, headers=headers)
     soup = BeautifulSoup(link_data.text, "html.parser")
@@ -38,7 +38,7 @@ def data_url(url, headers):
     return data
 
 
-# ! Checa a data do site
+# ! Checa a data do site BD
 def data_url_bd(url, headers):
     link_data = requests.get(url, headers=headers)
     soup = BeautifulSoup(link_data.text, "html.parser")
