@@ -36,6 +36,7 @@ from pipelines.utils.tasks import (
     log,
 )
 from pipelines.utils.metadata.tasks import update_django_metadata
+from pipelines.datasets.br_me_cnpj.utils import data_url
 
 with Flow(
     name="br_me_cnpj.empresas",
@@ -64,9 +65,11 @@ with Flow(
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
     with case(dados_desatualizados, True):
+        headers = constants_cnpj.HEADERS.value
+        url = constants_cnpj.URL.value
         output_filepath = main(tabelas)
         defasagem = calculate_defasagem(upstream_tasks=[output_filepath])
-
+        data_coleta = data_url(url, headers, upstream_tasks=[defasagem]).date()
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
@@ -107,7 +110,8 @@ with Flow(
                 dataset_id,
                 table_id,
                 metadata_type="DateTimeRange",
-                bq_last_update=True,
+                _last_date=data_coleta,
+                bq_last_update=False,
                 api_mode="prod",
                 date_format="yy-mm-dd",
                 is_bd_pro=True,
@@ -148,8 +152,11 @@ with Flow(
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
     with case(dados_desatualizados, True):
+        headers = constants_cnpj.HEADERS.value
+        url = constants_cnpj.URL.value
         output_filepath = main(tabelas)
         defasagem = calculate_defasagem(upstream_tasks=[output_filepath])
+        data_coleta = data_url(url, headers, upstream_tasks=[defasagem]).date()
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
@@ -190,7 +197,8 @@ with Flow(
                 dataset_id,
                 table_id,
                 metadata_type="DateTimeRange",
-                bq_last_update=True,
+                _last_date=data_coleta,
+                bq_last_update=False,
                 api_mode="prod",
                 date_format="yy-mm-dd",
                 is_bd_pro=True,
@@ -232,8 +240,11 @@ with Flow(
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
     with case(dados_desatualizados, True):
+        headers = constants_cnpj.HEADERS.value
+        url = constants_cnpj.URL.value
         output_filepath = main(tabelas)
         defasagem = calculate_defasagem(upstream_tasks=[output_filepath])
+        data_coleta = data_url(url, headers, upstream_tasks=[defasagem]).date()
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
@@ -274,7 +285,8 @@ with Flow(
                 dataset_id,
                 table_id,
                 metadata_type="DateTimeRange",
-                bq_last_update=True,
+                _last_date=data_coleta,
+                bq_last_update=False,
                 api_mode="prod",
                 date_format="yy-mm-dd",
                 is_bd_pro=True,
@@ -315,8 +327,8 @@ with Flow(
                 dataset_id,
                 table_id,
                 metadata_type="DateTimeRange",
-                _last_date="aa",
-                bq_last_update=True,
+                _last_date=data_coleta,
+                bq_last_update=False,
                 api_mode="prod",
                 date_format="yy-mm-dd",
                 is_bd_pro=True,
@@ -358,8 +370,10 @@ with Flow(
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
     with case(dados_desatualizados, True):
+        headers = constants_cnpj.HEADERS.value
+        url = constants_cnpj.URL.value
         output_filepath = main(tabelas)
-
+        data_coleta = data_url(url, headers, upstream_tasks=[output_filepath]).date()
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
@@ -400,7 +414,8 @@ with Flow(
                 dataset_id,
                 table_id,
                 metadata_type="DateTimeRange",
-                bq_last_update=True,
+                _last_date=data_coleta,
+                bq_last_update=False,
                 api_mode="prod",
                 date_format="yy-mm-dd",
                 is_free=True,
