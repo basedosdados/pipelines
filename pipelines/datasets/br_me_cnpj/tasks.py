@@ -71,7 +71,7 @@ def check_for_updates():
     log(f"Última data no site da BD: {data_bq_obj}")
 
     # Compara as datas para verificar se há atualizações
-    if data_obj > data_bq_obj:
+    if data_obj == data_bq_obj:
         return True  # Há atualizações disponíveis
     else:
         return False  # Não há novas atualizações disponíveis
@@ -103,7 +103,7 @@ def main(tabelas):
     output_path = destino_output(sufixo, data_coleta)
 
     # Loop para baixar e processar os arquivos
-    for i in range(0, 10):
+    for i in range(1, 2):
         if tabela != "Simples":
             nome_arquivo = f"{tabela}{i}"
             url_download = f"https://dadosabertos.rfb.gov.br/CNPJ/{tabela}{i}.zip"

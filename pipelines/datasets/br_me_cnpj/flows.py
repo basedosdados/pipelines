@@ -254,7 +254,7 @@ with Flow(
                     "dbt_alias": dbt_alias,
                 },
                 labels=current_flow_labels,
-                run_name=f"Materialize {dataset_id}.{table_id}",
+                run_name=r"Materialize {dataset_id}.{table_id}",
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -285,21 +285,21 @@ with Flow(
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
             current_flow_labels = get_current_flow_labels()
-            materialization_flow = create_flow_run(
+            materialize_second = create_flow_run(
                 flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
                 project_name=constants.PREFECT_DEFAULT_PROJECT.value,
                 parameters={
                     "dataset_id": "br_bd_diretorios_brasil",
                     "table_id": "empresa",
                     "mode": materialization_mode,
-                    "dbt_alias": dbt_alias,
+                    "dbt_alias": True,
                 },
                 labels=current_flow_labels,
-                run_name=f"Materialize {dataset_id}.{table_id}",
+                run_name=r"Materialize {dataset_id}.{table_id}",
             )
-
+            materialize_second.set_upstream([materialization_flow])
             wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
+                materialize_second,
                 stream_states=True,
                 stream_logs=True,
                 raise_final_state=True,
@@ -315,6 +315,7 @@ with Flow(
                 dataset_id,
                 table_id,
                 metadata_type="DateTimeRange",
+                _last_date="aa",
                 bq_last_update=True,
                 api_mode="prod",
                 date_format="yy-mm-dd",
