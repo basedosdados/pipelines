@@ -67,9 +67,10 @@ with Flow(
     with case(dados_desatualizados, True):
         headers = constants_cnpj.HEADERS.value
         url = constants_cnpj.URL.value
+        data_coleta = data_url(url, headers).date()
+
         output_filepath = main(tabelas)
         defasagem = calculate_defasagem(upstream_tasks=[output_filepath])
-        data_coleta = data_url(url, headers, upstream_tasks=[defasagem]).date()
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
@@ -154,9 +155,10 @@ with Flow(
     with case(dados_desatualizados, True):
         headers = constants_cnpj.HEADERS.value
         url = constants_cnpj.URL.value
+        data_coleta = data_url(url, headers).date()
+
         output_filepath = main(tabelas)
         defasagem = calculate_defasagem(upstream_tasks=[output_filepath])
-        data_coleta = data_url(url, headers, upstream_tasks=[defasagem]).date()
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
@@ -242,9 +244,10 @@ with Flow(
     with case(dados_desatualizados, True):
         headers = constants_cnpj.HEADERS.value
         url = constants_cnpj.URL.value
+        data_coleta = data_url(url, headers).date()
+
         output_filepath = main(tabelas)
         defasagem = calculate_defasagem(upstream_tasks=[output_filepath])
-        data_coleta = data_url(url, headers, upstream_tasks=[defasagem]).date()
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
@@ -372,8 +375,9 @@ with Flow(
     with case(dados_desatualizados, True):
         headers = constants_cnpj.HEADERS.value
         url = constants_cnpj.URL.value
+        data_coleta = data_url(url, headers).date()
+
         output_filepath = main(tabelas)
-        data_coleta = data_url(url, headers, upstream_tasks=[output_filepath]).date()
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
