@@ -18,6 +18,7 @@ from prefect.storage import GCS
 from pipelines.constants import constants
 from pipelines.datasets.br_me_cnpj.tasks import (
     calculate_defasagem,
+    format_date_to_string,
     check_for_updates,
     main,
 )
@@ -65,12 +66,9 @@ with Flow(
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
     with case(dados_desatualizados, True):
-        headers = constants_cnpj.HEADERS.value
-        url = constants_cnpj.URL.value
-        data_coleta = data_url(url, headers).date()
-
         output_filepath = main(tabelas)
         defasagem = calculate_defasagem(upstream_tasks=[output_filepath])
+        data_coleta = format_date_to_string(upstream_tasks=[defasagem])
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
@@ -153,12 +151,9 @@ with Flow(
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
     with case(dados_desatualizados, True):
-        headers = constants_cnpj.HEADERS.value
-        url = constants_cnpj.URL.value
-        data_coleta = data_url(url, headers).date()
-
         output_filepath = main(tabelas)
         defasagem = calculate_defasagem(upstream_tasks=[output_filepath])
+        data_coleta = format_date_to_string(upstream_tasks=[defasagem])
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
@@ -242,12 +237,9 @@ with Flow(
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
     with case(dados_desatualizados, True):
-        headers = constants_cnpj.HEADERS.value
-        url = constants_cnpj.URL.value
-        data_coleta = data_url(url, headers).date()
-
         output_filepath = main(tabelas)
         defasagem = calculate_defasagem(upstream_tasks=[output_filepath])
+        data_coleta = format_date_to_string(upstream_tasks=[defasagem])
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
@@ -373,11 +365,8 @@ with Flow(
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
     with case(dados_desatualizados, True):
-        headers = constants_cnpj.HEADERS.value
-        url = constants_cnpj.URL.value
-        data_coleta = data_url(url, headers).date()
-
         output_filepath = main(tabelas)
+        data_coleta = format_date_to_string(upstream_tasks=[output_filepath])
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
