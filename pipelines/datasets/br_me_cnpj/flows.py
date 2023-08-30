@@ -66,9 +66,9 @@ with Flow(
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
     with case(dados_desatualizados, True):
-        output_filepath = main(tabelas)
-        defasagem = calculate_defasagem(upstream_tasks=[output_filepath])
-        data_coleta = format_date_to_string(upstream_tasks=[defasagem])
+        data_coleta = format_date_to_string()
+        defasagem = calculate_defasagem(upstream_tasks=[data_coleta])
+        output_filepath = main(tabelas, upstream_tasks=[defasagem])
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
@@ -151,9 +151,9 @@ with Flow(
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
     with case(dados_desatualizados, True):
-        output_filepath = main(tabelas)
-        defasagem = calculate_defasagem(upstream_tasks=[output_filepath])
-        data_coleta = format_date_to_string(upstream_tasks=[defasagem])
+        data_coleta = format_date_to_string()
+        defasagem = calculate_defasagem(upstream_tasks=[data_coleta])
+        output_filepath = main(tabelas, upstream_tasks=[defasagem])
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
@@ -366,8 +366,8 @@ with Flow(
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
     with case(dados_desatualizados, True):
-        output_filepath = main(tabelas)
-        data_coleta = format_date_to_string(upstream_tasks=[output_filepath])
+        data_coleta = format_date_to_string()
+        output_filepath = main(tabelas, upstream_tasks=[data_coleta])
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
