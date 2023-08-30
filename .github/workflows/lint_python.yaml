@@ -19,20 +19,11 @@ jobs:
       - name: Install flows
         run: |
           pip install --prefer-binary .
+      - name: Install pylint
+        run: pip install pylint
       - name: Lint flows
-        uses: gabriel-milan/action-pylint@v1
-        with:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-          path: "pipelines/"
-          fail: true
-          pr-message: true
+        run: pylint pipelines/*
       - name: Install Pytest
-        run: |
-          pip install pytest
+        run: pip install pytest
       - name: Lint tests
-        uses: gabriel-milan/action-pylint@v1
-        with:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-          path: "tests/"
-          fail: true
-          pr-message: true
+        run: pylint tests/*
