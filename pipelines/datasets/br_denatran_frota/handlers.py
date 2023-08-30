@@ -152,7 +152,7 @@ def get_latest_data(table_name: str):
         denatran_data: pd.DataFrame = get_data_from_prod(
             table_id=table_name, dataset_id="br_denatran_frota"
         )
-    except Exception as e:
+    except Exception:
         return 2003, 1
     if not denatran_data.empty:
         year = denatran_data["ano"].max()
