@@ -63,7 +63,6 @@ def read_architecture_table(url_architecture: str) -> pd.DataFrame:
         StringIO(requests.get(url, timeout=10).content.decode("utf-8"))
     )
 
-    log("Download of the architecture table")
     return df_architecture.replace(np.nan, "", regex=True)
 
 
@@ -99,7 +98,6 @@ def rename_columns(df: pd.DataFrame, architecture: pd.DataFrame) -> pd.DataFrame
     dict_columns = dict(zip(aux.original_name, aux.name))
 
     # Rename columns of the DataFrame 'df' based on the dictionary 'dict_columns'
-    log("Rename columns")
     return df.rename(columns=dict_columns)
 
 
