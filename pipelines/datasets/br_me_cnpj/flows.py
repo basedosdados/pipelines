@@ -260,7 +260,7 @@ with Flow(
                     "dbt_alias": dbt_alias,
                 },
                 labels=current_flow_labels,
-                run_name=r"Materialize {dataset_id}.{table_id}",
+                run_name=f"Materialize {dataset_id}.{table_id}",
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -302,7 +302,7 @@ with Flow(
                     "dbt_alias": True,
                 },
                 labels=current_flow_labels,
-                run_name=r"Materialize {dataset_id}.{table_id}",
+                run_name=f"Materialize {dataset_id}.{table_id}",
             )
             materialize_second.set_upstream([materialization_flow])
             wait_for_materialization = wait_for_flow_run(
