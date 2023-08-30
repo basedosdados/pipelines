@@ -102,17 +102,9 @@ urllib3 = "1.26.7"
 websocket-client = "1.2.1"
 wget = "^3.2"
 zict = "2.0.0"
-pre-commit = "^2.20.0"
-google-analytics-data = "0.12.1"
-google-api-python-client = "^2.58.0"
-oauth2client = "^4.1.3"
-redis-pal = "^1.0.0"
-fake-useragent = "^1.1.3"
-python-Levenshtein = "^0.21.1"
 
 [tool.poetry.dev-dependencies]
 pytest_cov = "^3.0.0"
-
 
 
 [build-system]
