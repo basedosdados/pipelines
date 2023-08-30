@@ -35,30 +35,27 @@ with Flow(
         "lauris",
     ],
 ) as datasets_br_bcb_taxa_selic_diaria_flow:
-    
     dataset_id = Parameter("dataset_id", default="br_bcb_taxa_selic", required=True)
     table_id = Parameter("table_id", default="taxa_selic", required=True)
-    materialization_mode = Parameter("materialization_mode", default="dev", required=False)
-    materialize_after_dump = Parameter("materialize_after_dump", default=True, required=False)
+    materialization_mode = Parameter(
+        "materialization_mode", default="dev", required=False
+    )
+    materialize_after_dump = Parameter(
+        "materialize_after_dump", default=True, required=False
+    )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
 
-
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", 
-        dataset_id=dataset_id, 
-        table_id=table_id, 
-        wait=table_id
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
     input_filepath = get_data_taxa_selic(
-        table_id=table_id, 
-        upstream_tasks=[rename_flow_run]
+        table_id=table_id, upstream_tasks=[rename_flow_run]
     )
 
     file_info = treat_data_taxa_selic(
-        table_id=table_id, 
-        upstream_tasks=[input_filepath]
+        table_id=table_id, upstream_tasks=[input_filepath]
     )
 
     wait_upload_table = create_table_and_upload_to_gcs(
@@ -116,18 +113,18 @@ with Flow(
 
         with case(update_metadata, True):
             update_django_metadata(
-                    upstream_tasks=[wait_for_materialization],
-                    dataset_id=dataset_id,
-                    table_id=table_id,
-                    metadata_type="DateTimeRange",
-                    _last_date=file_info["max_date"],
-                    bq_table_last_year_month=False,
-                    bq_last_update=False,
-                    is_bd_pro=True,
-                    is_free=False,
-                    date_format="yy-mm-dd",
-                    api_mode="prod",
-                )
+                upstream_tasks=[wait_for_materialization],
+                dataset_id=dataset_id,
+                table_id=table_id,
+                metadata_type="DateTimeRange",
+                _last_date=file_info["max_date"],
+                bq_table_last_year_month=False,
+                bq_last_update=False,
+                is_bd_pro=True,
+                is_free=False,
+                date_format="yy-mm-dd",
+                api_mode="prod",
+            )
 
 datasets_br_bcb_taxa_selic_diaria_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 datasets_br_bcb_taxa_selic_diaria_flow.run_config = KubernetesRun(
