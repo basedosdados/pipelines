@@ -50,7 +50,7 @@ def check_files_to_parse(
     # 2. adicionar mais um no mes ou transformar pra 1 se for 12
     # eg. last_date = 2023-04-01
 
-    year = last_date.year
+    year = str(last_date.year)
     month = last_date.month
 
     if month <= 11:
