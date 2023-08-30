@@ -3026,6 +3026,17 @@ text-unidecode = ">=1.3"
 unidecode = ["Unidecode (>=1.1.1)"]
 
 [[package]]
+name = "python-string-utils"
+version = "1.0.0"
+description = "Utility functions for strings validation and manipulation."
+optional = false
+python-versions = ">=3.5"
+files = [
+    {file = "python-string-utils-1.0.0.tar.gz", hash = "sha256:dcf9060b03f07647c0a603408dc8b03f807f3b54a05c6e19eb14460256fac0cb"},
+    {file = "python_string_utils-1.0.0-py3-none-any.whl", hash = "sha256:f1a88700baf99db1a9b6953f44181ad9ca56623c81e257e6009707e2e7851fa4"},
+]
+
+[[package]]
 name = "pytz"
 version = "2021.3"
 description = "World timezone definitions, modern and historical"
@@ -4030,4 +4041,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.11"
-content-hash = "08c3f1c0e73eb0dd90edbc76debb3ff18859414dfb5596b3dd032b7bb2cf07a4"
+content-hash = "4725811605c391e09291644e87d927467b0404c841ebda99c80ae7479dc5e708"

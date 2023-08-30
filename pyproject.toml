@@ -106,6 +106,8 @@ polars = "^0.19.0"
 selenium = "^4.11.2"
 fastparquet = "^2023.7.0"
 rarfile = "^4.0"
+setuptools = "^68.1.2"
+python-string-utils = "^1.0.0"
 
 
 [tool.poetry.dev-dependencies]
