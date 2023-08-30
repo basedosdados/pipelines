@@ -142,6 +142,15 @@ def check_for_updates():
 
 @task
 def main(tabelas):
+    """
+    Performs the download, processing, and organization of CNPJ data.
+
+    Args:
+        tabelas (list): A list of tables to be processed.
+
+    Returns:
+        str: The path to the output folder where the data has been organized.
+    """
     arquivos_baixados = []  # Lista para rastrear os arquivos baixados
     data_coleta = data_url(url, headers).date()  # Obtém a data da atualização dos dados
 
@@ -156,7 +165,8 @@ def main(tabelas):
         # Define o caminho para a pasta de saída (output)
         output_path = destino_output(sufixo, data_coleta)
 
-        for i in range(1, 2):  # Você pode ajustar os limites conforme necessário
+        # Loop para baixar e processar os arquivos
+        for i in range(1, 2):
             if tabela != "Simples":
                 nome_arquivo = f"{tabela}{i}"
                 url_download = f"https://dadosabertos.rfb.gov.br/CNPJ/{tabela}{i}.zip"
