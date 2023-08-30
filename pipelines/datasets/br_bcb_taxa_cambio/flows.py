@@ -23,7 +23,9 @@ from pipelines.utils.tasks import (
 )
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.utils.constants import constants as utils_constants
-from pipelines.datasets.br_bcb_taxa_cambio.schedules import schedule_every_weekday_taxa_cambio
+from pipelines.datasets.br_bcb_taxa_cambio.schedules import (
+    schedule_every_weekday_taxa_cambio,
+)
 
 with Flow(
     name="br_bcb_taxa_cambio.taxa_cambio",
@@ -54,7 +56,6 @@ with Flow(
         table_id=table_id, upstream_tasks=[input_filepath]
     )
 
-
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=file_info["save_output_path"],
         dataset_id=dataset_id,
@@ -64,18 +65,18 @@ with Flow(
     )
 
     update_django_metadata(
-            upstream_tasks=[wait_upload_table],
-            dataset_id=dataset_id,
-            table_id=table_id,
-            metadata_type="DateTimeRange",
-            _last_date=file_info["max_date"],
-            bq_table_last_year_month=False,
-            bq_last_update=False,
-            is_bd_pro=True,
-            is_free=False,
-            date_format="yy-mm-dd",
-            api_mode="prod",
-        )
+        upstream_tasks=[wait_upload_table],
+        dataset_id=dataset_id,
+        table_id=table_id,
+        metadata_type="DateTimeRange",
+        _last_date=file_info["max_date"],
+        bq_table_last_year_month=False,
+        bq_last_update=False,
+        is_bd_pro=True,
+        is_free=False,
+        date_format="yy-mm-dd",
+        api_mode="prod",
+    )
 
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
@@ -107,7 +108,6 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
-
 
 
 datasets_br_bcb_taxa_cambio_moeda_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

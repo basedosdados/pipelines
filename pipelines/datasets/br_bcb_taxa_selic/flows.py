@@ -67,18 +67,18 @@ with Flow(
     )
 
     update_django_metadata(
-            upstream_tasks=[wait_upload_table],
-            dataset_id=dataset_id,
-            table_id=table_id,
-            metadata_type="DateTimeRange",
-            _last_date=file_info["max_date"],
-            bq_table_last_year_month=False,
-            bq_last_update=False,
-            is_bd_pro=True,
-            is_free=False,
-            date_format="yy-mm-dd",
-            api_mode="prod",
-        )
+        upstream_tasks=[wait_upload_table],
+        dataset_id=dataset_id,
+        table_id=table_id,
+        metadata_type="DateTimeRange",
+        _last_date=file_info["max_date"],
+        bq_table_last_year_month=False,
+        bq_last_update=False,
+        is_bd_pro=True,
+        is_free=False,
+        date_format="yy-mm-dd",
+        api_mode="prod",
+    )
 
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
