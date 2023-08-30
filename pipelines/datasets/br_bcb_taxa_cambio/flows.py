@@ -35,14 +35,10 @@ with Flow(
 ) as datasets_br_bcb_taxa_cambio_moeda_flow:
     dataset_id = Parameter("dataset_id", default="br_bcb_taxa_cambio", required=True)
     table_id = Parameter("table_id", default="taxa_cambio", required=True)
-
-    materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
-    )
-    materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
-    )
+    materialization_mode = Parameter("materialization_mode", default="dev", required=False)
+    materialize_after_dump = Parameter("materialize_after_dump", default=True, required=False)
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    update_metadata = Parameter("update_metadata", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
@@ -64,19 +60,6 @@ with Flow(
         wait=file_info,
     )
 
-    update_django_metadata(
-        upstream_tasks=[wait_upload_table],
-        dataset_id=dataset_id,
-        table_id=table_id,
-        metadata_type="DateTimeRange",
-        _last_date=file_info["max_date"],
-        bq_table_last_year_month=False,
-        bq_last_update=False,
-        is_bd_pro=True,
-        is_free=False,
-        date_format="yy-mm-dd",
-        api_mode="prod",
-    )
 
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
@@ -108,6 +91,21 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
+
+        with case(update_metadata, True):
+            update_django_metadata(
+                    upstream_tasks=[wait_for_materialization],
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    metadata_type="DateTimeRange",
+                    _last_date=file_info["max_date"],
+                    bq_table_last_year_month=False,
+                    bq_last_update=False,
+                    is_bd_pro=True,
+                    is_free=False,
+                    date_format="yy-mm-dd",
+                    api_mode="prod",
+                )
 
 
 datasets_br_bcb_taxa_cambio_moeda_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
