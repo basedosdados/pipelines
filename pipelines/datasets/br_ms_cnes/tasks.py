@@ -48,9 +48,11 @@ def check_files_to_parse(
     )
     log("building next year/month to parse")
     # 2. adicionar mais um no mes ou transformar pra 1 se for 12
-    # eg. last_date = 20234
-    month = last_date[4:]
+    # eg. last_date = 2023-04-01
+    select_yyyy_mm = last_date[0:7]
+    month = select_yyyy_mm[5:]
     month = int(month)
+
     if month <= 11:
         month = month + 1
     else:

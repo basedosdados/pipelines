@@ -153,8 +153,7 @@ def extract_last_date(dataset_id, table_id, billing_project_id: str):
     """
 
     query_bd = f"""
-    SELECT
-    MAX(CONCAT(ano,mes)) as max_date
+    SELECT MAX(DATE(CAST(ano AS INT64),CAST(mes AS INT64),1)) as max_date
     FROM
     `{billing_project_id}.{dataset_id}.{table_id}`
     """
