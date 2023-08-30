@@ -50,7 +50,7 @@ def check_files_to_parse(
     # 2. adicionar mais um no mes ou transformar pra 1 se for 12
     # eg. last_date = 2023-04-01
 
-    month = last_date.year
+    year = last_date.year
     month = last_date.month
 
     if month <= 11:
@@ -58,7 +58,7 @@ def check_files_to_parse(
     else:
         month = 1
     # 3. buildar no formato do ftp YYMM
-    year = last_date[2:4]
+    year = year[2:4]
 
     if month <= 9:
         month = "0" + str(month)
