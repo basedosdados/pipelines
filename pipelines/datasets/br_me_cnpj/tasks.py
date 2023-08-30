@@ -90,51 +90,93 @@ def check_for_updates():
         return False  # Não há novas atualizações disponíveis
 
 
+# @task
+# def main(tabelas):
+#     """
+#     Performs the download, processing, and organization of CNPJ data.
+
+#     Args:
+#         tabelas (list): A list of tables to be processed.
+
+#     Returns:
+#         str: The path to the output folder where the data has been organized.
+#     """
+#     arquivos_baixados = []  # Lista para rastrear os arquivos baixados
+#     data_coleta = data_url(url, headers).date()  # Obtém a data da atualização dos dados
+
+#     tabela = tabelas[0]
+#     sufixo = tabela.lower()
+
+#     # Define o caminho para a pasta de entrada (input)
+#     input_path = f"/tmp/data/br_me_cnpj/input/data={data_coleta}/"
+#     os.makedirs(input_path, exist_ok=True)
+#     log("Pasta destino input construído")
+
+#     # Define o caminho para a pasta de saída (output)
+#     output_path = destino_output(sufixo, data_coleta)
+
+#     # Loop para baixar e processar os arquivos
+#     for i in range(1, 2):
+#         if tabela != "Simples":
+#             nome_arquivo = f"{tabela}{i}"
+#             url_download = f"https://dadosabertos.rfb.gov.br/CNPJ/{tabela}{i}.zip"
+#             if nome_arquivo not in arquivos_baixados:
+#                 arquivos_baixados.append(
+#                     nome_arquivo
+#                 )  # Adiciona o nome à lista de arquivos baixados
+#                 download_unzip_csv(url_download, input_path)
+#                 process_csv_function = globals()[f"process_csv_{sufixo}"]
+#                 process_csv_function(input_path, output_path, data_coleta, i)
+#         else:
+#             nome_arquivo = f"{tabela}"
+#             url_download = f"https://dadosabertos.rfb.gov.br/CNPJ/{tabela}.zip"
+#             if nome_arquivo not in arquivos_baixados:
+#                 arquivos_baixados.append(
+#                     nome_arquivo
+#                 )  # Adiciona o nome à lista de arquivos baixados
+#                 download_unzip_csv(url_download, input_path)
+#                 process_csv_simples(input_path, output_path, data_coleta, sufixo)
+
+#     return output_path
+
+
 @task
 def main(tabelas):
-    """
-    Performs the download, processing, and organization of CNPJ data.
-
-    Args:
-        tabelas (list): A list of tables to be processed.
-
-    Returns:
-        str: The path to the output folder where the data has been organized.
-    """
     arquivos_baixados = []  # Lista para rastrear os arquivos baixados
     data_coleta = data_url(url, headers).date()  # Obtém a data da atualização dos dados
 
-    tabela = tabelas[0]
-    sufixo = tabela.lower()
+    for tabela in tabelas:
+        sufixo = tabela.lower()
 
-    # Define o caminho para a pasta de entrada (input)
-    input_path = f"/tmp/data/br_me_cnpj/input/data={data_coleta}/"
-    os.makedirs(input_path, exist_ok=True)
-    log("Pasta destino input construído")
+        # Define o caminho para a pasta de entrada (input)
+        input_path = f"/tmp/data/br_me_cnpj/input/data={data_coleta}/"
+        os.makedirs(input_path, exist_ok=True)
+        log("Pasta destino input construído")
 
-    # Define o caminho para a pasta de saída (output)
-    output_path = destino_output(sufixo, data_coleta)
+        # Define o caminho para a pasta de saída (output)
+        output_path = destino_output(sufixo, data_coleta)
 
-    # Loop para baixar e processar os arquivos
-    for i in range(1, 2):
-        if tabela != "Simples":
-            nome_arquivo = f"{tabela}{i}"
-            url_download = f"https://dadosabertos.rfb.gov.br/CNPJ/{tabela}{i}.zip"
-            if nome_arquivo not in arquivos_baixados:
-                arquivos_baixados.append(
-                    nome_arquivo
-                )  # Adiciona o nome à lista de arquivos baixados
-                download_unzip_csv(url_download, input_path)
-                process_csv_function = globals()[f"process_csv_{sufixo}"]
-                process_csv_function(input_path, output_path, data_coleta, i)
-        else:
-            nome_arquivo = f"{tabela}"
-            url_download = f"https://dadosabertos.rfb.gov.br/CNPJ/{tabela}.zip"
-            if nome_arquivo not in arquivos_baixados:
-                arquivos_baixados.append(
-                    nome_arquivo
-                )  # Adiciona o nome à lista de arquivos baixados
-                download_unzip_csv(url_download, input_path)
-                process_csv_simples(input_path, output_path, data_coleta, sufixo)
+        for i in range(1, 2):  # Você pode ajustar os limites conforme necessário
+            if tabela != "Simples":
+                nome_arquivo = f"{tabela}{i}"
+                url_download = f"https://dadosabertos.rfb.gov.br/CNPJ/{tabela}{i}.zip"
+                if nome_arquivo not in arquivos_baixados:
+                    arquivos_baixados.append(nome_arquivo)
+                    download_unzip_csv(url_download, input_path)
+                    if tabela == "Estabelecimentos":
+                        process_csv_estabelecimentos(
+                            input_path, output_path, data_coleta, i
+                        )
+                    elif tabela == "Socios":
+                        process_csv_socios(input_path, output_path, data_coleta, i)
+                    elif tabela == "Empresas":
+                        process_csv_empresas(input_path, output_path, data_coleta, i)
+            else:
+                nome_arquivo = f"{tabela}"
+                url_download = f"https://dadosabertos.rfb.gov.br/CNPJ/{tabela}.zip"
+                if nome_arquivo not in arquivos_baixados:
+                    arquivos_baixados.append(nome_arquivo)
+                    download_unzip_csv(url_download, input_path)
+                    process_csv_simples(input_path, output_path, data_coleta, sufixo, i)
 
     return output_path
