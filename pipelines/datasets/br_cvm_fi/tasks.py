@@ -13,6 +13,10 @@ import zipfile
 from bs4 import BeautifulSoup
 import re
 import glob
+from rpy2.robjects.packages import importr
+import rpy2.robjects.packages as rpackages
+import rpy2.robjects as ro
+from rpy2.robjects import pandas2ri
 from pipelines.datasets.br_cvm_fi.utils import (
     sheet_to_df,
     rename_columns,
@@ -25,6 +29,13 @@ from pipelines.utils.utils import (
     to_partitions,
 )
 from pipelines.datasets.br_cvm_fi.constants import constants as cvm_constants
+
+
+@task
+def get_today_date():
+    d = datetime.today()
+
+    return d.strftime("%Y-%m-%d")
 
 
 @task  # noqa
@@ -382,8 +393,18 @@ def clean_data_make_partitions_perfil(diretorio, table_id):
 
     for file in tqdm(arquivos):
         log(f"Baixando o arquivo ------> {file}")
+        ## reading with R
 
-        df = pd.read_csv(file, sep=",")
+        readr = rpackages.importr("readr")
+        df_r = readr.read_delim(
+            file, delim=";", locale=readr.locale(encoding="ISO-8859-1")
+        )
+        readr.write_delim(df_r, file, na="", delim=";")
+
+        ## Return to python
+
+        df = pd.read_csv(file, sep=";")
+
         df["ano"] = df["DT_COMPTC"].apply(
             lambda x: datetime.strptime(x, "%Y-%m-%d").year
         )
@@ -493,7 +514,9 @@ def clean_data_make_partitions_cad(diretorio, table_id):
 def clean_data_make_partitions_balancete(diretorio, table_id):
     df_arq = sheet_to_df(cvm_constants.ARQUITETURA_URL_BALANCETE.value)
     colunas_totais = df_arq["original_name"].to_list() + ["ano", "mes"]
+    log(colunas_totais)
     colunas_finais = df_arq["name"].to_list() + ["ano", "mes"]
+    log(colunas_finais)
     colunas_mapeamento = df_arq[df_arq["observations"].notnull()][
         "original_name"
     ].to_list()

@@ -34,8 +34,9 @@ every_quarter = Schedule(
                 "year": current_year,
                 "quarter": last_quarter,
                 "materialization_mode": "prod",
-                "materialize after dump": False,
+                "materialize after dump": True,
                 "dbt_alias": True,
+                "update_metadata": True,
             },
         )
     ],

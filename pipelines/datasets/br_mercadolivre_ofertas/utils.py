@@ -5,7 +5,7 @@ import asyncio
 import hashlib
 import re
 from datetime import datetime
-
+from pipelines.utils.tasks import log
 import requests
 from tqdm import tqdm
 from bs4 import BeautifulSoup
@@ -131,11 +131,17 @@ def get_id(input_string, dictionary):
 
     Returns:
         Any: The value associated with the key that has the closest Levenshtein distance to the input string.
-             Returns None if the dictionary is empty or no match is found.
+             Returns None if the input_string is not a string, the dictionary is empty, or no match is found.
 
     Raises:
         None
     """
+    if input_string is None:
+        return None
+
+    if not isinstance(input_string, str):
+        return None
+
     best_match = None
     min_distance = float("inf")
 
@@ -316,15 +322,21 @@ async def process_item_url(item_url, kwargs_list):
         get_byelement(url=item_url, attempts=5, wait_time=20, **kwargs)
         for kwargs in kwargs_list
     ]
+    # log("mostrar a lista de classes")
+    # log(f'Class being used for transport_condition: {kwargs_list}')
+    # log(f'Class being used for transport_condition: {kwargs_list[3]["class_"]}')
     results = await asyncio.gather(*tasks)
 
     keys = ["title", "review_amount", "discount", "transport_condition", "stars"]
 
     info = dict(zip(keys, results))
-    price = await get_price(item_url, attempts=2)
+    price = await get_price(item_url, attempts=10, wait_time=20)
     info["price"] = price
-    price_original = await get_original_price(item_url, attempts=2)
+    log("Preço de desconto coletado!")
+    price_original = await get_original_price(item_url, attempts=10, wait_time=25)
     info["price_original"] = price_original
+    log("Preço de original coletado!")
+
     if info["title"] is not None:
         info["item_id_bd"] = generate_unique_id(info["title"])
     else:
@@ -351,7 +363,6 @@ async def process_item_url(item_url, kwargs_list):
 async def process_table(table, url, kwargs_list):
     """
     Processes a table of items by retrieving information for each item using asynchronous operations.
-
     Args:
         table (str): The name or identifier of the table.
         url (str): The URL of the webpage containing the items.
@@ -438,7 +449,7 @@ async def main_seller(seller_ids, seller_links, file_dest):
 def clean_experience(x):
     try:
         result = re.findall(r"\d+", x)[0]
-    except Exception as e:
+    except Exception:
         result = None
 
     return result

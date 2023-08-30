@@ -57,27 +57,8 @@ with Flow(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        dump_mode="overwrite",
+        dump_mode="append",
         wait=filepath,
-    )
-
-    # update_metadata
-    temporal_coverage = get_temporal_coverage(
-        filepath=filepath,
-        date_cols=["data_abertura_processo"],
-        time_unit="day",
-        interval="1",
-        upstream_tasks=[wait_upload_table],
-    )
-
-    wait_update_metadata = update_metadata(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        fields_to_update=[
-            {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
-            {"temporal_coverage": [temporal_coverage]},
-        ],
-        upstream_tasks=[temporal_coverage],
     )
 
     with case(materialize_after_dump, True):
