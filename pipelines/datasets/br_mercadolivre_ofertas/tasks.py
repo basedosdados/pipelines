@@ -29,7 +29,7 @@ oferta_dia = const_mercadolivre.OFERTA_DIA.value
 kwargs_list = const_mercadolivre.KWARGS_LIST.value
 url_lists = {"oferta_dia": []}
 
-for i in range(1, 2):
+for i in range(1, 21):
     urls = {"oferta_dia": oferta_dia + str(i)}
     for table, url in urls.items():
         url_lists[table].append(url)
@@ -40,6 +40,9 @@ def crawler_mercadolivre_item():
     """
     Executes the crawler for Mercado Livre offers by running the main process, processing the results,
     and saving them to a CSV file.
+
+    Returns:
+        str: The path to the CSV file containing the collected item data.
     """
     loop = asyncio.get_event_loop()
     # urls_item = url_lists['less100']
@@ -63,6 +66,16 @@ def crawler_mercadolivre_item():
 
 @task
 def clean_item(filepath):
+    """
+    Cleans and preprocesses item data read from a CSV file. The cleaned data includes columns renaming,
+    reordering, duplicate removal, text cleaning, type conversion, and saving to a specific directory.
+
+    Args:
+        filepath (str): The path to the CSV file containing the raw item data.
+
+    Returns:
+        str: The path to the directory where the cleaned item data is saved.
+    """
     item = pd.read_csv(filepath)
     # rename columns
     item.columns = new_cols_item
@@ -73,8 +86,8 @@ def clean_item(filepath):
     item = item.drop_duplicates(subset=["item_id"])
 
     # clean quantidade_avaliacoes: (11004)->11004
-    item["quantidade_avaliacoes"] = item["quantidade_avaliacoes"].str.replace("(", "")
-    item["quantidade_avaliacoes"] = item["quantidade_avaliacoes"].str.replace(")", "")
+    # item["quantidade_avaliacoes"] = item["quantidade_avaliacoes"].str.replace("(", "")
+    # item["quantidade_avaliacoes"] = item["quantidade_avaliacoes"].str.replace(")", "")
 
     # clean desconto: 10% OFF -> 10
     item["desconto"] = item["desconto"].str.replace("% OFF", "")
@@ -106,6 +119,16 @@ def clean_item(filepath):
 
 @task
 def crawler_mercadolivre_seller(seller_ids, seller_links):
+    """
+    Crawl and collect seller data from Mercado Livre using provided seller IDs and links.
+
+    Args:
+        seller_ids (list): A list of seller IDs to collect data for.
+        seller_links (list): A list of seller links to crawl data from.
+
+    Returns:
+        str: The path to the CSV file containing the collected seller data.
+    """
     filepath_raw = "vendedor.csv"
     asyncio.run(main_seller(seller_ids, seller_links, filepath_raw))
 
@@ -115,25 +138,17 @@ def crawler_mercadolivre_seller(seller_ids, seller_links):
 @task
 def clean_seller(filepath_raw):
     """
-    This function cleans the seller data extracted from MercadoLivre. It takes as input a raw data file and performs several cleaning operations:
+    Clean and process raw seller data collected from Mercado Livre.
 
-    - It reads the raw seller data file from a CSV.
-    - It renames the columns into more comprehensible ones.
-    - It filters out entries with missing seller names.
-    - It cleans the 'experiencia' column by applying the 'clean_experience' function.
-    - It cleans the 'classificacao' column by removing the prefix 'MercadoLíder '.
-    - It cleans the 'localizacao' column by removing the prefix 'Localização', then transforms location names to municipality IDs using a predefined dictionary mapping.
-    - It cleans the 'opinioes' column by removing square brackets.
-    - It reorders the columns, placing 'vendedor_id' as the first column.
-    - It filters out entries with missing experience data.
-    - It drops the 'data' column as it's no longer needed.
-    - It saves the cleaned data to a CSV file, in a directory that corresponds to the current date.
-    - The function returns the path to the directory where the cleaned CSV file is saved.
+    This function takes the path to a CSV file containing raw seller data collected from Mercado Livre.
+    It cleans and processes the data, performing operations such as renaming columns, cleaning text,
+    converting formats, and reordering columns. The cleaned data is saved to a new CSV file.
+
     Args:
-        filepath_raw (str): The file path to the raw seller data CSV file.
+        filepath_raw (str): The path to the raw seller data CSV file.
 
     Returns:
-        str: The path to the directory where the cleaned CSV file is saved.
+        str: The path to the directory containing the cleaned seller data CSV file.
     """
 
     seller = pd.read_csv(filepath_raw)
@@ -198,6 +213,18 @@ def clean_seller(filepath_raw):
 
 @task(nout=2)
 def get_today_sellers(filepath_raw) -> Tuple[List[str], List[str]]:
+    """
+    Extracts unique seller IDs and their corresponding links from cleaned seller data.
+    The extracted information is returned as two lists: one containing unique seller IDs
+    and the other containing their corresponding links.
+
+    Args:
+        filepath_raw (str): The path to the cleaned seller data CSV file.
+
+    Returns:
+        Tuple[List[str], List[str]]: A tuple of two lists, where the first list contains unique seller IDs
+        and the second list contains their corresponding links.
+    """
     df = pd.read_csv(filepath_raw)
 
     # remove nan in seller_link column
@@ -218,4 +245,13 @@ def get_today_sellers(filepath_raw) -> Tuple[List[str], List[str]]:
 
 @task
 def is_empty_list(list_sellers: List[str]) -> bool:
+    """
+    Checks if a list of sellers is empty.
+
+    Args:
+        list_sellers (List[str]): A list of seller IDs.
+
+    Returns:
+        bool: Returns `True` if the input list is empty, otherwise returns `False`.
+    """
     return len(list_sellers) == 0

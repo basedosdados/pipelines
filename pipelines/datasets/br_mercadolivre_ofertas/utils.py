@@ -93,6 +93,7 @@ def get_id(input_string, dictionary):
 def get_byelement(soup, **kwargs):
     """
     Retrieves the content of an HTML element identified by the given attributes from a BeautifulSoup object.
+
     Args:
         soup (BeautifulSoup): The BeautifulSoup object representing the HTML document.
         **kwargs: Keyword arguments specifying the attributes to identify the HTML element.
@@ -152,6 +153,24 @@ def get_features(soup):
 
 
 # ! utilizado no processo da tabela de itens
+@retry
+def get_review(soup):
+    script_elements = soup.find_all("script", type="application/ld+json")
+
+    json_data = json.loads(script_elements[0].string)
+
+    # Extrair o aggregateRating
+    aggregate_rating = json_data.get("aggregateRating", {})
+    stars = aggregate_rating.get("ratingValue")
+    review_amount = aggregate_rating.get("reviewCount")
+
+    if stars is None or review_amount is None:
+        review_info = {}
+    else:
+        review_info = {"stars": stars, "review_amount": review_amount}
+    return review_info
+
+
 @retry
 def get_categories(soup):
     script_elements = soup.find_all("script", type="application/ld+json")
@@ -252,16 +271,26 @@ async def process_item_url(item_url, kwargs_list):
     Returns:
         dict: A dictionary containing the extracted information about the item.
     """
-    tasks = [
-        get_byelement(url=item_url, attempts=5, wait_time=20, **kwargs)
-        for kwargs in kwargs_list
-    ]
+    # tasks = [
+    #     get_byelement(url=item_url, attempts=5, wait_time=20, **kwargs)
+    #     for kwargs in kwargs_list
+    # ]
 
-    results = await asyncio.gather(*tasks)
-    keys = ["review_amount", "stars"]
-    info = dict(zip(keys, results))
+    # results = await asyncio.gather(*tasks)
+    # keys = ["review_amount", "stars"]
+    # info = dict(zip(keys, results))
+    info = {}
+
+    review_info = await get_review(item_url, attempts=5, wait_time=10)
 
     prices = await get_prices(item_url, attempts=10, wait_time=20)
+    try:
+        info["stars"] = review_info["stars"]
+        info["review_amount"] = review_info["review_amount"]
+    except (IndexError, KeyError):
+        info["stars"] = None
+        info["review_amount"] = None
+
     info["price"] = prices["price"]
     info["price_original"] = prices["price_original"]
     info["title"] = prices["title"]
@@ -287,11 +316,10 @@ async def process_item_url(item_url, kwargs_list):
     else:
         info["seller_id"] = None
         info["seller"] = None
-
+    info["categories"] = await get_categories(item_url, attempts=2)
     info["datetime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     info["features"] = await get_features(item_url, attempts=2)
     info["item_url"] = item_url
-    info["categories"] = await get_categories(item_url, attempts=2)
     log(info["categories"])
     return info
 
