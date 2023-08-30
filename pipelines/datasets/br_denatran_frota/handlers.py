@@ -127,7 +127,9 @@ def treat_uf_tipo(file: str) -> pl.DataFrame:
 def output_file_to_csv(df: pl.DataFrame, filename: str) -> None:
     make_dir_when_not_exists(OUTPUT_PATH)
     pd_df = df.to_pandas()
-    to_partitions(pd_df, partition_columns=["ano", "mes", "sigla_uf"], savepath=OUTPUT_PATH)
+    to_partitions(
+        pd_df, partition_columns=["ano", "mes", "sigla_uf"], savepath=OUTPUT_PATH
+    )
     return OUTPUT_PATH
 
 
