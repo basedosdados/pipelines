@@ -2351,6 +2351,38 @@ dev = ["pre-commit", "tox"]
 testing = ["pytest", "pytest-benchmark"]
 
 [[package]]
+name = "polars"
+version = "0.19.0"
+description = "Blazingly fast DataFrame library"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "polars-0.19.0-cp38-abi3-macosx_10_7_x86_64.whl", hash = "sha256:1c86783df27926580f215472a2760fc8a6c39554a4156a33ac789f54eedcde0a"},
+    {file = "polars-0.19.0-cp38-abi3-macosx_11_0_arm64.whl", hash = "sha256:d67cb0f5f9a0a6d62b3a0bb3d48e6a49680bbcf0f144ebcaf4a9ffbabb7c8f06"},
+    {file = "polars-0.19.0-cp38-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:652b7f911784b4f9c3f9115873e94610268f1e89297477f35898222ff2ccad45"},
+    {file = "polars-0.19.0-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:6bfebcd0fde831b749e8dc2dcb08913b7b1c0272f10af4e279933203c0635dbb"},
+    {file = "polars-0.19.0-cp38-abi3-win_amd64.whl", hash = "sha256:1c194fe6722b5be1721b86f20ba5593ba31f8f04e7ba8e0219235e71e17eda3f"},
+    {file = "polars-0.19.0.tar.gz", hash = "sha256:72c0306d2d39d7e24d4530d3977f5853c76efd48a341375ce1f37c62610cfc6a"},
+]
+
+[package.extras]
+adbc = ["adbc_driver_sqlite"]
+all = ["polars[adbc,cloudpickle,connectorx,deltalake,fsspec,matplotlib,numpy,pandas,pyarrow,pydantic,sqlalchemy,timezone,xlsx2csv,xlsxwriter]"]
+cloudpickle = ["cloudpickle"]
+connectorx = ["connectorx"]
+deltalake = ["deltalake (>=0.10.0)"]
+fsspec = ["fsspec"]
+matplotlib = ["matplotlib"]
+numpy = ["numpy (>=1.16.0)"]
+pandas = ["pandas", "pyarrow (>=7.0.0)"]
+pyarrow = ["pyarrow (>=7.0.0)"]
+pydantic = ["pydantic"]
+sqlalchemy = ["pandas", "sqlalchemy"]
+timezone = ["backports.zoneinfo", "tzdata"]
+xlsx2csv = ["xlsx2csv (>=0.8.0)"]
+xlsxwriter = ["xlsxwriter"]
+
+[[package]]
 name = "pre-commit"
 version = "2.21.0"
 description = "A framework for managing and maintaining multi-language pre-commit hooks."
@@ -3728,4 +3760,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.11"
-content-hash = "9f20fce15e8fb35f26391eb45434566e64da81ac1b3229376228fe8e74dc10f8"
+content-hash = "aedce939153d3e095531054eb14dd03347cda7b26a03737dd3ef55944c2cc5f5"
