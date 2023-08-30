@@ -148,11 +148,10 @@ def get_desired_file(year: int, download_directory: str, filetype: str) -> str:
 
 
 def get_latest_data(table_name: str):
-    try:
-        denatran_data: pd.DataFrame = get_data_from_prod(
-            table_id=table_name, dataset_id="br_denatran_frota"
-        )
-    except Exception:
+    denatran_data: pd.DataFrame = get_data_from_prod(
+        table_id=table_name, dataset_id="br_denatran_frota"
+    )
+    if not denatran_data:
         return 2003, 1
     if not denatran_data.empty:
         year = denatran_data["ano"].max()
