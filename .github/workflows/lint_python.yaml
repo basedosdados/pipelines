@@ -22,8 +22,8 @@ jobs:
       - name: Install pylint
         run: pip install pylint
       - name: Lint flows
-        run: pylint pipelines/*
+        run: pylint --rc-file pyproject.toml pipelines/*
       - name: Install Pytest
         run: pip install pytest
       - name: Lint tests
-        run: pylint tests/*
+        run: pylint --rc-file pyproject.toml tests/*
