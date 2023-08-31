@@ -32,9 +32,9 @@ def tasks_pipeline():
 
     new_columns_ano_mes_result = new_columns_ano_mes(df=new_columns_endereco_result)
 
-    reordering_result = reordering_and_np_nan(df=new_columns_ano_mes_result)
+    df_reordering = reordering_and_np_nan(df=new_columns_ano_mes_result)
 
-    return reordering_result
+    return df_reordering
 
 
 def make_partitions(df: pd.DataFrame):
