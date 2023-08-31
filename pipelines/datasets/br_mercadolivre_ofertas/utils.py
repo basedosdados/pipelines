@@ -291,9 +291,7 @@ async def process_item_url(item_url, kwargs_list):
     # keys = ["review_amount", "stars"]
     # info = dict(zip(keys, results))
     info = {}
-
     review_info = await get_review(item_url, attempts=5, wait_time=10)
-
     prices = await get_prices(item_url, attempts=10, wait_time=20)
 
     if review_info is not None:
@@ -308,8 +306,6 @@ async def process_item_url(item_url, kwargs_list):
     info["title"] = prices["title"]
     info["discount"] = prices["discount"]
     info["transport_condition"] = prices["transport_condition"]
-    log(info)
-    log("Dados únicos coletados!")
 
     # Gerando o ID item
     if info["title"] is not None:
@@ -332,7 +328,6 @@ async def process_item_url(item_url, kwargs_list):
     info["datetime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     info["features"] = await get_features(item_url, attempts=2)
     info["item_url"] = item_url
-    log(info["categories"])
     return info
 
 
