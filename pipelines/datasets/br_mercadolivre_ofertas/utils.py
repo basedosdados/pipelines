@@ -165,10 +165,21 @@ def get_review(soup):
     review_amount = aggregate_rating.get("reviewCount")
 
     if stars is None or review_amount is None:
-        review_info = {}
+        review_info = None
     else:
         review_info = {"stars": stars, "review_amount": review_amount}
     return review_info
+
+
+# @retry
+# def get_review(soup):
+#     review_info_element = soup.find("span", class_="ui-pdp-review__amount")
+#     review_amount = review_info_element.text.strip() if review_info_element else None
+
+#     stars_element = soup.find("p", class_="ui-review-capability__rating__average ui-review-capability__rating__average--desktop")
+#     stars = stars_element.text.strip() if stars_element else None
+#     review_info = {"stars": stars, "review_amount": review_amount}
+#     return review_info
 
 
 @retry
@@ -284,10 +295,11 @@ async def process_item_url(item_url, kwargs_list):
     review_info = await get_review(item_url, attempts=5, wait_time=10)
 
     prices = await get_prices(item_url, attempts=10, wait_time=20)
-    try:
+
+    if review_info is not None:
         info["stars"] = review_info["stars"]
         info["review_amount"] = review_info["review_amount"]
-    except (IndexError, KeyError):
+    else:
         info["stars"] = None
         info["review_amount"] = None
 

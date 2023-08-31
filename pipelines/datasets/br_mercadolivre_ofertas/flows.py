@@ -33,7 +33,7 @@ from pipelines.datasets.br_mercadolivre_ofertas.schedules import every_day_item
 import datetime
 
 with Flow(
-    name="br_mercadolivre_ofertas.item", code_owners=["lucascr91"]
+    name="br_mercadolivre_ofertas.item", code_owners=["Gabs"]
 ) as br_mercadolivre_ofertas_item:
     # Parameters
     dataset_id = Parameter(
@@ -153,6 +153,7 @@ with Flow(
             is_free=False,
             # upstream_tasks=[wait_upload_table],
         )
+        materialization_flow.set_upstream([sellers_flow])
 
 br_mercadolivre_ofertas_item.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_mercadolivre_ofertas_item.run_config = KubernetesRun(
@@ -161,7 +162,7 @@ br_mercadolivre_ofertas_item.run_config = KubernetesRun(
 br_mercadolivre_ofertas_item.schedule = every_day_item
 
 with Flow(
-    name="br_mercadolivre_ofertas.vendedor", code_owners=["lucascr91"]
+    name="br_mercadolivre_ofertas.vendedor", code_owners=["Gabs"]
 ) as br_mercadolivre_ofertas_vendedor:
     # Parameters
     dataset_id = Parameter(
