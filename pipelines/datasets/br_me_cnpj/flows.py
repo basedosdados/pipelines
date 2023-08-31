@@ -117,6 +117,7 @@ with Flow(
                 is_free=True,
                 time_delta=defasagem,
                 time_unit="months",
+                upstream_tasks=[materialization_flow],
             )
 
 
@@ -202,6 +203,7 @@ with Flow(
                 is_free=True,
                 time_delta=defasagem,
                 time_unit="months",
+                upstream_tasks=[materialization_flow],
             )
 
 
@@ -289,6 +291,7 @@ with Flow(
                 is_free=True,
                 time_delta=defasagem,
                 time_unit="months",
+                upstream_tasks=[materialization_flow],
             )
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
@@ -329,6 +332,7 @@ with Flow(
                 date_format="yy-mm-dd",
                 is_bd_pro=True,
                 is_free=False,
+                upstream_tasks=[materialize_second],
             )
 
 
@@ -413,6 +417,7 @@ with Flow(
                 api_mode="prod",
                 date_format="yy-mm-dd",
                 is_free=True,
+                upstream_tasks=[materialize_second],
             )
 
 br_me_cnpj_simples.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
