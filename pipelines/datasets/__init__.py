@@ -42,3 +42,4 @@ from pipelines.datasets.mundo_transfermarkt_competicoes.flows import *
 from pipelines.datasets.br_mp_pep_cargos_funcoes.flows import *
 from pipelines.datasets.br_ans_beneficiario.flows import *
 from pipelines.datasets.br_anp_precos_combustiveis.flows import *
+from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.flows import *
