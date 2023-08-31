@@ -14,8 +14,8 @@ from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.utils import (
     replace_variables,
     new_columns_endereco,
     new_columns_ano_mes,
-    reordering_and_np_nan)
-
+    reordering_and_np_nan,
+)
 
 
 @task  # noqa
