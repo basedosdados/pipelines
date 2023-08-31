@@ -16,7 +16,8 @@ from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.constants import constants
 from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.tasks import (
     tasks_pipeline,
     make_partitions,
-    get_max_data)
+    get_max_data,
+)
 
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
@@ -28,14 +29,22 @@ from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.schedules import every_wee
 
 with Flow(name="br_mg_belohorizonte_smfa_iptu.iptu", code_owners=["trick"]) as iptu:
     # Parameters
-    dataset_id = Parameter("dataset_id", default="br_mg_belohorizonte_smfa_iptu", required=True)
+    dataset_id = Parameter(
+        "dataset_id", default="br_mg_belohorizonte_smfa_iptu", required=True
+    )
     table_id = Parameter("table_id", default="iptu", required=True)
-    materialization_mode = Parameter("materialization_mode", default="dev", required=False)
-    materialize_after_dump = Parameter("materialize_after_dump", default=True, required=False)
+    materialization_mode = Parameter(
+        "materialization_mode", default="dev", required=False
+    )
+    materialize_after_dump = Parameter(
+        "materialize_after_dump", default=True, required=False
+    )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
     update_metadata = Parameter("update_metadata", default=True, required=False)
 
-    rename_flow_run = rename_current_flow_run_dataset_table(prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id)
+    rename_flow_run = rename_current_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+    )
 
     df = tasks_pipeline(upstream_tasks=[rename_flow_run])
     output_path = make_partitions(df=df, upstream_tasks=[df])
@@ -80,12 +89,14 @@ with Flow(name="br_mg_belohorizonte_smfa_iptu.iptu", code_owners=["trick"]) as i
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-        data_max = get_max_data(input=constants.INPUT_PATH.value, upstream_tasks=[wait_for_materialization])
+        data_max = get_max_data(
+            input=constants.INPUT_PATH.value, upstream_tasks=[wait_for_materialization]
+        )
 
         with case(update_metadata, True):
             update_django_metadata(
-                dataset_id = 'br_mg_belohorizonte_smfa_iptu',
-                table_id = 'iptu',
+                dataset_id="br_mg_belohorizonte_smfa_iptu",
+                table_id="iptu",
                 metadata_type="DateTimeRange",
                 bq_last_update=False,
                 bq_table_last_year_month=False,
