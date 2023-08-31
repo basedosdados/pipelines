@@ -47,17 +47,17 @@ with Flow(name="br_mg_belohorizonte_smfa_iptu.iptu", code_owners=["trick"]) as i
     )
 
     df = tasks_pipeline(upstream_tasks=[rename_flow_run])
-    output_path = make_partitions(df=df, upstream_tasks=[df])
+    output_filepath = make_partitions(df, upstream_tasks=[df])
     data_max = get_max_data()
 
     # pylint: disable=C0103
     wait_upload_table = create_table_and_upload_to_gcs(
-        data_path=output_path,
+        data_path=output_filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_mode="append",
-        wait=output_path,
-        upstream_tasks=[output_path],
+        wait=output_filepath,
+        upstream_tasks=[output_filepath],
     )
 
     with case(materialize_after_dump, True):
