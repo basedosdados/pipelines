@@ -417,7 +417,7 @@ with Flow(
                 api_mode="prod",
                 date_format="yy-mm-dd",
                 is_free=True,
-                upstream_tasks=[materialize_second],
+                upstream_tasks=[materialization_flow],
             )
 
 br_me_cnpj_simples.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
