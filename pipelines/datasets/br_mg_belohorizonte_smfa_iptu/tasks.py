@@ -14,9 +14,8 @@ from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.utils import (
     replace_variables,
     new_columns_endereco,
     new_columns_ano_mes,
-    reordering,
-)
-from datetime import datetime
+    reordering_and_np_nan)
+
 
 
 @task  # noqa
@@ -33,7 +32,7 @@ def tasks_pipeline():
 
     new_columns_ano_mes_result = new_columns_ano_mes(df=new_columns_endereco_result)
 
-    reordering_result = reordering(df=new_columns_ano_mes_result)
+    reordering_result = reordering_and_np_nan(df=new_columns_ano_mes_result)
 
     return reordering_result
 
