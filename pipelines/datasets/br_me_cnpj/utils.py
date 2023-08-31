@@ -38,18 +38,6 @@ def data_url(url, headers):
     return data
 
 
-# ! Checa a data do site BD
-def data_url_bd(url, headers):
-    link_data = requests.get(url, headers=headers)
-    soup = BeautifulSoup(link_data.text, "html.parser")
-
-    # Extrai a segunda ocorrência
-    data_str = soup.find_all("p", class_="chakra-text css-92vgdp")[1].text
-    # Converte a string da data em um objeto de data
-    data = datetime.strptime(data_str, "%Y-%m-%d")
-    return data
-
-
 # ! Cria o caminho do output
 def destino_output(sufixo, data_coleta):
     output_path = f"/tmp/data/br_me_cnpj/output/{sufixo}/"

@@ -46,7 +46,6 @@ class constants(Enum):  # pylint: disable=c0103
         "SP",
         "TO",
     ]
-    URL_BD = "https://basedosdados.org/dataset/e43f0d5b-43cf-4bfb-8d90-c38a4e0d7c4f?table=b8432ff5-06c8-45ca-b8b6-33fceb24089d"
 
     URL = "https://dadosabertos.rfb.gov.br/CNPJ/"
 

@@ -9,7 +9,6 @@ from pipelines.datasets.br_me_cnpj.constants import (
 )
 from pipelines.datasets.br_me_cnpj.utils import (
     data_url,
-    data_url_bd,
     destino_output,
     download_unzip_csv,
     process_csv_estabelecimentos,
@@ -26,7 +25,6 @@ from tqdm import tqdm
 
 ufs = constants_cnpj.UFS.value
 url = constants_cnpj.URL.value
-url_bd = constants_cnpj.URL_BD.value
 headers = constants_cnpj.HEADERS.value
 
 
@@ -66,7 +64,7 @@ def format_date_to_string():
 
 
 @task
-def check_for_updates():
+def check_for_updates(dataset_id, table_id):
     """
     Checks if there are available updates for a specific dataset and table.
 
@@ -77,7 +75,9 @@ def check_for_updates():
     data_obj = data_url(url, headers).strftime("%Y-%m-%d")
 
     # Obtém a última data no site BD
-    data_bq_obj = data_url_bd(url_bd, headers).strftime("%Y-%m-%d")
+    data_bq_obj = extract_last_date(
+        dataset_id, table_id, "yy-mm-dd", "basedosdados-dev"
+    ).strftime("%Y-%m-%d")
 
     # Registra a data mais recente do site
     log(f"Última data no site do ME: {data_obj}")
