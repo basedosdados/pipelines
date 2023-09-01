@@ -47,7 +47,9 @@ with Flow(name="br_mg_belohorizonte_smfa_iptu.iptu", code_owners=["trick"]) as i
     )
 
     df = tasks_pipeline()
-    output_filepath = make_partitions(df=df)
+
+    output_filepath = make_partitions(df)
+
     data_max = get_max_data()
 
     # pylint: disable=C0103

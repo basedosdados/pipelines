@@ -37,7 +37,7 @@ def tasks_pipeline():
     return df_reordering
 
 
-def make_partitions(df: pd.DataFrame):
+def make_partitions(df):
     to_partitions(
         data=df, partition_columns=["ano", "mes"], savepath=constants.OUTPUT_PATH.value
     )
