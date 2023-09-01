@@ -36,6 +36,7 @@ def tasks_pipeline():
 
     return df_reordering
 
+
 @task
 def make_partitions(df):
     to_partitions(
@@ -43,6 +44,7 @@ def make_partitions(df):
     )
 
     return constants.OUTPUT_PATH.value
+
 
 @task
 def get_max_data(input):
