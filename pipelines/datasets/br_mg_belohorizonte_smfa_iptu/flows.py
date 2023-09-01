@@ -12,7 +12,7 @@ from pipelines.constants import constants
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.constants import constants
+from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.constants import constants as constants_iptu
 from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.tasks import (
     tasks_pipeline,
     make_partitions,
@@ -50,7 +50,7 @@ with Flow(name="br_mg_belohorizonte_smfa_iptu.iptu", code_owners=["trick"]) as i
 
     output_filepath = make_partitions(df, upstream_tasks=[df])
 
-    data_max = get_max_data(input=constants.INPUT_PATH.value)
+    data_max = get_max_data(input=constants_iptu.INPUT_PATH.value)
 
     # pylint: disable=C0103
     wait_upload_table = create_table_and_upload_to_gcs(
