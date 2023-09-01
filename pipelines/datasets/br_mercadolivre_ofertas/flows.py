@@ -109,7 +109,7 @@ with Flow(
             bq_last_update=False,
             is_bd_pro=True,
             is_free=False,
-            # upstream_tasks=[wait_upload_table],
+            upstream_tasks=[wait_upload_table],
         )
 
     with case(get_sellers, True) and case(is_empty_list(seller_ids), False):
@@ -151,7 +151,7 @@ with Flow(
             bq_last_update=False,
             is_bd_pro=True,
             is_free=False,
-            # upstream_tasks=[wait_upload_table],
+            upstream_tasks=[sellers_flow],
         )
         materialization_flow.set_upstream([sellers_flow])
 
@@ -232,7 +232,7 @@ with Flow(
             bq_last_update=False,
             is_bd_pro=True,
             is_free=False,
-            # upstream_tasks=[wait_upload_table],
+            upstream_tasks=[wait_upload_table],
         )
 
 br_mercadolivre_ofertas_vendedor.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

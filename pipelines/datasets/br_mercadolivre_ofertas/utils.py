@@ -306,6 +306,7 @@ async def process_item_url(item_url, kwargs_list):
     info["title"] = prices["title"]
     info["discount"] = prices["discount"]
     info["transport_condition"] = prices["transport_condition"]
+    log(info)
 
     # Gerando o ID item
     if info["title"] is not None:
