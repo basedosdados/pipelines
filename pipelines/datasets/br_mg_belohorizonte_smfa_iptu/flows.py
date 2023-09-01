@@ -92,7 +92,8 @@ with Flow(name="br_mg_belohorizonte_smfa_iptu.iptu", code_owners=["trick"]) as i
         )
 
         data_max = get_max_data(
-            input=constants_iptu.INPUT_PATH.value, upstream_tasks=[wait_for_materialization]
+            input=constants_iptu.INPUT_PATH.value,
+            upstream_tasks=[wait_for_materialization],
         )
 
         with case(update_metadata, True):
