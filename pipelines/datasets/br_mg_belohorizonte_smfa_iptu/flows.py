@@ -50,7 +50,7 @@ with Flow(name="br_mg_belohorizonte_smfa_iptu.iptu", code_owners=["trick"]) as i
 
     output_filepath = make_partitions(df, upstream_tasks=[df])
 
-    data_max = get_max_data()
+    data_max = get_max_data(input=constants.INPUT_PATH.value)
 
     # pylint: disable=C0103
     wait_upload_table = create_table_and_upload_to_gcs(
