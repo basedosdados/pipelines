@@ -12,7 +12,9 @@ from pipelines.constants import constants
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.constants import constants as constants_iptu
+from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.constants import (
+    constants as constants_iptu,
+)
 from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.tasks import (
     tasks_pipeline,
     make_partitions,
