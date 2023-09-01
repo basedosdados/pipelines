@@ -3,7 +3,6 @@
 Schedules for br_anp_precos_combustiveis
 """
 
-
 from datetime import timedelta, datetime
 
 from prefect.schedules import Schedule
