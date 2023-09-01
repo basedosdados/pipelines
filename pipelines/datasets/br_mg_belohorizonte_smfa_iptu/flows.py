@@ -52,8 +52,6 @@ with Flow(name="br_mg_belohorizonte_smfa_iptu.iptu", code_owners=["trick"]) as i
 
     output_filepath = make_partitions(df, upstream_tasks=[df])
 
-    data_max = get_max_data(input=constants_iptu.INPUT_PATH.value)
-
     # pylint: disable=C0103
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=output_filepath,
@@ -94,7 +92,7 @@ with Flow(name="br_mg_belohorizonte_smfa_iptu.iptu", code_owners=["trick"]) as i
         )
 
         data_max = get_max_data(
-            input=constants.INPUT_PATH.value, upstream_tasks=[wait_for_materialization]
+            input=constants_iptu.INPUT_PATH.value, upstream_tasks=[wait_for_materialization]
         )
 
         with case(update_metadata, True):
