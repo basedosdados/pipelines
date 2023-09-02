@@ -160,7 +160,7 @@ def verify_total(df: pl.DataFrame) -> None:
     calculated_total = calculate_total(df)
     mask = df["TOTAL"] != calculated_total
 
-    if pl.sum(mask) != 0:
+    if sum(mask) != 0:
         # In some cases, the quadriciclo data is multiplied by 10, and this will correct it before you
         new_df = clean_quadriciclo_data(df)
         new_calculated_total = calculate_total(new_df)
