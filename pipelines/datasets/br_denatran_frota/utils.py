@@ -526,7 +526,7 @@ def treat_uf(denatran_df: pl.DataFrame, ibge_df: pl.DataFrame, uf: str) -> None:
         suggested_name_ibge.alias("suggested_nome_ibge")
     )
     denatran_uf = denatran_uf.with_columns(
-        denatran_uf.apply(fix_suggested_nome_ibge)["apply"].alias("suggested_nome_ibge")
+        denatran_uf.apply(fix_suggested_nome_ibge)["map"].alias("suggested_nome_ibge")
     )
     municipios_no_denatran = denatran_uf["suggested_nome_ibge"].to_list()
     d = set(municipios_no_denatran) - set(municipios_na_bd)
