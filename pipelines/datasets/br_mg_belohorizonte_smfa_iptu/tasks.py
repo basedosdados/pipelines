@@ -15,14 +15,15 @@ from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.utils import (
     new_columns_endereco,
     new_columns_ano_mes,
     reordering_and_np_nan,
+    changing_coordinates
 )
 
 
 @task  # noqa
 def tasks_pipeline():
-    scrapping_download_csv(constants.INPUT.value)
+    scrapping_download_csv(constants.INPUT_PATH.value)
 
-    concat_csv_result = concat_csv(constants.INPUT.value)
+    concat_csv_result = concat_csv(constants.INPUT_PATH.value)
 
     rename_columns_result = rename_columns(df=concat_csv_result)
 
@@ -32,7 +33,9 @@ def tasks_pipeline():
 
     new_columns_ano_mes_result = new_columns_ano_mes(df=new_columns_endereco_result)
 
-    df_reordering = reordering_and_np_nan(df=new_columns_ano_mes_result)
+    changing_coordinates_result = changing_coordinates(df=new_columns_ano_mes_result)
+
+    df_reordering = reordering_and_np_nan(df=changing_coordinates_result)
 
     return df_reordering
 
@@ -42,7 +45,6 @@ def make_partitions(df):
     to_partitions(
         data=df, partition_columns=["ano", "mes"], savepath=constants.OUTPUT_PATH.value
     )
-
     return constants.OUTPUT_PATH.value
 
 

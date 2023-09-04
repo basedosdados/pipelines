@@ -9,6 +9,9 @@ import requests
 from bs4 import BeautifulSoup
 import numpy as np
 from datetime import datetime
+import geopandas as gpd
+from shapely import wkt
+from pipelines.utils.tasks import log
 from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.constants import constants
 
 
@@ -122,3 +125,19 @@ def reordering_and_np_nan(df: pd.DataFrame) -> pd.DataFrame:
     df = df.replace(np.nan, "")
 
     return df
+
+def changing_coordinates(df: pd.DataFrame) -> pd.DataFrame:
+    log("Entrando em WKTS...")
+    df['poligono'] = df['poligono'].apply(wkt.loads)
+    log("Entrando no GeoDataFrame...")
+    df = gpd.GeoDataFrame(df, geometry='poligono', crs='EPSG:4326')
+    log("GeoDataFrame criado com sucesso!")
+    origem = 'EPSG:31983' # chama em metros
+    destino = 'EPSG:4326' # chama a geográfica
+    log("Transformando coordenadas...")
+    df['poligono'] = df['poligono'].apply(lambda x: gpd.GeoSeries(x, crs=origem).to_crs(destino).geometry.iloc[0])
+    log('Após a transformação das coordenadas')
+    log("Criando GeoDataFrame novamente...")
+    df = gpd.GeoDataFrame(df, geometry='poligono', crs=destino)
+    log('Após a criação do GeoDataFrame')
+
