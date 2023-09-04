@@ -15,7 +15,7 @@ from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.utils import (
     new_columns_endereco,
     new_columns_ano_mes,
     reordering_and_np_nan,
-    changing_coordinates
+    changing_coordinates,
 )
 
 
