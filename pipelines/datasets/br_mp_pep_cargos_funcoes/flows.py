@@ -16,8 +16,8 @@ from pipelines.utils.tasks import (
     rename_current_flow_run_dataset_table,
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
-    update_django_metadata,
 )
+from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.utils import log_task
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.utils.constants import constants as utils_constants
@@ -124,6 +124,10 @@ with Flow(
                     billing_project_id="basedosdados",
                     api_mode="prod",
                     date_format="yy-mm",
+                    is_bd_pro=True,
+                    is_free=True,
+                    time_delta=6,
+                    time_unit="months",
                     upstream_tasks=[wait_for_materialization],
                 )
 
