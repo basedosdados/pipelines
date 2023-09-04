@@ -30,12 +30,12 @@ from pipelines.datasets.br_bcb_estban.constants import (
     constants as br_bcb_estban_constants,
 )
 from pipelines.utils.decorators import Flow
+from pipelines.utils.metadata.flows import update_django_metadata
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     rename_current_flow_run_dataset_table,
     get_current_flow_labels,
-    update_django_metadata,
 )
 
 with Flow(
