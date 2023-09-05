@@ -4,6 +4,7 @@ Tasks for br_mg_belohorizonte_smfa_iptu
 """
 from prefect import task
 import pandas as pd
+from pipelines.utils.tasks import log
 from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.constants import constants
 from pipelines.utils.utils import to_partitions
 import os
@@ -11,40 +12,51 @@ from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.utils import (
     scrapping_download_csv,
     concat_csv,
     rename_columns,
-    replace_variables,
-    new_columns_endereco,
+    fix_variables,
+    new_column_endereco,
     new_columns_ano_mes,
-    reordering_and_np_nan,
+    reorder_and_fix_nan,
     changing_coordinates,
 )
 
 
 @task  # noqa
-def tasks_pipeline():
-    scrapping_download_csv(constants.INPUT_PATH.value)
+def download_and_transform():
+    log("Iniciando o web scrapping e download dos arquivos csv")
+    scrapping_download_csv(input_path=constants.INPUT_PATH.value)
 
-    concat_csv_result = concat_csv(constants.INPUT_PATH.value)
+    log("Iniciando a concatenação dos arquivos csv")
+    df = concat_csv(input_path=constants.INPUT_PATH.value)
 
-    rename_columns_result = rename_columns(df=concat_csv_result)
+    log("Iniciando a renomeação das colunas")
+    df = rename_columns(df=df)
 
-    replace_variables_result = replace_variables(df=rename_columns_result)
+    log("Iniciando a substituição de variáveis")
+    df = fix_variables(df=df)
 
-    new_columns_endereco_result = new_columns_endereco(df=replace_variables_result)
+    log("Iniciando a criação da coluna endereço")
+    df = new_column_endereco(df=df)
 
-    new_columns_ano_mes_result = new_columns_ano_mes(df=new_columns_endereco_result)
+    log("Iniciando a criação das colunas ano e mes")
+    df = new_columns_ano_mes(df=df)
 
-    changing_coordinates_result = changing_coordinates(df=new_columns_ano_mes_result)
+    log("Iniciando a mudança de coordenadas")
+    df = changing_coordinates(df=df)
 
-    df_reordering = reordering_and_np_nan(df=changing_coordinates_result)
+    log("Iniciando a reordenação das colunas")
+    df = reorder_and_fix_nan(df=df)
 
-    return df_reordering
+    return df
 
 
 @task
 def make_partitions(df):
+    log("Iniciando a partição dos dados")
+
     to_partitions(
         data=df, partition_columns=["ano", "mes"], savepath=constants.OUTPUT_PATH.value
     )
+
     return constants.OUTPUT_PATH.value
 
 

@@ -7,7 +7,7 @@ from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
-from pipelines.utils.tasks import update_django_metadata
+from pipelines.utils.metadata.flows import update_django_metadata
 from pipelines.constants import constants
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -16,7 +16,7 @@ from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.constants import (
     constants as constants_iptu,
 )
 from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.tasks import (
-    tasks_pipeline,
+    download_and_transform,
     make_partitions,
     get_max_data,
 )
@@ -29,7 +29,9 @@ from pipelines.utils.tasks import (
 
 from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.schedules import every_weeks_iptu
 
-with Flow(name="br_mg_belohorizonte_smfa_iptu.iptu", code_owners=["trick"]) as iptu:
+with Flow(
+    name="br_mg_belohorizonte_smfa_iptu.iptu", code_owners=["trick"]
+) as br_mg_belohorizonte_smfa_iptu_iptu:
     # Parameters
     dataset_id = Parameter(
         "dataset_id", default="br_mg_belohorizonte_smfa_iptu", required=True
@@ -48,7 +50,7 @@ with Flow(name="br_mg_belohorizonte_smfa_iptu.iptu", code_owners=["trick"]) as i
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    df = tasks_pipeline()
+    df = download_and_transform()
 
     output_filepath = make_partitions(df, upstream_tasks=[df])
 
@@ -109,6 +111,8 @@ with Flow(name="br_mg_belohorizonte_smfa_iptu.iptu", code_owners=["trick"]) as i
                 upstream_tasks=[wait_for_materialization],
             )
 
-iptu.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-iptu.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-iptu.schedule = every_weeks_iptu
+br_mg_belohorizonte_smfa_iptu_iptu.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_mg_belohorizonte_smfa_iptu_iptu.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
+br_mg_belohorizonte_smfa_iptu_iptu.schedule = every_weeks_iptu

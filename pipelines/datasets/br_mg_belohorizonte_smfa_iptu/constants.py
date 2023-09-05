@@ -7,7 +7,6 @@ from enum import Enum
 
 class constants(Enum):  # pylint: disable=c0103
     RENAME = {
-        "ID_IPTU_CTM": "id_iptu",
         "NULOTCTM": "lote",
         "INDICE_CADASTRAL": "indice_cadastral",
         "ZONEAMENTO_PVIPTU": "zoneamento",
@@ -30,42 +29,39 @@ class constants(Enum):  # pylint: disable=c0103
         "IND_ILUMINACAO_PUBLICA": "indicador_iluminacao_publica",
         "IND_REDE_ESGOTO": "indicador_rede_esgoto",
         "IND_REDE_AGUA": "indicador_agua",
-        "GEOMETRIA": "geometria",
+        "GEOMETRIA": "poligono",
         "FRACAO_IDEAL": "fracao_ideal",
         "AREA_TERRENO": "area_terreno",
         "AREA_CONSTRUCAO": "area_construida",
     }
 
     ORDEM = [
-        [
-            "ano",
-            "mes",
-            "id_iptu",
-            "lote",
-            "indice_cadastral",
-            "zoneamento",
-            "zona_homogenea",
-            "cep",
-            "endereco",
-            "tipo_construtivo",
-            "tipo_ocupacao",
-            "padrao_acabamento",
-            "tipologia",
-            "quantidade_economia",
-            "frequencia_coleta",
-            "indicador_rede_telefonica",
-            "indicador_meio_fio",
-            "indicador_pavimentacao",
-            "indicador_arborizacao",
-            "indicador_galeria_pluvial",
-            "indicador_iluminacao_publica",
-            "indicador_rede_esgoto",
-            "indicador_agua",
-            "geometria",
-            "fracao_ideal",
-            "area_terreno",
-            "area_construida",
-        ]
+        "ano",
+        "mes",
+        "indice_cadastral",
+        "lote",
+        "zoneamento",
+        "zona_homogenea",
+        "cep",
+        "endereco",
+        "tipo_construtivo",
+        "tipo_ocupacao",
+        "padrao_acabamento",
+        "tipologia",
+        "codigo_quantidade_economia",
+        "frequencia_coleta",
+        "indicador_rede_telefonica",
+        "indicador_meio_fio",
+        "indicador_pavimentacao",
+        "indicador_arborizacao",
+        "indicador_galeria_pluvial",
+        "indicador_iluminacao_publica",
+        "indicador_rede_esgoto",
+        "indicador_agua",
+        "poligono",
+        "fracao_ideal",
+        "area_terreno",
+        "area_construida",
     ]
 
     URLS = [
@@ -80,6 +76,6 @@ class constants(Enum):  # pylint: disable=c0103
         "https://dados.pbh.gov.br/dataset/cadastro-imobiliario",
     ]
 
-    INPUT_PATH = "tmp/input"
+    INPUT_PATH = "/tmp/input/"
 
-    OUTPUT_PATH = "tmp/output"
+    OUTPUT_PATH = "/tmp/output/"
