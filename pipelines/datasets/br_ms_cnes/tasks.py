@@ -5,7 +5,7 @@ Tasks for br_ms_cnes
 
 
 from prefect import task
-from datetime import timedelta
+from datetime import timedelta, datetime
 from pipelines.utils.utils import log
 from pipelines.constants import constants
 
@@ -27,53 +27,56 @@ from pipelines.datasets.br_ms_cnes.utils import (
     pre_cleaning_to_utf8,
     check_and_create_column,
     if_column_exist_delete,
+    extract_last_date,
 )
 
 
-# task to parse files and select files
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
-def parse_latest_cnes_dbc_files(database: str, cnes_group: str) -> list[str]:
-    """
-    This task access DATASUS FTP to retrive CNES database ST or PF group latest .DBC file paths
-    """
-    cnes_database = database
-    cnes_group_file = cnes_group
+@task
+def check_files_to_parse(
+    dataset_id: str,
+    table_id: str,
+    billing_project_id,
+    cnes_database: str,
+    cnes_group_file: str,
+) -> list[str]:
+    log(f"extracting last date from bq for {dataset_id}.{table_id}")
+    # 1. extrair data mais atual do bq
+    last_date = extract_last_date(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        billing_project_id=billing_project_id,
+    )
+    log("building next year/month to parse")
+    # 2. adicionar mais um no mes ou transformar pra 1 se for 12
+    # eg. last_date = 2023-04-01
 
+    year = str(last_date.year)
+    month = last_date.month
+
+    if month <= 11:
+        month = month + 1
+    else:
+        month = 1
+    # 3. buildar no formato do ftp YYMM
+    year = year[2:4]
+
+    if month <= 9:
+        month = "0" + str(month)
+
+    year_month_to_parse = year + month
+    log(f"year_month_to_parse (YYMM) is {year_month_to_parse}")
+    # 4. ver se o arquivo existe
     available_dbs = list_all_cnes_dbc_files(
         database=cnes_database, CNES_group=cnes_group_file
     )
 
-    # generate current date
-    today = dt.date.today()
-
-    current_month = today.month
-    # generate two last digits of current year to match datasus FTP year representation format
-    # eg. 2023 -> 23
-    current_year = str(today.year)
-    current_year = current_year[2:]
-
-    # GENERATE_MONTH_TO_PARSE is a dict that given a int representing an month (Eg. 1 = january)
-    # gives a string representing the current minus 2. (Eg. 1 = january : '11' november)
-    month_to_parse = cnes_constants.GENERATE_MONTH_TO_PARSE.value[current_month]
-    year_month_to_parse = str(current_year) + str(month_to_parse)
-
     list_files = []
 
-    log(f"the YEARMONTH being used to parse files is: {year_month_to_parse}")
-
+    # filtra pra ver se acha e retorna a lista
     for file in available_dbs:
         if file[-8:-4] == year_month_to_parse:
             list_files.append(file)
-
-    # check if list is null
-    if len(list_files) == 0:
-        raise ValueError(
-            f"cnes files parsed with {year_month_to_parse} were not found. It probably indicates that those files have not been released yet."
-        )
-
+    # final
     log(f"the following files were selected fom DATASUS FTP: {list_files}")
 
     return list_files
@@ -106,6 +109,7 @@ def access_ftp_donwload_files(file_list: list, path: str, table: str) -> list[st
         input_path = path + table + "/" + year_month_sigla_uf
 
         os.system(f"mkdir -p {input_path}")
+        os.system(f"find {input_path} -type f -delete")
 
         log(f"created input dir {path + table + '/' + year_month_sigla_uf}")
 
@@ -171,6 +175,8 @@ def read_dbc_save_csv(file_list: list, path: str, table: str) -> str:
             na="",
             row_names=False,
         )
+        # delete dbc file
+        os.system(f"rm {file}")
 
         # ler df
 
@@ -202,7 +208,7 @@ def read_dbc_save_csv(file_list: list, path: str, table: str) -> str:
         elif table == "equipamento":
             df = df[cnes_constants.COLUMNS_TO_KEEP.value["EP"]]
 
-        else:
+        elif table == "equipe":
             # equipe
             # the EQ table has different names for same variables across the years
             # this is a workaround to standardize the names
@@ -215,6 +221,31 @@ def read_dbc_save_csv(file_list: list, path: str, table: str) -> str:
 
             df = df[cnes_constants.COLUMNS_TO_KEEP.value["EQ"]]
 
+        elif table == "estabelecimento_ensino":
+            df = df[cnes_constants.COLUMNS_TO_KEEP.value["EE"]]
+
+        elif table == "dados_complementares":
+            df = df[cnes_constants.COLUMNS_TO_KEEP.value["DC"]]
+
+        elif table == "estabelecimento_filantropico":
+            df = df[cnes_constants.COLUMNS_TO_KEEP.value["EF"]]
+
+        elif table == "gestao_metas":
+            df = df[cnes_constants.COLUMNS_TO_KEEP.value["GM"]]
+
+        elif table == "habilitacao":
+            df = check_and_create_column(df=df, col_name="NAT_JUR")
+            df = df[cnes_constants.COLUMNS_TO_KEEP.value["HB"]]
+
+        elif table == "incentivos":
+            df = df[cnes_constants.COLUMNS_TO_KEEP.value["IN"]]
+
+        elif table == "regra_contratual":
+            df = df[cnes_constants.COLUMNS_TO_KEEP.value["RC"]]
+
+        elif table == "servico_especializado":
+            df = df[cnes_constants.COLUMNS_TO_KEEP.value["SR"]]
+
         # salvar de novo
         df.to_csv(output_file, sep=",", na_rep="", index=False, encoding="utf-8")
 
@@ -223,3 +254,11 @@ def read_dbc_save_csv(file_list: list, path: str, table: str) -> str:
         )
 
     return path + table
+
+
+@task
+def is_empty(lista):
+    if len(lista) == 0:
+        return True
+    else:
+        return False
