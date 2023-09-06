@@ -31,6 +31,7 @@ def download_files_parse_date(url):
 @task
 def parse_data(url, other_task_output):
     # repeat it 20 times
+    log(f"Other task output {other_task_output}")
     date = other_task_output[1]
     log(f"###### Extraindo dados para data: {date}")
     files_list = other_task_output[2]
@@ -70,6 +71,8 @@ def parse_data(url, other_task_output):
             ],
             encoding="latin1",
         )
+        # adiciona coluna com a data
+        df["data"] = date[0]
 
         log(f"Saving file: {file}")
         # instead of file i need a counter. Each interation of the loop +1
