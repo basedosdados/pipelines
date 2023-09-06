@@ -50,7 +50,7 @@ def concat_csv(input_path: str) -> pd.DataFrame:
     for arquivo in arquivos:
         if arquivo.endswith(".csv"):
             df = pd.read_csv(
-                f"{input_path}{arquivo}", sep=";", encoding="utf-8", dtype=str
+                f"{input_path}{arquivo}", sep=",", encoding="utf-8", dtype=str
             )
             lista_dataframe.append(df)
             log(df.shape)
