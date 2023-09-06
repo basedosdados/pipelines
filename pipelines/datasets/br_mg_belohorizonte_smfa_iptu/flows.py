@@ -20,7 +20,6 @@ from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.tasks import (
     make_partitions,
     get_max_data,
     check_for_updates,
-    data_url,
 )
 
 from pipelines.utils.tasks import (
@@ -52,9 +51,7 @@ with Flow(
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
-    dados_desatualizados = check_for_updates(
-        dataset_id, table_id, upstream_tasks=[rename_flow_run]
-    )
+    dados_desatualizados = check_for_updates(dataset_id=dataset_id, table_id=table_id)
     log_task(f"Checando se os dados estão desatualizados: {dados_desatualizados}")
     with case(dados_desatualizados, False):
         log_task(

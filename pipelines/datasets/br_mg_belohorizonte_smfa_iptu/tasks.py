@@ -62,7 +62,6 @@ def make_partitions(df):
     return constants.OUTPUT_PATH.value
 
 
-@task
 def data_url(url, headers):
     response = requests.get(url, headers=headers)
 
@@ -89,9 +88,7 @@ def check_for_updates(dataset_id, table_id):
     data_obj = data_url(constants.URLS.value[0], constants.HEADERS.value)
 
     # Obtém a última data no site BD
-    data_bq_obj = extract_last_date(
-        dataset_id, table_id, "yy-mm", "basedosdados-dev"
-    ).strftime("%Y-%m")
+    data_bq_obj = extract_last_date(dataset_id, table_id, "yy-mm", "basedosdados-dev")
 
     # Registra a data mais recente do site
     log(f"Última data no site do SMFA: {data_obj}")
