@@ -54,7 +54,9 @@ with Flow(
     info = download_files_parse_date(url=br_rf_cafir_constants.URL.value[0])
 
     file_path = parse_data(
-        url=br_rf_cafir_constants.URL.value[0], other_task_output=info[1]
+        url=br_rf_cafir_constants.URL.value[0],
+        other_task_output=info,
+        upstream_tasks=[info],
     )
 
     wait_upload_table = create_table_and_upload_to_gcs(

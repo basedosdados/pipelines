@@ -32,26 +32,33 @@ def download_files_parse_date(url):
 def parse_data(url, other_task_output):
     # repeat it 20 times
     log(f"Other task output {other_task_output}")
-    date = other_task_output[1]
+    date = other_task_output[0]
     log(f"###### Extraindo dados para data: {date}")
-    files_list = other_task_output[2]
-
+    files_list = other_task_output[1]
+    log(f"###### Extraindo files: {files_list}")
     counter = 0
+    log(f"###### 1-----COUNTER: {counter}")
+    list_n_cols = []
 
     for file in files_list:
         counter += 1
+        log(f"###### X-----COUNTER: {counter}")
 
         log(f"Dowloading file: {file} from {url}")
         # donwload file
+        complete_url = url + file
+
         download_csv_files(
-            base_url=url,
+            file_name=file,
+            url=complete_url,
             download_directory=br_rf_cafir_constants.PATH.value[0],
-            files_names=file,
         )
 
         # read file
-        log(f"Reading file: {file}")
+
         file_path = br_rf_cafir_constants.PATH.value[0] + file
+
+        log(f"Reading file: {file} from : {file_path}")
 
         df = pd.read_fwf(
             file_path,
@@ -72,18 +79,20 @@ def parse_data(url, other_task_output):
             encoding="latin1",
         )
         # adiciona coluna com a data
-        df["data"] = date[0]
+        df["data"] = date
+        list_n_cols.append(df.shape[1])
 
         log(f"Saving file: {file}")
         # instead of file i need a counter. Each interation of the loop +1
 
+        os.makedirs(br_rf_cafir_constants.PATH.value[1], exist_ok=True)
         save_path = (
             br_rf_cafir_constants.PATH.value[1]
             + "imoveis_rurais_"
             + str(counter)
             + ".csv"
         )
-
+        log(f"save path: {save_path}")
         # save new file as csv
         df.to_csv(save_path, index=False, sep=",", na_rep="", encoding="utf-8")
 
@@ -93,5 +102,6 @@ def parse_data(url, other_task_output):
 
         log(f"no dir input tem: {os.listdir(br_rf_cafir_constants.PATH.value[0])}")
 
+    log(f"list_n_cols: O NUMERO DE COLUNAS É {list_n_cols}")
     # ath to saved files
     return br_rf_cafir_constants.PATH.value[1]

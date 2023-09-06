@@ -53,33 +53,26 @@ def parse_date_parse_files(url):
         return []
 
 
-def download_csv_files(base_url, files_names, download_directory):
+def download_csv_files(url, file_name, download_directory):
     # Ensure the download directory exists
     os.makedirs(download_directory, exist_ok=True)
 
-    # Loop through the href values and download the CSV files
-    for href in files_names:
-        # Build the complete URL
-        url = base_url + href
+    log(f"Downloading--------- {url}")
+    # Extract the file name from the URL
 
-        # Extract the file name from the URL
-        file_name = href.split("/")[-1]
+    # Set the full file path for the download
+    file_path = os.path.join(download_directory, file_name)
 
-        # Set the full file path for the download
-        file_path = os.path.join(download_directory, file_name)
+    # Send a GET request to download the file
+    response = requests.get(url)
 
-        # Send a GET request to download the file
-        response = requests.get(url)
-
-        if response.status_code == 200:
-            # Save the file to the specified directory
-            with open(file_path, "wb") as f:
-                f.write(response.content)
-            print(f"Downloaded {file_name}")
-        else:
-            print(
-                f"Failed to download {file_name}. Status code: {response.status_code}"
-            )
+    if response.status_code == 200:
+        # Save the file to the specified directory
+        with open(file_path, "wb") as f:
+            f.write(response.content)
+        print(f"Downloaded {file_name}")
+    else:
+        print(f"Failed to download {file_name}. Status code: {response.status_code}")
 
 
 # os arquivos vem num formato sem um separador aparente
