@@ -39,7 +39,6 @@ def scrapping_download_csv(input_path: str):
             log(file_response)
             with open(f"{input_path}{filename}", "wb") as f:
                 f.write(response.content)
-
             log(f"Arquivo {filename} baixado com sucesso!")
 
 
