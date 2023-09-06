@@ -46,12 +46,19 @@ def scrapping_download_csv(input_path: str):
 def concat_csv(input_path: str) -> pd.DataFrame:
     lista_dataframe = []
     arquivos = os.listdir(input_path)
+    log("printando arquivos: ")
+    log(arquivos)
     for arquivo in arquivos:
         if arquivo.endswith(".csv"):
-            df = pd.read_csv(f"{input_path}{arquivo}", sep=";", encoding="utf-8")
-            print(df.shape)
+            df = pd.read_csv(
+                f"{input_path}{arquivo}", sep=";", encoding="utf-8", dtype=str
+            )
             lista_dataframe.append(df)
+            log(df.shape)
+
     df = pd.concat(lista_dataframe)
+    df.fillna("", inplace=True)
+
     return df
 
 
@@ -97,6 +104,7 @@ def fix_variables(df: pd.DataFrame) -> pd.DataFrame:
         .replace("Ala", "Alameda")
         .replace("Pca", "Praça")
     )
+
     return df
 
 
@@ -117,12 +125,15 @@ def new_columns_ano_mes(df: pd.DataFrame) -> pd.DataFrame:
     valor = arquivos[0][0:6]
     df["ano"] = valor[0:4]
     df["mes"] = valor[4:6]
+    log(df.columns)
+
     return df
 
 
 def reorder_and_fix_nan(df: pd.DataFrame) -> pd.DataFrame:
     df = df[constants.ORDEM.value]
     df = df.replace(np.nan, "")
+
     return df
 
 
@@ -134,4 +145,5 @@ def changing_coordinates(df: pd.DataFrame) -> pd.DataFrame:
     df = gpd.GeoDataFrame(df, geometry="poligono", crs=origem)
     log("Transformando coordenadas...")
     df["poligono"] = df["poligono"].to_crs(destino)
+
     return df
