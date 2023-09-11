@@ -11,8 +11,8 @@ class constants(Enum):
     URL = ["https://dadosabertos.rfb.gov.br/CAFIR/"]
 
     PATH = [
-        "/tmp/br_rf_cafir/input/",
-        "/tmp/br_rf_cafir/output/",
+        "/tmp/input/br_rf_cafir",
+        "/tmp/output/br_rf_cafir",
     ]
 
     TABLE = ["imoveis_rurais"]
