@@ -89,6 +89,7 @@ def parse_data(url, other_task_output):
         os.makedirs(br_rf_cafir_constants.PATH.value[1], exist_ok=True)
         save_path = (
             br_rf_cafir_constants.PATH.value[1]
+            + f"data={date}/"
             + "imoveis_rurais_"
             + str(counter)
             + ".csv"
