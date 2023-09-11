@@ -130,14 +130,14 @@ def wrang_data(
                 df=df,
                 date_column="data",
             )
-
-            print(df["data"].head(5))
-            print("datas formatadas")
+            log("1. as 5 primeiras linhas são:")
+            log(df.head(5))
 
             df = remove_latin1_accents_from_df(df)
 
             df = order_df(url=architecture_link, df=df)
-
+            log("2. as 5 primeiras linhas são:")
+            log(df.head(5))
             to_partitions(
                 data=df, partition_columns=["ano", "mes"], savepath=path_output
             )
