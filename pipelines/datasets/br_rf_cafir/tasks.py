@@ -85,11 +85,12 @@ def parse_data(url, other_task_output):
         # instead of file i need a counter. Each interation of the loop +1
 
         os.makedirs(
-            br_rf_cafir_constants.PATH.value[1] + f'data="{date}"/', exist_ok=True
+            br_rf_cafir_constants.PATH.value[1] + f'imoveis_rurais/data="{date}"/',
+            exist_ok=True,
         )
         save_path = (
             br_rf_cafir_constants.PATH.value[1]
-            + f'data="{date}"/'
+            + f'imoveis_rurais/data="{date}"/'
             + "imoveis_rurais_"
             + str(counter)
             + ".csv"
