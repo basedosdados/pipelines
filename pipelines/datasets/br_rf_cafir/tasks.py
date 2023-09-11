@@ -73,9 +73,7 @@ def parse_data(url, other_task_output):
             },
             encoding="latin1",
         )
-        # adiciona coluna com a data
 
-        df["data"] = date
         list_n_cols.append(df.shape[1])
 
         # remove acentos
