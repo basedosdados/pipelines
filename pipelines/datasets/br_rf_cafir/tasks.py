@@ -107,4 +107,6 @@ def parse_data(url, other_task_output):
 
     log(f"list_n_cols: O NUMERO DE COLUNAS É {list_n_cols}")
     # ath to saved files
-    return br_rf_cafir_constants.PATH.value[1]
+    return (
+        br_rf_cafir_constants.PATH.value[1] + "/" + br_rf_cafir_constants.TABLE.value[0]
+    )
