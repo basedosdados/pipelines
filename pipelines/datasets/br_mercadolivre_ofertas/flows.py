@@ -20,7 +20,7 @@ from pipelines.utils.tasks import (
     get_current_flow_labels,
     create_table_and_upload_to_gcs,
 )
-
+from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.datasets.br_mercadolivre_ofertas.tasks import (
     crawler_mercadolivre_item,
     crawler_mercadolivre_seller,
@@ -30,9 +30,10 @@ from pipelines.datasets.br_mercadolivre_ofertas.tasks import (
     is_empty_list,
 )
 from pipelines.datasets.br_mercadolivre_ofertas.schedules import every_day_item
+import datetime
 
 with Flow(
-    name="br_mercadolivre_ofertas.item", code_owners=["lucascr91"]
+    name="br_mercadolivre_ofertas.item", code_owners=["Gabs"]
 ) as br_mercadolivre_ofertas_item:
     # Parameters
     dataset_id = Parameter(
@@ -55,7 +56,7 @@ with Flow(
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
-
+    data_atual = datetime.datetime.now().strftime("%Y-%m-%d")
     get_sellers = Parameter("get_sellers", default=True, required=True)
 
     filepath_raw = crawler_mercadolivre_item()
@@ -100,6 +101,16 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
+        update_django_metadata(
+            dataset_id,
+            table_id,
+            metadata_type="DateTimeRange",
+            _last_date=data_atual,
+            bq_last_update=False,
+            is_bd_pro=True,
+            is_free=False,
+            upstream_tasks=[wait_upload_table],
+        )
 
     with case(get_sellers, True) and case(is_empty_list(seller_ids), False):
         # Trigger DBT flow run
@@ -117,7 +128,7 @@ with Flow(
                 "materialize_after_dump": materialize_after_dump_sellers,
             },
             labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id_sellers}",
+            run_name=f"Materialize {dataset_id}.{table_id}",
         )
 
         wait_for_materialization = wait_for_flow_run(
@@ -132,6 +143,17 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
+        update_django_metadata(
+            dataset_id,
+            table_id=table_id_sellers,
+            metadata_type="DateTimeRange",
+            _last_date=data_atual,
+            bq_last_update=False,
+            is_bd_pro=True,
+            is_free=False,
+            upstream_tasks=[sellers_flow],
+        )
+        materialization_flow.set_upstream([sellers_flow])
 
 br_mercadolivre_ofertas_item.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_mercadolivre_ofertas_item.run_config = KubernetesRun(
@@ -139,9 +161,8 @@ br_mercadolivre_ofertas_item.run_config = KubernetesRun(
 )
 br_mercadolivre_ofertas_item.schedule = every_day_item
 
-
 with Flow(
-    name="br_mercadolivre_ofertas.vendedor", code_owners=["lucascr91"]
+    name="br_mercadolivre_ofertas.vendedor", code_owners=["Gabs"]
 ) as br_mercadolivre_ofertas_vendedor:
     # Parameters
     dataset_id = Parameter(
@@ -162,7 +183,7 @@ with Flow(
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
-
+    data_atual = datetime.datetime.now().strftime("%Y-%m-%d")
     filepath_raw = crawler_mercadolivre_seller(seller_ids, seller_links)
 
     filepath = clean_seller(filepath_raw)
@@ -202,6 +223,16 @@ with Flow(
         )
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+        )
+        update_django_metadata(
+            dataset_id,
+            table_id,
+            metadata_type="DateTimeRange",
+            _last_date=data_atual,
+            bq_last_update=False,
+            is_bd_pro=True,
+            is_free=False,
+            upstream_tasks=[wait_upload_table],
         )
 
 br_mercadolivre_ofertas_vendedor.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

@@ -73,6 +73,7 @@ def create_table_and_upload_to_gcs(
     dataset_id: str,
     table_id: str,
     dump_mode: str,
+    source_format: str = "csv",
     wait=None,  # pylint: disable=unused-argument
 ) -> None:
     """
@@ -104,13 +105,16 @@ def create_table_and_upload_to_gcs(
         else:
             # the header is needed to create a table when dosen't exist
             log("MODE APPEND: Table DOSEN'T EXISTS\n" + "Start to CREATE HEADER file")
-            header_path = dump_header_to_csv(data_path=data_path)
+            header_path = dump_header_to_csv(
+                data_path=data_path, source_format=source_format
+            )
             log("MODE APPEND: Created HEADER file:\n" f"{header_path}")
 
             tb.create(
                 path=header_path,
                 if_storage_data_exists="replace",
                 if_table_exists="replace",
+                source_format=source_format,
             )
 
             log(
@@ -159,6 +163,7 @@ def create_table_and_upload_to_gcs(
             path=header_path,
             if_storage_data_exists="replace",
             if_table_exists="replace",
+            source_format=source_format,
         )
 
         log(
@@ -388,7 +393,8 @@ def update_django_metadata(
         -   `table_id (str):` The ID of the table.
         -   `metadata_type (str):` The type of metadata to update.
         -   `_last_date (optional):` The last date for metadata update if `bq_last_update` is False. Defaults to None.
-        -   `date_format (str, optional):` The date format to use when parsing dates ('yy-mm-dd', 'yy-mm', or 'yy'). Defaults to 'yy-mm-dd'.
+        -   `date_format (str, optional):` The date format to use when parsing dates.Defaults to 'yy-mm-dd'. Accepted values
+            are 'yy-mm-dd', 'yy-mm' or 'dd'.
         -   `bq_last_update (bool, optional):` Flag indicating whether to use BigQuery's last update date for metadata.
             If True, `_last_date` is ignored. Defaults to True.
         -   `api_mode (str, optional):` The API mode to be used ('prod', 'staging'). Defaults to 'prod'.
@@ -420,8 +426,20 @@ def update_django_metadata(
 
     Raises:
         -   Exception: If the metadata_type is not supported.
+        -   Exception: If the billing_project_id is not supported.
 
     """
+    accepted_billing_project_id = [
+        "basedosdados-dev",
+        "basedosdados",
+        "basedosdados-staging",
+    ]
+
+    if billing_project_id not in accepted_billing_project_id:
+        raise Exception(
+            f"The given billing_project_id: {billing_project_id} is invalid. The accepted valuesare {accepted_billing_project_id}"
+        )
+
     (email, password) = get_credentials_utils(secret_path=f"api_user_{api_mode}")
 
     ids = get_ids(
