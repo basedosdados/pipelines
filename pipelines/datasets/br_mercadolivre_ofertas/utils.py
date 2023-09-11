@@ -301,11 +301,24 @@ async def process_item_url(item_url, kwargs_list):
         info["stars"] = None
         info["review_amount"] = None
 
-    info["price"] = prices["price"]
-    info["price_original"] = prices["price_original"]
-    info["title"] = prices["title"]
-    info["discount"] = prices["discount"]
-    info["transport_condition"] = prices["transport_condition"]
+    if prices is not None:
+        info["price"] = prices["price"]
+        info["price_original"] = prices["price_original"]
+        info["title"] = prices["title"]
+        info["discount"] = prices["discount"]
+        info["transport_condition"] = prices["transport_condition"]
+    else:
+        info["price"] = None
+        info["price_original"] = None
+        info["title"] = None
+        info["discount"] = None
+        info["transport_condition"] = None
+
+    # info["price"] = prices["price"]
+    # info["price_original"] = prices["price_original"]
+    # info["title"] = prices["title"]
+    # info["discount"] = prices["discount"]
+    # info["transport_condition"] = prices["transport_condition"]
     log(info)
 
     # Gerando o ID item
