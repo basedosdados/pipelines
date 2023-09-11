@@ -58,7 +58,7 @@ def parse_data(url, other_task_output):
 
         # read file
 
-        file_path = br_rf_cafir_constants.PATH.value[0] + file
+        file_path = br_rf_cafir_constants.PATH.value[0] + "/" + file
 
         log(f"Reading file: {file} from : {file_path}")
 
@@ -85,12 +85,12 @@ def parse_data(url, other_task_output):
         # instead of file i need a counter. Each interation of the loop +1
 
         os.makedirs(
-            br_rf_cafir_constants.PATH.value[1] + f"imoveis_rurais/data={date}/",
+            br_rf_cafir_constants.PATH.value[1] + f"/imoveis_rurais/data={date}/",
             exist_ok=True,
         )
         save_path = (
             br_rf_cafir_constants.PATH.value[1]
-            + f"imoveis_rurais/data={date}/"
+            + f"/imoveis_rurais/data={date}/"
             + "imoveis_rurais_"
             + str(counter)
             + ".csv"
@@ -101,7 +101,7 @@ def parse_data(url, other_task_output):
 
         log(f"no dir input tem: {os.listdir(br_rf_cafir_constants.PATH.value[0])}")
         # remove o arquivo de input
-        os.system("rm -rf " + br_rf_cafir_constants.PATH.value[0] + "*")
+        os.system("rm -rf " + br_rf_cafir_constants.PATH.value[0] + "/" + "*")
         # verificar se os arquivos foram removidos
         log(f"no dir input tem: {os.listdir(br_rf_cafir_constants.PATH.value[0])}")
 
