@@ -50,8 +50,7 @@ with Flow(
 
     # todo: colocar task de verificacao da data mais recente
     # verificar se a data mais recente do FTP equivale a data mai
-    # todo: inserir função para retirar latin-1 em strings
-    # todo: separar primeiro campo em 3 já na leitura do file
+
     info = download_files_parse_date(url=br_rf_cafir_constants.URL.value[0])
 
     file_path = parse_data(
