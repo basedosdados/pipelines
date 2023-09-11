@@ -16,6 +16,8 @@ from pipelines.datasets.br_rf_cafir.constants import constants as br_rf_cafir_co
 from pipelines.datasets.br_rf_cafir.utils import (
     parse_date_parse_files,
     download_csv_files,
+    remove_accent,
+    preserve_zeros,
 )
 
 
@@ -60,27 +62,26 @@ def parse_data(url, other_task_output):
 
         log(f"Reading file: {file} from : {file_path}")
 
+        # Read the fixed-width file, apply the data types, and preserve leading zeros
         df = pd.read_fwf(
             file_path,
-            widths=[30, 55, 2, 56, 40, 2, 40, 8, 8, 3, 1],
-            names=[
-                "id",
-                "nome",
-                "situacao",
-                "endereco",
-                "zona_redefinir",
-                "sigla_uf",
-                "municipio",
-                "cep",
-                "data_inscricao",
-                "status_rever",
-                "cd",
-            ],
+            widths=br_rf_cafir_constants.WIDTHS.value,
+            names=br_rf_cafir_constants.COLUMN_NAMES.value,
+            dtype=br_rf_cafir_constants.DTYPE.value,
+            converters={
+                col: preserve_zeros for col in br_rf_cafir_constants.COLUMN_NAMES.value
+            },
             encoding="latin1",
         )
         # adiciona coluna com a data
+
         df["data"] = date
         list_n_cols.append(df.shape[1])
+
+        # remove acentos
+
+        df["nome"] = df["nome"].apply(remove_accent)
+        df["endereco"] = df["endereco"].apply(remove_accent)
 
         log(f"Saving file: {file}")
         # instead of file i need a counter. Each interation of the loop +1
@@ -99,7 +100,7 @@ def parse_data(url, other_task_output):
         log(f"no dir input tem: {os.listdir(br_rf_cafir_constants.PATH.value[0])}")
         # remove o arquivo de input
         os.system("rm -rf " + br_rf_cafir_constants.PATH.value[0] + "*")
-
+        # verificar se os arquivos foram removidos
         log(f"no dir input tem: {os.listdir(br_rf_cafir_constants.PATH.value[0])}")
 
     log(f"list_n_cols: O NUMERO DE COLUNAS É {list_n_cols}")

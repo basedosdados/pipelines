@@ -8,11 +8,65 @@ import requests
 from datetime import datetime
 import os
 from pipelines.utils.utils import log
+import unicodedata
 
 
 # função para extrair datas
 # valor usado para o check de atualização do site além de ser usado para update do coverage
 # tambem será usado para criar uma coluna
+
+
+def remove_accent(input_str, pattern="all"):
+    if not isinstance(input_str, str):
+        input_str = str(input_str)
+
+    patterns = set(pattern)
+
+    if "Ç" in patterns:
+        patterns.remove("Ç")
+        patterns.add("ç")
+
+    symbols = {
+        "acute": "áéíóúÁÉÍÓÚýÝ",
+        "grave": "àèìòùÀÈÌÒÙ",
+        "circunflex": "âêîôûÂÊÎÔÛ",
+        "tilde": "ãõÃÕñÑ",
+        "umlaut": "äëïöüÄËÏÖÜÿ",
+        "cedil": "çÇ",
+    }
+
+    nude_symbols = {
+        "acute": "aeiouAEIOUyY",
+        "grave": "aeiouAEIOU",
+        "circunflex": "aeiouAEIOU",
+        "tilde": "aoAOnN",
+        "umlaut": "aeiouAEIOUy",
+        "cedil": "cC",
+    }
+
+    accent_types = ["´", "`", "^", "~", "¨", "ç"]
+
+    if any(
+        pattern in {"all", "al", "a", "todos", "t", "to", "tod", "todo"}
+        for pattern in patterns
+    ):
+        return "".join(
+            [
+                c if unicodedata.category(c) != "Mn" else ""
+                for c in unicodedata.normalize("NFD", input_str)
+            ]
+        )
+
+    for p in patterns:
+        if p in accent_types:
+            input_str = "".join(
+                [
+                    c if c not in symbols[p] else nude_symbols[p][symbols[p].index(c)]
+                    for c in input_str
+                ]
+            )
+
+    return input_str
 
 
 def parse_date_parse_files(url):
@@ -73,6 +127,10 @@ def download_csv_files(url, file_name, download_directory):
         print(f"Downloaded {file_name}")
     else:
         print(f"Failed to download {file_name}. Status code: {response.status_code}")
+
+
+def preserve_zeros(x):
+    return x.strip()
 
 
 # os arquivos vem num formato sem um separador aparente
