@@ -363,7 +363,9 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
     tabelas = constants_cnpj.TABELAS.value[3:]
-    dados_desatualizados = check_for_updates(dataset_id, table_id="estabelecimentos")
+    dados_desatualizados = check_for_updates(
+        dataset_id="br_me_cnpj", table_id="estabelecimentos"
+    )
     log_task(f"Checando se os dados estão desatualizados: {dados_desatualizados}")
 
     with case(dados_desatualizados, False):

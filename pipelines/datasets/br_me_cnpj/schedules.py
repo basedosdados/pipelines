@@ -54,8 +54,8 @@ every_day_simples = Schedule(
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
-                "dataset_id": "br_me_simples",
-                "table_id": "estabelecimentos",
+                "dataset_id": "br_me_cnpj",
+                "table_id": "simples",
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": False,
