@@ -19,6 +19,7 @@ from pipelines.datasets.br_rf_cafir.utils import (
     remove_accent,
     preserve_zeros,
     remove_non_ascii_from_df,
+    strip_string,
 )
 
 
@@ -72,7 +73,7 @@ def parse_data(url, other_task_output):
             converters={
                 col: preserve_zeros for col in br_rf_cafir_constants.COLUMN_NAMES.value
             },
-            encoding="latin1",
+            encoding="latin-1",
         )
 
         list_n_cols.append(df.shape[1])
@@ -83,6 +84,9 @@ def parse_data(url, other_task_output):
 
         # remove não ascii
         df = remove_non_ascii_from_df(df)
+
+        # tira os espacos em branco
+        df = df.applymap(strip_string)
 
         log(f"Saving file: {file}")
 
@@ -111,9 +115,18 @@ def parse_data(url, other_task_output):
 
     log(f"list_n_cols: O NUMERO DE COLUNAS É {list_n_cols}")
     # ath to saved files
-    return (
+    files_path = (
         br_rf_cafir_constants.PATH.value[1]
         + "/"
         + br_rf_cafir_constants.TABLE.value[0]
         + "/"
     )
+
+    return files_path
+
+
+# deve ser um problema de left zeros a esquerda. ou melhor de um espaco antes do zero
+# que é interpretado como um ascii 0, isto é, ascii null.
+
+# se abro no python sem especificar a tipagem e os zeros a esquerda e espaco sao convertidos
+# pra int, tudo funciona. O contrario, dá erro.

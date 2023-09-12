@@ -16,6 +16,12 @@ import pandas as pd
 # tambem será usado para criar uma coluna
 
 
+def strip_string(x):
+    if isinstance(x, str):
+        return x.strip()
+    return x
+
+
 def remove_non_ascii_from_df(df):
     return df.applymap(
         lambda x: x.encode("ascii", "ignore").decode("ascii")
