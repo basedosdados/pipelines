@@ -9,11 +9,19 @@ from datetime import datetime
 import os
 from pipelines.utils.utils import log
 import unicodedata
-
+import pandas as pd
 
 # função para extrair datas
 # valor usado para o check de atualização do site além de ser usado para update do coverage
 # tambem será usado para criar uma coluna
+
+
+def remove_non_ascii_from_df(df):
+    return df.applymap(
+        lambda x: x.encode("ascii", "ignore").decode("ascii")
+        if isinstance(x, str)
+        else x
+    )
 
 
 def remove_accent(input_str, pattern="all"):

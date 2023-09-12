@@ -18,6 +18,7 @@ from pipelines.datasets.br_rf_cafir.utils import (
     download_csv_files,
     remove_accent,
     preserve_zeros,
+    remove_non_ascii_from_df,
 )
 
 
@@ -77,11 +78,14 @@ def parse_data(url, other_task_output):
         list_n_cols.append(df.shape[1])
 
         # remove acentos
-
         df["nome"] = df["nome"].apply(remove_accent)
         df["endereco"] = df["endereco"].apply(remove_accent)
 
+        # remove não ascii
+        df = remove_non_ascii_from_df(df)
+
         log(f"Saving file: {file}")
+
         # instead of file i need a counter. Each interation of the loop +1
 
         os.makedirs(
