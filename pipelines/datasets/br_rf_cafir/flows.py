@@ -52,7 +52,7 @@ with Flow(
 
     info = parse_files_parse_date(url=br_rf_cafir_constants.URL.value[0])
     is_outdated = check_if_bq_data_is_outdated(
-        dataset_id=dataset_id, table_id=table_id, data=info[0]
+        dataset_id=dataset_id, table_id=table_id, data=info[0], upstream_tasks=[info]
     )
 
     log_task(f"Checando se os dados estão desatualizados: {dataset_id}.{table_id}")
