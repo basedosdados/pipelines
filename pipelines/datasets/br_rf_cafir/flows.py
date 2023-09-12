@@ -13,7 +13,7 @@ from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.datasets.br_rf_cafir.constants import constants as br_rf_cafir_constants
 from pipelines.datasets.br_rf_cafir.tasks import (
-    download_files_parse_date,
+    parse_files_parse_date,
     parse_data,
     check_if_bq_data_is_outdated,
 )
@@ -50,7 +50,7 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    info = download_files_parse_date(url=br_rf_cafir_constants.URL.value[0])
+    info = parse_files_parse_date(url=br_rf_cafir_constants.URL.value[0])
     is_outdated = check_if_bq_data_is_outdated(
         dataset_id=dataset_id, table_id=table_id, data=info[0]
     )

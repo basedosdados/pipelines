@@ -17,7 +17,9 @@ import basedosdados as bd
 # tambem será usado para criar uma coluna
 
 
-def extract_last_date(dataset_id, table_id, billing_project_id: str):
+def extract_last_date(
+    dataset_id: str, table_id: str, billing_project_id: str
+) -> datetime:
     """
     Extracts the last update date of a given dataset table.
 
@@ -52,13 +54,28 @@ def extract_last_date(dataset_id, table_id, billing_project_id: str):
     return data
 
 
-def strip_string(x):
+def strip_string(x: pd.DataFrame) -> pd.DataFrame:
+    """Aplica o strip em uma coluna de um dataframe, caso seja string.
+    ps: usar com applymap
+
+    Args:
+        x (pd.Dataframe): Dataframe
+
+    Returns:
+        pd.Dataframe: Dataframe com valores de linha sem espaços no início e no final das strings
+    """
     if isinstance(x, str):
         return x.strip()
     return x
 
 
-def remove_non_ascii_from_df(df):
+def remove_non_ascii_from_df(df: pd.DataFrame) -> pd.DataFrame:
+    """Remove caracteres não ascii de um dataframe
+
+    Returns:
+        pd.DataFrame: Um dataframe
+    """
+
     return df.applymap(
         lambda x: x.encode("ascii", "ignore").decode("ascii")
         if isinstance(x, str)
@@ -66,10 +83,14 @@ def remove_non_ascii_from_df(df):
     )
 
 
-pd.read_csv
+def remove_accent(input_str: pd.DataFrame, pattern="all") -> pd.DataFrame:
+    """Remove acentos e caracteres especiais do encoding LATIN-1 para a coluna selecionada
 
 
-def remove_accent(input_str, pattern="all"):
+    Returns:
+        pd.Dataframe: Dataframe com coluna sem acentos e caracteres especiais
+    """
+
     if not isinstance(input_str, str):
         input_str = str(input_str)
 
@@ -122,7 +143,16 @@ def remove_accent(input_str, pattern="all"):
     return input_str
 
 
-def parse_date_parse_files(url):
+def parse_date_parse_files(url: str) -> tuple[list[datetime], list[str]]:
+    """Faz o parse da data de atualização e dos links de download dos arquivos
+
+    Args:
+        url (string): A url do ftp do CAFIR da receita federal
+
+    Returns:
+        tuple[list[datetime],list[str]]: Retorna uma tupla com duas listas. A primeira contém uma lista de datas de atualização dos dados e a segunda contém uma lista com os nomes dos arquivos.
+    """
+
     xpath_release_date = "tr td:nth-of-type(3)"
     response = requests.get(url)
 
@@ -183,28 +213,5 @@ def download_csv_files(url, file_name, download_directory):
 
 
 def preserve_zeros(x):
+    """Preserva os zeros a esquerda de um número"""
     return x.strip()
-
-
-# os arquivos vem num formato sem um separador aparente
-# sigla_uf e municipio estao concatenados ex. ROCACOAL ; PAMONTE ALEGRE
-# STATUS IMOVEL junto com endereço
-# ex. 02MARGEM DIR DO LAGO DO CHUMBO  ; 02ESQUERDA DA RODOVIA AM 010 KM 04
-
-# id sncr tem 9 digitos
-# https://sncr.serpro.gov.br/sncr-web/consultaPublica.jsf?windowId=8dc
-#
-# nr_imovel(8)nr_incra(13)
-# 000000510000013030010310393490
-
-# 00000051 000001303 0010310393490
-# nome_fazenda
-# FAZENDA JUSSARA
-# sit_imovel(2) endereço(xxxx)
-# 02LT 01 GL 03 PF CO
-# zona(xxxx) - as vezes existe as vezes não
-# ZONA RURAL
-# sigla_uf(2)municipio(xxxx) #converter para id com verificação cruzada com cep
-# ROPIMENTA BUENO
-# cep(8)date(8)something(3)status_sncr(1)
-# 7691900020210331NAO1

@@ -25,7 +25,19 @@ from pipelines.datasets.br_rf_cafir.utils import (
 
 
 @task
-def check_if_bq_data_is_outdated(data, dataset_id, table_id):
+def check_if_bq_data_is_outdated(
+    data: datetime, dataset_id: str, table_id: str
+) -> bool:
+    """Essa task checa se há necessidade de atualizar os dados no BQ
+
+    Args:
+        data (date): A data de atualização dos dados extraida do FTP
+        dataset_id (string): O datased_id
+        table_id (string): O table_id
+
+    Returns:
+        bool: TRUE se a data do FTP for maior que a do BQ e FALSE caso contrário.
+    """
     data = data.strftime("%Y-%m-%d")
 
     # extrai data do bq
@@ -44,7 +56,15 @@ def check_if_bq_data_is_outdated(data, dataset_id, table_id):
 
 
 @task
-def download_files_parse_date(url):
+def parse_files_parse_date(url) -> tuple[list[datetime], list[str]]:
+    """Extrai os nomes dos arquivos e a data de disponibilização dos dados no FTP
+
+    Args:
+        url (string): URL do FTP
+
+    Returns:
+        Tuple: Retorna uma tupla com duas listas. A primeira contém uma lista de datas de atualização dos dados e a segunda contém uma lista com os nomes dos arquivos.
+    """
     log("########  download_files_parse_data  ########")
 
     date_files = parse_date_parse_files(url)
@@ -53,38 +73,46 @@ def download_files_parse_date(url):
 
 
 @task
-def parse_data(url, other_task_output):
-    # repeat it 20 times
-    log(f"Other task output {other_task_output}")
+def parse_data(url: str, other_task_output: tuple[list[datetime], list[str]]) -> str:
+    """Essa task faz o download dos arquivos do FTP, faz o parse dos dados e salva os arquivos em um diretório temporário.
+
+    Returns:
+        str: Caminho do diretório temporário
+    """
+
     date = other_task_output[0]
     log(f"###### Extraindo dados para data: {date}")
+
     files_list = other_task_output[1]
     log(f"###### Extraindo files: {files_list}")
+
+    # inicializa counter para ser usado na nomeação dos arquivos repetindo o padrão de divulgação dos dados
     counter = 0
-    log(f"###### 1-----COUNTER: {counter}")
+    log(f"###### -----COUNTER: {counter}")
+
     list_n_cols = []
 
     for file in files_list:
         counter += 1
         log(f"###### X-----COUNTER: {counter}")
 
-        log(f"Dowloading file: {file} from {url}")
-        # donwload file
+        log(f"Baixando arquivo: {file} de {url}")
+
+        # monta url
         complete_url = url + file
 
+        # baixa arquivo
         download_csv_files(
             file_name=file,
             url=complete_url,
             download_directory=br_rf_cafir_constants.PATH.value[0],
         )
 
-        # read file
-
+        # constroi caminho do arquivo
         file_path = br_rf_cafir_constants.PATH.value[0] + "/" + file
+        log(f"Lendo arquivo: {file} de : {file_path}")
 
-        log(f"Reading file: {file} from : {file_path}")
-
-        # Read the fixed-width file, apply the data types, and preserve leading zeros
+        # Le o arquivo txt
         df = pd.read_fwf(
             file_path,
             widths=br_rf_cafir_constants.WIDTHS.value,
@@ -110,8 +138,7 @@ def parse_data(url, other_task_output):
 
         log(f"Saving file: {file}")
 
-        # instead of file i need a counter. Each interation of the loop +1
-
+        # constroi diretório
         os.makedirs(
             br_rf_cafir_constants.PATH.value[1] + f"/imoveis_rurais/data={date}/",
             exist_ok=True,
@@ -124,23 +151,26 @@ def parse_data(url, other_task_output):
             + ".csv"
         )
         log(f"save path: {save_path}")
+
         # save new file as csv
         df.to_csv(save_path, index=False, sep=",", na_rep="", encoding="utf-8")
 
         # resolve ASCII 0 no momento da leitura do BQ
         # ler e salvar de novo
         df = pd.read_csv(save_path, dtype=str)
-
         df.to_csv(save_path, index=False, sep=",", na_rep="", encoding="utf-8")
 
         log(f"no dir input tem: {os.listdir(br_rf_cafir_constants.PATH.value[0])}")
+
         # remove o arquivo de input
         os.system("rm -rf " + br_rf_cafir_constants.PATH.value[0] + "/" + "*")
+
         # verificar se os arquivos foram removidos
         log(f"no dir input tem: {os.listdir(br_rf_cafir_constants.PATH.value[0])}")
 
     log(f"list_n_cols: O NUMERO DE COLUNAS É {list_n_cols}")
-    # ath to saved files
+
+    # gera paths
     files_path = (
         br_rf_cafir_constants.PATH.value[1]
         + "/"
