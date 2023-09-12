@@ -51,11 +51,11 @@ with Flow(
     )
 
     info = parse_files_parse_date(url=br_rf_cafir_constants.URL.value[0])
+    log_task("Checando se os dados estão desatualizados")
+
     is_outdated = check_if_bq_data_is_outdated(
         dataset_id=dataset_id, table_id=table_id, data=info[0], upstream_tasks=[info]
     )
-
-    log_task(f"Checando se os dados estão desatualizados: {dataset_id}.{table_id}")
 
     with case(is_outdated, False):
         log_task(f"Não há atualizações para a tabela de {table_id}!")
@@ -66,7 +66,7 @@ with Flow(
         file_path = parse_data(
             url=br_rf_cafir_constants.URL.value[0],
             other_task_output=info,
-            upstream_tasks=[info],
+            upstream_tasks=[info, is_outdated],
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(
