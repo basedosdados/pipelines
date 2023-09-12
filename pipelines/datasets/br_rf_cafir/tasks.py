@@ -5,10 +5,10 @@ Tasks for br_ms_cnes
 
 
 from prefect import task
-from datetime import timedelta
 from pipelines.utils.utils import log
 from pipelines.constants import constants
 import re
+from datetime import datetime, timedelta
 import os
 import pandas as pd
 
@@ -20,7 +20,27 @@ from pipelines.datasets.br_rf_cafir.utils import (
     preserve_zeros,
     remove_non_ascii_from_df,
     strip_string,
+    extract_last_date,
 )
+
+
+@task
+def check_if_bq_data_is_outdated(data, dataset_id, table_id):
+    data = data.strftime("%Y-%m-%d")
+
+    # extrai data do bq
+    data_bq = extract_last_date(
+        dataset_id, table_id, "yy-mm-dd", "basedosdados"
+    ).strftime("%Y-%m-%d")
+
+    log(f"Data do site: {data}")
+    log(f"Data do BQ: {data_bq}")
+
+    # Compara as datas para verificar se há atualizações
+    if data > data_bq:
+        return True  # Há atualizações disponíveis
+    else:
+        return False
 
 
 @task
@@ -129,10 +149,3 @@ def parse_data(url, other_task_output):
     )
 
     return files_path
-
-
-# deve ser um problema de left zeros a esquerda. ou melhor de um espaco antes do zero
-# que é interpretado como um ascii 0, isto é, ascii null.
-
-# se abro no python sem especificar a tipagem e os zeros a esquerda e espaco sao convertidos
-# pra int, tudo funciona. O contrario, dá erro.
