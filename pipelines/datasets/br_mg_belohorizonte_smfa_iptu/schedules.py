@@ -11,7 +11,7 @@ from pipelines.constants import constants
 every_weeks_iptu = Schedule(
     clocks=[
         IntervalClock(
-            interval=timedelta(weeks=1),
+            interval=timedelta(days=1),
             start_date=datetime(2021, 1, 1),
             labels=[constants.BASEDOSDADOS_PROD_AGENT_LABEL.value],
             parameter_defaults={
