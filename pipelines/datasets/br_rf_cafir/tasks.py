@@ -107,6 +107,12 @@ def parse_data(url, other_task_output):
         # save new file as csv
         df.to_csv(save_path, index=False, sep=",", na_rep="", encoding="utf-8")
 
+        # resolve ASCII 0 no momento da leitura do BQ
+        # ler e salvar de novo
+        df = pd.read_csv(save_path, dtype=str)
+
+        df.to_csv(save_path, index=False, sep=",", na_rep="", encoding="utf-8")
+
         log(f"no dir input tem: {os.listdir(br_rf_cafir_constants.PATH.value[0])}")
         # remove o arquivo de input
         os.system("rm -rf " + br_rf_cafir_constants.PATH.value[0] + "/" + "*")
