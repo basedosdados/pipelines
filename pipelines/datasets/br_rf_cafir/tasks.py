@@ -41,9 +41,9 @@ def check_if_bq_data_is_outdated(
     data = data.strftime("%Y-%m-%d")
 
     # extrai data do bq
-    data_bq = extract_last_date(
-        dataset_id, table_id, "yy-mm-dd", "basedosdados-dev"
-    ).strftime("%Y-%m-%d")
+    data_bq = extract_last_date(dataset_id, table_id, "basedosdados-dev").strftime(
+        "%Y-%m-%d"
+    )
 
     log(f"Data do site: {data}")
     log(f"Data do BQ: {data_bq}")
