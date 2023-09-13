@@ -179,3 +179,26 @@ def parse_data(url: str, other_task_output: tuple[list[datetime], list[str]]) ->
     )
 
     return files_path
+
+
+@task
+def calculate_lag():
+    """
+    Calculates the month lag based on the current month.
+    #créditos -> @gabrielle-carv
+
+    Returns:
+        int: Number of lagged months.
+    """
+    current_month = datetime.now().month
+    current_year = datetime.now().year
+
+    if current_year == 2023:
+        if current_month >= 10:
+            defasagem = 6
+        else:
+            defasagem = current_month - 4
+    else:
+        defasagem = 6
+
+    return defasagem

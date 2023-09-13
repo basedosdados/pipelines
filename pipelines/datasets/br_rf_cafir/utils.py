@@ -70,7 +70,7 @@ def strip_string(x: pd.DataFrame) -> pd.DataFrame:
 
 
 def remove_non_ascii_from_df(df: pd.DataFrame) -> pd.DataFrame:
-    """Remove caracteres não ascii de um dataframe
+    """Remove caracteres não ascii de um dataframe codificando a coluna e decodificando em seguida
 
     Returns:
         pd.DataFrame: Um dataframe
@@ -83,9 +83,9 @@ def remove_non_ascii_from_df(df: pd.DataFrame) -> pd.DataFrame:
     )
 
 
-def remove_accent(input_str: pd.DataFrame, pattern="all") -> pd.DataFrame:
+def remove_accent(input_str: pd.DataFrame, pattern: str = "all") -> pd.DataFrame:
     """Remove acentos e caracteres especiais do encoding LATIN-1 para a coluna selecionada
-
+    #creditos para -> https://stackoverflow.com/questions/39148759/remove-accents-from-a-dataframe-column-in-r
 
     Returns:
         pd.Dataframe: Dataframe com coluna sem acentos e caracteres especiais
@@ -161,6 +161,7 @@ def parse_date_parse_files(url: str) -> tuple[list[datetime], list[str]]:
         soup = BeautifulSoup(response.text, "html.parser")
 
         ## 1. parsing da data de atualização ##
+
         # Seleciona tags com base no xpath
         td_elements = soup.select(xpath_release_date)
         # Extrai texto das tags selecionadas
@@ -174,7 +175,7 @@ def parse_date_parse_files(url: str) -> tuple[list[datetime], list[str]]:
         release_data = datetime.strptime(td_texts, "%Y-%m-%d").date()
         log(f"realease date: {release_data}")
 
-        ## 2. parsing dos links de download ##
+        ## 2. parsing dos nomes dos arquivos ##
 
         a_elements = soup.find_all("a")
         # Extrai todos href
@@ -183,6 +184,7 @@ def parse_date_parse_files(url: str) -> tuple[list[datetime], list[str]]:
         files_name = [href for href in href_values if "PARTE" in href]
         log(f"files name: {files_name}")
         return release_data, files_name
+
     else:
         log(
             f"Não foi possível acessar o site :/. O status da requisição foi: {response.status_code}"
@@ -191,20 +193,20 @@ def parse_date_parse_files(url: str) -> tuple[list[datetime], list[str]]:
 
 
 def download_csv_files(url, file_name, download_directory):
-    # Ensure the download directory exists
+    # cria diretório
     os.makedirs(download_directory, exist_ok=True)
 
     log(f"Downloading--------- {url}")
-    # Extract the file name from the URL
+    # Extrai links de download
 
-    # Set the full file path for the download
+    # Setta path
     file_path = os.path.join(download_directory, file_name)
 
-    # Send a GET request to download the file
+    # faz request
     response = requests.get(url)
 
     if response.status_code == 200:
-        # Save the file to the specified directory
+        # Salva no diretório especificado
         with open(file_path, "wb") as f:
             f.write(response.content)
         print(f"Downloaded {file_name}")
