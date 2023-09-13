@@ -92,6 +92,7 @@ with Flow(
                 stream_states=True,
                 stream_logs=True,
                 raise_final_state=True,
+                upstream_tasks=[wait_upload_table],
             )
             wait_for_materialization.max_retries = (
                 dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
