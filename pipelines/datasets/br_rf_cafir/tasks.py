@@ -41,7 +41,7 @@ def check_if_bq_data_is_outdated(
     data = data.strftime("%Y-%m-%d")
 
     # extrai data do bq
-    data_bq = extract_last_date(dataset_id, table_id, "basedosdados-dev").strftime(
+    data_bq = extract_last_date(dataset_id, table_id, "basedosdados").strftime(
         "%Y-%m-%d"
     )
 
@@ -197,7 +197,7 @@ def calculate_lag():
         if current_month >= 10:
             defasagem = 6
         else:
-            defasagem = current_month - 4
+            defasagem = current_month - 5
     else:
         defasagem = 6
 
