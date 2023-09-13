@@ -16,7 +16,6 @@ from pipelines.datasets.br_rf_cafir.tasks import (
     parse_files_parse_date,
     parse_data,
     check_if_bq_data_is_outdated,
-    calculate_lag,
 )
 
 from pipelines.utils.constants import constants as utils_constants
@@ -63,8 +62,6 @@ with Flow(
 
     with case(is_outdated, True):
         log_task("Existem atualizações! A run será inciada")
-
-        lag = calculate_lag(upstream_tasks=[is_outdated, info])
 
         file_path = parse_data(
             url=br_rf_cafir_constants.URL.value[0],
@@ -121,7 +118,7 @@ with Flow(
                     date_format="yy-mm-dd",
                     is_bd_pro=True,
                     is_free=True,
-                    time_delta=lag,
+                    time_delta=6,
                     time_unit="months",
                     upstream_tasks=[wait_for_materialization],
                 )
