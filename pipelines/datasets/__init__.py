@@ -45,3 +45,4 @@ from pipelines.datasets.br_me_cnpj.flows import *
 from pipelines.datasets.br_mp_pep_cargos_funcoes.flows import *
 from pipelines.datasets.br_ans_beneficiario.flows import *
 from pipelines.datasets.br_anp_precos_combustiveis.flows import *
+from pipelines.datasets.br_rf_cafir.flows import *
