@@ -174,7 +174,7 @@ with Flow(
         municipio=municipio,
         upstream_tasks=[donwload_files, municipio],
     )
-
+    # 15/16/19/20 sao files problematicos
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
