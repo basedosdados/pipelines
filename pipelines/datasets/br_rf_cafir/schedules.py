@@ -23,7 +23,7 @@ schedule_br_rf_cafir_imoveis_rurais = Schedule(
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
-                "dbt_alias": False,
+                "dbt_alias": True,
             },
         )
     ],
