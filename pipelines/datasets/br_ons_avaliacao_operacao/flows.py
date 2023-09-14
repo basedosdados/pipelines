@@ -9,7 +9,7 @@ from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
-
+from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.constants import constants
 from pipelines.datasets.br_ons_avaliacao_operacao.tasks import (
     download_data,
@@ -25,7 +25,6 @@ from pipelines.utils.tasks import (
     rename_current_flow_run_dataset_table,
     get_current_flow_labels,
     create_table_and_upload_to_gcs,
-    update_django_metadata,
 )
 
 from pipelines.datasets.br_ons_avaliacao_operacao.schedules import (
@@ -113,6 +112,8 @@ with Flow(
                 bq_last_update=False,
                 bq_table_last_year_month=True,
                 billing_project_id="basedosdados",
+                is_bd_pro=True,
+                is_free=False,
                 api_mode="prod",
                 date_format="yy-mm-dd",
                 upstream_tasks=[wait_for_materialization],
@@ -201,6 +202,8 @@ with Flow(
                 bq_last_update=False,
                 bq_table_last_year_month=True,
                 billing_project_id="basedosdados",
+                is_bd_pro=True,
+                is_free=False,
                 api_mode="prod",
                 date_format="yy-mm-dd",
                 upstream_tasks=[wait_for_materialization],
@@ -292,6 +295,8 @@ with Flow(
                 bq_last_update=False,
                 bq_table_last_year_month=True,
                 billing_project_id="basedosdados",
+                is_bd_pro=True,
+                is_free=False,
                 api_mode="prod",
                 date_format="yy-mm-dd",
                 upstream_tasks=[wait_for_materialization],
@@ -384,6 +389,8 @@ with Flow(
                 bq_last_update=False,
                 bq_table_last_year_month=True,
                 billing_project_id="basedosdados",
+                is_bd_pro=True,
+                is_free=False,
                 api_mode="prod",
                 date_format="yy-mm-dd",
                 upstream_tasks=[wait_for_materialization],
@@ -477,6 +484,8 @@ with Flow(
                 bq_last_update=False,
                 bq_table_last_year_month=True,
                 billing_project_id="basedosdados",
+                is_bd_pro=True,
+                is_free=False,
                 api_mode="prod",
                 date_format="yy-mm-dd",
                 upstream_tasks=[wait_for_materialization],

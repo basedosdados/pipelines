@@ -23,7 +23,7 @@ from prefect.storage import GCS
 from pipelines.constants import constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.constants import constants as utils_constants
-from pipelines.utils.metadata.flows import update_django_metadata
+from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
