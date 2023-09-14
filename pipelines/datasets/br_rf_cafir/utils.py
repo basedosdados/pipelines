@@ -36,7 +36,7 @@ def extract_last_date(
     """
 
     query_bd = f"""
-    SELECT MAX(data) as max_date
+    SELECT MAX(data_referencia) as max_date
     FROM
     `{billing_project_id}.{dataset_id}.{table_id}`
     """
