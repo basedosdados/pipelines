@@ -42,7 +42,7 @@ with Flow(
         "materialization_mode", default="dev", required=False
     )
     materialize_after_dump = Parameter(
-        "materialize after dump", default=True, required=False
+        "materialize_after_dump", default=True, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
