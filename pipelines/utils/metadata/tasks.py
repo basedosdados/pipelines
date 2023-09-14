@@ -44,7 +44,7 @@ def update_django_metadata(
     time_unit: str = "days",
 ):
     """
-    Updates Django metadata.
+    Updates Django metadata. Version 1.2.
 
     Args:
         -   `dataset_id (str):` The ID of the dataset.
