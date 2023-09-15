@@ -1,28 +1,29 @@
 # -*- coding: utf-8 -*-
 """
-Schedules for br_bcb_agencia
+Schedules for br_rf_cafir
 """
 
-from datetime import datetime
 from prefect.schedules import Schedule, filters, adjustments
 from prefect.schedules.clocks import CronClock
+from datetime import datetime
 from pipelines.constants import constants
 
-every_month_agencia = Schedule(
+
+schedule_br_rf_cafir_imoveis_rurais = Schedule(
     clocks=[
         CronClock(
-            cron="@monthly",
-            start_date=datetime(2023, 9, 5, 0, 0),
+            cron="0 0 * * *",  # every day at midnight
+            start_date=datetime(2023, 9, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
-                "dataset_id": "br_bcb_agencia",
-                "table_id": "agencia",
+                "dataset_id": "br_rf_cafir",
+                "table_id": "imoveis_rurais",
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
-                "dbt_alias": True,
                 "update_metadata": True,
+                "dbt_alias": True,
             },
         )
     ],
