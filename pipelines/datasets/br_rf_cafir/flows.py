@@ -120,7 +120,7 @@ with Flow(
                     dataset_id,
                     table_id,
                     metadata_type="DateTimeRange",
-                    _last_date=info[0],
+                    _last_date=update_metadata_strig_date,
                     bq_last_update=False,
                     api_mode="prod",
                     date_format="yy-mm-dd",
