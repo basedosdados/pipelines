@@ -209,7 +209,7 @@ def update_django_metadata(
                     ] = resource_to_temporal_coverage_free["endYear"]
 
                 log(
-                    f"Cobertura PRO ->> {_last_date} || Cobertura Grátis ->> {free_data}"
+                    f"Cobertura PRO ->> {last_date} || Cobertura Grátis ->> {free_data}"
                 )
                 # resource_to_temporal_coverage = parse_temporal_coverage(f"{last_date}")
 
@@ -248,7 +248,7 @@ def update_django_metadata(
                     date_format,
                     billing_project_id=billing_project_id,
                 )
-                log(f"Cobertura PRO ->> {_last_date}")
+                log(f"Cobertura PRO ->> {last_date}")
                 resource_to_temporal_coverage = parse_temporal_coverage(f"{last_date}")
 
                 resource_to_temporal_coverage["coverage"] = ids.get("coverage_id_pro")
@@ -340,7 +340,7 @@ def update_django_metadata(
                     ] = resource_to_temporal_coverage_free["endYear"]
 
                 log(
-                    f"Cobertura PRO ->> {_last_date} || Cobertura Grátis ->> {free_data}"
+                    f"Cobertura PRO ->> {last_date} || Cobertura Grátis ->> {free_data}"
                 )
                 # resource_to_temporal_coverage = parse_temporal_coverage(f"{last_date}")
 
@@ -379,7 +379,7 @@ def update_django_metadata(
                     date_format,
                     billing_project_id=billing_project_id,
                 )
-                log(f"Cobertura PRO ->> {_last_date}")
+                log(f"Cobertura PRO ->> {last_date}")
                 resource_to_temporal_coverage = parse_temporal_coverage(f"{last_date}")
 
                 resource_to_temporal_coverage["coverage"] = ids.get("coverage_id_pro")
