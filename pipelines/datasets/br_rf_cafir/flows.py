@@ -70,7 +70,7 @@ with Flow(
             is_free=True,
             time_delta=6,
             time_unit="months",
-            upstream_tasks=[info],
+            upstream_tasks=[is_outdated, info],
         )
 
     with case(is_outdated, False):

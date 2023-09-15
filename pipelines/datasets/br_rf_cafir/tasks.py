@@ -155,8 +155,7 @@ def parse_data(url: str, other_task_output: tuple[list[datetime], list[str]]) ->
         # save new file as csv
         df.to_csv(save_path, index=False, sep=",", na_rep="", encoding="utf-8")
 
-        # resolve ASCII 0 no momento da leitura do BQ
-        # ler e salvar de novo
+        # resolve ASCII 0 no momento da leitura do BQ. Ler e salvar de novo.
         df = pd.read_csv(save_path, dtype=str)
         df.to_csv(save_path, index=False, sep=",", na_rep="", encoding="utf-8")
 
