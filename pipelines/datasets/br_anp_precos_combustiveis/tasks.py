@@ -37,7 +37,7 @@ def check_for_updates(dataset_id, table_id):
     """
     # Obtém a data mais recente do site
     download_files(anatel_constants.URLS_DATA.value, anatel_constants.PATH_INPUT.value)
-    df = pd.read_csv(anatel_constants.URL_DIESEL_GNV.value, sep=";", encoding="utf-8")
+    df = pd.read_csv(anatel_constants.URL_GLP.value, sep=";", encoding="utf-8")
     data_obj = df["Data da Coleta"].max()
     data_obj = datetime.strptime(data_obj, "%d/%m/%Y").strftime("%Y-%m-%d")
     data_obj = datetime.strptime(data_obj, "%Y-%m-%d").date()
