@@ -107,16 +107,10 @@ def update_django_metadata(
         "weeks": "weeks",
         "days": "days",
     }
-    if not isinstance(_last_date, str):
-        raise ValueError("O parâmetro `last_date` deve ser do tipo string")
-
     if time_unit not in unidades_permitidas:
         raise ValueError(
             f"Unidade temporal inválida. Escolha entre {', '.join(unidades_permitidas.keys())}"
         )
-
-    if not isinstance(time_delta, int) or time_delta <= 0:
-        raise ValueError("Defasagem deve ser um número inteiro positivo")
 
     if billing_project_id not in accepted_billing_project_id:
         raise Exception(
@@ -164,6 +158,8 @@ def update_django_metadata(
                     api_mode=api_mode,
                 )
             elif is_bd_pro and is_free:
+                if not isinstance(time_delta, int) or time_delta <= 0:
+                    raise ValueError("Defasagem deve ser um número inteiro positivo")
                 last_date = extract_last_update(
                     dataset_id,
                     table_id,
@@ -400,6 +396,9 @@ def update_django_metadata(
                     api_mode=api_mode,
                 )
         else:
+            if not isinstance(_last_date, str):
+                raise ValueError("O parâmetro `last_date` deve ser do tipo string")
+
             if is_free and not is_bd_pro:
                 last_date = _last_date
                 resource_to_temporal_coverage = parse_temporal_coverage(f"{_last_date}")
