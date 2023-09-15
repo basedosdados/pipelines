@@ -73,6 +73,7 @@ def create_table_and_upload_to_gcs(
     dataset_id: str,
     table_id: str,
     dump_mode: str,
+    source_format: str = "csv",
     wait=None,  # pylint: disable=unused-argument
 ) -> None:
     """
@@ -104,13 +105,16 @@ def create_table_and_upload_to_gcs(
         else:
             # the header is needed to create a table when dosen't exist
             log("MODE APPEND: Table DOSEN'T EXISTS\n" + "Start to CREATE HEADER file")
-            header_path = dump_header_to_csv(data_path=data_path)
+            header_path = dump_header_to_csv(
+                data_path=data_path, source_format=source_format
+            )
             log("MODE APPEND: Created HEADER file:\n" f"{header_path}")
 
             tb.create(
                 path=header_path,
                 if_storage_data_exists="replace",
                 if_table_exists="replace",
+                source_format=source_format,
             )
 
             log(
@@ -159,6 +163,7 @@ def create_table_and_upload_to_gcs(
             path=header_path,
             if_storage_data_exists="replace",
             if_table_exists="replace",
+            source_format=source_format,
         )
 
         log(
