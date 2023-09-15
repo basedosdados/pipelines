@@ -117,20 +117,20 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-    with case(update_metadata, True):
-        date = get_today_date()  # task que retorna a data atual
-        update_django_metadata(
-            dataset_id,
-            table_id,
-            metadata_type="DateTimeRange",
-            bq_table_last_year_month=False,
-            bq_last_update=False,
-            is_bd_pro=False,
-            is_free=True,
-            api_mode="prod",
-            date_format="yy-mm",
-            _last_date=date,
-        )
+        with case(update_metadata, True):
+            date = get_today_date()  # task que retorna a data atual
+            update_django_metadata(
+                dataset_id,
+                table_id,
+                metadata_type="DateTimeRange",
+                bq_table_last_year_month=False,
+                bq_last_update=False,
+                is_bd_pro=False,
+                is_free=True,
+                api_mode="prod",
+                date_format="yy-mm",
+                _last_date=date,
+            )
 
 evolucao_mensal_cisp.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 evolucao_mensal_cisp.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
@@ -211,20 +211,20 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-    with case(update_metadata, True):
-        date = get_today_date()  # task que retorna a data atual
-        update_django_metadata(
-            dataset_id,
-            table_id,
-            metadata_type="DateTimeRange",
-            bq_table_last_year_month=False,
-            bq_last_update=False,
-            is_bd_pro=False,
-            is_free=True,
-            api_mode="prod",
-            date_format="yy-mm",
-            _last_date=date,
-        )
+        with case(update_metadata, True):
+            date = get_today_date()  # task que retorna a data atual
+            update_django_metadata(
+                dataset_id,
+                table_id,
+                metadata_type="DateTimeRange",
+                bq_table_last_year_month=False,
+                bq_last_update=False,
+                is_bd_pro=False,
+                is_free=True,
+                api_mode="prod",
+                date_format="yy-mm",
+                _last_date=date,
+            )
 
 taxa_evolucao_mensal_uf.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 taxa_evolucao_mensal_uf.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
@@ -307,20 +307,20 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-    with case(update_metadata, True):
-        date = get_today_date()  # task que retorna a data atual
-        update_django_metadata(
-            dataset_id,
-            table_id,
-            metadata_type="DateTimeRange",
-            bq_table_last_year_month=False,
-            bq_last_update=False,
-            is_bd_pro=False,
-            is_free=True,
-            api_mode="prod",
-            date_format="yy-mm",
-            _last_date=date,
-        )
+        with case(update_metadata, True):
+            date = get_today_date()  # task que retorna a data atual
+            update_django_metadata(
+                dataset_id,
+                table_id,
+                metadata_type="DateTimeRange",
+                bq_table_last_year_month=False,
+                bq_last_update=False,
+                is_bd_pro=False,
+                is_free=True,
+                api_mode="prod",
+                date_format="yy-mm",
+                _last_date=date,
+            )
 
 
 taxa_evolucao_mensal_municipio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -404,20 +404,20 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-    with case(update_metadata, True):
-        date = get_today_date()  # task que retorna a data atual
-        update_django_metadata(
-            dataset_id,
-            table_id,
-            metadata_type="DateTimeRange",
-            bq_table_last_year_month=False,
-            bq_last_update=False,
-            is_bd_pro=False,
-            is_free=True,
-            api_mode="prod",
-            date_format="yy-mm",
-            _last_date=date,
-        )
+        with case(update_metadata, True):
+            date = get_today_date()  # task que retorna a data atual
+            update_django_metadata(
+                dataset_id,
+                table_id,
+                metadata_type="DateTimeRange",
+                bq_table_last_year_month=False,
+                bq_last_update=False,
+                is_bd_pro=False,
+                is_free=True,
+                api_mode="prod",
+                date_format="yy-mm",
+                _last_date=date,
+            )
 
 
 feminicidio_mensal_cisp.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -501,20 +501,20 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-    with case(update_metadata, True):
-        date = get_today_date()  # task que retorna a data atual
-        update_django_metadata(
-            dataset_id,
-            table_id,
-            metadata_type="DateTimeRange",
-            bq_table_last_year_month=False,
-            bq_last_update=False,
-            is_bd_pro=False,
-            is_free=True,
-            api_mode="prod",
-            date_format="yy-mm",
-            _last_date=date,
-        )
+        with case(update_metadata, True):
+            date = get_today_date()  # task que retorna a data atual
+            update_django_metadata(
+                dataset_id,
+                table_id,
+                metadata_type="DateTimeRange",
+                bq_table_last_year_month=False,
+                bq_last_update=False,
+                is_bd_pro=False,
+                is_free=True,
+                api_mode="prod",
+                date_format="yy-mm",
+                _last_date=date,
+            )
 
 evolucao_policial_morto_servico_mensal.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 evolucao_policial_morto_servico_mensal.run_config = KubernetesRun(
@@ -599,20 +599,20 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-    with case(update_metadata, True):
-        date = get_today_date()  # task que retorna a data atual
-        update_django_metadata(
-            dataset_id,
-            table_id,
-            metadata_type="DateTimeRange",
-            bq_table_last_year_month=False,
-            bq_last_update=False,
-            is_bd_pro=False,
-            is_free=True,
-            api_mode="prod",
-            date_format="yy-mm",
-            _last_date=date,
-        )
+        with case(update_metadata, True):
+            date = get_today_date()  # task que retorna a data atual
+            update_django_metadata(
+                dataset_id,
+                table_id,
+                metadata_type="DateTimeRange",
+                bq_table_last_year_month=False,
+                bq_last_update=False,
+                is_bd_pro=False,
+                is_free=True,
+                api_mode="prod",
+                date_format="yy-mm",
+                _last_date=date,
+            )
 
 armas_apreendidas_mensal.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 armas_apreendidas_mensal.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
@@ -693,20 +693,20 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-    with case(update_metadata, True):
-        date = get_today_date()  # task que retorna a data atual
-        update_django_metadata(
-            dataset_id,
-            table_id,
-            metadata_type="DateTimeRange",
-            bq_table_last_year_month=False,
-            bq_last_update=False,
-            is_bd_pro=False,
-            is_free=True,
-            api_mode="prod",
-            date_format="yy-mm",
-            _last_date=date,
-        )
+        with case(update_metadata, True):
+            date = get_today_date()  # task que retorna a data atual
+            update_django_metadata(
+                dataset_id,
+                table_id,
+                metadata_type="DateTimeRange",
+                bq_table_last_year_month=False,
+                bq_last_update=False,
+                is_bd_pro=False,
+                is_free=True,
+                api_mode="prod",
+                date_format="yy-mm",
+                _last_date=date,
+            )
 
 evolucao_mensal_municipio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 evolucao_mensal_municipio.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
@@ -787,20 +787,20 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-    with case(update_metadata, True):
-        date = get_today_date()  # task que retorna a data atual
-        update_django_metadata(
-            dataset_id,
-            table_id,
-            metadata_type="DateTimeRange",
-            bq_table_last_year_month=False,
-            bq_last_update=False,
-            is_bd_pro=False,
-            is_free=True,
-            api_mode="prod",
-            date_format="yy-mm",
-            _last_date=date,
-        )
+        with case(update_metadata, True):
+            date = get_today_date()  # task que retorna a data atual
+            update_django_metadata(
+                dataset_id,
+                table_id,
+                metadata_type="DateTimeRange",
+                bq_table_last_year_month=False,
+                bq_last_update=False,
+                is_bd_pro=False,
+                is_free=True,
+                api_mode="prod",
+                date_format="yy-mm",
+                _last_date=date,
+            )
 
 evolucao_mensal_uf.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 evolucao_mensal_uf.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
