@@ -8,7 +8,7 @@ from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
-from pipelines.utils.tasks import update_django_metadata
+from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.constants import constants
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -101,6 +101,9 @@ with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
                 table_id,
                 metadata_type="DateTimeRange",
                 bq_last_update=False,
+                bq_table_last_year_month=False,
+                is_bd_pro=True,
+                is_free=False,
                 api_mode="prod",
                 date_format="yy-mm-dd",
                 _last_date=data_max,
