@@ -63,12 +63,7 @@ def check_for_updates(dataset_id, table_id):
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def download_and_transform():
-    download_files(
-        [
-            anatel_constants.URLS.value,
-        ],
-        anatel_constants.PATH_INPUT.value,
-    )
+    download_files(anatel_constants.URLS.value, anatel_constants.PATH_INPUT.value)
 
     precos_combustiveis = open_csvs(
         anatel_constants.URL_DIESEL_GNV.value,
