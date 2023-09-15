@@ -61,22 +61,6 @@ with Flow(
         data=info[0], upstream_tasks=[info, is_outdated]
     )
 
-    with case(update_metadata, True):
-        update = update_django_metadata(
-            dataset_id,
-            table_id,
-            metadata_type="DateTimeRange",
-            _last_date=update_metadata_strig_date,
-            bq_last_update=False,
-            api_mode="prod",
-            date_format="yy-mm-dd",
-            is_bd_pro=True,
-            is_free=True,
-            time_delta=6,
-            time_unit="months",
-            upstream_tasks=[update_metadata_strig_date],
-        )
-
     with case(is_outdated, False):
         log_task(f"Não há atualizações para a tabela de {table_id}!")
 
@@ -126,6 +110,10 @@ with Flow(
             wait_for_materialization.retry_delay = timedelta(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
+            # TODO: Quando a nova fotografia for liberada setar is_free como True
+            # is_free como true. Não setei agora pq a task update_django_metadata depende
+            # de um coverage já criado na API. Como a lag entre fotográfias é de 5 meses (6 é o padrão no monento)
+            # não há necessidade de atualizar o coverage agora.
 
             with case(update_metadata, True):
                 update = update_django_metadata(
