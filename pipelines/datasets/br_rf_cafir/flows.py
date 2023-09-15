@@ -57,6 +57,22 @@ with Flow(
         dataset_id=dataset_id, table_id=table_id, data=info[0], upstream_tasks=[info]
     )
 
+    with case(update_metadata, True):
+        update = update_django_metadata(
+            dataset_id,
+            table_id,
+            metadata_type="DateTimeRange",
+            _last_date=info[0],
+            bq_last_update=False,
+            api_mode="prod",
+            date_format="yy-mm-dd",
+            is_bd_pro=True,
+            is_free=True,
+            time_delta=6,
+            time_unit="months",
+            upstream_tasks=[info],
+        )
+
     with case(is_outdated, False):
         log_task(f"Não há atualizações para a tabela de {table_id}!")
 
