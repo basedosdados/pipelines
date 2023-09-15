@@ -35,7 +35,7 @@ schedule_br_ms_cnes_estabelecimento = Schedule(
 schedule_br_ms_cnes_profissional = Schedule(
     clocks=[
         CronClock(
-            cron="0 0 * * *",  # every day at midnight
+            cron="30 6 * * *",  # every day at 18:30
             start_date=datetime(2023, 9, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,

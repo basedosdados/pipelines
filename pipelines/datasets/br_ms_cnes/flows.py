@@ -398,23 +398,6 @@ with Flow(name="br_ms_cnes.leito", code_owners=["Gabriel Pisa"]) as br_ms_cnes_l
             "Os dados do FTP CNES-ST ainda não foram atualizados para o ano/mes mais recente"
         )
 
-    with case(update_metadata, True):
-        update = update_django_metadata(
-            dataset_id,
-            table_id,
-            metadata_type="DateTimeRange",
-            bq_last_update=False,
-            bq_table_last_year_month=True,
-            api_mode="prod",
-            billing_project_id="basedosdados",
-            date_format="yy-mm",
-            is_bd_pro=True,
-            is_free=True,
-            time_delta=6,
-            time_unit="months",
-            upstream_tasks=[files_path],
-        )
-
     with case(is_empty(files_path), False):
         dbc_files = access_ftp_donwload_files(
             file_list=files_path,
