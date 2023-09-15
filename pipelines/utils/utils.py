@@ -670,7 +670,9 @@ def extract_last_update(
         raise
 
 
-def extract_last_date(dataset_id, table_id, date_format: str, billing_project_id: str):
+def extract_last_date(
+    dataset_id, table_id, date_format: str, billing_project_id: str, data
+):
     """
     Extracts the last update date of a given dataset table.
 
@@ -717,7 +719,7 @@ def extract_last_date(dataset_id, table_id, date_format: str, billing_project_id
         try:
             query_bd = f"""
             SELECT
-            MAX(data) as max_date
+            MAX({data}) as max_date
             FROM
             `basedosdados.{dataset_id}.{table_id}`
             """
