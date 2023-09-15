@@ -726,7 +726,7 @@ def extract_last_update(
 
 
 def extract_last_date(
-    dataset_id, table_id, date_format: str, billing_project_id: str, data
+    dataset_id, table_id, date_format: str, billing_project_id: str, data: str = "data"
 ):
     """
     Extracts the last update date of a given dataset table.
