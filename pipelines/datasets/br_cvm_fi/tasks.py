@@ -16,6 +16,7 @@ import glob
 from rpy2.robjects.packages import importr
 import rpy2.robjects.packages as rpackages
 import rpy2.robjects as ro
+from rpy2.robjects.vectors import StrVector
 from rpy2.robjects import pandas2ri
 from pipelines.datasets.br_cvm_fi.utils import (
     sheet_to_df,
@@ -391,11 +392,25 @@ def clean_data_make_partitions_perfil(diretorio, table_id):
     df_final = pd.DataFrame()
     arquivos = glob.glob(f"{diretorio}*.csv")
 
+    # import R's utility package
+    utils = rpackages.importr("utils")
+
+    # select a mirror for R packages
+    utils.chooseCRANmirror(ind=1)
+    # R package names
+    packnames = "readr"
+
+    # R vector of strings
+    names_to_install = [x for x in packnames if not rpackages.isinstalled(x)]
+    if len(names_to_install) > 0:
+        utils.install_packages(StrVector(names_to_install))
+    # Import readr
+
+    readr = rpackages.importr("readr")
     for file in tqdm(arquivos):
         log(f"Baixando o arquivo ------> {file}")
         ## reading with R
 
-        readr = rpackages.importr("readr")
         df_r = readr.read_delim(
             file, delim=";", locale=readr.locale(encoding="ISO-8859-1")
         )
