@@ -57,7 +57,9 @@ with Flow(
     is_outdated = check_if_bq_data_is_outdated(
         dataset_id=dataset_id, table_id=table_id, data=info[0], upstream_tasks=[info]
     )
-    update_metadata_strig_date = convert_datetime_to_string(data=info[0])
+    update_metadata_strig_date = convert_datetime_to_string(
+        data=info[0], upstream_tasks=[info, is_outdated]
+    )
 
     with case(update_metadata, True):
         update = update_django_metadata(
@@ -72,7 +74,7 @@ with Flow(
             is_free=True,
             time_delta=6,
             time_unit="months",
-            upstream_tasks=[is_outdated, info],
+            upstream_tasks=[update_metadata_strig_date],
         )
 
     with case(is_outdated, False):
