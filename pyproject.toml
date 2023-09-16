@@ -109,6 +109,8 @@ rarfile = "^4.0"
 setuptools = "^68.1.2"
 python-string-utils = "^1.0.0"
 xlrd = "^2.0.1"
+geopandas = "0.13.2"
+shapely = "2.0.1"
 
 [tool.poetry.dev-dependencies]
 pytest_cov = "^3.0.0"
