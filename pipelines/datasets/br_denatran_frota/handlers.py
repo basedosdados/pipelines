@@ -157,6 +157,8 @@ def get_latest_data(table_name: str):
         log(denatran_data.head(2))
         year = denatran_data["ano"].max()
         month = denatran_data.loc[denatran_data["ano"] == year]["mes"].max()
+        year = int(year)
+        month = int(month)
         log(year)
         log(type(year))
         log(month)
