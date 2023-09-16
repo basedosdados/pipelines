@@ -161,7 +161,7 @@ def get_latest_data(table_name: str):
         if month == 12:
             year += 1
             month = 1
-        log(f"Ano: {year}, mês: {month+1}")
+        log(f"Ano: {str(year)}, mês: {str(month+1)}")
         return year, month + 1
     else:
         log("Não achei ano não mané")
