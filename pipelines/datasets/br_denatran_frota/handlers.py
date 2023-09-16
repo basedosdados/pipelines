@@ -154,8 +154,8 @@ def get_latest_data(table_name: str):
     if not isinstance(denatran_data, pd.DataFrame):
         return 2003, 1
     if not denatran_data.empty:
-        year = denatran_data["ano"].max()
-        month = denatran_data.loc[denatran_data["ano"] == year]["mes"].max()
+        year = int(denatran_data["ano"].max())
+        month = int(denatran_data.loc[denatran_data["ano"] == year]["mes"].max())
         log(year)
         log(month)
         if month == 12:
@@ -163,6 +163,7 @@ def get_latest_data(table_name: str):
             month = 1
         else:
             month += 1
+        log(f"Ano: {year}, mês: {month}")
         return year, month
     else:
         log("Não achei ano não mané")
