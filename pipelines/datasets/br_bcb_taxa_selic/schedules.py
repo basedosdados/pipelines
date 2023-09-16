@@ -1,28 +1,28 @@
 # -*- coding: utf-8 -*-
 """
-Schedules for br_bcb_agencia
+Schedules for br-bcb-taxa-selic
 """
 
-from datetime import datetime
 from prefect.schedules import Schedule, filters, adjustments
 from prefect.schedules.clocks import CronClock
+from datetime import datetime
 from pipelines.constants import constants
 
-every_month_agencia = Schedule(
+schedule_every_weekday_taxa_selic = Schedule(
     clocks=[
         CronClock(
-            cron="@monthly",
-            start_date=datetime(2023, 9, 5, 0, 0),
+            cron="0 8 * * *",  # every day at 8 am
+            start_date=datetime(2023, 6, 14, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
-                "dataset_id": "br_bcb_agencia",
-                "table_id": "agencia",
+                "dataset_id": "br_bcb_taxa_selic",
+                "table_id": "taxa_selic",
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
-                "dbt_alias": True,
                 "update_metadata": True,
+                "dbt_alias": False,
             },
         )
     ],

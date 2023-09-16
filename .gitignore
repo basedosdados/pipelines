@@ -32,6 +32,11 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+pipelines/bin
+pipelines/pyvenv.cfg
+pipelines/lib64
+pipelines/README
+pipelines/share/man/man1
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
