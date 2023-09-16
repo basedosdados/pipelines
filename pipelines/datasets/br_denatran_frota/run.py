@@ -1,4 +1,4 @@
 # -*- coding: utf-8 -*-
-from flows import br_denatran_frota_uf_tipo
+from flows import br_denatran_frota_municipio_tipo
 
-br_denatran_frota_uf_tipo.run()
+br_denatran_frota_municipio_tipo.run()
