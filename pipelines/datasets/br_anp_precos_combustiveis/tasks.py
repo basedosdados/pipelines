@@ -44,7 +44,7 @@ def check_for_updates(dataset_id, table_id):
 
     # Obtém a última data no site BD
     data_bq_obj = extract_last_date(
-        dataset_id, table_id, "yy-mm-dd", "basedosdados-dev", data="data_coleta"
+        dataset_id, table_id, "yy-mm-dd", "basedosdados", data="data_coleta"
     )
 
     # Registra a data mais recente do site

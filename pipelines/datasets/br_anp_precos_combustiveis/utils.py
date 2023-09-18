@@ -55,7 +55,7 @@ def get_id_municipio(id_municipio: pd.DataFrame):
     id_municipio = bd.read_table(
         dataset_id="br_bd_diretorios_brasil",
         table_id="municipio",
-        billing_project_id="basedosdados-dev",
+        billing_project_id="basedosdados",
         from_file=True,
     )
     log("----" * 150)
