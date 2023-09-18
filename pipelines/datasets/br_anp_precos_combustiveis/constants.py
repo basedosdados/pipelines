@@ -48,6 +48,10 @@ class constants(Enum):  # pylint: disable=c0103
         "https://www.gov.br/anp/pt-br/centrais-de-conteudo/dados-abertos/arquivos/shpc/qus/ultimas-4-semanas-diesel-gnv.csv",
     ]
 
+    URLS_DATA = [
+        "https://www.gov.br/anp/pt-br/centrais-de-conteudo/dados-abertos/arquivos/shpc/qus/ultimas-4-semanas-glp.csv"
+    ]
+
     PATH_INPUT = "/tmp/input/"
 
     PATH_OUTPUT = "/tmp/output/"
