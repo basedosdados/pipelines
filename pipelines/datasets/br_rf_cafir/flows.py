@@ -16,6 +16,7 @@ from pipelines.datasets.br_rf_cafir.tasks import (
     parse_files_parse_date,
     parse_data,
     check_if_bq_data_is_outdated,
+    convert_datetime_to_string,
 )
 
 from pipelines.utils.constants import constants as utils_constants
@@ -55,6 +56,9 @@ with Flow(
 
     is_outdated = check_if_bq_data_is_outdated(
         dataset_id=dataset_id, table_id=table_id, data=info[0], upstream_tasks=[info]
+    )
+    update_metadata_strig_date = convert_datetime_to_string(
+        data=info[0], upstream_tasks=[info, is_outdated]
     )
 
     with case(is_outdated, False):
@@ -106,13 +110,17 @@ with Flow(
             wait_for_materialization.retry_delay = timedelta(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
+            # TODO: Quando a nova fotografia for liberada setar is_free como True
+            # is_free como true. Não setei agora pq a task update_django_metadata depende
+            # de um coverage já criado na API. Como a lag entre fotográfias é de 5 meses (6 é o padrão no monento)
+            # não há necessidade de atualizar o coverage agora.
 
             with case(update_metadata, True):
                 update = update_django_metadata(
                     dataset_id,
                     table_id,
                     metadata_type="DateTimeRange",
-                    _last_date=info[0],
+                    _last_date=update_metadata_strig_date,
                     bq_last_update=False,
                     api_mode="prod",
                     date_format="yy-mm-dd",
