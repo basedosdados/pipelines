@@ -69,7 +69,6 @@ with Flow(
     with case(dados_desatualizados, True):
         df = download_and_transform(upstream_tasks=[rename_flow_run])
         output_path = make_partitions(df=df, upstream_tasks=[df])
-        get_date_max_mais = data_max_bd_mais()
         get_date_max_pro = data_max_bd_pro(df=df)
 
         # pylint: disable=C0103
@@ -118,7 +117,7 @@ with Flow(
                     bq_last_update=False,
                     api_mode="prod",
                     date_format="yy-mm-dd",
-                    _last_date=get_date_max_mais,
+                    _last_date=get_date_max_pro,
                     upstream_tasks=[wait_upload_table],
                 )
 
