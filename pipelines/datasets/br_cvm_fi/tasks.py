@@ -408,11 +408,11 @@ def clean_data_make_partitions_perfil(diretorio, table_id):
     utils.chooseCRANmirror(ind=1)
     # R package names
     packnames = "readr"
-
+    utils.install_packages(packnames)
     # R vector of strings
-    names_to_install = [x for x in packnames if not rpackages.isinstalled(x)]
-    if len(names_to_install) > 0:
-        utils.install_packages(StrVector(names_to_install))
+    # names_to_install = [x for x in packnames if not rpackages.isinstalled(x)]
+    # if len(names_to_install) > 0:
+
     # Import readr
 
     readr = rpackages.importr("readr")
