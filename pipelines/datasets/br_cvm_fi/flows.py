@@ -385,14 +385,9 @@ with Flow(
         default=cvm_constants.URL_PERFIL_MENSAL.value,
         required=False,
     )
-    arquivos = Parameter(
-        "arquivos",
-        default=["perfil_mensal_fi_202308.csv", "perfil_mensal_fi_202307.csv"],
-        required=False,
-    )
 
     df = extract_links_and_dates(url)
-    # arquivos = check_for_updates(df, upstream_tasks=[df])
+    arquivos = check_for_updates(df, upstream_tasks=[df])
 
     with case(is_empty(arquivos), True):
         log_task(f"Não houveram atualizações em {url.default}!")
