@@ -23,6 +23,7 @@ with Flow(name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value) as run_dbt_mod
     table_id = Parameter("table_id")
     mode = Parameter("mode", default="dev", required=False)
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_test  = Parameter("dbt_test", default=False, required=False)
 
     #################   ####################
     #
@@ -43,6 +44,7 @@ with Flow(name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value) as run_dbt_mod
         table_id=table_id,
         dbt_alias=dbt_alias,
         sync=True,
+        dbt_test=dbt_test
     )
 
 run_dbt_model_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
