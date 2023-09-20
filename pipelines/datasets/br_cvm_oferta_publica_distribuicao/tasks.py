@@ -72,12 +72,7 @@ def clean_table_oferta_distribuicao(root: str) -> str:
 
 
 @task
-def extract_last_date(
-    dataset_id: str,
-    table_id: str,
-    billing_project_id: str,
-    var_name: str,
-) -> str:
+def extract_last_date(dataset_id: str, table_id: str, billing_project_id: str) -> str:
     """
     Extracts the last update date of a given dataset table.
 
