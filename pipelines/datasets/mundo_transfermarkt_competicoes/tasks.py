@@ -7,6 +7,10 @@ Tasks for mundo_transfermarkt_competicoes
 from pipelines.datasets.mundo_transfermarkt_competicoes.constants import (
     constants as mundo_constants,
 )
+from pipelines.datasets.mundo_transfermarkt_competicoes.utils import (
+    execucao_coleta_copa,
+    execucao_coleta,
+)
 from pipelines.utils.utils import log, to_partitions
 from prefect import task
 import re
@@ -17,10 +21,14 @@ from datetime import timedelta, datetime
 
 
 @task
-def execucao_coleta_sync(execucao_coleta):
+def execucao_coleta_sync(tabela):
     # Obter o loop de eventos atual e executar a tarefa nele
     loop = asyncio.get_event_loop()
-    df = loop.run_until_complete(execucao_coleta())
+    if tabela == "brasileirao_serie_a":
+        df = loop.run_until_complete(execucao_coleta())
+    else:
+        df = loop.run_until_complete(execucao_coleta_copa())
+
     return df
 
 

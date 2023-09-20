@@ -60,7 +60,7 @@ with Flow(
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
-    df = execucao_coleta_sync(execucao_coleta)
+    df = execucao_coleta_sync(table_id)
     output_filepath = make_partitions(df, upstream_tasks=[df])
     data_maxima = get_max_data(output_filepath, upstream_tasks=[output_filepath])
 
@@ -143,7 +143,7 @@ with Flow(
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
-    df = execucao_coleta_sync(execucao_coleta_copa)
+    df = execucao_coleta_sync(table_id)
     output_filepath = make_partitions(df, upstream_tasks=[df])
     data_maxima = get_max_data(output_filepath, upstream_tasks=[output_filepath])
 
