@@ -77,7 +77,7 @@ def extract_last_date(
     table_id: str,
     billing_project_id: str,
     var_name: str,
-) -> datetime:
+) -> str:
     """
     Extracts the last update date of a given dataset table.
 
@@ -92,12 +92,14 @@ def extract_last_date(
     Raises:
         Exception: If an error occurs while extracting the last update date.
     """
+    log("dasdasdsadas")
 
     query_bd = f"""
     SELECT MAX({var_name}) as max_date
     FROM
     `{billing_project_id}.{dataset_id}.{table_id}`
     """
+    log("dasdasdsadas")
 
     t = bd.read_sql(
         query=query_bd,
