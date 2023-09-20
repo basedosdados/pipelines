@@ -92,9 +92,7 @@ with Flow(
         )
 
         with case(update_metadata, True):
-            data = extract_last_date(
-                dataset_id, table_id, "basedosdados", var_name="data_abertura_processo"
-            )
+            data = extract_last_date(dataset_id, table_id, "basedosdados")
             update_django_metadata(
                 dataset_id,
                 table_id,

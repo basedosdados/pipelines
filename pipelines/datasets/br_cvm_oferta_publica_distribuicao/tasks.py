@@ -95,7 +95,7 @@ def extract_last_date(
     log("dasdasdsadas")
 
     query_bd = f"""
-    SELECT MAX({var_name}) as max_date
+    SELECT MAX(data_abertura_processo) as max_date
     FROM
     `{billing_project_id}.{dataset_id}.{table_id}`
     """
