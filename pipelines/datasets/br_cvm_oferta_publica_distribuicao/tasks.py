@@ -99,6 +99,7 @@ def extract_last_date(
     FROM
     `{billing_project_id}.{dataset_id}.{table_id}`
     """
+    log(f"{query_bd}")
     log("dasdasdsadas")
 
     t = bd.read_sql(
@@ -106,7 +107,7 @@ def extract_last_date(
         billing_project_id=billing_project_id,
         from_file=True,
     )
-
+    log(f"{t}")
     data = t["max_date"][0]
 
     log(f"A data mais recente da tabela é: {data}")
