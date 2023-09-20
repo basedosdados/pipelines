@@ -268,7 +268,7 @@ with Flow(
                 is_free=True,
                 time_delta=6,
                 time_unit="months",
-                upstream_tasks=[materialization_flow, data],
+                upstream_tasks=[wait_for_materialization, data],
             )
 br_cvm_adm_car_pes_jur.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_cvm_adm_car_pes_jur.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)

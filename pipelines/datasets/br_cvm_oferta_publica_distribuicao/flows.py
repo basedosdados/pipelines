@@ -92,7 +92,9 @@ with Flow(
         )
 
         with case(update_metadata, True):
-            data = extract_last_date(dataset_id, table_id, "basedosdados")
+            data = extract_last_date(
+                dataset_id, table_id, "basedosdados", var_name="data_abertura_processo"
+            )
             update_django_metadata(
                 dataset_id,
                 table_id,
@@ -105,7 +107,7 @@ with Flow(
                 is_free=True,
                 time_delta=6,
                 time_unit="months",
-                upstream_tasks=[materialization_flow, data],
+                upstream_tasks=[wait_for_materialization, data],
             )
 
 br_cvm_ofe_pub_dis_dia.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
