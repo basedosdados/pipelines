@@ -24,7 +24,7 @@ every_week = Schedule(
                 "table_id": "brasileirao_serie_a",
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
-                "dbt_alias": False,
+                "dbt_alias": True,
             },
         ),
     ]
@@ -44,7 +44,7 @@ every_week_copa = Schedule(
                 "table_id": "copa_brasil",
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
-                "dbt_alias": False,
+                "dbt_alias": True,
             },
         ),
     ]

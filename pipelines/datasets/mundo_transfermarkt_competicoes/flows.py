@@ -114,6 +114,7 @@ with Flow(
             time_unit="weeks",
             date_format="yy-mm-dd",
             api_mode="prod",
+            upstream_tasks=[materialization_flow],
         )
 
 transfermarkt_brasileirao_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -197,6 +198,7 @@ with Flow(
             time_unit="year",
             date_format="yy-mm-dd",
             api_mode="prod",
+            upstream_tasks=[materialization_flow],
         )
 
 transfermarkt_copa_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
