@@ -21,6 +21,27 @@ from pipelines.utils.utils import extract_last_date, log
 from pipelines.datasets.br_stf_corte_aberta.constants import constants as stf_constants
 
 
+def check_for_data():
+    web_scrapping()
+
+    arquivos = os.listdir(stf_constants.STF_INPUT.value)
+    for arquivo in arquivos:
+        if arquivo.endswith(".csv"):
+            df = pd.read_csv(stf_constants.STF_INPUT.value + arquivo, dtype=str)
+
+    df["Data da decisão"] = df["Data da decisão"].astype(str).str[0:10]
+    data_obj = df["Data da decisão"] = (
+        df["Data da decisão"].astype(str).str[6:10]
+        + "-"
+        + df["Data da decisão"].astype(str).str[3:5]
+        + "-"
+        + df["Data da decisão"].astype(str).str[0:2]
+    )
+    data_obj = data_obj.max()
+
+    return data_obj
+
+
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
@@ -79,28 +100,3 @@ def make_partitions(df):
     )
 
     return stf_constants.STF_OUTPUT.value
-
-
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
-def check_for_data():
-    web_scrapping()
-
-    arquivos = os.listdir(stf_constants.STF_INPUT.value)
-    for arquivo in arquivos:
-        if arquivo.endswith(".csv"):
-            df = pd.read_csv(stf_constants.STF_INPUT.value + arquivo, dtype=str)
-
-    df["Data da decisão"] = df["Data da decisão"].astype(str).str[0:10]
-    data_obj = df["Data da decisão"] = (
-        df["Data da decisão"].astype(str).str[6:10]
-        + "-"
-        + df["Data da decisão"].astype(str).str[3:5]
-        + "-"
-        + df["Data da decisão"].astype(str).str[0:2]
-    )
-    data_obj = data_obj.max()
-
-    return data_obj
