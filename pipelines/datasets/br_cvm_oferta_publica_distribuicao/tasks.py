@@ -4,7 +4,6 @@ Tasks for br_cvm_oferta_publica_distribuicao
 """
 import os
 
-
 import pandas as pd
 from pandas.api.types import is_string_dtype
 from prefect import task
@@ -77,7 +76,7 @@ def extract_last_date(
     table_id: str,
     billing_project_id: str,
     var_name: str,
-) -> datetime:
+) -> str:
     """
     Extracts the last update date of a given dataset table.
 
@@ -92,18 +91,20 @@ def extract_last_date(
     Raises:
         Exception: If an error occurs while extracting the last update date.
     """
-
+    log(f"Extracting last date from {dataset_id}.{table_id}")
     query_bd = f"""
     SELECT MAX({var_name}) as max_date
     FROM
     `{billing_project_id}.{dataset_id}.{table_id}`
     """
+    log(f"Query: {query_bd}")
 
     t = bd.read_sql(
         query=query_bd,
         billing_project_id=billing_project_id,
         from_file=True,
     )
+    log(f"{t}")
 
     data = t["max_date"][0]
 

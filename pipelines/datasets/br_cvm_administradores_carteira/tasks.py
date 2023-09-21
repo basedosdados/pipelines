@@ -161,7 +161,7 @@ def extract_last_date(
     table_id: str,
     billing_project_id: str,
     var_name: str,
-) -> datetime:
+) -> str:
     """
     Extracts the last update date of a given dataset table.
 

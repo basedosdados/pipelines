@@ -44,7 +44,7 @@ with Flow(
     materialize_after_dump = Parameter(
         "materialize after dump", default=True, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
