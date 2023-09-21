@@ -767,7 +767,7 @@ async def execucao_coleta_copa():
     tabela_grand = soup.findAll("div", class_="box")[1]
     tabela = tabela_grand.findAll("tbody")
     for i in range(0, len(tabela)):
-        # for i in range(0, 2):
+        # for i in range(0, 4):
         for row in tabela[i].findAll("tr"):
             if not row.get("class"):
                 td_tags = row.findAll("td")
@@ -969,6 +969,7 @@ async def execucao_coleta_copa():
 
     df = pd.concat([df, df_valor], axis=1)
     df.fillna("", inplace=True)
+    df["publico_max"] = df["publico_max"].str.replace("\n", "")
     df = df[mundo_constants.ORDEM_COPA_BRASIL.value]
 
     return df

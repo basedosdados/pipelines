@@ -17,6 +17,7 @@ import re
 import numpy as np
 import pandas as pd
 import asyncio
+import os
 from datetime import timedelta, datetime
 
 
@@ -28,7 +29,6 @@ def execucao_coleta_sync(tabela):
         df = loop.run_until_complete(execucao_coleta())
     else:
         df = loop.run_until_complete(execucao_coleta_copa())
-
     return df
 
 
