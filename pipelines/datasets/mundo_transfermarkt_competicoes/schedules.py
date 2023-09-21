@@ -34,7 +34,7 @@ every_week = Schedule(
 every_week_copa = Schedule(
     clocks=[
         CronClock(
-            cron="0 9 * 2-12 2",
+            cron="0 9 * 2-10 2",
             start_date=datetime(2023, 5, 1, 7, 30),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
