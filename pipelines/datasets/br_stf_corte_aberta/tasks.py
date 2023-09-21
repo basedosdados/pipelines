@@ -54,10 +54,10 @@ def make_partitions(df):
 def check_for_data():
     web_scrapping()
 
-    arquivos = os.listdir("url")
+    arquivos = os.listdir(stf_constants.STF_INPUT.value)
     for arquivo in arquivos:
         if arquivo.endswith(".csv"):
-            df = pd.read_csv("url" + arquivo, dtype=str)
+            df = pd.read_csv(stf_constants.STF_INPUT.value + arquivo, dtype=str)
 
     df["Data da decisão"] = df["Data da decisão"].astype(str).str[0:10]
     data_obj = df["Data da decisão"] = (
