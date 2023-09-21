@@ -22,6 +22,7 @@ schedule_responsavel = Schedule(
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "table_id": "responsavel",
+                "dbt_alias": True,
             },
         )
     ],
@@ -41,7 +42,8 @@ schedule_fisica = Schedule(
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "table_id": "pessoa_fisica",
-                "dbt_alias": False,
+                "udpate_metadata": True,
+                "dbt_alias": True,
             },
         )
     ],
@@ -61,7 +63,8 @@ schedule_juridica = Schedule(
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "table_id": "pessoa_juridica",
-                "dbt_alias": False,
+                "udpate_metadata": True,
+                "dbt_alias": True,
             },
         )
     ],
