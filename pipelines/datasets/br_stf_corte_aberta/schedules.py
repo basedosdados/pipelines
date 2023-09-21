@@ -2,7 +2,7 @@
 """
 Schedules for br_stf_corte_aberta
 """
-
+# registrar pipeline
 from datetime import timedelta, datetime
 from prefect.schedules import Schedule
 from prefect.schedules.clocks import IntervalClock
