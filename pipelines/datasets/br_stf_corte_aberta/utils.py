@@ -30,15 +30,13 @@ def web_scrapping():
 
     options.add_argument("--headless=new")
     driver = webdriver.Chrome(options=options)
-    time.sleep(10)
-    driver.get(stf_constants.STF_LINK.value)
-    time.sleep(10)
+    time.sleep(50)
+    driver.get("https://transparencia.stf.jus.br/extensions/decisoes/decisoes.html")
+    time.sleep(50)
     driver.maximize_window()
-    time.sleep(10)
-    driver.find_element("xpath", '//*[@id="aba-4"]').click()
-    time.sleep(10)
+    time.sleep(50)
     driver.find_element("xpath", '//*[@id="EXPORT-BUTTON-2"]/button').click()
-    time.sleep(10)
+    time.sleep(50)
 
 
 def read_csv():
