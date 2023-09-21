@@ -43,6 +43,7 @@ def download_and_transform():
     return df
 
 
+@task
 def make_partitions(df):
     partition_data(
         df=df, partition_columns="data_decisao", savepath=stf_constants.STF_OUTPUT.value
@@ -51,6 +52,7 @@ def make_partitions(df):
     return stf_constants.STF_OUTPUT.value
 
 
+@task
 def check_for_data():
     web_scrapping()
 
@@ -72,11 +74,12 @@ def check_for_data():
     return data_obj
 
 
+@task
 def check_for_updates(dataset_id, table_id):
     data_obj = check_for_data()
     # Obtém a última data no site BD
     data_bq_obj = extract_last_date(
-        dataset_id, table_id, "yy-mm-dd", "basedosdados", data="data_decisao"
+        dataset_id, table_id, "yy-mm-dd", "basedosdados-dev", data="data_decisao"
     )
 
     # Registra a data mais recente do site
