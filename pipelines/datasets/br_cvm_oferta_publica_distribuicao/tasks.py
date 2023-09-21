@@ -71,43 +71,7 @@ def clean_table_oferta_distribuicao(root: str) -> str:
 
 
 @task
-def extract_last_date(
-    dataset_id: str,
-    table_id: str,
-    billing_project_id: str,
-    var_name: str,
-) -> str:
-    """
-    Extracts the last update date of a given dataset table.
+def get_today_date() -> str:
+    d = datetime.today()
 
-    Args:
-        dataset_id (str): The ID of the dataset.
-        table_id (str): The ID of the table.
-        billing_project_id (str): The billing project ID.
-
-    Returns:
-        str: The last update date in the format 'yyyy-mm-dd'.
-
-    Raises:
-        Exception: If an error occurs while extracting the last update date.
-    """
-    log(f"Extracting last date from {dataset_id}.{table_id}")
-    query_bd = f"""
-    SELECT MAX({var_name}) as max_date
-    FROM
-    `{billing_project_id}.{dataset_id}.{table_id}`
-    """
-    log(f"Query: {query_bd}")
-
-    t = bd.read_sql(
-        query=query_bd,
-        billing_project_id=billing_project_id,
-        from_file=True,
-    )
-    log(f"{t}")
-
-    data = t["max_date"][0]
-
-    log(f"A data mais recente da tabela é: {data}")
-
-    return str(data)
+    return str(d.strftime("%Y-%m-%d"))

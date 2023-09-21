@@ -17,7 +17,7 @@ from pipelines.constants import constants
 from pipelines.datasets.br_cvm_oferta_publica_distribuicao.tasks import (
     crawl,
     clean_table_oferta_distribuicao,
-    extract_last_date,
+    get_today_date,
 )
 from pipelines.utils.decorators import Flow
 from pipelines.utils.tasks import (
@@ -92,9 +92,8 @@ with Flow(
         )
 
         with case(update_metadata, True):
-            data = extract_last_date(
-                dataset_id, table_id, "basedosdados", var_name="data_abertura_processo"
-            )
+            data = get_today_date()
+
             update_django_metadata(
                 dataset_id,
                 table_id,
