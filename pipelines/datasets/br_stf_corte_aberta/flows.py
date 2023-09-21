@@ -50,7 +50,9 @@ with Flow(
     )
 
     dados_desatualizados = check_for_updates(dataset_id=dataset_id, table_id=table_id)
+
     log_task(f"Checando se os dados estão desatualizados: {dados_desatualizados}")
+
     with case(dados_desatualizados, False):
         log_task(
             "Dados atualizados, não é necessário fazer o download",

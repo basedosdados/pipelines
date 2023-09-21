@@ -6,6 +6,7 @@ Tasks for br_stf_corte_aberta
 from prefect import task
 import os
 import pandas as pd
+from datetime import timedelta
 from pipelines.datasets.br_stf_corte_aberta.utils import (
     web_scrapping,
     read_csv,
@@ -15,12 +16,37 @@ from pipelines.datasets.br_stf_corte_aberta.utils import (
     replace_columns,
     partition_data,
 )
-
+from pipelines.constants import constants
 from pipelines.utils.utils import extract_last_date, log
 from pipelines.datasets.br_stf_corte_aberta.constants import constants as stf_constants
 
 
-@task
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def check_for_updates(dataset_id, table_id):
+    data_obj = check_for_data()
+    # Obtém a última data no site BD
+    data_bq_obj = extract_last_date(
+        dataset_id, table_id, "yy-mm-dd", "basedosdados-dev", data="data_decisao"
+    )
+
+    # Registra a data mais recente do site
+    log(f"Última data no site do STF: {data_obj}")
+    log(f"Última data no site da BD: {data_bq_obj}")
+
+    # Compara as datas para verificar se há atualizações
+    if data_obj > data_bq_obj:
+        return True  # Há atualizações disponíveis
+    else:
+        return False  # Não há novas atualizações disponíveis
+
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def download_and_transform():
     log("Iniciando o web scrapping")
     web_scrapping()
@@ -43,7 +69,10 @@ def download_and_transform():
     return df
 
 
-@task
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def make_partitions(df):
     partition_data(
         df=df, partition_columns="data_decisao", savepath=stf_constants.STF_OUTPUT.value
@@ -52,7 +81,10 @@ def make_partitions(df):
     return stf_constants.STF_OUTPUT.value
 
 
-@task
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def check_for_data():
     web_scrapping()
 
@@ -72,22 +104,3 @@ def check_for_data():
     data_obj = data_obj.max()
 
     return data_obj
-
-
-@task
-def check_for_updates(dataset_id, table_id):
-    data_obj = check_for_data()
-    # Obtém a última data no site BD
-    data_bq_obj = extract_last_date(
-        dataset_id, table_id, "yy-mm-dd", "basedosdados-dev", data="data_decisao"
-    )
-
-    # Registra a data mais recente do site
-    log(f"Última data no site do ANP: {data_obj}")
-    log(f"Última data no site da BD: {data_bq_obj}")
-
-    # Compara as datas para verificar se há atualizações
-    if data_obj > data_bq_obj:
-        return True  # Há atualizações disponíveis
-    else:
-        return False  # Não há novas atualizações disponíveis
