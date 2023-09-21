@@ -820,7 +820,7 @@ with Flow(
         table_id=table_id,
         billing_project_id="basedosdados",
         cnes_database="CNES",
-        cnes_group_file=br_ms_cnes_constants.DATABASE_GROUPS.value["CNES"][6],
+        cnes_group_file=br_ms_cnes_constants.DATABASE_GROUPS.value["CNES"][7],
     )
 
     with case(is_empty(files_path), True):
@@ -832,13 +832,13 @@ with Flow(
         dbc_files = access_ftp_donwload_files(
             file_list=files_path,
             path=br_ms_cnes_constants.PATH.value[0],
-            table=br_ms_cnes_constants.TABLE.value[6],
+            table=br_ms_cnes_constants.TABLE.value[7],
         )
 
         filepath = read_dbc_save_csv(
             file_list=dbc_files,
             path=br_ms_cnes_constants.PATH.value[1],
-            table=br_ms_cnes_constants.TABLE.value[6],
+            table=br_ms_cnes_constants.TABLE.value[7],
             upstream_tasks=[files_path, dbc_files],
         )
 
