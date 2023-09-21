@@ -50,7 +50,7 @@ def get_max_data(file_path):
     ano = mundo_constants.DATA_ATUAL_ANO.value
     df = pd.read_csv(f"{file_path}ano_campeonato={ano}/data.csv")
     df["data"] = pd.to_datetime(df["data"]).dt.date
-    max_data = df["data"].max()
+    max_data = df["data"].max().strftime("%Y-%m-%d")
 
     # max_data = mundo_constants.DATA_ATUAL.value
     return max_data
