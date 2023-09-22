@@ -32,7 +32,7 @@ with Flow(
     name="br_stf_corta_aberta.decisoes", code_owners=["trick"]
 ) as br_stf_corta_aberta:
     # Parameters
-    dataset_id = Parameter("dataset_id", default="br_stf_corta_aberta", required=True)
+    dataset_id = Parameter("dataset_id", default="br_stf_corte_aberta", required=True)
     table_id = Parameter("table_id", default="decisoes", required=True)
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
