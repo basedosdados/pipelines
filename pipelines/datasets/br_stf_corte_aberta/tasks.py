@@ -50,7 +50,11 @@ def check_for_updates(dataset_id, table_id):
     data_obj = check_for_data()
     # Obtém a última data no site BD
     data_bq_obj = extract_last_date(
-        dataset_id, table_id, "yy-mm-dd", "basedosdados-dev", data="data_decisao"
+        dataset_id=dataset_id,
+        table_id=table_id,
+        date_format="yy-mm-dd",
+        billing_project_id="basedosdados-dev",
+        data="data_decisao",
     )
 
     # Registra a data mais recente do site
