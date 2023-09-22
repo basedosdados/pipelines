@@ -23,8 +23,9 @@ from pipelines.datasets.br_stf_corte_aberta.constants import constants as stf_co
 
 
 def check_for_data():
+    log("Iniciando web scrapping")
     web_scrapping()
-
+    log("Iniciando o check for data")
     arquivos = os.listdir(stf_constants.STF_INPUT.value)
     for arquivo in arquivos:
         if arquivo.endswith(".csv"):

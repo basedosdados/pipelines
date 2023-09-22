@@ -46,12 +46,10 @@ def web_scrapping():
 
 
 def read_csv():
-    arquivos = os.listdir("/mnt/d/download/br_stf_decisoes/teste/")
+    arquivos = os.listdir(stf_constants.STF_INPUT.value)
     for arquivo in arquivos:
         if arquivo.endswith(".csv"):
-            df = pd.read_csv(
-                "/mnt/d/download/br_stf_decisoes/teste/" + arquivo, dtype=str
-            )
+            df = pd.read_csv(stf_constants.STF_INPUT.value + arquivo, dtype=str)
     return df
 
 
