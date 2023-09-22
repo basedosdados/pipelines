@@ -99,8 +99,6 @@ def download_and_transform():
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def make_partitions(df):
-    partition_data(
-        df=df, partition_columns="data_decisao", savepath=stf_constants.STF_OUTPUT.value
-    )
+    partition_data(df, "data_decisao", stf_constants.STF_OUTPUT.value)
 
     return stf_constants.STF_OUTPUT.value
