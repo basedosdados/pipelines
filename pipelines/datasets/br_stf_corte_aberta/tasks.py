@@ -75,9 +75,6 @@ def check_for_updates(dataset_id, table_id):
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def download_and_transform():
-    log("Iniciando o web scrapping")
-    web_scrapping()
-
     log("Iniciando a leitura do csv")
     df = read_csv()
 
