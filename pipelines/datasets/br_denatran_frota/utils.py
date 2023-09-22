@@ -433,6 +433,8 @@ def extraction_pre_2012(month: int, year: int, year_dir_name: str, zip_file: str
         zip_file (str): _description_
     """
     # Aí depois eu preciso andar pelo zip:
+    if not zip_file.endswith(".zip"):
+        return
     with ZipFile(zip_file, "r") as g:
         compressed_files = [file for file in g.infolist() if not file.is_dir()]
         new_filename = None
