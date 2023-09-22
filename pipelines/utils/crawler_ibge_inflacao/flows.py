@@ -19,11 +19,12 @@ from pipelines.utils.crawler_ibge_inflacao.tasks import (
     clean_mes_rm,
     clean_mes_municipio,
     clean_mes_geral,
+    extract_last_date,
 )
 from pipelines.utils.decorators import Flow
+from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
-    update_metadata,
     get_temporal_coverage,
     rename_current_flow_run_dataset_table,
     get_current_flow_labels,
@@ -44,6 +45,7 @@ with Flow(
         "materialize after dump", default=True, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    update_metadata = Parameter("update_metadata", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
@@ -113,6 +115,26 @@ with Flow(
             wait_for_materialization.retry_delay = timedelta(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
+            with case(update_metadata, True):
+                data = extract_last_date(
+                    dataset_id,
+                    table_id,
+                    "basedosdados",
+                )
+                update_django_metadata(
+                    dataset_id,
+                    table_id,
+                    metadata_type="DateTimeRange",
+                    _last_date=data,
+                    bq_last_update=False,
+                    api_mode="prod",
+                    date_format="yy-mm",
+                    is_bd_pro=True,
+                    is_free=True,
+                    time_delta=6,
+                    time_unit="months",
+                    upstream_tasks=[wait_for_materialization, data],
+                )
 
 flow_ibge_inflacao_mes_brasil.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 flow_ibge_inflacao_mes_brasil.run_config = KubernetesRun(

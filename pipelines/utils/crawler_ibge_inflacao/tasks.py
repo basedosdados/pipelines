@@ -9,6 +9,8 @@ import glob
 import os
 import ssl
 from time import sleep
+import basedosdados as bd
+from datetime import datetime
 
 import pandas as pd
 import wget
@@ -697,3 +699,44 @@ def clean_mes_geral(indice: str):
     log(os.system("tree /tmp/data"))
 
     return filepath
+
+
+@task
+def extract_last_date(
+    dataset_id: str,
+    table_id: str,
+    billing_project_id: str,
+) -> str:
+    """
+    Extracts the last update date of a given dataset table.
+
+    Args:
+        dataset_id (str): The ID of the dataset.
+        table_id (str): The ID of the table.
+        billing_project_id (str): The billing project ID.
+
+    Returns:
+        str: The last update date in the format 'yyyy-mm-dd'.
+
+    Raises:
+        Exception: If an error occurs while extracting the last update date.
+    """
+
+    query_bd = f"""
+    SELECT MAX(DATE(CAST(ano AS INT64),CAST(mes AS INT64),1)) as max_date
+    FROM
+    `{billing_project_id}.{dataset_id}.{table_id}`
+    """
+
+    t = bd.read_sql(
+        query=query_bd,
+        billing_project_id=billing_project_id,
+        from_file=True,
+    )
+
+    data = t["max_date"][0]
+    data = data.strftime("%Y-%m")
+
+    log(f"A data mais recente da tabela é: {data}")
+
+    return str(data)
