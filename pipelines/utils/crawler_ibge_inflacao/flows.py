@@ -155,6 +155,7 @@ with Flow("BD Template - IBGE Inflação: mes_rm") as flow_ibge_inflacao_mes_rm:
         "materialize after dump", default=True, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    update_metadata = Parameter("update_metadata", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
@@ -225,6 +226,26 @@ with Flow("BD Template - IBGE Inflação: mes_rm") as flow_ibge_inflacao_mes_rm:
             wait_for_materialization.retry_delay = timedelta(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
+            with case(update_metadata, True):
+                data = extract_last_date(
+                    dataset_id,
+                    table_id,
+                    "basedosdados",
+                )
+                update_django_metadata(
+                    dataset_id,
+                    table_id,
+                    metadata_type="DateTimeRange",
+                    _last_date=data,
+                    bq_last_update=False,
+                    api_mode="prod",
+                    date_format="yy-mm",
+                    is_bd_pro=True,
+                    is_free=True,
+                    time_delta=6,
+                    time_unit="months",
+                    upstream_tasks=[wait_for_materialization, data],
+                )
 
 flow_ibge_inflacao_mes_rm.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 flow_ibge_inflacao_mes_rm.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
@@ -245,6 +266,7 @@ with Flow(
         "materialize after dump", default=True, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    update_metadata = Parameter("update_metadata", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
@@ -315,6 +337,26 @@ with Flow(
             wait_for_materialization.retry_delay = timedelta(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
+            with case(update_metadata, True):
+                data = extract_last_date(
+                    dataset_id,
+                    table_id,
+                    "basedosdados",
+                )
+                update_django_metadata(
+                    dataset_id,
+                    table_id,
+                    metadata_type="DateTimeRange",
+                    _last_date=data,
+                    bq_last_update=False,
+                    api_mode="prod",
+                    date_format="yy-mm",
+                    is_bd_pro=True,
+                    is_free=True,
+                    time_delta=6,
+                    time_unit="months",
+                    upstream_tasks=[wait_for_materialization, data],
+                )
 
 
 flow_ibge_inflacao_mes_municipio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -337,6 +379,7 @@ with Flow("BD Template - IBGE Inflação: mes_geral") as flow_ibge_inflacao_mes_
     )
 
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    update_metadata = Parameter("update_metadata", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
@@ -407,6 +450,27 @@ with Flow("BD Template - IBGE Inflação: mes_geral") as flow_ibge_inflacao_mes_
             wait_for_materialization.retry_delay = timedelta(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
+
+            with case(update_metadata, True):
+                data = extract_last_date(
+                    dataset_id,
+                    table_id,
+                    "basedosdados",
+                )
+                update_django_metadata(
+                    dataset_id,
+                    table_id,
+                    metadata_type="DateTimeRange",
+                    _last_date=data,
+                    bq_last_update=False,
+                    api_mode="prod",
+                    date_format="yy-mm",
+                    is_bd_pro=True,
+                    is_free=True,
+                    time_delta=6,
+                    time_unit="months",
+                    upstream_tasks=[wait_for_materialization, data],
+                )
 
 flow_ibge_inflacao_mes_geral.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 flow_ibge_inflacao_mes_geral.run_config = KubernetesRun(
