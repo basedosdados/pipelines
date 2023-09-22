@@ -130,9 +130,10 @@ def crawler(indice: str, folder: str) -> bool:
             try:
                 wget.download(links[key], out=f"/tmp/data/input/{key}.csv")
                 success_dwnl.append(key)
+                sleep(10)
             except Exception:
                 try:
-                    sleep(10)
+                    sleep(20)
                     wget.download(links[key], out=f"/tmp/data/input/{key}.csv")
                     success_dwnl.append(key)
                 except Exception:
@@ -145,10 +146,11 @@ def crawler(indice: str, folder: str) -> bool:
                 with open(f"/tmp/data/input/{key}.csv", "wb") as f:
                     f.write(response.content)
                 success_dwnl.append(key)
+                sleep(10)
             except Exception as e:
                 log(e)
                 try:
-                    sleep(10)
+                    sleep(20)
                     response = get_legacy_session().get(links[key])
                     # download the csv
                     with open(f"/tmp/data/input/{key}.csv", "wb") as f:
