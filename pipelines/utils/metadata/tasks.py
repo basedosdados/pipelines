@@ -107,6 +107,12 @@ def update_django_metadata(
         "weeks": "weeks",
         "days": "days",
     }
+
+
+    if not isinstance(_last_date, str) and _last_date is not None:
+        raise ValueError("O parâmetro `last_date` deve ser uma string não nula")
+
+
     if time_unit not in unidades_permitidas:
         raise ValueError(
             f"Unidade temporal inválida. Escolha entre {', '.join(unidades_permitidas.keys())}"
