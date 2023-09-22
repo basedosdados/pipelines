@@ -29,8 +29,8 @@ from pipelines.utils.tasks import (
 from pipelines.datasets.br_stf_corte_aberta.schedules import every_day_stf
 
 with Flow(
-    name="br_stf_corta_aberta.decisoes", code_owners=["trick"]
-) as br_stf_corta_aberta:
+    name="br_stf_corte_aberta.decisoes", code_owners=["trick"]
+) as br_stf_corte_aberta:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_stf_corte_aberta", required=True)
     table_id = Parameter("table_id", default="decisoes", required=True)
@@ -112,6 +112,6 @@ with Flow(
             #     )
 
 
-br_stf_corta_aberta.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_stf_corta_aberta.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_stf_corta_aberta.schedule = every_day_stf
+br_stf_corte_aberta.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_stf_corte_aberta.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_stf_corte_aberta.schedule = every_day_stf
