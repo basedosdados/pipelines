@@ -6,6 +6,7 @@ Tasks for br_stf_corte_aberta
 from prefect import task
 import os
 import pandas as pd
+from datetime import datetime
 from datetime import timedelta
 from pipelines.datasets.br_stf_corte_aberta.utils import (
     web_scrapping,
@@ -38,6 +39,7 @@ def check_for_data():
         + df["Data da decisão"].astype(str).str[0:2]
     )
     data_obj = data_obj.max()
+    data_obj = datetime.strptime(data_obj, "%Y-%m-%d").date()
 
     return data_obj
 
