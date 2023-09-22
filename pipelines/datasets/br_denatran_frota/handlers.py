@@ -58,7 +58,7 @@ def crawl(month: int, year: int, temp_dir: str = "") -> None:
     log("Downloading file")
     files_dir = os.path.join(temp_dir, "files")
     make_dir_when_not_exists(files_dir)
-    year_dir_name = os.path.join(files_dir, f"{year}/{month}")
+    year_dir_name = os.path.join(files_dir, f"{year}")
     make_dir_when_not_exists(year_dir_name)
     if year > 2012:
         files_to_download = extract_links_post_2012(month, year, year_dir_name)

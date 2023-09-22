@@ -10,7 +10,7 @@ for month in months:
     crawl(month=month, year=year, temp_dir="DENATRAN_FILES")
     file = get_desired_file(
         year=year,
-        download_directory=f"DENATRAN_FILES/{year}/{month}",
+        download_directory="DENATRAN_FILES",
         filetype=constants.UF_TIPO_BASIC_FILENAME.value,
     )
     print(file)
