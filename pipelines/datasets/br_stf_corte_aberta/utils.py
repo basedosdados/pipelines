@@ -119,7 +119,7 @@ def partition_data(df: pd.DataFrame, column_name: list[str], output_directory: s
         # mode = "a" if os.path.exists(csv_path) else "w"
         df_partition.to_csv(
             csv_path,
-            sep=";",
+            sep=",",
             index=False,
             encoding="utf-8",
             na_rep="",
