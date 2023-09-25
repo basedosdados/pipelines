@@ -71,23 +71,6 @@ with Flow(
         output_path = make_partitions(df=df, upstream_tasks=[df])
         get_date_max_pro = data_max_bd_pro(df=df)
 
-
-        with case(update_metadata, True):
-            update_django_metadata(
-                dataset_id,
-                table_id,
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                bq_table_last_year_month=True,
-                api_mode="prod",
-                date_format="yy-mm-dd",
-                is_bd_pro=True,
-                is_free=True,
-                time_delta=6,
-                time_unit="weeks",
-                _last_date=get_date_max_pro,
-                upstream_tasks=[wait_upload_table],
-
         # pylint: disable=C0103
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_path,
@@ -121,7 +104,6 @@ with Flow(
             )
             wait_for_materialization.max_retries = (
                 dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-
             )
             wait_for_materialization.retry_delay = timedelta(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
@@ -133,12 +115,16 @@ with Flow(
                     table_id,
                     metadata_type="DateTimeRange",
                     bq_last_update=False,
+                    bq_table_last_year_month=True,
                     api_mode="prod",
                     date_format="yy-mm-dd",
+                    is_bd_pro=True,
+                    is_free=True,
+                    time_delta=6,
+                    time_unit="weeks",
                     _last_date=get_date_max_pro,
                     upstream_tasks=[wait_upload_table],
                 )
-
 anp_microdados.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 anp_microdados.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 anp_microdados.schedule = every_week_anp_microdados
