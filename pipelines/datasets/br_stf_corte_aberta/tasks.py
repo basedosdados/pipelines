@@ -75,6 +75,7 @@ def check_for_updates(dataset_id, table_id):
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
+# make_partition
 def make_partitions(df):
     partition_data(df, "data_decisao", stf_constants.STF_OUTPUT.value)
 

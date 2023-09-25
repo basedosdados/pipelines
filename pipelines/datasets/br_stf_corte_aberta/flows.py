@@ -112,8 +112,6 @@ with Flow(
             #         upstream_tasks=[get_max_date],
             #     )
 
-            # Register again the flows
-
 br_stf_corte_aberta.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_stf_corte_aberta.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 br_stf_corte_aberta.schedule = every_day_stf
