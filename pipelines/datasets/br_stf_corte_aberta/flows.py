@@ -2,7 +2,7 @@
 """
 Flows for br_stf_corte_aberta
 """
-
+# Register again the tasks
 from datetime import timedelta
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
