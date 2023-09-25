@@ -2,7 +2,7 @@
 """
 Flows for br_stf_corte_aberta
 """
-# Register again the tasks
+# Register again the flows
 from datetime import timedelta
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
@@ -110,7 +110,6 @@ with Flow(
             #         _last_date=get_max_date,
             #         upstream_tasks=[get_max_date],
             #     )
-
 
 br_stf_corte_aberta.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_stf_corte_aberta.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)

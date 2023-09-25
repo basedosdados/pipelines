@@ -2,7 +2,7 @@
 """
 General purpose functions for the br_stf_corte_aberta project
 """
-
+# register again the utils
 from selenium import webdriver
 import time
 import os
@@ -37,7 +37,7 @@ def web_scrapping():
 
     driver = webdriver.Chrome(options=options)
     time.sleep(50)
-    driver.get("https://transparencia.stf.jus.br/extensions/decisoes/decisoes.html")
+    driver.get(stf_constants.STF_LINK.value)
     time.sleep(50)
     driver.maximize_window()
     time.sleep(50)

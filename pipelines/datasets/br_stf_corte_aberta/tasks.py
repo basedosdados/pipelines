@@ -2,7 +2,7 @@
 """
 Tasks for br_stf_corte_aberta
 """
-
+# register again the tasks
 from prefect import task
 import os
 import pandas as pd
