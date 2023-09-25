@@ -75,6 +75,16 @@ def check_for_updates(dataset_id, table_id):
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
+def make_partitions(df):
+    partition_data(df, "data_decisao", stf_constants.STF_OUTPUT.value)
+
+    return stf_constants.STF_OUTPUT.value
+
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def download_and_transform():
     log("Iniciando a leitura do csv")
     df = read_csv()
@@ -92,13 +102,3 @@ def download_and_transform():
     df = replace_columns(df)
 
     return df
-
-
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
-def make_partitions(df):
-    partition_data(df, "data_decisao", stf_constants.STF_OUTPUT.value)
-
-    return stf_constants.STF_OUTPUT.value
