@@ -2,7 +2,7 @@
 """
 General purpose functions for the br_stf_corte_aberta project
 """
-# register again the utils
+
 from selenium import webdriver
 import time
 import os
