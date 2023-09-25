@@ -137,6 +137,6 @@ def main(tabelas):
                 if nome_arquivo not in arquivos_baixados:
                     arquivos_baixados.append(nome_arquivo)
                     download_unzip_csv(url_download, input_path)
-                    process_csv_simples(input_path, output_path, data_coleta, sufixo, i)
+                    process_csv_simples(input_path, output_path, data_coleta, sufixo)
 
     return output_path
