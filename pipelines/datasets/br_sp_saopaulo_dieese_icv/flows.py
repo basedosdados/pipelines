@@ -96,4 +96,4 @@ with Flow(
 
 br_sp_dieese.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_sp_dieese.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_sp_dieese.schedule = every_month
+# br_sp_dieese.schedule = every_month

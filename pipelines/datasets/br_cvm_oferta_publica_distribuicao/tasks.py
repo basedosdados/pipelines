@@ -4,11 +4,13 @@ Tasks for br_cvm_oferta_publica_distribuicao
 """
 import os
 
-
 import pandas as pd
 from pandas.api.types import is_string_dtype
 from prefect import task
 from unidecode import unidecode
+import basedosdados as bd
+from datetime import datetime
+from pipelines.utils.utils import log
 
 
 @task
@@ -66,3 +68,10 @@ def clean_table_oferta_distribuicao(root: str) -> str:
     dataframe.to_csv(ou_filepath, index=False, encoding="utf-8")
 
     return ou_filepath
+
+
+@task
+def get_today_date() -> str:
+    d = datetime.today()
+
+    return str(d.strftime("%Y-%m-%d"))
