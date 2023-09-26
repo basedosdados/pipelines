@@ -136,7 +136,15 @@ def get_source(table_name: str, source: str) -> str:
 def read_and_clean_csv(
     table_name: str, source: str, date: datetime.date
 ) -> pd.DataFrame:
-    path = f"{constants.INPUT.value}/{source}/{date.year}-{date.month}/{get_csv_file_by_table_name_and_date(table_name, date)}"
+    csv_path = get_csv_file_by_table_name_and_date(table_name, date)
+
+    path = f"{constants.INPUT.value}/{source}/{date.year}-{date.month}/{csv_path}"
+
+    log(f"Reading {table_name=}, {source=}, {date=} {path=}")
+
+    if not os.path.exists(path):
+        log(f"File {path=} dont exists")
+        return pd.DataFrame()
 
     df = pd.read_csv(
         path,
@@ -175,10 +183,14 @@ def process_table(table_info: dict) -> tuple[str, pd.DataFrame]:
     sources: list[str] = table_info["sources"]
     dates: list[datetime.date] = table_info["dates"]
 
-    def read_csv_by_source(source):
+    def read_csv_by_source(source: str):
         dfs = [read_and_clean_csv(table_name, source, date) for date in dates]
+
         return pd.concat(dfs)
 
-    log(f"{table_name=}, {sources=}")
+    log(f"Processing {table_name=}, {sources=}")
 
-    return (table_name, pd.concat([read_csv_by_source(source) for source in sources]))
+    return (
+        table_name,
+        pd.concat([read_csv_by_source(source) for source in sources]),
+    )

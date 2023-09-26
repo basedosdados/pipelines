@@ -5,7 +5,7 @@ Tasks for br_cgu_servidores_executivo_federal
 
 from prefect import task
 
-from pipelines.utils.utils import to_partitions
+from pipelines.utils.utils import to_partitions, log
 
 import pandas as pd
 import datetime
@@ -41,13 +41,21 @@ def download_files(date_start: datetime.date, date_end: datetime.date):
         if key in urls_for_sheets_before_2020:
             urls_for_sheets_after_2019[key].extend(urls_for_sheets_before_2020[key])
 
+    valid_sheets = {
+        sheet: payload
+        for (sheet, payload) in urls_for_sheets_after_2019.items()
+        if len(payload) > 0
+    }
+
+    log(f"{valid_sheets=}")
+
     if not os.path.exists(constants.INPUT.value):
         os.mkdir(constants.INPUT.value)
 
-    for sheet_name in urls_for_sheets_after_2019:
-        download_zip_files_for_sheet(sheet_name, urls_for_sheets_after_2019[sheet_name])
+    for sheet_name in valid_sheets:
+        download_zip_files_for_sheet(sheet_name, valid_sheets[sheet_name])
 
-    return urls_for_sheets_after_2019
+    return valid_sheets
 
 
 @task
@@ -60,12 +68,22 @@ def merge_and_clean_data(sheets_info):
         ]
         return {"table_name": table_name, "sources": sources, "dates": dates[0]}
 
-    sheets_by_source = [
-        get_sheets_by_sources(table_name, sources)
-        for table_name, sources in constants.TABLES.value.items()
+    tables = set(
+        [
+            table_name
+            for table_name, sources in constants.TABLES.value.items()
+            for source in sources
+            if source in list(sheets_info.keys())
+        ]
+    )
+
+    table_and_source = [
+        get_sheets_by_sources(table, constants.TABLES.value[table]) for table in tables
     ]
 
-    return [process_table(table_info) for table_info in sheets_by_source]
+    log(f"{table_and_source=}")
+
+    return [process_table(table_info) for table_info in table_and_source]
 
 
 @task

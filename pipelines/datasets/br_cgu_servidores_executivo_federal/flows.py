@@ -53,7 +53,7 @@ with Flow(
         "materialization_mode", default="dev", required=False
     )
     materialize_after_dump = Parameter(
-        "materialize after dump", default=True, required=False
+        "materialize after dump", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
@@ -76,31 +76,31 @@ with Flow(
     outputs_path_by_table = make_partitions(
         data_clean_by_table, upstream_tasks=[data_clean_by_table]
     )
-    log_task(f"Partitions done. {outputs_path_by_table=}")
-
-    create_table_and_upload_to_gcs(
-        data_path=outputs_path_by_table["aposentados_cadastro"],
-        dataset_id=dataset_id,
-        table_id="aposentados_cadastro",
-        dump_mode="append",
-        wait=outputs_path_by_table,
-    )
-
-    create_table_and_upload_to_gcs(
-        data_path=outputs_path_by_table["pensionistas_cadastro"],
-        dataset_id=dataset_id,
-        table_id="pensionistas_cadastro",
-        dump_mode="append",
-        wait=outputs_path_by_table,
-    )
+    log_task("Partitions done")
 
     # create_table_and_upload_to_gcs(
-    #     data_path=outputs_path_by_table["servidores_cadastro"],
+    #     data_path=outputs_path_by_table["aposentados_cadastro"],
     #     dataset_id=dataset_id,
-    #     table_id="servidores_cadastro",
+    #     table_id="aposentados_cadastro",
     #     dump_mode="append",
     #     wait=outputs_path_by_table,
     # )
+
+    # create_table_and_upload_to_gcs(
+    #     data_path=outputs_path_by_table["pensionistas_cadastro"],
+    #     dataset_id=dataset_id,
+    #     table_id="pensionistas_cadastro",
+    #     dump_mode="append",
+    #     wait=outputs_path_by_table,
+    # )
+
+    create_table_and_upload_to_gcs(
+        data_path=outputs_path_by_table["servidores_cadastro"],
+        dataset_id=dataset_id,
+        table_id="servidores_cadastro",
+        dump_mode="append",
+        wait=outputs_path_by_table,
+    )
 
     # create_table_and_upload_to_gcs(
     #     data_path=outputs_path_by_table["reserva_reforma_militares_cadastro"],
@@ -188,15 +188,3 @@ datasets_br_cgu_servidores_executivo_federal_flow.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
 datasets_br_cgu_servidores_executivo_federal_flow.schedule = every_month
-
-
-# run_local(
-#     datasets_br_cgu_servidores_executivo_federal_flow,
-#     parameters={
-#         "dataset_id": "br_cgu_servidores_executivo_federal",
-#         "dbt_alias": False,
-#         "materialization_mode": "dev",
-#         "table_id": list(cgu_constants.TABLES.value.keys()),
-#         "update_metadata": False,
-#     },
-# )
