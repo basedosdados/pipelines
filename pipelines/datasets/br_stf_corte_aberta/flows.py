@@ -18,8 +18,8 @@ from pipelines.datasets.br_stf_corte_aberta.tasks import (
     download_and_transform,
     make_partitions,
     check_for_updates,
+    get_date,
 )
-from pipelines.datasets.br_stf_corte_aberta.utils import get_for_date_max
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     rename_current_flow_run_dataset_table,
@@ -99,7 +99,7 @@ with Flow(name="br_stf_corte_aberta.decisoes", code_owners=["trick"]) as br_stf:
             wait_for_materialization.retry_delay = timedelta(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
-            get_max_date = get_for_date_max()
+            get_max_date = get_date(upstream_tasks=[wait_for_materialization])
             with case(update_metadata, True):
                 update_django_metadata(
                     dataset_id,
@@ -109,7 +109,7 @@ with Flow(name="br_stf_corte_aberta.decisoes", code_owners=["trick"]) as br_stf:
                     api_mode="dev",
                     date_format="yy-mm-dd",
                     _last_date=get_max_date,
-                    upstream_tasks=[wait_for_materialization],
+                    upstream_tasks=[get_max_date],
                 )
 
 br_stf.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

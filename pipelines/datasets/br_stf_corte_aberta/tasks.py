@@ -17,6 +17,7 @@ from pipelines.datasets.br_stf_corte_aberta.utils import (
     partition_data,
     extract_last_date,
     web_scrapping,
+    get_for_date_max,
 )
 from pipelines.constants import constants
 from pipelines.utils.utils import log
@@ -108,3 +109,10 @@ def download_and_transform():
     df = replace_columns(df)
 
     return df
+
+
+@task
+def get_date():
+    get_for_date_max()
+
+    return get_for_date_max()
