@@ -184,7 +184,7 @@ def extract_last_date(
             log(f"Query: {query_bd}")
             t = bd.read_sql(
                 query=query_bd,
-                billing_project_id=billing_project_id,
+                billing_project_id="basedosdados-dev",
                 from_file=True,
             )
             # it infers that the data variable is already on basedosdados standart format
