@@ -23,6 +23,10 @@ from pipelines.utils.utils import log
 from pipelines.datasets.br_stf_corte_aberta.constants import constants as stf_constants
 
 
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def check_for_data():
     log("Iniciando web scrapping")
     web_scrapping()
