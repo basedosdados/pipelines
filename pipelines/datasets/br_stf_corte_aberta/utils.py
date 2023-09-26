@@ -38,13 +38,13 @@ def web_scrapping():
     options.add_argument("--remote-debugging-port=9222")
 
     driver = webdriver.Chrome(options=options)
-    time.sleep(50)
+    time.sleep(30)
     driver.get(stf_constants.STF_LINK.value)
-    time.sleep(50)
+    time.sleep(30)
     driver.maximize_window()
-    time.sleep(50)
+    time.sleep(30)
     driver.find_element("xpath", '//*[@id="EXPORT-BUTTON-2"]/button').click()
-    time.sleep(50)
+    time.sleep(30)
 
 
 def read_csv():
@@ -197,26 +197,3 @@ def extract_last_date(
         except Exception as e:
             log(f"An error occurred while extracting the last update date: {str(e)}")
             raise
-
-
-def check_for_data():
-    log("Iniciando web scrapping")
-    web_scrapping()
-    log("Iniciando o check for data")
-    arquivos = os.listdir(stf_constants.STF_INPUT.value)
-    for arquivo in arquivos:
-        if arquivo.endswith(".csv"):
-            df = pd.read_csv(stf_constants.STF_INPUT.value + arquivo, dtype=str)
-
-    df["Data da decisão"] = df["Data da decisão"].astype(str).str[0:10]
-    data_obj = df["Data da decisão"] = (
-        df["Data da decisão"].astype(str).str[6:10]
-        + "-"
-        + df["Data da decisão"].astype(str).str[3:5]
-        + "-"
-        + df["Data da decisão"].astype(str).str[0:2]
-    )
-    data_obj = data_obj.max()
-    data_obj = datetime.strptime(data_obj, "%Y-%m-%d").date()
-
-    return str(data_obj)
