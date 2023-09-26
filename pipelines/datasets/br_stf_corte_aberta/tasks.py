@@ -23,6 +23,10 @@ from pipelines.utils.utils import log
 from pipelines.datasets.br_stf_corte_aberta.constants import constants as stf_constants
 
 
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def check_for_data():
     log("Iniciando web scrapping")
     web_scrapping()
@@ -106,7 +110,13 @@ def download_and_transform():
     return df
 
 
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def get_for_date_max():
+    if not os.path.exists(stf_constants.STF_INPUT.value):
+        os.mkdir(stf_constants.STF_INPUT.value)
     arquivos = os.listdir(stf_constants.STF_INPUT.value)
     for arquivo in arquivos:
         if arquivo.endswith(".csv"):
