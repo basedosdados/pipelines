@@ -16,6 +16,8 @@ __ALL_SHEETS__ = [
     "Reserva_Reforma_Militares",
     "Servidores_BACEN",
     "Servidores_SIAPE",
+    # "Honorarios_Advocaticios",
+    # "Honorarios_Jetons",
 ]
 # fmt: on
 
@@ -26,9 +28,6 @@ class constants(Enum):  # pylint: disable=c0103
     """
 
     URL = "http://portaldatransparencia.gov.br/download-de-dados/servidores"
-
-    # "Honorarios_Advocaticios",
-    # "Honorarios_Jetons",
 
     # fmt: off
     SHEETS = __ALL_SHEETS__,
