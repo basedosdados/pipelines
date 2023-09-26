@@ -47,3 +47,4 @@ from pipelines.datasets.br_ans_beneficiario.flows import *
 from pipelines.datasets.br_anp_precos_combustiveis.flows import *
 from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.flows import *
 from pipelines.datasets.br_rf_cafir.flows import *
+from pipelines.datasets.br_cgu_servidores_executivo_federal.flows import *
