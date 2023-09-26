@@ -179,7 +179,7 @@ def extract_last_date(
             SELECT
             MAX({data}) as max_date
             FROM
-            `{billing_project_id}.{dataset_id}.{table_id}`
+            `basedosdados-dev.br_stf_corte_aberta.decisoes`
             """
             log(f"Query: {query_bd}")
             t = bd.read_sql(
