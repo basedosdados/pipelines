@@ -51,10 +51,6 @@ def check_for_data():
     return data_obj
 
 
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
 def check_for_updates(dataset_id, table_id):
     data_obj = check_for_data()
     # Obtém a última data no site BD
