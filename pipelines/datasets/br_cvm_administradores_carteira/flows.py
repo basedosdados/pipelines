@@ -39,7 +39,7 @@ ROOT = "/tmp/data"
 URL = "http://dados.cvm.gov.br/dados/ADM_CART/CAD/DADOS/cad_adm_cart.zip"
 
 with Flow(
-    name="br_cvm_administradores_carteira.responsavel", code_owners=["Equipe Pipelines"]
+    name="br_cvm_administradores_carteira.responsavel", code_owners=["equipe_pipelines"]
 ) as br_cvm_adm_car_res:
     # Parameters
     dataset_id = Parameter(
@@ -105,7 +105,7 @@ br_cvm_adm_car_res.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value
 br_cvm_adm_car_res.schedule = schedule_responsavel
 
 with Flow(
-    "br_cvm_administradores_carteira.pessoa_fisica", code_owners=["Equipe Pipelines"]
+    "br_cvm_administradores_carteira.pessoa_fisica", code_owners=["equipe_pipelines"]
 ) as br_cvm_adm_car_pes_fis:
     # Parameters
     dataset_id = Parameter(
@@ -190,7 +190,7 @@ br_cvm_adm_car_pes_fis.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.v
 br_cvm_adm_car_pes_fis.schedule = schedule_fisica
 
 with Flow(
-    "br_cvm_administradores_carteira.pessoa_juridica", code_owners=["Equipe Pipelines"]
+    "br_cvm_administradores_carteira.pessoa_juridica", code_owners=["equipe_pipelines"]
 ) as br_cvm_adm_car_pes_jur:
     # Parameters
     dataset_id = Parameter(

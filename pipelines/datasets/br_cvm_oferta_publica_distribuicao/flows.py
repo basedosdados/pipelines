@@ -31,7 +31,7 @@ ROOT = "/tmp/data"
 URL = "http://dados.cvm.gov.br/dados/OFERTA/DISTRIB/DADOS/oferta_distribuicao.csv"
 
 with Flow(
-    name="br_cvm_oferta_publica_distribuicao.dia", code_owners=["Equipe Pipelines"]
+    name="br_cvm_oferta_publica_distribuicao.dia", code_owners=["equipe_pipelines"]
 ) as br_cvm_ofe_pub_dis_dia:
     # Parameters
     dataset_id = Parameter(
