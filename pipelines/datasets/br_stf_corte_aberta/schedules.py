@@ -22,7 +22,7 @@ every_day_stf = Schedule(
                 "materialization_mode": "dev",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
-                "update_metadata": False,
+                "update_metadata": True,
             },
         ),
     ]

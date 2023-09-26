@@ -16,9 +16,10 @@ from pipelines.datasets.br_stf_corte_aberta.utils import (
     rename_ordening_columns,
     replace_columns,
     partition_data,
+    extract_last_date,
 )
 from pipelines.constants import constants
-from pipelines.utils.utils import extract_last_date, log
+from pipelines.utils.utils import log
 from pipelines.datasets.br_stf_corte_aberta.constants import constants as stf_constants
 
 
@@ -65,7 +66,7 @@ def check_for_updates(dataset_id, table_id):
     log(f"Última data no site da BD: {data_bq_obj}")
 
     # Compara as datas para verificar se há atualizações
-    if data_obj > data_bq_obj:
+    if data_obj == data_bq_obj:
         return True  # Há atualizações disponíveis
     else:
         return False  # Não há novas atualizações disponíveis

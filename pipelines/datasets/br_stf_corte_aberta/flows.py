@@ -9,7 +9,7 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
-# from pipelines.utils.metadata.tasks import update_django_metadata
+from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.constants import constants
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -18,6 +18,7 @@ from pipelines.datasets.br_stf_corte_aberta.tasks import (
     download_and_transform,
     make_partitions,
     check_for_updates,
+    check_for_data,
 )
 
 from pipelines.utils.tasks import (
@@ -46,6 +47,8 @@ with Flow(name="br_stf_corte_aberta.decisoes", code_owners=["trick"]) as br_stf:
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
+
+    update_metadata = Parameter("update_metadata", default=True, required=False)
 
     dados_desatualizados = check_for_updates(dataset_id=dataset_id, table_id=table_id)
 
@@ -97,18 +100,18 @@ with Flow(name="br_stf_corte_aberta.decisoes", code_owners=["trick"]) as br_stf:
             wait_for_materialization.retry_delay = timedelta(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
-            # get_max_date = check_for_data(upstream_tasks=[wait_upload_table])
-            # with case(update_metadata, True):
-            #     update_django_metadata(
-            #         dataset_id,
-            #         table_id,
-            #         metadata_type="DateTimeRange",
-            #         bq_last_update=False,
-            #         api_mode="dev",
-            #         date_format="yy-mm-dd",
-            #         _last_date=get_max_date,
-            #         upstream_tasks=[get_max_date],
-            #     )
+            get_max_date = check_for_data(upstream_tasks=[wait_upload_table])
+            with case(update_metadata, True):
+                update_django_metadata(
+                    dataset_id,
+                    table_id,
+                    metadata_type="DateTimeRange",
+                    bq_last_update=False,
+                    api_mode="dev",
+                    date_format="yy-mm-dd",
+                    _last_date=get_max_date,
+                    upstream_tasks=[get_max_date],
+                )
 
 br_stf.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_stf.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
