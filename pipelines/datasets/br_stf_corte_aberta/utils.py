@@ -219,4 +219,4 @@ def check_for_data():
     data_obj = data_obj.max()
     data_obj = datetime.strptime(data_obj, "%Y-%m-%d").date()
 
-    return data_obj
+    return str(data_obj)
