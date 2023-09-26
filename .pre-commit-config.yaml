@@ -1,20 +1,23 @@
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:
-    - id: check-added-large-files # prevents adding large files
-    - id: detect-private-key # detects private keys
-    - id: fix-byte-order-marker # fixes BOM
-    - id: fix-encoding-pragma # fixes encoding pragma
-    - id: no-commit-to-branch # prevents committing to protected branches
-    - id: trailing-whitespace # prevents trailing whitespace
--   repo: https://github.com/psf/black
+      - id: check-added-large-files # prevents adding large files
+      - id: detect-private-key # detects private keys
+      - id: fix-byte-order-marker # fixes BOM
+      - id: fix-encoding-pragma # fixes encoding pragma
+      - id: no-commit-to-branch # prevents committing to protected branches
+      - id: trailing-whitespace # prevents trailing whitespace
+  - repo: https://github.com/psf/black
     rev: 23.9.1
     hooks:
-    -   id: black
-
+      - id: black
         exclude: 'pipelines\/\{\{cookiecutter\.project_name\}\}.*'
--   repo: https://github.com/PyCQA/flake8
+  - repo: https://github.com/PyCQA/autoflake
+    rev: v2.2.1
+    hooks:
+      - id: autoflake
+  - repo: https://github.com/PyCQA/flake8
     rev: 6.1.0
     hooks:
-    - id: flake8
+      - id: flake8
