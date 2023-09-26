@@ -42,7 +42,7 @@ schedule_fisica = Schedule(
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "table_id": "pessoa_fisica",
-                "udpate_metadata": True,
+                "update_metadata": True,
                 "dbt_alias": True,
             },
         )
@@ -63,7 +63,7 @@ schedule_juridica = Schedule(
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "table_id": "pessoa_juridica",
-                "udpate_metadata": True,
+                "update_metadata": True,
                 "dbt_alias": True,
             },
         )
