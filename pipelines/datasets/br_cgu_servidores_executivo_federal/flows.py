@@ -94,14 +94,13 @@ with Flow(
     #     wait=outputs_path_by_table,
     # )
 
-    if "servidores_cadastro" in outputs_path_by_table:
-        create_table_and_upload_to_gcs(
-            data_path=outputs_path_by_table["servidores_cadastro"],
-            dataset_id=dataset_id,
-            table_id="servidores_cadastro",
-            dump_mode="append",
-            wait=outputs_path_by_table,
-        )
+    create_table_and_upload_to_gcs(
+        data_path=outputs_path_by_table["servidores_cadastro"],
+        dataset_id=dataset_id,
+        table_id="servidores_cadastro",
+        dump_mode="append",
+        wait=outputs_path_by_table,
+    )
 
     # create_table_and_upload_to_gcs(
     #     data_path=outputs_path_by_table["reserva_reforma_militares_cadastro"],
