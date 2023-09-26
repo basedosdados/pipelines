@@ -61,6 +61,12 @@ def guess_header(
         expected_header = MUNICIPIO_TIPO_HEADER
     else:
         raise ValueError("Unrecognized type of dataframe.")
+    current_header = [c for c in df.columns]
+    equal_column_names = [
+        (x, y) for x, y in zip(expected_header, current_header) if x == y
+    ]
+    if len(equal_column_names) / len(expected_header) >= 0.6:
+        return -1
     header_guess = 0
     while header_guess < max_header_guess:
         if len(df) - 1 < header_guess:
@@ -90,6 +96,8 @@ def change_df_header(df: pd.DataFrame, header_row: int) -> pd.DataFrame:
     Returns:
         pd.DataFrame: Returns the same dataframe but with the corrected header
     """
+    if header_row == -1:
+        return df
     new_header = df.iloc[header_row]
     new_df = df[(header_row + 1) :].reset_index(drop=True)
     new_df.rename(columns=new_header, inplace=True)
@@ -480,11 +488,11 @@ def call_r_to_read_excel(file: str) -> pd.DataFrame:
     """
     if not os.path.isfile(file):
         raise ValueError("Invalid file")
-    packages = ("readxl",)
-    r_utils = rpackages.importr("utils", suppress_messages=True)
-    r_utils.chooseCRANmirror(ind=1)
-    r_utils.install_packages(StrVector(packages))
-    rpackages.importr("readxl", suppress_messages=True)
+    # packages = ("readxl",)
+    # r_utils = rpackages.importr("utils", suppress_messages=True)
+    # r_utils.chooseCRANmirror(ind=1)
+    # r_utils.install_packages(StrVector(packages))
+    # rpackages.importr("readxl", lib_loc="usr/lib/R/library", suppress_messages=True)
 
     # Read the Excel file
     robjects.r(
@@ -499,6 +507,7 @@ def call_r_to_read_excel(file: str) -> pd.DataFrame:
     )
     # Convert the R dataframe to a pandas dataframe
     df = robjects.r["df"]
+
     df = pd.DataFrame(dict(zip(df.names, list(df))))
     return df
 

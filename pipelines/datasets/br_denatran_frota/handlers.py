@@ -24,6 +24,7 @@ from pipelines.datasets.br_denatran_frota.utils import (
     get_data_from_prod,
     DenatranType,
 )
+
 import pandas as pd
 import polars as pl
 from string_utils import asciify
@@ -37,7 +38,7 @@ from pipelines.utils.utils import (
 MONTHS = constants.MONTHS.value
 DATASET = constants.DATASET.value
 DICT_UFS = constants.DICT_UFS.value
-OUTPUT_PATH = constants.OUTPUT_PATH.value
+OUTPUT_PATH = "DENATRAN_FILES"
 MONTHS_SHORT = constants.MONTHS_SHORT.value
 UF_TIPO_BASIC_FILENAME = constants.UF_TIPO_BASIC_FILENAME.value
 MUNIC_TIPO_BASIC_FILENAME = constants.MUNIC_TIPO_BASIC_FILENAME.value
