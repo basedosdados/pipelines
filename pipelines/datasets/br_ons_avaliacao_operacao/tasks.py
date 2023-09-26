@@ -4,7 +4,6 @@ Tasks for br_ons_avaliacao_operacao
 """
 import os
 import pandas as pd
-from datetime import datetime
 
 from prefect import task
 from pipelines.utils.utils import (

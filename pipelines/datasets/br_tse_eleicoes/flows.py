@@ -3,7 +3,7 @@
 Flows for br_tse_eleicoes
 """
 # pylint: disable=invalid-name,line-too-long
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from prefect import Parameter, case
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run

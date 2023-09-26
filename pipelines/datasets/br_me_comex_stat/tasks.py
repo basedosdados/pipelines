@@ -4,15 +4,11 @@
 Tasks for br_me_comex_stat
 """
 # pylint: disable=invalid-name,too-many-nested-blocks
-from glob import glob
 from zipfile import ZipFile
 import time as tm
-from datetime import timedelta
 import pandas as pd
 import numpy as np
 from prefect import task
-from pathlib import Path
-from typing import Union, List
 import basedosdados as bd
 import os
 

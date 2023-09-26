@@ -4,7 +4,7 @@ Flows for br_sp_saopaulo_dieese_icv
 """
 # pylint: disable=C0103, E1123
 
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS

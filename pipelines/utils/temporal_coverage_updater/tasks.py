@@ -16,9 +16,7 @@ from pipelines.utils.temporal_coverage_updater.utils import (
     extract_last_update,
     get_first_date,
 )
-from datetime import datetime
 from pipelines.utils.utils import log, get_credentials_from_secret
-from typing import Tuple
 
 
 ## TODO: Transformar flow em task OK

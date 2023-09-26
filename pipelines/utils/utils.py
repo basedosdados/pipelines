@@ -31,7 +31,6 @@ from redis_pal import RedisPal
 
 from pipelines.constants import constants
 
-import os
 import re
 
 

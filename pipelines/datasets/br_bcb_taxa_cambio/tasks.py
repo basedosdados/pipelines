@@ -3,7 +3,6 @@
 Tasks for br_bcb_indicadores
 """
 
-import datetime
 from pipelines.utils.utils import log, to_partitions
 from prefect import task
 import pandas as pd

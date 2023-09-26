@@ -3,7 +3,7 @@
 Flows for br_poder360_pesquisas
 """
 
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
