@@ -59,7 +59,7 @@ class constants(Enum):  # pylint: disable=c0103
         "aposentados_cadastro": "https://docs.google.com/spreadsheets/d/1_t_JsWbuGlg8cz_2RYYNMuulzA4RHydfJ4TA-wH9Ch8/edit#gid=0",
         "observacoes": "https://docs.google.com/spreadsheets/d/1BWt6yvKTfNW0XCDNIsIu8NhSKjhbDVJjnEwvnEmVkRc/edit#gid=0",
         "pensionistas_cadastro": "https://docs.google.com/spreadsheets/d/1G_RPhSUZRrCqcQCP1WSjBiYbnjirqTp0yaLNUaPi_7U/edit#gid=0",
-        "remuneracao": "https://docs.google.com/spreadsheets/d/1a2IDaF0oTaOB8JN9G0mU8KK0F1YPoIX-/edit#gid=0",
+        "remuneracao": "https://docs.google.com/spreadsheets/d/1LJ8_N53OoNEQQ1PMAeIPKq1asB29MUP5SRoFWnUI6Zg/edit#gid=0",
         "reserva_reforma_militares_cadastro": "https://docs.google.com/spreadsheets/d/1vqWjATWjHK-6tbj_ilwbhNWReqe3AKd3VTpzBbPu4qI/edit#gid=0",
         "servidores_cadastro": "https://docs.google.com/spreadsheets/d/1U57P5XhCw9gERD8sN24P0vDK0CjkUuOQZwOoELdE3Jg/edit#gid=0",
     }
