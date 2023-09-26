@@ -94,15 +94,24 @@ def make_partitions(tables: list[tuple[str, pd.DataFrame]]) -> dict[str, str]:
         os.mkdir(output)
 
     for table_name, df in tables:
-        savepath = f"{output}/{table_name}"
+        if len(df) > 0:
+            savepath = f"{output}/{table_name}"
 
-        if not os.path.exists(savepath):
-            os.mkdir(savepath)
+            if not os.path.exists(savepath):
+                os.mkdir(savepath)
 
-        to_partitions(
-            data=df,
-            partition_columns=["ano", "mes"],
-            savepath=savepath,
-        )
+            log(f"{table_name=}")
+            log(f"{df.columns=}")
+            log(df.head())
 
-    return {table_name: f"{output}/{table_name}" for table_name, _ in tables}
+            to_partitions(
+                data=df,
+                partition_columns=["ano", "mes"],
+                savepath=savepath,
+            )
+        else:
+            log(f"{table_name=} is empty")
+
+    return {
+        table_name: f"{output}/{table_name}" for table_name, df in tables if len(df) > 0
+    }
