@@ -197,3 +197,25 @@ def extract_last_date(
         except Exception as e:
             log(f"An error occurred while extracting the last update date: {str(e)}")
             raise
+
+
+def get_for_date_max():
+    if not os.path.exists(stf_constants.STF_INPUT.value):
+        os.mkdir(stf_constants.STF_INPUT.value)
+    arquivos = os.listdir(stf_constants.STF_INPUT.value)
+    for arquivo in arquivos:
+        if arquivo.endswith(".csv"):
+            df = pd.read_csv(stf_constants.STF_INPUT.value + arquivo, dtype=str)
+
+    df["Data da decisão"] = df["Data da decisão"].astype(str).str[0:10]
+    data_obj = df["Data da decisão"] = (
+        df["Data da decisão"].astype(str).str[6:10]
+        + "-"
+        + df["Data da decisão"].astype(str).str[3:5]
+        + "-"
+        + df["Data da decisão"].astype(str).str[0:2]
+    )
+    data_obj = data_obj.max()
+    data_obj = datetime.strptime(data_obj, "%Y-%m-%d").date()
+
+    return str(data_obj)

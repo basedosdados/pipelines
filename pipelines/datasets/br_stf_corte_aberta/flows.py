@@ -18,9 +18,8 @@ from pipelines.datasets.br_stf_corte_aberta.tasks import (
     download_and_transform,
     make_partitions,
     check_for_updates,
-    get_for_date_max,
 )
-
+from pipelines.datasets.br_stf_corte_aberta.utils import get_for_date_max
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     rename_current_flow_run_dataset_table,
