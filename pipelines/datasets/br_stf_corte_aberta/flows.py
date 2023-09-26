@@ -18,7 +18,6 @@ from pipelines.datasets.br_stf_corte_aberta.tasks import (
     download_and_transform,
     make_partitions,
     check_for_updates,
-    check_for_data,
 )
 
 from pipelines.utils.tasks import (
@@ -27,6 +26,8 @@ from pipelines.utils.tasks import (
     get_current_flow_labels,
     log_task,
 )
+
+from pipelines.datasets.br_stf_corte_aberta.utils import check_for_data
 
 from pipelines.datasets.br_stf_corte_aberta.schedules import every_day_stf
 
@@ -100,7 +101,7 @@ with Flow(name="br_stf_corte_aberta.decisoes", code_owners=["trick"]) as br_stf:
             wait_for_materialization.retry_delay = timedelta(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
-            get_max_date = check_for_data.run()
+            get_max_date = check_for_data()
             with case(update_metadata, True):
                 update_django_metadata(
                     dataset_id,

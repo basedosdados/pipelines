@@ -9,7 +9,6 @@ import pandas as pd
 from datetime import datetime
 from datetime import timedelta
 from pipelines.datasets.br_stf_corte_aberta.utils import (
-    web_scrapping,
     read_csv,
     fix_columns_data,
     column_bool,
@@ -17,37 +16,11 @@ from pipelines.datasets.br_stf_corte_aberta.utils import (
     replace_columns,
     partition_data,
     extract_last_date,
+    check_for_data,
 )
 from pipelines.constants import constants
 from pipelines.utils.utils import log
 from pipelines.datasets.br_stf_corte_aberta.constants import constants as stf_constants
-
-
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
-def check_for_data():
-    log("Iniciando web scrapping")
-    web_scrapping()
-    log("Iniciando o check for data")
-    arquivos = os.listdir(stf_constants.STF_INPUT.value)
-    for arquivo in arquivos:
-        if arquivo.endswith(".csv"):
-            df = pd.read_csv(stf_constants.STF_INPUT.value + arquivo, dtype=str)
-
-    df["Data da decisão"] = df["Data da decisão"].astype(str).str[0:10]
-    data_obj = df["Data da decisão"] = (
-        df["Data da decisão"].astype(str).str[6:10]
-        + "-"
-        + df["Data da decisão"].astype(str).str[3:5]
-        + "-"
-        + df["Data da decisão"].astype(str).str[0:2]
-    )
-    data_obj = data_obj.max()
-    data_obj = datetime.strptime(data_obj, "%Y-%m-%d").date()
-
-    return data_obj
 
 
 @task(
