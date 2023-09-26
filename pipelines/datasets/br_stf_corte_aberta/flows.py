@@ -101,7 +101,7 @@ with Flow(name="br_stf_corte_aberta.decisoes", code_owners=["trick"]) as br_stf:
             wait_for_materialization.retry_delay = timedelta(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
-            get_max_date = check_for_data()
+            get_max_date = check_for_data(upstream_tasks=[wait_for_materialization])
             with case(update_metadata, True):
                 update_django_metadata(
                     dataset_id,
