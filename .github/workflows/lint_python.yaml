@@ -8,22 +8,24 @@ jobs:
     name: Lint Python
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
+
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: "3.8.x"
-      - name: Set up Poetry and upgrade pip
+          python-version: "3.9.x"
+
+      - name: Set up poetry and upgrade pip
         run: |
           pip install -U pip poetry
-      - name: Install flows
-        run: |
-          pip install --prefer-binary .
-      - name: Install pylint
-        run: pip install pylint
-      - name: Lint flows
-        run: pylint --rc-file pyproject.toml pipelines/*
-      - name: Install Pytest
-        run: pip install pytest
-      - name: Lint tests
-        run: pylint --rc-file pyproject.toml tests/*
+          pip install isort
+          pip install black
+          pip install autoflake8
+          pip install flake8
+
+      - name: Install this package
+        run: poetry install
+
+      - name: Lint source code
+        run: poetry run lint
