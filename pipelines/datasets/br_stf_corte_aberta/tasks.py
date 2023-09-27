@@ -3,9 +3,7 @@
 Tasks for br_stf_corte_aberta
 """
 from prefect import task
-import os
 import pandas as pd
-from datetime import datetime
 from datetime import timedelta
 from pipelines.datasets.br_stf_corte_aberta.utils import (
     read_csv,
