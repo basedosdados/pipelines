@@ -8,9 +8,8 @@ import requests
 import pandas as pd
 import datetime
 import pytz
-from datetime import timedelta
 import os
-from io import BytesIO, StringIO
+from io import BytesIO
 import time as tm
 from pipelines.datasets.br_bcb_taxa_cambio.constants import constants as bcb_constants
 from pipelines.utils.utils import log

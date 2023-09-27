@@ -3,7 +3,7 @@
 Flows for ibge inflacao
 """
 # pylint: disable=C0103, E1123, invalid-name, duplicate-code, R0801
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from prefect import Parameter, case
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run

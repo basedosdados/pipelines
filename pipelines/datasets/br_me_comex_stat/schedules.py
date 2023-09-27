@@ -4,7 +4,7 @@
 Schedules for br_me_comex_stat
 """
 
-from datetime import timedelta, datetime
+from datetime import datetime
 from prefect.schedules import Schedule, filters, adjustments
 from prefect.schedules.clocks import CronClock
 

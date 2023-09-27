@@ -5,17 +5,12 @@ Tasks for br_ans_beneficiario
 from bs4 import BeautifulSoup
 import re
 import pandas as pd
-from multiprocessing import Pool
 from datetime import datetime
 from loguru import logger
-from pathlib import Path
-from functools import reduce
 from prefect import task
 import os
 from tqdm import tqdm
-import zipfile
 import requests
-from glob import glob
 from pipelines.datasets.br_ans_beneficiario.utils import (
     download_unzip_csv,
     get_url_from_template,

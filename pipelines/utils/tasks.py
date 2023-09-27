@@ -30,7 +30,6 @@ from pipelines.utils.utils import (
     get_credentials_from_secret,
     get_token,
 )
-from typing import Tuple
 
 
 @task

@@ -3,7 +3,6 @@
 Schedules for br_ons_estimativa_custos
 """
 
-from datetime import timedelta, datetime
 from prefect.schedules import Schedule, filters, adjustments
 from prefect.schedules.clocks import CronClock
 

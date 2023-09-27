@@ -6,7 +6,7 @@ Schedules for mundo_transfermarkt_competicoes
 ###############################################################################
 
 from prefect.schedules.clocks import CronClock
-from datetime import timedelta, datetime
+from datetime import datetime
 from prefect.schedules import Schedule
 from pipelines.constants import constants
 
