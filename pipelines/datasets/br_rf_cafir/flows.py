@@ -6,31 +6,29 @@ Flows for br_rf_cafir
 from datetime import timedelta
 
 from prefect import Parameter, case
-from pipelines.constants import constants
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
+from pipelines.constants import constants
 from pipelines.datasets.br_rf_cafir.constants import constants as br_rf_cafir_constants
+from pipelines.datasets.br_rf_cafir.schedules import schedule_br_rf_cafir_imoveis_rurais
 from pipelines.datasets.br_rf_cafir.tasks import (
-    parse_files_parse_date,
-    parse_data,
     check_if_bq_data_is_outdated,
     convert_datetime_to_string,
+    parse_data,
+    parse_files_parse_date,
 )
-
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
-    rename_current_flow_run_dataset_table,
     get_current_flow_labels,
     log_task,
+    rename_current_flow_run_dataset_table,
 )
-
-from pipelines.datasets.br_rf_cafir.schedules import schedule_br_rf_cafir_imoveis_rurais
 
 with Flow(
     name="br_rf_cafir.imoveis_rurais", code_owners=["Gabriel Pisa"]

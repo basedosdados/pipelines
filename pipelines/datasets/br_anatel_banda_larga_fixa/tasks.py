@@ -2,27 +2,24 @@
 """
 Tasks for br_anatel_banda_larga_fixa
 """
-import pandas as pd
-import numpy as np
 import os
-
 from datetime import datetime, timedelta
-from dateutil.relativedelta import relativedelta
 
+import numpy as np
+import pandas as pd
+from dateutil.relativedelta import relativedelta
 from prefect import task
+
+from pipelines.constants import constants
 from pipelines.datasets.br_anatel_banda_larga_fixa.constants import (
     constants as anatel_constants,
-)
-from pipelines.utils.utils import (
-    to_partitions,
-    log,
 )
 from pipelines.datasets.br_anatel_banda_larga_fixa.utils import (
     check_and_create_column,
     download_and_unzip,
     to_partitions_microdados,
 )
-from pipelines.constants import constants
+from pipelines.utils.utils import log, to_partitions
 
 
 @task(

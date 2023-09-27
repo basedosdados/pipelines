@@ -5,27 +5,27 @@ Flows for br_cvm_oferta_publica_distribuicao
 # pylint: disable=C0103, E1123, invalid-name
 from datetime import timedelta
 
+from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
-from prefect import Parameter, case
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
-from pipelines.utils.metadata.tasks import update_django_metadata
 
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.constants import constants as utils_constants
 from pipelines.constants import constants
+from pipelines.datasets.br_cvm_oferta_publica_distribuicao.schedules import schedule_dia
 from pipelines.datasets.br_cvm_oferta_publica_distribuicao.tasks import (
-    crawl,
     clean_table_oferta_distribuicao,
+    crawl,
     get_today_date,
 )
+from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
+from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
-    rename_current_flow_run_dataset_table,
     get_current_flow_labels,
+    rename_current_flow_run_dataset_table,
 )
-from pipelines.datasets.br_cvm_oferta_publica_distribuicao.schedules import schedule_dia
 
 ROOT = "/tmp/data"
 URL = "http://dados.cvm.gov.br/dados/OFERTA/DISTRIB/DADOS/oferta_distribuicao.csv"

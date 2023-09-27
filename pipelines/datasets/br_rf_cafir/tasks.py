@@ -4,23 +4,24 @@ Tasks for br_ms_cnes
 """
 
 
-from prefect import task
-from pipelines.utils.utils import log
-from pipelines.constants import constants
-from datetime import datetime
 import os
-import pandas as pd
+from datetime import datetime
 
+import pandas as pd
+from prefect import task
+
+from pipelines.constants import constants
 from pipelines.datasets.br_rf_cafir.constants import constants as br_rf_cafir_constants
 from pipelines.datasets.br_rf_cafir.utils import (
-    parse_date_parse_files,
     download_csv_files,
-    remove_accent,
+    extract_last_date,
+    parse_date_parse_files,
     preserve_zeros,
+    remove_accent,
     remove_non_ascii_from_df,
     strip_string,
-    extract_last_date,
 )
+from pipelines.utils.utils import log
 
 
 @task

@@ -5,11 +5,12 @@ Schedules for mundo_transfermarkt_competicoes
 
 ###############################################################################
 
-from prefect.schedules.clocks import CronClock
 from datetime import datetime
-from prefect.schedules import Schedule
-from pipelines.constants import constants
 
+from prefect.schedules import Schedule
+from prefect.schedules.clocks import CronClock
+
+from pipelines.constants import constants
 
 every_week = Schedule(
     clocks=[

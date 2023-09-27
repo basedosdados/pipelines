@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-import pandas as pd
 from io import StringIO
+from typing import Dict, List
+
+import pandas as pd
 import requests
-from typing import List
-from typing import Dict
 
 # build a dict that maps a table name to a architectura and
 # another dict that maps an original table name to a

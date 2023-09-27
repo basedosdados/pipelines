@@ -4,8 +4,10 @@ Schedules for br_mp_pep_cargos_funcoes
 """
 
 from datetime import datetime
+
 from prefect.schedules import Schedule
 from prefect.schedules.clocks import CronClock
+
 from pipelines.constants import constants
 
 every_month = Schedule(

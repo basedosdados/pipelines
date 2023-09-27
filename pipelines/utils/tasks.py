@@ -4,9 +4,9 @@ Helper tasks that could fit any pipeline.
 """
 # pylint: disable=C0103, C0301, invalid-name, E1101, R0913
 
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Union, List
+from typing import Any, List, Union
 
 import basedosdados as bd
 import pandas as pd
@@ -18,17 +18,17 @@ from prefect.client import Client
 
 from pipelines.constants import constants
 from pipelines.utils.utils import (
-    dump_header_to_csv,
-    get_ids,
-    parse_temporal_coverage,
-    get_credentials_utils,
     create_update,
-    extract_last_update,
+    dump_header_to_csv,
     extract_last_date,
-    get_first_date,
-    log,
+    extract_last_update,
     get_credentials_from_secret,
+    get_credentials_utils,
+    get_first_date,
+    get_ids,
     get_token,
+    log,
+    parse_temporal_coverage,
 )
 
 

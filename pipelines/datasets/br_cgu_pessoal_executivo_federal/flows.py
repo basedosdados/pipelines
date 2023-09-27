@@ -4,27 +4,27 @@ Flows for br_cgu_terceirizados
 """
 from datetime import timedelta
 
+from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
-from prefect import Parameter, case
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.constants import constants as utils_constants
-from pipelines.utils.tasks import (
-    create_table_and_upload_to_gcs,
-    update_metadata,
-    rename_current_flow_run_dataset_table,
-    get_current_flow_labels,
-)
 from pipelines.constants import constants
-from pipelines.datasets.br_cgu_pessoal_executivo_federal.tasks import (
-    crawl,
-    clean_save_table,
-)
-from pipelines.utils.decorators import Flow
 from pipelines.datasets.br_cgu_pessoal_executivo_federal.schedules import (
     every_four_months,
+)
+from pipelines.datasets.br_cgu_pessoal_executivo_federal.tasks import (
+    clean_save_table,
+    crawl,
+)
+from pipelines.utils.constants import constants as utils_constants
+from pipelines.utils.decorators import Flow
+from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.tasks import (
+    create_table_and_upload_to_gcs,
+    get_current_flow_labels,
+    rename_current_flow_run_dataset_table,
+    update_metadata,
 )
 
 ROOT = "/tmp/data"

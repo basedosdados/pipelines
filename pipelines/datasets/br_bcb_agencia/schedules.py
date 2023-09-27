@@ -4,8 +4,10 @@ Schedules for br_bcb_agencia
 """
 
 from datetime import datetime
-from prefect.schedules import Schedule, filters, adjustments
+
+from prefect.schedules import Schedule, adjustments, filters
 from prefect.schedules.clocks import CronClock
+
 from pipelines.constants import constants
 
 every_month_agencia = Schedule(

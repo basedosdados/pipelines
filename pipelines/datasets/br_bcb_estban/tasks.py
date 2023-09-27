@@ -3,41 +3,37 @@
 Tasks for br_bcb_estban
 """
 
-from prefect import task
-import pandas as pd
 import os
+from datetime import timedelta
+
 import basedosdados as bd
+import pandas as pd
+from prefect import task
 
 from pipelines.constants import constants
 from pipelines.datasets.br_bcb_estban.constants import (
     constants as br_bcb_estban_constants,
 )
-from datetime import timedelta
-
-from pipelines.utils.utils import (
-    clean_dataframe,
-    to_partitions,
-    log,
-)
 from pipelines.datasets.br_bcb_estban.utils import *
 from pipelines.datasets.br_bcb_estban.utils import (
-    extract_download_links,
-    download_and_unzip,
-    read_files,
-    rename_columns_municipio,
+    cols_order_agencia,
     create_id_municipio,
-    pre_cleaning_for_pivot_long_municipio,
-    wide_to_long_municipio,
-    order_cols_municipio,
-    standardize_monetary_units,
     create_id_verbete_column,
     create_month_year_columns,
-    rename_columns_agencia,
-    pre_cleaning_for_pivot_long_agencia,
-    wide_to_long_agencia,
-    cols_order_agencia,
+    download_and_unzip,
+    extract_download_links,
     get_data_from_prod,
+    order_cols_municipio,
+    pre_cleaning_for_pivot_long_agencia,
+    pre_cleaning_for_pivot_long_municipio,
+    read_files,
+    rename_columns_agencia,
+    rename_columns_municipio,
+    standardize_monetary_units,
+    wide_to_long_agencia,
+    wide_to_long_municipio,
 )
+from pipelines.utils.utils import clean_dataframe, log, to_partitions
 
 
 @task(

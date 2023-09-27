@@ -4,6 +4,7 @@ utils for br_bd_inndicadores
 """
 # pylint: disable=too-few-public-methods,invalid-name
 from datetime import datetime
+
 import pandas as pd
 
 

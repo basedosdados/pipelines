@@ -2,22 +2,21 @@
 """
 Tasks for br_inmet_bdmep
 """
-from pipelines.utils.utils import (
-    log,
-)
+import glob
+import os
+
+import numpy as np
+import pandas as pd
+from prefect import task
+
+from pipelines.constants import constants
+from pipelines.datasets.br_inmet_bdmep.constants import constants as inmet_constants
 from pipelines.datasets.br_inmet_bdmep.utils import (
-    get_clima_info,
     download_inmet,
+    get_clima_info,
     year_list,
 )
-from pipelines.constants import constants
-
-import pandas as pd
-import os
-import numpy as np
-import glob
-from prefect import task
-from pipelines.datasets.br_inmet_bdmep.constants import constants as inmet_constants
+from pipelines.utils.utils import log
 
 # pylint: disable=C0103
 

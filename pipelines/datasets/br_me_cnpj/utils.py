@@ -2,19 +2,19 @@
 """
 General purpose functions for the br_me_cnpj project
 """
-from pipelines.datasets.br_me_cnpj.constants import (
-    constants as constants_cnpj,
-)
-from pipelines.utils.utils import log
-import requests
-import pandas as pd
-from bs4 import BeautifulSoup
-from datetime import datetime
 import os
 import zipfile
-from tqdm import tqdm
-import pyarrow.parquet as pq
+from datetime import datetime
+
+import pandas as pd
 import pyarrow as pa
+import pyarrow.parquet as pq
+import requests
+from bs4 import BeautifulSoup
+from tqdm import tqdm
+
+from pipelines.datasets.br_me_cnpj.constants import constants as constants_cnpj
+from pipelines.utils.utils import log
 
 ufs = constants_cnpj.UFS.value
 headers = constants_cnpj.HEADERS.value

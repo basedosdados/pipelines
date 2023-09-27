@@ -4,8 +4,8 @@ Constant values for the datasets projects
 """
 ###############################################################################
 
-from enum import Enum
 import datetime
+from enum import Enum
 
 
 class constants(Enum):  # pylint: disable=c0103

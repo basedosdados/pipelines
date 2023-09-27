@@ -9,12 +9,11 @@ import os
 from pathlib import Path
 from typing import Union
 
-
 import basedosdados as bd
 import numpy as np
 import pandas as pd
-from prefect import task
 import requests
+from prefect import task
 
 from pipelines.utils.utils import log
 

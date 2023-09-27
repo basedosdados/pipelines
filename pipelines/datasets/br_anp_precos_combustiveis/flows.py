@@ -4,35 +4,44 @@ Flows for br_anp_precos_combustiveis
 """
 
 from datetime import timedelta
+
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
+
 from pipelines.constants import constants
+
 from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.datasets.br_anp_precos_combustiveis.utils import download_files
-from pipelines.datasets.br_anp_precos_combustiveis.tasks import (
-    download_and_transform,
-    data_max_bd_mais,
-    data_max_bd_pro,
-    make_partitions,
-    check_for_updates,
+
+from pipelines.datasets.br_anp_precos_combustiveis.constants import (
+    constants as anatel_constants,
 )
 from pipelines.datasets.br_anp_precos_combustiveis.schedules import (
     every_week_anp_microdados,
 )
+
+from pipelines.datasets.br_anp_precos_combustiveis.tasks import (
+    check_for_updates,
+    data_max_bd_mais,
+    data_max_bd_pro,
+    download_and_transform,
+    make_partitions,
+)
+from pipelines.datasets.br_anp_precos_combustiveis.utils import download_files
+from pipelines.utils.constants import constants as utils_constants
+from pipelines.utils.decorators import Flow
+from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
-    rename_current_flow_run_dataset_table,
     get_current_flow_labels,
     log_task,
-)
-
-from pipelines.datasets.br_anp_precos_combustiveis.constants import (
-    constants as anatel_constants,
+    rename_current_flow_run_dataset_table,
+    update_django_metadata,
 )
 
 with Flow(

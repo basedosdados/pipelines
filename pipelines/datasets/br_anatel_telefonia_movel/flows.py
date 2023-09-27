@@ -3,35 +3,39 @@
 Flows for dataset br_anatel_telefonia_movel
 """
 
+from datetime import timedelta
+
+from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
-from datetime import timedelta
-from prefect import Parameter, case
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
+
 
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.constants import constants as utils_constants
+
+
 from pipelines.constants import constants
 from pipelines.datasets.br_anatel_telefonia_movel.constants import (
     constants as anatel_constants,
 )
+from pipelines.datasets.br_anatel_telefonia_movel.schedules import every_month_anatel
 from pipelines.datasets.br_anatel_telefonia_movel.tasks import (
-    clean_csv_microdados,
     clean_csv_brasil,
-    clean_csv_uf,
+    clean_csv_microdados,
     clean_csv_municipio,
+    clean_csv_uf,
     get_today_date_atualizado,
 )
+from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
+from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
-    rename_current_flow_run_dataset_table,
     get_current_flow_labels,
-)
-
-from pipelines.datasets.br_anatel_telefonia_movel.schedules import (
-    every_month_anatel,
+    rename_current_flow_run_dataset_table,
+    update_django_metadata,
 )
 
 with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anatel:

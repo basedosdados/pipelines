@@ -3,17 +3,19 @@
 
 import asyncio
 import hashlib
+import json
 import re
 from datetime import datetime
-from pipelines.utils.tasks import log
-import requests
-from tqdm import tqdm
-from bs4 import BeautifulSoup
-from fake_useragent import UserAgent
+
 import Levenshtein
 import pandas as pd
+import requests
+from bs4 import BeautifulSoup
+from fake_useragent import UserAgent
+from tqdm import tqdm
+
 from pipelines.datasets.br_mercadolivre_ofertas.decorators import retry
-import json
+from pipelines.utils.tasks import log
 
 ua = UserAgent()
 
