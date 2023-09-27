@@ -115,3 +115,12 @@ def make_partitions(tables: list[tuple[str, pd.DataFrame]]) -> dict[str, str]:
     return {
         table_name: f"{output}/{table_name}" for table_name, df in tables if len(df) > 0
     }
+
+
+@task
+def table_is_available(tables: dict[str, str], table: str) -> bool:
+    available = table in tables
+
+    log(f"{table=} not available in {tables.keys()=}")
+
+    return available
