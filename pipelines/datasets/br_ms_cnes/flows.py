@@ -3,7 +3,7 @@
 Flows for br_ms_cnes
 """
 # pylint: disable=invalid-name
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from prefect import Parameter, case
 from pipelines.constants import constants

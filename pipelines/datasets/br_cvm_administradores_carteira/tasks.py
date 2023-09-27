@@ -13,7 +13,6 @@ from pandas.api.types import is_string_dtype
 from prefect import task
 from unidecode import unidecode
 import basedosdados as bd
-from datetime import datetime
 from pipelines.utils.utils import log
 
 

@@ -3,7 +3,7 @@
 Schedules for dataset br_anatel_banda_larga_fixa
 """
 
-from datetime import timedelta, datetime
+from datetime import datetime
 from prefect.schedules import Schedule
 from prefect.schedules.clocks import CronClock
 from prefect.schedules.clocks import IntervalClock

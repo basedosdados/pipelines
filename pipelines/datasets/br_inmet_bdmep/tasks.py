@@ -16,7 +16,6 @@ import pandas as pd
 import os
 import numpy as np
 import glob
-from datetime import datetime, time
 from prefect import task
 from pipelines.datasets.br_inmet_bdmep.constants import constants as inmet_constants
 

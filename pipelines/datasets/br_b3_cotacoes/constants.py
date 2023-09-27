@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from enum import Enum
-from datetime import datetime, timedelta
 
 
 class constants(Enum):  # pylint: disable=c0103

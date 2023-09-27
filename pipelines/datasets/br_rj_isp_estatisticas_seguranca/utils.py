@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import pandas as pd
 from io import StringIO
-import os
 import requests
 from typing import List
 from typing import Dict

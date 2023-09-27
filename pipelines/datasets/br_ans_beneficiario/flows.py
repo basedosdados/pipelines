@@ -4,7 +4,7 @@ Flows for br_ans_beneficiario
 """
 
 
-from datetime import datetime, timedelta
+from datetime import timedelta
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from pipelines.constants import constants

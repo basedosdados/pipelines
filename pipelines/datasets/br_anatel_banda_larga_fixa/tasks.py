@@ -4,8 +4,6 @@ Tasks for br_anatel_banda_larga_fixa
 """
 import pandas as pd
 import numpy as np
-from zipfile import ZipFile
-from pathlib import Path
 import os
 
 from datetime import datetime, timedelta
