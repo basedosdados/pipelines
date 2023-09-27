@@ -10,9 +10,12 @@ def run(*args):
 def main():
     """Lint all python files in the project"""
     code = 0
+    code |= run(["poetry", "check"])
     code |= run(
         [
             "isort",
+            "--profile",
+            "black",
             "--skip",
             "pipelines/{{cookiecutter.project_name}}",
             "--check-only",
