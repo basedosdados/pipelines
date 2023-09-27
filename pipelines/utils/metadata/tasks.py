@@ -6,7 +6,6 @@ Tasks for metadata
 from prefect import task
 from datetime import datetime
 from pipelines.utils.utils import log, get_credentials_from_secret
-from typing import Tuple
 from pipelines.utils.metadata.utils import (
     get_ids,
     parse_temporal_coverage,

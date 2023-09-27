@@ -3,7 +3,7 @@
 Flows for br_ons_estimativa_custos
 """
 # pylint: disable=invalid-name
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun

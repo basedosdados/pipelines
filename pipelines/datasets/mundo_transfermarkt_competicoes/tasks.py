@@ -13,12 +13,9 @@ from pipelines.datasets.mundo_transfermarkt_competicoes.utils import (
 )
 from pipelines.utils.utils import log, to_partitions
 from prefect import task
-import re
 import numpy as np
 import pandas as pd
 import asyncio
-import os
-from datetime import timedelta, datetime
 
 
 @task

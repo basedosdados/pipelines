@@ -6,11 +6,8 @@ import pandas as pd
 
 # from multiprocessing import Pool
 from loguru import logger
-from pathlib import Path
 
 
-from datetime import datetime
-from io import BytesIO
 import os
 from tqdm import tqdm
 
@@ -18,7 +15,6 @@ from tqdm import tqdm
 from pipelines.datasets.br_ans_beneficiario.constants import constants as ans_constants
 import zipfile
 import requests
-from functools import reduce
 from dateutil.relativedelta import relativedelta
 from pipelines.utils.utils import (
     log,

@@ -18,9 +18,8 @@ from pipelines.datasets.br_me_cnpj.utils import (
 )
 import os
 import requests
-import zipfile
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime
 from tqdm import tqdm
 
 ufs = constants_cnpj.UFS.value

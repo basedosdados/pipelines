@@ -5,12 +5,11 @@ Tasks for br_ms_cnes
 
 
 from prefect import task
-from datetime import timedelta, datetime
+from datetime import timedelta
 from pipelines.utils.utils import log
 from pipelines.constants import constants
 
 import pandas as pd
-from ftplib import FTP
 import wget
 import os
 from rpy2.robjects.packages import importr
@@ -18,7 +17,6 @@ import rpy2.robjects.packages as rpackages
 import rpy2.robjects as ro
 from rpy2.robjects import pandas2ri
 
-import datetime as dt
 
 from pipelines.datasets.br_ms_cnes.constants import constants as cnes_constants
 from pipelines.datasets.br_ms_cnes.utils import (

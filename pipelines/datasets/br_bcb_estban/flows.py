@@ -3,7 +3,7 @@
 Flows for br_bcb_estban
 """
 
-from datetime import datetime, timedelta
+from datetime import timedelta
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect import Parameter, case

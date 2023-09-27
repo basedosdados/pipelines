@@ -7,13 +7,12 @@ from prefect import task
 import pandas as pd
 import os
 import basedosdados as bd
-import glob
 
 from pipelines.constants import constants
 from pipelines.datasets.br_bcb_estban.constants import (
     constants as br_bcb_estban_constants,
 )
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from pipelines.utils.utils import (
     clean_dataframe,

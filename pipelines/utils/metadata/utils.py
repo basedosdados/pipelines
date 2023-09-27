@@ -7,8 +7,7 @@ import json
 
 # pylint: disable=too-many-arguments
 from datetime import datetime
-from os import getenv, walk
-from typing import Any, Dict, List, Tuple
+from typing import Tuple
 
 import basedosdados as bd
 import numpy as np

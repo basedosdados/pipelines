@@ -8,7 +8,6 @@ import os
 import requests
 from bs4 import BeautifulSoup
 import numpy as np
-from datetime import datetime
 import geopandas as gpd
 from shapely import wkt
 from pipelines.utils.tasks import log
