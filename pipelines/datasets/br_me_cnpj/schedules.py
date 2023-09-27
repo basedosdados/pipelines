@@ -3,10 +3,13 @@
 Schedules for br_me_cnpj
 """
 
+from datetime import datetime
+
+from prefect.schedules import Schedule
+
 ###############################################################################
 from prefect.schedules.clocks import CronClock
-from datetime import timedelta, datetime
-from prefect.schedules import Schedule
+
 from pipelines.constants import constants
 
 every_day_empresas = Schedule(

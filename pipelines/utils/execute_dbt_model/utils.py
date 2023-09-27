@@ -2,7 +2,7 @@
 """
 General utilities for interacting with dbt-rpc
 """
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
 from typing import List
 
 from dbt_client import DbtClient

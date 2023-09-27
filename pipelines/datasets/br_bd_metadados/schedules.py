@@ -3,7 +3,7 @@
 Schedules for bd_tweet_data
 """
 
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
 
 from prefect.schedules import Schedule
 from prefect.schedules.clocks import IntervalClock

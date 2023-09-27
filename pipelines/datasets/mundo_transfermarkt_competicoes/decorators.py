@@ -3,8 +3,9 @@
 Custom decorators for pipelines.
 """
 import asyncio
-from bs4 import BeautifulSoup
+
 import requests
+from bs4 import BeautifulSoup
 
 
 def retry(content_function):

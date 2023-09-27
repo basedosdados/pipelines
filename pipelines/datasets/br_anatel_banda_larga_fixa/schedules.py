@@ -3,10 +3,11 @@
 Schedules for dataset br_anatel_banda_larga_fixa
 """
 
-from datetime import timedelta, datetime
+from datetime import datetime
+
 from prefect.schedules import Schedule
-from prefect.schedules.clocks import CronClock
-from prefect.schedules.clocks import IntervalClock
+from prefect.schedules.clocks import CronClock, IntervalClock
+
 from pipelines.constants import constants
 
 every_month_anatel_microdados = Schedule(

@@ -10,10 +10,8 @@ from dbt_client import DbtClient
 from prefect import task
 from pipelines.utils.utils import log
 
-from pipelines.utils.execute_dbt_model.utils import (
-    get_dbt_client,
-)
 from pipelines.constants import constants
+from pipelines.utils.execute_dbt_model.utils import get_dbt_client
 
 
 @task(
