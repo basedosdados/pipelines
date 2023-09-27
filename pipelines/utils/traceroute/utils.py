@@ -8,7 +8,6 @@ from typing import List, Tuple, Union
 
 import requests
 
-
 # pylint: disable=invalid-name
 
 

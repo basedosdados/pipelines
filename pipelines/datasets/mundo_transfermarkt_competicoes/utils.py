@@ -5,16 +5,17 @@ General purpose functions for the mundo_transfermarkt_competicoes project
 
 ###############################################################################
 import re
-from bs4 import BeautifulSoup
-import requests
+
 import numpy as np
 import pandas as pd
-import asyncio
+import requests
+from bs4 import BeautifulSoup
+
 from pipelines.datasets.mundo_transfermarkt_competicoes.constants import (
     constants as mundo_constants,
 )
-from pipelines.utils.utils import log
 from pipelines.datasets.mundo_transfermarkt_competicoes.decorators import retry
+from pipelines.utils.utils import log
 
 
 @retry

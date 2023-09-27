@@ -3,7 +3,7 @@
 Flows for br_cvm_administradores_carteira
 """
 # pylint: disable=C0103, E1123, invalid-name
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
@@ -12,34 +12,33 @@ from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
 from pipelines.datasets.br_cvm_administradores_carteira.schedules import (
-    schedule_responsavel,
     schedule_fisica,
     schedule_juridica,
+    schedule_responsavel,
 )
 from pipelines.datasets.br_cvm_administradores_carteira.tasks import (
-    crawl,
-    clean_table_responsavel,
     clean_table_pessoa_fisica,
     clean_table_pessoa_juridica,
+    clean_table_responsavel,
+    crawl,
     extract_last_date,
 )
-from pipelines.utils.metadata.tasks import update_django_metadata
-
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
+    get_current_flow_labels,
     get_temporal_coverage,
     rename_current_flow_run_dataset_table,
-    get_current_flow_labels,
 )
 
 ROOT = "/tmp/data"
 URL = "http://dados.cvm.gov.br/dados/ADM_CART/CAD/DADOS/cad_adm_cart.zip"
 
 with Flow(
-    name="br_cvm_administradores_carteira.responsavel", code_owners=["Equipe Pipelines"]
+    name="br_cvm_administradores_carteira.responsavel", code_owners=["equipe_pipelines"]
 ) as br_cvm_adm_car_res:
     # Parameters
     dataset_id = Parameter(
@@ -105,7 +104,7 @@ br_cvm_adm_car_res.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value
 br_cvm_adm_car_res.schedule = schedule_responsavel
 
 with Flow(
-    "br_cvm_administradores_carteira.pessoa_fisica", code_owners=["Equipe Pipelines"]
+    "br_cvm_administradores_carteira.pessoa_fisica", code_owners=["equipe_pipelines"]
 ) as br_cvm_adm_car_pes_fis:
     # Parameters
     dataset_id = Parameter(
@@ -190,7 +189,7 @@ br_cvm_adm_car_pes_fis.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.v
 br_cvm_adm_car_pes_fis.schedule = schedule_fisica
 
 with Flow(
-    "br_cvm_administradores_carteira.pessoa_juridica", code_owners=["Equipe Pipelines"]
+    "br_cvm_administradores_carteira.pessoa_juridica", code_owners=["equipe_pipelines"]
 ) as br_cvm_adm_car_pes_jur:
     # Parameters
     dataset_id = Parameter(

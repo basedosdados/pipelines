@@ -2,29 +2,21 @@
 """
 General purpose functions for the br_ans_beneficiario project
 """
+import os
+import zipfile
+
 import pandas as pd
+import requests
+import unidecode
+from dateutil.relativedelta import relativedelta
 
 # from multiprocessing import Pool
 from loguru import logger
-from pathlib import Path
-
-
-from datetime import datetime
-from io import BytesIO
-import os
 from tqdm import tqdm
 
 # import tempfile
 from pipelines.datasets.br_ans_beneficiario.constants import constants as ans_constants
-import zipfile
-import requests
-from functools import reduce
-from dateutil.relativedelta import relativedelta
-from pipelines.utils.utils import (
-    log,
-    to_partitions,
-)
-import unidecode
+from pipelines.utils.utils import log, to_partitions
 
 
 def remove_accents(text):

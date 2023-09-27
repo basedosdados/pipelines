@@ -3,7 +3,7 @@
 Flows for br_bd_indicadores
 """
 # pylint: disable=invalid-name
-from datetime import timedelta, datetime
+from datetime import timedelta
 
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
@@ -14,21 +14,21 @@ from pipelines.constants import constants
 from pipelines.datasets.br_bd_indicadores.schedules import (
     every_day,
     every_week,
-    schedule_users,
-    schedule_receitas,
+    schedule_contabilidade,
     schedule_equipes,
     schedule_pessoas,
-    schedule_contabilidade,
+    schedule_receitas,
+    schedule_users,
 )
 from pipelines.datasets.br_bd_indicadores.tasks import (
     crawler_metricas,
     crawler_real_time,
-    has_new_tweets,
-    echo,
-    get_twitter_credentials,
-    get_ga_credentials,
     crawler_report_ga,
+    echo,
     get_data_from_sheet,
+    get_ga_credentials,
+    get_twitter_credentials,
+    has_new_tweets,
     save_data_to_csv,
 )
 from pipelines.utils.constants import constants as utils_constants
@@ -36,8 +36,8 @@ from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
-    rename_current_flow_run_dataset_table,
     get_current_flow_labels,
+    rename_current_flow_run_dataset_table,
     update_metadata,
 )
 

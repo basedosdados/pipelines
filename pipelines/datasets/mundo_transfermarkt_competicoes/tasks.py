@@ -3,22 +3,21 @@
 Tasks for mundo_transfermarkt_competicoes
 """
 
+import asyncio
+
+import numpy as np
+import pandas as pd
+from prefect import task
+
 ###############################################################################
 from pipelines.datasets.mundo_transfermarkt_competicoes.constants import (
     constants as mundo_constants,
 )
 from pipelines.datasets.mundo_transfermarkt_competicoes.utils import (
-    execucao_coleta_copa,
     execucao_coleta,
+    execucao_coleta_copa,
 )
 from pipelines.utils.utils import log, to_partitions
-from prefect import task
-import re
-import numpy as np
-import pandas as pd
-import asyncio
-import os
-from datetime import timedelta, datetime
 
 
 @task
