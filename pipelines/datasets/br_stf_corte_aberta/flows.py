@@ -91,6 +91,7 @@ with Flow(name="br_stf_corte_aberta.decisoes", code_owners=["trick"]) as br_stf:
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
             get_max_date = check_for_data()
+            get_max_date_string = str(get_max_date)
             with case(update_metadata, True):
                 update_django_metadata(
                     dataset_id,
@@ -99,8 +100,8 @@ with Flow(name="br_stf_corte_aberta.decisoes", code_owners=["trick"]) as br_stf:
                     bq_last_update=False,
                     api_mode="dev",
                     date_format="yy-mm-dd",
-                    _last_date=get_max_date,
-                    upstream_tasks=[get_max_date],
+                    _last_date=get_max_date_string,
+                    upstream_tasks=[get_max_date_string],
                 )
 br_stf.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_stf.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
