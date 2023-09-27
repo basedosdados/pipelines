@@ -100,7 +100,7 @@ with Flow(name="br_stf_corte_aberta.decisoes", code_owners=["trick"]) as br_stf:
                     metadata_type="DateTimeRange",
                     bq_last_update=False,
                     bq_table_last_year_month=True,
-                    billing_project_id="basedosdados-dev",
+                    # billing_project_id="basedosdados-dev",
                     api_mode="prod",
                     date_format="yy-mm-dd",
                     is_bd_pro=True,
