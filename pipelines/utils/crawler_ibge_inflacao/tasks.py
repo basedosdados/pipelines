@@ -122,19 +122,26 @@ def crawler(indice: str, folder: str) -> bool:
         if k.__contains__(indice) & k.__contains__(folder)
     }
     links_keys = list(links.keys())
+    log(links_keys)
     success_dwnl = []
     if folder != "rm":
         # precisei adicionar try catchs no loop para conseguir baixar todas
         # as tabelas sem ter pproblema com o limite de requisição do sidra
         for key in tqdm(links_keys):
             try:
-                wget.download(links[key], out=f"/tmp/data/input/{key}.csv")
+                response = get_legacy_session().get(links[key])
+                # download the csv
+                with open(f"/tmp/data/input/{key}.csv", "wb") as f:
+                    f.write(response.content)
                 success_dwnl.append(key)
                 sleep(10)
             except Exception:
                 try:
-                    sleep(20)
-                    wget.download(links[key], out=f"/tmp/data/input/{key}.csv")
+                    sleep(10)
+                    response = get_legacy_session().get(links[key])
+                    # download the csv
+                    with open(f"/tmp/data/input/{key}.csv", "wb") as f:
+                        f.write(response.content)
                     success_dwnl.append(key)
                 except Exception:
                     pass
@@ -150,7 +157,7 @@ def crawler(indice: str, folder: str) -> bool:
             except Exception as e:
                 log(e)
                 try:
-                    sleep(20)
+                    sleep(10)
                     response = get_legacy_session().get(links[key])
                     # download the csv
                     with open(f"/tmp/data/input/{key}.csv", "wb") as f:
@@ -160,6 +167,7 @@ def crawler(indice: str, folder: str) -> bool:
                     log(e)
 
     log(os.system("tree /tmp/data"))
+    log(f"success_dwnl: {success_dwnl}")
     if len(links_keys) == len(success_dwnl):
         log("All files were successfully downloaded")
         return True
@@ -248,13 +256,15 @@ def clean_mes_brasil(indice: str) -> None:
         dataframe = dataframe.replace(",", ".", regex=True)
 
         # Split coluna data e substituir mes
-        dataframe[["mes", "ano"]] = dataframe["ano"].str.split(" ", 1, expand=True)
+        dataframe[["mes", "ano"]] = dataframe["ano"].str.split(
+            pat=" ", n=1, expand=True
+        )
         dataframe["mes"] = dataframe["mes"].map(n_mes)
 
         # Split coluna categoria e add id_categoria_bd
         if arq.split("_")[-1].split(".")[0] != "geral":
             dataframe[["id_categoria", "categoria"]] = dataframe["categoria"].str.split(
-                ".", 1, expand=True
+                pat=".", n=1, expand=True
             )
 
         if arq.split("_")[-1].split(".")[0] == "grupo":
@@ -398,13 +408,15 @@ def clean_mes_rm(indice: str):
         dataframe = dataframe.replace(",", ".", regex=True)
 
         # Split coluna data e substituir mes
-        dataframe[["mes", "ano"]] = dataframe["ano"].str.split(" ", 1, expand=True)
+        dataframe[["mes", "ano"]] = dataframe["ano"].str.split(
+            pat=" ", n=1, expand=True
+        )
         dataframe["mes"] = dataframe["mes"].map(n_mes)
 
         # Split coluna categoria e add id_categoria_bd
         if arq.split("_")[-1].split(".")[0] != "geral":
             dataframe[["id_categoria", "categoria"]] = dataframe["categoria"].str.split(
-                ".", 1, expand=True
+                pat=".", n=1, expand=True
             )
 
         if arq.split("_")[-1].split(".")[0] == "grupo":
@@ -543,13 +555,15 @@ def clean_mes_municipio(indice: str):
         dataframe = dataframe.replace(",", ".", regex=True)
 
         # Split coluna data e substituir mes
-        dataframe[["mes", "ano"]] = dataframe["ano"].str.split(" ", 1, expand=True)
+        dataframe[["mes", "ano"]] = dataframe["ano"].str.split(
+            pat=" ", n=1, expand=True
+        )
         dataframe["mes"] = dataframe["mes"].map(n_mes)
 
         # Split coluna categoria e add id_categoria_bd
         if arq.split("_")[-1].split(".")[0] != "geral":
             dataframe[["id_categoria", "categoria"]] = dataframe["categoria"].str.split(
-                ".", 1, expand=True
+                pat=".", n=1, expand=True
             )
 
         if arq.split("_")[-1].split(".")[0] == "grupo":
@@ -677,12 +691,13 @@ def clean_mes_geral(indice: str):
         )
 
     for arq in arquivos:
+        log(arq)
         if indice == "ip15":
             dataframe = pd.read_csv(arq, skiprows=2, skipfooter=11, sep=";")
         else:
             dataframe = pd.read_csv(arq, skiprows=2, skipfooter=13, sep=";")
-
-        dataframe["mes"], dataframe["ano"] = dataframe["Mês"].str.split(" ", 1).str
+        log(dataframe.head(5))
+        dataframe["mes"], dataframe["ano"] = dataframe["Mês"].str.split(pat="/", n=1)
         dataframe["mes"] = dataframe["mes"].map(n_mes)
 
         # renomear colunas
