@@ -1,22 +1,21 @@
 # -*- coding: utf-8 -*-
-import pandas as pd
 import os
-import requests
 from datetime import datetime, timedelta
+
+import pandas as pd
+import requests
 from prefect import task
 
-from pipelines.utils.utils import (
-    log,
-)
-from pipelines.datasets.br_rj_isp_estatisticas_seguranca.utils import (
-    change_columns_name,
-    create_columns_order,
-    check_tipo_fase,
-)
+from pipelines.constants import constants
 from pipelines.datasets.br_rj_isp_estatisticas_seguranca.constants import (
     constants as isp_constants,
 )
-from pipelines.constants import constants
+from pipelines.datasets.br_rj_isp_estatisticas_seguranca.utils import (
+    change_columns_name,
+    check_tipo_fase,
+    create_columns_order,
+)
+from pipelines.utils.utils import log
 
 
 @task(

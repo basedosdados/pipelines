@@ -5,6 +5,7 @@ General purpose functions for the br_mp_pep_cargos_funcoes project
 
 import os
 import time
+
 from pipelines.datasets.br_mp_pep_cargos_funcoes.constants import constants
 from pipelines.utils.utils import log
 

@@ -3,25 +3,25 @@
 Tasks for br_ons_avaliacao_operacao
 """
 import os
-import pandas as pd
 
+import pandas as pd
 from prefect import task
-from pipelines.utils.utils import (
-    log,
-    to_partitions,
-)
+
 from pipelines.datasets.br_ons_avaliacao_operacao.constants import constants
 from pipelines.datasets.br_ons_avaliacao_operacao.utils import (
-    create_paths,
-    crawler_ons,
-    download_data as dw,
     change_columns_name,
-    remove_latin1_accents_from_df,
+    crawler_ons,
+    create_paths,
+)
+from pipelines.datasets.br_ons_avaliacao_operacao.utils import download_data as dw
+from pipelines.datasets.br_ons_avaliacao_operacao.utils import (
     order_df,
     process_date_column,
     process_datetime_column,
     remove_decimal,
+    remove_latin1_accents_from_df,
 )
+from pipelines.utils.utils import log, to_partitions
 
 
 @task

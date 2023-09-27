@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 
-import wget
-import requests
-from bs4 import BeautifulSoup
 import os
-import pandas as pd
-from io import StringIO
-from typing import List
 import time as tm
 import unicodedata
+from io import StringIO
+from typing import List
+
+import pandas as pd
+import requests
+import wget
+from bs4 import BeautifulSoup
 
 
 def crawler_ons(

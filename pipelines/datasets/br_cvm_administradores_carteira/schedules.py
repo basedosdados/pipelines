@@ -2,7 +2,7 @@
 """
 Schedules for br_cvm_administradores_carteira
 """
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
 
 from prefect.schedules import Schedule, filters
 from prefect.schedules.clocks import IntervalClock

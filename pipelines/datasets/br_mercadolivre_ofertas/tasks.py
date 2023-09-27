@@ -4,23 +4,23 @@
 
 
 import asyncio
-import time
 import os
+import time
 from typing import List, Tuple
 
-from prefect import task
 import pandas as pd
+from prefect import task
 
-from pipelines.utils.tasks import log
 from pipelines.datasets.br_mercadolivre_ofertas.constants import (
     constants as const_mercadolivre,
 )
 from pipelines.datasets.br_mercadolivre_ofertas.utils import (
+    clean_experience,
+    get_id,
     main_item,
     main_seller,
-    get_id,
-    clean_experience,
 )
+from pipelines.utils.tasks import log
 
 new_cols_item = const_mercadolivre.NEW_ORDER_COLS.value
 new_order_clean = const_mercadolivre.NEW_ORDER_CLEAN.value

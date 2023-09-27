@@ -4,48 +4,47 @@ Flows for br_cvm_fi
 
 """
 
+from datetime import timedelta
+
+from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
-from datetime import timedelta
-from pipelines.datasets.br_cvm_fi.tasks import (
-    extract_links_and_dates,
-    check_for_updates,
-    is_empty,
-    download_unzip_csv,
-    clean_data_and_make_partitions,
-    clean_data_make_partitions_cda,
-    download_csv_cvm,
-    clean_data_make_partitions_ext,
-    check_for_updates_ext,
-    clean_data_make_partitions_perfil,
-    clean_data_make_partitions_cad,
-    clean_data_make_partitions_balancete,
-    get_today_date,
-)
+from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
+
+from pipelines.constants import constants
+from pipelines.datasets.br_cvm_fi.constants import constants as cvm_constants
 from pipelines.datasets.br_cvm_fi.schedules import (
-    every_day_informe,
-    every_day_carteiras,
     every_day_balancete,
+    every_day_carteiras,
     every_day_extratos,
     every_day_informacao_cadastral,
+    every_day_informe,
     every_day_perfil,
 )
-from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
-from pipelines.utils.decorators import Flow
-from prefect import Parameter, case
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.constants import constants as utils_constants
-from pipelines.datasets.br_cvm_fi.constants import constants as cvm_constants
-from pipelines.constants import constants
-from pipelines.utils.tasks import (
-    log_task,
-    #    update_django_metadata,
+from pipelines.datasets.br_cvm_fi.tasks import (
+    check_for_updates,
+    check_for_updates_ext,
+    clean_data_and_make_partitions,
+    clean_data_make_partitions_balancete,
+    clean_data_make_partitions_cad,
+    clean_data_make_partitions_cda,
+    clean_data_make_partitions_ext,
+    clean_data_make_partitions_perfil,
+    download_csv_cvm,
+    download_unzip_csv,
+    extract_links_and_dates,
+    get_today_date,
+    is_empty,
 )
+from pipelines.utils.constants import constants as utils_constants
+from pipelines.utils.decorators import Flow
+from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.utils.metadata.tasks import update_django_metadata
-from pipelines.utils.tasks import (
+from pipelines.utils.tasks import (  # update_django_metadata,
     create_table_and_upload_to_gcs,
-    rename_current_flow_run_dataset_table,
     get_current_flow_labels,
+    log_task,
+    rename_current_flow_run_dataset_table,
 )
 
 # rom pipelines.datasets.br_cvm_fi.schedules import every_day_cvm

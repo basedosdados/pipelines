@@ -11,18 +11,17 @@ from prefect.storage import GCS
 
 from pipelines.constants import constants
 from pipelines.datasets.br_ibge_ipca.schedules import (
-    br_ibge_ipca_mes_categoria_brasil_every_month,
-    br_ibge_ipca_mes_categoria_rm_every_month,
-    br_ibge_ipca_mes_categoria_municipio_every_month,
     br_ibge_ipca_mes_brasil_every_month,
+    br_ibge_ipca_mes_categoria_brasil_every_month,
+    br_ibge_ipca_mes_categoria_municipio_every_month,
+    br_ibge_ipca_mes_categoria_rm_every_month,
 )
 from pipelines.utils.crawler_ibge_inflacao.flows import (
     flow_ibge_inflacao_mes_brasil,
-    flow_ibge_inflacao_mes_rm,
-    flow_ibge_inflacao_mes_municipio,
     flow_ibge_inflacao_mes_geral,
+    flow_ibge_inflacao_mes_municipio,
+    flow_ibge_inflacao_mes_rm,
 )
-
 
 br_ibge_ipca_mes_categoria_brasil = deepcopy(flow_ibge_inflacao_mes_brasil)
 br_ibge_ipca_mes_categoria_brasil.name = "br_ibge_ipca.mes_categoria_brasil"

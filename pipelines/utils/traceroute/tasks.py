@@ -5,12 +5,8 @@ Tasks related to the traceroute flow.
 
 from prefect import task
 
-from pipelines.utils.traceroute.utils import (
-    get_ip_location,
-    traceroute,
-)
+from pipelines.utils.traceroute.utils import get_ip_location, traceroute
 from pipelines.utils.utils import log
-
 
 # pylint: disable=invalid-name
 

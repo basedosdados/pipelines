@@ -3,11 +3,12 @@
 Schedules for br_rf_cafir
 """
 
-from prefect.schedules import Schedule, filters, adjustments
-from prefect.schedules.clocks import CronClock
 from datetime import datetime
-from pipelines.constants import constants
 
+from prefect.schedules import Schedule, adjustments, filters
+from prefect.schedules.clocks import CronClock
+
+from pipelines.constants import constants
 
 schedule_br_rf_cafir_imoveis_rurais = Schedule(
     clocks=[

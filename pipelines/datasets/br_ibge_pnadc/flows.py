@@ -5,29 +5,29 @@ Flows for br_ibge_pnadc
 
 from datetime import timedelta
 
+from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
-from prefect import Parameter, case
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.constants import constants as utils_constants
 from pipelines.constants import constants
+from pipelines.datasets.br_ibge_pnadc.schedules import every_quarter
 from pipelines.datasets.br_ibge_pnadc.tasks import (
-    get_url_from_template,
-    download_txt,
     build_parquet_files,
-    save_partitions,
+    download_txt,
+    get_url_from_template,
     get_year_quarter,
+    save_partitions,
 )
+from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
+from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.metadata.flows import update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
-    rename_current_flow_run_dataset_table,
     get_current_flow_labels,
+    rename_current_flow_run_dataset_table,
 )
-from pipelines.utils.metadata.flows import update_django_metadata
-from pipelines.datasets.br_ibge_pnadc.schedules import every_quarter
 
 # pylint: disable=C0103
 with Flow(name="br_ibge_pnadc.microdados", code_owners=["lucas_cr"]) as br_pnadc:

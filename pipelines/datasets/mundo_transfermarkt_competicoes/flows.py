@@ -2,41 +2,41 @@
 """
 Flows for mundo_transfermarkt_competicoes
 """
+from datetime import timedelta
+
+from prefect import Parameter, case
+from prefect.run_configs import KubernetesRun
+from prefect.storage import GCS
+from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
+
+from pipelines.constants import constants
+
 ###############################################################################
 from pipelines.datasets.mundo_transfermarkt_competicoes.constants import (
     constants as mundo_constants,
-)
-from pipelines.datasets.mundo_transfermarkt_competicoes.tasks import (
-    make_partitions,
-    get_max_data,
-    execucao_coleta_sync,
-)
-from pipelines.datasets.mundo_transfermarkt_competicoes.utils import (
-    execucao_coleta,
-    execucao_coleta_copa,
 )
 from pipelines.datasets.mundo_transfermarkt_competicoes.schedules import (
     every_week,
     every_week_copa,
 )
-from pipelines.utils.tasks import (
-    create_table_and_upload_to_gcs,
-    rename_current_flow_run_dataset_table,
-    get_current_flow_labels,
+from pipelines.datasets.mundo_transfermarkt_competicoes.tasks import (
+    execucao_coleta_sync,
+    get_max_data,
+    make_partitions,
 )
-from prefect.run_configs import KubernetesRun
-from prefect.storage import GCS
-from pipelines.constants import constants
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.decorators import Flow
-from prefect import Parameter, case
-from prefect.tasks.prefect import (
-    create_flow_run,
-    wait_for_flow_run,
+from pipelines.datasets.mundo_transfermarkt_competicoes.utils import (
+    execucao_coleta,
+    execucao_coleta_copa,
 )
 from pipelines.utils.constants import constants as utils_constants
+from pipelines.utils.decorators import Flow
+from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.utils.metadata.tasks import update_django_metadata
-from datetime import timedelta
+from pipelines.utils.tasks import (
+    create_table_and_upload_to_gcs,
+    get_current_flow_labels,
+    rename_current_flow_run_dataset_table,
+)
 
 with Flow(
     name="mundo_transfermarkt_competicoes.brasileirao_serie_a",

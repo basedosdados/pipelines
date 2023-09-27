@@ -3,6 +3,7 @@
 Tasks for br-bcb-taxa-selic
 """
 from prefect import task
+
 from pipelines.datasets.br_bcb_taxa_selic.utils import (
     get_selic_data,
     read_input_csv,

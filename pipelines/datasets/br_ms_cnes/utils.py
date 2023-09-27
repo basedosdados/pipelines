@@ -4,8 +4,10 @@ General purpose functions for the br_ms_cnes project
 """
 
 from ftplib import FTP
-import pandas as pd
+
 import basedosdados as bd
+import pandas as pd
+
 from pipelines.utils.utils import log
 
 

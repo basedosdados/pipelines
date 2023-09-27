@@ -3,15 +3,17 @@
 General purpose functions for the br_mg_belohorizonte_smfa_iptu project
 """
 
-import pandas as pd
 import os
+
+import geopandas as gpd
+import numpy as np
+import pandas as pd
 import requests
 from bs4 import BeautifulSoup
-import numpy as np
-import geopandas as gpd
 from shapely import wkt
-from pipelines.utils.tasks import log
+
 from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.constants import constants
+from pipelines.utils.tasks import log
 
 
 def scrapping_download_csv(input_path: str):

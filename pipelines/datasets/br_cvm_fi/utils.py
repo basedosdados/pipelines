@@ -2,11 +2,12 @@
 """
 General purpose functions for the br_cvm_fi project
 """
-from io import StringIO
-import requests
-import pandas as pd
 import os
 import re
+from io import StringIO
+
+import pandas as pd
+import requests
 from unidecode import unidecode
 
 

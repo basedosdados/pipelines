@@ -4,20 +4,20 @@ General purpose functions for the br_bcb_agencia project
 """
 
 
+import os
+import re
+import unicodedata
+from io import BytesIO
+from urllib.request import urlopen
+from zipfile import ZipFile
+
+import basedosdados as bd
+import numpy as np
+import pandas as pd
 import requests
 from lxml import html
-from io import BytesIO
-from zipfile import ZipFile
-from urllib.request import urlopen
-import basedosdados as bd
-import os
-import pandas as pd
-import re
-import numpy as np
-import unicodedata
-from pipelines.utils.utils import (
-    log,
-)
+
+from pipelines.utils.utils import log
 
 # ---- functions to download data
 

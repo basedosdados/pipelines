@@ -4,40 +4,27 @@ Custom script for registering flows.
 """
 
 import ast
-from collections import (
-    Counter,
-    defaultdict,
-)
 import glob
 import hashlib
 import json
 import os
-from pathlib import Path
 import runpy
 import sys
-from time import sleep
 import traceback
-from typing import (
-    Dict,
-    List,
-    Tuple,
-    Union,
-)
+from collections import Counter, defaultdict
+from pathlib import Path
+from time import sleep
+from typing import Dict, List, Tuple, Union
 
 import box
-from loguru import logger
 import prefect
+from loguru import logger
 from prefect.run_configs import UniversalRun
 from prefect.storage import Local
-from prefect.utilities.graphql import (
-    compress,
-    EnumValue,
-    with_args,
-)
+from prefect.utilities.graphql import EnumValue, compress, with_args
 from typer import Typer
 
 import pipelines  # DO NOT REMOVE THIS LINE
-
 
 app = Typer()
 FlowLike = Union[box.Box, "prefect.Flow"]

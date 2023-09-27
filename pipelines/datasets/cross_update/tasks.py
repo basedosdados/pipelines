@@ -7,7 +7,7 @@ import re
 from datetime import timedelta
 
 # pylint: disable=invalid-name, too-many-locals
-from typing import List, Dict, Tuple
+from typing import Dict, List, Tuple
 
 import basedosdados as bd
 import ruamel.yaml as ryaml
