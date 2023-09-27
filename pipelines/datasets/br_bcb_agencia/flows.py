@@ -13,7 +13,6 @@ from pipelines.datasets.br_bcb_agencia.tasks import clean_data, download_data
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.metadata.flows import update_django_metadata
 from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
@@ -101,7 +100,7 @@ with Flow(
                 bq_last_update=False,
                 bq_table_last_year_month=True,
                 api_mode="prod",
-                billing_project_id="basedosdados-dev",
+                billing_project_id="basedosdados",
                 date_format="yy-mm",
                 is_bd_pro=True,
                 is_free=True,

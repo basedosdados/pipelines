@@ -30,7 +30,6 @@ from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
     rename_current_flow_run_dataset_table,
-    update_django_metadata,
 )
 
 with Flow(
@@ -114,7 +113,7 @@ with Flow(
                 is_bd_pro=True,
                 is_free=True,
                 api_mode="prod",
-                billing_project_id="basedosdados-dev",
+                billing_project_id="basedosdados",
                 date_format="yy-mm",
                 time_delta=1,
                 time_unit="months",
@@ -205,7 +204,7 @@ with Flow(
                 is_bd_pro=True,
                 is_free=True,
                 api_mode="prod",
-                billing_project_id="basedosdados-dev",
+                billing_project_id="basedosdados",
                 date_format="yy-mm",
                 time_delta=1,
                 time_unit="months",
@@ -298,7 +297,7 @@ with Flow(
                 is_bd_pro=True,
                 is_free=True,
                 api_mode="prod",
-                billing_project_id="basedosdados-dev",
+                billing_project_id="basedosdados",
                 date_format="yy-mm",
                 time_delta=1,
                 time_unit="months",
@@ -389,7 +388,7 @@ with Flow(
                 is_bd_pro=True,
                 is_free=True,
                 api_mode="prod",
-                billing_project_id="basedosdados-dev",
+                billing_project_id="basedosdados",
                 date_format="yy-mm",
                 time_delta=1,
                 time_unit="months",
