@@ -2,7 +2,6 @@
 """
 General purpose functions for the temporal_coverage_updater project
 """
-import os
 import json
 import requests
 from datetime import datetime

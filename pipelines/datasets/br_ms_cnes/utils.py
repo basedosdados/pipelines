@@ -6,7 +6,6 @@ General purpose functions for the br_ms_cnes project
 from ftplib import FTP
 import pandas as pd
 import basedosdados as bd
-from datetime import datetime
 from pipelines.utils.utils import log
 
 

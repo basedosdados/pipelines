@@ -37,7 +37,6 @@ from prefect.tasks.prefect import (
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.metadata.tasks import update_django_metadata
 from datetime import timedelta
-import asyncio
 
 with Flow(
     name="mundo_transfermarkt_competicoes.brasileirao_serie_a",

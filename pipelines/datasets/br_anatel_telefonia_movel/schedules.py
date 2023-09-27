@@ -2,7 +2,7 @@
 """
 Schedules for dataset br_anatel_telefonia_movel
 """
-from datetime import timedelta, datetime
+from datetime import datetime
 from prefect.schedules import Schedule
 from prefect.schedules.clocks import IntervalClock
 from pipelines.constants import constants

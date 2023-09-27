@@ -15,8 +15,6 @@ import zipfile
 from tqdm import tqdm
 import pyarrow.parquet as pq
 import pyarrow as pa
-import csv
-from typing import List
 
 ufs = constants_cnpj.UFS.value
 headers = constants_cnpj.HEADERS.value

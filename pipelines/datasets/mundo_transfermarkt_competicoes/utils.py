@@ -9,7 +9,6 @@ from bs4 import BeautifulSoup
 import requests
 import numpy as np
 import pandas as pd
-import asyncio
 from pipelines.datasets.mundo_transfermarkt_competicoes.constants import (
     constants as mundo_constants,
 )

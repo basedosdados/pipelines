@@ -6,7 +6,7 @@ Tasks for br_bcb_agencia
 
 import os
 import pandas as pd
-from datetime import timedelta, datetime
+from datetime import timedelta
 
 from pipelines.datasets.br_bcb_agencia.constants import (
     constants as agencia_constants,

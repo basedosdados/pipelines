@@ -3,7 +3,7 @@
 Flows for br_bd_indicadores
 """
 # pylint: disable=invalid-name
-from datetime import timedelta, datetime
+from datetime import timedelta
 
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun

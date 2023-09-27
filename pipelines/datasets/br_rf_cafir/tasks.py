@@ -7,8 +7,7 @@ Tasks for br_ms_cnes
 from prefect import task
 from pipelines.utils.utils import log
 from pipelines.constants import constants
-import re
-from datetime import datetime, timedelta
+from datetime import datetime
 import os
 import pandas as pd
 
