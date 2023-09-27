@@ -149,7 +149,7 @@ def read_and_clean_csv(
     df = pd.read_csv(
         path,
         sep=";",
-        encoding="latin-1",
+        encoding="windows-1252",
     )
 
     url_architecture = constants.ARCH.value[table_name]
