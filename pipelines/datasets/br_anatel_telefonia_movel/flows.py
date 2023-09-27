@@ -30,7 +30,6 @@ from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
     rename_current_flow_run_dataset_table,
-    update_django_metadata,
 )
 
 with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anatel:

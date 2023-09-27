@@ -34,7 +34,6 @@ from pipelines.utils.tasks import (
     get_current_flow_labels,
     log_task,
     rename_current_flow_run_dataset_table,
-    update_django_metadata,
 )
 
 with Flow(
