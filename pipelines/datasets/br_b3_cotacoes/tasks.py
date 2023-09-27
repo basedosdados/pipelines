@@ -3,18 +3,20 @@
 Tasks for br_b3_cotacoes
 """
 
-from prefect import task
-import pandas as pd
 from datetime import datetime, timedelta
+
+import pandas as pd
+from prefect import task
+
+from pipelines.constants import constants
 from pipelines.datasets.br_b3_cotacoes.constants import (
     constants as br_b3_cotacoes_constants,
 )
-from pipelines.utils.utils import log
-from pipelines.constants import constants
 from pipelines.datasets.br_b3_cotacoes.utils import (
     download_chunk_and_unzip_csv,
     process_chunk_csv,
 )
+from pipelines.utils.utils import log
 
 
 @task(

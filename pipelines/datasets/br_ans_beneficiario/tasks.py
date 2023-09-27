@@ -2,25 +2,24 @@
 """
 Tasks for br_ans_beneficiario
 """
-from bs4 import BeautifulSoup
+import os
 import re
-import pandas as pd
 from datetime import datetime
+
+import pandas as pd
+import requests
+from bs4 import BeautifulSoup
 from loguru import logger
 from prefect import task
-import os
 from tqdm import tqdm
-import requests
+
+from pipelines.datasets.br_ans_beneficiario.constants import constants as ans_constants
 from pipelines.datasets.br_ans_beneficiario.utils import (
     download_unzip_csv,
     get_url_from_template,
     parquet_partition,
 )
-from pipelines.utils.utils import (
-    log,
-    to_partitions,
-)
-from pipelines.datasets.br_ans_beneficiario.constants import constants as ans_constants
+from pipelines.utils.utils import log, to_partitions
 
 
 @task

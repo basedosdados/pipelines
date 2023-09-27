@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 import ast
-from pathlib import Path
 import sys
+from pathlib import Path
 from typing import List, Tuple, Union
 
 import networkx as nx
-from prefect import Flow
 import yaml
+from prefect import Flow
 
 message_id = 0
 

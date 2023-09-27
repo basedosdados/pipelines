@@ -61,10 +61,14 @@ Flows for {{cookiecutter.workspace_name}}
 
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
+
 from pipelines.constants import constants
-from pipelines.{{cookiecutter.project_name}}.{{cookiecutter.workspace_name}}.tasks import say_hello
+
 # from pipelines.{{cookiecutter.project_name}}.{{cookiecutter.workspace_name}}.schedules import every_two_weeks
 from pipelines.utils.decorators import Flow
+from pipelines.{{cookiecutter.project_name}}.{{cookiecutter.workspace_name}}.tasks import (
+    say_hello,
+)
 
 with Flow(
     name="my_flow",

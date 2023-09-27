@@ -2,22 +2,23 @@
 """
 Flows for botdosdados
 """
-from prefect import case, Parameter
+from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
+
 from pipelines.constants import constants
+from pipelines.datasets.botdosdados.schedules import every_day
 from pipelines.datasets.botdosdados.tasks import (
-    was_table_updated,
+    echo,
     get_credentials,
-    message_last_tables,
     message_inflation_plot,
+    message_last_tables,
     send_media,
     send_thread,
-    echo,
+    was_table_updated,
 )
-from pipelines.datasets.botdosdados.schedules import every_day
 from pipelines.utils.decorators import Flow
-from pipelines.utils.tasks import rename_current_flow_run, get_date_time_str
+from pipelines.utils.tasks import get_date_time_str, rename_current_flow_run
 
 with Flow(
     name="botdosdados.message_inflation", code_owners=["lucas_cr"]

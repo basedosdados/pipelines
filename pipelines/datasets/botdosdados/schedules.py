@@ -5,11 +5,10 @@ Schedules for botdosdados
 
 from datetime import datetime
 
-from prefect.schedules import Schedule, filters, adjustments
+from prefect.schedules import Schedule, adjustments, filters
 from prefect.schedules.clocks import CronClock
 
 from pipelines.constants import constants
-
 
 every_day = Schedule(
     clocks=[

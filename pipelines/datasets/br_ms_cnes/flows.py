@@ -6,43 +6,42 @@ Flows for br_ms_cnes
 from datetime import timedelta
 
 from prefect import Parameter, case
-from pipelines.constants import constants
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
+from pipelines.constants import constants
 from pipelines.datasets.br_ms_cnes.constants import constants as br_ms_cnes_constants
-from pipelines.datasets.br_ms_cnes.tasks import (
-    access_ftp_donwload_files,
-    read_dbc_save_csv,
-    is_empty,
-    check_files_to_parse,
-)
-from pipelines.utils.constants import constants as utils_constants
-from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.tasks import (
-    create_table_and_upload_to_gcs,
-    rename_current_flow_run_dataset_table,
-    get_current_flow_labels,
-    log_task,
-)
-
-from pipelines.utils.metadata.flows import update_django_metadata
 from pipelines.datasets.br_ms_cnes.schedules import (
-    schedule_br_ms_cnes_estabelecimento,
-    schedule_br_ms_cnes_profissional,
-    schedule_br_ms_cnes_equipe,
-    schedule_br_ms_cnes_leito,
-    schedule_br_ms_cnes_equipamento,
-    schedule_br_ms_cnes_estabelecimento_ensino,
     schedule_br_ms_cnes_dados_complementares,
+    schedule_br_ms_cnes_equipamento,
+    schedule_br_ms_cnes_equipe,
+    schedule_br_ms_cnes_estabelecimento,
+    schedule_br_ms_cnes_estabelecimento_ensino,
     schedule_br_ms_cnes_estabelecimento_filantropico,
     schedule_br_ms_cnes_gestao_metas,
     schedule_br_ms_cnes_habilitacao,
     schedule_br_ms_cnes_incentivos,
+    schedule_br_ms_cnes_leito,
+    schedule_br_ms_cnes_profissional,
     schedule_br_ms_cnes_regra_contratual,
     schedule_br_ms_cnes_servico_especializado,
+)
+from pipelines.datasets.br_ms_cnes.tasks import (
+    access_ftp_donwload_files,
+    check_files_to_parse,
+    is_empty,
+    read_dbc_save_csv,
+)
+from pipelines.utils.constants import constants as utils_constants
+from pipelines.utils.decorators import Flow
+from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.metadata.flows import update_django_metadata
+from pipelines.utils.tasks import (
+    create_table_and_upload_to_gcs,
+    get_current_flow_labels,
+    log_task,
+    rename_current_flow_run_dataset_table,
 )
 
 with Flow(

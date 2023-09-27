@@ -9,7 +9,6 @@ import pytest
 
 from pipelines.datasets.br_fgv_igp.utils import IGPData
 
-
 # pylint: disable=invalid-name, redefined-outer-name
 
 

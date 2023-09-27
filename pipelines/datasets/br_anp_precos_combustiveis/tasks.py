@@ -3,28 +3,30 @@
 Tasks for br_anp_precos_combustiveis
 """
 
-from prefect import task
-import pandas as pd
-import numpy as np
 from datetime import datetime, timedelta
-from pipelines.datasets.br_anp_precos_combustiveis.utils import (
-    download_files,
-    get_id_municipio,
-    open_csvs,
-    partition_data,
-    merge_table_id_municipio,
-    orderning_data_coleta,
-    creating_column_ano,
-    rename_and_reordening,
-    rename_columns,
-    rename_and_to_create_endereco,
-    lower_colunm_produto,
-)
+
+import numpy as np
+import pandas as pd
+from prefect import task
+
+from pipelines.constants import constants
 from pipelines.datasets.br_anp_precos_combustiveis.constants import (
     constants as anatel_constants,
 )
-from pipelines.utils.utils import log, extract_last_date
-from pipelines.constants import constants
+from pipelines.datasets.br_anp_precos_combustiveis.utils import (
+    creating_column_ano,
+    download_files,
+    get_id_municipio,
+    lower_colunm_produto,
+    merge_table_id_municipio,
+    open_csvs,
+    orderning_data_coleta,
+    partition_data,
+    rename_and_reordening,
+    rename_and_to_create_endereco,
+    rename_columns,
+)
+from pipelines.utils.utils import extract_last_date, log
 
 
 @task

@@ -11,28 +11,26 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.datasets.br_me_comex_stat.tasks import (
-    download_br_me_comex_stat,
-    clean_br_me_comex_stat,
-)
 from pipelines.datasets.br_me_comex_stat.constants import constants as comex_constants
-from pipelines.utils.constants import constants as utils_constants
-from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.tasks import (
-    update_django_metadata,
-    rename_current_flow_run_dataset_table,
-    get_current_flow_labels,
-    create_table_and_upload_to_gcs,
-)
-
 from pipelines.datasets.br_me_comex_stat.schedules import (
     schedule_municipio_exportacao,
     schedule_municipio_importacao,
     schedule_ncm_exportacao,
     schedule_ncm_importacao,
 )
-
+from pipelines.datasets.br_me_comex_stat.tasks import (
+    clean_br_me_comex_stat,
+    download_br_me_comex_stat,
+)
+from pipelines.utils.constants import constants as utils_constants
+from pipelines.utils.decorators import Flow
+from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.tasks import (
+    create_table_and_upload_to_gcs,
+    get_current_flow_labels,
+    rename_current_flow_run_dataset_table,
+    update_django_metadata,
+)
 
 with Flow(
     name="br_me_comex_stat.municipio_exportacao", code_owners=["Gabriel Pisa"]

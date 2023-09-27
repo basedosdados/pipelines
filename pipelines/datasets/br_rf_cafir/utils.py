@@ -3,14 +3,16 @@
 General purpose functions for the br_ms_cnes project
 """
 
-from bs4 import BeautifulSoup
-import requests
-from datetime import datetime
 import os
-from pipelines.utils.utils import log
 import unicodedata
-import pandas as pd
+from datetime import datetime
+
 import basedosdados as bd
+import pandas as pd
+import requests
+from bs4 import BeautifulSoup
+
+from pipelines.utils.utils import log
 
 # função para extrair datas
 # valor usado para o check de atualização do site além de ser usado para update do coverage

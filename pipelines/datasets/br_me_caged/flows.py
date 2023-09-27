@@ -2,16 +2,17 @@
 """
 Flows for br_me_novo_caged
 """
-# pylint: disable=invalid-name
-from prefect.storage import GCS
 from prefect import Parameter
 from prefect.run_configs import KubernetesRun
 
-from pipelines.utils.decorators import Flow
+# pylint: disable=invalid-name
+from prefect.storage import GCS
+
 from pipelines.constants import constants
-from pipelines.datasets.br_me_caged.tasks import build_partitions, get_caged_data
-from pipelines.utils.tasks import create_table_and_upload_to_gcs
 from pipelines.datasets.br_me_caged.schedules import every_month
+from pipelines.datasets.br_me_caged.tasks import build_partitions, get_caged_data
+from pipelines.utils.decorators import Flow
+from pipelines.utils.tasks import create_table_and_upload_to_gcs
 
 with Flow("br_me_caged.microdados_mov", code_owners=["lucas_cr"]) as cagedmov:
     dataset_id = Parameter("dataset_id", default="br_me_caged", required=True)
