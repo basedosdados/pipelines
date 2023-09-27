@@ -3,13 +3,11 @@
 Tasks for br_cgu_servidores_executivo_federal
 """
 
-from prefect import task
-
-from pipelines.utils.utils import to_partitions, log
-
-import pandas as pd
 import datetime
 import os
+
+import pandas as pd
+from prefect import task
 
 from pipelines.datasets.br_cgu_servidores_executivo_federal.constants import constants
 from pipelines.datasets.br_cgu_servidores_executivo_federal.utils import (
@@ -17,6 +15,7 @@ from pipelines.datasets.br_cgu_servidores_executivo_federal.utils import (
     download_zip_files_for_sheet,
     process_table,
 )
+from pipelines.utils.utils import log, to_partitions
 
 
 @task  # noqa

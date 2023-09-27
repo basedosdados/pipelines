@@ -3,37 +3,34 @@
 Flows for br_cgu_servidores_executivo_federal
 """
 
+import datetime
+
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.utils.tasks import (
-    rename_current_flow_run_dataset_table,
-    create_table_and_upload_to_gcs,
-    get_current_flow_labels,
-)
-
-from pipelines.utils.metadata.tasks import update_django_metadata
-
-from pipelines.datasets.br_cgu_servidores_executivo_federal.schedules import every_month
-from pipelines.utils.decorators import Flow
-from pipelines.utils.utils import log_task
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.constants import constants as utils_constants
-
-from pipelines.datasets.br_cgu_servidores_executivo_federal.tasks import (
-    download_files,
-    merge_and_clean_data,
-    make_partitions,
-    table_is_available,
-)
 from pipelines.datasets.br_cgu_servidores_executivo_federal.constants import (
     constants as cgu_constants,
 )
-
-import datetime
+from pipelines.datasets.br_cgu_servidores_executivo_federal.schedules import every_month
+from pipelines.datasets.br_cgu_servidores_executivo_federal.tasks import (
+    download_files,
+    make_partitions,
+    merge_and_clean_data,
+    table_is_available,
+)
+from pipelines.utils.constants import constants as utils_constants
+from pipelines.utils.decorators import Flow
+from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.metadata.tasks import update_django_metadata
+from pipelines.utils.tasks import (
+    create_table_and_upload_to_gcs,
+    get_current_flow_labels,
+    rename_current_flow_run_dataset_table,
+)
+from pipelines.utils.utils import log_task
 
 with Flow(
     name="br_cgu_servidores_executivo_federal",
