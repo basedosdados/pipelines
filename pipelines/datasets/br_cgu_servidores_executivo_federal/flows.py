@@ -60,7 +60,7 @@ with Flow(
     )
 
     date_start = datetime.date(2013, 1, 1)
-    date_end = datetime.date(2013, 2, 1)
+    date_end = datetime.date(2013, 12, 1)
 
     log_task(f"Starting download, {date_start}, {date_end}")
     sheets_info = download_files(date_start=date_start, date_end=date_end)

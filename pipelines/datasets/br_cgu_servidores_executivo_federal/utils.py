@@ -172,10 +172,17 @@ def read_and_clean_csv(
             else None
         )
 
+    cols_with_float_type = df_architecture.loc[
+        df_architecture["bigquery_type"] == "float64", "name"
+    ].to_list()
+
+    for col in cols_with_float_type:
+        df[col] = df[col].str.replace(",", ".").astype(float)
+
     df["ano"] = date.year
     df["mes"] = date.month
 
-    if "origem" in df.columns:
+    if "origem" in df_architecture["name"].to_list():
         df["origem"] = get_source(table_name, source)
 
     return df
