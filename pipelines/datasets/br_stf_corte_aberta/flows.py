@@ -77,6 +77,7 @@ with Flow(name="br_stf_corte_aberta.decisoes", code_owners=["trick"]) as br_stf:
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
+                upstream_tasks=[wait_upload_table],
             )
             wait_for_materialization = wait_for_flow_run(
                 materialization_flow,
@@ -94,14 +95,20 @@ with Flow(name="br_stf_corte_aberta.decisoes", code_owners=["trick"]) as br_stf:
             get_max_date_string = str(get_max_date)
             with case(update_metadata, True):
                 update_django_metadata(
-                    dataset_id,
-                    table_id,
+                    dataset_id=dataset_id,
+                    table_id=table_id,
                     metadata_type="DateTimeRange",
                     bq_last_update=False,
+                    bq_table_last_year_month=True,
+                    billing_project_id="basedosdados-dev",
                     api_mode="dev",
                     date_format="yy-mm-dd",
+                    is_bd_pro=True,
                     _last_date=get_max_date_string,
-                    upstream_tasks=[get_max_date_string],
+                    # is_free = True,
+                    # time_delta = 3,
+                    time_unit="days",
+                    upstream_tasks=[wait_for_materialization],
                 )
 br_stf.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_stf.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
