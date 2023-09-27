@@ -2,14 +2,15 @@
 """
 Tasks for br_poder360_pesquisas
 """
-from json.decoder import JSONDecodeError
-from datetime import timedelta
 import os
+from datetime import timedelta
+from json.decoder import JSONDecodeError
 
-from prefect import task
-import requests
 import pandas as pd
+import requests
+from prefect import task
 from tqdm import tqdm
+
 from pipelines.constants import constants
 
 

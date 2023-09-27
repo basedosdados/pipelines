@@ -4,8 +4,10 @@ Schedules for br_anp_precos_combustiveis
 """
 
 from datetime import datetime
+
 from prefect.schedules import Schedule
 from prefect.schedules.clocks import CronClock
+
 from pipelines.constants import constants
 
 every_week_anp_microdados = Schedule(

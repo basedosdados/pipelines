@@ -3,33 +3,33 @@
 Flows for br_mg_belohorizonte_smfa_iptu
 """
 from datetime import timedelta
+
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
-from pipelines.utils.metadata.tasks import update_django_metadata
+
 from pipelines.constants import constants
-from pipelines.utils.constants import constants as utils_constants
-from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.constants import (
     constants as constants_iptu,
 )
+from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.schedules import every_weeks_iptu
 from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.tasks import (
-    download_and_transform,
-    make_partitions,
-    get_max_data,
     check_for_updates,
+    download_and_transform,
+    get_max_data,
+    make_partitions,
 )
-
+from pipelines.utils.constants import constants as utils_constants
+from pipelines.utils.decorators import Flow
+from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
-    rename_current_flow_run_dataset_table,
     get_current_flow_labels,
     log_task,
+    rename_current_flow_run_dataset_table,
 )
-
-from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.schedules import every_weeks_iptu
 
 with Flow(
     name="br_mg_belohorizonte_smfa_iptu.iptu", code_owners=["trick"]

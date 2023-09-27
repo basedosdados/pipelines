@@ -4,13 +4,14 @@ General purpose functions for the br_anatel_telefonia_movel project of the pipel
 """
 # pylint: disable=too-few-public-methods,invalid-name
 
-from io import BytesIO
-from zipfile import ZipFile
-from urllib.request import urlopen
 import os
-import pandas as pd
-import numpy as np
+from io import BytesIO
 from pathlib import Path
+from urllib.request import urlopen
+from zipfile import ZipFile
+
+import numpy as np
+import pandas as pd
 
 
 def download_and_unzip(url, path):

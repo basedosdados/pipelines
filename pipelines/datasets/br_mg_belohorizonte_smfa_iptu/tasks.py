@@ -2,22 +2,24 @@
 """
 Tasks for br_mg_belohorizonte_smfa_iptu
 """
-from prefect import task
+import os
+
 import requests
 from bs4 import BeautifulSoup
+from prefect import task
+
 from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.constants import constants
-from pipelines.utils.utils import extract_last_date, log, to_partitions
-import os
 from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.utils import (
-    scrapping_download_csv,
+    changing_coordinates,
     concat_csv,
-    rename_columns,
     fix_variables,
     new_column_endereco,
     new_columns_ano_mes,
+    rename_columns,
     reorder_and_fix_nan,
-    changing_coordinates,
+    scrapping_download_csv,
 )
+from pipelines.utils.utils import extract_last_date, log, to_partitions
 
 
 @task  # noqa

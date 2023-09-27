@@ -7,6 +7,7 @@ import json
 
 # pylint: disable=too-many-arguments
 import logging
+import re
 from datetime import datetime
 from os import getenv, walk
 from os.path import join
@@ -30,8 +31,6 @@ from prefect.run_configs import KubernetesRun, VertexRun
 from redis_pal import RedisPal
 
 from pipelines.constants import constants
-
-import re
 
 
 def log(msg: Any, level: str = "info") -> None:

@@ -5,38 +5,32 @@ Tasks for br_bcb_agencia
 
 
 import os
-import pandas as pd
 from datetime import timedelta
 
-from pipelines.datasets.br_bcb_agencia.constants import (
-    constants as agencia_constants,
-)
+import pandas as pd
+from prefect import task
 
+from pipelines.constants import constants
+from pipelines.datasets.br_bcb_agencia.constants import constants as agencia_constants
 from pipelines.datasets.br_bcb_agencia.utils import (
-    extract_download_links,
-    download_and_unzip,
-    read_file,
-    clean_column_names,
-    rename_cols,
     check_and_create_column,
+    clean_column_names,
     clean_nome_municipio,
+    create_cnpj_col,
+    download_and_unzip,
+    extract_download_links,
+    format_date,
     get_data_from_prod,
     order_cols,
-    remove_non_numeric_chars,
+    read_file,
     remove_empty_spaces,
-    format_date,
     remove_latin1_accents_from_df,
-    strip_dataframe_columns,
+    remove_non_numeric_chars,
+    rename_cols,
     str_to_title,
-    create_cnpj_col,
+    strip_dataframe_columns,
 )
-
-from prefect import task
-from pipelines.utils.utils import (
-    log,
-    to_partitions,
-)
-from pipelines.constants import constants
+from pipelines.utils.utils import log, to_partitions
 
 
 @task(

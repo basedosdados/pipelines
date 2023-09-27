@@ -3,9 +3,11 @@
 Schedules for br_sp_saopaulo_dieese_icv
 """
 
-from datetime import timedelta, datetime
-from prefect.schedules import Schedule, filters, adjustments
+from datetime import datetime, timedelta
+
+from prefect.schedules import Schedule, adjustments, filters
 from prefect.schedules.clocks import IntervalClock
+
 from pipelines.constants import constants
 
 every_month = Schedule(

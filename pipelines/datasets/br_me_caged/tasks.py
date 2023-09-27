@@ -2,16 +2,17 @@
 """
 Tasks for br_me_novo_caged
 """
+import os
+
 # pylint: disable=invalid-name
 import re
-import os
-from glob import glob
 from datetime import timedelta
+from glob import glob
 
-from prefect import task
 import pandas as pd
-from unidecode import unidecode
+from prefect import task
 from tqdm import tqdm
+from unidecode import unidecode
 
 from pipelines.constants import constants
 

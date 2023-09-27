@@ -5,9 +5,11 @@ General purpose functions for the process_df_with_architecture project
 
 
 from io import StringIO
+
 import numpy as np
 import pandas as pd
 import requests
+
 from pipelines.utils.utils import log
 
 

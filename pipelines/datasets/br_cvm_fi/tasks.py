@@ -3,33 +3,32 @@
 Tasks for br_cvm_fi
 """
 
-from prefect import task
-import pandas as pd
-import os
-from datetime import datetime
-import requests
-from tqdm import tqdm
-import zipfile
-from bs4 import BeautifulSoup
-import re
 import glob
-from rpy2.robjects.packages import importr
-import rpy2.robjects.packages as rpackages
+import os
+import re
+import zipfile
+from datetime import datetime
+
+import pandas as pd
+import requests
 import rpy2.robjects as ro
-from rpy2.robjects.vectors import StrVector
+import rpy2.robjects.packages as rpackages
+from bs4 import BeautifulSoup
+from prefect import task
 from rpy2.robjects import pandas2ri
+from rpy2.robjects.packages import importr
+from rpy2.robjects.vectors import StrVector
+from tqdm import tqdm
+
+from pipelines.datasets.br_cvm_fi.constants import constants as cvm_constants
 from pipelines.datasets.br_cvm_fi.utils import (
-    sheet_to_df,
-    rename_columns,
     check_and_create_column,
     limpar_string,
     obter_anos_meses,
+    rename_columns,
+    sheet_to_df,
 )
-from pipelines.utils.utils import (
-    log,
-    to_partitions,
-)
-from pipelines.datasets.br_cvm_fi.constants import constants as cvm_constants
+from pipelines.utils.utils import log, to_partitions
 
 
 @task

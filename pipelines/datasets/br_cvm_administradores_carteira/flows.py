@@ -12,27 +12,26 @@ from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
 from pipelines.datasets.br_cvm_administradores_carteira.schedules import (
-    schedule_responsavel,
     schedule_fisica,
     schedule_juridica,
+    schedule_responsavel,
 )
 from pipelines.datasets.br_cvm_administradores_carteira.tasks import (
-    crawl,
-    clean_table_responsavel,
     clean_table_pessoa_fisica,
     clean_table_pessoa_juridica,
+    clean_table_responsavel,
+    crawl,
     extract_last_date,
 )
-from pipelines.utils.metadata.tasks import update_django_metadata
-
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
+    get_current_flow_labels,
     get_temporal_coverage,
     rename_current_flow_run_dataset_table,
-    get_current_flow_labels,
 )
 
 ROOT = "/tmp/data"

@@ -6,9 +6,9 @@ import os
 import re
 from io import BytesIO
 from typing import Tuple
-import requests
 
 import pandas as pd
+import requests
 from bs4 import BeautifulSoup
 from prefect import task
 

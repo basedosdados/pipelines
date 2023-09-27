@@ -2,17 +2,19 @@
 """
 General purpose functions for the br_anp_precos_combustiveis project
 """
-import basedosdados as bd
-import pandas as pd
-import unidecode
 import os
-import requests
-from pipelines.utils.utils import log
 from datetime import datetime
+
+import basedosdados as bd
+import numpy as np
+import pandas as pd
+import requests
+import unidecode
+
 from pipelines.datasets.br_anp_precos_combustiveis.constants import (
     constants as anatel_constants,
 )
-import numpy as np
+from pipelines.utils.utils import log
 
 
 def download_files(urls, path):
