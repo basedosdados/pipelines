@@ -3,19 +3,20 @@
 General purpose functions for the br_cgu_servidores_executivo_federal project
 """
 
-from pipelines.utils.utils import log
+import datetime
+import io
+import os
+import zipfile
+
+import pandas as pd
+import requests
+
 from pipelines.datasets.br_cgu_servidores_executivo_federal.constants import constants
 from pipelines.utils.apply_architecture_to_dataframe.utils import (
-    rename_columns,
     read_architecture_table,
+    rename_columns,
 )
-
-import os
-import requests
-import zipfile
-import io
-import datetime
-import pandas as pd
+from pipelines.utils.utils import log
 
 
 def make_url(sheet_name: str, date: datetime.date) -> str:
@@ -149,8 +150,10 @@ def read_and_clean_csv(
     df = pd.read_csv(
         path,
         sep=";",
-        encoding="windows-1252",
-    )
+        encoding="latin-1",
+    ).rename(
+        columns=lambda col: col.replace("\x96 ", "")
+    )  # some csv files contains \x96 in header lines
 
     url_architecture = constants.ARCH.value[table_name]
 
