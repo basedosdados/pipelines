@@ -11,13 +11,10 @@ from pipelines.datasets.br_bcb_agencia.constants import constants as agencia_con
 from pipelines.datasets.br_bcb_agencia.schedules import every_month_agencia
 from pipelines.datasets.br_bcb_agencia.tasks import clean_data, download_data
 from pipelines.utils.constants import constants as utils_constants
-
-from pipelines.utils.metadata.tasks import update_django_metadata
-
 from pipelines.utils.decorators import Flow
-
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.utils.metadata.flows import update_django_metadata
+from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,

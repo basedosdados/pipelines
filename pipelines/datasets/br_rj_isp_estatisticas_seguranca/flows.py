@@ -10,10 +10,6 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-
-from pipelines.utils.metadata.tasks import update_django_metadata
-from pipelines.utils.constants import constants as utils_constants
-
 from pipelines.datasets.br_rj_isp_estatisticas_seguranca.constants import (
     constants as isp_constants,
 )
@@ -27,7 +23,6 @@ from pipelines.datasets.br_rj_isp_estatisticas_seguranca.schedules import (
     every_month_taxa_evolucao_mensal_municipio,
     every_month_taxa_evolucao_mensal_uf,
 )
-
 from pipelines.datasets.br_rj_isp_estatisticas_seguranca.tasks import (
     clean_data,
     download_files,
@@ -36,6 +31,7 @@ from pipelines.datasets.br_rj_isp_estatisticas_seguranca.tasks import (
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,

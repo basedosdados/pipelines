@@ -9,7 +9,7 @@ from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
-from pipelines.utils.metadata.tasks import update_django_metadata
+
 from pipelines.constants import constants
 from pipelines.datasets.br_me_comex_stat.constants import constants as comex_constants
 from pipelines.datasets.br_me_comex_stat.schedules import (
@@ -25,12 +25,8 @@ from pipelines.datasets.br_me_comex_stat.tasks import (
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
-
-    rename_current_flow_run_dataset_table,
-    get_current_flow_labels,
-
-
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
     rename_current_flow_run_dataset_table,
