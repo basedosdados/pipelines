@@ -9,9 +9,8 @@ import glob
 import os
 import ssl
 from time import sleep
-import basedosdados as bd
-from datetime import datetime
 
+import basedosdados as bd
 import pandas as pd
 import wget
 from prefect import task

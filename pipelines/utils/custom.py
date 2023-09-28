@@ -3,7 +3,6 @@
 Customizing stuff for the pipelines package.
 """
 
-from functools import partial
 from typing import Callable, Iterable, List, Optional, Set
 
 from prefect.core.edge import Edge
@@ -18,8 +17,8 @@ from prefect.schedules import Schedule
 from prefect.storage import Storage
 
 from pipelines.constants import constants
-# from pipelines.utils.utils import notify_discord_on_failure
 
+# from pipelines.utils.utils import notify_discord_on_failure
 
 
 class CustomFlow(Flow):
