@@ -4,36 +4,32 @@ Flows for br_ans_beneficiario
 """
 
 
-from datetime import datetime, timedelta
+from datetime import timedelta
+
+from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
+from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
+
 from pipelines.constants import constants
+from pipelines.datasets.br_ans_beneficiario.schedules import every_day_ans
 from pipelines.datasets.br_ans_beneficiario.tasks import (
-    extract_links_and_dates,
     check_for_updates,
     crawler_ans,
-    is_empty,
+    extract_links_and_dates,
     get_today_date,
+    is_empty,
 )
-
-from pipelines.datasets.br_ans_beneficiario.schedules import every_day_ans
-from pipelines.utils.decorators import Flow
-from prefect import Parameter, case
 from pipelines.utils.constants import constants as utils_constants
+from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.tasks import (
+from pipelines.utils.metadata.flows import update_django_metadata
+from pipelines.utils.tasks import (  # update_django_metadata,
     create_table_and_upload_to_gcs,
-    rename_current_flow_run_dataset_table,
     get_current_flow_labels,
     log_task,
-    # update_django_metadata,
+    rename_current_flow_run_dataset_table,
 )
-from pipelines.utils.metadata.flows import update_django_metadata
-from prefect.tasks.prefect import (
-    create_flow_run,
-    wait_for_flow_run,
-)
-
 
 with Flow(
     name="br_ans_beneficiario.informacao_consolidada",

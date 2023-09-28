@@ -11,13 +11,11 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
+from pipelines.datasets.fundacao_lemann.schedules import every_year
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-
 from pipelines.utils.tasks import get_current_flow_labels
-
-from pipelines.datasets.fundacao_lemann.schedules import every_year
 
 with Flow(
     name="fundacao_lemann.ano_escola_serie_educacao_aprendizagem_adequada",

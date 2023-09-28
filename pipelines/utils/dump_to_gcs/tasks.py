@@ -6,10 +6,10 @@ from datetime import datetime
 from time import sleep
 from typing import Union
 
+import jinja2
 from basedosdados.download.base import google_client
 from basedosdados.upload.base import Base
 from google.cloud import bigquery
-import jinja2
 from prefect import task
 
 from pipelines.utils.dump_to_gcs.constants import constants as dump_to_gcs_constants

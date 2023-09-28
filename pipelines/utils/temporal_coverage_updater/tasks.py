@@ -4,21 +4,19 @@ Tasks for temporal_coverage_updater
 """
 
 
-from prefect import task
-
 # from basedosdados.upload.base import Base
 import basedosdados as bd
+from prefect import task
+
 from pipelines.utils.temporal_coverage_updater.utils import (
-    find_ids,
-    parse_temporal_coverage,
-    get_credentials,
     create_update,
     extract_last_update,
+    find_ids,
+    get_credentials,
     get_first_date,
+    parse_temporal_coverage,
 )
-from datetime import datetime
-from pipelines.utils.utils import log, get_credentials_from_secret
-from typing import Tuple
+from pipelines.utils.utils import get_credentials_from_secret, log
 
 
 ## TODO: Transformar flow em task OK

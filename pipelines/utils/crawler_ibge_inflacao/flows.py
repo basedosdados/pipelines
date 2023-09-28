@@ -3,21 +3,17 @@
 Flows for ibge inflacao
 """
 # pylint: disable=C0103, E1123, invalid-name, duplicate-code, R0801
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from prefect import Parameter, case
-from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
+from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.constants import constants as utils_constants
 from pipelines.constants import constants
+from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.crawler_ibge_inflacao.tasks import (
-    crawler,
     clean_mes_brasil,
-    clean_mes_rm,
-    clean_mes_municipio,
     clean_mes_geral,
     extract_last_date,
 )
@@ -27,7 +23,7 @@ from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_temporal_coverage,
     rename_current_flow_run_dataset_table,
-    get_current_flow_labels,
+    update_metadata,
 )
 
 with Flow(

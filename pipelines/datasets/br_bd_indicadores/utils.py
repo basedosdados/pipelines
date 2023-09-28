@@ -5,8 +5,7 @@ utils for br_bd_indicadores
 # pylint: disable=too-few-public-methods
 import collections
 import os
-from typing import List
-from typing import Tuple
+from typing import List, Tuple
 
 import pandas as pd
 import requests
@@ -14,8 +13,6 @@ from google.analytics.data_v1beta import BetaAnalyticsDataClient
 from google.analytics.data_v1beta.types import (
     Dimension,
     Metric,
-)
-from google.analytics.data_v1beta.types import (
     RunRealtimeReportRequest,
 )
 from googleapiclient.discovery import build
