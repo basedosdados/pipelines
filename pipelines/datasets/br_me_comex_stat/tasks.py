@@ -3,29 +3,21 @@
 """
 Tasks for br_me_comex_stat
 """
-# pylint: disable=invalid-name,too-many-nested-blocks
-from glob import glob
-from zipfile import ZipFile
-import time as tm
-from datetime import timedelta
-import pandas as pd
-import numpy as np
-from prefect import task
-from pathlib import Path
-from typing import Union, List
-import basedosdados as bd
 import os
+import time as tm
 
+# pylint: disable=invalid-name,too-many-nested-blocks
+from zipfile import ZipFile
 
-from pipelines.datasets.br_me_comex_stat.utils import create_paths, download_data
-from pipelines.datasets.br_me_comex_stat.constants import constants as comex_constants
+import basedosdados as bd
+import numpy as np
+import pandas as pd
+from prefect import task
 
 from pipelines.constants import constants
-
-from pipelines.utils.utils import (
-    log,
-    to_partitions,
-)
+from pipelines.datasets.br_me_comex_stat.constants import constants as comex_constants
+from pipelines.datasets.br_me_comex_stat.utils import create_paths, download_data
+from pipelines.utils.utils import log, to_partitions
 
 
 @task

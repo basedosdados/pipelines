@@ -5,14 +5,15 @@ General purpose functions for the br_inmet_bdmep project
 
 # pylint: disable=too-few-public-methods,invalid-name
 
-import pandas as pd
+import os
+import re
 import tempfile
 import urllib.request
 import zipfile
-import os
-import numpy as np
-import re
 from datetime import datetime, time
+
+import numpy as np
+import pandas as pd
 from unidecode import unidecode
 
 

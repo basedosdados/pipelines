@@ -4,27 +4,25 @@ Flows for br_sp_saopaulo_dieese_icv
 """
 # pylint: disable=C0103, E1123
 
-from datetime import datetime, timedelta
+from datetime import timedelta
 
+from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
-from prefect import Parameter, case
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.datasets.br_sp_saopaulo_dieese_icv.schedules import every_month
+from pipelines.datasets.br_sp_saopaulo_dieese_icv.tasks import clean_dieese_icv
 from pipelines.utils.constants import constants as utils_constants
-from pipelines.datasets.br_sp_saopaulo_dieese_icv.tasks import (
-    clean_dieese_icv,
-)
 from pipelines.utils.decorators import Flow
+from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
-    update_metadata,
-    rename_current_flow_run_dataset_table,
     get_current_flow_labels,
+    rename_current_flow_run_dataset_table,
+    update_metadata,
 )
-from pipelines.datasets.br_sp_saopaulo_dieese_icv.schedules import every_month
 
 with Flow(
     name="br_sp_saopaulo_dieese_icv.mes", code_owners=["crislanealves"]
@@ -96,4 +94,4 @@ with Flow(
 
 br_sp_dieese.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_sp_dieese.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_sp_dieese.schedule = every_month
+# br_sp_dieese.schedule = every_month

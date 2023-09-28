@@ -4,7 +4,7 @@ Flows for br_tse_eleicoes
 """
 # pylint: disable=invalid-name,line-too-long
 
-from prefect import Parameter, unmapped, case
+from prefect import Parameter, case, unmapped
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
@@ -12,10 +12,10 @@ from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 from pipelines.constants import constants
 from pipelines.datasets.cross_update.schedules import schedule_nrows
 from pipelines.datasets.cross_update.tasks import (
-    datasearch_json,
     crawler_tables,
-    update_nrows,
+    datasearch_json,
     rename_blobs,
+    update_nrows,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow

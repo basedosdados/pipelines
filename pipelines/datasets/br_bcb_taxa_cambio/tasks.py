@@ -3,10 +3,9 @@
 Tasks for br_bcb_indicadores
 """
 
-import datetime
-from pipelines.utils.utils import log, to_partitions
-from prefect import task
 import pandas as pd
+from prefect import task
+
 from pipelines.datasets.br_bcb_taxa_cambio.constants import constants as bcb_constants
 from pipelines.datasets.br_bcb_taxa_cambio.utils import (
     available_currencies,
@@ -15,6 +14,7 @@ from pipelines.datasets.br_bcb_taxa_cambio.utils import (
     save_input,
     treat_currency_df,
 )
+from pipelines.utils.utils import log, to_partitions
 
 
 @task

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
+import pkgutil
 from os import path
 from pathlib import Path
-import pkgutil
 from sys import exit
 from uuid import uuid4
 

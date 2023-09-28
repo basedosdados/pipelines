@@ -7,9 +7,9 @@ import ssl
 from datetime import datetime
 
 import requests
-from prefect.schedules import Schedule, filters, adjustments
-from prefect.schedules.clocks import CronClock
 import urllib3
+from prefect.schedules import Schedule, adjustments, filters
+from prefect.schedules.clocks import CronClock
 
 from pipelines.constants import constants
 
