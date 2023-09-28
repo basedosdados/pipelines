@@ -55,7 +55,7 @@ with Flow(name="br_stf_corte_aberta.decisoes", code_owners=["trick"]) as br_stf:
         )
     with case(dados_desatualizados, True):
         df = download_and_transform(upstream_tasks=[rename_flow_run])
-        output_path = make_partitions(df=df)
+        output_path = make_partitions(df=df, upstream_tasks=[df])
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_path,
             dataset_id=dataset_id,
