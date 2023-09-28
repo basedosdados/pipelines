@@ -61,19 +61,3 @@ def generate_execute_dbt_model_schedules(  # pylint: disable=too-many-arguments,
             )
         )
     return clocks
-
-def parse_dbt_logs(logs_dict: dict, log_queries: bool = False):
-    """Parse dbt returned logs, to print only needed
-    pieces.
-
-    Args:
-        logs_dict (dict): logs dict returned when running a DBT
-        command via DbtClient.cli() with argument logs = True
-    """
-    for event in logs_dict["result"]["logs"]:
-        if event["levelname"] == "INFO" or event["levelname"] == "ERROR":
-            log(f"#####{event['levelname']}#####")
-            log(event["message"])
-        if event["levelname"] == "DEBUG" and log_queries:
-            if "On model" in event["message"]:
-                log(event["message"])
