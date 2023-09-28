@@ -45,12 +45,14 @@ with Flow(name="br_stf_corte_aberta.decisoes", code_owners=["trick"]) as br_stf:
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
     update_metadata = Parameter("update_metadata", default=True, required=False)
-    dados_desatualizados = check_for_updates(dataset_id=dataset_id, table_id=table_id)
+    dados_desatualizados = check_for_updates(
+        dataset_id=dataset_id, table_id=table_id, upstream_tasks=[rename_flow_run]
+    )
     log_task(f"Checando se os dados estão desatualizados: {dados_desatualizados}")
     with case(dados_desatualizados, False):
         log_task(
             "Dados atualizados, não é necessário fazer o download",
-            upstream_tasks=[dados_desatualizados],
+            upstream_tasks=[dados_desatualizados, rename_flow_run],
         )
     with case(dados_desatualizados, True):
         df = download_and_transform(upstream_tasks=[rename_flow_run])
