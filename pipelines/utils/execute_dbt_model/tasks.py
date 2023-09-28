@@ -8,10 +8,10 @@ from datetime import timedelta
 
 from dbt_client import DbtClient
 from prefect import task
-from pipelines.utils.utils import log
 
 from pipelines.constants import constants
 from pipelines.utils.execute_dbt_model.utils import get_dbt_client
+from pipelines.utils.utils import log
 
 
 @task(
@@ -55,7 +55,7 @@ def run_dbt_model(
     if dbt_alias:
         table_id = f"{dataset_id}__{table_id}"
 
-    if 'run' in dbt_command:
+    if "run" in dbt_command:
         logs_dict = dbt_client.cli(
             f"run --models {dataset_id}.{table_id}",
             sync=sync,
@@ -68,8 +68,8 @@ def run_dbt_model(
                 if "On model" in event["message"]:
                     log(event["message"])
 
-    if 'test' in dbt_command:
-        logs_dict  = dbt_client.cli(
+    if "test" in dbt_command:
+        logs_dict = dbt_client.cli(
             f"test --models {dataset_id}.{table_id}",
             sync=sync,
             logs=True,
