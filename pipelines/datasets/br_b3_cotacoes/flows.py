@@ -16,11 +16,11 @@ from pipelines.datasets.br_b3_cotacoes.tasks import data_max_b3, tratamento
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
     rename_current_flow_run_dataset_table,
-    update_django_metadata,
 )
 from pipelines.utils.utils import log
 
@@ -94,6 +94,9 @@ with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
                 table_id,
                 metadata_type="DateTimeRange",
                 bq_last_update=False,
+                bq_table_last_year_month=False,
+                is_bd_pro=True,
+                is_free=False,
                 api_mode="prod",
                 date_format="yy-mm-dd",
                 _last_date=data_max,
