@@ -33,14 +33,14 @@ def check_for_updates(dataset_id, table_id):
         dataset_id=dataset_id,
         table_id=table_id,
         date_format="yy-mm-dd",
-        billing_project_id="basedosdados-dev",
+        billing_project_id="basedosdados",
         data="data_decisao",
     )
     # Registra a data mais recente do site
     log(f"Última data no site do STF: {data_obj}")
     log(f"Última data no site da BD: {data_bq_obj}")
     # Compara as datas para verificar se há atualizações
-    if data_obj == data_bq_obj:
+    if data_obj > data_bq_obj:
         return True  # Há atualizações disponíveis
     else:
         return False  # Não há novas atualizações disponíveis
