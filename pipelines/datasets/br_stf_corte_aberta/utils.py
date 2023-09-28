@@ -37,17 +37,19 @@ def web_scrapping():
     options.add_argument("--crash-dumps-dir=/tmp")
     options.add_argument("--remote-debugging-port=9222")
     driver = webdriver.Chrome(options=options)
-    time.sleep(50)
+    time.sleep(30)
     driver.get(stf_constants.STF_LINK.value)
-    time.sleep(50)
+    time.sleep(30)
     driver.maximize_window()
-    time.sleep(50)
+    time.sleep(30)
     driver.find_element("xpath", '//*[@id="EXPORT-BUTTON-2"]/button').click()
-    time.sleep(50)
+    time.sleep(30)
 
 
 def read_csv():
     arquivos = os.listdir(stf_constants.STF_INPUT.value)
+    log("Verificando dados dentro do container")
+    log(arquivos)
     for arquivo in arquivos:
         if arquivo.endswith(".csv"):
             df = pd.read_csv(stf_constants.STF_INPUT.value + arquivo, dtype=str)
