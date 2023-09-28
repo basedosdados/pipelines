@@ -2,22 +2,24 @@
 """
 Tasks for br_stf_corte_aberta
 """
-from prefect import task
-import pandas as pd
 from datetime import timedelta
+
+import pandas as pd
+from prefect import task
+
+from pipelines.constants import constants
+from pipelines.datasets.br_stf_corte_aberta.constants import constants as stf_constants
 from pipelines.datasets.br_stf_corte_aberta.utils import (
-    read_csv,
-    fix_columns_data,
+    check_for_data,
     column_bool,
+    extract_last_date,
+    fix_columns_data,
+    partition_data,
+    read_csv,
     rename_ordening_columns,
     replace_columns,
-    partition_data,
-    extract_last_date,
-    check_for_data,
 )
-from pipelines.constants import constants
 from pipelines.utils.utils import log
-from pipelines.datasets.br_stf_corte_aberta.constants import constants as stf_constants
 
 
 @task(

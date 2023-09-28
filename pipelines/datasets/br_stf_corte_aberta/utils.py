@@ -2,13 +2,15 @@
 """
 General purpose functions for the br_stf_corte_aberta project
 """
-from selenium import webdriver
-import time
 import os
-import pandas as pd
-import numpy as np
-import basedosdados as bd
+import time
 from datetime import datetime
+
+import basedosdados as bd
+import numpy as np
+import pandas as pd
+from selenium import webdriver
+
 from pipelines.datasets.br_stf_corte_aberta.constants import constants as stf_constants
 from pipelines.utils.utils import log
 
