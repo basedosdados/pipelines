@@ -11,6 +11,7 @@ from prefect import task
 
 from pipelines.constants import constants
 from pipelines.utils.execute_dbt_model.utils import get_dbt_client
+from pipelines.utils.utils import log
 
 
 @task(
@@ -42,15 +43,40 @@ def run_dbt_model(
     dataset_id: str,
     table_id: str,
     dbt_alias: bool,
+    dbt_command: str,
     sync: bool = True,
 ):
     """
     Run a DBT model.
     """
+    if dbt_command not in ["run", "test", "run and test", "run/test"]:
+        raise ValueError(f"Invalid dbt_command: {dbt_command}")
+
     if dbt_alias:
         table_id = f"{dataset_id}__{table_id}"
-    dbt_client.cli(
-        f"run --models {dataset_id}.{table_id}",
-        sync=sync,
-        logs=True,
-    )
+
+    if "run" in dbt_command:
+        logs_dict = dbt_client.cli(
+            f"run --models {dataset_id}.{table_id}",
+            sync=sync,
+            logs=True,
+        )
+        for event in logs_dict["result"]["logs"]:
+            if event["levelname"] == "INFO":
+                log(event["message"])
+            if event["levelname"] == "DEBUG":
+                if "On model" in event["message"]:
+                    log(event["message"])
+
+    if "test" in dbt_command:
+        logs_dict = dbt_client.cli(
+            f"test --models {dataset_id}.{table_id}",
+            sync=sync,
+            logs=True,
+        )
+        for event in logs_dict["result"]["logs"]:
+            if event["levelname"] == "INFO":
+                log(event["message"])
+            if event["levelname"] == "DEBUG":
+                if "On model" in event["message"]:
+                    log(event["message"])
