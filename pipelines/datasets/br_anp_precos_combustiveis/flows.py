@@ -11,15 +11,11 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.datasets.br_anp_precos_combustiveis.constants import (
-    constants as anatel_constants,
-)
 from pipelines.datasets.br_anp_precos_combustiveis.schedules import (
     every_week_anp_microdados,
 )
 from pipelines.datasets.br_anp_precos_combustiveis.tasks import (
     check_for_updates,
-    data_max_bd_mais,
     data_max_bd_pro,
     download_and_transform,
     make_partitions,
