@@ -19,7 +19,7 @@ from prefect.storage import Storage
 
 from pipelines.constants import constants
 
-from pipelines.utils.utils import notify_discord_on_failure
+# from pipelines.utils.utils import notify_discord_on_failure
 
 
 class CustomFlow(Flow):
@@ -58,11 +58,11 @@ class CustomFlow(Flow):
             edges=edges,
             reference_tasks=reference_tasks,
             state_handlers=state_handlers,
-            on_failure=partial(
-                notify_discord_on_failure,
-                secret_path=constants.BD_DISCORD_WEBHOOK_SECRET_PATH.value,
-                code_owners=code_owners,
-            ),
+            # on_failure=partial(
+            #     notify_discord_on_failure,
+            #     secret_path=constants.BD_DISCORD_WEBHOOK_SECRET_PATH.value,
+            #     code_owners=code_owners,
+            # ),
             validate=validate,
             result=result,
             terminal_state_handler=terminal_state_handler,
