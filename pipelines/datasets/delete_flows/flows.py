@@ -6,13 +6,13 @@ from prefect import Parameter
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
+from pipelines.constants import constants
 from pipelines.datasets.delete_flows.schedules import daily_at_3am
 from pipelines.datasets.delete_flows.tasks import (
     delete_flow_run,
     get_old_flows_runs,
     get_prefect_client,
 )
-from pipelines.constants import constants
 from pipelines.utils.decorators import Flow
 
 with Flow(

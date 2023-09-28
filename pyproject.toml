@@ -104,10 +104,14 @@ wget = "^3.2"
 zict = "2.0.0"
 selenium = "^4.11.2"
 fastparquet = "^2023.7.0"
-
+geopandas = "0.13.2"
+shapely = "2.0.1"
 
 [tool.poetry.dev-dependencies]
 pytest_cov = "^3.0.0"
+
+[tool.poetry.scripts]
+lint = "scripts.lint:main"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"

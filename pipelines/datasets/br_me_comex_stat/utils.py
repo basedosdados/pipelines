@@ -2,12 +2,12 @@
 """ Utils for the Brazilian Comex Stat pipeline. """
 # pylint: disable=invalid-name
 import os
-import wget
 import time as tm
+
+import wget
 from tqdm import tqdm
-from pipelines.utils.utils import (
-    log,
-)
+
+from pipelines.utils.utils import log
 
 
 def create_paths(

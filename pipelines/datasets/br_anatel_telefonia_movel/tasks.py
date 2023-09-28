@@ -3,18 +3,20 @@
 Tasks for dataset br_anatel_telefonia_movel
 """
 
-from prefect import task
-import pandas as pd
-import numpy as np
-from datetime import datetime, timedelta
 import os
+from datetime import datetime, timedelta
+
+import numpy as np
+import pandas as pd
+from prefect import task
+
 from pipelines.constants import constants
+from pipelines.datasets.br_anatel_telefonia_movel.constants import (
+    constants as anatel_constants,
+)
 from pipelines.datasets.br_anatel_telefonia_movel.utils import (
     download_and_unzip,
     to_partitions_microdados,
-)
-from pipelines.datasets.br_anatel_telefonia_movel.constants import (
-    constants as anatel_constants,
 )
 from pipelines.utils.utils import log
 

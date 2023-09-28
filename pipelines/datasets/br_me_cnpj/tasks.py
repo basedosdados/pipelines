@@ -2,26 +2,25 @@
 """
 Tasks for br_me_cnpj
 """
-from pipelines.utils.utils import extract_last_date, log
+import os
+from datetime import datetime
+
+import pandas as pd
+import requests
 from prefect import task
-from pipelines.datasets.br_me_cnpj.constants import (
-    constants as constants_cnpj,
-)
+from tqdm import tqdm
+
+from pipelines.datasets.br_me_cnpj.constants import constants as constants_cnpj
 from pipelines.datasets.br_me_cnpj.utils import (
     data_url,
     destino_output,
     download_unzip_csv,
-    process_csv_estabelecimentos,
-    process_csv_socios,
     process_csv_empresas,
+    process_csv_estabelecimentos,
     process_csv_simples,
+    process_csv_socios,
 )
-import os
-import requests
-import zipfile
-import pandas as pd
-from datetime import datetime, timedelta
-from tqdm import tqdm
+from pipelines.utils.utils import extract_last_date, log
 
 ufs = constants_cnpj.UFS.value
 url = constants_cnpj.URL.value

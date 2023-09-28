@@ -4,20 +4,18 @@ General purpose functions for the metadata project
 """
 
 import json
+import re
 
 # pylint: disable=too-many-arguments
 from datetime import datetime
-from os import getenv, walk
-from typing import Any, Dict, List, Tuple
+from typing import Tuple
 
 import basedosdados as bd
 import numpy as np
 import pandas as pd
 import requests
-from pipelines.utils.utils import log, get_credentials_from_secret
 
-
-import re
+from pipelines.utils.utils import get_credentials_from_secret, log
 
 
 #######################

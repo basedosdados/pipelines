@@ -3,22 +3,22 @@
 General purpose functions for the br-bcb-taxa-selic project
 """
 
-from io import BytesIO
 import os
+import time as tm
+from io import BytesIO
 from urllib.request import urlopen
 from zipfile import ZipFile
+
 import pandas as pd
 import requests
-import time as tm
-from pipelines.utils.utils import (
-    log,
+
+from pipelines.datasets.br_bcb_taxa_selic.constants import (
+    constants as taxa_selic_constants,
 )
 from pipelines.utils.apply_architecture_to_dataframe.utils import (
     apply_architecture_to_dataframe,
 )
-from pipelines.datasets.br_bcb_taxa_selic.constants import (
-    constants as taxa_selic_constants,
-)
+from pipelines.utils.utils import log
 
 
 def create_url_selic(start_date: str, end_date: str, moeda="USD") -> str:

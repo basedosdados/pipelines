@@ -3,21 +3,22 @@
 Tasks for metadata
 """
 
-from prefect import task
 from datetime import datetime
-from pipelines.utils.utils import log, get_credentials_from_secret
-from typing import Tuple
+
+from dateutil.relativedelta import relativedelta
+from prefect import task
+
 from pipelines.utils.metadata.utils import (
-    get_ids,
-    parse_temporal_coverage,
-    get_credentials_utils,
     create_update,
-    extract_last_update,
     extract_last_date,
+    extract_last_update,
+    get_credentials_utils,
     get_first_date,
     get_id,
+    get_ids,
+    parse_temporal_coverage,
 )
-from dateutil.relativedelta import relativedelta
+from pipelines.utils.utils import get_credentials_from_secret, log
 
 
 @task
@@ -107,8 +108,9 @@ def update_django_metadata(
         "weeks": "weeks",
         "days": "days",
     }
-    if not isinstance(_last_date, str):
-        raise ValueError("O parâmetro `last_date` deve ser do tipo string")
+
+    if not isinstance(_last_date, str) and _last_date is not None:
+        raise ValueError("O parâmetro `last_date` deve ser uma string não nula")
 
     if time_unit not in unidades_permitidas:
         raise ValueError(

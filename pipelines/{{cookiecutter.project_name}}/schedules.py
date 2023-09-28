@@ -70,9 +70,11 @@ Schedules for {{cookiecutter.project_name}}
 ###############################################################################
 
 
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
+
 from prefect.schedules import Schedule
 from prefect.schedules.clocks import IntervalClock
+
 from pipelines.constants import constants
 
 every_two_weeks = Schedule(

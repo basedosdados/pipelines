@@ -3,16 +3,17 @@
 Schedules for br_ms_cnes
 """
 
-from prefect.schedules import Schedule, filters, adjustments
-from prefect.schedules.clocks import CronClock
 from datetime import datetime
-from pipelines.constants import constants
 
+from prefect.schedules import Schedule, adjustments, filters
+from prefect.schedules.clocks import CronClock
+
+from pipelines.constants import constants
 
 schedule_br_ms_cnes_estabelecimento = Schedule(
     clocks=[
         CronClock(
-            cron="0 0 * * *",  # every day at midnight
+            cron="0 9 * * *",  # every day at 9:00
             start_date=datetime(2023, 9, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
@@ -31,11 +32,11 @@ schedule_br_ms_cnes_estabelecimento = Schedule(
     adjustments=[adjustments.next_weekday],
 )
 
-
+# todo selecionar outro horário
 schedule_br_ms_cnes_profissional = Schedule(
     clocks=[
         CronClock(
-            cron="0 0 * * *",  # every day at midnight
+            cron="30 6 * * *",  # every day at 18:30
             start_date=datetime(2023, 9, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
@@ -58,7 +59,7 @@ schedule_br_ms_cnes_profissional = Schedule(
 schedule_br_ms_cnes_equipe = Schedule(
     clocks=[
         CronClock(
-            cron="0 0 * * *",  # every day at midnight
+            cron="30 9 * * *",  # every day 9:30
             start_date=datetime(2023, 9, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
@@ -80,7 +81,7 @@ schedule_br_ms_cnes_equipe = Schedule(
 schedule_br_ms_cnes_leito = Schedule(
     clocks=[
         CronClock(
-            cron="0 0 * * *",  # every day at midnight
+            cron="0 10 * * *",  # every day at 10:00
             start_date=datetime(2023, 9, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
@@ -102,7 +103,7 @@ schedule_br_ms_cnes_leito = Schedule(
 schedule_br_ms_cnes_equipamento = Schedule(
     clocks=[
         CronClock(
-            cron="0 0 * * *",  # every day at midnight
+            cron="30 10 * * *",  # every day at 10:30
             start_date=datetime(2023, 9, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
@@ -124,7 +125,7 @@ schedule_br_ms_cnes_equipamento = Schedule(
 schedule_br_ms_cnes_estabelecimento_ensino = Schedule(
     clocks=[
         CronClock(
-            cron="0 0 * * *",  # every day at midnight
+            cron="45 10 * * *",  # every day at 10:45
             start_date=datetime(2023, 9, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
@@ -146,7 +147,7 @@ schedule_br_ms_cnes_estabelecimento_ensino = Schedule(
 schedule_br_ms_cnes_dados_complementares = Schedule(
     clocks=[
         CronClock(
-            cron="0 0 * * *",  # every day at midnight
+            cron="0 11 * * *",  # every day 11:00
             start_date=datetime(2023, 9, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
@@ -168,7 +169,7 @@ schedule_br_ms_cnes_dados_complementares = Schedule(
 schedule_br_ms_cnes_estabelecimento_filantropico = Schedule(
     clocks=[
         CronClock(
-            cron="0 0 * * *",  # every day at midnight
+            cron="15 11 * * *",  # every day at 11:15
             start_date=datetime(2023, 9, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
@@ -189,7 +190,7 @@ schedule_br_ms_cnes_estabelecimento_filantropico = Schedule(
 schedule_br_ms_cnes_gestao_metas = Schedule(
     clocks=[
         CronClock(
-            cron="0 0 * * *",  # every day at midnight
+            cron="30 11 * * *",  # every day at 11:30
             start_date=datetime(2023, 9, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
@@ -212,7 +213,7 @@ schedule_br_ms_cnes_gestao_metas = Schedule(
 schedule_br_ms_cnes_habilitacao = Schedule(
     clocks=[
         CronClock(
-            cron="0 0 * * *",  # every day at midnight
+            cron="45 11 * * *",  # every day at 11:45
             start_date=datetime(2023, 9, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
@@ -234,7 +235,7 @@ schedule_br_ms_cnes_habilitacao = Schedule(
 schedule_br_ms_cnes_incentivos = Schedule(
     clocks=[
         CronClock(
-            cron="0 0 * * *",  # every day at midnight
+            cron="45 11 * * *",  # every day at 11:45
             start_date=datetime(2023, 9, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
@@ -256,7 +257,7 @@ schedule_br_ms_cnes_incentivos = Schedule(
 schedule_br_ms_cnes_regra_contratual = Schedule(
     clocks=[
         CronClock(
-            cron="0 0 * * *",  # every day at midnight
+            cron="0 12 * * *",  # every day at 12:00
             start_date=datetime(2023, 9, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
@@ -279,7 +280,7 @@ schedule_br_ms_cnes_regra_contratual = Schedule(
 schedule_br_ms_cnes_servico_especializado = Schedule(
     clocks=[
         CronClock(
-            cron="0 0 * * *",  # every day at midnight
+            cron="30 12 * * *",  # every day at 12:30
             start_date=datetime(2023, 9, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
