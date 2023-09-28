@@ -8,8 +8,6 @@ from typing import List
 from dbt_client import DbtClient
 from prefect.schedules.clocks import IntervalClock
 
-from pipelines.utils.utils import log
-
 
 def get_dbt_client(
     host: str = "dbt-rpc",
