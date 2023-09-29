@@ -445,8 +445,9 @@ def extraction_pre_2012(month: int, year: int, year_dir_name: str, zip_file: str
         return
     with ZipFile(zip_file, "r") as g:
         compressed_files = [file for file in g.infolist() if not file.is_dir()]
-        new_filename = None
+
         for file in compressed_files:
+            new_filename = None
             filename = file.filename.split("/")[-1]
             if re.search("Tipo", filename, re.IGNORECASE) or re.search(
                 r"Tipo[-\s]UF", zip_file.split("/")[-1]
