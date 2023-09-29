@@ -12,10 +12,11 @@ from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
 from pipelines.datasets.br_inmet_bdmep.schedules import every_month_inmet
-from pipelines.datasets.br_inmet_bdmep.tasks import get_base_inmet
+from pipelines.datasets.br_inmet_bdmep.tasks import get_base_inmet, get_today_date
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
@@ -29,7 +30,8 @@ with Flow(name="br_inmet_bdmep", code_owners=["arthurfg"]) as br_inmet:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_inmet_bdmep", required=True)
     table_id = Parameter("table_id", default="microdados", required=True)
-    year = Parameter("year", default=2023, required=True)
+    year = Parameter("year", default=2023, required=False)
+    update_metadata = Parameter("update_metadata", default=True, required=False)
 
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
@@ -80,6 +82,23 @@ with Flow(name="br_inmet_bdmep", code_owners=["arthurfg"]) as br_inmet:
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
+        with case(update_metadata, True):
+            date = get_today_date()
+            update = update_django_metadata(
+                dataset_id,
+                table_id,
+                metadata_type="DateTimeRange",
+                bq_last_update=False,
+                bq_table_last_year_month=False,
+                _last_date=date,
+                api_mode="prod",
+                date_format="yy-mm",
+                is_bd_pro=True,
+                is_free=True,
+                time_delta=6,
+                time_unit="months",
+                upstream_tasks=[wait_for_materialization],
+            )
 
 br_inmet.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_inmet.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
