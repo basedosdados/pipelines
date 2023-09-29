@@ -16,12 +16,11 @@ from pipelines.datasets.br_anatel_telefonia_movel.constants import (
 )
 from pipelines.datasets.br_anatel_telefonia_movel.schedules import every_month_anatel
 from pipelines.datasets.br_anatel_telefonia_movel.tasks import (
+    check_for_updates,
     clean_csv_brasil,
     clean_csv_microdados,
     clean_csv_municipio,
     data_url,
-    check_for_updates,
-
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -32,11 +31,6 @@ from pipelines.utils.tasks import (
     get_current_flow_labels,
     log_task,
     rename_current_flow_run_dataset_table,
-)
-
-from pipelines.datasets.br_anatel_telefonia_movel.schedules import (
-    every_month_anatel,
-
 )
 
 with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anatel:

@@ -4,7 +4,7 @@ Tasks for dataset br_anatel_telefonia_movel
 """
 
 import os
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import numpy as np
 import pandas as pd
@@ -14,7 +14,7 @@ from pipelines.constants import constants
 from pipelines.datasets.br_anatel_telefonia_movel.constants import (
     constants as anatel_constants,
 )
-from pipelines.utils.utils import to_partitions, log, extract_last_date
+from pipelines.utils.utils import extract_last_date, log, to_partitions
 
 
 @task
