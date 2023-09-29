@@ -13,7 +13,49 @@ from pipelines.datasets.br_anatel_telefonia_movel.utils import download_and_unzi
 from pipelines.datasets.br_anatel_telefonia_movel.constants import (
     constants as anatel_constants,
 )
-from pipelines.utils.utils import to_partitions, log
+from pipelines.utils.utils import to_partitions, log, extract_last_date
+
+
+@task
+def check_for_updates(anos, mes_um, mes_dois, dataset_id, table_id):
+    # Imprime uma linha de separação no log
+    log("=" * 50)
+
+    # Imprime a mensagem de download dos dados
+    log("Download dos dados...")
+
+    # Imprime a URL dos dados
+    log(anatel_constants.URL.value)
+
+    # Realiza o download e descompactação dos dados
+    download_and_unzip(
+        url=anatel_constants.URL.value, path=anatel_constants.INPUT_PATH.value
+    )
+
+    df = pd.read_csv(
+        f"{anatel_constants.INPUT_PATH.value}Acessos_Telefonia_Movel_{anos}{mes_um}-{anos}{mes_dois}.csv",
+        sep=";",
+        encoding="utf-8",
+    )
+
+    df["data"] = df["Ano"] + "-" + df["Mês"]
+    df["data"] = pd.to_datetime(df["data"], format="%Y-%m").dt.strftime("%Y-%m").max()
+    data_obj = df["data"].max()
+
+    # Obtém a última data no site BD
+    data_bq_obj = extract_last_date(
+        dataset_id, table_id, "yy-mm-dd", "basedosdados", data="data_coleta"
+    )
+
+    # Registra a data mais recente do site
+    log(f"Última data no site do ANATEL: {data_obj}")
+    log(f"Última data no site da BD: {data_bq_obj}")
+
+    # Compara as datas para verificar se há atualizações
+    if data_obj > data_bq_obj:
+        return True  # Há atualizações disponíveis
+    else:
+        return False  # Não há novas atualizações disponíveis
 
 
 # ! TASK MICRODADOS
@@ -39,19 +81,6 @@ def clean_csv_microdados(anos, mes_um, mes_dois):
             'ano', 'mes', 'sigla_uf', 'id_municipio', 'ddd', 'cnpj', 'empresa', 'porte_empresa', 'tecnologia',
             'sinal', 'modalidade', 'pessoa', 'produto', 'acessos'
     """
-    # Imprime uma linha de separação no log
-    log("=" * 50)
-
-    # Imprime a mensagem de download dos dados
-    log("Download dos dados...")
-
-    # Imprime a URL dos dados
-    log(anatel_constants.URL.value)
-
-    # Realiza o download e descompactação dos dados
-    download_and_unzip(
-        url=anatel_constants.URL.value, path=anatel_constants.INPUT_PATH.value
-    )
 
     # Imprime a mensagem de abertura do arquivo
     log(f"Abrindo o arquivo:{anos}, {mes_um}, {mes_dois}..")
