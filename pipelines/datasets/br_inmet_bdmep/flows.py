@@ -93,8 +93,10 @@ with Flow(name="br_inmet_bdmep", code_owners=["arthurfg"]) as br_inmet:
                 _last_date=date,
                 api_mode="prod",
                 date_format="yy-mm",
-                is_bd_pro=False,
+                is_bd_pro=True,
                 is_free=True,
+                time_delta=6,
+                time_unit="months",
                 upstream_tasks=[wait_for_materialization],
             )
 
