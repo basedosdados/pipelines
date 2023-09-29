@@ -106,7 +106,7 @@ with Flow(name="br_stf_corte_aberta.decisoes", code_owners=["trick"]) as br_stf:
                     date_format="yy-mm-dd",
                     is_bd_pro=True,
                     _last_date=get_max_date_string,
-                    # is_free = True,
+                    is_free=True,
                     # time_delta = 3,
                     time_unit="days",
                     upstream_tasks=[wait_for_materialization],
