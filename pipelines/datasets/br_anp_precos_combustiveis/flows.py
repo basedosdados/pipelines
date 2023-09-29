@@ -11,15 +11,11 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.datasets.br_anp_precos_combustiveis.constants import (
-    constants as anatel_constants,
-)
 from pipelines.datasets.br_anp_precos_combustiveis.schedules import (
     every_week_anp_microdados,
 )
 from pipelines.datasets.br_anp_precos_combustiveis.tasks import (
     check_for_updates,
-    data_max_bd_mais,
     data_max_bd_pro,
     download_and_transform,
     make_partitions,
@@ -28,12 +24,12 @@ from pipelines.datasets.br_anp_precos_combustiveis.utils import download_files
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
     log_task,
     rename_current_flow_run_dataset_table,
-    update_django_metadata,
 )
 
 with Flow(
@@ -116,12 +112,16 @@ with Flow(
                     table_id,
                     metadata_type="DateTimeRange",
                     bq_last_update=False,
+                    bq_table_last_year_month=True,
                     api_mode="prod",
                     date_format="yy-mm-dd",
+                    is_bd_pro=True,
+                    is_free=True,
+                    time_delta=6,
+                    time_unit="weeks",
                     _last_date=get_date_max_pro,
                     upstream_tasks=[wait_upload_table],
                 )
-
 anp_microdados.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 anp_microdados.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 anp_microdados.schedule = every_week_anp_microdados

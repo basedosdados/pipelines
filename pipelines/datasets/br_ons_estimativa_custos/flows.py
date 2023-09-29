@@ -24,11 +24,11 @@ from pipelines.datasets.br_ons_estimativa_custos.tasks import download_data, wra
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
     rename_current_flow_run_dataset_table,
-    update_django_metadata,
 )
 
 with Flow(
@@ -108,6 +108,8 @@ with Flow(
                 bq_last_update=False,
                 bq_table_last_year_month=True,
                 billing_project_id="basedosdados",
+                is_bd_pro=True,
+                is_free=False,
                 api_mode="prod",
                 date_format="yy-mm-dd",
                 upstream_tasks=[wait_for_materialization],
@@ -201,6 +203,8 @@ with Flow(
                 bq_last_update=False,
                 bq_table_last_year_month=True,
                 billing_project_id="basedosdados",
+                is_bd_pro=True,
+                is_free=False,
                 api_mode="prod",
                 date_format="yy-mm-dd",
                 upstream_tasks=[wait_for_materialization],
@@ -294,6 +298,8 @@ with Flow(
                 bq_last_update=False,
                 bq_table_last_year_month=True,
                 billing_project_id="basedosdados",
+                is_bd_pro=True,
+                is_free=False,
                 api_mode="prod",
                 date_format="yy-mm-dd",
                 upstream_tasks=[wait_for_materialization],
@@ -388,6 +394,8 @@ with Flow(
                 bq_last_update=False,
                 bq_table_last_year_month=True,
                 billing_project_id="basedosdados",
+                is_bd_pro=True,
+                is_free=False,
                 api_mode="prod",
                 date_format="yy-mm-dd",
                 upstream_tasks=[wait_for_materialization],
