@@ -77,6 +77,7 @@ from prefect.schedules.clocks import CronClock, IntervalClock
 
 from pipelines.constants import constants
 
+d = datetime.today()
 every_month_inmet = Schedule(
     clocks=[
         CronClock(
@@ -88,9 +89,11 @@ every_month_inmet = Schedule(
             parameter_defaults={
                 "dataset_id": "br_inmet_bdmep",
                 "table_id": "microdados",
-                "materialization_mode": "dev",
+                "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
+                "year": d.strftime("%Y"),
+                "update_metadata": True,
             },
         ),
     ],
