@@ -17,7 +17,7 @@ from pipelines.utils.utils import to_partitions, log, extract_last_date
 
 
 @task
-def check_for_updates(anos, mes_um, mes_dois, dataset_id, table_id):
+def data_url(anos, mes_um, mes_dois):
     # Imprime uma linha de separação no log
     log("=" * 50)
 
@@ -42,6 +42,12 @@ def check_for_updates(anos, mes_um, mes_dois, dataset_id, table_id):
     df["data"] = pd.to_datetime(df["data"], format="%Y-%m").dt.strftime("%Y-%m").max()
     data_obj = df["data"].max()
 
+    return data_obj
+
+
+@task
+def check_for_updates(dataset_id, table_id):
+    data_obj = data_url("2023", "07", "12")
     # Obtém a última data no site BD
     data_bq_obj = extract_last_date(
         dataset_id, table_id, "yy-mm-dd", "basedosdados", data="data_coleta"
@@ -328,11 +334,3 @@ def clean_csv_municipio():
 
     # Retorna o caminho de saída dos dados de densidade por município
     return anatel_constants.OUTPUT_PATH_MUNICIPIO.value
-
-
-# task para retornar o ano e mes paara a atualização dos metadados.
-@task
-def get_today_date():
-    d = datetime.now() - timedelta(days=60)
-
-    return d.strftime("%Y-%m")
