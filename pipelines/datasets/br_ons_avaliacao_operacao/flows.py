@@ -3,7 +3,7 @@
 Flows for br_ons_avaliacao_operacao
 """
 # pylint: disable=invalid-name
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
@@ -11,30 +11,26 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.datasets.br_ons_avaliacao_operacao.tasks import (
-    download_data,
-    wrang_data,
-)
 from pipelines.datasets.br_ons_avaliacao_operacao.constants import (
     constants as ons_constants,
 )
+from pipelines.datasets.br_ons_avaliacao_operacao.schedules import (
+    schedule_br_ons_avaliacao_operacao_energia_armazenada_reservatorio,
+    schedule_br_ons_avaliacao_operacao_energia_natural_afluente,
+    schedule_br_ons_avaliacao_operacao_geracao_termica_motivo_despacho,
+    schedule_br_ons_avaliacao_operacao_geracao_usina,
+    schedule_br_ons_avaliacao_operacao_reservatorio,
+)
+from pipelines.datasets.br_ons_avaliacao_operacao.tasks import download_data, wrang_data
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
-    rename_current_flow_run_dataset_table,
-    get_current_flow_labels,
     create_table_and_upload_to_gcs,
+    get_current_flow_labels,
+    rename_current_flow_run_dataset_table,
 )
-
-from pipelines.datasets.br_ons_avaliacao_operacao.schedules import (
-    schedule_br_ons_avaliacao_operacao_reservatorio,
-    schedule_br_ons_avaliacao_operacao_geracao_usina,
-    schedule_br_ons_avaliacao_operacao_geracao_termica_motivo_despacho,
-    schedule_br_ons_avaliacao_operacao_energia_natural_afluente,
-    schedule_br_ons_avaliacao_operacao_energia_armazenada_reservatorio,
-)
-
 
 with Flow(
     name="br_ons_avaliacao_operacao.reservatorio", code_owners=["Gabriel Pisa"]
@@ -44,13 +40,15 @@ with Flow(
         "dataset_id", default="br_ons_avaliacao_operacao", required=True
     )
     table_id = Parameter("table_id", default="reservatorio", required=True)
+    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    update_metadata = Parameter("update_metadata", default=False, required=False)
+
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
@@ -69,7 +67,7 @@ with Flow(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        dump_mode="overwrite",
+        dump_mode="append",
         wait=filepath,
     )
 
@@ -101,6 +99,21 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
+
+        with case(update_metadata, True):
+            update_django_metadata(
+                dataset_id,
+                table_id,
+                metadata_type="DateTimeRange",
+                bq_last_update=False,
+                bq_table_last_year_month=True,
+                billing_project_id="basedosdados",
+                is_bd_pro=True,
+                is_free=False,
+                api_mode="prod",
+                date_format="yy-mm-dd",
+                upstream_tasks=[wait_for_materialization],
+            )
 
 br_ons_avaliacao_operacao_reservatorio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_ons_avaliacao_operacao_reservatorio.run_config = KubernetesRun(
@@ -118,13 +131,14 @@ with Flow(
         "dataset_id", default="br_ons_avaliacao_operacao", required=True
     )
     table_id = Parameter("table_id", default="geracao_usina", required=True)
+    update_metadata = Parameter("update_metadata", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=False, required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
@@ -143,7 +157,7 @@ with Flow(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        dump_mode="overwrite",
+        dump_mode="append",
         wait=filepath,
     )
 
@@ -175,6 +189,21 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
+
+        with case(update_metadata, True):
+            update_django_metadata(
+                dataset_id,
+                table_id,
+                metadata_type="DateTimeRange",
+                bq_last_update=False,
+                bq_table_last_year_month=True,
+                billing_project_id="basedosdados",
+                is_bd_pro=True,
+                is_free=False,
+                api_mode="prod",
+                date_format="yy-mm-dd",
+                upstream_tasks=[wait_for_materialization],
+            )
 
 br_ons_avaliacao_operacao_geracao_usina.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_ons_avaliacao_operacao_geracao_usina.run_config = KubernetesRun(
@@ -195,13 +224,14 @@ with Flow(
     table_id = Parameter(
         "table_id", default="geracao_termica_motivo_despacho", required=True
     )
+    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    update_metadata = Parameter("update_metadata", default=False, required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
@@ -220,7 +250,7 @@ with Flow(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        dump_mode="overwrite",
+        dump_mode="append",
         wait=filepath,
     )
 
@@ -252,6 +282,21 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
+
+        with case(update_metadata, True):
+            update_django_metadata(
+                dataset_id,
+                table_id,
+                metadata_type="DateTimeRange",
+                bq_last_update=False,
+                bq_table_last_year_month=True,
+                billing_project_id="basedosdados",
+                is_bd_pro=True,
+                is_free=False,
+                api_mode="prod",
+                date_format="yy-mm-dd",
+                upstream_tasks=[wait_for_materialization],
+            )
 
 br_ons_avaliacao_operacao_geracao_termica_motivo_despacho.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
@@ -278,6 +323,8 @@ with Flow(
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
+    update_metadata = Parameter("update_metadata", default=False, required=False)
+
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
@@ -297,7 +344,7 @@ with Flow(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        dump_mode="overwrite",
+        dump_mode="append",
         wait=filepath,
     )
 
@@ -329,6 +376,21 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
+
+        with case(update_metadata, True):
+            update_django_metadata(
+                dataset_id,
+                table_id,
+                metadata_type="DateTimeRange",
+                bq_last_update=False,
+                bq_table_last_year_month=True,
+                billing_project_id="basedosdados",
+                is_bd_pro=True,
+                is_free=False,
+                api_mode="prod",
+                date_format="yy-mm-dd",
+                upstream_tasks=[wait_for_materialization],
+            )
 
 br_ons_avaliacao_operacao_energia_natural_afluente.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
@@ -358,6 +420,7 @@ with Flow(
         "materialize_after_dump", default=True, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    update_metadata = Parameter("update_metadata", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
@@ -376,7 +439,7 @@ with Flow(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        dump_mode="overwrite",
+        dump_mode="append",
         wait=filepath,
     )
 
@@ -408,6 +471,21 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
+
+        with case(update_metadata, True):
+            update_django_metadata(
+                dataset_id,
+                table_id,
+                metadata_type="DateTimeRange",
+                bq_last_update=False,
+                bq_table_last_year_month=True,
+                billing_project_id="basedosdados",
+                is_bd_pro=True,
+                is_free=False,
+                api_mode="prod",
+                date_format="yy-mm-dd",
+                upstream_tasks=[wait_for_materialization],
+            )
 
 br_ons_energia_armazenada_reservatorio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_ons_energia_armazenada_reservatorio.run_config = KubernetesRun(

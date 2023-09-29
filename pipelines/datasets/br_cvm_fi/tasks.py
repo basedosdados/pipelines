@@ -3,28 +3,32 @@
 Tasks for br_cvm_fi
 """
 
-from prefect import task
-import pandas as pd
-import os
-from datetime import datetime
-import requests
-from tqdm import tqdm
-import zipfile
-from bs4 import BeautifulSoup
-import re
 import glob
+import os
+import re
+import zipfile
+from datetime import datetime
+
+import pandas as pd
+import requests
+import rpy2.robjects as ro
+import rpy2.robjects.packages as rpackages
+from bs4 import BeautifulSoup
+from prefect import task
+from rpy2.robjects import pandas2ri
+from rpy2.robjects.packages import importr
+from rpy2.robjects.vectors import StrVector
+from tqdm import tqdm
+
+from pipelines.datasets.br_cvm_fi.constants import constants as cvm_constants
 from pipelines.datasets.br_cvm_fi.utils import (
-    sheet_to_df,
-    rename_columns,
     check_and_create_column,
     limpar_string,
     obter_anos_meses,
+    rename_columns,
+    sheet_to_df,
 )
-from pipelines.utils.utils import (
-    log,
-    to_partitions,
-)
-from pipelines.datasets.br_cvm_fi.constants import constants as cvm_constants
+from pipelines.utils.utils import log, to_partitions
 
 
 @task
@@ -237,7 +241,7 @@ def clean_data_and_make_partitions(path: str, table_id: str) -> str:
 
 @task
 def clean_data_make_partitions_cda(diretorio, table_id):
-    df_arq = sheet_to_df(cvm_constants.ARQUITETURA_URL.value)
+    df_arq = sheet_to_df(cvm_constants.ARQUITETURA_URL_CDA.value)
     anos_meses = obter_anos_meses(diretorio)
 
     for i in anos_meses:
@@ -270,10 +274,13 @@ def clean_data_make_partitions_cda(diretorio, table_id):
         df_final[cvm_constants.COLUNAS.value] = df_final[
             cvm_constants.COLUNAS.value
         ].applymap(lambda x: cvm_constants.MAPEAMENTO.value.get(x, x))
+
         df_final["CNPJ_FUNDO"] = df_final["CNPJ_FUNDO"].str.replace(r"[/.-]", "")
+
         df_final["CNPJ_INSTITUICAO_FINANC_COOBR"] = df_final[
             "CNPJ_INSTITUICAO_FINANC_COOBR"
         ].str.replace(r"[/.-]", "")
+
         df_final["CPF_CNPJ_EMISSOR"] = df_final["CPF_CNPJ_EMISSOR"].str.replace(
             r"[/.-]", ""
         )
@@ -283,15 +290,21 @@ def clean_data_make_partitions_cda(diretorio, table_id):
         )
         df_final = rename_columns(df_arq, df_final)
         df_final = df_final.replace(",", ".", regex=True)
+
         df_final[cvm_constants.COLUNAS_ASCI.value] = df_final[
             cvm_constants.COLUNAS_ASCI.value
         ].fillna("")
+
         df_final[cvm_constants.COLUNAS_ASCI.value] = df_final[
             cvm_constants.COLUNAS_ASCI.value
         ].applymap(limpar_string)
+
         df_final = df_final[cvm_constants.COLUNAS_TOTAIS.value]
+
         log(f"Fazendo partições para o ano ------> {i}")
+
         os.makedirs(f"/tmp/data/br_cvm_fi/{table_id}/output/", exist_ok=True)
+
         to_partitions(
             df_final,
             partition_columns=["ano", "mes"],
@@ -387,10 +400,34 @@ def clean_data_make_partitions_perfil(diretorio, table_id):
     df_final = pd.DataFrame()
     arquivos = glob.glob(f"{diretorio}*.csv")
 
+    # import R's utility package
+    utils = rpackages.importr("utils")
+
+    # select a mirror for R packages
+    utils.chooseCRANmirror(ind=1)
+    # R package names
+    packnames = "readr"
+    utils.install_packages(packnames)
+    # R vector of strings
+    # names_to_install = [x for x in packnames if not rpackages.isinstalled(x)]
+    # if len(names_to_install) > 0:
+
+    # Import readr
+
+    readr = rpackages.importr("readr")
     for file in tqdm(arquivos):
         log(f"Baixando o arquivo ------> {file}")
+        ## reading with R
 
-        df = pd.read_csv(file, sep=",")
+        df_r = readr.read_delim(
+            file, delim=";", locale=readr.locale(encoding="ISO-8859-1")
+        )
+        readr.write_delim(df_r, file, na="", delim=";")
+
+        ## Return to python
+
+        df = pd.read_csv(file, sep=";")
+
         df["ano"] = df["DT_COMPTC"].apply(
             lambda x: datetime.strptime(x, "%Y-%m-%d").year
         )
@@ -500,7 +537,9 @@ def clean_data_make_partitions_cad(diretorio, table_id):
 def clean_data_make_partitions_balancete(diretorio, table_id):
     df_arq = sheet_to_df(cvm_constants.ARQUITETURA_URL_BALANCETE.value)
     colunas_totais = df_arq["original_name"].to_list() + ["ano", "mes"]
+    log(colunas_totais)
     colunas_finais = df_arq["name"].to_list() + ["ano", "mes"]
+    log(colunas_finais)
     colunas_mapeamento = df_arq[df_arq["observations"].notnull()][
         "original_name"
     ].to_list()

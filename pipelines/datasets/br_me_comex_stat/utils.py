@@ -2,12 +2,12 @@
 """ Utils for the Brazilian Comex Stat pipeline. """
 # pylint: disable=invalid-name
 import os
-import wget
 import time as tm
+
+import wget
 from tqdm import tqdm
-from pipelines.utils.utils import (
-    log,
-)
+
+from pipelines.utils.utils import log
 
 
 def create_paths(
@@ -45,13 +45,9 @@ def download_data(
         mun for 'município'.
         table_name (str): the table name is the original name of the zip file with raw data from comex stat website
     """
+    years = [2023]
 
-    for year in range(1997, 2024):
-        # i know this isnt the best approach. I'll change it
-        # after api and website migration is done.
-        # Its a good test to download, upload raw data to gcs and then do the wrangling
-        # with DBT.
-
+    for year in years:
         table_name_urls = {
             "mun_imp": f"https://balanca.economia.gov.br/balanca/bd/comexstat-bd/{table_type}/IMP_{year}_MUN.csv",
             "mun_exp": f"https://balanca.economia.gov.br/balanca/bd/comexstat-bd/{table_type}/EXP_{year}_MUN.csv",

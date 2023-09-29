@@ -1,34 +1,34 @@
 # -*- coding: utf-8 -*-
 """
-Flows for br_anatel_banda_larga_fixa
+Flows for dataset br_anatel_banda_larga_fixa
 """
 
 from datetime import timedelta
+
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
-from pipelines.constants import constants
-from pipelines.utils.tasks import update_django_metadata
-from pipelines.utils.constants import constants as utils_constants
-from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.datasets.br_anatel_banda_larga_fixa.tasks import (
-    treatment,
-    treatment_br,
-    treatment_uf,
-    treatment_municipio,
-    get_today_date,
-)
 
+from pipelines.constants import constants
 from pipelines.datasets.br_anatel_banda_larga_fixa.schedules import (
     every_month_anatel_microdados,
 )
-
+from pipelines.datasets.br_anatel_banda_larga_fixa.tasks import (
+    get_today_date_atualizado,
+    treatment,
+    treatment_br,
+    treatment_municipio,
+    treatment_uf,
+)
+from pipelines.utils.constants import constants as utils_constants
+from pipelines.utils.decorators import Flow
+from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
-    rename_current_flow_run_dataset_table,
     get_current_flow_labels,
+    rename_current_flow_run_dataset_table,
 )
 
 with Flow(
@@ -68,17 +68,20 @@ with Flow(
     )
 
     # ! MICRODADOS
-    filepath = treatment(ano=ano)
+    filepath_microdados = treatment(
+        ano=ano,
+        upstream_tasks=[rename_flow_run],
+    )
 
-    # pylint: disable=C0103
     wait_upload_table = create_table_and_upload_to_gcs(
-        data_path=filepath,
+        data_path=filepath_microdados,
         dataset_id=dataset_id,
         table_id=table_id[0],
         dump_mode="append",
-        wait=filepath,
+        wait=filepath_microdados,
     )
 
+    # ! tabela bd +
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -107,32 +110,33 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
+        with case(update_metadata, True):
+            date = get_today_date_atualizado()  # task que retorna a data atual
+            update_django_metadata(
+                dataset_id,
+                table_id[0],
+                metadata_type="DateTimeRange",
+                bq_last_update=False,
+                bq_table_last_year_month=False,
+                is_bd_pro=True,
+                is_free=True,
+                time_delta=2,
+                time_unit="months",
+                api_mode="prod",
+                date_format="yy-mm",
+                _last_date=date,
+            )
 
-    with case(update_metadata, True):
-        date = get_today_date()  # task que retorna a data atual
-        update_django_metadata(
-            dataset_id,
-            table_id[0],
-            metadata_type="DateTimeRange",
-            bq_last_update=False,
-            api_mode="prod",
-            date_format="yy-mm",
-            _last_date=date,
-        )
-
-    # ! DENSIDADE BRASIL
-
-    filepath = treatment_br()
-
-    # pylint: disable=C0103
+    # ! BRASIL
+    filepath_brasil = treatment_br(upstream_tasks=[filepath_microdados])
     wait_upload_table = create_table_and_upload_to_gcs(
-        data_path=filepath,
+        data_path=filepath_brasil,
         dataset_id=dataset_id,
         table_id=table_id[1],
         dump_mode="append",
-        wait=filepath,
+        wait=filepath_brasil,
     )
-
+    # ! tabela bd +
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -161,30 +165,36 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
-    with case(update_metadata, True):
-        date = get_today_date()  # task que retorna a data atual
-        update_django_metadata(
-            dataset_id,
-            table_id[1],
-            metadata_type="DateTimeRange",
-            bq_last_update=False,
-            api_mode="prod",
-            date_format="yy-mm",
-            _last_date=date,
-        )
 
-    # ! DENSIDADE UF
-    filepath = treatment_uf()
+        with case(update_metadata, True):
+            date = get_today_date_atualizado()  # task que retorna a data atual
+            update_django_metadata(
+                dataset_id,
+                table_id[1],
+                metadata_type="DateTimeRange",
+                bq_last_update=False,
+                bq_table_last_year_month=False,
+                is_bd_pro=True,
+                is_free=True,
+                time_delta=2,
+                time_unit="months",
+                api_mode="prod",
+                date_format="yy-mm",
+                _last_date=date,
+            )
 
-    # pylint: disable=C0103
+    # ! UF
+
+    filepath_uf = treatment_uf(upstream_tasks=[filepath_microdados])
     wait_upload_table = create_table_and_upload_to_gcs(
-        data_path=filepath,
+        data_path=filepath_uf,
         dataset_id=dataset_id,
         table_id=table_id[2],
         dump_mode="append",
-        wait=filepath,
+        wait=filepath_uf,
     )
 
+    # ! tabela bd +
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -214,31 +224,34 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-    with case(update_metadata, True):
-        date = get_today_date()  # task que retorna a data atual
-        update_django_metadata(
-            dataset_id,
-            table_id[2],
-            metadata_type="DateTimeRange",
-            bq_last_update=False,
-            api_mode="prod",
-            date_format="yy-mm",
-            _last_date=date,
-        )
+        with case(update_metadata, True):
+            date = get_today_date_atualizado()  # task que retorna a data atual
+            update_django_metadata(
+                dataset_id,
+                table_id[2],
+                metadata_type="DateTimeRange",
+                bq_last_update=False,
+                bq_table_last_year_month=False,
+                is_bd_pro=True,
+                is_free=True,
+                time_delta=2,
+                time_unit="months",
+                api_mode="prod",
+                date_format="yy-mm",
+                _last_date=date,
+            )
 
-    # ! DENSIDADE_MUNICIPIO
-
-    filepath = treatment_municipio()
-
-    # pylint: disable=C0103
+    # ! MUNICIPIO
+    filepath_municipio = treatment_municipio(upstream_tasks=[filepath_microdados])
     wait_upload_table = create_table_and_upload_to_gcs(
-        data_path=filepath,
+        data_path=filepath_municipio,
         dataset_id=dataset_id,
         table_id=table_id[3],
         dump_mode="append",
-        wait=filepath,
+        wait=filepath_municipio,
     )
 
+    # ! tabela bd +
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -268,17 +281,22 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-    with case(update_metadata, True):
-        date = get_today_date()  # task que retorna a data atual
-        update_django_metadata(
-            dataset_id,
-            table_id[3],
-            metadata_type="DateTimeRange",
-            bq_last_update=False,
-            api_mode="prod",
-            date_format="yy-mm",
-            _last_date=date,
-        )
+        with case(update_metadata, True):
+            date = get_today_date_atualizado()  # task que retorna a data atual
+            update_django_metadata(
+                dataset_id,
+                table_id[3],
+                metadata_type="DateTimeRange",
+                bq_last_update=False,
+                bq_table_last_year_month=False,
+                is_bd_pro=True,
+                is_free=True,
+                time_delta=2,
+                time_unit="months",
+                api_mode="prod",
+                date_format="yy-mm",
+                _last_date=date,
+            )
 
 br_anatel_banda_larga.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_anatel_banda_larga.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)

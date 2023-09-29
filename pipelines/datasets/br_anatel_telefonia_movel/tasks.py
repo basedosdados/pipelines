@@ -3,13 +3,14 @@
 Tasks for dataset br_anatel_telefonia_movel
 """
 
-from prefect import task
-import pandas as pd
-import numpy as np
-from datetime import datetime, timedelta
 import os
+from datetime import datetime, timedelta
+
+import numpy as np
+import pandas as pd
+from prefect import task
+
 from pipelines.constants import constants
-from pipelines.datasets.br_anatel_telefonia_movel.utils import download_and_unzip
 from pipelines.datasets.br_anatel_telefonia_movel.constants import (
     constants as anatel_constants,
 )
@@ -141,7 +142,7 @@ def clean_csv_microdados(anos, mes_um, mes_dois):
     df = df[anatel_constants.ORDEM.value]
 
     # Divide o DataFrame em partições com base nas colunas "ano" e "mes" e salva os dados
-    to_partitions(
+    to_partitions_microdados(
         df,
         partition_columns=["ano", "mes"],
         savepath=anatel_constants.OUTPUT_PATH_MICRODADOS.value,

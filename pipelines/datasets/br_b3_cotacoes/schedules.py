@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
-from datetime import timedelta, datetime
+from datetime import datetime
+
 from prefect.schedules import Schedule
 from prefect.schedules.clocks import CronClock
+
 from pipelines.constants import constants
 
 all_day_cotacoes = Schedule(

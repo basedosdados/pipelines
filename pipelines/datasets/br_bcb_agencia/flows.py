@@ -2,32 +2,23 @@
 from datetime import timedelta
 
 from prefect import Parameter, case
-from prefect.tasks.prefect import (
-    create_flow_run,
-    wait_for_flow_run,
-)
-
-from pipelines.datasets.br_bcb_agencia.schedules import (
-    every_month_agencia,
-)
-from pipelines.datasets.br_bcb_agencia.tasks import download_data, clean_data
-from pipelines.datasets.br_bcb_agencia.constants import (
-    constants as agencia_constants,
-)
-
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
-from pipelines.constants import constants
-from pipelines.utils.decorators import Flow
-from pipelines.utils.constants import constants as utils_constants
+from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
+from pipelines.constants import constants
+from pipelines.datasets.br_bcb_agencia.constants import constants as agencia_constants
+from pipelines.datasets.br_bcb_agencia.schedules import every_month_agencia
+from pipelines.datasets.br_bcb_agencia.tasks import clean_data, download_data
+from pipelines.utils.constants import constants as utils_constants
+from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
-    rename_current_flow_run_dataset_table,
     get_current_flow_labels,
+    rename_current_flow_run_dataset_table,
 )
-
 
 with Flow(
     name="br_bcb_agencia.agencia",
@@ -38,6 +29,8 @@ with Flow(
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_bcb_agencia", required=True)
     table_id = Parameter("table_id", default="agencia", required=True)
+    update_metadata = Parameter("update_metadata", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     # Materialization mode
     materialization_mode = Parameter(
@@ -47,8 +40,6 @@ with Flow(
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
-
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
@@ -71,6 +62,7 @@ with Flow(
         wait=filepath,
     )
 
+    # agencia
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -99,6 +91,23 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
+
+        with case(update_metadata, True):
+            update = update_django_metadata(
+                dataset_id,
+                table_id,
+                metadata_type="DateTimeRange",
+                bq_last_update=False,
+                bq_table_last_year_month=True,
+                api_mode="prod",
+                billing_project_id="basedosdados",
+                date_format="yy-mm",
+                is_bd_pro=True,
+                is_free=True,
+                time_delta=6,
+                time_unit="months",
+                upstream_tasks=[wait_for_materialization],
+            )
 
 
 br_bcb_agencia_agencia.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

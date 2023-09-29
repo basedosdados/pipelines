@@ -3,30 +3,30 @@
 Flows for ibge inflacao
 """
 # pylint: disable=C0103, E1123, invalid-name, duplicate-code, R0801
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from prefect import Parameter, case
-from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
+from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.constants import constants as utils_constants
 from pipelines.constants import constants
+from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.crawler_ibge_inflacao.tasks import (
-    crawler,
     clean_mes_brasil,
-    clean_mes_rm,
-    clean_mes_municipio,
     clean_mes_geral,
+    clean_mes_municipio,
+    clean_mes_rm,
+    crawler,
 )
 from pipelines.utils.decorators import Flow
+from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
-    update_metadata,
+    get_current_flow_labels,
     get_temporal_coverage,
     rename_current_flow_run_dataset_table,
-    get_current_flow_labels,
+    update_metadata,
 )
 
 with Flow(
@@ -59,7 +59,7 @@ with Flow(
             data_path=filepath,
             dataset_id=dataset_id,
             table_id=table_id,
-            dump_mode="overwrite",
+            dump_mode="append",
             wait=filepath,
         )
 
@@ -149,7 +149,7 @@ with Flow("BD Template - IBGE Inflação: mes_rm") as flow_ibge_inflacao_mes_rm:
             data_path=filepath,
             dataset_id=dataset_id,
             table_id=table_id,
-            dump_mode="overwrite",
+            dump_mode="append",
             wait=filepath,
         )
 
@@ -239,7 +239,7 @@ with Flow(
             data_path=filepath,
             dataset_id=dataset_id,
             table_id=table_id,
-            dump_mode="overwrite",
+            dump_mode="append",
             wait=filepath,
         )
 
@@ -331,7 +331,7 @@ with Flow("BD Template - IBGE Inflação: mes_geral") as flow_ibge_inflacao_mes_
             data_path=filepath,
             dataset_id=dataset_id,
             table_id=table_id,
-            dump_mode="overwrite",
+            dump_mode="append",
             wait=filepath,
         )
 

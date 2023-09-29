@@ -2,12 +2,12 @@
 """
 Schedules for dataset br_anatel_telefonia_movel
 """
-from datetime import timedelta, datetime
-from prefect.schedules import Schedule
-from prefect.schedules.clocks import IntervalClock
-from pipelines.constants import constants
-from prefect.schedules.clocks import CronClock
+from datetime import datetime
 
+from prefect.schedules import Schedule
+from prefect.schedules.clocks import CronClock, IntervalClock
+
+from pipelines.constants import constants
 
 every_month_anatel = Schedule(
     clocks=[
@@ -19,11 +19,20 @@ every_month_anatel = Schedule(
             ],
             parameter_defaults={
                 "dataset_id": "br_anatel_telefonia_movel",
-                "table_id": "microdados",
+                "table_id": [
+                    "microdados",
+                    "densidade_brasil",
+                    "densidade_uf",
+                    "densidade_municipio",
+                ],
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
-                "update_metadata": False,
+                "update_metadata": True,
+                "anos": "2023",
+                "mes_um": "01",
+                "mes_dois": "06",
+                "update_metadata": True,
             },
         ),
     ],

@@ -2,14 +2,15 @@
 """
 Tasks for br_poder360_pesquisas
 """
-from json.decoder import JSONDecodeError
-from datetime import timedelta
 import os
+from datetime import timedelta
+from json.decoder import JSONDecodeError
 
-from prefect import task
-import requests
 import pandas as pd
+import requests
+from prefect import task
 from tqdm import tqdm
+
 from pipelines.constants import constants
 
 
@@ -120,14 +121,14 @@ def crawler() -> str:
             df["cargo"] = df["cargo"].str.lower()
             df["tipo"] = df["tipo"].str.lower()
             df["tipo_voto"] = df["tipo_voto"].str.lower()
-            df["sigla_uf"] = df["sigla_uf"].str.replace("Novo", "NOVO")
-            df["sigla_uf"] = df["sigla_uf"].str.replace("Patriota", "PATRI")
-            df["sigla_uf"] = df["sigla_uf"].str.replace("Podemos", "PODE")
-            df["sigla_uf"] = df["sigla_uf"].str.replace("Progressistas", "PP")
-            df["sigla_uf"] = df["sigla_uf"].str.replace("Prona", "PRONA")
-            df["sigla_uf"] = df["sigla_uf"].str.replace("Pros", "PROS")
-            df["sigla_uf"] = df["sigla_uf"].str.replace("Psol", "PSOL")
-            df["sigla_uf"] = df["sigla_uf"].str.replace("Rede", "REDE")
+            df["sigla_partido"] = df["sigla_partido"].str.replace("Novo", "NOVO")
+            df["sigla_partido"] = df["sigla_partido"].str.replace("Patriota", "PATRI")
+            df["sigla_partido"] = df["sigla_partido"].str.replace("Podemos", "PODE")
+            df["sigla_partido"] = df["sigla_partido"].str.replace("Progressistas", "PP")
+            df["sigla_partido"] = df["sigla_partido"].str.replace("Prona", "PRONA")
+            df["sigla_partido"] = df["sigla_partido"].str.replace("Pros", "PROS")
+            df["sigla_partido"] = df["sigla_partido"].str.replace("Psol", "PSOL")
+            df["sigla_partido"] = df["sigla_partido"].str.replace("Rede", "REDE")
 
             data = pd.concat([data, df])
         else:

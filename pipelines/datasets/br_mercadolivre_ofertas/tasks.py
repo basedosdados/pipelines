@@ -4,33 +4,35 @@
 
 
 import asyncio
-import time
 import os
+import time
 from typing import List, Tuple
 
-from prefect import task
 import pandas as pd
+from prefect import task
 
-from pipelines.utils.tasks import log
 from pipelines.datasets.br_mercadolivre_ofertas.constants import (
     constants as const_mercadolivre,
 )
 from pipelines.datasets.br_mercadolivre_ofertas.utils import (
+    clean_experience,
+    get_id,
     main_item,
     main_seller,
-    get_id,
-    clean_experience,
 )
+from pipelines.utils.tasks import log
 
-less100 = const_mercadolivre.LESS100.value
+new_cols_item = const_mercadolivre.NEW_ORDER_COLS.value
+new_order_clean = const_mercadolivre.NEW_ORDER_CLEAN.value
+new_order_item = const_mercadolivre.NEW_ORDER_ITEM.value
 oferta_dia = const_mercadolivre.OFERTA_DIA.value
-relampago = const_mercadolivre.RELAMPAGO.value
-barato_dia = const_mercadolivre.BARATO_DIA.value
 kwargs_list = const_mercadolivre.KWARGS_LIST.value
-tables_names = const_mercadolivre.TABLES_NAMES.value
+url_lists = {"oferta_dia": []}
 
-urls = [less100, oferta_dia, relampago, barato_dia]
-dict_tables = dict(zip(tables_names, urls))
+for i in range(1, 21):
+    urls = {"oferta_dia": oferta_dia + str(i)}
+    for table, url in urls.items():
+        url_lists[table].append(url)
 
 
 @task
@@ -40,13 +42,11 @@ def crawler_mercadolivre_item():
     and saving them to a CSV file.
 
     Returns:
-        str: The file path of the generated CSV file.
-
-    Raises:
-        None
+        str: The path to the CSV file containing the collected item data.
     """
     loop = asyncio.get_event_loop()
-    contents = loop.run_until_complete(main_item(dict_tables, kwargs_list))
+    # urls_item = url_lists['less100']
+    contents = loop.run_until_complete(main_item(url_lists, kwargs_list))
     time.sleep(5)
     df = pd.DataFrame(contents)
     total = df.shape[0]
@@ -54,25 +54,7 @@ def crawler_mercadolivre_item():
     remained = df.shape[0]
     # print percentage keeped
     log(f"Percentage keeped: {remained/total*100:.2f}%")
-    new_order = [
-        "title",
-        "review_amount",
-        "discount",
-        "transport_condition",
-        "stars",
-        "price",
-        "price_original",
-        "item_id_bd",
-        "seller_link",
-        "seller_id",
-        "seller",
-        "datetime",
-        "site_section",
-        "features",
-        "item_url",
-        "categories",
-    ]
-    df = df[new_order]
+    df = df[new_order_item]
     df = df.astype(str)
     filepath = "/tmp/items_raw.csv"
     df.to_csv(filepath, index=False)
@@ -84,57 +66,31 @@ def crawler_mercadolivre_item():
 
 @task
 def clean_item(filepath):
+    """
+    Cleans and preprocesses item data read from a CSV file. The cleaned data includes columns renaming,
+    reordering, duplicate removal, text cleaning, type conversion, and saving to a specific directory.
+
+    Args:
+        filepath (str): The path to the CSV file containing the raw item data.
+
+    Returns:
+        str: The path to the directory where the cleaned item data is saved.
+    """
     item = pd.read_csv(filepath)
-    new_cols = [
-        "titulo",
-        "quantidade_avaliacoes",
-        "desconto",
-        "envio_pais",
-        "estrelas",
-        "preco",
-        "preco_original",
-        "item_id",
-        "link_vendedor",
-        "id_vendedor",
-        "vendedor",
-        "data_hora",
-        "secao_site",
-        "caracteristicas",
-        "url_item",
-        "categorias",
-    ]
     # rename columns
-    item.columns = new_cols
+    item.columns = new_cols_item
     # change order
-    new_order = [
-        "data_hora",
-        "titulo",
-        "item_id",
-        "categorias",
-        "quantidade_avaliacoes",
-        "desconto",
-        "envio_pais",
-        "estrelas",
-        "preco",
-        "preco_original",
-        "id_vendedor",
-        "vendedor",
-        "link_vendedor",
-        "secao_site",
-        "caracteristicas",
-        "url_item",
-    ]
-    item = item.reindex(new_order, axis=1)
+    item = item.reindex(new_order_clean, axis=1)
+
     # drop dupliacte item_id
     item = item.drop_duplicates(subset=["item_id"])
+
     # clean quantidade_avaliacoes: (11004)->11004
-    item["quantidade_avaliacoes"] = item["quantidade_avaliacoes"].str.replace("(", "")
-    item["quantidade_avaliacoes"] = item["quantidade_avaliacoes"].str.replace(")", "")
+    # item["quantidade_avaliacoes"] = item["quantidade_avaliacoes"].str.replace("(", "")
+    # item["quantidade_avaliacoes"] = item["quantidade_avaliacoes"].str.replace(")", "")
+
     # clean desconto: 10% OFF -> 10
     item["desconto"] = item["desconto"].str.replace("% OFF", "")
-    # clean categorias. Currently, it's a list of lists. Transform into a list of strings. First it's necessary to transform the string into a list of lists
-    # item["categorias"] = item["categorias"].str.replace("[[", "[")
-    # item["categorias"] = item["categorias"].str.replace("]]", "]")
     # remove if title is nan
     item = item[item["titulo"].notna()]
     # remove item_link
@@ -142,24 +98,37 @@ def clean_item(filepath):
     # remove link_vendedor
     item = item.drop("link_vendedor", axis=1)
     # make envio_pais a boolean
+    item["envio_pais"] = item["envio_pais"].astype(str)
     item["envio_pais"] = item["envio_pais"].str.contains("Envio para todo o país")
     # make nan equal to False
     item["envio_pais"] = item["envio_pais"].fillna(False)
 
     # to string
-    item = item.astype(str)
+    # item = item.astype(str)
 
     today = pd.Timestamp.today().strftime("%Y-%m-%d")
 
-    os.system(f"mkdir -p br_mercadolivre_ofertas/item/dia={today}")
+    os.system(f"mkdir -p /tmp/data/br_mercadolivre_ofertas/item/dia={today}")
 
-    item.to_csv(f"br_mercadolivre_ofertas/item/dia={today}/items.csv", index=False)
+    item.to_csv(
+        f"/tmp/data/br_mercadolivre_ofertas/item/dia={today}/items.csv", index=False
+    )
 
-    return "br_mercadolivre_ofertas/item/"
+    return "/tmp/data/br_mercadolivre_ofertas/item/"
 
 
 @task
 def crawler_mercadolivre_seller(seller_ids, seller_links):
+    """
+    Crawl and collect seller data from Mercado Livre using provided seller IDs and links.
+
+    Args:
+        seller_ids (list): A list of seller IDs to collect data for.
+        seller_links (list): A list of seller links to crawl data from.
+
+    Returns:
+        str: The path to the CSV file containing the collected seller data.
+    """
     filepath_raw = "vendedor.csv"
     asyncio.run(main_seller(seller_ids, seller_links, filepath_raw))
 
@@ -169,26 +138,17 @@ def crawler_mercadolivre_seller(seller_ids, seller_links):
 @task
 def clean_seller(filepath_raw):
     """
-    This function cleans the seller data extracted from MercadoLivre. It takes as input a raw data file and performs several cleaning operations:
+    Clean and process raw seller data collected from Mercado Livre.
 
-    - It reads the raw seller data file from a CSV.
-    - It renames the columns into more comprehensible ones.
-    - It filters out entries with missing seller names.
-    - It cleans the 'experiencia' column by applying the 'clean_experience' function.
-    - It cleans the 'classificacao' column by removing the prefix 'MercadoLíder '.
-    - It cleans the 'localizacao' column by removing the prefix 'Localização', then transforms location names to municipality IDs using a predefined dictionary mapping.
-    - It cleans the 'opinioes' column by removing square brackets.
-    - It reorders the columns, placing 'vendedor_id' as the first column.
-    - It filters out entries with missing experience data.
-    - It drops the 'data' column as it's no longer needed.
-    - It saves the cleaned data to a CSV file, in a directory that corresponds to the current date.
-    - The function returns the path to the directory where the cleaned CSV file is saved.
+    This function takes the path to a CSV file containing raw seller data collected from Mercado Livre.
+    It cleans and processes the data, performing operations such as renaming columns, cleaning text,
+    converting formats, and reordering columns. The cleaned data is saved to a new CSV file.
 
     Args:
-        filepath_raw (str): The file path to the raw seller data CSV file.
+        filepath_raw (str): The path to the raw seller data CSV file.
 
     Returns:
-        str: The path to the directory where the cleaned CSV file is saved.
+        str: The path to the directory containing the cleaned seller data CSV file.
     """
 
     seller = pd.read_csv(filepath_raw)
@@ -242,20 +202,35 @@ def clean_seller(filepath_raw):
     seller = seller.drop("data", axis=1)
 
     today = pd.Timestamp.today().strftime("%Y-%m-%d")
-    os.system(f"mkdir -p br_mercadolivre_ofertas/vendedor/dia={today}")
+    os.system(f"mkdir -p /tmp/data/br_mercadolivre_ofertas/vendedor/dia={today}")
     seller.to_csv(
-        f"br_mercadolivre_ofertas/vendedor/dia={today}/seller.csv", index=False
+        f"/tmp/data/br_mercadolivre_ofertas/vendedor/dia={today}/seller.csv",
+        index=False,
     )
 
-    return "br_mercadolivre_ofertas/vendedor/"
+    return "/tmp/data/br_mercadolivre_ofertas/vendedor/"
 
 
 @task(nout=2)
 def get_today_sellers(filepath_raw) -> Tuple[List[str], List[str]]:
+    """
+    Extracts unique seller IDs and their corresponding links from cleaned seller data.
+    The extracted information is returned as two lists: one containing unique seller IDs
+    and the other containing their corresponding links.
+
+    Args:
+        filepath_raw (str): The path to the cleaned seller data CSV file.
+
+    Returns:
+        Tuple[List[str], List[str]]: A tuple of two lists, where the first list contains unique seller IDs
+        and the second list contains their corresponding links.
+    """
     df = pd.read_csv(filepath_raw)
+
     # remove nan in seller_link column
     df = df[df["seller_link"].notna()]
     df = df[df["seller_id"].notna()]
+
     # remove duplicate sellers
     df = df.drop_duplicates(subset=["seller_id"])
     log(f"Number of sellers: {len(df)}")
@@ -270,4 +245,13 @@ def get_today_sellers(filepath_raw) -> Tuple[List[str], List[str]]:
 
 @task
 def is_empty_list(list_sellers: List[str]) -> bool:
+    """
+    Checks if a list of sellers is empty.
+
+    Args:
+        list_sellers (List[str]): A list of seller IDs.
+
+    Returns:
+        bool: Returns `True` if the input list is empty, otherwise returns `False`.
+    """
     return len(list_sellers) == 0

@@ -3,7 +3,7 @@
 Flows for br_me_comex_stat
 """
 # pylint: disable=invalid-name
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
@@ -11,28 +11,26 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.datasets.br_me_comex_stat.tasks import (
-    download_br_me_comex_stat,
-    clean_br_me_comex_stat,
-)
 from pipelines.datasets.br_me_comex_stat.constants import constants as comex_constants
-from pipelines.utils.constants import constants as utils_constants
-from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.tasks import (
-    update_metadata,
-    rename_current_flow_run_dataset_table,
-    get_current_flow_labels,
-    create_table_and_upload_to_gcs,
-)
-
 from pipelines.datasets.br_me_comex_stat.schedules import (
     schedule_municipio_exportacao,
     schedule_municipio_importacao,
     schedule_ncm_exportacao,
     schedule_ncm_importacao,
 )
-
+from pipelines.datasets.br_me_comex_stat.tasks import (
+    clean_br_me_comex_stat,
+    download_br_me_comex_stat,
+)
+from pipelines.utils.constants import constants as utils_constants
+from pipelines.utils.decorators import Flow
+from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.metadata.tasks import update_django_metadata
+from pipelines.utils.tasks import (
+    create_table_and_upload_to_gcs,
+    get_current_flow_labels,
+    rename_current_flow_run_dataset_table,
+)
 
 with Flow(
     name="br_me_comex_stat.municipio_exportacao", code_owners=["Gabriel Pisa"]
@@ -40,7 +38,9 @@ with Flow(
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_me_comex_stat", required=True)
     table_id = Parameter("table_id", default="municipio_exportacao", required=True)
-    start = Parameter("start", default=1997, required=True)  # confirmar depois
+    update_metadata = Parameter("update_metadata", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
     )
@@ -69,19 +69,11 @@ with Flow(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        dump_mode="overwrite",
+        dump_mode="append",
         wait=filepath,
     )
 
-    # wait_update_metadata = update_metadata(
-    #     dataset_id=dataset_id,
-    #     table_id=table_id,
-    #     fields_to_update=[
-    #         {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
-    #     ],
-    #     upstream_tasks=[wait_upload_table],
-    # )
-
+    # materialize municipio_exportacao
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -110,6 +102,22 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
+        # coverage updater
+        with case(update_metadata, True):
+            update = update_django_metadata(
+                dataset_id,
+                table_id,
+                metadata_type="DateTimeRange",
+                bq_last_update=False,
+                bq_table_last_year_month=True,
+                is_bd_pro=True,
+                is_free=True,
+                api_mode="prod",
+                billing_project_id="basedosdados",
+                date_format="yy-mm",
+                time_delta=1,
+                time_unit="months",
+            )
 
 br_comex_municipio_exportacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_comex_municipio_exportacao.run_config = KubernetesRun(
@@ -124,14 +132,15 @@ with Flow(
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_me_comex_stat", required=True)
     table_id = Parameter("table_id", default="municipio_importacao", required=True)
-    start = Parameter("start", default=1997, required=True)  # confirmar depois
+    update_metadata = Parameter("update_metadata", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
         "materialize after dump", default=True, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
@@ -153,19 +162,10 @@ with Flow(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        dump_mode="overwrite",
+        dump_mode="append",
         wait=filepath,
     )
-
-    # wait_update_metadata = update_metadata(
-    #     dataset_id=dataset_id,
-    #     table_id=table_id,
-    #     fields_to_update=[
-    #         {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
-    #     ],
-    #     upstream_tasks=[wait_upload_table],
-    # )
-
+    # materialize municipio_importacao
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -194,6 +194,22 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
+        with case(update_metadata, True):
+            update = update_django_metadata(
+                dataset_id,
+                table_id,
+                metadata_type="DateTimeRange",
+                bq_last_update=False,
+                bq_table_last_year_month=True,
+                is_bd_pro=True,
+                is_free=True,
+                api_mode="prod",
+                billing_project_id="basedosdados",
+                date_format="yy-mm",
+                time_delta=1,
+                time_unit="months",
+            )
+
 
 br_comex_municipio_importacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_comex_municipio_importacao.run_config = KubernetesRun(
@@ -208,14 +224,15 @@ with Flow(
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_me_comex_stat", required=True)
     table_id = Parameter("table_id", default="ncm_exportacao", required=True)
-    start = Parameter("start", default=1997, required=True)  # confirmar depois
+    update_metadata = Parameter("update_metadata", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
         "materialize after dump", default=True, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
@@ -237,19 +254,11 @@ with Flow(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        dump_mode="overwrite",
+        dump_mode="append",
         wait=filepath,
     )
 
-    # wait_update_metadata = update_metadata(
-    #     dataset_id=dataset_id,
-    #     table_id=table_id,
-    #     fields_to_update=[
-    #         {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
-    #     ],
-    #     upstream_tasks=[wait_upload_table],
-    # )
-
+    # materialize ncm_exportacao
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -278,6 +287,22 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
+        with case(update_metadata, True):
+            update = update_django_metadata(
+                dataset_id,
+                table_id,
+                metadata_type="DateTimeRange",
+                bq_last_update=False,
+                bq_table_last_year_month=True,
+                is_bd_pro=True,
+                is_free=True,
+                api_mode="prod",
+                billing_project_id="basedosdados",
+                date_format="yy-mm",
+                time_delta=1,
+                time_unit="months",
+            )
+
 
 br_comex_ncm_exportacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_comex_ncm_exportacao.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
@@ -290,14 +315,15 @@ with Flow(
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_me_comex_stat", required=True)
     table_id = Parameter("table_id", default="ncm_importacao", required=True)
-    start = Parameter("start", default=1997, required=True)  # confirmar depois
+    update_metadata = Parameter("update_metadata", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
         "materialize after dump", default=True, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
@@ -319,19 +345,10 @@ with Flow(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        dump_mode="overwrite",
+        dump_mode="append",
         wait=filepath,
     )
-
-    # wait_update_metadata = update_metadata(
-    #     dataset_id=dataset_id,
-    #     table_id=table_id,
-    #     fields_to_update=[
-    #         {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
-    #     ],
-    #     upstream_tasks=[wait_upload_table],
-    # )
-
+    # materialize ncm_importacao
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -360,6 +377,22 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
+
+        with case(update_metadata, True):
+            update = update_django_metadata(
+                dataset_id,
+                table_id,
+                metadata_type="DateTimeRange",
+                bq_last_update=False,
+                bq_table_last_year_month=True,
+                is_bd_pro=True,
+                is_free=True,
+                api_mode="prod",
+                billing_project_id="basedosdados",
+                date_format="yy-mm",
+                time_delta=1,
+                time_unit="months",
+            )
 
 br_comex_ncm_importacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_comex_ncm_importacao.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)

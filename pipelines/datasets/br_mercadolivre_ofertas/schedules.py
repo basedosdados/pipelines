@@ -10,7 +10,6 @@ from prefect.schedules.clocks import IntervalClock
 
 from pipelines.constants import constants
 
-
 every_day_item = Schedule(
     clocks=[
         IntervalClock(

@@ -2,7 +2,7 @@
 """
 Schedules for br_cvm_administradores_carteira
 """
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
 
 from prefect.schedules import Schedule, filters
 from prefect.schedules.clocks import IntervalClock
@@ -22,6 +22,7 @@ schedule_responsavel = Schedule(
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "table_id": "responsavel",
+                "dbt_alias": True,
             },
         )
     ],
@@ -41,7 +42,8 @@ schedule_fisica = Schedule(
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "table_id": "pessoa_fisica",
-                "dbt_alias": False,
+                "update_metadata": True,
+                "dbt_alias": True,
             },
         )
     ],
@@ -61,7 +63,8 @@ schedule_juridica = Schedule(
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "table_id": "pessoa_juridica",
-                "dbt_alias": False,
+                "update_metadata": True,
+                "dbt_alias": True,
             },
         )
     ],

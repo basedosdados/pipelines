@@ -3,20 +3,21 @@
 Tasks for botdosdados
 """
 import os
-from typing import Tuple
-from datetime import timedelta, datetime
 from collections import defaultdict
+from datetime import datetime, timedelta
+from typing import Tuple
 
-import tweepy
-from tweepy.auth import OAuthHandler
-from prefect import task
-from basedosdados.download.metadata import _safe_fetch
-import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 import seaborn as sns
-from pipelines.utils.utils import log, get_storage_blobs, get_credentials_from_secret
+import tweepy
+from basedosdados.download.metadata import _safe_fetch
+from prefect import task
+from tweepy.auth import OAuthHandler
+
 from pipelines.constants import constants
+from pipelines.utils.utils import get_credentials_from_secret, get_storage_blobs, log
 
 
 # pylint: disable=C0103

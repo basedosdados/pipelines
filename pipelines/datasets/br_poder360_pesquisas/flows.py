@@ -3,26 +3,26 @@
 Flows for br_poder360_pesquisas
 """
 
-from datetime import datetime, timedelta
+from datetime import timedelta
 
+from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
-from prefect import Parameter, case
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.constants import constants as utils_constants
 from pipelines.constants import constants
+from pipelines.datasets.br_poder360_pesquisas.schedules import every_monday_thursday
 from pipelines.datasets.br_poder360_pesquisas.tasks import crawler
+from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
+from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
-    get_temporal_coverage,
-    update_metadata,
-    rename_current_flow_run_dataset_table,
     get_current_flow_labels,
+    get_temporal_coverage,
+    rename_current_flow_run_dataset_table,
+    update_metadata,
 )
-from pipelines.datasets.br_poder360_pesquisas.schedules import every_monday_thursday
 
 # pylint: disable=C0103
 with Flow(
@@ -49,7 +49,7 @@ with Flow(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        dump_mode="overwrite",
+        dump_mode="append",
         wait=filepath,
     )
 

@@ -4,8 +4,9 @@
 Schedules for br_me_comex_stat
 """
 
-from datetime import timedelta, datetime
-from prefect.schedules import Schedule, filters, adjustments
+from datetime import datetime
+
+from prefect.schedules import Schedule, adjustments, filters
 from prefect.schedules.clocks import CronClock
 
 from pipelines.constants import constants
@@ -13,7 +14,8 @@ from pipelines.constants import constants
 schedule_municipio_exportacao = Schedule(
     clocks=[
         CronClock(
-            cron="0 0 5 * *",
+            cron="@monthly",
+            start_date=datetime(2023, 8, 8, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -33,7 +35,8 @@ schedule_municipio_exportacao = Schedule(
 schedule_municipio_importacao = Schedule(
     clocks=[
         CronClock(
-            cron="0 0 5 * *",
+            cron="@monthly",
+            start_date=datetime(2023, 8, 8, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -53,7 +56,8 @@ schedule_municipio_importacao = Schedule(
 schedule_ncm_importacao = Schedule(
     clocks=[
         CronClock(
-            cron="0 0 5 * *",
+            cron="@monthly",
+            start_date=datetime(2023, 8, 8, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -73,7 +77,8 @@ schedule_ncm_importacao = Schedule(
 schedule_ncm_exportacao = Schedule(
     clocks=[
         CronClock(
-            cron="0 0 5 * *",
+            cron="@monthly",
+            start_date=datetime(2023, 8, 8, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
