@@ -4,6 +4,7 @@ Tasks for br_inmet_bdmep
 """
 import glob
 import os
+from datetime import datetime
 
 import numpy as np
 import pandas as pd
@@ -29,8 +30,10 @@ def get_base_inmet(year: int) -> str:
     Retorna:
     - str: o caminho para o diretório que contém os arquivos CSV de saída.
     """
+    log(f"Baixando os dados para o ano {year}.")
 
     download_inmet(year)
+    log("Dados baixados.")
 
     files = glob.glob(os.path.join(f"/tmp/data/input/{year}/", "*.CSV"))
 
@@ -48,3 +51,10 @@ def get_base_inmet(year: int) -> str:
     base.to_csv(name, index=False)
 
     return "/tmp/data/output/microdados/"
+
+
+@task
+def get_today_date():
+    d = datetime.today()
+
+    return d.strftime("%Y-%m")
