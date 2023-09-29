@@ -14,6 +14,10 @@ from pipelines.constants import constants
 from pipelines.datasets.br_anatel_telefonia_movel.constants import (
     constants as anatel_constants,
 )
+from pipelines.datasets.br_anatel_telefonia_movel.utils import (
+    download_and_unzip,
+    to_partitions_microdados,
+)
 from pipelines.utils.utils import extract_last_date, log, to_partitions
 
 
