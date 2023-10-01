@@ -114,13 +114,10 @@ pytest_cov = "^3.0.0"
 lint = "scripts.lint:main"
 
 [tool.black]
-line-length = 100
-target-version = ["py310"]
 exclude = "pipelines/{{cookiecutter.project_name}}"
 
 [tool.isort]
 profile = "black"
-line_length = 100
 multi_line_output = 3
 use_parentheses = true
 include_trailing_comma = true
