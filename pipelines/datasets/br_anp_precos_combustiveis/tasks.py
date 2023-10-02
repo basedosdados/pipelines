@@ -47,8 +47,8 @@ def check_for_updates(dataset_id, table_id):
         + "-"
         + df["Data da Coleta"].str[0:2]
     )
-    data_obj = pd.to_datetime(data_obj, format="%Y-%m-%d")
     data_obj = data_obj.apply(lambda x: pd.to_datetime(x).strftime("%Y-%m-%d"))
+    data_obj = pd.to_datetime(data_obj, format="%Y-%m-%d").dt.date
     data_obj = data_obj.max()
     # Obtém a última data no site BD
     data_bq_obj = extract_last_date(
