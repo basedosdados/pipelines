@@ -114,7 +114,7 @@ with Flow(
                     table_id,
                     metadata_type="DateTimeRange",
                     bq_last_update=False,
-                    bq_table_last_year_month=True,
+                    bq_table_last_year_month=False,
                     api_mode="prod",
                     date_format="yy-mm-dd",
                     is_bd_pro=True,
