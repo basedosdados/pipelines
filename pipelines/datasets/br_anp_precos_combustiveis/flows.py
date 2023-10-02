@@ -66,7 +66,6 @@ with Flow(
     with case(dados_desatualizados, True):
         df = download_and_transform(upstream_tasks=[rename_flow_run])
         output_path = make_partitions(df=df, upstream_tasks=[df])
-        get_date_max_pro = data_max_bd_pro(df=df)
 
         # pylint: disable=C0103
         wait_upload_table = create_table_and_upload_to_gcs(
@@ -91,6 +90,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
+                upstream_tasks=[wait_upload_table],
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -105,7 +105,7 @@ with Flow(
             wait_for_materialization.retry_delay = timedelta(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
-
+            get_date_max_pro = data_max_bd_pro(df=df, upstream_task=[wait_upload_table])
             with case(update_metadata, True):
                 update_django_metadata(
                     dataset_id,
@@ -120,7 +120,7 @@ with Flow(
                     time_delta=6,
                     time_unit="weeks",
                     _last_date=get_date_max_pro,
-                    upstream_tasks=[wait_upload_table],
+                    upstream_tasks=[get_date_max_pro],
                 )
 anp_microdados.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 anp_microdados.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
