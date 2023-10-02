@@ -105,7 +105,9 @@ with Flow(
             wait_for_materialization.retry_delay = timedelta(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
-            get_date_max_pro = data_max_bd_pro(df=df, upstream_task=[wait_upload_table])
+            get_date_max_pro = data_max_bd_pro(
+                df=df, upstream_tasks=[wait_upload_table]
+            )
             with case(update_metadata, True):
                 update_django_metadata(
                     dataset_id,
