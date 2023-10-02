@@ -40,7 +40,14 @@ def check_for_updates(dataset_id, table_id):
     # Obtém a data mais recente do site
     download_files(anatel_constants.URLS_DATA.value, anatel_constants.PATH_INPUT.value)
     df = pd.read_csv(anatel_constants.URL_GLP.value, sep=";", encoding="utf-8")
-    data_obj = pd.to_datetime(df, format="%Y-%m-%d")
+    data_obj = (
+        df["Data da Coleta"].str[6:10]
+        + "-"
+        + df["Data da Coleta"].str[3:5]
+        + "-"
+        + df["Data da Coleta"].str[0:2]
+    )
+    data_obj = pd.to_datetime(data_obj, format="%Y-%m-%d")
     data_obj = data_obj.apply(lambda x: pd.to_datetime(x).strftime("%Y-%m-%d"))
     data_obj = data_obj.max()
     # Obtém a última data no site BD
