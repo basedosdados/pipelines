@@ -7,15 +7,18 @@ import datetime
 import os
 
 import pandas as pd
+import requests
+from dateutil.relativedelta import relativedelta
 from prefect import task
 
 from pipelines.datasets.br_cgu_servidores_executivo_federal.constants import constants
 from pipelines.datasets.br_cgu_servidores_executivo_federal.utils import (
     build_urls,
     download_zip_files_for_sheet,
+    make_url,
     process_table,
 )
-from pipelines.utils.utils import log, to_partitions
+from pipelines.utils.utils import extract_last_date, log, to_partitions
 
 
 @task  # noqa
@@ -123,3 +126,37 @@ def table_is_available(tables: dict[str, str], table: str) -> bool:
     log(f"{table=} not available in {tables.keys()=}")
 
     return available
+
+
+@task
+def is_up_to_date(next_date: datetime.date) -> bool:
+    log(f"Next date: {next_date=}")
+
+    url = make_url("Servidores_SIAPE", next_date)
+
+    session = requests.Session()
+    session.mount("https://", requests.adapters.HTTPAdapter(max_retries=3))  # type: ignore
+
+    headers = {
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.93 Safari/537.36",
+    }
+
+    response = requests.get(url, timeout=1000, stream=True, headers=headers)
+
+    log(f"Response: {response=}")
+
+    return response.status_code != 200
+
+
+@task
+def get_next_date() -> datetime.date:
+    last_date_in_bq = extract_last_date(
+        "br_cgu_servidores_executivo_federal",
+        "servidores_cadastro",
+        "yy-mm",
+        "basedosdados-dev",
+    )
+
+    year, month = last_date_in_bq.split("-")
+
+    return datetime.date(int(year), int(month), 1) + relativedelta(months=1)
