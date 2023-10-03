@@ -115,7 +115,7 @@ with Flow(
                 api_mode="prod",
                 billing_project_id="basedosdados",
                 date_format="yy-mm",
-                time_delta=1,
+                time_delta=6,
                 time_unit="months",
             )
 
@@ -206,7 +206,7 @@ with Flow(
                 api_mode="prod",
                 billing_project_id="basedosdados",
                 date_format="yy-mm",
-                time_delta=1,
+                time_delta=6,
                 time_unit="months",
             )
 
@@ -299,7 +299,7 @@ with Flow(
                 api_mode="prod",
                 billing_project_id="basedosdados",
                 date_format="yy-mm",
-                time_delta=1,
+                time_delta=6,
                 time_unit="months",
             )
 
@@ -390,7 +390,7 @@ with Flow(
                 api_mode="prod",
                 billing_project_id="basedosdados",
                 date_format="yy-mm",
-                time_delta=1,
+                time_delta=6,
                 time_unit="months",
             )
 
