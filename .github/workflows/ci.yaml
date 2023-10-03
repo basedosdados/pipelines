@@ -4,21 +4,22 @@ on:
   pull_request:
 
 jobs:
-  tests:
-    name: ${{ matrix.os }}${{ matrix.arch }} - Python ${{ matrix.python-version }} - tests
+  test:
+    name: Test
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest]
         arch: [x64]
+        os: [ubuntu-latest]
         python-version: ["3.9.x"]
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v3
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: ${{ matrix.python-version }}
           architecture: ${{ matrix.arch }}
+          python-version: ${{ matrix.python-version }}
       - name: Set up Poetry and upgrade pip
         run: |
           pip install -U pip poetry
@@ -47,3 +48,34 @@ jobs:
       - name: Run tests
         run: |
           pytest
+  lint_python:
+    name: Lint Python
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.9.x"
+      - name: Set up poetry and upgrade pip
+        run: |
+          pip install -U pip poetry
+          pip install isort
+          pip install black
+          pip install autoflake
+          pip install flake8
+      - name: Install this package
+        run: poetry install
+      - name: Lint source code
+        run: poetry run lint
+  lint_docker:
+    name: Lint Dockerfile
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Run hadolint
+        uses: reviewdog/action-hadolint@v1
+        with:
+          reporter: github-pr-review
