@@ -130,8 +130,6 @@ def table_is_available(tables: dict[str, str], table: str) -> bool:
 
 @task
 def is_up_to_date(next_date: datetime.date) -> bool:
-    log(f"Next date: {next_date=}")
-
     url = make_url("Servidores_SIAPE", next_date)
 
     session = requests.Session()
@@ -159,4 +157,5 @@ def get_next_date() -> datetime.date:
 
     year, month = last_date_in_bq.split("-")
 
-    return datetime.date(int(year), int(month), 1) + relativedelta(months=1)
+    # return datetime.date(int(year), int(month), 1) + relativedelta(months=1)
+    return datetime.date(2023, 7, 1)

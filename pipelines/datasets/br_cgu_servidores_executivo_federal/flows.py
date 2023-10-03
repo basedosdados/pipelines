@@ -62,6 +62,7 @@ with Flow(
     )
 
     next_date = get_next_date()
+    log_task(f"Next date: {next_date=}")
 
     data_is_up_to_date = is_up_to_date(next_date, upstream_tasks=[next_date])
 
