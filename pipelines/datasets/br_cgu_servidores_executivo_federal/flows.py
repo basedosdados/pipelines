@@ -62,7 +62,6 @@ with Flow(
     )
 
     next_date = get_next_date()
-    log_task(f"Next date: {next_date=}")
 
     data_is_up_to_date = is_up_to_date(next_date, upstream_tasks=[next_date])
 
@@ -89,7 +88,7 @@ with Flow(
         with case(
             table_is_available(outputs_path_by_table, "aposentados_cadastro"), True
         ):
-            create_table_and_upload_to_gcs(
+            wait_upload_table_aposentados_cadastro = create_table_and_upload_to_gcs(
                 data_path=outputs_path_by_table["aposentados_cadastro"],
                 dataset_id=dataset_id,
                 table_id="aposentados_cadastro",
@@ -100,7 +99,7 @@ with Flow(
         with case(
             table_is_available(outputs_path_by_table, "pensionistas_cadastro"), True
         ):
-            create_table_and_upload_to_gcs(
+            wait_upload_table_pensionistas_cadastro = create_table_and_upload_to_gcs(
                 data_path=outputs_path_by_table["pensionistas_cadastro"],
                 dataset_id=dataset_id,
                 table_id="pensionistas_cadastro",
@@ -111,7 +110,7 @@ with Flow(
         with case(
             table_is_available(outputs_path_by_table, "servidores_cadastro"), True
         ):
-            create_table_and_upload_to_gcs(
+            wait_upload_table_servidores_cadastro = create_table_and_upload_to_gcs(
                 data_path=outputs_path_by_table["servidores_cadastro"],
                 dataset_id=dataset_id,
                 table_id="servidores_cadastro",
@@ -125,16 +124,20 @@ with Flow(
             ),
             True,
         ):
-            create_table_and_upload_to_gcs(
-                data_path=outputs_path_by_table["reserva_reforma_militares_cadastro"],
-                dataset_id=dataset_id,
-                table_id="reserva_reforma_militares_cadastro",
-                dump_mode="append",
-                wait=outputs_path_by_table,
+            wait_upload_table_reserva_reforma_militares_cadastro = (
+                create_table_and_upload_to_gcs(
+                    data_path=outputs_path_by_table[
+                        "reserva_reforma_militares_cadastro"
+                    ],
+                    dataset_id=dataset_id,
+                    table_id="reserva_reforma_militares_cadastro",
+                    dump_mode="append",
+                    wait=outputs_path_by_table,
+                )
             )
 
         with case(table_is_available(outputs_path_by_table, "remuneracao"), True):
-            create_table_and_upload_to_gcs(
+            wait_upload_table_remuneracao = create_table_and_upload_to_gcs(
                 data_path=outputs_path_by_table["remuneracao"],
                 dataset_id=dataset_id,
                 table_id="remuneracao",
@@ -143,7 +146,7 @@ with Flow(
             )
 
         with case(table_is_available(outputs_path_by_table, "afastamentos"), True):
-            create_table_and_upload_to_gcs(
+            wait_upload_table_afastamentos = create_table_and_upload_to_gcs(
                 data_path=outputs_path_by_table["afastamentos"],
                 dataset_id=dataset_id,
                 table_id="afastamentos",
@@ -152,7 +155,7 @@ with Flow(
             )
 
         with case(table_is_available(outputs_path_by_table, "observacoes"), True):
-            create_table_and_upload_to_gcs(
+            wait_upload_table_observacoes = create_table_and_upload_to_gcs(
                 data_path=outputs_path_by_table["observacoes"],
                 dataset_id=dataset_id,
                 table_id="observacoes",
@@ -197,7 +200,7 @@ with Flow(
                     metadata_type="DateTimeRange",
                     bq_last_update=False,
                     bq_table_last_year_month=True,
-                    billing_project_id="basedosdados",
+                    # billing_project_id="basedosdados",
                     api_mode="dev",
                     date_format="yy-mm",
                     is_bd_pro=True,
@@ -244,7 +247,7 @@ with Flow(
                     metadata_type="DateTimeRange",
                     bq_last_update=False,
                     bq_table_last_year_month=True,
-                    billing_project_id="basedosdados",
+                    # billing_project_id="basedosdados",
                     api_mode="dev",
                     date_format="yy-mm",
                     is_bd_pro=True,
@@ -291,7 +294,7 @@ with Flow(
                     metadata_type="DateTimeRange",
                     bq_last_update=False,
                     bq_table_last_year_month=True,
-                    billing_project_id="basedosdados",
+                    # billing_project_id="basedosdados",
                     api_mode="dev",
                     date_format="yy-mm",
                     is_bd_pro=True,
@@ -338,7 +341,7 @@ with Flow(
                     metadata_type="DateTimeRange",
                     bq_last_update=False,
                     bq_table_last_year_month=True,
-                    billing_project_id="basedosdados",
+                    # billing_project_id="basedosdados",
                     api_mode="dev",
                     date_format="yy-mm",
                     is_bd_pro=True,
@@ -385,7 +388,7 @@ with Flow(
                     metadata_type="DateTimeRange",
                     bq_last_update=False,
                     bq_table_last_year_month=True,
-                    billing_project_id="basedosdados",
+                    # billing_project_id="basedosdados",
                     api_mode="dev",
                     date_format="yy-mm",
                     is_bd_pro=True,
@@ -432,7 +435,7 @@ with Flow(
                     metadata_type="DateTimeRange",
                     bq_last_update=False,
                     bq_table_last_year_month=True,
-                    billing_project_id="basedosdados",
+                    # billing_project_id="basedosdados",
                     api_mode="dev",
                     date_format="yy-mm",
                     is_bd_pro=True,
@@ -479,7 +482,7 @@ with Flow(
                     metadata_type="DateTimeRange",
                     bq_last_update=False,
                     bq_table_last_year_month=True,
-                    billing_project_id="basedosdados",
+                    # billing_project_id="basedosdados",
                     api_mode="dev",
                     date_format="yy-mm",
                     is_bd_pro=True,

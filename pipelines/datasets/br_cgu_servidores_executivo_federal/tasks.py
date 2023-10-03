@@ -123,7 +123,7 @@ def make_partitions(tables: list[tuple[str, pd.DataFrame]]) -> dict[str, str]:
 def table_is_available(tables: dict[str, str], table: str) -> bool:
     available = table in tables
 
-    log(f"{table=} not available in {tables.keys()=}")
+    log(f"{table=} in {tables.keys()=}: {available}")
 
     return available
 
@@ -157,5 +157,5 @@ def get_next_date() -> datetime.date:
 
     year, month = last_date_in_bq.split("-")
 
-    # return datetime.date(int(year), int(month), 1) + relativedelta(months=1)
+    # next_date = datetime.date(int(year), int(month), 1) + relativedelta(months=1)
     return datetime.date(2023, 7, 1)
