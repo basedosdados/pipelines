@@ -107,8 +107,8 @@ with Flow(name="br_stf_corte_aberta.decisoes", code_owners=["trick"]) as br_stf:
                     is_bd_pro=True,
                     _last_date=get_max_date_string,
                     is_free=True,
-                    # time_delta = 3,
-                    time_unit="days",
+                    time_delta=6,
+                    time_unit="weeks",
                     upstream_tasks=[wait_for_materialization],
                 )
 br_stf.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
