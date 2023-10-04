@@ -26,7 +26,6 @@ from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
-    get_temporal_coverage,
     rename_current_flow_run_dataset_table,
 )
 
@@ -49,7 +48,6 @@ with Flow(
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
-    # USA A FUNÇAO EXTRACT_LAST_DATE ENTAO QUEBRA SE A BSE NAO EXISTIR
 
     needs_to_update = check_for_updates(
         indice=INDICE, dataset_id=dataset_id, table_id=table_id
@@ -92,6 +90,7 @@ with Flow(
             stream_states=True,
             stream_logs=True,
             raise_final_state=True,
+            upstream_tasks=[wait_upload_table],
         )
         wait_for_materialization.max_retries = (
             dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
@@ -182,6 +181,7 @@ with Flow("BD Template - IBGE Inflação: mes_rm") as flow_ibge_inflacao_mes_rm:
             stream_states=True,
             stream_logs=True,
             raise_final_state=True,
+            upstream_tasks=[wait_upload_table],
         )
         wait_for_materialization.max_retries = (
             dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
@@ -272,6 +272,7 @@ with Flow(
             stream_states=True,
             stream_logs=True,
             raise_final_state=True,
+            upstream_tasks=[wait_upload_table],
         )
         wait_for_materialization.max_retries = (
             dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
@@ -364,6 +365,7 @@ with Flow("BD Template - IBGE Inflação: mes_geral") as flow_ibge_inflacao_mes_
             stream_states=True,
             stream_logs=True,
             raise_final_state=True,
+            upstream_tasks=[wait_upload_table],
         )
         wait_for_materialization.max_retries = (
             dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
