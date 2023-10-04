@@ -157,3 +157,33 @@
 #     if_table_exists="replace",
 #     if_storage_data_exists="replace",
 # )
+
+
+# import basedosdados as bd
+
+# TODO:
+# servidores_cadastro -> cadastro_servidores
+# aposentados_cadastro -> cadastro_aposentados
+# pensionistas_cadastro -> cadastro_pensionistas
+# reserva_reforma_militares_cadastro -> cadastro_reserva_reforma_militares
+
+# st = bd.Storage(
+#     dataset_id="br_cgu_servidores_executivo_federal",
+#     table_id="reserva_reforma_militares_cadastro",
+# )
+
+# st.copy_table(
+#     source_bucket_name="basedosdados-dev",
+#     destination_bucket_name="basedosdados-dev",
+#     mode="staging",
+#     new_table_id="cadastro_reserva_reforma_militares",
+# )
+
+# tb = bd.Table(
+#     dataset_id="br_cgu_servidores_executivo_federal",
+#     table_id="cadastro_reserva_reforma_militares",
+# )
+# tb.create(
+#     path="/home/pedro/Downloads/cgu/cadastro_reserva_reforma_militares/",
+#     if_storage_data_exists="pass",
+# )
