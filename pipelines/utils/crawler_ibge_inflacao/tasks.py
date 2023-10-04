@@ -127,17 +127,22 @@ def check_for_updates(
 
     max_date_ibge = dataframe.strftime("%Y-%m")
 
-    log(f"A data mais no site do IBGE para a tabela {indice} é : {max_date_ibge}")
+    log(f"A data mais no site do ---IBGE--- para a tabela {indice} é : {max_date_ibge}")
     #  TROCAR PARA BSEDOSDADOS ANTES DE IR PRA PROD
     max_date_bd = extract_last_date(
         dataset_id=dataset_id, table_id=table_id, billing_project_id="basedosdados-dev"
     )
-
+    log(f"A data mais recente da tabela no --- Big Query --- é: {max_date_bd}")
     if max_date_ibge > max_date_bd:
-        log(f"A tabela {indice} foi atualizada no site do IBGE")
+        log(
+            f"A tabela {indice} foi atualizada no site do IBGE. O Flow de atualização será executado!"
+        )
         return True, str(max_date_ibge)
     else:
-        return False
+        log(
+            f"A tabela {indice} não foi atualizada no site do IBGE. O Flow de atualização não será executado!"
+        )
+        return False, str(max_date_ibge)
 
 
 @task

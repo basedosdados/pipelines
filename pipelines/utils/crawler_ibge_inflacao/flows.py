@@ -43,7 +43,7 @@ with Flow(
     materialize_after_dump = Parameter(
         "materialize after dump", default=True, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
@@ -71,28 +71,6 @@ with Flow(
             dump_mode="append",
             wait=filepath,
         )
-
-        # temporal_coverage = get_temporal_coverage(
-        #    filepath=filepath,
-        #    date_cols=["ano", "mes"],
-        #    time_unit="month",
-        #    interval="1",
-        #    upstream_tasks=[wait_upload_table],
-        # )
-
-        # wait_update_metadata = update_metadata(
-        #     dataset_id=dataset_id,
-        #     table_id=table_id,
-        #     fields_to_update=[
-        #         {
-        #             "last_updated": {
-        #                 "data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        #             }
-        #         },
-        #         {"temporal_coverage": [temporal_coverage]},
-        #     ],
-        #     upstream_tasks=[temporal_coverage],
-        # )
 
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
@@ -157,7 +135,7 @@ with Flow("BD Template - IBGE Inflação: mes_rm") as flow_ibge_inflacao_mes_rm:
     materialize_after_dump = Parameter(
         "materialize after dump", default=True, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
@@ -185,28 +163,6 @@ with Flow("BD Template - IBGE Inflação: mes_rm") as flow_ibge_inflacao_mes_rm:
             dump_mode="append",
             wait=filepath,
         )
-
-        temporal_coverage = get_temporal_coverage(
-            filepath=filepath,
-            date_cols=["ano", "mes"],
-            time_unit="month",
-            interval="1",
-            upstream_tasks=[wait_upload_table],
-        )
-
-        # wait_update_metadata = update_metadata(
-        #     dataset_id=dataset_id,
-        #     table_id=table_id,
-        #     fields_to_update=[
-        #         {
-        #             "last_updated": {
-        #                 "data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        #             }
-        #         },
-        #         {"temporal_coverage": [temporal_coverage]},
-        #     ],
-        #     upstream_tasks=[temporal_coverage],
-        # )
 
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
@@ -271,7 +227,7 @@ with Flow(
     materialize_after_dump = Parameter(
         "materialize after dump", default=True, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
@@ -299,28 +255,6 @@ with Flow(
             dump_mode="append",
             wait=filepath,
         )
-
-        temporal_coverage = get_temporal_coverage(
-            filepath=filepath,
-            date_cols=["ano", "mes"],
-            time_unit="month",
-            interval="1",
-            upstream_tasks=[wait_upload_table],
-        )
-
-        # wait_update_metadata = update_metadata(
-        #     dataset_id=dataset_id,
-        #     table_id=table_id,
-        #     fields_to_update=[
-        #         {
-        #             "last_updated": {
-        #                 "data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        #             }
-        #         },
-        #         {"temporal_coverage": [temporal_coverage]},
-        #     ],
-        #     upstream_tasks=[temporal_coverage],
-        # )
 
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
@@ -387,7 +321,7 @@ with Flow("BD Template - IBGE Inflação: mes_geral") as flow_ibge_inflacao_mes_
         "materialize after dump", default=True, required=False
     )
 
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
@@ -423,20 +357,6 @@ with Flow("BD Template - IBGE Inflação: mes_geral") as flow_ibge_inflacao_mes_
             interval="1",
             upstream_tasks=[wait_upload_table],
         )
-
-        # wait_update_metadata = update_metadata(
-        #     dataset_id=dataset_id,
-        #     table_id=table_id,
-        #     fields_to_update=[
-        #         {
-        #             "last_updated": {
-        #                 "data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        #             }
-        #         },
-        #         {"temporal_coverage": [temporal_coverage]},
-        #     ],
-        #     upstream_tasks=[temporal_coverage],
-        # )
 
         with case(materialize_after_dump, True):
             # Trigger DBT flow run

@@ -99,6 +99,4 @@ def extract_last_date(
     data = t["max_date"][0]
     data = data.strftime("%Y-%m")
 
-    log(f"A data mais recente da tabela é: {data}")
-
     return data
