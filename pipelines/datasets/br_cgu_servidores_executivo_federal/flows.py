@@ -86,51 +86,51 @@ with Flow(
         log_task("Partitions done")
 
         with case(
-            table_is_available(outputs_path_by_table, "aposentados_cadastro"), True
+            table_is_available(outputs_path_by_table, "cadastro_aposentados"), True
         ):
             wait_upload_table_aposentados_cadastro = create_table_and_upload_to_gcs(
-                data_path=outputs_path_by_table["aposentados_cadastro"],
+                data_path=outputs_path_by_table["cadastro_aposentados"],
                 dataset_id=dataset_id,
-                table_id="aposentados_cadastro",
+                table_id="cadastro_aposentados",
                 dump_mode="append",
                 wait=outputs_path_by_table,
             )
 
         with case(
-            table_is_available(outputs_path_by_table, "pensionistas_cadastro"), True
+            table_is_available(outputs_path_by_table, "cadastro_pensionistas"), True
         ):
             wait_upload_table_pensionistas_cadastro = create_table_and_upload_to_gcs(
-                data_path=outputs_path_by_table["pensionistas_cadastro"],
+                data_path=outputs_path_by_table["cadastro_pensionistas"],
                 dataset_id=dataset_id,
-                table_id="pensionistas_cadastro",
+                table_id="cadastro_pensionistas",
                 dump_mode="append",
                 wait=outputs_path_by_table,
             )
 
         with case(
-            table_is_available(outputs_path_by_table, "servidores_cadastro"), True
+            table_is_available(outputs_path_by_table, "cadastro_servidores"), True
         ):
             wait_upload_table_servidores_cadastro = create_table_and_upload_to_gcs(
-                data_path=outputs_path_by_table["servidores_cadastro"],
+                data_path=outputs_path_by_table["cadastro_servidores"],
                 dataset_id=dataset_id,
-                table_id="servidores_cadastro",
+                table_id="cadastro_servidores",
                 dump_mode="append",
                 wait=outputs_path_by_table,
             )
 
         with case(
             table_is_available(
-                outputs_path_by_table, "reserva_reforma_militares_cadastro"
+                outputs_path_by_table, "cadastro_reserva_reforma_militares"
             ),
             True,
         ):
             wait_upload_table_reserva_reforma_militares_cadastro = (
                 create_table_and_upload_to_gcs(
                     data_path=outputs_path_by_table[
-                        "reserva_reforma_militares_cadastro"
+                        "cadastro_reserva_reforma_militares"
                     ],
                     dataset_id=dataset_id,
-                    table_id="reserva_reforma_militares_cadastro",
+                    table_id="cadastro_reserva_reforma_militares",
                     dump_mode="append",
                     wait=outputs_path_by_table,
                 )
@@ -163,7 +163,7 @@ with Flow(
                 wait=outputs_path_by_table,
             )
 
-        # aposentados_cadastro
+        # cadastro_aposentados
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
             current_flow_labels = get_current_flow_labels()
@@ -172,12 +172,12 @@ with Flow(
                 project_name=constants.PREFECT_DEFAULT_PROJECT.value,
                 parameters={
                     "dataset_id": dataset_id,
-                    "table_id": "aposentados_cadastro",
+                    "table_id": "cadastro_aposentados",
                     "mode": materialization_mode,
                     "dbt_alias": dbt_alias,
                 },
                 labels=current_flow_labels,
-                run_name=r"Materialize {dataset_id}.aposentados_cadastro",
+                run_name=r"Materialize {dataset_id}.cadastro_aposentados",
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -196,7 +196,7 @@ with Flow(
             with case(update_metadata, True):
                 update_django_metadata(
                     dataset_id,
-                    table_id="aposentados_cadastro",
+                    table_id="cadastro_aposentados",
                     metadata_type="DateTimeRange",
                     bq_last_update=False,
                     bq_table_last_year_month=True,
@@ -210,7 +210,7 @@ with Flow(
                     upstream_tasks=[wait_for_materialization],
                 )
 
-        # pensionistas_cadastro
+        # cadastro_pensionistas
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
             current_flow_labels = get_current_flow_labels()
@@ -219,12 +219,12 @@ with Flow(
                 project_name=constants.PREFECT_DEFAULT_PROJECT.value,
                 parameters={
                     "dataset_id": dataset_id,
-                    "table_id": "pensionistas_cadastro",
+                    "table_id": "cadastro_pensionistas",
                     "mode": materialization_mode,
                     "dbt_alias": dbt_alias,
                 },
                 labels=current_flow_labels,
-                run_name=r"Materialize {dataset_id}.pensionistas_cadastro",
+                run_name=r"Materialize {dataset_id}.cadastro_pensionistas",
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -243,7 +243,7 @@ with Flow(
             with case(update_metadata, True):
                 update_django_metadata(
                     dataset_id,
-                    table_id="pensionistas_cadastro",
+                    table_id="cadastro_pensionistas",
                     metadata_type="DateTimeRange",
                     bq_last_update=False,
                     bq_table_last_year_month=True,
@@ -257,7 +257,7 @@ with Flow(
                     upstream_tasks=[wait_for_materialization],
                 )
 
-        # servidores_cadastro
+        # cadastro_servidores
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
             current_flow_labels = get_current_flow_labels()
@@ -266,12 +266,12 @@ with Flow(
                 project_name=constants.PREFECT_DEFAULT_PROJECT.value,
                 parameters={
                     "dataset_id": dataset_id,
-                    "table_id": "servidores_cadastro",
+                    "table_id": "cadastro_servidores",
                     "mode": materialization_mode,
                     "dbt_alias": dbt_alias,
                 },
                 labels=current_flow_labels,
-                run_name=r"Materialize {dataset_id}.servidores_cadastro",
+                run_name=r"Materialize {dataset_id}.cadastro_servidores",
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -290,7 +290,7 @@ with Flow(
             with case(update_metadata, True):
                 update_django_metadata(
                     dataset_id,
-                    table_id="servidores_cadastro",
+                    table_id="cadastro_servidores",
                     metadata_type="DateTimeRange",
                     bq_last_update=False,
                     bq_table_last_year_month=True,
@@ -304,7 +304,7 @@ with Flow(
                     upstream_tasks=[wait_for_materialization],
                 )
 
-        # reserva_reforma_militares_cadastro
+        # cadastro_reserva_reforma_militares
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
             current_flow_labels = get_current_flow_labels()
@@ -313,12 +313,12 @@ with Flow(
                 project_name=constants.PREFECT_DEFAULT_PROJECT.value,
                 parameters={
                     "dataset_id": dataset_id,
-                    "table_id": "reserva_reforma_militares_cadastro",
+                    "table_id": "cadastro_reserva_reforma_militares",
                     "mode": materialization_mode,
                     "dbt_alias": dbt_alias,
                 },
                 labels=current_flow_labels,
-                run_name=r"Materialize {dataset_id}.reserva_reforma_militares_cadastro",
+                run_name=r"Materialize {dataset_id}.cadastro_reserva_reforma_militares",
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -337,7 +337,7 @@ with Flow(
             with case(update_metadata, True):
                 update_django_metadata(
                     dataset_id,
-                    table_id="reserva_reforma_militares_cadastro",
+                    table_id="cadastro_reserva_reforma_militares",
                     metadata_type="DateTimeRange",
                     bq_last_update=False,
                     bq_table_last_year_month=True,

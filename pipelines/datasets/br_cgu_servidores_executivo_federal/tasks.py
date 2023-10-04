@@ -150,7 +150,7 @@ def is_up_to_date(next_date: datetime.date) -> bool:
 def get_next_date() -> datetime.date:
     last_date_in_bq = extract_last_date(
         "br_cgu_servidores_executivo_federal",
-        "servidores_cadastro",
+        "cadastro_servidores",
         "yy-mm",
         "basedosdados-dev",
     )

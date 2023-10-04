@@ -92,21 +92,21 @@ def get_csv_file_by_table_name_and_date(table_name: str, date: datetime.date) ->
 
 def get_source(table_name: str, source: str) -> str:
     ORIGINS = {
-        "aposentados_cadastro": {
+        "cadastro_aposentados": {
             "Aposentados_BACEN": "BACEN",
             "Aposentados_SIAPE": "SIAPE",
         },
-        "pensionistas_cadastro": {
+        "cadastro_pensionistas": {
             "Pensionistas_SIAPE": "SIAPE",
             "Pensionistas_DEFESA": "Defesa",
             "Pensionistas_BACEN": "BACEN",
         },
-        "servidores_cadastro": {
+        "cadastro_servidores": {
             "Servidores_BACEN": "BACEN",
             "Servidores_SIAPE": "SIAPE",
             "Militares": "Militares",
         },
-        "reserva_reforma_militares_cadastro": {
+        "cadastro_reserva_reforma_militares": {
             "Reserva_Reforma_Militares": "Reserva Reforma Militares"
         },
         "remuneracao": {
