@@ -68,10 +68,10 @@ def download_zip_files_for_sheet(sheet_name: str, sheet_urls: list):
 
 def get_csv_file_by_table_name_and_date(table_name: str, date: datetime.date) -> str:
     if table_name in [
-        "aposentados_cadastro",
-        "pensionistas_cadastro",
-        "servidores_cadastro",
-        "reserva_reforma_militares_cadastro",
+        "cadastro_aposentados",
+        "cadastro_pensionistas",
+        "cadastro_servidores",
+        "cadastro_reserva_reforma_militares",
     ]:
         pattern = "Cadastro"
     elif table_name == "remuneracao":
