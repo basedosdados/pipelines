@@ -427,8 +427,13 @@ def update_django_metadata(
                 delta_kwargs = {unidades_permitidas[time_unit]: time_delta}
                 delta = relativedelta(**delta_kwargs)
 
-                free_data = datetime.strptime(last_date, "%Y-%m-%d") - delta
-                free_data = free_data.strftime("%Y-%m-%d")
+                if date_format == "yy-mm-dd":
+                    free_data = datetime.strptime(last_date, "%Y-%m-%d") - delta
+                    free_data = free_data.strftime("%Y-%m-%d")
+
+                if date_format == "yy-mm":
+                    free_data = datetime.strptime(last_date, "%Y-%m") - delta
+                    free_data = free_data.strftime("%Y-%m")
 
                 log(
                     f"Cobertura PRO ->> {_last_date} || Cobertura Grátis ->> {free_data}"
