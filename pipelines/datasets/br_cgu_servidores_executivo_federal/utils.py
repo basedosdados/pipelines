@@ -161,24 +161,6 @@ def read_and_clean_csv(
 
     df = rename_columns(df, df_architecture)
 
-    # cols_with_date_type = df_architecture.loc[
-    #     df_architecture["bigquery_type"] == "date", "name"
-    # ].to_list()
-
-    # for col in cols_with_date_type:
-    #     df[col] = df[col].apply(
-    #         lambda value: pd.to_datetime(value, format="%d/%m/%Y")
-    #         if value != "Não informada"
-    #         else None
-    #     )
-
-    # cols_with_float_type = df_architecture.loc[
-    #     df_architecture["bigquery_type"] == "float64", "name"
-    # ].to_list()
-
-    # for col in cols_with_float_type:
-    #     df[col] = df[col].str.replace(",", ".").astype(float)
-
     df["ano"] = date.year
     df["mes"] = date.month
 
