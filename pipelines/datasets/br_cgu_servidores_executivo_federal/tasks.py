@@ -152,10 +152,10 @@ def get_next_date() -> datetime.date:
         "br_cgu_servidores_executivo_federal",
         "cadastro_servidores",
         "yy-mm",
-        "basedosdados-dev",
+        "basedosdados",
     )
 
     year, month = last_date_in_bq.split("-")
 
-    # next_date = datetime.date(int(year), int(month), 1) + relativedelta(months=1)
-    return datetime.date(2023, 7, 1)
+    next_date = datetime.date(int(year), int(month), 1) + relativedelta(months=1)
+    return next_date
