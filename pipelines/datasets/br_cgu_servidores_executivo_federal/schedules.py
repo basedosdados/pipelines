@@ -16,17 +16,17 @@ from pipelines.datasets.br_cgu_servidores_executivo_federal.constants import (
 every_month = Schedule(
     clocks=[
         CronClock(
-            cron="0 14 * * 4",  # At 14:00 on Thursday.
+            cron="0 17 15 * *",  # At 17:00 on day-of-month 15
             start_date=datetime(2023, 9, 26),
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_cgu_servidores_executivo_federal",
                 "table_id": list(cgu_constants.TABLES.value.keys()),
                 "materialization_mode": "dev",
-                "materialize_after_dump": False,
-                "dbt_alias": False,
+                "materialize_after_dump": True,
+                "dbt_alias": True,
             },
         ),
     ]

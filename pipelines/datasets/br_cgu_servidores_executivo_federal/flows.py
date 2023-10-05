@@ -48,14 +48,14 @@ with Flow(
 
     table_id = Parameter("table_id", default=tables_ids, required=True)
 
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    update_metadata = Parameter("update_metadata", default=True, required=False)
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
-        "materialize after dump", default=False, required=False
+        "materialize after dump", default=True, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
@@ -200,7 +200,7 @@ with Flow(
                     metadata_type="DateTimeRange",
                     bq_last_update=False,
                     bq_table_last_year_month=True,
-                    # billing_project_id="basedosdados",
+                    billing_project_id="basedosdados",
                     api_mode="prod",
                     date_format="yy-mm",
                     is_bd_pro=True,
@@ -247,7 +247,7 @@ with Flow(
                     metadata_type="DateTimeRange",
                     bq_last_update=False,
                     bq_table_last_year_month=True,
-                    # billing_project_id="basedosdados",
+                    billing_project_id="basedosdados",
                     api_mode="prod",
                     date_format="yy-mm",
                     is_bd_pro=True,
@@ -294,7 +294,7 @@ with Flow(
                     metadata_type="DateTimeRange",
                     bq_last_update=False,
                     bq_table_last_year_month=True,
-                    # billing_project_id="basedosdados",
+                    billing_project_id="basedosdados",
                     api_mode="prod",
                     date_format="yy-mm",
                     is_bd_pro=True,
@@ -341,7 +341,7 @@ with Flow(
                     metadata_type="DateTimeRange",
                     bq_last_update=False,
                     bq_table_last_year_month=True,
-                    # billing_project_id="basedosdados",
+                    billing_project_id="basedosdados",
                     api_mode="prod",
                     date_format="yy-mm",
                     is_bd_pro=True,
@@ -388,7 +388,7 @@ with Flow(
                     metadata_type="DateTimeRange",
                     bq_last_update=False,
                     bq_table_last_year_month=True,
-                    # billing_project_id="basedosdados",
+                    billing_project_id="basedosdados",
                     api_mode="prod",
                     date_format="yy-mm",
                     is_bd_pro=True,
@@ -435,7 +435,7 @@ with Flow(
                     metadata_type="DateTimeRange",
                     bq_last_update=False,
                     bq_table_last_year_month=True,
-                    # billing_project_id="basedosdados",
+                    billing_project_id="basedosdados",
                     api_mode="prod",
                     date_format="yy-mm",
                     is_bd_pro=True,
@@ -482,7 +482,7 @@ with Flow(
                     metadata_type="DateTimeRange",
                     bq_last_update=False,
                     bq_table_last_year_month=True,
-                    # billing_project_id="basedosdados",
+                    billing_project_id="basedosdados",
                     api_mode="prod",
                     date_format="yy-mm",
                     is_bd_pro=True,
