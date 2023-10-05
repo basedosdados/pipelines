@@ -13,6 +13,7 @@ br_ibge_ipca_mes_categoria_brasil_every_month = generate_inflacao_clocks(
         "materialization_mode": "prod",
         "materialize after dump": True,
         "dbt_alias": True,
+        "update_metadata": True,
     }
 )
 
@@ -25,6 +26,7 @@ br_ibge_ipca_mes_categoria_rm_every_month = generate_inflacao_clocks(
         "materialization_mode": "prod",
         "materialize after dump": True,
         "dbt_alias": True,
+        "update_metadata": True,
     }
 )
 
@@ -38,6 +40,7 @@ br_ibge_ipca_mes_categoria_municipio_every_month = generate_inflacao_clocks(
         "materialization_mode": "prod",
         "materialize after dump": True,
         "dbt_alias": True,
+        "update_metadata": True,
     },
 )
 
@@ -50,5 +53,6 @@ br_ibge_ipca_mes_brasil_every_month = generate_inflacao_clocks(
         "materialization_mode": "prod",
         "materialize after dump": True,
         "dbt_alias": True,
+        "update_metadata": True,
     },
 )

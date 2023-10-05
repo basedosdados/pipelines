@@ -69,6 +69,22 @@ with Flow(
         wait=filepath,
     )
 
+    with case(update_metadata, True):
+        update_django_metadata(
+            dataset_id,
+            table_id,
+            metadata_type="DateTimeRange",
+            # needs_to_update[1] é a data (Y%-m%) mais recente
+            _last_date=needs_to_update[1],
+            bq_last_update=False,
+            api_mode="prod",
+            date_format="yy-mm",
+            is_bd_pro=True,
+            is_free=True,
+            time_delta=6,
+            time_unit="months",
+        )
+
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
