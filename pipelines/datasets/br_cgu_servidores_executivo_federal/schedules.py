@@ -24,9 +24,10 @@ every_month = Schedule(
             parameter_defaults={
                 "dataset_id": "br_cgu_servidores_executivo_federal",
                 "table_id": list(cgu_constants.TABLES.value.keys()),
-                "materialization_mode": "dev",
+                "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
+                "update_metadata": True,
             },
         ),
     ]
