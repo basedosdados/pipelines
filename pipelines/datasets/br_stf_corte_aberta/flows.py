@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-Flows for br_anp_precos_combustiveis
+Flows for br_stf_corte_aberta
 """
-
 from datetime import timedelta
 
 from prefect import Parameter, case
@@ -11,16 +10,13 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.datasets.br_anp_precos_combustiveis.schedules import (
-    every_week_anp_microdados,
-)
-from pipelines.datasets.br_anp_precos_combustiveis.tasks import (
+from pipelines.datasets.br_stf_corte_aberta.schedules import every_day_stf
+from pipelines.datasets.br_stf_corte_aberta.tasks import (
     check_for_updates,
-    data_max_bd_pro,
     download_and_transform,
     make_partitions,
 )
-from pipelines.datasets.br_anp_precos_combustiveis.utils import download_files
+from pipelines.datasets.br_stf_corte_aberta.utils import check_for_data
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
@@ -32,50 +28,42 @@ from pipelines.utils.tasks import (
     rename_current_flow_run_dataset_table,
 )
 
-with Flow(
-    name="br_anp_precos_combustiveis.microdados", code_owners=["trick"]
-) as anp_microdados:
-    dataset_id = Parameter(
-        "dataset_id", default="br_anp_precos_combustiveis", required=True
-    )
-    table_id = Parameter("table_id", default="microdados", required=True)
-
+with Flow(name="br_stf_corte_aberta.decisoes", code_owners=["trick"]) as br_stf:
+    # Parameters
+    dataset_id = Parameter("dataset_id", default="br_stf_corte_aberta", required=True)
+    table_id = Parameter("table_id", default="decisoes", required=True)
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
-
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
-
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
-
+    update_metadata = Parameter("update_metadata", default=True, required=False)
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
     update_metadata = Parameter("update_metadata", default=True, required=False)
-
-    dados_desatualizados = check_for_updates(dataset_id=dataset_id, table_id=table_id)
+    dados_desatualizados = check_for_updates(
+        dataset_id=dataset_id, table_id=table_id, upstream_tasks=[rename_flow_run]
+    )
     log_task(f"Checando se os dados estão desatualizados: {dados_desatualizados}")
     with case(dados_desatualizados, False):
         log_task(
             "Dados atualizados, não é necessário fazer o download",
-            upstream_tasks=[dados_desatualizados],
+            upstream_tasks=[dados_desatualizados, rename_flow_run],
         )
-
     with case(dados_desatualizados, True):
         df = download_and_transform(upstream_tasks=[rename_flow_run])
         output_path = make_partitions(df=df, upstream_tasks=[df])
-
-        # pylint: disable=C0103
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_path,
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
             wait=output_path,
+            upstream_tasks=[output_path],
         )
-
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
             current_flow_labels = get_current_flow_labels()
@@ -92,7 +80,6 @@ with Flow(
                 run_name=f"Materialize {dataset_id}.{table_id}",
                 upstream_tasks=[wait_upload_table],
             )
-
             wait_for_materialization = wait_for_flow_run(
                 materialization_flow,
                 stream_states=True,
@@ -105,25 +92,25 @@ with Flow(
             wait_for_materialization.retry_delay = timedelta(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
-            get_date_max_pro = data_max_bd_pro(
-                df=df, upstream_tasks=[wait_upload_table]
-            )
+            get_max_date = check_for_data()
+            get_max_date_string = str(get_max_date)
             with case(update_metadata, True):
                 update_django_metadata(
-                    dataset_id,
-                    table_id,
+                    dataset_id=dataset_id,
+                    table_id=table_id,
                     metadata_type="DateTimeRange",
                     bq_last_update=False,
                     bq_table_last_year_month=False,
+                    # billing_project_id="basedosdados-dev",
                     api_mode="prod",
                     date_format="yy-mm-dd",
                     is_bd_pro=True,
+                    _last_date=get_max_date_string,
                     is_free=True,
                     time_delta=6,
                     time_unit="weeks",
-                    _last_date=get_date_max_pro,
-                    upstream_tasks=[get_date_max_pro],
+                    upstream_tasks=[wait_for_materialization],
                 )
-anp_microdados.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-anp_microdados.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-anp_microdados.schedule = every_week_anp_microdados
+br_stf.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_stf.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_stf.schedule = every_day_stf

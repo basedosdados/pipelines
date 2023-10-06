@@ -15,7 +15,7 @@ schedule_municipio_exportacao = Schedule(
     clocks=[
         CronClock(
             cron="@monthly",
-            start_date=datetime(2023, 8, 8, 0, 0),
+            start_date=datetime(2023, 10, 4, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -25,6 +25,7 @@ schedule_municipio_exportacao = Schedule(
                 "materialization_mode": "prod",
                 "materialize after dump": True,
                 "dbt_alias": False,
+                "update_metadata": True,
             },
         )
     ],
@@ -36,7 +37,7 @@ schedule_municipio_importacao = Schedule(
     clocks=[
         CronClock(
             cron="@monthly",
-            start_date=datetime(2023, 8, 8, 0, 0),
+            start_date=datetime(2023, 10, 4, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -46,6 +47,7 @@ schedule_municipio_importacao = Schedule(
                 "materialization_mode": "prod",
                 "materialize after dump": True,
                 "dbt_alias": False,
+                "update_metadata": True,
             },
         )
     ],
@@ -57,7 +59,7 @@ schedule_ncm_importacao = Schedule(
     clocks=[
         CronClock(
             cron="@monthly",
-            start_date=datetime(2023, 8, 8, 0, 0),
+            start_date=datetime(2023, 10, 4, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -67,6 +69,7 @@ schedule_ncm_importacao = Schedule(
                 "materialization_mode": "prod",
                 "materialize after dump": True,
                 "dbt_alias": False,
+                "update_metadata": True,
             },
         )
     ],
@@ -78,7 +81,7 @@ schedule_ncm_exportacao = Schedule(
     clocks=[
         CronClock(
             cron="@monthly",
-            start_date=datetime(2023, 8, 8, 0, 0),
+            start_date=datetime(2023, 10, 4, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -88,6 +91,7 @@ schedule_ncm_exportacao = Schedule(
                 "materialization_mode": "prod",
                 "materialize after dump": True,
                 "dbt_alias": False,
+                "update_metadata": True,
             },
         )
     ],
