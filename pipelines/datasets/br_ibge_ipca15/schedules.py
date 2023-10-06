@@ -17,7 +17,7 @@ schedule_br_ibge_ipca15_mes_categoria_brasil = Schedule(
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
-            parameters={
+            parameter_defaults={
                 "indice": "ip15",
                 "folder": "br",
                 "dataset_id": "br_ibge_ipca15",
@@ -41,7 +41,7 @@ schedule_br_ibge_ipca15_mes_categoria_rm = Schedule(
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
-            parameters={
+            parameter_defaults={
                 "indice": "ip15",
                 "folder": "rm",
                 "dataset_id": "br_ibge_ipca15",
@@ -66,7 +66,7 @@ schedule_br_ibge_ipca15_mes_categoria_municipio = Schedule(
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
-            parameters={
+            parameter_defaults={
                 "indice": "ip15",
                 "folder": "mun",
                 "dataset_id": "br_ibge_ipca15",
@@ -91,7 +91,7 @@ schedule_br_ibge_ipca15_mes_brasil = Schedule(
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
-            parameters={
+            parameter_defaults={
                 "indice": "ip15",
                 "folder": "br",
                 "dataset_id": "br_ibge_ipca15",
