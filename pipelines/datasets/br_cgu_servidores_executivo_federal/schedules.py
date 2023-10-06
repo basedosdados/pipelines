@@ -16,7 +16,7 @@ from pipelines.datasets.br_cgu_servidores_executivo_federal.constants import (
 every_month = Schedule(
     clocks=[
         CronClock(
-            cron="0 17 15 * *",  # At 17:00 on day-of-month 15
+            cron="0 6 * * 2",  # At 06:00 on Tuesday
             start_date=datetime(2023, 9, 26),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
