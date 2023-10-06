@@ -9,7 +9,7 @@ from prefect.schedules.clocks import CronClock
 
 from pipelines.constants import constants
 
-br_ibge_ipca15_mes_categoria_brasil = Schedule(
+schedule_br_ibge_ipca15_mes_categoria_brasil = Schedule(
     clocks=[
         CronClock(
             cron="30 13 * * *",  # everyday at 13:30:00
@@ -33,7 +33,7 @@ br_ibge_ipca15_mes_categoria_brasil = Schedule(
     adjustments=[adjustments.next_weekday],
 )
 
-br_ibge_ipca15_mes_categoria_rm = Schedule(
+schedule_br_ibge_ipca15_mes_categoria_rm = Schedule(
     clocks=[
         CronClock(
             cron="20 13 * * *",  # everyday at 13:20:00
@@ -58,7 +58,7 @@ br_ibge_ipca15_mes_categoria_rm = Schedule(
 )
 
 
-br_ibge_ipca15_mes_categoria_municipio = Schedule(
+schedule_br_ibge_ipca15_mes_categoria_municipio = Schedule(
     clocks=[
         CronClock(
             cron="10 13 * * *",  # everyday at 13:10:00
@@ -83,7 +83,7 @@ br_ibge_ipca15_mes_categoria_municipio = Schedule(
 )
 
 
-br_ibge_ipca15_mes_brasil = Schedule(
+schedule_br_ibge_ipca15_mes_brasil = Schedule(
     clocks=[
         CronClock(
             cron="0 13 * * *",  # everyday at 13:00:00
