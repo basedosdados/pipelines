@@ -3,26 +3,26 @@
 Tasks for br_mp_pep_cargos_funcoes
 """
 
+import datetime
+import io
 import os
 import time
-import requests
 import zipfile
-import io
+
 import pandas as pd
-import datetime
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.common.exceptions import ElementNotInteractableException
-
+import requests
 from prefect import task
+from selenium import webdriver
+from selenium.common.exceptions import ElementNotInteractableException
+from selenium.webdriver.common.by import By
 
-from pipelines.utils.utils import log, to_partitions, extract_last_date
 from pipelines.datasets.br_mp_pep_cargos_funcoes.constants import constants
 from pipelines.datasets.br_mp_pep_cargos_funcoes.utils import (
-    wait_file_download,
-    move_from_tmp_dir,
     get_normalized_values_by_col,
+    move_from_tmp_dir,
+    wait_file_download,
 )
+from pipelines.utils.utils import extract_last_date, log, to_partitions
 
 
 @task
@@ -400,7 +400,7 @@ def is_up_to_date() -> bool:
     log(f"Last date website: {text}, parsed as {date_website}")
 
     last_date_in_bq = extract_last_date(
-        "br_mp_pep", "cargos_funcoes_atualizado", "yy-mm", "basedosdados"
+        "br_mp_pep", "cargos_funcoes", "yy-mm", "basedosdados"
     )
     date_in_bq = datetime.datetime.strptime(last_date_in_bq, "%Y-%m")
 

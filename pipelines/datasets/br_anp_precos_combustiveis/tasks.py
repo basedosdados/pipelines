@@ -3,108 +3,101 @@
 Tasks for br_anp_precos_combustiveis
 """
 
-from prefect import task
-import pandas as pd
-import numpy as np
 from datetime import datetime, timedelta
-from pipelines.datasets.br_anp_precos_combustiveis.utils import (
-    download_files,
-    get_id_municipio,
-    open_csvs,
-    partition_data,
-)
+
+import numpy as np
+import pandas as pd
+from prefect import task
+
+from pipelines.constants import constants
 from pipelines.datasets.br_anp_precos_combustiveis.constants import (
     constants as anatel_constants,
 )
-from pipelines.utils.utils import log
-from pipelines.constants import constants
+from pipelines.datasets.br_anp_precos_combustiveis.utils import (
+    creating_column_ano,
+    download_files,
+    get_id_municipio,
+    lower_colunm_produto,
+    merge_table_id_municipio,
+    open_csvs,
+    orderning_data_coleta,
+    partition_data,
+    rename_and_reordening,
+    rename_and_to_create_endereco,
+    rename_columns,
+)
+from pipelines.utils.utils import extract_last_date, log
+
+
+@task
+def check_for_updates(dataset_id, table_id):
+    """
+    Checks if there are available updates for a specific dataset and table.
+
+    Returns:
+        bool: Returns True if updates are available, otherwise returns False.
+    """
+    # Obtém a data mais recente do site
+    download_files(anatel_constants.URLS_DATA.value, anatel_constants.PATH_INPUT.value)
+    df = pd.read_csv(anatel_constants.URL_GLP.value, sep=";", encoding="utf-8")
+    data_obj = (
+        df["Data da Coleta"].str[6:10]
+        + "-"
+        + df["Data da Coleta"].str[3:5]
+        + "-"
+        + df["Data da Coleta"].str[0:2]
+    )
+    data_obj = data_obj.apply(lambda x: pd.to_datetime(x).strftime("%Y-%m-%d"))
+    data_obj = pd.to_datetime(data_obj, format="%Y-%m-%d").dt.date
+    data_obj = data_obj.max()
+    # Obtém a última data no site BD
+    data_bq_obj = extract_last_date(
+        dataset_id, table_id, "yy-mm-dd", "basedosdados", data="data_coleta"
+    )
+
+    # Registra a data mais recente do site
+    log(f"Última data no site do ANP: {data_obj}")
+    log(f"Última data no site da BD: {data_bq_obj}")
+
+    # Compara as datas para verificar se há atualizações
+    if data_obj > data_bq_obj:
+        return True  # Há atualizações disponíveis
+    else:
+        return False  # Não há novas atualizações disponíveis
 
 
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def tratamento():
-    download_files(
-        anatel_constants.URLS.value,
-        anatel_constants.PATH_INPUT.value,
-    )
+def download_and_transform():
+    download_files(anatel_constants.URLS.value, anatel_constants.PATH_INPUT.value)
 
     precos_combustiveis = open_csvs(
-        url_diesel_gnv=anatel_constants.URL_DIESEL_GNV.value,
-        url_gasolina_etanol=anatel_constants.URL_GASOLINA_ETANOL.value,
-        url_glp=anatel_constants.URL_GLP.value,
+        anatel_constants.URL_DIESEL_GNV.value,
+        anatel_constants.URL_GASOLINA_ETANOL.value,
+        anatel_constants.URL_GLP.value,
     )
 
-    id_municipio = get_id_municipio()
-    log("Iniciando tratamento dos dados precos_combustiveis")
-    precos_combustiveis = pd.merge(
-        id_municipio,
-        precos_combustiveis,
-        how="right",
-        left_on=["nome", "sigla_uf"],
-        right_on=["Municipio", "Estado - Sigla"],
-    )
-    log("----" * 150)
-    log("Dados mergeados")
-    precos_combustiveis.rename(columns={"Municipio": "nome"}, inplace=True)
-    precos_combustiveis.dropna(subset=["Valor de Venda"], inplace=True)
-    precos_combustiveis["endereco_revenda"] = (
-        precos_combustiveis["Nome da Rua"].fillna("")
-        + ","
-        + " "
-        + precos_combustiveis["Numero Rua"].fillna("")
-        + ","
-        + " "
-        + precos_combustiveis["Complemento"].fillna("")
-    )
-    precos_combustiveis.drop(columns=["sigla_uf"], inplace=True)
-    precos_combustiveis.rename(columns={"Data da Coleta": "data_coleta"}, inplace=True)
-    precos_combustiveis["data_coleta"] = (
-        precos_combustiveis["data_coleta"].str[6:10]
-        + "-"
-        + precos_combustiveis["data_coleta"].str[3:5]
-        + "-"
-        + precos_combustiveis["data_coleta"].str[0:2]
-    )
-    precos_combustiveis["Produto"] = precos_combustiveis["Produto"].str.lower()
-    precos_combustiveis["ano"] = precos_combustiveis["data_coleta"].str[0:4]
-    precos_combustiveis["ano"].replace("nan", "", inplace=True)
-    precos_combustiveis.rename(columns=anatel_constants.RENAME.value, inplace=True)
-    precos_combustiveis = precos_combustiveis[anatel_constants.ORDEM.value]
-    precos_combustiveis["ano"] = precos_combustiveis["ano"].apply(
-        lambda x: str(x).replace(".0", "")
-    )
-    precos_combustiveis["cep_revenda"] = precos_combustiveis["cep_revenda"].apply(
-        lambda x: str(x).replace("-", "")
-    )
-    precos_combustiveis["unidade_medida"] = precos_combustiveis["unidade_medida"].map(
-        {"R$ / litro": "R$/litro", "R$ / m³": "R$/m3", "R$ / 13 kg": "R$/13kg"}
-    )
-    precos_combustiveis["nome_estabelecimento"] = precos_combustiveis[
-        "nome_estabelecimento"
-    ].apply(lambda x: str(x).replace(",", ""))
-    precos_combustiveis["preco_compra"] = precos_combustiveis["preco_compra"].apply(
-        lambda x: str(x).replace(",", ".")
-    )
-    precos_combustiveis["preco_venda"] = precos_combustiveis["preco_venda"].apply(
-        lambda x: str(x).replace(",", ".")
-    )
-    precos_combustiveis["preco_venda"] = precos_combustiveis["preco_venda"].replace(
-        "nan", ""
-    )
-    precos_combustiveis["preco_compra"] = precos_combustiveis["preco_compra"].replace(
-        "nan", ""
-    )
-    precos_combustiveis.replace(np.nan, "", inplace=True)
-    log("----" * 150)
-    log("Dados tratados com sucesso")
-    log("----" * 150)
-    log("Iniciando particionamento dos dados")
-    log("----" * 150)
-    log(precos_combustiveis["data_coleta"].unique())
+    df = get_id_municipio(id_municipio=precos_combustiveis)
 
-    return precos_combustiveis
+    df = merge_table_id_municipio(
+        id_municipio=df, pd_precos_combustiveis=precos_combustiveis
+    )
+
+    df = rename_and_to_create_endereco(precos_combustiveis=df)
+
+    df = orderning_data_coleta(precos_combustiveis=df)
+
+    df = lower_colunm_produto(precos_combustiveis=df)
+
+    df = creating_column_ano(precos_combustiveis=df)
+
+    df = rename_and_reordening(precos_combustiveis=df)
+
+    df = rename_columns(precos_combustiveis=df)
+
+    return df
 
 
 @task(

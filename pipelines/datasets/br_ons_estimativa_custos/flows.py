@@ -3,7 +3,7 @@
 Flows for br_ons_estimativa_custos
 """
 # pylint: disable=invalid-name
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
@@ -11,30 +11,25 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.datasets.br_ons_estimativa_custos.tasks import (
-    download_data,
-    wrang_data,
-)
 from pipelines.datasets.br_ons_estimativa_custos.constants import (
     constants as ons_constants,
 )
+from pipelines.datasets.br_ons_estimativa_custos.schedules import (
+    schedule_br_ons_estimativa_custos_balanco_energia_subsistemas,
+    schedule_br_ons_estimativa_custos_balanco_energia_subsistemas_dessem,
+    schedule_br_ons_estimativa_custos_custo_marginal_operacao_semanal,
+    schedule_br_ons_estimativa_custos_custo_marginal_operacao_semi_horario,
+)
+from pipelines.datasets.br_ons_estimativa_custos.tasks import download_data, wrang_data
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
-    rename_current_flow_run_dataset_table,
-    get_current_flow_labels,
     create_table_and_upload_to_gcs,
-    update_django_metadata,
+    get_current_flow_labels,
+    rename_current_flow_run_dataset_table,
 )
-
-from pipelines.datasets.br_ons_estimativa_custos.schedules import (
-    schedule_br_ons_estimativa_custos_custo_marginal_operacao_semi_horario,
-    schedule_br_ons_estimativa_custos_custo_marginal_operacao_semanal,
-    schedule_br_ons_estimativa_custos_balanco_energia_subsistemas,
-    schedule_br_ons_estimativa_custos_balanco_energia_subsistemas_dessem,
-)
-
 
 with Flow(
     name="br_ons_estimativa_custos.custo_marginal_operacao_semi_horario",
@@ -113,6 +108,8 @@ with Flow(
                 bq_last_update=False,
                 bq_table_last_year_month=True,
                 billing_project_id="basedosdados",
+                is_bd_pro=True,
+                is_free=False,
                 api_mode="prod",
                 date_format="yy-mm-dd",
                 upstream_tasks=[wait_for_materialization],
@@ -206,6 +203,8 @@ with Flow(
                 bq_last_update=False,
                 bq_table_last_year_month=True,
                 billing_project_id="basedosdados",
+                is_bd_pro=True,
+                is_free=False,
                 api_mode="prod",
                 date_format="yy-mm-dd",
                 upstream_tasks=[wait_for_materialization],
@@ -299,6 +298,8 @@ with Flow(
                 bq_last_update=False,
                 bq_table_last_year_month=True,
                 billing_project_id="basedosdados",
+                is_bd_pro=True,
+                is_free=False,
                 api_mode="prod",
                 date_format="yy-mm-dd",
                 upstream_tasks=[wait_for_materialization],
@@ -393,6 +394,8 @@ with Flow(
                 bq_last_update=False,
                 bq_table_last_year_month=True,
                 billing_project_id="basedosdados",
+                is_bd_pro=True,
+                is_free=False,
                 api_mode="prod",
                 date_format="yy-mm-dd",
                 upstream_tasks=[wait_for_materialization],

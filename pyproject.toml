@@ -104,10 +104,27 @@ wget = "^3.2"
 zict = "2.0.0"
 selenium = "^4.11.2"
 fastparquet = "^2023.7.0"
-
+geopandas = "0.13.2"
+shapely = "2.0.1"
 
 [tool.poetry.dev-dependencies]
 pytest_cov = "^3.0.0"
+
+[tool.poetry.scripts]
+lint = "scripts.lint:main"
+
+[tool.black]
+exclude = "pipelines/{{cookiecutter.project_name}}"
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+use_parentheses = true
+include_trailing_comma = true
+skip = ["pipelines/{{cookiecutter.project_name}}"]
+
+[tool.autoflake]
+exclude = "pipelines/{{cookiecutter.project_name}}"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"

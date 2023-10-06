@@ -4,20 +4,18 @@ General purpose functions for the metadata project
 """
 
 import json
+import re
 
 # pylint: disable=too-many-arguments
 from datetime import datetime
-from os import getenv, walk
-from typing import Any, Dict, List, Tuple
+from typing import Tuple
 
 import basedosdados as bd
 import numpy as np
 import pandas as pd
 import requests
-from pipelines.utils.utils import log, get_credentials_from_secret
 
-
-import re
+from pipelines.utils.utils import get_credentials_from_secret, log
 
 
 #######################
@@ -474,21 +472,6 @@ def create_update(
 
 
 def parse_temporal_coverage(temporal_coverage):
-    padrao_ano = r"\d{4}\(\d{1,2}\)\d{4}"
-    padrao_mes = r"\d{4}-\d{2}\(\d{1,2}\)\d{4}-\d{2}"
-    padrao_semana = r"\d{4}-\d{2}-\d{2}\(\d{1,2}\)\d{4}-\d{2}-\d{2}"
-    padrao_dia = r"\d{4}-\d{2}-\d{2}\(\d{1,2}\)\d{4}-\d{2}-\d{2}"
-
-    if (
-        re.match(padrao_ano, temporal_coverage)
-        or re.match(padrao_mes, temporal_coverage)
-        or re.match(padrao_semana, temporal_coverage)
-        or re.match(padrao_dia, temporal_coverage)
-    ):
-        print("A data está no formato correto.")
-    else:
-        print("Aviso: A data não está no formato correto.")
-
     # Extrai as informações de data e intervalo da string
     if "(" in temporal_coverage:
         start_str, interval_str, end_str = re.split(r"[(|)]", temporal_coverage)

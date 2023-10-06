@@ -3,9 +3,11 @@
 Schedules for br_bcb_indicadores
 """
 
-from prefect.schedules import Schedule, filters, adjustments
-from prefect.schedules.clocks import CronClock
 from datetime import datetime
+
+from prefect.schedules import Schedule, adjustments, filters
+from prefect.schedules.clocks import CronClock
+
 from pipelines.constants import constants
 
 schedule_every_weekday_taxa_cambio = Schedule(

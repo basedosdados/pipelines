@@ -3,18 +3,19 @@
 Flows for temporal_coverage_updater
 """
 
+from prefect import Parameter
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
+
 from pipelines.constants import constants
-from pipelines.utils.metadata.tasks import (
-    update_django_metadata,
-    get_today_date,
-    test_ids,
-)
 
 # from pipelines.datasets.temporal_coverage_updater.schedules import every_two_weeks
 from pipelines.utils.decorators import Flow
-from prefect import Parameter
+from pipelines.utils.metadata.tasks import (
+    get_today_date,
+    test_ids,
+    update_django_metadata,
+)
 
 # from pipelines.utils.utils import log
 

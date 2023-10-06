@@ -7,6 +7,7 @@ import json
 
 # pylint: disable=too-many-arguments
 import logging
+import re
 from datetime import datetime
 from os import getenv, walk
 from os.path import join
@@ -30,9 +31,6 @@ from prefect.run_configs import KubernetesRun, VertexRun
 from redis_pal import RedisPal
 
 from pipelines.constants import constants
-
-import os
-import re
 
 
 def log(msg: Any, level: str = "info") -> None:
@@ -725,7 +723,9 @@ def extract_last_update(
         raise
 
 
-def extract_last_date(dataset_id, table_id, date_format: str, billing_project_id: str):
+def extract_last_date(
+    dataset_id, table_id, date_format: str, billing_project_id: str, data: str = "data"
+):
     """
     Extracts the last update date of a given dataset table.
 
@@ -772,9 +772,9 @@ def extract_last_date(dataset_id, table_id, date_format: str, billing_project_id
         try:
             query_bd = f"""
             SELECT
-            MAX(data) as max_date
+            MAX({data}) as max_date
             FROM
-            `basedosdados.{dataset_id}.{table_id}`
+            `{billing_project_id}.{dataset_id}.{table_id}`
             """
             log(f"Query: {query_bd}")
             t = bd.read_sql(

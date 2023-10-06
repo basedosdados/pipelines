@@ -2,23 +2,22 @@
 """
 Tasks for br_inmet_bdmep
 """
-from pipelines.utils.utils import (
-    log,
-)
+import glob
+import os
+from datetime import datetime
+
+import numpy as np
+import pandas as pd
+from prefect import task
+
+from pipelines.constants import constants
+from pipelines.datasets.br_inmet_bdmep.constants import constants as inmet_constants
 from pipelines.datasets.br_inmet_bdmep.utils import (
-    get_clima_info,
     download_inmet,
+    get_clima_info,
     year_list,
 )
-from pipelines.constants import constants
-
-import pandas as pd
-import os
-import numpy as np
-import glob
-from datetime import datetime, time
-from prefect import task
-from pipelines.datasets.br_inmet_bdmep.constants import constants as inmet_constants
+from pipelines.utils.utils import log
 
 # pylint: disable=C0103
 
@@ -31,8 +30,10 @@ def get_base_inmet(year: int) -> str:
     Retorna:
     - str: o caminho para o diretório que contém os arquivos CSV de saída.
     """
+    log(f"Baixando os dados para o ano {year}.")
 
     download_inmet(year)
+    log("Dados baixados.")
 
     files = glob.glob(os.path.join(f"/tmp/data/input/{year}/", "*.CSV"))
 
@@ -50,3 +51,10 @@ def get_base_inmet(year: int) -> str:
     base.to_csv(name, index=False)
 
     return "/tmp/data/output/microdados/"
+
+
+@task
+def get_today_date():
+    d = datetime.today()
+
+    return d.strftime("%Y-%m")

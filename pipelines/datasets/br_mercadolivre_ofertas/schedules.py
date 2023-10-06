@@ -10,7 +10,6 @@ from prefect.schedules.clocks import IntervalClock
 
 from pipelines.constants import constants
 
-
 every_day_item = Schedule(
     clocks=[
         IntervalClock(
@@ -22,11 +21,11 @@ every_day_item = Schedule(
             parameter_defaults={
                 "dataset_id": "br_mercadolivre_ofertas",
                 "materialization_mode": "prod",
-                "materialize_after_dump": True,
+                "materialize_after_dump": False,
                 "table_id": "item",
                 "dbt_alias": False,
                 "table_id_sellers": "vendedor",
-                "materialize_after_dump_sellers": True,
+                "materialize_after_dump_sellers": False,
             },
         )
     ],

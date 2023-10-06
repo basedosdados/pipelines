@@ -13,12 +13,10 @@ from prefect import task
 
 from pipelines.constants import constants
 from pipelines.datasets.br_bd_metadados.utils import (
-    get_temporal_coverage_list,
     check_missing_metadata,
+    get_temporal_coverage_list,
 )
-from pipelines.utils.utils import (
-    log,
-)
+from pipelines.utils.utils import log
 
 
 # pylint: disable=C0103

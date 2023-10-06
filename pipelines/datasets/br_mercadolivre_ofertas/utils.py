@@ -3,17 +3,19 @@
 
 import asyncio
 import hashlib
+import json
 import re
 from datetime import datetime
-from pipelines.utils.tasks import log
-import requests
-from tqdm import tqdm
-from bs4 import BeautifulSoup
-from fake_useragent import UserAgent
+
 import Levenshtein
 import pandas as pd
+import requests
+from bs4 import BeautifulSoup
+from fake_useragent import UserAgent
+from tqdm import tqdm
+
 from pipelines.datasets.br_mercadolivre_ofertas.decorators import retry
-import json
+from pipelines.utils.tasks import log
 
 ua = UserAgent()
 
@@ -301,11 +303,24 @@ async def process_item_url(item_url, kwargs_list):
         info["stars"] = None
         info["review_amount"] = None
 
-    info["price"] = prices["price"]
-    info["price_original"] = prices["price_original"]
-    info["title"] = prices["title"]
-    info["discount"] = prices["discount"]
-    info["transport_condition"] = prices["transport_condition"]
+    if prices is not None:
+        info["price"] = prices["price"]
+        info["price_original"] = prices["price_original"]
+        info["title"] = prices["title"]
+        info["discount"] = prices["discount"]
+        info["transport_condition"] = prices["transport_condition"]
+    else:
+        info["price"] = None
+        info["price_original"] = None
+        info["title"] = None
+        info["discount"] = None
+        info["transport_condition"] = None
+
+    # info["price"] = prices["price"]
+    # info["price_original"] = prices["price_original"]
+    # info["title"] = prices["title"]
+    # info["discount"] = prices["discount"]
+    # info["transport_condition"] = prices["transport_condition"]
     log(info)
 
     # Gerando o ID item

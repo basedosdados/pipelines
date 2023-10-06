@@ -3,39 +3,35 @@
 Flows for br_bcb_estban
 """
 
-from datetime import datetime, timedelta
+from datetime import timedelta
+
+from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
-from prefect import Parameter, case
-from prefect.tasks.prefect import (
-    create_flow_run,
-    wait_for_flow_run,
-)
+from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.utils.constants import constants as utils_constants
-from pipelines.datasets.br_bcb_estban.tasks import (
-    download_estban_files,
-    cleaning_municipios_data,
-    cleaning_agencias_data,
-    get_id_municipio,
+from pipelines.datasets.br_bcb_estban.constants import (
+    constants as br_bcb_estban_constants,
 )
-
 from pipelines.datasets.br_bcb_estban.schedules import (
     every_month_agencia,
     every_month_municipio,
 )
-
-from pipelines.datasets.br_bcb_estban.constants import (
-    constants as br_bcb_estban_constants,
+from pipelines.datasets.br_bcb_estban.tasks import (
+    cleaning_agencias_data,
+    cleaning_municipios_data,
+    download_estban_files,
+    get_id_municipio,
 )
+from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.metadata.flows import update_django_metadata
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
-    rename_current_flow_run_dataset_table,
     get_current_flow_labels,
+    rename_current_flow_run_dataset_table,
 )
 
 with Flow(
@@ -174,7 +170,7 @@ with Flow(
         municipio=municipio,
         upstream_tasks=[donwload_files, municipio],
     )
-
+    # 15/16/19/20 sao files problematicos
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,

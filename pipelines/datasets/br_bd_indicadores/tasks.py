@@ -7,7 +7,7 @@ import os
 from datetime import datetime, timedelta
 from functools import reduce
 from pathlib import Path
-from typing import Tuple, Optional
+from typing import Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -20,21 +20,17 @@ from tqdm import tqdm
 
 from pipelines.constants import constants
 from pipelines.datasets.br_bd_indicadores.utils import (
+    GA4RealTimeReport,
+    connect_to_endpoint,
+    create_google_sheet_url,
     create_headers,
     create_url,
-    connect_to_endpoint,
     flatten,
-    GA4RealTimeReport,
-    parse_data,
-    initialize_analyticsreporting,
     get_report,
-    create_google_sheet_url,
+    initialize_analyticsreporting,
+    parse_data,
 )
-from pipelines.utils.utils import (
-    get_storage_blobs,
-    log,
-    get_credentials_from_secret,
-)
+from pipelines.utils.utils import get_credentials_from_secret, get_storage_blobs, log
 
 
 # pylint: disable=C0103

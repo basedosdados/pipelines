@@ -3,21 +3,22 @@
 Tasks for metadata
 """
 
-from prefect import task
 from datetime import datetime
-from pipelines.utils.utils import log, get_credentials_from_secret
-from typing import Tuple
+
+from dateutil.relativedelta import relativedelta
+from prefect import task
+
 from pipelines.utils.metadata.utils import (
-    get_ids,
-    parse_temporal_coverage,
-    get_credentials_utils,
     create_update,
-    extract_last_update,
     extract_last_date,
+    extract_last_update,
+    get_credentials_utils,
     get_first_date,
     get_id,
+    get_ids,
+    parse_temporal_coverage,
 )
-from dateutil.relativedelta import relativedelta
+from pipelines.utils.utils import get_credentials_from_secret, log
 
 
 @task
@@ -44,7 +45,7 @@ def update_django_metadata(
     time_unit: str = "days",
 ):
     """
-    Updates Django metadata.
+    Updates Django metadata. Version 1.2.
 
     Args:
         -   `dataset_id (str):` The ID of the dataset.
@@ -107,16 +108,14 @@ def update_django_metadata(
         "weeks": "weeks",
         "days": "days",
     }
-    if not isinstance(_last_date, str):
-        raise ValueError("O parâmetro `last_date` deve ser do tipo string")
+
+    if not isinstance(_last_date, str) and _last_date is not None:
+        raise ValueError("O parâmetro `last_date` deve ser uma string não nula")
 
     if time_unit not in unidades_permitidas:
         raise ValueError(
             f"Unidade temporal inválida. Escolha entre {', '.join(unidades_permitidas.keys())}"
         )
-
-    if not isinstance(time_delta, int) or time_delta <= 0:
-        raise ValueError("Defasagem deve ser um número inteiro positivo")
 
     if billing_project_id not in accepted_billing_project_id:
         raise Exception(
@@ -164,6 +163,8 @@ def update_django_metadata(
                     api_mode=api_mode,
                 )
             elif is_bd_pro and is_free:
+                if not isinstance(time_delta, int) or time_delta <= 0:
+                    raise ValueError("Defasagem deve ser um número inteiro positivo")
                 last_date = extract_last_update(
                     dataset_id,
                     table_id,
@@ -213,7 +214,7 @@ def update_django_metadata(
                     ] = resource_to_temporal_coverage_free["endYear"]
 
                 log(
-                    f"Cobertura PRO ->> {_last_date} || Cobertura Grátis ->> {free_data}"
+                    f"Cobertura PRO ->> {last_date} || Cobertura Grátis ->> {free_data}"
                 )
                 # resource_to_temporal_coverage = parse_temporal_coverage(f"{last_date}")
 
@@ -252,7 +253,7 @@ def update_django_metadata(
                     date_format,
                     billing_project_id=billing_project_id,
                 )
-                log(f"Cobertura PRO ->> {_last_date}")
+                log(f"Cobertura PRO ->> {last_date}")
                 resource_to_temporal_coverage = parse_temporal_coverage(f"{last_date}")
 
                 resource_to_temporal_coverage["coverage"] = ids.get("coverage_id_pro")
@@ -344,7 +345,7 @@ def update_django_metadata(
                     ] = resource_to_temporal_coverage_free["endYear"]
 
                 log(
-                    f"Cobertura PRO ->> {_last_date} || Cobertura Grátis ->> {free_data}"
+                    f"Cobertura PRO ->> {last_date} || Cobertura Grátis ->> {free_data}"
                 )
                 # resource_to_temporal_coverage = parse_temporal_coverage(f"{last_date}")
 
@@ -383,7 +384,7 @@ def update_django_metadata(
                     date_format,
                     billing_project_id=billing_project_id,
                 )
-                log(f"Cobertura PRO ->> {_last_date}")
+                log(f"Cobertura PRO ->> {last_date}")
                 resource_to_temporal_coverage = parse_temporal_coverage(f"{last_date}")
 
                 resource_to_temporal_coverage["coverage"] = ids.get("coverage_id_pro")
@@ -400,6 +401,9 @@ def update_django_metadata(
                     api_mode=api_mode,
                 )
         else:
+            if not isinstance(_last_date, str):
+                raise ValueError("O parâmetro `last_date` deve ser do tipo string")
+
             if is_free and not is_bd_pro:
                 last_date = _last_date
                 resource_to_temporal_coverage = parse_temporal_coverage(f"{_last_date}")

@@ -3,35 +3,33 @@
 Flows for dataset br_anatel_telefonia_movel
 """
 
+from datetime import timedelta
+
+from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
-from datetime import timedelta
-from prefect import Parameter, case
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.tasks import update_django_metadata
-from pipelines.utils.constants import constants as utils_constants
 from pipelines.constants import constants
 from pipelines.datasets.br_anatel_telefonia_movel.constants import (
     constants as anatel_constants,
 )
+from pipelines.datasets.br_anatel_telefonia_movel.schedules import every_month_anatel
 from pipelines.datasets.br_anatel_telefonia_movel.tasks import (
-    clean_csv_microdados,
     clean_csv_brasil,
-    clean_csv_uf,
+    clean_csv_microdados,
     clean_csv_municipio,
+    clean_csv_uf,
     get_today_date_atualizado,
 )
+from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
+from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
-    rename_current_flow_run_dataset_table,
     get_current_flow_labels,
-)
-
-from pipelines.datasets.br_anatel_telefonia_movel.schedules import (
-    every_month_anatel,
+    rename_current_flow_run_dataset_table,
 )
 
 with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anatel:
@@ -118,43 +116,18 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-    # ! tabela bd pro
-    with case(materialize_after_dump, True):
-        # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
-        materialization_flow = create_flow_run(
-            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-            parameters={
-                "dataset_id": dataset_id,
-                "table_id": table_id[0] + "_atualizado",
-                "mode": materialization_mode,
-                "dbt_alias": dbt_alias,
-            },
-            labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id[0]}" + "_atualizado",
-        )
-
-        wait_for_materialization = wait_for_flow_run(
-            materialization_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
-        wait_for_materialization.max_retries = (
-            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-        )
-        wait_for_materialization.retry_delay = timedelta(
-            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-        )
-
         with case(update_metadata, True):
             date = get_today_date_atualizado()  # task que retorna a data atual
             update_django_metadata(
                 dataset_id,
-                table_id[0] + "_atualizado",
+                table_id[0],
                 metadata_type="DateTimeRange",
                 bq_last_update=False,
+                bq_table_last_year_month=False,
+                is_bd_pro=True,
+                is_free=True,
+                time_delta=2,
+                time_unit="months",
                 api_mode="prod",
                 date_format="yy-mm",
                 _last_date=date,
@@ -200,43 +173,18 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-    # ! tabela bd pro
-    with case(materialize_after_dump, True):
-        # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
-        materialization_flow = create_flow_run(
-            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-            parameters={
-                "dataset_id": dataset_id,
-                "table_id": table_id[1] + "_atualizado",
-                "mode": materialization_mode,
-                "dbt_alias": dbt_alias,
-            },
-            labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id[1]}" + "_atualizado",
-        )
-
-        wait_for_materialization = wait_for_flow_run(
-            materialization_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
-        wait_for_materialization.max_retries = (
-            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-        )
-        wait_for_materialization.retry_delay = timedelta(
-            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-        )
-
         with case(update_metadata, True):
             date = get_today_date_atualizado()  # task que retorna a data atual
             update_django_metadata(
                 dataset_id,
-                table_id[1] + "_atualizado",
+                table_id[1],
                 metadata_type="DateTimeRange",
                 bq_last_update=False,
+                bq_table_last_year_month=False,
+                is_bd_pro=True,
+                is_free=True,
+                time_delta=2,
+                time_unit="months",
                 api_mode="prod",
                 date_format="yy-mm",
                 _last_date=date,
@@ -284,43 +232,18 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-    # ! tabela bd pro
-    with case(materialize_after_dump, True):
-        # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
-        materialization_flow = create_flow_run(
-            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-            parameters={
-                "dataset_id": dataset_id,
-                "table_id": table_id[2] + "_atualizado",
-                "mode": materialization_mode,
-                "dbt_alias": dbt_alias,
-            },
-            labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id[2]}" + "_atualizado",
-        )
-
-        wait_for_materialization = wait_for_flow_run(
-            materialization_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
-        wait_for_materialization.max_retries = (
-            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-        )
-        wait_for_materialization.retry_delay = timedelta(
-            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-        )
-
         with case(update_metadata, True):
             date = get_today_date_atualizado()  # task que retorna a data atual
             update_django_metadata(
                 dataset_id,
-                table_id[2] + "_atualizado",
+                table_id[2],
                 metadata_type="DateTimeRange",
                 bq_last_update=False,
+                bq_table_last_year_month=False,
+                is_bd_pro=True,
+                is_free=True,
+                time_delta=2,
+                time_unit="months",
                 api_mode="prod",
                 date_format="yy-mm",
                 _last_date=date,
@@ -367,44 +290,18 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-    # ! tabela bd pro
-
-    with case(materialize_after_dump, True):
-        # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
-        materialization_flow = create_flow_run(
-            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-            parameters={
-                "dataset_id": dataset_id,
-                "table_id": table_id[3] + "_atualizado",
-                "mode": materialization_mode,
-                "dbt_alias": dbt_alias,
-            },
-            labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id[3]}" + "_atualizado",
-        )
-
-        wait_for_materialization = wait_for_flow_run(
-            materialization_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
-        wait_for_materialization.max_retries = (
-            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-        )
-        wait_for_materialization.retry_delay = timedelta(
-            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-        )
-
         with case(update_metadata, True):
             date = get_today_date_atualizado()  # task que retorna a data atual
             update_django_metadata(
                 dataset_id,
-                table_id[3] + "_atualizado",
+                table_id[3],
                 metadata_type="DateTimeRange",
                 bq_last_update=False,
+                bq_table_last_year_month=False,
+                is_bd_pro=True,
+                is_free=True,
+                time_delta=2,
+                time_unit="months",
                 api_mode="prod",
                 date_format="yy-mm",
                 _last_date=date,

@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
-from datetime import timedelta, datetime
+from datetime import datetime
+
 from prefect.schedules import Schedule
 from prefect.schedules.clocks import CronClock
+
 from pipelines.constants import constants
 
 all_day_cotacoes = Schedule(
@@ -16,7 +18,7 @@ all_day_cotacoes = Schedule(
                 "dataset_id": "br_b3_cotacoes",  # ! dataset_id do dataset que será executado
                 "table_id": "cotacoes",  # ! table_id do dataset que será executado
                 "materialization_mode": "prod",  # ! Aonde o dataset será materializado (dev, prod ou prod-staging)
-                "materialize_after_dump": True,  # ! Se o dataset será materializado após o dump
+                "materialize_after_dump": False,  # ! Se o dataset será materializado após o dump
                 "dbt_alias": True,
             },
         ),

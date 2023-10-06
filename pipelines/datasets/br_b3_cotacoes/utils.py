@@ -2,17 +2,19 @@
 """
 General purpose functions for the br_bcb_estban project
 """
-import requests
-import pandas as pd
-import numpy as np
 import os
 import zipfile
-from tqdm import tqdm
 from datetime import datetime
-from pipelines.utils.utils import log
+
+import numpy as np
+import pandas as pd
+import requests
+from tqdm import tqdm
+
 from pipelines.datasets.br_b3_cotacoes.constants import (
     constants as br_b3_cotacoes_constants,
 )
+from pipelines.utils.utils import log
 
 
 # ------- macro etapa 1 download to zip by chunk and unzip csv
