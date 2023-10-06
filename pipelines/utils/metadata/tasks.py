@@ -427,29 +427,60 @@ def update_django_metadata(
                 delta_kwargs = {unidades_permitidas[time_unit]: time_delta}
                 delta = relativedelta(**delta_kwargs)
 
-                free_data = datetime.strptime(last_date, "%Y-%m-%d") - delta
-                free_data = free_data.strftime("%Y-%m-%d")
+                if date_format == "yy-mm-dd":
+                    free_data = datetime.strptime(last_date, "%Y-%m-%d") - delta
+                    free_data = free_data.strftime("%Y-%m-%d")
 
-                log(
-                    f"Cobertura PRO ->> {_last_date} || Cobertura Grátis ->> {free_data}"
-                )
-                resource_to_temporal_coverage = parse_temporal_coverage(f"{last_date}")
-                resource_to_temporal_coverage_free = parse_temporal_coverage(
-                    f"{free_data}"
-                )
+                    log(
+                        f"Cobertura PRO ->> {_last_date} || Cobertura Grátis ->> {free_data}"
+                    )
+                    resource_to_temporal_coverage = parse_temporal_coverage(
+                        f"{last_date}"
+                    )
+                    resource_to_temporal_coverage_free = parse_temporal_coverage(
+                        f"{free_data}"
+                    )
 
-                resource_to_temporal_coverage["coverage"] = ids.get("coverage_id_pro")
-                resource_to_temporal_coverage[
-                    "startYear"
-                ] = resource_to_temporal_coverage_free["endYear"]
-                resource_to_temporal_coverage[
-                    "startMonth"
-                ] = resource_to_temporal_coverage_free["endMonth"]
-                resource_to_temporal_coverage[
-                    "startDay"
-                ] = resource_to_temporal_coverage_free["endDay"]
+                    resource_to_temporal_coverage["coverage"] = ids.get(
+                        "coverage_id_pro"
+                    )
+                    resource_to_temporal_coverage[
+                        "startYear"
+                    ] = resource_to_temporal_coverage_free["endYear"]
+                    resource_to_temporal_coverage[
+                        "startMonth"
+                    ] = resource_to_temporal_coverage_free["endMonth"]
+                    resource_to_temporal_coverage[
+                        "startDay"
+                    ] = resource_to_temporal_coverage_free["endDay"]
 
-                log(f"Mutation parameters: {resource_to_temporal_coverage}")
+                    log(f"Mutation parameters: {resource_to_temporal_coverage}")
+
+                if date_format == "yy-mm":
+                    free_data = datetime.strptime(last_date, "%Y-%m") - delta
+                    free_data = free_data.strftime("%Y-%m")
+
+                    log(
+                        f"Cobertura PRO ->> {_last_date} || Cobertura Grátis ->> {free_data}"
+                    )
+                    resource_to_temporal_coverage = parse_temporal_coverage(
+                        f"{last_date}"
+                    )
+                    resource_to_temporal_coverage_free = parse_temporal_coverage(
+                        f"{free_data}"
+                    )
+
+                    resource_to_temporal_coverage["coverage"] = ids.get(
+                        "coverage_id_pro"
+                    )
+                    resource_to_temporal_coverage[
+                        "startYear"
+                    ] = resource_to_temporal_coverage_free["endYear"]
+                    resource_to_temporal_coverage[
+                        "startMonth"
+                    ] = resource_to_temporal_coverage_free["endMonth"]
+
+                    log(f"Mutation parameters: {resource_to_temporal_coverage}")
 
                 create_update(
                     query_class="allDatetimerange",
