@@ -12,7 +12,7 @@ from pipelines.constants import constants
 schedule_br_ibge_ipca_mes_categoria_brasil = Schedule(
     clocks=[
         CronClock(
-            cron="10 14 * * *",  # everyday at 14:10:00
+            cron="30 14 * * *",  # everyday at 14:30:00
             start_date=datetime(2023, 10, 6, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
@@ -36,7 +36,7 @@ schedule_br_ibge_ipca_mes_categoria_brasil = Schedule(
 schedule_br_ibge_ipca_mes_categoria_rm = Schedule(
     clocks=[
         CronClock(
-            cron="0 14 * * *",  # everyday at 14:00:00
+            cron="20 14 * * *",  # everyday at 14:20:00
             start_date=datetime(2023, 10, 6, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,

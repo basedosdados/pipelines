@@ -53,6 +53,7 @@ br_ibge_ipca_mes_categoria_municipio.schedule = (
     schedule_br_ibge_ipca_mes_categoria_municipio
 )
 
+
 br_ibge_ipca_mes_brasil = deepcopy(flow_ibge_inflacao_mes_geral)
 br_ibge_ipca_mes_brasil.name = "br_ibge_ipca.mes_brasil"
 br_ibge_ipca_mes_brasil.code_owners = ["equipe_pipelines"]
