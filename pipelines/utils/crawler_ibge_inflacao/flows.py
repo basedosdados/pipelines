@@ -40,7 +40,7 @@ with Flow(
         "materialization_mode", default="dev", required=False
     )
     materialize_after_dump = Parameter(
-        "materialize after dump", default=True, required=False
+        "materialize_after_dump", default=True, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
@@ -131,7 +131,7 @@ with Flow("BD Template - IBGE Inflação: mes_rm") as flow_ibge_inflacao_mes_rm:
         "materialization_mode", default="dev", required=False
     )
     materialize_after_dump = Parameter(
-        "materialize after dump", default=True, required=False
+        "materialize_after_dump", default=True, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
@@ -222,7 +222,7 @@ with Flow(
         "materialization_mode", default="dev", required=False
     )
     materialize_after_dump = Parameter(
-        "materialize after dump", default=True, required=False
+        "materialize_after_dump", default=True, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
@@ -314,7 +314,7 @@ with Flow("BD Template - IBGE Inflação: mes_geral") as flow_ibge_inflacao_mes_
         "materialization_mode", default="dev", required=False
     )
     materialize_after_dump = Parameter(
-        "materialize after dump", default=True, required=False
+        "materialize_after_dump", default=True, required=False
     )
 
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
