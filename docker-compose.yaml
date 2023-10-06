@@ -1,0 +1,23 @@
+
+version: '3'
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: server
+    ports:
+      - "4200:4200"
+    environment:
+      - PREFECT_SERVER__DATABASE_URL=sqlite:///prefect.db
+      - PREFECT_SERVER__API_KEY=my-secret-key
+
+  agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: agent local
+    environment:
+      - PREFECT__AGENT__LABELS=bd
+      - PREFECT__AGENT__TASK_RUNNER=image
+      - PREFECT_SERVER__API_KEY=my-secret-key
