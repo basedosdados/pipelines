@@ -130,7 +130,7 @@ def check_for_updates(
     log(f"A data mais no site do ---IBGE--- para a tabela {indice} é : {max_date_ibge}")
     #  TROCAR PARA BSEDOSDADOS ANTES DE IR PRA PROD
     max_date_bd = extract_last_date(
-        dataset_id=dataset_id, table_id=table_id, billing_project_id="basedosdados-dev"
+        dataset_id=dataset_id, table_id=table_id, billing_project_id="basedosdados"
     )
     log(f"A data mais recente da tabela no --- Big Query --- é: {max_date_bd}")
     if max_date_ibge > max_date_bd:
