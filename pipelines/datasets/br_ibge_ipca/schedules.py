@@ -93,7 +93,7 @@ schedule_br_ibge_ipca_mes_brasil = Schedule(
             ],
             parameter_defaults={
                 "indice": "ipca",
-                "folder": "br",
+                "folder": "mes",
                 "dataset_id": "br_ibge_ipca",
                 "table_id": "mes_brasil",
                 "materialization_mode": "prod",
