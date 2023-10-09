@@ -93,7 +93,7 @@ schedule_br_ibge_inpc_mes_brasil = Schedule(
             ],
             parameter_defaults={
                 "indice": "inpc",
-                "folder": "br",
+                "folder": "mes",
                 "dataset_id": "br_ibge_inpc",
                 "table_id": "mes_brasil",
                 "materialization_mode": "prod",

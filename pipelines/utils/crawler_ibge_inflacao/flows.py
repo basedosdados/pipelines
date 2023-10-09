@@ -103,6 +103,7 @@ with Flow(
                 dataset_id,
                 table_id,
                 metadata_type="DateTimeRange",
+                billing_project_id="basedosdados",
                 # needs_to_update[1] é a data (Y%-m%) mais recente
                 _last_date=needs_to_update[1],
                 bq_last_update=False,
@@ -194,6 +195,7 @@ with Flow("BD Template - IBGE Inflação: mes_rm") as flow_ibge_inflacao_mes_rm:
                 dataset_id,
                 table_id,
                 metadata_type="DateTimeRange",
+                billing_project_id="basedosdados",
                 # needs_to_update[1] é a data (Y%-m%) mais recente
                 _last_date=needs_to_update[1],
                 bq_last_update=False,
@@ -285,6 +287,7 @@ with Flow(
                 dataset_id,
                 table_id,
                 metadata_type="DateTimeRange",
+                billing_project_id="basedosdados",
                 # needs_to_update[1] é a data (Y%-m%) mais recente
                 _last_date=needs_to_update[1],
                 bq_last_update=False,
@@ -379,6 +382,7 @@ with Flow("BD Template - IBGE Inflação: mes_geral") as flow_ibge_inflacao_mes_
                 dataset_id,
                 table_id,
                 metadata_type="DateTimeRange",
+                billing_project_id="basedosdados",
                 # needs_to_update[1] é a data (Y%-m%) mais recente
                 _last_date=needs_to_update[1],
                 bq_last_update=False,
