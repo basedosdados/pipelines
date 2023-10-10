@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import os
+import re
 import time as tm
 import unicodedata
+from datetime import datetime
 from io import StringIO
 from typing import List
 
@@ -10,6 +12,38 @@ import pandas as pd
 import requests
 import wget
 from bs4 import BeautifulSoup
+
+
+def parse_year_or_year_month(url: str) -> str:
+    # Extrai o ano e mês do link
+    result = url.split("/")[-1].split(".")[-2]
+    element1 = result.split("_")[-2]
+    element2 = result.split("_")[-1]
+    element_list = [element1, element2]
+    print(element_list)
+
+    elements = []
+    # uma elemento vazio ocupa espaço?
+
+    for element in element_list:
+        if len(element) == 4 and re.match(r"^\d+$", element):
+            print(f"O elemento -- {element} -- é provavelmente um -- ano --")
+            elements.append(element)
+        elif len(element) == 2 and re.match(r"^\d+$", element):
+            print(f"O elemento -- {element} -- é provavelmente um -- mês --")
+            elements.append(element)
+        else:
+            print(f"The element -- {element} -- is not a month nor a -- year --")
+
+    # se a lista elements tiver comprimento 1, então é um ano
+    if len(elements) == 1:
+        date = datetime.strptime(elements[0], "%Y")
+
+    # se a lista elements tiver comprimento 2, então é um ano e mes
+    if len(elements) == 2:
+        date = datetime.strptime(elements[0] + "-" + elements[1], "%Y-%m")
+
+    return date
 
 
 def crawler_ons(

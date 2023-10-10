@@ -236,12 +236,14 @@ def change_columns_name(df: pd.DataFrame, url: str) -> pd.DataFrame:
         print(my_dict)
 
         for key, value in my_dict.items():
-            if value:  # Check if value is not empty
+            if value:
                 df.rename(columns={key: value}, inplace=True)
 
     except Exception as e:
         # Handle any exceptions that occur during the process
-        print(f"Algum erro ocorreu: {str(e)}")
+        print(
+            f"Algum erro ocorreu durante a renomeação das colunas usando a tabela de arquitetura: {str(e)}"
+        )
 
     return df
 

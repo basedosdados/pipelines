@@ -54,7 +54,7 @@ def download_data(
     url_list = crawler_ons(
         url=constants.TABLE_NAME_URL_DICT.value[table_name],
     )
-    log("urls fetched")
+    log("As urls foram recuperadas")
     tm.sleep(2)
 
     dicionario_data_url = {key: parse_year_or_year_month(url_list) for key in url_list}
@@ -66,7 +66,7 @@ def download_data(
         url_list=data_maxima[1],
         table_name=table_name,
     )
-    log("data downloaded")
+    log("O arquivo foi baixado!")
     tm.sleep(2)
 
 
@@ -79,6 +79,8 @@ def wrang_data(
 
     df_list = []
 
+    # todo: tirar loop já que será somente um arquivo
+    # todo: carregar dados historicos do CVU
     for file in os.listdir(path_input):
         if table_name == "custo_marginal_operacao_semanal":
             log(f"fazendo {file}")
@@ -139,8 +141,24 @@ def wrang_data(
 
             del df
 
+        if table_name == "custo_variavel_unitario_usinas_termicas":
+            df = pd.read_csv(
+                file,
+                sep=";",
+                decimal=".",
+            )
+
+            log("fazendo file")
+            architecture_link = constants.TABLE_NAME_ARCHITECHTURE_DICT.value[
+                table_name
+            ]
+            # rename cols
+            df = change_columns_name(url=architecture_link, df=df)
+
+            log("datas formatadas")
+
         else:
-            print(f"fazendo {file}")
+            log(f"fazendo {file}")
             file = path_input + "/" + file
 
             df = pd.read_csv(
@@ -174,6 +192,7 @@ def wrang_data(
     df = order_df(url=architecture_link, df=df)
 
     log("salvando csv")
+
     df.to_csv(
         path_output + "/" + f"{table_name}.csv",
         sep=",",

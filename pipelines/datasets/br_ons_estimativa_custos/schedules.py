@@ -91,3 +91,25 @@ schedule_br_ons_estimativa_custos_balanco_energia_subsistemas_dessem = Schedule(
     filters=[filters.is_weekday],
     adjustments=[adjustments.next_weekday],
 )
+
+
+schedule_br_ons_estimativa_custos_custo_variavel_unitario_usinas_termicas = Schedule(
+    clocks=[
+        CronClock(
+            cron="0 0 * * *",  # every day at midnight
+            labels=[
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+            ],
+            parameter_defaults={
+                "dataset_id": "br_ons_estimativa_custos",
+                "table_id": "custo_variavel_unitario_usinas_termicas",
+                "materialization_mode": "prod",
+                "materialize_after_dump": True,
+                "update_metadata": True,
+                "dbt_alias": False,
+            },
+        )
+    ],
+    filters=[filters.is_weekday],
+    adjustments=[adjustments.next_weekday],
+)

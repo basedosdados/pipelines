@@ -3,6 +3,7 @@
 Tasks for br_ons_avaliacao_operacao
 """
 import os
+import time as tm
 
 import pandas as pd
 from prefect import task
@@ -16,6 +17,7 @@ from pipelines.datasets.br_ons_avaliacao_operacao.utils import (
 from pipelines.datasets.br_ons_avaliacao_operacao.utils import download_data as dw
 from pipelines.datasets.br_ons_avaliacao_operacao.utils import (
     order_df,
+    parse_year_or_year_month,
     process_date_column,
     process_datetime_column,
     remove_decimal,
@@ -44,17 +46,22 @@ def download_data(
     log("paths created")
 
     url_list = crawler_ons(
-        # acessa valor
         url=constants.TABLE_NAME_URL_DICT.value[table_name],
     )
-    log("urls fetched")
+    log("As urls foram recuperadas")
+    tm.sleep(2)
+
+    dicionario_data_url = {key: parse_year_or_year_month(url_list) for key in url_list}
+
+    data_maxima = max(dicionario_data_url.items(), key=lambda x: x[0])
 
     dw(
         path=constants.PATH.value,
-        url_list=url_list,
+        url_list=data_maxima[1],
         table_name=table_name,
     )
-    log("data downloaded")
+    log("O arquivo foi baixado!")
+    tm.sleep(2)
 
 
 @task

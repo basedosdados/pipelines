@@ -18,6 +18,7 @@ class constants(Enum):  # pylint: disable=c0103
         "custo_marginal_operacao_semanal",
         "balanco_energia_subsistemas",
         "balanco_energia_subsistemas_dessem",
+        "custo_variavel_unitario_usinas_termicas",
     ]
 
     TABLE_NAME_URL_DICT = {
@@ -25,6 +26,7 @@ class constants(Enum):  # pylint: disable=c0103
         "custo_marginal_operacao_semanal": "https://dados.ons.org.br/dataset/cmo-semanal",
         "balanco_energia_subsistemas": "https://dados.ons.org.br/dataset/balanco-energia-subsistema",
         "balanco_energia_subsistemas_dessem": "https://dados.ons.org.br/dataset/balanco-energia-dessem",
+        "custo_variavel_unitario_usinas_termicas": "https://dados.ons.org.br/dataset/cvu-usitermica",
     }
 
     TABLE_NAME_ARCHITECHTURE_DICT = {
@@ -32,4 +34,5 @@ class constants(Enum):  # pylint: disable=c0103
         "custo_marginal_operacao_semanal": "https://docs.google.com/spreadsheets/d/15wVtoiz6BJfmtRmRNjOxNxTBnvO2Ms-g/edit#gid=113107095",
         "balanco_energia_subsistemas": "https://docs.google.com/spreadsheets/d/1JukOONGlzRMqlVhBJ9CwRJw9nmMqo43r/edit#gid=1624318921",
         "balanco_energia_subsistemas_dessem": "https://docs.google.com/spreadsheets/d/1FjTRQ27Mkg0HOb7BqR915ZkfBoJ4KSl0/edit#gid=524444634",
+        "custo_variavel_unitario_usinas_termicas": "https://docs.google.com/spreadsheets/d/1N26IbUTvx7fq1BoCGaJv0GBK6DdTVh3v/edit#gid=1512823303",
     }
