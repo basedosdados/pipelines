@@ -130,7 +130,7 @@ def check_for_updates(
     log(f"A data mais no site do ---IBGE--- para a tabela {indice} é : {max_date_ibge}")
     #  TROCAR PARA BSEDOSDADOS ANTES DE IR PRA PROD
     max_date_bd = extract_last_date(
-        dataset_id=dataset_id, table_id=table_id, billing_project_id="basedosdados-dev"
+        dataset_id=dataset_id, table_id=table_id, billing_project_id="basedosdados"
     )
     log(f"A data mais recente da tabela no --- Big Query --- é: {max_date_bd}")
     if max_date_ibge > max_date_bd:
@@ -202,27 +202,16 @@ def crawler(indice: str, folder: str) -> bool:
         "rm/ipca_item": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7060.csv&terr=NC&rank=-&query=t/7060/n7/all/v/all/p/all/c315/7172,7184,7200,7219,7241,7254,7283,7303,7335,7349,7356,7372,7384,7389,7401,7415,7433,7447,7454,7461,7480,7484,7488,7495,7517,7522,7541,7549,7560,7572,7587,7605,7616,7621,7627,7640,7656,7662,7684,7690,7695,7698,7714,7730,7758,7777,7782,7788,12427,107678,109464/d/v63%202,v66%204,v69%202,v2265%202/l/,v,t%2Bp%2Bc315",
         "rm/inpc_item": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7063.csv&terr=NC&rank=-&query=t/7063/n7/all/v/all/p/all/c315/7172,7184,7200,7219,7241,7254,7283,7303,7335,7349,7356,7372,7384,7389,7401,7415,7433,7447,7454,7461,7480,7484,7488,7495,7517,7522,7541,7549,7560,7572,7587,7605,7616,7621,7627,7640,7656,7662,7684,7690,7695,7698,7714,7730,7758,7777,7782,7788,12427,107678,109464/d/v44%202,v45%204,v68%202,v2292%202/l/,v,t%2Bp%2Bc315",
         "rm/ip15_item": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7062.csv&terr=NC&rank=-&query=t/7062/n7/all/v/all/p/all/c315/7172,7184,7200,7219,7241,7254,7283,7303,7335,7349,7356,7372,7384,7389,7401,7415,7433,7447,7454,7461,7480,7484,7488,7495,7517,7522,7541,7549,7560,7572,7587,7605,7616,7621,7627,7640,7656,7662,7684,7690,7695,7698,7714,7730,7758,7777,7782,7788,12427,107678,109464/d/v355%202,v356%202,v357%204,v1120%202/l/,v,t%2Bp%2Bc315",
-        # link errado; mesmo de br/ipca_subitem
-        # "rm/ipca_subitem_1": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/947075621",
-        # "rm/ipca_subitem_2": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/847634158",
-        # usar última seleção para criar
-        # verificar se sao csv e se precisa de alguma config de exibição
-        # todo: configurar csv na seleção e settar id_territorio
+        # https://sidra.ibge.gov.br/tabela/7060
         "rm/ipca_subitem_2020": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/366270194",
         "rm/ipca_subitem_2021": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-1651704499",
         "rm/ipca_subitem_2022": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-1811208819",
         "rm/ipca_subitem_2023": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/1963915159",
         # https://sidra.ibge.gov.br/tabela/7063
-        # "rm/inpc_subitem_1": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-884745035",
-        # "rm/inpc_subitem_2": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-1265010694",
-        # ok
         "rm/inpc_subitem_2020": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-1428442922",
         "rm/inpc_subitem_2021": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/844331411",
         "rm/inpc_subitem_2022": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-1481717997",
         "rm/inpc_subitem_2023": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-1485551467",
-        # "rm/ip15_subitem_1": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-1750716307",
-        # "rm/ip15_subitem_2": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-1258570016",
-        # corrigir as seleções
         # https://sidra.ibge.gov.br/tabela/7062
         "rm/ip15_subitem_2020": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/51560386",
         "rm/ip15_subitem_2021": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/382082792",
@@ -481,6 +470,9 @@ def clean_mes_rm(indice: str):
         "INPC - Peso mensal (%)": "peso_mensal",
         "IPCA15 - Variação mensal (%)": "variacao_mensal",
         "IPCA15 - Variação acumulada no ano (%)": "variacao_anual",
+        # quando os dados da tabela do ipca15 de região metropolitana para 2020 são baixados
+        # a coluna "IPCA15 - Variação acumulada em 12 meses (%)" vem sem o símbolo de percentual (%)
+        "IPCA15 - Variação acumulada em 12 meses": "variacao_doze_meses",
         "IPCA15 - Variação acumulada em 12 meses (%)": "variacao_doze_meses",
         "IPCA15 - Peso mensal (%)": "peso_mensal",
     }
