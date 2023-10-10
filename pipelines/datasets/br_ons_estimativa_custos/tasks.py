@@ -18,6 +18,7 @@ from pipelines.datasets.br_ons_estimativa_custos.utils import (
 from pipelines.datasets.br_ons_estimativa_custos.utils import download_data as dw
 from pipelines.datasets.br_ons_estimativa_custos.utils import (
     order_df,
+    parse_year_or_year_month,
     process_date_column,
     process_datetime_column,
     remove_latin1_accents_from_df,
@@ -55,9 +56,14 @@ def download_data(
     )
     log("urls fetched")
     tm.sleep(2)
+
+    dicionario_data_url = {key: parse_year_or_year_month(url_list) for key in url_list}
+
+    data_maxima = max(dicionario_data_url.items(), key=lambda x: x[0])
+
     dw(
         path=constants.PATH.value,
-        url_list=url_list,
+        url_list=data_maxima[1],
         table_name=table_name,
     )
     log("data downloaded")

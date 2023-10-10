@@ -4,8 +4,10 @@ General purpose functions for the br_ons_estimativa_custos project
 """
 
 import os
+import re
 import time as tm
 import unicodedata
+from datetime import datetime
 from io import StringIO
 from typing import List
 
@@ -13,6 +15,48 @@ import pandas as pd
 import requests
 import wget
 from bs4 import BeautifulSoup
+
+# build a crawler
+# what?
+# allows to download only the most recen table of every dataset
+# how?
+# access the page
+# create a dic that maps
+# at the end of every file theres a yyyy or yyyy-mm or yyyy-mm-dd
+# the crawler will build a dictionary with keys being the name and items its download link
+# some logic to extract the date and find the most recent
+
+
+def parse_year_or_year_month(url: str) -> str:
+    # Extrai o ano e mês do link
+    result = url.split("/")[-1].split(".")[-2]
+    element1 = result.split("_")[-2]
+    element2 = result.split("_")[-1]
+    element_list = [element1, element2]
+    print(element_list)
+
+    elements = []
+    # uma elemento vazio ocupa espaço?
+
+    for element in element_list:
+        if len(element) == 4 and re.match(r"^\d+$", element):
+            print(f"O elemento -- {element} -- é provavelmente um -- ano --")
+            elements.append(element)
+        elif len(element) == 2 and re.match(r"^\d+$", element):
+            print(f"O elemento -- {element} -- é provavelmente um -- mês --")
+            elements.append(element)
+        else:
+            print(f"The element -- {element} -- is not a month nor a -- year --")
+
+    # se a lista elements tiver comprimento 1, então é um ano
+    if len(elements) == 1:
+        date = datetime.strptime(elements[0], "%Y")
+
+    # se a lista elements tiver comprimento 2, então é um ano e mes
+    if len(elements) == 2:
+        date = datetime.strptime(elements[0] + "-" + elements[1], "%Y-%m")
+
+    return date
 
 
 def crawler_ons(
@@ -38,11 +82,13 @@ def crawler_ons(
     csv_links = soup.find_all("a", href=lambda href: href and href.endswith(".csv"))
 
     # Extract the href attribute from the csv_links
-    csv_urls = [link["href"] for link in csv_links]
-    # Print the csv_urls
-    print(csv_urls)
+    table_urls = [link["href"] for link in csv_links]
+    # table_names = [name["a"] for name in table_urls]
 
-    return csv_urls
+    # Print the csv_urls
+    print(table_urls)
+    # print(table_names)
+    return table_urls
 
 
 def download_data(
