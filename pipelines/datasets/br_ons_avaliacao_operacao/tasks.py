@@ -51,7 +51,7 @@ def download_data(
     log("As urls foram recuperadas")
     tm.sleep(2)
 
-    dicionario_data_url = {key: parse_year_or_year_month(url_list) for key in url_list}
+    dicionario_data_url = {parse_year_or_year_month(url): url for url in url_list}
 
     data_maxima = max(dicionario_data_url.items(), key=lambda x: x[0])
 
@@ -70,6 +70,8 @@ def wrang_data(
 ) -> pd.DataFrame:
     path_input = f"/tmp/br_ons_avaliacao_operacao/{table_name}/input"
     path_output = f"/tmp/br_ons_avaliacao_operacao/{table_name}/output"
+
+    # todo: inserir nova tabela
 
     for file in os.listdir(path_input):
         if table_name == "reservatorio":

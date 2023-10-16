@@ -16,16 +16,6 @@ import requests
 import wget
 from bs4 import BeautifulSoup
 
-# build a crawler
-# what?
-# allows to download only the most recen table of every dataset
-# how?
-# access the page
-# create a dic that maps
-# at the end of every file theres a yyyy or yyyy-mm or yyyy-mm-dd
-# the crawler will build a dictionary with keys being the name and items its download link
-# some logic to extract the date and find the most recent
-
 
 def parse_year_or_year_month(url: str) -> str:
     # Extrai o ano e mês do link

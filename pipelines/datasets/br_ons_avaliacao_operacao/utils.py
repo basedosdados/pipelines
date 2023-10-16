@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-
+"""
+General purpose functions for the br_ons_avaliacao_operacao project
+"""
 import os
 import re
 import time as tm
