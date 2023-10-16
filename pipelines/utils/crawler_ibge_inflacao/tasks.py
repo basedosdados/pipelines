@@ -8,14 +8,19 @@ import errno
 import glob
 import os
 import ssl
+from datetime import datetime as dt
 from time import sleep
 
+import basedosdados as bd
 import pandas as pd
 import wget
 from prefect import task
 from tqdm import tqdm
 
-from pipelines.utils.crawler_ibge_inflacao.utils import get_legacy_session
+from pipelines.utils.crawler_ibge_inflacao.utils import (
+    extract_last_date,
+    get_legacy_session,
+)
 from pipelines.utils.utils import log
 
 # necessary for use wget, see: https://stackoverflow.com/questions/35569042/ssl-certificate-verify-failed-with-python3
@@ -23,6 +28,121 @@ ssl._create_default_https_context = ssl._create_unverified_context
 # pylint: disable=C0206
 # pylint: disable=C0201
 # pylint: disable=R0914
+# https://sidra.ibge.gov.br/tabela/7062
+# https://sidra.ibge.gov.br/tabela/7063
+# https://sidra.ibge.gov.br/tabela/7060
+
+
+@task
+def check_for_updates(
+    indice: str,
+    table_id: str,
+    dataset_id: str,
+) -> bool:
+    """
+    Crawler para checar atualizações nas dos conjuntos br_ibge_inpc; br_ibge_ipca; br_ibge_ipca15
+
+    indice: inpc | ipca | ip15
+    """
+
+    n_mes = {
+        "janeiro": "1",
+        "fevereiro": "2",
+        "março": "3",
+        "abril": "4",
+        "maio": "5",
+        "junho": "6",
+        "julho": "7",
+        "agosto": "8",
+        "setembro": "9",
+        "outubro": "10",
+        "novembro": "11",
+        "dezembro": "12",
+    }
+
+    if indice not in ["inpc", "ipca", "ip15"]:
+        raise ValueError(
+            "indice argument must be one of the following: 'inpc', 'ipca', 'ip15'"
+        )
+
+    log(f"Checking for updates in {indice} index for {dataset_id}.{table_id}")
+
+    links = {
+        "ipca": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7060.csv&terr=NC&rank=-&query=t/7060/n1/all/v/all/p/last%201/c315/7169/d/v63%202,v66%204,v69%202,v2265%202/l/,v,t%2Bp%2Bc315",
+        "inpc": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7063.csv&terr=NC&rank=-&query=t/7063/n1/all/v/all/p/last%201/c315/7169/d/v44%202,v45%204,v68%202,v2292%202/l/,v,t%2Bp%2Bc315",
+        "ip15": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7062.csv&terr=NC&rank=-&query=t/7062/n1/all/v/all/p/last%201/c315/7169/d/v355%202,v356%202,v357%204,v1120%202/l/,v,t%2Bp%2Bc315",
+    }
+
+    links = {k: v for k, v in links.items() if k.__contains__(indice)}
+
+    links_keys = list(links.keys())
+    log(links_keys)
+    success_dwnl = []
+
+    os.system('mkdir -p "/tmp/check_for_updates/"')
+    #
+    for key in tqdm(links_keys):
+        try:
+            response = get_legacy_session().get(links[key])
+            # download the csv
+            with open(f"/tmp/check_for_updates/{key}.csv", "wb") as f:
+                f.write(response.content)
+            success_dwnl.append(key)
+            sleep(5)
+        except Exception as e:
+            log(e)
+            try:
+                sleep(5)
+                response = get_legacy_session().get(links[key])
+                # download the csv
+                with open(f"/tmp/check_for_updates/{key}.csv", "wb") as f:
+                    f.write(response.content)
+                success_dwnl.append(key)
+            except Exception as e:  # pylint: disable=redefined-outer-name
+                log(e)
+
+    log(f"success_dwnl: {success_dwnl}")
+    if len(links_keys) == len(success_dwnl):
+        log("All files were successfully downloaded")
+
+    # quebra o flow se houver erro no download de um arquivo.
+    else:
+        rems = set(links_keys) - set(success_dwnl)
+        log(f"The file was not downloaded {rems}")
+
+    file_name = os.listdir("/tmp/check_for_updates")
+    file_path = "/tmp/check_for_updates/" + file_name[0]
+
+    dataframe = pd.read_csv(file_path, skiprows=2, skipfooter=14, sep=";")
+
+    dataframe = dataframe[["Mês"]]
+
+    dataframe[["mes", "ano"]] = dataframe["Mês"].str.split(pat=" ", n=1, expand=True)
+
+    dataframe["mes"] = dataframe["mes"].map(n_mes)
+
+    dataframe = dataframe["ano"][0] + "-" + dataframe["mes"][0]
+
+    dataframe = dt.strptime(dataframe, "%Y-%m")
+
+    max_date_ibge = dataframe.strftime("%Y-%m")
+
+    log(f"A data mais no site do ---IBGE--- para a tabela {indice} é : {max_date_ibge}")
+    #  TROCAR PARA BSEDOSDADOS ANTES DE IR PRA PROD
+    max_date_bd = extract_last_date(
+        dataset_id=dataset_id, table_id=table_id, billing_project_id="basedosdados"
+    )
+    log(f"A data mais recente da tabela no --- Big Query --- é: {max_date_bd}")
+    if max_date_ibge > max_date_bd:
+        log(
+            f"A tabela {indice} foi atualizada no site do IBGE. O Flow de atualização será executado!"
+        )
+        return True, str(max_date_ibge)
+    else:
+        log(
+            f"A tabela {indice} não foi atualizada no site do IBGE. O Flow de atualização não será executado!"
+        )
+        return False, str(max_date_ibge)
 
 
 @task
@@ -82,12 +202,21 @@ def crawler(indice: str, folder: str) -> bool:
         "rm/ipca_item": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7060.csv&terr=NC&rank=-&query=t/7060/n7/all/v/all/p/all/c315/7172,7184,7200,7219,7241,7254,7283,7303,7335,7349,7356,7372,7384,7389,7401,7415,7433,7447,7454,7461,7480,7484,7488,7495,7517,7522,7541,7549,7560,7572,7587,7605,7616,7621,7627,7640,7656,7662,7684,7690,7695,7698,7714,7730,7758,7777,7782,7788,12427,107678,109464/d/v63%202,v66%204,v69%202,v2265%202/l/,v,t%2Bp%2Bc315",
         "rm/inpc_item": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7063.csv&terr=NC&rank=-&query=t/7063/n7/all/v/all/p/all/c315/7172,7184,7200,7219,7241,7254,7283,7303,7335,7349,7356,7372,7384,7389,7401,7415,7433,7447,7454,7461,7480,7484,7488,7495,7517,7522,7541,7549,7560,7572,7587,7605,7616,7621,7627,7640,7656,7662,7684,7690,7695,7698,7714,7730,7758,7777,7782,7788,12427,107678,109464/d/v44%202,v45%204,v68%202,v2292%202/l/,v,t%2Bp%2Bc315",
         "rm/ip15_item": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7062.csv&terr=NC&rank=-&query=t/7062/n7/all/v/all/p/all/c315/7172,7184,7200,7219,7241,7254,7283,7303,7335,7349,7356,7372,7384,7389,7401,7415,7433,7447,7454,7461,7480,7484,7488,7495,7517,7522,7541,7549,7560,7572,7587,7605,7616,7621,7627,7640,7656,7662,7684,7690,7695,7698,7714,7730,7758,7777,7782,7788,12427,107678,109464/d/v355%202,v356%202,v357%204,v1120%202/l/,v,t%2Bp%2Bc315",
-        "rm/ipca_subitem_1": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/947075621",
-        "rm/ipca_subitem_2": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/847634158",
-        "rm/inpc_subitem_1": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-884745035",
-        "rm/inpc_subitem_2": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-1265010694",
-        "rm/ip15_subitem_1": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-1750716307",
-        "rm/ip15_subitem_2": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-1258570016",
+        # https://sidra.ibge.gov.br/tabela/7060
+        "rm/ipca_subitem_2020": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/366270194",
+        "rm/ipca_subitem_2021": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-1651704499",
+        "rm/ipca_subitem_2022": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-1811208819",
+        "rm/ipca_subitem_2023": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/1963915159",
+        # https://sidra.ibge.gov.br/tabela/7063
+        "rm/inpc_subitem_2020": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-1428442922",
+        "rm/inpc_subitem_2021": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/844331411",
+        "rm/inpc_subitem_2022": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-1481717997",
+        "rm/inpc_subitem_2023": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-1485551467",
+        # https://sidra.ibge.gov.br/tabela/7062
+        "rm/ip15_subitem_2020": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/51560386",
+        "rm/ip15_subitem_2021": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/382082792",
+        "rm/ip15_subitem_2022": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/1727207272",
+        "rm/ip15_subitem_2023": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/999465717",
         "rm/ipca_geral": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7060.csv&terr=NC&rank=-&query=t/7060/n7/all/v/all/p/all/c315/7169/d/v63%202,v66%204,v69%202,v2265%202/l/,v,t%2Bp%2Bc315",
         "rm/inpc_geral": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7063.csv&terr=NC&rank=-&query=t/7063/n7/all/v/all/p/all/c315/7169/d/v44%202,v45%204,v68%202,v2292%202/l/,v,t%2Bp%2Bc315",
         "rm/ip15_geral": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7062.csv&terr=NC&rank=-&query=t/7062/n7/all/v/all/p/all/c315/7169/d/v355%202,v356%202,v357%204,v1120%202/l/,v,t%2Bp%2Bc315",
@@ -120,18 +249,26 @@ def crawler(indice: str, folder: str) -> bool:
         if k.__contains__(indice) & k.__contains__(folder)
     }
     links_keys = list(links.keys())
+    log(links_keys)
     success_dwnl = []
     if folder != "rm":
         # precisei adicionar try catchs no loop para conseguir baixar todas
         # as tabelas sem ter pproblema com o limite de requisição do sidra
         for key in tqdm(links_keys):
             try:
-                wget.download(links[key], out=f"/tmp/data/input/{key}.csv")
+                response = get_legacy_session().get(links[key])
+                # download the csv
+                with open(f"/tmp/data/input/{key}.csv", "wb") as f:
+                    f.write(response.content)
                 success_dwnl.append(key)
+                sleep(10)
             except Exception:
                 try:
                     sleep(10)
-                    wget.download(links[key], out=f"/tmp/data/input/{key}.csv")
+                    response = get_legacy_session().get(links[key])
+                    # download the csv
+                    with open(f"/tmp/data/input/{key}.csv", "wb") as f:
+                        f.write(response.content)
                     success_dwnl.append(key)
                 except Exception:
                     pass
@@ -143,6 +280,7 @@ def crawler(indice: str, folder: str) -> bool:
                 with open(f"/tmp/data/input/{key}.csv", "wb") as f:
                     f.write(response.content)
                 success_dwnl.append(key)
+                sleep(10)
             except Exception as e:
                 log(e)
                 try:
@@ -156,15 +294,14 @@ def crawler(indice: str, folder: str) -> bool:
                     log(e)
 
     log(os.system("tree /tmp/data"))
+    log(f"success_dwnl: {success_dwnl}")
     if len(links_keys) == len(success_dwnl):
         log("All files were successfully downloaded")
         return True
-
-    log("The folowing files failed to download:")
-    rems = set(links_keys) - set(success_dwnl)
-    for rem in rems:
-        log(rem)
-    return False
+    # quebra o flow se houver erro no download de um arquivo.
+    else:
+        rems = set(links_keys) - set(success_dwnl)
+        raise Exception(f"The following files failed to download: {rems}")
 
 
 @task
@@ -244,13 +381,15 @@ def clean_mes_brasil(indice: str) -> None:
         dataframe = dataframe.replace(",", ".", regex=True)
 
         # Split coluna data e substituir mes
-        dataframe[["mes", "ano"]] = dataframe["ano"].str.split(" ", 1, expand=True)
+        dataframe[["mes", "ano"]] = dataframe["ano"].str.split(
+            pat=" ", n=1, expand=True
+        )
         dataframe["mes"] = dataframe["mes"].map(n_mes)
 
         # Split coluna categoria e add id_categoria_bd
         if arq.split("_")[-1].split(".")[0] != "geral":
             dataframe[["id_categoria", "categoria"]] = dataframe["categoria"].str.split(
-                ".", 1, expand=True
+                pat=".", n=1, expand=True
             )
 
         if arq.split("_")[-1].split(".")[0] == "grupo":
@@ -331,6 +470,9 @@ def clean_mes_rm(indice: str):
         "INPC - Peso mensal (%)": "peso_mensal",
         "IPCA15 - Variação mensal (%)": "variacao_mensal",
         "IPCA15 - Variação acumulada no ano (%)": "variacao_anual",
+        # quando os dados da tabela do ipca15 de região metropolitana para 2020 são baixados
+        # a coluna "IPCA15 - Variação acumulada em 12 meses (%)" vem sem o símbolo de percentual (%)
+        "IPCA15 - Variação acumulada em 12 meses": "variacao_doze_meses",
         "IPCA15 - Variação acumulada em 12 meses (%)": "variacao_doze_meses",
         "IPCA15 - Peso mensal (%)": "peso_mensal",
     }
@@ -382,8 +524,10 @@ def clean_mes_rm(indice: str):
                 arq, skipfooter=14, skiprows=2, sep=";", dtype="str"
             )
         except Exception as e:
-            log(f"Error reading {arq}: {e}")
-            continue
+            log(
+                f"Error reading {arq}: {e}. Check the the file. It may have surparsed the 200.000 values download limit of IBGE SIDRA API"
+            )
+            break
         # renomear colunas.
         dataframe.rename(columns=rename, inplace=True)
         # substituir "..." por vazio
@@ -394,13 +538,15 @@ def clean_mes_rm(indice: str):
         dataframe = dataframe.replace(",", ".", regex=True)
 
         # Split coluna data e substituir mes
-        dataframe[["mes", "ano"]] = dataframe["ano"].str.split(" ", 1, expand=True)
+        dataframe[["mes", "ano"]] = dataframe["ano"].str.split(
+            pat=" ", n=1, expand=True
+        )
         dataframe["mes"] = dataframe["mes"].map(n_mes)
 
         # Split coluna categoria e add id_categoria_bd
         if arq.split("_")[-1].split(".")[0] != "geral":
             dataframe[["id_categoria", "categoria"]] = dataframe["categoria"].str.split(
-                ".", 1, expand=True
+                pat=".", n=1, expand=True
             )
 
         if arq.split("_")[-1].split(".")[0] == "grupo":
@@ -421,18 +567,51 @@ def clean_mes_rm(indice: str):
             )
             dataframe = dataframe[ordem]
             item = pd.DataFrame(dataframe)
-        elif "_".join(arq.split("_")[1:]).split(".", maxsplit=1)[0] == "subitem_1":
+
+        elif "_".join(arq.split("_")[1:]).split(".", maxsplit=1)[0] == "subitem_2020":
             dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
                 lambda x: x[0] + "." + x[1] + "." + x[2:4] + "." + x[4:7]
             )
             dataframe = dataframe[ordem]
-            subitem_1 = pd.DataFrame(dataframe)
-        elif "_".join(arq.split("_")[1:]).split(".", maxsplit=1)[0] == "subitem_2":
+            subitem_2020 = pd.DataFrame(dataframe)
+
+        elif "_".join(arq.split("_")[1:]).split(".", maxsplit=1)[0] == "subitem_2021":
             dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
                 lambda x: x[0] + "." + x[1] + "." + x[2:4] + "." + x[4:7]
             )
             dataframe = dataframe[ordem]
-            subitem_2 = pd.DataFrame(dataframe)
+            subitem_2021 = pd.DataFrame(dataframe)
+
+        elif "_".join(arq.split("_")[1:]).split(".", maxsplit=1)[0] == "subitem_2022":
+            dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
+                lambda x: x[0] + "." + x[1] + "." + x[2:4] + "." + x[4:7]
+            )
+            dataframe = dataframe[ordem]
+            subitem_2022 = pd.DataFrame(dataframe)
+
+        elif "_".join(arq.split("_")[1:]).split(".", maxsplit=1)[0] == "subitem_2023":
+            dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
+                lambda x: x[0] + "." + x[1] + "." + x[2:4] + "." + x[4:7]
+            )
+            dataframe = dataframe[ordem]
+            subitem_2023 = pd.DataFrame(dataframe)
+
+        # elif "_".join(arq.split("_")[1:]).split(".", maxsplit=1)[0] == "subitem_1":
+        #    dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
+        #        lambda x: x[0] + "." + x[1] + "." + x[2:4] + "." + x[4:7]
+        #    )
+        #    dataframe = dataframe[ordem]
+        #    subitem_1 = pd.DataFrame(dataframe)
+        # todo: criar mais 3 elifs
+        # todo: com mesmo padrao de nome dos links
+
+        # elif "_".join(arq.split("_")[1:]).split(".", maxsplit=1)[0] == "subitem_2":
+        #    dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
+        #        lambda x: x[0] + "." + x[1] + "." + x[2:4] + "." + x[4:7]
+        #    )
+        #    dataframe = dataframe[ordem]
+        #    subitem_2 = pd.DataFrame(dataframe)
+
         elif arq.split("_")[-1].split(".")[0] == "geral":
             dataframe["id_categoria"] = ""
             dataframe["id_categoria_bd"] = "0.0.00.000"
@@ -441,11 +620,16 @@ def clean_mes_rm(indice: str):
 
     # Add only dataframes defined in previous loop. Download failure leads to some dataframe not being defined
     files_dict = {
+        # todo: adicionar os demais subitesm
         "grupo": grupo if "grupo" in locals() else "",
         "subgrupo": subgrupo if "subgrupo" in locals() else "",
         "item": item if "item" in locals() else "",
-        "subitem_1": subitem_1 if "subitem_1" in locals() else "",
-        "subitem_2": subitem_2 if "subitem_2" in locals() else "",
+        "subitem_2020": subitem_2020 if "subitem_2020" in locals() else "",
+        "subitem_2021": subitem_2021 if "subitem_2021" in locals() else "",
+        "subitem_2022": subitem_2022 if "subitem_2022" in locals() else "",
+        "subitem_2023": subitem_2023 if "subitem_2023" in locals() else "",
+        # "subitem_1": subitem_1 if "subitem_1" in locals() else "",
+        # "subitem_2": subitem_2 if "subitem_2" in locals() else "",
         "geral": geral if "geral" in locals() else "",
     }
 
@@ -539,13 +723,15 @@ def clean_mes_municipio(indice: str):
         dataframe = dataframe.replace(",", ".", regex=True)
 
         # Split coluna data e substituir mes
-        dataframe[["mes", "ano"]] = dataframe["ano"].str.split(" ", 1, expand=True)
+        dataframe[["mes", "ano"]] = dataframe["ano"].str.split(
+            pat=" ", n=1, expand=True
+        )
         dataframe["mes"] = dataframe["mes"].map(n_mes)
 
         # Split coluna categoria e add id_categoria_bd
         if arq.split("_")[-1].split(".")[0] != "geral":
             dataframe[["id_categoria", "categoria"]] = dataframe["categoria"].str.split(
-                ".", 1, expand=True
+                pat=".", n=1, expand=True
             )
 
         if arq.split("_")[-1].split(".")[0] == "grupo":
@@ -673,12 +859,12 @@ def clean_mes_geral(indice: str):
         )
 
     for arq in arquivos:
+        log(arq)
         if indice == "ip15":
             dataframe = pd.read_csv(arq, skiprows=2, skipfooter=11, sep=";")
         else:
             dataframe = pd.read_csv(arq, skiprows=2, skipfooter=13, sep=";")
-
-        dataframe["mes"], dataframe["ano"] = dataframe["Mês"].str.split(" ", 1).str
+        dataframe[["mes", "ano"]] = dataframe["Mês"].str.split(" ", n=1, expand=True)
         dataframe["mes"] = dataframe["mes"].map(n_mes)
 
         # renomear colunas
