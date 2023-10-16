@@ -64,7 +64,6 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    log_task("Checando se os dados estão desatualizados")
     df = execucao_coleta_sync()
     output_filepath = make_partitions(df, upstream_tasks=[df])
     data_maxima = get_max_data(df, upstream_tasks=[df])

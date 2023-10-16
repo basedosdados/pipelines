@@ -4,6 +4,7 @@ General purpose functions for the mundo_transfermarkt_competicoes_internacionais
 """
 ###############################################################################
 
+import datetime
 import re
 
 import numpy as np
@@ -18,6 +19,33 @@ from pipelines.datasets.mundo_transfermarkt_competicoes_internacionais.decorator
     retry,
 )
 from pipelines.utils.utils import log
+
+
+def obter_ano():
+    data_atual = datetime.date.today()
+    if data_atual.month > 7:
+        return data_atual.year
+    else:
+        return data_atual.year - 1
+
+
+def obter_temporada():
+    data_atual = datetime.date.today()
+
+    if data_atual.month > 7:
+        primeiro_ano = data_atual.year
+        segundo_ano = data_atual.year + 1
+    else:
+        primeiro_ano = data_atual.year - 1
+        segundo_ano = data_atual.year
+
+    return f"{primeiro_ano},{segundo_ano}"
+
+
+@retry
+def get_content(link_soup):
+    content = link_soup.find("div", id="main")
+    return content
 
 
 def process(df, content):
@@ -221,17 +249,6 @@ def vazio(df):
     return df
 
 
-# Função para processar os valores da coluna 'gols_1_tempo'
-# def process_gols(value):
-#     if 'prorr.' in value:
-#         return [None, None, 1, 0]
-#     elif 'pen.' in value:
-#         return [None, None, 0, 1]
-#     else:
-#         man, vis = value.strip('()').split(':')
-#         return [man, vis, 0, 0]
-
-
 def process_gols(value):
     if value is None:
         return [None, None, None, None]
@@ -264,16 +281,6 @@ def formatar_data(data):
         except ValueError:
             # Se nenhum dos formatos funcionar, retornar NaN
             return pd.NaT
-
-
-# def definir_tipo_fase(row):
-#     if row.startswith('Grupo '):
-#         return row
-#     elif '-' in row:
-#         partes = row.split(' - ')
-#         return partes[0]
-#     else:
-#         return 'Jogo único'
 
 
 def definir_tipo_fase(row):
@@ -488,8 +495,7 @@ async def execucao_coleta():
     base_link_br = "https://www.transfermarkt.com.br"
 
     links = []
-    season = mundo_constants.SEASON.value
-    # season = 2003
+    season = obter_ano()
     log(f"Obtendo links: temporada {season}")
     site_data = requests.get(base_url.format(season=season), headers=headers)
     soup = BeautifulSoup(site_data.content, "html.parser")
@@ -512,9 +518,10 @@ async def execucao_coleta():
     n_links = len(links)
     df = pd.DataFrame({})
     for n, link in enumerate(links_esta):
-        link_data = requests.get(base_link_br + link, headers=headers)
-        link_soup = BeautifulSoup(link_data.content, "html.parser")
-        content = link_soup.find("div", id="main")
+        content = await get_content(base_link_br + link, wait_time=0.01)
+        # link_data = requests.get(base_link_br + link, headers=headers)
+        # link_soup = BeautifulSoup(link_data.content, "html.parser")
+        # content = link_soup.find("div", id="main")
         if content:
             try:
                 df = process(df, content)
@@ -529,9 +536,10 @@ async def execucao_coleta():
 
     df_valor = pd.DataFrame({})
     for n, link in enumerate(links_valor):
-        link_data = requests.get(base_link_br + link, headers=headers)
-        link_soup = BeautifulSoup(link_data.content, "html.parser")
-        content = link_soup.find("div", id="main")
+        content = await get_content(base_link_br + link, wait_time=0.01)
+        # link_data = requests.get(base_link_br + link, headers=headers)
+        # link_soup = BeautifulSoup(link_data.content, "html.parser")
+        # content = link_soup.find("div", id="main")
 
         if content:
             try:
@@ -620,7 +628,7 @@ async def execucao_coleta():
 
     df = pd.concat([df, df_valor], axis=1)
     df.fillna("", inplace=True)
-    df["temporada"] = "2022,2023"
+    df["temporada"] = obter_temporada()
     df = df.loc[:, mundo_constants.ORDEM_COLUNA_FINAL.value]
 
     return df

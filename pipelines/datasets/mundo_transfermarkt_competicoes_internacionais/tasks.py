@@ -11,7 +11,6 @@ import numpy as np
 import pandas as pd
 from prefect import task
 
-###############################################################################
 from pipelines.datasets.mundo_transfermarkt_competicoes_internacionais.constants import (
     constants as mundo_constants,
 )
@@ -47,5 +46,5 @@ def make_partitions(df):
 def get_max_data(df):
     df["data"] = pd.to_datetime(df["data"]).dt.date
     max_data = df["data"].max().strftime("%Y-%m-%d")
-
+    log(max_data)
     return max_data
