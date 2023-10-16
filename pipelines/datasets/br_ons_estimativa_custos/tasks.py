@@ -61,6 +61,9 @@ def download_data(
 
     data_maxima = max(dicionario_data_url.items(), key=lambda x: x[0])
 
+    log(f"A data máxima é: {data_maxima[0]}")
+    log(f"A tabela será baixada de {data_maxima[1]}")
+
     dw(
         path=constants.PATH.value,
         url_list=data_maxima[1],
