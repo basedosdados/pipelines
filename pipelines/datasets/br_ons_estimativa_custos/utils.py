@@ -81,6 +81,29 @@ def crawler_ons(
     return table_urls
 
 
+def download_data_final(
+    path: str,
+    url: str,
+    table_name: str,
+):
+    """A simple crawler to download data from ONS  website.
+
+    Args:
+        path (str): the path to store the data
+        url (str): the table URL from ONS website.
+        table_name (str): the table name is the original name of the zip file with raw data from comex stat website
+    """
+    # selects a url given a table name
+
+    # log(f"Downloading data from {url}")
+
+    # downloads the file and saves it
+    wget.download(url, out=path + table_name + "/input")
+    # just for precaution,
+    # sleep for 8 secs in between iterations
+    tm.sleep(1)
+
+
 def download_data(
     path: str,
     url_list: List[str],
