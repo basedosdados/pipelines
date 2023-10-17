@@ -15,6 +15,31 @@ import requests
 import wget
 from bs4 import BeautifulSoup
 
+from pipelines.utils.utils import log
+
+
+def download_data_final(
+    path: str,
+    url: str,
+    table_name: str,
+):
+    """A simple crawler to download data from ONS  website.
+
+    Args:
+        path (str): the path to store the data
+        url (str): the table URL from ONS website.
+        table_name (str): the table name is the original name of the zip file with raw data from comex stat website
+    """
+    # selects a url given a table name
+
+    # log(f"Downloading data from {url}")
+
+    # downloads the file and saves it
+    wget.download(url, out=path + table_name + "/input")
+    # just for precaution,
+    # sleep for 8 secs in between iterations
+    tm.sleep(1)
+
 
 def parse_year_or_year_month(url: str) -> str:
     # Extrai o ano e mês do link
@@ -22,28 +47,32 @@ def parse_year_or_year_month(url: str) -> str:
     element1 = result.split("_")[-2]
     element2 = result.split("_")[-1]
     element_list = [element1, element2]
-    print(element_list)
-
     elements = []
     # uma elemento vazio ocupa espaço?
 
     for element in element_list:
         if len(element) == 4 and re.match(r"^\d+$", element):
-            print(f"O elemento -- {element} -- é provavelmente um -- ano --")
+            log(f"O elemento -- {element} -- é provavelmente um -- ano --")
             elements.append(element)
         elif len(element) == 2 and re.match(r"^\d+$", element):
-            print(f"O elemento -- {element} -- é provavelmente um -- mês --")
+            log(f"O elemento -- {element} -- é provavelmente um -- mês --")
             elements.append(element)
         else:
-            print(f"The element -- {element} -- is not a month nor a -- year --")
+            log(f"The element -- {element} -- is not a month nor a -- year --")
 
+    log(elements)
     # se a lista elements tiver comprimento 1, então é um ano
     if len(elements) == 1:
         date = datetime.strptime(elements[0], "%Y")
-
     # se a lista elements tiver comprimento 2, então é um ano e mes
-    if len(elements) == 2:
+    elif len(elements) == 2:
         date = datetime.strptime(elements[0] + "-" + elements[1], "%Y-%m")
+    else:
+        log(
+            f"Durante a análise da URL {url} não foi possível identificar um mês ou ano. Como solução será atribuida uma data fictícia menor que a data máxima dos links corretos. Com isso, essa tabela não será selecionada para atualizar a base"
+        )
+        random_date = "1990-01-01"
+        date = datetime.strptime(random_date, "%Y-%m-%d")
 
     return date
 

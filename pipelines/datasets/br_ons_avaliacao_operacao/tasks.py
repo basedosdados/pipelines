@@ -16,6 +16,7 @@ from pipelines.datasets.br_ons_avaliacao_operacao.utils import (
 )
 from pipelines.datasets.br_ons_avaliacao_operacao.utils import download_data as dw
 from pipelines.datasets.br_ons_avaliacao_operacao.utils import (
+    download_data_final,
     order_df,
     parse_year_or_year_month,
     process_date_column,
@@ -51,17 +52,37 @@ def download_data(
     log("As urls foram recuperadas")
     tm.sleep(2)
 
-    dicionario_data_url = {parse_year_or_year_month(url): url for url in url_list}
+    # Até 17/10/2023 a tabela reservatório é liberada num arquivo único que
+    # não possui ano ou mês no nome do arquivo.
 
-    data_maxima = max(dicionario_data_url.items(), key=lambda x: x[0])
+    if table_name == "reservatorio":
+        dw(
+            path=constants.PATH.value,
+            url_list=url_list,
+            table_name=table_name,
+        )
+        log("O arquivo foi baixado!")
+        tm.sleep(2)
+    else:
+        # usa dictionary comprehension para extrair data de cada link como key e link como item
+        dicionario_data_url = {parse_year_or_year_month(url): url for url in url_list}
 
-    dw(
-        path=constants.PATH.value,
-        url_list=data_maxima[1],
-        table_name=table_name,
-    )
-    log("O arquivo foi baixado!")
-    tm.sleep(2)
+        # so tirar essa etapa para subir dados históricos
+        tupla_data_maxima_url = max(dicionario_data_url.items(), key=lambda x: x[0])
+
+        data_maxima = tupla_data_maxima_url[0]
+        link_data_maxima = tupla_data_maxima_url[1]
+
+        log(f"A data máxima é: {data_maxima}")
+        log(f"A tabela será baixada de {link_data_maxima}")
+
+        download_data_final(
+            path=constants.PATH.value,
+            url=link_data_maxima,
+            table_name=table_name,
+        )
+        log("O arquivo foi baixado!")
+        tm.sleep(2)
 
 
 @task
@@ -74,9 +95,10 @@ def wrang_data(
     # todo: inserir nova tabela
 
     for file in os.listdir(path_input):
+        file = path_input + "/" + file
+
         if table_name == "reservatorio":
-            log(f"fazendo {file}")
-            file = path_input + "/" + file
+            log(f"Construindo tabela {table_name}")
 
             df = pd.read_csv(
                 file,
@@ -84,25 +106,29 @@ def wrang_data(
                 decimal=".",
             )
 
-            log("fazendo file")
-
             architecture_link = constants.TABLE_NAME_ARCHITECHTURE_DICT.value[
                 table_name
             ]
 
-            # rename cols
+            log("Renomeando colunas")
             df = change_columns_name(url=architecture_link, df=df)
 
+            log("formatando data")
             df["data"] = pd.to_datetime(df["data"]).dt.date
 
+            log(
+                "removendo decimais das colunas id_reservatorio_planejamento e id_posto_vazao"
+            )
             df = remove_decimal(df, "id_reservatorio_planejamento")
-
             df = remove_decimal(df, "id_posto_vazao")
 
+            log("removendo acentos")
             df = remove_latin1_accents_from_df(df)
 
+            log("odernando colunas")
             df = order_df(url=architecture_link, df=df)
 
+            log("salvando tabela")
             df = df.to_csv(
                 path_output + "/" + f"{table_name}.csv",
                 sep=",",
@@ -117,8 +143,7 @@ def wrang_data(
         ):
             # data da dd/mm/yyyy para yyyy-mm-dd
 
-            log(f"fazendo {file}")
-            file = path_input + "/" + file
+            log(f"Construindo tabela {table_name}")
 
             df = pd.read_csv(
                 file,
@@ -126,26 +151,26 @@ def wrang_data(
                 decimal=".",
             )
 
-            log("fazendo file")
             architecture_link = constants.TABLE_NAME_ARCHITECHTURE_DICT.value[
                 table_name
             ]
 
-            # rename cols
+            log("Renomeando colunas")
             df = change_columns_name(url=architecture_link, df=df)
 
+            log("criando colunas de ano e mes")
             df = process_date_column(
                 df=df,
                 date_column="data",
             )
-            log("1. as 5 primeiras linhas são:")
-            log(df.head(5))
 
+            log("removendo acentos")
             df = remove_latin1_accents_from_df(df)
 
+            log("odernando colunas")
             df = order_df(url=architecture_link, df=df)
-            log("2. as 5 primeiras linhas são:")
-            log(df.head(5))
+
+            log("particionando dados")
             to_partitions(
                 data=df, partition_columns=["ano", "mes"], savepath=path_output
             )
@@ -156,8 +181,7 @@ def wrang_data(
             table_name == "geracao_usina"
             or table_name == "geracao_termica_motivo_despacho"
         ):
-            print(f"fazendo {file}")
-            file = path_input + "/" + file
+            log(f"Construindo tabela {table_name}")
 
             df = pd.read_csv(
                 file,
@@ -165,7 +189,6 @@ def wrang_data(
                 thousands=".",
             )
 
-            log("fazendo file")
             # rename cols
             architecture_link = constants.TABLE_NAME_ARCHITECHTURE_DICT.value[
                 table_name
@@ -179,6 +202,49 @@ def wrang_data(
             )
             log("datas formatadas")
 
+            df = process_date_column(
+                df=df,
+                date_column="data",
+            )
+
+            log("datas formatadas")
+
+            df = remove_latin1_accents_from_df(df)
+
+            df = order_df(url=architecture_link, df=df)
+
+            to_partitions(
+                data=df, partition_columns=["ano", "mes"], savepath=path_output
+            )
+
+            del df
+
+        if table_name == "restricao_operacao_usinas_eolicas":
+            log(f"Construindo tabela {table_name}")
+
+            df = pd.read_csv(
+                file,
+                sep=";",
+                decimal=".",
+                # todo: verificar se funciona
+            )
+
+            log("fazendo file")
+            architecture_link = constants.TABLE_NAME_ARCHITECHTURE_DICT.value[
+                table_name
+            ]
+            # rename cols
+            df = change_columns_name(url=architecture_link, df=df)
+
+            df = process_datetime_column(
+                df=df,
+                datetime_column="data",
+            )
+
+            log(df["data"].head(5))
+            log("datas formatadas")
+
+            log("criando colunas de ano e mes")
             df = process_date_column(
                 df=df,
                 date_column="data",
