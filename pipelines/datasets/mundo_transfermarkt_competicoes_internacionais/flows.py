@@ -63,6 +63,7 @@ with Flow(
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
+    update_metadata = Parameter("update_metadata", default=True, required=False)
 
     df = execucao_coleta_sync()
     output_filepath = make_partitions(df, upstream_tasks=[df])
