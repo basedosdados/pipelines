@@ -11,10 +11,10 @@ from prefect.schedules.clocks import CronClock
 
 from pipelines.constants import constants
 
-every_two_weeks = Schedule(
+every_first_and_last_week = Schedule(
     clocks=[
         CronClock(
-            cron="0 9 * 2-10 2",
+            cron="0 9 1-7,25-31 * *",
             start_date=datetime(2023, 5, 1, 7, 30),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,

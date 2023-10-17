@@ -16,7 +16,7 @@ from pipelines.datasets.mundo_transfermarkt_competicoes_internacionais.constants
     constants as mundo_constants,
 )
 from pipelines.datasets.mundo_transfermarkt_competicoes_internacionais.schedules import (
-    every_two_weeks,
+    every_first_and_last_week,
 )
 from pipelines.datasets.mundo_transfermarkt_competicoes_internacionais.tasks import (
     execucao_coleta_sync,
@@ -123,4 +123,4 @@ with Flow(
 
 transfermarkt_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 transfermarkt_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-transfermarkt_flow.schedule = every_two_weeks
+transfermarkt_flow.schedule = every_first_and_last_week
