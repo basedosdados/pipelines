@@ -486,6 +486,37 @@ def valor_vazio(df):
     return df
 
 
+def data_url():
+    base_url = "https://www.transfermarkt.com.br/uefa-champions-league/gesamtspielplan/pokalwettbewerb/CL/saison_id/{season}"
+    headers = {
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36"
+    }
+    base_link_br = "https://www.transfermarkt.com.br"
+
+    links = []
+    season = obter_ano()
+
+    print(f"Obtendo links: temporada {season}")
+    site_data = requests.get(base_url.format(season=season), headers=headers)
+    soup = BeautifulSoup(site_data.content, "html.parser")
+    link_tags = soup.find_all("a", attrs={"class": "ergebnis-link"})
+    for tag in link_tags:
+        links.append(re.sub(r"\s", "", tag["href"]))
+
+    link_data = requests.get(base_link_br + links[-1], headers=headers)
+    link_soup = BeautifulSoup(link_data.content, "html.parser")
+    content = link_soup.find("div", id="main")
+    data = re.search(
+        re.compile(r"\d+/\d+/\d+"),
+        content.find("a", text=re.compile(r"\d+/\d+/\d")).get_text().strip(),
+    ).group(0)
+
+    # Converter a data para um objeto de data
+    data_obj = datetime.strptime(data, "%d/%m/%y")
+
+    return data_obj
+
+
 async def execucao_coleta():
     base_url = "https://www.transfermarkt.com.br/uefa-champions-league/gesamtspielplan/pokalwettbewerb/CL/saison_id/{season}"
     headers = {
