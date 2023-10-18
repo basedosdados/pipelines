@@ -510,9 +510,8 @@ def data_url():
         re.compile(r"\d+/\d+/\d+"),
         content.find("a", text=re.compile(r"\d+/\d+/\d")).get_text().strip(),
     ).group(0)
-
     # Converter a data para um objeto de data
-    data_obj = datetime.strptime(data, "%d/%m/%y")
+    data_obj = datetime.datetime.strptime(data, "%d/%m/%y")
 
     return data_obj
 
@@ -522,7 +521,7 @@ async def execucao_coleta():
     headers = {
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36"
     }
-    # base_link = "https://www.transfermarkt.com"
+
     base_link_br = "https://www.transfermarkt.com.br"
 
     links = []
