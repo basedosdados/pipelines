@@ -2,16 +2,15 @@
 """
 Tasks for br_stf_corte_aberta
 """
-from datetime import timedelta
 import datetime
+from datetime import timedelta
 
 import pandas as pd
 from prefect import task
 
 from pipelines.constants import constants
 from pipelines.datasets.br_stf_corte_aberta.constants import constants as stf_constants
-from pipelines.datasets.br_stf_corte_aberta.utils import (
-    # check_for_data,
+from pipelines.datasets.br_stf_corte_aberta.utils import (  # check_for_data,
     column_bool,
     extract_last_date,
     fix_columns_data,
@@ -28,8 +27,8 @@ from pipelines.utils.utils import log
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def check_for_updates(dataset_id, table_id):
-    log('check_for_updates')
-    data_obj = '2023-10-18' #check_for_data()
+    log("check_for_updates")
+    data_obj = "2023-10-18"  # check_for_data()
     data_obj = datetime.strptime(data_obj, "%Y-%m-%d").date()
     # Obtém a última data no site BD
     data_bq_obj = extract_last_date(
@@ -76,9 +75,10 @@ def download_and_transform():
     df = replace_columns(df)
     return df
 
+
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def task_check_for_data():
-    return '2023-10-18'  #check_for_data()
+    return "2023-10-18"  # check_for_data()
