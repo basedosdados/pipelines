@@ -4,8 +4,8 @@ General purpose functions for the mundo_transfermarkt_competicoes_internacionais
 """
 ###############################################################################
 
-import datetime
 import re
+from datetime import datetime
 
 import numpy as np
 import pandas as pd
@@ -22,7 +22,7 @@ from pipelines.utils.utils import log
 
 
 def obter_ano():
-    data_atual = datetime.date.today()
+    data_atual = datetime.today()
     if data_atual.month > 7:
         return data_atual.year
     else:
@@ -30,7 +30,7 @@ def obter_ano():
 
 
 def obter_temporada():
-    data_atual = datetime.date.today()
+    data_atual = datetime.today()
 
     if data_atual.month > 7:
         primeiro_ano = data_atual.year
@@ -511,7 +511,7 @@ def data_url():
         content.find("a", text=re.compile(r"\d+/\d+/\d")).get_text().strip(),
     ).group(0)
     # Converter a data para um objeto de data
-    data_obj = datetime.datetime.strptime(data, "%d/%m/%y")
+    data_obj = datetime.strptime(data, "%d/%m/%y")
 
     return data_obj
 
