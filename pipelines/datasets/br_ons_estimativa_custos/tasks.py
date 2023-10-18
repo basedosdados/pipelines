@@ -58,20 +58,25 @@ def download_data(
     log("As urls foram recuperadas")
     tm.sleep(2)
     # usa dictionary comprehension para extrair data de cada link como key e link como item
-    dicionario_data_url = {parse_year_or_year_month(url): url for url in url_list}
+    # dicionario_data_url = {parse_year_or_year_month(url): url for url in url_list}
 
     # so tirar essa etapa para subir dados históricos
-    tupla_data_maxima_url = max(dicionario_data_url.items(), key=lambda x: x[0])
+    # tupla_data_maxima_url = max(dicionario_data_url.items(), key=lambda x: x[0])
 
-    data_maxima = tupla_data_maxima_url[0]
-    link_data_maxima = tupla_data_maxima_url[1]
+    # data_maxima = tupla_data_maxima_url[0]
+    # link_data_maxima = tupla_data_maxima_url[1]
 
-    log(f"A data máxima é: {data_maxima}")
-    log(f"A tabela será baixada de {link_data_maxima}")
+    # log(f"A data máxima é: {data_maxima}")
+    # log(f"A tabela será baixada de {link_data_maxima}")
 
-    download_data_final(
+    # download_data_final(
+    #    path=constants.PATH.value,
+    #    url=link_data_maxima,
+    #    table_name=table_name,
+    # )
+    dw(
         path=constants.PATH.value,
-        url=link_data_maxima,
+        url_list=url_list,
         table_name=table_name,
     )
     log("O arquivo foi baixado!")

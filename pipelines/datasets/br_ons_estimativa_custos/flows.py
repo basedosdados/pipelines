@@ -32,6 +32,10 @@ from pipelines.utils.tasks import (
     rename_current_flow_run_dataset_table,
 )
 
+# todo: Rodar do zero flows de estimativa custos cujas partições foram trocadas
+# todo: Atualizar modelos dbt que não usavam
+
+
 with Flow(
     name="br_ons_estimativa_custos.custo_marginal_operacao_semi_horario",
     code_owners=["Gabriel Pisa"],

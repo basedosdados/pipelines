@@ -41,7 +41,6 @@ def download_data(
     # create paths
     create_paths(
         path=constants.PATH.value,
-        # acessa link
         table_name=table_name,
     )
     log("paths created")
@@ -51,38 +50,30 @@ def download_data(
     )
     log("As urls foram recuperadas")
     tm.sleep(2)
+    # usa dictionary comprehension para extrair data de cada link como key e link como item
+    # dicionario_data_url = {parse_year_or_year_month(url): url for url in url_list}
 
-    # Até 17/10/2023 a tabela reservatório é liberada num arquivo único que
-    # não possui ano ou mês no nome do arquivo.
+    # so tirar essa etapa para subir dados históricos
+    # tupla_data_maxima_url = max(dicionario_data_url.items(), key=lambda x: x[0])
 
-    if table_name == "reservatorio":
-        dw(
-            path=constants.PATH.value,
-            url_list=url_list,
-            table_name=table_name,
-        )
-        log("O arquivo foi baixado!")
-        tm.sleep(2)
-    else:
-        # usa dictionary comprehension para extrair data de cada link como key e link como item
-        dicionario_data_url = {parse_year_or_year_month(url): url for url in url_list}
+    # data_maxima = tupla_data_maxima_url[0]
+    # link_data_maxima = tupla_data_maxima_url[1]
 
-        # so tirar essa etapa para subir dados históricos
-        tupla_data_maxima_url = max(dicionario_data_url.items(), key=lambda x: x[0])
+    # log(f"A data máxima é: {data_maxima}")
+    # log(f"A tabela será baixada de {link_data_maxima}")
 
-        data_maxima = tupla_data_maxima_url[0]
-        link_data_maxima = tupla_data_maxima_url[1]
-
-        log(f"A data máxima é: {data_maxima}")
-        log(f"A tabela será baixada de {link_data_maxima}")
-
-        download_data_final(
-            path=constants.PATH.value,
-            url=link_data_maxima,
-            table_name=table_name,
-        )
-        log("O arquivo foi baixado!")
-        tm.sleep(2)
+    # download_data_final(
+    #    path=constants.PATH.value,
+    #    url=link_data_maxima,
+    #    table_name=table_name,
+    # )
+    dw(
+        path=constants.PATH.value,
+        url_list=url_list,
+        table_name=table_name,
+    )
+    log("O arquivo foi baixado!")
+    tm.sleep(2)
 
 
 @task
