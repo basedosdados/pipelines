@@ -189,6 +189,7 @@ def check_for_data():
     web_scrapping()
     log("Iniciando o check for data")
     arquivos = os.listdir(stf_constants.STF_INPUT.value)
+    log(arquivos)
     for arquivo in arquivos:
         if arquivo.endswith(".csv"):
             df = pd.read_csv(stf_constants.STF_INPUT.value + arquivo, dtype=str)
@@ -202,6 +203,5 @@ def check_for_data():
         + df["Data da decisão"].astype(str).str[0:2]
     )
     data_obj = data_obj.max()
-    data_obj = datetime.strptime(data_obj, "%Y-%m-%d").date()
 
     return data_obj
