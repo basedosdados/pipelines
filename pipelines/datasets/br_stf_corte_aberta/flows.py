@@ -15,8 +15,8 @@ from pipelines.datasets.br_stf_corte_aberta.tasks import (
     check_for_updates,
     download_and_transform,
     make_partitions,
+    task_check_for_data,
 )
-from pipelines.datasets.br_stf_corte_aberta.utils import check_for_data
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
@@ -40,10 +40,11 @@ with Flow(name="br_stf_corte_aberta.decisoes", code_owners=["trick"]) as br_stf:
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
     update_metadata = Parameter("update_metadata", default=True, required=False)
+
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
-    update_metadata = Parameter("update_metadata", default=True, required=False)
+
     dados_desatualizados = check_for_updates(
         dataset_id=dataset_id, table_id=table_id, upstream_tasks=[rename_flow_run]
     )
@@ -92,8 +93,7 @@ with Flow(name="br_stf_corte_aberta.decisoes", code_owners=["trick"]) as br_stf:
             wait_for_materialization.retry_delay = timedelta(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
-            get_max_date = check_for_data()
-            get_max_date_string = str(get_max_date)
+            get_max_date = task_check_for_data()
             with case(update_metadata, True):
                 update_django_metadata(
                     dataset_id=dataset_id,
@@ -105,7 +105,7 @@ with Flow(name="br_stf_corte_aberta.decisoes", code_owners=["trick"]) as br_stf:
                     api_mode="prod",
                     date_format="yy-mm-dd",
                     is_bd_pro=True,
-                    _last_date=get_max_date_string,
+                    _last_date=get_max_date,
                     is_free=True,
                     time_delta=6,
                     time_unit="weeks",
