@@ -40,8 +40,7 @@ with Flow(name="br_stf_corte_aberta.decisoes", code_owners=["trick"]) as br_stf:
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
     update_metadata = Parameter("update_metadata", default=True, required=False)
-    
-    
+
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )

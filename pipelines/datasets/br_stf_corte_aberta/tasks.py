@@ -74,6 +74,7 @@ def download_and_transform():
     df = replace_columns(df)
     return df
 
+
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
