@@ -2,7 +2,7 @@
 """
 Tasks for br_stf_corte_aberta
 """
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
 
 import pandas as pd
 from prefect import task
