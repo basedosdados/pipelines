@@ -16,7 +16,6 @@ from pipelines.utils.utils import log
 
 
 def web_scrapping():
-    log('web_scrapping')
     if not os.path.exists(stf_constants.STF_INPUT.value):
         os.mkdir(stf_constants.STF_INPUT.value)
     options = webdriver.ChromeOptions()
@@ -38,7 +37,6 @@ def web_scrapping():
     options.add_argument("--crash-dumps-dir=/tmp")
     options.add_argument("--remote-debugging-port=9222")
     driver = webdriver.Chrome(options=options)
-    log('30seg')
     time.sleep(30)
     driver.get(stf_constants.STF_LINK.value)
     time.sleep(30)
