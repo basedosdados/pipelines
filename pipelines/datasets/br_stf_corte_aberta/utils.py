@@ -16,6 +16,7 @@ from pipelines.utils.utils import log
 
 
 def web_scrapping():
+    log('web_scrapping')
     if not os.path.exists(stf_constants.STF_INPUT.value):
         os.mkdir(stf_constants.STF_INPUT.value)
     options = webdriver.ChromeOptions()
@@ -37,6 +38,7 @@ def web_scrapping():
     options.add_argument("--crash-dumps-dir=/tmp")
     options.add_argument("--remote-debugging-port=9222")
     driver = webdriver.Chrome(options=options)
+    log('30seg')
     time.sleep(30)
     driver.get(stf_constants.STF_LINK.value)
     time.sleep(30)
@@ -189,6 +191,7 @@ def check_for_data():
     web_scrapping()
     log("Iniciando o check for data")
     arquivos = os.listdir(stf_constants.STF_INPUT.value)
+    log(arquivos)
     for arquivo in arquivos:
         if arquivo.endswith(".csv"):
             df = pd.read_csv(stf_constants.STF_INPUT.value + arquivo, dtype=str)
@@ -202,6 +205,5 @@ def check_for_data():
         + df["Data da decisão"].astype(str).str[0:2]
     )
     data_obj = data_obj.max()
-    data_obj = datetime.strptime(data_obj, "%Y-%m-%d").date()
 
     return data_obj
