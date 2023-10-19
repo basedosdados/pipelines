@@ -644,8 +644,8 @@ with Flow(
 
     temporal_coverage = get_temporal_coverage(
         filepath=filepath,
-        date_cols=["an
-.user.ymlth",
+        date_cols=["ano", "mes"],
+        time_unit="month",
         interval="1",
         upstream_tasks=[filepath],
     )
