@@ -123,7 +123,7 @@ with Flow(
 
 fgv_igpdi_mes_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 fgv_igpdi_mes_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-#fgv_igpdi_mes_flow.schedule = igp_di_mes
+# fgv_igpdi_mes_flow.schedule = igp_di_mes
 
 
 with Flow(
@@ -213,7 +213,7 @@ with Flow(
 
 fgv_igpdi_ano_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 fgv_igpdi_ano_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-#fgv_igpdi_ano_flow.schedule = igp_di_ano
+# fgv_igpdi_ano_flow.schedule = igp_di_ano
 
 
 with Flow(
@@ -303,7 +303,7 @@ with Flow(
 
 fgv_igpm_mes_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 fgv_igpm_mes_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-#fgv_igpm_mes_flow.schedule = igp_m_mes
+# fgv_igpm_mes_flow.schedule = igp_m_mes
 
 
 with Flow(
@@ -393,7 +393,7 @@ with Flow(
 
 fgv_igpm_ano_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 fgv_igpm_ano_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-#fgv_igpm_ano_flow.schedule = igp_m_ano
+# fgv_igpm_ano_flow.schedule = igp_m_ano
 
 
 with Flow(
@@ -483,7 +483,7 @@ with Flow(
 
 fgv_igpog_mes_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 fgv_igpog_mes_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-#fgv_igpog_mes_flow.schedule = igp_og_mes
+# fgv_igpog_mes_flow.schedule = igp_og_mes
 
 
 with Flow(
@@ -573,7 +573,7 @@ with Flow(
 
 fgv_igpog_ano_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 fgv_igpog_ano_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-#fgv_igpog_ano_flow.schedule = igp_og_ano
+# fgv_igpog_ano_flow.schedule = igp_og_ano
 
 
 with Flow(
