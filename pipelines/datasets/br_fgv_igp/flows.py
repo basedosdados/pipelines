@@ -663,4 +663,4 @@ with Flow(
 
 fgv_igp10_mes_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 fgv_igp10_mes_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-fgv_igp10_mes_flow.schedule = igp_10_mes
+# fgv_igp10_mes_flow.schedule = igp_10_mes
