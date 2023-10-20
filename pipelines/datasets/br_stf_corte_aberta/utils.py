@@ -57,7 +57,7 @@ def read_csv():
 
 
 def fix_columns_data(df):
-    lista = ["Data de autuação", "Data da decisão", "Data baixa processo"]
+    lista = ["Data de autuação", "Data da decisão", "Data baixa"]
     for x in lista:
         df[x] = df[x].astype(str).str[0:10]
         df[x] = (
