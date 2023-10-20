@@ -34,13 +34,13 @@ headers = constants_cnpj.HEADERS.value
 #     data_str = data_completa[0:10]
 #     # Converte a string da data em um objeto de data
 #     data = datetime.strptime(data_str, "%Y-%m-%d")
-
-
 #     return data
+
+
 def data_url(url, headers):
-    max_attempts = 3
-    timeout = 5
-    attempts = 0
+    max_attempts = constants_cnpj.MAX_ATTEMPTS.value
+    timeout = constants_cnpj.TIMEOUT.value
+    attempts = constants_cnpj.ATTEMPTS.value
 
     while attempts < max_attempts:
         try:
