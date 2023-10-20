@@ -4,7 +4,8 @@ Tasks for br_ons_avaliacao_operacao
 """
 import os
 import time as tm
-from datetime import datetime
+from datetime import date, datetime
+from typing import Union
 
 import basedosdados as bd
 import pandas as pd
@@ -18,7 +19,6 @@ from pipelines.datasets.br_ons_avaliacao_operacao.utils import (
 )
 from pipelines.datasets.br_ons_avaliacao_operacao.utils import download_data as dw
 from pipelines.datasets.br_ons_avaliacao_operacao.utils import (
-    download_data_final,
     extrai_data_recente,
     order_df,
     parse_year_or_year_month,
@@ -29,36 +29,19 @@ from pipelines.datasets.br_ons_avaliacao_operacao.utils import (
 )
 from pipelines.utils.utils import log, to_partitions
 
-# Criar função para checar se existem atualizações dentro da task download_data
-# 1. Flow roda até data ser formatada
-#     - extrair data máxima do arquivo
-#           - pegar a coluna de data ou data e hora e ver o valor mais recente.
-#
-#     - extrair data máxima das tabelas no BQ #task que faça isso
-#           - pegar a coluna de data ou data e hora e ver o valor mais recente.
-#
-#     - comparar data máxima do arquivo com data máxima das tabelas no BQ
-#          if data_maxima_arquivo < data_maxima_tabelas_BQ:
-#               - return False (quebra flow com case when e para execução (ver dependências condicionais no flow)) | cirar path global para file_páth na task de uplaod to gcs
-#               - else: continua o flow e retorna uma tupla com False e o file path
-#     - se data máxima do arquivo for maior que a data máxima das tabelas no BQ, continuar o flow
-
 
 @task
-def extract_last_date_from_bq(dataset_id, table_id, billing_project_id: str):
-    """
-    Extracts the last update date of a given dataset table.
-
+def extract_last_date_from_bq(
+    dataset_id, table_id, billing_project_id: str
+) -> Union[datetime, date]:
+    """Extrai a data mais recente de uma dada tabela dos conjuntos br_ons_avaliacao_operacao  e br_ons_estimativa_custos do BQ
     Args:
         dataset_id (str): The ID of the dataset.
         table_id (str): The ID of the table.
         billing_project_id (str): The billing project ID.
 
     Returns:
-        str: The last update date in the format 'yyyy-mm' or 'yyyy-mm-dd'.
-
-    Raises:
-        Exception: If an error occurs while extracting the last update date.
+         Union[datetime, date]: data máxima da tabela
     """
 
     date_dict = {
@@ -90,8 +73,6 @@ def extract_last_date_from_bq(dataset_id, table_id, billing_project_id: str):
 
         data = t["max_data_hora"][0]
         data = pd.to_datetime(data, format="%Y-%m-%d %H:%M:%S")
-        # TODO: remover esse log, já presente na task
-        print(f"A data mais recente da tabela no BQ é {data}")
 
     if (
         date_dict[table_id] == "yyyy-mm-dd"
@@ -131,24 +112,23 @@ def extract_last_date_from_bq(dataset_id, table_id, billing_project_id: str):
 
         data = t["max_date"][0]
 
-        print(f"A data mais recente da tabela no BQ é {data}")
-
     return data
 
 
-# descrever melhor a task
 @task
 def download_data(
     table_name: str,
-):
-    """
-    This task crawls the ons website to extract all download links for the given table name.
+) -> None:
+    """Essa task identifica a URL da tabela mais recente de uma das tabelas do ONS e baixa a tabela no formato csv
+
     Args:
-        table_name (str): the table name to be downloaded
+        table_name (str): Nome da tabela, correponde ao table_id
+
+
     Returns:
-        list: a list of file links
+
     """
-    # create paths
+    # Cria paths
     create_paths(
         path=constants.PATH.value,
         table_name=table_name,
@@ -162,7 +142,7 @@ def download_data(
     tm.sleep(2)
 
     if table_name == "reservatorio":
-        download_data_final(
+        download_data(
             path=constants.PATH.value,
             url=url_list[0],
             table_name=table_name,
@@ -179,7 +159,7 @@ def download_data(
         log(f"A data máxima é: {data_maxima}")
         log(f"A tabela será baixada de {link_data_maxima}")
 
-        download_data_final(
+        dw(
             path=constants.PATH.value,
             url=link_data_maxima,
             table_name=table_name,
@@ -196,7 +176,7 @@ def download_data(
 # Como fazer: algoritmo que verifica a data máxima das tabelas no Big Query e compara com a data
 # máxima dos dados no portal de dados abertos do Operador Nacional do Sistema Elétrico (ONS).
 # Problemas:
-# 1. O ONS não apresenta um cronograma de atualização das bases regular.
+# 1. O ONS não apresenta um cronograma regular de atualização das bases.
 # 2. Os arquivos divulgados não correspondem com a granularidade do dados. Tabelas com
 # energia_armazenada_reservatorio são divulgadas com a granularidade de Datetime
 # YYYY-MM-DD HH:MM  em arquivos mensais. Os dados são atualizados diariamente ou em intervalos
@@ -212,7 +192,21 @@ def download_data(
 def wrang_data(
     table_name: str,
     data_mais_recente_do_bq: str,
-) -> pd.DataFrame:
+) -> tuple[bool, str, Union[date, datetime]]:
+    """Essa task realiza o tratamento dos dados das tabelas do ONS
+
+    Args:
+        table_name (str): nome da tabela, equivale ao table_id
+        data_mais_recente_do_bq (Union[date,datetime]): Data mais recente da tabela no BQ extraida
+        com com a task extract_last_date_from_bq
+
+    Returns:
+        tuple[bool,str,Union[date,datetime]]: Retorna uma Tupla com 3 elementos:
+        1. um valor booleano -> usado para parar o flow caso não haja atualização.
+        2. uma string -> usada para informar o caminho dos dados tratados.
+        3. um datetime ou date -> usada para atualizar o coverage
+    """
+
     path_input = f"/tmp/br_ons_avaliacao_operacao/{table_name}/input"
     path_output = f"/tmp/br_ons_avaliacao_operacao/{table_name}/output"
 
@@ -451,7 +445,17 @@ def wrang_data(
 
 
 @task
-def date_to_update(data_tabela: str, table_id: str):
+def date_to_update(data_tabela: str, table_id: str) -> str:
+    """Converte a data mais recente da tabela para string
+
+    Args:
+        data_tabela (str): data mais recente da tabela sendo tratada
+        table_id (str): table_id da tabela
+
+    Returns:
+        str: string com data no formato YYYY-MM-DD para atualizar o coverage
+    """
+
     date_dict = {
         "reservatorio": "yyyy-mm-dd",
         "geracao_usina": "yyyy-mm-dd hh:mm:ss",
@@ -470,6 +474,6 @@ def date_to_update(data_tabela: str, table_id: str):
         return str(data_tabela)
 
     if date_dict[table_id] == "yyyy-mm-dd hh:mm:ss":
-        data_tabela = datetime.strptime(data_tabela, "%Y-%m-%d")
+        data_tabela = data_tabela.strftime("%Y-%m-%d")
 
         return str(data_tabela)
