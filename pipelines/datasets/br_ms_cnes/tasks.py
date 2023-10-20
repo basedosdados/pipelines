@@ -45,6 +45,7 @@ def check_files_to_parse(
     )
     log("building next year/month to parse")
     # 2. adicionar mais um no mes ou transformar pra 1 se for 12
+    # para ver se o mês seguinte já está disponível no FTP
     # eg. last_date = 2023-04-01
 
     year = str(last_date.year)
@@ -59,6 +60,8 @@ def check_files_to_parse(
 
     if month <= 9:
         month = "0" + str(month)
+    else:
+        month = str(month)
 
     year_month_to_parse = year + month
     log(f"year_month_to_parse (YYMM) is {year_month_to_parse}")
