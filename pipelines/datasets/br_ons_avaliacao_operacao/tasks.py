@@ -133,7 +133,7 @@ def extract_last_date_from_bq(dataset_id, table_id, billing_project_id: str):
 
         print(f"A data mais recente da tabela no BQ é {data}")
 
-    return data, str(data)
+    return data
 
 
 # descrever melhor a task
