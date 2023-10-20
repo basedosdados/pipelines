@@ -28,7 +28,7 @@ class constants(Enum):  # pylint: disable=c0103
         "Ramo direito": "ramo_direito",
         "Data de autuação": "data_autuacao",
         "Data da decisão": "data_decisao",
-        "Data baixa processo": "data_baixa_processo",
+        "Data baixa": "data_baixa_processo",
     }
 
     ORDEM = [
