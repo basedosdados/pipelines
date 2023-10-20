@@ -21,7 +21,7 @@ class constants(Enum):  # pylint: disable=c0103
         "Andamento decisão": "andamento",
         "Observação do andamento": "observacao_andamento_decisao",
         "Indicador virtual": "modalidade_julgamento",
-        "Indicador colegiada": "tipo_julgamento",
+        "Indicador colegiado": "tipo_julgamento",
         "Indicador eletrônico": "meio_tramitacao",
         "Indicador de tramitação": "indicador_tramitacao",
         "Assuntos do processo": "assunto_processo",
