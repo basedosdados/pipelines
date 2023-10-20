@@ -5,6 +5,7 @@ Flows for br_ons_avaliacao_operacao
 # pylint: disable=invalid-name
 from datetime import timedelta
 
+# TODO: extract_last_date_from_bq colocar billing de prod antes de fechar PR
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
@@ -125,7 +126,7 @@ with Flow(
                     table_id,
                     metadata_type="DateTimeRange",
                     bq_last_update=False,
-                    bq_table_last_year_month=True,
+                    _last_date=data_mais_recente_do_bq[1],
                     billing_project_id="basedosdados",
                     is_bd_pro=True,
                     is_free=False,
@@ -225,7 +226,7 @@ with Flow(
                     table_id,
                     metadata_type="DateTimeRange",
                     bq_last_update=False,
-                    bq_table_last_year_month=True,
+                    _last_date=data_mais_recente_do_bq[1],
                     billing_project_id="basedosdados",
                     is_bd_pro=True,
                     is_free=False,
@@ -328,7 +329,7 @@ with Flow(
                     table_id,
                     metadata_type="DateTimeRange",
                     bq_last_update=False,
-                    bq_table_last_year_month=True,
+                    _last_date=data_mais_recente_do_bq[1],
                     billing_project_id="basedosdados",
                     is_bd_pro=True,
                     is_free=False,
@@ -432,7 +433,7 @@ with Flow(
                     table_id,
                     metadata_type="DateTimeRange",
                     bq_last_update=False,
-                    bq_table_last_year_month=True,
+                    _last_date=data_mais_recente_do_bq[1],
                     billing_project_id="basedosdados",
                     is_bd_pro=True,
                     is_free=False,
@@ -537,7 +538,7 @@ with Flow(
                     table_id,
                     metadata_type="DateTimeRange",
                     bq_last_update=False,
-                    bq_table_last_year_month=True,
+                    _last_date=data_mais_recente_do_bq[1],
                     billing_project_id="basedosdados",
                     is_bd_pro=True,
                     is_free=False,
@@ -640,7 +641,7 @@ with Flow(
                     table_id,
                     metadata_type="DateTimeRange",
                     bq_last_update=False,
-                    bq_table_last_year_month=True,
+                    _last_date=data_mais_recente_do_bq[1],
                     billing_project_id="basedosdados",
                     is_bd_pro=True,
                     is_free=False,

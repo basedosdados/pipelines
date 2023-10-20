@@ -36,6 +36,9 @@ from pipelines.utils.tasks import (
     rename_current_flow_run_dataset_table,
 )
 
+# TODO: extract_last_date_from_bq colocar billing de prod antes de fechar PR
+
+
 with Flow(
     name="br_ons_estimativa_custos.custo_marginal_operacao_semi_horario",
     code_owners=["Gabriel Pisa"],
@@ -74,7 +77,7 @@ with Flow(
 
     filepath = wrang_data(
         table_name=ons_constants.TABLE_NAME_LIST.value[0],
-        data_mais_recente_do_bq=data_mais_recente_do_bq,
+        data_mais_recente_do_bq=data_mais_recente_do_bq[0],
         upstream_tasks=[dow_data, data_mais_recente_do_bq],
     )
 
@@ -122,7 +125,7 @@ with Flow(
                     table_id,
                     metadata_type="DateTimeRange",
                     bq_last_update=False,
-                    bq_table_last_year_month=True,
+                    _last_date=data_mais_recente_do_bq[1],
                     billing_project_id="basedosdados",
                     is_bd_pro=True,
                     is_free=False,
@@ -228,7 +231,7 @@ with Flow(
                     table_id,
                     metadata_type="DateTimeRange",
                     bq_last_update=False,
-                    bq_table_last_year_month=True,
+                    _last_date=data_mais_recente_do_bq[1],
                     billing_project_id="basedosdados",
                     is_bd_pro=True,
                     is_free=False,
@@ -334,7 +337,7 @@ with Flow(
                     table_id,
                     metadata_type="DateTimeRange",
                     bq_last_update=False,
-                    bq_table_last_year_month=True,
+                    _last_date=data_mais_recente_do_bq[1],
                     billing_project_id="basedosdados",
                     is_bd_pro=True,
                     is_free=False,
@@ -441,7 +444,7 @@ with Flow(
                     table_id,
                     metadata_type="DateTimeRange",
                     bq_last_update=False,
-                    bq_table_last_year_month=True,
+                    _last_date=data_mais_recente_do_bq[1],
                     billing_project_id="basedosdados",
                     is_bd_pro=True,
                     is_free=False,
@@ -547,7 +550,7 @@ with Flow(
                     table_id,
                     metadata_type="DateTimeRange",
                     bq_last_update=False,
-                    bq_table_last_year_month=True,
+                    _last_date=data_mais_recente_do_bq[1],
                     billing_project_id="basedosdados",
                     is_bd_pro=True,
                     is_free=False,

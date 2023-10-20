@@ -45,7 +45,6 @@ from pipelines.utils.utils import log, to_partitions
 
 @task
 def extract_last_date_from_bq(dataset_id, table_id, billing_project_id: str):
-    # TODO: tirar comentário from file
     """
     Extracts the last update date of a given dataset table.
 
@@ -85,7 +84,7 @@ def extract_last_date_from_bq(dataset_id, table_id, billing_project_id: str):
         t = bd.read_sql(
             query=query_bd,
             billing_project_id=billing_project_id,
-            # from_file=True,
+            from_file=True,
         )
 
         data = t["max_data_hora"][0]
@@ -106,7 +105,7 @@ def extract_last_date_from_bq(dataset_id, table_id, billing_project_id: str):
         t = bd.read_sql(
             query=query_bd,
             billing_project_id=billing_project_id,
-            # from_file=True,
+            from_file=True,
         )
 
         data = t["max_date"][0]
@@ -126,14 +125,14 @@ def extract_last_date_from_bq(dataset_id, table_id, billing_project_id: str):
         t = bd.read_sql(
             query=query_bd,
             billing_project_id=billing_project_id,
-            # from_file=True,
+            from_file=True,
         )
 
         data = t["max_date"][0]
 
         print(f"A data mais recente da tabela no BQ é {data}")
 
-    return data
+    return data, str(data)
 
 
 # descrever melhor a task
