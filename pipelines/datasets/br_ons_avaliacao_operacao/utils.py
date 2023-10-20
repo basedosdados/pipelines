@@ -18,6 +18,58 @@ from bs4 import BeautifulSoup
 from pipelines.utils.utils import log
 
 
+def extrai_data_recente(df: pd.DataFrame, table_name: str):
+    """
+    Extracts the last update date of a given dataset table.
+
+    Args:
+        dataset_id (str): The ID of the dataset.
+        table_id (str): The ID of the table.
+        billing_project_id (str): The billing project ID.
+
+    Returns:
+        str: The last update date in the format 'yyyy-mm' or 'yyyy-mm-dd'.
+
+    Raises:
+        Exception: If an error occurs while extracting the last update date.
+    """
+
+    # if else para os casos
+    # ver em qual parte do corpo inserir
+
+    date_dict = {
+        "reservatorio": "yyyy-mm-dd",
+        "geracao_usina": "yyyy-mm-dd hh:mm:ss",
+        "geracao_termica_motivo_despacho": "yyyy-mm-dd hh:mm:ss",
+        "energia_natural_afluente": "yyyy-mm-dd",
+        "energia_armazenada_reservatorio": "yyyy-mm-dd",
+        "restricao_operacao_usinas_eolicas": "yyyy-mm-dd hh:mm:ss",
+        "custo_marginal_operacao_semi_horario": "yyyy-mm-dd hh:mm:ss",
+        "custo_marginal_operacao_semanal": "yyyy-mm-dd",
+        "balanco_energia_subsistemas": "yyyy-mm-dd hh:mm:ss",
+        "balanco_energia_subsistemas_dessem": "yyyy-mm-dd hh:mm:ss",
+        "custo_variavel_unitario_usinas_termicas": "yyyy-mm-dd",
+    }
+
+    if date_dict[table_name] == "yyyy-mm-dd":
+        df["data"] = pd.to_datetime(df["data"], format="%Y-%m-%d").dt.date
+        data = df["data"].max()
+
+    if date_dict[table_name] == "yyyy-mm-dd hh:mm:ss":
+        df["data_hora"] = df["data"] + " " + df["hora"]
+        df["data_hora"] = pd.to_datetime(df["data_hora"], format="%Y-%m-%d %H:%M:%S")
+        data = df["data_hora"].max()
+
+    if (
+        date_dict[table_name] == "yyyy-mm-dd"
+        and table_name == "custo_variavel_unitario_usinas_termicas"
+    ):
+        df["data_inicio"] = pd.to_datetime(df["data_inicio"], format="%Y-%m-%d").dt.date
+        data = df["data_inicio"].max()
+
+    return data
+
+
 def download_data_final(
     path: str,
     url: str,
@@ -42,14 +94,24 @@ def download_data_final(
 
 
 def parse_year_or_year_month(url: str) -> str:
-    # Extrai o ano e mês do link
+    # extrai parte final da URL após o último "/"
     result = url.split("/")[-1].split(".")[-2]
+
+    # extrai possível ano
     element1 = result.split("_")[-2]
+    # extrai possível mes
     element2 = result.split("_")[-1]
+    # junta ambos numa lista
     element_list = [element1, element2]
     elements = []
-    # uma elemento vazio ocupa espaço?
 
+    # funcionamento geral->
+    # checa se os elementos são ano ou mes
+    # o ano é sempre representado com 4 digitos
+    # o mês com 2
+    # logo se o comprimento for 4 e os caracteres digítos, é um ano
+    # se o comprimento for 2 e os caracteres digítos, é um mês
+    # se não for nenhum dos dois, não é um ano nem um mês
     for element in element_list:
         if len(element) == 4 and re.match(r"^\d+$", element):
             log(f"O elemento -- {element} -- é provavelmente um -- ano --")
@@ -58,15 +120,21 @@ def parse_year_or_year_month(url: str) -> str:
             log(f"O elemento -- {element} -- é provavelmente um -- mês --")
             elements.append(element)
         else:
-            log(f"The element -- {element} -- is not a month nor a -- year --")
+            log(f"O elemento -- {element} -- não é um ano nem um mês")
 
     log(elements)
     # se a lista elements tiver comprimento 1, então é um ano
+    # isto é, não foi identificado nenhum mês
     if len(elements) == 1:
         date = datetime.strptime(elements[0], "%Y")
     # se a lista elements tiver comprimento 2, então é um ano e mes
+    # isto é, foi identificado um ano e mês
     elif len(elements) == 2:
         date = datetime.strptime(elements[0] + "-" + elements[1], "%Y-%m")
+    # por vezes alguns arquivos aleatórios sem ano e mês são colocados no site do ONS
+    # isso garante que eles não vão ser escolhidos para atualização
+    # --------- Atenção: o flow vai quebrar se for usado para carregar dados históricos e existir um arquivo aleatório
+    # exemplo de arquivo aleatório em 18/10/2023: Redshift_Cargaverificada-teste_titulo na tabela energia_natural_afluente https://dados.ons.org.br/dataset/ena-diario-por-reservatorio
     else:
         log(
             f"Durante a análise da URL {url} não foi possível identificar um mês ou ano. Como solução será atribuida uma data fictícia menor que a data máxima dos links corretos. Com isso, essa tabela não será selecionada para atualizar a base"
@@ -264,22 +332,8 @@ def change_columns_name(df: pd.DataFrame, url: str) -> pd.DataFrame:
 
         print("cols renamed")
         print(df.columns)
-        # Verifica se há colunas em df que não estão presentes em df[list(column_name_dict.values())]
-        # todo: check para ver se a coluna existe na arquitetura e nao no df
-        # o contrario não faz sentido, pq eventualemnte preciso dropar colunas que estao nao dado original e
-        # nao serao mantidas
-
-        # Reordena colunas
-        # ordem_colunas = list(my_dict.values())
-        # print('col order')
-        # print(ordem_colunas)
-        # df = df[ordem_colunas]
-        # print('3 cols reordered')
-        # print(df.columns)
-        # print('Columns reordered')
 
     except Exception as e:
-        # Handle any exceptions that occur during the process
         print(f"Algum erro ocorreu: {str(e)}")
 
     return df

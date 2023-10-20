@@ -17,6 +17,61 @@ import wget
 from bs4 import BeautifulSoup
 
 
+def extrai_data_recente(df: pd.DataFrame, table_name: str):
+    """
+    Extracts the last update date of a given dataset table.
+
+    Args:
+        dataset_id (str): The ID of the dataset.
+        table_id (str): The ID of the table.
+        billing_project_id (str): The billing project ID.
+
+    Returns:
+        str: The last update date in the format 'yyyy-mm' or 'yyyy-mm-dd'.
+
+    Raises:
+        Exception: If an error occurs while extracting the last update date.
+    """
+
+    # if else para os casos
+    # ver em qual parte do corpo inserir
+
+    date_dict = {
+        "reservatorio": "yyyy-mm-dd",
+        "geracao_usina": "yyyy-mm-dd hh:mm:ss",
+        "geracao_termica_motivo_despacho": "yyyy-mm-dd hh:mm:ss",
+        "energia_natural_afluente": "yyyy-mm-dd",
+        "energia_armazenada_reservatorio": "yyyy-mm-dd",
+        "restricao_operacao_usinas_eolicas": "yyyy-mm-dd hh:mm:ss",
+        "custo_marginal_operacao_semi_horario": "yyyy-mm-dd hh:mm:ss",
+        "custo_marginal_operacao_semanal": "yyyy-mm-dd",
+        "balanco_energia_subsistemas": "yyyy-mm-dd hh:mm:ss",
+        "balanco_energia_subsistemas_dessem": "yyyy-mm-dd hh:mm:ss",
+        "custo_variavel_unitario_usinas_termicas": "yyyy-mm-dd",
+    }
+
+    if (
+        date_dict[table_name] == "yyyy-mm-dd"
+        and table_name != "custo_variavel_unitario_usinas_termicas"
+    ):
+        df["data"] = pd.to_datetime(df["data"], format="%Y-%m-%d").dt.date
+        data = df["data"].max()
+
+    if date_dict[table_name] == "yyyy-mm-dd hh:mm:ss":
+        df["data_hora"] = df["data"] + " " + df["hora"]
+        df["data_hora"] = pd.to_datetime(df["data_hora"], format="%Y-%m-%d %H:%M:%S")
+        data = df["data_hora"].max()
+
+    if (
+        date_dict[table_name] == "yyyy-mm-dd"
+        and table_name == "custo_variavel_unitario_usinas_termicas"
+    ):
+        df["data_inicio"] = pd.to_datetime(df["data_inicio"], format="%Y-%m-%d").dt.date
+        data = df["data_inicio"].max()
+
+    return data
+
+
 def parse_year_or_year_month(url: str) -> str:
     # Extrai o ano e mês do link
     result = url.split("/")[-1].split(".")[-2]

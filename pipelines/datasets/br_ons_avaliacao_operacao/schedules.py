@@ -25,7 +25,7 @@ schedule_br_ons_avaliacao_operacao_reservatorio = Schedule(
                 "materialization_mode": "prod",
                 "materialize after dump": True,
                 "update_metadata": True,
-                "dbt_alias": False,
+                "dbt_alias": True,
             },
         )
     ],
@@ -47,7 +47,7 @@ schedule_br_ons_avaliacao_operacao_geracao_usina = Schedule(
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
-                "dbt_alias": False,
+                "dbt_alias": True,
             },
         )
     ],
@@ -69,7 +69,7 @@ schedule_br_ons_avaliacao_operacao_geracao_termica_motivo_despacho = Schedule(
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
-                "dbt_alias": False,
+                "dbt_alias": True,
             },
         )
     ],
@@ -91,7 +91,7 @@ schedule_br_ons_avaliacao_operacao_energia_natural_afluente = Schedule(
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
-                "dbt_alias": False,
+                "dbt_alias": True,
             },
         )
     ],
@@ -113,7 +113,7 @@ schedule_br_ons_avaliacao_operacao_energia_armazenada_reservatorio = Schedule(
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
-                "dbt_alias": False,
+                "dbt_alias": True,
             },
         )
     ],
@@ -137,7 +137,7 @@ schedule_br_ons_avaliacao_operacao_restricao_operacao_usinas_eolicas = Schedule(
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
-                "dbt_alias": False,
+                "dbt_alias": True,
             },
         )
     ],

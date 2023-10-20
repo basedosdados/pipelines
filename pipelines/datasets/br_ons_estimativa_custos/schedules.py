@@ -21,7 +21,7 @@ schedule_br_ons_estimativa_custos_custo_marginal_operacao_semi_horario = Schedul
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
-                "dbt_alias": False,
+                "dbt_alias": True,
             },
         )
     ],
@@ -42,7 +42,7 @@ schedule_br_ons_estimativa_custos_custo_marginal_operacao_semanal = Schedule(
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
-                "dbt_alias": False,
+                "dbt_alias": True,
             },
         )
     ],
@@ -63,7 +63,7 @@ schedule_br_ons_estimativa_custos_balanco_energia_subsistemas = Schedule(
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
-                "dbt_alias": False,
+                "dbt_alias": True,
             },
         )
     ],
@@ -84,7 +84,7 @@ schedule_br_ons_estimativa_custos_balanco_energia_subsistemas_dessem = Schedule(
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
-                "dbt_alias": False,
+                "dbt_alias": True,
             },
         )
     ],
@@ -106,7 +106,7 @@ schedule_br_ons_estimativa_custos_custo_variavel_unitario_usinas_termicas = Sche
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
-                "dbt_alias": False,
+                "dbt_alias": True,
             },
         )
     ],

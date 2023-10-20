@@ -6,6 +6,7 @@ import os
 import time as tm
 from datetime import datetime
 
+import basedosdados as bd
 import pandas as pd
 from prefect import task
 
@@ -18,6 +19,7 @@ from pipelines.datasets.br_ons_estimativa_custos.utils import (
 from pipelines.datasets.br_ons_estimativa_custos.utils import download_data as dw
 from pipelines.datasets.br_ons_estimativa_custos.utils import (
     download_data_final,
+    extrai_data_recente,
     order_df,
     parse_year_or_year_month,
     process_date_column,
@@ -32,6 +34,99 @@ def get_today_date():
     d = datetime.today()
 
     return d.strftime("%Y-%m-%d")
+
+
+@task
+def extract_last_date_from_bq(dataset_id, table_id, billing_project_id: str):
+    # TODO: tirar comentário from file
+    """
+    Extracts the last update date of a given dataset table.
+
+    Args:
+        dataset_id (str): The ID of the dataset.
+        table_id (str): The ID of the table.
+        billing_project_id (str): The billing project ID.
+
+    Returns:
+        str: The last update date in the format 'yyyy-mm' or 'yyyy-mm-dd'.
+
+    Raises:
+        Exception: If an error occurs while extracting the last update date.
+    """
+
+    date_dict = {
+        "reservatorio": "yyyy-mm-dd",
+        "geracao_usina": "yyyy-mm-dd hh:mm:ss",
+        "geracao_termica_motivo_despacho": "yyyy-mm-dd hh:mm:ss",
+        "energia_natural_afluente": "yyyy-mm-dd",
+        "energia_armazenada_reservatorio": "yyyy-mm-dd",
+        "restricao_operacao_usinas_eolicas": "yyyy-mm-dd hh:mm:ss",
+        "custo_marginal_operacao_semi_horario": "yyyy-mm-dd hh:mm:ss",
+        "custo_marginal_operacao_semanal": "yyyy-mm-dd",
+        "balanco_energia_subsistemas": "yyyy-mm-dd hh:mm:ss",
+        "balanco_energia_subsistemas_dessem": "yyyy-mm-dd hh:mm:ss",
+        "custo_variavel_unitario_usinas_termicas": "yyyy-mm-dd",
+    }
+
+    if date_dict[table_id] == "yyyy-mm-dd hh:mm:ss":
+        query_bd = f""" SELECT
+        MAX(FORMAT_TIMESTAMP('%F %T', TIMESTAMP(CONCAT(data, ' ', hora)))) AS max_data_hora
+        FROM
+        `{billing_project_id}.{dataset_id}.{table_id}`
+        """
+
+        t = bd.read_sql(
+            query=query_bd,
+            billing_project_id=billing_project_id,
+            # from_file=True,
+        )
+
+        data = t["max_data_hora"][0]
+        data = pd.to_datetime(data, format="%Y-%m-%d %H:%M:%S")
+        # TODO: remover esse log, já presente na task
+        print(f"A data mais recente da tabela no BQ é {data}")
+
+    if (
+        date_dict[table_id] == "yyyy-mm-dd"
+        and table_id != "custo_variavel_unitario_usinas_termicas"
+    ):
+        query_bd = f"""
+        SELECT MAX(data) as max_date
+        FROM
+        `{billing_project_id}.{dataset_id}.{table_id}`
+        """
+
+        t = bd.read_sql(
+            query=query_bd,
+            billing_project_id=billing_project_id,
+            # from_file=True,
+        )
+
+        data = t["max_date"][0]
+
+        print(f"A data mais recente da tabela no BQ é {data}")
+
+    if (
+        date_dict[table_id] == "yyyy-mm-dd"
+        and table_id == "custo_variavel_unitario_usinas_termicas"
+    ):
+        query_bd = f"""
+        SELECT MAX(data_inicio) as max_date
+        FROM
+        `{billing_project_id}.{dataset_id}.{table_id}`
+        """
+
+        t = bd.read_sql(
+            query=query_bd,
+            billing_project_id=billing_project_id,
+            # from_file=True,
+        )
+
+        data = t["max_date"][0]
+
+        print(f"A data mais recente da tabela no BQ é {data}")
+
+    return data
 
 
 @task
@@ -58,27 +153,22 @@ def download_data(
     log("As urls foram recuperadas")
     tm.sleep(2)
     # usa dictionary comprehension para extrair data de cada link como key e link como item
-    # dicionario_data_url = {parse_year_or_year_month(url): url for url in url_list}
+    dicionario_data_url = {parse_year_or_year_month(url): url for url in url_list}
 
-    # so tirar essa etapa para subir dados históricos
-    # tupla_data_maxima_url = max(dicionario_data_url.items(), key=lambda x: x[0])
+    tupla_data_maxima_url = max(dicionario_data_url.items(), key=lambda x: x[0])
 
-    # data_maxima = tupla_data_maxima_url[0]
-    # link_data_maxima = tupla_data_maxima_url[1]
+    data_maxima = tupla_data_maxima_url[0]
+    link_data_maxima = tupla_data_maxima_url[1]
 
-    # log(f"A data máxima é: {data_maxima}")
-    # log(f"A tabela será baixada de {link_data_maxima}")
+    log(f"A data máxima é: {data_maxima}")
+    log(f"A tabela será baixada de {link_data_maxima}")
 
-    # download_data_final(
-    #    path=constants.PATH.value,
-    #    url=link_data_maxima,
-    #    table_name=table_name,
-    # )
-    dw(
+    download_data_final(
         path=constants.PATH.value,
-        url_list=url_list,
+        url=link_data_maxima,
         table_name=table_name,
     )
+
     log("O arquivo foi baixado!")
     tm.sleep(2)
 
@@ -86,6 +176,7 @@ def download_data(
 @task
 def wrang_data(
     table_name: str,
+    data_mais_recente_do_bq: str,
 ) -> pd.DataFrame:
     path_input = f"/tmp/br_ons_estimativa_custos/{table_name}/input"
     path_output = f"/tmp/br_ons_estimativa_custos/{table_name}/output"
@@ -116,6 +207,23 @@ def wrang_data(
 
             log("formatando data")
             df["data"] = pd.to_datetime(df["data"]).dt.date
+
+            log("extraindo a data mais recente da tabela")
+            data_tabela = extrai_data_recente(df=df, table_name=table_name)
+            log(f"A data mais da tabela baixada é: ---- {data_tabela}")
+            log(f"{type(data_tabela)}")
+            log(f"A data mais recente do BQ é: ---- {data_mais_recente_do_bq}")
+            log(f"{type(data_mais_recente_do_bq)}")
+
+            if data_tabela > data_mais_recente_do_bq:
+                log(
+                    "A data mais recente do arquivo é maior que a data mais recente do BQ"
+                )
+                log("O flow de atualização será inciado")
+            else:
+                log("A data mais recente do arquivo é igual a data mais recente do BQ")
+                log("O flow será terminado")
+                return False
 
             log("removendo acentos")
             df = remove_latin1_accents_from_df(df)
@@ -161,6 +269,23 @@ def wrang_data(
             )
             log("datas formatadas")
 
+            log("extraindo a data mais recente da tabela")
+            data_tabela = extrai_data_recente(df=df, table_name=table_name)
+            log(f"A data mais da tabela baixada é: ---- {data_tabela}")
+            log(f"{type(data_tabela)}")
+            log(f"A data mais recente do BQ é: ---- {data_mais_recente_do_bq}")
+            log(f"{type(data_mais_recente_do_bq)}")
+
+            if data_tabela > data_mais_recente_do_bq:
+                log(
+                    "A data mais recente do arquivo é maior que a data mais recente do BQ"
+                )
+                log("O flow de atualização será inciado")
+            else:
+                log("A data mais recente do arquivo é igual a data mais recente do BQ")
+                log("O flow será terminado")
+                return False
+
             df.rename(columns={"id_subsistena": "id_subsistema"}, inplace=True)
 
             log("criando colunas de ano e mes")
@@ -200,6 +325,23 @@ def wrang_data(
                 date_column="data_inicio",
             )
 
+            log("extraindo a data mais recente da tabela")
+            data_tabela = extrai_data_recente(df=df, table_name=table_name)
+            log(f"A data mais da tabela baixada é: ---- {data_tabela}")
+            log(f"{type(data_tabela)}")
+            log(f"A data mais recente do BQ é: ---- {data_mais_recente_do_bq}")
+            log(f"{type(data_mais_recente_do_bq)}")
+
+            if data_tabela > data_mais_recente_do_bq:
+                log(
+                    "A data mais recente do arquivo é maior que a data mais recente do BQ"
+                )
+                log("O flow de atualização será inciado")
+            else:
+                log("A data mais recente do arquivo é igual a data mais recente do BQ")
+                log("O flow será terminado")
+                return False
+
             log("odernando colunas")
             df = order_df(url=architecture_link, df=df)
 
@@ -227,19 +369,34 @@ def wrang_data(
             # rename cols
             df = change_columns_name(url=architecture_link, df=df)
 
+            log("datas formatadas")
             df = process_datetime_column(
                 df=df,
                 datetime_column="data",
             )
-
-            log(df["data"].head(5))
-            log("datas formatadas")
 
             log("criando colunas de ano e mes")
             df = process_date_column(
                 df=df,
                 date_column="data",
             )
+
+            log("extraindo a data mais recente da tabela")
+            data_tabela = extrai_data_recente(df=df, table_name=table_name)
+            log(f"A data mais da tabela baixada é: ---- {data_tabela}")
+            log(f"{type(data_tabela)}")
+            log(f"A data mais recente do BQ é: ---- {data_mais_recente_do_bq}")
+            log(f"{type(data_mais_recente_do_bq)}")
+
+            if data_tabela > data_mais_recente_do_bq:
+                log(
+                    "A data mais recente do arquivo é maior que a data mais recente do BQ"
+                )
+                log("O flow de atualização será inciado")
+            else:
+                log("A data mais recente do arquivo é igual a data mais recente do BQ")
+                log("O flow será terminado")
+                return False
 
             log("odernando colunas")
             df = order_df(url=architecture_link, df=df)
@@ -280,6 +437,23 @@ def wrang_data(
                 date_column="data",
             )
 
+            log("extraindo a data mais recente da tabela")
+            data_tabela = extrai_data_recente(df=df, table_name=table_name)
+            log(f"A data mais da tabela baixada é: ---- {data_tabela}")
+            log(f"{type(data_tabela)}")
+            log(f"A data mais recente do BQ é: ---- {data_mais_recente_do_bq}")
+            log(f"{type(data_mais_recente_do_bq)}")
+
+            if data_tabela > data_mais_recente_do_bq:
+                log(
+                    "A data mais recente do arquivo é maior que a data mais recente do BQ"
+                )
+                log("O flow de atualização será inciado")
+            else:
+                log("A data mais recente do arquivo é igual a data mais recente do BQ")
+                log("O flow será terminado")
+                return False
+
             log("odernando colunas")
             df = order_df(url=architecture_link, df=df)
 
@@ -290,4 +464,4 @@ def wrang_data(
 
             del df
 
-    return path_output
+    return True, path_output
