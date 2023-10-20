@@ -299,11 +299,11 @@ def wrang_data(
             )
 
             log("extraindo a data mais recente do BQ")
-            data = extrai_data_recente(df=df, table_name=table_name)
-            log(f"A data mais da tabela baixada é: ---- {data}")
+            data_tabela = extrai_data_recente(df=df, table_name=table_name)
+            log(f"A data mais da tabela baixada é: ---- {data_tabela}")
             log(f"A data mais recente do BQ é: ---- {data_mais_recente_do_bq}")
 
-            if data > data_mais_recente_do_bq:
+            if data_tabela > data_mais_recente_do_bq:
                 log(
                     "A data mais recente do arquivo é maior que a data mais recente do BQ"
                 )
