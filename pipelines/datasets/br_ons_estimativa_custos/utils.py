@@ -7,35 +7,30 @@ import os
 import re
 import time as tm
 import unicodedata
-from datetime import datetime
+from datetime import date, datetime
 from io import StringIO
-from typing import List
+from typing import List, Union
 
 import pandas as pd
 import requests
 import wget
 from bs4 import BeautifulSoup
 
+from pipelines.utils.utils import log
 
-def extrai_data_recente(df: pd.DataFrame, table_name: str):
-    """
-    Extracts the last update date of a given dataset table.
+
+def extrai_data_recente(df: pd.DataFrame, table_name: str) -> Union[datetime, date]:
+    """Essa função é utilizada durante a task wrang_data para extrair a data
+    mais recente da tabela baixada pela task download_data
 
     Args:
-        dataset_id (str): The ID of the dataset.
-        table_id (str): The ID of the table.
-        billing_project_id (str): The billing project ID.
+        df (pd.DataFrame): O df que está sendo tratado
+        table_name (str): nome da tabela (equivale ao table_id)
 
     Returns:
-        str: The last update date in the format 'yyyy-mm' or 'yyyy-mm-dd'.
-
-    Raises:
-        Exception: If an error occurs while extracting the last update date.
+        Union[datetime, date]: Retorna um objeto datetime ou date, a depender da tabela
     """
-
-    # if else para os casos
-    # ver em qual parte do corpo inserir
-
+    # dicionário que mapeia tabelas a seu formato de data
     date_dict = {
         "reservatorio": "yyyy-mm-dd",
         "geracao_usina": "yyyy-mm-dd hh:mm:ss",
@@ -72,34 +67,63 @@ def extrai_data_recente(df: pd.DataFrame, table_name: str):
     return data
 
 
-def parse_year_or_year_month(url: str) -> str:
-    # Extrai o ano e mês do link
+def parse_year_or_year_month(url: str) -> datetime:
+    """Extrai o ano e mês da URL de um arquivo do site do ONS
+
+    Args:
+        url (str): URL de arquivos do site do ONS
+
+    Returns:
+        datetime: retorna um objeto datetime com o ano ou ano e mês extraídos da URL
+    """
+
+    # extrai parte final da URL após o último "/"
     result = url.split("/")[-1].split(".")[-2]
+
+    # extrai possível ano
     element1 = result.split("_")[-2]
+    # extrai possível mes
     element2 = result.split("_")[-1]
+    # junta ambos numa lista
     element_list = [element1, element2]
-    print(element_list)
-
     elements = []
-    # uma elemento vazio ocupa espaço?
 
+    # funcionamento geral->
+    # checa se os elementos são ano ou mes
+    # o ano é sempre representado com 4 digitos
+    # o mês com 2
+    # logo se o comprimento for 4 e os caracteres digítos, é um ano
+    # se o comprimento for 2 e os caracteres digítos, é um mês
+    # se não for nenhum dos dois, não é um ano nem um mês
     for element in element_list:
         if len(element) == 4 and re.match(r"^\d+$", element):
-            print(f"O elemento -- {element} -- é provavelmente um -- ano --")
+            # log(f"O elemento -- {element} -- é provavelmente um -- ano --")
             elements.append(element)
         elif len(element) == 2 and re.match(r"^\d+$", element):
-            print(f"O elemento -- {element} -- é provavelmente um -- mês --")
+            # log(f"O elemento -- {element} -- é provavelmente um -- mês --")
             elements.append(element)
         else:
-            print(f"The element -- {element} -- is not a month nor a -- year --")
+            log(f"O elemento -- {element} -- não é um ano nem um mês")
 
+    log(elements)
     # se a lista elements tiver comprimento 1, então é um ano
+    # isto é, não foi identificado nenhum mês
     if len(elements) == 1:
         date = datetime.strptime(elements[0], "%Y")
-
     # se a lista elements tiver comprimento 2, então é um ano e mes
-    if len(elements) == 2:
+    # isto é, foi identificado um ano e mês
+    elif len(elements) == 2:
         date = datetime.strptime(elements[0] + "-" + elements[1], "%Y-%m")
+    # por vezes alguns arquivos aleatórios sem ano e mês são colocados no site do ONS
+    # isso garante que eles não vão ser escolhidos para atualização
+    # --------- Atenção: o flow vai quebrar se for usado para carregar dados históricos e existir um arquivo aleatório
+    # exemplo de arquivo aleatório em 18/10/2023: Redshift_Cargaverificada-teste_titulo na tabela energia_natural_afluente https://dados.ons.org.br/dataset/ena-diario-por-reservatorio
+    else:
+        log(
+            f"Durante a análise da URL {url} não foi possível identificar um mês ou ano. Como solução será atribuida uma data fictícia menor que a data máxima dos links corretos. Com isso, essa tabela não será selecionada para atualizar a base"
+        )
+        random_date = "1990-01-01"
+        date = datetime.strptime(random_date, "%Y-%m-%d")
 
     return date
 
@@ -136,11 +160,11 @@ def crawler_ons(
     return table_urls
 
 
-def download_data_final(
+def download_data(
     path: str,
     url: str,
     table_name: str,
-):
+) -> str:
     """A simple crawler to download data from ONS  website.
 
     Args:
@@ -159,28 +183,28 @@ def download_data_final(
     tm.sleep(1)
 
 
-def download_data(
-    path: str,
-    url_list: List[str],
-    table_name: str,
-):
-    """A simple crawler to download data from comex stat website.
+# def download_data(
+#    path: str,
+#    url_list: List[str],
+#    table_name: str,
+# ):
+#   """A simple crawler to download data from comex stat website.
+#
+#    Args:
+#        path (str): the path to store the data
+#        table_type (str): the table type is either ncm or mun. ncm stands for 'nomenclatura comum do mercosul' and
+#        mun for 'município'.
+#        table_name (str): the table name is the original name of the zip file with raw data from comex stat website
+#    """
+# selects a url given a table name
+#    for url in url_list:
+# log(f"Downloading data from {url}")
 
-    Args:
-        path (str): the path to store the data
-        table_type (str): the table type is either ncm or mun. ncm stands for 'nomenclatura comum do mercosul' and
-        mun for 'município'.
-        table_name (str): the table name is the original name of the zip file with raw data from comex stat website
-    """
-    # selects a url given a table name
-    for url in url_list:
-        # log(f"Downloading data from {url}")
-
-        # downloads the file and saves it
-        wget.download(url, out=path + table_name + "/input")
-        # just for precaution,
-        # sleep for 8 secs in between iterations
-        tm.sleep(8)
+# downloads the file and saves it
+#        wget.download(url, out=path + table_name + "/input")
+#        # just for precaution,
+#        # sleep for 8 secs in between iterations
+#        tm.sleep(8)
 
 
 def create_paths(

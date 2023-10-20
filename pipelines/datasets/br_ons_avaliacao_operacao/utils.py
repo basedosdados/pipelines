@@ -6,9 +6,9 @@ import os
 import re
 import time as tm
 import unicodedata
-from datetime import datetime
+from datetime import date, datetime
 from io import StringIO
-from typing import List
+from typing import List, Union
 
 import pandas as pd
 import requests
@@ -18,25 +18,18 @@ from bs4 import BeautifulSoup
 from pipelines.utils.utils import log
 
 
-def extrai_data_recente(df: pd.DataFrame, table_name: str):
-    """
-    Extracts the last update date of a given dataset table.
+def extrai_data_recente(df: pd.DataFrame, table_name: str) -> Union[datetime, date]:
+    """Essa função é utilizada durante a task wrang_data para extrair a data
+    mais recente da tabela baixada pela task download_data
 
     Args:
-        dataset_id (str): The ID of the dataset.
-        table_id (str): The ID of the table.
-        billing_project_id (str): The billing project ID.
+        df (pd.DataFrame): O df que está sendo tratado
+        table_name (str): nome da tabela (equivale ao table_id)
 
     Returns:
-        str: The last update date in the format 'yyyy-mm' or 'yyyy-mm-dd'.
-
-    Raises:
-        Exception: If an error occurs while extracting the last update date.
+        Union[datetime, date]: Retorna um objeto datetime ou date, a depender da tabela
     """
-
-    # if else para os casos
-    # ver em qual parte do corpo inserir
-
+    # dicionário que mapeia tabelas a seu formato de data
     date_dict = {
         "reservatorio": "yyyy-mm-dd",
         "geracao_usina": "yyyy-mm-dd hh:mm:ss",
@@ -51,7 +44,10 @@ def extrai_data_recente(df: pd.DataFrame, table_name: str):
         "custo_variavel_unitario_usinas_termicas": "yyyy-mm-dd",
     }
 
-    if date_dict[table_name] == "yyyy-mm-dd":
+    if (
+        date_dict[table_name] == "yyyy-mm-dd"
+        and table_name != "custo_variavel_unitario_usinas_termicas"
+    ):
         df["data"] = pd.to_datetime(df["data"], format="%Y-%m-%d").dt.date
         data = df["data"].max()
 
@@ -70,30 +66,16 @@ def extrai_data_recente(df: pd.DataFrame, table_name: str):
     return data
 
 
-def download_data_final(
-    path: str,
-    url: str,
-    table_name: str,
-):
-    """A simple crawler to download data from ONS  website.
+def parse_year_or_year_month(url: str) -> datetime:
+    """Extrai o ano e mês da URL de um arquivo do site do ONS
 
     Args:
-        path (str): the path to store the data
-        url (str): the table URL from ONS website.
-        table_name (str): the table name is the original name of the zip file with raw data from comex stat website
+        url (str): URL de arquivos do site do ONS
+
+    Returns:
+        datetime: retorna um objeto datetime com o ano ou ano e mês extraídos da URL
     """
-    # selects a url given a table name
 
-    # log(f"Downloading data from {url}")
-
-    # downloads the file and saves it
-    wget.download(url, out=path + table_name + "/input")
-    # just for precaution,
-    # sleep for 8 secs in between iterations
-    tm.sleep(1)
-
-
-def parse_year_or_year_month(url: str) -> str:
     # extrai parte final da URL após o último "/"
     result = url.split("/")[-1].split(".")[-2]
 
@@ -114,10 +96,10 @@ def parse_year_or_year_month(url: str) -> str:
     # se não for nenhum dos dois, não é um ano nem um mês
     for element in element_list:
         if len(element) == 4 and re.match(r"^\d+$", element):
-            log(f"O elemento -- {element} -- é provavelmente um -- ano --")
+            # log(f"O elemento -- {element} -- é provavelmente um -- ano --")
             elements.append(element)
         elif len(element) == 2 and re.match(r"^\d+$", element):
-            log(f"O elemento -- {element} -- é provavelmente um -- mês --")
+            # log(f"O elemento -- {element} -- é provavelmente um -- mês --")
             elements.append(element)
         else:
             log(f"O elemento -- {element} -- não é um ano nem um mês")
@@ -145,6 +127,29 @@ def parse_year_or_year_month(url: str) -> str:
     return date
 
 
+def download_data(
+    path: str,
+    url: str,
+    table_name: str,
+) -> str:
+    """A simple crawler to download data from ONS  website.
+
+    Args:
+        path (str): the path to store the data
+        url (str): the table URL from ONS website.
+        table_name (str): the table name is the original name of the zip file with raw data from comex stat website
+    """
+    # selects a url given a table name
+
+    # log(f"Downloading data from {url}")
+
+    # downloads the file and saves it
+    wget.download(url, out=path + table_name + "/input")
+    # just for precaution,
+    # sleep for 8 secs in between iterations
+    tm.sleep(1)
+
+
 def crawler_ons(
     url: str,
 ) -> List[str]:
@@ -170,33 +175,33 @@ def crawler_ons(
     # Extract the href attribute from the csv_links
     csv_urls = [link["href"] for link in csv_links]
     # Print the csv_urls
-    print(csv_urls)
+    # print(csv_urls)
 
     return csv_urls
 
 
-def download_data(
-    path: str,
-    url_list: List[str],
-    table_name: str,
-):
-    """A simple crawler to download data from comex stat website.
+# def download_data(
+#    path: str,
+#    url_list: List[str],
+#    table_name: str,
+# ):
+#   """A simple crawler to download data from comex stat website.
+#
+#    Args:
+#        path (str): the path to store the data
+#        table_type (str): the table type is either ncm or mun. ncm stands for 'nomenclatura comum do mercosul' and
+#        mun for 'município'.
+#        table_name (str): the table name is the original name of the zip file with raw data from comex stat website
+#    """
+# selects a url given a table name
+#    for url in url_list:
+# log(f"Downloading data from {url}")
 
-    Args:
-        path (str): the path to store the data
-        table_type (str): the table type is either ncm or mun. ncm stands for 'nomenclatura comum do mercosul' and
-        mun for 'município'.
-        table_name (str): the table name is the original name of the zip file with raw data from comex stat website
-    """
-    # selects a url given a table name
-    for url in url_list:
-        # log(f"Downloading data from {url}")
-
-        # downloads the file and saves it
-        wget.download(url, out=path + table_name + "/input")
-        # just for precaution,
-        # sleep for 8 secs in between iterations
-        tm.sleep(8)
+# downloads the file and saves it
+#        wget.download(url, out=path + table_name + "/input")
+#        # just for precaution,
+#        # sleep for 8 secs in between iterations
+#        tm.sleep(8)
 
 
 def create_paths(

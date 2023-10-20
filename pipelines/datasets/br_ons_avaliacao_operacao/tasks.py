@@ -309,7 +309,7 @@ def wrang_data(
             log(f"A data mais da tabela baixada é: ---- {data}")
             log(f"A data mais recente do BQ é: ---- {data_mais_recente_do_bq}")
 
-            if data < data_mais_recente_do_bq:
+            if data > data_mais_recente_do_bq:
                 log(
                     "A data mais recente do arquivo é maior que a data mais recente do BQ"
                 )
