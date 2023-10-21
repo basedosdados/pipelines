@@ -3,6 +3,8 @@
 Schedules for br_ons_estimativa_custos
 """
 
+from datetime import datetime
+
 from prefect.schedules import Schedule, adjustments, filters
 from prefect.schedules.clocks import CronClock
 
@@ -11,7 +13,8 @@ from pipelines.constants import constants
 schedule_br_ons_estimativa_custos_custo_marginal_operacao_semi_horario = Schedule(
     clocks=[
         CronClock(
-            cron="0 0 * * *",  # every day at midnight
+            cron="15 4 * * *",  # every day at 3h30 am
+            start_date=datetime(2023, 10, 24, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -32,7 +35,8 @@ schedule_br_ons_estimativa_custos_custo_marginal_operacao_semi_horario = Schedul
 schedule_br_ons_estimativa_custos_custo_marginal_operacao_semanal = Schedule(
     clocks=[
         CronClock(
-            cron="0 0 * * 1",  # every monday at midnight
+            cron="30 3 * * 1,5",  # every monday and friday at 3h30 am
+            start_date=datetime(2023, 10, 24, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -53,7 +57,8 @@ schedule_br_ons_estimativa_custos_custo_marginal_operacao_semanal = Schedule(
 schedule_br_ons_estimativa_custos_balanco_energia_subsistemas = Schedule(
     clocks=[
         CronClock(
-            cron="0 0 * * *",  # every day at midnight
+            cron="30 1 * * *",  # every day at 1H30 am
+            start_date=datetime(2023, 10, 24, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -74,7 +79,8 @@ schedule_br_ons_estimativa_custos_balanco_energia_subsistemas = Schedule(
 schedule_br_ons_estimativa_custos_balanco_energia_subsistemas_dessem = Schedule(
     clocks=[
         CronClock(
-            cron="0 0 * * *",  # every day at midnight
+            cron="45 0 * * *",  # every day at 0H45 am
+            start_date=datetime(2023, 10, 24, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -96,7 +102,8 @@ schedule_br_ons_estimativa_custos_balanco_energia_subsistemas_dessem = Schedule(
 schedule_br_ons_estimativa_custos_custo_variavel_unitario_usinas_termicas = Schedule(
     clocks=[
         CronClock(
-            cron="0 0 * * *",  # every day at midnight
+            cron="30 0 * * *",  # every day at 00h30 am
+            start_date=datetime(2023, 10, 24, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],

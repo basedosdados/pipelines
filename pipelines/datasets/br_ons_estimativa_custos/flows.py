@@ -51,7 +51,7 @@ with Flow(
     table_id = Parameter(
         "table_id", default="custo_marginal_operacao_semi_horario", required=True
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
@@ -157,7 +157,7 @@ with Flow(
     table_id = Parameter(
         "table_id", default="custo_marginal_operacao_semanal", required=True
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
@@ -264,7 +264,7 @@ with Flow(
     table_id = Parameter(
         "table_id", default="balanco_energia_subsistemas", required=True
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
@@ -371,7 +371,7 @@ with Flow(
     table_id = Parameter(
         "table_id", default="balanco_energia_subsistemas_dessem", required=True
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
@@ -379,7 +379,7 @@ with Flow(
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
@@ -478,7 +478,7 @@ with Flow(
     table_id = Parameter(
         "table_id", default="custo_variavel_unitario_usinas_termicas", required=True
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
@@ -486,7 +486,7 @@ with Flow(
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
