@@ -242,7 +242,7 @@ def wrang_data(
             else:
                 log("A data mais recente do arquivo é igual a data mais recente do BQ")
                 log("O flow será terminado")
-                return False
+                return False, False
 
             log("removendo acentos")
             df = remove_latin1_accents_from_df(df)

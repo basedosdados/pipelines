@@ -5,12 +5,6 @@ Constant values for the datasets projects
 
 from enum import Enum
 
-# todo geral
-# comentar melhors os logs das tasks
-# subir dados históricos pra dev
-# inserir e testar nova forma de atualizar o coverage
-# preencher metadados
-
 
 class constants(Enum):  # pylint: disable=c0103
     """
