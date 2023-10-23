@@ -78,7 +78,7 @@ with Flow(
 
     filepath = wrang_data(
         table_name=ons_constants.TABLE_NAME_LIST.value[0],
-        data_mais_recente_do_bq=data_mais_recente_do_bq[0],
+        data_mais_recente_do_bq=data_mais_recente_do_bq,
         upstream_tasks=[dow_data, data_mais_recente_do_bq],
     )
 
