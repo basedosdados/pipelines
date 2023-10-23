@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-Flows for br_stf_corte_aberta
+Flows for mundo_transfermarkt_competicoes_internacionais
 """
+
+
 from datetime import timedelta
 
 from prefect import Parameter, case
@@ -10,12 +12,20 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.datasets.br_stf_corte_aberta.schedules import every_day_stf
-from pipelines.datasets.br_stf_corte_aberta.tasks import (
+from pipelines.datasets.mundo_transfermarkt_competicoes_internacionais.constants import (
+    constants as mundo_constants,
+)
+from pipelines.datasets.mundo_transfermarkt_competicoes_internacionais.schedules import (
+    every_first_and_last_week,
+)
+from pipelines.datasets.mundo_transfermarkt_competicoes_internacionais.tasks import (
     check_for_updates,
-    download_and_transform,
+    execucao_coleta_sync,
+    get_max_data,
     make_partitions,
-    task_check_for_data,
+)
+from pipelines.datasets.mundo_transfermarkt_competicoes_internacionais.utils import (
+    execucao_coleta,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -28,10 +38,21 @@ from pipelines.utils.tasks import (
     rename_current_flow_run_dataset_table,
 )
 
-with Flow(name="br_stf_corte_aberta.decisoes", code_owners=["trick"]) as br_stf:
-    # Parameters
-    dataset_id = Parameter("dataset_id", default="br_stf_corte_aberta", required=True)
-    table_id = Parameter("table_id", default="decisoes", required=True)
+###############################################################################
+
+
+with Flow(
+    name="mundo_transfermarkt_competicoes_internacionais.champions_league",
+    code_owners=[
+        "Gabs",
+    ],
+) as transfermarkt_flow:
+    dataset_id = Parameter(
+        "dataset_id",
+        default="mundo_transfermarkt_competicoes_internacionais",
+        required=True,
+    )
+    table_id = Parameter("table_id", default="champions_league", required=True)
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -39,32 +60,31 @@ with Flow(name="br_stf_corte_aberta.decisoes", code_owners=["trick"]) as br_stf:
         "materialize_after_dump", default=True, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
-    update_metadata = Parameter("update_metadata", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
+    update_metadata = Parameter("update_metadata", default=True, required=False)
 
-    dados_desatualizados = check_for_updates(
-        dataset_id=dataset_id, table_id=table_id, upstream_tasks=[rename_flow_run]
-    )
+    dados_desatualizados = check_for_updates(dataset_id, table_id)
     log_task(f"Checando se os dados estão desatualizados: {dados_desatualizados}")
+
     with case(dados_desatualizados, False):
-        log_task(
-            "Dados atualizados, não é necessário fazer o download",
-            upstream_tasks=[dados_desatualizados, rename_flow_run],
-        )
+        log_task("Não há atualizações!")
+
     with case(dados_desatualizados, True):
-        df = download_and_transform(upstream_tasks=[rename_flow_run])
-        output_path = make_partitions(df=df, upstream_tasks=[df])
+        df = execucao_coleta_sync()
+        output_filepath = make_partitions(df, upstream_tasks=[df])
+        data_maxima = get_max_data(df, upstream_tasks=[df])
+
         wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=output_path,
+            data_path=output_filepath,
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
-            wait=output_path,
-            upstream_tasks=[output_path],
+            wait=output_filepath,
         )
+
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
             current_flow_labels = get_current_flow_labels()
@@ -78,9 +98,9 @@ with Flow(name="br_stf_corte_aberta.decisoes", code_owners=["trick"]) as br_stf:
                     "dbt_alias": dbt_alias,
                 },
                 labels=current_flow_labels,
-                run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks=[wait_upload_table],
+                run_name=r"Materialize {dataset_id}.{table_id}",
             )
+
             wait_for_materialization = wait_for_flow_run(
                 materialization_flow,
                 stream_states=True,
@@ -93,24 +113,23 @@ with Flow(name="br_stf_corte_aberta.decisoes", code_owners=["trick"]) as br_stf:
             wait_for_materialization.retry_delay = timedelta(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
-            get_max_date = task_check_for_data()
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id=table_id,
-                    metadata_type="DateTimeRange",
-                    bq_last_update=False,
-                    bq_table_last_year_month=False,
-                    # billing_project_id="basedosdados-dev",
-                    api_mode="prod",
-                    date_format="yy-mm-dd",
-                    is_bd_pro=True,
-                    _last_date=get_max_date,
-                    is_free=True,
-                    time_delta=6,
-                    time_unit="weeks",
-                    upstream_tasks=[wait_for_materialization],
-                )
-br_stf.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_stf.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_stf.schedule = every_day_stf
+
+            update_django_metadata(
+                dataset_id,
+                table_id,
+                metadata_type="DateTimeRange",
+                _last_date=data_maxima,
+                bq_table_last_year_month=False,
+                bq_last_update=False,
+                is_bd_pro=True,
+                is_free=True,
+                time_delta=6,
+                time_unit="months",
+                date_format="yy-mm-dd",
+                api_mode="prod",
+                upstream_tasks=[materialization_flow],
+            )
+
+transfermarkt_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+transfermarkt_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+transfermarkt_flow.schedule = every_first_and_last_week
