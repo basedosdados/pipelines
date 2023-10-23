@@ -303,7 +303,7 @@ def wrang_data(
             else:
                 log("A data mais recente do arquivo é igual a data mais recente do BQ")
                 log("O flow será terminado")
-                return False
+                return False, False
 
             df.rename(columns={"id_subsistena": "id_subsistema"}, inplace=True)
 
@@ -359,7 +359,7 @@ def wrang_data(
             else:
                 log("A data mais recente do arquivo é igual a data mais recente do BQ")
                 log("O flow será terminado")
-                return False
+                return False, False
 
             log("odernando colunas")
             df = order_df(url=architecture_link, df=df)
@@ -415,7 +415,7 @@ def wrang_data(
             else:
                 log("A data mais recente do arquivo é igual a data mais recente do BQ")
                 log("O flow será terminado")
-                return False
+                return False, False
 
             log("odernando colunas")
             df = order_df(url=architecture_link, df=df)
@@ -471,7 +471,7 @@ def wrang_data(
             else:
                 log("A data mais recente do arquivo é igual a data mais recente do BQ")
                 log("O flow será terminado")
-                return False
+                return False, False
 
             log("odernando colunas")
             df = order_df(url=architecture_link, df=df)
