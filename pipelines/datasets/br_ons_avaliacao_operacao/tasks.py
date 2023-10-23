@@ -142,7 +142,7 @@ def download_data(
     tm.sleep(2)
 
     if table_name == "reservatorio":
-        download_data(
+        dw(
             path=constants.PATH.value,
             url=url_list[0],
             table_name=table_name,

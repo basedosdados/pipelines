@@ -259,8 +259,7 @@ def get_columns_pattern_across_files(
     dict_columns = {}
 
     dir_files = os.listdir(files_folder_path)
-    # todo: add a check to ensure the file is a csv file
-    # todo: add a check to automatically detect the row with col names
+
     for file_name in dir_files:
         df = pd.read_csv(files_folder_path + "/" + file_name, nrows=20, sep=";")
         # get the column names
