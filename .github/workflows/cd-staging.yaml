@@ -3,7 +3,7 @@ name: Register flows (staging)
 on:
   pull_request:
     branches:
-      - master
+      - main
     paths:
       - ".github/workflows/cd_staging.yaml"
       - "pipelines/**/*"

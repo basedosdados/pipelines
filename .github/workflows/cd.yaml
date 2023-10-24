@@ -3,7 +3,7 @@ name: Register flows (production)
 on:
   push:
     branches:
-      - master
+      - main
     paths:
       - ".github/workflows/cd.yaml"
       - "pipelines/**/*"
