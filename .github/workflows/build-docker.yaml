@@ -3,7 +3,7 @@ name: Build Docker image
 on:
   push:
     branches:
-      - master
+      - main
     paths:
       - ".github/workflows/cd.yaml"
       - "pipelines/**/*"
@@ -11,7 +11,7 @@ on:
       - "Dockerfile"
   pull_request:
     branches:
-      - master
+      - main
     paths:
       - ".github/workflows/cd_staging.yaml"
       - "pipelines/**/*"
