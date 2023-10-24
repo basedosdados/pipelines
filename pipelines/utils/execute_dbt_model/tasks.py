@@ -46,7 +46,6 @@ def run_dbt_model(
     dbt_alias: bool,
     dbt_command: str,
     sync: bool = True,
-    vars: dict = None,
 ):
     """
     Run a DBT model.
