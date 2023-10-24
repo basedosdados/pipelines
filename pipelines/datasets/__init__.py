@@ -19,6 +19,7 @@ from pipelines.datasets.br_bcb_taxa_selic.flows import *
 from pipelines.datasets.br_bd_indicadores.flows import *
 from pipelines.datasets.br_bd_metadados.flows import *
 from pipelines.datasets.br_cgu_pessoal_executivo_federal.flows import *
+from pipelines.datasets.br_cgu_servidores_executivo_federal.flows import *
 from pipelines.datasets.br_cvm_administradores_carteira.flows import *
 from pipelines.datasets.br_cvm_fi.flows import *
 from pipelines.datasets.br_cvm_oferta_publica_distribuicao.flows import *
