@@ -62,7 +62,7 @@ def run_dbt_model(
             logs=True,
         )
         for event in logs_dict["result"]["logs"]:
-            if event["levelname"] == "INFO":
+            if event["levelname"] in ("INFO", "WARN"):
                 log(event["message"])
             if event["levelname"] == "DEBUG":
                 if "On model" in event["message"]:
@@ -75,7 +75,7 @@ def run_dbt_model(
             logs=True,
         )
         for event in logs_dict["result"]["logs"]:
-            if event["levelname"] == "INFO":
+            if event["levelname"] in ("INFO", "WARN"):
                 log(event["message"])
             if event["levelname"] == "DEBUG":
                 if "On model" in event["message"]:
