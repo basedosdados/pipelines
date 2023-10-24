@@ -195,7 +195,7 @@ def notify_discord_on_failure(
     """
     url = get_vault_secret(secret_path)["data"]["url"]
     flow_run_id = prefect.context.get("flow_run_id")
-    flow_project = prefect.context.get("project").get("name")
+    flow_project = prefect.context.get("project", {}).get("name")
     code_owners = code_owners or constants.DEFAULT_CODE_OWNERS.value
     code_owner_dict = constants.OWNERS_DISCORD_MENTIONS.value
 
