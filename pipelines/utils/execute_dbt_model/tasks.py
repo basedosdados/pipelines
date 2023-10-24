@@ -4,8 +4,8 @@ Tasks related to DBT flows.
 """
 # pylint: disable=unused-argument
 
-from datetime import timedelta
 import json
+from datetime import timedelta
 
 from dbt_client import DbtClient
 from prefect import task
@@ -46,7 +46,7 @@ def run_dbt_model(
     dbt_alias: bool,
     dbt_command: str,
     sync: bool = True,
-    vars: dict = None
+    vars: dict = None,
 ):
     """
     Run a DBT model.
@@ -64,7 +64,7 @@ def run_dbt_model(
             logs=True,
         )
         for event in logs_dict["result"]["logs"]:
-            if event["levelname"] in ("INFO","WARN"):
+            if event["levelname"] in ("INFO", "WARN"):
                 log(event["message"])
             if event["levelname"] == "DEBUG":
                 if "On model" in event["message"]:
@@ -77,7 +77,7 @@ def run_dbt_model(
             logs=True,
         )
         for event in logs_dict["result"]["logs"]:
-            if event["levelname"] in ("INFO","WARN"):
+            if event["levelname"] in ("INFO", "WARN"):
                 log(event["message"])
             if event["levelname"] == "DEBUG":
                 if "On model" in event["message"]:
