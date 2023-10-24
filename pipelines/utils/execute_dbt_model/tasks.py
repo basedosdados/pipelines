@@ -4,7 +4,6 @@ Tasks related to DBT flows.
 """
 # pylint: disable=unused-argument
 
-import json
 from datetime import timedelta
 
 from dbt_client import DbtClient
