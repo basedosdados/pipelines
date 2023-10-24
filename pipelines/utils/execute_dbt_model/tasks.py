@@ -56,16 +56,10 @@ def run_dbt_model(
 
     if dbt_alias:
         table_id = f"{dataset_id}__{table_id}"
-    
-    vars_command = ''
-
-    if vars:
-        vars_command = f" --vars '{json.dumps(vars)}'"
-    
 
     if "run" in dbt_command:
         logs_dict = dbt_client.cli(
-            f"run --models {dataset_id}.{table_id}{vars_command}",
+            f"run --models {dataset_id}.{table_id}",
             sync=sync,
             logs=True,
         )
