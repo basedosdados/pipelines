@@ -131,33 +131,26 @@ def parse_year_or_year_month(url: str) -> datetime:
 def crawler_ons(
     url: str,
 ) -> List[str]:
-    """this function extract all download links from bcb agencias website
+    """this function extract all download links from ONS  website
     Args:
         url (str): bcb url https://www.bcb.gov.br/fis/info/agencias.asp?frame=1
 
     Returns:
         list: a list of file links
     """
-    # Send a GET request to the URL
     response = requests.get(url)
 
-    # Parse the HTML content of the response using lxml
     html = response.text
 
-    # Parse the HTML code
     soup = BeautifulSoup(html, "html.parser")
 
-    # Find all 'a' elements with href containing ".csv"
     csv_links = soup.find_all("a", href=lambda href: href and href.endswith(".csv"))
 
-    # Extract the href attribute from the csv_links
-    table_urls = [link["href"] for link in csv_links]
-    # table_names = [name["a"] for name in table_urls]
+    csv_urls = [link["href"] for link in csv_links]
+    # Filtra valores únicos
+    csv_urls = list(set(csv_urls))
 
-    # Print the csv_urls
-    print(table_urls)
-    # print(table_names)
-    return table_urls
+    return csv_urls
 
 
 def download_data(
@@ -165,16 +158,13 @@ def download_data(
     url: str,
     table_name: str,
 ) -> str:
-    """A simple crawler to download data from ONS  website.
+    """A simple function to download data from ONS  website.
 
     Args:
         path (str): the path to store the data
         url (str): the table URL from ONS website.
-        table_name (str): the table name is the original name of the zip file with raw data from comex stat website
+        table_name (str): the table name
     """
-    # selects a url given a table name
-
-    # log(f"Downloading data from {url}")
 
     # downloads the file and saves it
     wget.download(url, out=path + table_name + "/input")
