@@ -319,10 +319,6 @@ def change_columns_name(df: pd.DataFrame, url: str) -> pd.DataFrame:
         # Cria um dicionário de nomes de colunas e tipos de dados a partir do dataframe df_architecture
         # column_name_dict = df_architecture.set_index("original_name")["name"].to_dict()
 
-        # ex. caso seja preciso criar uma nova coluna que nao
-        # existe na arquitetura ex. criar colunas ano e mes a
-        # partir de uma data. Esse check evita que a coluna criada
-        # seja renomeada com um valor nulo
         for key, value in my_dict.items():
             if value:  # Check if value is not empty
                 df.rename(columns={key: value}, inplace=True)
@@ -337,14 +333,12 @@ def change_columns_name(df: pd.DataFrame, url: str) -> pd.DataFrame:
 
 
 def process_date_column(df: pd.DataFrame, date_column: str) -> pd.DataFrame:
-    # Check if all observations are in the 'YYYY-MM-DD' format
+    # Verifica se todas as observações estão no formato 'AAAA-MM-DD'
     is_valid_format = pd.to_datetime(df[date_column], errors="coerce").notna().all()
 
-    # Raise an ValueError if not
     if not is_valid_format:
         raise ValueError("Not all date observations are in the 'YYYY-MM-DD' format.")
 
-    # Create year and month columns
     df["ano"] = pd.to_datetime(df[date_column]).dt.year
     df["mes"] = pd.to_datetime(df[date_column]).dt.month
 

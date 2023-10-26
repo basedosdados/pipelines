@@ -68,7 +68,7 @@ with Flow(
         table_id=table_id,
         dataset_id=dataset_id,
         # vai ser retirado  virar from file
-        billing_project_id="basedosdados-dev",
+        billing_project_id="basedosdados",
     )
 
     dow_data = download_data(
@@ -174,7 +174,7 @@ with Flow(
         table_id=table_id,
         dataset_id=dataset_id,
         # vai ser retirado  virar from file
-        billing_project_id="basedosdados-dev",
+        billing_project_id="basedosdados",
     )
 
     dow_data = download_data(
@@ -281,7 +281,7 @@ with Flow(
         table_id=table_id,
         dataset_id=dataset_id,
         # vai ser retirado  virar from file
-        billing_project_id="basedosdados-dev",
+        billing_project_id="basedosdados",
     )
 
     dow_data = download_data(
@@ -389,7 +389,7 @@ with Flow(
         table_id=table_id,
         dataset_id=dataset_id,
         # vai ser retirado  virar from file
-        billing_project_id="basedosdados-dev",
+        billing_project_id="basedosdados",
     )
 
     dow_data = download_data(
@@ -496,7 +496,7 @@ with Flow(
         table_id=table_id,
         dataset_id=dataset_id,
         # vai ser retirado  virar from file
-        billing_project_id="basedosdados-dev",
+        billing_project_id="basedosdados",
     )
 
     dow_data = download_data(
