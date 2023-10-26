@@ -4,7 +4,6 @@ Tasks for mundo_transfermarkt_competicoes_internacionais
 """
 
 ###############################################################################
-
 import asyncio
 
 import numpy as np
@@ -24,10 +23,10 @@ from pipelines.utils.utils import extract_last_date, log, to_partitions
 @task
 def check_for_updates(dataset_id, table_id):
     """
-    Checks if there are available updates for a specific dataset and table.
+    Verifica se existem atualizações disponíveis para um conjunto de dados e tabela específicos.
 
-    Returns:
-        bool: Returns True if updates are available, otherwise returns False.
+    Retorna:
+        bool: Retorna True se houverem atualizações disponíveis, caso contrário retorna False.
     """
     # Obtém a data mais recente do site
     data_obj = data_url().strftime("%Y-%m-%d")
@@ -50,6 +49,9 @@ def check_for_updates(dataset_id, table_id):
 
 @task
 def execucao_coleta_sync():
+    """
+    Execução síncrona da tarefa de coleta de dados.
+    """
     # Obter o loop de eventos atual e executar a tarefa nele
     loop = asyncio.get_event_loop()
     df = loop.run_until_complete(execucao_coleta())
@@ -59,6 +61,15 @@ def execucao_coleta_sync():
 
 @task
 def make_partitions(df):
+    """
+    Particiona os dados pela coluna 'temporada' e os salva no local especificado.
+
+    Args:
+        df (pandas.DataFrame): O DataFrame contendo uma coluna 'temporada'.
+
+    Returns:
+        str: O caminho onde os dados foram particionados.
+    """
     log("Particionando os dados...")
     df["temporada"] = df["temporada"].astype(str)
     to_partitions(
@@ -72,6 +83,15 @@ def make_partitions(df):
 
 @task
 def get_max_data(df):
+    """
+    Obtém a data máxima da coluna 'data' no DataFrame e a registra.
+
+    Args:
+        df (pandas.DataFrame): O DataFrame contendo a coluna 'data'.
+
+    Returns:
+        str: A data máxima no formato 'AAAA-MM-DD'.
+    """
     df["data"] = pd.to_datetime(df["data"]).dt.date
     max_data = df["data"].max().strftime("%Y-%m-%d")
     log(max_data)
