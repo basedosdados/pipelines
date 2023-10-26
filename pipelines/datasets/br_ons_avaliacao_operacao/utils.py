@@ -1,69 +1,200 @@
 # -*- coding: utf-8 -*-
-
+"""
+General purpose functions for the br_ons_avaliacao_operacao project
+"""
 import os
+import re
 import time as tm
 import unicodedata
+from datetime import date, datetime
 from io import StringIO
-from typing import List
+from typing import List, Union
 
 import pandas as pd
 import requests
 import wget
 from bs4 import BeautifulSoup
 
+from pipelines.utils.utils import log
+
+
+def extrai_data_recente(df: pd.DataFrame, table_name: str) -> Union[datetime, date]:
+    """Essa função é utilizada durante a task wrang_data para extrair a data
+    mais recente da tabela baixada pela task download_data
+
+    Args:
+        df (pd.DataFrame): O df que está sendo tratado
+        table_name (str): nome da tabela (equivale ao table_id)
+
+    Returns:
+        Union[datetime, date]: Retorna um objeto datetime ou date, a depender da tabela
+    """
+    # dicionário que mapeia tabelas a seu formato de data
+    date_dict = {
+        "reservatorio": "yyyy-mm-dd",
+        "geracao_usina": "yyyy-mm-dd hh:mm:ss",
+        "geracao_termica_motivo_despacho": "yyyy-mm-dd hh:mm:ss",
+        "energia_natural_afluente": "yyyy-mm-dd",
+        "energia_armazenada_reservatorio": "yyyy-mm-dd",
+        "restricao_operacao_usinas_eolicas": "yyyy-mm-dd hh:mm:ss",
+        "custo_marginal_operacao_semi_horario": "yyyy-mm-dd hh:mm:ss",
+        "custo_marginal_operacao_semanal": "yyyy-mm-dd",
+        "balanco_energia_subsistemas": "yyyy-mm-dd hh:mm:ss",
+        "balanco_energia_subsistemas_dessem": "yyyy-mm-dd hh:mm:ss",
+        "custo_variavel_unitario_usinas_termicas": "yyyy-mm-dd",
+    }
+
+    if (
+        date_dict[table_name] == "yyyy-mm-dd"
+        and table_name != "custo_variavel_unitario_usinas_termicas"
+    ):
+        df["data"] = pd.to_datetime(df["data"], format="%Y-%m-%d").dt.date
+        data = df["data"].max()
+
+    if date_dict[table_name] == "yyyy-mm-dd hh:mm:ss":
+        df["data_hora"] = df["data"] + " " + df["hora"]
+        df["data_hora"] = pd.to_datetime(df["data_hora"], format="%Y-%m-%d %H:%M:%S")
+        data = df["data_hora"].max()
+
+    if (
+        date_dict[table_name] == "yyyy-mm-dd"
+        and table_name == "custo_variavel_unitario_usinas_termicas"
+    ):
+        df["data_inicio"] = pd.to_datetime(df["data_inicio"], format="%Y-%m-%d").dt.date
+        data = df["data_inicio"].max()
+
+    return data
+
+
+def parse_year_or_year_month(url: str) -> datetime:
+    """Extrai o ano e mês da URL de um arquivo do site do ONS
+
+    Args:
+        url (str): URL de arquivos do site do ONS
+
+    Returns:
+        datetime: retorna um objeto datetime com o ano ou ano e mês extraídos da URL
+    """
+
+    # extrai parte final da URL após o último "/"
+    result = url.split("/")[-1].split(".")[-2]
+
+    # extrai possível ano
+    element1 = result.split("_")[-2]
+    # extrai possível mes
+    element2 = result.split("_")[-1]
+    # junta ambos numa lista
+    element_list = [element1, element2]
+    elements = []
+
+    # funcionamento geral->
+    # checa se os elementos são ano ou mes
+    # o ano é sempre representado com 4 digitos
+    # o mês com 2
+    # logo se o comprimento for 4 e os caracteres digítos, é um ano
+    # se o comprimento for 2 e os caracteres digítos, é um mês
+    # se não for nenhum dos dois, não é um ano nem um mês
+    for element in element_list:
+        if len(element) == 4 and re.match(r"^\d+$", element):
+            # log(f"O elemento -- {element} -- é provavelmente um -- ano --")
+            elements.append(element)
+        elif len(element) == 2 and re.match(r"^\d+$", element):
+            # log(f"O elemento -- {element} -- é provavelmente um -- mês --")
+            elements.append(element)
+        else:
+            log(f"O elemento -- {element} -- não é um ano nem um mês")
+
+    log(elements)
+    # se a lista elements tiver comprimento 1, então é um ano
+    # isto é, não foi identificado nenhum mês
+    if len(elements) == 1:
+        date = datetime.strptime(elements[0], "%Y")
+    # se a lista elements tiver comprimento 2, então é um ano e mes
+    # isto é, foi identificado um ano e mês
+    elif len(elements) == 2:
+        date = datetime.strptime(elements[0] + "-" + elements[1], "%Y-%m")
+    # por vezes alguns arquivos aleatórios sem ano e mês são colocados no site do ONS
+    # isso garante que eles não vão ser escolhidos para atualização
+    # --------- Atenção: o flow vai quebrar se for usado para carregar dados históricos e existir um arquivo aleatório
+    # exemplo de arquivo aleatório em 18/10/2023: Redshift_Cargaverificada-teste_titulo na tabela energia_natural_afluente https://dados.ons.org.br/dataset/ena-diario-por-reservatorio
+    else:
+        log(
+            f"Durante a análise da URL {url} não foi possível identificar um mês ou ano. Como solução será atribuida uma data fictícia menor que a data máxima dos links corretos. Com isso, essa tabela não será selecionada para atualizar a base"
+        )
+        random_date = "1990-01-01"
+        date = datetime.strptime(random_date, "%Y-%m-%d")
+
+    return date
+
+
+def download_data(
+    path: str,
+    url: str,
+    table_name: str,
+) -> str:
+    """A simple crawler to download data from ONS  website.
+
+    Args:
+        path (str): the path to store the data
+        url (str): the table URL from ONS website.
+        table_name (str): the table name is the original name
+    """
+    # selects a url given a table name
+
+    # downloads the file and saves it
+    wget.download(url, out=path + table_name + "/input")
+    # just for precaution,
+    # sleep for 8 secs in between iterations
+    tm.sleep(1)
+
 
 def crawler_ons(
     url: str,
 ) -> List[str]:
-    """this function extract all download links from bcb agencias website
+    """this function extract all download links from ONS  website
     Args:
         url (str): bcb url https://www.bcb.gov.br/fis/info/agencias.asp?frame=1
 
     Returns:
         list: a list of file links
     """
-    # Send a GET request to the URL
     response = requests.get(url)
 
-    # Parse the HTML content of the response using lxml
     html = response.text
 
-    # Parse the HTML code
     soup = BeautifulSoup(html, "html.parser")
 
-    # Find all 'a' elements with href containing ".csv"
     csv_links = soup.find_all("a", href=lambda href: href and href.endswith(".csv"))
 
-    # Extract the href attribute from the csv_links
     csv_urls = [link["href"] for link in csv_links]
-    # Print the csv_urls
-    print(csv_urls)
+    # Filtra valores únicos
+    csv_urls = list(set(csv_urls))
 
     return csv_urls
 
 
-def download_data(
-    path: str,
-    url_list: List[str],
-    table_name: str,
-):
-    """A simple crawler to download data from comex stat website.
+# def download_data(
+#    path: str,
+#    url_list: List[str],
+#    table_name: str,
+# ):
+#   """A simple crawler to download data from comex stat website.
+#
+#    Args:
+#        path (str): the path to store the data
+#        table_type (str): the table type is either ncm or mun. ncm stands for 'nomenclatura comum do mercosul' and
+#        mun for 'município'.
+#        table_name (str): the table name is the original name of the zip file with raw data from comex stat website
+#    """
+# selects a url given a table name
+#    for url in url_list:
+# log(f"Downloading data from {url}")
 
-    Args:
-        path (str): the path to store the data
-        table_type (str): the table type is either ncm or mun. ncm stands for 'nomenclatura comum do mercosul' and
-        mun for 'município'.
-        table_name (str): the table name is the original name of the zip file with raw data from comex stat website
-    """
-    # selects a url given a table name
-    for url in url_list:
-        # log(f"Downloading data from {url}")
-
-        # downloads the file and saves it
-        wget.download(url, out=path + table_name + "/input")
-        # just for precaution,
-        # sleep for 8 secs in between iterations
-        tm.sleep(8)
+# downloads the file and saves it
+#        wget.download(url, out=path + table_name + "/input")
+#        # just for precaution,
+#        # sleep for 8 secs in between iterations
+#        tm.sleep(8)
 
 
 def create_paths(
@@ -121,8 +252,7 @@ def get_columns_pattern_across_files(
     dict_columns = {}
 
     dir_files = os.listdir(files_folder_path)
-    # todo: add a check to ensure the file is a csv file
-    # todo: add a check to automatically detect the row with col names
+
     for file_name in dir_files:
         df = pd.read_csv(files_folder_path + "/" + file_name, nrows=20, sep=";")
         # get the column names
@@ -189,46 +319,26 @@ def change_columns_name(df: pd.DataFrame, url: str) -> pd.DataFrame:
         # Cria um dicionário de nomes de colunas e tipos de dados a partir do dataframe df_architecture
         # column_name_dict = df_architecture.set_index("original_name")["name"].to_dict()
 
-        # ex. caso seja preciso criar uma nova coluna que nao
-        # existe na arquitetura ex. criar colunas ano e mes a
-        # partir de uma data. Esse check evita que a coluna criada
-        # seja renomeada com um valor nulo
         for key, value in my_dict.items():
             if value:  # Check if value is not empty
                 df.rename(columns={key: value}, inplace=True)
 
         print("cols renamed")
         print(df.columns)
-        # Verifica se há colunas em df que não estão presentes em df[list(column_name_dict.values())]
-        # todo: check para ver se a coluna existe na arquitetura e nao no df
-        # o contrario não faz sentido, pq eventualemnte preciso dropar colunas que estao nao dado original e
-        # nao serao mantidas
-
-        # Reordena colunas
-        # ordem_colunas = list(my_dict.values())
-        # print('col order')
-        # print(ordem_colunas)
-        # df = df[ordem_colunas]
-        # print('3 cols reordered')
-        # print(df.columns)
-        # print('Columns reordered')
 
     except Exception as e:
-        # Handle any exceptions that occur during the process
         print(f"Algum erro ocorreu: {str(e)}")
 
     return df
 
 
 def process_date_column(df: pd.DataFrame, date_column: str) -> pd.DataFrame:
-    # Check if all observations are in the 'YYYY-MM-DD' format
+    # Verifica se todas as observações estão no formato 'AAAA-MM-DD'
     is_valid_format = pd.to_datetime(df[date_column], errors="coerce").notna().all()
 
-    # Raise an ValueError if not
     if not is_valid_format:
         raise ValueError("Not all date observations are in the 'YYYY-MM-DD' format.")
 
-    # Create year and month columns
     df["ano"] = pd.to_datetime(df[date_column]).dt.year
     df["mes"] = pd.to_datetime(df[date_column]).dt.month
 
