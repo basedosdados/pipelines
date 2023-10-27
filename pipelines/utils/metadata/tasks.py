@@ -12,6 +12,7 @@ from pipelines.utils.metadata.utils import (
     create_update,
     extract_last_date,
     extract_last_update,
+    get_coverage_value,
     get_credentials_utils,
     get_first_date,
     get_id,
@@ -544,3 +545,62 @@ def test_ids(dataset_id, table_id, api_mode="staging", is_bd_pro=True, is_free=F
     )
 
     log(f"ids ->> ->> {ids}")
+
+
+# 1. task que usa API para extrair o coverage que deve ser atualizado
+# covereages: bdpro; bdfree; bdpro bdfree
+@task
+def parse_coverage(
+    dataset_id: str,
+    table_id: str,
+    date_format: str = "yy-mm-dd",
+    api_mode: str = "prod",
+) -> str:
+    # check if date_format is valid
+    accepted_date_format = ["yy-mm-dd", "yy-mm", "yy"]
+    if date_format not in accepted_date_format:
+        raise ValueError(
+            f"The date_format {date_format} is not supported. Please choose between {accepted_date_format}"
+        )
+
+    # Collect credentials_utils
+    (email, password) = get_credentials_utils(secret_path=f"api_user_{api_mode}")
+
+    # collect all table coverages for the given table id
+    coverages = get_coverage_value(
+        dataset_id,
+        table_id,
+        date_format,
+        email,
+        password,
+        api_mode,
+    )
+    # parse coverages
+
+    log(f"COVERAGES DICT:{coverages}")
+
+    # set the date_format
+    date_format = date_format
+
+    date_format_mapping = {"yy-mm-dd": "%Y-%m-%d", "yy-mm": "%Y-%m", "yy": "%Y"}
+
+    # get the date_format_string
+    date_format_string = date_format_mapping.get(date_format)
+    log(f"DATE FORMAT STRING:{date_format_string}")
+    # Convert the date strings to date objects
+    date_objects = {}
+    for key, date_string in coverages.items():
+        date_objects[key] = datetime.strptime(date_string, date_format_string)
+
+    # Compare the date objects, return the most recent date and format it
+    max_date_key = max(date_objects, key=date_objects.get)
+    max_date_value = date_objects[max_date_key].strftime(date_format_string)
+
+    log(
+        f"The Most recent date for the {table_id} in the prod API is ----> {max_date_value}"
+    )
+
+    return max_date_value
+
+
+#
