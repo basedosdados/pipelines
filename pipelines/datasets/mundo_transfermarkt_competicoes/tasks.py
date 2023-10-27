@@ -7,6 +7,7 @@ import asyncio
 
 import numpy as np
 import pandas as pd
+from pandas import DataFrame
 from prefect import task
 
 ###############################################################################
@@ -21,7 +22,7 @@ from pipelines.utils.utils import log, to_partitions
 
 
 @task
-def execucao_coleta_sync(tabela):
+def execucao_coleta_sync(tabela: str) -> pd.DataFrame:
     """
     Executa a coleta de dados de uma tabela especificada de forma síncrona.
 
@@ -42,7 +43,7 @@ def execucao_coleta_sync(tabela):
 
 
 @task
-def make_partitions(df):
+def make_partitions(df: DataFrame) -> str:
     """
     Essa função adiciona uma coluna 'ano_campeonato' como string ao DataFrame 'df',
     particiona os dados com base nessa coluna e salva as partições em um diretório especificado.
@@ -65,7 +66,7 @@ def make_partitions(df):
 
 
 @task
-def get_max_data(file_path):
+def get_max_data(file_path: str) -> str:
     """
     Obtém a data máxima a partir de um arquivo de dados.
 

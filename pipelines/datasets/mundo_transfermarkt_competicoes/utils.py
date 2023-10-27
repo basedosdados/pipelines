@@ -165,25 +165,41 @@ def process_basico(df, content):
         )
         .group(0)
         .split(": ", 1)[1],
+        # Extrai os gols no 1 tempo mandante no HTML.
         "hthg": content.find_all("div", attrs={"class": "sb-halbzeit"})[0]
         .get_text()
         .split(":", 1)[0],
+        # Extrai os gols no 1 tempo visitante no HTML.
         "htag": content.find_all("div", attrs={"class": "sb-halbzeit"})[0]
         .get_text()
         .split(":", 1)[1],
+        # Extrai chute mandante no HTML.
         "hs": None,
+        # Extrai chute visitante no HTML.
         "as": None,
+        # Extrai chutes fora mandante no HTML.
         "hsofft": None,
+        # Extrai chutes fora visitante no HTML.
         "asofft": None,
+        # Extrai defesa mandante no HTML.
         "hdef": None,
+        # Extrai defesa visitante no HTML.
         "adef": None,
+        # Extrai faltas mandante no HTML.
         "hf": None,
+        # Extrai faltas visitante no HTML.
         "af": None,
+        # Extrai escanteios mandante no HTML.
         "hc": None,
+        # Extrai escanteios visitante no HTML.
         "ac": None,
+        # Extrai impedimentos mandante no HTML.
         "himp": None,
+        # Extrai impedimentos visitante no HTML.
         "aimp": None,
+        # Extrai chutes bola parada mandante no HTML.
         "hfk": None,
+        # Extrai chutes bola parada visitante no HTML.
         "afk": None,
     }
     df = pd.concat([df, pd.DataFrame([new_content])], ignore_index=True)

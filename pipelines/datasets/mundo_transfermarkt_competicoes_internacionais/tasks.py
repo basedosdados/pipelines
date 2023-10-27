@@ -8,6 +8,7 @@ import asyncio
 
 import numpy as np
 import pandas as pd
+from pandas import DataFrame
 from prefect import task
 
 from pipelines.datasets.mundo_transfermarkt_competicoes_internacionais.constants import (
@@ -21,7 +22,7 @@ from pipelines.utils.utils import extract_last_date, log, to_partitions
 
 
 @task
-def check_for_updates(dataset_id, table_id):
+def check_for_updates(dataset_id: str, table_id: str) -> bool:
     """
     Verifica se existem atualizações disponíveis para um conjunto de dados e tabela específicos.
 
@@ -60,7 +61,7 @@ def execucao_coleta_sync():
 
 
 @task
-def make_partitions(df):
+def make_partitions(df: DataFrame) -> str:
     """
     Particiona os dados pela coluna 'temporada' e os salva no local especificado.
 
@@ -82,7 +83,7 @@ def make_partitions(df):
 
 
 @task
-def get_max_data(df):
+def get_max_data(df: DataFrame) -> str:
     """
     Obtém a data máxima da coluna 'data' no DataFrame e a registra.
 
