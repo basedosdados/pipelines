@@ -199,9 +199,6 @@ def notify_discord_on_failure(
     code_owners = code_owners or constants.DEFAULT_CODE_OWNERS.value
     code_owner_dict = constants.OWNERS_DISCORD_MENTIONS.value
 
-    if flow_project != "main":
-        return
-
     at_code_owners = []
     for code_owner in code_owners:
         code_owner_id = code_owner_dict[code_owner]["user_id"]
