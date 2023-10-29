@@ -106,6 +106,7 @@ def treat_uf_tipo(file: str) -> pl.DataFrame:
     )  # Now we get all the actual RELEVANT uf data.
     month, year = get_year_month_from_filename(filename)
     # If the df is all strings, try to get numbers where it makes sense.
+    clean_df.replace(" -   ", 0, inplace=True)
     if all(clean_df.dtypes == "object"):
         clean_df = clean_df.apply(pd.to_numeric, errors="ignore")
     clean_pl_df = pl.from_pandas(clean_df).lazy()
