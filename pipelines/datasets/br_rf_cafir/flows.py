@@ -14,7 +14,7 @@ from pipelines.constants import constants
 from pipelines.datasets.br_rf_cafir.constants import constants as br_rf_cafir_constants
 from pipelines.datasets.br_rf_cafir.schedules import schedule_br_rf_cafir_imoveis_rurais
 from pipelines.datasets.br_rf_cafir.tasks import (
-    check_if_bq_data_is_outdated,
+    check_if_data_is_outdated,
     convert_datetime_to_string,
     parse_data,
     parse_files_parse_date,
@@ -22,7 +22,7 @@ from pipelines.datasets.br_rf_cafir.tasks import (
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.metadata.tasks import update_django_metadata
+from pipelines.utils.metadata.tasks import parse_coverage, update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
@@ -52,8 +52,17 @@ with Flow(
     info = parse_files_parse_date(url=br_rf_cafir_constants.URL.value[0])
     log_task("Checando se os dados estão desatualizados")
 
-    is_outdated = check_if_bq_data_is_outdated(
-        dataset_id=dataset_id, table_id=table_id, data=info[0], upstream_tasks=[info]
+    api_most_recent_date = parse_coverage(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        date_format="yy-mm-dd",
+        upstream_tasks=[info],
+    )
+
+    is_outdated = check_if_data_is_outdated(
+        data_tabela=info[0],
+        data_api=api_most_recent_date,
+        upstream_tasks=[info, api_most_recent_date],
     )
     update_metadata_strig_date = convert_datetime_to_string(
         data=info[0], upstream_tasks=[info, is_outdated]

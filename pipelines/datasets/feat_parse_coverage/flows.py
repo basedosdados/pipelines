@@ -13,7 +13,7 @@ with Flow(name="feat_parse_coverage", code_owners=["Gabriel Pisa"]) as feat:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_bcb_sicor", required=True)
     table_id = Parameter("table_id", default="microdados_operacao", required=True)
-    date_format = Parameter("table_id", default="microdados_operacao", required=True)
+    date_format = Parameter("date_format", default="yy-mm-dd", required=True)
 
     dados = parse_coverage(
         dataset_id=dataset_id, table_id=table_id, date_format=date_format

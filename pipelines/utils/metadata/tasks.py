@@ -553,7 +553,7 @@ def parse_coverage(
     table_id: str,
     date_format: str = "yy-mm-dd",
     api_mode: str = "prod",
-) -> str:
+) -> datetime.date:
     """Parses the table coverage for a given table id.
 
     This task will:
@@ -624,4 +624,4 @@ def parse_coverage(
         f"The Most recent date for the ->> {table_id} in the prod API is ->> {max_date_value}"
     )
 
-    return str(max_date_value)
+    return max_date_value
