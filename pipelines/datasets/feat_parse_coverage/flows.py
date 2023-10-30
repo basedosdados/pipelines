@@ -14,5 +14,5 @@ with Flow(name="feat_parse_coverage", code_owners=["Gabriel Pisa"]) as feat:
     table_id = Parameter("table_id", default="microdados_operacao", required=True)
 
     dados = parse_coverage(
-        dataset_id=dataset_id, table_id=table_id, date_format="yy-mm-dd"
+        dataset_id=dataset_id, table_id=table_id, date_format="yy-mm"
     )

@@ -259,65 +259,6 @@ def get_token(email, password, api_mode: str = "prod"):
     return r.json()["data"]["tokenAuth"]["token"]
 
 
-def get_datetimerange(
-    query_parameters,
-    email,
-    password,
-    api_mode: str = "prod",
-):
-    token = get_token(email, password, api_mode)
-    header = {
-        "Authorization": f"Bearer {token}",
-    }
-
-    # Extract table_id from query_parameters
-    table_id = query_parameters.get("$table_Id: ID", None)
-
-    query = """
-    query($table_Id: ID) {
-      allCoverage(table_Id: $table_Id) {
-        edges {
-          node {
-            id
-            datetimeRanges {
-              edges {
-                node {
-                  id
-                  startYear
-                  startMonth
-                  startDay
-                  endYear
-                  endMonth
-                  endDay
-                }
-              }
-            }
-            table {
-              _id
-              name
-              isClosed
-              dataset {
-                name
-              }
-            }
-          }
-        }
-      }
-    }
-    """
-
-    # Format the variables dictionary
-    variables = {"table_Id": table_id}
-
-    r = requests.post(
-        url="https://api.basedosdados.org/api/v1/graphql",
-        json={"query": query, "variables": variables},
-        headers=header,
-    ).json()
-
-    return r
-
-
 def get_id(
     query_class,
     query_parameters,
@@ -331,16 +272,16 @@ def get_id(
         "Authorization": f"Bearer {token}",
     }
     _filter = ", ".join(list(query_parameters.keys()))
-    log(f"filter ----- {_filter}")
+
     keys = [
         parameter.replace("$", "").split(":")[0]
         for parameter in list(query_parameters.keys())
     ]
-    log(f"keys ----- {keys}")
+
     values = list(query_parameters.values())
-    log(f"values ----- {values}")
+
     _input = ", ".join([f"{key}:${key}" for key in keys])
-    log(f"input ----- {_input}")
+
     if cloud_table:
         query = f"""query({_filter}) {{
                             {query_class}({_input}){{
@@ -355,7 +296,6 @@ def get_id(
                             }}
                         }}"""
 
-        log(f"-- query cloud table {query}")
     else:
         query = f"""query({_filter}) {{
                             {query_class}({_input}){{
@@ -366,7 +306,7 @@ def get_id(
                             }}
                             }}
                         }}"""
-        log(f"query-coverage--- {query}")
+
     if api_mode == "staging":
         r = requests.post(
             url=f"https://{api_mode}.api.basedosdados.org/api/v1/graphql",
@@ -375,8 +315,6 @@ def get_id(
         ).json()
 
     elif api_mode == "prod":
-        a = {"query": query, "variables": dict(zip(keys, values))}
-        log(f"---json param {a}")
         r = requests.post(
             url="https://api.basedosdados.org/api/v1/graphql",
             json={"query": query, "variables": dict(zip(keys, values))},
@@ -391,8 +329,7 @@ def get_id(
             id = r["data"][query_class]["edges"][0]["node"]["id"]
             # print(f"get: found {id}")
             id = id.split(":")[1]
-        log(f"----- r {r}")
-        log(f"----- id {id}")
+
         return r, id
     else:
         print("get:  Error:", json.dumps(r, indent=4, ensure_ascii=False))
@@ -579,15 +516,6 @@ def parse_temporal_coverage(temporal_coverage):
     return end_result
 
 
-# ver logica de execucao
-# ele primeiro pega um cloud table
-# ems eguida pega o cooverage
-# eu só preciso pegar o valor do coverage
-
-# proximos passos: ver como o post da query retornar o full coverage ou
-# partes dele
-
-
 def get_ids(
     dataset_name: str,
     table_name: str,
@@ -762,12 +690,8 @@ def get_coverage_value(
     password: str,
     api_mode: str,
 ) -> dict:
-    """
-    Obtains the IDs of the table and coverage based on the provided names.
-    """
-    # 1. Get the table ID in the cloud table
     try:
-        # Get the table ID
+        # get table ID in the PROD API
         table_result = get_id(
             email=email,
             password=password,
@@ -779,6 +703,7 @@ def get_coverage_value(
             cloud_table=True,
             api_mode=api_mode,
         )
+
         if not table_result:
             raise ValueError("Table ID not found.")
 
@@ -786,107 +711,193 @@ def get_coverage_value(
             "table"
         ].get("_id")
 
-        # 2. With table id, get its datetimeRanges
-        # Get the coverage IDs
+        # get coverage values in the PROD API for the table ID
         datetime_result = get_datetimerange(
             email=email,
             password=password,
-            query_parameters={
-                "$table_Id: ID": table_id,
-            },
+            query_parameters={"$table_Id: ID": table_id},
             api_mode=api_mode,
         )
 
         if not datetime_result:
             raise ValueError("Datetime result not found.")
 
-        date_objects = {}
-
-        if date_format == "yy-mm-dd":
-            log(f"the chosen format do parse the covegare was {date_format}")
-            edges = datetime_result["data"]["allCoverage"]["edges"]
-
-            for edge in edges:
-                node = edge["node"]
-                datetime_ranges = node["datetimeRanges"]["edges"]
-
-                for dt_range in datetime_ranges:
-                    dt_node = dt_range["node"]
-                    end_year = dt_node["endYear"]
-                    end_month = dt_node["endMonth"]
-                    end_day = dt_node["endDay"]
-
-                    # Verifique se os valores de endYear, endMonth e endDay não são None
-                    if (
-                        end_year is not None
-                        and end_month is not None
-                        and end_day is not None
-                    ):
-                        # Crie uma data no formato "YYYY-MM-DD"
-                        date_string = f"{end_year:04d}-{end_month:02d}-{end_day:02d}"
-
-                        # Adicione a data ao dicionário, usando o ID do nó como chave
-                        date_objects[dt_node["id"]] = date_string
-                        log(f"the following coverage is beeing added {date_objects}")
-                    else:
-                        # todo: melhorar log
-                        raise ValueError('The datetime format is not "YYYY-MM-DD".')
-
-        if date_format == "yy-mm":
-            log(f"the chosen format do parse the covegare was {date_format}")
-            edges = datetime_result["data"]["allCoverage"]["edges"]
-
-            for edge in edges:
-                node = edge["node"]
-                datetime_ranges = node["datetimeRanges"]["edges"]
-
-                for dt_range in datetime_ranges:
-                    dt_node = dt_range["node"]
-                    end_year = dt_node["endYear"]
-                    end_month = dt_node["endMonth"]
-                    end_day = dt_node["endDay"]
-
-                    # Verifique se os valores de endYear, endMonth e endDay não são None
-                    if end_year is not None and end_month is not None:
-                        # Crie uma data no formato "YYYY-MM-DD"
-                        date_string = f"{end_year:04d}-{end_month:02d}"
-
-                        # Adicione a data ao dicionário, usando o ID do nó como chave
-                        date_objects[dt_node["id"]] = date_string
-                        log(f"the following coverage is beeing added {date_objects}")
-                    else:
-                        # todo: melhorar log
-                        raise ValueError('The datetime format is not "YYYY-MM".')
-
-        if date_format == "yy":
-            log(f"the chosen format do parse the covegare was {date_format}")
-            edges = datetime_result["data"]["allCoverage"]["edges"]
-
-            for edge in edges:
-                node = edge["node"]
-                datetime_ranges = node["datetimeRanges"]["edges"]
-
-                for dt_range in datetime_ranges:
-                    dt_node = dt_range["node"]
-                    end_year = dt_node["endYear"]
-                    end_month = dt_node["endMonth"]
-                    end_day = dt_node["endDay"]
-
-                    # Verifique se os valores de endYear, endMonth e endDay não são None
-                    if end_year is not None:
-                        # Crie uma data no formato "YYYY-MM-DD"
-                        date_string = f"{end_year:04d}"
-
-                        # Adicione a data ao dicionário, usando o ID do nó como chave
-                        date_objects[dt_node["id"]] = date_string
-                        log(f"the following coverage is beeing added {date_objects}")
-                    else:
-                        # todo: melhorar log
-                        raise ValueError('The datetime format is not "YYYY".')
-
+        date_objects = parse_datetime_ranges(datetime_result, date_format)
         return date_objects
 
-        # 4. Parse endYear, endMonth, endDay to the disered format
     except Exception as e:
-        print(f"Error occurred while retrieving IDs: {str(e)}")
+        log(
+            f"Error occurred while retrieving Table IDs values or Coverage values from the PROD API: {str(e)}"
+        )
         raise
+
+
+def get_datetimerange(
+    query_parameters: dict,
+    email: str,
+    password: str,
+    api_mode: str = "prod",
+) -> dict:
+    """This function retrieves the datetimeRanges from the PROD API for the specified Table ID in the Query Parameters
+
+    Args:
+        query_parameters (dict): Used to filter the query results in GRAPHQL queries
+        email (str): Email to access the API
+        password (str): Password to access the API
+        api_mode (str, optional): The API zone. Defaults to "prod".
+
+    Returns:
+        dict: A dictionary containing datetimeRanges from the PROD API
+    """
+    token = get_token(email, password, api_mode)
+    header = {
+        "Authorization": f"Bearer {token}",
+    }
+
+    # Extract table_id from query_parameters
+    table_id = query_parameters.get("$table_Id: ID", None)
+
+    query = """
+    query($table_Id: ID) {
+      allCoverage(table_Id: $table_Id) {
+        edges {
+          node {
+            id
+            datetimeRanges {
+              edges {
+                node {
+                  id
+                  startYear
+                  startMonth
+                  startDay
+                  endYear
+                  endMonth
+                  endDay
+                }
+              }
+            }
+            table {
+              _id
+              name
+              isClosed
+              dataset {
+                name
+              }
+            }
+          }
+        }
+      }
+    }
+    """
+
+    # Format the variables dictionary
+    variables = {"table_Id": table_id}
+
+    r = requests.post(
+        url="https://api.basedosdados.org/api/v1/graphql",
+        json={"query": query, "variables": variables},
+        headers=header,
+    ).json()
+
+    return r
+
+
+def parse_datetime_ranges(datetime_result: dict, date_format: str) -> dict:
+    """This function parses datetime ranges from the PROD API and returns a dictionary with the coverage values. Used within get_datetimerange function.
+
+    Args:
+        datetime_result (dict): A dictionary with datetime ranges from the PROD API (given by the output of get_datetimerange function)
+        date_format (str): A format string to correctly parse the datetime ranges
+
+    Returns:
+        dict: A dictionary with one or more datetime ranges for the given table
+    """
+
+    date_format_string = get_date_format_string(date_format)
+    date_objects = {}
+
+    log(f"the chosen format to parse the coverage was {date_format_string}")
+
+    edges = datetime_result["data"]["allCoverage"]["edges"]
+
+    # iterates over each edge
+    for edge in edges:
+        node = edge["node"]
+        datetime_ranges = node["datetimeRanges"]["edges"]
+
+        # iterates over each edge of datetime_ranges
+
+        # ps: If the table has bd_pro coverage,
+        # it will have more than one datetime_range
+        for dt_range in datetime_ranges:
+            dt_node = dt_range["node"]
+            end_year = dt_node.get("endYear")
+            end_month = dt_node.get("endMonth")
+            end_day = dt_node.get("endDay")
+
+            date_values = (end_year, end_month, end_day)
+
+            date_string = format_check_date(date_values, date_format)
+            log(f"The following coverage is being added {date_objects}")
+            date_objects[dt_node["id"]] = date_string
+
+    return date_objects
+
+
+def get_date_format_string(date_format: str) -> str:
+    """This function generates a format_date string for a given date pattern. Its used within the parse_coverage task.
+
+    Args:
+        date_format (str): Used to convert Datetime
+
+    Returns:
+        str: a format_date string
+    """
+
+    date_format_mapping = {"yy-mm-dd": "%Y-%m-%d", "yy-mm": "%Y-%m", "yy": "%Y"}
+    return date_format_mapping.get(date_format, "%Y-%m-%d")
+
+
+def format_check_date(date_values: tuple, date_format: str) -> str:
+    """This function formats a date according to the given date_format and make 2 checks:
+        1) If the date_format is valid for the given date_values; in other words, if the date_format is correct for the table.
+        2) If the date_values are not NONE;
+
+    Args:
+        date_values (tuple): A tuple with date values
+        date_format (str): The format string
+
+    Raises:
+        ValueError: Checks 1 and 2 for yy-mm-dd date format
+        ValueError: Checks 1 and 2 for yy-mm date format
+        ValueError: Checks 1 and 2 for yy date format
+
+    Returns:
+        str: A string with a date in the format yy-mm-dd (%Y-%m-%d), yy-mm (%Y-%m) or yy (%Y)
+    """
+
+    end_year, end_month, end_day = date_values
+
+    if date_format == "yy-mm-dd":
+        if end_year is not None and end_month is not None and end_day is not None:
+            return f"{end_year:04d}-{end_month:02d}-{end_day:02d}"
+        else:
+            raise ValueError(
+                f"Attention! The input date_format ->> {date_format} is wrong for the current Table. The input date_format was 'yy-mm-dd' but one of the elements | year ->> {end_year}, month ->> {end_month}, day ->> {end_day}  | have NONE values in the PROD API. If that's not the case, check the Coverage values in the Prod API, they may be not filled (NONE)"
+            )
+
+    elif date_format == "yy-mm":
+        if end_year is not None and end_month is not None:
+            return f"{end_year:04d}-{end_month:02d}"
+        else:
+            raise ValueError(
+                f"Attention! The input date_format ->> {date_format} is wrong for the current Table. The input date_format was 'yy-mm' but one of the elements | year ->> {end_year}, month ->> {end_month}| have NONE values in the PROD API. If that's not the case, check the Coverage values in the Prod API, they may be not filled (NONE)"
+            )
+
+    elif date_format == "yy":
+        if end_year is not None:
+            return f"{end_year:04d}"
+        else:
+            raise ValueError(
+                f"Attention! The input date_format ->> {date_format} is wrong for the current Table. The input date_format was 'yy' but one of the elements | year ->> {end_year} | have NONE values in the PROD API. If that's not the case, check the Coverage values in the Prod API, they may be not filled (NONE)"
+            )
