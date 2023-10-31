@@ -2,7 +2,6 @@
 import os
 import zipfile
 
-import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 import requests
@@ -164,39 +163,19 @@ def parquet_partition(path):
             #    encoding="latin-1",
             #    dtype="string",
             # )
-            dtypes = {
-                "MÊS COMPETÊNCIA": str,
-                "MÊS REFERÊNCIA": str,
-                "UF": str,
-                "CÓDIGO MUNICÍPIO SIAFI": str,
-                "NOME MUNICÍPIO": str,
-                "CPF FAVORECIDO": str,
-                "NIS FAVORECIDO": str,
-                "NOME FAVORECIDO": str,
-                "VALOR PARCELA": np.float64,
-            }
+
             df = None
             with pd.read_csv(
                 f"{path}{nome_arquivo}",
                 sep=";",
                 encoding="latin-1",
-                dtype=dtypes,
+                dtype=constants.DTYPES.value,
                 chunksize=1000000,
                 decimal=",",
             ) as reader:
                 for chunk in tqdm(reader):
                     chunk.rename(
-                        columns={
-                            "MÊS COMPETÊNCIA": "mes_competencia",
-                            "MÊS REFERÊNCIA": "mes_referencia",
-                            "UF": "sigla_uf",
-                            "CÓDIGO MUNICÍPIO SIAFI": "id_municipio_siafi",
-                            "NOME MUNICÍPIO": "municipio",
-                            "CPF FAVORECIDO": "cpf",
-                            "NIS FAVORECIDO": "nis",
-                            "NOME FAVORECIDO": "nome",
-                            "VALOR PARCELA": "valor",
-                        },
+                        columns=constants.RENAMER.value,
                         inplace=True,
                     )
                     if df is None:
