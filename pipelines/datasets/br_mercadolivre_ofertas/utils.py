@@ -448,6 +448,8 @@ def get_features_seller(soup):
 async def get_seller_async(url, seller_id):
     """
     Extracts seller qualification information from <span> elements asynchronously.
+    The use of 'async' indicates that this function can execute multiple tasks concurrently
+    without blocking the main execution thread, making it more efficient for web scraping tasks.
 
     Args:
         url (str): The URL of the seller's page.
@@ -482,6 +484,8 @@ async def get_seller_async(url, seller_id):
 async def main_seller(seller_ids, seller_links, file_dest):
     """
     Process seller data asynchronously.
+    The use of 'async' indicates that this function can execute multiple tasks concurrently
+    without blocking the main execution thread, making it more efficient for web scraping tasks.
 
     Args:
         seller_ids (list): List of seller IDs.
