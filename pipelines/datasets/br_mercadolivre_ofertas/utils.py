@@ -22,6 +22,15 @@ ua = UserAgent()
 
 # ! tratamento dos dados
 def clean_experience(x):
+    """
+    Cleans and extracts numeric experience data from a string.
+
+    Args:
+        x (str): The input string containing experience information.
+
+    Returns:
+        int or None: Extracted numeric experience value or None if not found.
+    """
     try:
         result = re.findall(r"\d+", x)[0]
     except Exception:
@@ -157,6 +166,15 @@ def get_features(soup):
 # ! utilizado no processo da tabela de itens
 @retry
 def get_review(soup):
+    """
+    Retrieves review information from a web page using BeautifulSoup.
+
+    Args:
+        soup (BeautifulSoup): The BeautifulSoup object representing the web page.
+
+    Returns:
+        dict: A dictionary containing review information, including stars and review count.
+    """
     script_elements = soup.find_all("script", type="application/ld+json")
 
     json_data = json.loads(script_elements[0].string)
@@ -184,8 +202,18 @@ def get_review(soup):
 #     return review_info
 
 
+# ! utilizado no processo da tabela de itens
 @retry
 def get_categories(soup):
+    """
+    Retrieves categories from a web page using BeautifulSoup.
+
+    Args:
+        soup (BeautifulSoup): The BeautifulSoup object representing the web page.
+
+    Returns:
+        list: A list of categories extracted from the web page.
+    """
     script_elements = soup.find_all("script", type="application/ld+json")
     categories = []
     # Loop through script elements and extract the desired content
@@ -218,6 +246,7 @@ def get_seller_link(soup):
     return seller_link
 
 
+# ! utilizado no processo da tabela de itens
 @retry
 def get_prices(soup, **kwargs):
     """
@@ -417,6 +446,16 @@ def get_features_seller(soup):
 
 # ! parte do processo da tabela de vendedor
 async def get_seller_async(url, seller_id):
+    """
+    Extracts seller qualification information from <span> elements asynchronously.
+
+    Args:
+        url (str): The URL of the seller's page.
+        seller_id (int): The seller's ID.
+
+    Returns:
+        dict: A dictionary containing seller qualification information.
+    """
     kwargs_list = [
         {"class_": "experience"},
         {"class_": "seller-info__subtitle-sales"},
@@ -441,6 +480,14 @@ async def get_seller_async(url, seller_id):
 
 # ! processo da tabela de vendedor
 async def main_seller(seller_ids, seller_links, file_dest):
+    """
+    Process seller data asynchronously.
+
+    Args:
+        seller_ids (list): List of seller IDs.
+        seller_links (list): List of seller links.
+        file_dest (str): Destination file to save the processed seller data.
+    """
     # get list of unique sellers
     dict_id_link = dict(zip(seller_ids, seller_links))
 
