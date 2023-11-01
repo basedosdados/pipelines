@@ -25,31 +25,23 @@ from pipelines.utils.utils import log
 
 
 @task
-def check_if_bq_data_is_outdated(
-    data: datetime, dataset_id: str, table_id: str
-) -> bool:
+def check_if_data_is_outdated(data_tabela: datetime, data_api: datetime) -> bool:
     """Essa task checa se há necessidade de atualizar os dados no BQ
 
     Args:
-        data (date): A data de atualização dos dados extraida do FTP
-        dataset_id (string): O datased_id
-        table_id (string): O table_id
+        data_tabela (date): A data de atualização dos dados da tabela imoveis_rurais extraida do FTP
+        ddata_api (date): A data mais recente dos dados da tabela imoveis_rurais na API de PROD
 
     Returns:
-        bool: TRUE se a data do FTP for maior que a do BQ e FALSE caso contrário.
+        bool: TRUE se a data do FTP for maior que a data mais recente registrada na API e FALSE caso contrário.
     """
-    data = data.strftime("%Y-%m-%d")
-
-    # extrai data do bq
-    data_bq = extract_last_date(dataset_id, table_id, "basedosdados").strftime(
-        "%Y-%m-%d"
-    )
+    data = data_tabela.strftime("%Y-%m-%d")
 
     log(f"Data do site: {data}")
-    log(f"Data do BQ: {data_bq}")
+    log(f"Data da API: {data_api}")
 
     # Compara as datas para verificar se há atualizações
-    if data > data_bq:
+    if data > data_api:
         return True  # Há atualizações disponíveis
     else:
         return False
