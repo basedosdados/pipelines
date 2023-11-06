@@ -22,6 +22,7 @@ from pipelines.datasets.br_anatel_telefonia_movel.tasks import (
     clean_csv_municipio,
     clean_csv_uf,
     data_url,
+    task_check_for_data
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -131,8 +132,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             )
 
         with case(update_metadata, True):
-            date = data_url()
-            date_string = str(date)  # task que retorna a data atual
+            date = task_check_for_data()
             update_django_metadata(
                 dataset_id,
                 table_id[0],
@@ -145,7 +145,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
                 time_unit="months",
                 api_mode="prod",
                 date_format="yy-mm",
-                _last_date=date_string,
+                _last_date=date,
                 upstream_tasks=[wait_for_materialization],
             )
 
@@ -189,8 +189,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             )
 
         with case(update_metadata, True):
-            date = data_url()
-            date_string = str(date)  # task que retorna a data atual
+            date = task_check_for_data()
             update_django_metadata(
                 dataset_id,
                 table_id[1],
@@ -203,7 +202,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
                 time_unit="months",
                 api_mode="prod",
                 date_format="yy-mm",
-                _last_date=date_string,
+                _last_date=date,
                 upstream_tasks=[wait_for_materialization],
             )
 
@@ -249,8 +248,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             )
 
         with case(update_metadata, True):
-            date = data_url()
-            date_string = str(date)  # task que retorna a data atual
+            date = task_check_for_data()
             update_django_metadata(
                 dataset_id,
                 table_id[2],
@@ -263,7 +261,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
                 time_unit="months",
                 api_mode="prod",
                 date_format="yy-mm",
-                _last_date=date_string,
+                _last_date=date,
                 upstream_tasks=[wait_for_materialization],
             )
 
@@ -308,8 +306,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
         )
 
         with case(update_metadata, True):
-            date = data_url()
-            date_string = str(date)  # task que retorna a data atual
+            date = task_check_for_data()
             update_django_metadata(
                 dataset_id,
                 table_id[3],
@@ -322,7 +319,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
                 time_unit="months",
                 api_mode="prod",
                 date_format="yy-mm",
-                _last_date=date_string,
+                _last_date=date,
                 upstream_tasks=[wait_for_materialization],
             )
 

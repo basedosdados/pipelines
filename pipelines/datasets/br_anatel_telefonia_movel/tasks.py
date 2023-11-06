@@ -4,7 +4,7 @@ Tasks for dataset br_anatel_telefonia_movel
 """
 
 import os
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 import numpy as np
 import pandas as pd
@@ -53,6 +53,7 @@ def data_url(anos, mes_um, mes_dois):
 @task
 def check_for_updates(dataset_id, table_id):
     data_obj = data_url("2023", "07", "12")
+    data_obj = datetime.strptime(data_obj, "%Y-%m-%d").date()
     # Obtém a última data no site BD
     data_bq_obj = extract_last_date(
         dataset_id, table_id, "yy-mm-dd", "basedosdados", data="data_coleta"
@@ -68,6 +69,9 @@ def check_for_updates(dataset_id, table_id):
     else:
         return False  # Não há novas atualizações disponíveis
 
+@task
+def task_check_for_data():
+    return data_url("2023", "07", "12")
 
 # ! TASK MICRODADOS
 @task(
