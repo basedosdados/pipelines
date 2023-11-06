@@ -110,7 +110,7 @@ def treat_uf_tipo(file: str) -> pl.DataFrame:
     if all(clean_df.dtypes == "object"):
         clean_df = clean_df.apply(pd.to_numeric, errors="ignore")
     clean_pl_df = pl.from_pandas(clean_df).lazy()
-    verify_total(clean_pl_df.collect())
+    clean_pl_df = verify_total(clean_pl_df.collect())
     # Add year and month
     clean_pl_df = clean_pl_df.with_columns(
         pl.lit(year, dtype=pl.Int64).alias("ano"),
@@ -200,7 +200,7 @@ def treat_municipio_tipo(file: str) -> pl.DataFrame:
     )  # Rename for ease of use.
     new_df.sigla_uf = new_df.sigla_uf.str.strip()  # Remove whitespace.
     new_pl_df = pl.from_pandas(new_df)
-    verify_total(new_pl_df)
+    new_pl_df = verify_total(new_pl_df)
     new_pl_df = new_pl_df.with_columns(
         pl.col("nome_denatran").apply(asciify).str.to_lowercase(),
         pl.lit(year, dtype=pl.Int64).alias("ano"),

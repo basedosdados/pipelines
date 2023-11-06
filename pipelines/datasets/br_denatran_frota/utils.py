@@ -140,7 +140,7 @@ def get_year_month_from_filename(filename: str) -> tuple[int, int]:
         raise ValueError("No match found")
 
 
-def verify_total(df: pl.DataFrame) -> None:
+def verify_total(df: pl.DataFrame) -> pl.DataFrame:
     """Verify that we can pivot from wide to long.
 
     Essentially, gets a Wide dataframe, excludes all string columns and the TOTAL column and sums it all row wise.
@@ -169,28 +169,38 @@ def verify_total(df: pl.DataFrame) -> None:
     mask = df["TOTAL"] != calculated_total
 
     if sum(mask) != 0:
-        # In some cases, the quadriciclo data is multiplied by 10, and this will correct it before you
-        new_df = clean_quadriciclo_data(df)
-        new_calculated_total = calculate_total(new_df)
-        mask = new_df["TOTAL"] != new_calculated_total
+        # In some cases, one of the columsn in the data is multiplied by 10, and this will correct it before you
+        columns_to_try = df.select(pl.exclude("TOTAL")).select(
+            pl.exclude([pl.col(pl.Utf8)])
+        )
+        for col in columns_to_try.columns:
+            new_df = clean_dirty_data(df=df, column_name=col)
+            new_calculated_total = calculate_total(new_df)
+            mask = new_df["TOTAL"] != new_calculated_total
+            if pl.sum(mask) == 0:
+                return new_df
         if pl.sum(mask) != 0:
             raise ValueError(
                 "A coluna de TOTAL da base original tem inconsistências e é diferente da soma das demais colunas."
             )
+    else:
+        return df
 
 
-def clean_quadriciclo_data(df: pl.DataFrame) -> pl.DataFrame:
-    """Divide the quadriciclo column by 10 when the data is dirty.
+def clean_dirty_data(
+    df: pl.DataFrame, column_name: str = "QUADRICICLO"
+) -> pl.DataFrame:
+    """Divide the column_name column by 10 when the data is dirty.
 
     Args:
         df (pl.DataFrame): Denatran data to be cleaned
 
     Returns:
-        pl.DataFrame: Cleaned Denatran data with the quadriciclo column altered.
+        pl.DataFrame: Cleaned Denatran data with the column_name column altered.
     """
-    old_quadriciclo = df["QUADRICICLO"]
-    new_quadriciclo = old_quadriciclo / 10
-    return df.with_columns(new_quadriciclo.cast(pl.Int32).alias("QUADRICICLO"))
+    old_column = df[column_name]
+    new_column = old_column / 10
+    return df.with_columns(new_column.cast(pl.Int32).alias(column_name))
 
 
 def fix_suggested_nome_ibge(row: tuple[str, ...]) -> str:
@@ -413,7 +423,7 @@ def extract_links_post_2012(month: int, year: int, directory: str) -> list[dict]
         match = re.search(
             r"(?i)\/([\w-]+)\/(\d{4})\/(\w+)\/([\w-]+)\.(?:xls|xlsx|rar|zip)$", href
         )
-        if match:
+        if match and re.search("tipo", txt, flags=re.IGNORECASE):
             matched_month = match.group(3)
             matched_year = match.group(2)
             if MONTHS.get(matched_month) == month and matched_year == str(year):
