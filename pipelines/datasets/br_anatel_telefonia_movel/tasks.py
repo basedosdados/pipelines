@@ -69,9 +69,11 @@ def check_for_updates(dataset_id, table_id):
     else:
         return False  # Não há novas atualizações disponíveis
 
+
 @task
 def task_check_for_data():
     return data_url("2023", "07", "12")
+
 
 # ! TASK MICRODADOS
 @task(

@@ -22,7 +22,7 @@ from pipelines.datasets.br_anatel_telefonia_movel.tasks import (
     clean_csv_municipio,
     clean_csv_uf,
     data_url,
-    task_check_for_data
+    task_check_for_data,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
