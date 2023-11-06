@@ -157,7 +157,9 @@ def verify_total(df: pl.DataFrame) -> pl.DataFrame:
     """
 
     def calculate_total(df):
-        columns_for_total = df.select(pl.exclude("TOTAL")).select(pl.exclude([pl.Utf8]))
+        columns_for_total = df.select(
+            [col for col in df.columns if df[col].dtype != pl.Utf8]
+        ).select(pl.exclude("TOTAL"))
         calculated_total = columns_for_total.select(
             pl.fold(
                 acc=pl.lit(0), function=lambda acc, x: acc + x, exprs=pl.col("*")
@@ -168,18 +170,19 @@ def verify_total(df: pl.DataFrame) -> pl.DataFrame:
     calculated_total = calculate_total(df)
     mask = df["TOTAL"] != calculated_total
 
-    if sum(mask) != 0:
+    if mask.sum() != 0:
         # In some cases, one of the columsn in the data is multiplied by 10, and this will correct it before you
-        columns_to_try = df.select(pl.exclude("TOTAL")).select(
-            pl.exclude([pl.col(pl.Utf8)])
-        )
+        columns_to_try = df.select(
+            [col for col in df.columns if df[col].dtype != pl.Utf8]
+        ).select(pl.exclude("TOTAL"))
+
         for col in columns_to_try.columns:
             new_df = clean_dirty_data(df=df, column_name=col)
             new_calculated_total = calculate_total(new_df)
             mask = new_df["TOTAL"] != new_calculated_total
-            if pl.sum(mask) == 0:
+            if mask.sum() == 0:
                 return new_df
-        if pl.sum(mask) != 0:
+        if mask.sum() != 0:
             raise ValueError(
                 "A coluna de TOTAL da base original tem inconsistências e é diferente da soma das demais colunas."
             )
