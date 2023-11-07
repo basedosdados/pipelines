@@ -115,8 +115,6 @@ def data_url():
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--headless=new")
 
-    
-
     # Inicializar o driver do Chrome com as opções configuradas
     driver = webdriver.Chrome(options=options)
 
