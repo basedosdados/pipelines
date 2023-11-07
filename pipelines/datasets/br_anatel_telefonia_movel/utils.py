@@ -110,7 +110,7 @@ def data_url():
     options = webdriver.ChromeOptions()
 
     prefs = {
-        "download.default_directory": anatel_constants.STF_INPUT.value,
+        "download.default_directory": anatel_constants.INPUT_PATH.value,
         "download.prompt_for_download": False,
         "download.directory_upgrade": True,
         "safebrowsing.enabled": True,
