@@ -21,7 +21,10 @@ from pipelines.datasets.br_anatel_telefonia_movel.utils import (
 from pipelines.utils.utils import extract_last_date, log, to_partitions
 
 
-@task
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def data_url(anos, mes_um, mes_dois):
     # Imprime uma linha de separação no log
     log("=" * 50)
@@ -50,7 +53,10 @@ def data_url(anos, mes_um, mes_dois):
     return data_obj
 
 
-@task
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def check_for_updates(dataset_id, table_id):
     data_obj = data_url("2023", "07", "12")
     data_obj = datetime.strptime(data_obj, "%Y-%m-%d").date()
@@ -70,7 +76,10 @@ def check_for_updates(dataset_id, table_id):
         return False  # Não há novas atualizações disponíveis
 
 
-@task
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def task_check_for_data():
     return data_url("2023", "07", "12")
 
