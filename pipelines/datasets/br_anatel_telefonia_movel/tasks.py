@@ -58,7 +58,7 @@ def data_url(anos, mes_um, mes_dois):
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def check_for_updates(dataset_id, table_id):
-    data_obj = data_url("2023", "07", "12")
+    data_obj = data_url.run("2023", "07", "12")
     data_obj = datetime.strptime(data_obj, "%Y-%m-%d").date()
     # Obtém a última data no site BD
     data_bq_obj = extract_last_date(
@@ -81,7 +81,7 @@ def check_for_updates(dataset_id, table_id):
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def task_check_for_data():
-    return data_url("2023", "07", "12")
+    return data_url.run("2023", "07", "12")
 
 
 # ! TASK MICRODADOS
