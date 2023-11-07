@@ -115,7 +115,7 @@ def data_url():
     options.add_argument("--disable-dev-shm-usage")
 
     # Configurar o caminho para o ChromeDriver (certifique-se de que o executável do ChromeDriver esteja no caminho correto)
-    chrome_driver_path = "/caminho/para/o/executável/do/chromedriver"
+    chrome_driver_path = "/tmp/data/input/"
 
     # Inicializar o driver do Chrome com as opções configuradas
     driver = webdriver.Chrome(executable_path=chrome_driver_path, options=options)
