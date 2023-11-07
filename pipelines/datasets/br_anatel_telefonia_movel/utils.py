@@ -114,11 +114,9 @@ def data_url():
     options.add_argument("--disable-gpu")
     options.add_argument("--disable-dev-shm-usage")
 
-    # Configurar o caminho para o ChromeDriver (certifique-se de que o executável do ChromeDriver esteja no caminho correto)
-    chrome_driver_path = "/tmp/data/input/"
 
     # Inicializar o driver do Chrome com as opções configuradas
-    driver = webdriver.Chrome(executable_path=chrome_driver_path, options=options)
+    driver = webdriver.Chrome(options=options)
 
     # URL da página da web que você deseja acessar
     url = "https://informacoes.anatel.gov.br/paineis/acessos/telefonia-movel"
