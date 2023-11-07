@@ -48,9 +48,9 @@ def data_url(anos, mes_um, mes_dois):
 
     df["data"] = df["Ano"] + "-" + df["Mês"]
     df["data"] = pd.to_datetime(df["data"], format="%Y-%m").dt.strftime("%Y-%m").max()
-    data_obj = df["data"].max()
+    valor_max = df["data"].max()
 
-    return data_obj
+    return valor_max
 
 
 @task(
