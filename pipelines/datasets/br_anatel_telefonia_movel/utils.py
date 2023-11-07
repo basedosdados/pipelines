@@ -10,13 +10,14 @@ from io import BytesIO
 from pathlib import Path
 from urllib.request import urlopen
 from zipfile import ZipFile
-
 import numpy as np
 import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-
+from pipelines.datasets.br_anatel_telefonia_movel.constants import (
+    constants as anatel_constants,
+)
 
 def download_and_unzip(url, path):
     """download and unzip a zip file
@@ -103,8 +104,28 @@ def to_partitions_microdados(
 
 def data_url():
     # Configurar o driver do navegador (neste caso, o Chrome)
-    driver = webdriver.Chrome()
+    options = webdriver.ChromeOptions()
 
+    prefs = {
+        "download.default_directory": anatel_constants.STF_INPUT.value,
+        "download.prompt_for_download": False,
+        "download.directory_upgrade": True,
+        "safebrowsing.enabled": True,
+    }
+    options.add_experimental_option(
+        "prefs",
+        prefs,
+    )
+    options.add_argument("--headless=new")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--crash-dumps-dir=/tmp")
+    options.add_argument("--remote-debugging-port=9222")
+
+    driver = webdriver.Chrome()
+    time.sleep(15)
+    
     # URL da página da web que você deseja acessar
     url = "https://informacoes.anatel.gov.br/paineis/acessos/telefonia-movel"
 
