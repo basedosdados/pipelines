@@ -15,42 +15,11 @@ from pipelines.datasets.br_anatel_telefonia_movel.constants import (
     constants as anatel_constants,
 )
 from pipelines.datasets.br_anatel_telefonia_movel.utils import (
-    download_and_unzip,
     to_partitions_microdados,
+    setting_data_url
 )
 from pipelines.utils.utils import extract_last_date, log, to_partitions
 
-
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
-def data_url(anos, mes_um, mes_dois):
-    # Imprime uma linha de separação no log
-    log("=" * 50)
-
-    # Imprime a mensagem de download dos dados
-    log("Download dos dados...")
-
-    # Imprime a URL dos dados
-    log(anatel_constants.URL.value)
-
-    # Realiza o download e descompactação dos dados
-    download_and_unzip(
-        url=anatel_constants.URL.value, path=anatel_constants.INPUT_PATH.value
-    )
-
-    df = pd.read_csv(
-        f"{anatel_constants.INPUT_PATH.value}Acessos_Telefonia_Movel_{anos}{mes_um}-{anos}{mes_dois}.csv",
-        sep=";",
-        encoding="utf-8",
-    )
-
-    df["data"] = df["Ano"] + "-" + df["Mês"]
-    df["data"] = pd.to_datetime(df["data"], format="%Y-%m").dt.strftime("%Y-%m").max()
-    valor_max = df["data"].max()
-
-    return valor_max
 
 
 @task(
@@ -58,8 +27,8 @@ def data_url(anos, mes_um, mes_dois):
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def check_for_updates(dataset_id, table_id):
-    data_obj = data_url.run("2023", "07", "12")
-    data_obj = datetime.strptime(data_obj, "%Y-%m-%d").date()
+    data_obj = setting_data_url()
+    data_obj = datetime.strptime(data_obj, "%Y-%m").date()
     # Obtém a última data no site BD
     data_bq_obj = extract_last_date(
         dataset_id, table_id, "yy-mm-dd", "basedosdados", data="data_coleta"
@@ -81,7 +50,7 @@ def check_for_updates(dataset_id, table_id):
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def task_check_for_data():
-    return data_url.run("2023", "07", "12")
+    return setting_data_url()
 
 
 # ! TASK MICRODADOS

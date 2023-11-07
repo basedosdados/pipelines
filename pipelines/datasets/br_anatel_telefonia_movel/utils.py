@@ -9,9 +9,13 @@ from io import BytesIO
 from pathlib import Path
 from urllib.request import urlopen
 from zipfile import ZipFile
-
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+import time
 import numpy as np
 import pandas as pd
+from datetime import datetime
 
 
 def download_and_unzip(url, path):
@@ -95,3 +99,48 @@ def to_partitions_microdados(
             )
     else:
         raise BaseException("Data need to be a pandas DataFrame")
+    
+def data_url():
+
+
+    # Configurar o driver do navegador (neste caso, o Chrome)
+    driver = webdriver.Chrome()
+
+    # URL da página da web que você deseja acessar
+    url = 'https://informacoes.anatel.gov.br/paineis/acessos/telefonia-movel'
+
+    # Abra a página da web
+    driver.get(url)
+    time.sleep(15)
+    # Aguarde até que o elemento desejado seja carregado (você pode ajustar o tempo limite conforme necessário)
+    element = driver.find_element(By.XPATH, "//div[@ng-class='{locked:item.qLocked}']")
+    time.sleep(15)
+    # Você também pode tentar localizar o elemento por outros meios, como classe, ID, etc.
+
+    # Obtenha o HTML do elemento
+    element_html = element.get_attribute('outerHTML')
+    time.sleep(15)
+
+    # Imprima o HTML do elemento
+    print(element_html)
+    time.sleep(15)
+
+    # Feche o navegador após a conclusão
+    driver.quit()
+
+    return element_html
+
+
+def setting_data_url():
+    meses = {
+        'jan': '01', 'fev': '02', 'mar': '03', 'abr': '04',
+        'mai': '05', 'jun': '06', 'jul': '07', 'ago': '08',
+        'set': '09', 'out': '10', 'nov': '11', 'dez': '12'
+    }
+    string_element = data_url()
+    elemento_total = string_element[177:185]
+    mes, ano = elemento_total.split('-')
+    mes = meses[mes]
+    data_total = f'{ano}-{mes}'
+
+    return data_total
