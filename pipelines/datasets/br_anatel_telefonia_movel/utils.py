@@ -114,7 +114,6 @@ def data_url():
     options.add_argument("--disable-gpu")
     options.add_argument("--disable-dev-shm-usage")
 
-
     # Inicializar o driver do Chrome com as opções configuradas
     driver = webdriver.Chrome(options=options)
 
