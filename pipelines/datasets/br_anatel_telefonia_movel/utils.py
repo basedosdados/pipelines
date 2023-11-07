@@ -106,40 +106,41 @@ def to_partitions_microdados(
 
 
 def data_url():
-    # Configurar o driver do navegador (neste caso, o Chrome)
-    options = Options()
+    # Configurar as opções do ChromeDriver
+    options = webdriver.ChromeOptions()
 
-    options.add_argument("--headless=new")
+    # Adicionar argumentos para executar o Chrome em modo headless (sem interface gráfica)
+    options.add_argument("--headless")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-gpu")
     options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--crash-dumps-dir=/tmp")
-    options.add_argument("--remote-debugging-port=9222")
 
-    driver = webdriver.Chrome()
-    time.sleep(15)
+    # Configurar o caminho para o ChromeDriver (certifique-se de que o executável do ChromeDriver esteja no caminho correto)
+    chrome_driver_path = "/caminho/para/o/executável/do/chromedriver"
+
+    # Inicializar o driver do Chrome com as opções configuradas
+    driver = webdriver.Chrome(executable_path=chrome_driver_path, options=options)
 
     # URL da página da web que você deseja acessar
     url = "https://informacoes.anatel.gov.br/paineis/acessos/telefonia-movel"
 
-    # Abra a página da web
-    driver.get(url)
-    time.sleep(15)
-    # Aguarde até que o elemento desejado seja carregado (você pode ajustar o tempo limite conforme necessário)
-    element = driver.find_element(By.XPATH, "//div[@ng-class='{locked:item.qLocked}']")
-    time.sleep(15)
-    # Você também pode tentar localizar o elemento por outros meios, como classe, ID, etc.
+    try:
+        # Abra a página da web
+        driver.get(url)
 
-    # Obtenha o HTML do elemento
-    element_html = element.get_attribute("outerHTML")
-    time.sleep(15)
+        # Aguarde até que o elemento desejado seja carregado (você pode ajustar o tempo limite conforme necessário)
+        element = driver.find_element(By.XPATH, "//div[@ng-class='{locked:item.qLocked}']")
 
-    # Imprima o HTML do elemento
-    print(element_html)
-    time.sleep(15)
+        # Obtenha o HTML do elemento
+        element_html = element.get_attribute("outerHTML")
 
-    # Feche o navegador após a conclusão
-    driver.quit()
+        # Imprima o HTML do elemento
+        print(element_html)
+    except Exception as e:
+        print("Ocorreu um erro ao acessar a página:", str(e))
+    finally:
+        # Certifique-se de fechar o navegador, mesmo em caso de erro
+        driver.quit()
 
     return element_html
 
