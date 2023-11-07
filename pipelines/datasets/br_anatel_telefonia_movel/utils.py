@@ -5,7 +5,6 @@ General purpose functions for the br_anatel_telefonia_movel project of the pipel
 # pylint: disable=too-few-public-methods,invalid-name
 
 import os
-import time
 from io import BytesIO
 from pathlib import Path
 from urllib.request import urlopen
@@ -129,7 +128,9 @@ def data_url():
         driver.get(url)
 
         # Aguarde até que o elemento desejado seja carregado (você pode ajustar o tempo limite conforme necessário)
-        element = driver.find_element(By.XPATH, "//div[@ng-class='{locked:item.qLocked}']")
+        element = driver.find_element(
+            By.XPATH, "//div[@ng-class='{locked:item.qLocked}']"
+        )
 
         # Obtenha o HTML do elemento
         element_html = element.get_attribute("outerHTML")
