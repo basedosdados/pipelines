@@ -15,11 +15,10 @@ from pipelines.datasets.br_anatel_telefonia_movel.constants import (
     constants as anatel_constants,
 )
 from pipelines.datasets.br_anatel_telefonia_movel.utils import (
+    setting_data_url,
     to_partitions_microdados,
-    setting_data_url
 )
 from pipelines.utils.utils import extract_last_date, log, to_partitions
-
 
 
 @task(
