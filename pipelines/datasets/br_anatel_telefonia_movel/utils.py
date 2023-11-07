@@ -10,14 +10,17 @@ from io import BytesIO
 from pathlib import Path
 from urllib.request import urlopen
 from zipfile import ZipFile
+
 import numpy as np
 import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+
 from pipelines.datasets.br_anatel_telefonia_movel.constants import (
     constants as anatel_constants,
 )
+
 
 def download_and_unzip(url, path):
     """download and unzip a zip file
@@ -125,7 +128,7 @@ def data_url():
 
     driver = webdriver.Chrome()
     time.sleep(15)
-    
+
     # URL da página da web que você deseja acessar
     url = "https://informacoes.anatel.gov.br/paineis/acessos/telefonia-movel"
 
