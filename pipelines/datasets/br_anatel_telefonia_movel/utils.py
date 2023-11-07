@@ -14,8 +14,8 @@ from zipfile import ZipFile
 import numpy as np
 import pandas as pd
 from selenium import webdriver
-from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
 
 from pipelines.datasets.br_anatel_telefonia_movel.constants import (
     constants as anatel_constants,
