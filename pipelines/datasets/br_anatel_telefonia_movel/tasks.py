@@ -29,9 +29,7 @@ def check_for_updates(dataset_id, table_id):
     data_obj = setting_data_url()
     data_obj = datetime.strptime(data_obj, "%Y-%m").date()
     # Obtém a última data no site BD
-    data_bq_obj = extract_last_date(
-        dataset_id, table_id, "yy-mm", "basedosdados-dev"
-    )
+    data_bq_obj = extract_last_date(dataset_id, table_id, "yy-mm", "basedosdados-dev")
 
     # Registra a data mais recente do site
     log(f"Última data no site do ANATEL: {data_obj}")
