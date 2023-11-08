@@ -78,6 +78,38 @@ def crawler_garantia_safra(historical_data: bool):
     return "/tmp/data/br_cgu_beneficios_cidadao/garantia_safra/output/"
 
 
+@task  # noqa
+def crawler_bpc(historical_data: bool):
+    if historical_data:
+        dates = extract_dates(table="bpc")
+
+        endpoints = dates["urls"].to_list()
+
+        log("DOWNLOADING HISTORICAL DATA")
+        log(f"ENDPOINTS >> {endpoints}")
+
+        download_unzip_csv(
+            url=constants.MAIN_URL_BPC.value,
+            files=endpoints,
+            id="bpc",
+        )
+    else:
+        # TODO: inserir lógica de atualização:
+        log("TODO")
+        log("DOWNLOADING MOST RECENT DATA")
+        download_unzip_csv(
+            url=constants.MAIN_URL_BPC.value,
+            files="202301_BPC.zip",
+            id="bpc",
+        )
+
+    parquet_partition(
+        path="/tmp/data/br_cgu_beneficios_cidadao/bpc/input/",
+        table="bpc",
+    )
+    return "/tmp/data/br_cgu_beneficios_cidadao/bpc/output/"
+
+
 @task
 def get_today_date():
     d = datetime.today()

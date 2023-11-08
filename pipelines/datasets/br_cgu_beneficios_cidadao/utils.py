@@ -102,8 +102,11 @@ def extract_dates(table: str):
     if table == "novo_bolsa_familia":
         driver.get(constants.ROOT_URL.value)
         driver.implicitly_wait(10)
-    else:
+    elif table == "garantia_safra":
         driver.get(constants.ROOT_URL_GARANTIA_SAFRA.value)
+        driver.implicitly_wait(10)
+    else:
+        driver.get(constants.ROOT_URL_BPC.value)
         driver.implicitly_wait(10)
 
     page_source = driver.page_source
@@ -153,8 +156,10 @@ def extract_dates(table: str):
     for index, row in df.iterrows():
         if table == "novo_bolsa_familia":
             df["urls"][index] = f"{row.ano}{row.mes_numero}_NovoBolsaFamilia.zip"
-        else:
+        elif table == "garantia_safra":
             df["urls"][index] = f"{row.ano}{row.mes_numero}_GarantiaSafra.zip"
+        else:
+            df["urls"][index] = f"{row.ano}{row.mes_numero}_BPC.zip"
     return df
 
 
@@ -207,6 +212,24 @@ def parquet_partition(path: str, table: str):
                             df = chunk
                         else:
                             df = pd.concat([df, chunk], axis=0)
+            else:
+                with pd.read_csv(
+                    f"{path}{nome_arquivo}",
+                    sep=";",
+                    encoding="latin-1",
+                    dtype=constants.DTYPES_BPC.value,
+                    chunksize=1000000,
+                    decimal=",",
+                ) as reader:
+                    for chunk in tqdm(reader):
+                        chunk.rename(
+                            columns=constants.RENAMER_BPC.value,
+                            inplace=True,
+                        )
+                        if df is None:
+                            df = chunk
+                        else:
+                            df = pd.concat([df, chunk], axis=0)
 
             # df.reset_index(drop=True, inplace=True)
             # df.columns = (df.columns.str.lower().str.replace(' ', '_').str.replace(r'[()\'\':_0-9]', ''))
@@ -219,7 +242,7 @@ def parquet_partition(path: str, table: str):
             os.makedirs(
                 f"/tmp/data/br_cgu_beneficios_cidadao/{table}/output/", exist_ok=True
             )
-            if table == "novo_bolsa_familia":
+            if table == "novo_bolsa_familia" or table == "bpc":
                 to_partitions(
                     df,
                     partition_columns=["mes_competencia", "sigla_uf"],

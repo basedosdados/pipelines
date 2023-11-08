@@ -19,10 +19,15 @@ class constants(Enum):  # pylint: disable=c0103
     ROOT_URL_GARANTIA_SAFRA = (
         "https://portaldatransparencia.gov.br/download-de-dados/garantia-safra"
     )
+    ROOT_URL_BPC = "https://portaldatransparencia.gov.br/download-de-dados/bpc"
 
     MAIN_URL_NOVO_BOLSA_FAMILIA = "https://dadosabertos-download.cgu.gov.br/PortalDaTransparencia/saida/novo-bolsa-familia/"
 
     MAIN_URL_GARANTIA_SAFRA = "https://dadosabertos-download.cgu.gov.br/PortalDaTransparencia/saida/garantia-safra/"
+
+    MAIN_URL_BPC = (
+        "https://dadosabertos-download.cgu.gov.br/PortalDaTransparencia/saida/bpc/"
+    )
 
     DTYPES_NOVO_BOLSA_FAMILIA = {
         "MÊS COMPETÊNCIA": str,
@@ -44,6 +49,24 @@ class constants(Enum):  # pylint: disable=c0103
         "NOME FAVORECIDO": str,
         "VALOR PARCELA": np.float64,
     }
+
+    DTYPES_BPC = {
+        "MÊS COMPETÊNCIA": str,
+        "MÊS REFERÊNCIA": str,
+        "UF": str,
+        "CÓDIGO MUNICÍPIO SIAFI": str,
+        "NOME MUNICÍPIO": str,
+        "NIS BENEFICIÁRIO": str,
+        "CPF BENEFICIÁRIO": str,
+        "NOME BENEFICIÁRIO": str,
+        "NIS REPRESENTANTE LEGAL": str,
+        "CPF REPRESENTANTE LEGAL": str,
+        "NOME REPRESENTANTE LEGAL": str,
+        "NÚMERO BENEFÍCIO": str,
+        "BENEFÍCIO CONCEDIDO JUDICIALMENTE": str,
+        "VALOR PARCELA": np.float64,
+    }
+
     RENAMER_NOVO_BOLSA_FAMILIA = {
         "MÊS COMPETÊNCIA": "mes_competencia",
         "MÊS REFERÊNCIA": "mes_referencia",
@@ -62,5 +85,21 @@ class constants(Enum):  # pylint: disable=c0103
         "NOME MUNICÍPIO": "municipio",
         "NIS FAVORECIDO": "nis",
         "NOME FAVORECIDO": "nome",
+        "VALOR PARCELA": "valor",
+    }
+    RENAMER_BPC = {
+        "MÊS COMPETÊNCIA": "mes_competencia",
+        "MÊS REFERÊNCIA": "mes_referencia",
+        "UF": "sigla_uf",
+        "CÓDIGO MUNICÍPIO SIAFI": "id_municipio_siafi",
+        "NOME MUNICÍPIO": "municipio",
+        "NIS BENEFICIÁRIO": "nis",
+        "CPF BENEFICIÁRIO": "cpf",
+        "NOME BENEFICIÁRIO": "nome",
+        "NIS REPRESENTANTE LEGAL": "nis_representante",
+        "CPF REPRESENTANTE LEGAL": "cpf_representante",
+        "NOME REPRESENTANTE LEGAL": "nome_representante",
+        "NÚMERO BENEFÍCIO": "numero",
+        "BENEFÍCIO CONCEDIDO JUDICIALMENTE": "concedido_judicialmente",
         "VALOR PARCELA": "valor",
     }
