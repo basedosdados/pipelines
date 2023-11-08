@@ -246,7 +246,7 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
     tabelas = constants_cnpj.TABELAS.value[2:3]
-    
+
     data_source_max_date = get_data_source_max_date()
 
     dados_desatualizados = check_if_data_is_outdated(
@@ -256,7 +256,7 @@ with Flow(
         date_format="%Y-%m-%d",
         upstream_tasks=[data_source_max_date],
     )
-    
+
     with case(dados_desatualizados, False):
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
@@ -395,7 +395,6 @@ with Flow(
         date_format="%Y-%m-%d",
         upstream_tasks=[data_source_max_date],
     )
-
 
     with case(dados_desatualizados, False):
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
