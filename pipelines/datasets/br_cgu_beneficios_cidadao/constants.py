@@ -16,9 +16,15 @@ class constants(Enum):  # pylint: disable=c0103
     ROOT_URL = (
         "https://portaldatransparencia.gov.br/download-de-dados/novo-bolsa-familia"
     )
+    ROOT_URL_GARANTIA_SAFRA = (
+        "https://portaldatransparencia.gov.br/download-de-dados/garantia-safra"
+    )
 
-    MAIN_URL = "https://dadosabertos-download.cgu.gov.br/PortalDaTransparencia/saida/novo-bolsa-familia/"
-    DTYPES = {
+    MAIN_URL_NOVO_BOLSA_FAMILIA = "https://dadosabertos-download.cgu.gov.br/PortalDaTransparencia/saida/novo-bolsa-familia/"
+
+    MAIN_URL_GARANTIA_SAFRA = "https://dadosabertos-download.cgu.gov.br/PortalDaTransparencia/saida/garantia-safra/"
+
+    DTYPES_NOVO_BOLSA_FAMILIA = {
         "MÊS COMPETÊNCIA": str,
         "MÊS REFERÊNCIA": str,
         "UF": str,
@@ -29,13 +35,31 @@ class constants(Enum):  # pylint: disable=c0103
         "NOME FAVORECIDO": str,
         "VALOR PARCELA": np.float64,
     }
-    RENAMER = {
+    DTYPES_GARANTIA_SAFRA = {
+        "MÊS REFERÊNCIA": str,
+        "UF": str,
+        "CÓDIGO MUNICÍPIO SIAFI": str,
+        "NOME MUNICÍPIO": str,
+        "NIS FAVORECIDO": str,
+        "NOME FAVORECIDO": str,
+        "VALOR PARCELA": np.float64,
+    }
+    RENAMER_NOVO_BOLSA_FAMILIA = {
         "MÊS COMPETÊNCIA": "mes_competencia",
         "MÊS REFERÊNCIA": "mes_referencia",
         "UF": "sigla_uf",
         "CÓDIGO MUNICÍPIO SIAFI": "id_municipio_siafi",
         "NOME MUNICÍPIO": "municipio",
         "CPF FAVORECIDO": "cpf",
+        "NIS FAVORECIDO": "nis",
+        "NOME FAVORECIDO": "nome",
+        "VALOR PARCELA": "valor",
+    }
+    RENAMER_GARANTIA_SAFRA = {
+        "MÊS REFERÊNCIA": "mes_referencia",
+        "UF": "sigla_uf",
+        "CÓDIGO MUNICÍPIO SIAFI": "id_municipio_siafi",
+        "NOME MUNICÍPIO": "municipio",
         "NIS FAVORECIDO": "nis",
         "NOME FAVORECIDO": "nome",
         "VALOR PARCELA": "valor",

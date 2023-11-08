@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Tasks for br_cgu_bolsa_familia
+Tasks for br_cgu_beneficios_cidadao
 """
 
 from datetime import datetime
@@ -26,19 +26,56 @@ def crawler_bolsa_familia(historical_data: bool):
         log("DOWNLOADING HISTORICAL DATA")
         log(f"ENDPOINTS >> {endpoints}")
 
-        download_unzip_csv(url=constants.MAIN_URL.value, files=endpoints, id="dados")
+        download_unzip_csv(
+            url=constants.MAIN_URL_NOVO_BOLSA_FAMILIA.value, files=endpoints, id="dados"
+        )
     else:
         # TODO: inserir lógica de atualização:
         log("TODO")
         log("DOWNLOADING MOST RECENT DATA")
         download_unzip_csv(
-            url=constants.MAIN_URL.value,
+            url=constants.MAIN_URL_NOVO_BOLSA_FAMILIA.value,
             files="202306_NovoBolsaFamilia.zip",
-            id="dados",
+            id="novo_bolsa_familia",
         )
 
-    parquet_partition(path="/tmp/data/br_cgu_bolsa_familia/dados/input/")
-    return "/tmp/data/br_cgu_bolsa_familia/output/"
+    parquet_partition(
+        path="/tmp/data/br_cgu_beneficios_cidadao/novo_bolsa_familia/input/",
+        table="novo_bolsa_familia",
+    )
+    return "/tmp/data/br_cgu_beneficios_cidadao/novo_bolsa_familia/output/"
+
+
+@task  # noqa
+def crawler_garantia_safra(historical_data: bool):
+    if historical_data:
+        dates = extract_dates(table="garantia_safra")
+
+        endpoints = dates["urls"].to_list()
+
+        log("DOWNLOADING HISTORICAL DATA")
+        log(f"ENDPOINTS >> {endpoints}")
+
+        download_unzip_csv(
+            url=constants.MAIN_URL_GARANTIA_SAFRA.value,
+            files=endpoints,
+            id="garantia_safra",
+        )
+    else:
+        # TODO: inserir lógica de atualização:
+        log("TODO")
+        log("DOWNLOADING MOST RECENT DATA")
+        download_unzip_csv(
+            url=constants.MAIN_URL_GARANTIA_SAFRA.value,
+            files="202301_GarantiaSafra.zip",
+            id="garantia_safra",
+        )
+
+    parquet_partition(
+        path="/tmp/data/br_cgu_beneficios_cidadao/garantia_safra/input/",
+        table="garantia_safra",
+    )
+    return "/tmp/data/br_cgu_beneficios_cidadao/garantia_safra/output/"
 
 
 @task

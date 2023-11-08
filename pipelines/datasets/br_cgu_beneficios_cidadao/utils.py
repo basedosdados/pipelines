@@ -38,7 +38,7 @@ def download_unzip_csv(
     """
 
     if mkdir:
-        os.makedirs(f"/tmp/data/br_cgu_bolsa_familia/{id}/input/", exist_ok=True)
+        os.makedirs(f"/tmp/data/br_cgu_beneficios_cidadao/{id}/input/", exist_ok=True)
 
     request_headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36",
@@ -48,7 +48,7 @@ def download_unzip_csv(
         for file in files:
             log(f"Baixando o arquivo {file}")
             download_url = f"{url}{file}"
-            save_path = f"/tmp/data/br_cgu_bolsa_familia/{id}/input/{file}"
+            save_path = f"/tmp/data/br_cgu_beneficios_cidadao/{id}/input/{file}"
 
             r = requests.get(
                 download_url, headers=request_headers, stream=True, timeout=50
@@ -59,20 +59,20 @@ def download_unzip_csv(
 
             try:
                 with zipfile.ZipFile(save_path) as z:
-                    z.extractall(f"/tmp/data/br_cgu_bolsa_familia/{id}/input")
+                    z.extractall(f"/tmp/data/br_cgu_beneficios_cidadao/{id}/input")
                 log("Dados extraídos com sucesso!")
 
             except zipfile.BadZipFile:
                 log(f"O arquivo {file} não é um arquivo ZIP válido.")
 
             os.system(
-                f'cd /tmp/data/br_cgu_bolsa_familia/{id}/input; find . -type f ! -iname "*.csv" -delete'
+                f'cd /tmp/data/br_cgu_beneficios_cidadao/{id}/input; find . -type f ! -iname "*.csv" -delete'
             )
 
     elif isinstance(files, str):
         log(f"Baixando o arquivo {files}")
         download_url = f"{url}{files}"
-        save_path = f"/tmp/data/br_cgu_bolsa_familia/{id}/input/{files}"
+        save_path = f"/tmp/data/br_cgu_beneficios_cidadao/{id}/input/{files}"
 
         r = requests.get(download_url, headers=request_headers, stream=True, timeout=10)
         with open(save_path, "wb") as fd:
@@ -81,27 +81,30 @@ def download_unzip_csv(
 
         try:
             with zipfile.ZipFile(save_path) as z:
-                z.extractall(f"/tmp/data/br_cgu_bolsa_familia/{id}/input")
+                z.extractall(f"/tmp/data/br_cgu_beneficios_cidadao/{id}/input")
             log("Dados extraídos com sucesso!")
 
         except zipfile.BadZipFile:
             log(f"O arquivo {files} não é um arquivo ZIP válido.")
 
         os.system(
-            f'cd /tmp/data/br_cgu_bolsa_familia/{id}/input; find . -type f ! -iname "*.csv" -delete'
+            f'cd /tmp/data/br_cgu_beneficios_cidadao/{id}/input; find . -type f ! -iname "*.csv" -delete'
         )
 
     else:
         raise ValueError("O argumento 'files' possui um tipo inadequado.")
 
-    return f"/tmp/data/br_cgu_bolsa_familia/{id}/input/"
+    return f"/tmp/data/br_cgu_beneficios_cidadao/{id}/input/"
 
 
-def extract_dates():
+def extract_dates(table: str):
     driver = webdriver.Chrome()
-
-    driver.get(constants.ROOT_URL.value)
-    driver.implicitly_wait(10)
+    if table == "novo_bolsa_familia":
+        driver.get(constants.ROOT_URL.value)
+        driver.implicitly_wait(10)
+    else:
+        driver.get(constants.ROOT_URL_GARANTIA_SAFRA.value)
+        driver.implicitly_wait(10)
 
     page_source = driver.page_source
     BeautifulSoup(page_source, "html.parser")
@@ -148,11 +151,14 @@ def extract_dates():
     df = pd.DataFrame(data)
     df["urls"] = None
     for index, row in df.iterrows():
-        df["urls"][index] = f"{row.ano}{row.mes_numero}_NovoBolsaFamilia.zip"
+        if table == "novo_bolsa_familia":
+            df["urls"][index] = f"{row.ano}{row.mes_numero}_NovoBolsaFamilia.zip"
+        else:
+            df["urls"][index] = f"{row.ano}{row.mes_numero}_GarantiaSafra.zip"
     return df
 
 
-def parquet_partition(path):
+def parquet_partition(path: str, table: str):
     # dfs = []
     for nome_arquivo in os.listdir(path):
         if nome_arquivo.endswith(".csv"):
@@ -165,23 +171,42 @@ def parquet_partition(path):
             # )
 
             df = None
-            with pd.read_csv(
-                f"{path}{nome_arquivo}",
-                sep=";",
-                encoding="latin-1",
-                dtype=constants.DTYPES.value,
-                chunksize=1000000,
-                decimal=",",
-            ) as reader:
-                for chunk in tqdm(reader):
-                    chunk.rename(
-                        columns=constants.RENAMER.value,
-                        inplace=True,
-                    )
-                    if df is None:
-                        df = chunk
-                    else:
-                        df = pd.concat([df, chunk], axis=0)
+            if table == "novo_bolsa_familia":
+                with pd.read_csv(
+                    f"{path}{nome_arquivo}",
+                    sep=";",
+                    encoding="latin-1",
+                    dtype=constants.DTYPES_NOVO_BOLSA_FAMILIA.value,
+                    chunksize=1000000,
+                    decimal=",",
+                ) as reader:
+                    for chunk in tqdm(reader):
+                        chunk.rename(
+                            columns=constants.RENAMER_NOVO_BOLSA_FAMILIA.value,
+                            inplace=True,
+                        )
+                        if df is None:
+                            df = chunk
+                        else:
+                            df = pd.concat([df, chunk], axis=0)
+            elif table == "garantia_safra":
+                with pd.read_csv(
+                    f"{path}{nome_arquivo}",
+                    sep=";",
+                    encoding="latin-1",
+                    dtype=constants.DTYPES_GARANTIA_SAFRA.value,
+                    chunksize=1000000,
+                    decimal=",",
+                ) as reader:
+                    for chunk in tqdm(reader):
+                        chunk.rename(
+                            columns=constants.RENAMER_GARANTIA_SAFRA.value,
+                            inplace=True,
+                        )
+                        if df is None:
+                            df = chunk
+                        else:
+                            df = pd.concat([df, chunk], axis=0)
 
             # df.reset_index(drop=True, inplace=True)
             # df.columns = (df.columns.str.lower().str.replace(' ', '_').str.replace(r'[()\'\':_0-9]', ''))
@@ -191,15 +216,24 @@ def parquet_partition(path):
             # df.rename(columns={"uf":"sigla_uf"}, inplace = True)
 
             log("Lendo dataset")
-            os.makedirs("/tmp/data/br_cgu_bolsa_familia/output/", exist_ok=True)
-
-            to_partitions(
-                df,
-                partition_columns=["mes_competencia", "sigla_uf"],
-                savepath="/tmp/data/br_cgu_bolsa_familia/output/",
-                file_type="parquet",
+            os.makedirs(
+                f"/tmp/data/br_cgu_beneficios_cidadao/{table}/output/", exist_ok=True
             )
+            if table == "novo_bolsa_familia":
+                to_partitions(
+                    df,
+                    partition_columns=["mes_competencia", "sigla_uf"],
+                    savepath=f"/tmp/data/br_cgu_beneficios_cidadao/{table}/output/",
+                    file_type="parquet",
+                )
+            else:
+                to_partitions(
+                    df,
+                    partition_columns=["mes_referencia"],
+                    savepath=f"/tmp/data/br_cgu_beneficios_cidadao/{table}/output/",
+                    file_type="parquet",
+                )
 
             log("Partição feita.")
 
-    return "/tmp/data/br_cgu_bolsa_familia/output/"
+    return f"/tmp/data/br_cgu_beneficios_cidadao/{table}/output/"
