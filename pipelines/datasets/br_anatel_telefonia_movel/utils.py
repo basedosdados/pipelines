@@ -130,18 +130,16 @@ def data_url():
         time.sleep(15)
 
         # Aguarde até que o elemento desejado seja carregado (você pode ajustar o tempo limite conforme necessário)
-        element = driver.find_element(
-            By.XPATH, "//div[@ng-class='{locked:item.qLocked}']"
-        )
+        element = driver.find_element("xpath", '//*[@id="selection-list"]/li/qv-current-selections-item/div/div[1]/span/span')
         time.sleep(15)
 
         # Obtenha o HTML do elemento
         element_html = element.get_attribute("outerHTML")
         time.sleep(15)
         # Imprima o HTML do elemento
-        log(element_html)
+        print(element_html)
     except Exception as e:
-        log("Ocorreu um erro ao acessar a página:", str(e))
+        print("Ocorreu um erro ao acessar a página:", str(e))
     finally:
         # Certifique-se de fechar o navegador, mesmo em caso de erro
         time.sleep(15)
