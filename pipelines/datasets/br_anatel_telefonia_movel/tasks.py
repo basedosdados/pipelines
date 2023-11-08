@@ -27,7 +27,7 @@ from pipelines.utils.utils import extract_last_date, log, to_partitions
 )
 def check_for_updates(dataset_id, table_id):
     data_obj = setting_data_url()
-    data_obj = datetime.strptime(data_obj, "%Y-%m").date()
+    data_obj = datetime.strptime(data_obj, '%Y-%m')
     # Obtém a última data no site BD
     data_bq_obj = extract_last_date(dataset_id, table_id, "yy-mm", "basedosdados-dev")
 
