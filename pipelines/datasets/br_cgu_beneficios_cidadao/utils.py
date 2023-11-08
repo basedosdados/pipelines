@@ -168,12 +168,6 @@ def parquet_partition(path: str, table: str):
     for nome_arquivo in os.listdir(path):
         if nome_arquivo.endswith(".csv"):
             log(f"Carregando o arquivo: {nome_arquivo}")
-            # df = pd.read_csv(
-            #    f"{path}{nome_arquivo}",
-            #    sep=";",
-            #    encoding="latin-1",
-            #    dtype="string",
-            # )
 
             df = None
             if table == "novo_bolsa_familia":
@@ -220,6 +214,7 @@ def parquet_partition(path: str, table: str):
                     dtype=constants.DTYPES_BPC.value,
                     chunksize=1000000,
                     decimal=",",
+                    na_values="",
                 ) as reader:
                     for chunk in tqdm(reader):
                         chunk.rename(
@@ -231,23 +226,23 @@ def parquet_partition(path: str, table: str):
                         else:
                             df = pd.concat([df, chunk], axis=0)
 
-            # df.reset_index(drop=True, inplace=True)
-            # df.columns = (df.columns.str.lower().str.replace(' ', '_').str.replace(r'[()\'\':_0-9]', ''))
-            # time_col = pd.to_datetime(df["mês_competência"], format="%Y%m")
-            # df["ano"] = time_col.dt.year
-            # df["mes"] = time_col.dt.month
-            # df.rename(columns={"uf":"sigla_uf"}, inplace = True)
-
             log("Lendo dataset")
             os.makedirs(
                 f"/tmp/data/br_cgu_beneficios_cidadao/{table}/output/", exist_ok=True
             )
-            if table == "novo_bolsa_familia" or table == "bpc":
+            if table == "novo_bolsa_familia":
                 to_partitions(
                     df,
                     partition_columns=["mes_competencia", "sigla_uf"],
                     savepath=f"/tmp/data/br_cgu_beneficios_cidadao/{table}/output/",
                     file_type="parquet",
+                )
+            elif table == "bpc":
+                to_partitions(
+                    df,
+                    partition_columns=["mes_competencia"],
+                    savepath=f"/tmp/data/br_cgu_beneficios_cidadao/{table}/output/",
+                    file_type="csv",
                 )
             else:
                 to_partitions(

@@ -222,7 +222,7 @@ with Flow(
         "dataset_id", default="br_cgu_beneficios_cidadao", required=False
     )
     table_id = Parameter("table_id", default="bpc", required=False)
-    historical_data = Parameter("historical_data", default=False, required=False)
+    historical_data = Parameter("historical_data", default=True, required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
@@ -243,7 +243,7 @@ with Flow(
         dataset_id=dataset_id,
         table_id=table_id,
         dump_mode="append",
-        source_format="parquet",
+        source_format="csv",
         wait=output_filepath,
     )
 
