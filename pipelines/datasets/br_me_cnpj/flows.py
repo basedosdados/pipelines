@@ -19,12 +19,10 @@ from pipelines.datasets.br_me_cnpj.schedules import (
 )
 from pipelines.datasets.br_me_cnpj.tasks import (
     calculate_defasagem,
-    check_for_updates,
     format_date_to_string,
     get_data_source_max_date,
     main,
 )
-from pipelines.datasets.br_me_cnpj.utils import data_url
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
