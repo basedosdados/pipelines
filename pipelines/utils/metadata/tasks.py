@@ -101,14 +101,13 @@ def update_django_metadata(
         "basedosdados-staging",
     ]
 
-    # TODO: mudar aqui tudo que é unidades_permitidas para lista 
+    # TODO: mudar aqui tudo que é unidades_permitidas para lista
     unidades_permitidas = {
         "years": "years",
         "months": "months",
         "weeks": "weeks",
         "days": "days",
     }
-
 
     # TODO: Remover parametro last_date
 
@@ -551,11 +550,11 @@ def test_ids(dataset_id, table_id, api_mode="staging", is_bd_pro=True, is_free=F
 
 @task
 def check_if_data_is_outdated(
-        dataset_id: str,
-        table_id: str,
-        data_source_max_date: datetime,
-        date_format: str = "%Y-%m-%d",
-          ) -> bool:
+    dataset_id: str,
+    table_id: str,
+    data_source_max_date: datetime,
+    date_format: str = "%Y-%m-%d",
+) -> bool:
     """Essa task checa se há necessidade de atualizar os dados no BQ
 
     Args:
@@ -567,11 +566,10 @@ def check_if_data_is_outdated(
     """
     data_source_max_date = data_source_max_date.strftime("%Y-%m-%d")
 
-    #antigo parse_coverage
+    # antigo parse_coverage
     data_api = get_api_most_recent_date(
-        dataset_id = dataset_id,
-        table_id = table_id,
-        date_format = date_format)
+        dataset_id=dataset_id, table_id=table_id, date_format=date_format
+    )
 
     log(f"Data na fonte: {data_source_max_date}")
     log(f"Data nos metadados da BD: {data_api}")

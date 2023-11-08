@@ -223,14 +223,14 @@ def get_token(email, password, api_mode: str = "prod"):
     Get api token.
     """
     r = None
-    
+
     if api_mode == "prod":
         url = "http://api.basedosdados.org/api/v1/graphql"
     elif api_mode == "staging":
         url = "http://staging.api.basedosdados.org/api/v1/graphql"
 
     r = requests.post(
-        url = url,
+        url=url,
         headers={"Content-Type": "application/json"},
         json={
             "query": """
@@ -297,9 +297,9 @@ def get_id(
                         }}"""
 
     if api_mode == "staging":
-        url=f"https://staging.api.basedosdados.org/api/v1/graphql",
+        url = (f"https://staging.api.basedosdados.org/api/v1/graphql",)
     elif api_mode == "prod":
-        url="https://api.basedosdados.org/api/v1/graphql"
+        url = "https://api.basedosdados.org/api/v1/graphql"
 
     r = requests.post(
         url=url,
@@ -872,6 +872,7 @@ def format_check_date(date_values: tuple, date_format: str) -> str:
             raise ValueError(
                 f"Attention! The input date_format ->> {date_format} is wrong for the current Table. The input date_format was 'Y%' but one of the elements | year ->> {end_year} | have NONE values in the PROD API. If that's not the case, check the Coverage values in the Prod API, they may be not filled (NONE)"
             )
+
 
 def get_api_most_recent_date(
     dataset_id: str,
