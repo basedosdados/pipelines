@@ -938,7 +938,7 @@ def get_api_most_recent_date(
         f"For this table ->> {table_id} there are these datetime end values->> {date_objects}"
     )
     max_date_key = max(date_objects, key=date_objects.get)
-    max_date_value = date_objects[max_date_key].strftime(date_format)
+    max_date_value = date_objects[max_date_key].date()
 
     log(
         f"The Most recent date for the ->> {table_id} in the prod API is ->> {max_date_value}"

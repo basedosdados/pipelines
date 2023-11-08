@@ -564,7 +564,8 @@ def check_if_data_is_outdated(
     Returns:
         bool: TRUE se a data da fonte original for maior que a data mais recente registrada na API e FALSE caso contrário.
     """
-    data_source_max_date = data_source_max_date.strftime("%Y-%m-%d")
+    if type(data_source_max_date) == datetime:
+        data_source_max_date = data_source_max_date.strftime("%Y-%m-%d")
 
     # antigo parse_coverage
     data_api = get_api_most_recent_date(

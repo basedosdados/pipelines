@@ -14,7 +14,6 @@ from pipelines.constants import constants
 from pipelines.datasets.br_rf_cafir.constants import constants as br_rf_cafir_constants
 from pipelines.datasets.br_rf_cafir.schedules import schedule_br_rf_cafir_imoveis_rurais
 from pipelines.datasets.br_rf_cafir.tasks import (
-    check_if_data_is_outdated,
     convert_datetime_to_string,
     parse_data,
     parse_files_parse_date,
@@ -22,7 +21,7 @@ from pipelines.datasets.br_rf_cafir.tasks import (
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.metadata.tasks import parse_coverage, update_django_metadata
+from pipelines.utils.metadata.tasks import  check_if_data_is_outdated, update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
