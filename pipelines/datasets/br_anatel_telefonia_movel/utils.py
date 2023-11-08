@@ -130,7 +130,10 @@ def data_url():
         time.sleep(15)
 
         # Aguarde até que o elemento desejado seja carregado (você pode ajustar o tempo limite conforme necessário)
-        element = driver.find_element("xpath", '//*[@id="selection-list"]/li/qv-current-selections-item/div/div[1]/span/span')
+        element = driver.find_element(
+            "xpath",
+            '//*[@id="selection-list"]/li/qv-current-selections-item/div/div[1]/span/span',
+        )
         time.sleep(15)
 
         # Obtenha o HTML do elemento
