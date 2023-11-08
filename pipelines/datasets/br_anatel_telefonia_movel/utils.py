@@ -123,9 +123,7 @@ def data_url():
     driver.get(url)
 
     # Aguarde até que o elemento desejado seja carregado (você pode ajustar o tempo limite conforme necessário)
-    element = driver.find_element(
-        By.XPATH, "//div[@ng-class='{locked:item.qLocked}']"
-    )
+    element = driver.find_element("xpath", '//*[@id="selection-list"]/li/qv-current-selections-item/div/div[1]/span/span')
 
     # Obtenha o HTML do elemento
     element_html = element.get_attribute("outerHTML")
@@ -154,7 +152,7 @@ def setting_data_url():
         "dez": "12",
     }
     string_element = data_url()
-    elemento_total = string_element[177:185]
+    elemento_total = string_element[25:33]
     mes, ano = elemento_total.split("-")
     mes = meses[mes]
     data_total = f"{ano}-{mes}"
