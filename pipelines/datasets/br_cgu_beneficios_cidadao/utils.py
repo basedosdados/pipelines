@@ -98,7 +98,36 @@ def download_unzip_csv(
 
 
 def extract_dates(table: str):
-    driver = webdriver.Chrome()
+    if not os.path.exists(constants.PATH.value):
+        os.mkdir(constants.PATH.value)
+
+    if not os.path.exists(constants.TMP_DATA_DIR.value):
+        os.mkdir(constants.TMP_DATA_DIR.value)
+
+    options = webdriver.ChromeOptions()
+
+    # https://github.com/SeleniumHQ/selenium/issues/11637
+    prefs = {
+        "download.default_directory": constants.TMP_DATA_DIR.value,
+        "download.prompt_for_download": False,
+        "download.directory_upgrade": True,
+        "safebrowsing.enabled": True,
+    }
+    options.add_experimental_option(
+        "prefs",
+        prefs,
+    )
+
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--crash-dumps-dir=/tmp")
+    options.add_argument("--remote-debugging-port=9222")
+    # NOTE: A resolucao afeta a renderizacao dos elementos
+    options.add_argument("--window-size=1920,1080")
+    options.add_argument("--headless=new")
+
+    driver = webdriver.Chrome(options=options)
     if table == "novo_bolsa_familia":
         driver.get(constants.ROOT_URL.value)
         driver.implicitly_wait(10)

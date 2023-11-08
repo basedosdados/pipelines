@@ -15,6 +15,7 @@ from pipelines.datasets.br_cgu_beneficios_cidadao.tasks import (
     crawler_bpc,
     crawler_garantia_safra,
     get_today_date,
+    setup_web_driver,
 )
 from pipelines.utils.constants import constants as utils_constants
 
@@ -236,8 +237,8 @@ with Flow(
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
-
-    output_filepath = crawler_bpc(historical_data)
+    setup = setup_web_driver()
+    output_filepath = crawler_bpc(historical_data, upstream_tasks=[setup])
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=output_filepath,
         dataset_id=dataset_id,

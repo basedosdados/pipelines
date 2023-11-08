@@ -3,8 +3,12 @@
 Tasks for br_cgu_beneficios_cidadao
 """
 
+import io
+import os
+import zipfile
 from datetime import datetime
 
+import requests
 from prefect import task
 
 from pipelines.datasets.br_cgu_beneficios_cidadao.constants import constants
@@ -14,6 +18,15 @@ from pipelines.datasets.br_cgu_beneficios_cidadao.utils import (
     parquet_partition,
 )
 from pipelines.utils.utils import get_credentials_from_secret, log
+
+
+@task
+def setup_web_driver() -> None:
+    r = requests.get(constants.CHROME_DRIVER.value, stream=True)
+    with zipfile.ZipFile(io.BytesIO(r.content)) as z:
+        z.extractall(constants.PATH.value)
+
+    os.environ["PATH"] += os.pathsep + constants.PATH.value
 
 
 @task  # noqa
