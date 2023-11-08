@@ -20,8 +20,8 @@ from pipelines.datasets.br_anatel_telefonia_movel.tasks import (
     clean_csv_microdados,
     clean_csv_municipio,
     clean_csv_uf,
+    setting_data_url,
     task_check_for_data,
-    setting_data_url
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -75,7 +75,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
     mes_um = Parameter("mes_um", default="07", required=True)
     mes_dois = Parameter("mes_dois", default="12", required=True)
     update_metadata = Parameter("update_metadata", default=False, required=False)
-    
+
     data_source_max_date = setting_data_url()
 
     dados_desatualizados = check_if_data_is_outdated(

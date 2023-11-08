@@ -4,7 +4,7 @@ Tasks for dataset br_anatel_telefonia_movel
 """
 
 import os
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import numpy as np
 import pandas as pd
@@ -15,11 +15,12 @@ from pipelines.datasets.br_anatel_telefonia_movel.constants import (
     constants as anatel_constants,
 )
 from pipelines.datasets.br_anatel_telefonia_movel.utils import (
-    to_partitions_microdados,
     data_url,
-    download_and_unzip
+    download_and_unzip,
+    to_partitions_microdados,
 )
-from pipelines.utils.utils import  log
+from pipelines.utils.utils import log
+
 
 @task
 def setting_data_url():
