@@ -15,6 +15,7 @@ import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+import time
 
 from pipelines.utils.utils import log
 
@@ -103,8 +104,11 @@ def to_partitions_microdados(
 
 
 def data_url():
+    element_html = ""  # Inicialize element_html com uma string vazia
+
     # Configurar as opções do ChromeDriver
     options = webdriver.ChromeOptions()
+    time.sleep(5)
 
     # Adicionar argumentos para executar o Chrome em modo headless (sem interface gráfica)
     options.add_argument("--headless")
@@ -119,21 +123,29 @@ def data_url():
     # URL da página da web que você deseja acessar
     url = "https://informacoes.anatel.gov.br/paineis/acessos/telefonia-movel"
 
-    # Abra a página da web
-    driver.get(url)
+    try:
+        # Abra a página da web
+        time.sleep(15)
+        driver.get(url)
+        time.sleep(15)
 
-    # Aguarde até que o elemento desejado seja carregado (você pode ajustar o tempo limite conforme necessário)
-    element = driver.find_element(
-        "xpath",
-        '//*[@id="selection-list"]/li/qv-current-selections-item/div/div[1]/span/span',
-    )
-    # Obtenha o HTML do elemento
-    element_html = element.get_attribute("outerHTML")
+        # Aguarde até que o elemento desejado seja carregado (você pode ajustar o tempo limite conforme necessário)
+        element = driver.find_element(
+            By.XPATH, "//div[@ng-class='{locked:item.qLocked}']"
+        )
+        time.sleep(15)
 
-    # Imprima o HTML do elemento
-    log(element_html)
-
-    driver.quit()
+        # Obtenha o HTML do elemento
+        element_html = element.get_attribute("outerHTML")
+        time.sleep(15)
+        # Imprima o HTML do elemento
+        log(element_html)
+    except Exception as e:
+        log("Ocorreu um erro ao acessar a página:", str(e))
+    finally:
+        # Certifique-se de fechar o navegador, mesmo em caso de erro
+        time.sleep(15)
+        driver.quit()
 
     return element_html
 
