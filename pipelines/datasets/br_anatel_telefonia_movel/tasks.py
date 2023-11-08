@@ -47,6 +47,7 @@ def setting_data_url():
 
     return data_total
 
+
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
