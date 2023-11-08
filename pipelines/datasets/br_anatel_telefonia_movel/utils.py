@@ -118,6 +118,8 @@ def data_url():
     # URL da página da web que você deseja acessar
     url = "https://informacoes.anatel.gov.br/paineis/acessos/telefonia-movel"
 
+    element_html = None
+    
     try:
         # Abra a página da web
         driver.get(url)
