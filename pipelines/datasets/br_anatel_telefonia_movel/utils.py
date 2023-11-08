@@ -5,6 +5,7 @@ General purpose functions for the br_anatel_telefonia_movel project of the pipel
 # pylint: disable=too-few-public-methods,invalid-name
 
 import os
+import time
 from io import BytesIO
 from pathlib import Path
 from urllib.request import urlopen
@@ -15,7 +16,6 @@ import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-import time
 
 from pipelines.utils.utils import log
 
