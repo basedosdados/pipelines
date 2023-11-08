@@ -119,27 +119,21 @@ def data_url():
     # URL da página da web que você deseja acessar
     url = "https://informacoes.anatel.gov.br/paineis/acessos/telefonia-movel"
 
-    element_html = None
+    # Abra a página da web
+    driver.get(url)
 
-    try:
-        # Abra a página da web
-        driver.get(url)
+    # Aguarde até que o elemento desejado seja carregado (você pode ajustar o tempo limite conforme necessário)
+    element = driver.find_element(
+        By.XPATH, "//div[@ng-class='{locked:item.qLocked}']"
+    )
 
-        # Aguarde até que o elemento desejado seja carregado (você pode ajustar o tempo limite conforme necessário)
-        element = driver.find_element(
-            By.XPATH, "//div[@ng-class='{locked:item.qLocked}']"
-        )
+    # Obtenha o HTML do elemento
+    element_html = element.get_attribute("outerHTML")
 
-        # Obtenha o HTML do elemento
-        element_html = element.get_attribute("outerHTML")
+    # Imprima o HTML do elemento
+    log(element_html)
 
-        # Imprima o HTML do elemento
-        log(element_html)
-    except Exception as e:
-        log("Ocorreu um erro ao acessar a página:", str(e))
-    finally:
-        # Certifique-se de fechar o navegador, mesmo em caso de erro
-        driver.quit()
+    driver.quit()
 
     return element_html
 
