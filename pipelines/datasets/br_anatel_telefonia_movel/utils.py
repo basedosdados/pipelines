@@ -15,10 +15,7 @@ import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-
-from pipelines.datasets.br_anatel_telefonia_movel.constants import (
-    constants as anatel_constants,
-)
+from pipelines.utils.utils import log
 
 
 def download_and_unzip(url, path):
@@ -134,9 +131,9 @@ def data_url():
         element_html = element.get_attribute("outerHTML")
 
         # Imprima o HTML do elemento
-        print(element_html)
+        log(element_html)
     except Exception as e:
-        print("Ocorreu um erro ao acessar a página:", str(e))
+        log("Ocorreu um erro ao acessar a página:", str(e))
     finally:
         # Certifique-se de fechar o navegador, mesmo em caso de erro
         driver.quit()
@@ -164,5 +161,6 @@ def setting_data_url():
     mes, ano = elemento_total.split("-")
     mes = meses[mes]
     data_total = f"{ano}-{mes}"
+    log(data_total)
 
     return data_total
