@@ -151,8 +151,16 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
     tabelas = constants_cnpj.TABELAS.value[1:2]
-    dados_desatualizados = check_for_updates(dataset_id, table_id)
-    log_task(f"Checando se os dados estão desatualizados: {dados_desatualizados}")
+
+    data_source_max_date = get_data_source_max_date()
+
+    dados_desatualizados = check_if_data_is_outdated(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        data_source_max_date=data_source_max_date,
+        date_format="%Y-%m-%d",
+        upstream_tasks=[data_source_max_date],
+    )
 
     with case(dados_desatualizados, False):
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
@@ -238,9 +246,17 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
     tabelas = constants_cnpj.TABELAS.value[2:3]
-    dados_desatualizados = check_for_updates(dataset_id, table_id)
-    log_task(f"Checando se os dados estão desatualizados: {dados_desatualizados}")
+    
+    data_source_max_date = get_data_source_max_date()
 
+    dados_desatualizados = check_if_data_is_outdated(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        data_source_max_date=data_source_max_date,
+        date_format="%Y-%m-%d",
+        upstream_tasks=[data_source_max_date],
+    )
+    
     with case(dados_desatualizados, False):
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
@@ -369,10 +385,17 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
     tabelas = constants_cnpj.TABELAS.value[3:]
-    dados_desatualizados = check_for_updates(
-        dataset_id="br_me_cnpj", table_id="estabelecimentos"
+
+    data_source_max_date = get_data_source_max_date()
+
+    dados_desatualizados = check_if_data_is_outdated(
+        dataset_id="br_me_cnpj",
+        table_id="estabelecimentos",
+        data_source_max_date=data_source_max_date,
+        date_format="%Y-%m-%d",
+        upstream_tasks=[data_source_max_date],
     )
-    log_task(f"Checando se os dados estão desatualizados: {dados_desatualizados}")
+
 
     with case(dados_desatualizados, False):
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
