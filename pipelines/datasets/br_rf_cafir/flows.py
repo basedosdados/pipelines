@@ -53,11 +53,11 @@ with Flow(
     log_task("Checando se os dados estão desatualizados")
 
     is_outdated = check_if_data_is_outdated(
-        dataset_id= dataset_id,
-        table_id= table_id,
+        dataset_id=dataset_id,
+        table_id=table_id,
         data_source_max_date=info[0],
-        date_format = "%Y-%m-%d",
-        upstream_tasks=[info]
+        date_format="%Y-%m-%d",
+        upstream_tasks=[info],
     )
 
     update_metadata_strig_date = convert_datetime_to_string(
