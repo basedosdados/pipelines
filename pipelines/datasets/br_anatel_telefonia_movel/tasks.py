@@ -53,7 +53,6 @@ def check_for_updates(dataset_id, table_id):
         return False  # Não há novas atualizações disponíveis
 
 
-
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
