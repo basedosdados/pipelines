@@ -34,9 +34,9 @@ with Flow(
     ],
 ) as datasets_br_cgu_bolsa_familia_flow:
     dataset_id = Parameter(
-        "dataset_id", default="br_cgu_beneficios_cidadao", required=True
+        "dataset_id", default="br_cgu_beneficios_cidadao", required=False
     )
-    table_id = Parameter("table_id", default="novo_bolsa_familia", required=True)
+    table_id = Parameter("table_id", default="novo_bolsa_familia", required=False)
     historical_data = Parameter("historical_data", default=False, required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
     materialization_mode = Parameter(
@@ -44,9 +44,9 @@ with Flow(
     )
 
     materialize_after_dump = Parameter(
-        "materialize_after_dump", default=False, required=False
+        "materialize_after_dump", default=True, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id

@@ -38,7 +38,7 @@ def download_unzip_csv(
     """
 
     if mkdir:
-        os.makedirs(f"/tmp/data/br_cvm_fi/{id}/input/", exist_ok=True)
+        os.makedirs(f"/tmp/data/br_cgu_bolsa_familia/{id}/input/", exist_ok=True)
 
     request_headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36",
@@ -48,7 +48,7 @@ def download_unzip_csv(
         for file in files:
             log(f"Baixando o arquivo {file}")
             download_url = f"{url}{file}"
-            save_path = f"/tmp/data/br_cvm_fi/{id}/input/{file}"
+            save_path = f"/tmp/data/br_cgu_bolsa_familia/{id}/input/{file}"
 
             r = requests.get(
                 download_url, headers=request_headers, stream=True, timeout=50
