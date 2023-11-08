@@ -52,20 +52,16 @@ with Flow(
     info = parse_files_parse_date(url=br_rf_cafir_constants.URL.value[0])
     log_task("Checando se os dados estão desatualizados")
 
-    api_most_recent_date = parse_coverage(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        date_format="yy-mm-dd",
-        upstream_tasks=[info],
+    is_outdated = check_if_data_is_outdated(
+        dataset_id= dataset_id,
+        table_id= table_id,
+        data_source_max_date=info[0],
+        date_format = "%Y-%m-%d",
+        upstream_tasks=[info]
     )
 
-    is_outdated = check_if_data_is_outdated(
-        data_tabela=info[0],
-        data_api=api_most_recent_date,
-        upstream_tasks=[info, api_most_recent_date],
-    )
     update_metadata_strig_date = convert_datetime_to_string(
-        data=info[0], upstream_tasks=[info, is_outdated]
+        data=info[0], upstream_tasks=[info]
     )
 
     with case(is_outdated, False):

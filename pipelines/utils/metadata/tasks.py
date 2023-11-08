@@ -10,16 +10,13 @@ from prefect import task
 
 from pipelines.utils.metadata.utils import (
     create_update,
-    extract_last_date,
     extract_last_update,
-    get_coverage_value,
+    get_api_most_recent_date,
     get_credentials_utils,
-    get_first_date,
-    get_id,
     get_ids,
     parse_temporal_coverage,
 )
-from pipelines.utils.utils import get_credentials_from_secret, log
+from pipelines.utils.utils import log
 
 
 @task
@@ -103,12 +100,17 @@ def update_django_metadata(
         "basedosdados",
         "basedosdados-staging",
     ]
+
+    # TODO: mudar aqui tudo que é unidades_permitidas para lista 
     unidades_permitidas = {
         "years": "years",
         "months": "months",
         "weeks": "weeks",
         "days": "days",
     }
+
+
+    # TODO: Remover parametro last_date
 
     if not isinstance(_last_date, str) and _last_date is not None:
         raise ValueError("O parâmetro `last_date` deve ser uma string não nula")
@@ -548,80 +550,34 @@ def test_ids(dataset_id, table_id, api_mode="staging", is_bd_pro=True, is_free=F
 
 
 @task
-def parse_coverage(
-    dataset_id: str,
-    table_id: str,
-    date_format: str = "yy-mm-dd",
-    api_mode: str = "prod",
-) -> datetime.date:
-    """Parses the table coverage for a given table id.
-
-    This task will:
-
-    1. Collect the credentials_utils;
-    2. Access the PROD API and collect the DJANGO Table ID with the given GCS table ID;
-    3. Collet all the end coverages for the given table_id;
-    4. Parse the coverages;
-    5. Compare the coverages and return the most recent date;
+def check_if_data_is_outdated(
+        dataset_id: str,
+        table_id: str,
+        data_source_max_date: datetime,
+        date_format: str = "%Y-%m-%d",
+          ) -> bool:
+    """Essa task checa se há necessidade de atualizar os dados no BQ
 
     Args:
-        dataset_id (str): Dataset ID in GCS
-        table_id (str): Table ID in GCS
-        date_format (str, optional): Date format values "yy-mm-dd", "yy-mm", "yy". Defaults to "yy-mm-dd".
-        api_mode (str, optional): Defaults to "prod".
-
-    Raises:
-        ValueError: if date_format is not valid
+        dataset_id e table_id(string): permite encontrar na api a última data de cobertura
+        data_api (date): A data mais recente dos dados da fonte original
 
     Returns:
-        str: a string representation of the date: %Y-%m-%d; %Y-%m; Y%
+        bool: TRUE se a data da fonte original for maior que a data mais recente registrada na API e FALSE caso contrário.
     """
+    data_source_max_date = data_source_max_date.strftime("%Y-%m-%d")
 
-    # check if date_format is valid
-    accepted_date_format = ["yy-mm-dd", "yy-mm", "yy"]
-    # if not, raise ValueError
-    if date_format not in accepted_date_format:
-        raise ValueError(
-            f"The date_format  ->>  ->> {date_format} is not supported. Please choose between {accepted_date_format}"
-        )
+    #antigo parse_coverage
+    data_api = get_api_most_recent_date(
+        dataset_id = dataset_id,
+        table_id = table_id,
+        date_format = date_format)
 
-    # Collect credentials_utils
-    (email, password) = get_credentials_utils(secret_path=f"api_user_{api_mode}")
+    log(f"Data na fonte: {data_source_max_date}")
+    log(f"Data nos metadados da BD: {data_api}")
 
-    # collect all table coverages for the given table id
-    coverages = get_coverage_value(
-        dataset_id,
-        table_id,
-        date_format,
-        email,
-        password,
-        api_mode,
-    )
-
-    # parse coverages
-    log(f"For the table ->>{table_id} the parsed coverages were ->> {coverages}")
-
-    # set the date_format
-    date_format = date_format
-    date_format_mapping = {"yy-mm-dd": "%Y-%m-%d", "yy-mm": "%Y-%m", "yy": "%Y"}
-
-    # get the date_format_string
-    date_format_string = date_format_mapping.get(date_format)
-    log(f"The chosen date_format is ->> {date_format_string}")
-    # Convert the date strings to date objects
-    date_objects = {}
-    for key, date_string in coverages.items():
-        date_objects[key] = datetime.strptime(date_string, date_format_string)
-
-    # Compare the date objects, return the most recent date and format it
-    log(
-        f"For this table ->> {table_id} there are these datetime end values->> {date_objects}"
-    )
-    max_date_key = max(date_objects, key=date_objects.get)
-    max_date_value = date_objects[max_date_key].strftime(date_format_string)
-
-    log(
-        f"The Most recent date for the ->> {table_id} in the prod API is ->> {max_date_value}"
-    )
-
-    return max_date_value
+    # Compara as datas para verificar se há atualizações
+    if data_source_max_date > data_api:
+        return True  # Há atualizações disponíveis
+    else:
+        return False
