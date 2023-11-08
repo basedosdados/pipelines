@@ -223,39 +223,28 @@ def get_token(email, password, api_mode: str = "prod"):
     Get api token.
     """
     r = None
-    if api_mode == "prod":
-        r = requests.post(
-            "http://api.basedosdados.org/api/v1/graphql",
-            headers={"Content-Type": "application/json"},
-            json={
-                "query": """
-            mutation ($email: String!, $password: String!) {
-                tokenAuth(email: $email, password: $password) {
-                    token
-                }
-            }
-        """,
-                "variables": {"email": email, "password": password},
-            },
-        )
 
-        r.raise_for_status()
+    if api_mode == "prod":
+        url = "http://api.basedosdados.org/api/v1/graphql"
     elif api_mode == "staging":
-        r = requests.post(
-            "http://staging.api.basedosdados.org/api/v1/graphql",
-            headers={"Content-Type": "application/json"},
-            json={
-                "query": """
-            mutation ($email: String!, $password: String!) {
-                tokenAuth(email: $email, password: $password) {
-                    token
-                }
+        url = "http://staging.api.basedosdados.org/api/v1/graphql"
+
+    r = requests.post(
+        url=url,
+        headers={"Content-Type": "application/json"},
+        json={
+            "query": """
+        mutation ($email: String!, $password: String!) {
+            tokenAuth(email: $email, password: $password) {
+                token
             }
-        """,
-                "variables": {"email": email, "password": password},
-            },
-        )
-        r.raise_for_status()
+        }
+    """,
+            "variables": {"email": email, "password": password},
+        },
+    )
+    r.raise_for_status()
+
     return r.json()["data"]["tokenAuth"]["token"]
 
 
@@ -308,18 +297,15 @@ def get_id(
                         }}"""
 
     if api_mode == "staging":
-        r = requests.post(
-            url=f"https://{api_mode}.api.basedosdados.org/api/v1/graphql",
-            json={"query": query, "variables": dict(zip(keys, values))},
-            headers=header,
-        ).json()
-
+        url = (f"https://staging.api.basedosdados.org/api/v1/graphql",)
     elif api_mode == "prod":
-        r = requests.post(
-            url="https://api.basedosdados.org/api/v1/graphql",
-            json={"query": query, "variables": dict(zip(keys, values))},
-            headers=header,
-        ).json()
+        url = "https://api.basedosdados.org/api/v1/graphql"
+
+    r = requests.post(
+        url=url,
+        json={"query": query, "variables": dict(zip(keys, values))},
+        headers=header,
+    ).json()
 
     if "data" in r and r is not None:
         if r.get("data", {}).get(query_class, {}).get("edges") == []:
@@ -813,10 +799,9 @@ def parse_datetime_ranges(datetime_result: dict, date_format: str) -> dict:
         dict: A dictionary with one or more datetime ranges for the given table
     """
 
-    date_format_string = get_date_format_string(date_format)
     date_objects = {}
 
-    log(f"the chosen format to parse the coverage was {date_format_string}")
+    log(f"the chosen format to parse the coverage was {date_format}")
 
     edges = datetime_result["data"]["allCoverage"]["edges"]
 
@@ -844,20 +829,6 @@ def parse_datetime_ranges(datetime_result: dict, date_format: str) -> dict:
     return date_objects
 
 
-def get_date_format_string(date_format: str) -> str:
-    """This function generates a format_date string for a given date pattern. Its used within the parse_coverage task.
-
-    Args:
-        date_format (str): Used to convert Datetime
-
-    Returns:
-        str: a format_date string
-    """
-
-    date_format_mapping = {"yy-mm-dd": "%Y-%m-%d", "yy-mm": "%Y-%m", "yy": "%Y"}
-    return date_format_mapping.get(date_format, "%Y-%m-%d")
-
-
 def format_check_date(date_values: tuple, date_format: str) -> str:
     """This function formats a date according to the given date_format and make 2 checks:
         1) If the date_format is valid for the given date_values; in other words, if the date_format is correct for the table.
@@ -868,36 +839,109 @@ def format_check_date(date_values: tuple, date_format: str) -> str:
         date_format (str): The format string
 
     Raises:
-        ValueError: Checks 1 and 2 for yy-mm-dd date format
-        ValueError: Checks 1 and 2 for yy-mm date format
-        ValueError: Checks 1 and 2 for yy date format
+        ValueError: Checks 1 and 2 for %Y-%m-%d date format
+        ValueError: Checks 1 and 2 for %Y-%m date format
+        ValueError: Checks 1 and 2 for %Y date format
 
     Returns:
-        str: A string with a date in the format yy-mm-dd (%Y-%m-%d), yy-mm (%Y-%m) or yy (%Y)
+        str: A string with a date in the format %Y-%m-%d, %Y-%m, %Y
     """
 
     end_year, end_month, end_day = date_values
 
-    if date_format == "yy-mm-dd":
+    if date_format == "%Y-%m-%d":
         if end_year is not None and end_month is not None and end_day is not None:
             return f"{end_year:04d}-{end_month:02d}-{end_day:02d}"
         else:
             raise ValueError(
-                f"Attention! The input date_format ->> {date_format} is wrong for the current Table. The input date_format was 'yy-mm-dd' but one of the elements | year ->> {end_year}, month ->> {end_month}, day ->> {end_day}  | have NONE values in the PROD API. If that's not the case, check the Coverage values in the Prod API, they may be not filled (NONE)"
+                f"Attention! The input date_format ->> {date_format} is wrong for the current Table. The input date_format was '%Y-%m-%d' but one of the elements | year ->> {end_year}, month ->> {end_month}, day ->> {end_day}  | have NONE values in the PROD API. If that's not the case, check the Coverage values in the Prod API, they may be not filled (NONE)"
             )
 
-    elif date_format == "yy-mm":
+    elif date_format == "%Y-%m":
         if end_year is not None and end_month is not None:
             return f"{end_year:04d}-{end_month:02d}"
         else:
             raise ValueError(
-                f"Attention! The input date_format ->> {date_format} is wrong for the current Table. The input date_format was 'yy-mm' but one of the elements | year ->> {end_year}, month ->> {end_month}| have NONE values in the PROD API. If that's not the case, check the Coverage values in the Prod API, they may be not filled (NONE)"
+                f"Attention! The input date_format ->> {date_format} is wrong for the current Table. The input date_format was '%Y-%m' but one of the elements | year ->> {end_year}, month ->> {end_month}| have NONE values in the PROD API. If that's not the case, check the Coverage values in the Prod API, they may be not filled (NONE)"
             )
 
-    elif date_format == "yy":
+    elif date_format == "Y%":
         if end_year is not None:
             return f"{end_year:04d}"
         else:
             raise ValueError(
-                f"Attention! The input date_format ->> {date_format} is wrong for the current Table. The input date_format was 'yy' but one of the elements | year ->> {end_year} | have NONE values in the PROD API. If that's not the case, check the Coverage values in the Prod API, they may be not filled (NONE)"
+                f"Attention! The input date_format ->> {date_format} is wrong for the current Table. The input date_format was 'Y%' but one of the elements | year ->> {end_year} | have NONE values in the PROD API. If that's not the case, check the Coverage values in the Prod API, they may be not filled (NONE)"
             )
+
+
+def get_api_most_recent_date(
+    dataset_id: str,
+    table_id: str,
+    date_format: str = "%Y-%m-%d",
+    api_mode: str = "prod",
+) -> datetime.date:
+    """get the max table coverage for a given table id.
+
+    This task will:
+
+    1. Collect the credentials_utils;
+    2. Access the PROD API and collect the DJANGO Table ID with the given GCS table ID;
+    3. Collet all the end coverages for the given table_id;
+    4. Parse the coverages;
+    5. Compare the coverages and return the most recent date;
+
+    Args:
+        dataset_id (str): Dataset ID in GCS
+        table_id (str): Table ID in GCS
+        date_format (str, optional): Date format values %Y-%m-%d; %Y-%m; Y%
+        api_mode (str, optional): Defaults to "prod".
+
+    Raises:
+        ValueError: if date_format is not valid
+
+    Returns:
+        str: a string representation of the date: %Y-%m-%d; %Y-%m; Y%
+    """
+
+    # check if date_format is valid
+    accepted_date_format = ["%Y-%m-%d", "%Y-%m", "%Y"]
+    # if not, raise ValueError
+    if date_format not in accepted_date_format:
+        raise ValueError(
+            f"The date_format  ->>  ->> {date_format} is not supported. Please choose between {accepted_date_format}"
+        )
+    log(f"The chosen date_format is ->> {date_format}")
+
+    # Collect credentials_utils
+    (email, password) = get_credentials_utils(secret_path=f"api_user_{api_mode}")
+
+    # collect all table coverages for the given table id
+    coverages = get_coverage_value(
+        dataset_id,
+        table_id,
+        date_format,
+        email,
+        password,
+        api_mode,
+    )
+
+    # parse coverages
+    log(f"For the table ->>{table_id} the parsed coverages were ->> {coverages}")
+
+    # Convert the date strings to date objects
+    date_objects = {}
+    for key, date_string in coverages.items():
+        date_objects[key] = datetime.strptime(date_string, date_format)
+
+    # Compare the date objects, return the most recent date and format it
+    log(
+        f"For this table ->> {table_id} there are these datetime end values->> {date_objects}"
+    )
+    max_date_key = max(date_objects, key=date_objects.get)
+    max_date_value = date_objects[max_date_key].date()
+
+    log(
+        f"The Most recent date for the ->> {table_id} in the prod API is ->> {max_date_value}"
+    )
+
+    return max_date_value
