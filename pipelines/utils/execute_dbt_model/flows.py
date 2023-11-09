@@ -15,7 +15,7 @@ from pipelines.utils.tasks import rename_current_flow_run_dataset_table
 
 with Flow(name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value) as run_dbt_model_flow:
     # Parameters
-    dataset_id = Parameter("dataset_id")
+    dataset_id = Parameter("dataset_id", required=True)
     table_id = Parameter("table_id", default=None, required=False)
     mode = Parameter("mode", default="dev", required=False)
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
