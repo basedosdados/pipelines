@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import shutil
 import zipfile
 
 import numpy as np
@@ -100,10 +101,10 @@ def download_unzip_csv(
 
 def extract_dates(table: str):
     if not os.path.exists(constants.PATH.value):
-        os.mkdir(constants.PATH.value)
+        os.makedirs(constants.PATH.value, exist_ok=True)
 
     if not os.path.exists(constants.TMP_DATA_DIR.value):
-        os.mkdir(constants.TMP_DATA_DIR.value)
+        os.makedirs(constants.TMP_DATA_DIR.value, exist_ok=True)
     service = Service(executable_path="/usr/local/bin/chromedriver")
     log(f"{constants.PATH.value}chromedriver")
     options = webdriver.ChromeOptions()
@@ -132,6 +133,16 @@ def extract_dates(table: str):
     )
 
     driver = webdriver.Chrome(service=service, options=options)
+    # driver = webdriver.Chrome(options=options)
+    chromedriver_version = driver.capabilities["chrome"]["chromedriverVersion"].split(
+        " "
+    )[0]
+    chromedriver_path = shutil.which("chromedriver")
+    log(f"Caminho do Chromedriver: {chromedriver_path}")
+
+    # Imprime o caminho do Chromedriver
+    log(f"Versão do Chromedriver: {chromedriver_version}")
+
     if table == "novo_bolsa_familia":
         driver.get(constants.ROOT_URL.value)
         driver.implicitly_wait(10)

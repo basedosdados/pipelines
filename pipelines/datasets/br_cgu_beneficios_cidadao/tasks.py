@@ -33,7 +33,7 @@ def setup_web_driver() -> None:
 def teste_selenium():
     dates = extract_dates(table="bpc")
 
-    return dates["urls"].to_list()
+    return log(dates["urls"].to_list())
 
 
 @task  # noqa
