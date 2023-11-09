@@ -25,29 +25,6 @@ from pipelines.utils.utils import log
 
 
 @task
-def check_if_data_is_outdated(data_tabela: datetime, data_api: datetime) -> bool:
-    """Essa task checa se há necessidade de atualizar os dados no BQ
-
-    Args:
-        data_tabela (date): A data de atualização dos dados da tabela imoveis_rurais extraida do FTP
-        ddata_api (date): A data mais recente dos dados da tabela imoveis_rurais na API de PROD
-
-    Returns:
-        bool: TRUE se a data do FTP for maior que a data mais recente registrada na API e FALSE caso contrário.
-    """
-    data = data_tabela.strftime("%Y-%m-%d")
-
-    log(f"Data do site: {data}")
-    log(f"Data da API: {data_api}")
-
-    # Compara as datas para verificar se há atualizações
-    if data > data_api:
-        return True  # Há atualizações disponíveis
-    else:
-        return False
-
-
-@task
 def parse_files_parse_date(url) -> tuple[list[datetime], list[str]]:
     """Extrai os nomes dos arquivos e a data de disponibilização dos dados no FTP
 

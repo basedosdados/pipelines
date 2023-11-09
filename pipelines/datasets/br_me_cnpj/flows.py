@@ -19,19 +19,20 @@ from pipelines.datasets.br_me_cnpj.schedules import (
 )
 from pipelines.datasets.br_me_cnpj.tasks import (
     calculate_defasagem,
-    check_for_updates,
     format_date_to_string,
+    get_data_source_max_date,
     main,
 )
-from pipelines.datasets.br_me_cnpj.utils import data_url
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.metadata.tasks import update_django_metadata
+from pipelines.utils.metadata.tasks import (
+    check_if_data_is_outdated,
+    update_django_metadata,
+)
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
-    log,
     log_task,
     rename_current_flow_run_dataset_table,
 )
@@ -39,7 +40,7 @@ from pipelines.utils.tasks import (
 with Flow(
     name="br_me_cnpj.empresas",
     code_owners=[
-        "Gabs",
+        "lauris",
     ],
 ) as br_me_cnpj_empresas:
     dataset_id = Parameter("dataset_id", default="br_me_cnpj", required=True)
@@ -56,8 +57,16 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
     tabelas = constants_cnpj.TABELAS.value[0:1]
-    dados_desatualizados = check_for_updates(dataset_id, table_id)
-    log_task(f"Checando se os dados estão desatualizados: {dados_desatualizados}")
+
+    data_source_max_date = get_data_source_max_date()
+
+    dados_desatualizados = check_if_data_is_outdated(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        data_source_max_date=data_source_max_date,
+        date_format="%Y-%m-%d",
+        upstream_tasks=[data_source_max_date],
+    )
 
     with case(dados_desatualizados, False):
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
@@ -125,7 +134,7 @@ br_me_cnpj_empresas.schedule = every_day_empresas
 with Flow(
     name="br_me_cnpj.socios",
     code_owners=[
-        "Gabs",
+        "lauris",
     ],
 ) as br_me_cnpj_socios:
     dataset_id = Parameter("dataset_id", default="br_me_cnpj", required=True)
@@ -142,8 +151,16 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
     tabelas = constants_cnpj.TABELAS.value[1:2]
-    dados_desatualizados = check_for_updates(dataset_id, table_id)
-    log_task(f"Checando se os dados estão desatualizados: {dados_desatualizados}")
+
+    data_source_max_date = get_data_source_max_date()
+
+    dados_desatualizados = check_if_data_is_outdated(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        data_source_max_date=data_source_max_date,
+        date_format="%Y-%m-%d",
+        upstream_tasks=[data_source_max_date],
+    )
 
     with case(dados_desatualizados, False):
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
@@ -212,7 +229,7 @@ br_me_cnpj_socios.schedule = every_day_socios
 with Flow(
     name="br_me_cnpj.estabelecimentos",
     code_owners=[
-        "Gabs",
+        "lauris",
     ],
 ) as br_me_cnpj_estabelecimentos:
     dataset_id = Parameter("dataset_id", default="br_me_cnpj", required=True)
@@ -229,8 +246,16 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
     tabelas = constants_cnpj.TABELAS.value[2:3]
-    dados_desatualizados = check_for_updates(dataset_id, table_id)
-    log_task(f"Checando se os dados estão desatualizados: {dados_desatualizados}")
+
+    data_source_max_date = get_data_source_max_date()
+
+    dados_desatualizados = check_if_data_is_outdated(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        data_source_max_date=data_source_max_date,
+        date_format="%Y-%m-%d",
+        upstream_tasks=[data_source_max_date],
+    )
 
     with case(dados_desatualizados, False):
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
@@ -343,7 +368,7 @@ br_me_cnpj_estabelecimentos.schedule = every_day_estabelecimentos
 with Flow(
     name="br_me_cnpj.simples",
     code_owners=[
-        "Gabs",
+        "lauris",
     ],
 ) as br_me_cnpj_simples:
     dataset_id = Parameter("dataset_id", default="br_me_cnpj", required=True)
@@ -360,10 +385,16 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
     tabelas = constants_cnpj.TABELAS.value[3:]
-    dados_desatualizados = check_for_updates(
-        dataset_id="br_me_cnpj", table_id="estabelecimentos"
+
+    data_source_max_date = get_data_source_max_date()
+
+    dados_desatualizados = check_if_data_is_outdated(
+        dataset_id="br_me_cnpj",
+        table_id="estabelecimentos",
+        data_source_max_date=data_source_max_date,
+        date_format="%Y-%m-%d",
+        upstream_tasks=[data_source_max_date],
     )
-    log_task(f"Checando se os dados estão desatualizados: {dados_desatualizados}")
 
     with case(dados_desatualizados, False):
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
