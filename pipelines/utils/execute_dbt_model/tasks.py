@@ -4,6 +4,7 @@ Tasks related to DBT flows.
 """
 
 from datetime import timedelta
+
 from dbt_client import DbtClient
 from prefect import task
 
@@ -41,10 +42,10 @@ def run_dbt_model(
     dataset_id: str,
     table_id: str,
     dbt_alias: bool = True,
-    dbt_command: str = 'run',
+    dbt_command: str = "run",
     sync: bool = True,
     flags: str = None,
-    _vars = None,
+    _vars=None,
 ):
     """
     Run a DBT model.
@@ -73,7 +74,7 @@ def run_dbt_model(
 
     if "run" in dbt_command:
         run_command = f"dbt run --select {selected_table}"
-    
+
     if _vars:
         if isinstance(_vars, list):
             vars_dict = {}
