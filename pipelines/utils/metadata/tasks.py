@@ -564,9 +564,9 @@ def check_if_data_is_outdated(
     Returns:
         bool: TRUE se a data da fonte original for maior que a data mais recente registrada na API e FALSE caso contrário.
     """
-    if data_source_max_date is datetime:
+    if type(data_source_max_date) is datetime:
         data_source_max_date = data_source_max_date.date()
-    if data_source_max_date is str:
+    if type(data_source_max_date) is str:
         data_source_max_date = datetime.strptime(
             data_source_max_date, date_format
         ).date()
