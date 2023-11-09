@@ -104,8 +104,8 @@ def extract_dates(table: str):
 
     if not os.path.exists(constants.TMP_DATA_DIR.value):
         os.mkdir(constants.TMP_DATA_DIR.value)
-
-    service = Service(executable_path=constants.PATH.value)
+    service = Service(executable_path=f"{constants.PATH.value}chromedriver")
+    log(f"{constants.PATH.value}chromedriver")
     options = webdriver.ChromeOptions()
 
     # https://github.com/SeleniumHQ/selenium/issues/11637
