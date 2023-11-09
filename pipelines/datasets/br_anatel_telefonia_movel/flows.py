@@ -82,7 +82,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
         dataset_id=dataset_id,
         table_id=table_id,
         data_source_max_date=data_source_max_date,
-        date_format="%Y-%m-%d",
+        date_format="%Y-%m",
         upstream_tasks=[data_source_max_date],
     )
 
