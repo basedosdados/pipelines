@@ -12,7 +12,7 @@ from pipelines.constants import constants
 every_month_anatel = Schedule(
     clocks=[
         CronClock(
-            cron="50 16 28 * *",  # At 17:50 on day-of-month 28
+            cron="0 5 * * *",  # 5h UTC = 2h BRT
             start_date=datetime(2021, 3, 31, 17, 11),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
@@ -30,8 +30,8 @@ every_month_anatel = Schedule(
                 "dbt_alias": True,
                 "update_metadata": True,
                 "anos": "2023",
-                "mes_um": "01",
-                "mes_dois": "06",
+                "mes_um": "07",
+                "mes_dois": "12",
                 "update_metadata": True,
             },
         ),
