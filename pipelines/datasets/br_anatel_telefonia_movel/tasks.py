@@ -4,7 +4,7 @@ Tasks for dataset br_anatel_telefonia_movel
 """
 
 import os
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 import numpy as np
 import pandas as pd
@@ -15,43 +15,36 @@ from pipelines.datasets.br_anatel_telefonia_movel.constants import (
     constants as anatel_constants,
 )
 from pipelines.datasets.br_anatel_telefonia_movel.utils import (
-    HEAD,
-    <<<<<<<,
+    to_partitions_microdados,
     data_url,
-    download_and_unzip,
-    to_partitions_microdados,
+    download_and_unzip
 )
-from pipelines.utils.utils import log
+from pipelines.utils.utils import  log
 
-=======
-    setting_data_url,
-    to_partitions_microdados,
-)
-from pipelines.utils.utils import extract_last_date, log, to_partitions
+@task
+def setting_data_url():
+    meses = {
+        "jan": "01",
+        "fev": "02",
+        "mar": "03",
+        "abr": "04",
+        "mai": "05",
+        "jun": "06",
+        "jul": "07",
+        "ago": "08",
+        "set": "09",
+        "out": "10",
+        "nov": "11",
+        "dez": "12",
+    }
+    string_element = data_url()
+    elemento_total = string_element[25:33]
+    mes, ano = elemento_total.split("-")
+    mes = meses[mes]
+    data_total = f"{ano}-{mes}"
+    log(data_total)
 
->>>>>>> parent of c6030c9e (add check_if_data_is_outdated)
-
-
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
-def check_for_updates(dataset_id, table_id):
-    data_obj = setting_data_url()
-    data_obj = datetime.strptime(data_obj, '%Y-%m').date()
-    # Obtém a última data no site BD
-    data_bq_obj = extract_last_date(dataset_id, table_id, "yy-mm", "basedosdados-dev")
-
-    # Registra a data mais recente do site
-    log(f"Última data no site do ANATEL: {data_obj}")
-    log(f"Última data no site da BD: {data_bq_obj}")
-
-    # Compara as datas para verificar se há atualizações
-    if data_obj > data_bq_obj:
-        return True  # Há atualizações disponíveis
-    else:
-        return False  # Não há novas atualizações disponíveis
-
+    return data_total
 
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
@@ -84,7 +77,19 @@ def clean_csv_microdados(anos, mes_um, mes_dois):
             'ano', 'mes', 'sigla_uf', 'id_municipio', 'ddd', 'cnpj', 'empresa', 'porte_empresa', 'tecnologia',
             'sinal', 'modalidade', 'pessoa', 'produto', 'acessos'
     """
+    # Imprime uma linha de separação no log
+    log("=" * 50)
 
+    # Imprime a mensagem de download dos dados
+    log("Download dos dados...")
+
+    # Imprime a URL dos dados
+    log(anatel_constants.URL.value)
+
+    # Realiza o download e descompactação dos dados
+    download_and_unzip(
+        url=anatel_constants.URL.value, path=anatel_constants.INPUT_PATH.value
+    )
     # Imprime a mensagem de abertura do arquivo
     log(f"Abrindo o arquivo:{anos}, {mes_um}, {mes_dois}..")
 
