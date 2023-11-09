@@ -568,7 +568,7 @@ def check_if_data_is_outdated(
         data_source_max_date = data_source_max_date.date()
     if type(data_source_max_date) == str:
         data_source_max_date = datetime.strptime(
-            data_source_max_date, "%Y-%m-%d"
+            data_source_max_date, date_format
         ).date()
 
     # antigo parse_coverage
