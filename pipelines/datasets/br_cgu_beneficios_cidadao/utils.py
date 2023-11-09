@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import os
-import shutil
 import zipfile
 
 import numpy as np
@@ -9,10 +8,11 @@ import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.common.exceptions import ElementNotInteractableException
-from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from tqdm import tqdm
+from webdriver_manager.chrome import ChromeDriverManager
 
 from pipelines.datasets.br_cgu_beneficios_cidadao.constants import constants
 from pipelines.utils.utils import get_credentials_from_secret, log, to_partitions
@@ -105,8 +105,6 @@ def extract_dates(table: str):
 
     if not os.path.exists(constants.TMP_DATA_DIR.value):
         os.makedirs(constants.TMP_DATA_DIR.value, exist_ok=True)
-    service = Service(executable_path="/usr/local/bin/chromedriver")
-    log(f"{constants.PATH.value}chromedriver")
     options = webdriver.ChromeOptions()
 
     # https://github.com/SeleniumHQ/selenium/issues/11637
@@ -132,16 +130,9 @@ def extract_dates(table: str):
         "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
     )
 
-    driver = webdriver.Chrome(service=service, options=options)
-    # driver = webdriver.Chrome(options=options)
-    chromedriver_version = driver.capabilities["chrome"]["chromedriverVersion"].split(
-        " "
-    )[0]
-    chromedriver_path = shutil.which("chromedriver")
-    log(f"Caminho do Chromedriver: {chromedriver_path}")
-
-    # Imprime o caminho do Chromedriver
-    log(f"Versão do Chromedriver: {chromedriver_version}")
+    driver = webdriver.Chrome(
+        service=ChromeService(ChromeDriverManager().install()), options=options
+    )
 
     if table == "novo_bolsa_familia":
         driver.get(constants.ROOT_URL.value)
