@@ -103,9 +103,10 @@ def run_dbt_model(
                     log(event["message"])
 
     if "test" in dbt_command:
-        log(f"Running dbt with command: {run_command}")
+        test_command = f'test --select {selected_table}'
+        log(f"Running dbt with command: {test_command}")
         logs_dict = dbt_client.cli(
-            f"test --select {selected_table}",
+            test_command,
             sync=sync,
             logs=True,
         )
