@@ -16,11 +16,12 @@ from pipelines.datasets.br_anatel_banda_larga_fixa.constants import (
 )
 from pipelines.datasets.br_anatel_banda_larga_fixa.utils import (
     check_and_create_column,
+    data_url,
     download_and_unzip,
     to_partitions_microdados,
-    data_url
 )
 from pipelines.utils.utils import log, to_partitions
+
 
 @task
 def setting_data_url():
@@ -54,6 +55,7 @@ def setting_data_url():
 )
 def task_check_for_data():
     return setting_data_url()
+
 
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,

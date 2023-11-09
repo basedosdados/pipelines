@@ -3,16 +3,17 @@
 General purpose functions for the br_anatel_banda_larga_fixa
 """
 import os
+import time
 from io import BytesIO
 from pathlib import Path
 from urllib.request import urlopen
 from zipfile import ZipFile
-import time
+
+import numpy as np
+import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-import numpy as np
-import pandas as pd
 
 
 def download_and_unzip(url, path):
@@ -114,7 +115,8 @@ def to_partitions_microdados(
             )
     else:
         raise BaseException("Data need to be a pandas DataFrame")
-    
+
+
 def data_url():
     element_html = ""  # Inicialize element_html com uma string vazia
 
@@ -161,4 +163,3 @@ def data_url():
         driver.quit()
 
     return element_html
-

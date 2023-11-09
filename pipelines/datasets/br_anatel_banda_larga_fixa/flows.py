@@ -16,11 +16,11 @@ from pipelines.datasets.br_anatel_banda_larga_fixa.schedules import (
 )
 from pipelines.datasets.br_anatel_banda_larga_fixa.tasks import (
     get_today_date_atualizado,
+    setting_data_url,
     treatment,
     treatment_br,
     treatment_municipio,
     treatment_uf,
-    setting_data_url
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -86,7 +86,7 @@ with Flow(
         log_task(f"Não há atualizações!")
 
     with case(dados_desatualizados, True):
-    # ! MICRODADOS
+        # ! MICRODADOS
         filepath_microdados = treatment(
             ano=ano,
             upstream_tasks=[rename_flow_run],
