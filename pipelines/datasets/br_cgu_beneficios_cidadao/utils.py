@@ -104,7 +104,7 @@ def extract_dates(table: str):
 
     if not os.path.exists(constants.TMP_DATA_DIR.value):
         os.mkdir(constants.TMP_DATA_DIR.value)
-    service = Service(executable_path=f"{constants.PATH.value}chromedriver")
+    service = Service(executable_path="/usr/local/bin/chromedriver")
     log(f"{constants.PATH.value}chromedriver")
     options = webdriver.ChromeOptions()
 

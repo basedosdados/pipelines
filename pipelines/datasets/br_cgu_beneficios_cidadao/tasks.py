@@ -24,7 +24,7 @@ from pipelines.utils.utils import get_credentials_from_secret, log
 def setup_web_driver() -> None:
     r = requests.get(constants.CHROME_DRIVER.value, stream=True)
     with zipfile.ZipFile(io.BytesIO(r.content)) as z:
-        z.extractall(constants.PATH.value)
+        z.extractall("/usr/local/bin/chromedriver")
 
     os.environ["PATH"] += os.pathsep + constants.PATH.value
 
