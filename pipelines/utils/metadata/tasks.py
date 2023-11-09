@@ -16,7 +16,7 @@ from pipelines.utils.metadata.utils import (
     get_ids,
     parse_temporal_coverage,
 )
-from pipelines.utils.utils import log
+from pipelines.utils.utils import extract_last_date, log
 
 
 @task
@@ -564,9 +564,9 @@ def check_if_data_is_outdated(
     Returns:
         bool: TRUE se a data da fonte original for maior que a data mais recente registrada na API e FALSE caso contrário.
     """
-    if type(data_source_max_date) == datetime:
+    if data_source_max_date is datetime:
         data_source_max_date = data_source_max_date.date()
-    if type(data_source_max_date) == str:
+    if data_source_max_date is str:
         data_source_max_date = datetime.strptime(
             data_source_max_date, date_format
         ).date()
