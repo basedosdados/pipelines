@@ -123,6 +123,8 @@ def extract_dates(table: str):
     options.add_argument("--test-type")
     options.add_argument("--disable-gpu")
     options.add_argument("--no-first-run")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--no-default-browser-check")
     options.add_argument("--ignore-certificate-errors")
     options.add_argument("--start-maximized")
