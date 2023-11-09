@@ -297,7 +297,7 @@ def get_id(
                         }}"""
 
     if api_mode == "staging":
-        url = (f"https://staging.api.basedosdados.org/api/v1/graphql",)
+        url = "https://staging.api.basedosdados.org/api/v1/graphql"
     elif api_mode == "prod":
         url = "https://api.basedosdados.org/api/v1/graphql"
 
