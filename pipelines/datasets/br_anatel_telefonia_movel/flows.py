@@ -80,7 +80,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
 
     dados_desatualizados = check_if_data_is_outdated(
         dataset_id=dataset_id,
-        table_id=table_id,
+        table_id=table_id[0],
         data_source_max_date=data_source_max_date,
         date_format="%Y-%m",  # Alterado aqui
         upstream_tasks=[data_source_max_date],
