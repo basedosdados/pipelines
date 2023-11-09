@@ -8,6 +8,7 @@ import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.common.exceptions import ElementNotInteractableException
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from tqdm import tqdm
@@ -104,6 +105,7 @@ def extract_dates(table: str):
     if not os.path.exists(constants.TMP_DATA_DIR.value):
         os.mkdir(constants.TMP_DATA_DIR.value)
 
+    service = Service(executable_path=constants.PATH.value)
     options = webdriver.ChromeOptions()
 
     # https://github.com/SeleniumHQ/selenium/issues/11637
@@ -129,7 +131,7 @@ def extract_dates(table: str):
         "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
     )
 
-    driver = webdriver.Chrome(executable_path=constants.PATH.value, options=options)
+    driver = webdriver.Chrome(service=service, options=options)
     if table == "novo_bolsa_familia":
         driver.get(constants.ROOT_URL.value)
         driver.implicitly_wait(10)
