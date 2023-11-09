@@ -25,37 +25,6 @@ from pipelines.utils.utils import log
 
 
 @task
-def check_if_bq_data_is_outdated(
-    data: datetime, dataset_id: str, table_id: str
-) -> bool:
-    """Essa task checa se há necessidade de atualizar os dados no BQ
-
-    Args:
-        data (date): A data de atualização dos dados extraida do FTP
-        dataset_id (string): O datased_id
-        table_id (string): O table_id
-
-    Returns:
-        bool: TRUE se a data do FTP for maior que a do BQ e FALSE caso contrário.
-    """
-    data = data.strftime("%Y-%m-%d")
-
-    # extrai data do bq
-    data_bq = extract_last_date(dataset_id, table_id, "basedosdados").strftime(
-        "%Y-%m-%d"
-    )
-
-    log(f"Data do site: {data}")
-    log(f"Data do BQ: {data_bq}")
-
-    # Compara as datas para verificar se há atualizações
-    if data > data_bq:
-        return True  # Há atualizações disponíveis
-    else:
-        return False
-
-
-@task
 def parse_files_parse_date(url) -> tuple[list[datetime], list[str]]:
     """Extrai os nomes dos arquivos e a data de disponibilização dos dados no FTP
 

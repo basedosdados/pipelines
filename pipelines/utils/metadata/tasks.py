@@ -10,15 +10,13 @@ from prefect import task
 
 from pipelines.utils.metadata.utils import (
     create_update,
-    extract_last_date,
     extract_last_update,
+    get_api_most_recent_date,
     get_credentials_utils,
-    get_first_date,
-    get_id,
     get_ids,
     parse_temporal_coverage,
 )
-from pipelines.utils.utils import get_credentials_from_secret, log
+from pipelines.utils.utils import log
 
 
 @task
@@ -102,12 +100,16 @@ def update_django_metadata(
         "basedosdados",
         "basedosdados-staging",
     ]
+
+    # TODO: mudar aqui tudo que é unidades_permitidas para lista
     unidades_permitidas = {
         "years": "years",
         "months": "months",
         "weeks": "weeks",
         "days": "days",
     }
+
+    # TODO: Remover parametro last_date
 
     if not isinstance(_last_date, str) and _last_date is not None:
         raise ValueError("O parâmetro `last_date` deve ser uma string não nula")
@@ -544,3 +546,41 @@ def test_ids(dataset_id, table_id, api_mode="staging", is_bd_pro=True, is_free=F
     )
 
     log(f"ids ->> ->> {ids}")
+
+
+@task
+def check_if_data_is_outdated(
+    dataset_id: str,
+    table_id: str,
+    data_source_max_date: datetime,
+    date_format: str = "%Y-%m-%d",
+) -> bool:
+    """Essa task checa se há necessidade de atualizar os dados no BQ
+
+    Args:
+        dataset_id e table_id(string): permite encontrar na api a última data de cobertura
+        data_api (date): A data mais recente dos dados da fonte original
+
+    Returns:
+        bool: TRUE se a data da fonte original for maior que a data mais recente registrada na API e FALSE caso contrário.
+    """
+    if type(data_source_max_date) == datetime:
+        data_source_max_date = data_source_max_date.date()
+    if type(data_source_max_date) == str:
+        data_source_max_date = datetime.strptime(
+            data_source_max_date, "%Y-%m-%d"
+        ).date()
+
+    # antigo parse_coverage
+    data_api = get_api_most_recent_date(
+        dataset_id=dataset_id, table_id=table_id, date_format=date_format
+    )
+
+    log(f"Data na fonte: {data_source_max_date}")
+    log(f"Data nos metadados da BD: {data_api}")
+
+    # Compara as datas para verificar se há atualizações
+    if data_source_max_date > data_api:
+        return True  # Há atualizações disponíveis
+    else:
+        return False

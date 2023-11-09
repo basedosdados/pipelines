@@ -22,6 +22,12 @@ from pipelines.utils.utils import log
 
 
 def obter_ano():
+    """
+    Obtém o ano atual ou o ano anterior, dependendo do mês atual.
+
+    Returns:
+        int: O ano atual ou o ano anterior.
+    """
     data_atual = datetime.today()
     if data_atual.month > 7:
         return data_atual.year
@@ -30,6 +36,12 @@ def obter_ano():
 
 
 def obter_temporada():
+    """
+    Obtém o ano da temporada atual com base no mês atual.
+
+    Returns:
+        str: A temporada atual no formato "AAAA/AAAA", por exemplo, "2022/2023".
+    """
     data_atual = datetime.today()
 
     if data_atual.month > 7:
@@ -50,7 +62,14 @@ def get_content(link_soup):
 
 def process(df, content):
     """
-    Process complete
+    Processa os dados do jogo e os adiciona ao DataFrame.
+
+    Args:
+        df (pandas.DataFrame): DataFrame existente.
+        content (BeautifulSoup): Conteúdo HTML da página.
+
+    Returns:
+        pandas.DataFrame: DataFrame atualizado com os dados do jogo.
     """
     new_content = {
         "time_man": content.find_all("div", attrs={"class": "sb-team sb-heim"})[0]
@@ -146,7 +165,14 @@ def process(df, content):
 
 def process_basico(df, content):
     """
-    Process data
+    Processa os dados do jogo e os adiciona ao DataFrame.
+
+    Args:
+        df (pandas.DataFrame): DataFrame existente.
+        content (BeautifulSoup): Conteúdo HTML da página.
+
+    Returns:
+        pandas.DataFrame: DataFrame atualizado com os dados do jogo.
     """
     new_content = {
         "time_man": content.find_all("div", attrs={"class": "sb-team sb-heim"})[0]
@@ -214,7 +240,13 @@ def process_basico(df, content):
 
 def vazio(df):
     """
-    Return a template DataFrame
+    Retorna um DataFrame de modelo com valores nulos.
+
+    Args:
+        df (pandas.DataFrame): DataFrame existente.
+
+    Returns:
+        pandas.DataFrame: DataFrame com valores nulos.
     """
     new_content = {
         "time_man": None,
@@ -250,6 +282,15 @@ def vazio(df):
 
 
 def process_gols(value):
+    """
+    Processa a contagem de gols de um jogo.
+
+    Args:
+        value (str): A contagem de gols no formato 'man:vis (prorr. pen.)'.
+
+    Returns:
+        list: Uma lista com quatro valores [gols_time_man, gols_time_vis, prorrogacao, penalti].
+    """
     if value is None:
         return [None, None, None, None]
     if "prorr." in value:
@@ -262,6 +303,15 @@ def process_gols(value):
 
 
 def formatar_valor(valor):
+    """
+    Formata um valor numérico em formato de string.
+
+    Args:
+        valor (str): O valor em formato de string.
+
+    Returns:
+        str: O valor formatado como uma string numérica.
+    """
     valor = str(valor)
     valor = valor.replace(" mi.", "0000")
     valor = valor.replace(" bilhões", "0000000")
@@ -271,6 +321,15 @@ def formatar_valor(valor):
 
 # Função para formatar as datas
 def formatar_data(data):
+    """
+    Formata uma data representada como string em um objeto de data.
+
+    Args:
+        data (str): A data representada como string.
+
+    Returns:
+        pd.Timestamp or pd.NaT: O objeto de data formatado ou NaN se a formatação falhar.
+    """
     try:
         # Tentar o formato "%d/%m/%Y"
         return pd.to_datetime(data, format="%d/%m/%Y").dt.date
@@ -284,6 +343,15 @@ def formatar_data(data):
 
 
 def definir_tipo_fase(row):
+    """
+    Define o tipo de fase com base no valor da coluna.
+
+    Args:
+        row (str): Valor da coluna representando a fase.
+
+    Returns:
+        str: O tipo de fase.
+    """
     if row is not None:
         if row.startswith("Grupo "):
             return row
@@ -297,6 +365,15 @@ def definir_tipo_fase(row):
 
 
 def definir_fase(row):
+    """
+    Define o nome da fase com base no valor da coluna.
+
+    Args:
+        row (str): Valor da coluna representando a fase.
+
+    Returns:
+        str: O nome da fase.
+    """
     if row is not None:
         if row.startswith("Grupo "):
             return "Fase de grupos"
@@ -311,7 +388,14 @@ def definir_fase(row):
 
 def pegar_valor(df, content):
     """
-    Get value
+    Obtém os valores e estatísticas de equipes.
+
+    Args:
+        df (pandas.DataFrame): O DataFrame para armazenar os valores.
+        content: O conteúdo da página da web.
+
+    Returns:
+        pandas.DataFrame: O DataFrame atualizado com os valores.
     """
     # gera um dicionário
     valor_content = {
@@ -396,7 +480,14 @@ def pegar_valor(df, content):
 
 def pegar_valor_sem_tecnico(df, content):
     """
-    Get value without technical
+    Obtém os valores e estatísticas de equipes sem informações sobre técnicos.
+
+    Args:
+        df (pandas.DataFrame): O DataFrame para armazenar os valores.
+        content: O conteúdo da página da web.
+
+    Returns:
+        pandas.DataFrame: O DataFrame atualizado com os valores.
     """
     valor_content = {
         "valor_equipe_titular_man": content.findAll("tbody")[1]
@@ -454,7 +545,7 @@ def pegar_valor_sem_tecnico(df, content):
 
 def valor_vazio(df):
     """
-    Return a temmplate DataFrame
+    Retorna um DataFrame modelo com valores vazios.
     """
     valor_content = {
         "valor_equipe_titular_man": None,
@@ -487,6 +578,12 @@ def valor_vazio(df):
 
 
 def data_url():
+    """
+    Obtém a data da última partida no site Transfermarkt.
+
+    Returns:
+        datetime.date: A data da última partida no formato 'YYYY-MM-DD'.
+    """
     base_url = "https://www.transfermarkt.com.br/uefa-champions-league/gesamtspielplan/pokalwettbewerb/CL/saison_id/{season}"
     headers = {
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36"
@@ -517,6 +614,12 @@ def data_url():
 
 
 async def execucao_coleta():
+    """
+    Coleta dados da temporada da UEFA Champions League do site Transfermarkt e realiza o tratamento dos dados.
+
+    Returns:
+        pd.DataFrame: Um DataFrame contendo os dados coletados e tratados.
+    """
     base_url = "https://www.transfermarkt.com.br/uefa-champions-league/gesamtspielplan/pokalwettbewerb/CL/saison_id/{season}"
     headers = {
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36"

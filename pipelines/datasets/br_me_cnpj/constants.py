@@ -14,6 +14,10 @@ class constants(Enum):  # pylint: disable=c0103
     Constant values for the br_me_cnpj project
     """
 
+    MAX_ATTEMPTS = 3
+    TIMEOUT = 5
+    ATTEMPTS = 0
+
     TABELAS = ["Empresas", "Socios", "Estabelecimentos", "Simples"]
 
     UFS = [
