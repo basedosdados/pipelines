@@ -29,6 +29,13 @@ def setup_web_driver() -> None:
     os.environ["PATH"] += os.pathsep + constants.PATH.value
 
 
+@task
+def teste_selenium():
+    dates = extract_dates(table="bpc")
+
+    return dates["urls"].to_list()
+
+
 @task  # noqa
 def crawler_bolsa_familia(historical_data: bool):
     if historical_data:

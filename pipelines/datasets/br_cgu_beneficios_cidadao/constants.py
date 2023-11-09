@@ -18,6 +18,7 @@ class constants(Enum):  # pylint: disable=c0103
     PATH = "/tmp/data/br_cgu_beneficios_cidadao"
 
     TMP_DATA_DIR = "/tmp/data/br_cgu_beneficios_cidadao/tmp"
+
     ROOT_URL = (
         "https://portaldatransparencia.gov.br/download-de-dados/novo-bolsa-familia"
     )

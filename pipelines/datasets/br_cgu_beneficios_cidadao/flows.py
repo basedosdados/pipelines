@@ -16,6 +16,7 @@ from pipelines.datasets.br_cgu_beneficios_cidadao.tasks import (
     crawler_garantia_safra,
     get_today_date,
     setup_web_driver,
+    teste_selenium,
 )
 from pipelines.utils.constants import constants as utils_constants
 
@@ -295,3 +296,31 @@ with Flow(
 
 datasets_br_cgu_bpc_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 datasets_br_cgu_bpc_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+
+###                 ###
+#  BPC     #
+###                 ###
+
+with Flow(
+    name="teste_selenium",
+    code_owners=[
+        "arthurfg",
+    ],
+) as datasets_br_cgu_test_driver_flow:
+    dataset_id = Parameter(
+        "dataset_id", default="br_cgu_beneficios_cidadao", required=False
+    )
+    table_id = Parameter("table_id", default="bpc", required=False)
+    historical_data = Parameter("historical_data", default=True, required=False)
+
+    rename_flow_run = rename_current_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+    )
+    setup = setup_web_driver()
+    teste_selenium(upstream_tasks=[setup])
+
+
+datasets_br_cgu_test_driver_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+datasets_br_cgu_test_driver_flow.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
