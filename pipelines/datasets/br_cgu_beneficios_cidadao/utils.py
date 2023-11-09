@@ -129,7 +129,7 @@ def extract_dates(table: str):
         "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
     )
 
-    driver = webdriver.Chrome(options=options)
+    driver = webdriver.Chrome(executable_path=constants.PATH.value, options=options)
     if table == "novo_bolsa_familia":
         driver.get(constants.ROOT_URL.value)
         driver.implicitly_wait(10)
