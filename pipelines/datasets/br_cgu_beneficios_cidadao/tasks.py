@@ -15,7 +15,7 @@ from pipelines.datasets.br_cgu_beneficios_cidadao.utils import (
     extract_dates,
     parquet_partition,
 )
-from pipelines.utils.utils import extract_last_date, get_credentials_from_secret, log
+from pipelines.utils.utils import extract_last_date, log
 
 
 @task
@@ -24,7 +24,7 @@ def print_last_file(file):
 
 
 @task
-def crawl_last_date(dataset_id: str, table_id: str):
+def crawl_last_date(table_id: str):
     dates = extract_dates(table=table_id)
     dates["data"] = pd.to_datetime(
         dates["ano"].astype(str) + "-" + dates["mes_numero"].astype(str) + "-01"
@@ -54,15 +54,8 @@ def check_for_updates(dataset_id: str, table_id: str, max_date: datetime) -> boo
         return False  # Não há novas atualizações disponíveis
 
 
-@task
-def teste_selenium():
-    dates = extract_dates(table="bpc")
-
-    return log(dates["urls"].to_list())
-
-
 @task  # noqa
-def crawler_bolsa_familia(historical_data: bool):
+def crawler_bolsa_familia(historical_data: bool, file):
     if historical_data:
         dates = extract_dates()
 
@@ -78,7 +71,7 @@ def crawler_bolsa_familia(historical_data: bool):
         log("DOWNLOADING MOST RECENT DATA")
         download_unzip_csv(
             url=constants.MAIN_URL_NOVO_BOLSA_FAMILIA.value,
-            files="202306_NovoBolsaFamilia.zip",
+            files=f"{file}",
             id="novo_bolsa_familia",
         )
 
@@ -90,7 +83,7 @@ def crawler_bolsa_familia(historical_data: bool):
 
 
 @task  # noqa
-def crawler_garantia_safra(historical_data: bool):
+def crawler_garantia_safra(historical_data: bool, file):
     if historical_data:
         dates = extract_dates(table="garantia_safra")
 
@@ -105,12 +98,10 @@ def crawler_garantia_safra(historical_data: bool):
             id="garantia_safra",
         )
     else:
-        # TODO: inserir lógica de atualização:
-        log("TODO")
         log("DOWNLOADING MOST RECENT DATA")
         download_unzip_csv(
             url=constants.MAIN_URL_GARANTIA_SAFRA.value,
-            files="202301_GarantiaSafra.zip",
+            files=f"{file}",
             id="garantia_safra",
         )
 

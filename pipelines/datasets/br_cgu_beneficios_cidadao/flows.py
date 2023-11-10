@@ -63,7 +63,7 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    data = crawl_last_date(dataset_id=dataset_id, table_id=table_id)
+    data = crawl_last_date(table_id=table_id)
     update = check_for_updates(
         dataset_id=dataset_id,
         table_id=table_id,
@@ -72,7 +72,9 @@ with Flow(
     )
     with case(update, True):
         print_last_file(data[1])
-        output_filepath = crawler_bolsa_familia(historical_data, file=data[1])
+        output_filepath = crawler_bolsa_familia(
+            historical_data=historical_data, file=data[1]
+        )
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
@@ -163,7 +165,7 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    data = crawl_last_date(dataset_id=dataset_id, table_id=table_id)
+    data = crawl_last_date(table_id=table_id)
     update = check_for_updates(
         dataset_id=dataset_id,
         table_id=table_id,
@@ -172,7 +174,9 @@ with Flow(
     )
     with case(update, True):
         print_last_file(data[1])
-        output_filepath = crawler_garantia_safra(historical_data, file=data[1])
+        output_filepath = crawler_garantia_safra(
+            historical_data=historical_data, file=data[1]
+        )
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
@@ -246,7 +250,7 @@ with Flow(
         "dataset_id", default="br_cgu_beneficios_cidadao", required=False
     )
     table_id = Parameter("table_id", default="bpc", required=False)
-    historical_data = Parameter("historical_data", default=True, required=False)
+    historical_data = Parameter("historical_data", default=False, required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
@@ -260,7 +264,7 @@ with Flow(
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
-    data = crawl_last_date(dataset_id=dataset_id, table_id=table_id)
+    data = crawl_last_date(table_id=table_id)
     update = check_for_updates(
         dataset_id=dataset_id,
         table_id=table_id,
@@ -269,7 +273,7 @@ with Flow(
     )
     with case(update, True):
         print_last_file(data[1])
-        output_filepath = crawler_bpc(historical_data, file=data[1])
+        output_filepath = crawler_bpc(historical_data=historical_data, file=data[1])
 
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
