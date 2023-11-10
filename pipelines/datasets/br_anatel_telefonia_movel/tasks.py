@@ -2,7 +2,7 @@
 """
 Tasks for dataset br_anatel_telefonia_movel
 """
-### Apenas um comentário
+
 import os
 from datetime import timedelta
 
@@ -48,10 +48,7 @@ def setting_data_url():
     return data_total
 
 
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
+@task
 def task_check_for_data():
     return setting_data_url()
 

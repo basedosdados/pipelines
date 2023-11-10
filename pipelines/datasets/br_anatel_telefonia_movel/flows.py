@@ -2,7 +2,7 @@
 """
 Flows for dataset br_anatel_telefonia_movel
 """
-# Apenas um comentário
+
 from datetime import timedelta
 
 from prefect import Parameter, case
