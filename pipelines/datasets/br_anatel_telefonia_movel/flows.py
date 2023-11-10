@@ -119,19 +119,13 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
         with case(update_metadata, True):
             date = get_today_date_atualizado()  # task que retorna a data atual
             update_django_metadata(
-                dataset_id,
-                table_id[0],
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                bq_table_last_year_month=False,
-                is_bd_pro=True,
-                is_free=True,
+                dataset_id = dataset_id,
+                table_id = table_id[0],
+                date_format = "%Y-%m",
+                coverage_status = "partially_bdpro",
                 time_delta=2,
                 time_unit="months",
-                api_mode="prod",
-                date_format="yy-mm",
-                _last_date=date,
-                upstream_tasks=[wait_for_materialization],
+                billing_project_id = "basedosdados",
             )
 
     # ! BRASIL
@@ -176,19 +170,13 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
         with case(update_metadata, True):
             date = get_today_date_atualizado()  # task que retorna a data atual
             update_django_metadata(
-                dataset_id,
-                table_id[1],
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                bq_table_last_year_month=False,
-                is_bd_pro=True,
-                is_free=True,
+                dataset_id = dataset_id,
+                table_id = table_id[1],
+                date_format = "%Y-%m",
+                coverage_status = "partially_bdpro",
                 time_delta=2,
                 time_unit="months",
-                api_mode="prod",
-                date_format="yy-mm",
-                _last_date=date,
-                upstream_tasks=[wait_for_materialization],
+                billing_project_id = "basedosdados",
             )
 
     # ! UF
@@ -235,19 +223,13 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
         with case(update_metadata, True):
             date = get_today_date_atualizado()  # task que retorna a data atual
             update_django_metadata(
-                dataset_id,
-                table_id[2],
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                bq_table_last_year_month=False,
-                is_bd_pro=True,
-                is_free=True,
+                dataset_id = dataset_id,
+                table_id = table_id[2],
+                date_format = "%Y-%m",
+                coverage_status = "partially_bdpro",
                 time_delta=2,
                 time_unit="months",
-                api_mode="prod",
-                date_format="yy-mm",
-                _last_date=date,
-                upstream_tasks=[wait_for_materialization],
+                billing_project_id = "basedosdados",
             )
 
     # ! MUNICIPIO
@@ -293,21 +275,15 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
         with case(update_metadata, True):
             date = get_today_date_atualizado()  # task que retorna a data atual
             update_django_metadata(
-                dataset_id,
-                table_id[3],
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                bq_table_last_year_month=False,
-                is_bd_pro=True,
-                is_free=True,
+                dataset_id = dataset_id,
+                table_id = table_id[3],
+                date_format = "%Y-%m",
+                coverage_status = "partially_bdpro",
                 time_delta=2,
                 time_unit="months",
-                api_mode="prod",
-                date_format="yy-mm",
-                _last_date=date,
-                upstream_tasks=[wait_for_materialization],
+                billing_project_id = "basedosdados",
             )
-
+            
 br_anatel.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_anatel.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 br_anatel.schedule = every_month_anatel
