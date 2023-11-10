@@ -77,7 +77,6 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
     update_metadata = Parameter("update_metadata", default=False, required=False)
 
     data_source_max_date = setting_data_url()
-    date = task_check_for_data.run()
     dados_desatualizados = check_if_data_is_outdated(
         dataset_id=dataset_id,
         table_id=table_id[0],
@@ -148,13 +147,13 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
                 time_unit="months",
                 api_mode="prod",
                 date_format="yy-mm",
-                _last_date=date,
+                _last_date=data_source_max_date,
                 upstream_tasks=[wait_for_materialization],
             )
 
         # ! BRASIL
         filepath_brasil = clean_csv_brasil(upstream_tasks=[filepath_microdados])
-        wait_upload_table_BRASIL = create_table_and_upload_to_gcs(
+        wait_upload_table = create_table_and_upload_to_gcs(
             data_path=filepath_brasil,
             dataset_id=dataset_id,
             table_id=table_id[1],
@@ -204,14 +203,14 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
                 time_unit="months",
                 api_mode="prod",
                 date_format="yy-mm",
-                _last_date=date,
+                _last_date=data_source_max_date,
                 upstream_tasks=[wait_for_materialization],
             )
 
         # ! UF
 
         filepath_uf = clean_csv_uf(upstream_tasks=[filepath_microdados])
-        wait_upload_table_BRASIL = create_table_and_upload_to_gcs(
+        wait_upload_table = create_table_and_upload_to_gcs(
             data_path=filepath_uf,
             dataset_id=dataset_id,
             table_id=table_id[2],
@@ -262,13 +261,13 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
                 time_unit="months",
                 api_mode="prod",
                 date_format="yy-mm",
-                _last_date=date,
+                _last_date=data_source_max_date,
                 upstream_tasks=[wait_for_materialization],
             )
 
         # ! MUNICIPIO
         filepath_municipio = clean_csv_municipio(upstream_tasks=[filepath_microdados])
-        wait_upload_table_BRASIL = create_table_and_upload_to_gcs(
+        wait_upload_table = create_table_and_upload_to_gcs(
             data_path=filepath_municipio,
             dataset_id=dataset_id,
             table_id=table_id[3],
@@ -319,7 +318,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
                     time_unit="months",
                     api_mode="prod",
                     date_format="yy-mm",
-                    _last_date=date,
+                    _last_date=data_source_max_date,
                     upstream_tasks=[wait_for_materialization],
                 )
 
