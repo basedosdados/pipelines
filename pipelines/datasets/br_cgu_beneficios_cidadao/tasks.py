@@ -3,11 +3,9 @@
 Tasks for br_cgu_beneficios_cidadao
 """
 
-import io
-import os
-import zipfile
 from datetime import datetime
 
+import pandas as pd
 import requests
 from prefect import task
 
@@ -17,16 +15,43 @@ from pipelines.datasets.br_cgu_beneficios_cidadao.utils import (
     extract_dates,
     parquet_partition,
 )
-from pipelines.utils.utils import get_credentials_from_secret, log
+from pipelines.utils.utils import extract_last_date, get_credentials_from_secret, log
 
 
 @task
-def setup_web_driver() -> None:
-    r = requests.get(constants.CHROME_DRIVER.value, stream=True)
-    with zipfile.ZipFile(io.BytesIO(r.content)) as z:
-        z.extractall("/usr/local/bin/chromedriver")
+def print_last_file(file):
+    log(f"arquivo a ser baixado --> {file}")
 
-    os.environ["PATH"] += os.pathsep + constants.PATH.value
+
+@task
+def crawl_last_date(dataset_id: str, table_id: str):
+    dates = extract_dates(table=table_id)
+    dates["data"] = pd.to_datetime(
+        dates["ano"].astype(str) + "-" + dates["mes_numero"].astype(str) + "-01"
+    )
+    max_row = dates[dates["data"] == dates["data"].max()]
+
+    max_date = max_row["data"].iloc[0]
+
+    return [max_date, max_row["urls"].iloc[0]]
+
+
+@task
+def check_for_updates(dataset_id: str, table_id: str, max_date: datetime) -> bool:
+    """ """
+
+    # Obtém a última data no site BD
+    bd_date = extract_last_date(dataset_id, table_id, "yy-mm", "basedosdados-dev")
+    bd_date = datetime.strptime(bd_date, "%Y-%m")
+    # Registra a data mais recente do site
+    log(f"Última data no Portal da Transferência: {max_date}")
+    log(f"Última data na BD: {bd_date}")
+
+    # Compara as datas para verificar se há atualizações
+    if max_date > bd_date:
+        return True  # Há atualizações disponíveis
+    else:
+        return False  # Não há novas atualizações disponíveis
 
 
 @task
@@ -50,8 +75,6 @@ def crawler_bolsa_familia(historical_data: bool):
             url=constants.MAIN_URL_NOVO_BOLSA_FAMILIA.value, files=endpoints, id="dados"
         )
     else:
-        # TODO: inserir lógica de atualização:
-        log("TODO")
         log("DOWNLOADING MOST RECENT DATA")
         download_unzip_csv(
             url=constants.MAIN_URL_NOVO_BOLSA_FAMILIA.value,
@@ -99,7 +122,7 @@ def crawler_garantia_safra(historical_data: bool):
 
 
 @task  # noqa
-def crawler_bpc(historical_data: bool):
+def crawler_bpc(historical_data: bool, file):
     if historical_data:
         dates = extract_dates(table="bpc")
 
@@ -114,12 +137,10 @@ def crawler_bpc(historical_data: bool):
             id="bpc",
         )
     else:
-        # TODO: inserir lógica de atualização:
-        log("TODO")
         log("DOWNLOADING MOST RECENT DATA")
         download_unzip_csv(
             url=constants.MAIN_URL_BPC.value,
-            files="202301_BPC.zip",
+            files=f"{file}",
             id="bpc",
         )
 

@@ -11,11 +11,13 @@ from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
 from pipelines.datasets.br_cgu_beneficios_cidadao.tasks import (
+    check_for_updates,
+    crawl_last_date,
     crawler_bolsa_familia,
     crawler_bpc,
     crawler_garantia_safra,
     get_today_date,
-    setup_web_driver,
+    print_last_file,
     teste_selenium,
 )
 from pipelines.utils.constants import constants as utils_constants
@@ -238,8 +240,8 @@ with Flow(
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
-    setup = setup_web_driver()
-    output_filepath = crawler_bpc(historical_data, upstream_tasks=[setup])
+    a = crawl_last_date(dataset_id=dataset_id, table_id=table_id)
+    output_filepath = crawler_bpc(historical_data, file=a[1])
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=output_filepath,
         dataset_id=dataset_id,
@@ -298,7 +300,7 @@ datasets_br_cgu_bpc_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 datasets_br_cgu_bpc_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 
 ###                 ###
-#  BPC     #
+#  TESTE     #
 ###                 ###
 
 with Flow(
@@ -311,14 +313,20 @@ with Flow(
         "dataset_id", default="br_cgu_beneficios_cidadao", required=False
     )
     table_id = Parameter("table_id", default="bpc", required=False)
-    historical_data = Parameter("historical_data", default=True, required=False)
+    historical_data = Parameter("historical_data", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
-    setup = setup_web_driver()
-    teste_selenium(upstream_tasks=[setup])
-
+    # setup = setup_web_driver()
+    # teste_selenium(upstream_tasks=[setup])
+    a = crawl_last_date(dataset_id=dataset_id, table_id=table_id)
+    update = check_for_updates(
+        dataset_id=dataset_id, table_id=table_id, max_date=a[0], upstream_tasks=[a]
+    )
+    with case(update, True):
+        print_last_file(a[1])
+        crawler_bpc(historical_data, file=a[1])
 
 datasets_br_cgu_test_driver_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 datasets_br_cgu_test_driver_flow.run_config = KubernetesRun(
