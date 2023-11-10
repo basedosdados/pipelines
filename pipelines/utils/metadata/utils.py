@@ -11,8 +11,6 @@ from datetime import datetime
 from typing import Tuple
 
 import basedosdados as bd
-import numpy as np
-import pandas as pd
 import requests
 
 from pipelines.utils.utils import get_credentials_from_secret, log
@@ -33,9 +31,8 @@ def get_first_date(
 
     Args:
         ids (dict): A dictionary containing the dataset ID, table ID, and coverage ID.
-        date_format (str): Date format ('yy-mm-dd', 'yy-mm', or 'yy')
     Returns:
-        str: The first date in the format 'YYYY-MM-DD(interval)'.
+        str: The first date in the format '%Y-%m-%d(interval)'.
 
     Raises:
         Exception: If an error occurs while retrieving the first date.
@@ -43,18 +40,18 @@ def get_first_date(
     try:
         date = get_date(
             query_class="allDatetimerange",
-            query_parameters={"$coverage_Id: ID": ids.get("coverage_id")},
+            query_parameters={"$coverage_Id: ID": ids.get("coverage_id_free")},
             email=email,
             password=password,
             api_mode=api_mode,
         )
         data = date["data"]["allDatetimerange"]["edges"][0]["node"]
         log(data)
-        if date_format == "yy-mm-dd":
+        if date_format == "%Y-%m-%d":
             first_date = f"{data['startYear']}-{data['startMonth']}-{data['startDay']}({data['interval']})"
-        elif date_format == "yy-mm":
+        elif date_format == "%Y-%m":
             first_date = f"{data['startYear']}-{data['startMonth']}({data['interval']})"
-        elif date_format == "yy":
+        elif date_format == "%Y":
             first_date = f"{data['startYear']}({data['interval']})"
 
         log(f"Primeira data: {first_date}")
@@ -63,104 +60,34 @@ def get_first_date(
         log(f"An error occurred while retrieving the first date: {str(e)}")
         raise
 
-
-def extract_last_update(
-    dataset_id, table_id, date_format: str, billing_project_id: str
-):
+def extract_last_date_from_bq(
+        dataset_id, 
+        table_id, 
+        date_format: str,
+        date_column: str, 
+        billing_project_id: str):
     """
     Extracts the last update date of a given dataset table.
 
     Args:
         dataset_id (str): The ID of the dataset.
         table_id (str): The ID of the table.
-        date_format (str): Date format ('yy-mm-dd', 'yy-mm', or 'yy')
+        date_format (str): Date format ("%Y-%m" or "%Y-%m-%d")
+        if set to '%Y-%m' the function will look for  ano and mes named columns in the table_id
+        and return a concatenated string in the formar yyyy-mm. if set to '%Y-%m-%d
+        the function will look for  data named column in the format '%Y-%m-%d' and return it.
 
     Returns:
-        str: The last update date in the format 'YYYY-MM-DD'.
+        str: The last update date in the format '%Y-%m' or '%Y-%m-%d'.
 
     Raises:
         Exception: If an error occurs while extracting the last update date.
     """
-    try:
-        query_bd = f"""
-        SELECT
-        *
-        FROM
-        `basedosdados.{dataset_id}.__TABLES__`
-        WHERE
-        table_id = '{table_id}'
-        """
-
-        t = bd.read_sql(
-            query=query_bd,
-            billing_project_id=billing_project_id,
-            from_file=True,
-        )
-        timestamp = (
-            t["last_modified_time"][0] / 1000
-        )  # Convert to seconds by dividing by 1000
-        dt = datetime.fromtimestamp(timestamp)
-        if date_format == "yy-mm-dd":
-            last_date = dt.strftime("%Y-%m-%d")
-        elif date_format == "yy-mm":
-            last_date = dt.strftime("%Y-%m")
-        elif date_format == "yy":
-            last_date = dt.strftime("%Y")
-        log(f"Última data: {last_date}")
-        return last_date
-    except Exception as e:
-        log(f"An error occurred while extracting the last update date: {str(e)}")
-        raise
-
-
-def extract_last_date(dataset_id, table_id, date_format: str, billing_project_id: str):
-    """
-    Extracts the last update date of a given dataset table.
-
-    Args:
-        dataset_id (str): The ID of the dataset.
-        table_id (str): The ID of the table.
-        date_format (str): Date format ('yy-mm' or 'yy-mm-dd')
-        if set to 'yy-mm' the function will look for  ano and mes named columns in the table_id
-        and return a concatenated string in the formar yyyy-mm. if set to 'yyyy-mm-dd'
-        the function will look for  data named column in the format 'yyyy-mm-dd' and return it.
-
-    Returns:
-        str: The last update date in the format 'yyyy-mm' or 'yyyy-mm-dd'.
-
-    Raises:
-        Exception: If an error occurs while extracting the last update date.
-    """
-    if date_format == "yy-mm":
+    if date_column:
         try:
             query_bd = f"""
             SELECT
-            MAX(CONCAT(ano,"-",mes)) as max_date
-            FROM
-            `{billing_project_id}.{dataset_id}.{table_id}`
-            """
-
-            t = bd.read_sql(
-                query=query_bd,
-                billing_project_id=billing_project_id,
-                from_file=True,
-            )
-            input_date_str = t["max_date"][0]
-
-            date_obj = datetime.strptime(input_date_str, "%Y-%m")
-
-            last_date = date_obj.strftime("%Y-%m")
-            log(f"Última data YYYY-MM: {last_date}")
-
-            return last_date
-        except Exception as e:
-            log(f"An error occurred while extracting the last update date: {str(e)}")
-            raise
-    else:
-        try:
-            query_bd = f"""
-            SELECT
-            MAX(data) as max_date
+            MAX({date_column}) as max_date
             FROM
             `basedosdados.{dataset_id}.{table_id}`
             """
@@ -170,43 +97,42 @@ def extract_last_date(dataset_id, table_id, date_format: str, billing_project_id
                 billing_project_id=billing_project_id,
                 from_file=True,
             )
-            # it infers that the data variable is already on basedosdados standart format
-            # yyyy-mm-dd
+
             last_date = t["max_date"][0]
 
-            log(f"Última data YYYY-MM-DD: {last_date}")
+            log(f"Última data: {last_date}")
 
             return last_date
         except Exception as e:
             log(f"An error occurred while extracting the last update date: {str(e)}")
             raise
+    elif date_format == "%Y-%m":
+        try:
+            query_bd = f"""
+            SELECT
+            MAX(DATE(ano,mes,1)) as max_date
+            FROM
+            `{billing_project_id}.{dataset_id}.{table_id}`
+            """
 
+            t = bd.read_sql(
+                query=query_bd,
+                billing_project_id=billing_project_id,
+                from_file=True,
+            )
 
-def find_ids(dataset_id, table_id, email, password):
-    """
-    Finds the IDs for a given dataset and table.
+            input_date_str = t["max_date"][0]
 
-    Args:
-        dataset_id (str): The ID of the dataset.
-        table_id (str): The ID of the table.
+            date_obj = datetime.strptime(input_date_str, "%Y-%m-%d")
 
-    Returns:
-        dict: A dictionary containing the dataset ID, table ID, and coverage ID.
+            last_date = date_obj.strftime("%Y-%m")
+            log(f"Última data: {last_date}")
 
-    Raises:
-        Exception: If an error occurs while retrieving the IDs.
-    """
-    try:
-        ids = get_ids(
-            dataset_name=dataset_id, table_name=table_id, email=email, password=password
-        )
-        log(f"IDs >>>> {ids}")
-        return ids
-    except Exception as e:
-        log(f"An error occurred while retrieving the IDs: {str(e)}")
-        raise
-
-
+            return last_date
+        except Exception as e:
+            log(f"An error occurred while extracting the last update date: {str(e)}")
+            raise
+    
 def get_credentials_utils(secret_path: str) -> Tuple[str, str]:
     """
     Returns the user and password for the given secret path.
@@ -361,19 +287,69 @@ def get_date(
                     }}"""
 
     if api_mode == "staging":
-        r = requests.post(
-            url=f"https://{api_mode}.api.basedosdados.org/api/v1/graphql",
-            json={"query": query, "variables": dict(zip(keys, values))},
-            headers=header,
-        ).json()
+        url = "https://staging.api.basedosdados.org/api/v1/graphql"
     elif api_mode == "prod":
-        r = requests.post(
-            url="https://api.basedosdados.org/api/v1/graphql",
+        url="https://api.basedosdados.org/api/v1/graphql",
+
+    r = requests.post(
+            url=url,
             json={"query": query, "variables": dict(zip(keys, values))},
             headers=header,
         ).json()
 
     return r
+
+def check_if_values_are_accepted(coverage_status: str,
+                                 time_unit: str,
+                                  billing_project_id: str):
+
+    accepted_billing_project_id = [
+            "basedosdados-dev",
+            "basedosdados",
+            "basedosdados-staging",
+        ]
+
+    accepted_time_units = [
+        "years",
+        "months",
+        "weeks",
+        "days"
+    ]
+
+    accepted_coverage_status = ["all_bdpro","all_free","partially_bdpro"]
+
+    if time_unit not in accepted_time_units:
+        raise ValueError(
+            f"Unidade temporal inválida. Escolha entre {accepted_time_units}"
+        )
+
+    if billing_project_id not in accepted_billing_project_id:
+        raise Exception(
+            f"The given billing_project_id: {billing_project_id} is invalid. The accepted valuesare {accepted_billing_project_id}"
+        )
+    
+    if coverage_status not in accepted_coverage_status:
+        raise ValueError(
+            f"Unidade temporal inválida. Escolha entre {accepted_coverage_status}"
+        )
+
+
+def sync_bdpro_free_coverages(date_format: str, 
+                              bdpro_parameters: dict, 
+                              free_parameters: dict):
+        
+    if date_format == "%Y-%m-%d":
+        bdpro_parameters["startYear"] = free_parameters["endYear"]
+        bdpro_parameters["startMonth"] = free_parameters["endMonth"]
+        bdpro_parameters["startDay"] = free_parameters["endDay"]
+    elif date_format == "%Y-%m":
+        bdpro_parameters["startYear"] = free_parameters["endYear"]
+        bdpro_parameters["startMonth"] = free_parameters["endMonth"]
+    elif date_format == "%Y":   
+        bdpro_parameters["startYear"] = free_parameters["endYear"]
+    
+    return bdpro_parameters
+
 
 
 def create_update(
@@ -428,14 +404,12 @@ def create_update(
         mutation_parameters["id"] = id
 
         if api_mode == "prod":
-            r = requests.post(
-                "https://api.basedosdados.org/api/v1/graphql",
-                json={"query": query, "variables": {"input": mutation_parameters}},
-                headers=header,
-            ).json()
+            url = "https://api.basedosdados.org/api/v1/graphql"
         elif api_mode == "staging":
-            r = requests.post(
-                f"https://{api_mode}api.basedosdados.org/api/v1/graphql",
+            url = "https://staging.api.basedosdados.org/api/v1/graphql"
+
+        r = requests.post(
+                url = url,
                 json={"query": query, "variables": {"input": mutation_parameters}},
                 headers=header,
             ).json()
@@ -501,15 +475,50 @@ def parse_temporal_coverage(temporal_coverage):
 
     return end_result
 
+def get_coverage_id(
+    table_id: str,
+    email: str,
+    password: str,
+    is_closed: bool,
+    api_mode: str='prod'
+):
+    # Get the coverage IDs
+    coverage_result = get_id(
+        email=email,
+        password=password,
+        query_class="allCoverage",
+        query_parameters={
+            "$table_Id: ID": table_id,
+            "$isClosed: Boolean": is_closed,
+        },
+        api_mode=api_mode,
+        cloud_table=True,
+    )
+    log(f"----- coverage result {coverage_result}")
+    if not coverage_result:
+        raise ValueError("Coverage ID not found.")
+
+    coverage_ids = coverage_result[0]["data"]["allCoverage"]["edges"]
+
+    # Check if there are multiple coverage IDs
+    if len(coverage_ids) > 1:
+        print(
+            "WARNING: Your table has multiple coverages. Only the first ID has been selected."
+        )
+
+    # Retrieve the first coverage ID
+    coverage_id = coverage_ids[0]["node"]["id"].split(":")[-1]
+
+    return coverage_id
+
 
 def get_ids(
     dataset_name: str,
     table_name: str,
     email: str,
-    is_bd_pro: bool,
     password: str,
-    is_free: bool,
-    api_mode: str,
+    coverage_status: str,
+    api_mode: str='prod',
 ) -> dict:
     """
     Obtains the IDs of the table and coverage based on the provided names.
@@ -534,134 +543,54 @@ def get_ids(
             "table"
         ].get("_id")
         log(table_id)
-        if is_bd_pro and is_free:
-            # Get the coverage IDs
-            coverage_result = get_id(
-                email=email,
-                password=password,
-                query_class="allCoverage",
-                query_parameters={
-                    "$table_Id: ID": table_id,
-                    "$isClosed: Boolean": True,
-                },
-                api_mode=api_mode,
-                cloud_table=True,
+
+        if coverage_status == 'partially_bdpro':
+            
+            coverage_id_pro = get_coverage_id(
+                table_id = table_id,
+                is_closed = True,    
+                email = email,
+                password = password,
             )
-            log(f"----- coverage result {coverage_result}")
-            if not coverage_result:
-                raise ValueError("Coverage ID not found.")
-
-            coverage_ids = coverage_result[0]
-
-            # Check if there are multiple coverage IDs
-            if len(coverage_ids["data"]["allCoverage"]["edges"]) > 1:
-                print(
-                    "WARNING: Your table has more than one coverage. Only the first ID has been selected."
-                )
-
-            # Retrieve the first coverage ID
-            coverage_id_pro = coverage_ids["data"]["allCoverage"]["edges"][0]["node"][
-                "id"
-            ].split(":")[-1]
-            # Get the coverage IDs
-            coverage_result = get_id(
-                email=email,
-                password=password,
-                query_class="allCoverage",
-                query_parameters={
-                    "$table_Id: ID": table_id,
-                    "$isClosed: Boolean": False,
-                },
-                api_mode=api_mode,
-                cloud_table=True,
+                
+            coverage_id_free = get_coverage_id(
+                table_id = table_id,
+                is_closed = False,    
+                email = email,
+                password = password,
             )
-            if not coverage_result:
-                raise ValueError("Coverage ID not found.")
-
-            coverage_ids = coverage_result[0]
-
-            # Check if there are multiple coverage IDs
-            if len(coverage_ids["data"]["allCoverage"]["edges"]) > 1:
-                print(
-                    "WARNING: Your table has more than one coverage. Only the first ID has been selected."
-                )
-
-            # Retrieve the first coverage ID
-            coverage_id = coverage_ids["data"]["allCoverage"]["edges"][0]["node"][
-                "id"
-            ].split(":")[-1]
-        elif is_bd_pro and not is_free:
-            # Get the coverage IDs
-            coverage_result = get_id(
-                email=email,
-                password=password,
-                query_class="allCoverage",
-                query_parameters={
-                    "$table_Id: ID": table_id,
-                    "$isClosed: Boolean": True,
-                },
-                api_mode=api_mode,
-                cloud_table=True,
-            )
-            if not coverage_result:
-                raise ValueError("Coverage ID not found.")
-
-            coverage_ids = coverage_result[0]
-
-            # Check if there are multiple coverage IDs
-            if len(coverage_ids["data"]["allCoverage"]["edges"]) > 1:
-                print(
-                    "WARNING: Your table has more than one coverage. Only the first ID has been selected."
-                )
-
-            # Retrieve the first coverage ID
-            coverage_id_pro = coverage_ids["data"]["allCoverage"]["edges"][0]["node"][
-                "id"
-            ].split(":")[-1]
-        elif is_free and not is_bd_pro:
-            # Get the coverage IDs
-            coverage_result = get_id(
-                email=email,
-                password=password,
-                query_class="allCoverage",
-                query_parameters={
-                    "$table_Id: ID": table_id,
-                    "$isClosed: Boolean": False,
-                },
-                api_mode=api_mode,
-                cloud_table=True,
-            )
-            if not coverage_result:
-                raise ValueError("Coverage ID not found.")
-
-            coverage_ids = coverage_result[0]
-            log(coverage_ids)
-            # Check if there are multiple coverage IDs
-            if len(coverage_ids["data"]["allCoverage"]["edges"]) > 1:
-                print(
-                    "WARNING: Your table has more than one coverage. Only the first ID has been selected."
-                )
-
-            # Retrieve the first coverage ID
-            coverage_id = coverage_ids["data"]["allCoverage"]["edges"][0]["node"][
-                "id"
-            ].split(":")[-1]
-        # Return the 3 IDs in a dictionary
-        if is_bd_pro and is_free:
+            
             return {
                 "table_id": table_id,
-                "coverage_id": coverage_id,
+                "coverage_id_free": coverage_id_free,
                 "coverage_id_pro": coverage_id_pro,
             }
-        elif is_free and not is_bd_pro:
-            return {
-                "table_id": table_id,
-                "coverage_id": coverage_id,
-            }
-        elif is_bd_pro and not is_free:
+        
+        elif coverage_status == 'all_bdpro':
+            
+            coverage_id_pro = get_coverage_id(
+                table_id = table_id,
+                is_closed = True,    
+                email = email,
+                password = password,
+            )
+
             return {
                 "table_id": table_id,
                 "coverage_id_pro": coverage_id_pro,
+            }
+        
+        elif coverage_status == 'all_free':
+            coverage_id_free = get_coverage_id(
+                table_id = table_id,
+                is_closed = False,    
+                email = email,
+                password = password,
+            )
+
+            return {
+                "table_id": table_id,
+                "coverage_id_free": coverage_id_free,
             }
     except Exception as e:
         print(f"Error occurred while retrieving IDs: {str(e)}")
