@@ -73,7 +73,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
 
     mes_um = Parameter("mes_um", default="07", required=True)
     mes_dois = Parameter("mes_dois", default="12", required=True)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    update_metadata = Parameter("update_metadata", default=True, required=False)
 
     data_source_max_date = setting_data_url()
     dados_desatualizados = check_if_data_is_outdated(
