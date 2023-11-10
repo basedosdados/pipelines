@@ -77,7 +77,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
     update_metadata = Parameter("update_metadata", default=False, required=False)
 
     data_source_max_date = setting_data_url()
-
+    date = task_check_for_data.run()
     dados_desatualizados = check_if_data_is_outdated(
         dataset_id=dataset_id,
         table_id=table_id[0],
@@ -136,7 +136,6 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             )
 
         with case(update_metadata, True):
-            date = task_check_for_data.run()
             update_django_metadata(
                 dataset_id,
                 table_id[0],
@@ -193,7 +192,6 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             )
 
         with case(update_metadata, True):
-            date = task_check_for_data.run()
             update_django_metadata(
                 dataset_id,
                 table_id[1],
@@ -252,7 +250,6 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             )
 
         with case(update_metadata, True):
-            date = task_check_for_data.run()
             update_django_metadata(
                 dataset_id,
                 table_id[2],
@@ -310,7 +307,6 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             )
 
             with case(update_metadata, True):
-                date = task_check_for_data.run()
                 update_django_metadata(
                     dataset_id,
                     table_id[3],
