@@ -14,7 +14,7 @@ import basedosdados as bd
 import requests
 
 from pipelines.utils.utils import get_credentials_from_secret, log
-
+from pipelines.utils.metadata.constants import constants as metadata_constants
 
 #######################
 # Django Metadata Utils
@@ -299,15 +299,11 @@ def get_date(
 
     return r
 
-def check_if_values_are_accepted(coverage_status: str,
-                                 time_unit: str,
-                                  billing_project_id: str):
+def get_billing_project_id(mode: str):
+    return metadata_constants.MODE_2_PROJECT.value[mode]
 
-    accepted_billing_project_id = [
-            "basedosdados-dev",
-            "basedosdados",
-            "basedosdados-staging",
-        ]
+def check_if_values_are_accepted(coverage_status: str,
+                                 time_unit: str):
 
     accepted_time_units = [
         "years",
@@ -321,11 +317,6 @@ def check_if_values_are_accepted(coverage_status: str,
     if time_unit not in accepted_time_units:
         raise ValueError(
             f"Unidade temporal inválida. Escolha entre {accepted_time_units}"
-        )
-
-    if billing_project_id not in accepted_billing_project_id:
-        raise Exception(
-            f"The given billing_project_id: {billing_project_id} is invalid. The accepted valuesare {accepted_billing_project_id}"
         )
     
     if coverage_status not in accepted_coverage_status:

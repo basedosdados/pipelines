@@ -13,6 +13,7 @@ from pipelines.utils.metadata.utils import (
     create_update,
     extract_last_date_from_bq,
     get_api_most_recent_date,
+    get_billing_project_id,
     get_credentials_utils,
     get_ids,
     parse_temporal_coverage,
@@ -37,8 +38,8 @@ def update_django_metadata(
     coverage_status: str = "all_bdpro",
     time_delta: int = 1,
     time_unit: str = "days",
-    billing_project_id: str = "basedosdados-dev",
-    api_mode = 'prod'
+    bq_mode: str = "dev",
+    api_mode = "prod"
 ):
     """
     Updates Django metadata. Version 1.2.
@@ -55,8 +56,7 @@ def update_django_metadata(
     """
     
     check_if_values_are_accepted(coverage_status = coverage_status,
-                                 time_unit = time_unit,
-                                 billing_project_id = billing_project_id)
+                                 time_unit = time_unit)
     
     (email, password) = get_credentials_utils(secret_path=f"api_user_{api_mode}")
 
@@ -71,12 +71,14 @@ def update_django_metadata(
 
     log(f"IDS:{ids}")
 
+    billing_project_id = get_billing_project_id(mode = bq_mode)
+
     last_date = extract_last_date_from_bq(
             dataset_id = dataset_id,
             table_id = table_id,
             date_format = date_format,
             date_column = date_column_name,
-            billing_project_id = billing_project_id,
+            billing_project_id = billing_project_id
         )
     
     last_date_parameters = parse_temporal_coverage(f"{last_date}")
