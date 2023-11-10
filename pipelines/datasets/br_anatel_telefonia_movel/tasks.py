@@ -47,12 +47,6 @@ def setting_data_url():
 
     return data_total
 
-
-@task
-def task_check_for_data():
-    return setting_data_url()
-
-
 # ! TASK MICRODADOS
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
