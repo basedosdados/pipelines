@@ -50,7 +50,7 @@ def setting_data_url():
 
 
 @task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
+    max_retries=20,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def treatment(ano: int):
