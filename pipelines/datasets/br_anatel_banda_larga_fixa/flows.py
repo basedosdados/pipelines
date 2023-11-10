@@ -15,7 +15,6 @@ from pipelines.datasets.br_anatel_banda_larga_fixa.schedules import (
     every_month_anatel_microdados,
 )
 from pipelines.datasets.br_anatel_banda_larga_fixa.tasks import (
-    get_today_date_atualizado,
     setting_data_url,
     treatment,
     treatment_br,
@@ -130,7 +129,6 @@ with Flow(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
             with case(update_metadata, True):
-                date = get_today_date_atualizado()  # task que retorna a data atual
                 update_django_metadata(
                     dataset_id,
                     table_id[0],
@@ -143,7 +141,7 @@ with Flow(
                     time_unit="months",
                     api_mode="prod",
                     date_format="yy-mm",
-                    _last_date=date,
+                    _last_date=data_source_max_date,
                 )
 
         # ! BRASIL
@@ -186,7 +184,6 @@ with Flow(
             )
 
             with case(update_metadata, True):
-                date = get_today_date_atualizado()  # task que retorna a data atual
                 update_django_metadata(
                     dataset_id,
                     table_id[1],
@@ -199,7 +196,7 @@ with Flow(
                     time_unit="months",
                     api_mode="prod",
                     date_format="yy-mm",
-                    _last_date=date,
+                    _last_date=data_source_max_date,
                 )
 
         # ! UF
@@ -244,7 +241,6 @@ with Flow(
             )
 
             with case(update_metadata, True):
-                date = get_today_date_atualizado()  # task que retorna a data atual
                 update_django_metadata(
                     dataset_id,
                     table_id[2],
@@ -257,7 +253,7 @@ with Flow(
                     time_unit="months",
                     api_mode="prod",
                     date_format="yy-mm",
-                    _last_date=date,
+                    _last_date=data_source_max_date,
                 )
 
         # ! MUNICIPIO
@@ -301,7 +297,6 @@ with Flow(
             )
 
             with case(update_metadata, True):
-                date = get_today_date_atualizado()  # task que retorna a data atual
                 update_django_metadata(
                     dataset_id,
                     table_id[3],
@@ -314,7 +309,7 @@ with Flow(
                     time_unit="months",
                     api_mode="prod",
                     date_format="yy-mm",
-                    _last_date=date,
+                    _last_date=data_source_max_date,
                 )
 
 br_anatel_banda_larga.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
