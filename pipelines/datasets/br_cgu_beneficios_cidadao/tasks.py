@@ -20,7 +20,7 @@ from pipelines.utils.utils import extract_last_date, get_credentials_from_secret
 
 @task
 def print_last_file(file):
-    log(f"arquivo a ser baixado --> {file}")
+    log(f"Arquivo a ser baixado --> {file}")
 
 
 @task
