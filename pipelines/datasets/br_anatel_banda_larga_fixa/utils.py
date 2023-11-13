@@ -118,11 +118,10 @@ def to_partitions_microdados(
 
 
 def data_url():
-
     """
     Faz um parse da data de atualização mais recente dos dados no site da anatel.
 
-    Returns: 
+    Returns:
     Me retorna a data (%Y-%m) em que os dados estão mais atualizados no site.
     """
     element_html = ""  # Inicialize element_html com uma string vazia
