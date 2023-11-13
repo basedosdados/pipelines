@@ -104,6 +104,7 @@ with Flow(
                 table_id,
                 metadata_type="DateTimeRange",
                 billing_project_id="basedosdados",
+                # atenção:
                 # needs_to_update[1] é a data (Y%-m%) mais recente
                 _last_date=needs_to_update[1],
                 bq_last_update=False,

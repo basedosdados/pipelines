@@ -746,6 +746,7 @@ def clean_mes_municipio(indice: str):
             dataframe = dataframe[ordem]
             item = pd.DataFrame(dataframe)
 
+        # realiza diversas requisões a API para burlar o limite de 200k valores
         elif "_".join(arq.split("_")[1:]).split(".", maxsplit=1)[0] == "subitem_2020":
             dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
                 lambda x: x[0] + "." + x[1] + "." + x[2:4] + "." + x[4:7]
