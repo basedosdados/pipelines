@@ -13,7 +13,7 @@ from pipelines.constants import constants
 every_month_anatel_microdados = Schedule(
     clocks=[
         CronClock(
-            cron="0 6 * * *",  # !
+            cron="0 6 * * *",  # ! goes execute every day 6 am
             start_date=datetime(2023, 4, 3, 7, 5, 0),  # ! Data de início da execução
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,  # ! Label para identificar o agente que irá executar a pipeline (ex: basedosdados-dev)
