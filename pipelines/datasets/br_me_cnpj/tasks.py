@@ -63,7 +63,7 @@ def format_date_to_string():
 
 
 @task
-def check_for_updates(dataset_id, table_id):
+def get_data_source_max_date():
     """
     Checks if there are available updates for a specific dataset and table.
 
@@ -72,21 +72,7 @@ def check_for_updates(dataset_id, table_id):
     """
     # Obtém a data mais recente do site
     data_obj = data_url(url, headers).strftime("%Y-%m-%d")
-
-    # Obtém a última data no site BD
-    data_bq_obj = extract_last_date(
-        dataset_id, table_id, "yy-mm-dd", "basedosdados"
-    ).strftime("%Y-%m-%d")
-
-    # Registra a data mais recente do site
-    log(f"Última data no site do ME: {data_obj}")
-    log(f"Última data no site da BD: {data_bq_obj}")
-
-    # Compara as datas para verificar se há atualizações
-    if data_obj > data_bq_obj:
-        return True  # Há atualizações disponíveis
-    else:
-        return False  # Não há novas atualizações disponíveis
+    return data_obj
 
 
 @task

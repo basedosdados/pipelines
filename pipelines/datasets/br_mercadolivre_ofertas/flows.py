@@ -33,7 +33,7 @@ from pipelines.utils.tasks import (
 )
 
 with Flow(
-    name="br_mercadolivre_ofertas.item", code_owners=["Gabs"]
+    name="br_mercadolivre_ofertas.item", code_owners=["Gabriel Pisa"]
 ) as br_mercadolivre_ofertas_item:
     # Parameters
     dataset_id = Parameter(
@@ -162,7 +162,7 @@ br_mercadolivre_ofertas_item.run_config = KubernetesRun(
 br_mercadolivre_ofertas_item.schedule = every_day_item
 
 with Flow(
-    name="br_mercadolivre_ofertas.vendedor", code_owners=["Gabs"]
+    name="br_mercadolivre_ofertas.vendedor", code_owners=["Gabriel Pisa"]
 ) as br_mercadolivre_ofertas_vendedor:
     # Parameters
     dataset_id = Parameter(
