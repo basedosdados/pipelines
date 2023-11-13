@@ -20,11 +20,23 @@ from pipelines.utils.utils import extract_last_date, log
 
 @task
 def print_last_file(file):
-    log(f"Arquivo a ser baixado --> {file}")
+    log(f"Arquivo baixado --> {file}")
 
 
 @task
-def crawl_last_date(table_id: str):
+def crawl_last_date(table_id: str) -> list:
+    """
+    Encontra a data mais recente em um DataFrame e retorna a data e a URL correspondente.
+
+    Parâmetros:
+    - table_id (str): O identificador da tabela que contém os dados.
+
+    Retorna:
+    Uma lista contendo a data mais recente e a URL correspondente.
+
+    Exemplo de uso:
+    date, url = crawl_last_date("minha_tabela")
+    """
     dates = extract_dates(table=table_id)
     dates["data"] = pd.to_datetime(
         dates["ano"].astype(str) + "-" + dates["mes_numero"].astype(str) + "-01"
@@ -38,7 +50,23 @@ def crawl_last_date(table_id: str):
 
 @task
 def check_for_updates(dataset_id: str, table_id: str, max_date: datetime) -> bool:
-    """ """
+    """
+    Verifica se há atualizações disponíveis em um conjunto de dados (dataset).
+
+    Parâmetros:
+    - dataset_id (str): O identificador do conjunto de dados no site.
+    - table_id (str): O identificador da tabela dentro do conjunto de dados.
+    - max_date (datetime): A data mais recente a ser comparada com a última data na BD.
+
+    Retorna:
+    - True se houver atualizações disponíveis, False caso contrário.
+
+    Exemplo de uso:
+    if check_for_updates("meu_dataset", "minha_tabela", datetime(2023, 11, 10)):
+        print("Há atualizações disponíveis.")
+    else:
+        print("Não há novas atualizações disponíveis.")
+    """
 
     # Obtém a última data no site BD
     bd_date = extract_last_date(dataset_id, table_id, "yy-mm", "basedosdados-dev")
@@ -49,8 +77,10 @@ def check_for_updates(dataset_id: str, table_id: str, max_date: datetime) -> boo
 
     # Compara as datas para verificar se há atualizações
     if max_date > bd_date:
+        log("Há atualizações disponíveis")
         return True  # Há atualizações disponíveis
     else:
+        log("Não há novas atualizações disponíveis")
         return False  # Não há novas atualizações disponíveis
 
 
@@ -61,14 +91,14 @@ def crawler_bolsa_familia(historical_data: bool, file):
 
         endpoints = dates["urls"].to_list()
 
-        log("DOWNLOADING HISTORICAL DATA")
+        log("BAIXANDO DADOS HISTÓRICOS")
         log(f"ENDPOINTS >> {endpoints}")
 
         download_unzip_csv(
             url=constants.MAIN_URL_NOVO_BOLSA_FAMILIA.value, files=endpoints, id="dados"
         )
     else:
-        log("DOWNLOADING MOST RECENT DATA")
+        log("BAIXANDO DADOS MAIS RECENTES")
         download_unzip_csv(
             url=constants.MAIN_URL_NOVO_BOLSA_FAMILIA.value,
             files=f"{file}",
@@ -89,7 +119,7 @@ def crawler_garantia_safra(historical_data: bool, file):
 
         endpoints = dates["urls"].to_list()
 
-        log("DOWNLOADING HISTORICAL DATA")
+        log("BAIXANDO DADOS HISTÓRICOS")
         log(f"ENDPOINTS >> {endpoints}")
 
         download_unzip_csv(
@@ -98,7 +128,7 @@ def crawler_garantia_safra(historical_data: bool, file):
             id="garantia_safra",
         )
     else:
-        log("DOWNLOADING MOST RECENT DATA")
+        log("BAIXANDO DADOS MAIS RECENTES")
         download_unzip_csv(
             url=constants.MAIN_URL_GARANTIA_SAFRA.value,
             files=f"{file}",
@@ -119,7 +149,7 @@ def crawler_bpc(historical_data: bool, file):
 
         endpoints = dates["urls"].to_list()
 
-        log("DOWNLOADING HISTORICAL DATA")
+        log("BAIXANDO DADOS HISTÓRICOS")
         log(f"ENDPOINTS >> {endpoints}")
 
         download_unzip_csv(
@@ -128,7 +158,7 @@ def crawler_bpc(historical_data: bool, file):
             id="bpc",
         )
     else:
-        log("DOWNLOADING MOST RECENT DATA")
+        log("BAIXANDO DADOS MAIS RECENTES")
         download_unzip_csv(
             url=constants.MAIN_URL_BPC.value,
             files=f"{file}",

@@ -99,7 +99,19 @@ def download_unzip_csv(
     return f"/tmp/data/br_cgu_beneficios_cidadao/{id}/input/"
 
 
-def extract_dates(table: str):
+def extract_dates(table: str) -> pd.DataFrame:
+    """
+    Extrai datas e URLs de download do site do Portal da Transparência e retorna um DataFrame.
+
+    Parâmetros:
+    - table (str): O nome da tabela de dados desejada (possíveis valores: "novo_bolsa_familia", "garantia_safra", "bpc").
+
+    Retorna:
+    - Um DataFrame contendo as colunas "ano", "mes_numero", "mes_nome" e "urls".
+
+    Exemplo de uso:
+    data_frame = extract_dates("novo_bolsa_familia")
+    """
     if not os.path.exists(constants.PATH.value):
         os.makedirs(constants.PATH.value, exist_ok=True)
 
@@ -200,7 +212,7 @@ def extract_dates(table: str):
     return df
 
 
-def parquet_partition(path: str, table: str):
+def parquet_partition_2(path: str, table: str):
     # dfs = []
     for nome_arquivo in os.listdir(path):
         if nome_arquivo.endswith(".csv"):
@@ -292,3 +304,86 @@ def parquet_partition(path: str, table: str):
             log("Partição feita.")
 
     return f"/tmp/data/br_cgu_beneficios_cidadao/{table}/output/"
+
+
+def parquet_partition(path: str, table: str) -> str:
+    """
+    Carrega arquivos CSV, realiza transformações e cria partições em um formato específico, retornando o caminho de saída.
+
+    Parâmetros:
+    - path (str): O caminho para os arquivos a serem processados.
+    - table (str): O nome da tabela (possíveis valores: "novo_bolsa_familia", "garantia_safra", "bpc").
+
+    Retorna:
+    - str: O caminho do diretório de saída onde as partições foram criadas.
+
+    Exemplo de uso:
+    output_path = parquet_partition("/caminho/para/arquivos/", "novo_bolsa_familia")
+    """
+
+    output_directory = f"/tmp/data/br_cgu_beneficios_cidadao/{table}/output/"
+
+    for nome_arquivo in os.listdir(path):
+        if nome_arquivo.endswith(".csv"):
+            log(f"Carregando o arquivo: {nome_arquivo}")
+
+            df = None
+            with pd.read_csv(
+                f"{path}{nome_arquivo}",
+                sep=";",
+                encoding="latin-1",
+                chunksize=1000000,
+                decimal=",",
+                na_values="" if table != "bpc" else None,
+                dtype=(
+                    constants.DTYPES_NOVO_BOLSA_FAMILIA.value
+                    if table == "novo_bolsa_familia"
+                    else constants.DTYPES_GARANTIA_SAFRA.value
+                    if table == "garantia_safra"
+                    else constants.DTYPES_BPC.value
+                ),
+            ) as reader:
+                for chunk in tqdm(reader):
+                    chunk.rename(
+                        columns=(
+                            constants.RENAMER_NOVO_BOLSA_FAMILIA.value
+                            if table == "novo_bolsa_familia"
+                            else constants.RENAMER_GARANTIA_SAFRA.value
+                            if table == "garantia_safra"
+                            else constants.RENAMER_BPC.value
+                        ),
+                        inplace=True,
+                    )
+                    if df is None:
+                        df = chunk
+                    else:
+                        df = pd.concat([df, chunk], axis=0)
+
+            log("Lendo dataset")
+            os.makedirs(output_directory, exist_ok=True)
+
+            if table == "novo_bolsa_familia":
+                to_partitions(
+                    df,
+                    partition_columns=["mes_competencia", "sigla_uf"],
+                    savepath=output_directory,
+                    file_type="parquet",
+                )
+            elif table == "bpc":
+                to_partitions(
+                    df,
+                    partition_columns=["mes_competencia"],
+                    savepath=output_directory,
+                    file_type="csv",
+                )
+            else:
+                to_partitions(
+                    df,
+                    partition_columns=["mes_referencia"],
+                    savepath=output_directory,
+                    file_type="parquet",
+                )
+
+            log("Partição feita.")
+
+    return output_directory

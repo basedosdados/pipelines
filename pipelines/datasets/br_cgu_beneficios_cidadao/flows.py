@@ -70,10 +70,11 @@ with Flow(
         max_date=data[0],
         upstream_tasks=[data],
     )
+
     with case(update, True):
-        print_last_file(data[1])
+        last_file = print_last_file(data[1])
         output_filepath = crawler_bolsa_familia(
-            historical_data=historical_data, file=data[1]
+            historical_data=historical_data, file=data[1], upstream_tasks=[last_file]
         )
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
