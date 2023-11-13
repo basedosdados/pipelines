@@ -112,11 +112,12 @@ with Flow(
                 update_django_metadata(
                     dataset_id = dataset_id,
                     table_id = table_id,
+                    date_column_name = "data_coleta",
                     date_format = "%Y-%m-%d",
                     coverage_status = "partially_bdpro",
-                    time_delta=6,
-                    time_unit="weeks",
-                    billing_project_id = "basedosdados",
+                    time_delta={"weeks":6},
+                    prefect_mode = materialization_mode,
+                    bq_project = "basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
 

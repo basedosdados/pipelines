@@ -111,21 +111,17 @@ with Flow(
         )
 
         with case(update_metadata, True):
-            update = update_django_metadata(
-                dataset_id,
-                table_id,
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                bq_table_last_year_month=True,
-                api_mode="prod",
-                billing_project_id="basedosdados",
-                date_format="yy-mm",
-                is_bd_pro=True,
-                is_free=True,
-                time_delta=6,
-                time_unit="months",
-                upstream_tasks=[wait_for_materialization],
-            )
+            update_django_metadata(
+                    dataset_id = dataset_id,
+                    table_id = table_id,
+                    date_column_name = {'year':'ano','month':'mes'},
+                    date_format = "%Y-%m",
+                    coverage_status = "partially_bdpro",
+                    time_delta={"months":6},
+                    prefect_mode = materialization_mode,
+                    bq_project = "basedosdados",
+                    upstream_tasks=[wait_for_materialization],
+                )
 
 br_bcb_estban_municipio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_bcb_estban_municipio.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
@@ -211,20 +207,16 @@ with Flow(
 
         with case(update_metadata, True):
             update = update_django_metadata(
-                dataset_id,
-                table_id,
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                bq_table_last_year_month=True,
-                api_mode="prod",
-                billing_project_id="basedosdados",
-                date_format="yy-mm",
-                is_bd_pro=True,
-                is_free=True,
-                time_delta=6,
-                time_unit="months",
-                upstream_tasks=[wait_for_materialization],
-            )
+                    dataset_id = dataset_id,
+                    table_id = table_id,
+                    date_column_name = {'year':'ano','month':'mes'},
+                    date_format = "%Y-%m",
+                    coverage_status = "partially_bdpro",
+                    time_delta={"months":6},
+                    prefect_mode = materialization_mode,
+                    bq_project = "basedosdados",
+                    upstream_tasks=[wait_for_materialization],
+                )
 
 br_bcb_estban_agencia.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_bcb_estban_agencia.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)

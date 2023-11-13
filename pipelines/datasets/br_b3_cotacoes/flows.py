@@ -90,18 +90,16 @@ with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
         )
         with case(update_metadata, True):  # task que retorna a data atual
             update_django_metadata(
-                dataset_id,
-                table_id,
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                bq_table_last_year_month=False,
-                is_bd_pro=True,
-                is_free=False,
-                api_mode="prod",
-                date_format="yy-mm-dd",
-                _last_date=data_max,
-                upstream_tasks=[wait_for_materialization],
-            )
+                    dataset_id = dataset_id,
+                    table_id = table_id,
+                    date_column_name = "data_referencia",
+                    date_format = "%Y-%m-%d",
+                    coverage_status = "all_bdpro",
+                    time_delta={"months":6},
+                    prefect_mode = materialization_mode,
+                    bq_project = "basedosdados",
+                    upstream_tasks=[wait_for_materialization],
+                )
 
 cotacoes.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 cotacoes.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
