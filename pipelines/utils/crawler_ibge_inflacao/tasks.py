@@ -243,10 +243,10 @@ def crawler(indice: str, folder: str) -> bool:
         "mun/inpc_subitem_2023": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-876936943",
         # "mun/ip15_subitem_1": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-260564956",
         # "mun/ip15_subitem_2": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-317614754",
-        "mun/ip15_subitem_2020": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/423090714",
-        "mun/ip15_subitem_2021": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-2093394354",
-        "mun/ip15_subitem_2022": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/1121054542",
-        "mun/ip15_subitem_2023": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/1139582635",
+        "mun/ip15_subitem_2020": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/695637992",
+        "mun/ip15_subitem_2021": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/1303789084",
+        "mun/ip15_subitem_2022": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-1220124260",
+        "mun/ip15_subitem_2023": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/638121395",
         "mun/ipca_geral": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7060.csv&terr=NC&rank=-&query=t/7060/n6/all/v/all/p/all/c315/7169/d/v63%202,v66%204,v69%202,v2265%202/l/,v,t%2Bp%2Bc315",
         "mun/inpc_geral": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7063.csv&terr=NC&rank=-&query=t/7063/n6/all/v/all/p/all/c315/7169/d/v44%202,v45%204,v68%202,v2292%202/l/,v,t%2Bp%2Bc315",
         "mun/ip15_geral": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7062.csv&terr=NC&rank=-&query=t/7062/n6/all/v/all/p/all/c315/7169/d/v355%202,v356%202,v357%204,v1120%202/l/,v,t%2Bp%2Bc315",
@@ -661,6 +661,7 @@ def clean_mes_municipio(indice: str):
         "IPCA15 - Variação mensal (%)": "variacao_mensal",
         "IPCA15 - Variação acumulada no ano (%)": "variacao_anual",
         "IPCA15 - Variação acumulada em 12 meses (%)": "variacao_doze_meses",
+        "IPCA15 - Variação acumulada em 12 meses": "variacao_doze_meses",
         "IPCA15 - Peso mensal (%)": "peso_mensal",
     }
 
