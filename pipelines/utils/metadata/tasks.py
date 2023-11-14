@@ -64,7 +64,7 @@ def update_django_metadata(
     Raises:
         -   Exception: If the  coverage_type, time_delta or date_column_name is not supported.
         -   Exception: If try to update published table with non prod data
-     
+
     """
 
     check_if_values_are_accepted(
