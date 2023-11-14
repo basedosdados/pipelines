@@ -115,20 +115,20 @@ with Flow(
             )
             with case(update_metadata, True):
                 date = get_today_date()
-                update_django_metadata(
-                    dataset_id,
-                    table_id,
-                    metadata_type="DateTimeRange",
-                    _last_date=date,
-                    bq_table_last_year_month=False,
-                    bq_last_update=False,
-                    is_bd_pro=True,
-                    is_free=True,
-                    date_format="yy-mm",
-                    api_mode="prod",
-                    time_delta=6,
-                    time_unit="months",
-                )
+                # update_django_metadata(
+                #     dataset_id,
+                #     table_id,
+                #     metadata_type="DateTimeRange",
+                #     _last_date=date,
+                #     bq_table_last_year_month=False,
+                #     bq_last_update=False,
+                #     is_bd_pro=True,
+                #     is_free=True,
+                #     date_format="yy-mm",
+                #     api_mode="prod",
+                #     time_delta=6,
+                #     time_unit="months",
+                # )
 
 datasets_br_cgu_bolsa_familia_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 datasets_br_cgu_bolsa_familia_flow.run_config = KubernetesRun(
@@ -217,20 +217,20 @@ with Flow(
             )
             with case(update_metadata, True):
                 date = get_today_date()
-                update_django_metadata(
-                    dataset_id,
-                    table_id,
-                    metadata_type="DateTimeRange",
-                    _last_date=date,
-                    bq_table_last_year_month=False,
-                    bq_last_update=False,
-                    is_bd_pro=True,
-                    is_free=True,
-                    date_format="yy-mm",
-                    api_mode="prod",
-                    time_delta=6,
-                    time_unit="months",
-                )
+                # update_django_metadata(
+                #     dataset_id,
+                #     table_id,
+                #     metadata_type="DateTimeRange",
+                #     _last_date=date,
+                #     bq_table_last_year_month=False,
+                #     bq_last_update=False,
+                #     is_bd_pro=True,
+                #     is_free=True,
+                #     date_format="yy-mm",
+                #     api_mode="prod",
+                #     time_delta=6,
+                #     time_unit="months",
+                # )
 
 datasets_br_cgu_garantia_safra_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 datasets_br_cgu_garantia_safra_flow.run_config = KubernetesRun(
@@ -315,20 +315,20 @@ with Flow(
             )
             with case(update_metadata, True):
                 date = get_today_date()
-                update_django_metadata(
-                    dataset_id,
-                    table_id,
-                    metadata_type="DateTimeRange",
-                    _last_date=date,
-                    bq_table_last_year_month=False,
-                    bq_last_update=False,
-                    is_bd_pro=True,
-                    is_free=True,
-                    date_format="yy-mm",
-                    api_mode="prod",
-                    time_delta=6,
-                    time_unit="months",
-                )
+                # update_django_metadata(
+                #     dataset_id,
+                #     table_id,
+                #     metadata_type="DateTimeRange",
+                #     _last_date=date,
+                #     bq_table_last_year_month=False,
+                #     bq_last_update=False,
+                #     is_bd_pro=True,
+                #     is_free=True,
+                #     date_format="yy-mm",
+                #     api_mode="prod",
+                #     time_delta=6,
+                #     time_unit="months",
+                # )
 
 datasets_br_cgu_bpc_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 datasets_br_cgu_bpc_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
