@@ -25,7 +25,7 @@ from pipelines.utils.utils import get_credentials_from_secret, log
 def check_if_values_are_accepted(coverage_type: str, time_delta: str, date_column_name):
     if len(time_delta) != 1:
         raise ValueError(
-            f"Dicionário de delta tempo inválido. O dicionário deve conter apenas uma chave e um valor"
+            "Dicionário de delta tempo inválido. O dicionário deve conter apenas uma chave e um valor"
         )
     key = list(time_delta)[0]
     if key not in metadata_constants.ACCEPTED_TIME_UNITS.value:
@@ -33,7 +33,7 @@ def check_if_values_are_accepted(coverage_type: str, time_delta: str, date_colum
             f"Unidade temporal inválida. Escolha entre {metadata_constants.ACCEPTED_TIME_UNITS.value}"
         )
     if type(time_delta[key]) is not int:
-        raise ValueError(f"Valor de delta inválido. O valor deve ser um inteiro")
+        raise ValueError("Valor de delta inválido. O valor deve ser um inteiro")
 
     if coverage_type not in metadata_constants.ACCEPTED_COVERAGE_TYPE.value:
         raise ValueError(
