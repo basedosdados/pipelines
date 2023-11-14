@@ -5,15 +5,18 @@ Tasks for metadata
 
 from datetime import datetime
 
-from dateutil.relativedelta import relativedelta
 from prefect import task
 
 from pipelines.utils.metadata.utils import (
+    check_if_values_are_accepted,
     create_update,
-    extract_last_update,
+    extract_last_date_from_bq,
     get_api_most_recent_date,
+    get_billing_project_id,
     get_credentials_utils,
     get_ids,
+    get_parcially_bdpro_coverage_parameters,
+    get_table_status,
     parse_temporal_coverage,
 )
 from pipelines.utils.utils import extract_last_date, log
@@ -22,7 +25,6 @@ from pipelines.utils.utils import extract_last_date, log
 @task
 def get_today_date():
     d = datetime.today()
-
     return d.strftime("%Y-%m-%d")
 
 
@@ -30,522 +32,147 @@ def get_today_date():
 def update_django_metadata(
     dataset_id: str,
     table_id: str,
-    metadata_type: str,
-    _last_date: str = None,
-    date_format: str = "yy-mm-dd",
-    bq_last_update: bool = True,
-    bq_table_last_year_month: bool = False,
+    date_column_name: dict = {"year": "ano", "month": "mes"},
+    date_format: str = "%Y-%m",
+    coverage_type: str = "partially_bdpro",
+    time_delta: dict = {"months": 6},
+    prefect_mode: str = "dev",
     api_mode: str = "prod",
-    billing_project_id: str = "basedosdados-dev",
-    is_bd_pro: bool = False,
-    is_free: bool = False,
-    time_delta: int = 1,
-    time_unit: str = "days",
+    bq_project: str = "basedosdados",
+    historical_database: bool = True,
 ):
     """
-    Updates Django metadata. Version 1.2.
+       Updates temporal coverage Django metadata. Version 1.3.
 
+       Args:
     Args:
-        -   `dataset_id (str):` The ID of the dataset.
-        -   `table_id (str):` The ID of the table.
-        -   `metadata_type (str):` The type of metadata to update.
-        -   `_last_date (str):` The last date for metadata update if `bq_last_update` is False. Defaults to None.
-        -   `date_format (str, optional):` The date format to use when parsing dates.Defaults to 'yy-mm-dd'. Accepted values
-            are 'yy-mm-dd', 'yy-mm' or 'dd'.
-        -   `bq_last_update (bool, optional):` Flag indicating whether to use BigQuery's last update date for metadata.
-            If True, `_last_date` is ignored. Defaults to True.
-        -   `api_mode (str, optional):` The API mode to be used ('prod', 'staging'). Defaults to 'prod'.
-        -   `billing_project_id (str):` the billing_project_id to be used when the extract_last_update function is triggered. Note that it has
-        to be equal to the prefect agent. For prod agents use basedosdados where as for dev agents use basedosdados-dev. The default value is
-        to 'basedosdados-dev'.
-        -   `bq_table_last_year_month (bool):` If true extract YYYY-MM from the table in Big Query to update the Coverage. Note
-        that in needs the table to have ano and mes columns.
-        -   `is_bd_pro (bool):` If true updates the closed DateTimeRange metadata.
-        -   `is_bd_free (bool):` If true updates the open DateTimeRange metadata.
-        -   `time_delta (int):` Indicates the integer number of lags between the DateTimeRange of the closed table and the open table.
-        -   `time_unit (str):` Time unit of the lag, which can be "months", "years", "days" or "weeks".
+           dataset_id (str): O ID do conjunto de dados.
+           table_id (str): O ID da tabela dentro do conjunto de dados.
+           nome_coluna_data (dict): Um dicionário especificando os nomes das colunas usadas para extrair a cobertura temporal.
+               Chaves válidas estão descritas no arquivo 'constants.py'.
+           date_format (str): O formato da data a ser atualizado no Django.
+           coverage_type (str): pode ser "partially_bdpro", "all_bdpro" ou "all_free"
+           time_delta (dict): dicionário com unidade temporal e valor do delta a ser aplicado caso 'partially_bdpro'
+           prefect_mode (str): colocar o materialization_mode do flow
+           api_mode (str): pode ser 'prod ou 'staging'
+           bq_project (str): projeto que será consultado para obter a cobertura temporal
+           historical_database (bool): marcar como False para casos em que a base nao possua uma coluna que represente a data de cobertura
 
-    Example:
+       Returns:
+           -   None
 
-        Eg 1. In this example, the function will search for example_table in the basedosdata project.
-        It will look for a column name `data` in date_format = 'yyyy-mm-dd' in BQ and retrieve its maximum value. This table is BD Pro and also free, so the `is_free` and `is_bd_pro` arguments are set to `True`. In addition, the lag between the time coverage of the BD Pro observations and the free observations is 2 months, so the `time_delta` and `time_unit` parameters are equal to 3 and "months" respectively.
-
-        ```
-        update_django_metadata(
-                dataset_id = 'example_dataset',
-                table_id = 'example_table,
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                bq_table_last_year_month=True,
-                billing_project_id="basedosdados",
-                api_mode="prod",
-                date_format="yy-mm-dd",
-                is_bd_pro = True,
-                is_free = True,
-                time_delta = 3,
-                time_unit = "months",
-                upstream_tasks=[wait_for_materialization],
-            )
-        ```
-    Returns:
-        -   None
-
-    Raises:
-        -   Exception: If the metadata_type is not supported.
-        -   Exception: If the billing_project_id is not supported.
+       Raises:
+           -   Exception: If the  coverage_type, time_delta or date_column_name is not supported.
+           -   Exception: If try to update published table with non prod data
 
     """
-    accepted_billing_project_id = [
-        "basedosdados-dev",
-        "basedosdados",
-        "basedosdados-staging",
-    ]
 
-    # TODO: mudar aqui tudo que é unidades_permitidas para lista
-    unidades_permitidas = {
-        "years": "years",
-        "months": "months",
-        "weeks": "weeks",
-        "days": "days",
-    }
+    check_if_values_are_accepted(
+        coverage_type=coverage_type,
+        time_delta=time_delta,
+        date_column_name=date_column_name,
+    )
 
-    # TODO: Remover parametro last_date
-
-    if not isinstance(_last_date, str) and _last_date is not None:
-        raise ValueError("O parâmetro `last_date` deve ser uma string não nula")
-
-    if time_unit not in unidades_permitidas:
-        raise ValueError(
-            f"Unidade temporal inválida. Escolha entre {', '.join(unidades_permitidas.keys())}"
-        )
-
-    if billing_project_id not in accepted_billing_project_id:
-        raise Exception(
-            f"The given billing_project_id: {billing_project_id} is invalid. The accepted valuesare {accepted_billing_project_id}"
-        )
+    billing_project_id = get_billing_project_id(mode=prefect_mode)
 
     (email, password) = get_credentials_utils(secret_path=f"api_user_{api_mode}")
 
     ids = get_ids(
-        dataset_id,
-        table_id,
-        email,
-        is_bd_pro,
-        password,
-        is_free,
-        api_mode,
+        dataset_name=dataset_id,
+        table_name=table_id,
+        coverage_type=coverage_type,
+        email=email,
+        password=password,
+        api_mode=api_mode,
     )
+
     log(f"IDS:{ids}")
 
-    if metadata_type == "DateTimeRange":
-        if bq_last_update:
-            if is_free and not is_bd_pro:
-                log(
-                    f"Attention! bq_last_update was set to TRUE, it will update the temporal coverage according to the metadata of the last modification made to {table_id}.{dataset_id}"
-                )
-                last_date = extract_last_update(
-                    dataset_id,
-                    table_id,
-                    date_format,
-                    billing_project_id=billing_project_id,
-                )
+    if api_mode == "prod" and bq_project != "basedosdados":
+        log("WARNING: Production API Mode with Non-Production Project Selected")
 
-                resource_to_temporal_coverage = parse_temporal_coverage(f"{last_date}")
-                resource_to_temporal_coverage["coverage"] = ids.get("coverage_id")
-                log(f"Mutation parameters: {resource_to_temporal_coverage}")
+        status = get_table_status(
+            table_id=ids["table_id"], api_mode=api_mode, email=email, password=password
+        )
+        if status != "under_review":
+            raise ValueError(
+                "The table status should be under_review to update metadata with non-production data"
+            )
 
-                create_update(
-                    query_class="allDatetimerange",
-                    query_parameters={"$coverage_Id: ID": ids.get("coverage_id")},
-                    mutation_class="CreateUpdateDateTimeRange",
-                    mutation_parameters=resource_to_temporal_coverage,
-                    update=True,
-                    email=email,
-                    password=password,
-                    api_mode=api_mode,
-                )
-            elif is_bd_pro and is_free:
-                if not isinstance(time_delta, int) or time_delta <= 0:
-                    raise ValueError("Defasagem deve ser um número inteiro positivo")
-                last_date = extract_last_update(
-                    dataset_id,
-                    table_id,
-                    date_format,
-                    billing_project_id=billing_project_id,
-                )
-
-                delta_kwargs = {unidades_permitidas[time_unit]: time_delta}
-                delta = relativedelta(**delta_kwargs)
-                resource_to_temporal_coverage = parse_temporal_coverage(f"{last_date}")
-                if date_format == "yy-mm-dd":
-                    free_data = datetime.strptime(last_date, "%Y-%m-%d") - delta
-                    free_data = free_data.strftime("%Y-%m-%d")
-                    resource_to_temporal_coverage_free = parse_temporal_coverage(
-                        f"{free_data}"
-                    )
-                    resource_to_temporal_coverage[
-                        "startYear"
-                    ] = resource_to_temporal_coverage_free["endYear"]
-                    resource_to_temporal_coverage[
-                        "startMonth"
-                    ] = resource_to_temporal_coverage_free["endMonth"]
-                    resource_to_temporal_coverage[
-                        "startDay"
-                    ] = resource_to_temporal_coverage_free["endDay"]
-
-                elif date_format == "yy-mm":
-                    free_data = datetime.strptime(last_date, "%Y-%m-%d") - delta
-                    free_data = free_data.strftime("%Y-%m")
-                    resource_to_temporal_coverage_free = parse_temporal_coverage(
-                        f"{free_data}"
-                    )
-                    resource_to_temporal_coverage[
-                        "startYear"
-                    ] = resource_to_temporal_coverage_free["endYear"]
-                    resource_to_temporal_coverage[
-                        "startMonth"
-                    ] = resource_to_temporal_coverage_free["endMonth"]
-                elif date_format == "yy":
-                    free_data = datetime.strptime(last_date, "%Y") - delta
-                    free_data = free_data.strftime("%Y")
-                    resource_to_temporal_coverage_free = parse_temporal_coverage(
-                        f"{free_data}"
-                    )
-                    resource_to_temporal_coverage[
-                        "startYear"
-                    ] = resource_to_temporal_coverage_free["endYear"]
-
-                log(
-                    f"Cobertura PRO ->> {last_date} || Cobertura Grátis ->> {free_data}"
-                )
-                # resource_to_temporal_coverage = parse_temporal_coverage(f"{last_date}")
-
-                resource_to_temporal_coverage["coverage"] = ids.get("coverage_id_pro")
-                log(f"Mutation parameters: {resource_to_temporal_coverage}")
-
-                create_update(
-                    query_class="allDatetimerange",
-                    query_parameters={"$coverage_Id: ID": ids.get("coverage_id_pro")},
-                    mutation_class="CreateUpdateDateTimeRange",
-                    mutation_parameters=resource_to_temporal_coverage,
-                    update=True,
-                    email=email,
-                    password=password,
-                    api_mode=api_mode,
-                )
-                # resource_to_temporal_coverage = parse_temporal_coverage(f"{free_data}")
-
-                resource_to_temporal_coverage_free["coverage"] = ids.get("coverage_id")
-                log(f"Mutation parameters: {resource_to_temporal_coverage}")
-
-                create_update(
-                    query_class="allDatetimerange",
-                    query_parameters={"$coverage_Id: ID": ids.get("coverage_id")},
-                    mutation_class="CreateUpdateDateTimeRange",
-                    mutation_parameters=resource_to_temporal_coverage_free,
-                    update=True,
-                    email=email,
-                    password=password,
-                    api_mode=api_mode,
-                )
-            elif is_bd_pro and not is_free:
-                last_date = extract_last_update(
-                    dataset_id,
-                    table_id,
-                    date_format,
-                    billing_project_id=billing_project_id,
-                )
-                log(f"Cobertura PRO ->> {last_date}")
-                resource_to_temporal_coverage = parse_temporal_coverage(f"{last_date}")
-
-                resource_to_temporal_coverage["coverage"] = ids.get("coverage_id_pro")
-                log(f"Mutation parameters: {resource_to_temporal_coverage}")
-
-                create_update(
-                    query_class="allDatetimerange",
-                    query_parameters={"$coverage_Id: ID": ids.get("coverage_id_pro")},
-                    mutation_class="CreateUpdateDateTimeRange",
-                    mutation_parameters=resource_to_temporal_coverage,
-                    update=True,
-                    email=email,
-                    password=password,
-                    api_mode=api_mode,
-                )
-        elif bq_table_last_year_month:
-            if is_free and not is_bd_pro:
-                log(
-                    f"Attention! bq_last_update was set to TRUE, it will update the temporal coverage according to the metadata of the last modification made to {table_id}.{dataset_id}"
-                )
-                last_date = extract_last_date(
-                    dataset_id,
-                    table_id,
-                    date_format,
-                    billing_project_id=billing_project_id,
-                )
-
-                resource_to_temporal_coverage = parse_temporal_coverage(f"{last_date}")
-                resource_to_temporal_coverage["coverage"] = ids.get("coverage_id")
-                log(f"Mutation parameters: {resource_to_temporal_coverage}")
-
-                create_update(
-                    query_class="allDatetimerange",
-                    query_parameters={"$coverage_Id: ID": ids.get("coverage_id")},
-                    mutation_class="CreateUpdateDateTimeRange",
-                    mutation_parameters=resource_to_temporal_coverage,
-                    update=True,
-                    email=email,
-                    password=password,
-                    api_mode=api_mode,
-                )
-            elif is_bd_pro and is_free:
-                last_date = extract_last_date(
-                    dataset_id,
-                    table_id,
-                    date_format,
-                    billing_project_id=billing_project_id,
-                )
-
-                delta_kwargs = {unidades_permitidas[time_unit]: time_delta}
-                delta = relativedelta(**delta_kwargs)
-                resource_to_temporal_coverage = parse_temporal_coverage(f"{last_date}")
-                if date_format == "yy-mm-dd":
-                    free_data = datetime.strptime(last_date, "%Y-%m-%d") - delta
-                    free_data = free_data.strftime("%Y-%m-%d")
-                    resource_to_temporal_coverage_free = parse_temporal_coverage(
-                        f"{free_data}"
-                    )
-                    resource_to_temporal_coverage[
-                        "startYear"
-                    ] = resource_to_temporal_coverage_free["endYear"]
-                    resource_to_temporal_coverage[
-                        "startMonth"
-                    ] = resource_to_temporal_coverage_free["endMonth"]
-                    resource_to_temporal_coverage[
-                        "startDay"
-                    ] = resource_to_temporal_coverage_free["endDay"]
-
-                elif date_format == "yy-mm":
-                    free_data = datetime.strptime(last_date, "%Y-%m") - delta
-                    free_data = free_data.strftime("%Y-%m")
-                    resource_to_temporal_coverage_free = parse_temporal_coverage(
-                        f"{free_data}"
-                    )
-                    resource_to_temporal_coverage[
-                        "startYear"
-                    ] = resource_to_temporal_coverage_free["endYear"]
-                    resource_to_temporal_coverage[
-                        "startMonth"
-                    ] = resource_to_temporal_coverage_free["endMonth"]
-                elif date_format == "yy":
-                    free_data = datetime.strptime(last_date, "%Y") - delta
-                    free_data = free_data.strftime("%Y")
-                    resource_to_temporal_coverage_free = parse_temporal_coverage(
-                        f"{free_data}"
-                    )
-                    resource_to_temporal_coverage[
-                        "startYear"
-                    ] = resource_to_temporal_coverage_free["endYear"]
-
-                log(
-                    f"Cobertura PRO ->> {last_date} || Cobertura Grátis ->> {free_data}"
-                )
-                # resource_to_temporal_coverage = parse_temporal_coverage(f"{last_date}")
-
-                resource_to_temporal_coverage["coverage"] = ids.get("coverage_id_pro")
-                log(f"Mutation parameters: {resource_to_temporal_coverage}")
-
-                create_update(
-                    query_class="allDatetimerange",
-                    query_parameters={"$coverage_Id: ID": ids.get("coverage_id_pro")},
-                    mutation_class="CreateUpdateDateTimeRange",
-                    mutation_parameters=resource_to_temporal_coverage,
-                    update=True,
-                    email=email,
-                    password=password,
-                    api_mode=api_mode,
-                )
-                # resource_to_temporal_coverage = parse_temporal_coverage(f"{free_data}")
-
-                resource_to_temporal_coverage_free["coverage"] = ids.get("coverage_id")
-                log(f"Mutation parameters: {resource_to_temporal_coverage}")
-
-                create_update(
-                    query_class="allDatetimerange",
-                    query_parameters={"$coverage_Id: ID": ids.get("coverage_id")},
-                    mutation_class="CreateUpdateDateTimeRange",
-                    mutation_parameters=resource_to_temporal_coverage_free,
-                    update=True,
-                    email=email,
-                    password=password,
-                    api_mode=api_mode,
-                )
-            elif is_bd_pro and not is_free:
-                last_date = extract_last_date(
-                    dataset_id,
-                    table_id,
-                    date_format,
-                    billing_project_id=billing_project_id,
-                )
-                log(f"Cobertura PRO ->> {last_date}")
-                resource_to_temporal_coverage = parse_temporal_coverage(f"{last_date}")
-
-                resource_to_temporal_coverage["coverage"] = ids.get("coverage_id_pro")
-                log(f"Mutation parameters: {resource_to_temporal_coverage}")
-
-                create_update(
-                    query_class="allDatetimerange",
-                    query_parameters={"$coverage_Id: ID": ids.get("coverage_id_pro")},
-                    mutation_class="CreateUpdateDateTimeRange",
-                    mutation_parameters=resource_to_temporal_coverage,
-                    update=True,
-                    email=email,
-                    password=password,
-                    api_mode=api_mode,
-                )
-        else:
-            if not isinstance(_last_date, str):
-                raise ValueError("O parâmetro `last_date` deve ser do tipo string")
-
-            if is_free and not is_bd_pro:
-                last_date = _last_date
-                resource_to_temporal_coverage = parse_temporal_coverage(f"{_last_date}")
-                log(f"Cobertura Grátis ->> {_last_date}")
-                resource_to_temporal_coverage["coverage"] = ids.get("coverage_id")
-                log(f"Mutation parameters: {resource_to_temporal_coverage}")
-
-                create_update(
-                    query_class="allDatetimerange",
-                    query_parameters={"$coverage_Id: ID": ids.get("coverage_id")},
-                    mutation_class="CreateUpdateDateTimeRange",
-                    mutation_parameters=resource_to_temporal_coverage,
-                    update=True,
-                    email=email,
-                    password=password,
-                    api_mode=api_mode,
-                )
-            elif is_bd_pro and is_free:
-                last_date = _last_date
-
-                delta_kwargs = {unidades_permitidas[time_unit]: time_delta}
-                delta = relativedelta(**delta_kwargs)
-
-                if date_format == "yy-mm-dd":
-                    free_data = datetime.strptime(last_date, "%Y-%m-%d") - delta
-                    free_data = free_data.strftime("%Y-%m-%d")
-
-                    log(
-                        f"Cobertura PRO ->> {_last_date} || Cobertura Grátis ->> {free_data}"
-                    )
-                    resource_to_temporal_coverage = parse_temporal_coverage(
-                        f"{last_date}"
-                    )
-                    resource_to_temporal_coverage_free = parse_temporal_coverage(
-                        f"{free_data}"
-                    )
-
-                    resource_to_temporal_coverage["coverage"] = ids.get(
-                        "coverage_id_pro"
-                    )
-                    resource_to_temporal_coverage[
-                        "startYear"
-                    ] = resource_to_temporal_coverage_free["endYear"]
-                    resource_to_temporal_coverage[
-                        "startMonth"
-                    ] = resource_to_temporal_coverage_free["endMonth"]
-                    resource_to_temporal_coverage[
-                        "startDay"
-                    ] = resource_to_temporal_coverage_free["endDay"]
-
-                    log(f"Mutation parameters: {resource_to_temporal_coverage}")
-
-                if date_format == "yy-mm":
-                    free_data = datetime.strptime(last_date, "%Y-%m") - delta
-                    free_data = free_data.strftime("%Y-%m")
-
-                    log(
-                        f"Cobertura PRO ->> {_last_date} || Cobertura Grátis ->> {free_data}"
-                    )
-                    resource_to_temporal_coverage = parse_temporal_coverage(
-                        f"{last_date}"
-                    )
-                    resource_to_temporal_coverage_free = parse_temporal_coverage(
-                        f"{free_data}"
-                    )
-
-                    resource_to_temporal_coverage["coverage"] = ids.get(
-                        "coverage_id_pro"
-                    )
-                    resource_to_temporal_coverage[
-                        "startYear"
-                    ] = resource_to_temporal_coverage_free["endYear"]
-                    resource_to_temporal_coverage[
-                        "startMonth"
-                    ] = resource_to_temporal_coverage_free["endMonth"]
-
-                    log(f"Mutation parameters: {resource_to_temporal_coverage}")
-
-                create_update(
-                    query_class="allDatetimerange",
-                    query_parameters={"$coverage_Id: ID": ids.get("coverage_id_pro")},
-                    mutation_class="CreateUpdateDateTimeRange",
-                    mutation_parameters=resource_to_temporal_coverage,
-                    update=True,
-                    email=email,
-                    password=password,
-                    api_mode=api_mode,
-                )
-                # resource_to_temporal_coverage = parse_temporal_coverage(f"{free_data}")
-
-                # resource_to_temporal_coverage_free["coverage"] = ids.get("coverage_id")
-                log(f"Mutation parameters: {resource_to_temporal_coverage_free}")
-
-                create_update(
-                    query_class="allDatetimerange",
-                    query_parameters={"$coverage_Id: ID": ids.get("coverage_id")},
-                    mutation_class="CreateUpdateDateTimeRange",
-                    mutation_parameters=resource_to_temporal_coverage_free,
-                    update=True,
-                    email=email,
-                    password=password,
-                    api_mode=api_mode,
-                )
-            elif is_bd_pro and not is_free:
-                last_date = _last_date
-                log(f"Cobertura PRO ->> {_last_date}")
-                resource_to_temporal_coverage = parse_temporal_coverage(f"{last_date}")
-
-                resource_to_temporal_coverage["coverage"] = ids.get("coverage_id_pro")
-                log(f"Mutation parameters: {resource_to_temporal_coverage}")
-
-                create_update(
-                    query_class="allDatetimerange",
-                    query_parameters={"$coverage_Id: ID": ids.get("coverage_id_pro")},
-                    mutation_class="CreateUpdateDateTimeRange",
-                    mutation_parameters=resource_to_temporal_coverage,
-                    update=True,
-                    email=email,
-                    password=password,
-                    api_mode=api_mode,
-                )
-
-
-@task
-def test_ids(dataset_id, table_id, api_mode="staging", is_bd_pro=True, is_free=False):
-    (email, password) = get_credentials_utils(secret_path=f"api_user_{api_mode}")
-    log(email)
-    log(password)
-
-    ids = get_ids(
-        dataset_id,
-        table_id,
-        email,
-        is_bd_pro,
-        password,
-        is_free,
-        api_mode,
+    last_date = extract_last_date_from_bq(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        date_format=date_format,
+        date_column=date_column_name,
+        billing_project_id=billing_project_id,
+        project_id=bq_project,
+        historical_database=historical_database,
     )
 
-    log(f"ids ->> ->> {ids}")
+    if coverage_type == "all_free":
+        all_free_parameters = parse_temporal_coverage(
+            f"{last_date}", historical_database
+        )
+        all_free_parameters["coverage"] = ids.get("coverage_id_free")
+
+        create_update(
+            query_class="allDatetimerange",
+            query_parameters={"$coverage_Id: ID": ids.get("coverage_id_free")},
+            mutation_class="CreateUpdateDateTimeRange",
+            mutation_parameters=all_free_parameters,
+            update=True,
+            email=email,
+            password=password,
+            api_mode=api_mode,
+        )
+
+    elif coverage_type == "all_bdpro":
+        log(f"Cobertura PRO ->> {last_date}")
+        bdpro_parameters = parse_temporal_coverage(f"{last_date}", historical_database)
+        bdpro_parameters["coverage"] = ids.get("coverage_id_pro")
+
+        create_update(
+            query_class="allDatetimerange",
+            query_parameters={"$coverage_Id: ID": ids.get("coverage_id_pro")},
+            mutation_class="CreateUpdateDateTimeRange",
+            mutation_parameters=bdpro_parameters,
+            update=True,
+            email=email,
+            password=password,
+            api_mode=api_mode,
+        )
+
+    elif coverage_type == "partially_bdpro":
+        if not historical_database:
+            raise ValueError(
+                "Invalid Selection: Non-historical base and partially bdpro coverage chosen, not compatible."
+            )
+
+        bdpro_parameters, free_parameters = get_parcially_bdpro_coverage_parameters(
+            time_delta=time_delta, ids=ids, last_date=last_date, date_format=date_format
+        )
+
+        create_update(
+            query_class="allDatetimerange",
+            query_parameters={"$coverage_Id: ID": ids.get("coverage_id_pro")},
+            mutation_class="CreateUpdateDateTimeRange",
+            mutation_parameters=bdpro_parameters,
+            update=True,
+            email=email,
+            password=password,
+            api_mode=api_mode,
+        )
+
+        create_update(
+            query_class="allDatetimerange",
+            query_parameters={"$coverage_Id: ID": ids.get("coverage_id_free")},
+            mutation_class="CreateUpdateDateTimeRange",
+            mutation_parameters=free_parameters,
+            update=True,
+            email=email,
+            password=password,
+            api_mode=api_mode,
+        )
 
 
 @task
