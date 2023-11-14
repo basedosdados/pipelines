@@ -185,10 +185,3 @@ def crawler_bpc(historical_data: bool, file):
         table="bpc",
     )
     return "/tmp/data/br_cgu_beneficios_cidadao/bpc/output/"
-
-
-@task
-def get_today_date():
-    d = datetime.today()
-
-    return d.strftime("%Y-%m")

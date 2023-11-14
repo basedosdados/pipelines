@@ -21,7 +21,6 @@ from pipelines.datasets.br_cgu_beneficios_cidadao.tasks import (
     crawler_bolsa_familia,
     crawler_bpc,
     crawler_garantia_safra,
-    get_today_date,
     print_last_file,
 )
 from pipelines.utils.constants import constants as utils_constants
@@ -114,21 +113,17 @@ with Flow(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
             with case(update_metadata, True):
-                date = get_today_date()
-                # update_django_metadata(
-                #     dataset_id,
-                #     table_id,
-                #     metadata_type="DateTimeRange",
-                #     _last_date=date,
-                #     bq_table_last_year_month=False,
-                #     bq_last_update=False,
-                #     is_bd_pro=True,
-                #     is_free=True,
-                #     date_format="yy-mm",
-                #     api_mode="prod",
-                #     time_delta=6,
-                #     time_unit="months",
-                # )
+                update_django_metadata(
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"year": "ano", "month": "mes"},
+                    date_format="%Y-%m",
+                    coverage_type="partially_bdpro",
+                    time_delta={"months": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
+                    upstream_tasks=[wait_for_materialization],
+                )
 
 datasets_br_cgu_bolsa_familia_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 datasets_br_cgu_bolsa_familia_flow.run_config = KubernetesRun(
@@ -216,21 +211,17 @@ with Flow(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
             with case(update_metadata, True):
-                date = get_today_date()
-                # update_django_metadata(
-                #     dataset_id,
-                #     table_id,
-                #     metadata_type="DateTimeRange",
-                #     _last_date=date,
-                #     bq_table_last_year_month=False,
-                #     bq_last_update=False,
-                #     is_bd_pro=True,
-                #     is_free=True,
-                #     date_format="yy-mm",
-                #     api_mode="prod",
-                #     time_delta=6,
-                #     time_unit="months",
-                # )
+                update_django_metadata(
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"year": "ano", "month": "mes"},
+                    date_format="%Y-%m",
+                    coverage_type="partially_bdpro",
+                    time_delta={"months": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
+                    upstream_tasks=[wait_for_materialization],
+                )
 
 datasets_br_cgu_garantia_safra_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 datasets_br_cgu_garantia_safra_flow.run_config = KubernetesRun(
@@ -314,21 +305,17 @@ with Flow(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
             with case(update_metadata, True):
-                date = get_today_date()
-                # update_django_metadata(
-                #     dataset_id,
-                #     table_id,
-                #     metadata_type="DateTimeRange",
-                #     _last_date=date,
-                #     bq_table_last_year_month=False,
-                #     bq_last_update=False,
-                #     is_bd_pro=True,
-                #     is_free=True,
-                #     date_format="yy-mm",
-                #     api_mode="prod",
-                #     time_delta=6,
-                #     time_unit="months",
-                # )
+                update_django_metadata(
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"year": "ano", "month": "mes"},
+                    date_format="%Y-%m",
+                    coverage_type="partially_bdpro",
+                    time_delta={"months": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
+                    upstream_tasks=[wait_for_materialization],
+                )
 
 datasets_br_cgu_bpc_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 datasets_br_cgu_bpc_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
