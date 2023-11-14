@@ -100,16 +100,16 @@ with Flow(
         )
         with case(update_metadata, True):
             update_django_metadata(
-                    dataset_id = dataset_id,
-                    table_id = table_id,
-                    date_column_name = {'year':'ano','month':'mes'},
-                    date_format = "%Y-%m",
-                    coverage_type = "parcially_bdpro",
-                    time_delta={"months":6},
-                    prefect_mode = materialization_mode,
-                    bq_project = "basedosdados",
-                    upstream_tasks=[wait_for_materialization],
-                )
+                dataset_id=dataset_id,
+                table_id=table_id,
+                date_column_name={"year": "ano", "month": "mes"},
+                date_format="%Y-%m",
+                coverage_type="parcially_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
+                upstream_tasks=[wait_for_materialization],
+            )
 
 
 flow_ibge_inflacao_mes_brasil.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -188,14 +188,14 @@ with Flow("BD Template - IBGE Inflação: mes_rm") as flow_ibge_inflacao_mes_rm:
         )
         with case(update_metadata, True):
             update_django_metadata(
-                dataset_id = dataset_id,
-                table_id = table_id,
-                date_column_name = {'year':'ano','month':'mes'},
-                date_format = "%Y-%m",
-                coverage_type = "parcially_bdpro",
-                time_delta={"months":6},
-                prefect_mode = materialization_mode,
-                bq_project = "basedosdados",
+                dataset_id=dataset_id,
+                table_id=table_id,
+                date_column_name={"year": "ano", "month": "mes"},
+                date_format="%Y-%m",
+                coverage_type="parcially_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
                 upstream_tasks=[wait_for_materialization],
             )
 
@@ -275,14 +275,14 @@ with Flow(
         )
         with case(update_metadata, True):
             update_django_metadata(
-                dataset_id = dataset_id,
-                table_id = table_id,
-                date_column_name = {'year':'ano','month':'mes'},
-                date_format = "%Y-%m",
-                coverage_type = "parcially_bdpro",
-                time_delta={"months":6},
-                prefect_mode = materialization_mode,
-                bq_project = "basedosdados",
+                dataset_id=dataset_id,
+                table_id=table_id,
+                date_column_name={"year": "ano", "month": "mes"},
+                date_format="%Y-%m",
+                coverage_type="parcially_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
                 upstream_tasks=[wait_for_materialization],
             )
 
@@ -365,14 +365,14 @@ with Flow("BD Template - IBGE Inflação: mes_geral") as flow_ibge_inflacao_mes_
 
         with case(update_metadata, True):
             update_django_metadata(
-                dataset_id = dataset_id,
-                table_id = table_id,
-                date_column_name = {'year':'ano','month':'mes'},
-                date_format = "%Y-%m",
-                coverage_type = "parcially_bdpro",
-                time_delta={"months":6},
-                prefect_mode = materialization_mode,
-                bq_project = "basedosdados",
+                dataset_id=dataset_id,
+                table_id=table_id,
+                date_column_name={"year": "ano", "month": "mes"},
+                date_format="%Y-%m",
+                coverage_type="parcially_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
                 upstream_tasks=[wait_for_materialization],
             )
 

@@ -4,17 +4,19 @@ Tasks for mundo_transfermarkt_competicoes
 """
 
 import asyncio
+
 import pandas as pd
 from pandas import DataFrame
 from prefect import task
-
-###############################################################################
 
 from pipelines.datasets.mundo_transfermarkt_competicoes.utils import (
     execucao_coleta,
     execucao_coleta_copa,
 )
 from pipelines.utils.utils import log, to_partitions
+
+###############################################################################
+
 
 
 @task
@@ -59,5 +61,3 @@ def make_partitions(df: DataFrame) -> str:
     )
     log("Dados particionados com sucesso!")
     return "/tmp/data/mundo_transfermarkt_competicoes/output/"
-
-

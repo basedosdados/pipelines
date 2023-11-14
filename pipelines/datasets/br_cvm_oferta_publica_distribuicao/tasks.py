@@ -3,7 +3,6 @@
 Tasks for br_cvm_oferta_publica_distribuicao
 """
 import os
-from datetime import datetime
 
 import basedosdados as bd
 import pandas as pd
@@ -69,4 +68,3 @@ def clean_table_oferta_distribuicao(root: str) -> str:
     dataframe.to_csv(ou_filepath, index=False, encoding="utf-8")
 
     return ou_filepath
-

@@ -147,6 +147,3 @@ def parse_data(url: str, other_task_output: tuple[list[datetime], list[str]]) ->
     )
 
     return files_path
-
-
-

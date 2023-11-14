@@ -127,16 +127,15 @@ with Flow(
             )
             with case(update_metadata, True):
                 update_django_metadata(
-                    dataset_id = dataset_id,
-                    table_id = table_id,
-                    date_column_name = {'date':'data_competencia'},
-                    date_format = "%Y-%m-%d",
-                    coverage_type = "all_bdpro",
-                    prefect_mode = materialization_mode,
-                    bq_project = "basedosdados",
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"date": "data_competencia"},
+                    date_format="%Y-%m-%d",
+                    coverage_type="all_bdpro",
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
-
 
 
 br_cvm_fi_documentos_informe_diario.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -228,13 +227,13 @@ with Flow(
             )
             with case(update_metadata, True):
                 update_django_metadata(
-                    dataset_id = dataset_id,
-                    table_id = table_id,
-                    date_column_name = {'date':'data_competencia'},
-                    date_format = "%Y-%m-%d",
-                    coverage_type = "all_bdpro",
-                    prefect_mode = materialization_mode,
-                    bq_project = "basedosdados",
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"date": "data_competencia"},
+                    date_format="%Y-%m-%d",
+                    coverage_type="all_bdpro",
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
 
@@ -334,13 +333,13 @@ with Flow(
             )
             with case(update_metadata, True):
                 update_django_metadata(
-                    dataset_id = dataset_id,
-                    table_id = table_id,
-                    date_column_name = {'date':'data_competencia'},
-                    date_format = "%Y-%m-%d",
-                    coverage_type = "all_bdpro",
-                    prefect_mode = materialization_mode,
-                    bq_project = "basedosdados",
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"date": "data_competencia"},
+                    date_format="%Y-%m-%d",
+                    coverage_type="all_bdpro",
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
 
@@ -431,13 +430,13 @@ with Flow(
             )
             with case(update_metadata, True):
                 update_django_metadata(
-                    dataset_id = dataset_id,
-                    table_id = table_id,
-                    date_column_name = {'date':'data_competencia'},
-                    date_format = "%Y-%m-%d",
-                    coverage_type = "all_bdpro",
-                    prefect_mode = materialization_mode,
-                    bq_project = "basedosdados",
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"date": "data_competencia"},
+                    date_format="%Y-%m-%d",
+                    coverage_type="all_bdpro",
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
 
@@ -525,13 +524,13 @@ with Flow(
             )
             with case(update_metadata, True):
                 update_django_metadata(
-                    dataset_id = dataset_id,
-                    table_id = table_id,
-                    coverage_type = "all_bdpro",
-                    prefect_mode = materialization_mode,
-                    bq_project = "basedosdados",
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    coverage_type="all_bdpro",
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
-                    historical_database = False 
+                    historical_database=False,
                 )
 
 
@@ -621,13 +620,13 @@ with Flow(
             )
             with case(update_metadata, True):
                 update_django_metadata(
-                    dataset_id = dataset_id,
-                    table_id = table_id,
-                    date_column_name = {'date':'data_competencia'},
-                    date_format = "%Y-%m-%d",
-                    coverage_type = "all_bdpro",
-                    prefect_mode = materialization_mode,
-                    bq_project = "basedosdados",
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"date": "data_competencia"},
+                    date_format="%Y-%m-%d",
+                    coverage_type="all_bdpro",
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
 

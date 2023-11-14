@@ -135,16 +135,16 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
 
         with case(update_metadata, True):
             update_django_metadata(
-                    dataset_id = dataset_id,
-                    table_id = table_id[0],
-                    date_column_name = {'year':'ano','month':'mes'},
-                    date_format = "%Y-%m",
-                    coverage_type = "partially_bdpro",
-                    time_delta={"months":6},
-                    prefect_mode = materialization_mode,
-                    bq_project = "basedosdados",
-                    upstream_tasks=[wait_for_materialization],
-                )
+                dataset_id=dataset_id,
+                table_id=table_id[0],
+                date_column_name={"year": "ano", "month": "mes"},
+                date_format="%Y-%m",
+                coverage_type="partially_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
+                upstream_tasks=[wait_for_materialization],
+            )
 
         # ! BRASIL
         filepath_brasil = clean_csv_brasil(upstream_tasks=[filepath_microdados])
@@ -187,16 +187,16 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
 
         with case(update_metadata, True):
             update_django_metadata(
-                    dataset_id = dataset_id,
-                    table_id = table_id[1],
-                    date_column_name = {'year':'ano','month':'mes'},
-                    date_format = "%Y-%m",
-                    coverage_type = "partially_bdpro",
-                    time_delta={"months":6},
-                    prefect_mode = materialization_mode,
-                    bq_project = "basedosdados",
-                    upstream_tasks=[wait_for_materialization],
-                )
+                dataset_id=dataset_id,
+                table_id=table_id[1],
+                date_column_name={"year": "ano", "month": "mes"},
+                date_format="%Y-%m",
+                coverage_type="partially_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
+                upstream_tasks=[wait_for_materialization],
+            )
 
         # ! UF
 
@@ -241,16 +241,16 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
 
         with case(update_metadata, True):
             update_django_metadata(
-                    dataset_id = dataset_id,
-                    table_id = table_id[2],
-                    date_column_name = {'year':'ano','month':'mes'},
-                    date_format = "%Y-%m",
-                    coverage_type = "partially_bdpro",
-                    time_delta={"months":6},
-                    prefect_mode = materialization_mode,
-                    bq_project = "basedosdados",
-                    upstream_tasks=[wait_for_materialization],
-                )
+                dataset_id=dataset_id,
+                table_id=table_id[2],
+                date_column_name={"year": "ano", "month": "mes"},
+                date_format="%Y-%m",
+                coverage_type="partially_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
+                upstream_tasks=[wait_for_materialization],
+            )
 
         # ! MUNICIPIO
         filepath_municipio = clean_csv_municipio(upstream_tasks=[filepath_microdados])
@@ -294,17 +294,17 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
 
         with case(update_metadata, True):
             update_django_metadata(
-                    dataset_id = dataset_id,
-                    table_id = table_id[3],
-                    date_column_name = {'year':'ano','month':'mes'},
-                    date_format = "%Y-%m",
-                    coverage_type = "partially_bdpro",
-                    time_delta={"months":6},
-                    prefect_mode = materialization_mode,
-                    bq_project = "basedosdados",
-                    upstream_tasks=[wait_for_materialization],
-                )
-            
+                dataset_id=dataset_id,
+                table_id=table_id[3],
+                date_column_name={"year": "ano", "month": "mes"},
+                date_format="%Y-%m",
+                coverage_type="partially_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
+                upstream_tasks=[wait_for_materialization],
+            )
+
 br_anatel.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_anatel.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 br_anatel.schedule = every_month_anatel

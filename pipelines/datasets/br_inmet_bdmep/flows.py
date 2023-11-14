@@ -84,16 +84,16 @@ with Flow(name="br_inmet_bdmep", code_owners=["arthurfg"]) as br_inmet:
         )
         with case(update_metadata, True):
             update_django_metadata(
-                    dataset_id = dataset_id,
-                    table_id = table_id,
-                    date_column_name = {'year':'ano','month':'mes'},
-                    date_format = "%Y-%m",
-                    coverage_type = "parcially_bdpro",
-                    time_delta={"months":6},
-                    prefect_mode = materialization_mode,
-                    bq_project = "basedosdados",
-                    upstream_tasks=[wait_for_materialization],
-                )
+                dataset_id=dataset_id,
+                table_id=table_id,
+                date_column_name={"year": "ano", "month": "mes"},
+                date_format="%Y-%m",
+                coverage_type="parcially_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
+                upstream_tasks=[wait_for_materialization],
+            )
 
 br_inmet.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_inmet.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)

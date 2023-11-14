@@ -17,10 +17,7 @@ from pipelines.datasets.br_me_cnpj.schedules import (
     every_day_simples,
     every_day_socios,
 )
-from pipelines.datasets.br_me_cnpj.tasks import (
-    get_data_source_max_date,
-    main,
-)
+from pipelines.datasets.br_me_cnpj.tasks import get_data_source_max_date, main
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
@@ -70,7 +67,6 @@ with Flow(
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
     with case(dados_desatualizados, True):
-
         output_filepath = main(tabelas)
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
@@ -108,16 +104,15 @@ with Flow(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
 
-
             update_django_metadata(
-                dataset_id = dataset_id,
-                table_id = table_id,
-                date_column_name = {"date":"data"},
-                date_format = "%Y-%m-%d",
-                coverage_type = "partially_bdpro",
-                time_delta={"months":6},
-                prefect_mode = materialization_mode,
-                bq_project = "basedosdados",
+                dataset_id=dataset_id,
+                table_id=table_id,
+                date_column_name={"date": "data"},
+                date_format="%Y-%m-%d",
+                coverage_type="partially_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
                 upstream_tasks=[wait_for_materialization],
             )
 
@@ -199,14 +194,14 @@ with Flow(
             )
 
             update_django_metadata(
-                dataset_id = dataset_id,
-                table_id = table_id,
-                date_column_name = {"date":"data"},
-                date_format = "%Y-%m-%d",
-                coverage_type = "partially_bdpro",
-                time_delta={"months":6},
-                prefect_mode = materialization_mode,
-                bq_project = "basedosdados",
+                dataset_id=dataset_id,
+                table_id=table_id,
+                date_column_name={"date": "data"},
+                date_format="%Y-%m-%d",
+                coverage_type="partially_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
                 upstream_tasks=[wait_for_materialization],
             )
 
@@ -250,7 +245,6 @@ with Flow(
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
     with case(dados_desatualizados, True):
-
         output_filepath = main(tabelas)
 
         wait_upload_table = create_table_and_upload_to_gcs(
@@ -290,14 +284,14 @@ with Flow(
             )
 
             update_django_metadata(
-                dataset_id = dataset_id,
-                table_id = table_id,
-                date_column_name = {"date":"data"},
-                date_format = "%Y-%m-%d",
-                coverage_type = "partially_bdpro",
-                time_delta={"months":6},
-                prefect_mode = materialization_mode,
-                bq_project = "basedosdados",
+                dataset_id=dataset_id,
+                table_id=table_id,
+                date_column_name={"date": "data"},
+                date_format="%Y-%m-%d",
+                coverage_type="partially_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
                 upstream_tasks=[wait_for_materialization],
             )
 
@@ -331,14 +325,14 @@ with Flow(
             )
 
             update_django_metadata(
-                dataset_id = "br_bd_diretorios_brasil",
-                table_id = "empresa",
-                date_column_name = {"date":"data"},
-                date_format = "%Y-%m-%d",
-                coverage_type = "partially_bdpro",
-                time_delta={"months":6},
-                prefect_mode = materialization_mode,
-                bq_project = "basedosdados",
+                dataset_id="br_bd_diretorios_brasil",
+                table_id="empresa",
+                date_column_name={"date": "data"},
+                date_format="%Y-%m-%d",
+                coverage_type="partially_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
                 upstream_tasks=[wait_for_materialization],
             )
 
@@ -423,12 +417,12 @@ with Flow(
             )
 
             update_django_metadata(
-                dataset_id = dataset_id,
-                table_id = table_id,
-                coverage_type = "all_free",
-                prefect_mode = materialization_mode,
-                bq_project = "basedosdados",
-                historical_database = False,
+                dataset_id=dataset_id,
+                table_id=table_id,
+                coverage_type="all_free",
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
+                historical_database=False,
                 # upstream_tasks=[wait_for_materialization],
             )
 

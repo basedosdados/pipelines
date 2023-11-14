@@ -121,13 +121,13 @@ with Flow(
 
             with case(update_metadata, True):
                 update_django_metadata(
-                    dataset_id = dataset_id,
-                    table_id = table_id,
-                    date_column_name = {'date':'data'},
-                    date_format = "%Y-%m-%d",
-                    coverage_type = "all_bdpro",
-                    prefect_mode = materialization_mode,
-                    bq_project = "basedosdados",
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"date": "data"},
+                    date_format="%Y-%m-%d",
+                    coverage_type="all_bdpro",
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
 br_ons_estimativa_custos_custo_marginal_operacao_semi_horario.storage = GCS(
@@ -223,13 +223,13 @@ with Flow(
 
             with case(update_metadata, True):
                 update_django_metadata(
-                    dataset_id = dataset_id,
-                    table_id = table_id,
-                    date_column_name = {'date':'data'},
-                    date_format = "%Y-%m-%d",
-                    coverage_type = "all_bdpro",
-                    prefect_mode = materialization_mode,
-                    bq_project = "basedosdados",
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"date": "data"},
+                    date_format="%Y-%m-%d",
+                    coverage_type="all_bdpro",
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
 
@@ -326,13 +326,13 @@ with Flow(
 
             with case(update_metadata, True):
                 update_django_metadata(
-                    dataset_id = dataset_id,
-                    table_id = table_id,
-                    date_column_name = {'date':'data'},
-                    date_format = "%Y-%m-%d",
-                    coverage_type = "all_bdpro",
-                    prefect_mode = materialization_mode,
-                    bq_project = "basedosdados",
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"date": "data"},
+                    date_format="%Y-%m-%d",
+                    coverage_type="all_bdpro",
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
 br_ons_estimativa_custos_balanco_energia_subsistemas.storage = GCS(
@@ -429,13 +429,13 @@ with Flow(
 
             with case(update_metadata, True):
                 update_django_metadata(
-                    dataset_id = dataset_id,
-                    table_id = table_id,
-                    date_column_name = {'date':'data'},
-                    date_format = "%Y-%m-%d",
-                    coverage_type = "all_bdpro",
-                    prefect_mode = materialization_mode,
-                    bq_project = "basedosdados",
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"date": "data"},
+                    date_format="%Y-%m-%d",
+                    coverage_type="all_bdpro",
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
 
@@ -532,13 +532,13 @@ with Flow(
 
             with case(update_metadata, True):
                 update_django_metadata(
-                    dataset_id = dataset_id,
-                    table_id = table_id,
-                    date_column_name = {'date':'data_inicio'},
-                    date_format = "%Y-%m-%d",
-                    coverage_type = "all_bdpro",
-                    prefect_mode = materialization_mode,
-                    bq_project = "basedosdados",
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"date": "data_inicio"},
+                    date_format="%Y-%m-%d",
+                    coverage_type="all_bdpro",
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
 br_ons_estimativa_custos_custo_variavel_unitario_usinas_termicas.storage = GCS(

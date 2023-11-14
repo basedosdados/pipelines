@@ -106,14 +106,14 @@ with Flow(
             )
             with case(update_metadata, True):
                 update_django_metadata(
-                    dataset_id = dataset_id,
-                    table_id = table_id,
-                    date_column_name = {"date":"data_coleta"},
-                    date_format = "%Y-%m-%d",
-                    coverage_type = "partially_bdpro",
-                    time_delta={"weeks":6},
-                    prefect_mode = materialization_mode,
-                    bq_project = "basedosdados",
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"date": "data_coleta"},
+                    date_format="%Y-%m-%d",
+                    coverage_type="partially_bdpro",
+                    time_delta={"weeks": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
 

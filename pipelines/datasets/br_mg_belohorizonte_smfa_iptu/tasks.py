@@ -2,7 +2,6 @@
 """
 Tasks for br_mg_belohorizonte_smfa_iptu
 """
-import os
 
 import requests
 from bs4 import BeautifulSoup
@@ -99,4 +98,3 @@ def check_for_updates(dataset_id, table_id):
         return True  # Há atualizações disponíveis
     else:
         return False  # Não há novas atualizações disponíveis
-

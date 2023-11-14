@@ -93,17 +93,16 @@ with Flow(name="br_ibge_pnadc.microdados", code_owners=["lauris"]) as br_pnadc:
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
         with case(update_metadata, True):
-
             update_django_metadata(
-                    dataset_id = dataset_id,
-                    table_id = table_id,
-                    date_column_name = {'year':'ano','quarter':'trimestre'},
-                    date_format = "%Y-%m",
-                    coverage_type = "all_free",
-                    prefect_mode = materialization_mode,
-                    bq_project = "basedosdados",
-                    upstream_tasks=[wait_for_materialization],
-                )
+                dataset_id=dataset_id,
+                table_id=table_id,
+                date_column_name={"year": "ano", "quarter": "trimestre"},
+                date_format="%Y-%m",
+                coverage_type="all_free",
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
+                upstream_tasks=[wait_for_materialization],
+            )
 
 br_pnadc.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_pnadc.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)

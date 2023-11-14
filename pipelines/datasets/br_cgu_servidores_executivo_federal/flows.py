@@ -195,17 +195,16 @@ with Flow(
 
             with case(update_metadata, True):
                 update_django_metadata(
-                    dataset_id = dataset_id,
-                    table_id = "cadastro_aposentados",
-                    date_column_name = {'year':'ano','month':'mes'},
-                    date_format = "%Y-%m",
-                    coverage_type = "parcially_bdpro",
-                    time_delta={"months":6},
-                    prefect_mode = materialization_mode,
-                    bq_project = "basedosdados",
+                    dataset_id=dataset_id,
+                    table_id="cadastro_aposentados",
+                    date_column_name={"year": "ano", "month": "mes"},
+                    date_format="%Y-%m",
+                    coverage_type="parcially_bdpro",
+                    time_delta={"months": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
-            
 
         # cadastro_pensionistas
         with case(materialize_after_dump, True):
@@ -239,14 +238,14 @@ with Flow(
 
             with case(update_metadata, True):
                 update_django_metadata(
-                    dataset_id = dataset_id,
-                    table_id = "cadastro_pensionistas",
-                    date_column_name = {'year':'ano','month':'mes'},
-                    date_format = "%Y-%m",
-                    coverage_type = "parcially_bdpro",
-                    time_delta={"months":6},
-                    prefect_mode = materialization_mode,
-                    bq_project = "basedosdados",
+                    dataset_id=dataset_id,
+                    table_id="cadastro_pensionistas",
+                    date_column_name={"year": "ano", "month": "mes"},
+                    date_format="%Y-%m",
+                    coverage_type="parcially_bdpro",
+                    time_delta={"months": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
 
@@ -282,14 +281,14 @@ with Flow(
 
             with case(update_metadata, True):
                 update_django_metadata(
-                    dataset_id = dataset_id,
-                    table_id = "cadastro_servidores",
-                    date_column_name = {'year':'ano','month':'mes'},
-                    date_format = "%Y-%m",
-                    coverage_type = "parcially_bdpro",
-                    time_delta={"months":6},
-                    prefect_mode = materialization_mode,
-                    bq_project = "basedosdados",
+                    dataset_id=dataset_id,
+                    table_id="cadastro_servidores",
+                    date_column_name={"year": "ano", "month": "mes"},
+                    date_format="%Y-%m",
+                    coverage_type="parcially_bdpro",
+                    time_delta={"months": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
 
@@ -325,14 +324,14 @@ with Flow(
 
             with case(update_metadata, True):
                 update_django_metadata(
-                    dataset_id = dataset_id,
-                    table_id = "cadastro_reserva_reforma_militares",
-                    date_column_name = {'year':'ano','month':'mes'},
-                    date_format = "%Y-%m",
-                    coverage_type = "parcially_bdpro",
-                    time_delta={"months":6},
-                    prefect_mode = materialization_mode,
-                    bq_project = "basedosdados",
+                    dataset_id=dataset_id,
+                    table_id="cadastro_reserva_reforma_militares",
+                    date_column_name={"year": "ano", "month": "mes"},
+                    date_format="%Y-%m",
+                    coverage_type="parcially_bdpro",
+                    time_delta={"months": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
 
@@ -368,14 +367,14 @@ with Flow(
 
             with case(update_metadata, True):
                 update_django_metadata(
-                    dataset_id = dataset_id,
-                    table_id = "remuneracao",
-                    date_column_name = {'year':'ano','month':'mes'},
-                    date_format = "%Y-%m",
-                    coverage_type = "parcially_bdpro",
-                    time_delta={"months":6},
-                    prefect_mode = materialization_mode,
-                    bq_project = "basedosdados",
+                    dataset_id=dataset_id,
+                    table_id="remuneracao",
+                    date_column_name={"year": "ano", "month": "mes"},
+                    date_format="%Y-%m",
+                    coverage_type="parcially_bdpro",
+                    time_delta={"months": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
 
@@ -411,14 +410,14 @@ with Flow(
 
             with case(update_metadata, True):
                 update_django_metadata(
-                    dataset_id = dataset_id,
-                    table_id = "afastamentos",
-                    date_column_name = {'year':'ano','month':'mes'},
-                    date_format = "%Y-%m",
-                    coverage_type = "parcially_bdpro",
-                    time_delta={"months":6},
-                    prefect_mode = materialization_mode,
-                    bq_project = "basedosdados",
+                    dataset_id=dataset_id,
+                    table_id="afastamentos",
+                    date_column_name={"year": "ano", "month": "mes"},
+                    date_format="%Y-%m",
+                    coverage_type="parcially_bdpro",
+                    time_delta={"months": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
 
@@ -454,14 +453,14 @@ with Flow(
 
             with case(update_metadata, True):
                 update_django_metadata(
-                    dataset_id = dataset_id,
-                    table_id = "observacoes",
-                    date_column_name = {'year':'ano','month':'mes'},
-                    date_format = "%Y-%m",
-                    coverage_type = "parcially_bdpro",
-                    time_delta={"months":6},
-                    prefect_mode = materialization_mode,
-                    bq_project = "basedosdados",
+                    dataset_id=dataset_id,
+                    table_id="observacoes",
+                    date_column_name={"year": "ano", "month": "mes"},
+                    date_format="%Y-%m",
+                    coverage_type="parcially_bdpro",
+                    time_delta={"months": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
 

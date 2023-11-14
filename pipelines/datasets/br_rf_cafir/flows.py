@@ -13,10 +13,7 @@ from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 from pipelines.constants import constants
 from pipelines.datasets.br_rf_cafir.constants import constants as br_rf_cafir_constants
 from pipelines.datasets.br_rf_cafir.schedules import schedule_br_rf_cafir_imoveis_rurais
-from pipelines.datasets.br_rf_cafir.tasks import (
-    parse_data,
-    parse_files_parse_date,
-)
+from pipelines.datasets.br_rf_cafir.tasks import parse_data, parse_files_parse_date
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
@@ -60,7 +57,6 @@ with Flow(
         date_format="%Y-%m-%d",
         upstream_tasks=[info],
     )
-
 
     with case(is_outdated, False):
         log_task(f"Não há atualizações para a tabela de {table_id}!")
@@ -114,16 +110,16 @@ with Flow(
 
             with case(update_metadata, True):
                 update_django_metadata(
-                        dataset_id = dataset_id,
-                        table_id = table_id,
-                        date_column_name = {'date':'data_referencia'},
-                        date_format = "%Y-%m-%d",
-                        coverage_type = "parcially_bdpro",
-                        time_delta={"months":6},
-                        prefect_mode = materialization_mode,
-                        bq_project = "basedosdados",
-                        upstream_tasks=[wait_for_materialization],
-                    )
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"date": "data_referencia"},
+                    date_format="%Y-%m-%d",
+                    coverage_type="parcially_bdpro",
+                    time_delta={"months": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
+                    upstream_tasks=[wait_for_materialization],
+                )
 
 
 br_rf_cafir_imoveis_rurais.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

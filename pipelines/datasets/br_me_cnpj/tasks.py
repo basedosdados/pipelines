@@ -49,7 +49,6 @@ def calculate_defasagem():
     return defasagem
 
 
-
 @task
 def get_data_source_max_date():
     """

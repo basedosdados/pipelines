@@ -11,9 +11,7 @@ from pipelines.constants import constants
 
 # from pipelines.datasets.temporal_coverage_updater.schedules import every_two_weeks
 from pipelines.utils.decorators import Flow
-from pipelines.utils.metadata.tasks import (
-    update_django_metadata,
-)
+from pipelines.utils.metadata.tasks import update_django_metadata
 
 # from pipelines.utils.utils import log
 
@@ -35,15 +33,15 @@ with Flow(
     bq_project = Parameter("bq_project", required=False)
 
     update_django_metadata(
-        dataset_id = dataset_id,
-        table_id = table_id,
-        date_column_name = date_column,
-        coverage_type = coverage_type,
-        date_format = date_format,
-        time_delta = time_delta,
-        prefect_mode = prefect_mode,
-        api_mode = api_mode,
-        bq_project = bq_project
+        dataset_id=dataset_id,
+        table_id=table_id,
+        date_column_name=date_column,
+        coverage_type=coverage_type,
+        date_format=date_format,
+        time_delta=time_delta,
+        prefect_mode=prefect_mode,
+        api_mode=api_mode,
+        bq_project=bq_project,
     )
 
 temporal_coverage_updater_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

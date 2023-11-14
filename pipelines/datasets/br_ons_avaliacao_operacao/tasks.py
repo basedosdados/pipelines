@@ -442,4 +442,3 @@ def wrang_data(
             del df
 
     return True, path_output, data_tabela
-

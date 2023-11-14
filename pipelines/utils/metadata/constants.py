@@ -11,10 +11,8 @@ class constants(Enum):  # pylint: disable=c0103
     """
     Constant values for the metadata project
     """
-    MODE_PROJECT = {
-        "dev":"basedosdados-dev",
-        "prod":"basedosdados"
-    }
+
+    MODE_PROJECT = {"dev": "basedosdados-dev", "prod": "basedosdados"}
 
     ACCEPTED_TIME_UNITS = [
         "years",
@@ -23,6 +21,6 @@ class constants(Enum):  # pylint: disable=c0103
         "days",
     ]
 
-    ACCEPTED_COVERAGE_TYPE = ["all_bdpro","all_free","partially_bdpro"]
+    ACCEPTED_COVERAGE_TYPE = ["all_bdpro", "all_free", "partially_bdpro"]
 
-    ACCEPTED_COLUMN_KEY_VALUES = [{'year','month'},{'year','quarter'},{'date'}] 
+    ACCEPTED_COLUMN_KEY_VALUES = [{"year", "month"}, {"year", "quarter"}, {"date"}]
