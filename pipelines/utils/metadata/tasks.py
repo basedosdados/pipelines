@@ -98,7 +98,6 @@ def update_django_metadata(
             historical_database = historical_database
         )
     
-     
     if coverage_type == 'all_free':
 
         all_free_parameters = parse_temporal_coverage(f"{last_date}",historical_database)

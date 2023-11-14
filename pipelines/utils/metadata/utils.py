@@ -346,7 +346,7 @@ def extract_last_date_from_bq(
         Exception: If an error occurs while extracting the last update date.
     """
     if not historical_database:
-        last_date = last_date_bq_metadata(
+        last_date = update_date_from_bq_metadata(
             dataset_id=dataset_id,
             table_id = table_id,
             date_format = date_format,
@@ -388,7 +388,7 @@ def extract_last_date_from_bq(
         log(f"An error occurred while extracting the last update date: {str(e)}")
         raise   
 
-def last_date_bq_metadata( 
+def update_date_from_bq_metadata( 
         dataset_id: str,
         table_id: str,
         date_format: str, 
