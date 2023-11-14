@@ -4,7 +4,7 @@ Tasks for dataset br_anatel_telefonia_movel
 """
 
 import os
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import numpy as np
 import pandas as pd
@@ -15,10 +15,37 @@ from pipelines.datasets.br_anatel_telefonia_movel.constants import (
     constants as anatel_constants,
 )
 from pipelines.datasets.br_anatel_telefonia_movel.utils import (
+    data_url,
     download_and_unzip,
     to_partitions_microdados,
 )
 from pipelines.utils.utils import log
+
+
+@task
+def setting_data_url():
+    meses = {
+        "jan": "01",
+        "fev": "02",
+        "mar": "03",
+        "abr": "04",
+        "mai": "05",
+        "jun": "06",
+        "jul": "07",
+        "ago": "08",
+        "set": "09",
+        "out": "10",
+        "nov": "11",
+        "dez": "12",
+    }
+    string_element = data_url()
+    elemento_total = string_element[25:33]
+    mes, ano = elemento_total.split("-")
+    mes = meses[mes]
+    data_total = f"{ano}-{mes}"
+    log(data_total)
+
+    return data_total
 
 
 # ! TASK MICRODADOS
@@ -57,7 +84,6 @@ def clean_csv_microdados(anos, mes_um, mes_dois):
     download_and_unzip(
         url=anatel_constants.URL.value, path=anatel_constants.INPUT_PATH.value
     )
-
     # Imprime a mensagem de abertura do arquivo
     log(f"Abrindo o arquivo:{anos}, {mes_um}, {mes_dois}..")
 
