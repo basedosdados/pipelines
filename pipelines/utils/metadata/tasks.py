@@ -56,14 +56,14 @@ def update_django_metadata(
         api_mode: pode ser 'prod ou 'staging'
         bq_project: projeto que será consultado para obter a cobertura temporal
         historical_database: marcar como False para casos em que a base nao possua uma coluna que represente a data de cobertura
-        
+
     Returns:
         -   None
 
     Raises:
         -   Exception: If the  coverage_type, time_delta or date_column_name is not supported.
         -   Exception: If try to update published table with non prod data
-     
+
     """
 
     check_if_values_are_accepted(
