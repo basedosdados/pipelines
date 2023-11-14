@@ -3,7 +3,7 @@
 Tasks for br_cgu_beneficios_cidadao
 """
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pandas as pd
 import requests
@@ -23,7 +23,10 @@ def print_last_file(file):
     log(f"Arquivo baixado --> {file}")
 
 
-@task
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def crawl_last_date(table_id: str) -> list:
     """
     Encontra a data mais recente em um DataFrame e retorna a data e a URL correspondente.
@@ -48,7 +51,10 @@ def crawl_last_date(table_id: str) -> list:
     return [max_date, max_row["urls"].iloc[0]]
 
 
-@task
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def check_for_updates(dataset_id: str, table_id: str, max_date: datetime) -> bool:
     """
     Verifica se há atualizações disponíveis em um conjunto de dados (dataset).
@@ -84,7 +90,10 @@ def check_for_updates(dataset_id: str, table_id: str, max_date: datetime) -> boo
         return False  # Não há novas atualizações disponíveis
 
 
-@task  # noqa
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)  # noqa
 def crawler_bolsa_familia(historical_data: bool, file):
     if historical_data:
         dates = extract_dates()
@@ -112,7 +121,10 @@ def crawler_bolsa_familia(historical_data: bool, file):
     return "/tmp/data/br_cgu_beneficios_cidadao/novo_bolsa_familia/output/"
 
 
-@task  # noqa
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)  # noqa
 def crawler_garantia_safra(historical_data: bool, file):
     if historical_data:
         dates = extract_dates(table="garantia_safra")
@@ -142,7 +154,10 @@ def crawler_garantia_safra(historical_data: bool, file):
     return "/tmp/data/br_cgu_beneficios_cidadao/garantia_safra/output/"
 
 
-@task  # noqa
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)  # noqa
 def crawler_bpc(historical_data: bool, file):
     if historical_data:
         dates = extract_dates(table="bpc")

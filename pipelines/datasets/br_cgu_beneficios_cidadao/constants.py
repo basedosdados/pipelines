@@ -13,6 +13,10 @@ class constants(Enum):  # pylint: disable=c0103
     Constant values for the br_cgu_bolsa_familia project
     """
 
+    # Prefect tasks retry policy
+    TASK_MAX_RETRIES = 5
+    TASK_RETRY_DELAY = 10
+
     CHROME_DRIVER = "https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_linux64.zip"
 
     PATH = "/tmp/data/br_cgu_beneficios_cidadao"

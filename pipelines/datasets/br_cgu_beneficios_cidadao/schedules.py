@@ -13,7 +13,7 @@ from pipelines.constants import constants
 every_day_novo_bolsa_familia = Schedule(
     clocks=[
         CronClock(
-            cron="0 18 * * *",  # At 17:00 on every day-of-week from Monday through Friday.
+            cron="0 18 * * *",  # At 18:00
             start_date=datetime(2021, 3, 31, 17, 11),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
@@ -34,7 +34,7 @@ every_day_novo_bolsa_familia = Schedule(
 every_day_garantia_safra = Schedule(
     clocks=[
         CronClock(
-            cron="30 18 * * *",  # At 17:00 on every day-of-week from Monday through Friday.
+            cron="30 18 * * *",  # At 18:30
             start_date=datetime(2021, 3, 31, 17, 11),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
@@ -55,7 +55,7 @@ every_day_garantia_safra = Schedule(
 every_day_bpc = Schedule(
     clocks=[
         CronClock(
-            cron="00 19 * * *",  # At 17:00 on every day-of-week from Monday through Friday.
+            cron="00 19 * * *",  # At 19:00
             start_date=datetime(2021, 3, 31, 17, 11),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
