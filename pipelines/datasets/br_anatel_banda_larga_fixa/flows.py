@@ -82,7 +82,7 @@ with Flow(
     )
 
     with case(dados_desatualizados, False):
-        log_task(f"Não há atualizações!")
+        log_task("Não há atualizações!")
 
     with case(dados_desatualizados, True):
         # ! MICRODADOS
