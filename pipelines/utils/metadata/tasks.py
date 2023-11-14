@@ -38,7 +38,8 @@ def update_django_metadata(
     time_delta: dict = {"months":6},
     prefect_mode: str = "dev",
     api_mode: str = "prod",
-    bq_project: str = "basedosdados"
+    bq_project: str = "basedosdados",
+    historical_database: bool = True
 ):
     """
     Updates Django metadata. Version 1.3.
@@ -67,7 +68,7 @@ def update_django_metadata(
     ids = get_ids(
         dataset_name = dataset_id,
         table_name = table_id,
-        coverage_status = coverage_type,
+        coverage_type = coverage_type,
         email = email,
         password = password,
         api_mode=api_mode,
@@ -93,13 +94,14 @@ def update_django_metadata(
             date_format = date_format,
             date_column = date_column_name,
             billing_project_id = billing_project_id,
-            project_id = bq_project
+            project_id = bq_project,
+            historical_database = historical_database
         )
     
      
     if coverage_type == 'all_free':
 
-        all_free_parameters = parse_temporal_coverage(f"{last_date}")
+        all_free_parameters = parse_temporal_coverage(f"{last_date}",historical_database)
         all_free_parameters["coverage"] = ids.get("coverage_id_free")
 
         create_update(
@@ -115,7 +117,7 @@ def update_django_metadata(
 
     elif coverage_type == 'all_bdpro':
         log(f"Cobertura PRO ->> {last_date}")
-        bdpro_parameters = parse_temporal_coverage(f"{last_date}")
+        bdpro_parameters = parse_temporal_coverage(f"{last_date}",historical_database)
         bdpro_parameters["coverage"] = ids.get("coverage_id_pro")
 
         create_update(
@@ -130,6 +132,8 @@ def update_django_metadata(
         )
 
     elif coverage_type == 'partially_bdpro':
+        if not historical_database:
+            raise ValueError("Invalid Selection: Non-historical base and partially bdpro coverage chosen, not compatible.")
 
         bdpro_parameters, free_parameters = get_parcially_bdpro_coverage_parameters(
             time_delta = time_delta,

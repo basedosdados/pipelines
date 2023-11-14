@@ -41,15 +41,14 @@ def check_if_values_are_accepted(coverage_type: str,
     
     if coverage_type not in metadata_constants.ACCEPTED_COVERAGE_TYPE.value:
         raise ValueError(
-            f"Unidade temporal inválida. Escolha entre {metadata_constants.ACCEPTED_COVERAGE_TYPE.value}"
+            f"Tipo de cobertura temporal inválida. Escolha entre {metadata_constants.ACCEPTED_COVERAGE_TYPE.value}"
         )
    
-    if type(date_column_name) is dict:
-        for column_key in date_column_name.keys():
-            if  column_key not in metadata_constants.ACCEPTED_COLUMN_KEY_VALUES.value:
-                raise ValueError(
-                    f"Dicionário das colunas de data inválido. As chaves só podem assumir os valores: {metadata_constants.ACCEPTED_COLUMN_KEY_VALUES.value} "
-                )
+    if set(list(date_column_name)) not in  metadata_constants.ACCEPTED_COLUMN_KEY_VALUES.value:
+            raise ValueError(
+                f"Dicionário das colunas de data inválido. As chaves só podem assumir os valores: {metadata_constants.ACCEPTED_COLUMN_KEY_VALUES.value} "
+            )
+  
   
 def get_billing_project_id(mode: str):
     return metadata_constants.MODE_PROJECT.value[mode]        
@@ -98,7 +97,7 @@ def get_ids(
     table_name: str,
     email: str,
     password: str,
-    coverage_status: str,
+    coverage_type: str,
     api_mode: str='prod',
 ) -> dict:
     """
@@ -125,7 +124,7 @@ def get_ids(
         ].get("_id")
         log("table_id: "+table_id)
 
-        if coverage_status == 'partially_bdpro':
+        if coverage_type == 'partially_bdpro':
             
             coverage_id_pro = get_coverage_id(
                 table_id = table_id,
@@ -147,7 +146,7 @@ def get_ids(
                 "coverage_id_pro": coverage_id_pro,
             }
         
-        elif coverage_status == 'all_bdpro':
+        elif coverage_type == 'all_bdpro':
             
             coverage_id_pro = get_coverage_id(
                 table_id = table_id,
@@ -161,7 +160,7 @@ def get_ids(
                 "coverage_id_pro": coverage_id_pro,
             }
         
-        elif coverage_status == 'all_free':
+        elif coverage_type == 'all_free':
             coverage_id_free = get_coverage_id(
                 table_id = table_id,
                 is_closed = False,    
@@ -327,7 +326,8 @@ def extract_last_date_from_bq(
         date_format: str,
         date_column: str, 
         billing_project_id: str,
-        project_id: str='basedosdados'):
+        project_id: str='basedosdados',
+        historical_database: bool=True):
     """
     Extracts the last update date of a given dataset table.
 
@@ -345,10 +345,23 @@ def extract_last_date_from_bq(
     Raises:
         Exception: If an error occurs while extracting the last update date.
     """
-    if type(date_column) is dict:
-        query_date_column = f"DATE({date_column['year']},{date_column['month']},1)"
+    if not historical_database:
+        last_date = last_date_bq_metadata(
+            dataset_id=dataset_id,
+            table_id = table_id,
+            date_format = date_format,
+            billing_project_id = billing_project_id,
+            project_id = project_id
+        )
+        return last_date
+
+    
+    if date_column.keys() == {'date'}:
+        query_date_column = date_column['date']
+    elif date_column.keys() == {'year','quarter'}:
+        query_date_column = f"DATE({date_column['year']},{date_column['quarter']}*3,1)"
     else:
-        query_date_column = date_column
+        query_date_column = f"DATE({date_column['year']},{date_column['month']},1)"
 
     
     try:
@@ -375,20 +388,41 @@ def extract_last_date_from_bq(
         log(f"An error occurred while extracting the last update date: {str(e)}")
         raise   
 
-def parse_temporal_coverage(temporal_coverage):
-    # Extrai as informações de data e intervalo da string
-    if "(" in temporal_coverage:
-        start_str, interval_str, end_str = re.split(r"[(|)]", temporal_coverage)
-        if start_str == "" and end_str != "":
-            start_str = end_str
-        elif end_str == "" and start_str != "":
-            end_str = start_str
-    elif len(temporal_coverage) >= 4:
-        start_str, interval_str, end_str = temporal_coverage, 1, temporal_coverage
-    start_len = 0 if start_str == "" else len(start_str.split("-"))
-    end_len = 0 if end_str == "" else len(end_str.split("-"))
+def last_date_bq_metadata( 
+        dataset_id: str,
+        table_id: str,
+        date_format: str, 
+        billing_project_id: str,
+        project_id: str,
+):
+    log("WARNING: Non-historical data mode selected. Single-date temporal coverage applied")
+    try:
+        query_bd = f"""
+        SELECT
+            *
+        FROM
+        `{project_id}.{dataset_id}.__TABLES__`
+        WHERE
+        table_id = '{table_id}'
+        """
+        
+        t = bd.read_sql(
+            query=query_bd,
+            billing_project_id=billing_project_id,
+            from_file=True,
+        )
+        timestamp = (
+            t["last_modified_time"][0] / 1000
+        )  # Convert to seconds by dividing by 1000
+        dt = datetime.fromtimestamp(timestamp)
+        last_date = dt.strftime(date_format)
+        log(f"Última data: {last_date}")
+        return last_date
+    except Exception as e:
+        log(f"An error occurred while extracting the last update date: {str(e)}")
+        raise
 
-    def parse_date(position, date_str, date_len):
+def parse_date(position, date_str, date_len):
         result = {}
         if date_len == 3:
             date = datetime.strptime(date_str, "%Y-%m-%d")
@@ -403,6 +437,22 @@ def parse_temporal_coverage(temporal_coverage):
             date = datetime.strptime(date_str, "%Y")
             result[f"{position}Year"] = date.year
         return result
+
+def parse_temporal_coverage(temporal_coverage,historical_database):
+    if not historical_database:
+        temporal_coverage = f"{temporal_coverage}(1){temporal_coverage}"
+        log(temporal_coverage)
+    # Extrai as informações de data e intervalo da string
+    if "(" in temporal_coverage:
+        start_str, interval_str, end_str = re.split(r"[(|)]", temporal_coverage)
+        if start_str == "" and end_str != "":
+            start_str = end_str
+        elif end_str == "" and start_str != "":
+            end_str = start_str
+    elif len(temporal_coverage) >= 4:
+        start_str, interval_str, end_str = temporal_coverage, 1, temporal_coverage
+    start_len = 0 if start_str == "" else len(start_str.split("-"))
+    end_len = 0 if end_str == "" else len(end_str.split("-"))
 
     start_result = parse_date(position="start", date_str=start_str, date_len=start_len)
     end_result = parse_date(position="end", date_str=end_str, date_len=end_len)
