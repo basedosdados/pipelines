@@ -98,7 +98,7 @@ with Flow(
                     table_id = table_id,
                     date_column_name = {'year':'ano','month':'mes'},
                     date_format = "%Y-%m",
-                    coverage_status = "partially_bdpro",
+                    coverage_type = "partially_bdpro",
                     time_delta={"months":6},
                     prefect_mode = materialization_mode,
                     bq_project = "basedosdados",

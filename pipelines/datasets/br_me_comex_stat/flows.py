@@ -104,19 +104,16 @@ with Flow(
         )
         # coverage updater
         with case(update_metadata, True):
-            update = update_django_metadata(
-                dataset_id,
-                table_id,
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                bq_table_last_year_month=True,
-                is_bd_pro=True,
-                is_free=True,
-                api_mode="prod",
-                billing_project_id="basedosdados",
-                date_format="yy-mm",
-                time_delta=6,
-                time_unit="months",
+            update_django_metadata(
+                dataset_id = dataset_id,
+                table_id = table_id,
+                date_column_name = {'year':'ano','month':'mes'},
+                date_format = "%Y-%m",
+                coverage_type = "parcially_bdpro",
+                time_delta={"months":6},
+                prefect_mode = materialization_mode,
+                bq_project = "basedosdados",
+                upstream_tasks=[wait_for_materialization],
             )
 
 br_comex_municipio_exportacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -195,19 +192,16 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
         with case(update_metadata, True):
-            update = update_django_metadata(
-                dataset_id,
-                table_id,
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                bq_table_last_year_month=True,
-                is_bd_pro=True,
-                is_free=True,
-                api_mode="prod",
-                billing_project_id="basedosdados",
-                date_format="yy-mm",
-                time_delta=6,
-                time_unit="months",
+            update_django_metadata(
+                dataset_id = dataset_id,
+                table_id = table_id,
+                date_column_name = {'year':'ano','month':'mes'},
+                date_format = "%Y-%m",
+                coverage_type = "parcially_bdpro",
+                time_delta={"months":6},
+                prefect_mode = materialization_mode,
+                bq_project = "basedosdados",
+                upstream_tasks=[wait_for_materialization],
             )
 
 
@@ -288,20 +282,18 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
         with case(update_metadata, True):
-            update = update_django_metadata(
-                dataset_id,
-                table_id,
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                bq_table_last_year_month=True,
-                is_bd_pro=True,
-                is_free=True,
-                api_mode="prod",
-                billing_project_id="basedosdados",
-                date_format="yy-mm",
-                time_delta=6,
-                time_unit="months",
+            update_django_metadata(
+                dataset_id = dataset_id,
+                table_id = table_id,
+                date_column_name = {'year':'ano','month':'mes'},
+                date_format = "%Y-%m",
+                coverage_type = "parcially_bdpro",
+                time_delta={"months":6},
+                prefect_mode = materialization_mode,
+                bq_project = "basedosdados",
+                upstream_tasks=[wait_for_materialization],
             )
+
 
 
 br_comex_ncm_exportacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -379,20 +371,18 @@ with Flow(
         )
 
         with case(update_metadata, True):
-            update = update_django_metadata(
-                dataset_id,
-                table_id,
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                bq_table_last_year_month=True,
-                is_bd_pro=True,
-                is_free=True,
-                api_mode="prod",
-                billing_project_id="basedosdados",
-                date_format="yy-mm",
-                time_delta=6,
-                time_unit="months",
+            update_django_metadata(
+                dataset_id = dataset_id,
+                table_id = table_id,
+                date_column_name = {'year':'ano','month':'mes'},
+                date_format = "%Y-%m",
+                coverage_type = "parcially_bdpro",
+                time_delta={"months":6},
+                prefect_mode = materialization_mode,
+                bq_project = "basedosdados",
+                upstream_tasks=[wait_for_materialization],
             )
+
 
 br_comex_ncm_importacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_comex_ncm_importacao.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)

@@ -306,8 +306,3 @@ def clean_csv_municipio():
     return anatel_constants.OUTPUT_PATH_MUNICIPIO.value
 
 
-@task
-def get_today_date_atualizado():
-    d = datetime.now() - timedelta(days=60)
-
-    return d.strftime("%Y-%m")

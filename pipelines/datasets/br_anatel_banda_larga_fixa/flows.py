@@ -15,7 +15,6 @@ from pipelines.datasets.br_anatel_banda_larga_fixa.schedules import (
     every_month_anatel_microdados,
 )
 from pipelines.datasets.br_anatel_banda_larga_fixa.tasks import (
-    get_today_date_atualizado,
     treatment,
     treatment_br,
     treatment_municipio,
@@ -111,17 +110,17 @@ with Flow(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
         with case(update_metadata, True):
-            date = get_today_date_atualizado()  # task que retorna a data atual
-
             update_django_metadata(
-                dataset_id = dataset_id,
-                table_id = table_id[0],
-                date_format = "%Y-%m",
-                coverage_status = "partially_bdpro",
-                time_delta=2,
-                time_unit="months",
-                billing_project_id = "basedosdados",
-            )
+                    dataset_id = dataset_id,
+                    table_id = table_id[0],
+                    date_column_name = {'year':'ano','month':'mes'},
+                    date_format = "%Y-%m",
+                    coverage_type = "partially_bdpro",
+                    time_delta={"months":6},
+                    prefect_mode = materialization_mode,
+                    bq_project = "basedosdados",
+                    upstream_tasks=[wait_for_materialization],
+                )
 
     # ! BRASIL
     filepath_brasil = treatment_br(upstream_tasks=[filepath_microdados])
@@ -163,16 +162,17 @@ with Flow(
         )
 
         with case(update_metadata, True):
-            date = get_today_date_atualizado()  # task que retorna a data atual
             update_django_metadata(
-                dataset_id = dataset_id,
-                table_id = table_id[1],
-                date_format = "%Y-%m",
-                coverage_status = "partially_bdpro",
-                time_delta=2,
-                time_unit="months",
-                billing_project_id = "basedosdados",
-            )
+                    dataset_id = dataset_id,
+                    table_id = table_id[1],
+                    date_column_name = {'year':'ano','month':'mes'},
+                    date_format = "%Y-%m",
+                    coverage_type = "partially_bdpro",
+                    time_delta={"months":6},
+                    prefect_mode = materialization_mode,
+                    bq_project = "basedosdados",
+                    upstream_tasks=[wait_for_materialization],
+                )
 
     # ! UF
 
@@ -216,16 +216,17 @@ with Flow(
         )
 
         with case(update_metadata, True):
-            date = get_today_date_atualizado()  # task que retorna a data atual
             update_django_metadata(
-                dataset_id = dataset_id,
-                table_id = table_id[2],
-                date_format = "%Y-%m",
-                coverage_status = "partially_bdpro",
-                time_delta=2,
-                time_unit="months",
-                billing_project_id = "basedosdados",
-            )
+                    dataset_id = dataset_id,
+                    table_id = table_id[2],
+                    date_column_name = {'year':'ano','month':'mes'},
+                    date_format = "%Y-%m",
+                    coverage_type = "partially_bdpro",
+                    time_delta={"months":6},
+                    prefect_mode = materialization_mode,
+                    bq_project = "basedosdados",
+                    upstream_tasks=[wait_for_materialization],
+                )
 
     # ! MUNICIPIO
     filepath_municipio = treatment_municipio(upstream_tasks=[filepath_microdados])
@@ -268,16 +269,17 @@ with Flow(
         )
 
         with case(update_metadata, True):
-            date = get_today_date_atualizado()  # task que retorna a data atual
             update_django_metadata(
-                dataset_id = dataset_id,
-                table_id = table_id[3],
-                date_format = "%Y-%m",
-                coverage_status = "partially_bdpro",
-                time_delta=2,
-                time_unit="months",
-                billing_project_id = "basedosdados",
-            )
+                    dataset_id = dataset_id,
+                    table_id = table_id[3],
+                    date_column_name = {'year':'ano','month':'mes'},
+                    date_format = "%Y-%m",
+                    coverage_type = "partially_bdpro",
+                    time_delta={"months":6},
+                    prefect_mode = materialization_mode,
+                    bq_project = "basedosdados",
+                    upstream_tasks=[wait_for_materialization],
+                )
 
 br_anatel_banda_larga.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_anatel_banda_larga.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)

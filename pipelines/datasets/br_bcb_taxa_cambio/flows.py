@@ -11,7 +11,6 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.datasets.br_bcb_taxa_cambio.constants import constants as constants_bcb
 from pipelines.datasets.br_bcb_taxa_cambio.schedules import (
     schedule_every_weekday_taxa_cambio,
 )
@@ -99,18 +98,15 @@ with Flow(
 
         with case(update_metadata, True):
             update_django_metadata(
-                upstream_tasks=[wait_for_materialization],
-                dataset_id=dataset_id,
-                table_id=table_id,
-                metadata_type="DateTimeRange",
-                _last_date=file_info["max_date"],
-                bq_table_last_year_month=False,
-                bq_last_update=False,
-                is_bd_pro=True,
-                is_free=False,
-                date_format="yy-mm-dd",
-                api_mode="prod",
-            )
+                    dataset_id = dataset_id,
+                    table_id = table_id,
+                    date_column_name = {'date':'data'},
+                    date_format = "%Y-%m-%d",
+                    coverage_type = "all_bdpro",
+                    prefect_mode = materialization_mode,
+                    bq_project = "basedosdados",
+                    upstream_tasks=[wait_for_materialization],
+                )
 
 
 datasets_br_bcb_taxa_cambio_moeda_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

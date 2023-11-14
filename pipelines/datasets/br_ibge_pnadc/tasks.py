@@ -19,11 +19,6 @@ from pipelines.utils.utils import log
 
 
 @task
-def get_year_quarter(year, quarter):
-    return f"{year}-{quarter}"
-
-
-@task
 def get_url_from_template(year: int, quarter: int) -> str:
     """Return the url for the PNAD microdata file for a given year and month.
     Args:

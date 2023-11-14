@@ -4,16 +4,12 @@ Tasks for mundo_transfermarkt_competicoes
 """
 
 import asyncio
-
-import numpy as np
 import pandas as pd
 from pandas import DataFrame
 from prefect import task
 
 ###############################################################################
-from pipelines.datasets.mundo_transfermarkt_competicoes.constants import (
-    constants as mundo_constants,
-)
+
 from pipelines.datasets.mundo_transfermarkt_competicoes.utils import (
     execucao_coleta,
     execucao_coleta_copa,
@@ -65,23 +61,3 @@ def make_partitions(df: DataFrame) -> str:
     return "/tmp/data/mundo_transfermarkt_competicoes/output/"
 
 
-@task
-def get_max_data(file_path: str) -> str:
-    """
-    Obtém a data máxima a partir de um arquivo de dados.
-
-    Args:
-        file_path (str): O caminho para o diretório onde o arquivo de dados está localizado.
-
-    Returns:
-        str: A data máxima no formato "YYYY-MM-DD".
-    """
-    # Lê o arquivo CSV de dados para um DataFrame
-    ano = mundo_constants.DATA_ATUAL_ANO.value
-    df = pd.read_csv(f"{file_path}ano_campeonato={ano}/data.csv")
-    # Converte a coluna "data" para o formato de data
-    df["data"] = pd.to_datetime(df["data"]).dt.date
-    # Encontra a data máxima no DataFrame
-    max_data = df["data"].max().strftime("%Y-%m-%d")
-
-    return max_data

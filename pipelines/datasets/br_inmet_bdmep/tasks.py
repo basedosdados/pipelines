@@ -52,9 +52,3 @@ def get_base_inmet(year: int) -> str:
 
     return "/tmp/data/output/microdados/"
 
-
-@task
-def get_today_date():
-    d = datetime.today()
-
-    return d.strftime("%Y-%m")

@@ -70,9 +70,3 @@ def clean_table_oferta_distribuicao(root: str) -> str:
 
     return ou_filepath
 
-
-@task
-def get_today_date() -> str:
-    d = datetime.today()
-
-    return str(d.strftime("%Y-%m-%d"))

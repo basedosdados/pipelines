@@ -26,7 +26,6 @@ from pipelines.datasets.br_rj_isp_estatisticas_seguranca.schedules import (
 from pipelines.datasets.br_rj_isp_estatisticas_seguranca.tasks import (
     clean_data,
     download_files,
-    get_today_date,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -113,18 +112,15 @@ with Flow(
         )
 
         with case(update_metadata, True):
-            date = get_today_date()  # task que retorna a data atual
             update_django_metadata(
-                dataset_id,
-                table_id,
-                metadata_type="DateTimeRange",
-                bq_table_last_year_month=False,
-                bq_last_update=False,
-                is_bd_pro=False,
-                is_free=True,
-                api_mode="prod",
-                date_format="yy-mm",
-                _last_date=date,
+                dataset_id = dataset_id,
+                table_id = table_id,
+                date_column_name = {'year':'ano','month':'mes'},
+                date_format = "%Y-%m",
+                coverage_type = "all_free",
+                prefect_mode = materialization_mode,
+                bq_project = "basedosdados",
+                upstream_tasks=[wait_for_materialization],
             )
 
 evolucao_mensal_cisp.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -207,18 +203,15 @@ with Flow(
         )
 
         with case(update_metadata, True):
-            date = get_today_date()  # task que retorna a data atual
             update_django_metadata(
-                dataset_id,
-                table_id,
-                metadata_type="DateTimeRange",
-                bq_table_last_year_month=False,
-                bq_last_update=False,
-                is_bd_pro=False,
-                is_free=True,
-                api_mode="prod",
-                date_format="yy-mm",
-                _last_date=date,
+                dataset_id = dataset_id,
+                table_id = table_id,
+                date_column_name = {'year':'ano','month':'mes'},
+                date_format = "%Y-%m",
+                coverage_type = "all_free",
+                prefect_mode = materialization_mode,
+                bq_project = "basedosdados",
+                upstream_tasks=[wait_for_materialization],
             )
 
 taxa_evolucao_mensal_uf.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -303,18 +296,15 @@ with Flow(
         )
 
         with case(update_metadata, True):
-            date = get_today_date()  # task que retorna a data atual
             update_django_metadata(
-                dataset_id,
-                table_id,
-                metadata_type="DateTimeRange",
-                bq_table_last_year_month=False,
-                bq_last_update=False,
-                is_bd_pro=False,
-                is_free=True,
-                api_mode="prod",
-                date_format="yy-mm",
-                _last_date=date,
+                dataset_id = dataset_id,
+                table_id = table_id,
+                date_column_name = {'year':'ano','month':'mes'},
+                date_format = "%Y-%m",
+                coverage_type = "all_free",
+                prefect_mode = materialization_mode,
+                bq_project = "basedosdados",
+                upstream_tasks=[wait_for_materialization],
             )
 
 
@@ -400,18 +390,15 @@ with Flow(
         )
 
         with case(update_metadata, True):
-            date = get_today_date()  # task que retorna a data atual
             update_django_metadata(
-                dataset_id,
-                table_id,
-                metadata_type="DateTimeRange",
-                bq_table_last_year_month=False,
-                bq_last_update=False,
-                is_bd_pro=False,
-                is_free=True,
-                api_mode="prod",
-                date_format="yy-mm",
-                _last_date=date,
+                dataset_id = dataset_id,
+                table_id = table_id,
+                date_column_name = {'year':'ano','month':'mes'},
+                date_format = "%Y-%m",
+                coverage_type = "all_free",
+                prefect_mode = materialization_mode,
+                bq_project = "basedosdados",
+                upstream_tasks=[wait_for_materialization],
             )
 
 
@@ -497,18 +484,15 @@ with Flow(
         )
 
         with case(update_metadata, True):
-            date = get_today_date()  # task que retorna a data atual
             update_django_metadata(
-                dataset_id,
-                table_id,
-                metadata_type="DateTimeRange",
-                bq_table_last_year_month=False,
-                bq_last_update=False,
-                is_bd_pro=False,
-                is_free=True,
-                api_mode="prod",
-                date_format="yy-mm",
-                _last_date=date,
+                dataset_id = dataset_id,
+                table_id = table_id,
+                date_column_name = {'year':'ano','month':'mes'},
+                date_format = "%Y-%m",
+                coverage_type = "all_free",
+                prefect_mode = materialization_mode,
+                bq_project = "basedosdados",
+                upstream_tasks=[wait_for_materialization],
             )
 
 evolucao_policial_morto_servico_mensal.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -595,18 +579,15 @@ with Flow(
         )
 
         with case(update_metadata, True):
-            date = get_today_date()  # task que retorna a data atual
             update_django_metadata(
-                dataset_id,
-                table_id,
-                metadata_type="DateTimeRange",
-                bq_table_last_year_month=False,
-                bq_last_update=False,
-                is_bd_pro=False,
-                is_free=True,
-                api_mode="prod",
-                date_format="yy-mm",
-                _last_date=date,
+                dataset_id = dataset_id,
+                table_id = table_id,
+                date_column_name = {'year':'ano','month':'mes'},
+                date_format = "%Y-%m",
+                coverage_type = "all_free",
+                prefect_mode = materialization_mode,
+                bq_project = "basedosdados",
+                upstream_tasks=[wait_for_materialization],
             )
 
 armas_apreendidas_mensal.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -689,18 +670,15 @@ with Flow(
         )
 
         with case(update_metadata, True):
-            date = get_today_date()  # task que retorna a data atual
             update_django_metadata(
-                dataset_id,
-                table_id,
-                metadata_type="DateTimeRange",
-                bq_table_last_year_month=False,
-                bq_last_update=False,
-                is_bd_pro=False,
-                is_free=True,
-                api_mode="prod",
-                date_format="yy-mm",
-                _last_date=date,
+                dataset_id = dataset_id,
+                table_id = table_id,
+                date_column_name = {'year':'ano','month':'mes'},
+                date_format = "%Y-%m",
+                coverage_type = "all_free",
+                prefect_mode = materialization_mode,
+                bq_project = "basedosdados",
+                upstream_tasks=[wait_for_materialization],
             )
 
 evolucao_mensal_municipio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -783,18 +761,15 @@ with Flow(
         )
 
         with case(update_metadata, True):
-            date = get_today_date()  # task que retorna a data atual
             update_django_metadata(
-                dataset_id,
-                table_id,
-                metadata_type="DateTimeRange",
-                bq_table_last_year_month=False,
-                bq_last_update=False,
-                is_bd_pro=False,
-                is_free=True,
-                api_mode="prod",
-                date_format="yy-mm",
-                _last_date=date,
+                dataset_id = dataset_id,
+                table_id = table_id,
+                date_column_name = {'year':'ano','month':'mes'},
+                date_format = "%Y-%m",
+                coverage_type = "all_free",
+                prefect_mode = materialization_mode,
+                bq_project = "basedosdados",
+                upstream_tasks=[wait_for_materialization],
             )
 
 evolucao_mensal_uf.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

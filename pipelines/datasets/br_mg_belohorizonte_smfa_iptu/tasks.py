@@ -100,11 +100,3 @@ def check_for_updates(dataset_id, table_id):
     else:
         return False  # Não há novas atualizações disponíveis
 
-
-@task
-def get_max_data(input):
-    arquivos = os.listdir(input)
-    valor = [valor[0:6] for valor in arquivos]
-    resultado = valor[0]
-    data = resultado[0:4] + "-" + resultado[4:6]
-    return data

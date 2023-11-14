@@ -149,14 +149,4 @@ def parse_data(url: str, other_task_output: tuple[list[datetime], list[str]]) ->
     return files_path
 
 
-@task
-def convert_datetime_to_string(data: datetime):
-    """Converte a data para string
 
-    Args:
-        date (datetime): Data
-
-    Returns:
-        string: Data no formato string
-    """
-    return str(data)
