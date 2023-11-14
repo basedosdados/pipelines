@@ -42,28 +42,28 @@ def update_django_metadata(
     historical_database: bool = True,
 ):
     """
-    Updates temporal coverage Django metadata. Version 1.3.
+       Updates temporal coverage Django metadata. Version 1.3.
 
+       Args:
     Args:
- Args:
-        dataset_id (str): O ID do conjunto de dados.
-        table_id (str): O ID da tabela dentro do conjunto de dados.
-        nome_coluna_data (dict): Um dicionário especificando os nomes das colunas usadas para extrair a cobertura temporal.
-            Chaves válidas estão descritas no arquivo 'constants.py'.
-        date_format (str): O formato da data a ser atualizado no Django.
-        coverage_type (str): pode ser "partially_bdpro", "all_bdpro" ou "all_free"
-        time_delta (dict): dicionário com unidade temporal e valor do delta a ser aplicado caso 'partially_bdpro'
-        prefect_mode (str): colocar o materialization_mode do flow
-        api_mode (str): pode ser 'prod ou 'staging'
-        bq_project (str): projeto que será consultado para obter a cobertura temporal
-        historical_database (bool): marcar como False para casos em que a base nao possua uma coluna que represente a data de cobertura
-        
-    Returns:
-        -   None
+           dataset_id (str): O ID do conjunto de dados.
+           table_id (str): O ID da tabela dentro do conjunto de dados.
+           nome_coluna_data (dict): Um dicionário especificando os nomes das colunas usadas para extrair a cobertura temporal.
+               Chaves válidas estão descritas no arquivo 'constants.py'.
+           date_format (str): O formato da data a ser atualizado no Django.
+           coverage_type (str): pode ser "partially_bdpro", "all_bdpro" ou "all_free"
+           time_delta (dict): dicionário com unidade temporal e valor do delta a ser aplicado caso 'partially_bdpro'
+           prefect_mode (str): colocar o materialization_mode do flow
+           api_mode (str): pode ser 'prod ou 'staging'
+           bq_project (str): projeto que será consultado para obter a cobertura temporal
+           historical_database (bool): marcar como False para casos em que a base nao possua uma coluna que represente a data de cobertura
 
-    Raises:
-        -   Exception: If the  coverage_type, time_delta or date_column_name is not supported.
-        -   Exception: If try to update published table with non prod data
+       Returns:
+           -   None
+
+       Raises:
+           -   Exception: If the  coverage_type, time_delta or date_column_name is not supported.
+           -   Exception: If try to update published table with non prod data
 
     """
 

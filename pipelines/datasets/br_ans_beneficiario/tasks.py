@@ -98,5 +98,3 @@ def is_empty(lista):
         return True
     else:
         return False
-
-
