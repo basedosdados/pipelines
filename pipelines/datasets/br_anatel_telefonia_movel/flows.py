@@ -85,7 +85,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
     )
 
     with case(dados_desatualizados, False):
-        log_task(f"Não há atualizações!")
+        log_task("Não há atualizações!")
 
     with case(dados_desatualizados, True):
         # ! MICRODADOS

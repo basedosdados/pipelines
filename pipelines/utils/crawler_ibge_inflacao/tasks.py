@@ -128,7 +128,7 @@ def check_for_updates(
     max_date_ibge = dataframe.strftime("%Y-%m")
 
     log(f"A data mais no site do ---IBGE--- para a tabela {indice} é : {max_date_ibge}")
-    #  TROCAR PARA BSEDOSDADOS ANTES DE IR PRA PROD
+    # TROCAR PARA BSEDOSDADOS ANTES DE IR PRA PROD
     max_date_bd = extract_last_date(
         dataset_id=dataset_id, table_id=table_id, billing_project_id="basedosdados"
     )
@@ -177,6 +177,14 @@ def crawler(indice: str, folder: str) -> bool:
     os.system('mkdir -p "/tmp/data/output/ipca"')
     os.system('mkdir -p "/tmp/data/output/inpc"')
     log(os.system("tree /tmp/data"))
+
+    # cada link corresponde a um arquivo csv com uma seleção de variáveis feita no SIDRA do IBGE
+
+    # as tabelas são extraidas de:
+    # ipca:https://sidra.ibge.gov.br/tabela/7060
+    # inpc: https://sidra.ibge.gov.br/tabela/7063
+    # ipca15: https://sidra.ibge.gov.br/tabela/7062
+
     links = {
         "br/ipca_grupo": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7060.csv&terr=NC&rank=-&query=t/7060/n1/all/v/all/p/all/c315/7170,7445,7486,7558,7625,7660,7712,7766,7786/d/v63%202,v66%204,v69%202,v2265%202/l/,v,t%2Bp%2Bc315",
         "br/inpc_grupo": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7063.csv&terr=NC&rank=-&query=t/7063/n1/all/v/all/p/all/c315/7170,7445,7486,7558,7625,7660,7712,7766,7786/d/v44%202,v45%204,v68%202,v2292%202/l/,v,t%2Bp%2Bc315",
@@ -202,17 +210,14 @@ def crawler(indice: str, folder: str) -> bool:
         "rm/ipca_item": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7060.csv&terr=NC&rank=-&query=t/7060/n7/all/v/all/p/all/c315/7172,7184,7200,7219,7241,7254,7283,7303,7335,7349,7356,7372,7384,7389,7401,7415,7433,7447,7454,7461,7480,7484,7488,7495,7517,7522,7541,7549,7560,7572,7587,7605,7616,7621,7627,7640,7656,7662,7684,7690,7695,7698,7714,7730,7758,7777,7782,7788,12427,107678,109464/d/v63%202,v66%204,v69%202,v2265%202/l/,v,t%2Bp%2Bc315",
         "rm/inpc_item": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7063.csv&terr=NC&rank=-&query=t/7063/n7/all/v/all/p/all/c315/7172,7184,7200,7219,7241,7254,7283,7303,7335,7349,7356,7372,7384,7389,7401,7415,7433,7447,7454,7461,7480,7484,7488,7495,7517,7522,7541,7549,7560,7572,7587,7605,7616,7621,7627,7640,7656,7662,7684,7690,7695,7698,7714,7730,7758,7777,7782,7788,12427,107678,109464/d/v44%202,v45%204,v68%202,v2292%202/l/,v,t%2Bp%2Bc315",
         "rm/ip15_item": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7062.csv&terr=NC&rank=-&query=t/7062/n7/all/v/all/p/all/c315/7172,7184,7200,7219,7241,7254,7283,7303,7335,7349,7356,7372,7384,7389,7401,7415,7433,7447,7454,7461,7480,7484,7488,7495,7517,7522,7541,7549,7560,7572,7587,7605,7616,7621,7627,7640,7656,7662,7684,7690,7695,7698,7714,7730,7758,7777,7782,7788,12427,107678,109464/d/v355%202,v356%202,v357%204,v1120%202/l/,v,t%2Bp%2Bc315",
-        # https://sidra.ibge.gov.br/tabela/7060
         "rm/ipca_subitem_2020": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/366270194",
         "rm/ipca_subitem_2021": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-1651704499",
         "rm/ipca_subitem_2022": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-1811208819",
         "rm/ipca_subitem_2023": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/1963915159",
-        # https://sidra.ibge.gov.br/tabela/7063
         "rm/inpc_subitem_2020": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-1428442922",
         "rm/inpc_subitem_2021": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/844331411",
         "rm/inpc_subitem_2022": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-1481717997",
         "rm/inpc_subitem_2023": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-1485551467",
-        # https://sidra.ibge.gov.br/tabela/7062
         "rm/ip15_subitem_2020": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/51560386",
         "rm/ip15_subitem_2021": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/382082792",
         "rm/ip15_subitem_2022": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/1727207272",
@@ -229,12 +234,18 @@ def crawler(indice: str, folder: str) -> bool:
         "mun/ipca_item": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7060.csv&terr=NC&rank=-&query=t/7060/n6/all/v/all/p/all/c315/7172,7184,7200,7219,7241,7254,7283,7303,7335,7349,7356,7372,7384,7389,7401,7415,7433,7447,7454,7461,7480,7484,7488,7495,7517,7522,7541,7549,7560,7572,7587,7605,7616,7621,7627,7640,7656,7662,7684,7690,7695,7698,7714,7730,7758,7777,7782,7788,12427,107678,109464/d/v63%202,v66%204,v69%202,v2265%202/l/,v,t%2Bp%2Bc315",
         "mun/inpc_item": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7063.csv&terr=NC&rank=-&query=t/7063/n6/all/v/all/p/all/c315/7172,7184,7200,7219,7241,7254,7283,7303,7335,7349,7356,7372,7384,7389,7401,7415,7433,7447,7454,7461,7480,7484,7488,7495,7517,7522,7541,7549,7560,7572,7587,7605,7616,7621,7627,7640,7656,7662,7684,7690,7695,7698,7714,7730,7758,7777,7782,7788,12427,107678,109464/d/v44%202,v45%204,v68%202,v2292%202/l/,v,t%2Bp%2Bc315",
         "mun/ip15_item": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7062.csv&terr=NC&rank=-&query=t/7062/n6/all/v/all/p/all/c315/7172,7184,7200,7219,7241,7254,7283,7303,7335,7349,7356,7372,7384,7389,7401,7415,7433,7447,7454,7461,7480,7484,7488,7495,7517,7522,7541,7549,7560,7572,7587,7605,7616,7621,7627,7640,7656,7662,7684,7690,7695,7698,7714,7730,7758,7777,7782,7788,12427,107678,109464/d/v355%202,v356%202,v357%204,v1120%202/l/,v,t%2Bp%2Bc315",
-        "mun/ipca_subitem_1": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/866963382",
-        "mun/ipca_subitem_2": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-113176757",
-        "mun/inpc_subitem_1": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/1139761886",
-        "mun/inpc_subitem_2": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-1289673003",
-        "mun/ip15_subitem_1": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-260564956",
-        "mun/ip15_subitem_2": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-317614754",
+        "mun/ipca_subitem_2020": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-974444712",
+        "mun/ipca_subitem_2021": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/1275717865",
+        "mun/ipca_subitem_2022": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-1088076759",
+        "mun/ipca_subitem_2023": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-1310590128",
+        "mun/inpc_subitem_2020": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/199483739",
+        "mun/inpc_subitem_2021": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-513088754",
+        "mun/inpc_subitem_2022": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/1536257998",
+        "mun/inpc_subitem_2023": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-876936943",
+        "mun/ip15_subitem_2020": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/695637992",
+        "mun/ip15_subitem_2021": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/1303789084",
+        "mun/ip15_subitem_2022": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-1220124260",
+        "mun/ip15_subitem_2023": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/638121395",
         "mun/ipca_geral": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7060.csv&terr=NC&rank=-&query=t/7060/n6/all/v/all/p/all/c315/7169/d/v63%202,v66%204,v69%202,v2265%202/l/,v,t%2Bp%2Bc315",
         "mun/inpc_geral": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7063.csv&terr=NC&rank=-&query=t/7063/n6/all/v/all/p/all/c315/7169/d/v44%202,v45%204,v68%202,v2292%202/l/,v,t%2Bp%2Bc315",
         "mun/ip15_geral": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7062.csv&terr=NC&rank=-&query=t/7062/n6/all/v/all/p/all/c315/7169/d/v355%202,v356%202,v357%204,v1120%202/l/,v,t%2Bp%2Bc315",
@@ -596,22 +607,6 @@ def clean_mes_rm(indice: str):
             dataframe = dataframe[ordem]
             subitem_2023 = pd.DataFrame(dataframe)
 
-        # elif "_".join(arq.split("_")[1:]).split(".", maxsplit=1)[0] == "subitem_1":
-        #    dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
-        #        lambda x: x[0] + "." + x[1] + "." + x[2:4] + "." + x[4:7]
-        #    )
-        #    dataframe = dataframe[ordem]
-        #    subitem_1 = pd.DataFrame(dataframe)
-        # todo: criar mais 3 elifs
-        # todo: com mesmo padrao de nome dos links
-
-        # elif "_".join(arq.split("_")[1:]).split(".", maxsplit=1)[0] == "subitem_2":
-        #    dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
-        #        lambda x: x[0] + "." + x[1] + "." + x[2:4] + "." + x[4:7]
-        #    )
-        #    dataframe = dataframe[ordem]
-        #    subitem_2 = pd.DataFrame(dataframe)
-
         elif arq.split("_")[-1].split(".")[0] == "geral":
             dataframe["id_categoria"] = ""
             dataframe["id_categoria_bd"] = "0.0.00.000"
@@ -620,7 +615,6 @@ def clean_mes_rm(indice: str):
 
     # Add only dataframes defined in previous loop. Download failure leads to some dataframe not being defined
     files_dict = {
-        # todo: adicionar os demais subitesm
         "grupo": grupo if "grupo" in locals() else "",
         "subgrupo": subgrupo if "subgrupo" in locals() else "",
         "item": item if "item" in locals() else "",
@@ -628,8 +622,6 @@ def clean_mes_rm(indice: str):
         "subitem_2021": subitem_2021 if "subitem_2021" in locals() else "",
         "subitem_2022": subitem_2022 if "subitem_2022" in locals() else "",
         "subitem_2023": subitem_2023 if "subitem_2023" in locals() else "",
-        # "subitem_1": subitem_1 if "subitem_1" in locals() else "",
-        # "subitem_2": subitem_2 if "subitem_2" in locals() else "",
         "geral": geral if "geral" in locals() else "",
     }
 
@@ -668,6 +660,7 @@ def clean_mes_municipio(indice: str):
         "IPCA15 - Variação mensal (%)": "variacao_mensal",
         "IPCA15 - Variação acumulada no ano (%)": "variacao_anual",
         "IPCA15 - Variação acumulada em 12 meses (%)": "variacao_doze_meses",
+        "IPCA15 - Variação acumulada em 12 meses": "variacao_doze_meses",
         "IPCA15 - Peso mensal (%)": "peso_mensal",
     }
 
@@ -752,18 +745,36 @@ def clean_mes_municipio(indice: str):
             )
             dataframe = dataframe[ordem]
             item = pd.DataFrame(dataframe)
-        elif "_".join(arq.split("_")[1:]).split(".", maxsplit=1)[0] == "subitem_1":
+
+        # realiza diversas requisões a API para burlar o limite de 200k valores
+        elif "_".join(arq.split("_")[1:]).split(".", maxsplit=1)[0] == "subitem_2020":
             dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
                 lambda x: x[0] + "." + x[1] + "." + x[2:4] + "." + x[4:7]
             )
             dataframe = dataframe[ordem]
-            subitem_1 = pd.DataFrame(dataframe)
-        elif "_".join(arq.split("_")[1:]).split(".", maxsplit=1)[0] == "subitem_2":
+            subitem_2020 = pd.DataFrame(dataframe)
+
+        elif "_".join(arq.split("_")[1:]).split(".", maxsplit=1)[0] == "subitem_2021":
             dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
                 lambda x: x[0] + "." + x[1] + "." + x[2:4] + "." + x[4:7]
             )
             dataframe = dataframe[ordem]
-            subitem_2 = pd.DataFrame(dataframe)
+            subitem_2021 = pd.DataFrame(dataframe)
+
+        elif "_".join(arq.split("_")[1:]).split(".", maxsplit=1)[0] == "subitem_2022":
+            dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
+                lambda x: x[0] + "." + x[1] + "." + x[2:4] + "." + x[4:7]
+            )
+            dataframe = dataframe[ordem]
+            subitem_2022 = pd.DataFrame(dataframe)
+
+        elif "_".join(arq.split("_")[1:]).split(".", maxsplit=1)[0] == "subitem_2023":
+            dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
+                lambda x: x[0] + "." + x[1] + "." + x[2:4] + "." + x[4:7]
+            )
+            dataframe = dataframe[ordem]
+            subitem_2023 = pd.DataFrame(dataframe)
+
         elif arq.split("_")[-1].split(".")[0] == "geral":
             dataframe["id_categoria"] = ""
             dataframe["id_categoria_bd"] = "0.0.00.000"
@@ -775,8 +786,10 @@ def clean_mes_municipio(indice: str):
         "grupo": grupo if "grupo" in locals() else "",
         "subgrupo": subgrupo if "subgrupo" in locals() else "",
         "item": item if "item" in locals() else "",
-        "subitem_1": subitem_1 if "subitem_1" in locals() else "",
-        "subitem_2": subitem_2 if "subitem_2" in locals() else "",
+        "subitem_2020": subitem_2020 if "subitem_2020" in locals() else "",
+        "subitem_2021": subitem_2021 if "subitem_2021" in locals() else "",
+        "subitem_2022": subitem_2022 if "subitem_2022" in locals() else "",
+        "subitem_2023": subitem_2023 if "subitem_2023" in locals() else "",
         "geral": geral if "geral" in locals() else "",
     }
 

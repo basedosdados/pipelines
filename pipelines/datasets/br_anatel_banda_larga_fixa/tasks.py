@@ -16,14 +16,41 @@ from pipelines.datasets.br_anatel_banda_larga_fixa.constants import (
 )
 from pipelines.datasets.br_anatel_banda_larga_fixa.utils import (
     check_and_create_column,
+    data_url,
     download_and_unzip,
     to_partitions_microdados,
 )
 from pipelines.utils.utils import log, to_partitions
 
 
+@task
+def setting_data_url():
+    meses = {
+        "jan": "01",
+        "fev": "02",
+        "mar": "03",
+        "abr": "04",
+        "mai": "05",
+        "jun": "06",
+        "jul": "07",
+        "ago": "08",
+        "set": "09",
+        "out": "10",
+        "nov": "11",
+        "dez": "12",
+    }
+    string_element = data_url()
+    elemento_total = string_element[25:33]
+    mes, ano = elemento_total.split("-")
+    mes = meses[mes]
+    data_total = f"{ano}-{mes}"
+    log(data_total)
+
+    return data_total
+
+
 @task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
+    max_retries=20,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def treatment(ano: int):
