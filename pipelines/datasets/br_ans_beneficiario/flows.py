@@ -17,7 +17,6 @@ from pipelines.datasets.br_ans_beneficiario.tasks import (
     check_for_updates,
     crawler_ans,
     extract_links_and_dates,
-    get_today_date,
     is_empty,
 )
 from pipelines.utils.constants import constants as utils_constants
@@ -107,20 +106,16 @@ with Flow(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
             with case(update_metadata, True):
-                date = get_today_date()
                 update_django_metadata(
-                    dataset_id,
-                    table_id,
-                    metadata_type="DateTimeRange",
-                    _last_date=date,
-                    bq_table_last_year_month=False,
-                    bq_last_update=False,
-                    is_bd_pro=True,
-                    is_free=True,
-                    date_format="yy-mm",
-                    api_mode="prod",
-                    time_delta=6,
-                    time_unit="months",
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"year": "ano", "month": "mes"},
+                    date_format="%Y-%m",
+                    coverage_type="partially_bdpro",
+                    time_delta={"months": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
+                    upstream_tasks=[wait_for_materialization],
                 )
 
 datasets_br_ans_beneficiario_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

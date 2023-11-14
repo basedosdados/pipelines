@@ -50,19 +50,6 @@ def calculate_defasagem():
 
 
 @task
-def format_date_to_string():
-    """
-    Formats a date obtained from a URL.
-
-    Returns:
-        str: The formatted date as a string in "YYYY-MM-DD" format.
-    """
-    data_obj = data_url(url, headers)
-    formatted_date = data_obj.strftime("%Y-%m-%d")
-    return formatted_date
-
-
-@task
 def get_data_source_max_date():
     """
     Checks if there are available updates for a specific dataset and table.

@@ -21,12 +21,7 @@ from pipelines.datasets.mundo_transfermarkt_competicoes.schedules import (
 )
 from pipelines.datasets.mundo_transfermarkt_competicoes.tasks import (
     execucao_coleta_sync,
-    get_max_data,
     make_partitions,
-)
-from pipelines.datasets.mundo_transfermarkt_competicoes.utils import (
-    execucao_coleta,
-    execucao_coleta_copa,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -61,7 +56,6 @@ with Flow(
     )
     df = execucao_coleta_sync(table_id)
     output_filepath = make_partitions(df, upstream_tasks=[df])
-    data_maxima = get_max_data(output_filepath, upstream_tasks=[output_filepath])
 
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=output_filepath,
@@ -101,19 +95,15 @@ with Flow(
         )
 
         update_django_metadata(
-            dataset_id,
-            table_id,
-            metadata_type="DateTimeRange",
-            _last_date=data_maxima,
-            bq_table_last_year_month=False,
-            bq_last_update=False,
-            is_bd_pro=True,
-            is_free=True,
-            time_delta=6,
-            time_unit="weeks",
-            date_format="yy-mm-dd",
-            api_mode="prod",
-            upstream_tasks=[materialization_flow],
+            dataset_id=dataset_id,
+            table_id=table_id,
+            date_column_name={"date": "data"},
+            date_format="%Y-%m-%d",
+            coverage_type="parcially_bdpro",
+            time_delta={"weeks": 6},
+            prefect_mode=materialization_mode,
+            bq_project="basedosdados",
+            upstream_tasks=[wait_for_materialization],
         )
 
 transfermarkt_brasileirao_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -145,7 +135,6 @@ with Flow(
     )
     df = execucao_coleta_sync(table_id)
     output_filepath = make_partitions(df, upstream_tasks=[df])
-    data_maxima = get_max_data(output_filepath, upstream_tasks=[output_filepath])
 
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=output_filepath,
@@ -185,20 +174,17 @@ with Flow(
         )
 
         update_django_metadata(
-            dataset_id,
-            table_id,
-            metadata_type="DateTimeRange",
-            _last_date=data_maxima,
-            bq_table_last_year_month=False,
-            bq_last_update=False,
-            is_bd_pro=True,
-            is_free=True,
-            time_delta=6,
-            time_unit="months",
-            date_format="yy-mm-dd",
-            api_mode="prod",
-            upstream_tasks=[materialization_flow],
+            dataset_id=dataset_id,
+            table_id=table_id,
+            date_column_name={"date": "data"},
+            date_format="%Y-%m-%d",
+            coverage_type="parcially_bdpro",
+            time_delta={"months": 6},
+            prefect_mode=materialization_mode,
+            bq_project="basedosdados",
+            upstream_tasks=[wait_for_materialization],
         )
+
 
 transfermarkt_copa_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 transfermarkt_copa_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
