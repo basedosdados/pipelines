@@ -18,7 +18,6 @@ from pipelines.utils.utils import log, to_partitions
 ###############################################################################
 
 
-
 @task
 def execucao_coleta_sync(tabela: str) -> pd.DataFrame:
     """

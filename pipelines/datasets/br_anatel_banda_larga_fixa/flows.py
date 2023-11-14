@@ -99,7 +99,6 @@ with Flow(
             wait=filepath_microdados,
         )
 
-
         # ! tabela bd +
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
@@ -117,7 +116,6 @@ with Flow(
                 run_name=f"Materialize {dataset_id}.{table_id[0]}",
             )
 
-
             wait_for_materialization = wait_for_flow_run(
                 materialization_flow,
                 stream_states=True,
@@ -132,18 +130,17 @@ with Flow(
             )
 
             with case(update_metadata, True):
-              update_django_metadata(
-                      dataset_id = dataset_id,
-                      table_id = table_id[0],
-                      date_column_name = {'year':'ano','month':'mes'},
-                      date_format = "%Y-%m",
-                      coverage_type = "partially_bdpro",
-                      time_delta={"months":6},
-                      prefect_mode = materialization_mode,
-                      bq_project = "basedosdados",
-                      upstream_tasks=[wait_for_materialization],
-                  )
-
+                update_django_metadata(
+                    dataset_id=dataset_id,
+                    table_id=table_id[0],
+                    date_column_name={"year": "ano", "month": "mes"},
+                    date_format="%Y-%m",
+                    coverage_type="partially_bdpro",
+                    time_delta={"months": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
+                    upstream_tasks=[wait_for_materialization],
+                )
 
         # ! BRASIL
         filepath_brasil = treatment_br(upstream_tasks=[filepath_microdados])
@@ -171,7 +168,6 @@ with Flow(
                 run_name=f"Materialize {dataset_id}.{table_id[1]}",
             )
 
-
             wait_for_materialization = wait_for_flow_run(
                 materialization_flow,
                 stream_states=True,
@@ -187,16 +183,16 @@ with Flow(
 
             with case(update_metadata, True):
                 update_django_metadata(
-                        dataset_id = dataset_id,
-                        table_id = table_id[1],
-                        date_column_name = {'year':'ano','month':'mes'},
-                        date_format = "%Y-%m",
-                        coverage_type = "partially_bdpro",
-                        time_delta={"months":6},
-                        prefect_mode = materialization_mode,
-                        bq_project = "basedosdados",
-                        upstream_tasks=[wait_for_materialization],
-                    )
+                    dataset_id=dataset_id,
+                    table_id=table_id[1],
+                    date_column_name={"year": "ano", "month": "mes"},
+                    date_format="%Y-%m",
+                    coverage_type="partially_bdpro",
+                    time_delta={"months": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
+                    upstream_tasks=[wait_for_materialization],
+                )
 
         # ! UF
 
@@ -236,21 +232,21 @@ with Flow(
                 dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
             )
             wait_for_materialization.retry_delay = timedelta(
-                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value)
-
+                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+            )
 
             with case(update_metadata, True):
                 update_django_metadata(
-                        dataset_id = dataset_id,
-                        table_id = table_id[2],
-                        date_column_name = {'year':'ano','month':'mes'},
-                        date_format = "%Y-%m",
-                        coverage_type = "partially_bdpro",
-                        time_delta={"months":6},
-                        prefect_mode = materialization_mode,
-                        bq_project = "basedosdados",
-                        upstream_tasks=[wait_for_materialization],
-                    )
+                    dataset_id=dataset_id,
+                    table_id=table_id[2],
+                    date_column_name={"year": "ano", "month": "mes"},
+                    date_format="%Y-%m",
+                    coverage_type="partially_bdpro",
+                    time_delta={"months": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
+                    upstream_tasks=[wait_for_materialization],
+                )
 
         # ! MUNICIPIO
         filepath_municipio = treatment_municipio(upstream_tasks=[filepath_microdados])
@@ -279,7 +275,6 @@ with Flow(
                 run_name=f"Materialize {dataset_id}.{table_id[3]}",
             )
 
-
             wait_for_materialization = wait_for_flow_run(
                 materialization_flow,
                 stream_states=True,
@@ -295,16 +290,16 @@ with Flow(
 
             with case(update_metadata, True):
                 update_django_metadata(
-                        dataset_id = dataset_id,
-                        table_id = table_id[3],
-                        date_column_name = {'year':'ano','month':'mes'},
-                        date_format = "%Y-%m",
-                        coverage_type = "partially_bdpro",
-                        time_delta={"months":6},
-                        prefect_mode = materialization_mode,
-                        bq_project = "basedosdados",
-                        upstream_tasks=[wait_for_materialization],
-                    )
+                    dataset_id=dataset_id,
+                    table_id=table_id[3],
+                    date_column_name={"year": "ano", "month": "mes"},
+                    date_format="%Y-%m",
+                    coverage_type="partially_bdpro",
+                    time_delta={"months": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
+                    upstream_tasks=[wait_for_materialization],
+                )
 
 br_anatel_banda_larga.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_anatel_banda_larga.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
