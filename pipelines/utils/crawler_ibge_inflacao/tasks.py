@@ -177,6 +177,14 @@ def crawler(indice: str, folder: str) -> bool:
     os.system('mkdir -p "/tmp/data/output/ipca"')
     os.system('mkdir -p "/tmp/data/output/inpc"')
     log(os.system("tree /tmp/data"))
+
+    # cada link corresponde a um arquivo csv com uma seleção de variáveis feita no SIDRA do IBGE
+
+    # as tabelas são extraidas de:
+    # ipca:https://sidra.ibge.gov.br/tabela/7060
+    # inpc: https://sidra.ibge.gov.br/tabela/7063
+    # ipca15: https://sidra.ibge.gov.br/tabela/7062
+
     links = {
         "br/ipca_grupo": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7060.csv&terr=NC&rank=-&query=t/7060/n1/all/v/all/p/all/c315/7170,7445,7486,7558,7625,7660,7712,7766,7786/d/v63%202,v66%204,v69%202,v2265%202/l/,v,t%2Bp%2Bc315",
         "br/inpc_grupo": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7063.csv&terr=NC&rank=-&query=t/7063/n1/all/v/all/p/all/c315/7170,7445,7486,7558,7625,7660,7712,7766,7786/d/v44%202,v45%204,v68%202,v2292%202/l/,v,t%2Bp%2Bc315",
@@ -202,17 +210,14 @@ def crawler(indice: str, folder: str) -> bool:
         "rm/ipca_item": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7060.csv&terr=NC&rank=-&query=t/7060/n7/all/v/all/p/all/c315/7172,7184,7200,7219,7241,7254,7283,7303,7335,7349,7356,7372,7384,7389,7401,7415,7433,7447,7454,7461,7480,7484,7488,7495,7517,7522,7541,7549,7560,7572,7587,7605,7616,7621,7627,7640,7656,7662,7684,7690,7695,7698,7714,7730,7758,7777,7782,7788,12427,107678,109464/d/v63%202,v66%204,v69%202,v2265%202/l/,v,t%2Bp%2Bc315",
         "rm/inpc_item": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7063.csv&terr=NC&rank=-&query=t/7063/n7/all/v/all/p/all/c315/7172,7184,7200,7219,7241,7254,7283,7303,7335,7349,7356,7372,7384,7389,7401,7415,7433,7447,7454,7461,7480,7484,7488,7495,7517,7522,7541,7549,7560,7572,7587,7605,7616,7621,7627,7640,7656,7662,7684,7690,7695,7698,7714,7730,7758,7777,7782,7788,12427,107678,109464/d/v44%202,v45%204,v68%202,v2292%202/l/,v,t%2Bp%2Bc315",
         "rm/ip15_item": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7062.csv&terr=NC&rank=-&query=t/7062/n7/all/v/all/p/all/c315/7172,7184,7200,7219,7241,7254,7283,7303,7335,7349,7356,7372,7384,7389,7401,7415,7433,7447,7454,7461,7480,7484,7488,7495,7517,7522,7541,7549,7560,7572,7587,7605,7616,7621,7627,7640,7656,7662,7684,7690,7695,7698,7714,7730,7758,7777,7782,7788,12427,107678,109464/d/v355%202,v356%202,v357%204,v1120%202/l/,v,t%2Bp%2Bc315",
-        # https://sidra.ibge.gov.br/tabela/7060
         "rm/ipca_subitem_2020": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/366270194",
         "rm/ipca_subitem_2021": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-1651704499",
         "rm/ipca_subitem_2022": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-1811208819",
         "rm/ipca_subitem_2023": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/1963915159",
-        # https://sidra.ibge.gov.br/tabela/7063
         "rm/inpc_subitem_2020": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-1428442922",
         "rm/inpc_subitem_2021": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/844331411",
         "rm/inpc_subitem_2022": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-1481717997",
         "rm/inpc_subitem_2023": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-1485551467",
-        # https://sidra.ibge.gov.br/tabela/7062
         "rm/ip15_subitem_2020": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/51560386",
         "rm/ip15_subitem_2021": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/382082792",
         "rm/ip15_subitem_2022": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/1727207272",
@@ -229,17 +234,14 @@ def crawler(indice: str, folder: str) -> bool:
         "mun/ipca_item": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7060.csv&terr=NC&rank=-&query=t/7060/n6/all/v/all/p/all/c315/7172,7184,7200,7219,7241,7254,7283,7303,7335,7349,7356,7372,7384,7389,7401,7415,7433,7447,7454,7461,7480,7484,7488,7495,7517,7522,7541,7549,7560,7572,7587,7605,7616,7621,7627,7640,7656,7662,7684,7690,7695,7698,7714,7730,7758,7777,7782,7788,12427,107678,109464/d/v63%202,v66%204,v69%202,v2265%202/l/,v,t%2Bp%2Bc315",
         "mun/inpc_item": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7063.csv&terr=NC&rank=-&query=t/7063/n6/all/v/all/p/all/c315/7172,7184,7200,7219,7241,7254,7283,7303,7335,7349,7356,7372,7384,7389,7401,7415,7433,7447,7454,7461,7480,7484,7488,7495,7517,7522,7541,7549,7560,7572,7587,7605,7616,7621,7627,7640,7656,7662,7684,7690,7695,7698,7714,7730,7758,7777,7782,7788,12427,107678,109464/d/v44%202,v45%204,v68%202,v2292%202/l/,v,t%2Bp%2Bc315",
         "mun/ip15_item": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7062.csv&terr=NC&rank=-&query=t/7062/n6/all/v/all/p/all/c315/7172,7184,7200,7219,7241,7254,7283,7303,7335,7349,7356,7372,7384,7389,7401,7415,7433,7447,7454,7461,7480,7484,7488,7495,7517,7522,7541,7549,7560,7572,7587,7605,7616,7621,7627,7640,7656,7662,7684,7690,7695,7698,7714,7730,7758,7777,7782,7788,12427,107678,109464/d/v355%202,v356%202,v357%204,v1120%202/l/,v,t%2Bp%2Bc315",
-        # https://sidra.ibge.gov.br/tabela/7060
         "mun/ipca_subitem_2020": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-974444712",
         "mun/ipca_subitem_2021": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/1275717865",
         "mun/ipca_subitem_2022": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-1088076759",
         "mun/ipca_subitem_2023": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-1310590128",
-        # https://sidra.ibge.gov.br/tabela/7063
         "mun/inpc_subitem_2020": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/199483739",
         "mun/inpc_subitem_2021": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-513088754",
         "mun/inpc_subitem_2022": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/1536257998",
         "mun/inpc_subitem_2023": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-876936943",
-        # https://sidra.ibge.gov.br/tabela/7062
         "mun/ip15_subitem_2020": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/695637992",
         "mun/ip15_subitem_2021": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/1303789084",
         "mun/ip15_subitem_2022": "https://sidra.ibge.gov.br/geratabela/DownloadSelecaoComplexa/-1220124260",
