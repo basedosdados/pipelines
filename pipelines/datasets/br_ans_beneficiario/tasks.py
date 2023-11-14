@@ -100,8 +100,3 @@ def is_empty(lista):
         return False
 
 
-@task
-def get_today_date():
-    d = datetime.today()
-
-    return d.strftime("%Y-%m")

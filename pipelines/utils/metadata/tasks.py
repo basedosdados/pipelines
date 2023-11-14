@@ -45,17 +45,18 @@ def update_django_metadata(
     Updates temporal coverage Django metadata. Version 1.3.
 
     Args:
-        dataset_id
-        table_id
-        date_column_name: um dicionário com os nomes das colunas usadas para extrair a cobertura temporal
-         As chaves permitidas estão descritas no arquivo contants.py
-        date_format: formato da data a ser atualizada no django
-        coverage_type: pode ser "partially_bdpro", "all_bdpro" ou "all_free"
-        time_delta: dicionário com unidade temporal e valor do delta a ser aplicado caso 'partially_bdpro'
-        prefect_mode: colocar o materialization_mode do flow
-        api_mode: pode ser 'prod ou 'staging'
-        bq_project: projeto que será consultado para obter a cobertura temporal
-        historical_database: marcar como False para casos em que a base nao possua uma coluna que represente a data de cobertura
+ Args:
+        dataset_id (str): O ID do conjunto de dados.
+        table_id (str): O ID da tabela dentro do conjunto de dados.
+        nome_coluna_data (dict): Um dicionário especificando os nomes das colunas usadas para extrair a cobertura temporal.
+            Chaves válidas estão descritas no arquivo 'constants.py'.
+        date_format (str): O formato da data a ser atualizado no Django.
+        coverage_type (str): pode ser "partially_bdpro", "all_bdpro" ou "all_free"
+        time_delta (dict): dicionário com unidade temporal e valor do delta a ser aplicado caso 'partially_bdpro'
+        prefect_mode (str): colocar o materialization_mode do flow
+        api_mode (str): pode ser 'prod ou 'staging'
+        bq_project (str): projeto que será consultado para obter a cobertura temporal
+        historical_database (bool): marcar como False para casos em que a base nao possua uma coluna que represente a data de cobertura
         
     Returns:
         -   None

@@ -324,7 +324,7 @@ def extract_last_date_from_bq(
     dataset_id,
     table_id,
     date_format: str,
-    date_column: str,
+    date_column: dict,
     billing_project_id: str,
     project_id: str = "basedosdados",
     historical_database: bool = True,
@@ -333,15 +333,21 @@ def extract_last_date_from_bq(
     Extracts the last update date of a given dataset table.
 
     Args:
-        dataset_id (str): The ID of the dataset.
-        table_id (str): The ID of the table.
-        date_format (str): Date format ("%Y-%m" or "%Y-%m-%d")
-        if set to '%Y-%m' the function will look for  ano and mes named columns in the table_id
-        and return a concatenated string in the formar yyyy-mm. if set to '%Y-%m-%d
-        the function will look for  data named column in the format '%Y-%m-%d' and return it.
+        dataset_id (str): ID do conjunto de dados.
+        table_id (str): ID da tabela.
+        date_format (str): Formato de atualização do metadado no Django ("%Y", "%Y-%m" ou "%Y-%m-%d").
+        date_column (dict): Nomes das colunas usadas para consulta no BigQuery com datas.
+            As chaves do dicionário determinam como a data máxima será consultada na tabela:
+            - {'date'}: MAX('date')
+            - {'year', 'quarter'}: MAX(DATE(year, month*3, 1))
+            - {'year', 'month'}: MAX(DATE(year, month, 1))
+        billing_project_id (str): Projeto BigQuery utilizado para faturamento.
+        project_id (str): Projeto padrão usado para obter a data da última atualização (padrão é "basedosdados").
+        historical_database (bool): Defina como False se a base não tiver uma coluna representando a data de cobertura.
+            Nesses casos, a consulta usará a última data de atualização da tabela no BigQuery.
 
     Returns:
-        str: The last update date in the format '%Y-%m' or '%Y-%m-%d'.
+        str: The last update date in the format "%Y",'%Y-%m' or '%Y-%m-%d'.
 
     Raises:
         Exception: If an error occurs while extracting the last update date.

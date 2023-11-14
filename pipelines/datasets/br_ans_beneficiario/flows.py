@@ -17,7 +17,6 @@ from pipelines.datasets.br_ans_beneficiario.tasks import (
     check_for_updates,
     crawler_ans,
     extract_links_and_dates,
-    get_today_date,
     is_empty,
 )
 from pipelines.utils.constants import constants as utils_constants
@@ -112,7 +111,7 @@ with Flow(
                     table_id=table_id,
                     date_column_name={"year": "ano", "month": "mes"},
                     date_format="%Y-%m",
-                    coverage_type="all_bdpro",
+                    coverage_type="partially_bdpro",
                     time_delta={"months": 6},
                     prefect_mode=materialization_mode,
                     bq_project="basedosdados",
