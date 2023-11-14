@@ -15,7 +15,6 @@ from pipelines.datasets.br_cvm_oferta_publica_distribuicao.schedules import sche
 from pipelines.datasets.br_cvm_oferta_publica_distribuicao.tasks import (
     clean_table_oferta_distribuicao,
     crawl,
-    get_today_date,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -92,21 +91,16 @@ with Flow(
         )
 
         with case(update_metadata, True):
-            data = get_today_date()
-
             update_django_metadata(
-                dataset_id,
-                table_id,
-                metadata_type="DateTimeRange",
-                _last_date=data,
-                bq_last_update=False,
-                api_mode="prod",
-                date_format="yy-mm-dd",
-                is_bd_pro=True,
-                is_free=True,
-                time_delta=6,
-                time_unit="months",
-                upstream_tasks=[wait_for_materialization, data],
+                dataset_id=dataset_id,
+                table_id=table_id,
+                date_column_name={"date": "data_comunicado"},
+                date_format="%Y-%m-%d",
+                coverage_type="parcially_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
+                upstream_tasks=[wait_for_materialization],
             )
 
 br_cvm_ofe_pub_dis_dia.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

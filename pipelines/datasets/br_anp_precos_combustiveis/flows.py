@@ -16,7 +16,6 @@ from pipelines.datasets.br_anp_precos_combustiveis.schedules import (
 )
 from pipelines.datasets.br_anp_precos_combustiveis.tasks import (
     check_for_updates,
-    data_max_bd_pro,
     download_and_transform,
     make_partitions,
 )
@@ -105,25 +104,20 @@ with Flow(
             wait_for_materialization.retry_delay = timedelta(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
-            get_date_max_pro = data_max_bd_pro(
-                df=df, upstream_tasks=[wait_upload_table]
-            )
             with case(update_metadata, True):
                 update_django_metadata(
-                    dataset_id,
-                    table_id,
-                    metadata_type="DateTimeRange",
-                    bq_last_update=False,
-                    bq_table_last_year_month=False,
-                    api_mode="prod",
-                    date_format="yy-mm-dd",
-                    is_bd_pro=True,
-                    is_free=True,
-                    time_delta=6,
-                    time_unit="weeks",
-                    _last_date=get_date_max_pro,
-                    upstream_tasks=[get_date_max_pro],
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"date": "data_coleta"},
+                    date_format="%Y-%m-%d",
+                    coverage_type="partially_bdpro",
+                    time_delta={"weeks": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
+                    upstream_tasks=[wait_for_materialization],
                 )
+
+
 anp_microdados.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 anp_microdados.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 anp_microdados.schedule = every_week_anp_microdados

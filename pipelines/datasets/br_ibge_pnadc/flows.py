@@ -16,7 +16,6 @@ from pipelines.datasets.br_ibge_pnadc.tasks import (
     build_parquet_files,
     download_txt,
     get_url_from_template,
-    get_year_quarter,
     save_partitions,
 )
 from pipelines.utils.constants import constants as utils_constants
@@ -30,7 +29,7 @@ from pipelines.utils.tasks import (
 )
 
 # pylint: disable=C0103
-with Flow(name="br_ibge_pnadc.microdados", code_owners=["lucas_cr"]) as br_pnadc:
+with Flow(name="br_ibge_pnadc.microdados", code_owners=["lauris"]) as br_pnadc:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_ibge_pnadc", required=True)
     table_id = Parameter("table_id", default="microdados", required=True)
@@ -41,7 +40,7 @@ with Flow(name="br_ibge_pnadc.microdados", code_owners=["lucas_cr"]) as br_pnadc
         "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
-        "materialize after dump", default=True, required=False
+        "materialize_after_dump", default=True, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
@@ -94,18 +93,15 @@ with Flow(name="br_ibge_pnadc.microdados", code_owners=["lucas_cr"]) as br_pnadc
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
         with case(update_metadata, True):
-            date = get_year_quarter(year, quarter)
             update_django_metadata(
-                dataset_id,
-                table_id,
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                api_mode="prod",
-                date_format="yy-mm",
-                _last_date=date,
-                is_bd_pro=False,
-                is_free=True,
-                bq_table_last_year_month=False,
+                dataset_id=dataset_id,
+                table_id=table_id,
+                date_column_name={"year": "ano", "quarter": "trimestre"},
+                date_format="%Y-%m",
+                coverage_type="all_free",
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
+                upstream_tasks=[wait_for_materialization],
             )
 
 br_pnadc.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
