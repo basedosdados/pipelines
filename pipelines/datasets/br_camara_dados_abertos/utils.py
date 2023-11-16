@@ -49,7 +49,6 @@ def get_ano_microdados():
 
 # microdados
 def read_and_clean_microdados():
-
     df = pd.read_csv(constants.INPUT_PATH.value + "votacoes.csv", sep=";")
     df["ano"] = get_ano_microdados()
     df["horario"] = df["dataHoraRegistro"].str[11:19]
