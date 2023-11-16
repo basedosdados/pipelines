@@ -42,7 +42,7 @@ def update_django_metadata(
     historical_database: bool = True,
 ):
     """
-    Updates temporal coverage Django metadata. Version 1.3.
+       Updates temporal coverage Django metadata. Version 1.3.
 
     Args:
  Args:
@@ -61,9 +61,9 @@ def update_django_metadata(
     Returns:
         -   None
 
-    Raises:
-        -   Exception: If the  coverage_type, time_delta or date_column_name is not supported.
-        -   Exception: If try to update published table with non prod data
+       Raises:
+           -   Exception: If the  coverage_type, time_delta or date_column_name is not supported.
+           -   Exception: If try to update published table with non prod data
 
     """
 
