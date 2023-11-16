@@ -60,6 +60,7 @@ def read_and_clean_microdados():
     log("Creating column horario")
     df["horario"] = df["dataHoraRegistro"].str[11:19]
     log("Rename and reorder columns")
+    log(df.columns)
     df = apply_architecture_to_dataframe(
         df,
         url_architecture=constants.dict_arquitetura.value["votacao_microdados"],
