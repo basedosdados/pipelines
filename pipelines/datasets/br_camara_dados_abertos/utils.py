@@ -38,8 +38,6 @@ def download_csvs_camara():
 
 
 def get_ano_microdados():
-    download_csvs_camara()
-    log("Read csv from ---- microdados ----")
     df = pd.read_csv(constants.INPUT_PATH.value + "votacoes.csv", sep=";")
     df["ano"] = df["data"].str[:4]
     ano_max = df["ano"].max()
@@ -49,7 +47,8 @@ def get_ano_microdados():
 
 # microdados
 def read_and_clean_microdados():
-
+    download_csvs_camara()
+    log("Read csv from ---- microdados ----")
     df = pd.read_csv(constants.INPUT_PATH.value + "votacoes.csv", sep=";")
     df["ano"] = get_ano_microdados()
     df["horario"] = df["dataHoraRegistro"].str[11:19]
