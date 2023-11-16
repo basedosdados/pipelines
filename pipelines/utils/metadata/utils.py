@@ -126,7 +126,7 @@ def get_ids(
         ].get("_id")
         log("table_id: " + table_id)
 
-        if coverage_type == "partially_bdpro":
+        if coverage_type == "part_bdpro":
             coverage_id_pro = get_coverage_id(
                 table_id=table_id,
                 is_closed=True,
@@ -474,7 +474,7 @@ def parse_temporal_coverage(temporal_coverage, historical_database):
     return end_result
 
 
-def get_parcially_bdpro_coverage_parameters(time_delta, ids, last_date, date_format):
+def get_part_bdpro_coverage_parameters(time_delta, ids, last_date, date_format):
     bdpro_parameters = parse_temporal_coverage(last_date)
     bdpro_parameters["coverage"] = ids.get("coverage_id_pro")
 
