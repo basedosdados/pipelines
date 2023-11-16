@@ -88,18 +88,16 @@ with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
         data_max = data_max_b3(
             delta_day=delta_day, upstream_tasks=[wait_for_materialization]
         )
-        with case(update_metadata, True):  # task que retorna a data atual
+        with case(update_metadata, True):
             update_django_metadata(
-                dataset_id,
-                table_id,
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                bq_table_last_year_month=False,
-                is_bd_pro=True,
-                is_free=False,
-                api_mode="prod",
-                date_format="yy-mm-dd",
-                _last_date=data_max,
+                dataset_id=dataset_id,
+                table_id=table_id,
+                date_column_name={"date": "data_referencia"},
+                date_format="%Y-%m-%d",
+                coverage_type="all_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
                 upstream_tasks=[wait_for_materialization],
             )
 

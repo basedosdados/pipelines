@@ -442,38 +442,3 @@ def wrang_data(
             del df
 
     return True, path_output, data_tabela
-
-
-@task
-def date_to_update(data_tabela: str, table_id: str) -> str:
-    """Converte a data mais recente da tabela para string
-
-    Args:
-        data_tabela (str): data mais recente da tabela sendo tratada
-        table_id (str): table_id da tabela
-
-    Returns:
-        str: string com data no formato YYYY-MM-DD para atualizar o coverage
-    """
-
-    date_dict = {
-        "reservatorio": "yyyy-mm-dd",
-        "geracao_usina": "yyyy-mm-dd hh:mm:ss",
-        "geracao_termica_motivo_despacho": "yyyy-mm-dd hh:mm:ss",
-        "energia_natural_afluente": "yyyy-mm-dd",
-        "energia_armazenada_reservatorio": "yyyy-mm-dd",
-        "restricao_operacao_usinas_eolicas": "yyyy-mm-dd hh:mm:ss",
-        "custo_marginal_operacao_semi_horario": "yyyy-mm-dd hh:mm:ss",
-        "custo_marginal_operacao_semanal": "yyyy-mm-dd",
-        "balanco_energia_subsistemas": "yyyy-mm-dd hh:mm:ss",
-        "balanco_energia_subsistemas_dessem": "yyyy-mm-dd hh:mm:ss",
-        "custo_variavel_unitario_usinas_termicas": "yyyy-mm-dd",
-    }
-
-    if date_dict[table_id] == "yyyy-mm-dd":
-        return str(data_tabela)
-
-    if date_dict[table_id] == "yyyy-mm-dd hh:mm:ss":
-        data_tabela = data_tabela.strftime("%Y-%m-%d")
-
-        return str(data_tabela)

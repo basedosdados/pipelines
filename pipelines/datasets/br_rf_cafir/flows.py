@@ -13,11 +13,7 @@ from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 from pipelines.constants import constants
 from pipelines.datasets.br_rf_cafir.constants import constants as br_rf_cafir_constants
 from pipelines.datasets.br_rf_cafir.schedules import schedule_br_rf_cafir_imoveis_rurais
-from pipelines.datasets.br_rf_cafir.tasks import (
-    convert_datetime_to_string,
-    parse_data,
-    parse_files_parse_date,
-)
+from pipelines.datasets.br_rf_cafir.tasks import parse_data, parse_files_parse_date
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
@@ -60,10 +56,6 @@ with Flow(
         data_source_max_date=info[0],
         date_format="%Y-%m-%d",
         upstream_tasks=[info],
-    )
-
-    update_metadata_strig_date = convert_datetime_to_string(
-        data=info[0], upstream_tasks=[info]
     )
 
     with case(is_outdated, False):
@@ -115,24 +107,17 @@ with Flow(
             wait_for_materialization.retry_delay = timedelta(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
-            # TODO: Quando a nova fotografia for liberada setar is_free como True
-            # is_free como true. Não setei agora pq a task update_django_metadata depende
-            # de um coverage já criado na API. Como a lag entre fotográfias é de 5 meses (6 é o padrão no monento)
-            # não há necessidade de atualizar o coverage agora.
 
             with case(update_metadata, True):
-                update = update_django_metadata(
-                    dataset_id,
-                    table_id,
-                    metadata_type="DateTimeRange",
-                    _last_date=update_metadata_strig_date,
-                    bq_last_update=False,
-                    api_mode="prod",
-                    date_format="yy-mm-dd",
-                    is_bd_pro=True,
-                    is_free=True,
-                    time_delta=6,
-                    time_unit="months",
+                update_django_metadata(
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"date": "data_referencia"},
+                    date_format="%Y-%m-%d",
+                    coverage_type="parcially_bdpro",
+                    time_delta={"months": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
 
