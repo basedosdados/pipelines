@@ -110,7 +110,7 @@ with Flow(
                     table_id=table_id,
                     date_column_name={"date": "data_coleta"},
                     date_format="%Y-%m-%d",
-                    coverage_type="partially_bdpro",
+                    coverage_type="part_bdpro",
                     time_delta={"weeks": 6},
                     prefect_mode=materialization_mode,
                     bq_project="basedosdados",
