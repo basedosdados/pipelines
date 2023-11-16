@@ -98,7 +98,7 @@ with Flow(name="br_stf_corte_aberta.decisoes", code_owners=["trick"]) as br_stf:
                     table_id=table_id,
                     date_column_name={"date": "data_decisao"},
                     date_format="%Y-%m-%d",
-                    coverage_type="parcially_bdpro",
+                    coverage_type="part_bdpro",
                     time_delta={"weeks": 6},
                     prefect_mode=materialization_mode,
                     bq_project="basedosdados",

@@ -15,7 +15,7 @@ from pipelines.utils.metadata.utils import (
     get_billing_project_id,
     get_credentials_utils,
     get_ids,
-    get_parcially_bdpro_coverage_parameters,
+    get_part_bdpro_coverage_parameters,
     get_table_status,
     parse_temporal_coverage,
 )
@@ -34,7 +34,7 @@ def update_django_metadata(
     table_id: str,
     date_column_name: dict = {"year": "ano", "month": "mes"},
     date_format: str = "%Y-%m",
-    coverage_type: str = "partially_bdpro",
+    coverage_type: str = "part_bdpro",
     time_delta: dict = {"months": 6},
     prefect_mode: str = "dev",
     api_mode: str = "prod",
@@ -51,8 +51,8 @@ def update_django_metadata(
         nome_coluna_data (dict): Um dicionário especificando os nomes das colunas usadas para extrair a cobertura temporal.
             Chaves válidas estão descritas no arquivo 'constants.py'.
         date_format (str): O formato da data a ser atualizado no Django.
-        coverage_type (str): pode ser "partially_bdpro", "all_bdpro" ou "all_free"
-        time_delta (dict): dicionário com unidade temporal e valor do delta a ser aplicado caso 'partially_bdpro'
+        coverage_type (str): pode ser "part_bdpro", "all_bdpro" ou "all_free"
+        time_delta (dict): dicionário com unidade temporal e valor do delta a ser aplicado caso 'part_bdpro'
         prefect_mode (str): colocar o materialization_mode do flow
         api_mode (str): pode ser 'prod ou 'staging'
         bq_project (str): projeto que será consultado para obter a cobertura temporal
@@ -142,13 +142,13 @@ def update_django_metadata(
             api_mode=api_mode,
         )
 
-    elif coverage_type == "partially_bdpro":
+    elif coverage_type == "part_bdpro":
         if not historical_database:
             raise ValueError(
                 "Invalid Selection: Non-historical base and partially bdpro coverage chosen, not compatible."
             )
 
-        bdpro_parameters, free_parameters = get_parcially_bdpro_coverage_parameters(
+        bdpro_parameters, free_parameters = get_part_bdpro_coverage_parameters(
             time_delta=time_delta, ids=ids, last_date=last_date, date_format=date_format
         )
 
