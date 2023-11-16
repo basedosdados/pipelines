@@ -47,9 +47,10 @@ def get_ano_microdados():
 
 # microdados
 def read_and_clean_microdados():
+    log("------------- download --------------")
+    download_csvs_camara()
     log("------------- archive inside in container --------------")
     log(os.listdir(constants.INPUT_PATH.value))
-    download_csvs_camara()
     log("Read csv from ---- microdados ----")
     df = pd.read_csv(constants.INPUT_PATH.value + "votacoes.csv", sep=";")
     df["ano"] = get_ano_microdados()
