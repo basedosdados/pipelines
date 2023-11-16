@@ -55,11 +55,11 @@ def read_and_clean_microdados():
 
     log("Read csv from ---- microdados ----")
     df = pd.read_csv(constants.INPUT_PATH.value + "votacoes.csv", sep=";")
-
+    log("Creating column ano")
     df["ano"] = get_ano_microdados()
-
+    log("Creating column horario")
     df["horario"] = df["dataHoraRegistro"].str[11:19]
-
+    log("Rename and reorder columns")
     df = apply_architecture_to_dataframe(
         df,
         url_architecture=constants.dict_arquitetura.value["votacao_microdados"],
