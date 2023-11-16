@@ -63,7 +63,7 @@ def read_and_clean_microdados():
     df = apply_architecture_to_dataframe(
         df,
         url_architecture=constants.dict_arquitetura.value["votacao_microdados"],
-        apply_include_missing_columns=False,
+        apply_include_missing_columns=True,
         apply_column_order_and_selection=True,
         apply_rename_columns=True,
     )
