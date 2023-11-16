@@ -37,7 +37,7 @@ from pipelines.utils.tasks import (
 
 with Flow(
     name="br_camara_dados_abertos", code_owners=["tricktx"]
-) as br_camara_dados_abertos:
+) as br_camara:
     # Parameters
     dataset_id = Parameter(
         "dataset_id", default="br_camara_dados_abertos", required=True
@@ -347,6 +347,6 @@ with Flow(
                 bq_project="basedosdados-dev",
             )
 
-br_camara_dados_abertos.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_camara_dados_abertos.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_camara_dados_abertos.schedule = every_day_camara_dados_abertos
+br_camara.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_camara.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_camara.schedule = every_day_camara_dados_abertos
