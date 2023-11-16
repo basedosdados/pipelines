@@ -40,7 +40,6 @@ def download_csvs_camara():
 
 
 def get_ano_microdados():
-    download_csvs_camara()
     df = pd.read_csv(constants.INPUT_PATH.values() + "votacoes.csv", sep=";")
     df["ano"] = df["data"].str[:4]
     ano_max = df["ano"].max()
@@ -118,3 +117,5 @@ def read_and_clean_proposicao():
     )
 
     return df
+
+

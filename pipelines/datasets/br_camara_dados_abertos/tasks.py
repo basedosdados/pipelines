@@ -63,3 +63,12 @@ def make_partitions_orientacao() -> str:
     )
 
     return "/tmp/output/orientacao/"
+
+
+# ! Obtendo a data máxima.
+@task
+def get_date_max():
+    df = read_and_clean_microdados()
+    data_max = df['data'].max()
+
+    return data_max
