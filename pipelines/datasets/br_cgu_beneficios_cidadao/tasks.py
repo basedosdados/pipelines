@@ -9,6 +9,7 @@ import pandas as pd
 import requests
 from prefect import task
 
+from pipelines.constants import constants as main_constants
 from pipelines.datasets.br_cgu_beneficios_cidadao.constants import constants
 from pipelines.datasets.br_cgu_beneficios_cidadao.utils import (
     download_unzip_csv,
@@ -75,7 +76,12 @@ def check_for_updates(dataset_id: str, table_id: str, max_date: datetime) -> boo
     """
 
     # Obtém a última data no site BD
-    bd_date = extract_last_date(dataset_id, table_id, "yy-mm", "basedosdados-dev")
+    bd_date = extract_last_date(
+        dataset_id,
+        table_id,
+        "yy-mm",
+        billing_project_id=main_constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+    )
     bd_date = datetime.strptime(bd_date, "%Y-%m")
     # Registra a data mais recente do site
     log(f"Última data no Portal da Transferência: {max_date}")
