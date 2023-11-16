@@ -20,12 +20,12 @@ def download_csvs_camara():
     return:
     None
     """
-
+    log("Downloading csvs from camara dos deputados")
     if not os.path.exists(constants.INPUT_PATH.value):
         os.makedirs(constants.INPUT_PATH.value)
 
-    for ano in constants.ANOS.values():
-        for voto in constants.VOTOS.values():
+    for ano in constants.ANOS.value:
+        for voto in constants.VOTOS.value:
             url_2 = f"http://dadosabertos.camara.leg.br/arquivos/{voto}/csv/{voto}-{ano}.csv"
 
             response = requests.get(url_2)
@@ -38,7 +38,9 @@ def download_csvs_camara():
 
 
 def get_ano_microdados():
-    df = pd.read_csv(constants.INPUT_PATH.values() + "votacoes.csv", sep=";")
+    download_csvs_camara()
+    log("Read csv from ---- microdados ----")
+    df = pd.read_csv(constants.INPUT_PATH.value + "votacoes.csv", sep=";")
     df["ano"] = df["data"].str[:4]
     ano_max = df["ano"].max()
 
@@ -47,7 +49,8 @@ def get_ano_microdados():
 
 # microdados
 def read_and_clean_microdados():
-    df = pd.read_csv(constants.INPUT_PATH.values() + "votacoes.csv", sep=";")
+
+    df = pd.read_csv(constants.INPUT_PATH.value + "votacoes.csv", sep=";")
     df["ano"] = get_ano_microdados()
     df["horario"] = df["dataHoraRegistro"].str[11:19]
     df = apply_architecture_to_dataframe(
@@ -62,7 +65,7 @@ def read_and_clean_microdados():
 
 
 def read_and_clean_parlamentar():
-    df = pd.read_csv(constants.INPUT_PATH.values() + "votacoesVotos.csv", sep=";")
+    df = pd.read_csv(constants.INPUT_PATH.value + "votacoesVotos.csv", sep=";")
     df["ano"] = get_ano_microdados()
     df = apply_architecture_to_dataframe(
         df,
@@ -76,7 +79,7 @@ def read_and_clean_parlamentar():
 
 
 def read_and_clean_objeto():
-    df = pd.read_csv(constants.INPUT_PATH.values() + "votacoesObjetos.csv", sep=";")
+    df = pd.read_csv(constants.INPUT_PATH.value + "votacoesObjetos.csv", sep=";")
     df["ano"] = get_ano_microdados()
     df = apply_architecture_to_dataframe(
         df,
@@ -90,7 +93,7 @@ def read_and_clean_objeto():
 
 
 def read_and_clean_orientacao():
-    df = pd.read_csv(constants.INPUT_PATH.values() + "votacoesOrientacoes.csv", sep=";")
+    df = pd.read_csv(constants.INPUT_PATH.value + "votacoesOrientacoes.csv", sep=";")
     df["ano"] = get_ano_microdados()
     df = apply_architecture_to_dataframe(
         df,
@@ -104,7 +107,7 @@ def read_and_clean_orientacao():
 
 
 def read_and_clean_proposicao():
-    df = pd.read_csv(constants.INPUT_PATH.values() + "votacoesProposicoes.csv", sep=";")
+    df = pd.read_csv(constants.INPUT_PATH.value + "votacoesProposicoes.csv", sep=";")
     df["ano"] = get_ano_microdados()
     df = apply_architecture_to_dataframe(
         df,

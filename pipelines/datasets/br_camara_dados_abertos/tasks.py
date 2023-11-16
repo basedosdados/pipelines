@@ -30,7 +30,6 @@ def make_partitions_parlamentar() -> str:
     to_partitions(
         data=df, partition_columns=["ano"], savepath="/tmp/output/parlamentar/"
     )
-
     return "/tmp/output/parlamentar/"
 
 
