@@ -61,14 +61,11 @@ def parse_last_date(link: str) -> str:
     return conversor[mes_ano]
 
 
-# Extract all the values from the given XPath
-# values = tree.xpath(xpath + "/option/@value")
-
-
 @task
 def download_br_me_comex_stat(
     table_type: str,
     table_name: str,
+    year_download: str,
 ) -> ZipFile:
     """This task creates directories to temporary input and output files
     and downloads the data from the source
@@ -93,6 +90,7 @@ def download_br_me_comex_stat(
         path=comex_constants.PATH.value,
         table_type=table_type,
         table_name=table_name,
+        year_download=year_download,
     )
     log("data downloaded!")
 

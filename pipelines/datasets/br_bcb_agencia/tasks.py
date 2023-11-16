@@ -31,7 +31,6 @@ from pipelines.datasets.br_bcb_agencia.utils import (
     str_to_title,
     strip_dataframe_columns,
 )
-from pipelines.utils.metadata.utils import get_metadata
 from pipelines.utils.utils import log, to_partitions
 
 
