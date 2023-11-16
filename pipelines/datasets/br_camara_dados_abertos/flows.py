@@ -35,9 +35,7 @@ from pipelines.utils.tasks import (
     rename_current_flow_run_dataset_table,
 )
 
-with Flow(
-    name="br_camara_dados_abertos", code_owners=["tricktx"]
-) as br_camara:
+with Flow(name="br_camara_dados_abertos", code_owners=["tricktx"]) as br_camara:
     # Parameters
     dataset_id = Parameter(
         "dataset_id", default="br_camara_dados_abertos", required=True
