@@ -31,7 +31,7 @@ def download_csvs_camara() -> None:
             response = requests.get(url_2)
 
             if response.status_code == 200:
-                with open(f"{constants.INPUT_PATH.value} + {voto}.csv", "wb") as f:
+                with open(f"{constants.INPUT_PATH.value}{voto}.csv", "wb") as f:
                     f.write(response.content)
 
             else:
