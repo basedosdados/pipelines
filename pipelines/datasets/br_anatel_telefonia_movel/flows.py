@@ -143,7 +143,6 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
                 time_delta={"months": 6},
                 prefect_mode=materialization_mode,
                 bq_project="basedosdados",
-
                 upstream_tasks=[wait_for_materialization],
             )
 
@@ -196,7 +195,6 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
                 time_delta={"months": 6},
                 prefect_mode=materialization_mode,
                 bq_project="basedosdados",
-
                 upstream_tasks=[wait_for_materialization],
             )
 
@@ -251,7 +249,6 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
                 time_delta={"months": 6},
                 prefect_mode=materialization_mode,
                 bq_project="basedosdados",
-
                 upstream_tasks=[wait_for_materialization],
             )
 

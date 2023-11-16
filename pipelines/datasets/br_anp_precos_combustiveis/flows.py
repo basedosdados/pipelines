@@ -119,7 +119,6 @@ with Flow(
                     prefect_mode=materialization_mode,
                     bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
-
                 )
 anp_microdados.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 anp_microdados.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)

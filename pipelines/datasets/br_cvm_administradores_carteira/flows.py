@@ -179,7 +179,6 @@ with Flow(
                 prefect_mode=materialization_mode,
                 bq_project="basedosdados",
                 upstream_tasks=[wait_for_materialization],
-
             )
 
 br_cvm_adm_car_pes_fis.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -263,7 +262,6 @@ with Flow(
                 prefect_mode=materialization_mode,
                 bq_project="basedosdados",
                 upstream_tasks=[wait_for_materialization],
-
             )
 br_cvm_adm_car_pes_jur.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_cvm_adm_car_pes_jur.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)

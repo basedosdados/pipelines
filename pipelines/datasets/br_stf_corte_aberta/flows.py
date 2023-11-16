@@ -104,7 +104,6 @@ with Flow(name="br_stf_corte_aberta.decisoes", code_owners=["trick"]) as br_stf:
                     time_delta={"weeks": 6},
                     prefect_mode=materialization_mode,
                     bq_project="basedosdados",
-
                     upstream_tasks=[wait_for_materialization],
                 )
 br_stf.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

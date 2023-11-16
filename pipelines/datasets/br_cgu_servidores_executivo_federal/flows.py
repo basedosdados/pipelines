@@ -203,7 +203,6 @@ with Flow(
                     time_delta={"months": 6},
                     prefect_mode=materialization_mode,
                     bq_project="basedosdados",
-
                     upstream_tasks=[wait_for_materialization],
                 )
 
@@ -247,7 +246,6 @@ with Flow(
                     time_delta={"months": 6},
                     prefect_mode=materialization_mode,
                     bq_project="basedosdados",
-
                     upstream_tasks=[wait_for_materialization],
                 )
 
@@ -285,14 +283,12 @@ with Flow(
                 update_django_metadata(
                     dataset_id,
                     table_id="cadastro_servidores",
-
                     date_column_name={"year": "ano", "month": "mes"},
                     date_format="%Y-%m",
                     coverage_type="part_bdpro",
                     time_delta={"months": 6},
                     prefect_mode=materialization_mode,
                     bq_project="basedosdados",
-
                     upstream_tasks=[wait_for_materialization],
                 )
 
@@ -336,7 +332,6 @@ with Flow(
                     time_delta={"months": 6},
                     prefect_mode=materialization_mode,
                     bq_project="basedosdados",
-
                     upstream_tasks=[wait_for_materialization],
                 )
 
@@ -380,7 +375,6 @@ with Flow(
                     time_delta={"months": 6},
                     prefect_mode=materialization_mode,
                     bq_project="basedosdados",
-
                     upstream_tasks=[wait_for_materialization],
                 )
 
@@ -424,7 +418,6 @@ with Flow(
                     time_delta={"months": 6},
                     prefect_mode=materialization_mode,
                     bq_project="basedosdados",
-
                     upstream_tasks=[wait_for_materialization],
                 )
 
