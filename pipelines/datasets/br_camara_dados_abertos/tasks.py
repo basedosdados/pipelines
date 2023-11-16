@@ -69,6 +69,6 @@ def make_partitions_orientacao() -> str:
 @task
 def get_date_max():
     df = read_and_clean_microdados()
-    data_max = df['data'].max()
+    data_max = df["data"].max()
 
     return data_max

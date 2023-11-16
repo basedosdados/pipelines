@@ -69,7 +69,7 @@ with Flow(name="br_camara_dados_abertos", code_owners=["tricktx"]) as br_camara:
 
     update_metadata = Parameter("update_metadata", default=True, required=False)
     data_source_max_date = get_date_max()
-    
+
     dados_desatualizados = check_if_data_is_outdated(
         dataset_id=dataset_id,
         table_id=table_id[0],

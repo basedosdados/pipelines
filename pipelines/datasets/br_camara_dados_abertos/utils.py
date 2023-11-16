@@ -115,5 +115,3 @@ def read_and_clean_proposicao():
     )
 
     return df
-
-
