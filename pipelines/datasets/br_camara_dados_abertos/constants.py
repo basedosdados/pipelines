@@ -24,8 +24,10 @@ class constants(Enum):
         "votacoesObjetos.csv",
     ]
 
-    VOTOS = ["votacoes",
-            "votacoesOrientacoes",
-            "votacoesVotos",
-            "votacoesObjetos",
-            "votacoesProposicoes"]
+    VOTOS = [
+        "votacoes",
+        "votacoesOrientacoes",
+        "votacoesVotos",
+        "votacoesObjetos",
+        "votacoesProposicoes",
+    ]
