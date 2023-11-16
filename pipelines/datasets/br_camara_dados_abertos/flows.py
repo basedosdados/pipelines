@@ -126,18 +126,13 @@ with Flow(
             update_django_metadata(
                 dataset_id,
                 table_id[0],
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                bq_table_last_year_month=False,
-                is_bd_pro=True,
-                is_free=True,
-                time_delta=6,
-                time_unit="months",
-                api_mode="prod",
-                date_format="yy-mm",
-                _last_date=data_source_max_date,
-                upstream_tasks=[wait_for_materialization],
-            )
+                date_column_name = {"date" : "data"},
+                date_format = "%Y-%m-%d",
+                coverage_type = "partially_bdpro",
+                time_delta = {"months": 6},
+                prefect_mode = materialization_mode,
+                bq_project = "basedosdados-dev",
+        )
 
         # ! ---------------------------------------- >   Votacao - objeto
 
@@ -182,18 +177,13 @@ with Flow(
             update_django_metadata(
                 dataset_id,
                 table_id[1],
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                bq_table_last_year_month=False,
-                is_bd_pro=True,
-                is_free=True,
-                time_delta=6,
-                time_unit="months",
-                api_mode="prod",
-                date_format="yy-mm",
-                _last_date=data_source_max_date,
-                upstream_tasks=[wait_for_materialization],
-            )
+                date_column_name = {"date" : "data"},
+                date_format = "%Y-%m-%d",
+                coverage_type = "partially_bdpro",
+                time_delta = {"months": 6},
+                prefect_mode = materialization_mode,
+                bq_project = "basedosdados-dev",
+        )
 
         # ! ---------------------------------------- >   Votacao - Parlamentar
 
@@ -240,20 +230,15 @@ with Flow(
             update_django_metadata(
                 dataset_id,
                 table_id[2],
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                bq_table_last_year_month=False,
-                is_bd_pro=True,
-                is_free=True,
-                time_delta=6,
-                time_unit="months",
-                api_mode="prod",
-                date_format="yy-mm",
-                _last_date=data_source_max_date,
-                upstream_tasks=[wait_for_materialization],
-            )
+                date_column_name = {"date" : "data"},
+                date_format = "%Y-%m-%d",
+                coverage_type = "partially_bdpro",
+                time_delta = {"months": 6},
+                prefect_mode = materialization_mode,
+                bq_project = "basedosdados-dev",
+        )
 
-        # ! ---------------------------------------- >   Votacao - Parlamentos
+        # ! ---------------------------------------- >   Votacao - Proposicao
 
         filepath_proposicao = make_partitions_proposicao(
             upstream_tasks=[rename_flow_run]
@@ -298,20 +283,15 @@ with Flow(
             update_django_metadata(
                 dataset_id,
                 table_id[3],
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                bq_table_last_year_month=False,
-                is_bd_pro=True,
-                is_free=True,
-                time_delta=6,
-                time_unit="months",
-                api_mode="prod",
-                date_format="yy-mm",
-                _last_date=data_source_max_date,
-                upstream_tasks=[wait_for_materialization],
-            )
+                date_column_name = {"date" : "data"},
+                date_format = "%Y-%m-%d",
+                coverage_type = "partially_bdpro",
+                time_delta = {"months": 6},
+                prefect_mode = materialization_mode,
+                bq_project = "basedosdados-dev",
+        )
 
-        # ! ---------------------------------------- >   Votacao - Parlamentos
+        # ! ---------------------------------------- >   Votacao - Orientacao -- Não tem data
 
         filepath_orientacao = make_partitions_orientacao(
             upstream_tasks=[rename_flow_run]
@@ -352,22 +332,17 @@ with Flow(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
 
+        # ! ---------------------------------------------------> Não tem data. Precisaremos usar o historical_database
         with case(update_metadata, True):
             update_django_metadata(
                 dataset_id,
                 table_id[4],
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                bq_table_last_year_month=False,
-                is_bd_pro=True,
-                is_free=True,
-                time_delta=6,
-                time_unit="months",
-                api_mode="prod",
-                date_format="yy-mm",
-                _last_date=data_source_max_date,
-                upstream_tasks=[wait_for_materialization],
-            )
+                date_format = "%Y-%m-%d",
+                coverage_type = "partially_bdpro",
+                time_delta = {"months": 6},
+                prefect_mode = materialization_mode,
+                bq_project = "basedosdados-dev",
+        )
 
 br_camara_dados_abertos.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_camara_dados_abertos.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
