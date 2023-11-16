@@ -1,10 +1,10 @@
+# -*- coding: utf-8 -*-
 from datetime import datetime
 
 from prefect.schedules import Schedule
 from prefect.schedules.clocks import CronClock
 
 from pipelines.constants import constants
-
 
 every_day_camara_dados_abertos = Schedule(
     clocks=[
@@ -18,12 +18,12 @@ every_day_camara_dados_abertos = Schedule(
                 "materialize_after_dump": True,
                 "materialization_mode": "prod",
                 "table_id": [
-            "votacao_microdados",
-            "votacao_objeto",
-            "votacao_orientacao_bancada",
-            "votacao_parlamentar",
-            "votacao_proposicao_afetada",
-        ],
+                    "votacao_microdados",
+                    "votacao_objeto",
+                    "votacao_orientacao_bancada",
+                    "votacao_parlamentar",
+                    "votacao_proposicao_afetada",
+                ],
                 "dataset_id": "br_camara_dados_abertos",
             },
         ),

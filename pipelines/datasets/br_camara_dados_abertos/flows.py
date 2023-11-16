@@ -1,28 +1,30 @@
+# -*- coding: utf-8 -*-
 from datetime import timedelta
 
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
-from pipelines.utils.decorators import Flow
-from pipelines.datasets.br_camara_dados_abertos.schedules import every_day_camara_dados_abertos
+
+from pipelines.constants import constants
+from pipelines.datasets.br_camara_dados_abertos.schedules import (
+    every_day_camara_dados_abertos,
+)
 from pipelines.datasets.br_camara_dados_abertos.tasks import (
+    get_date_max,
     make_partitions_microdados,
     make_partitions_objeto,
+    make_partitions_orientacao,
     make_partitions_parlamentar,
     make_partitions_proposicao,
-    make_partitions_orientacao,
-    get_date_max
 )
-
 from pipelines.utils.constants import constants as utils_constants
-from pipelines.constants import constants
+from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.utils.metadata.tasks import (
     check_if_data_is_outdated,
     update_django_metadata,
 )
-
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
@@ -30,7 +32,9 @@ from pipelines.utils.tasks import (
     rename_current_flow_run_dataset_table,
 )
 
-with Flow(name="br_camara_dados_abertos", code_owners=["tricktx"]) as br_camara_dados_abertos:
+with Flow(
+    name="br_camara_dados_abertos", code_owners=["tricktx"]
+) as br_camara_dados_abertos:
     # Parameters
     dataset_id = Parameter(
         "dataset_id", default="br_camara_dados_abertos", required=True
@@ -53,7 +57,7 @@ with Flow(name="br_camara_dados_abertos", code_owners=["tricktx"]) as br_camara_
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=True, required=False)    
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ",
@@ -74,12 +78,14 @@ with Flow(name="br_camara_dados_abertos", code_owners=["tricktx"]) as br_camara_
     )
 
     with case(dados_desatualizados, False):
-        log_task("Não há atualizações!") 
+        log_task("Não há atualizações!")
 
     with case(dados_desatualizados, True):
         # ! ---------------------------------------- >   Votacao - Microdados
 
-        filepath_microdados = make_partitions_microdados(upstream_tasks=[rename_flow_run])
+        filepath_microdados = make_partitions_microdados(
+            upstream_tasks=[rename_flow_run]
+        )
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=filepath_microdados,
             dataset_id=dataset_id,
@@ -189,10 +195,11 @@ with Flow(name="br_camara_dados_abertos", code_owners=["tricktx"]) as br_camara_
                 upstream_tasks=[wait_for_materialization],
             )
 
-
         # ! ---------------------------------------- >   Votacao - Parlamentar
 
-        filepath_parlamentar = make_partitions_parlamentar(upstream_tasks=[rename_flow_run])
+        filepath_parlamentar = make_partitions_parlamentar(
+            upstream_tasks=[rename_flow_run]
+        )
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=filepath_parlamentar,
             dataset_id=dataset_id,
@@ -246,10 +253,11 @@ with Flow(name="br_camara_dados_abertos", code_owners=["tricktx"]) as br_camara_
                 upstream_tasks=[wait_for_materialization],
             )
 
-
         # ! ---------------------------------------- >   Votacao - Parlamentos
 
-        filepath_proposicao = make_partitions_proposicao(upstream_tasks=[rename_flow_run])
+        filepath_proposicao = make_partitions_proposicao(
+            upstream_tasks=[rename_flow_run]
+        )
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=filepath_proposicao,
             dataset_id=dataset_id,
@@ -303,10 +311,11 @@ with Flow(name="br_camara_dados_abertos", code_owners=["tricktx"]) as br_camara_
                 upstream_tasks=[wait_for_materialization],
             )
 
-
         # ! ---------------------------------------- >   Votacao - Parlamentos
 
-        filepath_orientacao = make_partitions_orientacao(upstream_tasks=[rename_flow_run])
+        filepath_orientacao = make_partitions_orientacao(
+            upstream_tasks=[rename_flow_run]
+        )
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=filepath_orientacao,
             dataset_id=dataset_id,

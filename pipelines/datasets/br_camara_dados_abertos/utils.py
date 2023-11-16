@@ -1,11 +1,15 @@
-from io import BytesIO, StringIO
-from typing import Dict, List, Optional, Union
+# -*- coding: utf-8 -*-
+import os
+
 import pandas as pd
 import requests
-from pipelines.utils.utils import log
+
 import pipelines.datasets.br_camara_dados_abertos.constants as constants
-from pipelines.utils.apply_architecture_to_dataframe.utils import apply_architecture_to_dataframe
-import os
+from pipelines.utils.apply_architecture_to_dataframe.utils import (
+    apply_architecture_to_dataframe,
+)
+from pipelines.utils.utils import log
+
 
 def download_csvs_camara():
     """
@@ -13,7 +17,7 @@ def download_csvs_camara():
     This function does download all csvs from archives of camara dos deputados.
     The csvs saved in conteiners of docker.
 
-    return: 
+    return:
     None
     """
 
@@ -21,94 +25,93 @@ def download_csvs_camara():
         os.makedirs(constants.INPUT_PATH.values())
 
     for ano in constants.ANOS.values():
-            for voto in constants.VOTOS.values():
-                url_2 = f"http://dadosabertos.camara.leg.br/arquivos/{voto}/csv/{voto}-{ano}.csv"
+        for voto in constants.VOTOS.values():
+            url_2 = f"http://dadosabertos.camara.leg.br/arquivos/{voto}/csv/{voto}-{ano}.csv"
 
-                response = requests.get(url_2)
+            response = requests.get(url_2)
 
-                if response.status_code == 200:
-                    with open(f"{voto}.csv", 'wb') as f:
-                        f.write(response.content)
-                else:
-                    pass
-
+            if response.status_code == 200:
+                with open(f"{voto}.csv", "wb") as f:
+                    f.write(response.content)
+            else:
+                pass
 
 
 def get_ano_microdados():
     df = pd.read_csv(constants.INPUT_PATH.values() + "votacoes.csv", sep=";")
-    df['ano'] = df['data'].str[:4]
-    ano_max = df['ano'].max()
+    df["ano"] = df["data"].str[:4]
+    ano_max = df["ano"].max()
 
     return ano_max
 
+
 # microdados
 def read_and_clean_microdados():
-    df = pd.read_csv(constants.INPUT_PATH.values() + "votacoes.csv",
-                    sep=";"
-                    )
-    df['ano'] = get_ano_microdados()
-    df['horario'] = df['dataHoraRegistro'].str[11:19]
+    df = pd.read_csv(constants.INPUT_PATH.values() + "votacoes.csv", sep=";")
+    df["ano"] = get_ano_microdados()
+    df["horario"] = df["dataHoraRegistro"].str[11:19]
     df = apply_architecture_to_dataframe(
         df,
         url_architecture=constants.dict_arquitetura.value["votacao_microdados"],
         apply_include_missing_columns=False,
         apply_column_order_and_selection=True,
-        apply_rename_columns=True
+        apply_rename_columns=True,
     )
 
     return df
 
+
 def read_and_clean_parlamentar():
-    df = pd.read_csv(
-        constants.INPUT_PATH.values() + "votacoesVotos.csv",
-        sep=";")
-    df['ano'] = get_ano_microdados()
+    df = pd.read_csv(constants.INPUT_PATH.values() + "votacoesVotos.csv", sep=";")
+    df["ano"] = get_ano_microdados()
     df = apply_architecture_to_dataframe(
         df,
         url_architecture=constants.dict_arquitetura.value["votacao_parlamentar"],
         apply_include_missing_columns=False,
         apply_column_order_and_selection=True,
-        apply_rename_columns=True
+        apply_rename_columns=True,
     )
 
     return df
 
+
 def read_and_clean_objeto():
     df = pd.read_csv(constants.INPUT_PATH.values() + "votacoesObjetos.csv", sep=";")
-    df['ano'] = get_ano_microdados()
+    df["ano"] = get_ano_microdados()
     df = apply_architecture_to_dataframe(
         df,
         url_architecture=constants.dict_arquitetura.value["votacao_objeto"],
         apply_include_missing_columns=False,
         apply_column_order_and_selection=True,
-        apply_rename_columns=True
+        apply_rename_columns=True,
     )
 
     return df
 
+
 def read_and_clean_orientacao():
     df = pd.read_csv(constants.INPUT_PATH.values() + "votacoesOrientacoes.csv", sep=";")
-    df['ano'] = get_ano_microdados() 
+    df["ano"] = get_ano_microdados()
     df = apply_architecture_to_dataframe(
         df,
         url_architecture=constants.dict_arquitetura.value["votacao_orientacao_bancada"],
         apply_include_missing_columns=False,
         apply_column_order_and_selection=True,
-        apply_rename_columns=True
+        apply_rename_columns=True,
     )
 
     return df
 
+
 def read_and_clean_proposicao():
     df = pd.read_csv(constants.INPUT_PATH.values() + "votacoesProposicoes.csv", sep=";")
-    df['ano'] = get_ano_microdados() 
+    df["ano"] = get_ano_microdados()
     df = apply_architecture_to_dataframe(
         df,
         url_architecture=constants.dict_arquitetura.value["votacao_proposicao_afetada"],
         apply_include_missing_columns=False,
         apply_column_order_and_selection=True,
-        apply_rename_columns=True
+        apply_rename_columns=True,
     )
 
     return df
-
