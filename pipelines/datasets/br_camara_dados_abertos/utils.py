@@ -4,9 +4,7 @@ import os
 import pandas as pd
 import requests
 
-from pipelines.datasets.br_camara_dados_abertos.constants import (
-    constants
-)
+from pipelines.datasets.br_camara_dados_abertos.constants import constants
 from pipelines.utils.apply_architecture_to_dataframe.utils import (
     apply_architecture_to_dataframe,
 )
