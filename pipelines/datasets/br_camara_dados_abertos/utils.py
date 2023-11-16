@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 import os
+
 import pandas as pd
 import requests
+
 from pipelines.datasets.br_camara_dados_abertos.constants import constants
 from pipelines.utils.apply_architecture_to_dataframe.utils import (
     apply_architecture_to_dataframe,
@@ -38,6 +40,7 @@ def download_csvs_camara() -> None:
     log("------------- archive inside in container --------------")
     log(os.listdir(constants.INPUT_PATH.value))
 
+
 def get_ano_microdados():
     df = pd.read_csv(constants.INPUT_PATH.value + "votacoes.csv", sep=";")
     df["ano"] = df["data"].str[:4]
@@ -56,7 +59,7 @@ def read_and_clean_microdados():
     df["ano"] = get_ano_microdados()
 
     df["horario"] = df["dataHoraRegistro"].str[11:19]
-    
+
     df = apply_architecture_to_dataframe(
         df,
         url_architecture=constants.dict_arquitetura.value["votacao_microdados"],
