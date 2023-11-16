@@ -4,7 +4,9 @@ import os
 import pandas as pd
 import requests
 
-import pipelines.datasets.br_camara_dados_abertos.constants as constants
+from pipelines.datasets.br_camara_dados_abertos.constants import (
+    constants
+)
 from pipelines.utils.apply_architecture_to_dataframe.utils import (
     apply_architecture_to_dataframe,
 )
@@ -21,8 +23,8 @@ def download_csvs_camara():
     None
     """
 
-    if not os.path.exists(constants.INPUT_PATH.values()):
-        os.makedirs(constants.INPUT_PATH.values())
+    if not os.path.exists(constants.INPUT_PATH.value):
+        os.makedirs(constants.INPUT_PATH.value)
 
     for ano in constants.ANOS.values():
         for voto in constants.VOTOS.values():
@@ -38,6 +40,7 @@ def download_csvs_camara():
 
 
 def get_ano_microdados():
+    download_csvs_camara()
     df = pd.read_csv(constants.INPUT_PATH.values() + "votacoes.csv", sep=";")
     df["ano"] = df["data"].str[:4]
     ano_max = df["ano"].max()

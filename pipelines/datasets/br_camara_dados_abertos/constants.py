@@ -11,8 +11,8 @@ class constants(Enum):
         "votacao_orientacao_bancada": "https://docs.google.com/spreadsheets/d/1_gl5llaGw5Mr0A6Q8AUoHHiOiEGl7Ht8Yf3p2n4k8uA/edit#gid=0",
     }
 
-    INPUT_PATH = "tmp/input/"
-    OUTPUT_PATH = "tmp/output/"
+    INPUT_PATH = "/tmp/input/"
+    OUTPUT_PATH = "/tmp/output/"
 
     ANOS = [2023, 2024]
 
