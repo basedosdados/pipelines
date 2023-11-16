@@ -1,17 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-Constants for br_tse_eleicoes pipeline.
+Constants for br_bcb_estban pipeline.
 """
 
 from enum import Enum
 
 
 class constants(Enum):  # pylint: disable=c0103
-
-    """
-    Constants for utils.
-    """
-
     ESTBAN_URL = "https://www4.bcb.gov.br/fis/cosif/estban.asp?frame=1"
     AGENCIA_XPATH = '//*[@id="ESTBAN_AGENCIA"]'
     MUNICIPIO_XPATH = '//*[@id="ESTBAN_MUNICIPIO"]'

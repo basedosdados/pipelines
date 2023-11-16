@@ -4,6 +4,7 @@
 Tasks for br_me_comex_stat
 """
 import os
+import re
 import time as tm
 
 # pylint: disable=invalid-name,too-many-nested-blocks
@@ -12,12 +13,56 @@ from zipfile import ZipFile
 import basedosdados as bd
 import numpy as np
 import pandas as pd
+import requests
+from bs4 import BeautifulSoup
 from prefect import task
 
 from pipelines.constants import constants
 from pipelines.datasets.br_me_comex_stat.constants import constants as comex_constants
 from pipelines.datasets.br_me_comex_stat.utils import create_paths, download_data
 from pipelines.utils.utils import log, to_partitions
+
+
+@task
+def parse_last_date(link: str) -> str:
+    # Parsing do metadado que informa última atualização
+    response = requests.get(link)
+    soup = BeautifulSoup(response.content, "html.parser")
+    css_selector = "#parent-fieldname-text > h2"
+    result = soup.select_one(css_selector)
+
+    # Extrai mês e ano
+    mes_ano = result.text.split("-")[-1].strip()
+
+    # Extrai ano
+    padrao = re.compile(r"\d+")
+    numeros = padrao.findall(mes_ano)
+
+    ano = numeros[0]
+
+    #  Dicionário para converter data
+    # informada na fonte oficial para mes ano no formato Y%-%m
+
+    conversor = {
+        f"janeiro de {ano}": f"{ano}-01",
+        f"fevereiro de {ano}": f"{ano}-02",
+        f"março de {ano}": f"{ano}-03",
+        f"abril de {ano}": f"{ano}-04",
+        f"maio de {ano}": f"{ano}-05",
+        f"junho de {ano}": f"{ano}-06",
+        f"julho de {ano}": f"{ano}-07",
+        f"agosto de {ano}": f"{ano}-08",
+        f"setembro de {ano}": f"{ano}-09",
+        f"outubro de {ano}": f"{ano}-10",
+        f"novembro de {ano}": f"{ano}-11",
+        f"dezembro de {ano}": f"{ano}-12",
+    }
+    # retorna o ano mes ou data formatada
+    return conversor[mes_ano]
+
+
+# Extract all the values from the given XPath
+# values = tree.xpath(xpath + "/option/@value")
 
 
 @task

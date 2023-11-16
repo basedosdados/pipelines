@@ -14,7 +14,6 @@ from pipelines.constants import constants
 from pipelines.datasets.br_bcb_estban.constants import (
     constants as br_bcb_estban_constants,
 )
-from pipelines.datasets.br_bcb_estban.utils import *
 from pipelines.datasets.br_bcb_estban.utils import (
     cols_order_agencia,
     create_id_municipio,
@@ -24,6 +23,7 @@ from pipelines.datasets.br_bcb_estban.utils import (
     extract_download_links,
     get_data_from_prod,
     order_cols_municipio,
+    parse_date,
     pre_cleaning_for_pivot_long_agencia,
     pre_cleaning_for_pivot_long_municipio,
     read_files,
@@ -34,6 +34,19 @@ from pipelines.datasets.br_bcb_estban.utils import (
     wide_to_long_municipio,
 )
 from pipelines.utils.utils import clean_dataframe, log, to_partitions
+
+
+@task
+def extract_most_recent_date(xpath, url):
+    # table date
+    url_list = extract_download_links(url=url, xpath=xpath)
+
+    dicionario_data_url = {parse_date(url): url for url in url_list}
+    tupla_data_maxima_url = max(dicionario_data_url.items(), key=lambda x: x[0])
+    data_maxima = tupla_data_maxima_url[0]
+    link_data_maxima = tupla_data_maxima_url[1]
+
+    return link_data_maxima, data_maxima
 
 
 @task(
@@ -59,6 +72,9 @@ def download_estban_files(xpath: str, save_path: str) -> str:
 
     # setado para fazer upload incremental dos dados em staging
     download_link = download_link[0]
+
+    # todo: a função nova começa daqui,
+    # recebe links de input da task acima
 
     file = "https://www4.bcb.gov.br/" + download_link
     download_and_unzip(file, path=save_path)

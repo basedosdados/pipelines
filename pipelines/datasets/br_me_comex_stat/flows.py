@@ -21,11 +21,15 @@ from pipelines.datasets.br_me_comex_stat.schedules import (
 from pipelines.datasets.br_me_comex_stat.tasks import (
     clean_br_me_comex_stat,
     download_br_me_comex_stat,
+    parse_last_date,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.metadata.tasks import update_django_metadata
+from pipelines.utils.metadata.tasks import (
+    check_if_data_is_outdated,
+    update_django_metadata,
+)
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
@@ -51,6 +55,18 @@ with Flow(
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+    )
+
+    # task que checa data mais recente do site
+    # task que extrai data da api e compara
+
+    last_date = parse_last_date(link=comex_constants.DOWNLOAD_LINK.value)
+
+    check = check_if_data_is_outdated(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        data_source_max_date=last_date,
+        date_format="%Y-%m",
     )
 
     download_data = download_br_me_comex_stat(

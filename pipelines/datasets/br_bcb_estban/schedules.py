@@ -49,7 +49,7 @@ every_month_municipio = Schedule(
                 "table_id": "municipio",
                 "materialization_mode": "prod",
                 "materialize after dump": True,
-                "dbt_alias": False,
+                "dbt_alias": True,
                 "update_metadata": True,
             },
         )
