@@ -114,7 +114,7 @@ with Flow(
                     table_id=table_id,
                     date_column_name={"date": "data_referencia"},
                     date_format="%Y-%m-%d",
-                    coverage_type="parcially_bdpro",
+                    coverage_type="part_bdpro",
                     time_delta={"months": 6},
                     prefect_mode=materialization_mode,
                     bq_project="basedosdados",
