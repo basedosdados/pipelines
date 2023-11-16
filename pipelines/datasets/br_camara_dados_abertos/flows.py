@@ -126,13 +126,13 @@ with Flow(
             update_django_metadata(
                 dataset_id,
                 table_id[0],
-                date_column_name = {"date" : "data"},
-                date_format = "%Y-%m-%d",
-                coverage_type = "partially_bdpro",
-                time_delta = {"months": 6},
-                prefect_mode = materialization_mode,
-                bq_project = "basedosdados-dev",
-        )
+                date_column_name={"date": "data"},
+                date_format="%Y-%m-%d",
+                coverage_type="partially_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados-dev",
+            )
 
         # ! ---------------------------------------- >   Votacao - objeto
 
@@ -177,13 +177,13 @@ with Flow(
             update_django_metadata(
                 dataset_id,
                 table_id[1],
-                date_column_name = {"date" : "data"},
-                date_format = "%Y-%m-%d",
-                coverage_type = "partially_bdpro",
-                time_delta = {"months": 6},
-                prefect_mode = materialization_mode,
-                bq_project = "basedosdados-dev",
-        )
+                date_column_name={"date": "data"},
+                date_format="%Y-%m-%d",
+                coverage_type="partially_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados-dev",
+            )
 
         # ! ---------------------------------------- >   Votacao - Parlamentar
 
@@ -230,13 +230,13 @@ with Flow(
             update_django_metadata(
                 dataset_id,
                 table_id[2],
-                date_column_name = {"date" : "data"},
-                date_format = "%Y-%m-%d",
-                coverage_type = "partially_bdpro",
-                time_delta = {"months": 6},
-                prefect_mode = materialization_mode,
-                bq_project = "basedosdados-dev",
-        )
+                date_column_name={"date": "data"},
+                date_format="%Y-%m-%d",
+                coverage_type="partially_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados-dev",
+            )
 
         # ! ---------------------------------------- >   Votacao - Proposicao
 
@@ -283,13 +283,13 @@ with Flow(
             update_django_metadata(
                 dataset_id,
                 table_id[3],
-                date_column_name = {"date" : "data"},
-                date_format = "%Y-%m-%d",
-                coverage_type = "partially_bdpro",
-                time_delta = {"months": 6},
-                prefect_mode = materialization_mode,
-                bq_project = "basedosdados-dev",
-        )
+                date_column_name={"date": "data"},
+                date_format="%Y-%m-%d",
+                coverage_type="partially_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados-dev",
+            )
 
         # ! ---------------------------------------- >   Votacao - Orientacao -- Não tem data
 
@@ -337,12 +337,12 @@ with Flow(
             update_django_metadata(
                 dataset_id,
                 table_id[4],
-                date_format = "%Y-%m-%d",
-                coverage_type = "partially_bdpro",
-                time_delta = {"months": 6},
-                prefect_mode = materialization_mode,
-                bq_project = "basedosdados-dev",
-        )
+                date_format="%Y-%m-%d",
+                coverage_type="partially_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados-dev",
+            )
 
 br_camara_dados_abertos.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_camara_dados_abertos.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
