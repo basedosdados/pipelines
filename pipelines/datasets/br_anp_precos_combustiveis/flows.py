@@ -110,19 +110,16 @@ with Flow(
             )
             with case(update_metadata, True):
                 update_django_metadata(
-                    dataset_id,
-                    table_id,
-                    metadata_type="DateTimeRange",
-                    bq_last_update=False,
-                    bq_table_last_year_month=False,
-                    api_mode="prod",
-                    date_format="yy-mm-dd",
-                    is_bd_pro=True,
-                    is_free=True,
-                    time_delta=6,
-                    time_unit="weeks",
-                    _last_date=get_date_max_pro,
-                    upstream_tasks=[get_date_max_pro],
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"date": "data_coleta"},
+                    date_format="%Y-%m-%d",
+                    coverage_type="part_bdpro",
+                    time_delta={"weeks": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
+                    upstream_tasks=[wait_for_materialization],
+
                 )
 anp_microdados.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 anp_microdados.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)

@@ -135,18 +135,15 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
 
         with case(update_metadata, True):
             update_django_metadata(
-                dataset_id,
-                table_id[0],
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                bq_table_last_year_month=False,
-                is_bd_pro=True,
-                is_free=True,
-                time_delta=6,
-                time_unit="months",
-                api_mode="prod",
-                date_format="yy-mm",
-                _last_date=data_source_max_date,
+                dataset_id=dataset_id,
+                table_id=table_id[0],
+                date_column_name={"year": "ano", "month": "mes"},
+                date_format="%Y-%m",
+                coverage_type="part_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
+
                 upstream_tasks=[wait_for_materialization],
             )
 
@@ -191,18 +188,15 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
 
         with case(update_metadata, True):
             update_django_metadata(
-                dataset_id,
-                table_id[1],
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                bq_table_last_year_month=False,
-                is_bd_pro=True,
-                is_free=True,
-                time_delta=6,
-                time_unit="months",
-                api_mode="prod",
-                date_format="yy-mm",
-                _last_date=data_source_max_date,
+                dataset_id=dataset_id,
+                table_id=table_id[1],
+                date_column_name={"year": "ano", "month": "mes"},
+                date_format="%Y-%m",
+                coverage_type="part_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
+
                 upstream_tasks=[wait_for_materialization],
             )
 
@@ -249,18 +243,15 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
 
         with case(update_metadata, True):
             update_django_metadata(
-                dataset_id,
-                table_id[2],
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                bq_table_last_year_month=False,
-                is_bd_pro=True,
-                is_free=True,
-                time_delta=6,
-                time_unit="months",
-                api_mode="prod",
-                date_format="yy-mm",
-                _last_date=data_source_max_date,
+                dataset_id=dataset_id,
+                table_id=table_id[2],
+                date_column_name={"year": "ano", "month": "mes"},
+                date_format="%Y-%m",
+                coverage_type="part_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
+
                 upstream_tasks=[wait_for_materialization],
             )
 
@@ -306,18 +297,14 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
 
             with case(update_metadata, True):
                 update_django_metadata(
-                    dataset_id,
-                    table_id[3],
-                    metadata_type="DateTimeRange",
-                    bq_last_update=False,
-                    bq_table_last_year_month=False,
-                    is_bd_pro=True,
-                    is_free=True,
-                    time_delta=6,
-                    time_unit="months",
-                    api_mode="prod",
-                    date_format="yy-mm",
-                    _last_date=data_source_max_date,
+                    dataset_id=dataset_id,
+                    table_id=table_id[3],
+                    date_column_name={"year": "ano", "month": "mes"},
+                    date_format="%Y-%m",
+                    coverage_type="part_bdpro",
+                    time_delta={"months": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
 

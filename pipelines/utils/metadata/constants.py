@@ -12,4 +12,15 @@ class constants(Enum):  # pylint: disable=c0103
     Constant values for the metadata project
     """
 
-    FOO = "bar"
+    MODE_PROJECT = {"dev": "basedosdados-dev", "prod": "basedosdados"}
+
+    ACCEPTED_TIME_UNITS = [
+        "years",
+        "months",
+        "weeks",
+        "days",
+    ]
+
+    ACCEPTED_COVERAGE_TYPE = ["all_bdpro", "all_free", "part_bdpro"]
+
+    ACCEPTED_COLUMN_KEY_VALUES = [{"year", "month"}, {"year", "quarter"}, {"date"}]

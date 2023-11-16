@@ -170,18 +170,16 @@ with Flow(
                 dataset_id, table_id, "basedosdados", var_name="data_registro"
             )
             update_django_metadata(
-                dataset_id,
-                table_id,
-                metadata_type="DateTimeRange",
-                _last_date=data,
-                bq_last_update=False,
-                api_mode="prod",
-                date_format="yy-mm-dd",
-                is_bd_pro=True,
-                is_free=True,
-                time_delta=6,
-                time_unit="months",
-                upstream_tasks=[materialization_flow, data],
+                dataset_id=dataset_id,
+                table_id=table_id,
+                date_column_name={"date": "data_registro"},
+                date_format="%Y-%m-%d",
+                coverage_type="part_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
+                upstream_tasks=[wait_for_materialization],
+
             )
 
 br_cvm_adm_car_pes_fis.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -256,18 +254,16 @@ with Flow(
                 dataset_id, table_id, "basedosdados", var_name="data_registro"
             )
             update_django_metadata(
-                dataset_id,
-                table_id,
-                metadata_type="DateTimeRange",
-                _last_date=data,
-                bq_last_update=False,
-                api_mode="prod",
-                date_format="yy-mm-dd",
-                is_bd_pro=True,
-                is_free=True,
-                time_delta=6,
-                time_unit="months",
-                upstream_tasks=[wait_for_materialization, data],
+                dataset_id=dataset_id,
+                table_id=table_id,
+                date_column_name={"date": "data_registro"},
+                date_format="%Y-%m-%d",
+                coverage_type="part_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
+                upstream_tasks=[wait_for_materialization],
+
             )
 br_cvm_adm_car_pes_jur.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_cvm_adm_car_pes_jur.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)

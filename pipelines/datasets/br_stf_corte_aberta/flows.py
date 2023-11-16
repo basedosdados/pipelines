@@ -98,17 +98,13 @@ with Flow(name="br_stf_corte_aberta.decisoes", code_owners=["trick"]) as br_stf:
                 update_django_metadata(
                     dataset_id=dataset_id,
                     table_id=table_id,
-                    metadata_type="DateTimeRange",
-                    bq_last_update=False,
-                    bq_table_last_year_month=False,
-                    # billing_project_id="basedosdados-dev",
-                    api_mode="prod",
-                    date_format="yy-mm-dd",
-                    is_bd_pro=True,
-                    _last_date=get_max_date,
-                    is_free=True,
-                    time_delta=6,
-                    time_unit="weeks",
+                    date_column_name={"date": "data_decisao"},
+                    date_format="%Y-%m-%d",
+                    coverage_type="part_bdpro",
+                    time_delta={"weeks": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
+
                     upstream_tasks=[wait_for_materialization],
                 )
 br_stf.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

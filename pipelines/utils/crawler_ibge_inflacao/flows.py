@@ -100,19 +100,15 @@ with Flow(
         )
         with case(update_metadata, True):
             update_django_metadata(
-                dataset_id,
-                table_id,
-                metadata_type="DateTimeRange",
-                billing_project_id="basedosdados",
-                # needs_to_update[1] é a data (Y%-m%) mais recente
-                _last_date=needs_to_update[1],
-                bq_last_update=False,
-                api_mode="prod",
-                date_format="yy-mm",
-                is_bd_pro=True,
-                is_free=True,
-                time_delta=6,
-                time_unit="months",
+                dataset_id=dataset_id,
+                table_id=table_id,
+                date_column_name={"year": "ano", "month": "mes"},
+                date_format="%Y-%m",
+                coverage_type="part_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
+
                 upstream_tasks=[wait_for_materialization],
             )
 
@@ -192,19 +188,14 @@ with Flow("BD Template - IBGE Inflação: mes_rm") as flow_ibge_inflacao_mes_rm:
         )
         with case(update_metadata, True):
             update_django_metadata(
-                dataset_id,
-                table_id,
-                metadata_type="DateTimeRange",
-                billing_project_id="basedosdados",
-                # needs_to_update[1] é a data (Y%-m%) mais recente
-                _last_date=needs_to_update[1],
-                bq_last_update=False,
-                api_mode="prod",
-                date_format="yy-mm",
-                is_bd_pro=True,
-                is_free=True,
-                time_delta=6,
-                time_unit="months",
+                dataset_id=dataset_id,
+                table_id=table_id,
+                date_column_name={"year": "ano", "month": "mes"},
+                date_format="%Y-%m",
+                coverage_type="part_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
                 upstream_tasks=[wait_for_materialization],
             )
 
@@ -284,19 +275,14 @@ with Flow(
         )
         with case(update_metadata, True):
             update_django_metadata(
-                dataset_id,
-                table_id,
-                metadata_type="DateTimeRange",
-                billing_project_id="basedosdados",
-                # needs_to_update[1] é a data (Y%-m%) mais recente
-                _last_date=needs_to_update[1],
-                bq_last_update=False,
-                api_mode="prod",
-                date_format="yy-mm",
-                is_bd_pro=True,
-                is_free=True,
-                time_delta=6,
-                time_unit="months",
+                dataset_id=dataset_id,
+                table_id=table_id,
+                date_column_name={"year": "ano", "month": "mes"},
+                date_format="%Y-%m",
+                coverage_type="part_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
                 upstream_tasks=[wait_for_materialization],
             )
 
@@ -379,19 +365,14 @@ with Flow("BD Template - IBGE Inflação: mes_geral") as flow_ibge_inflacao_mes_
 
         with case(update_metadata, True):
             update_django_metadata(
-                dataset_id,
-                table_id,
-                metadata_type="DateTimeRange",
-                billing_project_id="basedosdados",
-                # needs_to_update[1] é a data (Y%-m%) mais recente
-                _last_date=needs_to_update[1],
-                bq_last_update=False,
-                api_mode="prod",
-                date_format="yy-mm",
-                is_bd_pro=True,
-                is_free=True,
-                time_delta=6,
-                time_unit="months",
+                dataset_id=dataset_id,
+                table_id=table_id,
+                date_column_name={"year": "ano", "month": "mes"},
+                date_format="%Y-%m",
+                coverage_type="part_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
                 upstream_tasks=[wait_for_materialization],
             )
 

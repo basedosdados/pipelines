@@ -102,14 +102,13 @@ with Flow(
                 upstream_tasks=[wait_for_materialization],
                 dataset_id=dataset_id,
                 table_id=table_id,
-                metadata_type="DateTimeRange",
-                _last_date=file_info["max_date"],
-                bq_table_last_year_month=False,
-                bq_last_update=False,
-                is_bd_pro=True,
-                is_free=False,
-                date_format="yy-mm-dd",
-                api_mode="prod",
+                date_column_name={"date": "data_cotacao"},
+                date_format="%Y-%m-%d",
+                coverage_type="all_bdpro",
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
+                upstream_tasks=[wait_for_materialization],
+
             )
 
 

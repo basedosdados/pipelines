@@ -21,19 +21,14 @@ from pipelines.datasets.br_me_comex_stat.schedules import (
 from pipelines.datasets.br_me_comex_stat.tasks import (
     clean_br_me_comex_stat,
     download_br_me_comex_stat,
-    parse_last_date,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.metadata.tasks import (
-    check_if_data_is_outdated,
-    update_django_metadata,
-)
+from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
-    log_task,
     rename_current_flow_run_dataset_table,
 )
 
@@ -58,89 +53,68 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    last_date = parse_last_date(link=comex_constants.DOWNLOAD_LINK.value)
-
-    check_if_outdated = check_if_data_is_outdated(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        data_source_max_date=last_date,
-        date_format="%Y-%m",
-        upstream_tasks=[last_date],
+    download_data = download_br_me_comex_stat(
+        table_type=comex_constants.TABLE_TYPE.value[0],
+        table_name=comex_constants.TABLE_NAME.value[1],
     )
 
-    with case(check_if_outdated, False):
-        log_task(f"Não há atualizações para a tabela de {table_id}!")
+    filepath = clean_br_me_comex_stat(
+        path=comex_constants.PATH.value,
+        table_type=comex_constants.TABLE_TYPE.value[0],
+        table_name=comex_constants.TABLE_NAME.value[1],
+        upstream_tasks=[download_data],
+    )
 
-    with case(check_if_outdated, True):
-        log_task("Existem atualizações! A run será inciada")
+    wait_upload_table = create_table_and_upload_to_gcs(
+        data_path=filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dump_mode="append",
+        wait=filepath,
+    )
 
-        download_data = download_br_me_comex_stat(
-            table_type=comex_constants.TABLE_TYPE.value[0],
-            table_name=comex_constants.TABLE_NAME.value[1],
-            year_download=last_date,
-            upstream_tasks=[check_if_outdated],
+    # materialize municipio_exportacao
+    with case(materialize_after_dump, True):
+        # Trigger DBT flow run
+        current_flow_labels = get_current_flow_labels()
+        materialization_flow = create_flow_run(
+            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
+            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+            parameters={
+                "dataset_id": dataset_id,
+                "table_id": table_id,
+                "mode": materialization_mode,
+                "dbt_alias": dbt_alias,
+            },
+            labels=current_flow_labels,
+            run_name=f"Materialize {dataset_id}.{table_id}",
         )
 
-        filepath = clean_br_me_comex_stat(
-            path=comex_constants.PATH.value,
-            table_type=comex_constants.TABLE_TYPE.value[0],
-            table_name=comex_constants.TABLE_NAME.value[1],
-            upstream_tasks=[download_data],
+        wait_for_materialization = wait_for_flow_run(
+            materialization_flow,
+            stream_states=True,
+            stream_logs=True,
+            raise_final_state=True,
         )
-
-        wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=filepath,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dump_mode="append",
-            wait=filepath,
+        wait_for_materialization.max_retries = (
+            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
         )
-
-        # materialize municipio_exportacao
-        with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels()
-            materialization_flow = create_flow_run(
-                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": table_id,
-                    "mode": materialization_mode,
-                    "dbt_alias": dbt_alias,
-                },
-                labels=current_flow_labels,
-                run_name=f"Materialize {dataset_id}.{table_id}",
+        wait_for_materialization.retry_delay = timedelta(
+            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+        )
+        # coverage updater
+        with case(update_metadata, True):
+            update_django_metadata(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                date_column_name={"year": "ano", "month": "mes"},
+                date_format="%Y-%m",
+                coverage_type="part_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
+                upstream_tasks=[wait_for_materialization],
             )
-
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
-            )
-            wait_for_materialization.max_retries = (
-                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-            wait_for_materialization.retry_delay = timedelta(
-                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-            )
-            # coverage updater
-            with case(update_metadata, True):
-                update = update_django_metadata(
-                    dataset_id,
-                    table_id,
-                    metadata_type="DateTimeRange",
-                    bq_last_update=False,
-                    bq_table_last_year_month=True,
-                    is_bd_pro=True,
-                    is_free=True,
-                    api_mode="prod",
-                    billing_project_id="basedosdados",
-                    date_format="yy-mm",
-                    time_delta=6,
-                    time_unit="months",
-                )
 
 br_comex_municipio_exportacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_comex_municipio_exportacao.run_config = KubernetesRun(
@@ -169,87 +143,66 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    last_date = parse_last_date(link=comex_constants.DOWNLOAD_LINK.value)
-
-    check_if_outdated = check_if_data_is_outdated(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        data_source_max_date=last_date,
-        date_format="%Y-%m",
-        upstream_tasks=[last_date],
+    download_data = download_br_me_comex_stat(
+        table_type=comex_constants.TABLE_TYPE.value[0],
+        table_name=comex_constants.TABLE_NAME.value[0],
     )
 
-    with case(check_if_outdated, False):
-        log_task(f"Não há atualizações para a tabela de {table_id}!")
+    filepath = clean_br_me_comex_stat(
+        path=comex_constants.PATH.value,
+        table_type=comex_constants.TABLE_TYPE.value[0],
+        table_name=comex_constants.TABLE_NAME.value[0],
+        upstream_tasks=[download_data],
+    )
 
-    with case(check_if_outdated, True):
-        log_task("Existem atualizações! A run será inciada")
-
-        download_data = download_br_me_comex_stat(
-            table_type=comex_constants.TABLE_TYPE.value[0],
-            table_name=comex_constants.TABLE_NAME.value[0],
-            year_download=last_date,
-            upstream_tasks=[check_if_outdated],
+    wait_upload_table = create_table_and_upload_to_gcs(
+        data_path=filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dump_mode="append",
+        wait=filepath,
+    )
+    # materialize municipio_importacao
+    with case(materialize_after_dump, True):
+        # Trigger DBT flow run
+        current_flow_labels = get_current_flow_labels()
+        materialization_flow = create_flow_run(
+            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
+            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+            parameters={
+                "dataset_id": dataset_id,
+                "table_id": table_id,
+                "mode": materialization_mode,
+                "dbt_alias": dbt_alias,
+            },
+            labels=current_flow_labels,
+            run_name=f"Materialize {dataset_id}.{table_id}",
         )
 
-        filepath = clean_br_me_comex_stat(
-            path=comex_constants.PATH.value,
-            table_type=comex_constants.TABLE_TYPE.value[0],
-            table_name=comex_constants.TABLE_NAME.value[0],
-            upstream_tasks=[download_data],
+        wait_for_materialization = wait_for_flow_run(
+            materialization_flow,
+            stream_states=True,
+            stream_logs=True,
+            raise_final_state=True,
         )
-
-        wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=filepath,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dump_mode="append",
-            wait=filepath,
+        wait_for_materialization.max_retries = (
+            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
         )
-        # materialize municipio_importacao
-        with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels()
-            materialization_flow = create_flow_run(
-                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": table_id,
-                    "mode": materialization_mode,
-                    "dbt_alias": dbt_alias,
-                },
-                labels=current_flow_labels,
-                run_name=f"Materialize {dataset_id}.{table_id}",
+        wait_for_materialization.retry_delay = timedelta(
+            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+        )
+        with case(update_metadata, True):
+            update_django_metadata(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                date_column_name={"year": "ano", "month": "mes"},
+                date_format="%Y-%m",
+                coverage_type="part_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
+                upstream_tasks=[wait_for_materialization],
             )
-
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
-            )
-            wait_for_materialization.max_retries = (
-                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-            wait_for_materialization.retry_delay = timedelta(
-                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-            )
-            with case(update_metadata, True):
-                update = update_django_metadata(
-                    dataset_id,
-                    table_id,
-                    metadata_type="DateTimeRange",
-                    bq_last_update=False,
-                    bq_table_last_year_month=True,
-                    is_bd_pro=True,
-                    is_free=True,
-                    api_mode="prod",
-                    billing_project_id="basedosdados",
-                    date_format="yy-mm",
-                    time_delta=6,
-                    time_unit="months",
-                )
 
 
 br_comex_municipio_importacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -279,88 +232,67 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    last_date = parse_last_date(link=comex_constants.DOWNLOAD_LINK.value)
-
-    check_if_outdated = check_if_data_is_outdated(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        data_source_max_date=last_date,
-        date_format="%Y-%m",
-        upstream_tasks=[last_date],
+    download_data = download_br_me_comex_stat(
+        table_type=comex_constants.TABLE_TYPE.value[1],
+        table_name=comex_constants.TABLE_NAME.value[3],
     )
 
-    with case(check_if_outdated, False):
-        log_task(f"Não há atualizações para a tabela de {table_id}!")
+    filepath = clean_br_me_comex_stat(
+        path=comex_constants.PATH.value,
+        table_type=comex_constants.TABLE_TYPE.value[1],
+        table_name=comex_constants.TABLE_NAME.value[3],
+        upstream_tasks=[download_data],
+    )
 
-    with case(check_if_outdated, True):
-        log_task("Existem atualizações! A run será inciada")
+    wait_upload_table = create_table_and_upload_to_gcs(
+        data_path=filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dump_mode="append",
+        wait=filepath,
+    )
 
-        download_data = download_br_me_comex_stat(
-            table_type=comex_constants.TABLE_TYPE.value[1],
-            table_name=comex_constants.TABLE_NAME.value[3],
-            year_download=last_date,
-            upstream_tasks=[check_if_outdated],
+    # materialize ncm_exportacao
+    with case(materialize_after_dump, True):
+        # Trigger DBT flow run
+        current_flow_labels = get_current_flow_labels()
+        materialization_flow = create_flow_run(
+            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
+            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+            parameters={
+                "dataset_id": dataset_id,
+                "table_id": table_id,
+                "mode": materialization_mode,
+                "dbt_alias": dbt_alias,
+            },
+            labels=current_flow_labels,
+            run_name=f"Materialize {dataset_id}.{table_id}",
         )
 
-        filepath = clean_br_me_comex_stat(
-            path=comex_constants.PATH.value,
-            table_type=comex_constants.TABLE_TYPE.value[1],
-            table_name=comex_constants.TABLE_NAME.value[3],
-            upstream_tasks=[download_data],
+        wait_for_materialization = wait_for_flow_run(
+            materialization_flow,
+            stream_states=True,
+            stream_logs=True,
+            raise_final_state=True,
         )
-
-        wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=filepath,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dump_mode="append",
-            wait=filepath,
+        wait_for_materialization.max_retries = (
+            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
         )
-
-        # materialize ncm_exportacao
-        with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels()
-            materialization_flow = create_flow_run(
-                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": table_id,
-                    "mode": materialization_mode,
-                    "dbt_alias": dbt_alias,
-                },
-                labels=current_flow_labels,
-                run_name=f"Materialize {dataset_id}.{table_id}",
+        wait_for_materialization.retry_delay = timedelta(
+            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+        )
+        with case(update_metadata, True):
+            update_django_metadata(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                date_column_name={"year": "ano", "month": "mes"},
+                date_format="%Y-%m",
+                coverage_type="part_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
+                upstream_tasks=[wait_for_materialization],
             )
-
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
-            )
-            wait_for_materialization.max_retries = (
-                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-            wait_for_materialization.retry_delay = timedelta(
-                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-            )
-            with case(update_metadata, True):
-                update = update_django_metadata(
-                    dataset_id,
-                    table_id,
-                    metadata_type="DateTimeRange",
-                    bq_last_update=False,
-                    bq_table_last_year_month=True,
-                    is_bd_pro=True,
-                    is_free=True,
-                    api_mode="prod",
-                    billing_project_id="basedosdados",
-                    date_format="yy-mm",
-                    time_delta=6,
-                    time_unit="months",
-                )
 
 
 br_comex_ncm_exportacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -387,88 +319,69 @@ with Flow(
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
-    last_date = parse_last_date(link=comex_constants.DOWNLOAD_LINK.value)
 
-    check_if_outdated = check_if_data_is_outdated(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        data_source_max_date=last_date,
-        date_format="%Y-%m",
-        upstream_tasks=[last_date],
+    download_data = download_br_me_comex_stat(
+        table_type=comex_constants.TABLE_TYPE.value[1],
+        table_name=comex_constants.TABLE_NAME.value[2],
     )
 
-    with case(check_if_outdated, False):
-        log_task(f"Não há atualizações para a tabela de {table_id}!")
+    filepath = clean_br_me_comex_stat(
+        path=comex_constants.PATH.value,
+        table_type=comex_constants.TABLE_TYPE.value[1],
+        table_name=comex_constants.TABLE_NAME.value[2],
+        upstream_tasks=[download_data],
+    )
 
-    with case(check_if_outdated, True):
-        log_task("Existem atualizações! A run será inciada")
-
-        download_data = download_br_me_comex_stat(
-            table_type=comex_constants.TABLE_TYPE.value[1],
-            table_name=comex_constants.TABLE_NAME.value[2],
-            year_download=last_date,
-            upstream_tasks=[check_if_outdated],
+    wait_upload_table = create_table_and_upload_to_gcs(
+        data_path=filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dump_mode="append",
+        wait=filepath,
+    )
+    # materialize ncm_importacao
+    with case(materialize_after_dump, True):
+        # Trigger DBT flow run
+        current_flow_labels = get_current_flow_labels()
+        materialization_flow = create_flow_run(
+            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
+            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+            parameters={
+                "dataset_id": dataset_id,
+                "table_id": table_id,
+                "mode": materialization_mode,
+                "dbt_alias": dbt_alias,
+            },
+            labels=current_flow_labels,
+            run_name=f"Materialize {dataset_id}.{table_id}",
         )
 
-        filepath = clean_br_me_comex_stat(
-            path=comex_constants.PATH.value,
-            table_type=comex_constants.TABLE_TYPE.value[1],
-            table_name=comex_constants.TABLE_NAME.value[2],
-            upstream_tasks=[download_data],
+        wait_for_materialization = wait_for_flow_run(
+            materialization_flow,
+            stream_states=True,
+            stream_logs=True,
+            raise_final_state=True,
+        )
+        wait_for_materialization.max_retries = (
+            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
+        )
+        wait_for_materialization.retry_delay = timedelta(
+            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-        wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=filepath,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dump_mode="append",
-            wait=filepath,
-        )
-        # materialize ncm_importacao
-        with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels()
-            materialization_flow = create_flow_run(
-                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": table_id,
-                    "mode": materialization_mode,
-                    "dbt_alias": dbt_alias,
-                },
-                labels=current_flow_labels,
-                run_name=f"Materialize {dataset_id}.{table_id}",
+        with case(update_metadata, True):
+            update_django_metadata(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                date_column_name={"year": "ano", "month": "mes"},
+                date_format="%Y-%m",
+                coverage_type="part_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
+                upstream_tasks=[wait_for_materialization],
             )
 
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
-            )
-            wait_for_materialization.max_retries = (
-                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-            wait_for_materialization.retry_delay = timedelta(
-                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-            )
-
-            with case(update_metadata, True):
-                update = update_django_metadata(
-                    dataset_id,
-                    table_id,
-                    metadata_type="DateTimeRange",
-                    bq_last_update=False,
-                    bq_table_last_year_month=True,
-                    is_bd_pro=True,
-                    is_free=True,
-                    api_mode="prod",
-                    billing_project_id="basedosdados",
-                    date_format="yy-mm",
-                    time_delta=6,
-                    time_unit="months",
-                )
 
 br_comex_ncm_importacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_comex_ncm_importacao.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)

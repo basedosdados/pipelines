@@ -101,19 +101,16 @@ with Flow(
         )
 
         update_django_metadata(
-            dataset_id,
-            table_id,
-            metadata_type="DateTimeRange",
-            _last_date=data_maxima,
-            bq_table_last_year_month=False,
-            bq_last_update=False,
-            is_bd_pro=True,
-            is_free=True,
-            time_delta=6,
-            time_unit="weeks",
-            date_format="yy-mm-dd",
-            api_mode="prod",
-            upstream_tasks=[materialization_flow],
+            dataset_id=dataset_id,
+            table_id=table_id,
+            date_column_name={"date": "data"},
+            date_format="%Y-%m-%d",
+            coverage_type="part_bdpro",
+            time_delta={"weeks": 6},
+            prefect_mode=materialization_mode,
+            bq_project="basedosdados",
+            upstream_tasks=[wait_for_materialization],
+
         )
 
 transfermarkt_brasileirao_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -185,19 +182,15 @@ with Flow(
         )
 
         update_django_metadata(
-            dataset_id,
-            table_id,
-            metadata_type="DateTimeRange",
-            _last_date=data_maxima,
-            bq_table_last_year_month=False,
-            bq_last_update=False,
-            is_bd_pro=True,
-            is_free=True,
-            time_delta=6,
-            time_unit="months",
-            date_format="yy-mm-dd",
-            api_mode="prod",
-            upstream_tasks=[materialization_flow],
+            dataset_id=dataset_id,
+            table_id=table_id,
+            date_column_name={"date": "data"},
+            date_format="%Y-%m-%d",
+            coverage_type="part_bdpro",
+            time_delta={"months": 6},
+            prefect_mode=materialization_mode,
+            bq_project="basedosdados",
+            upstream_tasks=[wait_for_materialization],
         )
 
 transfermarkt_copa_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

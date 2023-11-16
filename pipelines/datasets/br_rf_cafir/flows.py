@@ -121,18 +121,15 @@ with Flow(
             # não há necessidade de atualizar o coverage agora.
 
             with case(update_metadata, True):
-                update = update_django_metadata(
-                    dataset_id,
-                    table_id,
-                    metadata_type="DateTimeRange",
-                    _last_date=update_metadata_strig_date,
-                    bq_last_update=False,
-                    api_mode="prod",
-                    date_format="yy-mm-dd",
-                    is_bd_pro=True,
-                    is_free=True,
-                    time_delta=6,
-                    time_unit="months",
+                update_django_metadata(
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"date": "data_referencia"},
+                    date_format="%Y-%m-%d",
+                    coverage_type="part_bdpro",
+                    time_delta={"months": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
 
