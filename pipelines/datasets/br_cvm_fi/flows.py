@@ -33,7 +33,6 @@ from pipelines.datasets.br_cvm_fi.tasks import (
     download_csv_cvm,
     download_unzip_csv,
     extract_links_and_dates,
-    get_today_date,
     is_empty,
 )
 from pipelines.utils.constants import constants as utils_constants
@@ -127,18 +126,15 @@ with Flow(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
             with case(update_metadata, True):
-                date = get_today_date()
                 update_django_metadata(
-                    dataset_id,
-                    table_id,
-                    metadata_type="DateTimeRange",
-                    _last_date=date,
-                    bq_table_last_year_month=False,
-                    bq_last_update=False,
-                    is_bd_pro=True,
-                    is_free=False,
-                    date_format="yy-mm-dd",
-                    api_mode="prod",
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"date": "data_competencia"},
+                    date_format="%Y-%m-%d",
+                    coverage_type="all_bdpro",
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
+                    upstream_tasks=[wait_for_materialization],
                 )
 
 
@@ -230,18 +226,15 @@ with Flow(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
             with case(update_metadata, True):
-                date = get_today_date()
                 update_django_metadata(
-                    dataset_id,
-                    table_id,
-                    metadata_type="DateTimeRange",
-                    _last_date=date,
-                    bq_table_last_year_month=False,
-                    bq_last_update=False,
-                    is_bd_pro=True,
-                    is_free=False,
-                    date_format="yy-mm-dd",
-                    api_mode="prod",
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"date": "data_competencia"},
+                    date_format="%Y-%m-%d",
+                    coverage_type="all_bdpro",
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
+                    upstream_tasks=[wait_for_materialization],
                 )
 
 
@@ -339,18 +332,15 @@ with Flow(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
             with case(update_metadata, True):
-                date = get_today_date()
                 update_django_metadata(
-                    dataset_id,
-                    table_id,
-                    metadata_type="DateTimeRange",
-                    _last_date=date,
-                    bq_table_last_year_month=False,
-                    bq_last_update=False,
-                    is_bd_pro=True,
-                    is_free=False,
-                    date_format="yy-mm-dd",
-                    api_mode="prod",
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"date": "data_competencia"},
+                    date_format="%Y-%m-%d",
+                    coverage_type="all_bdpro",
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
+                    upstream_tasks=[wait_for_materialization],
                 )
 
 br_cvm_fi_documentos_extratos_informacoes.storage = GCS(
@@ -439,18 +429,15 @@ with Flow(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
             with case(update_metadata, True):
-                date = get_today_date()
                 update_django_metadata(
-                    dataset_id,
-                    table_id,
-                    metadata_type="DateTimeRange",
-                    _last_date=date,
-                    bq_table_last_year_month=False,
-                    bq_last_update=False,
-                    is_bd_pro=True,
-                    is_free=False,
-                    date_format="yy-mm-dd",
-                    api_mode="prod",
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"date": "data_competencia"},
+                    date_format="%Y-%m-%d",
+                    coverage_type="all_bdpro",
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
+                    upstream_tasks=[wait_for_materialization],
                 )
 
 br_cvm_fi_documentos_perfil_mensal.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -536,18 +523,14 @@ with Flow(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
             with case(update_metadata, True):
-                date = get_today_date()
                 update_django_metadata(
-                    dataset_id,
-                    table_id,
-                    metadata_type="DateTimeRange",
-                    _last_date=date,
-                    bq_table_last_year_month=False,
-                    bq_last_update=False,
-                    is_bd_pro=True,
-                    is_free=False,
-                    date_format="yy-mm-dd",
-                    api_mode="prod",
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    coverage_type="all_bdpro",
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
+                    upstream_tasks=[wait_for_materialization],
+                    historical_database=False,
                 )
 
 
@@ -636,18 +619,15 @@ with Flow(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
             with case(update_metadata, True):
-                date = get_today_date()
                 update_django_metadata(
-                    dataset_id,
-                    table_id,
-                    metadata_type="DateTimeRange",
-                    _last_date=date,
-                    bq_table_last_year_month=False,
-                    bq_last_update=False,
-                    is_bd_pro=True,
-                    is_free=False,
-                    date_format="yy-mm-dd",
-                    api_mode="prod",
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"date": "data_competencia"},
+                    date_format="%Y-%m-%d",
+                    coverage_type="all_bdpro",
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
+                    upstream_tasks=[wait_for_materialization],
                 )
 
 
