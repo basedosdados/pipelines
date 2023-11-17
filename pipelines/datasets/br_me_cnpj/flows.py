@@ -17,7 +17,11 @@ from pipelines.datasets.br_me_cnpj.schedules import (
     every_day_simples,
     every_day_socios,
 )
-from pipelines.datasets.br_me_cnpj.tasks import get_data_source_max_date, main, true_task
+from pipelines.datasets.br_me_cnpj.tasks import (
+    get_data_source_max_date,
+    main,
+    true_task,
+)
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
