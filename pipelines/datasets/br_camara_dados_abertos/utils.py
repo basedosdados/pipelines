@@ -78,7 +78,7 @@ def read_and_clean_parlamentar():
     df = apply_architecture_to_dataframe(
         df,
         url_architecture=constants.dict_arquitetura.value["votacao_parlamentar"],
-        apply_include_missing_columns=False,
+        apply_include_missing_columns=True,
         apply_column_order_and_selection=True,
         apply_rename_columns=True,
     )
@@ -92,7 +92,7 @@ def read_and_clean_objeto():
     df = apply_architecture_to_dataframe(
         df,
         url_architecture=constants.dict_arquitetura.value["votacao_objeto"],
-        apply_include_missing_columns=False,
+        apply_include_missing_columns=True,
         apply_column_order_and_selection=True,
         apply_rename_columns=True,
     )
@@ -106,7 +106,7 @@ def read_and_clean_orientacao():
     df = apply_architecture_to_dataframe(
         df,
         url_architecture=constants.dict_arquitetura.value["votacao_orientacao_bancada"],
-        apply_include_missing_columns=False,
+        apply_include_missing_columns=True,
         apply_column_order_and_selection=True,
         apply_rename_columns=True,
     )
@@ -120,7 +120,7 @@ def read_and_clean_proposicao():
     df = apply_architecture_to_dataframe(
         df,
         url_architecture=constants.dict_arquitetura.value["votacao_proposicao_afetada"],
-        apply_include_missing_columns=False,
+        apply_include_missing_columns=True,
         apply_column_order_and_selection=True,
         apply_rename_columns=True,
     )
