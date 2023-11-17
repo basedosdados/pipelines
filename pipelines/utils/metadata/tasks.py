@@ -13,13 +13,12 @@ from pipelines.utils.metadata.utils import (
     extract_last_date_from_bq,
     get_api_most_recent_date,
     get_billing_project_id,
+    get_coverage_parameters,
     get_credentials_utils,
     get_ids,
-    get_part_bdpro_coverage_parameters,
     get_table_status,
-    parse_temporal_coverage,
 )
-from pipelines.utils.utils import extract_last_date, log
+from pipelines.utils.utils import log
 
 
 @task
@@ -109,65 +108,33 @@ def update_django_metadata(
         historical_database=historical_database,
     )
 
-    if coverage_type == "all_free":
-        all_free_parameters = parse_temporal_coverage(
-            f"{last_date}", historical_database
-        )
-        all_free_parameters["coverage"] = ids.get("coverage_id_free")
+    free_parameters, bdpro_parameters = get_coverage_parameters(
+        coverage_type=coverage_type,
+        last_date=last_date,
+        time_delta=time_delta,
+        ids=ids,
+        date_format=date_format,
+        historical_database=historical_database,
+    )
 
+    if free_parameters is not None:
         create_update(
             query_class="allDatetimerange",
-            query_parameters={"$coverage_Id: ID": ids.get("coverage_id_free")},
-            mutation_class="CreateUpdateDateTimeRange",
-            mutation_parameters=all_free_parameters,
-            update=True,
-            email=email,
-            password=password,
-            api_mode=api_mode,
-        )
-
-    elif coverage_type == "all_bdpro":
-        log(f"Cobertura PRO ->> {last_date}")
-        bdpro_parameters = parse_temporal_coverage(f"{last_date}", historical_database)
-        bdpro_parameters["coverage"] = ids.get("coverage_id_pro")
-
-        create_update(
-            query_class="allDatetimerange",
-            query_parameters={"$coverage_Id: ID": ids.get("coverage_id_pro")},
-            mutation_class="CreateUpdateDateTimeRange",
-            mutation_parameters=bdpro_parameters,
-            update=True,
-            email=email,
-            password=password,
-            api_mode=api_mode,
-        )
-
-    elif coverage_type == "part_bdpro":
-        if not historical_database:
-            raise ValueError(
-                "Invalid Selection: Non-historical base and partially bdpro coverage chosen, not compatible."
-            )
-
-        bdpro_parameters, free_parameters = get_part_bdpro_coverage_parameters(
-            time_delta=time_delta, ids=ids, last_date=last_date, date_format=date_format
-        )
-
-        create_update(
-            query_class="allDatetimerange",
-            query_parameters={"$coverage_Id: ID": ids.get("coverage_id_pro")},
-            mutation_class="CreateUpdateDateTimeRange",
-            mutation_parameters=bdpro_parameters,
-            update=True,
-            email=email,
-            password=password,
-            api_mode=api_mode,
-        )
-
-        create_update(
-            query_class="allDatetimerange",
-            query_parameters={"$coverage_Id: ID": ids.get("coverage_id_free")},
+            query_parameters={"$coverage_Id: ID": free_parameters["coverage"]},
             mutation_class="CreateUpdateDateTimeRange",
             mutation_parameters=free_parameters,
+            update=True,
+            email=email,
+            password=password,
+            api_mode=api_mode,
+        )
+
+    if bdpro_parameters is not None:
+        create_update(
+            query_class="allDatetimerange",
+            query_parameters={"$coverage_Id: ID": bdpro_parameters["coverage"]},
+            mutation_class="CreateUpdateDateTimeRange",
+            mutation_parameters=bdpro_parameters,
             update=True,
             email=email,
             password=password,
