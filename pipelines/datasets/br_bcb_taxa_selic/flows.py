@@ -100,7 +100,7 @@ with Flow(
             update_django_metadata(
                 dataset_id=dataset_id,
                 table_id=table_id,
-                date_column_name={"date": "data_cotacao"},
+                date_column_name={"date": "data"},
                 date_format="%Y-%m-%d",
                 coverage_type="all_bdpro",
                 prefect_mode=materialization_mode,
