@@ -57,7 +57,7 @@ def read_and_clean_microdados():
     df = pd.read_csv(constants.INPUT_PATH.value + "votacoes.csv", sep=";")
     log("Creating column ano")
 
-    df['ano'] = df['data'].str[0:4]
+    df["ano"] = df["data"].str[0:4]
 
     log("Creating column horario")
 
