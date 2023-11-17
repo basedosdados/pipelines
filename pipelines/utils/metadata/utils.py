@@ -448,7 +448,7 @@ def parse_date(position, date_str, date_len):
     return result
 
 
-def parse_temporal_coverage(temporal_coverage, historical_database = True):
+def parse_temporal_coverage(temporal_coverage, historical_database=True):
     if not historical_database:
         temporal_coverage = f"{temporal_coverage}(1){temporal_coverage}"
         log(temporal_coverage)
