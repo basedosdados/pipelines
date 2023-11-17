@@ -61,6 +61,7 @@ def read_and_clean_microdados():
 
     log("Rename and reorder columns")
 
+    log("------------- columns before apply architecture --------------")
     log(df.columns)
     df = apply_architecture_to_dataframe(
         df,
@@ -69,7 +70,8 @@ def read_and_clean_microdados():
         apply_column_order_and_selection=True,
         apply_rename_columns=True,
     )
-
+    log("------------- columns after apply architecture --------------")
+    log(df.columns)
     return df
 
 
@@ -77,6 +79,8 @@ def read_and_clean_parlamentar():
     log("Read csv from ---- parlamentar ----")
     df = pd.read_csv(constants.INPUT_PATH.value + "votacoesVotos.csv", sep=";")
     df["ano"] = df["dataHoraVoto"].str[0:4]
+    log("------------- columns before apply architecture --------------")
+    log(df.columns)
     df = apply_architecture_to_dataframe(
         df,
         url_architecture=constants.dict_arquitetura.value["voto_parlamentar"],
@@ -84,7 +88,8 @@ def read_and_clean_parlamentar():
         apply_column_order_and_selection=True,
         apply_rename_columns=True,
     )
-
+    log("------------- columns after apply architecture --------------")
+    log(df.columns)
     return df
 
 
@@ -92,6 +97,8 @@ def read_and_clean_objeto():
     print("Read csv from ---- objeto ----")
     df = pd.read_csv(constants.INPUT_PATH.value + "votacoesObjetos.csv", sep=";")
     df["ano"] = df["data"].str[0:4]
+    log("------------- columns before apply architecture --------------")
+    log(df.columns)
     df = apply_architecture_to_dataframe(
         df,
         url_architecture=constants.dict_arquitetura.value["votacao_objeto"],
@@ -99,7 +106,8 @@ def read_and_clean_objeto():
         apply_column_order_and_selection=True,
         apply_rename_columns=True,
     )
-
+    log("------------- columns after apply architecture --------------")
+    log(df.columns)
     return df
 
 
@@ -107,6 +115,8 @@ def read_and_clean_orientacao():
     print("Read csv from ---- orientacao ----")
     df = pd.read_csv(constants.INPUT_PATH.value + "votacoesOrientacoes.csv", sep=";")
     df["ano"] = get_ano_microdados()
+    log("------------- columns before apply architecture --------------")
+    log(df.columns)
     df = apply_architecture_to_dataframe(
         df,
         url_architecture=constants.dict_arquitetura.value["votacao_orientacao_bancada"],
@@ -114,7 +124,8 @@ def read_and_clean_orientacao():
         apply_column_order_and_selection=True,
         apply_rename_columns=True,
     )
-
+    log("------------- columns after apply architecture --------------")
+    log(df.columns)
     return df
 
 
@@ -122,6 +133,8 @@ def read_and_clean_proposicao():
     print("Read csv from ---- proposicao ----")
     df = pd.read_csv(constants.INPUT_PATH.value + "votacoesProposicoes.csv", sep=";")
     df["ano"] = df["data"].str[0:4]
+    log("------------- columns before apply architecture --------------")
+    log(df.columns)
     df = apply_architecture_to_dataframe(
         df,
         url_architecture=constants.dict_arquitetura.value["votacao_proposicao_afetada"],
@@ -129,5 +142,7 @@ def read_and_clean_proposicao():
         apply_column_order_and_selection=True,
         apply_rename_columns=True,
     )
+    log("------------- columns after apply architecture --------------")
+    log(df.columns)
 
     return df
