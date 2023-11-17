@@ -59,10 +59,6 @@ def read_and_clean_microdados():
 
     df["ano"] = df["data"].str[0:4]
 
-    log("Creating column horario")
-
-    df["horario"] = df["dataHoraRegistro"].str[11:19]
-
     log("Rename and reorder columns")
 
     log(df.columns)
