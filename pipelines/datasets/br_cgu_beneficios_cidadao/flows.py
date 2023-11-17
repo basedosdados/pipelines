@@ -40,7 +40,7 @@ from pipelines.utils.tasks import (  # update_django_metadata,
 with Flow(
     name="br_cgu_beneficios_cidadao.novo_bolsa_familia",
     code_owners=[
-        "arhurfg",
+        "arthurfg",
     ],
 ) as datasets_br_cgu_bolsa_familia_flow:
     dataset_id = Parameter(
