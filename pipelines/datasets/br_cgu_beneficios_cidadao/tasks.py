@@ -14,9 +14,10 @@ from pipelines.datasets.br_cgu_beneficios_cidadao.constants import constants
 from pipelines.datasets.br_cgu_beneficios_cidadao.utils import (
     download_unzip_csv,
     extract_dates,
+    extract_last_date,
     parquet_partition,
 )
-from pipelines.utils.utils import extract_last_date, log
+from pipelines.utils.utils import log
 
 
 @task
@@ -79,7 +80,6 @@ def check_for_updates(dataset_id: str, table_id: str, max_date: datetime) -> boo
     bd_date = extract_last_date(
         dataset_id,
         table_id,
-        "yy-mm",
         billing_project_id=main_constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
     )
     bd_date = datetime.strptime(bd_date, "%Y-%m")
