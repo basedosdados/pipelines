@@ -108,13 +108,14 @@ def update_django_metadata(
         historical_database=historical_database,
     )
 
-    free_parameters, bdpro_parameters = get_coverage_parameters(coverage_type = coverage_type,
-                                                                last_date = last_date,
-                                                                time_delta=time_delta, 
-                                                                ids=ids, 
-                                                                date_format=date_format
-                                                                )
-    
+    free_parameters, bdpro_parameters = get_coverage_parameters(
+        coverage_type=coverage_type,
+        last_date=last_date,
+        time_delta=time_delta,
+        ids=ids,
+        date_format=date_format,
+    )
+
     if free_parameters is not None:
         create_update(
             query_class="allDatetimerange",
@@ -138,7 +139,6 @@ def update_django_metadata(
             password=password,
             api_mode=api_mode,
         )
-
 
 
 @task
