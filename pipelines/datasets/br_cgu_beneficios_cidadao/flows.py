@@ -117,7 +117,10 @@ with Flow(
                 update_django_metadata(
                     dataset_id=dataset_id,
                     table_id=table_id,
-                    date_column_name={"year": "ano_competencia", "month": "mes_competencia"},
+                    date_column_name={
+                        "year": "ano_competencia",
+                        "month": "mes_competencia",
+                    },
                     date_format="%Y-%m",
                     coverage_type="all_bdpro",
                     time_delta={"months": 6},
@@ -215,7 +218,10 @@ with Flow(
                 update_django_metadata(
                     dataset_id=dataset_id,
                     table_id=table_id,
-                    date_column_name={"year": "ano_referencia", "month": "mes_referencia"},
+                    date_column_name={
+                        "year": "ano_referencia",
+                        "month": "mes_referencia",
+                    },
                     date_format="%Y-%m",
                     coverage_type="part_bdpro",
                     time_delta={"months": 6},
@@ -308,7 +314,10 @@ with Flow(
                 update_django_metadata(
                     dataset_id=dataset_id,
                     table_id=table_id,
-                    date_column_name={"year": "ano_competencia", "month": "mes_competencia"},
+                    date_column_name={
+                        "year": "ano_competencia",
+                        "month": "mes_competencia",
+                    },
                     date_format="%Y-%m",
                     coverage_type="part_bdpro",
                     time_delta={"months": 6},
