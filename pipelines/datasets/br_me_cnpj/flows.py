@@ -86,7 +86,7 @@ with Flow(
                     "table_id": table_id,
                     "mode": materialization_mode,
                     "dbt_alias": dbt_alias,
-                    "dbt_command": "run and test"
+                    "dbt_command": "run and test",
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
@@ -266,7 +266,7 @@ with Flow(
                     "table_id": table_id,
                     "mode": materialization_mode,
                     "dbt_alias": dbt_alias,
-                    "dbt_command": "run and test"
+                    "dbt_command": "run and test",
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
@@ -296,7 +296,7 @@ with Flow(
                 bq_project="basedosdados",
                 upstream_tasks=[wait_for_materialization],
             )
-## atualiza o diretório de empresas
+        ## atualiza o diretório de empresas
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
             current_flow_labels = get_current_flow_labels()
