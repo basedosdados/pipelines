@@ -57,7 +57,7 @@ def read_and_clean_microdados():
     df = pd.read_csv(constants.INPUT_PATH.value + "votacoes.csv", sep=";")
     log("Creating column ano")
 
-    df['hora'] = df['data'].str[0:4]
+    df["hora"] = df["data"].str[0:4]
 
     log("Creating column horario")
 
@@ -80,7 +80,7 @@ def read_and_clean_microdados():
 def read_and_clean_parlamentar():
     log("Read csv from ---- parlamentar ----")
     df = pd.read_csv(constants.INPUT_PATH.value + "votacoesVotos.csv", sep=";")
-    df["ano"] = df['dataHoraVoto'].str[0:4]
+    df["ano"] = df["dataHoraVoto"].str[0:4]
     df = apply_architecture_to_dataframe(
         df,
         url_architecture=constants.dict_arquitetura.value["voto_parlamentar"],
@@ -95,7 +95,7 @@ def read_and_clean_parlamentar():
 def read_and_clean_objeto():
     print("Read csv from ---- objeto ----")
     df = pd.read_csv(constants.INPUT_PATH.value + "votacoesObjetos.csv", sep=";")
-    df["ano"] = df['data'].str[0:4]
+    df["ano"] = df["data"].str[0:4]
     df = apply_architecture_to_dataframe(
         df,
         url_architecture=constants.dict_arquitetura.value["votacao_objeto"],
@@ -125,7 +125,7 @@ def read_and_clean_orientacao():
 def read_and_clean_proposicao():
     print("Read csv from ---- proposicao ----")
     df = pd.read_csv(constants.INPUT_PATH.value + "votacoesProposicoes.csv", sep=";")
-    df["ano"] = df['data'].str[0:4]
+    df["ano"] = df["data"].str[0:4]
     df = apply_architecture_to_dataframe(
         df,
         url_architecture=constants.dict_arquitetura.value["votacao_proposicao_afetada"],
