@@ -114,6 +114,7 @@ def update_django_metadata(
         time_delta=time_delta,
         ids=ids,
         date_format=date_format,
+        historical_database=historical_database
     )
 
     if free_parameters is not None:

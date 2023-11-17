@@ -40,7 +40,7 @@ from pipelines.utils.tasks import (  # update_django_metadata,
 with Flow(
     name="br_cgu_beneficios_cidadao.novo_bolsa_familia",
     code_owners=[
-        "arthurfg",
+        "lauris",
     ],
 ) as datasets_br_cgu_bolsa_familia_flow:
     dataset_id = Parameter(
@@ -112,13 +112,14 @@ with Flow(
             wait_for_materialization.retry_delay = timedelta(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
+
             with case(update_metadata, True):
                 update_django_metadata(
                     dataset_id=dataset_id,
                     table_id=table_id,
-                    date_column_name={"year": "ano", "month": "mes"},
+                    date_column_name={"year": "ano_competencia", "month": "mes_competencia"},
                     date_format="%Y-%m",
-                    coverage_type="partially_bdpro",
+                    coverage_type="all_bdpro",
                     time_delta={"months": 6},
                     prefect_mode=materialization_mode,
                     bq_project="basedosdados",
@@ -214,13 +215,12 @@ with Flow(
                 update_django_metadata(
                     dataset_id=dataset_id,
                     table_id=table_id,
-                    date_column_name={"year": "ano", "month": "mes"},
+                    date_column_name={"year": "ano_referencia", "month": "mes_referencia"},
                     date_format="%Y-%m",
-                    coverage_type="partially_bdpro",
+                    coverage_type="part_bdpro",
                     time_delta={"months": 6},
                     prefect_mode=materialization_mode,
                     bq_project="basedosdados",
-                    upstream_tasks=[wait_for_materialization],
                 )
 
 datasets_br_cgu_garantia_safra_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -308,9 +308,9 @@ with Flow(
                 update_django_metadata(
                     dataset_id=dataset_id,
                     table_id=table_id,
-                    date_column_name={"year": "ano", "month": "mes"},
+                    date_column_name={"year": "ano_competencia", "month": "mes_competencia"},
                     date_format="%Y-%m",
-                    coverage_type="partially_bdpro",
+                    coverage_type="part_bdpro",
                     time_delta={"months": 6},
                     prefect_mode=materialization_mode,
                     bq_project="basedosdados",
