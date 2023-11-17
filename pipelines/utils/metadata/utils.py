@@ -430,6 +430,51 @@ def update_date_from_bq_metadata(
         log(f"An error occurred while extracting the last update date: {str(e)}")
         raise
 
+def get_coverage_parameters(coverage_type,
+                            last_date,
+                            time_delta, 
+                            ids, 
+                            date_format,
+                            historical_database
+                            ):
+    
+    if coverage_type == "all_free":
+        free_parameters = parse_temporal_coverage(last_date, historical_database)
+        free_parameters["coverage"] = ids.get("coverage_id_free")
+        log(f"Cobertura Grátis ->> {last_date}")
+        return free_parameters,None
+    
+    elif coverage_type == "all_bdpro":
+        bdpro_parameters = parse_temporal_coverage(last_date, historical_database)
+        bdpro_parameters["coverage"] = ids.get("coverage_id_pro")
+        
+        return None,bdpro_parameters
+    
+    elif coverage_type == "part_bdpro":
+        if not historical_database:
+                    raise ValueError(
+                        "Invalid Selection: Non-historical base and partially bdpro coverage chosen, not compatible."
+                    )
+        
+        bdpro_parameters = parse_temporal_coverage(last_date)
+        bdpro_parameters["coverage"] = ids.get("coverage_id_pro")
+
+        delta = relativedelta(**time_delta)
+        free_data = datetime.strptime(last_date, date_format) - delta
+        free_data = free_data.strftime(date_format)
+        free_parameters = parse_temporal_coverage(free_data)
+        free_parameters["coverage"] = ids.get("coverage_id_free")
+
+        bdpro_parameters = sync_bdpro_and_free_coverage(
+            date_format=date_format,
+            bdpro_parameters=bdpro_parameters,
+            free_parameters=free_parameters,
+        )
+
+        log(f"Cobertura Grátis ->> {free_data} || Cobertura PRO ->> {last_date}")
+
+        return free_parameters, bdpro_parameters
+
 
 def parse_date(position, date_str, date_len):
     result = {}
@@ -472,28 +517,6 @@ def parse_temporal_coverage(temporal_coverage, historical_database = True):
         start_result["interval"] = int(interval_str)
 
     return end_result
-
-
-def get_part_bdpro_coverage_parameters(time_delta, ids, last_date, date_format):
-    bdpro_parameters = parse_temporal_coverage(last_date)
-    bdpro_parameters["coverage"] = ids.get("coverage_id_pro")
-
-    delta = relativedelta(**time_delta)
-    free_data = datetime.strptime(last_date, date_format) - delta
-    free_data = free_data.strftime(date_format)
-    free_parameters = parse_temporal_coverage(f"{delta}")
-    free_parameters["coverage"] = ids.get("coverage_id_free")
-
-    bdpro_parameters = sync_bdpro_and_free_coverage(
-        date_format=date_format,
-        bdpro_parameters=bdpro_parameters,
-        free_parameters=free_parameters,
-    )
-
-    log(f"Cobertura PRO ->> {last_date} || Cobertura Grátis ->> {free_data}")
-
-    return bdpro_parameters, free_parameters
-
 
 def sync_bdpro_and_free_coverage(
     date_format: str, bdpro_parameters: dict, free_parameters: dict
