@@ -13,6 +13,7 @@ from pipelines.datasets.br_denatran_frota.handlers import (
     get_desired_file,
     treat_municipio_tipo,
     get_latest_data,
+    should_process_data,
 )
 from pipelines.utils.utils import (
     log,
@@ -53,3 +54,8 @@ def treat_municipio_tipo_task(file: str) -> pl.DataFrame:
 @task()
 def get_latest_data_task(table_name: str) -> tuple[int, int]:
     return get_latest_data(table_name)
+
+
+@task()
+def should_process_data_task(bq_year: int, bq_month: int, filename: str) -> bool:
+    return should_process_data(bq_year, bq_month, filename)

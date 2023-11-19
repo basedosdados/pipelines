@@ -20,7 +20,7 @@ import rpy2.robjects as robjects
 from rpy2.robjects.vectors import StrVector
 import basedosdados as bd
 from enum import Enum
-
+from datetime import datetime
 
 DICT_UFS = constants.DICT_UFS.value
 SUBSTITUTIONS = constants.SUBSTITUTIONS.value
@@ -426,7 +426,7 @@ def extract_links_post_2012(month: int, year: int, directory: str) -> list[dict]
         match = re.search(
             r"(?i)\/([\w-]+)\/(\d{4})\/(\w+)\/([\w-]+)\.(?:xls|xlsx|rar|zip)$", href
         )
-        if match and re.search("tipo", txt, flags=re.IGNORECASE):
+        if match and re.search("tipo|município", txt, flags=re.IGNORECASE):
             matched_month = match.group(3)
             matched_year = match.group(2)
             if MONTHS.get(matched_month) == month and matched_year == str(year):

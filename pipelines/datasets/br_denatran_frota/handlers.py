@@ -224,3 +224,23 @@ def treat_municipio_tipo(file: str) -> pl.DataFrame:
         value_name="quantidade",
     )  # Long format.
     return full_pl_df
+
+
+def should_process_data(bq_year: int, bq_month: int, filename: str) -> bool:
+    """Verify if the crawled data is new enough to be uploaded.
+
+    Args:
+        bq_year (int): Year gotten from get_latest_data, comes from BQ data.
+        bq_month (int): Month gotten from get_latest_data, comes from BQ data.
+        filename (str): Name of the DENATRAN data file downloaded.
+
+    Returns:
+        bool: Whether or not the data obtained from the website is recent enough to be updated.
+    """
+    crawled_year, crawled_month = get_year_month_from_filename(filename)
+    if crawled_year > bq_year or (
+        crawled_year == bq_year and crawled_month >= bq_month
+    ):
+        return True
+    else:
+        return False
