@@ -72,7 +72,7 @@ with Flow(
         log_task(f"Não há atualizações para a tabela de {table_id}!")
 
     with case(check_if_outdated, True):
-        log_task("Existem atualizações! A run será inciada")
+        log_task("Existem atualizações! A run será iniciada")
 
         download_data = download_br_me_comex_stat(
             table_type=comex_constants.TABLE_TYPE.value[0],
@@ -180,7 +180,7 @@ with Flow(
         log_task(f"Não há atualizações para a tabela de {table_id}!")
 
     with case(check_if_outdated, True):
-        log_task("Existem atualizações! A run será inciada")
+        log_task("Existem atualizações! A run será iniciada")
 
         download_data = download_br_me_comex_stat(
             table_type=comex_constants.TABLE_TYPE.value[0],
@@ -287,7 +287,7 @@ with Flow(
         log_task(f"Não há atualizações para a tabela de {table_id}!")
 
     with case(check_if_outdated, True):
-        log_task("Existem atualizações! A run será inciada")
+        log_task("Existem atualizações! A run será iniciada")
 
         download_data = download_br_me_comex_stat(
             table_type=comex_constants.TABLE_TYPE.value[1],
@@ -392,7 +392,7 @@ with Flow(
         log_task(f"Não há atualizações para a tabela de {table_id}!")
 
     with case(check_if_outdated, True):
-        log_task("Existem atualizações! A run será inciada")
+        log_task("Existem atualizações! A run será iniciada")
 
         download_data = download_br_me_comex_stat(
             table_type=comex_constants.TABLE_TYPE.value[1],

@@ -88,7 +88,7 @@ with Flow(
             save_path=br_bcb_estban_constants.DOWNLOAD_PATH_MUNICIPIO.value,
         )
 
-        municipio = get_id_municipio(table="municipio")
+        municipio = get_id_municipio()
 
         filepath = cleaning_municipios_data(
             path=br_bcb_estban_constants.DOWNLOAD_PATH_MUNICIPIO.value,
@@ -203,7 +203,7 @@ with Flow(
         )
 
         # read_file
-        municipio = get_id_municipio(table="municipio")
+        municipio = get_id_municipio()
 
         filepath = cleaning_agencias_data(
             path=br_bcb_estban_constants.DOWNLOAD_PATH_AGENCIA.value,

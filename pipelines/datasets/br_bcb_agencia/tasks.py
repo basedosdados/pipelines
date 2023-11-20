@@ -7,6 +7,7 @@ Tasks for br_bcb_agencia
 import os
 from datetime import timedelta
 
+import basedosdados as bd
 import pandas as pd
 from prefect import task
 
@@ -119,14 +120,13 @@ def clean_data():
             # to add new ids is necessary to join by name
             # clean nome municipio
 
-            # todo : copy from estban
             df = clean_nome_municipio(df)
 
-            municipio = get_data_from_prod(
-                "br_bd_diretorios_brasil",
-                "municipio",
-                ["nome", "sigla_uf", "id_municipio", "ddd"],
+            municipio = bd.read_sql(
+                query="select * from `basedosdados.br_bd_diretorios_brasil.municipio`",
+                billing_project_id="basedosdados-dev",
             )
+            municipio = municipio[["nome", "sigla_uf", "id_municipio", "ddd"]]
 
             log("municipio dataset successfully downloaded!")
 

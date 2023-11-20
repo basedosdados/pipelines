@@ -66,10 +66,12 @@ def download_estban_files(save_path: str, link: str) -> str:
     """
 
     file = "https://www4.bcb.gov.br" + link
+
     download_and_unzip(file, path=save_path)
 
     log("download task successfully !")
     log(f"files {os.listdir(save_path)} were downloaded and unzipped")
+
     return save_path
 
 
@@ -77,14 +79,15 @@ def download_estban_files(save_path: str, link: str) -> str:
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def get_id_municipio(table) -> pd.DataFrame:
+def get_id_municipio() -> pd.DataFrame:
     """get id municipio from basedosdados"""
 
-    municipio = get_data_from_prod(
-        "br_bd_diretorios_brasil",
-        table,
-        ["id_municipio_bcb", "id_municipio"],
+    municipio = bd.read_sql(
+        query="select * from `basedosdados.br_bd_diretorios_brasil.municipio`",
+        billing_project_id="basedosdados-dev",
     )
+
+    municipio = municipio[["id_municipio_bcb", "id_municipio"]]
 
     municipio = dict(zip(municipio.id_municipio_bcb, municipio.id_municipio))
     log("municipio dataset successfully downloaded!")
