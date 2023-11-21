@@ -36,7 +36,10 @@ from pipelines.datasets.br_bcb_estban.utils import (
 from pipelines.utils.utils import clean_dataframe, log, to_partitions
 
 
-@task
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def extract_most_recent_date(xpath, url):
     # table date
     url_list = extract_download_links(url=url, xpath=xpath)
@@ -84,7 +87,7 @@ def get_id_municipio() -> pd.DataFrame:
 
     municipio = bd.read_sql(
         query="select * from `basedosdados.br_bd_diretorios_brasil.municipio`",
-        billing_project_id="basedosdados-dev",
+        from_file=True,
     )
 
     municipio = municipio[["id_municipio_bcb", "id_municipio"]]

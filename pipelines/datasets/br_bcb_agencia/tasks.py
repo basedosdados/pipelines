@@ -21,7 +21,6 @@ from pipelines.datasets.br_bcb_agencia.utils import (
     download_and_unzip,
     extract_download_links,
     format_date,
-    get_data_from_prod,
     order_cols,
     parse_date,
     read_file,
@@ -35,8 +34,10 @@ from pipelines.datasets.br_bcb_agencia.utils import (
 from pipelines.utils.utils import log, to_partitions
 
 
-####
-@task
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def extract_most_recent_date(xpath, url):
     # table date
     url_list = extract_download_links(url=url, xpath=xpath)
@@ -124,7 +125,7 @@ def clean_data():
 
             municipio = bd.read_sql(
                 query="select * from `basedosdados.br_bd_diretorios_brasil.municipio`",
-                billing_project_id="basedosdados-dev",
+                from_file=True,
             )
             municipio = municipio[["nome", "sigla_uf", "id_municipio", "ddd"]]
 
