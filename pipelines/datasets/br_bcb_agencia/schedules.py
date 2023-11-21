@@ -10,12 +10,11 @@ from prefect.schedules.clocks import CronClock
 
 from pipelines.constants import constants
 
-####
 every_month_agencia = Schedule(
     clocks=[
         CronClock(
-            cron="@monthly",
-            start_date=datetime(2023, 9, 5, 0, 0),
+            cron="45 23 10-30 * *",  # At 23:45 on every day-of-month from 10 through 30.
+            start_date=datetime(2023, 11, 28, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
