@@ -71,7 +71,7 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id[0], wait=table_id[0]
     )
 
-    data_source_max_date = setting_data_url()
+    data_source_max_date = setting_data_url(upstream_tasks=[rename_flow_run])
 
     dados_desatualizados = check_if_data_is_outdated(
         dataset_id=dataset_id,

@@ -13,16 +13,12 @@ class constants(Enum):
 
     INPUT_PATH = "/tmp/input/"
     OUTPUT_PATH = "/tmp/output/"
-
-    ANOS = [2023, 2024]
-
-    CSVS = [
-        "votacoesProposicoes.csv",
-        "votacoes.csv",
-        "votacoesOrientacoes.csv",
-        "votacoesVotos.csv",
-        "votacoesObjetos.csv",
-    ]
+    OUTPUT_PATH_MICRODADOS = "/tmp/output/microdados/"
+    OUTPUT_PATH_PARLAMENTAR = "/tmp/output/parlamentar/"
+    OUTPUT_PATH_PROPOSICAO = "/tmp/output/proposicao/"
+    OUTPUT_PATH_OBJETO = "/tmp/output/objeto/"
+    OUTPUT_PATH_ORIENTACAO = "/tmp/output/orientacao/"
+    ANOS = [2023]
 
     VOTOS = [
         "votacoes",
