@@ -34,8 +34,7 @@ def get_k8s_dbt_client(
 
 @task(
     checkpoint=False,
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+    max_retries=0,
 )
 def run_dbt_model(
     dbt_client: DbtClient,

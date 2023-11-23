@@ -25,7 +25,7 @@ every_day_empresas = Schedule(
                 "table_id": "empresas",
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
-                "dbt_alias": False,
+                "dbt_alias": True,
             },
         ),
     ]
@@ -43,7 +43,7 @@ every_day_socios = Schedule(
                 "table_id": "socios",
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
-                "dbt_alias": False,
+                "dbt_alias": True,
             },
         ),
     ]
@@ -61,7 +61,7 @@ every_day_simples = Schedule(
                 "table_id": "simples",
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
-                "dbt_alias": False,
+                "dbt_alias": True,
             },
         ),
     ]
@@ -79,7 +79,7 @@ every_day_estabelecimentos = Schedule(
                 "table_id": "estabelecimentos",
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
-                "dbt_alias": False,
+                "dbt_alias": True,
             },
         ),
     ]
