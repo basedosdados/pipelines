@@ -64,8 +64,8 @@ from prefect.storage import GCS
 
 from pipelines.constants import constants
 from pipelines.datasets.test_pipeline.tasks import (
-    get_random_expression,
     dataframe_to_csv,
+    get_random_expression,
     upload_to_gcs,
 )
 from pipelines.utils.decorators import Flow

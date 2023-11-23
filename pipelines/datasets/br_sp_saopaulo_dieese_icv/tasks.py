@@ -3,8 +3,9 @@
 Tasks for br_sp_saopaulo_dieese_icv
 """
 import os
-import pandas as pd
+
 import ipeadatapy as idpy
+import pandas as pd
 from prefect import task
 
 

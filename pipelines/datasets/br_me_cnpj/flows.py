@@ -3,46 +3,39 @@
 Flows for br_me_cnpj
 """
 from datetime import timedelta
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+
 from prefect import Parameter, case
-from prefect.tasks.prefect import (
-    create_flow_run,
-    wait_for_flow_run,
-)
-from pipelines.utils.constants import constants as utils_constants
-from pipelines.datasets.br_me_cnpj.constants import (
-    constants as constants_cnpj,
-)
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
+from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
+
 from pipelines.constants import constants
-from pipelines.datasets.br_me_cnpj.tasks import (
-    calculate_defasagem,
-    format_date_to_string,
-    check_for_updates,
-    main,
-)
+from pipelines.datasets.br_me_cnpj.constants import constants as constants_cnpj
 from pipelines.datasets.br_me_cnpj.schedules import (
     every_day_empresas,
-    every_day_socios,
     every_day_estabelecimentos,
     every_day_simples,
+    every_day_socios,
 )
+from pipelines.datasets.br_me_cnpj.tasks import get_data_source_max_date, main
+from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
+from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.metadata.tasks import (
+    check_if_data_is_outdated,
+    update_django_metadata,
+)
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
-    rename_current_flow_run_dataset_table,
     get_current_flow_labels,
     log_task,
-    log,
+    rename_current_flow_run_dataset_table,
 )
-from pipelines.utils.metadata.tasks import update_django_metadata
-from pipelines.datasets.br_me_cnpj.utils import data_url
 
 with Flow(
     name="br_me_cnpj.empresas",
     code_owners=[
-        "Gabs",
+        "lauris",
     ],
 ) as br_me_cnpj_empresas:
     dataset_id = Parameter("dataset_id", default="br_me_cnpj", required=True)
@@ -59,16 +52,22 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
     tabelas = constants_cnpj.TABELAS.value[0:1]
-    dados_desatualizados = check_for_updates(dataset_id, table_id)
-    log_task(f"Checando se os dados estão desatualizados: {dados_desatualizados}")
+
+    data_source_max_date = get_data_source_max_date()
+
+    dados_desatualizados = check_if_data_is_outdated(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        data_source_max_date=data_source_max_date,
+        date_format="%Y-%m-%d",
+        upstream_tasks=[data_source_max_date],
+    )
 
     with case(dados_desatualizados, False):
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
     with case(dados_desatualizados, True):
-        data_coleta = format_date_to_string()
-        defasagem = calculate_defasagem(upstream_tasks=[data_coleta])
-        output_filepath = main(tabelas, upstream_tasks=[defasagem])
+        output_filepath = main(tabelas)
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
@@ -87,6 +86,7 @@ with Flow(
                     "table_id": table_id,
                     "mode": materialization_mode,
                     "dbt_alias": dbt_alias,
+                    "dbt_command": "run and test",
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
@@ -106,18 +106,15 @@ with Flow(
             )
 
             update_django_metadata(
-                dataset_id,
-                table_id,
-                metadata_type="DateTimeRange",
-                _last_date=data_coleta,
-                bq_last_update=False,
-                api_mode="prod",
-                date_format="yy-mm-dd",
-                is_bd_pro=True,
-                is_free=True,
-                time_delta=defasagem,
-                time_unit="months",
-                upstream_tasks=[materialization_flow],
+                dataset_id=dataset_id,
+                table_id=table_id,
+                date_column_name={"date": "data"},
+                date_format="%Y-%m-%d",
+                coverage_type="part_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
+                upstream_tasks=[wait_for_materialization],
             )
 
 
@@ -128,7 +125,7 @@ br_me_cnpj_empresas.schedule = every_day_empresas
 with Flow(
     name="br_me_cnpj.socios",
     code_owners=[
-        "Gabs",
+        "lauris",
     ],
 ) as br_me_cnpj_socios:
     dataset_id = Parameter("dataset_id", default="br_me_cnpj", required=True)
@@ -145,16 +142,22 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
     tabelas = constants_cnpj.TABELAS.value[1:2]
-    dados_desatualizados = check_for_updates(dataset_id, table_id)
-    log_task(f"Checando se os dados estão desatualizados: {dados_desatualizados}")
+
+    data_source_max_date = get_data_source_max_date()
+
+    dados_desatualizados = check_if_data_is_outdated(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        data_source_max_date=data_source_max_date,
+        date_format="%Y-%m-%d",
+        upstream_tasks=[data_source_max_date],
+    )
 
     with case(dados_desatualizados, False):
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
     with case(dados_desatualizados, True):
-        data_coleta = format_date_to_string()
-        defasagem = calculate_defasagem(upstream_tasks=[data_coleta])
-        output_filepath = main(tabelas, upstream_tasks=[defasagem])
+        output_filepath = main(tabelas)
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
@@ -192,20 +195,16 @@ with Flow(
             )
 
             update_django_metadata(
-                dataset_id,
-                table_id,
-                metadata_type="DateTimeRange",
-                _last_date=data_coleta,
-                bq_last_update=False,
-                api_mode="prod",
-                date_format="yy-mm-dd",
-                is_bd_pro=True,
-                is_free=True,
-                time_delta=defasagem,
-                time_unit="months",
-                upstream_tasks=[materialization_flow],
+                dataset_id=dataset_id,
+                table_id=table_id,
+                date_column_name={"date": "data"},
+                date_format="%Y-%m-%d",
+                coverage_type="part_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
+                upstream_tasks=[wait_for_materialization],
             )
-
 
 br_me_cnpj_socios.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_me_cnpj_socios.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
@@ -215,7 +214,7 @@ br_me_cnpj_socios.schedule = every_day_socios
 with Flow(
     name="br_me_cnpj.estabelecimentos",
     code_owners=[
-        "Gabs",
+        "lauris",
     ],
 ) as br_me_cnpj_estabelecimentos:
     dataset_id = Parameter("dataset_id", default="br_me_cnpj", required=True)
@@ -232,16 +231,22 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
     tabelas = constants_cnpj.TABELAS.value[2:3]
-    dados_desatualizados = check_for_updates(dataset_id, table_id)
-    log_task(f"Checando se os dados estão desatualizados: {dados_desatualizados}")
+
+    data_source_max_date = get_data_source_max_date()
+
+    dados_desatualizados = check_if_data_is_outdated(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        data_source_max_date=data_source_max_date,
+        date_format="%Y-%m-%d",
+        upstream_tasks=[data_source_max_date],
+    )
 
     with case(dados_desatualizados, False):
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
     with case(dados_desatualizados, True):
-        data_coleta = format_date_to_string()
-        defasagem = calculate_defasagem(upstream_tasks=[data_coleta])
-        output_filepath = main(tabelas, upstream_tasks=[defasagem])
+        output_filepath = main(tabelas)
 
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
@@ -261,6 +266,7 @@ with Flow(
                     "table_id": table_id,
                     "mode": materialization_mode,
                     "dbt_alias": dbt_alias,
+                    "dbt_command": "run and test",
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
@@ -280,19 +286,17 @@ with Flow(
             )
 
             update_django_metadata(
-                dataset_id,
-                table_id,
-                metadata_type="DateTimeRange",
-                _last_date=data_coleta,
-                bq_last_update=False,
-                api_mode="prod",
-                date_format="yy-mm-dd",
-                is_bd_pro=True,
-                is_free=True,
-                time_delta=defasagem,
-                time_unit="months",
-                upstream_tasks=[materialization_flow],
+                dataset_id=dataset_id,
+                table_id=table_id,
+                date_column_name={"date": "data"},
+                date_format="%Y-%m-%d",
+                coverage_type="part_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
+                upstream_tasks=[wait_for_materialization],
             )
+        ## atualiza o diretório de empresas
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
             current_flow_labels = get_current_flow_labels()
@@ -325,14 +329,13 @@ with Flow(
             update_django_metadata(
                 dataset_id="br_bd_diretorios_brasil",
                 table_id="empresa",
-                metadata_type="DateTimeRange",
-                _last_date=data_coleta,
-                bq_last_update=False,
-                api_mode="prod",
-                date_format="yy-mm-dd",
-                is_bd_pro=True,
-                is_free=False,
-                upstream_tasks=[materialize_second],
+                date_column_name={"date": "data"},
+                date_format="%Y-%m-%d",
+                coverage_type="part_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
+                upstream_tasks=[wait_for_materialization],
             )
 
 
@@ -346,7 +349,7 @@ br_me_cnpj_estabelecimentos.schedule = every_day_estabelecimentos
 with Flow(
     name="br_me_cnpj.simples",
     code_owners=[
-        "Gabs",
+        "lauris",
     ],
 ) as br_me_cnpj_simples:
     dataset_id = Parameter("dataset_id", default="br_me_cnpj", required=True)
@@ -363,17 +366,22 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
     tabelas = constants_cnpj.TABELAS.value[3:]
-    dados_desatualizados = check_for_updates(
-        dataset_id="br_me_cnpj", table_id="estabelecimentos"
+
+    data_source_max_date = get_data_source_max_date()
+
+    dados_desatualizados = check_if_data_is_outdated(
+        dataset_id="br_me_cnpj",
+        table_id="estabelecimentos",
+        data_source_max_date=data_source_max_date,
+        date_format="%Y-%m-%d",
+        upstream_tasks=[data_source_max_date],
     )
-    log_task(f"Checando se os dados estão desatualizados: {dados_desatualizados}")
 
     with case(dados_desatualizados, False):
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
     with case(dados_desatualizados, True):
-        data_coleta = format_date_to_string()
-        output_filepath = main(tabelas, upstream_tasks=[data_coleta])
+        output_filepath = main(tabelas)
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
@@ -411,15 +419,13 @@ with Flow(
             )
 
             update_django_metadata(
-                dataset_id,
-                table_id,
-                metadata_type="DateTimeRange",
-                _last_date=data_coleta,
-                bq_last_update=False,
-                api_mode="prod",
-                date_format="yy-mm-dd",
-                is_free=True,
-                upstream_tasks=[materialization_flow],
+                dataset_id=dataset_id,
+                table_id=table_id,
+                coverage_type="all_free",
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
+                historical_database=False,
+                # upstream_tasks=[wait_for_materialization],
             )
 
 br_me_cnpj_simples.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

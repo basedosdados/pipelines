@@ -2,40 +2,68 @@
 """
 General purpose functions for the br_me_cnpj project
 """
-from pipelines.datasets.br_me_cnpj.constants import (
-    constants as constants_cnpj,
-)
-from pipelines.utils.utils import log
-import requests
-import pandas as pd
-from bs4 import BeautifulSoup
-from datetime import datetime
 import os
+import time
 import zipfile
-from tqdm import tqdm
-import pyarrow.parquet as pq
+from datetime import datetime
+
+import pandas as pd
 import pyarrow as pa
-import csv
-from typing import List
+import pyarrow.parquet as pq
+import requests
+from bs4 import BeautifulSoup
+from requests.exceptions import ConnectionError, Timeout
+from tqdm import tqdm
+
+from pipelines.datasets.br_me_cnpj.constants import constants as constants_cnpj
+from pipelines.utils.utils import log
 
 ufs = constants_cnpj.UFS.value
 headers = constants_cnpj.HEADERS.value
 
 
 # ! Checa a data do site ME
+# def data_url(url, headers):
+#     link_data = requests.get(url, headers=headers)
+#     soup = BeautifulSoup(link_data.text, "html.parser")
+#     span_element = soup.find_all("td", align="right")
+
+#     # Extrai a segunda ocorrência
+#     data_completa = span_element[1].text.strip()
+#     # Extrai a parte da data no formato "YYYY-MM-DD"
+#     data_str = data_completa[0:10]
+#     # Converte a string da data em um objeto de data
+#     data = datetime.strptime(data_str, "%Y-%m-%d")
+#     return data
+
+
 def data_url(url, headers):
-    link_data = requests.get(url, headers=headers)
-    soup = BeautifulSoup(link_data.text, "html.parser")
-    span_element = soup.find_all("td", align="right")
+    max_attempts = constants_cnpj.MAX_ATTEMPTS.value
+    timeout = constants_cnpj.TIMEOUT.value
+    attempts = constants_cnpj.ATTEMPTS.value
 
-    # Extrai a segunda ocorrência
-    data_completa = span_element[1].text.strip()
-    # Extrai a parte da data no formato "YYYY-MM-DD"
-    data_str = data_completa[0:10]
-    # Converte a string da data em um objeto de data
-    data = datetime.strptime(data_str, "%Y-%m-%d")
+    while attempts < max_attempts:
+        try:
+            link_data = requests.get(url, headers=headers, timeout=timeout)
+            time.sleep(2)
+            soup = BeautifulSoup(link_data.text, "html.parser")
+            span_element = soup.find_all("td", align="right")
 
-    return data
+            # Extrai a segunda ocorrência
+            data_completa = span_element[1].text.strip()
+            # Extrai a parte da data no formato "YYYY-MM-DD"
+            data_str = data_completa[0:10]
+            # Converte a string da data em um objeto de data
+            data = datetime.strptime(data_str, "%Y-%m-%d")
+
+            return data
+        except (ConnectionError, Timeout) as e:
+            log(f"Tentativa {attempts + 1} falhou. Erro: {e}")
+            time.sleep(2)
+            attempts += 1
+
+    log("Todas as tentativas falharam. Tratamento adicional é necessário.")
+    return None
 
 
 # ! Cria o caminho do output

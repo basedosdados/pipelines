@@ -4,55 +4,24 @@ Tasks for br_ms_cnes
 """
 
 
-from prefect import task
-from pipelines.utils.utils import log
-from pipelines.constants import constants
-import re
-from datetime import datetime, timedelta
 import os
-import pandas as pd
+from datetime import datetime
 
+import pandas as pd
+from prefect import task
+
+from pipelines.constants import constants
 from pipelines.datasets.br_rf_cafir.constants import constants as br_rf_cafir_constants
 from pipelines.datasets.br_rf_cafir.utils import (
-    parse_date_parse_files,
     download_csv_files,
-    remove_accent,
+    extract_last_date,
+    parse_date_parse_files,
     preserve_zeros,
+    remove_accent,
     remove_non_ascii_from_df,
     strip_string,
-    extract_last_date,
 )
-
-
-@task
-def check_if_bq_data_is_outdated(
-    data: datetime, dataset_id: str, table_id: str
-) -> bool:
-    """Essa task checa se há necessidade de atualizar os dados no BQ
-
-    Args:
-        data (date): A data de atualização dos dados extraida do FTP
-        dataset_id (string): O datased_id
-        table_id (string): O table_id
-
-    Returns:
-        bool: TRUE se a data do FTP for maior que a do BQ e FALSE caso contrário.
-    """
-    data = data.strftime("%Y-%m-%d")
-
-    # extrai data do bq
-    data_bq = extract_last_date(dataset_id, table_id, "basedosdados").strftime(
-        "%Y-%m-%d"
-    )
-
-    log(f"Data do site: {data}")
-    log(f"Data do BQ: {data_bq}")
-
-    # Compara as datas para verificar se há atualizações
-    if data > data_bq:
-        return True  # Há atualizações disponíveis
-    else:
-        return False
+from pipelines.utils.utils import log
 
 
 @task
@@ -155,8 +124,7 @@ def parse_data(url: str, other_task_output: tuple[list[datetime], list[str]]) ->
         # save new file as csv
         df.to_csv(save_path, index=False, sep=",", na_rep="", encoding="utf-8")
 
-        # resolve ASCII 0 no momento da leitura do BQ
-        # ler e salvar de novo
+        # resolve ASCII 0 no momento da leitura do BQ. Ler e salvar de novo.
         df = pd.read_csv(save_path, dtype=str)
         df.to_csv(save_path, index=False, sep=",", na_rep="", encoding="utf-8")
 

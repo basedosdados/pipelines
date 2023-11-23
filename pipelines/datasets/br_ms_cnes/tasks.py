@@ -4,31 +4,28 @@ Tasks for br_ms_cnes
 """
 
 
-from prefect import task
-from datetime import timedelta, datetime
-from pipelines.utils.utils import log
-from pipelines.constants import constants
+import os
+from datetime import timedelta
 
 import pandas as pd
-from ftplib import FTP
-import wget
-import os
-from rpy2.robjects.packages import importr
-import rpy2.robjects.packages as rpackages
 import rpy2.robjects as ro
+import rpy2.robjects.packages as rpackages
+import wget
+from prefect import task
 from rpy2.robjects import pandas2ri
+from rpy2.robjects.packages import importr
 
-import datetime as dt
-
+from pipelines.constants import constants
 from pipelines.datasets.br_ms_cnes.constants import constants as cnes_constants
 from pipelines.datasets.br_ms_cnes.utils import (
-    list_all_cnes_dbc_files,
-    year_month_sigla_uf_parser,
-    pre_cleaning_to_utf8,
     check_and_create_column,
-    if_column_exist_delete,
     extract_last_date,
+    if_column_exist_delete,
+    list_all_cnes_dbc_files,
+    pre_cleaning_to_utf8,
+    year_month_sigla_uf_parser,
 )
+from pipelines.utils.utils import log
 
 
 @task
@@ -48,6 +45,7 @@ def check_files_to_parse(
     )
     log("building next year/month to parse")
     # 2. adicionar mais um no mes ou transformar pra 1 se for 12
+    # para ver se o mês seguinte já está disponível no FTP
     # eg. last_date = 2023-04-01
 
     year = str(last_date.year)
@@ -62,6 +60,8 @@ def check_files_to_parse(
 
     if month <= 9:
         month = "0" + str(month)
+    else:
+        month = str(month)
 
     year_month_to_parse = year + month
     log(f"year_month_to_parse (YYMM) is {year_month_to_parse}")

@@ -10,27 +10,25 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
-
 from pipelines.constants import constants
-from pipelines.utils.tasks import (
-    rename_current_flow_run_dataset_table,
-    create_table_and_upload_to_gcs,
-    get_current_flow_labels,
-)
-from pipelines.utils.metadata.tasks import update_django_metadata
-from pipelines.utils.utils import log_task
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.constants import constants as utils_constants
-from pipelines.utils.decorators import Flow
-
 from pipelines.datasets.br_mp_pep_cargos_funcoes.schedules import every_month
 from pipelines.datasets.br_mp_pep_cargos_funcoes.tasks import (
-    setup_web_driver,
-    scraper,
     clean_data,
-    make_partitions,
     is_up_to_date,
+    make_partitions,
+    scraper,
+    setup_web_driver,
 )
+from pipelines.utils.constants import constants as utils_constants
+from pipelines.utils.decorators import Flow
+from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.metadata.tasks import update_django_metadata
+from pipelines.utils.tasks import (
+    create_table_and_upload_to_gcs,
+    get_current_flow_labels,
+    rename_current_flow_run_dataset_table,
+)
+from pipelines.utils.utils import log_task
 
 with Flow(
     name="br_mp_pep.cargos_funcoes",
@@ -116,18 +114,14 @@ with Flow(
 
             with case(update_metadata, True):
                 update_django_metadata(
-                    dataset_id,
-                    table_id,
-                    metadata_type="DateTimeRange",
-                    bq_last_update=False,
-                    bq_table_last_year_month=True,
-                    billing_project_id="basedosdados",
-                    api_mode="prod",
-                    date_format="yy-mm",
-                    is_bd_pro=True,
-                    is_free=True,
-                    time_delta=6,
-                    time_unit="months",
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"year": "ano", "month": "mes"},
+                    date_format="%Y-%m",
+                    coverage_type="part_bdpro",
+                    time_delta={"months": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
 

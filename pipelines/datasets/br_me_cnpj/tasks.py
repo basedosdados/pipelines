@@ -2,26 +2,25 @@
 """
 Tasks for br_me_cnpj
 """
-from pipelines.utils.utils import extract_last_date, log
+import os
+from datetime import datetime
+
+import pandas as pd
+import requests
 from prefect import task
-from pipelines.datasets.br_me_cnpj.constants import (
-    constants as constants_cnpj,
-)
+from tqdm import tqdm
+
+from pipelines.datasets.br_me_cnpj.constants import constants as constants_cnpj
 from pipelines.datasets.br_me_cnpj.utils import (
     data_url,
     destino_output,
     download_unzip_csv,
-    process_csv_estabelecimentos,
-    process_csv_socios,
     process_csv_empresas,
+    process_csv_estabelecimentos,
     process_csv_simples,
+    process_csv_socios,
 )
-import os
-import requests
-import zipfile
-import pandas as pd
-from datetime import datetime, timedelta
-from tqdm import tqdm
+from pipelines.utils.utils import extract_last_date, log
 
 ufs = constants_cnpj.UFS.value
 url = constants_cnpj.URL.value
@@ -51,20 +50,7 @@ def calculate_defasagem():
 
 
 @task
-def format_date_to_string():
-    """
-    Formats a date obtained from a URL.
-
-    Returns:
-        str: The formatted date as a string in "YYYY-MM-DD" format.
-    """
-    data_obj = data_url(url, headers)
-    formatted_date = data_obj.strftime("%Y-%m-%d")
-    return formatted_date
-
-
-@task
-def check_for_updates(dataset_id, table_id):
+def get_data_source_max_date():
     """
     Checks if there are available updates for a specific dataset and table.
 
@@ -73,21 +59,7 @@ def check_for_updates(dataset_id, table_id):
     """
     # Obtém a data mais recente do site
     data_obj = data_url(url, headers).strftime("%Y-%m-%d")
-
-    # Obtém a última data no site BD
-    data_bq_obj = extract_last_date(
-        dataset_id, table_id, "yy-mm-dd", "basedosdados"
-    ).strftime("%Y-%m-%d")
-
-    # Registra a data mais recente do site
-    log(f"Última data no site do ME: {data_obj}")
-    log(f"Última data no site da BD: {data_bq_obj}")
-
-    # Compara as datas para verificar se há atualizações
-    if data_obj > data_bq_obj:
-        return True  # Há atualizações disponíveis
-    else:
-        return False  # Não há novas atualizações disponíveis
+    return data_obj
 
 
 @task
@@ -137,6 +109,6 @@ def main(tabelas):
                 if nome_arquivo not in arquivos_baixados:
                     arquivos_baixados.append(nome_arquivo)
                     download_unzip_csv(url_download, input_path)
-                    process_csv_simples(input_path, output_path, data_coleta, sufixo, i)
+                    process_csv_simples(input_path, output_path, data_coleta, sufixo)
 
     return output_path

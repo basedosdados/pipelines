@@ -3,33 +3,32 @@
 Flows for br_mg_belohorizonte_smfa_iptu
 """
 from datetime import timedelta
+
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
-from pipelines.utils.metadata.tasks import update_django_metadata
+
 from pipelines.constants import constants
-from pipelines.utils.constants import constants as utils_constants
-from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.constants import (
     constants as constants_iptu,
 )
+from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.schedules import every_weeks_iptu
 from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.tasks import (
+    check_for_updates,
     download_and_transform,
     make_partitions,
-    get_max_data,
-    check_for_updates,
 )
-
+from pipelines.utils.constants import constants as utils_constants
+from pipelines.utils.decorators import Flow
+from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
-    rename_current_flow_run_dataset_table,
     get_current_flow_labels,
     log_task,
+    rename_current_flow_run_dataset_table,
 )
-
-from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.schedules import every_weeks_iptu
 
 with Flow(
     name="br_mg_belohorizonte_smfa_iptu.iptu", code_owners=["trick"]
@@ -101,24 +100,16 @@ with Flow(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
 
-            data_max = get_max_data(
-                input=constants_iptu.INPUT_PATH.value,
-                upstream_tasks=[wait_for_materialization],
-            )
-
             with case(update_metadata, True):
                 update_django_metadata(
-                    dataset_id="br_mg_belohorizonte_smfa_iptu",
-                    table_id="iptu",
-                    metadata_type="DateTimeRange",
-                    bq_last_update=False,
-                    bq_table_last_year_month=False,
-                    _last_date=data_max,
-                    api_mode="prod",
-                    date_format="yy-mm",
-                    is_bd_pro=True,
-                    is_free=False,
-                    upstream_tasks=[data_max],
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"year": "ano", "month": "mes"},
+                    date_format="%Y-%m",
+                    coverage_type="all_bdpro",
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
+                    upstream_tasks=[wait_for_materialization],
                 )
 
 br_mg_belohorizonte_smfa_iptu_iptu.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

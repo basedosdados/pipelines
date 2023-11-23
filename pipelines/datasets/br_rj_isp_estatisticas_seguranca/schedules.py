@@ -3,9 +3,11 @@
 Schedules for br_rj_isp_estatisticas_seguranca
 """
 
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
+
 from prefect.schedules import Schedule
 from prefect.schedules.clocks import IntervalClock
+
 from pipelines.constants import constants
 
 # ! Schedules tabela evolucao_mensal_cisp

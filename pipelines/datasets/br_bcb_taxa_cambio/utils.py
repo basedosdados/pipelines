@@ -2,21 +2,22 @@
 """
 General purpose functions for the br_bcb_indicadores project
 """
+import datetime
+import os
+import time as tm
+from io import BytesIO
 from urllib.request import urlopen
 from zipfile import ZipFile
-import requests
+
 import pandas as pd
-import datetime
 import pytz
-from datetime import timedelta
-import os
-from io import BytesIO, StringIO
-import time as tm
+import requests
+
 from pipelines.datasets.br_bcb_taxa_cambio.constants import constants as bcb_constants
-from pipelines.utils.utils import log
 from pipelines.utils.apply_architecture_to_dataframe.utils import (
     apply_architecture_to_dataframe,
 )
+from pipelines.utils.utils import log
 
 
 def available_currencies() -> dict:

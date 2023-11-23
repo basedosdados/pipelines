@@ -2,12 +2,13 @@
 """ Utils for the Brazilian Comex Stat pipeline. """
 # pylint: disable=invalid-name
 import os
-import wget
 import time as tm
+from datetime import datetime
+
+import wget
 from tqdm import tqdm
-from pipelines.utils.utils import (
-    log,
-)
+
+from pipelines.utils.utils import log
 
 
 def create_paths(
@@ -36,6 +37,7 @@ def download_data(
     path: str,
     table_type: str,
     table_name: str,
+    year_download: str,
 ):
     """A simple crawler to download data from comex stat website.
 
@@ -45,7 +47,12 @@ def download_data(
         mun for 'município'.
         table_name (str): the table name is the original name of the zip file with raw data from comex stat website
     """
-    years = [2023]
+
+    year = datetime.strptime(year_download, "%Y-%m").year
+
+    log(f"Donwloading year ->>> {year}")
+
+    years = [year]
 
     for year in years:
         table_name_urls = {

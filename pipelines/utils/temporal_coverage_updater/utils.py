@@ -2,17 +2,18 @@
 """
 General purpose functions for the temporal_coverage_updater project
 """
-import os
 import json
-import requests
-from datetime import datetime
 import re
+from datetime import datetime
+from typing import Tuple
+
 import basedosdados as bd
+import requests
+
 from pipelines.utils.temporal_coverage_updater.constants import (
     constants as temp_constants,
 )
-from typing import Tuple
-from pipelines.utils.utils import log, get_credentials_from_secret
+from pipelines.utils.utils import get_credentials_from_secret, log
 
 
 def get_first_date(ids, email, password):

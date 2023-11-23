@@ -111,9 +111,26 @@ python-string-utils = "^1.0.0"
 xlrd = "^2.0.1"
 geopandas = "0.13.2"
 shapely = "2.0.1"
+webdriver-manager = "^4.0.1"
 
 [tool.poetry.dev-dependencies]
 pytest_cov = "^3.0.0"
+
+[tool.poetry.scripts]
+lint = "scripts.lint:main"
+
+[tool.black]
+exclude = "pipelines/{{cookiecutter.project_name}}"
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+use_parentheses = true
+include_trailing_comma = true
+skip = ["pipelines/{{cookiecutter.project_name}}"]
+
+[tool.autoflake]
+exclude = "pipelines/{{cookiecutter.project_name}}"
 
 
 [build-system]

@@ -4,23 +4,23 @@
 
 
 import asyncio
-import time
 import os
+import time
 from typing import List, Tuple
 
-from prefect import task
 import pandas as pd
+from prefect import task
 
-from pipelines.utils.tasks import log
 from pipelines.datasets.br_mercadolivre_ofertas.constants import (
     constants as const_mercadolivre,
 )
 from pipelines.datasets.br_mercadolivre_ofertas.utils import (
+    clean_experience,
+    get_id,
     main_item,
     main_seller,
-    get_id,
-    clean_experience,
 )
+from pipelines.utils.tasks import log
 
 new_cols_item = const_mercadolivre.NEW_ORDER_COLS.value
 new_order_clean = const_mercadolivre.NEW_ORDER_CLEAN.value
@@ -29,6 +29,7 @@ oferta_dia = const_mercadolivre.OFERTA_DIA.value
 kwargs_list = const_mercadolivre.KWARGS_LIST.value
 url_lists = {"oferta_dia": []}
 
+# loop para pegar todas as páginas
 for i in range(1, 21):
     urls = {"oferta_dia": oferta_dia + str(i)}
     for table, url in urls.items():

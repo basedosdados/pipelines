@@ -3,46 +3,45 @@
 Flows for br_ms_cnes
 """
 # pylint: disable=invalid-name
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from prefect import Parameter, case
-from pipelines.constants import constants
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
+from pipelines.constants import constants
 from pipelines.datasets.br_ms_cnes.constants import constants as br_ms_cnes_constants
-from pipelines.datasets.br_ms_cnes.tasks import (
-    access_ftp_donwload_files,
-    read_dbc_save_csv,
-    is_empty,
-    check_files_to_parse,
-)
-from pipelines.utils.constants import constants as utils_constants
-from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.tasks import (
-    create_table_and_upload_to_gcs,
-    rename_current_flow_run_dataset_table,
-    get_current_flow_labels,
-    log_task,
-)
-
-from pipelines.utils.metadata.flows import update_django_metadata
 from pipelines.datasets.br_ms_cnes.schedules import (
-    schedule_br_ms_cnes_estabelecimento,
-    schedule_br_ms_cnes_profissional,
-    schedule_br_ms_cnes_equipe,
-    schedule_br_ms_cnes_leito,
-    schedule_br_ms_cnes_equipamento,
-    schedule_br_ms_cnes_estabelecimento_ensino,
     schedule_br_ms_cnes_dados_complementares,
+    schedule_br_ms_cnes_equipamento,
+    schedule_br_ms_cnes_equipe,
+    schedule_br_ms_cnes_estabelecimento,
+    schedule_br_ms_cnes_estabelecimento_ensino,
     schedule_br_ms_cnes_estabelecimento_filantropico,
     schedule_br_ms_cnes_gestao_metas,
     schedule_br_ms_cnes_habilitacao,
     schedule_br_ms_cnes_incentivos,
+    schedule_br_ms_cnes_leito,
+    schedule_br_ms_cnes_profissional,
     schedule_br_ms_cnes_regra_contratual,
     schedule_br_ms_cnes_servico_especializado,
+)
+from pipelines.datasets.br_ms_cnes.tasks import (
+    access_ftp_donwload_files,
+    check_files_to_parse,
+    is_empty,
+    read_dbc_save_csv,
+)
+from pipelines.utils.constants import constants as utils_constants
+from pipelines.utils.decorators import Flow
+from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.metadata.flows import update_django_metadata
+from pipelines.utils.tasks import (
+    create_table_and_upload_to_gcs,
+    get_current_flow_labels,
+    log_task,
+    rename_current_flow_run_dataset_table,
 )
 
 with Flow(
@@ -130,19 +129,15 @@ with Flow(
             )
 
             with case(update_metadata, True):
-                update = update_django_metadata(
-                    dataset_id,
-                    table_id,
-                    metadata_type="DateTimeRange",
-                    bq_last_update=False,
-                    bq_table_last_year_month=True,
-                    api_mode="prod",
-                    billing_project_id="basedosdados",
-                    date_format="yy-mm",
-                    is_bd_pro=True,
-                    is_free=True,
-                    time_delta=6,
-                    time_unit="months",
+                update_django_metadata(
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"year": "ano", "month": "mes"},
+                    date_format="%Y-%m",
+                    coverage_type="part_bdpro",
+                    time_delta={"months": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
 
@@ -241,19 +236,15 @@ with Flow(
             )
 
             with case(update_metadata, True):
-                update = update_django_metadata(
-                    dataset_id,
-                    table_id,
-                    metadata_type="DateTimeRange",
-                    bq_last_update=False,
-                    bq_table_last_year_month=True,
-                    api_mode="prod",
-                    billing_project_id="basedosdados",
-                    date_format="yy-mm",
-                    is_bd_pro=True,
-                    is_free=True,
-                    time_delta=6,
-                    time_unit="months",
+                update_django_metadata(
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"year": "ano", "month": "mes"},
+                    date_format="%Y-%m",
+                    coverage_type="part_bdpro",
+                    time_delta={"months": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
 
@@ -345,19 +336,15 @@ with Flow(name="br_ms_cnes.equipe", code_owners=["Gabriel Pisa"]) as br_ms_cnes_
             )
 
             with case(update_metadata, True):
-                update = update_django_metadata(
-                    dataset_id,
-                    table_id,
-                    metadata_type="DateTimeRange",
-                    bq_last_update=False,
-                    bq_table_last_year_month=True,
-                    api_mode="prod",
-                    billing_project_id="basedosdados",
-                    date_format="yy-mm",
-                    is_bd_pro=True,
-                    is_free=True,
-                    time_delta=6,
-                    time_unit="months",
+                update_django_metadata(
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"year": "ano", "month": "mes"},
+                    date_format="%Y-%m",
+                    coverage_type="part_bdpro",
+                    time_delta={"months": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
 
@@ -450,19 +437,15 @@ with Flow(name="br_ms_cnes.leito", code_owners=["Gabriel Pisa"]) as br_ms_cnes_l
             )
 
             with case(update_metadata, True):
-                update = update_django_metadata(
-                    dataset_id,
-                    table_id,
-                    metadata_type="DateTimeRange",
-                    bq_last_update=False,
-                    bq_table_last_year_month=True,
-                    api_mode="prod",
-                    billing_project_id="basedosdados",
-                    date_format="yy-mm",
-                    is_bd_pro=True,
-                    is_free=True,
-                    time_delta=6,
-                    time_unit="months",
+                update_django_metadata(
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"year": "ano", "month": "mes"},
+                    date_format="%Y-%m",
+                    coverage_type="part_bdpro",
+                    time_delta={"months": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
 
@@ -560,22 +543,17 @@ with Flow(
             )
 
             with case(update_metadata, True):
-                update = update_django_metadata(
-                    dataset_id,
-                    table_id,
-                    metadata_type="DateTimeRange",
-                    bq_last_update=False,
-                    bq_table_last_year_month=True,
-                    api_mode="prod",
-                    billing_project_id="basedosdados",
-                    date_format="yy-mm",
-                    is_bd_pro=True,
-                    is_free=True,
-                    time_delta=6,
-                    time_unit="months",
+                update_django_metadata(
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"year": "ano", "month": "mes"},
+                    date_format="%Y-%m",
+                    coverage_type="part_bdpro",
+                    time_delta={"months": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
-
 
 br_ms_cnes_equipamento.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_ms_cnes_equipamento.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
@@ -666,19 +644,15 @@ with Flow(
             )
 
             with case(update_metadata, True):
-                update = update_django_metadata(
-                    dataset_id,
-                    table_id,
-                    metadata_type="DateTimeRange",
-                    bq_last_update=False,
-                    bq_table_last_year_month=True,
-                    api_mode="prod",
-                    billing_project_id="basedosdados",
-                    date_format="yy-mm",
-                    is_bd_pro=True,
-                    is_free=True,
-                    time_delta=6,
-                    time_unit="months",
+                update_django_metadata(
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"year": "ano", "month": "mes"},
+                    date_format="%Y-%m",
+                    coverage_type="part_bdpro",
+                    time_delta={"months": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
 
@@ -772,19 +746,15 @@ with Flow(
             )
 
             with case(update_metadata, True):
-                update = update_django_metadata(
-                    dataset_id,
-                    table_id,
-                    metadata_type="DateTimeRange",
-                    bq_last_update=False,
-                    bq_table_last_year_month=True,
-                    api_mode="prod",
-                    billing_project_id="basedosdados",
-                    date_format="yy-mm",
-                    is_bd_pro=True,
-                    is_free=True,
-                    time_delta=6,
-                    time_unit="months",
+                update_django_metadata(
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"year": "ano", "month": "mes"},
+                    date_format="%Y-%m",
+                    coverage_type="part_bdpro",
+                    time_delta={"months": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
 
@@ -820,7 +790,7 @@ with Flow(
         table_id=table_id,
         billing_project_id="basedosdados",
         cnes_database="CNES",
-        cnes_group_file=br_ms_cnes_constants.DATABASE_GROUPS.value["CNES"][6],
+        cnes_group_file=br_ms_cnes_constants.DATABASE_GROUPS.value["CNES"][7],
     )
 
     with case(is_empty(files_path), True):
@@ -832,13 +802,13 @@ with Flow(
         dbc_files = access_ftp_donwload_files(
             file_list=files_path,
             path=br_ms_cnes_constants.PATH.value[0],
-            table=br_ms_cnes_constants.TABLE.value[6],
+            table=br_ms_cnes_constants.TABLE.value[7],
         )
 
         filepath = read_dbc_save_csv(
             file_list=dbc_files,
             path=br_ms_cnes_constants.PATH.value[1],
-            table=br_ms_cnes_constants.TABLE.value[6],
+            table=br_ms_cnes_constants.TABLE.value[7],
             upstream_tasks=[files_path, dbc_files],
         )
 
@@ -880,19 +850,15 @@ with Flow(
             )
 
             with case(update_metadata, True):
-                update = update_django_metadata(
-                    dataset_id,
-                    table_id,
-                    metadata_type="DateTimeRange",
-                    bq_last_update=False,
-                    bq_table_last_year_month=True,
-                    api_mode="prod",
-                    billing_project_id="basedosdados",
-                    date_format="yy-mm",
-                    is_bd_pro=True,
-                    is_free=True,
-                    time_delta=6,
-                    time_unit="months",
+                update_django_metadata(
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"year": "ano", "month": "mes"},
+                    date_format="%Y-%m",
+                    coverage_type="part_bdpro",
+                    time_delta={"months": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
 
@@ -990,22 +956,17 @@ with Flow(
             )
 
             with case(update_metadata, True):
-                update = update_django_metadata(
-                    dataset_id,
-                    table_id,
-                    metadata_type="DateTimeRange",
-                    bq_last_update=False,
-                    bq_table_last_year_month=True,
-                    api_mode="prod",
-                    billing_project_id="basedosdados",
-                    date_format="yy-mm",
-                    is_bd_pro=True,
-                    is_free=True,
-                    time_delta=6,
-                    time_unit="months",
+                update_django_metadata(
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"year": "ano", "month": "mes"},
+                    date_format="%Y-%m",
+                    coverage_type="part_bdpro",
+                    time_delta={"months": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
-
 
 br_ms_cnes_gestao_metas.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_ms_cnes_gestao_metas.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
@@ -1096,19 +1057,15 @@ with Flow(
             )
 
             with case(update_metadata, True):
-                update = update_django_metadata(
-                    dataset_id,
-                    table_id,
-                    metadata_type="DateTimeRange",
-                    bq_last_update=False,
-                    bq_table_last_year_month=True,
-                    api_mode="prod",
-                    billing_project_id="basedosdados",
-                    date_format="yy-mm",
-                    is_bd_pro=True,
-                    is_free=True,
-                    time_delta=6,
-                    time_unit="months",
+                update_django_metadata(
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"year": "ano", "month": "mes"},
+                    date_format="%Y-%m",
+                    coverage_type="part_bdpro",
+                    time_delta={"months": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
 
@@ -1203,19 +1160,15 @@ with Flow(
             )
 
             with case(update_metadata, True):
-                update = update_django_metadata(
-                    dataset_id,
-                    table_id,
-                    metadata_type="DateTimeRange",
-                    bq_last_update=False,
-                    bq_table_last_year_month=True,
-                    api_mode="prod",
-                    billing_project_id="basedosdados",
-                    date_format="yy-mm",
-                    is_bd_pro=True,
-                    is_free=True,
-                    time_delta=6,
-                    time_unit="months",
+                update_django_metadata(
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"year": "ano", "month": "mes"},
+                    date_format="%Y-%m",
+                    coverage_type="part_bdpro",
+                    time_delta={"months": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
 
@@ -1309,19 +1262,15 @@ with Flow(
             )
 
             with case(update_metadata, True):
-                update = update_django_metadata(
-                    dataset_id,
-                    table_id,
-                    metadata_type="DateTimeRange",
-                    bq_last_update=False,
-                    bq_table_last_year_month=True,
-                    api_mode="prod",
-                    billing_project_id="basedosdados",
-                    date_format="yy-mm",
-                    is_bd_pro=True,
-                    is_free=True,
-                    time_delta=6,
-                    time_unit="months",
+                update_django_metadata(
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"year": "ano", "month": "mes"},
+                    date_format="%Y-%m",
+                    coverage_type="part_bdpro",
+                    time_delta={"months": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
 
@@ -1417,19 +1366,15 @@ with Flow(
             )
 
             with case(update_metadata, True):
-                update = update_django_metadata(
-                    dataset_id,
-                    table_id,
-                    metadata_type="DateTimeRange",
-                    bq_last_update=False,
-                    bq_table_last_year_month=True,
-                    api_mode="prod",
-                    billing_project_id="basedosdados",
-                    date_format="yy-mm",
-                    is_bd_pro=True,
-                    is_free=True,
-                    time_delta=6,
-                    time_unit="months",
+                update_django_metadata(
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"year": "ano", "month": "mes"},
+                    date_format="%Y-%m",
+                    coverage_type="part_bdpro",
+                    time_delta={"months": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
 

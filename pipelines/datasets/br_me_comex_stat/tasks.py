@@ -3,35 +3,69 @@
 """
 Tasks for br_me_comex_stat
 """
-# pylint: disable=invalid-name,too-many-nested-blocks
-from glob import glob
-from zipfile import ZipFile
-import time as tm
-from datetime import timedelta
-import pandas as pd
-import numpy as np
-from prefect import task
-from pathlib import Path
-from typing import Union, List
-import basedosdados as bd
 import os
+import re
+import time as tm
 
+# pylint: disable=invalid-name,too-many-nested-blocks
+from zipfile import ZipFile
 
-from pipelines.datasets.br_me_comex_stat.utils import create_paths, download_data
-from pipelines.datasets.br_me_comex_stat.constants import constants as comex_constants
+import basedosdados as bd
+import numpy as np
+import pandas as pd
+import requests
+from bs4 import BeautifulSoup
+from prefect import task
 
 from pipelines.constants import constants
+from pipelines.datasets.br_me_comex_stat.constants import constants as comex_constants
+from pipelines.datasets.br_me_comex_stat.utils import create_paths, download_data
+from pipelines.utils.utils import log, to_partitions
 
-from pipelines.utils.utils import (
-    log,
-    to_partitions,
-)
+
+@task
+def parse_last_date(link: str) -> str:
+    # Parsing do metadado que informa última atualização
+    response = requests.get(link)
+    soup = BeautifulSoup(response.content, "html.parser")
+    css_selector = "#parent-fieldname-text > h2"
+    result = soup.select_one(css_selector)
+
+    # Extrai mês e ano
+    mes_ano = result.text.split("-")[-1].strip()
+
+    # Extrai ano
+    padrao = re.compile(r"\d+")
+    numeros = padrao.findall(mes_ano)
+
+    ano = numeros[0]
+
+    #  Dicionário para converter data
+    # informada na fonte oficial para mes ano no formato Y%-%m
+
+    conversor = {
+        f"janeiro de {ano}": f"{ano}-01",
+        f"fevereiro de {ano}": f"{ano}-02",
+        f"março de {ano}": f"{ano}-03",
+        f"abril de {ano}": f"{ano}-04",
+        f"maio de {ano}": f"{ano}-05",
+        f"junho de {ano}": f"{ano}-06",
+        f"julho de {ano}": f"{ano}-07",
+        f"agosto de {ano}": f"{ano}-08",
+        f"setembro de {ano}": f"{ano}-09",
+        f"outubro de {ano}": f"{ano}-10",
+        f"novembro de {ano}": f"{ano}-11",
+        f"dezembro de {ano}": f"{ano}-12",
+    }
+    # retorna uma string com data no formato Y%-%m
+    return conversor[mes_ano]
 
 
 @task
 def download_br_me_comex_stat(
     table_type: str,
     table_name: str,
+    year_download: str,
 ) -> ZipFile:
     """This task creates directories to temporary input and output files
     and downloads the data from the source
@@ -56,6 +90,7 @@ def download_br_me_comex_stat(
         path=comex_constants.PATH.value,
         table_type=table_type,
         table_name=table_name,
+        year_download=year_download,
     )
     log("data downloaded!")
 

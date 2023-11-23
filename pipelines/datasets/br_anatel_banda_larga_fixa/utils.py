@@ -2,14 +2,18 @@
 """
 General purpose functions for the br_anatel_banda_larga_fixa
 """
-from io import BytesIO
-from zipfile import ZipFile
-from urllib.request import urlopen
 import os
-import pandas as pd
-import numpy as np
-from datetime import datetime, timedelta
+import time
+from io import BytesIO
 from pathlib import Path
+from urllib.request import urlopen
+from zipfile import ZipFile
+
+import numpy as np
+import pandas as pd
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
 
 
 def download_and_unzip(url, path):
@@ -111,3 +115,57 @@ def to_partitions_microdados(
             )
     else:
         raise BaseException("Data need to be a pandas DataFrame")
+
+
+def data_url():
+    """
+    Faz um parse da data de atualização mais recente dos dados no site da anatel.
+
+    Returns:
+    Me retorna a data (%Y-%m) em que os dados estão mais atualizados no site.
+    """
+    element_html = ""  # Inicialize element_html com uma string vazia
+
+    # Configurar as opções do ChromeDriver
+    options = webdriver.ChromeOptions()
+    time.sleep(5)
+
+    # Adicionar argumentos para executar o Chrome em modo headless (sem interface gráfica)
+    options.add_argument("--headless")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--headless=new")
+
+    # Inicializar o driver do Chrome com as opções configuradas
+    driver = webdriver.Chrome(options=options)
+
+    # URL da página da web que você deseja acessar
+    url = "https://informacoes.anatel.gov.br/paineis/acessos/telefonia-movel"
+
+    try:
+        # Abra a página da web
+        time.sleep(30)
+        driver.get(url)
+        time.sleep(30)
+
+        # Aguarde até que o elemento desejado seja carregado (você pode ajustar o tempo limite conforme necessário)
+        element = driver.find_element(
+            "xpath",
+            '//*[@id="selection-list"]/li/qv-current-selections-item/div/div[1]/span/span',
+        )
+        time.sleep(30)
+
+        # Obtenha o HTML do elemento
+        element_html = element.get_attribute("outerHTML")
+        time.sleep(30)
+        # Imprima o HTML do elemento
+        print(element_html)
+    except Exception as e:
+        print("Ocorreu um erro ao acessar a página:", str(e))
+    finally:
+        # Certifique-se de fechar o navegador, mesmo em caso de erro
+        time.sleep(30)
+        driver.quit()
+
+    return element_html

@@ -4,36 +4,31 @@ Flows for br_ans_beneficiario
 """
 
 
-from datetime import datetime, timedelta
+from datetime import timedelta
+
+from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
+from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
+
 from pipelines.constants import constants
+from pipelines.datasets.br_ans_beneficiario.schedules import every_day_ans
 from pipelines.datasets.br_ans_beneficiario.tasks import (
-    extract_links_and_dates,
     check_for_updates,
     crawler_ans,
+    extract_links_and_dates,
     is_empty,
-    get_today_date,
 )
-
-from pipelines.datasets.br_ans_beneficiario.schedules import every_day_ans
-from pipelines.utils.decorators import Flow
-from prefect import Parameter, case
 from pipelines.utils.constants import constants as utils_constants
+from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.tasks import (
+from pipelines.utils.metadata.flows import update_django_metadata
+from pipelines.utils.tasks import (  # update_django_metadata,
     create_table_and_upload_to_gcs,
-    rename_current_flow_run_dataset_table,
     get_current_flow_labels,
     log_task,
-    # update_django_metadata,
+    rename_current_flow_run_dataset_table,
 )
-from pipelines.utils.metadata.flows import update_django_metadata
-from prefect.tasks.prefect import (
-    create_flow_run,
-    wait_for_flow_run,
-)
-
 
 with Flow(
     name="br_ans_beneficiario.informacao_consolidada",
@@ -111,20 +106,16 @@ with Flow(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
             with case(update_metadata, True):
-                date = get_today_date()
                 update_django_metadata(
-                    dataset_id,
-                    table_id,
-                    metadata_type="DateTimeRange",
-                    _last_date=date,
-                    bq_table_last_year_month=False,
-                    bq_last_update=False,
-                    is_bd_pro=True,
-                    is_free=True,
-                    date_format="yy-mm",
-                    api_mode="prod",
-                    time_delta=6,
-                    time_unit="months",
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"year": "ano", "month": "mes"},
+                    date_format="%Y-%m",
+                    coverage_type="part_bdpro",
+                    time_delta={"months": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
+                    upstream_tasks=[wait_for_materialization],
                 )
 
 datasets_br_ans_beneficiario_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

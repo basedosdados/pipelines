@@ -3,9 +3,11 @@
 Tasks for delete_flows
 """
 from typing import Dict, List
+
+import pendulum
 from prefect import task
 from prefect.client import Client
-import pendulum
+
 from pipelines.utils.utils import log
 
 

@@ -2,33 +2,55 @@
 """
 Tasks for br_anatel_banda_larga_fixa
 """
-import pandas as pd
-import numpy as np
-from zipfile import ZipFile
-from pathlib import Path
 import os
+from datetime import timedelta
 
-from datetime import datetime, timedelta
+import numpy as np
+import pandas as pd
 from dateutil.relativedelta import relativedelta
-
 from prefect import task
+
+from pipelines.constants import constants
 from pipelines.datasets.br_anatel_banda_larga_fixa.constants import (
     constants as anatel_constants,
 )
-from pipelines.utils.utils import (
-    to_partitions,
-    log,
-)
 from pipelines.datasets.br_anatel_banda_larga_fixa.utils import (
     check_and_create_column,
+    data_url,
     download_and_unzip,
     to_partitions_microdados,
 )
-from pipelines.constants import constants
+from pipelines.utils.utils import log, to_partitions
+
+
+@task
+def setting_data_url():
+    meses = {
+        "jan": "01",
+        "fev": "02",
+        "mar": "03",
+        "abr": "04",
+        "mai": "05",
+        "jun": "06",
+        "jul": "07",
+        "ago": "08",
+        "set": "09",
+        "out": "10",
+        "nov": "11",
+        "dez": "12",
+    }
+    string_element = data_url()
+    elemento_total = string_element[25:33]
+    mes, ano = elemento_total.split("-")
+    mes = meses[mes]
+    data_total = f"{ano}-{mes}"
+    log(data_total)
+
+    return data_total
 
 
 @task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
+    max_retries=20,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def treatment(ano: int):
@@ -249,10 +271,3 @@ def treatment_municipio():
 
 
 # task para retornar o ano e mes paara a atualização dos metadados.
-
-
-@task
-def get_today_date_atualizado():
-    d = datetime.now() - timedelta(days=60)
-
-    return d.strftime("%Y-%m")

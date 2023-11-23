@@ -4,32 +4,25 @@ Flows for dataset br_b3_cotacoes dataset
 """
 
 from datetime import timedelta
+
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
-from pipelines.utils.tasks import update_django_metadata
+
 from pipelines.constants import constants
+from pipelines.datasets.br_b3_cotacoes.schedules import all_day_cotacoes
+from pipelines.datasets.br_b3_cotacoes.tasks import data_max_b3, tratamento
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.datasets.br_b3_cotacoes.tasks import (
-    tratamento,
-    data_max_b3,
-)
-from pipelines.utils.utils import (
-    log,
-)
-
-from pipelines.datasets.br_b3_cotacoes.schedules import (
-    all_day_cotacoes,
-)
-
+from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
-    rename_current_flow_run_dataset_table,
     get_current_flow_labels,
+    rename_current_flow_run_dataset_table,
 )
+from pipelines.utils.utils import log
 
 with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
     # Parameters
@@ -95,15 +88,16 @@ with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
         data_max = data_max_b3(
             delta_day=delta_day, upstream_tasks=[wait_for_materialization]
         )
-        with case(update_metadata, True):  # task que retorna a data atual
+        with case(update_metadata, True):
             update_django_metadata(
-                dataset_id,
-                table_id,
-                metadata_type="DateTimeRange",
-                bq_last_update=False,
-                api_mode="prod",
-                date_format="yy-mm-dd",
-                _last_date=data_max,
+                dataset_id=dataset_id,
+                table_id=table_id,
+                date_column_name={"date": "data_referencia"},
+                date_format="%Y-%m-%d",
+                coverage_type="all_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
                 upstream_tasks=[wait_for_materialization],
             )
 

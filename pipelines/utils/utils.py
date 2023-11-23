@@ -7,6 +7,7 @@ import json
 
 # pylint: disable=too-many-arguments
 import logging
+import re
 from datetime import datetime
 from os import getenv, walk
 from os.path import join
@@ -30,9 +31,6 @@ from prefect.run_configs import KubernetesRun, VertexRun
 from redis_pal import RedisPal
 
 from pipelines.constants import constants
-
-import os
-import re
 
 
 def log(msg: Any, level: str = "info") -> None:
@@ -197,8 +195,10 @@ def notify_discord_on_failure(
     """
     url = get_vault_secret(secret_path)["data"]["url"]
     flow_run_id = prefect.context.get("flow_run_id")
+    prefect.context.get("project", {}).get("name")
     code_owners = code_owners or constants.DEFAULT_CODE_OWNERS.value
     code_owner_dict = constants.OWNERS_DISCORD_MENTIONS.value
+
     at_code_owners = []
     for code_owner in code_owners:
         code_owner_id = code_owner_dict[code_owner]["user_id"]
@@ -218,6 +218,7 @@ def notify_discord_on_failure(
         + f'\n  - State message: *"{state.message}"*'
         + "\n  - Link to the failed flow: "
         + f"https://prefect.basedosdados.org/flow-run/{flow_run_id}"
+        + "\n  - Use this link to document pipeline errors:  https://forms.gle/uhyuHGDahpkgfsXs8"
         + "\n  - Extra attention:\n"
         + "".join(at_code_owners)
     )
@@ -725,7 +726,9 @@ def extract_last_update(
         raise
 
 
-def extract_last_date(dataset_id, table_id, date_format: str, billing_project_id: str):
+def extract_last_date(
+    dataset_id, table_id, date_format: str, billing_project_id: str, data: str = "data"
+):
     """
     Extracts the last update date of a given dataset table.
 
@@ -772,9 +775,9 @@ def extract_last_date(dataset_id, table_id, date_format: str, billing_project_id
         try:
             query_bd = f"""
             SELECT
-            MAX(data) as max_date
+            MAX({data}) as max_date
             FROM
-            `basedosdados.{dataset_id}.{table_id}`
+            `{billing_project_id}.{dataset_id}.{table_id}`
             """
             log(f"Query: {query_bd}")
             t = bd.read_sql(

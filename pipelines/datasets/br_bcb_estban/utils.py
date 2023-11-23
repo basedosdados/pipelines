@@ -2,35 +2,37 @@
 """
 General purpose functions for the br_bcb_estban project
 """
+import os
+import re
+import unicodedata
+from datetime import datetime
+from io import BytesIO
+from urllib.request import urlopen
+from zipfile import ZipFile
+
+import basedosdados as bd
+import numpy as np
+import pandas as pd
 import requests
 from lxml import html
-import basedosdados as bd
-from io import BytesIO
-from zipfile import ZipFile
-from urllib.request import urlopen
-import pandas as pd
-import unicodedata
-import numpy as np
-import re
-import os
-from pipelines.utils.utils import (
-    log,
-)
+
+from pipelines.utils.utils import log
 
 # ------- macro etapa 1 download de dados
+######
+
+
+# todo:colocar check no ano e mes
+def parse_date(url: str) -> datetime:
+    padrao = re.compile(r"\d+")
+
+    numeros = padrao.findall(url)
+    data = datetime(int(numeros[0][0:4]), int(numeros[0][4:6]), 1)
+
+    return data
 
 
 def extract_download_links(url, xpath):
-    """this function extract all download links from bcb agencias website
-
-    Args:
-        url (_type_): _description_
-        xpath (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
-
     """extract all download links from bcb agencias website
 
     Args:

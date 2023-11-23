@@ -7,16 +7,17 @@ Schedules for br_bcb_estban
 # and 90 days during december (...)
 
 from datetime import datetime
-from prefect.schedules import Schedule, filters, adjustments
-from prefect.schedules.clocks import CronClock
-from pipelines.constants import constants
 
+from prefect.schedules import Schedule, adjustments, filters
+from prefect.schedules.clocks import CronClock
+
+from pipelines.constants import constants
 
 every_month_agencia = Schedule(
     clocks=[
         CronClock(
-            cron="@monthly",
-            start_date=datetime(2023, 9, 5, 0, 0),
+            cron="0 23 10-30 * *",  # At 23:00 on every day-of-month from 10 through 30.
+            start_date=datetime(2023, 11, 22, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -38,8 +39,8 @@ every_month_agencia = Schedule(
 every_month_municipio = Schedule(
     clocks=[
         CronClock(
-            cron="@monthly",
-            start_date=datetime(2023, 8, 5, 0, 0),
+            cron="0 23 10-30 * *",  # At 23:00 on every day-of-month from 10 through 30.
+            start_date=datetime(2023, 11, 22, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -48,7 +49,7 @@ every_month_municipio = Schedule(
                 "table_id": "municipio",
                 "materialization_mode": "prod",
                 "materialize after dump": True,
-                "dbt_alias": False,
+                "dbt_alias": True,
                 "update_metadata": True,
             },
         )

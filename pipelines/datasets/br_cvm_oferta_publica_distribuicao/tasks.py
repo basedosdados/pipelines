@@ -4,11 +4,13 @@ Tasks for br_cvm_oferta_publica_distribuicao
 """
 import os
 
-
+import basedosdados as bd
 import pandas as pd
 from pandas.api.types import is_string_dtype
 from prefect import task
 from unidecode import unidecode
+
+from pipelines.utils.utils import log
 
 
 @task

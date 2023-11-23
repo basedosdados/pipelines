@@ -2,25 +2,20 @@
 """
 Tasks for br_ibge_pnadc
 """
+import os
+
 # pylint: disable=invalid-name,unnecessary-dunder-call
 import zipfile
-import os
 from glob import glob
 
-import requests
-from tqdm import tqdm
-import pandas as pd
 import numpy as np
+import pandas as pd
+import requests
 from prefect import task
-from datetime import datetime
+from tqdm import tqdm
 
-from pipelines.utils.utils import log
 from pipelines.datasets.br_ibge_pnadc.constants import constants as pnad_constants
-
-
-@task
-def get_year_quarter(year, quarter):
-    return f"{year}-{quarter}"
+from pipelines.utils.utils import log
 
 
 @task

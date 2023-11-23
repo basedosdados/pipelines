@@ -2,6 +2,8 @@
 """
 Flows for mercadolivre_ofertas
 """
+import datetime
+
 # pylint: disable=invalid-name
 from datetime import timedelta
 
@@ -11,29 +13,27 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-
-from pipelines.utils.constants import constants as utils_constants
-from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.tasks import (
-    rename_current_flow_run_dataset_table,
-    get_current_flow_labels,
-    create_table_and_upload_to_gcs,
-)
-from pipelines.utils.metadata.tasks import update_django_metadata
+from pipelines.datasets.br_mercadolivre_ofertas.schedules import every_day_item
 from pipelines.datasets.br_mercadolivre_ofertas.tasks import (
-    crawler_mercadolivre_item,
-    crawler_mercadolivre_seller,
     clean_item,
     clean_seller,
+    crawler_mercadolivre_item,
+    crawler_mercadolivre_seller,
     get_today_sellers,
     is_empty_list,
 )
-from pipelines.datasets.br_mercadolivre_ofertas.schedules import every_day_item
-import datetime
+from pipelines.utils.constants import constants as utils_constants
+from pipelines.utils.decorators import Flow
+from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.metadata.tasks import update_django_metadata
+from pipelines.utils.tasks import (
+    create_table_and_upload_to_gcs,
+    get_current_flow_labels,
+    rename_current_flow_run_dataset_table,
+)
 
 with Flow(
-    name="br_mercadolivre_ofertas.item", code_owners=["Gabs"]
+    name="br_mercadolivre_ofertas.item", code_owners=["Gabriel Pisa"]
 ) as br_mercadolivre_ofertas_item:
     # Parameters
     dataset_id = Parameter(
@@ -101,16 +101,16 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
-        update_django_metadata(
-            dataset_id,
-            table_id,
-            metadata_type="DateTimeRange",
-            _last_date=data_atual,
-            bq_last_update=False,
-            is_bd_pro=True,
-            is_free=False,
-            upstream_tasks=[wait_upload_table],
-        )
+        # update_django_metadata(
+        #     dataset_id=dataset_id,
+        #     table_id=table_id,
+        #     date_column_name={"date": "dia"},
+        #     date_format="%Y-%m-%d",
+        #     coverage_type="all_bdpro",
+        #     prefect_mode=materialization_mode,
+        #     bq_project="basedosdados",
+        #     upstream_tasks=[wait_for_materialization],
+        # )
 
     with case(get_sellers, True) and case(is_empty_list(seller_ids), False):
         # Trigger DBT flow run
@@ -143,16 +143,17 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
-        update_django_metadata(
-            dataset_id,
-            table_id=table_id_sellers,
-            metadata_type="DateTimeRange",
-            _last_date=data_atual,
-            bq_last_update=False,
-            is_bd_pro=True,
-            is_free=False,
-            upstream_tasks=[sellers_flow],
-        )
+        # update_django_metadata(
+        #     dataset_id=dataset_id,
+        #     table_id=table_id,
+        #     date_column_name={"date": "dia"},
+        #     date_format="%Y-%m-%d",
+        #     coverage_type="all_bdpro",
+        #     prefect_mode=materialization_mode,
+        #     bq_project="basedosdados",
+        #     upstream_tasks=[wait_for_materialization],
+        # )
+
         materialization_flow.set_upstream([sellers_flow])
 
 br_mercadolivre_ofertas_item.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -162,7 +163,7 @@ br_mercadolivre_ofertas_item.run_config = KubernetesRun(
 br_mercadolivre_ofertas_item.schedule = every_day_item
 
 with Flow(
-    name="br_mercadolivre_ofertas.vendedor", code_owners=["Gabs"]
+    name="br_mercadolivre_ofertas.vendedor", code_owners=["Gabriel Pisa"]
 ) as br_mercadolivre_ofertas_vendedor:
     # Parameters
     dataset_id = Parameter(
@@ -224,16 +225,16 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
-        update_django_metadata(
-            dataset_id,
-            table_id,
-            metadata_type="DateTimeRange",
-            _last_date=data_atual,
-            bq_last_update=False,
-            is_bd_pro=True,
-            is_free=False,
-            upstream_tasks=[wait_upload_table],
-        )
+        # update_django_metadata(
+        #     dataset_id=dataset_id,
+        #     table_id=table_id,
+        #     date_column_name={"date": "dia"},
+        #     date_format="%Y-%m-%d",
+        #     coverage_type="all_bdpro",
+        #     prefect_mode=materialization_mode,
+        #     bq_project="basedosdados",
+        #     upstream_tasks=[wait_for_materialization],
+        # )
 
 br_mercadolivre_ofertas_vendedor.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_mercadolivre_ofertas_vendedor.run_config = KubernetesRun(

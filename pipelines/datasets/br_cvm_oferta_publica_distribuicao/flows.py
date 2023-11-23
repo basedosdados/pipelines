@@ -3,35 +3,34 @@
 Flows for br_cvm_oferta_publica_distribuicao
 """
 # pylint: disable=C0103, E1123, invalid-name
-from datetime import datetime, timedelta
+from datetime import timedelta
 
+from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
-from prefect import Parameter, case
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.constants import constants as utils_constants
 from pipelines.constants import constants
+from pipelines.datasets.br_cvm_oferta_publica_distribuicao.schedules import schedule_dia
 from pipelines.datasets.br_cvm_oferta_publica_distribuicao.tasks import (
-    crawl,
     clean_table_oferta_distribuicao,
+    crawl,
 )
+from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
+from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
-    update_metadata,
-    get_temporal_coverage,
-    rename_current_flow_run_dataset_table,
     get_current_flow_labels,
+    rename_current_flow_run_dataset_table,
 )
-from pipelines.datasets.br_cvm_oferta_publica_distribuicao.schedules import schedule_dia
 
 ROOT = "/tmp/data"
 URL = "http://dados.cvm.gov.br/dados/OFERTA/DISTRIB/DADOS/oferta_distribuicao.csv"
 
 with Flow(
-    name="br_cvm_oferta_publica_distribuicao.dia", code_owners=["lucas_cr"]
+    name="br_cvm_oferta_publica_distribuicao.dia", code_owners=["equipe_pipelines"]
 ) as br_cvm_ofe_pub_dis_dia:
     # Parameters
     dataset_id = Parameter(
@@ -44,7 +43,8 @@ with Flow(
     materialize_after_dump = Parameter(
         "materialize after dump", default=True, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
+    update_metadata = Parameter("update_metadata", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
@@ -89,6 +89,19 @@ with Flow(
         wait_for_materialization.retry_delay = timedelta(
             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
+
+        with case(update_metadata, True):
+            update_django_metadata(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                date_column_name={"date": "data_comunicado"},
+                date_format="%Y-%m-%d",
+                coverage_type="part_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
+                upstream_tasks=[wait_for_materialization],
+            )
 
 br_cvm_ofe_pub_dis_dia.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_cvm_ofe_pub_dis_dia.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)

@@ -3,9 +3,9 @@
 Schedules for bd_tweet_data
 """
 
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
 
-from prefect.schedules import Schedule, filters, adjustments
+from prefect.schedules import Schedule, adjustments, filters
 from prefect.schedules.clocks import IntervalClock
 
 from pipelines.constants import constants
@@ -36,12 +36,12 @@ every_day = Schedule(
             interval=timedelta(days=1),
             start_date=datetime(2022, 5, 18, 16, 24),
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_bd_indicadores",
                 "table_id": "twitter_metrics",
-                "materialization_mode": "dev",
+                "materialization_mode": "prod",
                 "materialize after dump": True,
                 "dbt_alias": False,
             },
@@ -56,11 +56,11 @@ every_week = Schedule(
             interval=timedelta(weeks=1),
             start_date=datetime(2021, 1, 1, 17, 35),
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_bd_indicadores",
-                "materialization_mode": "dev",
+                "materialization_mode": "prod",
                 "materialize after dump": True,
                 "table_id": "twitter_metrics_agg",
             },
@@ -120,14 +120,14 @@ schedule_equipes = Schedule(
             interval=timedelta(days=1),
             start_date=datetime(2022, 1, 1, 6, 0),
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_bd_indicadores",
                 "table_id": "equipes",
                 "sheet_id": "1gLJyoxiFeIRn7FKiP3Fpbr04bScVuhmF",
                 "sheet_name": "equipes",
-                "materialization_mode": "dev",
+                "materialization_mode": "prod",
                 "materialize_after_dump": True,
             },
         ),
@@ -142,14 +142,14 @@ schedule_pessoas = Schedule(
             interval=timedelta(days=1),
             start_date=datetime(2022, 1, 1, 6, 0),
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_bd_indicadores",
                 "table_id": "pessoas",
                 "sheet_id": "1cQj9ItJoO_AQElRT2ngpHZXhFCSpQCrV",
                 "sheet_name": "pessoas",
-                "materialization_mode": "dev",
+                "materialization_mode": "prod",
                 "materialize_after_dump": True,
             },
         ),
