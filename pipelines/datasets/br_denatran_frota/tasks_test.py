@@ -1,20 +1,21 @@
 # -*- coding: utf-8 -*-
 import os
+import re
 import shutil
 import tempfile
 import unittest
-import re
-import polars as pl
 
+import polars as pl
 from parameterized import parameterized
+
+from pipelines.datasets.br_denatran_frota.constants import constants
 from pipelines.datasets.br_denatran_frota.handlers import (
     crawl,
-    treat_uf_tipo,
     get_desired_file,
-    treat_municipio_tipo,
     get_latest_data,
+    treat_municipio_tipo,
+    treat_uf_tipo,
 )
-from pipelines.datasets.br_denatran_frota.constants import constants
 
 DATASET = constants.DATASET.value
 DOWNLOAD_PATH = constants.DOWNLOAD_PATH.value

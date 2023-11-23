@@ -1,33 +1,31 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime, timedelta
+from datetime import timedelta
+from itertools import product
+
+from prefect import Parameter, case, unmapped
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
-from prefect import Parameter, case, unmapped
-from prefect.tasks.prefect import (
-    create_flow_run,
-    wait_for_flow_run,
-)
-from pipelines.constants import constants as pipelines_constants
-from pipelines.utils.constants import constants as utils_constants
+from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
+from pipelines.constants import constants as pipelines_constants
+from pipelines.datasets.br_denatran_frota.constants import constants
+from pipelines.datasets.br_denatran_frota.tasks import (
+    crawl_task,
+    get_desired_file_task,
+    get_latest_data_task,
+    output_file_to_csv_task,
+    should_process_data_task,
+    treat_municipio_tipo_task,
+    treat_uf_tipo_task,
+)
+from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
-    rename_current_flow_run_dataset_table,
     get_current_flow_labels,
+    rename_current_flow_run_dataset_table,
 )
-from pipelines.datasets.br_denatran_frota.tasks import (
-    crawl_task,
-    treat_uf_tipo_task,
-    output_file_to_csv_task,
-    get_desired_file_task,
-    treat_municipio_tipo_task,
-    get_latest_data_task,
-    should_process_data_task,
-)
-from pipelines.datasets.br_denatran_frota.constants import constants
-from itertools import product
 
 year_range = list(range(2003, 2023))
 month_range = list(range(1, 13))

@@ -7,33 +7,30 @@ This is merely a way to have functions that are called by tasks but can be teste
 
 import os
 import re
-import basedosdados as bd
-from pipelines.datasets.br_denatran_frota.constants import constants
-from pipelines.datasets.br_denatran_frota.utils import (
-    make_dir_when_not_exists,
-    extract_links_post_2012,
-    verify_total,
-    change_df_header,
-    guess_header,
-    get_year_month_from_filename,
-    call_downloader,
-    download_file,
-    extraction_pre_2012,
-    call_r_to_read_excel,
-    treat_uf,
-    get_data_from_prod,
-    DenatranType,
-)
+from zipfile import ZipFile
 
+import basedosdados as bd
 import pandas as pd
 import polars as pl
 from string_utils import asciify
-from zipfile import ZipFile
-from pipelines.utils.utils import (
-    clean_dataframe,
-    to_partitions,
-    log,
+
+from pipelines.datasets.br_denatran_frota.constants import constants
+from pipelines.datasets.br_denatran_frota.utils import (
+    DenatranType,
+    call_downloader,
+    call_r_to_read_excel,
+    change_df_header,
+    download_file,
+    extract_links_post_2012,
+    extraction_pre_2012,
+    get_data_from_prod,
+    get_year_month_from_filename,
+    guess_header,
+    make_dir_when_not_exists,
+    treat_uf,
+    verify_total,
 )
+from pipelines.utils.utils import clean_dataframe, log, to_partitions
 
 MONTHS = constants.MONTHS.value
 DATASET = constants.DATASET.value

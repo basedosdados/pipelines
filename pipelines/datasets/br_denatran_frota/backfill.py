@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
+from pipelines.datasets.br_denatran_frota.constants import constants
 from pipelines.datasets.br_denatran_frota.handlers import (
     crawl,
-    treat_uf_tipo,
     get_desired_file,
     output_file_to_csv,
+    treat_uf_tipo,
 )
-from pipelines.datasets.br_denatran_frota.constants import constants
 
 # Fill for UF TIPO
 months = range(1, 13)

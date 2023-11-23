@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
 
-from prefect import task
-import glob
-import os
-from pipelines.datasets.br_denatran_frota.constants import constants
+
 import pandas as pd
 import polars as pl
+from prefect import task
+
+from pipelines.datasets.br_denatran_frota.constants import constants
 from pipelines.datasets.br_denatran_frota.handlers import (
     crawl,
-    treat_uf_tipo,
-    output_file_to_csv,
     get_desired_file,
-    treat_municipio_tipo,
     get_latest_data,
+    output_file_to_csv,
     should_process_data,
+    treat_municipio_tipo,
+    treat_uf_tipo,
 )
-from pipelines.utils.utils import (
-    log,
-)
+from pipelines.utils.utils import log
 
 MONTHS = constants.MONTHS.value
 DATASET = constants.DATASET.value

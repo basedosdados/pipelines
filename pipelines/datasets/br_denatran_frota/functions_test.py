@@ -3,16 +3,17 @@ import os
 import shutil
 import tempfile
 import unittest
+
 import pandas as pd
 
-from pipelines.datasets.br_denatran_frota.utils import (
-    make_filename,
-    make_dir_when_not_exists,
-    guess_header,
-    get_year_month_from_filename,
-)
 from pipelines.datasets.br_denatran_frota.constants import constants
 from pipelines.datasets.br_denatran_frota.tasks import crawl
+from pipelines.datasets.br_denatran_frota.utils import (
+    get_year_month_from_filename,
+    guess_header,
+    make_dir_when_not_exists,
+    make_filename,
+)
 
 DOWNLOAD_PATH = constants.DOWNLOAD_PATH.value
 

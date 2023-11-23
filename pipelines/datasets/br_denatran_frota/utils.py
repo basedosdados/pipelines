@@ -3,24 +3,25 @@
 General purpose functions for the br_denatran_frota project.
 """
 
+import difflib
+import os
+import re
+from enum import Enum
+from urllib.request import urlopen
+from zipfile import ZipFile
+
+import basedosdados as bd
 import pandas as pd
 import polars as pl
-import difflib
-import re
-import os
-from zipfile import ZipFile
-from rarfile import RarFile
 import requests
-from string_utils import asciify
-from pipelines.datasets.br_denatran_frota.constants import constants
-from bs4 import BeautifulSoup
-from urllib.request import urlopen
-import rpy2.robjects.packages as rpackages
 import rpy2.robjects as robjects
+import rpy2.robjects.packages as rpackages
+from bs4 import BeautifulSoup
+from rarfile import RarFile
 from rpy2.robjects.vectors import StrVector
-import basedosdados as bd
-from enum import Enum
-from datetime import datetime
+from string_utils import asciify
+
+from pipelines.datasets.br_denatran_frota.constants import constants
 
 DICT_UFS = constants.DICT_UFS.value
 SUBSTITUTIONS = constants.SUBSTITUTIONS.value
