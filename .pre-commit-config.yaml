@@ -1,0 +1,34 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: check-added-large-files # prevents adding large files
+      - id: detect-private-key # detects private keys
+      - id: fix-byte-order-marker # fixes BOM
+      - id: fix-encoding-pragma # fixes encoding pragma
+      - id: no-commit-to-branch # prevents committing to protected branches
+      - id: trailing-whitespace # prevents trailing whitespace
+  - repo: https://github.com/python-poetry/poetry
+    rev: 1.7.0
+    hooks:
+      - id: poetry-check
+  - repo: https://github.com/psf/black
+    rev: 23.11.0
+    hooks:
+      - id: black
+        exclude: 'pipelines\/\{\{cookiecutter\.project_name\}\}.*'
+  - repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        args: [--profile, black, --skip, "pipelines/{{cookiecutter.project_name}}"]
+  - repo: https://github.com/PyCQA/autoflake
+    rev: v2.2.1
+    hooks:
+      - id: autoflake
+        exclude: 'pipelines\/\{\{cookiecutter\.project_name\}\}.*'
+  - repo: https://github.com/PyCQA/flake8
+    rev: 6.1.0
+    hooks:
+      - id: flake8
+        exclude: 'pipelines\/\{\{cookiecutter\.project_name\}\}.*'
