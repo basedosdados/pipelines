@@ -45,6 +45,7 @@ with Flow(name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value) as run_dbt_mod
         dbt_command=dbt_command,
         flags=flags,
         _vars=_vars,
+        retries = 0
     )
 
 
