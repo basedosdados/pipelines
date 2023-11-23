@@ -46,7 +46,7 @@ with Flow(name="br_camara_dados_abertos", code_owners=["tricktx"]) as br_camara:
             "votacao_microdados",
             "votacao_objeto",
             "votacao_orientacao_bancada",
-            "votacao_parlamentar",
+            "voto_parlamentar",
             "votacao_proposicao_afetada",
         ],
         required=True,
