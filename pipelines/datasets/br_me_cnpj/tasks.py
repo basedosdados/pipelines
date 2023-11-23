@@ -61,6 +61,7 @@ def get_data_source_max_date():
     data_obj = data_url(url, headers).strftime("%Y-%m-%d")
     return data_obj
 
+
 @task
 def main(tabelas):
     """
