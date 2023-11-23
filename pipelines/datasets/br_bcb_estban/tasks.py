@@ -14,7 +14,6 @@ from pipelines.constants import constants
 from pipelines.datasets.br_bcb_estban.constants import (
     constants as br_bcb_estban_constants,
 )
-from pipelines.datasets.br_bcb_estban.utils import *
 from pipelines.datasets.br_bcb_estban.utils import (
     cols_order_agencia,
     create_id_municipio,
@@ -24,6 +23,7 @@ from pipelines.datasets.br_bcb_estban.utils import (
     extract_download_links,
     get_data_from_prod,
     order_cols_municipio,
+    parse_date,
     pre_cleaning_for_pivot_long_agencia,
     pre_cleaning_for_pivot_long_municipio,
     read_files,
@@ -40,31 +40,41 @@ from pipelines.utils.utils import clean_dataframe, log, to_partitions
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def download_estban_files(xpath: str, save_path: str) -> str:
+def extract_most_recent_date(xpath, url):
+    # table date
+    url_list = extract_download_links(url=url, xpath=xpath)
+
+    dicionario_data_url = {parse_date(url): url for url in url_list}
+    tupla_data_maxima_url = max(dicionario_data_url.items(), key=lambda x: x[0])
+    data_maxima = tupla_data_maxima_url[0]
+    link_data_maxima = tupla_data_maxima_url[1]
+
+    return link_data_maxima, data_maxima
+
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def download_estban_files(save_path: str, link: str) -> str:
     """This function downloads ESTBAN data from BACEN url,
     unzip the csv files and return a path for the raw files
 
 
     Args:
-        xpath (str): The xpath that contains estban file names
         save_path (str): a temporary path to save the estban files
 
     Returns:
         str: The path to the estban files
     """
 
-    url = br_bcb_estban_constants.ESTBAN_URL.value
+    file = "https://www4.bcb.gov.br" + link
 
-    download_link = extract_download_links(url=url, xpath=xpath)
-
-    # setado para fazer upload incremental dos dados em staging
-    download_link = download_link[0]
-
-    file = "https://www4.bcb.gov.br/" + download_link
     download_and_unzip(file, path=save_path)
 
     log("download task successfully !")
     log(f"files {os.listdir(save_path)} were downloaded and unzipped")
+
     return save_path
 
 
@@ -72,14 +82,15 @@ def download_estban_files(xpath: str, save_path: str) -> str:
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def get_id_municipio(table) -> pd.DataFrame:
+def get_id_municipio() -> pd.DataFrame:
     """get id municipio from basedosdados"""
 
-    municipio = get_data_from_prod(
-        "br_bd_diretorios_brasil",
-        table,
-        ["id_municipio_bcb", "id_municipio"],
+    municipio = bd.read_sql(
+        query="select * from `basedosdados.br_bd_diretorios_brasil.municipio`",
+        from_file=True,
     )
+
+    municipio = municipio[["id_municipio_bcb", "id_municipio"]]
 
     municipio = dict(zip(municipio.id_municipio_bcb, municipio.id_municipio))
     log("municipio dataset successfully downloaded!")
