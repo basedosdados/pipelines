@@ -384,12 +384,16 @@ async def execucao_coleta():
     site_data = requests.get(base_url.format(season=season), headers=headers)
     soup = BeautifulSoup(site_data.content, "html.parser")
     link_tags = soup.find_all("a", attrs={"class": "ergebnis-link"})
+    link_tags2 = soup.find_all("a", attrs={"title": "Match preview"})
     for tag in link_tags:
+        links.append(re.sub(r"\s", "", tag["href"]))
+    for tag in link_tags2:
         links.append(re.sub(r"\s", "", tag["href"]))
     if len(links) % 10 != 0:
         num_excess = len(links) % 10
         del links[-num_excess:]
     tabela = soup.findAll("div", class_="box")
+    # log(tabela)
     for i in range(1, int(len(links) / 10) + 1):
         for row in tabela[i].findAll("tr"):  # para tudo que estiver em <tr>
             cells = row.findAll("td")  # variável para encontrar <td>
@@ -403,6 +407,7 @@ async def execucao_coleta():
     for time in range(len(links)):
         ht.append(str(ht_tag[time][2]))
         col_home.append(str(ht_tag[time][0]))
+        # log(ht)
     for time in range(len(links)):
         at.append(str(at_tag[time][0]))
         col_away.append(str(at_tag[time][2]))
@@ -426,10 +431,13 @@ async def execucao_coleta():
     n_links = len(links)
     log(f"Encontrados {n_links} partidas.")
     log("Extraindo dados...")
+    #    log(links_esta)
+    #    log(links_valor)
     # Primeiro loop: Dados de estatística
     for n, link in enumerate(links_esta):
         # Tentativas de obter os links
         content = await get_content(base_link + link, wait_time=0.01)
+        # log(content)
         if content:
             try:
                 df = process(df, content)
@@ -441,10 +449,13 @@ async def execucao_coleta():
         else:
             df = vazio(df)
         log(f"{n+1} dados de {n_links} extraídos.")
+        log("Primeiro df")
+
     # Segundo loop: Dados gerais
     for n, link in enumerate(links_valor):
         # Tentativas de obter os links
         content = await get_content(base_link + link, wait_time=0.01)
+        # log(content)
         if content:
             try:
                 df_valor = pegar_valor(df_valor, content)
@@ -456,6 +467,8 @@ async def execucao_coleta():
         else:
             df_valor = valor_vazio(df_valor)
         log(f"{n+1} valores de {n_links} extraídos.")
+    #      log("Segundo df")
+    #       print(df_valor)
 
     # Armazenando os dados no dataframe
     df["ht"] = ht
@@ -557,6 +570,8 @@ async def execucao_coleta():
             "hthg": "gols_1_tempo_man",
         }
     )
+    df.to_csv("/tmp/data/df.csv", index=False)
+    df_valor.to_csv("/tmp/data/df_valor.csv", index=False)
     # Concatenando os valores dos dois loops
     df = pd.concat([df, df_valor], axis=1)
     df["data"] = pd.to_datetime(df["data"])
