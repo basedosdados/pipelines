@@ -198,64 +198,9 @@ with Flow(name="br_camara_dados_abertos", code_owners=["tricktx"]) as br_camara:
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=filepath_parlamentar,
             dataset_id=dataset_id,
-            table_id=table_id[2],
-            dump_mode="append",
-            wait=filepath_parlamentar,
-        )
-        with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels()
-            materialization_flow = create_flow_run(
-                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": table_id[2],
-                    "mode": materialization_mode,
-                    "dbt_alias": dbt_alias,
-                },
-                labels=current_flow_labels,
-                run_name=f"Materialize {dataset_id}.{table_id[2]}",
-            )
-
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
-            )
-            wait_for_materialization.max_retries = (
-                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-            wait_for_materialization.retry_delay = timedelta(
-                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-            )
-
-        with case(update_metadata, True):
-            update_django_metadata(
-                dataset_id,
-                table_id[2],
-                date_column_name={"date": "data"},
-                date_format="%Y-%m-%d",
-                coverage_type="part_bdpro",
-                time_delta={"months": 6},
-                prefect_mode=materialization_mode,
-                bq_project="basedosdados-dev",
-            )
-
-        # ! ---------------------------------------- >   Votacao - Proposicao
-
-        filepath_proposicao = make_partitions(
-            table_id="votacao_proposicao_afetada",
-            date_column="data",
-            upstream_tasks=[rename_flow_run],
-        )
-        wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=filepath_proposicao,
-            dataset_id=dataset_id,
             table_id=table_id[3],
             dump_mode="append",
-            wait=filepath_proposicao,
+            wait=filepath_parlamentar,
         )
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
@@ -298,19 +243,19 @@ with Flow(name="br_camara_dados_abertos", code_owners=["tricktx"]) as br_camara:
                 bq_project="basedosdados-dev",
             )
 
-        # ! ---------------------------------------- >   Votacao - Orientacao -- Não tem data
+        # ! ---------------------------------------- >   Votacao - Proposicao
 
-        filepath_orientacao = make_partitions(
-            table_id="votacao_orientacao_bancada",
+        filepath_proposicao = make_partitions(
+            table_id="votacao_proposicao_afetada",
             date_column="data",
             upstream_tasks=[rename_flow_run],
         )
         wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=filepath_orientacao,
+            data_path=filepath_proposicao,
             dataset_id=dataset_id,
             table_id=table_id[4],
             dump_mode="append",
-            wait=filepath_orientacao,
+            wait=filepath_proposicao,
         )
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
@@ -341,11 +286,66 @@ with Flow(name="br_camara_dados_abertos", code_owners=["tricktx"]) as br_camara:
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
 
-        # ! ---------------------------------------------------> Não tem data. Precisaremos usar o historical_database
         with case(update_metadata, True):
             update_django_metadata(
                 dataset_id,
                 table_id[4],
+                date_column_name={"date": "data"},
+                date_format="%Y-%m-%d",
+                coverage_type="part_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados-dev",
+            )
+
+        # ! ---------------------------------------- >   Votacao - Orientacao -- Não tem data
+
+        filepath_orientacao = make_partitions(
+            table_id="votacao_orientacao_bancada",
+            date_column="data",
+            upstream_tasks=[rename_flow_run],
+        )
+        wait_upload_table = create_table_and_upload_to_gcs(
+            data_path=filepath_orientacao,
+            dataset_id=dataset_id,
+            table_id=table_id[2],
+            dump_mode="append",
+            wait=filepath_orientacao,
+        )
+        with case(materialize_after_dump, True):
+            # Trigger DBT flow run
+            current_flow_labels = get_current_flow_labels()
+            materialization_flow = create_flow_run(
+                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
+                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+                parameters={
+                    "dataset_id": dataset_id,
+                    "table_id": table_id[2],
+                    "mode": materialization_mode,
+                    "dbt_alias": dbt_alias,
+                },
+                labels=current_flow_labels,
+                run_name=f"Materialize {dataset_id}.{table_id[2]}",
+            )
+
+            wait_for_materialization = wait_for_flow_run(
+                materialization_flow,
+                stream_states=True,
+                stream_logs=True,
+                raise_final_state=True,
+            )
+            wait_for_materialization.max_retries = (
+                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
+            )
+            wait_for_materialization.retry_delay = timedelta(
+                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+            )
+
+        # ! ---------------------------------------------------> Não tem data. Precisaremos usar o historical_database
+        with case(update_metadata, True):
+            update_django_metadata(
+                dataset_id,
+                table_id[2],
                 date_format="%Y-%m-%d",
                 coverage_type="part_bdpro",
                 time_delta={"months": 6},

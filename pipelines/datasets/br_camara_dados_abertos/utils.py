@@ -67,6 +67,7 @@ def read_and_clean_camara_dados_abertos(
     log(df.columns)
 
     if table_id == "votacao_objeto":
+        df["ano"] = df[date_column].str[0:4]
         df.rename(columns=constants.RENAME_COLUMNS_OBJETO.value, inplace=True)
         df = df[constants.ORDER_COLUMNS_OBJETO.value]
 
