@@ -44,12 +44,14 @@ def datasearch_json(page_size: int, mode: str) -> Dict:
 
     return json_response
 
+
 @task
 def get_tables_to_update():
     """Generate a list of dicts like {"dataset_id": "dataset_id", "table_id": "table_id"}
     where all tables were update in the last 7 days
     """
     update_metada_table()
+
 
 @task(nout=2)
 def crawler_tables(
@@ -220,38 +222,38 @@ def rename_blobs() -> None:
         new_name = re.sub(r"data0*\.csv\.gz", table_id + ".csv.gz", blob.name)
         bucket.rename_blob(blob, new_name)
 
+
 @task
-def get_metadata_data(mode: str = 'dev'):
-    if mode == 'dev':
-        billing_project_id='basedosdados-dev'
-    elif mode =="prod":
-        billing_project_id='basedosdados'
-            
+def get_metadata_data(mode: str = "dev"):
+    if mode == "dev":
+        billing_project_id = "basedosdados-dev"
+    elif mode == "prod":
+        billing_project_id = "basedosdados"
+
     schema_names_query = """
             SELECT  schema_name FROM  `basedosdados`.INFORMATION_SCHEMA.SCHEMATA
     """
 
     log(schema_names_query)
     schema_names_list = bd.read_sql(
-            query=schema_names_query,
-            billing_project_id=billing_project_id,
-        )["schema_name"]
+        query=schema_names_query,
+        billing_project_id=billing_project_id,
+    )["schema_name"]
 
     df_list = []
-    for schema_batch in batch(schema_names_list,50):
+    for schema_batch in batch(schema_names_list, 50):
         query = ""
         for schema_name in schema_batch:
-                query += f"SELECT * FROM `basedosdados.{schema_name}.__TABLES__` UNION ALL "
+            query += f"SELECT * FROM `basedosdados.{schema_name}.__TABLES__` UNION ALL "
         query = query[:-11]
         batch_df = bd.read_sql(
             query=query,
             billing_project_id=billing_project_id,
-            )
+        )
         df_list.append(batch_df)
 
     df = pd.concat(df_list, ignore_index=True)
-    
-    full_filepath = save_file(df= df,
-              table_id = "bigquery_tables")
+
+    full_filepath = save_file(df=df, table_id="bigquery_tables")
 
     return full_filepath
