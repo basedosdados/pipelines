@@ -15,11 +15,7 @@ from pipelines.datasets.br_camara_dados_abertos.schedules import (
 )
 from pipelines.datasets.br_camara_dados_abertos.tasks import (
     get_date_max,
-    make_partitions_microdados,
-    make_partitions_objeto,
-    make_partitions_orientacao,
-    make_partitions_parlamentar,
-    make_partitions_proposicao,
+    make_partitions,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -84,8 +80,10 @@ with Flow(name="br_camara_dados_abertos", code_owners=["tricktx"]) as br_camara:
     with case(dados_desatualizados, True):
         # ! ---------------------------------------- >   Votacao - Microdados
 
-        filepath_microdados = make_partitions_microdados(
-            upstream_tasks=[rename_flow_run]
+        filepath_microdados = make_partitions(
+            table_id="votacao_microdados",
+            date_column="data",
+            upstream_tasks=[rename_flow_run],
         )
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=filepath_microdados,
@@ -137,7 +135,11 @@ with Flow(name="br_camara_dados_abertos", code_owners=["tricktx"]) as br_camara:
 
         # ! ---------------------------------------- >   Votacao - objeto
 
-        filepath_objeto = make_partitions_objeto(upstream_tasks=[rename_flow_run])
+        filepath_objeto = make_partitions(
+            table_id="votacao_objeto",
+            date_column="data",
+            upstream_tasks=[rename_flow_run],
+        )
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=filepath_objeto,
             dataset_id=dataset_id,
@@ -188,8 +190,10 @@ with Flow(name="br_camara_dados_abertos", code_owners=["tricktx"]) as br_camara:
 
         # ! ---------------------------------------- >   Votacao - Parlamentar
 
-        filepath_parlamentar = make_partitions_parlamentar(
-            upstream_tasks=[rename_flow_run]
+        filepath_parlamentar = make_partitions(
+            table_id="voto_parlamentar",
+            date_column="dataHoraVoto",
+            upstream_tasks=[rename_flow_run],
         )
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=filepath_parlamentar,
@@ -241,8 +245,10 @@ with Flow(name="br_camara_dados_abertos", code_owners=["tricktx"]) as br_camara:
 
         # ! ---------------------------------------- >   Votacao - Proposicao
 
-        filepath_proposicao = make_partitions_proposicao(
-            upstream_tasks=[rename_flow_run]
+        filepath_proposicao = make_partitions(
+            table_id="votacao_proposicao_afetada",
+            date_column="data",
+            upstream_tasks=[rename_flow_run],
         )
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=filepath_proposicao,
@@ -294,8 +300,10 @@ with Flow(name="br_camara_dados_abertos", code_owners=["tricktx"]) as br_camara:
 
         # ! ---------------------------------------- >   Votacao - Orientacao -- Não tem data
 
-        filepath_orientacao = make_partitions_orientacao(
-            upstream_tasks=[rename_flow_run]
+        filepath_orientacao = make_partitions(
+            table_id="votacao_orientacao_bancada",
+            date_column="data",
+            upstream_tasks=[rename_flow_run],
         )
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=filepath_orientacao,

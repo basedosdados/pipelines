@@ -6,96 +6,26 @@ from pipelines.datasets.br_camara_dados_abertos.utils import (
     get_date,
     read_and_clean_camara_dados_abertos,
 )
-from pipelines.utils.utils import to_partitions
+from pipelines.utils.utils import log, to_partitions
 
 
 # ! Microdados
 @task
-def make_partitions_microdados() -> str:
+def make_partitions(table_id, date_column) -> str:
     df = read_and_clean_camara_dados_abertos(
         path=constants.INPUT_PATH.value,
-        table_id="votacoes.csv",
-        data="data",
-        dict_arquitetura="votacao_microdados",
+        table_id=f"{table_id}",
+        date_column=date_column,
     )
-    print("Particionando microdados")
+    log(f"particionando {table_id}")
+    log(df.columns)
     to_partitions(
         data=df,
         partition_columns=["ano"],
-        savepath=constants.OUTPUT_PATH_MICRODADOS.value,
+        savepath=f"{constants.OUTPUT_PATH.value}/{table_id}/",
     )
 
-    return constants.OUTPUT_PATH_MICRODADOS.value
-
-
-@task
-# ! Parlamentar
-def make_partitions_parlamentar() -> str:
-    df = read_and_clean_camara_dados_abertos(
-        path=constants.INPUT_PATH.value,
-        table_id="votacoesVotos.csv",
-        data="dataHoraVoto",
-        dict_arquitetura="voto_parlamentar",
-    )
-    print("Particionando parlamentar")
-    to_partitions(
-        data=df,
-        partition_columns=["ano"],
-        savepath=constants.OUTPUT_PATH_PARLAMENTAR.value,
-    )
-    return constants.OUTPUT_PATH_PARLAMENTAR.value
-
-
-@task
-# ! Proposição
-def make_partitions_proposicao() -> str:
-    df = read_and_clean_camara_dados_abertos(
-        path=constants.INPUT_PATH.value,
-        table_id="votacoesProposicoes.csv",
-        data="data",
-        dict_arquitetura="votacao_proposicao_afetada",
-    )
-    print("Particionando proposicao")
-    to_partitions(
-        data=df,
-        partition_columns=["ano"],
-        savepath=constants.OUTPUT_PATH_PROPOSICAO.value,
-    )
-
-    return constants.OUTPUT_PATH_PROPOSICAO.value
-
-
-@task
-# ! Objeto
-def make_partitions_objeto() -> str:
-    df = read_and_clean_camara_dados_abertos(
-        path=constants.INPUT_PATH.value,
-        table_id="votacoesObjetos.csv",
-        data="data",
-        dict_arquitetura="votacao_objeto",
-    )
-    print("Particionando objeto")
-    to_partitions(
-        data=df, partition_columns=["ano"], savepath=constants.OUTPUT_PATH_OBJETO.value
-    )
-
-    return constants.OUTPUT_PATH_OBJETO.value
-
-
-@task
-# ! Orientação
-def make_partitions_orientacao() -> str:
-    df = read_and_clean_camara_dados_abertos(
-        path=constants.INPUT_PATH.value,
-        table_id="votacoesOrientacoes.csv",
-        dict_arquitetura="votacao_orientacao_bancada",
-    )
-    to_partitions(
-        data=df,
-        partition_columns=["ano"],
-        savepath=constants.OUTPUT_PATH_ORIENTACAO.value,
-    )
-    return constants.OUTPUT_PATH_ORIENTACAO.value
+    return f"{constants.OUTPUT_PATH.value}/{table_id}/"
 
 
 # ! Obtendo a data máxima.

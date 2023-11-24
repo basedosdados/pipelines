@@ -3,7 +3,7 @@ from enum import Enum
 
 
 class constants(Enum):
-    dict_arquitetura = {
+    TABLE_NAME_ARCHITECTURE = {
         "votacao_proposicao_afetada": "https://docs.google.com/spreadsheets/d/1sHBdS7dgGAWlegMs1rEy6OwUVDwTLcZy92pFX6U5rXM/edit#gid=0",
         "voto_parlamentar": "https://docs.google.com/spreadsheets/d/171Mykmg5qz54Kp35XgSD_IshngQHYE3jfGZ8yL-wEpE/edit#gid=0",
         "votacao_microdados": "https://docs.google.com/spreadsheets/d/1GZjzBqAQ5RqaB6kyOjD7iZeKSPxB07lAkZnvaGjREIY/edit#gid=0",
@@ -13,18 +13,43 @@ class constants(Enum):
 
     INPUT_PATH = "/tmp/input/"
     OUTPUT_PATH = "/tmp/output/"
-    OUTPUT_PATH_MICRODADOS = "/tmp/output/microdados/"
-    OUTPUT_PATH_PARLAMENTAR = "/tmp/output/parlamentar/"
-    OUTPUT_PATH_PROPOSICAO = "/tmp/output/proposicao/"
-    OUTPUT_PATH_OBJETO = "/tmp/output/objeto/"
-    OUTPUT_PATH_ORIENTACAO = "/tmp/output/orientacao/"
 
     ANOS = [2023]
 
-    VOTOS = [
-        "votacoes",
-        "votacoesOrientacoes",
-        "votacoesVotos",
-        "votacoesObjetos",
-        "votacoesProposicoes",
+    TABLE_LIST = {
+        "votacao_microdados": "votacoes",
+        "votacao_orientacao_bancada": "votacoesOrientacoes",
+        "voto_parlamentar": "votacoesVotos",
+        "votacao_objeto": "votacoesObjetos",
+        "votacao_proposicao_afetada": "votacoesProposicoes",
+    }
+
+    RENAME_COLUMNS_OBJETO = {
+        "idVotacao": "id_votacao",
+        "uriVotacao": "uriVotacao",
+        "data": "data",
+        "descricao": "descricao",
+        "proposicao_id": "id_proposicao",
+        "proposicao_uri": "proposicao_uri",
+        "proposicao_ementa": "ementa",
+        "proposicao_codTipo": "codigo_tipo",
+        "proposicao_siglaTipo": "sigla_tipo",
+        "proposicao_numero": "numero",
+        "proposicao_ano": "ano_proposicao",
+        "proposicao_titulo": "titulo",
+    }
+
+    ORDER_COLUMNS_OBJETO = [
+        "id_votacao",
+        "uriVotacao",
+        "data",
+        "descricao",
+        "id_proposicao",
+        "proposicao_uri",
+        "ementa",
+        "codigo_tipo",
+        "sigla_tipo",
+        "numero",
+        "ano_proposicao",
+        "titulo",
     ]
