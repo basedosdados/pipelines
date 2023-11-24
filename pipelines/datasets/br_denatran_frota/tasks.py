@@ -4,6 +4,7 @@
 import pandas as pd
 import polars as pl
 from prefect import task
+import datetime
 
 from pipelines.datasets.br_denatran_frota.constants import constants
 from pipelines.datasets.br_denatran_frota.handlers import (
@@ -14,6 +15,7 @@ from pipelines.datasets.br_denatran_frota.handlers import (
     should_process_data,
     treat_municipio_tipo,
     treat_uf_tipo,
+    get_year_month_from_filename,
 )
 from pipelines.utils.utils import log
 
@@ -57,3 +59,9 @@ def get_latest_data_task(table_name: str) -> tuple[int, int]:
 @task()
 def should_process_data_task(bq_year: int, bq_month: int, filename: str) -> bool:
     return should_process_data(bq_year, bq_month, filename)
+
+
+@task()
+def get_denatran_date(filename: str) -> datetime.date:
+    year, month = get_year_month_from_filename(filename)
+    return datetime.date(year, month, 1)

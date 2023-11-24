@@ -17,10 +17,12 @@ from pipelines.datasets.br_denatran_frota.tasks import (
     should_process_data_task,
     treat_municipio_tipo_task,
     treat_uf_tipo_task,
+    get_denatran_date,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.metadata.tasks import check_if_data_is_outdated
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
@@ -72,11 +74,14 @@ with Flow(
         filetype=constants.UF_TIPO_BASIC_FILENAME.value,
         upstream_tasks=[crawled],
     )
-    decision = should_process_data_task(
-        bq_year=year_to_fetch[0],
-        bq_month=year_to_fetch[1],
-        filename=desired_file,
-        upstream_tasks=[crawled, desired_file],
+    # We need to see the year, month from the file to decide on updating
+    extracted_date = get_denatran_date(desired_file, upstream_tasks=[desired_file])
+    decision = check_if_data_is_outdated(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        data_source_max_date=extracted_date,
+        date_format="%Y-%m",
+        upstream_tasks=[extracted_date],
     )
     with case(decision, True):
         df = treat_uf_tipo_task(
@@ -166,12 +171,14 @@ with Flow(
         filetype=constants.MUNIC_TIPO_BASIC_FILENAME.value,
         upstream_tasks=[crawled],
     )
-
-    decision = should_process_data_task(
-        bq_year=year_to_fetch[0],
-        bq_month=year_to_fetch[1],
-        filename=desired_file,
-        upstream_tasks=[crawled, desired_file],
+    # We need to see the year, month from the file to decide on updating
+    extracted_date = get_denatran_date(desired_file, upstream_tasks=[desired_file])
+    decision = check_if_data_is_outdated(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        data_source_max_date=extracted_date,
+        date_format="%Y-%m",
+        upstream_tasks=[extracted_date],
     )
     with case(decision, True):
         df = treat_municipio_tipo_task(file=desired_file, upstream_tasks=[decision])
