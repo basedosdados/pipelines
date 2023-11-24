@@ -1,21 +1,22 @@
 # -*- coding: utf-8 -*-
 
 
+import datetime
+
 import pandas as pd
 import polars as pl
 from prefect import task
-import datetime
 
 from pipelines.datasets.br_denatran_frota.constants import constants
 from pipelines.datasets.br_denatran_frota.handlers import (
     crawl,
     get_desired_file,
     get_latest_data,
+    get_year_month_from_filename,
     output_file_to_csv,
     should_process_data,
     treat_municipio_tipo,
     treat_uf_tipo,
-    get_year_month_from_filename,
 )
 from pipelines.utils.utils import log
 
