@@ -2,24 +2,36 @@
 """
 Utils for cross_update pipeline
 """
+import os
+from pipelines.utils.utils import log
 import requests
+import basedosdados as bd
+import pandas as pd
 
-
-def _safe_fetch(url: str):
+def save_file(df: pd.DataFrame, table_id: str) -> str:
     """
-    Safely fetchs urls and, if somehting goes wrong, informs user what is the possible cause
-    """
-    response = None
-    try:
-        response = requests.get(url, timeout=300)
-        response.raise_for_status()
-    except requests.exceptions.HTTPError as errh:
-        print("Http Error:", errh)
-    except requests.exceptions.ConnectionError as errc:
-        print("Error Connecting:", errc)
-    except requests.exceptions.Timeout as errt:
-        print("Timeout Error:", errt)
-    except requests.exceptions.RequestException as err:
-        print("This url doesn't appear to exists:", err)
+    Saves a DataFrame as a CSV file.
 
-    return response
+    Args:
+        df (pd.DataFrame): The DataFrame to be saved.
+        table_id (str): The identifier for the table.
+
+    Returns:
+        str: The full file path of the saved CSV file.
+
+    """
+
+    # Define the folder path for storing the file
+    folder = f"tmp/{table_id}"
+    # Create the folder if it doesn't exist
+    os.system(f"mkdir -p {folder}")
+    # Define the full file path for the CSV file
+    full_filepath = f"{folder}/{table_id}.csv"
+    # Save the DataFrame as a CSV file
+    df.to_csv(full_filepath, index=False)
+    log("save_input")
+    return full_filepath
+
+def batch(lst, n):
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]
