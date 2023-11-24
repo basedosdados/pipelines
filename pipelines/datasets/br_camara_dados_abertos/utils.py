@@ -54,22 +54,24 @@ def get_date():
 def read_and_clean_camara_dados_abertos(
     table_id=str, path=constants.INPUT_PATH.value, date_column=str
 ) -> pd.DataFrame:
-    df = pd.read_csv(f"{path}{constants.TABLE_LIST.value[table_id]}.csv", sep=";")
+    df = pd.read_csv(
+        f"{path}{constants.TABLE_LIST.value[table_id]}.csv", sep=";", nrows=1000
+    )
 
     if table_id == "votacao_orientacao_bancada":
         df["ano"] = constants.ANOS.value[0]
-
     else:
+        log(
+            "--------------------------------------PRESTA ATENÇÃO AQUI, PORRA! ---------------------------------------"
+        )
         df["ano"] = df[date_column].str[0:4]
 
     log("------------- columns before apply architecture --------------")
     log(f"------------- TABLE ---------------- {table_id} --------------")
-    log(df.columns)
 
     if table_id == "votacao_objeto":
-        df["ano"] = df[date_column].str[0:4]
         df.rename(columns=constants.RENAME_COLUMNS_OBJETO.value, inplace=True)
-        df = df[constants.ORDER_COLUMNS_OBJETO.value]
+        df = df[constants.ORDER_COLUMNS_OBJETO.values()]
 
     else:
         df = apply_architecture_to_dataframe(
@@ -81,6 +83,5 @@ def read_and_clean_camara_dados_abertos(
         )
     log("------------- columns after apply architecture --------------")
     log(f"------------- TABLE ---------------- {table_id} ------------")
-    log(df.columns)
 
     return df

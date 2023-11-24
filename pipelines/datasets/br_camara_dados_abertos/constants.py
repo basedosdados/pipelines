@@ -25,6 +25,7 @@ class constants(Enum):
     }
 
     RENAME_COLUMNS_OBJETO = {
+        "ano": "ano",
         "idVotacao": "id_votacao",
         "uriVotacao": "uriVotacao",
         "data": "data",
@@ -39,7 +40,8 @@ class constants(Enum):
         "proposicao_titulo": "titulo",
     }
 
-    ORDER_COLUMNS_OBJETO = [
+    """ORDER_COLUMNS_OBJETO = [
+        "ano",
         "id_votacao",
         "uriVotacao",
         "data",
@@ -52,4 +54,4 @@ class constants(Enum):
         "numero",
         "ano_proposicao",
         "titulo",
-    ]
+    ]"""

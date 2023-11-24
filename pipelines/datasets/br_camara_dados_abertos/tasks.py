@@ -18,7 +18,6 @@ def make_partitions(table_id, date_column) -> str:
         date_column=date_column,
     )
     log(f"particionando {table_id}")
-    log(df.columns)
     to_partitions(
         data=df,
         partition_columns=["ano"],
