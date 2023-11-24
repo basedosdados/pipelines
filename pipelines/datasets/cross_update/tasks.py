@@ -32,24 +32,18 @@ def datasearch_json(page_size: int, mode: str) -> Dict:
     Returns:
         dict with api response
     """
-    if mode == "prod":
-        url = "https://basedosdados.org/api/3/action/bd_dataset_search"
-    elif mode == "dev":
-        url = "https://staging.basedosdados.org/api/3/action/bd_dataset_search"
-    else:
-        raise ValueError("mode must be prod or dev")
-    url = f"{url}?q=&resource_type=bdm_table&page=1&page_size={page_size}"  # pylint: disable=C0301
-    response = _safe_fetch(url)
-    json_response = response.json()
+    # if mode == "prod":
+    #     url = "https://basedosdados.org/api/3/action/bd_dataset_search"
+    # elif mode == "dev":
+    #     url = "https://staging.basedosdados.org/api/3/action/bd_dataset_search"
+    # else:
+    #     raise ValueError("mode must be prod or dev")
+    # url = f"{url}?q=&resource_type=bdm_table&page=1&page_size={page_size}"  # pylint: disable=C0301
+    # response = _safe_fetch(url)
+    # json_response = response.json()
 
-    return json_response
+    return None
 
-@task
-def get_tables_to_update():
-    """Generate a list of dicts like {"dataset_id": "dataset_id", "table_id": "table_id"}
-    where all tables were update in the last 7 days
-    """
-    update_metada_table()
 
 @task(nout=2)
 def crawler_tables(
@@ -235,6 +229,7 @@ def get_metadata_data(mode: str = 'dev'):
     schema_names_list = bd.read_sql(
             query=schema_names_query,
             billing_project_id=billing_project_id,
+            from_file=True,
         )["schema_name"]
 
     df_list = []
@@ -246,6 +241,7 @@ def get_metadata_data(mode: str = 'dev'):
         batch_df = bd.read_sql(
             query=query,
             billing_project_id=billing_project_id,
+            from_file=True,
             )
         df_list.append(batch_df)
 
