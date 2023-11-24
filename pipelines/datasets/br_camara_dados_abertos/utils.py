@@ -43,7 +43,10 @@ def download_csvs_camara() -> None:
 
 def get_date():
     download_csvs_camara()
-    df = pd.read_csv(constants.INPUT_PATH.value + "votacoes.csv", sep=";")
+    df = pd.read_csv(
+        f'{constants.INPUT_PATH.value}{constants.TABLE_LIST.value["votacao_microdados"]}.csv',
+        sep=";",
+    )
 
     return df
 
@@ -53,7 +56,7 @@ def read_and_clean_camara_dados_abertos(
 ) -> pd.DataFrame:
     df = pd.read_csv(f"{path}{constants.TABLE_LIST.value[table_id]}.csv", sep=";")
 
-    if table_id == "votacoesOrientacoes.csv":
+    if table_id == "votacao_orientacao_bancada":
         df["ano"] = constants.ANOS.value[0]
 
     else:
@@ -62,7 +65,8 @@ def read_and_clean_camara_dados_abertos(
     log("------------- columns before apply architecture --------------")
     log(f"------------- TABLE ---------------- {table_id} --------------")
     log(df.columns)
-    if table_id == "votacoesObjeto.csv":
+
+    if table_id == "votacao_objeto":
         df.rename(columns=constants.RENAME_COLUMNS_OBJETO.value, inplace=True)
         df = df[constants.ORDER_COLUMNS_OBJETO.value]
 
