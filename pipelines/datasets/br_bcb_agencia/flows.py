@@ -74,7 +74,9 @@ with Flow(
         log_task("Existem atualizações! A run será inciada")
 
         temxpes = download_data(
-            link=agencia_constants.AGENCIA_URL.value, upstream_tasks=[check_if_outdated]
+            links=data_source_max_date[0],
+            link="https://www.bcb.gov.br",
+            upstream_tasks=[check_if_outdated],
         )
 
         filepath = clean_data(

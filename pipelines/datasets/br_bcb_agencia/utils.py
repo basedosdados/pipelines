@@ -91,10 +91,6 @@ def find_cnpj_row_number(file_path: str) -> int:
     return cnpj_row_number
 
 
-# ! get_column_names deleted;
-# ! count_list_values
-
-
 def get_conv_names(file_path: str, skiprows: str) -> dict:
     """get column names from a file to be used as a converter
 
@@ -169,6 +165,7 @@ def clean_column_names(df: pd.DataFrame) -> pd.DataFrame:
         DataFrame: a dataframe with cleaned columns
     """
     # Remove leading and trailing whitespaces from column names
+    log(f" ->>> brutos ->>> {df.columns}")
     df.columns = df.columns.str.strip()
     print("colnames striped")
     # Remove accents and special characters from column names
@@ -184,6 +181,7 @@ def clean_column_names(df: pd.DataFrame) -> pd.DataFrame:
     # Lowercase all column names
     df.columns = df.columns.str.lower()
     print("colnames to lower")
+    log(f" ->>> tratados ->>> {df.columns}")
     return df
 
 
@@ -268,6 +266,7 @@ def order_cols():
         "ano",
         "mes",
         "sigla_uf",
+        "nome",
         "id_municipio",
         "data_inicio",
         "cnpj",
@@ -287,7 +286,7 @@ def order_cols():
     return cols_order
 
 
-def clean_nome_municipio(df: pd.DataFrame) -> pd.DataFrame:
+def clean_nome_municipio(df: pd.DataFrame, col_name: str) -> pd.DataFrame:
     """perform cleaning operations on the municipio column
 
     Args:
@@ -296,34 +295,15 @@ def clean_nome_municipio(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: dataframe with municipio cleaned column
     """
-    df["nome"] = df["nome"].apply(
+    df[col_name] = df[col_name].apply(
         lambda x: unicodedata.normalize("NFKD", str(x))
         .encode("ascii", "ignore")
         .decode("utf-8")
     )
-    df["nome"] = df["nome"].apply(lambda x: re.sub(r"[^\w\s]", "", x))
-    df["nome"] = df["nome"].str.lower()
-    df["nome"] = df["nome"].str.strip()
+    df[col_name] = df[col_name].apply(lambda x: re.sub(r"[^\w\s]", "", x))
+    df[col_name] = df[col_name].str.lower()
+    df[col_name] = df[col_name].str.strip()
     return df
-
-
-def read_brazilian_municipallity_ids_from_base_dos_dados(
-    billing_id: str,
-) -> pd.DataFrame:
-    """Download municipio table from base dos dados
-
-    Args:
-        billing_id (str): BQ billing project id
-
-    Returns:
-        pd.DataFrame:  municipio table from base dos dados
-    """
-    municipio = bd.read_table(
-        dataset_id="br_bd_diretorios_brasil",
-        table_id="municipio",
-        billing_project_id=billing_id,
-    )
-    return municipio
 
 
 def remove_latin1_accents_from_df(df):
@@ -419,46 +399,4 @@ def replace_nan_with_empty_set_coltypes_str(df: pd.DataFrame) -> pd.DataFrame:
     for col in df.columns:
         df[col] = df[col].astype(str)
         df[col] = df[col].replace("nan", "")
-    return df
-
-
-# function copied from datasets.br_tse_eleicoes.utils
-def get_data_from_prod(dataset_id: str, table_id: str, columns: list) -> list:
-    """
-    Get select columns from a table in prod.
-    """
-
-    storage = bd.Storage(dataset_id=dataset_id, table_id=table_id)
-    blobs = list(
-        storage.client["storage_staging"]
-        .bucket("basedosdados-dev")
-        .list_blobs(prefix=f"staging/{storage.dataset_id}/{storage.table_id}/")
-    )
-
-    dfs = []
-
-    for blob in blobs:
-        partitions = re.findall(r"\w+(?==)", blob.name)
-        if len(set(partitions) & set(columns)) == 0:
-            df = pd.read_csv(
-                blob.public_url,
-                usecols=columns,
-                dtype={"id_municipio": str, "id_municipio_bcb": str, "ddd": str},
-            )
-            dfs.append(df)
-        else:
-            columns2add = list(set(partitions) & set(columns))
-            for column in columns2add:
-                columns.remove(column)
-            df = pd.read_csv(
-                blob.public_url,
-                usecols=columns,
-                dtype={"id_municipio": str, "id_municipio_bcb": str},
-            )
-            for column in columns2add:
-                df[column] = blob.name.split(column + "=")[1].split("/")[0]
-            dfs.append(df)
-
-    df = pd.concat(dfs)
-
     return df
