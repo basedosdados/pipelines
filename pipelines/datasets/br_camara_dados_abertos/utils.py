@@ -54,9 +54,7 @@ def get_date():
 def read_and_clean_camara_dados_abertos(
     table_id=str, path=constants.INPUT_PATH.value, date_column=str
 ) -> pd.DataFrame:
-    df = pd.read_csv(
-        f"{path}{constants.TABLE_LIST.value[table_id]}.csv", sep=";", nrows=1000
-    )
+    df = pd.read_csv(f"{path}{constants.TABLE_LIST.value[table_id]}.csv", sep=";")
 
     if table_id == "votacao_orientacao_bancada":
         df["ano"] = constants.ANOS.value[0]
@@ -71,7 +69,7 @@ def read_and_clean_camara_dados_abertos(
 
     if table_id == "votacao_objeto":
         df.rename(columns=constants.RENAME_COLUMNS_OBJETO.value, inplace=True)
-        df = df[constants.ORDER_COLUMNS_OBJETO.values()]
+        df = df[constants.RENAME_COLUMNS_OBJETO.value.values()]
 
     else:
         df = apply_architecture_to_dataframe(
