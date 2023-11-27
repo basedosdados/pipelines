@@ -130,7 +130,7 @@ with Flow(name="br_camara_dados_abertos", code_owners=["tricktx"]) as br_camara:
                 coverage_type="part_bdpro",
                 time_delta={"months": 6},
                 prefect_mode=materialization_mode,
-                bq_project="basedosdados-dev",
+                bq_project="basedosdados",
                 upstream_tasks=[wait_for_materialization],
             )
 
