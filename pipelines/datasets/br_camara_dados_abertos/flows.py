@@ -131,6 +131,7 @@ with Flow(name="br_camara_dados_abertos", code_owners=["tricktx"]) as br_camara:
                 time_delta={"months": 6},
                 prefect_mode=materialization_mode,
                 bq_project="basedosdados",
+                api_mode="staging",
                 upstream_tasks=[wait_for_materialization],
             )
 
@@ -187,6 +188,7 @@ with Flow(name="br_camara_dados_abertos", code_owners=["tricktx"]) as br_camara:
                 time_delta={"months": 6},
                 prefect_mode=materialization_mode,
                 bq_project="basedosdados-dev",
+                api_mode="staging",
                 upstream_tasks=[wait_for_materialization],
             )
 
@@ -243,6 +245,7 @@ with Flow(name="br_camara_dados_abertos", code_owners=["tricktx"]) as br_camara:
                 time_delta={"months": 6},
                 prefect_mode=materialization_mode,
                 bq_project="basedosdados-dev",
+                api_mode="staging",
                 upstream_tasks=[wait_for_materialization],
             )
 
@@ -299,6 +302,7 @@ with Flow(name="br_camara_dados_abertos", code_owners=["tricktx"]) as br_camara:
                 time_delta={"months": 6},
                 prefect_mode=materialization_mode,
                 bq_project="basedosdados-dev",
+                api_mode="staging",
                 upstream_tasks=[wait_for_materialization],
             )
 
