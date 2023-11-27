@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import pandas as pd
 from prefect import task
 
 from pipelines.datasets.br_camara_dados_abertos.constants import constants

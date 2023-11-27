@@ -131,6 +131,7 @@ with Flow(name="br_camara_dados_abertos", code_owners=["tricktx"]) as br_camara:
                 time_delta={"months": 6},
                 prefect_mode=materialization_mode,
                 bq_project="basedosdados-dev",
+                upstream_tasks=[wait_for_materialization],
             )
 
         # ! ---------------------------------------- >   Votacao - objeto
@@ -186,6 +187,7 @@ with Flow(name="br_camara_dados_abertos", code_owners=["tricktx"]) as br_camara:
                 time_delta={"months": 6},
                 prefect_mode=materialization_mode,
                 bq_project="basedosdados-dev",
+                upstream_tasks=[wait_for_materialization],
             )
 
         # ! ---------------------------------------- >   Votacao - Parlamentar
@@ -241,6 +243,7 @@ with Flow(name="br_camara_dados_abertos", code_owners=["tricktx"]) as br_camara:
                 time_delta={"months": 6},
                 prefect_mode=materialization_mode,
                 bq_project="basedosdados-dev",
+                upstream_tasks=[wait_for_materialization],
             )
 
         # ! ---------------------------------------- >   Votacao - Proposicao
@@ -296,6 +299,7 @@ with Flow(name="br_camara_dados_abertos", code_owners=["tricktx"]) as br_camara:
                 time_delta={"months": 6},
                 prefect_mode=materialization_mode,
                 bq_project="basedosdados-dev",
+                upstream_tasks=[wait_for_materialization],
             )
 
         # ! ---------------------------------------- >   Votacao - Orientacao -- Não tem data
@@ -346,11 +350,13 @@ with Flow(name="br_camara_dados_abertos", code_owners=["tricktx"]) as br_camara:
             update_django_metadata(
                 dataset_id,
                 table_id[2],
-                date_format="%Y-%m-%d",
+                date_format="%Y-%m",
                 coverage_type="part_bdpro",
                 time_delta={"months": 6},
                 prefect_mode=materialization_mode,
                 bq_project="basedosdados-dev",
+                historical_database=False,
+                upstream_tasks=[wait_for_materialization],
             )
 
 br_camara.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
