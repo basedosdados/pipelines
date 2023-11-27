@@ -19,7 +19,6 @@ from pipelines.datasets.cross_update.tasks import (
     rename_blobs,
     update_nrows,
 )
-
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
@@ -38,10 +37,9 @@ with Flow(
     mode = Parameter("mode", default="prod", required=False)
     page_size = Parameter("page_size", default=100, required=False)
 
-     
     # json_response = datasearch_json(page_size=page_size, mode=mode)
 
-    # # TODO: alterar crawler_tables para get_tables_to_update, 
+    # # TODO: alterar crawler_tables para get_tables_to_update,
     # # montar no mesmo formato de saida do crawler table
     # updated_tables, tables_to_zip = crawler_tables(json_response, days=days)
 
@@ -89,7 +87,7 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    file_path = get_metadata_data(mode = materialization_mode)
+    file_path = get_metadata_data(mode=materialization_mode)
 
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=file_path,
@@ -137,10 +135,12 @@ with Flow(
             coverage_type="all_free",
             prefect_mode=materialization_mode,
             bq_project="basedosdados",
-            historical_database = False
+            historical_database=False,
         )
 
 
 crossupdate_update_metadata_table.storage = GCS(str(constants.GCS_FLOWS_BUCKET.value))
-crossupdate_update_metadata_table.run_config = KubernetesRun(image=str(constants.DOCKER_IMAGE.value))
+crossupdate_update_metadata_table.run_config = KubernetesRun(
+    image=str(constants.DOCKER_IMAGE.value)
+)
 # crossupdate_nrows.schedule = schedule_nrows

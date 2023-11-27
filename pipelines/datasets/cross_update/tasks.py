@@ -45,6 +45,7 @@ def datasearch_json(page_size: int, mode: str) -> Dict:
     return None
 
 
+
 @task(nout=2)
 def crawler_tables(
     json_response: dict, days: int = 7
@@ -214,13 +215,14 @@ def rename_blobs() -> None:
         new_name = re.sub(r"data0*\.csv\.gz", table_id + ".csv.gz", blob.name)
         bucket.rename_blob(blob, new_name)
 
+
 @task
-def get_metadata_data(mode: str = 'dev'):
-    if mode == 'dev':
-        billing_project_id='basedosdados-dev'
-    elif mode =="prod":
-        billing_project_id='basedosdados'
-            
+def get_metadata_data(mode: str = "dev"):
+    if mode == "dev":
+        billing_project_id = "basedosdados-dev"
+    elif mode == "prod":
+        billing_project_id = "basedosdados"
+
     schema_names_query = """
             SELECT  schema_name FROM  `basedosdados`.INFORMATION_SCHEMA.SCHEMATA
     """
@@ -233,10 +235,10 @@ def get_metadata_data(mode: str = 'dev'):
         )["schema_name"]
 
     df_list = []
-    for schema_batch in batch(schema_names_list,50):
+    for schema_batch in batch(schema_names_list, 50):
         query = ""
         for schema_name in schema_batch:
-                query += f"SELECT * FROM `basedosdados.{schema_name}.__TABLES__` UNION ALL "
+            query += f"SELECT * FROM `basedosdados.{schema_name}.__TABLES__` UNION ALL "
         query = query[:-11]
         batch_df = bd.read_sql(
             query=query,
@@ -246,8 +248,7 @@ def get_metadata_data(mode: str = 'dev'):
         df_list.append(batch_df)
 
     df = pd.concat(df_list, ignore_index=True)
-    
-    full_filepath = save_file(df= df,
-              table_id = "bigquery_tables")
+
+    full_filepath = save_file(df=df, table_id="bigquery_tables")
 
     return full_filepath

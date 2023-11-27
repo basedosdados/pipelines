@@ -3,10 +3,13 @@
 Utils for cross_update pipeline
 """
 import os
-from pipelines.utils.utils import log
-import requests
+
 import basedosdados as bd
 import pandas as pd
+import requests
+
+from pipelines.utils.utils import log
+
 
 def save_file(df: pd.DataFrame, table_id: str) -> str:
     """
@@ -32,6 +35,7 @@ def save_file(df: pd.DataFrame, table_id: str) -> str:
     log("save_input")
     return full_filepath
 
+
 def batch(lst, n):
     for i in range(0, len(lst), n):
-        yield lst[i:i + n]
+        yield lst[i : i + n]
