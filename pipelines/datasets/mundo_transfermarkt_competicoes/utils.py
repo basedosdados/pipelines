@@ -461,75 +461,6 @@ async def execucao_coleta():
         else:
             df = vazio(df)
         log(f"{n+1} dados de {n_links} extraídos.")
-        log("Primeiro df")
-    df["ht"] = ht
-    df["at"] = at
-    df["fthg"] = fthg
-    df["ftag"] = ftag
-    df["col_home"] = col_home
-    df["col_away"] = col_away
-
-    # limpar variaveis
-    df["fthg"] = df["fthg"].map(lambda x: x.replace("['", ""))
-    df["fthg"] = df["fthg"].map(lambda x: x.replace(":']", ""))
-
-    df["ftag"] = df["ftag"].map(lambda x: x.replace("[':", ""))
-    df["ftag"] = df["ftag"].map(lambda x: x.replace("']", ""))
-
-    df["col_home"] = df["col_home"].map(lambda x: x.replace("(", ""))
-    df["col_home"] = df["col_home"].map(lambda x: x.replace(".)", ""))
-
-    df["col_away"] = df["col_away"].map(lambda x: x.replace("(", ""))
-    df["col_away"] = df["col_away"].map(lambda x: x.replace(".)", ""))
-
-    df["htag"] = df["htag"].map(lambda x: str(x).replace(")", ""))
-    df["hthg"] = df["hthg"].map(lambda x: str(x).replace("(", ""))
-
-    df["publico_max"] = df["publico_max"].map(lambda x: str(x).replace(".", ""))
-    df["publico"] = df["publico"].map(lambda x: str(x).replace(".", ""))
-
-    df["test"] = df["publico_max"].replace(to_replace=r"\d", value=1, regex=True)
-
-    df["test2"] = df.apply(lambda x: sem_info(x["test"], x["publico_max"]), axis=1)
-    df["publico_max"] = df["test2"]
-    del df["test2"]
-    del df["test"]
-
-    df["data"] = pd.to_datetime(df["data"]).dt.date
-    df["horario"] = pd.to_datetime(df["horario"], format="%I:%M %p")
-    df["horario"] = df["horario"].dt.strftime("%H:%M")
-    df.fillna("", inplace=True)
-
-    df["rodada"] = df["rodada"].astype(np.int64)
-
-    # renomear colunas
-    df = df.rename(
-        columns={
-            "ht": "time_man",
-            "at": "time_vis",
-            "fthg": "gols_man",
-            "ftag": "gols_vis",
-            "col_home": "colocacao_man",
-            "col_away": "colocacao_vis",
-            "ac": "escanteios_vis",
-            "hc": "escanteios_man",
-            "adef": "defesas_vis",
-            "hdef": "defesas_man",
-            "af": "faltas_vis",
-            "afk": "chutes_bola_parada_vis",
-            "aimp": "impedimentos_vis",
-            "as": "chutes_vis",
-            "asofft": "chutes_fora_vis",
-            "hf": "faltas_man",
-            "hfk": "chutes_bola_parada_man",
-            "himp": "impedimentos_man",
-            "hs": "chutes_man",
-            "hsofft": "chutes_fora_man",
-            "htag": "gols_1_tempo_vis",
-            "hthg": "gols_1_tempo_man",
-        }
-    )
-    df.to_csv("/tmp/data/df.csv", index=False)
 
     # Segundo loop: Dados gerais
     for n, link in enumerate(links_valor):
@@ -547,8 +478,6 @@ async def execucao_coleta():
         else:
             df_valor = valor_vazio(df_valor)
         log(f"{n+1} valores de {n_links} extraídos.")
-    #      log("Segundo df")
-    #       print(df_valor)
 
     # Armazenando os dados no dataframe
     df["ht"] = ht
