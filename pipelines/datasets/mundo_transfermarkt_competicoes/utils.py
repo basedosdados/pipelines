@@ -387,6 +387,9 @@ async def execucao_coleta():
     link_tags2 = soup.find_all("a", attrs={"title": "Match preview"})
     for tag in link_tags:
         links.append(re.sub(r"\s", "", tag["href"]))
+    if len(links) % 10 != 0:
+        num_excess = len(links) % 10
+        del links[-num_excess:]
     for tag in link_tags2:
         links.append(re.sub(r"\s", "", tag["href"]))
     if len(links) % 10 != 0:
@@ -404,11 +407,11 @@ async def execucao_coleta():
                 )  # iterando sobre cada linha
                 at_tag.append(cells[6].findAll(text=True))  # iterando sobre cada linha
 
-    for time in range(len(links)):
+    for time in range(338):
         ht.append(str(ht_tag[time][2]))
         col_home.append(str(ht_tag[time][0]))
         # log(ht)
-    for time in range(len(links)):
+    for time in range(338):
         at.append(str(at_tag[time][0]))
         col_away.append(str(at_tag[time][2]))
     for tag in result_tag:
@@ -450,6 +453,74 @@ async def execucao_coleta():
             df = vazio(df)
         log(f"{n+1} dados de {n_links} extraídos.")
         log("Primeiro df")
+    df["ht"] = ht
+    df["at"] = at
+    df["fthg"] = fthg
+    df["ftag"] = ftag
+    df["col_home"] = col_home
+    df["col_away"] = col_away
+
+    # limpar variaveis
+    df["fthg"] = df["fthg"].map(lambda x: x.replace("['", ""))
+    df["fthg"] = df["fthg"].map(lambda x: x.replace(":']", ""))
+
+    df["ftag"] = df["ftag"].map(lambda x: x.replace("[':", ""))
+    df["ftag"] = df["ftag"].map(lambda x: x.replace("']", ""))
+
+    df["col_home"] = df["col_home"].map(lambda x: x.replace("(", ""))
+    df["col_home"] = df["col_home"].map(lambda x: x.replace(".)", ""))
+
+    df["col_away"] = df["col_away"].map(lambda x: x.replace("(", ""))
+    df["col_away"] = df["col_away"].map(lambda x: x.replace(".)", ""))
+
+    df["htag"] = df["htag"].map(lambda x: str(x).replace(")", ""))
+    df["hthg"] = df["hthg"].map(lambda x: str(x).replace("(", ""))
+
+    df["publico_max"] = df["publico_max"].map(lambda x: str(x).replace(".", ""))
+    df["publico"] = df["publico"].map(lambda x: str(x).replace(".", ""))
+
+    df["test"] = df["publico_max"].replace(to_replace=r"\d", value=1, regex=True)
+
+    df["test2"] = df.apply(lambda x: sem_info(x["test"], x["publico_max"]), axis=1)
+    df["publico_max"] = df["test2"]
+    del df["test2"]
+    del df["test"]
+
+    df["data"] = pd.to_datetime(df["data"]).dt.date
+    df["horario"] = pd.to_datetime(df["horario"], format="%I:%M %p")
+    df["horario"] = df["horario"].dt.strftime("%H:%M")
+    df.fillna("", inplace=True)
+
+    df["rodada"] = df["rodada"].astype(np.int64)
+
+    # renomear colunas
+    df = df.rename(
+        columns={
+            "ht": "time_man",
+            "at": "time_vis",
+            "fthg": "gols_man",
+            "ftag": "gols_vis",
+            "col_home": "colocacao_man",
+            "col_away": "colocacao_vis",
+            "ac": "escanteios_vis",
+            "hc": "escanteios_man",
+            "adef": "defesas_vis",
+            "hdef": "defesas_man",
+            "af": "faltas_vis",
+            "afk": "chutes_bola_parada_vis",
+            "aimp": "impedimentos_vis",
+            "as": "chutes_vis",
+            "asofft": "chutes_fora_vis",
+            "hf": "faltas_man",
+            "hfk": "chutes_bola_parada_man",
+            "himp": "impedimentos_man",
+            "hs": "chutes_man",
+            "hsofft": "chutes_fora_man",
+            "htag": "gols_1_tempo_vis",
+            "hthg": "gols_1_tempo_man",
+        }
+    )
+    df.to_csv("/tmp/data/df.csv", index=False)
 
     # Segundo loop: Dados gerais
     for n, link in enumerate(links_valor):
