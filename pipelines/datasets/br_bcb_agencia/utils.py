@@ -21,8 +21,16 @@ from pipelines.utils.utils import log
 
 
 # ---- functions to download data
-# todo:colocar check no ano e mes
 def parse_date(url: str) -> datetime:
+    """This function parse the date of a br_bcb_agencia url
+
+    Args:
+        url (str): URL of br_bcb_agencia extracted from https://www.bcb.gov.br/fis/info/agencias.asp?frame=1
+
+    Returns:
+        datetime: a date object
+    """
+
     padrao = re.compile(r"\d+")
 
     numeros = padrao.findall(url)
@@ -142,14 +150,14 @@ def read_file(file_path: str, file_name: str) -> pd.DataFrame:
         skiprows = find_cnpj_row_number(file_path=file_path) + 1
 
         conv = get_conv_names(file_path=file_path, skiprows=skiprows)
-        df = pd.read_excel(file_path, skiprows=skiprows, converters=conv, skipfooter=1)
+        df = pd.read_excel(file_path, skiprows=skiprows, converters=conv, skipfooter=2)
         # todo: rethink logic. file_name param feeds another function create_year_month_cols
         df = create_year_month_cols(df=df, file=file_name)
 
     except Exception as e:
         log(e)
         conv = get_conv_names(file_path=file_path, skiprows=9)
-        df = pd.read_excel(file_path, skiprows=9, converters=conv)
+        df = pd.read_excel(file_path, skiprows=9, converters=conv, skipfooter=2)
         df = create_year_month_cols(df=df, file=file_name)
     return df
 
@@ -165,23 +173,20 @@ def clean_column_names(df: pd.DataFrame) -> pd.DataFrame:
         DataFrame: a dataframe with cleaned columns
     """
     # Remove leading and trailing whitespaces from column names
-    log(f" ->>> brutos ->>> {df.columns}")
+    log("---- cleaning col names ----")
     df.columns = df.columns.str.strip()
-    print("colnames striped")
+
     # Remove accents and special characters from column names
     df.columns = df.columns.map(
         lambda x: unicodedata.normalize("NFKD", x)
         .encode("ascii", "ignore")
         .decode("utf-8")
     )
-    print("colnames cleaned 1")
     # Replace remaining special characters with underscores
     df.columns = df.columns.str.replace(r"[^\w\s]+", "_", regex=True)
-    print("colnames cleaned 2")
     # Lowercase all column names
     df.columns = df.columns.str.lower()
-    print("colnames to lower")
-    log(f" ->>> tratados ->>> {df.columns}")
+
     return df
 
 
@@ -199,10 +204,12 @@ def create_year_month_cols(df: pd.DataFrame, file: str) -> pd.DataFrame:
     Returns:
         pd.DataFrame: a dataframe with month and year columns
     """
-    print(f"{file}")
+
     df["ano"] = file[0:4]
     df["mes"] = file[4:6]
-    print(f"year {file[0:4]} and month {file[4:6]} cols created")
+    log(
+        f" ---- creating ano and mes columns ----- ano {file[0:4]} mes {file[4:6]} cols created"
+    )
     return df
 
 
@@ -394,7 +401,7 @@ def replace_nan_with_empty_set_coltypes_str(df: pd.DataFrame) -> pd.DataFrame:
         df (pd.DataFrame): a dataframe
 
     Returns:
-        pd.DataFrame: a datrafaame with all columns as strings and nan values as empty cels
+        pd.DataFrame: a datrafaame with all columns as strings and nan values representing null values
     """
     for col in df.columns:
         df[col] = df[col].astype(str)

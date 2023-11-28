@@ -46,31 +46,33 @@ def extract_most_recent_date(xpath, url):
     dicionario_data_url = {parse_date(url): url for url in url_list}
     tupla_data_maxima_url = max(dicionario_data_url.items(), key=lambda x: x[0])
     data_maxima = tupla_data_maxima_url[0]
-    tupla_data_maxima_url[1]
-    log(f"url_list: {url_list}")
+    url = tupla_data_maxima_url[1]
+    log(f"---- the most recent date is ->>  {data_maxima}")
+    log(f"---- the select URL is ->>  {url}")
 
-    return url_list, data_maxima
+    return url, data_maxima
 
 
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def download_data(link: str, links: str):
+def download_data(dowload_url: str):
     # select the most recent link
 
-    for element in links:
-        current_link = link + element
-        log(f"Downloading file from: {current_link} ")
+    base_url = "https://www.bcb.gov.br"
 
-        download_and_unzip(
-            url=current_link, extract_to=agencia_constants.DOWNLOAD_PATH_AGENCIA.value
-        )
+    current_link = base_url + dowload_url
+    log(f"Downloading file from: {current_link} ")
 
-        log(
-            f"The file: {os.listdir(agencia_constants.DOWNLOAD_PATH_AGENCIA.value)} was downloaded"
-        )
-        tm.sleep(1.5)
+    download_and_unzip(
+        url=current_link, extract_to=agencia_constants.DOWNLOAD_PATH_AGENCIA.value
+    )
+
+    log(
+        f"The file: {os.listdir(agencia_constants.DOWNLOAD_PATH_AGENCIA.value)} was downloaded"
+    )
+    tm.sleep(1.5)
 
 
 @task(
@@ -98,8 +100,7 @@ def clean_data():
             df = clean_column_names(df)
             # rename columns
             df.rename(columns=rename_cols(), inplace=True)
-            log(df.columns)
-            log(df["nome"])
+
             # fill left zeros with field range
             df["id_compe_bcb_agencia"] = (
                 df["id_compe_bcb_agencia"].astype(str).str.zfill(4)
@@ -120,7 +121,7 @@ def clean_data():
             # drop ddd column thats going to be added later
             df.drop(columns=["ddd"], inplace=True)
             log("ddd removed")
-            log(df.columns)
+
             # some files doesnt have 'id_municipio', just 'nome'.
             # to add new ids is necessary to join by name
             # clean nome municipio
@@ -132,8 +133,6 @@ def clean_data():
                 from_file=True,
             )
             municipio = municipio[["nome", "sigla_uf", "id_municipio", "ddd"]]
-
-            log("municipio dataset successfully downloaded!")
 
             municipio = clean_nome_municipio(municipio, "nome")
             # check if id_municipio already exists
@@ -160,12 +159,9 @@ def clean_data():
                     how="left",
                 )
 
-            log(f'->>>>>>>>>> {df["id_municipio"].isna().sum()}')
-
             # clean cep column
             df["cep"] = df["cep"].astype(str)
             df["cep"] = df["cep"].apply(remove_non_numeric_chars)
-            log("cep ok")
 
             # cnpj cleaning working
             df = create_cnpj_col(df)
