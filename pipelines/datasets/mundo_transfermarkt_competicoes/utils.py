@@ -387,16 +387,18 @@ async def execucao_coleta():
     link_tags2 = soup.find_all("a", attrs={"title": "Match preview"})
     for tag in link_tags:
         links.append(re.sub(r"\s", "", tag["href"]))
+    log(f"Antes do if {len(links)}")
     if len(links) % 10 != 0:
         num_excess = len(links) % 10
         del links[-num_excess:]
+    log(f"Depois do if {len(links)}")
     for tag in link_tags2:
         links.append(re.sub(r"\s", "", tag["href"]))
     if len(links) % 10 != 0:
         num_excess = len(links) % 10
         del links[-num_excess:]
     tabela = soup.findAll("div", class_="box")
-    # log(tabela)
+
     for i in range(1, int(len(links) / 10) + 1):
         for row in tabela[i].findAll("tr"):  # para tudo que estiver em <tr>
             cells = row.findAll("td")  # variável para encontrar <td>
@@ -407,13 +409,22 @@ async def execucao_coleta():
                 )  # iterando sobre cada linha
                 at_tag.append(cells[6].findAll(text=True))  # iterando sobre cada linha
 
-    for time in range(338):
-        ht.append(str(ht_tag[time][2]))
-        col_home.append(str(ht_tag[time][0]))
-        # log(ht)
-    for time in range(338):
+    for time in range(380):
+        try:
+            ht.append(str(ht_tag[time][2]))
+            col_home.append(str(ht_tag[time][0]))
+        except Exception:
+            ht.append(str(ht_tag[time][0]))
+            str_vazio = ""
+            col_home.append(str(str_vazio))
+    for time in range(380):
         at.append(str(at_tag[time][0]))
-        col_away.append(str(at_tag[time][2]))
+        try:
+            col_away.append(str(at_tag[time][2]))
+        except Exception:
+            str_vazio = ""
+            col_away.append(str(str_vazio))
+
     for tag in result_tag:
         fthg.append(str(pattern_fthg.findall(str(tag))))
         ftag.append(str(pattern_ftag.findall(str(tag))))
@@ -434,8 +445,6 @@ async def execucao_coleta():
     n_links = len(links)
     log(f"Encontrados {n_links} partidas.")
     log("Extraindo dados...")
-    #    log(links_esta)
-    #    log(links_valor)
     # Primeiro loop: Dados de estatística
     for n, link in enumerate(links_esta):
         # Tentativas de obter os links
