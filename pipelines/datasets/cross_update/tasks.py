@@ -2,12 +2,10 @@
 """
 Tasks for cross update of metadata.
 """
-import datetime
 import re
-from datetime import timedelta
 
 # pylint: disable=invalid-name, too-many-locals
-from typing import Dict, List, Tuple
+from typing import Dict, List
 
 import basedosdados as bd
 import pandas as pd
@@ -45,41 +43,38 @@ def datasearch_json(page_size: int, mode: str) -> Dict:
     return None
 
 
-
 @task
-def query_tables(
-    days: int = 7,
-    mode: str = 'dev'
-) -> List[Dict[str, str]]:
+def query_tables(days: int = 7, mode: str = "dev") -> List[Dict[str, str]]:
     if mode == "dev":
         billing_project_id = "basedosdados-dev"
     elif mode == "prod":
         billing_project_id = "basedosdados"
-    
+
     query = f"""
         SELECT
             dataset_id,
             table_id
         FROM `basedosdados-dev.br_bd_metadados.bigquery_tables`
-        WHERE 
+        WHERE
             DATE_DIFF(CURRENT_DATE(),last_modified_date,DAY) <={days}
             AND row_count <= 200000
 
-    """     
+    """
 
     tables = bd.read_sql(
-            query=query,
-            billing_project_id=billing_project_id,
-            from_file=True,
-        )
-    
+        query=query,
+        billing_project_id=billing_project_id,
+        from_file=True,
+    )
+
     log(f"Found {len(tables)} tables to zip")
 
-    to_zip = tables.to_dict('records')
+    to_zip = tables.to_dict("records")
 
     log(to_zip[0:1])
 
     return to_zip[0:1]
+
 
 # @task(nout=2)
 # def crawler_tables(

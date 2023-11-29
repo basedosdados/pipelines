@@ -37,7 +37,7 @@ with Flow(
 
     # json_response = datasearch_json(page_size=page_size, mode=mode)
     # montar no mesmo formato de saida do crawler table
-    tables_to_zip = query_tables(days=days, mode = mode)
+    tables_to_zip = query_tables(days=days, mode=mode)
 
     # update_nrows.map(updated_tables, mode=unmapped(mode))
 
