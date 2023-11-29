@@ -341,6 +341,33 @@ def valor_vazio(df):
     return df
 
 
+def rename_columns(df):
+    df = df.rename(columns=mundo_constants.COLUMNS_MAPPING.value)
+    return df
+
+
+def clean_column(column):
+    column = column.str.replace(r"['\":.mTh]", "", regex=True)
+    column = column.replace("", None)
+    return column
+
+
+def extract_additional_columns(df_valor):
+    df_valor["idade_media_titular_vis"] = clean_column(
+        df_valor["idade_media_titular_vis"]
+    )
+    df_valor["idade_media_titular_man"] = clean_column(
+        df_valor["idade_media_titular_man"]
+    )
+    df_valor["valor_equipe_titular_man"] = clean_column(
+        df_valor["valor_equipe_titular_man"]
+    )
+    df_valor["valor_equipe_titular_vis"] = clean_column(
+        df_valor["valor_equipe_titular_vis"]
+    )
+    return df_valor
+
+
 # ! Código principal da coleta do Brasileirão
 async def execucao_coleta():
     """
@@ -384,12 +411,16 @@ async def execucao_coleta():
     site_data = requests.get(base_url.format(season=season), headers=headers)
     soup = BeautifulSoup(site_data.content, "html.parser")
     link_tags = soup.find_all("a", attrs={"class": "ergebnis-link"})
+    link_tags2 = soup.find_all("a", attrs={"title": "Match preview"})
     for tag in link_tags:
+        links.append(re.sub(r"\s", "", tag["href"]))
+    for tag in link_tags2:
         links.append(re.sub(r"\s", "", tag["href"]))
     if len(links) % 10 != 0:
         num_excess = len(links) % 10
         del links[-num_excess:]
     tabela = soup.findAll("div", class_="box")
+
     for i in range(1, int(len(links) / 10) + 1):
         for row in tabela[i].findAll("tr"):  # para tudo que estiver em <tr>
             cells = row.findAll("td")  # variável para encontrar <td>
@@ -400,28 +431,31 @@ async def execucao_coleta():
                 )  # iterando sobre cada linha
                 at_tag.append(cells[6].findAll(text=True))  # iterando sobre cada linha
 
-    for time in range(len(links)):
-        ht.append(str(ht_tag[time][2]))
-        col_home.append(str(ht_tag[time][0]))
-    for time in range(len(links)):
+    for time in range(380):
+        try:
+            ht.append(str(ht_tag[time][2]))
+            col_home.append(str(ht_tag[time][0]))
+        except Exception:
+            ht.append(str(ht_tag[time][0]))
+            str_vazio = ""
+            col_home.append(str(str_vazio))
+    for time in range(380):
         at.append(str(at_tag[time][0]))
-        col_away.append(str(at_tag[time][2]))
+        try:
+            col_away.append(str(at_tag[time][2]))
+        except Exception:
+            str_vazio = ""
+            col_away.append(str(str_vazio))
+
     for tag in result_tag:
         fthg.append(str(pattern_fthg.findall(str(tag))))
         ftag.append(str(pattern_ftag.findall(str(tag))))
 
-    # links das estatísticas
-    links_esta = []
-    # links das escalações de cada partida
-    links_valor = []
-
     # Gerando os links para coletar dados sobre estatística e dados gerais
-    for link in links:
-        esta = link.replace("index", "statistik")
-        links_esta.append(esta)
-    for link in links:
-        valor = link.replace("index", "aufstellung")
-        links_valor.append(valor)
+    # links das estatísticas
+    links_esta = [link.replace("index", "statistik") for link in links]
+    # links das escalações de cada partida
+    links_valor = [link.replace("index", "aufstellung") for link in links]
 
     n_links = len(links)
     log(f"Encontrados {n_links} partidas.")
@@ -430,6 +464,7 @@ async def execucao_coleta():
     for n, link in enumerate(links_esta):
         # Tentativas de obter os links
         content = await get_content(base_link + link, wait_time=0.01)
+        # log(content)
         if content:
             try:
                 df = process(df, content)
@@ -441,10 +476,12 @@ async def execucao_coleta():
         else:
             df = vazio(df)
         log(f"{n+1} dados de {n_links} extraídos.")
+
     # Segundo loop: Dados gerais
     for n, link in enumerate(links_valor):
         # Tentativas de obter os links
         content = await get_content(base_link + link, wait_time=0.01)
+        # log(content)
         if content:
             try:
                 df_valor = pegar_valor(df_valor, content)
@@ -481,32 +518,7 @@ async def execucao_coleta():
     df["htag"] = df["htag"].map(lambda x: str(x).replace(")", ""))
     df["hthg"] = df["hthg"].map(lambda x: str(x).replace("(", ""))
 
-    df_valor["idade_media_titular_vis"] = df_valor["idade_media_titular_vis"].map(
-        lambda x: str(x).replace(" ", "")
-    )
-    df_valor["idade_media_titular_man"] = df_valor["idade_media_titular_man"].map(
-        lambda x: str(x).replace(" ", "")
-    )
-
-    df_valor["valor_equipe_titular_man"] = df_valor["valor_equipe_titular_man"].map(
-        lambda x: str(x).replace("m", "0000")
-    )
-    df_valor["valor_equipe_titular_man"] = df_valor["valor_equipe_titular_man"].map(
-        lambda x: str(x).replace("Th.", "000")
-    )
-    df_valor["valor_equipe_titular_man"] = df_valor["valor_equipe_titular_man"].map(
-        lambda x: str(x).replace(".", "")
-    )
-
-    df_valor["valor_equipe_titular_vis"] = df_valor["valor_equipe_titular_vis"].map(
-        lambda x: str(x).replace("m", "0000")
-    )
-    df_valor["valor_equipe_titular_vis"] = df_valor["valor_equipe_titular_vis"].map(
-        lambda x: str(x).replace("Th.", "000")
-    )
-    df_valor["valor_equipe_titular_vis"] = df_valor["valor_equipe_titular_vis"].map(
-        lambda x: str(x).replace(".", "")
-    )
+    df_valor = extract_additional_columns(df_valor)
 
     df["publico_max"] = df["publico_max"].map(lambda x: str(x).replace(".", ""))
     df["publico"] = df["publico"].map(lambda x: str(x).replace(".", ""))
@@ -524,39 +536,15 @@ async def execucao_coleta():
     del df["test"]
 
     df["data"] = pd.to_datetime(df["data"]).dt.date
-    df["horario"] = pd.to_datetime(df["horario"], format="%I:%M %p")
-    df["horario"] = df["horario"].dt.strftime("%H:%M")
+    # df["horario"] = pd.to_datetime(df["horario"], format="%I:%M %p")
+    # df["horario"] = df["horario"].dt.strftime("%H:%M")
     df.fillna("", inplace=True)
 
-    df["rodada"] = df["rodada"].astype(np.int64)
+    # df["rodada"] = df["rodada"].astype(np.int64)
 
     # renomear colunas
-    df = df.rename(
-        columns={
-            "ht": "time_man",
-            "at": "time_vis",
-            "fthg": "gols_man",
-            "ftag": "gols_vis",
-            "col_home": "colocacao_man",
-            "col_away": "colocacao_vis",
-            "ac": "escanteios_vis",
-            "hc": "escanteios_man",
-            "adef": "defesas_vis",
-            "hdef": "defesas_man",
-            "af": "faltas_vis",
-            "afk": "chutes_bola_parada_vis",
-            "aimp": "impedimentos_vis",
-            "as": "chutes_vis",
-            "asofft": "chutes_fora_vis",
-            "hf": "faltas_man",
-            "hfk": "chutes_bola_parada_man",
-            "himp": "impedimentos_man",
-            "hs": "chutes_man",
-            "hsofft": "chutes_fora_man",
-            "htag": "gols_1_tempo_vis",
-            "hthg": "gols_1_tempo_man",
-        }
-    )
+    df = rename_columns(df)
+
     # Concatenando os valores dos dois loops
     df = pd.concat([df, df_valor], axis=1)
     df["data"] = pd.to_datetime(df["data"])
