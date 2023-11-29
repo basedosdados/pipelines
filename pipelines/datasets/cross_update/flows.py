@@ -45,7 +45,7 @@ with Flow(
         current_flow_labels = get_current_flow_labels()
         dump_to_gcs_flow = create_flow_run.map(
             flow_name=unmapped(utils_constants.FLOW_DUMP_TO_GCS_NAME.value),
-            project_name=unmapped(constants.PREFECT_DEFAULT_PROJECT.value),
+            project_name=unmapped("staging"),
             parameters=tables_to_zip,
             labels=unmapped(current_flow_labels),
             run_name=unmapped("Dump to GCS"),

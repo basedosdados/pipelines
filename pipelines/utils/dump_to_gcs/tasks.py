@@ -115,8 +115,8 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
 
     log("job done")
     log(job)
-    table_size = job.total_bytes_processed
-    log(f'Table size: {human_readable(table_size, unit="B", unit_divider=1024)}')
+    # table_size = job.total_bytes_processed
+    # log(f'Table size: {human_readable(table_size, unit="B", unit_divider=1024)}')
     # if table_size > maximum_bytes_processed:
     #     max_allowed_size = human_readable(
     #         maximum_bytes_processed,
