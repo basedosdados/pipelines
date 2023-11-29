@@ -342,31 +342,7 @@ def valor_vazio(df):
 
 
 def rename_columns(df):
-    column_mapping = {
-        "ht": "time_man",
-        "at": "time_vis",
-        "fthg": "gols_man",
-        "ftag": "gols_vis",
-        "col_home": "colocacao_man",
-        "col_away": "colocacao_vis",
-        "ac": "escanteios_vis",
-        "hc": "escanteios_man",
-        "adef": "defesas_vis",
-        "hdef": "defesas_man",
-        "af": "faltas_vis",
-        "afk": "chutes_bola_parada_vis",
-        "aimp": "impedimentos_vis",
-        "as": "chutes_vis",
-        "asofft": "chutes_fora_vis",
-        "hf": "faltas_man",
-        "hfk": "chutes_bola_parada_man",
-        "himp": "impedimentos_man",
-        "hs": "chutes_man",
-        "hsofft": "chutes_fora_man",
-        "htag": "gols_1_tempo_vis",
-        "hthg": "gols_1_tempo_man",
-    }
-    df = df.rename(columns=column_mapping)
+    df = df.rename(columns=mundo_constants.COLUMNS_MAPPING.value)
     return df
 
 
