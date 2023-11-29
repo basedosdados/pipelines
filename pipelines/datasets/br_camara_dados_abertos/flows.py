@@ -351,7 +351,7 @@ with Flow(name="br_camara_dados_abertos", code_owners=["tricktx"]) as br_camara:
                 dataset_id,
                 table_id[2],
                 date_format="%Y-%m",
-                coverage_type="part_bdpro",
+                coverage_type="all_free",
                 time_delta={"months": 6},
                 prefect_mode=materialization_mode,
                 bq_project="basedosdados",
