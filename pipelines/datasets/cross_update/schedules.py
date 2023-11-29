@@ -20,7 +20,7 @@ schedule_nrows = Schedule(
             ],
             parameter_defaults={
                 "dump_to_gcs": True,
-                "days": 7,
+                "days": 3,
                 "mode": "prod",
                 "page_size": 100,
             },

@@ -112,17 +112,20 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
     job = client["bigquery"].query(query, job_config=job_config)
     while not job.done():
         sleep(1)
+
+    log("job done")
+    log(job)
     table_size = job.total_bytes_processed
     log(f'Table size: {human_readable(table_size, unit="B", unit_divider=1024)}')
-    if table_size > maximum_bytes_processed:
-        max_allowed_size = human_readable(
-            maximum_bytes_processed,
-            unit="B",
-            unit_divider=1024,
-        )
-        raise ValueError(
-            f"Table size exceeds the maximum allowed size: {max_allowed_size}"
-        )
+    # if table_size > maximum_bytes_processed:
+    #     max_allowed_size = human_readable(
+    #         maximum_bytes_processed,
+    #         unit="B",
+    #         unit_divider=1024,
+    #     )
+    #     raise ValueError(
+    #         f"Table size exceeds the maximum allowed size: {max_allowed_size}"
+    #     )
 
     # Get data
     log("Querying data from BigQuery")

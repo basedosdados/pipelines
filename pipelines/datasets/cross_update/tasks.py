@@ -46,160 +46,195 @@ def datasearch_json(page_size: int, mode: str) -> Dict:
 
 
 
-@task(nout=2)
-def crawler_tables(
-    json_response: dict, days: int = 7
-) -> Tuple[List[Dict[str, str]], List[Dict[str, str]]]:
-    """Generate a list of dicts like {"dataset_id": "dataset_id", "table_id": "table_id"}
-    where all tables were update in the last 7 days
-    """
-    # the line below returns the full number of datasets, despite the page_size this approach
-    # leads to an IndexError when the number of datasets is greater than page_size (in the flow)
-    # n_datasets = json_response["result"]["count"]
-
-    # changed n_datasets to the actual number of datasets, limited by page_size
-    n_datasets = len(json_response["result"]["datasets"])
-    n_resources = [
-        json_response["result"]["datasets"][k]["num_resources"]
-        for k in range(n_datasets)
-    ]
-    datasets = json_response["result"]["datasets"]
-    bdm_tables = []
-    for i in range(n_datasets):
-        for j in range(n_resources[i]):
-            if datasets[i]["resources"][j]["resource_type"] == "bdm_table":
-                bdm_tables.append(datasets[i]["resources"][j])
-
-    log(f"Found {len(bdm_tables)} bdm tables")
-    log(bdm_tables[0].keys())
-    to_update = []
-    for bdm_table in bdm_tables:
-        # skip if dataset_id, table_id, last_updated, and number of rows are not in the bdm_table keys
-        if not all(
-            key in bdm_table.keys()
-            for key in ["dataset_id", "table_id", "metadata_modified", "number_rows"]
-        ):
-            continue
-        tmp_dict = {
-            "dataset_id": bdm_table["dataset_id"],
-            "table_id": bdm_table["table_id"],
-            "last_updated": bdm_table["metadata_modified"],
-            "number_rows": bdm_table["number_rows"],
-        }
-        to_update.append(tmp_dict)
-
-    # filter list of dictionaries by last_updated and remove older than X days
-    today = datetime.datetime.today()
-    seven_days_ago = today - timedelta(days=days)
-    to_update = [
-        x
-        for x in to_update
-        if datetime.datetime.strptime(x["last_updated"], "%Y-%m-%dT%H:%M:%S.%f")
-        > seven_days_ago
-    ]
-
-    log(f"Found {len(to_update)} tables updated in last {days} days")
-
-    to_zip = []
-    for bdm_table in to_update:
-        tmp_dict = {
-            "dataset_id": bdm_table["dataset_id"],
-            "table_id": bdm_table["table_id"],
-            "project_id": "basedosdados",
-            "maximum_bytes_processed": dump_to_gcs_constants.MAX_BYTES_PROCESSED_PER_TABLE.value,
-            "number_rows": bdm_table["number_rows"],
-        }
-        to_zip.append(tmp_dict)
-
-    # remove tables where number of rows is None
-    to_zip = [x for x in to_zip if x["number_rows"] is not None]
-    # keep only tables with less than 200k lines
-    to_zip = [x for x in to_zip if x["number_rows"] <= 200000]
-
-    log(f"Found {len(to_zip)} tables to zip")
-    for table in to_zip:
-        log(
-            f"Zipping: dataset_id: {table['dataset_id']}, table_id: {table['table_id']}"
-        )
-
-    for x in to_zip:
-        del x["number_rows"]
-
-    for x in to_update:
-        del x["number_rows"]
-        del x["last_updated"]
-
-    return (to_update, to_zip)
-
-
 @task
-def update_nrows(table_dict: Dict[str, str], mode: str) -> None:
-    """Get number of rows in a table
+def query_tables(
+    days: int = 7,
+    mode: str = 'dev'
+) -> List[Dict[str, str]]:
+    if mode == "dev":
+        billing_project_id = "basedosdados-dev"
+    elif mode == "prod":
+        billing_project_id = "basedosdados"
+    
+    query = f"""
+        SELECT
+            dataset_id,
+            table_id
+        FROM `basedosdados-dev.br_bd_metadados.bigquery_tables`
+        WHERE 
+            DATE_DIFF(CURRENT_DATE(),last_modified_date,DAY) <={days}
+            AND row_count <= 200000
 
-    Args:
-        table_dict (Dict[str, str]): Dict with dataset_id and table_id
-        mode (str): prod or dev
-    Returns:
-        None
-    """
-    dataset_id = table_dict["dataset_id"]
-    table_id = table_dict["table_id"]
-    config_map = {}
-    if mode == "prod":
-        config_map.update({"database": f"basedosdados.{dataset_id}.{table_id}"})
-        config_map.update({"project_id": "basedosdados"})
-    elif mode == "dev":
-        config_map.update(
-            {"database": f"basedosdados-dev.{dataset_id}_staging.{table_id}"}
+    """     
+
+    tables = bd.read_sql(
+            query=query,
+            billing_project_id=billing_project_id,
+            from_file=True,
         )
-        config_map.update({"project_id": "basedosdados-dev"})
-    else:
-        raise ValueError("mode must be prod or dev")
+    
+    log(f"Found {len(tables)} tables to zip")
 
-    # ideally, we would consume the API to get the number of rows,
-    # but it is not available yet.
-    # See: https://stackoverflow.com/questions/69313542/num-rows-issue-for-views-in-big-query-python-library
-    query = f"SELECT COUNT(*) AS n_rows FROM `{config_map['database']}`"
-    n_rows = bd.read_sql(
-        query=query, billing_project_id=config_map["project_id"], from_file=True
-    )["n_rows"].to_list()[0]
+    to_zip = tables.to_dict('records')
 
-    fields_to_update = [{"number_rows": int(n_rows)}]
+    log(to_zip[0:1])
 
-    # add credentials to config.toml
-    # TODO: remove this because bd 2.0 does not have Metadata class
-    handle = bd.Metadata(dataset_id=dataset_id, table_id=table_id)
-    handle.create(if_exists="replace")
+    return to_zip[0:1]
 
-    yaml = ryaml.YAML()
-    yaml.preserve_quotes = True
-    yaml.indent(mapping=4, sequence=6, offset=4)
+# @task(nout=2)
+# def crawler_tables(
+#     json_response: dict, days: int = 7
+# ) -> Tuple[List[Dict[str, str]], List[Dict[str, str]]]:
+#     """Generate a list of dicts like {"dataset_id": "dataset_id", "table_id": "table_id"}
+#     where all tables were update in the last 7 days
+#     """
+#     # the line below returns the full number of datasets, despite the page_size this approach
+#     # leads to an IndexError when the number of datasets is greater than page_size (in the flow)
+#     # n_datasets = json_response["result"]["count"]
 
-    config_file = handle.filepath.as_posix()
+#     # changed n_datasets to the actual number of datasets, limited by page_size
+#     n_datasets = len(json_response["result"]["datasets"])
+#     n_resources = [
+#         json_response["result"]["datasets"][k]["num_resources"]
+#         for k in range(n_datasets)
+#     ]
+#     datasets = json_response["result"]["datasets"]
+#     bdm_tables = []
+#     for i in range(n_datasets):
+#         for j in range(n_resources[i]):
+#             if datasets[i]["resources"][j]["resource_type"] == "bdm_table":
+#                 bdm_tables.append(datasets[i]["resources"][j])
 
-    with open(config_file, encoding="utf-8") as fp:
-        data = yaml.load(fp)
+#     log(f"Found {len(bdm_tables)} bdm tables")
+#     log(bdm_tables[0].keys())
+#     to_update = []
+#     for bdm_table in bdm_tables:
+#         # skip if dataset_id, table_id, last_updated, and number of rows are not in the bdm_table keys
+#         if not all(
+#             key in bdm_table.keys()
+#             for key in ["dataset_id", "table_id", "metadata_modified", "number_rows"]
+#         ):
+#             continue
+#         tmp_dict = {
+#             "dataset_id": bdm_table["dataset_id"],
+#             "table_id": bdm_table["table_id"],
+#             "last_updated": bdm_table["metadata_modified"],
+#             "number_rows": bdm_table["number_rows"],
+#         }
+#         to_update.append(tmp_dict)
 
-    # log(data)
+#     # filter list of dictionaries by last_updated and remove older than X days
+#     today = datetime.datetime.today()
+#     seven_days_ago = today - timedelta(days=days)
+#     to_update = [
+#         x
+#         for x in to_update
+#         if datetime.datetime.strptime(x["last_updated"], "%Y-%m-%dT%H:%M:%S.%f")
+#         > seven_days_ago
+#     ]
 
-    for field in fields_to_update:
-        for k, v in field.items():
-            if isinstance(v, dict):
-                for i, j in v.items():
-                    data[k][i] = j
-            else:
-                data[k] = v
+#     log(f"Found {len(to_update)} tables updated in last {days} days")
 
-    with open(config_file, "w", encoding="utf-8") as fp:
-        yaml.dump(data, fp)
+#     to_zip = []
+#     for bdm_table in to_update:
+#         tmp_dict = {
+#             "dataset_id": bdm_table["dataset_id"],
+#             "table_id": bdm_table["table_id"],
+#             "project_id": "basedosdados",
+#             "maximum_bytes_processed": dump_to_gcs_constants.MAX_BYTES_PROCESSED_PER_TABLE.value,
+#             "number_rows": bdm_table["number_rows"],
+#         }
+#         to_zip.append(tmp_dict)
 
-    # log(data)
+#     # remove tables where number of rows is None
+#     to_zip = [x for x in to_zip if x["number_rows"] is not None]
+#     # keep only tables with less than 200k lines
+#     to_zip = [x for x in to_zip if x["number_rows"] <= 200000]
 
-    if handle.validate():
-        handle.publish(if_exists="replace")
-        log(f"Metadata for {table_id} updated")
-    else:
-        log("Fail to validate metadata.")
+#     log(f"Found {len(to_zip)} tables to zip")
+#     for table in to_zip:
+#         log(
+#             f"Zipping: dataset_id: {table['dataset_id']}, table_id: {table['table_id']}"
+#         )
+
+#     for x in to_zip:
+#         del x["number_rows"]
+
+#     for x in to_update:
+#         del x["number_rows"]
+#         del x["last_updated"]
+
+#     return (to_update, to_zip)
+
+
+# @task
+# def update_nrows(table_dict: Dict[str, str], mode: str) -> None:
+#     """Get number of rows in a table
+
+#     Args:
+#         table_dict (Dict[str, str]): Dict with dataset_id and table_id
+#         mode (str): prod or dev
+#     Returns:
+#         None
+#     """
+#     dataset_id = table_dict["dataset_id"]
+#     table_id = table_dict["table_id"]
+#     config_map = {}
+#     if mode == "prod":
+#         config_map.update({"database": f"basedosdados.{dataset_id}.{table_id}"})
+#         config_map.update({"project_id": "basedosdados"})
+#     elif mode == "dev":
+#         config_map.update(
+#             {"database": f"basedosdados-dev.{dataset_id}_staging.{table_id}"}
+#         )
+#         config_map.update({"project_id": "basedosdados-dev"})
+#     else:
+#         raise ValueError("mode must be prod or dev")
+
+#     # ideally, we would consume the API to get the number of rows,
+#     # but it is not available yet.
+#     # See: https://stackoverflow.com/questions/69313542/num-rows-issue-for-views-in-big-query-python-library
+#     query = f"SELECT COUNT(*) AS n_rows FROM `{config_map['database']}`"
+#     n_rows = bd.read_sql(
+#         query=query, billing_project_id=config_map["project_id"], from_file=True
+#     )["n_rows"].to_list()[0]
+
+#     fields_to_update = [{"number_rows": int(n_rows)}]
+
+#     # add credentials to config.toml
+#     # TODO: remove this because bd 2.0 does not have Metadata class
+#     handle = bd.Metadata(dataset_id=dataset_id, table_id=table_id)
+#     handle.create(if_exists="replace")
+
+#     yaml = ryaml.YAML()
+#     yaml.preserve_quotes = True
+#     yaml.indent(mapping=4, sequence=6, offset=4)
+
+#     config_file = handle.filepath.as_posix()
+
+#     with open(config_file, encoding="utf-8") as fp:
+#         data = yaml.load(fp)
+
+#     # log(data)
+
+#     for field in fields_to_update:
+#         for k, v in field.items():
+#             if isinstance(v, dict):
+#                 for i, j in v.items():
+#                     data[k][i] = j
+#             else:
+#                 data[k] = v
+
+#     with open(config_file, "w", encoding="utf-8") as fp:
+#         yaml.dump(data, fp)
+
+#     # log(data)
+
+#     if handle.validate():
+#         handle.publish(if_exists="replace")
+#         log(f"Metadata for {table_id} updated")
+#     else:
+#         log("Fail to validate metadata.")
 
 
 @task
