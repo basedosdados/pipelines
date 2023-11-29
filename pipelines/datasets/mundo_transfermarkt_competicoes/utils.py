@@ -546,11 +546,11 @@ async def execucao_coleta():
     del df["test"]
 
     df["data"] = pd.to_datetime(df["data"]).dt.date
-    df["horario"] = pd.to_datetime(df["horario"], format="%I:%M %p")
-    df["horario"] = df["horario"].dt.strftime("%H:%M")
+    # df["horario"] = pd.to_datetime(df["horario"], format="%I:%M %p")
+    # df["horario"] = df["horario"].dt.strftime("%H:%M")
     df.fillna("", inplace=True)
 
-    df["rodada"] = df["rodada"].astype(np.int64)
+    # df["rodada"] = df["rodada"].astype(np.int64)
 
     # renomear colunas
     df = df.rename(
@@ -579,8 +579,7 @@ async def execucao_coleta():
             "hthg": "gols_1_tempo_man",
         }
     )
-    df.to_csv("/tmp/data/df.csv", index=False)
-    df_valor.to_csv("/tmp/data/df_valor.csv", index=False)
+
     # Concatenando os valores dos dois loops
     df = pd.concat([df, df_valor], axis=1)
     df["data"] = pd.to_datetime(df["data"])
