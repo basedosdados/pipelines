@@ -25,6 +25,101 @@ def get_content(link_soup):
 
 
 # ! Código para o Brasileirão: para a coleta dos dados de estatística
+def extract_common_columns(df):
+    common_columns = [
+        "ht",
+        "at",
+        "fthg",
+        "ftag",
+        "col_home",
+        "col_away",
+        "htag",
+        "hthg",
+    ]
+    df = df[common_columns]
+    df["fthg"] = df["fthg"].apply(lambda x: x.replace("['", "").replace(":']", ""))
+    df["ftag"] = df["ftag"].apply(lambda x: x.replace("[':", "").replace("']", ""))
+    df["col_home"] = df["col_home"].apply(
+        lambda x: x.replace("(", "").replace(".)", "")
+    )
+    df["col_away"] = df["col_away"].apply(
+        lambda x: x.replace("(", "").replace(".)", "")
+    )
+    df["htag"] = df["htag"].apply(lambda x: str(x).replace(")", ""))
+    df["hthg"] = df["hthg"].apply(lambda x: str(x).replace("(", ""))
+    return df
+
+
+def extract_additional_columns(df_valor):
+    df_valor["idade_media_titular_vis"] = clean_column(
+        df_valor["idade_media_titular_vis"]
+    )
+    df_valor["idade_media_titular_man"] = clean_column(
+        df_valor["idade_media_titular_man"]
+    )
+    df_valor["valor_equipe_titular_man"] = clean_column(
+        df_valor["valor_equipe_titular_man"]
+    )
+    df_valor["valor_equipe_titular_vis"] = clean_column(
+        df_valor["valor_equipe_titular_vis"]
+    )
+    return df_valor
+
+
+def clean_column(column):
+    column = column.str.replace(r"['\":.mTh]", "", regex=True)
+    column = column.replace("", None)
+    return column
+
+
+def extract_public_columns(df):
+    df["publico_max"] = clean_column(df["publico_max"])
+    df["publico"] = clean_column(df["publico"])
+    df["test"] = df["publico_max"].replace(to_replace=r"\d", value=1, regex=True)
+    df["test2"] = df.apply(
+        lambda x: x["publico_max"] if x["test"] == 1 else None, axis=1
+    )
+    df["publico_max"] = df["test2"]
+    del df["test2"]
+    del df["test"]
+    return df
+
+
+def process_datetime_columns(df):
+    df["data"] = pd.to_datetime(df["data"]).dt.date
+    df.fillna("", inplace=True)
+    return df
+
+
+def rename_columns(df):
+    column_mapping = {
+        "ht": "time_man",
+        "at": "time_vis",
+        "fthg": "gols_man",
+        "ftag": "gols_vis",
+        "col_home": "colocacao_man",
+        "col_away": "colocacao_vis",
+        "ac": "escanteios_vis",
+        "hc": "escanteios_man",
+        "adef": "defesas_vis",
+        "hdef": "defesas_man",
+        "af": "faltas_vis",
+        "afk": "chutes_bola_parada_vis",
+        "aimp": "impedimentos_vis",
+        "as": "chutes_vis",
+        "asofft": "chutes_fora_vis",
+        "hf": "faltas_man",
+        "hfk": "chutes_bola_parada_man",
+        "himp": "impedimentos_man",
+        "hs": "chutes_man",
+        "hsofft": "chutes_fora_man",
+        "htag": "gols_1_tempo_vis",
+        "hthg": "gols_1_tempo_man",
+    }
+    df = df.rename(columns=column_mapping)
+    return df
+
+
 def process(df, content):
     """
     Processa os dados de estatísticas de uma partida do Brasileirão.
@@ -387,11 +482,6 @@ async def execucao_coleta():
     link_tags2 = soup.find_all("a", attrs={"title": "Match preview"})
     for tag in link_tags:
         links.append(re.sub(r"\s", "", tag["href"]))
-    log(f"Antes do if {len(links)}")
-    if len(links) % 10 != 0:
-        num_excess = len(links) % 10
-        del links[-num_excess:]
-    log(f"Depois do if {len(links)}")
     for tag in link_tags2:
         links.append(re.sub(r"\s", "", tag["href"]))
     if len(links) % 10 != 0:
@@ -429,18 +519,11 @@ async def execucao_coleta():
         fthg.append(str(pattern_fthg.findall(str(tag))))
         ftag.append(str(pattern_ftag.findall(str(tag))))
 
-    # links das estatísticas
-    links_esta = []
-    # links das escalações de cada partida
-    links_valor = []
-
     # Gerando os links para coletar dados sobre estatística e dados gerais
-    for link in links:
-        esta = link.replace("index", "statistik")
-        links_esta.append(esta)
-    for link in links:
-        valor = link.replace("index", "aufstellung")
-        links_valor.append(valor)
+    # links das estatísticas
+    links_esta = [link.replace("index", "statistik") for link in links]
+    # links das escalações de cada partida
+    links_valor = [link.replace("index", "aufstellung") for link in links]
 
     n_links = len(links)
     log(f"Encontrados {n_links} partidas.")
@@ -466,7 +549,6 @@ async def execucao_coleta():
     for n, link in enumerate(links_valor):
         # Tentativas de obter os links
         content = await get_content(base_link + link, wait_time=0.01)
-        # log(content)
         if content:
             try:
                 df_valor = pegar_valor(df_valor, content)
@@ -479,7 +561,6 @@ async def execucao_coleta():
             df_valor = valor_vazio(df_valor)
         log(f"{n+1} valores de {n_links} extraídos.")
 
-    # Armazenando os dados no dataframe
     df["ht"] = ht
     df["at"] = at
     df["fthg"] = fthg
@@ -487,98 +568,15 @@ async def execucao_coleta():
     df["col_home"] = col_home
     df["col_away"] = col_away
 
-    # limpar variaveis
-    df["fthg"] = df["fthg"].map(lambda x: x.replace("['", ""))
-    df["fthg"] = df["fthg"].map(lambda x: x.replace(":']", ""))
+    df = extract_common_columns(df)
 
-    df["ftag"] = df["ftag"].map(lambda x: x.replace("[':", ""))
-    df["ftag"] = df["ftag"].map(lambda x: x.replace("']", ""))
+    df_valor = extract_additional_columns(df_valor)
 
-    df["col_home"] = df["col_home"].map(lambda x: x.replace("(", ""))
-    df["col_home"] = df["col_home"].map(lambda x: x.replace(".)", ""))
+    df = extract_public_columns(df)
 
-    df["col_away"] = df["col_away"].map(lambda x: x.replace("(", ""))
-    df["col_away"] = df["col_away"].map(lambda x: x.replace(".)", ""))
+    df = process_datetime_columns(df)
 
-    df["htag"] = df["htag"].map(lambda x: str(x).replace(")", ""))
-    df["hthg"] = df["hthg"].map(lambda x: str(x).replace("(", ""))
-
-    df_valor["idade_media_titular_vis"] = df_valor["idade_media_titular_vis"].map(
-        lambda x: str(x).replace(" ", "")
-    )
-    df_valor["idade_media_titular_man"] = df_valor["idade_media_titular_man"].map(
-        lambda x: str(x).replace(" ", "")
-    )
-
-    df_valor["valor_equipe_titular_man"] = df_valor["valor_equipe_titular_man"].map(
-        lambda x: str(x).replace("m", "0000")
-    )
-    df_valor["valor_equipe_titular_man"] = df_valor["valor_equipe_titular_man"].map(
-        lambda x: str(x).replace("Th.", "000")
-    )
-    df_valor["valor_equipe_titular_man"] = df_valor["valor_equipe_titular_man"].map(
-        lambda x: str(x).replace(".", "")
-    )
-
-    df_valor["valor_equipe_titular_vis"] = df_valor["valor_equipe_titular_vis"].map(
-        lambda x: str(x).replace("m", "0000")
-    )
-    df_valor["valor_equipe_titular_vis"] = df_valor["valor_equipe_titular_vis"].map(
-        lambda x: str(x).replace("Th.", "000")
-    )
-    df_valor["valor_equipe_titular_vis"] = df_valor["valor_equipe_titular_vis"].map(
-        lambda x: str(x).replace(".", "")
-    )
-
-    df["publico_max"] = df["publico_max"].map(lambda x: str(x).replace(".", ""))
-    df["publico"] = df["publico"].map(lambda x: str(x).replace(".", ""))
-
-    df["test"] = df["publico_max"].replace(to_replace=r"\d", value=1, regex=True)
-
-    def sem_info(x, y):
-        if x == 1:
-            return y
-        return None
-
-    df["test2"] = df.apply(lambda x: sem_info(x["test"], x["publico_max"]), axis=1)
-    df["publico_max"] = df["test2"]
-    del df["test2"]
-    del df["test"]
-
-    df["data"] = pd.to_datetime(df["data"]).dt.date
-    # df["horario"] = pd.to_datetime(df["horario"], format="%I:%M %p")
-    # df["horario"] = df["horario"].dt.strftime("%H:%M")
-    df.fillna("", inplace=True)
-
-    # df["rodada"] = df["rodada"].astype(np.int64)
-
-    # renomear colunas
-    df = df.rename(
-        columns={
-            "ht": "time_man",
-            "at": "time_vis",
-            "fthg": "gols_man",
-            "ftag": "gols_vis",
-            "col_home": "colocacao_man",
-            "col_away": "colocacao_vis",
-            "ac": "escanteios_vis",
-            "hc": "escanteios_man",
-            "adef": "defesas_vis",
-            "hdef": "defesas_man",
-            "af": "faltas_vis",
-            "afk": "chutes_bola_parada_vis",
-            "aimp": "impedimentos_vis",
-            "as": "chutes_vis",
-            "asofft": "chutes_fora_vis",
-            "hf": "faltas_man",
-            "hfk": "chutes_bola_parada_man",
-            "himp": "impedimentos_man",
-            "hs": "chutes_man",
-            "hsofft": "chutes_fora_man",
-            "htag": "gols_1_tempo_vis",
-            "hthg": "gols_1_tempo_man",
-        }
-    )
+    df = rename_columns(df)
 
     # Concatenando os valores dos dois loops
     df = pd.concat([df, df_valor], axis=1)
