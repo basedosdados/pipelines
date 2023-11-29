@@ -264,10 +264,10 @@ def get_metadata_data(mode: str = "dev"):
 
     log(schema_names_query)
     schema_names_list = bd.read_sql(
-            query=schema_names_query,
-            billing_project_id=billing_project_id,
-            from_file=True,
-        )["schema_name"]
+        query=schema_names_query,
+        billing_project_id=billing_project_id,
+        from_file=True,
+    )["schema_name"]
 
     df_list = []
     for schema_batch in batch(schema_names_list, 50):
@@ -279,7 +279,7 @@ def get_metadata_data(mode: str = "dev"):
             query=query,
             billing_project_id=billing_project_id,
             from_file=True,
-            )
+        )
         df_list.append(batch_df)
 
     df = pd.concat(df_list, ignore_index=True)
