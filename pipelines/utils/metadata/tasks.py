@@ -4,6 +4,7 @@ Tasks for metadata
 """
 
 from datetime import datetime
+import pandas as pd
 
 from prefect import task
 
@@ -164,8 +165,9 @@ def check_if_data_is_outdated(
         data_source_max_date = datetime.strptime(
             data_source_max_date, date_format
         ).date()
+    if type(data_source_max_date) is pd.Timestamp:
+        data_source_max_date = data_source_max_date.date()
 
-    # antigo parse_coverage
     data_api = get_api_most_recent_date(
         dataset_id=dataset_id, table_id=table_id, date_format=date_format
     )
