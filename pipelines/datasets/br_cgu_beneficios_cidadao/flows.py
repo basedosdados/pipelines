@@ -64,7 +64,7 @@ with Flow(
     update = check_if_data_is_outdated(
         dataset_id=dataset_id,
         table_id=table_id,
-        max_date=data[0],
+        data_source_max_date=data[0],
         date_format="%Y-%m",
         upstream_tasks=[data],
     )
@@ -168,7 +168,7 @@ with Flow(
     update = check_if_data_is_outdated(
         dataset_id=dataset_id,
         table_id=table_id,
-        max_date=data[0],
+        data_source_max_date=data[0],
         date_format="%Y-%m",
         upstream_tasks=[data],
     )
@@ -267,7 +267,7 @@ with Flow(
         dataset_id=dataset_id,
         table_id=table_id,
         date_format="%Y-%m",
-        max_date=data[0],
+        data_source_max_date=data[0],
         upstream_tasks=[data],
     )
     with case(update, True):
