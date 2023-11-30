@@ -16,7 +16,7 @@ every_day_camara_dados_abertos = Schedule(
                 "update_metadata": True,
                 "dbt_alias": True,
                 "materialize_after_dump": True,
-                "materialization_mode": "dev",
+                "materialization_mode": "prod",
                 "table_id": [
                     "votacao_microdados",
                     "votacao_objeto",
