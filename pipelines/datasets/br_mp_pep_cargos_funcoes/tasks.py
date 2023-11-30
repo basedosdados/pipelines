@@ -22,8 +22,8 @@ from pipelines.datasets.br_mp_pep_cargos_funcoes.utils import (
     move_from_tmp_dir,
     wait_file_download,
 )
-from pipelines.utils.utils import log, to_partitions
 from pipelines.utils.metadata.utils import get_api_most_recent_date
+from pipelines.utils.utils import log, to_partitions
 
 
 @task
@@ -401,7 +401,8 @@ def is_up_to_date() -> bool:
     log(f"Last date website: {text}, parsed as {date_website}")
 
     last_date_in_api = get_api_most_recent_date(
-        dataset_id="br_mp_pep", table_id="cargos_funcoes", date_format="%Y-%m" )
+        dataset_id="br_mp_pep", table_id="cargos_funcoes", date_format="%Y-%m"
+    )
 
     log(f"Last date API: {last_date_in_api}")
 

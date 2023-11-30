@@ -25,7 +25,10 @@ from pipelines.datasets.br_cgu_beneficios_cidadao.tasks import (
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.metadata.tasks import update_django_metadata, check_if_data_is_outdated
+from pipelines.utils.metadata.tasks import (
+    check_if_data_is_outdated,
+    update_django_metadata,
+)
 from pipelines.utils.tasks import (  # update_django_metadata,
     create_table_and_upload_to_gcs,
     get_current_flow_labels,

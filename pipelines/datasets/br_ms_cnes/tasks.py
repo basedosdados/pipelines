@@ -22,9 +22,8 @@ from pipelines.datasets.br_ms_cnes.utils import (
     pre_cleaning_to_utf8,
     year_month_sigla_uf_parser,
 )
-from pipelines.utils.utils import log
 from pipelines.utils.metadata.utils import get_api_most_recent_date
-
+from pipelines.utils.utils import log
 
 
 @task

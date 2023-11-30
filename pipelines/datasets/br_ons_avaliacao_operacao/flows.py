@@ -22,14 +22,14 @@ from pipelines.datasets.br_ons_avaliacao_operacao.schedules import (
     schedule_br_ons_avaliacao_operacao_reservatorio,
     schedule_br_ons_avaliacao_operacao_restricao_operacao_usinas_eolicas,
 )
-from pipelines.datasets.br_ons_avaliacao_operacao.tasks import (
-    download_data,
-    wrang_data,
-)
+from pipelines.datasets.br_ons_avaliacao_operacao.tasks import download_data, wrang_data
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.metadata.tasks import update_django_metadata, task_get_api_most_recent_date
+from pipelines.utils.metadata.tasks import (
+    task_get_api_most_recent_date,
+    update_django_metadata,
+)
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
@@ -61,7 +61,7 @@ with Flow(
     data_mais_recente_do_bq = task_get_api_most_recent_date(
         table_id=table_id,
         dataset_id=dataset_id,
-        date_format='%Y-%m-%d',
+        date_format="%Y-%m-%d",
     )
 
     dow_data = download_data(
@@ -157,7 +157,7 @@ with Flow(
     data_mais_recente_do_bq = task_get_api_most_recent_date(
         table_id=table_id,
         dataset_id=dataset_id,
-        date_format='%Y-%m-%d',
+        date_format="%Y-%m-%d",
     )
 
     dow_data = download_data(
@@ -256,7 +256,7 @@ with Flow(
     data_mais_recente_do_bq = task_get_api_most_recent_date(
         table_id=table_id,
         dataset_id=dataset_id,
-        date_format='%Y-%m-%d',
+        date_format="%Y-%m-%d",
     )
 
     dow_data = download_data(
@@ -356,7 +356,7 @@ with Flow(
     data_mais_recente_do_bq = task_get_api_most_recent_date(
         table_id=table_id,
         dataset_id=dataset_id,
-        date_format='%Y-%m-%d',
+        date_format="%Y-%m-%d",
     )
 
     dow_data = download_data(
@@ -457,7 +457,7 @@ with Flow(
     data_mais_recente_do_bq = task_get_api_most_recent_date(
         table_id=table_id,
         dataset_id=dataset_id,
-        date_format='%Y-%m-%d',
+        date_format="%Y-%m-%d",
     )
 
     dow_data = download_data(
@@ -556,7 +556,7 @@ with Flow(
     data_mais_recente_do_bq = task_get_api_most_recent_date(
         table_id=table_id,
         dataset_id=dataset_id,
-        date_format='%Y-%m-%d',
+        date_format="%Y-%m-%d",
     )
 
     dow_data = download_data(

@@ -19,7 +19,10 @@ from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.tasks import (
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.metadata.tasks import check_if_data_is_outdated, update_django_metadata
+from pipelines.utils.metadata.tasks import (
+    check_if_data_is_outdated,
+    update_django_metadata,
+)
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
@@ -46,7 +49,7 @@ with Flow(
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
-    
+
     data_source_max_date = get_data_source_sfma_iptu_max_date()
 
     dados_desatualizados = check_if_data_is_outdated(

@@ -12,13 +12,11 @@ from datetime import datetime as dt
 from time import sleep
 
 import pandas as pd
-from pipelines.utils.metadata.utils import get_api_most_recent_date
 from prefect import task
 from tqdm import tqdm
 
-from pipelines.utils.crawler_ibge_inflacao.utils import (
-    get_legacy_session,
-)
+from pipelines.utils.crawler_ibge_inflacao.utils import get_legacy_session
+from pipelines.utils.metadata.utils import get_api_most_recent_date
 from pipelines.utils.utils import log
 
 # necessary for use wget, see: https://stackoverflow.com/questions/35569042/ssl-certificate-verify-failed-with-python3

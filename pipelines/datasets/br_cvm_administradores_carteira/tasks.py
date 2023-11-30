@@ -150,4 +150,3 @@ def clean_table_pessoa_juridica(root: str) -> str:
     dataframe.to_csv(ou_filepath, index=False)
 
     return ou_filepath
-
