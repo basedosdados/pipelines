@@ -13,6 +13,16 @@ from pipelines.utils.utils import log, to_partitions
 # ! Microdados
 @task
 def make_partitions(table_id, date_column) -> str:
+    """
+    Make partitions for a given table based on a date column.
+
+    Args:
+        table_id (str): The ID of the table.
+        date_column (str): The name of the date column.
+
+    Returns:
+        str: The path where the partitions are saved.
+    """
     df = read_and_clean_camara_dados_abertos(
         path=constants.INPUT_PATH.value,
         table_id=f"{table_id}",

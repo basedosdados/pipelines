@@ -39,19 +39,3 @@ class constants(Enum):
         "proposicao_ano": "ano_proposicao",
         "proposicao_titulo": "titulo",
     }
-
-    """ORDER_COLUMNS_OBJETO = [
-        "ano",
-        "id_votacao",
-        "uriVotacao",
-        "data",
-        "descricao",
-        "id_proposicao",
-        "proposicao_uri",
-        "ementa",
-        "codigo_tipo",
-        "sigla_tipo",
-        "numero",
-        "ano_proposicao",
-        "titulo",
-    ]"""

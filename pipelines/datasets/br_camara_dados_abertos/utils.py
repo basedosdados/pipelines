@@ -54,14 +54,24 @@ def get_date():
 def read_and_clean_camara_dados_abertos(
     table_id=str, path=constants.INPUT_PATH.value, date_column=str
 ) -> pd.DataFrame:
+    """
+    Lê e limpa os dados abertos da câmara.
+
+    Esta função lê um arquivo CSV de um caminho específico, adiciona uma coluna "ano" ao DataFrame e aplica uma arquitetura específica ao DataFrame com base no ID da tabela.
+
+    Parâmetros:
+    table_id (str): ID da tabela para determinar a arquitetura a ser aplicada.
+    path (str): Caminho para o arquivo CSV a ser lido.
+    date_column (str): Nome da coluna que contém a data.
+
+    Retorna:
+    pd.DataFrame: DataFrame após a aplicação da arquitetura.
+    """
     df = pd.read_csv(f"{path}{constants.TABLE_LIST.value[table_id]}.csv", sep=";")
 
     if table_id == "votacao_orientacao_bancada":
         df["ano"] = constants.ANOS.value[0]
     else:
-        log(
-            "--------------------------------------PRESTA ATENÇÃO AQUI, PORRA! ---------------------------------------"
-        )
         df["ano"] = df[date_column].str[0:4]
 
     log("------------- columns before apply architecture --------------")
