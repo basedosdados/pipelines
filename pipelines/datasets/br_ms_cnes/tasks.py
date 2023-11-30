@@ -8,40 +8,38 @@ import os
 from datetime import timedelta
 
 import pandas as pd
-import rpy2.robjects as ro
 import rpy2.robjects.packages as rpackages
 import wget
 from prefect import task
-from rpy2.robjects import pandas2ri
 from rpy2.robjects.packages import importr
 
 from pipelines.constants import constants
 from pipelines.datasets.br_ms_cnes.constants import constants as cnes_constants
 from pipelines.datasets.br_ms_cnes.utils import (
     check_and_create_column,
-    extract_last_date,
     if_column_exist_delete,
     list_all_cnes_dbc_files,
     pre_cleaning_to_utf8,
     year_month_sigla_uf_parser,
 )
 from pipelines.utils.utils import log
+from pipelines.utils.metadata.utils import get_api_most_recent_date
+
 
 
 @task
 def check_files_to_parse(
     dataset_id: str,
     table_id: str,
-    billing_project_id,
     cnes_database: str,
     cnes_group_file: str,
 ) -> list[str]:
-    log(f"extracting last date from bq for {dataset_id}.{table_id}")
-    # 1. extrair data mais atual do bq
-    last_date = extract_last_date(
+    log(f"extracting last date from api for {dataset_id}.{table_id}")
+    # 1. extrair data mais atual da api
+    last_date = get_api_most_recent_date(
         dataset_id=dataset_id,
         table_id=table_id,
-        billing_project_id=billing_project_id,
+        date_format="%Y-%m",
     )
     log("building next year/month to parse")
     # 2. adicionar mais um no mes ou transformar pra 1 se for 12

@@ -18,7 +18,8 @@ from pipelines.datasets.br_cgu_servidores_executivo_federal.utils import (
     make_url,
     process_table,
 )
-from pipelines.utils.utils import extract_last_date, log, to_partitions
+from pipelines.utils.utils import log, to_partitions
+from pipelines.utils.metadata.utils import get_api_most_recent_date
 
 
 @task  # noqa
@@ -148,14 +149,9 @@ def is_up_to_date(next_date: datetime.date) -> bool:
 
 @task
 def get_next_date() -> datetime.date:
-    last_date_in_bq = extract_last_date(
-        "br_cgu_servidores_executivo_federal",
-        "cadastro_servidores",
-        "yy-mm",
-        "basedosdados",
-    )
+    last_date_in_api = get_api_most_recent_date(dataset_id="br_cgu_servidores_executivo_federal",
+                                               table_id="cadastro_servidores",
+                                               date_format="%Y-%m")
 
-    year, month = last_date_in_bq.split("-")
-
-    next_date = datetime.date(int(year), int(month), 1) + relativedelta(months=1)
+    next_date = last_date_in_api + relativedelta(months=1)
     return next_date

@@ -175,6 +175,12 @@ def check_if_data_is_outdated(
 
     # Compara as datas para verificar se há atualizações
     if data_source_max_date > data_api:
+        log("Há atualizações disponíveis")
         return True  # Há atualizações disponíveis
     else:
+        log("Não há novas atualizações disponíveis")
         return False
+    
+@task
+def task_get_api_most_recent_date(dataset_id, table_id, date_format):
+    return  get_api_most_recent_date(dataset_id=dataset_id, table_id=table_id, date_format=date_format)

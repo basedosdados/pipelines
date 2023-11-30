@@ -7,14 +7,11 @@ Tasks for br_cvm_administradores_carteira
 import os
 import shutil
 
-import basedosdados as bd
 import pandas as pd
 import requests
 from pandas.api.types import is_string_dtype
 from prefect import task
 from unidecode import unidecode
-
-from pipelines.utils.utils import log
 
 
 @task
@@ -154,43 +151,3 @@ def clean_table_pessoa_juridica(root: str) -> str:
 
     return ou_filepath
 
-
-@task
-def extract_last_date(
-    dataset_id: str,
-    table_id: str,
-    billing_project_id: str,
-    var_name: str,
-) -> str:
-    """
-    Extracts the last update date of a given dataset table.
-
-    Args:
-        dataset_id (str): The ID of the dataset.
-        table_id (str): The ID of the table.
-        billing_project_id (str): The billing project ID.
-
-    Returns:
-        str: The last update date in the format 'yyyy-mm-dd'.
-
-    Raises:
-        Exception: If an error occurs while extracting the last update date.
-    """
-
-    query_bd = f"""
-    SELECT MAX({var_name}) as max_date
-    FROM
-    `{billing_project_id}.{dataset_id}.{table_id}`
-    """
-
-    t = bd.read_sql(
-        query=query_bd,
-        billing_project_id=billing_project_id,
-        from_file=True,
-    )
-
-    data = t["max_date"][0]
-
-    log(f"A data mais recente da tabela é: {data}")
-
-    return str(data)
