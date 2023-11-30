@@ -5,7 +5,6 @@ Flows for br_ons_avaliacao_operacao
 # pylint: disable=invalid-name
 from datetime import timedelta
 
-# TODO: extract_last_date_from_bq colocar billing de prod antes de fechar PR
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
@@ -25,13 +24,12 @@ from pipelines.datasets.br_ons_avaliacao_operacao.schedules import (
 )
 from pipelines.datasets.br_ons_avaliacao_operacao.tasks import (
     download_data,
-    extract_last_date_from_bq,
     wrang_data,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.metadata.tasks import update_django_metadata
+from pipelines.utils.metadata.tasks import update_django_metadata, task_get_api_most_recent_date
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
@@ -60,11 +58,10 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    data_mais_recente_do_bq = extract_last_date_from_bq(
+    data_mais_recente_do_bq = task_get_api_most_recent_date(
         table_id=table_id,
         dataset_id=dataset_id,
-        # vai ser retirado  virar from file
-        billing_project_id="basedosdados",
+        date_format='%Y-%m-%d',
     )
 
     dow_data = download_data(
@@ -157,11 +154,10 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    data_mais_recente_do_bq = extract_last_date_from_bq(
+    data_mais_recente_do_bq = task_get_api_most_recent_date(
         table_id=table_id,
         dataset_id=dataset_id,
-        # vai ser retirado  virar from file
-        billing_project_id="basedosdados",
+        date_format='%Y-%m-%d',
     )
 
     dow_data = download_data(
@@ -257,11 +253,10 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    data_mais_recente_do_bq = extract_last_date_from_bq(
+    data_mais_recente_do_bq = task_get_api_most_recent_date(
         table_id=table_id,
         dataset_id=dataset_id,
-        # vai ser retirado  virar from file
-        billing_project_id="basedosdados",
+        date_format='%Y-%m-%d',
     )
 
     dow_data = download_data(
@@ -358,11 +353,10 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    data_mais_recente_do_bq = extract_last_date_from_bq(
+    data_mais_recente_do_bq = task_get_api_most_recent_date(
         table_id=table_id,
         dataset_id=dataset_id,
-        # vai ser retirado  virar from file
-        billing_project_id="basedosdados",
+        date_format='%Y-%m-%d',
     )
 
     dow_data = download_data(
@@ -460,11 +454,10 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    data_mais_recente_do_bq = extract_last_date_from_bq(
+    data_mais_recente_do_bq = task_get_api_most_recent_date(
         table_id=table_id,
         dataset_id=dataset_id,
-        # vai ser retirado  virar from file
-        billing_project_id="basedosdados",
+        date_format='%Y-%m-%d',
     )
 
     dow_data = download_data(
@@ -560,11 +553,10 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    data_mais_recente_do_bq = extract_last_date_from_bq(
+    data_mais_recente_do_bq = task_get_api_most_recent_date(
         table_id=table_id,
         dataset_id=dataset_id,
-        # vai ser retirado  virar from file
-        billing_project_id="basedosdados",
+        date_format='%Y-%m-%d',
     )
 
     dow_data = download_data(

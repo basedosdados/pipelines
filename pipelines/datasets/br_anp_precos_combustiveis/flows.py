@@ -15,19 +15,17 @@ from pipelines.datasets.br_anp_precos_combustiveis.schedules import (
     every_week_anp_microdados,
 )
 from pipelines.datasets.br_anp_precos_combustiveis.tasks import (
-    check_for_updates,
     download_and_transform,
+    get_data_source_anp_max_date,
     make_partitions,
 )
-from pipelines.datasets.br_anp_precos_combustiveis.utils import download_files
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.metadata.tasks import update_django_metadata
+from pipelines.utils.metadata.tasks import check_if_data_is_outdated, update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
-    log_task,
     rename_current_flow_run_dataset_table,
 )
 
@@ -54,13 +52,15 @@ with Flow(
     )
     update_metadata = Parameter("update_metadata", default=True, required=False)
 
-    dados_desatualizados = check_for_updates(dataset_id=dataset_id, table_id=table_id)
-    log_task(f"Checando se os dados estão desatualizados: {dados_desatualizados}")
-    with case(dados_desatualizados, False):
-        log_task(
-            "Dados atualizados, não é necessário fazer o download",
-            upstream_tasks=[dados_desatualizados],
-        )
+    data_source_max_date = get_data_source_anp_max_date()
+
+    dados_desatualizados = check_if_data_is_outdated(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        data_source_max_date=data_source_max_date,
+        date_format="%Y-%m-%d",
+        upstream_tasks=[data_source_max_date],
+    )
 
     with case(dados_desatualizados, True):
         df = download_and_transform(upstream_tasks=[rename_flow_run])

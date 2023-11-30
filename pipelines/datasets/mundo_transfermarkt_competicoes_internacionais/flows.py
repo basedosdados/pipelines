@@ -16,14 +16,14 @@ from pipelines.datasets.mundo_transfermarkt_competicoes_internacionais.schedules
     every_first_and_last_week,
 )
 from pipelines.datasets.mundo_transfermarkt_competicoes_internacionais.tasks import (
-    check_for_updates,
     execucao_coleta_sync,
+    get_data_source_transfermarkt_max_date,
     make_partitions,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.metadata.tasks import update_django_metadata
+from pipelines.utils.metadata.tasks import update_django_metadata, check_if_data_is_outdated
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
@@ -59,11 +59,15 @@ with Flow(
     )
     update_metadata = Parameter("update_metadata", default=True, required=False)
 
-    dados_desatualizados = check_for_updates(dataset_id, table_id)
-    log_task(f"Checando se os dados estão desatualizados: {dados_desatualizados}")
+    data_source_max_date = get_data_source_transfermarkt_max_date()
 
-    with case(dados_desatualizados, False):
-        log_task("Não há atualizações!")
+    dados_desatualizados = check_if_data_is_outdated(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        data_source_max_date=data_source_max_date,
+        date_format="%Y-%m-%d",
+        upstream_tasks=[data_source_max_date],
+    )
 
     with case(dados_desatualizados, True):
         df = execucao_coleta_sync()

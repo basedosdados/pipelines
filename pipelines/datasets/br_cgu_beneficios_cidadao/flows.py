@@ -16,7 +16,6 @@ from pipelines.datasets.br_cgu_beneficios_cidadao.schedules import (
     every_day_novo_bolsa_familia,
 )
 from pipelines.datasets.br_cgu_beneficios_cidadao.tasks import (
-    check_for_updates,
     crawl_last_date,
     crawler_bolsa_familia,
     crawler_bpc,
@@ -26,11 +25,10 @@ from pipelines.datasets.br_cgu_beneficios_cidadao.tasks import (
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.metadata.flows import update_django_metadata
+from pipelines.utils.metadata.tasks import update_django_metadata, check_if_data_is_outdated
 from pipelines.utils.tasks import (  # update_django_metadata,
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
-    log_task,
     rename_current_flow_run_dataset_table,
 )
 
@@ -63,10 +61,11 @@ with Flow(
     )
 
     data = crawl_last_date(table_id=table_id)
-    update = check_for_updates(
+    update = check_if_data_is_outdated(
         dataset_id=dataset_id,
         table_id=table_id,
         max_date=data[0],
+        date_format="%Y-%m",
         upstream_tasks=[data],
     )
 
@@ -166,10 +165,11 @@ with Flow(
     )
 
     data = crawl_last_date(table_id=table_id)
-    update = check_for_updates(
+    update = check_if_data_is_outdated(
         dataset_id=dataset_id,
         table_id=table_id,
         max_date=data[0],
+        date_format="%Y-%m",
         upstream_tasks=[data],
     )
     with case(update, True):
@@ -263,9 +263,10 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
     data = crawl_last_date(table_id=table_id)
-    update = check_for_updates(
+    update = check_if_data_is_outdated(
         dataset_id=dataset_id,
         table_id=table_id,
+        date_format="%Y-%m",
         max_date=data[0],
         upstream_tasks=[data],
     )
