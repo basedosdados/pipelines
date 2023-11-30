@@ -4,7 +4,7 @@ from prefect import task
 
 from pipelines.datasets.br_camara_dados_abertos.constants import constants
 from pipelines.datasets.br_camara_dados_abertos.utils import (
-    get_date,
+    get_data,
     read_and_clean_camara_dados_abertos,
 )
 from pipelines.utils.utils import log, to_partitions
@@ -40,8 +40,8 @@ def make_partitions(table_id, date_column) -> str:
 
 # ! Obtendo a data máxima.
 @task
-def get_date_max():
-    df = get_date()
+def download_files_and_get_max_date():
+    df = get_data()
     data_max = df["data"].max()
 
     return data_max

@@ -14,7 +14,7 @@ from pipelines.datasets.br_camara_dados_abertos.schedules import (
     every_day_camara_dados_abertos,
 )
 from pipelines.datasets.br_camara_dados_abertos.tasks import (
-    get_date_max,
+    download_files_and_get_max_date,
     make_partitions,
 )
 from pipelines.utils.constants import constants as utils_constants
@@ -64,7 +64,7 @@ with Flow(name="br_camara_dados_abertos", code_owners=["tricktx"]) as br_camara:
     )
 
     update_metadata = Parameter("update_metadata", default=True, required=False)
-    data_source_max_date = get_date_max()
+    data_source_max_date = download_files_and_get_max_date()
 
     dados_desatualizados = check_if_data_is_outdated(
         dataset_id=dataset_id,
