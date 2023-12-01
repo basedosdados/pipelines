@@ -117,9 +117,7 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
             sleep(1)
         log(job.result())
         log("Table has BDpro filter and it was removed to query table")
-        bdpro = True
     except:
-        bdpro = False
         log("Table is all free")
 
     log("Querying data from BigQuery")
@@ -158,7 +156,6 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
     #     while not job.done():
     #         sleep(1)
     #     log("BDpro filter was reestored")
-
 
 
 @task
