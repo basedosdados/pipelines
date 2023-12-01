@@ -3,18 +3,15 @@
 Tasks for br_cgu_beneficios_cidadao
 """
 
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import pandas as pd
-import requests
 from prefect import task
 
-from pipelines.constants import constants as main_constants
 from pipelines.datasets.br_cgu_beneficios_cidadao.constants import constants
 from pipelines.datasets.br_cgu_beneficios_cidadao.utils import (
     download_unzip_csv,
     extract_dates,
-    extract_last_date,
     parquet_partition,
 )
 from pipelines.utils.utils import log
@@ -51,49 +48,6 @@ def crawl_last_date(table_id: str) -> list:
     max_date = max_row["data"].iloc[0]
 
     return [max_date, max_row["urls"].iloc[0]]
-
-
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
-def check_for_updates(dataset_id: str, table_id: str, max_date: datetime) -> bool:
-    """
-    Verifica se há atualizações disponíveis em um conjunto de dados (dataset).
-
-    Parâmetros:
-    - dataset_id (str): O identificador do conjunto de dados no site.
-    - table_id (str): O identificador da tabela dentro do conjunto de dados.
-    - max_date (datetime): A data mais recente a ser comparada com a última data na BD.
-
-    Retorna:
-    - True se houver atualizações disponíveis, False caso contrário.
-
-    Exemplo de uso:
-    if check_for_updates("meu_dataset", "minha_tabela", datetime(2023, 11, 10)):
-        print("Há atualizações disponíveis.")
-    else:
-        print("Não há novas atualizações disponíveis.")
-    """
-
-    # Obtém a última data no site BD
-    bd_date = extract_last_date(
-        dataset_id,
-        table_id,
-        billing_project_id=main_constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-    )
-    bd_date = datetime.strptime(bd_date, "%Y-%m")
-    # Registra a data mais recente do site
-    log(f"Última data no Portal da Transferência: {max_date}")
-    log(f"Última data na BD: {bd_date}")
-
-    # Compara as datas para verificar se há atualizações
-    if max_date > bd_date:
-        log("Há atualizações disponíveis")
-        return True  # Há atualizações disponíveis
-    else:
-        log("Não há novas atualizações disponíveis")
-        return False  # Não há novas atualizações disponíveis
 
 
 @task(

@@ -57,7 +57,7 @@ def get_credentials_utils(secret_path: str) -> Tuple[str, str]:
     """
     Returns the user and password for the given secret path.
     """
-    log(f"Getting user and password for secret path: {secret_path}")
+    # log(f"Getting user and password for secret path: {secret_path}")
     tokens_dict = get_credentials_from_secret(secret_path)
     email = tokens_dict.get("email")
     password = tokens_dict.get("password")
@@ -752,7 +752,7 @@ def parse_datetime_ranges(datetime_result: dict, date_format: str) -> dict:
 
     date_objects = {}
 
-    log(f"the chosen format to parse the coverage was {date_format}")
+    # log(f"the chosen format to parse the coverage was {date_format}")
 
     edges = datetime_result["data"]["allCoverage"]["edges"]
 
@@ -774,7 +774,7 @@ def parse_datetime_ranges(datetime_result: dict, date_format: str) -> dict:
             date_values = (end_year, end_month, end_day)
 
             date_string = format_check_date(date_values, date_format)
-            log(f"The following coverage is being added {date_objects}")
+            # log(f"The following coverage is being added {date_objects}")
             date_objects[dt_node["id"]] = date_string
 
     return date_objects
@@ -859,9 +859,8 @@ def get_api_most_recent_date(
     # if not, raise ValueError
     if date_format not in accepted_date_format:
         raise ValueError(
-            f"The date_format  ->>  ->> {date_format} is not supported. Please choose between {accepted_date_format}"
+            f"The date_format  ->>  ->> {date_format} is not supported. Please choose among {accepted_date_format}"
         )
-    log(f"The chosen date_format is ->> {date_format}")
 
     # Collect credentials_utils
     (email, password) = get_credentials_utils(secret_path=f"api_user_{api_mode}")
@@ -876,8 +875,8 @@ def get_api_most_recent_date(
         api_mode,
     )
 
-    # parse coverages
-    log(f"For the table ->>{table_id} the parsed coverages were ->> {coverages}")
+    # # parse coverages
+    # log(f"For the table ->>{table_id} the parsed coverages were ->> {coverages}")
 
     # Convert the date strings to date objects
     date_objects = {}
@@ -885,14 +884,14 @@ def get_api_most_recent_date(
         date_objects[key] = datetime.strptime(date_string, date_format)
 
     # Compare the date objects, return the most recent date and format it
-    log(
-        f"For this table ->> {table_id} there are these datetime end values->> {date_objects}"
-    )
+    # log(
+    #     f"For this table ->> {table_id} there are these datetime end values->> {date_objects}"
+    # )
     max_date_key = max(date_objects, key=date_objects.get)
     max_date_value = date_objects[max_date_key].date()
 
-    log(
-        f"The Most recent date for the ->> {table_id} in the prod API is ->> {max_date_value}"
-    )
+    # log(
+    #     f"The Most recent date for the ->> {table_id} in the prod API is ->> {max_date_value}"
+    # )
 
     return max_date_value
