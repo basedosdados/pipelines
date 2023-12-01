@@ -5,7 +5,9 @@ from prefect import task
 from pipelines.datasets.br_camara_dados_abertos.constants import constants
 from pipelines.datasets.br_camara_dados_abertos.utils import (
     get_data,
+    get_data_deputados,
     read_and_clean_camara_dados_abertos,
+    read_and_clean_data_deputados,
 )
 from pipelines.utils.utils import log, to_partitions
 
@@ -45,3 +47,21 @@ def download_files_and_get_max_date():
     data_max = df["data"].max()
 
     return data_max
+
+
+# -------------------------------------------------------------------> Deputados
+@task
+def download_files_and_get_max_date_deputados():
+    df = get_data_deputados()
+
+    data_max = df["dataHora"]
+
+    return data_max
+
+
+@task
+def save_table_id(table_id):
+    df = read_and_clean_data_deputados()
+    df.to_csv(f"{constants.OUTPUT_PATH.value}{table_id}/data.csv", sep=";}")
+
+    return f"{constants.OUTPUT_PATH.value}{table_id}"
