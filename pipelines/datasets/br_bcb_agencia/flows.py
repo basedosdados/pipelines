@@ -73,12 +73,13 @@ with Flow(
     with case(check_if_outdated, True):
         log_task("Existem atualizações! A run será inciada")
 
-        temxpes = download_data(
-            link=agencia_constants.AGENCIA_URL.value, upstream_tasks=[check_if_outdated]
+        donwload_files = download_data(
+            dowload_url=data_source_max_date[0],
+            upstream_tasks=[check_if_outdated],
         )
 
         filepath = clean_data(
-            upstream_tasks=[temxpes],
+            upstream_tasks=[donwload_files],
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(
