@@ -18,7 +18,7 @@ from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.utils import (
     reorder_and_fix_nan,
     scrapping_download_csv,
 )
-from pipelines.utils.utils import extract_last_date, log, to_partitions
+from pipelines.utils.utils import log, to_partitions
 
 
 @task  # noqa
@@ -76,25 +76,7 @@ def data_url(url, headers):
 
 
 @task
-def check_for_updates(dataset_id, table_id):
-    """
-    Checks if there are available updates for a specific dataset and table.
-
-    Returns:
-        bool: Returns True if updates are available, otherwise returns False.
-    """
+def get_data_source_sfma_iptu_max_date():
     # Obtém a data mais recente do site
     data_obj = data_url(constants.URLS.value[0], constants.HEADERS.value)
-
-    # Obtém a última data no site BD
-    data_bq_obj = extract_last_date(dataset_id, table_id, "yy-mm", "basedosdados")
-
-    # Registra a data mais recente do site
-    log(f"Última data no site do SMFA: {data_obj}")
-    log(f"Última data no site da BD: {data_bq_obj}")
-
-    # Compara as datas para verificar se há atualizações
-    if data_obj > data_bq_obj:
-        return True  # Há atualizações disponíveis
-    else:
-        return False  # Não há novas atualizações disponíveis
+    return data_obj
