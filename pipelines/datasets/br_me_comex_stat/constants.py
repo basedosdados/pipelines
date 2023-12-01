@@ -11,6 +11,8 @@ class constants(Enum):  # pylint: disable=c0103
     Constants for br_me_comex_stat
     """
 
+    DOWNLOAD_LINK = "https://www.gov.br/mdic/pt-br/assuntos/comercio-exterior/estatisticas/base-de-dados-bruta"
+
     PATH = "/tmp/br_me_comex_stat/"
 
     TABLE_TYPE = ["mun", "ncm"]

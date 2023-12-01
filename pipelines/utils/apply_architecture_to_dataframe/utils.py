@@ -65,6 +65,8 @@ def read_architecture_table(url_architecture: str) -> pd.DataFrame:
         StringIO(requests.get(url, timeout=10).content.decode("utf-8"))
     )
 
+    df_architecture.query("name != '(excluido)'", inplace=True)
+
     return df_architecture.replace(np.nan, "", regex=True)
 
 

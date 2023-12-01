@@ -7,6 +7,7 @@ Tasks for br_bcb_agencia
 import os
 from datetime import timedelta
 
+import basedosdados as bd
 import pandas as pd
 from prefect import task
 
@@ -20,8 +21,8 @@ from pipelines.datasets.br_bcb_agencia.utils import (
     download_and_unzip,
     extract_download_links,
     format_date,
-    get_data_from_prod,
     order_cols,
+    parse_date,
     read_file,
     remove_empty_spaces,
     remove_latin1_accents_from_df,
@@ -37,14 +38,23 @@ from pipelines.utils.utils import log, to_partitions
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def download_data(url, xpath):
-    # url= agencia_constants.URL_AGENCIA.value
-    # xpath = agencia_constants.AGENCIA_XPATH.value
-    # extract all download links and select the most recent
-    links = extract_download_links(url=url, xpath=xpath)
+def extract_most_recent_date(xpath, url):
+    # table date
+    url_list = extract_download_links(url=url, xpath=xpath)
 
-    link = links[0]
+    dicionario_data_url = {parse_date(url): url for url in url_list}
+    tupla_data_maxima_url = max(dicionario_data_url.items(), key=lambda x: x[0])
+    data_maxima = tupla_data_maxima_url[0]
+    link_data_maxima = tupla_data_maxima_url[1]
 
+    return link_data_maxima, data_maxima
+
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def download_data(link: str):
     # select the most recent link
     current_link = "https://www.bcb.gov.br" + link
 
@@ -111,14 +121,13 @@ def clean_data():
             # to add new ids is necessary to join by name
             # clean nome municipio
 
-            # todo : copy from estban
             df = clean_nome_municipio(df)
 
-            municipio = get_data_from_prod(
-                "br_bd_diretorios_brasil",
-                "municipio",
-                ["nome", "sigla_uf", "id_municipio", "ddd"],
+            municipio = bd.read_sql(
+                query="select * from `basedosdados.br_bd_diretorios_brasil.municipio`",
+                from_file=True,
             )
+            municipio = municipio[["nome", "sigla_uf", "id_municipio", "ddd"]]
 
             log("municipio dataset successfully downloaded!")
 
