@@ -22,7 +22,7 @@ every_weeks_iptu = Schedule(
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
-                "update_metadata": "True",
+                "update_metadata": True,
             },
         ),
     ]

@@ -53,7 +53,7 @@ with Flow(
         dataset_id=dataset_id,
         table_id=table_id,
         data_source_max_date=data_source_max_date,
-        date_format="%Y-%m-%d",
+        date_format="%Y-%m",
         upstream_tasks=[data_source_max_date],
     )
 
