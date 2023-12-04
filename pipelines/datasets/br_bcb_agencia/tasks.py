@@ -5,6 +5,7 @@ Tasks for br_bcb_agencia
 
 
 import os
+import time as tm
 from datetime import timedelta
 
 import basedosdados as bd
@@ -45,19 +46,23 @@ def extract_most_recent_date(xpath, url):
     dicionario_data_url = {parse_date(url): url for url in url_list}
     tupla_data_maxima_url = max(dicionario_data_url.items(), key=lambda x: x[0])
     data_maxima = tupla_data_maxima_url[0]
-    link_data_maxima = tupla_data_maxima_url[1]
+    url = tupla_data_maxima_url[1]
+    log(f"---- the most recent date is ->>  {data_maxima}")
+    log(f"---- the select URL is ->>  {url}")
 
-    return link_data_maxima, data_maxima
+    return url, data_maxima
 
 
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def download_data(link: str):
+def download_data(dowload_url: str):
     # select the most recent link
-    current_link = "https://www.bcb.gov.br" + link
 
+    base_url = "https://www.bcb.gov.br"
+
+    current_link = base_url + dowload_url
     log(f"Downloading file from: {current_link} ")
 
     download_and_unzip(
@@ -67,6 +72,7 @@ def download_data(link: str):
     log(
         f"The file: {os.listdir(agencia_constants.DOWNLOAD_PATH_AGENCIA.value)} was downloaded"
     )
+    tm.sleep(1.5)
 
 
 @task(
@@ -84,7 +90,6 @@ def clean_data():
     files = os.listdir(path)
     log(f"file is: {files}")
     # file = file[1]
-    log(f"file is: {files}")
 
     for file in files:
         # the files format change across the year
@@ -95,7 +100,7 @@ def clean_data():
             df = clean_column_names(df)
             # rename columns
             df.rename(columns=rename_cols(), inplace=True)
-            log(df.columns)
+
             # fill left zeros with field range
             df["id_compe_bcb_agencia"] = (
                 df["id_compe_bcb_agencia"].astype(str).str.zfill(4)
@@ -116,12 +121,12 @@ def clean_data():
             # drop ddd column thats going to be added later
             df.drop(columns=["ddd"], inplace=True)
             log("ddd removed")
-            log(df.columns)
+
             # some files doesnt have 'id_municipio', just 'nome'.
             # to add new ids is necessary to join by name
             # clean nome municipio
-
-            df = clean_nome_municipio(df)
+            log("limpando nome muncipio")
+            df = clean_nome_municipio(df, "nome")
 
             municipio = bd.read_sql(
                 query="select * from `basedosdados.br_bd_diretorios_brasil.municipio`",
@@ -129,14 +134,12 @@ def clean_data():
             )
             municipio = municipio[["nome", "sigla_uf", "id_municipio", "ddd"]]
 
-            log("municipio dataset successfully downloaded!")
-
-            municipio = clean_nome_municipio(municipio)
+            municipio = clean_nome_municipio(municipio, "nome")
             # check if id_municipio already exists
+            df["sigla_uf"] = df["sigla_uf"].str.strip()
 
             if "id_municipio" not in df.columns:
                 # read municipio from bd datalake
-
                 # join id_municipio to df
                 df = pd.merge(
                     df,
@@ -148,9 +151,6 @@ def clean_data():
 
             # check if ddd already exists, if it doesnt, add it
             if "ddd" not in df.columns:
-                #
-                # read municipio from bd datalake
-
                 df = pd.merge(
                     df,
                     municipio[["id_municipio", "ddd"]],
@@ -162,7 +162,6 @@ def clean_data():
             # clean cep column
             df["cep"] = df["cep"].astype(str)
             df["cep"] = df["cep"].apply(remove_non_numeric_chars)
-            log("cep ok")
 
             # cnpj cleaning working
             df = create_cnpj_col(df)

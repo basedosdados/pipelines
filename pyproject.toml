@@ -107,6 +107,7 @@ fastparquet = "^2023.7.0"
 geopandas = "0.13.2"
 shapely = "2.0.1"
 webdriver-manager = "^4.0.1"
+xlrd=">=2.0.1"
 
 [tool.poetry.dev-dependencies]
 pytest_cov = "^3.0.0"

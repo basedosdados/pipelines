@@ -1,15 +1,11 @@
 # -*- coding: utf-8 -*-
 import os
 import zipfile
-from datetime import datetime
 
-import basedosdados as bd
-import numpy as np
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
-from selenium.common.exceptions import ElementNotInteractableException
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
@@ -17,7 +13,7 @@ from tqdm import tqdm
 from webdriver_manager.chrome import ChromeDriverManager
 
 from pipelines.datasets.br_cgu_beneficios_cidadao.constants import constants
-from pipelines.utils.utils import get_credentials_from_secret, log, to_partitions
+from pipelines.utils.utils import log, to_partitions
 
 
 def download_unzip_csv(
@@ -389,71 +385,3 @@ def parquet_partition(path: str, table: str) -> str:
             log("Partição feita.")
 
     return output_directory
-
-
-def extract_last_date(
-    dataset_id, table_id, billing_project_id: str, data: str = "data"
-):
-    """
-    Extracts the last update date of a given dataset table.
-
-    Args:
-        dataset_id (str): The ID of the dataset.
-        table_id (str): The ID of the table.
-
-    Returns:
-        str: The last update date in the format 'yyyy-mm' or 'yyyy-mm-dd'.
-
-    Raises:
-        Exception: If an error occurs while extracting the last update date.
-    """
-    if table_id == "garantia_safra":
-        try:
-            query_bd = f"""
-            SELECT
-            MAX(CONCAT(ano_referencia,"-",mes_referencia)) as max_date
-            FROM
-            `{billing_project_id}.{dataset_id}.{table_id}`
-            """
-
-            t = bd.read_sql(
-                query=query_bd,
-                billing_project_id=billing_project_id,
-                from_file=True,
-            )
-            input_date_str = t["max_date"][0]
-
-            date_obj = datetime.strptime(input_date_str, "%Y-%m")
-
-            last_date = date_obj.strftime("%Y-%m")
-            log(f"Última data YYYY-MM: {last_date}")
-
-            return last_date
-        except Exception as e:
-            log(f"An error occurred while extracting the last update date: {str(e)}")
-            raise
-    else:
-        try:
-            query_bd = f"""
-            SELECT
-            MAX(CONCAT(ano_competencia,"-",mes_competencia)) as max_date
-            FROM
-            `{billing_project_id}.{dataset_id}.{table_id}`
-            """
-
-            t = bd.read_sql(
-                query=query_bd,
-                billing_project_id=billing_project_id,
-                from_file=True,
-            )
-            input_date_str = t["max_date"][0]
-
-            date_obj = datetime.strptime(input_date_str, "%Y-%m")
-
-            last_date = date_obj.strftime("%Y-%m")
-            log(f"Última data YYYY-MM: {last_date}")
-
-            return last_date
-        except Exception as e:
-            log(f"An error occurred while extracting the last update date: {str(e)}")
-            raise

@@ -1,6 +1,7 @@
 # User defined
 **/data/
 test.py
+test.ipynb
 test_local.py
 pylint.txt
 
