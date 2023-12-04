@@ -21,20 +21,19 @@ from pipelines.datasets.br_ons_estimativa_custos.schedules import (
     schedule_br_ons_estimativa_custos_custo_marginal_operacao_semi_horario,
     schedule_br_ons_estimativa_custos_custo_variavel_unitario_usinas_termicas,
 )
-from pipelines.datasets.br_ons_estimativa_custos.tasks import (
-    download_data,
-    wrang_data,
-)
+from pipelines.datasets.br_ons_estimativa_custos.tasks import download_data, wrang_data
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.metadata.tasks import task_get_api_most_recent_date, update_django_metadata
+from pipelines.utils.metadata.tasks import (
+    task_get_api_most_recent_date,
+    update_django_metadata,
+)
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
     rename_current_flow_run_dataset_table,
 )
-
 
 with Flow(
     name="br_ons_estimativa_custos.custo_marginal_operacao_semi_horario",

@@ -4,6 +4,7 @@ Tasks for br_me_cnpj
 """
 import os
 from datetime import datetime
+
 from prefect import task
 
 from pipelines.datasets.br_me_cnpj.constants import constants as constants_cnpj

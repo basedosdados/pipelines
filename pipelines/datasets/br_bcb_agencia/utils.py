@@ -21,8 +21,16 @@ from pipelines.utils.utils import log
 
 
 # ---- functions to download data
-# todo:colocar check no ano e mes
 def parse_date(url: str) -> datetime:
+    """This function parse the date of a br_bcb_agencia url
+
+    Args:
+        url (str): URL of br_bcb_agencia extracted from https://www.bcb.gov.br/fis/info/agencias.asp?frame=1
+
+    Returns:
+        datetime: a date object
+    """
+
     padrao = re.compile(r"\d+")
 
     numeros = padrao.findall(url)
@@ -91,10 +99,6 @@ def find_cnpj_row_number(file_path: str) -> int:
     return cnpj_row_number
 
 
-# ! get_column_names deleted;
-# ! count_list_values
-
-
 def get_conv_names(file_path: str, skiprows: str) -> dict:
     """get column names from a file to be used as a converter
 
@@ -146,14 +150,14 @@ def read_file(file_path: str, file_name: str) -> pd.DataFrame:
         skiprows = find_cnpj_row_number(file_path=file_path) + 1
 
         conv = get_conv_names(file_path=file_path, skiprows=skiprows)
-        df = pd.read_excel(file_path, skiprows=skiprows, converters=conv, skipfooter=1)
+        df = pd.read_excel(file_path, skiprows=skiprows, converters=conv, skipfooter=2)
         # todo: rethink logic. file_name param feeds another function create_year_month_cols
         df = create_year_month_cols(df=df, file=file_name)
 
     except Exception as e:
         log(e)
         conv = get_conv_names(file_path=file_path, skiprows=9)
-        df = pd.read_excel(file_path, skiprows=9, converters=conv)
+        df = pd.read_excel(file_path, skiprows=9, converters=conv, skipfooter=2)
         df = create_year_month_cols(df=df, file=file_name)
     return df
 
@@ -169,21 +173,20 @@ def clean_column_names(df: pd.DataFrame) -> pd.DataFrame:
         DataFrame: a dataframe with cleaned columns
     """
     # Remove leading and trailing whitespaces from column names
+    log("---- cleaning col names ----")
     df.columns = df.columns.str.strip()
-    print("colnames striped")
+
     # Remove accents and special characters from column names
     df.columns = df.columns.map(
         lambda x: unicodedata.normalize("NFKD", x)
         .encode("ascii", "ignore")
         .decode("utf-8")
     )
-    print("colnames cleaned 1")
     # Replace remaining special characters with underscores
     df.columns = df.columns.str.replace(r"[^\w\s]+", "_", regex=True)
-    print("colnames cleaned 2")
     # Lowercase all column names
     df.columns = df.columns.str.lower()
-    print("colnames to lower")
+
     return df
 
 
@@ -201,10 +204,12 @@ def create_year_month_cols(df: pd.DataFrame, file: str) -> pd.DataFrame:
     Returns:
         pd.DataFrame: a dataframe with month and year columns
     """
-    print(f"{file}")
+
     df["ano"] = file[0:4]
     df["mes"] = file[4:6]
-    print(f"year {file[0:4]} and month {file[4:6]} cols created")
+    log(
+        f" ---- creating ano and mes columns ----- ano {file[0:4]} mes {file[4:6]} cols created"
+    )
     return df
 
 
@@ -268,6 +273,7 @@ def order_cols():
         "ano",
         "mes",
         "sigla_uf",
+        "nome",
         "id_municipio",
         "data_inicio",
         "cnpj",
@@ -287,7 +293,7 @@ def order_cols():
     return cols_order
 
 
-def clean_nome_municipio(df: pd.DataFrame) -> pd.DataFrame:
+def clean_nome_municipio(df: pd.DataFrame, col_name: str) -> pd.DataFrame:
     """perform cleaning operations on the municipio column
 
     Args:
@@ -296,34 +302,15 @@ def clean_nome_municipio(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: dataframe with municipio cleaned column
     """
-    df["nome"] = df["nome"].apply(
+    df[col_name] = df[col_name].apply(
         lambda x: unicodedata.normalize("NFKD", str(x))
         .encode("ascii", "ignore")
         .decode("utf-8")
     )
-    df["nome"] = df["nome"].apply(lambda x: re.sub(r"[^\w\s]", "", x))
-    df["nome"] = df["nome"].str.lower()
-    df["nome"] = df["nome"].str.strip()
+    df[col_name] = df[col_name].apply(lambda x: re.sub(r"[^\w\s]", "", x))
+    df[col_name] = df[col_name].str.lower()
+    df[col_name] = df[col_name].str.strip()
     return df
-
-
-def read_brazilian_municipallity_ids_from_base_dos_dados(
-    billing_id: str,
-) -> pd.DataFrame:
-    """Download municipio table from base dos dados
-
-    Args:
-        billing_id (str): BQ billing project id
-
-    Returns:
-        pd.DataFrame:  municipio table from base dos dados
-    """
-    municipio = bd.read_table(
-        dataset_id="br_bd_diretorios_brasil",
-        table_id="municipio",
-        billing_project_id=billing_id,
-    )
-    return municipio
 
 
 def remove_latin1_accents_from_df(df):
@@ -414,51 +401,9 @@ def replace_nan_with_empty_set_coltypes_str(df: pd.DataFrame) -> pd.DataFrame:
         df (pd.DataFrame): a dataframe
 
     Returns:
-        pd.DataFrame: a datrafaame with all columns as strings and nan values as empty cels
+        pd.DataFrame: a datrafaame with all columns as strings and nan values representing null values
     """
     for col in df.columns:
         df[col] = df[col].astype(str)
         df[col] = df[col].replace("nan", "")
-    return df
-
-
-# function copied from datasets.br_tse_eleicoes.utils
-def get_data_from_prod(dataset_id: str, table_id: str, columns: list) -> list:
-    """
-    Get select columns from a table in prod.
-    """
-
-    storage = bd.Storage(dataset_id=dataset_id, table_id=table_id)
-    blobs = list(
-        storage.client["storage_staging"]
-        .bucket("basedosdados-dev")
-        .list_blobs(prefix=f"staging/{storage.dataset_id}/{storage.table_id}/")
-    )
-
-    dfs = []
-
-    for blob in blobs:
-        partitions = re.findall(r"\w+(?==)", blob.name)
-        if len(set(partitions) & set(columns)) == 0:
-            df = pd.read_csv(
-                blob.public_url,
-                usecols=columns,
-                dtype={"id_municipio": str, "id_municipio_bcb": str, "ddd": str},
-            )
-            dfs.append(df)
-        else:
-            columns2add = list(set(partitions) & set(columns))
-            for column in columns2add:
-                columns.remove(column)
-            df = pd.read_csv(
-                blob.public_url,
-                usecols=columns,
-                dtype={"id_municipio": str, "id_municipio_bcb": str},
-            )
-            for column in columns2add:
-                df[column] = blob.name.split(column + "=")[1].split("/")[0]
-            dfs.append(df)
-
-    df = pd.concat(dfs)
-
     return df

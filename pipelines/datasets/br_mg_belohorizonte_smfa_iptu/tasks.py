@@ -18,7 +18,7 @@ from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.utils import (
     reorder_and_fix_nan,
     scrapping_download_csv,
 )
-from pipelines.utils.utils import  log, to_partitions
+from pipelines.utils.utils import log, to_partitions
 
 
 @task  # noqa
