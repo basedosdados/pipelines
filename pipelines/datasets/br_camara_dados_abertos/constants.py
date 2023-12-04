@@ -43,13 +43,13 @@ class constants(Enum):
     # ------------------------------------------------------------> DEPUTADOS
 
     TABLE_LIST_DEPUTADOS = {
-        "deputado_microdados": "deputados",
+        "deputados": "deputados",
         "deputado_ocupacao": "deputadosOcupacoes",
         "deputado_profissao": "deputadosProfissoes",
     }
 
     TABLE_NAME_ARCHITECTURE_DEPUTADOS = {
         "deputados": "https://docs.google.com/spreadsheets/d/1qfcR5CyUxwa4423mtA8q_XAbgDOEFcPHtKmsg7ZpgyU/edit#gid=0",
-        "deputado_ocupado": "https://docs.google.com/spreadsheets/d/1Cj6WE3jk63p21IjrINeaYKoMSOGoDDf1XpY3UH8sct4/edit#gid=0",
+        "deputado_ocupacao": "https://docs.google.com/spreadsheets/d/1Cj6WE3jk63p21IjrINeaYKoMSOGoDDf1XpY3UH8sct4/edit#gid=0",
         "deputado_profissao": "https://docs.google.com/spreadsheets/d/12R2OY7eqUKxuojcpYYBsCiHyzUOLBBdObnkuv2JUMNI/edit#gid=0",
     }

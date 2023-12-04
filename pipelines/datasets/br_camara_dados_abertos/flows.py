@@ -410,7 +410,7 @@ with Flow(
 
     dados_desatualizados = check_if_data_is_outdated(
         dataset_id=dataset_id,
-        table_id=table_id[0],
+        table_id=table_id[2],
         data_source_max_date=data_source_max_date_deputado,
         date_format="%Y-%m-%d",
         upstream_tasks=[data_source_max_date_deputado],
@@ -423,7 +423,7 @@ with Flow(
         # --------------------------------------- > Deputados
 
         filepath_deputados = save_table_id(
-            table_id="deputado", upstream_tasks=[rename_flow_run]
+            table_id="deputados", upstream_tasks=[rename_flow_run]
         )
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=filepath_deputados,
@@ -478,7 +478,7 @@ with Flow(
         # ----------------------------------------------> Deputados - Ocupacao
 
         filepath_deputados_ocupacao = save_table_id(
-            table_id="deputado_ocupacao", upstream_tasks=[rename_flow_run]
+            table_id="deputado_ocupacao", upstream_tasks=[filepath_deputados]
         )
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=filepath_deputados_ocupacao,
@@ -533,7 +533,7 @@ with Flow(
         # ----------------------------------------------> Deputados - Profissão
 
         filepath_deputados_profissao = save_table_id(
-            table_id="deputado_ocupacao", upstream_tasks=[rename_flow_run]
+            table_id="deputado_profissao", upstream_tasks=[filepath_deputados_ocupacao]
         )
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=filepath_deputados_profissao,

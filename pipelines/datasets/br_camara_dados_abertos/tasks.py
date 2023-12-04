@@ -1,8 +1,14 @@
 # -*- coding: utf-8 -*-
+import os
+from datetime import timedelta
+
 import pandas as pd
 from prefect import task
 
-from pipelines.datasets.br_camara_dados_abertos.constants import constants
+from pipelines.constants import constants
+from pipelines.datasets.br_camara_dados_abertos.constants import (
+    constants as constants_camara,
+)
 from pipelines.datasets.br_camara_dados_abertos.utils import (
     get_data,
     get_data_deputados,
@@ -26,7 +32,7 @@ def make_partitions(table_id, date_column) -> str:
         str: The path where the partitions are saved.
     """
     df = read_and_clean_camara_dados_abertos(
-        path=constants.INPUT_PATH.value,
+        path=constants_camara.INPUT_PATH.value,
         table_id=f"{table_id}",
         date_column=date_column,
     )
@@ -34,10 +40,10 @@ def make_partitions(table_id, date_column) -> str:
     to_partitions(
         data=df,
         partition_columns=["ano"],
-        savepath=f"{constants.OUTPUT_PATH.value}/{table_id}/",
+        savepath=f"{constants_camara.OUTPUT_PATH.value}/{table_id}/",
     )
 
-    return f"{constants.OUTPUT_PATH.value}/{table_id}/"
+    return f"{constants_camara.OUTPUT_PATH.value}/{table_id}/"
 
 
 # ! Obtendo a data máxima.
@@ -54,14 +60,25 @@ def download_files_and_get_max_date():
 def download_files_and_get_max_date_deputados():
     df = get_data_deputados()
 
-    data_max = df["dataHora"]
+    df["dataHora"] = pd.to_datetime(df["dataHora"])
+
+    data_max = df["dataHora"].max()
 
     return data_max
 
 
-@task
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def save_table_id(table_id):
-    df = read_and_clean_data_deputados()
-    df.to_csv(f"{constants.OUTPUT_PATH.value}{table_id}/data.csv", sep=";}")
+    log(f"------------- TRATANDO {table_id} --------------")
+    df = read_and_clean_data_deputados(table_id=table_id)
+    if not os.path.exists(f"{constants_camara.OUTPUT_PATH.value}{table_id}"):
+        os.makedirs(f"{constants_camara.OUTPUT_PATH.value}{table_id}")
 
-    return f"{constants.OUTPUT_PATH.value}{table_id}"
+    log(f"Saving {table_id} to {constants_camara.OUTPUT_PATH.value}{table_id}/data.csv")
+
+    df.to_csv(f"{constants_camara.OUTPUT_PATH.value}{table_id}/data.csv", sep=";")
+
+    return f"{constants_camara.OUTPUT_PATH.value}{table_id}"

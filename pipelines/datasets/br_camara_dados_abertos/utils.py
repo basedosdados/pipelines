@@ -121,7 +121,7 @@ def download_csvs_camara_deputado() -> None:
             with open(f"{constants.INPUT_PATH.value}{valor}.csv", "wb") as f:
                 f.write(response.content)
 
-            log(os.listdir(constants.INPUT_PATH.value))
+    log(os.listdir(constants.INPUT_PATH.value))
 
 
 def read_and_clean_data_deputados(table_id):
@@ -133,12 +133,12 @@ def read_and_clean_data_deputados(table_id):
     df = apply_architecture_to_dataframe(
         df,
         url_architecture=constants.TABLE_NAME_ARCHITECTURE_DEPUTADOS.value[table_id],
-        apply_include_missing_columns=True,
+        apply_include_missing_columns=False,
         apply_rename_columns=True,
         apply_column_order_and_selection=True,
     )
 
-    return constants.OUTPUT_PATH.value
+    return df
 
 
 def get_data_deputados():
