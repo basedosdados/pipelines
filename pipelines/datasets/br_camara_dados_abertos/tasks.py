@@ -81,4 +81,4 @@ def save_table_id(table_id):
 
     df.to_csv(f"{constants_camara.OUTPUT_PATH.value}{table_id}/data.csv", sep=";")
 
-    return f"{constants_camara.OUTPUT_PATH.value}{table_id}"
+    return f"{constants_camara.OUTPUT_PATH.value}{table_id}/data.csv"

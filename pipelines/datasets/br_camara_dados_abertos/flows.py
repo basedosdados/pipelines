@@ -374,7 +374,7 @@ br_camara.schedule = every_day_camara_dados_abertos
 # ------------------------------ TABLES DEPUTADOS ---------------------------------------
 
 with Flow(
-    name="br_camara_dados_abertos", code_owners=["tricktx"]
+    name="br_camara_dados_abertos_deputado", code_owners=["tricktx"]
 ) as br_camara_deputado:
     # Parameters
     dataset_id = Parameter(
