@@ -79,6 +79,6 @@ def save_table_id(table_id):
 
     log(f"Saving {table_id} to {constants_camara.OUTPUT_PATH.value}{table_id}/data.csv")
 
-    df.to_csv(f"{constants_camara.OUTPUT_PATH.value}{table_id}/data.csv", sep=";")
+    df.to_csv(f"{constants_camara.OUTPUT_PATH.value}{table_id}/data.csv", sep=",")
 
     return f"{constants_camara.OUTPUT_PATH.value}{table_id}/data.csv"
