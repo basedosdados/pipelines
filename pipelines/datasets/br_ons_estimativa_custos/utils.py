@@ -66,6 +66,9 @@ def extrai_data_recente(df: pd.DataFrame, table_name: str) -> Union[datetime, da
         df["data_inicio"] = pd.to_datetime(df["data_inicio"], format="%Y-%m-%d").dt.date
         data = df["data_inicio"].max()
 
+    if isinstance(data, pd.Timestamp):
+        data = data.date()
+
     return data
 
 

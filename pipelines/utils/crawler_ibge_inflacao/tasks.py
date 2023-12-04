@@ -128,10 +128,10 @@ def check_for_updates(
     max_date_bd = get_api_most_recent_date(
         table_id=table_id,
         dataset_id=dataset_id,
-        date_format="%Y-%m-%d",
+        date_format="%Y-%m",
     )
     log(f"A data mais recente da tabela no --- Site da BD --- é: {max_date_bd}")
-    if max_date_ibge > max_date_bd:
+    if dataframe > max_date_bd:
         log(
             f"A tabela {indice} foi atualizada no site do IBGE. O Flow de atualização será executado!"
         )
