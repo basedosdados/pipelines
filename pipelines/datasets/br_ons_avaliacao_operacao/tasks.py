@@ -7,7 +7,6 @@ import time as tm
 from datetime import date, datetime
 from typing import Union
 
-import basedosdados as bd
 import pandas as pd
 from prefect import task
 
@@ -28,91 +27,6 @@ from pipelines.datasets.br_ons_avaliacao_operacao.utils import (
     remove_latin1_accents_from_df,
 )
 from pipelines.utils.utils import log, to_partitions
-
-
-@task
-def extract_last_date_from_bq(
-    dataset_id, table_id, billing_project_id: str
-) -> Union[datetime, date]:
-    """Extrai a data mais recente de uma dada tabela dos conjuntos br_ons_avaliacao_operacao  e br_ons_estimativa_custos do BQ
-    Args:
-        dataset_id (str): The ID of the dataset.
-        table_id (str): The ID of the table.
-        billing_project_id (str): The billing project ID.
-
-    Returns:
-         Union[datetime, date]: data máxima da tabela
-    """
-
-    date_dict = {
-        "reservatorio": "yyyy-mm-dd",
-        "geracao_usina": "yyyy-mm-dd hh:mm:ss",
-        "geracao_termica_motivo_despacho": "yyyy-mm-dd hh:mm:ss",
-        "energia_natural_afluente": "yyyy-mm-dd",
-        "energia_armazenada_reservatorio": "yyyy-mm-dd",
-        "restricao_operacao_usinas_eolicas": "yyyy-mm-dd hh:mm:ss",
-        "custo_marginal_operacao_semi_horario": "yyyy-mm-dd hh:mm:ss",
-        "custo_marginal_operacao_semanal": "yyyy-mm-dd",
-        "balanco_energia_subsistemas": "yyyy-mm-dd hh:mm:ss",
-        "balanco_energia_subsistemas_dessem": "yyyy-mm-dd hh:mm:ss",
-        "custo_variavel_unitario_usinas_termicas": "yyyy-mm-dd",
-    }
-
-    if date_dict[table_id] == "yyyy-mm-dd hh:mm:ss":
-        query_bd = f""" SELECT
-        MAX(FORMAT_TIMESTAMP('%F %T', TIMESTAMP(CONCAT(data, ' ', hora)))) AS max_data_hora
-        FROM
-        `{billing_project_id}.{dataset_id}.{table_id}`
-        """
-
-        t = bd.read_sql(
-            query=query_bd,
-            billing_project_id=billing_project_id,
-            from_file=True,
-        )
-
-        data = t["max_data_hora"][0]
-        data = pd.to_datetime(data, format="%Y-%m-%d %H:%M:%S")
-
-    if (
-        date_dict[table_id] == "yyyy-mm-dd"
-        and table_id != "custo_variavel_unitario_usinas_termicas"
-    ):
-        query_bd = f"""
-        SELECT MAX(data) as max_date
-        FROM
-        `{billing_project_id}.{dataset_id}.{table_id}`
-        """
-
-        t = bd.read_sql(
-            query=query_bd,
-            billing_project_id=billing_project_id,
-            from_file=True,
-        )
-
-        data = t["max_date"][0]
-
-        print(f"A data mais recente da tabela no BQ é {data}")
-
-    if (
-        date_dict[table_id] == "yyyy-mm-dd"
-        and table_id == "custo_variavel_unitario_usinas_termicas"
-    ):
-        query_bd = f"""
-        SELECT MAX(data_inicio) as max_date
-        FROM
-        `{billing_project_id}.{dataset_id}.{table_id}`
-        """
-
-        t = bd.read_sql(
-            query=query_bd,
-            billing_project_id=billing_project_id,
-            from_file=True,
-        )
-
-        data = t["max_date"][0]
-
-    return data
 
 
 @task
@@ -197,8 +111,7 @@ def wrang_data(
 
     Args:
         table_name (str): nome da tabela, equivale ao table_id
-        data_mais_recente_do_bq (Union[date,datetime]): Data mais recente da tabela no BQ extraida
-        com com a task extract_last_date_from_bq
+        data_mais_recente_do_bq (Union[date,datetime]): Data mais recente da tabela no BQ extraida da api
 
     Returns:
         tuple[bool,str,Union[date,datetime]]: Retorna uma Tupla com 3 elementos:

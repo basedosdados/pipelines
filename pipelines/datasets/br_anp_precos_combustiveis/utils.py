@@ -12,7 +12,7 @@ import requests
 import unidecode
 
 from pipelines.datasets.br_anp_precos_combustiveis.constants import (
-    constants as anatel_constants,
+    constants as anp_constants,
 )
 from pipelines.utils.utils import log
 
@@ -190,8 +190,8 @@ def creating_column_ano(precos_combustiveis: pd.DataFrame):
 
 
 def rename_and_reordening(precos_combustiveis: pd.DataFrame):
-    precos_combustiveis.rename(columns=anatel_constants.RENAME.value, inplace=True)
-    precos_combustiveis = precos_combustiveis[anatel_constants.ORDEM.value]
+    precos_combustiveis.rename(columns=anp_constants.RENAME.value, inplace=True)
+    precos_combustiveis = precos_combustiveis[anp_constants.ORDEM.value]
 
     return precos_combustiveis
 
