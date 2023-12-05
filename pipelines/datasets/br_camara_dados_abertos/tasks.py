@@ -74,11 +74,14 @@ def download_files_and_get_max_date_deputados():
 def save_table_id(table_id):
     log(f"------------- TRATANDO {table_id} --------------")
     df = read_and_clean_data_deputados(table_id=table_id)
+
     if not os.path.exists(f"{constants_camara.OUTPUT_PATH.value}{table_id}"):
         os.makedirs(f"{constants_camara.OUTPUT_PATH.value}{table_id}")
 
     log(f"Saving {table_id} to {constants_camara.OUTPUT_PATH.value}{table_id}/data.csv")
 
-    df.to_csv(f"{constants_camara.OUTPUT_PATH.value}{table_id}/data.csv", sep=",")
+    df.to_csv(
+        f"{constants_camara.OUTPUT_PATH.value}{table_id}/data.csv", sep=",", index=False
+    )
 
     return f"{constants_camara.OUTPUT_PATH.value}{table_id}/data.csv"
