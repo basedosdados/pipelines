@@ -279,8 +279,8 @@ def get_id(
 
         return r, id
     else:
-        print("get:  Error:", json.dumps(r, indent=4, ensure_ascii=False))
-        raise Exception("get: Error")
+        log(r)
+        raise Exception(f"Error: the executed query did not return a data json. Executed query:/n{query}")
 
 
 def get_table_status(table_id, api_mode, email, password):
