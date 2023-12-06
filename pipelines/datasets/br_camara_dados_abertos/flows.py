@@ -470,7 +470,7 @@ with Flow(
                 coverage_type="all_free",
                 time_delta={"months": 6},
                 prefect_mode=materialization_mode,
-                bq_project="basedosdados",
+                bq_project="basedosdados-dev",
                 historical_database=False,
                 upstream_tasks=[wait_for_materialization],
             )
@@ -525,7 +525,7 @@ with Flow(
                 coverage_type="all_free",
                 time_delta={"months": 6},
                 prefect_mode=materialization_mode,
-                bq_project="basedosdados",
+                bq_project="basedosdados-dev",
                 historical_database=False,
                 upstream_tasks=[wait_for_materialization],
             )
@@ -538,7 +538,7 @@ with Flow(
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=filepath_deputados_profissao,
             dataset_id=dataset_id,
-            table_id=table_id[3],
+            table_id=table_id[2],
             dump_mode="append",
             wait=filepath_deputados_profissao,
         )
@@ -551,12 +551,12 @@ with Flow(
                 project_name=constants.PREFECT_DEFAULT_PROJECT.value,
                 parameters={
                     "dataset_id": dataset_id,
-                    "table_id": table_id[3],
+                    "table_id": table_id[2],
                     "mode": materialization_mode,
                     "dbt_alias": dbt_alias,
                 },
                 labels=current_flow_labels,
-                run_name=f"Materialize {dataset_id}.{table_id[3]}",
+                run_name=f"Materialize {dataset_id}.{table_id[2]}",
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -575,7 +575,7 @@ with Flow(
         with case(update_metadata, True):
             update_django_metadata(
                 dataset_id,
-                table_id[3],
+                table_id[2],
                 date_format="%Y-%m-%d",
                 date_column_name={"date": "data"},
                 coverage_type="all_free",
