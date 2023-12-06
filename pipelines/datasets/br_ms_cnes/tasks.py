@@ -8,10 +8,10 @@ import os
 from datetime import timedelta
 
 import pandas as pd
+import pyreaddbc as dbcreader
 import rpy2.robjects.packages as rpackages
 import wget
 from prefect import task
-from pyreaddbc import read_dbc
 from rpy2.robjects.packages import importr
 
 from pipelines.constants import constants
@@ -151,7 +151,7 @@ def read_dbc_save_csv(file_list: list, path: str, table: str) -> str:
         log(f"the file {file} is being converted to csv")
         # read dbc
         # dbc_file = readdbc.read_dbc(file)
-        dbc_file = read_dbc(file, encoding="iso-8859-1")
+        dbc_file = dbcreader.read_dbc(file, encoding="iso-8859-1")
 
         # convert from r to pandas
         # https://rpy2.github.io/doc/latest/html/generated_rst/pandas.html#from-r-to-pandas
