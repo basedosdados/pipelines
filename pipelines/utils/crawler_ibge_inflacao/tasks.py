@@ -123,7 +123,9 @@ def check_for_updates(
 
     max_date_ibge = dataframe.strftime("%Y-%m")
 
-    log(f"A data mais no site do ---IBGE--- para a tabela {indice} é : {dataframe.date()}")
+    log(
+        f"A data mais no site do ---IBGE--- para a tabela {indice} é : {dataframe.date()}"
+    )
 
     max_date_bd = get_api_most_recent_date(
         table_id=table_id,
