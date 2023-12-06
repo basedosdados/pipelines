@@ -580,7 +580,7 @@ with Flow(
                 date_column_name={"date": "data"},
                 coverage_type="all_free",
                 prefect_mode=materialization_mode,
-                bq_project="basedosdados",
+                bq_project="basedosdados-dev",
                 historical_database=True,
                 upstream_tasks=[wait_for_materialization],
             )
