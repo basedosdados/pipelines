@@ -11,7 +11,7 @@ every_day_camara_dados_abertos = Schedule(
         CronClock(
             cron="0 9 * * *",  # every day at 9:00 UTC
             start_date=datetime(2021, 1, 1),
-            labels=[constants.BASEDOSDADOS_DEV_AGENT_LABEL.value],
+            labels=[constants.BASEDOSDADOS_PROD_AGENT_LABEL.value],
             parameter_defaults={
                 "update_metadata": True,
                 "dbt_alias": True,
@@ -36,7 +36,7 @@ every_day_camara_dados_abertos_deputados = Schedule(
         CronClock(
             cron="30 9 * * *",  # every day at 9:00 UTC
             start_date=datetime(2021, 1, 1),
-            labels=[constants.BASEDOSDADOS_DEV_AGENT_LABEL.value],
+            labels=[constants.BASEDOSDADOS_PROD_AGENT_LABEL.value],
             parameter_defaults={
                 "update_metadata": True,
                 "dbt_alias": True,
