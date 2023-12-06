@@ -383,9 +383,9 @@ with Flow(
     table_id = Parameter(
         "table_id",
         default=[
+            "deputado_profissao",
             "deputado",
             "deputado_ocupacao",
-            "deputado_profissao",
         ],
         required=True,
     )
@@ -401,8 +401,8 @@ with Flow(
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ",
         dataset_id=dataset_id,
-        table_id=table_id[0],
-        wait=table_id[0],
+        table_id=table_id[1],
+        wait=table_id[1],
     )
 
     update_metadata = Parameter("update_metadata", default=True, required=False)
@@ -410,7 +410,7 @@ with Flow(
 
     dados_desatualizados = check_if_data_is_outdated(
         dataset_id=dataset_id,
-        table_id=table_id[2],
+        table_id=table_id[0],
         data_source_max_date=data_source_max_date_deputado,
         date_format="%Y-%m-%d",
         upstream_tasks=[data_source_max_date_deputado],
@@ -428,64 +428,9 @@ with Flow(
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=filepath_deputados,
             dataset_id=dataset_id,
-            table_id=table_id[0],
-            dump_mode="append",
-            wait=filepath_deputados,
-        )
-
-        with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels()
-            materialization_flow = create_flow_run(
-                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": table_id[0],
-                    "mode": materialization_mode,
-                    "dbt_alias": dbt_alias,
-                },
-                labels=current_flow_labels,
-                run_name=f"Materialize {dataset_id}.{table_id[0]}",
-            )
-
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
-            )
-            wait_for_materialization.max_retries = (
-                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-            wait_for_materialization.retry_delay = timedelta(
-                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-            )
-
-        with case(update_metadata, True):
-            update_django_metadata(
-                dataset_id,
-                table_id[2],
-                date_format="%Y-%m",
-                coverage_type="all_free",
-                time_delta={"months": 6},
-                prefect_mode=materialization_mode,
-                bq_project="basedosdados",
-                historical_database=False,
-                upstream_tasks=[wait_for_materialization],
-            )
-
-        # ----------------------------------------------> Deputados - Ocupacao
-
-        filepath_deputados_ocupacao = save_table_id(
-            table_id="deputado_ocupacao", upstream_tasks=[filepath_deputados]
-        )
-        wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=filepath_deputados_ocupacao,
-            dataset_id=dataset_id,
             table_id=table_id[1],
             dump_mode="append",
-            wait=filepath_deputados_ocupacao,
+            wait=filepath_deputados,
         )
 
         with case(materialize_after_dump, True):
@@ -501,7 +446,7 @@ with Flow(
                     "dbt_alias": dbt_alias,
                 },
                 labels=current_flow_labels,
-                run_name=f"Materialize {dataset_id}.{table_id[0]}",
+                run_name=f"Materialize {dataset_id}.{table_id[1]}",
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -521,7 +466,7 @@ with Flow(
             update_django_metadata(
                 dataset_id,
                 table_id[1],
-                date_format="%Y-%m",
+                date_format="%Y-%m-%d",
                 coverage_type="all_free",
                 time_delta={"months": 6},
                 prefect_mode=materialization_mode,
@@ -530,17 +475,17 @@ with Flow(
                 upstream_tasks=[wait_for_materialization],
             )
 
-        # ----------------------------------------------> Deputados - Profissão
+        # ----------------------------------------------> Deputados - Ocupacao
 
-        filepath_deputados_profissao = save_table_id(
-            table_id="deputado_profissao", upstream_tasks=[filepath_deputados_ocupacao]
+        filepath_deputados_ocupacao = save_table_id(
+            table_id="deputado_ocupacao", upstream_tasks=[filepath_deputados]
         )
         wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=filepath_deputados_profissao,
+            data_path=filepath_deputados_ocupacao,
             dataset_id=dataset_id,
             table_id=table_id[2],
             dump_mode="append",
-            wait=filepath_deputados_profissao,
+            wait=filepath_deputados_ocupacao,
         )
 
         with case(materialize_after_dump, True):
@@ -576,6 +521,61 @@ with Flow(
             update_django_metadata(
                 dataset_id,
                 table_id[2],
+                date_format="%Y-%m-%d",
+                coverage_type="all_free",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
+                historical_database=False,
+                upstream_tasks=[wait_for_materialization],
+            )
+
+        # ----------------------------------------------> Deputados - Profissão
+
+        filepath_deputados_profissao = save_table_id(
+            table_id="deputado_profissao", upstream_tasks=[filepath_deputados_ocupacao]
+        )
+        wait_upload_table = create_table_and_upload_to_gcs(
+            data_path=filepath_deputados_profissao,
+            dataset_id=dataset_id,
+            table_id=table_id[0],
+            dump_mode="append",
+            wait=filepath_deputados_profissao,
+        )
+
+        with case(materialize_after_dump, True):
+            # Trigger DBT flow run
+            current_flow_labels = get_current_flow_labels()
+            materialization_flow = create_flow_run(
+                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
+                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+                parameters={
+                    "dataset_id": dataset_id,
+                    "table_id": table_id[0],
+                    "mode": materialization_mode,
+                    "dbt_alias": dbt_alias,
+                },
+                labels=current_flow_labels,
+                run_name=f"Materialize {dataset_id}.{table_id[0]}",
+            )
+
+            wait_for_materialization = wait_for_flow_run(
+                materialization_flow,
+                stream_states=True,
+                stream_logs=True,
+                raise_final_state=True,
+            )
+            wait_for_materialization.max_retries = (
+                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
+            )
+            wait_for_materialization.retry_delay = timedelta(
+                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+            )
+
+        with case(update_metadata, True):
+            update_django_metadata(
+                dataset_id,
+                table_id[0],
                 date_format="%Y-%m-%d",
                 date_column_name={"date": "data"},
                 coverage_type="all_free",
