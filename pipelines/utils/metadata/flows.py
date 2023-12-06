@@ -28,9 +28,9 @@ with Flow(
     time_unit = Parameter("time_unit", required=False)
     time_delta = Parameter("time_delta", required=False)
     date_column_name = Parameter("date_column_name", required=False)
-    prefect_mode = Parameter("prefect_mode",default="dev", required=False)
-    api_mode = Parameter("api_mode",default="prod", required=False)
-    bq_project = Parameter("bq_project", default="basedosdados",required=False)
+    prefect_mode = Parameter("prefect_mode", default="dev", required=False)
+    api_mode = Parameter("api_mode", default="prod", required=False)
+    bq_project = Parameter("bq_project", default="basedosdados", required=False)
 
     update_django_metadata(
         dataset_id=dataset_id,

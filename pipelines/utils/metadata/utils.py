@@ -22,7 +22,9 @@ from pipelines.utils.utils import get_credentials_from_secret, log
 #######################
 
 
-def check_if_values_are_accepted(coverage_type: str, time_delta: Dict, date_column_name: Dict):
+def check_if_values_are_accepted(
+    coverage_type: str, time_delta: Dict, date_column_name: Dict
+):
     if time_delta:
         if len(time_delta) != 1:
             raise ValueError(
@@ -35,7 +37,6 @@ def check_if_values_are_accepted(coverage_type: str, time_delta: Dict, date_colu
             )
         if type(time_delta[key]) is not int:
             raise ValueError("Valor de delta inválido. O valor deve ser um inteiro")
-
 
     if coverage_type not in metadata_constants.ACCEPTED_COVERAGE_TYPE.value:
         raise ValueError(
@@ -282,7 +283,9 @@ def get_id(
         return r, id
     else:
         log(r)
-        raise Exception(f"Error: the executed query did not return a data json.\nExecuted query:\n{query} \nVariables: {dict(zip(keys, values))}")
+        raise Exception(
+            f"Error: the executed query did not return a data json.\nExecuted query:\n{query} \nVariables: {dict(zip(keys, values))}"
+        )
 
 
 def get_table_status(table_id, api_mode, email, password):
@@ -657,9 +660,8 @@ def get_coverage_value(
             query_parameters={"$table_Id: ID": table_id},
             api_mode=api_mode,
         )
-        
-        log(datetime_result.json())
 
+        log(datetime_result.json())
 
         date_objects = parse_datetime_ranges(datetime_result, date_format)
         return date_objects
