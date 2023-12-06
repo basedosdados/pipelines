@@ -54,7 +54,9 @@ def extrai_data_recente(df: pd.DataFrame, table_name: str) -> Union[datetime, da
 
     if date_dict[table_name] == "yyyy-mm-dd hh:mm:ss":
         df["data_hora"] = df["data"] + " " + df["hora"]
-        df["data_hora"] = pd.to_datetime(df["data_hora"], format="%Y-%m-%d %H:%M:%S")
+        df["data_hora"] = pd.to_datetime(
+            df["data_hora"], format="%Y-%m-%d %H:%M:%S"
+        ).dt.date
         data = df["data_hora"].max()
 
     if (
