@@ -12,6 +12,7 @@ import rpy2.robjects as ro
 import rpy2.robjects.packages as rpackages
 import wget
 from prefect import task
+from pyreaddbc import read_dbc as py_readdbc
 from rpy2.robjects import pandas2ri
 from rpy2.robjects.packages import importr
 
@@ -139,23 +140,26 @@ def read_dbc_save_csv(file_list: list, path: str, table: str) -> str:
     """
     log(f"wrangling {table} data")
     # import R's utility package
-    utils = rpackages.importr("utils")
+    # utils = rpackages.importr("utils")
+    # devtools = rpackages.importr("devtools")
 
     # select a mirror for R packages
-    utils.chooseCRANmirror(ind=1)
+    # utils.chooseCRANmirror(ind=1)
 
     log("installing read.dbc package")
-    utils.install_packages("read.dbc")
-    readdbc = importr("read.dbc")
+    # utils.install_packages("read.dbc")
+    # devtools.install_github("https://github.com/danicat/read.dbc.git")
+    # readdbc = importr("read.dbc")
 
     # list files
     for file in file_list:
         log(f"the file {file} is being converted to csv")
         # read dbc
-        dbc_file = readdbc.read_dbc(file)
+        # dbc_file = readdbc.read_dbc(file)
         # convert from r to pandas
         # https://rpy2.github.io/doc/latest/html/generated_rst/pandas.html#from-r-to-pandas
 
+        dbc_file = py_readdbc(file, encoding="iso-8859-1")
         # parse year month sigla_uf
         year_month_sigla_uf = year_month_sigla_uf_parser(file=file)
         log(f"year_month_sigla_uf of {file} parsed")
@@ -167,13 +171,14 @@ def read_dbc_save_csv(file_list: list, path: str, table: str) -> str:
 
         output_file = output_path + "/" + table + ".csv"
 
-        log(f"{file} 1 saved")
+        log(f"{dbc_file} 1 saved")
+
         # salvar df
-        dbc_file.to_csvfile(
+        dbc_file.to_csv(
             output_file,
             sep=",",
-            na="",
-            row_names=False,
+            na_rep="",
+            index=False,
         )
         # delete dbc file
         os.system(f"rm {file}")
