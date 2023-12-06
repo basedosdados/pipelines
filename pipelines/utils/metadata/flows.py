@@ -27,15 +27,15 @@ with Flow(
     date_format = Parameter("date_format", required=False)
     time_unit = Parameter("time_unit", required=False)
     time_delta = Parameter("time_delta", required=False)
-    date_column = Parameter("date_column", required=False)
-    prefect_mode = Parameter("prefect_mode", required=False)
-    api_mode = Parameter("api_mode", required=False)
-    bq_project = Parameter("bq_project", required=False)
+    date_column_name = Parameter("date_column_name", required=False)
+    prefect_mode = Parameter("prefect_mode",default="dev", required=False)
+    api_mode = Parameter("api_mode",default="prod", required=False)
+    bq_project = Parameter("bq_project", default="basedosdados",required=False)
 
     update_django_metadata(
         dataset_id=dataset_id,
         table_id=table_id,
-        date_column_name=date_column,
+        date_column_name=date_column_name,
         coverage_type=coverage_type,
         date_format=date_format,
         time_delta=time_delta,
