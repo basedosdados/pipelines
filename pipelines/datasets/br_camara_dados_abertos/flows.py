@@ -466,7 +466,7 @@ with Flow(
             update_django_metadata(
                 dataset_id,
                 table_id[2],
-                date_format="%Y-%m",
+                date_format="%Y-%m-%d",
                 coverage_type="all_free",
                 time_delta={"months": 6},
                 prefect_mode=materialization_mode,
@@ -521,7 +521,7 @@ with Flow(
             update_django_metadata(
                 dataset_id,
                 table_id[1],
-                date_format="%Y-%m",
+                date_format="%Y-%m-%d",
                 coverage_type="all_free",
                 time_delta={"months": 6},
                 prefect_mode=materialization_mode,
