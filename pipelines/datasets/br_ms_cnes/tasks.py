@@ -8,11 +8,11 @@ import os
 from datetime import timedelta
 
 import pandas as pd
-import pyreaddbc as dbcreader
-import rpy2.robjects.packages as rpackages
+
+# import rpy2.robjects.packages as rpackages
 import wget
 from prefect import task
-from rpy2.robjects.packages import importr
+from pyreaddbc import read_dbc as dbcreader
 
 from pipelines.constants import constants
 from pipelines.datasets.br_ms_cnes.constants import constants as cnes_constants
@@ -25,6 +25,8 @@ from pipelines.datasets.br_ms_cnes.utils import (
 )
 from pipelines.utils.metadata.utils import get_api_most_recent_date
 from pipelines.utils.utils import log
+
+# from rpy2.robjects.packages import importr
 
 
 @task
