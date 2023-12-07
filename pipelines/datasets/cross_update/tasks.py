@@ -262,6 +262,7 @@ def get_metadata_data(mode: str = "dev"):
         billing_project_id=billing_project_id,
         from_file=True,
     )["schema_name"]
+
     def batch(lst, n):
         for i in range(0, len(lst), n):
             yield lst[i : i + n]

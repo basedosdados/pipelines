@@ -33,8 +33,7 @@ with Flow(
     dump_to_gcs = Parameter("dump_to_gcs", default=False, required=False)
     days = Parameter("days", default=7, required=False)
     mode = Parameter("mode", default="prod", required=False)
-    tables_to_zip = query_tables(days=days, mode=mode,upstream_tasks = [days,mode] )
-
+    tables_to_zip = query_tables(days=days, mode=mode, upstream_tasks=[days, mode])
 
     with case(dump_to_gcs, True):
         current_flow_labels = get_current_flow_labels()
@@ -78,7 +77,9 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    file_path = get_metadata_data(mode=materialization_mode, upstream_tasks=[materialization_mode])
+    file_path = get_metadata_data(
+        mode=materialization_mode, upstream_tasks=[materialization_mode]
+    )
 
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=file_path,
@@ -102,7 +103,7 @@ with Flow(
             },
             labels=current_flow_labels,
             run_name=f"Materialize {dataset_id}.{table_id}",
-            upstream_tasks = [wait_upload_table]
+            upstream_tasks=[wait_upload_table],
         )
 
         wait_for_materialization = wait_for_flow_run(
