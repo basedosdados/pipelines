@@ -97,11 +97,12 @@ def clean_data(
     log("creating columns order")
     ordem_colunas = create_columns_order(nomes_colunas)
 
-    log("checking tipo_fase col")
-    df = check_tipo_fase(df)
-
     log("ordering columns")
     df = df[ordem_colunas]
+
+    log(df.columns)
+    log("checking tipo_fase col")
+    df = check_tipo_fase(df)
 
     log("building dir")
     os.system(f"mkdir -p {isp_constants.OUTPUT_PATH.value}")
