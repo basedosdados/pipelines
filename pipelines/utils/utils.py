@@ -196,6 +196,7 @@ def notify_discord_on_failure(
     url = get_vault_secret(secret_path)["data"]["url"]
     flow_run_id = prefect.context.get("flow_run_id")
     prefect.context.get("project", {}).get("name")
+    flow_project = prefect.context.get("project", {}).get("name")
     code_owners = code_owners or constants.DEFAULT_CODE_OWNERS.value
     code_owner_dict = constants.OWNERS_DISCORD_MENTIONS.value
 
@@ -214,7 +215,7 @@ def notify_discord_on_failure(
             at_code_owners.append(f"    - <@&{code_owner_id}>\n")
 
     message = (
-        f":man_facepalming: Flow **{flow.name}** has failed."
+        f":man_facepalming: Flow **{flow.name}** has failed. Flow project: {flow_project}"
         + f'\n  - State message: *"{state.message}"*'
         + "\n  - Link to the failed flow: "
         + f"https://prefect.basedosdados.org/flow-run/{flow_run_id}"
