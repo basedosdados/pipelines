@@ -27,16 +27,17 @@ def download_csvs_camara() -> None:
 
     for ano in constants.ANOS.value:
         for chave, valor in constants.TABLE_LIST.value.items():
-            url_2 = f"http://dadosabertos.camara.leg.br/arquivos/{valor}/csv/{valor}-{ano}.csv"
+            url = f"http://dadosabertos.camara.leg.br/arquivos/{valor}/csv/{valor}-{ano}.csv"
 
-            response = requests.get(url_2)
+            response = requests.get(url)
 
             if response.status_code == 200:
                 with open(f"{constants.INPUT_PATH.value}{valor}.csv", "wb") as f:
                     f.write(response.content)
-
-            else:
-                pass
+            elif response.status_code >= 400 and response.status_code <= 599:
+                raise Exception(
+                    f"Erro de requisição: status code {response.status_code}"
+                )
 
     log("------------- archive inside in container --------------")
     log(os.listdir(constants.INPUT_PATH.value))
@@ -113,13 +114,16 @@ def download_csvs_camara_deputado() -> None:
         os.makedirs(constants.INPUT_PATH.value)
 
     for key, valor in constants.TABLE_LIST_DEPUTADOS.value.items():
-        url_2 = f"http://dadosabertos.camara.leg.br/arquivos/{valor}/csv/{valor}.csv"
+        url = f"http://dadosabertos.camara.leg.br/arquivos/{valor}/csv/{valor}.csv"
 
-        response = requests.get(url_2)
+        response = requests.get(url)
 
         if response.status_code == 200:
             with open(f"{constants.INPUT_PATH.value}{valor}.csv", "wb") as f:
                 f.write(response.content)
+
+        elif response.status_code >= 400 and response.status_code <= 599:
+            raise Exception(f"Erro de requisição: status code {response.status_code}")
 
     log(os.listdir(constants.INPUT_PATH.value))
 

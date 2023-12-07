@@ -410,7 +410,7 @@ with Flow(
 
     dados_desatualizados = check_if_data_is_outdated(
         dataset_id=dataset_id,
-        table_id=table_id[0],
+        table_id=table_id[2],
         data_source_max_date=data_source_max_date_deputado,
         date_format="%Y-%m-%d",
         upstream_tasks=[data_source_max_date_deputado],
