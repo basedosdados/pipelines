@@ -73,6 +73,7 @@ def clean_data(
             sep=";",
             thousands=".",
             decimal=",",
+            dtype=str,
         )
         log(f"file -> {file_name} read")
 
