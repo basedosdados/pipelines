@@ -4,9 +4,7 @@ Utils for cross_update pipeline
 """
 import os
 
-import basedosdados as bd
 import pandas as pd
-import requests
 
 from pipelines.utils.utils import log
 
