@@ -78,7 +78,7 @@ def clean_data(
         log(f"file -> {file_name} read")
         if (
             file_name == isp_constants.TAXA_EVOLUCAO_MENSAL_UF.value
-            or isp_constants.TAXA_EVOLUCAO_MENSAL_MUNICIPIO.value
+            or file_name == isp_constants.TAXA_EVOLUCAO_MENSAL_MUNICIPIO.value
         ):
             df = df.apply(lambda x: x.str.replace(",", "."))
             log(df.head())
