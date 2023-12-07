@@ -142,6 +142,8 @@ def read_and_clean_data_deputados(table_id):
         apply_column_order_and_selection=True,
     )
 
+    log(df.columns)
+
     return df
 
 

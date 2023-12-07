@@ -483,7 +483,7 @@ with Flow(
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=filepath_deputados_ocupacao,
             dataset_id=dataset_id,
-            table_id=table_id[0],
+            table_id=table_id[1],
             dump_mode="append",
             wait=filepath_deputados_ocupacao,
         )
@@ -496,12 +496,12 @@ with Flow(
                 project_name=constants.PREFECT_DEFAULT_PROJECT.value,
                 parameters={
                     "dataset_id": dataset_id,
-                    "table_id": table_id[0],
+                    "table_id": table_id[1],
                     "mode": materialization_mode,
                     "dbt_alias": dbt_alias,
                 },
                 labels=current_flow_labels,
-                run_name=f"Materialize {dataset_id}.{table_id[0]}",
+                run_name=f"Materialize {dataset_id}.{table_id[1]}",
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -520,7 +520,7 @@ with Flow(
         with case(update_metadata, True):
             update_django_metadata(
                 dataset_id,
-                table_id[0],
+                table_id[1],
                 date_format="%Y-%m-%d",
                 coverage_type="all_free",
                 time_delta={"months": 6},

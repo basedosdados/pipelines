@@ -84,4 +84,6 @@ def save_table_id(table_id):
         f"{constants_camara.OUTPUT_PATH.value}{table_id}/data.csv", sep=",", index=False
     )
 
+    log(f"{constants_camara.OUTPUT_PATH.value}{table_id}/data.csv")
+
     return f"{constants_camara.OUTPUT_PATH.value}{table_id}/data.csv"
