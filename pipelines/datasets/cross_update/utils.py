@@ -32,8 +32,3 @@ def save_file(df: pd.DataFrame, table_id: str) -> str:
     df.to_csv(full_filepath, index=False)
     log("save_input")
     return full_filepath
-
-
-def batch(lst, n):
-    for i in range(0, len(lst), n):
-        yield lst[i : i + n]

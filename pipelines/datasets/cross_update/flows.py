@@ -12,7 +12,6 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.datasets.cross_update.schedules import schedule_nrows
 from pipelines.datasets.cross_update.tasks import (
     get_metadata_data,
     query_tables,
@@ -34,12 +33,8 @@ with Flow(
     dump_to_gcs = Parameter("dump_to_gcs", default=False, required=False)
     days = Parameter("days", default=7, required=False)
     mode = Parameter("mode", default="prod", required=False)
+    tables_to_zip = query_tables(days=days, mode=mode,upstream_tasks = [days,mode] )
 
-    # json_response = datasearch_json(page_size=page_size, mode=mode)
-    # montar no mesmo formato de saida do crawler table
-    tables_to_zip = query_tables(days=days, mode=mode)
-
-    # update_nrows.map(updated_tables, mode=unmapped(mode))
 
     with case(dump_to_gcs, True):
         current_flow_labels = get_current_flow_labels()
@@ -83,14 +78,14 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    file_path = get_metadata_data(mode=materialization_mode)
+    file_path = get_metadata_data(mode=materialization_mode, upstream_tasks=[materialization_mode])
 
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=file_path,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_mode="append",
-        wait=file_path,
+        upstream_tasks=[file_path],
     )
 
     with case(materialize_after_dump, True):
@@ -107,6 +102,7 @@ with Flow(
             },
             labels=current_flow_labels,
             run_name=f"Materialize {dataset_id}.{table_id}",
+            upstream_tasks = [wait_upload_table]
         )
 
         wait_for_materialization = wait_for_flow_run(

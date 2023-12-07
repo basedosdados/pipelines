@@ -9,12 +9,11 @@ from typing import Dict, List
 
 import basedosdados as bd
 import pandas as pd
-import ruamel.yaml as ryaml
 from google.cloud import storage
 from prefect import task
 from tqdm import tqdm
 
-from pipelines.datasets.cross_update.utils import batch, save_file
+from pipelines.datasets.cross_update.utils import save_file
 from pipelines.utils.dump_to_gcs.constants import constants as dump_to_gcs_constants
 from pipelines.utils.utils import log
 
@@ -54,7 +53,7 @@ def query_tables(days: int = 7, mode: str = "dev") -> List[Dict[str, str]]:
         SELECT
             dataset_id,
             table_id
-        FROM `basedosdados-dev.br_bd_metadados.bigquery_tables`
+        FROM `basedosdados.br_bd_metadados.bigquery_tables`
         WHERE
             DATE_DIFF(CURRENT_DATE(),last_modified_date,DAY) <={days}
             AND row_count <= 200000
@@ -71,9 +70,9 @@ def query_tables(days: int = 7, mode: str = "dev") -> List[Dict[str, str]]:
 
     to_zip = tables.to_dict("records")
 
-    log(to_zip[0:1])
+    log(to_zip[0:2])
 
-    return to_zip[0:1]
+    return to_zip[0:2]
 
 
 # @task(nout=2)
@@ -263,6 +262,9 @@ def get_metadata_data(mode: str = "dev"):
         billing_project_id=billing_project_id,
         from_file=True,
     )["schema_name"]
+    def batch(lst, n):
+        for i in range(0, len(lst), n):
+            yield lst[i : i + n]
 
     df_list = []
     for schema_batch in batch(schema_names_list, 50):
