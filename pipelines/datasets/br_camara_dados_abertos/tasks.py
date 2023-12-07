@@ -71,7 +71,7 @@ def download_files_and_get_max_date_deputados():
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def save_table_id(table_id):
+def treat_and_save_table(table_id):
     log(f"------------- TRATANDO {table_id} --------------")
     df = read_and_clean_data_deputados(table_id=table_id)
 

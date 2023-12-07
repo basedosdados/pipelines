@@ -18,7 +18,7 @@ from pipelines.datasets.br_camara_dados_abertos.tasks import (
     download_files_and_get_max_date,
     download_files_and_get_max_date_deputados,
     make_partitions,
-    save_table_id,
+    treat_and_save_table,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -422,7 +422,7 @@ with Flow(
     with case(dados_desatualizados, True):
         # --------------------------------------- > Deputados
 
-        filepath_deputados = save_table_id(
+        filepath_deputados = treat_and_save_table(
             table_id="deputados", upstream_tasks=[rename_flow_run]
         )
         wait_upload_table = create_table_and_upload_to_gcs(
@@ -466,9 +466,7 @@ with Flow(
             update_django_metadata(
                 dataset_id,
                 table_id[0],
-                date_format="%Y-%m-%d",
                 coverage_type="all_free",
-                time_delta={"months": 6},
                 prefect_mode=materialization_mode,
                 bq_project="basedosdados-dev",
                 historical_database=False,
@@ -477,7 +475,7 @@ with Flow(
 
         # ----------------------------------------------> Deputados - Ocupacao
 
-        filepath_deputados_ocupacao = save_table_id(
+        filepath_deputados_ocupacao = treat_and_save_table(
             table_id="deputado_ocupacao", upstream_tasks=[filepath_deputados]
         )
         wait_upload_table = create_table_and_upload_to_gcs(
@@ -521,9 +519,7 @@ with Flow(
             update_django_metadata(
                 dataset_id,
                 table_id[1],
-                date_format="%Y-%m-%d",
                 coverage_type="all_free",
-                time_delta={"months": 6},
                 prefect_mode=materialization_mode,
                 bq_project="basedosdados-dev",
                 historical_database=False,
@@ -532,7 +528,7 @@ with Flow(
 
         # ----------------------------------------------> Deputados - Profissão
 
-        filepath_deputados_profissao = save_table_id(
+        filepath_deputados_profissao = treat_and_save_table(
             table_id="deputado_profissao", upstream_tasks=[filepath_deputados_ocupacao]
         )
         wait_upload_table = create_table_and_upload_to_gcs(
@@ -576,8 +572,6 @@ with Flow(
             update_django_metadata(
                 dataset_id,
                 table_id[2],
-                date_format="%Y-%m-%d",
-                date_column_name={"date": "data"},
                 coverage_type="all_free",
                 prefect_mode=materialization_mode,
                 bq_project="basedosdados-dev",
