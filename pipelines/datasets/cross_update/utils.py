@@ -33,6 +33,7 @@ def save_file(df: pd.DataFrame, table_id: str) -> str:
     log("save_input")
     return full_filepath
 
+
 def batch(lst, n):
     for i in range(0, len(lst), n):
         yield lst[i : i + n]
