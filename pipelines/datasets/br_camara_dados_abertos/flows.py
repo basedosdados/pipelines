@@ -34,7 +34,7 @@ from pipelines.utils.tasks import (
     rename_current_flow_run_dataset_table,
 )
 
-with Flow(name="br_camara_dados_abertos", code_owners=["tricktx"]) as br_camara:
+with Flow(name="br_camara_dados_abertos.votacao", code_owners=["trick"]) as br_camara:
     # Parameters
     dataset_id = Parameter(
         "dataset_id", default="br_camara_dados_abertos", required=True
@@ -52,7 +52,7 @@ with Flow(name="br_camara_dados_abertos", code_owners=["tricktx"]) as br_camara:
     )
 
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
@@ -374,7 +374,7 @@ br_camara.schedule = every_day_camara_dados_abertos
 # ------------------------------ TABLES DEPUTADOS ---------------------------------------
 
 with Flow(
-    name="br_camara_dados_abertos_deputado", code_owners=["tricktx"]
+    name="br_camara_dados_abertos.deputado", code_owners=["trick"]
 ) as br_camara_deputado:
     # Parameters
     dataset_id = Parameter(
@@ -391,7 +391,7 @@ with Flow(
     )
 
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
@@ -468,7 +468,7 @@ with Flow(
                 table_id[0],
                 coverage_type="all_free",
                 prefect_mode=materialization_mode,
-                bq_project="basedosdados-dev",
+                bq_project="basedosdados",
                 historical_database=False,
                 upstream_tasks=[wait_for_materialization],
             )
@@ -521,7 +521,7 @@ with Flow(
                 table_id[1],
                 coverage_type="all_free",
                 prefect_mode=materialization_mode,
-                bq_project="basedosdados-dev",
+                bq_project="basedosdados",
                 historical_database=False,
                 upstream_tasks=[wait_for_materialization],
             )
@@ -576,7 +576,7 @@ with Flow(
                 date_column_name={"date": "data"},
                 coverage_type="all_free",
                 prefect_mode=materialization_mode,
-                bq_project="basedosdados-dev",
+                bq_project="basedosdados",
                 historical_database=True,
                 upstream_tasks=[wait_for_materialization],
             )
