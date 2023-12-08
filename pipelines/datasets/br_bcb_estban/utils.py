@@ -74,27 +74,6 @@ def download_and_unzip(url, path):
 
 
 # ------- macro etapa 2 tratamento de dados
-# --- read files
-def read_files(path: str) -> pd.DataFrame:
-    """This function read a file from a given path
-
-    Args:
-        path (str): a path to a file
-
-    Returns:
-        pd.DataFrame: a dataframe with the file data
-    """
-    df = pd.read_csv(
-        path,
-        sep=";",
-        index_col=None,
-        encoding="latin-1",
-        skipfooter=2,
-        skiprows=2,
-        dtype={"CNPJ": str, "CODMUN": str},
-    )
-
-    return df
 
 
 # ---1. rename columns

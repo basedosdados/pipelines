@@ -5,6 +5,7 @@ Tasks for br_bcb_estban
 
 import datetime as dt
 import os
+import zipfile
 from datetime import timedelta
 from time import sleep
 
@@ -35,7 +36,6 @@ from pipelines.datasets.br_bcb_estban.utils import (
     parse_date,
     pre_cleaning_for_pivot_long_agencia,
     pre_cleaning_for_pivot_long_municipio,
-    read_files,
     rename_columns_agencia,
     rename_columns_municipio,
     standardize_monetary_units,
@@ -72,7 +72,8 @@ def extract_last_date(table: str) -> str:
         prefs,
     )
 
-    # options.add_argument("--headless")
+    options.add_argument("--headless=new")
+    # NOTE: The traditional --headless, and since version 96, Chrome has a new headless mode that allows users to get the full browser functionality (even run extensions). Between versions 96 to 108 it was --headless=chrome, after version 109 --headless=new
     options.add_argument("--test-type")
     options.add_argument("--disable-gpu")
     options.add_argument("--no-first-run")
@@ -101,7 +102,7 @@ def extract_last_date(table: str) -> str:
     log(
         f"searching for ---- {br_bcb_estban_constants.XPATH_INPUT_FIELD_DICT.value[table]} to click on"
     )
-    input_field = WebDriverWait(driver, 10).until(
+    input_field = WebDriverWait(driver, 20).until(
         EC.element_to_be_clickable(
             (
                 By.CSS_SELECTOR,
@@ -109,6 +110,9 @@ def extract_last_date(table: str) -> str:
             )
         )
     )
+
+    assert input_field.is_displayed()
+
     input_field.click()
 
     # parse source code
@@ -176,7 +180,7 @@ def download_estban_selenium(save_path: str, table: str, date: str) -> str:
         prefs,
     )
 
-    # options.add_argument("--headless")
+    options.add_argument("--headless=new")
     options.add_argument("--test-type")
     options.add_argument("--disable-gpu")
     options.add_argument("--no-first-run")
@@ -197,9 +201,10 @@ def download_estban_selenium(save_path: str, table: str, date: str) -> str:
 
     driver.get(br_bcb_estban_constants.ESTBAN_NEW_URL.value)
     driver.implicitly_wait(2)
+
     # select input field and send keys
     log("looking for input field and sending keys")
-    input_field = WebDriverWait(driver, 10).until(
+    input_field = WebDriverWait(driver, 20).until(
         EC.element_to_be_clickable(
             (
                 By.CSS_SELECTOR,
@@ -207,6 +212,10 @@ def download_estban_selenium(save_path: str, table: str, date: str) -> str:
             )
         )
     )
+
+    assert input_field.is_displayed()
+
+    driver.execute_script("arguments[0].scrollIntoView();", input_field)
     input_field.click()
     input_field.send_keys(date)
     input_field.send_keys(Keys.ENTER)
@@ -214,7 +223,7 @@ def download_estban_selenium(save_path: str, table: str, date: str) -> str:
     log("looking for input field and sending keys")
     # click  button to download file
     sleep(2)
-    download_button = WebDriverWait(driver, 10).until(
+    download_button = WebDriverWait(driver, 20).until(
         EC.element_to_be_clickable(
             (
                 By.CSS_SELECTOR,
@@ -223,39 +232,10 @@ def download_estban_selenium(save_path: str, table: str, date: str) -> str:
         )
     )
     download_button.click()
-    sleep(4)
-
-    # TODO: UNZIP FILE WITH NEXT TASK OR DIRECT WHEN DOWNLOADING WITH SELENIUM DRIVE
-
-    # download_and_unzip(file, path=save_path)
-    log("download task successfully !")
-    log(f"files {os.listdir(save_path)} were downloaded and unzipped")
-
-    return save_path
-
-
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
-def download_estban_files(save_path: str, link: str) -> str:
-    """This function downloads ESTBAN data from BACEN url,
-    unzip the csv files and return a path for the raw files
-
-
-    Args:
-        save_path (str): a temporary path to save the estban files
-
-    Returns:
-        str: The path to the estban files
-    """
-
-    file = "https://www4.bcb.gov.br" + link
-
-    download_and_unzip(file, path=save_path)
+    sleep(10)
 
     log("download task successfully !")
-    log(f"files {os.listdir(save_path)} were downloaded and unzipped")
+    log(f"files {os.listdir(save_path)} were downloaded")
 
     return save_path
 
@@ -267,8 +247,10 @@ def download_estban_files(save_path: str, link: str) -> str:
 def get_id_municipio() -> pd.DataFrame:
     """get id municipio from basedosdados"""
 
+    # TODO: change before sending to prod
     municipio = bd.read_sql(
         query="select * from `basedosdados.br_bd_diretorios_brasil.municipio`",
+        # billing_project_id="basedosdados-dev",
         from_file=True,
     )
 
@@ -280,11 +262,8 @@ def get_id_municipio() -> pd.DataFrame:
 
 
 # 2. clean data
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
-def cleaning_municipios_data(path, municipio):
+@task
+def cleaning_municipios_data(municipio: str) -> str:
     """Perform data cleaning operations with estban municipios data
 
     Args:
@@ -293,17 +272,46 @@ def cleaning_municipios_data(path, municipio):
     Returns:
         df: a standardized partitioned estban dataset
     """
+    ZIP_PATH = br_bcb_estban_constants.ZIPFILE_PATH_MUNICIPIO.value
+    INPUT_PATH = br_bcb_estban_constants.INPUT_PATH_MUNICIPIO.value
+    OUTPUT_PATH = br_bcb_estban_constants.OUTPUT_PATH_MUNICIPIO.value
 
-    files = os.listdir(path)
-    log(f"the following files will be cleaned: {files}")
+    if not os.path.exists(OUTPUT_PATH):
+        os.makedirs(INPUT_PATH, exist_ok=True)
 
-    for file in files:
+    if not os.path.exists(OUTPUT_PATH):
+        os.makedirs(INPUT_PATH, exist_ok=True)
+
+    zip_files = os.listdir(ZIP_PATH)
+    for file in zip_files:
+        log(f"Unziping file ----> : {file}")
+        with zipfile.ZipFile(os.path.join(ZIP_PATH, file), "r") as z:
+            z.extractall(INPUT_PATH)
+
+    # todo: PROBLEM IF multiple zipfiles are present:
+    # for file in os.listdir(path):
+    #    if file.endswith(".zip"):
+    #        os.remove(os.path.join(path, file))
+    #    log(f"deleting zip files ----> : {file}")
+
+    csv_files = os.listdir(INPUT_PATH)
+
+    for file in csv_files:
         log(f"the file being cleaned is:{file}")
 
-        build_complete_file_path = os.path.join(path, file)
+        file_path = os.path.join(INPUT_PATH, file)
 
-        log(f"building {build_complete_file_path}")
-        df = read_files(build_complete_file_path)
+        log(f"building {file_path}")
+
+        df = pd.read_csv(
+            file_path,
+            sep=";",
+            index_col=None,
+            encoding="latin-1",
+            skipfooter=2,
+            skiprows=2,
+            dtype={"CNPJ": str, "CODMUN": str},
+        )
 
         log("reading file")
         df = rename_columns_municipio(df)
@@ -340,20 +348,17 @@ def cleaning_municipios_data(path, municipio):
         to_partitions(
             df,
             partition_columns=["ano", "mes", "sigla_uf"],
-            savepath=br_bcb_estban_constants.CLEANED_FILES_PATH_MUNICIPIO.value,
+            savepath=OUTPUT_PATH,
         )
 
         del df
 
-    return br_bcb_estban_constants.CLEANED_FILES_PATH_MUNICIPIO.value
+    return OUTPUT_PATH
 
 
 # 2. clean data
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
-def cleaning_agencias_data(path, municipio):
+@task
+def cleaning_agencias_data(municipio):
     """Perform data cleaning operations with estban municipios data
 
     Args:
@@ -362,18 +367,40 @@ def cleaning_agencias_data(path, municipio):
     Returns:
         df: a standardized partitioned estban dataset
     """
-    # limit to 10 for testing purposes
-    # be aware, relie only in .csv files its not that good
-    # cause bacen can change file format
-    files = os.listdir(path)
-    log(f"the following files will be cleaned: {files}")
+    ZIP_PATH = br_bcb_estban_constants.ZIPFILE_PATH_AGENCIA.value
+    INPUT_PATH = br_bcb_estban_constants.INPUT_PATH_AGENCIA.value
+    OUTPUT_PATH = br_bcb_estban_constants.OUTPUT_PATH_AGENCIA.value
 
-    for file in files:
+    if not os.path.exists(OUTPUT_PATH):
+        os.makedirs(INPUT_PATH, exist_ok=True)
+
+    if not os.path.exists(OUTPUT_PATH):
+        os.makedirs(INPUT_PATH, exist_ok=True)
+
+    zip_files = os.listdir(ZIP_PATH)
+    for file in zip_files:
+        log(f"Unziping file ----> : {file}")
+        with zipfile.ZipFile(os.path.join(ZIP_PATH, file), "r") as z:
+            z.extractall(INPUT_PATH)
+
+    csv_files = os.listdir(INPUT_PATH)
+
+    for file in csv_files:
         log(f"the file being cleaned is:{file}")
-        build_complete_file_path = os.path.join(path, file)
 
-        log(f"building {build_complete_file_path}")
-        df = read_files(build_complete_file_path)
+        file_path = os.path.join(INPUT_PATH, file)
+
+        log(f"building {file_path}")
+
+        df = pd.read_csv(
+            file_path,
+            sep=";",
+            index_col=None,
+            encoding="latin-1",
+            skipfooter=2,
+            skiprows=2,
+            dtype={"CNPJ": str, "CODMUN": str},
+        )
 
         log("reading file")
         df = rename_columns_agencia(df)
@@ -407,9 +434,9 @@ def cleaning_agencias_data(path, municipio):
         to_partitions(
             df,
             partition_columns=["ano", "mes", "sigla_uf"],
-            savepath=br_bcb_estban_constants.CLEANED_FILES_PATH_AGENCIA.value,
+            savepath=OUTPUT_PATH,
         )
 
         del df
 
-    return br_bcb_estban_constants.CLEANED_FILES_PATH_AGENCIA.value
+    return OUTPUT_PATH
