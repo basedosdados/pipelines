@@ -18,8 +18,7 @@ from lxml import html
 
 from pipelines.utils.utils import log
 
-# ------- macro etapa 1 download de dados
-######
+# ------- macro etapa 1 download de dados ######
 
 
 # todo:colocar check no ano e mes

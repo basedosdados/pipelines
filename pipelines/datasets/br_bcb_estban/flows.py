@@ -22,6 +22,8 @@ from pipelines.datasets.br_bcb_estban.tasks import (
     cleaning_agencias_data,
     cleaning_municipios_data,
     download_estban_files,
+    download_estban_selenium,
+    extract_last_date,
     extract_most_recent_date,
     get_id_municipio,
 )
@@ -62,6 +64,15 @@ with Flow(
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+    )
+
+    extract_last_date = extract_last_date(table=table_id)
+
+    dow_est = download_estban_selenium(
+        save_path=br_bcb_estban_constants.DOWNLOAD_PATH_MUNICIPIO.value,
+        table=table_id,
+        date=extract_last_date[1],
+        upstream_tasks=[extract_last_date],
     )
 
     data_source_max_date = extract_most_recent_date(
