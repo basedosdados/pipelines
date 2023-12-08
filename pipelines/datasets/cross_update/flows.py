@@ -6,11 +6,11 @@ Flows for br_tse_eleicoes
 
 from datetime import timedelta
 
+import prefect
 from prefect import Parameter, case, unmapped
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
-import prefect
 
 from pipelines.constants import constants
 from pipelines.datasets.cross_update.tasks import (
@@ -36,20 +36,24 @@ with Flow(
     mode = Parameter("mode", default="prod", required=False)
 
     update_metadata_table_flow = create_flow_run(
-        flow_name = "cross_update.update_metadata_table",
-        project_name = "staging",
-        parameters = {"materialization_mode":mode}
+        flow_name="cross_update.update_metadata_table",
+        project_name="staging",
+        parameters={"materialization_mode": mode},
     )
 
     wait_for_create_table = wait_for_flow_run(
-            update_metadata_table_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
+        update_metadata_table_flow,
+        stream_states=True,
+        stream_logs=True,
+        raise_final_state=True,
+    )
 
-    eligible_to_zip_tables = query_tables(days=days, mode=mode, upstream_tasks=[wait_for_create_table])
-    tables_to_zip = update_metadata_and_filter(eligible_to_zip_tables,upstream_tasks=[eligible_to_zip_tables])
+    eligible_to_zip_tables = query_tables(
+        days=days, mode=mode, upstream_tasks=[wait_for_create_table]
+    )
+    tables_to_zip = update_metadata_and_filter(
+        eligible_to_zip_tables, upstream_tasks=[eligible_to_zip_tables]
+    )
 
     with case(dump_to_gcs, True):
         current_flow_labels = get_current_flow_labels()

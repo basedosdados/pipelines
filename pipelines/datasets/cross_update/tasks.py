@@ -17,7 +17,6 @@ from pipelines.datasets.cross_update.utils import modify_table_metadata, save_fi
 from pipelines.utils.utils import log
 
 
-
 @task
 def query_tables(days: int = 7, mode: str = "dev") -> List[Dict[str, str]]:
     if mode == "dev":
@@ -29,7 +28,7 @@ def query_tables(days: int = 7, mode: str = "dev") -> List[Dict[str, str]]:
         SELECT
             dataset_id,
             table_id,
-            row_count, 
+            row_count,
             size_mb
         FROM `basedosdados.br_bd_metadados.bigquery_tables`
         WHERE
@@ -50,7 +49,6 @@ def query_tables(days: int = 7, mode: str = "dev") -> List[Dict[str, str]]:
     log(to_zip)
 
     return to_zip
-
 
 
 @task
@@ -108,18 +106,21 @@ def get_metadata_data(mode: str = "dev"):
 
     return full_filepath
 
+
 @task
 def update_metadata_and_filter(eligible_download_tables):
-    """Get only tables """
+    """Get only tables"""
 
-    backend  = bd.Backend(graphql_url="https://api.basedosdados.org/api/v1/graphql")
-    for table in  eligible_download_tables:
-        table["table_django_id"] = backend._get_table_id_from_name(gcp_dataset_id = table['dataset_id'], gcp_table_id = table['table_id'])
-        if table["table_django_id"] is None:                               
+    backend = bd.Backend(graphql_url="https://api.basedosdados.org/api/v1/graphql")
+    for table in eligible_download_tables:
+        table["table_django_id"] = backend._get_table_id_from_name(
+            gcp_dataset_id=table["dataset_id"], gcp_table_id=table["table_id"]
+        )
+        if table["table_django_id"] is None:
             eligible_download_tables.remove(table)
         else:
-            modify_table_metadata(table,backend)
-            if table['row_count']>200000:
+            modify_table_metadata(table, backend)
+            if table["row_count"] > 200000:
                 eligible_download_tables.remove(table)
     log(eligible_download_tables)
     return eligible_download_tables[0:2]
