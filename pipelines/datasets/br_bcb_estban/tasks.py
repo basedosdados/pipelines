@@ -58,7 +58,6 @@ def extract_last_date(table_id: str) -> str:
 
     # https://github.com/SeleniumHQ/selenium/issues/11637
     prefs = {
-        # "download.default_directory": constants.TMP_DATA_DIR.value,
         "download.prompt_for_download": False,
         "download.directory_upgrade": True,
         "safebrowsing.enabled": True,

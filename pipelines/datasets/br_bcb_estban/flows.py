@@ -93,13 +93,13 @@ with Flow(
             upstream_tasks=[donwload_files, municipio],
         )
 
-        # wait_upload_table = create_table_and_upload_to_gcs(
-        #     data_path=filepath,
-        #     dataset_id=dataset_id,
-        #     table_id=table_id,
-        #     dump_mode="append",
-        #     wait=filepath,
-        # )
+        wait_upload_table = create_table_and_upload_to_gcs(
+            data_path=filepath,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dump_mode="append",
+            wait=filepath,
+        )
 
         # municipio
         with case(materialize_after_dump, True):
@@ -205,14 +205,13 @@ with Flow(
             upstream_tasks=[donwload_files, municipio],
         )
 
-        # 15/16/19/20 sao files problematicos
-        # wait_upload_table = create_table_and_upload_to_gcs(
-        #    data_path=filepath,
-        #    dataset_id=dataset_id,
-        #    table_id=table_id,
-        #    dump_mode="append",
-        #    wait=filepath,
-        # )
+        wait_upload_table = create_table_and_upload_to_gcs(
+            data_path=filepath,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dump_mode="append",
+            wait=filepath,
+        )
 
         # agencia
         with case(materialize_after_dump, True):

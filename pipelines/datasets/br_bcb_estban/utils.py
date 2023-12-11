@@ -8,10 +8,7 @@ import re
 import numpy as np
 import pandas as pd
 
-from pipelines.utils.utils import log
 
-
-# ---1. rename columns
 def rename_columns_municipio(df: pd.DataFrame) -> pd.DataFrame:
     """this function rename columns from municipio dataframe
 
