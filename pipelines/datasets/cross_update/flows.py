@@ -12,6 +12,11 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
+from pipelines.datasets.cross_update.tasks import (
+    get_metadata_data,
+    query_tables,
+    update_metadata_and_filter,
+)
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
@@ -20,12 +25,6 @@ from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
     rename_current_flow_run_dataset_table,
-)
-
-from pipelines.datasets.cross_update.tasks import (
-    get_metadata_data,
-    query_tables,
-    update_metadata_and_filter,
 )
 
 with Flow(
@@ -44,12 +43,12 @@ with Flow(
     )
 
     wait_for_create_table = wait_for_flow_run(
-            update_metadata_table_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
-    
+        update_metadata_table_flow,
+        stream_states=True,
+        stream_logs=True,
+        raise_final_state=True,
+    )
+
     # TODO: rodar para todas as tabelas que foram modificadas desde maio
 
     eligible_to_zip_tables = query_tables(

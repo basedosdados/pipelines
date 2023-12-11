@@ -62,9 +62,8 @@ def modify_table_metadata(table, backend):
     if table['size_bytes'] > 2147483647:
         table['size_bytes'] = None
 
-    if table['row_count'] > 2147483647:
-        table['row_count'] = None
-
+    if table["row_count"] > 2147483647:
+        table["row_count"] = None
 
     mutation_parameters = {
             "id": table["table_django_id"],
