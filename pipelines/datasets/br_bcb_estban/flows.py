@@ -2,7 +2,7 @@
 """
 Flows for br_bcb_estban
 """
-
+# TODO: UPLOAD MUNICIPIOS; UPLOAD AGENCIA 03
 from datetime import timedelta
 
 from prefect import Parameter, case
@@ -64,7 +64,7 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    extract_last_date = extract_last_date(table=table_id)
+    extract_last_date = extract_last_date(table_id=table_id)
 
     check_if_outdated = check_if_data_is_outdated(
         dataset_id=dataset_id,
@@ -82,25 +82,24 @@ with Flow(
 
         donwload_files = download_estban_selenium(
             save_path=br_bcb_estban_constants.ZIPFILE_PATH_MUNICIPIO.value,
-            table=table_id,
+            table_id=table_id,
             date=extract_last_date[1],
-            upstream_tasks=[check_if_outdated],
         )
 
-        municipio = get_id_municipio()
+        municipio = get_id_municipio(upstream_tasks=[donwload_files])
 
         filepath = cleaning_municipios_data(
             municipio=municipio,
             upstream_tasks=[donwload_files, municipio],
         )
 
-        wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=filepath,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dump_mode="append",
-            wait=filepath,
-        )
+        # wait_upload_table = create_table_and_upload_to_gcs(
+        #     data_path=filepath,
+        #     dataset_id=dataset_id,
+        #     table_id=table_id,
+        #     dump_mode="append",
+        #     wait=filepath,
+        # )
 
         # municipio
         with case(materialize_after_dump, True):
@@ -175,7 +174,7 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    extract_last_date = extract_last_date(table=table_id)
+    extract_last_date = extract_last_date(table_id=table_id)
 
     # task check if is outdated
     check_if_outdated = check_if_data_is_outdated(
@@ -194,9 +193,8 @@ with Flow(
 
         donwload_files = download_estban_selenium(
             save_path=br_bcb_estban_constants.ZIPFILE_PATH_AGENCIA.value,
-            table=table_id,
+            table_id=table_id,
             date=extract_last_date[1],
-            upstream_tasks=[check_if_outdated],
         )
 
         # read_file
@@ -206,14 +204,15 @@ with Flow(
             municipio=municipio,
             upstream_tasks=[donwload_files, municipio],
         )
+
         # 15/16/19/20 sao files problematicos
-        wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=filepath,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dump_mode="append",
-            wait=filepath,
-        )
+        # wait_upload_table = create_table_and_upload_to_gcs(
+        #    data_path=filepath,
+        #    dataset_id=dataset_id,
+        #    table_id=table_id,
+        #    dump_mode="append",
+        #    wait=filepath,
+        # )
 
         # agencia
         with case(materialize_after_dump, True):

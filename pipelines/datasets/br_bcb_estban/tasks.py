@@ -30,10 +30,7 @@ from pipelines.datasets.br_bcb_estban.utils import (
     create_id_municipio,
     create_id_verbete_column,
     create_month_year_columns,
-    download_and_unzip,
-    extract_download_links,
     order_cols_municipio,
-    parse_date,
     pre_cleaning_for_pivot_long_agencia,
     pre_cleaning_for_pivot_long_municipio,
     rename_columns_agencia,
@@ -44,19 +41,19 @@ from pipelines.datasets.br_bcb_estban.utils import (
 )
 from pipelines.utils.utils import clean_dataframe, log, to_partitions
 
-# adicionar crawler que extrai url de download mais recente
-# usar web driver pois o site é dinâmico
-
-# 1. criar função que extrai as datas mais recente e o link da estban
-# - usar crhomewebdriver
-# - pega a data mais recente da api
-# - send keys pro input field
-# - handle error, se for beleza;
-# - caso contrário morre e não atualiza;
-
 
 @task
-def extract_last_date(table: str) -> str:
+def extract_last_date(table_id: str) -> str:
+    """This task will extract the last date of agencias or municipios ESTBAN table from
+    BACEN website using selenium webdriver
+
+    Args:
+        table_id (str): Table identifier (agencia or municipio)
+
+    Returns:
+        str: The last release date of the table (Y%-m%) and the raw version (m%/%Y)
+    """
+
     options = webdriver.ChromeOptions()
 
     # https://github.com/SeleniumHQ/selenium/issues/11637
@@ -94,19 +91,15 @@ def extract_last_date(table: str) -> str:
     log(f"using url {br_bcb_estban_constants.ESTBAN_NEW_URL.value}")
     driver.get(br_bcb_estban_constants.ESTBAN_NEW_URL.value)
 
-    # -- once the input field is clicked the website enables dropdown options
-    # The most recent date is automatically select and given under the class ng-option ng-option-marked
-    # TODO: add error handler to inform if it occurs
-
     # select input field and click on it
     log(
-        f"searching for ---- {br_bcb_estban_constants.XPATH_INPUT_FIELD_DICT.value[table]} to click on"
+        f"searching for ---- {br_bcb_estban_constants.CSS_INPUT_FIELD_DICT.value[table_id]} to click on"
     )
     input_field = WebDriverWait(driver, 20).until(
         EC.element_to_be_clickable(
             (
                 By.CSS_SELECTOR,
-                br_bcb_estban_constants.XPATH_INPUT_FIELD_DICT.value[table],
+                br_bcb_estban_constants.CSS_INPUT_FIELD_DICT.value[table_id],
             )
         )
     )
@@ -130,29 +123,14 @@ def extract_last_date(table: str) -> str:
     # quit driver session
     driver.quit()
 
+    # return date, raw_date
     return date, raw_date
 
 
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
-def extract_most_recent_date(xpath, url):
-    # table date
-    url_list = extract_download_links(url=url, xpath=xpath)
-
-    dicionario_data_url = {parse_date(url): url for url in url_list}
-    tupla_data_maxima_url = max(dicionario_data_url.items(), key=lambda x: x[0])
-    data_maxima = tupla_data_maxima_url[0]
-    link_data_maxima = tupla_data_maxima_url[1]
-
-    return link_data_maxima, data_maxima
-
-
 @task
-def download_estban_selenium(save_path: str, table: str, date: str) -> str:
-    """This function downloads ESTBAN data from BACEN url,
-    unzip the csv files and return a path for the raw files
+def download_estban_selenium(save_path: str, table_id: str, date: str) -> str:
+    """This function downloads ESTBAN data from BACEN url using selenium webdriver
+    and downloads it
 
 
     Args:
@@ -208,7 +186,7 @@ def download_estban_selenium(save_path: str, table: str, date: str) -> str:
         EC.element_to_be_clickable(
             (
                 By.CSS_SELECTOR,
-                br_bcb_estban_constants.XPATH_INPUT_FIELD_DICT.value[table],
+                br_bcb_estban_constants.CSS_INPUT_FIELD_DICT.value[table_id],
             )
         )
     )
@@ -227,12 +205,12 @@ def download_estban_selenium(save_path: str, table: str, date: str) -> str:
         EC.element_to_be_clickable(
             (
                 By.CSS_SELECTOR,
-                br_bcb_estban_constants.XPATH_DOWNLOAD_BUTTON.value[table],
+                br_bcb_estban_constants.CSS_DOWNLOAD_BUTTON.value[table_id],
             )
         )
     )
     download_button.click()
-    sleep(10)
+    sleep(5)
 
     log("download task successfully !")
     log(f"files {os.listdir(save_path)} were downloaded")
@@ -247,10 +225,8 @@ def download_estban_selenium(save_path: str, table: str, date: str) -> str:
 def get_id_municipio() -> pd.DataFrame:
     """get id municipio from basedosdados"""
 
-    # TODO: change before sending to prod
     municipio = bd.read_sql(
         query="select * from `basedosdados.br_bd_diretorios_brasil.municipio`",
-        # billing_project_id="basedosdados-dev",
         from_file=True,
     )
 
@@ -263,36 +239,33 @@ def get_id_municipio() -> pd.DataFrame:
 
 # 2. clean data
 @task
-def cleaning_municipios_data(municipio: str) -> str:
+def cleaning_municipios_data(municipio: pd.DataFrame) -> str:
     """Perform data cleaning operations with estban municipios data
 
     Args:
         df: a raw municipios estban dataset
 
     Returns:
-        df: a standardized partitioned estban dataset
+        str: file path to a standardized partitioned estban dataset
     """
     ZIP_PATH = br_bcb_estban_constants.ZIPFILE_PATH_MUNICIPIO.value
     INPUT_PATH = br_bcb_estban_constants.INPUT_PATH_MUNICIPIO.value
     OUTPUT_PATH = br_bcb_estban_constants.OUTPUT_PATH_MUNICIPIO.value
 
-    if not os.path.exists(OUTPUT_PATH):
+    log("building paths")
+    if not os.path.exists(INPUT_PATH):
         os.makedirs(INPUT_PATH, exist_ok=True)
 
     if not os.path.exists(OUTPUT_PATH):
-        os.makedirs(INPUT_PATH, exist_ok=True)
+        os.makedirs(OUTPUT_PATH, exist_ok=True)
 
     zip_files = os.listdir(ZIP_PATH)
+    log(f"unziping files ----> {zip_files}")
     for file in zip_files:
-        log(f"Unziping file ----> : {file}")
-        with zipfile.ZipFile(os.path.join(ZIP_PATH, file), "r") as z:
-            z.extractall(INPUT_PATH)
-
-    # todo: PROBLEM IF multiple zipfiles are present:
-    # for file in os.listdir(path):
-    #    if file.endswith(".zip"):
-    #        os.remove(os.path.join(path, file))
-    #    log(f"deleting zip files ----> : {file}")
+        if file.endswith(".csv.zip"):
+            log(f"Unziping file ----> : {file}")
+            with zipfile.ZipFile(os.path.join(ZIP_PATH, file), "r") as z:
+                z.extractall(INPUT_PATH)
 
     csv_files = os.listdir(INPUT_PATH)
 
@@ -356,32 +329,34 @@ def cleaning_municipios_data(municipio: str) -> str:
     return OUTPUT_PATH
 
 
-# 2. clean data
 @task
-def cleaning_agencias_data(municipio):
+def cleaning_agencias_data(municipio: pd.DataFrame) -> str:
     """Perform data cleaning operations with estban municipios data
 
     Args:
         df: a raw municipios estban dataset
 
     Returns:
-        df: a standardized partitioned estban dataset
+        str: file path to a standardized partitioned estban dataset
     """
     ZIP_PATH = br_bcb_estban_constants.ZIPFILE_PATH_AGENCIA.value
     INPUT_PATH = br_bcb_estban_constants.INPUT_PATH_AGENCIA.value
     OUTPUT_PATH = br_bcb_estban_constants.OUTPUT_PATH_AGENCIA.value
 
-    if not os.path.exists(OUTPUT_PATH):
+    log("building paths")
+    if not os.path.exists(INPUT_PATH):
         os.makedirs(INPUT_PATH, exist_ok=True)
 
     if not os.path.exists(OUTPUT_PATH):
-        os.makedirs(INPUT_PATH, exist_ok=True)
+        os.makedirs(OUTPUT_PATH, exist_ok=True)
 
     zip_files = os.listdir(ZIP_PATH)
+    log(f"unziping files ----> {zip_files}")
     for file in zip_files:
-        log(f"Unziping file ----> : {file}")
-        with zipfile.ZipFile(os.path.join(ZIP_PATH, file), "r") as z:
-            z.extractall(INPUT_PATH)
+        if file.endswith(".csv.zip"):
+            log(f"Unziping file ----> : {file}")
+            with zipfile.ZipFile(os.path.join(ZIP_PATH, file), "r") as z:
+                z.extractall(INPUT_PATH)
 
     csv_files = os.listdir(INPUT_PATH)
 
