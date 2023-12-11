@@ -222,7 +222,6 @@ def notify_discord_on_failure(
         + "\n  - Extra attention:\n"
         + "".join(at_code_owners)
     )
-
     send_discord_message(
         message=message,
         webhook_url=url,
