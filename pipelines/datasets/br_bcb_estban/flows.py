@@ -64,14 +64,14 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    extract_last_date = extract_last_date(table_id=table_id)
+    data_source_max_date = extract_last_date(table_id=table_id)
 
     check_if_outdated = check_if_data_is_outdated(
         dataset_id=dataset_id,
         table_id=table_id,
-        data_source_max_date=extract_last_date[0],
+        data_source_max_date=data_source_max_date[0],
         date_format="%Y-%m",
-        upstream_tasks=[extract_last_date],
+        upstream_tasks=[data_source_max_date],
     )
 
     with case(check_if_outdated, False):
@@ -83,7 +83,7 @@ with Flow(
         donwload_files = download_estban_selenium(
             save_path=br_bcb_estban_constants.ZIPFILE_PATH_MUNICIPIO.value,
             table_id=table_id,
-            date=extract_last_date[1],
+            date=data_source_max_date[1],
         )
 
         municipio = get_id_municipio(upstream_tasks=[donwload_files])
@@ -174,15 +174,15 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    extract_last_date = extract_last_date(table_id=table_id)
+    data_source_max_date = extract_last_date(table_id=table_id)
 
     # task check if is outdated
     check_if_outdated = check_if_data_is_outdated(
         dataset_id=dataset_id,
         table_id=table_id,
-        data_source_max_date=extract_last_date[0],
+        data_source_max_date=data_source_max_date[0],
         date_format="%Y-%m",
-        upstream_tasks=[extract_last_date],
+        upstream_tasks=[data_source_max_date],
     )
 
     with case(check_if_outdated, False):
@@ -194,7 +194,7 @@ with Flow(
         donwload_files = download_estban_selenium(
             save_path=br_bcb_estban_constants.ZIPFILE_PATH_AGENCIA.value,
             table_id=table_id,
-            date=extract_last_date[1],
+            date=data_source_max_date[1],
         )
 
         # read_file
