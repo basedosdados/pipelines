@@ -10,14 +10,8 @@ from prefect import Parameter, case, unmapped
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
-import prefect
 
 from pipelines.constants import constants
-from pipelines.datasets.cross_update.tasks import (
-    get_metadata_data,
-    query_tables,
-    update_metadata_and_filter,
-)
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
@@ -28,17 +22,25 @@ from pipelines.utils.tasks import (
     rename_current_flow_run_dataset_table,
 )
 
+from pipelines.datasets.cross_update.tasks import (
+    get_metadata_data,
+    query_tables,
+    update_metadata_and_filter,
+)
+
 with Flow(
     name="cross_update.update_nrows", code_owners=["lauris"]
 ) as crossupdate_nrows:
     dump_to_gcs = Parameter("dump_to_gcs", default=False, required=False)
     days = Parameter("days", default=7, required=False)
     mode = Parameter("mode", default="prod", required=False)
+    current_flow_labels = get_current_flow_labels()
 
     update_metadata_table_flow = create_flow_run(
         flow_name = "cross_update.update_metadata_table",
         project_name = "staging",
-        parameters = {"materialization_mode":mode}
+        parameters = {"materialization_mode":mode},
+        labels=current_flow_labels
     )
 
     wait_for_create_table = wait_for_flow_run(
@@ -47,12 +49,15 @@ with Flow(
             stream_logs=True,
             raise_final_state=True,
         )
+    
+    # TODO: rodar para todas as tabelas que foram modificadas desde maio
+    # TODO: avaliar com Dahis frequencia de atualização 
+
 
     eligible_to_zip_tables = query_tables(days=days, mode=mode, upstream_tasks=[wait_for_create_table])
     tables_to_zip = update_metadata_and_filter(eligible_to_zip_tables,upstream_tasks=[eligible_to_zip_tables])
 
     with case(dump_to_gcs, True):
-        current_flow_labels = get_current_flow_labels()
         dump_to_gcs_flow = create_flow_run.map(
             flow_name=unmapped(utils_constants.FLOW_DUMP_TO_GCS_NAME.value),
             project_name=unmapped("staging"),

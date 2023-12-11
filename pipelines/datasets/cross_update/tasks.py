@@ -30,7 +30,7 @@ def query_tables(days: int = 7, mode: str = "dev") -> List[Dict[str, str]]:
             dataset_id,
             table_id,
             row_count, 
-            size_mb
+            size
         FROM `basedosdados.br_bd_metadados.bigquery_tables`
         WHERE
             DATE_DIFF(CURRENT_DATE(),last_modified_date,DAY) <={days}

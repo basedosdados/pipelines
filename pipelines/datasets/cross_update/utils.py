@@ -58,12 +58,18 @@ def modify_table_metadata(table, backend):
                     }
         """
 
-    table['size_mb'] = int(table['size_mb']*1000)
+    #colocando essa condição porque o graphql nao aceita valores maiores do que esse para os campos "uncompressedFileSize" e "numberRows" 
+    if table['size'] > 2147483647:
+        table['size'] = None
+
+    if table['row_count'] > 2147483647:
+        table['row_count'] = None
+
 
     mutation_parameters = {
             "id": table["table_django_id"],
             "numberRows": table["row_count"],
-            "uncompressedFileSize": table['size_mb']
+            "uncompressedFileSize": table['size']
         }
 
     response = backend._execute_query(query=mutation, variables={"input": mutation_parameters}, headers=get_headers(backend))
