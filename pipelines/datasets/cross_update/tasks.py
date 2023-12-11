@@ -28,7 +28,7 @@ def query_tables(days: int = 7, mode: str = "dev") -> List[Dict[str, str]]:
         SELECT
             dataset_id,
             table_id,
-            row_count, 
+            row_count,
             size_bytes
         FROM `basedosdados.br_bd_metadados.bigquery_tables`
         WHERE

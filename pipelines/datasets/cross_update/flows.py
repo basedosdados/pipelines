@@ -36,10 +36,10 @@ with Flow(
     current_flow_labels = get_current_flow_labels()
 
     update_metadata_table_flow = create_flow_run(
-        flow_name = "cross_update.update_metadata_table",
-        project_name = "staging", # TODO: arrumar aqui
-        parameters = {"materialization_mode":mode},
-        labels=current_flow_labels
+        flow_name="cross_update.update_metadata_table",
+        project_name="staging",  # TODO: arrumar aqui
+        parameters={"materialization_mode": mode},
+        labels=current_flow_labels,
     )
 
     wait_for_create_table = wait_for_flow_run(
@@ -61,7 +61,7 @@ with Flow(
     with case(dump_to_gcs, True):
         dump_to_gcs_flow = create_flow_run.map(
             flow_name=unmapped(utils_constants.FLOW_DUMP_TO_GCS_NAME.value),
-            project_name=unmapped("staging"),# TODO: arrumar aqui
+            project_name=unmapped("staging"),  # TODO: arrumar aqui
             parameters=tables_to_zip,
             labels=unmapped(current_flow_labels),
             run_name=unmapped("Dump to GCS"),
