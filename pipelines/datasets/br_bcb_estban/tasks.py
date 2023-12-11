@@ -209,7 +209,8 @@ def download_estban_selenium(save_path: str, table_id: str, date: str) -> str:
         )
     )
     download_button.click()
-    sleep(5)
+    # Sleep time to wait the download
+    sleep(12)
 
     log("download task successfully !")
     log(f"files {os.listdir(save_path)} were downloaded")
