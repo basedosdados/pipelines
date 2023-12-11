@@ -6,6 +6,7 @@ Flows for br_tse_eleicoes
 
 from datetime import timedelta
 
+import prefect
 from prefect import Parameter, case, unmapped
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
@@ -51,11 +52,13 @@ with Flow(
         )
     
     # TODO: rodar para todas as tabelas que foram modificadas desde maio
-    # TODO: avaliar com Dahis frequencia de atualização 
 
-
-    eligible_to_zip_tables = query_tables(days=days, mode=mode, upstream_tasks=[wait_for_create_table])
-    tables_to_zip = update_metadata_and_filter(eligible_to_zip_tables,upstream_tasks=[eligible_to_zip_tables])
+    eligible_to_zip_tables = query_tables(
+        days=days, mode=mode, upstream_tasks=[wait_for_create_table]
+    )
+    tables_to_zip = update_metadata_and_filter(
+        eligible_to_zip_tables, upstream_tasks=[eligible_to_zip_tables]
+    )
 
     with case(dump_to_gcs, True):
         dump_to_gcs_flow = create_flow_run.map(
