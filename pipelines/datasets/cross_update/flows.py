@@ -6,7 +6,6 @@ Flows for br_tse_eleicoes
 
 from datetime import timedelta
 
-import prefect
 from prefect import Parameter, case, unmapped
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
@@ -39,7 +38,7 @@ with Flow(
 
     update_metadata_table_flow = create_flow_run(
         flow_name = "cross_update.update_metadata_table",
-        project_name = "staging",
+        project_name = "staging", # TODO: arrumar aqui
         parameters = {"materialization_mode":mode},
         labels=current_flow_labels
     )
@@ -63,7 +62,7 @@ with Flow(
     with case(dump_to_gcs, True):
         dump_to_gcs_flow = create_flow_run.map(
             flow_name=unmapped(utils_constants.FLOW_DUMP_TO_GCS_NAME.value),
-            project_name=unmapped("staging"),
+            project_name=unmapped("staging"),# TODO: arrumar aqui
             parameters=tables_to_zip,
             labels=unmapped(current_flow_labels),
             run_name=unmapped("Dump to GCS"),
@@ -160,4 +159,3 @@ crossupdate_update_metadata_table.storage = GCS(str(constants.GCS_FLOWS_BUCKET.v
 crossupdate_update_metadata_table.run_config = KubernetesRun(
     image=str(constants.DOCKER_IMAGE.value)
 )
-# crossupdate_nrows.schedule = schedule_nrows
