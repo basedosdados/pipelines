@@ -34,7 +34,7 @@ with Flow(
     update_metadata_table = Parameter(
         "update_metadata_table", default=False, required=False
     )
-    month = Parameter("month", default=7, required=False)
+    days = Parameter("days", default=7, required=False)
     mode = Parameter("mode", default="prod", required=False)
     current_flow_labels = get_current_flow_labels()
 
@@ -55,7 +55,7 @@ with Flow(
 
     # TODO: rodar para todas as tabelas que foram modificadas desde maio
 
-    eligible_to_zip_tables = query_tables(month=month, mode=mode)
+    eligible_to_zip_tables = query_tables(days=days, mode=mode)
     tables_to_zip = update_metadata_and_filter(
         eligible_to_zip_tables, upstream_tasks=[eligible_to_zip_tables]
     )
