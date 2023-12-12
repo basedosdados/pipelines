@@ -22,7 +22,10 @@ from pipelines.datasets.br_denatran_frota.tasks import (
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.metadata.tasks import check_if_data_is_outdated
+from pipelines.utils.metadata.tasks import (
+    check_if_data_is_outdated,
+    update_django_metadata,
+)
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
@@ -54,6 +57,8 @@ with Flow(
     materialize_after_dump = Parameter(
         "materialize after dump", default=False, required=False
     )
+
+    update_metadata = Parameter("update_metadata", default=False, required=False)
 
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
     rename_flow_run = rename_current_flow_run_dataset_table(
@@ -126,6 +131,19 @@ with Flow(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
 
+            with case(update_metadata, True):
+                update_django_metadata(
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"year": "ano", "month": "mes"},
+                    date_format="%Y-%m",
+                    coverage_type="all_free",
+                    # time_delta={"months": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
+                    upstream_tasks=[wait_for_materialization],
+                )
+
 
 br_denatran_frota_uf_tipo.storage = GCS(pipelines_constants.GCS_FLOWS_BUCKET.value)
 br_denatran_frota_uf_tipo.run_config = KubernetesRun(
@@ -152,12 +170,18 @@ with Flow(
         "materialize after dump", default=False, required=False
     )
 
+    update_metadata = Parameter("update_metadata", default=False, required=False)
+
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
+
+    # inserir  get_api_most_recente_date
+    # na função get_latest_data
     year_to_fetch = get_latest_data_task("municipio_tipo")
+
     crawled = crawl_task(
         month=year_to_fetch[1],
         year=year_to_fetch[0],
@@ -221,6 +245,19 @@ with Flow(
             wait_for_materialization.retry_delay = timedelta(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
+
+            with case(update_metadata, True):
+                update_django_metadata(
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"year": "ano", "month": "mes"},
+                    date_format="%Y-%m",
+                    coverage_type="all_free",
+                    # time_delta={"months": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
+                    upstream_tasks=[wait_for_materialization],
+                )
 
 
 br_denatran_frota_municipio_tipo.storage = GCS(
