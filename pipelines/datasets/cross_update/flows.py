@@ -63,7 +63,7 @@ with Flow(
     with case(dump_to_gcs, True):
         dump_to_gcs_flow = create_flow_run.map(
             flow_name=unmapped(utils_constants.FLOW_DUMP_TO_GCS_NAME.value),
-            project_name=unmapped("staging"),# TODO: arrumar aqui
+            project_name=unmapped("staging"),  # TODO: arrumar aqui
             parameters=tables_to_zip,
             labels=unmapped(current_flow_labels),
             run_name=unmapped("Dump to GCS"),
