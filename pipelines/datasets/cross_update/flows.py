@@ -31,28 +31,30 @@ with Flow(
     name="cross_update.update_nrows", code_owners=["lauris"]
 ) as crossupdate_nrows:
     dump_to_gcs = Parameter("dump_to_gcs", default=False, required=False)
+    update_metadata_table = Parameter("update_metadata_table", default=False, required=False)
     days = Parameter("days", default=7, required=False)
     mode = Parameter("mode", default="prod", required=False)
     current_flow_labels = get_current_flow_labels()
 
-    update_metadata_table_flow = create_flow_run(
-        flow_name = "cross_update.update_metadata_table",
-        project_name = "staging", # TODO: arrumar aqui
-        parameters = {"materialization_mode":mode},
-        labels=current_flow_labels
-    )
+    with case(update_metadata_table, True):
+        update_metadata_table_flow = create_flow_run(
+            flow_name = "cross_update.update_metadata_table",
+            project_name = "staging", # TODO: arrumar aqui
+            parameters = {"materialization_mode":mode},
+            labels=current_flow_labels
+        )
 
-    wait_for_create_table = wait_for_flow_run(
-        update_metadata_table_flow,
-        stream_states=True,
-        stream_logs=True,
-        raise_final_state=True,
-    )
+        wait_for_create_table = wait_for_flow_run(
+            update_metadata_table_flow,
+            stream_states=True,
+            stream_logs=True,
+            raise_final_state=True,
+        )
 
     # TODO: rodar para todas as tabelas que foram modificadas desde maio
 
     eligible_to_zip_tables = query_tables(
-        days=days, mode=mode, upstream_tasks=[wait_for_create_table]
+        days=days, mode=mode
     )
     tables_to_zip = update_metadata_and_filter(
         eligible_to_zip_tables, upstream_tasks=[eligible_to_zip_tables]

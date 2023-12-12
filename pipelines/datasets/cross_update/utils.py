@@ -8,6 +8,7 @@ from os import getenv
 import basedosdados as bd
 import hvac
 import pandas as pd
+from pandas import json_normalize
 
 from pipelines.utils.utils import log
 
@@ -128,3 +129,77 @@ def get_headers(backend):
     header_for_mutation_query = {"Authorization": f"Bearer {token}"}
 
     return header_for_mutation_query
+
+
+def find_closed_tables(backend):
+    query = """
+        query {
+            allCoverage(isClosed: false, table_Id_Isnull:false, datetimeRanges_Id_Isnull:false) {
+                edges {
+                node {
+                    table {
+                        _id
+                        name
+                        isClosed
+                        dataset {
+                            name
+                        }
+                    }
+                    datetimeRanges {
+                        edges {
+                        node {
+                        id
+                        startYear
+                        startMonth
+                        startDay
+                        endYear
+                        endMonth
+                        endDay
+                        }
+                        }
+                        }
+                }
+                }
+            }
+            }"""
+
+    response = backend._execute_query(query=query)
+    response = backend._simplify_graphql_response(response)['allCoverage']
+    data = json_normalize(response)
+    open_tables = data["table._id"].tolist()
+
+
+    query = """
+        query {
+            allCoverage(isClosed: true, table_Id_Isnull:false, datetimeRanges_Id_Isnull:false) {
+                edges {
+                node {
+                    table {
+                        _id
+                        name
+                        isClosed
+                        dataset {
+                            name
+                        }
+                    }
+                    datetimeRanges {
+                        edges {
+                        node {
+                            id 
+                        }
+                        }
+                        }
+                }
+                }
+            }
+            }"""
+
+    response = backend._execute_query(query=query)
+    response = backend._simplify_graphql_response(response)['allCoverage']
+    data = json_normalize(response)
+    closed_tables = data["table._id"].tolist()
+
+    all_closed_tables = [table for table in closed_tables if table not in open_tables]
+
+
+    return all_closed_tables
