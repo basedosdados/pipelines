@@ -137,7 +137,9 @@ def update_metadata_and_filter(eligible_download_tables):
 
         elif table["row_count"] == 0:
             remove_from_eligible_download_table.append(table)
-            log(f"{table['dataset_id']}.{table['table_id']} missing information about number of rows")            
+            log(
+                f"{table['dataset_id']}.{table['table_id']} missing information about number of rows"
+            )
 
         # if table["table_django_id"] is not None:
         #     modify_table_metadata(table, backend)
