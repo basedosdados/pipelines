@@ -22,7 +22,7 @@ from pipelines.utils.utils import log
 
 
 @task
-def query_tables(days: int = 7, mode: str = "dev") -> List[Dict[str, str]]:
+def query_tables(month: int = 7, mode: str = "dev") -> List[Dict[str, str]]:
     if mode == "dev":
         billing_project_id = "basedosdados-dev"
     elif mode == "prod":
@@ -37,8 +37,8 @@ def query_tables(days: int = 7, mode: str = "dev") -> List[Dict[str, str]]:
         FROM `basedosdados.br_bd_metadados.bigquery_tables`
         WHERE
            dataset_id NOT IN ("analytics_295884852","logs") AND
-           last_modified_date >= '2023-07-01' AND
-           last_modified_date < '2023-08-01'
+           last_modified_date >= '2023-{month}-01' AND
+           last_modified_date < '2023-{month+1}-01'
     """
 
     tables = bd.read_sql(
@@ -128,9 +128,9 @@ def update_metadata_and_filter(eligible_download_tables):
         if table["table_django_id"] is None:
             remove_from_eligible_download_table.append(table)
 
-        elif table["row_count"] > 200000:
+        elif table["row_count"] > 200000 or table["size_bytes"] > 5000000000 :
             remove_from_eligible_download_table.append(table)
-            log(f"{table['dataset_id']}.{table['table_id']} has more then 200000 rows")
+            log(f"{table['dataset_id']}.{table['table_id']} is too big to zip")
 
         elif table["table_django_id"] in all_closed_tables:
             remove_from_eligible_download_table.append(table)
@@ -147,5 +147,7 @@ def update_metadata_and_filter(eligible_download_tables):
     ]
 
     log(f"Found {len(eligible_download_tables)} tables to zip")
+    for table in eligible_download_tables:
+        log(table)
 
     return eligible_download_tables
