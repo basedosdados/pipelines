@@ -13,7 +13,11 @@ from google.cloud import storage
 from prefect import task
 from tqdm import tqdm
 
-from pipelines.datasets.cross_update.utils import find_closed_tables, modify_table_metadata, save_file
+from pipelines.datasets.cross_update.utils import (
+    find_closed_tables,
+    modify_table_metadata,
+    save_file,
+)
 from pipelines.utils.utils import log
 
 
@@ -32,7 +36,7 @@ def query_tables(days: int = 7, mode: str = "dev") -> List[Dict[str, str]]:
             size_bytes
         FROM `basedosdados.br_bd_metadados.bigquery_tables`
         WHERE
-           dataset_id NOT IN ("analytics_295884852","logs") AND 
+           dataset_id NOT IN ("analytics_295884852","logs") AND
            last_modified_date >= '2023-07-01' AND
            last_modified_date < '2023-08-01'
     """
@@ -119,26 +123,28 @@ def update_metadata_and_filter(eligible_download_tables):
     for table in eligible_download_tables:
         table["table_django_id"] = backend._get_table_id_from_name(
             gcp_dataset_id=table["dataset_id"], gcp_table_id=table["table_id"]
-        )        
+        )
 
-        if (table["table_django_id"] is None):
+        if table["table_django_id"] is None:
             remove_from_eligible_download_table.append(table)
-        
-        elif (table["row_count"] > 200000):
+
+        elif table["row_count"] > 200000:
             remove_from_eligible_download_table.append(table)
             log(f"{table['dataset_id']}.{table['table_id']} has more then 200000 rows")
-        
-        elif (table['table_django_id'] in all_closed_tables):
+
+        elif table["table_django_id"] in all_closed_tables:
             remove_from_eligible_download_table.append(table)
             log(f"{table['dataset_id']}.{table['table_id']} is not in open_tables")
-
 
         # if table["table_django_id"] is not None:
         #     modify_table_metadata(table, backend)
 
-
     log(f"Removed {len(remove_from_eligible_download_table)} tables")
-    eligible_download_tables = [table for table in eligible_download_tables if table not in remove_from_eligible_download_table]
+    eligible_download_tables = [
+        table
+        for table in eligible_download_tables
+        if table not in remove_from_eligible_download_table
+    ]
 
     log(f"Found {len(eligible_download_tables)} tables to zip")
 

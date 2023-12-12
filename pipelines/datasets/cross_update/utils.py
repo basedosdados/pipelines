@@ -164,10 +164,9 @@ def find_closed_tables(backend):
             }"""
 
     response = backend._execute_query(query=query)
-    response = backend._simplify_graphql_response(response)['allCoverage']
+    response = backend._simplify_graphql_response(response)["allCoverage"]
     data = json_normalize(response)
     open_tables = data["table._id"].tolist()
-
 
     query = """
         query {
@@ -185,7 +184,7 @@ def find_closed_tables(backend):
                     datetimeRanges {
                         edges {
                         node {
-                            id 
+                            id
                         }
                         }
                         }
@@ -195,11 +194,10 @@ def find_closed_tables(backend):
             }"""
 
     response = backend._execute_query(query=query)
-    response = backend._simplify_graphql_response(response)['allCoverage']
+    response = backend._simplify_graphql_response(response)["allCoverage"]
     data = json_normalize(response)
     closed_tables = data["table._id"].tolist()
 
     all_closed_tables = [table for table in closed_tables if table not in open_tables]
-
 
     return all_closed_tables
