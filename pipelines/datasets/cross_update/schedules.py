@@ -4,6 +4,7 @@ Schedules for br_tse_eleicoes
 """
 
 from datetime import datetime
+
 from prefect.schedules import Schedule
 from prefect.schedules.clocks import CronClock
 
@@ -17,12 +18,12 @@ schedule_nrows = Schedule(
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
-            parameter_defaults= {
+            parameter_defaults={
                 "dump_to_gcs": True,
                 "mode": "prod",
                 "days": 7,
-                "update_metadata_table": True
-            } ,
+                "update_metadata_table": True,
+            },
         ),
     ]
 )
