@@ -12,11 +12,7 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.datasets.cross_update.tasks import (
-    get_metadata_data,
-    query_tables,
-    update_metadata_and_filter,
-)
+
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
@@ -26,6 +22,13 @@ from pipelines.utils.tasks import (
     get_current_flow_labels,
     rename_current_flow_run_dataset_table,
 )
+
+from pipelines.datasets.cross_update.tasks import (
+    get_metadata_data,
+    query_tables,
+    filter_eligible_download_tables,
+)
+from pipelines.datasets.cross_update.schedules import schedule_nrows
 
 with Flow(
     name="cross_update.update_nrows", code_owners=["lauris"]
@@ -37,11 +40,12 @@ with Flow(
     days = Parameter("days", default=7, required=False)
     mode = Parameter("mode", default="prod", required=False)
     current_flow_labels = get_current_flow_labels()
-
+    
+    # Atualiza a tabela que contem os metadados do BQ
     with case(update_metadata_table, True):
         update_metadata_table_flow = create_flow_run(
             flow_name="cross_update.update_metadata_table",
-            project_name="staging",  # TODO: arrumar aqui
+            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
             parameters={"materialization_mode": mode},
             labels=current_flow_labels,
         )
@@ -53,17 +57,18 @@ with Flow(
             raise_final_state=True,
         )
 
-    # TODO: rodar para todas as tabelas que foram modificadas desde maio
+    # Consulta e  seleciona apenas as tabelas que atendem os critérios de tamanho e abertura(bdpro)
 
     eligible_to_zip_tables = query_tables(days=days, mode=mode)
-    tables_to_zip = update_metadata_and_filter(
+    tables_to_zip = filter_eligible_download_tables(
         eligible_to_zip_tables, upstream_tasks=[eligible_to_zip_tables]
     )
 
+    # Para cada tabela selecionada cria um flow de dump para gcs
     with case(dump_to_gcs, True):
         dump_to_gcs_flow = create_flow_run.map(
             flow_name=unmapped(utils_constants.FLOW_DUMP_TO_GCS_NAME.value),
-            project_name=unmapped("staging"),  # TODO: arrumar aqui
+            project_name=unmapped(constants.PREFECT_DEFAULT_PROJECT.value),
             parameters=tables_to_zip,
             labels=unmapped(current_flow_labels),
             run_name=unmapped("Dump to GCS"),
@@ -76,12 +81,11 @@ with Flow(
             raise_final_state=unmapped(True),
         )
 
-        # rename_blobs(upstream_tasks=[wait_for_dump_to_gcs])
 
 
 crossupdate_nrows.storage = GCS(str(constants.GCS_FLOWS_BUCKET.value))
 crossupdate_nrows.run_config = KubernetesRun(image=str(constants.DOCKER_IMAGE.value))
-# crossupdate_nrows.schedule = schedule_nrows
+crossupdate_nrows.schedule = schedule_nrows
 
 with Flow(
     name="cross_update.update_metadata_table", code_owners=["lauris"]

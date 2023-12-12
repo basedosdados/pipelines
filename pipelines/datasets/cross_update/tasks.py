@@ -15,7 +15,6 @@ from tqdm import tqdm
 
 from pipelines.datasets.cross_update.utils import (
     find_closed_tables,
-    modify_table_metadata,
     save_file,
 )
 from pipelines.utils.utils import log
@@ -23,6 +22,11 @@ from pipelines.utils.utils import log
 
 @task
 def query_tables(days: int = 7, mode: str = "dev") -> List[Dict[str, str]]:
+    """
+        Queries BigQuery Tables metadata to find elegible tables to zip.
+    """
+
+
     if mode == "dev":
         billing_project_id = "basedosdados-dev"
     elif mode == "prod":
@@ -37,7 +41,7 @@ def query_tables(days: int = 7, mode: str = "dev") -> List[Dict[str, str]]:
         FROM `basedosdados.br_bd_metadados.bigquery_tables`
         WHERE
            dataset_id NOT IN ("analytics_295884852","logs") AND
-           DATE_DIFF(CURRENT_DATE(),last_modified_date,DAY) <={days}
+           DATE_DIFF(CURRENT_DATE(),last_modified_date,DAY) <= {days}
     """
 
     tables = bd.read_sql(
@@ -46,11 +50,9 @@ def query_tables(days: int = 7, mode: str = "dev") -> List[Dict[str, str]]:
         from_file=True,
     )
 
-    log(f"Found {len(tables)} tables to update_metadata")
+    log(f"Found {len(tables)} eligible tables to zip")
 
     to_zip = tables.to_dict("records")
-
-    log(to_zip)
 
     return to_zip
 
@@ -70,7 +72,23 @@ def rename_blobs() -> None:
 
 
 @task
-def get_metadata_data(mode: str = "dev"):
+def get_metadata_data(mode: str = "dev") -> str:
+    """
+    Fetches metadata about BigQuery tables and saves it as a file.
+
+    Returns:
+    - str: The full file path where the metadata file is saved.
+
+    This function retrieves metadata information for BigQuery tables. It queries the INFORMATION_SCHEMA
+    to obtain a list of schema names and then retrieves metadata about tables within those schemas.
+    The fetched metadata includes information such as table names, sizes, and other properties.
+    The data is then saved as a file.
+
+    Note:
+    - The function uses the batch method to efficiently retrieve metadata for tables in batches
+      to avoid API limitations or timeouts.
+    """
+
     if mode == "dev":
         billing_project_id = "basedosdados-dev"
     elif mode == "prod":
@@ -112,8 +130,14 @@ def get_metadata_data(mode: str = "dev"):
 
 
 @task
-def update_metadata_and_filter(eligible_download_tables):
-    """Get only tables"""
+def filter_eligible_download_tables(eligible_download_tables: List) -> List:
+    """
+    Filters a list of tables to include only those that meet the following criteria:
+        - Registered in Django database
+        - Contains open rows (only rows marked as open are downloadable)
+        - Size is smaller than 5GB and has fewer than 200K rows
+        - Contains row information in BigQuery
+    """
 
     backend = bd.Backend(graphql_url="https://api.basedosdados.org/api/v1/graphql")
     all_closed_tables = find_closed_tables(backend)
@@ -141,8 +165,11 @@ def update_metadata_and_filter(eligible_download_tables):
                 f"{table['dataset_id']}.{table['table_id']} missing information about number of rows"
             )
 
-        # if table["table_django_id"] is not None:
-        #     modify_table_metadata(table, backend)
+        # etapa removida pq essa funçao foi desenvolvida no backend da BD, 
+        # mantive aqui para caso seja necessario inclui-la novamente em outro momento
+            # if table["table_django_id"] is not None:
+            #     modify_table_metadata(table, backend)
+        
 
     log(f"Removed {len(remove_from_eligible_download_table)} tables")
     eligible_download_tables = [
