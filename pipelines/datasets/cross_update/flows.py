@@ -12,7 +12,12 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-
+from pipelines.datasets.cross_update.schedules import schedule_nrows
+from pipelines.datasets.cross_update.tasks import (
+    filter_eligible_download_tables,
+    get_metadata_data,
+    query_tables,
+)
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
@@ -22,13 +27,6 @@ from pipelines.utils.tasks import (
     get_current_flow_labels,
     rename_current_flow_run_dataset_table,
 )
-
-from pipelines.datasets.cross_update.tasks import (
-    get_metadata_data,
-    query_tables,
-    filter_eligible_download_tables,
-)
-from pipelines.datasets.cross_update.schedules import schedule_nrows
 
 with Flow(
     name="cross_update.update_nrows", code_owners=["lauris"]
@@ -40,7 +38,7 @@ with Flow(
     days = Parameter("days", default=7, required=False)
     mode = Parameter("mode", default="prod", required=False)
     current_flow_labels = get_current_flow_labels()
-    
+
     # Atualiza a tabela que contem os metadados do BQ
     with case(update_metadata_table, True):
         update_metadata_table_flow = create_flow_run(
@@ -80,7 +78,6 @@ with Flow(
             stream_logs=unmapped(True),
             raise_final_state=unmapped(True),
         )
-
 
 
 crossupdate_nrows.storage = GCS(str(constants.GCS_FLOWS_BUCKET.value))

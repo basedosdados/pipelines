@@ -13,19 +13,15 @@ from google.cloud import storage
 from prefect import task
 from tqdm import tqdm
 
-from pipelines.datasets.cross_update.utils import (
-    find_closed_tables,
-    save_file,
-)
+from pipelines.datasets.cross_update.utils import find_closed_tables, save_file
 from pipelines.utils.utils import log
 
 
 @task
 def query_tables(days: int = 7, mode: str = "dev") -> List[Dict[str, str]]:
     """
-        Queries BigQuery Tables metadata to find elegible tables to zip.
+    Queries BigQuery Tables metadata to find elegible tables to zip.
     """
-
 
     if mode == "dev":
         billing_project_id = "basedosdados-dev"
@@ -165,11 +161,10 @@ def filter_eligible_download_tables(eligible_download_tables: List) -> List:
                 f"{table['dataset_id']}.{table['table_id']} missing information about number of rows"
             )
 
-        # etapa removida pq essa funçao foi desenvolvida no backend da BD, 
+        # etapa removida pq essa funçao foi desenvolvida no backend da BD,
         # mantive aqui para caso seja necessario inclui-la novamente em outro momento
-            # if table["table_django_id"] is not None:
-            #     modify_table_metadata(table, backend)
-        
+        # if table["table_django_id"] is not None:
+        #     modify_table_metadata(table, backend)
 
     log(f"Removed {len(remove_from_eligible_download_table)} tables")
     eligible_download_tables = [
