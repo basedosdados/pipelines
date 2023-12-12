@@ -142,4 +142,4 @@ def update_metadata_and_filter(eligible_download_tables):
 
     log(f"Found {len(eligible_download_tables)} tables to zip")
 
-    return eligible_download_tables[0:2]
+    return eligible_download_tables
