@@ -38,7 +38,8 @@ def save_file(df: pd.DataFrame, table_id: str) -> str:
 def batch(lst, n):
     for i in range(0, len(lst), n):
         yield lst[i : i + n]
-        
+
+
 def find_closed_tables(backend):
     query = """
         query {
@@ -109,6 +110,7 @@ def find_closed_tables(backend):
     all_closed_tables = [table for table in closed_tables if table not in open_tables]
 
     return all_closed_tables
+
 
 def modify_table_metadata(table, backend):
     mutation = """
