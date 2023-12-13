@@ -12,8 +12,8 @@ from time import sleep
 from typing import Dict, Tuple
 
 import basedosdados as bd
-from basedosdados.download.base import google_client
 import requests
+from basedosdados.download.base import google_client
 from dateutil.relativedelta import relativedelta
 
 from pipelines.utils.metadata.constants import constants as metadata_constants
@@ -627,31 +627,33 @@ def create_update(
         print("create: error\n", json.dumps(r, indent=4, ensure_ascii=False), "\n")
         raise Exception("create: Error")
 
-def update_row_access_policy(project_id,
-                             dataset_id,
-                             table_id,
-                             billing_project_id,
-                             date_column_name,
-                             date_format,
-                             free_parameters):
 
-        client = google_client(billing_project_id, from_file=True, reauth=False)
+def update_row_access_policy(
+    project_id,
+    dataset_id,
+    table_id,
+    billing_project_id,
+    date_column_name,
+    date_format,
+    free_parameters,
+):
+    client = google_client(billing_project_id, from_file=True, reauth=False)
 
+    query_bdpro_access = f'CREATE OR REPLACE ROW ACCESS POLICY bdpro_filter  ON  `{project_id}.{dataset_id}.{table_id}` GRANT TO ("group:bd-pro@basedosdados.org", "group:sudo@basedosdados.org") FILTER USING (TRUE)'
+    job = client["bigquery"].query(query_bdpro_access)
+    while not job.done():
+        sleep(1)
+    log("BDpro filter was included")
 
-        query_bdpro_access = f'CREATE OR REPLACE ROW ACCESS POLICY bdpro_filter  ON  `{project_id}.{dataset_id}.{table_id}` GRANT TO ("group:bd-pro@basedosdados.org", "group:sudo@basedosdados.org") FILTER USING (TRUE)'
-        job = client["bigquery"].query(query_bdpro_access)
-        while not job.done():
-            sleep(1)
-        log("BDpro filter was included")
+    query_date_column = format_date_column(date_column_name)
+    all_free_last_date = format_date_parameters(free_parameters, date_format)
 
-        query_date_column = format_date_column(date_column_name)
-        all_free_last_date = format_date_parameters(free_parameters, date_format)
+    query_allusers_access = f'CREATE OR REPLACE ROW ACCESS POLICY allusers_filter  ON  `{project_id}.{dataset_id}.{table_id}` GRANT TO ("allUsers") FILTER USING ({query_date_column}<="{all_free_last_date}")'
+    job = client["bigquery"].query(query_allusers_access)
+    while not job.done():
+        sleep(1)
+    log("All users filter was included")
 
-        query_allusers_access = f'CREATE OR REPLACE ROW ACCESS POLICY allusers_filter  ON  `{project_id}.{dataset_id}.{table_id}` GRANT TO ("allUsers") FILTER USING ({query_date_column}<="{all_free_last_date}")'
-        job = client["bigquery"].query(query_allusers_access)
-        while not job.done():
-            sleep(1)
-        log("All users filter was included")
 
 def format_date_parameters(free_parameters, date_format):
     if date_format == "%Y-%m-%d":
@@ -662,6 +664,7 @@ def format_date_parameters(free_parameters, date_format):
         formated_date = f'{free_parameters["endYear"]}-01-01'
 
     return formated_date
+
 
 #######################
 # check_if_data_is_outdated Utils
