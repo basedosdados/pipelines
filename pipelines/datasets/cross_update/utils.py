@@ -3,14 +3,11 @@
 Utils for cross_update pipeline
 """
 import os
-from os import getenv
 
-import basedosdados as bd
-import hvac
 import pandas as pd
 from pandas import json_normalize
 
-from pipelines.utils.utils import log
+from pipelines.utils.utils import get_credentials_from_secret, log
 
 
 def save_file(df: pd.DataFrame, table_id: str) -> str:
@@ -41,96 +38,7 @@ def save_file(df: pd.DataFrame, table_id: str) -> str:
 def batch(lst, n):
     for i in range(0, len(lst), n):
         yield lst[i : i + n]
-
-
-def modify_table_metadata(table, backend):
-    mutation = """
-                    mutation($input: CreateUpdateTableInput!) {
-                        CreateUpdateTable(input: $input) {
-                            errors {
-                                field,
-                                messages
-                            },
-                            clientMutationId,
-                            table {
-                                id,
-                            }
-                        }
-                    }
-        """
-
-    # colocando essa condição porque o graphql nao aceita valores maiores do que esse para os campos "uncompressedFileSize" e "numberRows"
-    if table["size_bytes"] > 2147483647:
-        table["size_bytes"] = None
-
-    if table["row_count"] > 2147483647:
-        table["row_count"] = None
-
-    mutation_parameters = {
-        "id": table["table_django_id"],
-        "numberRows": table["row_count"],
-        "uncompressedFileSize": table["size_bytes"],
-    }
-
-    response = backend._execute_query(
-        query=mutation,
-        variables={"input": mutation_parameters},
-        headers=get_headers(backend),
-    )
-
-    if response is None:
-        log(table)
-
-
-def get_credentials_from_secret(
-    secret_path: str,
-    client: hvac.Client = None,
-) -> dict:
-    """
-    Returns a username and password from a secret in Vault.
-    """
-    secret = get_vault_secret(secret_path, client)
-    return secret["data"]
-
-
-def get_vault_secret(secret_path: str, client: hvac.Client = None) -> dict:
-    """
-    Returns a secret from Vault.
-    """
-    vault_client = client if client else get_vault_client()
-    return vault_client.secrets.kv.read_secret_version(secret_path)["data"]
-
-
-def get_vault_client() -> hvac.Client:
-    """
-    Returns a Vault client.
-    """
-    return hvac.Client(
-        url=getenv("VAULT_ADDRESS").strip(),
-        token=getenv("VAULT_TOKEN").strip(),
-    )
-
-
-def get_headers(backend):
-    credentials = get_credentials_from_secret(secret_path="api_user_prod")
-
-    mutation = """
-        mutation ($email: String!, $password: String!) {
-            tokenAuth(email: $email, password: $password) {
-                token
-            }
-        }
-    """
-    variables = {"email": credentials["email"], "password": credentials["password"]}
-
-    response = backend._execute_query(query=mutation, variables=variables)
-    token = response["tokenAuth"]["token"]
-
-    header_for_mutation_query = {"Authorization": f"Bearer {token}"}
-
-    return header_for_mutation_query
-
-
+        
 def find_closed_tables(backend):
     query = """
         query {
@@ -201,3 +109,61 @@ def find_closed_tables(backend):
     all_closed_tables = [table for table in closed_tables if table not in open_tables]
 
     return all_closed_tables
+
+def modify_table_metadata(table, backend):
+    mutation = """
+                    mutation($input: CreateUpdateTableInput!) {
+                        CreateUpdateTable(input: $input) {
+                            errors {
+                                field,
+                                messages
+                            },
+                            clientMutationId,
+                            table {
+                                id,
+                            }
+                        }
+                    }
+        """
+
+    # colocando essa condição porque o graphql nao aceita valores maiores do que esse para os campos "uncompressedFileSize" e "numberRows"
+    if table["size_bytes"] > 2147483647:
+        table["size_bytes"] = None
+
+    if table["row_count"] > 2147483647:
+        table["row_count"] = None
+
+    mutation_parameters = {
+        "id": table["table_django_id"],
+        "numberRows": table["row_count"],
+        "uncompressedFileSize": table["size_bytes"],
+    }
+
+    response = backend._execute_query(
+        query=mutation,
+        variables={"input": mutation_parameters},
+        headers=get_headers(backend),
+    )
+
+    if response is None:
+        log(table)
+
+
+def get_headers(backend):
+    credentials = get_credentials_from_secret(secret_path="api_user_prod")
+
+    mutation = """
+        mutation ($email: String!, $password: String!) {
+            tokenAuth(email: $email, password: $password) {
+                token
+            }
+        }
+    """
+    variables = {"email": credentials["email"], "password": credentials["password"]}
+
+    response = backend._execute_query(query=mutation, variables=variables)
+    token = response["tokenAuth"]["token"]
+
+    header_for_mutation_query = {"Authorization": f"Bearer {token}"}
+
+    return header_for_mutation_query
