@@ -197,8 +197,8 @@ def get_latest_data(table_id: str, dataset_id: str):
 def treat_municipio_tipo(file: str) -> pl.DataFrame:
     bd_municipios = bd.read_sql(
         "select * from `basedosdados.br_bd_diretorios_brasil.municipio`",
-        billing_project_id="basedosdados-dev",
-        # from_file=True,
+        # billing_project_id="basedosdados-dev",
+        from_file=True,
     )
     bd_municipios = pl.from_pandas(bd_municipios)
 
