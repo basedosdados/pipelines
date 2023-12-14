@@ -53,8 +53,8 @@ def treat_municipio_tipo_task(file: str) -> pl.DataFrame:
 
 
 @task()
-def get_latest_data_task(table_name: str) -> tuple[int, int]:
-    return get_latest_data(table_name)
+def get_latest_data_task(table_id: str, dataset_id: str) -> tuple[int, int]:
+    return get_latest_data(table_id=table_id, dataset_id=dataset_id)
 
 
 @task()

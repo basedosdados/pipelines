@@ -47,7 +47,7 @@ with Flow(
     ],
 ) as br_denatran_frota_uf_tipo:
     dataset_id = Parameter("dataset_id", default="br_denatran_frota")
-    table_id = Parameter("table_id", default="uf_tipo")
+    table_id = Parameter("table_id", default="uf_tipo2")
 
     # Materialization mode
     materialization_mode = Parameter(
@@ -65,7 +65,7 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    year_to_fetch = get_latest_data_task("uf_tipo")
+    year_to_fetch = get_latest_data_task(table_id=table_id, dataset_id=dataset_id)
     crawled = crawl_task(
         month=year_to_fetch[1],
         year=year_to_fetch[0],
@@ -159,7 +159,7 @@ with Flow(
     ],
 ) as br_denatran_frota_municipio_tipo:
     dataset_id = Parameter("dataset_id", default="br_denatran_frota")
-    table_id = Parameter("table_id", default="municipio_tipo")
+    table_id = Parameter("table_id", default="municipio_tipo2")
 
     # Materialization mode
     materialization_mode = Parameter(
@@ -180,7 +180,7 @@ with Flow(
 
     # inserir  get_api_most_recente_date
     # na função get_latest_data
-    year_to_fetch = get_latest_data_task("municipio_tipo")
+    year_to_fetch = get_latest_data_task(table_id=table_id, dataset_id=dataset_id)
 
     crawled = crawl_task(
         month=year_to_fetch[1],
@@ -197,6 +197,7 @@ with Flow(
     )
     # We need to see the year, month from the file to decide on updating
     extracted_date = get_denatran_date(desired_file, upstream_tasks=[desired_file])
+
     decision = check_if_data_is_outdated(
         dataset_id=dataset_id,
         table_id=table_id,

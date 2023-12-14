@@ -22,6 +22,7 @@ from rpy2.robjects.vectors import StrVector
 from string_utils import asciify
 
 from pipelines.datasets.br_denatran_frota.constants import constants
+from pipelines.utils.utils import log
 
 DICT_UFS = constants.DICT_UFS.value
 SUBSTITUTIONS = constants.SUBSTITUTIONS.value
@@ -136,7 +137,8 @@ def get_year_month_from_filename(filename: str) -> tuple[int, int]:
     if match:
         month = match.group(2)
         year = match.group(3)
-        return month, year
+        log(f"{year} && {month}")
+        return int(year), int(month)
     else:
         raise ValueError("No match found")
 

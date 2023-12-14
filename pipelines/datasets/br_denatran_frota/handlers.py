@@ -30,6 +30,7 @@ from pipelines.datasets.br_denatran_frota.utils import (
     treat_uf,
     verify_total,
 )
+from pipelines.utils.metadata.utils import get_api_most_recent_date
 from pipelines.utils.utils import clean_dataframe, log, to_partitions
 
 MONTHS = constants.MONTHS.value
@@ -146,40 +147,58 @@ def get_desired_file(year: int, download_directory: str, filetype: str) -> str:
     raise ValueError("No files found buckaroo")
 
 
-def get_latest_data(table_name: str):
-    denatran_data: pd.DataFrame = get_data_from_prod(
-        table_id=table_name, dataset_id="br_denatran_frota"
-    )
+def get_latest_data(table_id: str, dataset_id: str):
+    # denatran_data: pd.DataFrame = get_data_from_prod(
+    #    table_id=table_name, dataset_id="br_denatran_frota"
+    # )
     # substituir por get_api_most_recente_date aqui
     # pipelines.utils.metadata.utils.get_api_most_recente_date
     # ela vai retonar a data mais recente da tabela extraida da api
-    if not isinstance(denatran_data, pd.DataFrame):
-        return 2003, 1
-    if not denatran_data.empty:
-        log(denatran_data.head(2))
-        year = denatran_data["ano"].max()
-        month = denatran_data.loc[denatran_data["ano"] == year]["mes"].max()
-        year = int(year)
-        month = int(month)
-        log(year)
-        log(type(year))
-        log(month)
-        log(type(month))
-        if month == 12:
-            year += 1
-            month = 1
-        else:
-            month += 1
-        log(f"Ano: {year}, mês: {month}")
-        return year, month
+    denatran_data = get_api_most_recent_date(
+        table_id=table_id, dataset_id=dataset_id, date_format="%Y-%m"
+    )
+
+    log(f"{denatran_data}")
+    year = denatran_data.year
+    month = denatran_data.month
+    log(f"Ano: {year}, mês: {month}")
+    if month == 12:
+        year += 1
+        month = 1
     else:
-        log("Não achei ano não mané")
-        return 2003, 1
+        month += 1
+    log(f"Ano: {year}, mês: {month}")
+    return year, month
+
+    # if not isinstance(denatran_data, pd.DataFrame):
+    #    return 2003, 1
+    # if not denatran_data.empty:
+    #    log(denatran_data.head(2))
+    #    year = denatran_data["ano"].max()
+    #    month = denatran_data.loc[denatran_data["ano"] == year]["mes"].max()
+    #    year = int(year)
+    #    month = int(month)
+    #    log(year)
+    #    log(type(year))
+    #    log(month)
+    #    log(type(month))
+    #    if month == 12:
+    #        year += 1
+    #        month = 1
+    #    else:
+    #        month += 1
+    #    log(f"Ano: {year}, mês: {month}")
+    #    return year, month
+    # else:
+    #    log("Não achei ano não mané")
+    #    return 2003, 1
 
 
 def treat_municipio_tipo(file: str) -> pl.DataFrame:
-    bd_municipios = get_data_from_prod(
-        table_id="municipio", dataset_id="br_bd_diretorios_brasil"
+    bd_municipios = bd.read_sql(
+        "select * from `basedosdados.br_bd_diretorios_brasil.municipio`",
+        billing_project_id="basedosdados-dev",
+        # from_file=True,
     )
     bd_municipios = pl.from_pandas(bd_municipios)
 
