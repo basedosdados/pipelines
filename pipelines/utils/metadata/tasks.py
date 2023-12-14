@@ -142,15 +142,17 @@ def update_django_metadata(
             password=password,
             api_mode=api_mode,
         )
-    
-    if coverage_type == 'part_bdpro':
-        update_row_access_policy(bq_project,
-                             dataset_id,
-                             table_id,
-                             billing_project_id,
-                             date_column_name,
-                             date_format,
-                             free_parameters)
+
+    if coverage_type == "part_bdpro":
+        update_row_access_policy(
+            bq_project,
+            dataset_id,
+            table_id,
+            billing_project_id,
+            date_column_name,
+            date_format,
+            free_parameters,
+        )
 
 
 @task
