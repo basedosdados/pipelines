@@ -11,6 +11,7 @@ from pipelines.utils.apply_architecture_to_dataframe.utils import (
 from pipelines.utils.utils import log
 
 
+# -------------------------------------------------------------------------------------> VOTACAO
 def download_csvs_camara() -> None:
     """
     Docs:
@@ -26,16 +27,17 @@ def download_csvs_camara() -> None:
 
     for ano in constants.ANOS.value:
         for chave, valor in constants.TABLE_LIST.value.items():
-            url_2 = f"http://dadosabertos.camara.leg.br/arquivos/{valor}/csv/{valor}-{ano}.csv"
+            url = f"http://dadosabertos.camara.leg.br/arquivos/{valor}/csv/{valor}-{ano}.csv"
 
-            response = requests.get(url_2)
+            response = requests.get(url)
 
             if response.status_code == 200:
                 with open(f"{constants.INPUT_PATH.value}{valor}.csv", "wb") as f:
                     f.write(response.content)
-
-            else:
-                pass
+            elif response.status_code >= 400 and response.status_code <= 599:
+                raise Exception(
+                    f"Erro de requisição: status code {response.status_code}"
+                )
 
     log("------------- archive inside in container --------------")
     log(os.listdir(constants.INPUT_PATH.value))
@@ -92,4 +94,64 @@ def read_and_clean_camara_dados_abertos(
     log("------------- columns after apply architecture --------------")
     log(f"------------- TABLE ---------------- {table_id} ------------")
     log(df.columns)
+    return df
+
+
+# ------------------------------------------------------------> DEPUTADOS
+
+
+def download_csvs_camara_deputado() -> None:
+    """
+    Docs:
+    This function does download all csvs from archives of camara dos deputados.
+    The csvs saved in conteiners of docker.
+
+    return:
+    None
+    """
+    print("Downloading csvs from camara dos deputados")
+    if not os.path.exists(constants.INPUT_PATH.value):
+        os.makedirs(constants.INPUT_PATH.value)
+
+    for key, valor in constants.TABLE_LIST_DEPUTADOS.value.items():
+        url = f"http://dadosabertos.camara.leg.br/arquivos/{valor}/csv/{valor}.csv"
+
+        response = requests.get(url)
+
+        if response.status_code == 200:
+            with open(f"{constants.INPUT_PATH.value}{valor}.csv", "wb") as f:
+                f.write(response.content)
+
+        elif response.status_code >= 400 and response.status_code <= 599:
+            raise Exception(f"Erro de requisição: status code {response.status_code}")
+
+    log(os.listdir(constants.INPUT_PATH.value))
+
+
+def read_and_clean_data_deputados(table_id):
+    df = pd.read_csv(
+        f"{constants.INPUT_PATH.value}{constants.TABLE_LIST_DEPUTADOS.value[table_id]}.csv",
+        sep=";",
+    )
+
+    df = apply_architecture_to_dataframe(
+        df,
+        url_architecture=constants.TABLE_NAME_ARCHITECTURE_DEPUTADOS.value[table_id],
+        apply_include_missing_columns=False,
+        apply_rename_columns=True,
+        apply_column_order_and_selection=True,
+    )
+
+    log(df.columns)
+
+    return df
+
+
+def get_data_deputados():
+    download_csvs_camara_deputado()
+    df = pd.read_csv(
+        f'{constants.INPUT_PATH.value}{constants.TABLE_LIST_DEPUTADOS.value["deputado_profissao"]}.csv',
+        sep=";",
+    )
+
     return df

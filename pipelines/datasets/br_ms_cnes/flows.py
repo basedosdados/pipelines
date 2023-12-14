@@ -1267,7 +1267,7 @@ br_ms_cnes_regra_contratual.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_ms_cnes_regra_contratual.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_ms_cnes_regra_contratual.schedule = schedule_br_ms_cnes_regra_contratual
+# br_ms_cnes_regra_contratual.schedule = schedule_br_ms_cnes_regra_contratual
 
 # regra_contratual
 with Flow(

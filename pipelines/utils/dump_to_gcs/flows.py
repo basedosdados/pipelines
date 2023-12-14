@@ -20,7 +20,7 @@ from pipelines.utils.tasks import rename_current_flow_run_dataset_table
 
 with Flow(
     name=utils_constants.FLOW_DUMP_TO_GCS_NAME.value,
-    code_owners=["lucas_cr"],
+    code_owners=["lauris"],
 ) as dump_to_gcs_flow:
     project_id = Parameter("project_id", required=False)
     dataset_id = Parameter("dataset_id")  # dataset_id or dataset_id_staging
