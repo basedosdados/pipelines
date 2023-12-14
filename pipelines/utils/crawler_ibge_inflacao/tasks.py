@@ -11,16 +11,12 @@ import ssl
 from datetime import datetime as dt
 from time import sleep
 
-import basedosdados as bd
 import pandas as pd
-import wget
 from prefect import task
 from tqdm import tqdm
 
-from pipelines.utils.crawler_ibge_inflacao.utils import (
-    extract_last_date,
-    get_legacy_session,
-)
+from pipelines.utils.crawler_ibge_inflacao.utils import get_legacy_session
+from pipelines.utils.metadata.utils import get_api_most_recent_date
 from pipelines.utils.utils import log
 
 # necessary for use wget, see: https://stackoverflow.com/questions/35569042/ssl-certificate-verify-failed-with-python3
@@ -127,13 +123,17 @@ def check_for_updates(
 
     max_date_ibge = dataframe.strftime("%Y-%m")
 
-    log(f"A data mais no site do ---IBGE--- para a tabela {indice} é : {max_date_ibge}")
-    # TROCAR PARA BSEDOSDADOS ANTES DE IR PRA PROD
-    max_date_bd = extract_last_date(
-        dataset_id=dataset_id, table_id=table_id, billing_project_id="basedosdados"
+    log(
+        f"A data mais no site do ---IBGE--- para a tabela {indice} é : {dataframe.date()}"
     )
-    log(f"A data mais recente da tabela no --- Big Query --- é: {max_date_bd}")
-    if max_date_ibge > max_date_bd:
+
+    max_date_bd = get_api_most_recent_date(
+        table_id=table_id,
+        dataset_id=dataset_id,
+        date_format="%Y-%m",
+    )
+    log(f"A data mais recente da tabela no --- Site da BD --- é: {max_date_bd}")
+    if dataframe.date() > max_date_bd:
         log(
             f"A tabela {indice} foi atualizada no site do IBGE. O Flow de atualização será executado!"
         )

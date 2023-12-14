@@ -72,7 +72,11 @@ def run_dbt_model(
         selected_table = dataset_id
 
     if "run" in dbt_command:
-        run_command = f"dbt run --select {selected_table}"
+        if flags == "--full-refresh":
+            run_command = f"dbt run --full-refresh --select {selected_table}"
+            flags = None
+        else:
+            run_command = f"dbt run --select {selected_table}"
 
     if _vars:
         if isinstance(_vars, list):

@@ -5,13 +5,12 @@ Tasks for br_anp_precos_combustiveis
 
 from datetime import timedelta
 
-import numpy as np
 import pandas as pd
 from prefect import task
 
 from pipelines.constants import constants
 from pipelines.datasets.br_anp_precos_combustiveis.constants import (
-    constants as anatel_constants,
+    constants as anp_constants,
 )
 from pipelines.datasets.br_anp_precos_combustiveis.utils import (
     creating_column_ano,
@@ -26,20 +25,13 @@ from pipelines.datasets.br_anp_precos_combustiveis.utils import (
     rename_and_to_create_endereco,
     rename_columns,
 )
-from pipelines.utils.utils import extract_last_date, log
 
 
 @task
-def check_for_updates(dataset_id, table_id):
-    """
-    Checks if there are available updates for a specific dataset and table.
-
-    Returns:
-        bool: Returns True if updates are available, otherwise returns False.
-    """
+def get_data_source_anp_max_date():
     # Obtém a data mais recente do site
-    download_files(anatel_constants.URLS_DATA.value, anatel_constants.PATH_INPUT.value)
-    df = pd.read_csv(anatel_constants.URL_GLP.value, sep=";", encoding="utf-8")
+    download_files(anp_constants.URLS_DATA.value, anp_constants.PATH_INPUT.value)
+    df = pd.read_csv(anp_constants.URL_GLP.value, sep=";", encoding="utf-8")
     data_obj = (
         df["Data da Coleta"].str[6:10]
         + "-"
@@ -50,20 +42,7 @@ def check_for_updates(dataset_id, table_id):
     data_obj = data_obj.apply(lambda x: pd.to_datetime(x).strftime("%Y-%m-%d"))
     data_obj = pd.to_datetime(data_obj, format="%Y-%m-%d").dt.date
     data_obj = data_obj.max()
-    # Obtém a última data no site BD
-    data_bq_obj = extract_last_date(
-        dataset_id, table_id, "yy-mm-dd", "basedosdados", data="data_coleta"
-    )
-
-    # Registra a data mais recente do site
-    log(f"Última data no site do ANP: {data_obj}")
-    log(f"Última data no site da BD: {data_bq_obj}")
-
-    # Compara as datas para verificar se há atualizações
-    if data_obj > data_bq_obj:
-        return True  # Há atualizações disponíveis
-    else:
-        return False  # Não há novas atualizações disponíveis
+    return data_obj
 
 
 @task(
@@ -71,12 +50,12 @@ def check_for_updates(dataset_id, table_id):
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def download_and_transform():
-    download_files(anatel_constants.URLS.value, anatel_constants.PATH_INPUT.value)
+    download_files(anp_constants.URLS.value, anp_constants.PATH_INPUT.value)
 
     precos_combustiveis = open_csvs(
-        anatel_constants.URL_DIESEL_GNV.value,
-        anatel_constants.URL_GASOLINA_ETANOL.value,
-        anatel_constants.URL_GLP.value,
+        anp_constants.URL_DIESEL_GNV.value,
+        anp_constants.URL_GASOLINA_ETANOL.value,
+        anp_constants.URL_GLP.value,
     )
 
     df = get_id_municipio(id_municipio=precos_combustiveis)
@@ -108,6 +87,6 @@ def make_partitions(df):
     partition_data(
         df,
         column_name="data_coleta",
-        output_directory=anatel_constants.PATH_OUTPUT.value,
+        output_directory=anp_constants.PATH_OUTPUT.value,
     )
-    return anatel_constants.PATH_OUTPUT.value
+    return anp_constants.PATH_OUTPUT.value

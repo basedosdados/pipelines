@@ -21,8 +21,8 @@ from pipelines.datasets.br_bcb_estban.schedules import (
 from pipelines.datasets.br_bcb_estban.tasks import (
     cleaning_agencias_data,
     cleaning_municipios_data,
-    download_estban_files,
-    extract_most_recent_date,
+    download_estban_selenium,
+    extract_last_date,
     get_id_municipio,
 )
 from pipelines.utils.constants import constants as utils_constants
@@ -64,16 +64,12 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    data_source_max_date = extract_most_recent_date(
-        url=br_bcb_estban_constants.ESTBAN_URL.value,
-        xpath=br_bcb_estban_constants.MUNICIPIO_XPATH.value,
-    )
+    data_source_max_date = extract_last_date(table_id=table_id)
 
-    # task check if is outdated
     check_if_outdated = check_if_data_is_outdated(
         dataset_id=dataset_id,
         table_id=table_id,
-        data_source_max_date=data_source_max_date[1],
+        data_source_max_date=data_source_max_date[0],
         date_format="%Y-%m",
         upstream_tasks=[data_source_max_date],
     )
@@ -83,15 +79,16 @@ with Flow(
 
     with case(check_if_outdated, True):
         log_task("Existem atualizações! A run será inciada")
-        donwload_files = download_estban_files(
-            link=data_source_max_date[0],
-            save_path=br_bcb_estban_constants.DOWNLOAD_PATH_MUNICIPIO.value,
+
+        donwload_files = download_estban_selenium(
+            save_path=br_bcb_estban_constants.ZIPFILE_PATH_MUNICIPIO.value,
+            table_id=table_id,
+            date=data_source_max_date[1],
         )
 
-        municipio = get_id_municipio()
+        municipio = get_id_municipio(upstream_tasks=[donwload_files])
 
         filepath = cleaning_municipios_data(
-            path=br_bcb_estban_constants.DOWNLOAD_PATH_MUNICIPIO.value,
             municipio=municipio,
             upstream_tasks=[donwload_files, municipio],
         )
@@ -177,16 +174,13 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    data_source_max_date = extract_most_recent_date(
-        url=br_bcb_estban_constants.ESTBAN_URL.value,
-        xpath=br_bcb_estban_constants.AGENCIA_XPATH.value,
-    )
+    data_source_max_date = extract_last_date(table_id=table_id)
 
     # task check if is outdated
     check_if_outdated = check_if_data_is_outdated(
         dataset_id=dataset_id,
         table_id=table_id,
-        data_source_max_date=data_source_max_date[1],
+        data_source_max_date=data_source_max_date[0],
         date_format="%Y-%m",
         upstream_tasks=[data_source_max_date],
     )
@@ -197,20 +191,20 @@ with Flow(
     with case(check_if_outdated, True):
         log_task("Existem atualizações! A run será inciada")
 
-        donwload_files = download_estban_files(
-            link=data_source_max_date[0],
-            save_path=br_bcb_estban_constants.DOWNLOAD_PATH_MUNICIPIO.value,
+        donwload_files = download_estban_selenium(
+            save_path=br_bcb_estban_constants.ZIPFILE_PATH_AGENCIA.value,
+            table_id=table_id,
+            date=data_source_max_date[1],
         )
 
         # read_file
         municipio = get_id_municipio()
 
         filepath = cleaning_agencias_data(
-            path=br_bcb_estban_constants.DOWNLOAD_PATH_AGENCIA.value,
             municipio=municipio,
             upstream_tasks=[donwload_files, municipio],
         )
-        # 15/16/19/20 sao files problematicos
+
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=filepath,
             dataset_id=dataset_id,

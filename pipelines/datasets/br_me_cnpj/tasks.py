@@ -5,10 +5,7 @@ Tasks for br_me_cnpj
 import os
 from datetime import datetime
 
-import pandas as pd
-import requests
 from prefect import task
-from tqdm import tqdm
 
 from pipelines.datasets.br_me_cnpj.constants import constants as constants_cnpj
 from pipelines.datasets.br_me_cnpj.utils import (
@@ -20,7 +17,7 @@ from pipelines.datasets.br_me_cnpj.utils import (
     process_csv_simples,
     process_csv_socios,
 )
-from pipelines.utils.utils import extract_last_date, log
+from pipelines.utils.utils import log
 
 ufs = constants_cnpj.UFS.value
 url = constants_cnpj.URL.value

@@ -7,53 +7,11 @@ import os
 import unicodedata
 from datetime import datetime
 
-import basedosdados as bd
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
 from pipelines.utils.utils import log
-
-# função para extrair datas
-# valor usado para o check de atualização do site além de ser usado para update do coverage
-# tambem será usado para criar uma coluna
-
-
-def extract_last_date(
-    dataset_id: str, table_id: str, billing_project_id: str
-) -> datetime:
-    """
-    Extracts the last update date of a given dataset table.
-
-    Args:
-        dataset_id (str): The ID of the dataset.
-        table_id (str): The ID of the table.
-        billing_project_id (str): The billing project ID.
-
-    Returns:
-        str: The last update date in the format 'yyyy-mm-dd'.
-
-    Raises:
-        Exception: If an error occurs while extracting the last update date.
-    """
-
-    query_bd = f"""
-    SELECT MAX(data_referencia) as max_date
-    FROM
-    `{billing_project_id}.{dataset_id}.{table_id}`
-    """
-
-    t = bd.read_sql(
-        query=query_bd,
-        billing_project_id=billing_project_id,
-        from_file=True,
-    )
-
-    data = t["max_date"][0]
-
-    log(f"A data mais recente da tabela é: {data}")
-
-    return data
 
 
 def strip_string(x: pd.DataFrame) -> pd.DataFrame:
