@@ -102,7 +102,7 @@ def treat_uf_tipo(file: str) -> pl.DataFrame:
     clean_df = new_df[new_df.sigla_uf.isin(valid_ufs)].reset_index(
         drop=True
     )  # Now we get all the actual RELEVANT uf data.
-    month, year = get_year_month_from_filename(filename)
+    year, month = get_year_month_from_filename(filename)
     # If the df is all strings, try to get numbers where it makes sense.
     clean_df.replace(" -   ", 0, inplace=True)
     if all(clean_df.dtypes == "object"):
@@ -203,7 +203,7 @@ def treat_municipio_tipo(file: str) -> pl.DataFrame:
     bd_municipios = pl.from_pandas(bd_municipios)
 
     filename = os.path.split(file)[1]
-    month, year = get_year_month_from_filename(filename)
+    year, month = get_year_month_from_filename(filename)
     correct_sheet = [
         sheet for sheet in pd.ExcelFile(file).sheet_names if sheet != "Glossário"
     ][0]
