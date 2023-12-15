@@ -706,8 +706,6 @@ def get_coverage_value(
             api_mode=api_mode,
         )
 
-        log(datetime_result.json())
-
         date_objects = parse_datetime_ranges(datetime_result, date_format)
         return date_objects
 
