@@ -18,6 +18,7 @@ from pipelines.utils.metadata.utils import (
     get_credentials_utils,
     get_ids,
     get_table_status,
+    update_row_access_policy,
 )
 from pipelines.utils.utils import log
 
@@ -140,6 +141,17 @@ def update_django_metadata(
             email=email,
             password=password,
             api_mode=api_mode,
+        )
+
+    if coverage_type == "part_bdpro":
+        update_row_access_policy(
+            bq_project,
+            dataset_id,
+            table_id,
+            billing_project_id,
+            date_column_name,
+            date_format,
+            free_parameters,
         )
 
 
