@@ -38,10 +38,13 @@ date_pairs = list(product(year_range, month_range))
 
 date_pairs_param: list[tuple] = Parameter("date_pairs", default=date_pairs)
 
-# from pipelines.datasets.br_denatran_frota.schedules import every_two_weeks
-
+# from pipelines.datasets.br_denatran_frota.schedules import (
+# every_month_municipio,
+# every_month_uf,
+# )
 with Flow(
     name="br_denatran_frota.uf_tipo",
+    # todo: substituir por equipe pipelines
     code_owners=[
         "Tamir",
     ],
@@ -66,6 +69,7 @@ with Flow(
     )
 
     year_to_fetch = get_latest_data_task(table_id="uf_tipo", dataset_id=dataset_id)
+
     crawled = crawl_task(
         month=year_to_fetch[1],
         year=year_to_fetch[0],
@@ -178,8 +182,6 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    # inserir  get_api_most_recente_date
-    # na função get_latest_data
     year_to_fetch = get_latest_data_task(
         table_id="municipio_tipo", dataset_id=dataset_id
     )
