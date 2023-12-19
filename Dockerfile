@@ -33,6 +33,7 @@ RUN apt-get update && \
         python3-dev \
         traceroute \
         wget \
+        git \
         && \
     apt-get install -y r-base && \
     apt-get clean && \
