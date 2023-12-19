@@ -2,103 +2,13 @@
 """
 General purpose functions for the br_bcb_estban project
 """
-import os
-import re
-import unicodedata
-from datetime import datetime
-from io import BytesIO
-from urllib.request import urlopen
-from zipfile import ZipFile
 
-import basedosdados as bd
+import re
+
 import numpy as np
 import pandas as pd
-import requests
-from lxml import html
-
-from pipelines.utils.utils import log
-
-# ------- macro etapa 1 download de dados
-######
 
 
-# todo:colocar check no ano e mes
-def parse_date(url: str) -> datetime:
-    padrao = re.compile(r"\d+")
-
-    numeros = padrao.findall(url)
-    data = datetime(int(numeros[0][0:4]), int(numeros[0][4:6]), 1)
-
-    return data
-
-
-def extract_download_links(url, xpath):
-    """extract all download links from bcb agencias website
-
-    Args:
-        url (str): bcb url https://www.bcb.gov.br/fis/info/agencias.asp?frame=1
-        xpath (str): xpath which contais donwload links
-
-    Returns:
-        list: a list of file links
-    """
-    # Send a GET request to the URL
-    response = requests.get(url)
-
-    # Parse the HTML content of the response using lxml
-    tree = html.fromstring(response.content)
-
-    # Extract all the values from the given XPath
-    values = tree.xpath(xpath + "/option/@value")
-
-    return values
-
-
-def download_and_unzip(url, path):
-    """download and unzip a zip file
-
-    Args:
-        url (str): a url
-
-
-    Returns:
-        list: unziped files in a given folder
-    """
-
-    os.system(f"mkdir -p {path}")
-
-    http_response = urlopen(url)
-    zipfile = ZipFile(BytesIO(http_response.read()))
-    zipfile.extractall(path=path)
-
-    return path
-
-
-# ------- macro etapa 2 tratamento de dados
-# --- read files
-def read_files(path: str) -> pd.DataFrame:
-    """This function read a file from a given path
-
-    Args:
-        path (str): a path to a file
-
-    Returns:
-        pd.DataFrame: a dataframe with the file data
-    """
-    df = pd.read_csv(
-        path,
-        sep=";",
-        index_col=None,
-        encoding="latin-1",
-        skipfooter=2,
-        skiprows=2,
-        dtype={"CNPJ": str, "CODMUN": str},
-    )
-
-    return df
-
-
-# ---1. rename columns
 def rename_columns_municipio(df: pd.DataFrame) -> pd.DataFrame:
     """this function rename columns from municipio dataframe
 
@@ -136,12 +46,6 @@ def rename_columns_agencia(df: pd.DataFrame) -> pd.DataFrame:
     df = df.rename(columns=dict)
 
     return df
-
-
-# ---2 remove accents from a string
-# clean_dataframe and remove_columns_accents from pipelines.utils.utils
-# will be used
-# change inputs
 
 
 def pre_cleaning_for_pivot_long_municipio(df: pd.DataFrame) -> pd.DataFrame:
@@ -269,8 +173,7 @@ def wide_to_long_agencia(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-# todo: to func:corrige unidades monetárias
-def condicoes(database, valor) -> None:
+def condicoes(database: str, valor: float) -> None:
     # cruzado
     if database <= 198812:
         return round(valor / (1000**2 * 2750), 6)
@@ -288,7 +191,6 @@ def condicoes(database, valor) -> None:
         return round(valor, 0)
 
 
-# todo: not str types. they're arrays i think
 def standardize_monetary_units(
     df: pd.DataFrame, date_column, value_column
 ) -> pd.DataFrame:
@@ -308,7 +210,6 @@ def standardize_monetary_units(
     return df
 
 
-# todo: to func:extrai os ids dos verbetes
 def create_id_verbete_column(df: pd.DataFrame, column_name: str) -> pd.DataFrame:
     """This function creates id_verbete column from a verbete column.
     It parses numeric digitis from the verbete column strings.
@@ -327,13 +228,11 @@ def create_id_verbete_column(df: pd.DataFrame, column_name: str) -> pd.DataFrame
     return df
 
 
-# todo: to func:criar ano e mes
-# criar ano e mes
 def create_month_year_columns(df: pd.DataFrame, date_column: str) -> pd.DataFrame:
     """This function creates month and year columns from a date column.
     It Relies on the date column being a string in the format YYYYMM,
     where YYYY is the year and MM is the month.
-    # todo: introduce some kind of check to the date column from estban files
+
 
     Args:
         df (pd.DataFrame): a ESTBAN municipios or agencia file
@@ -391,47 +290,5 @@ def cols_order_agencia(df: pd.DataFrame) -> pd.DataFrame:
     ]
 
     df = df[order]
-
-    return df
-
-
-# function copied from datasets.br_tse_eleicoes.utils
-def get_data_from_prod(dataset_id: str, table_id: str, columns: list) -> list:
-    """
-    Get select columns from a table in prod.
-    """
-
-    storage = bd.Storage(dataset_id=dataset_id, table_id=table_id)
-    blobs = list(
-        storage.client["storage_staging"]
-        .bucket("basedosdados-dev")
-        .list_blobs(prefix=f"staging/{storage.dataset_id}/{storage.table_id}/")
-    )
-
-    dfs = []
-
-    for blob in blobs:
-        partitions = re.findall(r"\w+(?==)", blob.name)
-        if len(set(partitions) & set(columns)) == 0:
-            df = pd.read_csv(
-                blob.public_url,
-                usecols=columns,
-                dtype={"id_municipio": str, "id_municipio_bcb": str},
-            )
-            dfs.append(df)
-        else:
-            columns2add = list(set(partitions) & set(columns))
-            for column in columns2add:
-                columns.remove(column)
-            df = pd.read_csv(
-                blob.public_url,
-                usecols=columns,
-                dtype={"id_municipio": str, "id_municipio_bcb": str},
-            )
-            for column in columns2add:
-                df[column] = blob.name.split(column + "=")[1].split("/")[0]
-            dfs.append(df)
-
-    df = pd.concat(dfs)
 
     return df

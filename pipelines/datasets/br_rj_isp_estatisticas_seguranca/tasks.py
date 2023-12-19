@@ -73,8 +73,15 @@ def clean_data(
             sep=";",
             thousands=".",
             decimal=",",
+            dtype=str,
         )
         log(f"file -> {file_name} read")
+        if (
+            file_name == isp_constants.TAXA_EVOLUCAO_MENSAL_UF.value
+            or file_name == isp_constants.TAXA_EVOLUCAO_MENSAL_MUNICIPIO.value
+        ):
+            df = df.apply(lambda x: x.str.replace(",", "."))
+            log(df.head())
 
     else:
         df = pd.read_excel(
@@ -96,11 +103,12 @@ def clean_data(
     log("creating columns order")
     ordem_colunas = create_columns_order(nomes_colunas)
 
-    log("checking tipo_fase col")
-    df = check_tipo_fase(df)
-
     log("ordering columns")
     df = df[ordem_colunas]
+
+    log(df.columns)
+    log("checking tipo_fase col")
+    df = check_tipo_fase(df)
 
     log("building dir")
     os.system(f"mkdir -p {isp_constants.OUTPUT_PATH.value}")

@@ -27,21 +27,25 @@ with Flow(
     date_format = Parameter("date_format", required=False)
     time_unit = Parameter("time_unit", required=False)
     time_delta = Parameter("time_delta", required=False)
-    date_column = Parameter("date_column", required=False)
-    prefect_mode = Parameter("prefect_mode", required=False)
-    api_mode = Parameter("api_mode", required=False)
-    bq_project = Parameter("bq_project", required=False)
+    date_column_name = Parameter("date_column_name", required=False)
+    materialization_mode = Parameter(
+        "materialization_mode", default="dev", required=False
+    )
+    api_mode = Parameter("api_mode", default="prod", required=False)
+    bq_project = Parameter("bq_project", default="basedosdados", required=False)
 
     update_django_metadata(
         dataset_id=dataset_id,
         table_id=table_id,
-        date_column_name=date_column,
-        coverage_type=coverage_type,
-        date_format=date_format,
-        time_delta=time_delta,
-        prefect_mode=prefect_mode,
-        api_mode=api_mode,
-        bq_project=bq_project,
+        date_column_name={
+            "year": "ano_referencia",
+            "month": "mes_referencia",
+        },
+        date_format="%Y-%m",
+        coverage_type="part_bdpro",
+        time_delta={"months": 6},
+        prefect_mode=materialization_mode,
+        bq_project="basedosdados",
     )
 
 temporal_coverage_updater_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

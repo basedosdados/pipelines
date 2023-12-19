@@ -8,10 +8,12 @@ import re
 
 # pylint: disable=too-many-arguments
 from datetime import datetime
-from typing import Tuple
+from time import sleep
+from typing import Dict, Tuple
 
 import basedosdados as bd
 import requests
+from basedosdados.download.base import google_client
 from dateutil.relativedelta import relativedelta
 
 from pipelines.utils.metadata.constants import constants as metadata_constants
@@ -22,18 +24,21 @@ from pipelines.utils.utils import get_credentials_from_secret, log
 #######################
 
 
-def check_if_values_are_accepted(coverage_type: str, time_delta: str, date_column_name):
-    if len(time_delta) != 1:
-        raise ValueError(
-            "Dicionário de delta tempo inválido. O dicionário deve conter apenas uma chave e um valor"
-        )
-    key = list(time_delta)[0]
-    if key not in metadata_constants.ACCEPTED_TIME_UNITS.value:
-        raise ValueError(
-            f"Unidade temporal inválida. Escolha entre {metadata_constants.ACCEPTED_TIME_UNITS.value}"
-        )
-    if type(time_delta[key]) is not int:
-        raise ValueError("Valor de delta inválido. O valor deve ser um inteiro")
+def check_if_values_are_accepted(
+    coverage_type: str, time_delta: Dict, date_column_name: Dict
+):
+    if time_delta:
+        if len(time_delta) != 1:
+            raise ValueError(
+                "Dicionário de delta tempo inválido. O dicionário deve conter apenas uma chave e um valor"
+            )
+        key = list(time_delta)[0]
+        if key not in metadata_constants.ACCEPTED_TIME_UNITS.value:
+            raise ValueError(
+                f"Unidade temporal inválida. Escolha entre {metadata_constants.ACCEPTED_TIME_UNITS.value}"
+            )
+        if type(time_delta[key]) is not int:
+            raise ValueError("Valor de delta inválido. O valor deve ser um inteiro")
 
     if coverage_type not in metadata_constants.ACCEPTED_COVERAGE_TYPE.value:
         raise ValueError(
@@ -279,8 +284,10 @@ def get_id(
 
         return r, id
     else:
-        print("get:  Error:", json.dumps(r, indent=4, ensure_ascii=False))
-        raise Exception("get: Error")
+        log(r)
+        raise Exception(
+            f"Error: the executed query did not return a data json.\nExecuted query:\n{query} \nVariables: {dict(zip(keys, values))}"
+        )
 
 
 def get_table_status(table_id, api_mode, email, password):
@@ -362,12 +369,7 @@ def extract_last_date_from_bq(
         )
         return last_date
 
-    if date_column.keys() == {"date"}:
-        query_date_column = date_column["date"]
-    elif date_column.keys() == {"year", "quarter"}:
-        query_date_column = f"DATE({date_column['year']},{date_column['quarter']}*3,1)"
-    else:
-        query_date_column = f"DATE({date_column['year']},{date_column['month']},1)"
+    query_date_column = format_date_column(date_column)
 
     try:
         query_bd = f"""
@@ -392,6 +394,16 @@ def extract_last_date_from_bq(
     except Exception as e:
         log(f"An error occurred while extracting the last update date: {str(e)}")
         raise
+
+
+def format_date_column(date_column):
+    if date_column.keys() == {"date"}:
+        query_date_column = date_column["date"]
+    elif date_column.keys() == {"year", "quarter"}:
+        query_date_column = f"DATE({date_column['year']},{date_column['quarter']}*3,1)"
+    else:
+        query_date_column = f"DATE({date_column['year']},{date_column['month']},1)"
+    return query_date_column
 
 
 def update_date_from_bq_metadata(
@@ -616,6 +628,44 @@ def create_update(
         raise Exception("create: Error")
 
 
+def update_row_access_policy(
+    project_id,
+    dataset_id,
+    table_id,
+    billing_project_id,
+    date_column_name,
+    date_format,
+    free_parameters,
+):
+    client = google_client(billing_project_id, from_file=True, reauth=False)
+
+    query_bdpro_access = f'CREATE OR REPLACE ROW ACCESS POLICY bdpro_filter  ON  `{project_id}.{dataset_id}.{table_id}` GRANT TO ("group:bd-pro@basedosdados.org", "group:sudo@basedosdados.org") FILTER USING (TRUE)'
+    job = client["bigquery"].query(query_bdpro_access)
+    while not job.done():
+        sleep(1)
+    log("BDpro filter was included")
+
+    query_date_column = format_date_column(date_column_name)
+    all_free_last_date = format_date_parameters(free_parameters, date_format)
+
+    query_allusers_access = f'CREATE OR REPLACE ROW ACCESS POLICY allusers_filter  ON  `{project_id}.{dataset_id}.{table_id}` GRANT TO ("allUsers") FILTER USING ({query_date_column}<="{all_free_last_date}")'
+    job = client["bigquery"].query(query_allusers_access)
+    while not job.done():
+        sleep(1)
+    log("All users filter was included")
+
+
+def format_date_parameters(free_parameters, date_format):
+    if date_format == "%Y-%m-%d":
+        formated_date = f'{free_parameters["endYear"]}-{free_parameters["endMonth"]}-{free_parameters["endDay"]}'
+    elif date_format == "%Y-%m":
+        formated_date = f'{free_parameters["endYear"]}-{free_parameters["endMonth"]}-01'
+    elif date_format == "%Y":
+        formated_date = f'{free_parameters["endYear"]}-01-01'
+
+    return formated_date
+
+
 #######################
 # check_if_data_is_outdated Utils
 #######################
@@ -655,9 +705,6 @@ def get_coverage_value(
             query_parameters={"$table_Id: ID": table_id},
             api_mode=api_mode,
         )
-
-        if not datetime_result:
-            raise ValueError("Datetime result not found.")
 
         date_objects = parse_datetime_ranges(datetime_result, date_format)
         return date_objects
