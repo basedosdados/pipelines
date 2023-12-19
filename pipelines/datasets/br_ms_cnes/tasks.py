@@ -11,8 +11,10 @@ import pandas as pd
 
 # import rpy2.robjects.packages as rpackages
 import wget
+
+# from pyreaddbc import read_dbc as dbcreader
+from datasus import read_dbc
 from prefect import task
-from pyreaddbc import read_dbc as dbcreader
 
 from pipelines.constants import constants
 from pipelines.datasets.br_ms_cnes.constants import constants as cnes_constants
@@ -153,7 +155,8 @@ def read_dbc_save_csv(file_list: list, path: str, table: str) -> str:
         log(f"the file {file} is being converted to csv")
         # read dbc
         # dbc_file = readdbc.read_dbc(file)
-        dbc_file = dbcreader.read_dbc(file, encoding="iso-8859-1")
+        # dbc_file = dbcreader.read_dbc(file, encoding="iso-8859-1")
+        dbc_file = pd.DataFrame(read_dbc(file))
 
         # convert from r to pandas
         # https://rpy2.github.io/doc/latest/html/generated_rst/pandas.html#from-r-to-pandas
