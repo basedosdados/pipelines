@@ -70,7 +70,7 @@ jobs:
           echo $PREFECT_AUTH_TOML | base64 --decode > $HOME/.prefect/auth.toml
 
       - name: Wait for Docker image to be available
-        uses: lewagon/wait-on-check-action@v1.1.2
+        uses: lewagon/wait-on-check-action@v1.3.1
         with:
           ref: ${{ github.ref }}
           check-name: 'Build Docker image'
