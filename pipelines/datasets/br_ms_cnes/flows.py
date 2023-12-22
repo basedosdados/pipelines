@@ -145,7 +145,7 @@ br_ms_cnes_estabelecimento.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_ms_cnes_estabelecimento.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_ms_cnes_estabelecimento.schedule = schedule_br_ms_cnes_estabelecimento
+# br_ms_cnes_estabelecimento.schedule = schedule_br_ms_cnes_estabelecimento
 
 
 # profissional
@@ -248,7 +248,7 @@ with Flow(
 
 br_ms_cnes_profissional.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_ms_cnes_profissional.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_ms_cnes_profissional.schedule = schedule_br_ms_cnes_profissional
+# br_ms_cnes_profissional.schedule = schedule_br_ms_cnes_profissional
 
 # equipe
 with Flow(name="br_ms_cnes.equipe", code_owners=["Gabriel Pisa"]) as br_ms_cnes_equipe:
@@ -348,7 +348,7 @@ with Flow(name="br_ms_cnes.equipe", code_owners=["Gabriel Pisa"]) as br_ms_cnes_
 
 br_ms_cnes_equipe.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_ms_cnes_equipe.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_ms_cnes_equipe.schedule = schedule_br_ms_cnes_equipe
+# br_ms_cnes_equipe.schedule = schedule_br_ms_cnes_equipe
 
 # leito
 with Flow(name="br_ms_cnes.leito", code_owners=["Gabriel Pisa"]) as br_ms_cnes_leito:
@@ -448,7 +448,7 @@ with Flow(name="br_ms_cnes.leito", code_owners=["Gabriel Pisa"]) as br_ms_cnes_l
 
 br_ms_cnes_leito.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_ms_cnes_leito.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_ms_cnes_leito.schedule = schedule_br_ms_cnes_leito
+# br_ms_cnes_leito.schedule = schedule_br_ms_cnes_leito
 
 # equipamento
 with Flow(
@@ -552,7 +552,7 @@ with Flow(
 
 br_ms_cnes_equipamento.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_ms_cnes_equipamento.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_ms_cnes_equipamento.schedule = schedule_br_ms_cnes_equipamento
+# br_ms_cnes_equipamento.schedule = schedule_br_ms_cnes_equipamento
 
 
 with Flow(
@@ -654,7 +654,7 @@ br_ms_cnes_estabelecimento_ensino.storage = GCS(constants.GCS_FLOWS_BUCKET.value
 br_ms_cnes_estabelecimento_ensino.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_ms_cnes_estabelecimento_ensino.schedule = schedule_br_ms_cnes_estabelecimento_ensino
+# br_ms_cnes_estabelecimento_ensino.schedule = schedule_br_ms_cnes_estabelecimento_ensino
 
 with Flow(
     name="br_ms_cnes.dados_complementares", code_owners=["Gabriel Pisa"]
@@ -755,7 +755,7 @@ br_ms_cnes_dados_complementares.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_ms_cnes_dados_complementares.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_ms_cnes_dados_complementares.schedule = schedule_br_ms_cnes_dados_complementares
+# br_ms_cnes_dados_complementares.schedule = schedule_br_ms_cnes_dados_complementares
 
 with Flow(
     name="br_ms_cnes.estabelecimento_filantropico", code_owners=["Gabriel Pisa"]
@@ -859,9 +859,9 @@ br_ms_cnes_estabelecimento_filantropico.storage = GCS(constants.GCS_FLOWS_BUCKET
 br_ms_cnes_estabelecimento_filantropico.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_ms_cnes_estabelecimento_filantropico.schedule = (
-    schedule_br_ms_cnes_estabelecimento_filantropico
-)
+# br_ms_cnes_estabelecimento_filantropico.schedule = (
+#    schedule_br_ms_cnes_estabelecimento_filantropico
+# )
 
 # gestao_metas
 with Flow(
@@ -961,7 +961,7 @@ with Flow(
 
 br_ms_cnes_gestao_metas.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_ms_cnes_gestao_metas.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_ms_cnes_gestao_metas.schedule = schedule_br_ms_cnes_gestao_metas
+# br_ms_cnes_gestao_metas.schedule = schedule_br_ms_cnes_gestao_metas
 
 # habilitacao
 with Flow(
@@ -1062,7 +1062,7 @@ with Flow(
 
 br_ms_cnes_habilitacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_ms_cnes_habilitacao.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_ms_cnes_habilitacao.schedule = schedule_br_ms_cnes_habilitacao
+# br_ms_cnes_habilitacao.schedule = schedule_br_ms_cnes_habilitacao
 
 
 # incentivos
@@ -1164,7 +1164,7 @@ with Flow(
 
 br_ms_cnes_incentivos.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_ms_cnes_incentivos.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_ms_cnes_incentivos.schedule = schedule_br_ms_cnes_incentivos
+# br_ms_cnes_incentivos.schedule = schedule_br_ms_cnes_incentivos
 
 # regra_contratual
 with Flow(
@@ -1369,4 +1369,4 @@ br_ms_cnes_servico_especializado.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_ms_cnes_servico_especializado.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_ms_cnes_servico_especializado.schedule = schedule_br_ms_cnes_servico_especializado
+# br_ms_cnes_servico_especializado.schedule = schedule_br_ms_cnes_servico_especializado
