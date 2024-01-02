@@ -3,11 +3,15 @@
 Tasks for br_cvm_oferta_publica_distribuicao
 """
 import os
+from io import BytesIO
+from urllib.request import urlopen
+from zipfile import ZipFile
 
 import basedosdados as bd
 import pandas as pd
 from pandas.api.types import is_string_dtype
 from prefect import task
+import requests
 from unidecode import unidecode
 
 from pipelines.utils.utils import log
@@ -17,11 +21,11 @@ from pipelines.utils.utils import log
 def crawl(root: str, url: str) -> None:
     # pylint: disable=invalid-name
     """Get table 'oferta_distribuicao' from CVM website"""
-    filepath = f"{root}/oferta_distribuicao.csv"
     os.makedirs(root, exist_ok=True)
-
-    dataframe: pd.DataFrame = pd.read_csv(url, encoding="latin-1", sep=";")
-    dataframe.to_csv(filepath, index=False, sep=";")
+    
+    http_response = urlopen(url)
+    zipfile = ZipFile(BytesIO(http_response.read()))
+    zipfile.extractall(path=root)
 
 
 @task
@@ -36,7 +40,7 @@ def clean_table_oferta_distribuicao(root: str) -> str:
         in_filepath,
         sep=";",
         keep_default_na=False,
-        encoding="utf-8",
+        encoding="latin-1",
         dtype=object,
     )
 

@@ -27,7 +27,7 @@ from pipelines.utils.tasks import (
 )
 
 ROOT = "/tmp/data"
-URL = "http://dados.cvm.gov.br/dados/OFERTA/DISTRIB/DADOS/oferta_distribuicao.csv"
+URL = "http://dados.cvm.gov.br/dados/OFERTA/DISTRIB/DADOS/oferta_distribuicao.zip"
 
 with Flow(
     name="br_cvm_oferta_publica_distribuicao.dia", code_owners=["equipe_pipelines"]
