@@ -46,7 +46,12 @@ def web_scrapping():
 
 
 def read_csv():
-    arquivos = os.listdir(stf_constants.STF_INPUT.value)
+    arquivos = [
+        f
+        for f in os.listdir(stf_constants.STF_INPUT.value)
+        if f.endswith(".crdownload")
+    ]
+    os.rename(arquivos[0], "arquivo.csv")
     log("Verificando dados dentro do container")
     log(arquivos)
     for arquivo in arquivos:
