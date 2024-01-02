@@ -124,12 +124,17 @@ def partition_data(df: pd.DataFrame, column_name: list[str], output_directory: s
 def check_for_data():
     log("Iniciando web scrapping")
     web_scrapping()
+
     log("Iniciando o check for data")
-    arquivos = [
-        f for f in os.listdir(stf_constants.STF_INPUT.value) if not f.endswith(".csv")
-    ]
-    os.rename(arquivos[0], "decisoes.csv")
-    log(arquivos)
+    arquivos = os.listdir(stf_constants.STF_INPUT.value)
+    log(f"LISTANDO OS ARQUIVOS {arquivos}")
+
+    arquivos_csv = [arquivo for arquivo in arquivos if arquivo.endswith(".csv")]
+    log(f"ARQUIVO_CSV = {arquivos_csv}")
+    if arquivos_csv:
+        os.rename(arquivos_csv[0], "decisoes.csv")
+        print(f"Arquivo renomeado para decisoes.csv: {arquivos_csv[0]}")
+    log(f" ARQUIVO FINAL {arquivos}")
     for arquivo in arquivos:
         if arquivo.endswith(".csv"):
             df = pd.read_csv(stf_constants.STF_INPUT.value + arquivo, dtype=str)
