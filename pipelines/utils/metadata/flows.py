@@ -36,8 +36,8 @@ with Flow(
         time_delta={"months": 6},
         prefect_mode=materialization_mode,
         bq_project="basedosdados",
-            )
-    
+    )
+
 temporal_coverage_updater_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 temporal_coverage_updater_flow.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
