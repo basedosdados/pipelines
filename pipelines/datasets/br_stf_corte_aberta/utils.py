@@ -42,7 +42,8 @@ def web_scrapping():
     driver.maximize_window()
     time.sleep(30)
     driver.find_element("xpath", '//*[@id="EXPORT-BUTTON-2"]/button').click()
-    time.sleep(30)
+    time.sleep(90)
+    driver.quit()
 
 
 def read_csv():
@@ -124,17 +125,9 @@ def partition_data(df: pd.DataFrame, column_name: list[str], output_directory: s
 def check_for_data():
     log("Iniciando web scrapping")
     web_scrapping()
-
     log("Iniciando o check for data")
     arquivos = os.listdir(stf_constants.STF_INPUT.value)
-    log(f"LISTANDO OS ARQUIVOS {arquivos}")
-
-    arquivos_csv = [arquivo for arquivo in arquivos if arquivo.endswith(".csv")]
-    log(f"ARQUIVO_CSV = {arquivos_csv}")
-    if arquivos_csv:
-        os.rename(arquivos_csv[0], "decisoes.csv")
-        print(f"Arquivo renomeado para decisoes.csv: {arquivos_csv[0]}")
-    log(f" ARQUIVO FINAL {arquivos}")
+    log(arquivos)
     for arquivo in arquivos:
         if arquivo.endswith(".csv"):
             df = pd.read_csv(stf_constants.STF_INPUT.value + arquivo, dtype=str)
