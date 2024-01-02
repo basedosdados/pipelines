@@ -49,7 +49,9 @@ br_ibge_inpc_mes_categoria_municipio.storage = GCS(constants.GCS_FLOWS_BUCKET.va
 br_ibge_inpc_mes_categoria_municipio.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_ibge_inpc_mes_categoria_municipio.schedule = schedule_br_ibge_inpc_mes_categoria_municipio
+br_ibge_inpc_mes_categoria_municipio.schedule = (
+    schedule_br_ibge_inpc_mes_categoria_municipio
+)
 
 br_ibge_inpc_mes_brasil = deepcopy(flow_ibge_inflacao_mes_geral)
 br_ibge_inpc_mes_brasil.name = "br_ibge_inpc.mes_brasil"
