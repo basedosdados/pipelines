@@ -46,10 +46,7 @@ def web_scrapping():
 
 
 def read_csv():
-    arquivos = [
-        f for f in os.listdir(stf_constants.STF_INPUT.value) if not f.endswith(".csv")
-    ]
-    os.rename(arquivos[0], "arquivo.csv")
+    arquivos = os.listdir(stf_constants.STF_INPUT.value)
     log("Verificando dados dentro do container")
     log(arquivos)
     for arquivo in arquivos:
@@ -128,7 +125,10 @@ def check_for_data():
     log("Iniciando web scrapping")
     web_scrapping()
     log("Iniciando o check for data")
-    arquivos = os.listdir(stf_constants.STF_INPUT.value)
+    arquivos = [
+        f for f in os.listdir(stf_constants.STF_INPUT.value) if not f.endswith(".csv")
+    ]
+    os.rename(arquivos[0], "decisoes.csv")
     log(arquivos)
     for arquivo in arquivos:
         if arquivo.endswith(".csv"):
