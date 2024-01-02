@@ -9,9 +9,9 @@ from zipfile import ZipFile
 
 import basedosdados as bd
 import pandas as pd
+import requests
 from pandas.api.types import is_string_dtype
 from prefect import task
-import requests
 from unidecode import unidecode
 
 from pipelines.utils.utils import log
@@ -22,7 +22,7 @@ def crawl(root: str, url: str) -> None:
     # pylint: disable=invalid-name
     """Get table 'oferta_distribuicao' from CVM website"""
     os.makedirs(root, exist_ok=True)
-    
+
     http_response = urlopen(url)
     zipfile = ZipFile(BytesIO(http_response.read()))
     zipfile.extractall(path=root)
