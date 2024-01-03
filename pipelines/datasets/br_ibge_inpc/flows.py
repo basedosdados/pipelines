@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 """
 Flows for br_ibge_inpc
+    - mes_categoria_brasil
+    - mes_categoria_rm
+    - mes_categoria_municipio
+    - mes_brasil
 """
 # pylint: disable=C0103, E1123, invalid-name
 
