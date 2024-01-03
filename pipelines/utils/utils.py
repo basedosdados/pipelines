@@ -195,13 +195,11 @@ def notify_discord_on_failure(
     """
     url = get_vault_secret(secret_path)["data"]["url"]
     flow_run_id = prefect.context.get("flow_run_id")
-    label = prefect.context.config.cloud.agent.labels
-    log(label)
+    labels = prefect.context.config.cloud.agent.labels
     code_owners = code_owners or constants.DEFAULT_CODE_OWNERS.value
     code_owner_dict = constants.OWNERS_DISCORD_MENTIONS.value
 
-    if label == ["basedosdados-dev"]:
-        log("foi!")
+    if labels != ["basedosdados"]:
         return
 
     at_code_owners = []
