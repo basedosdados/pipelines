@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 """
 Schedules for br_ibge_ipca15
+    - mes_categoria_brasil
+    - mes_categoria_rm
+    - mes_categoria_municipio
+    - mes_brasil
 """
 from datetime import datetime
 
