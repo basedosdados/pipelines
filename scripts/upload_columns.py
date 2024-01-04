@@ -163,7 +163,7 @@ def upload_columns_from_architecture(
         dataset_id: str,
         table_slug: str,
         url_architecture: str,
-        if_exists: str = 'pass'
+        if_column_exists: str = 'pass'
 ):
     """
     Uploads columns from an architecture table to the specified dataset and table in the Base dos Dados platform.
@@ -176,7 +176,7 @@ def upload_columns_from_architecture(
     """
     accepted_if_exists_values = ['pass','replace']
 
-    if if_exists not in accepted_if_exists_values:
+    if if_column_exists not in accepted_if_exists_values:
         raise ValueError(f"`if_exists` only accepts {accepted_if_exists_values}"
             )
 
@@ -198,14 +198,15 @@ def upload_columns_from_architecture(
 
     # Iterate over each row in the 'architecture' DataFrame
     for index, row in architecture.iterrows():
-        # Define the mutation parameters for creating a new column
-        
-        column_id = get_column_id(table_id=  table_id, column_name=row["name"],url_api=url_api)
         print(f"\nColumn: {row['name']}")
-        if column_id and if_exists == 'pass':
+
+        column_id = get_column_id(table_id=table_id, column_name=row["name"],url_api=url_api)
+
+        if column_id and if_column_exists == 'pass':
             print("row already exists")
             continue
 
+        # Define the mutation parameters for creating a new column
         directory_column_id = None
         if row["directory_column"]:
             directory_table_slug= row["directory_column"].split(":")[0].split(".")[1]
