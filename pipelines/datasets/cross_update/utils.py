@@ -7,8 +7,9 @@ import os
 import pandas as pd
 from pandas import json_normalize
 
-from pipelines.utils.utils import get_credentials_from_secret, log
 from pipelines.utils.metadata import get_headers
+from pipelines.utils.utils import get_credentials_from_secret, log
+
 
 def save_file(df: pd.DataFrame, table_id: str) -> str:
     """
@@ -149,5 +150,3 @@ def modify_table_metadata(table, backend):
 
     if response is None:
         log(table)
-
-

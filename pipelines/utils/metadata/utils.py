@@ -943,6 +943,7 @@ def get_api_most_recent_date(
 
     return max_date_value
 
+
 def get_headers(backend):
     credentials = get_credentials_from_secret(secret_path="api_user_prod")
 
