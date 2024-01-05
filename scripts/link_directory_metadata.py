@@ -144,7 +144,6 @@ def select_columns(df,not_column_name, remove_already_done = False):
         print(f"\t- {coluna}")
 
     return df["_id"].values.tolist()
-    
 
 
 def link_directory_metadata(
