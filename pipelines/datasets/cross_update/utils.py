@@ -149,5 +149,3 @@ def modify_table_metadata(table, backend):
 
     if response is None:
         log(table)
-
-
