@@ -7,8 +7,9 @@ import os
 import pandas as pd
 from pandas import json_normalize
 
-from pipelines.utils.utils import log
 from pipelines.utils.metadata.utils import get_headers
+from pipelines.utils.utils import log
+
 
 def save_file(df: pd.DataFrame, table_id: str) -> str:
     """
