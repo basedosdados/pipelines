@@ -155,3 +155,45 @@ def get_data_deputados():
     )
 
     return df
+
+
+# ----------------------------------------------------------------------------------- > Proposição
+
+
+def download_csvs_camara_proposicao() -> None:
+    """
+    Docs:
+    This function does download all csvs from archives of camara de proposição.
+    The csvs saved in conteiners of docker.
+
+    return:
+    None
+    """
+    print("Downloading csvs from camara de proposição")
+    if not os.path.exists(constants.INPUT_PATH.value):
+        os.makedirs(constants.INPUT_PATH.value)
+
+    for anos in constants.ANOS.value:
+        for key, valor in constants.TABLE_LIST_PROPOSICAO.value.items():
+            url_2 = f"http://dadosabertos.camara.leg.br/arquivos/{valor}/csv/{valor}-{anos}.csv"
+
+            response = requests.get(url_2)
+            if response.status_code == 200:
+                with open(constants.INPUT_PATH.value, "wb") as f:
+                    f.write(response.content)
+                    print("donwload complet")
+
+            elif response.status_code >= 400 and response.status_code <= 599:
+                raise Exception(
+                    f"Erro de requisição: status code {response.status_code}"
+                )
+
+
+def get_data_proposicao_microdados():
+    download_csvs_camara_proposicao()
+    df = pd.read_csv(
+        f'{constants.INPUT_PATH.value}{constants.TABLE_LIST_PROPOSICAO.value["proposicao_microdados"]-{constants.ANOS.value}}.csv',
+        sep=";",
+    )
+
+    return df

@@ -14,7 +14,7 @@ class constants(Enum):
     INPUT_PATH = "/tmp/input/"
     OUTPUT_PATH = "/tmp/output/"
 
-    ANOS = [2023]
+    ANOS = [2024]
 
     TABLE_LIST = {
         "votacao_microdados": "votacoes",
@@ -52,4 +52,12 @@ class constants(Enum):
         "deputados": "https://docs.google.com/spreadsheets/d/1qfcR5CyUxwa4423mtA8q_XAbgDOEFcPHtKmsg7ZpgyU/edit#gid=0",
         "deputado_ocupacao": "https://docs.google.com/spreadsheets/d/1Cj6WE3jk63p21IjrINeaYKoMSOGoDDf1XpY3UH8sct4/edit#gid=0",
         "deputado_profissao": "https://docs.google.com/spreadsheets/d/12R2OY7eqUKxuojcpYYBsCiHyzUOLBBdObnkuv2JUMNI/edit#gid=0",
+    }
+
+    # ------------------------------------------------------------> PROPOSIÇÃO
+
+    TABLE_LIST_PROPOSICAO = {
+        "proposicao_microdados": "proposicoes",
+        "proposicao_autor": "proposicoesAutores",
+        "proposicao_tema": "proposicoesTemas",
     }

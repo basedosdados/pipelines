@@ -12,6 +12,7 @@ from pipelines.datasets.br_camara_dados_abertos.constants import (
 from pipelines.datasets.br_camara_dados_abertos.utils import (
     get_data,
     get_data_deputados,
+    get_data_proposicao_microdados,
     read_and_clean_camara_dados_abertos,
     read_and_clean_data_deputados,
 )
@@ -87,3 +88,14 @@ def treat_and_save_table(table_id):
     log(f"{constants_camara.OUTPUT_PATH.value}{table_id}/data.csv")
 
     return f"{constants_camara.OUTPUT_PATH.value}{table_id}/data.csv"
+
+
+# -------------------------------------------------------------------> PROPOSIÇÃO
+
+
+@task
+def get_date_proposicao():
+    df = get_data_proposicao_microdados()
+    max_data_proposicao = df["dataApresentacao"].max()
+
+    return max_data_proposicao
