@@ -16,14 +16,14 @@ every_day_prefect = Schedule(
             interval=timedelta(days=1),
             start_date=datetime(2022, 9, 20, 10, 00),
             labels=[
-                constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_bd_metadados",
-                "table_id": "organizations",
-                "materialization_mode": "dev",
+                "table_id": "prefect_flow_runs",
+                "materialization_mode": "prod",
                 "materialize_after_dump": True,
-                "dbt_alias": False,
+                "dbt_alias": True,
             },
         ),
     ],

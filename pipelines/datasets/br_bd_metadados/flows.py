@@ -12,7 +12,7 @@ from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
 from pipelines.datasets.br_bd_metadados.schedules import (
-    every_day,
+    every_day_prefect,
 )
 from pipelines.datasets.br_bd_metadados.tasks import (
     crawler,
@@ -34,7 +34,7 @@ with Flow(
 ) as bd_prefect:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_bd_metadados", required=True)
-    table_id = Parameter("table_id", default="organizations", required=True)
+    table_id = Parameter("table_id", default="prefect_flow_runs", required=True)
 
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
@@ -43,7 +43,7 @@ with Flow(
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
@@ -91,4 +91,4 @@ with Flow(
 
 bd_prefect.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 bd_prefect.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-# bd_prefect.schedule = every_day
+bd_prefect.schedule = every_day_prefect
