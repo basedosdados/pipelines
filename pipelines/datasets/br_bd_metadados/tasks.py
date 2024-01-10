@@ -3,15 +3,13 @@
 Tasks for br_bd_metadados
 """
 from datetime import datetime, timedelta
-
+import os 
 import pandas as pd
-from pipelines.datasets.br_bd_metadados.utils import save_input
+
 from prefect import task
 from prefect import Client
 
-
 from pipelines.constants import constants
-from pipelines.utils.utils import log
 
 
 @task(
@@ -54,7 +52,7 @@ def crawler():
                     query= body
                 )
 
-    df = pd.json_normalize(r['data']['flow_run'])
+    df = pd.json_normalize(r['data']['flow_run'],sep='_')
 
     create_table_and_upload_to_gcs_skipped =   {
         'state': 'Skipped',
@@ -65,13 +63,24 @@ def crawler():
 
     df['skipped_upload_to_gcs'] = df['task_runs'].apply(lambda tasks: create_table_and_upload_to_gcs_skipped in tasks )
 
-    df['dataset_id'] = df['parameters.dataset_id']
-    df['table_id'] = df['parameters.table_id']
+    df['dataset_id'] = df['parameters_dataset_id']
+    df['table_id'] = df['parameters_table_id']
 
     filtered_columns = [col for col in df.columns if not col.startswith('parameters')]
 
     df['labels'] = df['labels'].str[0]
 
     selected_df = df[filtered_columns]
+    
+    table_id = 'prefect_flow_runs'
 
-    return save_input(selected_df,'prefect_flow_runs')
+    # Define the folder path for storing the file
+    folder = f"tmp/{table_id}/"
+    # Create the folder if it doesn't exist
+    os.system(f"mkdir -p {folder}")
+    # Define the full file path for the CSV file
+    full_filepath = f"{folder}/{table_id}.csv"
+    # Save the DataFrame as a CSV file
+    selected_df.to_csv(full_filepath, index=False)
+
+    return full_filepath
