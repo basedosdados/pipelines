@@ -10,7 +10,7 @@ from prefect.schedules.clocks import IntervalClock
 
 from pipelines.constants import constants
 
-every_day_prefect = Schedule(
+every_day_prefect_flow_runs = Schedule(
     clocks=[
         IntervalClock(
             interval=timedelta(days=1),
@@ -21,6 +21,25 @@ every_day_prefect = Schedule(
             parameter_defaults={
                 "dataset_id": "br_bd_metadados",
                 "table_id": "prefect_flow_runs",
+                "materialization_mode": "prod",
+                "materialize_after_dump": True,
+                "dbt_alias": True,
+            },
+        ),
+    ],
+)
+
+every_day_prefect_flows = Schedule(
+    clocks=[
+        IntervalClock(
+            interval=timedelta(days=1),
+            start_date=datetime(2022, 9, 20, 10, 00),
+            labels=[
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+            ],
+            parameter_defaults={
+                "dataset_id": "br_bd_metadados",
+                "table_id": "prefect_flows",
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
