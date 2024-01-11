@@ -3,7 +3,7 @@
 utils for br_bd_metadata
 """
 # pylint: disable=too-few-public-methods,invalid-name
-import os
+
 import pandas as pd
 
 
@@ -19,6 +19,5 @@ def save_input(df: pd.DataFrame, table_id: str) -> str:
         str: The full file path of the saved CSV file.
 
     """
-
 
     return None
