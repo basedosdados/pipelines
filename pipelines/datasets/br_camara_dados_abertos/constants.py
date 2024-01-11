@@ -14,7 +14,7 @@ class constants(Enum):
     INPUT_PATH = "/tmp/input/"
     OUTPUT_PATH = "/tmp/output/"
 
-    ANOS = [2024]
+    ANOS = [2023]
 
     TABLE_LIST = {
         "votacao_microdados": "votacoes",
@@ -57,7 +57,7 @@ class constants(Enum):
     # ------------------------------------------------------------> PROPOSIÇÃO
 
     TABLE_LIST_PROPOSICAO = {
-        "proposicao_microdados": "proposicoes",
-        "proposicao_autor": "proposicoesAutores",
-        "proposicao_tema": "proposicoesTemas",
+        "microdados": "proposicoes",
+        "autor": "proposicoesAutores",
+        "tema": "proposicoesTemas",
     }

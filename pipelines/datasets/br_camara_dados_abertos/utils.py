@@ -14,12 +14,15 @@ from pipelines.utils.utils import log
 # -------------------------------------------------------------------------------------> VOTACAO
 def download_csvs_camara() -> None:
     """
-    Docs:
-    This function does download all csvs from archives of camara dos deputados.
-    The csvs saved in conteiners of docker.
+    Downloads CSV files from the Camara de Proposicao API.
 
-    return:
-    None
+    This function iterates over the years and table list of chamber defined in the constants module,
+    and downloads the corresponding CSV files from the Camara de Proposicao API. The downloaded files are
+    saved in the input path specified in the constants module.
+
+    Raises:
+        Exception: If there is an error in the request, such as a non-successful status code.
+
     """
     log("Downloading csvs from camara dos deputados")
     if not os.path.exists(constants.INPUT_PATH.value):
@@ -102,12 +105,15 @@ def read_and_clean_camara_dados_abertos(
 
 def download_csvs_camara_deputado() -> None:
     """
-    Docs:
-    This function does download all csvs from archives of camara dos deputados.
-    The csvs saved in conteiners of docker.
+    Downloads CSV files from the Camara de Proposicao API.
 
-    return:
-    None
+    This function iterates over the years and table list of congressperson defined in the constants module,
+    and downloads the corresponding CSV files from the Camara de Proposicao API. The downloaded files are
+    saved in the input path specified in the constants module.
+
+    Raises:
+        Exception: If there is an error in the request, such as a non-successful status code.
+
     """
     print("Downloading csvs from camara dos deputados")
     if not os.path.exists(constants.INPUT_PATH.value):
@@ -162,12 +168,15 @@ def get_data_deputados():
 
 def download_csvs_camara_proposicao() -> None:
     """
-    Docs:
-    This function does download all csvs from archives of camara de proposição.
-    The csvs saved in conteiners of docker.
+    Downloads CSV files from the Camara de Proposicao API.
 
-    return:
-    None
+    This function iterates over the years and table list of propositions defined in the constants module,
+    and downloads the corresponding CSV files from the Camara de Proposicao API. The downloaded files are
+    saved in the input path specified in the constants module.
+
+    Raises:
+        Exception: If there is an error in the request, such as a non-successful status code.
+
     """
     print("Downloading csvs from camara de proposição")
     if not os.path.exists(constants.INPUT_PATH.value):
@@ -179,9 +188,9 @@ def download_csvs_camara_proposicao() -> None:
 
             response = requests.get(url_2)
             if response.status_code == 200:
-                with open(constants.INPUT_PATH.value, "wb") as f:
+                with open(f"{constants.INPUT_PATH.value}{valor}.csv", "wb") as f:
                     f.write(response.content)
-                    print("donwload complet")
+                    print(f"download complete {valor}")
 
             elif response.status_code >= 400 and response.status_code <= 599:
                 raise Exception(
@@ -189,10 +198,28 @@ def download_csvs_camara_proposicao() -> None:
                 )
 
 
-def get_data_proposicao_microdados():
+def get_data_proposicao() -> pd.DataFrame:
+    """
+    Reads the data for a given table_id from the Camara dos Deputados dataset.
+
+    Parameters:
+        table_id (str): The ID of the table to read.
+
+    Returns:
+        pd.DataFrame: The DataFrame containing the data.
+    """
     download_csvs_camara_proposicao()
     df = pd.read_csv(
-        f'{constants.INPUT_PATH.value}{constants.TABLE_LIST_PROPOSICAO.value["proposicao_microdados"]-{constants.ANOS.value}}.csv',
+        f'{constants.INPUT_PATH.value}{constants.TABLE_LIST_PROPOSICAO.value["microdados"]}.csv',
+        sep=";",
+    )
+
+    return df
+
+
+def read_data_proposicao(table_id: str) -> pd.DataFrame:
+    df = pd.read_csv(
+        f"{constants.INPUT_PATH.value}{constants.TABLE_LIST_PROPOSICAO.value[table_id]}.csv",
         sep=";",
     )
 
