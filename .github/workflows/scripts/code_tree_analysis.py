@@ -155,6 +155,10 @@ def get_declared(python_file: Union[str, Path]) -> List[str]:
     Returns:
         list: A list of declared variables from the Python file.
     """
+    if not python_file.exists:
+        log(f"{python_file} does not exists")
+        return []
+
     # We need to get the contents of the Python file.
     with open(python_file, "r") as f:
         content = f.read()
