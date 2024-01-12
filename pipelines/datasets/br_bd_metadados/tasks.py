@@ -9,8 +9,6 @@ import pandas as pd
 from prefect import Client, task
 
 from pipelines.constants import constants
-from pipelines.utils.utils import log
-
 
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,

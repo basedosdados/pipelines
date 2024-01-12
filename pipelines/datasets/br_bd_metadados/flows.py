@@ -26,7 +26,7 @@ from pipelines.utils.tasks import (
 )
 
 with Flow(
-    name="br_bd_metadados.prefect",
+    name="br_bd_metadados.prefect_flow_runs",
     code_owners=[
         "lauris",
     ],
