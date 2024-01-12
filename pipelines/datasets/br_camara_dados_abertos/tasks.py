@@ -95,9 +95,15 @@ def treat_and_save_table(table_id):
 
 @task
 def save_data_proposicao(table_id: str):
-    df = download_and_read_data_proposicao()
+    df = download_and_read_data_proposicao(table_id)
+    valor = constants_camara.TABLE_LIST_PROPOSICAO.value[table_id]
+    if not os.path.exists(f"{constants_camara.OUTPUT_PATH.value}{table_id}"):
+        os.makedirs(f"{constants_camara.OUTPUT_PATH.value}{table_id}")
+
     df.to_csv(
-        f"{constants_camara.OUTPUT_PATH.value}{table_id}/data.csv", sep=",", index=False
+        f"{constants_camara.OUTPUT_PATH.value}{table_id}/{valor}.csv",
+        sep=",",
+        index=False,
     )
 
-    return constants.OUTPUT_PATH.value
+    return constants_camara.OUTPUT_PATH.value

@@ -115,7 +115,7 @@ def download_csvs_camara_deputado() -> None:
         Exception: If there is an error in the request, such as a non-successful status code.
 
     """
-    print("Downloading csvs from camara dos deputados")
+    log("Downloading csvs from camara dos deputados")
     if not os.path.exists(constants.INPUT_PATH.value):
         os.makedirs(constants.INPUT_PATH.value)
 
@@ -192,14 +192,14 @@ def download_csvs_camara_proposicao(table_id: str) -> None:
         if response.status_code == 200:
             with open(f"{constants.INPUT_PATH.value}{valor}.csv", "wb") as f:
                 f.write(response.content)
-                print(f"download complete {valor}")
+                log(f"download complete {valor}")
 
         elif response.status_code >= 400 and response.status_code <= 599:
             raise Exception(f"Erro de requisição: status code {response.status_code}")
 
 
 def download_and_read_data_proposicao(table_id: str) -> pd.DataFrame:
-    download_csvs_camara_proposicao()
+    download_csvs_camara_proposicao(table_id)
     df = pd.read_csv(
         f"{constants.INPUT_PATH.value}{constants.TABLE_LIST_PROPOSICAO.value[table_id]}.csv",
         sep=";",

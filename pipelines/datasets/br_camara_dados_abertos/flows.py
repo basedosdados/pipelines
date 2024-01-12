@@ -628,7 +628,6 @@ with Flow(
 
     filepath_proposicao_microdados = save_data_proposicao.map(
         table_id=table_id,
-        upstream_tasks=[rename_flow_run],
     )
 
     wait_upload_table = create_table_and_upload_to_gcs.map(
@@ -676,7 +675,6 @@ with Flow(
             prefect_mode=unmapped(materialization_mode),
             bq_project=unmapped("basedosdados"),
             historical_database=False,
-            # upstream_tasks=unmapped([wait_for_materialization]),
         )
 
 br_camara_proposicao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
