@@ -106,4 +106,10 @@ def save_data_proposicao(table_id: str):
         index=False,
     )
 
-    return constants_camara.OUTPUT_PATH.value
+
+@task
+def output_path_list(table_id_list):
+    output_path_list = []
+    for table_id in table_id_list:
+        output_path_list.append(f"{constants_camara.OUTPUT_PATH.value}{table_id}/")
+    return output_path_list

@@ -10,6 +10,9 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
+from pipelines.datasets.br_camara_dados_abertos.constants import (
+    constants as constants_camara,
+)
 from pipelines.datasets.br_camara_dados_abertos.schedules import (
     every_day_camara_dados_abertos,
     every_day_camara_dados_abertos_deputados,
@@ -18,6 +21,7 @@ from pipelines.datasets.br_camara_dados_abertos.tasks import (
     download_files_and_get_max_date,
     download_files_and_get_max_date_deputados,
     make_partitions,
+    output_path_list,
     save_data_proposicao,
     treat_and_save_table,
 )
@@ -620,22 +624,22 @@ with Flow(
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ",
         dataset_id=dataset_id,
-        table_id=table_id[0],
-        wait=table_id[0],
+        table_id="Proposição",
+        wait=table_id,
     )
 
     update_metadata = Parameter("update_metadata", default=True, required=False)
 
-    filepath_proposicao_microdados = save_data_proposicao.map(
+    filepath = save_data_proposicao.map(
         table_id=table_id,
     )
-
+    output_path_list = output_path_list(table_id)
     wait_upload_table = create_table_and_upload_to_gcs.map(
-        data_path=filepath_proposicao_microdados,
+        data_path=output_path_list,
         dataset_id=unmapped(dataset_id),
         table_id=table_id,
         dump_mode=unmapped("append"),
-        wait=unmapped(filepath_proposicao_microdados),
+        wait=unmapped(output_path_list),
     )
 
     with case(materialize_after_dump, True):
