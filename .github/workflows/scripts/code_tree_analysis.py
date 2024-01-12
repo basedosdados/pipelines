@@ -156,7 +156,6 @@ def get_declared(python_file: Union[str, Path]) -> List[str]:
         list: A list of declared variables from the Python file.
     """
 
-
     if not Path(python_file).exists():
         log(f"{python_file} does not exist")
         return []
