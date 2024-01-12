@@ -10,32 +10,12 @@ from basedosdados import backend as b
 from link_directory_metadata import get_directory_column_id
 
 from pipelines.utils.metadata.utils import get_headers
-
-
-def read_architecture_table(url_architecture: str):
-    """URL contendo a tabela de arquitetura no formato da base dos dados
-
-    Args:
-        url_architecture (str): url de tabela de arquitera no padrão da base dos dados
-
-    Returns:
-        df: um df com a tabela de arquitetura
-    """
-    # Converte a URL de edição para um link de exportação em formato csv
-    url = url_architecture.replace("edit#gid=", "export?format=csv&gid=")
-
-    # Coloca a arquitetura em um dataframe
-    df_architecture = pd.read_csv(
-        StringIO(requests.get(url, timeout=10).content.decode("utf-8"))
-    )
-
-    return df_architecture.replace(np.nan, "", regex=True)
-
+from pipelines.utils.apply_architecture_to_dataframe.utils import read_architecture_table
 
 def create_column(
-    backend,
+    backend: b.Backend,
     mutation_parameters: Dict[str, str] = None,
-):
+) -> bool:
     ## tinha que ser create or replace, por enquanto ele duplica os dados se rodar duas vezes por isso atenção na hora de rodar!
 
     # GraphQL mutation to create or update a column
@@ -70,6 +50,9 @@ def create_column(
     if response["CreateUpdateColumn"]["errors"] != []:
         pretty_json = json.dumps(response, indent=4)
         print(pretty_json)
+        return False
+    
+    return True
 
 
 def get_column_id(table_id, column_name, url_api):

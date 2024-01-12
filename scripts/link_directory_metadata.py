@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
+from typing import Optional
 import basedosdados as bd
 import pandas as pd
 
 from pipelines.utils.metadata.utils import get_headers
 
 
-def get_columns(column_name: str, backend) -> pd.DataFrame:
+def get_columns(column_name: str, backend: bd.Backend) -> pd.DataFrame:
     """
     Get the id from all columns that have a certain name
     """
@@ -57,7 +58,7 @@ def get_columns(column_name: str, backend) -> pd.DataFrame:
 
 
 def get_directory_column_id(
-    directory_column_name, directory_table_name, backend
+    directory_column_name: str, directory_table_name: str, backend: bd.Backend
 ) -> str:
     """
     Get the directory id from that column
@@ -93,9 +94,9 @@ def get_directory_column_id(
             )
             return coluna["_id"]
 
-    print(
+    raise(ValueError(
         f"\nWARNING - Unable to find the directory column with the following information: \n\tcolumn_name: {directory_column_name}  \n\ttable: {directory_table_name}"
-    )
+    ))
 
 
 def modify_directory_metadata(column_id: str, directory_id: str, backend) -> None:
@@ -127,7 +128,7 @@ def modify_directory_metadata(column_id: str, directory_id: str, backend) -> Non
     return None
 
 
-def select_columns(df, not_column_name, remove_already_done=False):
+def select_columns(df: pd.DataFrame, not_column_name: list, remove_already_done: bool=False) -> list:
     descricao = df["name"].str.contains("descricao")
     diretorio = df["table.dataset.fullSlug"].str.contains("diretorios")
 
@@ -171,12 +172,12 @@ def select_columns(df, not_column_name, remove_already_done=False):
 
 def link_directory_metadata(
     matching_column_pattern: str,
-    directory_column_name: str,
-    directory_table_name: str,
+    directory_column_name: Optional[str],
+    directory_table_name: Optional[str],
     not_matching_pattern: list,
     ignore_previously_linked_columns: bool,
     ready_to_change_metadata: bool,
-):
+)-> None:
     """
     This function searches for columns within the metadata that match the specified `matching_column_pattern`.
     It performs filtering based on defined criteria and presents a list of selected columns.
