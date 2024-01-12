@@ -145,7 +145,7 @@ def select_columns(df: pd.DataFrame, not_column_name: list, remove_already_done:
         df = df[~contains_wrong_column_name]
 
     if remove_already_done and ("directoryPrimaryKey.name" in df.columns):
-        conected = df["directoryPrimaryKey.name"] != None
+        conected = df["directoryPrimaryKey.name"] is not None
         print(
             f" Removed {conected.sum()} columns that are already conected to a directory"
         )
