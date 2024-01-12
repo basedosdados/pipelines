@@ -158,3 +158,14 @@ class constants(Enum):  # pylint: disable=c0103
         "situacao_especial",
         "data_situacao_especial",
     ]
+
+    default_chunk_size = 2**20  # 1MB
+
+    # DefaultMaxRetries sets the maximum download attempt for each chunk
+    default_max_retries = 32
+
+    # DefaultMaxParallel sets the maximum parallels downloads per server
+    default_max_parallel = 16
+
+    # DefaultTimeout sets the timeout for each HTTP request
+    default_timeout = 3 * 60 * 1000  # 3 minutes

@@ -5,13 +5,16 @@ General purpose functions for the br_me_cnpj project
 import os
 import time
 import zipfile
+from asyncio import Semaphore, gather
 from datetime import datetime
 
+import httpx
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 import requests
 from bs4 import BeautifulSoup
+from loguru import logger
 from requests.exceptions import ConnectionError, Timeout
 from tqdm import tqdm
 
@@ -90,6 +93,65 @@ def destino_output(sufixo, data_coleta):
 def fill_left_zeros(df, column, num_digits):
     df[column] = df[column].astype(str).str.zfill(num_digits)
     return df
+
+
+# ! Download assincrono e em chunck`s do zip
+def chunk_range(content_length: int, chunk_size: int) -> list[tuple[int, int]]:
+    """Split the content length into a list of chunk ranges"""
+    return [
+        (i * chunk_size, min((i + 1) * chunk_size - 1, content_length - 1))
+        for i in range(content_length // chunk_size + 1)
+    ]
+
+
+# from https://stackoverflow.com/a/64283770
+async def download(
+    url: str,
+    chunk_size: int = constants_cnpj.default_chunk_size.value,
+    max_retries: int = constants_cnpj.default_max_retries.value,
+    max_parallel: int = constants_cnpj.default_max_parallel,
+    timeout: int = constants_cnpj.default_timeout,
+) -> bytes:
+    request_head = httpx.head(url)
+
+    assert request_head.status_code == 200
+    assert request_head.headers["accept-ranges"] == "bytes"
+
+    content_length = int(request_head.headers["content-length"])
+
+    log(
+        f"Downloading {url} with {content_length} bytes / {chunk_size} chunks and {max_parallel} parallel downloads"
+    )
+
+    # TODO: pool http connections
+    semaphore = Semaphore(max_parallel)
+    tasks = [
+        download_chunk(url, (start, end), max_retries, timeout, semaphore)
+        for start, end in chunk_range(content_length, chunk_size)
+    ]
+
+    return b"".join(await gather(*tasks))
+
+
+async def download_chunk(
+    url: str,
+    chunk_range: tuple[int, int],
+    max_retries: int,
+    timeout: int,
+    semaphore: Semaphore,
+) -> bytes:
+    async with semaphore:
+        log(f"Downloading chunk {chunk_range[0]}-{chunk_range[1]}")
+        for i in range(max_retries):
+            try:
+                async with httpx.AsyncClient(timeout=timeout) as client:
+                    headers = {"Range": f"bytes={chunk_range[0]}-{chunk_range[1]}"}
+                    response = await client.get(url, headers=headers)
+                    response.raise_for_status()
+                    return response.content
+            except httpx.HTTPError as e:
+                log(f"Download failed with {e}. Retrying ({i+1}/{max_retries})...")
+        raise httpx.HTTPError(f"Download failed after {max_retries} retries")
 
 
 # ! Executa o download do zip file
