@@ -155,16 +155,12 @@ async def download_chunk(
 
 
 # ! Executa o download do zip file
-def download_unzip_csv(url, pasta_destino, chunk_size: int = 1000):
+async def download_unzip_csv(url, pasta_destino, chunk_size: int = 1000):
     log(f"Baixando o arquivo {url}")
     save_path = os.path.join(pasta_destino, f"{os.path.basename(url)}.zip")
-
-    r = requests.get(url, headers=headers, stream=True, timeout=60)
+    content = await download(url)
     with open(save_path, "wb") as fd:
-        for chunk in tqdm(
-            r.iter_content(chunk_size=chunk_size), desc="Baixando o arquivo"
-        ):
-            fd.write(chunk)
+        fd.write(content)
 
     try:
         with zipfile.ZipFile(save_path) as z:
