@@ -155,17 +155,16 @@ def get_declared(python_file: Union[str, Path]) -> List[str]:
     Returns:
         list: A list of declared variables from the Python file.
     """
-
-    # Get file path in Python module format.
-    file_path = filename_to_python_module(python_file)
-
-    if not file_path.exists:
+    if not Path(python_file).exists:
         log(f"{python_file} does not exist")
         return []
 
     # We need to get the contents of the Python file.
     with open(python_file, "r") as f:
         content = f.read()
+
+    # Get file path in Python module format.
+    file_path = filename_to_python_module(python_file)
 
     # Parse it into an AST.
     tree = ast.parse(content)
