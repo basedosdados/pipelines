@@ -107,10 +107,10 @@ def chunk_range(content_length: int, chunk_size: int) -> list[tuple[int, int]]:
 # from https://stackoverflow.com/a/64283770
 async def download(
     url: str,
-    chunk_size: int = constants_cnpj.default_chunk_size.value,
-    max_retries: int = constants_cnpj.default_max_retries.value,
-    max_parallel: int = constants_cnpj.default_max_parallel,
-    timeout: int = constants_cnpj.default_timeout,
+    chunk_size: int = 2**20,
+    max_retries: int = 32,
+    max_parallel: int = 16,
+    timeout: int = 3 * 60 * 1000,
 ) -> bytes:
     request_head = httpx.head(url)
 
@@ -141,7 +141,7 @@ async def download_chunk(
     semaphore: Semaphore,
 ) -> bytes:
     async with semaphore:
-        log(f"Downloading chunk {chunk_range[0]}-{chunk_range[1]}")
+        # log(f"Downloading chunk {chunk_range[0]}-{chunk_range[1]}")
         for i in range(max_retries):
             try:
                 async with httpx.AsyncClient(timeout=timeout) as client:
@@ -155,7 +155,10 @@ async def download_chunk(
 
 
 # ! Executa o download do zip file
-async def download_unzip_csv(url, pasta_destino, chunk_size: int = 1000):
+async def download_unzip_csv(
+    url,
+    pasta_destino,
+):
     log(f"Baixando o arquivo {url}")
     save_path = os.path.join(pasta_destino, f"{os.path.basename(url)}.zip")
     content = await download(url)
