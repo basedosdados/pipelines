@@ -15,10 +15,7 @@ from pipelines.datasets.br_bd_metadados.schedules import (
     every_day_prefect_flow_runs,
     every_day_prefect_flows,
 )
-from pipelines.datasets.br_bd_metadados.tasks import (
-    crawler_flow_runs,
-    crawler_flows,
-)
+from pipelines.datasets.br_bd_metadados.tasks import crawler_flow_runs, crawler_flows
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
