@@ -10,12 +10,11 @@ from pipelines.datasets.br_camara_dados_abertos.constants import (
     constants as constants_camara,
 )
 from pipelines.datasets.br_camara_dados_abertos.utils import (
+    download_and_read_data_proposicao,
     get_data,
     get_data_deputados,
-    get_data_proposicao,
     read_and_clean_camara_dados_abertos,
     read_and_clean_data_deputados,
-    read_data_proposicao,
 )
 from pipelines.utils.utils import log, to_partitions
 
@@ -95,21 +94,10 @@ def treat_and_save_table(table_id):
 
 
 @task
-def download_files_and_get_max_date_proposicao():
-    df = get_data_proposicao()
-    df["dataApresentacao"] = pd.to_datetime(df["dataApresentacao"])
-    max_data_proposicao = df["dataApresentacao"].max()
-
-    return max_data_proposicao
-
-
-@task
 def save_data_proposicao(table_id: str):
-    df = read_data_proposicao(table_id=table_id)
+    df = download_and_read_data_proposicao()
     df.to_csv(
-        f"{constants.OUTPUT_PATH.value}{table_id}_{constants.ANOS.value}.csv",
-        index=False,
-        sep=",",
+        f"{constants_camara.OUTPUT_PATH.value}{table_id}/data.csv", sep=",", index=False
     )
 
     return constants.OUTPUT_PATH.value

@@ -166,7 +166,7 @@ def get_data_deputados():
 # ----------------------------------------------------------------------------------- > Proposição
 
 
-def download_csvs_camara_proposicao() -> None:
+def download_csvs_camara_proposicao(table_id: str) -> None:
     """
     Downloads CSV files from the Camara de Proposicao API.
 
@@ -183,41 +183,23 @@ def download_csvs_camara_proposicao() -> None:
         os.makedirs(constants.INPUT_PATH.value)
 
     for anos in constants.ANOS.value:
-        for key, valor in constants.TABLE_LIST_PROPOSICAO.value.items():
-            url_2 = f"http://dadosabertos.camara.leg.br/arquivos/{valor}/csv/{valor}-{anos}.csv"
+        valor = constants.TABLE_LIST_PROPOSICAO.value[table_id]
+        url_2 = (
+            f"http://dadosabertos.camara.leg.br/arquivos/{valor}/csv/{valor}-{anos}.csv"
+        )
 
-            response = requests.get(url_2)
-            if response.status_code == 200:
-                with open(f"{constants.INPUT_PATH.value}{valor}.csv", "wb") as f:
-                    f.write(response.content)
-                    print(f"download complete {valor}")
+        response = requests.get(url_2)
+        if response.status_code == 200:
+            with open(f"{constants.INPUT_PATH.value}{valor}.csv", "wb") as f:
+                f.write(response.content)
+                print(f"download complete {valor}")
 
-            elif response.status_code >= 400 and response.status_code <= 599:
-                raise Exception(
-                    f"Erro de requisição: status code {response.status_code}"
-                )
+        elif response.status_code >= 400 and response.status_code <= 599:
+            raise Exception(f"Erro de requisição: status code {response.status_code}")
 
 
-def get_data_proposicao() -> pd.DataFrame:
-    """
-    Reads the data for a given table_id from the Camara dos Deputados dataset.
-
-    Parameters:
-        table_id (str): The ID of the table to read.
-
-    Returns:
-        pd.DataFrame: The DataFrame containing the data.
-    """
+def download_and_read_data_proposicao(table_id: str) -> pd.DataFrame:
     download_csvs_camara_proposicao()
-    df = pd.read_csv(
-        f'{constants.INPUT_PATH.value}{constants.TABLE_LIST_PROPOSICAO.value["microdados"]}.csv',
-        sep=";",
-    )
-
-    return df
-
-
-def read_data_proposicao(table_id: str) -> pd.DataFrame:
     df = pd.read_csv(
         f"{constants.INPUT_PATH.value}{constants.TABLE_LIST_PROPOSICAO.value[table_id]}.csv",
         sep=";",

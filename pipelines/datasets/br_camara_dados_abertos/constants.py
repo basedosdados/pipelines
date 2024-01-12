@@ -57,7 +57,7 @@ class constants(Enum):
     # ------------------------------------------------------------> PROPOSIÇÃO
 
     TABLE_LIST_PROPOSICAO = {
-        "microdados": "proposicoes",
-        "autor": "proposicoesAutores",
-        "tema": "proposicoesTemas",
+        "proposicao_microdados": "proposicoes",
+        "proposicao_autor": "proposicoesAutores",
+        "proposicao_tema": "proposicoesTemas",
     }

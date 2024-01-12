@@ -17,7 +17,6 @@ from pipelines.datasets.br_camara_dados_abertos.schedules import (
 from pipelines.datasets.br_camara_dados_abertos.tasks import (
     download_files_and_get_max_date,
     download_files_and_get_max_date_deputados,
-    download_files_and_get_max_date_proposicao,
     make_partitions,
     save_data_proposicao,
     treat_and_save_table,
@@ -628,20 +627,16 @@ with Flow(
     update_metadata = Parameter("update_metadata", default=True, required=False)
 
     filepath_proposicao_microdados = save_data_proposicao.map(
-        table_id=[
-            "proposicao_microdados",
-            "proposicao_autor",
-            "proposicao_tema",
-        ],
+        table_id=table_id,
         upstream_tasks=[rename_flow_run],
     )
 
     wait_upload_table = create_table_and_upload_to_gcs.map(
         data_path=filepath_proposicao_microdados,
-        dataset_id=dataset_id,
+        dataset_id=unmapped(dataset_id),
         table_id=table_id,
-        dump_mode="append",
-        wait=filepath_proposicao_microdados,
+        dump_mode=unmapped("append"),
+        wait=unmapped(filepath_proposicao_microdados),
     )
 
     with case(materialize_after_dump, True):
@@ -651,17 +646,17 @@ with Flow(
             flow_name=unmapped(utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value),
             project_name=unmapped(constants.PREFECT_DEFAULT_PROJECT.value),
             parameters={
-                "dataset_id": dataset_id,
+                "dataset_id": unmapped(dataset_id),
                 "table_id": table_id,
-                "mode": materialization_mode,
-                "dbt_alias": dbt_alias,
+                "mode": unmapped(materialization_mode),
+                "dbt_alias": unmapped(dbt_alias),
             },
             labels=unmapped(current_flow_labels),
-            run_name=unmapped(f"Materialize {dataset_id}.{table_id[0]}"),
+            run_name=unmapped(f"Materialize {dataset_id}.{table_id}"),
         )
 
         wait_for_materialization = wait_for_flow_run.map(
-            unmapped(materialization_flow),
+            materialization_flow,
             stream_states=unmapped(True),
             stream_logs=unmapped(True),
             raise_final_state=unmapped(True),
