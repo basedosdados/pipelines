@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from typing import Optional
+
 import basedosdados as bd
 import pandas as pd
 
@@ -94,9 +95,11 @@ def get_directory_column_id(
             )
             return coluna["_id"]
 
-    raise(ValueError(
-        f"\nWARNING - Unable to find the directory column with the following information: \n\tcolumn_name: {directory_column_name}  \n\ttable: {directory_table_name}"
-    ))
+    raise (
+        ValueError(
+            f"\nWARNING - Unable to find the directory column with the following information: \n\tcolumn_name: {directory_column_name}  \n\ttable: {directory_table_name}"
+        )
+    )
 
 
 def modify_directory_metadata(column_id: str, directory_id: str, backend) -> None:
@@ -128,7 +131,9 @@ def modify_directory_metadata(column_id: str, directory_id: str, backend) -> Non
     return None
 
 
-def select_columns(df: pd.DataFrame, not_column_name: list, remove_already_done: bool=False) -> list:
+def select_columns(
+    df: pd.DataFrame, not_column_name: list, remove_already_done: bool = False
+) -> list:
     descricao = df["name"].str.contains("descricao")
     diretorio = df["table.dataset.fullSlug"].str.contains("diretorios")
 
@@ -177,7 +182,7 @@ def link_directory_metadata(
     not_matching_pattern: list,
     ignore_previously_linked_columns: bool,
     ready_to_change_metadata: bool,
-)-> None:
+) -> None:
     """
     This function searches for columns within the metadata that match the specified `matching_column_pattern`.
     It performs filtering based on defined criteria and presents a list of selected columns.

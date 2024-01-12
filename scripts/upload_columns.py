@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import json
-from io import StringIO
 from typing import Dict
 
 import numpy as np
@@ -9,8 +8,11 @@ import requests
 from basedosdados import backend as b
 from link_directory_metadata import get_directory_column_id
 
+from pipelines.utils.apply_architecture_to_dataframe.utils import (
+    read_architecture_table,
+)
 from pipelines.utils.metadata.utils import get_headers
-from pipelines.utils.apply_architecture_to_dataframe.utils import read_architecture_table
+
 
 def create_column(
     backend: b.Backend,
@@ -51,7 +53,7 @@ def create_column(
         pretty_json = json.dumps(response, indent=4)
         print(pretty_json)
         return False
-    
+
     return True
 
 
