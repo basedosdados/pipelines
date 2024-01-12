@@ -158,7 +158,7 @@ def get_declared(python_file: Union[str, Path]) -> List[str]:
 
 
     if not Path(python_file).exists():
-        log(f"{python_file} does not exist")
+        print(f"{python_file} does not exist")
         return []
 
     # We need to get the contents of the Python file.
