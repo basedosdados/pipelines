@@ -45,7 +45,6 @@ def update_django_metadata(
     """
           Updates temporal coverage Django metadata. Version 1.3.
 
-       Args:
     Args:
            dataset_id (str): O ID do conjunto de dados.
            table_id (str): O ID da tabela dentro do conjunto de dados.
