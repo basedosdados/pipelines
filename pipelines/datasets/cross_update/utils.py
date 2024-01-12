@@ -7,7 +7,8 @@ import os
 import pandas as pd
 from pandas import json_normalize
 
-from pipelines.utils.utils import get_credentials_from_secret, log
+from pipelines.utils.metadata.utils import get_headers
+from pipelines.utils.utils import log
 
 
 def save_file(df: pd.DataFrame, table_id: str) -> str:
@@ -149,23 +150,3 @@ def modify_table_metadata(table, backend):
 
     if response is None:
         log(table)
-
-
-def get_headers(backend):
-    credentials = get_credentials_from_secret(secret_path="api_user_prod")
-
-    mutation = """
-        mutation ($email: String!, $password: String!) {
-            tokenAuth(email: $email, password: $password) {
-                token
-            }
-        }
-    """
-    variables = {"email": credentials["email"], "password": credentials["password"]}
-
-    response = backend._execute_query(query=mutation, variables=variables)
-    token = response["tokenAuth"]["token"]
-
-    header_for_mutation_query = {"Authorization": f"Bearer {token}"}
-
-    return header_for_mutation_query
