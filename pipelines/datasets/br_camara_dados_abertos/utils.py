@@ -181,22 +181,18 @@ def download_csvs_camara_proposicao(table_id: str) -> None:
     print("Downloading csvs from camara de proposição")
     if not os.path.exists(constants.INPUT_PATH.value):
         os.makedirs(constants.INPUT_PATH.value)
-    log(os.listdir(constants.INPUT_PATH.value))
-    log(os.listdir(f"{constants.OUTPUT_PATH.value}{table_id}"))
-    for anos in constants.ANOS.value:
-        valor = constants.TABLE_LIST_PROPOSICAO.value[table_id]
-        url_2 = (
-            f"http://dadosabertos.camara.leg.br/arquivos/{valor}/csv/{valor}-{anos}.csv"
-        )
 
-        response = requests.get(url_2)
-        if response.status_code == 200:
-            with open(f"{constants.INPUT_PATH.value}{valor}.csv", "wb") as f:
-                f.write(response.content)
-                log(f"download complete {valor}")
+    valor = constants.TABLE_LIST_PROPOSICAO.value[table_id]
+    url = f"http://dadosabertos.camara.leg.br/arquivos/{valor}/csv/{valor}-{constants.ANOS.value}.csv"
+    log(url)
+    response = requests.get(url)
+    if response.status_code == 200:
+        with open(f"{constants.INPUT_PATH.value}{valor}.csv", "wb") as f:
+            f.write(response.content)
+            log(f"download complete {valor}")
 
-        elif response.status_code >= 400 and response.status_code <= 599:
-            raise Exception(f"Erro de requisição: status code {response.status_code}")
+    elif response.status_code >= 400 and response.status_code <= 599:
+        raise Exception(f"Erro de requisição: status code {response.status_code}")
 
 
 def download_and_read_data_proposicao(table_id: str) -> pd.DataFrame:

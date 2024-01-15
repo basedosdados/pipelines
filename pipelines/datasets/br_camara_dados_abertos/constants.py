@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
 from enum import Enum
+
+from dateutil.relativedelta import relativedelta
 
 
 class constants(Enum):
@@ -14,7 +17,7 @@ class constants(Enum):
     INPUT_PATH = "/tmp/input/"
     OUTPUT_PATH = "/tmp/output/"
 
-    ANOS = [2023]
+    ANOS = (datetime.now() - relativedelta(years=1)).year
 
     TABLE_LIST = {
         "votacao_microdados": "votacoes",

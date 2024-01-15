@@ -96,15 +96,9 @@ def treat_and_save_table(table_id):
 @task
 def save_data_proposicao(table_id: str):
     df = download_and_read_data_proposicao(table_id)
-    valor = constants_camara.TABLE_LIST_PROPOSICAO.value[table_id]
+    # valor = constants_camara.TABLE_LIST_PROPOSICAO.value[table_id]
     if not os.path.exists(f"{constants_camara.OUTPUT_PATH.value}{table_id}"):
         os.makedirs(f"{constants_camara.OUTPUT_PATH.value}{table_id}")
-    log(os.listdir(f"arquivos no container: {constants_camara.OUTPUT_PATH.value}"))
-    log(
-        os.listdir(
-            f"arquivos dentro do container 2:{constants_camara.OUTPUT_PATH.value}{table_id}"
-        )
-    )
 
     if table_id == "proposicao_microdados":
         df["ultimoStatus_despacho"] = df["ultimoStatus_despacho"].apply(
@@ -114,15 +108,22 @@ def save_data_proposicao(table_id: str):
             lambda x: str(x).replace(";", ",").replace("\n", "").replace("\r", "")
         )
         df.to_csv(
-            f"{constants_camara.OUTPUT_PATH.value}{table_id}/{valor}_{constants_camara.ANOS.value}.csv",
+            f"{constants_camara.OUTPUT_PATH.value}{table_id}/microdados_{constants_camara.ANOS.value}.csv",
             sep=",",
             index=False,
         )
         log(os.listdir(f"{constants_camara.OUTPUT_PATH.value}{table_id}"))
 
-    else:
+    if table_id == "proposicao_autores":
         df.to_csv(
-            f"{constants_camara.OUTPUT_PATH.value}{table_id}/{valor}_{constants_camara.ANOS.value}.csv",
+            f"{constants_camara.OUTPUT_PATH.value}{table_id}/autor_{constants_camara.ANOS.value}.csv",
+            sep=",",
+            index=False,
+        )
+
+    if table_id == "proposicao_tema":
+        df.to_csv(
+            f"{constants_camara.OUTPUT_PATH.value}{table_id}/tema_{constants_camara.ANOS.value}.csv",
             sep=",",
             index=False,
         )
