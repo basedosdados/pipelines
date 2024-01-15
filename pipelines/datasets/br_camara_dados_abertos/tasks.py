@@ -99,6 +99,12 @@ def save_data_proposicao(table_id: str):
     valor = constants_camara.TABLE_LIST_PROPOSICAO.value[table_id]
     if not os.path.exists(f"{constants_camara.OUTPUT_PATH.value}{table_id}"):
         os.makedirs(f"{constants_camara.OUTPUT_PATH.value}{table_id}")
+    log(os.listdir(f"arquivos no container: {constants_camara.OUTPUT_PATH.value}"))
+    log(
+        os.listdir(
+            f"arquivos dentro do container 2:{constants_camara.OUTPUT_PATH.value}{table_id}"
+        )
+    )
 
     if table_id == "proposicao_microdados":
         df["ultimoStatus_despacho"] = df["ultimoStatus_despacho"].apply(
@@ -112,6 +118,7 @@ def save_data_proposicao(table_id: str):
             sep=",",
             index=False,
         )
+        log(os.listdir(f"{constants_camara.OUTPUT_PATH.value}{table_id}"))
 
     else:
         df.to_csv(

@@ -181,7 +181,8 @@ def download_csvs_camara_proposicao(table_id: str) -> None:
     print("Downloading csvs from camara de proposição")
     if not os.path.exists(constants.INPUT_PATH.value):
         os.makedirs(constants.INPUT_PATH.value)
-
+    log(os.listdir(constants.INPUT_PATH.value))
+    log(os.listdir(f"{constants.OUTPUT_PATH.value}{table_id}"))
     for anos in constants.ANOS.value:
         valor = constants.TABLE_LIST_PROPOSICAO.value[table_id]
         url_2 = (
