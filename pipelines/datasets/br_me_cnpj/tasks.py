@@ -2,6 +2,7 @@
 """
 Tasks for br_me_cnpj
 """
+import asyncio
 import os
 from datetime import datetime
 
@@ -12,6 +13,7 @@ from pipelines.datasets.br_me_cnpj.utils import (
     data_url,
     destino_output,
     download_unzip_csv,
+    download_unzip_csv_sync,
     process_csv_empresas,
     process_csv_estabelecimentos,
     process_csv_simples,
@@ -91,7 +93,7 @@ def main(tabelas):
                 url_download = f"https://dadosabertos.rfb.gov.br/CNPJ/{tabela}{i}.zip"
                 if nome_arquivo not in arquivos_baixados:
                     arquivos_baixados.append(nome_arquivo)
-                    download_unzip_csv(url_download, input_path)
+                    asyncio.run((download_unzip_csv(url_download, input_path)))
                     if tabela == "Estabelecimentos":
                         process_csv_estabelecimentos(
                             input_path, output_path, data_coleta, i
@@ -105,7 +107,7 @@ def main(tabelas):
                 url_download = f"https://dadosabertos.rfb.gov.br/CNPJ/{tabela}.zip"
                 if nome_arquivo not in arquivos_baixados:
                     arquivos_baixados.append(nome_arquivo)
-                    download_unzip_csv(url_download, input_path)
+                    asyncio.run((download_unzip_csv(url_download, input_path)))
                     process_csv_simples(input_path, output_path, data_coleta, sufixo)
 
     return output_path
