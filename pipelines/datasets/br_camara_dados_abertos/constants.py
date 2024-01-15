@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
 from enum import Enum
 
 
@@ -14,7 +15,7 @@ class constants(Enum):
     INPUT_PATH = "/tmp/input/"
     OUTPUT_PATH = "/tmp/output/"
 
-    ANOS = [2023]
+    ANOS = datetime.now().year
 
     TABLE_LIST = {
         "votacao_microdados": "votacoes",

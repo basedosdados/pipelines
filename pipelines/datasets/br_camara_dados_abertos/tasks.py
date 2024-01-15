@@ -100,11 +100,25 @@ def save_data_proposicao(table_id: str):
     if not os.path.exists(f"{constants_camara.OUTPUT_PATH.value}{table_id}"):
         os.makedirs(f"{constants_camara.OUTPUT_PATH.value}{table_id}")
 
-    df.to_csv(
-        f"{constants_camara.OUTPUT_PATH.value}{table_id}/{valor}.csv",
-        sep=",",
-        index=False,
-    )
+    if table_id == "proposicao_microdados":
+        df["ultimoStatus_despacho"] = df["ultimoStatus_despacho"].apply(
+            lambda x: str(x).replace(";", ",").replace("\n", "").replace("\r", "")
+        )
+        df["ementa"] = df["ementa"].apply(
+            lambda x: str(x).replace(";", ",").replace("\n", "").replace("\r", "")
+        )
+        df.to_csv(
+            f"{constants_camara.OUTPUT_PATH.value}{table_id}/{valor}_{constants_camara.ANOS.value}.csv",
+            sep=",",
+            index=False,
+        )
+
+    else:
+        df.to_csv(
+            f"{constants_camara.OUTPUT_PATH.value}{table_id}/{valor}_{constants_camara.ANOS.value}.csv",
+            sep=",",
+            index=False,
+        )
 
 
 @task
