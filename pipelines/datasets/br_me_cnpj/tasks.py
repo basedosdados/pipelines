@@ -93,7 +93,6 @@ def main(tabelas):
                 url_download = f"https://dadosabertos.rfb.gov.br/CNPJ/{tabela}{i}.zip"
                 if nome_arquivo not in arquivos_baixados:
                     arquivos_baixados.append(nome_arquivo)
-                    log("ASYNC -->")
                     asyncio.run((download_unzip_csv(url_download, input_path)))
                     if tabela == "Estabelecimentos":
                         process_csv_estabelecimentos(

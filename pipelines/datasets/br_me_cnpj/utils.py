@@ -159,7 +159,6 @@ async def download_unzip_csv(
     url,
     pasta_destino,
 ):
-    time_before = time.perf_counter()
     log(f"Baixando o arquivo {url}")
 
     save_path = os.path.join(pasta_destino, f"{os.path.basename(url)}.zip")
@@ -171,7 +170,6 @@ async def download_unzip_csv(
         with zipfile.ZipFile(save_path) as z:
             z.extractall(pasta_destino)
         log("Dados extraídos com sucesso!")
-        log(f"Total time (asynchronous): {time.perf_counter() - time_before}.")
     except zipfile.BadZipFile:
         log(f"O arquivo {os.path.basename(url)} não é um arquivo ZIP válido.")
 
