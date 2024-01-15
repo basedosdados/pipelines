@@ -469,6 +469,8 @@ with Flow(
         output_filepath = main(tabelas)
         output_filepath2 = main_sync(tabelas, upstream_tasks=[output_filepath])
 
-br_me_cnpj_empresas.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_me_cnpj_empresas.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_me_cnpj_empresas.schedule = every_day_empresas
+br_me_cnpj_empresas_benchmark.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_me_cnpj_empresas_benchmark.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
+# br_me_cnpj_empresas_benchmark.schedule = every_day_empresas
