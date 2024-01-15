@@ -18,7 +18,11 @@ from pipelines.datasets.br_me_cnpj.schedules import (
     every_day_simples,
     every_day_socios,
 )
-from pipelines.datasets.br_me_cnpj.tasks import get_data_source_max_date, main
+from pipelines.datasets.br_me_cnpj.tasks import (
+    get_data_source_max_date,
+    main,
+    main_sync,
+)
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
@@ -438,3 +442,33 @@ with Flow(
 br_me_cnpj_simples.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_me_cnpj_simples.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 br_me_cnpj_simples.schedule = every_day_simples
+
+with Flow(
+    name="br_me_cnpj.empresas_benchmark",
+    code_owners=[
+        "lauris",
+    ],
+    executor=LocalDaskExecutor(),
+) as br_me_cnpj_empresas_benchmark:
+    dataset_id = Parameter("dataset_id", default="br_me_cnpj", required=False)
+    table_id = Parameter("table_id", default="empresas", required=False)
+    materialization_mode = Parameter(
+        "materialization_mode", default="dev", required=False
+    )
+    materialize_after_dump = Parameter(
+        "materialize_after_dump", default=False, required=False
+    )
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
+
+    dados_desatualizados = Parameter(
+        "dados_desatualizados", default=True, required=False
+    )
+    tabelas = constants_cnpj.TABELAS.value[0:1]
+
+    with case(dados_desatualizados, True):
+        output_filepath = main(tabelas)
+        output_filepath2 = main_sync(tabelas, upstream_tasks=[output_filepath])
+
+br_me_cnpj_empresas.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_me_cnpj_empresas.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_me_cnpj_empresas.schedule = every_day_empresas

@@ -159,7 +159,9 @@ async def download_unzip_csv(
     url,
     pasta_destino,
 ):
+    time_before = time.perf_counter()
     log(f"Baixando o arquivo {url}")
+
     save_path = os.path.join(pasta_destino, f"{os.path.basename(url)}.zip")
     content = await download(url)
     with open(save_path, "wb") as fd:
@@ -169,10 +171,32 @@ async def download_unzip_csv(
         with zipfile.ZipFile(save_path) as z:
             z.extractall(pasta_destino)
         log("Dados extraídos com sucesso!")
-
+        log(f"Total time (asynchronous): {time.perf_counter() - time_before}.")
     except zipfile.BadZipFile:
         log(f"O arquivo {os.path.basename(url)} não é um arquivo ZIP válido.")
 
+    os.remove(save_path)
+
+
+def download_unzip_csv_sync(url, pasta_destino, chunk_size: int = 1000):
+    time_before = time.perf_counter()
+    log(f"Baixando o arquivo {url}")
+    save_path = os.path.join(pasta_destino, f"{os.path.basename(url)}.zip")
+
+    r = requests.get(url, headers=headers, stream=True, timeout=60)
+    with open(save_path, "wb") as fd:
+        for chunk in tqdm(
+            r.iter_content(chunk_size=chunk_size), desc="Baixando o arquivo"
+        ):
+            fd.write(chunk)
+
+    try:
+        with zipfile.ZipFile(save_path) as z:
+            z.extractall(pasta_destino)
+        log("Dados extraídos com sucesso!")
+        log(f"Total time (asynchronous): {time.perf_counter() - time_before}.")
+    except zipfile.BadZipFile:
+        log(f"O arquivo {os.path.basename(url)} não é um arquivo ZIP válido.")
     os.remove(save_path)
 
 
