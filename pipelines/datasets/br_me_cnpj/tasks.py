@@ -87,7 +87,7 @@ def main(tabelas):
         output_path = destino_output(sufixo, data_coleta)
 
         # Loop para baixar e processar os arquivos
-        for i in range(0, 2):
+        for i in range(0, 10):
             if tabela != "Simples":
                 nome_arquivo = f"{tabela}{i}"
                 url_download = f"https://dadosabertos.rfb.gov.br/CNPJ/{tabela}{i}.zip"
