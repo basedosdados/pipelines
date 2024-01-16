@@ -184,7 +184,6 @@ def download_csvs_camara_proposicao(table_id: str) -> None:
 
     valor = constants.TABLE_LIST_PROPOSICAO.value[table_id]
     url = f"http://dadosabertos.camara.leg.br/arquivos/{valor}/csv/{valor}-{constants.ANOS.value}.csv"
-    log(url)
     response = requests.get(url)
     if response.status_code == 200:
         with open(f"{constants.INPUT_PATH.value}{valor}.csv", "wb") as f:
