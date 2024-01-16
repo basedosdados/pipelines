@@ -107,6 +107,9 @@ def save_data_proposicao(table_id: str):
         df["ementa"] = df["ementa"].apply(
             lambda x: str(x).replace(";", ",").replace("\n", "").replace("\r", "")
         )
+        df["ano"] = df.apply(
+            lambda x: x["dataApresentacao"][0:4] if x["ano"] == 0 else x["ano"], axis=1
+        )
         df.to_csv(
             f"{constants_camara.OUTPUT_PATH.value}{table_id}/{valor}_{constants_camara.ANOS.value}.csv",
             sep=",",
@@ -127,3 +130,13 @@ def output_path_list(table_id_list):
     for table_id in table_id_list:
         output_path_list.append(f"{constants_camara.OUTPUT_PATH.value}{table_id}/")
     return output_path_list
+
+
+@task
+def list_dict_to_materialization(table_id, dataset_id, materialization_mode, dbt_alias):
+    {
+        "dataset_id": dataset_id,
+        "table_id": table_id,
+        "mode": materialization_mode,
+        "dbt_alias": dbt_alias,
+    }

@@ -20,6 +20,7 @@ from pipelines.datasets.br_camara_dados_abertos.schedules import (
 from pipelines.datasets.br_camara_dados_abertos.tasks import (
     download_files_and_get_max_date,
     download_files_and_get_max_date_deputados,
+    list_dict_to_materialization,
     make_partitions,
     output_path_list,
     save_data_proposicao,
@@ -644,22 +645,22 @@ with Flow(
 
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
+        current_flow_labels = get_current_flow_labels.map()
         materialization_flow = create_flow_run.map(
             flow_name=unmapped(utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value),
             project_name=unmapped(constants.PREFECT_DEFAULT_PROJECT.value),
-            parameters={
-                "dataset_id": unmapped(dataset_id),
-                "table_id": table_id,
-                "mode": unmapped(materialization_mode),
-                "dbt_alias": unmapped(dbt_alias),
-            },
+            parameters=list_dict_to_materialization(
+                unmapped(dataset_id),
+                table_id,
+                unmapped(materialization_mode),
+                dbt_alias,
+            ),
             labels=unmapped(current_flow_labels),
-            run_name=unmapped(f"Materialize {dataset_id}.{table_id}"),
+            run_name=f"Materialize {dataset_id}.{table_id}",
         )
 
         wait_for_materialization = wait_for_flow_run.map(
-            materialization_flow,
+            unmapped(materialization_flow),
             stream_states=unmapped(True),
             stream_logs=unmapped(True),
             raise_final_state=unmapped(True),
