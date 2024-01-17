@@ -8,40 +8,40 @@ Esse repositório contém fluxos de captura e subida de dados no datalake da Bas
 
 ### Requisitos
 
-- Um editor de texto (recomendado VS Code)
-- Python 3.9.x
-- `pip`
-- (Opcional, mas recomendado) Um ambiente virtual para desenvolvimento (`miniconda`, `virtualenv` ou similares)
+-   Um editor de texto (recomendado VS Code)
+-   Python 3.10.x
+-   `pip`
+-   (Opcional, mas recomendado) Um ambiente virtual para desenvolvimento (`miniconda`, `virtualenv` ou similares)
 
 ### Procedimentos
 
-- Clonar esse repositório
+-   Clonar esse repositório
 
-  ```
-  git clone https://github.com/basedosdados/pipelines
-  ```
+    ```
+    git clone https://github.com/basedosdados/pipelines
+    ```
 
-- Abrí-lo no seu editor de texto
+-   Abrí-lo no seu editor de texto
 
-- No seu ambiente de desenvolvimento, instalar [poetry](https://python-poetry.org/) para gerenciamento de dependências
+-   No seu ambiente de desenvolvimento, instalar [poetry](https://python-poetry.org/) para gerenciamento de dependências
 
     ```
     pip3 install poetry
     ```
 
-- Instalar as dependências para desenvolvimento
+-   Instalar as dependências para desenvolvimento
 
     ```
     poetry install
     ```
 
-- Instalar os hooks de pré-commit (ver https://pre-commit.com/ para entendimento dos hooks)
+-   Instalar os hooks de pré-commit (ver https://pre-commit.com/ para entendimento dos hooks)
 
     ```
     pre-commit install
     ```
 
-- Pronto! Seu ambiente está configurado para desenvolvimento.
+-   Pronto! Seu ambiente está configurado para desenvolvimento.
 
 ---
 
@@ -124,17 +124,17 @@ Onde `nome-projeto`
 
 ### Adicionando dependências para execução
 
-- Requisitos de pipelines devem ser adicionados com
+-   Requisitos de pipelines devem ser adicionados com
 
 ```
 poetry add <package>
 ```
 
-- Requisitos do `manage.py` estão em `requirements-cli.txt`
+-   Requisitos do `manage.py` estão em `requirements-cli.txt`
 
-- Requisitos para a Action de deployment estão em `requirements-deploy.txt`
+-   Requisitos para a Action de deployment estão em `requirements-deploy.txt`
 
-- Requisitos para testes estão em `requirements-tests.txt`
+-   Requisitos para testes estão em `requirements-tests.txt`
 
 ### Como testar uma pipeline localmente
 
@@ -155,18 +155,19 @@ run_local(flow, parameters = {"param": "val"})
     cp .env.example .env
     ```
 
-* Substitua os valores das seguintes variáveis pelos seus respectivos valores:
-  - `GOOGLE_APPLICATION_CREDENTIALS`: Path para um arquivo JSON com as credenciais da API do Google Cloud
-    de uma conta de serviço com acesso de escrita ao bucket `basedosdados-dev` no Google Cloud Storage.
-  - `VAULT_TOKEN`: deve ter o valor do token do órgão para o qual você está desenvolvendo. Caso não saiba o token, entre em contato.
+-   Substitua os valores das seguintes variáveis pelos seus respectivos valores:
 
-* Carregue as variáveis de ambiente do arquivo `.env`:
+    -   `GOOGLE_APPLICATION_CREDENTIALS`: Path para um arquivo JSON com as credenciais da API do Google Cloud
+        de uma conta de serviço com acesso de escrita ao bucket `basedosdados-dev` no Google Cloud Storage.
+    -   `VAULT_TOKEN`: deve ter o valor do token do órgão para o qual você está desenvolvendo. Caso não saiba o token, entre em contato.
+
+-   Carregue as variáveis de ambiente do arquivo `.env`:
 
     ```sh
     source .env
     ```
 
-* Também, garanta que o arquivo `$HOME/.prefect/auth.toml` exista e tenha um conteúdo semelhante ao seguinte:
+-   Também, garanta que o arquivo `$HOME/.prefect/auth.toml` exista e tenha um conteúdo semelhante ao seguinte:
 
     ```toml
     ["prefect.basedosdados.org"]
@@ -174,13 +175,17 @@ run_local(flow, parameters = {"param": "val"})
     tenant_id = "<tenant-id>"
     ```
 
-    * O valor da chave `tenant_id` pode ser coletada atráves da seguinte URL: https://prefect.basedosdados.org/default/api. Devendo ser executado a seguinte query:
+    -   O valor da chave `tenant_id` pode ser coletada atráves da seguinte URL: https://prefect.basedosdados.org/default/api. Devendo ser executado a seguinte query:
 
         ```graphql
-        query { tenant{ id } }
+        query {
+            tenant {
+                id
+            }
+        }
         ```
 
-- Em seguida, tenha certeza que você já tem acesso à UI do Prefect, tanto para realizar a submissão da run, como para acompanhá-la durante o processo de execução.
+*   Em seguida, tenha certeza que você já tem acesso à UI do Prefect, tanto para realizar a submissão da run, como para acompanhá-la durante o processo de execução.
 
 1. Crie o arquivo `test.py` com a pipeline que deseja executar e adicione a função `run_cloud` com os parâmetros necessários:
 
@@ -205,7 +210,7 @@ run_local(flow, parameters = {"param": "val"})
     python test.py
     ```
 
-- A saída deverá se assemelhar ao exemplo abaixo:
+-   A saída deverá se assemelhar ao exemplo abaixo:
 
     ```
     [2022-02-19 12:22:57-0300] INFO - prefect.GCS | Uploading xxxxxxxx-development/2022-02-19t15-22-57-694759-00-00 to basedosdados-dev
@@ -217,4 +222,4 @@ run_local(flow, parameters = {"param": "val"})
     https://prefect.basedosdados.org/flow-run/xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
     ```
 
-- (Opcional, mas recomendado) Quando acabar de desenvolver sua pipeline, delete todas as versões da mesma pela UI do Prefect.
+-   (Opcional, mas recomendado) Quando acabar de desenvolver sua pipeline, delete todas as versões da mesma pela UI do Prefect.

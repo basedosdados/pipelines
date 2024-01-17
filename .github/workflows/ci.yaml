@@ -15,7 +15,7 @@ jobs:
       matrix:
         arch: [x64]
         os: [ubuntu-latest]
-        python-version: ["3.9.x"]
+        python-version: ["3.10.x"]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -61,7 +61,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: "3.9.x"
+          python-version: "3.10.x"
       - name: Set up poetry and upgrade pip
         run: |
           pip install -U pip poetry
