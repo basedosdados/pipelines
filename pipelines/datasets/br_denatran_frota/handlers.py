@@ -31,18 +31,18 @@ from pipelines.datasets.br_denatran_frota.utils import (
     verify_total,
 )
 from pipelines.utils.metadata.utils import get_api_most_recent_date
-from pipelines.utils.utils import clean_dataframe, log, to_partitions
+from pipelines.utils.utils import log, to_partitions
 
 MONTHS = constants.MONTHS.value
 DATASET = constants.DATASET.value
 DICT_UFS = constants.DICT_UFS.value
-OUTPUT_PATH = "DENATRAN_FILES"
+OUTPUT_PATH = constants.OUTPUT_PATH.value
 MONTHS_SHORT = constants.MONTHS_SHORT.value
 UF_TIPO_BASIC_FILENAME = constants.UF_TIPO_BASIC_FILENAME.value
 MUNIC_TIPO_BASIC_FILENAME = constants.MUNIC_TIPO_BASIC_FILENAME.value
 
 
-def crawl(month: int, year: int, temp_dir: str = "") -> None:
+def crawl(month: int, year: int, temp_dir: str = "") -> bool:
     """Função principal para baixar os dados de frota por município e tipo e também por UF e tipo.
 
     Args:
@@ -60,9 +60,18 @@ def crawl(month: int, year: int, temp_dir: str = "") -> None:
     year_dir_name = os.path.join(files_dir, f"{year}")
     make_dir_when_not_exists(year_dir_name)
     if year > 2012:
-        files_to_download = extract_links_post_2012(month, year, year_dir_name)
-        for file_dict in files_to_download:
-            call_downloader(file_dict)
+        try:
+            files_to_download = extract_links_post_2012(month, year, year_dir_name)
+            for file_dict in files_to_download:
+                call_downloader(file_dict)
+        except Exception as e:
+            log(e)
+            log(
+                "The above error indicates that the next month denatran file was not released yet."
+            )
+
+            return False
+
     else:
         url = f"https://www.gov.br/infraestrutura/pt-br/assuntos/transito/arquivos-senatran/estatisticas/renavam/{year}/frota{'_' if year > 2008 else ''}{year}.zip"
         filename = f"{year_dir_name}/dados_anuais.zip"
@@ -80,6 +89,8 @@ def crawl(month: int, year: int, temp_dir: str = "") -> None:
                     )
         else:
             extraction_pre_2012(month, year, year_dir_name, filename)
+
+    return True
 
 
 def treat_uf_tipo(file: str) -> pl.DataFrame:
@@ -105,6 +116,12 @@ def treat_uf_tipo(file: str) -> pl.DataFrame:
     year, month = get_year_month_from_filename(filename)
     # If the df is all strings, try to get numbers where it makes sense.
     clean_df.replace(" -   ", 0, inplace=True)
+
+    # Create a reverse dictionary to replace uf names with uf sigla
+    reverse_dict = {v: k for k, v in DICT_UFS.items()}
+    clean_df["sigla_uf"] = clean_df["sigla_uf"].map(reverse_dict)
+
+    # clean_df.replace()
     if all(clean_df.dtypes == "object"):
         clean_df = clean_df.apply(pd.to_numeric, errors="ignore")
     clean_pl_df = pl.from_pandas(clean_df).lazy()
@@ -120,13 +137,15 @@ def treat_uf_tipo(file: str) -> pl.DataFrame:
         variable_name="tipo_veiculo",
         value_name="quantidade",
     )  # Long format.
-    clean_pl_df = clean_pl_df.collect()
+
     return clean_pl_df
 
 
 def output_file_to_csv(df: pl.DataFrame, filename: str) -> None:
     make_dir_when_not_exists(OUTPUT_PATH)
+
     pd_df = df.to_pandas()
+    log(pd_df.head(10))
     to_partitions(
         pd_df, partition_columns=["ano", "mes", "sigla_uf"], savepath=OUTPUT_PATH
     )
@@ -148,12 +167,6 @@ def get_desired_file(year: int, download_directory: str, filetype: str) -> str:
 
 
 def get_latest_data(table_id: str, dataset_id: str):
-    # denatran_data: pd.DataFrame = get_data_from_prod(
-    #    table_id=table_name, dataset_id="br_denatran_frota"
-    # )
-    # substituir por get_api_most_recente_date aqui
-    # pipelines.utils.metadata.utils.get_api_most_recente_date
-    # ela vai retonar a data mais recente da tabela extraida da api
     denatran_data = get_api_most_recent_date(
         table_id=table_id, dataset_id=dataset_id, date_format="%Y-%m"
     )
@@ -168,38 +181,17 @@ def get_latest_data(table_id: str, dataset_id: str):
     else:
         month += 1
     log(f"Ano: {year}, mês: {month}")
-    return year, month
-
-    # if not isinstance(denatran_data, pd.DataFrame):
-    #    return 2003, 1
-    # if not denatran_data.empty:
-    #    log(denatran_data.head(2))
-    #    year = denatran_data["ano"].max()
-    #    month = denatran_data.loc[denatran_data["ano"] == year]["mes"].max()
-    #    year = int(year)
-    #    month = int(month)
-    #    log(year)
-    #    log(type(year))
-    #    log(month)
-    #    log(type(month))
-    #    if month == 12:
-    #        year += 1
-    #        month = 1
-    #    else:
-    #        month += 1
-    #    log(f"Ano: {year}, mês: {month}")
-    #    return year, month
-    # else:
-    #    log("Não achei ano não mané")
-    #    return 2003, 1
+    # return year, month
+    return 2023, 12
 
 
 def treat_municipio_tipo(file: str) -> pl.DataFrame:
     bd_municipios = bd.read_sql(
-        "select * from `basedosdados.br_bd_diretorios_brasil.municipio`",
+        "select nome, id_municipio, sigla_uf from `basedosdados.br_bd_diretorios_brasil.municipio`",
         # billing_project_id="basedosdados-dev",
         from_file=True,
     )
+
     bd_municipios = pl.from_pandas(bd_municipios)
 
     filename = os.path.split(file)[1]

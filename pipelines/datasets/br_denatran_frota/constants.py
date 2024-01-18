@@ -11,8 +11,6 @@ class constants(Enum):  # pylint: disable=c0103
     Constant values for the br_denatran_frota project
     """
 
-    # -*- coding: utf-8 -*-
-
     MONTHS = {
         "janeiro": 1,
         "fevereiro": 2,
