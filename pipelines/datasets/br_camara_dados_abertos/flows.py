@@ -674,7 +674,7 @@ with Flow(
             date_format=["%Y-%m-%d"],
             coverage_type=["part_bdpro", "all_free", "all_free"],
             prefect_mode=unmapped(materialization_mode),
-            bq_project=unmapped("basedosdados"),
+            bq_project=unmapped("basedosdados-dev"),
             historical_database=[True, False, False],
         )
 
