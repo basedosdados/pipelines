@@ -675,6 +675,7 @@ with Flow(
             dataset_id=unmapped(dataset_id),
             table_id=table_id,
             date_format=["%Y-%m-%d"],
+            date_column_name=[{"date": "data"}],
             coverage_type=["part_bdpro", "all_free", "all_free"],
             prefect_mode=unmapped(materialization_mode),
             bq_project=unmapped("basedosdados-dev"),
