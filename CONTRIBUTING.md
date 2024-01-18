@@ -2,45 +2,44 @@
 
 Neste documento, mostra-se como configurar o ambiente e desenvolver novas features para as pipelines da **BD**. O tutorial é dedicado a não-membros da **BD** e, assim, cobre apenas o caso de desenvolvimento local. Futuramente, o desenvolvimento em cloud estará disponível também para não-membros.
 
-
 ## Configuração de ambiente para desenvolvimento
 
 ### Requisitos
 
-- Um editor de texto (recomendado VS Code)
-- Python 3.9.x
-- `pip`
-- (Opcional, mas recomendado) Um ambiente virtual para desenvolvimento (`miniconda`, `virtualenv` ou similares)
+-   Um editor de texto (recomendado VS Code)
+-   Python 3.10.x
+-   `pip`
+-   (Opcional, mas recomendado) Um ambiente virtual para desenvolvimento (`miniconda`, `virtualenv` ou similares)
 
 ### Procedimentos
 
-- Clonar esse repositório
+-   Clonar esse repositório
 
-  ```
-  git clone https://github.com/basedosdados/pipelines
-  ```
+    ```
+    git clone https://github.com/basedosdados/pipelines
+    ```
 
-- Abrí-lo no seu editor de texto
+-   Abrí-lo no seu editor de texto
 
-- No seu ambiente de desenvolvimento, instalar [poetry](https://python-poetry.org/) para gerenciamento de dependências
+-   No seu ambiente de desenvolvimento, instalar [poetry](https://python-poetry.org/) para gerenciamento de dependências
 
     ```
     pip3 install poetry
     ```
 
-- Instalar as dependências para desenvolvimento
+-   Instalar as dependências para desenvolvimento
 
     ```
     poetry install
     ```
 
-- Instalar os hooks de pré-commit (ver https://pre-commit.com/ para entendimento dos hooks)
+-   Instalar os hooks de pré-commit (ver https://pre-commit.com/ para entendimento dos hooks)
 
     ```
     pre-commit install
     ```
 
-- Pronto! Seu ambiente está configurado para desenvolvimento.
+-   Pronto! Seu ambiente está configurado para desenvolvimento.
 
 ---
 
@@ -123,17 +122,17 @@ Onde `nome-projeto`
 
 ### Adicionando dependências para execução
 
-- Requisitos de pipelines devem ser adicionados com
+-   Requisitos de pipelines devem ser adicionados com
 
 ```
 poetry add <package>
 ```
 
-- Requisitos do `manage.py` estão em `requirements-cli.txt`
+-   Requisitos do `manage.py` estão em `requirements-cli.txt`
 
-- Requisitos para a Action de deployment estão em `requirements-deploy.txt`
+-   Requisitos para a Action de deployment estão em `requirements-deploy.txt`
 
-- Requisitos para testes estão em `requirements-tests.txt`
+-   Requisitos para testes estão em `requirements-tests.txt`
 
 ### Como testar uma pipeline localmente
 

@@ -155,7 +155,9 @@ def create_table_and_upload_to_gcs(
         # the header is needed to create a table when dosen't exist
         # in overwrite mode the header is always created
         log("MODE OVERWRITE: Table DOSEN'T EXISTS\n" + "Start to CREATE HEADER file")
-        header_path = dump_header_to_csv(data_path=data_path)
+        header_path = dump_header_to_csv(
+            data_path=data_path, source_format=source_format
+        )
         log("MODE OVERWRITE: Created HEADER file:\n" f"{header_path}")
 
         tb.create(

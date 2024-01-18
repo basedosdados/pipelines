@@ -1,472 +1,155 @@
 # -*- coding: utf-8 -*-
 """
-Tasks for br_twitter
+Tasks for br_bd_metadados
 """
-# pylint: disable=invalid-name,too-many-nested-blocks,too-many-arguments,too-many-locals,too-many-branches,too-many-statements
 import os
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import pandas as pd
-import requests
-from dateutil.relativedelta import relativedelta
-from prefect import task
+from prefect import Client, task
 
 from pipelines.constants import constants
-from pipelines.datasets.br_bd_metadados.utils import (
-    check_missing_metadata,
-    get_temporal_coverage_list,
-)
-from pipelines.utils.utils import log
-
-
-# pylint: disable=C0103
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
-def echo(message: str) -> None:
-    """
-    Logs message as a Task
-    """
-    log(message)
 
 
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def crawler_organizations():
-    """
-    Pulls metadata about organizations from Base dos Dados' APIs and returns it structured in a csv file.
+def crawler_flow_runs():
+    client = Client()
 
-    Args:
-
-    Returns:
-        Path to csv file with structured metadata about organizations.
-    """
-
-    url = "https://basedosdados.org/api/3/action/organization_list"
-    r = requests.get(url, timeout=10)
-    json_response = r.json()
-
-    organizations_json = json_response["result"]
-    organizations = []
-    for organization in organizations_json:
-        response = requests.get(
-            "https://basedosdados.org/api/3/action/organization_show?id={}".format(
-                organization
-            ),
-            timeout=10,
-        )
-        organization_json = response.json()["result"]
-
-        organizations.append(
-            {
-                "id": organization_json["id"],
-                "name": organization_json["name"],
-                "description": organization_json["description"],
-                "display_name": organization_json["display_name"],
-                "title": organization_json["title"],
-                "package_count": organization_json["package_count"],
-                "date_created": organization_json["created"][0:10],
+    body = """{flow_run(where: {_and: [{state: {_nin: ["Scheduled", "Cancelled"]}}]}) {
+                id
+                name
+                start_time
+                end_time
+                labels
+                flow {
+                    flow_group_id
+                    archived
+                    name
+                    project{
+                        name
+                    }
+                }
+                parameters
+                state
+                state_message
+                task_runs {
+                    state
+                    task {
+                        name
+                    }
+                }
+                logs(where: {level: {_eq: "ERROR"}}) {
+                    message
+                }
             }
-        )
+            }"""
 
-    df = pd.DataFrame.from_dict(organizations)
+    r = client.graphql(query=body)
 
-    os.system("mkdir -p /tmp/data/")
-    df.to_csv("/tmp/data/organizations.csv", index=False)
+    df = pd.json_normalize(r["data"]["flow_run"], sep="_")
 
-    return "/tmp/data/organizations.csv"
+    create_table_and_upload_to_gcs_skipped = {
+        "state": "Skipped",
+        "task": {"name": "create_table_and_upload_to_gcs"},
+    }
+
+    df["skipped_upload_to_gcs"] = df["task_runs"].apply(
+        lambda tasks: create_table_and_upload_to_gcs_skipped in tasks
+    )
+
+    df["dataset_id"] = df["parameters_dataset_id"]
+    df["table_id"] = df["parameters_table_id"]
+
+    filtered_columns = [col for col in df.columns if not col.startswith("parameters")]
+
+    df["labels"] = df["labels"].str[0]
+
+    selected_df = df[filtered_columns]
+
+    table_id = "prefect_flow_runs"
+
+    # Define the folder path for storing the file
+    folder = f"tmp/{table_id}/"
+    # Create the folder if it doesn't exist
+    os.system(f"mkdir -p {folder}")
+    # Define the full file path for the CSV file
+    full_filepath = f"{folder}/{table_id}.csv"
+    # Save the DataFrame as a CSV file
+    selected_df.to_csv(full_filepath, index=False)
+
+    return full_filepath
 
 
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
-def crawler_datasets():
-    """
-    Pulls metadata about datasets from Base dos Dados' APIs and returns it structured in a csv file.
+@task
+def crawler_flows():
+    client = Client()
 
-    Args:
-
-    Returns:
-        Path to csv file with structured metadata about datasets.
-    """
-
-    url = "https://basedosdados.org/api/3/action/bd_dataset_search?page_size=50000"
-    r = requests.get(url, timeout=10)
-    datasets_json = r.json()["result"]["datasets"]
-
-    datasets = []
-    for dataset in datasets_json:
-        datasets.append(
-            {
-                "organization_id": dataset["owner_org"],
-                "id": dataset["id"],
-                "name": dataset["name"],
-                "title": dataset["title"],
-                "date_created": dataset["metadata_created"][0:10],
-                "date_last_modified": dataset["metadata_modified"][0:10],
-                "themes": [group["id"] for group in dataset["groups"]],
-                "tags": [tag["id"] for tag in dataset["tags"]],
+    body = """{
+    flow(where: {archived: {_eq: false}, is_schedule_active: {_eq: true}}) {
+        name
+        version
+        created
+        schedule
+        flow_group_id
+        project{
+        name
+        }
+        flow_group {
+        flows_aggregate {
+            aggregate {
+            min {
+                created
             }
-        )
-
-    df = pd.DataFrame.from_dict(datasets)
-
-    os.system("mkdir -p /tmp/data/")
-    df.to_csv("/tmp/data/datasets.csv", index=False)
-
-    return "/tmp/data/datasets.csv"
-
-
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
-def crawler_resources():
-    """
-    Pulls metadata about resources from Base dos Dados' APIs and returns it structured in a csv file.
-
-    Args:
-
-    Returns:
-        Path to csv file with structured metadata about resources.
+            }
+        }
+        }
+    }
+    }
     """
 
-    url = "https://basedosdados.org/api/3/action/bd_dataset_search?page_size=50000"
-    r = requests.get(url, timeout=10)
-    datasets_json = r.json()["result"]["datasets"]
+    r = client.graphql(query=body)
 
-    resources = []
-    for dataset in datasets_json:
-        for resource in dataset["resources"]:
-            if resource.get("created") is not None:
-                resources.append(
-                    {
-                        "dataset_id": dataset["id"],
-                        "id": resource["id"],
-                        "name": resource["name"],
-                        "date_created": resource["created"][0:10],
-                        "date_last_modified": resource["metadata_modified"][0:10],
-                        "type": resource["resource_type"],
-                    }
-                )
+    df = pd.json_normalize(r, record_path=["data", "flow"], sep="_")
 
-    df = pd.DataFrame.from_dict(resources)
+    df_schedule_clocks = pd.json_normalize(
+        df["schedule_clocks"].str[0], max_level=0, sep="_"
+    ).add_prefix("schedule_")
+    df.drop(
+        columns=[
+            "schedule_clocks",
+        ],
+        inplace=True,
+    )
+    df_schedule_clocks.drop(columns=["schedule___version__"], inplace=True)
 
-    os.system("mkdir -p /tmp/data/")
-    df.to_csv("/tmp/data/resources.csv", index=False)
+    df_parameters = pd.json_normalize(
+        df_schedule_clocks["schedule_parameter_defaults"]
+    ).add_prefix("schedule_parameters_")
+    standard_params = [
+        "schedule_parameters_table_id",
+        "schedule_parameters_dbt_alias",
+        "schedule_parameters_dataset_id",
+        "schedule_parameters_update_metadata",
+        "schedule_parameters_materialization_mode",
+        "schedule_parameters_materialize_after_dump",
+    ]
 
-    return "/tmp/data/resources.csv"
+    df_final = pd.concat(
+        [df, df_schedule_clocks, df_parameters[standard_params]], axis=1
+    )
 
+    table_id = "prefect_flows"
 
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
-def crawler_external_links():
-    """
-    Pulls metadata about external links from Base dos Dados' APIs and returns it structured in a csv file.
+    # Define the folder path for storing the file
+    folder = f"tmp/{table_id}/"
+    # Create the folder if it doesn't exist
+    os.system(f"mkdir -p {folder}")
+    # Define the full file path for the CSV file
+    full_filepath = f"{folder}/{table_id}.csv"
+    # Save the DataFrame as a CSV file
+    df_final.to_csv(full_filepath, index=False)
 
-    Args:
-
-    Returns:
-        Path to csv file with structured metadata about external links.
-    """
-
-    url = "https://basedosdados.org/api/3/action/bd_dataset_search?page_size=50000&resource_type=external_link"
-    r = requests.get(url, timeout=10)
-    datasets_json = r.json()["result"]["datasets"]
-
-    resources = []
-    for dataset in datasets_json:
-        for resource in dataset["resources"]:
-            if resource["resource_type"] == "external_link":
-                resources.append(
-                    {
-                        "dataset_id": dataset.get("id"),
-                        "id": resource.get("id"),
-                        "name": resource.get("name"),
-                        "date_created": resource.get("created")[0:10],
-                        "date_last_modified": resource.get("metadata_modified")[0:10],
-                        "url": resource.get("url"),
-                        "language": resource.get("language"),
-                        "has_structured_data": resource.get("has_structured_data"),
-                        "has_api": resource.get("has_api"),
-                        "is_free": resource.get("is_free"),
-                        "requires_registration": resource.get("requires_registration"),
-                        "availability": resource.get("availability"),
-                        "spatial_coverage": resource.get("spatial_coverage"),
-                        "temporal_coverage": resource.get("temporal_coverage"),
-                        "update_frequency": resource.get("update_frequency"),
-                        "observation_level": resource.get("observation_level"),
-                    }
-                )
-
-    df = pd.DataFrame.from_dict(resources)
-
-    os.system("mkdir -p /tmp/data/")
-    df.to_csv("/tmp/data/external_links.csv", index=False)
-
-    return "/tmp/data/external_links.csv"
-
-
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
-def crawler_information_requests():
-    """
-    Pulls metadata about information requests from Base dos Dados' APIs and returns it structured in a csv file.
-
-    Args:
-
-    Returns:
-        Path to csv file with structured metadata about information requests.
-    """
-
-    url = "https://basedosdados.org/api/3/action/bd_dataset_search?page_size=50000&resource_type=information_request"
-    r = requests.get(url, timeout=10)
-    datasets_json = r.json()["result"]["datasets"]
-
-    resources = []
-    for dataset in datasets_json:
-        for resource in dataset["resources"]:
-            if resource["resource_type"] == "information_request":
-                resources.append(
-                    {
-                        "dataset_id": dataset.get("id"),
-                        "id": resource.get("id"),
-                        "name": resource.get("name"),
-                        "date_created": resource.get("created")[0:10],
-                        "date_last_modified": resource.get("metadata_modified")[0:10],
-                        "url": resource.get("url"),
-                        "origin": resource.get("origin"),
-                        "number": resource.get("number"),
-                        "opening_date": resource.get("opening_date"),
-                        "requested_by": resource.get("requested_by"),
-                        "status": resource.get("status"),
-                        "data_url": resource.get("data_url"),
-                        "spatial_coverage": resource.get("spatial_coverage"),
-                        "temporal_coverage": resource.get("temporal_coverage"),
-                        "update_frequency": resource.get("update_frequency"),
-                        "observation_level": resource.get("observation_level"),
-                    }
-                )
-
-    df = pd.DataFrame.from_dict(resources)
-
-    os.system("mkdir -p /tmp/data/")
-    df.to_csv("/tmp/data/information_requests.csv", index=False)
-
-    return "/tmp/data/information_requests.csv"
-
-
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
-def crawler_tables():
-    """
-    Pulls metadata about tables from Base dos Dados' APIs and returns it structured in a csv file.
-
-    Args:
-
-    Returns:
-        Path to csv file with structured metadata about tables.
-    """
-
-    url = "https://basedosdados.org/api/3/action/bd_dataset_search?page_size=50000&resource_type=bdm_table"
-    r = requests.get(url, timeout=10)
-    json_response = r.json()
-
-    current_date = datetime.today()
-    datasets = json_response["result"]["datasets"]
-    resources = []
-    for dataset in datasets:
-        for resource in dataset["resources"]:
-            if resource["resource_type"] == "bdm_table":
-                date_created = None
-                if "created" in resource:
-                    if resource["created"] is not None:
-                        date_created = resource["created"][0:10]
-
-                metadata_created, data_created, release_created = "", "", ""
-                if "last_updated" in resource:
-                    if resource["last_updated"].get("metadata") is not None:
-                        metadata_created = str(
-                            resource["last_updated"].get("metadata")
-                        ).replace("/", "-")[0:10]
-
-                    if resource["last_updated"].get("data") is not None:
-                        data_created = str(
-                            resource["last_updated"].get("data")
-                        ).replace("/", "-")[0:10]
-
-                    if resource["last_updated"].get("release") is not None:
-                        release_created = str(
-                            resource["last_updated"].get("release")
-                        ).replace("/", "-")[0:10]
-
-                date_last_modified = None
-                if "metadata_modified" in resource:
-                    if resource["metadata_modified"] is not None:
-                        date_last_modified = resource["metadata_modified"][0:10]
-
-                number_rows = 0
-                if "number_rows" in resource:
-                    if resource["number_rows"] is not None:
-                        number_rows = int(resource["number_rows"])
-
-                # indicator for outdated
-                outdated = None
-                if "update_frequency" in resource:
-                    if resource["update_frequency"] in [
-                        "recurring",
-                        "unique",
-                        "uncertain",
-                        "other",
-                        None,
-                    ]:
-                        pass
-                    else:
-                        if resource["temporal_coverage"] in [None, []]:
-                            pass
-                        else:
-                            upper_temporal_coverage = get_temporal_coverage_list(
-                                resource["temporal_coverage"]
-                            )[-1]
-                            if resource["update_frequency"] in [
-                                "one_year",
-                                "semester",
-                                "quarter",
-                                "month",
-                                "week",
-                                "day",
-                                "hour",
-                                "minute",
-                                "second",
-                            ]:
-                                delta = 1
-                            elif resource["update_frequency"] == "two_years":
-                                delta = 2
-                            elif resource["update_frequency"] == "four_years":
-                                delta = 4
-                            elif resource["update_frequency"] == "five_years":
-                                delta = 5
-                            elif resource["update_frequency"] == "ten_years":
-                                delta = 10
-                            else:
-                                delta = 1000
-
-                            number_dashes = upper_temporal_coverage.count("-")
-                            diff = 0
-                            if number_dashes == 0:
-                                upper_temporal_coverage = datetime.strptime(
-                                    upper_temporal_coverage, "%Y"
-                                )
-                                diff = relativedelta(years=delta)
-                            elif number_dashes == 1:
-                                upper_temporal_coverage = datetime.strptime(
-                                    upper_temporal_coverage, "%Y-%m"
-                                )
-                                diff = relativedelta(month=delta)
-                            elif number_dashes == 2:
-                                upper_temporal_coverage = datetime.strptime(
-                                    upper_temporal_coverage, "%Y-%m-%d"
-                                )
-                                diff = relativedelta(days=delta)
-
-                            if current_date > upper_temporal_coverage + diff:
-                                outdated = "1"
-                            else:
-                                outdated = "0"
-
-                resources.append(
-                    {
-                        "dataset_id": dataset.get("id"),
-                        "dataset_name": dataset.get("name"),
-                        "id": resource.get("id"),
-                        "name": resource.get("name"),
-                        "date_created": date_created,
-                        "date_last_modified": date_last_modified,
-                        "spatial_coverage": resource.get("spatial_coverage"),
-                        "temporal_coverage": resource.get("temporal_coverage"),
-                        "update_frequency": resource.get("update_frequency"),
-                        "observation_level": resource.get("observation_level"),
-                        "number_rows": number_rows,
-                        "number_columns": len(resource.get("columns")),
-                        "outdated": outdated,
-                        "metadata": metadata_created,
-                        "data": data_created,
-                        "release": release_created,
-                        "published_by": resource.get("published_by").get("name"),
-                        "cleaned_by": resource.get("data_cleaned_by").get("name"),
-                    }
-                )
-
-    df = pd.DataFrame.from_dict(resources)
-    df = check_missing_metadata(df)
-
-    os.system("mkdir -p /tmp/data/")
-    df.to_csv("/tmp/data/tables.csv", index=False)
-
-    return "/tmp/data/tables.csv"
-
-
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
-def crawler_columns():
-    """
-    Pulls metadata about columns from Base dos Dados' APIs and returns it structured in a csv file.
-
-    Args:
-
-    Returns:
-        Path to csv file with structured metadata about columns.
-    """
-
-    url = "https://basedosdados.org/api/3/action/bd_dataset_search?page_size=50000&resource_type=bdm_table"
-    r = requests.get(url, timeout=10)
-    json_response = r.json()
-
-    datasets = json_response["result"]["datasets"]
-    columns = []
-    for dataset in datasets:
-        for resource in dataset["resources"]:
-            if resource["resource_type"] == "bdm_table":
-                for column in resource.get("columns"):
-                    directory_column = None
-                    if column.get("directory_column") is not None:
-                        if column.get("directory_column")["dataset_id"] is not None:
-                            directory_column = column.get("directory_column")
-
-                    columns.append(
-                        {
-                            "table_id": resource.get("id"),
-                            "name": column.get("name"),
-                            "bigquery_type": column.get("bigquery_type"),
-                            "description": column.get("description"),
-                            "temporal_coverage": column.get("temporal_coverage"),
-                            "covered_by_dictionary": column.get(
-                                "covered_by_dictionary"
-                            ),
-                            "directory_column": directory_column,
-                            "measurement_unit": column.get("measurement_unit"),
-                            "has_sensitive_data": column.get("has_sensitive_data"),
-                            "observations": column.get("observations"),
-                            "is_in_staging": column.get("is_in_staging"),
-                            "is_partition": column.get("is_partition"),
-                        }
-                    )
-
-    df = pd.DataFrame.from_dict(columns)
-
-    os.system("mkdir -p /tmp/data/")
-    df.to_csv("/tmp/data/columns.csv", index=False)
-
-    return "/tmp/data/columns.csv"
+    return full_filepath

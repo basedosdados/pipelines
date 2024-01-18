@@ -160,7 +160,7 @@ br_mercadolivre_ofertas_item.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_mercadolivre_ofertas_item.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_mercadolivre_ofertas_item.schedule = every_day_item
+# br_mercadolivre_ofertas_item.schedule = every_day_item
 
 with Flow(
     name="br_mercadolivre_ofertas.vendedor", code_owners=["Gabriel Pisa"]

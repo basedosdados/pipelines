@@ -33,7 +33,7 @@ jobs:
       - name: Setup Python version
         uses: actions/setup-python@v2
         with:
-          python-version: "3.9"
+          python-version: "3.10"
 
       - name: Setup Google Cloud CLI
         uses: google-github-actions/setup-gcloud@v0.2.1
@@ -70,7 +70,7 @@ jobs:
           echo $PREFECT_AUTH_TOML | base64 --decode > $HOME/.prefect/auth.toml
 
       - name: Wait for Docker image to be available
-        uses: lewagon/wait-on-check-action@v1.1.2
+        uses: lewagon/wait-on-check-action@v1.3.1
         with:
           ref: ${{ github.ref }}
           check-name: 'Build Docker image'

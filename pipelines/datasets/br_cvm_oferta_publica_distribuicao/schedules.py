@@ -21,7 +21,7 @@ schedule_dia = Schedule(
             parameter_defaults={
                 "dataset_id": "br_cvm_oferta_publica_distribuicao",
                 "materialization_mode": "prod",
-                "materialize after dump": True,
+                "materialize_after_dump": True,
                 "table_id": "dia",
                 "update_metadata": True,
                 "dbt_alias": True,
