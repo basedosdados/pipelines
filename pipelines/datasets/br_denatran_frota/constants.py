@@ -21,9 +21,10 @@ class constants(Enum):  # pylint: disable=c0103
         "julho": 7,
         "agosto": 8,
         "setembro": 9,
-        "outubro": 10,
-        "novembro": 11,
-        "dezembro": 12,
+        # months
+        "Outubro": 10,
+        "Novembro": 11,
+        "Dezembro": 12,
     }
 
     DATASET = "br_denatran_frota"

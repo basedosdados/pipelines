@@ -421,6 +421,7 @@ def extract_links_post_2012(month: int, year: int, directory: str) -> list[dict]
     soup = BeautifulSoup(urlopen(url), "html.parser")
     # Só queremos os dados de frota nacional.
     nodes = soup.select("p:contains('rota por ') > a")
+
     valid_links = []
     for node in nodes:
         txt = node.text
@@ -429,11 +430,16 @@ def extract_links_post_2012(month: int, year: int, directory: str) -> list[dict]
         match = re.search(
             r"(?i)\/([\w-]+)\/(\d{4})\/(\w+)\/([\w-]+)\.(?:xls|xlsx|rar|zip)$", href
         )
+
         if match and re.search("tipo|município", txt, flags=re.IGNORECASE):
             matched_month = match.group(3)
             matched_year = match.group(2)
+            log(f"------match_month  {matched_month}")
+            # log(f'------matched_get{MONTHS.get(matched_month)}')
+            # log(f'------matched_year{matched_year}')
             if MONTHS.get(matched_month) == month and matched_year == str(year):
                 filetype = match.group(0).split(".")[-1].lower()
+                log(f"------filetype {filetype}")
                 info = {
                     "txt": txt,
                     "href": href,
@@ -443,7 +449,10 @@ def extract_links_post_2012(month: int, year: int, directory: str) -> list[dict]
                     "filetype": filetype,
                     "destination_dir": directory,
                 }
+                # log(f'------info {info}')
                 valid_links.append(info)
+
+    log(valid_links)
     return valid_links
 
 

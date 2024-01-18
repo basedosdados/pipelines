@@ -145,7 +145,7 @@ def output_file_to_csv(df: pl.DataFrame, filename: str) -> None:
     make_dir_when_not_exists(OUTPUT_PATH)
 
     pd_df = df.to_pandas()
-    log(pd_df.head(10))
+
     to_partitions(
         pd_df, partition_columns=["ano", "mes", "sigla_uf"], savepath=OUTPUT_PATH
     )
@@ -182,7 +182,7 @@ def get_latest_data(table_id: str, dataset_id: str):
         month += 1
     log(f"Ano: {year}, mês: {month}")
     # return year, month
-    return 2023, 12
+    return 2023, 10
 
 
 def treat_municipio_tipo(file: str) -> pl.DataFrame:
