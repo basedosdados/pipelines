@@ -671,10 +671,11 @@ with Flow(
         update_django_metadata.map(
             dataset_id=unmapped(dataset_id),
             table_id=table_id,
-            coverage_type="all_free",
+            date_format=["%Y-%m-%d"],
+            coverage_type=["part_bdpro", "all_free", "all_free"],
             prefect_mode=unmapped(materialization_mode),
             bq_project=unmapped("basedosdados"),
-            historical_database=False,
+            historical_database=[True, False, False],
         )
 
 br_camara_proposicao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
