@@ -633,6 +633,7 @@ with Flow(
 
     filepath = save_data_proposicao.map(
         table_id=table_id,
+        upstream_tasks=unmapped([rename_flow_run]),
     )
     output_path_list = output_path_list(table_id)
     wait_upload_table = create_table_and_upload_to_gcs.map(
@@ -641,6 +642,7 @@ with Flow(
         table_id=table_id,
         dump_mode=unmapped("append"),
         wait=unmapped(output_path_list),
+        upstream_tasks=unmapped(filepath),
     )
     parameters = dict_list_parameters(dataset_id, materialization_mode, dbt_alias)
     with case(materialize_after_dump, True):
@@ -676,6 +678,7 @@ with Flow(
             prefect_mode=unmapped(materialization_mode),
             bq_project=unmapped("basedosdados-dev"),
             historical_database=[True, False, False],
+            upstream_tasks=unmapped([wait_for_materialization]),
         )
 
 br_camara_proposicao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
