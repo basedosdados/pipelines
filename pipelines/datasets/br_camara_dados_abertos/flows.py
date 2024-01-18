@@ -678,6 +678,7 @@ with Flow(
             date_column_name=[{"date": "data"}],
             coverage_type=["part_bdpro", "all_free", "all_free"],
             prefect_mode=unmapped(materialization_mode),
+            time_delta=[{"months": 6}],
             bq_project=unmapped("basedosdados-dev"),
             historical_database=[True, False, False],
             upstream_tasks=[unmapped(wait_for_materialization)],
