@@ -18,9 +18,9 @@ from pipelines.datasets.br_camara_dados_abertos.schedules import (
     every_day_camara_dados_abertos_deputados,
 )
 from pipelines.datasets.br_camara_dados_abertos.tasks import (
+    dict_list_parameters,
     download_files_and_get_max_date,
     download_files_and_get_max_date_deputados,
-    list_dict_to_materialization,
     make_partitions,
     output_path_list,
     save_data_proposicao,
@@ -642,25 +642,20 @@ with Flow(
         dump_mode=unmapped("append"),
         wait=unmapped(output_path_list),
     )
-
+    parameters = dict_list_parameters(dataset_id, materialization_mode, dbt_alias)
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels.map()
+        current_flow_labels = get_current_flow_labels()
         materialization_flow = create_flow_run.map(
             flow_name=unmapped(utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value),
             project_name=unmapped(constants.PREFECT_DEFAULT_PROJECT.value),
-            parameters=list_dict_to_materialization(
-                unmapped(dataset_id),
-                table_id,
-                unmapped(materialization_mode),
-                dbt_alias,
-            ),
+            parameters=parameters,
             labels=unmapped(current_flow_labels),
-            run_name=f"Materialize {dataset_id}.{table_id}",
+            run_name=f"Materialize {unmapped(dataset_id)}.{table_id}",
         )
 
         wait_for_materialization = wait_for_flow_run.map(
-            unmapped(materialization_flow),
+            materialization_flow,
             stream_states=unmapped(True),
             stream_logs=unmapped(True),
             raise_final_state=unmapped(True),

@@ -133,10 +133,34 @@ def output_path_list(table_id_list):
 
 
 @task
-def list_dict_to_materialization(table_id, dataset_id, materialization_mode, dbt_alias):
-    {
-        "dataset_id": dataset_id,
-        "table_id": table_id,
-        "mode": materialization_mode,
-        "dbt_alias": dbt_alias,
-    }
+def dict_list_parameters(dataset_id, materialization_mode, dbt_alias):
+    table_id = [
+        "proposicao_microdados",
+        "proposicao_autor",
+        "proposicao_tema",
+    ]
+
+    parameters = [
+        dict(
+            dataset_id=dataset_id,
+            table_id=table_id[0],
+            mode=materialization_mode,
+            dbt_alias=dbt_alias,
+            dbt_command="run and test",
+        ),
+        dict(
+            dataset_id=dataset_id,
+            table_id=table_id[1],
+            mode=materialization_mode,
+            dbt_alias=dbt_alias,
+            dbt_command="run and test",
+        ),
+        dict(
+            dataset_id=dataset_id,
+            table_id=table_id[2],
+            mode=materialization_mode,
+            dbt_alias=dbt_alias,
+            dbt_command="run and test",
+        ),
+    ]
+    return parameters
