@@ -3,6 +3,7 @@ import os
 from datetime import timedelta
 
 import pandas as pd
+import requests
 from prefect import task
 
 from pipelines.constants import constants
@@ -101,27 +102,65 @@ def save_data_proposicao(table_id: str):
         os.makedirs(f"{constants_camara.OUTPUT_PATH.value}{table_id}")
 
     if table_id == "proposicao_microdados":
-        df["ultimoStatus_despacho"] = df["ultimoStatus_despacho"].apply(
-            lambda x: str(x).replace(";", ",").replace("\n", "").replace("\r", "")
-        )
-        df["ementa"] = df["ementa"].apply(
-            lambda x: str(x).replace(";", ",").replace("\n", "").replace("\r", "")
-        )
-        df["ano"] = df.apply(
-            lambda x: x["dataApresentacao"][0:4] if x["ano"] == 0 else x["ano"], axis=1
-        )
-        df.to_csv(
-            f"{constants_camara.OUTPUT_PATH.value}{table_id}/{valor}_{constants_camara.ANOS.value}.csv",
-            sep=",",
-            index=False,
-        )
+        valor = constants_camara.TABLE_LIST_PROPOSICAO.value[table_id]
+        url = f"http://dadosabertos.camara.leg.br/arquivos/{valor}/csv/{valor}-{constants_camara.ANOS_ATUAL.value}.csv"
+        response = requests.get(url)
+        if response.status_code == 200:
+            df["ultimoStatus_despacho"] = df["ultimoStatus_despacho"].apply(
+                lambda x: str(x).replace(";", ",").replace("\n", "").replace("\r", "")
+            )
+            df["ementa"] = df["ementa"].apply(
+                lambda x: str(x).replace(";", ",").replace("\n", "").replace("\r", "")
+            )
+            df["ano"] = df.apply(
+                lambda x: x["dataApresentacao"][0:4] if x["ano"] == 0 else x["ano"],
+                axis=1,
+            )
+            df.to_csv(
+                f"{constants_camara.OUTPUT_PATH.value}{table_id}/{valor}_{constants_camara.ANOS_ATUAL.value}.csv",
+                sep=",",
+                index=False,
+                encoding="utf-8",
+            )
+        elif response.status_code >= 400 and response.status_code <= 599:
+            url_2 = f"http://dadosabertos.camara.leg.br/arquivos/{valor}/csv/{valor}-{constants_camara.ANOS.value}.csv"
+            response = requests.get(url_2)
+
+            df["ultimoStatus_despacho"] = df["ultimoStatus_despacho"].apply(
+                lambda x: str(x).replace(";", ",").replace("\n", "").replace("\r", "")
+            )
+            df["ementa"] = df["ementa"].apply(
+                lambda x: str(x).replace(";", ",").replace("\n", "").replace("\r", "")
+            )
+            df["ano"] = df.apply(
+                lambda x: x["dataApresentacao"][0:4] if x["ano"] == 0 else x["ano"],
+                axis=1,
+            )
+            df.to_csv(
+                f"{constants_camara.OUTPUT_PATH.value}{table_id}/{valor}_{constants_camara.ANOS.value}.csv",
+                sep=",",
+                index=False,
+                encoding="utf-8",
+            )
 
     else:
-        df.to_csv(
-            f"{constants_camara.OUTPUT_PATH.value}{table_id}/{valor}_{constants_camara.ANOS.value}.csv",
-            sep=",",
-            index=False,
-        )
+        valor = constants_camara.TABLE_LIST_PROPOSICAO.value[table_id]
+        url = f"http://dadosabertos.camara.leg.br/arquivos/{valor}/csv/{valor}-{constants_camara.ANOS_ATUAL.value}.csv"
+        response = requests.get(url)
+        if response.status_code == 200:
+            df.to_csv(
+                f"{constants_camara.OUTPUT_PATH.value}{table_id}/{valor}_{constants_camara.ANOS_ATUAL.value}.csv",
+                sep=",",
+                index=False,
+                encoding="utf-8",
+            )
+        elif response.status_code >= 400 and response.status_code <= 599:
+            df.to_csv(
+                f"{constants_camara.OUTPUT_PATH.value}{table_id}/{valor}_{constants_camara.ANOS.value}.csv",
+                sep=",",
+                index=False,
+                encoding="utf-8",
+            )
 
 
 @task

@@ -178,7 +178,6 @@ def download_csvs_camara_proposicao(table_id: str) -> None:
         Exception: If there is an error in the request, such as a non-successful status code.
 
     """
-    print("Downloading csvs from camara de proposição")
     if not os.path.exists(constants.INPUT_PATH.value):
         os.makedirs(constants.INPUT_PATH.value)
 
