@@ -16,6 +16,7 @@ from pipelines.datasets.br_camara_dados_abertos.constants import (
 from pipelines.datasets.br_camara_dados_abertos.schedules import (
     every_day_camara_dados_abertos,
     every_day_camara_dados_abertos_deputados,
+    every_day_camara_dados_abertos_proposicao,
 )
 from pipelines.datasets.br_camara_dados_abertos.tasks import (
     dict_list_parameters,
@@ -686,4 +687,4 @@ with Flow(
 
 br_camara_proposicao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_camara_proposicao.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-# br_camara_proposicao.schedule = every_day_camara_dados_abertos_deputados
+br_camara_proposicao.schedule = every_day_camara_dados_abertos_proposicao
