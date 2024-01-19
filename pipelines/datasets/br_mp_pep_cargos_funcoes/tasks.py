@@ -6,6 +6,7 @@ Tasks for br_mp_pep_cargos_funcoes
 import datetime
 import io
 import os
+import re
 import time
 import zipfile
 
@@ -363,12 +364,13 @@ def is_up_to_date() -> bool:
 
     time.sleep(10)
 
-    current_year = datetime.datetime.now().year
+    # pattern for matching the year at the end of the string
+    pattern = r"\b\d{4}$"
 
     div_with_last_date = [
         e
         for e in driver.find_elements(By.TAG_NAME, "div")
-        if e.get_attribute("title").strip().endswith(str(current_year))
+        if re.search(pattern, e.get_attribute("title").strip()) is not None  # type: ignore
     ][0]
 
     text = div_with_last_date.get_attribute("title")
