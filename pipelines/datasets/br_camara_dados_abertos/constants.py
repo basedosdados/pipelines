@@ -19,6 +19,8 @@ class constants(Enum):
 
     ANOS = (datetime.now() - relativedelta(years=1)).year
 
+    ANOS_ATUAL = (datetime.now()).year
+
     TABLE_LIST = {
         "votacao_microdados": "votacoes",
         "votacao_orientacao_bancada": "votacoesOrientacoes",

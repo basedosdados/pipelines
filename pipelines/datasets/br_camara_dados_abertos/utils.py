@@ -183,15 +183,19 @@ def download_csvs_camara_proposicao(table_id: str) -> None:
         os.makedirs(constants.INPUT_PATH.value)
 
     valor = constants.TABLE_LIST_PROPOSICAO.value[table_id]
-    url = f"http://dadosabertos.camara.leg.br/arquivos/{valor}/csv/{valor}-{constants.ANOS.value}.csv"
+    url = f"http://dadosabertos.camara.leg.br/arquivos/{valor}/csv/{valor}-{constants.ANOS_ATUAL.value}.csv"
     response = requests.get(url)
     if response.status_code == 200:
         with open(f"{constants.INPUT_PATH.value}{valor}.csv", "wb") as f:
             f.write(response.content)
-            log(f"download complete {valor}")
+            log(f"download complete {valor}-{constants.ANOS_ATUAL.value}")
 
     elif response.status_code >= 400 and response.status_code <= 599:
-        raise Exception(f"Erro de requisição: status code {response.status_code}")
+        url_2 = f"http://dadosabertos.camara.leg.br/arquivos/{valor}/csv/{valor}-{constants.ANOS.value}.csv"
+        response = requests.get(url_2)
+        with open(f"{constants.INPUT_PATH.value}{valor}.csv", "wb") as f:
+            f.write(response.content)
+            log(f"download complete {valor}-{constants.ANOS.value}")
 
 
 def download_and_read_data_proposicao(table_id: str) -> pd.DataFrame:
