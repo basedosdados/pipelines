@@ -226,7 +226,7 @@ def scraper(
                 e
                 for e in driver.find_elements(By.CLASS_NAME, "popupMask")
                 if e.get_attribute("style") is not None
-                and "display: block" in e.get_attribute("style")
+                and "display: block" in e.get_attribute("style")  # type: ignore
             ]
             if len(elements_visible) == 0:
                 break
