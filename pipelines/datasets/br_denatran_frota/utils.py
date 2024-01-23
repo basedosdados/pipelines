@@ -434,12 +434,9 @@ def extract_links_post_2012(month: int, year: int, directory: str) -> list[dict]
         if match and re.search("tipo|município", txt, flags=re.IGNORECASE):
             matched_month = match.group(3)
             matched_year = match.group(2)
-            log(f"------match_month  {matched_month}")
-            # log(f'------matched_get{MONTHS.get(matched_month)}')
-            # log(f'------matched_year{matched_year}')
             if MONTHS.get(matched_month) == month and matched_year == str(year):
                 filetype = match.group(0).split(".")[-1].lower()
-                log(f"------filetype {filetype}")
+
                 info = {
                     "txt": txt,
                     "href": href,
@@ -449,10 +446,9 @@ def extract_links_post_2012(month: int, year: int, directory: str) -> list[dict]
                     "filetype": filetype,
                     "destination_dir": directory,
                 }
-                # log(f'------info {info}')
+
                 valid_links.append(info)
 
-    log(valid_links)
     return valid_links
 
 
@@ -514,11 +510,11 @@ def call_r_to_read_excel(file: str) -> pd.DataFrame:
     """
     if not os.path.isfile(file):
         raise ValueError("Invalid file")
-    # packages = ("readxl",)
-    # r_utils = rpackages.importr("utils", suppress_messages=True)
-    # r_utils.chooseCRANmirror(ind=1)
-    # r_utils.install_packages(StrVector(packages))
-    # rpackages.importr("readxl", lib_loc="usr/lib/R/library", suppress_messages=True)
+    packages = "readxl"
+    r_utils = rpackages.importr("utils", suppress_messages=True)
+    r_utils.chooseCRANmirror(ind=1)
+    r_utils.install_packages(StrVector(packages))
+    rpackages.importr("readxl", suppress_messages=True)
 
     # Read the Excel file
     robjects.r(

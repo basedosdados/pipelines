@@ -2,19 +2,23 @@
 from datetime import timedelta
 from itertools import product
 
-from prefect import Parameter, case, unmapped
+from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants as pipelines_constants
 from pipelines.datasets.br_denatran_frota.constants import constants
+from pipelines.datasets.br_denatran_frota.schedules import (
+    every_month_municipio,
+    every_month_uf,
+)
 from pipelines.datasets.br_denatran_frota.tasks import (
     crawl_task,
     get_denatran_date,
     get_desired_file_task,
     get_latest_data_task,
-    output_file_to_csv_task,
+    output_file_to_parquet_task,
     should_process_data_task,
     treat_municipio_tipo_task,
     treat_uf_tipo_task,
@@ -39,10 +43,7 @@ date_pairs = list(product(year_range, month_range))
 
 date_pairs_param: list[tuple] = Parameter("date_pairs", default=date_pairs)
 
-# from pipelines.datasets.br_denatran_frota.schedules import (
-# every_month_municipio,
-# every_month_uf,
-# )
+
 with Flow(
     name="br_denatran_frota.uf_tipo",
     code_owners=[
@@ -94,16 +95,16 @@ with Flow(
 
         df = treat_uf_tipo_task(file=desired_file, upstream_tasks=[desired_file])
 
-        csv_output = output_file_to_csv_task(
+        parquet_output = output_file_to_parquet_task(
             df, constants.UF_TIPO_BASIC_FILENAME.value, upstream_tasks=[df]
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=csv_output,
+            data_path=parquet_output,
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
-            wait=csv_output,
+            wait=parquet_output,
         )
 
         with case(materialize_after_dump, True):
@@ -155,7 +156,7 @@ br_denatran_frota_uf_tipo.storage = GCS(pipelines_constants.GCS_FLOWS_BUCKET.val
 br_denatran_frota_uf_tipo.run_config = KubernetesRun(
     image=pipelines_constants.DOCKER_IMAGE.value
 )
-# flow.schedule = every_two_weeks
+br_denatran_frota_uf_tipo.schedule = every_month_uf
 
 
 with Flow(
@@ -209,15 +210,15 @@ with Flow(
 
         df = treat_municipio_tipo_task(file=desired_file, upstream_tasks=[desired_file])
 
-        csv_output = output_file_to_csv_task(
+        parquet_output = output_file_to_parquet_task(
             df, constants.MUNIC_TIPO_BASIC_FILENAME.value, upstream_tasks=[df]
         )
         wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=csv_output,
+            data_path=parquet_output,
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
-            wait=csv_output,
+            wait=parquet_output,
         )
 
         with case(materialize_after_dump, True):
@@ -269,4 +270,4 @@ br_denatran_frota_municipio_tipo.storage = GCS(
 br_denatran_frota_municipio_tipo.run_config = KubernetesRun(
     image=pipelines_constants.DOCKER_IMAGE.value
 )
-# flow.schedule = every_two_weeks
+br_denatran_frota_municipio_tipo.schedule = every_month_municipio

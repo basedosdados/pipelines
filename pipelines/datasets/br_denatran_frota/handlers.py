@@ -94,6 +94,7 @@ def crawl(month: int, year: int, temp_dir: str = "") -> bool:
 
 
 def treat_uf_tipo(file: str) -> pl.DataFrame:
+    log(f"------- Cleaning {file}")
     valid_ufs = list(DICT_UFS.keys()) + list(DICT_UFS.values())
     filename = os.path.split(file)[1]
     try:
@@ -106,6 +107,7 @@ def treat_uf_tipo(file: str) -> pl.DataFrame:
 
     new_df = change_df_header(df, guess_header(df=df, type_of_file=DenatranType.UF))
     # This is ad hoc for UF_tipo.
+
     new_df.rename(
         columns={new_df.columns[0]: "sigla_uf"}, inplace=True
     )  # Rename for ease of use.
@@ -124,6 +126,7 @@ def treat_uf_tipo(file: str) -> pl.DataFrame:
     # clean_df.replace()
     if all(clean_df.dtypes == "object"):
         clean_df = clean_df.apply(pd.to_numeric, errors="ignore")
+
     clean_pl_df = pl.from_pandas(clean_df).lazy()
     clean_pl_df = verify_total(clean_pl_df.collect())
     # Add year and month
@@ -141,27 +144,30 @@ def treat_uf_tipo(file: str) -> pl.DataFrame:
     return clean_pl_df
 
 
-def output_file_to_csv(df: pl.DataFrame, filename: str) -> None:
+def output_file_to_parquet(df: pl.DataFrame, filename: str) -> None:
     make_dir_when_not_exists(OUTPUT_PATH)
 
     pd_df = df.to_pandas()
 
     to_partitions(
-        pd_df, partition_columns=["ano", "mes", "sigla_uf"], savepath=OUTPUT_PATH
+        pd_df,
+        partition_columns=["ano", "mes"],
+        savepath=OUTPUT_PATH,
+        file_type="parquet",
     )
     return OUTPUT_PATH
 
 
 def get_desired_file(year: int, download_directory: str, filetype: str) -> str:
-    log("Accessing downloaded file")
+    log(f"-------- Accessing download directory {download_directory}")
     directory_to_search = os.path.join(download_directory, "files", f"{year}")
-    log(f"Directory: {directory_to_search}")
+
     for file in os.listdir(directory_to_search):
         if re.search(filetype, file) and file.split(".")[-1] in [
             "xls",
             "xlsx",
         ]:
-            log(f"File: {file}")
+            log(f"-------- The file {file} was selected")
             return os.path.join(directory_to_search, file)
     raise ValueError("No files found buckaroo")
 
@@ -174,7 +180,7 @@ def get_latest_data(table_id: str, dataset_id: str):
     log(f"{denatran_data}")
     year = denatran_data.year
     month = denatran_data.month
-    log(f"Ano: {year}, mês: {month}")
+
     if month == 12:
         year += 1
         month = 1
@@ -182,13 +188,15 @@ def get_latest_data(table_id: str, dataset_id: str):
         month += 1
     log(f"Ano: {year}, mês: {month}")
     # return year, month
-    return 2023, 10
+
+    return 2023, 12
 
 
 def treat_municipio_tipo(file: str) -> pl.DataFrame:
+    log(f"------- Cleaning {file}")
+
     bd_municipios = bd.read_sql(
         "select nome, id_municipio, sigla_uf from `basedosdados.br_bd_diretorios_brasil.municipio`",
-        # billing_project_id="basedosdados-dev",
         from_file=True,
     )
 

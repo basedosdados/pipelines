@@ -13,7 +13,7 @@ from pipelines.datasets.br_denatran_frota.handlers import (
     get_desired_file,
     get_latest_data,
     get_year_month_from_filename,
-    output_file_to_csv,
+    output_file_to_parquet,
     should_process_data,
     treat_municipio_tipo,
     treat_uf_tipo,
@@ -38,8 +38,8 @@ def treat_uf_tipo_task(file) -> pl.DataFrame:
 
 
 @task()
-def output_file_to_csv_task(df: pl.DataFrame, filename: str) -> None:
-    return output_file_to_csv(df, filename)
+def output_file_to_parquet_task(df: pl.DataFrame, filename: str) -> None:
+    return output_file_to_parquet(df, filename)
 
 
 @task()
