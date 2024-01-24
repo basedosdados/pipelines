@@ -23,7 +23,7 @@ with Flow(
         "url",
         default=[
             "https://www.learningcontainer.com/download/sample-large-zip-file/?wpdmdl=1639&refresh=659ffb53e23891704983379",
-            "https://dadosabertos-download.cgu.gov.br/PortalDaTransparencia/saida/cpgf/202302_CPGF.zip",
+            "https://dadosabertos-download.cgu.gov.br/PortalDaTransparencia/saida/cpgf/202301_CPGF.zip",
         ],
         required=False,
     )

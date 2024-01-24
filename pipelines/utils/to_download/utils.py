@@ -23,6 +23,9 @@ async def download(
     max_retries: int = 32,
     max_parallel: int = 16,
     timeout: int = 3 * 60 * 1000,
+    params=None,
+    credentials=None,
+    auth_method=None,
 ) -> bytes:
     request_head = httpx.head(url)
 
@@ -38,7 +41,16 @@ async def download(
     # TODO: pool http connections
     semaphore = Semaphore(max_parallel)
     tasks = [
-        download_chunk(url, (start, end), max_retries, timeout, semaphore)
+        download_chunk(
+            url,
+            (start, end),
+            max_retries,
+            timeout,
+            semaphore,
+            params,
+            auth_method,
+            credentials,
+        )
         for start, end in chunk_range(content_length, chunk_size)
     ]
 
@@ -51,16 +63,38 @@ async def download_chunk(
     max_retries: int,
     timeout: int,
     semaphore: Semaphore,
+    params=None,
+    credentials=None,
+    auth_method=None,
 ) -> bytes:
     async with semaphore:
         # log(f"Downloading chunk {chunk_range[0]}-{chunk_range[1]}")
+        params = {} if params is None else params
         for i in range(max_retries):
             try:
-                async with httpx.AsyncClient(timeout=timeout) as client:
-                    headers = {"Range": f"bytes={chunk_range[0]}-{chunk_range[1]}"}
-                    response = await client.get(url, headers=headers)
-                    response.raise_for_status()
-                    return response.content
+                if auth_method == "bearer":
+                    async with httpx.AsyncClient(timeout=timeout) as client:
+                        headers = {
+                            "Range": f"bytes={chunk_range[0]}-{chunk_range[1]}",
+                            "Authorization": f"Bearer {credentials}",
+                        }
+                        response = await client.get(url, headers=headers, params=params)
+                elif auth_method == "basic":
+                    async with httpx.AsyncClient(timeout=timeout) as client:
+                        headers = {
+                            "Range": f"bytes={chunk_range[0]}-{chunk_range[1]}",
+                        }
+                        response = await client.get(
+                            url, headers=headers, params=params, auth=credentials
+                        )
+                else:
+                    async with httpx.AsyncClient(timeout=timeout) as client:
+                        headers = {
+                            "Range": f"bytes={chunk_range[0]}-{chunk_range[1]}",
+                        }
+                        response = await client.get(url, headers=headers, params=params)
+                response.raise_for_status()
+                return response.content
             except httpx.HTTPError as e:
                 log(f"Download failed with {e}. Retrying ({i+1}/{max_retries})...")
         raise httpx.HTTPError(f"Download failed after {max_retries} retries")
@@ -70,58 +104,79 @@ async def download_unzip(
     url,
     pasta_destino,
     unzip: bool,
+    params=None,
+    credentials=None,
+    auth_method=None,
 ):
     log(f"Baixando o arquivo {url}")
-    content = await download(url)
+    content = await download(
+        url, params=params, credentials=credentials, auth_method=auth_method
+    )
+
+    base_name = os.path.basename(url)
+    save_path = os.path.join(pasta_destino, base_name)
+
+    with open(save_path, "wb") as fd:
+        fd.write(content)
+
     if unzip:
-        save_path = os.path.join(pasta_destino, f"{os.path.basename(url)}.zip")
-
-        with open(save_path, "wb") as fd:
-            fd.write(content)
-        try:
-            with zipfile.ZipFile(save_path) as z:
-                z.extractall(pasta_destino)
-            log("Dados extraídos com sucesso!")
-        except zipfile.BadZipFile:
-            log(f"O arquivo {os.path.basename(url)} não é um arquivo ZIP válido.")
+        await unzip_file(save_path, pasta_destino)
     else:
-        save_path = os.path.join(pasta_destino, f"{os.path.basename(url)}")
-        print(save_path)
-        with open(save_path, "wb") as fd:
-            fd.write(content)
+        log(f"Arquivo {base_name} salvo em {pasta_destino}")
 
-    os.remove(save_path)
+
+async def unzip_file(zip_path, extract_to):
+    log(f"Extraindo dados do arquivo {os.path.basename(zip_path)}")
+
+    try:
+        with zipfile.ZipFile(zip_path) as z:
+            z.extractall(extract_to)
+        log("Dados extraídos com sucesso!")
+    except zipfile.BadZipFile:
+        log(f"O arquivo {os.path.basename(zip_path)} não é um arquivo ZIP válido.")
+
+    os.remove(zip_path)
 
 
 async def download_files_async(
     urls: List[str],
     save_paths: List[str],
     file_type: str,
+    params=None,
+    credentials=None,
+    auth_method=None,
 ) -> None:
     """
     Download files asynchronously.
-
-    Parameters:
-    - urls (Union[str, List[str]]): URL(s) of the file(s) to download.
-    - save_paths (Union[str, List[str]]): Local path(s) to save the downloaded file(s).
-    - file_type (str): Type of file to download ('csv', 'zip', 'ftp', etc.).
-    - ftp_credentials (Optional[Tuple[str, str]]): FTP credentials (username, password).
-    - max_concurrent (int): Maximum number of concurrent connections.
-
-    Raises:
-    - ValueError: If FTP credentials are required but not provided.
     """
 
     if isinstance(urls, str):
         urls = [urls]
         save_paths = [save_paths]
     tasks = []
-    print(urls, save_paths)
     for url, save_path in zip(urls, save_paths):
         if file_type == "csv":
-            tasks.append(download_unzip(url, save_path, unzip=False))
+            tasks.append(
+                download_unzip(
+                    url,
+                    save_path,
+                    unzip=False,
+                    params=params,
+                    credentials=credentials,
+                    auth_method=auth_method,
+                )
+            )
         elif file_type == "zip":
-            tasks.append(download_unzip(url, save_path, unzip=True))
+            tasks.append(
+                download_unzip(
+                    url,
+                    save_path,
+                    unzip=True,
+                    params=params,
+                    credentials=credentials,
+                    auth_method=auth_method,
+                )
+            )
         else:
             return None
     await gather(*tasks)
