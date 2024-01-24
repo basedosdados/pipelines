@@ -155,7 +155,7 @@ async def download_files_async(
         save_paths = [save_paths]
     tasks = []
     for url, save_path in zip(urls, save_paths):
-        if file_type == "csv":
+        if file_type == "csv" or file_type == "json":
             tasks.append(
                 download_unzip(
                     url,
