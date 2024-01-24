@@ -189,9 +189,8 @@ def get_latest_data(table_id: str, dataset_id: str):
     else:
         month += 1
     log(f"Ano: {year}, mês: {month}")
-    # return year, month
 
-    return 2023, 8
+    return year, month
 
 
 def treat_municipio_tipo(file: str) -> pl.DataFrame:
