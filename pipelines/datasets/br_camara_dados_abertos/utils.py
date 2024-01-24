@@ -28,19 +28,17 @@ def download_csvs_camara() -> None:
     if not os.path.exists(constants.INPUT_PATH.value):
         os.makedirs(constants.INPUT_PATH.value)
 
-    for ano in constants.ANOS.value:
-        for chave, valor in constants.TABLE_LIST.value.items():
-            url = f"http://dadosabertos.camara.leg.br/arquivos/{valor}/csv/{valor}-{ano}.csv"
+    for chave, valor in constants.TABLE_LIST.value.items():
+        log(f"download {valor}")
+        url = f"http://dadosabertos.camara.leg.br/arquivos/{valor}/csv/{valor}-{constants.ANOS.value}.csv"
 
-            response = requests.get(url)
+        response = requests.get(url)
 
-            if response.status_code == 200:
-                with open(f"{constants.INPUT_PATH.value}{valor}.csv", "wb") as f:
-                    f.write(response.content)
-            elif response.status_code >= 400 and response.status_code <= 599:
-                raise Exception(
-                    f"Erro de requisição: status code {response.status_code}"
-                )
+        if response.status_code == 200:
+            with open(f"{constants.INPUT_PATH.value}{valor}.csv", "wb") as f:
+                f.write(response.content)
+        elif response.status_code >= 400 and response.status_code <= 599:
+            raise Exception(f"Erro de requisição: status code {response.status_code}")
 
     log("------------- archive inside in container --------------")
     log(os.listdir(constants.INPUT_PATH.value))
