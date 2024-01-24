@@ -1,85 +1,102 @@
 # -*- coding: utf-8 -*-
-import asyncio
-import io
+import os
 import zipfile
-from ftplib import FTP
+from asyncio import Semaphore, gather
 from typing import List
-from urllib.parse import urlparse
 
-import aiohttp
-import requests
+import httpx
+
+from pipelines.utils.utils import log
 
 
-async def download_csv(
-    session: aiohttp.ClientSession,
+def chunk_range(content_length: int, chunk_size: int) -> list[tuple[int, int]]:
+    """Split the content length into a list of chunk ranges"""
+    return [
+        (i * chunk_size, min((i + 1) * chunk_size - 1, content_length - 1))
+        for i in range(content_length // chunk_size + 1)
+    ]
+
+
+async def download(
     url: str,
-    save_path: str,
-    semaphore: asyncio.Semaphore,
-) -> None:
-    """
-    Download a CSV file asynchronously with semaphore.
+    chunk_size: int = 2**20,
+    max_retries: int = 32,
+    max_parallel: int = 16,
+    timeout: int = 3 * 60 * 1000,
+) -> bytes:
+    request_head = httpx.head(url)
 
-    Parameters:
-    - session (aiohttp.ClientSession): Aiohttp client session.
-    - url (str): URL of the CSV file to download.
-    - save_path (str): Local path to save the downloaded CSV file.
-    - semaphore (asyncio.Semaphore): Semaphore to control concurrent connections.
-    """
-    async with semaphore:
-        async with session.get(url) as response:
-            with open(save_path, "wb") as f:
-                while chunk := await response.content.read(1024):
-                    f.write(chunk)
+    assert request_head.status_code == 200
+    assert request_head.headers["accept-ranges"] == "bytes"
+
+    content_length = int(request_head.headers["content-length"])
+
+    log(
+        f"Downloading {url} with {content_length} bytes / {chunk_size} chunks and {max_parallel} parallel downloads"
+    )
+
+    # TODO: pool http connections
+    semaphore = Semaphore(max_parallel)
+    tasks = [
+        download_chunk(url, (start, end), max_retries, timeout, semaphore)
+        for start, end in chunk_range(content_length, chunk_size)
+    ]
+
+    return b"".join(await gather(*tasks))
 
 
-async def download_zip(
-    session: aiohttp.ClientSession,
+async def download_chunk(
     url: str,
-    save_path: str,
-    semaphore: asyncio.Semaphore,
-) -> None:
-    """
-    Download and extract a ZIP file asynchronously with semaphore.
-
-    Parameters:
-    - session (aiohttp.ClientSession): Aiohttp client session.
-    - url (str): URL of the ZIP file to download.
-    - save_path (str): Local path to save the extracted files.
-    - semaphore (asyncio.Semaphore): Semaphore to control concurrent connections.
-    """
+    chunk_range: tuple[int, int],
+    max_retries: int,
+    timeout: int,
+    semaphore: Semaphore,
+) -> bytes:
     async with semaphore:
-        async with session.get(url) as response:
-            with zipfile.ZipFile(io.BytesIO(await response.content.read()), "r") as z:
-                z.extractall(save_path)
+        # log(f"Downloading chunk {chunk_range[0]}-{chunk_range[1]}")
+        for i in range(max_retries):
+            try:
+                async with httpx.AsyncClient(timeout=timeout) as client:
+                    headers = {"Range": f"bytes={chunk_range[0]}-{chunk_range[1]}"}
+                    response = await client.get(url, headers=headers)
+                    response.raise_for_status()
+                    return response.content
+            except httpx.HTTPError as e:
+                log(f"Download failed with {e}. Retrying ({i+1}/{max_retries})...")
+        raise httpx.HTTPError(f"Download failed after {max_retries} retries")
 
 
-async def download_ftp(
-    url: str, save_path: str, username: str, password: str, semaphore: asyncio.Semaphore
-) -> None:
-    """
-    Download a file from an FTP server with semaphore.
+async def download_unzip(
+    url,
+    pasta_destino,
+    unzip: bool,
+):
+    log(f"Baixando o arquivo {url}")
+    content = await download(url)
+    if unzip:
+        save_path = os.path.join(pasta_destino, f"{os.path.basename(url)}.zip")
 
-    Parameters:
-    - url (str): FTP URL of the file to download.
-    - save_path (str): Local path to save the downloaded file.
-    - username (str): FTP username.
-    - password (str): FTP password.
-    - semaphore (asyncio.Semaphore): Semaphore to control concurrent connections.
-    """
-    async with semaphore:
-        parsed_url = urlparse(url)
-        ftp = FTP(parsed_url.netloc)
-        ftp.login(user=username, passwd=password)
-        with open(save_path, "wb") as f:
-            ftp.retrbinary(f"RETR {parsed_url.path}", f.write)
+        with open(save_path, "wb") as fd:
+            fd.write(content)
+        try:
+            with zipfile.ZipFile(save_path) as z:
+                z.extractall(pasta_destino)
+            log("Dados extraídos com sucesso!")
+        except zipfile.BadZipFile:
+            log(f"O arquivo {os.path.basename(url)} não é um arquivo ZIP válido.")
+    else:
+        save_path = os.path.join(pasta_destino, f"{os.path.basename(url)}")
+        print(save_path)
+        with open(save_path, "wb") as fd:
+            fd.write(content)
+
+    os.remove(save_path)
 
 
 async def download_files_async(
     urls: List[str],
     save_paths: List[str],
     file_type: str,
-    ftp_credentials=None,
-    max_concurrent=5,
 ) -> None:
     """
     Download files asynchronously.
@@ -94,25 +111,17 @@ async def download_files_async(
     Raises:
     - ValueError: If FTP credentials are required but not provided.
     """
-    semaphore = asyncio.Semaphore(max_concurrent)
 
     if isinstance(urls, str):
         urls = [urls]
         save_paths = [save_paths]
-
-    async with aiohttp.ClientSession() as session:
-        tasks = []
-        for url, save_path in zip(urls, save_paths):
-            if file_type == "csv":
-                tasks.append(download_csv(session, url, save_path, semaphore))
-            elif file_type == "zip":
-                tasks.append(download_zip(session, url, save_path, semaphore))
-            elif file_type == "ftp":
-                if ftp_credentials:
-                    username, password = ftp_credentials
-                    tasks.append(
-                        download_ftp(url, save_path, username, password, semaphore)
-                    )
-                else:
-                    raise ValueError("FTP credentials required for FTP download")
-        await asyncio.gather(*tasks)
+    tasks = []
+    print(urls, save_paths)
+    for url, save_path in zip(urls, save_paths):
+        if file_type == "csv":
+            tasks.append(download_unzip(url, save_path, unzip=False))
+        elif file_type == "zip":
+            tasks.append(download_unzip(url, save_path, unzip=True))
+        else:
+            return None
+    await gather(*tasks)
