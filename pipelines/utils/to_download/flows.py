@@ -8,8 +8,6 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
-
-# from pipelines.utils.to_download.schedules import every_two_weeks
 from pipelines.utils.decorators import Flow
 from pipelines.utils.to_download.tasks import to_download
 
@@ -40,4 +38,3 @@ with Flow(
 
 utils_to_download_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 utils_to_download_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-# flow.schedule = every_two_weeks

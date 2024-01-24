@@ -8,6 +8,8 @@ import httpx
 
 from pipelines.utils.utils import log
 
+## TODO: json download option
+
 
 def chunk_range(content_length: int, chunk_size: int) -> list[tuple[int, int]]:
     """Split the content length into a list of chunk ranges"""
