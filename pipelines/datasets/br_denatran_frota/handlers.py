@@ -141,6 +141,7 @@ def treat_uf_tipo(file: str) -> pl.DataFrame:
         value_name="quantidade",
     )  # Long format.
 
+    log("-------- Data Wrangling finished")
     return clean_pl_df
 
 
@@ -148,6 +149,7 @@ def output_file_to_parquet(df: pl.DataFrame, filename: str) -> None:
     make_dir_when_not_exists(OUTPUT_PATH)
 
     pd_df = df.to_pandas()
+    pd_df = pd_df.astype(str)
 
     to_partitions(
         pd_df,
@@ -189,7 +191,7 @@ def get_latest_data(table_id: str, dataset_id: str):
     log(f"Ano: {year}, mês: {month}")
     # return year, month
 
-    return 2023, 12
+    return 2023, 8
 
 
 def treat_municipio_tipo(file: str) -> pl.DataFrame:
@@ -242,6 +244,8 @@ def treat_municipio_tipo(file: str) -> pl.DataFrame:
         variable_name="tipo_veiculo",
         value_name="quantidade",
     )  # Long format.
+
+    log("-------- Data Wrangling finished")
     return full_pl_df
 
 
