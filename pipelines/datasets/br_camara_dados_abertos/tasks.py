@@ -97,12 +97,12 @@ def treat_and_save_table(table_id):
 @task
 def save_data_proposicao(table_id: str):
     df = download_and_read_data_proposicao(table_id)
-    valor = constants_camara.TABLE_LIST_PROPOSICAO.value[table_id]
+    valor = constants_camara.TABLE_LIST_CAMARA.value[table_id]
     if not os.path.exists(f"{constants_camara.OUTPUT_PATH.value}{table_id}"):
         os.makedirs(f"{constants_camara.OUTPUT_PATH.value}{table_id}")
 
     if table_id == "proposicao_microdados":
-        valor = constants_camara.TABLE_LIST_PROPOSICAO.value[table_id]
+        valor = constants_camara.TABLE_LIST_CAMARA.value[table_id]
         url = f"http://dadosabertos.camara.leg.br/arquivos/{valor}/csv/{valor}-{constants_camara.ANOS_ATUAL.value}.csv"
         response = requests.get(url)
         if response.status_code == 200:
@@ -143,8 +143,8 @@ def save_data_proposicao(table_id: str):
                 encoding="utf-8",
             )
 
-    else:
-        valor = constants_camara.TABLE_LIST_PROPOSICAO.value[table_id]
+    elif table_id in ["proposicao_autor", "proposicao_tema"]:
+        valor = constants_camara.TABLE_LIST_CAMARA.value[table_id]
         url = f"http://dadosabertos.camara.leg.br/arquivos/{valor}/csv/{valor}-{constants_camara.ANOS_ATUAL.value}.csv"
         response = requests.get(url)
         if response.status_code == 200:
@@ -162,12 +162,31 @@ def save_data_proposicao(table_id: str):
                 encoding="utf-8",
             )
 
+    elif table_id == "orgaos":
+        df = pd.read_csv(f"{constants_camara.INPUT_PATH.value}{valor}.csv", sep=";")
+        df.to_csv(
+            f"{constants_camara.OUTPUT_PATH.value}{table_id}/{valor}.csv",
+            sep=",",
+            index=False,
+            encoding="utf-8",
+        )
+
+    elif table_id == "orgaos_deputados":
+        df = pd.read_csv(f"{constants_camara.INPUT_PATH.value}{valor}.csv", sep=";")
+        df.to_csv(
+            f"{constants_camara.OUTPUT_PATH.value}{table_id}/{valor}-L57.csv",
+            sep=",",
+            index=False,
+            encoding="utf-8",
+        )
+
 
 @task
 def output_path_list(table_id_list):
     output_path_list = []
     for table_id in table_id_list:
         output_path_list.append(f"{constants_camara.OUTPUT_PATH.value}{table_id}/")
+        log(output_path_list)
     return output_path_list
 
 
@@ -177,6 +196,8 @@ def dict_list_parameters(dataset_id, materialization_mode, dbt_alias):
         "proposicao_microdados",
         "proposicao_autor",
         "proposicao_tema",
+        "orgaos",
+        "orgaos_deputados",
     ]
 
     parameters = [

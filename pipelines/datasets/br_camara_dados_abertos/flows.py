@@ -612,6 +612,8 @@ with Flow(
             "proposicao_microdados",
             "proposicao_autor",
             "proposicao_tema",
+            "orgaos",
+            "orgaos_deputados",
         ],
         required=True,
     )
@@ -626,7 +628,7 @@ with Flow(
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ",
         dataset_id=dataset_id,
-        table_id="Proposição",
+        table_id="Proposicao",
         wait=table_id,
     )
 

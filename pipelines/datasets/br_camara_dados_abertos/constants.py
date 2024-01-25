@@ -61,8 +61,10 @@ class constants(Enum):
 
     # ------------------------------------------------------------> PROPOSIÇÃO
 
-    TABLE_LIST_PROPOSICAO = {
+    TABLE_LIST_CAMARA = {
         "proposicao_microdados": "proposicoes",
         "proposicao_autor": "proposicoesAutores",
         "proposicao_tema": "proposicoesTemas",
+        "orgaos": "orgaos",
+        "orgaos_deputados": "orgaosDeputados",
     }
