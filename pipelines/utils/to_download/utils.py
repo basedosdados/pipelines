@@ -17,59 +17,25 @@ def chunk_range(content_length: int, chunk_size: int) -> list[tuple[int, int]]:
     ]
 
 
-async def download(
-    url: str,
-    chunk_size: int = 2**20,
-    max_retries: int = 32,
-    max_parallel: int = 16,
-    timeout: int = 3 * 60 * 1000,
-    params=None,
-    credentials=None,
-    auth_method=None,
-    file_type: str = None,
-) -> bytes:
-    request_head = httpx.head(url)
+async def unzip_file(zip_path, extract_to):
+    log(f"Extraindo dados do arquivo {os.path.basename(zip_path)}")
 
-    assert request_head.status_code == 200
-    semaphore = Semaphore(max_parallel)
-    if file_type == "json":
-        return b"".join(
-            await gather(
-                download_api(
-                    url,
-                    max_retries,
-                    timeout,
-                    semaphore,
-                    params,
-                    credentials,
-                    auth_method,
-                )
-            )
-        )
-    else:
-        assert request_head.headers["accept-ranges"] == "bytes"
-        content_length = int(request_head.headers["content-length"])
+    try:
+        with zipfile.ZipFile(zip_path) as z:
+            z.extractall(extract_to)
+        log("Dados extraídos com sucesso!")
+    except zipfile.BadZipFile:
+        log(f"O arquivo {os.path.basename(zip_path)} não é um arquivo ZIP válido.")
+    except zipfile.LargeZipFile:
         log(
-            f"Downloading {url} with {content_length} bytes / {chunk_size} chunks and {max_parallel} parallel downloads"
+            f"O arquivo ZIP {os.path.basename(zip_path)} é muito grande para ser processado."
         )
-        tasks = [
-            download_chunk(
-                url,
-                (start, end),
-                max_retries,
-                timeout,
-                semaphore,
-                params,
-                auth_method,
-                credentials,
-            )
-            for start, end in chunk_range(content_length, chunk_size)
-        ]
-
-        return b"".join(await gather(*tasks))
+    except zipfile.error as e:
+        log(f"Erro ao extrair o arquivo ZIP {os.path.basename(zip_path)}: {str(e)}")
+    os.remove(zip_path)
 
 
-async def download_api(
+async def get_from_api(
     url: str,
     max_retries: int,
     timeout: int,
@@ -105,7 +71,7 @@ async def download_api(
         raise httpx.HTTPError(f"Download failed after {max_retries} retries")
 
 
-async def download_chunk(
+async def get_in_chunks(
     url: str,
     chunk_range: tuple[int, int],
     max_retries: int,
@@ -124,6 +90,58 @@ async def download_chunk(
             except httpx.HTTPError as e:
                 log(f"Download failed with {e}. Retrying ({i+1}/{max_retries})...")
         raise httpx.HTTPError(f"Download failed after {max_retries} retries")
+
+
+async def download(
+    url: str,
+    chunk_size: int = 2**20,
+    max_retries: int = 32,
+    max_parallel: int = 16,
+    timeout: int = 3 * 60 * 1000,
+    params=None,
+    credentials=None,
+    auth_method=None,
+    file_type: str = None,
+) -> bytes:
+    request_head = httpx.head(url)
+
+    assert request_head.status_code == 200
+    semaphore = Semaphore(max_parallel)
+    if file_type == "json":
+        return b"".join(
+            await gather(
+                get_from_api(
+                    url,
+                    max_retries,
+                    timeout,
+                    semaphore,
+                    params,
+                    credentials,
+                    auth_method,
+                )
+            )
+        )
+    else:
+        assert request_head.headers["accept-ranges"] == "bytes"
+        content_length = int(request_head.headers["content-length"])
+        log(
+            f"Downloading {url} with {content_length} bytes / {chunk_size} chunks and {max_parallel} parallel downloads"
+        )
+        tasks = [
+            get_in_chunks(
+                url,
+                (start, end),
+                max_retries,
+                timeout,
+                semaphore,
+                params,
+                auth_method,
+                credentials,
+            )
+            for start, end in chunk_range(content_length, chunk_size)
+        ]
+
+        return b"".join(await gather(*tasks))
 
 
 async def download_from_url(
@@ -154,24 +172,6 @@ async def download_from_url(
         await unzip_file(full_path, save_path)
     else:
         log(f"Arquivo {base_name} salvo em {save_path}")
-
-
-async def unzip_file(zip_path, extract_to):
-    log(f"Extraindo dados do arquivo {os.path.basename(zip_path)}")
-
-    try:
-        with zipfile.ZipFile(zip_path) as z:
-            z.extractall(extract_to)
-        log("Dados extraídos com sucesso!")
-    except zipfile.BadZipFile:
-        log(f"O arquivo {os.path.basename(zip_path)} não é um arquivo ZIP válido.")
-    except zipfile.LargeZipFile:
-        log(
-            f"O arquivo ZIP {os.path.basename(zip_path)} é muito grande para ser processado."
-        )
-    except zipfile.error as e:
-        log(f"Erro ao extrair o arquivo ZIP {os.path.basename(zip_path)}: {str(e)}")
-    os.remove(zip_path)
 
 
 async def download_files_async(
