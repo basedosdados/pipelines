@@ -43,11 +43,12 @@ MUNIC_TIPO_BASIC_FILENAME = constants.MUNIC_TIPO_BASIC_FILENAME.value
 
 
 def crawl(month: int, year: int, temp_dir: str = "") -> bool:
-    """Função principal para baixar os dados de frota por município e tipo e também por UF e tipo.
+    """
+    Main function to extract data from *frota por município e tipo* and *frota por UF e tipo*.
 
     Args:
-        month (int): Mês desejado.
-        year (int): Ano desejado.
+        month (int): Desired month
+        year (int): Desired year
 
     Raises:
         ValueError: Errors if the month is not a valid one.
@@ -94,6 +95,16 @@ def crawl(month: int, year: int, temp_dir: str = "") -> bool:
 
 
 def treat_uf_tipo(file: str) -> pl.DataFrame:
+    """Function to treat data from  frota por UF e tipo.
+
+
+    Args:
+        file (str): path to the file to be treated
+
+    Returns:
+        pl.DataFrame: final file
+    """
+
     log(f"------- Cleaning {file}")
     valid_ufs = list(DICT_UFS.keys()) + list(DICT_UFS.values())
     filename = os.path.split(file)[1]
@@ -145,7 +156,16 @@ def treat_uf_tipo(file: str) -> pl.DataFrame:
     return clean_pl_df
 
 
-def output_file_to_parquet(df: pl.DataFrame, filename: str) -> None:
+def output_file_to_parquet(df: pl.DataFrame) -> None:
+    """Function to save .parquet uf_tipo and municipio_tipo files
+
+    Args:
+        df (pl.DataFrame): Polars DataFrame to be saved
+
+    Returns:
+        _type_: None
+    """
+
     make_dir_when_not_exists(OUTPUT_PATH)
 
     pd_df = df.to_pandas()
@@ -161,6 +181,20 @@ def output_file_to_parquet(df: pl.DataFrame, filename: str) -> None:
 
 
 def get_desired_file(year: int, download_directory: str, filetype: str) -> str:
+    """Função para pegar o arquivo desejado de uf_tipo ou municipio_tipo em um diretório
+
+    Args:
+        year (int): file year
+        download_directory (str): donwload directory
+        filetype (str): filetype
+
+    Raises:
+        ValueError: No files found
+
+    Returns:
+        str: File path
+    """
+
     log(f"-------- Accessing download directory {download_directory}")
     directory_to_search = os.path.join(download_directory, "files", f"{year}")
 
@@ -175,6 +209,16 @@ def get_desired_file(year: int, download_directory: str, filetype: str) -> str:
 
 
 def get_latest_data(table_id: str, dataset_id: str):
+    """Function to extract the latest data from GRAPHIQL API
+
+    Args:
+        table_id (str): table_id from BQ
+        dataset_id (str): table_id from BQ
+
+    Returns:
+        _type_: most recente date
+    """
+
     denatran_data = get_api_most_recent_date(
         table_id=table_id, dataset_id=dataset_id, date_format="%Y-%m"
     )
@@ -194,6 +238,16 @@ def get_latest_data(table_id: str, dataset_id: str):
 
 
 def treat_municipio_tipo(file: str) -> pl.DataFrame:
+    """Function to treat data from  frota por UF e tipo.
+
+
+    Args:
+        file (str): path to the file to be treated
+
+    Returns:
+        pl.DataFrame: final file
+    """
+
     log(f"------- Cleaning {file}")
 
     bd_municipios = bd.read_sql(

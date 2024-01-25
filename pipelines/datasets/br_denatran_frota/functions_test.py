@@ -17,8 +17,14 @@ from pipelines.datasets.br_denatran_frota.utils import (
 
 DOWNLOAD_PATH = constants.DOWNLOAD_PATH.value
 
+# Classes to test br_denatran_frota functions with unnittest
+
 
 class TestMakeFilename(unittest.TestCase):
+    """
+    Class to test function make_filename
+    """
+
     def test_make_filename(self):
         month = 2
         year = 2013
@@ -53,6 +59,10 @@ class TestMakeFilename(unittest.TestCase):
 
 
 class TestMakeDirWhenNotExists(unittest.TestCase):
+    """
+    Class to test function
+    """
+
     def setUp(self):
         self.temp_dir = tempfile.mkdtemp()
 
@@ -67,12 +77,20 @@ class TestMakeDirWhenNotExists(unittest.TestCase):
 
 
 class TestDownloadFrota(unittest.TestCase):
+    """
+    Class to test function download_file
+    """
+
     def test_download_frota_with_invalid_month(self):
         with self.assertRaises(ValueError):
             crawl(13, 2013)
 
 
 class TestFilenameExtraction(unittest.TestCase):
+    """
+    Class to test filename extraction
+    """
+
     def test_correct_file(self):
         filename = "indicator_2-2022.xlsx"
         self.assertEqual(get_year_month_from_filename(filename), ("2", "2022"))

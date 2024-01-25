@@ -24,6 +24,9 @@ UF_TIPO_BASIC_FILENAME = constants.UF_TIPO_BASIC_FILENAME.value
 DICT_UFS = constants.DICT_UFS.value
 
 
+# Classes to test br_denatran_frota tasks with unnittest
+
+
 def custom_name_func(testcase_func, param_num, param):
     return "%s_%s" % (
         testcase_func.__name__,
@@ -32,6 +35,10 @@ def custom_name_func(testcase_func, param_num, param):
 
 
 class TestExtractingAllPossibleYears(unittest.TestCase):
+    """
+    Classe para testar se o crawler consegue extrair arquivos de todos os anos
+    """
+
     def setUp(self):
         self.temp_dir = tempfile.TemporaryDirectory(
             dir=os.path.join(f"{DOWNLOAD_PATH}")
@@ -57,6 +64,10 @@ class TestExtractingAllPossibleYears(unittest.TestCase):
 
 
 class TestUFTreatmentPostCrawl(unittest.TestCase):
+    """
+    Classe para testar task treat_uf_tipo_task
+    """
+
     def setUp(self):
         self.temp_dir = tempfile.TemporaryDirectory(
             dir=os.path.join(f"{DOWNLOAD_PATH}")
@@ -97,11 +108,19 @@ class TestUFTreatmentPostCrawl(unittest.TestCase):
 
 
 class TestGetLatestData(unittest.TestCase):
+    """
+    Classe para testar task get_latest_data
+    """
+
     def test_year(self):
         self.assertEqual(2021, get_latest_data("municipio"))
 
 
 class TestMunicipioTreatmentPostCrawl(unittest.TestCase):
+    """
+    Classe para testar task treat_municipio_tipo_task
+    """
+
     def setUp(self):
         self.temp_dir = tempfile.TemporaryDirectory(
             dir=os.path.join(f"{DOWNLOAD_PATH}")
