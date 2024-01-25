@@ -222,5 +222,19 @@ def dict_list_parameters(dataset_id, materialization_mode, dbt_alias):
             dbt_alias=dbt_alias,
             dbt_command="run and test",
         ),
+        dict(
+            dataset_id=dataset_id,
+            table_id=table_id[3],
+            mode=materialization_mode,
+            dbt_alias=dbt_alias,
+            dbt_command="run and test",
+        ),
+        dict(
+            dataset_id=dataset_id,
+            table_id=table_id[4],
+            mode=materialization_mode,
+            dbt_alias=dbt_alias,
+            dbt_command="run and test",
+        ),
     ]
     return parameters
