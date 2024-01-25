@@ -37,13 +37,6 @@ from pipelines.utils.tasks import (
     rename_current_flow_run_dataset_table,
 )
 
-year_range = list(range(2003, 2023))
-month_range = list(range(1, 13))
-date_pairs = list(product(year_range, month_range))
-
-date_pairs_param: list[tuple] = Parameter("date_pairs", default=date_pairs)
-
-
 with Flow(
     name="br_denatran_frota.uf_tipo",
     code_owners=[
