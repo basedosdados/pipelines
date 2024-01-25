@@ -8,8 +8,6 @@ import httpx
 
 from pipelines.utils.utils import log
 
-## TODO: json download option
-
 
 def chunk_range(content_length: int, chunk_size: int) -> list[tuple[int, int]]:
     """Split the content length into a list of chunk ranges"""
@@ -28,47 +26,59 @@ async def download(
     params=None,
     credentials=None,
     auth_method=None,
+    file_type: str = None,
 ) -> bytes:
     request_head = httpx.head(url)
 
     assert request_head.status_code == 200
-    assert request_head.headers["accept-ranges"] == "bytes"
-
-    content_length = int(request_head.headers["content-length"])
-
-    log(
-        f"Downloading {url} with {content_length} bytes / {chunk_size} chunks and {max_parallel} parallel downloads"
-    )
-
-    # TODO: pool http connections
     semaphore = Semaphore(max_parallel)
-    tasks = [
-        download_chunk(
-            url,
-            (start, end),
-            max_retries,
-            timeout,
-            semaphore,
-            params,
-            auth_method,
-            credentials,
+    if file_type == "json":
+        return b"".join(
+            await gather(
+                download_api(
+                    url,
+                    max_retries,
+                    timeout,
+                    semaphore,
+                    params,
+                    credentials,
+                    auth_method,
+                )
+            )
         )
-        for start, end in chunk_range(content_length, chunk_size)
-    ]
+    else:
+        assert request_head.headers["accept-ranges"] == "bytes"
+        content_length = int(request_head.headers["content-length"])
+        log(
+            f"Downloading {url} with {content_length} bytes / {chunk_size} chunks and {max_parallel} parallel downloads"
+        )
+        tasks = [
+            download_chunk(
+                url,
+                (start, end),
+                max_retries,
+                timeout,
+                semaphore,
+                params,
+                auth_method,
+                credentials,
+            )
+            for start, end in chunk_range(content_length, chunk_size)
+        ]
 
-    return b"".join(await gather(*tasks))
+        return b"".join(await gather(*tasks))
 
 
-async def download_chunk(
+async def download_api(
     url: str,
-    chunk_range: tuple[int, int],
     max_retries: int,
     timeout: int,
     semaphore: Semaphore,
     params=None,
     credentials=None,
     auth_method=None,
-) -> bytes:
+):
+    """"""
     async with semaphore:
         # log(f"Downloading chunk {chunk_range[0]}-{chunk_range[1]}")
         params = {} if params is None else params
@@ -77,24 +87,17 @@ async def download_chunk(
                 if auth_method == "bearer":
                     async with httpx.AsyncClient(timeout=timeout) as client:
                         headers = {
-                            "Range": f"bytes={chunk_range[0]}-{chunk_range[1]}",
                             "Authorization": f"Bearer {credentials}",
                         }
                         response = await client.get(url, headers=headers, params=params)
                 elif auth_method == "basic":
                     async with httpx.AsyncClient(timeout=timeout) as client:
-                        headers = {
-                            "Range": f"bytes={chunk_range[0]}-{chunk_range[1]}",
-                        }
                         response = await client.get(
-                            url, headers=headers, params=params, auth=credentials
+                            url, params=params, auth=credentials
                         )
                 else:
                     async with httpx.AsyncClient(timeout=timeout) as client:
-                        headers = {
-                            "Range": f"bytes={chunk_range[0]}-{chunk_range[1]}",
-                        }
-                        response = await client.get(url, headers=headers, params=params)
+                        response = await client.get(url, params=params)
                 response.raise_for_status()
                 return response.content
             except httpx.HTTPError as e:
@@ -102,29 +105,55 @@ async def download_chunk(
         raise httpx.HTTPError(f"Download failed after {max_retries} retries")
 
 
-async def download_unzip(
+async def download_chunk(
+    url: str,
+    chunk_range: tuple[int, int],
+    max_retries: int,
+    timeout: int,
+    semaphore: Semaphore,
+) -> bytes:
+    async with semaphore:
+        # log(f"Downloading chunk {chunk_range[0]}-{chunk_range[1]}")
+        for i in range(max_retries):
+            try:
+                async with httpx.AsyncClient(timeout=timeout) as client:
+                    headers = {"Range": f"bytes={chunk_range[0]}-{chunk_range[1]}"}
+                    response = await client.get(url, headers=headers)
+                    response.raise_for_status()
+                    return response.content
+            except httpx.HTTPError as e:
+                log(f"Download failed with {e}. Retrying ({i+1}/{max_retries})...")
+        raise httpx.HTTPError(f"Download failed after {max_retries} retries")
+
+
+async def download_from_url(
     url,
-    pasta_destino,
+    save_path,
     unzip: bool,
     params=None,
     credentials=None,
     auth_method=None,
+    file_type=None,
 ):
     log(f"Baixando o arquivo {url}")
     content = await download(
-        url, params=params, credentials=credentials, auth_method=auth_method
+        url,
+        params=params,
+        credentials=credentials,
+        auth_method=auth_method,
+        file_type=file_type,
     )
 
-    base_name = os.path.basename(url)
-    save_path = os.path.join(pasta_destino, base_name)
+    base_name = os.path.basename(url) + (".json" if file_type == "json" else "")
+    full_path = os.path.join(save_path, base_name)
 
-    with open(save_path, "wb") as fd:
+    with open(full_path, "wb") as fd:
         fd.write(content)
 
     if unzip:
-        await unzip_file(save_path, pasta_destino)
+        await unzip_file(full_path, save_path)
     else:
-        log(f"Arquivo {base_name} salvo em {pasta_destino}")
+        log(f"Arquivo {base_name} salvo em {save_path}")
 
 
 async def unzip_file(zip_path, extract_to):
@@ -136,7 +165,12 @@ async def unzip_file(zip_path, extract_to):
         log("Dados extraídos com sucesso!")
     except zipfile.BadZipFile:
         log(f"O arquivo {os.path.basename(zip_path)} não é um arquivo ZIP válido.")
-
+    except zipfile.LargeZipFile:
+        log(
+            f"O arquivo ZIP {os.path.basename(zip_path)} é muito grande para ser processado."
+        )
+    except zipfile.error as e:
+        log(f"Erro ao extrair o arquivo ZIP {os.path.basename(zip_path)}: {str(e)}")
     os.remove(zip_path)
 
 
@@ -157,9 +191,9 @@ async def download_files_async(
         save_paths = [save_paths]
     tasks = []
     for url, save_path in zip(urls, save_paths):
-        if file_type == "csv" or file_type == "json":
+        if file_type == "csv":
             tasks.append(
-                download_unzip(
+                download_from_url(
                     url,
                     save_path,
                     unzip=False,
@@ -170,7 +204,7 @@ async def download_files_async(
             )
         elif file_type == "zip":
             tasks.append(
-                download_unzip(
+                download_from_url(
                     url,
                     save_path,
                     unzip=True,
@@ -179,6 +213,18 @@ async def download_files_async(
                     auth_method=auth_method,
                 )
             )
+        elif file_type == "json":
+            tasks.append(
+                download_from_url(
+                    url,
+                    save_path,
+                    unzip=False,
+                    params=params,
+                    credentials=credentials,
+                    auth_method=auth_method,
+                    file_type="json",
+                )
+            )
         else:
-            return None
+            raise ValueError(f"Invalid file_type: {file_type}")
     await gather(*tasks)

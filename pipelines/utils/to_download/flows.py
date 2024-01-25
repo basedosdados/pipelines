@@ -20,8 +20,8 @@ with Flow(
     url = Parameter(
         "url",
         default=[
-            "https://www.learningcontainer.com/download/sample-large-zip-file/?wpdmdl=1639&refresh=659ffb53e23891704983379",
-            "https://dadosabertos-download.cgu.gov.br/PortalDaTransparencia/saida/cpgf/202301_CPGF.zip",
+            "https://jsonplaceholder.typicode.com/posts",
+            "https://jsonplaceholder.typicode.com/comments",
         ],
         required=False,
     )
@@ -29,11 +29,10 @@ with Flow(
         "save_path",
         default=[
             "/tmp/data/teste1/",
-            "/tmp/data/teste2/",
         ],
         required=False,
     )
-    file_type = Parameter("file_type", default="zip", required=False)
+    file_type = Parameter("file_type", default="json", required=False)
     to_download(url, save_path, file_type)
 
 utils_to_download_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

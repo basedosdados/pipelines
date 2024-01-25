@@ -47,5 +47,8 @@ def to_download(
             auth_method=auth_method,
         )
     )
+    if isinstance(url, str):
+        url = [url]
+        save_path = [save_path]
     base_name = [os.path.basename(i) for i in url]
     return [os.path.join(x, y) for x, y in zip(save_path, base_name)]
