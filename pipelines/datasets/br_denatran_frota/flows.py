@@ -40,7 +40,7 @@ from pipelines.utils.tasks import (
 with Flow(
     name="br_denatran_frota.uf_tipo",
     code_owners=[
-        "Tamir",
+        "Gabriel Pisa",
     ],
 ) as br_denatran_frota_uf_tipo:
     dataset_id = Parameter("dataset_id", default="br_denatran_frota")
@@ -155,7 +155,7 @@ br_denatran_frota_uf_tipo.schedule = every_month_uf
 with Flow(
     name="br_denatran_frota.municipio_tipo",
     code_owners=[
-        "Tamir",
+        "Gabriel Pisa",
     ],
 ) as br_denatran_frota_municipio_tipo:
     dataset_id = Parameter("dataset_id", default="br_denatran_frota")
