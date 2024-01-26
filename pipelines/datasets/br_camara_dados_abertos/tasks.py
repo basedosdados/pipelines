@@ -162,7 +162,7 @@ def save_data_proposicao(table_id: str):
                 encoding="utf-8",
             )
 
-    elif table_id == "orgaos":
+    elif table_id == "orgao":
         df = pd.read_csv(f"{constants_camara.INPUT_PATH.value}{valor}.csv", sep=";")
         df.to_csv(
             f"{constants_camara.OUTPUT_PATH.value}{table_id}/{valor}.csv",
@@ -171,7 +171,7 @@ def save_data_proposicao(table_id: str):
             encoding="utf-8",
         )
 
-    elif table_id == "orgaos_deputados":
+    elif table_id == "orgao_deputado":
         df = pd.read_csv(f"{constants_camara.INPUT_PATH.value}{valor}.csv", sep=";")
         df.to_csv(
             f"{constants_camara.OUTPUT_PATH.value}{table_id}/{valor}-L57.csv",
@@ -196,8 +196,8 @@ def dict_list_parameters(dataset_id, materialization_mode, dbt_alias):
         "proposicao_microdados",
         "proposicao_autor",
         "proposicao_tema",
-        "orgaos",
-        "orgaos_deputados",
+        "orgao",
+        "orgao_deputado",
     ]
 
     parameters = [

@@ -179,37 +179,43 @@ def download_csvs_camara_proposicao(table_id: str) -> None:
     if not os.path.exists(constants.INPUT_PATH.value):
         os.makedirs(constants.INPUT_PATH.value)
 
-    valor = constants.TABLE_LIST_CAMARA.value[table_id]
-    url = f"http://dadosabertos.camara.leg.br/arquivos/{valor}/csv/{valor}-{constants.ANOS_ATUAL.value}.csv"
+    original_table_name = constants.TABLE_LIST_CAMARA.value[table_id]
+    url = f"http://dadosabertos.camara.leg.br/arquivos/{original_table_name}/csv/{original_table_name}-{constants.ANOS_ATUAL.value}.csv"
     response = requests.get(url)
     if table_id in ["proposicao_microdados", "proposicao_autor", "proposicao_tema"]:
         if response.status_code == 200:
-            with open(f"{constants.INPUT_PATH.value}{valor}.csv", "wb") as f:
+            with open(
+                f"{constants.INPUT_PATH.value}{original_table_name}.csv", "wb"
+            ) as f:
                 f.write(response.content)
-                log(f"download complete {valor}-{constants.ANOS_ATUAL.value}")
+                log(
+                    f"download complete {original_table_name}-{constants.ANOS_ATUAL.value}"
+                )
 
         elif response.status_code >= 400 and response.status_code <= 599:
-            url_2 = f"http://dadosabertos.camara.leg.br/arquivos/{valor}/csv/{valor}-{constants.ANOS.value}.csv"
+            url_2 = f"http://dadosabertos.camara.leg.br/arquivos/{original_table_name}/csv/{original_table_name}-{constants.ANOS.value}.csv"
             response = requests.get(url_2)
-            with open(f"{constants.INPUT_PATH.value}{valor}.csv", "wb") as f:
+            with open(
+                f"{constants.INPUT_PATH.value}{original_table_name}.csv", "wb"
+            ) as f:
                 f.write(response.content)
-                log(f"download complete {valor}-{constants.ANOS.value}")
+                log(f"download complete {original_table_name}-{constants.ANOS.value}")
 
-    url = f"http://dadosabertos.camara.leg.br/arquivos/{valor}/csv/{valor}.csv"
+    url = f"http://dadosabertos.camara.leg.br/arquivos/{original_table_name}/csv/{original_table_name}.csv"
     response = requests.get(url)
-    if table_id == "orgaos":
+    if table_id == "orgao":
         if response.status_code == 200:
-            with open(f"{constants.INPUT_PATH.value}{valor}.csv", "wb") as f:
+            with open(
+                f"{constants.INPUT_PATH.value}{original_table_name}.csv", "wb"
+            ) as f:
                 f.write(response.content)
-                log(f"download complete {valor}")
-    elif table_id == "orgaos_deputados":
-        url_2 = (
-            f"http://dadosabertos.camara.leg.br/arquivos/{valor}/csv/{valor}-L57.csv"
-        )
+                log(f"download complete {original_table_name}")
+    elif table_id == "orgao_deputados":
+        url_2 = f"http://dadosabertos.camara.leg.br/arquivos/{original_table_name}/csv/{original_table_name}-L57.csv"
         response = requests.get(url_2)
-        with open(f"{constants.INPUT_PATH.value}{valor}.csv", "wb") as f:
+        with open(f"{constants.INPUT_PATH.value}{original_table_name}.csv", "wb") as f:
             f.write(response.content)
-            log(f"download complete {valor}")
+            log(f"download complete {original_table_name}")
 
 
 def download_and_read_data_proposicao(table_id: str) -> pd.DataFrame:

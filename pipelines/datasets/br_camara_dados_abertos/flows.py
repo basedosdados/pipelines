@@ -52,7 +52,7 @@ with Flow(name="br_camara_dados_abertos.votacao", code_owners=["trick"]) as br_c
             "votacao_microdados",
             "votacao_objeto",
             "votacao_orientacao_bancada",
-            "voto_parlamentar",
+            "votacao_parlamentar",
             "votacao_proposicao_afetada",
         ],
         required=True,
@@ -203,7 +203,7 @@ with Flow(name="br_camara_dados_abertos.votacao", code_owners=["trick"]) as br_c
         # ! ---------------------------------------- >   Votacao - Parlamentar
 
         filepath_parlamentar = make_partitions(
-            table_id="voto_parlamentar",
+            table_id="votacao_parlamentar",
             date_column="dataHoraVoto",
             upstream_tasks=[rename_flow_run],
         )
@@ -612,8 +612,8 @@ with Flow(
             "proposicao_microdados",
             "proposicao_autor",
             "proposicao_tema",
-            "orgaos",
-            "orgaos_deputados",
+            "orgao",
+            "orgao_deputado",
         ],
         required=True,
     )
@@ -677,13 +677,31 @@ with Flow(
         update_django_metadata.map(
             dataset_id=unmapped(dataset_id),
             table_id=table_id,
-            date_format=["%Y-%m-%d", "%Y-%m-%d", "%Y-%m-%d"],
-            date_column_name=[{"date": "data"}, {"date": "data"}, {"date": "data"}],
-            coverage_type=["part_bdpro", "all_free", "all_free"],
+            date_format=["%Y-%m-%d", "%Y-%m-%d", "%Y-%m-%d", "%Y-%m-%d", "%Y-%m-%d"],
+            date_column_name=[
+                {"date": "data"},
+                {"date": "data"},
+                {"date": "data"},
+                {"date": "data_inicial"},
+                {"date": "data"},
+            ],
+            coverage_type=[
+                "part_bdpro",
+                "all_free",
+                "all_free",
+                "part_bdpro",
+                "part_bdpro",
+            ],
             prefect_mode=unmapped(materialization_mode),
-            time_delta=[{"months": 6}, {"months": 6}, {"months": 6}],
+            time_delta=[
+                {"months": 6},
+                {"months": 6},
+                {"months": 6},
+                {"months": 6},
+                {"months": 6},
+            ],
             bq_project=unmapped("basedosdados"),
-            historical_database=[True, False, False],
+            historical_database=[True, False, False, True, True],
             upstream_tasks=[unmapped(wait_for_materialization)],
         )
 
