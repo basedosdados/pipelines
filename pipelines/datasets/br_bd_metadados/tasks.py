@@ -88,7 +88,7 @@ def crawler_flows():
     client = Client()
 
     body = """{
-    flow(where: {archived: {_eq: false}, is_schedule_active: {_eq: true}}) {
+    flow(where: {archived: {_eq: false}}) {
         name
         version
         created
