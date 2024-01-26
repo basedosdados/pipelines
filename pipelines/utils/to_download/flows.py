@@ -20,19 +20,18 @@ with Flow(
     url = Parameter(
         "url",
         default=[
-            "https://jsonplaceholder.typicode.com/posts",
-            "https://jsonplaceholder.typicode.com/comments",
+            "https://dadosabertos-download.cgu.gov.br/PortalDaTransparencia/saida/bolsa-familia-pagamentos/202101_BolsaFamilia_Pagamentos.zip",
+            "https://dadosabertos-download.cgu.gov.br/PortalDaTransparencia/saida/bolsa-familia-pagamentos/202102_BolsaFamilia_Pagamentos.zip",
+            "https://dadosabertos-download.cgu.gov.br/PortalDaTransparencia/saida/bolsa-familia-pagamentos/202103_BolsaFamilia_Pagamentos.zip",
         ],
         required=False,
     )
     save_path = Parameter(
         "save_path",
-        default=[
-            "/tmp/data/teste1/",
-        ],
+        default="/tmp/data/teste1/",
         required=False,
     )
-    file_type = Parameter("file_type", default="json", required=False)
+    file_type = Parameter("file_type", default="zip", required=False)
     to_download(url, save_path, file_type)
 
 utils_to_download_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

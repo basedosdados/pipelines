@@ -18,20 +18,18 @@ def chunk_range(content_length: int, chunk_size: int) -> list[tuple[int, int]]:
 
 
 async def unzip_file(zip_path, extract_to):
-    log(f"Extraindo dados do arquivo {os.path.basename(zip_path)}")
+    log(f"Extracting data from the file {os.path.basename(zip_path)}")
 
     try:
         with zipfile.ZipFile(zip_path) as z:
             z.extractall(extract_to)
-        log("Dados extraídos com sucesso!")
+        log("Data extracted successfully!")
     except zipfile.BadZipFile:
-        log(f"O arquivo {os.path.basename(zip_path)} não é um arquivo ZIP válido.")
+        log(f"The file {os.path.basename(zip_path)} is not a valid ZIP file.")
     except zipfile.LargeZipFile:
-        log(
-            f"O arquivo ZIP {os.path.basename(zip_path)} é muito grande para ser processado."
-        )
+        log(f"The ZIP file {os.path.basename(zip_path)} is too large to be processed.")
     except zipfile.error as e:
-        log(f"Erro ao extrair o arquivo ZIP {os.path.basename(zip_path)}: {str(e)}")
+        log(f"Error extracting ZIP file {os.path.basename(zip_path)}: {str(e)}")
     os.remove(zip_path)
 
 
@@ -79,7 +77,6 @@ async def get_in_chunks(
     semaphore: Semaphore,
 ) -> bytes:
     async with semaphore:
-        # log(f"Downloading chunk {chunk_range[0]}-{chunk_range[1]}")
         for i in range(max_retries):
             try:
                 async with httpx.AsyncClient(timeout=timeout) as client:
@@ -88,6 +85,7 @@ async def get_in_chunks(
                     response.raise_for_status()
                     return response.content
             except httpx.HTTPError as e:
+                log(f"Downloading chunk {chunk_range[0]}-{chunk_range[1]}")
                 log(f"Download failed with {e}. Retrying ({i+1}/{max_retries})...")
         raise httpx.HTTPError(f"Download failed after {max_retries} retries")
 
@@ -95,9 +93,9 @@ async def get_in_chunks(
 async def download(
     url: str,
     chunk_size: int = 2**20,
-    max_retries: int = 32,
+    max_retries: int = 12,
     max_parallel: int = 16,
-    timeout: int = 3 * 60 * 1000,
+    timeout: int = 3 * 60 * 10,
     params=None,
     credentials=None,
     auth_method=None,
@@ -134,9 +132,6 @@ async def download(
                 max_retries,
                 timeout,
                 semaphore,
-                params,
-                auth_method,
-                credentials,
             )
             for start, end in chunk_range(content_length, chunk_size)
         ]
@@ -147,7 +142,6 @@ async def download(
 async def download_from_url(
     url,
     save_path,
-    unzip: bool,
     params=None,
     credentials=None,
     auth_method=None,
@@ -168,15 +162,15 @@ async def download_from_url(
     with open(full_path, "wb") as fd:
         fd.write(content)
 
-    if unzip:
+    if file_type == "zip":
         await unzip_file(full_path, save_path)
     else:
-        log(f"Arquivo {base_name} salvo em {save_path}")
+        log(f"File {base_name} saved in {save_path}")
 
 
 async def download_files_async(
     urls: List[str],
-    save_paths: List[str],
+    save_path: str,
     file_type: str,
     params=None,
     credentials=None,
@@ -188,43 +182,20 @@ async def download_files_async(
 
     if isinstance(urls, str):
         urls = [urls]
-        save_paths = [save_paths]
+    if file_type not in ["json", "csv", "zip"]:
+        raise TypeError(
+            f"Invalid file_type: {file_type}. Accepted types: ['csv', 'zip', 'json']"
+        )
     tasks = []
-    for url, save_path in zip(urls, save_paths):
-        if file_type == "csv":
-            tasks.append(
-                download_from_url(
-                    url,
-                    save_path,
-                    unzip=False,
-                    params=params,
-                    credentials=credentials,
-                    auth_method=auth_method,
-                )
+    for url in urls:
+        tasks.append(
+            download_from_url(
+                url,
+                save_path,
+                params=params,
+                credentials=credentials,
+                auth_method=auth_method,
+                file_type=file_type,
             )
-        elif file_type == "zip":
-            tasks.append(
-                download_from_url(
-                    url,
-                    save_path,
-                    unzip=True,
-                    params=params,
-                    credentials=credentials,
-                    auth_method=auth_method,
-                )
-            )
-        elif file_type == "json":
-            tasks.append(
-                download_from_url(
-                    url,
-                    save_path,
-                    unzip=False,
-                    params=params,
-                    credentials=credentials,
-                    auth_method=auth_method,
-                    file_type="json",
-                )
-            )
-        else:
-            raise ValueError(f"Invalid file_type: {file_type}")
+        )
     await gather(*tasks)
