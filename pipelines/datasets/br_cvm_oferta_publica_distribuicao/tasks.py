@@ -36,7 +36,7 @@ def clean_table_oferta_distribuicao(root: str) -> str:
     ou_filepath = f"{root}/output/br_cvm_oferta_publica_distribuicao.csv"
     os.makedirs(f"{root}/output/", exist_ok=True)
 
-    dataframe = pd.DataFrame = pd.read_csv(
+    dataframe = pd.read_csv(
         in_filepath,
         sep=";",
         keep_default_na=False,
