@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
+
 from datetime import timedelta
-from itertools import product
 
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
@@ -15,21 +15,16 @@ from pipelines.datasets.br_denatran_frota.schedules import (
 )
 from pipelines.datasets.br_denatran_frota.tasks import (
     crawl_task,
-    get_denatran_date,
     get_desired_file_task,
     get_latest_data_task,
     output_file_to_parquet_task,
-    should_process_data_task,
     treat_municipio_tipo_task,
     treat_uf_tipo_task,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.metadata.tasks import (
-    check_if_data_is_outdated,
-    update_django_metadata,
-)
+from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
