@@ -68,29 +68,29 @@ def was_table_updated(page_size: int, hours: int, subset: str, wait=None) -> boo
 
     # pylint: disable=R0915
     datasets_links = defaultdict(lambda: "not selected")
-    datasets_links[
-        "mundo_transfermarkt_competicoes"
-    ] = "https://basedosdados.org/dataset/mundo-transfermarkt-competicoes"
-    datasets_links[
-        "br_me_caged.microdados_antigos"
-    ] = "https://basedosdados.org/dataset/br-me-caged"
+    datasets_links["mundo_transfermarkt_competicoes"] = (
+        "https://basedosdados.org/dataset/mundo-transfermarkt-competicoes"
+    )
+    datasets_links["br_me_caged.microdados_antigos"] = (
+        "https://basedosdados.org/dataset/br-me-caged"
+    )
     datasets_links["br_ibge_inpc"] = "https://basedosdados.org/dataset/br-ibge-inpc"
     datasets_links["br_ibge_ipca"] = "https://basedosdados.org/dataset/br-ibge-ipca"
     datasets_links["br_ibge_ipca15"] = "https://basedosdados.org/dataset/br-ibge-ipca15"
-    datasets_links[
-        "br_anp_precos_combustiveis"
-    ] = "https://basedosdados.org/dataset/br-anp-precos-combustiveis"
-    datasets_links[
-        "br_poder360_pesquisas"
-    ] = "https://basedosdados.org/dataset/br-poder360-pesquisas"
+    datasets_links["br_anp_precos_combustiveis"] = (
+        "https://basedosdados.org/dataset/br-anp-precos-combustiveis"
+    )
+    datasets_links["br_poder360_pesquisas"] = (
+        "https://basedosdados.org/dataset/br-poder360-pesquisas"
+    )
     datasets_links["br_ms_cnes"] = "https://basedosdados.org/dataset/br-ms-cnes"
-    datasets_links[
-        "br_camara_atividade_legislativa"
-    ] = "https://basedosdados.org/dataset/br-camara-atividade-legislativa"
+    datasets_links["br_camara_atividade_legislativa"] = (
+        "https://basedosdados.org/dataset/br-camara-atividade-legislativa"
+    )
     datasets_links["br_ibge_pnadc"] = "https://basedosdados.org/dataset/br-ibge-pnadc"
-    datasets_links[
-        "br_ana_reservatorios"
-    ] = "https://basedosdados.org/dataset/br-ana-reservatorios"
+    datasets_links["br_ana_reservatorios"] = (
+        "https://basedosdados.org/dataset/br-ana-reservatorios"
+    )
 
     if subset == "inflation":
         datasets_links = {
@@ -167,9 +167,11 @@ def was_table_updated(page_size: int, hours: int, subset: str, wait=None) -> boo
     df = dfs[0].append(dfs[1:])
     df["link"] = df["dataset"].map(datasets_links)
     df["last_updated"] = [
-        datetime.strptime(date, "%Y-%m-%d %H:%M:%S")
-        if isinstance(date, str)
-        else np.nan
+        (
+            datetime.strptime(date, "%Y-%m-%d %H:%M:%S")
+            if isinstance(date, str)
+            else np.nan
+        )
         for date in pd.to_datetime(df["last_updated"], errors="coerce").dt.strftime(
             "%Y-%m-%d %H:%M:%S"
         )
