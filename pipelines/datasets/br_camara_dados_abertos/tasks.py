@@ -186,7 +186,6 @@ def output_path_list(table_id_list):
     output_path_list = []
     for table_id in table_id_list:
         output_path_list.append(f"{constants_camara.OUTPUT_PATH.value}{table_id}/")
-        log(output_path_list)
     return output_path_list
 
 

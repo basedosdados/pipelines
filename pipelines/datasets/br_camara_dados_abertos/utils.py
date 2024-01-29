@@ -210,12 +210,14 @@ def download_csvs_camara_proposicao(table_id: str) -> None:
             ) as f:
                 f.write(response.content)
                 log(f"download complete {original_table_name}")
-    elif table_id == "orgao_deputados":
+    elif table_id == "orgao_deputado":
         url_2 = f"http://dadosabertos.camara.leg.br/arquivos/{original_table_name}/csv/{original_table_name}-L57.csv"
         response = requests.get(url_2)
         with open(f"{constants.INPUT_PATH.value}{original_table_name}.csv", "wb") as f:
             f.write(response.content)
             log(f"download complete {original_table_name}")
+
+    return log(os.listdir(constants.INPUT_PATH.value))
 
 
 def download_and_read_data_proposicao(table_id: str) -> pd.DataFrame:
