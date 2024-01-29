@@ -190,7 +190,7 @@ with Flow(
     )
 
     with case(crawled, False):
-        log_task("No new data to be downloaded")
+        log_task("There's no new data to be downloaded")
 
     with case(crawled, True):
         # Now get the downloaded file:
