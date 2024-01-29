@@ -682,8 +682,8 @@ with Flow(
                 {"date": "data"},
                 {"date": "data"},
                 {"date": "data"},
-                {"date": "data_inicial"},
-                {"date": "data_inicial"},
+                {"date": "data_inicio"},
+                {"date": "data_inicio"},
             ],
             coverage_type=[
                 "part_bdpro",
