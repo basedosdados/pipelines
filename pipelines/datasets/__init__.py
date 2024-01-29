@@ -25,6 +25,7 @@ from pipelines.datasets.br_cgu_servidores_executivo_federal.flows import *
 from pipelines.datasets.br_cvm_administradores_carteira.flows import *
 from pipelines.datasets.br_cvm_fi.flows import *
 from pipelines.datasets.br_cvm_oferta_publica_distribuicao.flows import *
+from pipelines.datasets.br_denatran_frota.flows import *
 from pipelines.datasets.br_fgv_igp.flows import *
 from pipelines.datasets.br_ibge_inpc.flows import *
 from pipelines.datasets.br_ibge_ipca15.flows import *
