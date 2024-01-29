@@ -700,7 +700,7 @@ with Flow(
                 {"months": 6},
                 {"months": 6},
             ],
-            bq_project=unmapped("basedosdados"),
+            bq_project=unmapped("basedosdados-dev"),
             historical_database=[True, False, False, True, True],
             upstream_tasks=[unmapped(wait_for_materialization)],
         )
