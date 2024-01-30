@@ -66,5 +66,5 @@ class constants(Enum):
         "proposicao_autor": "proposicoesAutores",
         "proposicao_tema": "proposicoesTemas",
         "orgao": "orgaos",
-        "orgao_deputado": "orgaosDeputados",
+        "orgao_deputado": "orgaosDeputados-L57",
     }

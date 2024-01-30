@@ -92,93 +92,43 @@ def treat_and_save_table(table_id):
 
 
 # -------------------------------------------------------------------> PROPOSIÇÃO
-
-
 @task
 def save_data_proposicao(table_id: str):
-    df = download_and_read_data_proposicao(table_id)
-    valor = constants_camara.TABLE_LIST_CAMARA.value[table_id]
     if not os.path.exists(f"{constants_camara.OUTPUT_PATH.value}{table_id}"):
         os.makedirs(f"{constants_camara.OUTPUT_PATH.value}{table_id}")
-
+    original_table_name = constants_camara.TABLE_LIST_CAMARA.value[table_id]
+    df = download_and_read_data_proposicao(table_id)
+    output_path = f"{constants_camara.OUTPUT_PATH.value}{table_id}/{original_table_name}_{constants_camara.ANOS_ATUAL.value}.csv"
     if table_id == "proposicao_microdados":
-        valor = constants_camara.TABLE_LIST_CAMARA.value[table_id]
-        url = f"http://dadosabertos.camara.leg.br/arquivos/{valor}/csv/{valor}-{constants_camara.ANOS_ATUAL.value}.csv"
-        response = requests.get(url)
-        if response.status_code == 200:
-            df["ultimoStatus_despacho"] = df["ultimoStatus_despacho"].apply(
-                lambda x: str(x).replace(";", ",").replace("\n", "").replace("\r", "")
-            )
-            df["ementa"] = df["ementa"].apply(
-                lambda x: str(x).replace(";", ",").replace("\n", "").replace("\r", "")
-            )
-            df["ano"] = df.apply(
-                lambda x: x["dataApresentacao"][0:4] if x["ano"] == 0 else x["ano"],
-                axis=1,
-            )
-            df.to_csv(
-                f"{constants_camara.OUTPUT_PATH.value}{table_id}/{valor}_{constants_camara.ANOS_ATUAL.value}.csv",
-                sep=",",
-                index=False,
-                encoding="utf-8",
-            )
-        elif response.status_code >= 400 and response.status_code <= 599:
-            url_2 = f"http://dadosabertos.camara.leg.br/arquivos/{valor}/csv/{valor}-{constants_camara.ANOS.value}.csv"
-            response = requests.get(url_2)
-
-            df["ultimoStatus_despacho"] = df["ultimoStatus_despacho"].apply(
-                lambda x: str(x).replace(";", ",").replace("\n", "").replace("\r", "")
-            )
-            df["ementa"] = df["ementa"].apply(
-                lambda x: str(x).replace(";", ",").replace("\n", "").replace("\r", "")
-            )
-            df["ano"] = df.apply(
-                lambda x: x["dataApresentacao"][0:4] if x["ano"] == 0 else x["ano"],
-                axis=1,
-            )
-            df.to_csv(
-                f"{constants_camara.OUTPUT_PATH.value}{table_id}/{valor}_{constants_camara.ANOS.value}.csv",
-                sep=",",
-                index=False,
-                encoding="utf-8",
-            )
-
-    elif table_id in ["proposicao_autor", "proposicao_tema"]:
-        valor = constants_camara.TABLE_LIST_CAMARA.value[table_id]
-        url = f"http://dadosabertos.camara.leg.br/arquivos/{valor}/csv/{valor}-{constants_camara.ANOS_ATUAL.value}.csv"
-        response = requests.get(url)
-        if response.status_code == 200:
-            df.to_csv(
-                f"{constants_camara.OUTPUT_PATH.value}{table_id}/{valor}_{constants_camara.ANOS_ATUAL.value}.csv",
-                sep=",",
-                index=False,
-                encoding="utf-8",
-            )
-        elif response.status_code >= 400 and response.status_code <= 599:
-            df.to_csv(
-                f"{constants_camara.OUTPUT_PATH.value}{table_id}/{valor}_{constants_camara.ANOS.value}.csv",
-                sep=",",
-                index=False,
-                encoding="utf-8",
-            )
-
-    elif table_id == "orgao":
-        df = pd.read_csv(f"{constants_camara.INPUT_PATH.value}{valor}.csv", sep=";")
-        df.to_csv(
-            f"{constants_camara.OUTPUT_PATH.value}{table_id}/{valor}.csv",
-            sep=",",
-            index=False,
-            encoding="utf-8",
+        df["ultimoStatus_despacho"] = df["ultimoStatus_despacho"].apply(
+            lambda x: str(x).replace(";", ",").replace("\n", "").replace("\r", "")
         )
-
-    elif table_id == "orgao_deputado":
-        df = pd.read_csv(f"{constants_camara.INPUT_PATH.value}{valor}.csv", sep=";")
-        df.to_csv(
-            f"{constants_camara.OUTPUT_PATH.value}{table_id}/{valor}-L57.csv",
-            sep=",",
-            index=False,
-            encoding="utf-8",
+        df["ementa"] = df["ementa"].apply(
+            lambda x: str(x).replace(";", ",").replace("\n", "").replace("\r", "")
         )
+        df["ano"] = df.apply(
+            lambda x: x["dataApresentacao"][0:4] if x["ano"] == 0 else x["ano"],
+            axis=1,
+        )
+        log(f"Saving {original_table_name} to {output_path}")
+    if table_id in ["proposicao_autor", "proposicao_tema"]:
+        log(f"Saving {original_table_name} to {output_path}")
+
+    df.to_csv(
+        output_path,
+        sep=",",
+        index=False,
+        encoding="utf-8",
+    )
+    output_path_orgaos = (
+        f"{constants_camara.OUTPUT_PATH.value}{table_id}/{original_table_name}.csv"
+    )
+    log(output_path_orgaos)
+    if table_id in ["orgao", "orgao_deputado"]:
+        print(f"Saving {table_id} to {output_path}")
+        df.to_csv(output_path_orgaos, sep=",", index=False, encoding="utf-8")
+
+    return output_path
 
 
 @task
@@ -190,7 +140,7 @@ def output_path_list(table_id_list):
 
 
 @task
-def dict_list_parameters(dataset_id, materialization_mode, dbt_alias):
+def dict_list_parameters(table_id, dataset_id, materialization_mode):
     table_id = [
         "proposicao_microdados",
         "proposicao_autor",
@@ -198,42 +148,110 @@ def dict_list_parameters(dataset_id, materialization_mode, dbt_alias):
         "orgao",
         "orgao_deputado",
     ]
-
     parameters = [
         dict(
             dataset_id=dataset_id,
             table_id=table_id[0],
             mode=materialization_mode,
-            dbt_alias=dbt_alias,
+            dbt_alias=True,
             dbt_command="run and test",
         ),
         dict(
             dataset_id=dataset_id,
             table_id=table_id[1],
             mode=materialization_mode,
-            dbt_alias=dbt_alias,
+            dbt_alias=True,
             dbt_command="run and test",
         ),
         dict(
             dataset_id=dataset_id,
             table_id=table_id[2],
             mode=materialization_mode,
-            dbt_alias=dbt_alias,
+            dbt_alias=True,
             dbt_command="run and test",
         ),
         dict(
             dataset_id=dataset_id,
             table_id=table_id[3],
             mode=materialization_mode,
-            dbt_alias=dbt_alias,
+            dbt_alias=True,
             dbt_command="run and test",
         ),
         dict(
             dataset_id=dataset_id,
             table_id=table_id[4],
             mode=materialization_mode,
-            dbt_alias=dbt_alias,
+            dbt_alias=True,
             dbt_command="run and test",
         ),
     ]
+    return parameters
+
+
+def dict_list_update_metadata(dataset_id, materialize_mode):
+    table_id = [
+        "proposicao_microdados",
+        "proposicao_autor",
+        "proposicao_tema",
+        "orgao",
+        "orgao_deputado",
+    ]
+    parameters = [
+        dict(
+            dataset_id=dataset_id,
+            table_id=table_id[0],
+            date_format="%Y-%m-%d",
+            date_column_name={"date": "data"},
+            project_mode=materialize_mode,
+            coverage_type="part_bdpro",
+            time_delta={"months": 6},
+            bq_project="basedosdados",
+            historical_database=True,
+        ),
+        dict(
+            dataset_id=dataset_id,
+            table_id=table_id[1],
+            date_format="%Y-%m-%d",
+            date_column_name={"date": "data"},
+            project_mode=materialize_mode,
+            coverage_type="part_bdpro",
+            time_delta={"months": 6},
+            bq_project="basedosdados",
+            historical_database=False,
+        ),
+        dict(
+            dataset_id=dataset_id,
+            table_id=table_id[2],
+            date_format="%Y-%m-%d",
+            date_column_name={"date": "data"},
+            project_mode=materialize_mode,
+            coverage_type="part_bdpro",
+            time_delta={"months": 6},
+            bq_project="basedosdados",
+            historical_database=False,
+        ),
+        dict(
+            dataset_id=dataset_id,
+            table_id=table_id[3],
+            date_format="%Y-%m-%d",
+            date_column_name={"date": "data_inicio"},
+            project_mode=materialize_mode,
+            coverage_type="part_bdpro",
+            time_delta={"months": 6},
+            bq_project="basedosdados",
+            historical_database=True,
+        ),
+        dict(
+            dataset_id=dataset_id,
+            table_id=table_id[4],
+            date_format="%Y-%m-%d",
+            date_column_name={"date": "data_inicio"},
+            project_mode=materialize_mode,
+            coverage_type="part_bdpro",
+            time_delta={"months": 6},
+            bq_project="basedosdados",
+            historical_database=True,
+        ),
+    ]
+
     return parameters
