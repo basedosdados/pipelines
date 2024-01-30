@@ -1,7 +1,7 @@
 # Build arguments
-ARG PYTHON_VERSION=3.9-slim
+ARG PYTHON_VERSION=3.10-slim
 
-# Python version: 3.9
+# Python version: 3.10
 FROM python:${PYTHON_VERSION}
 
 # Configure environment
@@ -21,20 +21,19 @@ RUN apt-get update && \
     echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list && \
     apt-get update && \
     apt-get install --no-install-recommends -y \
-        build-essential \
-        curl \
-        freetds-dev \
-        ftp \
-        gcc \
-        google-chrome-stable \
-        libcrypto++-dev \
-        libssl-dev \
-        p7zip-full \
-        python3-dev \
-        traceroute \
-        wget \
-        git \
-        && \
+    build-essential \
+    curl \
+    freetds-dev \
+    ftp \
+    gcc \
+    google-chrome-stable \
+    libcrypto++-dev \
+    libssl-dev \
+    p7zip-full \
+    python3-dev \
+    traceroute \
+    wget \
+    && \
     apt-get install -y r-base && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*

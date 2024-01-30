@@ -5,6 +5,7 @@ Flows for br_me_cnpj
 from datetime import timedelta
 
 from prefect import Parameter, case
+from prefect.executors import LocalDaskExecutor
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
@@ -37,14 +38,15 @@ with Flow(
     code_owners=[
         "lauris",
     ],
+    executor=LocalDaskExecutor(),
 ) as br_me_cnpj_empresas:
-    dataset_id = Parameter("dataset_id", default="br_me_cnpj", required=True)
-    table_id = Parameter("table_id", default="empresas", required=True)
+    dataset_id = Parameter("dataset_id", default="br_me_cnpj", required=False)
+    table_id = Parameter("table_id", default="empresas", required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
     materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
+        "materialize_after_dump", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
@@ -127,6 +129,7 @@ with Flow(
     code_owners=[
         "lauris",
     ],
+    executor=LocalDaskExecutor(),
 ) as br_me_cnpj_socios:
     dataset_id = Parameter("dataset_id", default="br_me_cnpj", required=True)
     table_id = Parameter("table_id", default="socios", required=True)
@@ -216,6 +219,7 @@ with Flow(
     code_owners=[
         "lauris",
     ],
+    executor=LocalDaskExecutor(),
 ) as br_me_cnpj_estabelecimentos:
     dataset_id = Parameter("dataset_id", default="br_me_cnpj", required=True)
     table_id = Parameter("table_id", default="estabelecimentos", required=True)
@@ -331,8 +335,7 @@ with Flow(
                 table_id="empresa",
                 date_column_name={"date": "data"},
                 date_format="%Y-%m-%d",
-                coverage_type="part_bdpro",
-                time_delta={"months": 6},
+                coverage_type="all_bdpro",
                 prefect_mode=materialization_mode,
                 bq_project="basedosdados",
                 upstream_tasks=[wait_for_materialization],

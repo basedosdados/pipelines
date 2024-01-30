@@ -14,30 +14,31 @@ from pipelines.utils.utils import log
 # -------------------------------------------------------------------------------------> VOTACAO
 def download_csvs_camara() -> None:
     """
-    Docs:
-    This function does download all csvs from archives of camara dos deputados.
-    The csvs saved in conteiners of docker.
+    Downloads CSV files from the Camara de Proposicao API.
 
-    return:
-    None
+    This function iterates over the years and table list of chamber defined in the constants module,
+    and downloads the corresponding CSV files from the Camara de Proposicao API. The downloaded files are
+    saved in the input path specified in the constants module.
+
+    Raises:
+        Exception: If there is an error in the request, such as a non-successful status code.
+
     """
     log("Downloading csvs from camara dos deputados")
     if not os.path.exists(constants.INPUT_PATH.value):
         os.makedirs(constants.INPUT_PATH.value)
 
-    for ano in constants.ANOS.value:
-        for chave, valor in constants.TABLE_LIST.value.items():
-            url = f"http://dadosabertos.camara.leg.br/arquivos/{valor}/csv/{valor}-{ano}.csv"
+    for chave, valor in constants.TABLE_LIST.value.items():
+        log(f"download {valor}")
+        url = f"http://dadosabertos.camara.leg.br/arquivos/{valor}/csv/{valor}-{constants.ANOS.value}.csv"
 
-            response = requests.get(url)
+        response = requests.get(url)
 
-            if response.status_code == 200:
-                with open(f"{constants.INPUT_PATH.value}{valor}.csv", "wb") as f:
-                    f.write(response.content)
-            elif response.status_code >= 400 and response.status_code <= 599:
-                raise Exception(
-                    f"Erro de requisição: status code {response.status_code}"
-                )
+        if response.status_code == 200:
+            with open(f"{constants.INPUT_PATH.value}{valor}.csv", "wb") as f:
+                f.write(response.content)
+        elif response.status_code >= 400 and response.status_code <= 599:
+            raise Exception(f"Erro de requisição: status code {response.status_code}")
 
     log("------------- archive inside in container --------------")
     log(os.listdir(constants.INPUT_PATH.value))
@@ -102,14 +103,17 @@ def read_and_clean_camara_dados_abertos(
 
 def download_csvs_camara_deputado() -> None:
     """
-    Docs:
-    This function does download all csvs from archives of camara dos deputados.
-    The csvs saved in conteiners of docker.
+    Downloads CSV files from the Camara de Proposicao API.
 
-    return:
-    None
+    This function iterates over the years and table list of congressperson defined in the constants module,
+    and downloads the corresponding CSV files from the Camara de Proposicao API. The downloaded files are
+    saved in the input path specified in the constants module.
+
+    Raises:
+        Exception: If there is an error in the request, such as a non-successful status code.
+
     """
-    print("Downloading csvs from camara dos deputados")
+    log("Downloading csvs from camara dos deputados")
     if not os.path.exists(constants.INPUT_PATH.value):
         os.makedirs(constants.INPUT_PATH.value)
 
@@ -151,6 +155,50 @@ def get_data_deputados():
     download_csvs_camara_deputado()
     df = pd.read_csv(
         f'{constants.INPUT_PATH.value}{constants.TABLE_LIST_DEPUTADOS.value["deputado_profissao"]}.csv',
+        sep=";",
+    )
+
+    return df
+
+
+# ----------------------------------------------------------------------------------- > Proposição
+
+
+def download_csvs_camara_proposicao(table_id: str) -> None:
+    """
+    Downloads CSV files from the Camara de Proposicao API.
+
+    This function iterates over the years and table list of propositions defined in the constants module,
+    and downloads the corresponding CSV files from the Camara de Proposicao API. The downloaded files are
+    saved in the input path specified in the constants module.
+
+    Raises:
+        Exception: If there is an error in the request, such as a non-successful status code.
+
+    """
+    if not os.path.exists(constants.INPUT_PATH.value):
+        os.makedirs(constants.INPUT_PATH.value)
+
+    valor = constants.TABLE_LIST_PROPOSICAO.value[table_id]
+    url = f"http://dadosabertos.camara.leg.br/arquivos/{valor}/csv/{valor}-{constants.ANOS_ATUAL.value}.csv"
+    response = requests.get(url)
+    if response.status_code == 200:
+        with open(f"{constants.INPUT_PATH.value}{valor}.csv", "wb") as f:
+            f.write(response.content)
+            log(f"download complete {valor}-{constants.ANOS_ATUAL.value}")
+
+    elif response.status_code >= 400 and response.status_code <= 599:
+        url_2 = f"http://dadosabertos.camara.leg.br/arquivos/{valor}/csv/{valor}-{constants.ANOS.value}.csv"
+        response = requests.get(url_2)
+        with open(f"{constants.INPUT_PATH.value}{valor}.csv", "wb") as f:
+            f.write(response.content)
+            log(f"download complete {valor}-{constants.ANOS.value}")
+
+
+def download_and_read_data_proposicao(table_id: str) -> pd.DataFrame:
+    download_csvs_camara_proposicao(table_id)
+    df = pd.read_csv(
+        f"{constants.INPUT_PATH.value}{constants.TABLE_LIST_PROPOSICAO.value[table_id]}.csv",
         sep=";",
     )
 

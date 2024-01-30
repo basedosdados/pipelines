@@ -4,20 +4,27 @@
 
 from datetime import timedelta
 
-from prefect import Parameter, case
+from prefect import Parameter, case, unmapped
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
+from pipelines.datasets.br_camara_dados_abertos.constants import (
+    constants as constants_camara,
+)
 from pipelines.datasets.br_camara_dados_abertos.schedules import (
     every_day_camara_dados_abertos,
     every_day_camara_dados_abertos_deputados,
+    every_day_camara_dados_abertos_proposicao,
 )
 from pipelines.datasets.br_camara_dados_abertos.tasks import (
+    dict_list_parameters,
     download_files_and_get_max_date,
     download_files_and_get_max_date_deputados,
     make_partitions,
+    output_path_list,
+    save_data_proposicao,
     treat_and_save_table,
 )
 from pipelines.utils.constants import constants as utils_constants
@@ -584,3 +591,100 @@ with Flow(
 br_camara_deputado.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_camara_deputado.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 br_camara_deputado.schedule = every_day_camara_dados_abertos_deputados
+
+
+# ---------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------
+
+# ------------------------------ TABLES PROPOSIÇÃO ---------------------------------------
+
+with Flow(
+    name="br_camara_dados_abertos.proposicao", code_owners=["trick"]
+) as br_camara_proposicao:
+    # Parameters
+    dataset_id = Parameter(
+        "dataset_id", default="br_camara_dados_abertos", required=True
+    )
+    table_id = Parameter(
+        "table_id",
+        default=[
+            "proposicao_microdados",
+            "proposicao_autor",
+            "proposicao_tema",
+        ],
+        required=True,
+    )
+    materialization_mode = Parameter(
+        "materialization_mode", default="dev", required=False
+    )
+    materialize_after_dump = Parameter(
+        "materialize_after_dump", default=True, required=False
+    )
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
+
+    rename_flow_run = rename_current_flow_run_dataset_table(
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id="Proposição",
+        wait=table_id,
+    )
+
+    update_metadata = Parameter("update_metadata", default=True, required=False)
+
+    filepath = save_data_proposicao.map(
+        table_id=table_id,
+        upstream_tasks=[unmapped(rename_flow_run)],
+    )
+    output_path_list = output_path_list(table_id)
+    wait_upload_table = create_table_and_upload_to_gcs.map(
+        data_path=output_path_list,
+        dataset_id=unmapped(dataset_id),
+        table_id=table_id,
+        dump_mode=unmapped("append"),
+        wait=unmapped(output_path_list),
+        upstream_tasks=[unmapped(filepath)],
+    )
+    parameters = dict_list_parameters(dataset_id, materialization_mode, dbt_alias)
+    with case(materialize_after_dump, True):
+        # Trigger DBT flow run
+        current_flow_labels = get_current_flow_labels()
+        materialization_flow = create_flow_run.map(
+            flow_name=unmapped(utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value),
+            project_name=unmapped(constants.PREFECT_DEFAULT_PROJECT.value),
+            parameters=parameters,
+            labels=unmapped(current_flow_labels),
+            run_name=f"Materialize {unmapped(dataset_id)}.{table_id}",
+            upstream_tasks=[unmapped(wait_upload_table)],
+        )
+
+        wait_for_materialization = wait_for_flow_run.map(
+            materialization_flow,
+            stream_states=unmapped(True),
+            stream_logs=unmapped(True),
+            raise_final_state=unmapped(True),
+        )
+        wait_for_materialization.max_retries = (
+            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
+        )
+        wait_for_materialization.retry_delay = timedelta(
+            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+        )
+
+    with case(update_metadata, True):
+        update_django_metadata.map(
+            dataset_id=unmapped(dataset_id),
+            table_id=table_id,
+            date_format=["%Y-%m-%d", "%Y-%m-%d", "%Y-%m-%d"],
+            date_column_name=[{"date": "data"}, {"date": "data"}, {"date": "data"}],
+            coverage_type=["part_bdpro", "all_free", "all_free"],
+            prefect_mode=unmapped(materialization_mode),
+            time_delta=[{"months": 6}, {"months": 6}, {"months": 6}],
+            bq_project=unmapped("basedosdados"),
+            historical_database=[True, False, False],
+            upstream_tasks=[unmapped(wait_for_materialization)],
+        )
+
+br_camara_proposicao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_camara_proposicao.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_camara_proposicao.schedule = every_day_camara_dados_abertos_proposicao

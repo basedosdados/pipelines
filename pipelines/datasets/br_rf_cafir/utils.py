@@ -37,9 +37,9 @@ def remove_non_ascii_from_df(df: pd.DataFrame) -> pd.DataFrame:
     """
 
     return df.applymap(
-        lambda x: x.encode("ascii", "ignore").decode("ascii")
-        if isinstance(x, str)
-        else x
+        lambda x: (
+            x.encode("ascii", "ignore").decode("ascii") if isinstance(x, str) else x
+        )
     )
 
 

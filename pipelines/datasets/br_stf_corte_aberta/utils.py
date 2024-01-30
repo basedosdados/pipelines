@@ -36,13 +36,14 @@ def web_scrapping():
     options.add_argument("--crash-dumps-dir=/tmp")
     options.add_argument("--remote-debugging-port=9222")
     driver = webdriver.Chrome(options=options)
-    time.sleep(30)
+    time.sleep(45)
     driver.get(stf_constants.STF_LINK.value)
-    time.sleep(30)
+    time.sleep(45)
     driver.maximize_window()
-    time.sleep(30)
+    time.sleep(45)
     driver.find_element("xpath", '//*[@id="EXPORT-BUTTON-2"]/button').click()
-    time.sleep(30)
+    time.sleep(90)
+    driver.quit()
 
 
 def read_csv():

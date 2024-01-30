@@ -336,9 +336,11 @@ def parquet_partition(path: str, table: str) -> str:
                 dtype=(
                     constants.DTYPES_NOVO_BOLSA_FAMILIA.value
                     if table == "novo_bolsa_familia"
-                    else constants.DTYPES_GARANTIA_SAFRA.value
-                    if table == "garantia_safra"
-                    else constants.DTYPES_BPC.value
+                    else (
+                        constants.DTYPES_GARANTIA_SAFRA.value
+                        if table == "garantia_safra"
+                        else constants.DTYPES_BPC.value
+                    )
                 ),
             ) as reader:
                 for chunk in tqdm(reader):
@@ -346,9 +348,11 @@ def parquet_partition(path: str, table: str) -> str:
                         columns=(
                             constants.RENAMER_NOVO_BOLSA_FAMILIA.value
                             if table == "novo_bolsa_familia"
-                            else constants.RENAMER_GARANTIA_SAFRA.value
-                            if table == "garantia_safra"
-                            else constants.RENAMER_BPC.value
+                            else (
+                                constants.RENAMER_GARANTIA_SAFRA.value
+                                if table == "garantia_safra"
+                                else constants.RENAMER_BPC.value
+                            )
                         ),
                         inplace=True,
                     )

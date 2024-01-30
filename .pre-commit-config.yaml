@@ -13,12 +13,12 @@ repos:
     hooks:
       - id: poetry-check
   - repo: https://github.com/psf/black
-    rev: 23.11.0
+    rev: 24.1.1
     hooks:
       - id: black
         exclude: 'pipelines\/\{\{cookiecutter\.project_name\}\}.*'
   - repo: https://github.com/pycqa/isort
-    rev: 5.13.0
+    rev: 5.13.2
     hooks:
       - id: isort
         args: [--profile, black, --skip, "pipelines/{{cookiecutter.project_name}}"]
@@ -28,7 +28,7 @@ repos:
       - id: autoflake
         exclude: 'pipelines\/\{\{cookiecutter\.project_name\}\}.*'
   - repo: https://github.com/PyCQA/flake8
-    rev: 6.1.0
+    rev: 7.0.0
     hooks:
       - id: flake8
         exclude: 'pipelines\/\{\{cookiecutter\.project_name\}\}.*'

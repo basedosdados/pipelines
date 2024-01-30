@@ -27,7 +27,7 @@ from pipelines.utils.tasks import (
 )
 
 ROOT = "/tmp/data"
-URL = "http://dados.cvm.gov.br/dados/OFERTA/DISTRIB/DADOS/oferta_distribuicao.csv"
+URL = "http://dados.cvm.gov.br/dados/OFERTA/DISTRIB/DADOS/oferta_distribuicao.zip"
 
 with Flow(
     name="br_cvm_oferta_publica_distribuicao.dia", code_owners=["equipe_pipelines"]
@@ -41,7 +41,7 @@ with Flow(
         "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
-        "materialize after dump", default=True, required=False
+        "materialize_after_dump", default=True, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)

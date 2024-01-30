@@ -148,8 +148,12 @@ notebooks/
 /tests/
 
 
+
+
 .DS_Store
 
 # Mac
 .DS_Store
 
+
+/DENATRAN_FILES
