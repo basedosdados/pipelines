@@ -68,3 +68,26 @@ class constants(Enum):
         "orgao": "orgaos",
         "orgao_deputado": "orgaosDeputados-L57",
     }
+
+    TABLES_SPLIT_BY_YEAR = [
+        "proposicao_microdados",
+        "proposicao_autor",
+        "porposicao_tema",
+    ]
+
+    DATA_COLUMN_NAME = [
+        {"date": "data"},
+        {"date": "data"},
+        {"date": "data"},
+        {"date": "data_inicio"},
+        {"date": "data_inicio"},
+    ]
+    COVERAGE_TYPE = [
+        "part_bdpro",
+        "all_free",
+        "all_free",
+        "part_bdpro",
+        "part_bdpro",
+    ]
+
+    HISTORICAL_DATABASE = [True, False, False, True, True]

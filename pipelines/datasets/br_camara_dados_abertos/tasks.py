@@ -11,7 +11,7 @@ from pipelines.datasets.br_camara_dados_abertos.constants import (
     constants as constants_camara,
 )
 from pipelines.datasets.br_camara_dados_abertos.utils import (
-    download_and_read_data_proposicao,
+    download_and_read_data,
     get_data,
     get_data_deputados,
     read_and_clean_camara_dados_abertos,
@@ -91,14 +91,13 @@ def treat_and_save_table(table_id):
     return f"{constants_camara.OUTPUT_PATH.value}{table_id}/data.csv"
 
 
-# -------------------------------------------------------------------> PROPOSIÇÃO
+# -------------------------------------------------------------------> DADOS CAMARA ABERTA - UNIVERSAL
 @task
-def save_data_proposicao(table_id: str):
+def save_data(table_id: str):
     if not os.path.exists(f"{constants_camara.OUTPUT_PATH.value}{table_id}"):
         os.makedirs(f"{constants_camara.OUTPUT_PATH.value}{table_id}")
     original_table_name = constants_camara.TABLE_LIST_CAMARA.value[table_id]
-    df = download_and_read_data_proposicao(table_id)
-    output_path = f"{constants_camara.OUTPUT_PATH.value}{table_id}/{original_table_name}_{constants_camara.ANOS_ATUAL.value}.csv"
+    df = download_and_read_data(table_id)
     if table_id == "proposicao_microdados":
         df["ultimoStatus_despacho"] = df["ultimoStatus_despacho"].apply(
             lambda x: str(x).replace(";", ",").replace("\n", "").replace("\r", "")
@@ -110,23 +109,16 @@ def save_data_proposicao(table_id: str):
             lambda x: x["dataApresentacao"][0:4] if x["ano"] == 0 else x["ano"],
             axis=1,
         )
-        log(f"Saving {original_table_name} to {output_path}")
-    if table_id in ["proposicao_autor", "proposicao_tema"]:
-        log(f"Saving {original_table_name} to {output_path}")
+    if table_id in constants_camara.TABLES_SPLIT_BY_YEAR.value:
+        output_path = f"{constants_camara.OUTPUT_PATH.value}{table_id}/{original_table_name}_{constants_camara.ANOS_ATUAL.value}.csv"
 
-    df.to_csv(
-        output_path,
-        sep=",",
-        index=False,
-        encoding="utf-8",
-    )
-    output_path_orgaos = (
-        f"{constants_camara.OUTPUT_PATH.value}{table_id}/{original_table_name}.csv"
-    )
-    log(output_path_orgaos)
-    if table_id in ["orgao", "orgao_deputado"]:
-        print(f"Saving {table_id} to {output_path}")
-        df.to_csv(output_path_orgaos, sep=",", index=False, encoding="utf-8")
+    else:
+        output_path = (
+            f"{constants_camara.OUTPUT_PATH.value}{table_id}/{original_table_name}.csv"
+        )
+        log(f"Saving {table_id} to {output_path}")
+
+    df.to_csv(output_path, sep=",", index=False, encoding="utf-8")
 
     return output_path
 
@@ -185,73 +177,4 @@ def dict_list_parameters(table_id, dataset_id, materialization_mode):
             dbt_command="run and test",
         ),
     ]
-    return parameters
-
-
-def dict_list_update_metadata(dataset_id, materialize_mode):
-    table_id = [
-        "proposicao_microdados",
-        "proposicao_autor",
-        "proposicao_tema",
-        "orgao",
-        "orgao_deputado",
-    ]
-    parameters = [
-        dict(
-            dataset_id=dataset_id,
-            table_id=table_id[0],
-            date_format="%Y-%m-%d",
-            date_column_name={"date": "data"},
-            project_mode=materialize_mode,
-            coverage_type="part_bdpro",
-            time_delta={"months": 6},
-            bq_project="basedosdados",
-            historical_database=True,
-        ),
-        dict(
-            dataset_id=dataset_id,
-            table_id=table_id[1],
-            date_format="%Y-%m-%d",
-            date_column_name={"date": "data"},
-            project_mode=materialize_mode,
-            coverage_type="part_bdpro",
-            time_delta={"months": 6},
-            bq_project="basedosdados",
-            historical_database=False,
-        ),
-        dict(
-            dataset_id=dataset_id,
-            table_id=table_id[2],
-            date_format="%Y-%m-%d",
-            date_column_name={"date": "data"},
-            project_mode=materialize_mode,
-            coverage_type="part_bdpro",
-            time_delta={"months": 6},
-            bq_project="basedosdados",
-            historical_database=False,
-        ),
-        dict(
-            dataset_id=dataset_id,
-            table_id=table_id[3],
-            date_format="%Y-%m-%d",
-            date_column_name={"date": "data_inicio"},
-            project_mode=materialize_mode,
-            coverage_type="part_bdpro",
-            time_delta={"months": 6},
-            bq_project="basedosdados",
-            historical_database=True,
-        ),
-        dict(
-            dataset_id=dataset_id,
-            table_id=table_id[4],
-            date_format="%Y-%m-%d",
-            date_column_name={"date": "data_inicio"},
-            project_mode=materialize_mode,
-            coverage_type="part_bdpro",
-            time_delta={"months": 6},
-            bq_project="basedosdados",
-            historical_database=True,
-        ),
-    ]
-
     return parameters

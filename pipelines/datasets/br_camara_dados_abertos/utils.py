@@ -12,7 +12,7 @@ from pipelines.utils.utils import log
 
 
 # -------------------------------------------------------------------------------------> VOTACAO
-def download_csvs_camara() -> None:
+def download_csvs_camara_votacao() -> None:
     """
     Downloads CSV files from the Camara de Proposicao API.
 
@@ -45,7 +45,7 @@ def download_csvs_camara() -> None:
 
 
 def get_data():
-    download_csvs_camara()
+    download_csvs_camara_votacao()
     df = pd.read_csv(
         f'{constants.INPUT_PATH.value}{constants.TABLE_LIST.value["votacao_microdados"]}.csv',
         sep=";",
@@ -164,7 +164,7 @@ def get_data_deputados():
 # ----------------------------------------------------------------------------------- > Proposição
 
 
-def download_csvs_camara_proposicao(table_id: str) -> None:
+def download_csv_camara(table_id: str) -> None:
     """
     Downloads CSV files from the Camara de Proposicao API.
 
@@ -180,12 +180,12 @@ def download_csvs_camara_proposicao(table_id: str) -> None:
         os.makedirs(constants.INPUT_PATH.value)
 
     original_table_name = constants.TABLE_LIST_CAMARA.value[table_id]
-    if table_id in ["proposicao_microdados", "proposicao_autor", "proposicao_tema"]:
+    if table_id in constants.TABLES_SPLIT_BY_YEAR.value:
         url = f"http://dadosabertos.camara.leg.br/arquivos/{original_table_name}/csv/{original_table_name}-{constants.ANOS_ATUAL.value}.csv"
         input_path = f"{constants.INPUT_PATH.value}{original_table_name}_{constants.ANOS_ATUAL.value}.csv"
         log(f"input_path: {input_path}")
 
-    if table_id in ["orgao", "orgao_deputado"]:
+    else:
         url = f"http://dadosabertos.camara.leg.br/arquivos/{original_table_name}/csv/{original_table_name}.csv"
         input_path = f"{constants.INPUT_PATH.value}{original_table_name}.csv"
         log(f"input_path: {input_path}")
@@ -199,16 +199,15 @@ def download_csvs_camara_proposicao(table_id: str) -> None:
     return log(os.listdir(constants.INPUT_PATH.value))
 
 
-def download_and_read_data_proposicao(table_id: str) -> pd.DataFrame:
-    download_csvs_camara_proposicao(table_id)
-    if table_id in ["proposicao_microdados", "proposicao_autor", "proposicao_tema"]:
-        df = pd.read_csv(
-            f"{constants.INPUT_PATH.value}{constants.TABLE_LIST_CAMARA.value[table_id]}_{constants.ANOS_ATUAL.value}.csv",
-            sep=";",
-        )
-    if table_id in ["orgao", "orgao_deputado"]:
-        df = pd.read_csv(
-            f"{constants.INPUT_PATH.value}{constants.TABLE_LIST_CAMARA.value[table_id]}.csv",
-            sep=";",
-        )
+def download_and_read_data(table_id: str) -> pd.DataFrame:
+    download_csv_camara(table_id)
+    original_table_name = constants.TABLE_LIST_CAMARA.value[table_id]
+    if table_id in constants.TABLES_SPLIT_BY_YEAR.value:
+        input_path = f"{constants.INPUT_PATH.value}{original_table_name}_{constants.ANOS_ATUAL.value}.csv"
+
+    else:
+        input_path = f"{constants.INPUT_PATH.value}{original_table_name}.csv"
+
+    df = pd.read_csv(input_path, sep=";")
+
     return df
