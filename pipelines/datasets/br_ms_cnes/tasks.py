@@ -13,7 +13,6 @@ import pandas as pd
 
 # import rpy2.robjects.packages as rpackages
 import wget
-from datasus import decompress
 
 # from pyreaddbc import read_dbc as dbcreader
 from prefect import task
