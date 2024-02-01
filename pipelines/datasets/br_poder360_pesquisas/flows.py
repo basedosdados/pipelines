@@ -4,7 +4,6 @@ Flows for br_poder360_pesquisas
 """
 
 from datetime import timedelta
-from pipelines.utils.metadata.tasks import update_django_metadata
 
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
@@ -17,6 +16,7 @@ from pipelines.datasets.br_poder360_pesquisas.tasks import crawler
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
@@ -92,16 +92,16 @@ with Flow(
         )
 
         update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id=table_id,
-                    date_column_name={"date": "data"},
-                    date_format="%Y-%m-%d",
-                    coverage_type="part_bdpro",
-                    time_delta={"months": 6},
-                    prefect_mode=materialization_mode,
-                    bq_project="basedosdados",
-                    upstream_tasks=[wait_for_materialization],
-                )
+            dataset_id=dataset_id,
+            table_id=table_id,
+            date_column_name={"date": "data"},
+            date_format="%Y-%m-%d",
+            coverage_type="part_bdpro",
+            time_delta={"months": 6},
+            prefect_mode=materialization_mode,
+            bq_project="basedosdados",
+            upstream_tasks=[wait_for_materialization],
+        )
 
 
 br_poder360.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
