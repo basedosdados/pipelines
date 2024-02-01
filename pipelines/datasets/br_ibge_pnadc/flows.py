@@ -16,7 +16,6 @@ from pipelines.datasets.br_ibge_pnadc.tasks import (
     build_parquet_files,
     download_txt,
     get_url_from_template,
-    save_partitions,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -27,20 +26,21 @@ from pipelines.utils.tasks import (
     get_current_flow_labels,
     rename_current_flow_run_dataset_table,
 )
+from pipelines.utils.to_download.tasks import to_download
 
 # pylint: disable=C0103
 with Flow(name="br_ibge_pnadc.microdados", code_owners=["lauris"]) as br_pnadc:
     # Parameters
-    dataset_id = Parameter("dataset_id", default="br_ibge_pnadc", required=True)
-    table_id = Parameter("table_id", default="microdados", required=True)
-    year = Parameter("year", default=2020, required=False)
-    quarter = Parameter("quarter", default=1, required=False)
-    update_metadata = Parameter("update_metadata", default=True, required=False)
+    dataset_id = Parameter("dataset_id", default="br_ibge_pnadc", required=False)
+    table_id = Parameter("table_id", default="microdados", required=False)
+    year = Parameter("year", default=2022, required=False)
+    quarter = Parameter("quarter", default=3, required=False)
+    update_metadata = Parameter("update_metadata", default=False, required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
+        "materialize_after_dump", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
@@ -49,12 +49,11 @@ with Flow(name="br_ibge_pnadc.microdados", code_owners=["lauris"]) as br_pnadc:
     )
 
     url = get_url_from_template(year, quarter, upstream_tasks=[rename_flow_run])
-    input_filepath = download_txt(url, mkdir=True, upstream_tasks=[url])
-    staging_filepath = build_parquet_files(
+
+    input_filepath = to_download(url, "/tmp/data/input/", "zip")
+
+    output_filepath = build_parquet_files(
         input_filepath, upstream_tasks=[input_filepath]
-    )
-    output_filepath = save_partitions(
-        staging_filepath, upstream_tasks=[staging_filepath]
     )
 
     wait_upload_table = create_table_and_upload_to_gcs(
