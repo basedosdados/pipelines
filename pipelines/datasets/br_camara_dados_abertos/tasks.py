@@ -138,7 +138,7 @@ def output_path_list(table_id_list):
 
 
 @task
-def dict_list_parameters(table_id, dataset_id, materialization_mode, dbt_alias):
+def dict_list_parameters(dataset_id, materialization_mode, dbt_alias):
     table_id = [
         "proposicao_microdados",
         "proposicao_autor",
@@ -146,6 +146,7 @@ def dict_list_parameters(table_id, dataset_id, materialization_mode, dbt_alias):
         "orgao",
         "orgao_deputado",
     ]
+
     parameters = [
         dict(
             dataset_id=dataset_id,
