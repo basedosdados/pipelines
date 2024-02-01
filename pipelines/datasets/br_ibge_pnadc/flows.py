@@ -12,11 +12,10 @@ from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
 from pipelines.datasets.br_ibge_pnadc.schedules import every_quarter
-from pipelines.datasets.br_ibge_pnadc.tasks import (
+from pipelines.datasets.br_ibge_pnadc.tasks import (  # save_partitions,
     build_parquet_files,
     download_txt,
     get_url_from_template,
-    save_partitions,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -45,20 +44,24 @@ with Flow(name="br_ibge_pnadc.microdados", code_owners=["lauris"]) as br_pnadc:
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
-    )
+    # rename_flow_run = rename_current_flow_run_dataset_table(
+    #    prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+    # )
 
-    url = get_url_from_template(year, quarter, upstream_tasks=[rename_flow_run])
+    url = get_url_from_template(
+        year,
+        quarter,
+        # upstream_tasks=[rename_flow_run]
+    )
 
     input_filepath = to_download(url, "/tmp/data/input/", "zip")
 
-    staging_filepath = build_parquet_files(
+    output_filepath = build_parquet_files(
         input_filepath, upstream_tasks=[input_filepath]
     )
-    output_filepath = save_partitions(
-        staging_filepath, upstream_tasks=[staging_filepath]
-    )
+    # output_filepath = save_partitions(
+    #
+    # )
 
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=output_filepath,
