@@ -124,8 +124,8 @@ pytest_cov = "^3.0.0"
 [tool.poetry.scripts]
 lint = "scripts.lint:main"
 
-[tool.poetry.group.dev.dependencies]
-pre-commit = "^3.6.0"
+#[tool.poetry.group.dev.dependencies]
+#pre-commit = "^3.6.0"
 
 [tool.black]
 exclude = "pipelines/{{cookiecutter.project_name}}"
