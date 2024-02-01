@@ -12,7 +12,7 @@ from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
 from pipelines.datasets.br_ibge_pnadc.schedules import every_quarter
-from pipelines.datasets.br_ibge_pnadc.tasks import (  # save_partitions,
+from pipelines.datasets.br_ibge_pnadc.tasks import (
     build_parquet_files,
     download_txt,
     get_url_from_template,
