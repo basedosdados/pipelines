@@ -114,10 +114,14 @@ def save_data(table_id: str):
     if table_id in constants_camara.TABLES_SPLIT_BY_YEAR.value:
         output_path = f"{constants_camara.OUTPUT_PATH.value}{table_id}/{original_table_name}_{constants_camara.ANOS_ATUAL.value}.csv"
 
-    else:
+    if table_id == "orgao":
         output_path = (
             f"{constants_camara.OUTPUT_PATH.value}{table_id}/{original_table_name}.csv"
         )
+        log(f"Saving {table_id} to {output_path}")
+
+    if table_id == "orgao_deputado":
+        output_path = f"{constants_camara.OUTPUT_PATH.value}{table_id}/{original_table_name}-57.csv"
         log(f"Saving {table_id} to {output_path}")
 
     df.to_csv(output_path, sep=",", index=False, encoding="utf-8")

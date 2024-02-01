@@ -180,23 +180,24 @@ def download_csv_camara(table_id: str) -> None:
         os.makedirs(constants.INPUT_PATH.value)
 
     original_table_name = constants.TABLE_LIST_CAMARA.value[table_id]
+
     if table_id in constants.TABLES_SPLIT_BY_YEAR.value:
         url = f"http://dadosabertos.camara.leg.br/arquivos/{original_table_name}/csv/{original_table_name}-{constants.ANOS_ATUAL.value}.csv"
         input_path = f"{constants.INPUT_PATH.value}{original_table_name}_{constants.ANOS_ATUAL.value}.csv"
-        log(f"input_path: {input_path}")
 
-    else:
+    if table_id == "orgao":
         url = f"http://dadosabertos.camara.leg.br/arquivos/{original_table_name}/csv/{original_table_name}.csv"
         input_path = f"{constants.INPUT_PATH.value}{original_table_name}.csv"
-        log(f"input_path: {input_path}")
 
+    if table_id == "orgao_deputado":
+        url = f"http://dadosabertos.camara.leg.br/arquivos/{original_table_name}/csv/{original_table_name}-L57.csv"
+        input_path = f"{constants.INPUT_PATH.value}{original_table_name}-57.csv"
+
+    log(f"input_path: {url}")
     response = requests.get(url)
-
     with open(input_path, "wb") as f:
         f.write(response.content)
         log(f"download complete {original_table_name}")
-
-    return log(os.listdir(constants.INPUT_PATH.value))
 
 
 def download_and_read_data(table_id: str) -> pd.DataFrame:
@@ -205,8 +206,11 @@ def download_and_read_data(table_id: str) -> pd.DataFrame:
     if table_id in constants.TABLES_SPLIT_BY_YEAR.value:
         input_path = f"{constants.INPUT_PATH.value}{original_table_name}_{constants.ANOS_ATUAL.value}.csv"
 
-    else:
+    if table_id == "orgao":
         input_path = f"{constants.INPUT_PATH.value}{original_table_name}.csv"
+
+    if table_id == "orgao_deputado":
+        input_path = f"{constants.INPUT_PATH.value}{original_table_name}-57.csv"
 
     df = pd.read_csv(input_path, sep=";")
 

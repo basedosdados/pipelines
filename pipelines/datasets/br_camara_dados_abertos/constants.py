@@ -66,13 +66,13 @@ class constants(Enum):
         "proposicao_autor": "proposicoesAutores",
         "proposicao_tema": "proposicoesTemas",
         "orgao": "orgaos",
-        "orgao_deputado": "orgaosDeputados-L57",
+        "orgao_deputado": "orgaosDeputados",
     }
 
     TABLES_SPLIT_BY_YEAR = [
         "proposicao_microdados",
         "proposicao_autor",
-        "porposicao_tema",
+        "proposicao_tema",
     ]
 
     DATA_COLUMN_NAME = [
