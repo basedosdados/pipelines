@@ -43,18 +43,20 @@ def year_month_sigla_uf_parser(file: str) -> str:
     Returns:
         (str):
     """
-    # todo: implement a check to make sure the result is right
-    # parse file name last 8 digits before .DBC
-    file = file[-10:-4]
+    try:
+        # parse file name last 8 digits before .DBC
+        file = file[-10:-4]
 
-    # parse and build year
-    year = "20" + file[2:4]
+        # parse and build year
+        year = "20" + file[2:4]
 
-    # parse and build month
-    month = int(file[4:6])
+        # parse and build month
+        month = int(file[4:6])
 
-    # parse and build state
-    sigla_uf = file[:2]
+        # parse and build state
+        sigla_uf = file[:2]
+    except IndexError:
+        raise ValueError("Unable to parse month and year from file")
 
     return f"ano={year}/mes={month}/sigla_uf={sigla_uf}"
 

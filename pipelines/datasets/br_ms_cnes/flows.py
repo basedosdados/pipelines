@@ -30,8 +30,9 @@ from pipelines.datasets.br_ms_cnes.schedules import (
 from pipelines.datasets.br_ms_cnes.tasks import (
     access_ftp_donwload_files,
     check_files_to_parse,
+    decompress_dbc,
+    decompress_dbf,
     is_empty,
-    read_dbc_save_csv,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -82,11 +83,13 @@ with Flow(
             table=br_ms_cnes_constants.TABLE.value[0],
         )
 
-        filepath = read_dbc_save_csv(
+        dbf_files = decompress_dbc(file_list=dbc_files)
+
+        filepath = decompress_dbf(
             file_list=dbc_files,
             path=br_ms_cnes_constants.PATH.value[1],
             table=br_ms_cnes_constants.TABLE.value[0],
-            upstream_tasks=[files_path, dbc_files],
+            upstream_tasks=[dbf_files, dbc_files],
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(
@@ -181,18 +184,19 @@ with Flow(
             "Os dados do FTP CNES-ST ainda não foram atualizados para o ano/mes mais recente"
         )
 
-    with case(is_empty(files_path), False):
         dbc_files = access_ftp_donwload_files(
             file_list=files_path,
             path=br_ms_cnes_constants.PATH.value[0],
             table=br_ms_cnes_constants.TABLE.value[1],
         )
 
-        filepath = read_dbc_save_csv(
+        dbf_files = decompress_dbc(file_list=dbc_files)
+
+        filepath = decompress_dbf(
             file_list=dbc_files,
             path=br_ms_cnes_constants.PATH.value[1],
             table=br_ms_cnes_constants.TABLE.value[1],
-            upstream_tasks=[files_path, dbc_files],
+            upstream_tasks=[dbf_files, dbc_files],
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(
@@ -288,11 +292,13 @@ with Flow(name="br_ms_cnes.equipe", code_owners=["Gabriel Pisa"]) as br_ms_cnes_
             table=br_ms_cnes_constants.TABLE.value[4],
         )
 
-        filepath = read_dbc_save_csv(
+        dbf_files = decompress_dbc(file_list=dbc_files)
+
+        filepath = decompress_dbf(
             file_list=dbc_files,
             path=br_ms_cnes_constants.PATH.value[1],
             table=br_ms_cnes_constants.TABLE.value[4],
-            upstream_tasks=[files_path, dbc_files],
+            upstream_tasks=[dbf_files, dbc_files],
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(
@@ -388,11 +394,13 @@ with Flow(name="br_ms_cnes.leito", code_owners=["Gabriel Pisa"]) as br_ms_cnes_l
             table=br_ms_cnes_constants.TABLE.value[3],
         )
 
-        filepath = read_dbc_save_csv(
+        dbf_files = decompress_dbc(file_list=dbc_files)
+
+        filepath = decompress_dbf(
             file_list=dbc_files,
             path=br_ms_cnes_constants.PATH.value[1],
             table=br_ms_cnes_constants.TABLE.value[3],
-            upstream_tasks=[files_path, dbc_files],
+            upstream_tasks=[dbf_files, dbc_files],
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(
@@ -493,11 +501,13 @@ with Flow(
             table=br_ms_cnes_constants.TABLE.value[2],
         )
 
-        filepath = read_dbc_save_csv(
+        dbf_files = decompress_dbc(file_list=dbc_files)
+
+        filepath = decompress_dbf(
             file_list=dbc_files,
             path=br_ms_cnes_constants.PATH.value[1],
             table=br_ms_cnes_constants.TABLE.value[2],
-            upstream_tasks=[files_path, dbc_files],
+            upstream_tasks=[dbf_files, dbc_files],
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(
@@ -593,11 +603,13 @@ with Flow(
             table=br_ms_cnes_constants.TABLE.value[5],
         )
 
-        filepath = read_dbc_save_csv(
+        dbf_files = decompress_dbc(file_list=dbc_files)
+
+        filepath = decompress_dbf(
             file_list=dbc_files,
             path=br_ms_cnes_constants.PATH.value[1],
             table=br_ms_cnes_constants.TABLE.value[5],
-            upstream_tasks=[files_path, dbc_files],
+            upstream_tasks=[dbf_files, dbc_files],
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(
@@ -694,11 +706,13 @@ with Flow(
             table=br_ms_cnes_constants.TABLE.value[6],
         )
 
-        filepath = read_dbc_save_csv(
+        dbf_files = decompress_dbc(file_list=dbc_files)
+
+        filepath = decompress_dbf(
             file_list=dbc_files,
             path=br_ms_cnes_constants.PATH.value[1],
             table=br_ms_cnes_constants.TABLE.value[6],
-            upstream_tasks=[files_path, dbc_files],
+            upstream_tasks=[dbf_files, dbc_files],
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(
@@ -797,11 +811,13 @@ with Flow(
             table=br_ms_cnes_constants.TABLE.value[7],
         )
 
-        filepath = read_dbc_save_csv(
+        dbf_files = decompress_dbc(file_list=dbc_files)
+
+        filepath = decompress_dbf(
             file_list=dbc_files,
             path=br_ms_cnes_constants.PATH.value[1],
             table=br_ms_cnes_constants.TABLE.value[7],
-            upstream_tasks=[files_path, dbc_files],
+            upstream_tasks=[dbf_files, dbc_files],
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(
@@ -902,11 +918,13 @@ with Flow(
             table=br_ms_cnes_constants.TABLE.value[8],
         )
 
-        filepath = read_dbc_save_csv(
+        dbf_files = decompress_dbc(file_list=dbc_files)
+
+        filepath = decompress_dbf(
             file_list=dbc_files,
             path=br_ms_cnes_constants.PATH.value[1],
             table=br_ms_cnes_constants.TABLE.value[8],
-            upstream_tasks=[files_path, dbc_files],
+            upstream_tasks=[dbf_files, dbc_files],
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(
@@ -1002,11 +1020,13 @@ with Flow(
             table=br_ms_cnes_constants.TABLE.value[9],
         )
 
-        filepath = read_dbc_save_csv(
+        dbf_files = decompress_dbc(file_list=dbc_files)
+
+        filepath = decompress_dbf(
             file_list=dbc_files,
             path=br_ms_cnes_constants.PATH.value[1],
             table=br_ms_cnes_constants.TABLE.value[9],
-            upstream_tasks=[files_path, dbc_files],
+            upstream_tasks=[dbf_files, dbc_files],
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(
@@ -1104,11 +1124,13 @@ with Flow(
             table=br_ms_cnes_constants.TABLE.value[10],
         )
 
-        filepath = read_dbc_save_csv(
+        dbf_files = decompress_dbc(file_list=dbc_files)
+
+        filepath = decompress_dbf(
             file_list=dbc_files,
             path=br_ms_cnes_constants.PATH.value[1],
             table=br_ms_cnes_constants.TABLE.value[10],
-            upstream_tasks=[files_path, dbc_files],
+            upstream_tasks=[dbf_files, dbc_files],
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(
@@ -1202,14 +1224,16 @@ with Flow(
         dbc_files = access_ftp_donwload_files(
             file_list=files_path,
             path=br_ms_cnes_constants.PATH.value[0],
-            table=br_ms_cnes_constants.TABLE.value[11],
+            table=br_ms_cnes_constants.TABLE.value[12],
         )
 
-        filepath = read_dbc_save_csv(
+        dbf_files = decompress_dbc(file_list=dbc_files)
+
+        filepath = decompress_dbf(
             file_list=dbc_files,
             path=br_ms_cnes_constants.PATH.value[1],
-            table=br_ms_cnes_constants.TABLE.value[11],
-            upstream_tasks=[files_path, dbc_files],
+            table=br_ms_cnes_constants.TABLE.value[12],
+            upstream_tasks=[dbf_files, dbc_files],
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(
@@ -1308,11 +1332,13 @@ with Flow(
             table=br_ms_cnes_constants.TABLE.value[12],
         )
 
-        filepath = read_dbc_save_csv(
+        dbf_files = decompress_dbc(file_list=dbc_files)
+
+        filepath = decompress_dbf(
             file_list=dbc_files,
             path=br_ms_cnes_constants.PATH.value[1],
             table=br_ms_cnes_constants.TABLE.value[12],
-            upstream_tasks=[files_path, dbc_files],
+            upstream_tasks=[dbf_files, dbc_files],
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(

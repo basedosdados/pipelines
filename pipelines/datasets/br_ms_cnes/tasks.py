@@ -5,16 +5,20 @@ Tasks for br_ms_cnes
 
 
 import os
+import subprocess
 from datetime import timedelta
+from glob import glob
 
 import pandas as pd
 
 # import rpy2.robjects.packages as rpackages
 import wget
+from datasus import decompress
 
 # from pyreaddbc import read_dbc as dbcreader
-from datasus import read_dbc
 from prefect import task
+from simpledbf import Dbf5
+from tqdm import tqdm
 
 from pipelines.constants import constants
 from pipelines.datasets.br_ms_cnes.constants import constants as cnes_constants
@@ -52,6 +56,10 @@ def check_files_to_parse(
 
     year = str(last_date.year)
     month = last_date.month
+
+    # download files to compare
+    year = "2023"
+    month = 7
 
     if month <= 11:
         month = month + 1
@@ -102,97 +110,95 @@ def access_ftp_donwload_files(file_list: list, path: str, table: str) -> list[st
 
     log(f"wrangling {table} data")
 
-    for file in file_list:
+    for file in tqdm(file_list):
         # build partition dirs
 
-        year_month_sigla_uf = year_month_sigla_uf_parser(file=file)
+        try:
 
-        log(f"the file {file} was parsed to {year_month_sigla_uf}")
-        input_path = path + table + "/" + year_month_sigla_uf
+            year_month_sigla_uf = year_month_sigla_uf_parser(file=file)
 
-        os.system(f"mkdir -p {input_path}")
-        os.system(f"find {input_path} -type f -delete")
+            input_path = path + table + "/" + year_month_sigla_uf
 
-        log(f"created input dir {path + table + '/' + year_month_sigla_uf}")
+            os.system(f"mkdir -p {input_path}")
+            os.system(f"find {input_path} -type f -delete")
 
-        url = f"ftp://ftp.datasus.gov.br/{file}"
-        # access ftp
-        wget.download(url, out=input_path)
+            log(f"created input dir {path + table + '/' + year_month_sigla_uf}")
 
-        # list downloaded files
-        dbc_file = os.listdir(input_path)
+            url = f"ftp://ftp.datasus.gov.br/{file}"
+            # access ftp
+            wget.download(url, out=input_path)
 
-        # append to list
-        complete_path = input_path + "/" + dbc_file[0]
-        log(f"The complete path is -- {complete_path}")
+            # list downloaded files
+            dbc_file = os.listdir(input_path)
 
-        dbc_files_path_list.append(complete_path)
+            # append to list
+            complete_path = input_path + "/" + dbc_file[0]
 
-        log(f"The file {dbc_file} is in {input_path}")
+            dbc_files_path_list.append(complete_path)
+
+        except Exception as e:
+            log(f"An error occurred while downloading {file} from DATASUS FTP: {e}")
+            raise e
 
     return dbc_files_path_list
 
 
+@task
+def decompress_dbc(file_list: list) -> None:
+
+    log(f"==== curent env {os. getcwd()}")
+
+    # ? Tive que dar um grant pra exucutar bash na pipeline
+    # ? chmod +x adapted_convert2dbf.sh
+    subprocess.run(
+        ["/home/gabri/pipelines/pipelines/datasets/br_ms_cnes/adapted_convert2dbf.sh"]
+        + file_list
+    )
+
+
 # task to convert dbc to csv and save to a partitioned dir
 @task
-def read_dbc_save_csv(file_list: list, path: str, table: str) -> str:
+def decompress_dbf(file_list: list, path: str, table: str) -> str:
     """
     Convert dbc to csv
     """
     log(f"wrangling {table} data")
-    # import R's utility package
-    # utils = rpackages.importr("utils")
-
-    # select a mirror for R packages
-    # utils.chooseCRANmirror(ind=1)
-
-    # log("installing read.dbc package")
-    # utils.install_packages("read.dbc")
-    # readdbc = importr("read.dbc")
 
     # list files
-    for file in file_list:
-        log(f"the file {file} is being converted to csv")
-        # read dbc
-        # dbc_file = readdbc.read_dbc(file)
-        # dbc_file = dbcreader.read_dbc(file, encoding="iso-8859-1")
-        dbc_file = pd.DataFrame(read_dbc(file))
+    for file in tqdm(file_list):
+        log(f"---------- {file}")
+        dbf_file = ".".join([file.split(".")[0], "dbf"])
 
-        # convert from r to pandas
-        # https://rpy2.github.io/doc/latest/html/generated_rst/pandas.html#from-r-to-pandas
+        log(f"-------- reading .dbf {dbf_file}")
+        dbf = Dbf5(dbf_file, codec="iso-8859-1")
 
-        # parse year month sigla_uf
         year_month_sigla_uf = year_month_sigla_uf_parser(file=file)
+
         log(f"year_month_sigla_uf of {file} parsed")
         output_path = path + table + "/" + year_month_sigla_uf
 
         os.system(f"mkdir -p {output_path}")
-
         log(f"created output partition dir {path + table + '/'+ year_month_sigla_uf}")
 
         output_file = output_path + "/" + table + ".csv"
-
         log(f"{file} 1 saved")
-        # salvar df
-        # dbc_file.to_csvfile(
-        #    output_file,
-        #    sep=",",
-        #    na="",
-        #    row_names=False,
-        # )
-        dbc_file.to_csv(
-            output_file,
-            sep=",",
-            na_rep="",
-            index=False,
-        )
+
+        # filesd='.'.join([dbf_file.split('.')[0], "csv"])
+        log(f"-------- saving to .csv {output_file}")
+        dbf.to_csv(output_file)
+
         # delete dbc file
-        os.system(f"rm {file}")
+        folder_path = file.split(".")[0]
+        files_to_remove = glob(os.path.join(folder_path, "*.dbc")) + glob(
+            os.path.join(folder_path, "*.dbf")
+        )
+        # Remove each file
+        for file in files_to_remove:
+            os.system(f"rm {file}")
 
         # ler df
-
         log("file 2 being read")
-        df = pd.read_csv(output_file, dtype=str, encoding="latin1")
+        df = pd.read_csv(output_file, dtype=str, encoding="iso-8859-1")
 
         # tratar
         list_columns_to_delete = [
