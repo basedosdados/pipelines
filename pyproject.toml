@@ -104,7 +104,7 @@ polars = "^0.19.0"
 selenium = "^4.11.2"
 fastparquet = "^2023.7.0"
 rarfile = "^4.0"
-setuptools = "^68.1.2"
+setuptools = ">=69.0.0"
 python-string-utils = {git = "https://github.com/daveoncode/python-string-utils.git", rev = "master"}
 geopandas = "0.13.2"
 shapely = "2.0.1"

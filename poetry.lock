@@ -2287,7 +2287,7 @@ heapdict = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.10,<3.11"
-content-hash = "d54b646a9fde265ae67d4e33129fe4162939598d4d0fd54e8b4e7e7863f05c39"
+content-hash = "4390fa9e0d6d569741081270ef6eaf1143e3c4fa38239de81ce6d2d27efe188b"
 
 [metadata.files]
 anyio = []
