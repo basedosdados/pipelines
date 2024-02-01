@@ -10,12 +10,14 @@ from glob import glob
 
 import numpy as np
 import pandas as pd
+import pyarrow as pa
+import pyarrow.parquet as pq
 import requests
 from prefect import task
 from tqdm import tqdm
 
 from pipelines.datasets.br_ibge_pnadc.constants import constants as pnad_constants
-from pipelines.utils.utils import log
+from pipelines.utils.utils import log, to_partitions
 
 
 @task
@@ -29,7 +31,6 @@ def get_url_from_template(year: int, quarter: int) -> str:
     """
     download_page = f"https://ftp.ibge.gov.br/Trabalho_e_Rendimento/Pesquisa_Nacional_por_Amostra_de_Domicilios_continua/Trimestral/Microdados/{year}/"
     response = requests.get(download_page, timeout=5)
-
     if response.status_code >= 400 and response.status_code <= 599:
         raise Exception(f"Erro de requisição: status code {response.status_code}")
 
@@ -76,12 +77,14 @@ def download_txt(url, chunk_size=128, mkdir=False) -> str:
 
 
 @task
-def build_parquet_files(filepath: str) -> str:
+def build_parquet_files(save_path: str) -> str:
     """
     Build parquets from txt original file.
     """
-
+    filepath = glob(f"{save_path}*.txt")[0]
     os.system("mkdir -p /tmp/data/staging/")
+    os.system("mkdir -p /tmp/data/output/")
+    output_dir = "/tmp/data/output/"
     # read file
     chunks = pd.read_fwf(
         filepath,
@@ -90,7 +93,7 @@ def build_parquet_files(filepath: str) -> str:
         header=None,
         encoding="utf-8",
         dtype=str,
-        chunksize=10000,
+        chunksize=25000,
     )
 
     for i, chunk in enumerate(chunks):
@@ -115,54 +118,90 @@ def build_parquet_files(filepath: str) -> str:
         ordered_columns = pnad_constants.COLUMNS_ORDER.value
         chunk = chunk[ordered_columns]
 
-        # save to parquet
-        chunk.to_parquet(
-            f"/tmp/data/staging/microdados_{i}.parquet",
-            index=False,
-        )
+        trimestre = chunk["trimestre"].unique()[0]
+        ano = chunk["ano"].unique()[0]
+        chunk.drop(columns=["trimestre", "ano"], inplace=True)
+        ufs = chunk["sigla_uf"].unique()
 
-    # print number of parquet files
-    total_files = len(glob("/tmp/data/staging/*.parquet"))
-    log(f"Total of {total_files} parquet files created.")
+        for uf in ufs:
+            df_uf = chunk[chunk["sigla_uf"] == uf]
+            df_uf.drop(columns=["sigla_uf"], inplace=True)
 
-    return "/tmp/data/staging/"
-
-
-@task
-def save_partitions(filepath: str) -> str:
-    """
-    Save partitions to disk.
-
-    Args:
-        filepath (str): Path to the file used to build the partitions.
-
-    Returns:
-        str: Path to the saved file.
-
-    """
-    os.system("mkdir -p /tmp/data/output/")
-
-    # get all parquet files
-    parquet_files = glob(f"{filepath}*.parquet")
-    # read all parquet files
-    df = pd.concat([pd.read_parquet(f) for f in parquet_files])
-
-    trimestre = df["trimestre"].unique()[0]
-    ano = df["ano"].unique()[0]
-    df.drop(columns=["trimestre", "ano"], inplace=True)
-    ufs = df["sigla_uf"].unique()
-
-    for uf in ufs:
-        df_uf = df[df["sigla_uf"] == uf]
-        df_uf.drop(columns=["sigla_uf"], inplace=True)
-        os.system(
-            "mkdir -p /tmp/data/output/ano={ano}/trimestre={trimestre}/sigla_uf={uf}".format(
-                ano=ano, trimestre=trimestre, uf=uf
+            os.makedirs(
+                os.path.join(
+                    output_dir, f"ano={ano}/trimestre={trimestre}/sigla_uf={uf}"
+                ),
+                exist_ok=True,
             )
-        )
-        df_uf.to_csv(
-            f"/tmp/data/output/ano={ano}/trimestre={trimestre}/sigla_uf={uf}/microdados.csv",
-            index=False,
-        )
+
+            # Save to CSV incrementally
+            df_uf.to_csv(
+                f"{output_dir}/ano={ano}/trimestre={trimestre}/sigla_uf={uf}/microdados.csv",
+                index=False,
+                mode="a",
+                header=not os.path.exists(
+                    f"{output_dir}/ano={ano}/trimestre={trimestre}/sigla_uf={uf}/microdados.csv"
+                ),
+            )
+
+        # Release memory
+        del df_uf
+        del chunk
+    log("Partitions created")
 
     return "/tmp/data/output/"
+
+
+### Unused task
+# @task
+# def save_partitions(filepath: str) -> str:
+#     """
+#     Save partitions to disk.
+
+#     Args:
+#         filepath (str): Path to the file used to build the partitions.
+
+#     Returns:
+#         str: Path to the saved file.
+#     """
+#     os.system("mkdir -p /tmp/data/output/")
+#     output_dir = "/tmp/data/output/"
+#     os.listdir(output_dir)
+#     # Read Parquet file incrementally
+#     chunksize = 10000
+#     for i, fp in enumerate(Path("/tmp/data/staging/").glob("*.parquet")):
+#         # Process each chunk
+#         parquet_file = pq.ParquetFile(f"{fp}")
+#         for batch in parquet_file.iter_batches(batch_size=chunksize):
+#             table = pa.Table.from_batches([batch])
+#             chunk = table.to_pandas()
+#             trimestre = chunk["trimestre"].unique()[0]
+#             ano = chunk["ano"].unique()[0]
+#             chunk.drop(columns=["trimestre", "ano"], inplace=True)
+#             ufs = chunk["sigla_uf"].unique()
+
+#             for uf in ufs:
+#                 df_uf = chunk[chunk["sigla_uf"] == uf]
+#                 df_uf.drop(columns=["sigla_uf"], inplace=True)
+
+#                 os.makedirs(
+#                     os.path.join(
+#                         output_dir, f"ano={ano}/trimestre={trimestre}/sigla_uf={uf}"
+#                     ),
+#                     exist_ok=True,
+#                 )
+
+#                 # Save to CSV incrementally
+#                 df_uf.to_csv(
+#                     f"{output_dir}/ano={ano}/trimestre={trimestre}/sigla_uf={uf}/microdados.csv",
+#                     index=False,
+#                     mode="a",
+#                     header=not os.path.exists(
+#                         f"{output_dir}/ano={ano}/trimestre={trimestre}/sigla_uf={uf}/microdados.csv"
+#                     ),
+#                 )
+
+#             # Release memory
+#             del df_uf
+
+#     return output_dir
