@@ -4,6 +4,7 @@ description = ""
 license = "GPL-3.0"
 name = "pipelines"
 version = "0.1.0"
+
 [tool.poetry.dependencies]
 HeapDict = "1.0.1"
 Jinja2 = "3.0.3"
@@ -43,7 +44,7 @@ hvac = "^0.11.2"
 idna = "3.3"
 ipeadatapy = "^0.1.7"
 locket = "0.2.1"
-loguru = "<=0.7.0"
+loguru = "^0.7.0"
 lxml = "4.9.2"
 marshmallow = "3.14.1"
 marshmallow-oneofschema = "3.0.1"
@@ -105,31 +106,36 @@ selenium = "^4.11.2"
 fastparquet = "^2023.7.0"
 rarfile = "^4.0"
 setuptools = "^68.1.2"
-python-string-utils = {git = "https://github.com/daveoncode/python-string-utils.git", rev = "master"}
+python-string-utils = "^1.0.0"
 geopandas = "0.13.2"
 shapely = "2.0.1"
 webdriver-manager = "^4.0.1"
 xlrd = ">=2.0.1"
 httpx = "^0.26.0"
-cookiecutter = "<=1.7.3"
-typer = "<=0.4.0"
 
 [tool.poetry.dev-dependencies]
 pytest_cov = "^3.0.0"
+
 [tool.poetry.scripts]
 lint = "scripts.lint:main"
+
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.6.0"
+
 [tool.black]
 exclude = "pipelines/{{cookiecutter.project_name}}"
+
 [tool.isort]
 profile = "black"
 multi_line_output = 3
 use_parentheses = true
 include_trailing_comma = true
 skip = ["pipelines/{{cookiecutter.project_name}}"]
+
 [tool.autoflake]
 exclude = "pipelines/{{cookiecutter.project_name}}"
+
+
 [build-system]
 build-backend = "poetry.core.masonry.api"
 requires = ["poetry-core>=1.0.0"]
