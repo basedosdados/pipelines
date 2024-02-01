@@ -94,7 +94,6 @@ def treat_and_save_table(table_id):
 # -------------------------------------------------------------------> DADOS CAMARA ABERTA - UNIVERSAL
 
 
-# register flow
 @task
 def save_data(table_id: str):
     if not os.path.exists(f"{constants_camara.OUTPUT_PATH.value}{table_id}"):
