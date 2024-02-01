@@ -44,24 +44,17 @@ with Flow(name="br_ibge_pnadc.microdados", code_owners=["lauris"]) as br_pnadc:
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
-    # rename_flow_run = rename_current_flow_run_dataset_table(
-    #    prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
-    # )
-
-    url = get_url_from_template(
-        year,
-        quarter,
-        # upstream_tasks=[rename_flow_run]
+    rename_flow_run = rename_current_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
+
+    url = get_url_from_template(year, quarter, upstream_tasks=[rename_flow_run])
 
     input_filepath = to_download(url, "/tmp/data/input/", "zip")
 
     output_filepath = build_parquet_files(
         input_filepath, upstream_tasks=[input_filepath]
     )
-    # output_filepath = save_partitions(
-    #
-    # )
 
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=output_filepath,
