@@ -145,14 +145,11 @@ def access_ftp_donwload_files(file_list: list, path: str, table: str) -> list[st
 @task
 def decompress_dbc(file_list: list) -> None:
 
-    log(f"==== curent env {os. getcwd()}")
+    log(f"==== curent env {os.getcwd()}")
 
     # ? Tive que dar um grant pra exucutar bash na pipeline
     # ? chmod +x adapted_convert2dbf.sh
-    subprocess.run(
-        ["/home/gabri/pipelines/pipelines/datasets/br_ms_cnes/adapted_convert2dbf.sh"]
-        + file_list
-    )
+    subprocess.run(["/app/adapted_convert2dbf.sh"] + file_list)
 
 
 # task to convert dbc to csv and save to a partitioned dir
