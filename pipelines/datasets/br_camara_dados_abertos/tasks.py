@@ -121,7 +121,7 @@ def save_data(table_id: str):
         log(f"Saving {table_id} to {output_path}")
 
     if table_id == "orgao_deputado":
-        output_path = f"{constants_camara.OUTPUT_PATH.value}{table_id}/{original_table_name}-57.csv"
+        output_path = f"{constants_camara.OUTPUT_PATH.value}{table_id}/{original_table_name}-L57.csv"
         log(f"Saving {table_id} to {output_path}")
 
     df.to_csv(output_path, sep=",", index=False, encoding="utf-8")
