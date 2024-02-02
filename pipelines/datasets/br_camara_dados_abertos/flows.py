@@ -16,7 +16,7 @@ from pipelines.datasets.br_camara_dados_abertos.constants import (
 from pipelines.datasets.br_camara_dados_abertos.schedules import (
     every_day_camara_dados_abertos,
     every_day_camara_dados_abertos_deputados,
-    every_day_camara_dados_abertos_proposicao,
+    every_day_camara_dados_abertos_universal,
 )
 from pipelines.datasets.br_camara_dados_abertos.tasks import (
     dict_list_parameters,
@@ -614,7 +614,7 @@ with Flow(
         required=True,
     )
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
@@ -687,4 +687,4 @@ br_camara_dados_abertos_universal.storage = GCS(constants.GCS_FLOWS_BUCKET.value
 br_camara_dados_abertos_universal.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_camara_dados_abertos_universal.schedule = every_day_camara_dados_abertos_proposicao
+br_camara_dados_abertos_universal.schedule = every_day_camara_dados_abertos_universal

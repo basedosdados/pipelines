@@ -53,10 +53,10 @@ every_day_camara_dados_abertos_deputados = Schedule(
     ],
 )
 
-every_day_camara_dados_abertos_proposicao = Schedule(
+every_day_camara_dados_abertos_universal = Schedule(
     clocks=[
         CronClock(
-            cron="0 10 * * *",  # every day at 9:00 UTC
+            cron="0 10 * * *",  # every day at 10:00 UTC
             start_date=datetime(2021, 1, 1),
             labels=[constants.BASEDOSDADOS_PROD_AGENT_LABEL.value],
             parameter_defaults={
@@ -68,6 +68,8 @@ every_day_camara_dados_abertos_proposicao = Schedule(
                     "proposicao_microdados",
                     "proposicao_autor",
                     "proposicao_tema",
+                    "orgao",
+                    "orgao_deputado",
                 ],
                 "dataset_id": "br_camara_dados_abertos",
             },
