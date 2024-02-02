@@ -31,6 +31,8 @@ from pipelines.datasets.br_ms_cnes.utils import (
 from pipelines.utils.metadata.utils import get_api_most_recent_date
 from pipelines.utils.utils import log
 
+# from pipelines.datasets.br_ms_cnes import adap
+
 # from rpy2.robjects.packages import importr
 
 
@@ -147,8 +149,8 @@ def decompress_dbc(file_list: list) -> None:
 
     log(f"==== curent env {os.getcwd()}")
 
-    # ? Tive que dar um grant pra exucutar bash na pipeline
-    # ? chmod +x adapted_convert2dbf.sh
+    #  Tive que dar um grant pra exucutar bash na pipeline
+    #  chmod +x adapted_convert2dbf.sh
     subprocess.run(["/app/adapted_convert2dbf.sh"] + file_list)
 
 
