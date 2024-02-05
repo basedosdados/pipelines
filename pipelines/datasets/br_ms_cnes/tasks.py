@@ -57,7 +57,7 @@ def check_files_to_parse(
 
     # download files to compare
     year = "2023"
-    month = 7
+    month = 10
 
     if month <= 11:
         month = month + 1
@@ -108,7 +108,7 @@ def access_ftp_donwload_files(file_list: list, path: str, table: str) -> list[st
 
     log(f"wrangling {table} data")
 
-    file_list = file_list[1:5]
+    file_list = file_list[1:3]
 
     for file in tqdm(file_list):
         # build partition dirs
@@ -171,15 +171,14 @@ def decompress_dbc(file_list: list) -> None:
     os.system(f"mkdir -p {blast_path}")
     os.system(f"git clone https://github.com/eaglebh/blast-dbf {blast_path}")
     os.chdir(blast_path)
+    log(f"==== current env {os.getcwd()}")
     os.system("make")
     log(f"Blast-dbf path: {blast_path}")
     os.chdir("..")
-
-    # Iterate over the provided file paths
-    for file in file_list:
-        # Check if the file has a .dbc extension
+    log(f"==== current env {os.getcwd()}")
+    for file in tqdm(file_list):
+        log(f"Blasting: {file}")
         if file.endswith(".dbc"):
-            # Execute blast-dbf on the file
             os.system(f"{blast_path}/blast-dbf {file} {file.replace('.dbc', '.dbf')}")
         else:
             log(f"Skipping non-DBC file: {file}")
