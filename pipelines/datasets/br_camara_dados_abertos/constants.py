@@ -8,7 +8,7 @@ from dateutil.relativedelta import relativedelta
 class constants(Enum):
     TABLE_NAME_ARCHITECTURE = {
         "votacao_proposicao_afetada": "https://docs.google.com/spreadsheets/d/1sHBdS7dgGAWlegMs1rEy6OwUVDwTLcZy92pFX6U5rXM/edit#gid=0",
-        "voto_parlamentar": "https://docs.google.com/spreadsheets/d/171Mykmg5qz54Kp35XgSD_IshngQHYE3jfGZ8yL-wEpE/edit#gid=0",
+        "votacao_parlamentar": "https://docs.google.com/spreadsheets/d/171Mykmg5qz54Kp35XgSD_IshngQHYE3jfGZ8yL-wEpE/edit#gid=0",
         "votacao_microdados": "https://docs.google.com/spreadsheets/d/1GZjzBqAQ5RqaB6kyOjD7iZeKSPxB07lAkZnvaGjREIY/edit#gid=0",
         "votacao_objeto": "https://docs.google.com/spreadsheets/d/1w2r5eK8jx3SwMTo83LKiI-wK_UE26SlTrJFqe_GZw4E/edit#gid=0",
         "votacao_orientacao_bancada": "https://docs.google.com/spreadsheets/d/1_gl5llaGw5Mr0A6Q8AUoHHiOiEGl7Ht8Yf3p2n4k8uA/edit#gid=0",
@@ -61,8 +61,33 @@ class constants(Enum):
 
     # ------------------------------------------------------------> PROPOSIÇÃO
 
-    TABLE_LIST_PROPOSICAO = {
+    TABLE_LIST_CAMARA = {
         "proposicao_microdados": "proposicoes",
         "proposicao_autor": "proposicoesAutores",
         "proposicao_tema": "proposicoesTemas",
+        "orgao": "orgaos",
+        "orgao_deputado": "orgaosDeputados",
     }
+
+    TABLES_SPLIT_BY_YEAR = [
+        "proposicao_microdados",
+        "proposicao_autor",
+        "proposicao_tema",
+    ]
+
+    DATA_COLUMN_NAME = [
+        {"date": "data"},
+        {"date": "data"},
+        {"date": "data"},
+        {"date": "data_inicio"},
+        {"date": "data_inicio"},
+    ]
+    COVERAGE_TYPE = [
+        "part_bdpro",
+        "all_free",
+        "all_free",
+        "part_bdpro",
+        "part_bdpro",
+    ]
+
+    HISTORICAL_DATABASE = [True, False, False, True, True]
