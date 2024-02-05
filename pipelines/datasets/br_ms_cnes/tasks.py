@@ -180,6 +180,9 @@ def decompress_dbc(file_list: list) -> None:
         log(f"Blasting: {file}")
         if file.endswith(".dbc"):
             os.system(f"{blast_path}/blast-dbf {file} {file.replace('.dbc', '.dbf')}")
+            a = file.split("/")[:-1]
+            directory_path = "/".join(a)
+            log(f"----- files {os.listdir(directory_path)}")
         else:
             log(f"Skipping non-DBC file: {file}")
 
