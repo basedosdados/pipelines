@@ -5,9 +5,9 @@ Tasks for br_ms_cnes
 
 
 import os
-import subprocess
 from datetime import timedelta
 from glob import glob
+from pathlib import Path
 
 import pandas as pd
 
@@ -144,23 +144,45 @@ def access_ftp_donwload_files(file_list: list, path: str, table: str) -> list[st
     return dbc_files_path_list
 
 
+# @task
+# def decompress_dbc(file_list: list) -> None:
+#
+#    log(f"==== curent env {os.getcwd()}")
+#
+#    # ? Tive que dar um grant pra exucutar bash na pipeline
+#    # ? chmod +x adapted_convert2dbf.sh
+#    #
+#    # pipelines/datasets/br_ms_cnes/adapted_convert2dbf.sh
+#
+#    log(os.system("ls pipelines/datasets/br_ms_cnes/"))
+#    # subprocess.run(
+#    #    ["chmod", "+x", "/home/gabri/pipelines/pipelines/datasets/br_ms_cnes/adapted_convert2dbf.sh"])
+#
+#    subprocess.run(
+#        ["/pipelines/datasets/br_ms_cnes/adapted_convert2dbf.sh"] + file_list
+#    )
+
+
 @task
 def decompress_dbc(file_list: list) -> None:
+    log(f"==== current env {os.getcwd()}")
 
-    log(f"==== curent env {os.getcwd()}")
+    # Clone blast-dbf and build it
+    os.system("git clone https://github.com/eaglebh/blast-dbf")
+    os.chdir("blast-dbf")
+    os.system("make")
+    blast_path = str(Path.cwd().resolve())
+    log(f"Blast-dbf path: {blast_path}")
+    os.chdir("..")
 
-    # ? Tive que dar um grant pra exucutar bash na pipeline
-    # ? chmod +x adapted_convert2dbf.sh
-    #
-    # pipelines/datasets/br_ms_cnes/adapted_convert2dbf.sh
-
-    log(os.system("ls pipelines/datasets/br_ms_cnes/"))
-    # subprocess.run(
-    #    ["chmod", "+x", "/home/gabri/pipelines/pipelines/datasets/br_ms_cnes/adapted_convert2dbf.sh"])
-
-    subprocess.run(
-        ["/pipelines/datasets/br_ms_cnes/adapted_convert2dbf.sh"] + file_list
-    )
+    # Iterate over the provided file paths
+    for file in file_list:
+        # Check if the file has a .dbc extension
+        if file.endswith(".dbc"):
+            # Execute blast-dbf on the file
+            os.system(f"{blast_path}/blast-dbf {file} {file.replace('.dbc', '.dbf')}")
+        else:
+            log(f"Skipping non-DBC file: {file}")
 
 
 # task to convert dbc to csv and save to a partitioned dir
