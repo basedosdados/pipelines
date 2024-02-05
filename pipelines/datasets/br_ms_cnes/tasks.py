@@ -20,7 +20,6 @@ from simpledbf import Dbf5
 from tqdm import tqdm
 
 from pipelines.constants import constants
-from pipelines.datasets.br_ms_cnes import adap
 from pipelines.datasets.br_ms_cnes.constants import constants as cnes_constants
 from pipelines.datasets.br_ms_cnes.utils import (
     check_and_create_column,
