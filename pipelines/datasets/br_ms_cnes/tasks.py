@@ -20,6 +20,7 @@ from simpledbf import Dbf5
 from tqdm import tqdm
 
 from pipelines.constants import constants
+from pipelines.datasets.br_ms_cnes import adap
 from pipelines.datasets.br_ms_cnes.constants import constants as cnes_constants
 from pipelines.datasets.br_ms_cnes.utils import (
     check_and_create_column,
@@ -30,8 +31,6 @@ from pipelines.datasets.br_ms_cnes.utils import (
 )
 from pipelines.utils.metadata.utils import get_api_most_recent_date
 from pipelines.utils.utils import log
-
-# from pipelines.datasets.br_ms_cnes import adap
 
 # from rpy2.robjects.packages import importr
 
@@ -149,9 +148,9 @@ def decompress_dbc(file_list: list) -> None:
 
     log(f"==== curent env {os.getcwd()}")
 
-    #  Tive que dar um grant pra exucutar bash na pipeline
-    #  chmod +x adapted_convert2dbf.sh
-    subprocess.run(["/app/adapted_convert2dbf.sh"] + file_list)
+    # ? Tive que dar um grant pra exucutar bash na pipeline
+    # ? chmod +x adapted_convert2dbf.sh
+    subprocess.run(["pipelines/datasets/br_ms_cnes/adapted_convert2dbf.sh"] + file_list)
 
 
 # task to convert dbc to csv and save to a partitioned dir
