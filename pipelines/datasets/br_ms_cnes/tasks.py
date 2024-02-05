@@ -154,6 +154,10 @@ def decompress_dbc(file_list: list) -> None:
     #
     # pipelines/datasets/br_ms_cnes/adapted_convert2dbf.sh
 
+    os.system("ls pipelines/datasets/br_ms_cnes/")
+    # subprocess.run(
+    #    ["chmod", "+x", "/home/gabri/pipelines/pipelines/datasets/br_ms_cnes/adapted_convert2dbf.sh"])
+
     subprocess.run(
         ["/pipelines/datasets/br_ms_cnes/adapted_convert2dbf.sh"] + file_list
     )
