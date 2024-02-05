@@ -168,6 +168,7 @@ def decompress_dbc(file_list: list) -> None:
 
     # Clone blast-dbf to /tmp/br_ms_cnes and build it
     blast_path = "/tmp/br_ms_cnes/blast-dbf"
+    os.system(f"mkdir -p {blast_path}")
     os.system(f"git clone https://github.com/eaglebh/blast-dbf {blast_path}")
     os.chdir(blast_path)
     os.system("make")
