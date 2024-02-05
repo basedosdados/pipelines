@@ -83,7 +83,7 @@ with Flow(
             table=br_ms_cnes_constants.TABLE.value[0],
         )
 
-        dbf_files = decompress_dbc(file_list=dbc_files)
+        dbf_files = decompress_dbc(file_list=dbc_files, upstream_tasks=[dbc_files])
 
         filepath = decompress_dbf(
             file_list=dbc_files,

@@ -109,6 +109,8 @@ def access_ftp_donwload_files(file_list: list, path: str, table: str) -> list[st
 
     log(f"wrangling {table} data")
 
+    file_list = file_list[1:5]
+
     for file in tqdm(file_list):
         # build partition dirs
 
@@ -149,7 +151,12 @@ def decompress_dbc(file_list: list) -> None:
 
     # ? Tive que dar um grant pra exucutar bash na pipeline
     # ? chmod +x adapted_convert2dbf.sh
-    subprocess.run(["pipelines/datasets/br_ms_cnes/adapted_convert2dbf.sh"] + file_list)
+    #
+    # pipelines/datasets/br_ms_cnes/adapted_convert2dbf.sh
+
+    subprocess.run(
+        ["/pipelines/datasets/br_ms_cnes/adapted_convert2dbf.sh"] + file_list
+    )
 
 
 # task to convert dbc to csv and save to a partitioned dir
@@ -162,9 +169,8 @@ def decompress_dbf(file_list: list, path: str, table: str) -> str:
 
     # list files
     for file in tqdm(file_list):
-        log(f"---------- {file}")
-        dbf_file = ".".join([file.split(".")[0], "dbf"])
 
+        dbf_file = ".".join([file.split(".")[0], "dbf"])
         log(f"-------- reading .dbf {dbf_file}")
         dbf = Dbf5(dbf_file, codec="iso-8859-1")
 
