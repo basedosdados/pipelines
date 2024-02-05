@@ -184,13 +184,15 @@ with Flow(
             "Os dados do FTP CNES-ST ainda não foram atualizados para o ano/mes mais recente"
         )
 
+    with case(is_empty(files_path), False):
+
         dbc_files = access_ftp_donwload_files(
             file_list=files_path,
             path=br_ms_cnes_constants.PATH.value[0],
             table=br_ms_cnes_constants.TABLE.value[1],
         )
 
-        dbf_files = decompress_dbc(file_list=dbc_files)
+        dbf_files = decompress_dbc(file_list=dbc_files, upstream_tasks=[dbc_files])
 
         filepath = decompress_dbf(
             file_list=dbc_files,

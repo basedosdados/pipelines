@@ -7,7 +7,6 @@ Tasks for br_ms_cnes
 import os
 from datetime import timedelta
 from glob import glob
-from pathlib import Path
 
 import pandas as pd
 
@@ -167,11 +166,11 @@ def access_ftp_donwload_files(file_list: list, path: str, table: str) -> list[st
 def decompress_dbc(file_list: list) -> None:
     log(f"==== current env {os.getcwd()}")
 
-    # Clone blast-dbf and build it
-    os.system("git clone https://github.com/eaglebh/blast-dbf")
-    os.chdir("blast-dbf")
+    # Clone blast-dbf to /tmp/br_ms_cnes and build it
+    blast_path = "/tmp/br_ms_cnes/blast-dbf"
+    os.system(f"git clone https://github.com/eaglebh/blast-dbf {blast_path}")
+    os.chdir(blast_path)
     os.system("make")
-    blast_path = str(Path.cwd().resolve())
     log(f"Blast-dbf path: {blast_path}")
     os.chdir("..")
 
