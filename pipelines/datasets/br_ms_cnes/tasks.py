@@ -15,6 +15,7 @@ import wget
 
 # from pyreaddbc import read_dbc as dbcreader
 from prefect import task
+from prefect.tasks.shell import ShellTask
 from simpledbf import Dbf5
 from tqdm import tqdm
 
@@ -57,7 +58,7 @@ def check_files_to_parse(
 
     # download files to compare
     year = "2023"
-    month = 10
+    month = 11
 
     if month <= 11:
         month = month + 1
@@ -162,29 +163,75 @@ def access_ftp_donwload_files(file_list: list, path: str, table: str) -> list[st
 #    )
 
 
+# Define a ShellTask to create the directory
+create_dir_task = ShellTask(
+    name="Create Directory",
+    command="mkdir -p /tmp/br_ms_cnes/blast-dbf",
+    return_all=True,
+    log_stderr=True,
+)
+
+# Define a ShellTask to clone the git repository
+clone_repo_task = ShellTask(
+    name="Clone Repository",
+    command="git clone https://github.com/eaglebh/blast-dbf /tmp/br_ms_cnes/blast-dbf",
+    return_all=True,
+    log_stderr=True,
+)
+
+# Define a ShellTask to build the blast-dbf
+compile_blast_dbf = ShellTask(
+    name="Build blast-dbf",
+    command="cd /tmp/br_ms_cnes/blast-dbf && make",
+    return_all=True,
+    log_stderr=True,
+)
+
+
 @task
 def decompress_dbc(file_list: list) -> None:
-    log(f"==== current env {os.getcwd()}")
+    create_dir_task.run()
+    clone_repo_task.run()
+    compile_blast_dbf.run()
 
-    # Clone blast-dbf to /tmp/br_ms_cnes and build it
-    blast_path = "/tmp/br_ms_cnes/blast-dbf"
-    os.system(f"mkdir -p {blast_path}")
-    os.system(f"git clone https://github.com/eaglebh/blast-dbf {blast_path}")
-    os.chdir(blast_path)
-    log(f"==== current env {os.getcwd()}")
-    os.system("make")
-    log(f"Blast-dbf path: {blast_path}")
-    os.chdir("..")
-    log(f"==== current env {os.getcwd()}")
-    for file in tqdm(file_list):
-        log(f"Blasting: {file}")
+    for file in file_list:
+        # Check if the file has a .dbc extension
         if file.endswith(".dbc"):
-            os.system(f"{blast_path}/blast-dbf {file} {file.replace('.dbc', '.dbf')}")
-            a = file.split("/")[:-1]
-            directory_path = "/".join(a)
-            log(f"----- files {os.listdir(directory_path)}")
+            # Execute blast-dbf on the file
+            decompress_task = ShellTask(
+                name=f"Decompress {file}",
+                command=f"/tmp/br_ms_cnes/blast-dbf/blast-dbf {file} {file.replace('.dbc', '.dbf')}",
+                return_all=True,
+                log_stderr=True,
+            )
+            decompress_task.run()
         else:
-            log(f"Skipping non-DBC file: {file}")
+            print(f"Skipping non-DBC file: {file}")
+
+
+# @task
+# def decompress_dbc(file_list: list) -> None:
+#    log(f"==== current env {os.getcwd()}")
+#
+#    # Clone blast-dbf to /tmp/br_ms_cnes and build it
+#    blast_path = "/tmp/br_ms_cnes/blast-dbf"
+#    os.system(f"mkdir -p {blast_path}")
+#    os.system(f"git clone https://github.com/eaglebh/blast-dbf {blast_path}")
+#    os.chdir(blast_path)
+#    log(f"----- current dir {os.getcwd()}")
+#    os.system("make")
+#    log(f"Blast-dbf path: {blast_path}")
+#    os.chdir("..")
+#    log(f"==== current env {os.getcwd()}")
+#    for file in tqdm(file_list):
+#        log(f"Blasting: {file}")
+#        if file.endswith(".dbc"):
+#            os.system(f"{blast_path}/blast-dbf {file} {file.replace('.dbc', '.dbf')}")
+#            a = file.split("/")[:-1]
+#            directory_path = "/".join(a)
+#            log(f"----- files {os.listdir(directory_path)}")
+#        else:
+#            log(f"Skipping non-DBC file: {file}")
 
 
 # task to convert dbc to csv and save to a partitioned dir
