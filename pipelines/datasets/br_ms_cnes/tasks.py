@@ -163,35 +163,36 @@ def access_ftp_donwload_files(file_list: list, path: str, table: str) -> list[st
 #    )
 
 
-# Define a ShellTask to create the directory
-create_dir_task = ShellTask(
-    name="Create Directory",
-    command="mkdir -p /tmp/br_ms_cnes/blast-dbf",
-    return_all=True,
-    log_stderr=True,
-)
-
-# Define a ShellTask to clone the git repository
-clone_repo_task = ShellTask(
-    name="Clone Repository",
-    command="git clone https://github.com/eaglebh/blast-dbf /tmp/br_ms_cnes/blast-dbf",
-    return_all=True,
-    log_stderr=True,
-)
-
-# Define a ShellTask to build the blast-dbf
-compile_blast_dbf = ShellTask(
-    name="Build blast-dbf",
-    command="cd /tmp/br_ms_cnes/blast-dbf && make",
-    return_all=True,
-    log_stderr=True,
-)
-
-
 @task
 def decompress_dbc(file_list: list) -> None:
+    # ShellTask to create the blast-dbf directory
+    create_dir_task = ShellTask(
+        name="Create blast-dbf Directory",
+        command="mkdir -p /tmp/br_ms_cnes/blast-dbf",
+        return_all=True,
+        log_stderr=True,
+    )
+
+    # Define a ShellTask to clone the blast-dbf repository
+    clone_repo_task = ShellTask(
+        name="Clone blast-dbf Repository",
+        command="git clone https://github.com/eaglebh/blast-dbf /tmp/br_ms_cnes/blast-dbf",
+        return_all=True,
+        log_stderr=True,
+    )
+
+    # Define a ShellTask to build the blast-dbf repository
+    compile_blast_dbf = ShellTask(
+        name="Build blast-dbf",
+        command="cd /tmp/br_ms_cnes/blast-dbf && make",
+        return_all=True,
+        log_stderr=True,
+    )
+
     create_dir_task.run()
+    log("------ Cloning blast-dbf repository")
     clone_repo_task.run()
+    log("------ Compiling blast-dbf repository")
     compile_blast_dbf.run()
 
     for file in file_list:
@@ -204,6 +205,7 @@ def decompress_dbc(file_list: list) -> None:
                 return_all=True,
                 log_stderr=True,
             )
+            log(f"Decompressing {file}")
             decompress_task.run()
         else:
             print(f"Skipping non-DBC file: {file}")
@@ -215,18 +217,23 @@ def decompress_dbc(file_list: list) -> None:
 #
 #    # Clone blast-dbf to /tmp/br_ms_cnes and build it
 #    blast_path = "/tmp/br_ms_cnes/blast-dbf"
-#    os.system(f"mkdir -p {blast_path}")
-#    os.system(f"git clone https://github.com/eaglebh/blast-dbf {blast_path}")
+#    clone_exit_code = os.system(f"git clone https://github.com/eaglebh/blast-dbf {blast_path}")
+#    log(f"Command CLONE exited with code {clone_exit_code}")
+#
 #    os.chdir(blast_path)
 #    log(f"----- current dir {os.getcwd()}")
-#    os.system("make")
+#    make_exit_code = os.system("make")
+#    log(f"Command MAKE exited with code {make_exit_code}")
+#
 #    log(f"Blast-dbf path: {blast_path}")
 #    os.chdir("..")
 #    log(f"==== current env {os.getcwd()}")
 #    for file in tqdm(file_list):
 #        log(f"Blasting: {file}")
 #        if file.endswith(".dbc"):
-#            os.system(f"{blast_path}/blast-dbf {file} {file.replace('.dbc', '.dbf')}")
+#            blast_command = f"{blast_path}/blast-dbf {file} {file.replace('.dbc', '.dbf')}"
+#            blast_exit_code = os.system(blast_command)
+#            log(f"Command '{blast_command}' exited with code {blast_exit_code}")
 #            a = file.split("/")[:-1]
 #            directory_path = "/".join(a)
 #            log(f"----- files {os.listdir(directory_path)}")
@@ -251,11 +258,11 @@ def decompress_dbf(file_list: list, path: str, table: str) -> str:
 
         year_month_sigla_uf = year_month_sigla_uf_parser(file=file)
 
-        log(f"year_month_sigla_uf of {file} parsed")
+        # log(f"year_month_sigla_uf of {file} parsed")
         output_path = path + table + "/" + year_month_sigla_uf
 
         os.system(f"mkdir -p {output_path}")
-        log(f"created output partition dir {path + table + '/'+ year_month_sigla_uf}")
+        # log(f"created output partition dir {path + table + '/'+ year_month_sigla_uf}")
 
         output_file = output_path + "/" + table + ".csv"
         log(f"{file} 1 saved")
@@ -271,6 +278,7 @@ def decompress_dbf(file_list: list, path: str, table: str) -> str:
         )
         # Remove each file
         for file in files_to_remove:
+            log(f"---- Removing file {file}")
             os.system(f"rm {file}")
 
         # ler df

@@ -9,6 +9,7 @@ from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
+from prefect.tasks.shell import ShellTask
 
 from pipelines.constants import constants
 from pipelines.datasets.br_ms_cnes.constants import constants as br_ms_cnes_constants
@@ -294,7 +295,7 @@ with Flow(name="br_ms_cnes.equipe", code_owners=["Gabriel Pisa"]) as br_ms_cnes_
             table=br_ms_cnes_constants.TABLE.value[4],
         )
 
-        dbf_files = decompress_dbc(file_list=dbc_files)
+        dbf_files = decompress_dbc(file_list=dbc_files, upstream_tasks=[dbc_files])
 
         filepath = decompress_dbf(
             file_list=dbc_files,
@@ -390,13 +391,14 @@ with Flow(name="br_ms_cnes.leito", code_owners=["Gabriel Pisa"]) as br_ms_cnes_l
         )
 
     with case(is_empty(files_path), False):
+
         dbc_files = access_ftp_donwload_files(
             file_list=files_path,
             path=br_ms_cnes_constants.PATH.value[0],
             table=br_ms_cnes_constants.TABLE.value[3],
         )
 
-        dbf_files = decompress_dbc(file_list=dbc_files)
+        dbf_files = decompress_dbc(file_list=dbc_files, upstream_tasks=[dbc_files])
 
         filepath = decompress_dbf(
             file_list=dbc_files,
@@ -495,15 +497,13 @@ with Flow(
         )
 
     with case(is_empty(files_path), False):
-        # task para veficiar se for nula
-        # e deliberar
         dbc_files = access_ftp_donwload_files(
             file_list=files_path,
             path=br_ms_cnes_constants.PATH.value[0],
             table=br_ms_cnes_constants.TABLE.value[2],
         )
 
-        dbf_files = decompress_dbc(file_list=dbc_files)
+        dbf_files = decompress_dbc(file_list=dbc_files, upstream_tasks=[dbc_files])
 
         filepath = decompress_dbf(
             file_list=dbc_files,
@@ -605,7 +605,7 @@ with Flow(
             table=br_ms_cnes_constants.TABLE.value[5],
         )
 
-        dbf_files = decompress_dbc(file_list=dbc_files)
+        dbf_files = decompress_dbc(file_list=dbc_files, upstream_tasks=[dbc_files])
 
         filepath = decompress_dbf(
             file_list=dbc_files,
@@ -708,7 +708,7 @@ with Flow(
             table=br_ms_cnes_constants.TABLE.value[6],
         )
 
-        dbf_files = decompress_dbc(file_list=dbc_files)
+        dbf_files = decompress_dbc(file_list=dbc_files, upstream_tasks=[dbc_files])
 
         filepath = decompress_dbf(
             file_list=dbc_files,
@@ -813,7 +813,7 @@ with Flow(
             table=br_ms_cnes_constants.TABLE.value[7],
         )
 
-        dbf_files = decompress_dbc(file_list=dbc_files)
+        dbf_files = decompress_dbc(file_list=dbc_files, upstream_tasks=[dbc_files])
 
         filepath = decompress_dbf(
             file_list=dbc_files,
@@ -920,7 +920,7 @@ with Flow(
             table=br_ms_cnes_constants.TABLE.value[8],
         )
 
-        dbf_files = decompress_dbc(file_list=dbc_files)
+        dbf_files = decompress_dbc(file_list=dbc_files, upstream_tasks=[dbc_files])
 
         filepath = decompress_dbf(
             file_list=dbc_files,
@@ -1022,7 +1022,7 @@ with Flow(
             table=br_ms_cnes_constants.TABLE.value[9],
         )
 
-        dbf_files = decompress_dbc(file_list=dbc_files)
+        dbf_files = decompress_dbc(file_list=dbc_files, upstream_tasks=[dbc_files])
 
         filepath = decompress_dbf(
             file_list=dbc_files,
@@ -1126,7 +1126,7 @@ with Flow(
             table=br_ms_cnes_constants.TABLE.value[10],
         )
 
-        dbf_files = decompress_dbc(file_list=dbc_files)
+        dbf_files = decompress_dbc(file_list=dbc_files, upstream_tasks=[dbc_files])
 
         filepath = decompress_dbf(
             file_list=dbc_files,
@@ -1229,7 +1229,7 @@ with Flow(
             table=br_ms_cnes_constants.TABLE.value[12],
         )
 
-        dbf_files = decompress_dbc(file_list=dbc_files)
+        dbf_files = decompress_dbc(file_list=dbc_files, upstream_tasks=[dbc_files])
 
         filepath = decompress_dbf(
             file_list=dbc_files,
@@ -1331,15 +1331,15 @@ with Flow(
         dbc_files = access_ftp_donwload_files(
             file_list=files_path,
             path=br_ms_cnes_constants.PATH.value[0],
-            table=br_ms_cnes_constants.TABLE.value[12],
+            table=br_ms_cnes_constants.TABLE.value[13],
         )
 
-        dbf_files = decompress_dbc(file_list=dbc_files)
+        dbf_files = decompress_dbc(file_list=dbc_files, upstream_tasks=[dbc_files])
 
         filepath = decompress_dbf(
             file_list=dbc_files,
             path=br_ms_cnes_constants.PATH.value[1],
-            table=br_ms_cnes_constants.TABLE.value[12],
+            table=br_ms_cnes_constants.TABLE.value[13],
             upstream_tasks=[dbf_files, dbc_files],
         )
 
