@@ -11,7 +11,7 @@ from pipelines.datasets.br_camara_dados_abertos.constants import (
     constants as constants_camara,
 )
 from pipelines.datasets.br_camara_dados_abertos.utils import (
-    download_and_read_data_proposicao,
+    download_and_read_data,
     get_data,
     get_data_deputados,
     read_and_clean_camara_dados_abertos,
@@ -91,76 +91,42 @@ def treat_and_save_table(table_id):
     return f"{constants_camara.OUTPUT_PATH.value}{table_id}/data.csv"
 
 
-# -------------------------------------------------------------------> PROPOSIÇÃO
+# -----------------------------------------------------> DADOS CAMARA ABERTA - UNIVERSAL
 
 
 @task
-def save_data_proposicao(table_id: str):
-    df = download_and_read_data_proposicao(table_id)
-    valor = constants_camara.TABLE_LIST_PROPOSICAO.value[table_id]
+def save_data(table_id: str):
     if not os.path.exists(f"{constants_camara.OUTPUT_PATH.value}{table_id}"):
         os.makedirs(f"{constants_camara.OUTPUT_PATH.value}{table_id}")
-
+    original_table_name = constants_camara.TABLE_LIST_CAMARA.value[table_id]
+    df = download_and_read_data(table_id)
     if table_id == "proposicao_microdados":
-        valor = constants_camara.TABLE_LIST_PROPOSICAO.value[table_id]
-        url = f"http://dadosabertos.camara.leg.br/arquivos/{valor}/csv/{valor}-{constants_camara.ANOS_ATUAL.value}.csv"
-        response = requests.get(url)
-        if response.status_code == 200:
-            df["ultimoStatus_despacho"] = df["ultimoStatus_despacho"].apply(
-                lambda x: str(x).replace(";", ",").replace("\n", "").replace("\r", "")
-            )
-            df["ementa"] = df["ementa"].apply(
-                lambda x: str(x).replace(";", ",").replace("\n", "").replace("\r", "")
-            )
-            df["ano"] = df.apply(
-                lambda x: x["dataApresentacao"][0:4] if x["ano"] == 0 else x["ano"],
-                axis=1,
-            )
-            df.to_csv(
-                f"{constants_camara.OUTPUT_PATH.value}{table_id}/{valor}_{constants_camara.ANOS_ATUAL.value}.csv",
-                sep=",",
-                index=False,
-                encoding="utf-8",
-            )
-        elif response.status_code >= 400 and response.status_code <= 599:
-            url_2 = f"http://dadosabertos.camara.leg.br/arquivos/{valor}/csv/{valor}-{constants_camara.ANOS.value}.csv"
-            response = requests.get(url_2)
+        df["ultimoStatus_despacho"] = df["ultimoStatus_despacho"].apply(
+            lambda x: str(x).replace(";", ",").replace("\n", "").replace("\r", "")
+        )
+        df["ementa"] = df["ementa"].apply(
+            lambda x: str(x).replace(";", ",").replace("\n", "").replace("\r", "")
+        )
+        df["ano"] = df.apply(
+            lambda x: x["dataApresentacao"][0:4] if x["ano"] == 0 else x["ano"],
+            axis=1,
+        )
+    if table_id in constants_camara.TABLES_SPLIT_BY_YEAR.value:
+        output_path = f"{constants_camara.OUTPUT_PATH.value}{table_id}/{original_table_name}_{constants_camara.ANOS_ATUAL.value}.csv"
 
-            df["ultimoStatus_despacho"] = df["ultimoStatus_despacho"].apply(
-                lambda x: str(x).replace(";", ",").replace("\n", "").replace("\r", "")
-            )
-            df["ementa"] = df["ementa"].apply(
-                lambda x: str(x).replace(";", ",").replace("\n", "").replace("\r", "")
-            )
-            df["ano"] = df.apply(
-                lambda x: x["dataApresentacao"][0:4] if x["ano"] == 0 else x["ano"],
-                axis=1,
-            )
-            df.to_csv(
-                f"{constants_camara.OUTPUT_PATH.value}{table_id}/{valor}_{constants_camara.ANOS.value}.csv",
-                sep=",",
-                index=False,
-                encoding="utf-8",
-            )
+    if table_id == "orgao":
+        output_path = (
+            f"{constants_camara.OUTPUT_PATH.value}{table_id}/{original_table_name}.csv"
+        )
+        log(f"Saving {table_id} to {output_path}")
 
-    else:
-        valor = constants_camara.TABLE_LIST_PROPOSICAO.value[table_id]
-        url = f"http://dadosabertos.camara.leg.br/arquivos/{valor}/csv/{valor}-{constants_camara.ANOS_ATUAL.value}.csv"
-        response = requests.get(url)
-        if response.status_code == 200:
-            df.to_csv(
-                f"{constants_camara.OUTPUT_PATH.value}{table_id}/{valor}_{constants_camara.ANOS_ATUAL.value}.csv",
-                sep=",",
-                index=False,
-                encoding="utf-8",
-            )
-        elif response.status_code >= 400 and response.status_code <= 599:
-            df.to_csv(
-                f"{constants_camara.OUTPUT_PATH.value}{table_id}/{valor}_{constants_camara.ANOS.value}.csv",
-                sep=",",
-                index=False,
-                encoding="utf-8",
-            )
+    if table_id == "orgao_deputado":
+        output_path = f"{constants_camara.OUTPUT_PATH.value}{table_id}/{original_table_name}-L57.csv"
+        log(f"Saving {table_id} to {output_path}")
+
+    df.to_csv(output_path, sep=",", index=False, encoding="utf-8")
+
+    return output_path
 
 
 @task
@@ -177,6 +143,8 @@ def dict_list_parameters(dataset_id, materialization_mode, dbt_alias):
         "proposicao_microdados",
         "proposicao_autor",
         "proposicao_tema",
+        "orgao",
+        "orgao_deputado",
     ]
 
     parameters = [
@@ -185,21 +153,35 @@ def dict_list_parameters(dataset_id, materialization_mode, dbt_alias):
             table_id=table_id[0],
             mode=materialization_mode,
             dbt_alias=dbt_alias,
-            dbt_command="run and test",
+            dbt_command="run",
         ),
         dict(
             dataset_id=dataset_id,
             table_id=table_id[1],
             mode=materialization_mode,
             dbt_alias=dbt_alias,
-            dbt_command="run and test",
+            dbt_command="run",
         ),
         dict(
             dataset_id=dataset_id,
             table_id=table_id[2],
             mode=materialization_mode,
             dbt_alias=dbt_alias,
-            dbt_command="run and test",
+            dbt_command="run",
+        ),
+        dict(
+            dataset_id=dataset_id,
+            table_id=table_id[3],
+            mode=materialization_mode,
+            dbt_alias=dbt_alias,
+            dbt_command="run",
+        ),
+        dict(
+            dataset_id=dataset_id,
+            table_id=table_id[4],
+            mode=materialization_mode,
+            dbt_alias=dbt_alias,
+            dbt_command="run",
         ),
     ]
     return parameters

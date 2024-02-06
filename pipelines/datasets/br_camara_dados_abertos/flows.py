@@ -16,7 +16,7 @@ from pipelines.datasets.br_camara_dados_abertos.constants import (
 from pipelines.datasets.br_camara_dados_abertos.schedules import (
     every_day_camara_dados_abertos,
     every_day_camara_dados_abertos_deputados,
-    every_day_camara_dados_abertos_proposicao,
+    every_day_camara_dados_abertos_universal,
 )
 from pipelines.datasets.br_camara_dados_abertos.tasks import (
     dict_list_parameters,
@@ -24,7 +24,7 @@ from pipelines.datasets.br_camara_dados_abertos.tasks import (
     download_files_and_get_max_date_deputados,
     make_partitions,
     output_path_list,
-    save_data_proposicao,
+    save_data,
     treat_and_save_table,
 )
 from pipelines.utils.constants import constants as utils_constants
@@ -52,7 +52,7 @@ with Flow(name="br_camara_dados_abertos.votacao", code_owners=["trick"]) as br_c
             "votacao_microdados",
             "votacao_objeto",
             "votacao_orientacao_bancada",
-            "voto_parlamentar",
+            "votacao_parlamentar",
             "votacao_proposicao_afetada",
         ],
         required=True,
@@ -203,7 +203,7 @@ with Flow(name="br_camara_dados_abertos.votacao", code_owners=["trick"]) as br_c
         # ! ---------------------------------------- >   Votacao - Parlamentar
 
         filepath_parlamentar = make_partitions(
-            table_id="voto_parlamentar",
+            table_id="votacao_parlamentar",
             date_column="dataHoraVoto",
             upstream_tasks=[rename_flow_run],
         )
@@ -593,15 +593,11 @@ br_camara_deputado.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value
 br_camara_deputado.schedule = every_day_camara_dados_abertos_deputados
 
 
-# ---------------------------------------------------------------------------------------
-# ---------------------------------------------------------------------------------------
-# ---------------------------------------------------------------------------------------
-
-# ------------------------------ TABLES PROPOSIÇÃO ---------------------------------------
+# ------------------------------ TABLES UNIVERSAL ---------------------------------------
 
 with Flow(
-    name="br_camara_dados_abertos.proposicao", code_owners=["trick"]
-) as br_camara_proposicao:
+    name="br_camara_dados_abertos.universal", code_owners=["trick"]
+) as br_camara_dados_abertos_universal:
     # Parameters
     dataset_id = Parameter(
         "dataset_id", default="br_camara_dados_abertos", required=True
@@ -612,11 +608,13 @@ with Flow(
             "proposicao_microdados",
             "proposicao_autor",
             "proposicao_tema",
+            "orgao",
+            "orgao_deputado",
         ],
         required=True,
     )
     materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
+        "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
@@ -626,13 +624,13 @@ with Flow(
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ",
         dataset_id=dataset_id,
-        table_id="Proposição",
+        table_id="Universal",
         wait=table_id,
     )
 
     update_metadata = Parameter("update_metadata", default=True, required=False)
 
-    filepath = save_data_proposicao.map(
+    filepath = save_data.map(
         table_id=table_id,
         upstream_tasks=[unmapped(rename_flow_run)],
     )
@@ -675,16 +673,18 @@ with Flow(
         update_django_metadata.map(
             dataset_id=unmapped(dataset_id),
             table_id=table_id,
-            date_format=["%Y-%m-%d", "%Y-%m-%d", "%Y-%m-%d"],
-            date_column_name=[{"date": "data"}, {"date": "data"}, {"date": "data"}],
-            coverage_type=["part_bdpro", "all_free", "all_free"],
+            date_format=unmapped("%Y-%m-%d"),
+            date_column_name=constants_camara.DATA_COLUMN_NAME.value,
+            coverage_type=constants_camara.COVERAGE_TYPE.value,
             prefect_mode=unmapped(materialization_mode),
-            time_delta=[{"months": 6}, {"months": 6}, {"months": 6}],
+            time_delta=unmapped({"months": 6}),
             bq_project=unmapped("basedosdados"),
-            historical_database=[True, False, False],
+            historical_database=constants_camara.HISTORICAL_DATABASE.value,
             upstream_tasks=[unmapped(wait_for_materialization)],
         )
 
-br_camara_proposicao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_camara_proposicao.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_camara_proposicao.schedule = every_day_camara_dados_abertos_proposicao
+br_camara_dados_abertos_universal.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_camara_dados_abertos_universal.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
+br_camara_dados_abertos_universal.schedule = every_day_camara_dados_abertos_universal
