@@ -53,7 +53,7 @@ def crawler() -> str:
 
     data = pd.DataFrame(columns=header)
 
-    for year in tqdm(range(2000, 2023)):
+    for year in tqdm(range(2000, 2025)):
         url = f"https://pesquisas.poder360.com.br/web/consulta/fetch?data_pesquisa_de={year}-01-01&data_pesquisa_ate={year}-12-31&order_column=ano&order_type=asc"
         response = requests.get(url, headers={"User-Agent": "Magic Browser"}, timeout=5)
         try:
