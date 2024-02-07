@@ -98,9 +98,13 @@ def treat_and_save_table(table_id):
 def save_data(table_id: str):
     if not os.path.exists(f"{constants_camara.OUTPUT_PATH.value}{table_id}"):
         os.makedirs(f"{constants_camara.OUTPUT_PATH.value}{table_id}")
+
     original_table_name = constants_camara.TABLE_LIST_CAMARA.value[table_id]
+
     df = download_and_read_data(table_id)
+
     if table_id == "proposicao_microdados":
+        output_path = f"{constants_camara.OUTPUT_PATH.value}{table_id}/{original_table_name}_{constants_camara.ANOS_ATUAL.value}.csv"
         df["ultimoStatus_despacho"] = df["ultimoStatus_despacho"].apply(
             lambda x: str(x).replace(";", ",").replace("\n", "").replace("\r", "")
         )
@@ -111,12 +115,22 @@ def save_data(table_id: str):
             lambda x: x["dataApresentacao"][0:4] if x["ano"] == 0 else x["ano"],
             axis=1,
         )
-    if table_id in constants_camara.TABLES_SPLIT_BY_YEAR.value:
-        output_path = f"{constants_camara.OUTPUT_PATH.value}{table_id}/{original_table_name}_{constants_camara.ANOS_ATUAL.value}.csv"
+        log(f"Saving {table_id} to {output_path}")
 
-    if table_id == "orgao":
+    if table_id == "frente_deputado":
         output_path = (
             f"{constants_camara.OUTPUT_PATH.value}{table_id}/{original_table_name}.csv"
+        )
+        df = df.rename(columns=constants_camara.RENAME_COLUMNS_FRENTE_DEPUTADO.value)
+        log(f"Saving {table_id} to {output_path}")
+
+    if table_id == "evento":
+        output_path = (
+            f"{constants_camara.OUTPUT_PATH.value}{table_id}/{original_table_name}.csv"
+        )
+        df = df.rename(columns=constants_camara.RENAME_COLUMNS_EVENTO.value)
+        df["descricao"] = df["descricao"].apply(
+            lambda x: str(x).replace("\n", "").replace("\r", "")
         )
         log(f"Saving {table_id} to {output_path}")
 
@@ -124,9 +138,18 @@ def save_data(table_id: str):
         output_path = f"{constants_camara.OUTPUT_PATH.value}{table_id}/{original_table_name}-L57.csv"
         log(f"Saving {table_id} to {output_path}")
 
-    df.to_csv(output_path, sep=",", index=False, encoding="utf-8")
+    if table_id in constants_camara.TABLES_SPLIT_BY_YEAR.value:
+        output_path = f"{constants_camara.OUTPUT_PATH.value}{table_id}/{original_table_name}_{constants_camara.ANOS_ATUAL.value}.csv"
+        log(f"Saving {table_id} to {output_path}")
 
-    return output_path
+    if table_id in ["orgao", "frente", "funcionario"]:
+        output_path = (
+            f"{constants_camara.OUTPUT_PATH.value}{table_id}/{original_table_name}.csv"
+        )
+        log(f"Saving {table_id} to {output_path}")
+
+    if os.path.exists(output_path):
+        df.to_csv(output_path, sep=",", index=False, encoding="utf-8")
 
 
 @task

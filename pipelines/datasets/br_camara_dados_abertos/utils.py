@@ -161,7 +161,7 @@ def get_data_deputados():
     return df
 
 
-# ----------------------------------------------------------------------------------- > Proposição
+# ----------------------------------------------------------------------------------- > Universal
 
 
 def download_csv_camara(table_id: str) -> None:
@@ -185,7 +185,7 @@ def download_csv_camara(table_id: str) -> None:
         url = f"http://dadosabertos.camara.leg.br/arquivos/{original_table_name}/csv/{original_table_name}-{constants.ANOS_ATUAL.value}.csv"
         input_path = f"{constants.INPUT_PATH.value}{original_table_name}_{constants.ANOS_ATUAL.value}.csv"
 
-    if table_id == "orgao":
+    if table_id in constants.TABLES_SPLIT_WITHOUT_YEAR.value:
         url = f"http://dadosabertos.camara.leg.br/arquivos/{original_table_name}/csv/{original_table_name}.csv"
         input_path = f"{constants.INPUT_PATH.value}{original_table_name}.csv"
 
@@ -193,11 +193,11 @@ def download_csv_camara(table_id: str) -> None:
         url = f"http://dadosabertos.camara.leg.br/arquivos/{original_table_name}/csv/{original_table_name}-L57.csv"
         input_path = f"{constants.INPUT_PATH.value}{original_table_name}-57.csv"
 
-    log(f"input_path: {url}")
     response = requests.get(url)
-    with open(input_path, "wb") as f:
-        f.write(response.content)
-        log(f"download complete {original_table_name}")
+    if response.status_code == 200:
+        with open(input_path, "wb") as f:
+            f.write(response.content)
+            log(f"download complete {original_table_name}")
 
 
 def download_and_read_data(table_id: str) -> pd.DataFrame:
@@ -206,12 +206,13 @@ def download_and_read_data(table_id: str) -> pd.DataFrame:
     if table_id in constants.TABLES_SPLIT_BY_YEAR.value:
         input_path = f"{constants.INPUT_PATH.value}{original_table_name}_{constants.ANOS_ATUAL.value}.csv"
 
-    if table_id == "orgao":
-        input_path = f"{constants.INPUT_PATH.value}{original_table_name}.csv"
-
     if table_id == "orgao_deputado":
         input_path = f"{constants.INPUT_PATH.value}{original_table_name}-57.csv"
 
-    df = pd.read_csv(input_path, sep=";")
+    if table_id in constants.TABLES_SPLIT_WITHOUT_YEAR.value:
+        input_path = f"{constants.INPUT_PATH.value}{original_table_name}.csv"
 
-    return df
+    if os.path.exists(input_path):
+        df = pd.read_csv(input_path, sep=";")
+
+        return df

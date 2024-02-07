@@ -610,6 +610,13 @@ with Flow(
             "proposicao_tema",
             "orgao",
             "orgao_deputado",
+            "evento",
+            "evento_orgao",
+            "evento_presenca_deputado",
+            "evento_requerimento",
+            "frente",
+            "frente_deputado",
+            "funcionario",
         ],
         required=True,
     )

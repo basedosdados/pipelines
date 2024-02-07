@@ -67,13 +67,45 @@ class constants(Enum):
         "proposicao_tema": "proposicoesTemas",
         "orgao": "orgaos",
         "orgao_deputado": "orgaosDeputados",
+        "evento": "eventos",
+        "evento_orgao": "eventosOrgaos",
+        "evento_presenca_deputado": "eventosPresencaDeputados",
+        "evento_requerimento": "eventosRequerimentos",
+        "frente": "frentes",
+        "frente_deputado": "frentesDeputados",
+        "funcionario": "funcionarios",
     }
 
     TABLES_SPLIT_BY_YEAR = [
         "proposicao_microdados",
         "proposicao_autor",
         "proposicao_tema",
+        "evento",
+        "evento_orgao",
+        "evento_presenca_deputado",
+        "evento_requerimento",
     ]
+
+    TABLES_SPLIT_WITHOUT_YEAR = ["orgao", "frente_deputado", "frente", "funcionario"]
+
+    RENAME_COLUMNS_FRENTE_DEPUTADO = {
+        "deputado_.id": "id_deputado",
+        "deputado_.nome": "nome_deputado",
+        "deputado_.titulo": "titulo_deputado",
+        "deputado_.siglaUf": "sigla_uf_deputado",
+        "deputado_.uri": "url_deputado",
+        "deputado_.uriPartido": "url_partido_deputado",
+        "deputado_.idLegislatura": "id_legislatura_deputado",
+        "deputado_.urlFoto": "url_foto_deputado",
+        "deputado_.codTitulo": "cod_titulo_deputado",
+    }
+
+    RENAME_COLUMNS_EVENTO = {
+        "localCamara.nome": "localCamara_nome",
+        "localCamara.predio": "localCamara_predio",
+        "localCamara.sala": "localCamara_sala",
+        "localCamara.andar": "localCamara_andar",
+    }
 
     DATA_COLUMN_NAME = [
         {"date": "data"},
