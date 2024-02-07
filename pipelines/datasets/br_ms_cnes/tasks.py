@@ -27,6 +27,8 @@ from pipelines.datasets.br_ms_cnes.utils import (
 from pipelines.utils.metadata.utils import get_api_most_recent_date
 from pipelines.utils.utils import log
 
+# from rpy2.robjects.packages import importr
+
 
 @task
 def check_files_to_parse(
@@ -52,7 +54,7 @@ def check_files_to_parse(
 
     # download files to compare
     year = "2023"
-    month = 12
+    month = 11
 
     if month <= 11:
         month = month + 1
@@ -104,6 +106,8 @@ def access_ftp_donwload_files(file_list: list, path: str, table: str) -> list[st
     dbc_files_path_list = list()
 
     log(f"wrangling {table} data")
+
+    # file_list = file_list[1:3]
 
     for file in tqdm(file_list):
         # build partition dirs
@@ -304,3 +308,11 @@ def decompress_dbf(file_list: list, path: str, table: str) -> str:
         )
 
     return path + table
+
+
+@task
+def is_empty(lista):
+    if len(lista) == 0:
+        return True
+    else:
+        return False

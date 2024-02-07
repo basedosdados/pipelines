@@ -9,7 +9,6 @@ from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
-from prefect.tasks.shell import ShellTask
 
 from pipelines.constants import constants
 from pipelines.datasets.br_ms_cnes.constants import constants as br_ms_cnes_constants
