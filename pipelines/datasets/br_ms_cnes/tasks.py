@@ -9,11 +9,7 @@ from datetime import timedelta
 from glob import glob
 
 import pandas as pd
-
-# import rpy2.robjects.packages as rpackages
 import wget
-
-# from pyreaddbc import read_dbc as dbcreader
 from prefect import task
 from prefect.tasks.shell import ShellTask
 from simpledbf import Dbf5
@@ -30,8 +26,6 @@ from pipelines.datasets.br_ms_cnes.utils import (
 )
 from pipelines.utils.metadata.utils import get_api_most_recent_date
 from pipelines.utils.utils import log
-
-# from rpy2.robjects.packages import importr
 
 
 @task
@@ -58,12 +52,14 @@ def check_files_to_parse(
 
     # download files to compare
     year = "2023"
-    month = 11
+    month = 12
 
     if month <= 11:
         month = month + 1
     else:
         month = 1
+        year = int(year) + 1
+        year = str(year)
     # 3. buildar no formato do ftp YYMM
     year = year[2:4]
 
@@ -109,8 +105,6 @@ def access_ftp_donwload_files(file_list: list, path: str, table: str) -> list[st
 
     log(f"wrangling {table} data")
 
-    file_list = file_list[1:3]
-
     for file in tqdm(file_list):
         # build partition dirs
 
@@ -144,27 +138,12 @@ def access_ftp_donwload_files(file_list: list, path: str, table: str) -> list[st
     return dbc_files_path_list
 
 
-# @task
-# def decompress_dbc(file_list: list) -> None:
-#
-#    log(f"==== curent env {os.getcwd()}")
-#
-#    # ? Tive que dar um grant pra exucutar bash na pipeline
-#    # ? chmod +x adapted_convert2dbf.sh
-#    #
-#    # pipelines/datasets/br_ms_cnes/adapted_convert2dbf.sh
-#
-#    log(os.system("ls pipelines/datasets/br_ms_cnes/"))
-#    # subprocess.run(
-#    #    ["chmod", "+x", "/home/gabri/pipelines/pipelines/datasets/br_ms_cnes/adapted_convert2dbf.sh"])
-#
-#    subprocess.run(
-#        ["/pipelines/datasets/br_ms_cnes/adapted_convert2dbf.sh"] + file_list
-#    )
-
-
 @task
 def decompress_dbc(file_list: list) -> None:
+    """
+    Convert dbc to dbf format
+    """
+
     # ShellTask to create the blast-dbf directory
     create_dir_task = ShellTask(
         name="Create blast-dbf Directory",
@@ -211,37 +190,6 @@ def decompress_dbc(file_list: list) -> None:
             print(f"Skipping non-DBC file: {file}")
 
 
-# @task
-# def decompress_dbc(file_list: list) -> None:
-#    log(f"==== current env {os.getcwd()}")
-#
-#    # Clone blast-dbf to /tmp/br_ms_cnes and build it
-#    blast_path = "/tmp/br_ms_cnes/blast-dbf"
-#    clone_exit_code = os.system(f"git clone https://github.com/eaglebh/blast-dbf {blast_path}")
-#    log(f"Command CLONE exited with code {clone_exit_code}")
-#
-#    os.chdir(blast_path)
-#    log(f"----- current dir {os.getcwd()}")
-#    make_exit_code = os.system("make")
-#    log(f"Command MAKE exited with code {make_exit_code}")
-#
-#    log(f"Blast-dbf path: {blast_path}")
-#    os.chdir("..")
-#    log(f"==== current env {os.getcwd()}")
-#    for file in tqdm(file_list):
-#        log(f"Blasting: {file}")
-#        if file.endswith(".dbc"):
-#            blast_command = f"{blast_path}/blast-dbf {file} {file.replace('.dbc', '.dbf')}"
-#            blast_exit_code = os.system(blast_command)
-#            log(f"Command '{blast_command}' exited with code {blast_exit_code}")
-#            a = file.split("/")[:-1]
-#            directory_path = "/".join(a)
-#            log(f"----- files {os.listdir(directory_path)}")
-#        else:
-#            log(f"Skipping non-DBC file: {file}")
-
-
-# task to convert dbc to csv and save to a partitioned dir
 @task
 def decompress_dbf(file_list: list, path: str, table: str) -> str:
     """
@@ -356,11 +304,3 @@ def decompress_dbf(file_list: list, path: str, table: str) -> str:
         )
 
     return path + table
-
-
-@task
-def is_empty(lista):
-    if len(lista) == 0:
-        return True
-    else:
-        return False
