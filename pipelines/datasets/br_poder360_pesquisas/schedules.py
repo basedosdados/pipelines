@@ -3,18 +3,18 @@
 Schedules for br_poder360_pesquisas
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from prefect.schedules import Schedule
-from prefect.schedules.clocks import IntervalClock
+from prefect.schedules.clocks import CronClock
 
 from pipelines.constants import constants
 
 every_monday_thursday = Schedule(
     clocks=[
-        IntervalClock(
-            interval=timedelta(days=1),
-            start_date=datetime(2021, 1, 1, 15, 0),
+        CronClock(
+            cron="42 3 * * *",  # every day at 03:42
+            start_date=datetime(2023, 9, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
