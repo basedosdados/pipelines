@@ -88,6 +88,51 @@ class constants(Enum):
 
     TABLES_SPLIT_WITHOUT_YEAR = ["orgao", "frente_deputado", "frente", "funcionario"]
 
+    TABLES_INPUT_PATH = {
+        "proposicao_microdados": f"/tmp/input/proposicoes-{ANOS_ATUAL}.csv",
+        "proposicao_autor": f"/tmp/input/proposicoesAutores-{ANOS_ATUAL}.csv",
+        "proposicao_tema": f"/tmp/input/proposicoesTemas-{ANOS_ATUAL}.csv",
+        "orgao": "/tmp/input/orgaos.csv",
+        "orgao_deputado": "/tmp/input/orgaosDeputados-57.csv",
+        "evento": f"/tmp/input/eventos-{ANOS_ATUAL}.csv",
+        "evento_orgao": f"/tmp/input/eventosOrgaos-{ANOS_ATUAL}.csv",
+        "evento_presenca_deputado": f"/tmp/input/eventosPresencaDeputados-{ANOS_ATUAL}.csv",
+        "evento_requerimento": f"/tmp/input/eventosRequerimentos-{ANOS_ATUAL}.csv",
+        "frente": "/tmp/input/frentes.csv",
+        "frente_deputado": "/tmp/input/frentesDeputados.csv",
+        "funcionario": "/tmp/input/funcionarios.csv",
+    }
+
+    TABLES_OUTPUT_PATH = {
+        "proposicao_microdados": f"/tmp/output/proposicao_microdados/proposicoes_{ANOS_ATUAL}.csv",
+        "proposicao_autor": f"/tmp/output/proposicao_autor/proposicoesAutores_{ANOS_ATUAL}.csv",
+        "proposicao_tema": f"/tmp/output/proposicao_tema/proposicoesTemas_{ANOS_ATUAL}.csv",
+        "orgao": "/tmp/output/orgao/orgaos.csv",
+        "orgao_deputado": "/tmp/output/orgao_deputado/orgaosDeputados-57.csv",
+        "evento": f"/tmp/output/evento/eventos_{ANOS_ATUAL}.csv",
+        "evento_orgao": f"/tmp/output/evento_orgao/eventosOrgaos_{ANOS_ATUAL}.csv",
+        "evento_presenca_deputado": f"/tmp/output/evento_presenca_deputado/eventosPresencaDeputados_{ANOS_ATUAL}.csv",
+        "evento_requerimento": f"/tmp/output/evento_requerimento/eventosRequerimentos_{ANOS_ATUAL}.csv",
+        "frente": "/tmp/output/frente/frentes.csv",
+        "frente_deputado": "/tmp/output/frente_deputado/frentesDeputados.csv",
+        "funcionario": "/tmp/output/funcionario/funcionarios.csv",
+    }
+
+    TABLES_URL = {
+        "proposicao_microdados": f"http://dadosabertos.camara.leg.br/arquivos/proposicoes/csv/proposicoes-{ANOS_ATUAL}.csv",
+        "proposicao_autor": f"http://dadosabertos.camara.leg.br/arquivos/proposicoesAutores/csv/proposicoesAutores-{ANOS_ATUAL}.csv",
+        "proposicao_tema": f"http://dadosabertos.camara.leg.br/arquivos/proposicoesTemas/csv/proposicoesTemas-{ANOS_ATUAL}.csv",
+        "orgao": "http://dadosabertos.camara.leg.br/arquivos/orgaos/csv/orgaos.csv",
+        "orgao_deputado": "https://dadosabertos.camara.leg.br/arquivos/orgaosDeputados/csv/orgaosDeputados-L57.csv",
+        "evento": f"http://dadosabertos.camara.leg.br/arquivos/eventos/csv/eventos-{ANOS_ATUAL}.csv",
+        "evento_orgao": f"http://dadosabertos.camara.leg.br/arquivos/eventosOrgaos/csv/eventosOrgaos-{ANOS_ATUAL}.csv",
+        "evento_presenca_deputado": f"http://dadosabertos.camara.leg.br/arquivos/eventosPresencaDeputados/csv/eventosPresencaDeputados-{ANOS_ATUAL}.csv",
+        "evento_requerimento": f"http://dadosabertos.camara.leg.br/arquivos/eventosRequerimentos/csv/eventosRequerimentos-{ANOS_ATUAL}.csv",
+        "frente": "http://dadosabertos.camara.leg.br/arquivos/frentes/csv/frentes.csv",
+        "frente_deputado": "http://dadosabertos.camara.leg.br/arquivos/frentesDeputados/csv/frentesDeputados.csv",
+        "funcionario": "http://dadosabertos.camara.leg.br/arquivos/funcionarios/csv/funcionarios.csv",
+    }
+
     RENAME_COLUMNS_FRENTE_DEPUTADO = {
         "deputado_.id": "id_deputado",
         "deputado_.nome": "nome_deputado",
@@ -108,18 +153,45 @@ class constants(Enum):
     }
 
     DATA_COLUMN_NAME = [
-        {"date": "data"},
-        {"date": "data"},
-        {"date": "data"},
-        {"date": "data_inicio"},
-        {"date": "data_inicio"},
+        {"date": "data"},  # proposicao_microdados
+        {"date": "data"},  # proposicao_autor
+        {"date": "data"},  # proposicao_tema
+        {"date": "data_inicio"},  # orgao
+        {"date": "data_inicio"},  # orgao_deputado
+        {"date": "data_inicio"},  # evento
+        {"date": "data"},  # evento_orgao
+        {"date": "data"},  # evento_presenca_deputado
+        {"date": "data"},  # evento_requerimento
+        {"date": "data_criacao"},  # frente
+        {"date": "data"},  # frente_deputado
+        {"date": "data_inicio_historico"},  # funcionario
     ]
     COVERAGE_TYPE = [
-        "part_bdpro",
-        "all_free",
-        "all_free",
-        "part_bdpro",
-        "part_bdpro",
+        "part_bdpro",  # proposicao_microdados
+        "all_free",  # proposicao_autor
+        "all_free",  # proposicao_tema
+        "part_bdpro",  # orgao
+        "part_bdpro",  # orgao_deputado
+        "part_bdpro",  # evento
+        "all_free",  # evento_orgao
+        "all_free",  # evento_presenca_deputado
+        "all_free",  # evento_requerimento
+        "part_bdpro",  # frente
+        "all_free",  # frente_deputado
+        "part_bdpro",  # funcionario
     ]
 
-    HISTORICAL_DATABASE = [True, False, False, True, True]
+    HISTORICAL_DATABASE = [
+        True,  # proposicao_microdados
+        False,  # proposicao_autor
+        False,  # proposicao_tema
+        True,  # orgao
+        True,  # orgao_deputado
+        True,  # evento
+        False,  # evento_orgao
+        False,  # evento_presenca_deputado
+        False,  # evento_requerimento
+        True,  # frente
+        False,  # frente_deputado
+        True,  # funcionario
+    ]

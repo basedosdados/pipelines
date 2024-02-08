@@ -99,57 +99,40 @@ def save_data(table_id: str):
     if not os.path.exists(f"{constants_camara.OUTPUT_PATH.value}{table_id}"):
         os.makedirs(f"{constants_camara.OUTPUT_PATH.value}{table_id}")
 
-    original_table_name = constants_camara.TABLE_LIST_CAMARA.value[table_id]
+    constants_camara.TABLE_LIST_CAMARA.value[table_id]
 
     df = download_and_read_data(table_id)
+    input_path = constants_camara.TABLES_INPUT_PATH.value[table_id]
+    output_path = constants_camara.TABLES_OUTPUT_PATH.value[table_id]
 
     if table_id == "proposicao_microdados":
-        output_path = f"{constants_camara.OUTPUT_PATH.value}{table_id}/{original_table_name}_{constants_camara.ANOS_ATUAL.value}.csv"
+        output_path = constants_camara.TABLES_OUTPUT_PATH.value[table_id]
         df["ultimoStatus_despacho"] = df["ultimoStatus_despacho"].apply(
-            lambda x: str(x).replace(";", ",").replace("\n", "").replace("\r", "")
+            lambda x: str(x).replace(";", ",").replace("\n", " ").replace("\r", " ")
         )
         df["ementa"] = df["ementa"].apply(
-            lambda x: str(x).replace(";", ",").replace("\n", "").replace("\r", "")
+            lambda x: str(x).replace(";", ",").replace("\n", " ").replace("\r", " ")
         )
         df["ano"] = df.apply(
             lambda x: x["dataApresentacao"][0:4] if x["ano"] == 0 else x["ano"],
             axis=1,
         )
-        log(f"Saving {table_id} to {output_path}")
 
     if table_id == "frente_deputado":
-        output_path = (
-            f"{constants_camara.OUTPUT_PATH.value}{table_id}/{original_table_name}.csv"
-        )
+        output_path = constants_camara.TABLES_OUTPUT_PATH.value[table_id]
         df = df.rename(columns=constants_camara.RENAME_COLUMNS_FRENTE_DEPUTADO.value)
-        log(f"Saving {table_id} to {output_path}")
 
     if table_id == "evento":
-        output_path = (
-            f"{constants_camara.OUTPUT_PATH.value}{table_id}/{original_table_name}.csv"
-        )
+        output_path = constants_camara.TABLES_OUTPUT_PATH.value[table_id]
         df = df.rename(columns=constants_camara.RENAME_COLUMNS_EVENTO.value)
         df["descricao"] = df["descricao"].apply(
-            lambda x: str(x).replace("\n", "").replace("\r", "")
+            lambda x: str(x).replace("\n", " ").replace("\r", " ")
         )
-        log(f"Saving {table_id} to {output_path}")
 
-    if table_id == "orgao_deputado":
-        output_path = f"{constants_camara.OUTPUT_PATH.value}{table_id}/{original_table_name}-L57.csv"
-        log(f"Saving {table_id} to {output_path}")
-
-    if table_id in constants_camara.TABLES_SPLIT_BY_YEAR.value:
-        output_path = f"{constants_camara.OUTPUT_PATH.value}{table_id}/{original_table_name}_{constants_camara.ANOS_ATUAL.value}.csv"
-        log(f"Saving {table_id} to {output_path}")
-
-    if table_id in ["orgao", "frente", "funcionario"]:
-        output_path = (
-            f"{constants_camara.OUTPUT_PATH.value}{table_id}/{original_table_name}.csv"
-        )
-        log(f"Saving {table_id} to {output_path}")
-
-    if os.path.exists(output_path):
+    if os.path.exists(input_path):
         df.to_csv(output_path, sep=",", index=False, encoding="utf-8")
+
+        return output_path
 
 
 @task
@@ -168,6 +151,13 @@ def dict_list_parameters(dataset_id, materialization_mode, dbt_alias):
         "proposicao_tema",
         "orgao",
         "orgao_deputado",
+        "evento",
+        "evento_orgao",
+        "evento_presenca_deputado",
+        "evento_requerimento",
+        "frente",
+        "frente_deputado",
+        "funcionario",
     ]
 
     parameters = [
@@ -202,6 +192,62 @@ def dict_list_parameters(dataset_id, materialization_mode, dbt_alias):
         dict(
             dataset_id=dataset_id,
             table_id=table_id[4],
+            mode=materialization_mode,
+            dbt_alias=dbt_alias,
+            dbt_command="run",
+        ),
+        dict(
+            dataset_id=dataset_id,
+            table_id=table_id[5],
+            mode=materialization_mode,
+            dbt_alias=dbt_alias,
+            dbt_command="run",
+        ),
+        dict(
+            dataset_id=dataset_id,
+            table_id=table_id[6],
+            mode=materialization_mode,
+            dbt_alias=dbt_alias,
+            dbt_command="run",
+        ),
+        dict(
+            dataset_id=dataset_id,
+            table_id=table_id[7],
+            mode=materialization_mode,
+            dbt_alias=dbt_alias,
+            dbt_command="run",
+        ),
+        dict(
+            dataset_id=dataset_id,
+            table_id=table_id[8],
+            mode=materialization_mode,
+            dbt_alias=dbt_alias,
+            dbt_command="run",
+        ),
+        dict(
+            dataset_id=dataset_id,
+            table_id=table_id[9],
+            mode=materialization_mode,
+            dbt_alias=dbt_alias,
+            dbt_command="run",
+        ),
+        dict(
+            dataset_id=dataset_id,
+            table_id=table_id[10],
+            mode=materialization_mode,
+            dbt_alias=dbt_alias,
+            dbt_command="run",
+        ),
+        dict(
+            dataset_id=dataset_id,
+            table_id=table_id[11],
+            mode=materialization_mode,
+            dbt_alias=dbt_alias,
+            dbt_command="run",
+        ),
+        dict(
+            dataset_id=dataset_id,
+            table_id=table_id[12],
             mode=materialization_mode,
             dbt_alias=dbt_alias,
             dbt_command="run",
