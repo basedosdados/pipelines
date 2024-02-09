@@ -180,19 +180,32 @@ def download_csv_camara(table_id: str) -> None:
         os.makedirs(constants.INPUT_PATH.value)
 
     url = constants.TABLES_URL.value[table_id]
+    url_last_year = constants.TABLES_URL_LAST_BY_YEAR.value[table_id]
     input_path = constants.TABLES_INPUT_PATH.value[table_id]
-
+    input_path_last_year = constants.TABLES_INPUT_PATH_LAST_YEAR.value[table_id]
     response = requests.get(url)
-    log(url)
     if response.status_code == 200:
+        log(f"URL 2024 - {url}")
         with open(input_path, "wb") as f:
             f.write(response.content)
+
+    else:
+        response = requests.get(url_last_year)
+        log(f"URL 2024 - {url_last_year}")
+        if response.status_code == 200:
+            with open(input_path_last_year, "wb") as f:
+                f.write(response.content)
 
 
 def download_and_read_data(table_id: str) -> pd.DataFrame:
     download_csv_camara(table_id)
 
     input_path = constants.TABLES_INPUT_PATH.value[table_id]
+    input_path_last_year = constants.TABLES_INPUT_PATH_LAST_YEAR.value[table_id]
     if os.path.exists(input_path):
         df = pd.read_csv(input_path, sep=";")
-        return df
+
+    else:
+        df = pd.read_csv(input_path_last_year, sep=";")
+
+    return df

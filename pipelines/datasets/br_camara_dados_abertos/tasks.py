@@ -104,6 +104,9 @@ def save_data(table_id: str):
     df = download_and_read_data(table_id)
     input_path = constants_camara.TABLES_INPUT_PATH.value[table_id]
     output_path = constants_camara.TABLES_OUTPUT_PATH.value[table_id]
+    output_path_last_year = constants_camara.TABLES_OUTPUT_PATH_LAST_YEAR.value[
+        table_id
+    ]
 
     if table_id == "proposicao_microdados":
         output_path = constants_camara.TABLES_OUTPUT_PATH.value[table_id]
@@ -132,7 +135,8 @@ def save_data(table_id: str):
     if os.path.exists(input_path):
         df.to_csv(output_path, sep=",", index=False, encoding="utf-8")
 
-        return output_path
+    else:
+        df.to_csv(output_path_last_year, sep=",", index=False, encoding="utf-8")
 
 
 @task
@@ -241,13 +245,6 @@ def dict_list_parameters(dataset_id, materialization_mode, dbt_alias):
         dict(
             dataset_id=dataset_id,
             table_id=table_id[11],
-            mode=materialization_mode,
-            dbt_alias=dbt_alias,
-            dbt_command="run",
-        ),
-        dict(
-            dataset_id=dataset_id,
-            table_id=table_id[12],
             mode=materialization_mode,
             dbt_alias=dbt_alias,
             dbt_command="run",
