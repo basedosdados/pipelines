@@ -24,7 +24,7 @@ from prefect.storage import Local
 from prefect.utilities.graphql import EnumValue, compress, with_args
 from typer import Typer
 
-import pipelines  # DO NOT REMOVE THIS LINE
+import pipelines  # noqa: F401
 
 app = Typer()
 FlowLike = Union[box.Box, "prefect.Flow"]
@@ -167,9 +167,7 @@ def expand_paths(paths: List[str]) -> List[str]:
     for path in globbed_paths:
         if os.path.isdir(path):
             with os.scandir(path) as directory:
-                out.extend(
-                    e.path for e in directory if e.is_file() and e.path.endswith(".py")
-                )
+                out.extend(e.path for e in directory if e.is_file() and e.path.endswith(".py"))
         else:
             out.append(path)
     return out
@@ -538,8 +536,7 @@ def main(
     skipped = stats["skipped"]
     errored = stats["errored"]
     logger.info(
-        f"Registered {registered} flows, skipped {skipped} flows, "
-        f"and errored {errored} flows."
+        f"Registered {registered} flows, skipped {skipped} flows, " f"and errored {errored} flows."
     )
 
     # If not in a watch call, exit with appropriate exit code

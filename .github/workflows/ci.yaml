@@ -1,12 +1,8 @@
+---
 name: CI
-
 on:
   pull_request:
-    types:
-      - opened
-      - synchronize
-      - reopened
-
+    types: [opened, synchronize, reopened]
 jobs:
   test:
     name: Test
@@ -15,7 +11,7 @@ jobs:
       matrix:
         arch: [x64]
         os: [ubuntu-latest]
-        python-version: ["3.10.x"]
+        python-version: [3.10.x]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -47,5 +43,5 @@ jobs:
       - name: Comment PR
         uses: thollander/actions-comment-pull-request@v1
         with:
-          message: "${{ steps.code-tree-analysis.outputs.pr-message }}"
+          message: ${{ steps.code-tree-analysis.outputs.pr-message }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
