@@ -13,9 +13,7 @@ from string_utils import is_snake_case
 CONSTANTS_FILE_PATH = Path(__file__).parent / "pipelines" / "constants.py"
 CONSTANTS_FIND_AGENTS_TEXT = "M9w=k-b_\n"
 COOKIECUTTER_PATH_AGENCY = Path(__file__).parent / "pipelines"
-COOKIECUTTER_PATH_PROJECT = (
-    Path(__file__).parent / "pipelines" / "{{cookiecutter.project_name}}"
-)
+COOKIECUTTER_PATH_PROJECT = Path(__file__).parent / "pipelines" / "{{cookiecutter.project_name}}"
 FLOWS_FILE_PATH = Path(__file__).parent / "pipelines" / "flows.py"
 PIPELINES_PATH = Path(__file__).parent / "pipelines"
 
@@ -49,9 +47,7 @@ def add_import(project_name: str):
     with open(FLOWS_FILE_PATH, "r") as flows_file:
         flows_text = flows_file.read()
 
-    flows_text = append_text(
-        flows_text, f"from pipelines.{project_name}.flows import *\n"
-    )
+    flows_text = append_text(flows_text, f"from pipelines.{project_name}.flows import *\n")
 
     with open(FLOWS_FILE_PATH, "w") as flows_file:
         flows_file.write(flows_text)
@@ -189,9 +185,7 @@ def check_name(input: str) -> str:
     if valid:
         return input
     else:
-        logger.error(
-            f"O nome {input} é inválido. Ele deve estar em snake_case e ser único"
-        )
+        logger.error(f"O nome {input} é inválido. Ele deve estar em snake_case e ser único")
         exit(1)
 
 
@@ -234,9 +228,7 @@ def project_must_not_exist_in_agency(input: str, agency: str) -> str:
     pkgpath = path.dirname(pipelines.__file__)
     agencies = [name for _, name, _ in pkgutil.iter_modules([pkgpath])]
     if agency in agencies:
-        projects = [
-            name for _, name, _ in pkgutil.iter_modules([str(Path(pkgpath) / agency)])
-        ]
+        projects = [name for _, name, _ in pkgutil.iter_modules([str(Path(pkgpath) / agency)])]
         if input in projects:
             logger.error(f"O projeto {input} já existe na agência {agency}.")
             exit(1)

@@ -11,8 +11,6 @@ def main():
     """Lint all python files in the project"""
     code = 0
     code |= run(["poetry", "check"])
-    code |= run(["black", "--check", "."])
-    code |= run(["isort", "--check-only", "."])
-    code |= run(["autoflake", "--check", "--recursive", "--quiet", "."])
-    code |= run(["flake8", "--exclude", "pipelines/{{cookiecutter.project_name}}", "."])
+    code |= run(["ruff", "check", "."])
+    code |= run(["ruff", "format", "."])
     exit(code)

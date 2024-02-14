@@ -267,9 +267,7 @@ def assert_all_imports_are_declared(root_directory: str) -> None:
     """
     # Get all Python files.
     files = [
-        file_
-        for file_ in list_all_python_files(root_directory)
-        if "cookiecutter" not in file_
+        file_ for file_ in list_all_python_files(root_directory) if "cookiecutter" not in file_
     ]
 
     # Get all declared stuff.
@@ -309,9 +307,7 @@ def build_dependency_graph(root_directory: str) -> nx.DiGraph:
     """
     # Get all Python files.
     files = [
-        file_
-        for file_ in list_all_python_files(root_directory)
-        if "cookiecutter" not in file_
+        file_ for file_ in list_all_python_files(root_directory) if "cookiecutter" not in file_
     ]
 
     # Get dependencies by file.
@@ -374,9 +370,7 @@ def check_for_variable_name_conflicts(
     """
     # Get all Python files.
     files = [
-        file_
-        for file_ in list_all_python_files(root_directory)
-        if "cookiecutter" not in file_
+        file_ for file_ in list_all_python_files(root_directory) if "cookiecutter" not in file_
     ]
 
     # Remove all changed files from the list of files.
@@ -396,12 +390,8 @@ def check_for_variable_name_conflicts(
         declared_remaning.update(file_declared)
 
     # Filter out what is not a Flow.
-    declared_changed = [
-        obj for obj in declared_changed if object_is_instance(obj, Flow)
-    ]
-    declared_remaning = [
-        obj for obj in declared_remaning if object_is_instance(obj, Flow)
-    ]
+    declared_changed = [obj for obj in declared_changed if object_is_instance(obj, Flow)]
+    declared_remaning = [obj for obj in declared_remaning if object_is_instance(obj, Flow)]
 
     # Check for conflicts.
     conflicts = []
@@ -466,9 +456,7 @@ if __name__ == "__main__":
     changed_files = [
         file_
         for file_ in changed_files
-        if file_.endswith(".py")
-        and file_.startswith("pipelines")
-        and "cookiecutter" not in file_
+        if file_.endswith(".py") and file_.startswith("pipelines") and "cookiecutter" not in file_
     ]
     print("We're interested in these files:")
     for file_ in changed_files:
@@ -526,9 +514,7 @@ if __name__ == "__main__":
     # Check for variable name conflicts.
     conflicts = check_for_variable_name_conflicts(changed_files, "pipelines/")
     if len(conflicts) > 0:
-        message += (
-            "**Existem conflitos entre nomes de variáveis nos seguintes objetos:**"
-        )
+        message += "**Existem conflitos entre nomes de variáveis nos seguintes objetos:**"
         for conflict in conflicts:
             message += "\n\t- {conflict[0]} e {conflict[1]}"
         message += "\n\n"
