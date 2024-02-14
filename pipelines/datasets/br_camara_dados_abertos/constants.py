@@ -205,7 +205,7 @@ class constants(Enum):
         {"date": "data_inicio"},  # orgao_deputado
         {"date": "data_inicio"},  # evento
         {"date": "data"},  # evento_orgao
-        {"date": "data"},  # evento_presenca_deputado
+        {"date": "data_inicio"},  # evento_presenca_deputado
         {"date": "data"},  # evento_requerimento
         {"date": "data_criacao"},  # frente
         {"date": "data"},  # frente_deputado
@@ -219,7 +219,7 @@ class constants(Enum):
         "part_bdpro",  # orgao_deputado
         "part_bdpro",  # evento
         "all_free",  # evento_orgao
-        "all_free",  # evento_presenca_deputado
+        "part_bdpro",  # evento_presenca_deputado
         "all_free",  # evento_requerimento
         "part_bdpro",  # frente
         "all_free",  # frente_deputado
@@ -234,7 +234,7 @@ class constants(Enum):
         True,  # orgao_deputado
         True,  # evento
         False,  # evento_orgao
-        False,  # evento_presenca_deputado
+        True,  # evento_presenca_deputado
         False,  # evento_requerimento
         True,  # frente
         False,  # frente_deputado
