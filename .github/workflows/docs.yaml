@@ -1,10 +1,8 @@
+---
 name: Deploy docs
-
 on:
   push:
-    branches:
-      - main
-
+    branches: [main]
 jobs:
   docs:
     name: Deploy docs
@@ -12,24 +10,19 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
-          python-version: "3.10.x"
-
+          python-version: 3.10.x
       - name: Upgrade pip
         run: |
           pip install -U pip poetry pdoc3
-
       - name: Install package and doc dependencies
         run: |
           python -m pip install .
-
       - name: Generate docs
         run: |
           pdoc3 --html --html-dir docs pipelines
-
       - name: Deploy docs
         uses: JamesIves/github-pages-deploy-action@v4.2.3
         with:
