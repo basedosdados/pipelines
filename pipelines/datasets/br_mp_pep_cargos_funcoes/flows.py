@@ -50,6 +50,7 @@ with Flow(
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
+    log_task("Here")
 
     setup = setup_web_driver()
 
