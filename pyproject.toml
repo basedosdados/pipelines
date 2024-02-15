@@ -114,6 +114,7 @@ httpx = "^0.26.0"
 cffi = "^1.16.0"
 pendulum = "^3.0.0"
 simpledbf = "^0.2.6"
+aioftp = "^0.22.3"
 
 
 [tool.poetry.dev-dependencies]
