@@ -15,23 +15,20 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Set up Python
+      - name: Set up poetry
+        run: pipx install poetry
+      - name: Set up python
         uses: actions/setup-python@v4
         with:
+          cache: poetry
           architecture: ${{ matrix.arch }}
           python-version: ${{ matrix.python-version }}
-      - name: Set up Poetry and upgrade pip
+      - name: Install dependencies
         run: |
-          pip install -U pip poetry
-      - name: Install test dependencies
-        run: |
-          pip install --prefer-binary -r requirements-test.txt
-      - name: Install flows
-        run: |
-          pip install --prefer-binary .
+          poetry install --with=test
       - name: Check if `prefect build` works
         run: |
-          prefect build
+          poetry run prefect build
       - name: Get changed files for code tree analysis
         id: files
         uses: Ana06/get-changed-files@v2.1.0
@@ -39,7 +36,7 @@ jobs:
         id: code-tree-analysis
         continue-on-error: true
         run: |
-          python .github/workflows/scripts/code_tree_analysis.py "${{ steps.files.outputs.all }}"
+          poetry run python .github/workflows/scripts/code_tree_analysis.py "${{ steps.files.outputs.all }}"
       - name: Comment PR
         uses: thollander/actions-comment-pull-request@v1
         with:

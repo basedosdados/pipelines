@@ -113,17 +113,28 @@ webdriver-manager = "^4.0.1"
 xlrd = ">=2.0.1"
 httpx = "^0.26.0"
 
-[tool.poetry.scripts]
-lint = "scripts.lint:main"
+[tool.poetry.group.dev]
+optional = true
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.6.0"
 ruff = "^0.2.0"
 yamlfix = "^1.16.0"
 shandy-sqlfmt = "^0.20.0"
+typer = "^0.4.0"
+cookiecutter = "^1.7.3"
+
+[tool.poetry.group.test]
+optional = true
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.2.1"
+pytest-cov = "^4.1.0"
+networkx = "^2.6.3"
+parameterized = "^0.9.0"
+
+[tool.poetry.scripts]
+lint = "scripts.lint:main"
 
 [tool.ruff]
 line-length = 100
