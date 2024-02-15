@@ -85,10 +85,10 @@ constants.py                 # valores constantes para todos os órgãos
 
 ### Adicionando órgãos e projetos
 
-O script `manage.py` é responsável por criar e listar projetos desse repositório. Para usá-lo, no entanto, você deve instalar as dependências em `requirements-cli.txt`:
+O script `manage.py` é responsável por criar e listar projetos desse repositório. Para usá-lo, no entanto, você deve instalar as dependências:
 
 ```
-pip3 install -r requirements-cli.txt
+poetry install --with=dev
 ```
 
 Você pode obter mais informações sobre os comandos com
@@ -129,12 +129,6 @@ Onde `nome-projeto`
 ```
 poetry add <package>
 ```
-
--   Requisitos do `manage.py` estão em `requirements-cli.txt`
-
--   Requisitos para a Action de deployment estão em `requirements-deploy.txt`
-
--   Requisitos para testes estão em `requirements-tests.txt`
 
 ### Como testar uma pipeline localmente
 
