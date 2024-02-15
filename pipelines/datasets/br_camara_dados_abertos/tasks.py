@@ -3,7 +3,6 @@ import os
 from datetime import timedelta
 
 import pandas as pd
-import requests
 from prefect import task
 
 from pipelines.constants import constants
