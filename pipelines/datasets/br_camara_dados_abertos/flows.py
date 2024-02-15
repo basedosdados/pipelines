@@ -685,7 +685,7 @@ with Flow(
             coverage_type=constants_camara.COVERAGE_TYPE.value,
             prefect_mode=unmapped(materialization_mode),
             time_delta=unmapped({"months": 6}),
-            bq_project=unmapped("basedosdados"),
+            bq_project=unmapped("basedosdados-dev"),
             historical_database=constants_camara.HISTORICAL_DATABASE.value,
             upstream_tasks=[unmapped(wait_for_materialization)],
         )
