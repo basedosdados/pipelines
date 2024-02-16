@@ -6,19 +6,20 @@ import os
 from datetime import timedelta
 
 import pandas as pd
+from pipelines.datasets.br_bd_metadados.utils import extract_and_process_schedule_data, get_skipped_upload_to_gcs_column, parse_schedule_information, save_files_per_week
 from prefect import Client, task
 
 from pipelines.constants import constants
-
+from pipelines.utils.utils import log
 
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def crawler_flow_runs():
-    client = Client()
+def crawler_flow_runs(table_id: str = "prefect_flow_runs"):
+    graphql_client = Client()
 
-    body = """{flow_run(where: {_and: [{state: {_nin: ["Scheduled", "Cancelled"]}}]}) {
+    graphql_query = """{flow_run(where: {_and: [{state: {_nin: ["Scheduled", "Cancelled"]}}]}) {
                 id
                 name
                 start_time
@@ -47,48 +48,29 @@ def crawler_flow_runs():
             }
             }"""
 
-    r = client.graphql(query=body)
+    graphql_response = graphql_client.graphql(query=graphql_query)
 
-    df = pd.json_normalize(r["data"]["flow_run"], sep="_")
+    flow_runs_df = pd.json_normalize(graphql_response["data"]["flow_run"], sep="_")
 
-    create_table_and_upload_to_gcs_skipped = {
-        "state": "Skipped",
-        "task": {"name": "create_table_and_upload_to_gcs"},
-    }
+    flow_runs_df["skipped_upload_to_gcs"] = get_skipped_upload_to_gcs_column(flow_runs_df)
+    flow_runs_df["dataset_id"] = flow_runs_df["parameters_dataset_id"]
+    flow_runs_df["table_id"] = flow_runs_df["parameters_table_id"]
+    flow_runs_df['labels'] = flow_runs_df['labels'].str[0]
 
-    df["skipped_upload_to_gcs"] = df["task_runs"].apply(
-        lambda tasks: create_table_and_upload_to_gcs_skipped in tasks
-    )
+    relevant_columns = [col for col in flow_runs_df.columns if not col.startswith("parameters")]
 
-    df["dataset_id"] = df["parameters_dataset_id"]
-    df["table_id"] = df["parameters_table_id"]
+    folder_path = f"tmp/{table_id}"
+    os.system(f"mkdir -p {folder_path}")
 
-    filtered_columns = [col for col in df.columns if not col.startswith("parameters")]
+    save_files_per_week(flow_runs_df, relevant_columns,folder_path)
 
-    df["labels"] = df["labels"].str[0]
-
-    selected_df = df[filtered_columns]
-
-    table_id = "prefect_flow_runs"
-
-    # Define the folder path for storing the file
-    folder = f"tmp/{table_id}/"
-    # Create the folder if it doesn't exist
-    os.system(f"mkdir -p {folder}")
-    # Define the full file path for the CSV file
-    full_filepath = f"{folder}/{table_id}.csv"
-    # Save the DataFrame as a CSV file
-    selected_df.to_csv(full_filepath, index=False)
-
-    return full_filepath
-
+    return folder_path
 
 @task
-def crawler_flows():
-    client = Client()
+def crawler_flows(table_id: str = "prefect_flows"):
+    graphql_client = Client()
 
-    body = """{
-    flow(where: {archived: {_eq: false}}) {
+    graphql_query = """{flow(where: {archived: {_eq: false}}) {
         name
         version
         created
@@ -106,50 +88,22 @@ def crawler_flows():
             }
         }
         }
-    }
-    }
+    }}
     """
 
-    r = client.graphql(query=body)
+    graphql_response = graphql_client.graphql(query=graphql_query)
 
-    df = pd.json_normalize(r, record_path=["data", "flow"], sep="_")
+    flow_df = pd.json_normalize(graphql_response, record_path=["data", "flow"], sep="_")
 
-    df_schedule_clocks = pd.json_normalize(
-        df["schedule_clocks"].str[0], max_level=0, sep="_"
-    ).add_prefix("schedule_")
-    df.drop(
-        columns=[
-            "schedule_clocks",
-        ],
-        inplace=True,
-    )
-    df_schedule_clocks.drop(columns=["schedule___version__"], inplace=True)
-
-    df_parameters = pd.json_normalize(
-        df_schedule_clocks["schedule_parameter_defaults"]
-    ).add_prefix("schedule_parameters_")
-    standard_params = [
-        "schedule_parameters_table_id",
-        "schedule_parameters_dbt_alias",
-        "schedule_parameters_dataset_id",
-        "schedule_parameters_update_metadata",
-        "schedule_parameters_materialization_mode",
-        "schedule_parameters_materialize_after_dump",
-    ]
-
-    df_final = pd.concat(
-        [df, df_schedule_clocks, df_parameters[standard_params]], axis=1
-    )
-
-    table_id = "prefect_flows"
+    flow_df = extract_and_process_schedule_data(flow_df)
 
     # Define the folder path for storing the file
-    folder = f"tmp/{table_id}/"
+    output_folder = f"tmp/{table_id}/"
     # Create the folder if it doesn't exist
-    os.system(f"mkdir -p {folder}")
+    os.system(f"mkdir -p {output_folder}")
     # Define the full file path for the CSV file
-    full_filepath = f"{folder}/{table_id}.csv"
+    csv_file_path = f"{output_folder}/{table_id}.csv"
     # Save the DataFrame as a CSV file
-    df_final.to_csv(full_filepath, index=False)
+    flow_df.to_csv(csv_file_path, index=False)
 
-    return full_filepath
+    return csv_file_path
