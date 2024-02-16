@@ -123,7 +123,7 @@ with Flow(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        dump_mode="append",
+        dump_mode="replace",
         wait=filepath,
     )
 
@@ -158,4 +158,4 @@ with Flow(
 
 bd_prefect_flows.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 bd_prefect_flows.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-bd_prefect_flows.schedule = every_day_prefect_flows
+# bd_prefect_flows.schedule = every_day_prefect_flows
