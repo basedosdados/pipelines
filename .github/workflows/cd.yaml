@@ -1,15 +1,13 @@
+---
 name: Register flows (production)
-
 on:
   push:
-    branches:
-      - main
+    branches: [main]
     paths:
-      - ".github/workflows/cd.yaml"
-      - "pipelines/**/*"
-      - "pyproject.toml"
-      - "Dockerfile"
-
+      - .github/workflows/cd.yaml
+      - pipelines/**/*
+      - pyproject.toml
+      - Dockerfile
 env:
   GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
@@ -22,61 +20,51 @@ env:
   PREFECT__CLOUD__PORT: 443
   PREFECT__SERVER__PROJECT: ${{ secrets.PREFECT__SERVER__PROJECT }}
   PREFECT_AUTH_TOML: ${{ secrets.PREFECT_AUTH_TOML }}
-
 jobs:
   build-container:
     name: Register flows (production)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Setup Python version
-        uses: actions/setup-python@v2
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up poetry
+        run: pipx install poetry
+      - name: Set up python
+        uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
-
+          cache: poetry
+          python-version: '3.10'
       - name: Setup Google Cloud CLI
         uses: google-github-actions/setup-gcloud@v0.2.1
         with:
           service_account_key: ${{ secrets.GCP_SA_KEY }}
           project_id: ${{ secrets.GCP_PROJECT_ID }}
           export_default_credentials: true
-
       - name: Install Python dependencies for deploying
         run: |-
-          pip install -r requirements-deploy.txt
-
+          poetry install --with=dev
       - name: Update image tag in constants
         run: |-
-          python .github/workflows/scripts/replace_docker_tag.py $IMAGE_NAME $GITHUB_SHA
-
-      - name: Install package locally
-        run: |-
-          pip install .
-
+          poetry run python .github/workflows/scripts/replace_docker_tag.py $IMAGE_NAME $GITHUB_SHA
       - name: Get changed files for code tree analysis
         id: files
         uses: Ana06/get-changed-files@v2.1.0
-
       - name: Perform code tree analysis
         id: code-tree-analysis
         continue-on-error: true
         run: |
-          python .github/workflows/scripts/code_tree_analysis.py "${{ steps.files.outputs.all }}" --write-to-file
-
+          poetry run python .github/workflows/scripts/code_tree_analysis.py "${{ steps.files.outputs.all }}" --write-to-file
       - name: Write auth.toml
         run: |-
           mkdir -p $HOME/.prefect
           echo $PREFECT_AUTH_TOML | base64 --decode > $HOME/.prefect/auth.toml
-
       - name: Wait for Docker image to be available
         uses: lewagon/wait-on-check-action@v1.3.1
         with:
           ref: ${{ github.ref }}
-          check-name: 'Build Docker image'
+          check-name: Build Docker image
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           verbose: true
-
       - name: Register Prefect flows
         run: |-
-          python .github/workflows/scripts/register_flows.py --project $PREFECT__SERVER__PROJECT --path pipelines/ --schedule
+          poetry run python .github/workflows/scripts/register_flows.py --project $PREFECT__SERVER__PROJECT --path pipelines/ --schedule
