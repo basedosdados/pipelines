@@ -91,13 +91,15 @@ def get_directory_column_id(
     for index, coluna in df[colunas_de_diretorio].iterrows():
         if coluna["table.slug"] == directory_table_name:
             print(
-                f"\nConnecting to the directory column: \n\t{coluna['table.dataset.fullSlug']}.{coluna['table.slug']}:{coluna['name']} "
+                f"\nConnecting to the directory column: \n\t"
+                f"{coluna['table.dataset.fullSlug']}.{coluna['table.slug']}:{coluna['name']} "
             )
             return coluna["_id"]
 
     raise (
         ValueError(
-            f"\nWARNING - Unable to find the directory column with the following information: \n\tcolumn_name: {directory_column_name}  \n\ttable: {directory_table_name}"
+            "\nWARNING - Unable to find the directory column with the following information: "
+            "\n\tcolumn_name: {directory_column_name}  \n\ttable: {directory_table_name}"
         )
     )
 
@@ -124,9 +126,7 @@ def modify_directory_metadata(column_id: str, directory_id: str, backend) -> Non
 
     headers = get_headers(backend)
 
-    backend._execute_query(
-        query=mutation, variables={"input": variables}, headers=headers
-    )
+    backend._execute_query(query=mutation, variables={"input": variables}, headers=headers)
 
     return None
 
@@ -144,16 +144,12 @@ def select_columns(
 
     for wrong_column_name in not_column_name:
         contains_wrong_column_name = df["name"].str.contains(wrong_column_name)
-        print(
-            f" Removed {contains_wrong_column_name.sum()} columns with {wrong_column_name}"
-        )
+        print(f" Removed {contains_wrong_column_name.sum()} columns with {wrong_column_name}")
         df = df[~contains_wrong_column_name]
 
     if remove_already_done and ("directoryPrimaryKey.name" in df.columns):
         conected = df["directoryPrimaryKey.name"] is not None
-        print(
-            f" Removed {conected.sum()} columns that are already conected to a directory"
-        )
+        print(f" Removed {conected.sum()} columns that are already conected to a directory")
         df = df[~conected]
 
     print("-------------------")
@@ -184,9 +180,10 @@ def link_directory_metadata(
     ready_to_change_metadata: bool,
 ) -> None:
     """
-    This function searches for columns within the metadata that match the specified `matching_column_pattern`.
-    It performs filtering based on defined criteria and presents a list of selected columns.
-    If `ready_to_change_metadata` is True, modifies the metadata
+    This function searches for columns within the metadata that match the specified
+    `matching_column_pattern`. It performs filtering based on defined criteria and
+    presents a list of selected columns. If `ready_to_change_metadata` is True,
+    modifies the metadata
 
     Filters out columns based on the following criteria:
         - Represents directories
@@ -199,7 +196,8 @@ def link_directory_metadata(
         - Validate the correctness of the directory column.
 
     Note:
-    - The `directory_column_name` and `directory_table_name` default to `matching_column_pattern` if not provided.
+    - The `directory_column_name` and `directory_table_name`
+    default to `matching_column_pattern` if not provided.
 
     """
     backend = bd.Backend(graphql_url="https://api.basedosdados.org/api/v1/graphql")
@@ -218,9 +216,7 @@ def link_directory_metadata(
 
     print(f"\nFound {len(df)} columns that include '{matching_column_pattern}'")
 
-    columns_list = select_columns(
-        df, not_matching_pattern, ignore_previously_linked_columns
-    )
+    columns_list = select_columns(df, not_matching_pattern, ignore_previously_linked_columns)
 
     if ready_to_change_metadata:
         for column in columns_list:

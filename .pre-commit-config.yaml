@@ -12,23 +12,9 @@ repos:
     rev: 1.7.0
     hooks:
       - id: poetry-check
-  - repo: https://github.com/psf/black
-    rev: 24.1.1
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.2.0
     hooks:
-      - id: black
-        exclude: 'pipelines\/\{\{cookiecutter\.project_name\}\}.*'
-  - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
-    hooks:
-      - id: isort
-        args: [--profile, black, --skip, "pipelines/{{cookiecutter.project_name}}"]
-  - repo: https://github.com/PyCQA/autoflake
-    rev: v2.2.1
-    hooks:
-      - id: autoflake
-        exclude: 'pipelines\/\{\{cookiecutter\.project_name\}\}.*'
-  - repo: https://github.com/PyCQA/flake8
-    rev: 7.0.0
-    hooks:
-      - id: flake8
-        exclude: 'pipelines\/\{\{cookiecutter\.project_name\}\}.*'
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
