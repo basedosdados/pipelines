@@ -185,16 +185,18 @@ def download_csv_camara(table_id: str) -> None:
     input_path_last_year = constants.TABLES_INPUT_PATH_LAST_YEAR.value[table_id]
     response = requests.get(url)
     if response.status_code == 200:
-        log(f"URL 2024 - {url}")
+        log(f"{table_id} - {url}")
         with open(input_path, "wb") as f:
             f.write(response.content)
 
     else:
         response = requests.get(url_last_year)
-        log(f"URL 2024 - {url_last_year}")
+        log(f"{table_id} - {url_last_year}")
         if response.status_code == 200:
             with open(input_path_last_year, "wb") as f:
                 f.write(response.content)
+
+    log(os.listdir(constants.INPUT_PATH.value))
 
 
 def download_and_read_data(table_id: str) -> pd.DataFrame:
