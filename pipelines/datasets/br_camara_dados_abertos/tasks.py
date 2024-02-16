@@ -101,7 +101,6 @@ def save_data(table_id: str):
     constants_camara.TABLE_LIST_CAMARA.value[table_id]
 
     df = download_and_read_data(table_id)
-    input_path = constants_camara.TABLES_INPUT_PATH.value[table_id]
     output_path = constants_camara.TABLES_OUTPUT_PATH.value[table_id]
 
     if table_id == "proposicao_microdados":
@@ -128,8 +127,7 @@ def save_data(table_id: str):
             lambda x: str(x).replace("\n", " ").replace("\r", " ")
         )
 
-    if os.path.exists(input_path):
-        df.to_csv(output_path, sep=",", index=False, encoding="utf-8")
+    df.to_csv(output_path, sep=",", index=False, encoding="utf-8")
 
 
 @task

@@ -192,9 +192,8 @@ def download_csv_camara(table_id: str) -> None:
 
 def download_and_read_data(table_id: str) -> pd.DataFrame:
     download_csv_camara(table_id)
-
     input_path = constants.TABLES_INPUT_PATH.value[table_id]
-    if os.path.exists(input_path):
-        df = pd.read_csv(input_path, sep=";")
+
+    df = pd.read_csv(input_path, sep=";")
 
     return df
