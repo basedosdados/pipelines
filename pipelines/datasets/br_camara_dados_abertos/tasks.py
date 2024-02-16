@@ -93,7 +93,10 @@ def treat_and_save_table(table_id):
 # ----------------------------------------> DADOS CAMARA ABERTA - UNIVERSAL
 
 
-@task
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def save_data(table_id: str):
     if not os.path.exists(f"{constants_camara.OUTPUT_PATH.value}{table_id}"):
         os.makedirs(f"{constants_camara.OUTPUT_PATH.value}{table_id}")
@@ -130,13 +133,15 @@ def save_data(table_id: str):
     df.to_csv(output_path, sep=",", index=False, encoding="utf-8")
 
 
-@task
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def output_path_list(table_id_list):
     output_path_list = []
     for table_id in table_id_list:
         output_path_list.append(f"{constants_camara.OUTPUT_PATH.value}{table_id}/")
     return output_path_list
-
 
 @task
 def dict_list_parameters(dataset_id, materialization_mode, dbt_alias):
