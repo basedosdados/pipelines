@@ -184,8 +184,10 @@ def download_csv_camara(table_id: str) -> None:
     response = requests.get(url)
     log(response)
     log(table_id)
+    log(url)
     if response.status_code == 200:
         with open(input_path, "wb") as f:
+            time.sleep(10)
             f.write(response.content)
 
     log(os.listdir(constants.INPUT_PATH.value))
