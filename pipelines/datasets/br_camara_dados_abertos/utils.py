@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
-
+import time
 import pandas as pd
 import requests
 
@@ -182,8 +182,9 @@ def download_csv_camara(table_id: str) -> None:
     url = constants.TABLES_URL.value[table_id]
     input_path = constants.TABLES_INPUT_PATH.value[table_id]
     response = requests.get(url)
+    log(response)
+    log(table_id)
     if response.status_code == 200:
-        log(f"{table_id} - {url}")
         with open(input_path, "wb") as f:
             f.write(response.content)
 
