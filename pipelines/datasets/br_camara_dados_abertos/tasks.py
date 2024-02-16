@@ -90,7 +90,7 @@ def treat_and_save_table(table_id):
     return f"{constants_camara.OUTPUT_PATH.value}{table_id}/data.csv"
 
 
-# -----------------------------------------------------> DADOS CAMARA ABERTA - UNIVERSAL
+# ----------------------------------------> DADOS CAMARA ABERTA - UNIVERSAL
 
 
 @task
