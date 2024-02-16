@@ -60,7 +60,6 @@ def check_files_to_parse(
     year = str(last_date.year)
     month = last_date.month
 
-    # download files to compare
     year = "2023"
     month = 11
 

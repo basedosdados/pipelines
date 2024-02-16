@@ -35,8 +35,8 @@ from pipelines.utils.to_download.tasks import to_download
 
 with Flow(name="BD Template - DATASUS", code_owners=["Gabriel Pisa"]) as flow_datasus:
     # Parameters
-    dataset_id = Parameter("dataset_id", default=False, required=True)
-    table_id = Parameter("table_id", default=False, required=True)
+    dataset_id = Parameter("dataset_id", required=True)
+    table_id = Parameter("table_id", required=True)
     update_metadata = Parameter("update_metadata", default=False, required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
