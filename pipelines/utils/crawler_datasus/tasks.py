@@ -93,12 +93,7 @@ def check_files_to_parse(
     list_files = [file for file in available_dbs if file[-8:-4] == year_month_to_parse]
     # list_files = [file for file in available_dbs if file[-10:-8] == 'SP' and file[-8:-6] in ['22', '23']]
 
-    # filtra pra ver se acha e retorna a lista
-    # for file in available_dbs:
-    #    if file[-10:-8] == 'SP':
-    #        list_files.append(file)
-    # final
-    log(f"the following files were selected fom DATASUS FTP: {list_files}")
+    log(f"The following files were selected fom DATASUS FTP: {list_files}")
 
     return list_files
 
@@ -126,6 +121,7 @@ def access_ftp_download_files_async(
     log(f"------created input dir {input_path}")
     os.makedirs(input_path, exist_ok=True)
 
+    # https://github.com/AlertaDengue/PySUS/blob/main/pysus/ftp/__init__.py#L156
     log(f"------dowloading {table_id} files from DATASUS FTP")
     asyncio.run(download_files(files=file_list, output_dir=input_path))
 
@@ -185,7 +181,7 @@ def decompress_dbc(file_list: list, dataset_id: str) -> None:
                 return_all=True,
                 log_stderr=True,
             )
-            log(f"Decompressing {file}")
+            log(f"Decompressing {file.split('/')[-1]} file")
             decompress_task.run()
         else:
             print(f"Skipping non-DBC file: {file}")
@@ -194,15 +190,15 @@ def decompress_dbc(file_list: list, dataset_id: str) -> None:
 
     for file in file_list:
         if file.endswith(".dbc"):
-            os.system(f"rm {file}")
+            os.system(f"rm -f {file}")
 
 
 @task
-def decompress_dbf(file_list: list, dataset_id: str, table_id: str) -> str:
+def decompress_dbf(file_list: list, table_id: str) -> str:
     """
     Convert dbc to csv
     """
-    log(f"--------- Decompressing {table_id} files")
+    log(f"--------- Decompressing {table_id} .DBF files")
 
     csv_file_list = list()
 
@@ -211,16 +207,17 @@ def decompress_dbf(file_list: list, dataset_id: str, table_id: str) -> str:
     for file in tqdm(dbf_file_list):
 
         # replace .csv with .dbf
-        log(f"-------- reading {file}")
+        log(f"-------- Reading {file}")
         dbf = Dbf5(file, codec="iso-8859-1")
 
         # remove cnes default file name
+        file = file.replace("input", "output")
         path_parts = file.split("/")[:-1]
-        output_path = os.path.join(*path_parts)
-        os.system(f"mkdir -p {output_path}")
+        output_path = os.path.join("/", *path_parts)
+        os.makedirs(output_path, exist_ok=True)
 
         output_file = os.path.join(output_path, f"{table_id}.csv")
-        log(f"-------- saving {file.split('/')[-1]} to .csv ")
+        log(f"-------- Saving {file.split('/')[-1]} to {table_id}.csv ")
 
         dbf.to_csv(output_file)
         csv_file_list.append(output_file)
@@ -229,7 +226,7 @@ def decompress_dbf(file_list: list, dataset_id: str, table_id: str) -> str:
 
     for file in dbf_file_list:
         if file.endswith(".dbf"):
-            os.system(f"rm {file}")
+            os.system(f"rm -f {file}")
 
     return csv_file_list
 
@@ -238,7 +235,7 @@ def decompress_dbf(file_list: list, dataset_id: str, table_id: str) -> str:
 def pre_process_files(file_list: list, dataset_id: str, table_id: str) -> str:
 
     log("Post-processing CSV files")
-
+    log(f"-------- {file_list}")
     # todo: colocar em constants
     post_process_functions = {
         "estabelecimento": post_process_estabelecimento,
@@ -261,20 +258,26 @@ def pre_process_files(file_list: list, dataset_id: str, table_id: str) -> str:
 
     except Exception as e:
         log(
-            f"The error {e} occured. It problably indicates that none post-processing function was found for table_id: {table_id}"
+            f"The error {e} occurred. It probably indicates that no post-processing function was found for table_id: {table_id}"
         )
 
     for file in tqdm(file_list):
 
         log(f"-------- reading {file}")
+        # Initialize an empty DataFrame to store concatenated results
+        concatenated_df = pd.DataFrame()
 
-        df = pd.read_csv(file, dtype=str, encoding="iso-8859-1")
-        df = post_process_function(df)
+        for chunk_df in pd.read_csv(
+            file, dtype=str, encoding="iso-8859-1", chunksize=100000
+        ):
+            concatenated_df = pd.concat([concatenated_df, chunk_df])
 
-        # df.to_csv(output_path, sep=",", na_rep="", index=False, encoding="utf-8")
+        processed_df = post_process_function(concatenated_df)
 
         output_path = file.replace(".csv", ".parquet")
-        df.to_parquet(output_path, index=None)
+        processed_df.to_parquet(output_path, index=None)
+
+        os.system(f"rm -f {file}")
 
     log("Post-processing complete")
 

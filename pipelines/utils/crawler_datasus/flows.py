@@ -74,7 +74,6 @@ with Flow(name="BD Template - DATASUS", code_owners=["Gabriel Pisa"]) as flow_da
 
         csv_files = decompress_dbf(
             file_list=dbc_files,
-            dataset_id=dataset_id,
             table_id=table_id,
             upstream_tasks=[dbf_files, dbc_files],
         )
