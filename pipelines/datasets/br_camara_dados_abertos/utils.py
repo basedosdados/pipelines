@@ -181,13 +181,16 @@ def download_csv_camara(table_id: str) -> None:
 
     url = constants.TABLES_URL.value[table_id]
     input_path = constants.TABLES_INPUT_PATH.value[table_id]
-    response = requests.get(url)
+    headers = {
+        "Content-Type": "application/json;charset=UTF-8",
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)"
+    }
+    response = requests.get(url, headers=headers)
     log(response)
     log(table_id)
     log(url)
     if response.status_code == 200:
         with open(input_path, "wb") as f:
-            time.sleep(10)
             f.write(response.content)
 
     log(os.listdir(constants.INPUT_PATH.value))
