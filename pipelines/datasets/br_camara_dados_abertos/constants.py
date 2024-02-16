@@ -103,21 +103,6 @@ class constants(Enum):
         "funcionario": "/tmp/input/funcionarios.csv",
     }
 
-    TABLES_INPUT_PATH_LAST_YEAR = {
-        "proposicao_microdados": f"/tmp/input/proposicoes-{ANOS}.csv",
-        "proposicao_autor": f"/tmp/input/proposicoesAutores-{ANOS}.csv",
-        "proposicao_tema": f"/tmp/input/proposicoesTemas-{ANOS}.csv",
-        "orgao": "/tmp/input/orgaos.csv",
-        "orgao_deputado": "/tmp/input/orgaosDeputados-57.csv",
-        "evento": f"/tmp/input/eventos-{ANOS}.csv",
-        "evento_orgao": f"/tmp/input/eventosOrgaos-{ANOS}.csv",
-        "evento_presenca_deputado": f"/tmp/input/eventosPresencaDeputados-{ANOS}.csv",
-        "evento_requerimento": f"/tmp/input/eventosRequerimentos-{ANOS}.csv",
-        "frente": "/tmp/input/frentes.csv",
-        "frente_deputado": "/tmp/input/frentesDeputados.csv",
-        "funcionario": "/tmp/input/funcionarios.csv",
-    }
-
     TABLES_OUTPUT_PATH = {
         "proposicao_microdados": f"/tmp/output/proposicao_microdados/proposicoes_{ANOS_ATUAL}.csv",
         "proposicao_autor": f"/tmp/output/proposicao_autor/proposicoesAutores_{ANOS_ATUAL}.csv",
@@ -133,21 +118,6 @@ class constants(Enum):
         "funcionario": "/tmp/output/funcionario/funcionarios.csv",
     }
 
-    TABLES_OUTPUT_PATH_LAST_YEAR = {
-        "proposicao_microdados": f"/tmp/output/proposicao_microdados/proposicoes_{ANOS}.csv",
-        "proposicao_autor": f"/tmp/output/proposicao_autor/proposicoesAutores_{ANOS}.csv",
-        "proposicao_tema": f"/tmp/output/proposicao_tema/proposicoesTemas_{ANOS}.csv",
-        "orgao": "/tmp/output/orgao/orgaos.csv",
-        "orgao_deputado": "/tmp/output/orgao_deputado/orgaosDeputados-57.csv",
-        "evento": f"/tmp/output/evento/eventos_{ANOS}.csv",
-        "evento_orgao": f"/tmp/output/evento_orgao/eventosOrgaos_{ANOS}.csv",
-        "evento_presenca_deputado": f"/tmp/output/evento_presenca_deputado/eventosPresencaDeputados_{ANOS}.csv",
-        "evento_requerimento": f"/tmp/output/evento_requerimento/eventosRequerimentos_{ANOS}.csv",
-        "frente": "/tmp/output/frente/frentes.csv",
-        "frente_deputado": "/tmp/output/frente_deputado/frentesDeputados.csv",
-        "funcionario": "/tmp/output/funcionario/funcionarios.csv",
-    }
-
     TABLES_URL = {
         "proposicao_microdados": f"http://dadosabertos.camara.leg.br/arquivos/proposicoes/csv/proposicoes-{ANOS_ATUAL}.csv",
         "proposicao_autor": f"http://dadosabertos.camara.leg.br/arquivos/proposicoesAutores/csv/proposicoesAutores-{ANOS_ATUAL}.csv",
@@ -158,21 +128,6 @@ class constants(Enum):
         "evento_orgao": f"http://dadosabertos.camara.leg.br/arquivos/eventosOrgaos/csv/eventosOrgaos-{ANOS_ATUAL}.csv",
         "evento_presenca_deputado": f"http://dadosabertos.camara.leg.br/arquivos/eventosPresencaDeputados/csv/eventosPresencaDeputados-{ANOS_ATUAL}.csv",
         "evento_requerimento": f"http://dadosabertos.camara.leg.br/arquivos/eventosRequerimentos/csv/eventosRequerimentos-{ANOS_ATUAL}.csv",
-        "frente": "http://dadosabertos.camara.leg.br/arquivos/frentes/csv/frentes.csv",
-        "frente_deputado": "http://dadosabertos.camara.leg.br/arquivos/frentesDeputados/csv/frentesDeputados.csv",
-        "funcionario": "http://dadosabertos.camara.leg.br/arquivos/funcionarios/csv/funcionarios.csv",
-    }
-
-    TABLES_URL_LAST_BY_YEAR = {
-        "proposicao_microdados": f"http://dadosabertos.camara.leg.br/arquivos/proposicoes/csv/proposicoes-{ANOS}.csv",
-        "proposicao_autor": f"http://dadosabertos.camara.leg.br/arquivos/proposicoesAutores/csv/proposicoesAutores-{ANOS}.csv",
-        "proposicao_tema": f"http://dadosabertos.camara.leg.br/arquivos/proposicoesTemas/csv/proposicoesTemas-{ANOS}.csv",
-        "orgao": "http://dadosabertos.camara.leg.br/arquivos/orgaos/csv/orgaos.csv",
-        "orgao_deputado": "https://dadosabertos.camara.leg.br/arquivos/orgaosDeputados/csv/orgaosDeputados-L57.csv",
-        "evento": f"http://dadosabertos.camara.leg.br/arquivos/eventos/csv/eventos-{ANOS}.csv",
-        "evento_orgao": f"http://dadosabertos.camara.leg.br/arquivos/eventosOrgaos/csv/eventosOrgaos-{ANOS}.csv",
-        "evento_presenca_deputado": f"http://dadosabertos.camara.leg.br/arquivos/eventosPresencaDeputados/csv/eventosPresencaDeputados-{ANOS}.csv",
-        "evento_requerimento": f"http://dadosabertos.camara.leg.br/arquivos/eventosRequerimentos/csv/eventosRequerimentos-{ANOS}.csv",
         "frente": "http://dadosabertos.camara.leg.br/arquivos/frentes/csv/frentes.csv",
         "frente_deputado": "http://dadosabertos.camara.leg.br/arquivos/frentesDeputados/csv/frentesDeputados.csv",
         "funcionario": "http://dadosabertos.camara.leg.br/arquivos/funcionarios/csv/funcionarios.csv",
