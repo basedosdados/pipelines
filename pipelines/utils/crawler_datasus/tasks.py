@@ -234,7 +234,7 @@ def decompress_dbf(file_list: list, table_id: str) -> str:
 def pre_process_files(file_list: list, dataset_id: str, table_id: str) -> str:
 
     log("Post-processing CSV files")
-    log(f"-------- {file_list}")
+
     # todo: colocar em constants
     post_process_functions = {
         "estabelecimento": post_process_estabelecimento,
@@ -262,27 +262,31 @@ def pre_process_files(file_list: list, dataset_id: str, table_id: str) -> str:
 
     for file in tqdm(file_list):
 
-        log(f"-------- reading {file}")
+        log(f"-------- wrangling {file.split('/')[-1]} and saving to parquet")
         # Initialize an empty DataFrame to store concatenated results
         concatenated_df = pd.DataFrame()
 
         for chunk_df in pd.read_csv(
-            file, dtype=str, encoding="iso-8859-1", chunksize=100000
+            file, dtype=str, encoding="iso-8859-1", chunksize=50000
         ):
             concatenated_df = pd.concat([concatenated_df, chunk_df])
 
         processed_df = post_process_function(concatenated_df)
 
+
         output_path = file.replace(".csv", ".parquet")
-        processed_df.to_parquet(output_path, index=None)
+        processed_df.to_parquet(output_path, index=None, compression='gzip')
 
         os.system(f"rm -f {file}")
 
     log("Post-processing complete")
 
-    parquet_files = [file.replace(".csv", ".parquet") for file in file_list]
+    #parquet_files = [file.replace(".csv", ".parquet") for file in file_list]
 
-    return parquet_files
+    path_parts = file.split("/")[:5]
+    output_path = os.path.join("/", *path_parts)
+
+    return output_path
 
 
 @task
