@@ -9,8 +9,9 @@ from ftplib import FTP
 
 import aioftp
 import pandas as pd
-
+from typing import List, Dict, Tuple
 from pipelines.utils.crawler_datasus.constants import constants as datasus_constants
+from pipelines.utils.utils import log
 
 
 def list_all_cnes_dbc_files(
@@ -42,17 +43,35 @@ def list_all_cnes_dbc_files(
     ftp.close()
     return available_dbs
 
+async def download_chunks(files: List[str], output_dir: str, chunk_size: int, max_parallel: int):
+    """This function is used to sequentially control the number of concurrent downloads
+    #OSError: [Errno 24] Too many open files
 
-async def download_files(files: list, output_dir: str):
-    tasks = [
-        download_file(file, f"{output_dir}/{year_month_sigla_uf_parser(file=file)}")
-        for file in files
-    ]
-    await asyncio.gather(*tasks)
+    Args:
+        files (List[str]): list of files to download
+        output_dir (str): savepath
+        chunk_size (int): size of the chunk
+        max_parallel (int): number of concurrent downloads
+    """
+
+    for i in range(0, len(files), chunk_size):
+        chunk = files[i:i + chunk_size]
+        await download_files(files=chunk, output_dir=output_dir, max_parallel=max_parallel)
+
+
+async def download_files(files: list, output_dir: str, max_parallel: int):
+    semaphore = asyncio.Semaphore(max_parallel)
+    async with semaphore:
+        tasks = [
+            download_file(file, f"{output_dir}/{year_month_sigla_uf_parser(file=file)}")
+            for file in files
+        ]
+        await asyncio.gather(*tasks)
 
 
 async def download_file(file: str, output_path: str):
     try:
+        log(f"------- Downloading {file} ")
         async with aioftp.Client.context(
             host="ftp.datasus.gov.br",
             parse_list_line_custom=line_file_parser,
@@ -61,10 +80,19 @@ async def download_file(file: str, output_path: str):
         ) as client:
             await client.download(file, output_path)
     except aioftp.StatusCodeError as e:
-        print(e.expected_codes, e.received_codes, e.info)
+        log(e.expected_codes, e.received_codes, e.info)
 
 
-def line_file_parser(file_line):
+def line_file_parser(file_line)-> Tuple[List, Dict]:
+    """This function is used to parse the file line from the FTP server
+
+    Args:
+        file_line (_type_):
+
+    Returns:
+        _type_:
+    """
+
     line = file_line.decode("utf-8")
     info = {}
     if "<DIR>" in line:

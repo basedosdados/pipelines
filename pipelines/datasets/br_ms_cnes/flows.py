@@ -9,6 +9,7 @@ from copy import deepcopy
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
+from pipelines.utils.crawler_datasus.flows import flow_datasus
 from pipelines.constants import constants
 from pipelines.datasets.br_ms_cnes.schedules import (
     schedule_br_ms_cnes_dados_complementares,
@@ -24,7 +25,6 @@ from pipelines.datasets.br_ms_cnes.schedules import (
     schedule_br_ms_cnes_profissional,
     schedule_br_ms_cnes_servico_especializado,
 )
-from pipelines.utils.crawler_datasus.flows import flow_datasus
 
 br_ms_cnes_profissional = deepcopy(flow_datasus)
 br_ms_cnes_profissional.name = "br_ms_cnes.profissional"

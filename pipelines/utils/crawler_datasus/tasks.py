@@ -10,7 +10,6 @@ from datetime import timedelta
 
 import aioftp
 import pandas as pd
-import wget
 from prefect import task
 from prefect.tasks.shell import ShellTask
 from simpledbf import Dbf5
@@ -19,7 +18,7 @@ from tqdm import tqdm
 from pipelines.constants import constants
 from pipelines.utils.crawler_datasus.constants import constants as datasus_constants
 from pipelines.utils.crawler_datasus.utils import (
-    download_files,
+    download_chunks,
     list_all_cnes_dbc_files,
     post_process_dados_complementares,
     post_process_equipamento,
@@ -94,7 +93,7 @@ def check_files_to_parse(
 
     log(f"The following files were selected fom DATASUS FTP: {list_files}")
 
-    return list_files
+    return available_dbs
 
 
 @task(
@@ -102,7 +101,7 @@ def check_files_to_parse(
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def access_ftp_download_files_async(
-    file_list: list, dataset_id: str, table_id: str
+    file_list: list, dataset_id: str, table_id: str, max_parallel: int = 10, chunk_size: int = 20
 ) -> list[str]:
     """This function receives a list of files and
     downloads them from DATASUS FTP server asynchronously.
@@ -122,7 +121,17 @@ def access_ftp_download_files_async(
 
     # https://github.com/AlertaDengue/PySUS/blob/main/pysus/ftp/__init__.py#L156
     log(f"------dowloading {table_id} files from DATASUS FTP")
-    asyncio.run(download_files(files=file_list, output_dir=input_path))
+
+
+
+    asyncio.run(
+        download_chunks(
+            files=file_list,
+            output_dir=input_path,
+            max_parallel=max_parallel,
+            chunk_size=chunk_size,
+        )
+    )
 
     dbc_files_path_list = [
         os.path.join(
