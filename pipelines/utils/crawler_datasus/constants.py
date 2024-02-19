@@ -39,6 +39,7 @@ class constants(Enum):  # pylint: disable=c0103
         "servico_especializado": "SR",
     }
 
+
     COLUMNS_TO_KEEP = {
         # equipamento
         "EP": [

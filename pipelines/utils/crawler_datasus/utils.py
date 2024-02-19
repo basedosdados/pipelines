@@ -18,7 +18,7 @@ def list_all_cnes_dbc_files(
     datasus_database: str,
     datasus_database_table: str = None,
 ) -> list:
-    # todo: insert fcodeco link reference
+
     """
     Enters FTP server and lists all DBCs files found for a
     a given datasus_database.
@@ -44,7 +44,7 @@ def list_all_cnes_dbc_files(
     return available_dbs
 
 async def download_chunks(files: List[str], output_dir: str, chunk_size: int, max_parallel: int):
-    """This function is used to sequentially control the number of concurrent downloads
+    """This function is used to sequentially control the number of concurrent downloads to avoid
     #OSError: [Errno 24] Too many open files
 
     Args:
@@ -59,7 +59,15 @@ async def download_chunks(files: List[str], output_dir: str, chunk_size: int, ma
         await download_files(files=chunk, output_dir=output_dir, max_parallel=max_parallel)
 
 
-async def download_files(files: list, output_dir: str, max_parallel: int):
+async def download_files(files: list, output_dir: str, max_parallel: int)-> None:
+    """Download files asynchronously and save them in the given output directory
+
+    Args:
+        files (list): List of files to download
+        output_dir (str): output directory
+        max_parallel (int): number of max parallel downloads
+    """
+
     semaphore = asyncio.Semaphore(max_parallel)
     async with semaphore:
         tasks = [
@@ -69,13 +77,22 @@ async def download_files(files: list, output_dir: str, max_parallel: int):
         await asyncio.gather(*tasks)
 
 
-async def download_file(file: str, output_path: str):
+async def download_file(file: str, output_path: str)-> None:
+    """Create connection with DATASUS FTP server using AIOFTP which supports
+    Asynchronous download within FTP servers
+
+    Args:
+        file (str): A file path to download
+        output_path (str): output path to save
+    """
+
+
     try:
         log(f"------- Downloading {file} ")
         async with aioftp.Client.context(
             host="ftp.datasus.gov.br",
             parse_list_line_custom=line_file_parser,
-            # max wait time for data to be received from the server, if it fails trigger a
+            # max wait time for data to be received from the server
             socket_timeout=30,
         ) as client:
             await client.download(file, output_path)
@@ -86,11 +103,8 @@ async def download_file(file: str, output_path: str):
 def line_file_parser(file_line)-> Tuple[List, Dict]:
     """This function is used to parse the file line from the FTP server
 
-    Args:
-        file_line (_type_):
-
     Returns:
-        _type_:
+        Tupple: A tuple containing a list and a dictionary
     """
 
     line = file_line.decode("utf-8")
@@ -138,8 +152,7 @@ def year_month_sigla_uf_parser(file: str) -> str:
 
 
 def pre_cleaning_to_utf8(df: pd.DataFrame):
-    """This function is used to pre-clean the data to convert its encoding
-    from latin1 to utf-8
+    """This function is used to remove latin1 characters
 
     Args:
         df (pd.Dataframe): a df
@@ -213,6 +226,8 @@ def if_column_exist_delete(df: pd.DataFrame, col_list: str):
 
 
 def post_process_estabelecimento(df: pd.DataFrame) -> pd.DataFrame:
+
+
     list_columns_to_delete = [
         "AP01CV07",
         "AP02CV07",
@@ -231,21 +246,54 @@ def post_process_estabelecimento(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def post_process_profissional(df: pd.DataFrame) -> pd.DataFrame:
+    """Apply custom post-process to the profissional table
+
+    Args:
+        df (pd.DataFrame): a pd.DataFrame
+
+    Returns:
+        pd.DataFrame: a pd.DataFrame
+    """
+
     df = df[datasus_constants.COLUMNS_TO_KEEP.value["PF"]]
     return df
 
 
 def post_process_leito(df: pd.DataFrame) -> pd.DataFrame:
+    """Apply custom post-process to the leito table
+
+    Args:
+        df (pd.DataFrame): a pd.DataFrame
+
+    Returns:
+        pd.DataFrame: a pd.DataFrame
+    """
     df = df[datasus_constants.COLUMNS_TO_KEEP.value["LT"]]
     return df
 
 
 def post_process_equipamento(df: pd.DataFrame) -> pd.DataFrame:
+    """Apply custom post-process to the equipamento table
+
+    Args:
+        df (pd.DataFrame): a pd.DataFrame
+
+    Returns:
+        pd.DataFrame: a pd.DataFrame
+    """
     df = df[datasus_constants.COLUMNS_TO_KEEP.value["EP"]]
     return df
 
 
 def post_process_equipe(df: pd.DataFrame) -> pd.DataFrame:
+    """Apply custom post-process to the equipe table
+
+    Args:
+        df (pd.DataFrame): a pd.DataFrame
+
+    Returns:
+        pd.DataFrame: a pd.DataFrame
+    """
     standardize_colums = {
         "IDEQUIPE": "ID_EQUIPE",
         "AREA_EQP": "ID_AREA",
@@ -259,42 +307,106 @@ def post_process_equipe(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def post_process_estabelecimento_ensino(df: pd.DataFrame) -> pd.DataFrame:
+    """Apply custom post-process to the estabelecimento_ensino table
+
+    Args:
+        df (pd.DataFrame): a pd.DataFrame
+
+    Returns:
+        pd.DataFrame: a pd.DataFrame
+    """
     df = df[datasus_constants.COLUMNS_TO_KEEP.value["EE"]]
     return df
 
 
 def post_process_dados_complementares(df: pd.DataFrame) -> pd.DataFrame:
+    """Apply custom post-process to the dados_complementares table
+
+    Args:
+        df (pd.DataFrame): a pd.DataFrame
+
+    Returns:
+        pd.DataFrame: a pd.DataFrame
+    """
     df = df[datasus_constants.COLUMNS_TO_KEEP.value["DC"]]
 
     return df
 
 
 def post_process_estabelecimento_filantropico(df: pd.DataFrame) -> pd.DataFrame:
+    """Apply custom post-process to the estabelecimento_filantropico table
+
+    Args:
+        df (pd.DataFrame): a pd.DataFrame
+
+    Returns:
+        pd.DataFrame: a pd.DataFrame
+    """
     df = df[datasus_constants.COLUMNS_TO_KEEP.value["EF"]]
     return df
 
 
 def post_process_gestao_metas(df: pd.DataFrame) -> pd.DataFrame:
+    """Apply custom post-process to the gestao_metas table
+
+    Args:
+        df (pd.DataFrame): a pd.DataFrame
+
+    Returns:
+        pd.DataFrame: a pd.DataFrame
+    """
     df = df[datasus_constants.COLUMNS_TO_KEEP.value["GM"]]
     return df
 
 
 def post_process_habilitacao(df: pd.DataFrame) -> pd.DataFrame:
+    """Apply custom post-process to the habilitacao table
+
+    Args:
+        df (pd.DataFrame): a pd.DataFrame
+
+    Returns:
+        pd.DataFrame: a pd.DataFrame
+    """
     df = check_and_create_column(df=df, col_name="NAT_JUR")
     df = df[datasus_constants.COLUMNS_TO_KEEP.value["HB"]]
     return df
 
 
 def post_process_incentivos(df: pd.DataFrame) -> pd.DataFrame:
+    """Apply custom post-process to the incentivos table
+
+    Args:
+        df (pd.DataFrame): a pd.DataFrame
+
+    Returns:
+        pd.DataFrame: a pd.DataFrame
+    """
     df = df[datasus_constants.COLUMNS_TO_KEEP.value["IN"]]
     return df
 
 
 def post_process_regra_contratual(df: pd.DataFrame) -> pd.DataFrame:
+    """Apply custom post-process to the regra_contratual table
+
+    Args:
+        df (pd.DataFrame): a pd.DataFrame
+
+    Returns:
+        pd.DataFrame: a pd.DataFrame
+    """
     df = df[datasus_constants.COLUMNS_TO_KEEP.value["RC"]]
     return df
 
 
 def post_process_servico_especializado(df: pd.DataFrame) -> pd.DataFrame:
+    """Apply custom post-process to the servico_especializado table
+
+    Args:
+        df (pd.DataFrame): a pd.DataFrame
+
+    Returns:
+        pd.DataFrame: a pd.DataFrame
+    """
     df = df[datasus_constants.COLUMNS_TO_KEEP.value["SR"]]
     return df
