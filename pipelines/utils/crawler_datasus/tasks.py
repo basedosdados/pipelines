@@ -89,7 +89,7 @@ def check_files_to_parse(
 
     log(f"------- The following files were selected fom DATASUS FTP: {list_files}")
 
-    return available_dbs
+    return list_files
 
 
 @task(
