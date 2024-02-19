@@ -20,7 +20,10 @@ from pipelines.utils.utils import log, to_partitions
 
 
 # ! Microdados
-@task
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def make_partitions(table_id, date_column) -> str:
     """
     Make partitions for a given table based on a date column.
@@ -48,7 +51,10 @@ def make_partitions(table_id, date_column) -> str:
 
 
 # ! Obtendo a data máxima.
-@task
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def download_files_and_get_max_date():
     df = get_data()
     data_max = df["data"].max()
@@ -57,7 +63,10 @@ def download_files_and_get_max_date():
 
 
 # -------------------------------------------------------------------> Deputados
-@task
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def download_files_and_get_max_date_deputados():
     df = get_data_deputados()
 
@@ -143,7 +152,10 @@ def output_path_list(table_id_list):
         output_path_list.append(f"{constants_camara.OUTPUT_PATH.value}{table_id}/")
     return output_path_list
 
-@task
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def dict_list_parameters(dataset_id, materialization_mode, dbt_alias):
     table_id = [
         "proposicao_microdados",
