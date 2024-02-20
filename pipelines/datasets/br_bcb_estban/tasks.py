@@ -92,7 +92,7 @@ def extract_last_date(table_id: str) -> str:
 
     # select input field and click on it
     log(
-        f"searching for ---- {br_bcb_estban_constants.CSS_INPUT_FIELD_DICT.value[table_id]} to click on"
+        f" Searching for ---- {br_bcb_estban_constants.CSS_INPUT_FIELD_DICT.value[table_id]} to click on"
     )
     input_field = WebDriverWait(driver, 20).until(
         EC.element_to_be_clickable(
