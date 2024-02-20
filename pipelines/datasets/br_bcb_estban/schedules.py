@@ -48,7 +48,7 @@ every_month_municipio = Schedule(
                 "dataset_id": "br_bcb_estban",
                 "table_id": "municipio",
                 "materialization_mode": "prod",
-                "materialize after dump": True,
+                "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
             },
