@@ -57,7 +57,7 @@ with Flow(
     )
 
     materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
+        "materialize after dump", default=True, required=False
     )
 
     rename_flow_run = rename_current_flow_run_dataset_table(
@@ -167,7 +167,7 @@ with Flow(
     )
 
     materialize_after_dump = Parameter(
-        "materialize_after_dump", default=False, required=False
+        "materialize_after dump", default=False, required=False
     )
 
     rename_flow_run = rename_current_flow_run_dataset_table(
