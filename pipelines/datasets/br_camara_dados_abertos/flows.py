@@ -593,7 +593,7 @@ br_camara_deputado.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value
 br_camara_deputado.schedule = every_day_camara_dados_abertos_deputados
 
 
-# ------------------------------ TABLES UNIVERSAL ---------------------------------------
+# ------------------------------ TABLES UNIVERSAL -------------------------------------
 
 with Flow(
     name="br_camara_dados_abertos.universal", code_owners=["trick"]
@@ -610,6 +610,13 @@ with Flow(
             "proposicao_tema",
             "orgao",
             "orgao_deputado",
+            "evento",
+            "evento_orgao",
+            "evento_presenca_deputado",
+            "evento_requerimento",
+            "frente",
+            "frente_deputado",
+            "funcionario",
         ],
         required=True,
     )

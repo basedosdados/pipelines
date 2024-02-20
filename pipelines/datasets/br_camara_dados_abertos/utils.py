@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
+# register utils
 import os
-
+import time
 import pandas as pd
 import requests
 
@@ -161,7 +162,7 @@ def get_data_deputados():
     return df
 
 
-# ----------------------------------------------------------------------------------- > Proposição
+# ----------------------------------------------------------------------------------- > Universal
 
 
 def download_csv_camara(table_id: str) -> None:
@@ -179,38 +180,26 @@ def download_csv_camara(table_id: str) -> None:
     if not os.path.exists(constants.INPUT_PATH.value):
         os.makedirs(constants.INPUT_PATH.value)
 
-    original_table_name = constants.TABLE_LIST_CAMARA.value[table_id]
+    url = constants.TABLES_URL.value[table_id]
+    input_path = constants.TABLES_INPUT_PATH.value[table_id]
+    headers = {
+        "Content-Type": "application/json;charset=UTF-8",
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)"
+    }
+    response = requests.get(url, headers=headers)
+    log(response)
+    log(table_id)
+    log(url)
+    if response.status_code == 200:
+        with open(input_path, "wb") as f:
+            f.write(response.content)
 
-    if table_id in constants.TABLES_SPLIT_BY_YEAR.value:
-        url = f"http://dadosabertos.camara.leg.br/arquivos/{original_table_name}/csv/{original_table_name}-{constants.ANOS_ATUAL.value}.csv"
-        input_path = f"{constants.INPUT_PATH.value}{original_table_name}_{constants.ANOS_ATUAL.value}.csv"
-
-    if table_id == "orgao":
-        url = f"http://dadosabertos.camara.leg.br/arquivos/{original_table_name}/csv/{original_table_name}.csv"
-        input_path = f"{constants.INPUT_PATH.value}{original_table_name}.csv"
-
-    if table_id == "orgao_deputado":
-        url = f"http://dadosabertos.camara.leg.br/arquivos/{original_table_name}/csv/{original_table_name}-L57.csv"
-        input_path = f"{constants.INPUT_PATH.value}{original_table_name}-57.csv"
-
-    log(f"input_path: {url}")
-    response = requests.get(url)
-    with open(input_path, "wb") as f:
-        f.write(response.content)
-        log(f"download complete {original_table_name}")
+    log(os.listdir(constants.INPUT_PATH.value))
 
 
 def download_and_read_data(table_id: str) -> pd.DataFrame:
     download_csv_camara(table_id)
-    original_table_name = constants.TABLE_LIST_CAMARA.value[table_id]
-    if table_id in constants.TABLES_SPLIT_BY_YEAR.value:
-        input_path = f"{constants.INPUT_PATH.value}{original_table_name}_{constants.ANOS_ATUAL.value}.csv"
-
-    if table_id == "orgao":
-        input_path = f"{constants.INPUT_PATH.value}{original_table_name}.csv"
-
-    if table_id == "orgao_deputado":
-        input_path = f"{constants.INPUT_PATH.value}{original_table_name}-57.csv"
+    input_path = constants.TABLES_INPUT_PATH.value[table_id]
 
     df = pd.read_csv(input_path, sep=";")
 
