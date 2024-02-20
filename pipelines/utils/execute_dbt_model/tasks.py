@@ -45,6 +45,7 @@ def run_dbt_model(
     sync: bool = True,
     flags: str = None,
     _vars=None,
+    disable_elementary:bool=False,
 ):
     """
     Run a DBT model.
@@ -59,6 +60,7 @@ def run_dbt_model(
         https://docs.getdbt.com/reference/dbt-jinja-functions/flags/
         _vars (Union[dict, List[Dict]], optional): Variables to pass to
         dbt. Defaults to None.
+        disable_elementary (bool, optional): Disable elementary on-run-end hooks.
     """
     if dbt_command not in ["run", "test", "run and test", "run/test"]:
         raise ValueError(f"Invalid dbt_command: {dbt_command}")
@@ -70,6 +72,8 @@ def run_dbt_model(
             selected_table = f"{dataset_id}.{table_id}"
     else:
         selected_table = dataset_id
+    if disable_elementary:
+        _vars = '{"disable_dbt_artifacts_autoupload": true, "disable_run_results": true, "disable_tests_results": true, "disable_dbt_invocation_autoupload": true}'
 
     if "run" in dbt_command:
         if flags == "--full-refresh":
@@ -86,7 +90,7 @@ def run_dbt_model(
             vars_str = f'"{vars_dict}"'
             run_command += f" --vars {vars_str}"
         else:
-            vars_str = f'"{_vars}"'
+            vars_str = f'{_vars}' if disable_elementary else f'"{_vars}"'
             run_command += f" --vars {vars_str}"
 
     if flags:
@@ -107,7 +111,7 @@ def run_dbt_model(
                     log(event["message"])
 
     if "test" in dbt_command:
-        test_command = f"test --select {selected_table}"
+        test_command = f"test --select {selected_table} --vars {_vars}" if disable_elementary else f"test --select {selected_table}"
         log(f"Running dbt with command: {test_command}")
         logs_dict = dbt_client.cli(
             test_command,
