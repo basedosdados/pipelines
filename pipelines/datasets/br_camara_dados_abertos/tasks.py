@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
+# register tasks
 import os
 from datetime import timedelta
 
 import pandas as pd
-import requests
 from prefect import task
 
 from pipelines.constants import constants
@@ -21,7 +21,10 @@ from pipelines.utils.utils import log, to_partitions
 
 
 # ! Microdados
-@task
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def make_partitions(table_id, date_column) -> str:
     """
     Make partitions for a given table based on a date column.
@@ -49,7 +52,10 @@ def make_partitions(table_id, date_column) -> str:
 
 
 # ! Obtendo a data máxima.
-@task
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def download_files_and_get_max_date():
     df = get_data()
     data_max = df["data"].max()
@@ -58,7 +64,10 @@ def download_files_and_get_max_date():
 
 
 # -------------------------------------------------------------------> Deputados
-@task
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def download_files_and_get_max_date_deputados():
     df = get_data_deputados()
 
@@ -91,53 +100,63 @@ def treat_and_save_table(table_id):
     return f"{constants_camara.OUTPUT_PATH.value}{table_id}/data.csv"
 
 
-# -----------------------------------------------------> DADOS CAMARA ABERTA - UNIVERSAL
+# ----------------------------------------> DADOS CAMARA ABERTA - UNIVERSAL
 
 
-@task
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def save_data(table_id: str):
     if not os.path.exists(f"{constants_camara.OUTPUT_PATH.value}{table_id}"):
         os.makedirs(f"{constants_camara.OUTPUT_PATH.value}{table_id}")
-    original_table_name = constants_camara.TABLE_LIST_CAMARA.value[table_id]
+
+    constants_camara.TABLE_LIST_CAMARA.value[table_id]
+
     df = download_and_read_data(table_id)
+    output_path = constants_camara.TABLES_OUTPUT_PATH.value[table_id]
+
     if table_id == "proposicao_microdados":
+        output_path = constants_camara.TABLES_OUTPUT_PATH.value[table_id]
         df["ultimoStatus_despacho"] = df["ultimoStatus_despacho"].apply(
-            lambda x: str(x).replace(";", ",").replace("\n", "").replace("\r", "")
+            lambda x: str(x).replace(";", ",").replace("\n", " ").replace("\r", " ")
         )
         df["ementa"] = df["ementa"].apply(
-            lambda x: str(x).replace(";", ",").replace("\n", "").replace("\r", "")
+            lambda x: str(x).replace(";", ",").replace("\n", " ").replace("\r", " ")
         )
         df["ano"] = df.apply(
             lambda x: x["dataApresentacao"][0:4] if x["ano"] == 0 else x["ano"],
             axis=1,
         )
-    if table_id in constants_camara.TABLES_SPLIT_BY_YEAR.value:
-        output_path = f"{constants_camara.OUTPUT_PATH.value}{table_id}/{original_table_name}_{constants_camara.ANOS_ATUAL.value}.csv"
 
-    if table_id == "orgao":
-        output_path = (
-            f"{constants_camara.OUTPUT_PATH.value}{table_id}/{original_table_name}.csv"
+    if table_id == "frente_deputado":
+        output_path = constants_camara.TABLES_OUTPUT_PATH.value[table_id]
+        df = df.rename(columns=constants_camara.RENAME_COLUMNS_FRENTE_DEPUTADO.value)
+
+    if table_id == "evento":
+        output_path = constants_camara.TABLES_OUTPUT_PATH.value[table_id]
+        df = df.rename(columns=constants_camara.RENAME_COLUMNS_EVENTO.value)
+        df["descricao"] = df["descricao"].apply(
+            lambda x: str(x).replace("\n", " ").replace("\r", " ")
         )
-        log(f"Saving {table_id} to {output_path}")
-
-    if table_id == "orgao_deputado":
-        output_path = f"{constants_camara.OUTPUT_PATH.value}{table_id}/{original_table_name}-L57.csv"
-        log(f"Saving {table_id} to {output_path}")
 
     df.to_csv(output_path, sep=",", index=False, encoding="utf-8")
 
-    return output_path
 
-
-@task
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def output_path_list(table_id_list):
     output_path_list = []
     for table_id in table_id_list:
         output_path_list.append(f"{constants_camara.OUTPUT_PATH.value}{table_id}/")
     return output_path_list
 
-
-@task
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def dict_list_parameters(dataset_id, materialization_mode, dbt_alias):
     table_id = [
         "proposicao_microdados",
@@ -145,6 +164,13 @@ def dict_list_parameters(dataset_id, materialization_mode, dbt_alias):
         "proposicao_tema",
         "orgao",
         "orgao_deputado",
+        "evento",
+        "evento_orgao",
+        "evento_presenca_deputado",
+        "evento_requerimento",
+        "frente",
+        "frente_deputado",
+        "funcionario",
     ]
 
     parameters = [
@@ -179,6 +205,55 @@ def dict_list_parameters(dataset_id, materialization_mode, dbt_alias):
         dict(
             dataset_id=dataset_id,
             table_id=table_id[4],
+            mode=materialization_mode,
+            dbt_alias=dbt_alias,
+            dbt_command="run",
+        ),
+        dict(
+            dataset_id=dataset_id,
+            table_id=table_id[5],
+            mode=materialization_mode,
+            dbt_alias=dbt_alias,
+            dbt_command="run",
+        ),
+        dict(
+            dataset_id=dataset_id,
+            table_id=table_id[6],
+            mode=materialization_mode,
+            dbt_alias=dbt_alias,
+            dbt_command="run",
+        ),
+        dict(
+            dataset_id=dataset_id,
+            table_id=table_id[7],
+            mode=materialization_mode,
+            dbt_alias=dbt_alias,
+            dbt_command="run",
+        ),
+        dict(
+            dataset_id=dataset_id,
+            table_id=table_id[8],
+            mode=materialization_mode,
+            dbt_alias=dbt_alias,
+            dbt_command="run",
+        ),
+        dict(
+            dataset_id=dataset_id,
+            table_id=table_id[9],
+            mode=materialization_mode,
+            dbt_alias=dbt_alias,
+            dbt_command="run",
+        ),
+        dict(
+            dataset_id=dataset_id,
+            table_id=table_id[10],
+            mode=materialization_mode,
+            dbt_alias=dbt_alias,
+            dbt_command="run",
+        ),
+        dict(
+            dataset_id=dataset_id,
+            table_id=table_id[11],
             mode=materialization_mode,
             dbt_alias=dbt_alias,
             dbt_command="run",
