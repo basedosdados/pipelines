@@ -112,6 +112,7 @@ shapely = "2.0.1"
 webdriver-manager = "^4.0.1"
 xlrd = ">=2.0.1"
 httpx = "^0.26.0"
+parameterized = "^0.9.0"
 
 [tool.poetry.group.dev]
 optional = true
