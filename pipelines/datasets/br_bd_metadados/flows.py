@@ -158,4 +158,4 @@ with Flow(
 
 bd_prefect_flows.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 bd_prefect_flows.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-# bd_prefect_flows.schedule = every_day_prefect_flows
+bd_prefect_flows.schedule = every_day_prefect_flows
