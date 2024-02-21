@@ -112,6 +112,7 @@ shapely = "2.0.1"
 webdriver-manager = "^4.0.1"
 xlrd = ">=2.0.1"
 httpx = "^0.26.0"
+parameterized = "^0.9.0"
 
 [tool.poetry.group.dev]
 optional = true
@@ -123,6 +124,7 @@ yamlfix = "^1.16.0"
 shandy-sqlfmt = "^0.20.0"
 typer = "^0.4.0"
 cookiecutter = "^1.7.3"
+networkx = "2.6.3"
 
 [tool.poetry.group.test]
 optional = true
