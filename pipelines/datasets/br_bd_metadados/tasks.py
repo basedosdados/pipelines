@@ -2,7 +2,7 @@
 """
 Tasks for br_bd_metadados
 """
-#register_flow
+
 
 import os
 from datetime import timedelta
@@ -14,7 +14,7 @@ from prefect import Client, task
 
 from pipelines.constants import constants
 from pipelines.utils.utils import log
-
+#register_flow
 
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
