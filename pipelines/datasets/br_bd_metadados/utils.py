@@ -3,6 +3,7 @@ import pandas as pd
 from pipelines.utils.utils import log
 import datetime
 
+### prefect flow_runs
 
 def get_skipped_upload_to_gcs_column(flow_runs_df):
     skipped_upload_filter = {
@@ -32,6 +33,17 @@ def save_files_per_week(flow_runs_df, relevant_columns,folder_path):
 
             relevant_df[relevant_columns][week_data_filter].to_csv(csv_file_path, index=False)
             log(f"Arquivo da semana {str_week_start} salvo")
+
+
+### prefect_flows
+
+def extract_and_process_schedule_data(flow_df):
+
+    is_scheduled_filter = flow_df["schedule_clocks"].notna()
+    scheduled_flows_df = flow_df[is_scheduled_filter].copy()
+    scheduled_flows_df = parse_schedule_information(scheduled_flows_df)
+
+    return pd.concat([flow_df[~is_scheduled_filter], scheduled_flows_df], axis=0 )
 
 def parse_schedule_information(flows_df):
 
@@ -65,11 +77,3 @@ def parse_schedule_parameter_column(clocks_df):
     ]
 
     return parameters_df[standard_params]
-
-def extract_and_process_schedule_data(flow_df):
-
-    is_scheduled_filter = flow_df["schedule_clocks"].notna()
-    scheduled_flows_df = flow_df[is_scheduled_filter].copy()
-    scheduled_flows_df = parse_schedule_information(scheduled_flows_df)
-
-    return pd.concat([flow_df[~is_scheduled_filter], scheduled_flows_df], axis=0 )
