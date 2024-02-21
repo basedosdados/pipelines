@@ -29,16 +29,3 @@ jobs:
       - name: Check if `prefect build` works
         run: |
           poetry run prefect build
-      - name: Get changed files for code tree analysis
-        id: files
-        uses: Ana06/get-changed-files@v2.1.0
-      - name: Perform code tree analysis
-        id: code-tree-analysis
-        continue-on-error: true
-        run: |
-          poetry run python .github/workflows/scripts/code_tree_analysis.py "${{ steps.files.outputs.all }}"
-      - name: Comment PR
-        uses: thollander/actions-comment-pull-request@v1
-        with:
-          message: ${{ steps.code-tree-analysis.outputs.pr-message }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
