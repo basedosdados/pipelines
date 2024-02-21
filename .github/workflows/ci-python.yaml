@@ -1,0 +1,42 @@
+---
+name: CI Python
+on:
+  pull_request:
+    paths: ['**.py']
+jobs:
+  lint:
+    name: Lint python
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Lint source code
+        uses: chartboost/ruff-action@v1
+  test:
+    name: Test python
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up poetry
+        run: pipx install poetry
+      - name: Set up python
+        uses: actions/setup-python@v4
+        with:
+          cache: poetry
+          architecture: x64
+          python-version: '3.11'
+      - name: Install requirements
+        run: poetry install --only=test
+      - name: Test
+        run: |
+          poetry run pytest \
+            --junitxml=pytest.xml \
+            --cov-report=term-missing:skip-covered \
+            --cov=pipelines tests | tee pytest-coverage.txt
+      - name: Report coverage
+        uses: MishaKav/pytest-coverage-comment@main
+        with:
+          hide-report: true
+          junitxml-path: ./pytest.xml
+          pytest-coverage-path: ./pytest-coverage.txt

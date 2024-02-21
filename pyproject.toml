@@ -17,7 +17,7 @@ cachetools = "4.2.4"
 certifi = "2021.10.8"
 charset-normalizer = "2.0.8"
 ckanapi = "4.6"
-click = "8.0.3"
+click = "^8.0.3"
 cloudpickle = "2.0.0"
 croniter = "1.0.15"
 dask = "2021.11.2"
@@ -112,29 +112,39 @@ shapely = "2.0.1"
 webdriver-manager = "^4.0.1"
 xlrd = ">=2.0.1"
 httpx = "^0.26.0"
+parameterized = "^0.9.0"
 
-[tool.poetry.dev-dependencies]
-pytest_cov = "^3.0.0"
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^3.6.0"
+ruff = "^0.2.0"
+yamlfix = "^1.16.0"
+shandy-sqlfmt = "^0.20.0"
+typer = "^0.4.0"
+cookiecutter = "^1.7.3"
+networkx = "2.6.3"
+
+[tool.poetry.group.test]
+optional = true
+
+[tool.poetry.group.test.dependencies]
+pytest = "^7.2.1"
+pytest-cov = "^4.1.0"
+networkx = "^2.6.3"
+parameterized = "^0.9.0"
 
 [tool.poetry.scripts]
 lint = "scripts.lint:main"
 
-[tool.poetry.group.dev.dependencies]
-pre-commit = "^3.6.0"
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+exclude = ["pipelines"]
 
-[tool.black]
-exclude = "pipelines/{{cookiecutter.project_name}}"
-
-[tool.isort]
-profile = "black"
-multi_line_output = 3
-use_parentheses = true
-include_trailing_comma = true
-skip = ["pipelines/{{cookiecutter.project_name}}"]
-
-[tool.autoflake]
-exclude = "pipelines/{{cookiecutter.project_name}}"
-
+[tool.ruff.lint]
+select = ["E", "F", "I"]
 
 [build-system]
 build-backend = "poetry.core.masonry.api"

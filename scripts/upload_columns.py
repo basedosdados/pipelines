@@ -2,9 +2,6 @@
 import json
 from typing import Dict
 
-import numpy as np
-import pandas as pd
-import requests
 from basedosdados import backend as b
 from link_directory_metadata import get_directory_column_id
 
@@ -18,7 +15,8 @@ def create_column(
     backend: b.Backend,
     mutation_parameters: Dict[str, str] = None,
 ) -> bool:
-    ## tinha que ser create or replace, por enquanto ele duplica os dados se rodar duas vezes por isso atenção na hora de rodar!
+    ## tinha que ser create or replace, por enquanto ele duplica
+    ## os dados se rodar duas vezes por isso atenção na hora de rodar!
 
     # GraphQL mutation to create or update a column
     mutation = """
@@ -134,9 +132,7 @@ def check_metadata_columns(dataset_id, table_slug, url_api: str, url_architectur
     backend = b.Backend(graphql_url=url_api)
 
     # Get the table ID using the dataset ID and table ID
-    table_id = backend._get_table_id_from_name(
-        gcp_dataset_id=dataset_id, gcp_table_id=table_slug
-    )
+    table_id = backend._get_table_id_from_name(gcp_dataset_id=dataset_id, gcp_table_id=table_slug)
 
     # Read the architecture table
     architecture = read_architecture_table(url_architecture=url_architecture)
@@ -155,13 +151,15 @@ def upload_columns_from_architecture(
     if_column_exists: str = "pass",
 ):
     """
-    Uploads columns from an architecture table to the specified dataset and table in the Base dos Dados platform.
+    Uploads columns from an architecture table to the specified dataset and table in  platform.
 
     Notes:
     - This function assumes a specific structure/format for the architecture table.
     - It interacts with the Base dos Dados GraphQL API to create or update columns.
-    - Columns from the architecture table are processed and uploaded to the specified dataset and table.
-    - It prints information about the existing columns and performs metadata checks after uploading columns.
+    - Columns from the architecture table are processed
+    and uploaded to the specified dataset and table.
+    - It prints information about the existing columns
+    and performs metadata checks after uploading columns.
     """
     accepted_if_exists_values = ["pass", "replace"]
 
@@ -174,9 +172,7 @@ def upload_columns_from_architecture(
     backend = b.Backend(graphql_url=url_api)
 
     # Get the table ID using the dataset ID and table ID
-    table_id = backend._get_table_id_from_name(
-        gcp_dataset_id=dataset_id, gcp_table_id=table_slug
-    )
+    table_id = backend._get_table_id_from_name(gcp_dataset_id=dataset_id, gcp_table_id=table_slug)
     print(f"table_id: {table_id}\n")
 
     # Read the architecture table
@@ -189,9 +185,7 @@ def upload_columns_from_architecture(
     for index, row in architecture.iterrows():
         print(f"\nColumn: {row['name']}")
 
-        column_id = get_column_id(
-            table_id=table_id, column_name=row["name"], url_api=url_api
-        )
+        column_id = get_column_id(table_id=table_id, column_name=row["name"], url_api=url_api)
 
         if column_id and if_column_exists == "pass":
             print("row already exists")
