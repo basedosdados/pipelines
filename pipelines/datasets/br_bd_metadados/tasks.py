@@ -2,6 +2,8 @@
 """
 Tasks for br_bd_metadados
 """
+#register_flow
+
 import os
 from datetime import timedelta
 import datetime
@@ -14,7 +16,6 @@ from pipelines.constants import constants
 from pipelines.utils.utils import log
 
 
-#register_flow
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
