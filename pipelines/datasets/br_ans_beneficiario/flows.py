@@ -5,8 +5,6 @@ Flows for br_ans_beneficiario
 
 
 from datetime import timedelta
-from re import U
-
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
@@ -51,23 +49,21 @@ with Flow(
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
-    # files = Parameter("files", default=["202306", "202307"], required=False)
-
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
-    #rename_flow_run = rename_current_flow_run_dataset_table(
-    #    prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
-    #)
+    rename_flow_run = rename_current_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+    )
 
     hrefs = extract_links_and_dates(url=url)
     last_date = return_last_date(hrefs, upstream_tasks=[hrefs])
     update = check_if_data_is_outdated(dataset_id,
-    table_id,
-    data_source_max_date=last_date,
-    date_format= "%Y-%m-%d", upstream_tasks=[hrefs, last_date])
+        table_id,
+        data_source_max_date=last_date,
+        date_format= "%Y-%m-%d", upstream_tasks=[hrefs, last_date])
 
 
     with case(update, False):
