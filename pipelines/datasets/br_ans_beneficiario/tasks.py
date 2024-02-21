@@ -63,14 +63,18 @@ def extract_links_and_dates(url) -> pd.DataFrame:
     # df['desatualizado'] = df['arquivo'].apply(lambda x: True if x in ['inf_diario_fi_202201.zip','inf_diario_fi_202305.zip'] else False)
     return df
 
+@task
+def return_last_date(df):
+    return max(df['ultima_atualizacao'])
+
 
 @task
 def check_for_updates(df):
     """
     Checks for outdated tables.
     """
-
-    return df.query("desatualizado == True").arquivo.to_list()
+    log(df[df['ultima_atualizacao'] == max(df['ultima_atualizacao'])].arquivo.to_list())
+    return df[df['ultima_atualizacao'] == max(df['ultima_atualizacao'])].arquivo.to_list()
 
 
 @task
