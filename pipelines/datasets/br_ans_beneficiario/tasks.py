@@ -10,8 +10,11 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from loguru import logger
+import asyncio
 from prefect import task
+from pipelines.utils.to_download.utils import download_files_async
 from tqdm import tqdm
+from pipelines.utils.to_download.tasks import to_download
 
 from pipelines.datasets.br_ans_beneficiario.constants import constants as ans_constants
 from pipelines.datasets.br_ans_beneficiario.utils import (
@@ -82,7 +85,16 @@ def crawler_ans(files):
     for file in tqdm(files):
         urls, zips = get_url_from_template(file)
 
-        download_unzip_csv(urls, zips, id="beneficiario")
+        save_path = "/tmp/data/br_ans_beneficiario/beneficiario/input/"
+        os.makedirs(save_path, exist_ok=True)
+        log(f"`mkdir = True` >>> {save_path} directory was created.")
+        asyncio.run(
+            download_files_async(
+                urls,
+                save_path,
+                "zip"
+            )
+        )
 
         log(f"DOWNLOADED FILE ->>> {file}")
 
