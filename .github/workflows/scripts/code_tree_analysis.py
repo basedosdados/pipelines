@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import List, Tuple, Union
 
 import networkx as nx
-import yaml
 from prefect import Flow
 
 message_id = 0
