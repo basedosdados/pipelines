@@ -57,7 +57,7 @@ with Flow(
     data_is_up_to_date = is_up_to_date(upstream_tasks=[setup])
 
     with case(data_is_up_to_date, True):
-        log_task("Tabelas já estão atualizadas")
+        log_task("Tabelas atualizadas")
 
     with case(data_is_up_to_date, False):
         current_date = datetime.datetime(
