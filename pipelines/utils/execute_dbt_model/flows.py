@@ -34,7 +34,9 @@ with Flow(name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value) as run_dbt_mod
     )
 
     # Get DBT client
-    dbt_client = get_k8s_dbt_client(mode=mode, wait=rename_flow_run)
+    dbt_client = get_k8s_dbt_client(mode=mode,
+    wait=rename_flow_run
+    )
 
     # Run DBT model
     materialize_this = run_dbt_model(  # pylint: disable=invalid-name

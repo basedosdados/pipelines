@@ -90,7 +90,7 @@ def run_dbt_model(
             vars_str = f'"{vars_dict}"'
             run_command += f" --vars {vars_str}"
         else:
-            vars_str = f'{_vars}' if disable_elementary else f'"{_vars}"'
+            vars_str = f"'{_vars}'" if disable_elementary else f'"{_vars}"'
             run_command += f" --vars {vars_str}"
 
     if flags:
