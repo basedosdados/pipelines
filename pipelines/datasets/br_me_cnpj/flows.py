@@ -39,7 +39,6 @@ with Flow(
     code_owners=[
         "arthurfg",
     ],
-    executor=LocalDaskExecutor(),
 ) as br_me_cnpj_empresas:
     dataset_id = Parameter("dataset_id", default="br_me_cnpj", required=False)
     table_id = Parameter("table_id", default="empresas", required=False)
@@ -132,7 +131,6 @@ with Flow(
     code_owners=[
         "arthurfg",
     ],
-    executor=LocalDaskExecutor(),
 ) as br_me_cnpj_socios:
     dataset_id = Parameter("dataset_id", default="br_me_cnpj", required=True)
     table_id = Parameter("table_id", default="socios", required=True)
@@ -224,7 +222,6 @@ with Flow(
     code_owners=[
         "arthurfg",
     ],
-    executor=LocalDaskExecutor(),
 ) as br_me_cnpj_estabelecimentos:
     dataset_id = Parameter("dataset_id", default="br_me_cnpj", required=False)
     table_id = Parameter("table_id", default="estabelecimentos", required=False)
