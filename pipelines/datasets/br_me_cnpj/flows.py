@@ -528,6 +528,6 @@ with Flow(
                 upstream_tasks=[wait_for_materialization],
             )
 
-br_me_cnpj_simples.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_me_cnpj_simples.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_me_cnpj_simples.schedule = every_day_simples
+br_me_cnpj_alternative_upload.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_me_cnpj_alternative_upload.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+#br_me_cnpj_simples.schedule = every_day_simples
