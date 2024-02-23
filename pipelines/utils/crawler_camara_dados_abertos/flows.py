@@ -46,11 +46,11 @@ with Flow(
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ",
         dataset_id=dataset_id,
-        table_id="Universal",
+        table_id=table_id,
         wait=table_id,
     )
 
-    update_metadata = Parameter("update_metadata", default=True, required=False)
+    update_metadata = Parameter("update_metadata", default=False, required=False)
 
     filepath = save_data(
         table_id=table_id,
