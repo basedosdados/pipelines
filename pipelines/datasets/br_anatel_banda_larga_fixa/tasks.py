@@ -23,7 +23,10 @@ from pipelines.datasets.br_anatel_banda_larga_fixa.utils import (
 from pipelines.utils.utils import log, to_partitions
 
 
-@task
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def setting_data_url():
     meses = {
         "jan": "01",
