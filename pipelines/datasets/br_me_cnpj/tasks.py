@@ -5,7 +5,7 @@ Tasks for br_me_cnpj
 import asyncio
 import os
 from datetime import datetime
-
+import basedosdados as bd
 from prefect import task
 
 from pipelines.datasets.br_me_cnpj.constants import constants as constants_cnpj
@@ -87,7 +87,7 @@ def main(tabelas):
         output_path = destino_output(sufixo, data_coleta)
 
         # Loop para baixar e processar os arquivos
-        for i in range(0, 10):
+        for i in range(8, 10):
             if tabela != "Simples":
                 nome_arquivo = f"{tabela}{i}"
                 url_download = f"https://dadosabertos.rfb.gov.br/CNPJ/{tabela}{i}.zip"
@@ -111,3 +111,9 @@ def main(tabelas):
                     process_csv_simples(input_path, output_path, data_coleta, sufixo)
 
     return output_path
+
+@task
+def alternative_upload():
+    os.makedirs("/tmp/data/backup/", exist_ok=True)
+    st = bd.Storage(dataset_id="br_me_cnpj", table_id="estabelecimentos")
+    st.download(filename="data=2024-02-16/", savepath="/tmp/data/")
