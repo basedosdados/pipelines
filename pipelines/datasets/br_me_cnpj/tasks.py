@@ -4,6 +4,8 @@ Tasks for br_me_cnpj
 """
 import asyncio
 import os
+from google.cloud import storage
+import pathlib
 from datetime import datetime
 import basedosdados as bd
 from prefect import task
@@ -115,5 +117,24 @@ def main(tabelas):
 @task
 def alternative_upload():
     os.makedirs("/tmp/data/backup/", exist_ok=True)
-    st = bd.Storage(dataset_id="br_me_cnpj", table_id="estabelecimentos")
-    st.download(filename="data=2024-02-16/", savepath="/tmp/data/")
+    storage_client = storage.Client()
+    blobs_in_bucket = storage_client.list_blobs(
+        "basedosdados-dev", prefix="staging/br_me_cnpj/estabelecimentos/data=2024-02-16/"
+    )
+    blob_list = list(blobs_in_bucket)
+
+    for blob in blob_list:
+        savepath = "/tmp/data/backup/"
+
+        # parse blob.name and get the csv file name
+        csv_name = blob.name.split("/")[-1]
+
+        # build folder path replicating storage hierarchy
+        blob_folder = blob.name.replace(csv_name, "")
+
+        # replicate folder hierarchy
+        (pathlib.Path(savepath) / blob_folder).mkdir(parents=True, exist_ok=True)
+
+        # download blob to savepath
+        savepath = f"{savepath}/{blob.name}"
+        blob.download_to_filename(filename=savepath)
