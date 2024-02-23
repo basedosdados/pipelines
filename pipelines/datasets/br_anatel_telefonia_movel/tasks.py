@@ -22,7 +22,10 @@ from pipelines.datasets.br_anatel_telefonia_movel.utils import (
 from pipelines.utils.utils import log
 
 
-@task
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def setting_data_url():
     meses = {
         "jan": "01",
