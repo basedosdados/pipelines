@@ -3,6 +3,7 @@
 Flows for br_me_cnpj
 """
 from datetime import timedelta
+from turtle import up
 
 from prefect import Parameter, case
 from prefect.executors import LocalDaskExecutor
@@ -79,7 +80,7 @@ with Flow(
         )
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels()
+            current_flow_labels = get_current_flow_labels(upstream_tasks=[wait_upload_table])
             materialization_flow = create_flow_run(
                 flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
                 project_name=constants.PREFECT_DEFAULT_PROJECT.value,
@@ -92,6 +93,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
+                upstream_tasks=[current_flow_labels]
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -99,6 +101,7 @@ with Flow(
                 stream_states=True,
                 stream_logs=True,
                 raise_final_state=True,
+                upstream_tasks=[materialization_flow]
             )
             wait_for_materialization.max_retries = (
                 dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
@@ -170,7 +173,7 @@ with Flow(
         )
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels()
+            current_flow_labels = get_current_flow_labels(upstream_tasks=[wait_upload_table])
             materialization_flow = create_flow_run(
                 flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
                 project_name=constants.PREFECT_DEFAULT_PROJECT.value,
@@ -182,6 +185,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
+                upstream_tasks=[current_flow_labels]
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -189,6 +193,7 @@ with Flow(
                 stream_states=True,
                 stream_logs=True,
                 raise_final_state=True,
+                upstream_tasks=[materialization_flow]
             )
             wait_for_materialization.max_retries = (
                 dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
@@ -305,7 +310,7 @@ with Flow(
         ## atualiza o diretório de empresas
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels()
+            current_flow_labels = get_current_flow_labels(upstream_tasks=[update_django_metadata])
             materialize_second = create_flow_run(
                 flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
                 project_name=constants.PREFECT_DEFAULT_PROJECT.value,
@@ -317,6 +322,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
+                upstream_tasks=[materialization_flow, wait_for_materialization]
             )
             materialize_second.set_upstream([materialization_flow])
             wait_for_materialization = wait_for_flow_run(
@@ -396,7 +402,7 @@ with Flow(
         )
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels()
+            current_flow_labels = get_current_flow_labels(upstream_tasks=[wait_upload_table])
             materialization_flow = create_flow_run(
                 flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
                 project_name=constants.PREFECT_DEFAULT_PROJECT.value,
@@ -408,6 +414,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
+                upstream_tasks=[current_flow_labels]
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -415,6 +422,7 @@ with Flow(
                 stream_states=True,
                 stream_logs=True,
                 raise_final_state=True,
+                upstream_tasks=[materialization_flow]
             )
             wait_for_materialization.max_retries = (
                 dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
@@ -430,7 +438,7 @@ with Flow(
                 prefect_mode=materialization_mode,
                 bq_project="basedosdados",
                 historical_database=False,
-                # upstream_tasks=[wait_for_materialization],
+                upstream_tasks=[wait_for_materialization],
             )
 
 br_me_cnpj_simples.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
