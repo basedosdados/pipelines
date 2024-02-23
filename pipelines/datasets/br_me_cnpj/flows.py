@@ -481,7 +481,7 @@ with Flow(
     with case(dados_desatualizados, True):
         output_filepath = alternative_upload()
         wait_upload_table = create_table_and_upload_to_gcs(
-            data_path="/tmp/data/backup/staging/br_me_cnpj/data=2024-02-16/",
+            data_path="/tmp/data/backup/staging/br_me_cnpj/estabelecimentos/",
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
