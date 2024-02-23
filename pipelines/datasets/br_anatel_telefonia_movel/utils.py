@@ -125,16 +125,15 @@ def data_url():
 
     try:
         # Abra a página da web
-        time.sleep(60)
         driver.get(url)
-        time.sleep(60)
+        time.sleep(120)
 
         # Aguarde até que o elemento desejado seja carregado (você pode ajustar o tempo limite conforme necessário)
         element = driver.find_element(
             "xpath",
             '//*[@id="selection-list"]/li/qv-current-selections-item/div/div[1]/span/span',
         )
-        time.sleep(60)
+        time.sleep(120)
 
         # Obtenha o HTML do elemento
         element_html = element.get_attribute("outerHTML")
@@ -144,7 +143,6 @@ def data_url():
         print("Ocorreu um erro ao acessar a página:", str(e))
     finally:
         # Certifique-se de fechar o navegador, mesmo em caso de erro
-        time.sleep(60)
         driver.quit()
 
     return element_html
