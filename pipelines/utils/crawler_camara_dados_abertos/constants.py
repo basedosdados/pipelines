@@ -63,9 +63,9 @@ class constants(Enum):
         "votacao_objeto": f"/tmp/input/votacoesObjetos-{ANO_ATUAL}.csv",
         "votacao_proposicao_afetada": f"/tmp/input/votacoesProposicoes-{ANO_ATUAL}.csv",
         # - > Deputado
-        "deputados": "/tmp/input/deputados.csv",
+        "deputado": "/tmp/input/deputados.csv",
         "deputado_ocupacao": "/tmp/input/deputado_ocupacao.csv",
-        "deputado_profissao": "/tmp/input/deputado_profissao/deputadosProfissoes.csv",
+        "deputado_profissao": "/tmp/input/deputadosProfissoes.csv",
     }
 
     TABLES_OUTPUT_PATH = {
@@ -93,7 +93,7 @@ class constants(Enum):
         "votacao_objeto": f"/tmp/output/votacao_objeto/votacoesObjetos_{ANO_ATUAL}.csv",
         "votacao_proposicao_afetada": f"/tmp/output/votacao_proposicao_afetada/votacoesProposicoes_{ANO_ATUAL}.csv",
         # - > Deputado
-        "deputados": "/tmp/output/deputados/deputados.csv",
+        "deputado": "/tmp/output/deputado/deputados.csv",
         "deputado_ocupacao": "/tmp/output/deputado_ocupacao.csv",
         "deputado_profissao": "/tmp/output/deputado_profissao/deputadosProfissoes.csv",
     }
@@ -123,7 +123,7 @@ class constants(Enum):
         "votacao_objeto": f"https://dadosabertos.camara.leg.br/arquivos/votacoesObjetos/csv/votacoesObjetos-{ANO_ATUAL}.csv",
         "votacao_proposicao_afetada": f"https://dadosabertos.camara.leg.br/arquivos/votacoesProposicoes/csv/votacoesProposicoes-{ANO_ATUAL}.csv",
         # - > Deputado
-        "deputados": "https://dadosabertos.camara.leg.br/arquivos/deputados/csv/deputados.csv",
+        "deputado": "https://dadosabertos.camara.leg.br/arquivos/deputados/csv/deputados.csv",
         "deputado_ocupacao": "https://dadosabertos.camara.leg.br/arquivos/deputadosOcupacoes/csv/deputadosOcupacoes.csv",
         "deputado_profissao": "https://dadosabertos.camara.leg.br/arquivos/deputadosProfissoes/csv/deputadosProfissoes.csv",
     }
