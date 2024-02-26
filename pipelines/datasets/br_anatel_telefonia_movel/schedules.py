@@ -12,10 +12,10 @@ from pipelines.constants import constants
 every_month_anatel = Schedule(
     clocks=[
         CronClock(
-            cron="0 5 * * *",  # 5h UTC = 2h BRT
-            start_date=datetime(2021, 3, 31, 17, 11),
+            cron="0 16 * * *",  # ! goes execute every day 13 pm
+            start_date=datetime(2021, 3, 31, 17, 11), # ! first date that the pipeline executed
             labels=[
-                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value, # ! label of identify (ex: basedosdados-dev)
             ],
             parameter_defaults={
                 "dataset_id": "br_anatel_telefonia_movel",
