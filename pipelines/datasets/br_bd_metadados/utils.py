@@ -38,24 +38,15 @@ def save_files_per_week(flow_runs_df, relevant_columns,folder_path):
 ### prefect_flows
 
 def extract_and_process_schedule_data(flow_df):
-    log(len(flow_df))
-
     is_scheduled_filter = flow_df["schedule_clocks"].notna()
     scheduled_flows_df = flow_df[is_scheduled_filter].copy()
-    log(len(scheduled_flows_df))
     scheduled_flows_df = parse_schedule_information(scheduled_flows_df.reset_index())
-    log(len(scheduled_flows_df))
 
-    df_final = pd.concat([flow_df[~is_scheduled_filter], scheduled_flows_df], axis=0 )
-    log(len(df_final))
-    return df_final
+    return pd.concat([flow_df[~is_scheduled_filter], scheduled_flows_df], axis=0 )
 
 def parse_schedule_information(flows_df):
-
     flows_df = flows_df.reset_index(drop=True)
-
     clocks_df = parse_schedule_clocks_column(flows_df)
-
     parameters_df = parse_schedule_parameter_column(clocks_df)
 
     flows_df.drop(columns=["schedule_clocks"], inplace=True)
