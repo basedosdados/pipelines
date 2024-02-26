@@ -16,6 +16,9 @@ import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 from pipelines.utils.utils import log
 
@@ -108,8 +111,6 @@ def data_url():
 
     # Configurar as opções do ChromeDriver
     options = webdriver.ChromeOptions()
-    time.sleep(5)
-
     # Adicionar argumentos para executar o Chrome em modo headless (sem interface gráfica)
     options.add_argument("--headless")
     options.add_argument("--no-sandbox")
@@ -125,22 +126,28 @@ def data_url():
 
     try:
         # Abra a página da web
+        log(url)
         driver.get(url)
-        time.sleep(120)
 
-        # Aguarde até que o elemento desejado seja carregado (você pode ajustar o tempo limite conforme necessário)
+        # Espera até que o elemento desejado seja visível na página (você pode ajustar o tempo limite conforme necessário)
+        WebDriverWait(driver, 600).until(
+            EC.visibility_of_element_located(
+                (By.XPATH, '//*[@id="selection-list"]/li/qv-current-selections-item/div/div[1]/span/span')
+            )
+        )
+
+        # Encontrar o elemento depois que estiver visível
         element = driver.find_element(
             "xpath",
             '//*[@id="selection-list"]/li/qv-current-selections-item/div/div[1]/span/span',
         )
-        time.sleep(120)
 
         # Obtenha o HTML do elemento
         element_html = element.get_attribute("outerHTML")
         # Imprima o HTML do elemento
-        print(element_html)
+        log(element_html)
     except Exception as e:
-        print("Ocorreu um erro ao acessar a página:", str(e))
+        log("Ocorreu um erro ao acessar a página:", str(e))
     finally:
         # Certifique-se de fechar o navegador, mesmo em caso de erro
         driver.quit()
