@@ -126,11 +126,30 @@ def data_url():
     # Configurar as opções do ChromeDriver
     options = webdriver.ChromeOptions()
     # Adicionar argumentos para executar o Chrome em modo headless (sem interface gráfica)
-    options.add_argument("--headless")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--disable-dev-shm-usage")
+    prefs = {
+        "download.prompt_for_download": False,
+        "download.directory_upgrade": True,
+        "safebrowsing.enabled": True,
+    }
+
+    options.add_experimental_option(
+        "prefs",
+        prefs,
+    )
+
     options.add_argument("--headless=new")
+    # NOTE: The traditional --headless, and since version 96, Chrome has a new headless mode that allows users to get the full browser functionality (even run extensions). Between versions 96 to 108 it was --headless=chrome, after version 109 --headless=new
+    options.add_argument("--test-type")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--no-first-run")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--no-default-browser-check")
+    options.add_argument("--ignore-certificate-errors")
+    options.add_argument("--start-maximized")
+    options.add_argument(
+        "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
+    )
 
     # Inicializar o driver do Chrome com as opções configuradas
     driver = webdriver.Chrome(options=options)
