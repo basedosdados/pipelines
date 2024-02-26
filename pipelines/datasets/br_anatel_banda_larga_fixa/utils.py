@@ -8,12 +8,15 @@ from io import BytesIO
 from pathlib import Path
 from urllib.request import urlopen
 from zipfile import ZipFile
-
+from pipelines.utils.utils import log
 import numpy as np
 import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 
 def download_and_unzip(url, path):
@@ -118,24 +121,35 @@ def to_partitions_microdados(
 
 
 def data_url():
-    """
-    Faz um parse da data de atualização mais recente dos dados no site da anatel.
-
-    Returns:
-    Me retorna a data (%Y-%m) em que os dados estão mais atualizados no site.
-    """
     element_html = ""  # Inicialize element_html com uma string vazia
 
     # Configurar as opções do ChromeDriver
     options = webdriver.ChromeOptions()
-    time.sleep(5)
-
     # Adicionar argumentos para executar o Chrome em modo headless (sem interface gráfica)
-    options.add_argument("--headless")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--disable-dev-shm-usage")
+    prefs = {
+        "download.prompt_for_download": False,
+        "download.directory_upgrade": True,
+        "safebrowsing.enabled": True,
+    }
+
+    options.add_experimental_option(
+        "prefs",
+        prefs,
+    )
+
     options.add_argument("--headless=new")
+    # NOTE: The traditional --headless, and since version 96, Chrome has a new headless mode that allows users to get the full browser functionality (even run extensions). Between versions 96 to 108 it was --headless=chrome, after version 109 --headless=new
+    options.add_argument("--test-type")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--no-first-run")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--no-default-browser-check")
+    options.add_argument("--ignore-certificate-errors")
+    options.add_argument("--start-maximized")
+    options.add_argument(
+        "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
+    )
 
     # Inicializar o driver do Chrome com as opções configuradas
     driver = webdriver.Chrome(options=options)
@@ -145,22 +159,28 @@ def data_url():
 
     try:
         # Abra a página da web
+        log(url)
         driver.get(url)
-        time.sleep(120)
 
-        # Aguarde até que o elemento desejado seja carregado (você pode ajustar o tempo limite conforme necessário)
+        # Espera até que o elemento desejado seja visível na página (você pode ajustar o tempo limite conforme necessário)
+        WebDriverWait(driver, 600).until(
+            EC.visibility_of_element_located(
+                (By.XPATH, '//*[@id="selection-list"]/li/qv-current-selections-item/div/div[1]/span/span')
+            )
+        )
+
+        # Encontrar o elemento depois que estiver visível
         element = driver.find_element(
             "xpath",
             '//*[@id="selection-list"]/li/qv-current-selections-item/div/div[1]/span/span',
         )
-        time.sleep(120)
 
         # Obtenha o HTML do elemento
         element_html = element.get_attribute("outerHTML")
         # Imprima o HTML do elemento
-        print(element_html)
+        log(element_html)
     except Exception as e:
-        print("Ocorreu um erro ao acessar a página:", str(e))
+        log("Ocorreu um erro ao acessar a página:", str(e))
     finally:
         # Certifique-se de fechar o navegador, mesmo em caso de erro
         driver.quit()
