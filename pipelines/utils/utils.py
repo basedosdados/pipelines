@@ -496,19 +496,13 @@ def dump_header_to_csv(data_path: Union[str, Path], source_format: str):
     file: str = None
     for subdir, _, filenames in walk(str(path)):
         for fname in filenames:
-            if source_format == "csv":
-                if fname.endswith(".csv"):
-                    file = join(subdir, fname)
-                    log(f"Found CSV file: {file}")
-                    found = True
-                    break
 
-            elif source_format == "parquet":
-                if fname.endswith(".parquet"):
-                    file = join(subdir, fname)
-                    log(f"Found Parquet file: {file}")
-                    found = True
-                    break
+            if fname.endswith(f".{source_format}"):
+                file = join(subdir, fname)
+                log(f"Found {source_format} file: {file}")
+                found = True
+                break
+
         if found:
             break
 
@@ -519,24 +513,14 @@ def dump_header_to_csv(data_path: Union[str, Path], source_format: str):
     # discover if it's a partitioned table
     if partition_folders := [folder for folder in file.split("/") if "=" in folder]:
         partition_path = "/".join(partition_folders)
-        if source_format == "csv":
-            save_header_file_path = Path(
-                f"{save_header_path}/{partition_path}/header.csv"
+        save_header_file_path = Path(
+                f"{save_header_path}/{partition_path}/header.{source_format}"
             )
-            log(f"Found partition path: {save_header_file_path}")
-        elif source_format == "parquet":
-            save_header_file_path = Path(
-                f"{save_header_path}/{partition_path}/header.parquet"
-            )
-            log(f"Found partition path: {save_header_file_path}")
+        log(f"Found partition path: {save_header_file_path}")
 
     else:
-        if source_format == "csv":
-            save_header_file_path = Path(f"{save_header_path}/header.csv")
-            log(f"Do not found partition path: {save_header_file_path}")
-        elif source_format == "parquet":
-            save_header_file_path = Path(f"{save_header_path}/header.parquet")
-            log(f"Do not found partition path: {save_header_file_path}")
+        save_header_file_path = Path(f"{save_header_path}/header.{source_format}")
+        log(f"Do not found partition path: {save_header_file_path}")
 
     # Create directory if it doesn't exist
     save_header_file_path.parent.mkdir(parents=True, exist_ok=True)
@@ -545,16 +529,14 @@ def dump_header_to_csv(data_path: Union[str, Path], source_format: str):
     if source_format == "csv":
         dataframe = pd.read_csv(file, nrows=1)
 
-        # Write dataframe to CSV
         dataframe.to_csv(save_header_file_path, index=False, encoding="utf-8")
     elif source_format == "parquet":
         dataframe = pd.read_parquet(file)
         dataframe = dataframe.head(1)
 
-        # Write dataframe to Parquet
         dataframe.to_parquet(save_header_file_path, index=False)
 
-    log(f"Wrote header Parquet: {save_header_file_path}")
+    log(f"Wrote header {source_format}: {save_header_file_path}")
     return save_header_path
 
 
