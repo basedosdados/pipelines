@@ -191,19 +191,25 @@ def notify_discord_on_failure(
     code_owners: Optional[List[str]] = None,
 ):
     """
-    Notifies a Discord channel when a flow fails.
+    Notifies a Discord channel when a flow in prod fails.
     """
-    url = get_vault_secret(secret_path)["data"]["url"]
-    flow_run_id = prefect.context.get("flow_run_id")
     labels = prefect.context.config.cloud.agent.labels
-    code_owners = code_owners or constants.DEFAULT_CODE_OWNERS.value
-    code_owner_dict = constants.OWNERS_DISCORD_MENTIONS.value
-
     if labels != ["basedosdados"]:
         return
 
+    url = get_vault_secret(secret_path)["data"]["url"]
+    flow_run_id = prefect.context.get("flow_run_id")
+
+    default_code_owner = constants.DEFAULT_CODE_OWNERS.value
+    code_owners_list = code_owners or default_code_owner
+    code_owner_dict = constants.OWNERS_DISCORD_MENTIONS.value
     at_code_owners = []
-    for code_owner in code_owners:
+
+    for code_owner in code_owners_list:
+        if code_owner not in code_owner_dict:
+            log("Code owner not found in OWNERS_DISCORD_MENTIONS")
+            code_owner = default_code_owner
+
         code_owner_id = code_owner_dict[code_owner]["user_id"]
         code_owner_type = code_owner_dict[code_owner]["type"]
 
