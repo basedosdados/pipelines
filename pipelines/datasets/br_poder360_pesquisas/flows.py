@@ -20,9 +20,7 @@ from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
-    get_temporal_coverage,
     rename_current_flow_run_dataset_table,
-    update_metadata,
 )
 
 # pylint: disable=C0103
@@ -52,14 +50,6 @@ with Flow(
         table_id=table_id,
         dump_mode="append",
         wait=filepath,
-    )
-
-    temporal_coverage = get_temporal_coverage(
-        filepath=filepath,
-        date_cols=["data"],
-        time_unit="year",
-        interval="1",
-        upstream_tasks=[wait_upload_table],
     )
 
     with case(materialize_after_dump, True):

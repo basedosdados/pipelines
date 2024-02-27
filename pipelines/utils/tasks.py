@@ -9,26 +9,16 @@ from pathlib import Path
 from typing import Any, List, Union
 
 import basedosdados as bd
-import pandas as pd
 import prefect
-import ruamel.yaml as ryaml
 from prefect import task
 from prefect.backend import FlowRunView
 from prefect.client import Client
 
 from pipelines.constants import constants
 from pipelines.utils.utils import (
-    create_update,
     dump_header_to_csv,
-    extract_last_date,
-    extract_last_update,
     get_credentials_from_secret,
-    get_credentials_utils,
-    get_first_date,
-    get_ids,
-    get_token,
     log,
-    parse_temporal_coverage,
 )
 
 
@@ -199,134 +189,6 @@ def create_table_and_upload_to_gcs(
     else:
         # pylint: disable=C0301
         log("STEP UPLOAD: Table does not exist in STAGING, need to create first")
-
-
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
-# pylint: disable=R0914
-def update_metadata(dataset_id: str, table_id: str, fields_to_update: list) -> None:
-    """
-    Update metadata for a selected table
-
-    dataset_id: dataset_id,
-    table_id: table_id,
-    fields_to_update: list of dictionaries with key and values to be updated
-    """
-    # add credentials to config.toml
-    # TODO: remove this because bd 2.0 does not have Metadata class
-    handle = bd.Metadata(dataset_id=dataset_id, table_id=table_id)
-    handle.create(if_exists="replace")
-
-    yaml = ryaml.YAML()
-    yaml.preserve_quotes = True
-    yaml.indent(mapping=4, sequence=6, offset=4)
-
-    config_file = handle.filepath.as_posix()  # noqa
-
-    with open(config_file, encoding="utf-8") as fp:
-        data = yaml.load(fp)
-
-    # this is, of course, very slow but very few fields will be update each time, so the cubic algo will not have major performance consequences
-    for field in fields_to_update:
-        for k, v in field.items():
-            if isinstance(v, dict):
-                for i, j in v.items():
-                    data[k][i] = j
-            else:
-                data[k] = v
-
-    with open(config_file, "w", encoding="utf-8") as fp:
-        yaml.dump(data, fp)
-
-    if handle.validate():
-        handle.publish(if_exists="replace")
-        log(f"Metadata for {table_id} updated")
-    else:
-        log("Fail to validate metadata.")
-
-
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
-def get_temporal_coverage(
-    filepath: str, date_cols: list, time_unit: str, interval: str
-) -> str:
-    """
-    Generates a temporal coverage string from a csv.
-    The pattern follows the BD's Style Manual (https://basedosdados.github.io/mais/style_data/#cobertura-temporal)
-
-    args:
-    filepath: csv filepath
-    date_cols: date columns to use as reference (use the order [year, month, day])
-    time_unit: day | month | year
-    interval: time between dates.
-    For example, if the time_unit is month and the data is update every quarter, then the intervel is 3.
-    """
-    if len(date_cols) == 1:
-        date_col = date_cols[0]
-        df = pd.read_csv(filepath, usecols=[date_col], parse_dates=[date_col])
-        dates = df[date_col].to_list()
-        # keep only valid dates
-        dates = [d for d in dates if isinstance(d, pd.Timestamp)]
-        if len(dates) == 0:
-            raise ValueError("Selected date col has no valid date")
-        dates.sort()
-    elif len(date_cols) == 2:
-        year = date_cols[0]
-        month = date_cols[1]
-        df = pd.read_csv(filepath, usecols=[year, month])
-        df["date"] = [
-            datetime.strptime(str(x) + "-" + str(y) + "-" + "1", "%Y-%m-%d")
-            for x, y in zip(df[year], df[month])
-        ]
-        dates = df["date"].to_list()
-        # keep only valid dates
-        dates = [d for d in dates if isinstance(d, pd.Timestamp)]
-        if len(dates) == 0:
-            raise ValueError("Selected date col has no valid date")
-        dates.sort()
-    elif len(date_cols) == 3:
-        year = date_cols[0]
-        month = date_cols[1]
-        day = date_cols[2]
-        df = pd.read_csv(filepath, usecols=[year, month])
-        df["date"] = [
-            datetime.strptime(str(x) + "-" + str(y) + "-" + str(y), "%Y-%m-%d")
-            for x, y in zip(df[year], df[month], df[day])
-        ]
-        dates = df["date"].to_list()
-        # keep only valid dates
-        dates = [d for d in dates if isinstance(d, pd.Timestamp)]
-        if len(dates) == 0:
-            raise ValueError("Selected date col has no valid date")
-        dates.sort()
-    else:
-        raise ValueError(
-            "date_cols must be a list with up to 3 elements in the following order [year, month, day]"
-        )
-
-    if time_unit == "day":
-        start_date = (
-            f"{dates[0].year}-{dates[0].strftime('%m')}-{dates[0].strftime('%d')}"
-        )
-        end_date = (
-            f"{dates[-1].year}-{dates[-1].strftime('%m')}-{dates[-1].strftime('%d')}"
-        )
-        return start_date + "(" + interval + ")" + end_date
-    if time_unit == "month":
-        start_date = f"{dates[0].year}-{dates[0].strftime('%m')}"
-        end_date = f"{dates[-1].year}-{dates[-1].strftime('%m')}"
-        return start_date + "(" + interval + ")" + end_date
-    if time_unit == "year":
-        start_date = f"{dates[0].year}"
-        end_date = f"{dates[-1].year}"
-        return start_date + "(" + interval + ")" + end_date
-
-    raise ValueError("time_unit must be one of the following: day, month, year")
-
 
 # pylint: disable=W0613
 @task  # noqa
