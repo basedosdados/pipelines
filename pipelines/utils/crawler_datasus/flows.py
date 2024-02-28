@@ -32,9 +32,9 @@ from pipelines.utils.tasks import (
     log_task,
     rename_current_flow_run_dataset_table,
 )
-from pipelines.utils.to_download.tasks import to_download
 
-with Flow(name="BD Template - DATASUS-CNES", code_owners=["Gabriel Pisa"]) as flow_datasus:
+
+with Flow(name="BD Template - DATASUS-CNES", code_owners=["Gabriel Pisa"]) as flow_cnes:
     # Parameters
     dataset_id = Parameter("dataset_id", required=True)
     table_id = Parameter("table_id", required=True)
@@ -58,7 +58,7 @@ with Flow(name="BD Template - DATASUS-CNES", code_owners=["Gabriel Pisa"]) as fl
 
     with case(is_empty(ftp_files), True):
         log_task(
-            "Os dados do FTP CNES-ST ainda não foram atualizados para o ano/mes mais recente"
+            "Os dados do FTP CNES ainda não foram atualizados para o ano/mes mais recente"
         )
 
     with case(is_empty(ftp_files), False):
@@ -136,10 +136,8 @@ with Flow(name="BD Template - DATASUS-CNES", code_owners=["Gabriel Pisa"]) as fl
                     bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
-
-
-flow_datasus.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-flow_datasus.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+flow_cnes.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+flow_cnes.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 
 
 
@@ -168,7 +166,7 @@ with Flow(name="BD Template - DATASUS-SIA", code_owners=["Gabriel Pisa"]) as flo
 
     with case(is_empty(ftp_files), True):
         log_task(
-            "Os dados do FTP CNES-ST ainda não foram atualizados para o ano/mes mais recente"
+            "Os dados do FTP SIA ainda não foram atualizados para o ano/mes mais recente"
         )
 
     with case(is_empty(ftp_files), False):
@@ -240,7 +238,5 @@ with Flow(name="BD Template - DATASUS-SIA", code_owners=["Gabriel Pisa"]) as flo
                     bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
-
-
-flow_datasus.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-flow_datasus.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+flow_sia.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+flow_sia.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
