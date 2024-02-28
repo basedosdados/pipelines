@@ -10,6 +10,7 @@ import pyarrow as pa
 from pathlib import Path
 import pyarrow.parquet as pq
 from dbfread import DBF
+import struct
 import aioftp
 import pandas as pd
 import os
