@@ -6,15 +6,95 @@ General purpose functions for the br_ms_cnes project
 import asyncio
 from datetime import datetime
 from ftplib import FTP
-
+import pyarrow as pa
+from pathlib import Path
+import pyarrow.parquet as pq
+from dbfread import DBF
 import aioftp
 import pandas as pd
+import os
 from typing import List, Dict, Tuple
 from pipelines.utils.crawler_datasus.constants import constants as datasus_constants
 from pipelines.utils.utils import log
 
 
-def list_all_cnes_dbc_files(
+#-----------------------------
+#Utils to handle dbf and dbf
+
+def stream_dbf(dbf, chunk_size=400000):
+    """Fetches records in parquet chunks to preserve memory"""
+    data = []
+    i = 0
+    for records in dbf:
+        data.append(records)
+        i += 1
+        if i == chunk_size:
+            yield data
+            data = []
+            i = 0
+    else:
+        yield data
+
+def decode_column(value):
+    """
+    Decodes binary data to str
+    """
+    if isinstance(value, bytes):
+        return value.decode(encoding="iso-8859-1").replace("\x00", "")
+
+    if isinstance(value, str):
+        return str(value).replace("\x00", "")
+    return value
+
+def dbf_to_parquet(dbf: str) -> str:
+    """
+    Parses DBF file into parquet to preserve memory
+    """
+
+
+    path = Path(dbf)
+    if path.suffix.lower() != ".dbf":
+        raise ValueError(f"Not a DBF file: {path}")
+
+    #TODO: adaptar no flow do cnes para trocar sufixos de arquivos
+    parquet = path.with_suffix(".parquet")
+    print(parquet)
+    approx_final_size = (
+        os.path.getsize(path)/1000
+    )  # TODO: possibly use it to decide upon number of chunks
+    print(approx_final_size)
+
+
+    #cira diretório de output
+    dbf = dbf.replace("input", "output")
+    path_parts = dbf.split("/")[:-1]
+    output_path = os.path.join("/", *path_parts)
+    os.makedirs(output_path, exist_ok=True)
+
+    try:
+        #chunk_size = 30_000
+        #chunk_size = 100_000
+        for chunk in stream_dbf(
+            #dbf5 no lugar de DBF
+            DBF(path, encoding="iso-8859-1", raw=True)
+        ):
+            chunk_df = pd.DataFrame(chunk)
+            #TODO: INSERT SCHEMA FOR CNES TABLES
+            #NOTE: applymap is deprecated on pandas=2.1 onwards; basedosdados uses 2.0.1
+            table = pa.Table.from_pandas(chunk_df.applymap(decode_column))
+            #TypeError: __init__() got multiple values for argument 'schema' when set schema
+            pq.write_to_dataset(table, root_path=str(output_path))
+    except struct.error as err:
+
+        Path(path).unlink()
+        raise err
+
+
+    path.unlink()
+
+    return str(parquet)
+
+def list_datasus_dbc_files(
     datasus_database: str,
     datasus_database_table: str = None,
 ) -> list:
@@ -22,6 +102,9 @@ def list_all_cnes_dbc_files(
     """
     Enters FTP server and lists all DBCs files found for a
     a given datasus_database.
+
+    NOTE: It currently supports CNES and SIA databases groups;
+    CIHA, SIH, SIM, SINAN, SINASC and PNI are not implemented yet.
     """
     available_dbs = list()
     ftp = FTP("ftp.datasus.gov.br")
@@ -29,7 +112,10 @@ def list_all_cnes_dbc_files(
 
     # se datasus_database tiver diferentes URL em virtude de
     # variados anos  de inicio mudar abaixo
-    cnes_path = ["dissemin/publicos/CNES/200508_/Dados"]
+    cnes_path = [
+        "dissemin/publicos/CNES/200508_/Dados",
+        "dissemin/publicos/SIASUS/200801_/Dados"
+        ]
 
     for path in cnes_path:
         try:
@@ -37,7 +123,14 @@ def list_all_cnes_dbc_files(
             if datasus_database == "CNES":
                 if not datasus_database_table:
                     raise ValueError("No group assigned to CNES_group")
+                print(f"{path}/{datasus_database_table}/*.DBC")
                 available_dbs.extend(ftp.nlst(f"{path}/{datasus_database_table}/*.DBC"))
+
+            if datasus_database == "SIA":
+                print("SIA database")
+                if not datasus_database_table:
+                    raise ValueError("No group assigned to SIA_group")
+                available_dbs.extend(ftp.nlst(f"{path}/{datasus_database_table}*.DBC"))
         except Exception as e:
             raise e
     ftp.close()
@@ -134,16 +227,18 @@ def year_month_sigla_uf_parser(file: str) -> str:
     """
     try:
         # parse file name last 8 digits before .DBC
-        file = file[-10:-4]
+        #file = file[-10:-4]
+        file = file.split('/')[-1]
+
 
         # parse and build year
-        year = "20" + file[2:4]
+        year = "20" + file[4:6]
 
         # parse and build month
-        month = int(file[4:6])
+        month = int(file[6:8])
 
         # parse and build state
-        sigla_uf = file[:2]
+        sigla_uf = file[2:4]
 
     except IndexError:
         raise ValueError("Unable to parse month and year from file")

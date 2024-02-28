@@ -19,7 +19,9 @@ from pipelines.constants import constants
 from pipelines.utils.crawler_datasus.constants import constants as datasus_constants
 from pipelines.utils.crawler_datasus.utils import (
     download_chunks,
-    list_all_cnes_dbc_files,
+    list_datasus_dbc_files,
+    year_month_sigla_uf_parser,
+    dbf_to_parquet,
     post_process_dados_complementares,
     post_process_equipamento,
     post_process_equipe,
@@ -33,10 +35,11 @@ from pipelines.utils.crawler_datasus.utils import (
     post_process_profissional,
     post_process_regra_contratual,
     post_process_servico_especializado,
-    year_month_sigla_uf_parser,
+
 )
 from pipelines.utils.metadata.utils import get_api_most_recent_date
 from pipelines.utils.utils import log
+
 
 
 @task
@@ -80,12 +83,12 @@ def check_files_to_parse(
     datasus_database = datasus_constants.DATASUS_DATABASE.value[dataset_id]
     datasus_database_table = datasus_constants.DATASUS_DATABASE_TABLE.value[table_id]
 
-    available_dbs = list_all_cnes_dbc_files(
+    available_dbs = list_datasus_dbc_files(
         datasus_database=datasus_database, datasus_database_table=datasus_database_table
     )
+    log(year_month_to_parse)
+    list_files = [file for file in available_dbs if file.split('/')[-1][4:8] == year_month_to_parse]
 
-    list_files = [file for file in available_dbs if file[-8:-4] == year_month_to_parse]
-    # list_files = [file for file in available_dbs if file[-10:-8] == 'SP' and file[-8:-6] in ['22', '23']]
 
     log(f"------- The following files were selected fom DATASUS FTP: {list_files}")
 
@@ -134,7 +137,7 @@ def access_ftp_download_files_async(
         os.path.join(
             input_path, year_month_sigla_uf_parser(file=file), file.split("/")[-1]
         )
-        for file in file_list
+        for file in tqdm(file_list)
     ]
 
     return dbc_files_path_list
@@ -176,7 +179,7 @@ def decompress_dbc(file_list: list, dataset_id: str) -> None:
     log("------ Compiling blast-dbf repository")
     compile_blast_dbf.run()
 
-    for file in file_list:
+    for file in tqdm(file_list):
         # Check if the file has a .dbc extension
         if file.endswith(".dbc"):
             # Execute blast-dbf on the file
@@ -186,16 +189,18 @@ def decompress_dbc(file_list: list, dataset_id: str) -> None:
                 return_all=True,
                 log_stderr=True,
             )
-            log(f"Decompressing {file.split('/')[-1]} file")
+            log(f"------ Decompressing {file.split('/')[-1]} file")
             decompress_task.run()
+            log(f"------ Removing {file.split('/')[-1]} file")
+            os.system(f"rm -f {file}")
+
         else:
-            print(f"Skipping non-DBC file: {file}")
+            log(f"Skipping non-DBC file: {file}")
 
     log("------ Removing dbc files")
 
-    for file in file_list:
-        if file.endswith(".dbc"):
-            os.system(f"rm -f {file}")
+
+
 
 
 @task
@@ -227,13 +232,16 @@ def decompress_dbf(file_list: list, table_id: str) -> str:
         dbf.to_csv(output_file)
         csv_file_list.append(output_file)
 
-    log("------ Removing dbf files")
-
-    for file in dbf_file_list:
         if file.endswith(".dbf"):
+            file = file.replace("output", "input")
+            log(f"------ Removing {file.split('/')[-1]}")
             os.system(f"rm -f {file}")
 
     return csv_file_list
+
+
+
+
 
 
 @task
@@ -261,7 +269,7 @@ def pre_process_files(file_list: list, dataset_id: str, table_id: str) -> str:
     try:
         post_process_function = post_process_functions.get(table_id)
 
-    except Exception as e:
+    except: #Exception as e:
         log(
             f"The error {e} occurred. It probably indicates that no post-processing function was found for table_id: {table_id}"
         )
@@ -278,7 +286,7 @@ def pre_process_files(file_list: list, dataset_id: str, table_id: str) -> str:
 
         processed_df = post_process_function(concatenated_df)
 
-
+        processed_df = processed_df.astype(str)
         output_path = file.replace(".csv", ".parquet")
         processed_df.to_parquet(output_path, index=None, compression='gzip')
 
@@ -292,9 +300,32 @@ def pre_process_files(file_list: list, dataset_id: str, table_id: str) -> str:
     return output_path
 
 
+
+
 @task
 def is_empty(lista):
     if len(lista) == 0:
         return True
     else:
         return False
+
+
+
+
+@task
+def read_dbf_save_parquet_chunks(file_list: list, table_id: str) -> str:
+    """
+    Convert dbc to csv
+    """
+    log(f"--------- Decompressing {table_id} .DBF files")
+
+
+    dbf_file_list = [file.replace(".dbc", ".dbf") for file in file_list]
+
+    for file in tqdm(dbf_file_list):
+
+        # replace .csv with .dbf
+        log(f"-------- Reading {file}")
+        result_path = dbf_to_parquet(dbf=file)
+
+    return f'tmp/br_ms_sia/output/{table_id}'

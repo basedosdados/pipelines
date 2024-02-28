@@ -21,9 +21,11 @@ class constants(Enum):  # pylint: disable=c0103
     # to download files from datasus FTP server
     DATASUS_DATABASE = {
         "br_ms_cnes": "CNES",
+        "br_ms_sia": "SIA"
     }
 
     DATASUS_DATABASE_TABLE = {
+        #CNES
         "estabelecimento": "ST",
         "profissional": "PF",
         "equipamento": "EQ",
@@ -37,6 +39,8 @@ class constants(Enum):  # pylint: disable=c0103
         "incentivos": "IN",
         "regra_contratual": "RC",
         "servico_especializado": "SR",
+        #SIA
+        "producao_ambulatorial": "PA",
     }
 
 
