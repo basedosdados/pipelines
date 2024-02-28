@@ -14,7 +14,7 @@ ENV PYTHONUNBUFFERED 1
 ARG PREFECT_VERSION=0.15.9
 ENV PREFECT_VERSION $PREFECT_VERSION
 
-# Install gcc, Google Chrome, CLI tools and R
+# Install gcc, Google Chrome, CLI tools, git and R
 RUN apt-get update && \
     apt-get install --no-install-recommends -y wget gnupg && \
     wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - && \
@@ -33,6 +33,7 @@ RUN apt-get update && \
     python3-dev \
     traceroute \
     wget \
+    git \
     && \
     apt-get install -y r-base && \
     apt-get clean && \
