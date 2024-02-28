@@ -5,7 +5,6 @@ Flows for br_ans_beneficiario
 
 
 from datetime import timedelta
-
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
@@ -18,11 +17,13 @@ from pipelines.datasets.br_ans_beneficiario.tasks import (
     crawler_ans,
     extract_links_and_dates,
     is_empty,
+    return_last_date,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.utils.metadata.flows import update_django_metadata
+from pipelines.utils.metadata.tasks import check_if_data_is_outdated
 from pipelines.utils.tasks import (  # update_django_metadata,
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
@@ -36,20 +37,18 @@ with Flow(
         "arthurfg",
     ],
 ) as datasets_br_ans_beneficiario_flow:
-    dataset_id = Parameter("dataset_id", default="br_ans_beneficiario", required=True)
-    table_id = Parameter("table_id", default="teste_beneficiario", required=True)
+    dataset_id = Parameter("dataset_id", default="br_ans_beneficiario", required=False)
+    table_id = Parameter("table_id", default="informacao_consolidada", required=False)
     url = Parameter(
         "url",
         default="https://dadosabertos.ans.gov.br/FTP/PDA/informacoes_consolidadas_de_beneficiarios/",
         required=False,
     )
-    update_metadata = Parameter("update_metadata", default=True, required=False)
+    update_metadata = Parameter("update_metadata", default=False, required=False)
 
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
-    # files = Parameter("files", default=["202306", "202307"], required=False)
-
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
     )
@@ -60,14 +59,19 @@ with Flow(
     )
 
     hrefs = extract_links_and_dates(url=url)
+    last_date = return_last_date(hrefs, upstream_tasks=[hrefs])
+    update = check_if_data_is_outdated(dataset_id,
+        table_id,
+        data_source_max_date=last_date,
+        date_format= "%Y-%m-%d", upstream_tasks=[hrefs, last_date])
 
-    files = check_for_updates(hrefs)
 
-    with case(is_empty(files), True):
+    with case(update, False):
         log_task(f"Não houveram atualizações em {url.default}!")
 
-    with case(is_empty(files), False):
-        output_filepath = crawler_ans(files)
+    with case(update, True):
+        files = check_for_updates(hrefs)
+        output_filepath = crawler_ans(files, upstream_tasks=[files])
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
@@ -110,7 +114,7 @@ with Flow(
                     dataset_id=dataset_id,
                     table_id=table_id,
                     date_column_name={"year": "ano", "month": "mes"},
-                    date_format="%Y-%m",
+                    date_format="%Y-%m-%d",
                     coverage_type="part_bdpro",
                     time_delta={"months": 6},
                     prefect_mode=materialization_mode,
