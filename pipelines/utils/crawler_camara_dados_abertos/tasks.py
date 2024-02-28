@@ -4,6 +4,7 @@ import os
 from datetime import timedelta
 import pandas as pd
 from prefect import task
+import requests
 from pipelines.constants import constants
 from pipelines.utils.crawler_camara_dados_abertos.constants import (
     constants as constants_camara,
@@ -11,6 +12,7 @@ from pipelines.utils.crawler_camara_dados_abertos.constants import (
 from pipelines.utils.crawler_camara_dados_abertos.utils import (
     download_and_read_data
 )
+from pipelines.utils.utils import log
 
 # ----------------------------------------> DADOS CAMARA ABERTA - UNIVERSAL
 
@@ -48,7 +50,19 @@ def save_data(table_id: str) -> str:
         df["descricao"] = df["descricao"].apply(
             lambda x: str(x).replace("\n", " ").replace("\r", " ")
         )
-    print(f"Saving {table_id} to {output_path}")
+    log(f"Saving {table_id} to {output_path}")
     df.to_csv(output_path, sep=",", index=False, encoding="utf-8")
 
     return output_path
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def check_if_url_is_valid(table_id:str) -> bool:
+    if requests.get(constants_camara.TABLES_URL.value[table_id]).status_code == 200:
+        log("URL is valid")
+        return True
+    else:
+        log("URL is not valid")
+        return False

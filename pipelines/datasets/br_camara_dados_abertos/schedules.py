@@ -6,12 +6,12 @@ from prefect.schedules.clocks import CronClock
 
 from pipelines.constants import constants
 
-# - > Votação Microdados
+# ! - > Votação Microdados
 
 schedules_br_camara_dados_abertos_votacao_microdados = Schedule(
     clocks=[
         CronClock(
-            cron="0 6 * * *",  # every day at 9:00 UTC
+            cron="0 6 * * *",
             start_date=datetime(2021, 1, 1),
             labels=[constants.BASEDOSDADOS_PROD_AGENT_LABEL.value],
             parameter_defaults={
@@ -26,12 +26,12 @@ schedules_br_camara_dados_abertos_votacao_microdados = Schedule(
     ],
 )
 
-# - > Votação Objeto
+# ! - > Votação Objeto
 
 schedules_br_camara_dados_abertos_votacao_objeto = Schedule(
     clocks=[
         CronClock(
-            cron="10 6 * * *",  # every day at 9:00 UTC
+            cron="10 6 * * *",
             start_date=datetime(2021, 1, 1),
             labels=[constants.BASEDOSDADOS_PROD_AGENT_LABEL.value],
             parameter_defaults={
@@ -46,12 +46,12 @@ schedules_br_camara_dados_abertos_votacao_objeto = Schedule(
     ],
 )
 
-# - > Votação Orientação Bancada
+# ! - > Votação Orientação Bancada
 
 schedules_br_camara_dados_abertos_votacao_orientacao_bancada = Schedule(
     clocks=[
         CronClock(
-            cron="20 6 * * *",  # every day at 9:00 UTC
+            cron="20 6 * * *",
             start_date=datetime(2021, 1, 1),
             labels=[constants.BASEDOSDADOS_PROD_AGENT_LABEL.value],
             parameter_defaults={
@@ -66,12 +66,12 @@ schedules_br_camara_dados_abertos_votacao_orientacao_bancada = Schedule(
     ],
 )
 
-# - > Votação parlamentar
+# ! - > Votação parlamentar
 
 schedules_br_camara_dados_abertos_votacao_parlamentar = Schedule(
     clocks=[
         CronClock(
-            cron="30 6 * * *",  # every day at 9:00 UTC
+            cron="30 6 * * *",
             start_date=datetime(2021, 1, 1),
             labels=[constants.BASEDOSDADOS_PROD_AGENT_LABEL.value],
             parameter_defaults={
@@ -86,12 +86,12 @@ schedules_br_camara_dados_abertos_votacao_parlamentar = Schedule(
     ],
 )
 
-# - > Votação Proposição Afetada
+# ! - > Votação Proposição Afetada
 
 schedules_br_camara_dados_abertos_votacao_proposicao_afetada = Schedule(
     clocks=[
         CronClock(
-            cron="40 6 * * *",  # every day at 9:00 UTC
+            cron="40 6 * * *",
             start_date=datetime(2021, 1, 1),
             labels=[constants.BASEDOSDADOS_PROD_AGENT_LABEL.value],
             parameter_defaults={
@@ -106,12 +106,12 @@ schedules_br_camara_dados_abertos_votacao_proposicao_afetada = Schedule(
     ],
 )
 
-# - > Deputado
+# ! - > Deputado
 
 schedules_br_camara_dados_abertos_deputado = Schedule(
     clocks=[
         CronClock(
-            cron="50 6 * * *",  # every day at 9:30 UTC
+            cron="50 6 * * *",
             start_date=datetime(2021, 1, 1),
             labels=[constants.BASEDOSDADOS_PROD_AGENT_LABEL.value],
             parameter_defaults={
@@ -126,12 +126,12 @@ schedules_br_camara_dados_abertos_deputado = Schedule(
     ],
 )
 
-# - > Deputado Ocupação
+# ! - > Deputado Ocupação
 
 schedules_br_camara_dados_abertos_deputado_ocupacao = Schedule(
     clocks=[
         CronClock(
-            cron="0 7 * * *",  # every day at 9:30 UTC
+            cron="0 7 * * *",
             start_date=datetime(2021, 1, 1),
             labels=[constants.BASEDOSDADOS_PROD_AGENT_LABEL.value],
             parameter_defaults={
@@ -145,12 +145,12 @@ schedules_br_camara_dados_abertos_deputado_ocupacao = Schedule(
         ),
     ],
 )
-# - > Deputado Profissão
+# ! - > Deputado Profissão
 
 schedules_br_camara_dados_abertos_deputado_profissao = Schedule(
     clocks=[
         CronClock(
-            cron="10 7 * * *",  # every day at 9:30 UTC
+            cron="10 7 * * *",
             start_date=datetime(2021, 1, 1),
             labels=[constants.BASEDOSDADOS_PROD_AGENT_LABEL.value],
             parameter_defaults={
@@ -165,12 +165,12 @@ schedules_br_camara_dados_abertos_deputado_profissao = Schedule(
     ],
 )
 
-# - > Proposição microdados
+# ! - > Proposição microdados
 
 schedules_br_camara_dados_abertos_proposicao_microdados = Schedule(
     clocks=[
         CronClock(
-            cron="20 7 * * *",  # every day at 10:00 UTC
+            cron="20 7 * * *",
             start_date=datetime(2021, 1, 1),
             labels=[constants.BASEDOSDADOS_PROD_AGENT_LABEL.value],
             parameter_defaults={
@@ -185,12 +185,12 @@ schedules_br_camara_dados_abertos_proposicao_microdados = Schedule(
     ],
 )
 
-# - > Proposição Autor
+# ! - > Proposição Autor
 
 schedules_br_camara_dados_abertos_proposicao_autor = Schedule(
     clocks=[
         CronClock(
-            cron="30 7 * * *",  # every day at 10:00 UTC
+            cron="30 7 * * *",
             start_date=datetime(2021, 1, 1),
             labels=[constants.BASEDOSDADOS_PROD_AGENT_LABEL.value],
             parameter_defaults={
@@ -205,12 +205,12 @@ schedules_br_camara_dados_abertos_proposicao_autor = Schedule(
     ],
 )
 
-# - > Proposição Tema
+# ! - > Proposição Tema
 
 schedules_br_camara_dados_abertos_proposicao_tema = Schedule(
     clocks=[
         CronClock(
-            cron="40 7 * * *",  # every day at 10:00 UTC
+            cron="40 7 * * *",
             start_date=datetime(2021, 1, 1),
             labels=[constants.BASEDOSDADOS_PROD_AGENT_LABEL.value],
             parameter_defaults={
@@ -225,12 +225,12 @@ schedules_br_camara_dados_abertos_proposicao_tema = Schedule(
     ],
 )
 
-# - > Órgão
+# ! - > Órgão
 
 schedules_br_camara_dados_abertos_orgao = Schedule(
     clocks=[
         CronClock(
-            cron="50 7 * * *",  # every day at 10:00 UTC
+            cron="50 7 * * *",
             start_date=datetime(2021, 1, 1),
             labels=[constants.BASEDOSDADOS_PROD_AGENT_LABEL.value],
             parameter_defaults={
@@ -246,12 +246,12 @@ schedules_br_camara_dados_abertos_orgao = Schedule(
 )
 
 
-# - > Órgão deputado
+# ! - > Órgão deputado
 
 schedules_br_camara_dados_abertos_orgao_deputado = Schedule(
     clocks=[
         CronClock(
-            cron="00 8 * * *",  # every day at 10:00 UTC
+            cron="00 8 * * *",
             start_date=datetime(2021, 1, 1),
             labels=[constants.BASEDOSDADOS_PROD_AGENT_LABEL.value],
             parameter_defaults={
@@ -266,12 +266,12 @@ schedules_br_camara_dados_abertos_orgao_deputado = Schedule(
     ],
 )
 
-# - > Evento
+# ! - > Evento
 
 schedules_br_camara_dados_abertos_evento = Schedule(
     clocks=[
         CronClock(
-            cron="10 8 * * *",  # every day at 10:00 UTC
+            cron="10 8 * * *",
             start_date=datetime(2021, 1, 1),
             labels=[constants.BASEDOSDADOS_PROD_AGENT_LABEL.value],
             parameter_defaults={
@@ -286,12 +286,12 @@ schedules_br_camara_dados_abertos_evento = Schedule(
     ],
 )
 
-# - > Evento órgão
+# ! - > Evento órgão
 
 schedules_br_camara_dados_abertos_evento_orgao = Schedule(
     clocks=[
         CronClock(
-            cron="20 8 * * *",  # every day at 10:00 UTC
+            cron="20 8 * * *",
             start_date=datetime(2021, 1, 1),
             labels=[constants.BASEDOSDADOS_PROD_AGENT_LABEL.value],
             parameter_defaults={
@@ -306,12 +306,12 @@ schedules_br_camara_dados_abertos_evento_orgao = Schedule(
     ],
 )
 
-# - > Evento presença deputado
+# ! - > Evento presença deputado
 
 schedules_br_camara_dados_abertos_evento_presenca_deputado = Schedule(
     clocks=[
         CronClock(
-            cron="30 8 * * *",  # every day at 10:00 UTC
+            cron="30 8 * * *",
             start_date=datetime(2021, 1, 1),
             labels=[constants.BASEDOSDADOS_PROD_AGENT_LABEL.value],
             parameter_defaults={
@@ -326,12 +326,12 @@ schedules_br_camara_dados_abertos_evento_presenca_deputado = Schedule(
     ],
 )
 
-# - > Evento requerimento
+# ! - > Evento requerimento
 
 schedules_br_camara_dados_abertos_evento_requerimento = Schedule(
     clocks=[
         CronClock(
-            cron="40 8 * * *",  # every day at 10:00 UTC
+            cron="40 8 * * *",
             start_date=datetime(2021, 1, 1),
             labels=[constants.BASEDOSDADOS_PROD_AGENT_LABEL.value],
             parameter_defaults={
@@ -346,12 +346,12 @@ schedules_br_camara_dados_abertos_evento_requerimento = Schedule(
     ],
 )
 
-# - > Funcionário
+# ! - > Funcionário
 
 schedules_br_camara_dados_abertos_funcionario = Schedule(
     clocks=[
         CronClock(
-            cron="50 8 * * *",  # every day at 10:00 UTC
+            cron="50 8 * * *",
             start_date=datetime(2021, 1, 1),
             labels=[constants.BASEDOSDADOS_PROD_AGENT_LABEL.value],
             parameter_defaults={
@@ -366,12 +366,12 @@ schedules_br_camara_dados_abertos_funcionario = Schedule(
     ],
 )
 
-# - > Frente
+# ! - > Frente
 
 schedules_br_camara_dados_abertos_frente = Schedule(
     clocks=[
         CronClock(
-            cron="0 9 * * *",  # every day at 10:00 UTC
+            cron="0 9 * * *",
             start_date=datetime(2021, 1, 1),
             labels=[constants.BASEDOSDADOS_PROD_AGENT_LABEL.value],
             parameter_defaults={
@@ -386,12 +386,12 @@ schedules_br_camara_dados_abertos_frente = Schedule(
     ],
 )
 
-# - > Frente Deputado
+# ! - > Frente Deputado
 
 schedules_br_camara_dados_abertos_frente_deputado = Schedule(
     clocks=[
         CronClock(
-            cron="10 9 * * *",  # every day at 10:00 UTC
+            cron="10 9 * * *",
             start_date=datetime(2021, 1, 1),
             labels=[constants.BASEDOSDADOS_PROD_AGENT_LABEL.value],
             parameter_defaults={
