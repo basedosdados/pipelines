@@ -124,7 +124,7 @@ br_ms_cnes_estabelecimento_filantropico.run_config = KubernetesRun(
 br_ms_cnes_estabelecimento_filantropico.schedule = schedule_br_ms_cnes_estabelecimento_filantropico
 
 br_ms_cnes_regra_contratual = deepcopy(flow_cnes)
-br_ms_cnes_regra_contratual.name = "br_ms_cnes.estabelecimento_filantropico"
+br_ms_cnes_regra_contratual.name = "br_ms_cnes.br_ms_cnes_regra_contratual"
 br_ms_cnes_regra_contratual.code_owners = ["equipe_pipelines"]
 br_ms_cnes_regra_contratual.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_ms_cnes_regra_contratual.run_config = KubernetesRun(
