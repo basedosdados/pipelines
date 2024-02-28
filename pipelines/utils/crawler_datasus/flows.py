@@ -34,7 +34,7 @@ from pipelines.utils.tasks import (
 )
 
 
-with Flow(name="BD Template - DATASUS-CNES", code_owners=["Gabriel Pisa"]) as flow_cnes:
+with Flow(name="DATASUS-CNES", code_owners=["Gabriel Pisa"]) as flow_cnes:
     # Parameters
     dataset_id = Parameter("dataset_id", required=True)
     table_id = Parameter("table_id", required=True)
@@ -142,7 +142,7 @@ flow_cnes.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 
 
 
-with Flow(name="BD Template - DATASUS-SIA", code_owners=["Gabriel Pisa"]) as flow_sia:
+with Flow(name="DATASUS-SIA", code_owners=["Gabriel Pisa"]) as flow_sia:
     # Parameters
     dataset_id = Parameter("dataset_id", required=True)
     table_id = Parameter("table_id", required=True)
