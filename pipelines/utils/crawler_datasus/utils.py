@@ -57,9 +57,8 @@ def dbf_to_parquet(dbf: str) -> str:
     if path.suffix.lower() != ".dbf":
         raise ValueError(f"Not a DBF file: {path}")
 
-    #TODO: adaptar no flow do cnes para trocar sufixos de arquivos
     parquet = path.with_suffix(".parquet")
-    print(parquet)
+
     approx_final_size = (
         os.path.getsize(path)/1000
     )  # TODO: possibly use it to decide upon number of chunks
@@ -73,8 +72,6 @@ def dbf_to_parquet(dbf: str) -> str:
     os.makedirs(output_path, exist_ok=True)
 
     try:
-        #chunk_size = 30_000
-        #chunk_size = 100_000
         for chunk in stream_dbf(
             #dbf5 no lugar de DBF
             DBF(path, encoding="iso-8859-1", raw=True)
@@ -111,29 +108,21 @@ def list_datasus_dbc_files(
     ftp = FTP("ftp.datasus.gov.br")
     ftp.login()
 
-    # se datasus_database tiver diferentes URL em virtude de
-    # variados anos  de inicio mudar abaixo
-    cnes_path = [
-        "dissemin/publicos/CNES/200508_/Dados",
-        "dissemin/publicos/SIASUS/200801_/Dados"
-        ]
+    try:
+        # Adicionar aqui eventuais caminhos de databse
+        if datasus_database == "CNES":
+            if not datasus_database_table:
+                raise ValueError("No group assigned to CNES_group")
+            available_dbs.extend(ftp.nlst(f"dissemin/publicos/CNES/200508_/Dados/{datasus_database_table}/*.DBC"))
 
-    for path in cnes_path:
-        try:
-            # Adicionar aqui eventuais caminhos de databse
-            if datasus_database == "CNES":
-                if not datasus_database_table:
-                    raise ValueError("No group assigned to CNES_group")
-                print(f"{path}/{datasus_database_table}/*.DBC")
-                available_dbs.extend(ftp.nlst(f"{path}/{datasus_database_table}/*.DBC"))
+        if datasus_database == "SIA":
+            if not datasus_database_table:
+                raise ValueError("No group assigned to SIA_group")
+            available_dbs.extend(ftp.nlst(f"dissemin/publicos/SIASUS/200801_/Dados/{datasus_database_table}*.DBC"))
 
-            if datasus_database == "SIA":
-                print("SIA database")
-                if not datasus_database_table:
-                    raise ValueError("No group assigned to SIA_group")
-                available_dbs.extend(ftp.nlst(f"{path}/{datasus_database_table}*.DBC"))
-        except Exception as e:
-            raise e
+    except Exception as e:
+        raise e
+
     ftp.close()
     return available_dbs
 
