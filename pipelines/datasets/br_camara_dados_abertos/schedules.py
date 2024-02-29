@@ -408,7 +408,7 @@ schedules_br_camara_dados_abertos_frente_deputado = Schedule(
 
 # ! - > licitacao
 
-schedules_br_camara_dados_abertos_frente_deputado = Schedule(
+schedules_br_camara_dados_abertos_licitacao = Schedule(
     clocks=[
         CronClock(
             cron="10 9 * * *",
@@ -419,7 +419,7 @@ schedules_br_camara_dados_abertos_frente_deputado = Schedule(
                 "dbt_alias": True,
                 "materialize_after_dump": True,
                 "materialization_mode": "prod",
-                "table_id": "frente_deputado",
+                "table_id": "licitacao",
                 "dataset_id": "br_camara_dados_abertos",
             },
         ),

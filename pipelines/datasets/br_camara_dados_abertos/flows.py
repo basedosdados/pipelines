@@ -32,9 +32,7 @@ from pipelines.datasets.br_camara_dados_abertos.schedules import (
     schedules_br_camara_dados_abertos_licitacao_proposta,
     schedules_br_camara_dados_abertos_licitacao_contrato,
     schedules_br_camara_dados_abertos_licitacao_item,
-    schedules_br_camara_dados_abertos_licitacao_pedido,
-
-)
+    schedules_br_camara_dados_abertos_licitacao_pedido)
 
 # ! - > Flow: br_camara_dados_abertos__votacao_microdados
 br_camara_dados_abertos__votacao_microdados = deepcopy(flow_camara_dados_abertos)
@@ -251,11 +249,11 @@ br_camara_dados_abertos__licitacao_proposta.storage = GCS(constants.GCS_FLOWS_BU
 br_camara_dados_abertos__licitacao_proposta.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 br_camara_dados_abertos__licitacao_proposta.schedule = schedules_br_camara_dados_abertos_licitacao_proposta
 
-# ! - > Flow: br_camara_dados_abertos__licitacao_proposta
+# ! - > Flow: br_camara_dados_abertos__licitacao_pedido
 
-br_camara_dados_abertos__licitacao_proposta = deepcopy(flow_camara_dados_abertos)
-br_camara_dados_abertos__licitacao_proposta.name = "br_camara_dados_abertos.licitacao_proposta"
-br_camara_dados_abertos__licitacao_proposta.code_owners = ["trick"]
-br_camara_dados_abertos__licitacao_proposta.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_camara_dados_abertos__licitacao_proposta.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_camara_dados_abertos__licitacao_proposta.schedule = schedules_br_camara_dados_abertos_licitacao_proposta
+br_camara_dados_abertos__licitacao_pedido = deepcopy(flow_camara_dados_abertos)
+br_camara_dados_abertos__licitacao_pedido.name = "br_camara_dados_abertos.licitacao_pedido"
+br_camara_dados_abertos__licitacao_pedido.code_owners = ["trick"]
+br_camara_dados_abertos__licitacao_pedido.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_camara_dados_abertos__licitacao_pedido.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_camara_dados_abertos__licitacao_pedido.schedule = schedules_br_camara_dados_abertos_licitacao_pedido
