@@ -28,7 +28,6 @@ def save_data(table_id: str) -> str:
     output_path = constants_camara.TABLES_OUTPUT_PATH.value[table_id]
 
     if table_id == "proposicao_microdados":
-        output_path = constants_camara.TABLES_OUTPUT_PATH.value[table_id]
         df["ultimoStatus_despacho"] = df["ultimoStatus_despacho"].apply(
             lambda x: str(x).replace(";", ",").replace("\n", " ").replace("\r", " ")
         )
@@ -41,16 +40,30 @@ def save_data(table_id: str) -> str:
         )
 
     if table_id == "frente_deputado":
-        output_path = constants_camara.TABLES_OUTPUT_PATH.value[table_id]
         df = df.rename(columns=constants_camara.RENAME_COLUMNS_FRENTE_DEPUTADO.value)
 
     if table_id == "evento":
-        output_path = constants_camara.TABLES_OUTPUT_PATH.value[table_id]
         df = df.rename(columns=constants_camara.RENAME_COLUMNS_EVENTO.value)
         df["descricao"] = df["descricao"].apply(
             lambda x: str(x).replace("\n", " ").replace("\r", " ")
         )
+
+    if table_id == "votacao":
+        df['ultimaApresentacaoProposicao_descricao'] = df['ultimaApresentacaoProposicao_descricao'].apply(lambda x: str(x).replace(';', ' ').replace("\n", " ").replace("\r", " "))
+
+    if table_id == "votacao_objeto":
+        df[['descricao', "proposicao_ementa"]] = df[['descricao', "proposicao_ementa"]].apply(lambda x: str(x).replace(';', ' ').replace("\n", " ").replace("\r", " "))
+
+    if table_id == "votacao_proposicao":
+        df[["proposicao_ementa"]] = df[["proposicao_ementa"]].apply(lambda x: str(x).replace(';', ' ').replace("\n", " ").replace("\r", " "))
+
+    if table_id == "licitacao_pedido":
+        df[["observacoes"]] = df[["observacoes"]].apply(lambda x: str(x).replace(';', ' ').replace("\n", " ").replace("\r", " "))
+
+    if table_id == "licitacao_item":
+        df[["especificacao"]] = df[["especificacao"]].apply(lambda x: str(x).replace(';', ' ').replace("\n", " ").replace("\r", " "))
     log(f"Saving {table_id} to {output_path}")
+
     df.to_csv(output_path, sep=",", index=False, encoding="utf-8")
 
     return output_path

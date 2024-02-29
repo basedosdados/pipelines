@@ -32,11 +32,11 @@ class constants(Enum):
         # ! - > Funcionario
         "funcionario": "funcionarios",
         # ! - > Votação
-        "votacao_microdados": "votacoes",
+        "votacao": "votacoes",
         "votacao_orientacao_bancada": "votacoesOrientacoes",
         "voto_parlamentar": "votacoesVotos",
         "votacao_objeto": "votacoesObjetos",
-        "votacao_proposicao_afetada": "votacoesProposicoes",
+        "proposicao": "votacoesProposicoes",
         # ! - > Deputado
         "deputados": "deputados",
         "deputado_ocupacao": "deputadosOcupacoes",
@@ -68,11 +68,11 @@ class constants(Enum):
         # ! - > Funcionario
         "funcionario": "/tmp/input/funcionarios.csv",
         # ! - > Votação
-        "votacao_microdados" : f"/tmp/input/votacoes-{ANO_ATUAL}.csv",
+        "votacao" : f"/tmp/input/votacoes-{ANO_ATUAL}.csv",
         "votacao_orientacao_bancada": f"/tmp/input/votacoesOrientacoes-{ANO_ATUAL}.csv",
         "voto_parlamentar": f"/tmp/input/votacoesVotos-{ANO_ATUAL}.csv",
         "votacao_objeto": f"/tmp/input/votacoesObjetos-{ANO_ATUAL}.csv",
-        "votacao_proposicao_afetada": f"/tmp/input/votacoesProposicoes-{ANO_ATUAL}.csv",
+        "proposicao": f"/tmp/input/votacoesProposicoes-{ANO_ATUAL}.csv",
         # ! - > Deputado
         "deputado": "/tmp/input/deputados.csv",
         "deputado_ocupacao": "/tmp/input/deputado_ocupacao.csv",
@@ -104,11 +104,11 @@ class constants(Enum):
         # ! - > Funcionario
         "funcionario": "/tmp/output/funcionario/funcionarios.csv",
         # ! - > Votação
-        "votacao_microdados" : f"/tmp/output/votacao_microdados/votacoes_{ANO_ATUAL}.csv",
+        "votacao" : f"/tmp/output/votacao/votacoes_{ANO_ATUAL}.csv",
         "votacao_orientacao_bancada": f"/tmp/output/votacao_orientacao_bancada/votacoesOrientacoes_{ANO_ATUAL}.csv",
         "voto_parlamentar": f"/tmp/output/voto_parlamentar/votacoesVotos_{ANO_ATUAL}.csv",
         "votacao_objeto": f"/tmp/output/votacao_objeto/votacoesObjetos_{ANO_ATUAL}.csv",
-        "votacao_proposicao_afetada": f"/tmp/output/votacao_proposicao_afetada/votacoesProposicoes_{ANO_ATUAL}.csv",
+        "proposicao": f"/tmp/output/proposicao/votacoesProposicoes_{ANO_ATUAL}.csv",
         # ! - > Deputado
         "deputado": "/tmp/output/deputado/deputados.csv",
         "deputado_ocupacao": "/tmp/output/deputado_ocupacao.csv",
@@ -140,11 +140,11 @@ class constants(Enum):
         # ! - > Funcionario
         "funcionario": "http://dadosabertos.camara.leg.br/arquivos/funcionarios/csv/funcionarios.csv",
         # ! - > Votação
-        "votacao_microdados" : f"https://dadosabertos.camara.leg.br/arquivos/votacoes/csv/votacoes-{ANO_ATUAL}.csv",
+        "votacao" : f"https://dadosabertos.camara.leg.br/arquivos/votacoes/csv/votacoes-{ANO_ATUAL}.csv",
         "votacao_orientacao_bancada": f"https://dadosabertos.camara.leg.br/arquivos/votacoesOrientacoes/csv/votacoesOrientacoes-{ANO_ATUAL}.csv",
         "voto_parlamentar": f"https://dadosabertos.camara.leg.br/arquivos/votacoesVotos/csv/votacoesVotos-{ANO_ATUAL}.csv",
         "votacao_objeto": f"https://dadosabertos.camara.leg.br/arquivos/votacoesObjetos/csv/votacoesObjetos-{ANO_ATUAL}.csv",
-        "votacao_proposicao_afetada": f"https://dadosabertos.camara.leg.br/arquivos/votacoesProposicoes/csv/votacoesProposicoes-{ANO_ATUAL}.csv",
+        "proposicao": f"https://dadosabertos.camara.leg.br/arquivos/votacoesProposicoes/csv/votacoesProposicoes-{ANO_ATUAL}.csv",
         # ! - > Deputado
         "deputado": "https://dadosabertos.camara.leg.br/arquivos/deputados/csv/deputados.csv",
         "deputado_ocupacao": "https://dadosabertos.camara.leg.br/arquivos/deputadosOcupacoes/csv/deputadosOcupacoes.csv",
