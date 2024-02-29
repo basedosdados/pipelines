@@ -5,11 +5,8 @@
 from copy import deepcopy
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
-
 from pipelines.constants import constants
-
 from pipelines.utils.crawler_camara_dados_abertos.flows import flow_camara_dados_abertos
-
 from pipelines.datasets.br_camara_dados_abertos.schedules import (
     schedules_br_camara_dados_abertos_votacao_microdados,
     schedules_br_camara_dados_abertos_votacao_objeto,
@@ -30,7 +27,13 @@ from pipelines.datasets.br_camara_dados_abertos.schedules import (
     schedules_br_camara_dados_abertos_evento_requerimento,
     schedules_br_camara_dados_abertos_funcionario,
     schedules_br_camara_dados_abertos_frente,
-    schedules_br_camara_dados_abertos_frente_deputado
+    schedules_br_camara_dados_abertos_frente_deputado,
+    schedules_br_camara_dados_abertos_licitacao,
+    schedules_br_camara_dados_abertos_licitacao_proposta,
+    schedules_br_camara_dados_abertos_licitacao_contrato,
+    schedules_br_camara_dados_abertos_licitacao_item,
+    schedules_br_camara_dados_abertos_licitacao_pedido,
+
 )
 
 # ! - > Flow: br_camara_dados_abertos__votacao_microdados
@@ -69,6 +72,7 @@ br_camara_dados_abertos__votacao_parlamentar.run_config = KubernetesRun(image=co
 br_camara_dados_abertos__votacao_parlamentar.schedule = schedules_br_camara_dados_abertos_votacao_parlamentar
 
 # ! - > Flow: br_camara_dados_abertos__votacao_proposicao_afetada
+
 br_camara_dados_abertos__votacao_proposicao_afetada = deepcopy(flow_camara_dados_abertos)
 br_camara_dados_abertos__votacao_proposicao_afetada.name = "br_camara_dados_abertos.votacao_proposicao_afetada"
 br_camara_dados_abertos__votacao_proposicao_afetada.code_owners = ["trick"]
@@ -203,9 +207,55 @@ br_camara_dados_abertos__frente.run_config = KubernetesRun(image=constants.DOCKE
 br_camara_dados_abertos__frente.schedule = schedules_br_camara_dados_abertos_frente
 
 # ! - > Flow: br_camara_dados_abertos__frente_deputado
+
 br_camara_dados_abertos__frente_deputado = deepcopy(flow_camara_dados_abertos)
 br_camara_dados_abertos__frente_deputado.name = "br_camara_dados_abertos.frente_deputado"
 br_camara_dados_abertos__frente_deputado.code_owners = ["trick"]
 br_camara_dados_abertos__frente_deputado.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_camara_dados_abertos__frente_deputado.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 br_camara_dados_abertos__frente_deputado.schedule = schedules_br_camara_dados_abertos_frente_deputado
+
+# ! - > Flow: br_camara_dados_abertos__licitacao
+
+br_camara_dados_abertos__licitacao = deepcopy(flow_camara_dados_abertos)
+br_camara_dados_abertos__licitacao.name = "br_camara_dados_abertos.licitacao"
+br_camara_dados_abertos__licitacao.code_owners = ["trick"]
+br_camara_dados_abertos__licitacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_camara_dados_abertos__licitacao.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_camara_dados_abertos__licitacao.schedule = schedules_br_camara_dados_abertos_licitacao
+
+# ! - > Flow: br_camara_dados_abertos__licitacao_contrato
+
+br_camara_dados_abertos__licitacao_contrato = deepcopy(flow_camara_dados_abertos)
+br_camara_dados_abertos__licitacao_contrato.name = "br_camara_dados_abertos.licitacao_contrato"
+br_camara_dados_abertos__licitacao_contrato.code_owners = ["trick"]
+br_camara_dados_abertos__licitacao_contrato.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_camara_dados_abertos__licitacao_contrato.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_camara_dados_abertos__licitacao_contrato.schedule = schedules_br_camara_dados_abertos_licitacao_contrato
+
+# ! - > Flow: br_camara_dados_abertos__licitacao_item
+
+br_camara_dados_abertos__licitacao_item = deepcopy(flow_camara_dados_abertos)
+br_camara_dados_abertos__licitacao_item.name = "br_camara_dados_abertos.licitacao_item"
+br_camara_dados_abertos__licitacao_item.code_owners = ["trick"]
+br_camara_dados_abertos__licitacao_item.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_camara_dados_abertos__licitacao_item.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_camara_dados_abertos__licitacao_item.schedule = schedules_br_camara_dados_abertos_licitacao_item
+
+# ! - > Flow: br_camara_dados_abertos__licitacao_proposta
+
+br_camara_dados_abertos__licitacao_proposta = deepcopy(flow_camara_dados_abertos)
+br_camara_dados_abertos__licitacao_proposta.name = "br_camara_dados_abertos.licitacao_proposta"
+br_camara_dados_abertos__licitacao_proposta.code_owners = ["trick"]
+br_camara_dados_abertos__licitacao_proposta.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_camara_dados_abertos__licitacao_proposta.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_camara_dados_abertos__licitacao_proposta.schedule = schedules_br_camara_dados_abertos_licitacao_proposta
+
+# ! - > Flow: br_camara_dados_abertos__licitacao_proposta
+
+br_camara_dados_abertos__licitacao_proposta = deepcopy(flow_camara_dados_abertos)
+br_camara_dados_abertos__licitacao_proposta.name = "br_camara_dados_abertos.licitacao_proposta"
+br_camara_dados_abertos__licitacao_proposta.code_owners = ["trick"]
+br_camara_dados_abertos__licitacao_proposta.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_camara_dados_abertos__licitacao_proposta.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_camara_dados_abertos__licitacao_proposta.schedule = schedules_br_camara_dados_abertos_licitacao_proposta

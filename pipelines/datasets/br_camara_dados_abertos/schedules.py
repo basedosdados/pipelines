@@ -405,3 +405,104 @@ schedules_br_camara_dados_abertos_frente_deputado = Schedule(
         ),
     ],
 )
+
+# ! - > licitacao
+
+schedules_br_camara_dados_abertos_frente_deputado = Schedule(
+    clocks=[
+        CronClock(
+            cron="10 9 * * *",
+            start_date=datetime(2021, 1, 1),
+            labels=[constants.BASEDOSDADOS_PROD_AGENT_LABEL.value],
+            parameter_defaults={
+                "update_metadata": True,
+                "dbt_alias": True,
+                "materialize_after_dump": True,
+                "materialization_mode": "prod",
+                "table_id": "frente_deputado",
+                "dataset_id": "br_camara_dados_abertos",
+            },
+        ),
+    ],
+)
+
+# ! - > Licitação Proposta
+
+schedules_br_camara_dados_abertos_licitacao_proposta = Schedule(
+    clocks=[
+        CronClock(
+            cron="20 9 * * *",
+            start_date=datetime(2021, 1, 1),
+            labels=[constants.BASEDOSDADOS_PROD_AGENT_LABEL.value],
+            parameter_defaults={
+                "update_metadata": True,
+                "dbt_alias": True,
+                "materialize_after_dump": True,
+                "materialization_mode": "prod",
+                "table_id": "licitacao_proposta",
+                "dataset_id": "br_camara_dados_abertos",
+            },
+        ),
+    ],
+)
+
+
+# ! - > Licitação Contrato
+
+schedules_br_camara_dados_abertos_licitacao_contrato = Schedule(
+    clocks=[
+        CronClock(
+            cron="30 9 * * *",
+            start_date=datetime(2021, 1, 1),
+            labels=[constants.BASEDOSDADOS_PROD_AGENT_LABEL.value],
+            parameter_defaults={
+                "update_metadata": True,
+                "dbt_alias": True,
+                "materialize_after_dump": True,
+                "materialization_mode": "prod",
+                "table_id": "licitacao_contrato",
+                "dataset_id": "br_camara_dados_abertos",
+            },
+        ),
+    ],
+)
+
+# ! - > Licitacao Item
+
+schedules_br_camara_dados_abertos_licitacao_item = Schedule(
+    clocks=[
+        CronClock(
+            cron="40 9 * * *",
+            start_date=datetime(2021, 1, 1),
+            labels=[constants.BASEDOSDADOS_PROD_AGENT_LABEL.value],
+            parameter_defaults={
+                "update_metadata": True,
+                "dbt_alias": True,
+                "materialize_after_dump": True,
+                "materialization_mode": "prod",
+                "table_id": "licitacao_item",
+                "dataset_id": "br_camara_dados_abertos",
+            },
+        ),
+    ],
+)
+
+# ! - > Licitação Pedido
+
+schedules_br_camara_dados_abertos_licitacao_pedido = Schedule(
+    clocks=[
+        CronClock(
+            cron="50 9 * * *",
+            start_date=datetime(2021, 1, 1),
+            labels=[constants.BASEDOSDADOS_PROD_AGENT_LABEL.value],
+            parameter_defaults={
+                "update_metadata": True,
+                "dbt_alias": True,
+                "materialize_after_dump": True,
+                "materialization_mode": "prod",
+                "table_id": "Licitacao_pedido",
+                "dataset_id": "br_camara_dados_abertos",
+            },
+        ),
+    ],
+)
