@@ -331,4 +331,4 @@ def read_dbf_save_parquet_chunks(file_list: list, table_id: str) -> str:
         log(f"-------- Reading {file}")
         result_path = dbf_to_parquet(dbf=file)
 
-    return f'tmp/br_ms_sia/output/{table_id}'
+    return f'/tmp/br_ms_sia/output/{table_id}'
