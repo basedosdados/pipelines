@@ -13,6 +13,7 @@ from pipelines.utils.crawler_camara_dados_abertos.tasks import (
     save_data,
     check_if_url_is_valid
 )
+from pipelines.utils.crawler_camara_dados_abertos.constants import constants as constants_camara
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
@@ -98,17 +99,7 @@ with Flow(
             )
 
             with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id=table_id,
-                    date_column_name={"year": "ano", "month": "mes"},
-                    date_format="%Y-%m",
-                    coverage_type="part_bdpro",
-                    time_delta={"months": 6},
-                    prefect_mode=materialization_mode,
-                    bq_project="basedosdados",
-                    upstream_tasks=[wait_for_materialization],
-                )
+                update_django_metadata(**constants_camara.TABLES_UPDATE_METADATA.value[table_id])
 
 flow_camara_dados_abertos.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 flow_camara_dados_abertos.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)

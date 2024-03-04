@@ -175,3 +175,39 @@ class constants(Enum):
         "localCamara.sala": "localCamara_sala",
         "localCamara.andar": "localCamara_andar",
     }
+
+    TABLES_UPDATE_METADATA = {
+                                "deputado": {
+                                    "dataset_id": "br_camara_dados_abertos",
+                                    "table_id": "votacao",
+                                    "coverage_type": "all_free",
+                                    "prefect_mode": "prod",
+                                    "bq_project": "basedosdados",
+                                    "historical_database" : False
+                                },
+                                "deputado_ocupacao": {
+                                    "dataset_id": "br_camara_dados_abertos",
+                                    "table_id": "votacao_ocupacao",
+                                    "coverage_type": "all_free",
+                                    "prefect_mode": "prod",
+                                    "bq_project": "basedosdados",
+                                    "historical_database" : False
+                                },
+                                "deputado_profissao": {
+                                    "dataset_id": "br_camara_dados_abertos",
+                                    "table_id": "votacao_ocupacao",
+                                    "coverage_type": "all_free",
+                                    "prefect_mode": "prod",
+                                    "bq_project": "basedosdados",
+                                    "historical_database" : False
+                                },
+                                "evento": {
+                                    "dataset_id":"br_camara_dados_abertos",
+                                    "table_id":"table_id",
+                                    "date_column_name":"{'date': 'data_inicio'}",
+                                    "date_format":"%Y-%m-%d",
+                                    "coverage_type":"part_bdpro",
+                                    "time_delta":"{'months': 6}",
+                                    "prefect_mode":"prod",
+                                    "bq_project":"basedosdados",
+                                }}
