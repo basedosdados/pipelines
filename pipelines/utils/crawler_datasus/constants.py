@@ -9,7 +9,7 @@ from enum import Enum
 
 class constants(Enum):  # pylint: disable=c0103
     """
-    Constant values for the br_ms_cnes project
+    Constant values for the crawler_datasus project
     """
 
     # to build paths
@@ -18,42 +18,31 @@ class constants(Enum):  # pylint: disable=c0103
         "/tmp/br_ms_cnes/output/",
     ]
 
-    # to build paths
-    TABLE = [
-        "estabelecimento",
-        "profissional",
-        "equipamento",
-        "leito",
-        "equipe",
-        "estabelecimento_ensino",
-        "dados_complementares",
-        "estabelecimento_filantropico",
-        "gestao_metas",
-        "habilitacao",
-        "incentivos",
-        "regra_contratual",
-        "servico_especializado",
-    ]
-
     # to download files from datasus FTP server
-    DATABASE_GROUPS = {
-        # group: table name
-        "CNES": [
-            "ST",
-            "PF",
-            "EQ",
-            "LT",
-            "EP",
-            "EE",
-            "DC",
-            "EF",
-            "GM",
-            "HB",
-            "IN",
-            "RC",
-            "SR",
-        ],
+    DATASUS_DATABASE = {
+        "br_ms_cnes": "CNES",
+        "br_ms_sia": "SIA"
     }
+
+    DATASUS_DATABASE_TABLE = {
+        #CNES
+        "estabelecimento": "ST",
+        "profissional": "PF",
+        "equipamento": "EQ",
+        "leito": "LT",
+        "equipe": "EP",
+        "estabelecimento_ensino": "EE",
+        "dados_complementares": "DC",
+        "estabelecimento_filantropico": "EF",
+        "gestao_metas": "GM",
+        "habilitacao": "HB",
+        "incentivos": "IN",
+        "regra_contratual": "RC",
+        "servico_especializado": "SR",
+        #SIA
+        "producao_ambulatorial": "PA",
+    }
+
 
     COLUMNS_TO_KEEP = {
         # equipamento
