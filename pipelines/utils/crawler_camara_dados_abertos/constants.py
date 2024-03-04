@@ -183,7 +183,8 @@ class constants(Enum):
                                     "coverage_type": "all_free",
                                     "prefect_mode": "prod",
                                     "bq_project": "basedosdados",
-                                    "historical_database" : False
+                                    "historical_database" : False,
+                                    "upstream_tasks":"[wait_for_materialization]"
                                 },
                                 "deputado_ocupacao": {
                                     "dataset_id": "br_camara_dados_abertos",
@@ -191,7 +192,8 @@ class constants(Enum):
                                     "coverage_type": "all_free",
                                     "prefect_mode": "prod",
                                     "bq_project": "basedosdados",
-                                    "historical_database" : False
+                                    "historical_database" : False,
+                                    "upstream_tasks":"[wait_for_materialization]"
                                 },
                                 "deputado_profissao": {
                                     "dataset_id": "br_camara_dados_abertos",
@@ -199,7 +201,8 @@ class constants(Enum):
                                     "coverage_type": "all_free",
                                     "prefect_mode": "prod",
                                     "bq_project": "basedosdados",
-                                    "historical_database" : False
+                                    "historical_database" : False,
+                                    "upstream_tasks":"[wait_for_materialization]"
                                 },
                                 "evento": {
                                     "dataset_id":"br_camara_dados_abertos",
@@ -210,4 +213,5 @@ class constants(Enum):
                                     "time_delta":"{'months': 6}",
                                     "prefect_mode":"prod",
                                     "bq_project":"basedosdados",
+                                    "upstream_tasks":"[wait_for_materialization]"
                                 }}
