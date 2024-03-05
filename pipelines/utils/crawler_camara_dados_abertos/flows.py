@@ -97,8 +97,8 @@ with Flow(
             wait_for_materialization.retry_delay = timedelta(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
-            get_table_id_in_dict_update_django_metadata = dict_update_django_metadata(table_id=table_id)
 
+            get_table_id_in_dict_update_django_metadata = dict_update_django_metadata(table_id=table_id)
             with case(update_metadata, True):
                 update_django_metadata(
                     dataset_id=get_table_id_in_dict_update_django_metadata["dataset_id"],
