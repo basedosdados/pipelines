@@ -52,6 +52,8 @@ def download_data(
         url=constants.TABLE_NAME_URL_DICT.value[table_name],
     )
     log("As urls foram recuperadas")
+    log(f'------- url_list {url_list}')
+
     tm.sleep(2)
     # usa dictionary comprehension para extrair data de cada link como key e link como item
     dicionario_data_url = {parse_year_or_year_month(url): url for url in url_list}
