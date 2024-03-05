@@ -3,14 +3,17 @@
 Tasks related to DBT flows.
 """
 
+from cProfile import run
 from datetime import timedelta
+from genericpath import exists
 
 from dbt_client import DbtClient
 from prefect import task
 
 from pipelines.constants import constants
-from pipelines.utils.execute_dbt_model.utils import get_dbt_client
+from pipelines.utils.execute_dbt_model.utils import get_dbt_client, merge_vars
 from pipelines.utils.utils import log
+from pipelines.utils.execute_dbt_model.constants import constants
 
 
 @task(
@@ -72,8 +75,9 @@ def run_dbt_model(
             selected_table = f"{dataset_id}.{table_id}"
     else:
         selected_table = dataset_id
+
     if disable_elementary:
-        _vars = '{"disable_dbt_artifacts_autoupload": true, "disable_run_results": true, "disable_tests_results": true, "disable_dbt_invocation_autoupload": true}'
+        _vars = constants.DISABLE_ELEMENTARY_VARS.value if _vars is None else merge_vars(constants.DISABLE_ELEMENTARY_VARS.value, _vars)
 
     if "run" in dbt_command:
         if flags == "--full-refresh":
@@ -91,7 +95,7 @@ def run_dbt_model(
             run_command += f" --vars {vars_str}"
         else:
             vars_str = f"'{_vars}'" if disable_elementary else f'"{_vars}"'
-            run_command += f" --vars {vars_str}"
+            run_command += f" --vars {vars_str}" if dbt_command in ["run", "run and test", "run/test"] else None
 
     if flags:
         run_command += f" {flags}"
