@@ -80,7 +80,10 @@ def check_if_url_is_valid(table_id:str) -> bool:
         log("URL is not valid")
         return False
 
-@task
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def dict_update_django_metadata(table_id: str, dataset_id = "br_camara_dados_abertos"):
     dict_of_table = {
                                 "deputado": {

@@ -109,6 +109,7 @@ with Flow(
                     time_delta=get_table_id_in_dict_update_django_metadata['time_delta'],
                     prefect_mode=get_table_id_in_dict_update_django_metadata['prefect_mode'],
                     bq_project=get_table_id_in_dict_update_django_metadata["bq_project"],
+                    historical_database=get_table_id_in_dict_update_django_metadata["historical_database"],
                     upstream_tasks=[wait_for_materialization],
                 )
 
