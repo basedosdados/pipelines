@@ -11,7 +11,8 @@ from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 from pipelines.constants import constants
 from pipelines.utils.crawler_camara_dados_abertos.tasks import (
     save_data,
-    check_if_url_is_valid
+    check_if_url_is_valid,
+    dict_update_django_metadata
 )
 from pipelines.utils.crawler_camara_dados_abertos.constants import constants as constants_camara
 from pipelines.utils.constants import constants as utils_constants
@@ -20,6 +21,7 @@ from pipelines.utils.execute_dbt_model.constants import constants as dump_db_con
 from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
+    log_task,
     get_current_flow_labels,
     rename_current_flow_run_dataset_table,
 )
@@ -60,7 +62,6 @@ with Flow(
             table_id=table_id,
             upstream_tasks=[rename_flow_run],
         )
-
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=filepath,
             dataset_id=dataset_id,
@@ -84,7 +85,6 @@ with Flow(
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
             )
-
             wait_for_materialization = wait_for_flow_run(
                 materialization_flow,
                 stream_states=True,
@@ -97,9 +97,20 @@ with Flow(
             wait_for_materialization.retry_delay = timedelta(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
+            get_table_id_in_dict_update_django_metadata = dict_update_django_metadata(table_id=table_id)
 
             with case(update_metadata, True):
-                update_django_metadata(**constants_camara.TABLES_UPDATE_METADATA.value[table_id])
+                update_django_metadata(
+                    dataset_id=get_table_id_in_dict_update_django_metadata["dataset_id"],
+                    table_id=get_table_id_in_dict_update_django_metadata["table_id"],
+                    date_column_name=get_table_id_in_dict_update_django_metadata['date_column_name'],
+                    date_format=get_table_id_in_dict_update_django_metadata['date_format'],
+                    coverage_type=get_table_id_in_dict_update_django_metadata["coverage_type"],
+                    time_delta=get_table_id_in_dict_update_django_metadata['time_delta'],
+                    prefect_mode=get_table_id_in_dict_update_django_metadata['prefect_mode'],
+                    bq_project=get_table_id_in_dict_update_django_metadata["bq_project"],
+                    upstream_tasks=[wait_for_materialization],
+                )
 
 flow_camara_dados_abertos.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 flow_camara_dados_abertos.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
