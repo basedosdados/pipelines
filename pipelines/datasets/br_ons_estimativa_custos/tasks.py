@@ -55,7 +55,7 @@ def download_data(
     tm.sleep(2)
     # usa dictionary comprehension para extrair data de cada link como key e link como item
     dicionario_data_url = {parse_year_or_year_month(url): url for url in url_list}
-
+    log(f'------- dicionario_data_url url {dicionario_data_url}')
     tupla_data_maxima_url = max(dicionario_data_url.items(), key=lambda x: x[0])
 
     data_maxima = tupla_data_maxima_url[0]
