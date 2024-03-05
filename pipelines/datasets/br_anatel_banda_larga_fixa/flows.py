@@ -303,4 +303,4 @@ with Flow(
 
 br_anatel_banda_larga.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_anatel_banda_larga.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_anatel_banda_larga.schedule = every_month_anatel_microdados
+# br_anatel_banda_larga.schedule = every_month_anatel_microdados
