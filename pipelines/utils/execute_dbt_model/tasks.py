@@ -13,7 +13,7 @@ from prefect import task
 from pipelines.constants import constants
 from pipelines.utils.execute_dbt_model.utils import get_dbt_client, merge_vars
 from pipelines.utils.utils import log
-from pipelines.utils.execute_dbt_model.constants import constants
+from pipelines.utils.execute_dbt_model.constants import constants as constants_execute
 
 
 @task(
@@ -77,7 +77,7 @@ def run_dbt_model(
         selected_table = dataset_id
 
     if disable_elementary:
-        _vars = constants.DISABLE_ELEMENTARY_VARS.value if _vars is None else merge_vars(constants.DISABLE_ELEMENTARY_VARS.value, _vars)
+        _vars = constants_execute.DISABLE_ELEMENTARY_VARS.value if _vars is None else merge_vars(constants_execute.DISABLE_ELEMENTARY_VARS.value, _vars)
 
     if "run" in dbt_command:
         if flags == "--full-refresh":
