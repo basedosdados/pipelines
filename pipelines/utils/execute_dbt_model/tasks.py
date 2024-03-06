@@ -96,7 +96,8 @@ def run_dbt_model(
         else:
             vars_str = f"'{_vars}'"
             run_command = None if dbt_command in ["test"] else run_command
-            run_command += f" --vars {vars_str}" if dbt_command in ["run", "run and test", "run/test"] else ""
+            if run_command is not None:
+                run_command += f" --vars {vars_str}"
 
     if flags:
         run_command += f" {flags}"
