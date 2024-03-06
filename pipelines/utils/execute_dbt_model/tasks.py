@@ -77,7 +77,10 @@ def run_dbt_model(
         selected_table = dataset_id
 
     if disable_elementary:
-        _vars = constants_execute.DISABLE_ELEMENTARY_VARS.value if _vars is None else merge_vars(constants_execute.DISABLE_ELEMENTARY_VARS.value, _vars)
+        if _vars is None:
+            _vars = constants_execute.DISABLE_ELEMENTARY_VARS.value
+        else:
+            _vars = merge_vars(constants_execute.DISABLE_ELEMENTARY_VARS.value, _vars)
 
     if "run" in dbt_command:
         if flags == "--full-refresh":

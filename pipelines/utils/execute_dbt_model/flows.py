@@ -22,7 +22,7 @@ with Flow(name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value) as run_dbt_mod
     dbt_command = Parameter("dbt_command", default="run", required=False)
     flags = Parameter("flags", default=None, required=False)
     _vars = Parameter("_vars", default=None, required=False)
-    disable_elementary = Parameter("disable_elementary", default=False, required=False)
+    disable_elementary = Parameter("disable_elementary", default=True, required=False)
 
     #################   ####################
     #

@@ -4,7 +4,7 @@ General utilities for interacting with dbt-rpc
 """
 from datetime import datetime, timedelta
 from typing import List
-
+from pipelines.utils.utils import log
 from dbt_client import DbtClient
 from prefect.schedules.clocks import IntervalClock
 import json
@@ -69,4 +69,4 @@ def merge_vars(vars1, vars2):
         merged = {**dict1, **dict2}
         return json.dumps(merged)
     except (json.JSONDecodeError, TypeError) as e:
-        print(f"Erro ao mesclar variáveis: {e}")
+        log(f"Erro ao mesclar variáveis: {e}")
