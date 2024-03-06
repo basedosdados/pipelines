@@ -129,9 +129,9 @@ br_ons_avaliacao_operacao_reservatorio.storage = GCS(constants.GCS_FLOWS_BUCKET.
 br_ons_avaliacao_operacao_reservatorio.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_ons_avaliacao_operacao_reservatorio.schedule = (
-    schedule_br_ons_avaliacao_operacao_reservatorio
-)
+#br_ons_avaliacao_operacao_reservatorio.schedule = (
+#    schedule_br_ons_avaliacao_operacao_reservatorio
+#)
 
 with Flow(
     name="br_ons_avaliacao_operacao.geracao_usina", code_owners=["Gabriel Pisa"]
@@ -225,9 +225,9 @@ br_ons_avaliacao_operacao_geracao_usina.storage = GCS(constants.GCS_FLOWS_BUCKET
 br_ons_avaliacao_operacao_geracao_usina.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_ons_avaliacao_operacao_geracao_usina.schedule = (
-    schedule_br_ons_avaliacao_operacao_geracao_usina
-)
+#br_ons_avaliacao_operacao_geracao_usina.schedule = (
+#    schedule_br_ons_avaliacao_operacao_geracao_usina
+#)
 
 with Flow(
     name="br_ons_avaliacao_operacao.geracao_termica_motivo_despacho",
@@ -326,9 +326,9 @@ br_ons_avaliacao_operacao_geracao_termica_motivo_despacho.storage = GCS(
 br_ons_avaliacao_operacao_geracao_termica_motivo_despacho.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_ons_avaliacao_operacao_geracao_termica_motivo_despacho.schedule = (
-    schedule_br_ons_avaliacao_operacao_geracao_termica_motivo_despacho
-)
+#br_ons_avaliacao_operacao_geracao_termica_motivo_despacho.schedule = (
+#    schedule_br_ons_avaliacao_operacao_geracao_termica_motivo_despacho
+#)
 
 with Flow(
     name="br_ons_avaliacao_operacao.energia_natural_afluente",
@@ -426,9 +426,9 @@ br_ons_avaliacao_operacao_energia_natural_afluente.storage = GCS(
 br_ons_avaliacao_operacao_energia_natural_afluente.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_ons_avaliacao_operacao_energia_natural_afluente.schedule = (
-    schedule_br_ons_avaliacao_operacao_energia_natural_afluente
-)
+#br_ons_avaliacao_operacao_energia_natural_afluente.schedule = (
+#    schedule_br_ons_avaliacao_operacao_energia_natural_afluente
+#)
 
 with Flow(
     name="br_ons_avaliacao_operacao.energia_armazenada_reservatorio",
@@ -525,9 +525,9 @@ br_ons_energia_armazenada_reservatorio.storage = GCS(constants.GCS_FLOWS_BUCKET.
 br_ons_energia_armazenada_reservatorio.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_ons_energia_armazenada_reservatorio.schedule = (
-    schedule_br_ons_avaliacao_operacao_energia_armazenada_reservatorio
-)
+#br_ons_energia_armazenada_reservatorio.schedule = (
+#   schedule_br_ons_avaliacao_operacao_energia_armazenada_reservatorio
+#
 
 with Flow(
     name="br_ons_avaliacao_operacao.restricao_operacao_usinas_eolicas",
@@ -624,6 +624,6 @@ br_ons_restricao_operacao_usinas_eolicas.storage = GCS(constants.GCS_FLOWS_BUCKE
 br_ons_restricao_operacao_usinas_eolicas.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_ons_restricao_operacao_usinas_eolicas.schedule = (
-    schedule_br_ons_avaliacao_operacao_restricao_operacao_usinas_eolicas
-)
+#br_ons_restricao_operacao_usinas_eolicas.schedule = (
+#    schedule_br_ons_avaliacao_operacao_restricao_operacao_usinas_eolicas
+#)
