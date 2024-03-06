@@ -20,7 +20,7 @@ from pipelines.datasets.br_anatel_telefonia_movel.tasks import (
     clean_csv_microdados,
     clean_csv_municipio,
     clean_csv_uf,
-    setting_data_url,
+    get_max_date_from_html,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -75,7 +75,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
     mes_dois = Parameter("mes_dois", default="12", required=True)
     update_metadata = Parameter("update_metadata", default=True, required=False)
 
-    data_source_max_date = setting_data_url()
+    data_source_max_date = get_max_date_from_html()
     dados_desatualizados = check_if_data_is_outdated(
         dataset_id=dataset_id,
         table_id=table_id[0],
@@ -83,9 +83,6 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
         date_format="%Y-%m",  # Alterado aqui
         upstream_tasks=[data_source_max_date],
     )
-
-    with case(dados_desatualizados, False):
-        log_task("Não há atualizações!")
 
     with case(dados_desatualizados, True):
         # ! MICRODADOS

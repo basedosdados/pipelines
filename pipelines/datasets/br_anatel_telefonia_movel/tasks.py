@@ -15,18 +15,18 @@ from pipelines.datasets.br_anatel_telefonia_movel.constants import (
     constants as anatel_constants,
 )
 from pipelines.datasets.br_anatel_telefonia_movel.utils import (
-    data_url,
     download_and_unzip,
+    get_max_date_element_from_html,
     to_partitions_microdados,
 )
 from pipelines.utils.utils import log
 
 
 @task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
+    max_retries=1,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def setting_data_url():
+def get_max_date_from_html():
     meses = {
         "jan": "01",
         "fev": "02",
@@ -41,7 +41,7 @@ def setting_data_url():
         "nov": "11",
         "dez": "12",
     }
-    string_element = data_url()
+    string_element = get_max_date_element_from_html()
     elemento_total = string_element[25:33]
     mes, ano = elemento_total.split("-")
     mes = meses[mes]

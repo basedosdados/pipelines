@@ -5,18 +5,14 @@ General purpose functions for the br_anatel_telefonia_movel project of the pipel
 # pylint: disable=too-few-public-methods,invalid-name
 
 import os
-import time
 from io import BytesIO
 from pathlib import Path
 from urllib.request import urlopen
 from zipfile import ZipFile
 
-import numpy as np
 import pandas as pd
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -106,9 +102,7 @@ def to_partitions_microdados(
         raise BaseException("Data need to be a pandas DataFrame")
 
 
-def data_url():
-    element_html = ""  # Inicialize element_html com uma string vazia
-
+def get_max_date_element_from_html():
     # Configurar as opções do ChromeDriver
     options = webdriver.ChromeOptions()
     # Adicionar argumentos para executar o Chrome em modo headless (sem interface gráfica)
@@ -146,13 +140,7 @@ def data_url():
         # Abra a página da web
         log(url)
         driver.get(url)
-
-        # Espera até que o elemento desejado seja visível na página (você pode ajustar o tempo limite conforme necessário)
-        WebDriverWait(driver, 600).until(
-            EC.visibility_of_element_located(
-                (By.XPATH, '//*[@id="selection-list"]/li/qv-current-selections-item/div/div[1]/span/span')
-            )
-        )
+        driver.implicitly_wait(600)
 
         # Encontrar o elemento depois que estiver visível
         element = driver.find_element(
@@ -165,7 +153,7 @@ def data_url():
         # Imprima o HTML do elemento
         log(element_html)
     except Exception as e:
-        log("Ocorreu um erro ao acessar a página:", str(e))
+        log(e)
     finally:
         # Certifique-se de fechar o navegador, mesmo em caso de erro
         driver.quit()
