@@ -117,8 +117,12 @@ def run_dbt_model(
                     log(event["message"])
 
     if "test" in dbt_command:
-        vars_str = f"'{_vars}'" if disable_elementary else f'"{_vars}"'
-        test_command = f"test --select {selected_table} --vars {vars_str}" if disable_elementary else f"test --select {selected_table}"
+        if _vars:
+            vars_str = f"'{_vars}'"
+            test_command = f"test --select {selected_table} --vars {vars_str}"
+        else:
+            test_command = f"test --select {selected_table}"
+
         log(f"Running dbt with command: {test_command}")
         logs_dict = dbt_client.cli(
             test_command,
