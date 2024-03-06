@@ -21,10 +21,10 @@ from pipelines.utils.utils import log
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def save_data(table_id: str) -> str:
+    df = download_and_read_data(table_id)
     if not os.path.exists(f'{constants_camara.OUTPUT_PATH.value}{table_id}'):
         os.makedirs(f'{constants_camara.OUTPUT_PATH.value}{table_id}')
-
-    df = download_and_read_data(table_id)
+    log(f'{constants_camara.OUTPUT_PATH.value}{table_id}')
     output_path = constants_camara.TABLES_OUTPUT_PATH.value[table_id]
 
     if table_id == "proposicao_microdados":
@@ -62,6 +62,7 @@ def save_data(table_id: str) -> str:
 
     if table_id == "licitacao_item":
         df[["especificacao"]] = df[["especificacao"]].apply(lambda x: str(x).replace(';', ' ').replace("\n", " ").replace("\r", " "))
+
     log(f"Saving {table_id} to {output_path}")
 
     df.to_csv(output_path, sep=",", index=False, encoding="utf-8")

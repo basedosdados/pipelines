@@ -2,13 +2,22 @@
 import os
 import pandas as pd
 import requests
+from urllib.request import urlopen
+from zipfile import ZipFile
+from io import BytesIO
 
 from pipelines.utils.crawler_camara_dados_abertos.constants import constants as constants_camara
 from pipelines.utils.utils import log
 
 # ----------------------------------------------------------------------------------- > Universal
+def download_table_despesa(table_id:str) -> None:
+    http_response = urlopen(constants_camara.TABLES_URL.value[table_id])
+    zipfile = ZipFile(BytesIO(http_response.read()))
+    zipfile.extractall(path=constants_camara.INPUT_PATH.value)
 
-def download_csv(table_id: str) -> None:
+    log(f"Downloading {table_id} from {constants_camara.TABLES_URL.value[table_id]}")
+
+def download_all_table(table_id: str) -> None:
     """
     Downloads CSV files from the Camara de Proposicao API.
 
@@ -41,9 +50,13 @@ def download_csv(table_id: str) -> None:
 
 
 def download_and_read_data(table_id: str) -> pd.DataFrame:
-    download_csv(table_id)
+    if table_id == "despesa":
+        download_table_despesa(table_id)
+    else:
+        download_all_table(table_id)
+    log(constants_camara.TABLES_INPUT_PATH.value[table_id])
     input_path = constants_camara.TABLES_INPUT_PATH.value[table_id]
-
+    log(os.listdir(constants_camara.INPUT_PATH.value))
     df = pd.read_csv(input_path, sep=";")
 
     return df

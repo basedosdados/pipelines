@@ -12,42 +12,7 @@ class constants(Enum):
     OUTPUT_PATH = "/tmp/output/"
 
     ANO_ATUAL = (datetime.now()).year
-
-    TABLE_LIST_CAMARA = {
-        # ! - > Proposição
-        "proposicao_microdados": "proposicoes",
-        "proposicao_autor": "proposicoesAutores",
-        "proposicao_tema": "proposicoesTemas",
-        # ! - > Orgão
-        "orgao": "orgaos",
-        "orgao_deputado": "orgaosDeputados",
-        # ! - > Evento
-        "evento": "eventos",
-        "evento_orgao": "eventosOrgaos",
-        "evento_presenca_deputado": "eventosPresencaDeputados",
-        "evento_requerimento": "eventosRequerimentos",
-        # ! - > Frente
-        "frente": "frentes",
-        "frente_deputado": "frentesDeputados",
-        # ! - > Funcionario
-        "funcionario": "funcionarios",
-        # ! - > Votação
-        "votacao": "votacoes",
-        "votacao_orientacao_bancada": "votacoesOrientacoes",
-        "voto_parlamentar": "votacoesVotos",
-        "votacao_objeto": "votacoesObjetos",
-        "proposicao": "votacoesProposicoes",
-        # ! - > Deputado
-        "deputados": "deputados",
-        "deputado_ocupacao": "deputadosOcupacoes",
-        "deputado_profissao": "deputadosProfissoes",
-        # ! - > Licitação
-        "licitacao" : "licitacoes",
-        "licitacao_contrato" : "licitacoesContratos",
-        "licitacao_item" : "licitacoesItens",
-        "licitacao_pedido" : "licitacoesPedidos",
-        "licitacao_proposta" : "licitacoesPropostas"
-    }
+    ANO_ANTERIOR = (datetime.now() - relativedelta(years=1)).year
 
     TABLES_INPUT_PATH = {
         # ! - > Proposição
@@ -78,11 +43,13 @@ class constants(Enum):
         "deputado_ocupacao": "/tmp/input/deputado_ocupacao.csv",
         "deputado_profissao": "/tmp/input/deputadosProfissoes.csv",
         # ! - > Licitação
-        "licitacao" : "/tmp/input/licitacoes-{ANO_ATUAL}.csv",
-        "licitacao_contrato" : "/tmp/input/licitacoesContratos-{ANO_ATUAL}.csv",
-        "licitacao_item" : "/tmp/input/licitacoesItens-{ANO_ATUAL}.csv",
-        "licitacao_pedido" : "/tmp/input/licitacoesPedidos-{ANO_ATUAL}.csv",
-        "licitacao_proposta" : "/tmp/input/licitacoesPropostas-{ANO_ATUAL}.csv"
+        "licitacao" : f"/tmp/input/licitacoes-{ANO_ATUAL}.csv",
+        "licitacao_contrato" : f"/tmp/input/licitacoesContratos-{ANO_ATUAL}.csv",
+        "licitacao_item" : f"/tmp/input/licitacoesItens-{ANO_ATUAL}.csv",
+        "licitacao_pedido" : f"/tmp/input/licitacoesPedidos-{ANO_ATUAL}.csv",
+        "licitacao_proposta" : f"/tmp/input/licitacoesPropostas-{ANO_ATUAL}.csv",
+        # ! - > Despesa
+        "despesa" : f"/tmp/input/Ano-{ANO_ATUAL}.csv"
     }
 
     TABLES_OUTPUT_PATH = {
@@ -114,11 +81,13 @@ class constants(Enum):
         "deputado_ocupacao": "/tmp/output/deputado_ocupacao.csv",
         "deputado_profissao": "/tmp/output/deputado_profissao/deputadosProfissoes.csv",
         # ! - > Licitação
-        "licitacao" : "/tmp/output/licitacao/licitacoes-{ANO_ATUAL}.csv",
-        "licitacao_contrato" : "/tmp/output/licitacao_contrato/licitacoesContratos-{ANO_ATUAL}.csv",
-        "licitacao_item" : "/tmp/output/licitacao_item/licitacoesItens-{ANO_ATUAL}.csv",
-        "licitacao_pedido" : "/tmp/output/licitacao_pedido/licitacoesPedidos-{ANO_ATUAL}.csv",
-        "licitacao_proposta" : "/tmp/output/licitacao_proposta/licitacoesPropostas-{ANO_ATUAL}.csv"
+        "licitacao" : f"/tmp/output/licitacao/licitacoes_{ANO_ATUAL}.csv",
+        "licitacao_contrato" : f"/tmp/output/licitacao_contrato/licitacoesContratos_{ANO_ATUAL}.csv",
+        "licitacao_item" : f"/tmp/output/licitacao_item/licitacoesItens_{ANO_ATUAL}.csv",
+        "licitacao_pedido" : f"/tmp/output/licitacao_pedido/licitacoesPedidos_{ANO_ATUAL}.csv",
+        "licitacao_proposta" : f"/tmp/output/licitacao_proposta/licitacoesPropostas_{ANO_ATUAL}.csv",
+        # ! - > Despesa
+        "despesa" : f"/tmp/output/despesa/despesa_{ANO_ATUAL}.csv"
     }
 
     TABLES_URL = {
@@ -150,11 +119,13 @@ class constants(Enum):
         "deputado_ocupacao": "https://dadosabertos.camara.leg.br/arquivos/deputadosOcupacoes/csv/deputadosOcupacoes.csv",
         "deputado_profissao": "https://dadosabertos.camara.leg.br/arquivos/deputadosProfissoes/csv/deputadosProfissoes.csv",
         # ! - > Licitação
-        "licitacao" : "https://dadosabertos.camara.leg.br/arquivos/licitacoes/csv/licitacoes-{ANO_ATUAL}.csv",
-        "licitacao_contrato" : "https://dadosabertos.camara.leg.br/arquivos/licitacoesContratos/csv/licitacoesContratos-{ANO_ATUAL}.csv",
-        "licitacao_item" : "https://dadosabertos.camara.leg.br/arquivos/licitacoesItens/csv/licitacoesItens-{ANO_ATUAL}.csv",
-        "licitacao_pedido" : "https://dadosabertos.camara.leg.br/arquivos/licitacoesPedidos/csv/licitacoesPedidos-{ANO_ATUAL}.csv",
-        "licitacao_proposta" : "https://dadosabertos.camara.leg.br/arquivos/licitacoesPropostas/csv/licitacoesPropostas-{ANO_ATUAL}.csv"
+        "licitacao" : f"https://dadosabertos.camara.leg.br/arquivos/licitacoes/csv/licitacoes-{ANO_ATUAL}.csv",
+        "licitacao_contrato" : f"https://dadosabertos.camara.leg.br/arquivos/licitacoesContratos/csv/licitacoesContratos-{ANO_ATUAL}.csv",
+        "licitacao_item" : f"https://dadosabertos.camara.leg.br/arquivos/licitacoesItens/csv/licitacoesItens-{ANO_ATUAL}.csv",
+        "licitacao_pedido" : f"https://dadosabertos.camara.leg.br/arquivos/licitacoesPedidos/csv/licitacoesPedidos-{ANO_ATUAL}.csv",
+        "licitacao_proposta" : f"https://dadosabertos.camara.leg.br/arquivos/licitacoesPropostas/csv/licitacoesPropostas-{ANO_ATUAL}.csv",
+        # ! - > Despesa
+        "despesa" : f"https://www.camara.leg.br/cotas/Ano-{ANO_ATUAL}.csv.zip"
     }
 
     RENAME_COLUMNS_FRENTE_DEPUTADO = {
@@ -176,42 +147,3 @@ class constants(Enum):
         "localCamara.andar": "localCamara_andar",
     }
 
-    TABLES_UPDATE_METADATA = {
-                                "deputado": {
-                                    "dataset_id": "br_camara_dados_abertos",
-                                    "table_id": "votacao",
-                                    "coverage_type": "all_free",
-                                    "prefect_mode": "prod",
-                                    "bq_project": "basedosdados",
-                                    "historical_database" : False,
-                                    "upstream_tasks":"[wait_for_materialization]"
-                                },
-                                "deputado_ocupacao": {
-                                    "dataset_id": "br_camara_dados_abertos",
-                                    "table_id": "votacao_ocupacao",
-                                    "coverage_type": "all_free",
-                                    "prefect_mode": "prod",
-                                    "bq_project": "basedosdados",
-                                    "historical_database" : False,
-                                    "upstream_tasks":"[wait_for_materialization]"
-                                },
-                                "deputado_profissao": {
-                                    "dataset_id": "br_camara_dados_abertos",
-                                    "table_id": "votacao_ocupacao",
-                                    "coverage_type": "all_free",
-                                    "prefect_mode": "prod",
-                                    "bq_project": "basedosdados",
-                                    "historical_database" : False,
-                                    "upstream_tasks":"[wait_for_materialization]"
-                                },
-                                "evento": {
-                                    "dataset_id":"br_camara_dados_abertos",
-                                    "table_id":"table_id",
-                                    "date_column_name":"{'date': 'data_inicio'}",
-                                    "date_format":"%Y-%m-%d",
-                                    "coverage_type":"part_bdpro",
-                                    "time_delta":"{'months': 6}",
-                                    "prefect_mode":"prod",
-                                    "bq_project":"basedosdados",
-                                    "upstream_tasks":"[wait_for_materialization]"
-                                }}
