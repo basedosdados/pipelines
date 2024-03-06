@@ -94,7 +94,8 @@ def run_dbt_model(
             vars_str = f'"{vars_dict}"'
             run_command += f" --vars {vars_str}"
         else:
-            vars_str = f"'{_vars}'" if disable_elementary else f'"{_vars}"'
+            vars_str = f"'{_vars}'"
+            run_command = None if dbt_command in ["test"] else run_command
             run_command += f" --vars {vars_str}" if dbt_command in ["run", "run and test", "run/test"] else None
 
     if flags:
