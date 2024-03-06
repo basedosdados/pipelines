@@ -85,7 +85,7 @@ def run_dbt_model(
             flags = None
         else:
             run_command = f"dbt run --select {selected_table}"
-
+    log(f"Vars = {_vars}")
     if _vars:
         if isinstance(_vars, list):
             vars_dict = {}
