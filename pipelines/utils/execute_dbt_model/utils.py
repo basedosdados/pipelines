@@ -70,3 +70,4 @@ def merge_vars(vars1, vars2):
         return json.dumps(merged)
     except (json.JSONDecodeError, TypeError) as e:
         log(f"Erro ao mesclar variáveis: {e}")
+        raise
