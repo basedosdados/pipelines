@@ -281,8 +281,8 @@ def upload_columns_from_architecture(
         url_architecture=url_architecture,
     )
 
-if __name__ == '__main__':
 
+if __name__ == "__main__":
     upload_columns_from_architecture(
         dataset_id="<dataset_id>",
         table_slug="<table_slug>",
