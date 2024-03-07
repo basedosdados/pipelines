@@ -64,6 +64,7 @@ def extract_links_and_dates(url) -> pd.DataFrame:
 
     df["desatualizado"] = df["data_hoje"] == df["ultima_atualizacao"]
     # df['desatualizado'] = df['arquivo'].apply(lambda x: True if x in ['inf_diario_fi_202201.zip','inf_diario_fi_202305.zip'] else False)
+
     return df
 
 @task
@@ -76,9 +77,15 @@ def check_for_updates(df):
     """
     Checks for outdated tables.
     """
+    log(f"Data de hoje --> {max(df['data_hoje'])}")
+    log(f"Data de atualização --> {max(df['ultima_atualizacao'])}")
+    return df.query("desatualizado == True").arquivo.to_list()
+
+
+@task
+def force_update(df):
     log(df[df['ultima_atualizacao'] == max(df['ultima_atualizacao'])].arquivo.to_list())
     return df[df['ultima_atualizacao'] == max(df['ultima_atualizacao'])].arquivo.to_list()
-
 
 @task
 def crawler_ans(files):

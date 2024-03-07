@@ -17,6 +17,7 @@ from pipelines.datasets.br_ans_beneficiario.tasks import (
     crawler_ans,
     extract_links_and_dates,
     is_empty,
+    force_update,
     return_last_date,
 )
 from pipelines.utils.constants import constants as utils_constants
@@ -54,23 +55,30 @@ with Flow(
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
+    update = Parameter("update", default=True, required=False)
+
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    hrefs = extract_links_and_dates(url=url)
-    last_date = return_last_date(hrefs, upstream_tasks=[hrefs])
-    update = check_if_data_is_outdated(dataset_id,
-        table_id,
-        data_source_max_date=last_date,
-        date_format= "%Y-%m-%d", upstream_tasks=[hrefs, last_date])
 
+    hrefs = extract_links_and_dates(url=url)
+    # last_date = return_last_date(hrefs, upstream_tasks=[hrefs])
+    # update = check_if_data_is_outdated(dataset_id,
+    #     table_id,
+    #     data_source_max_date=last_date,
+    #     date_format= "%Y-%m-%d", upstream_tasks=[hrefs, last_date])
 
     with case(update, False):
-        log_task(f"Não houveram atualizações em {url.default}!")
+        files = check_for_updates(hrefs, upstream_tasks=[hrefs])
 
     with case(update, True):
-        files = check_for_updates(hrefs)
+        files = force_update(hrefs, upstream_tasks=[hrefs])
+
+    with case(is_empty(files), True):
+        log_task(f"Não houveram atualizações em {url.default}!")
+
+    with case(is_empty(files), False):
         output_filepath = crawler_ans(files, upstream_tasks=[files])
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
