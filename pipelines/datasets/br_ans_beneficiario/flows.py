@@ -18,8 +18,8 @@ from pipelines.datasets.br_ans_beneficiario.tasks import (
     crawler_ans,
     extract_links_and_dates,
     is_empty,
-    force_update,
-    return_last_date,
+    update_files_list,
+    check_last_date,
     get_file_max_date,
     check_condition,
 )
@@ -58,7 +58,7 @@ with Flow(
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
-    update = Parameter("update", default=False, required=False)
+    force_update = Parameter("update", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
@@ -68,23 +68,23 @@ with Flow(
     hrefs = extract_links_and_dates(url=url)
 
     # Se update == True, força o update dos dados.
-    with case(update, True):
-        files = force_update(hrefs, upstream_tasks=[hrefs])
+    with case(force_update, True):
+        files = update_files_list(hrefs, upstream_tasks=[hrefs])
 
 
-    with case(update, False):
+    with case(force_update, False):
         # Se update == False, verifica se a data de hoje == data de atualização | data da cobertura temporal < data do último arquivo (ex: arquivo 202401 -> (2023-12-01 < 2024-01-01) )
         # Essa condição é verificada na task `check_condition()` abaixo.
 
         file_last_date = get_file_max_date(hrefs, upstream_tasks=[hrefs])
-        last_date_check = return_last_date(hrefs, upstream_tasks=[hrefs])
+        last_date_check = check_last_date(hrefs, upstream_tasks=[hrefs])
         coverage_check = check_if_data_is_outdated(dataset_id,
             table_id,
             data_source_max_date=file_last_date,
             date_format= "%Y-%m-%d", upstream_tasks=[hrefs, file_last_date])
         with case(check_condition(last_date_check, coverage_check), True):
             # Se check_condition = True, cria a lista com os arquivos para o download.
-            files = force_update(hrefs, upstream_tasks=[hrefs])
+            files = update_files_list(hrefs, upstream_tasks=[hrefs])
 
     with case(is_empty(files), False):
         output_filepath = crawler_ans(files, upstream_tasks=[files])
