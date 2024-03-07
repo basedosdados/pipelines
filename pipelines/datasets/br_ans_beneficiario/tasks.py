@@ -64,26 +64,40 @@ def extract_links_and_dates(url) -> pd.DataFrame:
 
     df["desatualizado"] = df["data_hoje"] == df["ultima_atualizacao"]
     # df['desatualizado'] = df['arquivo'].apply(lambda x: True if x in ['inf_diario_fi_202201.zip','inf_diario_fi_202305.zip'] else False)
-
     return df
 
 @task
 def return_last_date(df):
-    return max(df['ultima_atualizacao'])
+    if max(df["data_hoje"]) == max(df["ultima_atualizacao"]):
+        return True
+    else:
+        return False
 
+@task
+def get_file_max_date(df):
+    lista = df[df['ultima_atualizacao'] == max(df['ultima_atualizacao'])].arquivo.to_list()
+    data = datetime.strptime(lista[-1], "%Y%m")
+    return data.strftime("%Y-%m-01")
+
+
+@task
+def check_condition(con1: bool, con2:bool):
+    if con1 == True or con2 == True:
+        return True
+    else:
+        return False
 
 @task
 def check_for_updates(df):
     """
     Checks for outdated tables.
     """
-    log(f"Data de hoje --> {max(df['data_hoje'])}")
-    log(f"Data de atualização --> {max(df['ultima_atualizacao'])}")
     return df.query("desatualizado == True").arquivo.to_list()
 
 
 @task
 def force_update(df):
+    log("Arquivos na fila para o download -->")
     log(df[df['ultima_atualizacao'] == max(df['ultima_atualizacao'])].arquivo.to_list())
     return df[df['ultima_atualizacao'] == max(df['ultima_atualizacao'])].arquivo.to_list()
 
