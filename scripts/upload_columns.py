@@ -143,7 +143,8 @@ def check_metadata_columns(dataset_id, table_slug, url_api: str, url_architectur
     print(f"\nn_columns_metadata: {n_columns_metadata}")
     print(f"n_columns_architecture: {n_columns_architecture}")
 
-def get_all_columns_id(table_id:str, backend:b.Backend):
+
+def get_all_columns_id(table_id: str, backend: b.Backend):
     query = f"""{{
         allColumn(table_Id:"{table_id}"){{
         edges{{
@@ -158,12 +159,13 @@ def get_all_columns_id(table_id:str, backend:b.Backend):
     columns_json = backend._simplify_graphql_response(response=data)["allColumn"]
 
     if data:
-        columns_list =  [col['_id'] for  col in columns_json]
+        columns_list = [col["_id"] for col in columns_json]
         return columns_list
     else:
         print("There is no column in this table to be deleted")
 
-def delete_column_by_id(column_id:str, backend:b.Backend):
+
+def delete_column_by_id(column_id: str, backend: b.Backend):
     mutation = """
                     mutation($input: UUID!) {
                         DeleteColumn(id: $input) {
@@ -180,7 +182,6 @@ def delete_column_by_id(column_id:str, backend:b.Backend):
         query=mutation, variables={"input": column_id}, headers=headers
     )
 
-
     # Print the response for debugging purposes
     if response["DeleteColumn"]["errors"] != []:
         pretty_json = json.dumps(response, indent=4)
@@ -190,8 +191,7 @@ def delete_column_by_id(column_id:str, backend:b.Backend):
     return True
 
 
-def delete_all_columns(table_id:str, backend:b.Backend):
-
+def delete_all_columns(table_id: str, backend: b.Backend):
     columns = get_all_columns_id(table_id, backend)
 
     for col in columns:
@@ -203,7 +203,7 @@ def upload_columns_from_architecture(
     table_slug: str,
     url_architecture: str,
     if_column_exists: str = "pass",
-    replace_all_schema: bool = False
+    replace_all_schema: bool = False,
 ):
     """
     Uploads columns from an architecture table to the specified dataset and table in  platform.
@@ -284,8 +284,8 @@ def upload_columns_from_architecture(
 if __name__ == '__main__':
 
     upload_columns_from_architecture(
-        dataset_id = "<dataset_id>",
-        table_slug = "<table_slug>",
-        url_architecture =  "<architecture_url>",
-        replace_all_schema = False
+        dataset_id="<dataset_id>",
+        table_slug="<table_slug>",
+        url_architecture="<architecture_url>",
+        replace_all_schema=False,
     )
