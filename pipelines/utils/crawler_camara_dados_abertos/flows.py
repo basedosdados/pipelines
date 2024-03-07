@@ -12,9 +12,8 @@ from pipelines.constants import constants
 from pipelines.utils.crawler_camara_dados_abertos.tasks import (
     save_data,
     check_if_url_is_valid,
-    dict_update_django_metadata
 )
-from pipelines.utils.crawler_camara_dados_abertos.constants import constants as constants_camara
+from pipelines.utils.crawler_camara_dados_abertos.constants import update_metadata_variable_dictionary
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
@@ -98,18 +97,18 @@ with Flow(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
 
-            get_table_id_in_dict_update_django_metadata = dict_update_django_metadata(table_id=table_id)
+            get_table_id_in_update_metadata_variable_dictionary = update_metadata_variable_dictionary(table_id=table_id)
             with case(update_metadata, True):
                 update_django_metadata(
-                    dataset_id=get_table_id_in_dict_update_django_metadata["dataset_id"],
-                    table_id=get_table_id_in_dict_update_django_metadata["table_id"],
-                    date_column_name=get_table_id_in_dict_update_django_metadata['date_column_name'],
-                    date_format=get_table_id_in_dict_update_django_metadata['date_format'],
-                    coverage_type=get_table_id_in_dict_update_django_metadata["coverage_type"],
-                    time_delta=get_table_id_in_dict_update_django_metadata['time_delta'],
-                    prefect_mode=get_table_id_in_dict_update_django_metadata['prefect_mode'],
-                    bq_project=get_table_id_in_dict_update_django_metadata["bq_project"],
-                    historical_database=get_table_id_in_dict_update_django_metadata["historical_database"],
+                    dataset_id=get_table_id_in_update_metadata_variable_dictionary["dataset_id"],
+                    table_id=get_table_id_in_update_metadata_variable_dictionary["table_id"],
+                    date_column_name=get_table_id_in_update_metadata_variable_dictionary['date_column_name'],
+                    date_format=get_table_id_in_update_metadata_variable_dictionary['date_format'],
+                    coverage_type=get_table_id_in_update_metadata_variable_dictionary["coverage_type"],
+                    time_delta=get_table_id_in_update_metadata_variable_dictionary['time_delta'],
+                    prefect_mode=get_table_id_in_update_metadata_variable_dictionary['prefect_mode'],
+                    bq_project=get_table_id_in_update_metadata_variable_dictionary["bq_project"],
+                    historical_database=get_table_id_in_update_metadata_variable_dictionary["historical_database"],
                     upstream_tasks=[wait_for_materialization],
                 )
 
