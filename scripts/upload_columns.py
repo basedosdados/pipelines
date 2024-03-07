@@ -211,8 +211,7 @@ def upload_columns_from_architecture(
     Notes:
     - This function assumes a specific structure/format for the architecture table.
     - It interacts with the Base dos Dados GraphQL API to create or update columns.
-    - Columns from the architecture table are processeddelete_all_columns
-    and uploaded to the specified dataset and table.
+    - Columns from the architecture table are uploaded to the specified dataset and table.
     - It prints information about the existing columns
     and performs metadata checks after uploading columns.
     """
@@ -283,9 +282,6 @@ def upload_columns_from_architecture(
     )
 
 if __name__ == '__main__':
-
-    url_api = "https://api.basedosdados.org/api/v1/graphql"
-    backend = b.Backend(graphql_url=url_api)
 
     upload_columns_from_architecture(
         dataset_id = "<dataset_id>",
