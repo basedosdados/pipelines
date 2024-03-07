@@ -3,14 +3,17 @@
 Tasks related to DBT flows.
 """
 
+from cProfile import run
 from datetime import timedelta
+from genericpath import exists
 
 from dbt_client import DbtClient
 from prefect import task
 
 from pipelines.constants import constants
-from pipelines.utils.execute_dbt_model.utils import get_dbt_client
+from pipelines.utils.execute_dbt_model.utils import get_dbt_client, merge_vars
 from pipelines.utils.utils import log
+from pipelines.utils.execute_dbt_model.constants import constants as constants_execute
 
 
 @task(
@@ -34,7 +37,8 @@ def get_k8s_dbt_client(
 
 @task(
     checkpoint=False,
-    max_retries=0,
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def run_dbt_model(
     dbt_client: DbtClient,
@@ -45,6 +49,7 @@ def run_dbt_model(
     sync: bool = True,
     flags: str = None,
     _vars=None,
+    disable_elementary:bool=False,
 ):
     """
     Run a DBT model.
@@ -59,6 +64,7 @@ def run_dbt_model(
         https://docs.getdbt.com/reference/dbt-jinja-functions/flags/
         _vars (Union[dict, List[Dict]], optional): Variables to pass to
         dbt. Defaults to None.
+        disable_elementary (bool, optional): Disable elementary on-run-end hooks.
     """
     if dbt_command not in ["run", "test", "run and test", "run/test"]:
         raise ValueError(f"Invalid dbt_command: {dbt_command}")
@@ -70,6 +76,12 @@ def run_dbt_model(
             selected_table = f"{dataset_id}.{table_id}"
     else:
         selected_table = dataset_id
+
+    if disable_elementary:
+        if _vars is None:
+            _vars = constants_execute.DISABLE_ELEMENTARY_VARS.value
+        else:
+            _vars = merge_vars(constants_execute.DISABLE_ELEMENTARY_VARS.value, _vars)
 
     if "run" in dbt_command:
         if flags == "--full-refresh":
@@ -86,8 +98,10 @@ def run_dbt_model(
             vars_str = f'"{vars_dict}"'
             run_command += f" --vars {vars_str}"
         else:
-            vars_str = f'"{_vars}"'
-            run_command += f" --vars {vars_str}"
+            vars_str = f"'{_vars}'"
+            run_command = None if dbt_command in ["test"] else run_command
+            if run_command is not None:
+                run_command += f" --vars {vars_str}"
 
     if flags:
         run_command += f" {flags}"
@@ -107,7 +121,12 @@ def run_dbt_model(
                     log(event["message"])
 
     if "test" in dbt_command:
-        test_command = f"test --select {selected_table}"
+        if _vars:
+            vars_str = f"'{_vars}'"
+            test_command = f"test --select {selected_table} --vars {vars_str}"
+        else:
+            test_command = f"test --select {selected_table}"
+
         log(f"Running dbt with command: {test_command}")
         logs_dict = dbt_client.cli(
             test_command,
