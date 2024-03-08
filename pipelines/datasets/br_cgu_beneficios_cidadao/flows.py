@@ -48,8 +48,10 @@ with Flow(
         "dataset_id", default="br_cgu_beneficios_cidadao", required=False
     )
     table_id = Parameter("table_id", default="novo_bolsa_familia", required=False)
-    historical_data = Parameter("historical_data", default=False, required=False)
+    historical_data = Parameter("historical_data", default=True, required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
+    update = Parameter("update", default=True, required=False)
+    year = Parameter("year", default="2023", required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -61,21 +63,21 @@ with Flow(
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
-    )
+     )
 
     data = crawl_last_date(table_id=table_id)
-    update = check_if_data_is_outdated(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        data_source_max_date=data[0],
-        date_format="%Y-%m",
-        upstream_tasks=[data],
-    )
+    # update = check_if_data_is_outdated(
+    #     dataset_id=dataset_id,
+    #     table_id=table_id,
+    #     data_source_max_date=data[0],
+    #     date_format="%Y-%m",
+    #     upstream_tasks=[data],
+    # )
 
     with case(update, True):
         last_file = print_last_file(data[1])
         output_filepath = crawler_bolsa_familia(
-            historical_data=historical_data, file=data[1], upstream_tasks=[last_file]
+            historical_data=historical_data, file=data[1], upstream_tasks=[last_file], year= year
         )
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,

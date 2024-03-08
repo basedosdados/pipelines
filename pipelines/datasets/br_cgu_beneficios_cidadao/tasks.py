@@ -54,11 +54,11 @@ def crawl_last_date(table_id: str) -> list:
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )  # noqa
-def crawler_bolsa_familia(historical_data: bool, file):
+def crawler_bolsa_familia(historical_data: bool, file, year= "2023"):
     if historical_data:
-        dates = extract_dates()
-
-        endpoints = dates["urls"].to_list()
+        dates = extract_dates(table="novo_bolsa_familia")
+        log(dates.dtypes)
+        endpoints = dates[dates["ano"] == year]["urls"].to_list()
 
         log("BAIXANDO DADOS HISTÓRICOS")
         log(f"ENDPOINTS >> {endpoints}")
