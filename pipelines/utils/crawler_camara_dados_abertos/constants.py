@@ -12,7 +12,7 @@ class constants(Enum):
     OUTPUT_PATH = "/tmp/output/"
 
     ANO_ATUAL = (datetime.now()).year
-    ANO_ANTERIOR = (datetime.now() - relativedelta(years=1)).year
+    ANO_ANTERIOR = (ANO_ATUAL - 1)
 
     TABLES_INPUT_PATH = {
         # ! - > Proposição
@@ -126,6 +126,45 @@ class constants(Enum):
         "licitacao_proposta" : f"https://dadosabertos.camara.leg.br/arquivos/licitacoesPropostas/csv/licitacoesPropostas-{ANO_ATUAL}.csv",
         # ! - > Despesa
         "despesa" : f"https://www.camara.leg.br/cotas/Ano-{ANO_ATUAL}.csv.zip"
+    }
+
+    TABLES_URL_ANO_ANTERIOR = {
+        # ! - > Proposição
+        "proposicao_microdados": f"http://dadosabertos.camara.leg.br/arquivos/proposicoes/csv/proposicoes-{ANO_ANTERIOR}.csv",
+        "proposicao_autor": f"http://dadosabertos.camara.leg.br/arquivos/proposicoesAutores/csv/proposicoesAutores-{ANO_ANTERIOR}.csv",
+        "proposicao_tema": f"http://dadosabertos.camara.leg.br/arquivos/proposicoesTemas/csv/proposicoesTemas-{ANO_ANTERIOR}.csv",
+        # ! - > Órgão
+        "orgao": "http://dadosabertos.camara.leg.br/arquivos/orgaos/csv/orgaos.csv",
+        "orgao_deputado": "https://dadosabertos.camara.leg.br/arquivos/orgaosDeputados/csv/orgaosDeputados-L57.csv",
+        # ! - > Evento
+        "evento": f"http://dadosabertos.camara.leg.br/arquivos/eventos/csv/eventos-{ANO_ANTERIOR}.csv",
+        "evento_orgao": f"http://dadosabertos.camara.leg.br/arquivos/eventosOrgaos/csv/eventosOrgaos-{ANO_ANTERIOR}.csv",
+        "evento_presenca_deputado": f"http://dadosabertos.camara.leg.br/arquivos/eventosPresencaDeputados/csv/eventosPresencaDeputados-{ANO_ANTERIOR}.csv",
+        "evento_requerimento": f"http://dadosabertos.camara.leg.br/arquivos/eventosRequerimentos/csv/eventosRequerimentos-{ANO_ANTERIOR}.csv",
+        # ! - > Frente
+        "frente": "http://dadosabertos.camara.leg.br/arquivos/frentes/csv/frentes.csv",
+        "frente_deputado": "http://dadosabertos.camara.leg.br/arquivos/frentesDeputados/csv/frentesDeputados.csv",
+        # ! - > Funcionario
+        "funcionario": "http://dadosabertos.camara.leg.br/arquivos/funcionarios/csv/funcionarios.csv",
+        # ! - > Votação
+        "votacao" : f"https://dadosabertos.camara.leg.br/arquivos/votacoes/csv/votacoes-{ANO_ANTERIOR}.csv",
+        "votacao_orientacao_bancada": f"https://dadosabertos.camara.leg.br/arquivos/votacoesOrientacoes/csv/votacoesOrientacoes-{ANO_ANTERIOR}.csv",
+        "voto_parlamentar": f"https://dadosabertos.camara.leg.br/arquivos/votacoesVotos/csv/votacoesVotos-{ANO_ANTERIOR}.csv",
+        "votacao_objeto": f"https://dadosabertos.camara.leg.br/arquivos/votacoesObjetos/csv/votacoesObjetos-{ANO_ANTERIOR}.csv",
+        "proposicao": f"https://dadosabertos.camara.leg.br/arquivos/votacoesProposicoes/csv/votacoesProposicoes-{ANO_ANTERIOR}.csv",
+        # ! - > Deputado
+        "deputado": "https://dadosabertos.camara.leg.br/arquivos/deputados/csv/deputados.csv",
+        "deputado_ocupacao": "https://dadosabertos.camara.leg.br/arquivos/deputadosOcupacoes/csv/deputadosOcupacoes.csv",
+        "deputado_profissao": "https://dadosabertos.camara.leg.br/arquivos/deputadosProfissoes/csv/deputadosProfissoes.csv",
+        # ! - > Licitação
+        "licitacao" : f"https://dadosabertos.camara.leg.br/arquivos/licitacoes/csv/licitacoes-{ANO_ANTERIOR}.csv",
+        "licitacao_contrato" : f"https://dadosabertos.camara.leg.br/arquivos/licitacoesContratos/csv/licitacoesContratos-{ANO_ANTERIOR}.csv",
+        "licitacao_item" : f"https://dadosabertos.camara.leg.br/arquivos/licitacoesItens/csv/licitacoesItens-{ANO_ANTERIOR}.csv",
+        "licitacao_pedido" : f"https://dadosabertos.camara.leg.br/arquivos/licitacoesPedidos/csv/licitacoesPedidos-{ANO_ANTERIOR}.csv",
+        "licitacao_proposta" : f"https://dadosabertos.camara.leg.br/arquivos/licitacoesPropostas/csv/licitacoesPropostas-{ANO_ANTERIOR}.csv",
+        # ! - > Despesa
+        "despesa" : f"https://www.camara.leg.br/cotas/Ano-{ANO_ANTERIOR}.csv.zip"
+
     }
 
     RENAME_COLUMNS_FRENTE_DEPUTADO = {

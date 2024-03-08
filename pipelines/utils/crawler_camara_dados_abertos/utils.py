@@ -54,9 +54,8 @@ def download_and_read_data(table_id: str) -> pd.DataFrame:
         download_table_despesa(table_id)
     else:
         download_all_table(table_id)
-    log(constants_camara.TABLES_INPUT_PATH.value[table_id])
     input_path = constants_camara.TABLES_INPUT_PATH.value[table_id]
-    log(os.listdir(constants_camara.INPUT_PATH.value))
+    log(input_path)
     df = pd.read_csv(input_path, sep=";")
 
     return df

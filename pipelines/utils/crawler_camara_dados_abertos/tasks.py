@@ -77,6 +77,8 @@ def check_if_url_is_valid(table_id:str) -> bool:
     if requests.get(constants_camara.TABLES_URL.value[table_id]).status_code == 200:
         log("URL is valid")
         return True
-    else:
-        log("URL is not valid")
+    elif requests.get(constants_camara.TABLES_URL_ANO_ANTERIOR.value[table_id]).status_code == 200:
+        log("Table is not available in the current year only in the previous year")
         return False
+    else:
+        raise ValueError("URL is not valid")
