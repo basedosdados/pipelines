@@ -17,6 +17,7 @@ from pipelines.utils.metadata.utils import (
     get_coverage_parameters,
     get_credentials_utils,
     get_ids,
+    get_id,
     get_table_status,
     update_row_access_policy,
 )
@@ -200,3 +201,45 @@ def task_get_api_most_recent_date(dataset_id, table_id, date_format):
     return get_api_most_recent_date(
         dataset_id=dataset_id, table_id=table_id, date_format=date_format
     )
+
+
+@task
+def create_quality_check(name:str, description:str, passed:bool, dataset_id:str, table_id:str,api_mode:str):
+    (email, password) = get_credentials_utils(secret_path=f"api_user_{api_mode}")
+    table_result, id = get_id(
+        email=email,
+        password=password,
+        query_class="allCloudtable",
+        query_parameters={
+            "$gcpDatasetId: String": dataset_id,
+            "$gcpTableId: String": table_id,
+        },
+        cloud_table=True,
+        api_mode=api_mode,
+    )
+    if not id:
+        raise ValueError("Table ID not found.")
+
+    result_id = table_result["data"]["allCloudtable"]["edges"][0]["node"][
+        "table"
+    ].get("_id")
+
+    log("table_id: " + result_id)
+
+    parameters = {
+                            "name": name,
+                            "description": description,
+                            "passed": passed,
+                            "table": result_id
+        }
+
+    create_update(
+        query_class="allTable",
+        query_parameters={"$id: ID": result_id},
+        mutation_class="CreateUpdateQualityCheck",
+        mutation_parameters=parameters,
+        update=False,
+        email=email,
+        password=password,
+        api_mode=api_mode,
+)

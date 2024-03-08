@@ -561,7 +561,6 @@ def create_update(
     header = {
         "Authorization": f"Bearer {token}",
     }
-
     r, id = get_id(
         query_class=query_class,
         query_parameters=query_parameters,
@@ -573,7 +572,7 @@ def create_update(
     if id is not None:
         r["r"] = "query"
         if update is False:
-            return r, id
+            print(r, id)
 
     _classe = mutation_class.replace("CreateUpdate", "").lower()
     query = f"""
@@ -605,6 +604,18 @@ def create_update(
             headers=header,
         ).json()
 
+    if update is False:
+        if api_mode == "prod":
+            url = "https://api.basedosdados.org/api/v1/graphql"
+        elif api_mode == "staging":
+            url = "https://staging.api.basedosdados.org/api/v1/graphql"
+
+        r = requests.post(
+            url=url,
+            json={"query": query, "variables": {"input": mutation_parameters}},
+            headers=header,
+        ).json()
+        print(r)
     r["r"] = "mutation"
     if "data" in r and r is not None:
         if r.get("data", {}).get(mutation_class, {}).get("errors", []) != []:
