@@ -90,7 +90,7 @@ def check_files_to_parse(
         datasus_database=datasus_database, datasus_database_table=datasus_database_table
     )
     log(year_month_to_parse)
-    list_files = [file for file in available_dbs if file.split('/')[-1][4:8] == year_month_to_parse]
+    list_files = [file for file in available_dbs if file.split('/')[-1][4:8] == 2310]
 
 
     log(f"------- The following files were selected fom DATASUS FTP: {list_files}")
@@ -324,11 +324,14 @@ def read_dbf_save_parquet_chunks(file_list: list, table_id: str) -> str:
 
 
     dbf_file_list = [file.replace(".dbc", ".dbf") for file in file_list]
-
+    _counter = 0
+    log(f'----coutner {_counter}')
     for file in tqdm(dbf_file_list):
 
-        # replace .csv with .dbf
+
         log(f"-------- Reading {file}")
-        result_path = dbf_to_parquet(dbf=file)
+        result_path = dbf_to_parquet(dbf=file, table_id=table_id, counter=_counter)
+        _counter += 1
+
 
     return f'/tmp/br_ms_sia/output/{table_id}'
