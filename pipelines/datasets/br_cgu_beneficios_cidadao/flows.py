@@ -185,24 +185,41 @@ with Flow(
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
     year = Parameter("year", default="2023", required=False)
-    update = Parameter("update", default=True, required=False)
+    #update = Parameter("update", default=True, required=False)
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    data = get_source_max_date(table_id=table_id)
-    # update = check_if_data_is_outdated(
-    #     dataset_id=dataset_id,
-    #     table_id=table_id,
-    #     data_source_max_date=data[0],
-    #     date_format="%Y-%m",
-    #     upstream_tasks=[data],
-    # )
+    files_and_dates_dataframe = scrape_download_page(table_id= table_id)
+
+    source_max_date = get_source_max_date(files_df=files_and_dates_dataframe, upstream_tasks=[files_and_dates_dataframe])
+
+    update = check_if_data_is_outdated(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        data_source_max_date=source_max_date[0],
+        date_format="%Y-%m",
+        upstream_tasks=[source_max_date,files_and_dates_dataframe ],
+    )
+
     with case(update, True):
-        print_last_file(data[1])
+        table_last_date = task_get_api_most_recent_date(dataset_id = dataset_id,
+                                                        table_id = table_id,
+                                                        date_format ="%Y-%m",
+                                                        upstream_tasks=[update])
+
+        download_files_list = get_updated_files(files_df = files_and_dates_dataframe,
+                                                table_last_date = table_last_date,
+                                                upstream_tasks=[table_last_date])
+
         output_filepath = crawler_garantia_safra(
-            historical_data=historical_data, file=data[1], year = year
+            files_df = files_and_dates_dataframe,
+            historical_data=historical_data,
+            files=download_files_list,
+            year=year,
+            upstream_tasks=[download_files_list,table_last_date],
         )
+
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
@@ -286,30 +303,50 @@ with Flow(
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
     year = Parameter("year", default="2023", required=False)
-    update = Parameter("update", default=True, required=False)
+    #update = Parameter("update", default=True, required=False)
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
-    data = get_source_max_date(table_id=table_id)
-    # update = check_if_data_is_outdated(
-    #     dataset_id=dataset_id,
-    #     table_id=table_id,
-    #     date_format="%Y-%m",
-    #     data_source_max_date=data[0],
-    #     upstream_tasks=[data],
-    # )
+
+    files_and_dates_dataframe = scrape_download_page(table_id= table_id)
+
+    source_max_date = get_source_max_date(files_df=files_and_dates_dataframe, upstream_tasks=[files_and_dates_dataframe])
+
+    update = check_if_data_is_outdated(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        data_source_max_date=source_max_date[0],
+        date_format="%Y-%m",
+        upstream_tasks=[source_max_date,files_and_dates_dataframe ],
+    )
+
     with case(update, True):
-        print_last_file(data[1])
-        output_filepath = crawler_bpc(historical_data=historical_data, file=data[1], year = year)
+        table_last_date = task_get_api_most_recent_date(dataset_id = dataset_id,
+                                                        table_id = table_id,
+                                                        date_format ="%Y-%m",
+                                                        upstream_tasks=[update])
+
+        download_files_list = get_updated_files(files_df = files_and_dates_dataframe,
+                                                table_last_date = table_last_date,
+                                                upstream_tasks=[table_last_date])
+
+        output_filepath = crawler_bpc(
+            files_df = files_and_dates_dataframe,
+            historical_data=historical_data,
+            files=download_files_list,
+            year=year,
+            upstream_tasks=[download_files_list,table_last_date],
+        )
 
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
-            source_format="csv",
+            source_format="parquet",
             wait=output_filepath,
         )
+
 
         with case(materialize_after_dump, True):
             # Trigger DBT flow run

@@ -95,11 +95,11 @@ def crawler_bolsa_familia(files_df: pd.DataFrame, historical_data: bool, files, 
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )  # noqa
-def crawler_garantia_safra(historical_data: bool, file, year = "2023"):
+def crawler_garantia_safra(files_df: pd.DataFrame, historical_data: bool, files, year= "2023"):
     if historical_data:
-        dates = extract_dates(table="garantia_safra")
+        #dates = extract_dates(table="garantia_safra")
 
-        endpoints = dates[dates["ano"] == year]["urls"].to_list()
+        endpoints = files_df[files_df["ano"] == year]["urls"].to_list()
 
         log("BAIXANDO DADOS HISTÓRICOS")
         log(f"ENDPOINTS >> {endpoints}")
@@ -113,7 +113,7 @@ def crawler_garantia_safra(historical_data: bool, file, year = "2023"):
         log("BAIXANDO DADOS MAIS RECENTES")
         download_unzip_csv(
             url=constants.MAIN_URL_GARANTIA_SAFRA.value,
-            files=f"{file}",
+            files=files,
             id="garantia_safra",
         )
 
@@ -128,11 +128,11 @@ def crawler_garantia_safra(historical_data: bool, file, year = "2023"):
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )  # noqa
-def crawler_bpc(historical_data: bool, file, year = "2023"):
+def crawler_bpc(files_df: pd.DataFrame, historical_data: bool, files, year= "2023"):
     if historical_data:
-        dates = extract_dates(table="bpc")
+        #dates = extract_dates(table="bpc")
 
-        endpoints = dates[dates["ano"] == year]["urls"].to_list()
+        endpoints = files_df[files_df["ano"] == year]["urls"].to_list()
 
         log("BAIXANDO DADOS HISTÓRICOS")
         log(f"ENDPOINTS >> {endpoints}")
@@ -146,7 +146,7 @@ def crawler_bpc(historical_data: bool, file, year = "2023"):
         log("BAIXANDO DADOS MAIS RECENTES")
         download_unzip_csv(
             url=constants.MAIN_URL_BPC.value,
-            files=f"{file}",
+            files=files,
             id="bpc",
         )
 
