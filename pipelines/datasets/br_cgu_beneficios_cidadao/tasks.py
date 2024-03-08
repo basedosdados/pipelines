@@ -64,7 +64,7 @@ def crawler_bolsa_familia(historical_data: bool, file, year= "2023"):
         log(f"ENDPOINTS >> {endpoints}")
 
         download_unzip_csv(
-            url=constants.MAIN_URL_NOVO_BOLSA_FAMILIA.value, files=endpoints, id="dados"
+            url=constants.MAIN_URL_NOVO_BOLSA_FAMILIA.value, files=endpoints, id="novo_bolsa_familia"
         )
     else:
         log("BAIXANDO DADOS MAIS RECENTES")
@@ -85,11 +85,11 @@ def crawler_bolsa_familia(historical_data: bool, file, year= "2023"):
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )  # noqa
-def crawler_garantia_safra(historical_data: bool, file):
+def crawler_garantia_safra(historical_data: bool, file, year = "2023"):
     if historical_data:
         dates = extract_dates(table="garantia_safra")
 
-        endpoints = dates["urls"].to_list()
+        endpoints = dates[dates["ano"] == year]["urls"].to_list()
 
         log("BAIXANDO DADOS HISTÓRICOS")
         log(f"ENDPOINTS >> {endpoints}")
@@ -118,11 +118,11 @@ def crawler_garantia_safra(historical_data: bool, file):
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )  # noqa
-def crawler_bpc(historical_data: bool, file):
+def crawler_bpc(historical_data: bool, file, year = "2023"):
     if historical_data:
         dates = extract_dates(table="bpc")
 
-        endpoints = dates["urls"].to_list()
+        endpoints = dates[dates["ano"] == year]["urls"].to_list()
 
         log("BAIXANDO DADOS HISTÓRICOS")
         log(f"ENDPOINTS >> {endpoints}")
