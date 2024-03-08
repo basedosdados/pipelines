@@ -18,8 +18,8 @@ from pipelines.datasets.br_ans_beneficiario.tasks import (
     crawler_ans,
     extract_links_and_dates,
     is_empty,
-    update_files_list,
-    check_last_date,
+    files_to_download,
+    check_if_update_date_is_today,
     get_file_max_date,
     check_condition,
 )
@@ -65,26 +65,29 @@ with Flow(
     )
 
     # Monta dataframe com as colunas: ["arquivo", "ultima_atualizacao", "data_hoje", "desatualizado"]
-    df = extract_links_and_dates(url=url)
+    links_and_dates = extract_links_and_dates(url=url)
 
     # Se update == True, força o update dos dados.
     with case(force_update, True):
-        files = update_files_list(df, upstream_tasks=[df])
+        files = files_to_download(links_and_dates, upstream_tasks=[links_and_dates])
 
 
     with case(force_update, False):
         # Se update == False, verifica se a data de hoje == data de atualização | data da cobertura temporal < data do último arquivo (ex: arquivo 202401 -> (2023-12-01 < 2024-01-01) )
         # Essa condição é verificada na task `check_condition()` abaixo.
 
-        file_last_date = get_file_max_date(df, upstream_tasks=[df])
-        last_date_check = check_last_date(df, upstream_tasks=[df])
+        file_last_date = get_file_max_date(links_and_dates, upstream_tasks=[links_and_dates])
+
+        update_date_check = check_if_update_date_is_today(links_and_dates, upstream_tasks=[links_and_dates])
+
         coverage_check = check_if_data_is_outdated(dataset_id,
             table_id,
             data_source_max_date=file_last_date,
-            date_format= "%Y-%m-%d", upstream_tasks=[df, file_last_date])
-        with case(check_condition(last_date_check, coverage_check), True):
+            date_format= "%Y-%m-%d", upstream_tasks=[links_and_dates, file_last_date])
+
+        with case(check_condition(update_date_check, coverage_check), True):
             # Se check_condition = True, cria a lista com os arquivos para o download.
-            files = update_files_list(df, upstream_tasks=[df])
+            files = files_to_download(links_and_dates, upstream_tasks=[links_and_dates])
 
     with case(is_empty(files), False):
         output_filepath = crawler_ans(files, upstream_tasks=[files])

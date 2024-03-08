@@ -67,7 +67,7 @@ def extract_links_and_dates(url) -> pd.DataFrame:
     return df
 
 @task
-def check_last_date(df):
+def check_if_update_date_is_today(df):
     if max(df["data_hoje"]) == max(df["ultima_atualizacao"]):
         return True
     else:
@@ -82,10 +82,8 @@ def get_file_max_date(df):
 
 @task
 def check_condition(con1: bool, con2:bool):
-    if con1 == True or con2 == True:
-        return True
-    else:
-        return False
+    return con1 == True or con2 == True
+
 
 @task
 def check_for_updates(df):
@@ -96,7 +94,7 @@ def check_for_updates(df):
 
 
 @task
-def update_files_list(df):
+def files_to_download(df):
     log("Arquivos na fila para o download -->")
     log(df[df['ultima_atualizacao'] == max(df['ultima_atualizacao'])].arquivo.to_list())
     return df[df['ultima_atualizacao'] == max(df['ultima_atualizacao'])].arquivo.to_list()
