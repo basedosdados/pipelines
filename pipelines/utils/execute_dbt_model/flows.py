@@ -22,6 +22,7 @@ with Flow(name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value) as run_dbt_mod
     dbt_command = Parameter("dbt_command", default="run", required=False)
     flags = Parameter("flags", default=None, required=False)
     _vars = Parameter("_vars", default=None, required=False)
+    disable_elementary = Parameter("disable_elementary", default=True, required=False)
 
     #################   ####################
     #
@@ -33,7 +34,9 @@ with Flow(name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value) as run_dbt_mod
     )
 
     # Get DBT client
-    dbt_client = get_k8s_dbt_client(mode=mode, wait=rename_flow_run)
+    dbt_client = get_k8s_dbt_client(mode=mode,
+    wait=rename_flow_run
+    )
 
     # Run DBT model
     materialize_this = run_dbt_model(  # pylint: disable=invalid-name
@@ -45,6 +48,7 @@ with Flow(name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value) as run_dbt_mod
         dbt_command=dbt_command,
         flags=flags,
         _vars=_vars,
+        disable_elementary = disable_elementary
     )
 
 

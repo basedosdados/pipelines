@@ -146,14 +146,17 @@ def crawler_ons(
     response = requests.get(url)
 
     html = response.text
+    log(f'--------html response {html}')
 
     soup = BeautifulSoup(html, "html.parser")
 
     csv_links = soup.find_all("a", href=lambda href: href and href.endswith(".csv"))
 
+    log(f'------ csv_links {csv_links}')
     csv_urls = [link["href"] for link in csv_links]
     # Filtra valores únicos
     csv_urls = list(set(csv_urls))
+
 
     return csv_urls
 

@@ -110,7 +110,7 @@ async def download(
     chunk_size: int = 2**20,
     max_retries: int = 32,
     max_parallel: int = 16,
-    timeout: int = 3 * 60 * 1000,
+    timeout: int = 3 * 60 * 2,
 ) -> bytes:
     request_head = httpx.head(url)
 
@@ -141,7 +141,7 @@ async def download_chunk(
     semaphore: Semaphore,
 ) -> bytes:
     async with semaphore:
-        # log(f"Downloading chunk {chunk_range[0]}-{chunk_range[1]}")
+        #log(f"Downloading chunk {chunk_range[0]}-{chunk_range[1]}")
         for i in range(max_retries):
             try:
                 async with httpx.AsyncClient(timeout=timeout) as client:
