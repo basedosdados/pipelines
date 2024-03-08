@@ -21,12 +21,23 @@ from pipelines.utils.utils import log
 def print_last_file(file):
     log(f"Arquivo baixado --> {file}")
 
+@task
+def scrape_download_page(table_id):
+    dates = extract_dates(table=table_id)
+
+    return dates
+
+@task
+def get_updated_files(files_df, table_last_date):
+    files_df['ano_mes'] = files_df['ano'] + '-' + files_df['mes_numero']
+    return files_df[files_df['ano_mes'] > table_last_date]['urls'].to_list()
+
 
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def crawl_last_date(table_id: str) -> list:
+def get_source_max_date(files_df) -> list:
     """
     Encontra a data mais recente em um DataFrame e retorna a data e a URL correspondente.
 
@@ -39,11 +50,11 @@ def crawl_last_date(table_id: str) -> list:
     Exemplo de uso:
     date, url = crawl_last_date("minha_tabela")
     """
-    dates = extract_dates(table=table_id)
-    dates["data"] = pd.to_datetime(
-        dates["ano"].astype(str) + "-" + dates["mes_numero"].astype(str) + "-01"
+    #dates = extract_dates(table=table_id)
+    files_df["data"] = pd.to_datetime(
+        files_df["ano"].astype(str) + "-" + files_df["mes_numero"].astype(str) + "-01"
     )
-    max_row = dates[dates["data"] == dates["data"].max()]
+    max_row = files_df[files_df["data"] == files_df["data"].max()]
 
     max_date = max_row["data"].iloc[0]
 
@@ -54,11 +65,10 @@ def crawl_last_date(table_id: str) -> list:
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )  # noqa
-def crawler_bolsa_familia(historical_data: bool, file, year= "2023"):
+def crawler_bolsa_familia(files_df: pd.DataFrame, historical_data: bool, files, year= "2023"):
     if historical_data:
-        dates = extract_dates(table="novo_bolsa_familia")
-        log(dates.dtypes)
-        endpoints = dates[dates["ano"] == year]["urls"].to_list()
+        #dates = extract_dates(table="novo_bolsa_familia")
+        endpoints = files_df[files_df["ano"] == year]["urls"].to_list()
 
         log("BAIXANDO DADOS HISTÓRICOS")
         log(f"ENDPOINTS >> {endpoints}")
@@ -70,7 +80,7 @@ def crawler_bolsa_familia(historical_data: bool, file, year= "2023"):
         log("BAIXANDO DADOS MAIS RECENTES")
         download_unzip_csv(
             url=constants.MAIN_URL_NOVO_BOLSA_FAMILIA.value,
-            files=f"{file}",
+            files=files,
             id="novo_bolsa_familia",
         )
 

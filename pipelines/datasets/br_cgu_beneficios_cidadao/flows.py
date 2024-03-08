@@ -16,11 +16,13 @@ from pipelines.datasets.br_cgu_beneficios_cidadao.schedules import (
     every_day_novo_bolsa_familia,
 )
 from pipelines.datasets.br_cgu_beneficios_cidadao.tasks import (
-    crawl_last_date,
+    get_source_max_date,
     crawler_bolsa_familia,
     crawler_bpc,
     crawler_garantia_safra,
     print_last_file,
+    scrape_download_page,
+    get_updated_files,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -28,6 +30,7 @@ from pipelines.utils.execute_dbt_model.constants import constants as dump_db_con
 from pipelines.utils.metadata.tasks import (
     check_if_data_is_outdated,
     update_django_metadata,
+    task_get_api_most_recent_date,
 )
 from pipelines.utils.tasks import (  # update_django_metadata,
     create_table_and_upload_to_gcs,
@@ -50,7 +53,7 @@ with Flow(
     table_id = Parameter("table_id", default="novo_bolsa_familia", required=False)
     historical_data = Parameter("historical_data", default=True, required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
-    update = Parameter("update", default=True, required=False)
+    #update = Parameter("update", default=True, required=False)
     year = Parameter("year", default="2023", required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
@@ -65,20 +68,36 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
      )
 
-    data = crawl_last_date(table_id=table_id)
-    # update = check_if_data_is_outdated(
-    #     dataset_id=dataset_id,
-    #     table_id=table_id,
-    #     data_source_max_date=data[0],
-    #     date_format="%Y-%m",
-    #     upstream_tasks=[data],
-    # )
+    files_and_dates_dataframe = scrape_download_page(table_id= table_id)
+
+    source_max_date = get_source_max_date(files_df=files_and_dates_dataframe, upstream_tasks=[files_and_dates_dataframe])
+
+    update = check_if_data_is_outdated(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        data_source_max_date=source_max_date[0],
+        date_format="%Y-%m",
+        upstream_tasks=[source_max_date,files_and_dates_dataframe ],
+    )
 
     with case(update, True):
-        last_file = print_last_file(data[1])
+        table_last_date = task_get_api_most_recent_date(dataset_id = dataset_id,
+                                                        table_id = table_id,
+                                                        date_format ="%Y-%m",
+                                                        upstream_tasks=[update])
+
+        download_files_list = get_updated_files(files_df = files_and_dates_dataframe,
+                                                table_last_date = table_last_date,
+                                                upstream_tasks=[table_last_date])
+
         output_filepath = crawler_bolsa_familia(
-            historical_data=historical_data, file=data[1], upstream_tasks=[last_file], year= year
+            files_df = files_and_dates_dataframe,
+            historical_data=historical_data,
+            files=download_files_list,
+            year=year,
+            upstream_tasks=[download_files_list,table_last_date],
         )
+
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
@@ -171,7 +190,7 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    data = crawl_last_date(table_id=table_id)
+    data = get_source_max_date(table_id=table_id)
     # update = check_if_data_is_outdated(
     #     dataset_id=dataset_id,
     #     table_id=table_id,
@@ -271,7 +290,7 @@ with Flow(
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
-    data = crawl_last_date(table_id=table_id)
+    data = get_source_max_date(table_id=table_id)
     # update = check_if_data_is_outdated(
     #     dataset_id=dataset_id,
     #     table_id=table_id,
