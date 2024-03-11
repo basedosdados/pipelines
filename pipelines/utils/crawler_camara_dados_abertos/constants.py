@@ -37,7 +37,7 @@ class constants(Enum):
         "votacao_orientacao_bancada": f"/tmp/input/votacoesOrientacoes-{ANO_ATUAL}.csv",
         "voto_parlamentar": f"/tmp/input/votacoesVotos-{ANO_ATUAL}.csv",
         "votacao_objeto": f"/tmp/input/votacoesObjetos-{ANO_ATUAL}.csv",
-        "proposicao": f"/tmp/input/votacoesProposicoes-{ANO_ATUAL}.csv",
+        "votacao_proposicao": f"/tmp/input/votacoesProposicoes-{ANO_ATUAL}.csv",
         # ! - > Deputado
         "deputado": "/tmp/input/deputados.csv",
         "deputado_ocupacao": "/tmp/input/deputadosOcupacoes.csv",
@@ -75,7 +75,7 @@ class constants(Enum):
         "votacao_orientacao_bancada": f"/tmp/output/votacao_orientacao_bancada/votacoesOrientacoes_{ANO_ATUAL}.csv",
         "voto_parlamentar": f"/tmp/output/voto_parlamentar/votacoesVotos_{ANO_ATUAL}.csv",
         "votacao_objeto": f"/tmp/output/votacao_objeto/votacoesObjetos_{ANO_ATUAL}.csv",
-        "proposicao": f"/tmp/output/proposicao/votacoesProposicoes_{ANO_ATUAL}.csv",
+        "votacao_proposicao": f"/tmp/output/proposicao/votacoesProposicoes_{ANO_ATUAL}.csv",
         # ! - > Deputado
         "deputado": "/tmp/output/deputado/deputados.csv",
         "deputado_ocupacao": "/tmp/output/deputadosOcupacoes.csv",
@@ -113,7 +113,7 @@ class constants(Enum):
         "votacao_orientacao_bancada": f"https://dadosabertos.camara.leg.br/arquivos/votacoesOrientacoes/csv/votacoesOrientacoes-{ANO_ATUAL}.csv",
         "voto_parlamentar": f"https://dadosabertos.camara.leg.br/arquivos/votacoesVotos/csv/votacoesVotos-{ANO_ATUAL}.csv",
         "votacao_objeto": f"https://dadosabertos.camara.leg.br/arquivos/votacoesObjetos/csv/votacoesObjetos-{ANO_ATUAL}.csv",
-        "proposicao": f"https://dadosabertos.camara.leg.br/arquivos/votacoesProposicoes/csv/votacoesProposicoes-{ANO_ATUAL}.csv",
+        "votacao_proposicao": f"https://dadosabertos.camara.leg.br/arquivos/votacoesProposicoes/csv/votacoesProposicoes-{ANO_ATUAL}.csv",
         # ! - > Deputado
         "deputado": "https://dadosabertos.camara.leg.br/arquivos/deputados/csv/deputados.csv",
         "deputado_ocupacao": "https://dadosabertos.camara.leg.br/arquivos/deputadosOcupacoes/csv/deputadosOcupacoes.csv",
@@ -151,7 +151,7 @@ class constants(Enum):
         "votacao_orientacao_bancada": f"https://dadosabertos.camara.leg.br/arquivos/votacoesOrientacoes/csv/votacoesOrientacoes-{ANO_ANTERIOR}.csv",
         "voto_parlamentar": f"https://dadosabertos.camara.leg.br/arquivos/votacoesVotos/csv/votacoesVotos-{ANO_ANTERIOR}.csv",
         "votacao_objeto": f"https://dadosabertos.camara.leg.br/arquivos/votacoesObjetos/csv/votacoesObjetos-{ANO_ANTERIOR}.csv",
-        "proposicao": f"https://dadosabertos.camara.leg.br/arquivos/votacoesProposicoes/csv/votacoesProposicoes-{ANO_ANTERIOR}.csv",
+        "votacao_proposicao": f"https://dadosabertos.camara.leg.br/arquivos/votacoesProposicoes/csv/votacoesProposicoes-{ANO_ANTERIOR}.csv",
         # ! - > Deputado
         "deputado": "https://dadosabertos.camara.leg.br/arquivos/deputados/csv/deputados.csv",
         "deputado_ocupacao": "https://dadosabertos.camara.leg.br/arquivos/deputadosOcupacoes/csv/deputadosOcupacoes.csv",
@@ -442,7 +442,7 @@ def update_metadata_variable_dictionary(table_id: str, dataset_id = "br_camara_d
                                     "bq_project": "basedosdados",
                                     "historical_database" : True,
                                 },
-                                "votacao_proposicao ": {
+                                "votacao_proposicao": {
                                     "dataset_id": dataset_id,
                                     "table_id": table_id,
                                     "date_column_name": {'date': 'data'},

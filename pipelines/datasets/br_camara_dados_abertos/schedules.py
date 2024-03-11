@@ -86,9 +86,9 @@ schedules_br_camara_dados_abertos_votacao_parlamentar = Schedule(
     ],
 )
 
-# ! - > Votação Proposição Afetada
+# ! - > Votação Proposição
 
-schedules_br_camara_dados_abertos_votacao_proposicao_afetada = Schedule(
+schedules_br_camara_dados_abertos_votacao_proposicao = Schedule(
     clocks=[
         CronClock(
             cron="40 6 * * *",
@@ -99,7 +99,7 @@ schedules_br_camara_dados_abertos_votacao_proposicao_afetada = Schedule(
                 "dbt_alias": True,
                 "materialize_after_dump": True,
                 "materialization_mode": "prod",
-                "table_id": "votacao_proposicao_afetada",
+                "table_id": "votacao_proposicao",
                 "dataset_id": "br_camara_dados_abertos",
             },
         ),

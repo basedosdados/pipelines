@@ -69,14 +69,14 @@ br_camara_dados_abertos__votacao_parlamentar.storage = GCS(constants.GCS_FLOWS_B
 br_camara_dados_abertos__votacao_parlamentar.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 br_camara_dados_abertos__votacao_parlamentar.schedule = schedules_br_camara_dados_abertos_votacao_parlamentar
 
-# ! - > Flow: br_camara_dados_abertos__votacao_proposicao_afetada
+# ! - > Flow: br_camara_dados_abertos__votacao_proposicao
 
-br_camara_dados_abertos__votacao_proposicao_afetada = deepcopy(flow_camara_dados_abertos)
-br_camara_dados_abertos__votacao_proposicao_afetada.name = "br_camara_dados_abertos.votacao_proposicao_afetada"
-br_camara_dados_abertos__votacao_proposicao_afetada.code_owners = ["trick"]
-br_camara_dados_abertos__votacao_proposicao_afetada.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_camara_dados_abertos__votacao_proposicao_afetada.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_camara_dados_abertos__votacao_proposicao_afetada.schedule = schedules_br_camara_dados_abertos_votacao_proposicao_afetada
+br_camara_dados_abertos__votacao_proposicao = deepcopy(flow_camara_dados_abertos)
+br_camara_dados_abertos__votacao_proposicao.name = "br_camara_dados_abertos.votacao_proposicao"
+br_camara_dados_abertos__votacao_proposicao.code_owners = ["trick"]
+br_camara_dados_abertos__votacao_proposicao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_camara_dados_abertos__votacao_proposicao.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_camara_dados_abertos__votacao_proposicao.schedule = schedules_br_camara_dados_abertos_votacao_proposicao
 
 # ! - > Flow: br_camara_dados_abertos__deputado
 
