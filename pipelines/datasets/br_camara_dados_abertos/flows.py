@@ -8,7 +8,7 @@ from prefect.storage import GCS
 from pipelines.constants import constants
 from pipelines.utils.crawler_camara_dados_abertos.flows import flow_camara_dados_abertos
 from pipelines.datasets.br_camara_dados_abertos.schedules import (
-    schedules_br_camara_dados_abertos_votacao_microdados,
+    schedules_br_camara_dados_abertos_votacao,
     schedules_br_camara_dados_abertos_votacao_objeto,
     schedules_br_camara_dados_abertos_votacao_orientacao_bancada,
     schedules_br_camara_dados_abertos_votacao_parlamentar,
@@ -34,13 +34,13 @@ from pipelines.datasets.br_camara_dados_abertos.schedules import (
     schedules_br_camara_dados_abertos_licitacao_item,
     schedules_br_camara_dados_abertos_licitacao_pedido)
 
-# ! - > Flow: br_camara_dados_abertos__votacao_microdados
-br_camara_dados_abertos__votacao_microdados = deepcopy(flow_camara_dados_abertos)
-br_camara_dados_abertos__votacao_microdados.name = "br_camara_dados_abertos.votacao_microdados"
-br_camara_dados_abertos__votacao_microdados.code_owners = ["trick"]
-br_camara_dados_abertos__votacao_microdados.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_camara_dados_abertos__votacao_microdados.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_camara_dados_abertos__votacao_microdados.schedule = schedules_br_camara_dados_abertos_votacao_microdados
+# ! - > Flow: br_camara_dados_abertos__votacao
+br_camara_dados_abertos__votacao = deepcopy(flow_camara_dados_abertos)
+br_camara_dados_abertos__votacao.name = "br_camara_dados_abertos.votacao"
+br_camara_dados_abertos__votacao.code_owners = ["trick"]
+br_camara_dados_abertos__votacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_camara_dados_abertos__votacao.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_camara_dados_abertos__votacao.schedule = schedules_br_camara_dados_abertos_votacao
 
 # ! - > Flow: br_camara_dados_abertos__votacao_objeto
 

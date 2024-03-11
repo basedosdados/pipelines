@@ -6,9 +6,9 @@ from prefect.schedules.clocks import CronClock
 
 from pipelines.constants import constants
 
-# ! - > Votação Microdados
+# ! - > Votação
 
-schedules_br_camara_dados_abertos_votacao_microdados = Schedule(
+schedules_br_camara_dados_abertos_votacao = Schedule(
     clocks=[
         CronClock(
             cron="0 6 * * *",
@@ -19,7 +19,7 @@ schedules_br_camara_dados_abertos_votacao_microdados = Schedule(
                 "dbt_alias": True,
                 "materialize_after_dump": True,
                 "materialization_mode": "prod",
-                "table_id": "votacao_microdados",
+                "table_id": "votacao",
                 "dataset_id": "br_camara_dados_abertos",
             },
         ),
