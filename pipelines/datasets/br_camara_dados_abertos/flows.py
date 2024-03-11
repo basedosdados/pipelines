@@ -12,7 +12,7 @@ from pipelines.datasets.br_camara_dados_abertos.schedules import (
     schedules_br_camara_dados_abertos_votacao_objeto,
     schedules_br_camara_dados_abertos_votacao_orientacao_bancada,
     schedules_br_camara_dados_abertos_votacao_parlamentar,
-    schedules_br_camara_dados_abertos_votacao_proposicao_afetada,
+    schedules_br_camara_dados_abertos_votacao_proposicao,
     schedules_br_camara_dados_abertos_deputado,
     schedules_br_camara_dados_abertos_deputado_ocupacao,
     schedules_br_camara_dados_abertos_deputado_profissao,
