@@ -35,7 +35,7 @@ class constants(Enum):
         # ! - > Votação
         "votacao" : f"/tmp/input/votacoes-{ANO_ATUAL}.csv",
         "votacao_orientacao_bancada": f"/tmp/input/votacoesOrientacoes-{ANO_ATUAL}.csv",
-        "voto_parlamentar": f"/tmp/input/votacoesVotos-{ANO_ATUAL}.csv",
+        "votacao_parlamentar": f"/tmp/input/votacoesVotos-{ANO_ATUAL}.csv",
         "votacao_objeto": f"/tmp/input/votacoesObjetos-{ANO_ATUAL}.csv",
         "votacao_proposicao": f"/tmp/input/votacoesProposicoes-{ANO_ATUAL}.csv",
         # ! - > Deputado
@@ -73,9 +73,9 @@ class constants(Enum):
         # ! - > Votação
         "votacao" : f"/tmp/output/votacao/votacoes_{ANO_ATUAL}.csv",
         "votacao_orientacao_bancada": f"/tmp/output/votacao_orientacao_bancada/votacoesOrientacoes_{ANO_ATUAL}.csv",
-        "voto_parlamentar": f"/tmp/output/voto_parlamentar/votacoesVotos_{ANO_ATUAL}.csv",
+        "votacao_parlamentar": f"/tmp/output/votacao_parlamentar/votacoesVotos_{ANO_ATUAL}.csv",
         "votacao_objeto": f"/tmp/output/votacao_objeto/votacoesObjetos_{ANO_ATUAL}.csv",
-        "votacao_proposicao": f"/tmp/output/proposicao/votacoesProposicoes_{ANO_ATUAL}.csv",
+        "votacao_proposicao": f"/tmp/output/votacao_proposicao/votacoesProposicoes_{ANO_ATUAL}.csv",
         # ! - > Deputado
         "deputado": "/tmp/output/deputado/deputados.csv",
         "deputado_ocupacao": "/tmp/output/deputadosOcupacoes.csv",
@@ -111,7 +111,7 @@ class constants(Enum):
         # ! - > Votação
         "votacao" : f"https://dadosabertos.camara.leg.br/arquivos/votacoes/csv/votacoes-{ANO_ATUAL}.csv",
         "votacao_orientacao_bancada": f"https://dadosabertos.camara.leg.br/arquivos/votacoesOrientacoes/csv/votacoesOrientacoes-{ANO_ATUAL}.csv",
-        "voto_parlamentar": f"https://dadosabertos.camara.leg.br/arquivos/votacoesVotos/csv/votacoesVotos-{ANO_ATUAL}.csv",
+        "votacao_parlamentar": f"https://dadosabertos.camara.leg.br/arquivos/votacoesVotos/csv/votacoesVotos-{ANO_ATUAL}.csv",
         "votacao_objeto": f"https://dadosabertos.camara.leg.br/arquivos/votacoesObjetos/csv/votacoesObjetos-{ANO_ATUAL}.csv",
         "votacao_proposicao": f"https://dadosabertos.camara.leg.br/arquivos/votacoesProposicoes/csv/votacoesProposicoes-{ANO_ATUAL}.csv",
         # ! - > Deputado
@@ -149,7 +149,7 @@ class constants(Enum):
         # ! - > Votação
         "votacao" : f"https://dadosabertos.camara.leg.br/arquivos/votacoes/csv/votacoes-{ANO_ANTERIOR}.csv",
         "votacao_orientacao_bancada": f"https://dadosabertos.camara.leg.br/arquivos/votacoesOrientacoes/csv/votacoesOrientacoes-{ANO_ANTERIOR}.csv",
-        "voto_parlamentar": f"https://dadosabertos.camara.leg.br/arquivos/votacoesVotos/csv/votacoesVotos-{ANO_ANTERIOR}.csv",
+        "votacao_parlamentar": f"https://dadosabertos.camara.leg.br/arquivos/votacoesVotos/csv/votacoesVotos-{ANO_ANTERIOR}.csv",
         "votacao_objeto": f"https://dadosabertos.camara.leg.br/arquivos/votacoesObjetos/csv/votacoesObjetos-{ANO_ANTERIOR}.csv",
         "votacao_proposicao": f"https://dadosabertos.camara.leg.br/arquivos/votacoesProposicoes/csv/votacoesProposicoes-{ANO_ANTERIOR}.csv",
         # ! - > Deputado

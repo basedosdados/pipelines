@@ -24,7 +24,7 @@ def save_data(table_id: str) -> str:
     df = download_and_read_data(table_id)
     if not os.path.exists(f'{constants_camara.OUTPUT_PATH.value}{table_id}'):
         os.makedirs(f'{constants_camara.OUTPUT_PATH.value}{table_id}')
-    log(f'{constants_camara.OUTPUT_PATH.value}{table_id}')
+    log(f'testando : {constants_camara.OUTPUT_PATH.value}{table_id}')
     output_path = constants_camara.TABLES_OUTPUT_PATH.value[table_id]
 
     if table_id == "proposicao_microdados":
