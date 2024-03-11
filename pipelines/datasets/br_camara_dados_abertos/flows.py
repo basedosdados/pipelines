@@ -2,704 +2,258 @@
 
 # register flow in prefect
 
-from datetime import timedelta
-
-from prefect import Parameter, case, unmapped
+from copy import deepcopy
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
-from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
-
 from pipelines.constants import constants
-from pipelines.datasets.br_camara_dados_abertos.constants import (
-    constants as constants_camara,
-)
+from pipelines.utils.crawler_camara_dados_abertos.flows import flow_camara_dados_abertos
 from pipelines.datasets.br_camara_dados_abertos.schedules import (
-    every_day_camara_dados_abertos,
-    every_day_camara_dados_abertos_deputados,
-    every_day_camara_dados_abertos_universal,
-)
-from pipelines.datasets.br_camara_dados_abertos.tasks import (
-    dict_list_parameters,
-    download_files_and_get_max_date,
-    download_files_and_get_max_date_deputados,
-    make_partitions,
-    output_path_list,
-    save_data,
-    treat_and_save_table,
-)
-from pipelines.utils.constants import constants as utils_constants
-from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.metadata.tasks import (
-    check_if_data_is_outdated,
-    update_django_metadata,
-)
-from pipelines.utils.tasks import (
-    create_table_and_upload_to_gcs,
-    get_current_flow_labels,
-    log_task,
-    rename_current_flow_run_dataset_table,
-)
+    schedules_br_camara_dados_abertos_votacao_microdados,
+    schedules_br_camara_dados_abertos_votacao_objeto,
+    schedules_br_camara_dados_abertos_votacao_orientacao_bancada,
+    schedules_br_camara_dados_abertos_votacao_parlamentar,
+    schedules_br_camara_dados_abertos_votacao_proposicao,
+    schedules_br_camara_dados_abertos_deputado,
+    schedules_br_camara_dados_abertos_deputado_ocupacao,
+    schedules_br_camara_dados_abertos_deputado_profissao,
+    schedules_br_camara_dados_abertos_proposicao_microdados,
+    schedules_br_camara_dados_abertos_proposicao_autor,
+    schedules_br_camara_dados_abertos_proposicao_tema,
+    schedules_br_camara_dados_abertos_orgao,
+    schedules_br_camara_dados_abertos_orgao_deputado,
+    schedules_br_camara_dados_abertos_evento,
+    schedules_br_camara_dados_abertos_evento_orgao,
+    schedules_br_camara_dados_abertos_evento_presenca_deputado,
+    schedules_br_camara_dados_abertos_evento_requerimento,
+    schedules_br_camara_dados_abertos_funcionario,
+    schedules_br_camara_dados_abertos_frente,
+    schedules_br_camara_dados_abertos_frente_deputado,
+    schedules_br_camara_dados_abertos_licitacao,
+    schedules_br_camara_dados_abertos_licitacao_proposta,
+    schedules_br_camara_dados_abertos_licitacao_contrato,
+    schedules_br_camara_dados_abertos_licitacao_item,
+    schedules_br_camara_dados_abertos_licitacao_pedido)
 
-with Flow(name="br_camara_dados_abertos.votacao", code_owners=["trick"]) as br_camara:
-    # Parameters
-    dataset_id = Parameter(
-        "dataset_id", default="br_camara_dados_abertos", required=True
-    )
-    table_id = Parameter(
-        "table_id",
-        default=[
-            "votacao_microdados",
-            "votacao_objeto",
-            "votacao_orientacao_bancada",
-            "votacao_parlamentar",
-            "votacao_proposicao_afetada",
-        ],
-        required=True,
-    )
+# ! - > Flow: br_camara_dados_abertos__votacao_microdados
+br_camara_dados_abertos__votacao_microdados = deepcopy(flow_camara_dados_abertos)
+br_camara_dados_abertos__votacao_microdados.name = "br_camara_dados_abertos.votacao_microdados"
+br_camara_dados_abertos__votacao_microdados.code_owners = ["trick"]
+br_camara_dados_abertos__votacao_microdados.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_camara_dados_abertos__votacao_microdados.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_camara_dados_abertos__votacao_microdados.schedule = schedules_br_camara_dados_abertos_votacao_microdados
 
-    materialization_mode = Parameter(
-        "materialization_mode", default="prod", required=False
-    )
-    materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
-    )
-    dbt_alias = Parameter("dbt_alias", default=True, required=False)
+# ! - > Flow: br_camara_dados_abertos__votacao_objeto
 
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ",
-        dataset_id=dataset_id,
-        table_id=table_id[0],
-        wait=table_id[0],
-    )
+br_camara_dados_abertos__votacao_objeto = deepcopy(flow_camara_dados_abertos)
+br_camara_dados_abertos__votacao_objeto.name = "br_camara_dados_abertos.votacao_objeto"
+br_camara_dados_abertos__votacao_objeto.code_owners = ["trick"]
+br_camara_dados_abertos__votacao_objeto.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_camara_dados_abertos__votacao_objeto.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_camara_dados_abertos__votacao_objeto.schedule = schedules_br_camara_dados_abertos_votacao_objeto
 
-    update_metadata = Parameter("update_metadata", default=True, required=False)
-    data_source_max_date = download_files_and_get_max_date()
+# ! - > Flow: br_camara_dados_abertos__votacao_orientacao_bancada
 
-    dados_desatualizados = check_if_data_is_outdated(
-        dataset_id=dataset_id,
-        table_id=table_id[0],
-        data_source_max_date=data_source_max_date,
-        date_format="%Y-%m-%d",
-        upstream_tasks=[data_source_max_date],
-    )
+br_camara_dados_abertos__votacao_orientacao_bancada = deepcopy(flow_camara_dados_abertos)
+br_camara_dados_abertos__votacao_orientacao_bancada.name = "br_camara_dados_abertos.votacao_orientacao_bancada"
+br_camara_dados_abertos__votacao_orientacao_bancada.code_owners = ["trick"]
+br_camara_dados_abertos__votacao_orientacao_bancada.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_camara_dados_abertos__votacao_orientacao_bancada.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_camara_dados_abertos__votacao_orientacao_bancada.schedule = schedules_br_camara_dados_abertos_votacao_orientacao_bancada
 
-    with case(dados_desatualizados, False):
-        log_task("Não há atualizações!")
+# ! - > Flow: br_camara_dados_abertos__votacao_parlamentar
 
-    with case(dados_desatualizados, True):
-        # ! ---------------------------------------- >   Votacao - Microdados
+br_camara_dados_abertos__votacao_parlamentar = deepcopy(flow_camara_dados_abertos)
+br_camara_dados_abertos__votacao_parlamentar.name = "br_camara_dados_abertos.votacao_parlamentar"
+br_camara_dados_abertos__votacao_parlamentar.code_owners = ["trick"]
+br_camara_dados_abertos__votacao_parlamentar.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_camara_dados_abertos__votacao_parlamentar.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_camara_dados_abertos__votacao_parlamentar.schedule = schedules_br_camara_dados_abertos_votacao_parlamentar
 
-        filepath_microdados = make_partitions(
-            table_id="votacao_microdados",
-            date_column="data",
-            upstream_tasks=[rename_flow_run],
-        )
-        wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=filepath_microdados,
-            dataset_id=dataset_id,
-            table_id=table_id[0],
-            dump_mode="append",
-            wait=filepath_microdados,
-        )
-        with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels()
-            materialization_flow = create_flow_run(
-                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": table_id[0],
-                    "mode": materialization_mode,
-                    "dbt_alias": dbt_alias,
-                    "dbt_command": "run/test",
-                },
-                labels=current_flow_labels,
-                run_name=f"Materialize {dataset_id}.{table_id[0]}",
-            )
+# ! - > Flow: br_camara_dados_abertos__votacao_proposicao
 
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
-            )
-            wait_for_materialization.max_retries = (
-                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-            wait_for_materialization.retry_delay = timedelta(
-                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-            )
+br_camara_dados_abertos__votacao_proposicao = deepcopy(flow_camara_dados_abertos)
+br_camara_dados_abertos__votacao_proposicao.name = "br_camara_dados_abertos.votacao_proposicao"
+br_camara_dados_abertos__votacao_proposicao.code_owners = ["trick"]
+br_camara_dados_abertos__votacao_proposicao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_camara_dados_abertos__votacao_proposicao.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_camara_dados_abertos__votacao_proposicao.schedule = schedules_br_camara_dados_abertos_votacao_proposicao
 
-        with case(update_metadata, True):
-            update_django_metadata(
-                dataset_id,
-                table_id[0],
-                date_column_name={"date": "data"},
-                date_format="%Y-%m-%d",
-                coverage_type="part_bdpro",
-                time_delta={"months": 6},
-                prefect_mode=materialization_mode,
-                bq_project="basedosdados",
-                upstream_tasks=[wait_for_materialization],
-            )
+# ! - > Flow: br_camara_dados_abertos__deputado
 
-        # ! ---------------------------------------- >   Votacao - objeto
+br_camara_dados_abertos__deputado = deepcopy(flow_camara_dados_abertos)
+br_camara_dados_abertos__deputado.name = "br_camara_dados_abertos.deputado"
+br_camara_dados_abertos__deputado.code_owners = ["trick"]
+br_camara_dados_abertos__deputado.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_camara_dados_abertos__deputado.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_camara_dados_abertos__deputado.schedule = schedules_br_camara_dados_abertos_deputado
 
-        filepath_objeto = make_partitions(
-            table_id="votacao_objeto",
-            date_column="data",
-            upstream_tasks=[rename_flow_run],
-        )
-        wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=filepath_objeto,
-            dataset_id=dataset_id,
-            table_id=table_id[1],
-            dump_mode="append",
-            wait=filepath_objeto,
-        )
-        with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels()
-            materialization_flow = create_flow_run(
-                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": table_id[1],
-                    "mode": materialization_mode,
-                    "dbt_alias": dbt_alias,
-                    "dbt_command": "run/test",
-                },
-                labels=current_flow_labels,
-                run_name=f"Materialize {dataset_id}.{table_id[1]}",
-            )
+# ! - > Flow: br_camara_dados_abertos__deputado_ocupacao
 
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
-            )
-            wait_for_materialization.max_retries = (
-                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-            wait_for_materialization.retry_delay = timedelta(
-                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-            )
+br_camara_dados_abertos__deputado_ocupacao = deepcopy(flow_camara_dados_abertos)
+br_camara_dados_abertos__deputado_ocupacao.name = "br_camara_dados_abertos.deputado_ocupacao"
+br_camara_dados_abertos__deputado_ocupacao.code_owners = ["trick"]
+br_camara_dados_abertos__deputado_ocupacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_camara_dados_abertos__deputado_ocupacao.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_camara_dados_abertos__deputado_ocupacao.schedule = schedules_br_camara_dados_abertos_deputado_ocupacao
 
-        with case(update_metadata, True):
-            update_django_metadata(
-                dataset_id,
-                table_id[1],
-                date_column_name={"date": "data"},
-                date_format="%Y-%m-%d",
-                coverage_type="part_bdpro",
-                time_delta={"months": 6},
-                prefect_mode=materialization_mode,
-                bq_project="basedosdados",
-                upstream_tasks=[wait_for_materialization],
-            )
+# ! - > Flow: br_camara_dados_abertos__deputado_profissao
 
-        # ! ---------------------------------------- >   Votacao - Parlamentar
+br_camara_dados_abertos__deputado_profissao = deepcopy(flow_camara_dados_abertos)
+br_camara_dados_abertos__deputado_profissao.name = "br_camara_dados_abertos.deputado_profissao"
+br_camara_dados_abertos__deputado_profissao.code_owners = ["trick"]
+br_camara_dados_abertos__deputado_profissao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_camara_dados_abertos__deputado_profissao.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_camara_dados_abertos__deputado_profissao.schedule = schedules_br_camara_dados_abertos_deputado_profissao
 
-        filepath_parlamentar = make_partitions(
-            table_id="votacao_parlamentar",
-            date_column="dataHoraVoto",
-            upstream_tasks=[rename_flow_run],
-        )
-        wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=filepath_parlamentar,
-            dataset_id=dataset_id,
-            table_id=table_id[3],
-            dump_mode="append",
-            wait=filepath_parlamentar,
-        )
-        with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels()
-            materialization_flow = create_flow_run(
-                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": table_id[3],
-                    "mode": materialization_mode,
-                    "dbt_alias": dbt_alias,
-                    "dbt_command": "run/test",
-                },
-                labels=current_flow_labels,
-                run_name=f"Materialize {dataset_id}.{table_id[3]}",
-            )
+# ! - > Flow: br_camara_dados_abertos__proposicao_microdados
 
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
-            )
-            wait_for_materialization.max_retries = (
-                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-            wait_for_materialization.retry_delay = timedelta(
-                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-            )
+br_camara_dados_abertos__proposicao_microdados = deepcopy(flow_camara_dados_abertos)
+br_camara_dados_abertos__proposicao_microdados.name = "br_camara_dados_abertos.proposicao_microdados"
+br_camara_dados_abertos__proposicao_microdados.code_owners = ["trick"]
+br_camara_dados_abertos__proposicao_microdados.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_camara_dados_abertos__proposicao_microdados.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_camara_dados_abertos__proposicao_microdados.schedule = schedules_br_camara_dados_abertos_proposicao_microdados
 
-        with case(update_metadata, True):
-            update_django_metadata(
-                dataset_id,
-                table_id[3],
-                date_column_name={"date": "data"},
-                date_format="%Y-%m-%d",
-                coverage_type="part_bdpro",
-                time_delta={"months": 6},
-                prefect_mode=materialization_mode,
-                bq_project="basedosdados",
-                upstream_tasks=[wait_for_materialization],
-            )
+# ! - > Flow: br_camara_dados_abertos__proposicao_autor
 
-        # ! ---------------------------------------- >   Votacao - Proposicao
+br_camara_dados_abertos__proposicao_autor = deepcopy(flow_camara_dados_abertos)
+br_camara_dados_abertos__proposicao_autor.name = "br_camara_dados_abertos.proposicao_autor"
+br_camara_dados_abertos__proposicao_autor.code_owners = ["trick"]
+br_camara_dados_abertos__proposicao_autor.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_camara_dados_abertos__proposicao_autor.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_camara_dados_abertos__proposicao_autor.schedule = schedules_br_camara_dados_abertos_proposicao_autor
 
-        filepath_proposicao = make_partitions(
-            table_id="votacao_proposicao_afetada",
-            date_column="data",
-            upstream_tasks=[rename_flow_run],
-        )
-        wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=filepath_proposicao,
-            dataset_id=dataset_id,
-            table_id=table_id[4],
-            dump_mode="append",
-            wait=filepath_proposicao,
-        )
-        with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels()
-            materialization_flow = create_flow_run(
-                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": table_id[4],
-                    "mode": materialization_mode,
-                    "dbt_alias": dbt_alias,
-                    "dbt_command": "run/test",
-                },
-                labels=current_flow_labels,
-                run_name=f"Materialize {dataset_id}.{table_id[4]}",
-            )
+# ! - > Flow: br_camara_dados_abertos__proposicao_tema
 
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
-            )
-            wait_for_materialization.max_retries = (
-                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-            wait_for_materialization.retry_delay = timedelta(
-                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-            )
+br_camara_dados_abertos__proposicao_tema = deepcopy(flow_camara_dados_abertos)
+br_camara_dados_abertos__proposicao_tema.name = "br_camara_dados_abertos.proposicao_tema"
+br_camara_dados_abertos__proposicao_tema.code_owners = ["trick"]
+br_camara_dados_abertos__proposicao_tema.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_camara_dados_abertos__proposicao_tema.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_camara_dados_abertos__proposicao_tema.schedule = schedules_br_camara_dados_abertos_proposicao_tema
 
-        with case(update_metadata, True):
-            update_django_metadata(
-                dataset_id,
-                table_id[4],
-                date_column_name={"date": "data"},
-                date_format="%Y-%m-%d",
-                coverage_type="part_bdpro",
-                time_delta={"months": 6},
-                prefect_mode=materialization_mode,
-                bq_project="basedosdados",
-                upstream_tasks=[wait_for_materialization],
-            )
+# ! - > Flow: br_camara_dados_abertos__orgao
 
-        # ! ---------------------------------------- >   Votacao - Orientacao -- Não tem data
+br_camara_dados_abertos__orgao = deepcopy(flow_camara_dados_abertos)
+br_camara_dados_abertos__orgao.name = "br_camara_dados_abertos.orgao"
+br_camara_dados_abertos__orgao.code_owners = ["trick"]
+br_camara_dados_abertos__orgao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_camara_dados_abertos__orgao.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_camara_dados_abertos__orgao.schedule = schedules_br_camara_dados_abertos_orgao
 
-        filepath_orientacao = make_partitions(
-            table_id="votacao_orientacao_bancada",
-            date_column="data",
-            upstream_tasks=[rename_flow_run],
-        )
-        wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=filepath_orientacao,
-            dataset_id=dataset_id,
-            table_id=table_id[2],
-            dump_mode="append",
-            wait=filepath_orientacao,
-        )
-        with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels()
-            materialization_flow = create_flow_run(
-                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": table_id[2],
-                    "mode": materialization_mode,
-                    "dbt_alias": dbt_alias,
-                    "dbt_command": "run/test",
-                },
-                labels=current_flow_labels,
-                run_name=f"Materialize {dataset_id}.{table_id[2]}",
-            )
+# ! - > Flow: br_camara_dados_abertos__orgao_deputado
 
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
-            )
-            wait_for_materialization.max_retries = (
-                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-            wait_for_materialization.retry_delay = timedelta(
-                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-            )
+br_camara_dados_abertos__orgao_deputado = deepcopy(flow_camara_dados_abertos)
+br_camara_dados_abertos__orgao_deputado.name = "br_camara_dados_abertos.orgao_deputado"
+br_camara_dados_abertos__orgao_deputado.code_owners = ["trick"]
+br_camara_dados_abertos__orgao_deputado.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_camara_dados_abertos__orgao_deputado.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_camara_dados_abertos__orgao_deputado.schedule = schedules_br_camara_dados_abertos_orgao_deputado
 
-        # ! ---------------------------------------------------> Não tem data. Precisaremos usar o historical_database
-        with case(update_metadata, True):
-            update_django_metadata(
-                dataset_id,
-                table_id[2],
-                date_format="%Y-%m",
-                coverage_type="all_free",
-                time_delta={"months": 6},
-                prefect_mode=materialization_mode,
-                bq_project="basedosdados",
-                historical_database=False,
-                upstream_tasks=[wait_for_materialization],
-            )
+# ! - > Flow: br_camara_dados_abertos__evento
 
-br_camara.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_camara.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_camara.schedule = every_day_camara_dados_abertos
+br_camara_dados_abertos__evento = deepcopy(flow_camara_dados_abertos)
+br_camara_dados_abertos__evento.name = "br_camara_dados_abertos.evento"
+br_camara_dados_abertos__evento.code_owners = ["trick"]
+br_camara_dados_abertos__evento.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_camara_dados_abertos__evento.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_camara_dados_abertos__evento.schedule = schedules_br_camara_dados_abertos_evento
 
+# ! - > Flow: br_camara_dados_abertos__evento_orgao
 
-# ---------------------------------------------------------------------------------------
-# ---------------------------------------------------------------------------------------
-# ---------------------------------------------------------------------------------------
+br_camara_dados_abertos__evento_orgao = deepcopy(flow_camara_dados_abertos)
+br_camara_dados_abertos__evento_orgao.name = "br_camara_dados_abertos.evento_orgao"
+br_camara_dados_abertos__evento_orgao.code_owners = ["trick"]
+br_camara_dados_abertos__evento_orgao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_camara_dados_abertos__evento_orgao.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_camara_dados_abertos__evento_orgao.schedule = schedules_br_camara_dados_abertos_evento_orgao
 
-# ------------------------------ TABLES DEPUTADOS ---------------------------------------
+# ! - > Flow: br_camara_dados_abertos__evento_presenca_deputado
 
-with Flow(
-    name="br_camara_dados_abertos.deputado", code_owners=["trick"]
-) as br_camara_deputado:
-    # Parameters
-    dataset_id = Parameter(
-        "dataset_id", default="br_camara_dados_abertos", required=True
-    )
-    table_id = Parameter(
-        "table_id",
-        default=[
-            "deputado",
-            "deputado_ocupacao",
-            "deputado_profissao",
-        ],
-        required=True,
-    )
+br_camara_dados_abertos__evento_presenca_deputado = deepcopy(flow_camara_dados_abertos)
+br_camara_dados_abertos__evento_presenca_deputado.name = "br_camara_dados_abertos.evento_presenca_deputado"
+br_camara_dados_abertos__evento_presenca_deputado.code_owners = ["trick"]
+br_camara_dados_abertos__evento_presenca_deputado.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_camara_dados_abertos__evento_presenca_deputado.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_camara_dados_abertos__evento_presenca_deputado.schedule = schedules_br_camara_dados_abertos_evento_presenca_deputado
 
-    materialization_mode = Parameter(
-        "materialization_mode", default="prod", required=False
-    )
-    materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
-    )
-    dbt_alias = Parameter("dbt_alias", default=True, required=False)
+# ! - > Flow: br_camara_dados_abertos__evento_requerimento
 
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ",
-        dataset_id=dataset_id,
-        table_id=table_id[0],
-        wait=table_id[0],
-    )
+br_camara_dados_abertos__evento_requerimento = deepcopy(flow_camara_dados_abertos)
+br_camara_dados_abertos__evento_requerimento.name = "br_camara_dados_abertos.evento_requerimento"
+br_camara_dados_abertos__evento_requerimento.code_owners = ["trick"]
+br_camara_dados_abertos__evento_requerimento.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_camara_dados_abertos__evento_requerimento.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_camara_dados_abertos__evento_requerimento.schedule = schedules_br_camara_dados_abertos_evento_requerimento
 
-    update_metadata = Parameter("update_metadata", default=True, required=False)
-    data_source_max_date_deputado = download_files_and_get_max_date_deputados()
+# ! - > Flow: br_camara_dados_abertos__funcionario
 
-    dados_desatualizados = check_if_data_is_outdated(
-        dataset_id=dataset_id,
-        table_id=table_id[2],
-        data_source_max_date=data_source_max_date_deputado,
-        date_format="%Y-%m-%d",
-        upstream_tasks=[data_source_max_date_deputado],
-    )
+br_camara_dados_abertos__funcionario = deepcopy(flow_camara_dados_abertos)
+br_camara_dados_abertos__funcionario.name = "br_camara_dados_abertos.funcionario"
+br_camara_dados_abertos__funcionario.code_owners = ["trick"]
+br_camara_dados_abertos__funcionario.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_camara_dados_abertos__funcionario.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_camara_dados_abertos__funcionario.schedule = schedules_br_camara_dados_abertos_funcionario
 
-    with case(dados_desatualizados, False):
-        log_task("Não há atualizações!")
+# ! - > Flow: br_camara_dados_abertos__frente
 
-    with case(dados_desatualizados, True):
-        # --------------------------------------- > Deputados
+br_camara_dados_abertos__frente = deepcopy(flow_camara_dados_abertos)
+br_camara_dados_abertos__frente.name = "br_camara_dados_abertos.frente"
+br_camara_dados_abertos__frente.code_owners = ["trick"]
+br_camara_dados_abertos__frente.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_camara_dados_abertos__frente.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_camara_dados_abertos__frente.schedule = schedules_br_camara_dados_abertos_frente
 
-        filepath_deputados = treat_and_save_table(
-            table_id="deputados", upstream_tasks=[rename_flow_run]
-        )
-        wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=filepath_deputados,
-            dataset_id=dataset_id,
-            table_id=table_id[0],
-            dump_mode="append",
-            wait=filepath_deputados,
-        )
+# ! - > Flow: br_camara_dados_abertos__frente_deputado
 
-        with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels()
-            materialization_flow = create_flow_run(
-                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": table_id[0],
-                    "mode": materialization_mode,
-                    "dbt_alias": dbt_alias,
-                    "dbt_command": "run/test",
-                },
-                labels=current_flow_labels,
-                run_name=f"Materialize {dataset_id}.{table_id[0]}",
-            )
+br_camara_dados_abertos__frente_deputado = deepcopy(flow_camara_dados_abertos)
+br_camara_dados_abertos__frente_deputado.name = "br_camara_dados_abertos.frente_deputado"
+br_camara_dados_abertos__frente_deputado.code_owners = ["trick"]
+br_camara_dados_abertos__frente_deputado.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_camara_dados_abertos__frente_deputado.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_camara_dados_abertos__frente_deputado.schedule = schedules_br_camara_dados_abertos_frente_deputado
 
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
-            )
-            wait_for_materialization.max_retries = (
-                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-            wait_for_materialization.retry_delay = timedelta(
-                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-            )
+# ! - > Flow: br_camara_dados_abertos__licitacao
 
-        with case(update_metadata, True):
-            update_django_metadata(
-                dataset_id,
-                table_id[0],
-                coverage_type="all_free",
-                prefect_mode=materialization_mode,
-                bq_project="basedosdados",
-                historical_database=False,
-                upstream_tasks=[wait_for_materialization],
-            )
+br_camara_dados_abertos__licitacao = deepcopy(flow_camara_dados_abertos)
+br_camara_dados_abertos__licitacao.name = "br_camara_dados_abertos.licitacao"
+br_camara_dados_abertos__licitacao.code_owners = ["trick"]
+br_camara_dados_abertos__licitacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_camara_dados_abertos__licitacao.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_camara_dados_abertos__licitacao.schedule = schedules_br_camara_dados_abertos_licitacao
 
-        # ----------------------------------------------> Deputados - Ocupacao
+# ! - > Flow: br_camara_dados_abertos__licitacao_contrato
 
-        filepath_deputados_ocupacao = treat_and_save_table(
-            table_id="deputado_ocupacao", upstream_tasks=[filepath_deputados]
-        )
-        wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=filepath_deputados_ocupacao,
-            dataset_id=dataset_id,
-            table_id=table_id[1],
-            dump_mode="append",
-            wait=filepath_deputados_ocupacao,
-        )
+br_camara_dados_abertos__licitacao_contrato = deepcopy(flow_camara_dados_abertos)
+br_camara_dados_abertos__licitacao_contrato.name = "br_camara_dados_abertos.licitacao_contrato"
+br_camara_dados_abertos__licitacao_contrato.code_owners = ["trick"]
+br_camara_dados_abertos__licitacao_contrato.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_camara_dados_abertos__licitacao_contrato.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_camara_dados_abertos__licitacao_contrato.schedule = schedules_br_camara_dados_abertos_licitacao_contrato
 
-        with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels()
-            materialization_flow = create_flow_run(
-                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": table_id[1],
-                    "mode": materialization_mode,
-                    "dbt_alias": dbt_alias,
-                    "dbt_command": "run/test",
-                },
-                labels=current_flow_labels,
-                run_name=f"Materialize {dataset_id}.{table_id[1]}",
-            )
+# ! - > Flow: br_camara_dados_abertos__licitacao_item
 
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
-            )
-            wait_for_materialization.max_retries = (
-                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-            wait_for_materialization.retry_delay = timedelta(
-                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-            )
+br_camara_dados_abertos__licitacao_item = deepcopy(flow_camara_dados_abertos)
+br_camara_dados_abertos__licitacao_item.name = "br_camara_dados_abertos.licitacao_item"
+br_camara_dados_abertos__licitacao_item.code_owners = ["trick"]
+br_camara_dados_abertos__licitacao_item.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_camara_dados_abertos__licitacao_item.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_camara_dados_abertos__licitacao_item.schedule = schedules_br_camara_dados_abertos_licitacao_item
 
-        with case(update_metadata, True):
-            update_django_metadata(
-                dataset_id,
-                table_id[1],
-                coverage_type="all_free",
-                prefect_mode=materialization_mode,
-                bq_project="basedosdados",
-                historical_database=False,
-                upstream_tasks=[wait_for_materialization],
-            )
+# ! - > Flow: br_camara_dados_abertos__licitacao_proposta
 
-        # ----------------------------------------------> Deputados - Profissão
+br_camara_dados_abertos__licitacao_proposta = deepcopy(flow_camara_dados_abertos)
+br_camara_dados_abertos__licitacao_proposta.name = "br_camara_dados_abertos.licitacao_proposta"
+br_camara_dados_abertos__licitacao_proposta.code_owners = ["trick"]
+br_camara_dados_abertos__licitacao_proposta.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_camara_dados_abertos__licitacao_proposta.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_camara_dados_abertos__licitacao_proposta.schedule = schedules_br_camara_dados_abertos_licitacao_proposta
 
-        filepath_deputados_profissao = treat_and_save_table(
-            table_id="deputado_profissao", upstream_tasks=[filepath_deputados_ocupacao]
-        )
-        wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=filepath_deputados_profissao,
-            dataset_id=dataset_id,
-            table_id=table_id[2],
-            dump_mode="append",
-            wait=filepath_deputados_profissao,
-        )
+# ! - > Flow: br_camara_dados_abertos__licitacao_pedido
 
-        with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels()
-            materialization_flow = create_flow_run(
-                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": table_id[2],
-                    "mode": materialization_mode,
-                    "dbt_alias": dbt_alias,
-                    "dbt_command": "run/test",
-                },
-                labels=current_flow_labels,
-                run_name=f"Materialize {dataset_id}.{table_id[2]}",
-            )
-
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
-            )
-            wait_for_materialization.max_retries = (
-                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-            wait_for_materialization.retry_delay = timedelta(
-                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-            )
-
-        with case(update_metadata, True):
-            update_django_metadata(
-                dataset_id,
-                table_id[2],
-                date_format="%Y-%m-%d",
-                date_column_name={"date": "data"},
-                coverage_type="all_free",
-                prefect_mode=materialization_mode,
-                bq_project="basedosdados",
-                historical_database=True,
-                upstream_tasks=[wait_for_materialization],
-            )
-
-br_camara_deputado.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_camara_deputado.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_camara_deputado.schedule = every_day_camara_dados_abertos_deputados
-
-
-# ------------------------------ TABLES UNIVERSAL -------------------------------------
-
-with Flow(
-    name="br_camara_dados_abertos.universal", code_owners=["trick"]
-) as br_camara_dados_abertos_universal:
-    # Parameters
-    dataset_id = Parameter(
-        "dataset_id", default="br_camara_dados_abertos", required=True
-    )
-    table_id = Parameter(
-        "table_id",
-        default=[
-            "proposicao_microdados",
-            "proposicao_autor",
-            "proposicao_tema",
-            "orgao",
-            "orgao_deputado",
-            "evento",
-            "evento_orgao",
-            "evento_presenca_deputado",
-            "evento_requerimento",
-            "frente",
-            "frente_deputado",
-            "funcionario",
-        ],
-        required=True,
-    )
-    materialization_mode = Parameter(
-        "materialization_mode", default="prod", required=False
-    )
-    materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
-    )
-    dbt_alias = Parameter("dbt_alias", default=True, required=False)
-
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ",
-        dataset_id=dataset_id,
-        table_id="Universal",
-        wait=table_id,
-    )
-
-    update_metadata = Parameter("update_metadata", default=True, required=False)
-
-    filepath = save_data.map(
-        table_id=table_id,
-        upstream_tasks=[unmapped(rename_flow_run)],
-    )
-    output_path_list = output_path_list(table_id)
-    wait_upload_table = create_table_and_upload_to_gcs.map(
-        data_path=output_path_list,
-        dataset_id=unmapped(dataset_id),
-        table_id=table_id,
-        dump_mode=unmapped("append"),
-        wait=unmapped(output_path_list),
-        upstream_tasks=[unmapped(filepath)],
-    )
-    parameters = dict_list_parameters(dataset_id, materialization_mode, dbt_alias)
-    with case(materialize_after_dump, True):
-        # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
-        materialization_flow = create_flow_run.map(
-            flow_name=unmapped(utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value),
-            project_name=unmapped(constants.PREFECT_DEFAULT_PROJECT.value),
-            parameters=parameters,
-            labels=unmapped(current_flow_labels),
-            run_name=f"Materialize {unmapped(dataset_id)}.{table_id}",
-            upstream_tasks=[unmapped(wait_upload_table)],
-        )
-
-        wait_for_materialization = wait_for_flow_run.map(
-            materialization_flow,
-            stream_states=unmapped(True),
-            stream_logs=unmapped(True),
-            raise_final_state=unmapped(True),
-        )
-        wait_for_materialization.max_retries = (
-            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-        )
-        wait_for_materialization.retry_delay = timedelta(
-            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-        )
-
-    with case(update_metadata, True):
-        update_django_metadata.map(
-            dataset_id=unmapped(dataset_id),
-            table_id=table_id,
-            date_format=unmapped("%Y-%m-%d"),
-            date_column_name=constants_camara.DATA_COLUMN_NAME.value,
-            coverage_type=constants_camara.COVERAGE_TYPE.value,
-            prefect_mode=unmapped(materialization_mode),
-            time_delta=unmapped({"months": 6}),
-            bq_project=unmapped("basedosdados"),
-            historical_database=constants_camara.HISTORICAL_DATABASE.value,
-            upstream_tasks=[unmapped(wait_for_materialization)],
-        )
-
-br_camara_dados_abertos_universal.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_camara_dados_abertos_universal.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-br_camara_dados_abertos_universal.schedule = every_day_camara_dados_abertos_universal
+br_camara_dados_abertos__licitacao_pedido = deepcopy(flow_camara_dados_abertos)
+br_camara_dados_abertos__licitacao_pedido.name = "br_camara_dados_abertos.licitacao_pedido"
+br_camara_dados_abertos__licitacao_pedido.code_owners = ["trick"]
+br_camara_dados_abertos__licitacao_pedido.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_camara_dados_abertos__licitacao_pedido.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_camara_dados_abertos__licitacao_pedido.schedule = schedules_br_camara_dados_abertos_licitacao_pedido
