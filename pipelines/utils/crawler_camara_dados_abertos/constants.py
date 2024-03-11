@@ -431,7 +431,7 @@ def update_metadata_variable_dictionary(table_id: str, dataset_id = "br_camara_d
                                     "bq_project": "basedosdados",
                                     "historical_database" : True,
                                 },
-                                "votacao_parlamentar ": {
+                                "votacao_parlamentar": {
                                     "dataset_id": dataset_id,
                                     "table_id": table_id,
                                     "date_column_name": {'date': 'data'},
