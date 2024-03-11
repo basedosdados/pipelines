@@ -40,7 +40,7 @@ class constants(Enum):
         "proposicao": f"/tmp/input/votacoesProposicoes-{ANO_ATUAL}.csv",
         # ! - > Deputado
         "deputado": "/tmp/input/deputados.csv",
-        "deputado_ocupacao": "/tmp/input/deputado_ocupacao.csv",
+        "deputado_ocupacao": "/tmp/input/deputadosOcupacoes.csv",
         "deputado_profissao": "/tmp/input/deputadosProfissoes.csv",
         # ! - > Licitação
         "licitacao" : f"/tmp/input/licitacoes-{ANO_ATUAL}.csv",
@@ -78,7 +78,7 @@ class constants(Enum):
         "proposicao": f"/tmp/output/proposicao/votacoesProposicoes_{ANO_ATUAL}.csv",
         # ! - > Deputado
         "deputado": "/tmp/output/deputado/deputados.csv",
-        "deputado_ocupacao": "/tmp/output/deputado_ocupacao.csv",
+        "deputado_ocupacao": "/tmp/output/deputadosOcupacoes.csv",
         "deputado_profissao": "/tmp/output/deputado_profissao/deputadosProfissoes.csv",
         # ! - > Licitação
         "licitacao" : f"/tmp/output/licitacao/licitacoes_{ANO_ATUAL}.csv",
