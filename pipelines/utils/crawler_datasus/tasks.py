@@ -89,8 +89,8 @@ def check_files_to_parse(
     available_dbs = list_datasus_dbc_files(
         datasus_database=datasus_database, datasus_database_table=datasus_database_table
     )
-    log(year_month_to_parse)
-    list_files = [file for file in available_dbs if file.split('/')[-1][4:8] == 2310]
+    log(available_dbs)
+    list_files = [file for file in available_dbs if file.split('/')[-1][4:8] == '2310']
 
 
     log(f"------- The following files were selected fom DATASUS FTP: {list_files}")
