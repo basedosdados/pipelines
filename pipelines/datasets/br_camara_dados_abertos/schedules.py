@@ -500,7 +500,7 @@ schedules_br_camara_dados_abertos_licitacao_pedido = Schedule(
                 "dbt_alias": True,
                 "materialize_after_dump": True,
                 "materialization_mode": "prod",
-                "table_id": "Licitacao_pedido",
+                "table_id": "licitacao_pedido",
                 "dataset_id": "br_camara_dados_abertos",
             },
         ),
