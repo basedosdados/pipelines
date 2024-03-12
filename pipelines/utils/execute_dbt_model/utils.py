@@ -4,10 +4,10 @@ General utilities for interacting with dbt-rpc
 """
 from datetime import datetime, timedelta
 from typing import List
-
+from pipelines.utils.utils import log
 from dbt_client import DbtClient
 from prefect.schedules.clocks import IntervalClock
-
+import json
 
 def get_dbt_client(
     host: str = "dbt-rpc",
@@ -59,3 +59,15 @@ def generate_execute_dbt_model_schedules(  # pylint: disable=too-many-arguments,
             )
         )
     return clocks
+
+
+def merge_vars(vars1, vars2):
+    try:
+        dict1 = json.loads(vars1)
+        dict2 = json.dumps(vars2, ensure_ascii=False)
+        dict2 = json.loads(dict2)
+        merged = {**dict1, **dict2}
+        return json.dumps(merged)
+    except (json.JSONDecodeError, TypeError) as e:
+        log(f"Erro ao mesclar variáveis: {e}")
+        raise
