@@ -14,6 +14,7 @@ from pipelines.constants import constants
 from pipelines.datasets.br_mp_pep_cargos_funcoes.schedules import every_month
 from pipelines.datasets.br_mp_pep_cargos_funcoes.tasks import (
     clean_data,
+    download_xlsx,
     is_up_to_date,
     make_partitions,
     scraper,
@@ -39,13 +40,9 @@ with Flow(
     dataset_id = Parameter("dataset_id", default="br_mp_pep", required=True)
     table_id = Parameter("table_id", default="cargos_funcoes", required=True)
     update_metadata = Parameter("update_metadata", default=True, required=False)
-    materialization_mode = Parameter(
-        "materialization_mode", default="prod", required=False
-    )
-    materialize_after_dump = Parameter(
-        "materialize after dump", default=True, required=False
-    )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    materialization_mode = Parameter("materialization_mode", default="prod", required=False)
+    materialize_after_dump = Parameter("materialize after dump", default=True, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
@@ -56,7 +53,7 @@ with Flow(
     data_is_up_to_date = is_up_to_date(upstream_tasks=[setup])
 
     with case(data_is_up_to_date, True):
-        log_task("Tabelas já estão atualizadas")
+        log_task("Tabela já esta atualizada")
 
     with case(data_is_up_to_date, False):
         current_date = datetime.datetime(
@@ -67,11 +64,17 @@ with Flow(
         year_delta = current_date - datetime.timedelta(days=1)
         year_end = year_delta.year
 
-        scrapper = scraper(
-            year_start=2019, year_end=year_end, upstream_tasks=[data_is_up_to_date]
+        urls = scraper(
+            year_start=year_end,
+            year_end=year_end,
+            headless=True,
+            upstream_tasks=[data_is_up_to_date],
         )
 
-        df = clean_data(upstream_tasks=[scrapper])
+        download = download_xlsx(urls, upstream_tasks=[urls])
+        log_task("Download XLSX finished")
+
+        df = clean_data(upstream_tasks=[download])
 
         output_filepath = make_partitions(df, upstream_tasks=[df])
 
