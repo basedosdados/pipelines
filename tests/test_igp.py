@@ -2,6 +2,7 @@
 """
 Tests for IGP functins
 """
+
 from unittest.mock import patch
 
 import pandas as pd
