@@ -203,7 +203,7 @@ def upload_columns_from_architecture(
     table_slug: str,
     url_architecture: str,
     if_column_exists: str = "pass",
-    replace_all_schema: bool = False,
+    replace_all_schema: bool = True,
 ):
     """
     Uploads columns from an architecture table to the specified dataset and table in  platform.
@@ -287,5 +287,5 @@ if __name__ == '__main__':
         dataset_id="<dataset_id>",
         table_slug="<table_slug>",
         url_architecture="<architecture_url>",
-        replace_all_schema=False,
+        replace_all_schema=True,
     )
