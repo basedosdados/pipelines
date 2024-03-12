@@ -143,7 +143,6 @@ def scraper(
         # Wait for DOM changes
         time.sleep(9.0)
         elements = driver.find_elements(By.CLASS_NAME, "QvExcluded_LED_CHECK_363636")
-        # TODO: improve this
         head, *_ = [
             selection
             for selection in elements
@@ -402,11 +401,8 @@ def is_up_to_date(headless: bool = True) -> bool:
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-gpu")
     options.add_argument("--disable-dev-shm-usage")
-    # TODO: remove?
     options.add_argument("--crash-dumps-dir=/tmp")
-    # TODO: remove?
     options.add_argument("--remote-debugging-port=9222")
-
     options.add_argument("--window-size=1920,1080")
 
     if headless:
