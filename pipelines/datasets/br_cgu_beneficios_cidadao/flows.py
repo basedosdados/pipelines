@@ -8,7 +8,7 @@ from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
-
+from pipelines.datasets.br_cgu_beneficios_cidadao.constants import constants as constants_cgu
 from pipelines.constants import constants
 from pipelines.datasets.br_cgu_beneficios_cidadao.schedules import (
     every_day_bpc,
@@ -20,9 +20,9 @@ from pipelines.datasets.br_cgu_beneficios_cidadao.tasks import (
     crawler_bolsa_familia,
     crawler_bpc,
     crawler_garantia_safra,
-    print_last_file,
     scrape_download_page,
     get_updated_files,
+    crawler_beneficios_cidadao,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -51,10 +51,13 @@ with Flow(
         "dataset_id", default="br_cgu_beneficios_cidadao", required=False
     )
     table_id = Parameter("table_id", default="novo_bolsa_familia", required=False)
+
     historical_data = Parameter("historical_data", default=True, required=False)
+
     update_metadata = Parameter("update_metadata", default=False, required=False)
-    #update = Parameter("update", default=True, required=False)
+    url = Parameter("url", default=constants_cgu.MAIN_URL_NOVO_BOLSA_FAMILIA.value, required=False)
     year = Parameter("year", default="2023", required=False)
+
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -90,7 +93,9 @@ with Flow(
                                                 table_last_date = table_last_date,
                                                 upstream_tasks=[table_last_date])
 
-        output_filepath = crawler_bolsa_familia(
+        output_filepath = crawler_beneficios_cidadao(
+            table_id = table_id,
+            url = url,
             files_df = files_and_dates_dataframe,
             historical_data=historical_data,
             files=download_files_list,
@@ -173,9 +178,13 @@ with Flow(
     dataset_id = Parameter(
         "dataset_id", default="br_cgu_beneficios_cidadao", required=False
     )
+
     table_id = Parameter("table_id", default="garantia_safra", required=False)
-    historical_data = Parameter("historical_data", default=True, required=False)
+
+    historical_data = Parameter("historical_data", default=False, required=False)
+
     update_metadata = Parameter("update_metadata", default=False, required=False)
+
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -183,9 +192,11 @@ with Flow(
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
     )
+    url = Parameter("url", default=constants_cgu.MAIN_URL_GARANTIA_SAFRA.value, required=False)
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
+
     year = Parameter("year", default="2023", required=False)
-    #update = Parameter("update", default=True, required=False)
+
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
@@ -212,7 +223,9 @@ with Flow(
                                                 table_last_date = table_last_date,
                                                 upstream_tasks=[table_last_date])
 
-        output_filepath = crawler_garantia_safra(
+        output_filepath = crawler_beneficios_cidadao(
+            table_id = table_id,
+            url = url,
             files_df = files_and_dates_dataframe,
             historical_data=historical_data,
             files=download_files_list,
@@ -293,6 +306,7 @@ with Flow(
     )
     table_id = Parameter("table_id", default="bpc", required=False)
     historical_data = Parameter("historical_data", default=False, required=False)
+    url = Parameter("url", default=constants_cgu.MAIN_URL_BPC.value, required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
@@ -301,9 +315,11 @@ with Flow(
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
     )
+
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
+
     year = Parameter("year", default="2023", required=False)
-    #update = Parameter("update", default=True, required=False)
+
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
@@ -330,7 +346,9 @@ with Flow(
                                                 table_last_date = table_last_date,
                                                 upstream_tasks=[table_last_date])
 
-        output_filepath = crawler_bpc(
+        output_filepath = crawler_beneficios_cidadao(
+            table_id = table_id,
+            url = url,
             files_df = files_and_dates_dataframe,
             historical_data=historical_data,
             files=download_files_list,
