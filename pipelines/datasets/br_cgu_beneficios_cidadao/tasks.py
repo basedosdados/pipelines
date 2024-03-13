@@ -57,11 +57,9 @@ def get_source_max_date(files_df) -> list:
     files_df["data"] = pd.to_datetime(
         files_df["ano"].astype(str) + "-" + files_df["mes_numero"].astype(str) + "-01"
     )
-    max_row = files_df[files_df["data"] == files_df["data"].max()]
+    max_date = files_df["data"].max()
 
-    max_date = max_row["data"].iloc[0]
-
-    return [max_date, max_row["urls"].iloc[0]]
+    return max_date
 
 
 @task(

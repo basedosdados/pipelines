@@ -75,7 +75,7 @@ with Flow(
     update = check_if_data_is_outdated(
         dataset_id=dataset_id,
         table_id=table_id,
-        data_source_max_date=source_max_date[0],
+        data_source_max_date=source_max_date,
         date_format="%Y-%m",
         upstream_tasks=[source_max_date,files_and_dates_dataframe ],
     )
@@ -205,7 +205,7 @@ with Flow(
     update = check_if_data_is_outdated(
         dataset_id=dataset_id,
         table_id=table_id,
-        data_source_max_date=source_max_date[0],
+        data_source_max_date=source_max_date,
         date_format="%Y-%m",
         upstream_tasks=[source_max_date,files_and_dates_dataframe ],
     )
@@ -235,7 +235,7 @@ with Flow(
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
-            source_format="parquet",
+            source_format="csv",
             wait=output_filepath,
         )
 
@@ -328,7 +328,7 @@ with Flow(
     update = check_if_data_is_outdated(
         dataset_id=dataset_id,
         table_id=table_id,
-        data_source_max_date=source_max_date[0],
+        data_source_max_date=source_max_date,
         date_format="%Y-%m",
         upstream_tasks=[source_max_date,files_and_dates_dataframe ],
     )
@@ -358,7 +358,7 @@ with Flow(
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
-            source_format="parquet",
+            source_format="csv",
             wait=output_filepath,
         )
 
