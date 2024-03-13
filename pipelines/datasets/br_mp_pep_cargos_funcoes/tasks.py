@@ -22,6 +22,7 @@ from selenium.common.exceptions import (
     StaleElementReferenceException,
     WebDriverException,
 )
+from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 
@@ -53,7 +54,7 @@ def scraper(
     headless: bool = True,
     year_start: int = 1999,
     year_end: int = datetime.datetime.now().year,
-) -> list[tuple[int, str]]:
+) -> tuple[WebDriver, list[tuple[int, str]]]:
     log(f"Scraper dates: from {year_start} to {year_end}")
 
     if not os.path.exists(constants.PATH.value):
@@ -305,18 +306,20 @@ def scraper(
 
     log(f"XLSX URLs: {xlsx_hrefs}")
 
-    driver.close()
-
-    return xlsx_hrefs
+    return (driver, xlsx_hrefs)
 
 
 @task
-def download_xlsx(urls: list[tuple[int, str]]) -> None:
+def download_xlsx(scraper_result: tuple[WebDriver, list[tuple[int, str]]]) -> None:
+    driver, urls = scraper_result
+
+    cookies = {cookie["name"]: cookie["value"] for cookie in driver.get_cookies()}
+
     def request_wrapper(url: str) -> requests.Response:
         attempt = 0
         while attempt < 5:
             try:
-                return requests.get(url)
+                return requests.get(url, cookies=cookies)
             except ConnectionError:
                 attempt = attempt + 1
                 time.sleep(10.0 * attempt)
@@ -329,6 +332,9 @@ def download_xlsx(urls: list[tuple[int, str]]) -> None:
         response = request_wrapper(href)
         with open(os.path.join(constants.INPUT_DIR.value, f"{year}.xlsx"), "wb") as file:
             file.write(response.content)
+
+
+    driver.close()
 
 
 @task

@@ -64,14 +64,14 @@ with Flow(
         year_delta = current_date - datetime.timedelta(days=1)
         year_end = year_delta.year
 
-        urls = scraper(
+        scraper_result = scraper(
             year_start=year_end,
             year_end=year_end,
             headless=True,
             upstream_tasks=[data_is_up_to_date],
         )
 
-        download = download_xlsx(urls, upstream_tasks=[urls])
+        download = download_xlsx(scraper_result, upstream_tasks=[scraper_result])
         log_task("Download XLSX finished")
 
         df = clean_data(upstream_tasks=[download])
