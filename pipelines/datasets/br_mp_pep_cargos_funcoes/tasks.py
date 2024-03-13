@@ -333,7 +333,6 @@ def download_xlsx(scraper_result: tuple[WebDriver, list[tuple[int, str]]]) -> No
         with open(os.path.join(constants.INPUT_DIR.value, f"{year}.xlsx"), "wb") as file:
             file.write(response.content)
 
-
     driver.close()
 
 
@@ -400,7 +399,10 @@ def make_partitions(df: pd.DataFrame) -> str:
     return savepath
 
 
-@task
+@task(
+    max_retries=c.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=c.TASK_RETRY_DELAY.value),
+)
 def is_up_to_date(headless: bool = True) -> bool:
     options = webdriver.ChromeOptions()
 
@@ -415,7 +417,13 @@ def is_up_to_date(headless: bool = True) -> bool:
         options.add_argument("--headless=new")
 
     driver = webdriver.Chrome(options=options)
-    driver.get(constants.TARGET.value)
+
+    try:
+        driver.get(constants.TARGET.value)
+    except WebDriverException as e:
+        log(f"Exception: {e}")
+        time.sleep(10.0)
+        driver.get(constants.TARGET.value)
 
     attempts = 0
     max_attempts = 5
