@@ -17,9 +17,6 @@ from pipelines.datasets.br_cgu_beneficios_cidadao.schedules import (
 )
 from pipelines.datasets.br_cgu_beneficios_cidadao.tasks import (
     get_source_max_date,
-    crawler_bolsa_familia,
-    crawler_bpc,
-    crawler_garantia_safra,
     scrape_download_page,
     get_updated_files,
     crawler_beneficios_cidadao,
