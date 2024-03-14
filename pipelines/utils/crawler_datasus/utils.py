@@ -19,8 +19,6 @@ from pipelines.utils.crawler_datasus.constants import constants as datasus_const
 from pipelines.utils.utils import log
 
 
-#-----------------------------
-#Utils to handle dbf and dbf
 #https://github.com/AlertaDengue/PySUS/blob/main/pysus/data/__init__.py
 def stream_dbf(dbf, chunk_size=400000):
     """Fetches records in parquet chunks to preserve memory"""
