@@ -2,47 +2,54 @@
 """
 General purpose functions for the br_mp_pep_cargos_funcoes project
 """
-
-import os
 import time
 
-from pipelines.datasets.br_mp_pep_cargos_funcoes.constants import constants
-from pipelines.utils.utils import log
+from selenium.webdriver.chrome.webdriver import WebDriver
+from selenium.webdriver.remote.webelement import WebElement
 
 
-def wait_file_download(year: int, timeout=60 * 8):
-    start_time = time.time()
-    end_time = start_time + timeout
+def try_find_element(
+    driver: WebDriver,
+    by: str,
+    value: str | None = None,
+    timeout: float = 60 * 2,
+    sleep: float = 1.0,
+) -> WebElement:
+    end_time = time.time() + timeout
 
-    file_exists = False
+    while time.time() < end_time:
+        try:
+            element = driver.find_element(by, value)
+            return element
+        except:
+            time.sleep(sleep)
+            continue
 
-    while not file_exists:
-        time.sleep(1.0)
-        files = [
-            f
-            for f in os.listdir(constants.TMP_DATA_DIR.value)
-            if not f.endswith(".crdownload")
-        ]
-        if len(files) > 0:
-            log(f"Time to download {year}, {time.time() - start_time} seconds")
-            break
-        if time.time() > end_time:
-            raise Exception(f"Timeout to download xlsx for {year}, {timeout} seconds")
-        continue
-
-    return True
+    raise Exception(f"Timeout reached. Failed to find element by method {by=}, selector {value=}")
 
 
-def move_from_tmp_dir(year: int):
-    files = os.listdir(constants.TMP_DATA_DIR.value)
-    log(f"Files in tmp dir: {files}")
-    assert len(files) == 1
-    src = os.path.join(constants.TMP_DATA_DIR.value, files[0])
-    dest_file_name = f"{str(year)}.xlsx"
-    dest = os.path.join(constants.INPUT_DIR.value, dest_file_name)
-    os.rename(src, dest)
-    log(f"Files after moved: {os.listdir(constants.TMP_DATA_DIR.value)}")
-    assert os.path.exists(dest)
+def try_find_elements(
+    driver: WebDriver,
+    by: str,
+    value: str | None = None,
+    timeout: float = 60 * 2,
+    sleep: float = 1.0,
+) -> list[WebElement]:
+    end_time = time.time() + timeout
+
+    while time.time() < end_time:
+        try:
+            elements = driver.find_elements(by, value)
+            if len(elements) > 0:
+                return elements
+            else:
+                time.sleep(sleep)
+                continue
+        except:
+            time.sleep(sleep)
+            continue
+
+    raise Exception(f"Timeout reached. Failed to find element by method {by=}, selector {value=}")
 
 
 def get_normalized_values_by_col():
