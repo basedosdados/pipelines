@@ -60,7 +60,6 @@ def check_files_to_parse(
 
     log("------- Building next year/month to parse")
 
-
     year = str(last_date.year)
     month = last_date.month
 
@@ -90,7 +89,7 @@ def check_files_to_parse(
         datasus_database=datasus_database, datasus_database_table=datasus_database_table
     )
 
-    list_files = [file for file in available_dbs if file.split('/')[-1][4:8] == '2304']
+    list_files = [file for file in available_dbs if file.split('/')[-1][4:8] == year_month_to_parse]
 
 
     log(f"------- The following files were selected fom DATASUS FTP: {list_files}")
@@ -103,7 +102,7 @@ def check_files_to_parse(
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def access_ftp_download_files_async(
-    file_list: list, dataset_id: str, table_id: str, max_parallel: int = 12, chunk_size: int = 5
+    file_list: list, dataset_id: str, table_id: str, max_parallel: int = 12, chunk_size: int = 8
 ) -> list[str]:
     """This task access Datasus FTP server and download a list of files asynchronously
 
@@ -119,11 +118,11 @@ def access_ftp_download_files_async(
     """
 
     input_path = os.path.join("/tmp", dataset_id, "input", table_id)
-    log(f"------created input dir {input_path}")
+    log(f"------ created input dir {input_path}")
     os.makedirs(input_path, exist_ok=True)
 
     # https://github.com/AlertaDengue/PySUS/blob/main/pysus/ftp/__init__.py#L156
-    log(f"------dowloading {table_id} files from DATASUS FTP")
+    log(f"------ dowloading {table_id} files from DATASUS FTP")
 
 
 
