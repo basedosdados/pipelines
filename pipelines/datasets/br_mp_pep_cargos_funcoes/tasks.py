@@ -54,7 +54,7 @@ def scraper(
     headless: bool = True,
     year_start: int = 1999,
     year_end: int = datetime.datetime.now().year,
-) -> tuple[WebDriver, list[tuple[int, str]]]:
+) -> tuple[dict, list[tuple[int, str]]]:
     log(f"Scraper dates: from {year_start} to {year_end}")
 
     if not os.path.exists(constants.PATH.value):
@@ -306,14 +306,16 @@ def scraper(
 
     log(f"XLSX URLs: {xlsx_hrefs}")
 
-    return (driver, xlsx_hrefs)
+    cookies = {cookie["name"]: cookie["value"] for cookie in driver.get_cookies()}
+
+    driver.close()
+
+    return (cookies, xlsx_hrefs)
 
 
 @task
-def download_xlsx(scraper_result: tuple[WebDriver, list[tuple[int, str]]]) -> None:
-    driver, urls = scraper_result
-
-    cookies = {cookie["name"]: cookie["value"] for cookie in driver.get_cookies()}
+def download_xlsx(scraper_result: tuple[dict, list[tuple[int, str]]]) -> None:
+    cookies, urls = scraper_result
 
     def request_wrapper(url: str) -> requests.Response:
         attempt = 0
@@ -327,13 +329,10 @@ def download_xlsx(scraper_result: tuple[WebDriver, list[tuple[int, str]]]) -> No
 
         raise Exception(f"Failed to request at {url}")
 
-    log(f"Download xlsx: {urls=}")
     for year, href in urls:
         response = request_wrapper(href)
         with open(os.path.join(constants.INPUT_DIR.value, f"{year}.xlsx"), "wb") as file:
             file.write(response.content)
-
-    driver.close()
 
 
 @task
