@@ -104,7 +104,7 @@ def check_files_to_parse(
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def access_ftp_download_files_async(
-    file_list: list, dataset_id: str, table_id: str, max_parallel: int = 10, chunk_size: int = 10
+    file_list: list, dataset_id: str, table_id: str, max_parallel: int = 12, chunk_size: int = 5
 ) -> list[str]:
     """This task access Datasus FTP server and download a list of files asynchronously
 
