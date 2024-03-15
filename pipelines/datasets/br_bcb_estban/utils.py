@@ -83,7 +83,7 @@ def pre_cleaning_for_pivot_long_agencia(df: pd.DataFrame) -> pd.DataFrame:
         df (pd.DataFrame): a dataframe estban data
 
     Returns:
-        pd.Dataframe: _description_
+        pd.Dataframe: pd.dataframe pivoted
     """
     df.drop(columns={"MUNICIPIO", "CODMUN_IBGE", "CODMUN"}, axis=1, inplace=True)
 
@@ -100,7 +100,8 @@ def pre_cleaning_for_pivot_long_agencia(df: pd.DataFrame) -> pd.DataFrame:
 
     pattern = re.compile(r"(')")
 
-    df["cnpj_agencia"] = [pattern.sub("", x) for x in df["cnpj_agencia"]]
+    df["cnpj_agencia"] = df["cnpj_agencia"].astype(str).apply(lambda x: pattern.sub("", x))
+
 
     return df
 
