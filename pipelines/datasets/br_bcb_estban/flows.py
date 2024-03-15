@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+br_bcb_estban_municipio# -*- coding: utf-8 -*-
 """
 Flows for br_bcb_estban
 """
@@ -113,7 +114,7 @@ with Flow(
                     "table_id": table_id,
                     "mode": materialization_mode,
                     "dbt_alias": dbt_alias,
-                    "dbt_command": "run/test",
+                    "dbt_command": "run",
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
@@ -226,7 +227,7 @@ with Flow(
                     "table_id": table_id,
                     "mode": materialization_mode,
                     "dbt_alias": dbt_alias,
-                    "dbt_command": "run/test",
+                    "dbt_command": "run",
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",

@@ -227,7 +227,8 @@ def get_id_municipio() -> pd.DataFrame:
 
     municipio = bd.read_sql(
         query="select * from `basedosdados.br_bd_diretorios_brasil.municipio`",
-        from_file=True,
+        #from_file=True,
+        billing_project_id='basedosdados-dev'
     )
 
     municipio = municipio[["id_municipio_bcb", "id_municipio"]]
