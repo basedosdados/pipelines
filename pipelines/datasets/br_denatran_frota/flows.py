@@ -144,7 +144,7 @@ br_denatran_frota_uf_tipo.storage = GCS(pipelines_constants.GCS_FLOWS_BUCKET.val
 br_denatran_frota_uf_tipo.run_config = KubernetesRun(
     image=pipelines_constants.DOCKER_IMAGE.value
 )
-br_denatran_frota_uf_tipo.schedule = every_month_uf
+#br_denatran_frota_uf_tipo.schedule = every_month_uf
 
 
 with Flow(
@@ -259,4 +259,4 @@ br_denatran_frota_municipio_tipo.storage = GCS(
 br_denatran_frota_municipio_tipo.run_config = KubernetesRun(
     image=pipelines_constants.DOCKER_IMAGE.value
 )
-br_denatran_frota_municipio_tipo.schedule = every_month_municipio
+#br_denatran_frota_municipio_tipo.schedule = every_month_municipio
