@@ -973,3 +973,45 @@ def get_headers(backend):
     header_for_mutation_query = {"Authorization": f"Bearer {token}"}
 
     return header_for_mutation_query
+
+
+
+def create_quality_check(name:str, description:str, passed:bool, dataset_id:str, table_id:str,api_mode:str = "prod" ):
+    (email, password) = get_credentials_utils(secret_path=f"api_user_{api_mode}")
+    table_result, id = get_id(
+        email=email,
+        password=password,
+        query_class="allCloudtable",
+        query_parameters={
+            "$gcpDatasetId: String": dataset_id,
+            "$gcpTableId: String": table_id,
+        },
+        cloud_table=True,
+        api_mode=api_mode,
+    )
+    if not id:
+        raise ValueError("Table ID not found.")
+
+    result_id = table_result["data"]["allCloudtable"]["edges"][0]["node"][
+        "table"
+    ].get("_id")
+
+    log("table_id: " + result_id)
+
+    parameters = {
+                            "name": name,
+                            "description": description,
+                            "passed": passed,
+                            "table": result_id
+        }
+
+    create_update(
+        query_class="allTable",
+        query_parameters={"$id: ID": result_id},
+        mutation_class="CreateUpdateQualityCheck",
+        mutation_parameters=parameters,
+        update=False,
+        email=email,
+        password=password,
+        api_mode=api_mode,
+)

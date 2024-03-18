@@ -3,7 +3,8 @@
 Flows for temporal_coverage_updater
 """
 
-from symbol import parameters
+
+
 from prefect import Parameter
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
@@ -12,7 +13,7 @@ from pipelines.constants import constants
 
 # from pipelines.datasets.temporal_coverage_updater.schedules import every_two_weeks
 from pipelines.utils.decorators import Flow
-from pipelines.utils.metadata.tasks import update_django_metadata, create_quality_check
+from pipelines.utils.metadata.tasks import update_django_metadata, create_update_quality_checks, query_tests_results
 
 # from pipelines.utils.utils import log
 
@@ -52,21 +53,24 @@ with Flow(
         "arthurfg",
     ],
 ) as quality_checks_updater:
-    dataset_id = Parameter("dataset_id", required=True)
-    table_id = Parameter("table_id", required=True)
-    api_mode = Parameter(
-        "api_mode", default="prod", required=False
-    )
-    parameters = Parameter(
-                "parameters", default={
-                            "name": "not_null_teste_3",
-                            "description": "teste criação quality checks",
-                            "passed": True,
-                            "table": "0583b211-1cc7-4828-bca0-529eebbb3ddf"
-        }, required=False
-    )
+    # dataset_id = Parameter("dataset_id", required=True)
+    # table_id = Parameter("table_id", required=True)
+    # api_mode = Parameter(
+    #     "api_mode", default="prod", required=False
+    # )
+    # parameters = Parameter(
+    #             "parameters", default={
+    #                         "name": "not_null_teste_3",
+    #                         "description": "teste criação quality checks",
+    #                         "passed": True,
+    #                         "table": "0583b211-1cc7-4828-bca0-529eebbb3ddf"
+    #     }, required=False
+    # )
 
-    create_quality_check(dataset_id = dataset_id, table_id = table_id, api_mode = api_mode, parameters =  parameters)
+
+
+    tests_results = query_tests_results()
+    create_update_quality_checks(tests_results = tests_results, upstream_tasks=[tests_results])
 
 quality_checks_updater.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 quality_checks_updater.run_config = KubernetesRun(

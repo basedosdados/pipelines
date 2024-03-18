@@ -4,6 +4,7 @@ Tasks for metadata
 """
 
 from datetime import datetime
+import basedosdados as bd
 
 import pandas as pd
 from prefect import task
@@ -20,6 +21,7 @@ from pipelines.utils.metadata.utils import (
     get_id,
     get_table_status,
     update_row_access_policy,
+    create_quality_check,
 )
 from pipelines.utils.utils import log
 
@@ -202,44 +204,84 @@ def task_get_api_most_recent_date(dataset_id, table_id, date_format):
         dataset_id=dataset_id, table_id=table_id, date_format=date_format
     )
 
+#####             #####
+## Quality check's   ##
+#####             #####
+
+
+# @task
+# def create_quality_check(name:str, description:str, passed:bool, dataset_id:str, table_id:str,api_mode:str = "prod" ):
+#     (email, password) = get_credentials_utils(secret_path=f"api_user_{api_mode}")
+#     table_result, id = get_id(
+#         email=email,
+#         password=password,
+#         query_class="allCloudtable",
+#         query_parameters={
+#             "$gcpDatasetId: String": dataset_id,
+#             "$gcpTableId: String": table_id,
+#         },
+#         cloud_table=True,
+#         api_mode=api_mode,
+#     )
+#     if not id:
+#         raise ValueError("Table ID not found.")
+
+#     result_id = table_result["data"]["allCloudtable"]["edges"][0]["node"][
+#         "table"
+#     ].get("_id")
+
+#     log("table_id: " + result_id)
+
+#     parameters = {
+#                             "name": name,
+#                             "description": description,
+#                             "passed": passed,
+#                             "table": result_id
+#         }
+
+#     create_update(
+#         query_class="allTable",
+#         query_parameters={"$id: ID": result_id},
+#         mutation_class="CreateUpdateQualityCheck",
+#         mutation_parameters=parameters,
+#         update=False,
+#         email=email,
+#         password=password,
+#         api_mode=api_mode,
+# )
+
 
 @task
-def create_quality_check(name:str, description:str, passed:bool, dataset_id:str, table_id:str,api_mode:str):
-    (email, password) = get_credentials_utils(secret_path=f"api_user_{api_mode}")
-    table_result, id = get_id(
-        email=email,
-        password=password,
-        query_class="allCloudtable",
-        query_parameters={
-            "$gcpDatasetId: String": dataset_id,
-            "$gcpTableId: String": table_id,
-        },
-        cloud_table=True,
-        api_mode=api_mode,
+def query_tests_results():
+    billing_project_id = get_billing_project_id(mode="dev")
+    query_bd = f"""
+    select
+        test_short_name as name,
+        test_results_description as description,
+        status,
+        max(schema_name) as dataset_id,
+        max(table_name) as table_id
+    from
+        `basedosdados.elementary.elementary_test_results`
+    where status = "pass"
+    group by
+        test_short_name,
+        test_results_description,
+        status
+    """
+    log(query_bd)
+    t = bd.read_sql(
+        query=query_bd,
+        billing_project_id=billing_project_id,
+        from_file=True,
     )
-    if not id:
-        raise ValueError("Table ID not found.")
 
-    result_id = table_result["data"]["allCloudtable"]["edges"][0]["node"][
-        "table"
-    ].get("_id")
+    return t
 
-    log("table_id: " + result_id)
-
-    parameters = {
-                            "name": name,
-                            "description": description,
-                            "passed": passed,
-                            "table": result_id
-        }
-
-    create_update(
-        query_class="allTable",
-        query_parameters={"$id: ID": result_id},
-        mutation_class="CreateUpdateQualityCheck",
-        mutation_parameters=parameters,
-        update=False,
-        email=email,
-        password=password,
-        api_mode=api_mode,
-)
+@task
+def create_update_quality_checks(tests_results: pd.DataFrame):
+    for index, row in tests_results.iterrows():
+        if row['status'] == 'pass':
+            create_quality_check(name =row['name'],description= row['description'], passed =True, dataset_id = row['dataset_id'], table_id= row['table_id'])
+        else:
+            create_quality_check(name =row['name'],description= row['description'], passed =False, dataset_id = row['dataset_id'], table_id= row['table_id'])
