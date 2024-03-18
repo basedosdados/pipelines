@@ -70,7 +70,7 @@ with Flow(
 
 
     tests_results = query_tests_results()
-    results = async_run(tests_results = tests_results, upstream_tasks=[tests_results])
+    results = create_update_quality_checks(tests_results = tests_results, upstream_tasks=[tests_results])
     #create_update_quality_checks(tests_results = tests_results, upstream_tasks=[tests_results])
 
 quality_checks_updater.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

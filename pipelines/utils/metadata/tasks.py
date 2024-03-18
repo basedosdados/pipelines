@@ -236,14 +236,14 @@ def query_tests_results():
 
     return t
 
-@task
-def create_update_quality_checks(tests_results: pd.DataFrame):
-    for index, row in tests_results.iterrows():
-        if row['status'] == 'pass':
-            create_quality_check(name =row['name'],description= row['description'], passed =True, dataset_id = row['dataset_id'], table_id= row['table_id'])
-        else:
-            create_quality_check(name =row['name'],description= row['description'], passed =False, dataset_id = row['dataset_id'], table_id= row['table_id'])
+# @task
+# def create_update_quality_checks(tests_results: pd.DataFrame):
+#     for index, row in tests_results.iterrows():
+#         if row['status'] == 'pass':
+#             create_quality_check(name =row['name'],description= row['description'], passed =True, dataset_id = row['dataset_id'], table_id= row['table_id'])
+#         else:
+#             create_quality_check(name =row['name'],description= row['description'], passed =False, dataset_id = row['dataset_id'], table_id= row['table_id'])
 
 @task
-def async_run(tests_results: pd.DataFrame):
+def create_update_quality_checks(tests_results: pd.DataFrame):
     asyncio.run(create_update_quality_checks_async(tests_results=tests_results))
