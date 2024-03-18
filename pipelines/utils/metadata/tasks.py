@@ -2,7 +2,7 @@
 """
 Tasks for metadata
 """
-
+import asyncio
 from datetime import datetime
 import basedosdados as bd
 
@@ -24,7 +24,7 @@ from pipelines.utils.metadata.utils import (
     create_quality_check,
 )
 from pipelines.utils.utils import log
-
+from pipelines.utils.metadata.utils_async import create_update_quality_checks_async
 
 @task
 def get_today_date():
@@ -242,3 +242,7 @@ def create_update_quality_checks(tests_results: pd.DataFrame):
             create_quality_check(name =row['name'],description= row['description'], passed =True, dataset_id = row['dataset_id'], table_id= row['table_id'])
         else:
             create_quality_check(name =row['name'],description= row['description'], passed =False, dataset_id = row['dataset_id'], table_id= row['table_id'])
+
+@task
+def async_run(tests_results: pd.DataFrame):
+    asyncio.run(create_update_quality_checks_async(tests_results=tests_results))

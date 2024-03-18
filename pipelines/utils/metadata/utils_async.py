@@ -1,10 +1,15 @@
 # -*- coding: utf-8 -*-
 
+###
+## Módulo de funções para fazer interagir de forma assíncrona com a api.
+###
 import asyncio
 import aiohttp
 import json
 import re
-from pipelines.utils.utils import get_credentials_from_secret, log
+#from pipelines.utils.metadata.utils import create_quality_check_async
+from pipelines.utils.utils import get_credentials_from_secret, log, get_credentials_utils
+import pandas as pd
 
 async def get_id_async(
     query_class,
@@ -214,3 +219,53 @@ async def create_update_async(
             )
             print("create: error\n", json.dumps(r, indent=4, ensure_ascii=False), "\n")
             raise Exception("create: Error")
+
+
+
+async def create_quality_check_async(name:str, description:str, passed:bool, dataset_id:str, table_id:str,api_mode:str = "prod" ):
+    (email, password) = get_credentials_utils(secret_path=f"api_user_{api_mode}")
+    table_result, id = await get_id_async(
+        email=email,
+        password=password,
+        query_class="allCloudtable",
+        query_parameters={
+            "$gcpDatasetId: String": dataset_id,
+            "$gcpTableId: String": table_id,
+        },
+        cloud_table=True,
+        api_mode=api_mode,
+    )
+    if not id:
+        raise ValueError("Table ID not found.")
+
+    result_id = table_result["data"]["allCloudtable"]["edges"][0]["node"][
+        "table"
+    ].get("_id")
+
+    log("table_id: " + result_id)
+
+    parameters = {
+                            "name": name,
+                            "description": description,
+                            "passed": passed,
+                            "table": result_id
+        }
+
+    await create_update_async(
+        query_class="allTable",
+        query_parameters={"$id: ID": result_id},
+        mutation_class="CreateUpdateQualityCheck",
+        mutation_parameters=parameters,
+        update=False,
+        email=email,
+        password=password,
+        api_mode=api_mode,
+)
+
+
+
+async def create_update_quality_checks_async(tests_results: pd.DataFrame):
+    semaphore = asyncio.Semaphore(8)
+    async with semaphore:
+        tasks = [create_quality_check_async(name =row['name'],description= row['description'], passed =True, dataset_id = row['dataset_id'], table_id= row['table_id']) for index, row in tests_results.iterrows() ]
+        await asyncio.gather(*tasks)

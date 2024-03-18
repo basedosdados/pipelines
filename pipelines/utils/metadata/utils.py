@@ -18,7 +18,7 @@ from dateutil.relativedelta import relativedelta
 
 from pipelines.utils.metadata.constants import constants as metadata_constants
 from pipelines.utils.utils import get_credentials_from_secret, log
-
+from pipelines.utils.metadata.utils_async import create_update_async, get_id_async, get_token_async
 #######################
 # update_django_metadata Utils
 #######################
@@ -974,7 +974,9 @@ def get_headers(backend):
 
     return header_for_mutation_query
 
-
+#####             #####
+## Quality check's   ##
+#####             #####
 
 def create_quality_check(name:str, description:str, passed:bool, dataset_id:str, table_id:str,api_mode:str = "prod" ):
     (email, password) = get_credentials_utils(secret_path=f"api_user_{api_mode}")
@@ -1015,3 +1017,4 @@ def create_quality_check(name:str, description:str, passed:bool, dataset_id:str,
         password=password,
         api_mode=api_mode,
 )
+
