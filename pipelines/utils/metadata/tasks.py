@@ -225,6 +225,7 @@ def query_tests_results():
         test_short_name,
         test_results_description,
         status
+    limit 2
     """
     log(query_bd)
     t = bd.read_sql(
