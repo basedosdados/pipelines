@@ -132,8 +132,8 @@ with Flow(
         "arthurfg",
     ],
 ) as br_me_cnpj_socios:
-    dataset_id = Parameter("dataset_id", default="br_me_cnpj", required=True)
-    table_id = Parameter("table_id", default="socios", required=True)
+    dataset_id = Parameter("dataset_id", default="br_me_cnpj", required=False)
+    table_id = Parameter("table_id", default="socios", required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -452,7 +452,7 @@ with Flow(
     ],
 ) as br_me_cnpj_alternative_upload:
     dataset_id = Parameter("dataset_id", default="br_me_cnpj", required=False)
-    table_id = Parameter("table_id", default="empresas", required=False)
+    table_id = Parameter("table_id", default="socios", required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
     )
@@ -470,7 +470,7 @@ with Flow(
 
     dados_desatualizados = check_if_data_is_outdated(
         dataset_id="br_me_cnpj",
-        table_id="empresas",
+        table_id="socios",
         data_source_max_date=data_source_max_date,
         date_format="%Y-%m-%d",
         upstream_tasks=[data_source_max_date],
@@ -482,7 +482,7 @@ with Flow(
     with case(dados_desatualizados, True):
         output_filepath = alternative_upload()
         wait_upload_table = create_table_and_upload_to_gcs(
-            data_path="/tmp/data/backup/staging/br_me_cnpj/empresas/",
+            data_path="/tmp/data/backup/staging/br_me_cnpj/socios/",
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
