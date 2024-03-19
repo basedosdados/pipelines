@@ -107,9 +107,9 @@ def chunk_range(content_length: int, chunk_size: int) -> list[tuple[int, int]]:
 # from https://stackoverflow.com/a/64283770
 async def download(
     url: str,
-    chunk_size: int = 2**20,
+    chunk_size: int = 2**25,
     max_retries: int = 32,
-    max_parallel: int = 16,
+    max_parallel: int = 32,
     timeout: int = 3 * 60 * 2,
 ) -> bytes:
     request_head = httpx.head(url)

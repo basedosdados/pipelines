@@ -92,7 +92,7 @@ def main(tabelas):
         for i in range(0, 10):
             if tabela != "Simples":
                 nome_arquivo = f"{tabela}{i}"
-                url_download = f"https://dadosabertos.rfb.gov.br/CNPJ/{tabela}{i}.zip"
+                url_download = f"http://200.152.38.155/CNPJ/{tabela}{i}.zip"
                 if nome_arquivo not in arquivos_baixados:
                     arquivos_baixados.append(nome_arquivo)
                     asyncio.run((download_unzip_csv(url_download, input_path)))
@@ -119,7 +119,7 @@ def alternative_upload():
     os.makedirs("/tmp/data/backup/", exist_ok=True)
     storage_client = storage.Client()
     blobs_in_bucket = storage_client.list_blobs(
-        "basedosdados-dev", prefix="staging/br_me_cnpj/estabelecimentos/data=2024-02-16/"
+        "basedosdados-dev", prefix="staging/br_me_cnpj/estabelecimentos/data=2024-03-15/"
     )
     blob_list = list(blobs_in_bucket)
 

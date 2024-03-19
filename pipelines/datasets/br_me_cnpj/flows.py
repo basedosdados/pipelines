@@ -231,13 +231,13 @@ with Flow(
         "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
+        "materialize_after_dump", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
-    ##rename_flow_run = rename_current_flow_run_dataset_table(
-    #    prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
-    #)
+    rename_flow_run = rename_current_flow_run_dataset_table(
+         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+     )
     tabelas = constants_cnpj.TABELAS.value[2:3]
 
     data_source_max_date = get_data_source_max_date()
@@ -461,9 +461,9 @@ with Flow(
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
-    ##rename_flow_run = rename_current_flow_run_dataset_table(
-    #    prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
-    #)
+    rename_flow_run = rename_current_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+    )
     tabelas = constants_cnpj.TABELAS.value[2:3]
 
     data_source_max_date = get_data_source_max_date()
