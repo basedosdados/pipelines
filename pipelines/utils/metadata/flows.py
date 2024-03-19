@@ -13,7 +13,7 @@ from pipelines.constants import constants
 
 # from pipelines.datasets.temporal_coverage_updater.schedules import every_two_weeks
 from pipelines.utils.decorators import Flow
-from pipelines.utils.metadata.tasks import update_django_metadata, create_update_quality_checks, query_tests_results, async_run
+from pipelines.utils.metadata.tasks import update_django_metadata, create_update_quality_checks, query_tests_results
 
 # from pipelines.utils.utils import log
 
@@ -67,11 +67,9 @@ with Flow(
     #     }, required=False
     # )
 
-
-
     tests_results = query_tests_results()
     results = create_update_quality_checks(tests_results = tests_results, upstream_tasks=[tests_results])
-    #create_update_quality_checks(tests_results = tests_results, upstream_tasks=[tests_results])
+
 
 quality_checks_updater.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 quality_checks_updater.run_config = KubernetesRun(
