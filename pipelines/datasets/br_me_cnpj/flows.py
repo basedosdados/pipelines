@@ -452,7 +452,7 @@ with Flow(
     ],
 ) as br_me_cnpj_alternative_upload:
     dataset_id = Parameter("dataset_id", default="br_me_cnpj", required=False)
-    table_id = Parameter("table_id", default="estabelecimentos", required=False)
+    table_id = Parameter("table_id", default="empresas", required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
     )
@@ -470,7 +470,7 @@ with Flow(
 
     dados_desatualizados = check_if_data_is_outdated(
         dataset_id="br_me_cnpj",
-        table_id="estabelecimentos",
+        table_id="empresas",
         data_source_max_date=data_source_max_date,
         date_format="%Y-%m-%d",
         upstream_tasks=[data_source_max_date],
@@ -482,7 +482,7 @@ with Flow(
     with case(dados_desatualizados, True):
         output_filepath = alternative_upload()
         wait_upload_table = create_table_and_upload_to_gcs(
-            data_path="/tmp/data/backup/staging/br_me_cnpj/estabelecimentos/",
+            data_path="/tmp/data/backup/staging/br_me_cnpj/empresas/",
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
@@ -519,15 +519,6 @@ with Flow(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
 
-            update_django_metadata(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                coverage_type="all_free",
-                prefect_mode=materialization_mode,
-                bq_project="basedosdados",
-                historical_database=False,
-                upstream_tasks=[wait_for_materialization],
-            )
 
 br_me_cnpj_alternative_upload.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_me_cnpj_alternative_upload.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)

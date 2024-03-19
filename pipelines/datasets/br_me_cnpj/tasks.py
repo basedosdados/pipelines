@@ -89,7 +89,7 @@ def main(tabelas):
         output_path = destino_output(sufixo, data_coleta)
 
         # Loop para baixar e processar os arquivos
-        for i in range(0, 10):
+        for i in range(5, 10):
             if tabela != "Simples":
                 nome_arquivo = f"{tabela}{i}"
                 url_download = f"http://200.152.38.155/CNPJ/{tabela}{i}.zip"
@@ -119,7 +119,7 @@ def alternative_upload():
     os.makedirs("/tmp/data/backup/", exist_ok=True)
     storage_client = storage.Client()
     blobs_in_bucket = storage_client.list_blobs(
-        "basedosdados-dev", prefix="staging/br_me_cnpj/estabelecimentos/data=2024-03-15/"
+        "basedosdados-dev", prefix="staging/br_me_cnpj/empresas/data=2024-03-15/"
     )
     blob_list = list(blobs_in_bucket)
 
