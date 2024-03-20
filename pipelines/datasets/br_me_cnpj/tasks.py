@@ -6,6 +6,7 @@ import asyncio
 import os
 from google.cloud import storage
 import pathlib
+from typing import Union, List
 from datetime import datetime
 import basedosdados as bd
 from prefect import task
@@ -113,39 +114,3 @@ def main(tabelas):
                     process_csv_simples(input_path, output_path, data_coleta, sufixo)
 
     return output_path
-
-@task
-def alternative_upload( dataset_id:str,table_id:str, folder:str):
-    """
-    Downloads CSV files from a specified folder within a Google Cloud Storage bucket
-    and saves them to a local directory.
-
-    Parameters:
-        table_id (str): The ID of the table.
-        dataset_id (str): The ID of the dataset.
-        folder (str): The name of the folder within the bucket containing the CSV files.
-
-    Returns:
-        None
-    """
-    os.makedirs("/tmp/data/backup/", exist_ok=True)
-    storage_client = storage.Client()
-
-    # List blobs (files) within the specified folder in the bucket
-    blobs_in_bucket = storage_client.list_blobs(
-        "basedosdados-dev", prefix=f"staging/{dataset_id}/{table_id}/{folder}/"
-    )
-    blob_list = list(blobs_in_bucket)
-
-    for blob in blob_list:
-        savepath = "/tmp/data/backup/"
-        csv_name = blob.name.split("/")[-1]
-        blob_folder = blob.name.replace(csv_name, "")
-
-
-        (pathlib.Path(savepath) / blob_folder).mkdir(parents=True, exist_ok=True)
-
-        savepath = f"{savepath}/{blob.name}"
-        blob.download_to_filename(filename=savepath)
-
-    return f"/tmp/data/backup/staging/{dataset_id}/{table_id}/"
