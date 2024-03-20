@@ -213,21 +213,29 @@ def task_get_api_most_recent_date(dataset_id, table_id, date_format):
 def query_tests_results():
     billing_project_id = get_billing_project_id(mode="dev")
     query_bd = f"""
+    with tests_order as (
     select
         test_short_name as name,
-        test_results_description as description,
+        column_name as description,
         status,
-        max(schema_name) as dataset_id,
-        max(table_name) as table_id
+        schema_name as dataset_id,
+        table_name as table_id,
+        row_number() over (partition by test_short_name, schema_name, table_name order by created_at desc) as position,
+        created_at
     from
         `basedosdados.elementary.elementary_test_results`
-    group by
-        test_short_name,
-        test_results_description,
-        status
-    limit 2
+    where
+        date(created_at) >= date_sub(current_date(), interval 7 DAY))
+    select
+        name,
+        description,
+        status,
+        dataset_id,
+        table_id
+    from tests_order
+    where position = 1
     """
-    log(query_bd)
+
     t = bd.read_sql(
         query=query_bd,
         billing_project_id=billing_project_id,

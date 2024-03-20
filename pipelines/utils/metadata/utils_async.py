@@ -129,7 +129,6 @@ async def create_update_async(
     api_mode: str = "prod",
 ):
     token = get_token(
-        #session=session,
         email=email,
         password=password,
         api_mode=api_mode,
@@ -140,7 +139,6 @@ async def create_update_async(
     }
 
     r, id = get_id(
-        #session=session,
         query_class=query_class,
         query_parameters=query_parameters,
         email=email,
@@ -148,7 +146,6 @@ async def create_update_async(
         cloud_table=False,
         api_mode=api_mode,
     )
-
     if id is not None:
         r["r"] = "query"
         if update is False:
@@ -185,7 +182,7 @@ async def create_update_async(
                 headers=header,
             ) as response:
                 r = await response.json()
-                print(r)
+                log(f"Response: {r}")
 
             r["r"] = "mutation"
             if "data" in r and r is not None:
@@ -211,8 +208,7 @@ async def create_update_async(
 
 
 
-async def create_quality_check_async(name:str, description:str, passed:bool, dataset_id:str, table_id:str,api_mode:str = "prod" ):
-    (email, password) = get_credentials_utils(secret_path=f"api_user_{api_mode}")
+async def create_quality_check_async(email:str, password:str, name:str, description:str, passed:str, dataset_id:str, table_id:str,api_mode:str = "prod", ):
     table_result, id = get_id(
         email=email,
         password=password,
@@ -224,28 +220,40 @@ async def create_quality_check_async(name:str, description:str, passed:bool, dat
         cloud_table=True,
         api_mode=api_mode,
     )
-    if not id:
-        raise ValueError("Table ID not found.")
 
     result_id = table_result["data"]["allCloudtable"]["edges"][0]["node"][
         "table"
     ].get("_id")
 
-    log("table_id: " + result_id)
+    quality_check, quality_check_id = get_id(
+        email=email,
+        password=password,
+        query_class="allQualitycheck",
+        query_parameters={
+            "$name: String": name,
+            "$table_Id: ID": result_id,
+
+        },
+        cloud_table=False,
+        api_mode=api_mode,
+    )
+
+    if not id:
+        raise ValueError("Table ID not found.")
 
     parameters = {
                             "name": name,
                             "description": description,
-                            "passed": passed,
+                            "passed": True if passed == 'pass' else False,
                             "table": result_id
         }
 
     await create_update_async(
-        query_class="allTable",
-        query_parameters={"$id: ID": result_id},
+        query_class="allQualitycheck",
+        query_parameters={"$id: ID": quality_check_id},
         mutation_class="CreateUpdateQualityCheck",
         mutation_parameters=parameters,
-        update=False,
+        update=True,
         email=email,
         password=password,
         api_mode=api_mode,
@@ -253,8 +261,9 @@ async def create_quality_check_async(name:str, description:str, passed:bool, dat
 
 
 
-async def create_update_quality_checks_async(tests_results: pd.DataFrame):
+async def create_update_quality_checks_async(tests_results: pd.DataFrame, api_mode: str = "prod"):
+    (email, password) = get_credentials_utils(secret_path=f"api_user_{api_mode}")
     semaphore = asyncio.Semaphore(16)
     async with semaphore:
-        tasks = [create_quality_check_async(name =row['name'],description= row['description'], passed =False, dataset_id = row['dataset_id'], table_id= row['table_id']) for index, row in tests_results.iterrows() ]
+        tasks = [create_quality_check_async(email = email, password = password, name =row['name'],description= row['description'], passed =row['status'], dataset_id = row['dataset_id'], table_id= row['table_id']) for index, row in tests_results.iterrows() ]
         await asyncio.gather(*tasks)
