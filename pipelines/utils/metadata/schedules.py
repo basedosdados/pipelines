@@ -18,9 +18,6 @@ every_day_quality_checks = Schedule(
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
-            parameter_defaults={
-
-            },
         ),
     ],
 )
