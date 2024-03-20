@@ -22,7 +22,6 @@ from selenium.common.exceptions import (
     StaleElementReferenceException,
     WebDriverException,
 )
-from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 
@@ -479,7 +478,7 @@ def is_up_to_date(headless: bool = True) -> bool:
 
     month = months_names[month_text]
 
-    date_website = datetime.datetime(int(year), month, day=1)
+    date_website = datetime.date(int(year), month, day=1)
 
     log(f"Last date website: {text}, parsed as {date_website}")
 
