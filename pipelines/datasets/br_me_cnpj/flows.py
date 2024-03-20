@@ -453,6 +453,7 @@ with Flow(
 ) as br_me_cnpj_alternative_upload:
     dataset_id = Parameter("dataset_id", default="br_me_cnpj", required=False)
     table_id = Parameter("table_id", default="socios", required=False)
+    folder = Parameter("folder", default="data=2024-03-15", required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
     )
@@ -464,60 +465,45 @@ with Flow(
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
-    tabelas = constants_cnpj.TABELAS.value[2:3]
 
-    data_source_max_date = get_data_source_max_date()
-
-    dados_desatualizados = check_if_data_is_outdated(
-        dataset_id="br_me_cnpj",
-        table_id="socios",
-        data_source_max_date=data_source_max_date,
-        date_format="%Y-%m-%d",
-        upstream_tasks=[data_source_max_date],
+    output_filepath = alternative_upload(dataset_id =  dataset_id, table_id = table_id, folder = folder)
+    wait_upload_table = create_table_and_upload_to_gcs(
+        data_path=output_filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dump_mode="append",
+        wait=output_filepath,
     )
-
-    with case(dados_desatualizados, False):
-        log_task(f"Não há atualizações para a tabela de {tabelas}!")
-
-    with case(dados_desatualizados, True):
-        output_filepath = alternative_upload()
-        wait_upload_table = create_table_and_upload_to_gcs(
-            data_path="/tmp/data/backup/staging/br_me_cnpj/socios/",
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dump_mode="append",
-            wait=output_filepath,
+    with case(materialize_after_dump, True):
+        # Trigger DBT flow run
+        current_flow_labels = get_current_flow_labels(upstream_tasks=[wait_upload_table])
+        materialization_flow = create_flow_run(
+            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
+            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+            parameters={
+                "dataset_id": dataset_id,
+                "table_id": table_id,
+                "mode": materialization_mode,
+                "dbt_alias": dbt_alias,
+            },
+            labels=current_flow_labels,
+            run_name=f"Materialize {dataset_id}.{table_id}",
+            upstream_tasks=[current_flow_labels]
         )
-        with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels(upstream_tasks=[wait_upload_table])
-            materialization_flow = create_flow_run(
-                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": table_id,
-                    "mode": materialization_mode,
-                    "dbt_alias": dbt_alias,
-                },
-                labels=current_flow_labels,
-                run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks=[current_flow_labels]
-            )
 
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
-                upstream_tasks=[materialization_flow]
-            )
-            wait_for_materialization.max_retries = (
-                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-            wait_for_materialization.retry_delay = timedelta(
-                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-            )
+        wait_for_materialization = wait_for_flow_run(
+            materialization_flow,
+            stream_states=True,
+            stream_logs=True,
+            raise_final_state=True,
+            upstream_tasks=[materialization_flow]
+        )
+        wait_for_materialization.max_retries = (
+            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
+        )
+        wait_for_materialization.retry_delay = timedelta(
+            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+        )
 
 
 br_me_cnpj_alternative_upload.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
