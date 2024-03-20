@@ -9,125 +9,48 @@ import aiohttp
 import json
 import re
 from pipelines.utils.metadata.utils import get_id, get_token
-#from pipelines.utils.metadata.utils import create_quality_check_async
 from pipelines.utils.utils import get_credentials_from_secret, log, get_credentials_utils
 import pandas as pd
 
-# async def get_id_async(
-#     query_class,
-#     query_parameters,
-#     email,
-#     password,
-#     api_mode: str = "prod",
-#     cloud_table: bool = True,
-# ):
-#     token = await get_token_async(email, password, api_mode)
-#     header = {
-#         "Authorization": f"Bearer {token}",
-#     }
-#     _filter = ", ".join(list(query_parameters.keys()))
-
-#     keys = [
-#         parameter.replace("$", "").split(":")[0]
-#         for parameter in list(query_parameters.keys())
-#     ]
-
-#     values = list(query_parameters.values())
-
-#     _input = ", ".join([f"${key}:{key}" for key in keys])
-
-#     if cloud_table:
-#         query = f"""query({_filter}) {{
-#                             {query_class}({_input}){{
-#                             edges{{
-#                                 node{{
-#                                 id,
-#                                 table{{
-#                                     _id
-#                                     }}
-#                                 }}
-#                             }}
-#                             }}
-#                         }}"""
-
-#     else:
-#         query = f"""query({_filter}) {{
-#                             {query_class}({_input}){{
-#                             edges{{
-#                                 node{{
-#                                 id,
-#                                 }}
-#                             }}
-#                             }}
-#                         }}"""
-
-#     if api_mode == "staging":
-#         url = "https://staging.api.basedosdados.org/api/v1/graphql"
-#     elif api_mode == "prod":
-#         url = "https://api.basedosdados.org/api/v1/graphql"
-
-#     async with aiohttp.ClientSession() as session:
-#         async with session.post(
-#             url=url,
-#             json={"query": query, "variables": dict(zip(keys, values))},
-#             headers=header,
-#         ) as response:
-#             data = await response.json()
-
-#             if "data" in data and data is not None:
-#                 if data.get("data", {}).get(query_class, {}).get("edges") == []:
-#                     id = None
-#                     # print(f"get: not found {query_class}", dict(zip(keys, values)))
-#                 else:
-#                     id = data["data"][query_class]["edges"][0]["node"]["id"]
-#                     # print(f"get: found {id}")
-#                     id = id.split(":")[1]
-
-#                 return data, id
-#             else:
-#                 log(data)
-#                 raise Exception(
-#                     f"Error: the executed query did not return a data json.\nExecuted query:\n{query} \nVariables: {dict(zip(keys, values))}"
-#                 )
-
-# async def get_token_async(email, password, api_mode: str = "prod"):
-#     """
-#     Get api token asynchronously.
-#     """
-#     if api_mode == "prod":
-#         url = "http://api.basedosdados.org/api/v1/graphql"
-#     elif api_mode == "staging":
-#         url = "http://staging.api.basedosdados.org/api/v1/graphql"
-
-#     async with aiohttp.ClientSession() as session:
-#         async with session.post(
-#             url=url,
-#             headers={"Content-Type": "application/json"},
-#             json={
-#                 "query": """
-#             mutation ($email: String!, $password: String!) {
-#                 tokenAuth(email: $email, password: $password) {
-#                     token
-#                 }
-#             }
-#         """,
-#                 "variables": {"email": email, "password": password},
-#             },
-#         ) as response:
-#             response.raise_for_status()
-#             data = await response.json()
-#             return data["data"]["tokenAuth"]["token"]
 
 async def create_update_async(
-    email,
-    password,
-    mutation_class,
-    mutation_parameters,
-    query_class,
-    query_parameters,
-    update=True,
+    email: str,
+    password: str,
+    mutation_class: str,
+    mutation_parameters: dict,
+    query_class: str,
+    query_parameters: dict,
+    update: bool = True,
     api_mode: str = "prod",
-):
+) -> tuple:
+    """
+    Function to create or update data using GraphQL mutations asynchronously.
+
+    Parameters:
+    - email (str): The email address used for authentication.
+    - password (str): The password used for authentication.
+    - mutation_class (str): The name of the GraphQL mutation class.
+    - mutation_parameters (dict): The parameters for the GraphQL mutation.
+    - query_class (str): The name of the GraphQL query class.
+    - query_parameters (dict): The parameters for the GraphQL query.
+    - update (bool): Indicates whether to update existing data (default is True).
+    - api_mode (str): Specifies the API mode, either 'prod' (default) or 'staging'.
+
+    Returns:
+    - tuple: A tuple containing the response from the API and the ID of the created or updated data.
+
+    Raises:
+    - Exception: If there is an error during the GraphQL operation.
+
+    Note:
+    - This function performs asynchronous operations using aiohttp.ClientSession.
+    - It authenticates using the provided email and password to obtain a token.
+    - It constructs a GraphQL mutation query based on the provided mutation class and parameters.
+    - If updating data and an ID is available, it includes the ID in the mutation parameters.
+    - It sends the mutation request to the specified API endpoint.
+    - It handles the response from the API, checking for errors and extracting the ID if successful.
+    - If there is an error in the response, it raises an Exception with details.
+    """
     token = get_token(
         email=email,
         password=password,
@@ -208,7 +131,35 @@ async def create_update_async(
 
 
 
-async def create_quality_check_async(email:str, password:str, name:str, description:str, passed:str, dataset_id:str, table_id:str,api_mode:str = "prod", ):
+async def create_quality_check_async(
+    email: str,
+    password: str,
+    name: str,
+    description: str,
+    passed: str,
+    dataset_id: str,
+    table_id: str,
+    api_mode: str = "prod",
+) -> None:
+    """
+    Function to create or update a quality check for a dataset table asynchronously.
+
+    Parameters:
+    - email (str): The email address used for authentication.
+    - password (str): The password used for authentication.
+    - name (str): The name of the quality check.
+    - description (str): The description of the quality check.
+    - passed (str): Indicates whether the quality check passed ('pass') or failed ('fail').
+    - dataset_id (str): The ID of the dataset containing the table.
+    - table_id (str): The ID of the table for which the quality check is created or updated.
+    - api_mode (str): Specifies the API mode, either 'prod' (default) or 'staging'.
+
+    Returns:
+    - None
+
+    Raises:
+    - ValueError: If the table ID is not found.
+    """
     table_result, id = get_id(
         email=email,
         password=password,
@@ -261,7 +212,20 @@ async def create_quality_check_async(email:str, password:str, name:str, descript
 
 
 
-async def create_update_quality_checks_async(tests_results: pd.DataFrame, api_mode: str = "prod"):
+async def create_update_quality_checks_async(
+    tests_results: pd.DataFrame,
+    api_mode: str = "prod"
+) -> None:
+    """
+    Function to create or update multiple quality checks asynchronously based on test results.
+
+    Parameters:
+    - tests_results (pd.DataFrame): A pandas DataFrame containing test results.
+    - api_mode (str): Specifies the API mode, either 'prod' (default) or 'staging'.
+
+    Returns:
+    - None
+    """
     (email, password) = get_credentials_utils(secret_path=f"api_user_{api_mode}")
     semaphore = asyncio.Semaphore(16)
     async with semaphore:

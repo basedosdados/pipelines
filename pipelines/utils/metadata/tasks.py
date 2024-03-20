@@ -210,7 +210,19 @@ def task_get_api_most_recent_date(dataset_id, table_id, date_format):
 
 
 @task
-def query_tests_results():
+def query_tests_results() -> pd.DataFrame:
+    """
+    Task to query recent test results from basedosdados.
+
+    Returns:
+    - pd.DataFrame: A pandas DataFrame containing recent test results with the following columns:
+        - 'name': The name of the test.
+        - 'description': The description of the test result (typically the column name).
+        - 'status': Indicates whether the test passed or failed.
+        - 'dataset_id': The ID of the dataset containing the tested table.
+        - 'table_id': The ID of the tested table.
+    """
+
     billing_project_id = get_billing_project_id(mode="dev")
     query_bd = f"""
     with tests_order as (
@@ -244,14 +256,16 @@ def query_tests_results():
 
     return t
 
-# @task
-# def create_update_quality_checks(tests_results: pd.DataFrame):
-#     for index, row in tests_results.iterrows():
-#         if row['status'] == 'pass':
-#             create_quality_check(name =row['name'],description= row['description'], passed =True, dataset_id = row['dataset_id'], table_id= row['table_id'])
-#         else:
-#             create_quality_check(name =row['name'],description= row['description'], passed =False, dataset_id = row['dataset_id'], table_id= row['table_id'])
-
 @task
-def create_update_quality_checks(tests_results: pd.DataFrame):
+def create_update_quality_checks(tests_results: pd.DataFrame) -> None:
+    """
+    Task to create or update multiple quality checks based on test results asynchronously.
+
+    Parameters:
+    - tests_results (pd.DataFrame): A pandas DataFrame containing test results.
+
+    Returns:
+    - None
+
+    """
     asyncio.run(create_update_quality_checks_async(tests_results=tests_results))
