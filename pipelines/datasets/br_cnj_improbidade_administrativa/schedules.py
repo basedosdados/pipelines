@@ -13,7 +13,7 @@ from pipelines.constants import constants
 every_month = Schedule(
     clocks=[
         CronClock(
-            cron="0 7 10 * *",  # At 07:00 on day-of-month 10.
+            cron="0 7 * * 1",  # At 07:00 on Monday.
             start_date=datetime(2023, 8, 2, 10, 30),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
