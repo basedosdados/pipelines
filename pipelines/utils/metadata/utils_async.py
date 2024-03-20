@@ -3,6 +3,7 @@
 ###
 ## Módulo de funções para fazer interagir de forma assíncrona com a api.
 ###
+
 import asyncio
 import aiohttp
 import json
