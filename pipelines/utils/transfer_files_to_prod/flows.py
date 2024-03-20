@@ -25,11 +25,11 @@ from pipelines.utils.tasks import (
 
 
 with Flow(
-    name="transfer_files_to_prod_flow",
+    name="BD Utils: Transfere arquivos do bucket basedosdados-dev para basedosdados",
     code_owners=[
         "arthurfg",
     ],
-) as transfer_files_to_prod:
+) as transfer_files_to_prod_flow:
     dataset_id = Parameter("dataset_id", default="br_cgu_beneficios_cidadao", required=False)
     table_id = Parameter("table_id", default="novo_bolsa_familia", required=False)
     folders = Parameter("folders", default=['mes_competencia=202306', 'mes_competencia=202305'], required=False)
@@ -85,6 +85,6 @@ with Flow(
         )
 
 
-transfer_files_to_prod.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-transfer_files_to_prod.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+transfer_files_to_prod_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+transfer_files_to_prod_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 
