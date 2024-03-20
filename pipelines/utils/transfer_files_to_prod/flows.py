@@ -25,7 +25,7 @@ from pipelines.utils.tasks import (
 
 
 with Flow(
-    name="utils.transfer_files_to_prod",
+    name="transfer_files_to_prod_flow",
     code_owners=[
         "arthurfg",
     ],
