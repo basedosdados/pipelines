@@ -43,7 +43,7 @@ from pipelines.utils.utils import log
 
 
 @task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
+    max_retries=2,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def check_files_to_parse(
