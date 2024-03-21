@@ -21,7 +21,6 @@ from pipelines.utils.metadata.utils import (
     get_id,
     get_table_status,
     update_row_access_policy,
-    create_quality_check,
 )
 from pipelines.utils.utils import log
 from pipelines.utils.metadata.utils_async import create_update_quality_checks_async
