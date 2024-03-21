@@ -149,7 +149,7 @@ with Flow(
                         "month": "mes_competencia",
                     },
                     date_format="%Y-%m",
-                    coverage_type="all_bdpro",
+                    coverage_type="part_bdpro",
                     time_delta={"months": 6},
                     prefect_mode=materialization_mode,
                     bq_project="basedosdados",
