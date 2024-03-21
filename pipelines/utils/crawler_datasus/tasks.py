@@ -89,7 +89,7 @@ def check_files_to_parse(
         datasus_database=datasus_database, datasus_database_table=datasus_database_table
     )
 
-    list_files = [file for file in available_dbs if file.split('/')[-1][4:8] == year_month_to_parse]
+    list_files = [file for file in available_dbs if file.split('/')[-1][4:8] == '2010']
 
 
     log(f"------- The following files were selected fom DATASUS FTP: {list_files}")
