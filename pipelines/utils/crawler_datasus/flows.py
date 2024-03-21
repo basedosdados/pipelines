@@ -34,7 +34,7 @@ from pipelines.utils.tasks import (
 )
 
 
-
+#TODO: garantir que modificações não vão afetar o flow do cnes
 
 with Flow(name="DATASUS-CNES", code_owners=["Gabriel Pisa"]) as flow_cnes:
     # Parameters
