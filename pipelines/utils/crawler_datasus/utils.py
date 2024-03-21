@@ -19,8 +19,6 @@ from pipelines.utils.crawler_datasus.constants import constants as datasus_const
 from pipelines.utils.utils import log
 
 
-#-----------------------------
-#Utils to handle dbf and dbf
 #https://github.com/AlertaDengue/PySUS/blob/main/pysus/data/__init__.py
 def stream_dbf(dbf, chunk_size=400000):
     """Fetches records in parquet chunks to preserve memory"""
@@ -47,11 +45,10 @@ def decode_column(value):
         return str(value).replace("\x00", "")
     return value
 
-def dbf_to_parquet(dbf: str) -> str:
+def dbf_to_parquet(dbf: str, table_id: str, counter: int) -> str:
     """
     Parses DBF file into parquet to preserve memory
     """
-
 
     path = Path(dbf)
     if path.suffix.lower() != ".dbf":
@@ -59,36 +56,31 @@ def dbf_to_parquet(dbf: str) -> str:
 
     parquet = path.with_suffix(".parquet")
 
-    approx_final_size = (
-        os.path.getsize(path)/1000
-    )  # TODO: possibly use it to decide upon number of chunks
-    print(approx_final_size)
-
-
-    #cira diretório de output
     dbf = dbf.replace("input", "output")
     path_parts = dbf.split("/")[:-1]
     output_path = os.path.join("/", *path_parts)
     os.makedirs(output_path, exist_ok=True)
 
+    counter_chunk = 0
     try:
-        for chunk in stream_dbf(
-            #dbf5 no lugar de DBF
-            DBF(path, encoding="iso-8859-1", raw=True)
-        ):
+
+        for chunk in stream_dbf(DBF(path, encoding="iso-8859-1", raw=True)):
+
             chunk_df = pd.DataFrame(chunk)
-            #TODO: INSERT SCHEMA FOR CNES TABLES
-            #NOTE: applymap is deprecated on pandas=2.1 onwards; basedosdados uses 2.0.1
-            table = pa.Table.from_pandas(chunk_df.applymap(decode_column))
-            #TypeError: __init__() got multiple values for argument 'schema' when set schema
-            pq.write_to_dataset(table, root_path=str(output_path))
+
+            #table = pa.Table.from_pandas(chunk_df.applymap(decode_column))
+            table = pa.Table.from_pandas(chunk_df)
+            log(f'---- {counter}')
+            parquet_filename = f"{table_id}_{counter}_{counter_chunk}.parquet"
+            parquet_filepath = os.path.join(output_path, parquet_filename)
+            pq.write_table(table, where=str(parquet_filepath))
+            counter_chunk += 1
+
     except struct.error as err:
-
+        #unlink .partquer extension and remove dbf file
         Path(path).unlink()
+        #parquet.rmdir()
         raise err
-
-
-    path.unlink()
 
     return str(parquet)
 
