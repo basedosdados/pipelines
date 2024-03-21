@@ -72,7 +72,7 @@ async def create_update_async(
     if id is not None:
         r["r"] = "query"
         if update is False:
-            print(r, id)
+            return r, id
 
     _classe = mutation_class.replace("CreateUpdate", "").lower()
     query = f"""
@@ -172,9 +172,7 @@ async def create_quality_check_async(
         api_mode=api_mode,
     )
 
-    result_id = table_result["data"]["allCloudtable"]["edges"][0]["node"][
-        "table"
-    ].get("_id")
+
 
     quality_check, quality_check_id = get_id(
         email=email,
@@ -182,7 +180,7 @@ async def create_quality_check_async(
         query_class="allQualitycheck",
         query_parameters={
             "$name: String": name,
-            "$table_Id: ID": result_id,
+            "$table_Id: ID": id,
 
         },
         cloud_table=False,
@@ -196,7 +194,7 @@ async def create_quality_check_async(
                             "name": name,
                             "description": description,
                             "passed": True if passed == 'pass' else False,
-                            "table": result_id
+                            "table": id
         }
 
     await create_update_async(
