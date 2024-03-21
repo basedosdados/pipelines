@@ -43,12 +43,13 @@ from pipelines.utils.utils import log
 
 
 @task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
+    max_retries=2,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def check_files_to_parse(
     dataset_id: str,
     table_id: str,
+    year_first_two_digits: str,
 ) -> list[str]:
     log(f"------- Extracting last date from api for {dataset_id}.{table_id}")
     # 1. extrair data mais atual da api
@@ -89,7 +90,8 @@ def check_files_to_parse(
         datasus_database=datasus_database, datasus_database_table=datasus_database_table
     )
 
-    list_files = [file for file in available_dbs if file.split('/')[-1][4:8] == year_month_to_parse]
+    #NOTE: file.split('/')[-1][4:8] TO YEAR/MONTH
+    list_files = [file for file in available_dbs if file.split('/')[-1][4:6] == year_first_two_digits]
 
 
     log(f"------- The following files were selected fom DATASUS FTP: {list_files}")
@@ -102,7 +104,7 @@ def check_files_to_parse(
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def access_ftp_download_files_async(
-    file_list: list, dataset_id: str, table_id: str, max_parallel: int = 12, chunk_size: int = 8
+    file_list: list, dataset_id: str, table_id: str, max_parallel: int = 20, chunk_size: int = 15
 ) -> list[str]:
     """This task access Datasus FTP server and download a list of files asynchronously
 
