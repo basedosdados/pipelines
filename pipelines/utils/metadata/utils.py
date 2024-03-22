@@ -590,14 +590,13 @@ def create_update(
                 }}
             """
 
+    if api_mode == "prod":
+        url = "https://api.basedosdados.org/api/v1/graphql"
+    elif api_mode == "staging":
+        url = "https://staging.api.basedosdados.org/api/v1/graphql"
+
     if update is True and id is not None:
         mutation_parameters["id"] = id
-
-        if api_mode == "prod":
-            url = "https://api.basedosdados.org/api/v1/graphql"
-        elif api_mode == "staging":
-            url = "https://staging.api.basedosdados.org/api/v1/graphql"
-
         r = requests.post(
             url=url,
             json={"query": query, "variables": {"input": mutation_parameters}},
@@ -605,17 +604,12 @@ def create_update(
         ).json()
 
     if update is False:
-        if api_mode == "prod":
-            url = "https://api.basedosdados.org/api/v1/graphql"
-        elif api_mode == "staging":
-            url = "https://staging.api.basedosdados.org/api/v1/graphql"
-
         r = requests.post(
             url=url,
             json={"query": query, "variables": {"input": mutation_parameters}},
             headers=header,
         ).json()
-        print(r)
+
     r["r"] = "mutation"
     if "data" in r and r is not None:
         if r.get("data", {}).get(mutation_class, {}).get("errors", []) != []:
