@@ -42,10 +42,14 @@ from pipelines.utils.utils import log
 
 
 
-@task
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def check_files_to_parse(
     dataset_id: str,
     table_id: str,
+    year_month_to_extract: str,
 ) -> list[str]:
     log(f"------- Extracting last date from api for {dataset_id}.{table_id}")
     # 1. extrair data mais atual da api
@@ -56,7 +60,6 @@ def check_files_to_parse(
     )
 
     log("------- Building next year/month to parse")
-
 
     year = str(last_date.year)
     month = last_date.month
@@ -86,8 +89,13 @@ def check_files_to_parse(
     available_dbs = list_datasus_dbc_files(
         datasus_database=datasus_database, datasus_database_table=datasus_database_table
     )
-    log(year_month_to_parse)
-    list_files = [file for file in available_dbs if file.split('/')[-1][4:8] == year_month_to_parse]
+
+    #
+    if len(year_month_to_extract) == 0:
+        list_files = [file for file in available_dbs if file.split('/')[-1][4:8] == year_month_to_parse]
+    else:
+        list_files = [file for file in available_dbs if file.split('/')[-1][4:8] == year_month_to_extract]
+
 
 
     log(f"------- The following files were selected fom DATASUS FTP: {list_files}")
@@ -100,7 +108,7 @@ def check_files_to_parse(
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def access_ftp_download_files_async(
-    file_list: list, dataset_id: str, table_id: str, max_parallel: int = 10, chunk_size: int = 20
+    file_list: list, dataset_id: str, table_id: str, max_parallel: int = 12, chunk_size: int = 8
 ) -> list[str]:
     """This task access Datasus FTP server and download a list of files asynchronously
 
@@ -116,11 +124,11 @@ def access_ftp_download_files_async(
     """
 
     input_path = os.path.join("/tmp", dataset_id, "input", table_id)
-    log(f"------created input dir {input_path}")
+    log(f"------ created input dir {input_path}")
     os.makedirs(input_path, exist_ok=True)
 
     # https://github.com/AlertaDengue/PySUS/blob/main/pysus/ftp/__init__.py#L156
-    log(f"------dowloading {table_id} files from DATASUS FTP")
+    log(f"------ dowloading {table_id} files from DATASUS FTP")
 
 
 
@@ -321,11 +329,14 @@ def read_dbf_save_parquet_chunks(file_list: list, table_id: str) -> str:
 
 
     dbf_file_list = [file.replace(".dbc", ".dbf") for file in file_list]
-
+    _counter = 0
+    log(f'----coutner {_counter}')
     for file in tqdm(dbf_file_list):
 
-        # replace .csv with .dbf
-        log(f"-------- Reading {file}")
-        result_path = dbf_to_parquet(dbf=file)
 
-    return f'tmp/br_ms_sia/output/{table_id}'
+        log(f"-------- Reading {file}")
+        result_path = dbf_to_parquet(dbf=file, table_id=table_id, counter=_counter)
+        _counter += 1
+
+
+    return f'/tmp/br_ms_sia/output/{table_id}'

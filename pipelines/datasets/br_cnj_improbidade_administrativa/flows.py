@@ -1,8 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Flows for br_mp_pep_cargos_funcoes
-"""
-
 import datetime
 
 from prefect import Parameter, case
@@ -11,14 +7,12 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.datasets.br_mp_pep_cargos_funcoes.schedules import every_month
-from pipelines.datasets.br_mp_pep_cargos_funcoes.tasks import (
-    clean_data,
-    download_xlsx,
+from pipelines.datasets.br_cnj_improbidade_administrativa.schedules import every_month
+from pipelines.datasets.br_cnj_improbidade_administrativa.tasks import (
+    get_max_date,
     is_up_to_date,
-    make_partitions,
-    scraper,
-    setup_web_driver,
+    main_task,
+    write_csv_file,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -32,13 +26,13 @@ from pipelines.utils.tasks import (
 from pipelines.utils.utils import log_task
 
 with Flow(
-    name="br_mp_pep.cargos_funcoes",
+    name="br_cnj_improbidade_administrativa.condenacao",
     code_owners=[
         "aspeddro",
     ],
-) as datasets_br_mp_pep_cargos_funcoes_flow:
-    dataset_id = Parameter("dataset_id", default="br_mp_pep", required=True)
-    table_id = Parameter("table_id", default="cargos_funcoes", required=True)
+) as br_cnj_improbidade_administrativa_flow:
+    dataset_id = Parameter("dataset_id", default="br_cnj_improbidade_administrativa", required=True)
+    table_id = Parameter("table_id", default="condenacao", required=True)
     update_metadata = Parameter("update_metadata", default=True, required=False)
     materialization_mode = Parameter("materialization_mode", default="prod", required=False)
     materialize_after_dump = Parameter("materialize after dump", default=True, required=False)
@@ -48,41 +42,29 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    setup = setup_web_driver()
+    is_updated = is_up_to_date()
 
-    data_is_up_to_date = is_up_to_date(upstream_tasks=[setup])
+    with case(is_updated, True):
+        log_task("Data already updated")
 
-    with case(data_is_up_to_date, True):
-        log_task("Tabela já esta atualizada")
+    with case(is_updated, False):
+        log_task("Data is outdated")
 
-    with case(data_is_up_to_date, False):
-        current_date = datetime.datetime(
-            year=datetime.datetime.now().year,
-            month=datetime.datetime.now().month,
-            day=1,
-        )
-        year_delta = current_date - datetime.timedelta(days=1)
-        year_end = year_delta.year
+        df = main_task(upstream_tasks=[is_updated])
 
-        scraper_result = scraper(
-            year_start=year_end,
-            year_end=year_end,
-            headless=True,
-            upstream_tasks=[data_is_up_to_date],
-        )
+        log_task(df)
 
-        download = download_xlsx(scraper_result, upstream_tasks=[scraper_result])
-        log_task("Download XLSX finished")
+        max_date = get_max_date(df, upstream_tasks=[df])
 
-        df = clean_data(upstream_tasks=[download])
+        log_task(f"Max date: {max_date}")
 
-        output_filepath = make_partitions(df, upstream_tasks=[df])
+        output_filepath = write_csv_file(df, upstream_tasks=[max_date])
 
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
             table_id=table_id,
-            dump_mode="append",
+            dump_mode="overwrite",
             wait=output_filepath,
         )
 
@@ -97,9 +79,11 @@ with Flow(
                     "table_id": table_id,
                     "mode": materialization_mode,
                     "dbt_alias": dbt_alias,
+                    "dbt_command": "run/test",
                 },
                 labels=current_flow_labels,
                 run_name=r"Materialize {dataset_id}.{table_id}",
+                upstream_tasks=[current_flow_labels],
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -116,21 +100,21 @@ with Flow(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
 
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id=table_id,
-                    date_column_name={"year": "ano", "month": "mes"},
-                    date_format="%Y-%m",
-                    coverage_type="part_bdpro",
-                    time_delta={"months": 6},
-                    prefect_mode=materialization_mode,
-                    bq_project="basedosdados",
-                    upstream_tasks=[wait_for_materialization],
-                )
+        with case(update_metadata, True):
+            update_django_metadata(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                date_column_name={"date": "data_propositura"},
+                date_format="%Y-%m-%d",
+                coverage_type="part_bdpro",
+                prefect_mode=materialization_mode,
+                time_delta={"months": 6},
+                bq_project="basedosdados",
+                upstream_tasks=[wait_for_materialization],
+            )
 
-datasets_br_mp_pep_cargos_funcoes_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-datasets_br_mp_pep_cargos_funcoes_flow.run_config = KubernetesRun(
+br_cnj_improbidade_administrativa_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_cnj_improbidade_administrativa_flow.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-datasets_br_mp_pep_cargos_funcoes_flow.schedule = every_month
+br_cnj_improbidade_administrativa_flow.schedule = every_month

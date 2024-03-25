@@ -13,7 +13,7 @@ from pipelines.constants import constants
 schedule_br_ms_sia_producao_ambulatorial = Schedule(
     clocks=[
         CronClock(
-            cron="0 9 * * *",  # every day at 9:00
+            cron="0 7 * * *",  # every day at 7:00
             start_date=datetime(2024, 1, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,

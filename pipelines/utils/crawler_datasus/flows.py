@@ -39,6 +39,8 @@ with Flow(name="DATASUS-CNES", code_owners=["Gabriel Pisa"]) as flow_cnes:
     dataset_id = Parameter("dataset_id", required=True)
     table_id = Parameter("table_id", required=True)
     update_metadata = Parameter("update_metadata", default=False, required=False)
+    year_month_to_extract = Parameter("year_month_to_extract",default='', required=False)
+
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -54,6 +56,7 @@ with Flow(name="DATASUS-CNES", code_owners=["Gabriel Pisa"]) as flow_cnes:
     ftp_files = check_files_to_parse(
         dataset_id=dataset_id,
         table_id=table_id,
+        year_month_to_extract=year_month_to_extract,
     )
 
     with case(is_empty(ftp_files), True):
@@ -142,11 +145,12 @@ flow_cnes.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 
 
 
-with Flow(name="DATASUS-SIA", code_owners=["Gabriel Pisa"]) as flow_sia:
+with Flow(name="DATASUS-SIA", code_owners=["Gabriel Pisa"]) as flow_siasus:
     # Parameters
     dataset_id = Parameter("dataset_id", required=True)
     table_id = Parameter("table_id", required=True)
     update_metadata = Parameter("update_metadata", default=False, required=False)
+    year_month_to_extract = Parameter("year_month_to_extract",default='', required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -162,6 +166,7 @@ with Flow(name="DATASUS-SIA", code_owners=["Gabriel Pisa"]) as flow_sia:
     ftp_files = check_files_to_parse(
         dataset_id=dataset_id,
         table_id=table_id,
+        year_month_to_extract=year_month_to_extract,
     )
 
     with case(is_empty(ftp_files), True):
@@ -238,5 +243,5 @@ with Flow(name="DATASUS-SIA", code_owners=["Gabriel Pisa"]) as flow_sia:
                     bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
-flow_sia.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-flow_sia.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+flow_siasus.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+flow_siasus.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
