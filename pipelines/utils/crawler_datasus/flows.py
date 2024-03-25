@@ -39,6 +39,8 @@ with Flow(name="DATASUS-CNES", code_owners=["Gabriel Pisa"]) as flow_cnes:
     dataset_id = Parameter("dataset_id", required=True)
     table_id = Parameter("table_id", required=True)
     update_metadata = Parameter("update_metadata", default=False, required=False)
+    year_month_to_extract = Parameter("year_month_to_extract",default='', required=False)
+
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -54,6 +56,7 @@ with Flow(name="DATASUS-CNES", code_owners=["Gabriel Pisa"]) as flow_cnes:
     ftp_files = check_files_to_parse(
         dataset_id=dataset_id,
         table_id=table_id,
+        year_month_to_extract=year_month_to_extract,
     )
 
     with case(is_empty(ftp_files), True):
@@ -147,6 +150,7 @@ with Flow(name="DATASUS-SIA", code_owners=["Gabriel Pisa"]) as flow_siasus:
     dataset_id = Parameter("dataset_id", required=True)
     table_id = Parameter("table_id", required=True)
     update_metadata = Parameter("update_metadata", default=False, required=False)
+    year_month_to_extract = Parameter("year_month_to_extract",default='', required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -162,6 +166,7 @@ with Flow(name="DATASUS-SIA", code_owners=["Gabriel Pisa"]) as flow_siasus:
     ftp_files = check_files_to_parse(
         dataset_id=dataset_id,
         table_id=table_id,
+        year_month_to_extract=year_month_to_extract,
     )
 
     with case(is_empty(ftp_files), True):
