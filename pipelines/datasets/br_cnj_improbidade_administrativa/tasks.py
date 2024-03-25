@@ -214,7 +214,6 @@ def is_up_to_date() -> bool:
     number_lines_bq = bd.read_sql(
         query="select count(*) as n from `basedosdados.br_cnj_improbidade_administrativa.condenacao`",
         from_file=True,
-        billing_project_id="basedosdados-dev",
     )
     value_from_bq = number_lines_bq["n"][0]  # type: ignore
 
