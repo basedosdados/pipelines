@@ -18,7 +18,7 @@ from dateutil.relativedelta import relativedelta
 
 from pipelines.utils.metadata.constants import constants as metadata_constants
 from pipelines.utils.utils import get_credentials_from_secret, log
-
+#from pipelines.utils.metadata.utils_async import create_update_async, get_id_async, get_token_async
 #######################
 # update_django_metadata Utils
 #######################
@@ -561,7 +561,6 @@ def create_update(
     header = {
         "Authorization": f"Bearer {token}",
     }
-
     r, id = get_id(
         query_class=query_class,
         query_parameters=query_parameters,
@@ -591,14 +590,20 @@ def create_update(
                 }}
             """
 
+    if api_mode == "prod":
+        url = "https://api.basedosdados.org/api/v1/graphql"
+    elif api_mode == "staging":
+        url = "https://staging.api.basedosdados.org/api/v1/graphql"
+
     if update is True and id is not None:
         mutation_parameters["id"] = id
+        r = requests.post(
+            url=url,
+            json={"query": query, "variables": {"input": mutation_parameters}},
+            headers=header,
+        ).json()
 
-        if api_mode == "prod":
-            url = "https://api.basedosdados.org/api/v1/graphql"
-        elif api_mode == "staging":
-            url = "https://staging.api.basedosdados.org/api/v1/graphql"
-
+    if update is False:
         r = requests.post(
             url=url,
             json={"query": query, "variables": {"input": mutation_parameters}},
@@ -962,3 +967,4 @@ def get_headers(backend):
     header_for_mutation_query = {"Authorization": f"Bearer {token}"}
 
     return header_for_mutation_query
+
