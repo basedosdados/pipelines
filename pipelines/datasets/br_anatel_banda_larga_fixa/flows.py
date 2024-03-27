@@ -15,7 +15,6 @@ from pipelines.datasets.br_anatel_banda_larga_fixa.schedules import (
     every_month_anatel_microdados,
 )
 from pipelines.datasets.br_anatel_banda_larga_fixa.tasks import (
-    setting_data_url,
     treatment,
     treatment_br,
     treatment_municipio,

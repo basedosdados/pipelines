@@ -19,24 +19,58 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 
-def download_and_unzip(url, path):
-    """download and unzip a zip file
+def download(path):
+    if not os.path.exists(path):
+        os.mkdir(path)
+    options = webdriver.ChromeOptions()
+    # https://github.com/SeleniumHQ/selenium/issues/11637
+    prefs = {
+        "download.default_directory": path,
+        "download.prompt_for_download": False,
+        "download.directory_upgrade": True,
+        "safebrowsing.enabled": True,
+    }
+    options.add_experimental_option(
+        "prefs",
+        prefs,
+    )
+    options.add_argument("--headless=new")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--crash-dumps-dir=/tmp")
+    options.add_argument("--remote-debugging-port=9222")
+    driver = webdriver.Chrome(options=options)
+    driver.get('https://dados.gov.br/dados/conjuntos-dados/acessos---banda-larga-fixa')
 
-    Args:
-        url (str): a url
+    driver.maximize_window()
+
+    WebDriverWait(driver, 30).until(
+                EC.visibility_of_element_located(
+                    (By.XPATH, '/html/body/div/section/div/div[3]/div[2]/div[3]/div[2]/header/button')
+                )
+            ).click()
 
 
-    Returns:
-        list: unziped files in a given folder
-    """
+    WebDriverWait(driver, 30).until(
+                EC.visibility_of_element_located(
+                    (By.XPATH, '/html/body/div/section/div/div[3]/div[2]/div[3]/div[2]/div/div[1]/div[2]/div[2]/div/button')
+                )
+            ).click()
 
-    os.system(f"mkdir -p {path}")
+def descompactar_arquivo():
+    download(path = constants)
+    # Obtenha o nome do arquivo ZIP baixado
+    zip_file_path = os.path.join('tmp/input/', 'acessos_banda_larga_fixa.zip')
+    time.sleep(300)
+    try:
+        with ZipFile(zip_file_path, 'r') as zip_ref:
+            zip_ref.extractall('tmp/input/')
 
-    http_response = urlopen(url)
-    zipfile = ZipFile(BytesIO(http_response.read()))
-    zipfile.extractall(path=path)
+    except Exception as e:
+            print(f"Erro ao baixar ou extrair o arquivo ZIP: {str(e)}")
+    os.remove(zip_file_path)
 
-    return path
 
 
 def check_and_create_column(df: pd.DataFrame, col_name: str) -> pd.DataFrame:
