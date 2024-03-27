@@ -70,235 +70,220 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id[0], wait=table_id[0]
     )
 
-    data_source_max_date = setting_data_url()
-
-    dados_desatualizados = check_if_data_is_outdated(
-        dataset_id=dataset_id,
-        table_id=table_id[0],
-        data_source_max_date=data_source_max_date,
-        date_format="%Y-%m",  # Alterado aqui
-        upstream_tasks=[data_source_max_date],
+    filepath_microdados = treatment(
+        ano=ano,
+        upstream_tasks=[rename_flow_run],
     )
 
-    with case(dados_desatualizados, False):
-        log_task("Não há atualizações!")
+    wait_upload_table = create_table_and_upload_to_gcs(
+        data_path=filepath_microdados,
+        dataset_id=dataset_id,
+        table_id=table_id[0],
+        dump_mode="append",
+        wait=filepath_microdados,
+    )
 
-    with case(dados_desatualizados, True):
-        # ! MICRODADOS
-        filepath_microdados = treatment(
-            ano=ano,
-            upstream_tasks=[rename_flow_run],
+    # ! tabela bd +
+    with case(materialize_after_dump, True):
+        # Trigger DBT flow run
+        current_flow_labels = get_current_flow_labels()
+        materialization_flow = create_flow_run(
+            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
+            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+            parameters={
+                "dataset_id": dataset_id,
+                "table_id": table_id[0],
+                "mode": materialization_mode,
+                "dbt_alias": dbt_alias,
+            },
+            labels=current_flow_labels,
+            run_name=f"Materialize {dataset_id}.{table_id[0]}",
         )
 
-        wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=filepath_microdados,
-            dataset_id=dataset_id,
-            table_id=table_id[0],
-            dump_mode="append",
-            wait=filepath_microdados,
+        wait_for_materialization = wait_for_flow_run(
+            materialization_flow,
+            stream_states=True,
+            stream_logs=True,
+            raise_final_state=True,
+        )
+        wait_for_materialization.max_retries = (
+            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
+        )
+        wait_for_materialization.retry_delay = timedelta(
+            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-        # ! tabela bd +
-        with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels()
-            materialization_flow = create_flow_run(
-                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": table_id[0],
-                    "mode": materialization_mode,
-                    "dbt_alias": dbt_alias,
-                },
-                labels=current_flow_labels,
-                run_name=f"Materialize {dataset_id}.{table_id[0]}",
+        with case(update_metadata, True):
+            update_django_metadata(
+                dataset_id=dataset_id,
+                table_id=table_id[0],
+                date_column_name={"year": "ano", "month": "mes"},
+                date_format="%Y-%m",
+                coverage_type="part_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
+                upstream_tasks=[wait_for_materialization],
             )
 
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
-            )
-            wait_for_materialization.max_retries = (
-                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-            wait_for_materialization.retry_delay = timedelta(
-                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-            )
-
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id=table_id[0],
-                    date_column_name={"year": "ano", "month": "mes"},
-                    date_format="%Y-%m",
-                    coverage_type="part_bdpro",
-                    time_delta={"months": 6},
-                    prefect_mode=materialization_mode,
-                    bq_project="basedosdados",
-                    upstream_tasks=[wait_for_materialization],
-                )
-
-        # ! BRASIL
-        filepath_brasil = treatment_br(upstream_tasks=[filepath_microdados])
-        wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=filepath_brasil,
-            dataset_id=dataset_id,
-            table_id=table_id[1],
-            dump_mode="append",
-            wait=filepath_brasil,
-        )
-        # ! tabela bd +
-        with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels()
-            materialization_flow = create_flow_run(
-                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": table_id[1],
-                    "mode": materialization_mode,
-                    "dbt_alias": dbt_alias,
-                },
-                labels=current_flow_labels,
-                run_name=f"Materialize {dataset_id}.{table_id[1]}",
-            )
-
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
-            )
-            wait_for_materialization.max_retries = (
-                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-            wait_for_materialization.retry_delay = timedelta(
-                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-            )
-
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id=table_id[1],
-                    date_column_name={"year": "ano", "month": "mes"},
-                    date_format="%Y-%m",
-                    coverage_type="part_bdpro",
-                    time_delta={"months": 6},
-                    prefect_mode=materialization_mode,
-                    bq_project="basedosdados",
-                    upstream_tasks=[wait_for_materialization],
-                )
-
-        # ! UF
-
-        filepath_uf = treatment_uf(upstream_tasks=[filepath_microdados])
-        wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=filepath_uf,
-            dataset_id=dataset_id,
-            table_id=table_id[2],
-            dump_mode="append",
-            wait=filepath_uf,
+    # ! BRASIL
+    filepath_brasil = treatment_br(upstream_tasks=[filepath_microdados])
+    wait_upload_table = create_table_and_upload_to_gcs(
+        data_path=filepath_brasil,
+        dataset_id=dataset_id,
+        table_id=table_id[1],
+        dump_mode="append",
+        wait=filepath_brasil,
+    )
+    # ! tabela bd +
+    with case(materialize_after_dump, True):
+        # Trigger DBT flow run
+        current_flow_labels = get_current_flow_labels()
+        materialization_flow = create_flow_run(
+            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
+            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+            parameters={
+                "dataset_id": dataset_id,
+                "table_id": table_id[1],
+                "mode": materialization_mode,
+                "dbt_alias": dbt_alias,
+            },
+            labels=current_flow_labels,
+            run_name=f"Materialize {dataset_id}.{table_id[1]}",
         )
 
-        # ! tabela bd +
-        with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels()
-            materialization_flow = create_flow_run(
-                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": table_id[2],
-                    "mode": materialization_mode,
-                    "dbt_alias": dbt_alias,
-                },
-                labels=current_flow_labels,
-                run_name=f"Materialize {dataset_id}.{table_id[2]}",
-            )
-
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
-            )
-            wait_for_materialization.max_retries = (
-                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-            wait_for_materialization.retry_delay = timedelta(
-                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-            )
-
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id=table_id[2],
-                    date_column_name={"year": "ano", "month": "mes"},
-                    date_format="%Y-%m",
-                    coverage_type="part_bdpro",
-                    time_delta={"months": 6},
-                    prefect_mode=materialization_mode,
-                    bq_project="basedosdados",
-                    upstream_tasks=[wait_for_materialization],
-                )
-
-        # ! MUNICIPIO
-        filepath_municipio = treatment_municipio(upstream_tasks=[filepath_microdados])
-        wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=filepath_municipio,
-            dataset_id=dataset_id,
-            table_id=table_id[3],
-            dump_mode="append",
-            wait=filepath_municipio,
+        wait_for_materialization = wait_for_flow_run(
+            materialization_flow,
+            stream_states=True,
+            stream_logs=True,
+            raise_final_state=True,
+        )
+        wait_for_materialization.max_retries = (
+            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
+        )
+        wait_for_materialization.retry_delay = timedelta(
+            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
         )
 
-        # ! tabela bd +
-        with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels()
-            materialization_flow = create_flow_run(
-                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": table_id[3],
-                    "mode": materialization_mode,
-                    "dbt_alias": dbt_alias,
-                },
-                labels=current_flow_labels,
-                run_name=f"Materialize {dataset_id}.{table_id[3]}",
+        with case(update_metadata, True):
+            update_django_metadata(
+                dataset_id=dataset_id,
+                table_id=table_id[1],
+                date_column_name={"year": "ano", "month": "mes"},
+                date_format="%Y-%m",
+                coverage_type="part_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
+                upstream_tasks=[wait_for_materialization],
             )
 
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
-            )
-            wait_for_materialization.max_retries = (
-                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-            wait_for_materialization.retry_delay = timedelta(
-                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+    # ! UF
+
+    filepath_uf = treatment_uf(upstream_tasks=[filepath_microdados])
+    wait_upload_table = create_table_and_upload_to_gcs(
+        data_path=filepath_uf,
+        dataset_id=dataset_id,
+        table_id=table_id[2],
+        dump_mode="append",
+        wait=filepath_uf,
+    )
+
+    # ! tabela bd +
+    with case(materialize_after_dump, True):
+        # Trigger DBT flow run
+        current_flow_labels = get_current_flow_labels()
+        materialization_flow = create_flow_run(
+            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
+            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+            parameters={
+                "dataset_id": dataset_id,
+                "table_id": table_id[2],
+                "mode": materialization_mode,
+                "dbt_alias": dbt_alias,
+            },
+            labels=current_flow_labels,
+            run_name=f"Materialize {dataset_id}.{table_id[2]}",
+        )
+
+        wait_for_materialization = wait_for_flow_run(
+            materialization_flow,
+            stream_states=True,
+            stream_logs=True,
+            raise_final_state=True,
+        )
+        wait_for_materialization.max_retries = (
+            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
+        )
+        wait_for_materialization.retry_delay = timedelta(
+            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+        )
+
+        with case(update_metadata, True):
+            update_django_metadata(
+                dataset_id=dataset_id,
+                table_id=table_id[2],
+                date_column_name={"year": "ano", "month": "mes"},
+                date_format="%Y-%m",
+                coverage_type="part_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
+                upstream_tasks=[wait_for_materialization],
             )
 
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id=table_id[3],
-                    date_column_name={"year": "ano", "month": "mes"},
-                    date_format="%Y-%m",
-                    coverage_type="part_bdpro",
-                    time_delta={"months": 6},
-                    prefect_mode=materialization_mode,
-                    bq_project="basedosdados",
-                    upstream_tasks=[wait_for_materialization],
-                )
+    # ! MUNICIPIO
+    filepath_municipio = treatment_municipio(upstream_tasks=[filepath_microdados])
+    wait_upload_table = create_table_and_upload_to_gcs(
+        data_path=filepath_municipio,
+        dataset_id=dataset_id,
+        table_id=table_id[3],
+        dump_mode="append",
+        wait=filepath_municipio,
+    )
+
+    # ! tabela bd +
+    with case(materialize_after_dump, True):
+        # Trigger DBT flow run
+        current_flow_labels = get_current_flow_labels()
+        materialization_flow = create_flow_run(
+            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
+            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+            parameters={
+                "dataset_id": dataset_id,
+                "table_id": table_id[3],
+                "mode": materialization_mode,
+                "dbt_alias": dbt_alias,
+            },
+            labels=current_flow_labels,
+            run_name=f"Materialize {dataset_id}.{table_id[3]}",
+        )
+
+        wait_for_materialization = wait_for_flow_run(
+            materialization_flow,
+            stream_states=True,
+            stream_logs=True,
+            raise_final_state=True,
+        )
+        wait_for_materialization.max_retries = (
+            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
+        )
+        wait_for_materialization.retry_delay = timedelta(
+            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+        )
+
+        with case(update_metadata, True):
+            update_django_metadata(
+                dataset_id=dataset_id,
+                table_id=table_id[3],
+                date_column_name={"year": "ano", "month": "mes"},
+                date_format="%Y-%m",
+                coverage_type="part_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
+                upstream_tasks=[wait_for_materialization],
+            )
 
 br_anatel_banda_larga.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_anatel_banda_larga.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)

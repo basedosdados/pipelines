@@ -57,20 +57,7 @@ def download(path):
                     (By.XPATH, '/html/body/div/section/div/div[3]/div[2]/div[3]/div[2]/div/div[1]/div[2]/div[2]/div/button')
                 )
             ).click()
-
-def descompactar_arquivo():
-    download(path = constants)
-    # Obtenha o nome do arquivo ZIP baixado
-    zip_file_path = os.path.join('tmp/input/', 'acessos_banda_larga_fixa.zip')
     time.sleep(300)
-    try:
-        with ZipFile(zip_file_path, 'r') as zip_ref:
-            zip_ref.extractall('tmp/input/')
-
-    except Exception as e:
-            print(f"Erro ao baixar ou extrair o arquivo ZIP: {str(e)}")
-    os.remove(zip_file_path)
-
 
 
 def check_and_create_column(df: pd.DataFrame, col_name: str) -> pd.DataFrame:
@@ -152,71 +139,3 @@ def to_partitions_microdados(
             )
     else:
         raise BaseException("Data need to be a pandas DataFrame")
-
-
-def data_url():
-    element_html = ""  # Inicialize element_html com uma string vazia
-
-    # Configurar as opções do ChromeDriver
-    options = webdriver.ChromeOptions()
-    # Adicionar argumentos para executar o Chrome em modo headless (sem interface gráfica)
-    prefs = {
-        "download.prompt_for_download": False,
-        "download.directory_upgrade": True,
-        "safebrowsing.enabled": True,
-    }
-
-    options.add_experimental_option(
-        "prefs",
-        prefs,
-    )
-
-    options.add_argument("--headless=new")
-    # NOTE: The traditional --headless, and since version 96, Chrome has a new headless mode that allows users to get the full browser functionality (even run extensions). Between versions 96 to 108 it was --headless=chrome, after version 109 --headless=new
-    options.add_argument("--test-type")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--no-first-run")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--no-default-browser-check")
-    options.add_argument("--ignore-certificate-errors")
-    options.add_argument("--start-maximized")
-    options.add_argument(
-        "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
-    )
-
-    # Inicializar o driver do Chrome com as opções configuradas
-    driver = webdriver.Chrome(options=options)
-
-    # URL da página da web que você deseja acessar
-    url = "https://informacoes.anatel.gov.br/paineis/acessos/telefonia-movel"
-
-    try:
-        # Abra a página da web
-        log(url)
-        driver.get(url)
-
-        # Espera até que o elemento desejado seja visível na página (você pode ajustar o tempo limite conforme necessário)
-        WebDriverWait(driver, 600).until(
-            EC.visibility_of_element_located(
-                (By.XPATH, '//*[@id="selection-list"]/li/qv-current-selections-item/div/div[1]/span/span')
-            )
-        )
-
-        # Encontrar o elemento depois que estiver visível
-        element = driver.find_element(
-            "xpath",
-            '//*[@id="selection-list"]/li/qv-current-selections-item/div/div[1]/span/span',
-        )
-
-        # Obtenha o HTML do elemento
-        element_html = element.get_attribute("outerHTML")
-        # Imprima o HTML do elemento
-        log(element_html)
-    except Exception as e:
-        log("Ocorreu um erro ao acessar a página:", str(e))
-    finally:
-        # Certifique-se de fechar o navegador, mesmo em caso de erro
-        driver.quit()
-
-    return element_html
