@@ -23,8 +23,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 
 def download(path):
-    if not os.path.exists(path):
-        os.mkdir(path)
+    os.system(f"mkdir -p {path}")
     options = webdriver.ChromeOptions()
     # https://github.com/SeleniumHQ/selenium/issues/11637
     prefs = {
