@@ -61,7 +61,7 @@ def clean_csv_microdados(anos, semestre):
 
     # Lê o arquivo CSV contendo os dados
     df = pd.read_csv(
-        f"{anatel_constants.INPUT_PATH.value}Acessos_Telefonia_Movel_{anos}_{semestre}S",
+        f"{anatel_constants.INPUT_PATH.value}Acessos_Telefonia_Movel_{anos}_{semestre}S.csv",
         sep=";",
         encoding="utf-8",
     )

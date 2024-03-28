@@ -84,6 +84,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
         table_id=table_id[0],
         dump_mode="append",
         wait=filepath_microdados,
+        upstream_tasks=[rename_flow_run]
     )
 
     # ! tabela bd +
@@ -101,6 +102,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             },
             labels=current_flow_labels,
             run_name=f"Materialize {dataset_id}.{table_id[0]}",
+            upstream_tasks=[wait_upload_table]
         )
 
         wait_for_materialization = wait_for_flow_run(
@@ -137,6 +139,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
         table_id=table_id[1],
         dump_mode="append",
         wait=filepath_brasil,
+        upstream_tasks=[filepath_brasil]
     )
     # ! tabela bd +
     with case(materialize_after_dump, True):
@@ -153,6 +156,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             },
             labels=current_flow_labels,
             run_name=f"Materialize {dataset_id}.{table_id[1]}",
+            upstream_tasks=[wait_upload_table]
         )
 
         wait_for_materialization = wait_for_flow_run(
@@ -190,6 +194,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
         table_id=table_id[2],
         dump_mode="append",
         wait=filepath_uf,
+        upstream_tasks=[filepath_uf]
     )
 
     # ! tabela bd +
@@ -207,6 +212,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             },
             labels=current_flow_labels,
             run_name=f"Materialize {dataset_id}.{table_id[2]}",
+            upstream_tasks=[wait_upload_table]
         )
 
         wait_for_materialization = wait_for_flow_run(
@@ -243,6 +249,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
         table_id=table_id[3],
         dump_mode="append",
         wait=filepath_municipio,
+        upstream_tasks=[filepath_municipio]
     )
 
     # ! tabela bd +
@@ -260,6 +267,7 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             },
             labels=current_flow_labels,
             run_name=f"Materialize {dataset_id}.{table_id[3]}",
+            upstream_task=[wait_upload_table]
         )
 
         wait_for_materialization = wait_for_flow_run(
