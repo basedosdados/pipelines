@@ -11,6 +11,9 @@ from zipfile import ZipFile
 from pipelines.utils.utils import log
 import numpy as np
 import pandas as pd
+from pipelines.datasets.br_anatel_banda_larga_fixa.constants import (
+    constants as anatel_constants,
+)
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
@@ -66,6 +69,19 @@ def download(path):
     print('time...')
     time.sleep(150)
     print(os.listdir(path))
+
+def descompactar_arquivo():
+    download(path = anatel_constants.INPUT_PATH.value)
+    # Obtenha o nome do arquivo ZIP baixado
+    zip_file_path = os.path.join(anatel_constants.INPUT_PATH.value, 'acessos_banda_larga_fixa.zip')
+    time.sleep(150)
+    print(os.listdir(anatel_constants.INPUT_PATH.value))
+    try:
+        with ZipFile(zip_file_path, 'r') as zip_ref:
+            zip_ref.extractall(anatel_constants.INPUT_PATH.value)
+
+    except Exception as e:
+            print(f"Erro ao baixar ou extrair o arquivo ZIP: {str(e)}")
 
 
 def check_and_create_column(df: pd.DataFrame, col_name: str) -> pd.DataFrame:
