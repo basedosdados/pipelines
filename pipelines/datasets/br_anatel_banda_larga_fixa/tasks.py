@@ -29,6 +29,7 @@ from pipelines.utils.utils import log
 )
 def treatment(ano: int):
     log("Iniciando o tratamento do arquivo microdados da Anatel")
+    os.system(f"mkdir -p {anatel_constants.INPUT_PATH.value}")
     descompactar_arquivo()
 
     # ! Lendo o arquivo csv

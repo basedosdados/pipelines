@@ -23,7 +23,8 @@ from selenium.webdriver.support import expected_conditions as EC
 
 
 def download(path):
-    os.system(f"mkdir -p {path}")
+    if not os.path.exists(path):
+        os.makedirs(path)
     options = webdriver.ChromeOptions()
     # https://github.com/SeleniumHQ/selenium/issues/11637
     prefs = {
@@ -73,7 +74,7 @@ def descompactar_arquivo():
     download(path = anatel_constants.INPUT_PATH.value)
     # Obtenha o nome do arquivo ZIP baixado
     zip_file_path = os.path.join(anatel_constants.INPUT_PATH.value, 'acessos_banda_larga_fixa.zip')
-    time.sleep(150)
+    time.sleep(300)
     print(os.listdir(anatel_constants.INPUT_PATH.value))
     try:
         with ZipFile(zip_file_path, 'r') as zip_ref:
