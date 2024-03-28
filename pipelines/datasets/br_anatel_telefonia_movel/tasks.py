@@ -26,7 +26,7 @@ from pipelines.utils.utils import log
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def clean_csv_microdados(anos, mes_um, mes_dois):
+def clean_csv_microdados(anos, semestre):
     """
     -------
     Reads and cleans all CSV files in the '/tmp/data/input/' directory.
@@ -54,15 +54,14 @@ def clean_csv_microdados(anos, mes_um, mes_dois):
 
     # Realiza o download e descompactação dos dados
     descompactar_arquivo()
-    # Imprime a mensagem de abertura do arquivo
-    log(f"Abrindo o arquivo:{anos}, {mes_um}, {mes_dois}..")
+
 
     # Imprime uma linha de separação no log
     log("=" * 50)
 
     # Lê o arquivo CSV contendo os dados
     df = pd.read_csv(
-        f"{anatel_constants.INPUT_PATH.value}Acessos_Telefonia_Movel_{anos}{mes_um}-{anos}{mes_dois}.csv",
+        f"{anatel_constants.INPUT_PATH.value}Acessos_Telefonia_Movel_{anos}_{semestre}S",
         sep=";",
         encoding="utf-8",
     )
@@ -77,7 +76,6 @@ def clean_csv_microdados(anos, mes_um, mes_dois):
     df.rename(columns=anatel_constants.RENAME.value, inplace=True)
 
     # Imprime a mensagem de remoção das colunas desnecessárias
-    log(f"Removendo colunas desnecessárias: {anos}, {mes_um}, {mes_dois}..")
 
     # Imprime uma linha de separação no log
     log("=" * 50)
@@ -86,7 +84,6 @@ def clean_csv_microdados(anos, mes_um, mes_dois):
     df.drop(["grupo_economico", "municipio", "ddd_chip"], axis=1, inplace=True)
 
     # Imprime a mensagem de tratamento dos dados
-    log(f"Tratando os dados: {anos}, {mes_um}, {mes_dois}...")
 
     # Imprime uma linha de separação no log
     log("=" * 50)

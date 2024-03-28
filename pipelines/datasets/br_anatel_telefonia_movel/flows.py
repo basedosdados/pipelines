@@ -30,7 +30,6 @@ from pipelines.utils.metadata.tasks import (
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
-    log_task,
     rename_current_flow_run_dataset_table,
 )
 
@@ -69,15 +68,14 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
     # ! Importante salientar que o mes_um sempre será 01 ou 06 e o mes_dois será 07 ou 12
     anos = Parameter("anos", default=2023, required=True)
 
-    mes_um = Parameter("mes_um", default="07", required=True)
-    mes_dois = Parameter("mes_dois", default="12", required=True)
+    semestre = Parameter("semestre", default="2", required=True)
+
     update_metadata = Parameter("update_metadata", default=True, required=False)
 
     # ! MICRODADOS
     filepath_microdados = clean_csv_microdados(
         anos=anos,
-        mes_um=mes_um,
-        mes_dois=mes_dois,
+        semestre=semestre,
         upstream_tasks=[rename_flow_run],
     )
     wait_upload_table = create_table_and_upload_to_gcs(
