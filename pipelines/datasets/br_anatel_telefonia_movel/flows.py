@@ -102,7 +102,6 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             },
             labels=current_flow_labels,
             run_name=f"Materialize {dataset_id}.{table_id[0]}",
-            upstream_tasks=[wait_upload_table]
         )
 
         wait_for_materialization = wait_for_flow_run(
@@ -156,7 +155,6 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             },
             labels=current_flow_labels,
             run_name=f"Materialize {dataset_id}.{table_id[1]}",
-            upstream_tasks=[wait_upload_table]
         )
 
         wait_for_materialization = wait_for_flow_run(
@@ -212,7 +210,6 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             },
             labels=current_flow_labels,
             run_name=f"Materialize {dataset_id}.{table_id[2]}",
-            upstream_tasks=[wait_upload_table]
         )
 
         wait_for_materialization = wait_for_flow_run(
@@ -267,7 +264,6 @@ with Flow(name="br_anatel_telefonia_movel", code_owners=["tricktx"]) as br_anate
             },
             labels=current_flow_labels,
             run_name=f"Materialize {dataset_id}.{table_id[3]}",
-            upstream_task=[wait_upload_table]
         )
 
         wait_for_materialization = wait_for_flow_run(
