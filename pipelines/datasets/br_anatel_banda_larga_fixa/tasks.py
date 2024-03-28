@@ -27,18 +27,22 @@ from pipelines.utils.utils import log, to_partitions
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def descompactar_arquivo():
-    download(path=anatel_constants.INPUT_PATH.value)
+    download(path = anatel_constants.INPUT_PATH.value)
     # Obtenha o nome do arquivo ZIP baixado
     zip_file_path = os.path.join(anatel_constants.INPUT_PATH.value, 'acessos_banda_larga_fixa.zip')
-    print(os.listdir())
+    time.sleep(150)
+    print(os.listdir(anatel_constants.INPUT_PATH.value))
     try:
         with ZipFile(zip_file_path, 'r') as zip_ref:
             zip_ref.extractall(anatel_constants.INPUT_PATH.value)
 
     except Exception as e:
             print(f"Erro ao baixar ou extrair o arquivo ZIP: {str(e)}")
-    print(os.listdir())
+
+
     os.remove(zip_file_path)
+    return print(os.listdir(anatel_constants.INPUT_PATH.value))
+
 
 @task(
     max_retries=20,
