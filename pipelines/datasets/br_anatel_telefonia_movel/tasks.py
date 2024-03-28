@@ -15,40 +15,10 @@ from pipelines.datasets.br_anatel_telefonia_movel.constants import (
     constants as anatel_constants,
 )
 from pipelines.datasets.br_anatel_telefonia_movel.utils import (
-    data_url,
-    download_and_unzip,
+    descompactar_arquivo,
     to_partitions_microdados,
 )
 from pipelines.utils.utils import log
-
-
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
-def setting_data_url():
-    meses = {
-        "jan": "01",
-        "fev": "02",
-        "mar": "03",
-        "abr": "04",
-        "mai": "05",
-        "jun": "06",
-        "jul": "07",
-        "ago": "08",
-        "set": "09",
-        "out": "10",
-        "nov": "11",
-        "dez": "12",
-    }
-    string_element = data_url()
-    elemento_total = string_element[25:33]
-    mes, ano = elemento_total.split("-")
-    mes = meses[mes]
-    data_total = f"{ano}-{mes}"
-    log(data_total)
-
-    return data_total
 
 
 # ! TASK MICRODADOS
@@ -56,7 +26,7 @@ def setting_data_url():
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def clean_csv_microdados(anos, mes_um, mes_dois):
+def clean_csv_microdados(anos, semestre):
     """
     -------
     Reads and cleans all CSV files in the '/tmp/data/input/' directory.
@@ -79,23 +49,19 @@ def clean_csv_microdados(anos, mes_um, mes_dois):
 
     # Imprime a mensagem de download dos dados
     log("Download dos dados...")
-
-    # Imprime a URL dos dados
     log(anatel_constants.URL.value)
+    os.system(f"mkdir -p {anatel_constants.INPUT_PATH.value}")
 
     # Realiza o download e descompactação dos dados
-    download_and_unzip(
-        url=anatel_constants.URL.value, path=anatel_constants.INPUT_PATH.value
-    )
-    # Imprime a mensagem de abertura do arquivo
-    log(f"Abrindo o arquivo:{anos}, {mes_um}, {mes_dois}..")
+    descompactar_arquivo()
+
 
     # Imprime uma linha de separação no log
     log("=" * 50)
 
     # Lê o arquivo CSV contendo os dados
     df = pd.read_csv(
-        f"{anatel_constants.INPUT_PATH.value}Acessos_Telefonia_Movel_{anos}{mes_um}-{anos}{mes_dois}.csv",
+        f"{anatel_constants.INPUT_PATH.value}Acessos_Telefonia_Movel_{anos}_{semestre}S.csv",
         sep=";",
         encoding="utf-8",
     )
@@ -110,7 +76,6 @@ def clean_csv_microdados(anos, mes_um, mes_dois):
     df.rename(columns=anatel_constants.RENAME.value, inplace=True)
 
     # Imprime a mensagem de remoção das colunas desnecessárias
-    log(f"Removendo colunas desnecessárias: {anos}, {mes_um}, {mes_dois}..")
 
     # Imprime uma linha de separação no log
     log("=" * 50)
@@ -119,7 +84,6 @@ def clean_csv_microdados(anos, mes_um, mes_dois):
     df.drop(["grupo_economico", "municipio", "ddd_chip"], axis=1, inplace=True)
 
     # Imprime a mensagem de tratamento dos dados
-    log(f"Tratando os dados: {anos}, {mes_um}, {mes_dois}...")
 
     # Imprime uma linha de separação no log
     log("=" * 50)
