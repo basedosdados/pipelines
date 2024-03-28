@@ -50,7 +50,7 @@ def download(path):
     )
 
     driver = webdriver.Chrome(options=options)
-    driver.get('https://dados.gov.br/dados/conjuntos-dados/acessos---banda-larga-fixa')
+    driver.get('https://dados.gov.br/dados/conjuntos-dados/acessos-autorizadas-smp')
 
     driver.maximize_window()
     log('primeiro passo...')
@@ -74,7 +74,7 @@ def download(path):
 def descompactar_arquivo():
     download(path = anatel_constants.INPUT_PATH.value)
     # Obtenha o nome do arquivo ZIP baixado
-    zip_file_path = os.path.join(anatel_constants.INPUT_PATH.value, 'acessos_banda_larga_fixa.zip')
+    zip_file_path = os.path.join(anatel_constants.INPUT_PATH.value, 'acessos_telefonia_movel.zip')
     time.sleep(300)
     print(os.listdir(anatel_constants.INPUT_PATH.value))
     try:
