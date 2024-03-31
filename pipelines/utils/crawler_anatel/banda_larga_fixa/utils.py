@@ -4,7 +4,7 @@ import time
 from zipfile import ZipFile
 from pipelines.utils.utils import log
 import pandas as pd
-from pipelines.datasets.br_anatel_banda_larga_fixa.constants import (
+from pipelines.utils.crawler_anatel.banda_larga_fixa.constants import (
     constants as anatel_constants,
 )
 from selenium import webdriver
