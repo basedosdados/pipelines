@@ -176,6 +176,10 @@ def treatment_municipio():
         savepath=anatel_constants.OUTPUT_PATH_MUNICIPIO.value,
     )
 
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def join_tables_in_function(table_id: str, ano):
     os.system(f"mkdir -p {anatel_constants.TABLES_OUTPUT_PATH.value[table_id]}")
     if table_id == 'microdados':
