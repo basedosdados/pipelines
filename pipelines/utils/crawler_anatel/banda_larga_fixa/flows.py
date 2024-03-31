@@ -50,7 +50,7 @@ with Flow(
         wait=table_id,
     )
 
-    filepath = join_tables_in_function(ano=ano, upstream_tasks=[rename_flow_run])
+    filepath = join_tables_in_function(table_id = table_id, ano=ano, upstream_tasks=[rename_flow_run])
 
     wait_upload_table = create_table_and_upload_to_gcs(
             data_path=filepath,
