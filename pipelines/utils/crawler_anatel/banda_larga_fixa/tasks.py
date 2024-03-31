@@ -16,10 +16,6 @@ from pipelines.utils.crawler_anatel.banda_larga_fixa.utils import (
 )
 from pipelines.utils.utils import log, to_partitions
 
-@task(
-    max_retries=20,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
 def treatment(ano: int):
     log("Iniciando o tratamento do arquivo microdados da Anatel")
     unzip_file()
@@ -78,10 +74,7 @@ def treatment(ano: int):
     )
 
 
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
+
 def treatment_br():
     log("Iniciando o tratamento do arquivo densidade brasil da Anatel")
     unzip_file()
@@ -112,10 +105,6 @@ def treatment_br():
     )
 
 
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
 def treatment_uf():
 
     log("Iniciando o tratamento do arquivo densidade uf da Anatel")
@@ -144,10 +133,7 @@ def treatment_uf():
     )
 
 
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
+
 def treatment_municipio():
     log("Iniciando o tratamento do arquivo densidade municipio da Anatel")
     unzip_file()
