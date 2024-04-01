@@ -21,7 +21,7 @@ from pipelines.utils.utils import log, to_partitions
 
 
 # ! TASK MICRODADOS
-def clean_csv_microdados(anos, semestre):
+def clean_csv_microdados(ano, semestre):
     log("Download dos dados...")
     log(anatel_constants.URL.value)
     os.system(f"mkdir -p {anatel_constants.INPUT_PATH.value}")
@@ -30,7 +30,7 @@ def clean_csv_microdados(anos, semestre):
     unzip_file()
 
     df = pd.read_csv(
-        f"{anatel_constants.INPUT_PATH.value}Acessos_Telefonia_Movel_{anos}_{semestre}S.csv",
+        f"{anatel_constants.INPUT_PATH.value}Acessos_Telefonia_Movel_{ano}_{semestre}S.csv",
         sep=";",
         encoding="utf-8",
     )
@@ -180,7 +180,7 @@ def clean_csv_municipio():
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def join_tables_in_function(table_id: str, semestre, ano):
+def join_tables_in_function(table_id, semestre, ano):
     os.system(f"mkdir -p {anatel_constants.TABLES_OUTPUT_PATH.value[table_id]}")
     unzip_file()
     if table_id == 'microdados':
