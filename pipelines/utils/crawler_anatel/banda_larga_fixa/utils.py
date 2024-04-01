@@ -67,7 +67,6 @@ def download_zip_file(path):
                 )
             ).click()
     time.sleep(300)
-    log(os.listdir(path))
 
 def unzip_file():
     """

@@ -16,7 +16,7 @@ from pipelines.utils.crawler_anatel.banda_larga_fixa.utils import (
 )
 from pipelines.utils.utils import log, to_partitions
 
-def treatment(ano: int):
+def treatment(table_id:str, ano: int):
     log("Iniciando o tratamento do arquivo microdados da Anatel")
     unzip_file()
 
@@ -70,7 +70,7 @@ def treatment(ano: int):
     to_partitions(
         df,
         partition_columns=["ano", "mes", "sigla_uf"],
-        savepath=anatel_constants.OUTPUT_PATH_MICRODADOS.value,
+        savepath=anatel_constants.OUTPUT_PATH_MICRODADOS.value[table_id],
     )
 
 
@@ -134,7 +134,7 @@ def treatment_uf():
 
 
 
-def treatment_municipio():
+def treatment_municipio(table_id:str):
     log("Iniciando o tratamento do arquivo densidade municipio da Anatel")
     unzip_file()
     df = pd.read_csv(
@@ -159,7 +159,7 @@ def treatment_municipio():
     to_partitions(
         df_municipio,
         partition_columns=["ano"],
-        savepath=anatel_constants.OUTPUT_PATH_MUNICIPIO.value,
+        savepath=anatel_constants.OUTPUT_PATH_MUNICIPIO.value[table_id],
     )
 
 @task(
@@ -169,7 +169,7 @@ def treatment_municipio():
 def join_tables_in_function(table_id: str, ano):
     os.system(f"mkdir -p {anatel_constants.TABLES_OUTPUT_PATH.value[table_id]}")
     if table_id == 'microdados':
-        treatment(ano=ano)
+        treatment(ano=ano, table_id=table_id)
 
     elif table_id == 'densidade_brasil':
         treatment_br()
@@ -178,8 +178,6 @@ def join_tables_in_function(table_id: str, ano):
         treatment_uf()
 
     elif table_id == 'densidade_municipio':
-        treatment_municipio()
-
-    os.system(f'mkdir -p {anatel_constants.TABLES_OUTPUT_PATH.value[table_id]}')
+        treatment_municipio(table_id=table_id)
 
     return anatel_constants.TABLES_OUTPUT_PATH.value[table_id]
