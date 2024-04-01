@@ -72,7 +72,6 @@ def unzip_file():
     # Obtenha o nome do arquivo ZIP baixado
     zip_file_path = os.path.join(anatel_constants.INPUT_PATH.value, 'acessos_telefonia_movel.zip')
     time.sleep(300)
-    print(os.listdir(anatel_constants.INPUT_PATH.value))
     try:
         with ZipFile(zip_file_path, 'r') as zip_ref:
             zip_ref.extractall(anatel_constants.INPUT_PATH.value)
