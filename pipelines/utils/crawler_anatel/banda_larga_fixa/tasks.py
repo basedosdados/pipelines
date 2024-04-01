@@ -70,7 +70,7 @@ def treatment(table_id:str, ano: int):
     to_partitions(
         df,
         partition_columns=["ano", "mes", "sigla_uf"],
-        savepath=anatel_constants.OUTPUT_PATH_MICRODADOS.value[table_id],
+        savepath=anatel_constants.TABLES_OUTPUT_PATH.value[table_id],
     )
 
 
@@ -159,7 +159,7 @@ def treatment_municipio(table_id:str):
     to_partitions(
         df_municipio,
         partition_columns=["ano"],
-        savepath=anatel_constants.OUTPUT_PATH_MUNICIPIO.value[table_id],
+        savepath=anatel_constants.TABLES_OUTPUT_PATH.value[table_id],
     )
 
 @task(
