@@ -53,7 +53,7 @@ with Flow(
         wait=table_id,
     )
 
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    update_metadata = Parameter("update_metadata", default=True, required=False)
 
     with case(check_if_url_is_valid(table_id), True):
         # Save data to GCS
