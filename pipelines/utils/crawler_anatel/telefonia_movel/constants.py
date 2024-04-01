@@ -24,7 +24,7 @@ class constants(Enum):  # pylint: disable=c0103
 
     # ? MICRODADOS
 
-    ORDEM_COLUMNS_MICRODADOS = [
+    ORDER_COLUMNS_MICRODADOS = [
         "ano",
         "mes",
         "sigla_uf",
