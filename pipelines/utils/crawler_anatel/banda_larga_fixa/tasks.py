@@ -75,7 +75,7 @@ def treatment(table_id:str, ano: int):
 
 
 
-def treatment_br():
+def treatment_br(table_id:str):
     log("Iniciando o tratamento do arquivo densidade brasil da Anatel")
     unzip_file()
     df = pd.read_csv(
@@ -97,7 +97,7 @@ def treatment_br():
     )
     # Cria um diretório de saída, se não existir
     df_brasil.to_csv(
-        f"{anatel_constants.OUTPUT_PATH_BRASIL.value}densidade_brasil.csv",
+        f"{anatel_constants.TABLES_OUTPUT_PATH.value[table_id]}densidade_brasil.csv",
         index=False,
         sep=",",
         encoding="utf-8",
@@ -105,7 +105,7 @@ def treatment_br():
     )
 
 
-def treatment_uf():
+def treatment_uf(table_id:str):
 
     log("Iniciando o tratamento do arquivo densidade uf da Anatel")
     unzip_file()
@@ -125,7 +125,7 @@ def treatment_uf():
     log("Iniciando o particionado do arquivo densidade uf da Anatel")
     # ! Salvando o csv tratado
     df_uf.to_csv(
-        f"{anatel_constants.OUTPUT_PATH_UF.value}densidade_uf.csv",
+        f"{anatel_constants.TABLES_OUTPUT_PATH.value[table_id]}densidade_uf.csv",
         index=False,
         sep=",",
         encoding="utf-8",
@@ -172,10 +172,10 @@ def join_tables_in_function(table_id: str, ano):
         treatment(ano=ano, table_id=table_id)
 
     elif table_id == 'densidade_brasil':
-        treatment_br()
+        treatment_br(table_id=table_id)
 
     elif table_id == 'densidade_uf':
-        treatment_uf()
+        treatment_uf(table_id=table_id)
 
     elif table_id == 'densidade_municipio':
         treatment_municipio(table_id=table_id)
