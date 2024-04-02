@@ -244,7 +244,7 @@ async def create_update_quality_checks_async(
     async with semaphore:
         tasks = [create_quality_check_async(email = email, password = password, name =row['name'],description= row['description'], passed =row['status'], dataset_id = row['dataset_id'], table_id= row['table_id']) for index, row in tests_results.iterrows() ]
 
-        await run_in_batches(tasks, batch_size=5)
+    await run_in_batches(tasks, batch_size=5)
 
 async def run_in_batches(tasks, batch_size):
     for i in range(0, len(tasks), batch_size):
