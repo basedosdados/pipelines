@@ -160,21 +160,25 @@ async def create_quality_check_async(
     Raises:
     - ValueError: If the table ID is not found.
     """
-    table_result, id = get_id(
-        email=email,
-        password=password,
-        query_class="allCloudtable",
-        query_parameters={
-            "$gcpDatasetId: String": dataset_id,
-            "$gcpTableId: String": table_id,
-        },
-        cloud_table=True,
-        api_mode=api_mode,
-    )
+    try:
+        table_result, id = get_id(
+            email=email,
+            password=password,
+            query_class="allCloudtable",
+            query_parameters={
+                "$gcpDatasetId: String": dataset_id,
+                "$gcpTableId: String": table_id,
+            },
+            cloud_table=True,
+            api_mode=api_mode,
+        )
 
+        if not id:
+             log(f"{table_id} ID not found.")
 
-    if not id:
-        return log(f"{table_id} ID not found.")
+    except ValueError as e:
+        log(str(e))
+        return
 
 
     quality_check, quality_check_id = get_id(
