@@ -139,12 +139,10 @@ async def create_quality_check_async(
     passed: str,
     dataset_id: str,
     table_id: str,
-    token,
     api_mode: str = "prod",
 ) -> None:
     """
     Function to create or update a quality check for a dataset table asynchronously.
-
     Parameters:
     - email (str): The email address used for authentication.
     - password (str): The password used for authentication.
@@ -154,15 +152,13 @@ async def create_quality_check_async(
     - dataset_id (str): The ID of the dataset containing the table.
     - table_id (str): The ID of the table for which the quality check is created or updated.
     - api_mode (str): Specifies the API mode, either 'prod' (default) or 'staging'.
-
     Returns:
     - None
-
     Raises:
     - ValueError: If the table ID is not found.
     """
     try:
-        table_result, id = await get_id_async(
+        table_result, id = get_id(
             email=email,
             password=password,
             query_class="allCloudtable",
@@ -172,14 +168,12 @@ async def create_quality_check_async(
             },
             cloud_table=True,
             api_mode=api_mode,
-            token = token
         )
 
         if not id:
             log(f"{table_id} ID not found.")
             slug = dataset_id.split("_")[-1]
-            log(f"Usando esse slug {slug}")
-            table_result, id = await get_id_async(
+            table_result, id = get_id(
                 email=email,
                 password=password,
                 query_class="allTable",
@@ -189,34 +183,33 @@ async def create_quality_check_async(
                 },
                 cloud_table=False,
                 api_mode=api_mode,
-                token = token
                 )
             log(id)
 
     except ValueError as e:
         log(str(e))
         return
+    result_id = table_result["data"]["allCloudtable"]["edges"][0]["node"][
+    "table"
+    ].get("_id")
 
-
-    quality_check, quality_check_id = await get_id_async(
+    quality_check, quality_check_id = get_id(
         email=email,
         password=password,
         query_class="allQualitycheck",
         query_parameters={
             "$name: String": name,
-            "$table_Id: ID": id,
-
+            "$table_Id: ID": result_id,
         },
         cloud_table=False,
         api_mode=api_mode,
-        token = token
-    )
 
+    )
     parameters = {
                             "name": name,
                             "description": description,
                             "passed": True if passed == 'pass' else False,
-                            "table": id
+                            "table": result_id
         }
 
     await create_update_async(
@@ -247,87 +240,92 @@ async def create_update_quality_checks_async(
     - None
     """
     (email, password) = get_credentials_utils(secret_path=f"api_user_{api_mode}")
-    semaphore = asyncio.Semaphore(16)
-    token = get_token(email, password, api_mode)
+    semaphore = asyncio.Semaphore(8)
     async with semaphore:
-        tasks = [create_quality_check_async(email = email, password = password, name =row['name'],description= row['description'], passed =row['status'], dataset_id = row['dataset_id'], table_id= row['table_id'], token = token) for index, row in tests_results.iterrows() ]
-        await asyncio.gather(*tasks)
+        tasks = [create_quality_check_async(email = email, password = password, name =row['name'],description= row['description'], passed =row['status'], dataset_id = row['dataset_id'], table_id= row['table_id']) for index, row in tests_results.iterrows() ]
+
+        await run_in_batches(tasks, batch_size=5)
+
+async def run_in_batches(tasks, batch_size):
+    for i in range(0, len(tasks), batch_size):
+        batch = tasks[i:i+batch_size]
+        await asyncio.gather(*batch)
 
 
-async def get_id_async(
-    query_class,
-    query_parameters,
-    email,
-    password,
-    token,
-    api_mode: str = "prod",
-    cloud_table: bool = True,
-):
-    async with aiohttp.ClientSession() as session:
+# async def get_id_async(
+#     query_class,
+#     query_parameters,
+#     email,
+#     password,
+#     token,
+#     api_mode: str = "prod",
+#     cloud_table: bool = True,
+# ):
+#     async with aiohttp.ClientSession() as session:
 
-        header = {
-            "Authorization": f"Bearer {token}",
-        }
-        _filter = ", ".join(list(query_parameters.keys()))
+#         header = {
+#             "Authorization": f"Bearer {token}",
+#         }
+#         _filter = ", ".join(list(query_parameters.keys()))
 
-        keys = [
-            parameter.replace("$", "").split(":")[0]
-            for parameter in list(query_parameters.keys())
-        ]
+#         keys = [
+#             parameter.replace("$", "").split(":")[0]
+#             for parameter in list(query_parameters.keys())
+#         ]
 
-        values = list(query_parameters.values())
+#         values = list(query_parameters.values())
 
-        _input = ", ".join([f"{key}:${key}" for key in keys])
+#         _input = ", ".join([f"{key}:${key}" for key in keys])
 
-        if cloud_table:
-            query = f"""query({_filter}) {{
-                                {query_class}({_input}){{
-                                edges{{
-                                    node{{
-                                    id,
-                                    table{{
-                                        _id
-                                        }}
-                                    }}
-                                }}
-                                }}
-                            }}"""
+#         if cloud_table:
+#             query = f"""query({_filter}) {{
+#                                 {query_class}({_input}){{
+#                                 edges{{
+#                                     node{{
+#                                     id,
+#                                     table{{
+#                                         _id
+#                                         }}
+#                                     }}
+#                                 }}
+#                                 }}
+#                             }}"""
 
-        else:
-            query = f"""query({_filter}) {{
-                                {query_class}({_input}){{
-                                edges{{
-                                    node{{
-                                    id,
-                                    }}
-                                }}
-                                }}
-                            }}"""
+#         else:
+#             query = f"""query({_filter}) {{
+#                                 {query_class}({_input}){{
+#                                 edges{{
+#                                     node{{
+#                                     id,
+#                                     }}
+#                                 }}
+#                                 }}
+#                             }}"""
 
-        if api_mode == "staging":
-            url = "https://staging.api.basedosdados.org/api/v1/graphql"
-        elif api_mode == "prod":
-            url = "https://api.basedosdados.org/api/v1/graphql"
+#         if api_mode == "staging":
+#             url = "https://staging.api.basedosdados.org/api/v1/graphql"
+#         elif api_mode == "prod":
+#             url = "https://api.basedosdados.org/api/v1/graphql"
 
-        async with session.post(
-            url=url,
-            json={"query": query, "variables": dict(zip(keys, values))},
-            headers=header,
-        ) as response:
-            r = await response.json()
+#         async with session.post(
+#             url=url,
+#             json={"query": query, "variables": dict(zip(keys, values))},
+#             headers=header,
+#         ) as response:
+#             r = await response.json()
 
-            if "data" in r and r is not None:
-                if r.get("data", {}).get(query_class, {}).get("edges") == []:
-                    id = None
-                    # print(f"get: not found {query_class}", dict(zip(keys, values)))
-                else:
-                    id = r["data"][query_class]["edges"][0]["node"]["id"]
-                    # print(f"get: found {id}")
-                    id = id.split(":")[1]
+#             if "data" in r and r is not None:
+#                 if r.get("data", {}).get(query_class, {}).get("edges") == []:
+#                     id = None
+#                     # print(f"get: not found {query_class}", dict(zip(keys, values)))
+#                 else:
+#                     id = r["data"][query_class]["edges"][0]["node"]["id"]
+#                     # print(f"get: found {id}")
+#                     id = id.split(":")[1]
 
-                return r, id
-            else:
-                log(r)
-                raise Exception(
-                    f"Error: the executed query did not return a data json.\nExecuted query:\n{query} \nVariables: {dict(zip(keys, values))}"
-                )
+#                 return r, id
+#             else:
+#                 log(r)
+#                 raise Exception(
+#                     f"Error: the executed query did not return a data json.\nExecuted query:\n{query} \nVariables: {dict(zip(keys, values))}"
+#                 )

@@ -244,7 +244,7 @@ def query_tests_results() -> pd.DataFrame:
         dataset_id,
         table_id
     from tests_order
-    where position = 1
+    where position = 1 and dataset_id != 'br_bd_metadados'
     """
 
     t = bd.read_sql(
