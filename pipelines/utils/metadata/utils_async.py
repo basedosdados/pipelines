@@ -139,6 +139,7 @@ async def create_quality_check_async(
     passed: str,
     dataset_id: str,
     table_id: str,
+    token,
     api_mode: str = "prod",
 ) -> None:
     """
@@ -161,7 +162,7 @@ async def create_quality_check_async(
     - ValueError: If the table ID is not found.
     """
     try:
-        table_result, id = get_id(
+        table_result, id = await get_id_async(
             email=email,
             password=password,
             query_class="allCloudtable",
@@ -171,17 +172,33 @@ async def create_quality_check_async(
             },
             cloud_table=True,
             api_mode=api_mode,
+            token = token
         )
 
         if not id:
-             log(f"{table_id} ID not found.")
+            log(f"{table_id} ID not found.")
+            slug = dataset_id.split("_")[-1]
+            log(f"Usando esse slug {slug}")
+            table_result, id = await get_id_async(
+                email=email,
+                password=password,
+                query_class="allTable",
+                query_parameters={
+                    "$dataset_Slug_Iendswith: String": slug,
+                    "$name: String": table_id,
+                },
+                cloud_table=False,
+                api_mode=api_mode,
+                token = token
+                )
+            log(id)
 
     except ValueError as e:
         log(str(e))
         return
 
 
-    quality_check, quality_check_id = get_id(
+    quality_check, quality_check_id = await get_id_async(
         email=email,
         password=password,
         query_class="allQualitycheck",
@@ -192,6 +209,7 @@ async def create_quality_check_async(
         },
         cloud_table=False,
         api_mode=api_mode,
+        token = token
     )
 
     parameters = {
@@ -230,6 +248,86 @@ async def create_update_quality_checks_async(
     """
     (email, password) = get_credentials_utils(secret_path=f"api_user_{api_mode}")
     semaphore = asyncio.Semaphore(16)
+    token = get_token(email, password, api_mode)
     async with semaphore:
-        tasks = [create_quality_check_async(email = email, password = password, name =row['name'],description= row['description'], passed =row['status'], dataset_id = row['dataset_id'], table_id= row['table_id']) for index, row in tests_results.iterrows() ]
+        tasks = [create_quality_check_async(email = email, password = password, name =row['name'],description= row['description'], passed =row['status'], dataset_id = row['dataset_id'], table_id= row['table_id'], token = token) for index, row in tests_results.iterrows() ]
         await asyncio.gather(*tasks)
+
+
+async def get_id_async(
+    query_class,
+    query_parameters,
+    email,
+    password,
+    token,
+    api_mode: str = "prod",
+    cloud_table: bool = True,
+):
+    async with aiohttp.ClientSession() as session:
+
+        header = {
+            "Authorization": f"Bearer {token}",
+        }
+        _filter = ", ".join(list(query_parameters.keys()))
+
+        keys = [
+            parameter.replace("$", "").split(":")[0]
+            for parameter in list(query_parameters.keys())
+        ]
+
+        values = list(query_parameters.values())
+
+        _input = ", ".join([f"{key}:${key}" for key in keys])
+
+        if cloud_table:
+            query = f"""query({_filter}) {{
+                                {query_class}({_input}){{
+                                edges{{
+                                    node{{
+                                    id,
+                                    table{{
+                                        _id
+                                        }}
+                                    }}
+                                }}
+                                }}
+                            }}"""
+
+        else:
+            query = f"""query({_filter}) {{
+                                {query_class}({_input}){{
+                                edges{{
+                                    node{{
+                                    id,
+                                    }}
+                                }}
+                                }}
+                            }}"""
+
+        if api_mode == "staging":
+            url = "https://staging.api.basedosdados.org/api/v1/graphql"
+        elif api_mode == "prod":
+            url = "https://api.basedosdados.org/api/v1/graphql"
+
+        async with session.post(
+            url=url,
+            json={"query": query, "variables": dict(zip(keys, values))},
+            headers=header,
+        ) as response:
+            r = await response.json()
+
+            if "data" in r and r is not None:
+                if r.get("data", {}).get(query_class, {}).get("edges") == []:
+                    id = None
+                    # print(f"get: not found {query_class}", dict(zip(keys, values)))
+                else:
+                    id = r["data"][query_class]["edges"][0]["node"]["id"]
+                    # print(f"get: found {id}")
+                    id = id.split(":")[1]
+
+                return r, id
+            else:
+                log(r)
+                raise Exception(
+                    f"Error: the executed query did not return a data json.\nExecuted query:\n{query} \nVariables: {dict(zip(keys, values))}"
+                )

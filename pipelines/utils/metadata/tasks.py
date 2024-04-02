@@ -222,7 +222,7 @@ def query_tests_results() -> pd.DataFrame:
         - 'table_id': The ID of the tested table.
     """
 
-    billing_project_id = get_billing_project_id(mode="prod")
+    billing_project_id = get_billing_project_id(mode="dev")
     query_bd = f"""
     with tests_order as (
     select
