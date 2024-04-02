@@ -173,6 +173,9 @@ async def create_quality_check_async(
     )
 
 
+    if not id:
+        return log(f"{table_id} ID not found.")
+
 
     quality_check, quality_check_id = get_id(
         email=email,
@@ -186,9 +189,6 @@ async def create_quality_check_async(
         cloud_table=False,
         api_mode=api_mode,
     )
-
-    if not id:
-        raise ValueError("Table ID not found.")
 
     parameters = {
                             "name": name,
