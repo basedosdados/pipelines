@@ -49,7 +49,7 @@ from pipelines.utils.utils import log
 def check_files_to_parse(
     dataset_id: str,
     table_id: str,
-    year_first_two_digits: str,
+    year_month_to_extract: str,
 ) -> list[str]:
     log(f"------- Extracting last date from api for {dataset_id}.{table_id}")
     # 1. extrair data mais atual da api
@@ -90,8 +90,12 @@ def check_files_to_parse(
         datasus_database=datasus_database, datasus_database_table=datasus_database_table
     )
 
-    #NOTE: file.split('/')[-1][4:8] TO YEAR/MONTH
-    list_files = [file for file in available_dbs if file.split('/')[-1][4:6] == year_first_two_digits]
+    #
+    if len(year_month_to_extract) == 0:
+        list_files = [file for file in available_dbs if file.split('/')[-1][4:8] == year_month_to_parse]
+    else:
+        list_files = [file for file in available_dbs if file.split('/')[-1][4:8] == year_month_to_extract]
+
 
 
     log(f"------- The following files were selected fom DATASUS FTP: {list_files}")

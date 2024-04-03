@@ -70,7 +70,7 @@ def dbf_to_parquet(dbf: str, table_id: str, counter: int) -> str:
 
 
             table = pa.Table.from_pandas(chunk_df.applymap(decode_column))
-            log('decoding')
+            log('---- decoding')
 
 
             #table = pa.Table.from_pandas(chunk_df)
