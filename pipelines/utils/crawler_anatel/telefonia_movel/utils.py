@@ -46,17 +46,13 @@ def download_zip_file(path):
     )
 
     driver = webdriver.Chrome(options=options)
-    driver.get('https://dados.gov.br/dados/conjuntos-dados/acessos-autorizadas-smp')
-
+    driver.get(anatel_constants.URL.value)
     driver.maximize_window()
-    log('primeiro passo...')
     WebDriverWait(driver, 30).until(
                 EC.visibility_of_element_located(
                     (By.XPATH, '/html/body/div/section/div/div[3]/div[2]/div[3]/div[2]/header/button')
                 )
             ).click()
-
-    log('segundo passo...')
     WebDriverWait(driver, 30).until(
                 EC.visibility_of_element_located(
                     (By.XPATH, '/html/body/div/section/div/div[3]/div[2]/div[3]/div[2]/div/div[1]/div[2]/div[2]/div/button')
@@ -69,7 +65,6 @@ def download_zip_file(path):
 
 def unzip_file():
     download_zip_file(path = anatel_constants.INPUT_PATH.value)
-    # Obtenha o nome do arquivo ZIP baixado
     zip_file_path = os.path.join(anatel_constants.INPUT_PATH.value, 'acessos_telefonia_movel.zip')
     time.sleep(300)
     try:

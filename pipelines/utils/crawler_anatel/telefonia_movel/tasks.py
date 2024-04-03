@@ -81,7 +81,7 @@ def clean_csv_brasil(table_id):
     densidade_brasil["densidade"] = (
         densidade_brasil["densidade"].astype(str).str.replace(",", ".").astype(float)
     )
-    log(densidade_brasil.head())
+    log("Salvando os dados do Brasil...")
 
     densidade_brasil.to_csv(
         f"{anatel_constants.TABLES_OUTPUT_PATH.value[table_id]}densidade_brasil.csv",
@@ -94,6 +94,7 @@ def clean_csv_brasil(table_id):
 
 # ! TASK UF
 def clean_csv_uf(table_id):
+    log("Abrindo os dados por UF...")
     densidade = pd.read_csv(
         f"{anatel_constants.INPUT_PATH.value}Densidade_Telefonia_Movel.csv",
         sep=";",
@@ -113,7 +114,7 @@ def clean_csv_uf(table_id):
     densidade_uf["densidade"] = (
         densidade_uf["densidade"].astype(str).str.replace(",", ".").astype(float)
     )
-
+    log("Salvando dados por UF")
     densidade_uf.to_csv(
         f"{anatel_constants.TABLES_OUTPUT_PATH.value[table_id]}densidade_uf.csv",
         index=False,
@@ -125,6 +126,7 @@ def clean_csv_uf(table_id):
 
 # ! TASK MUNICIPIO
 def clean_csv_municipio(table_id):
+    log("Abrindo os dados por município...")
     densidade = pd.read_csv(
         f"{anatel_constants.INPUT_PATH.value}Densidade_Telefonia_Movel.csv",
         sep=";",
@@ -141,6 +143,7 @@ def clean_csv_municipio(table_id):
     densidade_municipio["densidade"] = (
         densidade_municipio["densidade"].astype(str).str.replace(",", ".").astype(float)
     )
+    log("Salvando os dados por município...")
     densidade_municipio.to_csv(
         f"{anatel_constants.TABLES_OUTPUT_PATH.value[table_id]}densidade_municipio.csv",
         index=False,
@@ -155,7 +158,6 @@ def clean_csv_municipio(table_id):
 )
 def join_tables_in_function(table_id, semestre, ano):
     os.system(f"mkdir -p {anatel_constants.TABLES_OUTPUT_PATH.value[table_id]}")
-    unzip_file()
     if table_id == 'microdados':
         clean_csv_microdados(ano=ano, semestre = semestre, table_id=table_id)
 
@@ -169,3 +171,16 @@ def join_tables_in_function(table_id, semestre, ano):
         clean_csv_municipio(table_id=table_id)
 
     return anatel_constants.TABLES_OUTPUT_PATH.value[table_id]
+
+def get_max_date_in_table_microdados(ano: int, semestre: int):
+    unzip_file()
+    log("Obtendo a data máxima da tabela microdados...")
+    df = pd.read_csv(
+        f"{anatel_constants.INPUT_PATH.value}Acessos_Telefonia_Movel_{ano}_{semestre}S.csv",
+        sep=";",
+        encoding="utf-8",
+        dtype=str
+    )
+    df['data'] = df['Ano'] + '-' + df['Mês'] + '-01'
+    log(df['data'].max())
+    return df['data'].max()

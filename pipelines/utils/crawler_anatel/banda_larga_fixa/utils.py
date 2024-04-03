@@ -52,7 +52,7 @@ def download_zip_file(path):
         "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
     )
     driver = webdriver.Chrome(options=options)
-    driver.get('https://dados.gov.br/dados/conjuntos-dados/acessos---banda-larga-fixa')
+    driver.get(anatel_constants.URL.value)
 
     driver.maximize_window()
     WebDriverWait(driver, 30).until(
@@ -69,20 +69,7 @@ def download_zip_file(path):
     time.sleep(300)
 
 def unzip_file():
-    """
-    Unzips a downloaded ZIP file and extracts its contents to a specified directory.
-
-    Args:
-        None
-
-    Returns:
-        None
-
-    Raises:
-        Exception: If there is an error while downloading or extracting the ZIP file.
-    """
     download_zip_file(path=anatel_constants.INPUT_PATH.value)
-    # Obtenha o nome do arquivo ZIP baixado
     zip_file_path = os.path.join(anatel_constants.INPUT_PATH.value, 'acessos_banda_larga_fixa.zip')
     log(os.listdir(anatel_constants.INPUT_PATH.value))
     try:

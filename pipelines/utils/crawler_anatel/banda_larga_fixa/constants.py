@@ -11,6 +11,8 @@ from enum import Enum
 
 class constants(Enum):  # pylint: disable=c0103
 
+    URL = "https://dados.gov.br/dados/conjuntos-dados/acessos---banda-larga-fixa"
+
     INPUT_PATH = "/tmp/data/input/"
 
 

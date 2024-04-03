@@ -3,9 +3,7 @@ import os
 from datetime import timedelta
 import numpy as np
 import pandas as pd
-from dateutil.relativedelta import relativedelta
 from prefect import task
-from zipfile import ZipFile
 from pipelines.constants import constants
 from pipelines.utils.crawler_anatel.banda_larga_fixa.constants import (
     constants as anatel_constants,
@@ -18,40 +16,25 @@ from pipelines.utils.utils import log, to_partitions
 
 def treatment(table_id:str, ano: int):
     log("Iniciando o tratamento do arquivo microdados da Anatel")
-    unzip_file()
-
-    # ! Lendo o arquivo csv
     df = pd.read_csv(
         f"{anatel_constants.INPUT_PATH.value}Acessos_Banda_Larga_Fixa_{ano}.csv",
         sep=";",
         encoding="utf-8",
     )
-
-    # ! Fazendo referencia a função criada anteriormente para verificar colunas
     df = check_and_create_column(df, "Tipo de Produto")
-
-    # ! Renomeando as colunas
     df.rename(
         columns=anatel_constants.RENAME_MICRODADOS.value,
         inplace=True,
     )
-
-    # ! organização das variáveis
     df.drop(anatel_constants.DROP_COLUMNS_MICRODADOS.value, axis=1, inplace=True)
-
-    # ! Reordenando as colunas
     df = df[
         anatel_constants.ORDER_COLUMNS_MICRODADOS.value
     ]
-
-    # ! Classificação do DataFrame em ordem crescente
     df.sort_values(
         anatel_constants.SORT_VALUES_MICRODADOS.value,
         inplace=True,
     )
-    # ! substituindo valores nulos por vazio
     df.replace(np.nan, "", inplace=True)
-    # ! Retirando os acentos da coluna "transmissao"
     df["transmissao"] = df["transmissao"].apply(
         lambda x: x.replace("Cabo Metálico", "Cabo Metalico")
         .replace("Satélite", "Satelite")
@@ -59,14 +42,11 @@ def treatment(table_id:str, ano: int):
         .replace("Fibra Óptica", "Fibra Optica")
         .replace("Rádio", "Radio")
     )
-
     df["acessos"] = df["acessos"].apply(lambda x: str(x).replace(".0", ""))
-
     df["produto"] = df["produto"].apply(
         lambda x: x.replace("LINHA_DEDICADA", "linha dedicada").lower()
     )
     log("Salvando o arquivo microdados da Anatel")
-    # ! Fazendo referencia a função criada anteriormente para particionar o arquivo o arquivo
     to_partitions(
         df,
         partition_columns=["ano", "mes", "sigla_uf"],
@@ -74,17 +54,13 @@ def treatment(table_id:str, ano: int):
     )
 
 
-
 def treatment_br(table_id:str):
     log("Iniciando o tratamento do arquivo densidade brasil da Anatel")
-    unzip_file()
     df = pd.read_csv(
         f"{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa.csv",
         sep=";",
         encoding="utf-8",
     )
-
-    # ! Tratando o csv
     df.rename(columns={"Nível Geográfico Densidade": "Geografia"}, inplace=True)
     df_brasil = df[df["Geografia"] == "Brasil"]
     df_brasil = df_brasil.drop(anatel_constants.DROP_COLUMNS_BRASIL.value, axis=1)
@@ -95,7 +71,7 @@ def treatment_br(table_id:str):
         columns=anatel_constants.RENAME_COLUMNS_BRASIL.value,
         inplace=True,
     )
-    # Cria um diretório de saída, se não existir
+    log('Salvando o arquivo densidade brasil da Anatel')
     df_brasil.to_csv(
         f"{anatel_constants.TABLES_OUTPUT_PATH.value[table_id]}densidade_brasil.csv",
         index=False,
@@ -108,7 +84,6 @@ def treatment_br(table_id:str):
 def treatment_uf(table_id:str):
 
     log("Iniciando o tratamento do arquivo densidade uf da Anatel")
-    unzip_file()
     df = pd.read_csv(
         f"{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa.csv",
         sep=";",
@@ -123,7 +98,6 @@ def treatment_uf(table_id:str):
         inplace=True,
     )
     log("Iniciando o particionado do arquivo densidade uf da Anatel")
-    # ! Salvando o csv tratado
     df_uf.to_csv(
         f"{anatel_constants.TABLES_OUTPUT_PATH.value[table_id]}densidade_uf.csv",
         index=False,
@@ -136,14 +110,11 @@ def treatment_uf(table_id:str):
 
 def treatment_municipio(table_id:str):
     log("Iniciando o tratamento do arquivo densidade municipio da Anatel")
-    unzip_file()
     df = pd.read_csv(
         f"{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa.csv",
         sep=";",
         encoding="utf-8",
     )
-
-    # ! Tratando o csv
     df.rename(columns={"Nível Geográfico Densidade": "Geografia"}, inplace=True)
     df_municipio = df[df["Geografia"] == "Municipio"]
     df_municipio.drop(["Município", "Geografia"], axis=1, inplace=True)
@@ -155,7 +126,6 @@ def treatment_municipio(table_id:str):
         inplace=True,
     )
     log("Salvando o arquivo densidade municipio da Anatel")
-
     to_partitions(
         df_municipio,
         partition_columns=["ano"],
@@ -181,3 +151,20 @@ def join_tables_in_function(table_id: str, ano):
         treatment_municipio(table_id=table_id)
 
     return anatel_constants.TABLES_OUTPUT_PATH.value[table_id]
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def get_max_date_in_table_microdados(ano: int):
+    unzip_file()
+    log("Obtendo a data máxima do arquivo microdados da Anatel")
+    df = pd.read_csv(
+        f"{anatel_constants.INPUT_PATH.value}Acessos_Banda_Larga_Fixa_{ano}.csv",
+        sep=";",
+        encoding="utf-8",
+        dtype=str
+    )
+    df['data'] = df['Ano'] + '-' + df['Mês'] + '-01'
+    log(f'Data máxima: {df['data'].max()}')
+    return df['data'].max()
