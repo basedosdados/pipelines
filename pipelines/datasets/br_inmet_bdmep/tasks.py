@@ -15,11 +15,16 @@ from pipelines.datasets.br_inmet_bdmep.utils import (
     download_inmet,
     get_clima_info,
     year_list,
+    extract_last_date
 )
 from pipelines.utils.utils import log
 
 # pylint: disable=C0103
 
+@task
+def extract_last_date_from_source():
+
+    return extract_last_date()
 
 @task
 def get_base_inmet(year: int) -> str:
