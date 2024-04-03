@@ -90,7 +90,7 @@ schedule_br_ibge_ipca15_mes_categoria_municipio = Schedule(
 schedule_br_ibge_ipca15_mes_brasil = Schedule(
     clocks=[
         CronClock(
-            cron="0 13 * * *",  # everyday at 13:00:00
+            cron="15 13 * * *",  # everyday at 13:00:00
             start_date=datetime(2023, 10, 6, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
