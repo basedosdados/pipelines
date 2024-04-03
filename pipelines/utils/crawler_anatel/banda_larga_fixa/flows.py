@@ -56,7 +56,7 @@ with Flow(name="BD template - Anatel Banda Larga Fixa", code_owners=["trick"]) a
     dataset_id =  dataset_id,
     table_id =  table_id,
     data_source_max_date = update_tables,
-    date_format =  "%Y-%m-%d")
+    date_format =  "%Y-%m")
 
     with case(get_max_date, True):
         filepath = join_tables_in_function(table_id = table_id, ano=ano, upstream_tasks=[get_max_date])

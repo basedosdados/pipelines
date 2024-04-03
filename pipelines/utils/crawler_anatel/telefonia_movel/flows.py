@@ -44,7 +44,7 @@ with Flow(
 
     ano = Parameter("ano", default=2024, required=True)
 
-    semestre = Parameter("semestre", default=2, required=True)
+    semestre = Parameter("semestre", default=1, required=True)
 
     update_metadata = Parameter("update_metadata", default=True, required=False)
 
@@ -61,7 +61,7 @@ with Flow(
     dataset_id =  dataset_id,
     table_id =  table_id,
     data_source_max_date = update_tables,
-    date_format =  "%Y-%m-%d",
+    date_format =  "%Y-%m",
 )
 
     with case(get_max_date, True):

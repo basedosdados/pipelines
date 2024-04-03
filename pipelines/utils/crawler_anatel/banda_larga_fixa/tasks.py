@@ -165,6 +165,10 @@ def get_max_date_in_table_microdados(ano: int):
         encoding="utf-8",
         dtype=str
     )
-    df['data'] = df['Ano'] + '-' + df['Mês'] + '-01'
+    df['data'] = df['Ano'] + '-' + df['Mês']
+
+    df['data'] = pd.to_datetime(df['data'], format="%Y-%m")
+
     log(df['data'].max())
+
     return df['data'].max()
