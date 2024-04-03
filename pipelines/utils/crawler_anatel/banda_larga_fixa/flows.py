@@ -52,7 +52,7 @@ with Flow(
         wait=table_id,
     )
 
-    update_tables = get_max_date_in_table_microdados(ano=ano, upstream_tasks=[rename_flow_run])
+    update_tables = get_max_date_in_table_microdados(ano=ano)
 
     get_max_date = check_if_data_is_outdated(
     dataset_id =  dataset_id,

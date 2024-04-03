@@ -11,7 +11,7 @@ class constants(Enum):  # pylint: disable=c0103
     Constant values for the br_anatel_telefonia_movel project
     """
 
-    URL = "'https://dados.gov.br/dados/conjuntos-dados/acessos-autorizadas-smp'"
+    URL = "https://dados.gov.br/dados/conjuntos-dados/acessos-autorizadas-smp"
 
     INPUT_PATH = "/tmp/data/input/"
 

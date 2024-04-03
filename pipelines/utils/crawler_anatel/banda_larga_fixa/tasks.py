@@ -166,5 +166,5 @@ def get_max_date_in_table_microdados(ano: int):
         dtype=str
     )
     df['data'] = df['Ano'] + '-' + df['Mês'] + '-01'
-    log(f'Data máxima: {df['data'].max()}')
+    log(df['data'].max())
     return df['data'].max()
