@@ -54,11 +54,7 @@ with Flow(name="br_inmet_bdmep", code_owners=["arthurfg"]) as br_inmet:
     data_source_max_date=source_last_date,
     date_format= "%Y-%m", upstream_tasks=[source_last_date])
 
-    with case(coverage_check, False):
-        log_task(f"Não houveram atualizações!")
-
     with case(coverage_check, True):
-        log_task(f"Baixando dados mais recentes!")
         output_filepath = get_base_inmet(year=year, upstream_tasks=[coverage_check])
 
         wait_upload_table = create_table_and_upload_to_gcs(
