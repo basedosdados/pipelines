@@ -22,9 +22,7 @@ from pipelines.utils.tasks import (
     rename_current_flow_run_dataset_table,
 )
 
-with Flow(
-    name="BD template - Anatel Banda Larga Fixa", code_owners=["trick"]
-) as flow_banda_larga_fixa:
+with Flow(name="BD template - Anatel Banda Larga Fixa", code_owners=["trick"]) as flow_banda_larga_fixa:
     # Parameters
     dataset_id = Parameter(
         "dataset_id", default="br_anatel_banda_larga_fixa", required=True
@@ -58,8 +56,7 @@ with Flow(
     dataset_id =  dataset_id,
     table_id =  table_id,
     data_source_max_date = update_tables,
-    date_format =  "%Y-%m-%d",
-)
+    date_format =  "%Y-%m-%d")
 
     with case(get_max_date, True):
         filepath = join_tables_in_function(table_id = table_id, ano=ano, upstream_tasks=[get_max_date])

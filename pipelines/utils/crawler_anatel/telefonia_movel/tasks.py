@@ -172,6 +172,10 @@ def join_tables_in_function(table_id, semestre, ano):
 
     return anatel_constants.TABLES_OUTPUT_PATH.value[table_id]
 
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def get_max_date_in_table_microdados(ano: int, semestre: int):
     unzip_file()
     log("Obtendo a data máxima da tabela microdados...")

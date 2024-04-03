@@ -21,7 +21,6 @@ def download_zip_file(path):
     if not os.path.exists(path):
         os.makedirs(path)
     options = webdriver.ChromeOptions()
-    # https://github.com/SeleniumHQ/selenium/issues/11637
     prefs = {
         "download.default_directory": path,
         "download.prompt_for_download": False,
