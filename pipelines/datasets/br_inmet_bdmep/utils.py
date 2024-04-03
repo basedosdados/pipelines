@@ -11,61 +11,9 @@ import tempfile
 import urllib.request
 import zipfile
 from datetime import datetime, time
-from pipelines.utils.utils import log
 import numpy as np
 import pandas as pd
 from unidecode import unidecode
-import requests
-from bs4 import BeautifulSoup
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service as ChromeService
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import Select
-
-from webdriver_manager.chrome import ChromeDriverManager
-
-from pipelines.datasets.br_cgu_beneficios_cidadao.constants import constants
-
-
-def extract_last_date():
-    padrao = r'(\d{2}/\d{2}/\d{4})'
-    options = webdriver.ChromeOptions()
-
-    # https://github.com/SeleniumHQ/selenium/issues/11637
-    prefs = {
-        "download.default_directory": "/tmp/",
-        "download.prompt_for_download": False,
-        "download.directory_upgrade": True,
-        "safebrowsing.enabled": True,
-    }
-    options.add_experimental_option(
-        "prefs",
-        prefs,
-    )
-
-    options.add_argument("--headless")
-    options.add_argument("--test-type")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--no-first-run")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--no-default-browser-check")
-    options.add_argument("--ignore-certificate-errors")
-    options.add_argument("--start-maximized")
-    options.add_argument(
-        "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
-    )
-
-    driver = webdriver.Chrome(
-        service=ChromeService(ChromeDriverManager().install()), options=options
-    )
-
-    driver.get("https://portal.inmet.gov.br/dadoshistoricos/")
-
-    elements = driver.find_elements(By.XPATH, '//*[@id="main"]/div/div/article')
-    last_element = elements[-1].text
-    last_date = re.findall(padrao, last_element)
-    return datetime.strptime(last_date[-1], '%d/%m/%Y').date()
 
 def new_names(base: pd.DataFrame, oldname: str, newname: str):
     """
