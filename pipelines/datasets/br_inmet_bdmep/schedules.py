@@ -26,7 +26,7 @@ every_month_inmet = Schedule(
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
-                "year": d.strftime("%Y"),
+                "year": int(d.strftime("%Y")),
                 "update_metadata": True,
             },
         ),
