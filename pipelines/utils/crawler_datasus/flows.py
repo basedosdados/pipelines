@@ -109,6 +109,8 @@ with Flow(name="DATASUS-CNES", code_owners=["Gabriel Pisa"]) as flow_cnes:
                     "table_id": table_id,
                     "mode": materialization_mode,
                     "dbt_alias": dbt_alias,
+                    "dbt_command": "run",
+                    "disable_elementary": True,
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
@@ -149,6 +151,7 @@ with Flow(name="DATASUS-SIA", code_owners=["Gabriel Pisa"]) as flow_siasus:
     # Parameters
     dataset_id = Parameter("dataset_id", required=True)
     table_id = Parameter("table_id", required=True)
+    year_first_two_digits = Parameter("year_first_two_digits", required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
     year_month_to_extract = Parameter("year_month_to_extract",default='', required=False)
     materialization_mode = Parameter(
@@ -201,7 +204,6 @@ with Flow(name="DATASUS-SIA", code_owners=["Gabriel Pisa"]) as flow_siasus:
             wait=files_path,
         )
 
-        # estabelecimento
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
             current_flow_labels = get_current_flow_labels()
@@ -213,6 +215,8 @@ with Flow(name="DATASUS-SIA", code_owners=["Gabriel Pisa"]) as flow_siasus:
                     "table_id": table_id,
                     "mode": materialization_mode,
                     "dbt_alias": dbt_alias,
+                    "dbt_command": "run",
+                    "disable_elementary": True,
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
