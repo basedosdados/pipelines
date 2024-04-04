@@ -599,18 +599,22 @@ def data_url():
     link_tags = soup.find_all("a", attrs={"class": "ergebnis-link"})
     for tag in link_tags:
         links.append(re.sub(r"\s", "", tag["href"]))
+    datas = []
 
-    link_data = requests.get(base_link_br + links[-1], headers=headers)
-    link_soup = BeautifulSoup(link_data.content, "html.parser")
-    content = link_soup.find("div", id="main")
-    data = re.search(
-        re.compile(r"\d+/\d+/\d+"),
-        content.find("a", text=re.compile(r"\d+/\d+/\d")).get_text().strip(),
-    ).group(0)
-    # Converter a data para um objeto de data
-    data_obj = datetime.strptime(data, "%d/%m/%y")
+    for link in links:
+        link_data = requests.get(base_link_br + link, headers=headers)
+        link_soup = BeautifulSoup(link_data.content, "html.parser")
+        content = link_soup.find("div", id="main")
+        data = re.search(
+            re.compile(r"\d+/\d+/\d+"),
+            content.find("a", text=re.compile(r"\d+/\d+/\d")).get_text().strip(),
+        ).group(0)
 
-    return data_obj
+
+        datas.append(datetime.strptime(data, '%d/%m/%y'))
+
+    maior_data = max(datas)
+    return maior_data.strftime('%d/%m/%y')
 
 
 async def execucao_coleta():
