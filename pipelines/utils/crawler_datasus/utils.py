@@ -68,8 +68,13 @@ def dbf_to_parquet(dbf: str, table_id: str, counter: int) -> str:
 
             chunk_df = pd.DataFrame(chunk)
 
-            #table = pa.Table.from_pandas(chunk_df.applymap(decode_column))
-            table = pa.Table.from_pandas(chunk_df)
+
+            table = pa.Table.from_pandas(chunk_df.applymap(decode_column))
+            log('---- decoding')
+
+
+            #table = pa.Table.from_pandas(chunk_df)
+
             log(f'---- {counter}')
             parquet_filename = f"{table_id}_{counter}_{counter_chunk}.parquet"
             parquet_filepath = os.path.join(output_path, parquet_filename)
