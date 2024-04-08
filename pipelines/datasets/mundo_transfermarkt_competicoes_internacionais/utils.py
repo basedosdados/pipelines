@@ -6,6 +6,7 @@ General purpose functions for the mundo_transfermarkt_competicoes_internacionais
 
 import re
 from datetime import datetime
+from concurrent.futures import ThreadPoolExecutor
 
 import numpy as np
 import pandas as pd
@@ -576,6 +577,21 @@ def valor_vazio(df):
     df = pd.concat([df, pd.DataFrame([valor_content])], ignore_index=True)
     return df
 
+def obter_data(link):
+    base_link_br = "https://www.transfermarkt.com.br"
+    headers = {
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36"
+    }
+    link_data = requests.get(base_link_br + link, headers=headers)
+    link_soup = BeautifulSoup(link_data.content, "html.parser")
+    content = link_soup.find("div", id="main")
+    data = re.search(
+        re.compile(r"\d+/\d+/\d+"),
+        content.find("a", text=re.compile(r"\d+/\d+/\d")).get_text().strip(),
+    ).group(0)
+    print(data)
+    return datetime.strptime(data, '%d/%m/%y')
+
 
 def data_url():
     """
@@ -588,7 +604,6 @@ def data_url():
     headers = {
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36"
     }
-    base_link_br = "https://www.transfermarkt.com.br"
 
     links = []
     season = obter_ano()
@@ -597,24 +612,13 @@ def data_url():
     site_data = requests.get(base_url.format(season=season), headers=headers)
     soup = BeautifulSoup(site_data.content, "html.parser")
     link_tags = soup.find_all("a", attrs={"class": "ergebnis-link"})
-    for tag in link_tags:
-        links.append(re.sub(r"\s", "", tag["href"]))
+    links = [re.sub(r"\s", "", tag["href"]) for tag in link_tags]
     datas = []
 
-    for link in links:
-        link_data = requests.get(base_link_br + link, headers=headers)
-        link_soup = BeautifulSoup(link_data.content, "html.parser")
-        content = link_soup.find("div", id="main")
-        data = re.search(
-            re.compile(r"\d+/\d+/\d+"),
-            content.find("a", text=re.compile(r"\d+/\d+/\d")).get_text().strip(),
-        ).group(0)
+    with ThreadPoolExecutor() as executor:
+        datas = list(executor.map(obter_data, links))
 
-
-        datas.append(datetime.strptime(data, '%d/%m/%y'))
-
-    maior_data = max(datas)
-    return maior_data.strftime('%d/%m/%y')
+    return max(datas)
 
 
 async def execucao_coleta():

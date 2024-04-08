@@ -57,9 +57,9 @@ with Flow(
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
-    # rename_flow_run = rename_current_flow_run_dataset_table(
-    #     prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
-    # )
+    rename_flow_run = rename_current_flow_run_dataset_table(
+         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+    )
     update_metadata = Parameter("update_metadata", default=False, required=False)
 
     data_source_max_date = get_data_source_transfermarkt_max_date()
