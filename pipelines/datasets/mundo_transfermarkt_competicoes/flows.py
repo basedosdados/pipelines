@@ -115,24 +115,24 @@ transfermarkt_brasileirao_flow.schedule = every_week
 with Flow(
     name="mundo_transfermarkt_competicoes.copa_brasil",
     code_owners=[
-        "Gabs",
+        "arthurfg",
     ],
 ) as transfermarkt_copa_flow:
     dataset_id = Parameter(
-        "dataset_id", default="mundo_transfermarkt_competicoes", required=True
+        "dataset_id", default="mundo_transfermarkt_competicoes", required=False
     )
-    table_id = Parameter("table_id", default="copa_brasil", required=True)
+    table_id = Parameter("table_id", default="copa_brasil", required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
     materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
+        "materialize_after_dump", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
-    )
+    # rename_flow_run = rename_current_flow_run_dataset_table(
+    #     prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+    # )
     df = execucao_coleta_sync(table_id)
     output_filepath = make_partitions(df, upstream_tasks=[df])
 

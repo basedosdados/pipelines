@@ -759,6 +759,10 @@ def pegar_valor_copa_brasil(df, content):
     de uma partida de Copa do Brasil.
     """
     # gera um dicionário
+    print("entrei aqui")
+    print("TÉCNICOS ---->>>>")
+    print(content.find_all("a", attrs={"id": "0"})[0].get_text())
+
     valor_content = {
         "valor_equipe_titular_man": content.find_all("div", class_="table-footer")[0]
         .find_all("td")[3]
@@ -778,10 +782,11 @@ def pegar_valor_copa_brasil(df, content):
         .get_text()
         .split(":", 1)[1]
         .strip(),
-        "tecnico_man": content.find_all("a", attrs={"id": "0"})[1].get_text(),
-        "tecnico_vis": content.find_all("a", attrs={"id": "0"})[3].get_text(),
+        "tecnico_man": content.find_all("a", attrs={"id": "0"})[0].get_text(),
+        "tecnico_vis": content.find_all("a", attrs={"id": "0"})[1].get_text(),
     }
     df = pd.concat([df, pd.DataFrame([valor_content])], ignore_index=True)
+    print(df.head())
     return df
 
 
@@ -893,6 +898,7 @@ async def execucao_coleta_copa():
     link_tags = soup.find_all("a", attrs={"class": "ergebnis-link"})
     for tag in link_tags:
         links.append(re.sub(r"\s", "", tag["href"]))
+
     # Na página principal coletar informações gerais de cada partida
     # Coleta a quantidade de gols e nomes dos times
     tabela_grand = soup.findAll("div", class_="box")[1]
@@ -1027,11 +1033,17 @@ async def execucao_coleta_copa():
         if content:
             try:
                 df_valor = pegar_valor_copa_brasil(df_valor, content)
+                print("DF VALOR ----->")
+                #print(df_valor.head())
             except Exception:
                 try:
                     df_valor = pegar_valor_sem_tecnico_copa_brasil(df_valor, content)
+                    print("DF VALOR SEM TEC ----->")
+                 #   print(df_valor.head())
                 except Exception:
                     df_valor = valor_vazio_copa_brasil(df_valor)
+                    print("DF VALOR VAZIO ----->")
+                  #  print(df_valor.head())
         else:
             df_valor = valor_vazio_copa_brasil(df_valor)
         log(f"{n+1} valores de {n_links} extraídos.")

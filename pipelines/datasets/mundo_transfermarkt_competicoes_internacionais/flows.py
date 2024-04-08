@@ -40,7 +40,7 @@ from pipelines.utils.tasks import (
 with Flow(
     name="mundo_transfermarkt_competicoes_internacionais.champions_league",
     code_owners=[
-        "Gabs",
+        "arthurfg",
     ],
 ) as transfermarkt_flow:
     dataset_id = Parameter(
@@ -100,6 +100,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=r"Materialize {dataset_id}.{table_id}",
+                upstream_tasks=[wait_upload_table]
             )
 
             wait_for_materialization = wait_for_flow_run(
