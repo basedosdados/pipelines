@@ -12,10 +12,10 @@ from pipelines.constants import constants
 anatel_microdados = Schedule(
     clocks=[
         CronClock(
-            cron="30 16 * * *",  # ! goes execute every day 13 pm
-            start_date=datetime(2021, 3, 31, 17, 11), # ! first date that the pipeline executed
+            cron="30 16 * * *",
+            start_date=datetime(2021, 3, 31, 17, 11),
             labels=[
-                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value, # ! label of identify (ex: basedosdados-dev)
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_anatel_telefonia_movel",
@@ -37,10 +37,10 @@ anatel_microdados = Schedule(
 anatel_densidade_municipio = Schedule(
     clocks=[
         CronClock(
-            cron="30 17 * * *",  # ! goes execute every day 13 pm
-            start_date=datetime(2021, 3, 31, 17, 11), # ! first date that the pipeline executed
+            cron="30 17 * * *",
+            start_date=datetime(2021, 3, 31, 17, 11),
             labels=[
-                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value, # ! label of identify (ex: basedosdados-dev)
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_anatel_telefonia_movel",
@@ -59,10 +59,10 @@ anatel_densidade_municipio = Schedule(
 anatel_densidade_uf = Schedule(
     clocks=[
         CronClock(
-            cron="30 18 * * *",  # ! goes execute every day 13 pm
-            start_date=datetime(2021, 3, 31, 17, 11), # ! first date that the pipeline executed
+            cron="30 18 * * *",
+            start_date=datetime(2021, 3, 31, 17, 11),
             labels=[
-                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value, # ! label of identify (ex: basedosdados-dev)
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_anatel_telefonia_movel",
@@ -81,10 +81,10 @@ anatel_densidade_uf = Schedule(
 anatel_densidade_brasil = Schedule(
     clocks=[
         CronClock(
-            cron="30 19 * * *",  # ! goes execute every day 13 pm
-            start_date=datetime(2021, 3, 31, 17, 11), # ! first date that the pipeline executed
+            cron="30 19 * * *",
+            start_date=datetime(2021, 3, 31, 17, 11),
             labels=[
-                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value, # ! label of identify (ex: basedosdados-dev)
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_anatel_telefonia_movel",
