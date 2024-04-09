@@ -93,7 +93,7 @@ async def get_peoples_info(ids: list[tuple[str, str]]) -> list[PeopleInfoRespons
             )
             return {"condenacao_id": sentence_id, "response": response}
 
-    async with httpx.AsyncClient(timeout=timeout, limits=limits) as client:
+    async with httpx.AsyncClient(timeout=timeout, limits=limits, headers={"Connection": "close"}) as client:
         return await asyncio.gather(
             *[
                 wrapper(client, sentence_id, people_id)
