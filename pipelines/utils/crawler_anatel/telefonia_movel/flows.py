@@ -1,96 +1,87 @@
 # -*- coding: utf-8 -*-
-from datetime import timedelta
-
+# register flow
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
-
+from datetime import timedelta
 from pipelines.constants import constants
-from pipelines.datasets.br_bcb_agencia.constants import constants as agencia_constants
-from pipelines.datasets.br_bcb_agencia.schedules import every_month_agencia
-from pipelines.datasets.br_bcb_agencia.tasks import (
-    clean_data,
-    download_data,
-    extract_most_recent_date,
+from pipelines.utils.crawler_anatel.telefonia_movel.tasks import (
+    join_tables_in_function,
+    get_max_date_in_table_microdados
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.utils.metadata.tasks import (
-    check_if_data_is_outdated,
     update_django_metadata,
+    check_if_data_is_outdated
 )
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
-    log_task,
     rename_current_flow_run_dataset_table,
 )
 
 with Flow(
-    name="br_bcb_agencia.agencia",
-    code_owners=[
-        "Gabriel Pisa",
-    ],
-) as br_bcb_agencia_agencia:
+    name="BD template - Anatel Telefonia Móvel", code_owners=["trick"]
+) as flow_telefonia_movel:
     # Parameters
-    dataset_id = Parameter("dataset_id", default="br_bcb_agencia", required=True)
-    table_id = Parameter("table_id", default="agencia", required=True)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
-
-    # Materialization mode
+    dataset_id = Parameter(
+        "dataset_id", default="br_anatel_telefonia_movel", required=True
+    )
+    table_id = Parameter(
+        "table_id",
+        required=True,
+    )
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
     )
-
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
+
+    ano = Parameter("ano", default=2024, required=True)
+
+    semestre = Parameter("semestre", default=1, required=True)
+
+    update_metadata = Parameter("update_metadata", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
-    )
-
-    data_source_max_date = extract_most_recent_date(
-        url=agencia_constants.AGENCIA_URL.value,
-        xpath=agencia_constants.AGENCIA_XPATH.value,
-    )
-
-    # task check if is outdated
-    check_if_outdated = check_if_data_is_outdated(
+        prefix="Dump: ",
         dataset_id=dataset_id,
         table_id=table_id,
-        data_source_max_date=data_source_max_date[1],
-        date_format="%Y-%m",
-        upstream_tasks=[data_source_max_date],
+        wait=table_id,
     )
 
-    with case(check_if_outdated, False):
-        log_task(f"Não há atualizações para a tabela de {table_id}!")
+    update_tables = get_max_date_in_table_microdados(ano=ano, semestre=semestre)
 
-    with case(check_if_outdated, True):
-        log_task("Existem atualizações! A run será inciada")
+    get_max_date = check_if_data_is_outdated(
+    dataset_id =  dataset_id,
+    table_id =  table_id,
+    data_source_max_date = update_tables,
+    date_format =  "%Y-%m",
+)
 
-        donwload_files = download_data(
-            dowload_url=data_source_max_date[0],
-            upstream_tasks=[check_if_outdated],
-        )
+    with case(get_max_date, True):
 
-        filepath = clean_data(
-            upstream_tasks=[donwload_files],
-        )
+        filepath = join_tables_in_function(
+            table_id = table_id,
+            ano=ano,
+            semestre=semestre,
+            upstream_tasks=[get_max_date]
+            )
 
         wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=filepath,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dump_mode="append",
-            wait=filepath,
-        )
+                data_path=filepath,
+                dataset_id=dataset_id,
+                table_id=table_id,
+                dump_mode="append",
+                wait=filepath,
+                upstream_tasks=[filepath],  # Fix: Wrap filepath in a list to make it iterable
+            )
 
-        # agencia
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
             current_flow_labels = get_current_flow_labels()
@@ -107,8 +98,8 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
+                upstream_tasks=[wait_upload_table],
             )
-
             wait_for_materialization = wait_for_flow_run(
                 materialization_flow,
                 stream_states=True,
@@ -135,7 +126,5 @@ with Flow(
                     upstream_tasks=[wait_for_materialization],
                 )
 
-
-br_bcb_agencia_agencia.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_bcb_agencia_agencia.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_bcb_agencia_agencia.schedule = every_month_agencia
+flow_telefonia_movel.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+flow_telefonia_movel.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
