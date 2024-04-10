@@ -103,9 +103,6 @@ def make_partitions(tables: list[tuple[str, pd.DataFrame]]) -> dict[str, str]:
             if not os.path.exists(savepath):
                 os.mkdir(savepath)
 
-            log(f"{table_name=}")
-            log(f"{df.columns=}")
-            log(df.head())
 
             to_partitions(
                 data=df,

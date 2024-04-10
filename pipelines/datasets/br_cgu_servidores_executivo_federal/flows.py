@@ -41,25 +41,25 @@ with Flow(
     ],
 ) as datasets_br_cgu_servidores_executivo_federal_flow:
     dataset_id = Parameter(
-        "dataset_id", default="br_cgu_servidores_executivo_federal", required=True
+        "dataset_id", default="br_cgu_servidores_executivo_federal", required=False
     )
 
     tables_ids = list(cgu_constants.TABLES.value.keys())
 
-    table_id = Parameter("table_id", default=tables_ids, required=True)
+    table_id = Parameter("table_id", default=tables_ids, required=False)
 
-    update_metadata = Parameter("update_metadata", default=True, required=False)
+    update_metadata = Parameter("update_metadata", default=False, required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
+        "materialize_after_dump", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
-    )
+    # rename_flow_run = rename_current_flow_run_dataset_table(
+    #     prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+    # )
 
     next_date = get_next_date()
 
