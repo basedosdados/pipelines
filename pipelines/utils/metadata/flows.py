@@ -60,5 +60,5 @@ quality_checks_updater.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 quality_checks_updater.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-quality_checks_updater.schedule = every_day_quality_checks
+#quality_checks_updater.schedule = every_day_quality_checks
 
