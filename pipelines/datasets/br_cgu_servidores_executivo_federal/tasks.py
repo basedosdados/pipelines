@@ -177,5 +177,4 @@ def get_next_date() -> datetime.date:
     )
 
     next_date = last_date_in_api + relativedelta(months=1)
-    print(next_date)
     return next_date

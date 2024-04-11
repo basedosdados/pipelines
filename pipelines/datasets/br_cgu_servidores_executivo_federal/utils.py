@@ -200,18 +200,9 @@ def process_table(table_info: dict) -> tuple[str, pd.DataFrame]:
 
 
 
-def extract_dates(table ="Pensionistas_SIAPE") -> pd.DataFrame:
+def extract_dates(table ="Servidores_SIAPE") -> pd.DataFrame:
     """
     Extrai datas e URLs de download do site do Portal da Transparência e retorna um DataFrame.
-
-    Parâmetros:
-    - table (str): O nome da tabela de dados desejada (possíveis valores: "novo_bolsa_familia", "garantia_safra", "bpc").
-
-    Retorna:
-    - Um DataFrame contendo as colunas "ano", "mes_numero", "mes_nome" e "urls".
-
-    Exemplo de uso:
-    data_frame = extract_dates("novo_bolsa_familia")
     """
     if not os.path.exists("/tmp/data/br_cgu_beneficios_cidadao/"):
         os.makedirs("/tmp/data/br_cgu_beneficios_cidadao/", exist_ok=True)
@@ -247,7 +238,7 @@ def extract_dates(table ="Pensionistas_SIAPE") -> pd.DataFrame:
         service=ChromeService(ChromeDriverManager().install()), options=options
     )
 
-    if table == "Pensionistas_SIAPE":
+    if table == "Servidores_SIAPE":
         driver.get("http://portaldatransparencia.gov.br/download-de-dados/servidores/")
         driver.implicitly_wait(10)
 
@@ -296,7 +287,7 @@ def extract_dates(table ="Pensionistas_SIAPE") -> pd.DataFrame:
     df = pd.DataFrame(data)
     df["urls"] = None
     for index, row in df.iterrows():
-        if table == "Pensionistas_SIAPE":
-            df["urls"][index] = f"{row.ano}{row.mes_numero}_Pensionistas_SIAPE.zip"
+        if table == "Servidores_SIAPE":
+            df["urls"][index] = f"{row.ano}{row.mes_numero}_Servidores_SIAPE.zip"
 
     return df
