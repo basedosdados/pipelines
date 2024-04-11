@@ -25,8 +25,6 @@ from pipelines.utils.utils import log, to_partitions
 @task
 def scrape_download_page():
     dates = extract_dates()
-    log("HEAD -->")
-    log(dates.head())
     return dates
 
 @task
@@ -179,4 +177,5 @@ def get_next_date() -> datetime.date:
     )
 
     next_date = last_date_in_api + relativedelta(months=1)
+    print(next_date)
     return next_date

@@ -61,13 +61,17 @@ def download_zip_files_for_sheet(sheet_name: str, sheet_urls: list):
     log(f"Starting download for {sheet_name=}")
 
     for sheet_info in sheet_urls:
+
         href = sheet_info["url"]
         date = sheet_info["date"]
         year = date.year
         month = date.month
-        response = requests.get(href, timeout=1000, stream=True, headers=headers)
-        z = zipfile.ZipFile(io.BytesIO(response.content))
-        z.extractall(f"{sheet_input_folder}/{year}-{month}")
+        try:
+            response = requests.get(href, timeout=1000, stream=True, headers=headers)
+            z = zipfile.ZipFile(io.BytesIO(response.content))
+            z.extractall(f"{sheet_input_folder}/{year}-{month}")
+        except:
+            log(f'Essa url ainda não está disponível -->  {href}')
 
     log(f"Finished download for {sheet_name=}")
 
