@@ -2,7 +2,6 @@
 name: Register flows (staging)
 on:
   pull_request:
-    types: [labeled, opened]
     branches: [main]
     paths:
       - .github/workflows/cd_staging.yaml
@@ -23,7 +22,7 @@ env:
   PREFECT_AUTH_TOML: ${{ secrets.PREFECT_AUTH_TOML }}
 jobs:
   build-container:
-    if: contains(github.event.pull_request.labels.*.name, 'productivity')
+    if: startsWith(github.head_ref, 'staging/')
     name: Register flows (staging)
     runs-on: ubuntu-latest
     steps:
@@ -71,5 +70,3 @@ jobs:
       - name: Register Prefect flows
         run: |-
           poetry run python .github/workflows/scripts/register_flows.py --project $PREFECT__SERVER__PROJECT --path pipelines/ --no-schedule --filter-affected-flows
-      - name: Delete archieved flow runs
-        run: poetry run python .github/workflows/scripts/delete_archieved_flow_runs.py
