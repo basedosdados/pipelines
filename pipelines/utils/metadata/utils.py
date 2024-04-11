@@ -550,7 +550,7 @@ def create_update(
     mutation_parameters,
     query_class,
     query_parameters,
-    update=False,
+    update=True,
     api_mode: str = "prod",
 ):
     token = get_token(

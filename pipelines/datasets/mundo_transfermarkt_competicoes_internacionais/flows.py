@@ -13,7 +13,7 @@ from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
 from pipelines.datasets.mundo_transfermarkt_competicoes_internacionais.schedules import (
-    every_first_and_last_week,
+    every_day_champions_league,
 )
 from pipelines.datasets.mundo_transfermarkt_competicoes_internacionais.tasks import (
     execucao_coleta_sync,
@@ -40,27 +40,27 @@ from pipelines.utils.tasks import (
 with Flow(
     name="mundo_transfermarkt_competicoes_internacionais.champions_league",
     code_owners=[
-        "Gabs",
+        "arthurfg",
     ],
 ) as transfermarkt_flow:
     dataset_id = Parameter(
         "dataset_id",
         default="mundo_transfermarkt_competicoes_internacionais",
-        required=True,
+        required=False,
     )
-    table_id = Parameter("table_id", default="champions_league", required=True)
+    table_id = Parameter("table_id", default="champions_league", required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
     materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
+        "materialize_after_dump", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
-    update_metadata = Parameter("update_metadata", default=True, required=False)
+    update_metadata = Parameter("update_metadata", default=False, required=False)
 
     data_source_max_date = get_data_source_transfermarkt_max_date()
 
@@ -100,6 +100,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=r"Materialize {dataset_id}.{table_id}",
+                upstream_tasks=[wait_upload_table]
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -130,4 +131,4 @@ with Flow(
 
 transfermarkt_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 transfermarkt_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-transfermarkt_flow.schedule = every_first_and_last_week
+transfermarkt_flow.schedule = every_day_champions_league
