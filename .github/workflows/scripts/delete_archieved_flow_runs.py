@@ -38,7 +38,7 @@ def delete_archieved_flow_runs():
 
 
     for _,flow in df[archieved_flow_runs].iterrows():
-        print(f'deleting {len(flow["flow_runs"])} archieved runs for flow {flow["id"]} - {flow["name"]}\n')
+        print(f'deleting {len(flow["flow_runs"])} archieved runs for flow {flow["name"]}\n')
         for scheduled_run in flow["flow_runs"]:
             delete_flow_run(client,scheduled_run)
 
