@@ -204,14 +204,11 @@ def extract_dates(table ="Servidores_SIAPE") -> pd.DataFrame:
     """
     Extrai datas e URLs de download do site do Portal da Transparência e retorna um DataFrame.
     """
-    if not os.path.exists("/tmp/data/br_cgu_beneficios_cidadao/"):
-        os.makedirs("/tmp/data/br_cgu_beneficios_cidadao/", exist_ok=True)
-
-    if not os.path.exists("/tmp/data/br_cgu_beneficios_cidadao/tmp"):
-        os.makedirs("/tmp/data/br_cgu_beneficios_cidadao/tmp", exist_ok=True)
+    if not os.path.exists("/tmp/data/br_cgu_servidores_executivo_federal/tmp"):
+        os.makedirs("/tmp/data/br_cgu_servidores_executivo_federal/tmp", exist_ok=True)
     options = webdriver.ChromeOptions()
     prefs = {
-        "download.default_directory": "/tmp/data/br_cgu_beneficios_cidadao/tmp",
+        "download.default_directory": "/tmp/data/br_cgu_servidores_executivo_federal/tmp",
         "download.prompt_for_download": False,
         "download.directory_upgrade": True,
         "safebrowsing.enabled": True,
