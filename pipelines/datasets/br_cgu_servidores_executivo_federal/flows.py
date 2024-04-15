@@ -14,7 +14,7 @@ from pipelines.constants import constants
 from pipelines.datasets.br_cgu_servidores_executivo_federal.constants import (
     constants as cgu_constants,
 )
-from pipelines.datasets.br_cgu_servidores_executivo_federal.schedules import every_month
+from pipelines.datasets.br_cgu_servidores_executivo_federal.schedules import every_day
 from pipelines.datasets.br_cgu_servidores_executivo_federal.tasks import (
     download_files,
     get_next_date,
@@ -474,4 +474,4 @@ datasets_br_cgu_servidores_executivo_federal_flow.storage = GCS(
 datasets_br_cgu_servidores_executivo_federal_flow.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-datasets_br_cgu_servidores_executivo_federal_flow.schedule = every_month
+datasets_br_cgu_servidores_executivo_federal_flow.schedule = every_day
