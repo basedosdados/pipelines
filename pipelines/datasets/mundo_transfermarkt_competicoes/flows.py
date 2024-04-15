@@ -16,8 +16,8 @@ from pipelines.datasets.mundo_transfermarkt_competicoes.constants import (
     constants as mundo_constants,
 )
 from pipelines.datasets.mundo_transfermarkt_competicoes.schedules import (
-    every_week,
-    every_week_copa,
+    every_day_brasileirao,
+    every_day_copa,
 )
 from pipelines.datasets.mundo_transfermarkt_competicoes.tasks import (
     execucao_coleta_sync,
@@ -36,7 +36,7 @@ from pipelines.utils.tasks import (
 with Flow(
     name="mundo_transfermarkt_competicoes.brasileirao_serie_a",
     code_owners=[
-        "Gabs",
+        "arthurfg",
     ],
 ) as transfermarkt_brasileirao_flow:
     dataset_id = Parameter(
@@ -76,6 +76,7 @@ with Flow(
                 "table_id": table_id,
                 "mode": materialization_mode,
                 "dbt_alias": dbt_alias,
+                "dbt_command": "run/test",
             },
             labels=current_flow_labels,
             run_name=r"Materialize {dataset_id}.{table_id}",
@@ -110,23 +111,23 @@ transfermarkt_brasileirao_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 transfermarkt_brasileirao_flow.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-transfermarkt_brasileirao_flow.schedule = every_week
+transfermarkt_brasileirao_flow.schedule = every_day_brasileirao
 
 with Flow(
     name="mundo_transfermarkt_competicoes.copa_brasil",
     code_owners=[
-        "Gabs",
+        "arthurfg",
     ],
 ) as transfermarkt_copa_flow:
     dataset_id = Parameter(
-        "dataset_id", default="mundo_transfermarkt_competicoes", required=True
+        "dataset_id", default="mundo_transfermarkt_competicoes", required=False
     )
-    table_id = Parameter("table_id", default="copa_brasil", required=True)
+    table_id = Parameter("table_id", default="copa_brasil", required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
     materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
+        "materialize_after_dump", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
@@ -155,6 +156,7 @@ with Flow(
                 "table_id": table_id,
                 "mode": materialization_mode,
                 "dbt_alias": dbt_alias,
+                "dbt_command": "run/test",
             },
             labels=current_flow_labels,
             run_name=r"Materialize {dataset_id}.{table_id}",
@@ -188,4 +190,4 @@ with Flow(
 
 transfermarkt_copa_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 transfermarkt_copa_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-transfermarkt_copa_flow.schedule = every_week_copa
+transfermarkt_copa_flow.schedule = every_day_copa

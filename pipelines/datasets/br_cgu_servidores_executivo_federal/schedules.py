@@ -13,10 +13,10 @@ from pipelines.datasets.br_cgu_servidores_executivo_federal.constants import (
     constants as cgu_constants,
 )
 
-every_month = Schedule(
+every_day = Schedule(
     clocks=[
         CronClock(
-            cron="0 6 * * 2",  # At 06:00 on Tuesday
+            cron="0 6 * * 0-5",  # At 06:00 on every day-of-week from Sunday through Friday.
             start_date=datetime(2023, 9, 26),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,

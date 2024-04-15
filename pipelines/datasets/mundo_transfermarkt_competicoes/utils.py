@@ -778,8 +778,8 @@ def pegar_valor_copa_brasil(df, content):
         .get_text()
         .split(":", 1)[1]
         .strip(),
-        "tecnico_man": content.find_all("a", attrs={"id": "0"})[1].get_text(),
-        "tecnico_vis": content.find_all("a", attrs={"id": "0"})[3].get_text(),
+        "tecnico_man": content.find_all("a", attrs={"id": "0"})[0].get_text(),
+        "tecnico_vis": content.find_all("a", attrs={"id": "0"})[1].get_text(),
     }
     df = pd.concat([df, pd.DataFrame([valor_content])], ignore_index=True)
     return df
@@ -893,6 +893,7 @@ async def execucao_coleta_copa():
     link_tags = soup.find_all("a", attrs={"class": "ergebnis-link"})
     for tag in link_tags:
         links.append(re.sub(r"\s", "", tag["href"]))
+
     # Na página principal coletar informações gerais de cada partida
     # Coleta a quantidade de gols e nomes dos times
     tabela_grand = soup.findAll("div", class_="box")[1]
