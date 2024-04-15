@@ -14,7 +14,7 @@ from pipelines.constants import constants
 from pipelines.datasets.br_cgu_servidores_executivo_federal.constants import (
     constants as cgu_constants,
 )
-from pipelines.datasets.br_cgu_servidores_executivo_federal.schedules import every_month
+from pipelines.datasets.br_cgu_servidores_executivo_federal.schedules import every_day
 from pipelines.datasets.br_cgu_servidores_executivo_federal.tasks import (
     download_files,
     get_next_date,
@@ -22,6 +22,8 @@ from pipelines.datasets.br_cgu_servidores_executivo_federal.tasks import (
     make_partitions,
     merge_and_clean_data,
     table_is_available,
+    scrape_download_page,
+    get_source_max_date,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -41,19 +43,19 @@ with Flow(
     ],
 ) as datasets_br_cgu_servidores_executivo_federal_flow:
     dataset_id = Parameter(
-        "dataset_id", default="br_cgu_servidores_executivo_federal", required=True
+        "dataset_id", default="br_cgu_servidores_executivo_federal", required=False
     )
 
     tables_ids = list(cgu_constants.TABLES.value.keys())
 
-    table_id = Parameter("table_id", default=tables_ids, required=True)
+    table_id = Parameter("table_id", default=tables_ids, required=False)
 
-    update_metadata = Parameter("update_metadata", default=True, required=False)
+    update_metadata = Parameter("update_metadata", default=False, required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
     )
     materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
+        "materialize_after_dump", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
@@ -61,8 +63,9 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    next_date = get_next_date()
-
+    files_and_dates_dataframe = scrape_download_page()
+    source_max_date = get_source_max_date(files_and_dates_dataframe, upstream_tasks=[files_and_dates_dataframe])
+    next_date = get_next_date(upstream_tasks=[files_and_dates_dataframe, source_max_date])
     data_is_up_to_date = is_up_to_date(next_date, upstream_tasks=[next_date])
 
     with case(data_is_up_to_date, True):
@@ -71,7 +74,7 @@ with Flow(
     with case(data_is_up_to_date, False):
         log_task(f"Starting download, {next_date}, {next_date}")
         sheets_info = download_files(
-            date_start=next_date, date_end=next_date, upstream_tasks=[next_date]
+            date_start=next_date, date_end=source_max_date, upstream_tasks=[next_date, source_max_date]
         )
         log_task("Files downloaded")
 
@@ -471,4 +474,4 @@ datasets_br_cgu_servidores_executivo_federal_flow.storage = GCS(
 datasets_br_cgu_servidores_executivo_federal_flow.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-datasets_br_cgu_servidores_executivo_federal_flow.schedule = every_month
+datasets_br_cgu_servidores_executivo_federal_flow.schedule = every_day
