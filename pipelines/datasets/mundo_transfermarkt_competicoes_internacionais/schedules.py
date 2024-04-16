@@ -11,10 +11,10 @@ from prefect.schedules.clocks import CronClock
 
 from pipelines.constants import constants
 
-every_first_and_last_week = Schedule(
+every_day_champions_league = Schedule(
     clocks=[
         CronClock(
-            cron="0 9 * * 1",
+            cron="50 23 * * 1-5",
             start_date=datetime(2023, 5, 1, 7, 30),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,

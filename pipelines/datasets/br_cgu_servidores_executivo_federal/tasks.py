@@ -17,10 +17,33 @@ from pipelines.datasets.br_cgu_servidores_executivo_federal.utils import (
     download_zip_files_for_sheet,
     make_url,
     process_table,
+    extract_dates
 )
 from pipelines.utils.metadata.utils import get_api_most_recent_date
 from pipelines.utils.utils import log, to_partitions
 
+@task
+def scrape_download_page():
+    dates = extract_dates()
+    return dates
+
+@task
+def get_source_max_date(files_df) -> list:
+    """
+    Encontra a data mais recente em um DataFrame e retorna a data e a URL correspondente.
+
+    Parâmetros:
+    - table_id (str): O identificador da tabela que contém os dados.
+
+    Retorna:
+    Uma lista contendo a data mais recente e a URL correspondente.
+
+    """
+    files_df["data"] = pd.to_datetime(
+        files_df["ano"].astype(str) + "-" + files_df["mes_numero"].astype(str)
+    )
+    max_date = files_df["data"].max()
+    return max_date
 
 @task  # noqa
 def download_files(date_start: datetime.date, date_end: datetime.date):
@@ -103,9 +126,6 @@ def make_partitions(tables: list[tuple[str, pd.DataFrame]]) -> dict[str, str]:
             if not os.path.exists(savepath):
                 os.mkdir(savepath)
 
-            log(f"{table_name=}")
-            log(f"{df.columns=}")
-            log(df.head())
 
             to_partitions(
                 data=df,

@@ -68,3 +68,5 @@ jobs:
       - name: Register Prefect flows
         run: |-
           poetry run python .github/workflows/scripts/register_flows.py --project $PREFECT__SERVER__PROJECT --path pipelines/ --schedule
+      - name: Delete archieved flow runs
+        run: poetry run python .github/workflows/scripts/delete_archieved_flow_runs.py
