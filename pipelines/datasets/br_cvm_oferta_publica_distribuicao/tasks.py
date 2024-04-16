@@ -7,14 +7,11 @@ from io import BytesIO
 from urllib.request import urlopen
 from zipfile import ZipFile
 
-import basedosdados as bd
 import pandas as pd
-import requests
 from pandas.api.types import is_string_dtype
 from prefect import task
 from unidecode import unidecode
 
-from pipelines.utils.utils import log
 
 
 @task
