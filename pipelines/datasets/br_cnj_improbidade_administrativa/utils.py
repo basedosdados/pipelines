@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
 import typing
+import time
 
 import httpx
 from lxml import html
@@ -30,7 +31,11 @@ async def get_async(client: httpx.AsyncClient, url: str) -> httpx.Response:
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36",
     }
-    return await client.get(url, headers=headers)
+    try:
+        return await client.get(url, headers=headers)
+    except httpx.ConnectError:
+        time.sleep(10.0)
+        return await client.get(url, headers=headers)
 
 
 class PeopleLine(typing.TypedDict):
