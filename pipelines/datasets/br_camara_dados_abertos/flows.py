@@ -32,7 +32,8 @@ from pipelines.datasets.br_camara_dados_abertos.schedules import (
     schedules_br_camara_dados_abertos_licitacao_proposta,
     schedules_br_camara_dados_abertos_licitacao_contrato,
     schedules_br_camara_dados_abertos_licitacao_item,
-    schedules_br_camara_dados_abertos_licitacao_pedido)
+    schedules_br_camara_dados_abertos_licitacao_pedido,
+    schedules_br_camara_dados_abertos_despesa)
 
 # ! - > Flow: br_camara_dados_abertos__votacao
 br_camara_dados_abertos__votacao = deepcopy(flow_camara_dados_abertos)
@@ -257,3 +258,12 @@ br_camara_dados_abertos__licitacao_pedido.code_owners = ["trick"]
 br_camara_dados_abertos__licitacao_pedido.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_camara_dados_abertos__licitacao_pedido.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 br_camara_dados_abertos__licitacao_pedido.schedule = schedules_br_camara_dados_abertos_licitacao_pedido
+
+# ! - > Flow: br_camara_dados_abertos__despesa
+
+br_camara_dados_abertos__despesa = deepcopy(flow_camara_dados_abertos)
+br_camara_dados_abertos__despesa.name = "br_camara_dados_abertos.despesa"
+br_camara_dados_abertos__despesa.code_owners = ["trick"]
+br_camara_dados_abertos__despesa.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_camara_dados_abertos__despesa.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_camara_dados_abertos__despesa.schedule = schedules_br_camara_dados_abertos_despesa
