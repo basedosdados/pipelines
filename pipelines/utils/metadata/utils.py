@@ -54,7 +54,7 @@ def check_if_values_are_accepted(
         )
 
 
-def get_billing_project_id(mode: str):
+def get_billing_project_id(mode: str) -> bool:
     return metadata_constants.MODE_PROJECT.value[mode]
 
 
@@ -69,7 +69,7 @@ def get_credentials_utils(secret_path: str) -> Tuple[str, str]:
     return email, password
 
 
-def get_token(email, password, api_mode: str = "prod"):
+def get_token(email:str, password:str, api_mode: str = "prod") -> str:
     """
     Get api token.
     """
@@ -184,7 +184,7 @@ def get_ids(
 
 def get_coverage_id(
     table_id: str, email: str, password: str, is_closed: bool, api_mode: str = "prod"
-):
+) -> str:
     # Get the coverage IDs
     coverage_result, coverage_id = get_id(
         email=email,
@@ -215,13 +215,13 @@ def get_coverage_id(
 
 
 def get_id(
-    query_class,
-    query_parameters,
-    email,
-    password,
+    query_class: str,
+    query_parameters: dict,
+    email: str,
+    password: str,
     api_mode: str = "prod",
     cloud_table: bool = True,
-):
+) -> str:
     token = get_token(email, password, api_mode)
     header = {
         "Authorization": f"Bearer {token}",
@@ -290,7 +290,7 @@ def get_id(
         )
 
 
-def get_table_status(table_id, api_mode, email, password):
+def get_table_status(table_id:str, api_mode:str, email:str, password:str) -> str:
     query = """query($table_id: ID) {
         allTable(id: $table_id) {
             edges {
@@ -327,14 +327,14 @@ def get_table_status(table_id, api_mode, email, password):
         raise Exception("get: Error")
 
 def extract_last_date_from_bq(
-    dataset_id,
-    table_id,
+    dataset_id: str,
+    table_id: str,
     date_format: str,
     date_column: dict,
     billing_project_id: str,
     project_id: str = "basedosdados",
     historical_database: bool = True,
-):
+) -> str:
     """
     Extracts the last update date of a given dataset table.
 
@@ -447,12 +447,12 @@ def update_date_from_bq_metadata(
 
 
 def get_coverage_parameters(
-    coverage_type, last_date, time_delta, ids, date_format, historical_database
-):
+    coverage_type: str, last_date:str, time_delta: dict, ids:dict, date_format:str, historical_database: bool
+) -> dict:
     if coverage_type == "all_free":
         free_parameters = parse_temporal_coverage(last_date, historical_database)
         free_parameters["coverage"] = ids.get("coverage_id_free")
-        log(f"Cobertura Grátis ->> {last_date}")
+
         return free_parameters, None
 
     elif coverage_type == "all_bdpro":
@@ -487,7 +487,7 @@ def get_coverage_parameters(
         return free_parameters, bdpro_parameters
 
 
-def parse_date(position, date_str, date_len):
+def parse_date(position: str, date_str: str, date_len: int):
     result = {}
     if date_len == 3:
         date = datetime.strptime(date_str, "%Y-%m-%d")
@@ -532,7 +532,7 @@ def parse_temporal_coverage(temporal_coverage, historical_database=True):
 
 def sync_bdpro_and_free_coverage(
     date_format: str, bdpro_parameters: dict, free_parameters: dict
-):
+) -> dict:
     if date_format == "%Y-%m-%d":
         bdpro_parameters["startYear"] = free_parameters["endYear"]
         bdpro_parameters["startMonth"] = free_parameters["endMonth"]
@@ -547,13 +547,13 @@ def sync_bdpro_and_free_coverage(
 
 
 def create_update(
-    email,
-    password,
-    mutation_class,
-    mutation_parameters,
-    query_class,
-    query_parameters,
-    update=True,
+    email: str,
+    password: str,
+    mutation_class: str,
+    mutation_parameters: dict,
+    query_class: str,
+    query_parameters: dict,
+    update: bool = True,
     api_mode: str = "prod",
 ):
     token = get_token(
@@ -637,14 +637,14 @@ def create_update(
 
 
 def update_row_access_policy(
-    project_id,
-    dataset_id,
-    table_id,
-    billing_project_id,
-    date_column_name,
-    date_format,
-    free_parameters,
-):
+    project_id: str,
+    dataset_id: str,
+    table_id: str,
+    billing_project_id: str,
+    date_column_name: dict,
+    date_format: str,
+    free_parameters: dict,
+) -> None:
     client = google_client(billing_project_id, from_file=True, reauth=False)
 
     query_bdpro_access = f'CREATE OR REPLACE ROW ACCESS POLICY bdpro_filter  ON  `{project_id}.{dataset_id}.{table_id}` GRANT TO ("group:bd-pro@basedosdados.org", "group:sudo@basedosdados.org") FILTER USING (TRUE)'
@@ -663,7 +663,7 @@ def update_row_access_policy(
     log("All users filter was included")
 
 
-def format_date_parameters(free_parameters, date_format):
+def format_date_parameters(free_parameters: dict, date_format: str)->str:
     if date_format == "%Y-%m-%d":
         formated_date = f'{free_parameters["endYear"]}-{free_parameters["endMonth"]}-{free_parameters["endDay"]}'
     elif date_format == "%Y-%m":
@@ -831,14 +831,14 @@ def parse_datetime_ranges(datetime_result: dict, date_format: str) -> dict:
 
             date_values = (end_year, end_month, end_day)
 
-            date_string = format_check_date(date_values, date_format)
+            date_string = format_and_check_date(date_values, date_format)
             # log(f"The following coverage is being added {date_objects}")
             date_objects[dt_node["id"]] = date_string
 
     return date_objects
 
 
-def format_check_date(date_values: tuple, date_format: str) -> str:
+def format_and_check_date(date_values: tuple, date_format: str) -> str:
     """This function formats a date according to the given date_format and make 2 checks:
         1) If the date_format is valid for the given date_values; in other words, if the date_format is correct for the table.
         2) If the date_values are not NONE;
@@ -858,29 +858,18 @@ def format_check_date(date_values: tuple, date_format: str) -> str:
 
     end_year, end_month, end_day = date_values
 
-    if date_format == "%Y-%m-%d":
-        if end_year is not None and end_month is not None and end_day is not None:
-            return f"{end_year:04d}-{end_month:02d}-{end_day:02d}"
-        else:
-            raise ValueError(
-                f"Attention! The input date_format ->> {date_format} is wrong for the current Table. The input date_format was '%Y-%m-%d' but one of the elements | year ->> {end_year}, month ->> {end_month}, day ->> {end_day}  | have NONE values in the PROD API. If that's not the case, check the Coverage values in the Prod API, they may be not filled (NONE)"
-            )
+    if date_format == "%Y-%m-%d" and  end_year is not None and end_month is not None and end_day is not None:
+        return f"{end_year:04d}-{end_month:02d}-{end_day:02d}"
 
-    elif date_format == "%Y-%m":
-        if end_year is not None and end_month is not None:
-            return f"{end_year:04d}-{end_month:02d}"
-        else:
-            raise ValueError(
-                f"Attention! The input date_format ->> {date_format} is wrong for the current Table. The input date_format was '%Y-%m' but one of the elements | year ->> {end_year}, month ->> {end_month}| have NONE values in the PROD API. If that's not the case, check the Coverage values in the Prod API, they may be not filled (NONE)"
-            )
+    if date_format == "%Y-%m" and end_year is not None and end_month is not None:
+        return f"{end_year:04d}-{end_month:02d}"
 
-    elif date_format == "Y%":
-        if end_year is not None:
-            return f"{end_year:04d}"
-        else:
-            raise ValueError(
-                f"Attention! The input date_format ->> {date_format} is wrong for the current Table. The input date_format was 'Y%' but one of the elements | year ->> {end_year} | have NONE values in the PROD API. If that's not the case, check the Coverage values in the Prod API, they may be not filled (NONE)"
-            )
+    if date_format == "Y%" and end_year is not None:
+        return f"{end_year:04d}"
+
+    raise ValueError(
+        f"Attention! The input date_format ->> {date_format} is wrong for the current Table. One of the elements have NONE values in the PROD API. If that's not the case, check the Coverage values in the Prod API, they may be not filled"
+    )
 
 
 def get_api_most_recent_date(
@@ -955,7 +944,7 @@ def get_api_most_recent_date(
     return max_date_value
 
 
-def get_headers(backend):
+def get_headers(backend: bd.Backend) -> dict:
     credentials = get_credentials_from_secret(secret_path="api_user_prod")
 
     mutation = """
