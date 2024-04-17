@@ -1170,5 +1170,4 @@ def obter_data(link):
         re.compile(r"\d+/\d+/\d+"),
         content.find("a", text=re.compile(r"\d+/\d+/\d")).get_text().strip(),
     ).group(0)
-    print(data)
     return datetime.strptime(data, '%d/%m/%y')
