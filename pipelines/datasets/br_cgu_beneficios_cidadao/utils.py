@@ -148,13 +148,13 @@ def extract_dates(table: str) -> pd.DataFrame:
 
     if table == "novo_bolsa_familia":
         driver.get(constants.ROOT_URL.value)
-        driver.implicitly_wait(10)
+        driver.implicitly_wait(15)
     elif table == "garantia_safra":
         driver.get(constants.ROOT_URL_GARANTIA_SAFRA.value)
-        driver.implicitly_wait(10)
+        driver.implicitly_wait(15)
     else:
         driver.get(constants.ROOT_URL_BPC.value)
-        driver.implicitly_wait(10)
+        driver.implicitly_wait(15)
 
     page_source = driver.page_source
     BeautifulSoup(page_source, "html.parser")
@@ -169,7 +169,7 @@ def extract_dates(table: str) -> pd.DataFrame:
 
         select_anos.select_by_value(valor_ano)
 
-        driver.implicitly_wait(5)
+        driver.implicitly_wait(10)
 
         select_meses = Select(driver.find_element(By.ID, "links-meses"))
 
