@@ -4,12 +4,13 @@ General purpose functions for the mundo_transfermarkt_competicoes project
 """
 ###############################################################################
 import re
+from datetime import datetime
 
 import numpy as np
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
-
+from concurrent.futures import ThreadPoolExecutor
 from pipelines.datasets.mundo_transfermarkt_competicoes.constants import (
     constants as mundo_constants,
 )
@@ -1118,3 +1119,60 @@ async def execucao_coleta_copa():
     df = df[mundo_constants.ORDEM_COPA_BRASIL.value]
 
     return df
+
+
+def data_url():
+    """
+    Obtém a data da última partida no site Transfermarkt.
+
+    Returns:
+        datetime.date: A data da última partida no formato 'YYYY-MM-DD'.
+    """
+    base_url = "https://www.transfermarkt.com/campeonato-brasileiro-serie-a/gesamtspielplan/wettbewerb/BRA1?saison_id={season}&spieltagVon=1&spieltagBis=38"
+    headers = {
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36"
+    }
+
+    links = []
+    season = obter_ano()
+
+    print(f"Obtendo links: temporada {season}")
+    site_data = requests.get(base_url.format(season=season), headers=headers)
+    soup = BeautifulSoup(site_data.content, "html.parser")
+    link_tags = soup.find_all("a", attrs={"class": "ergebnis-link"})
+    links = [re.sub(r"\s", "", tag["href"]) for tag in link_tags]
+    datas = []
+
+    with ThreadPoolExecutor() as executor:
+        datas = list(executor.map(obter_data, links))
+
+    return max(datas)
+
+def obter_ano():
+    """
+    Obtém o ano atual ou o ano anterior, dependendo do mês atual.
+
+    Returns:
+        int: O ano atual ou o ano anterior.
+    """
+    data_atual = datetime.today()
+    if data_atual.month > 7:
+        return data_atual.year
+    else:
+        return data_atual.year - 1
+
+
+def obter_data(link):
+    base_link_br = "https://www.transfermarkt.com.br"
+    headers = {
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36"
+    }
+    link_data = requests.get(base_link_br + link, headers=headers)
+    link_soup = BeautifulSoup(link_data.content, "html.parser")
+    content = link_soup.find("div", id="main")
+    data = re.search(
+        re.compile(r"\d+/\d+/\d+"),
+        content.find("a", text=re.compile(r"\d+/\d+/\d")).get_text().strip(),
+    ).group(0)
+    print(data)
+    return datetime.strptime(data, '%d/%m/%y')

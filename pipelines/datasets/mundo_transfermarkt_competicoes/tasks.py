@@ -8,14 +8,26 @@ import asyncio
 import pandas as pd
 from pandas import DataFrame
 from prefect import task
-
+from datetime import timedelta
+from pipelines.constants import constants
 from pipelines.datasets.mundo_transfermarkt_competicoes.utils import (
     execucao_coleta,
     execucao_coleta_copa,
+    data_url,
 )
 from pipelines.utils.utils import log, to_partitions
 
 ###############################################################################
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def get_data_source_transfermarkt_max_date():
+    # Obtém a data mais recente do site
+    data_obj = data_url().strftime("%Y-%m-%d")
+
+    return data_obj
 
 
 @task

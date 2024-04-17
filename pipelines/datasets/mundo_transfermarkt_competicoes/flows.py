@@ -22,6 +22,7 @@ from pipelines.datasets.mundo_transfermarkt_competicoes.schedules import (
 from pipelines.datasets.mundo_transfermarkt_competicoes.tasks import (
     execucao_coleta_sync,
     make_partitions,
+    get_data_source_transfermarkt_max_date,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -54,7 +55,8 @@ with Flow(
     # rename_flow_run = rename_current_flow_run_dataset_table(
     #     prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     # )
-    df = execucao_coleta_sync(table_id)
+    data = get_data_source_transfermarkt_max_date()
+    df = execucao_coleta_sync(table_id, upstream_tasks=[data])
     output_filepath = make_partitions(df, upstream_tasks=[df])
 
     wait_upload_table = create_table_and_upload_to_gcs(
