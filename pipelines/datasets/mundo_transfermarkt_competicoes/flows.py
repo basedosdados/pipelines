@@ -55,8 +55,10 @@ with Flow(
     # rename_flow_run = rename_current_flow_run_dataset_table(
     #     prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     # )
-    data = get_data_source_transfermarkt_max_date()
-    df = execucao_coleta_sync(table_id, upstream_tasks=[data])
+    #data = get_data_source_transfermarkt_max_date()
+    df = execucao_coleta_sync(table_id,
+        #upstream_tasks=[data]
+    )
     output_filepath = make_partitions(df, upstream_tasks=[df])
 
     wait_upload_table = create_table_and_upload_to_gcs(

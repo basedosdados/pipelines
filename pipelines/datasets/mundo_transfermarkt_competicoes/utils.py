@@ -412,28 +412,28 @@ async def execucao_coleta():
     site_data = requests.get(base_url.format(season=season), headers=headers)
     soup = BeautifulSoup(site_data.content, "html.parser")
     link_tags = soup.find_all("a", attrs={"class": "ergebnis-link"})
-    link_tags2 = soup.find_all("a", attrs={"title": "Match preview"})
     for tag in link_tags:
         links.append(re.sub(r"\s", "", tag["href"]))
-    for tag in link_tags2:
-        links.append(re.sub(r"\s", "", tag["href"]))
-    if len(links) % 10 != 0:
-        num_excess = len(links) % 10
-        del links[-num_excess:]
+
     tabela = soup.findAll("div", class_="box")
 
-    for i in range(1, int(len(links) / 10) + 1):
+    for i in range(1, 39):
         for row in tabela[i].findAll("tr"):  # para tudo que estiver em <tr>
+            rescheduled = None
             cells = row.findAll("td")  # variável para encontrar <td>
-            if len(cells) == 7:
+            try:
+                rescheduled = row.findAll("div", class_= "matchresult rescheduled")[0].get_text()
+            except:
+                schedule = None
+
+            if len(cells) == 7 and rescheduled == None:
                 ht_tag.append(cells[2].findAll(text=True))  # iterando sobre cada linha
                 result_tag.append(
                     cells[4].findAll(text=True)
                 )  # iterando sobre cada linha
                 at_tag.append(cells[6].findAll(text=True))  # iterando sobre cada linha
 
-
-    for time in range(0, len(links)):
+    for time in range(0, len(links) ):
         try:
             ht.append(str(ht_tag[time][2]))
             col_home.append(str(ht_tag[time][0]))
@@ -449,7 +449,7 @@ async def execucao_coleta():
             str_vazio = ""
             col_away.append(str(str_vazio))
 
-    for tag in result_tag:
+    for tag in result_tag[:len(links)]:
         fthg.append(str(pattern_fthg.findall(str(tag))))
         ftag.append(str(pattern_ftag.findall(str(tag))))
 
@@ -458,13 +458,13 @@ async def execucao_coleta():
     links_esta = [link.replace("index", "statistik") for link in links]
     # links das escalações de cada partida
     links_valor = [link.replace("index", "aufstellung") for link in links]
-
     n_links = len(links)
     log(f"Encontrados {n_links} partidas.")
     log("Extraindo dados...")
     # Primeiro loop: Dados de estatística
     for n, link in enumerate(links_esta):
         # Tentativas de obter os links
+
         content = await get_content(base_link + link, wait_time=0.01)
         # log(content)
         if content:
@@ -538,11 +538,7 @@ async def execucao_coleta():
     del df["test"]
 
     df["data"] = pd.to_datetime(df["data"]).dt.date
-    # df["horario"] = pd.to_datetime(df["horario"], format="%I:%M %p")
-    # df["horario"] = df["horario"].dt.strftime("%H:%M")
     df.fillna("", inplace=True)
-
-    # df["rodada"] = df["rodada"].astype(np.int64)
 
     # renomear colunas
     df = rename_columns(df)
