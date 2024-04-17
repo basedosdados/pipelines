@@ -33,7 +33,8 @@ async def get_async(client: httpx.AsyncClient, url: str) -> httpx.Response:
     }
     try:
         return await client.get(url, headers=headers)
-    except httpx.ConnectError:
+    except (httpx.ConnectError, httpx.ReadError) as e:
+        log(f"Error {e}, {url}")
         time.sleep(10.0)
         return await client.get(url, headers=headers)
 
