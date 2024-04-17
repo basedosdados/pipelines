@@ -431,7 +431,8 @@ async def execucao_coleta():
                 )  # iterando sobre cada linha
                 at_tag.append(cells[6].findAll(text=True))  # iterando sobre cada linha
 
-    for time in range(380):
+
+    for time in range(0, len(links)):
         try:
             ht.append(str(ht_tag[time][2]))
             col_home.append(str(ht_tag[time][0]))
@@ -439,7 +440,7 @@ async def execucao_coleta():
             ht.append(str(ht_tag[time][0]))
             str_vazio = ""
             col_home.append(str(str_vazio))
-    for time in range(380):
+    for time in range(0, len(links)):
         at.append(str(at_tag[time][0]))
         try:
             col_away.append(str(at_tag[time][2]))
