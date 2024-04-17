@@ -326,7 +326,6 @@ def get_table_status(table_id, api_mode, email, password):
         print("get:  Error:", json.dumps(r, indent=4, ensure_ascii=False))
         raise Exception("get: Error")
 
-
 def extract_last_date_from_bq(
     dataset_id,
     table_id,
@@ -360,13 +359,17 @@ def extract_last_date_from_bq(
         Exception: If an error occurs while extracting the last update date.
     """
     if not historical_database:
-        last_date = update_date_from_bq_metadata(
+        log(
+            "WARNING: Non-historical data mode selected. Single-date temporal coverage applied"
+        )
+        last_date_dt = update_date_from_bq_metadata(
             dataset_id=dataset_id,
             table_id=table_id,
-            date_format=date_format,
             billing_project_id=billing_project_id,
             project_id=project_id,
         )
+        last_date = datetime.strftime(last_date_dt, date_format)
+
         return last_date
 
     query_date_column = format_date_column(date_column)
@@ -396,7 +399,7 @@ def extract_last_date_from_bq(
         raise
 
 
-def format_date_column(date_column):
+def format_date_column(date_column: dict) -> str:
     if date_column.keys() == {"date"}:
         query_date_column = date_column["date"]
     elif date_column.keys() == {"year", "quarter"}:
@@ -405,27 +408,28 @@ def format_date_column(date_column):
         query_date_column = f"DATE({date_column['year']},{date_column['month']},1)"
     return query_date_column
 
+def able_to_query_bigquery_metadata(billing_project_id:str, bq_project:str) -> bool:
+    """
+    To check the table metadata in BigQuery it is necessary that the billing project id has some special permissions,
+    So, in our case, it is necessary that billing_project_id == bq_project
+    """
+    return billing_project_id == bq_project
 
 def update_date_from_bq_metadata(
     dataset_id: str,
     table_id: str,
-    date_format: str,
     billing_project_id: str,
     project_id: str,
-):
-    log(
-        "WARNING: Non-historical data mode selected. Single-date temporal coverage applied"
-    )
+) -> str:
     try:
         query_bd = f"""
         SELECT
-            *
+            last_modified_time
         FROM
         `{project_id}.{dataset_id}.__TABLES__`
-        WHERE
-        table_id = '{table_id}'
+        WHERE table_id = '{table_id}'
         """
-
+        log(query_bd)
         t = bd.read_sql(
             query=query_bd,
             billing_project_id=billing_project_id,
@@ -434,8 +438,7 @@ def update_date_from_bq_metadata(
         timestamp = (
             t["last_modified_time"][0] / 1000
         )  # Convert to seconds by dividing by 1000
-        dt = datetime.fromtimestamp(timestamp)
-        last_date = dt.strftime(date_format)
+        last_date = datetime.fromtimestamp(timestamp)
         log(f"Última data: {last_date}")
         return last_date
     except Exception as e:
@@ -669,6 +672,9 @@ def format_date_parameters(free_parameters, date_format):
         formated_date = f'{free_parameters["endYear"]}-01-01'
 
     return formated_date
+
+
+
 
 
 #######################
