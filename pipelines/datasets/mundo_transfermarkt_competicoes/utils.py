@@ -259,6 +259,7 @@ def pegar_valor(df, content):
     Returns:
         pandas.DataFrame: O DataFrame atualizado com os dados gerais da partida processados.
     """
+
     valor_content = {
         "valor_equipe_titular_man": content.find_all("div", class_="table-footer")[0]
         .find_all("td")[3]
@@ -276,8 +277,8 @@ def pegar_valor(df, content):
         .find_all("td")[1]
         .get_text()
         .split(":", 1)[1],
-        "tecnico_man": content.find_all("a", attrs={"id": "0"})[1].get_text(),
-        "tecnico_vis": content.find_all("a", attrs={"id": "0"})[3].get_text(),
+        "tecnico_man": content.find_all("a", attrs={"id": "0"})[0].get_text(),
+        "tecnico_vis": content.find_all("a", attrs={"id": "0"})[1].get_text(),
     }
     df = pd.concat([df, pd.DataFrame([valor_content])], ignore_index=True)
     return df

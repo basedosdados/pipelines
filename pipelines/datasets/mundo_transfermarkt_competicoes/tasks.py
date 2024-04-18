@@ -35,6 +35,7 @@ def execucao_coleta_sync(tabela: str) -> pd.DataFrame:
     """
     Executa a coleta de dados de uma tabela especificada de forma síncrona.
 
+
     Args:
         tabela (str): O nome da tabela de dados a ser coletada. Deve ser 'brasileirao_serie_a' ou outro valor.
 
