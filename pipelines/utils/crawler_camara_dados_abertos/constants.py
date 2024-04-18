@@ -250,7 +250,7 @@ def update_metadata_variable_dictionary(table_id: str, dataset_id = "br_camara_d
                                     "date_column_name": {'date': 'data_inicio'},
                                     "date_format":"%Y-%m-%d",
                                     "time_delta":{'months': 6},
-                                    "coverage_type": "all_free",
+                                    "coverage_type": "part_bdpro",
                                     "prefect_mode": "prod",
                                     "bq_project": "basedosdados",
                                     "historical_database" : True,
@@ -302,7 +302,7 @@ def update_metadata_variable_dictionary(table_id: str, dataset_id = "br_camara_d
                                 "licitacao": {
                                     "dataset_id": dataset_id,
                                     "table_id": table_id,
-                                    "date_column_name": {'date': 'data_abertura'},
+                                    "date_column_name": {'date': 'data_publicacao'},
                                     "date_format":"%Y-%m-%d",
                                     "time_delta":{'months': 6},
                                     "coverage_type": "part_bdpro",
