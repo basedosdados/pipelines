@@ -64,10 +64,10 @@ with Flow(
         upstream_tasks=[data_source_max_date],
     )
 
-    df = execucao_coleta_sync(table_id,
-        upstream_tasks=[dados_desatualizados]
-    )
     with case(dados_desatualizados, True):
+        df = execucao_coleta_sync(table_id,
+            upstream_tasks=[dados_desatualizados]
+        )
         output_filepath = make_partitions(df, upstream_tasks=[df])
 
         wait_upload_table = create_table_and_upload_to_gcs(
