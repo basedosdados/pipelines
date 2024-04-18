@@ -347,6 +347,11 @@ def rename_columns(df):
     df = df.rename(columns=mundo_constants.COLUMNS_MAPPING.value)
     return df
 
+def extract_avg_age_and_value(column):
+    parts = column.split(":")
+    age_str = parts[-1].strip()
+    return age_str
+
 
 def clean_column(column):
     column = column.str.replace(r"['\":.mTh]", "", regex=True)
@@ -355,18 +360,10 @@ def clean_column(column):
 
 
 def extract_additional_columns(df_valor):
-    df_valor["idade_media_titular_vis"] = clean_column(
-        df_valor["idade_media_titular_vis"]
-    )
-    df_valor["idade_media_titular_man"] = clean_column(
-        df_valor["idade_media_titular_man"]
-    )
-    df_valor["valor_equipe_titular_man"] = clean_column(
-        df_valor["valor_equipe_titular_man"]
-    )
-    df_valor["valor_equipe_titular_vis"] = clean_column(
-        df_valor["valor_equipe_titular_vis"]
-    )
+    df_valor["idade_media_titular_vis"] = df_valor["idade_media_titular_vis"].apply(extract_avg_age_and_value)
+    df_valor["idade_media_titular_man"] = df_valor["idade_media_titular_man"].apply(extract_avg_age_and_value)
+    df_valor["valor_equipe_titular_man"] = df_valor["valor_equipe_titular_man"].apply(extract_avg_age_and_value)
+    df_valor["valor_equipe_titular_vis"] = df_valor["valor_equipe_titular_vis"].apply(extract_avg_age_and_value)
     return df_valor
 
 
