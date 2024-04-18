@@ -102,7 +102,7 @@ async def get_peoples_info(ids: list[tuple[str, str]]) -> list[PeopleInfoRespons
         )
 
 
-async def crawler_process(peoples: list[PeopleLine]) -> list[ProcessInfoResponse]:
+async def crawler_processes(peoples: list[PeopleLine]) -> list[ProcessInfoResponse]:
     max_connections = 5
     timeout = httpx.Timeout(30, pool=3.0, read=None)
     semaphore = asyncio.Semaphore(max_connections)
@@ -117,6 +117,80 @@ async def crawler_process(peoples: list[PeopleLine]) -> list[ProcessInfoResponse
         return await asyncio.gather(
             *[wrapper(client, people_line) for people_line in peoples]  # type: ignore
         )
+
+async def get_peoples_main_page(total_pages: int) -> list[PeopleLine]:
+    requests_home_page = await crawler_home_page(total_pages)
+
+    return list(
+        itertools.chain(*[parse_peoples(i) for i in requests_home_page])
+    )
+
+async def get_all_sentences(peoples: list[PeopleLine]) -> list[dict]:
+
+    sentence_responses = await crawler_sentences(peoples)
+
+    return [parse_sentence(i) for i in sentence_responses]
+
+    # df_senteces = pd.DataFrame(parsed_sentences)
+    # df_senteces["condenacao_id"] = df_senteces["condenacao_id"].astype("string")
+
+    # path = "tmp/sentences.csv"
+    # df_senteces.to_csv(path, index=False)
+
+    # return df_senteces
+
+async def get_all_processes(peoples: list[PeopleLine]):
+    process_responses = await crawler_processes(peoples)
+    parsed_process = [parse_process(i) for i in process_responses]
+
+    df_process = pd.DataFrame(parsed_process)
+    df_process["processo_id"] = df_process["processo_id"].astype("string")
+    path = "tmp/processes.csv"
+
+    df_process.to_csv(path, index=False)
+
+    return path
+
+async def get_all_peoples_info(peoples_sentence_id: list[tuple[str, str]]) -> str:
+    peoples_info_responses = await get_peoples_info(peoples_sentence_id)
+    parsed_peoples_info = [parse_people_data(i) for i in peoples_info_responses]
+    df_parsed_peoples_info = pd.DataFrame(parsed_peoples_info)
+    df_parsed_peoples_info["condenacao_id"] = df_parsed_peoples_info[
+        "condenacao_id"
+    ].astype("string")
+
+    path = "tmp/peoples_info.csv"
+    df_parsed_peoples_info.to_csv(path, index=False)
+    return path
+
+async def main_crawler(total_pages):
+    peoples = await get_peoples_main_page(total_pages)
+    sentences = await get_all_sentences(peoples)
+    process_csv_path = await get_all_processes(peoples)
+
+    valid_info_peoples = [
+        (sentence["condenacao_id"], sentence["pessoa_id"])  # type: ignore
+        for sentence in sentences
+        if "pessoa_id" in sentence  # type: ignore
+    ]
+
+    peoples_info_csv = await get_all_peoples_info(valid_info_peoples)
+
+    # Save peoples
+    peoples_path = "tmp/peoples.csv"
+    pd.DataFrame(peoples).to_csv(peoples_path, index=False)
+
+    # Save sentences
+    sentences_path = "tmp/sentences.csv"
+    df_sentences = pd.DataFrame(sentences)
+    df_sentences["condenacao_id"] = df_sentences["condenacao_id"].astype("string")
+    df_sentences.rename({
+        name: normalize_string(name.replace(":", "").replace("?", ""))
+        for name in df_sentences.columns
+    }).to_csv(sentences_path, index=False)
+
+
+    return (peoples_path, peoples_info_csv, sentences_path, process_csv_path)
 
 
 async def run_async(total_pages: int) -> pd.DataFrame:
@@ -157,7 +231,7 @@ async def run_async(total_pages: int) -> pd.DataFrame:
     parsed_peoples_info = [parse_people_data(i) for i in peoples_info_responses]
 
     time_start_crawler_process = time.time()
-    process_responses = await crawler_process(parsed_main_list)
+    process_responses = await crawler_processes(parsed_main_list)
     time_end_crawler_process = time.time()
 
     parsed_process = [parse_process(i) for i in process_responses]
@@ -204,9 +278,9 @@ async def run_async(total_pages: int) -> pd.DataFrame:
 
 
 @task
-def main_task() -> pd.DataFrame:
+def main_task():
     pages = get_number_pages()
-    return asyncio.run(run_async(pages))
+    return asyncio.run(main_crawler(100))
 
 
 @task

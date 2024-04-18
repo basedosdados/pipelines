@@ -54,19 +54,19 @@ with Flow(
 
         log_task(df)
 
-        max_date = get_max_date(df, upstream_tasks=[df])
+        # max_date = get_max_date(df, upstream_tasks=[df])
 
-        log_task(f"Max date: {max_date}")
+        # log_task(f"Max date: {max_date}")
 
-        output_filepath = write_csv_file(df, upstream_tasks=[max_date])
+        # output_filepath = write_csv_file(df, upstream_tasks=[max_date])
 
-        wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=output_filepath,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dump_mode="overwrite",
-            wait=output_filepath,
-        )
+        # wait_upload_table = create_table_and_upload_to_gcs(
+        #     data_path=output_filepath,
+        #     dataset_id=dataset_id,
+        #     table_id=table_id,
+        #     dump_mode="overwrite",
+        #     wait=output_filepath,
+        # )
 
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
@@ -87,19 +87,19 @@ with Flow(
                 upstream_tasks=[current_flow_labels],
             )
 
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
-                upstream_tasks=[wait_upload_table],
-            )
-            wait_for_materialization.max_retries = (
-                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-            wait_for_materialization.retry_delay = datetime.timedelta(
-                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-            )
+            # wait_for_materialization = wait_for_flow_run(
+            #     materialization_flow,
+            #     stream_states=True,
+            #     stream_logs=True,
+            #     raise_final_state=True,
+            #     upstream_tasks=[wait_upload_table],
+            # )
+            # wait_for_materialization.max_retries = (
+            #     dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
+            # )
+            # wait_for_materialization.retry_delay = datetime.timedelta(
+            #     seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+            # )
 
         with case(update_metadata, True):
             update_django_metadata(
