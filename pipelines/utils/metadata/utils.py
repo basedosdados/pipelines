@@ -18,7 +18,8 @@ from dateutil.relativedelta import relativedelta
 
 from pipelines.utils.metadata.constants import constants as metadata_constants
 from pipelines.utils.utils import get_credentials_from_secret, log
-#from pipelines.utils.metadata.utils_async import create_update_async, get_id_async, get_token_async
+
+
 #######################
 # update_django_metadata Utils
 #######################
