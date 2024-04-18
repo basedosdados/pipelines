@@ -9,7 +9,6 @@ from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 from pipelines.constants import constants
 from pipelines.datasets.br_cnj_improbidade_administrativa.schedules import every_month
 from pipelines.datasets.br_cnj_improbidade_administrativa.tasks import (
-    get_max_date,
     is_up_to_date,
     main_task,
     write_csv_file,
@@ -35,7 +34,7 @@ with Flow(
     table_id = Parameter("table_id", default="condenacao", required=True)
     update_metadata = Parameter("update_metadata", default=True, required=False)
     materialization_mode = Parameter("materialization_mode", default="prod", required=False)
-    materialize_after_dump = Parameter("materialize after dump", default=True, required=False)
+    materialize_after_dump = Parameter("materialize_after_dump", default=True, required=False)
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
@@ -50,23 +49,23 @@ with Flow(
     with case(is_updated, False):
         log_task("Data is outdated")
 
-        df = main_task(upstream_tasks=[is_updated])
+        csv_paths = main_task(upstream_tasks=[is_updated])
 
-        log_task(df)
+        log_task(csv_paths)
 
-        # max_date = get_max_date(df, upstream_tasks=[df])
+        # max_date = get_max_date(csv_paths, upstream_tasks=[csv_paths])
 
         # log_task(f"Max date: {max_date}")
 
-        # output_filepath = write_csv_file(df, upstream_tasks=[max_date])
+        output_filepath = write_csv_file(csv_paths, upstream_tasks=[csv_paths])
 
-        # wait_upload_table = create_table_and_upload_to_gcs(
-        #     data_path=output_filepath,
-        #     dataset_id=dataset_id,
-        #     table_id=table_id,
-        #     dump_mode="overwrite",
-        #     wait=output_filepath,
-        # )
+        wait_upload_table = create_table_and_upload_to_gcs(
+            data_path=output_filepath,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dump_mode="overwrite",
+            wait=output_filepath,
+        )
 
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
@@ -87,19 +86,19 @@ with Flow(
                 upstream_tasks=[current_flow_labels],
             )
 
-            # wait_for_materialization = wait_for_flow_run(
-            #     materialization_flow,
-            #     stream_states=True,
-            #     stream_logs=True,
-            #     raise_final_state=True,
-            #     upstream_tasks=[wait_upload_table],
-            # )
-            # wait_for_materialization.max_retries = (
-            #     dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            # )
-            # wait_for_materialization.retry_delay = datetime.timedelta(
-            #     seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-            # )
+            wait_for_materialization = wait_for_flow_run(
+                materialization_flow,
+                stream_states=True,
+                stream_logs=True,
+                raise_final_state=True,
+                upstream_tasks=[wait_upload_table],
+            )
+            wait_for_materialization.max_retries = (
+                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
+            )
+            wait_for_materialization.retry_delay = datetime.timedelta(
+                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+            )
 
         with case(update_metadata, True):
             update_django_metadata(

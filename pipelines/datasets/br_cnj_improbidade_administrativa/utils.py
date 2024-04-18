@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
-import typing
 import time
+import typing
 
 import httpx
 from lxml import html

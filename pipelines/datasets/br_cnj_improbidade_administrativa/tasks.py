@@ -43,7 +43,6 @@ def get_number_pages() -> int:
 
 
 async def crawler_home_page(total_pages: int) -> list[httpx.Response]:
-
     pages_urls = [build_home_url_page(i) for i in range(0, total_pages)]
 
     max_connections = 3
@@ -56,9 +55,7 @@ async def crawler_home_page(total_pages: int) -> list[httpx.Response]:
             return await co
 
     async with httpx.AsyncClient(limits=limits, timeout=timeout) as client:
-        return await asyncio.gather(
-            *[wrapper(get_async(client, url)) for url in pages_urls]
-        )
+        return await asyncio.gather(*[wrapper(get_async(client, url)) for url in pages_urls])
 
 
 async def crawler_sentences(
@@ -77,7 +74,9 @@ async def crawler_sentences(
             return {"condenacao_id": sentence_id, "response": response}
 
     async with httpx.AsyncClient(limits=limits, timeout=timeout) as client:
-        return await asyncio.gather(*[wrapper(client, sentence_id) for sentence_id in condenacao_ids])  # type: ignore
+        return await asyncio.gather(
+            *[wrapper(client, sentence_id) for sentence_id in condenacao_ids]
+        )  # type: ignore
 
 
 async def get_peoples_info(ids: list[tuple[str, str]]) -> list[PeopleInfoResponse]:
@@ -88,17 +87,14 @@ async def get_peoples_info(ids: list[tuple[str, str]]) -> list[PeopleInfoRespons
 
     async def wrapper(client, sentence_id, people_id):
         async with semaphore:
-            response = await get_async(
-                client, build_people_info_url(sentence_id, people_id)
-            )
+            response = await get_async(client, build_people_info_url(sentence_id, people_id))
             return {"condenacao_id": sentence_id, "response": response}
 
-    async with httpx.AsyncClient(timeout=timeout, limits=limits, headers={"Connection": "close"}) as client:
+    async with httpx.AsyncClient(
+        timeout=timeout, limits=limits, headers={"Connection": "close"}
+    ) as client:
         return await asyncio.gather(
-            *[
-                wrapper(client, sentence_id, people_id)
-                for (sentence_id, people_id) in ids
-            ]  # type: ignore
+            *[wrapper(client, sentence_id, people_id) for (sentence_id, people_id) in ids]  # type: ignore
         )
 
 
@@ -118,15 +114,14 @@ async def crawler_processes(peoples: list[PeopleLine]) -> list[ProcessInfoRespon
             *[wrapper(client, people_line) for people_line in peoples]  # type: ignore
         )
 
+
 async def get_peoples_main_page(total_pages: int) -> list[PeopleLine]:
     requests_home_page = await crawler_home_page(total_pages)
 
-    return list(
-        itertools.chain(*[parse_peoples(i) for i in requests_home_page])
-    )
+    return list(itertools.chain(*[parse_peoples(i) for i in requests_home_page]))
+
 
 async def get_all_sentences(peoples: list[PeopleLine]) -> list[dict]:
-
     sentence_responses = await crawler_sentences(peoples)
 
     return [parse_sentence(i) for i in sentence_responses]
@@ -139,34 +134,44 @@ async def get_all_sentences(peoples: list[PeopleLine]) -> list[dict]:
 
     # return df_senteces
 
+
 async def get_all_processes(peoples: list[PeopleLine]):
     process_responses = await crawler_processes(peoples)
     parsed_process = [parse_process(i) for i in process_responses]
 
     df_process = pd.DataFrame(parsed_process)
     df_process["processo_id"] = df_process["processo_id"].astype("string")
-    path = "tmp/processes.csv"
+    path = "/tmp/processes.csv"
 
     df_process.to_csv(path, index=False)
 
     return path
 
+
 async def get_all_peoples_info(peoples_sentence_id: list[tuple[str, str]]) -> str:
     peoples_info_responses = await get_peoples_info(peoples_sentence_id)
     parsed_peoples_info = [parse_people_data(i) for i in peoples_info_responses]
     df_parsed_peoples_info = pd.DataFrame(parsed_peoples_info)
-    df_parsed_peoples_info["condenacao_id"] = df_parsed_peoples_info[
-        "condenacao_id"
-    ].astype("string")
+    df_parsed_peoples_info["condenacao_id"] = df_parsed_peoples_info["condenacao_id"].astype(
+        "string"
+    )
 
-    path = "tmp/peoples_info.csv"
+    path = "/tmp/peoples_info.csv"
     df_parsed_peoples_info.to_csv(path, index=False)
     return path
 
+
 async def main_crawler(total_pages):
     peoples = await get_peoples_main_page(total_pages)
-    sentences = await get_all_sentences(peoples)
-    process_csv_path = await get_all_processes(peoples)
+    log("Get peoples main page finished")
+    # sentences = await get_all_sentences(peoples)
+    # process_csv_path = await get_all_processes(peoples)
+
+    sentences, process_csv_path = await asyncio.gather(
+        *[get_all_sentences(peoples), get_all_processes(peoples)]  # type: ignore
+    )
+
+    log("Sentences and processes finished")
 
     valid_info_peoples = [
         (sentence["condenacao_id"], sentence["pessoa_id"])  # type: ignore
@@ -175,35 +180,35 @@ async def main_crawler(total_pages):
     ]
 
     peoples_info_csv = await get_all_peoples_info(valid_info_peoples)
+    log("Get all peoples info finished")
 
     # Save peoples
-    peoples_path = "tmp/peoples.csv"
+    peoples_path = "/tmp/peoples.csv"
     pd.DataFrame(peoples).to_csv(peoples_path, index=False)
 
     # Save sentences
-    sentences_path = "tmp/sentences.csv"
+    sentences_path = "/tmp/sentences.csv"
     df_sentences = pd.DataFrame(sentences)
     df_sentences["condenacao_id"] = df_sentences["condenacao_id"].astype("string")
-    df_sentences.rename({
-        name: normalize_string(name.replace(":", "").replace("?", ""))
-        for name in df_sentences.columns
-    }).to_csv(sentences_path, index=False)
-
+    df_sentences.rename(
+        columns={
+            name: normalize_string(name.replace(":", "").replace("?", ""))
+            for name in df_sentences.columns
+        },
+        errors="raise",
+    ).to_csv(sentences_path, index=False)
 
     return (peoples_path, peoples_info_csv, sentences_path, process_csv_path)
 
 
 async def run_async(total_pages: int) -> pd.DataFrame:
-
     time_start_home_page = time.time()
     requests_home_page = await crawler_home_page(total_pages)
     time_end_home_page = time.time()
 
     log("Crawler home page finished")
 
-    parsed_main_list = list(
-        itertools.chain(*[parse_peoples(i) for i in requests_home_page])
-    )
+    parsed_main_list = list(itertools.chain(*[parse_peoples(i) for i in requests_home_page]))
 
     log("Starting crawler sentences")
     time_start_get_sentences = time.time()
@@ -238,20 +243,16 @@ async def run_async(total_pages: int) -> pd.DataFrame:
 
     log(f"Crawler home page. Time {time_end_home_page - time_start_home_page}")
     log(f"Crawler sentences. Time {time_end_get_sentences - time_start_get_sentences}")
-    log(
-        f"Crawler peoples infos. Time {time_end_get_info_peples - time_start_get_info_peoples}"
-    )
-    log(
-        f"Crawler process. Time {time_end_crawler_process - time_start_crawler_process}"
-    )
+    log(f"Crawler peoples infos. Time {time_end_get_info_peples - time_start_get_info_peoples}")
+    log(f"Crawler process. Time {time_end_crawler_process - time_start_crawler_process}")
 
     df_main_list = pd.DataFrame(parsed_main_list)
     df_main_list["condenacao_id"] = df_main_list["condenacao_id"].astype("string")
 
     df_parsed_peoples_info = pd.DataFrame(parsed_peoples_info)
-    df_parsed_peoples_info["condenacao_id"] = df_parsed_peoples_info[
-        "condenacao_id"
-    ].astype("string")
+    df_parsed_peoples_info["condenacao_id"] = df_parsed_peoples_info["condenacao_id"].astype(
+        "string"
+    )
 
     df_process = pd.DataFrame(parsed_process)
     df_process["processo_id"] = df_process["processo_id"].astype("string")
@@ -280,7 +281,27 @@ async def run_async(total_pages: int) -> pd.DataFrame:
 @task
 def main_task():
     pages = get_number_pages()
-    return asyncio.run(main_crawler(100))
+    return asyncio.run(main_crawler(pages))
+
+
+@task
+def write_csv_file(csv_paths: tuple[str, str, str, str]) -> str:
+    peoples, peoples_info, sentences, processes = csv_paths
+
+    peoples_df = pd.read_csv(peoples)
+    peoples_info_df = pd.read_csv(peoples_info)
+    sentences_df = pd.read_csv(sentences)
+    processes_df = pd.read_csv(processes)
+
+    path = "/tmp/data.csv"
+
+    peoples_df.merge(peoples_info_df, left_on="condenacao_id", right_on="condenacao_id").merge(
+        sentences_df, left_on="condenacao_id", right_on="condenacao_id"
+    ).merge(processes_df, left_on="processo_id", right_on="processo_id").to_csv(path, index=False)
+
+    log("csv file saved")
+
+    return path
 
 
 @task
@@ -315,10 +336,3 @@ def is_up_to_date() -> bool:
 def get_max_date(df: pd.DataFrame) -> datetime.date:
     max_date: datetime.date = df["data_propositura"].max()
     return max_date
-
-
-@task
-def write_csv_file(df: pd.DataFrame) -> str:
-    path = "/tmp/data.csv"
-    df.to_csv(path, index=False)
-    return path
