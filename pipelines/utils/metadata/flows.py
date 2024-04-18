@@ -26,14 +26,19 @@ with Flow(
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
     )
+    coverage_type = Parameter("coverage_type",default = 'part_bdpro', required=False)
+    date_column_name = Parameter("date_column_name",default={"month": "mes", "year":"ano"}, required=False)
+    date_format = Parameter("date_format", default='%Y-%m',required=False)
+    time_delta = Parameter("time_delta", default={"months": 6}, required=False)
+
 
     update_django_metadata(
         dataset_id=dataset_id,
         table_id=table_id,
-        date_column_name={"date": "data_comunicado"},
-        date_format="%Y-%m-%d",
-        coverage_type="part_bdpro",
-        time_delta={"months": 6},
+        date_column_name=date_column_name,
+        date_format=date_format,
+        coverage_type=coverage_type,
+        time_delta=time_delta,
         prefect_mode=materialization_mode,
         bq_project="basedosdados",
     )
