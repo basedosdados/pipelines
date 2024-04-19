@@ -45,7 +45,7 @@ def get_number_pages() -> int:
 async def crawler_home_page(total_pages: int) -> list[httpx.Response]:
     pages_urls = [build_home_url_page(i) for i in range(0, total_pages)]
 
-    max_connections = 3
+    max_connections = 10
     timeout = httpx.Timeout(30, pool=3.0)
     limits = httpx.Limits(max_connections=max_connections)
     semaphore = asyncio.Semaphore(max_connections)
@@ -63,7 +63,7 @@ async def crawler_sentences(
 ) -> list[SentenceResponse]:
     condenacao_ids: list[str] = np.unique([i["condenacao_id"] for i in peoples_info])
 
-    max_connections = 3
+    max_connections = 10
     timeout = httpx.Timeout(30, pool=3.0)
     limits = httpx.Limits(max_connections=max_connections)
     semaphore = asyncio.Semaphore(max_connections)
@@ -99,7 +99,7 @@ async def get_peoples_info(ids: list[tuple[str, str]]) -> list[PeopleInfoRespons
 
 
 async def crawler_processes(peoples: list[PeopleLine]) -> list[ProcessInfoResponse]:
-    max_connections = 5
+    max_connections = 10
     timeout = httpx.Timeout(30, pool=3.0, read=None)
     semaphore = asyncio.Semaphore(max_connections)
     limits = httpx.Limits(max_connections=max_connections)
@@ -173,14 +173,14 @@ async def main_crawler(total_pages):
 
     log("Sentences and processes finished")
 
-    valid_info_peoples = [
-        (sentence["condenacao_id"], sentence["pessoa_id"])  # type: ignore
-        for sentence in sentences
-        if "pessoa_id" in sentence  # type: ignore
-    ]
+    # valid_info_peoples = [
+    #     (sentence["condenacao_id"], sentence["pessoa_id"])  # type: ignore
+    #     for sentence in sentences
+    #     if "pessoa_id" in sentence  # type: ignore
+    # ]
 
-    peoples_info_csv = await get_all_peoples_info(valid_info_peoples)
-    log("Get all peoples info finished")
+    # peoples_info_csv = await get_all_peoples_info(valid_info_peoples)
+    # log("Get all peoples info finished")
 
     # Save peoples
     peoples_path = "/tmp/peoples.csv"
@@ -198,7 +198,7 @@ async def main_crawler(total_pages):
         errors="raise",
     ).to_csv(sentences_path, index=False)
 
-    return (peoples_path, peoples_info_csv, sentences_path, process_csv_path)
+    return (peoples_path, "", sentences_path, process_csv_path)
 
 
 async def run_async(total_pages: int) -> pd.DataFrame:
