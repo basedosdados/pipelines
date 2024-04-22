@@ -5,7 +5,8 @@ Tasks for metadata
 import asyncio
 from datetime import datetime
 import basedosdados as bd
-
+from datetime import timedelta
+from pipelines.constants import constants as constants_root
 import pandas as pd
 from prefect import task
 
@@ -184,7 +185,10 @@ def update_django_metadata(
             api_mode=api_mode,
         )
 
-@task
+@task(
+    max_retries=constants_root.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants_root.TASK_RETRY_DELAY.value),
+)
 def check_if_data_is_outdated(
     dataset_id: str,
     table_id: str,
