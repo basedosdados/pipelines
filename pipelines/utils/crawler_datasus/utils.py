@@ -117,6 +117,11 @@ def list_datasus_dbc_files(
                 raise ValueError("No group assigned to SIA_group")
             available_dbs.extend(ftp.nlst(f"dissemin/publicos/SIASUS/200801_/Dados/{datasus_database_table}*.DBC"))
 
+        if datasus_database == "SIH":
+            if not datasus_database_table:
+                raise ValueError("No group assigned to SIH_group")
+            available_dbs.extend(ftp.nlst(f"dissemin/publicos/SIHSUS/200801_/Dados/{datasus_database_table}*.DBC"))
+
     except Exception as e:
         raise e
 
