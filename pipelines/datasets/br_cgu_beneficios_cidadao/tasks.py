@@ -7,7 +7,7 @@ from datetime import timedelta
 
 import pandas as pd
 from prefect import task
-
+from pipelines.constants import constants as constants_root
 from pipelines.datasets.br_cgu_beneficios_cidadao.constants import constants
 from pipelines.datasets.br_cgu_beneficios_cidadao.utils import (
     download_unzip_csv,
@@ -23,7 +23,10 @@ from datetime import datetime, date
 def print_last_file(file):
     log(f"Arquivo baixado --> {file}")
 
-@task
+@task(
+    max_retries=constants_root.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants_root.TASK_RETRY_DELAY.value),
+)
 def scrape_download_page(table_id):
     dates = extract_dates(table=table_id)
 
@@ -37,8 +40,8 @@ def get_updated_files(files_df, table_last_date):
 
 
 @task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+    max_retries=constants_root.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants_root.TASK_RETRY_DELAY.value),
 )
 def get_source_max_date(files_df) -> list:
     """
@@ -63,8 +66,8 @@ def get_source_max_date(files_df) -> list:
 
 
 @task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+    max_retries=constants_root.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants_root.TASK_RETRY_DELAY.value),
 )  # noqa
 def crawler_beneficios_cidadao(table_id: str,
                                url: str,
