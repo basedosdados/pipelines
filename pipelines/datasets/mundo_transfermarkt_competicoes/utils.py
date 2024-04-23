@@ -4,12 +4,13 @@ General purpose functions for the mundo_transfermarkt_competicoes project
 """
 ###############################################################################
 import re
+from datetime import datetime
 
 import numpy as np
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
-
+from concurrent.futures import ThreadPoolExecutor
 from pipelines.datasets.mundo_transfermarkt_competicoes.constants import (
     constants as mundo_constants,
 )
@@ -258,6 +259,7 @@ def pegar_valor(df, content):
     Returns:
         pandas.DataFrame: O DataFrame atualizado com os dados gerais da partida processados.
     """
+
     valor_content = {
         "valor_equipe_titular_man": content.find_all("div", class_="table-footer")[0]
         .find_all("td")[3]
@@ -275,8 +277,8 @@ def pegar_valor(df, content):
         .find_all("td")[1]
         .get_text()
         .split(":", 1)[1],
-        "tecnico_man": content.find_all("a", attrs={"id": "0"})[1].get_text(),
-        "tecnico_vis": content.find_all("a", attrs={"id": "0"})[3].get_text(),
+        "tecnico_man": content.find_all("a", attrs={"id": "0"})[0].get_text(),
+        "tecnico_vis": content.find_all("a", attrs={"id": "0"})[1].get_text(),
     }
     df = pd.concat([df, pd.DataFrame([valor_content])], ignore_index=True)
     return df
@@ -345,6 +347,11 @@ def rename_columns(df):
     df = df.rename(columns=mundo_constants.COLUMNS_MAPPING.value)
     return df
 
+def extract_avg_age_and_value(column):
+    parts = column.split(":")
+    age_str = parts[-1].strip()
+    return age_str
+
 
 def clean_column(column):
     column = column.str.replace(r"['\":.mTh]", "", regex=True)
@@ -353,18 +360,10 @@ def clean_column(column):
 
 
 def extract_additional_columns(df_valor):
-    df_valor["idade_media_titular_vis"] = clean_column(
-        df_valor["idade_media_titular_vis"]
-    )
-    df_valor["idade_media_titular_man"] = clean_column(
-        df_valor["idade_media_titular_man"]
-    )
-    df_valor["valor_equipe_titular_man"] = clean_column(
-        df_valor["valor_equipe_titular_man"]
-    )
-    df_valor["valor_equipe_titular_vis"] = clean_column(
-        df_valor["valor_equipe_titular_vis"]
-    )
+    df_valor["idade_media_titular_vis"] = df_valor["idade_media_titular_vis"].apply(extract_avg_age_and_value)
+    df_valor["idade_media_titular_man"] = df_valor["idade_media_titular_man"].apply(extract_avg_age_and_value)
+    df_valor["valor_equipe_titular_man"] = df_valor["valor_equipe_titular_man"].apply(extract_avg_age_and_value)
+    df_valor["valor_equipe_titular_vis"] = df_valor["valor_equipe_titular_vis"].apply(extract_avg_age_and_value)
     return df_valor
 
 
@@ -411,27 +410,28 @@ async def execucao_coleta():
     site_data = requests.get(base_url.format(season=season), headers=headers)
     soup = BeautifulSoup(site_data.content, "html.parser")
     link_tags = soup.find_all("a", attrs={"class": "ergebnis-link"})
-    link_tags2 = soup.find_all("a", attrs={"title": "Match preview"})
     for tag in link_tags:
         links.append(re.sub(r"\s", "", tag["href"]))
-    for tag in link_tags2:
-        links.append(re.sub(r"\s", "", tag["href"]))
-    if len(links) % 10 != 0:
-        num_excess = len(links) % 10
-        del links[-num_excess:]
+
     tabela = soup.findAll("div", class_="box")
 
-    for i in range(1, int(len(links) / 10) + 1):
+    for i in range(1, 39):
         for row in tabela[i].findAll("tr"):  # para tudo que estiver em <tr>
+            rescheduled = None
             cells = row.findAll("td")  # variável para encontrar <td>
-            if len(cells) == 7:
+            try:
+                rescheduled = row.findAll("div", class_= "matchresult rescheduled")[0].get_text()
+            except:
+                schedule = None
+
+            if len(cells) == 7 and rescheduled == None:
                 ht_tag.append(cells[2].findAll(text=True))  # iterando sobre cada linha
                 result_tag.append(
                     cells[4].findAll(text=True)
                 )  # iterando sobre cada linha
                 at_tag.append(cells[6].findAll(text=True))  # iterando sobre cada linha
 
-    for time in range(380):
+    for time in range(0, len(links) ):
         try:
             ht.append(str(ht_tag[time][2]))
             col_home.append(str(ht_tag[time][0]))
@@ -439,7 +439,7 @@ async def execucao_coleta():
             ht.append(str(ht_tag[time][0]))
             str_vazio = ""
             col_home.append(str(str_vazio))
-    for time in range(380):
+    for time in range(0, len(links)):
         at.append(str(at_tag[time][0]))
         try:
             col_away.append(str(at_tag[time][2]))
@@ -447,7 +447,7 @@ async def execucao_coleta():
             str_vazio = ""
             col_away.append(str(str_vazio))
 
-    for tag in result_tag:
+    for tag in result_tag[:len(links)]:
         fthg.append(str(pattern_fthg.findall(str(tag))))
         ftag.append(str(pattern_ftag.findall(str(tag))))
 
@@ -456,13 +456,13 @@ async def execucao_coleta():
     links_esta = [link.replace("index", "statistik") for link in links]
     # links das escalações de cada partida
     links_valor = [link.replace("index", "aufstellung") for link in links]
-
     n_links = len(links)
     log(f"Encontrados {n_links} partidas.")
     log("Extraindo dados...")
     # Primeiro loop: Dados de estatística
     for n, link in enumerate(links_esta):
         # Tentativas de obter os links
+
         content = await get_content(base_link + link, wait_time=0.01)
         # log(content)
         if content:
@@ -536,11 +536,7 @@ async def execucao_coleta():
     del df["test"]
 
     df["data"] = pd.to_datetime(df["data"]).dt.date
-    # df["horario"] = pd.to_datetime(df["horario"], format="%I:%M %p")
-    # df["horario"] = df["horario"].dt.strftime("%H:%M")
     df.fillna("", inplace=True)
-
-    # df["rodada"] = df["rodada"].astype(np.int64)
 
     # renomear colunas
     df = rename_columns(df)
@@ -1117,3 +1113,59 @@ async def execucao_coleta_copa():
     df = df[mundo_constants.ORDEM_COPA_BRASIL.value]
 
     return df
+
+
+def data_url():
+    """
+    Obtém a data da última partida no site Transfermarkt.
+
+    Returns:
+        datetime.date: A data da última partida no formato 'YYYY-MM-DD'.
+    """
+    base_url = "https://www.transfermarkt.com/campeonato-brasileiro-serie-a/gesamtspielplan/wettbewerb/BRA1?saison_id={season}&spieltagVon=1&spieltagBis=38"
+    headers = {
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36"
+    }
+
+    links = []
+    season = obter_ano()
+
+    print(f"Obtendo links: temporada {season}")
+    site_data = requests.get(base_url.format(season=season), headers=headers)
+    soup = BeautifulSoup(site_data.content, "html.parser")
+    link_tags = soup.find_all("a", attrs={"class": "ergebnis-link"})
+    links = [re.sub(r"\s", "", tag["href"]) for tag in link_tags]
+    datas = []
+
+    with ThreadPoolExecutor() as executor:
+        datas = list(executor.map(obter_data, links))
+
+    return max(datas)
+
+def obter_ano():
+    """
+    Obtém o ano atual ou o ano anterior, dependendo do mês atual.
+
+    Returns:
+        int: O ano atual ou o ano anterior.
+    """
+    data_atual = datetime.today()
+    if data_atual.month > 7:
+        return data_atual.year
+    else:
+        return data_atual.year - 1
+
+
+def obter_data(link):
+    base_link_br = "https://www.transfermarkt.com.br"
+    headers = {
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36"
+    }
+    link_data = requests.get(base_link_br + link, headers=headers)
+    link_soup = BeautifulSoup(link_data.content, "html.parser")
+    content = link_soup.find("div", id="main")
+    data = re.search(
+        re.compile(r"\d+/\d+/\d+"),
+        content.find("a", text=re.compile(r"\d+/\d+/\d")).get_text().strip(),
+    ).group(0)
+    return datetime.strptime(data, '%d/%m/%y')
