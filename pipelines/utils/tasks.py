@@ -18,17 +18,9 @@ from prefect.client import Client
 
 from pipelines.constants import constants
 from pipelines.utils.utils import (
-    create_update,
     dump_header_to_csv,
-    extract_last_date,
-    extract_last_update,
     get_credentials_from_secret,
-    get_credentials_utils,
-    get_first_date,
-    get_ids,
-    get_token,
     log,
-    parse_temporal_coverage,
 )
 
 

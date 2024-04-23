@@ -2,8 +2,6 @@
 """
 General purpose functions for the metadata project
 """
-
-import json
 import re
 
 # pylint: disable=too-many-arguments
@@ -12,12 +10,12 @@ from time import sleep
 from typing import Dict, Tuple
 
 import basedosdados as bd
-import requests
 from basedosdados.download.base import google_client
 from dateutil.relativedelta import relativedelta
 
 from pipelines.utils.metadata.constants import constants as metadata_constants
 from pipelines.utils.utils import get_credentials_from_secret, log
+import requests
 
 
 #######################
@@ -58,159 +56,58 @@ def check_if_values_are_accepted(
 def get_billing_project_id(mode: str) -> bool:
     return metadata_constants.MODE_PROJECT.value[mode]
 
+def get_url(api_mode):
+    return metadata_constants.API_URL.value[api_mode]
 
-def get_credentials_utils(secret_path: str) -> Tuple[str, str]:
-    """
-    Returns the user and password for the given secret path.
-    """
-    # log(f"Getting user and password for secret path: {secret_path}")
-    tokens_dict = get_credentials_from_secret(secret_path)
-    email = tokens_dict.get("email")
-    password = tokens_dict.get("password")
-    return email, password
-
-
-def get_token(email:str, password:str, api_mode: str = "prod") -> str:
-    """
-    Get api token.
-    """
-    r = None
-
-    if api_mode == "prod":
-        url = "http://api.basedosdados.org/api/v1/graphql"
-    elif api_mode == "staging":
-        url = "http://staging.api.basedosdados.org/api/v1/graphql"
-
-    r = requests.post(
-        url=url,
-        headers={"Content-Type": "application/json"},
-        json={
-            "query": """
-        mutation ($email: String!, $password: String!) {
-            tokenAuth(email: $email, password: $password) {
-                token
-            }
-        }
-    """,
-            "variables": {"email": email, "password": password},
-        },
-    )
-    r.raise_for_status()
-
-    return r.json()["data"]["tokenAuth"]["token"]
-
-
-def get_ids(
-    dataset_name: str,
-    table_name: str,
-    email: str,
-    password: str,
+def get_coverage_ids(
+    table_id: str,
     coverage_type: str,
-    api_mode: str = "prod",
+    backend: bd.Backend,
 ) -> dict:
     """
-    Obtains the IDs of the table and coverage based on the provided names.
+    Obtains the coverage IDs based on the table_id.
     """
-    try:
-        # Get the table ID
-        table_result, id = get_id(
-            email=email,
-            password=password,
-            query_class="allCloudtable",
-            query_parameters={
-                "$gcpDatasetId: String": dataset_name,
-                "$gcpTableId: String": table_name,
-            },
-            cloud_table=True,
-            api_mode=api_mode,
-        )
-        if not id:
-            raise ValueError("Table ID not found.")
+    coverage_id_pro = get_coverage_id(
+        table_id=table_id,
+        is_closed=True,
+        backend=backend,
+    )
 
-        table_id = table_result["data"]["allCloudtable"]["edges"][0]["node"][
-            "table"
-        ].get("_id")
-        log("table_id: " + table_id)
+    coverage_id_free = get_coverage_id(
+        table_id=table_id,
+        is_closed=False,
+        backend=backend,
+    )
 
-        if coverage_type == "part_bdpro":
-            coverage_id_pro = get_coverage_id(
-                table_id=table_id,
-                is_closed=True,
-                email=email,
-                password=password,
-            )
+    if coverage_type == "part_bdpro" and coverage_id_free and coverage_id_pro:
+        return {
+            "coverage_id_free": coverage_id_free,
+            "coverage_id_pro": coverage_id_pro,
+        }
 
-            coverage_id_free = get_coverage_id(
-                table_id=table_id,
-                is_closed=False,
-                email=email,
-                password=password,
-            )
+    if coverage_type == "all_bdpro" and not coverage_id_free and coverage_id_pro:
+        return {"coverage_id_pro": coverage_id_pro}
 
-            return {
-                "table_id": table_id,
-                "coverage_id_free": coverage_id_free,
-                "coverage_id_pro": coverage_id_pro,
-            }
+    if coverage_type == "all_free" and coverage_id_free and not coverage_id_pro:
+        return {"coverage_id_free": coverage_id_free}
 
-        elif coverage_type == "all_bdpro":
-            coverage_id_pro = get_coverage_id(
-                table_id=table_id,
-                is_closed=True,
-                email=email,
-                password=password,
-            )
-
-            return {
-                "table_id": table_id,
-                "coverage_id_pro": coverage_id_pro,
-            }
-
-        elif coverage_type == "all_free":
-            coverage_id_free = get_coverage_id(
-                table_id=table_id,
-                is_closed=False,
-                email=email,
-                password=password,
-            )
-
-            return {
-                "table_id": table_id,
-                "coverage_id_free": coverage_id_free,
-            }
-    except Exception as e:
-        print(f"Error occurred while retrieving IDs: {str(e)}")
-        raise
+    raise ValueError(f"\n\nThe selected coverage type '{coverage_type}' does not match the available coverages. Coverages found:\n"
+                f"  - Pro: {coverage_id_pro}\n"
+                f"  - Free: {coverage_id_free}\n"
+                f"Please ensure you have selected the correct coverage type or correct it in the api.\n\n")
 
 
 def get_coverage_id(
-    table_id: str, email: str, password: str, is_closed: bool, api_mode: str = "prod"
-) -> str:
+    table_id: str, is_closed: bool, backend: bd.Backend) -> str:
     # Get the coverage IDs
-    coverage_result, coverage_id = get_id(
-        email=email,
-        password=password,
+    _, coverage_id = get_id(
         query_class="allCoverage",
         query_parameters={
             "$table_Id: ID": table_id,
             "$isClosed: Boolean": is_closed,
         },
-        api_mode=api_mode,
-        cloud_table=True,
+        backend = backend
     )
-    if not coverage_id:
-        raise ValueError("Coverage ID not found.")
-
-    coverage_ids = coverage_result["data"]["allCoverage"]["edges"]
-
-    # Check if there are multiple coverage IDs
-    if len(coverage_ids) > 1:
-        print(
-            "WARNING: Your table has multiple coverages. Only the first ID has been selected."
-        )
-
-    # Retrieve the first coverage ID
-    coverage_id = coverage_ids[0]["node"]["id"].split(":")[-1]
 
     return coverage_id
 
@@ -218,15 +115,9 @@ def get_coverage_id(
 def get_id(
     query_class: str,
     query_parameters: dict,
-    email: str,
-    password: str,
-    api_mode: str = "prod",
-    cloud_table: bool = True,
+    backend: bd.Backend,
 ) -> str:
-    token = get_token(email, password, api_mode)
-    header = {
-        "Authorization": f"Bearer {token}",
-    }
+# if cloud_table = True usar a função já prevista em backend
     _filter = ", ".join(list(query_parameters.keys()))
 
     keys = [
@@ -238,60 +129,32 @@ def get_id(
 
     _input = ", ".join([f"{key}:${key}" for key in keys])
 
-    if cloud_table:
-        query = f"""query({_filter}) {{
-                            {query_class}({_input}){{
-                            edges{{
-                                node{{
-                                id,
-                                table{{
-                                    _id
-                                    }}
-                                }}
+    query = f"""query({_filter}) {{
+                        {query_class}({_input}){{
+                        edges{{
+                            node{{
+                            _id,
                             }}
-                            }}
-                        }}"""
+                        }}
+                        }}
+                    }}"""
 
-    else:
-        query = f"""query({_filter}) {{
-                            {query_class}({_input}){{
-                            edges{{
-                                node{{
-                                id,
-                                }}
-                            }}
-                            }}
-                        }}"""
+    variables = dict(zip(keys, values))
+    response = backend._execute_query(query, variables=variables)
+    nodes = response[query_class]['edges']
 
-    if api_mode == "staging":
-        url = "https://staging.api.basedosdados.org/api/v1/graphql"
-    elif api_mode == "prod":
-        url = "https://api.basedosdados.org/api/v1/graphql"
+    if len(nodes)>1:
+        raise ValueError(f'More than 1 node was found in this query. Plese give query parameters that retrieve only one object. \nQuery:\n\t{query}\nVariables:{variables} \nNodes found:{nodes}')
 
-    r = requests.post(
-        url=url,
-        json={"query": query, "variables": dict(zip(keys, values))},
-        headers=header,
-    ).json()
+    if len(nodes) == 0:
+        return None
 
-    if "data" in r and r is not None:
-        if r.get("data", {}).get(query_class, {}).get("edges") == []:
-            id = None
-            # print(f"get: not found {query_class}", dict(zip(keys, values)))
-        else:
-            id = r["data"][query_class]["edges"][0]["node"]["id"]
-            # print(f"get: found {id}")
-            id = id.split(":")[1]
+    id = nodes[0]['node']['_id']
 
-        return r, id
-    else:
-        log(r)
-        raise Exception(
-            f"Error: the executed query did not return a data json.\nExecuted query:\n{query} \nVariables: {dict(zip(keys, values))}"
-        )
+    return response, id
 
 
-def get_table_status(table_id:str, api_mode:str, email:str, password:str) -> str:
+def get_table_status(table_id:str, backend: bd.Backend) -> str:
     query = """query($table_id: ID) {
         allTable(id: $table_id) {
             edges {
@@ -304,28 +167,15 @@ def get_table_status(table_id:str, api_mode:str, email:str, password:str) -> str
         }
     } """
 
-    if api_mode == "staging":
-        url = "https://staging.api.basedosdados.org/api/v1/graphql"
-    elif api_mode == "prod":
-        url = "https://api.basedosdados.org/api/v1/graphql"
+    response = backend._execute_query(query,{"table_id": table_id})
 
-    token = get_token(email, password, api_mode)
-    header = {
-        "Authorization": f"Bearer {token}",
-    }
+    nodes = response['allTable']['edges']
 
-    r = requests.post(
-        url=url,
-        json={"query": query, "variables": {"table_id": table_id}},
-        headers=header,
-    ).json()
+    if nodes == []:
+        return None
 
-    if "data" in r and r is not None:
-        status = r["data"]["allTable"]["edges"][0]["node"]["status"]["slug"]
-        return status
-    else:
-        print("get:  Error:", json.dumps(r, indent=4, ensure_ascii=False))
-        raise Exception("get: Error")
+    return nodes[0]['node']['status']['slug']
+
 
 def extract_last_date_from_bq(
     dataset_id: str,
@@ -403,9 +253,9 @@ def extract_last_date_from_bq(
 def format_date_column(date_column: dict) -> str:
     if date_column.keys() == {"date"}:
         query_date_column = date_column["date"]
-    elif date_column.keys() == {"year", "quarter"}:
+    if date_column.keys() == {"year", "quarter"}:
         query_date_column = f"DATE({date_column['year']},{date_column['quarter']}*3,1)"
-    else:
+    if date_column.keys() == {"year", "month"}:
         query_date_column = f"DATE({date_column['year']},{date_column['month']},1)"
     return query_date_column
 
@@ -448,34 +298,39 @@ def update_date_from_bq_metadata(
 
 
 def get_coverage_parameters(
-    coverage_type: str, last_date:str, time_delta: dict, ids:dict, date_format:str, historical_database: bool
+    coverage_type: str, last_date:str, time_delta: dict, table_id:str, date_format:str, historical_database: bool, backend: bd.Backend
 ) -> dict:
-    if coverage_type == "all_free":
-        free_parameters = parse_temporal_coverage(last_date, historical_database)
-        free_parameters["coverage"] = ids.get("coverage_id_free")
 
+    coverage_ids = get_coverage_ids(
+        table_id=table_id,
+        coverage_type=coverage_type,
+        backend = backend
+    )
+
+    if coverage_type == "all_free":
+        free_parameters = get_date_parameters(position="end", date_str=last_date)
+        free_parameters["coverage"] = coverage_ids.get("coverage_id_free")
         return free_parameters, None
 
-    elif coverage_type == "all_bdpro":
-        bdpro_parameters = parse_temporal_coverage(last_date, historical_database)
-        bdpro_parameters["coverage"] = ids.get("coverage_id_pro")
-
+    if coverage_type == "all_bdpro":
+        bdpro_parameters = get_date_parameters(position="end", date_str=last_date)
+        bdpro_parameters["coverage"] = coverage_ids.get("coverage_id_pro")
         return None, bdpro_parameters
 
-    elif coverage_type == "part_bdpro":
+    if coverage_type == "part_bdpro":
         if not historical_database:
             raise ValueError(
                 "Invalid Selection: Non-historical base and partially bdpro coverage chosen, not compatible."
             )
 
-        bdpro_parameters = parse_temporal_coverage(last_date)
-        bdpro_parameters["coverage"] = ids.get("coverage_id_pro")
+        bdpro_parameters = get_date_parameters(position="end", date_str=last_date)
+        bdpro_parameters["coverage"] = coverage_ids.get("coverage_id_pro")
 
         delta = relativedelta(**time_delta)
-        free_data = datetime.strptime(last_date, date_format) - delta
-        free_data = free_data.strftime(date_format)
-        free_parameters = parse_temporal_coverage(free_data)
-        free_parameters["coverage"] = ids.get("coverage_id_free")
+        free_access_max_date = datetime.strptime(last_date, date_format) - delta
+        free_access_max_date = free_access_max_date.strftime(date_format)
+        free_parameters = get_date_parameters(position="end", date_str=free_access_max_date)
+        free_parameters["coverage"] = coverage_ids.get("coverage_id_free")
 
         bdpro_parameters = sync_bdpro_and_free_coverage(
             date_format=date_format,
@@ -483,12 +338,13 @@ def get_coverage_parameters(
             free_parameters=free_parameters,
         )
 
-        log(f"Cobertura Grátis ->> {free_data} || Cobertura PRO ->> {last_date}")
+        log(f"Cobertura Grátis ->> {free_access_max_date} || Cobertura PRO ->> {last_date}")
 
         return free_parameters, bdpro_parameters
 
 
-def parse_date(position: str, date_str: str, date_len: int):
+def get_date_parameters(position: str, date_str: str):
+    date_len = len(date_str.split("-") if date_str != "" else 0)
     result = {}
     if date_len == 3:
         date = datetime.strptime(date_str, "%Y-%m-%d")
@@ -503,32 +359,6 @@ def parse_date(position: str, date_str: str, date_len: int):
         date = datetime.strptime(date_str, "%Y")
         result[f"{position}Year"] = date.year
     return result
-
-
-def parse_temporal_coverage(temporal_coverage, historical_database=True):
-    if not historical_database:
-        temporal_coverage = f"{temporal_coverage}(1){temporal_coverage}"
-        log(temporal_coverage)
-    # Extrai as informações de data e intervalo da string
-    if "(" in temporal_coverage:
-        start_str, interval_str, end_str = re.split(r"[(|)]", temporal_coverage)
-        if start_str == "" and end_str != "":
-            start_str = end_str
-        elif end_str == "" and start_str != "":
-            end_str = start_str
-    elif len(temporal_coverage) >= 4:
-        start_str, interval_str, end_str = temporal_coverage, 1, temporal_coverage
-    start_len = 0 if start_str == "" else len(start_str.split("-"))
-    end_len = 0 if end_str == "" else len(end_str.split("-"))
-
-    start_result = parse_date(position="start", date_str=start_str, date_len=start_len)
-    end_result = parse_date(position="end", date_str=end_str, date_len=end_len)
-    start_result.update(end_result)
-
-    if interval_str != 0:
-        start_result["interval"] = int(interval_str)
-
-    return end_result
 
 
 def sync_bdpro_and_free_coverage(
@@ -548,35 +378,22 @@ def sync_bdpro_and_free_coverage(
 
 
 def create_update(
-    email: str,
-    password: str,
     mutation_class: str,
     mutation_parameters: dict,
     query_class: str,
     query_parameters: dict,
+    backend: bd.Backend,
     update: bool = True,
-    api_mode: str = "prod",
 ):
-    token = get_token(
-        email=email,
-        password=password,
-        api_mode=api_mode,
-    )
-    header = {
-        "Authorization": f"Bearer {token}",
-    }
+
     r, id = get_id(
-        query_class=query_class,
-        query_parameters=query_parameters,
-        email=email,
-        password=password,
-        cloud_table=False,
-        api_mode=api_mode,
+        query_class,
+        query_parameters,
+        backend
     )
-    if id is not None:
+    if id and update is False:
         r["r"] = "query"
-        if update is False:
-            return r, id
+        return r, id
 
     _classe = mutation_class.replace("CreateUpdate", "").lower()
     query = f"""
@@ -594,48 +411,15 @@ def create_update(
                 }}
             """
 
-    if api_mode == "prod":
-        url = "https://api.basedosdados.org/api/v1/graphql"
-    elif api_mode == "staging":
-        url = "https://staging.api.basedosdados.org/api/v1/graphql"
-
     if update is True and id is not None:
         mutation_parameters["id"] = id
-        r = requests.post(
-            url=url,
-            json={"query": query, "variables": {"input": mutation_parameters}},
-            headers=header,
-        ).json()
 
-    if update is False:
-        r = requests.post(
-            url=url,
-            json={"query": query, "variables": {"input": mutation_parameters}},
-            headers=header,
-        ).json()
+    response = backend._execute_query(query,{"input": mutation_parameters}, headers=get_headers(backend))
+    response["r"] = "mutation"
 
-    r["r"] = "mutation"
-    if "data" in r and r is not None:
-        if r.get("data", {}).get(mutation_class, {}).get("errors", []) != []:
-            print(f"create: not found {mutation_class}", mutation_parameters)
-            print("create: error\n", json.dumps(r, indent=4, ensure_ascii=False), "\n")
-            id = None
-            raise Exception("create: Error")
-        else:
-            id = r["data"][mutation_class][_classe]["id"]
-            id = id.split(":")[1]
-
-            return r, id
-    else:
-        print("\n", "create: query\n", query, "\n")
-        print(
-            "create: input\n",
-            json.dumps(mutation_parameters, indent=4, ensure_ascii=False),
-            "\n",
-        )
-        print("create: error\n", json.dumps(r, indent=4, ensure_ascii=False), "\n")
-        raise Exception("create: Error")
-
+    id = response[mutation_class][_classe]["id"]
+    id = id.split(":")[1]
+    return r, id
 
 def update_row_access_policy(
     project_id: str,
@@ -685,37 +469,17 @@ def get_coverage_value(
     dataset_name: str,
     table_name: str,
     date_format: str,
-    email: str,
-    password: str,
-    api_mode: str,
+    backend: bd.Backend
 ) -> dict:
     try:
         # get table ID in the PROD API
-        table_result = get_id(
-            email=email,
-            password=password,
-            query_class="allCloudtable",
-            query_parameters={
-                "$gcpDatasetId: String": dataset_name,
-                "$gcpTableId: String": table_name,
-            },
-            cloud_table=True,
-            api_mode=api_mode,
-        )
-
-        if not table_result:
-            raise ValueError("Table ID not found.")
-
-        table_id = table_result[0]["data"]["allCloudtable"]["edges"][0]["node"][
-            "table"
-        ].get("_id")
+        table_django_info = backend.get_table_config(dataset_id=dataset_name, table_id=table_name)
+        table_id = table_django_info['id']
 
         # get coverage values in the PROD API for the table ID
         datetime_result = get_datetimerange(
-            email=email,
-            password=password,
-            query_parameters={"$table_Id: ID": table_id},
-            api_mode=api_mode,
+            table_id,
+            backend
         )
 
         date_objects = parse_datetime_ranges(datetime_result, date_format)
@@ -729,29 +493,17 @@ def get_coverage_value(
 
 
 def get_datetimerange(
-    query_parameters: dict,
-    email: str,
-    password: str,
-    api_mode: str = "prod",
+    table_id: str,
+    backend = bd.Backend
 ) -> dict:
     """This function retrieves the datetimeRanges from the PROD API for the specified Table ID in the Query Parameters
 
     Args:
         query_parameters (dict): Used to filter the query results in GRAPHQL queries
-        email (str): Email to access the API
-        password (str): Password to access the API
-        api_mode (str, optional): The API zone. Defaults to "prod".
 
     Returns:
         dict: A dictionary containing datetimeRanges from the PROD API
     """
-    token = get_token(email, password, api_mode)
-    header = {
-        "Authorization": f"Bearer {token}",
-    }
-
-    # Extract table_id from query_parameters
-    table_id = query_parameters.get("$table_Id: ID", None)
 
     query = """
     query($table_Id: ID) {
@@ -785,17 +537,10 @@ def get_datetimerange(
       }
     }
     """
-
-    # Format the variables dictionary
     variables = {"table_Id": table_id}
+    response = backend._execute_query(query, variables)
 
-    r = requests.post(
-        url="https://api.basedosdados.org/api/v1/graphql",
-        json={"query": query, "variables": variables},
-        headers=header,
-    ).json()
-
-    return r
+    return response
 
 
 def parse_datetime_ranges(datetime_result: dict, date_format: str) -> dict:
@@ -876,8 +621,8 @@ def format_and_check_date(date_values: tuple, date_format: str) -> str:
 def get_api_most_recent_date(
     dataset_id: str,
     table_id: str,
+    backend: bd.Backend,
     date_format: str = "%Y-%m-%d",
-    api_mode: str = "prod",
 ) -> datetime.date:
     """get the max table coverage for a given table id.
 
@@ -910,17 +655,12 @@ def get_api_most_recent_date(
             f"The date_format  ->>  ->> {date_format} is not supported. Please choose among {accepted_date_format}"
         )
 
-    # Collect credentials_utils
-    (email, password) = get_credentials_utils(secret_path=f"api_user_{api_mode}")
-
     # collect all table coverages for the given table id
     coverages = get_coverage_value(
         dataset_id,
         table_id,
         date_format,
-        email,
-        password,
-        api_mode,
+        backend=backend
     )
 
     # # parse coverages
@@ -964,3 +704,42 @@ def get_headers(backend: bd.Backend) -> dict:
 
     return header_for_mutation_query
 
+def get_credentials_utils(secret_path: str) -> Tuple[str, str]:
+    """
+    Returns the user and password for the given secret path.
+    """
+    # log(f"Getting user and password for secret path: {secret_path}")
+    tokens_dict = get_credentials_from_secret(secret_path)
+    email = tokens_dict.get("email")
+    password = tokens_dict.get("password")
+    return email, password
+
+
+def get_token(email:str, password:str, api_mode: str = "prod") -> str:
+    """
+    Get api token.
+    """
+    r = None
+
+    if api_mode == "prod":
+        url = "http://api.basedosdados.org/api/v1/graphql"
+    elif api_mode == "staging":
+        url = "http://staging.api.basedosdados.org/api/v1/graphql"
+
+    r = requests.post(
+        url=url,
+        headers={"Content-Type": "application/json"},
+        json={
+            "query": """
+        mutation ($email: String!, $password: String!) {
+            tokenAuth(email: $email, password: $password) {
+                token
+            }
+        }
+    """,
+            "variables": {"email": email, "password": password},
+        },
+    )
+    r.raise_for_status()
+
+    return r.json()["data"]["tokenAuth"]["token"]

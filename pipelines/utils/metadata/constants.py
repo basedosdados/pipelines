@@ -24,3 +24,8 @@ class constants(Enum):  # pylint: disable=c0103
     ACCEPTED_COVERAGE_TYPE = ["all_bdpro", "all_free", "part_bdpro"]
 
     ACCEPTED_COLUMN_KEY_VALUES = [{"year", "month"}, {"year", "quarter"}, {"date"}]
+
+    API_URL = {
+        "staging": "https://staging.api.basedosdados.org/api/v1/graphql",
+        "prod":"https://api.basedosdados.org/api/v1/graphql"
+    }

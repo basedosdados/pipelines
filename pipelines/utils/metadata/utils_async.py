@@ -8,8 +8,8 @@ import asyncio
 import aiohttp
 import json
 import re
-from pipelines.utils.metadata.utils import get_id, get_token
-from pipelines.utils.utils import get_credentials_from_secret, log, get_credentials_utils
+from pipelines.utils.metadata.utils import get_id, get_token, get_credentials_utils
+from pipelines.utils.utils import log
 import pandas as pd
 
 
