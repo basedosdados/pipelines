@@ -55,3 +55,4 @@ from pipelines.datasets.fundacao_lemann.flows import *
 from pipelines.datasets.mundo_transfermarkt_competicoes.flows import *
 from pipelines.datasets.mundo_transfermarkt_competicoes_internacionais.flows import *
 from pipelines.datasets.br_cnj_improbidade_administrativa.flows import *
+from pipelines.datasets.br_ms_sih.flows import *

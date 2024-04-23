@@ -252,7 +252,7 @@ flow_siasus.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 
 
 
-with Flow(name="DATASUS-SIH", code_owners=["arthurfg"]) as flow_sistema_informacoes_hospitalares:
+with Flow(name="DATASUS-SIH", code_owners=["arthurfg"]) as flow_sihsus:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_ms_sih", required=False)
     table_id = Parameter("table_id", default = 'servicos_profissionais', required=False)
@@ -263,13 +263,13 @@ with Flow(name="DATASUS-SIH", code_owners=["arthurfg"]) as flow_sistema_informac
         "materialization_mode", default="dev", required=False
     )
     materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
+        "materialize_after_dump", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
-    # rename_flow_run = rename_current_flow_run_dataset_table(
-    #     prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
-    # )
+    rename_flow_run = rename_current_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+    )
 
     ftp_files = check_files_to_parse(
         dataset_id=dataset_id,
@@ -353,5 +353,5 @@ with Flow(name="DATASUS-SIH", code_owners=["arthurfg"]) as flow_sistema_informac
                     bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
-flow_sistema_informacoes_hospitalares.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-flow_sistema_informacoes_hospitalares.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+flow_sihsus.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+flow_sihsus.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
