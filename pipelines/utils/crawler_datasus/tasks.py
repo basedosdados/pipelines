@@ -206,6 +206,9 @@ def decompress_dbc(file_list: list, dataset_id: str) -> None:
 
     log("------ Removing dbc files")
 
+    log(f"------ Removing /tmp/{dataset_id}/blast-dbf")
+    os.system(f'rm -rf /tmp/{dataset_id}/blast-dbf')
+
 
 
 
@@ -320,9 +323,9 @@ def is_empty(lista):
 
 
 @task
-def read_dbf_save_parquet_chunks(file_list: list, table_id: str) -> str:
+def read_dbf_save_parquet_chunks(file_list: list, table_id: str, dataset_id:str= "br_ms_sia") -> str:
     """
-    Convert dbc to csv
+    Convert dbc to parquet
     """
     log(f"--------- Decompressing {table_id} .DBF files")
 
@@ -338,4 +341,4 @@ def read_dbf_save_parquet_chunks(file_list: list, table_id: str) -> str:
         _counter += 1
 
 
-    return f'/tmp/br_ms_sia/output/{table_id}'
+    return f'/tmp/{dataset_id}/output/{table_id}'
