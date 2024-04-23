@@ -252,7 +252,7 @@ flow_siasus.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 
 
 
-with Flow(name="DATASUS-SIH", code_owners=["arthurfg"]) as flow_sihsus:
+with Flow(name="DATASUS-SIH", code_owners=["arthurfg"]) as flow_sistema_informacoes_hospitalares:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_ms_sih", required=False)
     table_id = Parameter("table_id", default = 'servicos_profissionais', required=False)
@@ -353,5 +353,5 @@ with Flow(name="DATASUS-SIH", code_owners=["arthurfg"]) as flow_sihsus:
                     bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
-flow_sihsus.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-flow_sihsus.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+flow_sistema_informacoes_hospitalares.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+flow_sistema_informacoes_hospitalares.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
