@@ -665,7 +665,12 @@ def get_headers(backend: bd.Backend) -> dict:
     """
     Get headers to be able to do mutations in backend api
     """
-    credentials = get_credentials_from_secret(secret_path="api_user_prod")
+
+    api_mode = 'prod'
+    if 'staging' in backend.graphql_url:
+        api_mode = 'staging'
+
+    credentials = get_credentials_from_secret(secret_path=f"api_user_{api_mode}")
 
     mutation = """
         mutation ($email: String!, $password: String!) {
