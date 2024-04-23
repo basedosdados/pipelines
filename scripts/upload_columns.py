@@ -3,12 +3,12 @@ import json
 from typing import Dict
 
 from basedosdados import backend as b
-from pipelines.utils.constants import constants
 from link_directory_metadata import get_directory_column_id
 
 from pipelines.utils.apply_architecture_to_dataframe.utils import (
     read_architecture_table,
 )
+from pipelines.utils.constants import constants
 from pipelines.utils.metadata.utils import get_headers
 
 
@@ -221,7 +221,7 @@ def upload_columns_from_architecture(
     if if_column_exists not in accepted_if_exists_values:
         raise ValueError(f"`if_exists` only accepts {accepted_if_exists_values}")
 
-    url_api = constants.API_URL.value['prod']
+    url_api = constants.API_URL.value["prod"]
     # Create a backend object with the GraphQL URL
     # This will help us interact with the api
     backend = b.Backend(graphql_url=url_api)
