@@ -201,7 +201,7 @@ def link_directory_metadata(
     default to `matching_column_pattern` if not provided.
 
     """
-    backend = bd.Backend(graphql_url= constants.API_URL.value['prod'])
+    backend = bd.Backend(graphql_url=constants.API_URL.value["prod"])
 
     if directory_column_name is None:
         directory_column_name = matching_column_pattern
