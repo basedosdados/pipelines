@@ -53,11 +53,10 @@ def check_if_values_are_accepted(
             f"Dicionário das colunas de data inválido. As chaves só podem assumir os valores: {metadata_constants.ACCEPTED_COLUMN_KEY_VALUES.value} "
         )
 
-
 def get_billing_project_id(mode: str) -> bool:
     return metadata_constants.MODE_PROJECT.value[mode]
 
-def get_url(api_mode):
+def get_url(api_mode:str) -> str:
     return constants.API_URL.value[api_mode]
 
 def get_coverage_ids(
@@ -67,6 +66,7 @@ def get_coverage_ids(
 ) -> dict:
     """
     Obtains the coverage IDs based on the table_id.
+    Checks if the coverage type match the available api coverages
     """
     coverage_id_pro = get_coverage_id(
         table_id=table_id,
@@ -97,10 +97,9 @@ def get_coverage_ids(
                 f"  - Free: {coverage_id_free}\n"
                 f"Please ensure you have selected the correct coverage type or correct it in the api.\n\n")
 
-
 def get_coverage_id(
     table_id: str, is_closed: bool, backend: bd.Backend) -> str:
-    # Get the coverage IDs
+
     _, coverage_id = get_id(
         query_class="allCoverage",
         query_parameters={
@@ -112,13 +111,16 @@ def get_coverage_id(
 
     return coverage_id
 
-
 def get_id(
     query_class: str,
     query_parameters: dict,
     backend: bd.Backend,
 ) -> str:
-# if cloud_table = True usar a função já prevista em backend
+    """
+    Returns the ID based on the query parameters
+    Raise an Error if the query parameters yield multiple matching items
+    """
+
     _filter = ", ".join(list(query_parameters.keys()))
 
     keys = [
@@ -154,7 +156,6 @@ def get_id(
 
     return response, id
 
-
 def get_table_status(table_id:str, backend: bd.Backend) -> str:
     query = """query($table_id: ID) {
         allTable(id: $table_id) {
@@ -176,7 +177,6 @@ def get_table_status(table_id:str, backend: bd.Backend) -> str:
         return None
 
     return nodes[0]['node']['status']['slug']
-
 
 def extract_last_date_from_bq(
     dataset_id: str,
@@ -250,7 +250,6 @@ def extract_last_date_from_bq(
         log(f"An error occurred while extracting the last update date: {str(e)}")
         raise
 
-
 def format_date_column(date_column: dict) -> str:
     if date_column.keys() == {"date"}:
         query_date_column = date_column["date"]
@@ -297,7 +296,6 @@ def update_date_from_bq_metadata(
         log(f"An error occurred while extracting the last update date: {str(e)}")
         raise
 
-
 def get_coverage_parameters(
     coverage_type: str, last_date:str, time_delta: dict, table_id:str, date_format:str, historical_database: bool, backend: bd.Backend
 ) -> dict:
@@ -343,24 +341,22 @@ def get_coverage_parameters(
 
         return free_parameters, bdpro_parameters
 
-
 def get_date_parameters(position: str, date_str: str):
     date_len = len(date_str.split("-") if date_str != "" else 0)
-    result = {}
+    date_parameters = {}
     if date_len == 3:
         date = datetime.strptime(date_str, "%Y-%m-%d")
-        result[f"{position}Year"] = date.year
-        result[f"{position}Month"] = date.month
-        result[f"{position}Day"] = date.day
+        date_parameters[f"{position}Year"] = date.year
+        date_parameters[f"{position}Month"] = date.month
+        date_parameters[f"{position}Day"] = date.day
     elif date_len == 2:
         date = datetime.strptime(date_str, "%Y-%m")
-        result[f"{position}Year"] = date.year
-        result[f"{position}Month"] = date.month
+        date_parameters[f"{position}Year"] = date.year
+        date_parameters[f"{position}Month"] = date.month
     elif date_len == 1:
         date = datetime.strptime(date_str, "%Y")
-        result[f"{position}Year"] = date.year
-    return result
-
+        date_parameters[f"{position}Year"] = date.year
+    return date_parameters
 
 def sync_bdpro_and_free_coverage(
     date_format: str, bdpro_parameters: dict, free_parameters: dict
@@ -377,7 +373,6 @@ def sync_bdpro_and_free_coverage(
 
     return bdpro_parameters
 
-
 def create_update(
     mutation_class: str,
     mutation_parameters: dict,
@@ -386,7 +381,12 @@ def create_update(
     backend: bd.Backend,
     update: bool = True,
 ):
+    """
+    Creates or updates metadata within the backend API.
 
+    The `mutation_class` and `mutation_parameters` define the metadata to be created or updated,
+    while `query_class` and `query_parameters` specify the element to be located for updating.
+    """
     r, id = get_id(
         query_class,
         query_parameters,
@@ -448,7 +448,6 @@ def update_row_access_policy(
         sleep(1)
     log("All users filter was included")
 
-
 def format_date_parameters(free_parameters: dict, date_format: str)->str:
     if date_format == "%Y-%m-%d":
         formated_date = f'{free_parameters["endYear"]}-{free_parameters["endMonth"]}-{free_parameters["endDay"]}'
@@ -458,8 +457,6 @@ def format_date_parameters(free_parameters: dict, date_format: str)->str:
         formated_date = f'{free_parameters["endYear"]}-01-01'
 
     return formated_date
-
-
 
 
 
@@ -492,18 +489,13 @@ def get_coverage_value(
         )
         raise
 
-
 def get_datetimerange(
     table_id: str,
     backend = bd.Backend
 ) -> dict:
-    """This function retrieves the datetimeRanges from the PROD API for the specified Table ID in the Query Parameters
-
-    Args:
-        query_parameters (dict): Used to filter the query results in GRAPHQL queries
-
+    """This function retrieves the datetimeRanges from the API for the specified Table ID in the Query Parameters
     Returns:
-        dict: A dictionary containing datetimeRanges from the PROD API
+        dict: A dictionary containing datetimeRanges from the API
     """
 
     query = """
@@ -542,7 +534,6 @@ def get_datetimerange(
     response = backend._execute_query(query, variables)
 
     return response
-
 
 def parse_datetime_ranges(datetime_result: dict, date_format: str) -> dict:
     """This function parses datetime ranges from the PROD API and returns a dictionary with the coverage values. Used within get_datetimerange function.
@@ -584,7 +575,6 @@ def parse_datetime_ranges(datetime_result: dict, date_format: str) -> dict:
 
     return date_objects
 
-
 def format_and_check_date(date_values: tuple, date_format: str) -> str:
     """This function formats a date according to the given date_format and make 2 checks:
         1) If the date_format is valid for the given date_values; in other words, if the date_format is correct for the table.
@@ -618,7 +608,6 @@ def format_and_check_date(date_values: tuple, date_format: str) -> str:
         f"Attention! The input date_format ->> {date_format} is wrong for the current Table. One of the elements have NONE values in the PROD API. If that's not the case, check the Coverage values in the Prod API, they may be not filled"
     )
 
-
 def get_api_most_recent_date(
     dataset_id: str,
     table_id: str,
@@ -630,7 +619,7 @@ def get_api_most_recent_date(
     This task will:
 
     1. Collect the credentials_utils;
-    2. Access the PROD API and collect the DJANGO Table ID with the given GCS table ID;
+    2. Access the API and collect the DJANGO Table ID with the given GCS table ID;
     3. Collet all the end coverages for the given table_id;
     4. Parse the coverages;
     5. Compare the coverages and return the most recent date;
@@ -638,8 +627,8 @@ def get_api_most_recent_date(
     Args:
         dataset_id (str): Dataset ID in GCS
         table_id (str): Table ID in GCS
+        backend (bd.Backend): defines backend connection is going to be made
         date_format (str, optional): Date format values %Y-%m-%d; %Y-%m; Y%
-        api_mode (str, optional): Defaults to "prod".
 
     Raises:
         ValueError: if date_format is not valid
@@ -648,9 +637,7 @@ def get_api_most_recent_date(
         str: a string representation of the date: %Y-%m-%d; %Y-%m; Y%
     """
 
-    # check if date_format is valid
     accepted_date_format = ["%Y-%m-%d", "%Y-%m", "%Y"]
-    # if not, raise ValueError
     if date_format not in accepted_date_format:
         raise ValueError(
             f"The date_format  ->>  ->> {date_format} is not supported. Please choose among {accepted_date_format}"
@@ -664,29 +651,20 @@ def get_api_most_recent_date(
         backend=backend
     )
 
-    # # parse coverages
-    # log(f"For the table ->>{table_id} the parsed coverages were ->> {coverages}")
-
     # Convert the date strings to date objects
     date_objects = {}
     for key, date_string in coverages.items():
         date_objects[key] = datetime.strptime(date_string, date_format)
 
-    # Compare the date objects, return the most recent date and format it
-    # log(
-    #     f"For this table ->> {table_id} there are these datetime end values->> {date_objects}"
-    # )
     max_date_key = max(date_objects, key=date_objects.get)
     max_date_value = date_objects[max_date_key].date()
 
-    # log(
-    #     f"The Most recent date for the ->> {table_id} in the prod API is ->> {max_date_value}"
-    # )
-
     return max_date_value
 
-
 def get_headers(backend: bd.Backend) -> dict:
+    """
+    Get headers to be able to do mutations in backend api
+    """
     credentials = get_credentials_from_secret(secret_path="api_user_prod")
 
     mutation = """
@@ -714,7 +692,6 @@ def get_credentials_utils(secret_path: str) -> Tuple[str, str]:
     email = tokens_dict.get("email")
     password = tokens_dict.get("password")
     return email, password
-
 
 def get_token(email:str, password:str, api_mode: str = "prod") -> str:
     """
