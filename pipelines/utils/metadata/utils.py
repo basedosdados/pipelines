@@ -13,6 +13,7 @@ import basedosdados as bd
 from basedosdados.download.base import google_client
 from dateutil.relativedelta import relativedelta
 
+from pipelines.utils.constants import constants
 from pipelines.utils.metadata.constants import constants as metadata_constants
 from pipelines.utils.utils import get_credentials_from_secret, log
 import requests
@@ -57,7 +58,7 @@ def get_billing_project_id(mode: str) -> bool:
     return metadata_constants.MODE_PROJECT.value[mode]
 
 def get_url(api_mode):
-    return metadata_constants.API_URL.value[api_mode]
+    return constants.API_URL.value[api_mode]
 
 def get_coverage_ids(
     table_id: str,
@@ -721,10 +722,7 @@ def get_token(email:str, password:str, api_mode: str = "prod") -> str:
     """
     r = None
 
-    if api_mode == "prod":
-        url = "http://api.basedosdados.org/api/v1/graphql"
-    elif api_mode == "staging":
-        url = "http://staging.api.basedosdados.org/api/v1/graphql"
+    url = constants.API_URL.value[api_mode]
 
     r = requests.post(
         url=url,
