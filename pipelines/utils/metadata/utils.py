@@ -115,7 +115,7 @@ def get_id(
     query_class: str,
     query_parameters: dict,
     backend: bd.Backend,
-) -> str:
+) -> Tuple:
     """
     Returns the ID based on the query parameters
     Raise an Error if the query parameters yield multiple matching items
@@ -143,6 +143,7 @@ def get_id(
                     }}"""
 
     variables = dict(zip(keys, values))
+
     response = backend._execute_query(query, variables=variables)
     nodes = response[query_class]['edges']
 
@@ -150,7 +151,7 @@ def get_id(
         raise ValueError(f'More than 1 node was found in this query. Plese give query parameters that retrieve only one object. \nQuery:\n\t{query}\nVariables:{variables} \nNodes found:{nodes}')
 
     if len(nodes) == 0:
-        return None
+        return response, None
 
     id = nodes[0]['node']['_id']
 
@@ -387,7 +388,7 @@ def create_update(
     The `mutation_class` and `mutation_parameters` define the metadata to be created or updated,
     while `query_class` and `query_parameters` specify the element to be located for updating.
     """
-    r, id = get_id(
+    _, id = get_id(
         query_class,
         query_parameters,
         backend
@@ -412,15 +413,16 @@ def create_update(
                 }}
             """
 
-    if update is True and id is not None:
+    if update is True and id:
         mutation_parameters["id"] = id
+
 
     response = backend._execute_query(query,{"input": mutation_parameters}, headers=get_headers(backend))
     response["r"] = "mutation"
 
     id = response[mutation_class][_classe]["id"]
     id = id.split(":")[1]
-    return r, id
+    return response, id
 
 def update_row_access_policy(
     project_id: str,
