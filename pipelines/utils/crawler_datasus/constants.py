@@ -45,6 +45,7 @@ class constants(Enum):  # pylint: disable=c0103
         "psicossocial": "PS",
         #SIH
         "servicos_profissionais": "SP",
+        "aihs_reduzidas": "RD,"
     }
 
 
