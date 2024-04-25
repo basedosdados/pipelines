@@ -62,14 +62,13 @@ with Flow(
 
         output_filepath = write_csv_file(csv_paths, upstream_tasks=[csv_paths])
 
-        # wait_upload_table = create_table_and_upload_to_gcs(
-        #     data_path=output_filepath,
-        #     dataset_id=dataset_id,
-        #     table_id=table_id,
-        #     dump_mode="overwrite",
-        #     wait=output_filepath,
-        # )
-        wait_upload_table = None
+        wait_upload_table = create_table_and_upload_to_gcs(
+            data_path=output_filepath,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dump_mode="overwrite",
+            wait=output_filepath,
+        )
 
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
