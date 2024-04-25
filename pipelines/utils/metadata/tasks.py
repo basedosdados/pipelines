@@ -5,11 +5,13 @@ Tasks for metadata
 import asyncio
 from datetime import datetime
 import basedosdados as bd
-
+from datetime import timedelta
+from pipelines.constants import constants as constants_root
 import pandas as pd
 from prefect import task
 
 from pipelines.utils.metadata.utils import (
+    able_to_query_bigquery_metadata,
     check_if_values_are_accepted,
     create_update,
     extract_last_date_from_bq,
@@ -20,6 +22,7 @@ from pipelines.utils.metadata.utils import (
     get_ids,
     get_id,
     get_table_status,
+    update_date_from_bq_metadata,
     update_row_access_policy,
 )
 from pipelines.utils.utils import log
@@ -155,8 +158,37 @@ def update_django_metadata(
             free_parameters,
         )
 
+    if able_to_query_bigquery_metadata(billing_project_id,bq_project):
 
-@task
+        _, update_id = get_id(query_class='allUpdate',
+                            query_parameters={"$table_Id: ID":ids["table_id"]},
+                            email=email,
+                            password=password,
+                            cloud_table=False)
+
+
+        latest = update_date_from_bq_metadata(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            billing_project_id=billing_project_id,
+            project_id=bq_project
+        )
+
+        create_update(
+            query_class="allUpdate",
+            query_parameters={"$id: ID": update_id},
+            mutation_class="CreateUpdateUpdate",
+            mutation_parameters={"id":update_id,"latest": latest.isoformat()},
+            update=True,
+            email=email,
+            password=password,
+            api_mode=api_mode,
+        )
+
+@task(
+    max_retries=constants_root.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants_root.TASK_RETRY_DELAY.value),
+)
 def check_if_data_is_outdated(
     dataset_id: str,
     table_id: str,
