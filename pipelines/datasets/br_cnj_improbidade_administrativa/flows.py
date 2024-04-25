@@ -10,6 +10,7 @@ from pipelines.constants import constants
 from pipelines.datasets.br_cnj_improbidade_administrativa.schedules import every_month
 from pipelines.datasets.br_cnj_improbidade_administrativa.tasks import (
     is_up_to_date,
+    get_cookies,
     main_task,
     write_csv_file,
 )
@@ -49,7 +50,9 @@ with Flow(
     with case(is_updated, False):
         log_task("Data is outdated")
 
-        csv_paths = main_task(upstream_tasks=[is_updated])
+        cookies_driver = get_cookies(upstream_tasks=[is_updated])
+
+        csv_paths = main_task(cookies_driver, upstream_tasks=[cookies_driver])
 
         log_task(csv_paths)
 

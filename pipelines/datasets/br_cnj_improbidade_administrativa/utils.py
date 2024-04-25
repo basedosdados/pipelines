@@ -27,16 +27,37 @@ def build_people_info_url(sentence_id: str, id: str) -> str:
     return constants.PEOPLE_INFO_URL_TEMPLATE.value.format(sentence_id=sentence_id, people_id=id)
 
 
-async def get_async(client: httpx.AsyncClient, url: str) -> httpx.Response:
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36",
-    }
-    try:
-        return await client.get(url, headers=headers)
-    except (httpx.ConnectError, httpx.ReadError) as e:
-        log(f"Error {e}, {url}")
-        time.sleep(10.0)
-        return await client.get(url, headers=headers)
+async def get_async(client: httpx.AsyncClient, url: str, attemps: int=5) -> httpx.Response:
+    # headers = {
+    #     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36",
+    # }
+    attempt = 1
+    sleep = 10.0
+
+    while attempt <= attemps:
+        try:
+            return await client.get(url)
+        except (httpx.ConnectError, httpx.ReadError, httpx.RemoteProtocolError, httpx.ReadTimeout):
+            log(f"Error: {url}")
+            attempt = attempt + 1
+            time.sleep(sleep * attempt)
+            pass
+        # except httpx.ReadError:
+        #     log(f"ReadError: {url}")
+        #     time.sleep(sleep * attempt)
+        #     return await client.get(url)
+        # except httpx.RemoteProtocolError:
+        #     log(f"RemoteProtocolError: {url}")
+        #     time.sleep(sleep * attempt)
+        #     return await client.get(url)
+        # except httpx.ReadTimeout:
+        #     log(f"ReadTimeout: {url}")
+        #     time.sleep(sleep * attempt)
+        #     return await client.get(url)
+
+    raise Exception(f"Failed to get {url}, max attemps {attempt}")
+
+
 
 
 class PeopleLine(typing.TypedDict):

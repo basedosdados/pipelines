@@ -4,12 +4,14 @@ import datetime
 import itertools
 import time
 
+from selenium import webdriver
 import basedosdados as bd
 import httpx
 import numpy as np
 import pandas as pd
 from lxml import html
 from prefect import task
+from selenium.webdriver.chrome.webdriver import WebDriver
 
 from pipelines.datasets.br_cnj_improbidade_administrativa.utils import (
     PeopleInfoResponse,
@@ -42,11 +44,11 @@ def get_number_pages() -> int:
     return int(nodes[0].text)
 
 
-async def crawler_home_page(total_pages: int) -> list[httpx.Response]:
+async def crawler_home_page(total_pages: int, cookies) -> list[httpx.Response]:
     pages_urls = [build_home_url_page(i) for i in range(0, total_pages)]
 
-    max_connections = 10
-    timeout = httpx.Timeout(30, pool=3.0)
+    max_connections = 20
+    timeout = httpx.Timeout(100, pool=10.0, connect=60.0)
     limits = httpx.Limits(max_connections=max_connections)
     semaphore = asyncio.Semaphore(max_connections)
 
@@ -54,7 +56,8 @@ async def crawler_home_page(total_pages: int) -> list[httpx.Response]:
         async with semaphore:
             return await co
 
-    async with httpx.AsyncClient(limits=limits, timeout=timeout) as client:
+    async with httpx.AsyncClient(limits=limits, timeout=timeout, cookies=cookies) as client:
+        log(client.cookies)
         return await asyncio.gather(*[wrapper(get_async(client, url)) for url in pages_urls])
 
 
@@ -63,7 +66,7 @@ async def crawler_sentences(
 ) -> list[SentenceResponse]:
     condenacao_ids: list[str] = np.unique([i["condenacao_id"] for i in peoples_info])
 
-    max_connections = 10
+    max_connections = 5
     timeout = httpx.Timeout(30, pool=3.0)
     limits = httpx.Limits(max_connections=max_connections)
     semaphore = asyncio.Semaphore(max_connections)
@@ -99,7 +102,7 @@ async def get_peoples_info(ids: list[tuple[str, str]]) -> list[PeopleInfoRespons
 
 
 async def crawler_processes(peoples: list[PeopleLine]) -> list[ProcessInfoResponse]:
-    max_connections = 10
+    max_connections = 5
     timeout = httpx.Timeout(30, pool=3.0, read=None)
     semaphore = asyncio.Semaphore(max_connections)
     limits = httpx.Limits(max_connections=max_connections)
@@ -115,8 +118,8 @@ async def crawler_processes(peoples: list[PeopleLine]) -> list[ProcessInfoRespon
         )
 
 
-async def get_peoples_main_page(total_pages: int) -> list[PeopleLine]:
-    requests_home_page = await crawler_home_page(total_pages)
+async def get_peoples_main_page(total_pages: int, cookies) -> list[PeopleLine]:
+    requests_home_page = await crawler_home_page(total_pages, cookies)
 
     return list(itertools.chain(*[parse_peoples(i) for i in requests_home_page]))
 
@@ -161,26 +164,29 @@ async def get_all_peoples_info(peoples_sentence_id: list[tuple[str, str]]) -> st
     return path
 
 
-async def main_crawler(total_pages):
-    peoples = await get_peoples_main_page(total_pages)
+async def main_crawler(total_pages, cookies):
+    peoples = await get_peoples_main_page(total_pages, cookies)
     log("Get peoples main page finished")
-    # sentences = await get_all_sentences(peoples)
-    # process_csv_path = await get_all_processes(peoples)
+    log("Starting get_all_sentences")
+    sentences = await get_all_sentences(peoples)
+    log("Starting get_all_processes")
+    process_csv_path = await get_all_processes(peoples)
 
-    sentences, process_csv_path = await asyncio.gather(
-        *[get_all_sentences(peoples), get_all_processes(peoples)]  # type: ignore
-    )
+    # sentences, process_csv_path = await asyncio.gather(
+    #     *[get_all_sentences(peoples), get_all_processes(peoples)]  # type: ignore
+    # )
 
     log("Sentences and processes finished")
 
-    # valid_info_peoples = [
-    #     (sentence["condenacao_id"], sentence["pessoa_id"])  # type: ignore
-    #     for sentence in sentences
-    #     if "pessoa_id" in sentence  # type: ignore
-    # ]
+    valid_info_peoples = [
+        (sentence["condenacao_id"], sentence["pessoa_id"])  # type: ignore
+        for sentence in sentences
+        if "pessoa_id" in sentence  # type: ignore
+    ]
 
-    # peoples_info_csv = await get_all_peoples_info(valid_info_peoples)
-    # log("Get all peoples info finished")
+    log("Starting get peoples infos")
+    peoples_info_csv = await get_all_peoples_info(valid_info_peoples)
+    log("Get all peoples info finished")
 
     # Save peoples
     peoples_path = "/tmp/peoples.csv"
@@ -198,7 +204,7 @@ async def main_crawler(total_pages):
         errors="raise",
     ).to_csv(sentences_path, index=False)
 
-    return (peoples_path, "", sentences_path, process_csv_path)
+    return (peoples_path, peoples_info_csv, sentences_path, process_csv_path)
 
 
 async def run_async(total_pages: int) -> pd.DataFrame:
@@ -279,9 +285,10 @@ async def run_async(total_pages: int) -> pd.DataFrame:
 
 
 @task
-def main_task():
+def main_task(cookies_driver: tuple[WebDriver, dict[str, str]]):
+    driver, cookies = cookies_driver
     pages = get_number_pages()
-    return asyncio.run(main_crawler(pages))
+    return asyncio.run(main_crawler(pages, cookies))
 
 
 @task
@@ -336,3 +343,35 @@ def is_up_to_date() -> bool:
 def get_max_date(df: pd.DataFrame) -> datetime.date:
     max_date: datetime.date = df["data_propositura"].max()
     return max_date
+
+
+@task
+def get_cookies() -> tuple[WebDriver, dict[str, str]]:
+    options = webdriver.ChromeOptions()
+
+    # https://github.com/SeleniumHQ/selenium/issues/11637
+    prefs = {
+        "download.directory_upgrade": True,
+        "safebrowsing.enabled": True,
+    }
+    options.add_experimental_option(
+        "prefs",
+        prefs,
+    )
+
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--crash-dumps-dir=/tmp")
+    options.add_argument("--remote-debugging-port=9222")
+    # NOTE: A resolucao afeta a renderizacao dos elementos
+    options.add_argument("--window-size=1920,1080")
+    options.add_argument("--headless=new")
+
+    driver = webdriver.Chrome(options=options)
+
+    driver.get(build_home_url_page(0))
+
+    cookies = {cookie["name"]: cookie["value"] for cookie in driver.get_cookies()}
+
+    return (driver, cookies)
