@@ -34,7 +34,7 @@ everyday_sih_servicos_profissionais = Schedule(
 everyday_sih_aihs_reduzidas = Schedule(
     clocks=[
         CronClock(
-            cron="30 5 * * *",  # every day at 05:30
+            cron="30 6 * * *",  # every day at 06:30
             start_date=datetime(2024, 1, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,

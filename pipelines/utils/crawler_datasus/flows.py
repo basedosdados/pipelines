@@ -258,7 +258,7 @@ with Flow(name="DATASUS-SIH", code_owners=["arthurfg"]) as flow_sihsus:
     table_id = Parameter("table_id", default = 'servicos_profissionais', required=False)
     year_first_two_digits = Parameter("year_first_two_digits", required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
-    year_month_to_extract = Parameter("year_month_to_extract",default=['12'], required=False)
+    year_month_to_extract = Parameter("year_month_to_extract",default='', required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -321,8 +321,8 @@ with Flow(name="DATASUS-SIH", code_owners=["arthurfg"]) as flow_sihsus:
                     "table_id": table_id,
                     "mode": materialization_mode,
                     "dbt_alias": dbt_alias,
-                    "dbt_command": "run",
-                    "disable_elementary": True,
+                    "dbt_command": "run/test",
+                    "disable_elementary": False,
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",

@@ -93,7 +93,7 @@ def check_files_to_parse(
     if len(year_month_to_extract) == 0:
         list_files = [file for file in available_dbs if file.split('/')[-1][4:8] == year_month_to_parse]
     else:
-        list_files = [file for file in available_dbs if file.split('/')[-1][4:6] in year_month_to_extract ]
+        list_files = [file for file in available_dbs if file.split('/')[-1][4:8] in year_month_to_extract ]
 
 
 
