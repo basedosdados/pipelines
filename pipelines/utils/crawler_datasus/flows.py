@@ -22,6 +22,7 @@ from pipelines.utils.crawler_datasus.tasks import (
     is_empty,
     pre_process_files,
     read_dbf_save_parquet_chunks,
+    list_datasus_table_without_date
 )
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
@@ -355,3 +356,108 @@ with Flow(name="DATASUS-SIH", code_owners=["arthurfg"]) as flow_sihsus:
                 )
 flow_sihsus.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 flow_sihsus.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+
+
+
+with Flow(name="DATASUS-SINAN", code_owners=["tricktx"]) as flow_sinan:
+    # Parameters
+    dataset_id = Parameter("dataset_id", required=True)
+    table_id = Parameter("table_id", required=True)
+    update_metadata = Parameter("update_metadata", default=False, required=False)
+
+    materialization_mode = Parameter(
+        "materialization_mode", default="dev", required=False
+    )
+    materialize_after_dump = Parameter(
+        "materialize_after_dump", default=True, required=False
+    )
+    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+
+    rename_flow_run = rename_current_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+    )
+
+    ftp_files = list_datasus_table_without_date(
+        dataset_id=dataset_id,
+        table_id=table_id,
+
+    )
+    dbc_files = access_ftp_download_files_async(
+        file_list=ftp_files,
+        dataset_id=dataset_id,
+        table_id=table_id,
+    )
+
+    dbf_files = decompress_dbc(
+        file_list=dbc_files,
+        dataset_id=dataset_id,
+        upstream_tasks=[dbc_files]
+    )
+
+    csv_files = decompress_dbf(
+        file_list=dbc_files,
+        table_id=table_id,
+        upstream_tasks=[dbf_files, dbc_files],
+    )
+
+    files_path = pre_process_files(
+        file_list=csv_files,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        upstream_tasks=[csv_files, dbf_files, dbc_files],
+    )
+
+    wait_upload_table = create_table_and_upload_to_gcs(
+        data_path=files_path,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dump_mode="append",
+        wait=files_path,
+    )
+
+    # estabelecimento
+    with case(materialize_after_dump, True):
+        # Trigger DBT flow run
+        current_flow_labels = get_current_flow_labels()
+        materialization_flow = create_flow_run(
+            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
+            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+            parameters={
+                "dataset_id": dataset_id,
+                "table_id": table_id,
+                "mode": materialization_mode,
+                "dbt_alias": dbt_alias,
+                "dbt_command": "run",
+                "disable_elementary": True,
+            },
+            labels=current_flow_labels,
+            run_name=f"Materialize {dataset_id}.{table_id}",
+        )
+
+        wait_for_materialization = wait_for_flow_run(
+            materialization_flow,
+            stream_states=True,
+            stream_logs=True,
+            raise_final_state=True,
+        )
+        wait_for_materialization.max_retries = (
+            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
+        )
+        wait_for_materialization.retry_delay = timedelta(
+            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+        )
+
+        with case(update_metadata, True):
+            update_django_metadata(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                date_column_name={"year": "ano", "month": "mes"},
+                date_format="%Y-%m",
+                coverage_type="part_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=materialization_mode,
+                bq_project="basedosdados",
+                upstream_tasks=[wait_for_materialization],
+            )
+flow_cnes.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+flow_cnes.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)

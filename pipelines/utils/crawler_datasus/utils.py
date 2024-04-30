@@ -122,13 +122,18 @@ def list_datasus_dbc_files(
                 raise ValueError("No group assigned to SIH_group")
             available_dbs.extend(ftp.nlst(f"dissemin/publicos/SIHSUS/200801_/Dados/{datasus_database_table}*.DBC"))
 
+        if datasus_database == 'SINAN':
+            if not datasus_database_table:
+                raise ValueError("No group assigned to SINAN_group")
+            available_dbs.extend(ftp.nlst(f"dissemin/publicos/SINAN/DADOS/PRELIM/{datasus_database_table}*.DBC"))
+
     except Exception as e:
         raise e
 
     ftp.close()
     return available_dbs
 
-async def download_chunks(files: List[str], output_dir: str, chunk_size: int, max_parallel: int):
+async def download_chunks(dataset_id: str, files: List[str], output_dir: str, chunk_size: int, max_parallel: int):
     """This function is used to sequentially control the number of concurrent downloads to avoid
     #OSError: [Errno 24] Too many open files
 
@@ -141,10 +146,10 @@ async def download_chunks(files: List[str], output_dir: str, chunk_size: int, ma
 
     for i in range(0, len(files), chunk_size):
         chunk = files[i:i + chunk_size]
-        await download_files(files=chunk, output_dir=output_dir, max_parallel=max_parallel)
+        await download_files(dataset_id = dataset_id,files=chunk, output_dir=output_dir, max_parallel=max_parallel)
 
 
-async def download_files(files: list, output_dir: str, max_parallel: int)-> None:
+async def download_files(dataset_id: str, files: list, output_dir: str, max_parallel: int)-> None:
     """Download files asynchronously and save them in the given output directory
 
     Args:
@@ -154,11 +159,21 @@ async def download_files(files: list, output_dir: str, max_parallel: int)-> None
     """
 
     semaphore = asyncio.Semaphore(max_parallel)
-    async with semaphore:
-        tasks = [
-            download_file(file, f"{output_dir}/{year_month_sigla_uf_parser(file=file)}")
-            for file in files
-        ]
+
+    if dataset_id in ["br_ms_sia", "br_ms_cnes", "br_ms_sih"]:
+        async with semaphore:
+            tasks = [
+                download_file(file, f"{output_dir}/{year_month_sigla_uf_parser(file=file)}")
+                for file in files
+            ]
+        await asyncio.gather(*tasks)
+
+    elif dataset_id == "br_ms_sinan":
+        async with semaphore:
+            tasks = [
+                download_file(file, f"{output_dir}/{just_the_year_parser(file=file)}")
+                for file in files
+            ]
         await asyncio.gather(*tasks)
 
 
@@ -236,6 +251,17 @@ def year_month_sigla_uf_parser(file: str) -> str:
         raise ValueError("Unable to parse month and year from file")
 
     return f"ano={year}/mes={month}/sigla_uf={sigla_uf}"
+
+def just_the_year_parser(file: str) -> str:
+    try:
+        file = file.split('/')[-1]
+
+        year = "20" + file[6:8]
+
+    except IndexError:
+        raise ValueError("Unable to parse year from file")
+
+    return f"ano={year}"
 
 
 def pre_cleaning_to_utf8(df: pd.DataFrame):
@@ -496,4 +522,21 @@ def post_process_servico_especializado(df: pd.DataFrame) -> pd.DataFrame:
         pd.DataFrame: a pd.DataFrame
     """
     df = df[datasus_constants.COLUMNS_TO_KEEP.value["SR"]]
+    return df
+
+def post_process_microdados_dengue(df: pd.DataFrame) -> pd.DataFrame:
+
+    df.drop('NU_ANO', axis=1, inplace=True)
+    path = list_datasus_dbc_files('SINAN', 'DENG')
+    df['ano'] = '20' + str(path[43:45])
+    df.replace(datasus_constants.COMPATIBLE_COLUMNS_IN_SINAN.value)
+
+    for new_column in datasus_constants.COLUMNS_TO_KEEP.value["DENG"]:
+        if new_column not in df.columns:
+            df[new_column] = ''
+
+    df = df[datasus_constants.COLUMNS_TO_KEEP.value["DENG"]]
+
+    df = df.loc[:,~df.columns.duplicated()]
+
     return df

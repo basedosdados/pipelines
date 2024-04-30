@@ -21,6 +21,7 @@ from pipelines.utils.crawler_datasus.utils import (
     download_chunks,
     list_datasus_dbc_files,
     year_month_sigla_uf_parser,
+    just_the_year_parser,
     dbf_to_parquet,
     post_process_dados_complementares,
     post_process_equipamento,
@@ -35,6 +36,7 @@ from pipelines.utils.crawler_datasus.utils import (
     post_process_profissional,
     post_process_regra_contratual,
     post_process_servico_especializado,
+    post_process_microdados_dengue
 
 )
 from pipelines.utils.metadata.utils import get_api_most_recent_date
@@ -101,6 +103,22 @@ def check_files_to_parse(
 
     return list_files
 
+@task(
+    max_retries=2,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def list_datasus_table_without_date(
+    table_id : str,
+    dataset_id: str
+):
+    datasus_database = datasus_constants.DATASUS_DATABASE.value[dataset_id]
+    datasus_database_table = datasus_constants.DATASUS_DATABASE_TABLE.value[table_id]
+
+    available_dbs = list_datasus_dbc_files(
+        datasus_database=datasus_database, datasus_database_table=datasus_database_table
+    )
+
+    return available_dbs
 
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
@@ -130,22 +148,30 @@ def access_ftp_download_files_async(
     log(f"------ dowloading {table_id} files from DATASUS FTP")
 
 
-
     asyncio.run(
         download_chunks(
             files=file_list,
             output_dir=input_path,
             max_parallel=max_parallel,
             chunk_size=chunk_size,
+            dataset_id=dataset_id,
         )
     )
 
-    dbc_files_path_list = [
-        os.path.join(
-            input_path, year_month_sigla_uf_parser(file=file), file.split("/")[-1]
-        )
-        for file in tqdm(file_list)
-    ]
+    if dataset_id == "br_ms_sinan":
+        dbc_files_path_list = [os.path.join(input_path, just_the_year_parser(file=file), file.split("/")[-1]) for file in tqdm(file_list)]
+        log(file_list)
+        log(f"------ The following files were downloaded: {dbc_files_path_list}")
+
+    elif dataset_id in ["br_ms_sia", "br_ms_cnes", "br_ms_sih"]:
+        dbc_files_path_list = [
+            os.path.join(
+                input_path, year_month_sigla_uf_parser(file=file), file.split("/")[-1]
+            )
+            for file in tqdm(file_list)
+        ]
+        log("Tanto faz...")
+        log(f"------ The following files were downloaded: {dbc_files_path_list}")
 
     return dbc_files_path_list
 
@@ -274,6 +300,7 @@ def pre_process_files(file_list: list, dataset_id: str, table_id: str) -> str:
         "incentivos": post_process_incentivos,
         "regra_contratual": post_process_regra_contratual,
         "servico_especializado": post_process_servico_especializado,
+        "microdados_dengue" : post_process_microdados_dengue
     }
 
     try:
