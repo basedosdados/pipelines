@@ -24,6 +24,7 @@ br_ms_sih_servicos_profissionais.run_config = KubernetesRun(image=constants.DOCK
 br_ms_sih_servicos_profissionais.schedule = everyday_sih_servicos_profissionais
 
 
+
 br_ms_sih_aihs_reduzidas = deepcopy(flow_sihsus)
 br_ms_sih_aihs_reduzidas.name = "br_ms_sih.aihs_reduzidas"
 br_ms_sih_aihs_reduzidas.code_owners = ["arthurfg"]
