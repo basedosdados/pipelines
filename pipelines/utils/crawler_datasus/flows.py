@@ -458,5 +458,6 @@ with Flow(name="DATASUS-SINAN", code_owners=["tricktx"]) as flow_sinan:
                 bq_project="basedosdados",
                 upstream_tasks=[wait_for_materialization],
             )
+
 flow_sinan.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 flow_sinan.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
