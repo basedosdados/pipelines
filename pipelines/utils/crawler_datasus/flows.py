@@ -415,7 +415,6 @@ with Flow(name="DATASUS-SINAN", code_owners=["tricktx"]) as flow_sinan:
         wait=files_path,
     )
 
-    # estabelecimento
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
@@ -459,5 +458,5 @@ with Flow(name="DATASUS-SINAN", code_owners=["tricktx"]) as flow_sinan:
                 bq_project="basedosdados",
                 upstream_tasks=[wait_for_materialization],
             )
-flow_cnes.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-flow_cnes.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+flow_sinan.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+flow_sinan.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)

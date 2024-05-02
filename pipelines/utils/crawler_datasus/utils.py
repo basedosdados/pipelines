@@ -253,11 +253,21 @@ def year_month_sigla_uf_parser(file: str) -> str:
     return f"ano={year}/mes={month}/sigla_uf={sigla_uf}"
 
 def just_the_year_parser(file: str) -> str:
+    """
+    Extracts the year from a file path and returns it as a string.
+
+    Args:
+        file (str): The file path.
+
+    Returns:
+        str: The year extracted from the file path.
+
+    Raises:
+        ValueError: If the year cannot be parsed from the file path.
+    """
     try:
         file = file.split('/')[-1]
-
         year = "20" + file[6:8]
-
     except IndexError:
         raise ValueError("Unable to parse year from file")
 
