@@ -263,7 +263,7 @@ with Flow(name="DATASUS-SIH", code_owners=["arthurfg"]) as flow_sihsus:
         "materialization_mode", default="dev", required=False
     )
     materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
+        "materialize_after_dump", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
