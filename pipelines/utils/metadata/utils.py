@@ -388,12 +388,12 @@ def create_update(
     The `mutation_class` and `mutation_parameters` define the metadata to be created or updated,
     while `query_class` and `query_parameters` specify the element to be located for updating.
     """
-    _, id = get_id(
+    r, id = get_id(
         query_class,
         query_parameters,
         backend
     )
-    if id and update is False:
+    if id and not update:
         r["r"] = "query"
         return r, id
 
@@ -414,12 +414,14 @@ def create_update(
             """
 
     if update is True and id:
+        print(f'update {query_parameters}')
         mutation_parameters["id"] = id
 
-
+    print(query)
+    print(f"{mutation_parameters = }")
     response = backend._execute_query(query,{"input": mutation_parameters}, headers=get_headers(backend))
     response["r"] = "mutation"
-
+    print(response)
     id = response[mutation_class][_classe]["id"]
     id = id.split(":")[1]
     return response, id
