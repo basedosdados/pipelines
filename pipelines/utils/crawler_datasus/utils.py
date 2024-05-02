@@ -526,17 +526,24 @@ def post_process_servico_especializado(df: pd.DataFrame) -> pd.DataFrame:
 
 def post_process_microdados_dengue(df: pd.DataFrame) -> pd.DataFrame:
 
+    log('1')
     df.drop('NU_ANO', axis=1, inplace=True)
+    log('2')
     path = list_datasus_dbc_files('SINAN', 'DENG')
+    log('3')
     df['ano'] = '20' + str(path[43:45])
+    log('4')
     df.replace(datasus_constants.COMPATIBLE_COLUMNS_IN_SINAN.value)
-
+    log('5')
     for new_column in datasus_constants.COLUMNS_TO_KEEP.value["DENG"]:
         if new_column not in df.columns:
             df[new_column] = ''
 
     df = df[datasus_constants.COLUMNS_TO_KEEP.value["DENG"]]
-
+    log('7')
     df = df.loc[:,~df.columns.duplicated()]
 
+    log(df.columns)
+    log(df.shape)
+    log('8')
     return df
