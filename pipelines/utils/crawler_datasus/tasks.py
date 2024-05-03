@@ -89,12 +89,11 @@ def check_files_to_parse(
     available_dbs = list_datasus_dbc_files(
         datasus_database=datasus_database, datasus_database_table=datasus_database_table
     )
-
     #
     if len(year_month_to_extract) == 0:
         list_files = [file for file in available_dbs if file.split('/')[-1][4:8] == year_month_to_parse]
     else:
-        list_files = [file for file in available_dbs if file.split('/')[-1][4:8] == year_month_to_extract]
+        list_files = [file for file in available_dbs if file.split('/')[-1][4:8] in year_month_to_extract ]
 
 
 
@@ -206,6 +205,9 @@ def decompress_dbc(file_list: list, dataset_id: str) -> None:
             log(f"Skipping non-DBC file: {file}")
 
     log("------ Removing dbc files")
+
+    log(f"------ Removing /tmp/{dataset_id}/blast-dbf")
+    os.system(f'rm -rf /tmp/{dataset_id}/blast-dbf')
 
 
 
@@ -321,9 +323,9 @@ def is_empty(lista):
 
 
 @task
-def read_dbf_save_parquet_chunks(file_list: list, table_id: str) -> str:
+def read_dbf_save_parquet_chunks(file_list: list, table_id: str, dataset_id:str= "br_ms_sia") -> str:
     """
-    Convert dbc to csv
+    Convert dbc to parquet
     """
     log(f"--------- Decompressing {table_id} .DBF files")
 
@@ -339,4 +341,4 @@ def read_dbf_save_parquet_chunks(file_list: list, table_id: str) -> str:
         _counter += 1
 
 
-    return f'/tmp/br_ms_sia/output/{table_id}'
+    return f'/tmp/{dataset_id}/output/{table_id}'
