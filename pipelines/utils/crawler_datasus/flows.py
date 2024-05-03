@@ -394,17 +394,11 @@ with Flow(name="DATASUS-SINAN", code_owners=["tricktx"]) as flow_sinan:
         upstream_tasks=[dbc_files]
     )
 
-    csv_files = decompress_dbf(
+    files_path = read_dbf_save_parquet_chunks(
         file_list=dbc_files,
-        table_id=table_id,
-        upstream_tasks=[dbf_files, dbc_files],
-    )
-
-    files_path = pre_process_files(
-        file_list=csv_files,
         dataset_id=dataset_id,
         table_id=table_id,
-        upstream_tasks=[csv_files, dbf_files, dbc_files],
+        upstream_tasks=[dbf_files, dbc_files],
     )
 
     wait_upload_table = create_table_and_upload_to_gcs(

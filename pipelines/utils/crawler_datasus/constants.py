@@ -458,33 +458,3 @@ class constants(Enum):  # pylint: disable=c0103
         10: "09",
         11: "10",
     }
-
-    COMPATIBLE_COLUMNS_IN_SINAN = {
-    'NU_IDADE' : 'NU_IDADE_N',
-    'OCUPACAO' : 'ID_OCUPA_N',
-    'IN_AIDS' : 'AUTO_IMUNE',
-    'DOR' : 'DOR_COSTAS',
-    'PETEQUIAS' : 'PETEQUIA_N',
-    'LACO' : 'LACO_N',
-    'DT_SORO1' : 'DT_CHIK_S1',
-    "CS_ESCOLAR" : 'CS_ESCOL_N',
-    'SORO1' : 'RES_CHIKS1',
-    'DT_SORO2' : 'DT_CHIK_S2',
-    'SORO2' : 'RES_CHIKS2',
-    'RESUL_VIRA' : 'RESUL_VI_N',
-    'RESUL_PCR' : 'RESUL_PCR_',
-    'ANT_DT_INV' : 'DT_INVEST',
-    'HISTOPA' : 'HISTOPA_N',
-    'IMUNOH' : 'IMUNOH_N',
-    'MANIFESTA' : 'MANI_HEMOR',
-    'CON_INF_PA' : 'COPAISINF',
-    'CON_INF_MU' : 'COMUNINF',
-    'CON_INF_UF' : 'COUFINF',
-    'CON_DOENCA' : 'DOENCA_TRA',
-    'CON_EVOLUC' : 'EVOLUCAO',
-    'CON_DT_OBI' : 'DT_OBITO',
-    'CON_DT_ENC' : 'DT_ENCERRA',
-    'NDUPLIC' : 'NDUPLIC_N',
-    'CON_CLASSI' : 'CLASSI_FIN',
-    'CON_CRITER' : 'CRITERIO'
-    }

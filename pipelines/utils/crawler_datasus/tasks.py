@@ -118,7 +118,7 @@ def list_datasus_table_without_date(
         datasus_database=datasus_database, datasus_database_table=datasus_database_table
     )
 
-    return available_dbs
+    return [available_dbs[-1]]
 
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
@@ -276,10 +276,6 @@ def decompress_dbf(file_list: list, table_id: str) -> str:
     return csv_file_list
 
 
-
-
-
-
 @task
 def pre_process_files(file_list: list, dataset_id: str, table_id: str) -> str:
 
@@ -313,15 +309,16 @@ def pre_process_files(file_list: list, dataset_id: str, table_id: str) -> str:
 
     for file in tqdm(file_list):
 
-        log(f"-------- wrangling {file.split('/')[-1]} and saving to parquet")
+        log(f"-------- wrangling {file.split('/')[-2:]} and saving to parquet")
         concatenated_df = pd.DataFrame()
 
+        # - > Fazer o chunksize para o tratamento também.
         for chunk_df in pd.read_csv(
-            file, dtype=str, encoding="iso-8859-1", chunksize=50000
+            file, dtype=str, encoding="iso-8859-1", chunksize=25000
         ):
             concatenated_df = pd.concat([concatenated_df, chunk_df])
 
-        processed_df = post_process_function(concatenated_df)
+            processed_df = post_process_function(concatenated_df)
 
         processed_df = processed_df.astype(str)
         output_path = file.replace(".csv", ".parquet")
