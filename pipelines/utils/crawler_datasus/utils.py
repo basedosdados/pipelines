@@ -20,7 +20,7 @@ from pipelines.utils.utils import log
 
 
 #https://github.com/AlertaDengue/PySUS/blob/main/pysus/data/__init__.py
-def stream_dbf(dbf, chunk_size=400000):
+def stream_dbf(dbf, chunk_size : int):
     """Fetches records in parquet chunks to preserve memory"""
     data = []
     i = 0
@@ -45,7 +45,7 @@ def decode_column(value):
         return str(value).replace("\x00", "")
     return value
 
-def dbf_to_parquet(dbf: str, table_id: str, counter: int) -> str:
+def  dbf_to_parquet(dbf: str, table_id: str, counter: int, chunk_size:int, dataset_id: str = "br_ms_sinan") -> str:
     """
     Parses DBF file into parquet to preserve memory
     """
@@ -64,7 +64,7 @@ def dbf_to_parquet(dbf: str, table_id: str, counter: int) -> str:
     counter_chunk = 0
     try:
 
-        for chunk in stream_dbf(DBF(path, encoding="iso-8859-1", raw=True)):
+        for chunk in stream_dbf(DBF(path, encoding="iso-8859-1", raw=True), chunk_size=chunk_size):
 
             chunk_df = pd.DataFrame(chunk)
 
@@ -80,6 +80,14 @@ def dbf_to_parquet(dbf: str, table_id: str, counter: int) -> str:
             parquet_filepath = os.path.join(output_path, parquet_filename)
             pq.write_table(table, where=str(parquet_filepath))
             counter_chunk += 1
+
+            if dataset_id == dataset_id:
+                df = pd.read_parquet(parquet_filepath)
+
+                post_process_microdados_dengue(df)
+
+                df.to_parquet(parquet_filepath, index=None, compression='gzip')
+
 
     except struct.error as err:
         #unlink .partquer extension and remove dbf file
@@ -537,11 +545,17 @@ def post_process_servico_especializado(df: pd.DataFrame) -> pd.DataFrame:
 def post_process_microdados_dengue(df: pd.DataFrame) -> pd.DataFrame:
 
     path = list_datasus_dbc_files('SINAN', 'DENG')
+
     df['ano'] = '20' + str(path[43:45])
+    log(f'------- criando colunas, {df.shape}')
     for new_column in datasus_constants.COLUMNS_TO_KEEP.value["DENG"]:
         if new_column not in df.columns:
             df[new_column] = ''
-    log(df.shape)
-    df = df.loc[:,~df.columns.duplicated()]
-    log(df.shape)
+    log(f'------- organizando colunas, {df.shape}')
+    df = df[datasus_constants.COLUMNS_TO_KEEP.value["DENG"]]
+    log(f'------- finalizando a organização das colunas, {df.shape}')
+    df.rename(columns={
+        'SG_UF_NOT' : 'sigla_uf_notificacao'
+    }, inplace=True)
+
     return df

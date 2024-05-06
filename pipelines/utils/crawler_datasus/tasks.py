@@ -118,7 +118,7 @@ def list_datasus_table_without_date(
         datasus_database=datasus_database, datasus_database_table=datasus_database_table
     )
 
-    return [available_dbs[-1]]
+    return available_dbs
 
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
@@ -347,7 +347,7 @@ def is_empty(lista):
 
 
 @task
-def read_dbf_save_parquet_chunks(file_list: list, table_id: str, dataset_id:str= "br_ms_sia") -> str:
+def read_dbf_save_parquet_chunks(file_list: list, table_id: str, dataset_id:str= "br_ms_sia", chunk_size : int = 400000) -> str:
     """
     Convert dbc to parquet
     """
@@ -361,8 +361,7 @@ def read_dbf_save_parquet_chunks(file_list: list, table_id: str, dataset_id:str=
 
 
         log(f"-------- Reading {file}")
-        result_path = dbf_to_parquet(dbf=file, table_id=table_id, counter=_counter)
+        result_path = dbf_to_parquet(dbf=file, table_id=table_id, counter=_counter, dataset_id=dataset_id, chunk_size=chunk_size)
         _counter += 1
-
 
     return f'/tmp/{dataset_id}/output/{table_id}'

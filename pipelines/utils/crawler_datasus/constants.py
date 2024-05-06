@@ -440,8 +440,7 @@ class constants(Enum):  # pylint: disable=c0103
     'TP_SISTEMA',
     'DT_DIGITA',
     'NDUPLIC_N',
-    'CS_FLXRET',
-        ]
+    'CS_FLXRET',]
     }
 
     GENERATE_MONTH_TO_PARSE = {

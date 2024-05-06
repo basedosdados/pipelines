@@ -361,8 +361,8 @@ flow_sihsus.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 
 with Flow(name="DATASUS-SINAN", code_owners=["tricktx"]) as flow_sinan:
     # Parameters
-    dataset_id = Parameter("dataset_id", required=True)
-    table_id = Parameter("table_id", required=True)
+    dataset_id = Parameter("dataset_id", default ="br_ms_sinan", required=True)
+    table_id = Parameter("table_id", default="microdados_dengue", required=True)
     update_metadata = Parameter("update_metadata", default=False, required=False)
 
     materialization_mode = Parameter(
@@ -398,6 +398,7 @@ with Flow(name="DATASUS-SINAN", code_owners=["tricktx"]) as flow_sinan:
         file_list=dbc_files,
         dataset_id=dataset_id,
         table_id=table_id,
+        chunk_size = 100000,
         upstream_tasks=[dbf_files, dbc_files],
     )
 
