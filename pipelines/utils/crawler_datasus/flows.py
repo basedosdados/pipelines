@@ -398,7 +398,7 @@ with Flow(name="DATASUS-SINAN", code_owners=["tricktx"]) as flow_sinan:
         file_list=dbc_files,
         dataset_id=dataset_id,
         table_id=table_id,
-        chunk_size = 100000,
+        chunk_size = 200000,
         upstream_tasks=[dbf_files, dbc_files],
     )
 
@@ -445,8 +445,8 @@ with Flow(name="DATASUS-SINAN", code_owners=["tricktx"]) as flow_sinan:
             update_django_metadata(
                 dataset_id=dataset_id,
                 table_id=table_id,
-                date_column_name={"year": "ano", "month": "mes"},
-                date_format="%Y-%m",
+                date_column_name={'date' : 'data_notificacao'},
+                date_format="%Y-%m-%d",
                 coverage_type="part_bdpro",
                 time_delta={"months": 6},
                 prefect_mode=materialization_mode,
