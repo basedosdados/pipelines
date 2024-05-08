@@ -7,14 +7,15 @@ Tasks for br_ms_cnes
 import asyncio
 import os
 from datetime import timedelta
-
+from ftplib import FTP
 import aioftp
 import pandas as pd
 from prefect import task
 from prefect.tasks.shell import ShellTask
 from simpledbf import Dbf5
 from tqdm import tqdm
-
+import sys
+from datetime import datetime, date
 from pipelines.constants import constants
 from pipelines.utils.crawler_datasus.constants import constants as datasus_constants
 from pipelines.utils.crawler_datasus.utils import (
@@ -365,3 +366,35 @@ def read_dbf_save_parquet_chunks(file_list: list, table_id: str, dataset_id:str=
         _counter += 1
 
     return f'/tmp/{dataset_id}/output/{table_id}'
+
+@task
+def get_last_modified_date_in_sinan_tablen(
+    datasus_database: str,
+    datasus_database_table: str,
+) -> None:
+
+    ftp = FTP("ftp.datasus.gov.br")
+    ftp.login()
+
+    if datasus_database == 'SINAN':
+        if not datasus_database_table:
+            raise ValueError("No group assigned to SINAN_group")
+        # Obtendo ano atual
+
+        date_current = str(date.today().year)
+        year = date_current[2:4]
+        # Obtendo a lista de arquivos do diretório
+        files = []
+        ftp.dir(f"dissemin/publicos/SINAN/DADOS/PRELIM/{datasus_database_table}{year}.DBC", files.append)
+
+        # Extraindo a data do primeiro arquivo listado
+        if files:
+            first_file = files[0]
+            file_info = first_file.split()
+            if len(file_info) >= 4:
+                select_date = file_info[0]  # A data está na primeira posição
+                file_date = datetime.strptime(select_date, "%m-%d-%y").strftime("%y-%m-%d")
+                final_date = pd.to_datetime(file_date, format='%y-%m-%d')
+                #sys.stdout.write(file_date + "\n")
+    ftp.close()
+    return final_date
