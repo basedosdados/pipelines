@@ -547,13 +547,10 @@ def post_process_microdados_dengue(df: pd.DataFrame) -> pd.DataFrame:
     path = list_datasus_dbc_files('SINAN', 'DENG')
 
     df['ano'] = '20' + str(path[43:45])
-    log(f'------- criando colunas, {df.shape}')
     for new_column in datasus_constants.COLUMNS_TO_KEEP.value["DENG"]:
         if new_column not in df.columns:
             df[new_column] = ''
-    log(f'------- organizando colunas, {df.shape}')
     df = df[datasus_constants.COLUMNS_TO_KEEP.value["DENG"]]
-    log(f'------- finalizando a organização das colunas, {df.shape}')
     df.rename(columns={
         'SG_UF_NOT' : 'sigla_uf_notificacao'
     }, inplace=True)
