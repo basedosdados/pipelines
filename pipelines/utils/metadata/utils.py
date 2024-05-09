@@ -873,7 +873,7 @@ def format_and_check_date(date_values: tuple, date_format: str) -> str:
     )
 
 
-def get_api_most_recent_date(
+def get_api_data_most_recent_date(
     dataset_id: str,
     table_id: str,
     date_format: str = "%Y-%m-%d",
@@ -964,3 +964,5 @@ def get_headers(backend: bd.Backend) -> dict:
 
     return header_for_mutation_query
 
+def get_api_last_update_date(dataset_id: str, table_id: str):
+    return None
