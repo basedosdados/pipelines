@@ -3,6 +3,7 @@ import basedosdados as bd
 import pandas as pd
 from prefect import Client
 
+
 ### pra esse código funcionar precisa:
 # ativar a .venv
 #  source /home/laura/Documents/pipelines/.venv/bin/activate
@@ -10,7 +11,6 @@ from prefect import Client
 def get_dataset_with_dictionary(
     backend,
 ):
-
     query = """ {
             allTable(slug:"dicionario"){
                 edges{
@@ -29,20 +29,17 @@ def get_dataset_with_dictionary(
 
     query_data = backend._execute_query(
         query=query,
-        )
+    )
 
-    ugly_list = pd.json_normalize(query_data['allTable']['edges'])['node.cloudTables.edges']
-    pretty_list = [ x[0]['node']['gcpDatasetId'] for x in ugly_list if x]
+    ugly_list = pd.json_normalize(query_data["allTable"]["edges"])["node.cloudTables.edges"]
+    pretty_list = [x[0]["node"]["gcpDatasetId"] for x in ugly_list if x]
     return pretty_list
 
 
 def launch_materialization(dataset_id: str, table_id: str, alias: bool = True):
-
     alias = True
 
-    print(
-        f"Launching materialization flow for {dataset_id}.{table_id} (alias={alias})..."
-    )
+    print(f"Launching materialization flow for {dataset_id}.{table_id} (alias={alias})...")
     parameters = {
         "dataset_id": dataset_id,
         "dbt_alias": alias,
@@ -69,22 +66,18 @@ def launch_materialization(dataset_id: str, table_id: str, alias: bool = True):
 
     print(variables)
 
-    response = client.graphql(
-        query = mutation,
-        variables = variables
-    )
+    response = client.graphql(query=mutation, variables=variables)
 
     print(response)
 
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     client = Client()
 
-    backend = bd.Backend(graphql_url='https://api.basedosdados.org/api/v1/graphql')
+    backend = bd.Backend(graphql_url="https://api.basedosdados.org/api/v1/graphql")
 
     datasets_with_dictionary = get_dataset_with_dictionary(backend)
-    table_id = 'dicionario'
+    table_id = "dicionario"
 
     for dataset_id in datasets_with_dictionary:
         launch_materialization(dataset_id, table_id)
