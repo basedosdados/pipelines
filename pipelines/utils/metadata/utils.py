@@ -417,11 +417,8 @@ def create_update(
         print(f'update {query_parameters}')
         mutation_parameters["id"] = id
 
-    print(query)
-    print(f"{mutation_parameters = }")
     response = backend._execute_query(query,{"input": mutation_parameters}, headers=get_headers(backend))
     response["r"] = "mutation"
-    print(response)
     id = response[mutation_class][_classe]["id"]
     id = id.split(":")[1]
     return response, id
