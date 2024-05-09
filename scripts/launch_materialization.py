@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import basedosdados as bd
+import pandas as pd
 from prefect import Client
 
 ### pra esse código funcionar precisa:
@@ -29,7 +30,10 @@ def get_dataset_with_dictionary(
     query_data = backend._execute_query(
         query=query,
         )
-    return query_data
+
+    ugly_list = pd.json_normalize(query_data['allTable']['edges'])['node.cloudTables.edges']
+    pretty_list = [ x[0]['node']['gcpDatasetId'] for x in ugly_list if x]
+    return pretty_list
 
 
 def launch_materialization(dataset_id: str, table_id: str, alias: bool = True):
@@ -42,7 +46,7 @@ def launch_materialization(dataset_id: str, table_id: str, alias: bool = True):
     parameters = {
         "dataset_id": dataset_id,
         "dbt_alias": alias,
-        "mode": "dev",
+        "mode": "prod",
         "table_id": table_id,
     }
 
@@ -60,7 +64,7 @@ def launch_materialization(dataset_id: str, table_id: str, alias: bool = True):
     variables = {
         "flow_id": "bd6e69be-f5fc-4933-bae2-4e426c5bd5fc",
         "parameters": parameters,
-        "label": "basedosdados-dev",
+        "label": "basedosdados",
     }
 
     print(variables)
@@ -77,10 +81,10 @@ def launch_materialization(dataset_id: str, table_id: str, alias: bool = True):
 if __name__ == '__main__':
     client = Client()
 
-    # backend = bd.Backend(graphql_url='https://api.basedosdados.org/api/v1/graphql')
+    backend = bd.Backend(graphql_url='https://api.basedosdados.org/api/v1/graphql')
 
-    # datasets_with_dictionary = get_dataset_with_dictionary(backend)
+    datasets_with_dictionary = get_dataset_with_dictionary(backend)
     table_id = 'dicionario'
 
-    for dataset_id in ['br_ibge_pof']:
+    for dataset_id in datasets_with_dictionary:
         launch_materialization(dataset_id, table_id)

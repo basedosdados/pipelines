@@ -413,7 +413,7 @@ def create_update(
                 }}
             """
 
-    if update is True and id:
+    if update is True and not isinstance(id, type(None)):
         print(f'update {query_parameters}')
         mutation_parameters["id"] = id
 
@@ -617,7 +617,7 @@ def get_api_most_recent_date(
     table_id: str,
     backend: bd.Backend,
     date_format: str = "%Y-%m-%d",
-) -> datetime.date:
+    ) -> datetime.date:
     """get the max table coverage for a given table id.
 
     This task will:
@@ -727,3 +727,5 @@ def get_token(email:str, password:str, api_mode: str = "prod") -> str:
     r.raise_for_status()
 
     return r.json()["data"]["tokenAuth"]["token"]
+
+

@@ -273,9 +273,19 @@ def upload_columns_from_architecture(
 
 
 if __name__ == "__main__":
-    upload_columns_from_architecture(
-        dataset_id="<dataset_id>",
-        table_slug="<table_slug>",
-        url_architecture="<architecture_url>",
-        replace_all_schema=True,
-    )
+    DATASET_ID = 'br_ibge_ppm'
+    TABLE_ID_TO_ARCH_URL = {
+        'efetivo_rebanhos':'https://docs.google.com/spreadsheets/d/1Eh0UyE5kAhaJlZVx67kN-PB83rAWTh_uCy9AF2ptU5o/edit#gid=1213668070',
+        'producao_origem_animal': 'https://docs.google.com/spreadsheets/d/11vxRwZZFqiIAy-qgzaapKhUe4udZeehOoq3BKrrviEY/edit#gid=1213668070',
+        'producao_pecuaria':'https://docs.google.com/spreadsheets/d/1QSsT7_q4zTqockYDl2U2inPmi3glkhxXn6jLnfSRrxI/edit#gid=1213668070',
+        'producao_aquicultura': 'https://docs.google.com/spreadsheets/d/1KdWHg07J-_6FBhY-0U67h-DPTzzsHZG7fc2pUvPamU8/edit#gid=1213668070'  }
+
+    backend = b.Backend(graphql_url='https://backend.basedosdados.org/api/v1/graphql')
+    for table_id in TABLE_ID_TO_ARCH_URL:
+        upload_columns_from_architecture(
+            dataset_id=DATASET_ID,
+            table_slug=table_id,
+            url_architecture=TABLE_ID_TO_ARCH_URL[table_id],
+            replace_all_schema=True,
+            backend = backend
+        )

@@ -37,8 +37,8 @@ def create_dictionary_table_metadata(dataset_id:str, backend:bd.Backend) -> str:
     # publisher_id = get_publisher_id(dataset_django_id, backend)
     new_dict_parameters = {
         "slug":"dicionario",
-        "name": "Dicionário",
-        "description": f"Dicionário para tradução dos códigos das tabelas do do conjunto {dataset_django_info['name']}. Para códigos definidos por outras instituições, como id_municipio ou cnaes, buscar por diretórios",
+        "namePt": "Dicionário",
+        "descriptionPt": f"Dicionário para tradução dos códigos das tabelas do do conjunto {dataset_django_info['name']}. Para códigos definidos por outras instituições, como id_municipio ou cnaes, buscar por diretórios",
         "dataset":dataset_django_id
         # "publishedBy": publisher_id,
         # "dataCleanedBy": publisher_id,
