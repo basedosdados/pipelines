@@ -8,7 +8,6 @@ from link_directory_metadata import get_directory_column_id
 from pipelines.utils.apply_architecture_to_dataframe.utils import (
     read_architecture_table,
 )
-from pipelines.utils.constants import constants
 from pipelines.utils.metadata.utils import get_headers
 
 
@@ -56,8 +55,7 @@ def create_column(
     return True
 
 
-def get_column_id(table_id:str, column_name:str, backend: b.Backend):
-
+def get_column_id(table_id: str, column_name: str, backend: b.Backend):
     query = f"""{{
         allColumn(table_Id:"{table_id}", name:"{column_name}"){{
         edges{{
@@ -77,7 +75,6 @@ def get_column_id(table_id:str, column_name:str, backend: b.Backend):
 
 
 def get_n_columns(table_id, backend: b.Backend):
-
     query = f"""query get_n_columns{{
         allTable(id:"{table_id}"){{
             edges{{
@@ -97,7 +94,6 @@ def get_n_columns(table_id, backend: b.Backend):
 
 
 def get_bqtype_dict(backend: b.Backend):
-
     # GraphQL query to fetch all BigQuery types
     query = """{
     allBigquerytype{
@@ -123,7 +119,9 @@ def get_bqtype_dict(backend: b.Backend):
     return bqtype_dict
 
 
-def check_metadata_columns(dataset_id:str, table_slug:str, backend: b.Backend, url_architecture: str):
+def check_metadata_columns(
+    dataset_id: str, table_slug: str, backend: b.Backend, url_architecture: str
+):
     # Get the table ID using the dataset ID and table ID
     table_id = backend._get_table_id_from_name(gcp_dataset_id=dataset_id, gcp_table_id=table_slug)
 
@@ -214,7 +212,6 @@ def upload_columns_from_architecture(
     if if_column_exists not in accepted_if_exists_values:
         raise ValueError(f"`if_exists` only accepts {accepted_if_exists_values}")
 
-
     # Get the table ID using the dataset ID and table ID
     table_id = backend._get_table_id_from_name(gcp_dataset_id=dataset_id, gcp_table_id=table_slug)
     print(f"table_id: {table_id}\n")
@@ -232,7 +229,7 @@ def upload_columns_from_architecture(
     for _, row in architecture.iterrows():
         print(f"\nColumn: {row['name']}")
 
-        column_id = get_column_id(table_id=table_id, column_name=row["name"], backend = backend)
+        column_id = get_column_id(table_id=table_id, column_name=row["name"], backend=backend)
 
         if column_id and if_column_exists == "pass":
             print("row already exists")
