@@ -417,7 +417,7 @@ def create_update(
         print(f'update {query_parameters}')
         mutation_parameters["id"] = id
 
-    response = backend._execute_query(query,{"input": mutation_parameters}, headers=get_headers(backend))
+    response = backend._execute_query(query,variables = {"input": mutation_parameters}, headers=get_headers(backend))
     response["r"] = "mutation"
     id = response[mutation_class][_classe]["id"]
     id = id.split(":")[1]
@@ -472,8 +472,7 @@ def get_coverage_value(
 ) -> dict:
     try:
         # get table ID in the PROD API
-        table_django_info = backend.get_table_config(dataset_id=dataset_name, table_id=table_name)
-        table_id = table_django_info['id']
+        table_id = backend._get_table_id_from_name(gcp_dataset_id=dataset_name, gcp_table_id=table_name)
 
         # get coverage values in the PROD API for the table ID
         datetime_result = get_datetimerange(
@@ -724,5 +723,3 @@ def get_token(email:str, password:str, api_mode: str = "prod") -> str:
     r.raise_for_status()
 
     return r.json()["data"]["tokenAuth"]["token"]
-
-
