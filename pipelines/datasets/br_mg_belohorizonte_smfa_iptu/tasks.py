@@ -63,6 +63,7 @@ def make_partitions(df):
 
 
 def data_url(url, headers):
+    log(url)
     response = requests.get(url, headers=headers)
 
     soup = BeautifulSoup(response.content, "html.parser")
@@ -71,14 +72,18 @@ def data_url(url, headers):
 
     if links:
         link = links[-1]
+        log(link)
         filename = link.get("href").split("/")[-1][:6]
+        log(filename)
         data_final = filename[0:4] + "-" + filename[4:6]
+        log(data_final)
         return data_final
 
 
 @task
 def get_data_source_sfma_iptu_max_date():
     # Obtém a data mais recente do site
+    log("Iniciando data obtida do site")
     data_obj = data_url(constants.URLS.value[0], constants.HEADERS.value)
     source_date = datetime.strptime(data_obj, "%Y-%m").date()
     log(source_date)
