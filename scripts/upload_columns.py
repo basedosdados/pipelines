@@ -144,11 +144,66 @@ def check_metadata_columns(dataset_id, table_slug, url_api: str, url_architectur
     print(f"n_columns_architecture: {n_columns_architecture}")
 
 
+def get_all_columns_id(table_id: str, backend: b.Backend):
+    query = f"""{{
+        allColumn(table_Id:"{table_id}"){{
+        edges{{
+            node{{
+            _id
+            }}
+        }}
+        }}
+    }}"""
+
+    data = backend._execute_query(query=query)
+    columns_json = backend._simplify_graphql_response(response=data)["allColumn"]
+
+    if data:
+        columns_list = [col["_id"] for col in columns_json]
+        return columns_list
+    else:
+        print("There is no column in this table to be deleted")
+
+
+def delete_column_by_id(column_id: str, backend: b.Backend):
+    mutation = """
+                    mutation($input: UUID!) {
+                        DeleteColumn(id: $input) {
+                            errors,
+                            ok
+                        }
+                    }
+        """
+
+    # Set headers for the GraphQL request, including the token for authentication
+    headers = get_headers(backend)
+    # Execute the GraphQL query with the provided mutation parameters and headers
+    response = backend._execute_query(
+        query=mutation, variables={"input": column_id}, headers=headers
+    )
+
+    # Print the response for debugging purposes
+    if response["DeleteColumn"]["errors"] != []:
+        pretty_json = json.dumps(response, indent=4)
+        print(pretty_json)
+        return False
+
+    return True
+
+
+def delete_all_columns(table_id: str, backend: b.Backend):
+    columns = get_all_columns_id(table_id, backend)
+
+    for col in columns:
+        delete_column_by_id(col, backend)
+
+
 def upload_columns_from_architecture(
     dataset_id: str,
     table_slug: str,
     url_architecture: str,
     if_column_exists: str = "pass",
+    replace_all_schema: bool = True,
 ):
     """
     Uploads columns from an architecture table to the specified dataset and table in  platform.
@@ -156,8 +211,7 @@ def upload_columns_from_architecture(
     Notes:
     - This function assumes a specific structure/format for the architecture table.
     - It interacts with the Base dos Dados GraphQL API to create or update columns.
-    - Columns from the architecture table are processed
-    and uploaded to the specified dataset and table.
+    - Columns from the architecture table are uploaded to the specified dataset and table.
     - It prints information about the existing columns
     and performs metadata checks after uploading columns.
     """
@@ -181,8 +235,11 @@ def upload_columns_from_architecture(
     # Get the id of BigQueryTypes in a dict
     bqtype_dict = get_bqtype_dict(url_api)
 
+    if replace_all_schema:
+        delete_all_columns(table_id, backend)
+
     # Iterate over each row in the 'architecture' DataFrame
-    for index, row in architecture.iterrows():
+    for _, row in architecture.iterrows():
         print(f"\nColumn: {row['name']}")
 
         column_id = get_column_id(table_id=table_id, column_name=row["name"], url_api=url_api)
@@ -222,4 +279,13 @@ def upload_columns_from_architecture(
         table_slug=table_slug,
         url_api=url_api,
         url_architecture=url_architecture,
+    )
+
+
+if __name__ == "__main__":
+    upload_columns_from_architecture(
+        dataset_id="<dataset_id>",
+        table_slug="<table_slug>",
+        url_architecture="<architecture_url>",
+        replace_all_schema=True,
     )

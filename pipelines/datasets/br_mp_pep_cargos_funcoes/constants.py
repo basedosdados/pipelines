@@ -15,8 +15,6 @@ class constants(Enum):  # pylint: disable=c0103
 
     PATH = "/tmp/br_mp_pep_cargos_funcoes/"
 
-    TMP_DATA_DIR = "/tmp/br_mp_pep_cargos_funcoes/tmp"
-
     INPUT_DIR = "/tmp/br_mp_pep_cargos_funcoes/input"
 
     OUTPUT_DIR = "/tmp/br_mp_pep_cargos_funcoes/output"
@@ -25,7 +23,7 @@ class constants(Enum):  # pylint: disable=c0103
         # Cargos e Funções
         "card_home_funcoes": "/html/body/div[5]/div/div[88]",
         # Aba Tabelas
-        "tabelas": "/html/body/div[5]/div/div[280]/div[3]/table/tbody/tr/td",
+        "tabelas": "/html/body/div[5]/div/div[280]/div[3]"
     }
 
     SELECTIONS_DIMENSIONS = [

@@ -11,11 +11,9 @@ import tempfile
 import urllib.request
 import zipfile
 from datetime import datetime, time
-
 import numpy as np
 import pandas as pd
 from unidecode import unidecode
-
 
 def new_names(base: pd.DataFrame, oldname: str, newname: str):
     """

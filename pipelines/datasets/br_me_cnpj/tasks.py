@@ -4,8 +4,11 @@ Tasks for br_me_cnpj
 """
 import asyncio
 import os
+from google.cloud import storage
+import pathlib
+from typing import Union, List
 from datetime import datetime
-
+import basedosdados as bd
 from prefect import task
 
 from pipelines.datasets.br_me_cnpj.constants import constants as constants_cnpj
@@ -90,7 +93,7 @@ def main(tabelas):
         for i in range(0, 10):
             if tabela != "Simples":
                 nome_arquivo = f"{tabela}{i}"
-                url_download = f"https://dadosabertos.rfb.gov.br/CNPJ/{tabela}{i}.zip"
+                url_download = f"http://200.152.38.155/CNPJ/{tabela}{i}.zip"
                 if nome_arquivo not in arquivos_baixados:
                     arquivos_baixados.append(nome_arquivo)
                     asyncio.run((download_unzip_csv(url_download, input_path)))
@@ -104,7 +107,7 @@ def main(tabelas):
                         process_csv_empresas(input_path, output_path, data_coleta, i)
             else:
                 nome_arquivo = f"{tabela}"
-                url_download = f"https://dadosabertos.rfb.gov.br/CNPJ/{tabela}.zip"
+                url_download = f"http://200.152.38.155/CNPJ/{tabela}.zip"
                 if nome_arquivo not in arquivos_baixados:
                     arquivos_baixados.append(nome_arquivo)
                     asyncio.run((download_unzip_csv(url_download, input_path)))

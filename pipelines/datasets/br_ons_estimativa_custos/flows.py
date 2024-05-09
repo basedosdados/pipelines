@@ -96,6 +96,8 @@ with Flow(
                     "table_id": table_id,
                     "mode": materialization_mode,
                     "dbt_alias": dbt_alias,
+                    "dbt_command": "run/test",
+                    "disable_elementary": False,
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
@@ -120,7 +122,7 @@ with Flow(
                     table_id=table_id,
                     date_column_name={"date": "data"},
                     date_format="%Y-%m-%d",
-                    coverage_type="all_bdpro",
+                    coverage_type="all_free",
                     prefect_mode=materialization_mode,
                     bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
@@ -131,9 +133,9 @@ br_ons_estimativa_custos_custo_marginal_operacao_semi_horario.storage = GCS(
 br_ons_estimativa_custos_custo_marginal_operacao_semi_horario.run_config = (
     KubernetesRun(image=constants.DOCKER_IMAGE.value)
 )
-br_ons_estimativa_custos_custo_marginal_operacao_semi_horario.schedule = (
-    schedule_br_ons_estimativa_custos_custo_marginal_operacao_semi_horario
-)
+#br_ons_estimativa_custos_custo_marginal_operacao_semi_horario.schedule = (
+#    schedule_br_ons_estimativa_custos_custo_marginal_operacao_semi_horario
+#)
 
 
 with Flow(
@@ -197,6 +199,8 @@ with Flow(
                     "table_id": table_id,
                     "mode": materialization_mode,
                     "dbt_alias": dbt_alias,
+                    "dbt_command": "run/test",
+                    "disable_elementary": False,
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
@@ -221,7 +225,7 @@ with Flow(
                     table_id=table_id,
                     date_column_name={"date": "data"},
                     date_format="%Y-%m-%d",
-                    coverage_type="all_bdpro",
+                    coverage_type="all_free",
                     prefect_mode=materialization_mode,
                     bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
@@ -233,9 +237,9 @@ br_ons_estimativa_custos_custo_marginal_operacao_semanal.storage = GCS(
 br_ons_estimativa_custos_custo_marginal_operacao_semanal.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_ons_estimativa_custos_custo_marginal_operacao_semanal.schedule = (
-    schedule_br_ons_estimativa_custos_custo_marginal_operacao_semanal
-)
+#br_ons_estimativa_custos_custo_marginal_operacao_semanal.schedule = (
+#    schedule_br_ons_estimativa_custos_custo_marginal_operacao_semanal
+#)
 
 
 with Flow(
@@ -299,6 +303,8 @@ with Flow(
                     "table_id": table_id,
                     "mode": materialization_mode,
                     "dbt_alias": dbt_alias,
+                    "dbt_command": "run/test",
+                    "disable_elementary": False,
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
@@ -323,7 +329,7 @@ with Flow(
                     table_id=table_id,
                     date_column_name={"date": "data"},
                     date_format="%Y-%m-%d",
-                    coverage_type="all_bdpro",
+                    coverage_type="all_free",
                     prefect_mode=materialization_mode,
                     bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
@@ -334,9 +340,9 @@ br_ons_estimativa_custos_balanco_energia_subsistemas.storage = GCS(
 br_ons_estimativa_custos_balanco_energia_subsistemas.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_ons_estimativa_custos_balanco_energia_subsistemas.schedule = (
-    schedule_br_ons_estimativa_custos_balanco_energia_subsistemas
-)
+#br_ons_estimativa_custos_balanco_energia_subsistemas.schedule = (
+#    schedule_br_ons_estimativa_custos_balanco_energia_subsistemas
+#)
 
 
 with Flow(
@@ -401,6 +407,8 @@ with Flow(
                     "table_id": table_id,
                     "mode": materialization_mode,
                     "dbt_alias": dbt_alias,
+                    "dbt_command": "run/test",
+                    "disable_elementary": False,
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
@@ -425,7 +433,7 @@ with Flow(
                     table_id=table_id,
                     date_column_name={"date": "data"},
                     date_format="%Y-%m-%d",
-                    coverage_type="all_bdpro",
+                    coverage_type="all_free",
                     prefect_mode=materialization_mode,
                     bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
@@ -437,9 +445,9 @@ br_ons_estimativa_custos_balanco_energia_subsistemas_dessem.storage = GCS(
 br_ons_estimativa_custos_balanco_energia_subsistemas_dessem.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_ons_estimativa_custos_balanco_energia_subsistemas_dessem.schedule = (
-    schedule_br_ons_estimativa_custos_balanco_energia_subsistemas_dessem
-)
+#br_ons_estimativa_custos_balanco_energia_subsistemas_dessem.schedule = (
+#    schedule_br_ons_estimativa_custos_balanco_energia_subsistemas_dessem
+#)
 
 with Flow(
     name="br_ons_estimativa_custos.custo_variavel_unitario_usinas_termicas",
@@ -503,6 +511,8 @@ with Flow(
                     "table_id": table_id,
                     "mode": materialization_mode,
                     "dbt_alias": dbt_alias,
+                    "dbt_command": "run/test",
+                    "disable_elementary": False,
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
@@ -527,7 +537,7 @@ with Flow(
                     table_id=table_id,
                     date_column_name={"date": "data_inicio"},
                     date_format="%Y-%m-%d",
-                    coverage_type="all_bdpro",
+                    coverage_type="all_free",
                     prefect_mode=materialization_mode,
                     bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
@@ -538,6 +548,6 @@ br_ons_estimativa_custos_custo_variavel_unitario_usinas_termicas.storage = GCS(
 br_ons_estimativa_custos_custo_variavel_unitario_usinas_termicas.run_config = (
     KubernetesRun(image=constants.DOCKER_IMAGE.value)
 )
-br_ons_estimativa_custos_custo_variavel_unitario_usinas_termicas.schedule = (
-    schedule_br_ons_estimativa_custos_custo_variavel_unitario_usinas_termicas
-)
+#br_ons_estimativa_custos_custo_variavel_unitario_usinas_termicas.schedule = (
+#    schedule_br_ons_estimativa_custos_custo_variavel_unitario_usinas_termicas
+#)

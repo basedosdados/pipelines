@@ -7,7 +7,7 @@ from datetime import timedelta
 
 import pandas as pd
 from prefect import task
-
+from pipelines.constants import constants as constants_root
 from pipelines.datasets.br_cgu_beneficios_cidadao.constants import constants
 from pipelines.datasets.br_cgu_beneficios_cidadao.utils import (
     download_unzip_csv,
@@ -15,18 +15,35 @@ from pipelines.datasets.br_cgu_beneficios_cidadao.utils import (
     parquet_partition,
 )
 from pipelines.utils.utils import log
+from typing import List, Union
+from datetime import datetime, date
 
 
 @task
 def print_last_file(file):
     log(f"Arquivo baixado --> {file}")
 
+@task(
+    max_retries=constants_root.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants_root.TASK_RETRY_DELAY.value),
+)
+def scrape_download_page(table_id):
+    dates = extract_dates(table=table_id)
+
+    return dates
+
+@task
+def get_updated_files(files_df, table_last_date):
+    files_df['ano_mes'] = files_df['ano'] + '-' + files_df['mes_numero'] + '-01'
+    files_df['ano_mes'] = files_df['ano_mes'].apply(lambda x: datetime.strptime(x, "%Y-%m-%d").date())
+    return files_df[files_df['ano_mes'] > table_last_date]['urls'].to_list()
+
 
 @task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+    max_retries=constants_root.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants_root.TASK_RETRY_DELAY.value),
 )
-def crawl_last_date(table_id: str) -> list:
+def get_source_max_date(files_df) -> list:
     """
     Encontra a data mais recente em um DataFrame e retorna a data e a URL correspondente.
 
@@ -39,109 +56,76 @@ def crawl_last_date(table_id: str) -> list:
     Exemplo de uso:
     date, url = crawl_last_date("minha_tabela")
     """
-    dates = extract_dates(table=table_id)
-    dates["data"] = pd.to_datetime(
-        dates["ano"].astype(str) + "-" + dates["mes_numero"].astype(str) + "-01"
+    #dates = extract_dates(table=table_id)
+    files_df["data"] = pd.to_datetime(
+        files_df["ano"].astype(str) + "-" + files_df["mes_numero"].astype(str) + "-01"
     )
-    max_row = dates[dates["data"] == dates["data"].max()]
+    max_date = files_df["data"].max()
 
-    max_date = max_row["data"].iloc[0]
-
-    return [max_date, max_row["urls"].iloc[0]]
+    return max_date
 
 
 @task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+    max_retries=constants_root.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants_root.TASK_RETRY_DELAY.value),
 )  # noqa
-def crawler_bolsa_familia(historical_data: bool, file):
-    if historical_data:
-        dates = extract_dates()
+def crawler_beneficios_cidadao(table_id: str,
+                               url: str,
+                               files_df: pd.DataFrame,
+                               historical_data: bool,
+                               files: Union[List[str], None] = None,
+                               year: str = "2023"
+                               ) -> str:
+    """
+    Baixa e processa dados do portal da transparência relacionados aos benefícios do cidadão.
 
-        endpoints = dates["urls"].to_list()
+    Args:
+        table_id (str): ID da tabela para identificar os dados.
+        files_df (pd.DataFrame): DataFrame contendo informações sobre os arquivos a serem baixados.
+        historical_data (bool): Indica se os dados históricos devem ser baixados.
+        files (List[str], optional): Lista de URLs dos arquivos mais recentes, requeridos se historical_data for False.
+        year (str, optional): Ano dos dados históricos a serem baixados.
+        url (str): URL base para baixar os arquivos CSV.
+
+    Returns:
+        str: Caminho do diretório onde os dados processados foram armazenados.
+
+    Raises:
+        ValueError: Se historical_data for True e files for None.
+
+    Note:
+        Esta função baixa arquivos CSV relacionados aos benefícios do cidadão,
+        opcionalmente filtrados por ano, e os processa em formato parquet.
+
+    Example:
+        >>> crawler_beneficios_cidadao(table_id='my_table',
+        ...                            files_df=my_files_df,
+        ...                            historical_data=True,
+        ...                            url='https://example.com/beneficios_cidadao/')
+
+    """
+    if historical_data:
+
+        endpoints = files_df[files_df["ano"] == year]["urls"].to_list()
 
         log("BAIXANDO DADOS HISTÓRICOS")
         log(f"ENDPOINTS >> {endpoints}")
 
         download_unzip_csv(
-            url=constants.MAIN_URL_NOVO_BOLSA_FAMILIA.value, files=endpoints, id="dados"
-        )
-    else:
-        log("BAIXANDO DADOS MAIS RECENTES")
-        download_unzip_csv(
-            url=constants.MAIN_URL_NOVO_BOLSA_FAMILIA.value,
-            files=f"{file}",
-            id="novo_bolsa_familia",
-        )
-
-    parquet_partition(
-        path="/tmp/data/br_cgu_beneficios_cidadao/novo_bolsa_familia/input/",
-        table="novo_bolsa_familia",
-    )
-    return "/tmp/data/br_cgu_beneficios_cidadao/novo_bolsa_familia/output/"
-
-
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)  # noqa
-def crawler_garantia_safra(historical_data: bool, file):
-    if historical_data:
-        dates = extract_dates(table="garantia_safra")
-
-        endpoints = dates["urls"].to_list()
-
-        log("BAIXANDO DADOS HISTÓRICOS")
-        log(f"ENDPOINTS >> {endpoints}")
-
-        download_unzip_csv(
-            url=constants.MAIN_URL_GARANTIA_SAFRA.value,
+            url=url,
             files=endpoints,
-            id="garantia_safra",
+            id=table_id,
         )
     else:
         log("BAIXANDO DADOS MAIS RECENTES")
         download_unzip_csv(
-            url=constants.MAIN_URL_GARANTIA_SAFRA.value,
-            files=f"{file}",
-            id="garantia_safra",
+            url=url,
+            files=files,
+            id=table_id,
         )
 
     parquet_partition(
-        path="/tmp/data/br_cgu_beneficios_cidadao/garantia_safra/input/",
-        table="garantia_safra",
+        path=f"/tmp/data/br_cgu_beneficios_cidadao/{table_id}/input/",
+        table=table_id,
     )
-    return "/tmp/data/br_cgu_beneficios_cidadao/garantia_safra/output/"
-
-
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)  # noqa
-def crawler_bpc(historical_data: bool, file):
-    if historical_data:
-        dates = extract_dates(table="bpc")
-
-        endpoints = dates["urls"].to_list()
-
-        log("BAIXANDO DADOS HISTÓRICOS")
-        log(f"ENDPOINTS >> {endpoints}")
-
-        download_unzip_csv(
-            url=constants.MAIN_URL_BPC.value,
-            files=endpoints,
-            id="bpc",
-        )
-    else:
-        log("BAIXANDO DADOS MAIS RECENTES")
-        download_unzip_csv(
-            url=constants.MAIN_URL_BPC.value,
-            files=f"{file}",
-            id="bpc",
-        )
-
-    parquet_partition(
-        path="/tmp/data/br_cgu_beneficios_cidadao/bpc/input/",
-        table="bpc",
-    )
-    return "/tmp/data/br_cgu_beneficios_cidadao/bpc/output/"
+    return f"/tmp/data/br_cgu_beneficios_cidadao/{table_id}/output/"

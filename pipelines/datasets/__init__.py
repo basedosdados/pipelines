@@ -40,6 +40,7 @@ from pipelines.datasets.br_mercadolivre_ofertas.flows import *
 from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.flows import *
 from pipelines.datasets.br_mp_pep_cargos_funcoes.flows import *
 from pipelines.datasets.br_ms_cnes.flows import *
+from pipelines.datasets.br_ms_sia.flows import *
 from pipelines.datasets.br_ons_avaliacao_operacao.flows import *
 from pipelines.datasets.br_ons_estimativa_custos.flows import *
 from pipelines.datasets.br_poder360_pesquisas.flows import *
@@ -53,3 +54,5 @@ from pipelines.datasets.delete_flows.flows import *
 from pipelines.datasets.fundacao_lemann.flows import *
 from pipelines.datasets.mundo_transfermarkt_competicoes.flows import *
 from pipelines.datasets.mundo_transfermarkt_competicoes_internacionais.flows import *
+from pipelines.datasets.br_cnj_improbidade_administrativa.flows import *
+from pipelines.datasets.br_ms_sih.flows import *
