@@ -7,6 +7,7 @@ import requests
 from bs4 import BeautifulSoup
 from prefect import task
 import pandas as pd
+from datetime import datetime
 from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.constants import constants
 from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.utils import (
     changing_coordinates,
@@ -79,5 +80,6 @@ def data_url(url, headers):
 def get_data_source_sfma_iptu_max_date():
     # Obtém a data mais recente do site
     data_obj = data_url(constants.URLS.value[0], constants.HEADERS.value)
-    data_obj = pd.to_datetime(data_obj, format="%Y-%m")
-    return data_obj
+    source_date = datetime.strptime(data_obj, "%Y-%m").date()
+    log(source_date)
+    return source_date
