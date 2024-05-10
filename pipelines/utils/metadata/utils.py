@@ -2,8 +2,6 @@
 """
 General purpose functions for the metadata project
 """
-import re
-
 # pylint: disable=too-many-arguments
 from datetime import datetime
 from time import sleep
@@ -19,9 +17,9 @@ from pipelines.utils.utils import get_credentials_from_secret, log
 import requests
 
 
-#######################
+##############################################
 # update_django_metadata Utils
-#######################
+##############################################
 
 
 def check_if_values_are_accepted(
