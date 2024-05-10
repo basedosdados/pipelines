@@ -3,23 +3,23 @@
 General purpose functions for the metadata project
 """
 # pylint: disable=too-many-arguments
+import requests
+import basedosdados as bd
+
 from datetime import datetime
 from time import sleep
 from typing import Dict, Tuple
-
-import basedosdados as bd
 from basedosdados.download.base import google_client
 from dateutil.relativedelta import relativedelta
 
 from pipelines.utils.constants import constants
 from pipelines.utils.metadata.constants import constants as metadata_constants
 from pipelines.utils.utils import get_credentials_from_secret, log
-import requests
 
 
-##############################################
+###############################
 # update_django_metadata Utils
-##############################################
+###############################
 
 
 def check_if_values_are_accepted(
@@ -246,7 +246,7 @@ def extract_last_date_from_bq(
 
         return last_date
     except Exception as e:
-        log(f"An error occurred while extracting the last update date: {str(e)}")
+        log(f"An error occurred while extracting the last date: {str(e)}")
         raise
 
 def format_date_column(date_column: dict) -> str:
