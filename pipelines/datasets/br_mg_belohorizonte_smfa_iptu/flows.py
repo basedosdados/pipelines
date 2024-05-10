@@ -118,4 +118,4 @@ br_mg_belohorizonte_smfa_iptu_iptu.storage = GCS(constants.GCS_FLOWS_BUCKET.valu
 br_mg_belohorizonte_smfa_iptu_iptu.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_mg_belohorizonte_smfa_iptu_iptu.schedule = every_weeks_iptu
+#br_mg_belohorizonte_smfa_iptu_iptu.schedule = every_weeks_iptu
