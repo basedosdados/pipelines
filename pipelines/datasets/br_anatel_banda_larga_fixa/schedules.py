@@ -30,7 +30,7 @@ schedule_br_anatel_banda_larga_fixa__microdados = Schedule(
     ]
 )
 
-schedule_br_anatel_banda_larga_fixa__municipio = Schedule(
+schedule_br_anatel_banda_larga_fixa__densidade_municipio = Schedule(
     clocks=[
         CronClock(
             cron="0 16 * * *",
@@ -50,7 +50,7 @@ schedule_br_anatel_banda_larga_fixa__municipio = Schedule(
     ]
 )
 
-schedule_br_anatel_banda_larga_fixa__brasil = Schedule(
+schedule_br_anatel_banda_larga_fixa__densidade_brasil = Schedule(
     clocks=[
         CronClock(
             cron="0 17 * * *",
@@ -70,7 +70,7 @@ schedule_br_anatel_banda_larga_fixa__brasil = Schedule(
     ]
 )
 
-schedule_br_anatel_banda_larga_fixa__uf = Schedule(
+schedule_br_anatel_banda_larga_fixa__densidade_uf = Schedule(
     clocks=[
         CronClock(
             cron="0 18 * * *",
