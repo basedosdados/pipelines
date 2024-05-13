@@ -22,7 +22,7 @@ from pipelines.utils.tasks import (
     rename_current_flow_run_dataset_table,
 )
 
-with Flow(name="BD template - Anatel Banda Larga Fixa", code_owners=["trick"]) as flow_banda_larga_fixa:
+with Flow(name="BD template - Anatel Banda Larga Fixa", code_owners=["trick"]) as flow_anatel_banda_larga_fixa:
     # Parameters
     dataset_id = Parameter(
         "dataset_id", default="br_anatel_banda_larga_fixa", required=True
@@ -114,5 +114,5 @@ with Flow(name="BD template - Anatel Banda Larga Fixa", code_owners=["trick"]) a
                     upstream_tasks=[wait_for_materialization],
                 )
 
-flow_banda_larga_fixa.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-flow_banda_larga_fixa.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+flow_anatel_banda_larga_fixa.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+flow_anatel_banda_larga_fixa.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)

@@ -2,7 +2,6 @@
 """
 Schedules for dataset br_anatel_banda_larga_fixa
 """
-
 from datetime import datetime
 
 from prefect.schedules import Schedule
