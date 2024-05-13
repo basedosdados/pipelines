@@ -598,7 +598,7 @@ def format_and_check_date(date_values: tuple, date_format: str) -> str:
     if date_format == "%Y-%m" and end_year is not None and end_month is not None:
         return f"{end_year:04d}-{end_month:02d}"
 
-    if date_format == "Y%" and end_year is not None:
+    if date_format == "%Y" and end_year is not None:
         return f"{end_year:04d}"
 
     raise ValueError(
