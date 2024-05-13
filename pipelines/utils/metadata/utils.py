@@ -18,7 +18,9 @@ from pipelines.utils.utils import get_credentials_from_secret, log
 
 
 ###############################
+#
 # update_django_metadata Utils
+#
 ###############################
 
 
@@ -412,7 +414,6 @@ def create_update(
             """
 
     if update is True and not isinstance(id, type(None)):
-        print(f'update {query_parameters}')
         mutation_parameters["id"] = id
 
     response = backend._execute_query(query,variables = {"input": mutation_parameters}, headers=get_headers(backend))
