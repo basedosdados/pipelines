@@ -54,6 +54,7 @@ br_camara_dados_abertos__votacao_objeto.schedule = schedules_br_camara_dados_abe
 
 # ! - > Flow: br_camara_dados_abertos__votacao_orientacao_bancada
 
+
 br_camara_dados_abertos__votacao_orientacao_bancada = deepcopy(flow_camara_dados_abertos)
 br_camara_dados_abertos__votacao_orientacao_bancada.name = "br_camara_dados_abertos.votacao_orientacao_bancada"
 br_camara_dados_abertos__votacao_orientacao_bancada.code_owners = ["trick"]
