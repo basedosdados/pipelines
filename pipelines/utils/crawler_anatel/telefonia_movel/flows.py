@@ -25,7 +25,7 @@ from pipelines.utils.tasks import (
 
 with Flow(
     name="BD template - Anatel Telefonia Móvel", code_owners=["trick"]
-) as flow_telefonia_movel:
+) as flow_anatel_telefonia_movel:
     # Parameters
     dataset_id = Parameter(
         "dataset_id", default="br_anatel_telefonia_movel", required=True
@@ -126,5 +126,5 @@ with Flow(
                     upstream_tasks=[wait_for_materialization],
                 )
 
-flow_telefonia_movel.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-flow_telefonia_movel.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+flow_anatel_telefonia_movel.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+flow_anatel_telefonia_movel.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
