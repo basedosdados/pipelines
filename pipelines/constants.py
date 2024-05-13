@@ -120,5 +120,9 @@ class constants(Enum):  # pylint: disable=c0103
         "aspeddro": {
             "user_id": "767136614140346389",
             "type": "user_nickname"
+        },
+        "jeantozzi": {
+            "user_id": "202938634654056448",
+            "type": "user_nickname"
         }
     }
