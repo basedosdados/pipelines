@@ -9,11 +9,11 @@ from prefect.schedules.clocks import CronClock, IntervalClock
 from pipelines.constants import constants
 
 # ? ----------------------- > Microdados
-anatel_microdados = Schedule(
+schedule_br_anatel_telefonia_movel__microdados = Schedule(
     clocks=[
         CronClock(
             cron="30 16 * * *",
-            start_date=datetime(2021, 3, 31, 17, 11),
+            start_date=datetime(2024, 1, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -34,11 +34,11 @@ anatel_microdados = Schedule(
 
 # ? ----------------------- > Densidade Municipio
 
-anatel_densidade_municipio = Schedule(
+schedule_br_anatel_telefonia_movel__municipio = Schedule(
     clocks=[
         CronClock(
             cron="30 17 * * *",
-            start_date=datetime(2021, 3, 31, 17, 11),
+            start_date=datetime(2024, 1, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -56,11 +56,11 @@ anatel_densidade_municipio = Schedule(
 
 # ? ----------------------- > Densidade UF
 
-anatel_densidade_uf = Schedule(
+schedule_br_anatel_telefonia_movel__uf = Schedule(
     clocks=[
         CronClock(
             cron="30 18 * * *",
-            start_date=datetime(2021, 3, 31, 17, 11),
+            start_date=datetime(2024, 1, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -78,11 +78,11 @@ anatel_densidade_uf = Schedule(
 
 # ? ----------------------- > Densidade Brasil
 
-anatel_densidade_brasil = Schedule(
+schedule_br_anatel_telefonia_movel__brasil = Schedule(
     clocks=[
         CronClock(
             cron="30 19 * * *",
-            start_date=datetime(2021, 3, 31, 17, 11),
+            start_date=datetime(2024, 1, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
