@@ -181,16 +181,21 @@ def check_if_data_is_outdated(
     data_source_max_date: datetime,
     date_type: str = 'data_max_date',
     date_format: str = "%Y-%m-%d",
+    api_mode: str = "prod",
 ) -> bool:
     """Essa task checa se há necessidade de atualizar os dados no BQ
 
     Args:
         dataset_id e table_id(string): permite encontrar na api a última data de cobertura
-        data_api (date): A data mais recente dos dados da fonte original
+        date_format (str): O formato da data a ser procurado no Django
+        data_source_max_date (date): A data mais recente dos dados da fonte original
+        api_mode (str): pode ser 'prod ou 'staging'
 
     Returns:
         bool: TRUE se a data da fonte original for maior que a data mais recente registrada na API e FALSE caso contrário.
     """
+    backend = bd.Backend(graphql_url=get_url(api_mode))
+
     if type(data_source_max_date) is datetime:
         data_source_max_date = data_source_max_date.date()
     if type(data_source_max_date) is str:
@@ -223,10 +228,11 @@ def check_if_data_is_outdated(
 
 
 @task
-def task_get_api_most_recent_date(dataset_id, table_id, date_format):
-    backend = bd.Backend(graphql_url=constants.API_URL.value['prod'])
+def task_get_api_most_recent_date(dataset_id, table_id, date_format, api_mode: str = "prod",):
+
+    backend = bd.Backend(graphql_url=get_url(api_mode))
     return get_api_most_recent_date(
-        dataset_id=dataset_id, table_id=table_id, date_format=date_format,backend=backend
+        dataset_id=dataset_id, table_id=table_id, date_format=date_format, backend=backend
     )
 
 #####             #####

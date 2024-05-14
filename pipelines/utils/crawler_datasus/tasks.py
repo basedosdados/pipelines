@@ -40,7 +40,8 @@ from pipelines.utils.crawler_datasus.utils import (
     post_process_microdados_dengue
 
 )
-from pipelines.utils.metadata.utils import get_api_most_recent_date
+import basedosdados as bd
+from pipelines.utils.metadata.utils import get_api_most_recent_date, get_url
 from pipelines.utils.utils import log
 
 
@@ -56,10 +57,12 @@ def check_files_to_parse(
 ) -> list[str]:
     log(f"------- Extracting last date from api for {dataset_id}.{table_id}")
     # 1. extrair data mais atual da api
+    backend = bd.Backend(graphql_url=get_url("prod"))
     last_date = get_api_most_recent_date(
         dataset_id=dataset_id,
         table_id=table_id,
         date_format="%Y-%m",
+        backend=backend
     )
 
     log("------- Building next year/month to parse")
