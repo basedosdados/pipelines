@@ -39,7 +39,7 @@ with Flow(name="BD template - Anatel Banda Larga Fixa", code_owners=["trick"]) a
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
-    ano = Parameter("ano", default=2024, required=True)
+    ano = Parameter("ano", default=2024, required=False)
 
     update_metadata = Parameter("update_metadata", default=True, required=False)
 
