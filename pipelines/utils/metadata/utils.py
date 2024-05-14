@@ -547,9 +547,7 @@ def parse_datetime_ranges(datetime_result: dict, date_format: str) -> dict:
 
     date_objects = {}
 
-    # log(f"the chosen format to parse the coverage was {date_format}")
-
-    edges = datetime_result["data"]["allCoverage"]["edges"]
+    edges = datetime_result["allCoverage"]["edges"]
 
     # iterates over each edge
     for edge in edges:
