@@ -400,7 +400,6 @@ with Flow(name="DATASUS-SINAN", code_owners=["tricktx"]) as flow_sinan:
             file_list=ftp_files,
             dataset_id=dataset_id,
             table_id=table_id,
-            upstream_tasks=[ftp_files]
         )
 
         dbf_files = decompress_dbc(
@@ -413,7 +412,7 @@ with Flow(name="DATASUS-SINAN", code_owners=["tricktx"]) as flow_sinan:
             file_list=dbc_files,
             dataset_id=dataset_id,
             table_id=table_id,
-            chunk_size = 150000,
+            chunk_size = 200000,
             upstream_tasks=[dbf_files, dbc_files],
         )
 
@@ -423,7 +422,6 @@ with Flow(name="DATASUS-SINAN", code_owners=["tricktx"]) as flow_sinan:
             table_id=table_id,
             dump_mode="append",
             wait=files_path,
-            upstream_tasks=[files_path]
         )
 
         with case(materialize_after_dump, True):
@@ -442,7 +440,6 @@ with Flow(name="DATASUS-SINAN", code_owners=["tricktx"]) as flow_sinan:
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks=[wait_upload_table]
             )
 
             wait_for_materialization = wait_for_flow_run(
