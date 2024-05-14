@@ -387,6 +387,7 @@ with Flow(name="DATASUS-SINAN", code_owners=["tricktx"]) as flow_sinan:
         data_source_max_date=data_source_max_date,
         date_format="%Y-%m-%d",
         upstream_tasks=[data_source_max_date],
+        date_type = 'last_update_date'
     )
 
     with case(dados_desatualizados, True):

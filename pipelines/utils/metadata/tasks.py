@@ -2,19 +2,24 @@
 """
 Tasks for metadata
 """
+import asyncio
 from datetime import datetime
 from datetime import timedelta
-from pipelines.constants import constants as constants_root
 import pandas as pd
+import basedosdados as bd
+
+from pipelines.utils.metadata.utils_async import create_update_quality_checks_async
 from prefect import task
+from pipelines.constants import constants as constants_root
+from pipelines.utils.constants import constants
 
 from pipelines.utils.metadata.utils import (
     able_to_query_bigquery_metadata,
     check_if_values_are_accepted,
     create_update,
     extract_last_date_from_bq,
-    get_api_data_most_recent_date,
     get_api_last_update_date,
+    get_api_most_recent_date,
     get_billing_project_id,
     get_coverage_parameters,
     get_id,
@@ -195,13 +200,15 @@ def check_if_data_is_outdated(
     if type(data_source_max_date) is pd.Timestamp:
         data_source_max_date = data_source_max_date.date()
 
+    backend = bd.Backend(graphql_url=constants.API_URL.value['prod'])
+
     if date_type == 'data_max_date':
-        data_api = get_api_data_most_recent_date(
-            dataset_id=dataset_id, table_id=table_id, date_format=date_format
+        data_api = get_api_most_recent_date(
+            dataset_id=dataset_id, table_id=table_id,backend = backend, date_format=date_format
         )
 
     if date_type == 'last_update_date':
-        data_api = get_api_last_update_date(dataset_id=dataset_id, table_id=table_id)
+        data_api = get_api_last_update_date(dataset_id=dataset_id, table_id=table_id, backend=backend)
 
     log(f"Data na fonte: {data_source_max_date}")
     log(f"Data nos metadados da BD: {data_api}")
@@ -217,8 +224,9 @@ def check_if_data_is_outdated(
 
 @task
 def task_get_api_most_recent_date(dataset_id, table_id, date_format):
+    backend = bd.Backend(graphql_url=constants.API_URL.value['prod'])
     return get_api_most_recent_date(
-        dataset_id=dataset_id, table_id=table_id, date_format=date_format
+        dataset_id=dataset_id, table_id=table_id, date_format=date_format,backend=backend
     )
 
 #####             #####
