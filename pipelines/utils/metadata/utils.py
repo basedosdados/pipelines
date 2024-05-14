@@ -17,11 +17,11 @@ from pipelines.utils.metadata.constants import constants as metadata_constants
 from pipelines.utils.utils import get_credentials_from_secret, log
 
 
-###############################
+################################
 #
 # update_django_metadata Utils
 #
-###############################
+################################
 
 
 def check_if_values_are_accepted(
