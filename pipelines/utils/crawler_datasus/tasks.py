@@ -53,11 +53,19 @@ def check_files_to_parse(
 ) -> list[str]:
     log(f"------- Extracting last date from api for {dataset_id}.{table_id}")
     # 1. extrair data mais atual da api
-    last_date = get_api_most_recent_date(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        date_format="%Y-%m",
-    )
+    if dataset_id == 'br_ms_sim':
+        last_date = get_api_most_recent_date(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            date_format="%Y",
+        )
+    else:
+        last_date = get_api_most_recent_date(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            date_format="%Y-%m",
+        )
+
 
     log("------- Building next year/month to parse")
 
@@ -89,7 +97,7 @@ def check_files_to_parse(
     available_dbs = list_datasus_dbc_files(
         datasus_database=datasus_database, datasus_database_table=datasus_database_table
     )
-    #
+
     if len(year_month_to_extract) == 0:
         list_files = [file for file in available_dbs if file.split('/')[-1][4:8] == year_month_to_parse]
     else:
