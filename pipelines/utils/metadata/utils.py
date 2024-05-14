@@ -607,7 +607,7 @@ def format_and_check_date(date_values: tuple, date_format: str) -> str:
         f"Attention! The input date_format ->> {date_format} is wrong for the current Table. One of the elements have NONE values in the PROD API. If that's not the case, check the Coverage values in the Prod API, they may be not filled"
     )
 
-def get_api_most_recent_date(
+def get_api_data_most_recent_date(
     dataset_id: str,
     table_id: str,
     backend: bd.Backend,
@@ -687,38 +687,5 @@ def get_headers(backend: bd.Backend) -> dict:
 
     return header_for_mutation_query
 
-def get_credentials_utils(secret_path: str) -> Tuple[str, str]:
-    """
-    Returns the user and password for the given secret path.
-    """
-    # log(f"Getting user and password for secret path: {secret_path}")
-    tokens_dict = get_credentials_from_secret(secret_path)
-    email = tokens_dict.get("email")
-    password = tokens_dict.get("password")
-    return email, password
-
-def get_token(email:str, password:str, api_mode: str = "prod") -> str:
-    """
-    Get api token.
-    """
-    r = None
-
-    url = constants.API_URL.value[api_mode]
-
-    r = requests.post(
-        url=url,
-        headers={"Content-Type": "application/json"},
-        json={
-            "query": """
-        mutation ($email: String!, $password: String!) {
-            tokenAuth(email: $email, password: $password) {
-                token
-            }
-        }
-    """,
-            "variables": {"email": email, "password": password},
-        },
-    )
-    r.raise_for_status()
-
-    return r.json()["data"]["tokenAuth"]["token"]
+def get_api_last_update_date(dataset_id: str, table_id: str):
+    return None
