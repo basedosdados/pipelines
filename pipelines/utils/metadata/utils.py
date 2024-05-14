@@ -686,6 +686,6 @@ def get_headers(backend: bd.Backend) -> dict:
     header_for_mutation_query = {"Authorization": f"Bearer {token}"}
 
     return header_for_mutation_query
-  
+
 def get_api_last_update_date(dataset_id: str, table_id: str):
     return None
