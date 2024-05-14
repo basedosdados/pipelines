@@ -30,7 +30,8 @@ from pipelines.datasets.br_denatran_frota.utils import (
     treat_uf,
     verify_total,
 )
-from pipelines.utils.metadata.utils import get_api_most_recent_date
+import basedosdados as bd
+from pipelines.utils.metadata.utils import get_api_most_recent_date, get_url
 from pipelines.utils.utils import log, to_partitions
 
 MONTHS = constants.MONTHS.value
@@ -218,9 +219,10 @@ def get_latest_data(table_id: str, dataset_id: str):
     Returns:
         _type_: most recente date
     """
+    backend = bd.Backend(graphql_url=get_url("prod"))
 
     denatran_data = get_api_most_recent_date(
-        table_id=table_id, dataset_id=dataset_id, date_format="%Y-%m"
+        table_id=table_id, dataset_id=dataset_id, date_format="%Y-%m", backend=backend
     )
 
     log(f"{denatran_data}")

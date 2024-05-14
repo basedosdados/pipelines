@@ -5,6 +5,7 @@ Tasks for br_cgu_servidores_executivo_federal
 
 import datetime
 import os
+import basedosdados as bd
 
 import pandas as pd
 import requests
@@ -19,7 +20,7 @@ from pipelines.datasets.br_cgu_servidores_executivo_federal.utils import (
     process_table,
     extract_dates
 )
-from pipelines.utils.metadata.utils import get_api_most_recent_date
+from pipelines.utils.metadata.utils import get_api_most_recent_date, get_url
 from pipelines.utils.utils import log, to_partitions
 
 @task
@@ -169,10 +170,12 @@ def is_up_to_date(next_date: datetime.date) -> bool:
 
 @task
 def get_next_date() -> datetime.date:
+    backend = bd.Backend(graphql_url=get_url("prod"))
     last_date_in_api = get_api_most_recent_date(
         dataset_id="br_cgu_servidores_executivo_federal",
         table_id="cadastro_servidores",
         date_format="%Y-%m",
+        backend=backend,
     )
 
     next_date = last_date_in_api + relativedelta(months=1)

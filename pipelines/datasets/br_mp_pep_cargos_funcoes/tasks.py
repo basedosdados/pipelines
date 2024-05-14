@@ -32,7 +32,8 @@ from pipelines.datasets.br_mp_pep_cargos_funcoes.utils import (
     try_find_element,
     try_find_elements,
 )
-from pipelines.utils.metadata.utils import get_api_most_recent_date
+import basedosdados as bd
+from pipelines.utils.metadata.utils import get_api_most_recent_date, get_url
 from pipelines.utils.utils import log, to_partitions
 
 
@@ -481,9 +482,9 @@ def is_up_to_date(headless: bool = True) -> bool:
     date_website = datetime.date(int(year), month, day=1)
 
     log(f"Last date website: {text}, parsed as {date_website}")
-
+    backend = bd.Backend(graphql_url=get_url("prod"))
     last_date_in_api = get_api_most_recent_date(
-        dataset_id="br_mp_pep", table_id="cargos_funcoes", date_format="%Y-%m"
+        dataset_id="br_mp_pep", table_id="cargos_funcoes", date_format="%Y-%m", backend=backend
     )
 
     log(f"Last date API: {last_date_in_api}")
