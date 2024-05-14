@@ -8,8 +8,9 @@ import asyncio
 import aiohttp
 import json
 import re
-from pipelines.utils.metadata.utils import get_id, get_token
-from pipelines.utils.utils import get_credentials_from_secret, log, get_credentials_utils
+from pipelines.utils.constants import constants
+from pipelines.utils.metadata.utils import get_id, get_token, get_credentials_utils
+from pipelines.utils.utils import log
 import pandas as pd
 
 
@@ -93,10 +94,7 @@ async def create_update_async(
     if update is True and id is not None:
         mutation_parameters["id"] = id
 
-    if api_mode == "prod":
-        url = "https://api.basedosdados.org/api/v1/graphql"
-    elif api_mode == "staging":
-        url = "https://staging.api.basedosdados.org/api/v1/graphql"
+    url = constants.API_URL.value[api_mode]
 
     async with aiohttp.ClientSession() as session:
             async with session.post(

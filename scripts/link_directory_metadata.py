@@ -4,6 +4,7 @@ from typing import Optional
 import basedosdados as bd
 import pandas as pd
 
+from pipelines.utils.constants import constants
 from pipelines.utils.metadata.utils import get_headers
 
 
@@ -200,7 +201,7 @@ def link_directory_metadata(
     default to `matching_column_pattern` if not provided.
 
     """
-    backend = bd.Backend(graphql_url="https://api.basedosdados.org/api/v1/graphql")
+    backend = bd.Backend(graphql_url=constants.API_URL.value["prod"])
 
     if directory_column_name is None:
         directory_column_name = matching_column_pattern
