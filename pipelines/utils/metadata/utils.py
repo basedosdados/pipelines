@@ -686,10 +686,10 @@ def get_headers(backend: bd.Backend) -> dict:
     return header_for_mutation_query
 
 
-def get_api_last_update_date(dataset_name: str, table_name: str, backend: bd.Backend):
+def get_api_last_update_date(dataset_id: str, table_id: str, backend: bd.Backend):
     try:
         # get table ID in the API
-        table_id = backend._get_table_id_from_name(gcp_dataset_id=dataset_name, gcp_table_id=table_name)
+        django_table_id = backend._get_table_id_from_name(gcp_dataset_id=dataset_id, gcp_table_id=table_id)
 
         # get last update value in the API for the table ID
         query = """
@@ -704,7 +704,7 @@ def get_api_last_update_date(dataset_name: str, table_name: str, backend: bd.Bac
                 }
             }
             """
-        variables = {"table_Id": table_id}
+        variables = {"table_Id": django_table_id}
         response = backend._execute_query(query, variables)
         clean_response = response['allUpdate']['edges'][0]['node']['latest']
         date_result = (datetime.strptime(clean_response[:10],"%Y-%m-%d")).date()
