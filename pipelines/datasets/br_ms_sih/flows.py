@@ -30,4 +30,4 @@ br_ms_sih_aihs_reduzidas.name = "br_ms_sih.aihs_reduzidas"
 br_ms_sih_aihs_reduzidas.code_owners = ["arthurfg"]
 br_ms_sih_aihs_reduzidas.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_ms_sih_aihs_reduzidas.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-#br_ms_sih_aihs_reduzidas.schedule = everyday_sih_aihs_reduzidas
+br_ms_sih_aihs_reduzidas.schedule = everyday_sih_aihs_reduzidas
