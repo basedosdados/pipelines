@@ -277,6 +277,7 @@ with Flow(name="DATASUS-SIH", code_owners=["arthurfg"]) as flow_sihsus:
         year_month_to_extract=year_month_to_extract,
     )
 
+
     with case(is_empty(ftp_files), True):
         log_task(
             "Os dados do FTP SIH ainda não foram atualizados para o ano/mes mais recente"

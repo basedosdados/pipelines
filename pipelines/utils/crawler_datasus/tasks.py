@@ -101,6 +101,7 @@ def check_files_to_parse(
 
 
 
+
     log(f"------- The following files were selected fom DATASUS FTP: {list_files}")
 
     return list_files
