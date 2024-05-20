@@ -288,7 +288,6 @@ class constants(Enum):  # pylint: disable=c0103
             "HEMOTERA",
         ],
         "DENG" : [
-    'ano',
     'TP_NOT',
     'ID_AGRAVO',
     'DT_NOTIFIC',

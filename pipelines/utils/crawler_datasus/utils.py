@@ -84,7 +84,7 @@ def  dbf_to_parquet(dbf: str, table_id: str, counter: int, chunk_size:int, datas
             if dataset_id == dataset_id:
                 df = pd.read_parquet(parquet_filepath)
 
-                post_process_microdados_dengue(df)
+                df = post_process_microdados_dengue(df)
 
                 df.to_parquet(parquet_filepath, index=None, compression='gzip')
 
@@ -544,15 +544,15 @@ def post_process_servico_especializado(df: pd.DataFrame) -> pd.DataFrame:
 
 def post_process_microdados_dengue(df: pd.DataFrame) -> pd.DataFrame:
 
-    path = list_datasus_dbc_files('SINAN', 'DENG')
+    #path = list_datasus_dbc_files('SINAN', 'DENG')
 
-    df['ano'] = '20' + str(path[43:45])
+    # df['ano'] = '20' + str(path[43:45])
     for new_column in datasus_constants.COLUMNS_TO_KEEP.value["DENG"]:
         if new_column not in df.columns:
             df[new_column] = ''
     df = df[datasus_constants.COLUMNS_TO_KEEP.value["DENG"]]
+    #df.drop(columns=['ano'], inplace=True)
     df.rename(columns={
         'SG_UF_NOT' : 'sigla_uf_notificacao'
     }, inplace=True)
-
     return df
