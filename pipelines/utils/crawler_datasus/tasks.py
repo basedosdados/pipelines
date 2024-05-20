@@ -7,20 +7,22 @@ Tasks for br_ms_cnes
 import asyncio
 import os
 from datetime import timedelta
-
+from ftplib import FTP
 import aioftp
 import pandas as pd
 from prefect import task
 from prefect.tasks.shell import ShellTask
 from simpledbf import Dbf5
 from tqdm import tqdm
-
+import sys
+from datetime import datetime, date
 from pipelines.constants import constants
 from pipelines.utils.crawler_datasus.constants import constants as datasus_constants
 from pipelines.utils.crawler_datasus.utils import (
     download_chunks,
     list_datasus_dbc_files,
     year_month_sigla_uf_parser,
+    just_the_year_parser,
     dbf_to_parquet,
     post_process_dados_complementares,
     post_process_equipamento,
@@ -35,6 +37,7 @@ from pipelines.utils.crawler_datasus.utils import (
     post_process_profissional,
     post_process_regra_contratual,
     post_process_servico_especializado,
+    post_process_microdados_dengue
 
 )
 import basedosdados as bd
@@ -104,6 +107,22 @@ def check_files_to_parse(
 
     return list_files
 
+@task(
+    max_retries=2,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def list_datasus_table_without_date(
+    table_id : str,
+    dataset_id: str
+):
+    datasus_database = datasus_constants.DATASUS_DATABASE.value[dataset_id]
+    datasus_database_table = datasus_constants.DATASUS_DATABASE_TABLE.value[table_id]
+
+    available_dbs = list_datasus_dbc_files(
+        datasus_database=datasus_database, datasus_database_table=datasus_database_table
+    )
+
+    return available_dbs
 
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
@@ -133,22 +152,30 @@ def access_ftp_download_files_async(
     log(f"------ dowloading {table_id} files from DATASUS FTP")
 
 
-
     asyncio.run(
         download_chunks(
             files=file_list,
             output_dir=input_path,
             max_parallel=max_parallel,
             chunk_size=chunk_size,
+            dataset_id=dataset_id,
         )
     )
 
-    dbc_files_path_list = [
-        os.path.join(
-            input_path, year_month_sigla_uf_parser(file=file), file.split("/")[-1]
-        )
-        for file in tqdm(file_list)
-    ]
+    if dataset_id == "br_ms_sinan":
+        dbc_files_path_list = [os.path.join(input_path, just_the_year_parser(file=file), file.split("/")[-1]) for file in tqdm(file_list)]
+        log(file_list)
+        log(f"------ The following files were downloaded: {dbc_files_path_list}")
+
+    elif dataset_id in ["br_ms_sia", "br_ms_cnes", "br_ms_sih"]:
+        dbc_files_path_list = [
+            os.path.join(
+                input_path, year_month_sigla_uf_parser(file=file), file.split("/")[-1]
+            )
+            for file in tqdm(file_list)
+        ]
+        log("Tanto faz...")
+        log(f"------ The following files were downloaded: {dbc_files_path_list}")
 
     return dbc_files_path_list
 
@@ -253,10 +280,6 @@ def decompress_dbf(file_list: list, table_id: str) -> str:
     return csv_file_list
 
 
-
-
-
-
 @task
 def pre_process_files(file_list: list, dataset_id: str, table_id: str) -> str:
 
@@ -277,6 +300,7 @@ def pre_process_files(file_list: list, dataset_id: str, table_id: str) -> str:
         "incentivos": post_process_incentivos,
         "regra_contratual": post_process_regra_contratual,
         "servico_especializado": post_process_servico_especializado,
+        "microdados_dengue" : post_process_microdados_dengue
     }
 
     try:
@@ -289,15 +313,16 @@ def pre_process_files(file_list: list, dataset_id: str, table_id: str) -> str:
 
     for file in tqdm(file_list):
 
-        log(f"-------- wrangling {file.split('/')[-1]} and saving to parquet")
+        log(f"-------- wrangling {file.split('/')[-2:]} and saving to parquet")
         concatenated_df = pd.DataFrame()
 
+        # - > Fazer o chunksize para o tratamento também.
         for chunk_df in pd.read_csv(
-            file, dtype=str, encoding="iso-8859-1", chunksize=50000
+            file, dtype=str, encoding="iso-8859-1", chunksize=25000
         ):
             concatenated_df = pd.concat([concatenated_df, chunk_df])
 
-        processed_df = post_process_function(concatenated_df)
+            processed_df = post_process_function(concatenated_df)
 
         processed_df = processed_df.astype(str)
         output_path = file.replace(".csv", ".parquet")
@@ -326,7 +351,7 @@ def is_empty(lista):
 
 
 @task
-def read_dbf_save_parquet_chunks(file_list: list, table_id: str, dataset_id:str= "br_ms_sia") -> str:
+def read_dbf_save_parquet_chunks(file_list: list, table_id: str, dataset_id:str= "br_ms_sia", chunk_size : int = 400000) -> str:
     """
     Convert dbc to parquet
     """
@@ -340,8 +365,39 @@ def read_dbf_save_parquet_chunks(file_list: list, table_id: str, dataset_id:str=
 
 
         log(f"-------- Reading {file}")
-        result_path = dbf_to_parquet(dbf=file, table_id=table_id, counter=_counter)
+        result_path = dbf_to_parquet(dbf=file, table_id=table_id, counter=_counter, dataset_id=dataset_id, chunk_size=chunk_size)
         _counter += 1
 
-
     return f'/tmp/{dataset_id}/output/{table_id}'
+
+@task
+def get_last_modified_date_in_sinan_tablen(
+    datasus_database: str,
+    datasus_database_table: str,
+) -> None:
+
+    ftp = FTP("ftp.datasus.gov.br")
+    ftp.login()
+
+    if datasus_database == 'SINAN':
+        if not datasus_database_table:
+            raise ValueError("No group assigned to SINAN_group")
+        # Obtendo ano atual
+
+        date_current = str(date.today().year)
+        year = date_current[2:4]
+        # Obtendo a lista de arquivos do diretório
+        files = []
+        ftp.dir(f"dissemin/publicos/SINAN/DADOS/PRELIM/{datasus_database_table}{year}.DBC", files.append)
+
+        # Extraindo a data do primeiro arquivo listado
+        if files:
+            first_file = files[0]
+            file_info = first_file.split()
+            if len(file_info) >= 4:
+                select_date = file_info[0]  # A data está na primeira posição
+                file_date = datetime.strptime(select_date, "%m-%d-%y").strftime("%y-%m-%d")
+                final_date = pd.to_datetime(file_date, format='%y-%m-%d')
+                #sys.stdout.write(file_date + "\n")
+    ftp.close()
+    return final_date
