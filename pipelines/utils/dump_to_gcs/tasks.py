@@ -17,8 +17,6 @@ from pipelines.utils.dump_to_gcs.constants import constants as dump_to_gcs_const
 from pipelines.utils.utils import (
     determine_whether_to_execute_or_not,
     get_redis_client,
-    human_readable,
-    list_blobs_with_prefix,
     log,
 )
 
@@ -29,11 +27,9 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
     table_id: str,
     project_id: str = None,
     query: Union[str, jinja2.Template] = None,
-    jinja_query_params: dict = None,
     bd_project_mode: str = "prod",
     billing_project_id: str = None,
     location: str = "US",
-    maximum_bytes_processed: float = dump_to_gcs_constants.MAX_BYTES_PROCESSED_PER_TABLE.value,
 ):
     """
     Get data from BigQuery.
@@ -60,25 +56,6 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
     if not query:
         query = f"SELECT * FROM `{project_id}.{dataset_id}.{table_id}`"
         log(f"Query was inferred from dataset_id and table_id: {query}")
-
-    # If query is provided, use it!
-    # If it's a template, we must render it.
-    if not query:
-        if not jinja_query_params:
-            jinja_query_params = {}
-        if isinstance(query, jinja2.Template):
-            try:
-                query = query.render(
-                    {
-                        "project_id": project_id,
-                        "dataset_id": dataset_id,
-                        "table_id": table_id,
-                        **jinja_query_params,
-                    }
-                )
-            except jinja2.TemplateError as exc:
-                raise ValueError(f"Error rendering query: {exc}") from exc
-            log(f"Query was rendered: {query}")
 
     # If query is not a string, raise an error
     if not isinstance(query, str):
@@ -166,6 +143,36 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
         while not job.done():
             sleep(1)
         log("BDpro filter was reestored")
+        log("Querying data for BDpro user from BigQuery")
+        job = client["bigquery"].query(query)
+        while not job.done():
+            sleep(1)
+
+        results = job.to_dataframe()
+        log(results.head(5))
+        # pylint: disable=protected-access
+        dest_table = job._properties["configuration"]["query"]["destinationTable"]
+        dest_project_id = dest_table["projectId"]
+        dest_dataset_id = dest_table["datasetId"]
+        dest_table_id = dest_table["tableId"]
+        log(
+            f"Query results were stored in {dest_project_id}.{dest_dataset_id}.{dest_table_id}"
+        )
+
+        blob_path = f"gs://basedosdados-public/one-click-download/{dataset_id}/{table_id}/{table_id}_bdpro.csv.gz"
+        log(f"Loading data to {blob_path}")
+        dataset_ref = bigquery.DatasetReference(dest_project_id, dest_dataset_id)
+        table_ref = dataset_ref.table(dest_table_id)
+        job_config = bigquery.job.ExtractJobConfig(compression="GZIP")
+        extract_job = client["bigquery"].extract_table(
+            table_ref,
+            blob_path,
+            location=location,
+            job_config=job_config,
+        )
+        extract_job.result()
+        log("BDPro Data was loaded successfully")
+
 
 
 @task
@@ -231,3 +238,5 @@ def update_last_trigger(
     redis_client = get_redis_client()
     key = f"{project_id}__{dataset_id}__{table_id}"
     redis_client.set(key, {"last_trigger": execution_time})
+
+
