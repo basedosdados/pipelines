@@ -13,7 +13,7 @@ from pipelines.constants import constants
 schedule_nrows = Schedule(
     clocks=[
         CronClock(
-            cron="0 8 * * 2",
+            cron="0 8 * * *",
             start_date=datetime(2023, 5, 1, 7, 30),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,

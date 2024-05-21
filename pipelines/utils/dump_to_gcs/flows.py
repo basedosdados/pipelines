@@ -26,16 +26,11 @@ with Flow(
     dataset_id = Parameter("dataset_id")  # dataset_id or dataset_id_staging
     table_id = Parameter("table_id")
     query = Parameter("query", required=False)
-    jinja_query_params = Parameter("jinja_query_params", required=False)
     bd_project_mode = Parameter(
         "bd_project_mode", required=False, default="prod"
     )  # prod or staging
     billing_project_id = Parameter("billing_project_id", required=False)
-    maximum_bytes_processed = Parameter(
-        "maximum_bytes_processed",
-        required=False,
-        default=dump_to_gcs_constants.MAX_BYTES_PROCESSED_PER_TABLE.value,
-    )
+
     desired_crontab = Parameter(
         "desired_crontab",
         required=False,
@@ -61,10 +56,8 @@ with Flow(
             dataset_id=dataset_id,
             table_id=table_id,
             query=query,
-            jinja_query_params=jinja_query_params,
             bd_project_mode=bd_project_mode,
             billing_project_id=billing_project_id,
-            maximum_bytes_processed=maximum_bytes_processed,
         )
 
         update_task = update_last_trigger(  # pylint: disable=C0103
