@@ -95,11 +95,13 @@ def check_files_to_parse(
     available_dbs = list_datasus_dbc_files(
         datasus_database=datasus_database, datasus_database_table=datasus_database_table
     )
+
     #
     if len(year_month_to_extract) == 0:
         list_files = [file for file in available_dbs if file.split('/')[-1][4:8] == year_month_to_parse]
     else:
         list_files = [file for file in available_dbs if file.split('/')[-1][4:8] in year_month_to_extract ]
+
 
 
 

@@ -258,9 +258,9 @@ flow_siasus.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 with Flow(name="DATASUS-SIH", code_owners=["arthurfg"]) as flow_sihsus:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_ms_sih", required=False)
-    table_id = Parameter("table_id", default = 'servicos_profissionais', required=False)
+    table_id = Parameter("table_id", default = 'aihs_reduzidas', required=False)
     year_first_two_digits = Parameter("year_first_two_digits", required=False)
-    update_metadata = Parameter("update_metadata", default=True, required=False)
+    update_metadata = Parameter("update_metadata", default=False, required=False)
     year_month_to_extract = Parameter("year_month_to_extract",default='', required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
@@ -280,9 +280,10 @@ with Flow(name="DATASUS-SIH", code_owners=["arthurfg"]) as flow_sihsus:
         year_month_to_extract=year_month_to_extract,
     )
 
+
     with case(is_empty(ftp_files), True):
         log_task(
-            "Os dados do FTP SIH ainda não foram atualizados para o ano/mes mais recente"
+            "Os  dados do FTP SIH ainda não foram atualizados para o ano/mes mais recente"
         )
 
     with case(is_empty(ftp_files), False):
@@ -311,6 +312,7 @@ with Flow(name="DATASUS-SIH", code_owners=["arthurfg"]) as flow_sihsus:
             table_id=table_id,
             dump_mode="append",
             wait=files_path,
+            source_format='parquet',
         )
 
         with case(materialize_after_dump, True):
