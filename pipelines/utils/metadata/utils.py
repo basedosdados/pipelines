@@ -685,6 +685,38 @@ def get_headers(backend: bd.Backend) -> dict:
 
     return header_for_mutation_query
 
+
+def get_api_last_update_date(dataset_id: str, table_id: str, backend: bd.Backend):
+    try:
+        # get table ID in the API
+        django_table_id = backend._get_table_id_from_name(gcp_dataset_id=dataset_id, gcp_table_id=table_id)
+
+        # get last update value in the API for the table ID
+        query = """
+            query($table_Id: ID) {
+                allUpdate(table_Id: $table_Id) {
+                edges {
+                    node {
+                    id
+                    latest
+                    }
+                }
+                }
+            }
+            """
+        variables = {"table_Id": django_table_id}
+        response = backend._execute_query(query, variables)
+        clean_response = response['allUpdate']['edges'][0]['node']['latest']
+        date_result = (datetime.strptime(clean_response[:10],"%Y-%m-%d")).date()
+        return date_result
+
+    except Exception as e:
+        log(
+            f"Error occurred while retrieving last update date from the PROD API: {str(e)}"
+        )
+        raise
+
+
 def get_credentials_utils(secret_path: str) -> Tuple[str, str]:
     """
     Returns the user and password for the given secret path.
