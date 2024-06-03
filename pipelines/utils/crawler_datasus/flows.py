@@ -407,13 +407,13 @@ with Flow(name="DATASUS-SIM", code_owners=["jeantozzi"]) as flow_simsus:
             upstream_tasks=[dbc_files,dbf_files],
         )
 
-        wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=files_path,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dump_mode="append",
-            wait=files_path,
-        )
+        # wait_upload_table = create_table_and_upload_to_gcs(
+        #     data_path=files_path,
+        #     dataset_id=dataset_id,
+        #     table_id=table_id,
+        #     dump_mode="append",
+        #     wait=files_path,
+        # )
 
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
