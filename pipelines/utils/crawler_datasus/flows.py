@@ -367,7 +367,7 @@ with Flow(name="DATASUS-SINAN", code_owners=["trick"]) as flow_sinan:
     # Parameters
     dataset_id = Parameter("dataset_id", default ="br_ms_sinan", required=True)
     table_id = Parameter("table_id", default="microdados_dengue", required=True)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    update_metadata = Parameter("update_metadata", default=True, required=False)
 
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
@@ -375,7 +375,7 @@ with Flow(name="DATASUS-SINAN", code_owners=["trick"]) as flow_sinan:
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
