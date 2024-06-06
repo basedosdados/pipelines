@@ -11,6 +11,7 @@ import pandas as pd
 import requests
 import unidecode
 
+
 from pipelines.datasets.br_anp_precos_combustiveis.constants import (
     constants as anp_constants,
 )
@@ -30,9 +31,14 @@ def download_files(urls, path):
 
     os.makedirs(path, exist_ok=True)
     downloaded_files = []
-
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
+    }
     for url in urls:
-        response = requests.get(url)
+        # Verify=False is necessary to avoid SSL verification, look:
+        ##  https://requests.readthedocs.io/projects/pt/pt-br/latest/user/advanced.html
+        ##  https://www.cloudflare.com/pt-br/learning/ssl/what-is-an-ssl-certificate/
+        response = requests.get(url, headers=headers, verify=False)
         if response.status_code == 200:
             file_name = url.split("/")[-1]
             file_path = os.path.join(path, file_name)
@@ -40,7 +46,6 @@ def download_files(urls, path):
                 file.write(response.content)
 
             downloaded_files.append(file_path)
-            log("----" * 150)
             log(f"Arquivo {file_path} com sucesso")
         else:
             raise Exception(
@@ -60,10 +65,7 @@ def get_id_municipio(id_municipio: pd.DataFrame):
         billing_project_id="basedosdados",
         from_file=True,
     )
-    log("----" * 150)
-    log("Dados carregados com sucesso")
-    log("----" * 150)
-    log("Iniciando tratamento dos dados id_municipio")
+
     # ! Tratamento do id_municipio para mergear com a base
     id_municipio["nome"] = id_municipio["nome"].str.upper()
     id_municipio["nome"] = id_municipio["nome"].apply(unidecode.unidecode)
@@ -79,26 +81,25 @@ def get_id_municipio(id_municipio: pd.DataFrame):
 
 
 def open_csvs(url_diesel_gnv, url_gasolina_etanol, url_glp):
-    log("----" * 150)
+
     data_frames = []
     log("Abrindo os arquivos csvs")
     diesel = pd.read_csv(f"{url_diesel_gnv}", sep=";", encoding="utf-8")
-    log("----" * 150)
-    log("----" * 150)
+
     log(diesel["Data da Coleta"].unique())
     gasolina = pd.read_csv(f"{url_gasolina_etanol}", sep=";", encoding="utf-8")
-    log("----" * 150)
+
     log("Abrindo os arquivos csvs gasolina")
-    log("----" * 150)
+
     glp = pd.read_csv(f"{url_glp}", sep=";", encoding="utf-8")
     log("Abrindo os arquivos csvs glp")
-    log("----" * 150)
+
     # log(glp["Data da Coleta"].unique())
     data_frames.extend([diesel, gasolina, glp])
     precos_combustiveis = pd.concat(data_frames, ignore_index=True)
-    log("----" * 150)
+
     log("Dados concatenados com sucesso")
-    log("----" * 150)
+
 
     return precos_combustiveis
 
@@ -143,7 +144,7 @@ def merge_table_id_municipio(
         left_on=["nome", "sigla_uf"],
         right_on=["Municipio", "Estado - Sigla"],
     )
-    log("----" * 150)
+
     log("Dados mergeados")
 
     return precos_combustiveis
