@@ -66,7 +66,7 @@ def check_files_to_parse(
             date_format="%Y-%m",
         )
 
-
+    # Ponto de melhoria: separar ano de mês, e só fazer essa junção caso as duas variáveis sejam passadas.
     log("------- Building next year/month to parse")
 
     year = str(last_date.year)
@@ -97,13 +97,13 @@ def check_files_to_parse(
     available_dbs = list_datasus_dbc_files(
         datasus_database=datasus_database, datasus_database_table=datasus_database_table
     )
-
-    if len(year_month_to_extract) == 0:
-        list_files = [file for file in available_dbs if file.split('/')[-1][4:8] == year_month_to_parse]
+    if dataset_id == "br_ms_sim":
+        list_files = [file for file in available_dbs if file.split('/')[-1][4:8] == str(last_date.year + 1)]
     else:
-        list_files = [file for file in available_dbs if file.split('/')[-1][4:8] in year_month_to_extract ]
-
-
+        if len(year_month_to_extract) == 0:
+            list_files = [file for file in available_dbs if file.split('/')[-1][4:8] == year_month_to_parse]
+        else:
+            list_files = [file for file in available_dbs if file.split('/')[-1][4:8] in year_month_to_extract ]
 
     log(f"------- The following files were selected fom DATASUS FTP: {list_files}")
 

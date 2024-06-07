@@ -384,7 +384,7 @@ with Flow(name="DATASUS-SIM", code_owners=["jeantozzi"]) as flow_simsus:
 
     with case(is_empty(ftp_files), True):
         log_task(
-            "Os dados do FTP SIH ainda não foram atualizados para o ano/mes mais recente"
+            "Os dados do FTP SIM ainda não foram atualizados para o ano/mes mais recente"
         )
 
     with case(is_empty(ftp_files), False):
