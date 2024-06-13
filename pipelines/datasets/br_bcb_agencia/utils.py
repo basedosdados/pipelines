@@ -151,7 +151,6 @@ def read_file(file_path: str, file_name: str) -> pd.DataFrame:
 
         conv = get_conv_names(file_path=file_path, skiprows=skiprows)
         df = pd.read_excel(file_path, skiprows=skiprows, converters=conv, skipfooter=2)
-        # todo: rethink logic. file_name param feeds another function create_year_month_cols
         df = create_year_month_cols(df=df, file=file_name)
 
     except Exception as e:
@@ -208,7 +207,7 @@ def create_year_month_cols(df: pd.DataFrame, file: str) -> pd.DataFrame:
     df["ano"] = file[0:4]
     df["mes"] = file[4:6]
     log(
-        f" ---- creating ano and mes columns ----- ano {file[0:4]} mes {file[4:6]} cols created"
+        f" ---- creating ano and mes columns ----- ano {file[0:4]} mes {file[4:6]}"
     )
     return df
 
