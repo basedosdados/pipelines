@@ -7,7 +7,7 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.datasets.br_cnj_improbidade_administrativa.schedules import every_month
+# from pipelines.datasets.br_cnj_improbidade_administrativa.schedules import every_month
 from pipelines.datasets.br_cnj_improbidade_administrativa.tasks import (
     get_max_date,
     is_up_to_date,
@@ -118,4 +118,4 @@ br_cnj_improbidade_administrativa_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.
 br_cnj_improbidade_administrativa_flow.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_cnj_improbidade_administrativa_flow.schedule = every_month
+# br_cnj_improbidade_administrativa_flow.schedule = every_month
