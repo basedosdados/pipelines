@@ -222,7 +222,7 @@ def download_table(save_path: str, table_id: str, date: str) -> str:
     )
     download_button.click()
     # Sleep time to wait the download
-    sleep(12)
+    sleep(9)
 
     log(f"files {os.listdir(save_path)} were downloaded")
 
@@ -257,8 +257,7 @@ def clean_data():
             z.extractall(INPUT_PATH)
 
     files = os.listdir(INPUT_PATH)
-    log(f"file is: {files}")
-    # file = file[1]
+    log(f"The following files were unzipped: {files}")
 
     for file in files:
         # the files format change across the year
@@ -294,12 +293,13 @@ def clean_data():
             # some files doesnt have 'id_municipio', just 'nome'.
             # to add new ids is necessary to join by name
             # clean nome municipio
-            log("limpando nome muncipio")
+            log("cleaning municipio name")
             df = clean_nome_municipio(df, "nome")
 
             municipio = bd.read_sql(
                 query="select * from `basedosdados.br_bd_diretorios_brasil.municipio`",
-                from_file=True,
+                #from_file=True,
+                billing_project_id='basedosdados-dev'
             )
             municipio = municipio[["nome", "sigla_uf", "id_municipio", "ddd"]]
 
