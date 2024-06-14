@@ -298,8 +298,8 @@ def clean_data():
 
             municipio = bd.read_sql(
                 query="select * from `basedosdados.br_bd_diretorios_brasil.municipio`",
-                #from_file=True,
-                billing_project_id='basedosdados-dev'
+                from_file=True,
+                #billing_project_id='basedosdados-dev'
             )
             municipio = municipio[["nome", "sigla_uf", "id_municipio", "ddd"]]
 
