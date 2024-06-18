@@ -97,7 +97,7 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
     bq_table: GBQTable = bigquery.TableReference(f'basedosdados.{dataset_id}.{table_id}')
     num_bytes = bq_table.num_bytes
 
-    if num_bytes > 5000000000:
+    if num_bytes > 5_000_000_000:
         log("Table is bigger than 5GB it is not in the download criteria")
         return None
 
@@ -132,7 +132,7 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
     log("BDPro Data was loaded successfully")
 
 
-    if num_bytes < 100000000:
+    if num_bytes < 100_000_000:
         # Try to remove bdpro access
         log("Trying to remove BDpro filter")
         try:
