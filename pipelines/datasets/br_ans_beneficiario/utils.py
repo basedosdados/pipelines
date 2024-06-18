@@ -133,14 +133,15 @@ def parquet_partition(path):
     for nome_arquivo in os.listdir(path):
         if nome_arquivo.endswith(".csv"):
             log(f"Carregando o arquivo: {nome_arquivo}")
+
             df = pd.read_csv(
                 f"{path}{nome_arquivo}",
                 sep=";",
-                encoding="cp1252",
+                encoding="latin1",
                 dtype=ans_constants.RAW_COLLUNS_TYPE.value,
             )
             # df = process(df)
-            time_col = pd.to_datetime(df["#ID_CMPT_MOVEL"], format="%Y%m")
+            time_col = pd.to_datetime(df["ID_CMPT_MOVEL"], format="%Y%m")
             df["ano"] = time_col.dt.year
             df["mes"] = time_col.dt.month
             df["MODALIDADE_OPERADORA"] = df["MODALIDADE_OPERADORA"].apply(
