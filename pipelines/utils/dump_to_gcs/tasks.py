@@ -39,8 +39,7 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
         - Se a tabela for maior que 5GB: Não tem download disponível
         - Se a tabela for entre 100MB e 5GB: Tem downalod apenas para assinante BDPro
         - Se a tabela for menor que 100MB: Tem download para assinante BDPro e aberto
-            - Se for parcialmente BDPro remove o acesso a todas as linhas antes de fazer o download do arquivo aberto
-              Assim temos arquivos diferentes de download para o público pagante e não pagante
+            - Se for parcialmente BDPro faz o download de arquivos diferentes para o público pagante e não pagante
 
     """
     # Try to get project_id from environment variable
@@ -94,7 +93,7 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
     # pylint: disable=E1124
     client = google_client(billing_project_id, from_file=True, reauth=False)
 
-    bq_table: GBQTable = bigquery.TableReference(f'basedosdados.{dataset_id}.{table_id}')
+    bq_table: GBQTable = bigquery.TableReference.from_string(f'basedosdados.{dataset_id}.{table_id}')
     num_bytes = bq_table.num_bytes
 
     if num_bytes > 5_000_000_000:
