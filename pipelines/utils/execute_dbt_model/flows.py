@@ -3,7 +3,8 @@
 DBT-related flows.
 """
 
-from prefect import Parameter
+from pipelines.utils.dump_to_gcs.tasks import download_data_to_gcs
+from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
@@ -23,6 +24,7 @@ with Flow(name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value) as run_dbt_mod
     flags = Parameter("flags", default=None, required=False)
     _vars = Parameter("_vars", default=None, required=False)
     disable_elementary = Parameter("disable_elementary", default=True, required=False)
+    download_csv_file = Parameter("download_csv_file", default=True, required=False)
 
     #################   ####################
     #
@@ -50,6 +52,14 @@ with Flow(name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value) as run_dbt_mod
         _vars=_vars,
         disable_elementary = disable_elementary
     )
+
+    with case(download_csv_file, True):
+        download_data_to_gcs(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            bd_project_mode=mode,
+        )
+
 
 
 run_dbt_model_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
