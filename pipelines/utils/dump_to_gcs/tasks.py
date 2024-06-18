@@ -12,6 +12,7 @@ from basedosdados.upload.base import Base
 from google.api_core.exceptions import NotFound
 from google.cloud import bigquery
 from prefect import task
+from google.cloud.bigquery import Table as GBQTable
 
 from pipelines.utils.dump_to_gcs.constants import constants as dump_to_gcs_constants
 from pipelines.utils.utils import (
@@ -33,6 +34,14 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
 ):
     """
     Get data from BigQuery.
+
+    As regras de negócio são:
+        - Se a tabela for maior que 5GB: Não tem download disponível
+        - Se a tabela for entre 100MB e 5GB: Tem downalod apenas para assinante BDPro
+        - Se a tabela for menor que 100MB: Tem download para assinante BDPro e aberto
+            - Se for parcialmente BDPro remove o acesso a todas as linhas antes de fazer o download do arquivo aberto
+              Assim temos arquivos diferentes de download para o público pagante e não pagante
+
     """
     # Try to get project_id from environment variable
     if not project_id:
@@ -85,29 +94,14 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
     # pylint: disable=E1124
     client = google_client(billing_project_id, from_file=True, reauth=False)
 
-    # Try to remove bdpro access
-    log("Trying to remove BDpro filter")
-    try:
-        query_remove_bdpro = f"DROP ROW ACCESS POLICY bdpro_filter ON `{project_id}.{dataset_id}.{table_id}`"
-        log(query_remove_bdpro)
-        job = client["bigquery"].query(query_remove_bdpro)
-        while not job.done():
-            sleep(1)
-        log(job.result())
-        log(
-            "Table has BDpro filter and it was removed so direct download contains only open rows"
-        )
-        bdpro = True
-    except NotFound as e:
-        if "Not found: Row access policy bdpro_filter on table" in str(e):
-            log("It was not possible to find BDpro filter, all rows will be downloaded")
-            bdpro = False
-        else:
-            raise (e)
-    except Exception as e:
-        raise ValueError(e)
+    bq_table: GBQTable = bigquery.TableReference(f'basedosdados.{dataset_id}.{table_id}')
+    num_bytes = bq_table.num_bytes
 
-    log("Querying data from BigQuery")
+    if num_bytes > 5000000000:
+        log("Table is bigger than 5GB it is not in the download criteria")
+        return None
+
+    log("Querying data for BDpro user")
     job = client["bigquery"].query(query)
     while not job.done():
         sleep(1)
@@ -123,7 +117,7 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
         f"Query results were stored in {dest_project_id}.{dest_dataset_id}.{dest_table_id}"
     )
 
-    blob_path = f"gs://basedosdados-public/one-click-download/{dataset_id}/{table_id}/{table_id}.csv.gz"
+    blob_path = f"gs://basedosdados-public/one-click-download/{dataset_id}/{table_id}/{table_id}_bdpro.csv.gz"
     log(f"Loading data to {blob_path}")
     dataset_ref = bigquery.DatasetReference(dest_project_id, dest_dataset_id)
     table_ref = dataset_ref.table(dest_table_id)
@@ -135,15 +129,33 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
         job_config=job_config,
     )
     extract_job.result()
-    log("Data was loaded successfully")
+    log("BDPro Data was loaded successfully")
 
-    if bdpro:
-        query_restore_bdpro_access = f'CREATE OR REPLACE ROW ACCESS POLICY bdpro_filter  ON  `{project_id}.{dataset_id}.{table_id}` GRANT TO ("group:bd-pro@basedosdados.org", "group:sudo@basedosdados.org") FILTER USING (TRUE)'
-        job = client["bigquery"].query(query_restore_bdpro_access)
-        while not job.done():
-            sleep(1)
-        log("BDpro filter was reestored")
-        log("Querying data for BDpro user from BigQuery")
+
+    if num_bytes < 100000000:
+        # Try to remove bdpro access
+        log("Trying to remove BDpro filter")
+        try:
+            query_remove_bdpro = f"DROP ROW ACCESS POLICY bdpro_filter ON `{project_id}.{dataset_id}.{table_id}`"
+            log(query_remove_bdpro)
+            job = client["bigquery"].query(query_remove_bdpro)
+            while not job.done():
+                sleep(1)
+            log(job.result())
+            log(
+                "Table has BDpro filter and it was removed so direct download contains only open rows"
+            )
+            bdpro = True
+        except NotFound as e:
+            if "Not found: Row access policy bdpro_filter on table" in str(e):
+                log("It was not possible to find BDpro filter, all rows will be downloaded")
+                bdpro = False
+            else:
+                raise (e)
+        except Exception as e:
+            raise ValueError(e)
+
+        log("Querying open data from BigQuery")
         job = client["bigquery"].query(query)
         while not job.done():
             sleep(1)
@@ -159,10 +171,9 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
             f"Query results were stored in {dest_project_id}.{dest_dataset_id}.{dest_table_id}"
         )
 
-        blob_path = f"gs://basedosdados-public/one-click-download/{dataset_id}/{table_id}/{table_id}_bdpro.csv.gz"
+        blob_path = f"gs://basedosdados-public/one-click-download/{dataset_id}/{table_id}/{table_id}_open_data.csv.gz"
         log(f"Loading data to {blob_path}")
-        dataset_ref = bigquery.DatasetReference(dest_project_id, dest_dataset_id)
-        table_ref = dataset_ref.table(dest_table_id)
+
         job_config = bigquery.job.ExtractJobConfig(compression="GZIP")
         extract_job = client["bigquery"].extract_table(
             table_ref,
@@ -171,7 +182,14 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
             job_config=job_config,
         )
         extract_job.result()
-        log("BDPro Data was loaded successfully")
+        log("Open data was loaded successfully")
+
+        if bdpro:
+            query_restore_bdpro_access = f'CREATE OR REPLACE ROW ACCESS POLICY bdpro_filter  ON  `{project_id}.{dataset_id}.{table_id}` GRANT TO ("group:bd-pro@basedosdados.org", "group:sudo@basedosdados.org") FILTER USING (TRUE)'
+            job = client["bigquery"].query(query_restore_bdpro_access)
+            while not job.done():
+                sleep(1)
+            log("BDpro filter was reestored")
 
 
 
