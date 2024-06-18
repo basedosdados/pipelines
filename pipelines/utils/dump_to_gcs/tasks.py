@@ -171,7 +171,7 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
             f"Query results were stored in {dest_project_id}.{dest_dataset_id}.{dest_table_id}"
         )
 
-        blob_path = f"gs://basedosdados-public/one-click-download/{dataset_id}/{table_id}/{table_id}_open_data.csv.gz"
+        blob_path = f"gs://basedosdados-public/one-click-download/{dataset_id}/{table_id}/{table_id}_gratis.csv.gz"
         log(f"Loading data to {blob_path}")
 
         job_config = bigquery.job.ExtractJobConfig(compression="GZIP")

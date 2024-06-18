@@ -19,7 +19,7 @@ with Flow(name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value) as run_dbt_mod
     dataset_id = Parameter("dataset_id", required=True)
     table_id = Parameter("table_id", default=None, required=False)
     mode = Parameter("mode", default="dev", required=False)
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
     dbt_command = Parameter("dbt_command", default="run", required=False)
     flags = Parameter("flags", default=None, required=False)
     _vars = Parameter("_vars", default=None, required=False)
