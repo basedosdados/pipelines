@@ -258,9 +258,9 @@ flow_siasus.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 with Flow(name="DATASUS-SIH", code_owners=["arthurfg"]) as flow_sihsus:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_ms_sih", required=False)
-    table_id = Parameter("table_id", default = 'servicos_profissionais', required=False)
+    table_id = Parameter("table_id", default = 'aihs_reduzidas', required=False)
     year_first_two_digits = Parameter("year_first_two_digits", required=False)
-    update_metadata = Parameter("update_metadata", default=True, required=False)
+    update_metadata = Parameter("update_metadata", default=False, required=False)
     year_month_to_extract = Parameter("year_month_to_extract",default='', required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
@@ -280,9 +280,10 @@ with Flow(name="DATASUS-SIH", code_owners=["arthurfg"]) as flow_sihsus:
         year_month_to_extract=year_month_to_extract,
     )
 
+
     with case(is_empty(ftp_files), True):
         log_task(
-            "Os dados do FTP SIH ainda não foram atualizados para o ano/mes mais recente"
+            "Os  dados do FTP SIH ainda não foram atualizados para o ano/mes mais recente"
         )
 
     with case(is_empty(ftp_files), False):
@@ -311,6 +312,7 @@ with Flow(name="DATASUS-SIH", code_owners=["arthurfg"]) as flow_sihsus:
             table_id=table_id,
             dump_mode="append",
             wait=files_path,
+            source_format='parquet',
         )
 
         with case(materialize_after_dump, True):
@@ -361,11 +363,11 @@ flow_sihsus.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 
 
 
-with Flow(name="DATASUS-SINAN", code_owners=["tricktx"]) as flow_sinan:
+with Flow(name="DATASUS-SINAN", code_owners=["trick"]) as flow_sinan:
     # Parameters
     dataset_id = Parameter("dataset_id", default ="br_ms_sinan", required=True)
     table_id = Parameter("table_id", default="microdados_dengue", required=True)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    update_metadata = Parameter("update_metadata", default=True, required=False)
 
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
@@ -373,7 +375,7 @@ with Flow(name="DATASUS-SINAN", code_owners=["tricktx"]) as flow_sinan:
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
@@ -468,7 +470,7 @@ with Flow(name="DATASUS-SINAN", code_owners=["tricktx"]) as flow_sinan:
                     coverage_type="part_bdpro",
                     time_delta={"months": 6},
                     prefect_mode=materialization_mode,
-                    bq_project="basedosdados-dev",
+                    bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
 
