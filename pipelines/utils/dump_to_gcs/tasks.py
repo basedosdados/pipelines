@@ -12,7 +12,7 @@ from basedosdados.upload.base import Base
 from google.api_core.exceptions import NotFound
 from google.cloud import bigquery
 from prefect import task
-from google.cloud.bigquery import Table as GBQTable
+from google.cloud.bigquery import TableReference
 
 from pipelines.utils.dump_to_gcs.constants import constants as dump_to_gcs_constants
 from pipelines.utils.utils import (
@@ -93,7 +93,8 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
     # pylint: disable=E1124
     client = google_client(billing_project_id, from_file=True, reauth=False)
 
-    bq_table: GBQTable = bigquery.TableReference.from_string(f'basedosdados.{dataset_id}.{table_id}')
+    bq_table_ref = TableReference.from_string(f'{project_id}.{dataset_id}.{table_id}')
+    bq_table = client["bigquery"].get_table(table = bq_table_ref)
     num_bytes = bq_table.num_bytes
 
     if num_bytes > 5_000_000_000:
