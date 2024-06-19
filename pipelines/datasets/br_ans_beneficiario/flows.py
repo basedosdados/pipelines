@@ -145,4 +145,4 @@ datasets_br_ans_beneficiario_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value
 datasets_br_ans_beneficiario_flow.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-#datasets_br_ans_beneficiario_flow.schedule = every_day_ans
+datasets_br_ans_beneficiario_flow.schedule = every_day_ans
