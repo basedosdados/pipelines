@@ -97,8 +97,8 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
     bq_table = client["bigquery"].get_table(table = bq_table_ref)
     num_bytes = bq_table.num_bytes
 
-    if num_bytes > 5_000_000_000:
-        log("Table is bigger than 5GB it is not in the download criteria")
+    if num_bytes > 1_000_000_000:
+        log("Table is bigger than 1GB it is not in the download criteria")
         return None
 
     log("Querying data for BDpro user")
