@@ -14,7 +14,7 @@ import struct
 import aioftp
 import pandas as pd
 import os
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Callable
 from pipelines.utils.crawler_datasus.constants import constants as datasus_constants
 from pipelines.utils.utils import log
 
@@ -133,7 +133,7 @@ def list_datasus_dbc_files(
     ftp.close()
     return available_dbs
 
-async def download_chunks(files: List[str], output_dir: str, chunk_size: int, max_parallel: int):
+async def download_chunks(files: List[str], output_dir: str, chunk_size: int, max_parallel: int, parser: Callable[[str], str]):
     """This function is used to sequentially control the number of concurrent downloads to avoid
     #OSError: [Errno 24] Too many open files
 
@@ -146,10 +146,10 @@ async def download_chunks(files: List[str], output_dir: str, chunk_size: int, ma
 
     for i in range(0, len(files), chunk_size):
         chunk = files[i:i + chunk_size]
-        await download_files(files=chunk, output_dir=output_dir, max_parallel=max_parallel)
+        await download_files(files=chunk, output_dir=output_dir, max_parallel=max_parallel, parser=parser)
 
 
-async def download_files(files: list, output_dir: str, max_parallel: int)-> None:
+async def download_files(files: list, output_dir: str, max_parallel: int, parser: Callable[[str], str])-> None:
     """Download files asynchronously and save them in the given output directory
 
     Args:
@@ -161,7 +161,7 @@ async def download_files(files: list, output_dir: str, max_parallel: int)-> None
     semaphore = asyncio.Semaphore(max_parallel)
     async with semaphore:
         tasks = [
-            download_file(file, f"{output_dir}/{year_month_sigla_uf_parser(file=file)}")
+            download_file(file, f"{output_dir}/{parser(file=file)}")
             for file in files
         ]
         await asyncio.gather(*tasks)
@@ -214,6 +214,30 @@ def line_file_parser(file_line)-> Tuple[List, Dict]:
 
     return name, info
 
+def year_sigla_uf_parser(file: str) -> str:
+    """Receives a DATASUS MS SIM file and parses year and sigla_uf
+    to create proper partitions.
+
+    Args:
+        file (str): The file path.
+
+    Returns:
+        str: Partition string in the format "ano={year}/sigla_uf={sigla_uf}".
+    """
+    try:
+        # Extract the file name without the path and extension
+        file_name = os.path.splitext(os.path.basename(file))[0]
+        
+        # Parse year (last 4 digits)
+        year = file_name[-4:]
+
+        # Parse and build state (2 characters before the last 4 digits)
+        sigla_uf = file_name[-6:-4]
+
+    except IndexError:
+        raise ValueError("Unable to parse year or sigla_uf from file")
+
+    return f"ano={year}/sigla_uf={sigla_uf}"
 
 def year_month_sigla_uf_parser(file: str) -> str:
     """receives a DATASUS CNES ST file and parse year, month and sigla_uf

@@ -20,6 +20,7 @@ from pipelines.utils.crawler_datasus.constants import constants as datasus_const
 from pipelines.utils.crawler_datasus.utils import (
     download_chunks,
     list_datasus_dbc_files,
+    year_sigla_uf_parser,
     year_month_sigla_uf_parser,
     dbf_to_parquet,
     post_process_dados_complementares,
@@ -98,7 +99,8 @@ def check_files_to_parse(
         datasus_database=datasus_database, datasus_database_table=datasus_database_table
     )
     if dataset_id == "br_ms_sim":
-        list_files = [file for file in available_dbs if file.split('/')[-1][4:8] == str(last_date.year + 1)]
+        list_files = [file for file in available_dbs if file.split('/')[-1][4:8] == str(last_date.year + 1)
+                      and "BR" not in file] # Ignores the files that consolidate data at the BR level
     else:
         if len(year_month_to_extract) == 0:
             list_files = [file for file in available_dbs if file.split('/')[-1][4:8] == year_month_to_parse]
@@ -135,9 +137,10 @@ def access_ftp_download_files_async(
     os.makedirs(input_path, exist_ok=True)
 
     # https://github.com/AlertaDengue/PySUS/blob/main/pysus/ftp/__init__.py#L156
-    log(f"------ dowloading {table_id} files from DATASUS FTP")
+    log(f"------ downloading {table_id} files from DATASUS FTP")
 
-
+    # Determine the appropriate parser based on the dataset_id
+    parser = year_sigla_uf_parser if dataset_id == "br_ms_sim" else year_month_sigla_uf_parser
 
     asyncio.run(
         download_chunks(
@@ -145,15 +148,15 @@ def access_ftp_download_files_async(
             output_dir=input_path,
             max_parallel=max_parallel,
             chunk_size=chunk_size,
+            parser=parser
         )
     )
 
+    # Generate the dbc_files_path_list using the chosen parser
     dbc_files_path_list = [
-        os.path.join(
-            input_path, year_month_sigla_uf_parser(file=file), file.split("/")[-1]
-        )
+        os.path.join(input_path, parser(file=file), file.split("/")[-1])
         for file in tqdm(file_list)
-    ]
+    ] 
 
     return dbc_files_path_list
 
@@ -163,6 +166,14 @@ def decompress_dbc(file_list: list, dataset_id: str) -> None:
     """
     Convert dbc to dbf format
     """
+
+    # ShellTask to remove the blast-dbf directory if it already exists
+    remove_existing_dir_task = ShellTask(
+        name="Remove Existing blast-dbf Directory",
+        command=f"rm -rf /tmp/{dataset_id}/blast-dbf",
+        return_all=True,
+        log_stderr=True,
+    )
 
     # ShellTask to create the blast-dbf directory
     create_dir_task = ShellTask(
@@ -188,6 +199,8 @@ def decompress_dbc(file_list: list, dataset_id: str) -> None:
         log_stderr=True,
     )
 
+    remove_existing_dir_task.run()
+    log("------ Removing blast-dbf repository, in case it already exists")
     create_dir_task.run()
     log("------ Cloning blast-dbf repository")
     clone_repo_task.run()
@@ -340,7 +353,7 @@ def read_dbf_save_parquet_chunks(file_list: list, table_id: str, dataset_id:str=
 
     dbf_file_list = [file.replace(".dbc", ".dbf") for file in file_list]
     _counter = 0
-    log(f'----coutner {_counter}')
+    log(f'----counter {_counter}')
     for file in tqdm(dbf_file_list):
 
 

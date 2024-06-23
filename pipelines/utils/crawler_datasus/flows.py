@@ -360,7 +360,7 @@ flow_sihsus.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 with Flow(name="DATASUS-SIM", code_owners=["jeantozzi"]) as flow_simsus:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_ms_sim", required=False)
-    table_id = Parameter("table_id", default = 'microdados_teste', required=False)
+    table_id = Parameter("table_id", default = "microdados_teste", required=False)
     year_first_two_digits = Parameter("year_first_two_digits", required=False)
     update_metadata = Parameter("update_metadata", default=True, required=False)
     year_month_to_extract = Parameter("year_month_to_extract",default='', required=False)
@@ -390,9 +390,9 @@ with Flow(name="DATASUS-SIM", code_owners=["jeantozzi"]) as flow_simsus:
     with case(is_empty(ftp_files), False):
 
         dbc_files = access_ftp_download_files_async(
-          file_list=ftp_files,
-           dataset_id=dataset_id,
-           table_id=table_id,
+            file_list=ftp_files,
+            dataset_id=dataset_id,
+            table_id=table_id,
         )
 
         dbf_files = decompress_dbc(
