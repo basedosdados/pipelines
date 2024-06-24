@@ -34,6 +34,8 @@ class constants(Enum):  # pylint: disable=c0103
     TASK_RETRY_DELAY = 10  # seconds
     PREFECT_DEFAULT_PROJECT = "main"
     PREFECT_STAGING_PROJECT = "staging"
+    # run_dbt_model
+    RUN_DBT_MODEL_MAX_RETRIES = 1
     # Code Owners #
 
     ######################################
