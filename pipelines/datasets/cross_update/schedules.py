@@ -10,7 +10,8 @@ from prefect.schedules.clocks import CronClock
 
 from pipelines.constants import constants
 
-schedule_nrows = Schedule(
+
+update_metadata_table_schedule = Schedule(
     clocks=[
         CronClock(
             cron="0 8 * * *",
@@ -19,10 +20,7 @@ schedule_nrows = Schedule(
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
-                "dump_to_gcs": True,
-                "mode": "prod",
-                "days": 7,
-                "update_metadata_table": True,
+                "materialization_mode": "prod",
             },
         ),
     ]
