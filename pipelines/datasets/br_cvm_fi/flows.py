@@ -142,7 +142,7 @@ br_cvm_fi_documentos_informe_diario.storage = GCS(constants.GCS_FLOWS_BUCKET.val
 br_cvm_fi_documentos_informe_diario.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_cvm_fi_documentos_informe_diario.schedule = every_day_informe
+#br_cvm_fi_documentos_informe_diario.schedule = every_day_informe
 
 
 with Flow(
@@ -244,7 +244,7 @@ br_cvm_fi_documentos_carteiras_fundos_investimento.storage = GCS(
 br_cvm_fi_documentos_carteiras_fundos_investimento.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_cvm_fi_documentos_carteiras_fundos_investimento.schedule = every_day_carteiras
+#br_cvm_fi_documentos_carteiras_fundos_investimento.schedule = every_day_carteiras
 
 
 with Flow(
@@ -349,7 +349,7 @@ br_cvm_fi_documentos_extratos_informacoes.storage = GCS(
 br_cvm_fi_documentos_extratos_informacoes.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_cvm_fi_documentos_extratos_informacoes.schedule = every_day_extratos
+#br_cvm_fi_documentos_extratos_informacoes.schedule = every_day_extratos
 
 
 with Flow(
@@ -444,7 +444,7 @@ br_cvm_fi_documentos_perfil_mensal.storage = GCS(constants.GCS_FLOWS_BUCKET.valu
 br_cvm_fi_documentos_perfil_mensal.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_cvm_fi_documentos_perfil_mensal.schedule = every_day_perfil
+#br_cvm_fi_documentos_perfil_mensal.schedule = every_day_perfil
 
 
 with Flow(
@@ -540,7 +540,7 @@ br_cvm_fi_documentos_informacao_cadastral.storage = GCS(
 br_cvm_fi_documentos_informacao_cadastral.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_cvm_fi_documentos_informacao_cadastral.schedule = every_day_informacao_cadastral
+#br_cvm_fi_documentos_informacao_cadastral.schedule = every_day_informacao_cadastral
 
 
 with Flow(
@@ -637,4 +637,4 @@ br_cvm_fi_documentos_balancete.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_cvm_fi_documentos_balancete.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_cvm_fi_documentos_balancete.schedule = every_day_balancete
+#br_cvm_fi_documentos_balancete.schedule = every_day_balancete
