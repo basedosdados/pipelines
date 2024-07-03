@@ -130,6 +130,11 @@ def list_datasus_dbc_files(
                 raise ValueError("No group assigned to SIH_group")
             available_dbs.extend(ftp.nlst(f"dissemin/publicos/SIHSUS/200801_/Dados/{datasus_database_table}*.DBC"))
 
+        if datasus_database == 'SIM':
+            if not datasus_database_table:
+                raise ValueError("No group assigned to SIM_group")
+            available_dbs.extend(ftp.nlst(f"dissemin/publicos/SIM/CID10/DORES/{datasus_database_table}*.DBC"))
+
         if datasus_database == 'SINAN':
             if not datasus_database_table:
                 raise ValueError("No group assigned to SINAN_group")
@@ -175,6 +180,14 @@ async def download_files(dataset_id: str, files: list, output_dir: str, max_para
                 for file in files
             ]
         await asyncio.gather(*tasks)
+
+    elif dataset_id == "br_ms_sim":
+        async with semaphore:
+            tasks = [
+                download_file(file, f"{output_dir}/{year_sigla_uf_parser(file=file)}")
+                for file in files
+            ]
+        await asyncio.gather(*tasks)   
 
     elif dataset_id == "br_ms_sinan":
         async with semaphore:
@@ -259,6 +272,29 @@ def year_month_sigla_uf_parser(file: str) -> str:
         raise ValueError("Unable to parse month and year from file")
 
     return f"ano={year}/mes={month}/sigla_uf={sigla_uf}"
+
+def year_sigla_uf_parser(file: str) -> str:
+    """receives a DATASUS file and parse year and sigla_uf
+    to create proper partitions
+
+    Returns:
+        (str): partition string
+    """
+    try:
+        # parse file name last 8 digits before .DBC
+        #file = file[-10:-4]
+        file = file.split('/')[-1]
+
+        # parse and build year
+        year = file[4:8]
+
+        # parse and build state
+        sigla_uf = file[2:4]
+
+    except IndexError:
+        raise ValueError("Unable to parse year and sigla_uf from file")
+
+    return f"ano={year}/sigla_uf={sigla_uf}"
 
 def just_the_year_parser(file: str) -> str:
     """

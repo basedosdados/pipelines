@@ -23,7 +23,8 @@ class constants(Enum):  # pylint: disable=c0103
         "br_ms_cnes": "CNES",
         "br_ms_sia": "SIA",
         "br_ms_sih": "SIH",
-        "br_ms_sinan" : "SINAN"
+        "br_ms_sim": "SIM",
+        "br_ms_sinan": "SINAN"
     }
 
     DATASUS_DATABASE_TABLE = {
@@ -47,8 +48,10 @@ class constants(Enum):  # pylint: disable=c0103
         #SIH
         "servicos_profissionais": "SP",
         "aihs_reduzidas": "RD",
+        #SIM
+        "microdados_teste": "DO",
         #SINAN
-        "microdados_dengue": "DENG",
+        "microdados_dengue": "DENG"
     }
 
 

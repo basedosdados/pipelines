@@ -22,6 +22,7 @@ from pipelines.utils.crawler_datasus.utils import (
     download_chunks,
     list_datasus_dbc_files,
     year_month_sigla_uf_parser,
+    year_sigla_uf_parser,
     just_the_year_parser,
     dbf_to_parquet,
     post_process_dados_complementares,
@@ -58,10 +59,12 @@ def check_files_to_parse(
     log(f"------- Extracting last date from api for {dataset_id}.{table_id}")
     # 1. extrair data mais atual da api
     backend = bd.Backend(graphql_url=get_url("prod"))
+    
+    date_format = "%Y" if dataset_id == "br_ms_sim" else "%Y-%m"
     last_date = get_api_most_recent_date(
         dataset_id=dataset_id,
         table_id=table_id,
-        date_format="%Y-%m",
+        date_format=date_format,
         backend=backend
     )
 
@@ -86,7 +89,12 @@ def check_files_to_parse(
         month = str(month)
 
     year_month_to_parse = year + month
-    log(f"------- The year_month_to_parse (YYMM) is {year_month_to_parse}")
+    year_to_parse = str(last_date.year + 1)
+
+    if dataset_id == "br_ms_sim":
+        log(f"------- The year_to_parse (YYYY) is {year_to_parse}")
+    else:
+        log(f"------- The year_month_to_parse (YYMM) is {year_month_to_parse}")
 
     #Convert datasus database names to Basedosdados database names
     datasus_database = datasus_constants.DATASUS_DATABASE.value[dataset_id]
@@ -96,13 +104,11 @@ def check_files_to_parse(
         datasus_database=datasus_database, datasus_database_table=datasus_database_table
     )
 
-    #
     if len(year_month_to_extract) == 0:
-        list_files = [file for file in available_dbs if file.split('/')[-1][4:8] == year_month_to_parse]
+        parser = year_to_parse if dataset_id == "br_ms_sim" else year_month_to_parse
+        list_files = [file for file in available_dbs if file.split('/')[-1][4:8] == parser and "BR" not in file.split('/')[-1]]
     else:
-        list_files = [file for file in available_dbs if file.split('/')[-1][4:8] in year_month_to_extract ]
-
-
+        list_files = [file for file in available_dbs if file.split('/')[-1][4:8] in year_month_to_extract]
 
 
     log(f"------- The following files were selected fom DATASUS FTP: {list_files}")
@@ -169,6 +175,11 @@ def access_ftp_download_files_async(
         log(file_list)
         log(f"------ The following files were downloaded: {dbc_files_path_list}")
 
+    elif dataset_id == "br_ms_sim":
+        dbc_files_path_list = [os.path.join(input_path, year_sigla_uf_parser(file=file), file.split("/")[-1]) for file in tqdm(file_list)]
+        log(file_list)
+        log(f"------ The following files were downloaded: {dbc_files_path_list}")
+
     elif dataset_id in ["br_ms_sia", "br_ms_cnes", "br_ms_sih"]:
         dbc_files_path_list = [
             os.path.join(
@@ -176,7 +187,6 @@ def access_ftp_download_files_async(
             )
             for file in tqdm(file_list)
         ]
-        log("Tanto faz...")
         log(f"------ The following files were downloaded: {dbc_files_path_list}")
 
     return dbc_files_path_list
@@ -196,7 +206,7 @@ def decompress_dbc(file_list: list, dataset_id: str) -> None:
         log_stderr=True,
     )
 
-    # ShellTask to clone the blast-dbf repository
+    # ShellTask to clone the blast-dbf repository, skipping if the directory already exists
     clone_repo_task = ShellTask(
         name="Clone blast-dbf Repository",
         command=f"git clone https://github.com/eaglebh/blast-dbf /tmp/{dataset_id}/blast-dbf",
@@ -362,7 +372,7 @@ def read_dbf_save_parquet_chunks(file_list: list, table_id: str, dataset_id:str=
 
     dbf_file_list = [file.replace(".dbc", ".dbf") for file in file_list]
     _counter = 0
-    log(f'----coutner {_counter}')
+    log(f'----counter {_counter}')
     for file in tqdm(dbf_file_list):
 
 
