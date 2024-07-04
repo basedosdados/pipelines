@@ -11,8 +11,8 @@ from pipelines.datasets.br_bcb_agencia.constants import constants as agencia_con
 from pipelines.datasets.br_bcb_agencia.schedules import every_month_agencia
 from pipelines.datasets.br_bcb_agencia.tasks import (
     clean_data,
-    download_data,
-    extract_most_recent_date,
+    download_table,
+    extract_last_date,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -53,16 +53,15 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    data_source_max_date = extract_most_recent_date(
-        url=agencia_constants.AGENCIA_URL.value,
-        xpath=agencia_constants.AGENCIA_XPATH.value,
+    data_source_max_date = extract_last_date(
+        table_id=table_id,
     )
 
     # task check if is outdated
     check_if_outdated = check_if_data_is_outdated(
         dataset_id=dataset_id,
         table_id=table_id,
-        data_source_max_date=data_source_max_date[1],
+        data_source_max_date=data_source_max_date[0],
         date_format="%Y-%m",
         upstream_tasks=[data_source_max_date],
     )
@@ -73,8 +72,10 @@ with Flow(
     with case(check_if_outdated, True):
         log_task("Existem atualizações! A run será inciada")
 
-        donwload_files = download_data(
-            dowload_url=data_source_max_date[0],
+        donwload_files = download_table(
+            save_path=agencia_constants.ZIPFILE_PATH_AGENCIA.value,
+            table_id=table_id,
+            date=data_source_max_date[1],
             upstream_tasks=[check_if_outdated],
         )
 

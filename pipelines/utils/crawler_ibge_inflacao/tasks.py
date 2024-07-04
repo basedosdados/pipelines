@@ -16,7 +16,8 @@ from prefect import task
 from tqdm import tqdm
 
 from pipelines.utils.crawler_ibge_inflacao.utils import get_legacy_session
-from pipelines.utils.metadata.utils import get_api_most_recent_date
+import basedosdados as bd
+from pipelines.utils.metadata.utils import get_api_most_recent_date, get_url
 from pipelines.utils.utils import log
 
 # necessary for use wget, see: https://stackoverflow.com/questions/35569042/ssl-certificate-verify-failed-with-python3
@@ -126,11 +127,12 @@ def check_for_updates(
     log(
         f"A data mais no site do ---IBGE--- para a tabela {indice} é : {dataframe.date()}"
     )
-
+    backend = bd.Backend(graphql_url=get_url("prod"))
     max_date_bd = get_api_most_recent_date(
         table_id=table_id,
         dataset_id=dataset_id,
         date_format="%Y-%m",
+        backend=backend,
     )
     log(f"A data mais recente da tabela no --- Site da BD --- é: {max_date_bd}")
     if dataframe.date() > max_date_bd:

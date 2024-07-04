@@ -1,30 +1,27 @@
 # -*- coding: utf-8 -*-
 """
-Schedules for br_bcb_agencia
+Schedules for br_ms_sinan
 """
-
 from datetime import datetime
-
 from prefect.schedules import Schedule, adjustments, filters
 from prefect.schedules.clocks import CronClock
-
 from pipelines.constants import constants
 
-every_month_agencia = Schedule(
+everyday_sinan_microdados = Schedule(
     clocks=[
         CronClock(
-            cron="0 22 * * 1-5",  #At 22:00 on every day-of-week from Monday through Friday.
-            start_date=datetime(2023, 11, 30, 0, 0),
+            cron="45 4 * * *",  # every day at 03:30
+            start_date=datetime(2024, 1, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
-                "dataset_id": "br_bcb_agencia",
-                "table_id": "agencia",
+                "dataset_id": "br_ms_sinan",
+                "table_id": "microdados_dengue",
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
-                "dbt_alias": True,
                 "update_metadata": True,
+                "dbt_alias": True,
             },
         )
     ],

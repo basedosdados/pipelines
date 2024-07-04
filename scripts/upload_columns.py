@@ -55,9 +55,7 @@ def create_column(
     return True
 
 
-def get_column_id(table_id, column_name, url_api):
-    backend = b.Backend(graphql_url=url_api)
-
+def get_column_id(table_id: str, column_name: str, backend: b.Backend):
     query = f"""{{
         allColumn(table_Id:"{table_id}", name:"{column_name}"){{
         edges{{
@@ -76,9 +74,7 @@ def get_column_id(table_id, column_name, url_api):
         print("column does not exists")
 
 
-def get_n_columns(table_id, url_api):
-    backend = b.Backend(graphql_url=url_api)
-
+def get_n_columns(table_id, backend: b.Backend):
     query = f"""query get_n_columns{{
         allTable(id:"{table_id}"){{
             edges{{
@@ -97,10 +93,7 @@ def get_n_columns(table_id, url_api):
     return data[0]["columns"]["edgeCount"]
 
 
-def get_bqtype_dict(url_api):
-    # Initialize the backend object to interact with the GraphQL API
-    backend = b.Backend(graphql_url=url_api)
-
+def get_bqtype_dict(backend: b.Backend):
     # GraphQL query to fetch all BigQuery types
     query = """{
     allBigquerytype{
@@ -126,18 +119,16 @@ def get_bqtype_dict(url_api):
     return bqtype_dict
 
 
-def check_metadata_columns(dataset_id, table_slug, url_api: str, url_architecture: str):
-    # Create a backend object with the GraphQL URL
-    # This will help us interact with the api
-    backend = b.Backend(graphql_url=url_api)
-
+def check_metadata_columns(
+    dataset_id: str, table_slug: str, backend: b.Backend, url_architecture: str
+):
     # Get the table ID using the dataset ID and table ID
     table_id = backend._get_table_id_from_name(gcp_dataset_id=dataset_id, gcp_table_id=table_slug)
 
     # Read the architecture table
     architecture = read_architecture_table(url_architecture=url_architecture)
 
-    n_columns_metadata = get_n_columns(table_id=table_id, url_api=url_api)
+    n_columns_metadata = get_n_columns(table_id=table_id, backend=backend)
     n_columns_architecture = architecture.shape[0]
 
     print(f"\nn_columns_metadata: {n_columns_metadata}")
@@ -202,6 +193,7 @@ def upload_columns_from_architecture(
     dataset_id: str,
     table_slug: str,
     url_architecture: str,
+    backend: b.Backend,
     if_column_exists: str = "pass",
     replace_all_schema: bool = True,
 ):
@@ -220,11 +212,6 @@ def upload_columns_from_architecture(
     if if_column_exists not in accepted_if_exists_values:
         raise ValueError(f"`if_exists` only accepts {accepted_if_exists_values}")
 
-    url_api = "https://api.basedosdados.org/api/v1/graphql"
-    # Create a backend object with the GraphQL URL
-    # This will help us interact with the api
-    backend = b.Backend(graphql_url=url_api)
-
     # Get the table ID using the dataset ID and table ID
     table_id = backend._get_table_id_from_name(gcp_dataset_id=dataset_id, gcp_table_id=table_slug)
     print(f"table_id: {table_id}\n")
@@ -233,7 +220,7 @@ def upload_columns_from_architecture(
     architecture = read_architecture_table(url_architecture=url_architecture)
 
     # Get the id of BigQueryTypes in a dict
-    bqtype_dict = get_bqtype_dict(url_api)
+    bqtype_dict = get_bqtype_dict(backend)
 
     if replace_all_schema:
         delete_all_columns(table_id, backend)
@@ -242,7 +229,7 @@ def upload_columns_from_architecture(
     for _, row in architecture.iterrows():
         print(f"\nColumn: {row['name']}")
 
-        column_id = get_column_id(table_id=table_id, column_name=row["name"], url_api=url_api)
+        column_id = get_column_id(table_id=table_id, column_name=row["name"], backend=backend)
 
         if column_id and if_column_exists == "pass":
             print("row already exists")
@@ -277,15 +264,26 @@ def upload_columns_from_architecture(
     check_metadata_columns(
         dataset_id=dataset_id,
         table_slug=table_slug,
-        url_api=url_api,
+        backend=backend,
         url_architecture=url_architecture,
     )
 
 
 if __name__ == "__main__":
-    upload_columns_from_architecture(
-        dataset_id="<dataset_id>",
-        table_slug="<table_slug>",
-        url_architecture="<architecture_url>",
-        replace_all_schema=True,
-    )
+    DATASET_ID = "br_ibge_ppm"
+    TABLE_ID_TO_ARCH_URL = {
+        "efetivo_rebanhos": "https://docs.google.com/spreadsheets/d/1Eh0UyE5kAhaJlZVx67kN-PB83rAWTh_uCy9AF2ptU5o/edit#gid=1213668070",
+        "producao_origem_animal": "https://docs.google.com/spreadsheets/d/11vxRwZZFqiIAy-qgzaapKhUe4udZeehOoq3BKrrviEY/edit#gid=1213668070",
+        "producao_pecuaria": "https://docs.google.com/spreadsheets/d/1QSsT7_q4zTqockYDl2U2inPmi3glkhxXn6jLnfSRrxI/edit#gid=1213668070",
+        "producao_aquicultura": "https://docs.google.com/spreadsheets/d/1KdWHg07J-_6FBhY-0U67h-DPTzzsHZG7fc2pUvPamU8/edit#gid=1213668070",
+    }
+
+    backend = b.Backend(graphql_url="https://backend.basedosdados.org/api/v1/graphql")
+    for table_id in TABLE_ID_TO_ARCH_URL:
+        upload_columns_from_architecture(
+            dataset_id=DATASET_ID,
+            table_slug=table_id,
+            url_architecture=TABLE_ID_TO_ARCH_URL[table_id],
+            replace_all_schema=True,
+            backend=backend,
+        )

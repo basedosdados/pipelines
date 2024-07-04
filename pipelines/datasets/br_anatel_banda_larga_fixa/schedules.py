@@ -2,7 +2,6 @@
 """
 Schedules for dataset br_anatel_banda_larga_fixa
 """
-
 from datetime import datetime
 
 from prefect.schedules import Schedule
@@ -10,11 +9,11 @@ from prefect.schedules.clocks import CronClock, IntervalClock
 
 from pipelines.constants import constants
 
-anatel_microdados = Schedule(
+schedule_br_anatel_banda_larga_fixa__microdados = Schedule(
     clocks=[
         CronClock(
             cron="0 15 * * *",
-            start_date=datetime(2023, 4, 3, 7, 5, 0),
+            start_date=datetime(2024, 1, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -25,16 +24,17 @@ anatel_microdados = Schedule(
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
+                "ano": "2024",
             },
         ),
     ]
 )
 
-anatel_densidade_municipio = Schedule(
+schedule_br_anatel_banda_larga_fixa__densidade_municipio = Schedule(
     clocks=[
         CronClock(
             cron="0 16 * * *",
-            start_date=datetime(2023, 4, 3, 7, 5, 0),
+            start_date=datetime(2024, 1, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -50,11 +50,11 @@ anatel_densidade_municipio = Schedule(
     ]
 )
 
-anatel_densidade_brasil = Schedule(
+schedule_br_anatel_banda_larga_fixa__densidade_brasil = Schedule(
     clocks=[
         CronClock(
             cron="0 17 * * *",
-            start_date=datetime(2023, 4, 3, 7, 5, 0),
+            start_date=datetime(2024, 1, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -70,11 +70,11 @@ anatel_densidade_brasil = Schedule(
     ]
 )
 
-anatel_densidade_uf = Schedule(
+schedule_br_anatel_banda_larga_fixa__densidade_uf = Schedule(
     clocks=[
         CronClock(
             cron="0 18 * * *",
-            start_date=datetime(2023, 4, 3, 7, 5, 0),
+            start_date=datetime(2024, 1, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],

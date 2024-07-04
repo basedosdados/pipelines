@@ -10,6 +10,7 @@ from typing import Dict, List
 import basedosdados as bd
 import pandas as pd
 from google.cloud import storage
+from pipelines.utils.constants import constants
 from prefect import task
 from tqdm import tqdm
 
@@ -135,7 +136,7 @@ def filter_eligible_download_tables(eligible_download_tables: List) -> List:
         - Contains row information in BigQuery
     """
 
-    backend = bd.Backend(graphql_url="https://api.basedosdados.org/api/v1/graphql")
+    backend = bd.Backend(graphql_url=constants.API_URL.value['prod'])
     all_closed_tables = find_closed_tables(backend)
     remove_from_eligible_download_table = []
 
@@ -147,7 +148,7 @@ def filter_eligible_download_tables(eligible_download_tables: List) -> List:
         if table["table_django_id"] is None:
             remove_from_eligible_download_table.append(table)
 
-        elif table["row_count"] > 200000 or table["size_bytes"] > 5000000000:
+        elif table["size_bytes"] > 5000000000:
             remove_from_eligible_download_table.append(table)
             log(f"{table['dataset_id']}.{table['table_id']} is too big to zip")
 

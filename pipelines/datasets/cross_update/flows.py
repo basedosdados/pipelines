@@ -12,7 +12,7 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.datasets.cross_update.schedules import schedule_nrows
+from pipelines.datasets.cross_update.schedules import update_metadata_table_schedule
 from pipelines.datasets.cross_update.tasks import (
     filter_eligible_download_tables,
     get_metadata_data,
@@ -82,7 +82,7 @@ with Flow(
 
 crossupdate_nrows.storage = GCS(str(constants.GCS_FLOWS_BUCKET.value))
 crossupdate_nrows.run_config = KubernetesRun(image=str(constants.DOCKER_IMAGE.value))
-crossupdate_nrows.schedule = schedule_nrows
+#crossupdate_nrows.schedule = schedule_nrows
 
 with Flow(
     name="cross_update.update_metadata_table", code_owners=["lauris"]
@@ -161,3 +161,4 @@ crossupdate_update_metadata_table.storage = GCS(str(constants.GCS_FLOWS_BUCKET.v
 crossupdate_update_metadata_table.run_config = KubernetesRun(
     image=str(constants.DOCKER_IMAGE.value)
 )
+crossupdate_update_metadata_table.schedule = update_metadata_table_schedule
