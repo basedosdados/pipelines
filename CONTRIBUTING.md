@@ -21,7 +21,7 @@ Neste documento, mostra-se como configurar o ambiente e desenvolver novas featur
 - [Como testar uma pipeline localmente](#como-testar-uma-pipeline-localmente)
 - [Como testar uma pipeline na nuvem](#como-testar-uma-pipeline-na-nuvem)
 - [Pipelines](#pipelines)
-  
+
 ## Configuração de ambiente para desenvolvimento
 
 ### Requisitos
@@ -51,7 +51,7 @@ git switch -c staging/something
 ```
 
 ### Instalar o WSL 2 - Ubuntu (Apenas Usuarios windows)
-  
+
 * Se você usa o windows é essencial Instalar o WSL 2 - Ubuntu
 * Siga esse [passo a passo](https://learn.microsoft.com/pt-br/windows/wsl/install)
 * Pacotes de atualização e upgrade.
@@ -64,7 +64,7 @@ git switch -c staging/something
 
 ```sh
 sudo apt-get install -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev
-``` 
+```
 > [!TIP]
 > Caso seu sistema não reconheça `R` como um comando interno, instale pacote [`R-base`][r-base]:
 
@@ -84,13 +84,13 @@ curl https://pyenv.run | bash
 > [!IMPORTANT]
 > Leia atentamente os avisos depois desse comando, existe um passo a passo essencial para que o `pyenv` funcione
 
- Comando para instalar a versão padrão de desenvolvimento: 
- 
+ Comando para instalar a versão padrão de desenvolvimento:
+
 ```bash
 pyenv install -v 3.10.14
 ```
 
-Comando para definir essa versão como versão global: 
+Comando para definir essa versão como versão global:
 
 ```bash
 pyenv global 3.10.14
