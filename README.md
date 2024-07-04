@@ -22,10 +22,9 @@ Sinta-se livre para entrar em contato com projeto por nossas redes sociais.
 <br />
 Fortemente te incetivamos a participar da nossa comunidade pelo [discord][discord-invite], onde você pode ter um gostinho de toda a [Base Dos Dados][bd]. 🫶
 
-![discord-invite][img-discord]
-![https://discord.com/invite/huKWpsVYx4][img-x]
-![https://discord.com/invite/huKWpsVYx4][img-youtube]
-
+[![][img-discord]][discord-invite]
+[![][img-x]][x]
+[![][img-youtube]][youtube]
 
 <!-- Referencias -->
 
@@ -34,4 +33,6 @@ Fortemente te incetivamos a participar da nossa comunidade pelo [discord][discor
 [img-youtube]: https://img.shields.io/badge/Youtube-Assista-red?style=for-the-badge&logo=youtube
 
 [discord-invite]: https://discord.com/invite/huKWpsVYx4
+[x]: https://twitter.com/basedosdados
+[youtube]: https://www.youtube.com/c/BasedosDados
 [bd]: https://basedosdados.org
