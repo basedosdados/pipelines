@@ -2,6 +2,9 @@
 
 Neste documento, mostra-se como configurar o ambiente e desenvolver novas features para as pipelines da **BD**. O tutorial é dedicado a não-membros da **BD** e, assim, cobre apenas o caso de desenvolvimento local. Futuramente, o desenvolvimento em cloud estará disponível também para não-membros.
 
+> [!NOTE]
+> Esse guia é para contribuir com construção de pipelines. Pipelines são para dados com frequência de atualização alta. Se você deseja contribuir com dados com baixa frequência de atualização veja como contribuir em [queries-basedosdados-dev](https://github.com/basedosdados/queries-basedosdados-dev)
+
 ## Configuração de ambiente para desenvolvimento
 
 ### Requisitos
