@@ -12,9 +12,10 @@ from typing import Dict, Tuple
 from basedosdados.download.base import google_client
 from dateutil.relativedelta import relativedelta
 
+from pipelines.constants import constants as pipeline_constants
 from pipelines.utils.constants import constants
 from pipelines.utils.metadata.constants import constants as metadata_constants
-from pipelines.utils.utils import get_credentials_from_secret, log
+from pipelines.utils.utils import get_credentials_from_secret, log, notify_discord
 
 
 ################################
@@ -716,6 +717,105 @@ def get_api_last_update_date(dataset_id: str, table_id: str, backend: bd.Backend
         )
         raise
 
+def update_data_source_update_date(dataset_id: str,table_id: str,date_type: str,data_source_max_date:datetime.date, backend:bd.Backend):
+    django_table_id = backend._get_table_id_from_name(gcp_dataset_id=dataset_id, gcp_table_id=table_id)
+    _, django_raw_datasource_id = get_id(
+        query_class="allRawdatasource",
+        query_parameters={
+            "$tables_Id: ID": django_table_id
+        },
+        backend = backend
+    )
+
+    _, django_update_raw_datasource_id = get_id(
+        query_class="allUpdate",
+        query_parameters={
+            "$rawDataSource_Id: ID": django_raw_datasource_id
+        },
+        backend = backend
+    )
+
+
+    if date_type == 'last_update_date':
+        latest =  data_source_max_date.isoformat()
+    else:
+        latest = datetime.today().isoformat()
+
+    mutation_parameters={"latest": latest}
+
+    if not django_update_raw_datasource_id:
+       mutation_parameters["frequency"] =  1
+       mutation_parameters["entity"] = 'f9659fea-e9bb-4177-9ca0-54076a8c0932'
+       mutation_parameters['rawDataSource'] = django_raw_datasource_id
+
+    _, id = create_update(
+            query_class="allUpdate",
+            query_parameters={"$rawDataSource_Id: ID": django_raw_datasource_id},
+            mutation_class="CreateUpdateUpdate",
+            mutation_parameters=mutation_parameters,
+            update=True,
+            backend=backend
+        )
+
+    log("Data de atualização da fonte original modificada")
+
+    if not django_update_raw_datasource_id:
+            notify_discord(secret_path=pipeline_constants.BD_DISCORD_WEBHOOK_SECRET_PATH.value,
+                    message=( "ATENÇÃO"
+                            + f"Foi criado um metadado de 'Update' para o RawDataSource da tabela `{dataset_id}.{table_id}`\n"
+                            + "Este metadado é criado automaticamente com uma atualização mensal\n"
+                            + "Verifique se a fonte original dessa tabela é realmente atualizada com essa frequência\n"
+                            + "Caso seja necessário um ajuste, utilize o seguinte link: \n"
+                            + f"https://backend.basedosdados.org/admin/v1/update/{id}/change/ "
+                    ),
+                    code_owners=['lauris'])
+
+def update_data_source_poll(dataset_id: str,table_id: str, backend:bd.Backend):
+    django_table_id = backend._get_table_id_from_name(gcp_dataset_id=dataset_id, gcp_table_id=table_id)
+    _, django_raw_datasource_id = get_id(
+        query_class="allRawdatasource",
+        query_parameters={
+            "$tables_Id: ID": django_table_id
+        },
+        backend = backend
+    )
+
+    _, django_poll_id = get_id(
+        query_class="allPoll",
+        query_parameters={
+            "$rawDataSource_Id: ID": django_raw_datasource_id
+        },
+        backend = backend
+    )
+
+    latest = datetime.today().isoformat()
+    mutation_parameters={"latest": latest}
+
+    if not django_poll_id:
+       mutation_parameters["frequency"] =  1
+       mutation_parameters["entity"] = '81f0c890-65a6-48a1-9523-af38d3f4af63'
+       mutation_parameters['rawDataSource'] = django_raw_datasource_id
+
+    create_update(
+            query_class="allPoll",
+            query_parameters={"$rawDataSource_Id: ID": django_raw_datasource_id},
+            mutation_class="CreateUpdatePoll",
+            mutation_parameters=mutation_parameters,
+            update=True,
+            backend=backend
+        )
+
+    log("Data de atualização da fonte original modificada")
+
+    if not django_poll_id:
+            notify_discord(secret_path=pipeline_constants.BD_DISCORD_WEBHOOK_SECRET_PATH.value,
+                    message=( "ATENÇÃO"
+                            + f"Foi criado um metadado de 'Poll' para o RawDataSource da tabela `{dataset_id}.{table_id}`\n"
+                            + "Este metadado é criado automaticamente com uma atualização diária\n"
+                            + "Verifique se a fonte original dessa tabela é realmente atualizada com essa frequência\n"
+                    ),
+                    code_owners=['lauris'])
+
 
 def get_credentials_utils(secret_path: str) -> Tuple[str, str]:
     """
@@ -727,7 +827,7 @@ def get_credentials_utils(secret_path: str) -> Tuple[str, str]:
     password = tokens_dict.get("password")
     return email, password
 
-def get_token(email:str, password:str, api_mode: str = "prod") -> str:
+def get_token(email:str, password:str, api_mode: str = "staging") -> str:
     """
     Get api token.
     """
