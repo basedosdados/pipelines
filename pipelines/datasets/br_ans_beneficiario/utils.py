@@ -141,7 +141,12 @@ def parquet_partition(path):
                 dtype=ans_constants.RAW_COLLUNS_TYPE.value,
             )
             # df = process(df)
-            time_col = pd.to_datetime(df["ID_CMPT_MOVEL"], format="%Y%m")
+            try:
+                time_col = pd.to_datetime(df["ID_CMPT_MOVEL"], format="%Y%m")
+            except:
+                log('parsing ID_CMPT_MOVEL data failed with pattern %Y%m. Trying %Y-%m')
+                time_col = pd.to_datetime(df["ID_CMPT_MOVEL"], format="%Y-%m")
+
             df["ano"] = time_col.dt.year
             df["mes"] = time_col.dt.month
             df["MODALIDADE_OPERADORA"] = df["MODALIDADE_OPERADORA"].apply(
