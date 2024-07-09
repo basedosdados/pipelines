@@ -810,7 +810,7 @@ def update_data_source_poll(dataset_id: str,table_id: str, backend:bd.Backend):
     if not django_poll_id:
             notify_discord(secret_path=pipeline_constants.BD_DISCORD_WEBHOOK_SECRET_PATH.value,
                     message=( "ATENÇÃO\n"
-                            + f"* Foi criado um metadado de 'Poll' para o RawDataSource da tabela `{dataset_id}.{table_id} com id: {new_id}`\n"
+                            + f"* Foi criado um metadado de 'Poll' para o RawDataSource da tabela `{dataset_id}.{table_id}` com id: `{new_id}`\n"
                             + "* Este metadado é criado automaticamente com uma atualização diária\n"
                             + "* Verifique se a pipeline realmente roda nessa frequência\n"
                     ),
