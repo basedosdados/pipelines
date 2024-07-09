@@ -796,7 +796,7 @@ def update_data_source_poll(dataset_id: str,table_id: str, backend:bd.Backend):
        mutation_parameters["entity"] = '81f0c890-65a6-48a1-9523-af38d3f4af63'
        mutation_parameters['rawDataSource'] = django_raw_datasource_id
 
-    create_update(
+    _, new_id = create_update(
             query_class="allPoll",
             query_parameters={"$rawDataSource_Id: ID": django_raw_datasource_id},
             mutation_class="CreateUpdatePoll",
@@ -805,14 +805,14 @@ def update_data_source_poll(dataset_id: str,table_id: str, backend:bd.Backend):
             backend=backend
         )
 
-    log("Data de atualização da fonte original modificada")
+    log("Data de verificação da fonte original modificada")
 
     if not django_poll_id:
             notify_discord(secret_path=pipeline_constants.BD_DISCORD_WEBHOOK_SECRET_PATH.value,
-                    message=( "ATENÇÃO"
-                            + f"Foi criado um metadado de 'Poll' para o RawDataSource da tabela `{dataset_id}.{table_id}`\n"
-                            + "Este metadado é criado automaticamente com uma atualização diária\n"
-                            + "Verifique se a fonte original dessa tabela é realmente atualizada com essa frequência\n"
+                    message=( "ATENÇÃO\n"
+                            + f"* Foi criado um metadado de 'Poll' para o RawDataSource da tabela `{dataset_id}.{table_id} com id: {new_id}`\n"
+                            + "* Este metadado é criado automaticamente com uma atualização diária\n"
+                            + "* Verifique se a pipeline realmente roda nessa frequência\n"
                     ),
                     code_owners=['lauris'])
 
