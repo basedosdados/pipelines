@@ -827,7 +827,7 @@ def get_credentials_utils(secret_path: str) -> Tuple[str, str]:
     password = tokens_dict.get("password")
     return email, password
 
-def get_token(email:str, password:str, api_mode: str = "staging") -> str:
+def get_token(email:str, password:str, api_mode: str = "prod") -> str:
     """
     Get api token.
     """
