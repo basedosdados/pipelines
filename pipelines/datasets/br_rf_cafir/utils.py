@@ -141,7 +141,7 @@ def parse_date_parse_files(url: str) -> tuple[list[datetime], list[str]]:
         # Extrai todos href
         href_values = [a["href"] for a in a_elements]
         # Filtra href com nomes dos arquivos
-        files_name = [href for href in href_values if "PARTE" in href]
+        files_name = [href for href in href_values if "csv" in href]
         log(f"files name: {files_name}")
         return release_data, files_name
 
@@ -149,7 +149,7 @@ def parse_date_parse_files(url: str) -> tuple[list[datetime], list[str]]:
         log(
             f"Não foi possível acessar o site :/. O status da requisição foi: {response.status_code}"
         )
-        return []
+        raise FileNotFoundError
 
 
 def download_csv_files(url, file_name, download_directory):

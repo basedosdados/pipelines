@@ -120,19 +120,17 @@ def parse_data(url: str, other_task_output: tuple[list[datetime], list[str]]) ->
         log(f"save path: {save_path}")
 
         # save new file as csv
-        df.to_csv(save_path, index=False, sep=",", na_rep="", encoding="utf-8")
+        df.to_csv(save_path, index=False, sep=",", na_rep="", encoding="utf-8",escapechar='\\')
 
         # resolve ASCII 0 no momento da leitura do BQ. Ler e salvar de novo.
         df = pd.read_csv(save_path, dtype=str)
-        df.to_csv(save_path, index=False, sep=",", na_rep="", encoding="utf-8")
+        df.to_csv(save_path, index=False, sep=",", na_rep="", encoding="utf-8",escapechar='\\')
 
-        log(f"no dir input tem: {os.listdir(br_rf_cafir_constants.PATH.value[0])}")
+        log(f"----- Removendo o arquivo: {os.listdir(br_rf_cafir_constants.PATH.value[0])}")
 
         # remove o arquivo de input
         os.system("rm -rf " + br_rf_cafir_constants.PATH.value[0] + "/" + "*")
 
-        # verificar se os arquivos foram removidos
-        log(f"no dir input tem: {os.listdir(br_rf_cafir_constants.PATH.value[0])}")
 
     log(f"list_n_cols: O NUMERO DE COLUNAS É {list_n_cols}")
 
