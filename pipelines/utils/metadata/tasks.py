@@ -25,6 +25,8 @@ from pipelines.utils.metadata.utils import (
     get_id,
     get_table_status,
     get_url,
+    update_data_source_poll,
+    update_data_source_update_date,
     update_date_from_bq_metadata,
     update_row_access_policy,
 )
@@ -218,9 +220,11 @@ def check_if_data_is_outdated(
     log(f"Data na fonte: {data_source_max_date}")
     log(f"Data nos metadados da BD: {data_api}")
 
+    update_data_source_poll(dataset_id, table_id, backend)
     # Compara as datas para verificar se há atualizações
     if data_source_max_date > data_api:
         log("Há atualizações disponíveis")
+        update_data_source_update_date(dataset_id,table_id,date_type,data_source_max_date, backend)
         return True  # Há atualizações disponíveis
     else:
         log("Não há novas atualizações disponíveis")

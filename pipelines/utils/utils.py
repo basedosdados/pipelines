@@ -231,6 +231,41 @@ def notify_discord_on_failure(
     )
 
 
+def notify_discord(
+    secret_path: str,
+    message: str,
+    code_owners: Optional[List[str]] = None,
+):
+    """
+    Notifies a Discord channel.
+    """
+    url = get_vault_secret(secret_path)["data"]["url"]
+    code_owners = code_owners or constants.DEFAULT_CODE_OWNERS.value
+    code_owner_dict = constants.OWNERS_DISCORD_MENTIONS.value
+
+
+    at_code_owners = []
+    for code_owner in code_owners:
+        code_owner_id = code_owner_dict[code_owner]["user_id"]
+        code_owner_type = code_owner_dict[code_owner]["type"]
+
+        if code_owner_type == "user":
+            at_code_owners.append(f"    - <@{code_owner_id}>\n")
+        elif code_owner_type == "user_nickname":
+            at_code_owners.append(f"    - <@!{code_owner_id}>\n")
+        elif code_owner_type == "channel":
+            at_code_owners.append(f"    - <#{code_owner_id}>\n")
+        elif code_owner_type == "role":
+            at_code_owners.append(f"    - <@&{code_owner_id}>\n")
+
+    message = message+ "".join(at_code_owners)
+
+    send_discord_message(
+        message=message,
+        webhook_url=url,
+    )
+
+
 def smart_split(
     text: str,
     max_length: int,
