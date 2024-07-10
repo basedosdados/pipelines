@@ -49,7 +49,7 @@ class constants(Enum):  # pylint: disable=c0103
         "servicos_profissionais": "SP",
         "aihs_reduzidas": "RD",
         #SIM
-        "microdados_teste": "DO",
+        "microdados": "DO",
         #SINAN
         "microdados_dengue": "DENG"
     }

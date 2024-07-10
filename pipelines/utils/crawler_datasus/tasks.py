@@ -89,7 +89,7 @@ def check_files_to_parse(
         month = str(month)
 
     year_month_to_parse = year + month
-    year_to_parse = str(last_date.year + 1)
+    year_to_parse = str(last_date.year + 1 - 1)
 
     if dataset_id == "br_ms_sim":
         log(f"------- The year_to_parse (YYYY) is {year_to_parse}")

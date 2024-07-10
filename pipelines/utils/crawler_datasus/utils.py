@@ -81,13 +81,15 @@ def  dbf_to_parquet(dbf: str, table_id: str, counter: int, chunk_size:int, datas
             pq.write_table(table, where=str(parquet_filepath))
             counter_chunk += 1
 
-            if dataset_id == dataset_id:
+            if dataset_id == "br_ms_sinan":
                 df = pd.read_parquet(parquet_filepath)
-
                 df = post_process_microdados_dengue(df)
-
                 df.to_parquet(parquet_filepath, index=None, compression='gzip')
 
+            elif dataset_id == "br_ms_sim":
+                df = pd.read_parquet(parquet_filepath)
+                df = post_process_microdados_sim(df)
+                df.to_parquet(parquet_filepath, index=None, compression='gzip')
 
     except struct.error as err:
         #unlink .partquer extension and remove dbf file
@@ -591,4 +593,19 @@ def post_process_microdados_dengue(df: pd.DataFrame) -> pd.DataFrame:
     df.rename(columns={
         'SG_UF_NOT' : 'sigla_uf_notificacao'
     }, inplace=True)
+    return df
+
+def post_process_microdados_sim(df: pd.DataFrame) -> pd.DataFrame:
+
+    #path = list_datasus_dbc_files('SIM', 'CID10', 'DORES')
+
+    # # df['ano'] = '20' + str(path[43:45])
+    # for new_column in datasus_constants.COLUMNS_TO_KEEP.value["DENG"]:
+    #     if new_column not in df.columns:
+    #         df[new_column] = ''
+    # df = df[datasus_constants.COLUMNS_TO_KEEP.value["DENG"]]
+    # #df.drop(columns=['ano'], inplace=True)
+    # df.rename(columns={
+    #     'SG_UF_NOT' : 'sigla_uf_notificacao'
+    # }, inplace=True)
     return df

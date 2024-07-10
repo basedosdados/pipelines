@@ -366,7 +366,6 @@ with Flow(name="DATASUS-SIM", code_owners=["jeantozzi"]) as flow_simsus:
     dataset_id = Parameter("dataset_id", required=True)
     table_id = Parameter("table_id", required=True)
     update_metadata = Parameter("update_metadata", default=False, required=False)
-    year_month_to_extract = Parameter("year_month_to_extract",default='', required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -382,7 +381,7 @@ with Flow(name="DATASUS-SIM", code_owners=["jeantozzi"]) as flow_simsus:
     ftp_files = check_files_to_parse(
         dataset_id=dataset_id,
         table_id=table_id,
-        year_month_to_extract=year_month_to_extract,
+        year_month_to_extract=''
     )
 
     with case(is_empty(ftp_files), True):
@@ -401,21 +400,20 @@ with Flow(name="DATASUS-SIM", code_owners=["jeantozzi"]) as flow_simsus:
         dbf_files = decompress_dbc(
             file_list=dbc_files, dataset_id=dataset_id, upstream_tasks=[dbc_files]
         )
-
-
-        files_path = read_dbf_save_parquet_chunks(
+        
+        csv_files = decompress_dbf(
             file_list=dbc_files,
             table_id=table_id,
-            upstream_tasks=[dbc_files,dbf_files],
+            upstream_tasks=[dbf_files, dbc_files],
         )
 
-        wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=files_path,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dump_mode="append",
-            wait=files_path,
-        )
+        # wait_upload_table = create_table_and_upload_to_gcs(
+        #     data_path=files_path,
+        #     dataset_id=dataset_id,
+        #     table_id=table_id,
+        #     dump_mode="append",
+        #     wait=files_path
+        # )
 
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
