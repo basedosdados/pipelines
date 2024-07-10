@@ -189,7 +189,7 @@ async def download_files(dataset_id: str, files: list, output_dir: str, max_para
                 download_file(file, f"{output_dir}/{year_sigla_uf_parser(file=file)}")
                 for file in files
             ]
-        await asyncio.gather(*tasks)   
+        await asyncio.gather(*tasks)
 
     elif dataset_id == "br_ms_sinan":
         async with semaphore:

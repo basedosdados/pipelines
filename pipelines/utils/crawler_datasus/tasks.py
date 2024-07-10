@@ -59,7 +59,7 @@ def check_files_to_parse(
     log(f"------- Extracting last date from api for {dataset_id}.{table_id}")
     # 1. extrair data mais atual da api
     backend = bd.Backend(graphql_url=get_url("prod"))
-    
+
     date_format = "%Y" if dataset_id == "br_ms_sim" else "%Y-%m"
     last_date = get_api_most_recent_date(
         dataset_id=dataset_id,

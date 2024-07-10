@@ -400,7 +400,7 @@ with Flow(name="DATASUS-SIM", code_owners=["jeantozzi"]) as flow_simsus:
         dbf_files = decompress_dbc(
             file_list=dbc_files, dataset_id=dataset_id, upstream_tasks=[dbc_files]
         )
-        
+
         csv_files = decompress_dbf(
             file_list=dbc_files,
             table_id=table_id,
