@@ -15,13 +15,6 @@ Neste documento, mostra-se como configurar o ambiente e desenvolver novas featur
 > [!NOTE]
 > Esse guia é para contribuir com construção de pipelines. Pipelines são para dados com frequência de atualização alta. Se você deseja contribuir com dados com baixa frequência de atualização veja como contribuir em [queries-basedosdados-dev](https://github.com/basedosdados/queries-basedosdados-dev)
 
-## Index
-
-- [Configuração de ambiente para desenvolvimento](#configuração-de-ambiente-para-desenvolvimento)
-- [Pipelines](#pipelines)
-- [Como testar uma pipeline localmente](#como-testar-uma-pipeline-localmente)
-- [Como testar uma pipeline na nuvem](#como-testar-uma-pipeline-na-nuvem)
-
 ## Configuração de ambiente para desenvolvimento
 
 ### Requisitos
@@ -50,30 +43,19 @@ Crie um ramificação com prefixo `staging`
 git switch -c staging/something
 ```
 
-### Instalar o WSL 2 - Ubuntu (Apenas Usuarios windows)
+### Instalar o WSL 2 (Ubuntu) - (Apenas usuários Windows)
 
-* Se você usa o windows é essencial Instalar o WSL 2 - Ubuntu
-* Siga esse [passo a passo](https://learn.microsoft.com/pt-br/windows/wsl/install)
-* Pacotes de atualização e upgrade.
-  Para Ubuntu ou Debian, use o comando :
+Se você usa o windows é essencial Instalar o WSL 2 (Ubuntu). Siga esse [passo a passo](https://learn.microsoft.com/pt-br/windows/wsl/install)
 
-  ```sh
-  sudo apt update && sudo apt upgrade
-  ```
-### Comando para instalar dependencias:
-
-```sh
-sudo apt-get install -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev
-```
-> [!TIP]
-> Caso seu sistema não reconheça `R` como um comando interno, instale pacote [`R-base`][r-base]:
-
-```sh
-sudo apt -y install r-base
-```
 ### Instalar o `pyenv`
 
 É importante instalar o `pyenv` para garantir que a versão de python é padrão. Escrevemos uma versão resumida mas recomendamos [esse material](https://realpython.com/intro-to-pyenv/) e [esse](https://gist.github.com/luzfcb/ef29561ff81e81e348ab7d6824e14404) para mais informações.
+
+Instale as dependencias:
+
+```sh
+sudo apt-get install -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev python-openssl
+```
 
 Instale o `pyenv`
 
@@ -84,16 +66,16 @@ curl https://pyenv.run | bash
 > [!IMPORTANT]
 > Leia atentamente os avisos depois desse comando, existe um passo a passo essencial para que o `pyenv` funcione
 
- Comando para instalar a versão padrão de desenvolvimento:
+Instale a versão 3.10 do `python`
 
 ```sh
-pyenv install -v 3.10.14
+pyenv install -v 3.10
 ```
 
-Comando para definir essa versão como versão global:
+Definir essa versão como versão global
 
 ```sh
-pyenv global 3.10.14
+pyenv global 3.10
 ```
 
 ### Instale o poetry
@@ -107,7 +89,8 @@ Crie o ambiente virtual ou ative se já existir
 ```sh
 poetry shell
 ```
-### Instalar as dependências
+
+#### Instalar as dependências
 
 ```sh
 poetry install --with dev --no-root
@@ -119,7 +102,8 @@ Instalar os hooks de pré-commit (ver https://pre-commit.com/ para entendimento 
 pre-commit install
 ```
 
-**Pronto! Seu ambiente está configurado para desenvolvimento.**
+> [!TIP]
+> Caso a instalação do `poetry` de erro no pacote do `R`, recomendado rodar a seguinte linha para instalar o R-base `sudo apt -y install r-base`
 
 ### Erros comuns
 
@@ -204,114 +188,90 @@ Caso o órgão para o qual você desenvolverá um projeto já exista
 python manage.py add-project datasets nome-do-projeto
 ```
 
-(Opcional, mas recomendado) Quando acabar de desenvolver sua pipeline, delete todas as versões da mesma pela UI do Prefect.
-## Como testar uma pipeline localmente
+### Testar uma pipeline localmente
 
-Crie o arquivo `test.py` e adicione as linhas abaixo:
+Escolha a pipeline que deseja executar (exemplo `pipelines.rj_escritorio.test_pipeline.flows.flow`). Crie um arquivo `test.py` na pasta e importe o flow
 
-```py
-from pipelines.utils.utils import run_local, run_cloud
-from pipelines.datasets.test_pipeline.flows import test_flow
+```python
+from pipelines.utils.utils import run_local
+from pipelines.datasets.test_pipeline.flows import flow
 
-run_local(flow=test_flow, parameters = {
-        "dataset_id": "test1",
-        "table_id": "test1",
-        })
+run_local(flow, parameters = {"param": "val"})
 ```
-Execute o script `test.py` com:
+
+### Testar uma pipeline na nuvem
+
+Faça a cópia do arquivo `.env.example` para um novo arquivo nomeado `.env`:
+
+```sh
+cp .env.example .env
+```
+
+Substitua os valores das seguintes variáveis pelos seus respectivos valores:
+
+-   `GOOGLE_APPLICATION_CREDENTIALS`: Path para um arquivo JSON com as credenciais da API do Google Cloud
+    de uma conta de serviço com acesso de escrita ao bucket `basedosdados-dev` no Google Cloud Storage.
+-   `VAULT_TOKEN`: deve ter o valor do token do órgão para o qual você está desenvolvendo. Caso não saiba o token, entre em contato.
+
+Carregue as variáveis de ambiente do arquivo `.env`:
+
+```sh
+source .env
+```
+
+Também, garanta que o arquivo `$HOME/.prefect/auth.toml` exista e tenha um conteúdo semelhante ao seguinte:
+
+```toml
+["prefect.basedosdados.org"]
+api_key = "<sua-api-key>"
+tenant_id = "<tenant-id>"
+```
+
+O valor da chave `tenant_id` pode ser coletada atráves da seguinte URL: https://prefect.basedosdados.org/default/api. Devendo ser executado a seguinte query:
+
+```graphql
+query {
+    tenant {
+        id
+    }
+}
+```
+
+Em seguida, tenha certeza que você já tem acesso à UI do Prefect, tanto para realizar a submissão da run, como para acompanhá-la durante o processo de execução.
+
+Crie o arquivo `test.py` com a pipeline que deseja executar e adicione a função `run_cloud` com os parâmetros necessários:
+
+```python
+from pipelines.utils.utils import run_cloud
+from pipelines.[secretaria].[pipeline].flows import flow # Complete com as infos da sua pipeline
+
+run_cloud(
+    flow,               # O flow que você deseja executar
+    labels=[
+        "example",      # Label para identificar o agente que irá executar a pipeline (ex: basedosdados-dev)
+    ],
+    parameters = {
+        "param": "val", # Parâmetros que serão passados para a pipeline (opcional)
+    }
+)
+```
+
+Execute a pipeline com:
 
 ```sh
 python test.py
 ```
 
-Caso suas configuraçoes estiverem corretas. Você recebera um resultado semelhante as linhas abaixo:
+A saída deverá se assemelhar ao exemplo abaixo:
 
-```sh
-[2024-07-04 05:26:05+0000] INFO - prefect.TaskRunner | Task 'dataframe_to_csv': Finished task run for task with final state: 'Success'
-[2024-07-04 05:26:05+0000] INFO - prefect.TaskRunner | Task 'table_id': Starting task run...
-[2024-07-04 05:26:05+0000] INFO - prefect.TaskRunner | Task 'table_id': Finished task run for task with final state: 'Success'
-[2024-07-04 05:26:05+0000] INFO - prefect.TaskRunner | Task 'upload': Starting task run...
-[2024-07-04 05:26:05+0000] INFO - prefect.TaskRunner | Task 'upload': Finished task run for task with final state: 'Success'
-[2024-07-04 05:26:05+0000] INFO - prefect.TaskRunner | Task 'upload_to_gcs': Starting task run...
-[2024-07-04 05:26:05+0000] INFO - prefect.TaskRunner | Task 'upload_to_gcs': Finished task run for task with final state: 'Success'
-[2024-07-04 05:26:05+0000] INFO - prefect.FlowRunner | Flow run SUCCESS: all reference tasks succeeded
+```log
+[2022-02-19 12:22:57-0300] INFO - prefect.GCS | Uploading xxxxxxxx-development/2022-02-19t15-22-57-694759-00-00 to basedosdados-dev
+Flow URL: http://localhost:8080/default/flow/xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+└── ID: xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+└── Project: main
+└── Labels: []
+Run submitted, please check it at:
+https://prefect.basedosdados.org/flow-run/xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 ```
 
-## Como testar uma pipeline na nuvem
-
-1. Faça a cópia do arquivo `.env.example` para um novo arquivo nomeado `.env`:
-
-    ```
-    cp .env.example .env
-    ```
-
--   Substitua os valores das seguintes variáveis pelos seus respectivos valores:
-
-    -   `GOOGLE_APPLICATION_CREDENTIALS`: Path para um arquivo JSON com as credenciais da API do Google Cloud
-        de uma conta de serviço com acesso de escrita ao bucket `basedosdados-dev` no Google Cloud Storage.
-    -   `VAULT_TOKEN`: deve ter o valor do token do órgão para o qual você está desenvolvendo. Caso não saiba o token, entre em contato.
-
--   Carregue as variáveis de ambiente do arquivo `.env`:
-
-    ```sh
-    source .env
-    ```
-
--   Também, garanta que o arquivo `$HOME/.prefect/auth.toml` exista e tenha um conteúdo semelhante ao seguinte:
-
-    ```toml
-    ["prefect.basedosdados.org"]
-    api_key = "<sua-api-key>"
-    tenant_id = "<tenant-id>"
-    ```
-
-    -   O valor da chave `tenant_id` pode ser coletada atráves da seguinte URL: https://prefect.basedosdados.org/default/api. Devendo ser executado a seguinte query:
-
-        ```graphql
-        query {
-            tenant {
-                id
-            }
-        }
-        ```
-
-*   Em seguida, tenha certeza que você já tem acesso à UI do Prefect, tanto para realizar a submissão da run, como para acompanhá-la durante o processo de execução.
-
-1. Crie o arquivo `test.py` com a pipeline que deseja executar e adicione a função `run_cloud` com os parâmetros necessários:
-
-    ```py
-    from pipelines.utils.utils import run_cloud
-    from pipelines.[secretaria].[pipeline].flows import flow # Complete com as infos da sua pipeline
-
-    run_cloud(
-        flow,               # O flow que você deseja executar
-        labels=[
-            "example",      # Label para identificar o agente que irá executar a pipeline (ex: basedosdados-dev)
-        ],
-        parameters = {
-            "param": "val", # Parâmetros que serão passados para a pipeline (opcional)
-        }
-    )
-    ```
-
-2. Rode a pipeline com:
-
-    ```sh
-    python test.py
-    ```
-
--   A saída deverá se assemelhar ao exemplo abaixo:
-
-    ```
-    [2022-02-19 12:22:57-0300] INFO - prefect.GCS | Uploading xxxxxxxx-development/2022-02-19t15-22-57-694759-00-00 to basedosdados-dev
-    Flow URL: http://localhost:8080/default/flow/xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-    └── ID: xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-    └── Project: main
-    └── Labels: []
-    Run submitted, please check it at:
-    https://prefect.basedosdados.org/flow-run/xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-    ```
-
-<!-- Referecias -->
-
-[r-base]: https://www.r-project.org/
+(Opcional, mas recomendado) Quando acabar de desenvolver sua pipeline, delete todas as versões da mesma pela UI do Prefect.
