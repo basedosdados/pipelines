@@ -131,4 +131,4 @@ with Flow(
 
 transfermarkt_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 transfermarkt_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-transfermarkt_flow.schedule = every_day_champions_league
+#transfermarkt_flow.schedule = every_day_champions_league
