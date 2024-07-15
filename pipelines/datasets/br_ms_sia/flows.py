@@ -21,7 +21,7 @@ br_ms_sia_producao_ambulatorial.name = "br_ms_sia.producao_ambulatorial"
 br_ms_sia_producao_ambulatorial.code_owners = ["Gabriel Pisa"]
 br_ms_sia_producao_ambulatorial.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_ms_sia_producao_ambulatorial.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_ms_sia_producao_ambulatorial.schedule = schedule_br_ms_sia_producao_ambulatorial
+#br_ms_sia_producao_ambulatorial.schedule = schedule_br_ms_sia_producao_ambulatorial
 
 
 br_ms_sia_psicossocial = deepcopy(flow_siasus)
@@ -29,4 +29,4 @@ br_ms_sia_psicossocial.name = "br_ms_sia.psicossocial"
 br_ms_sia_psicossocial.code_owners = ["Gabriel Pisa"]
 br_ms_sia_psicossocial.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_ms_sia_psicossocial.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_ms_sia_psicossocial.schedule = schedule_br_ms_sia_psicossocial
+#br_ms_sia_psicossocial.schedule = schedule_br_ms_sia_psicossocial
