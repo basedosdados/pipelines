@@ -45,7 +45,7 @@ def decode_column(value):
         return str(value).replace("\x00", "")
     return value
 
-def  dbf_to_parquet(dbf: str, table_id: str, counter: int, chunk_size:int, dataset_id: str = "br_ms_sinan") -> str:
+def  dbf_to_parquet(dbf: str, table_id: str, counter: int, chunk_size:int) -> str:
     """
     Parses DBF file into parquet to preserve memory
     """
@@ -81,12 +81,12 @@ def  dbf_to_parquet(dbf: str, table_id: str, counter: int, chunk_size:int, datas
             pq.write_table(table, where=str(parquet_filepath))
             counter_chunk += 1
 
-            if dataset_id == dataset_id:
-                df = pd.read_parquet(parquet_filepath)
+            # if dataset_id == dataset_id:
+            #     df = pd.read_parquet(parquet_filepath)
 
-                df = post_process_microdados_dengue(df)
+            #     df = post_process_microdados_dengue(df)
 
-                df.to_parquet(parquet_filepath, index=None, compression='gzip')
+            #     df.to_parquet(parquet_filepath, index=None, compression='gzip')
 
 
     except struct.error as err:
