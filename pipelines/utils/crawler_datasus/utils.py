@@ -45,7 +45,7 @@ def decode_column(value):
         return str(value).replace("\x00", "")
     return value
 
-def  dbf_to_parquet(dbf: str, table_id: str, counter: int, chunk_size:int, dataset_id: str = "br_ms_sinan") -> str:
+def  dbf_to_parquet(dbf: str, table_id: str, counter: int, chunk_size:int) -> str:
     """
     Parses DBF file into parquet to preserve memory
     """
