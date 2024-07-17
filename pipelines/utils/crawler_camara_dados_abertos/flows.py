@@ -113,6 +113,5 @@ with Flow(
                     historical_database=get_table_id_in_update_metadata_variable_dictionary["historical_database"],
                     upstream_tasks=[wait_for_materialization],
                 )
-
 flow_camara_dados_abertos.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 flow_camara_dados_abertos.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)

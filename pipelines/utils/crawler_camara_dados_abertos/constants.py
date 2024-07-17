@@ -302,7 +302,7 @@ def update_metadata_variable_dictionary(table_id: str, dataset_id = "br_camara_d
                                 "licitacao": {
                                     "dataset_id": dataset_id,
                                     "table_id": table_id,
-                                    "date_column_name": {'date': 'data_publicacao'},
+                                    "date_column_name": {'date': 'data_autorizacao'},
                                     "date_format":"%Y-%m-%d",
                                     "time_delta":{'months': 6},
                                     "coverage_type": "part_bdpro",
