@@ -84,7 +84,6 @@ def check_files_to_parse(
     else:
         month = str(month)
 
-    year_month_to_parse = '24' + '04'
     log(f"------- The year_month_to_parse (YYMM) is {year_month_to_parse}")
 
     #Convert datasus database names to Basedosdados database names
