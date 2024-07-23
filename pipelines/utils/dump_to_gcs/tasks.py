@@ -98,6 +98,7 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
     bq_table = client["bigquery"].get_table(table = bq_table_ref)
     num_bytes = bq_table.num_bytes
 
+
     if num_bytes == 0:
         log("This table is views!")
         b = bd.Backend(graphql_url=get_url("prod"))
