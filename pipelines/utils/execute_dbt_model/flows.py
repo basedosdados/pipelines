@@ -58,6 +58,7 @@ with Flow(name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value) as run_dbt_mod
             dataset_id=dataset_id,
             table_id=table_id,
             bd_project_mode=mode,
+            upstream_tasks=[materialize_this],
         )
 
 

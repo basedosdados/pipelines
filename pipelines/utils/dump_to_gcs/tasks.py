@@ -5,7 +5,8 @@ Tasks for dumping data directly from BigQuery to GCS.
 from datetime import datetime
 from time import sleep
 from typing import Union
-
+from basedosdados import backend as bd
+from pipelines.utils.metadata.utils import get_api_most_recent_date, get_url
 import jinja2
 from basedosdados.download.base import google_client
 from basedosdados.upload.base import Base
@@ -97,6 +98,29 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
     bq_table = client["bigquery"].get_table(table = bq_table_ref)
     num_bytes = bq_table.num_bytes
 
+    if num_bytes == 0:
+        log("This table is views!")
+        b = bd.Backend(graphql_url=get_url("prod"))
+        django_table_id = b._get_table_id_from_name(gcp_dataset_id=dataset_id, gcp_table_id=table_id)
+        query_graphql = f"""
+        query get_bytes_table{{
+        allTable(id: "{django_table_id}"){{
+            edges{{
+            node{{
+                name
+                uncompressedFileSize
+                        }}}}
+                    }}}}
+            """
+        print(query_graphql)
+        data = b._execute_query(query_graphql, {'table_id' : table_id})
+        nodes = data['allTable']['edges']
+        if nodes == []:
+            return None
+
+        num_bytes = nodes[0]['node']['uncompressedFileSize']
+
+
     if num_bytes > 1_000_000_000:
         log("Table is bigger than 1GB it is not in the download criteria")
         return None
@@ -106,8 +130,8 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
     while not job.done():
         sleep(1)
 
-    results = job.to_dataframe()
-    log(results.head(5))
+    # results = job.to_dataframe() # ! Precisamos desse job.to_dataframe()? Ele serve só para mostrar um log e é custoso.
+    # log(results.head(5))
     # pylint: disable=protected-access
     dest_table = job._properties["configuration"]["query"]["destinationTable"]
     dest_project_id = dest_table["projectId"]
@@ -117,7 +141,8 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
         f"Query results were stored in {dest_project_id}.{dest_dataset_id}.{dest_table_id}"
     )
 
-    blob_path = f"gs://basedosdados-public/one-click-download/{dataset_id}/{table_id}/{table_id}_bdpro.csv.gz"
+    blob_path = f"gs://basedosdados-dev/datasets/teste/{dataset_id}/{table_id}/{table_id}_bdpro.csv.gz"
+
     log(f"Loading data to {blob_path}")
     dataset_ref = bigquery.DatasetReference(dest_project_id, dest_dataset_id)
     table_ref = dataset_ref.table(dest_table_id)
@@ -160,8 +185,8 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
         while not job.done():
             sleep(1)
 
-        results = job.to_dataframe()
-        log(results.head(5))
+        # results = job.to_dataframe()
+        # log(results.head(5))
         # pylint: disable=protected-access
         dest_table = job._properties["configuration"]["query"]["destinationTable"]
         dest_project_id = dest_table["projectId"]
@@ -171,7 +196,7 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
             f"Query results were stored in {dest_project_id}.{dest_dataset_id}.{dest_table_id}"
         )
 
-        blob_path = f"gs://basedosdados-public/one-click-download/{dataset_id}/{table_id}/{table_id}.csv.gz"
+        blob_path = f"gs://basedosdados-dev/datasets/teste/{dataset_id}/{table_id}/{table_id}.csv.gz"
         log(f"Loading data to {blob_path}")
 
         job_config = bigquery.job.ExtractJobConfig(compression="GZIP")

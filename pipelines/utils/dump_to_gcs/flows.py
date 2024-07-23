@@ -22,7 +22,7 @@ with Flow(
     name=utils_constants.FLOW_DUMP_TO_GCS_NAME.value,
     code_owners=["lauris"],
 ) as dump_to_gcs_flow:
-    project_id = Parameter("project_id", required=False)
+    project_id = Parameter("project_id", required=False) # basedosdados
     dataset_id = Parameter("dataset_id")  # dataset_id or dataset_id_staging
     table_id = Parameter("table_id")
     query = Parameter("query", required=False)
@@ -43,30 +43,30 @@ with Flow(
 
     project_id = get_project_id(project_id=project_id, bd_project_mode=bd_project_mode)
 
-    trigger_download, execution_time = trigger_cron_job(
+    # trigger_download, execution_time = trigger_cron_job(
+    #     project_id=project_id,
+    #     dataset_id=dataset_id,
+    #     table_id=table_id,
+    #     cron_expression=desired_crontab,
+    # )
+
+    # with case(trigger_download, True):
+    download_task = download_data_to_gcs(  # pylint: disable=C0103
         project_id=project_id,
         dataset_id=dataset_id,
         table_id=table_id,
-        cron_expression=desired_crontab,
+        query=query,
+        bd_project_mode=bd_project_mode,
+        billing_project_id=billing_project_id,
     )
 
-    with case(trigger_download, True):
-        download_task = download_data_to_gcs(  # pylint: disable=C0103
-            project_id=project_id,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            query=query,
-            bd_project_mode=bd_project_mode,
-            billing_project_id=billing_project_id,
-        )
-
-        update_task = update_last_trigger(  # pylint: disable=C0103
-            project_id=project_id,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            execution_time=execution_time,
-        )
-        update_task.set_upstream(download_task)
+        # update_task = update_last_trigger(  # pylint: disable=C0103
+        #     project_id=project_id,
+        #     dataset_id=dataset_id,
+        #     table_id=table_id,
+        #     execution_time=execution_time,
+        # )
+        # update_task.set_upstream(download_task)
 
 
 dump_to_gcs_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
