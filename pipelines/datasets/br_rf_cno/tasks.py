@@ -62,4 +62,26 @@ def crawl_cno(root: str, url: str, chunk_size=1024) -> None:
     shutil.unpack_archive(filepath, extract_dir=root)
 
 
+@task
+def wrangling(root: str):
+    # Get list of files in the root directory
+    paths = os.listdir(root)
 
+    for file in paths:
+        # Check if the file is a CSV
+        if file.endswith('.csv'):
+            # Construct full file path
+            file_path = os.path.join(root, file)
+
+            # Read the CSV file
+            df = pd.read_csv(file_path, dtype=str, encoding='latin-1', sep=',', na_rep='')
+
+            # Rename the file with .parquet extension
+            parquet_file = file.replace('.csv', '.parquet')
+            parquet_path = os.path.join(root, parquet_file)
+
+            # Save the DataFrame as a Parquet file
+            df.to_parquet(parquet_path, index=False)
+
+            # Delete the original CSV file
+            os.remove(file_path)

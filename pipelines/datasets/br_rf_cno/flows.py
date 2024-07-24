@@ -5,7 +5,7 @@ Flows for br_rf_cno
 # pylint: disable=invalid-name
 from datetime import timedelta
 
-from prefect import Parameter, case
+from prefect import Parameter, case, unmapped
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
@@ -55,13 +55,14 @@ with Flow(
         )
 
 
+
     #3. subir tabelas para o Storage e materilizar no BQ usando map
     wait_upload_table = create_table_and_upload_to_gcs.map(
-        data_path=f'input',
+        data_path=unmapped(f'input'),
         dataset_id=unmapped(dataset_id),
         table_id=table_ids,
         dump_mode=unmapped("append"),
-        wait=file_paths
+        wait=data
     )
 
 
