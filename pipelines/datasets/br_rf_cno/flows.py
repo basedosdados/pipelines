@@ -55,25 +55,14 @@ with Flow(
         )
 
 
-    #1. crawler
-    #os arquivos vem num zip único. Não faz sentido baixar o zip todo em 4 flows diferentes todos os dias.
-    #é preciso baixar o arquivo com uma task e fazer a descompressão do zip
-
-    #2. renomeação de colunas
-    #como renomear headers de csv sem precisar ler o arquivo?
-
-
     #3. subir tabelas para o Storage e materilizar no BQ usando map
     wait_upload_table = create_table_and_upload_to_gcs.map(
-        data_path=file_paths,
+        data_path=f'input',
         dataset_id=unmapped(dataset_id),
         table_id=table_ids,
         dump_mode=unmapped("append"),
         wait=file_paths
     )
-
-
-
 
 
 
