@@ -10,6 +10,7 @@ from datetime import datetime
 import requests
 import pandas as pd
 from tqdm import tqdm
+import shutil
 
 from prefect import task
 
@@ -44,44 +45,40 @@ def check_need_for_update(url:str)-> None:
 
 
 @task
-def crawl_cno(root: str, url: str, chunk_size=1024) -> None:
+def crawl_cno(root: str, url: str) -> None:
     """Download and unzip tables from br_rf_cno"""
     filepath = f"{root}/data.zip"
     os.makedirs(root, exist_ok=True)
-    os.makedirs(f"{root}/cleaned", exist_ok=True)
 
-    log(f'----- Downloading files from {url}')
+    print(f'----- Downloading files from {url}')
 
     response = requests.get(url, stream=True, timeout=300)
     total_size = int(response.headers.get('content-length', 0))
 
     with open(filepath, "wb") as file:
-        for chunk in tqdm(response.iter_content(chunk_size=chunk_size), total=total_size // chunk_size, unit='KB', unit_scale=True):
-            file.write(chunk)
+        for data in tqdm(response.iter_content(1024), total=total_size // 1024, unit='KB'):
+            file.write(data)
 
     shutil.unpack_archive(filepath, extract_dir=root)
+    os.remove(filepath)  # Remove the zip file after unpacking
+
+    print('----- Download and unpack completed')
 
 
 @task
 def wrangling(root: str):
-    # Get list of files in the root directory
     paths = os.listdir(root)
 
     for file in paths:
-        # Check if the file is a CSV
         if file.endswith('.csv'):
-            # Construct full file path
+
             file_path = os.path.join(root, file)
 
-            # Read the CSV file
             df = pd.read_csv(file_path, dtype=str, encoding='latin-1', sep=',', na_rep='')
 
-            # Rename the file with .parquet extension
             parquet_file = file.replace('.csv', '.parquet')
             parquet_path = os.path.join(root, parquet_file)
 
-            # Save the DataFrame as a Parquet file
             df.to_parquet(parquet_path, index=False)
 
-            # Delete the original CSV file
             os.remove(file_path)

@@ -34,7 +34,7 @@ with Flow(
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_rf_cno", required=True)
     table_id = Parameter("table_id", default="tables", required=False)
-    table_ids = Parameter("table_ids", default=['microdados', 'areas', 'cnaes', 'vinculos'], required=True)
+    table_ids = Parameter("table_ids", default=['microdados', 'areas', 'cnaes', 'vinculos'], required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
