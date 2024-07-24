@@ -19,7 +19,7 @@ from pipelines.utils.utils import log
 
 
 @task
-def check_need_for_update(url:str)-> DateTime:
+def check_need_for_update(url:str)-> None:
 
     response = requests.get(url)
 
