@@ -52,33 +52,52 @@ def crawl_cno(root: str, url: str) -> None:
 
     print(f'----- Downloading files from {url}')
 
-    response = requests.get(url, stream=True, timeout=300)
+    response = requests.get(url, timeout=300, stream=True)
     total_size = int(response.headers.get('content-length', 0))
 
     with open(filepath, "wb") as file:
-        for data in tqdm(response.iter_content(1024), total=total_size // 1024, unit='KB'):
-            file.write(data)
+        with tqdm(total=total_size, unit='B', unit_scale=True, desc=filepath) as pbar:
+            for chunk in response.iter_content(chunk_size=1024*1024):
+                if chunk:
+                    file.write(chunk)
+                    pbar.update(len(chunk))
 
+    print(f'----- Unziping files from {filepath}')
     shutil.unpack_archive(filepath, extract_dir=root)
-    os.remove(filepath)  # Remove the zip file after unpacking
+    os.remove(filepath)
 
     print('----- Download and unpack completed')
 
 
 @task
-def wrangling(root: str):
-    paths = os.listdir(root)
+def wrangling(input_dir: str, output_dir: str):
+    table_rename = br_rf_cno.TABLES_RENAME.value
+    columns_rename = br_rf_cno.COLUMNS_RENAME.value
+
+    paths = os.listdir(input_dir)
 
     for file in paths:
-        if file.endswith('.csv'):
+        if file.endswith('.csv') and file in table_rename:
+            k = file
+            v = table_rename[file]
+            print(f'----- Processing file {k}')
+            file_path = os.path.join(input_dir, file)
 
-            file_path = os.path.join(root, file)
+            df = pd.read_csv(file_path, dtype=str, encoding='latin-1', sep=',')
 
-            df = pd.read_csv(file_path, dtype=str, encoding='latin-1', sep=',', na_rep='')
+            if v in columns_rename:
+                df = df.rename(columns=columns_rename[v])
 
-            parquet_file = file.replace('.csv', '.parquet')
-            parquet_path = os.path.join(root, parquet_file)
+            parquet_file = v + '.parquet'
+            output_folder = os.path.join(output_dir, v)
+
+            os.makedirs(output_folder, exist_ok=True)
+
+            parquet_path = os.path.join(output_folder, parquet_file)
+
 
             df.to_parquet(parquet_path, index=False)
 
             os.remove(file_path)
+
+    print('----- Wrangling completed')

@@ -12,7 +12,10 @@ from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
 from pipelines.datasets.br_rf_cno.constants import constants as br_rf_cno_constants
-from pipelines.datasets.br_rf_cno.tasks import crawl_cno
+from pipelines.datasets.br_rf_cno.tasks import (
+    crawl_cno,
+    wrangling,
+    )
 
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -48,23 +51,64 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-
     data = crawl_cno(
         root='input',
         url=br_rf_cno_constants.URL.value
         )
 
-
+    files = wrangling(input_dir='input', output_dir='output')
 
     #3. subir tabelas para o Storage e materilizar no BQ usando map
     wait_upload_table = create_table_and_upload_to_gcs.map(
-        data_path=unmapped(f'input'),
+        data_path=unmapped(f'output'),
         dataset_id=unmapped(dataset_id),
         table_id=table_ids,
         dump_mode=unmapped("append"),
+        source_format='parquet',
         wait=data
     )
 
+    with case(materialize_after_dump, True):
+            # Trigger DBT flow run
+            current_flow_labels = get_current_flow_labels()
+            materialization_flow = create_flow_run(
+                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
+                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+                parameters={
+                    "dataset_id": dataset_id,
+                    "table_id": table_id,
+                    "mode": materialization_mode,
+                    "dbt_alias": dbt_alias,
+                },
+                labels=current_flow_labels,
+                run_name=f"Materialize {dataset_id}.{table_id}",
+            )
+
+            wait_for_materialization = wait_for_flow_run(
+                materialization_flow,
+                stream_states=True,
+                stream_logs=True,
+                raise_final_state=True,
+            )
+            wait_for_materialization.max_retries = (
+                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
+            )
+            wait_for_materialization.retry_delay = timedelta(
+                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+            )
+
+            with case(update_metadata, True):
+                update_django_metadata(
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"date": "date"},
+                    date_format="%Y-%m-%d",
+                    coverage_type="part_bdpro",
+                    time_delta={"months": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
+                    upstream_tasks=[wait_for_materialization],
+                )
 
 
 br_rf_cno.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
