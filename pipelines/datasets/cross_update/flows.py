@@ -28,60 +28,60 @@ from pipelines.utils.tasks import (
     rename_current_flow_run_dataset_table,
 )
 
-with Flow(
-    name="cross_update.update_nrows", code_owners=["lauris"]
-) as crossupdate_nrows:
-    dump_to_gcs = Parameter("dump_to_gcs", default=False, required=False)
-    update_metadata_table = Parameter(
-        "update_metadata_table", default=False, required=False
-    )
-    days = Parameter("days", default=7, required=False)
-    mode = Parameter("mode", default="prod", required=False)
-    current_flow_labels = get_current_flow_labels()
+# with Flow(
+#     name="cross_update.update_nrows", code_owners=["lauris"]
+# ) as crossupdate_nrows:
+#     dump_to_gcs = Parameter("dump_to_gcs", default=False, required=False)
+#     update_metadata_table = Parameter(
+#         "update_metadata_table", default=False, required=False
+#     )
+#     days = Parameter("days", default=7, required=False)
+#     mode = Parameter("mode", default="prod", required=False)
+#     current_flow_labels = get_current_flow_labels()
 
-    # Atualiza a tabela que contem os metadados do BQ
-    with case(update_metadata_table, True):
-        update_metadata_table_flow = create_flow_run(
-            flow_name="cross_update.update_metadata_table",
-            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-            parameters={"materialization_mode": mode},
-            labels=current_flow_labels,
-        )
+#     # Atualiza a tabela que contem os metadados do BQ
+#     with case(update_metadata_table, True):
+#         update_metadata_table_flow = create_flow_run(
+#             flow_name="cross_update.update_metadata_table",
+#             project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+#             parameters={"materialization_mode": mode},
+#             labels=current_flow_labels,
+#         )
 
-        wait_for_create_table = wait_for_flow_run(
-            update_metadata_table_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
+#         wait_for_create_table = wait_for_flow_run(
+#             update_metadata_table_flow,
+#             stream_states=True,
+#             stream_logs=True,
+#             raise_final_state=True,
+#         )
 
-    # Consulta e  seleciona apenas as tabelas que atendem os critérios de tamanho e abertura(bdpro)
+#     # Consulta e  seleciona apenas as tabelas que atendem os critérios de tamanho e abertura(bdpro)
 
-    eligible_to_zip_tables = query_tables(days=days, mode=mode)
-    tables_to_zip = filter_eligible_download_tables(
-        eligible_to_zip_tables, upstream_tasks=[eligible_to_zip_tables]
-    )
+#     eligible_to_zip_tables = query_tables(days=days, mode=mode)
+#     tables_to_zip = filter_eligible_download_tables(
+#         eligible_to_zip_tables, upstream_tasks=[eligible_to_zip_tables]
+#     )
 
-    # Para cada tabela selecionada cria um flow de dump para gcs
-    with case(dump_to_gcs, True):
-        dump_to_gcs_flow = create_flow_run.map(
-            flow_name=unmapped(utils_constants.FLOW_DUMP_TO_GCS_NAME.value),
-            project_name=unmapped(constants.PREFECT_DEFAULT_PROJECT.value),
-            parameters=tables_to_zip,
-            labels=unmapped(current_flow_labels),
-            run_name=unmapped("Dump to GCS"),
-        )
+#     # Para cada tabela selecionada cria um flow de dump para gcs
+#     with case(dump_to_gcs, True):
+#         dump_to_gcs_flow = create_flow_run.map(
+#             flow_name=unmapped(utils_constants.FLOW_DUMP_TO_GCS_NAME.value),
+#             project_name=unmapped(constants.PREFECT_DEFAULT_PROJECT.value),
+#             parameters=tables_to_zip,
+#             labels=unmapped(current_flow_labels),
+#             run_name=unmapped("Dump to GCS"),
+#         )
 
-        wait_for_dump_to_gcs = wait_for_flow_run.map(
-            dump_to_gcs_flow,
-            stream_states=unmapped(True),
-            stream_logs=unmapped(True),
-            raise_final_state=unmapped(True),
-        )
+#         wait_for_dump_to_gcs = wait_for_flow_run.map(
+#             dump_to_gcs_flow,
+#             stream_states=unmapped(True),
+#             stream_logs=unmapped(True),
+#             raise_final_state=unmapped(True),
+#         )
 
 
-crossupdate_nrows.storage = GCS(str(constants.GCS_FLOWS_BUCKET.value))
-crossupdate_nrows.run_config = KubernetesRun(image=str(constants.DOCKER_IMAGE.value))
+# crossupdate_nrows.storage = GCS(str(constants.GCS_FLOWS_BUCKET.value))
+# crossupdate_nrows.run_config = KubernetesRun(image=str(constants.DOCKER_IMAGE.value))
 #crossupdate_nrows.schedule = schedule_nrows
 
 with Flow(

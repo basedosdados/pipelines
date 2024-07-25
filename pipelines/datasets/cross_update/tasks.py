@@ -18,7 +18,7 @@ from pipelines.datasets.cross_update.utils import find_closed_tables, save_file
 from pipelines.utils.utils import log
 
 
-@task
+
 def query_tables(days: int = 7, mode: str = "dev") -> List[Dict[str, str]]:
     """
     Queries BigQuery Tables metadata to find elegible tables to zip.
@@ -179,3 +179,17 @@ def filter_eligible_download_tables(eligible_download_tables: List) -> List:
         log(f"{table['dataset_id']}.{table['table_id']}")
 
     return eligible_download_tables
+
+def get_all_tables_eligible_last_year(days, mode):
+    """
+    Docs refs function to get all tables eligible to download in the last year
+
+    """
+    results = []
+    to_zip = query_tables(days=days, mode=mode)
+    for key in range(len(to_zip)):
+        dataset_id = to_zip[key]["dataset_id"]
+        table_id = to_zip[key]["table_id"]
+
+        results.append((table_id, dataset_id))
+    return results

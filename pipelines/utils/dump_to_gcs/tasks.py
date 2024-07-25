@@ -14,7 +14,7 @@ from google.api_core.exceptions import NotFound
 from google.cloud import bigquery
 from prefect import task
 from google.cloud.bigquery import TableReference
-
+from pipelines.utils.utils import get_credentials_from_secret
 from pipelines.utils.dump_to_gcs.constants import constants as dump_to_gcs_constants
 from pipelines.utils.utils import (
     determine_whether_to_execute_or_not,
@@ -141,8 +141,8 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
     log(
         f"Query results were stored in {dest_project_id}.{dest_dataset_id}.{dest_table_id}"
     )
-
-    blob_path = f"gs://basedosdados-dev/datasets/teste/{dataset_id}/{table_id}/{table_id}_bdpro.csv.gz"
+    secret_path_url_download = get_credentials_from_secret(secret_path='url_download_data_test')
+    blob_path = f"{secret_path_url_download}{dataset_id}/{table_id}/{table_id}_bdpro.csv.gz"
 
     log(f"Loading data to {blob_path}")
     dataset_ref = bigquery.DatasetReference(dest_project_id, dest_dataset_id)
