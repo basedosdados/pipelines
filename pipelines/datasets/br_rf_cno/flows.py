@@ -56,7 +56,8 @@ with Flow(
         url=br_rf_cno_constants.URL.value
         )
 
-    files = wrangling(input_dir='input', output_dir='output')
+    files = wrangling(input_dir='input', output_dir='output',
+        upstream_tasks=[data])
 
     #3. subir tabelas para o Storage e materilizar no BQ usando map
     wait_upload_table = create_table_and_upload_to_gcs.map(
@@ -65,7 +66,7 @@ with Flow(
         table_id=table_ids,
         dump_mode=unmapped("append"),
         source_format='parquet',
-        wait=data
+        wait=files
     )
 
     with case(materialize_after_dump, True):
