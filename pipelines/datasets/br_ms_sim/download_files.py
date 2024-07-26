@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import requests
 import pandas as pd
 from datetime import datetime
@@ -22,7 +23,7 @@ def get_last_update_timestamp(organization_id: str, dataset_id: str, header: dic
     Returns:
         str: The last update timestamp in the format "YYYY-MM-DD HH:MM:SS" if found,
              or an empty string if the dataset ID is not found or if there was an error.
-    
+
     Raises:
         requests.exceptions.RequestException: If an error occurs during the request.
     """
@@ -68,7 +69,7 @@ def get_resources_response(dataset_id: str, header: dict[str, str]) -> dict[str,
         requests.exceptions.RequestException: If an error occurs during the request.
     """
     request_url = f"https://dados.gov.br/dados/api/publico/conjuntos-dados/{dataset_id}"
-    
+
     response = requests.get(url=request_url, headers=header)
     response.raise_for_status()
     return response.json()
