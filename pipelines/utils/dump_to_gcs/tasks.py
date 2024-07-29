@@ -14,7 +14,7 @@ from google.api_core.exceptions import NotFound
 from google.cloud import bigquery
 from prefect import task
 from google.cloud.bigquery import TableReference
-
+from pipelines.utils.dump_to_gcs.utils import execute_query_in_bigquery
 from pipelines.utils.dump_to_gcs.constants import constants as dump_to_gcs_constants
 from pipelines.utils.utils import (
     determine_whether_to_execute_or_not,
@@ -97,8 +97,7 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
     bq_table_ref = TableReference.from_string(f'{project_id}.{dataset_id}.{table_id}')
     bq_table = client["bigquery"].get_table(table = bq_table_ref)
     num_bytes = bq_table.num_bytes
-
-
+    log(f"Quantidade de linhas iniciais {bq_table.num_rows}")
     if num_bytes == 0:
         log("This table is views!")
         b = bd.Backend(graphql_url=get_url("prod"))
@@ -121,44 +120,24 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
 
         num_bytes = nodes[0]['node']['uncompressedFileSize']
 
-
+    log(num_bytes)
     if num_bytes > 1_000_000_000:
         log("Table is bigger than 1GB it is not in the download criteria")
         return None
 
-    log("Querying data for BDpro user")
-    job = client["bigquery"].query(query)
-    while not job.done():
-        sleep(1)
+    if 100_000_000 <= num_bytes <= 1_000_000_000: # Entre 1 GB e 100 MB, apenas BD pro
+        log("Querying data for BDpro user")
 
-    # results = job.to_dataframe() # ! Precisamos desse job.to_dataframe()? Ele serve só para mostrar um log e é custoso.
-    # log(results.head(5))
-    # pylint: disable=protected-access
-    dest_table = job._properties["configuration"]["query"]["destinationTable"]
-    dest_project_id = dest_table["projectId"]
-    dest_dataset_id = dest_table["datasetId"]
-    dest_table_id = dest_table["tableId"]
-    log(
-        f"Query results were stored in {dest_project_id}.{dest_dataset_id}.{dest_table_id}"
-    )
+        blob_path = f"{dump_to_gcs_constants.url_bdpro.value}{dataset_id}/{table_id}/{table_id}_bdpro.csv.gz"
+        execute_query_in_bigquery(billing_project_id = billing_project_id,
+                                query = query,
+                                path = blob_path,
+                                location = location)
 
-    blob_path = f"gs://basedosdados-dev/datasets/teste/{dataset_id}/{table_id}/{table_id}_bdpro.csv.gz"
+        log("BDPro Data was loaded successfully")
 
-    log(f"Loading data to {blob_path}")
-    dataset_ref = bigquery.DatasetReference(dest_project_id, dest_dataset_id)
-    table_ref = dataset_ref.table(dest_table_id)
-    job_config = bigquery.job.ExtractJobConfig(compression="GZIP")
-    extract_job = client["bigquery"].extract_table(
-        table_ref,
-        blob_path,
-        location=location,
-        job_config=job_config,
-    )
-    extract_job.result()
-    log("BDPro Data was loaded successfully")
+    if num_bytes < 100_000_000: # valor menor que 100 MB
 
-
-    if num_bytes < 100_000_000:
         # Try to remove bdpro access
         log("Trying to remove BDpro filter")
         try:
@@ -167,10 +146,14 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
             job = client["bigquery"].query(query_remove_bdpro)
             while not job.done():
                 sleep(1)
+
             log(job.result())
+
             log(
                 "Table has BDpro filter and it was removed so direct download contains only open rows"
             )
+
+
             bdpro = True
         except NotFound as e:
             if "Not found: Row access policy bdpro_filter on table" in str(e):
@@ -181,43 +164,38 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
         except Exception as e:
             raise ValueError(e)
 
+        log("this table is bdpro")
+
         log("Querying open data from BigQuery")
-        job = client["bigquery"].query(query)
-        while not job.done():
-            sleep(1)
 
-        # results = job.to_dataframe()
-        # log(results.head(5))
-        # pylint: disable=protected-access
-        dest_table = job._properties["configuration"]["query"]["destinationTable"]
-        dest_project_id = dest_table["projectId"]
-        dest_dataset_id = dest_table["datasetId"]
-        dest_table_id = dest_table["tableId"]
-        log(
-            f"Query results were stored in {dest_project_id}.{dest_dataset_id}.{dest_table_id}"
-        )
+        blob_path = f"{dump_to_gcs_constants.url_free.value}{dataset_id}/{table_id}/{table_id}.csv.gz"
+        execute_query_in_bigquery(billing_project_id = billing_project_id,
+                            query = query,
+                            path = blob_path,
+                            location = location)
 
-        blob_path = f"gs://basedosdados-dev/datasets/teste/{dataset_id}/{table_id}/{table_id}.csv.gz"
-        log(f"Loading data to {blob_path}")
-
-        job_config = bigquery.job.ExtractJobConfig(compression="GZIP")
-        extract_job = client["bigquery"].extract_table(
-            table_ref,
-            blob_path,
-            location=location,
-            job_config=job_config,
-        )
-        extract_job.result()
         log("Open data was loaded successfully")
 
         if bdpro:
             query_restore_bdpro_access = f'CREATE OR REPLACE ROW ACCESS POLICY bdpro_filter  ON  `{project_id}.{dataset_id}.{table_id}` GRANT TO ("group:bd-pro@basedosdados.org", "group:sudo@basedosdados.org") FILTER USING (TRUE)'
+
+            log(query_restore_bdpro_access)
             job = client["bigquery"].query(query_restore_bdpro_access)
+
             while not job.done():
                 sleep(1)
             log("BDpro filter was reestored")
 
+            log("---------------")
 
+            log("Querying Data closed from BigQuery")
+
+            blob_path = f"{dump_to_gcs_constants.url_bdpro.value}{dataset_id}/{table_id}/{table_id}_bdpro.csv.gz"
+            execute_query_in_bigquery(billing_project_id = billing_project_id,
+                                query = query,
+                                path = blob_path,
+                                location = location)
+            log("Data closed was loaded successfully")
 
 @task
 def get_project_id(
