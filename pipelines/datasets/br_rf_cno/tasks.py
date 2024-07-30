@@ -11,6 +11,11 @@ import requests
 import pandas as pd
 from tqdm import tqdm
 import shutil
+import subprocess
+import aiohttp
+import asyncio
+import pycurl
+import httpx
 
 from prefect import task
 
@@ -43,6 +48,13 @@ def check_need_for_update(url:str)-> None:
     else:
         raise ValueError(F"The Last update data was not found in --- URL {url}. The website HTML code might have changed")
 
+#tentei com requests;
+#tentei com urlib
+#pycurl
+#usando subprocess para usar o wget do linux
+#os headers da resposta mostram que aceita downloads em bytes paralelizados;
+
+
 
 @task
 def crawl_cno(root: str, url: str) -> None:
@@ -62,7 +74,7 @@ def crawl_cno(root: str, url: str) -> None:
                     file.write(chunk)
                     pbar.update(len(chunk))
 
-    print(f'----- Unziping files from {filepath}')
+    print(f'----- Unzipping files from {filepath}')
     shutil.unpack_archive(filepath, extract_dir=root)
     os.remove(filepath)
 
@@ -101,3 +113,53 @@ def wrangling(input_dir: str, output_dir: str):
             os.remove(file_path)
 
     print('----- Wrangling completed')
+
+
+
+
+async def download_chunk(client, url, start, end, filepath, semaphore, pbar):
+    headers = {"Range": f"bytes={start}-{end}"}
+    async with semaphore:
+        response = await client.get(url, headers=headers, timeout=60.0)
+        with open(filepath, "r+b") as f:
+            f.seek(start)
+            f.write(response.content)
+            pbar.update(len(response.content))
+
+async def download_file_async(root: str, url: str):
+    filepath = f"{root}/data.zip"
+    os.makedirs(root, exist_ok=True)
+
+    print(f'----- Downloading files from {url}')
+
+    async with httpx.AsyncClient() as client:
+        response = await client.head(url, timeout=60.0)
+        total_size = int(response.headers["content-length"])
+
+    # Create a file with the total size
+    with open(filepath, "wb") as f:
+        f.write(b"\0" * total_size)
+
+    chunk_size = 1024 * 1024 * 8  # 8 MB chunks
+    tasks = []
+    semaphore = asyncio.Semaphore(10)  # Limit to 10 concurrent downloads
+
+    with tqdm(total=total_size, unit='MB', unit_scale=True, desc=filepath) as pbar:
+        async with httpx.AsyncClient() as client:
+            for start in range(0, total_size, chunk_size):
+                end = min(start + chunk_size - 1, total_size - 1)
+                tasks.append(download_chunk(client, url, start, end, filepath, semaphore, pbar))
+            await asyncio.gather(*tasks)
+
+    print(f'----- Downloading completed')
+
+@task
+def crawl_cno_2(root: str, url: str) -> None:
+    asyncio.run(download_file_async(root, url))
+
+    # Unzip the file
+    filepath = f"{root}/data.zip"
+    print(f'----- Unzipping files from {filepath}')
+    shutil.unpack_archive(filepath, extract_dir=root)
+    os.remove(filepath)
+    print('----- Download and unpack completed')

@@ -15,6 +15,7 @@ from pipelines.datasets.br_rf_cno.constants import constants as br_rf_cno_consta
 from pipelines.datasets.br_rf_cno.tasks import (
     crawl_cno,
     wrangling,
+    crawl_cno_2
     )
 
 from pipelines.utils.constants import constants as utils_constants
@@ -51,7 +52,8 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    data = crawl_cno(
+
+    data = crawl_cno_2(
         root='input',
         url=br_rf_cno_constants.URL.value
         )
