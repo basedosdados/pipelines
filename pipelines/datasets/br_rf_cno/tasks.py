@@ -14,7 +14,6 @@ import shutil
 import subprocess
 import aiohttp
 import asyncio
-import pycurl
 import httpx
 
 from prefect import task
