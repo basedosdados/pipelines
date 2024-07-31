@@ -41,6 +41,7 @@ with Flow(
     dataset_id = Parameter("dataset_id", default="br_rf_cno", required=True)
     table_id = Parameter("table_id", default="microdados", required=True)
     table_ids = Parameter("table_ids", default=['microdados', 'areas', 'cnaes', 'vinculos'], required=False)
+    paths = Parameter("table_ids", default=['output/microdados', 'output/areas', 'output/cnaes', 'output/vinculos'], required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
     #url = Parameter("url", default=br_rf_cno_constants.URL.value, required=True)
     materialization_mode = Parameter(
@@ -87,7 +88,7 @@ with Flow(
 
         #3. subir tabelas para o Storage e materilizar no BQ usando map
         wait_upload_table = create_table_and_upload_to_gcs.map(
-            data_path=f'output/{table_ids}',
+            data_path=paths,
             dataset_id=unmapped(dataset_id),
             table_id=table_ids,
             dump_mode=unmapped("append"),
