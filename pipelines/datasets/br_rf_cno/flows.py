@@ -96,34 +96,34 @@ with Flow(
             wait=unmapped(files),
         )
 
-        # with case(materialize_after_dump, True):
-        #         # Trigger DBT flow run
-        #         current_flow_labels = get_current_flow_labels()
-        #         materialization_flow = create_flow_run.map(
-        #             flow_name=unmapped(utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value),
-        #             project_name=unmapped(constants.PREFECT_DEFAULT_PROJECT.value),
-        #             parameters={
-        #                 "dataset_id": dataset_id,
-        #                 "table_id": table_id,
-        #                 "mode": materialization_mode,
-        #                 "dbt_alias": dbt_alias,
-        #             },
-        #             labels=current_flow_labels,
-        #             run_name=unmapped(f"Materialize {dataset_id}.{table_id}"),
-        #         )
+        with case(materialize_after_dump, True):
+                # Trigger DBT flow run
+                current_flow_labels = get_current_flow_labels()
+                materialization_flow = create_flow_run.map(
+                    flow_name=unmapped(utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value),
+                    project_name=unmapped(constants.PREFECT_DEFAULT_PROJECT.value),
+                    parameters={
+                        "dataset_id": unmapped(dataset_id),
+                        "table_id": table_ids,
+                        "mode": unmapped(materialization_mode),
+                        "dbt_alias": unmapped(dbt_alias),
+                    },
+                    labels=unmapped(current_flow_labels),
+                    run_name=unmapped(f"Materialize {dataset_id}.{table_id}"),
+                )
 
-        #         wait_for_materialization = wait_for_flow_run(
-        #             materialization_flow,
-        #             stream_states=True,
-        #             stream_logs=True,
-        #             raise_final_state=True,
-        #         )
-        #         wait_for_materialization.max_retries = (
-        #             dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-        #         )
-        #         wait_for_materialization.retry_delay = timedelta(
-        #             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-        #         )
+                wait_for_materialization = wait_for_flow_run(
+                    materialization_flow,
+                    stream_states=True,
+                    stream_logs=True,
+                    raise_final_state=True,
+                )
+                wait_for_materialization.max_retries = (
+                    dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
+                )
+                wait_for_materialization.retry_delay = timedelta(
+                    seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+                )
 
         #         with case(update_metadata, True):
         #             update_django_metadata.map(
