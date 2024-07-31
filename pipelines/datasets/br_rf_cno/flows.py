@@ -16,7 +16,8 @@ from pipelines.datasets.br_rf_cno.tasks import (
     crawl_cno,
     wrangling,
     check_need_for_update,
-    crawl_cno_2
+    crawl_cno_2,
+    create_parameters_list,
     )
 
 from pipelines.utils.constants import constants as utils_constants
@@ -86,6 +87,7 @@ with Flow(
             partition_date=last_update_original_source,
             upstream_tasks=[data])
 
+
         #3. subir tabelas para o Storage e materilizar no BQ usando map
         wait_upload_table = create_table_and_upload_to_gcs.map(
             data_path=paths,
@@ -96,18 +98,20 @@ with Flow(
             wait=unmapped(files),
         )
 
+        dbt_parameters = create_parameters_list(
+             dataset_id = dataset_id,
+             table_ids = table_ids,
+             materialization_mode = materialization_mode,
+             dbt_alias = dbt_alias,
+        )
+
         with case(materialize_after_dump, True):
                 # Trigger DBT flow run
                 current_flow_labels = get_current_flow_labels()
                 materialization_flow = create_flow_run.map(
                     flow_name=unmapped(utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value),
                     project_name=unmapped(constants.PREFECT_DEFAULT_PROJECT.value),
-                    parameters={
-                        "dataset_id": unmapped(dataset_id),
-                        "table_id": table_ids,
-                        "mode": unmapped(materialization_mode),
-                        "dbt_alias": unmapped(dbt_alias),
-                    },
+                    parameters=dbt_parameters,
                     labels=unmapped(current_flow_labels),
                     run_name=unmapped(f"Materialize {dataset_id}.{table_id}"),
                 )

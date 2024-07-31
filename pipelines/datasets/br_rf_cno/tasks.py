@@ -165,3 +165,12 @@ def crawl_cno_2(root: str, url: str) -> None:
     shutil.unpack_archive(filepath, extract_dir=root)
     os.remove(filepath)
     print('----- Download and unpack completed')
+
+
+
+@task
+def create_parameters_list(dataset_id, table_ids, materialization_mode, dbt_alias):
+    return [
+        {"dataset_id": dataset_id, "table_id": table_id, "mode": materialization_mode, "dbt_alias": dbt_alias}
+        for table_id in table_ids
+    ]
