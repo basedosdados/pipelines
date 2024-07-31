@@ -87,7 +87,7 @@ with Flow(
 
         #3. subir tabelas para o Storage e materilizar no BQ usando map
         wait_upload_table = create_table_and_upload_to_gcs.map(
-            data_path=unmapped(f'output'),
+            data_path=unmapped('output'),
             dataset_id=unmapped(dataset_id),
             table_id=table_ids,
             dump_mode=unmapped("append"),

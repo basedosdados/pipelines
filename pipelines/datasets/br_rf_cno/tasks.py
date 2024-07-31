@@ -105,7 +105,7 @@ def wrangling(input_dir: str, output_dir: str, partition_date: str):
                 df = df.rename(columns=columns_rename[v])
 
             parquet_file = v + '.parquet'
-            partition_folder = f'data_extracao={partition_date}'
+            partition_folder = f'data={partition_date}'
             output_folder = os.path.join(output_dir, v, partition_folder)
 
             os.makedirs(output_folder, exist_ok=True)
