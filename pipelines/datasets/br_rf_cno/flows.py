@@ -113,7 +113,7 @@ with Flow(
                     project_name=unmapped(constants.PREFECT_DEFAULT_PROJECT.value),
                     parameters=dbt_parameters,
                     labels=unmapped(current_flow_labels),
-                    run_name=unmapped(f"Materialize {dataset_id}.{table_id}"),
+                    run_name=f"Materialize {dataset_id}.{table_ids}",
                 )
 
                 wait_for_materialization = wait_for_flow_run(
