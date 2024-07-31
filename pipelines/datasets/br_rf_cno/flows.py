@@ -87,7 +87,7 @@ with Flow(
 
         #3. subir tabelas para o Storage e materilizar no BQ usando map
         wait_upload_table = create_table_and_upload_to_gcs.map(
-            data_path=unmapped('output'),
+            data_path=f'output/{table_ids}',
             dataset_id=unmapped(dataset_id),
             table_id=table_ids,
             dump_mode=unmapped("append"),
@@ -99,8 +99,8 @@ with Flow(
         #         # Trigger DBT flow run
         #         current_flow_labels = get_current_flow_labels()
         #         materialization_flow = create_flow_run.map(
-        #             flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-        #             project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+        #             flow_name=unmapped(utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value),
+        #             project_name=unmapped(constants.PREFECT_DEFAULT_PROJECT.value),
         #             parameters={
         #                 "dataset_id": dataset_id,
         #                 "table_id": table_id,
@@ -108,7 +108,7 @@ with Flow(
         #                 "dbt_alias": dbt_alias,
         #             },
         #             labels=current_flow_labels,
-        #             run_name=f"Materialize {dataset_id}.{table_id}",
+        #             run_name=unmapped(f"Materialize {dataset_id}.{table_id}"),
         #         )
 
         #         wait_for_materialization = wait_for_flow_run(

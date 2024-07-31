@@ -160,7 +160,6 @@ async def download_file_async(root: str, url: str):
 def crawl_cno_2(root: str, url: str) -> None:
     asyncio.run(download_file_async(root, url))
 
-    # Unzip the file
     filepath = f"{root}/data.zip"
     print(f'----- Unzipping files from {filepath}')
     shutil.unpack_archive(filepath, extract_dir=root)
