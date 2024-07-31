@@ -86,7 +86,7 @@ def wrangling(input_dir: str, output_dir: str, partition_date: str):
     # Validate the partition_date format
     try:
         partition_date = datetime.strptime(partition_date, '%Y-%m-%d')
-        partition_date = partition_date_obj.strftime('%Y-%m-%d')
+        partition_date = partition_date.strftime('%Y-%m-%d')
     except ValueError:
         log('Invalid partition_date format.')
 
