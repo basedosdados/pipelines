@@ -41,7 +41,7 @@ with Flow(
     dataset_id = Parameter("dataset_id", default="br_rf_cno", required=True)
     table_id = Parameter("table_id", default="microdados", required=True)
     table_ids = Parameter("table_ids", default=['microdados', 'areas', 'cnaes', 'vinculos'], required=False)
-    paths = Parameter("table_ids", default=['output/microdados', 'output/areas', 'output/cnaes', 'output/vinculos'], required=False)
+    paths = Parameter("paths", default=['output/microdados', 'output/areas', 'output/cnaes', 'output/vinculos'], required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
     #url = Parameter("url", default=br_rf_cno_constants.URL.value, required=True)
     materialization_mode = Parameter(
