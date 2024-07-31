@@ -16,6 +16,6 @@ class constants(Enum):  # pylint: disable=c0103
     url_path = get_credentials_from_secret('url_download_data_test')
     secret_path_url = url_path['URL_DOWNLOAD_DATA_TEST']
 
-    url_bdpro = "gs//basedosdados-downloads/bdpro/"
-    url_free = "gs//basedosdados-downloads/bdfree/"
+    url_bdpro = "gs://basedosdados-downloads/bdpro/"
+    url_free = "gs://basedosdados-downloads/bdfree/"
 
