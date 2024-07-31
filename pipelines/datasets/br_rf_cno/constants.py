@@ -10,6 +10,7 @@ from enum import Enum
 class constants(Enum):
 
     URL = "http://dadosabertos.rfb.gov.br/CNO/cno.zip"
+    URL_FTP = "http://dadosabertos.rfb.gov.br/CNO"
 
     TABLES_RENAME = {
         'cno.csv': 'microdados',

@@ -15,6 +15,7 @@ from pipelines.datasets.br_rf_cno.constants import constants as br_rf_cno_consta
 from pipelines.datasets.br_rf_cno.tasks import (
     crawl_cno,
     wrangling,
+    check_need_for_update,
     crawl_cno_2
     )
 
@@ -32,14 +33,16 @@ from pipelines.utils.tasks import (
     rename_current_flow_run_dataset_table,
 )
 
+
 with Flow(
     name="br_rf_cno.tables", code_owners=["Gabriel Pisa"]
 ) as br_rf_cno_tables:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_rf_cno", required=True)
-    table_id = Parameter("table_id", default="tables", required=False)
+    table_id = Parameter("table_id", default="microdados", required=True)
     table_ids = Parameter("table_ids", default=['microdados', 'areas', 'cnaes', 'vinculos'], required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
+    #url = Parameter("url", default=br_rf_cno_constants.URL.value, required=True)
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -52,66 +55,87 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-
-    data = crawl_cno_2(
-        root='input',
-        url=br_rf_cno_constants.URL.value
-        )
-
-    files = wrangling(input_dir='input', output_dir='output',
-        upstream_tasks=[data])
-
-    #3. subir tabelas para o Storage e materilizar no BQ usando map
-    wait_upload_table = create_table_and_upload_to_gcs.map(
-        data_path=unmapped(f'output'),
-        dataset_id=unmapped(dataset_id),
-        table_id=table_ids,
-        dump_mode=unmapped("append"),
-        source_format=unmapped('parquet'),
-        wait=unmapped(files),
+    last_update_original_source = check_need_for_update(
+        url=br_rf_cno_constants.URL_FTP.value
     )
 
-    # with case(materialize_after_dump, True):
-    #         # Trigger DBT flow run
-    #         current_flow_labels = get_current_flow_labels()
-    #         materialization_flow = create_flow_run(
-    #             flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-    #             project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-    #             parameters={
-    #                 "dataset_id": dataset_id,
-    #                 "table_id": table_id,
-    #                 "mode": materialization_mode,
-    #                 "dbt_alias": dbt_alias,
-    #             },
-    #             labels=current_flow_labels,
-    #             run_name=f"Materialize {dataset_id}.{table_id}",
-    #         )
 
-    #         wait_for_materialization = wait_for_flow_run(
-    #             materialization_flow,
-    #             stream_states=True,
-    #             stream_logs=True,
-    #             raise_final_state=True,
-    #         )
-    #         wait_for_materialization.max_retries = (
-    #             dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-    #         )
-    #         wait_for_materialization.retry_delay = timedelta(
-    #             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-    #         )
+    check_if_outdated = check_if_data_is_outdated(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        data_source_max_date=last_update_original_source,
+        date_format="%Y-%m-%d",
+        upstream_tasks=[last_update_original_source],
+    )
 
-    #         with case(update_metadata, True):
-    #             update_django_metadata(
-    #                 dataset_id=dataset_id,
-    #                 table_id=table_id,
-    #                 date_column_name={"date": "data_atualizacao"},
-    #                 date_format="%Y-%m-%d",
-    #                 coverage_type="part_bdpro",
-    #                 time_delta={"months": 6},
-    #                 prefect_mode=materialization_mode,
-    #                 bq_project="basedosdados",
-    #                 upstream_tasks=[wait_for_materialization],
-    #             )
+    with case(check_if_outdated, False):
+        log_task(f"Não há atualizações para a tabela de {table_id}!")
+
+    with case(check_if_outdated, True):
+        log_task("Existem atualizações! A run será inciada")
+
+        data = crawl_cno_2(
+            root='input',
+            url=br_rf_cno_constants.URL.value
+            )
+
+        files = wrangling(
+            input_dir='input',
+            output_dir='output',
+            partition_date=last_update_original_source,
+            upstream_tasks=[data])
+
+        #3. subir tabelas para o Storage e materilizar no BQ usando map
+        wait_upload_table = create_table_and_upload_to_gcs.map(
+            data_path=unmapped(f'output'),
+            dataset_id=unmapped(dataset_id),
+            table_id=table_ids,
+            dump_mode=unmapped("append"),
+            source_format=unmapped('parquet'),
+            wait=unmapped(files),
+        )
+
+        # with case(materialize_after_dump, True):
+        #         # Trigger DBT flow run
+        #         current_flow_labels = get_current_flow_labels()
+        #         materialization_flow = create_flow_run.map(
+        #             flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
+        #             project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+        #             parameters={
+        #                 "dataset_id": dataset_id,
+        #                 "table_id": table_id,
+        #                 "mode": materialization_mode,
+        #                 "dbt_alias": dbt_alias,
+        #             },
+        #             labels=current_flow_labels,
+        #             run_name=f"Materialize {dataset_id}.{table_id}",
+        #         )
+
+        #         wait_for_materialization = wait_for_flow_run(
+        #             materialization_flow,
+        #             stream_states=True,
+        #             stream_logs=True,
+        #             raise_final_state=True,
+        #         )
+        #         wait_for_materialization.max_retries = (
+        #             dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
+        #         )
+        #         wait_for_materialization.retry_delay = timedelta(
+        #             seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+        #         )
+
+        #         with case(update_metadata, True):
+        #             update_django_metadata.map(
+        #                 dataset_id=unmapped(dataset_id),
+        #                 table_id=table_ids,
+        #                 date_column_name=unmapped({"date": "data_atualizacao"}),
+        #                 date_format=unmapped("%Y-%m-%d"),
+        #                 coverage_type=unmapped("part_bdpro"),
+        #                 time_delta=unmapped({"months": 6}),
+        #                 prefect_mode=unmapped(materialization_mode),
+        #                 bq_project=unmapped("basedosdados"),
+        #                 upstream_tasks=unmapped([wait_for_materialization]),
+        #             )
 
 
 br_rf_cno_tables.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

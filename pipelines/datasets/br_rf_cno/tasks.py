@@ -25,13 +25,11 @@ from pipelines.utils.utils import log
 
 @task
 def check_need_for_update(url:str)-> None:
-
+    log('---- Extracting most recent update date from CNO FTP')
     response = requests.get(url)
 
     if response.status_code != 200:
         raise requests.HTTPError(f"HTTP error occurred: Status code {response.status_code}")
-
-    Log('---- Checking need for update')
 
     soup = BeautifulSoup(response.content, 'html.parser')
     element = soup.select_one('table tr:nth-of-type(4) td:nth-of-type(3)')
@@ -41,7 +39,7 @@ def check_need_for_update(url:str)-> None:
 
         date_obj = datetime.strptime(date_text, "%Y-%m-%d %H:%M")
         formatted_date = date_obj.strftime("%Y-%m-%d")
-
+        log(f'---- The last update in original source occured in: {formatted_date}')
         return formatted_date
 
     else:
@@ -61,7 +59,7 @@ def crawl_cno(root: str, url: str) -> None:
     filepath = f"{root}/data.zip"
     os.makedirs(root, exist_ok=True)
 
-    print(f'----- Downloading files from {url}')
+    log(f'----- Downloading files from {url}')
 
     response = requests.get(url, timeout=300, stream=True)
     total_size = int(response.headers.get('content-length', 0))
@@ -73,17 +71,24 @@ def crawl_cno(root: str, url: str) -> None:
                     file.write(chunk)
                     pbar.update(len(chunk))
 
-    print(f'----- Unzipping files from {filepath}')
+    log(f'----- Unzipping files from {filepath}')
     shutil.unpack_archive(filepath, extract_dir=root)
     os.remove(filepath)
 
-    print('----- Download and unpack completed')
+    log('----- Download and unpack completed')
 
 
 @task
-def wrangling(input_dir: str, output_dir: str):
+def wrangling(input_dir: str, output_dir: str, partition_date: str):
     table_rename = br_rf_cno.TABLES_RENAME.value
     columns_rename = br_rf_cno.COLUMNS_RENAME.value
+
+    # Validate the partition_date format
+    try:
+        partition_date = datetime.strptime(partition_date, '%Y-%m-%d')
+        partition_date = partition_date_obj.strftime('%Y-%m-%d')
+    except ValueError:
+        log('Invalid partition_date format.')
 
     paths = os.listdir(input_dir)
 
@@ -91,7 +96,7 @@ def wrangling(input_dir: str, output_dir: str):
         if file.endswith('.csv') and file in table_rename:
             k = file
             v = table_rename[file]
-            print(f'----- Processing file {k}')
+            log(f'----- Processing file {k}')
             file_path = os.path.join(input_dir, file)
 
             df = pd.read_csv(file_path, dtype=str, encoding='latin-1', sep=',')
@@ -100,19 +105,18 @@ def wrangling(input_dir: str, output_dir: str):
                 df = df.rename(columns=columns_rename[v])
 
             parquet_file = v + '.parquet'
-            output_folder = os.path.join(output_dir, v)
+            partition_folder = f'data_extracao={partition_date}'
+            output_folder = os.path.join(output_dir, v, partition_folder)
 
             os.makedirs(output_folder, exist_ok=True)
 
             parquet_path = os.path.join(output_folder, parquet_file)
 
-
             df.to_parquet(parquet_path, index=False)
 
             os.remove(file_path)
 
-    print('----- Wrangling completed')
-
+    log('----- Wrangling completed')
 
 
 
@@ -139,9 +143,9 @@ async def download_file_async(root: str, url: str):
     with open(filepath, "wb") as f:
         f.write(b"\0" * total_size)
 
-    chunk_size = 1024 * 1024 * 8  # 8 MB chunks
+    chunk_size = 1024 * 1024 * 16  # 8 MB chunks
     tasks = []
-    semaphore = asyncio.Semaphore(10)  # Limit to 10 concurrent downloads
+    semaphore = asyncio.Semaphore(5)  # Limit to 10 concurrent downloads
 
     with tqdm(total=total_size, unit='MB', unit_scale=True, desc=filepath) as pbar:
         async with httpx.AsyncClient() as client:
