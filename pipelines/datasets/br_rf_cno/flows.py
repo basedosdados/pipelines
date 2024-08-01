@@ -71,7 +71,7 @@ with Flow(
     )
 
     with case(check_if_outdated, False):
-        log_task(f"Não há atualizações para a tabela de {table_id}!")
+        log_task(f"Não há atualizações para a tabela de {table_id}!!")
 
     with case(check_if_outdated, True):
         log_task("Existem atualizações! A run será inciada")
@@ -116,11 +116,11 @@ with Flow(
                     run_name=f"Materialize {dataset_id}.{table_ids}",
                 )
 
-                wait_for_materialization = wait_for_flow_run(
+                wait_for_materialization = wait_for_flow_run.map(
                     materialization_flow,
-                    stream_states=True,
-                    stream_logs=True,
-                    raise_final_state=True,
+                    stream_states=unmapped(True),
+                    stream_logs=unmapped(True),
+                    raise_final_state=unmapped(True),
                 )
                 wait_for_materialization.max_retries = (
                     dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
