@@ -145,7 +145,7 @@ br_comex_municipio_exportacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_comex_municipio_exportacao.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-#br_comex_municipio_exportacao.schedule = schedule_municipio_exportacao
+br_comex_municipio_exportacao.schedule = schedule_municipio_exportacao
 
 
 with Flow(
@@ -254,7 +254,7 @@ br_comex_municipio_importacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_comex_municipio_importacao.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-#br_comex_municipio_importacao.schedule = schedule_municipio_importacao
+br_comex_municipio_importacao.schedule = schedule_municipio_importacao
 
 
 with Flow(
