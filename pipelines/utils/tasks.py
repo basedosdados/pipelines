@@ -70,7 +70,6 @@ def create_table_and_upload_to_gcs(
     """
     Create table using BD+ and upload to GCS.
     """
-    log(f'THE TABLED ID IS {table_id} and the DATA_PATH {data_path}')
     bd_version = bd.__version__
     log(f"USING BASEDOSDADOS {bd_version}")
     # pylint: disable=C0103
