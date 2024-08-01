@@ -169,9 +169,17 @@ def crawl_cno_2(root: str, url: str) -> None:
 
 
 @task
-def create_parameters_list(dataset_id, table_ids, materialization_mode, dbt_alias):
+def create_parameters_list(dataset_id, table_ids, materialization_mode, dbt_alias, dbt_command, disable_elementary, download_csv_file):
     log('----- Generating DBT parameters for Materilization Flow')
     return [
-        {"dataset_id": dataset_id, "table_id": table_id, "mode": materialization_mode, "dbt_alias": dbt_alias}
+        {
+            "dataset_id": dataset_id,
+            "table_id": table_id,
+            "mode": materialization_mode,
+            "dbt_alias": dbt_alias,
+            "dbt_command" : dbt_command,
+            "disable_elementary" : disable_elementary,
+            "download_csv_file" : download_csv_file}
+
         for table_id in table_ids
     ]

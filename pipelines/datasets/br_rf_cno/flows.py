@@ -10,8 +10,10 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
+
 from pipelines.constants import constants
 from pipelines.datasets.br_rf_cno.constants import constants as br_rf_cno_constants
+from pipelines.datasets.br_rf_cno.schedules import schedule_br_rf_cno
 from pipelines.datasets.br_rf_cno.tasks import (
     crawl_cno,
     wrangling,
@@ -51,7 +53,7 @@ with Flow(
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
@@ -103,6 +105,9 @@ with Flow(
              table_ids = table_ids,
              materialization_mode = materialization_mode,
              dbt_alias = dbt_alias,
+             download_csv_file = False,
+             dbt_command = 'run',
+             disable_elementary = True,
         )
 
         with case(materialize_after_dump, True):
@@ -129,21 +134,22 @@ with Flow(
                     seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
                 )
 
-        #         with case(update_metadata, True):
-        #             update_django_metadata.map(
-        #                 dataset_id=unmapped(dataset_id),
-        #                 table_id=table_ids,
-        #                 date_column_name=unmapped({"date": "data_atualizacao"}),
-        #                 date_format=unmapped("%Y-%m-%d"),
-        #                 coverage_type=unmapped("part_bdpro"),
-        #                 time_delta=unmapped({"months": 6}),
-        #                 prefect_mode=unmapped(materialization_mode),
-        #                 bq_project=unmapped("basedosdados"),
-        #                 upstream_tasks=unmapped([wait_for_materialization]),
-        #             )
+                with case(update_metadata, True):
+                    update_django_metadata.map(
+                        dataset_id=unmapped(dataset_id),
+                        table_id=table_ids,
+                        date_column_name=unmapped({"date": "data"}),
+                        date_format=unmapped("%Y-%m-%d"),
+                        coverage_type=unmapped("part_bdpro"),
+                        time_delta=unmapped({"months": 6}),
+                        prefect_mode=unmapped(materialization_mode),
+                        bq_project=unmapped("basedosdados"),
+                        upstream_tasks=unmapped([wait_for_materialization]),
+                    )
 
 
 br_rf_cno_tables.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_rf_cno_tables.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
+br_rf_cno_tables.schedule = schedule_br_rf_cno
