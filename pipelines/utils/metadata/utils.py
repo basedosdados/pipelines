@@ -413,13 +413,11 @@ def create_update(
                 }}
                 }}
             """
-    log(f"Mutation query: {query}")
+
     if update is True and not isinstance(id, type(None)):
         mutation_parameters["id"] = id
 
-    breakpoint()
     response = backend._execute_query(query,variables = {"input": mutation_parameters}, headers=get_headers(backend))
-    breakpoint()
     response["r"] = "mutation"
     id = response[mutation_class][_classe]["id"]
     id = id.split(":")[1]
