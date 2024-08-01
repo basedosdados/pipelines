@@ -144,7 +144,7 @@ with Flow(
                         time_delta=unmapped({"months": 6}),
                         prefect_mode=unmapped(materialization_mode),
                         bq_project=unmapped("basedosdados"),
-                        upstream_tasks=unmapped([wait_for_materialization]),
+                        upstream_tasks=[wait_for_materialization],
                     )
 
 
