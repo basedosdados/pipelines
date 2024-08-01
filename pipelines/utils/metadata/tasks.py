@@ -197,9 +197,10 @@ def check_if_data_is_outdated(
         bool: TRUE se a data da fonte original for maior que a data mais recente registrada na API e FALSE caso contrário.
     """
     backend = bd.Backend(graphql_url=get_url(api_mode))
-
+    breakpoint()
     if type(data_source_max_date) is datetime:
         data_source_max_date = data_source_max_date.date()
+
     if type(data_source_max_date) is str:
         data_source_max_date = datetime.strptime(
             data_source_max_date, date_format

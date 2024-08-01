@@ -42,6 +42,7 @@ def get_data_source_anp_max_date():
     data_obj = data_obj.apply(lambda x: pd.to_datetime(x).strftime("%Y-%m-%d"))
     data_obj = pd.to_datetime(data_obj, format="%Y-%m-%d").dt.date
     data_obj = data_obj.max()
+    breakpoint()
     return data_obj
 
 

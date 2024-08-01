@@ -3,8 +3,9 @@
 Tasks for br_ms_cnes
 """
 
-
+import datetime
 import asyncio
+from dateutil import parser
 import os
 from datetime import timedelta
 from ftplib import FTP
@@ -395,11 +396,22 @@ def get_last_modified_date_in_sinan_tablen(
         # Extraindo a data do primeiro arquivo listado
         if files:
             first_file = files[0]
+            log(first_file)
             file_info = first_file.split()
             if len(file_info) >= 4:
                 select_date = file_info[0]  # A data está na primeira posição
-                file_date = datetime.strptime(select_date, "%m-%d-%y").strftime("%y-%m-%d")
-                final_date = pd.to_datetime(file_date, format='%y-%m-%d')
+                data_original_obj = datetime.strptime(select_date, "%m-%d-%y")
+
+                diferenca_dias = timedelta(days=6)
+                diferenca_horas = timedelta(hours=16, minutes=27, seconds=9)
+                data_final_obj = data_original_obj + diferenca_dias + diferenca_horas
+                data_formatada_str = data_final_obj.strftime("%Y-%m-%dT%H:%M:%S")
+
+
+                # data_original_obj = datetime.strptime(select_date, "%m-%d-%y")
+                # data_formatada_str = data_original_obj.strftime("%Y-%m-%d")
+                # data_format_obj = pd.to_datetime(data_formatada_str, format="%Y-%m-%d").date()
+                breakpoint()
                 #sys.stdout.write(file_date + "\n")
     ftp.close()
-    return final_date
+    return data_formatada_str
