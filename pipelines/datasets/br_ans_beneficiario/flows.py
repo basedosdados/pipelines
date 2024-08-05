@@ -45,7 +45,7 @@ with Flow(
     table_id = Parameter("table_id", default="informacao_consolidada", required=False)
     url = Parameter(
         "url",
-        default="https://dadosabertos.ans.gov.br/FTP/PDA/informacoes_consolidadas_de_beneficiarios/",
+        default="https://dadosabertos.ans.gov.br/FTP/PDA/informacoes_consolidadas_de_beneficiarios-024/",
         required=False,
     )
     update_metadata = Parameter("update_metadata", default=False, required=False)
