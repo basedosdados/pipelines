@@ -19,8 +19,7 @@ from pipelines.constants import constants
 schedule_br_rf_cno = Schedule(
     clocks=[
         CronClock(
-            #trocar cron clock
-            cron="0 0 * * *",
+            cron="5 4 * * 2,5", #At 04:05 on Tuesday and Friday
             start_date=datetime(2023, 9, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
