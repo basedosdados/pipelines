@@ -15,10 +15,9 @@ from pipelines.constants import constants
 from pipelines.datasets.br_rf_cno.constants import constants as br_rf_cno_constants
 from pipelines.datasets.br_rf_cno.schedules import schedule_br_rf_cno
 from pipelines.datasets.br_rf_cno.tasks import (
-    crawl_cno,
     wrangling,
     check_need_for_update,
-    crawl_cno_2,
+    crawl_cno,
     create_parameters_list,
     )
 
@@ -78,7 +77,7 @@ with Flow(
     with case(check_if_outdated, True):
         log_task("Existem atualizações! A run será inciada")
 
-        data = crawl_cno_2(
+        data = crawl_cno(
             root='input',
             url=br_rf_cno_constants.URL.value
             )
@@ -105,7 +104,7 @@ with Flow(
              table_ids = table_ids,
              materialization_mode = materialization_mode,
              dbt_alias = dbt_alias,
-             download_csv_file = False,
+             download_csv_file = True,
              dbt_command = 'run',
              disable_elementary = True,
         )

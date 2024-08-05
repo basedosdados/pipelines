@@ -3,28 +3,36 @@
 Tasks for br_rf_cno
 """
 
-
 import os
 from bs4 import BeautifulSoup
 from datetime import datetime
 import requests
 import pandas as pd
-from tqdm import tqdm
 import shutil
-import subprocess
-import aiohttp
 import asyncio
-import httpx
 
 from prefect import task
 
 from pipelines.datasets.br_rf_cno.constants import constants as br_rf_cno
+from pipelines.datasets.br_rf_cno.utils import *
 from pipelines.utils.utils import log
 
 
-
 @task
-def check_need_for_update(url:str)-> None:
+def check_need_for_update(url: str) -> str:
+    """
+    Checks the need for an update by extracting the most recent update date from the CNO FTP.
+
+    Args:
+        url (str): The URL of the CNO FTP site.
+
+    Returns:
+        str: The date of the last update in the original source in 'YYYY-MM-DD' format.
+
+    Raises:
+        requests.HTTPError: If there is an HTTP error when making the request.
+        ValueError: If the last update date is not found in the URL.
+    """
     log('---- Extracting most recent update date from CNO FTP')
     response = requests.get(url)
 
@@ -36,54 +44,31 @@ def check_need_for_update(url:str)-> None:
 
     if element:
         date_text = element.get_text(strip=True)
-
         date_obj = datetime.strptime(date_text, "%Y-%m-%d %H:%M")
         formatted_date = date_obj.strftime("%Y-%m-%d")
-        log(f'---- The last update in original source occured in: {formatted_date}')
+        log(f'---- The last update in original source occurred in: {formatted_date}')
         return formatted_date
 
     else:
-        raise ValueError(F"The Last update data was not found in --- URL {url}. The website HTML code might have changed")
-
-#tentei com requests;
-#tentei com urlib
-#pycurl
-#usando subprocess para usar o wget do linux
-#os headers da resposta mostram que aceita downloads em bytes paralelizados;
-
+        raise ValueError(f"The Last update data was not found in --- URL {url}. The website HTML code might have changed")
 
 
 @task
-def crawl_cno(root: str, url: str) -> None:
-    """Download and unzip tables from br_rf_cno"""
-    filepath = f"{root}/data.zip"
-    os.makedirs(root, exist_ok=True)
+def wrangling(input_dir: str, output_dir: str, partition_date: str) -> None:
+    """
+    Processes and converts CSV files to Parquet format, renaming tables and columns as specified.
 
-    log(f'----- Downloading files from {url}')
+    Args:
+        input_dir (str): The directory where the input CSV files are located.
+        output_dir (str): The directory where the output Parquet files will be saved.
+        partition_date (str): The partition date to be used in the output directory structure.
 
-    response = requests.get(url, timeout=300, stream=True)
-    total_size = int(response.headers.get('content-length', 0))
-
-    with open(filepath, "wb") as file:
-        with tqdm(total=total_size, unit='B', unit_scale=True, desc=filepath) as pbar:
-            for chunk in response.iter_content(chunk_size=1024*1024):
-                if chunk:
-                    file.write(chunk)
-                    pbar.update(len(chunk))
-
-    log(f'----- Unzipping files from {filepath}')
-    shutil.unpack_archive(filepath, extract_dir=root)
-    os.remove(filepath)
-
-    log('----- Download and unpack completed')
-
-
-@task
-def wrangling(input_dir: str, output_dir: str, partition_date: str):
+    Returns:
+        None
+    """
     table_rename = br_rf_cno.TABLES_RENAME.value
     columns_rename = br_rf_cno.COLUMNS_RENAME.value
 
-    # Validate the partition_date format
     try:
         partition_date = datetime.strptime(partition_date, '%Y-%m-%d')
         partition_date = partition_date.strftime('%Y-%m-%d')
@@ -119,45 +104,18 @@ def wrangling(input_dir: str, output_dir: str, partition_date: str):
     log('----- Wrangling completed')
 
 
-
-async def download_chunk(client, url, start, end, filepath, semaphore, pbar):
-    headers = {"Range": f"bytes={start}-{end}"}
-    async with semaphore:
-        response = await client.get(url, headers=headers, timeout=60.0)
-        with open(filepath, "r+b") as f:
-            f.seek(start)
-            f.write(response.content)
-            pbar.update(len(response.content))
-
-async def download_file_async(root: str, url: str):
-    filepath = f"{root}/data.zip"
-    os.makedirs(root, exist_ok=True)
-
-    print(f'----- Downloading files from {url}')
-
-    async with httpx.AsyncClient() as client:
-        response = await client.head(url, timeout=60.0)
-        total_size = int(response.headers["content-length"])
-
-    # Create a file with the total size
-    with open(filepath, "wb") as f:
-        f.write(b"\0" * total_size)
-
-    chunk_size = 1024 * 1024 * 16  # 8 MB chunks
-    tasks = []
-    semaphore = asyncio.Semaphore(5)  # Limit to 10 concurrent downloads
-
-    with tqdm(total=total_size, unit='MB', unit_scale=True, desc=filepath) as pbar:
-        async with httpx.AsyncClient() as client:
-            for start in range(0, total_size, chunk_size):
-                end = min(start + chunk_size - 1, total_size - 1)
-                tasks.append(download_chunk(client, url, start, end, filepath, semaphore, pbar))
-            await asyncio.gather(*tasks)
-
-    print(f'----- Downloading completed')
-
 @task
-def crawl_cno_2(root: str, url: str) -> None:
+def crawl_cno(root: str, url: str) -> None:
+    """
+    Downloads and unpacks a ZIP file from the given URL.
+
+    Args:
+        root (str): The root directory where the file will be saved and unpacked.
+        url (str): The URL of the ZIP file to be downloaded.
+
+    Returns:
+        None
+    """
     asyncio.run(download_file_async(root, url))
 
     filepath = f"{root}/data.zip"
@@ -167,19 +125,41 @@ def crawl_cno_2(root: str, url: str) -> None:
     print('----- Download and unpack completed')
 
 
-
 @task
-def create_parameters_list(dataset_id, table_ids, materialization_mode, dbt_alias, dbt_command, disable_elementary, download_csv_file):
-    log('----- Generating DBT parameters for Materilization Flow')
+def create_parameters_list(
+    dataset_id: str,
+    table_ids: list,
+    materialization_mode: str,
+    dbt_alias: str,
+    dbt_command: str,
+    disable_elementary: bool,
+    download_csv_file: bool
+) -> list:
+    """
+    Generates a list of parameters for the DBT materialization flow.
+
+    Args:
+        dataset_id (str): The dataset ID.
+        table_ids (list): A list of table IDs.
+        materialization_mode (str): The materialization mode.
+        dbt_alias (str): The DBT alias.
+        dbt_command (str): The DBT command.
+        disable_elementary (bool): Whether to disable elementary.
+        download_csv_file (bool): Whether to download the CSV file.
+
+    Returns:
+        list: A list of dictionaries containing the parameters for each table.
+    """
+    log('----- Generating DBT parameters for Materialization Flow')
     return [
         {
             "dataset_id": dataset_id,
             "table_id": table_id,
             "mode": materialization_mode,
             "dbt_alias": dbt_alias,
-            "dbt_command" : dbt_command,
-            "disable_elementary" : disable_elementary,
-            "download_csv_file" : download_csv_file}
-
+            "dbt_command": dbt_command,
+            "disable_elementary": disable_elementary,
+            "download_csv_file": download_csv_file
+        }
         for table_id in table_ids
     ]
