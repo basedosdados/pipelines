@@ -32,6 +32,10 @@ def extract_links_and_dates(url) -> pd.DataFrame:
     """
 
     response = requests.get(url)
+
+    if response.status_code != 200:
+        raise requests.HTTPError(f"Erro HTTP: A resposta da API malsucedida. O código retornado foi:  {response.status_code}")
+
     soup = BeautifulSoup(response.content, "html.parser")
 
     # Encontra todos os links dentro do HTML
