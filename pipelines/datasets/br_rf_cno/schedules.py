@@ -3,12 +3,6 @@
 Schedules for br_rf_cno
 """
 
-
-# -*- coding: utf-8 -*-
-"""
-Schedules for br_rf_cafir
-"""
-
 from datetime import datetime
 
 from prefect.schedules import Schedule, adjustments, filters
