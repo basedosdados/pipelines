@@ -45,6 +45,7 @@ from pipelines.datasets.br_ons_avaliacao_operacao.flows import *
 from pipelines.datasets.br_ons_estimativa_custos.flows import *
 from pipelines.datasets.br_poder360_pesquisas.flows import *
 from pipelines.datasets.br_rf_cafir.flows import *
+from pipelines.datasets.br_rf_cno.flows import *
 from pipelines.datasets.br_rj_isp_estatisticas_seguranca.flows import *
 from pipelines.datasets.br_sp_saopaulo_dieese_icv.flows import *
 from pipelines.datasets.br_stf_corte_aberta.flows import *
