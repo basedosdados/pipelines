@@ -42,7 +42,6 @@ with Flow(
         prefix="Dump to GCS: ", dataset_id=dataset_id, table_id=table_id
     )
 
-
     project_id = get_project_id(project_id=project_id, bd_project_mode=bd_project_mode)
 
     # trigger_download, execution_time = trigger_cron_job(
