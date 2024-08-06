@@ -31,7 +31,7 @@ def query_tables(days: int = 7, mode: str = "dev") -> List[Dict[str, str]]:
 
     billing_project_id = "basedosdados-dev"
 
-    
+
     query = f"""
         SELECT
             dataset_id,
