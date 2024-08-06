@@ -18,7 +18,7 @@ from pipelines.datasets.cross_update.utils import find_closed_tables, save_file
 from pipelines.utils.utils import log
 
 
-@task
+
 def query_tables(days: int = 7, mode: str = "dev") -> List[Dict[str, str]]:
     """
     Queries BigQuery Tables metadata to find elegible tables to zip.
@@ -29,6 +29,9 @@ def query_tables(days: int = 7, mode: str = "dev") -> List[Dict[str, str]]:
     elif mode == "prod":
         billing_project_id = "basedosdados"
 
+    billing_project_id = "basedosdados-dev"
+
+    
     query = f"""
         SELECT
             dataset_id,
@@ -37,15 +40,11 @@ def query_tables(days: int = 7, mode: str = "dev") -> List[Dict[str, str]]:
             size_bytes
         FROM `basedosdados.br_bd_metadados.bigquery_tables`
         WHERE
-           dataset_id NOT IN ("analytics_295884852","logs") AND
-           DATE_DIFF(CURRENT_DATE(),last_modified_date,DAY) <= {days}
+        dataset_id NOT IN ("analytics_295884852","logs", "elementary", "br_bd_metadados", "br_bd_indicadores", "dbt", "analysis") AND
+        DATE_DIFF(CURRENT_DATE(),last_modified_date,DAY) <= {days}
     """
 
-    tables = bd.read_sql(
-        query=query,
-        billing_project_id=billing_project_id,
-        from_file=True,
-    )
+    tables = bd.read_sql(query=query, billing_project_id=billing_project_id, from_file=True)
 
     log(f"Found {len(tables)} eligible tables to zip")
 
@@ -180,17 +179,21 @@ def filter_eligible_download_tables(eligible_download_tables: List) -> List:
 
     return eligible_download_tables
 
-
+@task(nout=2)
 def get_all_tables_eligible_last_year(days, mode):
     """
     Docs refs function to get all tables eligible to download in the last year
-
     """
-    results = []
     to_zip = query_tables(days=days, mode=mode)
+    results = []
     for key in range(len(to_zip)):
         dataset_id = to_zip[key]["dataset_id"]
         table_id = to_zip[key]["table_id"]
 
-        results.append((table_id, dataset_id))
-    return results
+        results.append((dataset_id, table_id))
+
+    results = dict(map(reversed, results))
+    chaves = list(results.keys())
+    valores = list(results.values())
+
+    return chaves, valores

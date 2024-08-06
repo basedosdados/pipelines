@@ -112,7 +112,6 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
                         }}}}
                     }}}}
             """
-        print(query_graphql)
         data = b._execute_query(query_graphql, {'table_id' : table_id})
         nodes = data['allTable']['edges']
         if nodes == []:
@@ -128,7 +127,7 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
     if 100_000_000 <= num_bytes <= 1_000_000_000: # Entre 1 GB e 100 MB, apenas BD pro
         log("Querying data for BDpro user")
 
-        blob_path = f"{dump_to_gcs_constants.url_bdpro.value}{dataset_id}/{table_id}/{table_id}_bdpro.csv.gz"
+        blob_path = f"{dump_to_gcs_constants.secret_path_url_closed.value}{dataset_id}/{table_id}/{table_id}_bdpro.csv.gz"
         execute_query_in_bigquery(billing_project_id = billing_project_id,
                                 query = query,
                                 path = blob_path,
@@ -168,7 +167,7 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
 
         log("Querying open data from BigQuery")
 
-        blob_path = f"{dump_to_gcs_constants.url_free.value}{dataset_id}/{table_id}/{table_id}.csv.gz"
+        blob_path = f"{dump_to_gcs_constants.secret_path_url_free.value}{dataset_id}/{table_id}/{table_id}.csv.gz"
         execute_query_in_bigquery(billing_project_id = billing_project_id,
                             query = query,
                             path = blob_path,
@@ -190,7 +189,7 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
 
             log("Querying Data closed from BigQuery")
 
-            blob_path = f"{dump_to_gcs_constants.url_bdpro.value}{dataset_id}/{table_id}/{table_id}_bdpro.csv.gz"
+            blob_path = f"{dump_to_gcs_constants.secret_path_url_closed.value}{dataset_id}/{table_id}/{table_id}_bdpro.csv.gz"
             execute_query_in_bigquery(billing_project_id = billing_project_id,
                                 query = query,
                                 path = blob_path,

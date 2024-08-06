@@ -13,9 +13,9 @@ class constants(Enum):  # pylint: disable=c0103
 
     MAX_BYTES_PROCESSED_PER_TABLE = 5 * 1024 * 1024 * 1024  # 5GB
 
-    url_path = get_credentials_from_secret('url_download_data_test')
-    secret_path_url = url_path['URL_DOWNLOAD_DATA_TEST']
+    url_path = get_credentials_from_secret('url_download_data')
+    secret_path_url_free = url_path['URL_DOWNLOAD_OPEN']
+    secret_path_url_closed = url_path['URL_DOWNLOAD_CLOSED']
 
-    url_bdpro = "gs://basedosdados-downloads/bdpro/"
-    url_free = "gs://basedosdados-downloads/bdfree/"
+
 

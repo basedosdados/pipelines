@@ -2,7 +2,7 @@
 """
 Flows for dumping data directly from BigQuery to GCS.
 """
-from prefect import Parameter, case
+from prefect import Parameter, case, unmapped
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
@@ -16,6 +16,7 @@ from pipelines.utils.dump_to_gcs.tasks import (
     trigger_cron_job,
     update_last_trigger,
 )
+from pipelines.datasets.cross_update.tasks import get_all_tables_eligible_last_year
 from pipelines.utils.tasks import rename_current_flow_run_dataset_table
 
 with Flow(
@@ -23,8 +24,8 @@ with Flow(
     code_owners=["lauris"],
 ) as dump_to_gcs_flow:
     project_id = Parameter("project_id", required=False) # basedosdados
-    dataset_id = Parameter("dataset_id")  # dataset_id or dataset_id_staging
-    table_id = Parameter("table_id")
+    dataset_id = Parameter("dataset_id", required=False)  # dataset_id or dataset_id_staging
+    table_id = Parameter("table_id", required=False)
     query = Parameter("query", required=False)
     bd_project_mode = Parameter(
         "bd_project_mode", required=False, default="prod"
@@ -49,15 +50,15 @@ with Flow(
     #     table_id=table_id,
     #     cron_expression=desired_crontab,
     # )
-
+    chaves, valores = get_all_tables_eligible_last_year(1, "dev")
     # with case(trigger_download, True):
-    download_task = download_data_to_gcs(  # pylint: disable=C0103
-        project_id=project_id,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        query=query,
-        bd_project_mode=bd_project_mode,
-        billing_project_id=billing_project_id,
+    download_task = download_data_to_gcs.map(  # pylint: disable=C0103
+        project_id=unmapped(project_id),
+        dataset_id=valores,
+        table_id=chaves,
+        query=unmapped(query),
+        bd_project_mode=unmapped(bd_project_mode),
+        billing_project_id=unmapped(billing_project_id),
     )
 
         # update_task = update_last_trigger(  # pylint: disable=C0103
@@ -67,7 +68,6 @@ with Flow(
         #     execution_time=execution_time,
         # )
         # update_task.set_upstream(download_task)
-
 
 dump_to_gcs_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 dump_to_gcs_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
