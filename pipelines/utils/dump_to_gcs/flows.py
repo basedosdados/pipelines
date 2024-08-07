@@ -26,7 +26,9 @@ with Flow(
     project_id = Parameter("project_id", required=False) # basedosdados
     dataset_id = Parameter("dataset_id", required=False)  # dataset_id or dataset_id_staging
     table_id = Parameter("table_id", required=False)
+    year = Parameter("year", required=False)
     query = Parameter("query", required=False)
+    mode = Parameter("mode", required=False)
     bd_project_mode = Parameter(
         "bd_project_mode", required=False, default="prod"
     )  # prod or staging
@@ -50,7 +52,7 @@ with Flow(
     #     table_id=table_id,
     #     cron_expression=desired_crontab,
     # )
-    chaves, valores = get_all_tables_eligible_last_year(1, "dev")
+    chaves, valores = get_all_tables_eligible_last_year(year, mode)
     # with case(trigger_download, True):
     download_task = download_data_to_gcs.map(  # pylint: disable=C0103
         project_id=unmapped(project_id),

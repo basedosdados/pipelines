@@ -19,7 +19,7 @@ from pipelines.utils.utils import log
 
 
 
-def query_tables(days: int = 7, mode: str = "dev") -> List[Dict[str, str]]:
+def query_tables(year:int = 2024, mode: str = "dev") -> List[Dict[str, str]]:
     """
     Queries BigQuery Tables metadata to find elegible tables to zip.
     """
@@ -28,8 +28,6 @@ def query_tables(days: int = 7, mode: str = "dev") -> List[Dict[str, str]]:
         billing_project_id = "basedosdados-dev"
     elif mode == "prod":
         billing_project_id = "basedosdados"
-
-    billing_project_id = "basedosdados-dev"
 
     # Rodar todas as tabelas de um ano por vez.
     query = f"""
@@ -40,8 +38,8 @@ def query_tables(days: int = 7, mode: str = "dev") -> List[Dict[str, str]]:
             size_bytes
         FROM `basedosdados.br_bd_metadados.bigquery_tables`
         WHERE
-        dataset_id NOT IN ("analytics_295884852","logs", "elementary", "br_bd_metadados", "br_bd_indicadores", "dbt", "analysis") AND
-        DATE_DIFF(CURRENT_DATE(),last_modified_date,DAY) <= {days}
+        dataset_id NOT IN ("analytics_295884852","logs", "elementary", "br_bd_metadados", "br_bd_indicadores", "dbt", "analysis")
+        AND EXTRACT(YEAR FROM last_modified_date) = {year}
     """
 
     tables = bd.read_sql(query=query, billing_project_id=billing_project_id, from_file=True)
@@ -180,11 +178,11 @@ def filter_eligible_download_tables(eligible_download_tables: List) -> List:
     return eligible_download_tables
 
 @task(nout=2)
-def get_all_tables_eligible_last_year(days, mode):
+def get_all_tables_eligible_last_year(year, mode):
     """
     Docs refs function to get all tables eligible to download in the last year
     """
-    to_zip = query_tables(days=days, mode=mode)
+    to_zip = query_tables(year=year, mode=mode)
     results = []
     for key in range(len(to_zip)):
         dataset_id = to_zip[key]["dataset_id"]
