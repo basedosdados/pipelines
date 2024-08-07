@@ -14,7 +14,7 @@ from pipelines.utils.to_download.tasks import to_download
 with Flow(
     name="test_to_download_task",
     code_owners=[
-        "arthurfg",
+        "equipe_pipelines",
     ],
 ) as utils_to_download_flow:
     url = Parameter(

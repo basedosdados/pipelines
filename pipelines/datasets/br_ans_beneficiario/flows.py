@@ -38,7 +38,7 @@ from pipelines.utils.tasks import (  # update_django_metadata,
 with Flow(
     name="br_ans_beneficiario.informacao_consolidada",
     code_owners=[
-        "arthurfg",
+        "equipe_pipelines",
     ],
 ) as datasets_br_ans_beneficiario_flow:
     dataset_id = Parameter("dataset_id", default="br_ans_beneficiario", required=False)
@@ -114,6 +114,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
+                upstream_tasks = [wait_upload_table]
             )
 
             wait_for_materialization = wait_for_flow_run(

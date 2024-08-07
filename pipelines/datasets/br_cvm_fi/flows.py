@@ -51,7 +51,7 @@ from pipelines.utils.tasks import (  # update_django_metadata,
 with Flow(
     name="br_cvm_fi_documentos_informe_diario",
     code_owners=[
-        "arthurfg",
+        "equipe_pipelines",
     ],
 ) as br_cvm_fi_documentos_informe_diario:
     # Parameters
@@ -111,6 +111,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
+                upstream_tasks = [wait_upload_table]
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -148,7 +149,7 @@ br_cvm_fi_documentos_informe_diario.run_config = KubernetesRun(
 with Flow(
     name="br_cvm_fi_documentos_carteiras_fundos_investimento",
     code_owners=[
-        "arthurfg",
+        "equipe_pipelines",
     ],
 ) as br_cvm_fi_documentos_carteiras_fundos_investimento:
     # Parameters
@@ -211,6 +212,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
+                upstream_tasks = [wait_upload_table]
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -250,7 +252,7 @@ br_cvm_fi_documentos_carteiras_fundos_investimento.run_config = KubernetesRun(
 with Flow(
     name="br_cvm_fi_documentos_extratos_informacoes",
     code_owners=[
-        "arthurfg",
+        "equipe_pipelines",
     ],
 ) as br_cvm_fi_documentos_extratos_informacoes:
     # Parameters
@@ -317,6 +319,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
+                upstream_tasks = [wait_upload_table]
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -355,7 +358,7 @@ br_cvm_fi_documentos_extratos_informacoes.run_config = KubernetesRun(
 with Flow(
     name="br_cvm_fi_documentos_perfil_mensal",
     code_owners=[
-        "arthurfg",
+        "equipe_pipelines",
     ],
 ) as br_cvm_fi_documentos_perfil_mensal:
     # Parameters
@@ -414,6 +417,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
+                upstream_tasks = [wait_upload_table]
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -450,7 +454,7 @@ br_cvm_fi_documentos_perfil_mensal.run_config = KubernetesRun(
 with Flow(
     name="br_cvm_fi_documentos_informacao_cadastral",
     code_owners=[
-        "arthurfg",
+        "equipe_pipelines",
     ],
 ) as br_cvm_fi_documentos_informacao_cadastral:
     # Parameters
@@ -508,6 +512,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
+                upstream_tasks = [wait_upload_table]
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -546,7 +551,7 @@ br_cvm_fi_documentos_informacao_cadastral.run_config = KubernetesRun(
 with Flow(
     name="br_cvm_fi_documentos_balancete",
     code_owners=[
-        "arthurfg",
+        "equipe_pipelines",
     ],
 ) as br_cvm_fi_documentos_balancete:
     # Parameters
@@ -606,6 +611,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
+                upstream_tasks = [wait_upload_table]
             )
 
             wait_for_materialization = wait_for_flow_run(
