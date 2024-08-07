@@ -20,7 +20,9 @@ from pipelines.utils.utils import (
     determine_whether_to_execute_or_not,
     get_redis_client,
     log,
+    get_credentials_from_secret
 )
+
 
 
 @task
@@ -119,6 +121,10 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
 
         num_bytes = nodes[0]['node']['uncompressedFileSize']
 
+    url_path = get_credentials_from_secret('url_download_data')
+    secret_path_url_free = url_path['URL_DOWNLOAD_OPEN']
+    secret_path_url_closed = url_path['URL_DOWNLOAD_CLOSED']
+
     log(num_bytes)
     if num_bytes > 1_000_000_000:
         log("Table is bigger than 1GB it is not in the download criteria")
@@ -127,7 +133,7 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
     if 100_000_000 <= num_bytes <= 1_000_000_000: # Entre 1 GB e 100 MB, apenas BD pro
         log("Querying data for BDpro user")
 
-        blob_path = f"{dump_to_gcs_constants.secret_path_url_closed.value}{dataset_id}/{table_id}/{table_id}_bdpro.csv.gz"
+        blob_path = f"{secret_path_url_closed}{dataset_id}/{table_id}/{table_id}_bdpro.csv.gz"
         execute_query_in_bigquery(billing_project_id = billing_project_id,
                                 query = query,
                                 path = blob_path,
@@ -167,7 +173,7 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
 
         log("Querying open data from BigQuery")
 
-        blob_path = f"{dump_to_gcs_constants.secret_path_url_free.value}{dataset_id}/{table_id}/{table_id}.csv.gz"
+        blob_path = f"{secret_path_url_free}{dataset_id}/{table_id}/{table_id}.csv.gz"
         execute_query_in_bigquery(billing_project_id = billing_project_id,
                             query = query,
                             path = blob_path,
@@ -189,7 +195,7 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
 
             log("Querying Data closed from BigQuery")
 
-            blob_path = f"{dump_to_gcs_constants.secret_path_url_closed.value}{dataset_id}/{table_id}/{table_id}_bdpro.csv.gz"
+            blob_path = f"{secret_path_url_closed}{dataset_id}/{table_id}/{table_id}_bdpro.csv.gz"
             execute_query_in_bigquery(billing_project_id = billing_project_id,
                                 query = query,
                                 path = blob_path,

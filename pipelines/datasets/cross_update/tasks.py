@@ -31,7 +31,7 @@ def query_tables(days: int = 7, mode: str = "dev") -> List[Dict[str, str]]:
 
     billing_project_id = "basedosdados-dev"
 
-
+    # Rodar todas as tabelas de um ano por vez.
     query = f"""
         SELECT
             dataset_id,
