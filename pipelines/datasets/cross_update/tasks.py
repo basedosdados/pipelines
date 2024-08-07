@@ -40,7 +40,9 @@ def query_tables(year:int = 2024, mode: str = "dev") -> List[Dict[str, str]]:
         WHERE
         dataset_id NOT IN ("analytics_295884852","logs", "elementary", "br_bd_metadados", "br_bd_indicadores", "dbt", "analysis")
         AND EXTRACT(YEAR FROM last_modified_date) = {year}
+        AND table_id NOT IN ("secao_1", "secao_2", "secao_3")
     """
+    # Os dados do DOU são maiores que 1 GB, então não serão baixados.
 
     tables = bd.read_sql(query=query, billing_project_id=billing_project_id, from_file=True)
 
