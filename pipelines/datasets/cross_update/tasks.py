@@ -40,7 +40,7 @@ def query_tables(year:int = 2024, mode: str = "dev") -> List[Dict[str, str]]:
         WHERE
         dataset_id NOT IN ("analytics_295884852","logs", "elementary", "br_bd_metadados", "br_bd_indicadores", "dbt", "analysis")
         AND EXTRACT(YEAR FROM last_modified_date) = {year}
-        AND table_id NOT IN ("secao_1", "secao_2", "secao_3")
+        AND table_id = "indicadores_2019"
     """
     # Os dados do DOU são maiores que 1 GB, então não serão baixados.
 
@@ -49,7 +49,7 @@ def query_tables(year:int = 2024, mode: str = "dev") -> List[Dict[str, str]]:
     log(f"Found {len(tables)} eligible tables to zip")
 
     to_zip = tables.to_dict("records")
-
+    log(to_zip)
     return to_zip
 
 
