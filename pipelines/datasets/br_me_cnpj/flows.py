@@ -36,7 +36,7 @@ from pipelines.utils.tasks import (
 with Flow(
     name="br_me_cnpj.empresas",
     code_owners=[
-        "arthurfg",
+        "equipe_pipelines",
     ],
 ) as br_me_cnpj_empresas:
     dataset_id = Parameter("dataset_id", default="br_me_cnpj", required=False)
@@ -129,7 +129,7 @@ br_me_cnpj_empresas.schedule = every_day_empresas
 with Flow(
     name="br_me_cnpj.socios",
     code_owners=[
-        "arthurfg",
+        "equipe_pipelines",
     ],
 ) as br_me_cnpj_socios:
     dataset_id = Parameter("dataset_id", default="br_me_cnpj", required=False)
@@ -222,7 +222,7 @@ br_me_cnpj_socios.schedule = every_day_socios
 with Flow(
     name="br_me_cnpj.estabelecimentos",
     code_owners=[
-        "arthurfg",
+        "equipe_pipelines",
     ],
     executor=LocalDaskExecutor()
 ) as br_me_cnpj_estabelecimentos:
@@ -361,7 +361,7 @@ br_me_cnpj_estabelecimentos.schedule = every_day_estabelecimentos
 with Flow(
     name="br_me_cnpj.simples",
     code_owners=[
-        "arthurfg",
+        "equipe_pipelines",
     ],
 ) as br_me_cnpj_simples:
     dataset_id = Parameter("dataset_id", default="br_me_cnpj", required=True)

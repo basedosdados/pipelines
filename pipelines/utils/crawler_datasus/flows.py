@@ -117,6 +117,7 @@ with Flow(name="DATASUS-CNES", code_owners=["Gabriel Pisa"]) as flow_cnes:
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
+                upstream_tasks=[wait_upload_table],
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -223,6 +224,7 @@ with Flow(name="DATASUS-SIA", code_owners=["Gabriel Pisa"]) as flow_siasus:
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
+                upstream_tasks = [wait_upload_table]
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -255,7 +257,7 @@ flow_siasus.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 
 
 
-with Flow(name="DATASUS-SIH", code_owners=["arthurfg"]) as flow_sihsus:
+with Flow(name="DATASUS-SIH", code_owners=["equipe_pipelines"]) as flow_sihsus:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_ms_sih", required=False)
     table_id = Parameter("table_id", default = 'aihs_reduzidas', required=False)
@@ -331,6 +333,7 @@ with Flow(name="DATASUS-SIH", code_owners=["arthurfg"]) as flow_sihsus:
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
+                upstream_tasks = [wait_upload_table]
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -444,7 +447,7 @@ with Flow(name="DATASUS-SINAN", code_owners=["trick"]) as flow_sinan:
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks=[wait_upload_table]
+                upstream_tasks=[wait_upload_table],
             )
 
             wait_for_materialization = wait_for_flow_run(

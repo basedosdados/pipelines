@@ -41,7 +41,7 @@ from pipelines.utils.tasks import (  # update_django_metadata,
 with Flow(
     name="br_cgu_beneficios_cidadao.novo_bolsa_familia",
     code_owners=[
-        "arthurfg",
+        "equipe_pipelines",
     ],
 ) as datasets_br_cgu_bolsa_familia_flow:
     dataset_id = Parameter(
@@ -125,6 +125,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
+                upstream_tasks = [wait_upload_table]
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -170,7 +171,7 @@ datasets_br_cgu_bolsa_familia_flow.schedule = every_day_novo_bolsa_familia
 with Flow(
     name="br_cgu_beneficios_cidadao.garantia_safra",
     code_owners=[
-        "arthurfg",
+        "equipe_pipelines",
     ],
 ) as datasets_br_cgu_garantia_safra_flow:
     dataset_id = Parameter(
@@ -256,6 +257,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
+                upstream_tasks = [wait_upload_table]
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -297,7 +299,7 @@ datasets_br_cgu_garantia_safra_flow.schedule = every_day_garantia_safra
 with Flow(
     name="br_cgu_beneficios_cidadao.bpc",
     code_owners=[
-        "arthurfg",
+        "equipe_pipelines",
     ],
 ) as datasets_br_cgu_bpc_flow:
     dataset_id = Parameter(
@@ -381,6 +383,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
+                upstream_tasks = [wait_upload_table]
             )
 
             wait_for_materialization = wait_for_flow_run(

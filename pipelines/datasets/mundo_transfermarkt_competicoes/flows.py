@@ -37,7 +37,7 @@ from pipelines.utils.tasks import (
 with Flow(
     name="mundo_transfermarkt_competicoes.brasileirao_serie_a",
     code_owners=[
-        "arthurfg",
+        "equipe_pipelines",
     ],
 ) as transfermarkt_brasileirao_flow:
     dataset_id = Parameter(
@@ -129,7 +129,7 @@ transfermarkt_brasileirao_flow.schedule = every_day_brasileirao
 with Flow(
     name="mundo_transfermarkt_competicoes.copa_brasil",
     code_owners=[
-        "arthurfg",
+        "equipe_pipelines",
     ],
 ) as transfermarkt_copa_flow:
     dataset_id = Parameter(

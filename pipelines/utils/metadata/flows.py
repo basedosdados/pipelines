@@ -53,7 +53,7 @@ temporal_coverage_updater_flow.run_config = KubernetesRun(
 with Flow(
     name="create_update_quality_checks",
     code_owners=[
-        "arthurfg",
+        "equipe_pipelines",
     ],
 ) as quality_checks_updater:
 
