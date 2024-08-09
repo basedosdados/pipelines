@@ -170,8 +170,6 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
         except Exception as e:
             raise ValueError(e)
 
-        log("this table is bdpro")
-
         log("Querying open data from BigQuery")
 
         blob_path = f"{secret_path_url_free}{dataset_id}/{table_id}/{table_id}.csv.gz"
@@ -191,8 +189,6 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
             while not job.done():
                 sleep(1)
             log("BDpro filter was reestored")
-
-            log("---------------")
 
             log("Querying Data closed from BigQuery")
 

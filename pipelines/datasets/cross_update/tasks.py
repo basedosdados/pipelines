@@ -182,20 +182,22 @@ def filter_eligible_download_tables(eligible_download_tables: List) -> List:
     return eligible_download_tables
 
 @task(nout=2)
-def get_all_tables_eligible_last_year(year, mode):
+def get_all_eligible_tables_to_take_to_gcs(year, mode):
     """
-    Docs refs function to get all tables eligible to download in the last year
+    Essa função obtém todas as tabelas e datasets elegíveis para subir o arquivo de download para o usuário.
+
+    - year: Filtra todas as tabelas que foram modificadas pela última vez no ano especificado por este parâmetro.
+    - mode: Em qual ambiente deseja rodar a query.
     """
     to_zip = query_tables(year=year, mode=mode)
-    results = []
+    dataset_ids = []
+    table_ids = []
+
     for key in range(len(to_zip)):
         dataset_id = to_zip[key]["dataset_id"]
+        dataset_ids.append(dataset_id)
+
         table_id = to_zip[key]["table_id"]
+        table_ids.append(table_id)
 
-        results.append((dataset_id, table_id))
-
-    results = dict(map(reversed, results))
-    chaves = list(results.keys())
-    valores = list(results.values())
-
-    return chaves, valores
+    return dataset_ids, table_ids
