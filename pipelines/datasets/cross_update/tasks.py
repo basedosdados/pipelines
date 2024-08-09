@@ -190,7 +190,7 @@ def get_all_eligible_in_selected_year(year, mode):
 
     log(len(to_zip))
 
-    for key in range(len(to_zip)):
+    for key in range(len(to_zip + 1)):
         dataset_id = to_zip[key]["dataset_id"]
         dataset_ids.append(dataset_id)
 
