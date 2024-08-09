@@ -39,18 +39,14 @@ def query_tables(year:int = 2024, mode: str = "dev") -> List[Dict[str, str]]:
         FROM `basedosdados.br_bd_metadados.bigquery_tables`
         WHERE
         dataset_id NOT IN ("analytics_295884852","logs", "elementary", "br_bd_metadados", "br_bd_indicadores", "dbt", "analysis", "br_imprensa_nacional_dou", "br_ms_sim", "br_ms_sinan")
-        and extract(year from last_modified_time) = {year}
-
-    """
+        and extract(year from last_modified_time) = {year}"""
 
     # Os dados do DOU são maiores que 1 GB, então não serão baixados.
-
     tables = bd.read_sql(query=query, billing_project_id=billing_project_id, from_file=True)
 
     log(f"Found {len(tables)} eligible tables to zip")
 
     to_zip = tables.to_dict("records")
-    log(to_zip)
     return to_zip
 
 
@@ -181,7 +177,7 @@ def filter_eligible_download_tables(eligible_download_tables: List) -> List:
     return eligible_download_tables
 
 @task(nout=2)
-def get_all_eligible_tables_to_take_to_gcs(year, mode):
+def get_all_eligible_in_selected_year(year, mode):
     """
     Essa função obtém todas as tabelas e datasets elegíveis para subir o arquivo de download para o usuário.
 
@@ -192,6 +188,8 @@ def get_all_eligible_tables_to_take_to_gcs(year, mode):
     dataset_ids = []
     table_ids = []
 
+    log(len(to_zip))
+
     for key in range(len(to_zip)):
         dataset_id = to_zip[key]["dataset_id"]
         dataset_ids.append(dataset_id)
@@ -200,5 +198,6 @@ def get_all_eligible_tables_to_take_to_gcs(year, mode):
         table_ids.append(table_id)
 
         log(f"Dataset: {dataset_id} Table: {table_id}")
+
 
     return dataset_ids, table_ids

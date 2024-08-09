@@ -16,7 +16,7 @@ from pipelines.utils.dump_to_gcs.tasks import (
     trigger_cron_job,
     update_last_trigger,
 )
-from pipelines.datasets.cross_update.tasks import get_all_eligible_tables_to_take_to_gcs
+from pipelines.datasets.cross_update.tasks import get_all_eligible_in_selected_year
 from pipelines.utils.tasks import rename_current_flow_run_dataset_table
 
 with Flow(
@@ -52,7 +52,7 @@ with Flow(
     #     table_id=table_id,
     #     cron_expression=desired_crontab,
     # )
-    dataset_ids, table_ids = get_all_eligible_tables_to_take_to_gcs(year, mode)
+    dataset_ids, table_ids = get_all_eligible_in_selected_year(year, mode)
     # with case(trigger_download, True):
     download_task = download_data_to_gcs.map(  # pylint: disable=C0103
         project_id=unmapped(project_id),
