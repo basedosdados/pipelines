@@ -18,12 +18,12 @@ from pipelines.datasets.cross_update.utils import find_closed_tables, save_file
 from pipelines.utils.utils import log
 
 
-
 def query_tables(year:int = 2024, mode: str = "dev") -> List[Dict[str, str]]:
     """
     Queries BigQuery Tables metadata to find elegible tables to zip.
     """
-
+    log(mode)
+    log(year)
     if mode == "dev":
         billing_project_id = "basedosdados-dev"
     elif mode == "prod":
@@ -31,17 +31,18 @@ def query_tables(year:int = 2024, mode: str = "dev") -> List[Dict[str, str]]:
 
     # Rodar todas as tabelas de um ano por vez.
     query = f"""
-        SELECT
+            SELECT
             dataset_id,
             table_id,
             row_count,
             size_bytes
         FROM `basedosdados.br_bd_metadados.bigquery_tables`
         WHERE
-        dataset_id NOT IN ("analytics_295884852","logs", "elementary", "br_bd_metadados", "br_bd_indicadores", "dbt", "analysis")
-        AND EXTRACT(YEAR FROM last_modified_date) = {year}
+        dataset_id NOT IN ("analytics_295884852","logs", "elementary", "br_bd_metadados", "br_bd_indicadores", "dbt", "analysis", "br_imprensa_nacional_dou", "br_ms_sim", "br_ms_sinan")
+        and extract(year from last_modified_time) = {year}
 
     """
+
     # Os dados do DOU são maiores que 1 GB, então não serão baixados.
 
     tables = bd.read_sql(query=query, billing_project_id=billing_project_id, from_file=True)
@@ -197,5 +198,7 @@ def get_all_eligible_tables_to_take_to_gcs(year, mode):
 
         table_id = to_zip[key]["table_id"]
         table_ids.append(table_id)
+
+        log(f"Dataset: {dataset_id} Table: {table_id}")
 
     return dataset_ids, table_ids

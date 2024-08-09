@@ -44,14 +44,14 @@ with Flow(
         prefix="Dump to GCS: ", dataset_id=dataset_id, table_id=table_id
     )
 
-    project_id = get_project_id(project_id=project_id, bd_project_mode=bd_project_mode)
+    # project_id = get_project_id(project_id=project_id, bd_project_mode=bd_project_mode)
 
-    trigger_download, execution_time = trigger_cron_job(
-        project_id=project_id,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        cron_expression=desired_crontab,
-    )
+    # trigger_download, execution_time = trigger_cron_job(
+    #     project_id=project_id,
+    #     dataset_id=dataset_id,
+    #     table_id=table_id,
+    #     cron_expression=desired_crontab,
+    # )
     dataset_ids, table_ids = get_all_eligible_tables_to_take_to_gcs(year, mode)
     # with case(trigger_download, True):
     download_task = download_data_to_gcs.map(  # pylint: disable=C0103
@@ -63,13 +63,13 @@ with Flow(
         billing_project_id=unmapped(billing_project_id),
     )
 
-    update_task = update_last_trigger(  # pylint: disable=C0103
-            project_id=project_id,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            execution_time=execution_time,
-        )
-    update_task.set_upstream(download_task)
+    # update_task = update_last_trigger(  # pylint: disable=C0103
+    #         project_id=project_id,
+    #         dataset_id=dataset_id,
+    #         table_id=table_id,
+    #         execution_time=execution_time,
+    #     )
+    # update_task.set_upstream(download_task)
 
 dump_to_gcs_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 dump_to_gcs_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
