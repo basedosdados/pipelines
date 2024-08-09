@@ -157,8 +157,3 @@ notebooks/
 
 
 /DENATRAN_FILES
-
-
-*.csv
-*.csv.gz
-*.zip
