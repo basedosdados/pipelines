@@ -31,7 +31,7 @@ def query_tables(year:int = 2024, mode: str = "dev") -> List[Dict[str, str]]:
 
     # Rodar todas as tabelas de um ano por vez.
     query = f"""
-        with tabela as (SELECT
+        SELECT
             dataset_id,
             table_id,
             row_count,
@@ -39,13 +39,11 @@ def query_tables(year:int = 2024, mode: str = "dev") -> List[Dict[str, str]]:
         FROM `basedosdados.br_bd_metadados.bigquery_tables`
         WHERE
         dataset_id NOT IN ("analytics_295884852","logs", "elementary", "br_bd_metadados", "br_bd_indicadores", "dbt", "analysis")
-        AND EXTRACT(YEAR FROM last_modified_date) = 2023
-        AND table_id = "dicionario")
-        select * from tabela
-        where dataset_id = "br_me_exportadoras_importadoras"
+        AND EXTRACT(YEAR FROM last_modified_date) = {year}
+
     """
     # Os dados do DOU são maiores que 1 GB, então não serão baixados.
-    log(query)
+
     tables = bd.read_sql(query=query, billing_project_id=billing_project_id, from_file=True)
 
     log(f"Found {len(tables)} eligible tables to zip")
