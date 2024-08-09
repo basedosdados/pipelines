@@ -35,7 +35,7 @@ with Flow(
     update_metadata_table = Parameter(
         "update_metadata_table", default=False, required=False
     )
-    days = Parameter("days", default=7, required=False)
+    year = Parameter("year", default=2024, required=False)
     mode = Parameter("mode", default="prod", required=False)
     current_flow_labels = get_current_flow_labels()
 
@@ -57,17 +57,17 @@ with Flow(
 
     # Consulta e  seleciona apenas as tabelas que atendem os critérios de tamanho e abertura(bdpro)
 
-    eligible_to_zip_tables = query_tables(days=days, mode=mode)
-    tables_to_zip = filter_eligible_download_tables(
-        eligible_to_zip_tables, upstream_tasks=[eligible_to_zip_tables]
-    )
+    # eligible_to_zip_tables = query_tables(year=year, mode=mode)
+    # tables_to_zip = filter_eligible_download_tables(
+    #     eligible_to_zip_tables, upstream_tasks=[eligible_to_zip_tables]
+    # )
 
     # Para cada tabela selecionada cria um flow de dump para gcs
     with case(dump_to_gcs, True):
         dump_to_gcs_flow = create_flow_run.map(
             flow_name=unmapped(utils_constants.FLOW_DUMP_TO_GCS_NAME.value),
             project_name=unmapped(constants.PREFECT_DEFAULT_PROJECT.value),
-            parameters=tables_to_zip,
+            #parameters=tables_to_zip,
             labels=unmapped(current_flow_labels),
             run_name=unmapped("Dump to GCS"),
         )
