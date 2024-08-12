@@ -17,13 +17,11 @@ from tqdm import tqdm
 from pipelines.datasets.cross_update.utils import find_closed_tables, save_file
 from pipelines.utils.utils import log
 
-
+@task
 def query_tables(year:int = 2024, mode: str = "dev") -> List[Dict[str, str]]:
     """
     Queries BigQuery Tables metadata to find elegible tables to zip.
     """
-    log(mode)
-    log(year)
     if mode == "dev":
         billing_project_id = "basedosdados-dev"
     elif mode == "prod":
@@ -38,7 +36,7 @@ def query_tables(year:int = 2024, mode: str = "dev") -> List[Dict[str, str]]:
             size_bytes
         FROM `basedosdados.br_bd_metadados.bigquery_tables`
         WHERE
-        dataset_id NOT IN ("analytics_295884852","logs", "elementary", "br_bd_metadados", "br_bd_indicadores", "dbt", "analysis", "br_imprensa_nacional_dou", "br_ms_sim", "br_ms_sinan")
+        dataset_id NOT IN ("analytics_295884852","logs", "elementary", "br_bd_metadados", "br_bd_indicadores", "dbt", "analysis")
         and extract(year from last_modified_time) = {year}"""
 
     # Os dados do DOU são maiores que 1 GB, então não serão baixados.
