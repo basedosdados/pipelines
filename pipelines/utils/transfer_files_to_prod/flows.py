@@ -27,7 +27,7 @@ from pipelines.utils.tasks import (
 with Flow(
     name="BD Utils: Transfere arquivos do bucket basedosdados-dev para basedosdados",
     code_owners=[
-        "arthurfg",
+        "equipe_pipelines",
     ],
 ) as transfer_files_to_prod_flow:
     dataset_id = Parameter("dataset_id", default="br_cgu_beneficios_cidadao", required=False)

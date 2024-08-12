@@ -28,7 +28,7 @@ from pipelines.utils.tasks import (
 # from pipelines.datasets.br_ibge_pnadc.schedules import every_quarter
 
 # pylint: disable=C0103
-with Flow(name="br_inmet_bdmep", code_owners=["arthurfg"]) as br_inmet:
+with Flow(name="br_inmet_bdmep", code_owners=["equipe_pipelines"]) as br_inmet:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_inmet_bdmep", required=False)
     table_id = Parameter("table_id", default="microdados", required=False)
@@ -78,6 +78,7 @@ with Flow(name="br_inmet_bdmep", code_owners=["arthurfg"]) as br_inmet:
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
+                upstream_tasks = [wait_upload_table]
             )
 
             wait_for_materialization = wait_for_flow_run(

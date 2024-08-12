@@ -40,7 +40,7 @@ from pipelines.utils.tasks import (
 with Flow(
     name="mundo_transfermarkt_competicoes_internacionais.champions_league",
     code_owners=[
-        "arthurfg",
+        "equipe_pipelines",
     ],
 ) as transfermarkt_flow:
     dataset_id = Parameter(

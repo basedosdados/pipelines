@@ -71,6 +71,7 @@ with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
             },
             labels=current_flow_labels,
             run_name=f"Materialize {dataset_id}.{table_id}",
+            upstream_tasks = [wait_upload_table]
         )
 
         wait_for_materialization = wait_for_flow_run(
