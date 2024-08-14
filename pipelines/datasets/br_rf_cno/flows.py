@@ -97,6 +97,7 @@ with Flow(
             dump_mode=unmapped("append"),
             source_format=unmapped('parquet'),
             wait=unmapped(files),
+            upstream_tasks=[files]
         )
 
         dbt_parameters = create_parameters_list(
@@ -107,6 +108,7 @@ with Flow(
              download_csv_file = True,
              dbt_command = 'run',
              disable_elementary = True,
+             upstream_tasks=[wait_upload_table]
         )
 
         with case(materialize_after_dump, True):
@@ -118,6 +120,7 @@ with Flow(
                     parameters=dbt_parameters,
                     labels=unmapped(current_flow_labels),
                     run_name=f"Materialize {dataset_id}.{table_ids}",
+                    upstream_tasks=[dbt_parameters]
                 )
 
                 wait_for_materialization = wait_for_flow_run.map(
@@ -125,6 +128,7 @@ with Flow(
                     stream_states=unmapped(True),
                     stream_logs=unmapped(True),
                     raise_final_state=unmapped(True),
+                    upstream_tasks=[materialization_flow]
                 )
                 wait_for_materialization.max_retries = (
                     dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
@@ -137,7 +141,7 @@ with Flow(
                     update_django_metadata.map(
                         dataset_id=unmapped(dataset_id),
                         table_id=table_ids,
-                        date_column_name=unmapped({"date": "data"}),
+                        date_column_name=unmapped({"date": "data_extracao"}),
                         date_format=unmapped("%Y-%m-%d"),
                         coverage_type=unmapped("all_bdpro"),
                         #time_delta=unmapped({"months": 6}),
