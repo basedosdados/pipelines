@@ -7,271 +7,160 @@ import re
 
 import basedosdados as bd
 import pandas as pd
-from unidecode import unidecode
+from datetime import datetime
+import unicodedata
+import zipfile
+import os
+import requests
+from bs4 import BeautifulSoup
+from pipelines.datasets.br_tse_eleicoes.constants import constants as tse_constants
 
 
-def get_id_candidato_bd(df: pd.DataFrame) -> pd.DataFrame:
+def conv_data(date: str) -> str:
+  try:
+    data_datetime = datetime.strptime(date, "%d/%m/%Y")
+    return data_datetime.strftime('%Y-%m-%d')
+  except:
+    return ""
+
+def slugify(s: str) -> str:
+
+    s = s.strip().lower()
+    s = unicodedata.normalize("NFD", s)
+    s = s.encode("ascii", "ignore")
+    s = s.decode("utf-8")
+    s = s.lower().strip()
+    return s
+
+def add_ensino(instrucao: str) -> str:
+
+  if instrucao.count("superior"):
+    instrucao = f"ensino {instrucao}"
+
+  return instrucao
+
+def request_extract_by_select(url: str, select: str, text: bool = False,
+                              atributo: str = "href") ->  str | list[str] | None:
+
+  response = requests.get(url)
+
+  suop = BeautifulSoup(response.text)
+
+  if text:
+    return suop.select_one(select).text
+
+  return suop.select_one(select).get(atributo)
+
+def download_and_extract_zip(url: str, save_path: str = "/tmp/data/input/",
+                             path_input: str = "/tmp/data/input/", chunk_size=128) -> None:
     """
-    Uses nome, cpf and titulo_eleitor to generate an id_candidato_bd
+    Gets all csv files from a url and saves them to a directory.
     """
+    os.makedirs(path_input, exist_ok=True)
 
-    data = df.copy()
+    request_headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36",
+    }
 
-    df[["cpf", "titulo_eleitoral"]] = df[["cpf", "titulo_eleitoral"]].fillna(value=0)
+    r = requests.get(url, headers=request_headers, stream=True, timeout=10)
 
-    df["id_candidato_bd"] = (
-        df.set_index(["cpf", "titulo_eleitoral"]).index.factorize()[-0] + 1
+    save_path = os.path.join(save_path, url.split("/")[-1])
+
+    with open(save_path, "wb") as fd:
+        for chunk in r.iter_content(chunk_size=chunk_size):
+            fd.write(chunk)
+
+    with zipfile.ZipFile(save_path) as z:
+        z.extractall(path_input)
+
+def form_df_base() -> pd.DataFrame:
+
+    canditados24 = pd.read_csv("/tmp/data/input/consulta_cand_2024_BRASIL.csv",
+                                   sep=";", encoding="ISO-8859-1", dtype=str)
+    complementar24 = pd.read_csv("/tmp/data/input/consulta_cand_complementar_2024_BRASIL.csv",
+                                 sep=";", encoding="ISO-8859-1", dtype=str)
+
+    municipios = bd.read_sql(
+        tse_constants.QUERY_MUNIPIPIOS.value,
+        from_file=True,
+        billing_project_id="basedosdados-dev"
     )
 
-    df["id_candidato_bd"] = df.groupby(["cpf"], dropna=False).id_candidato_bd.transform(
-        "max"
-    )
-    df["id_candidato_bd"] = df.groupby(
-        ["titulo_eleitoral"], dropna=False
-    ).id_candidato_bd.transform("max")
+    temp_merge_left = pd.merge(canditados24, complementar24, left_on="SQ_CANDIDATO", right_on='SQ_CANDIDATO', how='left')
 
-    df["id_candidato_bd_str"] = "1 " + df.id_candidato_bd.astype(str)
+    temp_merge_left["SG_UE"] = temp_merge_left["SG_UE"].str.lstrip("0") # Precisamos limpas alguns zero a esquerda
 
-    aux_cpf = pd.pivot_table(
-        data=df, index=["id_candidato_bd"], values=["cpf"], aggfunc=pd.Series.nunique
-    )
-    aux_te = pd.pivot_table(
-        data=df,
-        index=["id_candidato_bd"],
-        values=["titulo_eleitoral"],
-        aggfunc=pd.Series.nunique,
-    )
+    temp_merge_left = pd.merge(temp_merge_left, municipios, left_on="SG_UE", right_on="id_municipio_tse", how="left")
 
-    df["N_cpf"] = df["id_candidato_bd"].map(dict(zip(aux_cpf.index, aux_cpf.cpf)))
-    df["N_TE"] = df["id_candidato_bd"].map(
-        dict(zip(aux_te.index, aux_te.titulo_eleitoral))
-    )
+    temp_merge_left["id_candidato_bd"] = ""
 
-    para_2a_rodada = (
-        df[(df["N_cpf"] > 1) | (df["N_TE"] > 1)]
-        .sort_values("N_cpf")
-        .reset_index(drop=True)
-    )
+    base = temp_merge_left.loc[:, tse_constants.ORDER.value.values()]
 
-    _1a_rodada = df[(df["N_cpf"] == 1) & (df["N_TE"] == 1)]
-    _1a_rodada = _1a_rodada[["id_candidato_bd_str", "cpf", "titulo_eleitoral", "nome"]]
+    base.fillna("", inplace=True)
 
-    if para_2a_rodada.shape[0] > 0:
-        del df
-        df = para_2a_rodada.copy()
+    base.columns = tse_constants.ORDER.value.keys()
 
-        df["nome"] = df["nome"].apply(
-            lambda x: unidecode(x) if isinstance(x, str) else x
-        )
-        df["aux_primeiro"] = df["nome"].apply(
-            lambda x: x.split(" ")[0] if isinstance(x, str) else x
-        )
-        df["aux_ultimo"] = df["nome"].apply(
-            lambda x: x.split(" ")[-1] if isinstance(x, str) else x
-        )
+    base = format_df_base(base)
 
-        aux_nomes = pd.pivot_table(
-            data=df,
-            index=["id_candidato_bd_str"],
-            values=["aux_primeiro", "aux_ultimo"],
-            aggfunc=pd.Series.nunique,
-        )
-
-        df["N_nomes"] = df["id_candidato_bd_str"].map(
-            dict(zip(aux_nomes.index, aux_nomes.aux_primeiro))
-        )
-
-        # not actually used. See https://github.com/basedosdados/mais/blob/master/bases/br_tse_eleicoes/code/sub/cria_id_candidato.do
-
-        # para_3a_rodada = (
-        #     df[(df["N_nomes"] > 1)].sort_values("N_nomes").reset_index(drop=True)
-        # )
-
-        df = df[(df["N_nomes"] == 1)]
-
-        df["aux_id"] = (
-            df.set_index(
-                ["id_candidato_bd_str", "aux_primeiro", "aux_ultimo"]
-            ).index.factorize()[-0]
-            + 1
-        )
-
-        df["id_candidato_bd_str"] = "2 " + df["aux_id"].astype(str)
-
-        df.drop(["aux_id"], axis=1, inplace=True)
-
-        _2a_rodada = df[["id_candidato_bd_str", "cpf", "titulo_eleitoral", "nome"]]
-
-        del df
-
-    if para_2a_rodada.shape[0] > 0:
-        df = _1a_rodada.append(_2a_rodada).sort_values(by="cpf").reset_index(drop=True)
-    else:
-        df = _1a_rodada.copy()
-
-    df["id_candidato_bd"] = (
-        df.set_index(["id_candidato_bd_str"]).index.factorize()[-0] + 1
-    )
-    df.sort_values(by="id_candidato_bd", inplace=True)
-    df = df[["id_candidato_bd", "cpf", "titulo_eleitoral", "nome"]]
-
-    data.drop(["id_candidato_bd"], axis=1, inplace=True)
-
-    data = data.merge(df, on=["cpf", "titulo_eleitoral", "nome"], how="left")
-
-    data["id_candidato_bd"] = (
-        data["id_candidato_bd"].fillna(value=0).astype(int).replace({0: None})
-    )
-
-    data = data.reindex(
-        [
-            "ano",
-            "tipo_eleicao",
-            "sigla_uf",
-            "id_municipio",
-            "id_municipio_tse",
-            "id_candidato_bd",
-            "cpf",
-            "titulo_eleitoral",
-            "sequencial",
-            "numero",
-            "nome",
-            "nome_urna",
-            "numero_partido",
-            "sigla_partido",
-            "cargo",
-            "situacao",
-            "ocupacao",
-            "data_nascimento",
-            "idade",
-            "genero",
-            "instrucao",
-            "estado_civil",
-            "nacionalidade",
-            "sigla_uf_nascimento",
-            "municipio_nascimento",
-            "email",
-            "raca",
-            "situacao_totalizacao",
-            "numero_federacao",
-            "nome_federacao",
-            "sigla_federacao",
-            "composicao_federacao",
-            "prestou_contas",
-        ],
-        axis=1,
-    )
-
-    return data
+    return base
 
 
-def get_blobs_from_raw(dataset_id: str, table_id: str) -> list:
-    """
-    Get all blobs from a table in a dataset.
-    """
+def format_df_base(base: pd.DataFrame) -> pd.DataFrame:
 
-    storage = bd.Storage(dataset_id=dataset_id, table_id=table_id)
-    return list(
-        storage.client["storage_staging"]
-        .bucket("basedosdados-dev")
-        .list_blobs(prefix=f"raw/{storage.dataset_id}/{storage.table_id}/")
-    )
+    # Remover valores indesejados da colunas
 
+    removes = ["#NULO", "#NE", "NÃO DIVULGÁVEL", "Não Divulgável",
+           "-1", "-4", "-3"]
 
-def get_data_from_prod(dataset_id: str, table_id: str, columns: list) -> list:
-    """
-    Get select columns from a table in prod.
-    """
+    removes_upper = {remove.upper(): "" for remove in removes}
 
-    storage = bd.Storage(dataset_id=dataset_id, table_id=table_id)
-    blobs = list(
-        storage.client["storage_staging"]
-        .bucket("basedosdados-dev")
-        .list_blobs(prefix=f"staging/{storage.dataset_id}/{storage.table_id}/")
-    )
+    base.replace(removes_upper, regex=False, inplace=True)
 
-    dfs = []
+    # Formatar datas
 
-    for blob in blobs:
-        partitions = re.findall(r"\w+(?==)", blob.name)
-        if len(set(partitions) & set(columns)) == 0:
-            df = pd.read_csv(blob.public_url, usecols=columns)
-            dfs.append(df)
-        else:
-            columns2add = list(set(partitions) & set(columns))
-            for column in columns2add:
-                columns.remove(column)
-            df = pd.read_csv(blob.public_url, usecols=columns)
-            for column in columns2add:
-                df[column] = blob.name.split(column + "=")[1].split("/")[0]
-            dfs.append(df)
+    base["data_eleicao"] = base["data_eleicao"].apply(conv_data)
+    base["data_nascimento"] = base["data_nascimento"].apply(conv_data)
 
-    df = pd.concat(dfs)
+    # Formatar Colunas com slug
 
-    return df
+    slug_columns_format = ["tipo_eleicao", "cargo", "situacao",
+                       "ocupacao", "genero", "instrucao",
+                       "estado_civil", "nacionalidade", "raca"]
+
+    base[slug_columns_format] = base[slug_columns_format].applymap(slugify)
+
+    base["instrucao"] = base["instrucao"].apply(add_ensino)
+
+    # Colocar nomes como title como dados em produção
+
+    for column_to_format in ["municipio_nascimento", "nome", "nome_urna"]:
+        base[column_to_format] = base[column_to_format].str.title()
+
+    # trocar `brasileira nata` para `brasileira`
+
+    base["nacionalidade"] = base["nacionalidade"].str.replace("brasileira nata", "brasileira")
+
+    base.drop_duplicates(inplace=True)
+
+    return base
 
 
-def normalize_dahis(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Applies normalizations defined bt Ricardo Dahis (see: https://github.com/basedosdados/mais/blob/master/bases/br_tse_eleicoes/code/sub/normalizacao_particao.do)
-    """
-    df = df[~df.id_candidato_bd.isna()]
+def form_df_bens_candidato() -> pd.DataFrame:
 
-    df.drop_duplicates(
-        subset=[
-            "ano",
-            "tipo_eleicao",
-            "sigla_uf",
-            "id_municipio_tse",
-            "numero",
-            "cargo",
-            "id_candidato_bd",
-        ],
-        inplace=True,
-    )
+  bens24 = pd.read_csv("/tmp/data/input/bem_candidato_2024_BRASIL.csv" ,
+                  sep=";", encoding="ISO-8859-1", decimal=",", dtype={
+                  "CD_ELEICAO": str,
+                  "SQ_CANDIDATO": str,
+                  })
 
-    df["dup"] = df.duplicated(
-        subset=[
-            "ano",
-            "tipo_eleicao",
-            "sigla_uf",
-            "id_municipio_tse",
-            "numero",
-            "cargo",
-        ],
-        keep=False,
-    )
+  bens24["id_candidato_bd"] = ""
 
-    df = df[(df.dup is not True) | (df.situacao == "deferido")]
+  base = bens24.loc[:, tse_constants.ORDER_BENS.value.values()]
+  base.columns = tse_constants.ORDER_BENS.value.keys()
 
-    df.drop(columns=["dup"], inplace=True)
+  base["data_eleicao"] = base["data_eleicao"].apply(conv_data)
+  base["tipo_eleicao"]= base["tipo_eleicao"].apply(slugify)
 
-    df.drop_duplicates(
-        subset=[
-            "ano",
-            "tipo_eleicao",
-            "sigla_uf",
-            "id_municipio_tse",
-            "numero",
-            "cargo",
-        ],
-        inplace=True,
-    )
+  base.drop_duplicates(inplace=True)
 
-    df.drop_duplicates(
-        subset=["ano", "tipo_eleicao", "id_candidato_bd"],
-        inplace=True,
-    )
-
-    return df
-
-
-def clean_digit_id(number: int, n_digits: int) -> str:
-    """
-    Clean digit id.
-    """
-    number = str(number).split(".", maxsplit=1)[0]
-    number = number.zfill(n_digits)
-    number = "".join([i for i in number if i.isdigit()])
-
-    return number
+  return base
