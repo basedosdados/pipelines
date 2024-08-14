@@ -47,6 +47,7 @@ def download_urls(urls: list) -> None:
 @task
 def get_data_source_max_date() -> datetime | None:
 
+
   base_url = "https://dadosabertos.tse.jus.br"
 
   url = base_url + "/dataset/activity/candidatos-2024"

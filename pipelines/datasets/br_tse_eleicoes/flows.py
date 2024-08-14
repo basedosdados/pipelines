@@ -59,7 +59,7 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    data_source_max_date = get_data_source_max_date()
+    data_source_max_date = get_data_source_max_date(upstream_tasks=[rename_flow_run])
 
     outdated = check_if_data_is_outdated(
         dataset_id=dataset_id,
@@ -96,11 +96,13 @@ with Flow(
                     "table_id": table_id,
                     "mode": materialization_mode,
                     "dbt_alias": dbt_alias,
-                    "dbt_command": "run",
+                    "dbt_command": "run/test",
                     "disable_elementary": False,
+                    "download_csv_file": False
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
+                upstream_tasks=[wait_upload_table]
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -108,6 +110,7 @@ with Flow(
                 stream_states=True,
                 stream_logs=True,
                 raise_final_state=True,
+
             )
             wait_for_materialization.max_retries = (
                 dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
@@ -124,7 +127,7 @@ with Flow(
                 historical_database=False,
                 date_format="%Y-%m-%d",
                 prefect_mode=materialization_mode,
-                bq_project="basedosdados-dev",
+                bq_project="basedosdados",
                 upstream_tasks=[wait_for_materialization],
             )
 
@@ -201,6 +204,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
+                upstream_tasks=[wait_upload_table],
             )
 
             wait_for_materialization = wait_for_flow_run(
