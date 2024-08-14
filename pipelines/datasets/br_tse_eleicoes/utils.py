@@ -43,13 +43,17 @@ def add_ensino(instrucao: str) -> str:
 def request_extract_by_select(url: str, select: str, text: bool = False,
                               atributo: str = "href") ->  str | list[str] | None:
 
-  log("Sou uma versão atualizada do request")
+  log("Sou uma versão atualizada do request 2")
+
+  my_country = requests.get("https://api.myip.com/", verify=False)
+
+  log(f"Meu atual IP é: {my_country.json()}")
 
   request_headers = {
       "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36",
   }
 
-  response = requests.get(url, headers=request_headers)
+  response = requests.get(url, headers=request_headers, verify=False)
 
   suop = BeautifulSoup(response.text)
 

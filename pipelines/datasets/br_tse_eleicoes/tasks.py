@@ -35,10 +35,7 @@ from pipelines.datasets.br_tse_eleicoes.utils import (
 from pipelines.utils.utils import log
 
 
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
+@task
 def download_urls(urls: list) -> None:
     """
     Gets all csv files from a url and saves them to a directory.
@@ -47,10 +44,7 @@ def download_urls(urls: list) -> None:
         download_and_extract_zip(url)
 
 
-@task(
-    max_retries=1,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
+@task
 def get_data_source_max_date() -> datetime | None:
 
   base_url = "https://dadosabertos.tse.jus.br"
@@ -69,10 +63,7 @@ def get_data_source_max_date() -> datetime | None:
   return last_update
 
 
-@task(
-    max_retries=1,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
+@task
 def preparing_data() -> None:
 
     base = form_df_base()
@@ -88,10 +79,7 @@ def preparing_data() -> None:
 
 
 
-@task(
-    max_retries=1,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
+@task
 def preparing_data_bens_candidato() -> None:
 
     base = form_df_bens_candidato()
