@@ -48,7 +48,7 @@ def download_urls(urls: list) -> None:
 
 
 @task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
+    max_retries=1,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def get_data_source_max_date() -> datetime | None:

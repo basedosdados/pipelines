@@ -14,6 +14,7 @@ import os
 import requests
 from bs4 import BeautifulSoup
 from pipelines.datasets.br_tse_eleicoes.constants import constants as tse_constants
+from pipelines.utils.utils import log
 
 
 def conv_data(date: str) -> str:
@@ -42,7 +43,13 @@ def add_ensino(instrucao: str) -> str:
 def request_extract_by_select(url: str, select: str, text: bool = False,
                               atributo: str = "href") ->  str | list[str] | None:
 
-  response = requests.get(url)
+  log("Sou uma versão atualizada do request")
+
+  request_headers = {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36",
+  }
+
+  response = requests.get(url, headers=request_headers)
 
   suop = BeautifulSoup(response.text)
 

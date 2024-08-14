@@ -96,7 +96,7 @@ with Flow(
                     "table_id": table_id,
                     "mode": materialization_mode,
                     "dbt_alias": dbt_alias,
-                    "dbt_command": "run/test",
+                    "dbt_command": "run",
                     "disable_elementary": False,
                 },
                 labels=current_flow_labels,
