@@ -3,7 +3,6 @@
 General purpose functions for the br_tse_eleicoes project
 """
 # pylint: disable=invalid-name,line-too-long
-import re
 
 import basedosdados as bd
 import pandas as pd
@@ -14,7 +13,6 @@ import os
 import requests
 from bs4 import BeautifulSoup
 from pipelines.datasets.br_tse_eleicoes.constants import constants as tse_constants
-from pipelines.utils.utils import log
 
 
 def conv_data(date: str, birth: bool = False) -> str:

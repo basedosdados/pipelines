@@ -26,7 +26,6 @@ from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
     rename_current_flow_run_dataset_table,
-    # update_metadata,
 )
 
 from pipelines.utils.metadata.tasks import (
@@ -96,9 +95,9 @@ with Flow(
                     "table_id": table_id,
                     "mode": materialization_mode,
                     "dbt_alias": dbt_alias,
-                    "dbt_command": "run",
+                    "dbt_command": "run/test",
                     "disable_elementary": False,
-                    # "download_csv_file": False
+                    "download_csv_file": False
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
@@ -200,8 +199,9 @@ with Flow(
                     "table_id": table_id,
                     "mode": materialization_mode,
                     "dbt_alias": dbt_alias,
-                    "dbt_command": "run",
+                    "dbt_command": "run/test",
                     "disable_elementary": False,
+                    "download_csv_file": False
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",

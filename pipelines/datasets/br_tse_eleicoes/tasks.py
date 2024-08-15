@@ -3,27 +3,13 @@
 Tasks for br_tse_eleicoes
 """
 import os
-import re
-import zipfile
 
 # pylint: disable=invalid-name,line-too-long
-from datetime import timedelta
-from glob import glob
-from itertools import product
 
-import numpy as np
-import pandas as pd
-import requests
 from prefect import task
-from tqdm import tqdm
-from unidecode import unidecode
 from datetime import datetime
 from dateparser import parse
-from bs4 import BeautifulSoup
-import basedosdados as bd
 
-
-from pipelines.constants import constants
 from pipelines.datasets.br_tse_eleicoes.constants import constants as tse_constants
 
 from pipelines.datasets.br_tse_eleicoes.utils import (
@@ -32,8 +18,6 @@ from pipelines.datasets.br_tse_eleicoes.utils import (
     form_df_base,
     form_df_bens_candidato
 )
-from pipelines.utils.utils import log
-
 
 @task
 def download_urls(urls: list) -> None:
