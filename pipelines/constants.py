@@ -24,6 +24,12 @@ class constants(Enum):  # pylint: disable=c0103
     BASEDOSDADOS_PROD_AGENT_LABEL = "basedosdados"
     BASEDOSDADOS_PERGUNTAS_AGENT_LABEL = "basedosdados-perguntas"
 
+    MODE_TO_PROJECT_DICT = {
+        "prod": "basedosdados",
+        "dev": "basedosdados-dev"
+    }
+
+
     ######################################
     # Other constants
     ######################################
