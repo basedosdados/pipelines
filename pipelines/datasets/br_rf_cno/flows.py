@@ -137,14 +137,12 @@ with Flow(
                 )
 
                 with case(update_metadata, True):
-
                     update_django_metadata.map(
                         dataset_id=unmapped(dataset_id),
                         table_id=table_ids,
                         date_column_name=unmapped({"date": "data_extracao"}), #register_date
                         date_format=unmapped("%Y-%m-%d"),
                         coverage_type=unmapped("all_bdpro"),
-                        #time_delta=unmapped({"months": 6}),
                         prefect_mode=unmapped(materialization_mode),
                         bq_project=unmapped("basedosdados"),
                         upstream_tasks=[unmapped(wait_for_materialization)],
