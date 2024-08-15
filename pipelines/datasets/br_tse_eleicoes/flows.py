@@ -96,9 +96,9 @@ with Flow(
                     "table_id": table_id,
                     "mode": materialization_mode,
                     "dbt_alias": dbt_alias,
-                    "dbt_command": "run/test",
+                    "dbt_command": "run",
                     "disable_elementary": False,
-                    "download_csv_file": False
+                    # "download_csv_file": False
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
@@ -120,16 +120,17 @@ with Flow(
             )
             # coverage updater
 
-        with case(update_metadata, True):
-            update_django_metadata(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                historical_database=False,
-                date_format="%Y-%m-%d",
-                prefect_mode=materialization_mode,
-                bq_project="basedosdados",
-                upstream_tasks=[wait_for_materialization],
-            )
+            with case(update_metadata, True):
+                update_django_metadata(
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    historical_database=False,
+                    date_format="%Y-%m-%d",
+                    prefect_mode=materialization_mode,
+                    coverage_type="all_free",
+                    bq_project="basedosdados",
+                    upstream_tasks=[wait_for_materialization],
+                )
 
 br_tse_candidatos.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_tse_candidatos.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
@@ -162,7 +163,7 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    data_source_max_date = get_data_source_max_date()
+    data_source_max_date = get_data_source_max_date(upstream_tasks=[rename_flow_run])
 
     outdated = check_if_data_is_outdated(
         dataset_id=dataset_id,
@@ -199,7 +200,7 @@ with Flow(
                     "table_id": table_id,
                     "mode": materialization_mode,
                     "dbt_alias": dbt_alias,
-                    "dbt_command": "run/test",
+                    "dbt_command": "run",
                     "disable_elementary": False,
                 },
                 labels=current_flow_labels,
@@ -228,7 +229,8 @@ with Flow(
                 historical_database=False,
                 date_format="%Y-%m-%d",
                 prefect_mode=materialization_mode,
-                bq_project="basedosdados-dev",
+                coverage_type="all_free",
+                bq_project="basedosdados",
                 upstream_tasks=[wait_for_materialization],
             )
 

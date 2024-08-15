@@ -17,11 +17,11 @@ from pipelines.datasets.br_tse_eleicoes.constants import constants as tse_consta
 from pipelines.utils.utils import log
 
 
-def conv_data(date: str) -> str:
+def conv_data(date: str, birth: bool = False) -> str:
   try:
     data_datetime = datetime.strptime(date, "%d/%m/%Y")
     idade = datetime.now().year - data_datetime.year
-    if not 18 <= idade < 120:
+    if not 18 <= idade < 120 and birth:
       raise Exception("Idade Inválida")
     return data_datetime.strftime('%Y-%m-%d')
   except:
@@ -123,7 +123,7 @@ def format_df_base(base: pd.DataFrame) -> pd.DataFrame:
     # Formatar datas
 
     base["data_eleicao"] = base["data_eleicao"].apply(conv_data)
-    base["data_nascimento"] = base["data_nascimento"].apply(conv_data)
+    base["data_nascimento"] = base["data_nascimento"].apply(lambda date: conv_data(date, birth=True))
 
     # Formatar Colunas com slug
 

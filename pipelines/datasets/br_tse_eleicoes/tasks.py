@@ -88,7 +88,7 @@ def preparing_data_bens_candidato() -> None:
 
     path_output = os.path.join( "/tmp/data/", "output", "ano=2024")
 
-    file_path = os.path.join(path_output, "bens_candidato.csv ")
+    file_path = os.path.join(path_output, "bens_candidato.csv")
 
     os.makedirs(path_output, exist_ok=True)
 

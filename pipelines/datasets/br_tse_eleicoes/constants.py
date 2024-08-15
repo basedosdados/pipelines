@@ -30,7 +30,7 @@ class constants(Enum):  # pylint: disable=c0103
             'data_eleicao': 'DT_ELEICAO',
             'sigla_uf': 'SG_UF',
             'id_municipio': 'id_municipio',
-            'id_municipio_tse': 'id_municipio_tse',
+            'id_municipio_tse': 'SG_UE',
             'id_candidato_bd': 'id_candidato_bd',
             'cpf': 'NR_CPF_CANDIDATO',
             'titulo_eleitoral': 'NR_TITULO_ELEITORAL_CANDIDATO',
