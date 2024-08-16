@@ -42,7 +42,9 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
 
     """
     # Try to get project_id from environment variable
+
     if not project_id:
+
         log("Project ID was not provided, geting from bd_project_mode")
         try:
             project_id = constants.MODE_TO_PROJECT_DICT.value[bd_project_mode]
@@ -72,10 +74,7 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
             "Billing project ID was not provided, trying to get it from environment variable"
         )
         try:
-            bd_base = Base()
-            billing_project_id = bd_base.config["gcloud-projects"][bd_project_mode][
-                "name"
-            ]
+            billing_project_id = constants.MODE_TO_PROJECT_DICT.value[bd_project_mode]
         except KeyError:
             pass
         if not billing_project_id:

@@ -89,18 +89,18 @@ with Flow(
             current_flow_labels = get_current_flow_labels()
             materialization_flow = create_flow_run(
                 flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+                project_name=constants.PREFECT_STAGING_PROJECT.value,
                 parameters={
                     "dataset_id": dataset_id,
                     "table_id": table_id,
                     "mode": materialization_mode,
                     "dbt_alias": dbt_alias,
-                    "dbt_command": "run/test",
+                    "dbt_command": "run",
                     "disable_elementary": False
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks=[wait_upload_table]
+                upstream_tasks=[data]
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -192,18 +192,18 @@ with Flow(
             current_flow_labels = get_current_flow_labels()
             materialization_flow = create_flow_run(
                 flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+                project_name=constants.PREFECT_STAGING_PROJECT.value,
                 parameters={
                     "dataset_id": dataset_id,
                     "table_id": table_id,
                     "mode": materialization_mode,
                     "dbt_alias": dbt_alias,
-                    "dbt_command": "run/test",
+                    "dbt_command": "run",
                     "disable_elementary": False,
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks=[wait_upload_table],
+                upstream_tasks=[outdated],
             )
 
             wait_for_materialization = wait_for_flow_run(
