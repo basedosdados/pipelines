@@ -2,7 +2,8 @@
 """
 Tasks for br_rf_cno
 """
-
+from datetime import datetime, timedelta
+from pipelines.constants import constants
 import os
 from bs4 import BeautifulSoup
 from datetime import datetime
@@ -106,7 +107,10 @@ def wrangling(input_dir: str, output_dir: str, partition_date: str) -> None:
     log('----- Wrangling completed')
 
 
-@task
+@task(
+    max_retries=5,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def crawl_cno(root: str, url: str) -> None:
     """
     Downloads and unpacks a ZIP file from the given URL.
