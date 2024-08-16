@@ -140,7 +140,7 @@ with Flow(
                     update_django_metadata.map(
                         dataset_id=unmapped(dataset_id),
                         table_id=table_ids,
-                        date_column_name=unmapped({"date": "data_extracao"}), #register_date
+                        date_column_name=unmapped({"date": "data_extracao"}),
                         date_format=unmapped("%Y-%m-%d"),
                         coverage_type=unmapped("all_bdpro"),
                         prefect_mode=unmapped(materialization_mode),
