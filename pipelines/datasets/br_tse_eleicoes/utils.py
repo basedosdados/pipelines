@@ -85,7 +85,7 @@ def form_df_base() -> pd.DataFrame:
     municipios = bd.read_sql(
         tse_constants.QUERY_MUNIPIPIOS.value,
         from_file=True,
-        billing_project_id="basedosdados-dev"
+        billing_project_id="basedosdados"
     )
 
     temp_merge_left = pd.merge(canditados24, complementar24, left_on="SQ_CANDIDATO", right_on='SQ_CANDIDATO', how='left')
