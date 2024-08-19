@@ -8,8 +8,6 @@ Tasks for br_tse_eleicoes
 from prefect import task
 from datetime import datetime
 
-from pipelines.utils.crawler_tse_eleicoes.constants import constants as tse_constants
-
 from pipelines.utils.crawler_tse_eleicoes.utils import (
     flows_catalog,
 )

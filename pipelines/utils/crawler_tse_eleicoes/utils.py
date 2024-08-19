@@ -49,7 +49,7 @@ def flows_catalog() -> dict:
     "candidatos": {
       "flow": Candidatos,
       "urls": tse_constants.CANDIDATOS_URLS.value,
-      "source": "consulta_cand_2024_BRASIL"
+      "source": "consulta_cand_2024_BRASIL.csv"
                    },
     "bens_candidato": {
       "flow": BensCandidato,
