@@ -10,6 +10,28 @@ from prefect.schedules.clocks import IntervalClock
 
 from pipelines.constants import constants
 
+
+schedule_candidatos = Schedule(
+    clocks=[
+        IntervalClock(
+            interval=timedelta(days=1),
+            start_date=datetime(2024, 1, 1, 10, 0),
+            labels=[
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+            ],
+            parameter_defaults={
+                "dataset_id": "br_tse_eleicoes",
+                "table_id": "candidatos",
+                "materialization_mode": "prod",
+                "materialize after dump": True,
+                "dbt_alias": True,
+                "update_metadata": True
+            },
+        ),
+    ],
+    filters=[filters.is_weekday],
+)
+
 schedule_bens = Schedule(
     clocks=[
         IntervalClock(
@@ -21,11 +43,10 @@ schedule_bens = Schedule(
             parameter_defaults={
                 "dataset_id": "br_tse_eleicoes",
                 "table_id": "bens_candidato",
-                "start": 2018,
-                "id_candidato_bd": False,
                 "materialization_mode": "prod",
                 "materialize after dump": True,
-                "dbt_alias": False,
+                "dbt_alias": True,
+                "update_metadata": True
             },
         ),
     ],
@@ -43,10 +64,10 @@ schedule_despesa = Schedule(
             parameter_defaults={
                 "dataset_id": "br_tse_eleicoes",
                 "table_id": "despesas_candidato",
-                "id_candidato_bd": False,
                 "materialization_mode": "prod",
                 "materialize after dump": True,
-                "dbt_alias": False,
+                "dbt_alias": True,
+                "update_metadata": True
             },
         ),
     ],
@@ -65,10 +86,10 @@ schedule_receita = Schedule(
             parameter_defaults={
                 "dataset_id": "br_tse_eleicoes",
                 "table_id": "receitas_candidato",
-                "id_candidato_bd": False,
                 "materialization_mode": "prod",
                 "materialize after dump": True,
-                "dbt_alias": False,
+                "dbt_alias": True,
+                "update_metadata": True
             },
         ),
     ],
