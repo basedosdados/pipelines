@@ -32,7 +32,7 @@ from pipelines.utils.metadata.tasks import (
 )
 
 with Flow(
-    name="br_tse_eleicoes.candidatos", code_owners=["luiz"]
+    name="BD template - BR_TSE_ELEICOES", code_owners=["luiz"]
 ) as br_tse_eleicoes:
 
     # Parameters
