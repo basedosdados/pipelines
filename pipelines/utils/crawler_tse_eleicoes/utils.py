@@ -54,17 +54,17 @@ def flows_catalog() -> dict:
     "bens_candidato": {
       "flow": BensCandidato,
       "urls": [tse_constants.BENS_CANDIDATOS24.value],
-      "despesas_candidato": "bem_candidato_2024_BRASIL.csv"
+      "source": "bem_candidato_2024_BRASIL.csv"
                    },
     "despesas_candidato": {
-      "flow": BensCandidato,
-      "urls": [tse_constants.BENS_CANDIDATOS24.value],
-      "despesas_candidato": "despesas_contratadas_candidatos_2024_BRASIL.csv"
+      "flow": None,
+      "urls": [None],
+      "source": "despesas_contratadas_candidatos_2024_BRASIL.csv"
                    },
     "receitas_candidato": {
-      "flow": BensCandidato,
-      "urls": [tse_constants.BENS_CANDIDATOS24.value],
-      "despesas_candidato": "receitas_candidatos_2024_BRASIL.csv"
+      "flow": None,
+      "urls": [None],
+      "source": "receitas_candidatos_2024_BRASIL.csv"
                    }
   }
 
