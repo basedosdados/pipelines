@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import requests
 import pandas as pd
 from datetime import datetime
@@ -17,7 +18,7 @@ def get_dataset_name(organization_id: str, dataset_id: str, header: dict[str, st
     Parameters:
     - organization_id (str): The ID of the organization whose datasets are to be fetched.
     - dataset_id (str): The ID of the dataset whose name is to be retrieved.
-    - header (dict[str, str]): A dictionary containing HTTP headers to be sent with the request. 
+    - header (dict[str, str]): A dictionary containing HTTP headers to be sent with the request.
                                 This typically includes authentication tokens.
 
     Returns:
@@ -54,7 +55,7 @@ def get_resources_response(dataset_name: str) -> dict[str, any]:
                        and the values can be of any type depending on the API's response structure.
     """
     request_url = f"https://dados.gov.br/api/publico/conjuntos-dados/{dataset_name}"
-    
+
     response = requests.get(url=request_url)
     response.raise_for_status()
     return response.json()
