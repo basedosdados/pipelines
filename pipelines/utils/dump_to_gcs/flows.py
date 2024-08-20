@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# ! register flow
 """
 Flows for dumping data directly from BigQuery to GCS.
 """
