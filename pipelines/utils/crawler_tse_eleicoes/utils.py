@@ -107,16 +107,16 @@ class BrTseEleicoes:
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36",
     }
 
-    # r = requests.get(url, headers=request_headers, stream=True, timeout=60)
+    r = requests.get(url, headers=request_headers, stream=True, timeout=60)
 
     save_path = self.path_input / url.split("/")[-1]
 
-    # with open(save_path, "wb") as fd:
-    #     for chunk in r.iter_content(chunk_size=chunk_size):
-    #         fd.write(chunk)
+    with open(save_path, "wb") as fd:
+        for chunk in r.iter_content(chunk_size=chunk_size):
+            fd.write(chunk)
 
-    # with zipfile.ZipFile(save_path) as z:
-    #     z.extractall(self.path_input)
+    with zipfile.ZipFile(save_path) as z:
+        z.extractall(self.path_input)
 
 
     if not self.path_main:
