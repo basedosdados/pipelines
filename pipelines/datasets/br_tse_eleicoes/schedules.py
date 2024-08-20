@@ -3,19 +3,19 @@
 Schedules for br_tse_eleicoes
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime
 
-from prefect.schedules import Schedule, filters
-from prefect.schedules.clocks import IntervalClock
+from prefect.schedules import Schedule
+from prefect.schedules.clocks import CronClock
 
 from pipelines.constants import constants
 
 
 schedule_candidatos = Schedule(
     clocks=[
-        IntervalClock(
-            interval=timedelta(days=1),
-            start_date=datetime(2024, 8, 1, 2, 0),
+        CronClock(
+            cron="0 2 * * *", #everyday at 04:05
+            start_date=datetime(2024, 8, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -26,17 +26,17 @@ schedule_candidatos = Schedule(
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True
-            },
-        ),
-    ],
-    filters=[filters.is_weekday],
+            }
+        )
+    ]
+
 )
 
 schedule_bens = Schedule(
     clocks=[
-        IntervalClock(
-            interval=timedelta(days=1),
-            start_date=datetime(2024, 8, 1, 2, 30),
+        CronClock(
+            cron="30 2 * * *", #everyday at 04:05
+            start_date=datetime(2024, 8, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -47,17 +47,16 @@ schedule_bens = Schedule(
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True
-            },
-        ),
-    ],
-    filters=[filters.is_weekday],
+            }
+        )
+    ]
 )
 
 schedule_despesa = Schedule(
     clocks=[
-        IntervalClock(
-            interval=timedelta(days=1),
-            start_date=datetime(2024, 8, 1, 3, 0),
+        CronClock(
+            cron="0 3 * * *", #everyday at 04:05
+            start_date=datetime(2024, 8, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -68,18 +67,17 @@ schedule_despesa = Schedule(
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True
-            },
-        ),
-    ],
-    filters=[filters.is_weekday],
+            }
+        )
+    ]
 )
 
 
 schedule_receita = Schedule(
     clocks=[
-        IntervalClock(
-            interval=timedelta(days=1),
-            start_date=datetime(2024, 8, 1, 3, 30),
+        CronClock(
+            cron="30 3 * * *", #everyday at 04:05
+            start_date=datetime(2024, 8, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -90,8 +88,7 @@ schedule_receita = Schedule(
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True
-            },
-        ),
-    ],
-    filters=[filters.is_weekday],
+            }
+        )
+    ]
 )
