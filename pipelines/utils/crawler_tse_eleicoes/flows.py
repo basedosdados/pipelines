@@ -65,8 +65,8 @@ with Flow(
     outdated = check_if_data_is_outdated(
         dataset_id=dataset_id,
         table_id=table_id,
+        date_type="last_update_date",
         data_source_max_date=data_source_max_date,
-        date_format="%Y-%m-%d",
         upstream_tasks=[data_source_max_date],
     )
 
@@ -121,8 +121,8 @@ with Flow(
                 update_django_metadata(
                     dataset_id=dataset_id,
                     table_id=table_id,
-                    historical_database=False,
-                    date_format="%Y-%m-%d",
+                    date_column_name={"year": "ano"},
+                    date_format="%Y",
                     prefect_mode=materialization_mode,
                     coverage_type="all_free",
                     bq_project="basedosdados",
