@@ -36,7 +36,7 @@ def get_url_from_template(file) -> str:
     Raises:
         Exception: If there is an error in the HTTP request with status code 4xx or 5xx.
     """
-    download_page = f"https://dadosabertos.ans.gov.br/FTP/PDA/informacoes_consolidadas_de_beneficiarios/{file}/"
+    download_page = f"https://dadosabertos.ans.gov.br/FTP/PDA/informacoes_consolidadas_de_beneficiarios-024/{file}/"
     response = requests.get(download_page, timeout=5)
 
     if response.status_code >= 400 and response.status_code <= 599:
