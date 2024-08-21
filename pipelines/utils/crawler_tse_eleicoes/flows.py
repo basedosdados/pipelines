@@ -121,7 +121,7 @@ with Flow(
                 update_django_metadata(
                     dataset_id=dataset_id,
                     table_id=table_id,
-                    date_column_name={"year": "ano"},
+                    date_column_name={"date": "data_eleicao"},
                     date_format="%Y",
                     prefect_mode=materialization_mode,
                     coverage_type="all_free",
