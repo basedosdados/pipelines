@@ -13,14 +13,13 @@ from google.api_core.exceptions import NotFound
 from google.cloud import bigquery
 from prefect import task
 from google.cloud.bigquery import TableReference
+from pipelines.constants import constants
 
-from pipelines.utils.dump_to_gcs.constants import constants as dump_to_gcs_constants
 from pipelines.utils.utils import (
     determine_whether_to_execute_or_not,
     get_redis_client,
     log,
 )
-
 
 @task
 def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
@@ -36,25 +35,27 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
     Get data from BigQuery.
 
     As regras de negócio são:
-        - Se a tabela for maior que 5GB: Não tem download disponível
-        - Se a tabela for entre 100MB e 5GB: Tem downalod apenas para assinante BDPro
+        - Se a tabela for maior que 1GB: Não tem download disponível
+        - Se a tabela for entre 100MB e 1GB: Tem downalod apenas para assinante BDPro
         - Se a tabela for menor que 100MB: Tem download para assinante BDPro e aberto
             - Se for parcialmente BDPro faz o download de arquivos diferentes para o público pagante e não pagante
 
     """
     # Try to get project_id from environment variable
+
     if not project_id:
-        log("Project ID was not provided, trying to get it from environment variable")
+
+        log("Project ID was not provided, geting from bd_project_mode")
         try:
-            bd_base = Base()
-            project_id = bd_base.config["gcloud-projects"][bd_project_mode]["name"]
+            project_id = constants.MODE_TO_PROJECT_DICT.value[bd_project_mode]
         except KeyError:
             pass
+
         if not project_id:
             raise ValueError(
-                "project_id must be either provided or inferred from environment variables"
+                "project_id must be either provided or inferred from bd_project_mode"
             )
-        log(f"Project ID was inferred from environment variables: {project_id}")
+        log(f"Project ID was inferred from bd_project_mode: {project_id}")
 
     # Asserts that dataset_id and table_id are provided
     if not dataset_id or not table_id:
@@ -65,9 +66,6 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
         query = f"SELECT * FROM `{project_id}.{dataset_id}.{table_id}`"
         log(f"Query was inferred from dataset_id and table_id: {query}")
 
-    # If query is not a string, raise an error
-    if not isinstance(query, str):
-        raise ValueError("query must be either a string or a Jinja2 template")
     log(f"Query was provided: {query}")
 
     # Get billing project ID
@@ -76,10 +74,7 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
             "Billing project ID was not provided, trying to get it from environment variable"
         )
         try:
-            bd_base = Base()
-            billing_project_id = bd_base.config["gcloud-projects"][bd_project_mode][
-                "name"
-            ]
+            billing_project_id = constants.MODE_TO_PROJECT_DICT.value[bd_project_mode]
         except KeyError:
             pass
         if not billing_project_id:

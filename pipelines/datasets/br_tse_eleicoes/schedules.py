@@ -3,74 +3,92 @@
 Schedules for br_tse_eleicoes
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime
 
-from prefect.schedules import Schedule, filters
-from prefect.schedules.clocks import IntervalClock
+from prefect.schedules import Schedule
+from prefect.schedules.clocks import CronClock
 
 from pipelines.constants import constants
 
+
+schedule_candidatos = Schedule(
+    clocks=[
+        CronClock(
+            cron="0 2 * * *", #everyday at 04:05
+            start_date=datetime(2024, 8, 1, 0, 0),
+            labels=[
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+            ],
+            parameter_defaults={
+                "dataset_id": "br_tse_eleicoes",
+                "table_id": "candidatos",
+                "materialization_mode": "prod",
+                "materialize_after_dump": True,
+                "dbt_alias": True,
+                "update_metadata": True
+            }
+        )
+    ]
+
+)
+
 schedule_bens = Schedule(
     clocks=[
-        IntervalClock(
-            interval=timedelta(days=1),
-            start_date=datetime(2021, 1, 1, 10, 0),
+        CronClock(
+            cron="30 2 * * *", #everyday at 04:05
+            start_date=datetime(2024, 8, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_tse_eleicoes",
                 "table_id": "bens_candidato",
-                "start": 2018,
-                "id_candidato_bd": False,
                 "materialization_mode": "prod",
-                "materialize after dump": True,
-                "dbt_alias": False,
-            },
-        ),
-    ],
-    filters=[filters.is_weekday],
+                "materialize_after_dump": True,
+                "dbt_alias": True,
+                "update_metadata": True
+            }
+        )
+    ]
 )
 
 schedule_despesa = Schedule(
     clocks=[
-        IntervalClock(
-            interval=timedelta(days=1),
-            start_date=datetime(2021, 1, 1, 10, 15),
+        CronClock(
+            cron="0 3 * * *", #everyday at 04:05
+            start_date=datetime(2024, 8, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_tse_eleicoes",
                 "table_id": "despesas_candidato",
-                "id_candidato_bd": False,
                 "materialization_mode": "prod",
-                "materialize after dump": True,
-                "dbt_alias": False,
-            },
-        ),
-    ],
-    filters=[filters.is_weekday],
+                "materialize_after_dump": True,
+                "dbt_alias": True,
+                "update_metadata": True
+            }
+        )
+    ]
 )
 
 
 schedule_receita = Schedule(
     clocks=[
-        IntervalClock(
-            interval=timedelta(days=1),
-            start_date=datetime(2021, 1, 1, 10, 30),
+        CronClock(
+            cron="30 3 * * *", #everyday at 04:05
+            start_date=datetime(2024, 8, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_tse_eleicoes",
                 "table_id": "receitas_candidato",
-                "id_candidato_bd": False,
                 "materialization_mode": "prod",
-                "materialize after dump": True,
-                "dbt_alias": False,
-            },
-        ),
-    ],
-    filters=[filters.is_weekday],
+                "materialize_after_dump": True,
+                "dbt_alias": True,
+                "update_metadata": True
+            }
+        )
+    ]
 )
