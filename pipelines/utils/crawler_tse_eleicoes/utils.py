@@ -19,9 +19,10 @@ from pathlib import Path
 def conv_data(date: str, birth: bool = False) -> str:
   try:
     data_datetime = datetime.strptime(date, "%d/%m/%Y")
-    idade = datetime.now().year - data_datetime.year
-    if not 18 <= idade < 120 and birth:
-      raise Exception("Idade Inválida")
+    if birth:
+      idade = datetime.now().year - data_datetime.year
+      if not 18 <= idade < 120 :
+        raise Exception("Idade Inválida")
     return data_datetime.strftime('%Y-%m-%d')
   except:
     return ""
@@ -57,13 +58,13 @@ def flows_catalog() -> dict:
       "source": "bem_candidato_2024_BRASIL.csv"
                    },
     "despesas_candidato": {
-      "flow": None,
-      "urls": [None],
+      "flow": DespesasCandidato,
+      "urls": [tse_constants.DESPESAS_RECEITAS24.value],
       "source": "despesas_contratadas_candidatos_2024_BRASIL.csv"
                    },
     "receitas_candidato": {
       "flow": None,
-      "urls": [None],
+      "urls": [tse_constants.DESPESAS_RECEITAS24.value],
       "source": "receitas_candidatos_2024_BRASIL.csv"
                    }
   }
@@ -166,62 +167,62 @@ class Candidatos(BrTseEleicoes):
 
   def form_df_base(self) -> pd.DataFrame:
 
-      municipios = bd.read_sql(
-          tse_constants.QUERY_MUNIPIPIOS.value,
-          from_file=True,
-          billing_project_id=self.billing_project_id
-      )
+    municipios = bd.read_sql(
+        tse_constants.QUERY_MUNIPIPIOS.value,
+        from_file=True,
+        billing_project_id=self.billing_project_id
+    )
 
-      temp_merge_left = pd.merge(self.df_main, self.df_complement,
-                                 left_on="SQ_CANDIDATO", right_on='SQ_CANDIDATO', how='left')
+    temp_merge_left = pd.merge(self.df_main, self.df_complement,
+                                left_on="SQ_CANDIDATO", right_on='SQ_CANDIDATO', how='left')
 
-      temp_merge_left["SG_UE"] = temp_merge_left["SG_UE"].str.lstrip("0") # Precisamos limpas alguns zero a esquerda
+    temp_merge_left["SG_UE"] = temp_merge_left["SG_UE"].str.lstrip("0") # Precisamos limpas alguns zero a esquerda
 
-      temp_merge_left = pd.merge(temp_merge_left, municipios,
-                                 left_on="SG_UE", right_on="id_municipio_tse", how="left")
+    temp_merge_left = pd.merge(temp_merge_left, municipios,
+                                left_on="SG_UE", right_on="id_municipio_tse", how="left")
 
-      temp_merge_left["id_candidato_bd"] = ""
+    temp_merge_left["id_candidato_bd"] = ""
 
-      base = temp_merge_left.loc[:, tse_constants.ORDER.value.values()]
+    base = temp_merge_left.loc[:, tse_constants.ORDER.value.values()]
 
-      base.fillna("", inplace=True)
+    base.fillna("", inplace=True)
 
-      base.columns = tse_constants.ORDER.value.keys()
+    base.columns = tse_constants.ORDER.value.keys()
 
-      removes = ["#NULO", "#NE", "NÃO DIVULGÁVEL", "Não Divulgável",
-            "-1", "-4", "-3"]
+    removes = ["#NULO", "#NE", "NÃO DIVULGÁVEL", "Não Divulgável",
+          "-1", "-4", "-3"]
 
-      removes_upper = {remove.upper(): "" for remove in removes}
+    removes_upper = {remove.upper(): "" for remove in removes}
 
-      base.replace(removes_upper, regex=False, inplace=True)
+    base.replace(removes_upper, regex=False, inplace=True)
 
-      # Formatar datas
+    # Formatar datas
 
-      base["data_eleicao"] = base["data_eleicao"].apply(conv_data)
-      base["data_nascimento"] = base["data_nascimento"].apply(lambda date: conv_data(date, birth=True))
+    base["data_eleicao"] = base["data_eleicao"].apply(conv_data)
+    base["data_nascimento"] = base["data_nascimento"].apply(lambda date: conv_data(date, birth=True))
 
-      # Formatar Colunas com slug
+    # Formatar Colunas com slug
 
-      slug_columns_format = ["tipo_eleicao", "cargo", "situacao",
-                        "ocupacao", "genero", "instrucao",
-                        "estado_civil", "nacionalidade", "raca"]
+    slug_columns_format = ["tipo_eleicao", "cargo", "situacao",
+                      "ocupacao", "genero", "instrucao",
+                      "estado_civil", "nacionalidade", "raca"]
 
-      base[slug_columns_format] = base[slug_columns_format].applymap(slugify)
+    base[slug_columns_format] = base[slug_columns_format].applymap(slugify)
 
-      base["instrucao"] = base["instrucao"].apply(add_ensino)
+    base["instrucao"] = base["instrucao"].apply(add_ensino)
 
-      # Colocar nomes como title como dados em produção
+    # Colocar nomes como title como dados em produção
 
-      for column_to_format in ["municipio_nascimento", "nome", "nome_urna"]:
-          base[column_to_format] = base[column_to_format].str.title()
+    for column_to_format in ["municipio_nascimento", "nome", "nome_urna"]:
+        base[column_to_format] = base[column_to_format].str.title()
 
-      # trocar `brasileira nata` para `brasileira`
+    # trocar `brasileira nata` para `brasileira`
 
-      base["nacionalidade"] = base["nacionalidade"].str.replace("brasileira nata", "brasileira")
+    base["nacionalidade"] = base["nacionalidade"].str.replace("brasileira nata", "brasileira")
 
-      base.drop_duplicates(inplace=True)
+    base.drop_duplicates(inplace=True)
 
-      return base
+    return base
 
 
 class BensCandidato(BrTseEleicoes):
@@ -241,6 +242,62 @@ class BensCandidato(BrTseEleicoes):
 
     base["data_eleicao"] = base["data_eleicao"].apply(conv_data)
     base["tipo_eleicao"]= base["tipo_eleicao"].apply(slugify)
+
+    base.drop_duplicates(inplace=True)
+
+    return base
+
+
+class DespesasCandidato(BrTseEleicoes):
+
+  def form_df_base(self) -> pd.DataFrame:
+
+    municipios = bd.read_sql(
+          tse_constants.QUERY_MUNIPIPIOS.value,
+          from_file=True,
+          billing_project_id=self.billing_project_id
+      )
+
+    self.df_main["SG_UE"] = self.df_main["SG_UE"].str.lstrip("0") # Precisamos limpas alguns zero a esquerda
+
+    self.df_main = pd.merge(self.df_main, municipios, left_on="SG_UE", right_on="id_municipio_tse", how="left")
+
+    vazios = ['tipo_despesa', 'cnpj_candidato', 'especie_recurso',
+              'fonte_recurso', "id_candidato_bd", "esfera_partidaria_fornecedor"]
+
+    self.df_main[vazios] = ""
+
+    base = self.df_main.loc[:, tse_constants.ORDER_DESPESAS.value.values()]
+
+    del self.df_main
+
+    base.fillna("", inplace=True)
+
+    base.columns = tse_constants.ORDER_DESPESAS.value.keys()
+
+    removes = ["#NULO", "#NULO#", "#NE", "NÃO DIVULGÁVEL", "Não Divulgável",
+            "-1", "-4", "-3"]
+
+    removes_upper = {remove.upper(): "" for remove in removes}
+
+    base.replace(removes_upper, regex=False, inplace=True)
+
+    slug_columns_format = ["tipo_eleicao", "cargo", "origem_despesa",
+                          "tipo_prestacao_contas", "tipo_documento", "descricao_cnae_2_fornecedor",
+                          "tipo_fornecedor"]
+
+    base[slug_columns_format] = base[slug_columns_format].applymap(slugify)
+
+    # Formatar datas
+
+    date_columns = ["data_eleicao", "data_despesa", "data_prestacao_contas"]
+
+    base[date_columns] = base[date_columns].applymap(conv_data)
+
+    base.tipo_eleicao = base.tipo_eleicao.str.replace(
+      rf"eleicoes municipais {self.year}(?!\s-\s)", "eleicao ordinaria", regex=True)
+
+    base['valor_despesa'] = base['valor_despesa'].str.replace(',', '.')
 
     base.drop_duplicates(inplace=True)
 
