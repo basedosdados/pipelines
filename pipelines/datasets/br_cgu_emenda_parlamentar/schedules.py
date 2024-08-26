@@ -15,7 +15,7 @@ every_day_emenda_parlamentar = Schedule(
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
-                "dataset_id": "br_cgu_beneficios_cidadao",
+                "dataset_id": "br_cgu_emenda_parlamentar",
                 "table_id": "emenda_parlamentar",
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
