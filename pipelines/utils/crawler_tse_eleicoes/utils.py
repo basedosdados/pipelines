@@ -63,7 +63,7 @@ def flows_catalog() -> dict:
       "source": "despesas_contratadas_candidatos_2024_BRASIL.csv"
                    },
     "receitas_candidato": {
-      "flow": None,
+      "flow": ReceitasCandidato,
       "urls": [tse_constants.DESPESAS_RECEITAS24.value],
       "source": "receitas_candidatos_2024_BRASIL.csv"
                    }
@@ -257,8 +257,10 @@ class DespesasCandidato(BrTseEleicoes):
           from_file=True,
           billing_project_id=self.billing_project_id
       )
+    # Precisamos limpas alguns zero a esquerda
 
-    self.df_main["SG_UE"] = self.df_main["SG_UE"].str.lstrip("0") # Precisamos limpas alguns zero a esquerda
+    for date_column in ["SG_UE", "id_municipio_tse_fornecedor"]:
+      self.df_main[date_column] = self.df_main[date_column].str.lstrip("0")
 
     self.df_main = pd.merge(self.df_main, municipios, left_on="SG_UE", right_on="id_municipio_tse", how="left")
 
@@ -298,6 +300,72 @@ class DespesasCandidato(BrTseEleicoes):
       rf"eleicoes municipais {self.year}(?!\s-\s)", "eleicao ordinaria", regex=True)
 
     base['valor_despesa'] = base['valor_despesa'].str.replace(',', '.')
+
+    base.drop_duplicates(inplace=True)
+
+    return base
+
+
+class ReceitasCandidato(BrTseEleicoes):
+
+  def form_df_base(self) -> pd.DataFrame:
+
+    municipios = bd.read_sql(
+          tse_constants.QUERY_MUNIPIPIOS.value,
+          from_file=True,
+          billing_project_id=self.billing_project_id
+      )
+
+    # Precisamos limpas alguns zero a esquerda
+
+    for date_column in ["SG_UE", "CD_MUNICIPIO_DOADOR"]:
+      self.df_main[date_column] = self.df_main[date_column].str.lstrip("0")
+
+    self.df_main = pd.merge(self.df_main, municipios, left_on="SG_UE", right_on="id_municipio_tse", how="left")
+
+    # Preparar as colunas vazias
+
+    vazios = ["id_candidato_bd", "cnpj_candidato", "titulo_eleitor_candidato","situacao_receita",'cpf_cnpj_doador_orig',
+              'nome_doador_orig','nome_doador_orig_rf','tipo_doador_orig','descricao_cnae_2_doador_orig',
+              'nome_administrador','cpf_administrador','numero_recibo_eleitoral','numero_documento',"entrega_conjunto"]
+
+    self.df_main[vazios] = ""
+
+    base = self.df_main.loc[:, tse_constants.ORDER_RECEITA.value.values()]
+
+    # del receitas20
+
+    base.fillna("", inplace=True)
+
+    base.columns = tse_constants.ORDER_RECEITA.value.keys()
+
+    # Remover nulos e não divulgaveis
+
+    removes = ["#NULO", "#NULO#", "#NE", "NÃO DIVULGÁVEL", "Não Divulgável",
+            "-1", "-4", "-3"]
+
+    removes_upper = {remove.upper(): "" for remove in removes}
+
+    base.replace(removes_upper, regex=False, inplace=True)
+
+    # Gerar slugs
+    slug_columns_format = ["tipo_eleicao", "cargo", "origem_receita",
+                          "natureza_receita", "especie_receita", "cargo_candidato_doador",
+                          "descricao_cnae_2_doador", "tipo_prestacao_contas", "esfera_partidaria_doador",
+                          "fonte_receita"]
+
+    base[slug_columns_format] = base[slug_columns_format].applymap(slugify)
+
+    # Formatar colunas com datas
+
+    date_columns = ["data_eleicao", "data_receita", "data_prestacao_contas"]
+
+    base[date_columns] = base[date_columns].applymap(conv_data)
+
+    base.tipo_eleicao = base.tipo_eleicao.str.replace(
+      rf"eleicoes municipais {self.year}(?!\s-\s)", "eleicao ordinaria", regex=True)
+
+    base['valor_receita'] = base['valor_receita'].str.replace(',', '.')
 
     base.drop_duplicates(inplace=True)
 
