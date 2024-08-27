@@ -35,7 +35,7 @@ with Flow(
     update_metadata_table = Parameter(
         "update_metadata_table", default=False, required=False
     )
-    days = Parameter("days", default=7, required=False)
+    year = Parameter("year", default=2024, required=False)
     mode = Parameter("mode", default="prod", required=False)
     current_flow_labels = get_current_flow_labels()
 
@@ -57,7 +57,7 @@ with Flow(
 
     # Consulta e  seleciona apenas as tabelas que atendem os critérios de tamanho e abertura(bdpro)
 
-    eligible_to_zip_tables = query_tables(days=days, mode=mode)
+    eligible_to_zip_tables = query_tables(year=year, mode=mode)
     tables_to_zip = filter_eligible_download_tables(
         eligible_to_zip_tables, upstream_tasks=[eligible_to_zip_tables]
     )
