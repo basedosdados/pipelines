@@ -20,6 +20,8 @@ env:
   PREFECT__CLOUD__PORT: 443
   PREFECT__SERVER__PROJECT: ${{ secrets.PREFECT__SERVER__PROJECT__STAGING }}
   PREFECT_AUTH_TOML: ${{ secrets.PREFECT_AUTH_TOML }}
+  VAULT_ADDRESS: https://vault.basedosdados.org/
+  VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
 jobs:
   build-container:
     if: startsWith(github.head_ref, 'staging/')
