@@ -6,7 +6,7 @@ General purpose functions for the metadata project
 import requests
 import basedosdados as bd
 
-from datetime import datetime
+from datetime import datetime, time
 from time import sleep
 from typing import Dict, Tuple
 from basedosdados.download.base import google_client
@@ -737,7 +737,7 @@ def update_data_source_update_date(dataset_id: str,table_id: str,date_type: str,
 
 
     if date_type == 'last_update_date':
-        latest =  data_source_max_date.isoformat()
+        latest =  datetime.combine(data_source_max_date, time()).isoformat()
     else:
         latest = datetime.today().isoformat()
 
