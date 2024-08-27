@@ -6,7 +6,7 @@ Tasks for br_tse_eleicoes
 # pylint: disable=invalid-name,line-too-long
 
 from prefect import task
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from pipelines.utils.crawler_tse_eleicoes.utils import (
     flows_catalog,
@@ -30,7 +30,10 @@ def flows_control(table_id: str, mode: str) -> Type[T]:
   return flow
 
 
-@task
+@task(
+    max_retries=1,
+    retry_delay=timedelta(seconds=60),
+)
 def get_data_source_max_date(flow_class) -> datetime:
    flow_class.download_urls()
    date = flow_class.get_data_source_max_date()
