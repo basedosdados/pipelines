@@ -255,7 +255,7 @@ class DespesasCandidato(BrTseEleicoes):
       )
     # Precisamos limpas alguns zero a esquerda
 
-    for date_column in ["SG_UE", "id_municipio_tse_fornecedor"]:
+    for date_column in ["SG_UE", "CD_MUNICIPIO_FORNECEDOR"]:
       self.df_main[date_column] = self.df_main[date_column].str.lstrip("0")
 
     self.df_main = pd.merge(self.df_main, municipios, left_on="SG_UE", right_on="id_municipio_tse", how="left")
