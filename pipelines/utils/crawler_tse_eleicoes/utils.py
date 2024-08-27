@@ -150,6 +150,8 @@ class BrTseEleicoes:
     base = self.form_df_base()
     # Etapa de salvar a base
 
+    base.drop_duplicates(inplace=True)
+
     path_output = self.path_output / f"ano={self.year}"
 
     file_path = path_output / f"{self.table_id}.csv"
@@ -216,8 +218,6 @@ class Candidatos(BrTseEleicoes):
 
     base["nacionalidade"] = base["nacionalidade"].str.replace("brasileira nata", "brasileira")
 
-    base.drop_duplicates(inplace=True)
-
     return base
 
 
@@ -238,8 +238,6 @@ class BensCandidato(BrTseEleicoes):
 
     base["data_eleicao"] = base["data_eleicao"].apply(conv_data)
     base["tipo_eleicao"]= base["tipo_eleicao"].apply(slugify)
-
-    base.drop_duplicates(inplace=True)
 
     return base
 
@@ -291,8 +289,6 @@ class DespesasCandidato(BrTseEleicoes):
       rf"eleicoes municipais {self.year}(?!\s-\s)", "eleicao ordinaria", regex=True)
 
     base['valor_despesa'] = base['valor_despesa'].str.replace(',', '.')
-
-    base.drop_duplicates(inplace=True)
 
     return base
 
@@ -352,7 +348,5 @@ class ReceitasCandidato(BrTseEleicoes):
       rf"eleicoes municipais {self.year}(?!\s-\s)", "eleicao ordinaria", regex=True)
 
     base['valor_receita'] = base['valor_receita'].str.replace(',', '.')
-
-    base.drop_duplicates(inplace=True)
 
     return base
