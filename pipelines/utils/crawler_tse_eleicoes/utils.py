@@ -85,6 +85,7 @@ class BrTseEleicoes:
     self.billing_project_id = tse_constants.MODE_TO_PROJECT_DICT.value[mode]
     self.query = tse_constants.QUERY_COUNT_MODIFIED.value.format(table_id=table_id,
                                                                  mode=self.billing_project_id, year=year)
+    self.remove = {remove.upper(): "" for remove in tse_constants.REMOVES.value}
     self.base_path = Path(tempfile.gettempdir(), "data")
     self.path_input = self.base_path / "input"
     self.path_output = self.base_path / "output"
@@ -189,12 +190,7 @@ class Candidatos(BrTseEleicoes):
 
     base.columns = tse_constants.ORDER.value.keys()
 
-    removes = ["#NULO", "#NE", "NÃO DIVULGÁVEL", "Não Divulgável",
-          "-1", "-4", "-3"]
-
-    removes_upper = {remove.upper(): "" for remove in removes}
-
-    base.replace(removes_upper, regex=False, inplace=True)
+    base.replace(self.remove, regex=False, inplace=True)
 
     # Formatar datas
 
@@ -277,12 +273,7 @@ class DespesasCandidato(BrTseEleicoes):
 
     base.columns = tse_constants.ORDER_DESPESAS.value.keys()
 
-    removes = ["#NULO", "#NULO#", "#NE", "NÃO DIVULGÁVEL", "Não Divulgável",
-            "-1", "-4", "-3"]
-
-    removes_upper = {remove.upper(): "" for remove in removes}
-
-    base.replace(removes_upper, regex=False, inplace=True)
+    base.replace(self.remove, regex=False, inplace=True)
 
     slug_columns_format = ["tipo_eleicao", "cargo", "origem_despesa",
                           "tipo_prestacao_contas", "tipo_documento", "descricao_cnae_2_fornecedor",
@@ -341,12 +332,7 @@ class ReceitasCandidato(BrTseEleicoes):
 
     # Remover nulos e não divulgaveis
 
-    removes = ["#NULO", "#NULO#", "#NE", "NÃO DIVULGÁVEL", "Não Divulgável",
-            "-1", "-4", "-3"]
-
-    removes_upper = {remove.upper(): "" for remove in removes}
-
-    base.replace(removes_upper, regex=False, inplace=True)
+    base.replace(self.remove, regex=False, inplace=True)
 
     # Gerar slugs
     slug_columns_format = ["tipo_eleicao", "cargo", "origem_receita",

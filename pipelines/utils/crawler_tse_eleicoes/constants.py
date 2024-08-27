@@ -25,6 +25,7 @@ class constants(Enum):  # pylint: disable=c0103
         "dev": "basedosdados-dev"
     }
 
+    REMOVES = ["#NULO", "#NULO#", "#NE", "NÃO DIVULGÁVEL", "Não Divulgável", "-1", "-4", "-3"]
 
     # Candidtos
 
