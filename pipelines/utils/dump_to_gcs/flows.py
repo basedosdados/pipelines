@@ -13,8 +13,6 @@ from pipelines.utils.decorators import Flow
 from pipelines.utils.dump_to_gcs.tasks import (
     download_data_to_gcs,
     get_project_id,
-    trigger_cron_job,
-    update_last_trigger,
 )
 from pipelines.datasets.cross_update.tasks import get_all_eligible_in_selected_year
 from pipelines.utils.tasks import rename_current_flow_run_dataset_table

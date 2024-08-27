@@ -3,7 +3,6 @@ from basedosdados import backend as bd
 from basedosdados.download.base import google_client
 from time import sleep
 from pipelines.utils.utils import log
-from pipelines.utils.dump_to_gcs.constants import constants as dump_to_gcs_constants
 from google.cloud import bigquery
 from google.cloud.bigquery import TableReference
 
