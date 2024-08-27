@@ -15,7 +15,6 @@ from google.cloud import bigquery
 from prefect import task
 from google.cloud.bigquery import TableReference
 from pipelines.utils.dump_to_gcs.utils import execute_query_in_bigquery
-from pipelines.utils.dump_to_gcs.constants import constants as dump_to_gcs_constants
 from pipelines.utils.utils import (
     determine_whether_to_execute_or_not,
     get_redis_client,
