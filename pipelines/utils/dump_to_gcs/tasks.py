@@ -222,7 +222,6 @@ def get_project_id(
     log(f"Project ID was inferred from environment variables: {project_id}")
     return project_id
 
-
 @task(nout=2)
 def trigger_cron_job(
     project_id: str,
