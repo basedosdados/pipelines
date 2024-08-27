@@ -324,7 +324,7 @@ class ReceitasCandidato(BrTseEleicoes):
 
     base = self.df_main.loc[:, tse_constants.ORDER_RECEITA.value.values()]
 
-    # del receitas20
+    del self.df_main
 
     base.fillna("", inplace=True)
 
