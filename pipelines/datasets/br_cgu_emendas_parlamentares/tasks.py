@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from urllib.request import urlopen
+from datetime import datetime
 import zipfile
+import basedosdados as bd
 import pandas as pd
 from io import BytesIO
 from pipelines.utils.utils import log
@@ -36,3 +38,22 @@ def convert_str_to_float():
     df.to_csv(output, sep=',', encoding='utf-8', index=False)
     log("---------------- Tabela salva -------------------")
     return constants.OUTPUT.value
+
+@task
+def get_last_modified_time():
+
+    emendas = pd.read_csv(f"{constants.INPUT.value}Emendas.csv", sep=';', encoding='latin1')
+
+    data = bd.read_sql(
+    constants.QUERY.value,
+    billing_project_id="basedosdados-dev",
+    from_file=True )
+
+    date = data.iloc[0].values
+    log("Data da última atualização: " + str(date[1]))
+    log("Quantidade de linhas na tabela: " + str(date[0]))
+    log("Quantidade de linhas no arquivo: " + str(emendas.shape[0]))
+    if emendas.shape[0] > date[0]:
+        return datetime.today()
+
+    return date[1]
