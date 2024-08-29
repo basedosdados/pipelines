@@ -4,7 +4,7 @@ import zipfile
 import pandas as pd
 from io import BytesIO
 from pipelines.utils.utils import log
-from pipelines.datasets.br_cgu_emenda_parlamentar.constants import constants
+from pipelines.datasets.br_cgu_emendas_parlamentares.constants import constants
 from prefect import task
 import os
 

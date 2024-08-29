@@ -5,10 +5,10 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 from pipelines.constants import constants
-from pipelines.datasets.br_cgu_emenda_parlamentar.schedules import (
-    every_day_emenda_parlamentar
+from pipelines.datasets.br_cgu_emendas_parlamentares.schedules import (
+    every_day_emendas_parlamentares
 )
-from pipelines.datasets.br_cgu_emenda_parlamentar.tasks import (
+from pipelines.datasets.br_cgu_emendas_parlamentares.tasks import (
     convert_str_to_float
 )
 from pipelines.utils.constants import constants as utils_constants
@@ -25,12 +25,12 @@ from pipelines.utils.tasks import (  # update_django_metadata,
 
 
 with Flow(
-    name="br_cgu_emenda_parlamentar.microdados",
+    name="br_cgu_emendas_parlamentares.microdados",
     code_owners=[
         "tricktx",
     ],
-) as br_cgu_emenda_parlamentar_flow:
-    dataset_id = Parameter("dataset_id", default="br_cgu_emenda_parlamentar", required=False)
+) as br_cgu_emendas_parlamentares_flow:
+    dataset_id = Parameter("dataset_id", default="br_cgu_emendas_parlamentares", required=False)
     table_id = Parameter("table_id", default="microdados", required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
     materialization_mode = Parameter("materialization_mode", default="dev", required=False)
@@ -94,6 +94,6 @@ with Flow(
                 upstream_tasks=[wait_for_materialization],
             )
 
-br_cgu_emenda_parlamentar_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_cgu_emenda_parlamentar_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_cgu_emenda_parlamentar_flow.schedule = every_day_emenda_parlamentar
+br_cgu_emendas_parlamentares_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_cgu_emendas_parlamentares_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_cgu_emendas_parlamentares_flow.schedule = every_day_emendas_parlamentares

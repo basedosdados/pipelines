@@ -6,7 +6,7 @@ from prefect.schedules.clocks import CronClock, IntervalClock
 
 from pipelines.constants import constants
 
-every_day_emenda_parlamentar = Schedule(
+every_day_emendas_parlamentares = Schedule(
     clocks=[
         CronClock(
             cron="30 19 * * *",  # At 19:30 every day
