@@ -97,11 +97,11 @@ with Flow(
                 update_django_metadata(
                     dataset_id=dataset_id,
                     table_id=table_id,
-                    date_format="%Y-%m",
+                    date_format="%Y",
                     coverage_type="part_bdpro",
-                    time_delta={"months": 6},
+                    time_delta={"year": 1},
                     prefect_mode=materialization_mode,
-                    historical_database=False,
+                    historical_database=True,
                     bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
