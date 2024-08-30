@@ -97,7 +97,7 @@ with Flow(
                 update_django_metadata(
                     dataset_id=dataset_id,
                     table_id=table_id,
-                    date_format="%Y-%m-%d",
+                    date_format="%Y",
                     coverage_type="all_bdpro",
                     prefect_mode=materialization_mode,
                     historical_database=False,
