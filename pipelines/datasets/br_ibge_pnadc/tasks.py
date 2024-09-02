@@ -10,18 +10,21 @@ from glob import glob
 
 import numpy as np
 import pandas as pd
-import pyarrow as pa
-import pyarrow.parquet as pq
 import requests
 from prefect import task
 from tqdm import tqdm
+from datetime import datetime
+from bs4 import BeautifulSoup
+
+from pipelines.datasets.br_ibge_pnadc.utils import get_extraction_year
 
 from pipelines.datasets.br_ibge_pnadc.constants import constants as pnad_constants
-from pipelines.utils.utils import log, to_partitions
+from pipelines.utils.utils import log
+
 
 
 @task
-def get_url_from_template(year: int, quarter: int) -> str:
+def get_data_source_date_and_url() -> tuple[datetime, str]:
     """Return the url for the PNAD microdata file for a given year and month.
     Args:
         year (int): Year of the microdata file.
@@ -29,23 +32,27 @@ def get_url_from_template(year: int, quarter: int) -> str:
     Returns:
         str: url
     """
-    download_page = f"https://ftp.ibge.gov.br/Trabalho_e_Rendimento/Pesquisa_Nacional_por_Amostra_de_Domicilios_continua/Trimestral/Microdados/{year}/"
-    response = requests.get(download_page, timeout=5)
+
+    year = get_extraction_year()
+
+    download_page = pnad_constants.URL_PREFIX.value.format(year=year)
+
+    response = requests.get(download_page, timeout=60)
+
     if response.status_code >= 400 and response.status_code <= 599:
         raise Exception(f"Erro de requisição: status code {response.status_code}")
 
-    else:
-        hrefs = [k for k in response.text.split('href="')[1:] if "zip" in k]
-        hrefs = [k.split('"')[0] for k in hrefs]
-        filename = None
-        for href in hrefs:
-            if f"0{quarter}{year}" in href:
-                filename = href
-        if not filename:
-            raise Exception("Erro: o atributo href não existe.")
+    soup = BeautifulSoup(response.text)
+    hrefs = [row.get("href") for row in soup.select("tr td a")]
+    dates = [row.text.strip().split(" ")[0] for row in soup.select("table td:nth-child(3)")]
+    dados = dict(zip(dates, hrefs))
+    last_update = max(dados.keys())
+    filename = dados[last_update]
 
-        url = pnad_constants.URL_PREFIX.value + "/{year}/{filename}"
-    return url.format(year=year, filename=filename)
+    last_modified = datetime.strptime(last_update, "%Y-%m-%d")
+    url = download_page + f"{filename}"
+
+    return last_modified, url
 
 
 @task
@@ -150,58 +157,3 @@ def build_parquet_files(save_path: str) -> str:
     log("Partitions created")
 
     return "/tmp/data/output/"
-
-
-### Unused task
-# @task
-# def save_partitions(filepath: str) -> str:
-#     """
-#     Save partitions to disk.
-
-#     Args:
-#         filepath (str): Path to the file used to build the partitions.
-
-#     Returns:
-#         str: Path to the saved file.
-#     """
-#     os.system("mkdir -p /tmp/data/output/")
-#     output_dir = "/tmp/data/output/"
-#     os.listdir(output_dir)
-#     # Read Parquet file incrementally
-#     chunksize = 10000
-#     for i, fp in enumerate(Path("/tmp/data/staging/").glob("*.parquet")):
-#         # Process each chunk
-#         parquet_file = pq.ParquetFile(f"{fp}")
-#         for batch in parquet_file.iter_batches(batch_size=chunksize):
-#             table = pa.Table.from_batches([batch])
-#             chunk = table.to_pandas()
-#             trimestre = chunk["trimestre"].unique()[0]
-#             ano = chunk["ano"].unique()[0]
-#             chunk.drop(columns=["trimestre", "ano"], inplace=True)
-#             ufs = chunk["sigla_uf"].unique()
-
-#             for uf in ufs:
-#                 df_uf = chunk[chunk["sigla_uf"] == uf]
-#                 df_uf.drop(columns=["sigla_uf"], inplace=True)
-
-#                 os.makedirs(
-#                     os.path.join(
-#                         output_dir, f"ano={ano}/trimestre={trimestre}/sigla_uf={uf}"
-#                     ),
-#                     exist_ok=True,
-#                 )
-
-#                 # Save to CSV incrementally
-#                 df_uf.to_csv(
-#                     f"{output_dir}/ano={ano}/trimestre={trimestre}/sigla_uf={uf}/microdados.csv",
-#                     index=False,
-#                     mode="a",
-#                     header=not os.path.exists(
-#                         f"{output_dir}/ano={ano}/trimestre={trimestre}/sigla_uf={uf}/microdados.csv"
-#                     ),
-#                 )
-
-#             # Release memory
-#             del df_uf
-
-#     return output_dir
