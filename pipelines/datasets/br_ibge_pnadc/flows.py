@@ -76,9 +76,8 @@ with Flow(name="br_ibge_pnadc.microdados", code_owners=["lauris"]) as br_pnadc:
         )
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels(pstream_tasks=[wait_upload_table])
+            current_flow_labels = get_current_flow_labels()
             materialization_flow = create_flow_run(
-                pstream_tasks=[current_flow_labels],
                 flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
                 project_name=constants.PREFECT_DEFAULT_PROJECT.value,
                 parameters={
