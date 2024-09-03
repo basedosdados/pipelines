@@ -65,7 +65,7 @@ with Flow(
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
 
     url = Parameter(
@@ -180,7 +180,7 @@ with Flow(
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
     url = Parameter(
         "url",
@@ -293,7 +293,7 @@ with Flow(
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
     url = Parameter(
         "url",
@@ -407,7 +407,7 @@ with Flow(
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
     url = Parameter(
         "url",
@@ -516,7 +516,7 @@ with Flow(
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
     url = Parameter(
         "url",
@@ -611,7 +611,7 @@ with Flow(
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
     url = Parameter(
         "url",
