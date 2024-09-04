@@ -8,6 +8,7 @@ import os
 import re
 import zipfile
 from datetime import datetime
+from typing import Tuple
 
 import pandas as pd
 import requests
@@ -114,7 +115,7 @@ def download_unzip_csv(
 
 
 @task
-def extract_links_and_dates(url) -> pd.DataFrame:
+def extract_links_and_dates(url) -> Tuple[pd.DataFrame, str]:
     """
     Extracts all file names and their respective last update dates in a pandas dataframe.
     """
@@ -134,6 +135,7 @@ def extract_links_and_dates(url) -> pd.DataFrame:
         for link in links:
             if link.has_attr("href") and link["href"].endswith(".zip"):
                 links_zip.append(link["href"])
+
 
     # Encontra todas as datas de atualização dentro do HTML
     padrao = r"\d{2}-\w{3}-\d{4} \d{2}:\d{2}"
@@ -162,19 +164,33 @@ def extract_links_and_dates(url) -> pd.DataFrame:
         lambda x: datetime.strptime(x, "%d-%b-%Y %H:%M").strftime("%Y-%m-%d")
     )
 
-    df["desatualizado"] = df["data_hoje"] == df["ultima_atualizacao"]
+    data_maxima = df['ultima_atualizacao'].max()
 
-    # df['desatualizado'] = df['arquivo'].apply(lambda x: True if x in ['inf_diario_fi_202201.zip','inf_diario_fi_202305.zip'] else False)
-    return df
+    return df, data_maxima
 
 
 @task
-def check_for_updates(df):
+def generate_links_to_download(df: pd.DataFrame, max_date: datetime) -> list[str]:
     """
     Checks for outdated tables.
     """
+    #trocar desatualizado == TRUE por, ultima_atualizacao > max_date
+    lists = df.query(f"ultima_atualizacao == '{max_date}'").arquivo.to_list()
 
-    return df.query("desatualizado == True").arquivo.to_list()
+    log(f'The following files will be downloaded: {lists}')
+
+    return lists
+
+
+@task
+def check_for_updates(df: pd.DataFrame):
+    """
+    Checks for outdated tables.
+    """
+    #trocar desatualizado == TRUE por, ultima_atualizacao > max_date
+    return df.query(f"ultima_atualizacao == '1'").arquivo.to_list()
+
+
 
 
 @task
