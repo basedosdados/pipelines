@@ -109,7 +109,7 @@ with Flow(name="br_ibge_pnadc.microdados", code_owners=["lauris"]) as br_pnadc:
                 dataset_id=dataset_id,
                 table_id=table_id,
                 date_column_name={"year": "ano", "quarter": "trimestre"},
-                date_format="%Y",
+                date_format="%Y-%m",
                 coverage_type="all_free",
                 prefect_mode=materialization_mode,
                 bq_project="basedosdados",
