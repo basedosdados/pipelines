@@ -16,27 +16,58 @@ from pipelines.utils.utils import log
 from selenium.webdriver.firefox.options import Options
 
 def web_scrapping():
-    log("Criando as pastas")
+    log("testando cloud")
     if not os.path.exists(stf_constants.STF_INPUT.value):
         os.mkdir(stf_constants.STF_INPUT.value)
-    options = Options()
+    # options = Options()
 
-    options.add_argument('--headless')
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_argument("--disable-blink-features=AutomationControlled")
-    options.add_argument("--disable-extensions")
-    options.add_argument("--incognito")
+    # options.add_argument('--headless')
+    # options.add_argument('--no-sandbox')
+    # options.add_argument('--disable-dev-shm-usage')
+    # options.add_argument("--disable-blink-features=AutomationControlled")
+    # options.add_argument("--disable-extensions")
+    # options.add_argument("--incognito")
 
-    # Configurações específicas de download no Firefox
-    options.set_preference("browser.download.folderList", 2)  # Use 2 para salvar no diretório especificado
-    options.set_preference("browser.download.dir", stf_constants.STF_INPUT.value)
-    options.set_preference("browser.helperApps.neverAsk.saveToDisk", "text/csv")  # Specify MIME type for automatic download
-    options.set_preference("browser.download.manager.showWhenStarting", False)
-    options.set_preference("pdfjs.disabled", True)  # Desativa o visualizador de PDFs interno
+    # # Configurações específicas de download no Firefox
+    # options.set_preference("browser.download.folderList", 2)  # Use 2 para salvar no diretório especificado
+    # options.set_preference("browser.download.dir", stf_constants.STF_INPUT.value)
+    # options.set_preference("browser.helperApps.neverAsk.saveToDisk", "text/csv")  # Specify MIME type for automatic download
+    # options.set_preference("browser.download.manager.showWhenStarting", False)
+    # options.set_preference("pdfjs.disabled", True)  # Desativa o visualizador de PDFs interno
 
 
-    driver = webdriver.Firefox(options=options)
+    # driver = webdriver.Firefox(options=options)
+
+    options = webdriver.ChromeOptions()
+
+    # https://github.com/SeleniumHQ/selenium/issues/11637
+    prefs = {
+        "download.default_directory": stf_constants.STF_INPUT.value,
+        "download.prompt_for_download": False,
+        "download.directory_upgrade": True,
+        "safebrowsing.enabled": True,
+    }
+
+    options.add_experimental_option(
+        "prefs",
+        prefs,
+    )
+
+    options.add_argument("--headless")
+    # NOTE: The traditional --headless, and since version 96, Chrome has a new headless mode that allows users to get the full browser functionality (even run extensions). Between versions 96 to 108 it was --headless=chrome, after version 109 --headless=new
+    options.add_argument("--test-type")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--no-first-run")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--no-default-browser-check")
+    options.add_argument("--ignore-certificate-errors")
+    options.add_argument("--start-maximized")
+    options.add_argument(
+        "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
+    )
+
+    driver = webdriver.Chrome(options=options)
     log(1)
     driver.get("https://transparencia.stf.jus.br/extensions/decisoes/decisoes.html")
     time.sleep(10)
@@ -127,7 +158,7 @@ def partition_data(df: pd.DataFrame, column_name: list[str], output_directory: s
 
 
 def check_for_data():
-
+    log("task 1")
     web_scrapping()
     log("Iniciando o check for data")
     arquivos = os.listdir(stf_constants.STF_INPUT.value)
