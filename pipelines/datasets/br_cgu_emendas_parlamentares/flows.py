@@ -29,7 +29,7 @@ from pipelines.utils.tasks import (  # update_django_metadata,
 with Flow(
     name="br_cgu_emendas_parlamentares.microdados",
     code_owners=[
-        "tricktx",
+        "trick",
     ],
 ) as br_cgu_emendas_parlamentares_flow:
     dataset_id = Parameter("dataset_id", default="br_cgu_emendas_parlamentares", required=False)
