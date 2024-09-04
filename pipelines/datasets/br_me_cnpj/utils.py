@@ -50,10 +50,10 @@ def data_url(url, headers):
             link_data = requests.get(url, headers=headers, timeout=timeout)
             time.sleep(2)
             soup = BeautifulSoup(link_data.text, "html.parser")
-            span_element = soup.find_all("td", align="right")
 
+            span_element = soup.find_all("td", align="right")
             # Extrai a segunda ocorrência
-            data_completa = span_element[1].text.strip()
+            data_completa = span_element[3].text.strip()
             # Extrai a parte da data no formato "YYYY-MM-DD"
             data_str = data_completa[0:10]
             # Converte a string da data em um objeto de data
