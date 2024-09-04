@@ -113,6 +113,7 @@ async def download(
     timeout: int = 3 * 60 * 2,
 ) -> bytes:
     request_head = httpx.head(url)
+    log(request_head)
 
     assert request_head.status_code == 200
     assert request_head.headers["accept-ranges"] == "bytes"
