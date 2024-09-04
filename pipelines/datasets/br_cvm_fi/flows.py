@@ -88,7 +88,7 @@ with Flow(
     )
 
     with case(check_if_outdated, False):
-        log_task(f"Não houveram atualizações em {url.default}!")
+        log_task(f"A execução sera agendada para a próxima data definida na schedule")
 
     with case(check_if_outdated, True):
 
@@ -202,7 +202,7 @@ with Flow(
 
 
     with case(check_if_outdated, False):
-        log_task(f"Não houveram atualizações em {url.default}!")
+        log_task(f"A execução sera agendada para a próxima data definida na schedule")
 
     with case(check_if_outdated, True):
         arquivos = generate_links_to_download(df=df, max_date=max_date)
@@ -319,7 +319,7 @@ with Flow(
     )
 
     with case(check_if_outdated, False):
-        log_task(f"Não houveram atualizações em {url.default}!")
+        log_task(f"A execução sera agendada para a próxima data definida na schedule")
 
     with case(check_if_outdated, True):
         arquivos = generate_links_to_download(df=df, max_date=max_date)
@@ -427,7 +427,7 @@ with Flow(
     )
 
     with case(check_if_outdated, False):
-        log_task(f"Não houveram atualizações em {url.default}!")
+        log_task(f"A execução sera agendada para a próxima data definida na schedule")
 
     with case(check_if_outdated, True):
 
@@ -527,7 +527,7 @@ with Flow(
     files = Parameter("files", default=cvm_constants.CAD_FILE.value, required=False)
 
     with case(is_empty(files), True):
-        log_task(f"Não houveram atualizações em {url.default}!")
+        log_task(f"A execução sera agendada para a próxima data definida na schedule")
 
     with case(is_empty(files), False):
         input_filepath = download_csv_cvm(url=url, files=files, table_id=table_id)
@@ -631,7 +631,7 @@ with Flow(
     )
 
     with case(check_if_outdated, False):
-        log_task(f"Não houveram atualizações em {url.default}!")
+        log_task(f"A execução sera agendada para a próxima data definida na schedule")
 
     with case(check_if_outdated, True):
 
