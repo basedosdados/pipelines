@@ -93,7 +93,8 @@ def main(tabelas):
         for i in range(0, 10):
             if tabela != "Simples":
                 nome_arquivo = f"{tabela}{i}"
-                url_download = f"http://200.152.38.155/CNPJ/{tabela}{i}.zip"
+                url_download = f"https://dadosabertos.rfb.gov.br/CNPJ/dados_abertos_cnpj/2024-08/{tabela}{i}.zip"
+                #url_download = f"http://200.152.38.155/CNPJ/{tabela}{i}.zip"
                 if nome_arquivo not in arquivos_baixados:
                     arquivos_baixados.append(nome_arquivo)
                     asyncio.run((download_unzip_csv(url_download, input_path)))
@@ -107,7 +108,8 @@ def main(tabelas):
                         process_csv_empresas(input_path, output_path, data_coleta, i)
             else:
                 nome_arquivo = f"{tabela}"
-                url_download = f"http://200.152.38.155/CNPJ/{tabela}.zip"
+                url_download = f"https://dadosabertos.rfb.gov.br/CNPJ/dados_abertos_cnpj/2024-08/{tabela}.zip"
+                #url_download = f"http://200.152.38.155/CNPJ/{tabela}.zip"
                 if nome_arquivo not in arquivos_baixados:
                     arquivos_baixados.append(nome_arquivo)
                     asyncio.run((download_unzip_csv(url_download, input_path)))
