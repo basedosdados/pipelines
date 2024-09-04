@@ -68,6 +68,7 @@ def web_scrapping():
     )
 
     driver = webdriver.Chrome(options=options)
+    log(driver.page_source)
     log(1)
     driver.get("https://transparencia.stf.jus.br/extensions/decisoes/decisoes.html")
     time.sleep(10)
