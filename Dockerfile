@@ -52,3 +52,6 @@ RUN python3 -m pip install --prefer-binary --no-cache-dir -U . && \
     mkdir -p /opt/prefect/app/bases && \
     mkdir -p /root/.basedosdados/templates && \
     mkdir -p /root/.basedosdados/credentials/
+
+# https://stackoverflow.com/questions/67090130/webdriverexception-process-unexpectedly-closed-with-status-255-selenium-ge
+RUN apt-get update && apt-get install -y wget bzip2 libxtst6 libgtk-3-0 libx11-xcb-dev libdbus-glib-1-2 libxt6 libpci-dev && rm -rf /var/lib/apt/lists/*
