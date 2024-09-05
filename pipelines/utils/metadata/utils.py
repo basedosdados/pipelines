@@ -199,6 +199,7 @@ def extract_last_date_from_bq(
         date_column (dict): Nomes das colunas usadas para consulta no BigQuery com datas.
             As chaves do dicionário determinam como a data máxima será consultada na tabela:
             - {'date'}: MAX('date')
+            - {'year'}: MAX(DATE(year, 1, 1))
             - {'year', 'quarter'}: MAX(DATE(year, month*3, 1))
             - {'year', 'month'}: MAX(DATE(year, month, 1))
         billing_project_id (str): Projeto BigQuery utilizado para faturamento.
@@ -255,6 +256,8 @@ def extract_last_date_from_bq(
 def format_date_column(date_column: dict) -> str:
     if date_column.keys() == {"date"}:
         query_date_column = date_column["date"]
+    if date_column.keys() == {"year"}:
+        query_date_column = f"DATE({date_column['year']},1,1)"
     if date_column.keys() == {"year", "quarter"}:
         query_date_column = f"DATE({date_column['year']},{date_column['quarter']}*3,1)"
     if date_column.keys() == {"year", "month"}:
