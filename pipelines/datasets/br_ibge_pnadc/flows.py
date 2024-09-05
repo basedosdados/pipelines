@@ -31,7 +31,7 @@ from pipelines.utils.tasks import (
 from pipelines.utils.to_download.tasks import to_download
 
 # pylint: disable=C0103
-with Flow(name="br_ibge_pnadc.microdados", code_owners=["lauris"]) as br_pnadc:
+with Flow(name="br_ibge_pnadc.microdados", code_owners=["luiz"]) as br_pnadc:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_ibge_pnadc", required=False)
     table_id = Parameter("table_id", default="microdados", required=False)
