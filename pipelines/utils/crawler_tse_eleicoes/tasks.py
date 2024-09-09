@@ -44,7 +44,7 @@ def get_data_source_max_date(flow_class) -> datetime:
 
 
 @task
-def preparing_data(flow_class) -> tuple:
+def preparing_data(flow_class) -> tuple[str, str, str]:
    flow_class.formatar()
    return flow_class.path_output, flow_class.date_column_name, flow_class.date_format
 
