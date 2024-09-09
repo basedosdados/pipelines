@@ -50,22 +50,30 @@ def flows_catalog() -> dict:
     "candidatos": {
       "flow": Candidatos,
       "urls": tse_constants.CANDIDATOS_URLS.value,
-      "source": "consulta_cand_2024_BRASIL.csv"
+      "source": "consulta_cand_2024_BRASIL.csv",
+      "date_column_name": "data_eleicao",
+      "date_format": "%Y"
                    },
     "bens_candidato": {
       "flow": BensCandidato,
       "urls": [tse_constants.BENS_CANDIDATOS24.value],
-      "source": "bem_candidato_2024_BRASIL.csv"
+      "source": "bem_candidato_2024_BRASIL.csv",
+      "date_column_name": "data_eleicao",
+      "date_format": "%Y"
                    },
     "despesas_candidato": {
       "flow": DespesasCandidato,
       "urls": [tse_constants.DESPESAS_RECEITAS24.value],
-      "source": "despesas_contratadas_candidatos_2024_BRASIL.csv"
+      "source": "despesas_contratadas_candidatos_2024_BRASIL.csv",
+      "date_column_name": "data_prestacao_contas",
+      "date_format": "%Y-%m-%d"
                    },
     "receitas_candidato": {
       "flow": ReceitasCandidato,
       "urls": [tse_constants.DESPESAS_RECEITAS24.value],
-      "source": "receitas_candidatos_2024_BRASIL.csv"
+      "source": "receitas_candidatos_2024_BRASIL.csv",
+      "date_column_name": "data_prestacao_contas",
+      "date_format": "%Y-%m-%d"
                    }
   }
 
@@ -76,12 +84,15 @@ def flows_catalog() -> dict:
 
 class BrTseEleicoes:
 
-  def __init__(self, urls: list, table_id: str, source: str, year: int = 2024, mode: str = "dev"):
+  def __init__(self, urls: list, table_id: str, source: str,
+               date_column_name: str, date_format: str, year: int = 2024, mode: str = "dev"):
 
     self.urls = urls
     self.year = year
     self.table_id = table_id
     self.source = source
+    self.date_column_name = date_column_name
+    self.date_format = date_format
     self.billing_project_id = tse_constants.MODE_TO_PROJECT_DICT.value[mode]
     self.query = tse_constants.QUERY_COUNT_MODIFIED.value.format(table_id=table_id,
                                                                  mode=self.billing_project_id, year=year)
