@@ -9,15 +9,52 @@ import pandas as pd
 from pandas import DataFrame
 from prefect import task
 from datetime import timedelta
+import requests
+from bs4 import BeautifulSoup
+from datetime import datetime
+import re
 from pipelines.constants import constants
 from pipelines.datasets.mundo_transfermarkt_competicoes.utils import (
     execucao_coleta,
     execucao_coleta_copa,
     data_url,
 )
+
+from pipelines.datasets.mundo_transfermarkt_competicoes.constants import (
+    constants as mundo_constants,
+)
 from pipelines.utils.utils import log, to_partitions
 
 ###############################################################################
+
+@task(
+    max_retries=1,
+    retry_delay=timedelta(seconds=60),
+)
+def get_data_source_max_date_copa() -> datetime:
+
+    season = mundo_constants.SEASON.value
+    base_url = f"https://www.transfermarkt.com.br/copa-do-brasil/gesamtspielplan/pokalwettbewerb/BRC/saison_id/{season}"
+
+    headers = {
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36"
+    }
+
+    html = requests.get(base_url, headers=headers, timeout=120)
+
+    soup = BeautifulSoup(html.text)
+
+    pattern = r'\d+/\d+/\d+'
+
+    datas = [re.findall(pattern, element.text)[0]
+             for element in soup.select("tr:not([class]) td.hide-for-small")
+             if re.findall(pattern, element.text)]
+
+    ultima_data = max([datetime.strptime(data, "%d/%m/%Y")
+                       for data in datas
+                       if datetime.strptime(data, "%d/%m/%Y") <= datetime.today()])
+    return ultima_data
+
 
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
