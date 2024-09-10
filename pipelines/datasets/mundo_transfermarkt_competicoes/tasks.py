@@ -31,10 +31,10 @@ from pipelines.utils.utils import log, to_partitions
     max_retries=1,
     retry_delay=timedelta(seconds=60),
 )
-def get_data_source_max_date() -> datetime:
+def get_data_source_max_date_copa() -> datetime:
 
     season = mundo_constants.SEASON.value
-    base_url = f"https://www.transfermarkt.com/copa-do-brasil/gesamtspielplan/pokalwettbewerb/BRC/saison_id/{season}"
+    base_url = f"https://www.transfermarkt.com.br/copa-do-brasil/gesamtspielplan/pokalwettbewerb/BRC/saison_id/{season}"
 
     headers = {
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36"
@@ -44,15 +44,15 @@ def get_data_source_max_date() -> datetime:
 
     soup = BeautifulSoup(html.text)
 
-    pattern = r'\b[A-Za-z]{3}\s+\d{2},\s+\d{4}\b'
+    pattern = r'\d+/\d+/\d+'
 
     datas = [re.findall(pattern, element.text)[0]
              for element in soup.select("tr:not([class]) td.hide-for-small")
              if re.findall(pattern, element.text)]
 
-    ultima_data = max([datetime.strptime(data, "%b %d, %Y")
+    ultima_data = max([datetime.strptime(data, "%d/%m/%Y")
                        for data in datas
-                       if datetime.strptime(data, "%b %d, %Y") <= datetime.today()])
+                       if datetime.strptime(data, "%d/%m/%Y") <= datetime.today()])
     return ultima_data
 
 

@@ -12,9 +12,6 @@ from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 from pipelines.constants import constants
 
 ###############################################################################
-from pipelines.datasets.mundo_transfermarkt_competicoes.constants import (
-    constants as mundo_constants,
-)
 from pipelines.datasets.mundo_transfermarkt_competicoes.schedules import (
     every_day_brasileirao,
     every_day_copa,
@@ -23,7 +20,7 @@ from pipelines.datasets.mundo_transfermarkt_competicoes.tasks import (
     execucao_coleta_sync,
     make_partitions,
     get_data_source_transfermarkt_max_date,
-    get_data_source_max_date
+    get_data_source_max_date_copa
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -149,7 +146,7 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    data_source_max_date = get_data_source_max_date()
+    data_source_max_date = get_data_source_max_date_copa()
 
     outdated = check_if_data_is_outdated(
         dataset_id=dataset_id,
