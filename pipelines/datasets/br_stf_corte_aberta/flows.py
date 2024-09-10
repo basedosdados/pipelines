@@ -110,3 +110,4 @@ with Flow(name="br_stf_corte_aberta.decisoes", code_owners=["trick"]) as br_stf:
 br_stf.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_stf.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 br_stf.schedule = every_day_stf
+

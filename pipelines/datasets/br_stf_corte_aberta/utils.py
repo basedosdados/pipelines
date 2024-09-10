@@ -5,44 +5,44 @@ General purpose functions for the br_stf_corte_aberta project
 import os
 import time
 from datetime import datetime
-
+from selenium.webdriver.common.by import By
+from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import numpy as np
 import pandas as pd
-from selenium import webdriver
-
 from pipelines.datasets.br_stf_corte_aberta.constants import constants as stf_constants
 from pipelines.utils.utils import log
-
+from selenium.webdriver.firefox.options import Options
 
 def web_scrapping():
+    log("Criando as pastas")
     if not os.path.exists(stf_constants.STF_INPUT.value):
         os.mkdir(stf_constants.STF_INPUT.value)
-    options = webdriver.ChromeOptions()
-    # https://github.com/SeleniumHQ/selenium/issues/11637
-    prefs = {
-        "download.default_directory": stf_constants.STF_INPUT.value,
-        "download.prompt_for_download": False,
-        "download.directory_upgrade": True,
-        "safebrowsing.enabled": True,
-    }
-    options.add_experimental_option(
-        "prefs",
-        prefs,
-    )
-    options.add_argument("--headless=new")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--crash-dumps-dir=/tmp")
-    options.add_argument("--remote-debugging-port=9222")
-    driver = webdriver.Chrome(options=options)
-    time.sleep(45)
-    driver.get(stf_constants.STF_LINK.value)
-    time.sleep(45)
+    options = Options()
+
+    options.add_argument('--headless')
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
+    options.add_argument("--disable-blink-features=AutomationControlled")
+    options.add_argument("--disable-extensions")
+    options.add_argument("--incognito")
+
+    # Configurações específicas de download no Firefox
+    options.set_preference("browser.download.folderList", 2)  # Use 2 para salvar no diretório especificado
+    options.set_preference("browser.download.dir", stf_constants.STF_INPUT.value)
+    options.set_preference("browser.helperApps.neverAsk.saveToDisk", "text/csv")  # Specify MIME type for automatic download
+    options.set_preference("browser.download.manager.showWhenStarting", False)
+    options.set_preference("pdfjs.disabled", True)  # Desativa o visualizador de PDFs interno
+
+
+    driver = webdriver.Firefox(options=options)
+    driver.get("https://transparencia.stf.jus.br/extensions/decisoes/decisoes.html")
+    time.sleep(10)
     driver.maximize_window()
-    time.sleep(45)
-    driver.find_element("xpath", '//*[@id="EXPORT-BUTTON-2"]/button').click()
-    time.sleep(90)
+    time.sleep(15)
+    WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="EXPORT-BUTTON-2"]/button'))).click()
+    time.sleep(15)
     driver.quit()
 
 
@@ -123,7 +123,7 @@ def partition_data(df: pd.DataFrame, column_name: list[str], output_directory: s
 
 
 def check_for_data():
-    log("Iniciando web scrapping")
+
     web_scrapping()
     log("Iniciando o check for data")
     arquivos = os.listdir(stf_constants.STF_INPUT.value)

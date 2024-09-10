@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
-
 from prefect.schedules import Schedule
 from prefect.schedules.clocks import CronClock, IntervalClock
-
 from pipelines.constants import constants
 
 every_day_emendas_parlamentares = Schedule(
@@ -15,8 +13,8 @@ every_day_emendas_parlamentares = Schedule(
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
-                "dataset_id": "br_cgu_emenda_parlamentar",
-                "table_id": "emenda_parlamentar",
+                "dataset_id": "br_cgu_emendas_parlamentares",
+                "table_id": "microdados",
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,

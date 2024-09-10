@@ -31,6 +31,7 @@ from pipelines.datasets.br_cvm_fi.tasks import (
     clean_data_make_partitions_ext,
     clean_data_make_partitions_perfil,
     download_csv_cvm,
+    generate_links_to_download,
     download_unzip_csv,
     extract_links_and_dates,
     is_empty,
@@ -38,15 +39,16 @@ from pipelines.datasets.br_cvm_fi.tasks import (
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.metadata.tasks import update_django_metadata
-from pipelines.utils.tasks import (  # update_django_metadata,
+from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
     log_task,
     rename_current_flow_run_dataset_table,
 )
-
-# rom pipelines.datasets.br_cvm_fi.schedules import every_day_cvm
+from pipelines.utils.metadata.tasks import (
+    check_if_data_is_outdated,
+    update_django_metadata,
+)
 
 with Flow(
     name="br_cvm_fi_documentos_informe_diario",
@@ -63,7 +65,7 @@ with Flow(
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
 
     url = Parameter(
@@ -71,14 +73,28 @@ with Flow(
         default=cvm_constants.INFORME_DIARIO_URL.value,
         required=False,
     )
-    df = extract_links_and_dates(url)
-    log_task(f"Links e datas: {df}")
-    arquivos = check_for_updates(df, upstream_tasks=[df])
-    log_task(f"Arquivos: {arquivos}")
-    with case(is_empty(arquivos), True):
-        log_task(f"Não houveram atualizações em {url.default}!")
 
-    with case(is_empty(arquivos), False):
+    df, max_date = extract_links_and_dates(url)
+
+    log_task(f"Links e datas: {df}")
+
+    check_if_outdated = check_if_data_is_outdated(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        data_source_max_date=max_date,
+        date_format="%Y-%m-%d",
+        date_type= 'last_update_date',
+        upstream_tasks=[df],
+    )
+
+    with case(check_if_outdated, False):
+        log_task(f"A execução sera agendada para a próxima data definida na schedule")
+
+    with case(check_if_outdated, True):
+
+        arquivos = generate_links_to_download(df=df, max_date=max_date)
+        log_task(f"Arquivos: {arquivos}")
+
         input_filepath = download_unzip_csv(
             files=arquivos, url=url, id=table_id, upstream_tasks=[arquivos]
         )
@@ -143,7 +159,7 @@ br_cvm_fi_documentos_informe_diario.storage = GCS(constants.GCS_FLOWS_BUCKET.val
 br_cvm_fi_documentos_informe_diario.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-#br_cvm_fi_documentos_informe_diario.schedule = every_day_informe
+br_cvm_fi_documentos_informe_diario.schedule = every_day_informe
 
 
 with Flow(
@@ -164,7 +180,7 @@ with Flow(
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
     url = Parameter(
         "url",
@@ -172,14 +188,25 @@ with Flow(
         required=False,
     )
 
-    df = extract_links_and_dates(url)
-    log_task(f"Links e datas: {df}")
-    arquivos = check_for_updates(df, upstream_tasks=[df])
-    log_task(f"Arquivos: {arquivos}")
-    with case(is_empty(arquivos), True):
-        log_task(f"Não houveram atualizações em {url.default}!")
+    df, max_date = extract_links_and_dates(url)
 
-    with case(is_empty(arquivos), False):
+
+    check_if_outdated = check_if_data_is_outdated(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        data_source_max_date=max_date,
+        date_format="%Y-%m-%d",
+        date_type= 'last_update_date',
+        upstream_tasks=[df],
+    )
+
+
+    with case(check_if_outdated, False):
+        log_task(f"A execução sera agendada para a próxima data definida na schedule")
+
+    with case(check_if_outdated, True):
+        arquivos = generate_links_to_download(df=df, max_date=max_date)
+
         input_filepath = download_unzip_csv(
             url=url, files=arquivos, id=table_id, upstream_tasks=[arquivos]
         )
@@ -246,7 +273,7 @@ br_cvm_fi_documentos_carteiras_fundos_investimento.storage = GCS(
 br_cvm_fi_documentos_carteiras_fundos_investimento.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-#br_cvm_fi_documentos_carteiras_fundos_investimento.schedule = every_day_carteiras
+br_cvm_fi_documentos_carteiras_fundos_investimento.schedule = every_day_carteiras
 
 
 with Flow(
@@ -266,7 +293,7 @@ with Flow(
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
     url = Parameter(
         "url",
@@ -280,13 +307,23 @@ with Flow(
         required=False,
     )
 
-    df = extract_links_and_dates(url)
-    arquivos = check_for_updates_ext(df, upstream_tasks=[df])
+    df, max_date = extract_links_and_dates(url)
 
-    with case(is_empty(arquivos), True):
-        log_task(f"Não houveram atualizações em {url.default}!")
+    check_if_outdated = check_if_data_is_outdated(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        data_source_max_date=max_date,
+        date_format="%Y-%m-%d",
+        date_type= 'last_update_date',
+        upstream_tasks=[df],
+    )
 
-    with case(is_empty(arquivos), False):
+    with case(check_if_outdated, False):
+        log_task(f"A execução sera agendada para a próxima data definida na schedule")
+
+    with case(check_if_outdated, True):
+        arquivos = generate_links_to_download(df=df, max_date=max_date)
+
         input_filepath = download_csv_cvm(
             url=url, table_id=table_id, files=arquivos, upstream_tasks=[arquivos]
         )
@@ -352,7 +389,7 @@ br_cvm_fi_documentos_extratos_informacoes.storage = GCS(
 br_cvm_fi_documentos_extratos_informacoes.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-#br_cvm_fi_documentos_extratos_informacoes.schedule = every_day_extratos
+br_cvm_fi_documentos_extratos_informacoes.schedule = every_day_extratos
 
 
 with Flow(
@@ -370,7 +407,7 @@ with Flow(
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
     url = Parameter(
         "url",
@@ -378,13 +415,24 @@ with Flow(
         required=False,
     )
 
-    df = extract_links_and_dates(url)
-    arquivos = check_for_updates(df, upstream_tasks=[df])
+    df, max_date = extract_links_and_dates(url)
 
-    with case(is_empty(arquivos), True):
-        log_task(f"Não houveram atualizações em {url.default}!")
+    check_if_outdated = check_if_data_is_outdated(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        data_source_max_date=max_date,
+        date_format="%Y-%m-%d",
+        date_type= 'last_update_date',
+        upstream_tasks=[df],
+    )
 
-    with case(is_empty(arquivos), False):
+    with case(check_if_outdated, False):
+        log_task(f"A execução sera agendada para a próxima data definida na schedule")
+
+    with case(check_if_outdated, True):
+
+        arquivos = generate_links_to_download(df=df, max_date=max_date)
+
         input_filepath = download_csv_cvm(
             url=url, table_id=table_id, files=arquivos, upstream_tasks=[arquivos]
         )
@@ -448,7 +496,7 @@ br_cvm_fi_documentos_perfil_mensal.storage = GCS(constants.GCS_FLOWS_BUCKET.valu
 br_cvm_fi_documentos_perfil_mensal.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-#br_cvm_fi_documentos_perfil_mensal.schedule = every_day_perfil
+br_cvm_fi_documentos_perfil_mensal.schedule = every_day_perfil
 
 
 with Flow(
@@ -468,7 +516,7 @@ with Flow(
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
     url = Parameter(
         "url",
@@ -479,7 +527,7 @@ with Flow(
     files = Parameter("files", default=cvm_constants.CAD_FILE.value, required=False)
 
     with case(is_empty(files), True):
-        log_task(f"Não houveram atualizações em {url.default}!")
+        log_task(f"A execução sera agendada para a próxima data definida na schedule")
 
     with case(is_empty(files), False):
         input_filepath = download_csv_cvm(url=url, files=files, table_id=table_id)
@@ -545,7 +593,7 @@ br_cvm_fi_documentos_informacao_cadastral.storage = GCS(
 br_cvm_fi_documentos_informacao_cadastral.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-#br_cvm_fi_documentos_informacao_cadastral.schedule = every_day_informacao_cadastral
+br_cvm_fi_documentos_informacao_cadastral.schedule = every_day_informacao_cadastral
 
 
 with Flow(
@@ -563,7 +611,7 @@ with Flow(
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
     url = Parameter(
         "url",
@@ -571,15 +619,25 @@ with Flow(
         required=False,
     )
 
-    df = extract_links_and_dates(url)
+    df, max_date = extract_links_and_dates(url)
 
-    files = check_for_updates(df, upstream_tasks=[df])
+    check_if_outdated = check_if_data_is_outdated(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        data_source_max_date=max_date,
+        date_format="%Y-%m-%d",
+        date_type= 'last_update_date',
+        upstream_tasks=[df],
+    )
 
-    with case(is_empty(files), True):
-        log_task(f"Não houveram atualizações em {url.default}!")
+    with case(check_if_outdated, False):
+        log_task(f"A execução sera agendada para a próxima data definida na schedule")
 
-    with case(is_empty(files), False):
-        input_filepath = download_unzip_csv(url=url, files=files, id=table_id)
+    with case(check_if_outdated, True):
+
+        arquivos = generate_links_to_download(df=df, max_date=max_date)
+
+        input_filepath = download_unzip_csv(url=url, files=arquivos, id=table_id)
         output_filepath = clean_data_make_partitions_balancete(
             input_filepath, table_id=table_id, upstream_tasks=[input_filepath]
         )
@@ -643,4 +701,4 @@ br_cvm_fi_documentos_balancete.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_cvm_fi_documentos_balancete.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-#br_cvm_fi_documentos_balancete.schedule = every_day_balancete
+br_cvm_fi_documentos_balancete.schedule = every_day_balancete

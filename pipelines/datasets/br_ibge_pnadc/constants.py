@@ -467,7 +467,7 @@ class constants(Enum):  # pylint: disable=c0103
         "53": "DF",
     }
 
-    URL_PREFIX = "https://ftp.ibge.gov.br/Trabalho_e_Rendimento/Pesquisa_Nacional_por_Amostra_de_Domicilios_continua/Trimestral/Microdados"
+    URL_PREFIX = "https://ftp.ibge.gov.br/Trabalho_e_Rendimento/Pesquisa_Nacional_por_Amostra_de_Domicilios_continua/Trimestral/Microdados/{year}/"
     COLUMNS_WIDTHS = [
         4,
         1,
