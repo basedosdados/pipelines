@@ -871,10 +871,6 @@ async def execucao_coleta_copa():
 
     base_link = "https://www.transfermarkt.com"
     base_link_br = "https://www.transfermarkt.com.br"
-    links = []
-    time_man = []
-    time_vis = []
-    gols = []
     gols_man = []
     gols_vis = []
     penalti = []
@@ -884,27 +880,21 @@ async def execucao_coleta_copa():
     # Pegar o link das partidas
     # Para cada temporada, adiciona os links dos jogos em `links`
     log(f"Obtendo links: temporada {season}")
+
     site_data = requests.get(base_url.format(season=season), headers=headers)
     soup = BeautifulSoup(site_data.content, "html.parser")
-    link_tags = soup.find_all("a", attrs={"class": "ergebnis-link"})
-    for tag in link_tags:
-        links.append(re.sub(r"\s", "", tag["href"]))
+
+    links = [element.get("href") for element in soup.select("td.zentriert.hauptlink a")]
 
     # Na página principal coletar informações gerais de cada partida
     # Coleta a quantidade de gols e nomes dos times
-    tabela_grand = soup.findAll("div", class_="box")[1]
-    tabela = tabela_grand.findAll("tbody")
-    for i in range(0, len(tabela)):
-        for row in tabela[i].findAll("tr"):
-            if not row.get("class"):
-                td_tags = row.findAll("td")
-                # Verifica se existem pelo menos três <td> na linha
-                if len(td_tags) >= 3:
-                    time_man.append(td_tags[2].text.strip())
-                    time_vis.append(td_tags[6].text.strip())
-                    gols.append(td_tags[4].text.strip())
+
+    time_man = [element.text for element in soup.select("td.text-right a")]
+    time_vis = [element.text for element in soup.select("tr:not([class]) td.no-border-links.hauptlink a")]
+    gols = [element.text for element in soup.select("td.zentriert.hauptlink a")]
 
     # Checagem se a quantidade de links coletados é igual a quantidade de informações gerais coletadas
+
     while (
         len(links) != len(time_man)
         or len(links) != len(time_vis)
@@ -994,6 +984,7 @@ async def execucao_coleta_copa():
         links_valor.append(valor)
 
     n_links = len(links)
+
     log(f"Encontrados {n_links} partidas.")
     log("Extraindo dados...")
     # Criando o dataframe para informações gerais já coletadas, para o loop sobre os dados de estatística
@@ -1102,7 +1093,8 @@ async def execucao_coleta_copa():
     # Atualizar a coluna 'fase' com a parte antes do traço ou a própria 'fase' se não houver traço
     df["fase"] = df["fase"].str.extract(r"(.+)\s*-\s*(.*)")[0].fillna(df["fase"])
 
-    df["data"] = pd.to_datetime(df["data"], format="%d/%m/%y").dt.date
+    df["data"] = pd.to_datetime(df["data"], format="%d/%m/%y")
+
     df["horario"] = pd.to_datetime(df["horario"], format="%H:%M").dt.strftime("%H:%M")
     df["ano_campeonato"] = mundo_constants.DATA_ATUAL_ANO.value
 
@@ -1111,6 +1103,7 @@ async def execucao_coleta_copa():
     df.fillna("", inplace=True)
     df["publico_max"] = df["publico_max"].str.replace("\n", "")
     df = df[mundo_constants.ORDEM_COPA_BRASIL.value]
+    df = df[df.data <= datetime.today()] # Retirar posiveis jogos futuros
 
     return df
 
