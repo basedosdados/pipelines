@@ -14,7 +14,7 @@ from pipelines.constants import constants
 schedule_eleicao_perfil_candidato = Schedule(
     clocks=[
         CronClock(
-            cron="0 2 * * *", #everyday at 04:05
+            cron="0 5 * * *",
             start_date=datetime(2024, 9, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PERGUNTAS_AGENT_LABEL.value,
@@ -32,7 +32,7 @@ schedule_eleicao_perfil_candidato = Schedule(
 schedule_eleicao_prestacao_contas_candidato = Schedule(
     clocks=[
         CronClock(
-            cron="0 2 * * *", #everyday at 04:05
+            cron="30 5 * * *",
             start_date=datetime(2024, 9, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PERGUNTAS_AGENT_LABEL.value,
@@ -50,7 +50,7 @@ schedule_eleicao_prestacao_contas_candidato = Schedule(
 schedule_contas_candidato_origem = Schedule(
     clocks=[
         CronClock(
-            cron="0 2 * * *", #everyday at 04:05
+            cron="0 6 * * *",
             start_date=datetime(2024, 9, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PERGUNTAS_AGENT_LABEL.value,
@@ -68,7 +68,7 @@ schedule_contas_candidato_origem = Schedule(
 schedule_prestacao_contas_partido = Schedule(
     clocks=[
         CronClock(
-            cron="0 2 * * *", #everyday at 04:05
+            cron="30 6 * * *",
             start_date=datetime(2024, 9, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PERGUNTAS_AGENT_LABEL.value,
