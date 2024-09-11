@@ -65,7 +65,7 @@ schedule_br_ibge_inpc_mes_categoria_rm = Schedule(
 schedule_br_ibge_inpc_mes_categoria_municipio = Schedule(
     clocks=[
         CronClock(
-            cron="30 14 * * *",  # everyday at 14:00:00
+            cron="30 14 * * *",  # everyday at 14:30:00
             start_date=datetime(2023, 10, 6, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
