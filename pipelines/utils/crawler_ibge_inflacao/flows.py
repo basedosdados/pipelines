@@ -317,7 +317,7 @@ with Flow("BD Template - IBGE Inflação: mes_geral") as flow_ibge_inflacao_mes_
         indice=INDICE, dataset_id=dataset_id, table_id=table_id
     )
 
-    with case(needs_to_update[0], False):
+    with case(needs_to_update[0], True):
         was_downloaded = crawler(
             indice=INDICE, folder=FOLDER, upstream_tasks=[needs_to_update]
         )
