@@ -3,66 +3,82 @@
 Schedules for br_jota
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime
 
-from prefect.schedules import Schedule, filters
-from prefect.schedules.clocks import IntervalClock
+from prefect.schedules import Schedule
+from prefect.schedules.clocks import CronClock
 
 from pipelines.constants import constants
 
-schedule_candidatos = Schedule(
+
+schedule_eleicao_perfil_candidato = Schedule(
     clocks=[
-        IntervalClock(
-            interval=timedelta(days=1),
-            start_date=datetime(2021, 1, 1, 10, 45),
+        CronClock(
+            cron="0 2 * * *", #everyday at 04:05
+            start_date=datetime(2024, 9, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PERGUNTAS_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_jota",
-                "table_id": "eleicao_perfil_candidato_2022",
-                "materialization_mode": "dev",
-                "dbt_alias": False,
+                "table_id": "eleicao_perfil_candidato_2024",
+                "materialization_mode": "prod",
+                "dbt_alias": True,
             },
         ),
     ],
-    filters=[filters.is_weekday],
 )
 
-schedule_contas_candidato = Schedule(
+schedule_eleicao_prestacao_contas_candidato = Schedule(
     clocks=[
-        IntervalClock(
-            interval=timedelta(days=1),
-            start_date=datetime(2021, 1, 1, 10, 50),
+        CronClock(
+            cron="0 2 * * *", #everyday at 04:05
+            start_date=datetime(2024, 9, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PERGUNTAS_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_jota",
-                "table_id": "eleicao_prestacao_contas_candidato_2022",
-                "materialization_mode": "dev",
-                "dbt_alias": False,
+                "table_id": "eleicao_prestacao_contas_candidato_2024",
+                "materialization_mode": "prod",
+                "dbt_alias": True,
             },
         ),
     ],
-    filters=[filters.is_weekday],
 )
 
 schedule_contas_candidato_origem = Schedule(
     clocks=[
-        IntervalClock(
-            interval=timedelta(days=1),
-            start_date=datetime(2021, 1, 1, 10, 55),
+        CronClock(
+            cron="0 2 * * *", #everyday at 04:05
+            start_date=datetime(2024, 9, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PERGUNTAS_AGENT_LABEL.value,
             ],
             parameter_defaults={
                 "dataset_id": "br_jota",
-                "table_id": "eleicao_prestacao_contas_candidato_origem_2022",
-                "materialization_mode": "dev",
-                "dbt_alias": False,
+                "table_id": "eleicao_prestacao_contas_candidato_origem_2024",
+                "materialization_mode": "prod",
+                "dbt_alias": True,
             },
         ),
     ],
-    filters=[filters.is_weekday],
+)
+
+schedule_prestacao_contas_partido = Schedule(
+    clocks=[
+        CronClock(
+            cron="0 2 * * *", #everyday at 04:05
+            start_date=datetime(2024, 9, 1, 0, 0),
+            labels=[
+                constants.BASEDOSDADOS_PERGUNTAS_AGENT_LABEL.value,
+            ],
+            parameter_defaults={
+                "dataset_id": "br_jota",
+                "table_id": "eleicao_prestacao_contas_partido_2024",
+                "materialization_mode": "prod",
+                "dbt_alias": True,
+            },
+        ),
+    ],
 )
