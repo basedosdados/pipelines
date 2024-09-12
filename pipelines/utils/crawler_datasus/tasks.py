@@ -353,7 +353,7 @@ def is_empty(lista):
 
 
 @task
-def read_dbf_save_parquet_chunks(file_list: list, table_id: str, dataset_id:str= "br_ms_sia", chunk_size : int = 400000) -> str:
+def read_dbf_save_parquet_chunks(file_list: list, table_id: str, dataset_id:str= "br_ms_sia", chunk_size : int = 100000) -> str:
     """
     Convert dbc to parquet
     """
@@ -362,7 +362,7 @@ def read_dbf_save_parquet_chunks(file_list: list, table_id: str, dataset_id:str=
 
     dbf_file_list = [file.replace(".dbc", ".dbf") for file in file_list]
     _counter = 0
-    log(f'----coutner {_counter}')
+    log(f'----counter {_counter}')
     for file in tqdm(dbf_file_list):
 
 
