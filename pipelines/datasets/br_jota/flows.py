@@ -48,6 +48,8 @@ with Flow(
             "table_id": table_id,
             "mode": materialization_mode,
             "dbt_alias": dbt_alias,
+            "download_csv_file": False
+
         },
         labels=current_flow_labels,
         run_name=f"Materialize {dataset_id}.{table_id}",
