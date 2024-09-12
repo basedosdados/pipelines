@@ -35,7 +35,7 @@ with Flow(
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
-    table_ids = get_table_ids() # Coletas tabelas
+    table_ids = get_table_ids()
 
     for n, table_id in enumerate(table_ids):
 
