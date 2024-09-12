@@ -21,7 +21,6 @@ schedule_br_jota_2024 = Schedule(
             ],
             parameter_defaults={
                 "dataset_id": "br_jota",
-                "table_id": "eleicao_perfil_candidato_2024",
                 "materialization_mode": "dev",
                 "dbt_alias": True,
             },
