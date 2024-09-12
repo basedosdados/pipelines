@@ -11,10 +11,10 @@ from prefect.schedules.clocks import CronClock
 from pipelines.constants import constants
 
 
-schedule_eleicao_perfil_candidato = Schedule(
+schedule_br_jota_2024 = Schedule(
     clocks=[
         CronClock(
-            cron="0 5 * * *",
+            cron="30 4 * * *",
             start_date=datetime(2024, 9, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PERGUNTAS_AGENT_LABEL.value,
@@ -22,61 +22,7 @@ schedule_eleicao_perfil_candidato = Schedule(
             parameter_defaults={
                 "dataset_id": "br_jota",
                 "table_id": "eleicao_perfil_candidato_2024",
-                "materialization_mode": "prod",
-                "dbt_alias": True,
-            },
-        ),
-    ],
-)
-
-schedule_eleicao_prestacao_contas_candidato = Schedule(
-    clocks=[
-        CronClock(
-            cron="30 5 * * *",
-            start_date=datetime(2024, 9, 1, 0, 0),
-            labels=[
-                constants.BASEDOSDADOS_PERGUNTAS_AGENT_LABEL.value,
-            ],
-            parameter_defaults={
-                "dataset_id": "br_jota",
-                "table_id": "eleicao_prestacao_contas_candidato_2024",
-                "materialization_mode": "prod",
-                "dbt_alias": True,
-            },
-        ),
-    ],
-)
-
-schedule_contas_candidato_origem = Schedule(
-    clocks=[
-        CronClock(
-            cron="0 6 * * *",
-            start_date=datetime(2024, 9, 1, 0, 0),
-            labels=[
-                constants.BASEDOSDADOS_PERGUNTAS_AGENT_LABEL.value,
-            ],
-            parameter_defaults={
-                "dataset_id": "br_jota",
-                "table_id": "eleicao_prestacao_contas_candidato_origem_2024",
-                "materialization_mode": "prod",
-                "dbt_alias": True,
-            },
-        ),
-    ],
-)
-
-schedule_prestacao_contas_partido = Schedule(
-    clocks=[
-        CronClock(
-            cron="30 6 * * *",
-            start_date=datetime(2024, 9, 1, 0, 0),
-            labels=[
-                constants.BASEDOSDADOS_PERGUNTAS_AGENT_LABEL.value,
-            ],
-            parameter_defaults={
-                "dataset_id": "br_jota",
-                "table_id": "eleicao_prestacao_contas_partido_2024",
-                "materialization_mode": "prod",
+                "materialization_mode": "dev",
                 "dbt_alias": True,
             },
         ),
