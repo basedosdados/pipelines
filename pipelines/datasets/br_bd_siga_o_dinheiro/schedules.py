@@ -11,7 +11,7 @@ from prefect.schedules.clocks import CronClock
 from pipelines.constants import constants
 
 
-schedule_br_jota_2024 = Schedule(
+schedule_br_bd_siga_o_dinheiro = Schedule(
     clocks=[
         CronClock(
             cron="30 4 * * *",

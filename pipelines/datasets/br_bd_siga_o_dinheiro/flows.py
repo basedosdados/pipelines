@@ -21,12 +21,12 @@ from pipelines.datasets.br_bd_siga_o_dinheiro.tasks import (
 )
 
 from pipelines.datasets.br_bd_siga_o_dinheiro.schedules import (
-    schedule_br_jota_2024
+    schedule_br_bd_siga_o_dinheiro
 )
 
 with Flow(
     name="BD template - br_bd_siga_o_dinheiro", code_owners=["luiz"]
-) as br_jota_2024:
+) as br_bd_siga_o_dinheiro:
 
     dataset_id = Parameter("dataset_id", default="br_bd_siga_o_dinheiro", required=True)
 
@@ -66,8 +66,8 @@ with Flow(
         )
 
 
-br_jota_2024.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_jota_2024.run_config = KubernetesRun(
+br_bd_siga_o_dinheiro.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_bd_siga_o_dinheiro.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_jota_2024.schedule = schedule_br_jota_2024
+br_bd_siga_o_dinheiro.schedule = schedule_br_bd_siga_o_dinheiro
