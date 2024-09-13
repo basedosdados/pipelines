@@ -20,7 +20,7 @@ schedule_br_jota_2024 = Schedule(
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
-                "dataset_id": "br_jota",
+                "dataset_id": "br_bd_siga_o_dinheiro",
                 "materialization_mode": "prod",
                 "dbt_alias": True,
             },

@@ -16,19 +16,19 @@ from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
 from pipelines.utils.tasks import get_current_flow_labels
 
-from pipelines.datasets.br_jota.tasks import (
+from pipelines.datasets.br_bd_siga_o_dinheiro.tasks import (
     get_table_ids
 )
 
-from pipelines.datasets.br_jota.schedules import (
+from pipelines.datasets.br_bd_siga_o_dinheiro.schedules import (
     schedule_br_jota_2024
 )
 
 with Flow(
-    name="BD template - br_jota", code_owners=["luiz"]
+    name="BD template - br_bd_siga_o_dinheiro", code_owners=["luiz"]
 ) as br_jota_2024:
 
-    dataset_id = Parameter("dataset_id", default="br_jota", required=True)
+    dataset_id = Parameter("dataset_id", default="br_bd_siga_o_dinheiro", required=True)
 
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
