@@ -5,40 +5,49 @@ General purpose functions for the br_cgu_cartao_pagamento project
 
 import pandas as pd
 import os
+import basedosdados as bd
+import requests
 from pipelines.utils.crawler_cgu.constants import constants
-from urllib.request import urlopen
-from io import BytesIO
-import zipfile
 from typing import List
 import unidecode
-
-def download_and_unzip_file(url : str, path : str) -> None:
-    print("------------------ Baixando e descompactando arquivo ------------------")
-    try:
-        r = urlopen(url)
-        zip = zipfile.ZipFile(BytesIO(r.read()))
-        zip.extractall(path=path)
-    except Exception as e:
-        print(e)
-        print("Erro ao baixar e descompactar arquivo")
+from pipelines.utils.utils import log, download_and_unzip_file
 
 def download_file(table_id : str, year : str, month : str) -> None:
     """
     Download a file from a given URL and save it to a given path
     """
-    flow_unico = constants.TABELA.value[table_id]
-    if not flow_unico['UNICO']:
 
-        url = f"{flow_unico['URL']}{year}{str(month).zfill(2)}/"
-        print(f'------------------ {url} ------------------')
+    value_constants = constants.TABELA.value[table_id]
+    log(f' --------------------- Year = {year} ---------------------')
+    log(f' --------------------- Month = {month} ---------------------')
+    log(f' --------------------- Table = {table_id} ---------------------')
+    if not value_constants['UNICO']:
 
-        download_and_unzip_file(url, flow_unico['INPUT'])
+        url = f"{value_constants['URL']}{year}{str(month).zfill(2)}/"
 
-        return url.split("/")[-2]
+        status = requests.get(url).status_code == 200
+        if status:
+            log(f'------------------ {url} ------------------')
+            download_and_unzip_file(url, value_constants['INPUT'])
+            return url.split("/")[-2]
 
-    url = flow_unico['URL']
-    download_and_unzip_file(url, flow_unico['INPUT'])
-    return None
+        else:
+            log('URL não encontrada. Fazendo uma query na BD')
+            log(f'------------------ {url} ------------------')
+            query_bd = bd.read_sql(f"select max(date(ano_extrato, mes_extrato, 1)) as valor_maximo from `basedosdados-dev.br_cgu_cartao_pagamento.microdados_governo_federal`",
+                            billing_project_id="basedosdados-dev",
+                            from_file=True)
+
+            log(f'Query: {query_bd}')
+            log(f'Data máxima na BD: {query_bd["valor_maximo"][0]}')
+
+            return query_bd["valor_maximo"][0]
+
+    elif value_constants['UNICO']:
+        url = value_constants['URL']
+        download_and_unzip_file(url, value_constants['INPUT'])
+
+        return None
 
 
 def read_csv(table_id : str, url : str, year : str, month : str, column_replace : List = ['VALOR_TRANSACAO']) -> pd.DataFrame:
@@ -46,20 +55,17 @@ def read_csv(table_id : str, url : str, year : str, month : str, column_replace 
     Read a csv file from a given path
     """
 
-    flow_unico = constants.TABELA.value[table_id]
+    value_constants = constants.TABELA.value[table_id]
     # Check if the file exists
-    input = flow_unico['INPUT']
-    print(f"Criando diretório: {input}")
+    input = value_constants['INPUT']
+    log(f"Criando diretório: {input}")
     if not os.path.exists(input):
         os.makedirs(input)
-    print(f' --------------------- {year} ---------------------')
-    print(f' --------------------- {month} ---------------------')
-    print(f' --------------------- {flow_unico["READ"]} ---------------------')
     # Read the file
-    file_with_year_month = f"{input}/{year}{month}{flow_unico['READ']}.csv"
-    print(file_with_year_month)
+    file_with_year_month = f"{input}/{year}{str(month).zfill(2)}{value_constants['READ']}.csv"
+    log(file_with_year_month)
 
-    df = pd.read_csv(filepath_or_buffer=file_with_year_month, sep=';', encoding='latin1')
+    df = pd.read_csv(file_with_year_month, sep=';', encoding='latin1')
 
     df.columns = [unidecode.unidecode(x).upper().replace(" ", "_") for x in df.columns]
 

@@ -14,7 +14,9 @@ from os.path import join
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
 from uuid import uuid4
-
+from io import BytesIO
+from urllib.request import urlopen
+import zipfile
 import basedosdados as bd
 import croniter
 import hvac
@@ -462,6 +464,36 @@ def to_partitions(
     else:
         raise BaseException("Data need to be a pandas DataFrame")
 
+
+
+###############
+#
+# Download data
+#
+###############
+
+def download_and_unzip_file(url : str, path : str) -> None:
+    """
+    Downloads a file from the given URL and extracts it to the specified path.
+
+    Parameters:
+    url (str): The URL of the file to be downloaded.
+    path (str): The path where the file will be extracted.
+
+    Returns:
+    None
+    """
+
+    log("------------------ Downloading and unzipping file ------------------")
+    try:
+        r = urlopen(url)
+        zip = zipfile.ZipFile(BytesIO(r.read()))
+        zip.extractall(path=path)
+        log("Complet download and unzip")
+
+    except Exception as e:
+        log(e)
+        log("Error when downloading and unzipping file")
 
 ###############
 #
