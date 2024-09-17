@@ -4,7 +4,7 @@ Constant values for the datasets projects
 """
 
 from enum import Enum
-
+from datetime import datetime
 
 class constants(Enum):  # pylint: disable=c0103
     """
@@ -33,3 +33,6 @@ class constants(Enum):  # pylint: disable=c0103
             "READ" : "_CPDC",
             "UNICO" : False}
         }
+
+    year = datetime.now().year
+    month = datetime.now().month
