@@ -37,8 +37,8 @@ def download_file(table_id : str, year : str, month : str) -> None:
         else:
             log('URL não encontrada. Fazendo uma query na BD')
             log(f'------------------ URL = {url} ------------------')
-            query_bd = bd.read_sql(f"select max(date(ano_extrato, mes_extrato, 1)) as valor_maximo from `basedosdados-dev.br_cgu_cartao_pagamento.{table_id}`",
-                            billing_project_id="basedosdados-dev",
+            query_bd = bd.read_sql(f"select max(date(ano_extrato, mes_extrato, 1)) as valor_maximo from `basedosdados.br_cgu_cartao_pagamento.{table_id}`",
+                            billing_project_id="basedosdados",
                             from_file=True)
 
             return query_bd["valor_maximo"][0]
