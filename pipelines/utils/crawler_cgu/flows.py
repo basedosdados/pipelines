@@ -53,7 +53,7 @@ with Flow(
         filepath = partition_data(table_id=table_id,
                                     year=year,
                                     month=month,
-                                    upstream_tasks=[data_source_max_date]
+                                    upstream_tasks=[dados_desatualizados]
                                     )
 
         wait_upload_table = create_table_and_upload_to_gcs(

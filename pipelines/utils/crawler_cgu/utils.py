@@ -18,9 +18,12 @@ def download_file(table_id : str, year : str, month : str) -> None:
     """
 
     value_constants = constants.TABELA.value[table_id]
+    input = value_constants['INPUT']
+    log(f"Criando diretório: {input}")
+    if not os.path.exists(input):
+        os.makedirs(input)
     log(f' --------------------- Year = {year} ---------------------')
     log(f' --------------------- Month = {month} ---------------------')
-    log(f' --------------------- Table = {table_id} ---------------------')
     if not value_constants['UNICO']:
 
         url = f"{value_constants['URL']}{year}{str(month).zfill(2)}/"
@@ -34,33 +37,25 @@ def download_file(table_id : str, year : str, month : str) -> None:
         else:
             log('URL não encontrada. Fazendo uma query na BD')
             log(f'------------------ {url} ------------------')
-            query_bd = bd.read_sql(f"select max(date(ano_extrato, mes_extrato, 1)) as valor_maximo from `basedosdados-dev.br_cgu_cartao_pagamento.microdados_governo_federal`",
+            query_bd = bd.read_sql(f"select max(date(ano_extrato, mes_extrato, 1)) as valor_maximo from `basedosdados-dev.br_cgu_cartao_pagamento.{table_id}`",
                             billing_project_id="basedosdados-dev",
                             from_file=True)
 
-            log(f'Query: {query_bd}')
-            log(f'Data máxima na BD: {query_bd["valor_maximo"][0]}')
-
             return query_bd["valor_maximo"][0]
 
-    elif value_constants['UNICO']:
+    if value_constants['UNICO']:
         url = value_constants['URL']
         download_and_unzip_file(url, value_constants['INPUT'])
-
         return None
+
 
 
 def read_csv(table_id : str, url : str, year : str, month : str, column_replace : List = ['VALOR_TRANSACAO']) -> pd.DataFrame:
     """
     Read a csv file from a given path
     """
-
     value_constants = constants.TABELA.value[table_id]
-    # Check if the file exists
-    input = value_constants['INPUT']
-    log(f"Criando diretório: {input}")
-    if not os.path.exists(input):
-        os.makedirs(input)
+
     # Read the file
     file_with_year_month = f"{input}/{year}{str(month).zfill(2)}{value_constants['READ']}.csv"
     log(file_with_year_month)
@@ -71,7 +66,5 @@ def read_csv(table_id : str, url : str, year : str, month : str, column_replace 
 
     for list_column_replace in column_replace:
         df[list_column_replace] = df[list_column_replace].str.replace(",", ".").astype(float)
-
-    df.columns
 
     return df
