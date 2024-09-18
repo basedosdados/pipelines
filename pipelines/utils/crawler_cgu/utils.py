@@ -18,12 +18,13 @@ def download_file(table_id : str, year : str, month : str) -> None:
     """
 
     value_constants = constants.TABELA.value[table_id]
-    input = value_constants['INPUT']
+    input = value_constants['INPUT_DATA']
     log(f"Criando diretório: {input}")
     if not os.path.exists(input):
         os.makedirs(input)
     log(f' --------------------- Year = {year} ---------------------')
     log(f' --------------------- Month = {month} ---------------------')
+    log(f' --------------------- URL = {value_constants["INPUT_DATA"]} ---------------------')
     if not value_constants['UNICO']:
 
         url = f"{value_constants['URL']}{year}{str(month).zfill(2)}/"
@@ -31,7 +32,7 @@ def download_file(table_id : str, year : str, month : str) -> None:
         status = requests.get(url).status_code == 200
         if status:
             log(f'------------------ {url} ------------------')
-            download_and_unzip_file(url, value_constants['INPUT'])
+            download_and_unzip_file(url, value_constants['INPUT_DATA'])
             return url.split("/")[-2]
 
         else:
@@ -45,7 +46,7 @@ def download_file(table_id : str, year : str, month : str) -> None:
 
     if value_constants['UNICO']:
         url = value_constants['URL']
-        download_and_unzip_file(url, value_constants['INPUT'])
+        download_and_unzip_file(url, value_constants['INPUT_DATA'])
         return None
 
 
@@ -57,7 +58,9 @@ def read_csv(table_id : str, url : str, year : str, month : str, column_replace 
     value_constants = constants.TABELA.value[table_id]
 
     # Read the file
-    file_with_year_month = f"{input}/{year}{str(month).zfill(2)}{value_constants['READ']}.csv"
+    log(os.listdir(value_constants['INPUT_DATA']))
+    log(value_constants['INPUT_DATA'])
+    file_with_year_month = f"{value_constants['INPUT_DATA']}/{year}{str(month).zfill(2)}{value_constants['READ']}.csv"
     log(file_with_year_month)
 
     df = pd.read_csv(file_with_year_month, sep=';', encoding='latin1')

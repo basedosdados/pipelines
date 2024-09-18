@@ -31,12 +31,12 @@ def partition_data(table_id: str, year: str, month: str) -> str:
     to_partitions(
         data = df,
         partition_columns=['ANO_EXTRATO', 'MES_EXTRATO'],
-        savepath = value_constants['OUTPUT'],
+        savepath = value_constants['OUTPUT_DATA'],
         file_type='csv')
 
     log("Data partitioned")
 
-    return value_constants['OUTPUT']
+    return value_constants['OUTPUT_DATA']
 
 @task
 def get_max_date(table_id, year, month):
