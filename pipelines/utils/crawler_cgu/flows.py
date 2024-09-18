@@ -106,7 +106,7 @@ with Flow(
                     coverage_type="part_bdpro",
                     time_delta={"months": 6},
                     prefect_mode=materialization_mode,
-                    bq_project="basedosdados",
+                    bq_project="basedosdados-dev",
                     upstream_tasks=[wait_for_materialization],
                 )
 

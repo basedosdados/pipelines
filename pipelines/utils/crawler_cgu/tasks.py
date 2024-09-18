@@ -19,7 +19,7 @@ def partition_data(table_id: str, year: str, month: str) -> str:
 
     value_constants = constants.TABELA.value[table_id]
 
-    log("Read data")
+    log("---------------------------- Read data ----------------------------")
     # Read the data
     df = read_csv(table_id = table_id,
                 year = year,
@@ -27,14 +27,15 @@ def partition_data(table_id: str, year: str, month: str) -> str:
                 url = value_constants['URL'])
 
     # Partition the data
-    log("Partiting data")
+    log(" ---------------------------- Partiting data -----------------------")
+
     to_partitions(
         data = df,
         partition_columns=['ANO_EXTRATO', 'MES_EXTRATO'],
         savepath = value_constants['OUTPUT_DATA'],
         file_type='csv')
 
-    log("Data partitioned")
+    log("---------------------------- Data partitioned ----------------------")
 
     return value_constants['OUTPUT_DATA']
 
@@ -59,7 +60,6 @@ def get_max_date(table_id, year, month):
 
     elif len(max_date) == 6:
         max_date = max_date[0:4] + '-' + max_date[4:6] + '-01'
-        log(max_date)
 
     date = datetime.strptime(max_date, '%Y-%m-%d')
 
