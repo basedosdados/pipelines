@@ -2,7 +2,7 @@
 """
 General purpose functions for the br_cgu_cartao_pagamento project
 """
-
+import datetime
 import pandas as pd
 import os
 import basedosdados as bd
@@ -11,6 +11,8 @@ from pipelines.utils.crawler_cgu.constants import constants
 from typing import List
 import unidecode
 from pipelines.utils.utils import log, download_and_unzip_file
+from pipelines.utils.metadata.utils import get_api_most_recent_date, get_url
+
 
 def download_file(table_id : str, year : str, month : str) -> None:
     """
@@ -24,7 +26,7 @@ def download_file(table_id : str, year : str, month : str) -> None:
     log(f' ---------------------------- Year = {year} --------------------------------------')
     log(f' ---------------------------- Month = {month} ------------------------------------')
     log(f' --------------------- URL = {value_constants["INPUT_DATA"]} ---------------------')
-    if not value_constants['UNICO']:
+    if not value_constants['ONLY_ONE_FILE']:
 
         url = f"{value_constants['URL']}{year}{str(month).zfill(2)}/"
 
@@ -37,29 +39,31 @@ def download_file(table_id : str, year : str, month : str) -> None:
         else:
             log('URL não encontrada. Fazendo uma query na BD')
             log(f'------------------ URL = {url} ------------------')
-            query_bd = bd.read_sql(f"select max(date(ano_extrato, mes_extrato, 1)) as valor_maximo from `basedosdados.br_cgu_cartao_pagamento.{table_id}`",
-                            billing_project_id="basedosdados",
-                            from_file=True)
+            last_date = last_date_in_metadata(
+                                dataset_id="br_cgu_cartao_pagamento",
+                                table_id=table_id
+                                )
+            return last_date
 
-            return query_bd["valor_maximo"][0]
-
-    if value_constants['UNICO']:
+    if value_constants['ONLY_ONE_FILE']:
         url = value_constants['URL']
         download_and_unzip_file(url, value_constants['INPUT_DATA'])
         return None
 
 
 
-def read_csv(table_id : str, url : str, year : str, month : str, column_replace : List = ['VALOR_TRANSACAO']) -> pd.DataFrame:
+def read_csv(table_id : str, url : str, column_replace : List = ['VALOR_TRANSACAO']) -> pd.DataFrame:
     """
     Read a csv file from a given path
     """
     value_constants = constants.TABELA.value[table_id]
 
     # Read the file
-    file_with_year_month = f"{value_constants['INPUT_DATA']}/{year}{str(month).zfill(2)}{value_constants['READ']}.csv"
+    os.listdir(value_constants['INPUT_DATA'])
 
-    df = pd.read_csv(file_with_year_month, sep=';', encoding='latin1')
+    get_file = [x for x in os.listdir(value_constants['INPUT_DATA']) if x.endswith('.csv')][0]
+
+    df = pd.read_csv(get_file, sep=';', encoding='latin1')
 
     df.columns = [unidecode.unidecode(x).upper().replace(" ", "_") for x in df.columns]
 
@@ -67,3 +71,15 @@ def read_csv(table_id : str, url : str, year : str, month : str, column_replace 
         df[list_column_replace] = df[list_column_replace].str.replace(",", ".").astype(float)
 
     return df
+
+def last_date_in_metadata(dataset_id : str, table_id : str) -> datetime.date:
+
+    backend = bd.Backend(graphql_url=get_url("prod"))
+    last_date_in_api = get_api_most_recent_date(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        date_format="%Y-%m",
+        backend=backend,
+    )
+
+    return last_date_in_api

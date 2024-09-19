@@ -17,21 +17,21 @@ class constants(Enum):  # pylint: disable=c0103
             "OUTPUT_DATA" : "/tmp/output/microdados_governo_federal",
             "URL" : "https://portaldatransparencia.gov.br/download-de-dados/cpgf/",
             "READ" : "_CPGF",
-            "UNICO" : False},
+            "ONLY_ONE_FILE" : False},
 
         "microdados_compras_centralizadas" : {
             "INPUT_DATA" : "/tmp/input/microdados_compras_centralizadas",
             "OUTPUT_DATA" : "/tmp/output/microdados_compras_centralizadas",
             "URL" : "https://portaldatransparencia.gov.br/download-de-dados/cpcc/",
             "READ" : "_CPGFComprasCentralizadas",
-            "UNICO" : False},
+            "ONLY_ONE_FILE" : False},
 
         "microdados_defesa_civil" : {
             "INPUT_DATA" : "/tmp/input/microdados_defesa_civil",
             "OUTPUT_DATA" : "/tmp/output/microdados_defesa_civil",
             "URL" : "https://portaldatransparencia.gov.br/download-de-dados/cpdc/",
             "READ" : "_CPDC",
-            "UNICO" : False}
+            "ONLY_ONE_FILE" : False}
         }
 
     year = datetime.now().year

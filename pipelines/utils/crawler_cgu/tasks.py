@@ -2,17 +2,18 @@
 """
 Tasks for br_cgu_cartao_pagamento
 """
+import datetime
 from prefect import task
-from datetime import datetime
+from dateutil.relativedelta import relativedelta
 import pandas as pd
 from pipelines.utils.utils import log, to_partitions
-from pipelines.utils.crawler_cgu.utils import read_csv
+from pipelines.utils.crawler_cgu.utils import read_csv, last_date_in_metadata
 from pipelines.utils.crawler_cgu.constants import constants
 from pipelines.utils.crawler_cgu.utils import download_file
-import basedosdados as bd
+from typing import Tuple
 
 @task
-def partition_data(table_id: str, year: str, month: str) -> str:
+def partition_data(table_id: str) -> str:
     """
     Partition data from a given table
     """
@@ -22,8 +23,6 @@ def partition_data(table_id: str, year: str, month: str) -> str:
     log("---------------------------- Read data ----------------------------")
     # Read the data
     df = read_csv(table_id = table_id,
-                year = year,
-                month = month,
                 url = value_constants['URL'])
 
     # Partition the data
@@ -40,7 +39,7 @@ def partition_data(table_id: str, year: str, month: str) -> str:
     return value_constants['OUTPUT_DATA']
 
 @task
-def get_max_date(table_id, year, month):
+def get_current_date_and_download_file(table_id : str, dataset_id : str) -> datetime:
     """
     Get the maximum date from a given table for a specific year and month.
 
@@ -52,14 +51,17 @@ def get_max_date(table_id, year, month):
     Returns:
         datetime: The maximum date as a datetime object.
     """
+    last_date = last_date_in_metadata(
+                                    dataset_id = dataset_id,
+                                    table_id = table_id
+                                    )
+
+    next_date = last_date + relativedelta(months=1)
+
+    year = next_date.year
+    month = next_date.month
 
     max_date = str(download_file(table_id, year, month))
-
-    if len(max_date) == 10:
-        pass
-
-    elif len(max_date) == 6:
-        max_date = max_date[0:4] + '-' + max_date[4:6] + '-01'
 
     date = datetime.strptime(max_date, '%Y-%m-%d')
 
