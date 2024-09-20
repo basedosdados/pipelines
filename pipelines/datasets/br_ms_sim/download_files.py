@@ -4,13 +4,6 @@ import pandas as pd
 from datetime import datetime
 from collections import OrderedDict
 
-ID_ORGANIZACAO          = "5b283f30-ced3-4ccc-b44a-406e8a92e1ad"
-ID_CONJUNTO             = "5f121f4d-47c6-428e-8ec6-e8ec56417172"
-HEADER                  = {"chave-api-dados-abertos":
-                           "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiI4ME8tSEloOEZRa0pzc0tIZ3hieUMtWWhuMnBiWnpXRVh5YU9fX2VFSjFBb3o5UEc0ejZESTcwWjJfamZQUmt3Z3pZMXNWYjk4T1R1RjJ1WiIsImlhdCI6MTcwNzQxODUwMH0.82UtfzBHFaUC-YZZcmYKQ1hgCmBrgda_Q7lY9-DjvhE"}
-BASE_NOMENCLATURA       = "Mortalidade Geral"
-SUFIXO_PREVIA           = " - prévia"
-
 def get_dataset_name(organization_id: str, dataset_id: str, header: dict[str, str]) -> str | None:
     """
     Retrieve the name of a dataset given its organization ID and dataset ID.
