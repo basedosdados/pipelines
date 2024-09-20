@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from copy import deepcopy
+from copy import deepcopy, copy
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from pipelines.utils.crawler_cgu.flows import flow_cgu_cartao_pagamento

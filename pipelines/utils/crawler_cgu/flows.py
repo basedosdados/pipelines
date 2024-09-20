@@ -29,17 +29,20 @@ with Flow(
 
     dataset_id = Parameter("dataset_id", default='br_cgu_cartao_pagamento',  required=True)
     table_id = Parameter("table_id", default ="microdados_governo_federal", required=True)
+    ####
+    # Relative_month =  1 means that the data will be downloaded for the current month
+    ####
+    relative_month = Parameter("relative_month", default=1, required=False)
     materialization_mode = Parameter("materialization_mode", default="dev", required=False)
     materialize_after_dump = Parameter("materialize_after_dump", default=True, required=False)
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
     rename_flow_run = rename_current_flow_run_dataset_table(prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id)
-    year = Parameter("year", required=False)
-    month = Parameter("month", required=False)
 
     data_source_max_date = get_current_date_and_download_file(
         table_id,
-        dataset_id
+        dataset_id,
+        relative_month,
     )
 
     dados_desatualizados = check_if_data_is_outdated(
@@ -48,7 +51,7 @@ with Flow(
     data_source_max_date=data_source_max_date,
     date_format="%Y-%m",
     upstream_tasks=[data_source_max_date]
-)
+    )
 
     with case(dados_desatualizados, True):
 

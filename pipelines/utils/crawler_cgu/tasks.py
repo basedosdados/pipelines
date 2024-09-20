@@ -2,7 +2,7 @@
 """
 Tasks for br_cgu_cartao_pagamento
 """
-import datetime
+from datetime import datetime
 from prefect import task
 from dateutil.relativedelta import relativedelta
 import pandas as pd
@@ -15,7 +15,17 @@ from typing import Tuple
 @task
 def partition_data(table_id: str) -> str:
     """
-    Partition data from a given table
+    Partition data from a given table.
+
+    This function reads data from a specified table, partitions it based on
+    the columns 'ANO_EXTRATO' and 'MES_EXTRATO', and saves the partitioned
+    data to a specified output path.
+
+    Args:
+        table_id (str): The identifier of the table to be partitioned.
+
+    Returns:
+        str: The path where the partitioned data is saved.
     """
 
     value_constants = constants.TABELA.value[table_id]
@@ -39,7 +49,9 @@ def partition_data(table_id: str) -> str:
     return value_constants['OUTPUT_DATA']
 
 @task
-def get_current_date_and_download_file(table_id : str, dataset_id : str) -> datetime:
+def get_current_date_and_download_file(table_id : str,
+                                        dataset_id : str,
+                                        relative_month : int = 1) -> datetime:
     """
     Get the maximum date from a given table for a specific year and month.
 
@@ -51,17 +63,17 @@ def get_current_date_and_download_file(table_id : str, dataset_id : str) -> date
     Returns:
         datetime: The maximum date as a datetime object.
     """
-    last_date = last_date_in_metadata(
+    last_date_in_api, next_date_in_api = last_date_in_metadata(
                                     dataset_id = dataset_id,
-                                    table_id = table_id
+                                    table_id = table_id,
+                                    relative_month = relative_month
                                     )
 
-    next_date = last_date + relativedelta(months=1)
 
-    year = next_date.year
-    month = next_date.month
-
-    max_date = str(download_file(table_id, year, month))
+    max_date = str(download_file(table_id = table_id,
+                                year = next_date_in_api.year,
+                                month = next_date_in_api.month,
+                                relative_month=relative_month))
 
     date = datetime.strptime(max_date, '%Y-%m-%d')
 
