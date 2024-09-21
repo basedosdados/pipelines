@@ -253,7 +253,12 @@ with Flow(name="DATASUS-SIA", code_owners=["Gabriel Pisa"]) as flow_siasus:
                     upstream_tasks=[wait_for_materialization],
                 )
 flow_siasus.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-flow_siasus.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+flow_siasus.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value,
+    memory_limit = '12Gi',
+    memory_request = '4Gi',
+    cpu_limit = 1,
+    )
 
 
 

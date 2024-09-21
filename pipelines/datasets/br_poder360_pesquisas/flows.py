@@ -106,4 +106,4 @@ with Flow(
 
 br_poder360.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_poder360.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_poder360.schedule = every_monday_thursday
+#br_poder360.schedule = every_monday_thursday

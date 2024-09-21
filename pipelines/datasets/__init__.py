@@ -32,7 +32,7 @@ from pipelines.datasets.br_ibge_ipca15.flows import *
 from pipelines.datasets.br_ibge_ipca.flows import *
 from pipelines.datasets.br_ibge_pnadc.flows import *
 from pipelines.datasets.br_inmet_bdmep.flows import *
-from pipelines.datasets.br_jota.flows import *
+from pipelines.datasets.br_bd_siga_o_dinheiro.flows import *
 from pipelines.datasets.br_me_caged.flows import *
 from pipelines.datasets.br_me_cnpj.flows import *
 from pipelines.datasets.br_me_comex_stat.flows import *
