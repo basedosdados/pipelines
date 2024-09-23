@@ -33,6 +33,7 @@ RUN apt-get update && \
     python3-dev \
     traceroute \
     wget \
+    tesseract-ocr \
     git \
     bzip2 \
     libxtst6 \
