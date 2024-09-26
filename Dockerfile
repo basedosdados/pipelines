@@ -34,6 +34,7 @@ RUN apt-get update && \
     traceroute \
     wget \
     tesseract-ocr \
+    python3-opencv \
     git \
     bzip2 \
     libxtst6 \
