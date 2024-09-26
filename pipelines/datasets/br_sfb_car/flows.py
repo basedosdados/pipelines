@@ -67,6 +67,7 @@ with Flow(
         dataset_id=dataset_id,
         table_id=table_id,
         dump_mode="append",
+        source_format='parquet',
         wait=unzip_from_shp_to_parquet_wkt,
     )
 
