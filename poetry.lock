@@ -4788,7 +4788,7 @@ paddle = ["paddleocr (==2.6.1.3)", "paddlepaddle (==2.5.0rc0)"]
 
 [package.source]
 type = "git"
-url = "git@github.com:urbanogilson/SICAR.git"
+url = "https://github.com/urbanogilson/SICAR.git"
 reference = "HEAD"
 resolved_reference = "155dfdf2e1ec246c8a0e0366d39687d7459f2695"
 
@@ -5408,4 +5408,4 @@ heapdict = "*"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.11"
-content-hash = "0c31c85408ccdbd9fa3d715a926f7d781e463f90a33ba95ddaa3e706d6f3aac8"
+content-hash = "77dfb0a9b3053d6884dbc3ef6648f4b2a88e91292680d4f3eabc1a62da3a7568"
