@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Tasks for br_sfb_car
+Tasks for br_sfb_sicar
 """
 
 
@@ -10,11 +10,11 @@ from SICAR import Sicar, Polygon, State
 import os
 from datetime import datetime, timedelta
 
-from pipelines.datasets.br_sfb_car.constants import (
+from pipelines.datasets.br_sfb_sicar.constants import (
     Constants as car_constants,
 )
 
-from pipelines.datasets.br_sfb_car.utils import (
+from pipelines.datasets.br_sfb_sicar.utils import (
     process_all_files
 )
 
@@ -41,13 +41,16 @@ def download_car(inputpath, outputpath):
 
     os.makedirs( f'{inputpath}',exist_ok=True)
     os.makedirs( f'{outputpath}',exist_ok=True)
-
+    ufs = ['AC', 'PA', 'MT', 'PB', 'RR', 'RO']
     log('Downloading Car')
     car = Sicar()
-    result = car.download_state(
-        state=State.PA,
-        polygon=Polygon.AREA_PROPERTY,
-        folder=inputpath)
+    #TODo: make async cals
+    for uf in ufs:
+        log(f'downloading state {uf}')
+        car.download_state(
+            state=uf,
+            polygon=Polygon.AREA_PROPERTY,
+            folder=inputpath)
 
 
 @task(

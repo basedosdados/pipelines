@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Flows for br_sfb_car
+Flows for br_sfb_sicar
 """
 
 # pylint: disable=invalid-name
@@ -12,9 +12,9 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.datasets.br_sfb_car.constants import Constants as car_constants
-#rom pipelines.datasets.br_sfb_car.schedules import schedule_br_sfb_car_imoveis_rurais
-from pipelines.datasets.br_sfb_car.tasks import download_car, unzip_to_parquet
+from pipelines.datasets.br_sfb_sicar.constants import Constants as car_constants
+#rom pipelines.datasets.br_sfb_sicar.schedules import schedule_br_sfb_sicar_imoveis_rurais
+from pipelines.datasets.br_sfb_sicar.tasks import download_car, unzip_to_parquet
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
@@ -32,10 +32,10 @@ inputpath = car_constants.INPUT_PATH.value
 outputpath = car_constants.OUTPUT_PATH.value
 
 with Flow(
-    name="br_sfb_car.area_imovel", code_owners=["Gabriel Pisa"]
-) as br_sfb_car_area_imovel:
+    name="br_sfb_sicar.area_imovel", code_owners=["Gabriel Pisa"]
+) as br_sfb_sicar_area_imovel:
     # Parameters
-    dataset_id = Parameter("dataset_id", default="br_sfb_car", required=True)
+    dataset_id = Parameter("dataset_id", default="br_sfb_sicar", required=True)
     table_id = Parameter("table_id", default="area_imovel", required=True)
     update_metadata = Parameter("update_metadata", default=False, required=False)
     materialization_mode = Parameter(
@@ -72,8 +72,8 @@ with Flow(
     )
 
 
-br_sfb_car_area_imovel.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_sfb_car_area_imovel.run_config = KubernetesRun(
+br_sfb_sicar_area_imovel.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_sfb_sicar_area_imovel.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-#br_sfb_car_area_imovel.schedule = schedule_br_sfb_car_area_imovel
+#br_sfb_sicar_area_imovel.schedule = schedule_br_sfb_sicar_area_imovel

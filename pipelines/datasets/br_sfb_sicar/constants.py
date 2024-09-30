@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Constants for br_sfb_car
+Constants for br_sfb_sicar
 """
 
 from enum import Enum
