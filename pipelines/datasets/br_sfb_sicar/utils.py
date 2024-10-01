@@ -13,26 +13,37 @@ from pipelines.utils.utils import log
 
 def unpack_zip(zip_file_path):
     temp_dir = tempfile.mkdtemp()
+
     with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
-        zip_ref.extractall(temp_dir)
+        try:
+            zip_ref.extractall(temp_dir)
+        except zipfile.BadZipFile as e:
+            log(f"The zipfile {zip_file_path.split('/')[-1]} is problably corrupted. {e}")
     return temp_dir
 
-def convert_shp_to_parquet(shp_file_path, output_parquet_path):
+def convert_shp_to_parquet(shp_file_path, output_parquet_path,uf_relase_dates,sigla_uf):
 
     gdf = gpd.read_file(shp_file_path)
+
     # Convertendo geometria para WKT
     gdf['geometry'] = gdf['geometry'].apply(lambda geom: geom.wkt)
+
     # Convertendo para DataFrame do pandas
     df = pd.DataFrame(gdf)
     # Salvando em Parquet
 
+    date = datetime.strptime(uf_relase_dates[sigla_uf], '%d/%m/%Y').strftime('%Y-%m-%d')
+
+    log(f'The relase date for {sigla_uf} was {date}')
+
+    df['data_atualizacao_car'] = date
 
     df.to_parquet(output_parquet_path, index=False)
-    #Todo: inserir data de extração como partição
 
-    return output_parquet_path
+    del df
 
-def process_all_files(zip_folder, output_folder):
+
+def process_all_files(zip_folder, output_folder, uf_relase_dates):
 
     for zip_filename in os.listdir(zip_folder):
 
@@ -62,4 +73,4 @@ def process_all_files(zip_folder, output_folder):
                 log(f"Salvando {output_parquet_path}")
 
                 # Converte shapefile para parquet com coluna WKT para representar geometria
-                convert_shp_to_parquet(shp_file_path, output_parquet_path)
+                convert_shp_to_parquet(shp_file_path, output_parquet_path, uf_relase_dates, sigla_uf)

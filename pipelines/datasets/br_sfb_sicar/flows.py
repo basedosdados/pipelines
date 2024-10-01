@@ -6,7 +6,7 @@ Flows for br_sfb_sicar
 # pylint: disable=invalid-name
 from datetime import timedelta
 
-from prefect import Parameter, case
+from prefect import Parameter, case, unmapped
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
@@ -14,7 +14,7 @@ from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 from pipelines.constants import constants
 from pipelines.datasets.br_sfb_sicar.constants import Constants as car_constants
 #rom pipelines.datasets.br_sfb_sicar.schedules import schedule_br_sfb_sicar_imoveis_rurais
-from pipelines.datasets.br_sfb_sicar.tasks import download_car, unzip_to_parquet
+from pipelines.datasets.br_sfb_sicar.tasks import download_car, unzip_to_parquet, get_each_uf_release_date
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
@@ -28,8 +28,10 @@ from pipelines.utils.tasks import (
     log_task,
     rename_current_flow_run_dataset_table,
 )
+
 inputpath = car_constants.INPUT_PATH.value
 outputpath = car_constants.OUTPUT_PATH.value
+siglas_uf = car_constants.UF_SIGLAS.value
 
 with Flow(
     name="br_sfb_sicar.area_imovel", code_owners=["Gabriel Pisa"]
@@ -51,15 +53,19 @@ with Flow(
     )
 
 
-    download_polygons = download_car(
-        inputpath=inputpath,
-        outputpath=outputpath
+    download_polygons = download_car.map(
+        inputpath=unmapped(inputpath),
+        outputpath=unmapped(outputpath),
+        sigla_uf=siglas_uf
     )
+
+    ufs_release_dates = get_each_uf_release_date(upstream_tasks=[download_polygons])
 
     unzip_from_shp_to_parquet_wkt = unzip_to_parquet(
         inputpath=inputpath,
         outputpath=outputpath,
-        upstream_tasks=[download_polygons]
+        uf_relase_dates=ufs_release_dates,
+        upstream_tasks=[download_polygons,ufs_release_dates]
     )
 
     wait_upload_table = create_table_and_upload_to_gcs(

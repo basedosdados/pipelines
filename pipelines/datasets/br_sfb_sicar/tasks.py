@@ -9,6 +9,8 @@ from prefect import task
 from SICAR import Sicar, Polygon, State
 import os
 from datetime import datetime, timedelta
+from typing import Dict
+import httpx
 
 from pipelines.datasets.br_sfb_sicar.constants import (
     Constants as car_constants,
@@ -37,27 +39,49 @@ outputpath = car_constants.OUTPUT_PATH.value
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def download_car(inputpath, outputpath):
+def download_car(inputpath, outputpath, sigla_uf):
 
     os.makedirs( f'{inputpath}',exist_ok=True)
     os.makedirs( f'{outputpath}',exist_ok=True)
-    ufs = ['AC', 'PA', 'MT', 'PB', 'RR', 'RO']
+
     log('Downloading Car')
+
     car = Sicar()
-    #TODo: make async cals
-    for uf in ufs:
-        log(f'downloading state {uf}')
+
+    log(f'downloading state {sigla_uf}')
+
+    try:
         car.download_state(
-            state=uf,
+            state=sigla_uf,
             polygon=Polygon.AREA_PROPERTY,
             folder=inputpath)
+    except httpx.ReadTimeout as e:
+        log(f'Erro de timeout ao baixar {sigla_uf}.  \n {e}')
 
 
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def unzip_to_parquet(inputpath, outputpath):
-    process_all_files(zip_folder=inputpath, output_folder=outputpath)
+def get_each_uf_release_date()-> Dict:
+
+    car = Sicar()
+    log('Extracting UFs relasea date')
+
+    car = Sicar()
+
+    ufs_release_dates = car.get_release_dates()
+
+    return ufs_release_dates
+
+
+
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def unzip_to_parquet(inputpath, outputpath,uf_relase_dates):
+    process_all_files(zip_folder=inputpath, output_folder=outputpath,uf_relase_dates=uf_relase_dates)
 
 
