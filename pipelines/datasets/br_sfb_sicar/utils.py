@@ -10,6 +10,8 @@ import pandas as pd
 import tempfile
 from datetime import datetime
 from pipelines.utils.utils import log
+import httpx
+import time as tm
 
 def unpack_zip(zip_file_path):
     temp_dir = tempfile.mkdtemp()
@@ -74,3 +76,28 @@ def process_all_files(zip_folder, output_folder, uf_relase_dates):
 
                 # Converte shapefile para parquet com coluna WKT para representar geometria
                 convert_shp_to_parquet(shp_file_path, output_parquet_path, uf_relase_dates, sigla_uf)
+
+
+
+#wrapper para usar while e gerenciar erors
+def retry_download_car(car, state, polygon, folder, max_retries=8):
+    retries = 0
+    success = False
+
+    while retries < max_retries and not success:
+        try:
+            car.download_state(state=state, polygon=polygon, folder=folder)
+            success = True
+            log(f'Download do estado {state} concluído com sucesso.')
+        except httpx.ReadTimeout as e:
+            retries += 1
+            log(f'Erro de timeout ao baixar {state}. Tentativa {retries} de {max_retries}. Exceção: {e}')
+            log(f'Tentando novamente em 8 segundos')
+            tm.sleep(8)
+            if retries >= max_retries:
+                log(f'Falha ao baixar o estado {state} após {max_retries} tentativas.')
+                raise e
+        except Exception as e:
+            log(f'Erro inesperado ao baixar {state}: {e}')
+            raise e
+
