@@ -50,7 +50,6 @@ from pipelines.datasets.br_rj_isp_estatisticas_seguranca.flows import *
 from pipelines.datasets.br_sp_saopaulo_dieese_icv.flows import *
 from pipelines.datasets.br_stf_corte_aberta.flows import *
 from pipelines.datasets.br_tse_eleicoes.flows import *
-from pipelines.datasets.br_tse_filiacao_partidaria.flows import *
 from pipelines.datasets.cross_update.flows import *
 from pipelines.datasets.delete_flows.flows import *
 from pipelines.datasets.fundacao_lemann.flows import *
