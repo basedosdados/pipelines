@@ -56,7 +56,8 @@ with Flow(
     download_polygons = download_car.map(
         inputpath=unmapped(inputpath),
         outputpath=unmapped(outputpath),
-        sigla_uf=siglas_uf
+        sigla_uf=siglas_uf,
+        polygon=unmapped('AREA_IMOVEL'),
     )
 
     ufs_release_dates = get_each_uf_release_date(upstream_tasks=[download_polygons])

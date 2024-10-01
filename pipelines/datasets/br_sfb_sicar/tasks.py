@@ -51,7 +51,7 @@ def retry_download_car(car, state, polygon, folder, max_retries=8):
     max_retries=3,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def download_car(inputpath, outputpath, sigla_uf):
+def download_car(inputpath, outputpath, sigla_uf, polygon):
     os.makedirs(f'{inputpath}', exist_ok=True)
     os.makedirs(f'{outputpath}', exist_ok=True)
 
@@ -65,7 +65,7 @@ def download_car(inputpath, outputpath, sigla_uf):
         retry_download_car(
             car=car,
             state=sigla_uf,
-            polygon=Polygon.AREA_PROPERTY,
+            polygon=polygon,
             folder=inputpath,
             max_retries=5  # Quantidade de tentativas de retry
         )

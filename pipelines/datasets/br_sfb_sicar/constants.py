@@ -12,6 +12,7 @@ class Constants(Enum): # pylint: disable=c0103
 
     UF_SIGLAS = [
         'AC', 'AL', 'AP', #'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA',
-        #'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN',
+        #'MT', 'MS', 'MG',
+        'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN',
         #'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
     ]
