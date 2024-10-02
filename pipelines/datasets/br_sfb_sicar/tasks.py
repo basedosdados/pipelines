@@ -3,8 +3,6 @@
 Tasks for br_sfb_sicar
 """
 
-
-
 from prefect import task
 from SICAR import Sicar, Polygon, State
 import os
@@ -33,7 +31,7 @@ def download_car(inputpath, outputpath, sigla_uf, polygon):
     os.makedirs(f'{inputpath}', exist_ok=True)
     os.makedirs(f'{outputpath}', exist_ok=True)
 
-    log('Downloading CAR')
+    log('Baixando o CAR')
 
     car = Sicar()
 
@@ -45,22 +43,22 @@ def download_car(inputpath, outputpath, sigla_uf, polygon):
             state=sigla_uf,
             polygon=polygon,
             folder=inputpath,
-            max_retries=5  # Quantidade de tentativas de retry
+            max_retries=5
         )
-    except httpx.ReadTimeout:
-        log(f'Erro final ao baixar {sigla_uf} após múltiplas tentativas.')
+    except httpx.ReadTimeout as e:
+        log(f'Erro de Timeout {e} ao baixar dados de {sigla_uf} após múltiplas tentativas.')
     except Exception as e:
         log(f'Erro geral ao baixar {sigla_uf}: {e}')
 
 
 @task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
+    max_retries=10,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def get_each_uf_release_date()-> Dict:
 
     car = Sicar()
-    log('Extracting UFs relasea date')
+    log('Extraindo a data de atualização dos dados de cada UF')
 
     car = Sicar()
 
