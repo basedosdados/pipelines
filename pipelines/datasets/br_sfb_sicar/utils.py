@@ -2,18 +2,22 @@
 """
 Utils for br_sfb_sicar
 """
+
+from pipelines.utils.utils import log
+
 import geopandas as gpd
 import zipfile
 import os
 import pandas as pd
 import tempfile
 from datetime import datetime
-from pipelines.utils.utils import log
 import httpx
 import time as tm
 import shutil
 import pyarrow as pa
 import pyarrow.parquet as pq
+import fiona
+
 
 def unpack_zip(zip_file_path: str) -> str:
     """
@@ -38,16 +42,24 @@ def unpack_zip(zip_file_path: str) -> str:
             raise e
     return temp_dir
 
-def convert_shp_to_parquet(shp_file_path: str, output_parquet_path: str, uf_relase_dates: dict, sigla_uf: str, row_group_size: int = 200000) -> None:
+
+
+def convert_shp_to_parquet(
+    shp_file_path: str,
+    output_parquet_path: str,
+    uf_relase_dates: dict,
+    sigla_uf: str,
+    chunk_size: int = 100000
+) -> None:
     """
-    Converte um arquivo .shp para o formato Parquet, incluindo a geometria como WKT e salvando em lotes (row groups).
+    Converte um arquivo .shp para o formato Parquet, incluindo a geometria como WKT e processando em chunks.
 
     Args:
         shp_file_path (str): Caminho para o arquivo .shp.
         output_parquet_path (str): Caminho onde o arquivo Parquet será salvo.
         uf_relase_dates (dict): Dicionário com as datas de lançamento por estado.
         sigla_uf (str): Sigla do estado sendo processado.
-        row_group_size (int): Número máximo de linhas em cada row group. Padrão é None, o que usará o tamanho mínimo entre 1Mi e o tamanho do RecordBatch.
+        chunk_size (int): Número de registros a serem processados por chunk.
 
     Exceções:
         FileNotFoundError: Se o arquivo .shp não for encontrado.
@@ -55,43 +67,72 @@ def convert_shp_to_parquet(shp_file_path: str, output_parquet_path: str, uf_rela
         RuntimeError: Se houver problemas na conversão da geometria para WKT.
     """
     try:
-        # Lendo o shapefile usando Geopandas
-        gdf = gpd.read_file(shp_file_path)
-    except FileNotFoundError as e:
-        log(f"Arquivo .shp {shp_file_path} não encontrado. {e}")
-        raise e
-
-    try:
-        # Convertendo geometria para WKT
-        gdf['geometry'] = gdf['geometry'].apply(lambda geom: geom.wkt)
-    except Exception as e:
-        log(f"Erro ao converter a geometria para WKT no arquivo {shp_file_path}. {e}")
-        raise RuntimeError(f"Erro na conversão de geometria para WKT: {e}")
-
-    # Convertendo para DataFrame do pandas
-    df = pd.DataFrame(gdf)
-
-    try:
-        # Formatando a data de atualização a partir das informações do estado
+        # Obter a data de atualização a partir das informações do estado
         date = datetime.strptime(uf_relase_dates[sigla_uf], '%d/%m/%Y').strftime('%Y-%m-%d')
+        log(f'A data de atualização do CAR do Estado {sigla_uf} foi {date}')
     except ValueError as e:
         log(f"Erro ao converter a data de lançamento para {sigla_uf}. Verifique o formato no dicionário. {e}")
         raise e
 
-    log(f'A data de atualização do CAR do Estado {sigla_uf} foi {date}')
-    df['data_atualizacao_car'] = date
+    # Abrir o shapefile usando fiona
+    try:
+        log(f"Lendo arquivo {shp_file_path}")
+        with fiona.open(shp_file_path, 'r') as src:
+            total_features = len(src)
+            log(f"Total de registros no shapefile: {total_features}")
 
-    # Preparando para salvar usando pyarrow
-    table = pa.Table.from_pandas(df)
-    log(f"Iniciando salvamento do arquivo Parquet usando row groups com tamanho {row_group_size} linhas.")
+            features = []
+            writer = None  # Inicializa o writer como None
 
-    # Usar ParquetWriter para salvar os dados em row groups
-    with pq.ParquetWriter(output_parquet_path, table.schema) as writer:
-        batch = pa.RecordBatch.from_pandas(df)
-        writer.write_batch(batch, row_group_size=row_group_size)
+            for i, feature in enumerate(src, 1):
+                features.append(feature)
+                # Quando atingir o tamanho do chunk ou último registro
+                if len(features) == chunk_size or i == total_features:
+                    # Converter lista de features para GeoDataFrame
+                    gdf_chunk = gpd.GeoDataFrame.from_features(features, crs=src.crs)
+                    try:
+                        # Convertendo geometria para WKT
+                        gdf_chunk['geometry'] = gdf_chunk['geometry'].apply(lambda geom: geom.wkt)
+                    except Exception as e:
+                        log(f"Erro ao converter a geometria para WKT no chunk que termina no registro {i}. {e}")
+                        raise RuntimeError(f"Erro na conversão de geometria para WKT: {e}")
+
+                    # Adicionar a data de atualização
+                    gdf_chunk['data_atualizacao_car'] = date
+
+                    # Converter para pandas DataFrame
+                    df_chunk = pd.DataFrame(gdf_chunk)
+
+                    # Converter para PyArrow Table
+                    table_chunk = pa.Table.from_pandas(df_chunk)
+
+                    # Inicializar o ParquetWriter com o esquema na primeira iteração
+                    if writer is None:
+                        schema = table_chunk.schema
+                        writer = pq.ParquetWriter(output_parquet_path, schema)
+
+                    # Escrever o chunk no arquivo Parquet
+                    writer.write_table(table_chunk)
+                    log(f"Chunk até registro {i} escrito no arquivo Parquet.")
+
+                    # Limpar lista de features
+                    features = []
+                    del gdf_chunk, df_chunk, table_chunk
+
+            # Fechar o writer após escrever todos os chunks
+            if writer is not None:
+                writer.close()
+
+    except FileNotFoundError as e:
+        log(f"Arquivo .shp {shp_file_path} não encontrado. {e}")
+        raise e
+    except Exception as e:
+        log(f"Erro inesperado ao processar o arquivo {shp_file_path}: {e}")
+        raise e
 
     log(f"Arquivo Parquet {output_parquet_path} salvo com sucesso.")
-    del df
+
+
 
 def process_all_files(zip_folder: str, output_folder: str, uf_relase_dates: dict) -> None:
     """
