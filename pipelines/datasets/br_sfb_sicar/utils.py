@@ -12,6 +12,8 @@ from pipelines.utils.utils import log
 import httpx
 import time as tm
 import shutil
+import pyarrow as pa
+import pyarrow.parquet as pq
 
 def unpack_zip(zip_file_path: str) -> str:
     """
@@ -36,15 +38,16 @@ def unpack_zip(zip_file_path: str) -> str:
             raise e
     return temp_dir
 
-def convert_shp_to_parquet(shp_file_path: str, output_parquet_path: str, uf_relase_dates: dict, sigla_uf: str) -> None:
+def convert_shp_to_parquet(shp_file_path: str, output_parquet_path: str, uf_relase_dates: dict, sigla_uf: str, row_group_size: int = 200000) -> None:
     """
-    Converte um arquivo .shp para o formato Parquet, incluindo a geometria como WKT.
+    Converte um arquivo .shp para o formato Parquet, incluindo a geometria como WKT e salvando em lotes (row groups).
 
     Args:
         shp_file_path (str): Caminho para o arquivo .shp.
         output_parquet_path (str): Caminho onde o arquivo Parquet será salvo.
         uf_relase_dates (dict): Dicionário com as datas de lançamento por estado.
         sigla_uf (str): Sigla do estado sendo processado.
+        row_group_size (int): Número máximo de linhas em cada row group. Padrão é None, o que usará o tamanho mínimo entre 1Mi e o tamanho do RecordBatch.
 
     Exceções:
         FileNotFoundError: Se o arquivo .shp não for encontrado.
@@ -52,6 +55,7 @@ def convert_shp_to_parquet(shp_file_path: str, output_parquet_path: str, uf_rela
         RuntimeError: Se houver problemas na conversão da geometria para WKT.
     """
     try:
+        # Lendo o shapefile usando Geopandas
         gdf = gpd.read_file(shp_file_path)
     except FileNotFoundError as e:
         log(f"Arquivo .shp {shp_file_path} não encontrado. {e}")
@@ -77,9 +81,16 @@ def convert_shp_to_parquet(shp_file_path: str, output_parquet_path: str, uf_rela
     log(f'A data de atualização do CAR do Estado {sigla_uf} foi {date}')
     df['data_atualizacao_car'] = date
 
-    # Salvando em Parquet
-    df.to_parquet(output_parquet_path, index=False)
+    # Preparando para salvar usando pyarrow
+    table = pa.Table.from_pandas(df)
+    log(f"Iniciando salvamento do arquivo Parquet usando row groups com tamanho {row_group_size} linhas.")
 
+    # Usar ParquetWriter para salvar os dados em row groups
+    with pq.ParquetWriter(output_parquet_path, table.schema) as writer:
+        batch = pa.RecordBatch.from_pandas(df)
+        writer.write_batch(batch, row_group_size=row_group_size)
+
+    log(f"Arquivo Parquet {output_parquet_path} salvo com sucesso.")
     del df
 
 def process_all_files(zip_folder: str, output_folder: str, uf_relase_dates: dict) -> None:
@@ -162,5 +173,6 @@ def retry_download_car(car, state: str, polygon: bool, folder: str, max_retries:
                 log(f'Falha ao baixar o estado {state} após {max_retries} tentativas.')
                 raise e
         except Exception as e:
-            log(f'Erro inesperado ao baixar {state}: {e}')
-            raise e
+            if retries >= max_retries:
+                log(f'Erro inesperado ao baixar {state}: {e}')
+                raise e

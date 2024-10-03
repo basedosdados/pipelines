@@ -43,12 +43,14 @@ def download_car(inputpath, outputpath, sigla_uf, polygon):
             state=sigla_uf,
             polygon=polygon,
             folder=inputpath,
-            max_retries=5
+            max_retries=8
         )
     except httpx.ReadTimeout as e:
         log(f'Erro de Timeout {e} ao baixar dados de {sigla_uf} após múltiplas tentativas.')
+        raise e
     except Exception as e:
         log(f'Erro geral ao baixar {sigla_uf}: {e}')
+        raise e
 
 
 @task(
