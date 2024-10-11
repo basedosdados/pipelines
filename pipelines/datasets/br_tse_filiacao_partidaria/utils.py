@@ -8,14 +8,15 @@ from datetime import datetime
 
 import pandas as pd
 import requests
+import basedosdados as bd
 
 from pipelines.utils.utils import log, to_partitions
-
+from pipelines.datasets.br_tse_filiacao_partidaria.constants import constants
 
 import asyncio
 import aiohttp
 from aiohttp.client import ClientSession
-from typing import NamedTuple, List
+from typing import NamedTuple
 from more_itertools import batched
 from time import sleep, time
 from datetime import datetime
@@ -67,20 +68,26 @@ def make_list_chunks(values: list, chunk_size:int = 2000) -> list:
 
 def column_to_date(date_string: str):
   try:
-    date_object = datetime.strptime(date_string, "[%Y, %m, %d]")
-    if datetime(1984, 1, 1) <= date_object <= datetime.today():
+
+    match_date = "[%Y, %m, %d, 1, 0]" if date_string.count(",") > 2 else "[%Y, %m, %d]"
+
+    date_object = datetime.strptime(date_string, match_date)
+
+    if datetime(1980, 1, 1) <= date_object <= datetime.today():
       return date_object.strftime("%Y-%m-%d")
+
   except:
     return pd.NA
 
+def format_sexo(sexo: str):
 
-def get_year(date_string: str):
-  try:
-    year = date_string.split("-")[0]
-    return year
-  except:
-    return pd.NA
+  tabela = {
+    "2": "Masculino",
+    "4": "Feminino",
+    "0": pd.NA
+  }
 
+  return tabela.get(sexo)
 
 # Classes
 
@@ -92,6 +99,7 @@ class PartidariaDataFrames:
     self.municipios = self.create_municipios()
     self.zonas = self.create_zonas()
     self.coletas = self.create_coletas()
+    self.municipios_bd = self.get_diretorio_municipios_bd()
 
 
   def create_partidos(self) -> pd.DataFrame:
@@ -134,7 +142,7 @@ class PartidariaDataFrames:
     datas = [slot.result() for slot in tasks if not slot.exception()]
 
     zonas = [zona.update({"link": row.link}) for row, zonas in datas for zona in zonas]
-    zonas = [zona for email, zonas in datas for zona in zonas]
+    zonas = [zona for _, zonas in datas for zona in zonas]
 
     df_zonas = pd.DataFrame(zonas, dtype=str)
     zonas_municipios = pd.merge(df_zonas, self.municipios, left_on="link", right_on="link")
@@ -159,6 +167,14 @@ class PartidariaDataFrames:
 
     return df_coleta
 
+  def get_diretorio_municipios_bd(self) -> pd.DataFrame:
+
+    municipios = bd.read_sql(
+      constants.QUERY_MUNIPIPIOS.value,
+      from_file=True,
+      billing_project_id="basedosdados-dev"
+    )
+    return municipios
 
 class PartidariaColetaTramento(PartidariaDataFrames):
 
@@ -174,7 +190,7 @@ class PartidariaColetaTramento(PartidariaDataFrames):
 
   def coleta(self) -> None:
 
-    chunk_rows = make_list_chunks(self.coletas[self.coletas.sigla_uf.isin(["AC", "RR", "AP", "DF", "RO", "AM"])].itertuples(), chunk_size=1000)
+    chunk_rows = make_list_chunks(self.coletas[self.coletas.sigla_uf.isin(["AC", "RR", "AP", "DF"])].itertuples(), chunk_size=1000)
 
     for n, chuck in enumerate(chunk_rows):
 
@@ -215,9 +231,13 @@ class PartidariaColetaTramento(PartidariaDataFrames):
     files = glob.glob(math_file)
 
     for file_csv in files:
+
       try:
+
         dfs.append(pd.read_csv(file_csv, dtype=str))
+
       except:
+
         pass
 
     if dfs:
@@ -237,19 +257,26 @@ class PartidariaColetaTramento(PartidariaDataFrames):
     temp_df = pd.read_csv(path, dtype=str)
 
     data_columns_format = ["dtFiliacao", "dtDesfiliacao", "dtExclusao",
-                        "dtCancelamento"]
+                        "dtCancelamento", "tsCadastroDesfiliacao"]
 
     temp_df[data_columns_format] = temp_df[data_columns_format].applymap(column_to_date)
 
-    temp_df[temp_df.dtFiliacao.notna()]["dtFiliacao"]
+    temp_df['cdMotivoCancelamento'] = temp_df['cdMotivoCancelamento'].str.replace('.0', '')
+    temp_df['cdMotivoDesfiliacao'] = temp_df['cdMotivoDesfiliacao'].str.replace('.0', '')
 
-    temp_df["ano"] = temp_df["dtFiliacao"].apply(get_year)
+    columns_to_title = ["nmEleitor", "desSituacaoEleitor"]
 
-    temp_df = temp_df.dropna(subset="ano")
+    temp_df[columns_to_title] = temp_df[columns_to_title].applymap(lambda string: string.title())
 
-    temp_df["sigla_uf"] = temp_df["sgUe"].values
+    temp_df["tpSexo"] = temp_df["tpSexo"].apply(format_sexo)
 
-    to_partitions(temp_df, ["ano", "sigla_uf"],
+    temp_df = pd.merge(temp_df, self.municipios_bd, left_on="codLocalidadeTse", right_on='id_municipio_tse', how='left')
+
+    temp_df["data_extracao"] = datetime.today().strftime("%Y-%m-%d")
+
+    temp_df.rename(columns={'sgUe': 'sigla_uf'}, inplace=True)
+
+    to_partitions(temp_df, ["data_extracao", "sigla_uf"],
                   savepath=str(self.path_base_output), file_type="csv")
 
   def processing(self):

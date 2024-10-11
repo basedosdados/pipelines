@@ -26,6 +26,9 @@ from pipelines.utils.tasks import (
     get_current_flow_labels,
     rename_current_flow_run_dataset_table,
 )
+from pipelines.datasets.br_tse_filiacao_partidaria.schedules import (
+    schedule_microdados
+)
 
 from pipelines.utils.metadata.tasks import (
     check_if_data_is_outdated,
@@ -34,7 +37,7 @@ from pipelines.utils.metadata.tasks import (
 
 with Flow(
     name="br_tse_filiacao_partidaria.partidaria", code_owners=["luiz"]
-) as br_tse_filiacao_partidaria:
+) as br_tse_filiacao_partidaria_microdados:
 
     # Parameters
 
@@ -77,13 +80,13 @@ with Flow(
 
         collect_task = collect(collector=collector, upstream_tasks=[collector])
 
-        ready_data_path = processing(collector=collector, upstream_tasks=[collect_task])
+        ready_data_path = processing(collector=collector, upstream_tasks=[collector])
 
         wait_upload_table = create_table_and_upload_to_gcs(
         data_path=ready_data_path,
         dataset_id=dataset_id,
         table_id=table_id,
-        dump_mode="overwrite",
+        dump_mode="append",
         source_format= "csv",
         upstream_tasks=[ready_data_path]
         )
@@ -127,7 +130,7 @@ with Flow(
                 update_django_metadata(
                     dataset_id=dataset_id,
                     table_id=table_id,
-                    date_column_name={"date": "data_eleicao"},
+                    date_column_name={"date": "data_extracao"},
                     date_format="%Y",
                     prefect_mode=materialization_mode,
                     coverage_type="all_free",
@@ -135,6 +138,6 @@ with Flow(
                     upstream_tasks=[wait_for_materialization],
                 )
 
-br_tse_filiacao_partidaria.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_tse_filiacao_partidaria.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_tse_filiacao_partidaria.schedule = None
+br_tse_filiacao_partidaria_microdados.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_tse_filiacao_partidaria_microdados.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_tse_filiacao_partidaria_microdados.schedule = schedule_microdados
