@@ -24,7 +24,7 @@ def save_data(table_id: str) -> str:
     df = download_and_read_data(table_id)
     if not os.path.exists(f'{constants_camara.OUTPUT_PATH.value}{table_id}'):
         os.makedirs(f'{constants_camara.OUTPUT_PATH.value}{table_id}')
-    log(f'testando : {constants_camara.OUTPUT_PATH.value}{table_id}')
+
     output_path = constants_camara.TABLES_OUTPUT_PATH.value[table_id]
 
     if table_id == "proposicao_microdados":
@@ -74,11 +74,13 @@ def save_data(table_id: str) -> str:
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def check_if_url_is_valid(table_id:str) -> bool:
-    if requests.get(constants_camara.TABLES_URL.value[table_id]).status_code == 200:
+    if requests.get(constants_camara.TABLES_URL.value[table_id], headers=constants_camara.HEADERS.value).status_code == 200:
         log("URL is valid")
+        log(constants_camara.TABLES_URL.value[table_id])
         return True
-    elif requests.get(constants_camara.TABLES_URL_ANO_ANTERIOR.value[table_id]).status_code == 200:
+    elif requests.get(constants_camara.TABLES_URL_ANO_ANTERIOR.value[table_id], headers=constants_camara.HEADERS.value).status_code == 200:
         log("Table is not available in the current year only in the previous year")
+        log(constants_camara.TABLES_URL_ANO_ANTERIOR.value[table_id])
         return False
     else:
         raise ValueError("URL is not valid")

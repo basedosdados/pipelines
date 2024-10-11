@@ -11,6 +11,7 @@ from pipelines.utils.utils import log
 
 # ----------------------------------------------------------------------------------- > Universal
 def download_table_despesa(table_id:str) -> None:
+
     http_response = urlopen(constants_camara.TABLES_URL.value[table_id])
     zipfile = ZipFile(BytesIO(http_response.read()))
     zipfile.extractall(path=constants_camara.INPUT_PATH.value)
@@ -34,13 +35,10 @@ def download_all_table(table_id: str) -> None:
 
     url = constants_camara.TABLES_URL.value[table_id]
     input_path = constants_camara.TABLES_INPUT_PATH.value[table_id]
-    headers = {
-        "Content-Type": "application/json;charset=UTF-8",
-        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)"
-    }
+
 
     log(f"Downloading {table_id} from {url}")
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=constants_camara.HEADERS.value)
     if response.status_code == 200:
         with open(input_path, "wb") as f:
             f.write(response.content)
