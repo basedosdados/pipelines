@@ -33,6 +33,3 @@ class constants(Enum):  # pylint: disable=c0103
             "READ" : "_CPDC",
             "ONLY_ONE_FILE" : False}
         }
-
-    year = datetime.now().year
-    month = datetime.now().month
