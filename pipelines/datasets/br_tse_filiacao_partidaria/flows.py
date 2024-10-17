@@ -36,7 +36,7 @@ from pipelines.utils.metadata.tasks import (
 )
 
 with Flow(
-    name="br_tse_filiacao_partidaria.partidaria", code_owners=["luiz"]
+    name="br_tse_filiacao_partidaria", code_owners=["luiz"]
 ) as br_tse_filiacao_partidaria_microdados:
 
     # Parameters
@@ -97,7 +97,7 @@ with Flow(
             current_flow_labels = get_current_flow_labels(upstream_tasks=[wait_upload_table])
             materialization_flow = create_flow_run(
                 flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+                project_name=constants.PREFECT_STAGING_PROJECT.value,
                 parameters={
                     "dataset_id": dataset_id,
                     "table_id": table_id,
