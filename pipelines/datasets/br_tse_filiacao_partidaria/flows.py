@@ -141,4 +141,4 @@ with Flow(
 
 br_tse_filiacao_partidaria_microdados.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_tse_filiacao_partidaria_microdados.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_tse_filiacao_partidaria_microdados.schedule = schedule_microdados
+# br_tse_filiacao_partidaria_microdados.schedule = schedule_microdados
