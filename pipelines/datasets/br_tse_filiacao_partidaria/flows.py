@@ -127,17 +127,17 @@ with Flow(
             )
             # coverage updater
 
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id=table_id,
-                    date_column_name={"date": "data_extracao"},
-                    date_format="%Y",
-                    prefect_mode=materialization_mode,
-                    coverage_type="all_free",
-                    bq_project="basedosdados",
-                    upstream_tasks=[wait_for_materialization],
-                )
+            # with case(update_metadata, True):
+            #     update_django_metadata(
+            #         dataset_id=dataset_id,
+            #         table_id=table_id,
+            #         date_column_name={"date": "data_extracao"},
+            #         date_format="%Y",
+            #         prefect_mode=materialization_mode,
+            #         coverage_type="all_free",
+            #         bq_project="basedosdados",
+            #         upstream_tasks=[wait_for_materialization],
+            #     )
 
 br_tse_filiacao_partidaria_microdados.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_tse_filiacao_partidaria_microdados.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
