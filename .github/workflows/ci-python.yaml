@@ -5,7 +5,7 @@ on:
 jobs:
   lint:
     name: Lint python
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -13,7 +13,7 @@ jobs:
         uses: chartboost/ruff-action@v1
   test:
     name: Test python
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -24,7 +24,7 @@ jobs:
         with:
           cache: poetry
           architecture: x64
-          python-version: '3.11'
+          python-version: '3.10'
       - name: Install requirements
         run: poetry install --only=test
       - name: Test
