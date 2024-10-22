@@ -36,6 +36,8 @@ A nomeação de cada Pull Request (PR) deve seguir o seguinte padrão:
     - **Mudanças nos dados e no schema:** <!-- Cite se há mudanças nos dados e no schema -->
     - **Impacto no desempenho:** <!-- Cite os impactos de desempenho dessas mudanças -->
 
+- Se alguma parte do código precisar de alguma atenção a mais, comente na linha sinalizando para os revisores.
+
 ## Teste e Validações:
 
 - Relate os testes e validações relacionado aos dados/script:
@@ -55,19 +57,8 @@ A nomeação de cada Pull Request (PR) deve seguir o seguinte padrão:
     - [ ]  Dependências: <!-- Cite dependencias, bibliotecas e outros PRs que são relacionados a esse Pull Requests antes de mergear -->
     - [ ]  Nenhuma dependencias adicional
 
-## Revisão do código:
-- Relate se há algum ponto no código (função, async, download e etc) que precisa de maior atenção:
-
-    - **Ponto de atenção:** <!-- Cite o nome do arquivo, nome da função, número da linha -->
-        - Exemplo: task.py, download_file_async, linha: 48
-
 
 ## Revisadores:
 - Quando o PR estiver pronto para ser revisado, retire o **Draft** através do **Ready for reviews**, marque os revisadores de repositório, envie o PR no nosso [discord](https://discord.gg/V3yTWRYWZZ) na aba **Correções de PRs, arquiteturas e afins** e marque a **@equipe_dados**:
-    - Revisadores recomendados:
-        - @tricktx
-        - @folhesgabriel
-        - @laura-l-amaral
-        - @aspeddro
-        - @Winzen
-        - @vilelaluiza
+    - Revisadores recomendados no github:
+        - basedosdados/dados
