@@ -9,8 +9,8 @@ from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 from pipelines.constants import constants
 # from pipelines.datasets.br_cnj_improbidade_administrativa.schedules import every_month
 from pipelines.datasets.br_cnj_improbidade_administrativa.tasks import (
-    get_max_date,
     is_up_to_date,
+    get_cookies,
     main_task,
     write_csv_file,
 )
@@ -35,7 +35,7 @@ with Flow(
     table_id = Parameter("table_id", default="condenacao", required=True)
     update_metadata = Parameter("update_metadata", default=True, required=False)
     materialization_mode = Parameter("materialization_mode", default="prod", required=False)
-    materialize_after_dump = Parameter("materialize after dump", default=True, required=False)
+    materialize_after_dump = Parameter("materialize_after_dump", default=True, required=False)
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
@@ -50,15 +50,17 @@ with Flow(
     with case(is_updated, False):
         log_task("Data is outdated")
 
-        df = main_task(upstream_tasks=[is_updated])
+        cookies_driver = get_cookies(upstream_tasks=[is_updated])
 
-        log_task(df)
+        csv_paths = main_task(cookies_driver, upstream_tasks=[cookies_driver])
 
-        max_date = get_max_date(df, upstream_tasks=[df])
+        log_task(csv_paths)
 
-        log_task(f"Max date: {max_date}")
+        # max_date = get_max_date(csv_paths, upstream_tasks=[csv_paths])
 
-        output_filepath = write_csv_file(df, upstream_tasks=[max_date])
+        # log_task(f"Max date: {max_date}")
+
+        output_filepath = write_csv_file(csv_paths, upstream_tasks=[csv_paths])
 
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
