@@ -68,7 +68,7 @@ with Flow(
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
     with case(dados_desatualizados, True):
-        output_filepath = main(tabelas)
+        output_filepath = main(tabelas,data_atualizacao=data_source_max_date)
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
@@ -161,7 +161,7 @@ with Flow(
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
     with case(dados_desatualizados, True):
-        output_filepath = main(tabelas)
+        output_filepath = main(tabelas,data_atualizacao=data_source_max_date)
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
@@ -255,7 +255,7 @@ with Flow(
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
     with case(dados_desatualizados, True):
-        output_filepath = main(tabelas)
+        output_filepath = main(tabelas,data_atualizacao=data_source_max_date)
 
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
@@ -393,7 +393,7 @@ with Flow(
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
     with case(dados_desatualizados, True):
-        output_filepath = main(tabelas)
+        output_filepath = main(tabelas,data_atualizacao=data_source_max_date)
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
