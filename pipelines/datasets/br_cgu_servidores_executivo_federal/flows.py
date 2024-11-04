@@ -1,477 +1,78 @@
 # -*- coding: utf-8 -*-
-"""
-Flows for br_cgu_servidores_executivo_federal
-"""
-
-import datetime
-
-from prefect import Parameter, case
+from copy import copy, copy
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
-from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
-
+from pipelines.utils.crawler_cgu.flows import flow_cgu_servidores_publicos
 from pipelines.constants import constants
-from pipelines.datasets.br_cgu_servidores_executivo_federal.constants import (
-    constants as cgu_constants,
+from pipelines.datasets.br_cgu_servidores_executivo_federal.schedules import (
+    every_day_afastamentos,
+    every_day_cadastro_aposentados,
+    every_day_cadastro_pensionistas,
+    every_day_cadastro_reserva_reforma_militares,
+    every_day_cadastro_servidores,
+    every_day_remuneracao,
+    every_day_observacoes,
 )
-from pipelines.datasets.br_cgu_servidores_executivo_federal.schedules import every_day
-from pipelines.datasets.br_cgu_servidores_executivo_federal.tasks import (
-    download_files,
-    get_next_date,
-    is_up_to_date,
-    make_partitions,
-    merge_and_clean_data,
-    table_is_available,
-    scrape_download_page,
-    get_source_max_date,
-)
-from pipelines.utils.constants import constants as utils_constants
-from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.metadata.tasks import update_django_metadata
-from pipelines.utils.tasks import (
-    create_table_and_upload_to_gcs,
-    get_current_flow_labels,
-    rename_current_flow_run_dataset_table,
-)
-from pipelines.utils.utils import log_task
 
-with Flow(
-    name="br_cgu_servidores_executivo_federal",
-    code_owners=[
-        "aspeddro",
-    ],
-) as datasets_br_cgu_servidores_executivo_federal_flow:
-    dataset_id = Parameter(
-        "dataset_id", default="br_cgu_servidores_executivo_federal", required=False
-    )
+# ! br_cgu_servidores_federal__afastamentos
 
-    tables_ids = list(cgu_constants.TABLES.value.keys())
+br_cgu_servidores_federal__afastamentos = copy(flow_cgu_servidores_publicos)
+br_cgu_servidores_federal__afastamentos.name = ("br_cgu_servidores_executivo_federal.afastamentos")
+br_cgu_servidores_federal__afastamentos.code_owners = ["trick"]
+br_cgu_servidores_federal__afastamentos.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_cgu_servidores_federal__afastamentos.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_cgu_servidores_federal__afastamentos.schedule = every_day_afastamentos
 
-    table_id = Parameter("table_id", default=tables_ids, required=False)
+# ! br_cgu_servidores_federal__cadastro_aposentados
 
-    update_metadata = Parameter("update_metadata", default=False, required=False)
-    materialization_mode = Parameter(
-        "materialization_mode", default="prod", required=False
-    )
-    materialize_after_dump = Parameter(
-        "materialize_after_dump", default=False, required=False
-    )
-    dbt_alias = Parameter("dbt_alias", default=True, required=False)
+br_cgu_servidores_federal__cadastro_aposentados = copy(flow_cgu_servidores_publicos)
+br_cgu_servidores_federal__cadastro_aposentados.name = ("br_cgu_servidores_executivo_federal.cadastro_aposentados")
+br_cgu_servidores_federal__cadastro_aposentados.code_owners = ["trick"]
+br_cgu_servidores_federal__cadastro_aposentados.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_cgu_servidores_federal__cadastro_aposentados.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_cgu_servidores_federal__cadastro_aposentados.schedule = every_day_cadastro_aposentados
 
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
-    )
+# ! br_cgu_servidores_federal__cadastro_pensionistas
 
-    files_and_dates_dataframe = scrape_download_page()
-    source_max_date = get_source_max_date(files_and_dates_dataframe, upstream_tasks=[files_and_dates_dataframe])
-    next_date = get_next_date(upstream_tasks=[files_and_dates_dataframe, source_max_date])
-    data_is_up_to_date = is_up_to_date(next_date, upstream_tasks=[next_date])
+br_cgu_servidores_federal__cadastro_pensionistas = copy(flow_cgu_servidores_publicos)
+br_cgu_servidores_federal__cadastro_pensionistas.name = ("br_cgu_servidores_executivo_federal.cadastro_pensionistas")
+br_cgu_servidores_federal__cadastro_pensionistas.code_owners = ["trick"]
+br_cgu_servidores_federal__cadastro_pensionistas.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_cgu_servidores_federal__cadastro_pensionistas.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_cgu_servidores_federal__cadastro_pensionistas.schedule = every_day_cadastro_pensionistas
 
-    with case(data_is_up_to_date, True):
-        log_task("Tabelas estão atualizadas")
+# ! br_cgu_servidores_federal__cadastro_reserva_reforma_militares
 
-    with case(data_is_up_to_date, False):
-        log_task(f"Starting download, {next_date}, {next_date}")
-        sheets_info = download_files(
-            date_start=next_date, date_end=source_max_date, upstream_tasks=[next_date, source_max_date]
-        )
-        log_task("Files downloaded")
+br_cgu_servidores_federal__cadastro_reserva_reforma_militares = copy(flow_cgu_servidores_publicos)
+br_cgu_servidores_federal__cadastro_reserva_reforma_militares.name = ("br_cgu_servidores_executivo_federal.cadastro_reserva_reforma_militares")
+br_cgu_servidores_federal__cadastro_reserva_reforma_militares.code_owners = ["trick"]
+br_cgu_servidores_federal__cadastro_reserva_reforma_militares.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_cgu_servidores_federal__cadastro_reserva_reforma_militares.run_config = (KubernetesRun(image=constants.DOCKER_IMAGE.value))
+br_cgu_servidores_federal__cadastro_reserva_reforma_militares.schedule = (every_day_cadastro_reserva_reforma_militares)
 
-        data_clean_by_table = merge_and_clean_data(
-            sheets_info, upstream_tasks=[sheets_info]
-        )
-        log_task("Data clean finished")
+# ! br_cgu_servidores_federal__cadastro_servidores
 
-        outputs_path_by_table = make_partitions(
-            data_clean_by_table, upstream_tasks=[data_clean_by_table]
-        )
-        log_task("Partitions done")
+br_cgu_servidores_federal__cadastro_servidores = copy(flow_cgu_servidores_publicos)
+br_cgu_servidores_federal__cadastro_servidores.name = ("br_cgu_servidores_executivo_federal.cadastro_servidores")
+br_cgu_servidores_federal__cadastro_servidores.code_owners = ["trick"]
+br_cgu_servidores_federal__cadastro_servidores.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_cgu_servidores_federal__cadastro_servidores.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_cgu_servidores_federal__cadastro_servidores.schedule = every_day_cadastro_servidores
 
-        with case(
-            table_is_available(outputs_path_by_table, "cadastro_aposentados"), True
-        ):
-            wait_upload_table_aposentados_cadastro = create_table_and_upload_to_gcs(
-                data_path=outputs_path_by_table["cadastro_aposentados"],
-                dataset_id=dataset_id,
-                table_id="cadastro_aposentados",
-                dump_mode="append",
-                wait=outputs_path_by_table,
-            )
+# ! br_cgu_servidores_federal__observacoes
 
-        with case(
-            table_is_available(outputs_path_by_table, "cadastro_pensionistas"), True
-        ):
-            wait_upload_table_pensionistas_cadastro = create_table_and_upload_to_gcs(
-                data_path=outputs_path_by_table["cadastro_pensionistas"],
-                dataset_id=dataset_id,
-                table_id="cadastro_pensionistas",
-                dump_mode="append",
-                wait=outputs_path_by_table,
-            )
+br_cgu_servidores_federal__observacoes = copy(flow_cgu_servidores_publicos)
+br_cgu_servidores_federal__observacoes.name = ("br_cgu_servidores_executivo_federal.observacoes")
+br_cgu_servidores_federal__observacoes.code_owners = ["trick"]
+br_cgu_servidores_federal__observacoes.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_cgu_servidores_federal__observacoes.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_cgu_servidores_federal__observacoes.schedule = every_day_observacoes
 
-        with case(
-            table_is_available(outputs_path_by_table, "cadastro_servidores"), True
-        ):
-            wait_upload_table_servidores_cadastro = create_table_and_upload_to_gcs(
-                data_path=outputs_path_by_table["cadastro_servidores"],
-                dataset_id=dataset_id,
-                table_id="cadastro_servidores",
-                dump_mode="append",
-                wait=outputs_path_by_table,
-            )
+# ! br_cgu_servidores_federal__remuneracao
 
-        with case(
-            table_is_available(
-                outputs_path_by_table, "cadastro_reserva_reforma_militares"
-            ),
-            True,
-        ):
-            wait_upload_table_reserva_reforma_militares_cadastro = (
-                create_table_and_upload_to_gcs(
-                    data_path=outputs_path_by_table[
-                        "cadastro_reserva_reforma_militares"
-                    ],
-                    dataset_id=dataset_id,
-                    table_id="cadastro_reserva_reforma_militares",
-                    dump_mode="append",
-                    wait=outputs_path_by_table,
-                )
-            )
-
-        with case(table_is_available(outputs_path_by_table, "remuneracao"), True):
-            wait_upload_table_remuneracao = create_table_and_upload_to_gcs(
-                data_path=outputs_path_by_table["remuneracao"],
-                dataset_id=dataset_id,
-                table_id="remuneracao",
-                dump_mode="append",
-                wait=outputs_path_by_table,
-            )
-
-        with case(table_is_available(outputs_path_by_table, "afastamentos"), True):
-            wait_upload_table_afastamentos = create_table_and_upload_to_gcs(
-                data_path=outputs_path_by_table["afastamentos"],
-                dataset_id=dataset_id,
-                table_id="afastamentos",
-                dump_mode="append",
-                wait=outputs_path_by_table,
-            )
-
-        with case(table_is_available(outputs_path_by_table, "observacoes"), True):
-            wait_upload_table_observacoes = create_table_and_upload_to_gcs(
-                data_path=outputs_path_by_table["observacoes"],
-                dataset_id=dataset_id,
-                table_id="observacoes",
-                dump_mode="append",
-                wait=outputs_path_by_table,
-            )
-
-        # cadastro_aposentados
-        with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels()
-            materialization_flow = create_flow_run(
-                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": "cadastro_aposentados",
-                    "mode": materialization_mode,
-                    "dbt_alias": dbt_alias,
-                },
-                labels=current_flow_labels,
-                run_name=r"Materialize {dataset_id}.cadastro_aposentados",
-            )
-
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
-            )
-            wait_for_materialization.max_retries = (
-                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-            wait_for_materialization.retry_delay = datetime.timedelta(
-                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-            )
-
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id="cadastro_aposentados",
-                    date_column_name={"year": "ano", "month": "mes"},
-                    date_format="%Y-%m",
-                    coverage_type="part_bdpro",
-                    time_delta={"months": 6},
-                    prefect_mode=materialization_mode,
-                    bq_project="basedosdados",
-                    upstream_tasks=[wait_for_materialization],
-                )
-
-        # cadastro_pensionistas
-        with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels()
-            materialization_flow = create_flow_run(
-                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": "cadastro_pensionistas",
-                    "mode": materialization_mode,
-                    "dbt_alias": dbt_alias,
-                },
-                labels=current_flow_labels,
-                run_name=r"Materialize {dataset_id}.cadastro_pensionistas",
-            )
-
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
-            )
-            wait_for_materialization.max_retries = (
-                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-            wait_for_materialization.retry_delay = datetime.timedelta(
-                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-            )
-
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id="cadastro_pensionistas",
-                    date_column_name={"year": "ano", "month": "mes"},
-                    date_format="%Y-%m",
-                    coverage_type="part_bdpro",
-                    time_delta={"months": 6},
-                    prefect_mode=materialization_mode,
-                    bq_project="basedosdados",
-                    upstream_tasks=[wait_for_materialization],
-                )
-
-        # cadastro_servidores
-        with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels()
-            materialization_flow = create_flow_run(
-                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": "cadastro_servidores",
-                    "mode": materialization_mode,
-                    "dbt_alias": dbt_alias,
-                },
-                labels=current_flow_labels,
-                run_name=r"Materialize {dataset_id}.cadastro_servidores",
-            )
-
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
-            )
-            wait_for_materialization.max_retries = (
-                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-            wait_for_materialization.retry_delay = datetime.timedelta(
-                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-            )
-
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id="cadastro_servidores",
-                    date_column_name={"year": "ano", "month": "mes"},
-                    date_format="%Y-%m",
-                    coverage_type="part_bdpro",
-                    time_delta={"months": 6},
-                    prefect_mode=materialization_mode,
-                    bq_project="basedosdados",
-                    upstream_tasks=[wait_for_materialization],
-                )
-
-        # cadastro_reserva_reforma_militares
-        with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels()
-            materialization_flow = create_flow_run(
-                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": "cadastro_reserva_reforma_militares",
-                    "mode": materialization_mode,
-                    "dbt_alias": dbt_alias,
-                },
-                labels=current_flow_labels,
-                run_name=r"Materialize {dataset_id}.cadastro_reserva_reforma_militares",
-            )
-
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
-            )
-            wait_for_materialization.max_retries = (
-                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-            wait_for_materialization.retry_delay = datetime.timedelta(
-                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-            )
-
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id="cadastro_reserva_reforma_militares",
-                    date_column_name={"year": "ano", "month": "mes"},
-                    date_format="%Y-%m",
-                    coverage_type="part_bdpro",
-                    time_delta={"months": 6},
-                    prefect_mode=materialization_mode,
-                    bq_project="basedosdados",
-                    upstream_tasks=[wait_for_materialization],
-                )
-
-        # remuneracao
-        with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels()
-            materialization_flow = create_flow_run(
-                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": "remuneracao",
-                    "mode": materialization_mode,
-                    "dbt_alias": dbt_alias,
-                },
-                labels=current_flow_labels,
-                run_name=r"Materialize {dataset_id}.remuneracao",
-            )
-
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
-            )
-            wait_for_materialization.max_retries = (
-                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-            wait_for_materialization.retry_delay = datetime.timedelta(
-                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-            )
-
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id="remuneracao",
-                    date_column_name={"year": "ano", "month": "mes"},
-                    date_format="%Y-%m",
-                    coverage_type="part_bdpro",
-                    time_delta={"months": 6},
-                    prefect_mode=materialization_mode,
-                    bq_project="basedosdados",
-                    upstream_tasks=[wait_for_materialization],
-                )
-
-        # afastamentos
-        with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels()
-            materialization_flow = create_flow_run(
-                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": "afastamentos",
-                    "mode": materialization_mode,
-                    "dbt_alias": dbt_alias,
-                },
-                labels=current_flow_labels,
-                run_name=r"Materialize {dataset_id}.afastamentos",
-            )
-
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
-            )
-            wait_for_materialization.max_retries = (
-                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-            wait_for_materialization.retry_delay = datetime.timedelta(
-                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-            )
-
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id="afastamentos",
-                    date_column_name={"year": "ano", "month": "mes"},
-                    date_format="%Y-%m",
-                    coverage_type="part_bdpro",
-                    time_delta={"months": 6},
-                    prefect_mode=materialization_mode,
-                    bq_project="basedosdados",
-                    upstream_tasks=[wait_for_materialization],
-                )
-
-        # observacoes
-        with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels()
-            materialization_flow = create_flow_run(
-                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": "observacoes",
-                    "mode": materialization_mode,
-                    "dbt_alias": dbt_alias,
-                },
-                labels=current_flow_labels,
-                run_name=r"Materialize {dataset_id}.observacoes",
-            )
-
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
-            )
-            wait_for_materialization.max_retries = (
-                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-            wait_for_materialization.retry_delay = datetime.timedelta(
-                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-            )
-
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id="observacoes",
-                    date_column_name={"year": "ano", "month": "mes"},
-                    date_format="%Y-%m",
-                    coverage_type="part_bdpro",
-                    time_delta={"months": 6},
-                    prefect_mode=materialization_mode,
-                    bq_project="basedosdados",
-                    upstream_tasks=[wait_for_materialization],
-                )
-
-
-datasets_br_cgu_servidores_executivo_federal_flow.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
-)
-datasets_br_cgu_servidores_executivo_federal_flow.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-datasets_br_cgu_servidores_executivo_federal_flow.schedule = every_day
+br_cgu_servidores_federal__remuneracao = copy(flow_cgu_servidores_publicos)
+br_cgu_servidores_federal__remuneracao.name = ("br_cgu_servidores_executivo_federal.remuneracao")
+br_cgu_servidores_federal__remuneracao.code_owners = ["trick"]
+br_cgu_servidores_federal__remuneracao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_cgu_servidores_federal__remuneracao.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_cgu_servidores_federal__remuneracao.schedule = every_day_remuneracao

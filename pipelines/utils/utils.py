@@ -489,7 +489,7 @@ def download_and_unzip_file(url : str, path : str) -> None:
         r = urlopen(url)
         zip = zipfile.ZipFile(BytesIO(r.read()))
         zip.extractall(path=path)
-        log("Complet download and unzip")
+        log(f"DOWNLOAD {url} to {path} FINISH")
 
     except Exception as e:
         log(e)
