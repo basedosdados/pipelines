@@ -7,11 +7,7 @@ from datetime import datetime
 
 from prefect.schedules import Schedule
 from prefect.schedules.clocks import CronClock
-
 from pipelines.constants import constants
-from pipelines.datasets.br_cgu_servidores_executivo_federal.constants import (
-    constants as cgu_constants,
-)
 
 every_day_cadastro_aposentados = Schedule(
     clocks=[
