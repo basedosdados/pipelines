@@ -225,8 +225,13 @@ def clean_data_and_make_partitions(path: str, table_id: str) -> str:
     for file in files:
         df = pd.read_csv(f"{path}{file}", sep=";")
         log(f"File {file} read.")
+
+        df.rename(columns={'CNPJ_FUNDO_CLASSE':'CNPJ_FUNDO'}, inplace=True)
+
         df["CNPJ_FUNDO"] = df["CNPJ_FUNDO"].str.replace(r"[/.-]", "")
+
         df = rename_columns(df_arq, df)
+
         df = check_and_create_column(
             df, colunas_totais=cvm_constants.COLUNAS_FINAL_INF.value
         )

@@ -51,7 +51,7 @@ class constants(Enum):  # pylint: disable=c0103
         "TO",
     ]
 
-    URL = "https://dadosabertos.rfb.gov.br/CNPJ/"
+    URL = "https://arquivos.receitafederal.gov.br/cnpj/dados_abertos_cnpj/?C=N;O=D"
 
     HEADERS = {
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36"
