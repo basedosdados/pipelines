@@ -61,3 +61,4 @@ from pipelines.datasets.br_ms_sih.flows import *
 from pipelines.datasets.br_ms_sinan.flows import *
 from pipelines.datasets.br_cgu_emendas_parlamentares.flows import *
 from pipelines.datasets.br_cgu_cartao_pagamento.flows import *
+from pipelines.datasets.br_tse_filiacao_partidaria.flows import *
