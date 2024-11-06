@@ -225,9 +225,10 @@ def clean_data_and_make_partitions(path: str, table_id: str) -> str:
     for file in files:
         df = pd.read_csv(f"{path}{file}", sep=";")
         log(f"File {file} read.")
-        log(df.columns)
 
         df["CNPJ_FUNDO_CLASSE"] = df["CNPJ_FUNDO_CLASSE"].str.replace(r"[/.-]", "")
+
+        df.drop("ID_SUBCLASSE",axis=1, inplace=True)
 
         df = rename_columns(df_arq, df)
 
