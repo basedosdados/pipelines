@@ -114,7 +114,7 @@ def verify_all_url_exists_to_download(dataset_id, table_id, relative_month) -> b
     )
 
     urls = build_urls(
-        constants.TABELA_SERVIDORES.value,
+        dataset_id,
         constants.URL_SERVIDORES.value,
         next_date_in_api.year,
         next_date_in_api.month,
@@ -122,6 +122,8 @@ def verify_all_url_exists_to_download(dataset_id, table_id, relative_month) -> b
     )
 
     for url in urls:
+        log(f"Verificando se a URL {url=} existe")
+
         if requests.get(url).status_code != 200:
             log(f"A URL {url=} não existe!")
             return False

@@ -49,6 +49,9 @@ def build_urls(dataset_id: str, url: str, year: int, month: int, table_id: str) 
         str: A single URL string if the model is 'TABELA'.
         list: A list of URL strings if the model is 'TABELA_SERVIDORES'.
     """
+
+    log(f"{dataset_id=}")
+
     if dataset_id == "br_cgu_cartao_pagamento":
         log(f"{url}{year}{str(month).zfill(2)}/")
 
@@ -153,7 +156,7 @@ def download_file(dataset_id: str, table_id: str, year: int, month: int, relativ
         constants_cgu_servidores = constants.TABELA_SERVIDORES.value[table_id]  # ! CGU - Servidores Públicos do Executivo Federal
 
         url = build_urls(
-            constants.TABELA_SERVIDORES.value,
+            dataset_id,
             constants.URL_SERVIDORES.value,
             year,
             month,
@@ -171,6 +174,7 @@ def download_file(dataset_id: str, table_id: str, year: int, month: int, relativ
                     table_id=table_id,
                     relative_month=relative_month,
                 )
+
         return next_date_in_api
 
 def read_csv(
@@ -335,7 +339,7 @@ def read_and_clean_csv(table_id: str) -> pd.DataFrame:
                 create_column_ano(df, get_csv)
                 create_column_month(df, get_csv)
                 if "origem" in df_architecture["name"].to_list():
-                    df["origem"] = constants_cgu_servidores(csv_path)
+                    df["origem"] = get_source(table_id, csv_path)
 
                     append_dataframe.append(df)
 
