@@ -142,7 +142,7 @@ with Flow(
     ####
     # Relative_month =  1 means that the data will be downloaded for the current month
     ####
-    relative_month = Parameter("relative_month", default=4, required=False)
+    relative_month = Parameter("relative_month", default=1, required=False)
 
     with case(verify_all_url_exists_to_download(dataset_id, table_id, relative_month), True):
         data_source_max_date = get_current_date_and_download_file(
