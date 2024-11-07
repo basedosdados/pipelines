@@ -34,7 +34,6 @@ br_cgu_servidores_federal__cadastro_aposentados.schedule = every_day_cadastro_ap
 
 # ! br_cgu_servidores_federal__cadastro_pensionistas
 
-
 br_cgu_servidores_federal__cadastro_pensionistas = copy(flow_cgu_servidores_publicos)
 br_cgu_servidores_federal__cadastro_pensionistas.name = ("br_cgu_servidores_executivo_federal.cadastro_pensionistas")
 br_cgu_servidores_federal__cadastro_pensionistas.code_owners = ["trick"]
