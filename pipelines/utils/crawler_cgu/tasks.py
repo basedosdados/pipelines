@@ -123,7 +123,6 @@ def verify_all_url_exists_to_download(dataset_id, table_id, relative_month) -> b
 
     for url in urls:
         log(f"Verificando se a URL {url=} existe")
-
         if requests.get(url).status_code != 200:
             log(f"A URL {url=} não existe!")
             return False

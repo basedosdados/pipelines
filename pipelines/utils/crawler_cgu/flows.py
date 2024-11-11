@@ -216,6 +216,5 @@ with Flow(
                         bq_project="basedosdados",
                         upstream_tasks=[wait_for_materialization],
                     )
-
 flow_cgu_servidores_publicos.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 flow_cgu_servidores_publicos.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)

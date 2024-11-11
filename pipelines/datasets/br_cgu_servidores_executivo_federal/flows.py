@@ -13,7 +13,6 @@ from pipelines.datasets.br_cgu_servidores_executivo_federal.schedules import (
     every_day_remuneracao,
     every_day_observacoes,
 )
-
 # ! br_cgu_servidores_federal__afastamentos
 
 br_cgu_servidores_federal__afastamentos = copy(flow_cgu_servidores_publicos)

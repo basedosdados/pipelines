@@ -163,7 +163,8 @@ def download_file(dataset_id: str, table_id: str, year: int, month: int, relativ
             table_id,
         )
         input_dirs = build_input(table_id)
-
+        log(url)
+        log(input_dirs)
         for urls, input_dir in zip(url, input_dirs):
             if requests.get(urls).status_code == 200:
                 destino = f"{constants_cgu_servidores['INPUT']}/{input_dir}"
