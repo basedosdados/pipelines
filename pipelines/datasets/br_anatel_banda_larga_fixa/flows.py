@@ -15,7 +15,6 @@ from pipelines.datasets.br_anatel_banda_larga_fixa.schedules import (
 )
 from pipelines.utils.crawler_anatel.banda_larga_fixa.flows import flow_anatel_banda_larga_fixa
 
-
 # ? Microdados
 br_anatel_banda_larga_fixa__microdados = deepcopy(flow_anatel_banda_larga_fixa)
 br_anatel_banda_larga_fixa__microdados.name = "br_anatel_banda_larga_fixa.microdados"

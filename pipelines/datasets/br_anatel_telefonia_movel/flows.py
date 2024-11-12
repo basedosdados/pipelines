@@ -15,7 +15,6 @@ from pipelines.datasets.br_anatel_telefonia_movel.schedules import (
             schedule_br_anatel_telefonia_movel__uf)
 
 from pipelines.utils.crawler_anatel.telefonia_movel.flows import flow_anatel_telefonia_movel
-
 # ? -------------------------------> Microdados
 br_anatel_telefonia_movel__microdados = deepcopy(flow_anatel_telefonia_movel)
 br_anatel_telefonia_movel__microdados.name = "br_anatel_telefonia_movel.microdados"
