@@ -214,12 +214,12 @@ def treatment_municipio(table_id:str):
 
 
 def get_year():
+    import os
     lista = []
     for x in os.listdir(anatel_constants.INPUT_PATH.value):
-        print(x)
         parts = x.split("_")
-        if len(parts) > 3:
-            x = parts[3]
+        if len(parts) > 4:
+            x = parts[4]
             if len(x) == 4:
                 lista.append(x)
 
