@@ -13,7 +13,8 @@ from pipelines.utils.crawler_anatel.banda_larga_fixa.utils import (
     treatment_br,
     treatment_uf,
     treatment_municipio,
-    unzip_file
+    unzip_file,
+    get_year,
 )
 from pipelines.utils.utils import log, to_partitions
 
@@ -43,7 +44,6 @@ def join_tables_in_function(table_id: str, ano):
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def get_max_date_in_table_microdados(ano: int):
-    unzip_file()
     log("Obtendo a data máxima do arquivo microdados da Anatel")
     df = pd.read_csv(
         f"{anatel_constants.INPUT_PATH.value}Acessos_Banda_Larga_Fixa_{ano}.csv",
@@ -58,3 +58,10 @@ def get_max_date_in_table_microdados(ano: int):
     log(df['data'].max())
 
     return df['data'].max()
+
+
+def get_year_and_unzip():
+    log("Download dos dados...")
+    unzip_file()
+
+    return get_year()

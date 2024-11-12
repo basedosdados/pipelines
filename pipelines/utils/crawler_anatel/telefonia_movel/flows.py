@@ -8,7 +8,9 @@ from datetime import timedelta
 from pipelines.constants import constants
 from pipelines.utils.crawler_anatel.telefonia_movel.tasks import (
     join_tables_in_function,
-    get_max_date_in_table_microdados
+    get_max_date_in_table_microdados,
+    get_semester,
+    get_year_and_unzip,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -42,9 +44,12 @@ with Flow(
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
-    ano = Parameter("ano", default=2024, required=False)
+    year = get_year_and_unzip()
+    semestre = get_semester()
 
-    semestre = Parameter("semestre", default=1, required=False)
+    ano = Parameter("ano", default=year, required=False)
+
+    semestre = Parameter("semestre", default=semestre, required=False)
 
     update_metadata = Parameter("update_metadata", default=True, required=False)
 

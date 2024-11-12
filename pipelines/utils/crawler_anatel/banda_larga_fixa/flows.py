@@ -7,7 +7,8 @@ from datetime import timedelta
 from pipelines.constants import constants
 from pipelines.utils.crawler_anatel.banda_larga_fixa.tasks import (
     join_tables_in_function,
-    get_max_date_in_table_microdados
+    get_max_date_in_table_microdados,
+    get_year_and_unzip,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -39,7 +40,7 @@ with Flow(name="BD template - Anatel Banda Larga Fixa", code_owners=["trick"]) a
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
-    ano = Parameter("ano", default=2024, required=False)
+    ano = Parameter("ano", default=get_year_and_unzip(), required=False)
 
     update_metadata = Parameter("update_metadata", default=True, required=False)
 
