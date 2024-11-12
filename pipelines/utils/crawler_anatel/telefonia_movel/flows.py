@@ -43,10 +43,8 @@ with Flow(
         "materialize_after_dump", default=True, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
-
     year = get_year_and_unzip()
     semestre = get_semester()
-
     ano = Parameter("ano", default=year, required=False)
 
     semestre = Parameter("semestre", default=semestre, required=False)
