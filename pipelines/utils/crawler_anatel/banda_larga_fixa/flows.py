@@ -70,7 +70,7 @@ with Flow(name="BD template - Anatel Banda Larga Fixa", code_owners=["trick"]) a
                 wait=filepath,
                 upstream_tasks=[filepath],  # Fix: Wrap filepath in a list to make it iterable
             )
-            
+
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
             current_flow_labels = get_current_flow_labels()
