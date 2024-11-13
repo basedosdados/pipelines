@@ -43,7 +43,7 @@ def join_tables_in_function(table_id: str, ano):
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def get_max_date_in_table_microdados(table_id: str, ano: int) -> pd.datetime:
+def get_max_date_in_table_microdados(table_id: str, ano: int):
     if table_id == "microdados":
         log("Obtendo a data máxima do arquivo microdados da Anatel")
         df = pd.read_csv(
