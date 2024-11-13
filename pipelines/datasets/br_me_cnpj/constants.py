@@ -159,10 +159,10 @@ class constants(Enum):  # pylint: disable=c0103
         "data_situacao_especial",
     ]
 
-    default_chunk_size = 2**20  # 1MB
+    default_chunk_size = 20 * 1024 * 1024  # 20MB
 
     default_max_retries = 32
 
     default_max_parallel = 16
 
-    default_timeout = 3 * 60 * 1000  # 3 minutes
+    default_timeout = 1 * 60 * 1000  # 1 minute
