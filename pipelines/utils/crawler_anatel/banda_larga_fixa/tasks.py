@@ -43,21 +43,39 @@ def join_tables_in_function(table_id: str, ano):
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def get_max_date_in_table_microdados(ano: int):
-    log("Obtendo a data máxima do arquivo microdados da Anatel")
-    df = pd.read_csv(
-        f"{anatel_constants.INPUT_PATH.value}Acessos_Banda_Larga_Fixa_{ano}.csv",
+def get_max_date_in_table_microdados(table_id: str, ano: int) -> pd.datetime:
+    if table_id == "microdados":
+        log("Obtendo a data máxima do arquivo microdados da Anatel")
+        df = pd.read_csv(
+            f"{anatel_constants.INPUT_PATH.value}Acessos_Banda_Larga_Fixa_{ano}.csv",
+            sep=";",
+            encoding="utf-8",
+            dtype=str
+        )
+        df['data'] = df['Ano'] + '-' + df['Mês']
+
+        df['data'] = pd.to_datetime(df['data'], format="%Y-%m")
+
+        log(df['data'].max())
+
+        return df['data'].max()
+    
+    else:
+        log(f"{anatel_constants.INPUT_PATH.value}Densidade_Telefonia_Movel.csv")
+
+        df = pd.read_csv(
+        f"{anatel_constants.INPUT_PATH.value}Densidade_Telefonia_Movel.csv",
         sep=";",
         encoding="utf-8",
         dtype=str
-    )
-    df['data'] = df['Ano'] + '-' + df['Mês']
+        )
+        df['data'] = df['Ano'] + '-' + df['Mês']
 
-    df['data'] = pd.to_datetime(df['data'], format="%Y-%m")
+        df['data'] = pd.to_datetime(df['data'], format="%Y-%m")
 
-    log(df['data'].max())
+        log(df['data'].max())
 
-    return df['data'].max()
+        return df['data'].max()
 
 
 @task

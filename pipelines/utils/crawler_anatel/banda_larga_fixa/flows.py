@@ -58,7 +58,7 @@ with Flow(name="BD template - Anatel Banda Larga Fixa", code_owners=["trick"]) a
 
     new_ano = get_year_and_unzip(day=ano)
 
-    update_tables = get_max_date_in_table_microdados(ano=new_ano)
+    update_tables = get_max_date_in_table_microdados(ano=new_ano, table_id=table_id, upstream_tasks=[new_ano])
 
     get_max_date = check_if_data_is_outdated(
     dataset_id =  dataset_id,

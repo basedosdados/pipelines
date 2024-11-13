@@ -64,7 +64,7 @@ with Flow(name="BD template - Anatel Telefonia Móvel", code_owners=["trick"]) a
     new_semester = get_semester(semestre, upstream_tasks=[new_year])
 
     update_tables = get_max_date_in_table_microdados(
-        ano=new_year, semestre=new_semester, upstream_tasks=[new_year, new_semester]
+        table_id = table_id, ano=new_year, semestre=new_semester, upstream_tasks=[new_year, new_semester]
     )
 
     get_max_date = check_if_data_is_outdated(

@@ -48,7 +48,9 @@ def join_tables_in_function(table_id, semestre, ano):
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def get_max_date_in_table_microdados(ano, semestre):
+def get_max_date_in_table_microdados(table_id, ano, semestre):
+
+    if table_id == 'microdados':
     log("Obtendo a data máxima da tabela microdados...")
     log(
         f"{anatel_constants.INPUT_PATH.value}Acessos_Telefonia_Movel_{ano}_{semestre}S.csv"
@@ -65,7 +67,24 @@ def get_max_date_in_table_microdados(ano, semestre):
 
     log(df['data'].max())
 
-    return df['data'].max()
+        return df['data'].max()
+
+    else:
+        log(f"{anatel_constants.INPUT_PATH.value}Densidade_Telefonia_Movel.csv")
+
+        df = pd.read_csv(
+        f"{anatel_constants.INPUT_PATH.value}Densidade_Telefonia_Movel.csv",
+        sep=";",
+        encoding="utf-8",
+        dtype=str
+        )
+        df['data'] = df['Ano'] + '-' + df['Mês']
+
+        df['data'] = pd.to_datetime(df['data'], format="%Y-%m")
+
+        log(df['data'].max())
+
+        return df['data'].max()
 
 
 @task(
