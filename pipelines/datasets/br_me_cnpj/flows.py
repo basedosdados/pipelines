@@ -153,7 +153,7 @@ with Flow(
         dataset_id=dataset_id,
         table_id=table_id,
         data_source_max_date=folder_date,
-        date_format="%Y-%m-%d",
+        date_format="%Y-%m",
         upstream_tasks=[today_date],
     )
 
@@ -247,7 +247,7 @@ with Flow(
         dataset_id=dataset_id,
         table_id=table_id,
         data_source_max_date=folder_date,
-        date_format="%Y-%m-%d",
+        date_format="%Y-%m",
         upstream_tasks=[today_date],
     )
 
@@ -385,7 +385,7 @@ with Flow(
         dataset_id="br_me_cnpj",
         table_id="estabelecimentos",
         data_source_max_date=folder_date,
-        date_format="%Y-%m-%d",
+        date_format="%Y-%m",
         upstream_tasks=[today_date],
     )
 
