@@ -207,3 +207,18 @@ def clean_csv_municipio(table_id):
         encoding="utf-8",
         na_rep="",
     )
+
+
+def get_year():
+    lista = []
+    for x in os.listdir(anatel_constants.INPUT_PATH.value):
+        print(x)
+        parts = x.split("_")
+        if len(parts) > 3:
+            x = parts[3]
+            if len(x) == 4:
+                lista.append(x)
+
+    max_year = max(lista)
+    log(f"Ano máximo: {max_year}")
+    return max_year

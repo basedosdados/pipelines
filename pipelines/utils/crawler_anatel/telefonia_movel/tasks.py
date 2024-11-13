@@ -18,6 +18,8 @@ from pipelines.utils.crawler_anatel.telefonia_movel.utils import (
     clean_csv_brasil,
     clean_csv_municipio,
     clean_csv_uf,
+    get_year
+
 )
 from pipelines.utils.utils import log, to_partitions
 
@@ -47,7 +49,6 @@ def join_tables_in_function(table_id, semestre, ano):
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def get_max_date_in_table_microdados(ano: int, semestre: int):
-    unzip_file()
     log("Obtendo a data máxima da tabela microdados...")
     df = pd.read_csv(
         f"{anatel_constants.INPUT_PATH.value}Acessos_Telefonia_Movel_{ano}_{semestre}S.csv",
@@ -62,3 +63,34 @@ def get_max_date_in_table_microdados(ano: int, semestre: int):
     log(df['data'].max())
 
     return df['data'].max()
+
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def unzip():
+    return unzip_file()
+
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def get_year_full(year):
+    if year is None:
+        return get_year
+
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def get_semester(semester, year):
+    if semester is None:
+        if os.path.exists(
+            f"{anatel_constants.INPUT_PATH.value}Acessos_Telefonia_Movel_{get_year_full(year=year)}_2S.csv"
+        ):
+            return 2
+        else:
+            return 1

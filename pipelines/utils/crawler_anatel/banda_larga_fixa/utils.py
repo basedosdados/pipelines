@@ -188,7 +188,6 @@ def treatment_uf(table_id:str):
     )
 
 
-
 def treatment_municipio(table_id:str):
     log("Iniciando o tratamento do arquivo densidade municipio da Anatel")
     df = pd.read_csv(
@@ -212,3 +211,17 @@ def treatment_municipio(table_id:str):
         partition_columns=["ano"],
         savepath=anatel_constants.TABLES_OUTPUT_PATH.value[table_id],
     )
+
+
+def get_year():
+    lista = []
+    for x in os.listdir(anatel_constants.INPUT_PATH.value):
+        parts = x.split("_")
+        if len(parts) > 4:
+            x = parts[4]
+            if len(x) == 4:
+                lista.append(x)
+
+    max_year = max(lista)
+    log(f"Ano máximo: {max_year}")
+    return max_year
