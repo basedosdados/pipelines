@@ -11,7 +11,7 @@ from pipelines.utils.crawler_anatel.telefonia_movel.tasks import (
     get_max_date_in_table_microdados,
     get_year_full,
     get_semester,
-    #unzip,
+    unzip,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -59,8 +59,8 @@ with Flow(name="BD template - Anatel Telefonia Móvel", code_owners=["trick"]) a
     # Function dynamic parameters
     # https://discourse.prefect.io/t/my-parameter-value-shows-the-same-date-every-day-how-can-i-set-parameter-value-dynamically/99
     #####
-    # unzip_task = unzip()
-    new_year = get_year_full(ano)
+    unzip_task = unzip()
+    new_year = get_year_full(ano, upstream_tasks=[unzip_task])
     new_semester = get_semester(semestre, upstream_tasks=[new_year])
 
     update_tables = get_max_date_in_table_microdados(
