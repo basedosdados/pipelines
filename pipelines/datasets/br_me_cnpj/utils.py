@@ -8,7 +8,7 @@ import zipfile
 from asyncio import Semaphore, gather
 from datetime import datetime
 
-import httpx
+from httpx import AsyncClient, HTTPError, head
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
@@ -24,50 +24,37 @@ from pipelines.utils.utils import log
 
 ufs = constants_cnpj.UFS.value
 headers = constants_cnpj.HEADERS.value
+timeout = constants_cnpj.TIMEOUT.value
+
+def data_url(url:str, headers:dict)-> tuple[datetime,datetime]:
 
 
-
-def data_url(url:str, headers:dict)-> datetime:
-
-    max_attempts = constants_cnpj.MAX_ATTEMPTS.value
-    timeout = constants_cnpj.TIMEOUT.value
-    attempts = constants_cnpj.ATTEMPTS.value
-    date_pattern = re.compile(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}")
-
-    while attempts < max_attempts:
-        try:
-            link_data = requests.get(url, headers=headers, timeout=timeout)
-            link_data.raise_for_status()
-            break
-        except (ConnectionError, Timeout) as e:
-            log(f"Tentativa {attempts + 1} falhou. Erro: {e}")
-            time.sleep(1)
-            attempts += 1
-    else:
-        log(f"Máximo de {max_attempts} tentativas alcançado. Verifique a conexão ou o endpoint.")
-        return None
+    link_data = requests.get(url, headers=headers, timeout=timeout, verify=False)
+    link_data.raise_for_status()
 
     soup = BeautifulSoup(link_data.text, "html.parser")
 
-    dates = [
-        datetime.strptime(element.get_text(strip=True), "%Y-%m-%d %H:%M").date()
-        for element in soup.find_all('td', align="right")
-        if date_pattern.match(element.get_text(strip=True))
-        ]
 
-    try:
-        max_date = max(dates)
-        log(f"A data máxima extraida da API é: {max_date}")
-    except ValueError as e:
-        log(f"A lista que deveria conter a data mais recente de atualização retornou nula. Verifique o endpoint \n. Erro: {e}")
+    max_folder_date = max(
+    [
+        datetime.strptime(link["href"].strip("/"), "%Y-%m").strftime('%Y-%m')
+        for link in soup.find_all("a", href=True)
+        if link["href"].strip("/").startswith("202")
+    ]
+    )
 
-    return max_date
+    today_date = datetime.today().strftime('%Y-%m-%d')
+    log(f"A data máxima extraida da API da Receita Federal que será utilizada para comparar com os metadados da BD é: {max_folder_date}")
+    log(f"A data de hoje gerada para criar partições no Storage é: {today_date} ")
+
+    return max_folder_date, today_date
 
 
 
 
 # ! Cria o caminho do output
-def destino_output(sufixo, data_coleta):
+def destino_output(sufixo:str, data_coleta: datetime)-> str:
+
     output_path = f"/tmp/data/br_me_cnpj/output/{sufixo}/"
     # Pasta de destino para salvar o arquivo CSV
     if sufixo != "simples":
@@ -87,7 +74,7 @@ def destino_output(sufixo, data_coleta):
 
 
 # ! Adiciona zero a esquerda nas colunas
-def fill_left_zeros(df, column, num_digits):
+def fill_left_zeros(df: datetime, column, num_digits:int)-> pd.DataFrame:
     df[column] = df[column].astype(str).str.zfill(num_digits)
     return df
 
@@ -95,70 +82,53 @@ def fill_left_zeros(df, column, num_digits):
 # ! Download assincrono e em chunck`s do zip
 def chunk_range(content_length: int, chunk_size: int) -> list[tuple[int, int]]:
     """Split the content length into a list of chunk ranges"""
-    return [
-        (i * chunk_size, min((i + 1) * chunk_size - 1, content_length - 1))
-        for i in range(content_length // chunk_size + 1)
-    ]
-
+    return [(i, min(i + chunk_size - 1, content_length - 1)) for i in range(0, content_length, chunk_size)]
 
 # from https://stackoverflow.com/a/64283770
-async def download(
-    url: str,
-    chunk_size: int = 2**25,
-    max_retries: int = 32,
-    max_parallel: int = 32,
-    timeout: int = 3 * 60 * 2,
-) -> bytes:
-    request_head = httpx.head(url)
-    log(request_head)
+async def download(url, chunk_size=20 * 1024 * 1024, max_retries=5, max_parallel=5, timeout=5 * 60):
+    try:
+        request_head = head(url)
+        log(request_head)
 
-    assert request_head.status_code == 200
-    assert request_head.headers["accept-ranges"] == "bytes"
+        assert request_head.status_code == 200
+        assert request_head.headers["accept-ranges"] == "bytes"
 
-    content_length = int(request_head.headers["content-length"])
+        content_length = int(request_head.headers["content-length"])
+        log(f"Downloading {url} with {content_length} bytes / {chunk_size} chunks and {max_parallel} parallel downloads")
 
-    log(
-        f"Downloading {url} with {content_length} bytes / {chunk_size} chunks and {max_parallel} parallel downloads"
-    )
+        semaphore = Semaphore(max_parallel)
 
-    # TODO: pool http connections
-    semaphore = Semaphore(max_parallel)
-    tasks = [
-        download_chunk(url, (start, end), max_retries, timeout, semaphore)
-        for start, end in chunk_range(content_length, chunk_size)
-    ]
+        async with AsyncClient() as client:
+            tasks = [
+                download_chunk(client, url, (start, end), max_retries, timeout, semaphore)
+                for start, end in chunk_range(content_length, chunk_size)
+            ]
+            return b"".join(await gather(*tasks))
 
-    return b"".join(await gather(*tasks))
+    except HTTPError as e:
+        log(f"Initial request failed: {e}")
+        return b""
 
 
-async def download_chunk(
-    url: str,
-    chunk_range: tuple[int, int],
-    max_retries: int,
-    timeout: int,
-    semaphore: Semaphore,
-) -> bytes:
+async def download_chunk(client, url, chunk_range, max_retries, timeout, semaphore):
     async with semaphore:
-        #log(f"Downloading chunk {chunk_range[0]}-{chunk_range[1]}")
-        for i in range(max_retries):
+        for attempt in range(max_retries):
             try:
-                async with httpx.AsyncClient(timeout=timeout) as client:
-                    headers = {"Range": f"bytes={chunk_range[0]}-{chunk_range[1]}"}
-                    response = await client.get(url, headers=headers)
-                    response.raise_for_status()
-                    return response.content
-            except httpx.HTTPError as e:
-                log(f"Download failed with {e}. Retrying ({i+1}/{max_retries})...")
-        raise httpx.HTTPError(f"Download failed after {max_retries} retries")
+                headers = {"Range": f"bytes={chunk_range[0]}-{chunk_range[1]}"}
+                response = await client.get(url, headers=headers, timeout=timeout)
+                response.raise_for_status()
+                return response.content
+            except HTTPError as e:
+                delay = 2 ** attempt
+                log(f"Chunk {chunk_range} failed on attempt {attempt + 1}. Retrying in {delay} seconds...")
+                await asyncio.sleep(delay)
+
+        raise HTTPError(f"Chunk {chunk_range} failed after {max_retries} retries")
 
 
 # ! Executa o download do zip file
-async def download_unzip_csv(
-    url,
-    pasta_destino,
-):
+async def download_unzip_csv(url, pasta_destino):
     log(f"Baixando o arquivo {url}")
-
     save_path = os.path.join(pasta_destino, f"{os.path.basename(url)}.zip")
     content = await download(url)
     with open(save_path, "wb") as fd:
@@ -173,27 +143,6 @@ async def download_unzip_csv(
 
     os.remove(save_path)
 
-
-def download_unzip_csv_sync(url, pasta_destino, chunk_size: int = 1000):
-    time_before = time.perf_counter()
-    log(f"Baixando o arquivo {url}")
-    save_path = os.path.join(pasta_destino, f"{os.path.basename(url)}.zip")
-
-    r = requests.get(url, headers=headers, stream=True, timeout=60)
-    with open(save_path, "wb") as fd:
-        for chunk in tqdm(
-            r.iter_content(chunk_size=chunk_size), desc="Baixando o arquivo"
-        ):
-            fd.write(chunk)
-
-    try:
-        with zipfile.ZipFile(save_path) as z:
-            z.extractall(pasta_destino)
-        log("Dados extraídos com sucesso!")
-        log(f"Total time (asynchronous): {time.perf_counter() - time_before}.")
-    except zipfile.BadZipFile:
-        log(f"O arquivo {os.path.basename(url)} não é um arquivo ZIP válido.")
-    os.remove(save_path)
 
 
 # ! Salva os dados CSV Estabelecimentos
