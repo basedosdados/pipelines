@@ -5,7 +5,7 @@ Tasks for br_me_cnpj
 import asyncio
 import os
 from typing import Union, List
-from datetime import datetime
+from datetime import datetime,timedelta
 import basedosdados as bd
 from prefect import task
 
@@ -20,13 +20,17 @@ from pipelines.datasets.br_me_cnpj.utils import (
     process_csv_socios,
 )
 from pipelines.utils.utils import log
+from pipelines.constants import constants
 
 ufs = constants_cnpj.UFS.value
 url = constants_cnpj.URL.value
 headers = constants_cnpj.HEADERS.value
 
 
-@task
+@task(
+    max_retries=3,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def get_data_source_max_date() -> tuple[datetime,datetime]:
     """
     Checks if there are available updates for a specific dataset and table.
