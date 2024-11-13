@@ -59,7 +59,7 @@ def get_max_date_in_table_microdados(table_id: str, ano: int) -> pd.datetime:
         log(df['data'].max())
 
         return df['data'].max()
-    
+
     else:
         log(f"{anatel_constants.INPUT_PATH.value}Densidade_Telefonia_Movel.csv")
 
