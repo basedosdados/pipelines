@@ -48,8 +48,11 @@ def join_tables_in_function(table_id, semestre, ano):
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def get_max_date_in_table_microdados(ano: int, semestre: int):
+def get_max_date_in_table_microdados(ano, semestre):
     log("Obtendo a data máxima da tabela microdados...")
+    log(
+        f"{anatel_constants.INPUT_PATH.value}Acessos_Telefonia_Movel_{ano}_{semestre}S.csv"
+    )
     df = pd.read_csv(
         f"{anatel_constants.INPUT_PATH.value}Acessos_Telefonia_Movel_{ano}_{semestre}S.csv",
         sep=";",
@@ -73,24 +76,24 @@ def unzip():
     return unzip_file()
 
 
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
+@task
 def get_year_full(year):
+    log("Obtendo o ano...")
     if year is None:
-        return get_year
+
+        return get_year()
 
 
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
-def get_semester(semester, year):
+@task
+def get_semester(semester):
+    log("Obtendo o semestre...")
+    ano = get_year()
     if semester is None:
         if os.path.exists(
-            f"{anatel_constants.INPUT_PATH.value}Acessos_Telefonia_Movel_{get_year_full(year=year)}_2S.csv"
+            f"{anatel_constants.INPUT_PATH.value}Acessos_Telefonia_Movel_{ano}_2S.csv"
         ):
+            log("Segundo semestre")
             return 2
         else:
+            log("Primeiro semestre")
             return 1

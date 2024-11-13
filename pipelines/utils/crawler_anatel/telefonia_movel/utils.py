@@ -212,7 +212,6 @@ def clean_csv_municipio(table_id):
 def get_year():
     lista = []
     for x in os.listdir(anatel_constants.INPUT_PATH.value):
-        print(x)
         parts = x.split("_")
         if len(parts) > 3:
             x = parts[3]
