@@ -54,21 +54,21 @@ with Flow(
     )
     tabelas = constants_cnpj.TABELAS.value[0:1]
 
-    data_source_max_date = get_data_source_max_date()
+    folder_date, today_date = get_data_source_max_date()
 
     dados_desatualizados = check_if_data_is_outdated(
         dataset_id=dataset_id,
         table_id=table_id,
-        data_source_max_date=data_source_max_date,
-        date_format="%Y-%m-%d",
-        upstream_tasks=[data_source_max_date],
+        data_source_max_date=folder_date,
+        date_format="%Y-%m",
+        upstream_tasks=[today_date],
     )
 
     with case(dados_desatualizados, False):
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
     with case(dados_desatualizados, True):
-        output_filepath = main(tabelas,data_atualizacao=data_source_max_date)
+        output_filepath = main(tabelas,data_atualizacao=today_date)
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
@@ -147,21 +147,21 @@ with Flow(
     )
     tabelas = constants_cnpj.TABELAS.value[1:2]
 
-    data_source_max_date = get_data_source_max_date()
+    folder_date, today_date = get_data_source_max_date()
 
     dados_desatualizados = check_if_data_is_outdated(
         dataset_id=dataset_id,
         table_id=table_id,
-        data_source_max_date=data_source_max_date,
+        data_source_max_date=folder_date,
         date_format="%Y-%m-%d",
-        upstream_tasks=[data_source_max_date],
+        upstream_tasks=[today_date],
     )
 
     with case(dados_desatualizados, False):
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
     with case(dados_desatualizados, True):
-        output_filepath = main(tabelas,data_atualizacao=data_source_max_date)
+        output_filepath = main(tabelas,data_atualizacao=today_date)
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
@@ -241,21 +241,21 @@ with Flow(
      )
     tabelas = constants_cnpj.TABELAS.value[2:3]
 
-    data_source_max_date = get_data_source_max_date()
+    folder_date, today_date = get_data_source_max_date()
 
     dados_desatualizados = check_if_data_is_outdated(
         dataset_id=dataset_id,
         table_id=table_id,
-        data_source_max_date=data_source_max_date,
+        data_source_max_date=folder_date,
         date_format="%Y-%m-%d",
-        upstream_tasks=[data_source_max_date],
+        upstream_tasks=[today_date],
     )
 
     with case(dados_desatualizados, False):
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
     with case(dados_desatualizados, True):
-        output_filepath = main(tabelas,data_atualizacao=data_source_max_date)
+        output_filepath = main(tabelas,data_atualizacao=today_date)
 
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
@@ -379,21 +379,21 @@ with Flow(
     )
     tabelas = constants_cnpj.TABELAS.value[3:]
 
-    data_source_max_date = get_data_source_max_date()
+    folder_date, today_date = get_data_source_max_date()
 
     dados_desatualizados = check_if_data_is_outdated(
         dataset_id="br_me_cnpj",
         table_id="estabelecimentos",
-        data_source_max_date=data_source_max_date,
+        data_source_max_date=folder_date,
         date_format="%Y-%m-%d",
-        upstream_tasks=[data_source_max_date],
+        upstream_tasks=[today_date],
     )
 
     with case(dados_desatualizados, False):
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
     with case(dados_desatualizados, True):
-        output_filepath = main(tabelas,data_atualizacao=data_source_max_date)
+        output_filepath = main(tabelas,data_atualizacao=today_date)
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,

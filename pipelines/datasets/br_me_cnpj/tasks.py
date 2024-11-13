@@ -4,8 +4,6 @@ Tasks for br_me_cnpj
 """
 import asyncio
 import os
-from google.cloud import storage
-import pathlib
 from typing import Union, List
 from datetime import datetime
 import basedosdados as bd
@@ -16,7 +14,6 @@ from pipelines.datasets.br_me_cnpj.utils import (
     data_url,
     destino_output,
     download_unzip_csv,
-    download_unzip_csv_sync,
     process_csv_empresas,
     process_csv_estabelecimentos,
     process_csv_simples,
@@ -30,38 +27,16 @@ headers = constants_cnpj.HEADERS.value
 
 
 @task
-def calculate_defasagem():
-    """
-    Calculates the month lag based on the current month.
-
-    Returns:
-        int: Number of lagged months.
-    """
-    current_month = datetime.now().month
-    current_year = datetime.now().year
-
-    if current_year == 2023:
-        if current_month >= 10:
-            defasagem = 6
-        else:
-            defasagem = current_month - 4
-    else:
-        defasagem = 6
-
-    return defasagem
-
-
-@task
-def get_data_source_max_date():
+def get_data_source_max_date() -> tuple[datetime,datetime]:
     """
     Checks if there are available updates for a specific dataset and table.
 
     Returns:
         bool: Returns True if updates are available, otherwise returns False.
     """
-    # Obtém a data mais recente do site
-    data_obj = data_url(url=url, headers=headers)
-    return data_obj
+
+    folder_date, today_date = data_url(url=url, headers=headers)
+    return folder_date, today_date
 
 @task
 def main(tabelas:[str], data_atualizacao:datetime)-> str:
