@@ -7,7 +7,8 @@ from datetime import timedelta
 from pipelines.constants import constants
 from pipelines.utils.crawler_anatel.banda_larga_fixa.tasks import (
     join_tables_in_function,
-    get_max_date_in_table_microdados
+    get_max_date_in_table_microdados,
+    get_year_and_unzip,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -39,7 +40,7 @@ with Flow(name="BD template - Anatel Banda Larga Fixa", code_owners=["trick"]) a
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
-    ano = Parameter("ano", default=2024, required=False)
+    ano = Parameter("ano", default=None, required=False)
 
     update_metadata = Parameter("update_metadata", default=True, required=False)
 
@@ -50,7 +51,14 @@ with Flow(name="BD template - Anatel Banda Larga Fixa", code_owners=["trick"]) a
         wait=table_id,
     )
 
-    update_tables = get_max_date_in_table_microdados(ano=ano)
+    #####
+    # Function dynamic parameters
+    # https://discourse.prefect.io/t/my-parameter-value-shows-the-same-date-every-day-how-can-i-set-parameter-value-dynamically/99
+    #####
+
+    new_ano = get_year_and_unzip(day=ano)
+
+    update_tables = get_max_date_in_table_microdados(ano=new_ano, table_id=table_id, upstream_tasks=[new_ano])
 
     get_max_date = check_if_data_is_outdated(
     dataset_id =  dataset_id,
@@ -59,7 +67,9 @@ with Flow(name="BD template - Anatel Banda Larga Fixa", code_owners=["trick"]) a
     date_format =  "%Y-%m")
 
     with case(get_max_date, True):
-        filepath = join_tables_in_function(table_id = table_id, ano=ano, upstream_tasks=[get_max_date])
+        filepath = join_tables_in_function(
+            table_id=table_id, ano=new_ano, upstream_tasks=[get_max_date]
+        )
 
         wait_upload_table = create_table_and_upload_to_gcs(
                 data_path=filepath,
