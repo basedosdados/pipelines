@@ -8,7 +8,10 @@ from datetime import timedelta
 from pipelines.constants import constants
 from pipelines.utils.crawler_anatel.telefonia_movel.tasks import (
     join_tables_in_function,
-    get_max_date_in_table_microdados
+    get_max_date_in_table_microdados,
+    get_year_full,
+    get_semester,
+    unzip,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -23,9 +26,7 @@ from pipelines.utils.tasks import (
     rename_current_flow_run_dataset_table,
 )
 
-with Flow(
-    name="BD template - Anatel Telefonia Móvel", code_owners=["trick"]
-) as flow_anatel_telefonia_movel:
+with Flow(name="BD template - Anatel Telefonia Móvel", code_owners=["trick"]) as flow_anatel_telefonia_movel:
     # Parameters
     dataset_id = Parameter(
         "dataset_id", default="br_anatel_telefonia_movel", required=True
@@ -42,9 +43,9 @@ with Flow(
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
-    ano = Parameter("ano", default=2024, required=False)
+    ano = Parameter("ano", default=None, required=False)
 
-    semestre = Parameter("semestre", default=1, required=False)
+    semestre = Parameter("semestre", default=None, required=False)
 
     update_metadata = Parameter("update_metadata", default=True, required=False)
 
@@ -54,8 +55,17 @@ with Flow(
         table_id=table_id,
         wait=table_id,
     )
+    #####
+    # Function dynamic parameters
+    # https://discourse.prefect.io/t/my-parameter-value-shows-the-same-date-every-day-how-can-i-set-parameter-value-dynamically/99
+    #####
+    unzip_task = unzip()
+    new_year = get_year_full(ano, upstream_tasks=[unzip_task])
+    new_semester = get_semester(semestre, upstream_tasks=[new_year])
 
-    update_tables = get_max_date_in_table_microdados(ano=ano, semestre=semestre)
+    update_tables = get_max_date_in_table_microdados(
+        table_id = table_id, ano=new_year, semestre=new_semester, upstream_tasks=[new_year, new_semester]
+    )
 
     get_max_date = check_if_data_is_outdated(
     dataset_id =  dataset_id,
@@ -67,11 +77,11 @@ with Flow(
     with case(get_max_date, True):
 
         filepath = join_tables_in_function(
-            table_id = table_id,
-            ano=ano,
-            semestre=semestre,
-            upstream_tasks=[get_max_date]
-            )
+            table_id=table_id,
+            ano=new_year,
+            semestre=new_semester,
+            upstream_tasks=[get_max_date],
+        )
 
         wait_upload_table = create_table_and_upload_to_gcs(
                 data_path=filepath,
