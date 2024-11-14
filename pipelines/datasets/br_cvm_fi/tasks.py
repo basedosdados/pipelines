@@ -32,7 +32,10 @@ from pipelines.datasets.br_cvm_fi.utils import (
 from pipelines.utils.utils import log, to_partitions
 
 
-@task  # noqa
+@task(
+    max_retries=2,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)  # noqa
 def download_unzip_csv(
     url: str, files, chunk_size: int = 128, mkdir: bool = True, id="teste"
 ) -> str:
@@ -114,7 +117,10 @@ def download_unzip_csv(
     return f"/tmp/data/br_cvm_fi/{id}/input/"
 
 
-@task
+@task(
+    max_retries=2,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def extract_links_and_dates(url) -> Tuple[pd.DataFrame, str]:
     """
     Extracts all file names and their respective last update dates in a pandas dataframe.
@@ -169,7 +175,10 @@ def extract_links_and_dates(url) -> Tuple[pd.DataFrame, str]:
     return df, data_maxima
 
 
-@task
+@task(
+    max_retries=2,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def generate_links_to_download(df: pd.DataFrame, max_date: datetime) -> list[str]:
     """
     Checks for outdated tables.
@@ -182,7 +191,10 @@ def generate_links_to_download(df: pd.DataFrame, max_date: datetime) -> list[str
     return lists
 
 
-@task
+@task(
+    max_retries=2,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def check_for_updates(df: pd.DataFrame):
     """
     Checks for outdated tables.
@@ -193,7 +205,10 @@ def check_for_updates(df: pd.DataFrame):
 
 
 
-@task
+@task(
+    max_retries=2,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def check_for_updates_ext(df):
     """
     Checks for outdated tables in documentos_extratos_informacoes table.
