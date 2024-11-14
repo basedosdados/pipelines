@@ -54,21 +54,21 @@ with Flow(
     )
     tabelas = constants_cnpj.TABELAS.value[0:1]
 
-    data_source_max_date = get_data_source_max_date()
+    folder_date, today_date = get_data_source_max_date()
 
     dados_desatualizados = check_if_data_is_outdated(
         dataset_id=dataset_id,
         table_id=table_id,
-        data_source_max_date=data_source_max_date,
-        date_format="%Y-%m-%d",
-        upstream_tasks=[data_source_max_date],
+        data_source_max_date=folder_date,
+        date_format="%Y-%m",
+        upstream_tasks=[today_date],
     )
 
     with case(dados_desatualizados, False):
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
     with case(dados_desatualizados, True):
-        output_filepath = main(tabelas,data_atualizacao=data_source_max_date)
+        output_filepath = main(tabelas,folder_date=folder_date,today_date=today_date)
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
@@ -124,7 +124,7 @@ with Flow(
 
 br_me_cnpj_empresas.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_me_cnpj_empresas.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-#br_me_cnpj_empresas.schedule = every_day_empresas
+br_me_cnpj_empresas.schedule = every_day_empresas
 
 with Flow(
     name="br_me_cnpj.socios",
@@ -147,21 +147,21 @@ with Flow(
     )
     tabelas = constants_cnpj.TABELAS.value[1:2]
 
-    data_source_max_date = get_data_source_max_date()
+    folder_date, today_date = get_data_source_max_date()
 
     dados_desatualizados = check_if_data_is_outdated(
         dataset_id=dataset_id,
         table_id=table_id,
-        data_source_max_date=data_source_max_date,
-        date_format="%Y-%m-%d",
-        upstream_tasks=[data_source_max_date],
+        data_source_max_date=folder_date,
+        date_format="%Y-%m",
+        upstream_tasks=[today_date],
     )
 
     with case(dados_desatualizados, False):
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
     with case(dados_desatualizados, True):
-        output_filepath = main(tabelas,data_atualizacao=data_source_max_date)
+        output_filepath = main(tabelas,folder_date=folder_date,today_date=today_date)
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
@@ -216,7 +216,7 @@ with Flow(
 
 br_me_cnpj_socios.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_me_cnpj_socios.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-#br_me_cnpj_socios.schedule = every_day_socios
+br_me_cnpj_socios.schedule = every_day_socios
 
 
 with Flow(
@@ -241,21 +241,21 @@ with Flow(
      )
     tabelas = constants_cnpj.TABELAS.value[2:3]
 
-    data_source_max_date = get_data_source_max_date()
+    folder_date, today_date = get_data_source_max_date()
 
     dados_desatualizados = check_if_data_is_outdated(
         dataset_id=dataset_id,
         table_id=table_id,
-        data_source_max_date=data_source_max_date,
-        date_format="%Y-%m-%d",
-        upstream_tasks=[data_source_max_date],
+        data_source_max_date=folder_date,
+        date_format="%Y-%m",
+        upstream_tasks=[today_date],
     )
 
     with case(dados_desatualizados, False):
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
     with case(dados_desatualizados, True):
-        output_filepath = main(tabelas,data_atualizacao=data_source_max_date)
+        output_filepath = main(tabelas,folder_date=folder_date,today_date=today_date)
 
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
@@ -355,7 +355,7 @@ br_me_cnpj_estabelecimentos.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_me_cnpj_estabelecimentos.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-#br_me_cnpj_estabelecimentos.schedule = every_day_estabelecimentos
+br_me_cnpj_estabelecimentos.schedule = every_day_estabelecimentos
 
 
 with Flow(
@@ -379,21 +379,21 @@ with Flow(
     )
     tabelas = constants_cnpj.TABELAS.value[3:]
 
-    data_source_max_date = get_data_source_max_date()
+    folder_date, today_date = get_data_source_max_date()
 
     dados_desatualizados = check_if_data_is_outdated(
         dataset_id="br_me_cnpj",
         table_id="estabelecimentos",
-        data_source_max_date=data_source_max_date,
-        date_format="%Y-%m-%d",
-        upstream_tasks=[data_source_max_date],
+        data_source_max_date=folder_date,
+        date_format="%Y-%m",
+        upstream_tasks=[today_date],
     )
 
     with case(dados_desatualizados, False):
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
     with case(dados_desatualizados, True):
-        output_filepath = main(tabelas,data_atualizacao=data_source_max_date)
+        output_filepath = main(tabelas,folder_date=folder_date,today_date=today_date)
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
@@ -444,5 +444,5 @@ with Flow(
 
 br_me_cnpj_simples.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_me_cnpj_simples.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-#br_me_cnpj_simples.schedule = every_day_simples
+br_me_cnpj_simples.schedule = every_day_simples
 
