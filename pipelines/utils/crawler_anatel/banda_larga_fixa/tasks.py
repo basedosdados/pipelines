@@ -61,10 +61,10 @@ def get_max_date_in_table_microdados(table_id: str, ano: int):
         return df['data'].max()
 
     else:
-        log(f"{anatel_constants.INPUT_PATH.value}Densidade_Telefonia_Movel.csv")
+        log(f"{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa.csv")
 
         df = pd.read_csv(
-        f"{anatel_constants.INPUT_PATH.value}Densidade_Telefonia_Movel.csv",
+        f"{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa.csv",
         sep=";",
         encoding="utf-8",
         dtype=str

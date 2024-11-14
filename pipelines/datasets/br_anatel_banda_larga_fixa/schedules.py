@@ -24,7 +24,6 @@ schedule_br_anatel_banda_larga_fixa__microdados = Schedule(
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
-                "ano": "2024",
             },
         ),
     ]
