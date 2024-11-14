@@ -30,7 +30,7 @@ from pipelines.datasets.br_cvm_fi.utils import (
     sheet_to_df,
 )
 from pipelines.utils.utils import log, to_partitions
-from pipelines.utils.constants import constants
+from pipelines.constants import constants
 
 @task(
     max_retries=2,
