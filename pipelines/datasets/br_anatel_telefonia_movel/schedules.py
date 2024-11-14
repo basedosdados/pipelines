@@ -23,8 +23,6 @@ schedule_br_anatel_telefonia_movel__microdados = Schedule(
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
-                "ano": "2024",
-                "semestre": "2",
                 "update_metadata": True,
             },
         ),
