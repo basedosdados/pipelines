@@ -5,6 +5,7 @@ General purpose functions for the br_me_cnpj project
 import os
 import zipfile
 from asyncio import Semaphore, gather
+import asyncio
 from datetime import datetime
 
 from httpx import AsyncClient, HTTPError, head
@@ -121,11 +122,12 @@ def chunk_range(content_length: int, chunk_size: int) -> list[tuple[int, int]]:
     return [(i, min(i + chunk_size - 1, content_length - 1)) for i in range(0, content_length, chunk_size)]
 
 # from https://stackoverflow.com/a/64283770
-async def download(url, chunk_size=20 * 1024 * 1024, max_retries=5, max_parallel=5, timeout=5 * 60):
+async def download(client: AsyncClient, url, chunk_size=2**25, max_retries=5, max_parallel=15, timeout=1 * 60):
     """
-    Downloads a file from a URL in chunks asynchronously.
+    Downloads a file from a URL in chunks asynchronously using a persistent client.
 
     Args:
+        client (AsyncClient): The shared HTTP client.
         url (str): URL of the file to download.
         chunk_size (int): Size of each chunk in bytes.
         max_retries (int): Maximum retry attempts for each chunk.
@@ -135,28 +137,26 @@ async def download(url, chunk_size=20 * 1024 * 1024, max_retries=5, max_parallel
     Returns:
         bytes: The downloaded content in bytes.
     """
-
     try:
-        request_head = head(url)
+        request_head = await client.head(url)
         log(request_head)
 
         assert request_head.status_code == 200
-        assert request_head.headers["accept-ranges"] == "bytes"
+        assert request_head.headers.get("accept-ranges", "") == "bytes"
 
         content_length = int(request_head.headers["content-length"])
         log(f"Baixando {url} com {content_length} bytes / {chunk_size} chunks e {max_parallel} downloads paralelos")
 
         semaphore = Semaphore(max_parallel)
 
-        async with AsyncClient() as client:
-            tasks = [
-                download_chunk(client, url, (start, end), max_retries, timeout, semaphore)
-                for start, end in chunk_range(content_length, chunk_size)
-            ]
-            return b"".join(await gather(*tasks))
+        tasks = [
+            download_chunk(client, url, (start, end), max_retries, timeout, semaphore)
+            for start, end in chunk_range(content_length, chunk_size)
+        ]
+        return b"".join(await gather(*tasks))
 
     except HTTPError as e:
-        log(f"Requisição mal sucessedida: {e}")
+        log(f"Requisição mal sucedida: {e}")
         return b""
 
 
@@ -172,7 +172,7 @@ async def download_chunk(
     Downloads a chunk of a file asynchronously with retry logic.
 
     Args:
-        client (AsyncClient): HTTP client for making requests.
+        client (AsyncClient): Shared HTTP client.
         url (str): The URL of the file to download.
         chunk_range (Tuple[int, int]): The byte range for the chunk to be downloaded.
         max_retries (int): The maximum number of retries for downloading a chunk.
@@ -191,16 +191,16 @@ async def download_chunk(
                 return response.content
             except HTTPError as e:
                 delay = 2 ** attempt
-                log(f"Dowload do chunk {chunk_range} ffalhou na tentativa {attempt + 1}. Tentando novamente em  {delay} segundos...")
+                log(f"Download do chunk {chunk_range} falhou na tentativa {attempt + 1}. Tentando novamente em {delay} segundos...")
                 await asyncio.sleep(delay)
 
-        raise HTTPError(f"Download do chunk {chunk_range} falhou depois de  {max_retries} tentativas")
+        raise HTTPError(f"Download do chunk {chunk_range} falhou depois de {max_retries} tentativas")
 
 
 # ! Executa o download do zip file
 async def download_unzip_csv(url: str, pasta_destino: str) -> None:
     """
-    Downloads a ZIP file from a URL and extracts its content.
+    Downloads a ZIP file from a URL and extracts its content using a persistent client.
 
     Args:
         url (str): The URL of the ZIP file.
@@ -208,7 +208,11 @@ async def download_unzip_csv(url: str, pasta_destino: str) -> None:
     """
     log(f"Baixando o arquivo {url}")
     save_path = os.path.join(pasta_destino, f"{os.path.basename(url)}.zip")
-    content = await download(url)
+
+    #NOTE: Client criado é compartilhado com as funções de download async
+    async with AsyncClient() as client:
+        content = await download(client=client, url=url)
+
     with open(save_path, "wb") as fd:
         fd.write(content)
 
@@ -220,6 +224,7 @@ async def download_unzip_csv(url: str, pasta_destino: str) -> None:
         log(f"O arquivo {os.path.basename(url)} não é um arquivo ZIP válido.")
 
     os.remove(save_path)
+
 
 
 
