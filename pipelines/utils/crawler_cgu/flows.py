@@ -36,7 +36,7 @@ with Flow(
     ####
     # Relative_month =  1 means that the data will be downloaded for the current month
     ####
-    relative_month = Parameter("relative_month", default=-1, required=False)
+    relative_month = Parameter("relative_month", default=1, required=False)
     materialization_mode = Parameter("materialization_mode", default="dev", required=False)
     materialize_after_dump = Parameter("materialize_after_dump", default=True, required=False)
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
@@ -183,7 +183,7 @@ with Flow(
                         "table_id": table_id,
                         "mode": materialization_mode,
                         "dbt_alias": dbt_alias,
-                        "dbt_command": "run/test",
+                        "dbt_command": "run",
                         "disable_elementary": False,
                     },
                     labels=current_flow_labels,
