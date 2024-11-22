@@ -19,39 +19,71 @@ from pipelines.datasets.br_rf_cno.utils import *
 from pipelines.utils.utils import log
 
 
+#NOTE: O crawler falhará se o nome do arquivo mudar.
 @task
 def check_need_for_update(url: str) -> str:
     """
-    Checks the need for an update by extracting the most recent update date from the CNO FTP.
+    Checks the need for an update by extracting the most recent update date for 'cno.zip' from the CNO FTP.
 
     Args:
         url (str): The URL of the CNO FTP site.
 
     Returns:
-        str: The date of the last update in the original source in 'YYYY-MM-DD' format.
+        str: The date of the last update in 'YYYY-MM-DD' format.
 
     Raises:
         requests.HTTPError: If there is an HTTP error when making the request.
-        ValueError: If the last update date is not found in the URL.
+        ValueError: If the file 'cno.zip' is not found in the URL.
     """
     log('---- Extracting most recent update date from CNO FTP')
-    response = requests.get(url)
 
+
+    response = requests.get(url)
     if response.status_code != 200:
         raise requests.HTTPError(f"HTTP error occurred: Status code {response.status_code}")
 
+
     soup = BeautifulSoup(response.content, 'html.parser')
-    element = soup.select_one('table tr:nth-of-type(4) td:nth-of-type(3)')
+    rows = soup.find_all('tr')
 
-    if element:
-        date_text = element.get_text(strip=True)
-        date_obj = datetime.strptime(date_text, "%Y-%m-%d %H:%M")
-        formatted_date = date_obj.strftime("%Y-%m-%d")
-        log(f'---- The last update in original source occurred in: {formatted_date}')
-        return formatted_date
 
-    else:
-        raise ValueError(f"The Last update data was not found in --- URL {url}. The website HTML code might have changed")
+    max_file_date = None
+
+    # A lógica é simples: processa cada 'table data' (td) de cada linha 'tr'
+    for row in rows:
+        cells = row.find_all('td')
+
+
+        if len(cells) < 4:
+            continue
+
+
+        link = cells[1].find('a')
+        if not link:
+            continue
+
+        name = link.get_text(strip=True)
+        if name != "cno.zip":
+            continue
+
+
+        date = cells[2].get_text(strip=True)
+        max_file_date = datetime.strptime(date, "%Y-%m-%d %H:%M").strftime("%Y-%m-%d")
+        break
+
+    if not max_file_date:
+        raise ValueError("File 'cno.zip' not found on the FTP site. Check the api endpoint: https://arquivos.receitafederal.gov.br/dados/cno/ to see folder structure or file name has changed")
+
+    log(f"---- Most recent update date for 'cno.zip': {max_file_date}")
+
+    return max_file_date
+
+
+
+
+
+
+
 
 
 @task
