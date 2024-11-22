@@ -9,7 +9,7 @@ from enum import Enum
 
 class constants(Enum):
 
-    URL = "https://arquivos.receitafederal.gov.br/dados/cno/"
+    URL = "https://arquivos.receitafederal.gov.br/dados/cno/cno.zip"
     URL_FTP = "https://arquivos.receitafederal.gov.br/dados/cno/"
 
     TABLES_RENAME = {
