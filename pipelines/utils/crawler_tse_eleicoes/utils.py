@@ -13,6 +13,7 @@ import requests
 from pipelines.utils.crawler_tse_eleicoes.constants import constants as tse_constants
 import tempfile
 from pathlib import Path
+from pipelines.utils.utils import log
 
 
 
@@ -130,6 +131,9 @@ class BrTseEleicoes:
     proxies = {
       "https": self.proxy
     }
+
+    proxy_test = requests.get('https://api.myip.com/', proxies=proxies, verify=False)
+    log(proxy_test)
 
     r = requests.get(url, headers=request_headers, proxies=proxies, verify=False, timeout=300)
 
