@@ -58,7 +58,7 @@ br_ibge_ipca15_mes_categoria_municipio.schedule = schedule_br_ibge_ipca15_mes_ca
 
 
 br_ibge_ipca15_mes_brasil = deepcopy(flow_ibge_inflacao_mes_geral)
-br_ibge_ipca15_mes_brasil.name = "br_ibge_ipca15.mes_brasil"
+br_ibge_ipca15_mes_brasil.name = "br_ibge_ipca15_.mes_brasil"
 br_ibge_ipca15_mes_brasil.code_owners = ["Gabriel Pisa"]
 br_ibge_ipca15_mes_brasil.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_ibge_ipca15_mes_brasil.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
