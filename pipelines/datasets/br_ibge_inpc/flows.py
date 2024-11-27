@@ -47,7 +47,7 @@ br_ibge_inpc_mes_categoria_rm.run_config = KubernetesRun(
 br_ibge_inpc_mes_categoria_rm.schedule = schedule_br_ibge_inpc_mes_categoria_rm
 
 br_ibge_inpc_mes_categoria_municipio = deepcopy(flow_ibge_inflacao_mes_municipio)
-br_ibge_inpc_mes_categoria_municipio.name = "br_ibge_inpc.mes_categoria_municipio"
+br_ibge_inpc_mes_categoria_municipio.name = "br_ibge_inpc_.mes_categoria_municipio"
 br_ibge_inpc_mes_categoria_municipio.code_owners = ["Gabriel Pisa"]
 br_ibge_inpc_mes_categoria_municipio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_ibge_inpc_mes_categoria_municipio.run_config = KubernetesRun(
