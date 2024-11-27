@@ -41,6 +41,8 @@ with Flow(
 
     table_id = Parameter("table_id", required=True)
 
+    port_proxy = Parameter("proxy", required=True)
+
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -58,7 +60,7 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    flow = flows_control(table_id=table_id, mode=materialization_mode, upstream_tasks=[rename_flow_run])
+    flow = flows_control(table_id=table_id, mode=materialization_mode, proxy=port_proxy, upstream_tasks=[rename_flow_run])
 
     data_source_max_date = get_data_source_max_date(flow_class=flow, upstream_tasks=[flow])
 

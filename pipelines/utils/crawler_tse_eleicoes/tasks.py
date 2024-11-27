@@ -19,7 +19,7 @@ T = TypeVar('T')
 
 @task
 # Classes de formatação
-def flows_control(table_id: str, mode: str) -> Type[T]:
+def flows_control(table_id: str, proxy: str, mode: str) -> Type[T]:
 
   catalog =  flows_catalog()
 
@@ -28,6 +28,7 @@ def flows_control(table_id: str, mode: str) -> Type[T]:
                      source=catalog.get(table_id)["source"],
                      date_column_name=catalog.get(table_id)["date_column_name"],
                      date_format=catalog.get(table_id)["date_format"],
+                     proxy=proxy,
                      mode=mode)
 
   return flow

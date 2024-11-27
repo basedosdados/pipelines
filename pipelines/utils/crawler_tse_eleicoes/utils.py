@@ -84,13 +84,14 @@ def flows_catalog() -> dict:
 
 class BrTseEleicoes:
 
-  def __init__(self, urls: list, table_id: str, source: str,
+  def __init__(self, urls: list, table_id: str, source: str, proxy: str,
                date_column_name: str, date_format: str, year: int = 2024, mode: str = "dev"):
 
     self.urls = urls
     self.year = year
     self.table_id = table_id
     self.source = source
+    self.proxy = proxy
     self.date_column_name = date_column_name
     self.date_format = date_format
     self.billing_project_id = tse_constants.MODE_TO_PROJECT_DICT.value[mode]
@@ -127,7 +128,7 @@ class BrTseEleicoes:
       "Connection": "keep-alive"
   }
     proxies = {
-      "https": tse_constants.PROXY_LINK.value
+      "https": self.proxy
     }
 
     r = requests.get(url, headers=request_headers, proxies=proxies, verify=False, timeout=300)
