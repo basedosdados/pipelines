@@ -132,19 +132,16 @@ class BrTseEleicoes:
       "https": self.proxy
     }
 
-    proxy_test = requests.get('https://api.myip.com/', proxies=proxies, verify=False)
-    log(proxy_test)
-
-    r = requests.get(url, headers=request_headers, proxies=proxies, verify=False, timeout=300)
+    r = requests.get(url, headers=request_headers, proxies=proxies, stream=True, verify=False, timeout=300)
 
     save_path = self.path_input / url.split("/")[-1]
 
-    with open(save_path, "wb") as fd:
-      fd.write(r.content)
-
     # with open(save_path, "wb") as fd:
-    #     for chunk in r.iter_content(chunk_size=chunk_size):
-    #         fd.write(chunk)
+    #   fd.write(r.content)
+
+    with open(save_path, "wb") as fd:
+        for chunk in r.iter_content(chunk_size=chunk_size):
+            fd.write(chunk)
 
     with zipfile.ZipFile(save_path) as z:
         z.extractall(self.path_input)
