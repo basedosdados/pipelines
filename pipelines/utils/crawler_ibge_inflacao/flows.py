@@ -31,7 +31,7 @@ from pipelines.utils.tasks import (
 
 with Flow(
     name="BD Template - IBGE Inflação: mes_brasil"
-) as flow_ibge_inflacao_mes_brasil:
+) as flow_ibge_inflacao_mes_brasil_:
     INDICE = Parameter("indice")
     FOLDER = Parameter("folder")
     dataset_id = Parameter("dataset_id")
@@ -112,8 +112,8 @@ with Flow(
             )
 
 
-flow_ibge_inflacao_mes_brasil.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-flow_ibge_inflacao_mes_brasil.run_config = KubernetesRun(
+flow_ibge_inflacao_mes_brasil_.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+flow_ibge_inflacao_mes_brasil_.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
 
@@ -205,7 +205,7 @@ flow_ibge_inflacao_mes_rm.run_config = KubernetesRun(image=constants.DOCKER_IMAG
 
 with Flow(
     "BD Template - IBGE Inflação: mes_municipio"
-) as flow_ibge_inflacao_mes_municipio:
+) as flow_ibge_inflacao_mes_municipio_:
     # Parameters
     INDICE = Parameter("indice")
     FOLDER = Parameter("folder")
@@ -287,8 +287,8 @@ with Flow(
             )
 
 
-flow_ibge_inflacao_mes_municipio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-flow_ibge_inflacao_mes_municipio.run_config = KubernetesRun(
+flow_ibge_inflacao_mes_municipio_.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+flow_ibge_inflacao_mes_municipio_.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
 
