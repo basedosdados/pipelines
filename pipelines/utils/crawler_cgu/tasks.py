@@ -99,7 +99,7 @@ def get_current_date_and_download_file(table_id : str,
                                     )
     log(f"Last date in API: {last_date_in_api}")
     log(f"Next date in API: {next_date_in_api}")
-    
+
     max_date = str(download_file(table_id = table_id,
                                 dataset_id = dataset_id,
                                 year = next_date_in_api.year,
