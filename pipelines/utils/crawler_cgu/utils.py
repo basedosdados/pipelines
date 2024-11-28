@@ -7,8 +7,7 @@ from arrow import get
 from dateutil.relativedelta import relativedelta
 import gc
 import shutil
-import io
-import zipfile
+from rapidfuzz import process
 import pandas as pd
 import os
 import unidecode
@@ -52,7 +51,7 @@ def build_urls(dataset_id: str, url: str, year: int, month: int, table_id: str) 
 
     log(f"{dataset_id=}")
 
-    if dataset_id == "br_cgu_cartao_pagamento":
+    if dataset_id in ["br_cgu_cartao_pagamento", "br_cgu_licitacao_contrato"]:
         log(f"{url}{year}{str(month).zfill(2)}/")
 
         return f"{url}{year}{str(month).zfill(2)}/"
@@ -94,6 +93,19 @@ def build_input(table_id):
     return list_input
 
 
+# municipio = bd.read_table(
+# "br_bd_diretorios_brasil", "municipio", billing_project_id="basedosdados"
+# )
+
+
+# def get_similar_cities_process(city):
+#     municipio["cidade_uf"] = (
+#         municipio["nome"].apply(lambda x: x.upper()) + "-" + municipio["sigla_uf"]
+#     )
+#     results = process.extractOne(city, municipio["cidade_uf"], score_cutoff=70)
+#     return results[0] if results else None
+
+
 def download_file(dataset_id: str, table_id: str, year: int, month: int, relative_month=int) -> None:
     """
     Downloads and unzips a file from a specified URL based on the given table ID, year, and month.
@@ -110,10 +122,13 @@ def download_file(dataset_id: str, table_id: str, year: int, month: int, relativ
     str: The last date in the API if the URL is not found.
     """
 
-    if dataset_id == "br_cgu_cartao_pagamento":
-        value_constants = constants.TABELA.value[table_id]  # ! CGU - Cartão de Pagamento
+    if dataset_id in ["br_cgu_cartao_pagamento" and "br_cgu_licitacao_contrato"]:
+        if dataset_id == "br_cgu_cartao_pagamento":
+            value_constants = constants.TABELA.value[table_id] # ! CGU - Cartão de Pagamento
+        elif dataset_id == "br_cgu_licitacao_contrato":
+            value_constants = constants.TABELA_LICITACAO_CONTRATO.value[table_id]
 
-        input = value_constants["INPUT_DATA"]
+        input = value_constants["INPUT"]
         if not os.path.exists(input):
             os.makedirs(input)
 
@@ -129,10 +144,10 @@ def download_file(dataset_id: str, table_id: str, year: int, month: int, relativ
         status = requests.get(url).status_code == 200
         if status:
             log(f'------------------ URL = {url} ------------------')
-            download_and_unzip_file(url, value_constants['INPUT_DATA'])
+            download_and_unzip_file(url, value_constants['INPUT'])
 
             last_date_in_api, next_date_in_api = last_date_in_metadata(
-                                dataset_id="br_cgu_cartao_pagamento",
+                                dataset_id=dataset_id,
                                 table_id=table_id,
                                 relative_month=relative_month
                                 )
@@ -144,7 +159,7 @@ def download_file(dataset_id: str, table_id: str, year: int, month: int, relativ
             log(f'------------------ URL = {url} ------------------')
 
             last_date_in_api, next_date_in_api = last_date_in_metadata(
-                                dataset_id="br_cgu_cartao_pagamento",
+                                dataset_id=dataset_id,
                                 table_id=table_id,
                                 relative_month=relative_month
                                 )
@@ -178,8 +193,9 @@ def download_file(dataset_id: str, table_id: str, year: int, month: int, relativ
 
         return next_date_in_api
 
+
 def read_csv(
-    table_id: str, column_replace: List = ["VALOR_TRANSACAO"]
+    dataset_id : str, table_id: str, column_replace: List = ["VALOR_TRANSACAO"]
 ) -> pd.DataFrame:
     """
     Reads a CSV file from a specified path and processes its columns.
@@ -198,28 +214,60 @@ def read_csv(
             - Column names are converted to uppercase, spaces are replaced with underscores, and accents are removed.
             - For columns specified in `column_replace`, commas in their values are replaced  with dots and the values are converted to float.
     """
-    value_constants = constants.TABELA_SERVIDORES.value[table_id]
 
-    os.listdir(value_constants["INPUT"])
+    if dataset_id == "br_cgu_cartao_pagamento":
+        value_constants = constants.TABELA.value[table_id]
 
-    csv_file = [
-        f for f in os.listdir(value_constants["INPUT_DATA"]) if f.endswith(".csv")
-    ][0]
-    log(f"CSV files: {csv_file}")
+        os.listdir(value_constants["INPUT"])
 
-    df = pd.read_csv(
-        f"{value_constants['INPUT_DATA']}/{csv_file}", sep=";", encoding="latin1"
-    )
+        csv_file = [
+            f for f in os.listdir(value_constants["INPUT"]) if f.endswith(".csv")
+        ][0]
+        log(f"CSV files: {csv_file}")
 
-    df.columns = [unidecode.unidecode(x).upper().replace(" ", "_") for x in df.columns]
-
-    for list_column_replace in column_replace:
-        df[list_column_replace] = (
-            df[list_column_replace].str.replace(",", ".").astype(float)
+        df = pd.read_csv(
+            f"{value_constants['INPUT']}/{csv_file}", sep=";", encoding="latin1"
         )
 
-    return df
+        df.columns = [unidecode.unidecode(x).upper().replace(" ", "_") for x in df.columns]
 
+        for list_column_replace in column_replace:
+            df[list_column_replace] = (
+                df[list_column_replace].str.replace(",", ".").astype(float)
+            )
+
+        return df
+
+    if dataset_id == "br_cgu_licitacao_contrato":
+        constants_cgu_licitacao_contrato = constants.TABELA_LICITACAO_CONTRATO.value[table_id]
+        print(os.listdir(constants_cgu_licitacao_contrato["INPUT"]))
+        csv_file = [
+            f
+            for f in os.listdir(constants_cgu_licitacao_contrato["INPUT"])
+            if f.endswith(constants_cgu_licitacao_contrato["READ"])
+        ][0]
+        log(f"CSV files: {csv_file}")
+        log(f"{constants_cgu_licitacao_contrato['INPUT']}/{csv_file}")
+        df = pd.read_csv(f"{constants_cgu_licitacao_contrato['INPUT']}/{csv_file}", sep=";", encoding="latin1")
+        df['ano'] = csv_file[:4]
+        df['mes'] = csv_file[4:6]
+
+        df.columns = [unidecode.unidecode(col) for col in df.columns]
+        df.columns = [col.replace(" ", "_").lower() for col in df.columns]
+
+        # if table_id == "licitacao":
+        #         df["cidade_uf"] = df["municipio"] + "-" + df["uf"]
+
+        #         df["cidade_uf_dir"] = df["cidade_uf"].apply(
+        #             lambda x: get_similar_cities_process(x)
+        #         )
+        #         df.drop(["cidade_uf", "municipio"], axis=1, inplace=True)
+
+        #         df.rename(columns={"cidade_uf_dir": "municipio"}, inplace=True)
+
+        #         df["municipio"] = df["municipio"].apply(lambda x: x if x == None else x.split("-")[0])
+
+        return df
 
 def last_date_in_metadata(
     dataset_id: str, table_id: str, relative_month
