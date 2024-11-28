@@ -18,7 +18,7 @@ from pipelines.datasets.br_cgu_licitacao_contrato.schedules import (
     every_day_licitacao_participante
 )
 
-# ! ------------------ Contrato Compra ------------------
+# ! ------------------ Contrato Compra --------------------
 
 br_cgu_licitacao_contrato__contrato_compra = deepcopy(flow_cgu_licitacao_contrato)
 br_cgu_licitacao_contrato__contrato_compra.name = ("br_cgu_licitacao_contrato.contrato_compra")
@@ -28,7 +28,7 @@ br_cgu_licitacao_contrato__contrato_compra.run_config = KubernetesRun(image=cons
 br_cgu_licitacao_contrato__contrato_compra.schedule = every_day_contrato_compra
 
 
-# ! ------------------ Contrato Item ------------------
+# ! ------------------ Contrato Item --------------------
 
 br_cgu_licitacao_contrato__contrato_item = deepcopy(flow_cgu_licitacao_contrato)
 br_cgu_licitacao_contrato__contrato_item.name = "br_cgu_licitacao_contrato.contrato_item"

@@ -220,9 +220,9 @@ flow_cgu_servidores_publicos.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 flow_cgu_servidores_publicos.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 
 
-# ! ============================================== CGU - Licitacao e Contrato ==============================================
+# ! ================================== CGU - Licitacao e Contrato =====================================
 
-with Flow(name="CGU - Licitacao e Contrato") as flow_cgu_licitacao_contrato:
+with Flow(name="CGU - Licitacão e Contrato") as flow_cgu_licitacao_contrato:
 
     dataset_id = Parameter(
         "dataset_id", default="br_cgu_licitacao_contrato", required=True
