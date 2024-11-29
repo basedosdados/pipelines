@@ -186,7 +186,7 @@ def download_file(dataset_id: str, table_id: str, year: int, month: int, relativ
 @lru_cache(maxsize=1)  # Cache para evitar recarregar a tabela
 def load_municipio() -> None:
     municipio : pd.DataFrame = bd.read_table(
-        "br_bd_diretorios_brasil", "municipio", billing_project_id="basedosdados"
+        "br_bd_diretorios_brasil", "municipio", billing_project_id="basedosdados-dev"
     )
     municipio["cidade_uf"] = (
         municipio["nome"].apply(lambda x: x.upper()) + "-" + municipio["sigla_uf"]
