@@ -7,6 +7,7 @@ from arrow import get
 from dateutil.relativedelta import relativedelta
 import gc
 import shutil
+from functools import lru_cache
 from rapidfuzz import process
 import pandas as pd
 import os
@@ -91,19 +92,6 @@ def build_input(table_id):
         list_input.append(value_input)
     log(f"Lista de inputs: {list_input}")
     return list_input
-
-
-# municipio = bd.read_table(
-# "br_bd_diretorios_brasil", "municipio", billing_project_id="basedosdados"
-# )
-
-
-# def get_similar_cities_process(city):
-#     municipio["cidade_uf"] = (
-#         municipio["nome"].apply(lambda x: x.upper()) + "-" + municipio["sigla_uf"]
-#     )
-#     results = process.extractOne(city, municipio["cidade_uf"], score_cutoff=70)
-#     return results[0] if results else None
 
 
 def download_file(dataset_id: str, table_id: str, year: int, month: int, relative_month=int) -> None:
@@ -194,6 +182,25 @@ def download_file(dataset_id: str, table_id: str, year: int, month: int, relativ
         return next_date_in_api
 
 
+# Função para carregar o dataframe
+@lru_cache(maxsize=1)  # Cache para evitar recarregar a tabela
+def load_municipio() -> None:
+    municipio : pd.DataFrame = bd.read_table(
+        "br_bd_diretorios_brasil", "municipio", billing_project_id="basedosdados"
+    )
+    municipio["cidade_uf"] = (
+        municipio["nome"].apply(lambda x: x.upper()) + "-" + municipio["sigla_uf"]
+    )
+    return municipio
+
+
+
+def get_similar_cities_process(city):
+    municipio = load_municipio()
+    results = process.extractOne(city, municipio["cidade_uf"], score_cutoff=70)
+    return results[0] if results else None
+
+
 def read_csv(
     dataset_id : str, table_id: str, column_replace: List = ["VALOR_TRANSACAO"]
 ) -> pd.DataFrame:
@@ -255,17 +262,17 @@ def read_csv(
         df.columns = [unidecode.unidecode(col) for col in df.columns]
         df.columns = [col.replace(" ", "_").lower() for col in df.columns]
 
-        # if table_id == "licitacao":
-        #         df["cidade_uf"] = df["municipio"] + "-" + df["uf"]
+        if table_id == "licitacao":
+                df["cidade_uf"] = df["municipio"] + "-" + df["uf"]
 
-        #         df["cidade_uf_dir"] = df["cidade_uf"].apply(
-        #             lambda x: get_similar_cities_process(x)
-        #         )
-        #         df.drop(["cidade_uf", "municipio"], axis=1, inplace=True)
+                df["cidade_uf_dir"] = df["cidade_uf"].apply(
+                    lambda x: get_similar_cities_process(x)
+                )
+                df.drop(["cidade_uf", "municipio"], axis=1, inplace=True)
 
-        #         df.rename(columns={"cidade_uf_dir": "municipio"}, inplace=True)
+                df.rename(columns={"cidade_uf_dir": "municipio"}, inplace=True)
 
-        #         df["municipio"] = df["municipio"].apply(lambda x: x if x == None else x.split("-")[0])
+                df["municipio"] = df["municipio"].apply(lambda x: x if x == None else x.split("-")[0])
 
         return df
 
