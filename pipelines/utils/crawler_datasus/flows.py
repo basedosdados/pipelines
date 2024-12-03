@@ -423,7 +423,6 @@ with Flow(name="DATASUS-SINAN", code_owners=["trick"]) as flow_sinan:
             file_list=dbc_files,
             dataset_id=dataset_id,
             table_id=table_id,
-            chunk_size = 150000,
             upstream_tasks=[dbf_files, dbc_files],
         )
 

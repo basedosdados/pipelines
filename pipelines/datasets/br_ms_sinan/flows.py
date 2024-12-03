@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 from copy import deepcopy
-
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
-
 from pipelines.utils.crawler_datasus.flows import flow_sinan
 from pipelines.constants import constants
 from pipelines.datasets.br_ms_sinan.schedules import (
