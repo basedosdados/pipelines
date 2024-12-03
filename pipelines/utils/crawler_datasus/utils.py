@@ -2,7 +2,7 @@
 """
 General purpose functions for the br_ms_cnes project
 """
-
+import gc
 import asyncio
 from datetime import datetime
 from ftplib import FTP
@@ -87,6 +87,12 @@ def  dbf_to_parquet(dbf: str, table_id: str, counter: int, chunk_size:int) -> st
                 df = post_process_microdados_dengue(df)
 
                 df.to_parquet(parquet_filepath, index=None, compression='gzip')
+
+                del df
+
+                gc.collect()
+
+
 
 
     except struct.error as err:
