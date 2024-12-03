@@ -15,7 +15,6 @@ import re
 import requests
 from bs4 import BeautifulSoup
 from tqdm import tqdm
-import sys
 
 from pipelines.datasets.br_me_cnpj.constants import constants as constants_cnpj
 from pipelines.utils.utils import log
