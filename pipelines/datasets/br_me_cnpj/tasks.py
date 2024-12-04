@@ -43,7 +43,10 @@ def get_data_source_max_date() -> tuple[datetime,datetime]:
     folder_date, today_date = data_url(url=url, headers=headers)
     return folder_date, today_date
 
-@task
+@task(
+    max_retries=3,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def main(tabelas:[str], folder_date:datetime, today_date:datetime)-> str:
     """
     Performs the download, processing, and organization of CNPJ data.
