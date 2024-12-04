@@ -4,7 +4,7 @@ General purpose functions for the br_me_cnpj project
 """
 import os
 import zipfile
-from asyncio import Semaphore, gather
+from asyncio import Semaphore, gather, sleep
 from datetime import datetime
 
 from httpx import AsyncClient, HTTPError, head
@@ -109,14 +109,15 @@ def fill_left_zeros(df: datetime, column, num_digits:int)-> pd.DataFrame:
 # ! Download assincrono e em chunck`s do zip
 def chunk_range(content_length: int, chunk_size: int) -> list[tuple[int, int]]:
     """
-    Splits the content length into a list of chunk ranges for downloading.
+    Splits the content length into a list of chunk ranges for downloading. It Calculates
+    each chunk range value in bytes.
 
     Args:
         content_length (int): The total content length.
         chunk_size (int): Size of each chunk.
 
     Returns:
-        List[Tuple[int, int]]: List of start and end byte ranges for each chunk.
+        List[Tuple[int, int]]: List of start and end byte ranges for each chunk to be used as a header within download_chunk function
     """
     return [(i, min(i + chunk_size - 1, content_length - 1)) for i in range(0, content_length, chunk_size)]
 
@@ -140,7 +141,6 @@ async def download(url, chunk_size=15 * 1024 * 1024, max_retries=5, max_parallel
     """
     try:
         request_head = head(url)
-        log(request_head)
 
         assert request_head.status_code == 200
         assert request_head.headers["accept-ranges"] == "bytes"
@@ -221,7 +221,20 @@ async def download_chunk(
     async with semaphore:
         for attempt in range(max_retries):
             try:
-                headers = {"Range": f"bytes={chunk_range[0]}-{chunk_range[1]}"}
+                headers = {
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36",
+                        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                        "Accept-Language": "pt-BR,pt;q=0.8,en-US;q=0.5,en;q=0.3",
+                        "Sec-GPC": "1",
+                        "Upgrade-Insecure-Requests": "1",
+                        "Sec-Fetch-Dest": "document",
+                        "Sec-Fetch-Mode": "navigate",
+                        "Sec-Fetch-Site": "same-origin",
+                        "Sec-Fetch-User": "?1",
+                        "Priority": "u=0, i",
+                        "Range": f"bytes={chunk_range[0]}-{chunk_range[1]}"
+                    }
+
                 response = await client.get(url, headers=headers, timeout=timeout)
                 response.raise_for_status()
 
@@ -235,7 +248,7 @@ async def download_chunk(
                     f"Falha no download do chunk {chunk_range[0]}-{chunk_range[1]} "
                     f"na tentativa {attempt + 1}. Retentando em {delay} segundos..."
                 )
-                await asyncio.sleep(delay)
+                await sleep(delay)
 
         raise HTTPError(f"Download do chunk {chunk_range[0]}-{chunk_range[1]} falhou após {max_retries} tentativas")
 
