@@ -372,7 +372,6 @@ flow_sihsus.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 
 
 with Flow(name="DATASUS-SINAN", code_owners=["trick"]) as flow_sinan:
-    # Parameters
     dataset_id = Parameter("dataset_id", default ="br_ms_sinan", required=True)
     table_id = Parameter("table_id", default="microdados_dengue", required=True)
     update_metadata = Parameter("update_metadata", default=True, required=False)

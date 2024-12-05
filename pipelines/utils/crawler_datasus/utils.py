@@ -82,6 +82,7 @@ def  dbf_to_parquet(dbf: str, table_id: str, counter: int, chunk_size:int) -> st
             counter_chunk += 1
 
             if table_id == "microdados_dengue":
+                log('---- post processing {table_id=}')
                 df = pd.read_parquet(parquet_filepath)
 
                 df = post_process_microdados_dengue(df)
