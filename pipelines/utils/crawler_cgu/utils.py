@@ -188,7 +188,7 @@ def load_municipio() -> None:
     municipio: pd.DataFrame = bd.read_table(
         "br_bd_diretorios_brasil",
         "municipio",
-        billing_project_id="basedosdados-dev",
+        billing_project_id="basedosdados",
         from_file=True,
     )
     municipio["cidade_uf"] = (
