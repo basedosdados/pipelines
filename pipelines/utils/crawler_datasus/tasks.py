@@ -44,8 +44,6 @@ import basedosdados as bd
 from pipelines.utils.metadata.utils import get_api_most_recent_date, get_url
 from pipelines.utils.utils import log
 
-
-
 @task(
     max_retries=2,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),

@@ -7,7 +7,7 @@ from pipelines.constants import constants
 from pipelines.datasets.br_ms_sinan.schedules import (
     everyday_sinan_microdados
 )
-
+# Pipeline Sinan
 br_ms_sinan__microdados_dengue = deepcopy(flow_sinan)
 br_ms_sinan__microdados_dengue.name = "br_ms_sinan.microdados_dengue"
 br_ms_sinan__microdados_dengue.code_owners = ["tricktx"]
