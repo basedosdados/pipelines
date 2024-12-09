@@ -307,7 +307,7 @@ with Flow(name="CGU - Licitacão e Contrato") as flow_cgu_licitacao_contrato:
                 update_django_metadata(
                     dataset_id=dataset_id,
                     table_id=table_id,
-                    date_column_name={"year": "ano_extrato", "month": "mes_extrato"},
+                    date_column_name={"year": "ano", "month": "mes"},
                     date_format="%Y-%m",
                     coverage_type="part_bdpro",
                     time_delta={"months": 6},
@@ -315,6 +315,5 @@ with Flow(name="CGU - Licitacão e Contrato") as flow_cgu_licitacao_contrato:
                     bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
-
 flow_cgu_licitacao_contrato.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 flow_cgu_licitacao_contrato.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
