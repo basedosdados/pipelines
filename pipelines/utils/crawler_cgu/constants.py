@@ -6,34 +6,36 @@ Constant values for the datasets projects
 from enum import Enum
 
 class constants(Enum):  # pylint: disable=c0103
+
+    # ! ================================ CGU - Cartão de Pagamento ===========================================
     """
     Constant values for the br_cgu_cartao_pagamento project
     """
 
     TABELA = {
         "microdados_governo_federal" : {
-            "INPUT_DATA" : "/tmp/input/microdados_governo_federal",
-            "OUTPUT_DATA" : "/tmp/output/microdados_governo_federal",
+            "INPUT" : "/tmp/input/microdados_governo_federal",
+            "OUTPUT" : "/tmp/output/microdados_governo_federal",
             "URL" : "https://portaldatransparencia.gov.br/download-de-dados/cpgf/",
             "READ" : "_CPGF",
             "ONLY_ONE_FILE" : False},
 
         "microdados_compras_centralizadas" : {
-            "INPUT_DATA" : "/tmp/input/microdados_compras_centralizadas",
-            "OUTPUT_DATA" : "/tmp/output/microdados_compras_centralizadas",
+            "INPUT" : "/tmp/input/microdados_compras_centralizadas",
+            "OUTPUT" : "/tmp/output/microdados_compras_centralizadas",
             "URL" : "https://portaldatransparencia.gov.br/download-de-dados/cpcc/",
             "READ" : "_CPGFComprasCentralizadas",
             "ONLY_ONE_FILE" : False},
 
         "microdados_defesa_civil" : {
-            "INPUT_DATA" : "/tmp/input/microdados_defesa_civil",
-            "OUTPUT_DATA" : "/tmp/output/microdados_defesa_civil",
+            "INPUT" : "/tmp/input/microdados_defesa_civil",
+            "OUTPUT" : "/tmp/output/microdados_defesa_civil",
             "URL" : "https://portaldatransparencia.gov.br/download-de-dados/cpdc/",
             "READ" : "_CPDC",
             "ONLY_ONE_FILE" : False}
         }
 
-    # ! ============================================== CGU - Servidores Públicos do Executivo Federal ==============================================
+    # ! ================================ CGU - Servidores Públicos do Executivo Federal ===========================================
     URL_SERVIDORES = "http://portaldatransparencia.gov.br/download-de-dados/servidores/"
 
     TABELA_SERVIDORES = {
@@ -124,5 +126,52 @@ class constants(Enum):  # pylint: disable=c0103
             "ONLY_TABLE": True,
             "INPUT": "/tmp/input/cgu_servidores/cadastro_servidores",
             "OUTPUT": "/tmp/output/cgu_servidores/cadastro_servidores",
+        },
+    }
+
+    # ! ================================ CGU - Licitação e Contrato ===========================================
+
+    TABELA_LICITACAO_CONTRATO = {
+        "licitacao": {
+            "URL": "https://portaldatransparencia.gov.br/download-de-dados/licitacoes/",
+            "INPUT": "/tmp/input/cgu_licitacao_contrato/licitacao",
+            "OUTPUT": "/tmp/output/cgu_licitacao_contrato/licitacao",
+            "READ": "_Licitação.csv",
+        },
+        "licitacao_participante": {
+            "URL": "https://portaldatransparencia.gov.br/download-de-dados/licitacoes/",
+            "INPUT": "/tmp/input/cgu_licitacao_contrato/licitacao_participante",
+            "OUTPUT": "/tmp/output/cgu_licitacao_contrato/licitacao_participante",
+            "READ": "_ParticipantesLicitação.csv",
+        },
+        "licitacao_item": {
+            "URL": "https://portaldatransparencia.gov.br/download-de-dados/licitacoes/",
+            "INPUT": "/tmp/input/cgu_licitacao_contrato/licitacao_item",
+            "OUTPUT": "/tmp/output/cgu_licitacao_contrato/licitacao_item",
+            "READ": "_ItemLicitação.csv",
+        },
+        "licitacao_empenho": {
+            "URL": "https://portaldatransparencia.gov.br/download-de-dados/licitacoes/",
+            "INPUT": "/tmp/input/cgu_licitacao_contrato/licitacao_empenho",
+            "OUTPUT": "/tmp/output/cgu_licitacao_contrato/licitacao_empenho",
+            "READ": "_EmpenhosRelacionados.csv",
+        },
+        "contrato_compra": {
+            "URL": "https://portaldatransparencia.gov.br/download-de-dados/compras/",
+            "INPUT": "/tmp/input/cgu_licitacao_contrato/contrato_compra",
+            "OUTPUT": "/tmp/output/cgu_licitacao_contrato/contrato_compra",
+            "READ": "_Compras.csv",
+        },
+        "contrato_item": {
+            "URL": "https://portaldatransparencia.gov.br/download-de-dados/compras/",
+            "INPUT": "/tmp/input/cgu_licitacao_contrato/contrato_item",
+            "OUTPUT": "/tmp/output/cgu_licitacao_contrato/contrato_item",
+            "READ": "_ItemCompra.csv",
+        },
+        "contrato_termo_aditivo": {
+            "URL": "https://portaldatransparencia.gov.br/download-de-dados/compras/",
+            "INPUT": "/tmp/input/cgu_licitacao_contrato/contrato_termo_aditivo",
+            "OUTPUT": "/tmp/output/cgu_licitacao_contrato/contrato_termo_aditivo",
+            "READ": "_TermoAditivo.csv",
         },
     }
