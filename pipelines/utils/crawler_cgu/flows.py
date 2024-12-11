@@ -28,7 +28,7 @@ from pipelines.utils.tasks import (
 
 
 with Flow(
-    name="CGU - Cartão de Pagamento"
+    name="CGU - Cartão de Pagamento", code_owners=["trick"]
 ) as flow_cgu_cartao_pagamento:
 
     dataset_id = Parameter("dataset_id", default='br_cgu_cartao_pagamento',  required=True)
@@ -222,7 +222,7 @@ flow_cgu_servidores_publicos.run_config = KubernetesRun(image=constants.DOCKER_I
 
 # ! ================================== CGU - Licitacao e Contrato =====================================
 
-with Flow(name="CGU - Licitacão e Contrato") as flow_cgu_licitacao_contrato:
+with Flow(name="CGU - Licitacão e Contrato", code_owners=["trick"]) as flow_cgu_licitacao_contrato:
 
     dataset_id = Parameter(
         "dataset_id", default="br_cgu_licitacao_contrato", required=True

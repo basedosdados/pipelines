@@ -105,7 +105,9 @@ def get_current_date_and_download_file(table_id : str,
                                 year = next_date_in_api.year,
                                 month = next_date_in_api.month,
                                 relative_month=relative_month))
+
     log(f"Max date: {max_date}")
+
     date = datetime.strptime(max_date, '%Y-%m-%d')
 
     return date
