@@ -110,7 +110,7 @@ def download_file(dataset_id: str, table_id: str, year: int, month: int, relativ
     str: The last date in the API if the URL is not found.
     """
 
-    if dataset_id in ["br_cgu_cartao_pagamento" and "br_cgu_licitacao_contrato"]:
+    if dataset_id in ["br_cgu_cartao_pagamento", "br_cgu_licitacao_contrato"]:
         if dataset_id == "br_cgu_cartao_pagamento":
             value_constants = constants.TABELA.value[table_id] # ! CGU - Cartão de Pagamento
         elif dataset_id == "br_cgu_licitacao_contrato":
