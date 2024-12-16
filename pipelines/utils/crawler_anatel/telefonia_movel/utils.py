@@ -50,12 +50,12 @@ def download_zip_file(path):
     driver = webdriver.Chrome(options=options)
     driver.get(anatel_constants.URL.value)
     driver.maximize_window()
-    WebDriverWait(driver, 60).until(
+    WebDriverWait(driver, 300).until(
                 EC.element_to_be_clickable(
                     (By.XPATH, '/html/body/div/section/div/div[3]/div[2]/div[3]/div[2]/header/button')
                 )
             ).click()
-    WebDriverWait(driver, 60).until(
+    WebDriverWait(driver, 300).until(
                 EC.element_to_be_clickable(
                     (By.XPATH, '/html/body/div/section/div/div[3]/div[2]/div[3]/div[2]/div/div[1]/div[2]/div[2]/div/button')
                 )

@@ -59,7 +59,7 @@ with Flow(name="BD template - Anatel Telefonia Móvel", code_owners=["trick"]) a
     # Function dynamic parameters
     # https://discourse.prefect.io/t/my-parameter-value-shows-the-same-date-every-day-how-can-i-set-parameter-value-dynamically/99
     #####
-    unzip_task = unzip()
+    unzip_task = unzip(upstream_tasks=[rename_flow_run])
     new_year = get_year_full(ano, upstream_tasks=[unzip_task])
     new_semester = get_semester(semestre, upstream_tasks=[new_year])
 
@@ -72,6 +72,7 @@ with Flow(name="BD template - Anatel Telefonia Móvel", code_owners=["trick"]) a
     table_id =  table_id,
     data_source_max_date = update_tables,
     date_format =  "%Y-%m",
+    upstream_tasks=[update_tables]
 )
 
     with case(get_max_date, True):

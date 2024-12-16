@@ -56,7 +56,7 @@ with Flow(name="BD template - Anatel Banda Larga Fixa", code_owners=["trick"]) a
     # https://discourse.prefect.io/t/my-parameter-value-shows-the-same-date-every-day-how-can-i-set-parameter-value-dynamically/99
     #####
 
-    new_ano = get_year_and_unzip(day=ano)
+    new_ano = get_year_and_unzip(day=ano, upstream_tasks=[rename_flow_run])
 
     update_tables = get_max_date_in_table_microdados(ano=new_ano, table_id=table_id, upstream_tasks=[new_ano])
 
@@ -64,7 +64,8 @@ with Flow(name="BD template - Anatel Banda Larga Fixa", code_owners=["trick"]) a
     dataset_id =  dataset_id,
     table_id =  table_id,
     data_source_max_date = update_tables,
-    date_format =  "%Y-%m")
+    date_format =  "%Y-%m",
+    upstream_tasks=[update_tables])
 
     with case(get_max_date, True):
         filepath = join_tables_in_function(
