@@ -64,6 +64,10 @@ def build_urls(dataset_id: str, url: str, year: int, month: int, table_id: str) 
             list_url.append(url_completa)
         return list_url
 
+    elif dataset_id in ["br_cgu_receitas_publicas", "br_cgu_orcamento_publico"]:
+        constants.TABELA_PUBLICAS.value[table_id]["URL"]
+        return f"{url}{year}/"
+
 def build_input(table_id):
     """
     Builds a list of input directories based on the given table ID.
@@ -181,6 +185,16 @@ def download_file(dataset_id: str, table_id: str, year: int, month: int, relativ
 
         return next_date_in_api
 
+    elif dataset_id in ["br_cgu_receitas_publicas", "br_cgu_orcamento_publico"]:
+        constants_cgu_publicas = constants.TABELA_PUBLICAS.value[table_id]
+
+        url = f"{constants_cgu_publicas['URL']}/{year}"
+
+        if requests.get(url).status_code == 200:
+            path = constants_cgu_publicas["INPUT"]
+            download_and_unzip_file(url, path)
+
+
 
 # Função para carregar o dataframe
 @lru_cache(maxsize=1)  # Cache para evitar recarregar a tabela
@@ -202,7 +216,7 @@ def get_similar_cities_process(city):
     results = process.extractOne(city, municipio["cidade_uf"], score_cutoff=70)
     return results[0] if results else None
 
-
+# ! ---------------- Tratando os dados dos Cartões de Pagamento e Licitação Contrato -------------------------
 def read_csv(
     dataset_id : str, table_id: str, column_replace: List = ["VALOR_TRANSACAO"]
 ) -> pd.DataFrame:
@@ -277,6 +291,46 @@ def read_csv(
                 df["municipio"] = df["municipio"].apply(lambda x: x if x == None else x.split("-")[0])
 
         return df
+
+def read_csv_receitas_orcamento_publico(dataset_id: str, table_id: str, year=int) -> pd.DataFrame:
+    if dataset_id == "br_cgu_receitas_publicas":
+        constants_cgu_publicas = constants.TABELA_PUBLICAS.value[table_id]
+
+        df = pd.read_csv(f"{constants_cgu_publicas['INPUT']}/{year}_Receitas.csv", sep=";", encoding="latin1")
+        df.columns = [unidecode.unidecode(col) for col in df.columns]
+        df.columns = [col.replace(" ", "_").lower() for col in df.columns]
+        valores = [
+            "valor_previsto_atualizado",
+            "valor_lancado",
+            "valor_realizado",
+            "percentual_realizado",
+        ]
+        for x in valores:
+            df[x] = df[x].str.replace(",", ".").astype(float)
+
+    if dataset_id == "br_cgu_orcamento_publico":
+        constants_cgu_publicas = constants.TABELA_PUBLICAS.value[table_id]
+
+        df = pd.read_csv(f"{constants_cgu_publicas['INPUT']}/{year}_OrcamentoDespesa.csv", sep=";", encoding="latin1")
+        df.columns = [unidecode.unidecode(col) for col in df.columns]
+        df.columns = [col.replace(" ", "_").lower() for col in df.columns]
+        df.columns = [col.replace("exercicio", "ano_exercicio") for col in df.columns]
+        df.columns = [col.replace("%_realizado_do_orcamento_(com_relacao_ao_orcamento_atualizado)", "porcentagem_realizado_orcamento") for col in df.columns]
+        df['porcentagem_realizado_orcamento'] = df['porcentagem_realizado_orcamento'].str.replace("%", "")
+
+        valores = [
+            "orcamento_inicial_(r$)",
+            "orcamento_atualizado_(r$)",
+            "orcamento_empenhado_(r$)",
+            "orcamento_realizado_(r$)",
+            "porcentagem_realizado_orcamento"
+        ]
+
+        for x in valores:
+            df[x] = df[x].str.replace(",", ".").astype(float)
+        df.rename(columns=lambda x: x.replace("_(r$)", ""), inplace=True)
+
+    return df
 
 def last_date_in_metadata(
     dataset_id: str, table_id: str, relative_month
@@ -355,7 +409,7 @@ def exclude_used_tables(path: str) -> None:
 
     return None
 
-
+# ! ------------------------- Tratando os dados dos servidores -------------------------
 def read_and_clean_csv(table_id: str) -> pd.DataFrame:
     """
     Reads and cleans CSV files for a given table ID.

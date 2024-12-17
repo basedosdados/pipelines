@@ -175,3 +175,19 @@ class constants(Enum):  # pylint: disable=c0103
             "READ": "_TermoAditivo.csv",
         },
     }
+
+    # ! ================================ CGU - Licitação e Contrato ===========================================
+
+    TABELA_PUBLICAS = {
+        "receitas": {
+        "URL" : "https://portaldatransparencia.gov.br/download-de-dados/receitas",
+        "INPUT": "/tmp/input/br_cgu_receitas_publicas/receitas",
+        "OUTPUT": "/tmp/output/br_cgu_receitas_publicas/receitas",
+        "READ" : "_Receitas.csv",
+    },
+        "orcamento" : {
+        "URL" : "https://portaldatransparencia.gov.br/download-de-dados/orcamento-despesa",
+        "INPUT": "/tmp/input/br_cgu_orcamento_publico/orcamento",
+        "OUTPUT": "/tmp/output/br_cgu_orcamento_publico/orcamento",
+        "READ" : "_Orcamento.csv"
+        }}
