@@ -112,9 +112,20 @@ def parse_date_parse_files(url: str) -> tuple[list[datetime], list[str]]:
     Returns:
         tuple[list[datetime],list[str]]: Retorna uma tupla com duas listas. A primeira contém uma lista de datas de atualização dos dados e a segunda contém uma lista com os nomes dos arquivos.
     """
-
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "pt-BR,pt;q=0.8,en-US;q=0.5,en;q=0.3",
+        "Sec-GPC": "1",
+        "Upgrade-Insecure-Requests": "1",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "same-origin",
+        "Sec-Fetch-User": "?1",
+        "Priority": "u=0, i"
+    }
     xpath_release_date = "tr td:nth-of-type(3)"
-    response = requests.get(url)
+    response = requests.get(url, headers=headers, timeout=(10,30))
 
     # Checa se a requisição foi bem sucedida
     if response.status_code == 200:
