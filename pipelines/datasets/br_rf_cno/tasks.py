@@ -37,8 +37,21 @@ def check_need_for_update(url: str) -> str:
     """
     log('---- Extracting most recent update date from CNO FTP')
 
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "pt-BR,pt;q=0.8,en-US;q=0.5,en;q=0.3",
+        "Sec-GPC": "1",
+        "Upgrade-Insecure-Requests": "1",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "same-origin",
+        "Sec-Fetch-User": "?1",
+        "Priority": "u=0, i"
+    }
 
-    response = requests.get(url)
+    response = requests.get(url, headers=headers, timeout=(10, 30))
+
     if response.status_code != 200:
         raise requests.HTTPError(f"HTTP error occurred: Status code {response.status_code}")
 
