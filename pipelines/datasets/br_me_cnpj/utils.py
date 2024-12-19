@@ -50,7 +50,6 @@ def data_url(url:str, headers:dict)-> tuple[datetime,datetime]:
     )
 
     today_date = datetime.today().strftime('%Y-%m-%d')
-    today_date = '2024-12-18'
     log(f"A data máxima extraida da API da Receita Federal que será utilizada para comparar com os metadados da BD é: {max_folder_date}")
     log(f"A data de hoje gerada para criar partições no Storage é: {today_date} ")
 
