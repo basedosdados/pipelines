@@ -41,7 +41,7 @@ def web_scrapping():
     time.sleep(10)
     driver.maximize_window()
     time.sleep(15)
-    WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="EXPORT-BUTTON-2"]/button'))).click()
+    WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="EXPORT-BUTTON-PADRAO"]'))).click()
     time.sleep(15)
     driver.quit()
 
@@ -51,22 +51,24 @@ def read_csv():
     log("Verificando dados dentro do container")
     log(arquivos)
     for arquivo in arquivos:
-        if arquivo.endswith(".csv"):
-            df = pd.read_csv(stf_constants.STF_INPUT.value + arquivo, dtype=str)
+        try:
+            if arquivo.endswith(".xlsx"):
+                df = pd.read_excel(stf_constants.STF_INPUT.value + arquivo, dtype=str)
+            elif arquivo.endswith(".csv"):
+                df = pd.read_csv(stf_constants.STF_INPUT.value + arquivo, dtype=str)
+        except FileNotFoundError as error:
+                log(f"Arquivo não encontrado! Verificando o input: {stf_constants.STF_INPUT.value + arquivo}")
     return df
 
 
 def fix_columns_data(df):
     lista = ["Data de autuação", "Data da decisão", "Data baixa"]
     for x in lista:
-        df[x] = df[x].astype(str).str[0:10]
-        df[x] = (
-            df[x].astype(str).str[6:10]
-            + "-"
-            + df[x].astype(str).str[3:5]
-            + "-"
-            + df[x].astype(str).str[0:2]
-        )
+        df[x] = df[x].astype(str)
+        if len(df[x]) == 1:
+            df[x] = df[x].replace("-", '')
+        df[x] = df[x].replace("/", "-").astype(str)
+        log(df[x].value_counts())
     return df
 
 
@@ -129,17 +131,16 @@ def check_for_data():
     arquivos = os.listdir(stf_constants.STF_INPUT.value)
     log(arquivos)
     for arquivo in arquivos:
-        if arquivo.endswith(".csv"):
-            df = pd.read_csv(stf_constants.STF_INPUT.value + arquivo, dtype=str)
+        try:
+            if arquivo.endswith(".xlsx"):
+                df = pd.read_excel(stf_constants.STF_INPUT.value + arquivo, dtype=str)
+            elif arquivo.endswith(".csv"):
+                df = pd.read_csv(stf_constants.STF_INPUT.value + arquivo, dtype=str)
+        except FileNotFoundError as error:
+                log(f"Arquivo não encontrado! Verificando o input: {stf_constants.STF_INPUT.value + arquivo}")
 
     df["Data da decisão"] = df["Data da decisão"].astype(str).str[0:10]
-    data_obj = df["Data da decisão"] = (
-        df["Data da decisão"].astype(str).str[6:10]
-        + "-"
-        + df["Data da decisão"].astype(str).str[3:5]
-        + "-"
-        + df["Data da decisão"].astype(str).str[0:2]
-    )
+    data_obj = df["Data da decisão"].astype(str).replace("/", "-")
     data_obj = data_obj.max()
 
     return data_obj
