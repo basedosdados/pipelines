@@ -20,6 +20,10 @@ from pipelines.utils.utils import log
 
 
 #NOTE: O crawler falhará se o nome do arquivo mudar.
+import time
+import requests
+from requests.exceptions import ConnectionError, HTTPError
+
 @task
 def check_need_for_update(url: str) -> str:
     """
@@ -36,29 +40,26 @@ def check_need_for_update(url: str) -> str:
         ValueError: If the file 'cno.zip' is not found in the URL.
     """
     log('---- Extracting most recent update date from CNO FTP')
+    retries = 5
+    delay = 2
 
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Accept-Language": "pt-BR,pt;q=0.8,en-US;q=0.5,en;q=0.3",
-        "Sec-GPC": "1",
-        "Upgrade-Insecure-Requests": "1",
-        "Sec-Fetch-Dest": "document",
-        "Sec-Fetch-Mode": "navigate",
-        "Sec-Fetch-Site": "same-origin",
-        "Sec-Fetch-User": "?1",
-        "Priority": "u=0, i"
-    }
-
-    response = requests.get(url, headers=headers, timeout=(10, 30))
-
-    if response.status_code != 200:
-        raise requests.HTTPError(f"HTTP error occurred: Status code {response.status_code}")
-
+    for attempt in range(retries):
+        try:
+            response = requests.get(url, timeout=10)
+            response.raise_for_status()
+            break
+        except ConnectionError as e:
+            log(f"Connection attempt {attempt + 1}/{retries} failed: {e}")
+            if attempt < retries - 1:
+                time.sleep(delay)
+                delay *= 2
+            else:
+                raise
+        except HTTPError as e:
+            raise requests.HTTPError(f"HTTP error occurred: {e}")
 
     soup = BeautifulSoup(response.content, 'html.parser')
     rows = soup.find_all('tr')
-
 
     max_file_date = None
 
@@ -66,10 +67,8 @@ def check_need_for_update(url: str) -> str:
     for row in rows:
         cells = row.find_all('td')
 
-
         if len(cells) < 4:
             continue
-
 
         link = cells[1].find('a')
         if not link:
@@ -79,13 +78,12 @@ def check_need_for_update(url: str) -> str:
         if name != "cno.zip":
             continue
 
-
         date = cells[2].get_text(strip=True)
         max_file_date = datetime.strptime(date, "%Y-%m-%d %H:%M").strftime("%Y-%m-%d")
         break
 
     if not max_file_date:
-        raise ValueError("File 'cno.zip' not found on the FTP site. Check the api endpoint: https://arquivos.receitafederal.gov.br/dados/cno/ to see folder structure or file name has changed")
+        raise ValueError("File 'cno.zip' not found on the FTP site. Check the API endpoint to see if the folder structure or file name has changed.")
 
     log(f"---- Most recent update date for 'cno.zip': {max_file_date}")
 
