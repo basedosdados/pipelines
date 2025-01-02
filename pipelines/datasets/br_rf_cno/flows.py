@@ -39,7 +39,6 @@ from pipelines.utils.tasks import (
 with Flow(
     name="br_rf_cno.tables", code_owners=["Gabriel Pisa"]
 ) as br_rf_cno_tables:
-    # Parameters
     dataset_id = Parameter("dataset_id", default="br_rf_cno", required=True)
     table_id = Parameter("table_id", default="microdados", required=True)
     table_ids = Parameter("table_ids", default=['microdados', 'areas', 'cnaes', 'vinculos'], required=False)

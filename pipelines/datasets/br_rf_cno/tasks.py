@@ -11,6 +11,8 @@ import requests
 import pandas as pd
 import shutil
 import asyncio
+import time
+from requests.exceptions import ConnectionError, HTTPError
 
 from prefect import task
 
@@ -19,7 +21,8 @@ from pipelines.datasets.br_rf_cno.utils import *
 from pipelines.utils.utils import log
 
 
-#NOTE: O crawler falhará se o nome do arquivo mudar.
+
+
 @task
 def check_need_for_update(url: str) -> str:
     """
@@ -34,18 +37,30 @@ def check_need_for_update(url: str) -> str:
     Raises:
         requests.HTTPError: If there is an HTTP error when making the request.
         ValueError: If the file 'cno.zip' is not found in the URL.
+
+    #NOTE: O crawler falhará se o nome do arquivo mudar.
     """
     log('---- Extracting most recent update date from CNO FTP')
+    retries = 5
+    delay = 2
 
-
-    response = requests.get(url)
-    if response.status_code != 200:
-        raise requests.HTTPError(f"HTTP error occurred: Status code {response.status_code}")
-
+    for attempt in range(retries):
+        try:
+            response = requests.get(url, timeout=10)
+            response.raise_for_status()
+            break
+        except ConnectionError as e:
+            log(f"Connection attempt {attempt + 1}/{retries} failed: {e}")
+            if attempt < retries - 1:
+                time.sleep(delay)
+                delay *= 2
+            else:
+                raise
+        except HTTPError as e:
+            raise requests.HTTPError(f"HTTP error occurred: {e}")
 
     soup = BeautifulSoup(response.content, 'html.parser')
     rows = soup.find_all('tr')
-
 
     max_file_date = None
 
@@ -53,10 +68,8 @@ def check_need_for_update(url: str) -> str:
     for row in rows:
         cells = row.find_all('td')
 
-
         if len(cells) < 4:
             continue
-
 
         link = cells[1].find('a')
         if not link:
@@ -66,13 +79,12 @@ def check_need_for_update(url: str) -> str:
         if name != "cno.zip":
             continue
 
-
         date = cells[2].get_text(strip=True)
         max_file_date = datetime.strptime(date, "%Y-%m-%d %H:%M").strftime("%Y-%m-%d")
         break
 
     if not max_file_date:
-        raise ValueError("File 'cno.zip' not found on the FTP site. Check the api endpoint: https://arquivos.receitafederal.gov.br/dados/cno/ to see folder structure or file name has changed")
+        raise ValueError("File 'cno.zip' not found on the FTP site. Check the API endpoint to see if the folder structure or file name has changed.")
 
     log(f"---- Most recent update date for 'cno.zip': {max_file_date}")
 
