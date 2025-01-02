@@ -11,6 +11,8 @@ import requests
 import pandas as pd
 import shutil
 import asyncio
+import time
+from requests.exceptions import ConnectionError, HTTPError
 
 from prefect import task
 
@@ -19,10 +21,7 @@ from pipelines.datasets.br_rf_cno.utils import *
 from pipelines.utils.utils import log
 
 
-#NOTE: O crawler falhará se o nome do arquivo mudar.
-import time
-import requests
-from requests.exceptions import ConnectionError, HTTPError
+
 
 @task
 def check_need_for_update(url: str) -> str:
@@ -38,6 +37,8 @@ def check_need_for_update(url: str) -> str:
     Raises:
         requests.HTTPError: If there is an HTTP error when making the request.
         ValueError: If the file 'cno.zip' is not found in the URL.
+
+    #NOTE: O crawler falhará se o nome do arquivo mudar.
     """
     log('---- Extracting most recent update date from CNO FTP')
     retries = 5

@@ -24,7 +24,7 @@ from pipelines.constants import constants
 
 
 @task(
-    max_retries=3,
+    max_retries=2,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def parse_files_parse_date(url) -> tuple[list[datetime], list[str]]:
