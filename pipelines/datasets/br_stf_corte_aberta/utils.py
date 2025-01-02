@@ -130,7 +130,9 @@ def check_for_data():
     log(arquivos)
     for arquivo in arquivos:
         try:
-            if arquivo.endswith(".xlsx") or arquivo.endswith(".csv"):
+            if arquivo.endswith(".xlsx"):
+                df = pd.read_excel(stf_constants.STF_INPUT.value + arquivo, dtype=str)
+            elif arquivo.endswith(".csv"):
                 df = pd.read_csv(stf_constants.STF_INPUT.value + arquivo, dtype=str)
         except FileNotFoundError as error:
                 log(f"Arquivo não encontrado! Verificando o input: {stf_constants.STF_INPUT.value + arquivo}")
