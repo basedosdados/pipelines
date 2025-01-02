@@ -63,11 +63,12 @@ def read_csv():
 
 def fix_columns_data(df):
     lista = ["Data de autuação", "Data da decisão", "Data baixa"]
-        for x in lista:
-            df[x] = df[x].astype(str)
-            if len(df[x]) == 1:
-                df[x] = df[x].replace("-", '')
-            df[x] = df[x].replace("/", "-").astype(str)
+    for x in lista:
+        df[x] = df[x].astype(str)
+        if len(df[x]) == 1:
+            df[x] = df[x].replace("-", '')
+        df[x] = df[x].replace("/", "-").astype(str)
+        log(df[x].value_counts())
     return df
 
 
