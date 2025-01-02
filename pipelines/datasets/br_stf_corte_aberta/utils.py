@@ -41,7 +41,7 @@ def web_scrapping():
     time.sleep(10)
     driver.maximize_window()
     time.sleep(15)
-    WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="EXPORT-BUTTON-2"]/button'))).click()
+    WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="EXPORT-BUTTON-PADRAO"]'))).click()
     time.sleep(15)
     driver.quit()
 
