@@ -8,7 +8,7 @@ from enum import Enum
 
 
 class constants(Enum):
-    URL = ["https://dadosabertos.rfb.gov.br/CAFIR/"]
+    URL = ["https://dadosabertos.rfb.gov.br/cafir/"]
 
     PATH = [
         "/tmp/input/br_rf_cafir",

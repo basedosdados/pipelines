@@ -5,7 +5,7 @@ Tasks for br_ms_cnes
 
 
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pandas as pd
 from prefect import task
@@ -20,9 +20,13 @@ from pipelines.datasets.br_rf_cafir.utils import (
     strip_string,
 )
 from pipelines.utils.utils import log
+from pipelines.constants import constants
 
 
-@task
+@task(
+    max_retries=3,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def parse_files_parse_date(url) -> tuple[list[datetime], list[str]]:
     """Extrai os nomes dos arquivos e a data de disponibilização dos dados no FTP
 
@@ -39,7 +43,10 @@ def parse_files_parse_date(url) -> tuple[list[datetime], list[str]]:
     return date_files
 
 
-@task
+@task(
+    max_retries=3,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
 def parse_data(url: str, other_task_output: tuple[list[datetime], list[str]]) -> str:
     """Essa task faz o download dos arquivos do FTP, faz o parse dos dados e salva os arquivos em um diretório temporário.
 
