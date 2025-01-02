@@ -68,7 +68,6 @@ def fix_columns_data(df):
             if len(df[x]) == 1:
                 df[x] = df[x].replace("-", '')
             df[x] = df[x].replace("/", "-").astype(str)
-
     return df
 
 
