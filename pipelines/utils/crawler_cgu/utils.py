@@ -8,6 +8,7 @@ from dateutil.relativedelta import relativedelta
 import gc
 import shutil
 from functools import lru_cache
+from polars import Date
 from rapidfuzz import process
 import pandas as pd
 import os
@@ -185,7 +186,8 @@ def download_file(dataset_id: str, table_id: str, year: int, month: int, relativ
 
         return next_date_in_api
 
-    elif dataset_id in ["br_cgu_receitas_publicas", "br_cgu_orcamento_publico"]:
+def download_public(table_id, dataset_id, year) -> None:
+    if dataset_id in ["br_cgu_receitas_publicas", "br_cgu_orcamento_publico"]:
         constants_cgu_publicas = constants.TABELA_PUBLICAS.value[table_id]
 
         url = f"{constants_cgu_publicas['URL']}/{year}"
@@ -193,11 +195,13 @@ def download_file(dataset_id: str, table_id: str, year: int, month: int, relativ
         if requests.get(url).status_code == 200:
             path = constants_cgu_publicas["INPUT"]
             download_and_unzip_file(url, path)
+        
+
+    return None
 
 
-
-# Função para carregar o dataframe
-@lru_cache(maxsize=1)  # Cache para evitar recarregar a tabela
+# ! Função para carregar o dataframe
+@lru_cache(maxsize=1)  # ! Cache para evitar recarregar a tabela
 def load_municipio() -> None:
     municipio: pd.DataFrame = bd.read_table(
         "br_bd_diretorios_brasil",
@@ -292,10 +296,12 @@ def read_csv(
 
         return df
 
-def read_csv_receitas_orcamento_publico(dataset_id: str, table_id: str, year=int) -> pd.DataFrame:
+
+
+def read_csv_receitas_orcamento_publico(dataset_id: str, table_id: str, year) -> pd.DataFrame:
     if dataset_id == "br_cgu_receitas_publicas":
         constants_cgu_publicas = constants.TABELA_PUBLICAS.value[table_id]
-
+        
         df = pd.read_csv(f"{constants_cgu_publicas['INPUT']}/{year}_Receitas.csv", sep=";", encoding="latin1")
         df.columns = [unidecode.unidecode(col) for col in df.columns]
         df.columns = [col.replace(" ", "_").lower() for col in df.columns]

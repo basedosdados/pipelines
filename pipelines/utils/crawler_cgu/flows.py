@@ -15,6 +15,7 @@ from pipelines.utils.crawler_cgu.tasks import (
     partition_data,
     get_current_date_and_download_file,
     verify_all_url_exists_to_download,
+    download_test,
 )
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
@@ -57,12 +58,11 @@ with Flow(
     upstream_tasks=[data_source_max_date]
     )
 
-    with case(dados_desatualizados, True):
 
+    with case(dados_desatualizados, True):
         filepath = partition_data(
             table_id=table_id,
             dataset_id=dataset_id,
-
             upstream_tasks=[dados_desatualizados],
         )
 
@@ -334,11 +334,12 @@ with Flow(name="CGU - Receitas Públicas", code_owners=["trick"]) as flow_cgu_re
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
     update_metadata = Parameter("update_metadata", default=False, required=False)
     rename_flow_run = rename_current_flow_run_dataset_table(prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id)
+    year = Parameter("year", default=2024, required=False)
 
     data_source_max_date = download_test(
         table_id=table_id,
         dataset_id=dataset_id,
-        relative_month=relative_month,
+        year=year,
     )
 
     # dados_desatualizados = check_if_data_is_outdated(

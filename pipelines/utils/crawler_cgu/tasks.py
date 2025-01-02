@@ -16,7 +16,8 @@ from pipelines.utils.crawler_cgu.utils import (
     last_date_in_metadata,
     read_and_clean_csv,
     build_urls,
-    read_csv_receitas_orcamento_publico
+    read_csv_receitas_orcamento_publico,
+    download_public,
 )
 from pipelines.utils.crawler_cgu.constants import constants
 from pipelines.utils.crawler_cgu.utils import download_file
@@ -24,7 +25,7 @@ from typing import Tuple
 
 
 @task
-def partition_data(table_id: str, dataset_id : str) -> str:
+def partition_data(table_id: str, dataset_id : str, year) -> str:
     """
     Partition data from a given table.
 
@@ -80,54 +81,57 @@ def partition_data(table_id: str, dataset_id : str) -> str:
 
     elif dataset_id in ["br_cgu_orcamento_publico", "br_cgu_receitas_publicas"]:
         log("---------------------------- Read data ----------------------------")
-        df = read_csv_receitas_orcamento_publico(dataset_id = dataset_id, table_id = table_id)
+        df = read_csv_receitas_orcamento_publico(dataset_id = dataset_id, table_id = table_id, year=2024)
         to_partitions(
             data=df,
             partition_columns=["ano_extrato"],
             savepath=constants.TABELA_PUBLICAS.value[table_id]["OUTPUT"],
         )
 
-# @task
-# def get_current_date_and_download_file(table_id : str,
-#                                         dataset_id : str,
-#                                         relative_month : int = 1) -> datetime:
-#     """
-#     Get the maximum date from a given table for a specific year and month.
+@task
+def get_current_date_and_download_file(table_id : str,
+                                        dataset_id : str,
+                                        relative_month : int = 1) -> datetime:
+    """
+    Get the maximum date from a given table for a specific year and month.
 
-#     Args:
-#         table_id (str): The ID of the table.
-#         year (int): The year.
-#         month (int): The month.
+    Args:
+        table_id (str): The ID of the table.
+        year (int): The year.
+        month (int): The month.
 
-#     Returns:
-#         datetime: The maximum date as a datetime object.
-#     """
-#     last_date_in_api, next_date_in_api = last_date_in_metadata(
-#                                     dataset_id = dataset_id,
-#                                     table_id = table_id,
-#                                     relative_month = relative_month
-#                                     )
-#     log(f"Last date in API: {last_date_in_api}")
-#     log(f"Next date in API: {next_date_in_api}")
+    Returns:
+        datetime: The maximum date as a datetime object.
+    """
+    last_date_in_api, next_date_in_api = last_date_in_metadata(
+                                    dataset_id = dataset_id,
+                                    table_id = table_id,
+                                    relative_month = relative_month
+                                    )
+    log(f"Last date in API: {last_date_in_api}")
+    log(f"Next date in API: {next_date_in_api}")
 
-#     max_date = str(download_file(table_id = table_id,
-#                                 dataset_id = dataset_id,
-#                                 year = next_date_in_api.year,
-#                                 month = next_date_in_api.month,
-#                                 relative_month=relative_month))
+    max_date = str(download_file(table_id = table_id,
+                                dataset_id = dataset_id,
+                                year = next_date_in_api.year,
+                                month = next_date_in_api.month,
+                                relative_month=relative_month))
 
-#     log(f"Max date: {max_date}")
+    log(f"Max date: {max_date}")
 
-#     date = datetime.strptime(max_date, '%Y-%m-%d')
+    date = datetime.strptime(max_date, '%Y-%m-%d')
 
-#     return date
+    return date
+
 
 @task
-def download_test(table_id, dataset_id, year, month, relative_month):
-    return download_file(table_id = table_id,
-                  dataset_id=dataset_id,
-                  year=year,
-                  relative_month=relative_month,)
+def download_test(table_id, dataset_id, year):
+
+    return download_public(
+        table_id=table_id,
+        dataset_id=dataset_id,
+        year=year
+    )
 
 
 @task
