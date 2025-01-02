@@ -134,7 +134,7 @@ def check_for_data():
                 df = pd.read_csv(stf_constants.STF_INPUT.value + arquivo, dtype=str)
         except FileNotFoundError as error:
                 log(f"Arquivo não encontrado! Verificando o input: {stf_constants.STF_INPUT.value + arquivo}")
-            
+
     df["Data da decisão"] = df["Data da decisão"].astype(str).str[0:10]
     data_obj = df["Data da decisão"] = (
         df["Data da decisão"].astype(str).str[6:10]
