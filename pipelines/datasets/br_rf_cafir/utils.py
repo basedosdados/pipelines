@@ -6,12 +6,14 @@ General purpose functions for the br_ms_cnes project
 import os
 import unicodedata
 from datetime import datetime
+import time
 
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
 from pipelines.utils.utils import log
+from typing import Tuple, List
 
 
 def strip_string(x: pd.DataFrame) -> pd.DataFrame:
@@ -103,14 +105,17 @@ def remove_accent(input_str: pd.DataFrame, pattern: str = "all") -> pd.DataFrame
     return input_str
 
 
-def parse_date_parse_files(url: str) -> tuple[list[datetime], list[str]]:
-    """Faz o parse da data de atualização e dos links de download dos arquivos
+def parse_date_parse_files(url: str, retries: int = 3, backoff_factor: int = 2) -> Tuple[datetime, List[str]]:
+    """
+    Faz o parse da data de atualização e dos links de download dos arquivos.
 
     Args:
-        url (string): A url do ftp do CAFIR da receita federal
+        url (str): A URL do FTP do CAFIR da Receita Federal.
+        retries (int): Número de tentativas em caso de falha por timeout.
+        backoff_factor (int): Fator de espera exponencial entre tentativas.
 
     Returns:
-        tuple[list[datetime],list[str]]: Retorna uma tupla com duas listas. A primeira contém uma lista de datas de atualização dos dados e a segunda contém uma lista com os nomes dos arquivos.
+        Tuple[datetime, List[str]]: Retorna uma tupla com a data de atualização e os nomes dos arquivos.
     """
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36",
@@ -122,45 +127,46 @@ def parse_date_parse_files(url: str) -> tuple[list[datetime], list[str]]:
         "Sec-Fetch-Mode": "navigate",
         "Sec-Fetch-Site": "same-origin",
         "Sec-Fetch-User": "?1",
-        "Priority": "u=0, i"
+        "Priority": "u=0, i",
     }
+
     xpath_release_date = "tr td:nth-of-type(3)"
-    response = requests.get(url, headers=headers, timeout=(10,30))
+    attempt = 0
 
-    # Checa se a requisição foi bem sucedida
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.text, "html.parser")
+    while attempt < retries:
+        try:
+            response = requests.get(url, headers=headers, timeout=(10, 30))
 
-        ## 1. parsing da data de atualização ##
+            # Checa se a requisição foi bem-sucedida
+            if response.status_code == 200:
+                soup = BeautifulSoup(response.text, "html.parser")
 
-        # Seleciona tags com base no xpath
-        td_elements = soup.select(xpath_release_date)
-        # Extrai texto das tags selecionadas
-        td_texts = [td.get_text(strip=True) for td in td_elements]
-        # selecionar someente data
-        td_texts = [td[0:10] for td in td_texts]
-        # seleciona data
-        # são liberados 20 arquivos a cada atualização, a data é a mesma o que varia é a hora.
-        td_texts = td_texts[3]
-        # converte para data
-        release_data = datetime.strptime(td_texts, "%Y-%m-%d").date()
-        log(f"realease date: {release_data}")
+                # 1. Parsing da data de atualização
+                td_elements = soup.select(xpath_release_date)
+                td_texts = [td.get_text(strip=True)[:10] for td in td_elements]
+                release_data = datetime.strptime(td_texts[3], "%Y-%m-%d").date()
+                log(f"Release date: {release_data}")
 
-        ## 2. parsing dos nomes dos arquivos ##
+                # 2. Parsing dos nomes dos arquivos
+                a_elements = soup.find_all("a")
+                href_values = [a["href"] for a in a_elements if a.has_attr("href")]
+                files_name = [href for href in href_values if "csv" in href]
+                log(f"Files name: {files_name}")
 
-        a_elements = soup.find_all("a")
-        # Extrai todos href
-        href_values = [a["href"] for a in a_elements]
-        # Filtra href com nomes dos arquivos
-        files_name = [href for href in href_values if "csv" in href]
-        log(f"files name: {files_name}")
-        return release_data, files_name
+                return release_data, files_name
 
-    else:
-        log(
-            f"Não foi possível acessar o site :/. O status da requisição foi: {response.status_code}"
-        )
-        raise FileNotFoundError
+            else:
+                log(f"Erro na requisição: {response.status_code}")
+                raise requests.RequestException(f"HTTP {response.status_code}")
+
+        except (requests.Timeout, requests.ConnectionError) as e:
+            attempt += 1
+            wait_time = backoff_factor ** attempt
+            log(f"Erro: {e}. Tentando novamente em {wait_time} segundos...")
+            time.sleep(wait_time)
+
+    raise TimeoutError("Falha após várias tentativas de conectar ao servidor.")
+
 
 
 def download_csv_files(url, file_name, download_directory):
