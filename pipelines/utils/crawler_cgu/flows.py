@@ -405,6 +405,6 @@ with Flow(name="CGU - Benefícios Cidadão", code_owners=["trick"]) as flow_cgu_
             )
             # with case(update_metadata, True):
             #     update_django_metadata(dict_for_table(table_id = table_id, dataset_id = dataset_id), upstream_tasks=[wait_for_materialization])
-                
+
 flow_cgu_beneficios_cidadao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 flow_cgu_beneficios_cidadao.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)

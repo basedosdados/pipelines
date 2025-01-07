@@ -199,7 +199,7 @@ class constants(Enum):  # pylint: disable=c0103
             "READ" : "_CPDC",
             "ONLY_ONE_FILE" : False}
         }
-    
+
     DTYPES_NOVO_BOLSA_FAMILIA = {
         "MÊS COMPETÊNCIA": str,
         "MÊS REFERÊNCIA": str,

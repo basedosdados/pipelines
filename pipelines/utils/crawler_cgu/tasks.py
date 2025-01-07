@@ -75,7 +75,7 @@ def partition_data(table_id: str, dataset_id : str) -> str:
         )
         log("---------------------------- Data partitioned ----------------------")
         return constants.TABELA_SERVIDORES.value[table_id]['OUTPUT']
-    
+
     elif dataset_id == "br_cgu_beneficios_cidadao":
         if table_id == "novo_bolsa_familia":
             to_partitions(

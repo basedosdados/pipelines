@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from copy import deepcopy
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS

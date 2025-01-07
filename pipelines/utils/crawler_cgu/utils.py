@@ -280,7 +280,7 @@ def read_csv(
                 df["municipio"] = df["municipio"].apply(lambda x: x if x == None else x.split("-")[0])
 
         return df
-    
+
     if dataset_id == "br_cgu_beneficios_cidadao":
         constants_cgu_beneficios_cidadao = constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]
         for nome_arquivo in os.listdir(constants_cgu_beneficios_cidadao['INPUT']):
