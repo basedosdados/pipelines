@@ -41,7 +41,6 @@ def partition_data(table_id: str, dataset_id : str) -> str:
     if dataset_id in ["br_cgu_cartao_pagamento", "br_cgu_licitacao_contrato"]:
         log("---------------------------- Read data ----------------------------")
         df = read_csv(dataset_id = dataset_id, table_id = table_id)
-        log(df.head())
         if dataset_id == "br_cgu_cartao_pagamento:":
             log(" ---------------------------- Partiting data -----------------------")
             to_partitions(
@@ -76,6 +75,31 @@ def partition_data(table_id: str, dataset_id : str) -> str:
         )
         log("---------------------------- Data partitioned ----------------------")
         return constants.TABELA_SERVIDORES.value[table_id]['OUTPUT']
+    
+    elif dataset_id == "br_cgu_beneficios_cidadao":
+        if table_id == "novo_bolsa_familia":
+            to_partitions(
+                df,
+                partition_columns=["mes_competencia", "sigla_uf"],
+                savepath=constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT'],
+                file_type="parquet",
+            )
+        elif table_id == "bpc":
+            to_partitions(
+                df,
+                partition_columns=["mes_competencia"],
+                savepath=constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT'],
+                file_type="csv",
+            )
+        elif table_id == "safra_garantida":
+            to_partitions(
+                df,
+                partition_columns=["mes_referencia"],
+                savepath=constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT'],
+                file_type="parquet",
+            )
+
+            log("Partição feita.")
 
 @task
 def get_current_date_and_download_file(table_id : str,
@@ -146,3 +170,41 @@ def verify_all_url_exists_to_download(dataset_id, table_id, relative_month) -> b
 
         log(f"A URL {url=} existe!")
     return True
+
+@task
+def dict_for_table(table_id: str, dataset_id:str) -> dict:
+
+    DICT_FOR_TABLE = {
+        "novo_bolsa_familia": {
+            "dataset_id":dataset_id,
+            "table_id": table_id,
+            "date_column_name": {"year": "ano_competencia", "month": "mes_competencia"},
+            "date_format": "%Y-%m",
+            "coverage_type": "part_bdpro",
+            "time_delta": {"months": 6},
+            "prefect_mode": "prod",
+            "bq_project": "basedosdados"
+        },
+        "safra_garantia": {
+            "dataset_id":dataset_id,
+            "table_id": table_id,
+            "date_column_name": {"year": "ano_referencia", "month": "mes_referencia"},
+            "date_format": "%Y-%m",
+            "coverage_type": "part_bdpro",
+            "time_delta": {"months": 6},
+            "prefect_mode": "prod",
+            "bq_project": "basedosdados"
+        },
+        "bpc": {
+            "dataset_id":dataset_id,
+            "table_id": table_id,
+            "date_column_name": {"year": "ano_competencia", "month": "mes_competencia"},
+            "date_format": "%Y-%m",
+            "coverage_type": "part_bdpro",
+            "time_delta": {"months": 6},
+            "prefect_mode": "prod",
+            "bq_project": "basedosdados",
+        }
+    }
+
+    return DICT_FOR_TABLE[table_id]

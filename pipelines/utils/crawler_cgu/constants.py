@@ -4,6 +4,7 @@ Constant values for the datasets projects
 """
 
 from enum import Enum
+import numpy as np
 
 class constants(Enum):  # pylint: disable=c0103
 
@@ -174,4 +175,136 @@ class constants(Enum):  # pylint: disable=c0103
             "OUTPUT": "/tmp/output/cgu_licitacao_contrato/contrato_termo_aditivo",
             "READ": "_TermoAditivo.csv",
         },
+    }
+
+    TABELA_BENEFICIOS_CIDADAO = {
+        "novo_bolsa_familia" : {
+            "INPUT" : "/tmp/input/novo_bolsa_familia",
+            "OUTPUT" : "/tmp/output/novo_bolsa_familia",
+            "URL" : "https://portaldatransparencia.gov.br/download-de-dados/novo-bolsa-familia/",
+            "READ" : "_CPGF",
+            "ONLY_ONE_FILE" : False},
+
+        "bpc" : {
+            "INPUT" : "/tmp/input/bpc",
+            "OUTPUT" : "/tmp/output/bpc",
+            "URL" : "https://portaldatransparencia.gov.br/download-de-dados/bpc/",
+            "READ" : "_CPGFComprasCentralizadas",
+            "ONLY_ONE_FILE" : False},
+
+        "garantia_safra" : {
+            "INPUT" : "/tmp/input/garantia_safra",
+            "OUTPUT" : "/tmp/output/garantia_safra",
+            "URL" : "https://portaldatransparencia.gov.br/download-de-dados/garantia-safra/",
+            "READ" : "_CPDC",
+            "ONLY_ONE_FILE" : False}
+        }
+    
+    DTYPES_NOVO_BOLSA_FAMILIA = {
+        "MÊS COMPETÊNCIA": str,
+        "MÊS REFERÊNCIA": str,
+        "UF": str,
+        "CÓDIGO MUNICÍPIO SIAFI": str,
+        "NOME MUNICÍPIO": str,
+        "CPF FAVORECIDO": str,
+        "NIS FAVORECIDO": str,
+        "NOME FAVORECIDO": str,
+        "VALOR PARCELA": np.float64,
+    }
+    DTYPES_GARANTIA_SAFRA = {
+        "MÊS REFERÊNCIA": str,
+        "UF": str,
+        "CÓDIGO MUNICÍPIO SIAFI": str,
+        "NOME MUNICÍPIO": str,
+        "NIS FAVORECIDO": str,
+        "NOME FAVORECIDO": str,
+        "VALOR PARCELA": np.float64,
+    }
+
+    DTYPES_BPC = {
+        "MÊS COMPETÊNCIA": str,
+        "MÊS REFERÊNCIA": str,
+        "UF": str,
+        "CÓDIGO MUNICÍPIO SIAFI": str,
+        "NOME MUNICÍPIO": str,
+        "NIS BENEFICIÁRIO": str,
+        "CPF BENEFICIÁRIO": str,
+        "NOME BENEFICIÁRIO": str,
+        "NIS REPRESENTANTE LEGAL": str,
+        "CPF REPRESENTANTE LEGAL": str,
+        "NOME REPRESENTANTE LEGAL": str,
+        "NÚMERO BENEFÍCIO": str,
+        "BENEFÍCIO CONCEDIDO JUDICIALMENTE": str,
+        "VALOR PARCELA": np.float64,
+    }
+
+    RENAMER_NOVO_BOLSA_FAMILIA = {
+        "MÊS COMPETÊNCIA": "mes_competencia",
+        "MÊS REFERÊNCIA": "mes_referencia",
+        "UF": "sigla_uf",
+        "CÓDIGO MUNICÍPIO SIAFI": "id_municipio_siafi",
+        "NOME MUNICÍPIO": "municipio",
+        "CPF FAVORECIDO": "cpf",
+        "NIS FAVORECIDO": "nis",
+        "NOME FAVORECIDO": "nome",
+        "VALOR PARCELA": "valor",
+    }
+    RENAMER_GARANTIA_SAFRA = {
+        "MÊS REFERÊNCIA": "mes_referencia",
+        "UF": "sigla_uf",
+        "CÓDIGO MUNICÍPIO SIAFI": "id_municipio_siafi",
+        "NOME MUNICÍPIO": "municipio",
+        "NIS FAVORECIDO": "nis",
+        "NOME FAVORECIDO": "nome",
+        "VALOR PARCELA": "valor",
+    }
+    RENAMER_BPC = {
+        "MÊS COMPETÊNCIA": "mes_competencia",
+        "MÊS REFERÊNCIA": "mes_referencia",
+        "UF": "sigla_uf",
+        "CÓDIGO MUNICÍPIO SIAFI": "id_municipio_siafi",
+        "NOME MUNICÍPIO": "municipio",
+        "NIS BENEFICIÁRIO": "nis",
+        "CPF BENEFICIÁRIO": "cpf",
+        "NOME BENEFICIÁRIO": "nome",
+        "NIS REPRESENTANTE LEGAL": "nis_representante",
+        "CPF REPRESENTANTE LEGAL": "cpf_representante",
+        "NOME REPRESENTANTE LEGAL": "nome_representante",
+        "NÚMERO BENEFÍCIO": "numero",
+        "BENEFÍCIO CONCEDIDO JUDICIALMENTE": "concedido_judicialmente",
+        "VALOR PARCELA": "valor",
+    }
+
+    DICT_FOR_TABLE = {
+        "novo_bolsa_familia": {
+            "dataset_id":"br_cgu_beneficios_cidadao",
+            "table_id": "novo_bolsa_familia",
+            "date_column_name": {"year": "ano_competencia", "month": "mes_competencia"},
+            "date_format": "%Y-%m",
+            "coverage_type": "part_bdpro",
+            "time_delta": {"months": 6},
+            "prefect_mode": "prod",
+            "bq_project": "basedosdados"
+        },
+        "safra_garantia": {
+            "dataset_id":"br_cgu_beneficios_cidadao",
+            "table_id": "safra_garantia",
+            "date_column_name": {"year": "ano_referencia", "month": "mes_referencia",
+            },
+            "date_format": "%Y-%m",
+            "coverage_type": "part_bdpro",
+            "time_delta": {"months": 6},
+            "prefect_mode": "prod",
+            "bq_project": "basedosdados"
+        },
+        "bpc": {
+            "dataset_id":"br_cgu_beneficios_cidadao",
+            "table_id": "bpc",
+            "date_column_name": {"year": "ano_competencia", "month": "mes_competencia"},
+            "date_format": "%Y-%m",
+            "coverage_type": "part_bdpro",
+            "time_delta": {"months": 6},
+            "prefect_mode": "prod",
+            "bq_project": "basedosdados",
+        }
     }

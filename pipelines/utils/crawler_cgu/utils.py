@@ -154,10 +154,11 @@ def download_file(dataset_id: str, table_id: str, year: int, month: int, relativ
 
             return last_date_in_api
 
-    elif dataset_id == "br_cgu_servidores_executivo_federal":
-
-        constants_cgu_servidores = constants.TABELA_SERVIDORES.value[table_id]  # ! CGU - Servidores Públicos do Executivo Federal
-
+    elif dataset_id == "br_cgu_servidores_executivo_federal" or "br_cgu_beneficios_cidadao":
+        if dataset_id == "br_cgu_servidores_executivo_federal":
+            constants_cgu = constants.TABELA_SERVIDORES.value[table_id]  # ! CGU - Servidores Públicos do Executivo Federal
+        elif dataset_id == "br_cgu_beneficios_cidadao":
+            constants_cgu = constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]
         url = build_urls(
             dataset_id,
             constants.URL_SERVIDORES.value,
@@ -170,16 +171,18 @@ def download_file(dataset_id: str, table_id: str, year: int, month: int, relativ
         log(input_dirs)
         for urls, input_dir in zip(url, input_dirs):
             if requests.get(urls).status_code == 200:
-                destino = f"{constants_cgu_servidores['INPUT']}/{input_dir}"
+                destino = f"{constants_cgu['INPUT']}/{input_dir}"
                 download_and_unzip_file(urls, destino)
 
                 last_date_in_api, next_date_in_api = last_date_in_metadata(
-                    dataset_id="br_cgu_servidores_executivo_federal",
+                    dataset_id=dataset_id,
                     table_id=table_id,
                     relative_month=relative_month,
                 )
 
         return next_date_in_api
+
+
 
 
 # Função para carregar o dataframe
@@ -277,6 +280,50 @@ def read_csv(
                 df["municipio"] = df["municipio"].apply(lambda x: x if x == None else x.split("-")[0])
 
         return df
+    
+    if dataset_id == "br_cgu_beneficios_cidadao":
+        constants_cgu_beneficios_cidadao = constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]
+        for nome_arquivo in os.listdir(constants_cgu_beneficios_cidadao['INPUT']):
+            if nome_arquivo.endswith(".csv"):
+                log(f"Carregando o arquivo: {nome_arquivo}")
+
+                df = None
+                with pd.read_csv(
+                    f"{constants_cgu_beneficios_cidadao}{nome_arquivo}",
+                    sep=";",
+                    encoding="latin-1",
+                    chunksize=1000000,
+                    decimal=",",
+                    na_values="" if table_id != "bpc" else None,
+                    dtype=(
+                        constants.DTYPES_NOVO_BOLSA_FAMILIA.value
+                        if table_id == "novo_bolsa_familia"
+                        else (
+                            constants.DTYPES_GARANTIA_SAFRA.value
+                            if table_id == "garantia_safra"
+                            else constants.DTYPES_BPC.value
+                        )
+                    ),
+                ) as reader:
+                    for chunk in tqdm(reader):
+                        chunk.rename(
+                            columns=(
+                                constants.RENAMER_NOVO_BOLSA_FAMILIA.value
+                                if table_id == "novo_bolsa_familia"
+                                else (
+                                    constants.RENAMER_GARANTIA_SAFRA.value
+                                    if table_id == "garantia_safra"
+                                    else constants.RENAMER_BPC.value
+                                )
+                            ),
+                            inplace=True,
+                        )
+                        if df is None:
+                            df = chunk
+                        else:
+                            df = pd.concat([df, chunk], axis=0)
+        return df
+
 
 def last_date_in_metadata(
     dataset_id: str, table_id: str, relative_month
