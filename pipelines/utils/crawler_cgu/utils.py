@@ -52,7 +52,7 @@ def build_urls(dataset_id: str, url: str, year: int, month: int, table_id: str) 
 
     log(f"{dataset_id=}")
 
-    if dataset_id in ["br_cgu_cartao_pagamento", "br_cgu_licitacao_contrato"]:
+    if dataset_id in ["br_cgu_cartao_pagamento", "br_cgu_licitacao_contrato", "br_cgu_beneficios_cidadao"]:
         log(f"{url}{year}{str(month).zfill(2)}/")
 
         return f"{url}{year}{str(month).zfill(2)}/"
@@ -63,6 +63,7 @@ def build_urls(dataset_id: str, url: str, year: int, month: int, table_id: str) 
             url_completa = f"{url}{year}{str(month).zfill(2)}_{table_name}/"
             list_url.append(url_completa)
         return list_url
+
 
 def build_input(table_id):
     """
@@ -115,6 +116,8 @@ def download_file(dataset_id: str, table_id: str, year: int, month: int, relativ
             value_constants = constants.TABELA.value[table_id] # ! CGU - Cartão de Pagamento
         elif dataset_id == "br_cgu_licitacao_contrato":
             value_constants = constants.TABELA_LICITACAO_CONTRATO.value[table_id]
+        elif dataset_id == "br_cgu_beneficios_cidadao":
+            value_constants = constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]
 
         input = value_constants["INPUT"]
         if not os.path.exists(input):
@@ -155,8 +158,7 @@ def download_file(dataset_id: str, table_id: str, year: int, month: int, relativ
             return last_date_in_api
 
     elif dataset_id == "br_cgu_servidores_executivo_federal":
-        if dataset_id == "br_cgu_servidores_executivo_federal":
-            constants_cgu = constants.TABELA_SERVIDORES.value[table_id]  # ! CGU - Servidores Públicos do Executivo Federal
+        constants_cgu = constants.TABELA_SERVIDORES.value[table_id]  # ! CGU - Servidores Públicos do Executivo Federal
 
         url = build_urls(
             dataset_id,
@@ -165,33 +167,6 @@ def download_file(dataset_id: str, table_id: str, year: int, month: int, relativ
             month,
             table_id,
         )
-        input_dirs = build_input(table_id)
-        log(url)
-        log(input_dirs)
-        for urls, input_dir in zip(url, input_dirs):
-            if requests.get(urls).status_code == 200:
-                destino = f"{constants_cgu['INPUT']}/{input_dir}"
-                download_and_unzip_file(urls, destino)
-
-                last_date_in_api, next_date_in_api = last_date_in_metadata(
-                    dataset_id=dataset_id,
-                    table_id=table_id,
-                    relative_month=relative_month,
-                )
-
-        return next_date_in_api
-
-    elif dataset_id == "br_cgu_beneficios_cidadao":
-        constants_cgu = constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]
-
-        url = build_urls(
-            dataset_id,
-            constants_cgu["URL"],
-            year,
-            month,
-            table_id,
-        )
-
         input_dirs = build_input(table_id)
         log(url)
         log(input_dirs)

@@ -99,7 +99,9 @@ def partition_data(table_id: str, dataset_id : str) -> str:
                 file_type="parquet",
             )
 
-            log("Partição feita.")
+        log("Partição feita.")
+
+        return constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT']
 
 @task
 def get_current_date_and_download_file(table_id : str,
