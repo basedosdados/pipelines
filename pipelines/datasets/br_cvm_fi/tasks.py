@@ -592,7 +592,7 @@ def clean_data_make_partitions_balancete(diretorio, table_id):
         df_final[colunas_mapeamento] = df_final[colunas_mapeamento].applymap(
             lambda x: cvm_constants.MAPEAMENTO.value.get(x, x)
         )
-        df_final["CNPJ_FUNDO"] = df_final["CNPJ_FUNDO"].str.replace(r"[/.-]", "")
+        df_final["CNPJ_FUNDO_CLASSE"] = df_final["CNPJ_FUNDO_CLASSE"].str.replace(r"[/.-]", "")
         df_final = rename_columns(df_arq, df_final)
         df_final = df_final.replace(",", ".", regex=True)
         df_final = df_final[colunas_finais]
