@@ -38,7 +38,7 @@ def partition_data(table_id: str, dataset_id : str) -> str:
         str: The path where the partitioned data is saved.
     """
 
-    if dataset_id in ["br_cgu_cartao_pagamento", "br_cgu_licitacao_contrato"]:
+    if dataset_id in ["br_cgu_cartao_pagamento", "br_cgu_licitacao_contrato", "br_cgu_beneficios_cidadao"]:
         log("---------------------------- Read data ----------------------------")
         df = read_csv(dataset_id = dataset_id, table_id = table_id)
         if dataset_id == "br_cgu_cartao_pagamento:":
@@ -63,6 +63,34 @@ def partition_data(table_id: str, dataset_id : str) -> str:
             log("---------------------------- Data partitioned ----------------------")
             return constants.TABELA_LICITACAO_CONTRATO.value[table_id]["OUTPUT"]
 
+        elif dataset_id == "br_cgu_beneficios_cidadao":
+            log(f"---------------------------- {table_id=}----------------------------")
+            if table_id == "novo_bolsa_familia":
+                to_partitions(
+                    df,
+                    partition_columns=["mes_competencia", "sigla_uf"],
+                    savepath=constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT'],
+                    file_type="parquet",
+                )
+            elif table_id == "bpc":
+                to_partitions(
+                    df,
+                    partition_columns=["mes_competencia"],
+                    savepath=constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT'],
+                    file_type="csv",
+                )
+            elif table_id == "safra_garantida":
+                to_partitions(
+                    df,
+                    partition_columns=["mes_referencia"],
+                    savepath=constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT'],
+                    file_type="parquet",
+                )
+
+            log("Partição feita.")
+
+            return constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT']
+
     elif dataset_id == "br_cgu_servidores_executivo_federal":
 
         log("---------------------------- Read data ----------------------------")
@@ -75,33 +103,6 @@ def partition_data(table_id: str, dataset_id : str) -> str:
         )
         log("---------------------------- Data partitioned ----------------------")
         return constants.TABELA_SERVIDORES.value[table_id]['OUTPUT']
-
-    elif dataset_id == "br_cgu_beneficios_cidadao":
-        if table_id == "novo_bolsa_familia":
-            to_partitions(
-                df,
-                partition_columns=["mes_competencia", "sigla_uf"],
-                savepath=constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT'],
-                file_type="parquet",
-            )
-        elif table_id == "bpc":
-            to_partitions(
-                df,
-                partition_columns=["mes_competencia"],
-                savepath=constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT'],
-                file_type="csv",
-            )
-        elif table_id == "safra_garantida":
-            to_partitions(
-                df,
-                partition_columns=["mes_referencia"],
-                savepath=constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT'],
-                file_type="parquet",
-            )
-
-        log("Partição feita.")
-
-        return constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT']
 
 @task
 def get_current_date_and_download_file(table_id : str,
