@@ -119,6 +119,7 @@ def download_file(dataset_id: str, table_id: str, year: int, month: int, relativ
         elif dataset_id == "br_cgu_beneficios_cidadao":
             value_constants = constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]
         input = value_constants["INPUT"]
+
         if not os.path.exists(input):
             os.makedirs(input)
 
@@ -286,7 +287,7 @@ def read_csv(
 
                 df = None
                 with pd.read_csv(
-                    f"{constants_cgu_beneficios_cidadao}{nome_arquivo}",
+                    f"{constants_cgu_beneficios_cidadao['INPUT']}{nome_arquivo}",
                     sep=";",
                     encoding="latin-1",
                     chunksize=1000000,

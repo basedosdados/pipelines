@@ -179,25 +179,21 @@ class constants(Enum):  # pylint: disable=c0103
 
     TABELA_BENEFICIOS_CIDADAO = {
         "novo_bolsa_familia" : {
-            "INPUT" : "/tmp/input/novo_bolsa_familia",
-            "OUTPUT" : "/tmp/output/novo_bolsa_familia",
-            "URL" : "https://portaldatransparencia.gov.br/download-de-dados/novo-bolsa-familia/",
-            "READ" : "_CPGF",
-            "ONLY_ONE_FILE" : False},
+            "INPUT" : "/tmp/input/novo_bolsa_familia/",
+            "OUTPUT" : "/tmp/output/novo_bolsa_familia/",
+            "URL" : "https://portaldatransparencia.gov.br/download-de-dados/novo-bolsa-familia/"
+            },
 
         "bpc" : {
             "INPUT" : "/tmp/input/bpc",
             "OUTPUT" : "/tmp/output/bpc",
-            "URL" : "https://portaldatransparencia.gov.br/download-de-dados/bpc/",
-            "READ" : "_CPGFComprasCentralizadas",
-            "ONLY_ONE_FILE" : False},
+            "URL" : "https://portaldatransparencia.gov.br/download-de-dados/bpc/"
+            },
 
         "garantia_safra" : {
             "INPUT" : "/tmp/input/garantia_safra",
             "OUTPUT" : "/tmp/output/garantia_safra",
-            "URL" : "https://portaldatransparencia.gov.br/download-de-dados/garantia-safra/",
-            "READ" : "_CPDC",
-            "ONLY_ONE_FILE" : False}
+            "URL" : "https://portaldatransparencia.gov.br/download-de-dados/garantia-safra/"}
         }
 
     DTYPES_NOVO_BOLSA_FAMILIA = {
