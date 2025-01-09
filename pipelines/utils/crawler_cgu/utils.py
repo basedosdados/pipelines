@@ -290,7 +290,7 @@ def read_csv(
                     f"{constants_cgu_beneficios_cidadao['INPUT']}{nome_arquivo}",
                     sep=";",
                     encoding="latin-1",
-                    chunksize=1000000,
+                    chunksize=100000,
                     decimal=",",
                     na_values="" if table_id != "bpc" else None,
                     dtype=(
