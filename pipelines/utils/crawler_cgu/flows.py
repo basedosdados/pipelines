@@ -15,7 +15,7 @@ from pipelines.utils.crawler_cgu.tasks import (
     partition_data,
     get_current_date_and_download_file,
     verify_all_url_exists_to_download,
-    dict_for_table
+    read_and_partition_beneficios_cidadao
 )
 from pipelines.utils.crawler_cgu.constants import constants as cgu_constants
 from pipelines.utils.decorators import Flow
@@ -356,9 +356,8 @@ with Flow(name="CGU - Benefícios Cidadão", code_owners=["trick"]) as flow_cgu_
     )
 
     with case(dados_desatualizados, True):
-        filepath = partition_data(
+        filepath = read_and_partition_beneficios_cidadao(
             table_id=table_id,
-            dataset_id=dataset_id,
             upstream_tasks=[data_source_max_date],
         )
 

@@ -279,49 +279,6 @@ def read_csv(
 
         return df
 
-    if dataset_id == "br_cgu_beneficios_cidadao":
-        constants_cgu_beneficios_cidadao = constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]
-        for nome_arquivo in os.listdir(constants_cgu_beneficios_cidadao['INPUT']):
-            if nome_arquivo.endswith(".csv"):
-                log(f"Carregando o arquivo: {nome_arquivo}")
-
-                df = None
-                with pd.read_csv(
-                    f"{constants_cgu_beneficios_cidadao['INPUT']}{nome_arquivo}",
-                    sep=";",
-                    encoding="latin-1",
-                    chunksize=100000,
-                    decimal=",",
-                    na_values="" if table_id != "bpc" else None,
-                    dtype=(
-                        constants.DTYPES_NOVO_BOLSA_FAMILIA.value
-                        if table_id == "novo_bolsa_familia"
-                        else (
-                            constants.DTYPES_GARANTIA_SAFRA.value
-                            if table_id == "garantia_safra"
-                            else constants.DTYPES_BPC.value
-                        )
-                    ),
-                ) as reader:
-                    for chunk in tqdm(reader):
-                        chunk.rename(
-                            columns=(
-                                constants.RENAMER_NOVO_BOLSA_FAMILIA.value
-                                if table_id == "novo_bolsa_familia"
-                                else (
-                                    constants.RENAMER_GARANTIA_SAFRA.value
-                                    if table_id == "garantia_safra"
-                                    else constants.RENAMER_BPC.value
-                                )
-                            ),
-                            inplace=True,
-                        )
-                        if df is None:
-                            df = chunk
-                        else:
-                            df = pd.concat([df, chunk], axis=0)
-        return df
-
 
 def last_date_in_metadata(
     dataset_id: str, table_id: str, relative_month

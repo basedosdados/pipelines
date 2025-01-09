@@ -8,6 +8,8 @@ import os
 import basedosdados as bd
 import requests
 import pandas as pd
+from tqdm import tqdm
+import gc
 from dateutil.relativedelta import relativedelta
 from pipelines.utils.utils import log, to_partitions, download_and_unzip_file
 from pipelines.utils.metadata.utils import get_api_most_recent_date, get_url
@@ -63,34 +65,6 @@ def partition_data(table_id: str, dataset_id : str) -> str:
             log("---------------------------- Data partitioned ----------------------")
             return constants.TABELA_LICITACAO_CONTRATO.value[table_id]["OUTPUT"]
 
-        elif dataset_id == "br_cgu_beneficios_cidadao":
-            log(f"---------------------------- {table_id=}----------------------------")
-            if table_id == "novo_bolsa_familia":
-                to_partitions(
-                    df,
-                    partition_columns=["mes_competencia", "sigla_uf"],
-                    savepath=constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT'],
-                    file_type="parquet",
-                )
-            elif table_id == "bpc":
-                to_partitions(
-                    df,
-                    partition_columns=["mes_competencia"],
-                    savepath=constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT'],
-                    file_type="csv",
-                )
-            elif table_id == "safra_garantida":
-                to_partitions(
-                    df,
-                    partition_columns=["mes_referencia"],
-                    savepath=constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT'],
-                    file_type="parquet",
-                )
-
-            log("Partição feita.")
-
-            return constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT']
-
     elif dataset_id == "br_cgu_servidores_executivo_federal":
 
         log("---------------------------- Read data ----------------------------")
@@ -103,6 +77,79 @@ def partition_data(table_id: str, dataset_id : str) -> str:
         )
         log("---------------------------- Data partitioned ----------------------")
         return constants.TABELA_SERVIDORES.value[table_id]['OUTPUT']
+
+
+@task
+def read_and_partition_beneficios_cidadao(table_id):
+    constants_cgu_beneficios_cidadao = constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]
+    for nome_arquivo in os.listdir(constants_cgu_beneficios_cidadao['INPUT']):
+        if nome_arquivo.endswith(".csv"):
+            log(f"Carregando o arquivo: {nome_arquivo}")
+
+            df = None
+            with pd.read_csv(
+                f"{constants_cgu_beneficios_cidadao['INPUT']}{nome_arquivo}",
+                sep=";",
+                encoding="latin-1",
+                chunksize=100000,
+                decimal=",",
+                na_values="" if table_id != "bpc" else None,
+                dtype=(
+                    constants.DTYPES_NOVO_BOLSA_FAMILIA.value
+                    if table_id == "novo_bolsa_familia"
+                    else (
+                        constants.DTYPES_GARANTIA_SAFRA.value
+                        if table_id == "garantia_safra"
+                        else constants.DTYPES_BPC.value
+                    )
+                ),
+            ) as reader:
+                for chunk in tqdm(reader):
+                    chunk.rename(
+                        columns=(
+                            constants.RENAMER_NOVO_BOLSA_FAMILIA.value
+                            if table_id == "novo_bolsa_familia"
+                            else (
+                                constants.RENAMER_GARANTIA_SAFRA.value
+                                if table_id == "garantia_safra"
+                                else constants.RENAMER_BPC.value
+                            )
+                        ),
+                        inplace=True,
+                    )
+                    if df is None:
+                        df = chunk
+                    else:
+                        df = pd.concat([df, chunk], axis=0)
+
+        log(f"---------------------------- Partition Data ----------------------------")
+        if table_id == "novo_bolsa_familia":
+            to_partitions(
+                df,
+                partition_columns=["mes_competencia", "sigla_uf"],
+                savepath=constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT'],
+                file_type="parquet",
+            )
+        elif table_id == "bpc":
+            to_partitions(
+                df,
+                partition_columns=["mes_competencia"],
+                savepath=constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT'],
+                file_type="csv",
+            )
+        elif table_id == "safra_garantida":
+            to_partitions(
+                df,
+                partition_columns=["mes_referencia"],
+                savepath=constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT'],
+                file_type="parquet",
+            )
+        log("Partição feita.")
+
+        del df
+        gc.collect()
+
+        return constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT']
 
 @task
 def get_current_date_and_download_file(table_id : str,
