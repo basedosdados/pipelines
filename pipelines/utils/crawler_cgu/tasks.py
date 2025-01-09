@@ -125,28 +125,28 @@ def read_and_partition_beneficios_cidadao(table_id):
                     log(f"---------------------------- Partition Data ----------------------------")
                     if table_id == "novo_bolsa_familia":
                         to_partitions(
-                            df,
+                            chunk,
                             partition_columns=["mes_competencia", "sigla_uf"],
                             savepath=constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT'],
                             file_type="parquet",
                         )
                     elif table_id == "bpc":
                         to_partitions(
-                            df,
+                            chunk,
                             partition_columns=["mes_competencia"],
                             savepath=constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT'],
                             file_type="csv",
                         )
                     elif table_id == "safra_garantida":
                         to_partitions(
-                            df,
+                            chunk,
                             partition_columns=["mes_referencia"],
                             savepath=constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT'],
                             file_type="parquet",
                         )
                     log("Partição feita.")
 
-                    del df
+                    del chunk
                     gc.collect()
 
     return constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT']
