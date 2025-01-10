@@ -6,6 +6,7 @@ from datetime import datetime
 from prefect import task
 import os
 import basedosdados as bd
+import pyarrow as pa
 import requests
 import pandas as pd
 from tqdm import tqdm
@@ -91,7 +92,7 @@ def read_and_partition_beneficios_cidadao(table_id):
                 f"{constants_cgu_beneficios_cidadao['INPUT']}{nome_arquivo}",
                 sep=";",
                 encoding="latin-1",
-                chunksize=100000,
+                chunksize=50000,
                 decimal=",",
                 na_values="" if table_id != "bpc" else None,
                 dtype=(
@@ -119,35 +120,37 @@ def read_and_partition_beneficios_cidadao(table_id):
                     )
                     if df is None:
                         df = chunk
-                    # else:
-                    #     df = pd.concat([df, chunk], axis=0)
 
-                    log(f"---------------------------- Partition Data ----------------------------")
-                    if table_id == "novo_bolsa_familia":
-                        to_partitions(
-                            chunk,
-                            partition_columns=["mes_competencia", "sigla_uf"],
-                            savepath=constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT'],
-                            file_type="parquet",
-                        )
-                    elif table_id == "bpc":
-                        to_partitions(
-                            chunk,
-                            partition_columns=["mes_competencia"],
-                            savepath=constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT'],
-                            file_type="csv",
-                        )
-                    elif table_id == "safra_garantida":
-                        to_partitions(
-                            chunk,
-                            partition_columns=["mes_referencia"],
-                            savepath=constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT'],
-                            file_type="parquet",
-                        )
-                    log("Partição feita.")
+                    else:
+                        log("Contatenando os chunks")
+                        df = pd.concat([df, chunk], axis=0)
 
-                    del chunk
-                    gc.collect()
+    log(f"---------------------------- Partition Data ----------------------------")
+    if table_id == "novo_bolsa_familia":
+        to_partitions(
+            df,
+            partition_columns=["mes_competencia", "sigla_uf"],
+            savepath=constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT'],
+            file_type="parquet",
+        )
+    elif table_id == "bpc":
+        to_partitions(
+            df,
+            partition_columns=["mes_competencia"],
+            savepath=constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT'],
+            file_type="csv",
+        )
+    elif table_id == "safra_garantida":
+        to_partitions(
+            df,
+            partition_columns=["mes_referencia"],
+            savepath=constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT'],
+            file_type="parquet",
+        )
+    log("Partição feita.")
+
+    del chunk
+    gc.collect()
 
     return constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT']
 

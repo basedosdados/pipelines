@@ -4,7 +4,7 @@ General utilities for all pipelines.
 """
 import base64
 import json
-
+import os
 # pylint: disable=too-many-arguments
 import logging
 import re
@@ -462,8 +462,6 @@ def to_partitions(
                     file_filter_save_path,
                     index=False,
                     compression="gzip",
-                    engine="fastparquet",
-                    append=True
                 )
     else:
         raise BaseException("Data need to be a pandas DataFrame")
