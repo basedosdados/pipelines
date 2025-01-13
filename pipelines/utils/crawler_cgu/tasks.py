@@ -125,7 +125,7 @@ def read_and_partition_beneficios_cidadao(table_id):
                     else:
                         log("Contatenando os chunks")
                         df = pd.concat([df, chunk], axis=0)
-            breakpoint()
+
     log(f"---------------------------- Partition Data ----------------------------")
     if table_id == "novo_bolsa_familia":
         to_partitions(
