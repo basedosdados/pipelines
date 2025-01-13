@@ -15,7 +15,8 @@ from pipelines.utils.crawler_cgu.tasks import (
     partition_data,
     get_current_date_and_download_file,
     verify_all_url_exists_to_download,
-    read_and_partition_beneficios_cidadao
+    read_and_partition_beneficios_cidadao,
+    dict_for_table
 )
 from pipelines.utils.crawler_cgu.constants import constants as cgu_constants
 from pipelines.utils.decorators import Flow
@@ -334,7 +335,7 @@ with Flow(name="CGU - Benefícios Cidadão", code_owners=["trick"]) as flow_cgu_
     ####
     # Relative_month =  1 means that the data will be downloaded for the current month
     ####
-    relative_month = Parameter("relative_month", default=1, required=False)
+    relative_month = Parameter("relative_month", default=-1, required=False)
     materialization_mode = Parameter("materialization_mode", default="dev", required=False)
     materialize_after_dump = Parameter("materialize_after_dump", default=True, required=False)
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
@@ -402,8 +403,18 @@ with Flow(name="CGU - Benefícios Cidadão", code_owners=["trick"]) as flow_cgu_
             wait_for_materialization.retry_delay = timedelta(
                 seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
             )
-            # with case(update_metadata, True):
-            #     update_django_metadata(dict_for_table(table_id = table_id, dataset_id = dataset_id), upstream_tasks=[wait_for_materialization])
+            with case(update_metadata, True):
+                update_django_metadata(
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name=dict_for_table(table_id),
+                    date_format="%Y-%m",
+                    coverage_type="part_bdpro",
+                    time_delta={"months": 6},
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
+                    upstream_tasks=[wait_for_materialization],
+                )
 
 flow_cgu_beneficios_cidadao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 flow_cgu_beneficios_cidadao.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)

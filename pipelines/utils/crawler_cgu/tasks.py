@@ -119,12 +119,13 @@ def read_and_partition_beneficios_cidadao(table_id):
                         inplace=True,
                     )
                     if df is None:
+                        log("Testando 1")
                         df = chunk
 
                     else:
                         log("Contatenando os chunks")
                         df = pd.concat([df, chunk], axis=0)
-
+            breakpoint()
     log(f"---------------------------- Partition Data ----------------------------")
     if table_id == "novo_bolsa_familia":
         to_partitions(
@@ -140,13 +141,14 @@ def read_and_partition_beneficios_cidadao(table_id):
             savepath=constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT'],
             file_type="csv",
         )
-    elif table_id == "safra_garantida":
+    elif table_id == "garantia_safra":
         to_partitions(
             df,
             partition_columns=["mes_referencia"],
             savepath=constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT'],
             file_type="parquet",
         )
+        log(constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT'])
     log("Partição feita.")
 
     del chunk
@@ -225,39 +227,12 @@ def verify_all_url_exists_to_download(dataset_id, table_id, relative_month) -> b
     return True
 
 @task
-def dict_for_table(table_id: str, dataset_id:str) -> dict:
+def dict_for_table(table_id: str) -> dict:
 
     DICT_FOR_TABLE = {
-        "novo_bolsa_familia": {
-            "dataset_id":dataset_id,
-            "table_id": table_id,
-            "date_column_name": {"year": "ano_competencia", "month": "mes_competencia"},
-            "date_format": "%Y-%m",
-            "coverage_type": "part_bdpro",
-            "time_delta": {"months": 6},
-            "prefect_mode": "prod",
-            "bq_project": "basedosdados"
-        },
-        "safra_garantia": {
-            "dataset_id":dataset_id,
-            "table_id": table_id,
-            "date_column_name": {"year": "ano_referencia", "month": "mes_referencia"},
-            "date_format": "%Y-%m",
-            "coverage_type": "part_bdpro",
-            "time_delta": {"months": 6},
-            "prefect_mode": "prod",
-            "bq_project": "basedosdados"
-        },
-        "bpc": {
-            "dataset_id":dataset_id,
-            "table_id": table_id,
-            "date_column_name": {"year": "ano_competencia", "month": "mes_competencia"},
-            "date_format": "%Y-%m",
-            "coverage_type": "part_bdpro",
-            "time_delta": {"months": 6},
-            "prefect_mode": "prod",
-            "bq_project": "basedosdados",
-        }
+        "novo_bolsa_familia": {"year": "ano_competencia", "month": "mes_competencia"},
+        "safra_garantia": {"year": "ano_referencia", "month": "mes_referencia"},
+        "bpc": {"year": "ano_competencia", "month": "mes_competencia"},
     }
 
     return DICT_FOR_TABLE[table_id]

@@ -185,14 +185,14 @@ class constants(Enum):  # pylint: disable=c0103
             },
 
         "bpc" : {
-            "INPUT" : "/tmp/input/bpc",
-            "OUTPUT" : "/tmp/output/bpc",
+            "INPUT" : "/tmp/input/bpc/",
+            "OUTPUT" : "/tmp/output/bpc/",
             "URL" : "https://portaldatransparencia.gov.br/download-de-dados/bpc/"
             },
 
         "garantia_safra" : {
-            "INPUT" : "/tmp/input/garantia_safra",
-            "OUTPUT" : "/tmp/output/garantia_safra",
+            "INPUT" : "/tmp/input/garantia_safra/",
+            "OUTPUT" : "/tmp/output/garantia_safra/",
             "URL" : "https://portaldatransparencia.gov.br/download-de-dados/garantia-safra/"}
         }
 
