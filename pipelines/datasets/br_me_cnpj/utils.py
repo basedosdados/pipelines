@@ -123,7 +123,7 @@ def chunk_range(content_length: int, chunk_size: int) -> list[tuple[int, int]]:
 
 # from https://stackoverflow.com/a/64283770
 async def download(
-    url, chunk_size=15 * 1024 * 1024, max_retries=5, max_parallel=5, timeout=5 * 60
+    url, chunk_size=15 * 1024 * 1024, max_retries=5, max_parallel=12, timeout=5 * 60
 ):
     """
     Downloads a file from a URL asynchronously, splitting it into chunks for parallel downloading.
