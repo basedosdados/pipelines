@@ -7,8 +7,11 @@ from prefect import task
 import os
 import basedosdados as bd
 import pyarrow as pa
+import pyarrow.parquet as pq
 import requests
+
 import pandas as pd
+import dask.dataframe as dd
 from tqdm import tqdm
 import gc
 from dateutil.relativedelta import relativedelta
@@ -19,6 +22,7 @@ from pipelines.utils.crawler_cgu.utils import (
     last_date_in_metadata,
     read_and_clean_csv,
     build_urls,
+    partition_data_beneficios_cidadao
 )
 from pipelines.utils.crawler_cgu.constants import constants
 from pipelines.utils.crawler_cgu.utils import download_file
@@ -81,18 +85,20 @@ def partition_data(table_id: str, dataset_id : str) -> str:
 
 
 @task
+# https://stackoverflow.com/questions/26124417/how-to-convert-a-csv-file-to-parquet
 def read_and_partition_beneficios_cidadao(table_id):
     constants_cgu_beneficios_cidadao = constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]
     for nome_arquivo in os.listdir(constants_cgu_beneficios_cidadao['INPUT']):
         if nome_arquivo.endswith(".csv"):
             log(f"Carregando o arquivo: {nome_arquivo}")
 
-            df = None
+            parquet_file = f"{constants_cgu_beneficios_cidadao['INPUT']}{nome_arquivo.replace('.csv', '.parquet')}"
+            parquet_writer = None
             with pd.read_csv(
                 f"{constants_cgu_beneficios_cidadao['INPUT']}{nome_arquivo}",
                 sep=";",
                 encoding="latin-1",
-                chunksize=50000,
+                chunksize=100000,
                 decimal=",",
                 na_values="" if table_id != "bpc" else None,
                 dtype=(
@@ -118,30 +124,37 @@ def read_and_partition_beneficios_cidadao(table_id):
                         ),
                         inplace=True,
                     )
-                    if df is None:
-                        log("Testando 1")
-                        df = chunk
+                    if parquet_writer is None:
+                        parquet_schema = pa.Table.from_pandas(chunk).schema
+                        parquet_writer = pq.ParquetWriter(parquet_file, parquet_schema, compression='snappy')
 
-                    else:
-                        log("Contatenando os chunks")
-                        df = pd.concat([df, chunk], axis=0)
+                    # Escrever diretamente o chunk no arquivo parquet
+                    table = pa.Table.from_pandas(chunk, schema=parquet_schema)
+                    parquet_writer.write_table(table)
+
+                   #del chunk
+                    gc.collect()
+
+            if parquet_writer:
+                parquet_writer.close()
+
+            log(f"Arquivo parquet criado: {parquet_file}")
+            breakpoint()
+
+
 
     log(f"---------------------------- Partition Data ----------------------------")
     if table_id == "novo_bolsa_familia":
-        to_partitions(
-            df,
-            partition_columns=["mes_competencia", "sigla_uf"],
-            savepath=constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT'],
-            file_type="parquet",
-        )
+        df = dd.read_parquet(parquet_file)
+        partition_data_beneficios_cidadao(table_id, df, "mes_competencia", "sigla_uf")
+
     elif table_id == "bpc":
-        to_partitions(
-            df,
-            partition_columns=["mes_competencia"],
-            savepath=constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT'],
-            file_type="csv",
-        )
+        df = dd.read_parquet(parquet_file)
+        partition_data_beneficios_cidadao(table_id, df, "mes_competencia")
+
     elif table_id == "garantia_safra":
+        df = dd.read_parquet(parquet_file)
+        partition_data_beneficios_cidadao(table_id, df, "mes_competencia", "sigla_uf")
         to_partitions(
             df,
             partition_columns=["mes_referencia"],
@@ -155,6 +168,8 @@ def read_and_partition_beneficios_cidadao(table_id):
     gc.collect()
 
     return constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT']
+
+
 
 @task
 def get_current_date_and_download_file(table_id : str,

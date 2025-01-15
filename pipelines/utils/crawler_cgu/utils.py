@@ -9,6 +9,7 @@ import gc
 import shutil
 from functools import lru_cache
 from rapidfuzz import process
+import dask.dataframe as dd
 import pandas as pd
 import os
 import unidecode
@@ -456,3 +457,28 @@ def get_source(table_name: str, source: str) -> str:
     }
 
     return ORIGINS[table_name][source]
+
+import dask.dataframe as dd
+
+def partition_data_beneficios_cidadao(table_id: str, df, coluna1, coluna2) -> str:
+    if table_id == "novo_bolsa_familia" or :
+        for ano_completencia in df[coluna1].unique().compute():
+            for mes_completencia in df[coluna2].unique().compute():
+                path_partition = f"{constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT']}/{coluna1}={ano_completencia}/{coluna2}={mes_completencia}"
+                if not os.path.exists(path_partition):
+                    os.makedirs(path_partition)
+
+                df_partition = df[(df[coluna1] == ano_completencia) & (df[coluna2] == mes_completencia)].compute()
+                df_partition.drop([coluna1, coluna2], axis=1, inplace=True)
+                df_partition.to_parquet(f"{path_partition}/data.parquet", index=False)
+
+    else:
+        for mes in df[coluna1].unique().compute():
+                path_partition = f"{constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT']}/{coluna1}={mes}/"
+                if not os.path.exists(path_partition):
+                    os.makedirs(path_partition)
+
+                df_partition = df[(df[coluna1] == mes)].compute()
+                df_partition.drop([coluna1], axis=1, inplace=True)
+                df_partition.to_parquet(f"{path_partition}/data.parquet", index=False)
+
