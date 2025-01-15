@@ -122,7 +122,9 @@ def chunk_range(content_length: int, chunk_size: int) -> list[tuple[int, int]]:
     return [(i, min(i + chunk_size - 1, content_length - 1)) for i in range(0, content_length, chunk_size)]
 
 # from https://stackoverflow.com/a/64283770
-async def download(url, chunk_size=15 * 1024 * 1024, max_retries=5, max_parallel=15, timeout=5 * 60):
+async def download(
+    url, chunk_size=15 * 1024 * 1024, max_retries=5, max_parallel=12, timeout=5 * 60
+):
     """
     Downloads a file from a URL asynchronously, splitting it into chunks for parallel downloading.
 
@@ -130,7 +132,7 @@ async def download(url, chunk_size=15 * 1024 * 1024, max_retries=5, max_parallel
         url (str): The URL of the file to download.
         chunk_size (int): The size of each chunk in bytes (default: 15 MB).
         max_retries (int): Maximum number of retries allowed for each chunk (default: 5).
-        max_parallel (int): Maximum number of parallel downloads (default: 15).
+        max_parallel (int): Maximum number of parallel downloads (default: 5).
         timeout (int): Timeout for each HTTP request, in seconds (default: 5 minutes).
 
     Returns:
@@ -139,27 +141,26 @@ async def download(url, chunk_size=15 * 1024 * 1024, max_retries=5, max_parallel
     Raises:
         HTTPError: If the server responds with an error or the download fails.
     """
-    try:
-        request_head = head(url)
+    async with AsyncClient() as client:
+        try:
+            request_head = await client.head(url, timeout=timeout)
+            request_head.raise_for_status()
 
-        assert request_head.status_code == 200
-        assert request_head.headers["accept-ranges"] == "bytes"
+            assert request_head.headers["accept-ranges"] == "bytes"
+            content_length = int(request_head.headers["content-length"])
+            chunk_ranges = chunk_range(content_length, chunk_size)
+            total_chunks = len(chunk_ranges)
 
-        content_length = int(request_head.headers["content-length"])
-        chunk_ranges = chunk_range(content_length, chunk_size)
-        total_chunks = len(chunk_ranges)
+            log(
+                f"Baixando {url} com {content_length} bytes ({content_length/1e6:.2f} MB). "
+                f"Cada chunk terá tamanho de {chunk_size} bytes ({chunk_size/1e6:.2f} MB). "
+                f"Serão feitos {max_parallel} downloads paralelos por vez, com um total de {total_chunks} chunks."
+            )
 
-        log(
-            f"Baixando {url} com {content_length} bytes ({content_length/1e6:.2f} MB). "
-            f"Cada chunk terá tamanho de {chunk_size} bytes ({chunk_size/1e6:.2f} MB). "
-            f"Serão feitos {max_parallel} downloads paralelos por vez, com um total de {total_chunks} chunks."
-        )
+            semaphore = Semaphore(max_parallel)
+            progress = {"completed": 0}
+            last_logged_progress = {"percentage": 0}  # Tracks download progress
 
-        semaphore = Semaphore(max_parallel)
-        progress = {"completed": 0}
-        last_logged_progress = {"percentage": 0}  # Inicializa o progresso acumulado
-
-        async with AsyncClient() as client:
             tasks = [
                 download_chunk(
                     client, url, chunk, max_retries, timeout, semaphore, progress, total_chunks, last_logged_progress
@@ -168,9 +169,10 @@ async def download(url, chunk_size=15 * 1024 * 1024, max_retries=5, max_parallel
             ]
             return b"".join(await gather(*tasks))
 
-    except HTTPError as e:
-        log(f"Requisição mal sucedida: {e}")
-        return b""
+        except HTTPError as e:
+            log(f"Requisição mal sucedida: {e}")
+            raise e
+
 
 
 def print_progress(completed: int, total: int, last_logged_progress: dict) -> None:
