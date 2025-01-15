@@ -9,7 +9,7 @@ import basedosdados as bd
 import pyarrow as pa
 import pyarrow.parquet as pq
 import requests
-
+import polars as pl
 import pandas as pd
 import dask.dataframe as dd
 from tqdm import tqdm
@@ -132,28 +132,24 @@ def read_and_partition_beneficios_cidadao(table_id):
                     table = pa.Table.from_pandas(chunk, schema=parquet_schema)
                     parquet_writer.write_table(table)
 
-                   #del chunk
+                    del chunk
                     gc.collect()
 
             if parquet_writer:
                 parquet_writer.close()
 
             log(f"Arquivo parquet criado: {parquet_file}")
-            breakpoint()
+    log("Abrindo arquivo parquet: {parquet_file}")
+    df = pl.read_parquet(parquet_file)
 
-
-
-    log(f"---------------------------- Partition Data ----------------------------")
+    log(f"---------------------------- Partition Data: {table_id=} ----------------------------")
     if table_id == "novo_bolsa_familia":
-        df = dd.read_parquet(parquet_file)
         partition_data_beneficios_cidadao(table_id, df, "mes_competencia", "sigla_uf")
 
     elif table_id == "bpc":
-        df = dd.read_parquet(parquet_file)
         partition_data_beneficios_cidadao(table_id, df, "mes_competencia")
 
     elif table_id == "garantia_safra":
-        df = dd.read_parquet(parquet_file)
         partition_data_beneficios_cidadao(table_id, df, "mes_competencia", "sigla_uf")
         to_partitions(
             df,
