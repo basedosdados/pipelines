@@ -42,7 +42,7 @@ def partition_data(table_id: str, dataset_id : str) -> str:
         log("---------------------------- Read data ----------------------------")
         df = read_csv(dataset_id = dataset_id, table_id = table_id)
         log(df.head())
-        if dataset_id == "br_cgu_cartao_pagamento:":
+        if dataset_id == "br_cgu_cartao_pagamento":
             log(" ---------------------------- Partiting data -----------------------")
             to_partitions(
                 data = df,
@@ -76,6 +76,7 @@ def partition_data(table_id: str, dataset_id : str) -> str:
         )
         log("---------------------------- Data partitioned ----------------------")
         return constants.TABELA_SERVIDORES.value[table_id]['OUTPUT']
+
 
 @task
 def get_current_date_and_download_file(table_id : str,
