@@ -32,7 +32,7 @@ with Flow(
 ) as flow_cgu_cartao_pagamento:
 
     dataset_id = Parameter("dataset_id", default='br_cgu_cartao_pagamento',  required=True)
-    table_id = Parameter("table_id", default ="microdados_governo_federal", required=True)
+    table_id = Parameter("table_id", required=True)
     ####
     # Relative_month =  1 means that the data will be downloaded for the current month
     ####
@@ -317,3 +317,5 @@ with Flow(name="CGU - Licitacão e Contrato", code_owners=["trick"]) as flow_cgu
                 )
 flow_cgu_licitacao_contrato.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 flow_cgu_licitacao_contrato.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+
+
