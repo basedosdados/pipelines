@@ -32,7 +32,7 @@ with Flow(
 ) as flow_cgu_cartao_pagamento:
 
     dataset_id = Parameter("dataset_id", default='br_cgu_cartao_pagamento',  required=True)
-    table_id = Parameter("table_id", default ="microdados_governo_federal", required=True)
+    table_id = Parameter("table_id", required=True)
     ####
     # Relative_month =  1 means that the data will be downloaded for the current month
     ####
