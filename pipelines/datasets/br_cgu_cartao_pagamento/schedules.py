@@ -5,6 +5,7 @@ from prefect.schedules.clocks import CronClock, IntervalClock
 from pipelines.constants import constants
 from pipelines.utils.crawler_cgu.constants import constants as constants_cgu
 
+
 every_day_microdados_governo_federal = Schedule(
     clocks=[
         CronClock(
