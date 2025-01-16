@@ -175,3 +175,4 @@ class constants(Enum):  # pylint: disable=c0103
             "READ": "_TermoAditivo.csv",
         },
     }
+
