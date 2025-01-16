@@ -317,3 +317,5 @@ with Flow(name="CGU - Licitacão e Contrato", code_owners=["trick"]) as flow_cgu
                 )
 flow_cgu_licitacao_contrato.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 flow_cgu_licitacao_contrato.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+
+

@@ -2,6 +2,7 @@
 """
 General purpose functions for the br_cgu_cartao_pagamento project
 """
+
 import datetime
 from arrow import get
 from dateutil.relativedelta import relativedelta

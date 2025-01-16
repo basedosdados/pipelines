@@ -43,7 +43,7 @@ def partition_data(table_id: str, dataset_id : str) -> str:
         df = read_csv(dataset_id = dataset_id, table_id = table_id)
         log(df.head())
         if dataset_id == "br_cgu_cartao_pagamento":
-            log(" ---------------------------- Partiting data -----------------------")
+            log("---------------------------- Partiting data -----------------------")
             to_partitions(
                 data = df,
                 partition_columns=['ANO_EXTRATO', 'MES_EXTRATO'],
