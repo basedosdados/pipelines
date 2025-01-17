@@ -10,8 +10,6 @@ import gc
 import shutil
 from functools import lru_cache
 from rapidfuzz import process
-import dask.dataframe as dd
-import polars as pl
 import pandas as pd
 import os
 import unidecode

@@ -6,12 +6,8 @@ from datetime import datetime
 from prefect import task
 import os
 import basedosdados as bd
-import pyarrow as pa
-import pyarrow.parquet as pq
 import requests
-import polars as pl
 import pandas as pd
-import dask.dataframe as dd
 from tqdm import tqdm
 import gc
 from dateutil.relativedelta import relativedelta
