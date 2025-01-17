@@ -102,7 +102,6 @@ def read_and_partition_beneficios_cidadao(table_id):
     Exemplo de uso:
     output_path = parquet_partition("/caminho/para/arquivos/", "novo_bolsa_familia")
     """
-    number = 0
     constants_cgu_beneficios_cidadao = constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]
     for nome_arquivo in os.listdir(constants_cgu_beneficios_cidadao['INPUT']):
         for nome_arquivo in os.listdir(constants_cgu_beneficios_cidadao['INPUT']):
@@ -142,7 +141,7 @@ def read_and_partition_beneficios_cidadao(table_id):
                             inplace=True,
                         )
                         os.makedirs(constants_cgu_beneficios_cidadao['OUTPUT'], exist_ok=True)
-                        number =+ 1
+                        number += 1
                         log(f"Chunk {number} carregando.")
                         if table_id == "novo_bolsa_familia":
                             test_partition_data(table_id = table_id,
