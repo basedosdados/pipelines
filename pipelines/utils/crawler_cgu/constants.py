@@ -179,8 +179,8 @@ class constants(Enum):  # pylint: disable=c0103
 
     TABELA_BENEFICIOS_CIDADAO = {
         "novo_bolsa_familia" : {
-            "INPUT" : "/mnt/d/basedosdados/br_cgu_beneficios_cidadao/novo_bolsa_familia/input/",
-            "OUTPUT" : "/mnt/d/basedosdados/br_cgu_beneficios_cidadao/novo_bolsa_familia/output/",
+            "INPUT"  : "/tmp/input/novo_bolsa_familia/",
+            "OUTPUT" : "/tmp/output/novo_bolsa_familia/",
             "URL" : "https://portaldatransparencia.gov.br/download-de-dados/novo-bolsa-familia/"
             },
 
