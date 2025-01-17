@@ -491,3 +491,42 @@ def partition_data_beneficios_cidadao(table_id: str, df, coluna1: str, coluna2: 
 
             df_partition.write_parquet(f"{path_partition}/data.parquet")
 
+
+
+def test_partition_data(table_id: str, df, coluna1: str, coluna2: str, counter) -> str:
+    if table_id == "novo_bolsa_familia":
+        unique_anos = df[coluna1].unique().tolist()
+        unique_meses = df[coluna2].unique().tolist()
+
+        for ano_completencia in unique_anos:
+            for mes_completencia in unique_meses:
+                path_partition = f"{constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT']}/{coluna1}={ano_completencia}/{coluna2}={mes_completencia}"
+
+                if not os.path.exists(path_partition):
+                    os.makedirs(path_partition)
+
+                # Mudando o filter do Polars para o loc do Pandas
+                df_partition = df.loc[(df[coluna1] == ano_completencia) & (df[coluna2] == mes_completencia)]
+                # Usando drop com axis=1 para remover colunas no Pandas
+                df_partition = df_partition.drop([coluna1, coluna2], axis=1)
+
+                # Usando to_parquet do Pandas ao invés do write_parquet do Polars
+                df_partition.to_parquet(f"{path_partition}/data_{counter}.parquet")
+
+    else:
+        unique_meses = df[coluna1].unique().tolist()
+
+        for mes in unique_meses:
+            path_partition = f"{constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT']}/{coluna1}={mes}/"
+
+            if not os.path.exists(path_partition):
+                os.makedirs(path_partition)
+
+            # Mudando o filter do Polars para o loc do Pandas
+            df_partition = df.loc[df[coluna1] == mes]
+            # Usando drop com axis=1 para remover colunas no Pandas
+            df_partition = df_partition.drop([coluna1], axis=1)
+
+            # Usando to_parquet do Pandas ao invés do write_parquet do Polars
+            df_partition.to_parquet(f"{path_partition}/data_{counter}.parquet")
+

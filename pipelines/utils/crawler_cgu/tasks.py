@@ -22,7 +22,8 @@ from pipelines.utils.crawler_cgu.utils import (
     last_date_in_metadata,
     read_and_clean_csv,
     build_urls,
-    partition_data_beneficios_cidadao
+    partition_data_beneficios_cidadao,
+    test_partition_data
 )
 from pipelines.utils.crawler_cgu.constants import constants
 from pipelines.utils.crawler_cgu.utils import download_file
@@ -87,83 +88,170 @@ def partition_data(table_id: str, dataset_id : str) -> str:
 @task
 # https://stackoverflow.com/questions/26124417/how-to-convert-a-csv-file-to-parquet
 def read_and_partition_beneficios_cidadao(table_id):
+
+    """
+    Carrega arquivos CSV, realiza transformações e cria partições em um formato específico, retornando o caminho de saída.
+
+    Parâmetros:
+    - path (str): O caminho para os arquivos a serem processados.
+    - table (str): O nome da tabela (possíveis valores: "novo_bolsa_familia", "garantia_safra", "bpc").
+
+    Retorna:
+    - str: O caminho do diretório de saída onde as partições foram criadas.
+
+    Exemplo de uso:
+    output_path = parquet_partition("/caminho/para/arquivos/", "novo_bolsa_familia")
+    """
+    number = 0
     constants_cgu_beneficios_cidadao = constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]
     for nome_arquivo in os.listdir(constants_cgu_beneficios_cidadao['INPUT']):
-        if nome_arquivo.endswith(".csv"):
-            log(f"Carregando o arquivo: {nome_arquivo}")
+        for nome_arquivo in os.listdir(constants_cgu_beneficios_cidadao['INPUT']):
+            if nome_arquivo.endswith(".csv"):
+                log(f"Carregando o arquivo: {nome_arquivo}")
 
-            parquet_file = f"{constants_cgu_beneficios_cidadao['INPUT']}{nome_arquivo.replace('.csv', '.parquet')}"
-            parquet_writer = None
-            with pd.read_csv(
-                f"{constants_cgu_beneficios_cidadao['INPUT']}{nome_arquivo}",
-                sep=";",
-                encoding="latin-1",
-                chunksize=100000,
-                decimal=",",
-                na_values="" if table_id != "bpc" else None,
-                dtype=(
-                    constants.DTYPES_NOVO_BOLSA_FAMILIA.value
-                    if table_id == "novo_bolsa_familia"
-                    else (
-                        constants.DTYPES_GARANTIA_SAFRA.value
-                        if table_id == "garantia_safra"
-                        else constants.DTYPES_BPC.value
-                    )
-                ),
-            ) as reader:
-                for chunk in tqdm(reader):
-                    chunk.rename(
-                        columns=(
-                            constants.RENAMER_NOVO_BOLSA_FAMILIA.value
-                            if table_id == "novo_bolsa_familia"
-                            else (
-                                constants.RENAMER_GARANTIA_SAFRA.value
-                                if table_id == "garantia_safra"
-                                else constants.RENAMER_BPC.value
+                df = None
+                with pd.read_csv(
+                    f"{constants_cgu_beneficios_cidadao['INPUT']}{nome_arquivo}",
+                    sep=";",
+                    encoding="latin-1",
+                    chunksize=500000,
+                    decimal=",",
+                    na_values="" if table_id != "bpc" else None,
+                    dtype=(
+                        constants.DTYPES_NOVO_BOLSA_FAMILIA.value
+                        if table_id == "novo_bolsa_familia"
+                        else (
+                            constants.DTYPES_GARANTIA_SAFRA.value
+                            if table_id == "garantia_safra"
+                            else constants.DTYPES_BPC.value
+                        )
+                    ),
+                ) as reader:
+                    number = 0
+                    for chunk in tqdm(reader):
+                        chunk.rename(
+                            columns=(
+                                constants.RENAMER_NOVO_BOLSA_FAMILIA.value
+                                if table_id == "novo_bolsa_familia"
+                                else (
+                                    constants.RENAMER_GARANTIA_SAFRA.value
+                                    if table_id == "garantia_safra"
+                                    else constants.RENAMER_BPC.value
+                                )
+                            ),
+                            inplace=True,
+                        )
+                        os.makedirs(constants_cgu_beneficios_cidadao['OUTPUT'], exist_ok=True)
+                        number =+ 1
+                        log(f"Chunk {number} carregando.")
+                        if table_id == "novo_bolsa_familia":
+                            test_partition_data(table_id = table_id,
+                                                df = chunk,
+                                                coluna1 = "mes_competencia",
+                                                coluna2 = "sigla_uf",
+                                                counter = number)
+                        elif table_id == "bpc":
+                            to_partitions(
+                                df,
+                                partition_columns=["mes_competencia"],
+                                savepath=constants_cgu_beneficios_cidadao['OUTPUT'],
+                                file_type="csv",
                             )
-                        ),
-                        inplace=True,
-                    )
-                    if parquet_writer is None:
-                        parquet_schema = pa.Table.from_pandas(chunk).schema
-                        parquet_writer = pq.ParquetWriter(parquet_file, parquet_schema, compression='snappy')
+                        else:
+                            to_partitions(
+                                df,
+                                partition_columns=["mes_referencia"],
+                                savepath=constants_cgu_beneficios_cidadao['OUTPUT'],
+                                file_type="parquet",
+                            )
 
-                    # Escrever diretamente o chunk no arquivo parquet
-                    table = pa.Table.from_pandas(chunk, schema=parquet_schema)
-                    parquet_writer.write_table(table)
+                        del chunk
+                        gc.collect()
 
-                    del chunk
-                    gc.collect()
+                    log("Partição feita.")
 
-            if parquet_writer:
-                parquet_writer.close()
+                return constants_cgu_beneficios_cidadao['OUTPUT']
 
-            log(f"Arquivo parquet criado: {parquet_file}")
-    log("Abrindo arquivo parquet: {parquet_file}")
-    df = pl.read_parquet(parquet_file)
+# @task
+# # https://stackoverflow.com/questions/26124417/how-to-convert-a-csv-file-to-parquet
+# def read_and_partition_beneficios_cidadao(table_id):
+#     constants_cgu_beneficios_cidadao = constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]
+#     for nome_arquivo in os.listdir(constants_cgu_beneficios_cidadao['INPUT']):
+#         if nome_arquivo.endswith(".csv"):
+#             log(f"Carregando o arquivo: {nome_arquivo}")
 
-    log(f"---------------------------- Partition Data: {table_id=} ----------------------------")
-    if table_id == "novo_bolsa_familia":
-        partition_data_beneficios_cidadao(table_id, df, "mes_competencia", "sigla_uf")
+#             parquet_file = f"{constants_cgu_beneficios_cidadao['INPUT']}{nome_arquivo.replace('.csv', '.parquet')}"
+#             parquet_writer = None
+#             with pd.read_csv(
+#                 f"{constants_cgu_beneficios_cidadao['INPUT']}{nome_arquivo}",
+#                 sep=";",
+#                 encoding="latin-1",
+#                 chunksize=100000,
+#                 decimal=",",
+#                 na_values="" if table_id != "bpc" else None,
+#                 dtype=(
+#                     constants.DTYPES_NOVO_BOLSA_FAMILIA.value
+#                     if table_id == "novo_bolsa_familia"
+#                     else (
+#                         constants.DTYPES_GARANTIA_SAFRA.value
+#                         if table_id == "garantia_safra"
+#                         else constants.DTYPES_BPC.value
+#                     )
+#                 ),
+#             ) as reader:
+#                 for chunk in tqdm(reader):
+#                     chunk.rename(
+#                         columns=(
+#                             constants.RENAMER_NOVO_BOLSA_FAMILIA.value
+#                             if table_id == "novo_bolsa_familia"
+#                             else (
+#                                 constants.RENAMER_GARANTIA_SAFRA.value
+#                                 if table_id == "garantia_safra"
+#                                 else constants.RENAMER_BPC.value
+#                             )
+#                         ),
+#                         inplace=True,
+#                     )
+#                     if parquet_writer is None:
+#                         parquet_schema = pa.Table.from_pandas(chunk).schema
+#                         parquet_writer = pq.ParquetWriter(parquet_file, parquet_schema, compression='snappy')
 
-    elif table_id == "bpc":
-        partition_data_beneficios_cidadao(table_id, df, "mes_competencia")
+#                     # Escrever diretamente o chunk no arquivo parquet
+#                     table = pa.Table.from_pandas(chunk, schema=parquet_schema)
+#                     parquet_writer.write_table(table)
 
-    elif table_id == "garantia_safra":
-        partition_data_beneficios_cidadao(table_id, df, "mes_competencia", "sigla_uf")
-        to_partitions(
-            df,
-            partition_columns=["mes_referencia"],
-            savepath=constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT'],
-            file_type="parquet",
-        )
-        log(constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT'])
-    log("Partição feita.")
+#                     del chunk
+#                     gc.collect()
 
-    del chunk
-    gc.collect()
+#             if parquet_writer:
+#                 parquet_writer.close()
 
-    return constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT']
+#             log(f"Arquivo parquet criado: {parquet_file}")
+#     log("Abrindo arquivo parquet: {parquet_file}")
+#     df = pl.read_parquet(parquet_file)
+
+#     log(f"---------------------------- Partition Data: {table_id=} ----------------------------")
+#     if table_id == "novo_bolsa_familia":
+#         partition_data_beneficios_cidadao(table_id, df, "mes_competencia", "sigla_uf")
+
+#     elif table_id == "bpc":
+#         partition_data_beneficios_cidadao(table_id, df, "mes_competencia")
+
+#     elif table_id == "garantia_safra":
+#         partition_data_beneficios_cidadao(table_id, df, "mes_competencia", "sigla_uf")
+#         to_partitions(
+#             df,
+#             partition_columns=["mes_referencia"],
+#             savepath=constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT'],
+#             file_type="parquet",
+#         )
+#         log(constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT'])
+#     log("Partição feita.")
+
+#     del chunk
+#     gc.collect()
+
+#     return constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT']
 
 
 
