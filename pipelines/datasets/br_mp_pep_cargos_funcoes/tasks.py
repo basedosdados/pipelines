@@ -242,7 +242,7 @@ def scraper(
                 if href not in urls:
                     return href
             except (NoSuchElementException, StaleElementReferenceException):
-                time.sleep(1.0)
+                time.sleep(3.0)
                 continue
 
         raise Exception("Timeout")
@@ -279,7 +279,7 @@ def scraper(
         log("Send to excel clicked")
 
         log("Exporting...")
-        xlsx_href = wait_for_export(xlsx_hrefs)
+        xlsx_href = wait_for_export(xlsx_hrefs, timeout = 60 * 20)
 
         xlsx_hrefs.append((year, xlsx_href))
 
