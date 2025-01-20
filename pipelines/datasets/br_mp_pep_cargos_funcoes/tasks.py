@@ -412,6 +412,7 @@ def is_up_to_date(headless: bool = True) -> bool:
     options.add_argument("--crash-dumps-dir=/tmp")
     options.add_argument("--remote-debugging-port=9222")
     options.add_argument("--window-size=1920,1080")
+    options.add_argument("--ignore-ssl-errors=yes")
 
     if headless:
         options.add_argument("--headless=new")
