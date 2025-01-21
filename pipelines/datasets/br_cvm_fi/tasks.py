@@ -470,7 +470,7 @@ def clean_data_make_partitions_perfil(diretorio, table_id):
         df_final[colunas_mapeamento] = df_final[colunas_mapeamento].applymap(
             lambda x: cvm_constants.MAPEAMENTO.value.get(x, x)
         )
-        df_final["CNPJ_FUNDO"] = df_final["CNPJ_FUNDO"].str.replace(r"[/.-]", "")
+        df_final["CNPJ_FUNDO_CLASSE"] = df_final["CNPJ_FUNDO_CLASSE"].str.replace(r"[/.-]", "")
         df_final["CPF_CNPJ_COMITENTE_1"] = df_final["CPF_CNPJ_COMITENTE_1"].str.replace(
             r"[/.-]", ""
         )
