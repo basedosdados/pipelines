@@ -7,7 +7,7 @@ import os
 import unicodedata
 from datetime import datetime
 import time
-
+from typing import Tuple
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
@@ -105,67 +105,66 @@ def remove_accent(input_str: pd.DataFrame, pattern: str = "all") -> pd.DataFrame
     return input_str
 
 
-def parse_date_parse_files(url: str, retries: int = 3, backoff_factor: int = 2) -> Tuple[datetime, List[str]]:
+def parse_api_metadata(url: str, headers: dict = None) -> pd.DataFrame:
+
+    log('Fazendo request para a url: ', url)
+
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+
+    soup = BeautifulSoup(response.text, "html.parser")
+    elementos = soup.find_all("a")
+
+    log('Extraindo nomes de arquivos e datas de atualização')
+
+    nomes_arquivos =  [arquivo.find_parent('td') for arquivo in elementos if arquivo.has_attr('href') and 'csv' in arquivo['href']]
+    data_atualizacao_arquivos = [data_atualizacao.find_next_sibling('td') for data_atualizacao in nomes_arquivos if data_atualizacao.find_next_sibling('td').get('align') == 'right']
+    data_atualizacao_arquivos_formatada = [datetime.strptime(a.text.strip(), "%Y-%m-%d %H:%M").date() for a in data_atualizacao_arquivos]
+
+
+    if len(nomes_arquivos_text) != len(data_atualizacao_arquivos_formatada):
+        raise ValueError(
+            f"A quantidade de arquivos ({len(nomes_arquivos_text)}) difere da quantidade de datas ({len(data_atualizacao_arquivos_formatada)}). Verifique o FTP da Receita Federal {url}"
+        )
+
+    df =  pd.DataFrame(
+        {
+        'nome_arquivo':nomes_arquivos,
+        'data_atualizacao':data_atualizacao_arquivos_formatada
+        }
+    )
+    log('Extração finalizada')
+    return df
+
+def decide_files_to_download(df: pd.DataFrame, data_especifica: datetime.date = None, data_maxima: bool = True) -> tuple[list[str],list[datetime]]:
     """
-    Faz o parse da data de atualização e dos links de download dos arquivos.
+    Decide quais arquivos baixar a depender da necessidade de atualização
 
-    Args:
-        url (str): A URL do FTP do CAFIR da Receita Federal.
-        retries (int): Número de tentativas em caso de falha por timeout.
-        backoff_factor (int): Fator de espera exponencial entre tentativas.
+    Parâmetros:
+    df (pd.DataFrame): DataFrame contendo informações dos arquivos, incluindo a data de atualização e o nome do arquivo.
+    data_especifica (datetime.date, opcional): Data específica para filtrar os arquivos.
+    data_maxima (bool): Se True, retorna os arquivos com a data de atualização mais recente. Padrão é True.
 
-    Returns:
-        Tuple[datetime, List[str]]: Retorna uma tupla com a data de atualização e os nomes dos arquivos.
+    Retorna:
+    tuple: Uma tupla contendo uma lista de nomes de arquivos que atendem aos critérios fornecidos e a data correspondente.
+
+    Levanta:
+    ValueError: Se não houver arquivos disponíveis para a data específica fornecida.
     """
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Accept-Language": "pt-BR,pt;q=0.8,en-US;q=0.5,en;q=0.3",
-        "Sec-GPC": "1",
-        "Upgrade-Insecure-Requests": "1",
-        "Sec-Fetch-Dest": "document",
-        "Sec-Fetch-Mode": "navigate",
-        "Sec-Fetch-Site": "same-origin",
-        "Sec-Fetch-User": "?1",
-        "Priority": "u=0, i",
-    }
+    #TODO: Aqui caberia um check da qte de arquivos seleciondos. As vezes alguns arquiivos são atualizados depois de outrs
+    if data_maxima:
+        max_date = df['data_atualizacao'].max()
+        log(f"Os arquivos serão selecionados utiliozando a data de atualização mais recente: {max_date}")
+        return df[df['data_atualizacao'] == max_date]['nome_arquivo'].tolist(), max_date
 
-    xpath_release_date = "tr td:nth-of-type(3)"
-    attempt = 0
+    elif data_especifica:
+        filtered_df = df[df['data_atualizacao'] == data_especifica]
+        if filtered_df.empty:
+            raise ValueError(f"Não há arquivos disponíveis para a data {data_especifica}. Verifique o FTP da Receita Federal.")
+        return filtered_df['nome_arquivo'].tolist(), data_especifica
 
-    while attempt < retries:
-        try:
-            response = requests.get(url, headers=headers, timeout=(10, 30))
-
-            # Checa se a requisição foi bem-sucedida
-            if response.status_code == 200:
-                soup = BeautifulSoup(response.text, "html.parser")
-
-                # 1. Parsing da data de atualização
-                td_elements = soup.select(xpath_release_date)
-                td_texts = [td.get_text(strip=True)[:10] for td in td_elements]
-                release_data = datetime.strptime(td_texts[3], "%Y-%m-%d").date()
-                log(f"Release date: {release_data}")
-
-                # 2. Parsing dos nomes dos arquivos
-                a_elements = soup.find_all("a")
-                href_values = [a["href"] for a in a_elements if a.has_attr("href")]
-                files_name = [href for href in href_values if "csv" in href]
-                log(f"Files name: {files_name}")
-
-                return release_data, files_name
-
-            else:
-                log(f"Erro na requisição: {response.status_code}")
-                raise requests.RequestException(f"HTTP {response.status_code}")
-
-        except (requests.Timeout, requests.ConnectionError) as e:
-            attempt += 1
-            wait_time = backoff_factor ** attempt
-            log(f"Erro: {e}. Tentando novamente em {wait_time} segundos...")
-            time.sleep(wait_time)
-
-    raise TimeoutError("Falha após várias tentativas de conectar ao servidor.")
+    else:
+        raise ValueError("Critérios inválidos: deve-se selecionar pelo menos um dos parâmetros 'data_maxima', 'dados_historicos' ou 'data_especifica'.")
 
 
 

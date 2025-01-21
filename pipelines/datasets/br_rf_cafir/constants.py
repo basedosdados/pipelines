@@ -8,7 +8,20 @@ from enum import Enum
 
 
 class constants(Enum):
-    URL = ["https://dadosabertos.rfb.gov.br/dados/cafir/"]
+    URL = ["https://arquivos.receitafederal.gov.br/cafir/"]
+
+    HEADERS = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "pt-BR,pt;q=0.8,en-US;q=0.5,en;q=0.3",
+        "Sec-GPC": "1",
+        "Upgrade-Insecure-Requests": "1",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "same-origin",
+        "Sec-Fetch-User": "?1",
+        "Priority": "u=0, i",
+    }
 
     PATH = [
         "/tmp/input/br_rf_cafir",
