@@ -4,7 +4,6 @@ General utilities for all pipelines.
 """
 import base64
 import json
-import os
 # pylint: disable=too-many-arguments
 import logging
 import re
