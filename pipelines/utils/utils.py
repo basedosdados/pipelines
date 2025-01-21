@@ -459,9 +459,7 @@ def to_partitions(
                 # append data to parquet
                 file_filter_save_path = Path(filter_save_path) / "data.parquet"
                 df_filter.to_parquet(
-                    file_filter_save_path,
-                    index=False,
-                    compression="gzip",
+                    file_filter_save_path, index=False, compression="gzip"
                 )
     else:
         raise BaseException("Data need to be a pandas DataFrame")

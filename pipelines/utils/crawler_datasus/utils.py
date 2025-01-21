@@ -62,8 +62,8 @@ def  dbf_to_parquet(dbf: str, table_id: str, counter: int, chunk_size:int) -> st
     os.makedirs(output_path, exist_ok=True)
 
     counter_chunk = 0
+    count = 0
     try:
-
         for chunk in stream_dbf(DBF(path, encoding="iso-8859-1", raw=True), chunk_size=chunk_size):
 
             chunk_df = pd.DataFrame(chunk)
@@ -77,22 +77,26 @@ def  dbf_to_parquet(dbf: str, table_id: str, counter: int, chunk_size:int) -> st
 
             log(f'---- {counter}')
             parquet_filename = f"{table_id}_{counter}_{counter_chunk}.parquet"
+            log(f'{parquet_filename=}')
             parquet_filepath = os.path.join(output_path, parquet_filename)
+            log(f'{parquet_filepath=}')
             pq.write_table(table, where=str(parquet_filepath))
             counter_chunk += 1
-
             if table_id == "microdados_dengue":
-                log(f'---- post processing {table_id=}')
+
                 df = pd.read_parquet(parquet_filepath)
+                log(parquet_filepath)
+                count += df.shape[0]
+                log(count)
 
                 df = post_process_microdados_dengue(df)
 
                 df.to_parquet(parquet_filepath, index=None, compression='gzip')
+                log(parquet_filepath)
 
                 del df
 
                 gc.collect()
-
 
 
 

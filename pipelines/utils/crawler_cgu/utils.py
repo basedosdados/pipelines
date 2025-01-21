@@ -459,40 +459,9 @@ def get_source(table_name: str, source: str) -> str:
     return ORIGINS[table_name][source]
 
 
-def partition_data_beneficios_cidadao(table_id: str, df, coluna1: str, coluna2: str = None) -> str:
-    if table_id == "novo_bolsa_familia":
-        unique_anos = df[coluna1].unique().to_list()
-        unique_meses = df[coluna2].unique().to_list()
-
-        for ano_completencia in unique_anos:
-            for mes_completencia in unique_meses:
-                path_partition = f"{constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT']}/{coluna1}={ano_completencia}/{coluna2}={mes_completencia}"
-
-                if not os.path.exists(path_partition):
-                    os.makedirs(path_partition)
-
-                df_partition = df.filter((df[coluna1] == ano_completencia) & (df[coluna2] == mes_completencia))
-                df_partition = df_partition.drop([coluna1, coluna2])
-
-                df_partition.write_parquet(f"{path_partition}/data.parquet")
-
-    else:
-        unique_meses = df[coluna1].unique().to_list()
-
-        for mes in unique_meses:
-            path_partition = f"{constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT']}/{coluna1}={mes}/"
-
-            if not os.path.exists(path_partition):
-                os.makedirs(path_partition)
-
-            df_partition = df.filter(df[coluna1] == mes)
-            df_partition = df_partition.drop([coluna1])
-
-            df_partition.write_parquet(f"{path_partition}/data.parquet")
 
 
-
-def test_partition_data(table_id: str, df, coluna1: str, coluna2: str, counter) -> str:
+def partition_data_beneficios_cidadao(table_id: str, df, coluna1: str, coluna2: str, counter) -> str:
     if table_id == "novo_bolsa_familia":
         unique_anos = df[coluna1].unique().tolist()
         unique_meses = df[coluna2].unique().tolist()
