@@ -13,9 +13,10 @@ from prefect import task
 from pipelines.datasets.br_rf_cafir.constants import constants as br_rf_cafir_constants
 from pipelines.datasets.br_rf_cafir.utils import (
     download_csv_files,
-    parse_date_parse_files,
     preserve_zeros,
     remove_accent,
+    parse_api_metadata,
+    decide_files_to_download,
     remove_non_ascii_from_df,
     strip_string,
 )
@@ -27,37 +28,32 @@ from pipelines.constants import constants
     max_retries=2,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def parse_files_parse_date(url) -> tuple[list[datetime], list[str]]:
-    """Extrai os nomes dos arquivos e a data de disponibilização dos dados no FTP
+def parse_api_metadata(url: str, headers:dict) -> pd.DataFrame:
+    return parse_api_metadata(url=url, headers=headers)
 
-    Args:
-        url (string): URL do FTP
-
-    Returns:
-        Tuple: Retorna uma tupla com duas listas. A primeira contém uma lista de datas de atualização dos dados e a segunda contém uma lista com os nomes dos arquivos.
-    """
-    log("########  download_files_parse_data  ########")
-
-    date_files = parse_date_parse_files(url)
-
-    return date_files
+@task(
+    max_retries=2,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def decide_files_to_download(df: pd.DataFrame, data_especifica: datetime.date = None, data_maxima: bool = True) -> tuple[list[str],list[datetime]]:
+    return decide_files_to_download(df=df, data_especifica=data_especifica, data_maxima=data_maxima)
 
 
 @task(
     max_retries=3,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def parse_data(url: str, other_task_output: tuple[list[datetime], list[str]]) -> str:
+def parse_data(url: str, file_list: list[str], data_atualizacao:[datetime.date]) -> str:
     """Essa task faz o download dos arquivos do FTP, faz o parse dos dados e salva os arquivos em um diretório temporário.
 
     Returns:
         str: Caminho do diretório temporário
     """
 
-    date = other_task_output[0]
+    date = data_atualizacao
     log(f"###### Extraindo dados para data: {date}")
 
-    files_list = other_task_output[1]
+    files_list = file_list
     log(f"###### Extraindo files: {files_list}")
 
     # inicializa counter para ser usado na nomeação dos arquivos repetindo o padrão de divulgação dos dados
