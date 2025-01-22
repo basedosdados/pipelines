@@ -54,9 +54,6 @@ def parse_data(url: str, file_list: list[str], data_atualizacao:[datetime.date],
     files_list = file_list
     log(f"------ Os seguintes arquivos foram selecionados para download: {files_list}")
 
-
-    files_list = files_list[1:3]
-
     for file in files_list:
 
 
@@ -64,8 +61,6 @@ def parse_data(url: str, file_list: list[str], data_atualizacao:[datetime.date],
 
         # monta url
         complete_url = url + file
-
-
 
         # baixa arquivo
         download_csv_files(
@@ -113,7 +108,6 @@ def parse_data(url: str, file_list: list[str], data_atualizacao:[datetime.date],
             + file.split(".")[-2]
             + ".csv"
         )
-
 
         df.to_csv(save_path, index=False, sep=",", na_rep="", encoding="utf-8",escapechar='\\')
 
