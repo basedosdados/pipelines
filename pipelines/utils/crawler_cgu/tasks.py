@@ -8,6 +8,8 @@ import os
 import basedosdados as bd
 import requests
 import pandas as pd
+from tqdm import tqdm
+import gc
 from dateutil.relativedelta import relativedelta
 from pipelines.utils.utils import log, to_partitions, download_and_unzip_file
 from pipelines.utils.metadata.utils import get_api_most_recent_date, get_url
@@ -16,6 +18,7 @@ from pipelines.utils.crawler_cgu.utils import (
     last_date_in_metadata,
     read_and_clean_csv,
     build_urls,
+    partition_data_beneficios_cidadao,
 )
 from pipelines.utils.crawler_cgu.constants import constants
 from pipelines.utils.crawler_cgu.utils import download_file
@@ -41,9 +44,8 @@ def partition_data(table_id: str, dataset_id : str) -> str:
     if dataset_id in ["br_cgu_cartao_pagamento", "br_cgu_licitacao_contrato"]:
         log("---------------------------- Read data ----------------------------")
         df = read_csv(dataset_id = dataset_id, table_id = table_id)
-        log(df.head())
         if dataset_id == "br_cgu_cartao_pagamento":
-            log("---------------------------- Partiting data -----------------------")
+            log(" ---------------------------- Partiting data -----------------------")
             to_partitions(
                 data = df,
                 partition_columns=['ANO_EXTRATO', 'MES_EXTRATO'],
@@ -76,6 +78,93 @@ def partition_data(table_id: str, dataset_id : str) -> str:
         )
         log("---------------------------- Data partitioned ----------------------")
         return constants.TABELA_SERVIDORES.value[table_id]['OUTPUT']
+
+
+@task
+# https://stackoverflow.com/questions/26124417/how-to-convert-a-csv-file-to-parquet
+def read_and_partition_beneficios_cidadao(table_id):
+
+    """
+    Carrega arquivos CSV, realiza transformações e cria partições em um formato específico, retornando o caminho de saída.
+
+    Parâmetros:
+    - path (str): O caminho para os arquivos a serem processados.
+    - table (str): O nome da tabela (possíveis valores: "novo_bolsa_familia", "garantia_safra", "bpc").
+
+    Retorna:
+    - str: O caminho do diretório de saída onde as partições foram criadas.
+
+    Exemplo de uso:
+    output_path = parquet_partition("/caminho/para/arquivos/", "novo_bolsa_familia")
+    """
+    constants_cgu_beneficios_cidadao = constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]
+    for nome_arquivo in os.listdir(constants_cgu_beneficios_cidadao['INPUT']):
+        for nome_arquivo in os.listdir(constants_cgu_beneficios_cidadao['INPUT']):
+            if nome_arquivo.endswith(".csv"):
+                log(f"Carregando o arquivo: {nome_arquivo}")
+
+                df = None
+                with pd.read_csv(
+                    f"{constants_cgu_beneficios_cidadao['INPUT']}{nome_arquivo}",
+                    sep=";",
+                    encoding="latin-1",
+                    chunksize=500000,
+                    decimal=",",
+                    na_values="" if table_id != "bpc" else None,
+                    dtype=(
+                        constants.DTYPES_NOVO_BOLSA_FAMILIA.value
+                        if table_id == "novo_bolsa_familia"
+                        else (
+                            constants.DTYPES_GARANTIA_SAFRA.value
+                            if table_id == "garantia_safra"
+                            else constants.DTYPES_BPC.value
+                        )
+                    ),
+                ) as reader:
+                    number = 0
+                    for chunk in tqdm(reader):
+                        chunk.rename(
+                            columns=(
+                                constants.RENAMER_NOVO_BOLSA_FAMILIA.value
+                                if table_id == "novo_bolsa_familia"
+                                else (
+                                    constants.RENAMER_GARANTIA_SAFRA.value
+                                    if table_id == "garantia_safra"
+                                    else constants.RENAMER_BPC.value
+                                )
+                            ),
+                            inplace=True,
+                        )
+                        os.makedirs(constants_cgu_beneficios_cidadao['OUTPUT'], exist_ok=True)
+                        number += 1
+                        log(f"Chunk {number} carregando.")
+                        if table_id == "novo_bolsa_familia":
+                            partition_data_beneficios_cidadao(table_id = table_id,
+                                                df = chunk,
+                                                coluna1 = "mes_competencia",
+                                                coluna2 = "sigla_uf",
+                                                counter = number)
+                        elif table_id == "bpc":
+                            to_partitions(
+                                df,
+                                partition_columns=["mes_competencia"],
+                                savepath=constants_cgu_beneficios_cidadao['OUTPUT'],
+                                file_type="csv",
+                            )
+                        else:
+                            to_partitions(
+                                df,
+                                partition_columns=["mes_referencia"],
+                                savepath=constants_cgu_beneficios_cidadao['OUTPUT'],
+                                file_type="parquet",
+                            )
+
+                        del chunk
+                        gc.collect()
+
+                    log("Partição feita.")
+
+                return constants_cgu_beneficios_cidadao['OUTPUT']
 
 
 @task
@@ -147,3 +236,14 @@ def verify_all_url_exists_to_download(dataset_id, table_id, relative_month) -> b
 
         log(f"A URL {url=} existe!")
     return True
+
+@task
+def dict_for_table(table_id: str) -> dict:
+
+    DICT_FOR_TABLE = {
+        "novo_bolsa_familia": {"year": "ano_competencia", "month": "mes_competencia"},
+        "safra_garantia": {"year": "ano_referencia", "month": "mes_referencia"},
+        "bpc": {"year": "ano_competencia", "month": "mes_competencia"},
+    }
+
+    return DICT_FOR_TABLE[table_id]

@@ -64,7 +64,7 @@ br_cgu_licitacao_contrato__licitacao_empenho.name = ("br_cgu_licitacao_contrato.
 br_cgu_licitacao_contrato__licitacao_empenho.code_owners = ["trick"]
 br_cgu_licitacao_contrato__licitacao_empenho.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_cgu_licitacao_contrato__licitacao_empenho.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_cgu_licitacao_contrato__licitacao_empenho.schedule = (every_day_licitacao_empenho)
+# br_cgu_licitacao_contrato__licitacao_empenho.schedule = (every_day_licitacao_empenho)
 
 # ! ------------------ Licitação Item ------------------
 
