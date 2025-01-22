@@ -53,7 +53,7 @@ def build_urls(dataset_id: str, url: str, year: int, month: int, table_id: str) 
 
     log(f"{dataset_id=}")
 
-    if dataset_id in ["br_cgu_cartao_pagamento", "br_cgu_licitacao_contrato"]:
+    if dataset_id in ["br_cgu_cartao_pagamento", "br_cgu_licitacao_contrato", "br_cgu_beneficios_cidadao"]:
         log(f"{url}{year}{str(month).zfill(2)}/")
 
         return f"{url}{year}{str(month).zfill(2)}/"
@@ -64,6 +64,7 @@ def build_urls(dataset_id: str, url: str, year: int, month: int, table_id: str) 
             url_completa = f"{url}{year}{str(month).zfill(2)}_{table_name}/"
             list_url.append(url_completa)
         return list_url
+
 
 def build_input(table_id):
     """
@@ -111,13 +112,15 @@ def download_file(dataset_id: str, table_id: str, year: int, month: int, relativ
     str: The last date in the API if the URL is not found.
     """
 
-    if dataset_id in ["br_cgu_cartao_pagamento", "br_cgu_licitacao_contrato"]:
+    if dataset_id in ["br_cgu_cartao_pagamento", "br_cgu_licitacao_contrato", "br_cgu_beneficios_cidadao"]:
         if dataset_id == "br_cgu_cartao_pagamento":
             value_constants = constants.TABELA.value[table_id] # ! CGU - Cartão de Pagamento
         elif dataset_id == "br_cgu_licitacao_contrato":
             value_constants = constants.TABELA_LICITACAO_CONTRATO.value[table_id]
-
+        elif dataset_id == "br_cgu_beneficios_cidadao":
+            value_constants = constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]
         input = value_constants["INPUT"]
+
         if not os.path.exists(input):
             os.makedirs(input)
 
@@ -156,8 +159,7 @@ def download_file(dataset_id: str, table_id: str, year: int, month: int, relativ
             return last_date_in_api
 
     elif dataset_id == "br_cgu_servidores_executivo_federal":
-
-        constants_cgu_servidores = constants.TABELA_SERVIDORES.value[table_id]  # ! CGU - Servidores Públicos do Executivo Federal
+        constants_cgu = constants.TABELA_SERVIDORES.value[table_id]  # ! CGU - Servidores Públicos do Executivo Federal
 
         url = build_urls(
             dataset_id,
@@ -171,17 +173,16 @@ def download_file(dataset_id: str, table_id: str, year: int, month: int, relativ
         log(input_dirs)
         for urls, input_dir in zip(url, input_dirs):
             if requests.get(urls).status_code == 200:
-                destino = f"{constants_cgu_servidores['INPUT']}/{input_dir}"
+                destino = f"{constants_cgu['INPUT']}/{input_dir}"
                 download_and_unzip_file(urls, destino)
 
                 last_date_in_api, next_date_in_api = last_date_in_metadata(
-                    dataset_id="br_cgu_servidores_executivo_federal",
+                    dataset_id=dataset_id,
                     table_id=table_id,
                     relative_month=relative_month,
                 )
 
         return next_date_in_api
-
 
 # Função para carregar o dataframe
 @lru_cache(maxsize=1)  # Cache para evitar recarregar a tabela
@@ -278,6 +279,7 @@ def read_csv(
                 df["municipio"] = df["municipio"].apply(lambda x: x if x == None else x.split("-")[0])
 
         return df
+
 
 def last_date_in_metadata(
     dataset_id: str, table_id: str, relative_month
@@ -455,3 +457,41 @@ def get_source(table_name: str, source: str) -> str:
     }
 
     return ORIGINS[table_name][source]
+
+def partition_data_beneficios_cidadao(table_id: str, df, coluna1: str, coluna2: str, counter) -> str:
+    if table_id == "novo_bolsa_familia":
+        unique_anos = df[coluna1].unique().tolist()
+        unique_meses = df[coluna2].unique().tolist()
+
+        for ano_completencia in unique_anos:
+            for mes_completencia in unique_meses:
+                path_partition = f"{constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT']}/{coluna1}={ano_completencia}/{coluna2}={mes_completencia}"
+
+                if not os.path.exists(path_partition):
+                    os.makedirs(path_partition)
+
+                # Mudando o filter do Polars para o loc do Pandas
+                df_partition = df.loc[(df[coluna1] == ano_completencia) & (df[coluna2] == mes_completencia)]
+                # Usando drop com axis=1 para remover colunas no Pandas
+                df_partition = df_partition.drop([coluna1, coluna2], axis=1)
+
+                # Usando to_parquet do Pandas ao invés do write_parquet do Polars
+                df_partition.to_parquet(f"{path_partition}/data_{counter}.parquet")
+
+    else:
+        unique_meses = df[coluna1].unique().tolist()
+
+        for mes in unique_meses:
+            path_partition = f"{constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT']}/{coluna1}={mes}/"
+
+            if not os.path.exists(path_partition):
+                os.makedirs(path_partition)
+
+            # Mudando o filter do Polars para o loc do Pandas
+            df_partition = df.loc[df[coluna1] == mes]
+            # Usando drop com axis=1 para remover colunas no Pandas
+            df_partition = df_partition.drop([coluna1], axis=1)
+
+            # Usando to_parquet do Pandas ao invés do write_parquet do Polars
+            df_partition.to_parquet(f"{path_partition}/data_{counter}.parquet")
+
