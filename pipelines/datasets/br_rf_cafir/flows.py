@@ -14,8 +14,8 @@ from pipelines.constants import constants
 from pipelines.datasets.br_rf_cafir.constants import constants as br_rf_cafir_constants
 from pipelines.datasets.br_rf_cafir.schedules import schedule_br_rf_cafir_imoveis_rurais
 from pipelines.datasets.br_rf_cafir.tasks import (
-    decide_files_to_download,
-    parse_api_metadata,
+    task_decide_files_to_download,
+    task_parse_api_metadata,
     parse_data
 )
 from pipelines.utils.constants import constants as utils_constants
@@ -50,12 +50,12 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    df_metadata = parse_api_metadata(
+    df_metadata = task_parse_api_metadata(
         url=br_rf_cafir_constants.URL.value[0],
         headers=br_rf_cafir_constants.HEADERS.value
         )
 
-    arquivos, data_atualizacao = decide_files_to_download(
+    arquivos, data_atualizacao = task_decide_files_to_download(
         df=df_metadata,
         upstream_tasks=[df_metadata],
         )
