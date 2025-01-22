@@ -14,10 +14,8 @@ from pipelines.datasets.br_rf_cafir.constants import constants as br_rf_cafir_co
 from pipelines.datasets.br_rf_cafir.utils import (
     download_csv_files,
     preserve_zeros,
-    remove_accent,
     parse_api_metadata,
     decide_files_to_download,
-    remove_non_ascii_from_df,
     strip_string,
 )
 from pipelines.utils.utils import log
@@ -43,7 +41,7 @@ def task_decide_files_to_download(df: pd.DataFrame, data_especifica: datetime.da
     max_retries=3,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def parse_data(url: str, file_list: list[str], data_atualizacao:[datetime.date]) -> str:
+def parse_data(url: str, file_list: list[str], data_atualizacao:[datetime.date], headers: dict) -> str:
     """Essa task faz o download dos arquivos do FTP, faz o parse dos dados e salva os arquivos em um diretório temporário.
 
     Returns:
@@ -51,30 +49,29 @@ def parse_data(url: str, file_list: list[str], data_atualizacao:[datetime.date])
     """
 
     date = data_atualizacao
-    log(f"###### Extraindo dados para data: {date}")
+    log(f"------ Extraindo dados para data: {date}")
 
     files_list = file_list
-    log(f"###### Extraindo files: {files_list}")
+    log(f"------ Os seguintes arquivos foram selecionados para download: {files_list}")
 
-    # inicializa counter para ser usado na nomeação dos arquivos repetindo o padrão de divulgação dos dados
-    counter = 0
-    log(f"###### -----COUNTER: {counter}")
 
-    list_n_cols = []
+    files_list = files_list[1:3]
 
     for file in files_list:
-        counter += 1
-        log(f"###### X-----COUNTER: {counter}")
+
 
         log(f"Baixando arquivo: {file} de {url}")
 
         # monta url
         complete_url = url + file
 
+
+
         # baixa arquivo
         download_csv_files(
             file_name=file,
             url=complete_url,
+            headers=headers,
             download_directory=br_rf_cafir_constants.PATH.value[0],
         )
 
@@ -91,58 +88,42 @@ def parse_data(url: str, file_list: list[str], data_atualizacao:[datetime.date])
             converters={
                 col: preserve_zeros for col in br_rf_cafir_constants.COLUMN_NAMES.value
             },
-            encoding="latin-1",
+            encoding="ISO-8859-1",
         )
-
-        list_n_cols.append(df.shape[1])
-
-        # remove acentos
-        df["nome"] = df["nome"].apply(remove_accent)
-        df["endereco"] = df["endereco"].apply(remove_accent)
-
-        # remove não ascii
-        df = remove_non_ascii_from_df(df)
 
         # tira os espacos em branco
         df = df.applymap(strip_string)
 
-        log(f"Saving file: {file}")
+        log(f"Salvando arquivo: {file}")
 
         # constroi diretório
         os.makedirs(
             br_rf_cafir_constants.PATH.value[1] + f"/imoveis_rurais/data={date}/",
             exist_ok=True,
         )
+
+        #NOTE: Com modificação do formato de divulgação do FTP os arquivos passaram a ser divulgados csvs particionados por UF
+        #A partir de 2025, a nomenclaruta dos no Storage arquivos mudou para: "imoveis_rurais_uf_numero.csv" no lugar de "imoveris_rurais_numero.csv"
+
         save_path = (
             br_rf_cafir_constants.PATH.value[1]
             + f"/imoveis_rurais/data={date}/"
             + "imoveis_rurais_"
-            + str(counter)
+            #extrai uf e numeração do nome do arquivo
+            + file.split(".")[-2]
             + ".csv"
         )
-        log(f"save path: {save_path}")
 
-        # save new file as csv
+
         df.to_csv(save_path, index=False, sep=",", na_rep="", encoding="utf-8",escapechar='\\')
 
-        # resolve ASCII 0 no momento da leitura do BQ. Ler e salvar de novo.
-        df = pd.read_csv(save_path, dtype=str)
-        df.to_csv(save_path, index=False, sep=",", na_rep="", encoding="utf-8",escapechar='\\')
+        log(f"Arquivo salvo: {save_path.split('/')[-1]}")
 
-        log(f"----- Removendo o arquivo: {os.listdir(br_rf_cafir_constants.PATH.value[0])}")
+        del df
+
+        log(f"----- Removendo o arquivo: {os.listdir(br_rf_cafir_constants.PATH.value[0])} do diretório de input")
 
         # remove o arquivo de input
-        os.system("rm -rf " + br_rf_cafir_constants.PATH.value[0] + "/" + "*")
+        os.remove(os.path.join(br_rf_cafir_constants.PATH.value[0], file))
 
-
-    log(f"list_n_cols: O NUMERO DE COLUNAS É {list_n_cols}")
-
-    # gera paths
-    files_path = (
-        br_rf_cafir_constants.PATH.value[1]
-        + "/"
-        + br_rf_cafir_constants.TABLE.value[0]
-        + "/"
-    )
-
-    return files_path
+    return br_rf_cafir_constants.PATH.value[1] + f"/imoveis_rurais/data={date}/"
