@@ -19,6 +19,7 @@ from pipelines.utils.crawler_cgu.utils import (
     read_and_clean_csv,
     build_urls,
     partition_data_beneficios_cidadao,
+    test_partition_data
 )
 from pipelines.utils.crawler_cgu.constants import constants
 from pipelines.utils.crawler_cgu.utils import download_file
@@ -41,10 +42,10 @@ def partition_data(table_id: str, dataset_id : str) -> str:
         str: The path where the partitioned data is saved.
     """
 
-    if dataset_id in ["br_cgu_cartao_pagamento", "br_cgu_licitacao_contrato"]:
+    if dataset_id in ["br_cgu_cartao_pagamento", "br_cgu_licitacao_contrato", "br_cgu_beneficios_cidadao"]:
         log("---------------------------- Read data ----------------------------")
         df = read_csv(dataset_id = dataset_id, table_id = table_id)
-        if dataset_id == "br_cgu_cartao_pagamento":
+        if dataset_id == "br_cgu_cartao_pagamento:":
             log(" ---------------------------- Partiting data -----------------------")
             to_partitions(
                 data = df,
@@ -139,7 +140,7 @@ def read_and_partition_beneficios_cidadao(table_id):
                         number += 1
                         log(f"Chunk {number} carregando.")
                         if table_id == "novo_bolsa_familia":
-                            partition_data_beneficios_cidadao(table_id = table_id,
+                            test_partition_data(table_id = table_id,
                                                 df = chunk,
                                                 coluna1 = "mes_competencia",
                                                 coluna2 = "sigla_uf",
@@ -165,6 +166,88 @@ def read_and_partition_beneficios_cidadao(table_id):
                     log("Partição feita.")
 
                 return constants_cgu_beneficios_cidadao['OUTPUT']
+
+# @task
+# # https://stackoverflow.com/questions/26124417/how-to-convert-a-csv-file-to-parquet
+# def read_and_partition_beneficios_cidadao(table_id):
+#     constants_cgu_beneficios_cidadao = constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]
+#     for nome_arquivo in os.listdir(constants_cgu_beneficios_cidadao['INPUT']):
+#         if nome_arquivo.endswith(".csv"):
+#             log(f"Carregando o arquivo: {nome_arquivo}")
+
+#             parquet_file = f"{constants_cgu_beneficios_cidadao['INPUT']}{nome_arquivo.replace('.csv', '.parquet')}"
+#             parquet_writer = None
+#             with pd.read_csv(
+#                 f"{constants_cgu_beneficios_cidadao['INPUT']}{nome_arquivo}",
+#                 sep=";",
+#                 encoding="latin-1",
+#                 chunksize=100000,
+#                 decimal=",",
+#                 na_values="" if table_id != "bpc" else None,
+#                 dtype=(
+#                     constants.DTYPES_NOVO_BOLSA_FAMILIA.value
+#                     if table_id == "novo_bolsa_familia"
+#                     else (
+#                         constants.DTYPES_GARANTIA_SAFRA.value
+#                         if table_id == "garantia_safra"
+#                         else constants.DTYPES_BPC.value
+#                     )
+#                 ),
+#             ) as reader:
+#                 for chunk in tqdm(reader):
+#                     chunk.rename(
+#                         columns=(
+#                             constants.RENAMER_NOVO_BOLSA_FAMILIA.value
+#                             if table_id == "novo_bolsa_familia"
+#                             else (
+#                                 constants.RENAMER_GARANTIA_SAFRA.value
+#                                 if table_id == "garantia_safra"
+#                                 else constants.RENAMER_BPC.value
+#                             )
+#                         ),
+#                         inplace=True,
+#                     )
+#                     if parquet_writer is None:
+#                         parquet_schema = pa.Table.from_pandas(chunk).schema
+#                         parquet_writer = pq.ParquetWriter(parquet_file, parquet_schema, compression='snappy')
+
+#                     # Escrever diretamente o chunk no arquivo parquet
+#                     table = pa.Table.from_pandas(chunk, schema=parquet_schema)
+#                     parquet_writer.write_table(table)
+
+#                     del chunk
+#                     gc.collect()
+
+#             if parquet_writer:
+#                 parquet_writer.close()
+
+#             log(f"Arquivo parquet criado: {parquet_file}")
+#     log("Abrindo arquivo parquet: {parquet_file}")
+#     df = pl.read_parquet(parquet_file)
+
+#     log(f"---------------------------- Partition Data: {table_id=} ----------------------------")
+#     if table_id == "novo_bolsa_familia":
+#         partition_data_beneficios_cidadao(table_id, df, "mes_competencia", "sigla_uf")
+
+#     elif table_id == "bpc":
+#         partition_data_beneficios_cidadao(table_id, df, "mes_competencia")
+
+#     elif table_id == "garantia_safra":
+#         partition_data_beneficios_cidadao(table_id, df, "mes_competencia", "sigla_uf")
+#         to_partitions(
+#             df,
+#             partition_columns=["mes_referencia"],
+#             savepath=constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT'],
+#             file_type="parquet",
+#         )
+#         log(constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT'])
+#     log("Partição feita.")
+
+#     del chunk
+#     gc.collect()
+
+#     return constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT']
+
 
 
 @task
