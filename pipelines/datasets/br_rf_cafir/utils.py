@@ -107,7 +107,7 @@ def remove_accent(input_str: pd.DataFrame, pattern: str = "all") -> pd.DataFrame
 
 def parse_api_metadata(url: str, headers: dict = None) -> pd.DataFrame:
 
-    log('Fazendo request para a url: ', url)
+    log(f'Fazendo request para a url: {url}')
 
     response = requests.get(url, headers=headers)
     response.raise_for_status()
@@ -117,14 +117,16 @@ def parse_api_metadata(url: str, headers: dict = None) -> pd.DataFrame:
 
     log('Extraindo nomes de arquivos e datas de atualização')
 
-    nomes_arquivos =  [arquivo.find_parent('td') for arquivo in elementos if arquivo.has_attr('href') and 'csv' in arquivo['href']]
-    data_atualizacao_arquivos = [data_atualizacao.find_next_sibling('td') for data_atualizacao in nomes_arquivos if data_atualizacao.find_next_sibling('td').get('align') == 'right']
+    linhas_arquivos_datas =  [arquivo.find_parent('td') for arquivo in elementos if arquivo.has_attr('href') and 'csv' in arquivo['href']]
+    nomes_arquivos =  [arquivo.find('a').get('href') for arquivo in linhas_arquivos_datas]
+
+    data_atualizacao_arquivos = [data_atualizacao.find_next_sibling('td') for data_atualizacao in linhas_arquivos_datas if data_atualizacao.find_next_sibling('td').get('align') == 'right']
     data_atualizacao_arquivos_formatada = [datetime.strptime(a.text.strip(), "%Y-%m-%d %H:%M").date() for a in data_atualizacao_arquivos]
 
 
-    if len(nomes_arquivos_text) != len(data_atualizacao_arquivos_formatada):
+    if len(nomes_arquivos) != len(data_atualizacao_arquivos_formatada):
         raise ValueError(
-            f"A quantidade de arquivos ({len(nomes_arquivos_text)}) difere da quantidade de datas ({len(data_atualizacao_arquivos_formatada)}). Verifique o FTP da Receita Federal {url}"
+            f"A quantidade de arquivos ({len(nomes_arquivos)}) difere da quantidade de datas ({len(data_atualizacao_arquivos_formatada)}). Verifique o FTP da Receita Federal {url}"
         )
 
     df =  pd.DataFrame(
@@ -133,6 +135,7 @@ def parse_api_metadata(url: str, headers: dict = None) -> pd.DataFrame:
         'data_atualizacao':data_atualizacao_arquivos_formatada
         }
     )
+    log(df)
     log('Extração finalizada')
     return df
 

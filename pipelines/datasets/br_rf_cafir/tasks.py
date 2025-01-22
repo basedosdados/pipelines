@@ -28,14 +28,14 @@ from pipelines.constants import constants
     max_retries=2,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def parse_api_metadata(url: str, headers:dict) -> pd.DataFrame:
+def task_parse_api_metadata(url: str, headers:dict) -> pd.DataFrame:
     return parse_api_metadata(url=url, headers=headers)
 
 @task(
     max_retries=2,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def decide_files_to_download(df: pd.DataFrame, data_especifica: datetime.date = None, data_maxima: bool = True) -> tuple[list[str],list[datetime]]:
+def task_decide_files_to_download(df: pd.DataFrame, data_especifica: datetime.date = None, data_maxima: bool = True) -> tuple[list[str],list[datetime]]:
     return decide_files_to_download(df=df, data_especifica=data_especifica, data_maxima=data_maxima)
 
 
