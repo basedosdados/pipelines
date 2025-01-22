@@ -31,81 +31,17 @@ def strip_string(x: pd.DataFrame) -> pd.DataFrame:
     return x
 
 
-def remove_non_ascii_from_df(df: pd.DataFrame) -> pd.DataFrame:
-    """Remove caracteres não ascii de um dataframe codificando a coluna e decodificando em seguida
-
-    Returns:
-        pd.DataFrame: Um dataframe
-    """
-
-    return df.applymap(
-        lambda x: (
-            x.encode("ascii", "ignore").decode("ascii") if isinstance(x, str) else x
-        )
-    )
-
-
-def remove_accent(input_str: pd.DataFrame, pattern: str = "all") -> pd.DataFrame:
-    """Remove acentos e caracteres especiais do encoding LATIN-1 para a coluna selecionada
-    #creditos para -> https://stackoverflow.com/questions/39148759/remove-accents-from-a-dataframe-column-in-r
-
-    Returns:
-        pd.Dataframe: Dataframe com coluna sem acentos e caracteres especiais
-    """
-
-    if not isinstance(input_str, str):
-        input_str = str(input_str)
-
-    patterns = set(pattern)
-
-    if "Ç" in patterns:
-        patterns.remove("Ç")
-        patterns.add("ç")
-
-    symbols = {
-        "acute": "áéíóúÁÉÍÓÚýÝ",
-        "grave": "àèìòùÀÈÌÒÙ",
-        "circunflex": "âêîôûÂÊÎÔÛ",
-        "tilde": "ãõÃÕñÑ",
-        "umlaut": "äëïöüÄËÏÖÜÿ",
-        "cedil": "çÇ",
-    }
-
-    nude_symbols = {
-        "acute": "aeiouAEIOUyY",
-        "grave": "aeiouAEIOU",
-        "circunflex": "aeiouAEIOU",
-        "tilde": "aoAOnN",
-        "umlaut": "aeiouAEIOUy",
-        "cedil": "cC",
-    }
-
-    accent_types = ["´", "`", "^", "~", "¨", "ç"]
-
-    if any(
-        pattern in {"all", "al", "a", "todos", "t", "to", "tod", "todo"}
-        for pattern in patterns
-    ):
-        return "".join(
-            [
-                c if unicodedata.category(c) != "Mn" else ""
-                for c in unicodedata.normalize("NFD", input_str)
-            ]
-        )
-
-    for p in patterns:
-        if p in accent_types:
-            input_str = "".join(
-                [
-                    c if c not in symbols[p] else nude_symbols[p][symbols[p].index(c)]
-                    for c in input_str
-                ]
-            )
-
-    return input_str
-
-
 def parse_api_metadata(url: str, headers: dict = None) -> pd.DataFrame:
+    """
+    Faz uma requisição para a URL fornecida e extrai metadados de arquivos CSV.
+    Args:
+        url (str): A URL da API para fazer a requisição.
+        headers (dict, opcional): Cabeçalhos HTTP para incluir na requisição. Padrão é None.
+    Returns:
+        pd.DataFrame: Um DataFrame contendo os nomes dos arquivos e suas respectivas datas de atualização.
+    Raises:
+        ValueError: Se a quantidade de arquivos extraídos for diferente da quantidade de datas de atualização.
+    """
 
     log(f'Fazendo request para a url: {url}')
 
@@ -135,7 +71,7 @@ def parse_api_metadata(url: str, headers: dict = None) -> pd.DataFrame:
         'data_atualizacao':data_atualizacao_arquivos_formatada
         }
     )
-    log(df)
+
     log('Extração finalizada')
     return df
 
@@ -154,7 +90,7 @@ def decide_files_to_download(df: pd.DataFrame, data_especifica: datetime.date = 
     Levanta:
     ValueError: Se não houver arquivos disponíveis para a data específica fornecida.
     """
-    #TODO: Aqui caberia um check da qte de arquivos seleciondos. As vezes alguns arquiivos são atualizados depois de outrs
+
     if data_maxima:
         max_date = df['data_atualizacao'].max()
         log(f"Os arquivos serão selecionados utiliozando a data de atualização mais recente: {max_date}")
@@ -167,11 +103,23 @@ def decide_files_to_download(df: pd.DataFrame, data_especifica: datetime.date = 
         return filtered_df['nome_arquivo'].tolist(), data_especifica
 
     else:
-        raise ValueError("Critérios inválidos: deve-se selecionar pelo menos um dos parâmetros 'data_maxima', 'dados_historicos' ou 'data_especifica'.")
+        raise ValueError("Critérios inválidos: deve-se selecionar pelo menos um dos parâmetros: 'data_maxima' ou 'data_especifica'.")
 
 
 
-def download_csv_files(url, file_name, download_directory):
+def download_csv_files(url:str, file_name:str, download_directory:str, headers:dict) -> None:
+    """
+    Faz o download de um arquivo CSV a partir de uma URL e salva em um diretório especificado.
+
+    Args:
+        url (str): A URL do arquivo CSV a ser baixado.
+        file_name (str): O nome do arquivo a ser salvo.
+        download_directory (str): O diretório onde o arquivo será salvo.
+        headers (dict): Cabeçalhos HTTP a serem enviados com a requisição.
+
+    Returns:
+        None
+    """
     # cria diretório
     os.makedirs(download_directory, exist_ok=True)
 
@@ -182,7 +130,7 @@ def download_csv_files(url, file_name, download_directory):
     file_path = os.path.join(download_directory, file_name)
 
     # faz request
-    response = requests.get(url)
+    response = requests.get(url, headers=headers)
 
     if response.status_code == 200:
         # Salva no diretório especificado

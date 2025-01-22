@@ -77,6 +77,7 @@ with Flow(
         file_path = parse_data(
             url=br_rf_cafir_constants.URL.value[0],
             file_list=arquivos,
+            headers=br_rf_cafir_constants.HEADERS.value,
             data_atualizacao=data_atualizacao,
             upstream_tasks=[arquivos, is_outdated],
         )
