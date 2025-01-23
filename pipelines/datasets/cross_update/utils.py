@@ -6,6 +6,7 @@ import os
 
 import pandas as pd
 from pandas import json_normalize
+from basedosdados import Backend
 
 from pipelines.utils.metadata.utils import get_headers
 from pipelines.utils.utils import log
@@ -41,7 +42,7 @@ def batch(lst, n):
         yield lst[i : i + n]
 
 
-def find_closed_tables(backend):
+def find_closed_tables(backend: Backend):
     query = """
         query {
             allCoverage(isClosed: false, table_Id_Isnull:false, datetimeRanges_Id_Isnull:false) {
@@ -74,7 +75,7 @@ def find_closed_tables(backend):
             }"""
 
     response = backend._execute_query(query=query)
-    response = backend._simplify_graphql_response(response)["allCoverage"]
+    response = backend._simplify_response(response)["allCoverage"]
     data = json_normalize(response)
     open_tables = data["table._id"].tolist()
 
@@ -104,7 +105,7 @@ def find_closed_tables(backend):
             }"""
 
     response = backend._execute_query(query=query)
-    response = backend._simplify_graphql_response(response)["allCoverage"]
+    response = backend._simplify_response(response)["allCoverage"]
     data = json_normalize(response)
     closed_tables = data["table._id"].tolist()
 

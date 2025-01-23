@@ -192,7 +192,7 @@ def create_table_and_upload_to_gcs(
         # pylint: disable=C0301
         log("STEP UPLOAD: Table does not exist in STAGING, need to create first")
 
-
+# TODO(aspeddro): dead code
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),

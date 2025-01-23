@@ -8,8 +8,8 @@ from typing import Union
 from basedosdados import backend as bd
 from pipelines.utils.metadata.utils import get_api_most_recent_date, get_url
 import jinja2
-from basedosdados.download.base import google_client
-from basedosdados.upload.base import Base
+from basedosdados.download.download import _google_client
+from basedosdados.core.base import Base
 from google.api_core.exceptions import NotFound
 from google.cloud import bigquery
 from prefect import task
@@ -93,7 +93,7 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
         )
 
     # pylint: disable=E1124
-    client = google_client(billing_project_id, from_file=True, reauth=False)
+    client = _google_client(billing_project_id, from_file=True, reauth=False)
 
     bq_table_ref = TableReference.from_string(f'{project_id}.{dataset_id}.{table_id}')
     bq_table = client["bigquery"].get_table(table = bq_table_ref)
