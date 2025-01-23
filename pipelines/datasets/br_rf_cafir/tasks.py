@@ -41,7 +41,7 @@ def task_decide_files_to_download(df: pd.DataFrame, data_especifica: datetime.da
     max_retries=3,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def parse_data(url: str, file_list: list[str], data_atualizacao:[datetime.date], headers: dict) -> str:
+def task_download_files(url: str, file_list: list[str], data_atualizacao:[datetime.date], headers: dict) -> str:
     """Essa task faz o download dos arquivos do FTP, faz o parse dos dados e salva os arquivos em um diretório temporário.
 
     Returns:
@@ -120,4 +120,4 @@ def parse_data(url: str, file_list: list[str], data_atualizacao:[datetime.date],
         # remove o arquivo de input
         os.remove(os.path.join(br_rf_cafir_constants.PATH.value[0], file))
 
-    return br_rf_cafir_constants.PATH.value[1] + f"/imoveis_rurais/data={date}/"
+    return br_rf_cafir_constants.PATH.value[1] + f"/imoveis_rurais"
