@@ -13,7 +13,11 @@ from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 from pipelines.constants import constants
 from pipelines.datasets.br_rf_cafir.constants import constants as br_rf_cafir_constants
 from pipelines.datasets.br_rf_cafir.schedules import schedule_br_rf_cafir_imoveis_rurais
-from pipelines.datasets.br_rf_cafir.tasks import parse_data, parse_files_parse_date
+from pipelines.datasets.br_rf_cafir.tasks import (
+    task_decide_files_to_download,
+    task_parse_api_metadata,
+    task_download_files
+)
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
@@ -46,15 +50,22 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    info = parse_files_parse_date(url=br_rf_cafir_constants.URL.value[0])
-    log_task("Checando se os dados estão desatualizados")
+    df_metadata = task_parse_api_metadata(
+        url=br_rf_cafir_constants.URL.value[0],
+        headers=br_rf_cafir_constants.HEADERS.value
+        )
+
+    arquivos, data_atualizacao = task_decide_files_to_download(
+        df=df_metadata,
+        upstream_tasks=[df_metadata],
+        )
 
     is_outdated = check_if_data_is_outdated(
         dataset_id=dataset_id,
         table_id=table_id,
-        data_source_max_date=info[0],
+        data_source_max_date=data_atualizacao,
         date_format="%Y-%m-%d",
-        upstream_tasks=[info],
+        upstream_tasks=[arquivos],
     )
 
     with case(is_outdated, False):
@@ -63,10 +74,12 @@ with Flow(
     with case(is_outdated, True):
         log_task("Existem atualizações! A run será inciada")
 
-        file_path = parse_data(
+        file_path = task_download_files(
             url=br_rf_cafir_constants.URL.value[0],
-            other_task_output=info,
-            upstream_tasks=[info, is_outdated],
+            file_list=arquivos,
+            headers=br_rf_cafir_constants.HEADERS.value,
+            data_atualizacao=data_atualizacao,
+            upstream_tasks=[arquivos, is_outdated],
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(

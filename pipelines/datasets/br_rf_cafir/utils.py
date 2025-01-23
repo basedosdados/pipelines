@@ -7,7 +7,7 @@ import os
 import unicodedata
 from datetime import datetime
 import time
-
+from typing import Tuple
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
@@ -31,145 +31,95 @@ def strip_string(x: pd.DataFrame) -> pd.DataFrame:
     return x
 
 
-def remove_non_ascii_from_df(df: pd.DataFrame) -> pd.DataFrame:
-    """Remove caracteres não ascii de um dataframe codificando a coluna e decodificando em seguida
-
+def parse_api_metadata(url: str, headers: dict = None) -> pd.DataFrame:
+    """
+    Faz uma requisição para a URL fornecida e extrai metadados de arquivos CSV.
+    Args:
+        url (str): A URL da API para fazer a requisição.
+        headers (dict, opcional): Cabeçalhos HTTP para incluir na requisição. Padrão é None.
     Returns:
-        pd.DataFrame: Um dataframe
+        pd.DataFrame: Um DataFrame contendo os nomes dos arquivos e suas respectivas datas de atualização.
+    Raises:
+        ValueError: Se a quantidade de arquivos extraídos for diferente da quantidade de datas de atualização.
     """
 
-    return df.applymap(
-        lambda x: (
-            x.encode("ascii", "ignore").decode("ascii") if isinstance(x, str) else x
+    log(f'Fazendo request para a url: {url}')
+
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+
+    soup = BeautifulSoup(response.text, "html.parser")
+    elementos = soup.find_all("a")
+
+    log('Extraindo nomes de arquivos e datas de atualização')
+
+    linhas_arquivos_datas =  [arquivo.find_parent('td') for arquivo in elementos if arquivo.has_attr('href') and 'csv' in arquivo['href']]
+    nomes_arquivos =  [arquivo.find('a').get('href') for arquivo in linhas_arquivos_datas]
+
+    data_atualizacao_arquivos = [data_atualizacao.find_next_sibling('td') for data_atualizacao in linhas_arquivos_datas if data_atualizacao.find_next_sibling('td').get('align') == 'right']
+    data_atualizacao_arquivos_formatada = [datetime.strptime(a.text.strip(), "%Y-%m-%d %H:%M").date() for a in data_atualizacao_arquivos]
+
+
+    if len(nomes_arquivos) != len(data_atualizacao_arquivos_formatada):
+        raise ValueError(
+            f"A quantidade de arquivos ({len(nomes_arquivos)}) difere da quantidade de datas ({len(data_atualizacao_arquivos_formatada)}). Verifique o FTP da Receita Federal {url}"
         )
+
+    df =  pd.DataFrame(
+        {
+        'nome_arquivo':nomes_arquivos,
+        'data_atualizacao':data_atualizacao_arquivos_formatada
+        }
     )
 
+    log('Extração finalizada')
+    return df
 
-def remove_accent(input_str: pd.DataFrame, pattern: str = "all") -> pd.DataFrame:
-    """Remove acentos e caracteres especiais do encoding LATIN-1 para a coluna selecionada
-    #creditos para -> https://stackoverflow.com/questions/39148759/remove-accents-from-a-dataframe-column-in-r
+def decide_files_to_download(df: pd.DataFrame, data_especifica: datetime.date = None, data_maxima: bool = True) -> tuple[list[str],list[datetime]]:
+    """
+    Decide quais arquivos baixar a depender da necessidade de atualização
 
-    Returns:
-        pd.Dataframe: Dataframe com coluna sem acentos e caracteres especiais
+    Parâmetros:
+    df (pd.DataFrame): DataFrame contendo informações dos arquivos, incluindo a data de atualização e o nome do arquivo.
+    data_especifica (datetime.date, opcional): Data específica para filtrar os arquivos.
+    data_maxima (bool): Se True, retorna os arquivos com a data de atualização mais recente. Padrão é True.
+
+    Retorna:
+    tuple: Uma tupla contendo uma lista de nomes de arquivos que atendem aos critérios fornecidos e a data correspondente.
+
+    Levanta:
+    ValueError: Se não houver arquivos disponíveis para a data específica fornecida.
     """
 
-    if not isinstance(input_str, str):
-        input_str = str(input_str)
+    if data_maxima:
+        max_date = df['data_atualizacao'].max()
+        log(f"Os arquivos serão selecionados utiliozando a data de atualização mais recente: {max_date}")
+        return df[df['data_atualizacao'] == max_date]['nome_arquivo'].tolist(), max_date
 
-    patterns = set(pattern)
+    elif data_especifica:
+        filtered_df = df[df['data_atualizacao'] == data_especifica]
+        if filtered_df.empty:
+            raise ValueError(f"Não há arquivos disponíveis para a data {data_especifica}. Verifique o FTP da Receita Federal.")
+        return filtered_df['nome_arquivo'].tolist(), data_especifica
 
-    if "Ç" in patterns:
-        patterns.remove("Ç")
-        patterns.add("ç")
-
-    symbols = {
-        "acute": "áéíóúÁÉÍÓÚýÝ",
-        "grave": "àèìòùÀÈÌÒÙ",
-        "circunflex": "âêîôûÂÊÎÔÛ",
-        "tilde": "ãõÃÕñÑ",
-        "umlaut": "äëïöüÄËÏÖÜÿ",
-        "cedil": "çÇ",
-    }
-
-    nude_symbols = {
-        "acute": "aeiouAEIOUyY",
-        "grave": "aeiouAEIOU",
-        "circunflex": "aeiouAEIOU",
-        "tilde": "aoAOnN",
-        "umlaut": "aeiouAEIOUy",
-        "cedil": "cC",
-    }
-
-    accent_types = ["´", "`", "^", "~", "¨", "ç"]
-
-    if any(
-        pattern in {"all", "al", "a", "todos", "t", "to", "tod", "todo"}
-        for pattern in patterns
-    ):
-        return "".join(
-            [
-                c if unicodedata.category(c) != "Mn" else ""
-                for c in unicodedata.normalize("NFD", input_str)
-            ]
-        )
-
-    for p in patterns:
-        if p in accent_types:
-            input_str = "".join(
-                [
-                    c if c not in symbols[p] else nude_symbols[p][symbols[p].index(c)]
-                    for c in input_str
-                ]
-            )
-
-    return input_str
+    else:
+        raise ValueError("Critérios inválidos: deve-se selecionar pelo menos um dos parâmetros: 'data_maxima' ou 'data_especifica'.")
 
 
-def parse_date_parse_files(url: str, retries: int = 3, backoff_factor: int = 2) -> Tuple[datetime, List[str]]:
+
+def download_csv_files(url:str, file_name:str, download_directory:str, headers:dict) -> None:
     """
-    Faz o parse da data de atualização e dos links de download dos arquivos.
+    Faz o download de um arquivo CSV a partir de uma URL e salva em um diretório especificado.
 
     Args:
-        url (str): A URL do FTP do CAFIR da Receita Federal.
-        retries (int): Número de tentativas em caso de falha por timeout.
-        backoff_factor (int): Fator de espera exponencial entre tentativas.
+        url (str): A URL do arquivo CSV a ser baixado.
+        file_name (str): O nome do arquivo a ser salvo.
+        download_directory (str): O diretório onde o arquivo será salvo.
+        headers (dict): Cabeçalhos HTTP a serem enviados com a requisição.
 
     Returns:
-        Tuple[datetime, List[str]]: Retorna uma tupla com a data de atualização e os nomes dos arquivos.
+        None
     """
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Accept-Language": "pt-BR,pt;q=0.8,en-US;q=0.5,en;q=0.3",
-        "Sec-GPC": "1",
-        "Upgrade-Insecure-Requests": "1",
-        "Sec-Fetch-Dest": "document",
-        "Sec-Fetch-Mode": "navigate",
-        "Sec-Fetch-Site": "same-origin",
-        "Sec-Fetch-User": "?1",
-        "Priority": "u=0, i",
-    }
-
-    xpath_release_date = "tr td:nth-of-type(3)"
-    attempt = 0
-
-    while attempt < retries:
-        try:
-            response = requests.get(url, headers=headers, timeout=(10, 30))
-
-            # Checa se a requisição foi bem-sucedida
-            if response.status_code == 200:
-                soup = BeautifulSoup(response.text, "html.parser")
-
-                # 1. Parsing da data de atualização
-                td_elements = soup.select(xpath_release_date)
-                td_texts = [td.get_text(strip=True)[:10] for td in td_elements]
-                release_data = datetime.strptime(td_texts[3], "%Y-%m-%d").date()
-                log(f"Release date: {release_data}")
-
-                # 2. Parsing dos nomes dos arquivos
-                a_elements = soup.find_all("a")
-                href_values = [a["href"] for a in a_elements if a.has_attr("href")]
-                files_name = [href for href in href_values if "csv" in href]
-                log(f"Files name: {files_name}")
-
-                return release_data, files_name
-
-            else:
-                log(f"Erro na requisição: {response.status_code}")
-                raise requests.RequestException(f"HTTP {response.status_code}")
-
-        except (requests.Timeout, requests.ConnectionError) as e:
-            attempt += 1
-            wait_time = backoff_factor ** attempt
-            log(f"Erro: {e}. Tentando novamente em {wait_time} segundos...")
-            time.sleep(wait_time)
-
-    raise TimeoutError("Falha após várias tentativas de conectar ao servidor.")
-
-
-
-def download_csv_files(url, file_name, download_directory):
     # cria diretório
     os.makedirs(download_directory, exist_ok=True)
 
@@ -180,7 +130,7 @@ def download_csv_files(url, file_name, download_directory):
     file_path = os.path.join(download_directory, file_name)
 
     # faz request
-    response = requests.get(url)
+    response = requests.get(url, headers=headers)
 
     if response.status_code == 200:
         # Salva no diretório especificado
