@@ -16,7 +16,7 @@ from pipelines.datasets.br_rf_cafir.schedules import schedule_br_rf_cafir_imovei
 from pipelines.datasets.br_rf_cafir.tasks import (
     task_decide_files_to_download,
     task_parse_api_metadata,
-    parse_data
+    task_download_files
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -74,7 +74,7 @@ with Flow(
     with case(is_outdated, True):
         log_task("Existem atualizações! A run será inciada")
 
-        file_path = parse_data(
+        file_path = task_download_files(
             url=br_rf_cafir_constants.URL.value[0],
             file_list=arquivos,
             headers=br_rf_cafir_constants.HEADERS.value,
