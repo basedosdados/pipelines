@@ -18,7 +18,7 @@ jobs:
           architecture: x64
           python-version: '3.10'
       - name: Install requirements
-        run: poetry install --only=test
+        run: poetry install --with dev --with test
       - name: Check format
         run: poetry run ruff format --check .
       - name: Check linter
