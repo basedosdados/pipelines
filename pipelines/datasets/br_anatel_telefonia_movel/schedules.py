@@ -2,9 +2,12 @@
 """
 Schedules for dataset br_anatel_telefonia_movel
 """
+
 from datetime import datetime
+
 from prefect.schedules import Schedule
-from prefect.schedules.clocks import CronClock, IntervalClock
+from prefect.schedules.clocks import CronClock
+
 from pipelines.constants import constants
 
 # ? ----------------------- > Microdados
@@ -22,7 +25,6 @@ schedule_br_anatel_telefonia_movel__microdados = Schedule(
                 "materialization_mode": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
-                "update_metadata": True,
                 "update_metadata": True,
             },
         ),

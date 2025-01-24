@@ -3,7 +3,6 @@
 General purpose functions for the process_df_with_architecture project
 """
 
-
 from io import StringIO
 
 import numpy as np
@@ -83,7 +82,9 @@ def get_order(architecture: pd.DataFrame) -> list:
     return list(architecture["name"])
 
 
-def rename_columns(df: pd.DataFrame, architecture: pd.DataFrame) -> pd.DataFrame:
+def rename_columns(
+    df: pd.DataFrame, architecture: pd.DataFrame
+) -> pd.DataFrame:
     """
     Renames the columns of a DataFrame based on an architecture table.
     Args:
@@ -119,7 +120,9 @@ def include_missing_columns(df, architecture):
     df_missing_columns = missing_columns(df.columns, get_order(architecture))
     if df_missing_columns:
         df[df_missing_columns] = ""
-        log(f"The following columns were included into the df: {df_missing_columns}")
+        log(
+            f"The following columns were included into the df: {df_missing_columns}"
+        )
     else:
         log("No columns were included into the df")
     return df
@@ -160,7 +163,9 @@ def column_order_and_selection(df, architecture):
         current_columns=architecture_columns, specified_columns=df
     )
     if list_missing_columns:
-        log(f"The following columns were discarded from the df: {list_missing_columns}")
+        log(
+            f"The following columns were discarded from the df: {list_missing_columns}"
+        )
     else:
         log("No columns were discarded from the df")
     return df[architecture_columns]

@@ -13,7 +13,9 @@ class constants(Enum):  # pylint: disable=c0103
 
     CDA_URL = "https://dados.cvm.gov.br/dados/FI/DOC/CDA/DADOS/"
 
-    INFORME_DIARIO_URL = "https://dados.cvm.gov.br/dados/FI/DOC/INF_DIARIO/DADOS/"
+    INFORME_DIARIO_URL = (
+        "https://dados.cvm.gov.br/dados/FI/DOC/INF_DIARIO/DADOS/"
+    )
 
     LISTA = [
         "indicador_emissor_ligado",
@@ -485,7 +487,9 @@ class constants(Enum):  # pylint: disable=c0103
 
     FILE_EXT = "extrato_fi.csv"
 
-    URL_PERFIL_MENSAL = "https://dados.cvm.gov.br/dados/FI/DOC/PERFIL_MENSAL/DADOS/"
+    URL_PERFIL_MENSAL = (
+        "https://dados.cvm.gov.br/dados/FI/DOC/PERFIL_MENSAL/DADOS/"
+    )
 
     ARQUITETURA_URL_PERFIL_MENSAL = "https://docs.google.com/spreadsheets/d/1IN7enHe6K-StD_sDfCaqhJ7XfUNXe-W8/edit#gid=1045172528"
 

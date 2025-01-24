@@ -2,6 +2,7 @@
 """
 Utils for cross_update pipeline
 """
+
 import os
 
 import pandas as pd
@@ -108,7 +109,9 @@ def find_closed_tables(backend):
     data = json_normalize(response)
     closed_tables = data["table._id"].tolist()
 
-    all_closed_tables = [table for table in closed_tables if table not in open_tables]
+    all_closed_tables = [
+        table for table in closed_tables if table not in open_tables
+    ]
 
     return all_closed_tables
 

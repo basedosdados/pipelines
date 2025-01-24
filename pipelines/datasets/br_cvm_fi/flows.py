@@ -22,8 +22,6 @@ from pipelines.datasets.br_cvm_fi.schedules import (
     every_day_perfil,
 )
 from pipelines.datasets.br_cvm_fi.tasks import (
-    check_for_updates,
-    check_for_updates_ext,
     clean_data_and_make_partitions,
     clean_data_make_partitions_balancete,
     clean_data_make_partitions_cad,
@@ -31,23 +29,25 @@ from pipelines.datasets.br_cvm_fi.tasks import (
     clean_data_make_partitions_ext,
     clean_data_make_partitions_perfil,
     download_csv_cvm,
-    generate_links_to_download,
     download_unzip_csv,
     extract_links_and_dates,
+    generate_links_to_download,
     is_empty,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.execute_dbt_model.constants import (
+    constants as dump_db_constants,
+)
+from pipelines.utils.metadata.tasks import (
+    check_if_data_is_outdated,
+    update_django_metadata,
+)
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
     log_task,
     rename_current_flow_run_dataset_table,
-)
-from pipelines.utils.metadata.tasks import (
-    check_if_data_is_outdated,
-    update_django_metadata,
 )
 
 with Flow(
@@ -58,7 +58,9 @@ with Flow(
 ) as br_cvm_fi_documentos_informe_diario:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_cvm_fi", required=True)
-    table_id = Parameter("table_id", default="documentos_informe_diario", required=True)
+    table_id = Parameter(
+        "table_id", default="documentos_informe_diario", required=True
+    )
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -66,7 +68,9 @@ with Flow(
         "materialize_after_dump", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
 
     url = Parameter(
         "url",
@@ -83,15 +87,16 @@ with Flow(
         table_id=table_id,
         data_source_max_date=max_date,
         date_format="%Y-%m-%d",
-        date_type= 'last_update_date',
+        date_type="last_update_date",
         upstream_tasks=[df],
     )
 
     with case(check_if_outdated, False):
-        log_task(f"A execução sera agendada para a próxima data definida na schedule")
+        log_task(
+            "A execução sera agendada para a próxima data definida na schedule"
+        )
 
     with case(check_if_outdated, True):
-
         arquivos = generate_links_to_download(df=df, max_date=max_date)
         log_task(f"Arquivos: {arquivos}")
 
@@ -99,11 +104,16 @@ with Flow(
             files=arquivos, url=url, id=table_id, upstream_tasks=[arquivos]
         )
         output_filepath = clean_data_and_make_partitions(
-            path=input_filepath, table_id=table_id, upstream_tasks=[input_filepath]
+            path=input_filepath,
+            table_id=table_id,
+            upstream_tasks=[input_filepath],
         )
 
         rename_flow_run = rename_current_flow_run_dataset_table(
-            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+            prefix="Dump: ",
+            dataset_id=dataset_id,
+            table_id=table_id,
+            wait=table_id,
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(
@@ -127,7 +137,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks = [wait_upload_table]
+                upstream_tasks=[wait_upload_table],
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -155,7 +165,9 @@ with Flow(
                 )
 
 
-br_cvm_fi_documentos_informe_diario.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_cvm_fi_documentos_informe_diario.storage = GCS(
+    constants.GCS_FLOWS_BUCKET.value
+)
 br_cvm_fi_documentos_informe_diario.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
@@ -171,7 +183,9 @@ with Flow(
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_cvm_fi", required=True)
     table_id = Parameter(
-        "table_id", default="documentos_carteiras_fundos_investimento", required=True
+        "table_id",
+        default="documentos_carteiras_fundos_investimento",
+        required=True,
     )
 
     materialization_mode = Parameter(
@@ -181,7 +195,9 @@ with Flow(
         "materialize_after_dump", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
     url = Parameter(
         "url",
         default=cvm_constants.CDA_URL.value,
@@ -190,19 +206,19 @@ with Flow(
 
     df, max_date = extract_links_and_dates(url)
 
-
     check_if_outdated = check_if_data_is_outdated(
         dataset_id=dataset_id,
         table_id=table_id,
         data_source_max_date=max_date,
         date_format="%Y-%m-%d",
-        date_type= 'last_update_date',
+        date_type="last_update_date",
         upstream_tasks=[df],
     )
 
-
     with case(check_if_outdated, False):
-        log_task(f"A execução sera agendada para a próxima data definida na schedule")
+        log_task(
+            "A execução sera agendada para a próxima data definida na schedule"
+        )
 
     with case(check_if_outdated, True):
         arquivos = generate_links_to_download(df=df, max_date=max_date)
@@ -215,7 +231,10 @@ with Flow(
         )
 
         rename_flow_run = rename_current_flow_run_dataset_table(
-            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+            prefix="Dump: ",
+            dataset_id=dataset_id,
+            table_id=table_id,
+            wait=table_id,
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(
@@ -239,7 +258,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks = [wait_upload_table]
+                upstream_tasks=[wait_upload_table],
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -273,7 +292,9 @@ br_cvm_fi_documentos_carteiras_fundos_investimento.storage = GCS(
 br_cvm_fi_documentos_carteiras_fundos_investimento.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_cvm_fi_documentos_carteiras_fundos_investimento.schedule = every_day_carteiras
+br_cvm_fi_documentos_carteiras_fundos_investimento.schedule = (
+    every_day_carteiras
+)
 
 
 with Flow(
@@ -294,7 +315,9 @@ with Flow(
         "materialize_after_dump", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
     url = Parameter(
         "url",
         default=cvm_constants.URL_EXT.value,
@@ -314,25 +337,33 @@ with Flow(
         table_id=table_id,
         data_source_max_date=max_date,
         date_format="%Y-%m-%d",
-        date_type= 'last_update_date',
+        date_type="last_update_date",
         upstream_tasks=[df],
     )
 
     with case(check_if_outdated, False):
-        log_task(f"A execução sera agendada para a próxima data definida na schedule")
+        log_task(
+            "A execução sera agendada para a próxima data definida na schedule"
+        )
 
     with case(check_if_outdated, True):
         arquivos = generate_links_to_download(df=df, max_date=max_date)
 
         input_filepath = download_csv_cvm(
-            url=url, table_id=table_id, files=arquivos, upstream_tasks=[arquivos]
+            url=url,
+            table_id=table_id,
+            files=arquivos,
+            upstream_tasks=[arquivos],
         )
         output_filepath = clean_data_make_partitions_ext(
             input_filepath, table_id=table_id, upstream_tasks=[input_filepath]
         )
 
         rename_flow_run = rename_current_flow_run_dataset_table(
-            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+            prefix="Dump: ",
+            dataset_id=dataset_id,
+            table_id=table_id,
+            wait=table_id,
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(
@@ -356,7 +387,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks = [wait_upload_table]
+                upstream_tasks=[wait_upload_table],
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -400,7 +431,9 @@ with Flow(
 ) as br_cvm_fi_documentos_perfil_mensal:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_cvm_fi", required=True)
-    table_id = Parameter("table_id", default="documentos_perfil_mensal", required=True)
+    table_id = Parameter(
+        "table_id", default="documentos_perfil_mensal", required=True
+    )
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -408,7 +441,9 @@ with Flow(
         "materialize_after_dump", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
     url = Parameter(
         "url",
         default=cvm_constants.URL_PERFIL_MENSAL.value,
@@ -422,26 +457,33 @@ with Flow(
         table_id=table_id,
         data_source_max_date=max_date,
         date_format="%Y-%m-%d",
-        date_type= 'last_update_date',
+        date_type="last_update_date",
         upstream_tasks=[df],
     )
 
     with case(check_if_outdated, False):
-        log_task(f"A execução sera agendada para a próxima data definida na schedule")
+        log_task(
+            "A execução sera agendada para a próxima data definida na schedule"
+        )
 
     with case(check_if_outdated, True):
-
         arquivos = generate_links_to_download(df=df, max_date=max_date)
 
         input_filepath = download_csv_cvm(
-            url=url, table_id=table_id, files=arquivos, upstream_tasks=[arquivos]
+            url=url,
+            table_id=table_id,
+            files=arquivos,
+            upstream_tasks=[arquivos],
         )
         output_filepath = clean_data_make_partitions_perfil(
             input_filepath, table_id=table_id, upstream_tasks=[input_filepath]
         )
 
         rename_flow_run = rename_current_flow_run_dataset_table(
-            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+            prefix="Dump: ",
+            dataset_id=dataset_id,
+            table_id=table_id,
+            wait=table_id,
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(
@@ -465,7 +507,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks = [wait_upload_table]
+                upstream_tasks=[wait_upload_table],
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -492,7 +534,9 @@ with Flow(
                     upstream_tasks=[wait_for_materialization],
                 )
 
-br_cvm_fi_documentos_perfil_mensal.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_cvm_fi_documentos_perfil_mensal.storage = GCS(
+    constants.GCS_FLOWS_BUCKET.value
+)
 br_cvm_fi_documentos_perfil_mensal.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
@@ -517,26 +561,39 @@ with Flow(
         "materialize_after_dump", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
     url = Parameter(
         "url",
         default=cvm_constants.URL_INFO_CADASTRAL.value,
         required=False,
     )
 
-    files = Parameter("files", default=cvm_constants.CAD_FILE.value, required=False)
+    files = Parameter(
+        "files", default=cvm_constants.CAD_FILE.value, required=False
+    )
 
     with case(is_empty(files), True):
-        log_task(f"A execução sera agendada para a próxima data definida na schedule")
+        log_task(
+            "A execução sera agendada para a próxima data definida na schedule"
+        )
 
     with case(is_empty(files), False):
-        input_filepath = download_csv_cvm(url=url, files=files, table_id=table_id)
+        input_filepath = download_csv_cvm(
+            url=url, files=files, table_id=table_id
+        )
         output_filepath = clean_data_make_partitions_cad(
-            diretorio=input_filepath, table_id=table_id, upstream_tasks=[input_filepath]
+            diretorio=input_filepath,
+            table_id=table_id,
+            upstream_tasks=[input_filepath],
         )
 
         rename_flow_run = rename_current_flow_run_dataset_table(
-            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+            prefix="Dump: ",
+            dataset_id=dataset_id,
+            table_id=table_id,
+            wait=table_id,
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(
@@ -560,7 +617,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks = [wait_upload_table]
+                upstream_tasks=[wait_upload_table],
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -593,7 +650,9 @@ br_cvm_fi_documentos_informacao_cadastral.storage = GCS(
 br_cvm_fi_documentos_informacao_cadastral.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_cvm_fi_documentos_informacao_cadastral.schedule = every_day_informacao_cadastral
+br_cvm_fi_documentos_informacao_cadastral.schedule = (
+    every_day_informacao_cadastral
+)
 
 
 with Flow(
@@ -604,7 +663,9 @@ with Flow(
 ) as br_cvm_fi_documentos_balancete:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_cvm_fi", required=True)
-    table_id = Parameter("table_id", default="documentos_balancete", required=True)
+    table_id = Parameter(
+        "table_id", default="documentos_balancete", required=True
+    )
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -612,7 +673,9 @@ with Flow(
         "materialize_after_dump", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
     url = Parameter(
         "url",
         default=cvm_constants.URL_BALANCETE.value,
@@ -626,24 +689,30 @@ with Flow(
         table_id=table_id,
         data_source_max_date=max_date,
         date_format="%Y-%m-%d",
-        date_type= 'last_update_date',
+        date_type="last_update_date",
         upstream_tasks=[df],
     )
 
     with case(check_if_outdated, False):
-        log_task(f"A execução sera agendada para a próxima data definida na schedule")
+        log_task(
+            "A execução sera agendada para a próxima data definida na schedule"
+        )
 
     with case(check_if_outdated, True):
-
         arquivos = generate_links_to_download(df=df, max_date=max_date)
 
-        input_filepath = download_unzip_csv(url=url, files=arquivos, id=table_id)
+        input_filepath = download_unzip_csv(
+            url=url, files=arquivos, id=table_id
+        )
         output_filepath = clean_data_make_partitions_balancete(
             input_filepath, table_id=table_id, upstream_tasks=[input_filepath]
         )
 
         rename_flow_run = rename_current_flow_run_dataset_table(
-            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+            prefix="Dump: ",
+            dataset_id=dataset_id,
+            table_id=table_id,
+            wait=table_id,
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(
@@ -669,7 +738,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks = [wait_upload_table]
+                upstream_tasks=[wait_upload_table],
             )
 
             wait_for_materialization = wait_for_flow_run(

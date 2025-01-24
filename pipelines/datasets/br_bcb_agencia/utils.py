@@ -3,7 +3,6 @@
 General purpose functions for the br_bcb_agencia project
 """
 
-
 import os
 import re
 import unicodedata
@@ -12,7 +11,6 @@ from io import BytesIO
 from urllib.request import urlopen
 from zipfile import ZipFile
 
-import basedosdados as bd
 import pandas as pd
 import requests
 from lxml import html
@@ -150,13 +148,17 @@ def read_file(file_path: str, file_name: str) -> pd.DataFrame:
         skiprows = find_cnpj_row_number(file_path=file_path) + 1
 
         conv = get_conv_names(file_path=file_path, skiprows=skiprows)
-        df = pd.read_excel(file_path, skiprows=skiprows, converters=conv, skipfooter=2)
+        df = pd.read_excel(
+            file_path, skiprows=skiprows, converters=conv, skipfooter=2
+        )
         df = create_year_month_cols(df=df, file=file_name)
 
     except Exception as e:
         log(e)
         conv = get_conv_names(file_path=file_path, skiprows=9)
-        df = pd.read_excel(file_path, skiprows=9, converters=conv, skipfooter=2)
+        df = pd.read_excel(
+            file_path, skiprows=9, converters=conv, skipfooter=2
+        )
         df = create_year_month_cols(df=df, file=file_name)
     return df
 

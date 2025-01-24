@@ -32,7 +32,14 @@ def get_random_expression() -> pd.DataFrame:
         dataframe = pd.json_normalize(response.json())
         dataframe["date"] = time_stamp
     except Exception:
-        data = [datetime.datetime.now(), np.nan, np.nan, np.nan, np.nan, np.nan]
+        data = [
+            datetime.datetime.now(),
+            np.nan,
+            np.nan,
+            np.nan,
+            np.nan,
+            np.nan,
+        ]
         dataframe = pd.DataFrame(data, columns=cols)
     return dataframe[cols], time_stamp
 
@@ -50,7 +57,9 @@ def dataframe_to_csv(
     os.makedirs(path, exist_ok=True)
     # Write dataframe to CSV
     log(f"Writing dataframe to CSV: {path}")
-    time_stamp = time_stamp.replace(" ", "_").replace(":", "_").replace("-", "_")
+    time_stamp = (
+        time_stamp.replace(" ", "_").replace(":", "_").replace("-", "_")
+    )
     dataframe.to_csv(path / f"{time_stamp}.csv", index=False)
     log(f"Wrote dataframe to CSV: {path}")
 
@@ -58,7 +67,9 @@ def dataframe_to_csv(
 
 
 @task
-def upload_to_gcs(path: Union[str, Path], dataset_id: str, table_id: str) -> None:
+def upload_to_gcs(
+    path: Union[str, Path], dataset_id: str, table_id: str
+) -> None:
     """
     Uploads a bunch of CSVs using BD+
     """

@@ -2,6 +2,8 @@
 """
 Tasks for br_ans_beneficiario
 """
+
+import asyncio
 import os
 import re
 from datetime import datetime
@@ -9,20 +11,15 @@ from datetime import datetime
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
-from loguru import logger
-import asyncio
 from prefect import task
-from pipelines.utils.to_download.utils import download_files_async
 from tqdm import tqdm
-from pipelines.utils.to_download.tasks import to_download
 
-from pipelines.datasets.br_ans_beneficiario.constants import constants as ans_constants
 from pipelines.datasets.br_ans_beneficiario.utils import (
-    download_unzip_csv,
     get_url_from_template,
     parquet_partition,
 )
-from pipelines.utils.utils import log, to_partitions
+from pipelines.utils.to_download.utils import download_files_async
+from pipelines.utils.utils import log
 
 
 @task
@@ -34,7 +31,9 @@ def extract_links_and_dates(url) -> pd.DataFrame:
     response = requests.get(url)
 
     if response.status_code != 200:
-        raise requests.HTTPError(f"Erro HTTP: A resposta da API malsucedida. O código retornado foi:  {response.status_code}")
+        raise requests.HTTPError(
+            f"Erro HTTP: A resposta da API malsucedida. O código retornado foi:  {response.status_code}"
+        )
 
     soup = BeautifulSoup(response.content, "html.parser")
 
@@ -70,6 +69,7 @@ def extract_links_and_dates(url) -> pd.DataFrame:
     # df['desatualizado'] = df['arquivo'].apply(lambda x: True if x in ['inf_diario_fi_202201.zip','inf_diario_fi_202305.zip'] else False)
     return df
 
+
 @task
 def check_if_update_date_is_today(df):
     if max(df["data_hoje"]) == max(df["ultima_atualizacao"]):
@@ -77,16 +77,19 @@ def check_if_update_date_is_today(df):
     else:
         return False
 
+
 @task
 def get_file_max_date(df):
-    lista = df[df['ultima_atualizacao'] == max(df['ultima_atualizacao'])].arquivo.to_list()
+    lista = df[
+        df["ultima_atualizacao"] == max(df["ultima_atualizacao"])
+    ].arquivo.to_list()
     data = datetime.strptime(lista[-1], "%Y%m")
     return data.strftime("%Y-%m-01")
 
 
 @task
-def check_condition(con1: bool, con2:bool):
-    return con1 == True or con2 == True
+def check_condition(con1: bool, con2: bool):
+    return con1 is True or con2 is True
 
 
 @task
@@ -100,8 +103,15 @@ def check_for_updates(df):
 @task
 def files_to_download(df):
     log("Arquivos na fila para o download -->")
-    log(df[df['ultima_atualizacao'] == max(df['ultima_atualizacao'])].arquivo.to_list())
-    return df[df['ultima_atualizacao'] == max(df['ultima_atualizacao'])].arquivo.to_list()
+    log(
+        df[
+            df["ultima_atualizacao"] == max(df["ultima_atualizacao"])
+        ].arquivo.to_list()
+    )
+    return df[
+        df["ultima_atualizacao"] == max(df["ultima_atualizacao"])
+    ].arquivo.to_list()
+
 
 @task
 def crawler_ans(files):
@@ -111,17 +121,13 @@ def crawler_ans(files):
         save_path = "/tmp/data/br_ans_beneficiario/beneficiario/input/"
         os.makedirs(save_path, exist_ok=True)
         log(f"`mkdir = True` >>> {save_path} directory was created.")
-        asyncio.run(
-            download_files_async(
-                urls,
-                save_path,
-                "zip"
-            )
-        )
+        asyncio.run(download_files_async(urls, save_path, "zip"))
 
         log(f"DOWNLOADED FILE ->>> {file}")
 
-        parquet_partition(path="/tmp/data/br_ans_beneficiario/beneficiario/input/")
+        parquet_partition(
+            path="/tmp/data/br_ans_beneficiario/beneficiario/input/"
+        )
 
         os.system(
             'cd /tmp/data/br_ans_beneficiario/beneficiario/input; find . -type f -iname "*.csv" -delete'

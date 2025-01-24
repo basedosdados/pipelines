@@ -13,22 +13,23 @@ from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
 from pipelines.utils.constants import constants as utils_constants
-from pipelines.utils.crawler_datasus.constants import constants as br_datasus_constants
 from pipelines.utils.crawler_datasus.tasks import (
     access_ftp_download_files_async,
     check_files_to_parse,
     decompress_dbc,
     decompress_dbf,
+    get_last_modified_date_in_sinan_tablen,
     is_empty,
+    list_datasus_table_without_date,
     pre_process_files,
     read_dbf_save_parquet_chunks,
-    list_datasus_table_without_date,
-    get_last_modified_date_in_sinan_tablen
 )
 from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.metadata.tasks import check_if_data_is_outdated
+from pipelines.utils.execute_dbt_model.constants import (
+    constants as dump_db_constants,
+)
 from pipelines.utils.metadata.flows import update_django_metadata
+from pipelines.utils.metadata.tasks import check_if_data_is_outdated
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
@@ -36,13 +37,16 @@ from pipelines.utils.tasks import (
     rename_current_flow_run_dataset_table,
 )
 
-
 with Flow(name="DATASUS-CNES", code_owners=["Gabriel Pisa"]) as flow_cnes:
     # Parameters
     dataset_id = Parameter("dataset_id", required=True)
     table_id = Parameter("table_id", required=True)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
-    year_month_to_extract = Parameter("year_month_to_extract",default='', required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
+    year_month_to_extract = Parameter(
+        "year_month_to_extract", default="", required=False
+    )
 
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
@@ -53,7 +57,10 @@ with Flow(name="DATASUS-CNES", code_owners=["Gabriel Pisa"]) as flow_cnes:
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     ftp_files = check_files_to_parse(
@@ -68,15 +75,16 @@ with Flow(name="DATASUS-CNES", code_owners=["Gabriel Pisa"]) as flow_cnes:
         )
 
     with case(is_empty(ftp_files), False):
-
         dbc_files = access_ftp_download_files_async(
-          file_list=ftp_files,
-           dataset_id=dataset_id,
-           table_id=table_id,
+            file_list=ftp_files,
+            dataset_id=dataset_id,
+            table_id=table_id,
         )
 
         dbf_files = decompress_dbc(
-            file_list=dbc_files, dataset_id=dataset_id, upstream_tasks=[dbc_files]
+            file_list=dbc_files,
+            dataset_id=dataset_id,
+            upstream_tasks=[dbc_files],
         )
 
         csv_files = decompress_dbf(
@@ -149,15 +157,17 @@ flow_cnes.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 flow_cnes.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 
 
-
-
 with Flow(name="DATASUS-SIA", code_owners=["Gabriel Pisa"]) as flow_siasus:
     # Parameters
     dataset_id = Parameter("dataset_id", required=True)
     table_id = Parameter("table_id", required=True)
     year_first_two_digits = Parameter("year_first_two_digits", required=False)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
-    year_month_to_extract = Parameter("year_month_to_extract",default='', required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
+    year_month_to_extract = Parameter(
+        "year_month_to_extract", default="", required=False
+    )
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -167,7 +177,10 @@ with Flow(name="DATASUS-SIA", code_owners=["Gabriel Pisa"]) as flow_siasus:
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     ftp_files = check_files_to_parse(
@@ -182,22 +195,22 @@ with Flow(name="DATASUS-SIA", code_owners=["Gabriel Pisa"]) as flow_siasus:
         )
 
     with case(is_empty(ftp_files), False):
-
         dbc_files = access_ftp_download_files_async(
-          file_list=ftp_files,
-           dataset_id=dataset_id,
-           table_id=table_id,
+            file_list=ftp_files,
+            dataset_id=dataset_id,
+            table_id=table_id,
         )
 
         dbf_files = decompress_dbc(
-            file_list=dbc_files, dataset_id=dataset_id, upstream_tasks=[dbc_files]
+            file_list=dbc_files,
+            dataset_id=dataset_id,
+            upstream_tasks=[dbc_files],
         )
-
 
         files_path = read_dbf_save_parquet_chunks(
             file_list=dbc_files,
             table_id=table_id,
-            upstream_tasks=[dbc_files,dbf_files],
+            upstream_tasks=[dbc_files, dbf_files],
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(
@@ -224,7 +237,7 @@ with Flow(name="DATASUS-SIA", code_owners=["Gabriel Pisa"]) as flow_siasus:
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks = [wait_upload_table]
+                upstream_tasks=[wait_upload_table],
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -255,20 +268,23 @@ with Flow(name="DATASUS-SIA", code_owners=["Gabriel Pisa"]) as flow_siasus:
 flow_siasus.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 flow_siasus.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value,
-    memory_limit = '12Gi',
-    memory_request = '4Gi',
-    cpu_limit = 1,
-    )
-
+    memory_limit="12Gi",
+    memory_request="4Gi",
+    cpu_limit=1,
+)
 
 
 with Flow(name="DATASUS-SIH", code_owners=["equipe_pipelines"]) as flow_sihsus:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_ms_sih", required=False)
-    table_id = Parameter("table_id", default = 'aihs_reduzidas', required=False)
+    table_id = Parameter("table_id", default="aihs_reduzidas", required=False)
     year_first_two_digits = Parameter("year_first_two_digits", required=False)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
-    year_month_to_extract = Parameter("year_month_to_extract",default='', required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
+    year_month_to_extract = Parameter(
+        "year_month_to_extract", default="", required=False
+    )
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -278,7 +294,10 @@ with Flow(name="DATASUS-SIH", code_owners=["equipe_pipelines"]) as flow_sihsus:
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     ftp_files = check_files_to_parse(
@@ -287,30 +306,29 @@ with Flow(name="DATASUS-SIH", code_owners=["equipe_pipelines"]) as flow_sihsus:
         year_month_to_extract=year_month_to_extract,
     )
 
-
     with case(is_empty(ftp_files), True):
         log_task(
             "Os  dados do FTP SIH ainda não foram atualizados para o ano/mes mais recente"
         )
 
     with case(is_empty(ftp_files), False):
-
         dbc_files = access_ftp_download_files_async(
-          file_list=ftp_files,
-           dataset_id=dataset_id,
-           table_id=table_id,
+            file_list=ftp_files,
+            dataset_id=dataset_id,
+            table_id=table_id,
         )
 
         dbf_files = decompress_dbc(
-            file_list=dbc_files, dataset_id=dataset_id, upstream_tasks=[dbc_files]
+            file_list=dbc_files,
+            dataset_id=dataset_id,
+            upstream_tasks=[dbc_files],
         )
-
 
         files_path = read_dbf_save_parquet_chunks(
             file_list=dbc_files,
             table_id=table_id,
             dataset_id=dataset_id,
-            upstream_tasks=[dbc_files,dbf_files],
+            upstream_tasks=[dbc_files, dbf_files],
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(
@@ -319,7 +337,7 @@ with Flow(name="DATASUS-SIH", code_owners=["equipe_pipelines"]) as flow_sihsus:
             table_id=table_id,
             dump_mode="append",
             wait=files_path,
-            source_format='parquet',
+            source_format="parquet",
         )
 
         with case(materialize_after_dump, True):
@@ -338,7 +356,7 @@ with Flow(name="DATASUS-SIH", code_owners=["equipe_pipelines"]) as flow_sihsus:
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks = [wait_upload_table]
+                upstream_tasks=[wait_upload_table],
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -370,11 +388,14 @@ flow_sihsus.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 flow_sihsus.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 
 
-
 with Flow(name="DATASUS-SINAN", code_owners=["trick"]) as flow_sinan:
-    dataset_id = Parameter("dataset_id", default ="br_ms_sinan", required=True)
-    table_id = Parameter("table_id", default="microdados_dengue", required=True)
-    update_metadata = Parameter("update_metadata", default=True, required=False)
+    dataset_id = Parameter("dataset_id", default="br_ms_sinan", required=True)
+    table_id = Parameter(
+        "table_id", default="microdados_dengue", required=True
+    )
+    update_metadata = Parameter(
+        "update_metadata", default=True, required=False
+    )
 
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
@@ -385,37 +406,40 @@ with Flow(name="DATASUS-SINAN", code_owners=["trick"]) as flow_sinan:
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
-    data_source_max_date = get_last_modified_date_in_sinan_tablen(datasus_database='SINAN', datasus_database_table='DENGBR')
+    data_source_max_date = get_last_modified_date_in_sinan_tablen(
+        datasus_database="SINAN", datasus_database_table="DENGBR"
+    )
 
     dados_desatualizados = check_if_data_is_outdated(
         dataset_id=dataset_id,
         table_id=table_id,
         data_source_max_date=data_source_max_date,
         date_format="%Y-%m-%d",
-        upstream_tasks=[data_source_max_date]
+        upstream_tasks=[data_source_max_date],
     )
 
     with case(dados_desatualizados, True):
-
         ftp_files = list_datasus_table_without_date(
             dataset_id=dataset_id,
             table_id=table_id,
-
         )
         dbc_files = access_ftp_download_files_async(
             file_list=ftp_files,
             dataset_id=dataset_id,
             table_id=table_id,
-            upstream_tasks=[ftp_files]
+            upstream_tasks=[ftp_files],
         )
 
         dbf_files = decompress_dbc(
             file_list=dbc_files,
             dataset_id=dataset_id,
-            upstream_tasks=[dbc_files]
+            upstream_tasks=[dbc_files],
         )
 
         files_path = read_dbf_save_parquet_chunks(
@@ -431,7 +455,7 @@ with Flow(name="DATASUS-SINAN", code_owners=["trick"]) as flow_sinan:
             table_id=table_id,
             dump_mode="append",
             wait=files_path,
-            upstream_tasks=[files_path]
+            upstream_tasks=[files_path],
         )
 
         with case(materialize_after_dump, True):
@@ -470,7 +494,7 @@ with Flow(name="DATASUS-SINAN", code_owners=["trick"]) as flow_sinan:
                 update_django_metadata(
                     dataset_id=dataset_id,
                     table_id=table_id,
-                    date_column_name={'date' : 'data_notificacao'},
+                    date_column_name={"date": "data_notificacao"},
                     date_format="%Y-%m-%d",
                     coverage_type="part_bdpro",
                     time_delta={"months": 6},

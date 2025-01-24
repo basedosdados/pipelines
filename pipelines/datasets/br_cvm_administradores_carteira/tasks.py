@@ -107,7 +107,11 @@ def clean_table_pessoa_juridica(root: str) -> str:
     ou_filepath = f"{root}/cleaned/bd_pessoa_juridica.csv"
 
     dataframe: pd.DataFrame = pd.read_csv(
-        in_filepath, sep=";", keep_default_na=False, encoding="latin1", dtype=object
+        in_filepath,
+        sep=";",
+        keep_default_na=False,
+        encoding="latin1",
+        dtype=object,
     )
 
     dataframe.columns = [

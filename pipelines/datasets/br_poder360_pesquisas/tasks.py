@@ -2,6 +2,7 @@
 """
 Tasks for br_poder360_pesquisas
 """
+
 import os
 from datetime import timedelta
 from json.decoder import JSONDecodeError
@@ -55,7 +56,9 @@ def crawler() -> str:
 
     for year in tqdm(range(2000, 2025)):
         url = f"https://pesquisas.poder360.com.br/web/consulta/fetch?data_pesquisa_de={year}-01-01&data_pesquisa_ate={year}-12-31&order_column=ano&order_type=asc"
-        response = requests.get(url, headers={"User-Agent": "Magic Browser"}, timeout=5)
+        response = requests.get(
+            url, headers={"User-Agent": "Magic Browser"}, timeout=5
+        )
         try:
             data_json = response.json()
         except (JSONDecodeError, ValueError):
@@ -121,14 +124,30 @@ def crawler() -> str:
             df["cargo"] = df["cargo"].str.lower()
             df["tipo"] = df["tipo"].str.lower()
             df["tipo_voto"] = df["tipo_voto"].str.lower()
-            df["sigla_partido"] = df["sigla_partido"].str.replace("Novo", "NOVO")
-            df["sigla_partido"] = df["sigla_partido"].str.replace("Patriota", "PATRI")
-            df["sigla_partido"] = df["sigla_partido"].str.replace("Podemos", "PODE")
-            df["sigla_partido"] = df["sigla_partido"].str.replace("Progressistas", "PP")
-            df["sigla_partido"] = df["sigla_partido"].str.replace("Prona", "PRONA")
-            df["sigla_partido"] = df["sigla_partido"].str.replace("Pros", "PROS")
-            df["sigla_partido"] = df["sigla_partido"].str.replace("Psol", "PSOL")
-            df["sigla_partido"] = df["sigla_partido"].str.replace("Rede", "REDE")
+            df["sigla_partido"] = df["sigla_partido"].str.replace(
+                "Novo", "NOVO"
+            )
+            df["sigla_partido"] = df["sigla_partido"].str.replace(
+                "Patriota", "PATRI"
+            )
+            df["sigla_partido"] = df["sigla_partido"].str.replace(
+                "Podemos", "PODE"
+            )
+            df["sigla_partido"] = df["sigla_partido"].str.replace(
+                "Progressistas", "PP"
+            )
+            df["sigla_partido"] = df["sigla_partido"].str.replace(
+                "Prona", "PRONA"
+            )
+            df["sigla_partido"] = df["sigla_partido"].str.replace(
+                "Pros", "PROS"
+            )
+            df["sigla_partido"] = df["sigla_partido"].str.replace(
+                "Psol", "PSOL"
+            )
+            df["sigla_partido"] = df["sigla_partido"].str.replace(
+                "Rede", "REDE"
+            )
 
             data = pd.concat([data, df])
         else:

@@ -14,14 +14,18 @@ from pipelines.constants import constants
 from pipelines.datasets.fundacao_lemann.schedules import every_year
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.execute_dbt_model.constants import (
+    constants as dump_db_constants,
+)
 from pipelines.utils.tasks import get_current_flow_labels
 
 with Flow(
     name="fundacao_lemann.ano_escola_serie_educacao_aprendizagem_adequada",
     code_owners=["crislanealves"],
 ) as ano_escola_serie_educacao_aprendizagem_adequada:
-    dataset_id = Parameter("dataset_id", default="fundacao_lemann", required=True)
+    dataset_id = Parameter(
+        "dataset_id", default="fundacao_lemann", required=True
+    )
     table_id = Parameter(
         "table_id",
         default="ano_escola_serie_educacao_aprendizagem_adequada",

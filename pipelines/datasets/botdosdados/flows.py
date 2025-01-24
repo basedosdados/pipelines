@@ -2,6 +2,7 @@
 """
 Flows for botdosdados
 """
+
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
@@ -27,7 +28,9 @@ with Flow(
     table_id = Parameter("table_id", default="mes_brasil", required=True)
     # pylint: disable=C0103
     now = get_date_time_str()
-    rename_flow_run = rename_current_flow_run(msg=f"botdosdados - {now}", wait=now)
+    rename_flow_run = rename_current_flow_run(
+        msg=f"botdosdados - {now}", wait=now
+    )
 
     cond = was_table_updated(
         page_size=100, hours=24, subset="inflation", wait=rename_flow_run
@@ -48,7 +51,9 @@ with Flow(
         )
 
         text = message_inflation_plot(
-            dataset_id=dataset_id, table_id=table_id, upstream_tasks=[access_token]
+            dataset_id=dataset_id,
+            table_id=table_id,
+            upstream_tasks=[access_token],
         )
 
         twt_media_id = send_media(

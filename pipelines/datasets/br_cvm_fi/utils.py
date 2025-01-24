@@ -2,6 +2,7 @@
 """
 General purpose functions for the br_cvm_fi project
 """
+
 import os
 import re
 from io import StringIO
@@ -15,8 +16,12 @@ def sheet_to_df(columns_config_url_or_path):
     """
     Convert sheet to dataframe. Check if your google sheet Share are: Anyone on the internet with this link can view
     """
-    url = columns_config_url_or_path.replace("edit#gid=", "export?format=csv&gid=")
-    return pd.read_csv(StringIO(requests.get(url, timeout=10).content.decode("utf-8")))
+    url = columns_config_url_or_path.replace(
+        "edit#gid=", "export?format=csv&gid="
+    )
+    return pd.read_csv(
+        StringIO(requests.get(url, timeout=10).content.decode("utf-8"))
+    )
 
 
 def rename_columns(df_origem, df_destino):
@@ -64,7 +69,9 @@ def limpar_string(texto):
     return texto
 
 
-def check_and_create_column(df: pd.DataFrame, colunas_totais: list) -> pd.DataFrame:
+def check_and_create_column(
+    df: pd.DataFrame, colunas_totais: list
+) -> pd.DataFrame:
     """
     Check if a column exists in a Pandas DataFrame. If it doesn't, create a new column with the given name
     and fill it with NaN values. If it does exist, do nothing.

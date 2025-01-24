@@ -6,7 +6,9 @@ import httpx
 from lxml import html
 from unidecode import unidecode
 
-from pipelines.datasets.br_cnj_improbidade_administrativa.constants import constants
+from pipelines.datasets.br_cnj_improbidade_administrativa.constants import (
+    constants,
+)
 from pipelines.utils.utils import log
 
 
@@ -23,7 +25,9 @@ def build_process_url(id: str) -> str:
 
 
 def build_people_info_url(sentence_id: str, id: str) -> str:
-    return constants.PEOPLE_INFO_URL_TEMPLATE.value.format(sentence_id=sentence_id, people_id=id)
+    return constants.PEOPLE_INFO_URL_TEMPLATE.value.format(
+        sentence_id=sentence_id, people_id=id
+    )
 
 
 async def get_async(client: httpx.AsyncClient, url: str) -> httpx.Response:
@@ -72,12 +76,16 @@ def parse_peoples(response: httpx.Response) -> list[PeopleLine]:
             return []
 
         if len(nodes) > 1:
-            log(f"parse_peoples: more than one table element found: {response}")
+            log(
+                f"parse_peoples: more than one table element found: {response}"
+            )
 
         childrens = nodes[0].getchildren()
 
         return [
-            parse_line_from_main_page(i) for i in childrens if i.get("class") != "\\'fundoTr\\'"
+            parse_line_from_main_page(i)
+            for i in childrens
+            if i.get("class") != "\\'fundoTr\\'"
         ]
     else:
         return []
@@ -109,7 +117,11 @@ def sanitize_string(string: str) -> str:
 
 def parse_info_about_sentence(tr_element) -> tuple[str, str] | None:
     children_lhs_span = tr_element.find(".//td[1]//span")
-    children_lhs = tr_element.find(".//td[1]") if children_lhs_span is None else children_lhs_span
+    children_lhs = (
+        tr_element.find(".//td[1]")
+        if children_lhs_span is None
+        else children_lhs_span
+    )
 
     if children_lhs is None:
         return None
@@ -119,7 +131,11 @@ def parse_info_about_sentence(tr_element) -> tuple[str, str] | None:
     if text is not None:
         text_strip = text.strip()  # type: ignore
         if text_strip == "Tipo Julgamento:":
-            value = tr_element.xpath('.//td[2]//input[@checked="checked"]')[0].get("value").strip()
+            value = (
+                tr_element.xpath('.//td[2]//input[@checked="checked"]')[0]
+                .get("value")
+                .strip()
+            )
             return (text_strip, value)
         elif text_strip == "Inelegibilidade":
             value = tr_element.find(".//td[2]//font//b").text.strip()
@@ -198,7 +214,9 @@ def normalize_string(input_string):
     normalized_string = unidecode(input_string)
 
     # Replace non-alphanumeric characters with underscores
-    normalized_string = "".join(c if c.isalnum() or c.isspace() else "_" for c in normalized_string)
+    normalized_string = "".join(
+        c if c.isalnum() or c.isspace() else "_" for c in normalized_string
+    )
 
     # Replace spaces with underscores
     normalized_string = normalized_string.replace(" ", "_")
@@ -253,7 +271,9 @@ def parse_sentence(sentence_response: SentenceResponse) -> dict:
     # NOTE: Algumas paginas sao privadas e retorna com status_code == 400
     # Elas tem uma tag script com a funcao alert
     if len(script_elements) == 1:
-        log(f"Sentence {sentence_response} is private. Script elements: {script_elements}")
+        log(
+            f"Sentence {sentence_response} is private. Script elements: {script_elements}"
+        )
         js_code = script_elements[0].text
         if (
             js_code
@@ -284,7 +304,9 @@ def parse_sentence(sentence_response: SentenceResponse) -> dict:
     if len(node_situacao) > 0:
         situacao = node_situacao[0].text.strip()
 
-    tr_info_condenacao = tree.xpath("body//div[2]//div[5]//table[2]//tr//td//table[2]//tr[5]")[0]
+    tr_info_condenacao = tree.xpath(
+        "body//div[2]//div[5]//table[2]//tr//td//table[2]//tr[5]"
+    )[0]
 
     lines_info_condenacao = [
         i
@@ -301,16 +323,26 @@ def parse_sentence(sentence_response: SentenceResponse) -> dict:
 
     related_issues = list(
         map(
-            lambda index_issue: {f"assunto_{index_issue[0] + 1}": index_issue[1][1]},
+            lambda index_issue: {
+                f"assunto_{index_issue[0] + 1}": index_issue[1][1]
+            },
             enumerate(parse_related_issues(tree)),
         )
     )
 
-    unnest_related_issues = {key: value for item in related_issues for key, value in item.items()}
+    unnest_related_issues = {
+        key: value for item in related_issues for key, value in item.items()
+    }
 
-    process_info_unique_names = [make_unique_col_name(name) for name in process_info.items()]
+    process_info_unique_names = [
+        make_unique_col_name(name) for name in process_info.items()
+    ]
 
-    unnest_prc = {key: value for item in process_info_unique_names for key, value in item.items()}
+    unnest_prc = {
+        key: value
+        for item in process_info_unique_names
+        for key, value in item.items()
+    }
 
     return {
         "condenacao_id": sentence_response["condenacao_id"],
@@ -328,7 +360,9 @@ class PeopleInfoResponse(typing.TypedDict):
     response: httpx.Response
 
 
-def parse_people_data(people_response: PeopleInfoResponse) -> dict[str, str | None]:
+def parse_people_data(
+    people_response: PeopleInfoResponse,
+) -> dict[str, str | None]:
     if people_response["response"].status_code != 200:
         return {"condenacao_id": people_response["condenacao_id"]}
 
@@ -366,7 +400,9 @@ def parse_process(process_response: ProcessInfoResponse) -> dict:
 
     tree = html.fromstring(content)
 
-    node = tree.xpath(".//body//div[2]//div[5]//div[4]//table[2]//tr//td//table//tr[5]/td[2]")
+    node = tree.xpath(
+        ".//body//div[2]//div[5]//div[4]//table[2]//tr//td//table//tr[5]/td[2]"
+    )
 
     if len(node) == 0:
         return {"process_id": process_id}

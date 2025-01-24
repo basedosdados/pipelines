@@ -5,7 +5,6 @@ Constant values for the datasets projects
 
 ###############################################################################
 
-
 from enum import Enum
 
 

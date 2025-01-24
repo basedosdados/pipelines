@@ -2,15 +2,16 @@
 """
 General purpose functions for the mundo_transfermarkt_competicoes project
 """
+
 ###############################################################################
 import re
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 
-import numpy as np
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
-from concurrent.futures import ThreadPoolExecutor
+
 from pipelines.datasets.mundo_transfermarkt_competicoes.constants import (
     constants as mundo_constants,
 )
@@ -39,13 +40,19 @@ def process(df, content):
 
     """
     new_content = {
-        "estadio": content.find_all("td", attrs={"class": "hauptlink"})[0].get_text(),
+        "estadio": content.find_all("td", attrs={"class": "hauptlink"})[
+            0
+        ].get_text(),
         "data": re.search(
             re.compile(r"\d+/\d+/\d+"),
-            content.find("a", text=re.compile(r"\d+/\d+/\d")).get_text().strip(),
+            content.find("a", text=re.compile(r"\d+/\d+/\d"))
+            .get_text()
+            .strip(),
         ).group(0),
         "horario": " ".join(
-            content.find_all("p", attrs={"class": "sb-datum hide-for-small"})[0]
+            content.find_all("p", attrs={"class": "sb-datum hide-for-small"})[
+                0
+            ]
             .get_text()
             .split()[6:]
         ),
@@ -56,7 +63,9 @@ def process(df, content):
         .group(0)
         .split(".", 1)[0],
         "publico": content.find_all("td")[11].get_text(),
-        "publico_max": content.find_all("table", attrs={"class": "profilheader"})[0]
+        "publico_max": content.find_all(
+            "table", attrs={"class": "profilheader"}
+        )[0]
         .find_all("td")[2]
         .get_text(),
         "arbitro": re.search(
@@ -76,12 +85,12 @@ def process(df, content):
         "as": content.find_all("div", attrs={"class": "sb-statistik-zahl"})[
             1
         ].get_text(),
-        "hsofft": content.find_all("div", attrs={"class": "sb-statistik-zahl"})[
-            2
-        ].get_text(),
-        "asofft": content.find_all("div", attrs={"class": "sb-statistik-zahl"})[
-            3
-        ].get_text(),
+        "hsofft": content.find_all(
+            "div", attrs={"class": "sb-statistik-zahl"}
+        )[2].get_text(),
+        "asofft": content.find_all(
+            "div", attrs={"class": "sb-statistik-zahl"}
+        )[3].get_text(),
         "hdef": content.find_all("div", attrs={"class": "sb-statistik-zahl"})[
             4
         ].get_text(),
@@ -134,15 +143,21 @@ def process_basico(df, content):
     # Cada chave do dicionário representa um atributo e seu valor corresponde ao valor extraído do HTML.
     new_content = {
         # Extrai o nome do estádio do HTML
-        "estadio": content.find_all("td", attrs={"class": "hauptlink"})[0].get_text(),
+        "estadio": content.find_all("td", attrs={"class": "hauptlink"})[
+            0
+        ].get_text(),
         # Usa expressões regulares para procurar um padrão de data (no formato dd/mm/aaaa) no texto do link que corresponda ao padrão.
         "data": re.search(
             re.compile(r"\d+/\d+/\d+"),
-            content.find("a", text=re.compile(r"\d+/\d+/\d")).get_text().strip(),
+            content.find("a", text=re.compile(r"\d+/\d+/\d"))
+            .get_text()
+            .strip(),
         ).group(0),
         # Extrai o horário do HTML.
         "horario": " ".join(
-            content.find_all("p", attrs={"class": "sb-datum hide-for-small"})[0]
+            content.find_all("p", attrs={"class": "sb-datum hide-for-small"})[
+                0
+            ]
             .get_text()
             .split()[6:]
         ),
@@ -157,7 +172,9 @@ def process_basico(df, content):
         # Procura por todas as tags <td> e obtém o texto da 12ª ocorrência (índice 11).
         "publico": content.find_all("td")[11].get_text(),
         # Extrai o número máximo de público do HTML.
-        "publico_max": content.find_all("table", attrs={"class": "profilheader"})[0]
+        "publico_max": content.find_all(
+            "table", attrs={"class": "profilheader"}
+        )[0]
         .find_all("td")[2]
         .get_text(),
         # Extrai o nome do árbitro do HTML.
@@ -261,19 +278,27 @@ def pegar_valor(df, content):
     """
 
     valor_content = {
-        "valor_equipe_titular_man": content.find_all("div", class_="table-footer")[0]
+        "valor_equipe_titular_man": content.find_all(
+            "div", class_="table-footer"
+        )[0]
         .find_all("td")[3]
         .get_text()
         .split("€", 1)[1],
-        "valor_equipe_titular_vis": content.find_all("div", class_="table-footer")[1]
+        "valor_equipe_titular_vis": content.find_all(
+            "div", class_="table-footer"
+        )[1]
         .find_all("td")[3]
         .get_text()
         .split("€", 1)[1],
-        "idade_media_titular_man": content.find_all("div", class_="table-footer")[0]
+        "idade_media_titular_man": content.find_all(
+            "div", class_="table-footer"
+        )[0]
         .find_all("td")[1]
         .get_text()
         .split(":", 1)[1],
-        "idade_media_titular_vis": content.find_all("div", class_="table-footer")[1]
+        "idade_media_titular_vis": content.find_all(
+            "div", class_="table-footer"
+        )[1]
         .find_all("td")[1]
         .get_text()
         .split(":", 1)[1],
@@ -297,19 +322,27 @@ def pegar_valor_sem_tecnico(df, content):
         pandas.DataFrame: O DataFrame atualizado com os dados gerais da partida (sem informações sobre os técnicos) processados.
     """
     valor_content = {
-        "valor_equipe_titular_man": content.find_all("div", class_="table-footer")[0]
+        "valor_equipe_titular_man": content.find_all(
+            "div", class_="table-footer"
+        )[0]
         .find_all("td")[3]
         .get_text()
         .split("€", 1)[1],
-        "valor_equipe_titular_vis": content.find_all("div", class_="table-footer")[1]
+        "valor_equipe_titular_vis": content.find_all(
+            "div", class_="table-footer"
+        )[1]
         .find_all("td")[3]
         .get_text()
         .split("€", 1)[1],
-        "idade_media_titular_man": content.find_all("div", class_="table-footer")[0]
+        "idade_media_titular_man": content.find_all(
+            "div", class_="table-footer"
+        )[0]
         .find_all("td")[1]
         .get_text()
         .split(":", 1)[1],
-        "idade_media_titular_vis": content.find_all("div", class_="table-footer")[1]
+        "idade_media_titular_vis": content.find_all(
+            "div", class_="table-footer"
+        )[1]
         .find_all("td")[1]
         .get_text()
         .split(":", 1)[1],
@@ -347,6 +380,7 @@ def rename_columns(df):
     df = df.rename(columns=mundo_constants.COLUMNS_MAPPING.value)
     return df
 
+
 def extract_avg_age_and_value(column):
     parts = column.split(":")
     age_str = parts[-1].strip()
@@ -360,10 +394,18 @@ def clean_column(column):
 
 
 def extract_additional_columns(df_valor):
-    df_valor["idade_media_titular_vis"] = df_valor["idade_media_titular_vis"].apply(extract_avg_age_and_value)
-    df_valor["idade_media_titular_man"] = df_valor["idade_media_titular_man"].apply(extract_avg_age_and_value)
-    df_valor["valor_equipe_titular_man"] = df_valor["valor_equipe_titular_man"].apply(extract_avg_age_and_value)
-    df_valor["valor_equipe_titular_vis"] = df_valor["valor_equipe_titular_vis"].apply(extract_avg_age_and_value)
+    df_valor["idade_media_titular_vis"] = df_valor[
+        "idade_media_titular_vis"
+    ].apply(extract_avg_age_and_value)
+    df_valor["idade_media_titular_man"] = df_valor[
+        "idade_media_titular_man"
+    ].apply(extract_avg_age_and_value)
+    df_valor["valor_equipe_titular_man"] = df_valor[
+        "valor_equipe_titular_man"
+    ].apply(extract_avg_age_and_value)
+    df_valor["valor_equipe_titular_vis"] = df_valor[
+        "valor_equipe_titular_vis"
+    ].apply(extract_avg_age_and_value)
     return df_valor
 
 
@@ -398,7 +440,14 @@ async def execucao_coleta():
 
     # para armazenar os dados das partidas para o 1 loop
     df = pd.DataFrame(
-        {"ht": [], "at": [], "fthg": [], "ftag": [], "col_home": [], "col_away": []}
+        {
+            "ht": [],
+            "at": [],
+            "fthg": [],
+            "ftag": [],
+            "col_home": [],
+            "col_away": [],
+        }
     )
     # para armazenar os dados das partidas para o 2 loop
     df_valor = pd.DataFrame({})
@@ -420,18 +469,24 @@ async def execucao_coleta():
             rescheduled = None
             cells = row.findAll("td")  # variável para encontrar <td>
             try:
-                rescheduled = row.findAll("div", class_= "matchresult rescheduled")[0].get_text()
-            except:
-                schedule = None
+                rescheduled = row.findAll(
+                    "div", class_="matchresult rescheduled"
+                )[0].get_text()
+            except:  # noqa: E722
+                schedule = None  # noqa: F841
 
-            if len(cells) == 7 and rescheduled == None:
-                ht_tag.append(cells[2].findAll(text=True))  # iterando sobre cada linha
+            if len(cells) == 7 and rescheduled is None:
+                ht_tag.append(
+                    cells[2].findAll(text=True)
+                )  # iterando sobre cada linha
                 result_tag.append(
                     cells[4].findAll(text=True)
                 )  # iterando sobre cada linha
-                at_tag.append(cells[6].findAll(text=True))  # iterando sobre cada linha
+                at_tag.append(
+                    cells[6].findAll(text=True)
+                )  # iterando sobre cada linha
 
-    for time in range(0, len(links) ):
+    for time in range(0, len(links)):
         try:
             ht.append(str(ht_tag[time][2]))
             col_home.append(str(ht_tag[time][0]))
@@ -447,7 +502,7 @@ async def execucao_coleta():
             str_vazio = ""
             col_away.append(str(str_vazio))
 
-    for tag in result_tag[:len(links)]:
+    for tag in result_tag[: len(links)]:
         fthg.append(str(pattern_fthg.findall(str(tag))))
         ftag.append(str(pattern_ftag.findall(str(tag))))
 
@@ -475,7 +530,7 @@ async def execucao_coleta():
                     df = vazio(df)
         else:
             df = vazio(df)
-        log(f"{n+1} dados de {n_links} extraídos.")
+        log(f"{n + 1} dados de {n_links} extraídos.")
 
     # Segundo loop: Dados gerais
     for n, link in enumerate(links_valor):
@@ -492,7 +547,7 @@ async def execucao_coleta():
                     df_valor = valor_vazio(df_valor)
         else:
             df_valor = valor_vazio(df_valor)
-        log(f"{n+1} valores de {n_links} extraídos.")
+        log(f"{n + 1} valores de {n_links} extraídos.")
 
     # Armazenando os dados no dataframe
     df["ht"] = ht
@@ -520,17 +575,23 @@ async def execucao_coleta():
 
     df_valor = extract_additional_columns(df_valor)
 
-    df["publico_max"] = df["publico_max"].map(lambda x: str(x).replace(".", ""))
+    df["publico_max"] = df["publico_max"].map(
+        lambda x: str(x).replace(".", "")
+    )
     df["publico"] = df["publico"].map(lambda x: str(x).replace(".", ""))
 
-    df["test"] = df["publico_max"].replace(to_replace=r"\d", value=1, regex=True)
+    df["test"] = df["publico_max"].replace(
+        to_replace=r"\d", value=1, regex=True
+    )
 
     def sem_info(x, y):
         if x == 1:
             return y
         return None
 
-    df["test2"] = df.apply(lambda x: sem_info(x["test"], x["publico_max"]), axis=1)
+    df["test2"] = df.apply(
+        lambda x: sem_info(x["test"], x["publico_max"]), axis=1
+    )
     df["publico_max"] = df["test2"]
     del df["test2"]
     del df["test"]
@@ -566,62 +627,80 @@ def process_copa_brasil(df, content):
     a partir de um objeto BeautifulSoup 'content'.
     """
     new_content = {
-        "estadio": content.find_all("td", attrs={"class": "hauptlink"})[0].get_text(),
+        "estadio": content.find_all("td", attrs={"class": "hauptlink"})[
+            0
+        ].get_text(),
         "data": re.search(
             re.compile(r"\d+/\d+/\d+"),
-            content.find("a", text=re.compile(r"\d+/\d+/\d")).get_text().strip(),
+            content.find("a", text=re.compile(r"\d+/\d+/\d"))
+            .get_text()
+            .strip(),
         ).group(0),
-        "horario": content.find_all("p", attrs={"class": "sb-datum hide-for-small"})[0]
+        "horario": content.find_all(
+            "p", attrs={"class": "sb-datum hide-for-small"}
+        )[0]
         .get_text()
         .split("|")[2]
         .strip(),
-        "fase": content.find_all("p", attrs={"class": "sb-datum hide-for-small"})[0]
+        "fase": content.find_all(
+            "p", attrs={"class": "sb-datum hide-for-small"}
+        )[0]
         .get_text()
         .split("|")[0]
         .strip(),
-        "publico": content.find_all("td", attrs={"class": "hauptlink"})[1].get_text(),
-        "publico_max": content.find_all("table", attrs={"class": "profilheader"})[0]
-        .find_all("td")[2]
-        .get_text(),
-        "arbitro": content.find_all("table", attrs={"class": "profilheader"})[1]
-        .find_all("a")[0]
-        .get_text(),
-        "gols_1_tempo_man": content.find_all("div", attrs={"class": "sb-halbzeit"})[0]
-        .get_text()
-        .split(":", 1)[0],
-        "gols_1_tempo_vis": content.find_all("div", attrs={"class": "sb-halbzeit"})[0]
-        .get_text()
-        .split(":", 1)[1],
-        "chutes_man": content.find_all("div", attrs={"class": "sb-statistik-zahl"})[
-            0
-        ].get_text(),
-        "chutes_vis": content.find_all("div", attrs={"class": "sb-statistik-zahl"})[
+        "publico": content.find_all("td", attrs={"class": "hauptlink"})[
             1
         ].get_text(),
+        "publico_max": content.find_all(
+            "table", attrs={"class": "profilheader"}
+        )[0]
+        .find_all("td")[2]
+        .get_text(),
+        "arbitro": content.find_all("table", attrs={"class": "profilheader"})[
+            1
+        ]
+        .find_all("a")[0]
+        .get_text(),
+        "gols_1_tempo_man": content.find_all(
+            "div", attrs={"class": "sb-halbzeit"}
+        )[0]
+        .get_text()
+        .split(":", 1)[0],
+        "gols_1_tempo_vis": content.find_all(
+            "div", attrs={"class": "sb-halbzeit"}
+        )[0]
+        .get_text()
+        .split(":", 1)[1],
+        "chutes_man": content.find_all(
+            "div", attrs={"class": "sb-statistik-zahl"}
+        )[0].get_text(),
+        "chutes_vis": content.find_all(
+            "div", attrs={"class": "sb-statistik-zahl"}
+        )[1].get_text(),
         "chutes_fora_man": content.find_all(
             "div", attrs={"class": "sb-statistik-zahl"}
         )[2].get_text(),
         "chutes_fora_vis": content.find_all(
             "div", attrs={"class": "sb-statistik-zahl"}
         )[3].get_text(),
-        "defesas_man": content.find_all("div", attrs={"class": "sb-statistik-zahl"})[
-            4
-        ].get_text(),
-        "defesas_vis": content.find_all("div", attrs={"class": "sb-statistik-zahl"})[
-            5
-        ].get_text(),
-        "faltas_man": content.find_all("div", attrs={"class": "sb-statistik-zahl"})[
-            10
-        ].get_text(),
-        "faltas_vis": content.find_all("div", attrs={"class": "sb-statistik-zahl"})[
-            11
-        ].get_text(),
-        "escanteios_man": content.find_all("div", attrs={"class": "sb-statistik-zahl"})[
-            6
-        ].get_text(),
-        "escanteios_vis": content.find_all("div", attrs={"class": "sb-statistik-zahl"})[
-            7
-        ].get_text(),
+        "defesas_man": content.find_all(
+            "div", attrs={"class": "sb-statistik-zahl"}
+        )[4].get_text(),
+        "defesas_vis": content.find_all(
+            "div", attrs={"class": "sb-statistik-zahl"}
+        )[5].get_text(),
+        "faltas_man": content.find_all(
+            "div", attrs={"class": "sb-statistik-zahl"}
+        )[10].get_text(),
+        "faltas_vis": content.find_all(
+            "div", attrs={"class": "sb-statistik-zahl"}
+        )[11].get_text(),
+        "escanteios_man": content.find_all(
+            "div", attrs={"class": "sb-statistik-zahl"}
+        )[6].get_text(),
+        "escanteios_vis": content.find_all(
+            "div", attrs={"class": "sb-statistik-zahl"}
+        )[7].get_text(),
         "impedimentos_man": content.find_all(
             "div", attrs={"class": "sb-statistik-zahl"}
         )[12].get_text(),
@@ -656,21 +735,33 @@ def process_basico_copa_brasil(df, content):
         disponíveis para uma partida específica.
     """
     new_content = {
-        "estadio": content.find_all("td", attrs={"class": "hauptlink"})[0].get_text(),
+        "estadio": content.find_all("td", attrs={"class": "hauptlink"})[
+            0
+        ].get_text(),
         "data": re.search(
             re.compile(r"\d+/\d+/\d+"),
-            content.find("a", text=re.compile(r"\d+/\d+/\d")).get_text().strip(),
+            content.find("a", text=re.compile(r"\d+/\d+/\d"))
+            .get_text()
+            .strip(),
         ).group(0),
-        "horario": content.find_all("p", attrs={"class": "sb-datum hide-for-small"})[0]
+        "horario": content.find_all(
+            "p", attrs={"class": "sb-datum hide-for-small"}
+        )[0]
         .get_text()
         .split("|")[2]
         .strip(),
-        "fase": content.find_all("p", attrs={"class": "sb-datum hide-for-small"})[0]
+        "fase": content.find_all(
+            "p", attrs={"class": "sb-datum hide-for-small"}
+        )[0]
         .get_text()
         .split("|")[0]
         .strip(),
-        "publico": content.find_all("td", attrs={"class": "hauptlink"})[1].get_text(),
-        "publico_max": content.find_all("table", attrs={"class": "profilheader"})[0]
+        "publico": content.find_all("td", attrs={"class": "hauptlink"})[
+            1
+        ].get_text(),
+        "publico_max": content.find_all(
+            "table", attrs={"class": "profilheader"}
+        )[0]
         .find_all("td")[2]
         .get_text(),
         "arbitro": None,
@@ -756,20 +847,28 @@ def pegar_valor_copa_brasil(df, content):
     """
     # gera um dicionário
     valor_content = {
-        "valor_equipe_titular_man": content.find_all("div", class_="table-footer")[0]
+        "valor_equipe_titular_man": content.find_all(
+            "div", class_="table-footer"
+        )[0]
         .find_all("td")[3]
         .get_text()
         .split("€", 1)[1],
-        "valor_equipe_titular_vis": content.find_all("div", class_="table-footer")[1]
+        "valor_equipe_titular_vis": content.find_all(
+            "div", class_="table-footer"
+        )[1]
         .find_all("td")[3]
         .get_text()
         .split("€", 1)[1],
-        "idade_media_titular_man": content.find_all("div", class_="table-footer")[0]
+        "idade_media_titular_man": content.find_all(
+            "div", class_="table-footer"
+        )[0]
         .find_all("td")[1]
         .get_text()
         .split(":", 1)[1]
         .strip(),
-        "idade_media_titular_vis": content.find_all("div", class_="table-footer")[1]
+        "idade_media_titular_vis": content.find_all(
+            "div", class_="table-footer"
+        )[1]
         .find_all("td")[1]
         .get_text()
         .split(":", 1)[1]
@@ -798,20 +897,28 @@ def pegar_valor_sem_tecnico_copa_brasil(df, content):
     página da partida representada pelo objeto BeautifulSoup 'content' e extrai os seguintes dados:
     """
     valor_content = {
-        "valor_equipe_titular_man": content.find_all("div", class_="table-footer")[0]
+        "valor_equipe_titular_man": content.find_all(
+            "div", class_="table-footer"
+        )[0]
         .find_all("td")[3]
         .get_text()
         .split("€", 1)[1],
-        "valor_equipe_titular_vis": content.find_all("div", class_="table-footer")[1]
+        "valor_equipe_titular_vis": content.find_all(
+            "div", class_="table-footer"
+        )[1]
         .find_all("td")[3]
         .get_text()
         .split("€", 1)[1],
-        "idade_media_titular_man": content.find_all("div", class_="table-footer")[0]
+        "idade_media_titular_man": content.find_all(
+            "div", class_="table-footer"
+        )[0]
         .find_all("td")[1]
         .get_text()
         .split(":", 1)[1]
         .strip(),
-        "idade_media_titular_vis": content.find_all("div", class_="table-footer")[1]
+        "idade_media_titular_vis": content.find_all(
+            "div", class_="table-footer"
+        )[1]
         .find_all("td")[1]
         .get_text()
         .split(":", 1)[1]
@@ -884,14 +991,24 @@ async def execucao_coleta_copa():
     site_data = requests.get(base_url.format(season=season), headers=headers)
     soup = BeautifulSoup(site_data.content, "html.parser")
 
-    links = [element.get("href") for element in soup.select("td.zentriert.hauptlink a")]
+    links = [
+        element.get("href")
+        for element in soup.select("td.zentriert.hauptlink a")
+    ]
 
     # Na página principal coletar informações gerais de cada partida
     # Coleta a quantidade de gols e nomes dos times
 
     time_man = [element.text for element in soup.select("td.text-right a")]
-    time_vis = [element.text for element in soup.select("tr:not([class]) td.no-border-links.hauptlink a")]
-    gols = [element.text for element in soup.select("td.zentriert.hauptlink a")]
+    time_vis = [
+        element.text
+        for element in soup.select(
+            "tr:not([class]) td.no-border-links.hauptlink a"
+        )
+    ]
+    gols = [
+        element.text for element in soup.select("td.zentriert.hauptlink a")
+    ]
 
     # Checagem se a quantidade de links coletados é igual a quantidade de informações gerais coletadas
 
@@ -918,7 +1035,9 @@ async def execucao_coleta_copa():
             link_data = requests.get(base_link + link, headers=headers)
             link_soup = BeautifulSoup(link_data.content, "html.parser")
             content = link_soup.find("div", id="main")
-            content_gol = content.find_all("div", attrs={"class": "sb-ereignisse"})
+            content_gol = content.find_all(
+                "div", attrs={"class": "sb-ereignisse"}
+            )
             # Encontre a tag h2 com a classe "content-box-headline"
             h2_tags = content.find_all("h2", class_="content-box-headline")
 
@@ -930,7 +1049,9 @@ async def execucao_coleta_copa():
                     )
                     resultado = (
                         content_gol[0]
-                        .find_all("div", attrs={"class": "sb-aktion-spielstand"})[-1]
+                        .find_all(
+                            "div", attrs={"class": "sb-aktion-spielstand"}
+                        )[-1]
                         .get_text()
                     )
                     break  # Pare a iteração assim que encontrar "Goals"
@@ -989,7 +1110,13 @@ async def execucao_coleta_copa():
     log("Extraindo dados...")
     # Criando o dataframe para informações gerais já coletadas, para o loop sobre os dados de estatística
     df = pd.DataFrame(
-        {"time_man": [], "time_vis": [], "gols_man": [], "gols_vis": [], "penalti": []}
+        {
+            "time_man": [],
+            "time_vis": [],
+            "gols_man": [],
+            "gols_vis": [],
+            "penalti": [],
+        }
     )
     # Criando o dataframe para o loop de dados gerais
     df_valor = pd.DataFrame({})
@@ -1007,7 +1134,7 @@ async def execucao_coleta_copa():
                     df = vazio_copa_brasil(df)
         else:
             df = vazio_copa_brasil(df)
-        log(f"{n+1} dados sobre estatística de {n_links} extraídos.")
+        log(f"{n + 1} dados sobre estatística de {n_links} extraídos.")
 
     # Segundo loop: Dados gerais
     for n, link in enumerate(links_valor):
@@ -1017,12 +1144,14 @@ async def execucao_coleta_copa():
                 df_valor = pegar_valor_copa_brasil(df_valor, content)
             except Exception:
                 try:
-                    df_valor = pegar_valor_sem_tecnico_copa_brasil(df_valor, content)
+                    df_valor = pegar_valor_sem_tecnico_copa_brasil(
+                        df_valor, content
+                    )
                 except Exception:
                     df_valor = valor_vazio_copa_brasil(df_valor)
         else:
             df_valor = valor_vazio_copa_brasil(df_valor)
-        log(f"{n+1} valores de {n_links} extraídos.")
+        log(f"{n + 1} valores de {n_links} extraídos.")
 
     # Atribuindo os valores ao Dataframe
     df["time_man"] = time_man
@@ -1061,27 +1190,29 @@ async def execucao_coleta_copa():
         lambda x: str(x).replace("(", "")
     )
 
-    df_valor["valor_equipe_titular_man"] = df_valor["valor_equipe_titular_man"].map(
-        lambda x: str(x).replace("m", "0000")
-    )
-    df_valor["valor_equipe_titular_man"] = df_valor["valor_equipe_titular_man"].map(
-        lambda x: str(x).replace("k", "000")
-    )
-    df_valor["valor_equipe_titular_man"] = df_valor["valor_equipe_titular_man"].map(
+    df_valor["valor_equipe_titular_man"] = df_valor[
+        "valor_equipe_titular_man"
+    ].map(lambda x: str(x).replace("m", "0000"))
+    df_valor["valor_equipe_titular_man"] = df_valor[
+        "valor_equipe_titular_man"
+    ].map(lambda x: str(x).replace("k", "000"))
+    df_valor["valor_equipe_titular_man"] = df_valor[
+        "valor_equipe_titular_man"
+    ].map(lambda x: str(x).replace(".", ""))
+
+    df_valor["valor_equipe_titular_vis"] = df_valor[
+        "valor_equipe_titular_vis"
+    ].map(lambda x: str(x).replace("m", "0000"))
+    df_valor["valor_equipe_titular_vis"] = df_valor[
+        "valor_equipe_titular_vis"
+    ].map(lambda x: str(x).replace("k", "000"))
+    df_valor["valor_equipe_titular_vis"] = df_valor[
+        "valor_equipe_titular_vis"
+    ].map(lambda x: str(x).replace(".", ""))
+
+    df["publico_max"] = df["publico_max"].map(
         lambda x: str(x).replace(".", "")
     )
-
-    df_valor["valor_equipe_titular_vis"] = df_valor["valor_equipe_titular_vis"].map(
-        lambda x: str(x).replace("m", "0000")
-    )
-    df_valor["valor_equipe_titular_vis"] = df_valor["valor_equipe_titular_vis"].map(
-        lambda x: str(x).replace("k", "000")
-    )
-    df_valor["valor_equipe_titular_vis"] = df_valor["valor_equipe_titular_vis"].map(
-        lambda x: str(x).replace(".", "")
-    )
-
-    df["publico_max"] = df["publico_max"].map(lambda x: str(x).replace(".", ""))
     df["publico"] = df["publico"].map(lambda x: str(x).replace(".", ""))
 
     # Extrair a parte antes do traço
@@ -1091,11 +1222,15 @@ async def execucao_coleta_copa():
     df["tipo_fase"].fillna("Jogo único", inplace=True)
 
     # Atualizar a coluna 'fase' com a parte antes do traço ou a própria 'fase' se não houver traço
-    df["fase"] = df["fase"].str.extract(r"(.+)\s*-\s*(.*)")[0].fillna(df["fase"])
+    df["fase"] = (
+        df["fase"].str.extract(r"(.+)\s*-\s*(.*)")[0].fillna(df["fase"])
+    )
 
     df["data"] = pd.to_datetime(df["data"], format="%d/%m/%y")
 
-    df["horario"] = pd.to_datetime(df["horario"], format="%H:%M").dt.strftime("%H:%M")
+    df["horario"] = pd.to_datetime(df["horario"], format="%H:%M").dt.strftime(
+        "%H:%M"
+    )
     df["ano_campeonato"] = mundo_constants.DATA_ATUAL_ANO.value
 
     # Concatenando os dados dos dois loops
@@ -1103,7 +1238,7 @@ async def execucao_coleta_copa():
     df.fillna("", inplace=True)
     df["publico_max"] = df["publico_max"].str.replace("\n", "")
     df = df[mundo_constants.ORDEM_COPA_BRASIL.value]
-    df = df[df.data <= datetime.today()] # Retirar posiveis jogos futuros
+    df = df[df.data <= datetime.today()]  # Retirar posiveis jogos futuros
 
     return df
 
@@ -1135,6 +1270,7 @@ def data_url():
 
     return max(datas)
 
+
 def obter_ano():
     """
     Obtém o ano atual ou o ano anterior, dependendo do mês atual.
@@ -1161,4 +1297,4 @@ def obter_data(link):
         re.compile(r"\d+/\d+/\d+"),
         content.find("a", text=re.compile(r"\d+/\d+/\d")).get_text().strip(),
     ).group(0)
-    return datetime.strptime(data, '%d/%m/%y')
+    return datetime.strptime(data, "%d/%m/%y")

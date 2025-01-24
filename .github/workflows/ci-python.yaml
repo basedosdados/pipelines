@@ -3,15 +3,7 @@ name: CI Python
 on:
   pull_request:
 jobs:
-  lint:
-    name: Lint python
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Lint source code
-        uses: chartboost/ruff-action@v1
-  test:
+  main:
     name: Test python
     runs-on: ubuntu-22.04
     steps:
@@ -27,6 +19,10 @@ jobs:
           python-version: '3.10'
       - name: Install requirements
         run: poetry install --only=test
+      - name: Check format
+        run: poetry run ruff format --check .
+      - name: Check linter
+        run: poetry run ruff check .
       - name: Test
         run: |
           poetry run pytest \

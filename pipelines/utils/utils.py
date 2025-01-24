@@ -2,20 +2,22 @@
 """
 General utilities for all pipelines.
 """
+
 import base64
 import json
+
 # pylint: disable=too-many-arguments
 import logging
-import re
+import zipfile
 from datetime import datetime
+from io import BytesIO
 from os import getenv, walk
 from os.path import join
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
-from uuid import uuid4
-from io import BytesIO
 from urllib.request import urlopen
-import zipfile
+from uuid import uuid4
+
 import basedosdados as bd
 import croniter
 import hvac
@@ -57,7 +59,9 @@ def log(msg: Any, level: str = "info") -> None:
 
 @prefect.task(checkpoint=False)
 def log_task(
-    msg: Any, level: str = "info", wait=None  # pylint: disable=unused-argument
+    msg: Any,
+    level: str = "info",
+    wait=None,  # pylint: disable=unused-argument
 ):
     """
     Logs a message to prefect's logger.
@@ -161,7 +165,9 @@ def run_cloud(
 
     # Print flow run link so user can check it
     print(f"Run submitted: TEST RUN - {run_description} - {flow.name}")
-    print(f"Please check at: https://prefect.basedosdados.org/flow-run/{flow_run_id}")
+    print(
+        f"Please check at: https://prefect.basedosdados.org/flow-run/{flow_run_id}"
+    )
 
 
 def query_to_line(query: str) -> str:
@@ -244,7 +250,6 @@ def notify_discord(
     code_owners = code_owners or constants.DEFAULT_CODE_OWNERS.value
     code_owner_dict = constants.OWNERS_DISCORD_MENTIONS.value
 
-
     at_code_owners = []
     for code_owner in code_owners:
         code_owner_id = code_owner_dict[code_owner]["user_id"]
@@ -259,7 +264,7 @@ def notify_discord(
         elif code_owner_type == "role":
             at_code_owners.append(f"    - <@&{code_owner_id}>\n")
 
-    message = message+ "".join(at_code_owners)
+    message = message + "".join(at_code_owners)
 
     send_discord_message(
         message=message,
@@ -281,8 +286,7 @@ def smart_split(
     separator_index = text.rfind(separator, 0, max_length)
     if (separator_index >= max_length) or (separator_index == -1):
         raise ValueError(
-            f'Cannot split text "{text}" into {max_length}'
-            f'characters using separator "{separator}"'
+            f'Cannot split text "{text}" into {max_length}characters using separator "{separator}"'
         )
 
     return [
@@ -299,7 +303,9 @@ def untuple_clocks(clocks):
     """
     Converts a list of tuples to a list of clocks.
     """
-    return [clock[0] if isinstance(clock, tuple) else clock for clock in clocks]
+    return [
+        clock[0] if isinstance(clock, tuple) else clock for clock in clocks
+    ]
 
 
 ###############
@@ -351,7 +357,9 @@ def dataframe_to_csv(dataframe: pd.DataFrame, path: Union[str, Path]) -> None:
     dataframe.to_csv(path, index=False, encoding="utf-8")
 
 
-def batch_to_dataframe(batch: Tuple[Tuple], columns: List[str]) -> pd.DataFrame:
+def batch_to_dataframe(
+    batch: Tuple[Tuple], columns: List[str]
+) -> pd.DataFrame:
     """
     Converts a batch of rows to a dataframe.
     """
@@ -372,7 +380,14 @@ def clean_dataframe(dataframe: pd.DataFrame) -> pd.DataFrame:
                     .replace("None", np.nan, regex=True)
                 )
             except Exception as exc:
-                print("Column: ", col, "\nData: ", dataframe[col].tolist(), "\n", exc)
+                print(
+                    "Column: ",
+                    col,
+                    "\nData: ",
+                    dataframe[col].tolist(),
+                    "\n",
+                    exc,
+                )
                 raise
     return dataframe
 
@@ -420,7 +435,8 @@ def to_partitions(
         unique_combinations = (
             data[partition_columns]
             # .astype(str)
-            .drop_duplicates(subset=partition_columns).to_dict(orient="records")
+            .drop_duplicates(subset=partition_columns)
+            .to_dict(orient="records")
         )
 
         for filter_combination in unique_combinations:
@@ -458,11 +474,12 @@ def to_partitions(
                 # append data to parquet
                 file_filter_save_path = Path(filter_save_path) / "data.parquet"
                 df_filter.to_parquet(
-                    file_filter_save_path, index=False, compression="gzip",
+                    file_filter_save_path,
+                    index=False,
+                    compression="gzip",
                 )
     else:
         raise BaseException("Data need to be a pandas DataFrame")
-
 
 
 ###############
@@ -471,7 +488,8 @@ def to_partitions(
 #
 ###############
 
-def download_and_unzip_file(url : str, path : str) -> None:
+
+def download_and_unzip_file(url: str, path: str) -> None:
     """
     Downloads a file from the given URL and extracts it to the specified path.
 
@@ -494,6 +512,7 @@ def download_and_unzip_file(url : str, path : str) -> None:
         log(e)
         log("Error when downloading and unzipping file")
 
+
 ###############
 #
 # Storage utils
@@ -510,7 +529,9 @@ def get_storage_blobs(dataset_id: str, table_id: str) -> list:
     return list(
         storage_bd.client["storage_staging"]
         .bucket(storage_bd.bucket_name)
-        .list_blobs(prefix=f"staging/{storage_bd.dataset_id}/{storage_bd.table_id}/")
+        .list_blobs(
+            prefix=f"staging/{storage_bd.dataset_id}/{storage_bd.table_id}/"
+        )
     )
 
 
@@ -583,7 +604,9 @@ def dump_header_to_csv(data_path: Union[str, Path], source_format: str):
 
     save_header_path = f"data/{uuid4()}"
     # discover if it's a partitioned table
-    if partition_folders := [folder for folder in file.split("/") if "=" in folder]:
+    if partition_folders := [
+        folder for folder in file.split("/") if "=" in folder
+    ]:
         partition_path = "/".join(partition_folders)
         if source_format == "csv":
             save_header_file_path = Path(
@@ -625,7 +648,9 @@ def dump_header_to_csv(data_path: Union[str, Path], source_format: str):
 
 
 def determine_whether_to_execute_or_not(
-    cron_expression: str, datetime_now: datetime, datetime_last_execution: datetime
+    cron_expression: str,
+    datetime_now: datetime,
+    datetime_last_execution: datetime,
 ) -> bool:
     """
     Determines whether the cron expression is currently valid.
@@ -690,7 +715,9 @@ def get_credentials_from_env(
         raise ValueError("Mode must be 'prod' or 'staging'")
     env: str = getenv(f"BASEDOSDADOS_CREDENTIALS_{mode.upper()}", "")
     if env == "":
-        raise ValueError(f"BASEDOSDADOS_CREDENTIALS_{mode.upper()} env var not set!")
+        raise ValueError(
+            f"BASEDOSDADOS_CREDENTIALS_{mode.upper()} env var not set!"
+        )
     info: dict = json.loads(base64.b64decode(env))
     cred: service_account.Credentials = (
         service_account.Credentials.from_service_account_info(info)

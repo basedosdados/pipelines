@@ -2,17 +2,16 @@
 """
 Tasks for metadata
 """
-import asyncio
-from datetime import datetime
-from datetime import timedelta
-import pandas as pd
-import basedosdados as bd
 
-from pipelines.utils.metadata.utils_async import create_update_quality_checks_async
+import asyncio
+from datetime import datetime, timedelta
+
+import basedosdados as bd
+import pandas as pd
 from prefect import task
+
 from pipelines.constants import constants as constants_root
 from pipelines.utils.constants import constants
-
 from pipelines.utils.metadata.utils import (
     able_to_query_bigquery_metadata,
     check_if_values_are_accepted,
@@ -30,7 +29,11 @@ from pipelines.utils.metadata.utils import (
     update_date_from_bq_metadata,
     update_row_access_policy,
 )
+from pipelines.utils.metadata.utils_async import (
+    create_update_quality_checks_async,
+)
 from pipelines.utils.utils import log
+
 
 @task
 def get_today_date():
@@ -86,14 +89,16 @@ def update_django_metadata(
 
     backend = bd.Backend(graphql_url=get_url(api_mode))
 
-    django_table_id = backend._get_table_id_from_name(gcp_dataset_id=dataset_id, gcp_table_id=table_id)
+    django_table_id = backend._get_table_id_from_name(
+        gcp_dataset_id=dataset_id, gcp_table_id=table_id
+    )
 
     if api_mode == "prod" and bq_project != "basedosdados":
-        log("WARNING: Production API Mode with Non-Production Project Selected")
-
-        status = get_table_status(
-            table_id=django_table_id, backend=backend
+        log(
+            "WARNING: Production API Mode with Non-Production Project Selected"
         )
+
+        status = get_table_status(table_id=django_table_id, backend=backend)
         if status != "under_review":
             raise ValueError(
                 "The table status should be under_review to update metadata with non-production data"
@@ -116,7 +121,7 @@ def update_django_metadata(
         django_table_id,
         date_format,
         historical_database,
-        backend=backend
+        backend=backend,
     )
 
     if free_parameters is not None:
@@ -126,17 +131,19 @@ def update_django_metadata(
             mutation_class="CreateUpdateDateTimeRange",
             mutation_parameters=free_parameters,
             update=True,
-            backend=backend
+            backend=backend,
         )
 
     if bdpro_parameters is not None:
         create_update(
             query_class="allDatetimerange",
-            query_parameters={"$coverage_Id: ID": bdpro_parameters["coverage"]},
+            query_parameters={
+                "$coverage_Id: ID": bdpro_parameters["coverage"]
+            },
             mutation_class="CreateUpdateDateTimeRange",
             mutation_parameters=bdpro_parameters,
             update=True,
-            backend=backend
+            backend=backend,
         )
 
     if coverage_type == "part_bdpro":
@@ -150,28 +157,32 @@ def update_django_metadata(
             free_parameters,
         )
 
-    if able_to_query_bigquery_metadata(billing_project_id,bq_project):
-
-        _, update_id = get_id(query_class='allUpdate',
-                            query_parameters={"$table_Id: ID":django_table_id},
-                            backend=backend)
-
+    if able_to_query_bigquery_metadata(billing_project_id, bq_project):
+        _, update_id = get_id(
+            query_class="allUpdate",
+            query_parameters={"$table_Id: ID": django_table_id},
+            backend=backend,
+        )
 
         latest = update_date_from_bq_metadata(
             dataset_id=dataset_id,
             table_id=table_id,
             billing_project_id=billing_project_id,
-            project_id=bq_project
+            project_id=bq_project,
         )
 
         create_update(
             query_class="allUpdate",
             query_parameters={"$id: ID": update_id},
             mutation_class="CreateUpdateUpdate",
-            mutation_parameters={"id":update_id,"latest": latest.isoformat()},
+            mutation_parameters={
+                "id": update_id,
+                "latest": latest.isoformat(),
+            },
             update=True,
-            backend=backend
+            backend=backend,
         )
+
 
 @task(
     max_retries=constants_root.TASK_MAX_RETRIES.value,
@@ -181,7 +192,7 @@ def check_if_data_is_outdated(
     dataset_id: str,
     table_id: str,
     data_source_max_date: datetime,
-    date_type: str = 'data_max_date',
+    date_type: str = "data_max_date",
     date_format: str = "%Y-%m-%d",
     api_mode: str = "prod",
 ) -> bool:
@@ -207,15 +218,20 @@ def check_if_data_is_outdated(
     if type(data_source_max_date) is pd.Timestamp:
         data_source_max_date = data_source_max_date.date()
 
-    backend = bd.Backend(graphql_url=constants.API_URL.value['prod'])
+    backend = bd.Backend(graphql_url=constants.API_URL.value["prod"])
 
-    if date_type == 'data_max_date':
+    if date_type == "data_max_date":
         data_api = get_api_most_recent_date(
-            dataset_id=dataset_id, table_id=table_id,backend = backend, date_format=date_format
+            dataset_id=dataset_id,
+            table_id=table_id,
+            backend=backend,
+            date_format=date_format,
         )
 
-    if date_type == 'last_update_date':
-        data_api = get_api_last_update_date(dataset_id=dataset_id, table_id=table_id, backend=backend)
+    if date_type == "last_update_date":
+        data_api = get_api_last_update_date(
+            dataset_id=dataset_id, table_id=table_id, backend=backend
+        )
 
     log(f"Data na fonte: {data_source_max_date}")
     log(f"Data nos metadados da BD: {data_api}")
@@ -224,7 +240,9 @@ def check_if_data_is_outdated(
     # Compara as datas para verificar se há atualizações
     if data_source_max_date > data_api:
         log("Há atualizações disponíveis")
-        update_data_source_update_date(dataset_id,table_id,date_type,data_source_max_date, backend)
+        update_data_source_update_date(
+            dataset_id, table_id, date_type, data_source_max_date, backend
+        )
         return True  # Há atualizações disponíveis
     else:
         log("Não há novas atualizações disponíveis")
@@ -232,12 +250,20 @@ def check_if_data_is_outdated(
 
 
 @task
-def task_get_api_most_recent_date(dataset_id, table_id, date_format, api_mode: str = "prod",):
-
+def task_get_api_most_recent_date(
+    dataset_id,
+    table_id,
+    date_format,
+    api_mode: str = "prod",
+):
     backend = bd.Backend(graphql_url=get_url(api_mode))
     return get_api_most_recent_date(
-        dataset_id=dataset_id, table_id=table_id, date_format=date_format, backend=backend
+        dataset_id=dataset_id,
+        table_id=table_id,
+        date_format=date_format,
+        backend=backend,
     )
+
 
 #####             #####
 ## Quality check's   ##
@@ -259,7 +285,7 @@ def query_tests_results() -> pd.DataFrame:
     """
 
     billing_project_id = get_billing_project_id(mode="prod")
-    query_bd = f"""
+    query_bd = """
     with tests_order as (
     select
         test_short_name as name,
@@ -291,6 +317,7 @@ def query_tests_results() -> pd.DataFrame:
 
     return t
 
+
 @task
 def create_update_quality_checks(tests_results: pd.DataFrame) -> None:
     """
@@ -303,4 +330,6 @@ def create_update_quality_checks(tests_results: pd.DataFrame) -> None:
     - None
 
     """
-    asyncio.run(create_update_quality_checks_async(tests_results=tests_results))
+    asyncio.run(
+        create_update_quality_checks_async(tests_results=tests_results)
+    )

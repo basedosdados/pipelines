@@ -2,25 +2,30 @@
 """
 General purpose functions for the br_ms_cnes project
 """
-import gc
+
 import asyncio
+import gc
+import os
+import struct
 from datetime import datetime
 from ftplib import FTP
-import pyarrow as pa
 from pathlib import Path
-import pyarrow.parquet as pq
-from dbfread import DBF
-import struct
+from typing import Dict, List, Tuple
+
 import aioftp
 import pandas as pd
-import os
-from typing import List, Dict, Tuple
-from pipelines.utils.crawler_datasus.constants import constants as datasus_constants
+import pyarrow as pa
+import pyarrow.parquet as pq
+from dbfread import DBF
+
+from pipelines.utils.crawler_datasus.constants import (
+    constants as datasus_constants,
+)
 from pipelines.utils.utils import log
 
 
-#https://github.com/AlertaDengue/PySUS/blob/main/pysus/data/__init__.py
-def stream_dbf(dbf, chunk_size : int):
+# https://github.com/AlertaDengue/PySUS/blob/main/pysus/data/__init__.py
+def stream_dbf(dbf, chunk_size: int):
     """Fetches records in parquet chunks to preserve memory"""
     data = []
     i = 0
@@ -34,6 +39,7 @@ def stream_dbf(dbf, chunk_size : int):
     else:
         yield data
 
+
 def decode_column(value):
     """
     Decodes binary data to str
@@ -45,7 +51,10 @@ def decode_column(value):
         return str(value).replace("\x00", "")
     return value
 
-def  dbf_to_parquet(dbf: str, table_id: str, counter: int, chunk_size:int) -> str:
+
+def dbf_to_parquet(
+    dbf: str, table_id: str, counter: int, chunk_size: int
+) -> str:
     """
     Parses DBF file into parquet to preserve memory
     """
@@ -63,52 +72,47 @@ def  dbf_to_parquet(dbf: str, table_id: str, counter: int, chunk_size:int) -> st
 
     counter_chunk = 0
     try:
-
-        for chunk in stream_dbf(DBF(path, encoding="iso-8859-1", raw=True), chunk_size=chunk_size):
-
+        for chunk in stream_dbf(
+            DBF(path, encoding="iso-8859-1", raw=True), chunk_size=chunk_size
+        ):
             chunk_df = pd.DataFrame(chunk)
 
-
             table = pa.Table.from_pandas(chunk_df.applymap(decode_column))
-            log('---- decoding')
+            log("---- decoding")
 
+            # table = pa.Table.from_pandas(chunk_df)
 
-            #table = pa.Table.from_pandas(chunk_df)
-
-            log(f'---- {counter}')
+            log(f"---- {counter}")
             parquet_filename = f"{table_id}_{counter}_{counter_chunk}.parquet"
             parquet_filepath = os.path.join(output_path, parquet_filename)
             pq.write_table(table, where=str(parquet_filepath))
             counter_chunk += 1
 
             if table_id == "microdados_dengue":
-                log(f'---- post processing {table_id=}')
+                log(f"---- post processing {table_id=}")
                 df = pd.read_parquet(parquet_filepath)
 
                 df = post_process_microdados_dengue(df)
 
-                df.to_parquet(parquet_filepath, index=None, compression='gzip')
+                df.to_parquet(parquet_filepath, index=None, compression="gzip")
 
                 del df
 
                 gc.collect()
 
-
-
-
     except struct.error as err:
-        #unlink .partquer extension and remove dbf file
+        # unlink .partquer extension and remove dbf file
         Path(path).unlink()
-        #parquet.rmdir()
+        # parquet.rmdir()
         raise err
 
     return str(parquet)
+
 
 def list_datasus_dbc_files(
     datasus_database: str,
     datasus_database_table: str = None,
 ) -> list:
-
     """
     Enters FTP server and lists all DBCs files found for a
     a given datasus_database.
@@ -125,22 +129,38 @@ def list_datasus_dbc_files(
         if datasus_database == "CNES":
             if not datasus_database_table:
                 raise ValueError("No group assigned to CNES_group")
-            available_dbs.extend(ftp.nlst(f"dissemin/publicos/CNES/200508_/Dados/{datasus_database_table}/*.DBC"))
+            available_dbs.extend(
+                ftp.nlst(
+                    f"dissemin/publicos/CNES/200508_/Dados/{datasus_database_table}/*.DBC"
+                )
+            )
 
         if datasus_database == "SIA":
             if not datasus_database_table:
                 raise ValueError("No group assigned to SIA_group")
-            available_dbs.extend(ftp.nlst(f"dissemin/publicos/SIASUS/200801_/Dados/{datasus_database_table}*.DBC"))
+            available_dbs.extend(
+                ftp.nlst(
+                    f"dissemin/publicos/SIASUS/200801_/Dados/{datasus_database_table}*.DBC"
+                )
+            )
 
         if datasus_database == "SIH":
             if not datasus_database_table:
                 raise ValueError("No group assigned to SIH_group")
-            available_dbs.extend(ftp.nlst(f"dissemin/publicos/SIHSUS/200801_/Dados/{datasus_database_table}*.DBC"))
+            available_dbs.extend(
+                ftp.nlst(
+                    f"dissemin/publicos/SIHSUS/200801_/Dados/{datasus_database_table}*.DBC"
+                )
+            )
 
-        if datasus_database == 'SINAN':
+        if datasus_database == "SINAN":
             if not datasus_database_table:
                 raise ValueError("No group assigned to SINAN_group")
-            available_dbs.extend(ftp.nlst(f"dissemin/publicos/SINAN/DADOS/PRELIM/{datasus_database_table}*.DBC"))
+            available_dbs.extend(
+                ftp.nlst(
+                    f"dissemin/publicos/SINAN/DADOS/PRELIM/{datasus_database_table}*.DBC"
+                )
+            )
 
     except Exception as e:
         raise e
@@ -148,7 +168,14 @@ def list_datasus_dbc_files(
     ftp.close()
     return available_dbs
 
-async def download_chunks(dataset_id: str, files: List[str], output_dir: str, chunk_size: int, max_parallel: int):
+
+async def download_chunks(
+    dataset_id: str,
+    files: List[str],
+    output_dir: str,
+    chunk_size: int,
+    max_parallel: int,
+):
     """This function is used to sequentially control the number of concurrent downloads to avoid
     #OSError: [Errno 24] Too many open files
 
@@ -160,11 +187,18 @@ async def download_chunks(dataset_id: str, files: List[str], output_dir: str, ch
     """
 
     for i in range(0, len(files), chunk_size):
-        chunk = files[i:i + chunk_size]
-        await download_files(dataset_id = dataset_id,files=chunk, output_dir=output_dir, max_parallel=max_parallel)
+        chunk = files[i : i + chunk_size]
+        await download_files(
+            dataset_id=dataset_id,
+            files=chunk,
+            output_dir=output_dir,
+            max_parallel=max_parallel,
+        )
 
 
-async def download_files(dataset_id: str, files: list, output_dir: str, max_parallel: int)-> None:
+async def download_files(
+    dataset_id: str, files: list, output_dir: str, max_parallel: int
+) -> None:
     """Download files asynchronously and save them in the given output directory
 
     Args:
@@ -178,7 +212,10 @@ async def download_files(dataset_id: str, files: list, output_dir: str, max_para
     if dataset_id in ["br_ms_sia", "br_ms_cnes", "br_ms_sih"]:
         async with semaphore:
             tasks = [
-                download_file(file, f"{output_dir}/{year_month_sigla_uf_parser(file=file)}")
+                download_file(
+                    file,
+                    f"{output_dir}/{year_month_sigla_uf_parser(file=file)}",
+                )
                 for file in files
             ]
         await asyncio.gather(*tasks)
@@ -186,13 +223,15 @@ async def download_files(dataset_id: str, files: list, output_dir: str, max_para
     elif dataset_id == "br_ms_sinan":
         async with semaphore:
             tasks = [
-                download_file(file, f"{output_dir}/{just_the_year_parser(file=file)}")
+                download_file(
+                    file, f"{output_dir}/{just_the_year_parser(file=file)}"
+                )
                 for file in files
             ]
         await asyncio.gather(*tasks)
 
 
-async def download_file(file: str, output_path: str)-> None:
+async def download_file(file: str, output_path: str) -> None:
     """Create connection with DATASUS FTP server using AIOFTP which supports
     Asynchronous download within FTP servers
 
@@ -200,7 +239,6 @@ async def download_file(file: str, output_path: str)-> None:
         file (str): A file path to download
         output_path (str): output path to save
     """
-
 
     try:
         log(f"------- Downloading {file} ")
@@ -215,7 +253,7 @@ async def download_file(file: str, output_path: str)-> None:
         log(e.expected_codes, e.received_codes, e.info)
 
 
-def line_file_parser(file_line)-> Tuple[List, Dict]:
+def line_file_parser(file_line) -> Tuple[List, Dict]:
     """This function is used to parse the file line from the FTP server
 
     Returns:
@@ -249,9 +287,8 @@ def year_month_sigla_uf_parser(file: str) -> str:
     """
     try:
         # parse file name last 8 digits before .DBC
-        #file = file[-10:-4]
-        file = file.split('/')[-1]
-
+        # file = file[-10:-4]
+        file = file.split("/")[-1]
 
         # parse and build year
         year = "20" + file[4:6]
@@ -267,6 +304,7 @@ def year_month_sigla_uf_parser(file: str) -> str:
 
     return f"ano={year}/mes={month}/sigla_uf={sigla_uf}"
 
+
 def just_the_year_parser(file: str) -> str:
     """
     Extracts the year from a file path and returns it as a string.
@@ -281,7 +319,7 @@ def just_the_year_parser(file: str) -> str:
         ValueError: If the year cannot be parsed from the file path.
     """
     try:
-        file = file.split('/')[-1]
+        file = file.split("/")[-1]
         year = "20" + file[6:8]
     except IndexError:
         raise ValueError("Unable to parse year from file")
@@ -364,8 +402,6 @@ def if_column_exist_delete(df: pd.DataFrame, col_list: str):
 
 
 def post_process_estabelecimento(df: pd.DataFrame) -> pd.DataFrame:
-
-
     list_columns_to_delete = [
         "AP01CV07",
         "AP02CV07",
@@ -471,7 +507,9 @@ def post_process_dados_complementares(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def post_process_estabelecimento_filantropico(df: pd.DataFrame) -> pd.DataFrame:
+def post_process_estabelecimento_filantropico(
+    df: pd.DataFrame,
+) -> pd.DataFrame:
     """Apply custom post-process to the estabelecimento_filantropico table
 
     Args:
@@ -549,17 +587,15 @@ def post_process_servico_especializado(df: pd.DataFrame) -> pd.DataFrame:
     df = df[datasus_constants.COLUMNS_TO_KEEP.value["SR"]]
     return df
 
-def post_process_microdados_dengue(df: pd.DataFrame) -> pd.DataFrame:
 
-    #path = list_datasus_dbc_files('SINAN', 'DENG')
+def post_process_microdados_dengue(df: pd.DataFrame) -> pd.DataFrame:
+    # path = list_datasus_dbc_files('SINAN', 'DENG')
 
     # df['ano'] = '20' + str(path[43:45])
     for new_column in datasus_constants.COLUMNS_TO_KEEP.value["DENG"]:
         if new_column not in df.columns:
-            df[new_column] = ''
+            df[new_column] = ""
     df = df[datasus_constants.COLUMNS_TO_KEEP.value["DENG"]]
-    #df.drop(columns=['ano'], inplace=True)
-    df.rename(columns={
-        'SG_UF_NOT' : 'sigla_uf_notificacao'
-    }, inplace=True)
+    # df.drop(columns=['ano'], inplace=True)
+    df.rename(columns={"SG_UF_NOT": "sigla_uf_notificacao"}, inplace=True)
     return df

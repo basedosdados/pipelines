@@ -2,6 +2,7 @@
 """
 Flows for br_cgu_terceirizados
 """
+
 from datetime import timedelta
 
 from prefect import Parameter, case
@@ -19,12 +20,13 @@ from pipelines.datasets.br_cgu_pessoal_executivo_federal.tasks import (
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.execute_dbt_model.constants import (
+    constants as dump_db_constants,
+)
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
     rename_current_flow_run_dataset_table,
-    update_metadata,
 )
 
 ROOT = "/tmp/data"
@@ -33,7 +35,8 @@ URL = "https://www.gov.br/cgu/pt-br/acesso-a-informacao/dados-abertos/arquivos/t
 
 # pylint: disable=C0103
 with Flow(
-    name="br_cgu_pessoal_executivo_federal.terceirizados", code_owners=["ath67"]
+    name="br_cgu_pessoal_executivo_federal.terceirizados",
+    code_owners=["ath67"],
 ) as br_cgu_pess_exec_fed_terc:
     # Parameters
     dataset_id = Parameter(
@@ -49,7 +52,10 @@ with Flow(
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     crawl_urls, temporal_coverage = crawl(URL)
@@ -104,5 +110,7 @@ with Flow(
 
 
 br_cgu_pess_exec_fed_terc.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_cgu_pess_exec_fed_terc.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_cgu_pess_exec_fed_terc.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
 br_cgu_pess_exec_fed_terc.schedule = every_four_months

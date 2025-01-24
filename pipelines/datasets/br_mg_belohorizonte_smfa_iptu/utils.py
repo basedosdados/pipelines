@@ -12,7 +12,9 @@ import requests
 from bs4 import BeautifulSoup
 from shapely import wkt
 
-from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.constants import constants
+from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.constants import (
+    constants,
+)
 from pipelines.utils.tasks import log
 
 
@@ -30,7 +32,9 @@ def scrapping_download_csv(input_path: str):
 
         soup = BeautifulSoup(response.content, "html.parser")
 
-        links = soup.find_all("a", href=lambda href: href and href.endswith(".csv"))
+        links = soup.find_all(
+            "a", href=lambda href: href and href.endswith(".csv")
+        )
 
         if links:
             link = links[-1]

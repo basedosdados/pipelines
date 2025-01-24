@@ -2,12 +2,15 @@
 """
 Tasks for br_stf_corte_aberta
 """
+
 from datetime import datetime, timedelta
 
 from prefect import task
 
 from pipelines.constants import constants
-from pipelines.datasets.br_stf_corte_aberta.constants import constants as stf_constants
+from pipelines.datasets.br_stf_corte_aberta.constants import (
+    constants as stf_constants,
+)
 from pipelines.datasets.br_stf_corte_aberta.utils import (
     check_for_data,
     column_bool,

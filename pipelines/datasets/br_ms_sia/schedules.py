@@ -54,4 +54,3 @@ schedule_br_ms_sia_psicossocial = Schedule(
     filters=[filters.is_weekday],
     adjustments=[adjustments.next_weekday],
 )
-

@@ -2,6 +2,7 @@
 """
 Tasks for botdosdados
 """
+
 import os
 from collections import defaultdict
 from datetime import datetime, timedelta
@@ -10,14 +11,18 @@ from typing import Tuple
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-#import seaborn as sns
+import seaborn as sns
 import tweepy
 from basedosdados.download.metadata import _safe_fetch
 from prefect import task
 from tweepy.auth import OAuthHandler
 
 from pipelines.constants import constants
-from pipelines.utils.utils import get_credentials_from_secret, get_storage_blobs, log
+from pipelines.utils.utils import (
+    get_credentials_from_secret,
+    get_storage_blobs,
+    log,
+)
 
 
 # pylint: disable=C0103
@@ -61,7 +66,9 @@ def get_credentials(secret_path: str) -> Tuple[str, str, str, str, str]:
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def was_table_updated(page_size: int, hours: int, subset: str, wait=None) -> bool:
+def was_table_updated(
+    page_size: int, hours: int, subset: str, wait=None
+) -> bool:
     """
     Checks if there are tables updated within last hour. If True, saves table locally.
     """
@@ -74,20 +81,30 @@ def was_table_updated(page_size: int, hours: int, subset: str, wait=None) -> boo
     datasets_links["br_me_caged.microdados_antigos"] = (
         "https://basedosdados.org/dataset/br-me-caged"
     )
-    datasets_links["br_ibge_inpc"] = "https://basedosdados.org/dataset/br-ibge-inpc"
-    datasets_links["br_ibge_ipca"] = "https://basedosdados.org/dataset/br-ibge-ipca"
-    datasets_links["br_ibge_ipca15"] = "https://basedosdados.org/dataset/br-ibge-ipca15"
+    datasets_links["br_ibge_inpc"] = (
+        "https://basedosdados.org/dataset/br-ibge-inpc"
+    )
+    datasets_links["br_ibge_ipca"] = (
+        "https://basedosdados.org/dataset/br-ibge-ipca"
+    )
+    datasets_links["br_ibge_ipca15"] = (
+        "https://basedosdados.org/dataset/br-ibge-ipca15"
+    )
     datasets_links["br_anp_precos_combustiveis"] = (
         "https://basedosdados.org/dataset/br-anp-precos-combustiveis"
     )
     datasets_links["br_poder360_pesquisas"] = (
         "https://basedosdados.org/dataset/br-poder360-pesquisas"
     )
-    datasets_links["br_ms_cnes"] = "https://basedosdados.org/dataset/br-ms-cnes"
+    datasets_links["br_ms_cnes"] = (
+        "https://basedosdados.org/dataset/br-ms-cnes"
+    )
     datasets_links["br_camara_atividade_legislativa"] = (
         "https://basedosdados.org/dataset/br-camara-atividade-legislativa"
     )
-    datasets_links["br_ibge_pnadc"] = "https://basedosdados.org/dataset/br-ibge-pnadc"
+    datasets_links["br_ibge_pnadc"] = (
+        "https://basedosdados.org/dataset/br-ibge-pnadc"
+    )
     datasets_links["br_ana_reservatorios"] = (
         "https://basedosdados.org/dataset/br-ana-reservatorios"
     )
@@ -135,7 +152,8 @@ def was_table_updated(page_size: int, hours: int, subset: str, wait=None) -> boo
         n_tables = len(dataset_resources)
         tables = [dataset_resources[k]["name"] for k in range(n_tables)]
         last_updated = [
-            dataset_resources[k]["last_updated"]["data"] for k in range(n_tables)
+            dataset_resources[k]["last_updated"]["data"]
+            for k in range(n_tables)
         ]
         temporal_coverage = [
             dataset_resources[k]["temporal_coverage"] for k in range(n_tables)
@@ -172,12 +190,13 @@ def was_table_updated(page_size: int, hours: int, subset: str, wait=None) -> boo
             if isinstance(date, str)
             else np.nan
         )
-        for date in pd.to_datetime(df["last_updated"], errors="coerce").dt.strftime(
-            "%Y-%m-%d %H:%M:%S"
-        )
+        for date in pd.to_datetime(
+            df["last_updated"], errors="coerce"
+        ).dt.strftime("%Y-%m-%d %H:%M:%S")
     ]
     df.dropna(
-        subset=["last_updated", "temporal_coverage", "updated_frequency"], inplace=True
+        subset=["last_updated", "temporal_coverage", "updated_frequency"],
+        inplace=True,
     )
     df["temporal_coverage"] = [
         k[0] if len(k) > 0 else k for k in df["temporal_coverage"]
@@ -211,7 +230,9 @@ def message_last_tables() -> list:
 
     for dataset in datasets:
         tables = dataframe[dataframe.dataset == dataset].table.to_list()
-        coverages = dataframe[dataframe.dataset == dataset].temporal_coverage.to_list()
+        coverages = dataframe[
+            dataframe.dataset == dataset
+        ].temporal_coverage.to_list()
         updated_frequencies = dataframe[
             dataframe.dataset == dataset
         ].updated_frequency.to_list()
@@ -234,17 +255,17 @@ def message_last_tables() -> list:
             if len(coverage.split("(")[0]) == 4:
                 thread = (
                     thread
-                    + f"{str(i)+')'} {table}. Esses dados são {dict_frequency[updated_frequency]} e agora cobrem o período entre {coverage.split('(')[0]} e {coverage.split(')')[1]}\n"
+                    + f"{str(i) + ')'} {table}. Esses dados são {dict_frequency[updated_frequency]} e agora cobrem o período entre {coverage.split('(')[0]} e {coverage.split(')')[1]}\n"
                 )
             elif len(coverage.split("(")[0]) == 7:
                 thread = (
                     thread
-                    + f"{str(i)+')'} {table}. Esses dados são {dict_frequency[updated_frequency]} e agora cobrem o período entre {coverage.split('(')[0]} e {coverage.split(')')[1]}\n"
+                    + f"{str(i) + ')'} {table}. Esses dados são {dict_frequency[updated_frequency]} e agora cobrem o período entre {coverage.split('(')[0]} e {coverage.split(')')[1]}\n"
                 )
             elif len(coverage.split("(")[0]) == 10:
                 thread = (
                     thread
-                    + f"{str(i)+')'} {table}. Esses dados são {dict_frequency[updated_frequency]} e agora cobrem o período entre {coverage.split('(')[0]} e {coverage.split(')')[1]}\n"
+                    + f"{str(i) + ')'} {table}. Esses dados são {dict_frequency[updated_frequency]} e agora cobrem o período entre {coverage.split('(')[0]} e {coverage.split(')')[1]}\n"
                 )
             else:
                 raise ValueError(
@@ -255,7 +276,9 @@ def message_last_tables() -> list:
         next_tweets = thread.split("\n")
         next_tweets = [tweet for tweet in next_tweets if len(tweet) > 0]
         texts = (
-            [main_tweet] + [next_tweets[0] + "\n" + next_tweets[1]] + next_tweets[2:]
+            [main_tweet]
+            + [next_tweets[0] + "\n" + next_tweets[1]]
+            + next_tweets[2:]
         )
 
         return texts
@@ -306,7 +329,7 @@ def message_inflation_plot(dataset_id: str, table_id: str) -> str:
     last_month = df.iloc[-1, :]["mes"]
     indice = "IPCA"
 
-    text = f"Em {last_month}, a inflação acumulada nos últimos 12 meses medida pelo {indice} foi de {str(last_data).replace('.',',')}%"
+    text = f"Em {last_month}, a inflação acumulada nos últimos 12 meses medida pelo {indice} foi de {str(last_data).replace('.', ',')}%"
 
     log(last_data)
     df.set_index("date", inplace=True)
@@ -348,7 +371,9 @@ def send_thread(
     """
 
     if any(len(text) > 280 for text in texts):
-        raise ValueError("Each tweet text must be 280 characters length at most.")
+        raise ValueError(
+            "Each tweet text must be 280 characters length at most."
+        )
 
     client = tweepy.Client(
         bearer_token=bearer_token,
@@ -361,7 +386,9 @@ def send_thread(
     for i, text in enumerate(texts):
         if i == 0:
             if is_reply:
-                reply = client.create_tweet(text=text, in_reply_to_tweet_id=reply_id)
+                reply = client.create_tweet(
+                    text=text, in_reply_to_tweet_id=reply_id
+                )
             else:
                 reply = client.create_tweet(text=text)
         else:

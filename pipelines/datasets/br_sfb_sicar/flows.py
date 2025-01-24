@@ -12,20 +12,28 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.datasets.br_sfb_sicar.constants import Constants as car_constants
-from pipelines.datasets.br_sfb_sicar.schedules import schedule_br_sfb_sicar_area_imovel
-from pipelines.datasets.br_sfb_sicar.tasks import download_car, unzip_to_parquet, get_each_uf_release_date
+from pipelines.datasets.br_sfb_sicar.constants import (
+    Constants as car_constants,
+)
+from pipelines.datasets.br_sfb_sicar.schedules import (
+    schedule_br_sfb_sicar_area_imovel,
+)
+from pipelines.datasets.br_sfb_sicar.tasks import (
+    download_car,
+    get_each_uf_release_date,
+    unzip_to_parquet,
+)
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.execute_dbt_model.constants import (
+    constants as dump_db_constants,
+)
 from pipelines.utils.metadata.tasks import (
-    check_if_data_is_outdated,
     update_django_metadata,
 )
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
-    log_task,
     rename_current_flow_run_dataset_table,
 )
 
@@ -40,7 +48,9 @@ with Flow(
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_sfb_sicar", required=True)
     table_id = Parameter("table_id", default="area_imovel", required=True)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -50,24 +60,28 @@ with Flow(
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
-
 
     download_polygons = download_car.map(
         inputpath=unmapped(INPUTPATH),
         outputpath=unmapped(OUTPUTPATH),
         sigla_uf=SIGLAS_UF,
-        polygon=unmapped('AREA_IMOVEL'),
+        polygon=unmapped("AREA_IMOVEL"),
     )
 
-    ufs_release_dates = get_each_uf_release_date(upstream_tasks=[download_polygons])
+    ufs_release_dates = get_each_uf_release_date(
+        upstream_tasks=[download_polygons]
+    )
 
     unzip_from_shp_to_parquet_wkt = unzip_to_parquet(
         inputpath=INPUTPATH,
         outputpath=OUTPUTPATH,
         uf_relase_dates=ufs_release_dates,
-        upstream_tasks=[download_polygons,ufs_release_dates]
+        upstream_tasks=[download_polygons, ufs_release_dates],
     )
 
     wait_upload_table = create_table_and_upload_to_gcs(
@@ -75,12 +89,11 @@ with Flow(
         dataset_id=dataset_id,
         table_id=table_id,
         dump_mode="append",
-        source_format='parquet',
+        source_format="parquet",
         wait=unzip_from_shp_to_parquet_wkt,
     )
 
     with case(materialize_after_dump, True):
-
         current_flow_labels = get_current_flow_labels()
         materialization_flow = create_flow_run(
             flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
@@ -95,7 +108,7 @@ with Flow(
             },
             labels=current_flow_labels,
             run_name=f"Materialize {dataset_id}.{table_id}",
-            upstream_tasks = [wait_upload_table]
+            upstream_tasks=[wait_upload_table],
         )
 
         wait_for_materialization = wait_for_flow_run(
@@ -115,7 +128,9 @@ with Flow(
             update_django_metadata(
                 dataset_id=dataset_id,
                 table_id=table_id,
-                date_column_name={"date": "data_extracao",},
+                date_column_name={
+                    "date": "data_extracao",
+                },
                 date_format="%Y-%m-%d",
                 coverage_type="part_bdpro",
                 time_delta={"months": 6},
@@ -123,7 +138,6 @@ with Flow(
                 bq_project="basedosdados",
                 upstream_tasks=[wait_for_materialization],
             )
-
 
 
 br_sfb_sicar_area_imovel.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

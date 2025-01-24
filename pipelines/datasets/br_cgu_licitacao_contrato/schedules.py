@@ -2,12 +2,14 @@
 """
 Schedules for br_cgu_licitacao_contrato
 """
+
 # -*- coding: utf-8 -*-
 from datetime import datetime
+
 from prefect.schedules import Schedule
-from prefect.schedules.clocks import CronClock, IntervalClock
+from prefect.schedules.clocks import CronClock
+
 from pipelines.constants import constants
-from pipelines.utils.crawler_cgu.constants import constants as constants_cgu
 
 every_day_contrato_compra = Schedule(
     clocks=[

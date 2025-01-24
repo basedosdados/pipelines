@@ -1,22 +1,23 @@
 # -*- coding: utf-8 -*-
 import os
 from datetime import timedelta
-import numpy as np
+
 import pandas as pd
 from prefect import task
+
 from pipelines.constants import constants
 from pipelines.utils.crawler_anatel.banda_larga_fixa.constants import (
     constants as anatel_constants,
 )
 from pipelines.utils.crawler_anatel.banda_larga_fixa.utils import (
+    get_year,
     treatment,
     treatment_br,
-    treatment_uf,
     treatment_municipio,
+    treatment_uf,
     unzip_file,
-    get_year,
 )
-from pipelines.utils.utils import log, to_partitions
+from pipelines.utils.utils import log
 
 
 @task(
@@ -24,20 +25,23 @@ from pipelines.utils.utils import log, to_partitions
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def join_tables_in_function(table_id: str, ano):
-    os.system(f"mkdir -p {anatel_constants.TABLES_OUTPUT_PATH.value[table_id]}")
-    if table_id == 'microdados':
+    os.system(
+        f"mkdir -p {anatel_constants.TABLES_OUTPUT_PATH.value[table_id]}"
+    )
+    if table_id == "microdados":
         treatment(ano=ano, table_id=table_id)
 
-    elif table_id == 'densidade_brasil':
+    elif table_id == "densidade_brasil":
         treatment_br(table_id=table_id)
 
-    elif table_id == 'densidade_uf':
+    elif table_id == "densidade_uf":
         treatment_uf(table_id=table_id)
 
-    elif table_id == 'densidade_municipio':
+    elif table_id == "densidade_municipio":
         treatment_municipio(table_id=table_id)
 
     return anatel_constants.TABLES_OUTPUT_PATH.value[table_id]
+
 
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
@@ -50,32 +54,34 @@ def get_max_date_in_table_microdados(table_id: str, ano: int):
             f"{anatel_constants.INPUT_PATH.value}Acessos_Banda_Larga_Fixa_{ano}.csv",
             sep=";",
             encoding="utf-8",
-            dtype=str
+            dtype=str,
         )
-        df['data'] = df['Ano'] + '-' + df['Mês']
+        df["data"] = df["Ano"] + "-" + df["Mês"]
 
-        df['data'] = pd.to_datetime(df['data'], format="%Y-%m")
+        df["data"] = pd.to_datetime(df["data"], format="%Y-%m")
 
-        log(df['data'].max())
+        log(df["data"].max())
 
-        return df['data'].max()
+        return df["data"].max()
 
     else:
-        log(f"{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa.csv")
+        log(
+            f"{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa.csv"
+        )
 
         df = pd.read_csv(
-        f"{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa.csv",
-        sep=";",
-        encoding="utf-8",
-        dtype=str
+            f"{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa.csv",
+            sep=";",
+            encoding="utf-8",
+            dtype=str,
         )
-        df['data'] = df['Ano'] + '-' + df['Mês']
+        df["data"] = df["Ano"] + "-" + df["Mês"]
 
-        df['data'] = pd.to_datetime(df['data'], format="%Y-%m")
+        df["data"] = pd.to_datetime(df["data"], format="%Y-%m")
 
-        log(df['data'].max())
+        log(df["data"].max())
 
-        return df['data'].max()
+        return df["data"].max()
 
 
 @task

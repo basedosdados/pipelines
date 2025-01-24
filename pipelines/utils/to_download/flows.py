@@ -35,4 +35,6 @@ with Flow(
     to_download(url, save_path, file_type)
 
 utils_to_download_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-utils_to_download_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+utils_to_download_flow.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
