@@ -146,7 +146,7 @@ def get_id(
     variables = dict(zip(keys, values))
 
     response = backend._execute_query(query, variables=variables)
-    nodes = response[query_class]['edges']
+    nodes = response[query_class]['items']
 
     if len(nodes)>1:
         raise ValueError(f'More than 1 node was found in this query. Plese give query parameters that retrieve only one object. \nQuery:\n\t{query}\nVariables:{variables} \nNodes found:{nodes}')
@@ -154,7 +154,7 @@ def get_id(
     if len(nodes) == 0:
         return response, None
 
-    id = nodes[0]['node']['_id']
+    id = nodes[0]['_id']
 
     return response, id
 
@@ -171,14 +171,14 @@ def get_table_status(table_id:str, backend: bd.Backend) -> str:
         }
     } """
 
-    response = backend._execute_query(query,{"table_id": table_id})
+    response = backend._execute_query(query, {"table_id": table_id})
 
-    nodes = response['allTable']['edges']
+    nodes = response['allTable']['items']
 
-    if nodes == []:
+    if len(nodes) == 0:
         return None
 
-    return nodes[0]['node']['status']['slug']
+    return nodes[0]['status']['slug']
 
 def extract_last_date_from_bq(
     dataset_id: str,
@@ -708,7 +708,7 @@ def get_api_last_update_date(dataset_id: str, table_id: str, backend: bd.Backend
             """
         variables = {"table_Id": django_table_id}
         response = backend._execute_query(query, variables)
-        clean_response = response['allUpdate']['edges'][0]['node']['latest']
+        clean_response = response['allUpdate']['items'][0]['latest']
         date_result = (datetime.strptime(clean_response[:10],"%Y-%m-%d")).date()
         return date_result
 
