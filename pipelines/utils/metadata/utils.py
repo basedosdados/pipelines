@@ -551,28 +551,26 @@ def parse_datetime_ranges(datetime_result: dict, date_format: str) -> dict:
 
     date_objects = {}
 
-    edges = datetime_result["allCoverage"]["edges"]
+    edges = datetime_result["allCoverage"]["items"]
 
     # iterates over each edge
     for edge in edges:
-        node = edge["node"]
-        datetime_ranges = node["datetimeRanges"]["edges"]
+        datetime_ranges = edge["datetimeRanges"]["items"]
 
         # iterates over each edge of datetime_ranges
 
         # ps: If the table has bd_pro coverage,
         # it will have more than one datetime_range
         for dt_range in datetime_ranges:
-            dt_node = dt_range["node"]
-            end_year = dt_node.get("endYear")
-            end_month = dt_node.get("endMonth")
-            end_day = dt_node.get("endDay")
+            end_year = dt_range.get("endYear")
+            end_month = dt_range.get("endMonth")
+            end_day = dt_range.get("endDay")
 
             date_values = (end_year, end_month, end_day)
 
             date_string = format_and_check_date(date_values, date_format)
             # log(f"The following coverage is being added {date_objects}")
-            date_objects[dt_node["id"]] = date_string
+            date_objects[dt_range["id"]] = date_string
 
     return date_objects
 
