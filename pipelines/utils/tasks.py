@@ -197,52 +197,6 @@ def create_table_and_upload_to_gcs(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-# pylint: disable=R0914
-def update_metadata(dataset_id: str, table_id: str, fields_to_update: list) -> None:
-    """
-    Update metadata for a selected table
-
-    dataset_id: dataset_id,
-    table_id: table_id,
-    fields_to_update: list of dictionaries with key and values to be updated
-    """
-    # add credentials to config.toml
-    # TODO: remove this because bd 2.0 does not have Metadata class
-    handle = bd.Metadata(dataset_id=dataset_id, table_id=table_id)
-    handle.create(if_exists="replace")
-
-    yaml = ryaml.YAML()
-    yaml.preserve_quotes = True
-    yaml.indent(mapping=4, sequence=6, offset=4)
-
-    config_file = handle.filepath.as_posix()  # noqa
-
-    with open(config_file, encoding="utf-8") as fp:
-        data = yaml.load(fp)
-
-    # this is, of course, very slow but very few fields will be update each time, so the cubic algo will not have major performance consequences
-    for field in fields_to_update:
-        for k, v in field.items():
-            if isinstance(v, dict):
-                for i, j in v.items():
-                    data[k][i] = j
-            else:
-                data[k] = v
-
-    with open(config_file, "w", encoding="utf-8") as fp:
-        yaml.dump(data, fp)
-
-    if handle.validate():
-        handle.publish(if_exists="replace")
-        log(f"Metadata for {table_id} updated")
-    else:
-        log("Fail to validate metadata.")
-
-
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
 def get_temporal_coverage(
     filepath: str, date_cols: list, time_unit: str, interval: str
 ) -> str:

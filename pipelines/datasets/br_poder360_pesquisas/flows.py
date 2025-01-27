@@ -22,7 +22,6 @@ from pipelines.utils.tasks import (
     get_current_flow_labels,
     get_temporal_coverage,
     rename_current_flow_run_dataset_table,
-    update_metadata,
 )
 
 # pylint: disable=C0103

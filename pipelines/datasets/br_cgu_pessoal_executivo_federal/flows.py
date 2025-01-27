@@ -24,7 +24,6 @@ from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
     rename_current_flow_run_dataset_table,
-    update_metadata,
 )
 
 ROOT = "/tmp/data"

@@ -65,6 +65,7 @@ def upload_to_gcs(path: Union[str, Path], dataset_id: str, table_id: str) -> Non
     tb = bd.Table(dataset_id=dataset_id, table_id=table_id)
     # st = bd.Storage(dataset_id=dataset_id, table_id=table_id)
 
+    # TODO(aspeddro): this method dont exists
     if tb.table_existime_stamp(mode="staging"):
         # Delete old data
         # st.delete_table(

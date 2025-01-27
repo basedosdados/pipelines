@@ -9,7 +9,7 @@ import basedosdados as bd
 from datetime import datetime, time
 from time import sleep
 from typing import Dict, Tuple
-from basedosdados.download.base import google_client
+from basedosdados.download.download import _google_client
 from dateutil.relativedelta import relativedelta
 
 from pipelines.constants import constants as pipeline_constants
@@ -435,7 +435,7 @@ def update_row_access_policy(
     date_format: str,
     free_parameters: dict,
 ) -> None:
-    client = google_client(billing_project_id, from_file=True, reauth=False)
+    client = _google_client(billing_project_id, from_file=True, reauth=False)
 
     query_bdpro_access = f'CREATE OR REPLACE ROW ACCESS POLICY bdpro_filter  ON  `{project_id}.{dataset_id}.{table_id}` GRANT TO ("group:bd-pro@basedosdados.org", "group:sudo@basedosdados.org") FILTER USING (TRUE)'
     job = client["bigquery"].query(query_bdpro_access)

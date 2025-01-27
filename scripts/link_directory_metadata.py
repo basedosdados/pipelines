@@ -43,7 +43,7 @@ def get_columns(column_name: str, backend: bd.Backend) -> pd.DataFrame:
     variables = {"column_name": column_name}
 
     response = backend._execute_query(query=query, variables=variables)
-    response = backend._simplify_graphql_response(response)["allColumn"]
+    response = backend._simplify_response(response)["allColumn"]
 
     df = pd.json_normalize(response)
 
@@ -85,7 +85,7 @@ def get_directory_column_id(
 
     variables = {"column_name": directory_column_name}
     response = backend._execute_query(query=query, variables=variables)
-    response = backend._simplify_graphql_response(response)["allColumn"]
+    response = backend._simplify_response(response)["allColumn"]
     df = pd.json_normalize(response)
 
     colunas_de_diretorio = df["table.dataset.fullSlug"].str.contains("diretorios")
