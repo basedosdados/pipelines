@@ -41,6 +41,8 @@ with Flow(
 
     table_id = Parameter("table_id", required=True)
 
+    port_proxy = Parameter("proxy", required=True)
+
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -58,7 +60,7 @@ with Flow(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
     )
 
-    flow = flows_control(table_id=table_id, mode=materialization_mode, upstream_tasks=[rename_flow_run])
+    flow = flows_control(table_id=table_id, mode=materialization_mode, proxy=port_proxy, upstream_tasks=[rename_flow_run])
 
     data_source_max_date = get_data_source_max_date(flow_class=flow, upstream_tasks=[flow])
 
@@ -72,7 +74,8 @@ with Flow(
 
     with case(outdated, True):
 
-        ready_data_path = preparing_data(flow_class=flow, upstream_tasks=[outdated])
+        ready_data_path, date_column_name, date_format = preparing_data(
+            flow_class=flow, upstream_tasks=[outdated])
 
         wait_upload_table = create_table_and_upload_to_gcs(
         data_path=ready_data_path,
@@ -121,8 +124,8 @@ with Flow(
                 update_django_metadata(
                     dataset_id=dataset_id,
                     table_id=table_id,
-                    date_column_name={"date": "data_eleicao"},
-                    date_format="%Y",
+                    date_column_name={"date": date_column_name},
+                    date_format=date_format,
                     prefect_mode=materialization_mode,
                     coverage_type="all_free",
                     bq_project="basedosdados",

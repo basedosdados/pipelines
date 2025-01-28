@@ -19,13 +19,17 @@ T = TypeVar('T')
 
 @task
 # Classes de formatação
-def flows_control(table_id: str, mode: str) -> Type[T]:
+def flows_control(table_id: str, proxy: str, mode: str) -> Type[T]:
 
   catalog =  flows_catalog()
 
   select_flow = catalog.get(table_id)["flow"]
   flow = select_flow(urls=catalog.get(table_id)["urls"], table_id=table_id,
-                     source=catalog.get(table_id)["source"], mode=mode)
+                     source=catalog.get(table_id)["source"],
+                     date_column_name=catalog.get(table_id)["date_column_name"],
+                     date_format=catalog.get(table_id)["date_format"],
+                     proxy=proxy,
+                     mode=mode)
 
   return flow
 
@@ -41,9 +45,9 @@ def get_data_source_max_date(flow_class) -> datetime:
 
 
 @task
-def preparing_data(flow_class) -> str:
+def preparing_data(flow_class) -> tuple[str, str, str]:
    flow_class.formatar()
-   return flow_class.path_output
+   return flow_class.path_output, flow_class.date_column_name, flow_class.date_format
 
 
 
