@@ -115,11 +115,11 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
             """
         log(query)
         data = b._execute_query(query_graphql, {'table_id' : table_id})
-        nodes = data['allTable']['edges']
-        if nodes == []:
+        nodes = data['allTable']['items']
+        if len(nodes) == 0:
             return None
 
-        num_bytes = nodes[0]['node']['uncompressedFileSize']
+        num_bytes = nodes[0]['uncompressedFileSize']
 
     url_path = get_credentials_from_secret('url_download_data')
     secret_path_url_free = url_path['URL_DOWNLOAD_OPEN']
