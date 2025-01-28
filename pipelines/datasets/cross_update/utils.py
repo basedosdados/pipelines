@@ -74,8 +74,7 @@ def find_closed_tables(backend: Backend):
             }
             }"""
 
-    response = backend._execute_query(query=query)
-    response = backend._simplify_response(response)["allCoverage"]
+    response = backend._execute_query(query=query)["allCoverage"]["items"]
     data = json_normalize(response)
     open_tables = data["table._id"].tolist()
 
@@ -104,8 +103,7 @@ def find_closed_tables(backend: Backend):
             }
             }"""
 
-    response = backend._execute_query(query=query)
-    response = backend._simplify_response(response)["allCoverage"]
+    response = backend._execute_query(query=query)["allCoverage"]["items"]
     data = json_normalize(response)
     closed_tables = data["table._id"].tolist()
 
