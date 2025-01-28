@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 from time import sleep
 
-from basedosdados.download.base import google_client
+from basedosdados.download.download import _google_client
 from google.cloud import bigquery
 
 from pipelines.utils.utils import log
 
 
 def execute_query_in_bigquery(billing_project_id, query, path, location):
-    client = google_client(billing_project_id, from_file=True, reauth=False)
+    client = _google_client(billing_project_id, from_file=True, reauth=False)
     job = client["bigquery"].query(query)
     while not job.done():
         sleep(1)

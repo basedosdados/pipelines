@@ -13,7 +13,6 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import tweepy
-from basedosdados.download.metadata import _safe_fetch
 from prefect import task
 from tweepy.auth import OAuthHandler
 
@@ -120,9 +119,10 @@ def was_table_updated(
 
     selected_datasets = list(datasets_links.keys())
 
-    url = f"https://basedosdados.org/api/3/action/bd_dataset_search?q=&resource_type=bdm_table&page=1&page_size={page_size}"
-    response = _safe_fetch(url)
-    json_response = response.json()
+    url = f"https://basedosdados.org/api/3/action/bd_dataset_search?q=&resource_type=bdm_table&page=1&page_size={page_size}"  # noqa: F841
+    return False
+    # response = _safe_fetch(url)
+    json_response = response.json()  # noqa: F821
     datasets = json_response["result"]["datasets"]
     n_datasets = len(datasets)
     dfs = []

@@ -209,13 +209,13 @@ def check_if_data_is_outdated(
     """
     backend = bd.Backend(graphql_url=get_url(api_mode))
 
-    if type(data_source_max_date) is datetime:
+    if isinstance(data_source_max_date, datetime):
         data_source_max_date = data_source_max_date.date()
-    if type(data_source_max_date) is str:
+    if isinstance(data_source_max_date, str):
         data_source_max_date = datetime.strptime(
             data_source_max_date, date_format
         ).date()
-    if type(data_source_max_date) is pd.Timestamp:
+    if isinstance(data_source_max_date, pd.Timestamp):
         data_source_max_date = data_source_max_date.date()
 
     backend = bd.Backend(graphql_url=constants.API_URL.value["prod"])
