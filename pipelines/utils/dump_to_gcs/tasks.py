@@ -115,7 +115,7 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
             """
         log(query)
         data = b._execute_query(query_graphql, {'table_id' : table_id})
-        nodes = data['allTable']['edges']
+        nodes = data['allTable']["items"]
         if nodes == []:
             return None
 
