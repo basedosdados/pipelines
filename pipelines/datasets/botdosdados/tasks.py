@@ -11,7 +11,6 @@ from typing import Tuple
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import seaborn as sns
 import tweepy
 from prefect import task
 from tweepy.auth import OAuthHandler
@@ -334,8 +333,6 @@ def message_inflation_plot(dataset_id: str, table_id: str) -> str:
     log(last_data)
     df.set_index("date", inplace=True)
     df = df[df.index.year.isin(list(range(2015, 2022)))]
-
-    sns.set_style("whitegrid")
 
     fig, ax = plt.subplots()
 
