@@ -215,5 +215,4 @@ with Flow(
 
 transfermarkt_copa_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 transfermarkt_copa_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-# Desativando copa_brasil
-# transfermarkt_copa_flow.schedule = every_day_copa
+transfermarkt_copa_flow.schedule = every_day_copa
