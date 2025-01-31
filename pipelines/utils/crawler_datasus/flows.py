@@ -472,7 +472,7 @@ with Flow(name="DATASUS-SINAN", code_owners=["trick"]) as flow_sinan:
                     table_id=table_id,
                     date_column_name={'date' : 'data_notificacao'},
                     date_format="%Y-%m-%d",
-                    coverage_type="part_bdpro",
+                    coverage_type="all_free",
                     time_delta={"months": 6},
                     prefect_mode=materialization_mode,
                     bq_project="basedosdados",
