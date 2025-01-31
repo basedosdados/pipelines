@@ -133,7 +133,9 @@ transfermarkt_brasileirao_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 transfermarkt_brasileirao_flow.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-transfermarkt_brasileirao_flow.schedule = every_day_brasileirao
+
+# Desativando brasileirao_serie_a
+# transfermarkt_brasileirao_flow.schedule = every_day_brasileirao
 
 with Flow(
     name="mundo_transfermarkt_competicoes.copa_brasil",
