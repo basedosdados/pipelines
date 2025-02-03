@@ -536,7 +536,7 @@ def main(
     skipped = stats["skipped"]
     errored = stats["errored"]
     logger.info(
-        f"Registered {registered} flows, skipped {skipped} flows, " f"and errored {errored} flows."
+        f"Registered {registered} flows, skipped {skipped} flows, and errored {errored} flows."
     )
 
     # If not in a watch call, exit with appropriate exit code
