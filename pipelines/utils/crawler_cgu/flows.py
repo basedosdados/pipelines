@@ -2,49 +2,64 @@
 """
 Flows for br_cgu_cartao_pagamento
 """
-from calendar import month
+
 from datetime import timedelta
+
+from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
-from prefect import Parameter, case
-from pipelines.constants import constants
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
+
+from pipelines.constants import constants
 from pipelines.utils.constants import constants as utils_constants
-from pipelines.utils.decorators import Flow
 from pipelines.utils.crawler_cgu.tasks import (
-    partition_data,
+    dict_for_table,
     get_current_date_and_download_file,
-    verify_all_url_exists_to_download,
+    partition_data,
     read_and_partition_beneficios_cidadao,
-    dict_for_table
+    verify_all_url_exists_to_download,
 )
-from pipelines.utils.crawler_cgu.constants import constants as cgu_constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.metadata.tasks import update_django_metadata, check_if_data_is_outdated
+from pipelines.utils.execute_dbt_model.constants import (
+    constants as dump_db_constants,
+)
+from pipelines.utils.metadata.tasks import (
+    check_if_data_is_outdated,
+    update_django_metadata,
+)
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
     rename_current_flow_run_dataset_table,
-    log_task
 )
-
 
 with Flow(
     name="CGU - Cartão de Pagamento", code_owners=["trick"]
 ) as flow_cgu_cartao_pagamento:
-
-    dataset_id = Parameter("dataset_id", default='br_cgu_cartao_pagamento',  required=True)
+    dataset_id = Parameter(
+        "dataset_id", default="br_cgu_cartao_pagamento", required=True
+    )
     table_id = Parameter("table_id", required=True)
     ####
     # Relative_month =  1 means that the data will be downloaded for the current month
     ####
     relative_month = Parameter("relative_month", default=1, required=False)
-    materialization_mode = Parameter("materialization_mode", default="dev", required=False)
-    materialize_after_dump = Parameter("materialize_after_dump", default=True, required=False)
+    materialization_mode = Parameter(
+        "materialization_mode", default="dev", required=False
+    )
+    materialize_after_dump = Parameter(
+        "materialize_after_dump", default=True, required=False
+    )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
-    rename_flow_run = rename_current_flow_run_dataset_table(prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
+    rename_flow_run = rename_current_flow_run_dataset_table(
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
+    )
 
     data_source_max_date = get_current_date_and_download_file(
         table_id,
@@ -53,19 +68,17 @@ with Flow(
     )
 
     dados_desatualizados = check_if_data_is_outdated(
-    dataset_id=dataset_id,
-    table_id=table_id,
-    data_source_max_date=data_source_max_date,
-    date_format="%Y-%m",
-    upstream_tasks=[data_source_max_date]
+        dataset_id=dataset_id,
+        table_id=table_id,
+        data_source_max_date=data_source_max_date,
+        date_format="%Y-%m",
+        upstream_tasks=[data_source_max_date],
     )
 
     with case(dados_desatualizados, True):
-
         filepath = partition_data(
             table_id=table_id,
             dataset_id=dataset_id,
-
             upstream_tasks=[dados_desatualizados],
         )
 
@@ -79,7 +92,6 @@ with Flow(
         )
 
         with case(materialize_after_dump, True):
-
             current_flow_labels = get_current_flow_labels()
             materialization_flow = create_flow_run(
                 flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
@@ -114,7 +126,10 @@ with Flow(
                 update_django_metadata(
                     dataset_id=dataset_id,
                     table_id=table_id,
-                    date_column_name={"year": "ano_extrato", "month": "mes_extrato"},
+                    date_column_name={
+                        "year": "ano_extrato",
+                        "month": "mes_extrato",
+                    },
                     date_format="%Y-%m",
                     coverage_type="part_bdpro",
                     time_delta={"months": 6},
@@ -131,23 +146,43 @@ flow_cgu_cartao_pagamento.run_config = KubernetesRun(
 # ! ============================================== CGU - Servidores Públicos do Executivo Federal ==============================================
 
 with Flow(
-    name="CGU - Servidores Públicos do Executivo Federal", code_owners=["trick"]
+    name="CGU - Servidores Públicos do Executivo Federal",
+    code_owners=["trick"],
 ) as flow_cgu_servidores_publicos:
-
-    dataset_id = Parameter("dataset_id", default="br_cgu_servidores_executivo_federal", required=True)
+    dataset_id = Parameter(
+        "dataset_id",
+        default="br_cgu_servidores_executivo_federal",
+        required=True,
+    )
     table_id = Parameter("table_id", required=True)
-    materialization_mode = Parameter("materialization_mode", default="dev", required=False)
-    materialize_after_dump = Parameter("materialize_after_dump", default=True, required=False)
+    materialization_mode = Parameter(
+        "materialization_mode", default="dev", required=False
+    )
+    materialize_after_dump = Parameter(
+        "materialize_after_dump", default=True, required=False
+    )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
-    rename_flow_run = rename_current_flow_run_dataset_table(prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
+    rename_flow_run = rename_current_flow_run_dataset_table(
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
+    )
 
     ####
     # Relative_month =  1 means that the data will be downloaded for the current month
     ####
     relative_month = Parameter("relative_month", default=1, required=False)
 
-    with case(verify_all_url_exists_to_download(dataset_id, table_id, relative_month), True):
+    with case(
+        verify_all_url_exists_to_download(
+            dataset_id, table_id, relative_month
+        ),
+        True,
+    ):
         data_source_max_date = get_current_date_and_download_file(
             table_id,
             dataset_id,
@@ -164,7 +199,9 @@ with Flow(
 
         with case(dados_desatualizados, True):
             filepath = partition_data(
-                table_id=table_id, dataset_id=dataset_id, upstream_tasks=[data_source_max_date]
+                table_id=table_id,
+                dataset_id=dataset_id,
+                upstream_tasks=[data_source_max_date],
             )
             wait_upload_table = create_table_and_upload_to_gcs(
                 data_path=filepath,
@@ -176,7 +213,6 @@ with Flow(
             )
 
             with case(materialize_after_dump, True):
-
                 current_flow_labels = get_current_flow_labels()
                 materialization_flow = create_flow_run(
                     flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
@@ -201,9 +237,7 @@ with Flow(
                     raise_final_state=True,
                     upstream_tasks=[materialization_flow],
                 )
-                wait_for_materialization.max_retries = (
-                    dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-                )
+                wait_for_materialization.max_retries = dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
                 wait_for_materialization.retry_delay = timedelta(
                     seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
                 )
@@ -220,28 +254,40 @@ with Flow(
                         upstream_tasks=[wait_for_materialization],
                     )
 flow_cgu_servidores_publicos.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-flow_cgu_servidores_publicos.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+flow_cgu_servidores_publicos.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
 
 
 # ! ================================== CGU - Licitacao e Contrato =====================================
 
-with Flow(name="CGU - Licitacão e Contrato", code_owners=["trick"]) as flow_cgu_licitacao_contrato:
-
+with Flow(
+    name="CGU - Licitacão e Contrato", code_owners=["trick"]
+) as flow_cgu_licitacao_contrato:
     dataset_id = Parameter(
         "dataset_id", default="br_cgu_licitacao_contrato", required=True
     )
-    table_id = Parameter(
-        "table_id", required=True
-    )
+    table_id = Parameter("table_id", required=True)
     ####
     # Relative_month =  1 means that the data will be downloaded for the current month
     ####
     relative_month = Parameter("relative_month", default=1, required=False)
-    materialization_mode = Parameter("materialization_mode", default="dev", required=False)
-    materialize_after_dump = Parameter("materialize_after_dump", default=True, required=False)
+    materialization_mode = Parameter(
+        "materialization_mode", default="dev", required=False
+    )
+    materialize_after_dump = Parameter(
+        "materialize_after_dump", default=True, required=False
+    )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
-    rename_flow_run = rename_current_flow_run_dataset_table(prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
+    rename_flow_run = rename_current_flow_run_dataset_table(
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
+    )
 
     data_source_max_date = get_current_date_and_download_file(
         table_id=table_id,
@@ -258,7 +304,6 @@ with Flow(name="CGU - Licitacão e Contrato", code_owners=["trick"]) as flow_cgu
     )
 
     with case(dados_desatualizados, True):
-
         filepath = partition_data(
             table_id=table_id,
             dataset_id=dataset_id,
@@ -275,7 +320,6 @@ with Flow(name="CGU - Licitacão e Contrato", code_owners=["trick"]) as flow_cgu
         )
 
         with case(materialize_after_dump, True):
-
             current_flow_labels = get_current_flow_labels()
             materialization_flow = create_flow_run(
                 flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
@@ -319,28 +363,40 @@ with Flow(name="CGU - Licitacão e Contrato", code_owners=["trick"]) as flow_cgu
                     upstream_tasks=[wait_for_materialization],
                 )
 flow_cgu_licitacao_contrato.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-flow_cgu_licitacao_contrato.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+flow_cgu_licitacao_contrato.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
 
 
 # ! ================================== CGU - Benefícios Cidadão =====================================
 
-with Flow(name="CGU - Benefícios Cidadão", code_owners=["trick"]) as flow_cgu_beneficios_cidadao:
-
+with Flow(
+    name="CGU - Benefícios Cidadão", code_owners=["trick"]
+) as flow_cgu_beneficios_cidadao:
     dataset_id = Parameter(
         "dataset_id", default="br_cgu_beneficios_cidadao", required=True
     )
-    table_id = Parameter(
-        "table_id", required=True
-    )
+    table_id = Parameter("table_id", required=True)
     ####
     # Relative_month =  1 means that the data will be downloaded for the current month
     ####
     relative_month = Parameter("relative_month", default=1, required=False)
-    materialization_mode = Parameter("materialization_mode", default="dev", required=False)
-    materialize_after_dump = Parameter("materialize_after_dump", default=True, required=False)
+    materialization_mode = Parameter(
+        "materialization_mode", default="dev", required=False
+    )
+    materialize_after_dump = Parameter(
+        "materialize_after_dump", default=True, required=False
+    )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
-    rename_flow_run = rename_current_flow_run_dataset_table(prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
+    rename_flow_run = rename_current_flow_run_dataset_table(
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
+    )
 
     data_source_max_date = get_current_date_and_download_file(
         table_id=table_id,
@@ -372,7 +428,6 @@ with Flow(name="CGU - Benefícios Cidadão", code_owners=["trick"]) as flow_cgu_
         )
 
         with case(materialize_after_dump, True):
-
             current_flow_labels = get_current_flow_labels()
             materialization_flow = create_flow_run(
                 flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
@@ -417,4 +472,6 @@ with Flow(name="CGU - Benefícios Cidadão", code_owners=["trick"]) as flow_cgu_
                 )
 
 flow_cgu_beneficios_cidadao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-flow_cgu_beneficios_cidadao.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+flow_cgu_beneficios_cidadao.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)

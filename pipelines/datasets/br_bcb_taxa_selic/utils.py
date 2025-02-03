@@ -88,7 +88,9 @@ def treat_selic_df(df: pd.DataFrame, table_id: str) -> pd.DataFrame:
     return df
 
 
-def treat_market_expectations_df(df: pd.DataFrame, table_id: str) -> pd.DataFrame:
+def treat_market_expectations_df(
+    df: pd.DataFrame, table_id: str
+) -> pd.DataFrame:
     """
     Performs data treatment on a market expectations DataFrame.
 

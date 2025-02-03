@@ -2,6 +2,7 @@
 """
 Custom decorators for pipelines.
 """
+
 import asyncio
 
 import requests

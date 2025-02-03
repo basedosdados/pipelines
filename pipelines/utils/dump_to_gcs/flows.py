@@ -3,7 +3,8 @@
 """
 Flows for dumping data directly from BigQuery to GCS.
 """
-from prefect import Parameter, case, unmapped
+
+from prefect import Parameter
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
@@ -14,23 +15,32 @@ from pipelines.utils.dump_to_gcs.tasks import (
     download_data_to_gcs,
     get_project_id,
 )
-#from pipelines.datasets.cross_update.tasks import get_all_eligible_in_selected_year
+
+# from pipelines.datasets.cross_update.tasks import get_all_eligible_in_selected_year
 from pipelines.utils.tasks import rename_current_flow_run_dataset_table
 
 with Flow(
     name=utils_constants.FLOW_DUMP_TO_GCS_NAME.value,
     code_owners=["lauris"],
 ) as dump_to_gcs_flow:
-    project_id = Parameter("project_id", required=False) # basedosdados
-    dataset_id = Parameter("dataset_id", required=False)  # dataset_id or dataset_id_staging
+    project_id = Parameter("project_id", required=False)  # basedosdados
+    dataset_id = Parameter(
+        "dataset_id", required=False
+    )  # dataset_id or dataset_id_staging
     table_id = Parameter("table_id", required=False)
     query = Parameter("query", required=False)
-    #year = Parameter("year", required=False)
-    #mode = Parameter("mode", required=False)
-    bd_project_mode = Parameter("bd_project_mode", required=False, default="prod")  # prod or staging
+    # year = Parameter("year", required=False)
+    # mode = Parameter("mode", required=False)
+    bd_project_mode = Parameter(
+        "bd_project_mode", required=False, default="prod"
+    )  # prod or staging
     billing_project_id = Parameter("billing_project_id", required=False)
-    rename_flow_run = rename_current_flow_run_dataset_table(prefix="Dump to GCS: ", dataset_id=dataset_id, table_id=table_id)
-    project_id = get_project_id(project_id=project_id, bd_project_mode=bd_project_mode)
+    rename_flow_run = rename_current_flow_run_dataset_table(
+        prefix="Dump to GCS: ", dataset_id=dataset_id, table_id=table_id
+    )
+    project_id = get_project_id(
+        project_id=project_id, bd_project_mode=bd_project_mode
+    )
     """
     Caso queiram subir todas as tabelas para o bucket novamente,
     1. Descomentem os parametros year e mode

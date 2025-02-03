@@ -3,14 +3,12 @@
 Schedules for br_ans_beneficiario
 """
 
-
 from datetime import datetime
 
 from prefect.schedules import Schedule
 from prefect.schedules.clocks import CronClock
 
 from pipelines.constants import constants
-from pipelines.datasets.br_cvm_fi.constants import constants as cvm_constants
 
 every_day_ans = Schedule(
     clocks=[

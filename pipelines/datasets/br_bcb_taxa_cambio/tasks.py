@@ -6,7 +6,6 @@ Tasks for br_bcb_indicadores
 import pandas as pd
 from prefect import task
 
-from pipelines.datasets.br_bcb_taxa_cambio.constants import constants as bcb_constants
 from pipelines.datasets.br_bcb_taxa_cambio.utils import (
     available_currencies,
     get_currency_data,
@@ -77,7 +76,9 @@ def treat_data_taxa_cambio(table_id: str) -> str:
 
     save_output_path = f"tmp/{table_id}/output/"
 
-    to_partitions(data=df, partition_columns=["ano"], savepath=save_output_path)
+    to_partitions(
+        data=df, partition_columns=["ano"], savepath=save_output_path
+    )
 
     file_info = {
         "save_output_path": save_output_path,

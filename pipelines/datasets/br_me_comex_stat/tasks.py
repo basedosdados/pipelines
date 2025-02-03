@@ -3,6 +3,7 @@
 """
 Tasks for br_me_comex_stat
 """
+
 import os
 import re
 import time as tm
@@ -10,16 +11,19 @@ import time as tm
 # pylint: disable=invalid-name,too-many-nested-blocks
 from zipfile import ZipFile
 
-import basedosdados as bd
 import numpy as np
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from prefect import task
 
-from pipelines.constants import constants
-from pipelines.datasets.br_me_comex_stat.constants import constants as comex_constants
-from pipelines.datasets.br_me_comex_stat.utils import create_paths, download_data
+from pipelines.datasets.br_me_comex_stat.constants import (
+    constants as comex_constants,
+)
+from pipelines.datasets.br_me_comex_stat.utils import (
+    create_paths,
+    download_data,
+)
 from pipelines.utils.utils import log, to_partitions
 
 

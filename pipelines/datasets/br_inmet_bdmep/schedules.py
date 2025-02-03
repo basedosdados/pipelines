@@ -3,11 +3,10 @@
 Schedules for br_inmet_bdmep
 """
 
-
 from datetime import datetime
 
 from prefect.schedules import Schedule
-from prefect.schedules.clocks import CronClock, IntervalClock
+from prefect.schedules.clocks import CronClock
 
 from pipelines.constants import constants
 

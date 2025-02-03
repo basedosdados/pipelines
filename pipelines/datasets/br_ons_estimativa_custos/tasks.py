@@ -2,6 +2,7 @@
 """
 Tasks for br_ons_avaliacao_operacao
 """
+
 import os
 import time as tm
 from datetime import date, datetime
@@ -15,15 +16,15 @@ from pipelines.datasets.br_ons_estimativa_custos.utils import (
     change_columns_name,
     crawler_ons,
     create_paths,
-)
-from pipelines.datasets.br_ons_estimativa_custos.utils import download_data as dw
-from pipelines.datasets.br_ons_estimativa_custos.utils import (
     extrai_data_recente,
     order_df,
     parse_year_or_year_month,
     process_date_column,
     process_datetime_column,
     remove_latin1_accents_from_df,
+)
+from pipelines.datasets.br_ons_estimativa_custos.utils import (
+    download_data as dw,
 )
 from pipelines.utils.utils import log, to_partitions
 
@@ -52,13 +53,17 @@ def download_data(
         url=constants.TABLE_NAME_URL_DICT.value[table_name],
     )
     log("As urls foram recuperadas")
-    log(f'------- url_list {url_list}')
+    log(f"------- url_list {url_list}")
 
     tm.sleep(2)
     # usa dictionary comprehension para extrair data de cada link como key e link como item
-    dicionario_data_url = {parse_year_or_year_month(url): url for url in url_list}
-    log(f'------- dicionario_data_url url {dicionario_data_url}')
-    tupla_data_maxima_url = max(dicionario_data_url.items(), key=lambda x: x[0])
+    dicionario_data_url = {
+        parse_year_or_year_month(url): url for url in url_list
+    }
+    log(f"------- dicionario_data_url url {dicionario_data_url}")
+    tupla_data_maxima_url = max(
+        dicionario_data_url.items(), key=lambda x: x[0]
+    )
 
     data_maxima = tupla_data_maxima_url[0]
     link_data_maxima = tupla_data_maxima_url[1]
@@ -155,7 +160,9 @@ def wrang_data(
                 )
                 log("O flow de atualização será inciado")
             else:
-                log("A data mais recente do arquivo é igual a data mais recente do BQ")
+                log(
+                    "A data mais recente do arquivo é igual a data mais recente do BQ"
+                )
                 log("O flow será terminado")
                 return False, False
 
@@ -216,7 +223,9 @@ def wrang_data(
                 )
                 log("O flow de atualização será inciado")
             else:
-                log("A data mais recente do arquivo é igual a data mais recente do BQ")
+                log(
+                    "A data mais recente do arquivo é igual a data mais recente do BQ"
+                )
                 log("O flow será terminado")
                 return False, False
 
@@ -272,7 +281,9 @@ def wrang_data(
                 )
                 log("O flow de atualização será inciado")
             else:
-                log("A data mais recente do arquivo é igual a data mais recente do BQ")
+                log(
+                    "A data mais recente do arquivo é igual a data mais recente do BQ"
+                )
                 log("O flow será terminado")
                 return False, False
 
@@ -328,7 +339,9 @@ def wrang_data(
                 )
                 log("O flow de atualização será inciado")
             else:
-                log("A data mais recente do arquivo é igual a data mais recente do BQ")
+                log(
+                    "A data mais recente do arquivo é igual a data mais recente do BQ"
+                )
                 log("O flow será terminado")
                 return False, False
 
@@ -384,7 +397,9 @@ def wrang_data(
                 )
                 log("O flow de atualização será inciado")
             else:
-                log("A data mais recente do arquivo é igual a data mais recente do BQ")
+                log(
+                    "A data mais recente do arquivo é igual a data mais recente do BQ"
+                )
                 log("O flow será terminado")
                 return False, False
 

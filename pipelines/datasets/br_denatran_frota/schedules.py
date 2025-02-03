@@ -2,6 +2,7 @@
 """
 Schedules for br_denatran_frota
 """
+
 from datetime import datetime
 
 from prefect.schedules import Schedule, adjustments, filters

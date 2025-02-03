@@ -23,14 +23,12 @@ from pipelines.datasets.br_denatran_frota.utils import (
     download_file,
     extract_links_post_2012,
     extraction_pre_2012,
-    get_data_from_prod,
     get_year_month_from_filename,
     guess_header,
     make_dir_when_not_exists,
     treat_uf,
     verify_total,
 )
-import basedosdados as bd
 from pipelines.utils.metadata.utils import get_api_most_recent_date, get_url
 from pipelines.utils.utils import log, to_partitions
 
@@ -63,7 +61,9 @@ def crawl(month: int, year: int, temp_dir: str = "") -> bool:
     make_dir_when_not_exists(year_dir_name)
     if year > 2012:
         try:
-            files_to_download = extract_links_post_2012(month, year, year_dir_name)
+            files_to_download = extract_links_post_2012(
+                month, year, year_dir_name
+            )
             for file_dict in files_to_download:
                 call_downloader(file_dict)
         except Exception as e:
@@ -111,13 +111,17 @@ def treat_uf_tipo(file: str) -> pl.DataFrame:
     filename = os.path.split(file)[1]
     try:
         correct_sheet = [
-            sheet for sheet in pd.ExcelFile(file).sheet_names if sheet != "Glossário"
+            sheet
+            for sheet in pd.ExcelFile(file).sheet_names
+            if sheet != "Glossário"
         ][0]
         df = pd.read_excel(file, sheet_name=correct_sheet)
     except UnicodeDecodeError:
         df = call_r_to_read_excel(file)
 
-    new_df = change_df_header(df, guess_header(df=df, type_of_file=DenatranType.UF))
+    new_df = change_df_header(
+        df, guess_header(df=df, type_of_file=DenatranType.UF)
+    )
     # This is ad hoc for UF_tipo.
 
     new_df.rename(
@@ -222,7 +226,10 @@ def get_latest_data(table_id: str, dataset_id: str):
     backend = bd.Backend(graphql_url=get_url("prod"))
 
     denatran_data = get_api_most_recent_date(
-        table_id=table_id, dataset_id=dataset_id, date_format="%Y-%m", backend=backend
+        table_id=table_id,
+        dataset_id=dataset_id,
+        date_format="%Y-%m",
+        backend=backend,
     )
 
     log(f"{denatran_data}")
@@ -262,7 +269,9 @@ def treat_municipio_tipo(file: str) -> pl.DataFrame:
     filename = os.path.split(file)[1]
     year, month = get_year_month_from_filename(filename)
     correct_sheet = [
-        sheet for sheet in pd.ExcelFile(file).sheet_names if sheet != "Glossário"
+        sheet
+        for sheet in pd.ExcelFile(file).sheet_names
+        if sheet != "Glossário"
     ][0]
     df = pd.read_excel(file, sheet_name=correct_sheet)
     # Some very janky historical files have an entire first empty column that will break EVERYTHING
@@ -271,7 +280,10 @@ def treat_municipio_tipo(file: str) -> pl.DataFrame:
         df.drop(columns=df.columns[0], inplace=True)
     new_df = change_df_header(df, guess_header(df, DenatranType.Municipio))
     new_df.rename(
-        columns={new_df.columns[0]: "sigla_uf", new_df.columns[1]: "nome_denatran"},
+        columns={
+            new_df.columns[0]: "sigla_uf",
+            new_df.columns[1]: "nome_denatran",
+        },
         inplace=True,
     )  # Rename for ease of use.
     new_df.sigla_uf = new_df.sigla_uf.str.strip()  # Remove whitespace.
@@ -282,7 +294,9 @@ def treat_municipio_tipo(file: str) -> pl.DataFrame:
         pl.lit(year, dtype=pl.Int64).alias("ano"),
         pl.lit(month, dtype=pl.Int64).alias("mes"),
     )
-    new_pl_df = new_pl_df.filter(pl.col("nome_denatran") != "municipio nao informado")
+    new_pl_df = new_pl_df.filter(
+        pl.col("nome_denatran") != "municipio nao informado"
+    )
     if new_pl_df.shape[0] > bd_municipios.shape[0]:
         raise ValueError(
             f"Atenção: a base do Denatran tem {new_pl_df.shape[0]} linhas e isso é mais municípios do que a BD com {bd_municipios.shape[0]}"

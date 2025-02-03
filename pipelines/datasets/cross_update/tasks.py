@@ -2,6 +2,7 @@
 """
 Tasks for cross update of metadata.
 """
+
 import re
 
 # pylint: disable=invalid-name, too-many-locals
@@ -10,15 +11,16 @@ from typing import Dict, List
 import basedosdados as bd
 import pandas as pd
 from google.cloud import storage
-from pipelines.utils.constants import constants
 from prefect import task
 from tqdm import tqdm
 
 from pipelines.datasets.cross_update.utils import find_closed_tables, save_file
+from pipelines.utils.constants import constants
 from pipelines.utils.utils import log
 
+
 @task
-def query_tables(year:int = 2024, mode: str = "dev") -> List[Dict[str, str]]:
+def query_tables(year: int = 2024, mode: str = "dev") -> List[Dict[str, str]]:
     """
     Queries BigQuery Tables metadata to find elegible tables to zip.
     """
@@ -40,7 +42,9 @@ def query_tables(year:int = 2024, mode: str = "dev") -> List[Dict[str, str]]:
         and extract(year from last_modified_time) = {year}"""
 
     # Os dados do DOU são maiores que 1 GB, então não serão baixados.
-    tables = bd.read_sql(query=query, billing_project_id=billing_project_id, from_file=True)
+    tables = bd.read_sql(
+        query=query, billing_project_id=billing_project_id, from_file=True
+    )
 
     log(f"Found {len(tables)} eligible tables to zip")
 
@@ -130,7 +134,7 @@ def filter_eligible_download_tables(eligible_download_tables: List) -> List:
         - Contains row information in BigQuery
     """
 
-    backend = bd.Backend(graphql_url=constants.API_URL.value['prod'])
+    backend = bd.Backend(graphql_url=constants.API_URL.value["prod"])
     all_closed_tables = find_closed_tables(backend)
     remove_from_eligible_download_table = []
 
@@ -174,6 +178,7 @@ def filter_eligible_download_tables(eligible_download_tables: List) -> List:
 
     return eligible_download_tables
 
+
 @task(nout=2)
 def get_all_eligible_in_selected_year(year, mode):
     """
@@ -194,6 +199,5 @@ def get_all_eligible_in_selected_year(year, mode):
         table_ids.append(table_id)
 
         log(f"Dataset: {dataset_id} Table: {table_id}")
-
 
     return dataset_ids, table_ids

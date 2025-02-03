@@ -30,7 +30,9 @@ from pipelines.datasets.br_anp_precos_combustiveis.utils import (
 @task
 def get_data_source_anp_max_date():
     # Obtém a data mais recente do site
-    download_files(anp_constants.URLS_DATA.value, anp_constants.PATH_INPUT.value)
+    download_files(
+        anp_constants.URLS_DATA.value, anp_constants.PATH_INPUT.value
+    )
     df = pd.read_csv(anp_constants.URL_GLP.value, sep=";", encoding="utf-8")
     data_obj = (
         df["Data da Coleta"].str[6:10]

@@ -11,7 +11,6 @@ from typing import Any, List, Union
 import basedosdados as bd
 import pandas as pd
 import prefect
-import ruamel.yaml as ryaml
 from prefect import task
 from prefect.backend import FlowRunView
 from prefect.client import Client
@@ -89,17 +88,18 @@ def create_table_and_upload_to_gcs(
     if dump_mode == "append":
         if tb.table_exists(mode="staging"):
             log(
-                f"MODE APPEND: Table ALREADY EXISTS:"
-                f"\n{table_staging}"
-                f"\n{storage_path_link}"
+                f"MODE APPEND: Table ALREADY EXISTS:\n{table_staging}\n{storage_path_link}"
             )
         else:
             # the header is needed to create a table when dosen't exist
-            log("MODE APPEND: Table DOSEN'T EXISTS\n" + "Start to CREATE HEADER file")
+            log(
+                "MODE APPEND: Table DOSEN'T EXISTS\n"
+                + "Start to CREATE HEADER file"
+            )
             header_path = dump_header_to_csv(
                 data_path=data_path, source_format=source_format
             )
-            log("MODE APPEND: Created HEADER file:\n" f"{header_path}")
+            log(f"MODE APPEND: Created HEADER file:\n{header_path}")
 
             tb.create(
                 path=header_path,
@@ -146,11 +146,14 @@ def create_table_and_upload_to_gcs(
 
         # the header is needed to create a table when dosen't exist
         # in overwrite mode the header is always created
-        log("MODE OVERWRITE: Table DOSEN'T EXISTS\n" + "Start to CREATE HEADER file")
+        log(
+            "MODE OVERWRITE: Table DOSEN'T EXISTS\n"
+            + "Start to CREATE HEADER file"
+        )
         header_path = dump_header_to_csv(
             data_path=data_path, source_format=source_format
         )
-        log("MODE OVERWRITE: Created HEADER file:\n" f"{header_path}")
+        log(f"MODE OVERWRITE: Created HEADER file:\n{header_path}")
 
         tb.create(
             path=header_path,
@@ -160,12 +163,12 @@ def create_table_and_upload_to_gcs(
         )
 
         log(
-            "MODE OVERWRITE: Sucessfully CREATED TABLE\n"
-            f"{table_staging}\n"
-            f"{storage_path_link}"
+            f"MODE OVERWRITE: Sucessfully CREATED TABLE\n{table_staging}\n{storage_path_link}"
         )
 
-        st.delete_table(mode="staging", bucket_name=st.bucket_name, not_found_ok=True)
+        st.delete_table(
+            mode="staging", bucket_name=st.bucket_name, not_found_ok=True
+        )
         log(
             f"MODE OVERWRITE: Sucessfully REMOVED HEADER DATA from Storage\n:"
             f"{storage_path}\n"
@@ -190,7 +193,9 @@ def create_table_and_upload_to_gcs(
         )
     else:
         # pylint: disable=C0301
-        log("STEP UPLOAD: Table does not exist in STAGING, need to create first")
+        log(
+            "STEP UPLOAD: Table does not exist in STAGING, need to create first"
+        )
 
 
 @task(
@@ -255,12 +260,8 @@ def get_temporal_coverage(
         )
 
     if time_unit == "day":
-        start_date = (
-            f"{dates[0].year}-{dates[0].strftime('%m')}-{dates[0].strftime('%d')}"
-        )
-        end_date = (
-            f"{dates[-1].year}-{dates[-1].strftime('%m')}-{dates[-1].strftime('%d')}"
-        )
+        start_date = f"{dates[0].year}-{dates[0].strftime('%m')}-{dates[0].strftime('%d')}"
+        end_date = f"{dates[-1].year}-{dates[-1].strftime('%m')}-{dates[-1].strftime('%d')}"
         return start_date + "(" + interval + ")" + end_date
     if time_unit == "month":
         start_date = f"{dates[0].year}-{dates[0].strftime('%m')}"
@@ -271,7 +272,9 @@ def get_temporal_coverage(
         end_date = f"{dates[-1].year}"
         return start_date + "(" + interval + ")" + end_date
 
-    raise ValueError("time_unit must be one of the following: day, month, year")
+    raise ValueError(
+        "time_unit must be one of the following: day, month, year"
+    )
 
 
 # pylint: disable=W0613
@@ -294,7 +297,9 @@ def rename_current_flow_run_dataset_table(
     """
     flow_run_id = prefect.context.get("flow_run_id")
     client = Client()
-    return client.set_flow_run_name(flow_run_id, f"{prefix}{dataset_id}.{table_id}")
+    return client.set_flow_run_name(
+        flow_run_id, f"{prefix}{dataset_id}.{table_id}"
+    )
 
 
 @task  # noqa

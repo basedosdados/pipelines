@@ -3,17 +3,17 @@
 Flows for temporal_coverage_updater
 """
 
-
-
 from prefect import Parameter
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
-
 from pipelines.utils.decorators import Flow
-from pipelines.utils.metadata.tasks import update_django_metadata, create_update_quality_checks, query_tests_results
-from pipelines.utils.metadata.schedules import every_day_quality_checks
+from pipelines.utils.metadata.tasks import (
+    create_update_quality_checks,
+    query_tests_results,
+    update_django_metadata,
+)
 
 with Flow(
     name="update_temporal_coverage_teste",
@@ -26,11 +26,16 @@ with Flow(
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
     )
-    coverage_type = Parameter("coverage_type",default = 'part_bdpro', required=False)
-    date_column_name = Parameter("date_column_name",default={"month": "mes", "year":"ano"}, required=False)
-    date_format = Parameter("date_format", default='%Y-%m',required=False)
+    coverage_type = Parameter(
+        "coverage_type", default="part_bdpro", required=False
+    )
+    date_column_name = Parameter(
+        "date_column_name",
+        default={"month": "mes", "year": "ano"},
+        required=False,
+    )
+    date_format = Parameter("date_format", default="%Y-%m", required=False)
     time_delta = Parameter("time_delta", default={"months": 6}, required=False)
-
 
     update_django_metadata(
         dataset_id=dataset_id,
@@ -56,14 +61,14 @@ with Flow(
         "equipe_pipelines",
     ],
 ) as quality_checks_updater:
-
     tests_results = query_tests_results()
-    results = create_update_quality_checks(tests_results = tests_results, upstream_tasks=[tests_results])
+    results = create_update_quality_checks(
+        tests_results=tests_results, upstream_tasks=[tests_results]
+    )
 
 
 quality_checks_updater.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 quality_checks_updater.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-#quality_checks_updater.schedule = every_day_quality_checks
-
+# quality_checks_updater.schedule = every_day_quality_checks

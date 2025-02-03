@@ -2,13 +2,14 @@
 """
 Tasks for br_me_cnpj
 """
+
 import asyncio
 import os
-from typing import Union, List
-from datetime import datetime,timedelta
-import basedosdados as bd
+from datetime import datetime, timedelta
+
 from prefect import task
 
+from pipelines.constants import constants
 from pipelines.datasets.br_me_cnpj.constants import constants as constants_cnpj
 from pipelines.datasets.br_me_cnpj.utils import (
     data_url,
@@ -20,7 +21,6 @@ from pipelines.datasets.br_me_cnpj.utils import (
     process_csv_socios,
 )
 from pipelines.utils.utils import log
-from pipelines.constants import constants
 
 ufs = constants_cnpj.UFS.value
 url = constants_cnpj.URL.value
@@ -31,7 +31,7 @@ headers = constants_cnpj.HEADERS.value
     max_retries=3,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def get_data_source_max_date() -> tuple[datetime,datetime]:
+def get_data_source_max_date() -> tuple[datetime, datetime]:
     """
     Checks if there are available updates for a specific dataset and table.
 
@@ -43,11 +43,12 @@ def get_data_source_max_date() -> tuple[datetime,datetime]:
     folder_date, today_date = data_url(url=url, headers=headers)
     return folder_date, today_date
 
+
 @task(
     max_retries=3,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def main(tabelas:[str], folder_date:datetime, today_date:datetime)-> str:
+def main(tabelas: [str], folder_date: datetime, today_date: datetime) -> str:
     """
     Performs the download, processing, and organization of CNPJ data.
 
@@ -84,15 +85,21 @@ def main(tabelas:[str], folder_date:datetime, today_date:datetime)-> str:
                             input_path, output_path, today_date, i
                         )
                     elif tabela == "Socios":
-                        process_csv_socios(input_path, output_path, today_date, i)
+                        process_csv_socios(
+                            input_path, output_path, today_date, i
+                        )
                     elif tabela == "Empresas":
-                        process_csv_empresas(input_path, output_path, today_date, i)
+                        process_csv_empresas(
+                            input_path, output_path, today_date, i
+                        )
             else:
                 nome_arquivo = f"{tabela}"
                 url_download = f"https://arquivos.receitafederal.gov.br/cnpj/dados_abertos_cnpj/{folder_date}/{tabela}.zip"
                 if nome_arquivo not in arquivos_baixados:
                     arquivos_baixados.append(nome_arquivo)
                     asyncio.run((download_unzip_csv(url_download, input_path)))
-                    process_csv_simples(input_path, output_path, today_date, sufixo)
+                    process_csv_simples(
+                        input_path, output_path, today_date, sufixo
+                    )
 
     return output_path

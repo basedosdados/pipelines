@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
-from prefect.schedules import Schedule
-from prefect.schedules.clocks import CronClock, IntervalClock
-from pipelines.constants import constants
-from pipelines.utils.crawler_cgu.constants import constants as constants_cgu
 
+from prefect.schedules import Schedule
+from prefect.schedules.clocks import CronClock
+
+from pipelines.constants import constants
 
 every_day_microdados_governo_federal = Schedule(
     clocks=[

@@ -2,13 +2,13 @@
 """
 Schedules for br_ibge_pnadc
 """
+
 from datetime import datetime
 
 from prefect.schedules import Schedule
 from prefect.schedules.clocks import CronClock
 
 from pipelines.constants import constants
-
 
 every_day = Schedule(
     clocks=[

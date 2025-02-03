@@ -3,7 +3,6 @@
 Schedules for br_ons_estimativa_custos
 """
 
-
 from datetime import datetime
 
 from prefect.schedules import Schedule, adjustments, filters
@@ -122,24 +121,26 @@ schedule_br_ons_avaliacao_operacao_energia_armazenada_reservatorio = Schedule(
 )
 
 
-schedule_br_ons_avaliacao_operacao_restricao_operacao_usinas_eolicas = Schedule(
-    clocks=[
-        CronClock(
-            cron="0 4 * * *",  # every day at midnight
-            start_date=datetime(2023, 10, 24, 0, 0),
-            labels=[
-                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-            ],
-            parameter_defaults={
-                "dataset_id": "br_ons_avaliacao_operacao",
-                "table_id": "restricao_operacao_usinas_eolicas",
-                "materialization_mode": "prod",
-                "materialize_after_dump": True,
-                "update_metadata": True,
-                "dbt_alias": True,
-            },
-        )
-    ],
-    filters=[filters.is_weekday],
-    adjustments=[adjustments.next_weekday],
+schedule_br_ons_avaliacao_operacao_restricao_operacao_usinas_eolicas = (
+    Schedule(
+        clocks=[
+            CronClock(
+                cron="0 4 * * *",  # every day at midnight
+                start_date=datetime(2023, 10, 24, 0, 0),
+                labels=[
+                    constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                ],
+                parameter_defaults={
+                    "dataset_id": "br_ons_avaliacao_operacao",
+                    "table_id": "restricao_operacao_usinas_eolicas",
+                    "materialization_mode": "prod",
+                    "materialize_after_dump": True,
+                    "update_metadata": True,
+                    "dbt_alias": True,
+                },
+            )
+        ],
+        filters=[filters.is_weekday],
+        adjustments=[adjustments.next_weekday],
+    )
 )

@@ -2,6 +2,7 @@
 """
 Schedules for br_cgu_terceirizados
 """
+
 from datetime import datetime
 
 from prefect.schedules import Schedule, adjustments, filters

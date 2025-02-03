@@ -82,7 +82,9 @@ with Flow(name="test_flow") as test_flow:
 
     dataframe, time_stamp = get_random_expression()
 
-    path = dataframe_to_csv(dataframe=dataframe, path=path, time_stamp=time_stamp)
+    path = dataframe_to_csv(
+        dataframe=dataframe, path=path, time_stamp=time_stamp
+    )
 
     upload_to_gcs(path=path, dataset_id=dataset_id, table_id=table_id)
 

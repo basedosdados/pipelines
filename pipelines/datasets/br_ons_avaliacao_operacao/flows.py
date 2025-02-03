@@ -2,6 +2,7 @@
 """
 Flows for br_ons_avaliacao_operacao
 """
+
 # pylint: disable=invalid-name
 from datetime import timedelta
 
@@ -14,18 +15,15 @@ from pipelines.constants import constants
 from pipelines.datasets.br_ons_avaliacao_operacao.constants import (
     constants as ons_constants,
 )
-from pipelines.datasets.br_ons_avaliacao_operacao.schedules import (
-    schedule_br_ons_avaliacao_operacao_energia_armazenada_reservatorio,
-    schedule_br_ons_avaliacao_operacao_energia_natural_afluente,
-    schedule_br_ons_avaliacao_operacao_geracao_termica_motivo_despacho,
-    schedule_br_ons_avaliacao_operacao_geracao_usina,
-    schedule_br_ons_avaliacao_operacao_reservatorio,
-    schedule_br_ons_avaliacao_operacao_restricao_operacao_usinas_eolicas,
+from pipelines.datasets.br_ons_avaliacao_operacao.tasks import (
+    download_data,
+    wrang_data,
 )
-from pipelines.datasets.br_ons_avaliacao_operacao.tasks import download_data, wrang_data
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.execute_dbt_model.constants import (
+    constants as dump_db_constants,
+)
 from pipelines.utils.metadata.tasks import (
     task_get_api_most_recent_date,
     update_django_metadata,
@@ -45,7 +43,9 @@ with Flow(
     )
     table_id = Parameter("table_id", default="reservatorio", required=True)
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
 
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
@@ -55,7 +55,10 @@ with Flow(
     )
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     data_mais_recente_do_bq = task_get_api_most_recent_date(
@@ -100,7 +103,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks = [wait_upload_table]
+                upstream_tasks=[wait_upload_table],
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -128,23 +131,28 @@ with Flow(
                     upstream_tasks=[wait_for_materialization],
                 )
 
-br_ons_avaliacao_operacao_reservatorio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_ons_avaliacao_operacao_reservatorio.storage = GCS(
+    constants.GCS_FLOWS_BUCKET.value
+)
 br_ons_avaliacao_operacao_reservatorio.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-#br_ons_avaliacao_operacao_reservatorio.schedule = (
+# br_ons_avaliacao_operacao_reservatorio.schedule = (
 #    schedule_br_ons_avaliacao_operacao_reservatorio
-#)
+# )
 
 with Flow(
-    name="br_ons_avaliacao_operacao.geracao_usina", code_owners=["Gabriel Pisa"]
+    name="br_ons_avaliacao_operacao.geracao_usina",
+    code_owners=["Gabriel Pisa"],
 ) as br_ons_avaliacao_operacao_geracao_usina:
     # Parameters
     dataset_id = Parameter(
         "dataset_id", default="br_ons_avaliacao_operacao", required=True
     )
     table_id = Parameter("table_id", default="geracao_usina", required=True)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
@@ -154,7 +162,10 @@ with Flow(
     )
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     data_mais_recente_do_bq = task_get_api_most_recent_date(
@@ -199,7 +210,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks = [wait_upload_table]
+                upstream_tasks=[wait_upload_table],
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -227,13 +238,15 @@ with Flow(
                     upstream_tasks=[wait_for_materialization],
                 )
 
-br_ons_avaliacao_operacao_geracao_usina.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_ons_avaliacao_operacao_geracao_usina.storage = GCS(
+    constants.GCS_FLOWS_BUCKET.value
+)
 br_ons_avaliacao_operacao_geracao_usina.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-#br_ons_avaliacao_operacao_geracao_usina.schedule = (
+# br_ons_avaliacao_operacao_geracao_usina.schedule = (
 #    schedule_br_ons_avaliacao_operacao_geracao_usina
-#)
+# )
 
 with Flow(
     name="br_ons_avaliacao_operacao.geracao_termica_motivo_despacho",
@@ -247,7 +260,9 @@ with Flow(
         "table_id", default="geracao_termica_motivo_despacho", required=True
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -256,7 +271,10 @@ with Flow(
     )
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     data_mais_recente_do_bq = task_get_api_most_recent_date(
@@ -301,7 +319,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks = [wait_upload_table]
+                upstream_tasks=[wait_upload_table],
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -332,12 +350,12 @@ with Flow(
 br_ons_avaliacao_operacao_geracao_termica_motivo_despacho.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
 )
-br_ons_avaliacao_operacao_geracao_termica_motivo_despacho.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
+br_ons_avaliacao_operacao_geracao_termica_motivo_despacho.run_config = (
+    KubernetesRun(image=constants.DOCKER_IMAGE.value)
 )
-#br_ons_avaliacao_operacao_geracao_termica_motivo_despacho.schedule = (
+# br_ons_avaliacao_operacao_geracao_termica_motivo_despacho.schedule = (
 #    schedule_br_ons_avaliacao_operacao_geracao_termica_motivo_despacho
-#)
+# )
 
 with Flow(
     name="br_ons_avaliacao_operacao.energia_natural_afluente",
@@ -347,19 +365,26 @@ with Flow(
     dataset_id = Parameter(
         "dataset_id", default="br_ons_avaliacao_operacao", required=True
     )
-    table_id = Parameter("table_id", default="energia_natural_afluente", required=True)
+    table_id = Parameter(
+        "table_id", default="energia_natural_afluente", required=True
+    )
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
 
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     data_mais_recente_do_bq = task_get_api_most_recent_date(
@@ -404,7 +429,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks = [wait_upload_table]
+                upstream_tasks=[wait_upload_table],
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -438,9 +463,9 @@ br_ons_avaliacao_operacao_energia_natural_afluente.storage = GCS(
 br_ons_avaliacao_operacao_energia_natural_afluente.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-#br_ons_avaliacao_operacao_energia_natural_afluente.schedule = (
+# br_ons_avaliacao_operacao_energia_natural_afluente.schedule = (
 #    schedule_br_ons_avaliacao_operacao_energia_natural_afluente
-#)
+# )
 
 with Flow(
     name="br_ons_avaliacao_operacao.energia_armazenada_reservatorio",
@@ -460,10 +485,15 @@ with Flow(
         "materialize_after_dump", default=True, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     data_mais_recente_do_bq = task_get_api_most_recent_date(
@@ -508,7 +538,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks = [wait_upload_table]
+                upstream_tasks=[wait_upload_table],
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -536,11 +566,13 @@ with Flow(
                     upstream_tasks=[wait_for_materialization],
                 )
 
-br_ons_energia_armazenada_reservatorio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_ons_energia_armazenada_reservatorio.storage = GCS(
+    constants.GCS_FLOWS_BUCKET.value
+)
 br_ons_energia_armazenada_reservatorio.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-#br_ons_energia_armazenada_reservatorio.schedule = (
+# br_ons_energia_armazenada_reservatorio.schedule = (
 #   schedule_br_ons_avaliacao_operacao_energia_armazenada_reservatorio
 #
 
@@ -562,10 +594,15 @@ with Flow(
         "materialize_after_dump", default=True, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     data_mais_recente_do_bq = task_get_api_most_recent_date(
@@ -610,7 +647,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks = [wait_upload_table]
+                upstream_tasks=[wait_upload_table],
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -638,10 +675,12 @@ with Flow(
                     upstream_tasks=[wait_for_materialization],
                 )
 
-br_ons_restricao_operacao_usinas_eolicas.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_ons_restricao_operacao_usinas_eolicas.storage = GCS(
+    constants.GCS_FLOWS_BUCKET.value
+)
 br_ons_restricao_operacao_usinas_eolicas.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-#br_ons_restricao_operacao_usinas_eolicas.schedule = (
+# br_ons_restricao_operacao_usinas_eolicas.schedule = (
 #    schedule_br_ons_avaliacao_operacao_restricao_operacao_usinas_eolicas
-#)
+# )

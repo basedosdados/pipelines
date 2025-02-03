@@ -58,7 +58,9 @@ def pre_cleaning_for_pivot_long_municipio(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.Dataframe: _description_
     """
-    df.drop(columns={"MUNICIPIO", "CODMUN_IBGE", "CODMUN"}, axis=1, inplace=True)
+    df.drop(
+        columns={"MUNICIPIO", "CODMUN_IBGE", "CODMUN"}, axis=1, inplace=True
+    )
 
     df.rename(
         columns={
@@ -85,7 +87,9 @@ def pre_cleaning_for_pivot_long_agencia(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.Dataframe: pd.dataframe pivoted
     """
-    df.drop(columns={"MUNICIPIO", "CODMUN_IBGE", "CODMUN"}, axis=1, inplace=True)
+    df.drop(
+        columns={"MUNICIPIO", "CODMUN_IBGE", "CODMUN"}, axis=1, inplace=True
+    )
 
     df.rename(
         columns={
@@ -100,8 +104,9 @@ def pre_cleaning_for_pivot_long_agencia(df: pd.DataFrame) -> pd.DataFrame:
 
     pattern = re.compile(r"(')")
 
-    df["cnpj_agencia"] = df["cnpj_agencia"].astype(str).apply(lambda x: pattern.sub("", x))
-
+    df["cnpj_agencia"] = (
+        df["cnpj_agencia"].astype(str).apply(lambda x: pattern.sub("", x))
+    )
 
     return df
 
@@ -211,7 +216,9 @@ def standardize_monetary_units(
     return df
 
 
-def create_id_verbete_column(df: pd.DataFrame, column_name: str) -> pd.DataFrame:
+def create_id_verbete_column(
+    df: pd.DataFrame, column_name: str
+) -> pd.DataFrame:
     """This function creates id_verbete column from a verbete column.
     It parses numeric digitis from the verbete column strings.
 
@@ -224,12 +231,16 @@ def create_id_verbete_column(df: pd.DataFrame, column_name: str) -> pd.DataFrame
     """
     padrao_letras = re.compile(r"\D")
 
-    df[column_name] = [padrao_letras.sub("", x) for x in df["verbete_descricao"]]
+    df[column_name] = [
+        padrao_letras.sub("", x) for x in df["verbete_descricao"]
+    ]
 
     return df
 
 
-def create_month_year_columns(df: pd.DataFrame, date_column: str) -> pd.DataFrame:
+def create_month_year_columns(
+    df: pd.DataFrame, date_column: str
+) -> pd.DataFrame:
     """This function creates month and year columns from a date column.
     It Relies on the date column being a string in the format YYYYMM,
     where YYYY is the year and MM is the month.

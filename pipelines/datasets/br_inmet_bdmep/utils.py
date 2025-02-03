@@ -11,9 +11,11 @@ import tempfile
 import urllib.request
 import zipfile
 from datetime import datetime, time
+
 import numpy as np
 import pandas as pd
 from unidecode import unidecode
+
 
 def new_names(base: pd.DataFrame, oldname: str, newname: str):
     """
@@ -73,7 +75,9 @@ def change_names(base: pd.DataFrame):
     # base.columns = base.columns.map(lambda x: x.translate(x, string.ascii_letters, 'ASCII'))
     base = rename_cols_with_regex(base, "data", "data")
     base = rename_cols_with_regex(base, "^hora", "hora")
-    base = rename_cols_with_regex(base, "precipitacao.*total", "precipitacao_total")
+    base = rename_cols_with_regex(
+        base, "precipitacao.*total", "precipitacao_total"
+    )
     base = rename_cols_with_regex(base, "pressao.*nivel", "pressao_atm_hora")
     base = rename_cols_with_regex(base, "pressao.*max", "pressao_atm_max")
     base = rename_cols_with_regex(base, "pressao.*min", "pressao_atm_min")
@@ -81,8 +85,12 @@ def change_names(base: pd.DataFrame):
     base = rename_cols_with_regex(
         base, "temperatura.*bulbo.*horaria", "temperatura_bulbo_hora"
     )
-    base = rename_cols_with_regex(base, "temperatura maxima", "temperatura_max")
-    base = rename_cols_with_regex(base, "temperatura minima", "temperatura_min")
+    base = rename_cols_with_regex(
+        base, "temperatura maxima", "temperatura_max"
+    )
+    base = rename_cols_with_regex(
+        base, "temperatura minima", "temperatura_min"
+    )
     base = rename_cols_with_regex(
         base, "temperatura do ponto de orvalho", "temperatura_orvalho_hora"
     )
@@ -92,12 +100,18 @@ def change_names(base: pd.DataFrame):
     base = rename_cols_with_regex(
         base, "temperatura orvalho max", "temperatura_orvalho_max"
     )
-    base = rename_cols_with_regex(base, "umidade relativa.*horaria", "umidade_rel_hora")
+    base = rename_cols_with_regex(
+        base, "umidade relativa.*horaria", "umidade_rel_hora"
+    )
     base = rename_cols_with_regex(base, "umidade rel. max", "umidade_rel_max")
     base = rename_cols_with_regex(base, "umidade rel. min", "umidade_rel_min")
     base = rename_cols_with_regex(base, "vento.*direcao", "vento_direcao")
-    base = rename_cols_with_regex(base, "vento.*rajada.* maxima", "vento_rajada_max")
-    base = rename_cols_with_regex(base, "vento.*velocidade", "vento_velocidade")
+    base = rename_cols_with_regex(
+        base, "vento.*rajada.* maxima", "vento_rajada_max"
+    )
+    base = rename_cols_with_regex(
+        base, "vento.*velocidade", "vento_velocidade"
+    )
 
     return base
 
@@ -116,7 +130,9 @@ def rename_cols_with_regex(df, regex, new_name):
     """
     pattern = re.compile(regex)
     col_names = df.columns.tolist()
-    renamed_cols = [new_name if pattern.search(col) else col for col in col_names]
+    renamed_cols = [
+        new_name if pattern.search(col) else col for col in col_names
+    ]
     df.columns = renamed_cols
     return df
 
@@ -143,7 +159,9 @@ def get_clima_info(file: str) -> pd.DataFrame:
     """
 
     # lê o arquivo de clima
-    clima = pd.read_csv(file, sep=";", skiprows=8, decimal=",", encoding="ISO-8859-1")
+    clima = pd.read_csv(
+        file, sep=";", skiprows=8, decimal=",", encoding="ISO-8859-1"
+    )
 
     # lê as informações de cabeçalho
     caract = pd.read_csv(

@@ -2,6 +2,7 @@
 """
 Flows for br_cvm_administradores_carteira
 """
+
 # pylint: disable=C0103, E1123, invalid-name
 from datetime import timedelta
 
@@ -24,7 +25,9 @@ from pipelines.datasets.br_cvm_administradores_carteira.tasks import (
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.execute_dbt_model.constants import (
+    constants as dump_db_constants,
+)
 from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
@@ -36,7 +39,8 @@ ROOT = "/tmp/data"
 URL = "http://dados.cvm.gov.br/dados/ADM_CART/CAD/DADOS/cad_adm_cart.zip"
 
 with Flow(
-    name="br_cvm_administradores_carteira.responsavel", code_owners=["equipe_pipelines"]
+    name="br_cvm_administradores_carteira.responsavel",
+    code_owners=["equipe_pipelines"],
 ) as br_cvm_adm_car_res:
     # Parameters
     dataset_id = Parameter(
@@ -54,7 +58,10 @@ with Flow(
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     wait_crawl = crawl(root=ROOT, url=URL)
@@ -98,11 +105,14 @@ with Flow(
         )
 
 br_cvm_adm_car_res.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_cvm_adm_car_res.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_cvm_adm_car_res.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
 br_cvm_adm_car_res.schedule = schedule_responsavel
 
 with Flow(
-    "br_cvm_administradores_carteira.pessoa_fisica", code_owners=["equipe_pipelines"]
+    "br_cvm_administradores_carteira.pessoa_fisica",
+    code_owners=["equipe_pipelines"],
 ) as br_cvm_adm_car_pes_fis:
     # Parameters
     dataset_id = Parameter(
@@ -118,14 +128,21 @@ with Flow(
         "materialize_after_dump", default=True, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     wait_crawl = crawl(root=ROOT, url=URL)
-    filepath = clean_table_pessoa_fisica(root=ROOT, upstream_tasks=[wait_crawl])
+    filepath = clean_table_pessoa_fisica(
+        root=ROOT, upstream_tasks=[wait_crawl]
+    )
 
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
@@ -178,11 +195,14 @@ with Flow(
 
 
 br_cvm_adm_car_pes_fis.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_cvm_adm_car_pes_fis.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_cvm_adm_car_pes_fis.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
 br_cvm_adm_car_pes_fis.schedule = schedule_fisica
 
 with Flow(
-    "br_cvm_administradores_carteira.pessoa_juridica", code_owners=["equipe_pipelines"]
+    "br_cvm_administradores_carteira.pessoa_juridica",
+    code_owners=["equipe_pipelines"],
 ) as br_cvm_adm_car_pes_jur:
     # Parameters
     dataset_id = Parameter(
@@ -198,14 +218,21 @@ with Flow(
         "materialize_after_dump", default=True, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     wait_crawl = crawl(root=ROOT, url=URL)
-    filepath = clean_table_pessoa_juridica(root=ROOT, upstream_tasks=[wait_crawl])
+    filepath = clean_table_pessoa_juridica(
+        root=ROOT, upstream_tasks=[wait_crawl]
+    )
 
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
@@ -257,5 +284,7 @@ with Flow(
                 upstream_tasks=[wait_for_materialization],
             )
 br_cvm_adm_car_pes_jur.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_cvm_adm_car_pes_jur.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_cvm_adm_car_pes_jur.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
 br_cvm_adm_car_pes_jur.schedule = schedule_juridica

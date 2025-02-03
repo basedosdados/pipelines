@@ -14,11 +14,13 @@ from pipelines.constants import constants
 from pipelines.datasets.br_ibge_pnadc.schedules import every_day
 from pipelines.datasets.br_ibge_pnadc.tasks import (
     build_parquet_files,
-    get_data_source_date_and_url
+    get_data_source_date_and_url,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.execute_dbt_model.constants import (
+    constants as dump_db_constants,
+)
 from pipelines.utils.metadata.tasks import (
     check_if_data_is_outdated,
     update_django_metadata,
@@ -33,9 +35,13 @@ from pipelines.utils.to_download.tasks import to_download
 # pylint: disable=C0103
 with Flow(name="br_ibge_pnadc.microdados", code_owners=["luiz"]) as br_pnadc:
     # Parameters
-    dataset_id = Parameter("dataset_id", default="br_ibge_pnadc", required=False)
+    dataset_id = Parameter(
+        "dataset_id", default="br_ibge_pnadc", required=False
+    )
     table_id = Parameter("table_id", default="microdados", required=False)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
     )
@@ -45,10 +51,15 @@ with Flow(name="br_ibge_pnadc.microdados", code_owners=["luiz"]) as br_pnadc:
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
-    data_source_max_date, url = get_data_source_date_and_url(upstream_tasks=[rename_flow_run])
+    data_source_max_date, url = get_data_source_date_and_url(
+        upstream_tasks=[rename_flow_run]
+    )
 
     outdated = check_if_data_is_outdated(
         dataset_id=dataset_id,
@@ -59,8 +70,9 @@ with Flow(name="br_ibge_pnadc.microdados", code_owners=["luiz"]) as br_pnadc:
     )
 
     with case(outdated, True):
-
-        input_filepath = to_download(url, "/tmp/data/input/", "zip", upstream_tasks=[outdated])
+        input_filepath = to_download(
+            url, "/tmp/data/input/", "zip", upstream_tasks=[outdated]
+        )
 
         output_filepath = build_parquet_files(
             input_filepath, upstream_tasks=[input_filepath]
@@ -72,7 +84,7 @@ with Flow(name="br_ibge_pnadc.microdados", code_owners=["luiz"]) as br_pnadc:
             table_id=table_id,
             dump_mode="append",
             wait=output_filepath,
-            upstream_tasks=[output_filepath]
+            upstream_tasks=[output_filepath],
         )
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
@@ -106,14 +118,14 @@ with Flow(name="br_ibge_pnadc.microdados", code_owners=["luiz"]) as br_pnadc:
             )
             with case(update_metadata, True):
                 update_django_metadata(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                date_column_name={"year": "ano", "quarter": "trimestre"},
-                date_format="%Y-%m",
-                coverage_type="all_free",
-                prefect_mode=materialization_mode,
-                bq_project="basedosdados",
-                upstream_tasks=[wait_for_materialization],
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"year": "ano", "quarter": "trimestre"},
+                    date_format="%Y-%m",
+                    coverage_type="all_free",
+                    prefect_mode=materialization_mode,
+                    bq_project="basedosdados",
+                    upstream_tasks=[wait_for_materialization],
                 )
 
 br_pnadc.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

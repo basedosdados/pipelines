@@ -3,7 +3,6 @@
 Constant values for the datasets projects
 """
 
-
 from enum import Enum
 
 
@@ -33,7 +32,6 @@ class constants(Enum):  # pylint: disable=c0103
         "TIPO_VINCULO": str,
         "QT_BENEFICIARIO_ATIVO": int,
         "QT_BENEFICIARIO_ADERIDO": int,
-        "QT_BENEFICIARIO_CANCELADO": int,
         "QT_BENEFICIARIO_CANCELADO": int,
         "DT_CARGA": str,
     }

@@ -2,18 +2,16 @@
 """
 General purpose functions for the br_me_cnpj project
 """
+
 import os
 import zipfile
 from asyncio import Semaphore, gather, sleep
 from datetime import datetime
 
-from httpx import AsyncClient, HTTPError, head
 import pandas as pd
-import pyarrow as pa
-import pyarrow.parquet as pq
-import re
 import requests
 from bs4 import BeautifulSoup
+from httpx import AsyncClient, HTTPError
 from tqdm import tqdm
 
 from pipelines.datasets.br_me_cnpj.constants import constants as constants_cnpj
@@ -23,7 +21,8 @@ ufs = constants_cnpj.UFS.value
 headers = constants_cnpj.HEADERS.value
 timeout = constants_cnpj.TIMEOUT.value
 
-def data_url(url:str, headers:dict)-> tuple[datetime,datetime]:
+
+def data_url(url: str, headers: dict) -> tuple[datetime, datetime]:
     """
     Fetches data from a URL, parses the HTML to find the latest folder date, and compares it to today's date.
 
@@ -35,31 +34,36 @@ def data_url(url:str, headers:dict)-> tuple[datetime,datetime]:
         Tuple[datetime, datetime]: The maximum date found in the folders and today's date.
     """
 
-    link_data = requests.get(url, headers=headers, timeout=timeout, verify=False)
+    link_data = requests.get(
+        url, headers=headers, timeout=timeout, verify=False
+    )
     link_data.raise_for_status()
 
     soup = BeautifulSoup(link_data.text, "html.parser")
 
-
     max_folder_date = max(
-    [
-        datetime.strptime(link["href"].strip("/"), "%Y-%m").strftime('%Y-%m')
-        for link in soup.find_all("a", href=True)
-        if link["href"].strip("/").startswith("202")
-    ]
+        [
+            datetime.strptime(link["href"].strip("/"), "%Y-%m").strftime(
+                "%Y-%m"
+            )
+            for link in soup.find_all("a", href=True)
+            if link["href"].strip("/").startswith("202")
+        ]
     )
 
-    today_date = datetime.today().strftime('%Y-%m-%d')
-    log(f"A data máxima extraida da API da Receita Federal que será utilizada para comparar com os metadados da BD é: {max_folder_date}")
-    log(f"A data de hoje gerada para criar partições no Storage é: {today_date} ")
+    today_date = datetime.today().strftime("%Y-%m-%d")
+    log(
+        f"A data máxima extraida da API da Receita Federal que será utilizada para comparar com os metadados da BD é: {max_folder_date}"
+    )
+    log(
+        f"A data de hoje gerada para criar partições no Storage é: {today_date} "
+    )
 
     return max_folder_date, today_date
 
 
-
-
 # ! Cria o caminho do output
-def destino_output(sufixo:str, data_coleta: datetime)-> str:
+def destino_output(sufixo: str, data_coleta: datetime) -> str:
     """
     Constructs the output directory path based on the suffix and collection date.
 
@@ -75,7 +79,9 @@ def destino_output(sufixo:str, data_coleta: datetime)-> str:
     # Pasta de destino para salvar o arquivo CSV
     if sufixo != "simples":
         if sufixo != "estabelecimentos":
-            output_dir = f"/tmp/data/br_me_cnpj/output/{sufixo}/data={data_coleta}/"
+            output_dir = (
+                f"/tmp/data/br_me_cnpj/output/{sufixo}/data={data_coleta}/"
+            )
             os.makedirs(output_dir, exist_ok=True)
         else:
             for uf in ufs:
@@ -90,7 +96,7 @@ def destino_output(sufixo:str, data_coleta: datetime)-> str:
 
 
 # ! Adiciona zero a esquerda nas colunas
-def fill_left_zeros(df: datetime, column, num_digits:int)-> pd.DataFrame:
+def fill_left_zeros(df: datetime, column, num_digits: int) -> pd.DataFrame:
     """
     Adds left zeros to the specified column of a DataFrame to meet the required digit count.
 
@@ -119,11 +125,19 @@ def chunk_range(content_length: int, chunk_size: int) -> list[tuple[int, int]]:
     Returns:
         List[Tuple[int, int]]: List of start and end byte ranges for each chunk to be used as a header within download_chunk function
     """
-    return [(i, min(i + chunk_size - 1, content_length - 1)) for i in range(0, content_length, chunk_size)]
+    return [
+        (i, min(i + chunk_size - 1, content_length - 1))
+        for i in range(0, content_length, chunk_size)
+    ]
+
 
 # from https://stackoverflow.com/a/64283770
 async def download(
-    url, chunk_size=15 * 1024 * 1024, max_retries=5, max_parallel=12, timeout=5 * 60
+    url,
+    chunk_size=15 * 1024 * 1024,
+    max_retries=5,
+    max_parallel=12,
+    timeout=5 * 60,
 ):
     """
     Downloads a file from a URL asynchronously, splitting it into chunks for parallel downloading.
@@ -152,18 +166,28 @@ async def download(
             total_chunks = len(chunk_ranges)
 
             log(
-                f"Baixando {url} com {content_length} bytes ({content_length/1e6:.2f} MB). "
-                f"Cada chunk terá tamanho de {chunk_size} bytes ({chunk_size/1e6:.2f} MB). "
+                f"Baixando {url} com {content_length} bytes ({content_length / 1e6:.2f} MB). "
+                f"Cada chunk terá tamanho de {chunk_size} bytes ({chunk_size / 1e6:.2f} MB). "
                 f"Serão feitos {max_parallel} downloads paralelos por vez, com um total de {total_chunks} chunks."
             )
 
             semaphore = Semaphore(max_parallel)
             progress = {"completed": 0}
-            last_logged_progress = {"percentage": 0}  # Tracks download progress
+            last_logged_progress = {
+                "percentage": 0
+            }  # Tracks download progress
 
             tasks = [
                 download_chunk(
-                    client, url, chunk, max_retries, timeout, semaphore, progress, total_chunks, last_logged_progress
+                    client,
+                    url,
+                    chunk,
+                    max_retries,
+                    timeout,
+                    semaphore,
+                    progress,
+                    total_chunks,
+                    last_logged_progress,
                 )
                 for chunk in chunk_ranges
             ]
@@ -174,8 +198,9 @@ async def download(
             raise e
 
 
-
-def print_progress(completed: int, total: int, last_logged_progress: dict) -> None:
+def print_progress(
+    completed: int, total: int, last_logged_progress: dict
+) -> None:
     """
     Logs the download progress only when a significant change occurs.
 
@@ -185,9 +210,14 @@ def print_progress(completed: int, total: int, last_logged_progress: dict) -> No
         last_logged_progress (dict): A dictionary to store the last logged progress.
     """
     progress_percentage = (completed / total) * 100
-    if progress_percentage - last_logged_progress.get("percentage", 0) >= 10:  # Log a progress update every 10%
+    if (
+        progress_percentage - last_logged_progress.get("percentage", 0) >= 10
+    ):  # Log a progress update every 10%
         last_logged_progress["percentage"] = progress_percentage
-        log(f"Progresso no download: {completed}/{total} chunks baixados ({progress_percentage:.1f}%)")
+        log(
+            f"Progresso no download: {completed}/{total} chunks baixados ({progress_percentage:.1f}%)"
+        )
+
 
 async def download_chunk(
     client: AsyncClient,
@@ -224,36 +254,41 @@ async def download_chunk(
         for attempt in range(max_retries):
             try:
                 headers = {
-                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36",
-                        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-                        "Accept-Language": "pt-BR,pt;q=0.8,en-US;q=0.5,en;q=0.3",
-                        "Sec-GPC": "1",
-                        "Upgrade-Insecure-Requests": "1",
-                        "Sec-Fetch-Dest": "document",
-                        "Sec-Fetch-Mode": "navigate",
-                        "Sec-Fetch-Site": "same-origin",
-                        "Sec-Fetch-User": "?1",
-                        "Priority": "u=0, i",
-                        "Range": f"bytes={chunk_range[0]}-{chunk_range[1]}"
-                    }
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36",
+                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                    "Accept-Language": "pt-BR,pt;q=0.8,en-US;q=0.5,en;q=0.3",
+                    "Sec-GPC": "1",
+                    "Upgrade-Insecure-Requests": "1",
+                    "Sec-Fetch-Dest": "document",
+                    "Sec-Fetch-Mode": "navigate",
+                    "Sec-Fetch-Site": "same-origin",
+                    "Sec-Fetch-User": "?1",
+                    "Priority": "u=0, i",
+                    "Range": f"bytes={chunk_range[0]}-{chunk_range[1]}",
+                }
 
-                response = await client.get(url, headers=headers, timeout=timeout)
+                response = await client.get(
+                    url, headers=headers, timeout=timeout
+                )
                 response.raise_for_status()
 
                 progress["completed"] += 1
-                print_progress(progress["completed"], total_chunks, last_logged_progress)
+                print_progress(
+                    progress["completed"], total_chunks, last_logged_progress
+                )
 
                 return response.content
-            except HTTPError as e:
-                delay = 2 ** attempt
+            except HTTPError:
+                delay = 2**attempt
                 log(
                     f"Falha no download do chunk {chunk_range[0]}-{chunk_range[1]} "
                     f"na tentativa {attempt + 1}. Retentando em {delay} segundos..."
                 )
                 await sleep(delay)
 
-        raise HTTPError(f"Download do chunk {chunk_range[0]}-{chunk_range[1]} falhou após {max_retries} tentativas")
-
+        raise HTTPError(
+            f"Download do chunk {chunk_range[0]}-{chunk_range[1]} falhou após {max_retries} tentativas"
+        )
 
 
 # ! Executa o download do zip file
@@ -282,14 +317,13 @@ async def download_unzip_csv(url: str, pasta_destino: str) -> None:
     os.remove(save_path)
 
 
-
 # ! Salva os dados CSV Estabelecimentos
 def process_csv_estabelecimentos(
     input_path: str,
     output_path: str,
     data_coleta: str,
     i: int,
-    chunk_size: int = 100000
+    chunk_size: int = 100000,
 ) -> None:
     """
     Processes and saves CSV data for establishments, organizing data into partitions by state.
@@ -341,7 +375,9 @@ def process_csv_estabelecimentos(
                 chunk = fill_left_zeros(chunk, "cnpj_dv", 2)
                 # Gerando a coluna 'cnpj' e 'id_municipio'
                 chunk["cnpj"] = (
-                    chunk["cnpj_basico"] + chunk["cnpj_ordem"] + chunk["cnpj_dv"]
+                    chunk["cnpj_basico"]
+                    + chunk["cnpj_ordem"]
+                    + chunk["cnpj_dv"]
                 )
                 chunk["id_municipio"] = ""
                 chunk = chunk.loc[:, ordem]
@@ -350,7 +386,9 @@ def process_csv_estabelecimentos(
                     df_particao.drop(["sigla_uf"], axis=1, inplace=True)
                     particao_path = os.path.join(save_path, f"sigla_uf={uf}")
                     particao_filename = f"estabelecimentos_{i}.csv"
-                    particao_file_path = os.path.join(particao_path, particao_filename)
+                    particao_file_path = os.path.join(
+                        particao_path, particao_filename
+                    )
 
                     mode = "a" if os.path.exists(particao_file_path) else "w"
                     df_particao.to_csv(
@@ -371,7 +409,7 @@ def process_csv_empresas(
     output_path: str,
     data_coleta: str,
     i: int,
-    chunk_size: int = 100000
+    chunk_size: int = 100000,
 ) -> None:
     """
     Processes and saves CSV data for companies.
@@ -408,7 +446,9 @@ def process_csv_empresas(
                     chunk = fill_left_zeros(chunk, "natureza_juridica", 4)
                     # Convertendo a coluna 'capital_social' para float e mudando o separator
                     chunk["capital_social"] = (
-                        chunk["capital_social"].str.replace(",", ".").astype(float)
+                        chunk["capital_social"]
+                        .str.replace(",", ".")
+                        .astype(float)
                     )
 
                     chunk.to_csv(fd, index=False, encoding="iso-8859-1")
@@ -419,7 +459,11 @@ def process_csv_empresas(
 
 # ! Salva os dados CSV Socios
 def process_csv_socios(
-    input_path: str, output_path: str, data_coleta: str, i: int, chunk_size: int = 1000
+    input_path: str,
+    output_path: str,
+    data_coleta: str,
+    i: int,
+    chunk_size: int = 1000,
 ) -> None:
     """
     Processes and saves CSV data for socios (partners).
@@ -475,7 +519,11 @@ def process_csv_socios(
 
 # ! Salva os dados CSV Simples
 def process_csv_simples(
-    input_path: str, output_path: str, data_coleta: str, sufixo: str, chunk_size: int = 1000
+    input_path: str,
+    output_path: str,
+    data_coleta: str,
+    sufixo: str,
+    chunk_size: int = 1000,
 ) -> None:
     """
     Processes and saves CSV data for simples.
@@ -511,7 +559,9 @@ def process_csv_simples(
                 ):
                     for col in chunk.columns:
                         if col.startswith("data_"):
-                            chunk[col] = chunk[col].replace({"0": "", "00000000": ""})
+                            chunk[col] = chunk[col].replace(
+                                {"0": "", "00000000": ""}
+                            )
                             chunk[col] = pd.to_datetime(
                                 chunk[col], format="%Y%m%d", errors="coerce"
                             )
@@ -528,5 +578,3 @@ def process_csv_simples(
 
             log(f"Arquivo {sufixo} salvo")
             os.remove(caminho_arquivo_csv)
-
-

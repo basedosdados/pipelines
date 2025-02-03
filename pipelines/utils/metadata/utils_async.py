@@ -5,13 +5,18 @@
 ###
 
 import asyncio
-import aiohttp
 import json
-import re
-from pipelines.utils.constants import constants
-from pipelines.utils.metadata.utils import get_id, get_token, get_credentials_utils
-from pipelines.utils.utils import log
+
+import aiohttp
 import pandas as pd
+
+from pipelines.utils.constants import constants
+from pipelines.utils.metadata.utils import (
+    get_credentials_utils,
+    get_id,
+    get_token,
+)
+from pipelines.utils.utils import log
 
 
 async def create_update_async(
@@ -97,36 +102,48 @@ async def create_update_async(
     url = constants.API_URL.value[api_mode]
 
     async with aiohttp.ClientSession() as session:
-            async with session.post(
-                url,
-                json={"query": query, "variables": {"input": mutation_parameters}},
-                headers=header,
-            ) as response:
-                r = await response.json()
-                log(f"Response: {r}")
+        async with session.post(
+            url,
+            json={"query": query, "variables": {"input": mutation_parameters}},
+            headers=header,
+        ) as response:
+            r = await response.json()
+            log(f"Response: {r}")
 
-            r["r"] = "mutation"
-            if "data" in r and r is not None:
-                if r.get("data", {}).get(mutation_class, {}).get("errors", []) != []:
-                    print(f"create: not found {mutation_class}", mutation_parameters)
-                    print("create: error\n", json.dumps(r, indent=4, ensure_ascii=False), "\n")
-                    id = None
-                    raise Exception("create: Error")
-                else:
-                    id = r["data"][mutation_class][_classe]["id"]
-                    id = id.split(":")[1]
-
-                    return r, id
-            else:
-                print("\n", "create: query\n", query, "\n")
+        r["r"] = "mutation"
+        if "data" in r and r is not None:
+            if (
+                r.get("data", {}).get(mutation_class, {}).get("errors", [])
+                != []
+            ):
                 print(
-                    "create: input\n",
-                    json.dumps(mutation_parameters, indent=4, ensure_ascii=False),
+                    f"create: not found {mutation_class}", mutation_parameters
+                )
+                print(
+                    "create: error\n",
+                    json.dumps(r, indent=4, ensure_ascii=False),
                     "\n",
                 )
-                print("create: error\n", json.dumps(r, indent=4, ensure_ascii=False), "\n")
+                id = None
                 raise Exception("create: Error")
+            else:
+                id = r["data"][mutation_class][_classe]["id"]
+                id = id.split(":")[1]
 
+                return r, id
+        else:
+            print("\n", "create: query\n", query, "\n")
+            print(
+                "create: input\n",
+                json.dumps(mutation_parameters, indent=4, ensure_ascii=False),
+                "\n",
+            )
+            print(
+                "create: error\n",
+                json.dumps(r, indent=4, ensure_ascii=False),
+                "\n",
+            )
+            raise Exception("create: Error")
 
 
 async def create_quality_check_async(
@@ -170,8 +187,6 @@ async def create_quality_check_async(
         api_mode=api_mode,
     )
 
-
-
     quality_check, quality_check_id = get_id(
         email=email,
         password=password,
@@ -179,7 +194,6 @@ async def create_quality_check_async(
         query_parameters={
             "$name: String": name,
             "$table_Id: ID": id,
-
         },
         cloud_table=False,
         api_mode=api_mode,
@@ -189,11 +203,11 @@ async def create_quality_check_async(
         raise ValueError("Table ID not found.")
 
     parameters = {
-                            "name": name,
-                            "description": description,
-                            "passed": True if passed == 'pass' else False,
-                            "table": id
-        }
+        "name": name,
+        "description": description,
+        "passed": True if passed == "pass" else False,
+        "table": id,
+    }
 
     await create_update_async(
         query_class="allQualitycheck",
@@ -204,13 +218,11 @@ async def create_quality_check_async(
         email=email,
         password=password,
         api_mode=api_mode,
-)
-
+    )
 
 
 async def create_update_quality_checks_async(
-    tests_results: pd.DataFrame,
-    api_mode: str = "prod"
+    tests_results: pd.DataFrame, api_mode: str = "prod"
 ) -> None:
     """
     Function to create or update multiple quality checks asynchronously based on test results.
@@ -222,8 +234,21 @@ async def create_update_quality_checks_async(
     Returns:
     - None
     """
-    (email, password) = get_credentials_utils(secret_path=f"api_user_{api_mode}")
+    (email, password) = get_credentials_utils(
+        secret_path=f"api_user_{api_mode}"
+    )
     semaphore = asyncio.Semaphore(16)
     async with semaphore:
-        tasks = [create_quality_check_async(email = email, password = password, name =row['name'],description= row['description'], passed =row['status'], dataset_id = row['dataset_id'], table_id= row['table_id']) for index, row in tests_results.iterrows() ]
+        tasks = [
+            create_quality_check_async(
+                email=email,
+                password=password,
+                name=row["name"],
+                description=row["description"],
+                passed=row["status"],
+                dataset_id=row["dataset_id"],
+                table_id=row["table_id"],
+            )
+            for index, row in tests_results.iterrows()
+        ]
         await asyncio.gather(*tasks)

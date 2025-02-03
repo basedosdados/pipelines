@@ -3,18 +3,16 @@
 Tasks for br_bcb_agencia
 """
 
-
-import os
-import time as tm
-from datetime import timedelta
 import datetime as dt
+import os
 import zipfile
+from datetime import timedelta
+from time import sleep
 
 import basedosdados as bd
 import pandas as pd
-from prefect import task
-from time import sleep
 from bs4 import BeautifulSoup
+from prefect import task
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.by import By
@@ -23,9 +21,10 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 
-
 from pipelines.constants import constants
-from pipelines.datasets.br_bcb_agencia.constants import constants as agencia_constants
+from pipelines.datasets.br_bcb_agencia.constants import (
+    constants as agencia_constants,
+)
 from pipelines.datasets.br_bcb_agencia.utils import (
     check_and_create_column,
     clean_column_names,
@@ -119,7 +118,6 @@ def extract_last_date(table_id: str) -> str:
     soup = BeautifulSoup(page_source, "html.parser")
     raw_date = soup.find("div", class_="ng-option ng-option-marked").get_text()
 
-
     # select date string
     raw_date = raw_date[0:7]
 
@@ -133,7 +131,6 @@ def extract_last_date(table_id: str) -> str:
 
     # return date, raw_date
     return date, raw_date
-
 
 
 @task(
@@ -275,7 +272,9 @@ def clean_data():
             )
 
             df["dv_do_cnpj"] = df["dv_do_cnpj"].astype(str).str.zfill(2)
-            df["sequencial_cnpj"] = df["sequencial_cnpj"].astype(str).str.zfill(4)
+            df["sequencial_cnpj"] = (
+                df["sequencial_cnpj"].astype(str).str.zfill(4)
+            )
             df["cnpj"] = df["cnpj"].astype(str).str.zfill(8)
             df["fone"] = df["fone"].astype(str).str.zfill(8)
 
@@ -283,7 +282,9 @@ def clean_data():
             df = check_and_create_column(df, col_name="data_inicio")
             df = check_and_create_column(df, col_name="instituicao")
             df = check_and_create_column(df, col_name="id_instalacao")
-            df = check_and_create_column(df, col_name="id_compe_bcb_instituicao")
+            df = check_and_create_column(
+                df, col_name="id_compe_bcb_instituicao"
+            )
             df = check_and_create_column(df, col_name="id_compe_bcb_agencia")
 
             # drop ddd column thats going to be added later
@@ -299,7 +300,7 @@ def clean_data():
             municipio = bd.read_sql(
                 query="select * from `basedosdados.br_bd_diretorios_brasil.municipio`",
                 from_file=True,
-                #billing_project_id='basedosdados-dev'
+                # billing_project_id='basedosdados-dev'
             )
             municipio = municipio[["nome", "sigla_uf", "id_municipio", "ddd"]]
 
@@ -339,7 +340,12 @@ def clean_data():
             df["cnpj"] = df["cnpj"].apply(remove_empty_spaces)
 
             # select cols to title
-            col_list_to_title = ["endereco", "complemento", "bairro", "nome_agencia"]
+            col_list_to_title = [
+                "endereco",
+                "complemento",
+                "bairro",
+                "nome_agencia",
+            ]
 
             for col in col_list_to_title:
                 str_to_title(df, column_name=col)

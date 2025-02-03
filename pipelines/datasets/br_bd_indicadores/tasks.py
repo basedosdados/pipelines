@@ -2,6 +2,7 @@
 """
 Tasks for br_twitter
 """
+
 # pylint: disable=invalid-name,too-many-branches,too-many-nested-blocks
 import os
 from datetime import datetime, timedelta
@@ -30,7 +31,11 @@ from pipelines.datasets.br_bd_indicadores.utils import (
     initialize_analyticsreporting,
     parse_data,
 )
-from pipelines.utils.utils import get_credentials_from_secret, get_storage_blobs, log
+from pipelines.utils.utils import (
+    get_credentials_from_secret,
+    get_storage_blobs,
+    log,
+)
 
 
 # pylint: disable=C0103
@@ -61,7 +66,13 @@ def get_twitter_credentials(
     consumer_secret = tokens_dict["CONSUMER_SECRET"]
     twitter_token = tokens_dict["TWITTER_TOKEN"]
 
-    return access_secret, access_token, consumer_key, consumer_secret, twitter_token
+    return (
+        access_secret,
+        access_token,
+        consumer_key,
+        consumer_secret,
+        twitter_token,
+    )
 
 
 # pylint: disable=R0914
@@ -87,7 +98,9 @@ def has_new_tweets(bearer_token: str, table_id: str) -> bool:
     data = [flatten(i) for i in json_response["data"]]
     df1 = pd.DataFrame(data)
 
-    blobs = get_storage_blobs(dataset_id="br_bd_indicadores", table_id=table_id)
+    blobs = get_storage_blobs(
+        dataset_id="br_bd_indicadores", table_id=table_id
+    )
     now = datetime.now(tz=pytz.UTC)
 
     if len(blobs) != 0:
@@ -175,9 +188,7 @@ def crawler_metricas(
 
     df = df.loc[:, ~df.columns.duplicated()]
 
-    url = (
-        "https://api.twitter.com/2/users/1184334528837574656?user.fields=public_metrics"
-    )
+    url = "https://api.twitter.com/2/users/1184334528837574656?user.fields=public_metrics"
     try:
         r = requests.get(url, auth=headeroauth, timeout=10)
         json_response = r.json()
@@ -226,7 +237,9 @@ def crawler_metricas(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def crawler_real_time(lst_dimension: list, lst_metric: list, property_id: str) -> str:
+def crawler_real_time(
+    lst_dimension: list, lst_metric: list, property_id: str
+) -> str:
     """
     Crawler real time data from Google Analytics API
     """
@@ -291,7 +304,9 @@ def crawler_report_ga(view_id: str, metrics: list = None) -> str:
         df = parse_data(map_report_metric[metric])
         dfs.append(df)
 
-    df = reduce(lambda left, right: pd.merge(left, right, on="date", how="outer"), dfs)
+    df = reduce(
+        lambda left, right: pd.merge(left, right, on="date", how="outer"), dfs
+    )
 
     df.drop(columns=["date"], inplace=True)
 

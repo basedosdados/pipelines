@@ -3,17 +3,17 @@
 Tasks related to DBT flows.
 """
 
-from cProfile import run
 from datetime import timedelta
-from genericpath import exists
 
 from dbt_client import DbtClient
 from prefect import task
 
 from pipelines.constants import constants
+from pipelines.utils.execute_dbt_model.constants import (
+    constants as constants_execute,
+)
 from pipelines.utils.execute_dbt_model.utils import get_dbt_client, merge_vars
 from pipelines.utils.utils import log
-from pipelines.utils.execute_dbt_model.constants import constants as constants_execute
 
 
 @task(
@@ -49,7 +49,7 @@ def run_dbt_model(
     sync: bool = True,
     flags: str = None,
     _vars=None,
-    disable_elementary:bool=False,
+    disable_elementary: bool = False,
 ):
     """
     Run a DBT model.
@@ -81,7 +81,9 @@ def run_dbt_model(
         if _vars is None:
             _vars = constants_execute.DISABLE_ELEMENTARY_VARS.value
         else:
-            _vars = merge_vars(constants_execute.DISABLE_ELEMENTARY_VARS.value, _vars)
+            _vars = merge_vars(
+                constants_execute.DISABLE_ELEMENTARY_VARS.value, _vars
+            )
 
     if "run" in dbt_command:
         if flags == "--full-refresh":

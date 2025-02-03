@@ -42,7 +42,9 @@ def output_file_to_parquet_task(df: pl.DataFrame, filename: str) -> None:
 
 
 @task()
-def get_desired_file_task(year: int, download_directory: str, filetype: str) -> str:
+def get_desired_file_task(
+    year: int, download_directory: str, filetype: str
+) -> str:
     return get_desired_file(year, download_directory, filetype)
 
 
@@ -57,7 +59,9 @@ def get_latest_data_task(table_id: str, dataset_id: str) -> tuple[int, int]:
 
 
 @task()
-def should_process_data_task(bq_year: int, bq_month: int, filename: str) -> bool:
+def should_process_data_task(
+    bq_year: int, bq_month: int, filename: str
+) -> bool:
     return should_process_data(bq_year, bq_month, filename)
 
 

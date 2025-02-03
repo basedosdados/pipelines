@@ -3,12 +3,12 @@
 Schedules for metadata flows
 """
 
-
 from datetime import datetime
+
 from prefect.schedules import Schedule
 from prefect.schedules.clocks import CronClock
-from pipelines.constants import constants
 
+from pipelines.constants import constants
 
 every_day_quality_checks = Schedule(
     clocks=[

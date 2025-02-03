@@ -6,7 +6,7 @@ Schedules for br_cgu_bolsa_familia
 from datetime import datetime
 
 from prefect.schedules import Schedule
-from prefect.schedules.clocks import CronClock, IntervalClock
+from prefect.schedules.clocks import CronClock
 
 from pipelines.constants import constants
 

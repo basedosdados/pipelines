@@ -10,7 +10,6 @@ from prefect.schedules.clocks import CronClock
 
 from pipelines.constants import constants
 
-
 update_metadata_table_schedule = Schedule(
     clocks=[
         CronClock(

@@ -2,25 +2,23 @@
 """
 Tasks for br_rf_cno
 """
-from datetime import datetime, timedelta
-from pipelines.constants import constants
-import os
-from bs4 import BeautifulSoup
-from datetime import datetime
-import requests
-import pandas as pd
-import shutil
+
 import asyncio
+import os
+import shutil
 import time
+from datetime import datetime, timedelta
+
+import pandas as pd
+import requests
+from bs4 import BeautifulSoup
+from prefect import task
 from requests.exceptions import ConnectionError, HTTPError
 
-from prefect import task
-
+from pipelines.constants import constants
 from pipelines.datasets.br_rf_cno.constants import constants as br_rf_cno
-from pipelines.datasets.br_rf_cno.utils import *
+from pipelines.datasets.br_rf_cno.utils import *  # noqa: F403
 from pipelines.utils.utils import log
-
-
 
 
 @task
@@ -40,7 +38,7 @@ def check_need_for_update(url: str) -> str:
 
     #NOTE: O crawler falhará se o nome do arquivo mudar.
     """
-    log('---- Extracting most recent update date from CNO FTP')
+    log("---- Extracting most recent update date from CNO FTP")
     retries = 5
     delay = 2
 
@@ -59,19 +57,19 @@ def check_need_for_update(url: str) -> str:
         except HTTPError as e:
             raise requests.HTTPError(f"HTTP error occurred: {e}")
 
-    soup = BeautifulSoup(response.content, 'html.parser')
-    rows = soup.find_all('tr')
+    soup = BeautifulSoup(response.content, "html.parser")
+    rows = soup.find_all("tr")
 
     max_file_date = None
 
     # A lógica é simples: processa cada 'table data' (td) de cada linha 'tr'
     for row in rows:
-        cells = row.find_all('td')
+        cells = row.find_all("td")
 
         if len(cells) < 4:
             continue
 
-        link = cells[1].find('a')
+        link = cells[1].find("a")
         if not link:
             continue
 
@@ -80,22 +78,19 @@ def check_need_for_update(url: str) -> str:
             continue
 
         date = cells[2].get_text(strip=True)
-        max_file_date = datetime.strptime(date, "%Y-%m-%d %H:%M").strftime("%Y-%m-%d")
+        max_file_date = datetime.strptime(date, "%Y-%m-%d %H:%M").strftime(
+            "%Y-%m-%d"
+        )
         break
 
     if not max_file_date:
-        raise ValueError("File 'cno.zip' not found on the FTP site. Check the API endpoint to see if the folder structure or file name has changed.")
+        raise ValueError(
+            "File 'cno.zip' not found on the FTP site. Check the API endpoint to see if the folder structure or file name has changed."
+        )
 
     log(f"---- Most recent update date for 'cno.zip': {max_file_date}")
 
     return max_file_date
-
-
-
-
-
-
-
 
 
 @task
@@ -115,29 +110,29 @@ def wrangling(input_dir: str, output_dir: str, partition_date: str) -> None:
     columns_rename = br_rf_cno.COLUMNS_RENAME.value
 
     try:
-        partition_date = datetime.strptime(partition_date, '%Y-%m-%d')
-        partition_date = partition_date.strftime('%Y-%m-%d')
+        partition_date = datetime.strptime(partition_date, "%Y-%m-%d")
+        partition_date = partition_date.strftime("%Y-%m-%d")
     except ValueError:
-        log('Invalid partition_date format.')
+        log("Invalid partition_date format.")
 
     paths = os.listdir(input_dir)
 
     for file in paths:
-        if file.endswith('.csv') and file in table_rename:
+        if file.endswith(".csv") and file in table_rename:
             k = file
             v = table_rename[file]
-            log(f'----- Processing file {k}')
+            log(f"----- Processing file {k}")
             file_path = os.path.join(input_dir, file)
 
-            df = pd.read_csv(file_path, dtype=str, encoding='latin-1', sep=',')
+            df = pd.read_csv(file_path, dtype=str, encoding="latin-1", sep=",")
 
             if v in columns_rename:
                 df = df.rename(columns=columns_rename[v])
 
             df = df.applymap(str)
 
-            parquet_file = v + '.parquet'
-            partition_folder = f'data={partition_date}'
+            parquet_file = v + ".parquet"
+            partition_folder = f"data={partition_date}"
             output_folder = os.path.join(output_dir, v, partition_folder)
 
             os.makedirs(output_folder, exist_ok=True)
@@ -148,7 +143,7 @@ def wrangling(input_dir: str, output_dir: str, partition_date: str) -> None:
 
             os.remove(file_path)
 
-    log('----- Wrangling completed')
+    log("----- Wrangling completed")
 
 
 @task(
@@ -166,13 +161,13 @@ def crawl_cno(root: str, url: str) -> None:
     Returns:
         None
     """
-    asyncio.run(download_file_async(root, url))
+    asyncio.run(download_file_async(root, url))  # noqa: F405
 
     filepath = f"{root}/data.zip"
-    print(f'----- Unzipping files from {filepath}')
+    print(f"----- Unzipping files from {filepath}")
     shutil.unpack_archive(filepath, extract_dir=root)
     os.remove(filepath)
-    print('----- Download and unpack completed')
+    print("----- Download and unpack completed")
 
 
 @task
@@ -183,7 +178,7 @@ def create_parameters_list(
     dbt_alias: str,
     dbt_command: str,
     disable_elementary: bool,
-    download_csv_file: bool
+    download_csv_file: bool,
 ) -> list:
     """
     Generates a list of parameters for the DBT materialization flow.
@@ -200,7 +195,7 @@ def create_parameters_list(
     Returns:
         list: A list of dictionaries containing the parameters for each table.
     """
-    log('----- Generating DBT parameters for Materialization Flow')
+    log("----- Generating DBT parameters for Materialization Flow")
     return [
         {
             "dataset_id": dataset_id,
@@ -209,7 +204,7 @@ def create_parameters_list(
             "dbt_alias": dbt_alias,
             "dbt_command": dbt_command,
             "disable_elementary": disable_elementary,
-            "download_csv_file": download_csv_file
+            "download_csv_file": download_csv_file,
         }
         for table_id in table_ids
     ]

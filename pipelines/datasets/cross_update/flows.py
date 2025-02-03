@@ -12,7 +12,9 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.datasets.cross_update.schedules import update_metadata_table_schedule
+from pipelines.datasets.cross_update.schedules import (
+    update_metadata_table_schedule,
+)
 from pipelines.datasets.cross_update.tasks import (
     filter_eligible_download_tables,
     get_metadata_data,
@@ -20,7 +22,9 @@ from pipelines.datasets.cross_update.tasks import (
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.execute_dbt_model.constants import (
+    constants as dump_db_constants,
+)
 from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
@@ -81,15 +85,21 @@ with Flow(
 
 
 crossupdate_nrows.storage = GCS(str(constants.GCS_FLOWS_BUCKET.value))
-crossupdate_nrows.run_config = KubernetesRun(image=str(constants.DOCKER_IMAGE.value))
-#crossupdate_nrows.schedule = schedule_nrows
+crossupdate_nrows.run_config = KubernetesRun(
+    image=str(constants.DOCKER_IMAGE.value)
+)
+# crossupdate_nrows.schedule = schedule_nrows
 
 with Flow(
     name="cross_update.update_metadata_table", code_owners=["lauris"]
 ) as crossupdate_update_metadata_table:
-    dataset_id = Parameter("dataset_id", default="br_bd_metadados", required=False)
+    dataset_id = Parameter(
+        "dataset_id", default="br_bd_metadados", required=False
+    )
     table_id = Parameter("table_id", default="bigquery_tables", required=False)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -99,7 +109,10 @@ with Flow(
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     file_path = get_metadata_data(
@@ -157,7 +170,9 @@ with Flow(
         )
 
 
-crossupdate_update_metadata_table.storage = GCS(str(constants.GCS_FLOWS_BUCKET.value))
+crossupdate_update_metadata_table.storage = GCS(
+    str(constants.GCS_FLOWS_BUCKET.value)
+)
 crossupdate_update_metadata_table.run_config = KubernetesRun(
     image=str(constants.DOCKER_IMAGE.value)
 )

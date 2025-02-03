@@ -2,6 +2,7 @@
 """
 General purpose functions for the br_fgv_igp project
 """
+
 # pylint: disable=invalid-name,too-many-instance-attributes
 import ipeadatapy as idpy
 import numpy as np
@@ -127,12 +128,16 @@ class IGPData:
         """
         dec1 = idpy.timeseries(self.decendios[0])
         dec1.rename(
-            {dec1.columns[-1]: "variacao_primeiro_decendio"}, axis=1, inplace=True
+            {dec1.columns[-1]: "variacao_primeiro_decendio"},
+            axis=1,
+            inplace=True,
         )
         dec1 = dec1[["variacao_primeiro_decendio"]]
         dec2 = idpy.timeseries(self.decendios[1])
         dec2.rename(
-            {dec2.columns[-1]: "variacao_segundo_decendio"}, axis=1, inplace=True
+            {dec2.columns[-1]: "variacao_segundo_decendio"},
+            axis=1,
+            inplace=True,
         )
         dec2 = dec2[["variacao_segundo_decendio"]]
         return pd.merge(dec1, dec2, how="outer", on="DATE")

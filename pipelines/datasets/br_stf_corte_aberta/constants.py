@@ -2,6 +2,7 @@
 """
 Constant values for the datasets projects
 """
+
 from enum import Enum
 
 
@@ -9,7 +10,9 @@ class constants(Enum):  # pylint: disable=c0103
     STF_INPUT = "/tmp/input/"
     STF_OUTPUT = "/tmp/output/"
 
-    STF_LINK = "https://transparencia.stf.jus.br/extensions/decisoes/decisoes.html"
+    STF_LINK = (
+        "https://transparencia.stf.jus.br/extensions/decisoes/decisoes.html"
+    )
 
     RENAME = {
         "Ano da decisão": "ano",

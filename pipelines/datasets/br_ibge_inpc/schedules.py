@@ -6,6 +6,7 @@ Schedules for br_ibge_inpc
     - mes_categoria_municipio
     - mes_brasil
 """
+
 from datetime import datetime
 
 from prefect.schedules import Schedule, adjustments, filters

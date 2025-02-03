@@ -2,21 +2,24 @@
 """
 General purpose functions for the metadata project
 """
-# pylint: disable=too-many-arguments
-import requests
-import basedosdados as bd
 
 from datetime import datetime, time
 from time import sleep
 from typing import Dict, Tuple
+
+import basedosdados as bd
+import requests
 from basedosdados.download.download import _google_client
 from dateutil.relativedelta import relativedelta
 
 from pipelines.constants import constants as pipeline_constants
 from pipelines.utils.constants import constants
 from pipelines.utils.metadata.constants import constants as metadata_constants
-from pipelines.utils.utils import get_credentials_from_secret, log, notify_discord
-
+from pipelines.utils.utils import (
+    get_credentials_from_secret,
+    log,
+    notify_discord,
+)
 
 ################################
 #
@@ -38,8 +41,10 @@ def check_if_values_are_accepted(
             raise ValueError(
                 f"Unidade temporal inválida. Escolha entre {metadata_constants.ACCEPTED_TIME_UNITS.value}"
             )
-        if type(time_delta[key]) is not int:
-            raise ValueError("Valor de delta inválido. O valor deve ser um inteiro")
+        if not isinstance(time_delta[key], int):
+            raise ValueError(
+                "Valor de delta inválido. O valor deve ser um inteiro"
+            )
 
     if coverage_type not in metadata_constants.ACCEPTED_COVERAGE_TYPE.value:
         raise ValueError(
@@ -54,11 +59,14 @@ def check_if_values_are_accepted(
             f"Dicionário das colunas de data inválido. As chaves só podem assumir os valores: {metadata_constants.ACCEPTED_COLUMN_KEY_VALUES.value} "
         )
 
+
 def get_billing_project_id(mode: str) -> bool:
     return metadata_constants.MODE_PROJECT.value[mode]
 
-def get_url(api_mode:str) -> str:
+
+def get_url(api_mode: str) -> str:
     return constants.API_URL.value[api_mode]
+
 
 def get_coverage_ids(
     table_id: str,
@@ -87,30 +95,42 @@ def get_coverage_ids(
             "coverage_id_pro": coverage_id_pro,
         }
 
-    if coverage_type == "all_bdpro" and not coverage_id_free and coverage_id_pro:
+    if (
+        coverage_type == "all_bdpro"
+        and not coverage_id_free
+        and coverage_id_pro
+    ):
         return {"coverage_id_pro": coverage_id_pro}
 
-    if coverage_type == "all_free" and coverage_id_free and not coverage_id_pro:
+    if (
+        coverage_type == "all_free"
+        and coverage_id_free
+        and not coverage_id_pro
+    ):
         return {"coverage_id_free": coverage_id_free}
 
-    raise ValueError(f"\n\nThe selected coverage type '{coverage_type}' does not match the available coverages. Coverages found:\n"
-                f"  - Pro: {coverage_id_pro}\n"
-                f"  - Free: {coverage_id_free}\n"
-                f"Please ensure you have selected the correct coverage type or correct it in the api.\n\n")
+    raise ValueError(
+        f"\n\nThe selected coverage type '{coverage_type}' does not match the available coverages. Coverages found:\n"
+        f"  - Pro: {coverage_id_pro}\n"
+        f"  - Free: {coverage_id_free}\n"
+        f"Please ensure you have selected the correct coverage type or correct it in the api.\n\n"
+    )
+
 
 def get_coverage_id(
-    table_id: str, is_closed: bool, backend: bd.Backend) -> str:
-
+    table_id: str, is_closed: bool, backend: bd.Backend
+) -> str:
     _, coverage_id = get_id(
         query_class="allCoverage",
         query_parameters={
             "$table_Id: ID": table_id,
             "$isClosed: Boolean": is_closed,
         },
-        backend = backend
+        backend=backend,
     )
 
     return coverage_id
+
 
 def get_id(
     query_class: str,
@@ -146,19 +166,22 @@ def get_id(
     variables = dict(zip(keys, values))
 
     response = backend._execute_query(query, variables=variables)
-    nodes = response[query_class]['items']
+    nodes = response[query_class]["items"]
 
-    if len(nodes)>1:
-        raise ValueError(f'More than 1 node was found in this query. Plese give query parameters that retrieve only one object. \nQuery:\n\t{query}\nVariables:{variables} \nNodes found:{nodes}')
+    if len(nodes) > 1:
+        raise ValueError(
+            f"More than 1 node was found in this query. Plese give query parameters that retrieve only one object. \nQuery:\n\t{query}\nVariables:{variables} \nNodes found:{nodes}"
+        )
 
     if len(nodes) == 0:
         return response, None
 
-    id = nodes[0]['_id']
+    id = nodes[0]["_id"]
 
     return response, id
 
-def get_table_status(table_id:str, backend: bd.Backend) -> str:
+
+def get_table_status(table_id: str, backend: bd.Backend) -> str:
     query = """query($table_id: ID) {
         allTable(id: $table_id) {
             edges {
@@ -173,12 +196,13 @@ def get_table_status(table_id:str, backend: bd.Backend) -> str:
 
     response = backend._execute_query(query, {"table_id": table_id})
 
-    nodes = response['allTable']['items']
+    nodes = response["allTable"]["items"]
 
     if len(nodes) == 0:
         return None
 
-    return nodes[0]['status']['slug']
+    return nodes[0]["status"]["slug"]
+
 
 def extract_last_date_from_bq(
     dataset_id: str,
@@ -253,23 +277,32 @@ def extract_last_date_from_bq(
         log(f"An error occurred while extracting the last date: {str(e)}")
         raise
 
+
 def format_date_column(date_column: dict) -> str:
     if date_column.keys() == {"date"}:
         query_date_column = date_column["date"]
     if date_column.keys() == {"year"}:
         query_date_column = f"DATE({date_column['year']},1,1)"
     if date_column.keys() == {"year", "quarter"}:
-        query_date_column = f"DATE({date_column['year']},{date_column['quarter']}*3,1)"
+        query_date_column = (
+            f"DATE({date_column['year']},{date_column['quarter']}*3,1)"
+        )
     if date_column.keys() == {"year", "month"}:
-        query_date_column = f"DATE({date_column['year']},{date_column['month']},1)"
+        query_date_column = (
+            f"DATE({date_column['year']},{date_column['month']},1)"
+        )
     return query_date_column
 
-def able_to_query_bigquery_metadata(billing_project_id:str, bq_project:str) -> bool:
+
+def able_to_query_bigquery_metadata(
+    billing_project_id: str, bq_project: str
+) -> bool:
     """
     To check the table metadata in BigQuery it is necessary that the billing project id has some special permissions,
     So, in our case, it is necessary that billing_project_id == bq_project
     """
     return billing_project_id == bq_project
+
 
 def update_date_from_bq_metadata(
     dataset_id: str,
@@ -298,26 +331,36 @@ def update_date_from_bq_metadata(
         log(f"Última data: {last_date}")
         return last_date
     except Exception as e:
-        log(f"An error occurred while extracting the last update date: {str(e)}")
+        log(
+            f"An error occurred while extracting the last update date: {str(e)}"
+        )
         raise
 
-def get_coverage_parameters(
-    coverage_type: str, last_date:str, time_delta: dict, table_id:str, date_format:str, historical_database: bool, backend: bd.Backend
-) -> dict:
 
+def get_coverage_parameters(
+    coverage_type: str,
+    last_date: str,
+    time_delta: dict,
+    table_id: str,
+    date_format: str,
+    historical_database: bool,
+    backend: bd.Backend,
+) -> dict:
     coverage_ids = get_coverage_ids(
-        table_id=table_id,
-        coverage_type=coverage_type,
-        backend = backend
+        table_id=table_id, coverage_type=coverage_type, backend=backend
     )
 
     if coverage_type == "all_free":
-        free_parameters = get_date_parameters(position="end", date_str=last_date)
+        free_parameters = get_date_parameters(
+            position="end", date_str=last_date
+        )
         free_parameters["coverage"] = coverage_ids.get("coverage_id_free")
         return free_parameters, None
 
     if coverage_type == "all_bdpro":
-        bdpro_parameters = get_date_parameters(position="end", date_str=last_date)
+        bdpro_parameters = get_date_parameters(
+            position="end", date_str=last_date
+        )
         bdpro_parameters["coverage"] = coverage_ids.get("coverage_id_pro")
         return None, bdpro_parameters
 
@@ -327,13 +370,19 @@ def get_coverage_parameters(
                 "Invalid Selection: Non-historical base and partially bdpro coverage chosen, not compatible."
             )
 
-        bdpro_parameters = get_date_parameters(position="end", date_str=last_date)
+        bdpro_parameters = get_date_parameters(
+            position="end", date_str=last_date
+        )
         bdpro_parameters["coverage"] = coverage_ids.get("coverage_id_pro")
 
         delta = relativedelta(**time_delta)
-        free_access_max_date = datetime.strptime(last_date, date_format) - delta
+        free_access_max_date = (
+            datetime.strptime(last_date, date_format) - delta
+        )
         free_access_max_date = free_access_max_date.strftime(date_format)
-        free_parameters = get_date_parameters(position="end", date_str=free_access_max_date)
+        free_parameters = get_date_parameters(
+            position="end", date_str=free_access_max_date
+        )
         free_parameters["coverage"] = coverage_ids.get("coverage_id_free")
 
         bdpro_parameters = sync_bdpro_and_free_coverage(
@@ -342,9 +391,12 @@ def get_coverage_parameters(
             free_parameters=free_parameters,
         )
 
-        log(f"Cobertura Grátis ->> {free_access_max_date} || Cobertura PRO ->> {last_date}")
+        log(
+            f"Cobertura Grátis ->> {free_access_max_date} || Cobertura PRO ->> {last_date}"
+        )
 
         return free_parameters, bdpro_parameters
+
 
 def get_date_parameters(position: str, date_str: str):
     date_len = len(date_str.split("-") if date_str != "" else 0)
@@ -363,6 +415,7 @@ def get_date_parameters(position: str, date_str: str):
         date_parameters[f"{position}Year"] = date.year
     return date_parameters
 
+
 def sync_bdpro_and_free_coverage(
     date_format: str, bdpro_parameters: dict, free_parameters: dict
 ) -> dict:
@@ -378,6 +431,7 @@ def sync_bdpro_and_free_coverage(
 
     return bdpro_parameters
 
+
 def create_update(
     mutation_class: str,
     mutation_parameters: dict,
@@ -392,11 +446,7 @@ def create_update(
     The `mutation_class` and `mutation_parameters` define the metadata to be created or updated,
     while `query_class` and `query_parameters` specify the element to be located for updating.
     """
-    r, id = get_id(
-        query_class,
-        query_parameters,
-        backend
-    )
+    r, id = get_id(query_class, query_parameters, backend)
     if id and not update:
         r["r"] = "query"
         return r, id
@@ -420,11 +470,16 @@ def create_update(
     if update is True and not isinstance(id, type(None)):
         mutation_parameters["id"] = id
 
-    response = backend._execute_query(query,variables = {"input": mutation_parameters}, headers=get_headers(backend))
+    response = backend._execute_query(
+        query,
+        variables={"input": mutation_parameters},
+        headers=get_headers(backend),
+    )
     response["r"] = "mutation"
     id = response[mutation_class][_classe]["id"]
     id = id.split(":")[1]
     return response, id
+
 
 def update_row_access_policy(
     project_id: str,
@@ -452,36 +507,34 @@ def update_row_access_policy(
         sleep(1)
     log("All users filter was included")
 
-def format_date_parameters(free_parameters: dict, date_format: str)->str:
+
+def format_date_parameters(free_parameters: dict, date_format: str) -> str:
     if date_format == "%Y-%m-%d":
-        formated_date = f'{free_parameters["endYear"]}-{free_parameters["endMonth"]}-{free_parameters["endDay"]}'
+        formated_date = f"{free_parameters['endYear']}-{free_parameters['endMonth']}-{free_parameters['endDay']}"
     elif date_format == "%Y-%m":
-        formated_date = f'{free_parameters["endYear"]}-{free_parameters["endMonth"]}-01'
+        formated_date = (
+            f"{free_parameters['endYear']}-{free_parameters['endMonth']}-01"
+        )
     elif date_format == "%Y":
-        formated_date = f'{free_parameters["endYear"]}-01-01'
+        formated_date = f"{free_parameters['endYear']}-01-01"
 
     return formated_date
-
 
 
 #######################
 # check_if_data_is_outdated Utils
 #######################
 def get_coverage_value(
-    dataset_name: str,
-    table_name: str,
-    date_format: str,
-    backend: bd.Backend
+    dataset_name: str, table_name: str, date_format: str, backend: bd.Backend
 ) -> dict:
     try:
         # get table ID in the PROD API
-        table_id = backend._get_table_id_from_name(gcp_dataset_id=dataset_name, gcp_table_id=table_name)
+        table_id = backend._get_table_id_from_name(
+            gcp_dataset_id=dataset_name, gcp_table_id=table_name
+        )
 
         # get coverage values in the PROD API for the table ID
-        datetime_result = get_datetimerange(
-            table_id,
-            backend
-        )
+        datetime_result = get_datetimerange(table_id, backend)
 
         date_objects = parse_datetime_ranges(datetime_result, date_format)
         return date_objects
@@ -492,10 +545,8 @@ def get_coverage_value(
         )
         raise
 
-def get_datetimerange(
-    table_id: str,
-    backend = bd.Backend
-) -> dict:
+
+def get_datetimerange(table_id: str, backend=bd.Backend) -> dict:
     """This function retrieves the datetimeRanges from the API for the specified Table ID in the Query Parameters
     Returns:
         dict: A dictionary containing datetimeRanges from the API
@@ -538,6 +589,7 @@ def get_datetimerange(
 
     return response
 
+
 def parse_datetime_ranges(datetime_result: dict, date_format: str) -> dict:
     """This function parses datetime ranges from the PROD API and returns a dictionary with the coverage values. Used within get_datetimerange function.
 
@@ -574,6 +626,7 @@ def parse_datetime_ranges(datetime_result: dict, date_format: str) -> dict:
 
     return date_objects
 
+
 def format_and_check_date(date_values: tuple, date_format: str) -> str:
     """This function formats a date according to the given date_format and make 2 checks:
         1) If the date_format is valid for the given date_values; in other words, if the date_format is correct for the table.
@@ -594,10 +647,19 @@ def format_and_check_date(date_values: tuple, date_format: str) -> str:
 
     end_year, end_month, end_day = date_values
 
-    if date_format == "%Y-%m-%d" and  end_year is not None and end_month is not None and end_day is not None:
+    if (
+        date_format == "%Y-%m-%d"
+        and end_year is not None
+        and end_month is not None
+        and end_day is not None
+    ):
         return f"{end_year:04d}-{end_month:02d}-{end_day:02d}"
 
-    if date_format == "%Y-%m" and end_year is not None and end_month is not None:
+    if (
+        date_format == "%Y-%m"
+        and end_year is not None
+        and end_month is not None
+    ):
         return f"{end_year:04d}-{end_month:02d}"
 
     if date_format == "Y%" and end_year is not None:
@@ -607,12 +669,13 @@ def format_and_check_date(date_values: tuple, date_format: str) -> str:
         f"Attention! The input date_format ->> {date_format} is wrong for the current Table. One of the elements have NONE values in the PROD API. If that's not the case, check the Coverage values in the Prod API, they may be not filled"
     )
 
+
 def get_api_most_recent_date(
     dataset_id: str,
     table_id: str,
     backend: bd.Backend,
     date_format: str = "%Y-%m-%d",
-    ) -> datetime.date:
+) -> datetime.date:
     """get the max table coverage for a given table id.
 
     This task will:
@@ -644,10 +707,7 @@ def get_api_most_recent_date(
 
     # collect all table coverages for the given table id
     coverages = get_coverage_value(
-        dataset_id,
-        table_id,
-        date_format,
-        backend=backend
+        dataset_id, table_id, date_format, backend=backend
     )
 
     # Convert the date strings to date objects
@@ -660,16 +720,19 @@ def get_api_most_recent_date(
 
     return max_date_value
 
+
 def get_headers(backend: bd.Backend) -> dict:
     """
     Get headers to be able to do mutations in backend api
     """
 
-    api_mode = 'prod'
-    if 'staging' in backend.graphql_url:
-        api_mode = 'staging'
+    api_mode = "prod"
+    if "staging" in backend.graphql_url:
+        api_mode = "staging"
 
-    credentials = get_credentials_from_secret(secret_path=f"api_user_{api_mode}")
+    credentials = get_credentials_from_secret(
+        secret_path=f"api_user_{api_mode}"
+    )
 
     mutation = """
         mutation ($email: String!, $password: String!) {
@@ -678,7 +741,10 @@ def get_headers(backend: bd.Backend) -> dict:
             }
         }
     """
-    variables = {"email": credentials["email"], "password": credentials["password"]}
+    variables = {
+        "email": credentials["email"],
+        "password": credentials["password"],
+    }
 
     response = backend._execute_query(query=mutation, variables=variables)
     token = response["tokenAuth"]["token"]
@@ -688,10 +754,14 @@ def get_headers(backend: bd.Backend) -> dict:
     return header_for_mutation_query
 
 
-def get_api_last_update_date(dataset_id: str, table_id: str, backend: bd.Backend):
+def get_api_last_update_date(
+    dataset_id: str, table_id: str, backend: bd.Backend
+):
     try:
         # get table ID in the API
-        django_table_id = backend._get_table_id_from_name(gcp_dataset_id=dataset_id, gcp_table_id=table_id)
+        django_table_id = backend._get_table_id_from_name(
+            gcp_dataset_id=dataset_id, gcp_table_id=table_id
+        )
 
         # get last update value in the API for the table ID
         query = """
@@ -708,8 +778,10 @@ def get_api_last_update_date(dataset_id: str, table_id: str, backend: bd.Backend
             """
         variables = {"table_Id": django_table_id}
         response = backend._execute_query(query, variables)
-        clean_response = response['allUpdate']['items'][0]['latest']
-        date_result = (datetime.strptime(clean_response[:10],"%Y-%m-%d")).date()
+        clean_response = response["allUpdate"]["items"][0]["latest"]
+        date_result = (
+            datetime.strptime(clean_response[:10], "%Y-%m-%d")
+        ).date()
         return date_result
 
     except Exception as e:
@@ -718,104 +790,115 @@ def get_api_last_update_date(dataset_id: str, table_id: str, backend: bd.Backend
         )
         raise
 
-def update_data_source_update_date(dataset_id: str,table_id: str,date_type: str,data_source_max_date:datetime.date, backend:bd.Backend):
-    django_table_id = backend._get_table_id_from_name(gcp_dataset_id=dataset_id, gcp_table_id=table_id)
+
+def update_data_source_update_date(
+    dataset_id: str,
+    table_id: str,
+    date_type: str,
+    data_source_max_date: datetime.date,
+    backend: bd.Backend,
+):
+    django_table_id = backend._get_table_id_from_name(
+        gcp_dataset_id=dataset_id, gcp_table_id=table_id
+    )
     _, django_raw_datasource_id = get_id(
         query_class="allRawdatasource",
-        query_parameters={
-            "$tables_Id: ID": django_table_id
-        },
-        backend = backend
+        query_parameters={"$tables_Id: ID": django_table_id},
+        backend=backend,
     )
 
     _, django_update_raw_datasource_id = get_id(
         query_class="allUpdate",
-        query_parameters={
-            "$rawDataSource_Id: ID": django_raw_datasource_id
-        },
-        backend = backend
+        query_parameters={"$rawDataSource_Id: ID": django_raw_datasource_id},
+        backend=backend,
     )
 
-
-    if date_type == 'last_update_date':
-        latest =  datetime.combine(data_source_max_date, time()).isoformat()
+    if date_type == "last_update_date":
+        latest = datetime.combine(data_source_max_date, time()).isoformat()
     else:
         latest = datetime.today().isoformat()
 
-    mutation_parameters={"latest": latest}
+    mutation_parameters = {"latest": latest}
 
     if not django_update_raw_datasource_id:
-       mutation_parameters["frequency"] =  1
-       mutation_parameters["entity"] = 'f9659fea-e9bb-4177-9ca0-54076a8c0932'
-       mutation_parameters['rawDataSource'] = django_raw_datasource_id
+        mutation_parameters["frequency"] = 1
+        mutation_parameters["entity"] = "f9659fea-e9bb-4177-9ca0-54076a8c0932"
+        mutation_parameters["rawDataSource"] = django_raw_datasource_id
 
     _, id = create_update(
-            query_class="allUpdate",
-            query_parameters={"$rawDataSource_Id: ID": django_raw_datasource_id},
-            mutation_class="CreateUpdateUpdate",
-            mutation_parameters=mutation_parameters,
-            update=True,
-            backend=backend
-        )
+        query_class="allUpdate",
+        query_parameters={"$rawDataSource_Id: ID": django_raw_datasource_id},
+        mutation_class="CreateUpdateUpdate",
+        mutation_parameters=mutation_parameters,
+        update=True,
+        backend=backend,
+    )
 
     log("Data de atualização da fonte original modificada")
 
     if not django_update_raw_datasource_id:
-            notify_discord(secret_path=pipeline_constants.BD_DISCORD_WEBHOOK_SECRET_PATH.value,
-                    message=( "ATENÇÃO"
-                            + f"Foi criado um metadado de 'Update' para o RawDataSource da tabela `{dataset_id}.{table_id}`\n"
-                            + "Este metadado é criado automaticamente com uma atualização mensal\n"
-                            + "Verifique se a fonte original dessa tabela é realmente atualizada com essa frequência\n"
-                            + "Caso seja necessário um ajuste, utilize o seguinte link: \n"
-                            + f"https://backend.basedosdados.org/admin/v1/update/{id}/change/ "
-                    ),
-                    code_owners=['lauris'])
+        notify_discord(
+            secret_path=pipeline_constants.BD_DISCORD_WEBHOOK_SECRET_PATH.value,
+            message=(
+                "ATENÇÃO"
+                + f"Foi criado um metadado de 'Update' para o RawDataSource da tabela `{dataset_id}.{table_id}`\n"
+                + "Este metadado é criado automaticamente com uma atualização mensal\n"
+                + "Verifique se a fonte original dessa tabela é realmente atualizada com essa frequência\n"
+                + "Caso seja necessário um ajuste, utilize o seguinte link: \n"
+                + f"https://backend.basedosdados.org/admin/v1/update/{id}/change/ "
+            ),
+            code_owners=["lauris"],
+        )
 
-def update_data_source_poll(dataset_id: str,table_id: str, backend:bd.Backend):
-    django_table_id = backend._get_table_id_from_name(gcp_dataset_id=dataset_id, gcp_table_id=table_id)
+
+def update_data_source_poll(
+    dataset_id: str, table_id: str, backend: bd.Backend
+):
+    django_table_id = backend._get_table_id_from_name(
+        gcp_dataset_id=dataset_id, gcp_table_id=table_id
+    )
     _, django_raw_datasource_id = get_id(
         query_class="allRawdatasource",
-        query_parameters={
-            "$tables_Id: ID": django_table_id
-        },
-        backend = backend
+        query_parameters={"$tables_Id: ID": django_table_id},
+        backend=backend,
     )
 
     _, django_poll_id = get_id(
         query_class="allPoll",
-        query_parameters={
-            "$rawDataSource_Id: ID": django_raw_datasource_id
-        },
-        backend = backend
+        query_parameters={"$rawDataSource_Id: ID": django_raw_datasource_id},
+        backend=backend,
     )
 
     latest = datetime.today().isoformat()
-    mutation_parameters={"latest": latest}
+    mutation_parameters = {"latest": latest}
 
     if not django_poll_id:
-       mutation_parameters["frequency"] =  1
-       mutation_parameters["entity"] = '81f0c890-65a6-48a1-9523-af38d3f4af63'
-       mutation_parameters['rawDataSource'] = django_raw_datasource_id
+        mutation_parameters["frequency"] = 1
+        mutation_parameters["entity"] = "81f0c890-65a6-48a1-9523-af38d3f4af63"
+        mutation_parameters["rawDataSource"] = django_raw_datasource_id
 
     _, new_id = create_update(
-            query_class="allPoll",
-            query_parameters={"$rawDataSource_Id: ID": django_raw_datasource_id},
-            mutation_class="CreateUpdatePoll",
-            mutation_parameters=mutation_parameters,
-            update=True,
-            backend=backend
-        )
+        query_class="allPoll",
+        query_parameters={"$rawDataSource_Id: ID": django_raw_datasource_id},
+        mutation_class="CreateUpdatePoll",
+        mutation_parameters=mutation_parameters,
+        update=True,
+        backend=backend,
+    )
 
     log("Data de verificação da fonte original modificada")
 
     if not django_poll_id:
-            notify_discord(secret_path=pipeline_constants.BD_DISCORD_WEBHOOK_SECRET_PATH.value,
-                    message=( "ATENÇÃO\n"
-                            + f"* Foi criado um metadado de 'Poll' para o RawDataSource da tabela `{dataset_id}.{table_id}` com id: `{new_id}`\n"
-                            + "* Este metadado é criado automaticamente com uma atualização diária\n"
-                            + "* Verifique se a pipeline realmente roda nessa frequência\n"
-                    ),
-                    code_owners=['lauris'])
+        notify_discord(
+            secret_path=pipeline_constants.BD_DISCORD_WEBHOOK_SECRET_PATH.value,
+            message=(
+                "ATENÇÃO\n"
+                + f"* Foi criado um metadado de 'Poll' para o RawDataSource da tabela `{dataset_id}.{table_id}` com id: `{new_id}`\n"
+                + "* Este metadado é criado automaticamente com uma atualização diária\n"
+                + "* Verifique se a pipeline realmente roda nessa frequência\n"
+            ),
+            code_owners=["lauris"],
+        )
 
 
 def get_credentials_utils(secret_path: str) -> Tuple[str, str]:
@@ -828,7 +911,8 @@ def get_credentials_utils(secret_path: str) -> Tuple[str, str]:
     password = tokens_dict.get("password")
     return email, password
 
-def get_token(email:str, password:str, api_mode: str = "prod") -> str:
+
+def get_token(email: str, password: str, api_mode: str = "prod") -> str:
     """
     Get api token.
     """

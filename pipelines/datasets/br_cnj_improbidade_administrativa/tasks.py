@@ -43,7 +43,6 @@ def get_number_pages() -> int:
 
 
 async def crawler_home_page(total_pages: int) -> list[httpx.Response]:
-
     pages_urls = [build_home_url_page(i) for i in range(0, total_pages)]
 
     max_connections = 3
@@ -64,7 +63,9 @@ async def crawler_home_page(total_pages: int) -> list[httpx.Response]:
 async def crawler_sentences(
     peoples_info: list[PeopleLine],
 ) -> list[SentenceResponse]:
-    condenacao_ids: list[str] = np.unique([i["condenacao_id"] for i in peoples_info])
+    condenacao_ids: list[str] = np.unique(
+        [i["condenacao_id"] for i in peoples_info]
+    )
 
     max_connections = 3
     timeout = httpx.Timeout(30, pool=3.0)
@@ -73,14 +74,20 @@ async def crawler_sentences(
 
     async def wrapper(client, sentence_id):
         async with semaphore:
-            response = await get_async(client, build_condenacao_url(sentence_id))
+            response = await get_async(
+                client, build_condenacao_url(sentence_id)
+            )
             return {"condenacao_id": sentence_id, "response": response}
 
     async with httpx.AsyncClient(limits=limits, timeout=timeout) as client:
-        return await asyncio.gather(*[wrapper(client, sentence_id) for sentence_id in condenacao_ids])  # type: ignore
+        return await asyncio.gather(
+            *[wrapper(client, sentence_id) for sentence_id in condenacao_ids]
+        )  # type: ignore
 
 
-async def get_peoples_info(ids: list[tuple[str, str]]) -> list[PeopleInfoResponse]:
+async def get_peoples_info(
+    ids: list[tuple[str, str]],
+) -> list[PeopleInfoResponse]:
     max_connections = 5
     timeout = httpx.Timeout(30, pool=3.0, read=None)
     semaphore = asyncio.Semaphore(max_connections)
@@ -102,7 +109,9 @@ async def get_peoples_info(ids: list[tuple[str, str]]) -> list[PeopleInfoRespons
         )
 
 
-async def crawler_process(peoples: list[PeopleLine]) -> list[ProcessInfoResponse]:
+async def crawler_process(
+    peoples: list[PeopleLine],
+) -> list[ProcessInfoResponse]:
     max_connections = 5
     timeout = httpx.Timeout(30, pool=3.0, read=None)
     semaphore = asyncio.Semaphore(max_connections)
@@ -110,7 +119,9 @@ async def crawler_process(peoples: list[PeopleLine]) -> list[ProcessInfoResponse
 
     async def wrapper(client: httpx.AsyncClient, people: PeopleLine):
         async with semaphore:
-            response = await get_async(client, build_process_url(people["processo_id"]))
+            response = await get_async(
+                client, build_process_url(people["processo_id"])
+            )
             return {"process_id": people["processo_id"], "response": response}
 
     async with httpx.AsyncClient(timeout=timeout, limits=limits) as client:
@@ -120,7 +131,6 @@ async def crawler_process(peoples: list[PeopleLine]) -> list[ProcessInfoResponse
 
 
 async def run_async(total_pages: int) -> pd.DataFrame:
-
     time_start_home_page = time.time()
     requests_home_page = await crawler_home_page(total_pages)
     time_end_home_page = time.time()
@@ -154,7 +164,9 @@ async def run_async(total_pages: int) -> pd.DataFrame:
 
     log(f"Get peoples info finished: {len(peoples_info_responses)}")
 
-    parsed_peoples_info = [parse_people_data(i) for i in peoples_info_responses]
+    parsed_peoples_info = [
+        parse_people_data(i) for i in peoples_info_responses
+    ]
 
     time_start_crawler_process = time.time()
     process_responses = await crawler_process(parsed_main_list)
@@ -163,7 +175,9 @@ async def run_async(total_pages: int) -> pd.DataFrame:
     parsed_process = [parse_process(i) for i in process_responses]
 
     log(f"Crawler home page. Time {time_end_home_page - time_start_home_page}")
-    log(f"Crawler sentences. Time {time_end_get_sentences - time_start_get_sentences}")
+    log(
+        f"Crawler sentences. Time {time_end_get_sentences - time_start_get_sentences}"
+    )
     log(
         f"Crawler peoples infos. Time {time_end_get_info_peples - time_start_get_info_peoples}"
     )
@@ -172,7 +186,9 @@ async def run_async(total_pages: int) -> pd.DataFrame:
     )
 
     df_main_list = pd.DataFrame(parsed_main_list)
-    df_main_list["condenacao_id"] = df_main_list["condenacao_id"].astype("string")
+    df_main_list["condenacao_id"] = df_main_list["condenacao_id"].astype(
+        "string"
+    )
 
     df_parsed_peoples_info = pd.DataFrame(parsed_peoples_info)
     df_parsed_peoples_info["condenacao_id"] = df_parsed_peoples_info[
@@ -183,7 +199,9 @@ async def run_async(total_pages: int) -> pd.DataFrame:
     df_process["processo_id"] = df_process["processo_id"].astype("string")
 
     df_senteces = pd.DataFrame(parsed_sentences)
-    df_senteces["condenacao_id"] = df_senteces["condenacao_id"].astype("string")
+    df_senteces["condenacao_id"] = df_senteces["condenacao_id"].astype(
+        "string"
+    )
 
     log(f"Dataframe sentences columns: {df_senteces.columns}")
 
@@ -192,11 +210,15 @@ async def run_async(total_pages: int) -> pd.DataFrame:
         for name in df_senteces.columns
     }
 
-    df_senteces = df_senteces.rename(columns=new_columns_setences, errors="raise")
+    df_senteces = df_senteces.rename(
+        columns=new_columns_setences, errors="raise"
+    )
 
     return (
         df_main_list.merge(
-            df_parsed_peoples_info, left_on="condenacao_id", right_on="condenacao_id"
+            df_parsed_peoples_info,
+            left_on="condenacao_id",
+            right_on="condenacao_id",
         )
         .merge(df_senteces, left_on="condenacao_id", right_on="condenacao_id")
         .merge(df_process, left_on="processo_id", right_on="processo_id")

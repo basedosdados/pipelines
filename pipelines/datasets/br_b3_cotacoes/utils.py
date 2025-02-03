@@ -2,6 +2,7 @@
 """
 General purpose functions for the br_bcb_estban project
 """
+
 import os
 import zipfile
 from datetime import datetime
@@ -41,7 +42,9 @@ def download_chunk_and_unzip_csv(url, path, chunk_size: int = 1000):
 # ------- macro etapa 3 partition data by data_referencia
 
 
-def partition_data(df: pd.DataFrame, column_name: list[str], output_directory: str):
+def partition_data(
+    df: pd.DataFrame, column_name: list[str], output_directory: str
+):
     """
     Particiona os dados em subconjuntos de acordo com os valores únicos de uma coluna.
     Salva cada subconjunto em um arquivo CSV separado.
@@ -99,7 +102,9 @@ def process_chunk_csv(input_path, chunk_size: int = 100000):
         ),
         desc="lendo o arquivo CSV",
     ):
-        chunk.rename(columns=br_b3_cotacoes_constants.RENAME.value, inplace=True)
+        chunk.rename(
+            columns=br_b3_cotacoes_constants.RENAME.value, inplace=True
+        )
         chunk = chunk.replace(np.nan, "")
         chunk["codigo_participante_vendedor"] = chunk[
             "codigo_participante_vendedor"
@@ -113,7 +118,9 @@ def process_chunk_csv(input_path, chunk_size: int = 100000):
         chunk["data_referencia"] = pd.to_datetime(
             chunk["data_referencia"], format="%Y-%m-%d"
         )
-        chunk["data_negocio"] = pd.to_datetime(chunk["data_negocio"], format="%Y-%m-%d")
+        chunk["data_negocio"] = pd.to_datetime(
+            chunk["data_negocio"], format="%Y-%m-%d"
+        )
         chunk["hora_fechamento"] = np.where(
             chunk["hora_fechamento"].str.len() == 8,
             "0" + chunk["hora_fechamento"],

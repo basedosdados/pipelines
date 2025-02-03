@@ -9,10 +9,6 @@ from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants as pipelines_constants
 from pipelines.datasets.br_denatran_frota.constants import constants
-from pipelines.datasets.br_denatran_frota.schedules import (
-    every_month_municipio,
-    every_month_uf,
-)
 from pipelines.datasets.br_denatran_frota.tasks import (
     crawl_task,
     get_desired_file_task,
@@ -23,7 +19,9 @@ from pipelines.datasets.br_denatran_frota.tasks import (
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.execute_dbt_model.constants import (
+    constants as dump_db_constants,
+)
 from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
@@ -50,15 +48,22 @@ with Flow(
         "materialize_after_dump", default=False, required=False
     )
 
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
 
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
-    year_to_fetch = get_latest_data_task(table_id="uf_tipo", dataset_id=dataset_id)
+    year_to_fetch = get_latest_data_task(
+        table_id="uf_tipo", dataset_id=dataset_id
+    )
     # search for most recent year in the API
 
     crawled = crawl_task(
@@ -81,7 +86,9 @@ with Flow(
             upstream_tasks=[crawled],
         )
 
-        df = treat_uf_tipo_task(file=desired_file, upstream_tasks=[desired_file])
+        df = treat_uf_tipo_task(
+            file=desired_file, upstream_tasks=[desired_file]
+        )
 
         parquet_output = output_file_to_parquet_task(
             df, constants.UF_TIPO_BASIC_FILENAME.value, upstream_tasks=[df]
@@ -141,11 +148,13 @@ with Flow(
                 )
 
 
-br_denatran_frota_uf_tipo.storage = GCS(pipelines_constants.GCS_FLOWS_BUCKET.value)
+br_denatran_frota_uf_tipo.storage = GCS(
+    pipelines_constants.GCS_FLOWS_BUCKET.value
+)
 br_denatran_frota_uf_tipo.run_config = KubernetesRun(
     image=pipelines_constants.DOCKER_IMAGE.value
 )
-#br_denatran_frota_uf_tipo.schedule = every_month_uf
+# br_denatran_frota_uf_tipo.schedule = every_month_uf
 
 
 with Flow(
@@ -166,12 +175,17 @@ with Flow(
         "materialize_after_dump", default=False, required=False
     )
 
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
 
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     year_to_fetch = get_latest_data_task(
@@ -197,7 +211,9 @@ with Flow(
             upstream_tasks=[crawled],
         )
 
-        df = treat_municipio_tipo_task(file=desired_file, upstream_tasks=[desired_file])
+        df = treat_municipio_tipo_task(
+            file=desired_file, upstream_tasks=[desired_file]
+        )
 
         parquet_output = output_file_to_parquet_task(
             df, constants.MUNIC_TIPO_BASIC_FILENAME.value, upstream_tasks=[df]
@@ -262,4 +278,4 @@ br_denatran_frota_municipio_tipo.storage = GCS(
 br_denatran_frota_municipio_tipo.run_config = KubernetesRun(
     image=pipelines_constants.DOCKER_IMAGE.value
 )
-#br_denatran_frota_municipio_tipo.schedule = every_month_municipio
+# br_denatran_frota_municipio_tipo.schedule = every_month_municipio

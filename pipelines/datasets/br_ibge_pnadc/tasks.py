@@ -2,25 +2,26 @@
 """
 Tasks for br_ibge_pnadc
 """
+
 import os
 
 # pylint: disable=invalid-name,unnecessary-dunder-call
 import zipfile
+from datetime import datetime
 from glob import glob
 
 import numpy as np
 import pandas as pd
 import requests
+from bs4 import BeautifulSoup
 from prefect import task
 from tqdm import tqdm
-from datetime import datetime
-from bs4 import BeautifulSoup
 
+from pipelines.datasets.br_ibge_pnadc.constants import (
+    constants as pnad_constants,
+)
 from pipelines.datasets.br_ibge_pnadc.utils import get_extraction_year
-
-from pipelines.datasets.br_ibge_pnadc.constants import constants as pnad_constants
 from pipelines.utils.utils import log
-
 
 
 @task
@@ -40,11 +41,16 @@ def get_data_source_date_and_url() -> tuple[datetime, str]:
     response = requests.get(download_page, timeout=60)
 
     if response.status_code >= 400 and response.status_code <= 599:
-        raise Exception(f"Erro de requisição: status code {response.status_code}")
+        raise Exception(
+            f"Erro de requisição: status code {response.status_code}"
+        )
 
     soup = BeautifulSoup(response.text)
     hrefs = [row.get("href") for row in soup.select("tr td a")]
-    dates = [row.text.strip().split(" ")[0] for row in soup.select("table td:nth-child(3)")]
+    dates = [
+        row.text.strip().split(" ")[0]
+        for row in soup.select("table td:nth-child(3)")
+    ]
     dados = dict(zip(dates, hrefs))
     last_update = max(dados.keys())
     filename = dados[last_update]
@@ -117,8 +123,12 @@ def build_parquet_files(save_path: str) -> str:
             },
             inplace=True,
         )
-        chunk["sigla_uf"] = chunk["id_uf"].map(pnad_constants.map_codigo_sigla_uf.value)
-        chunk["id_domicilio"] = chunk["id_estrato"] + chunk["V1008"] + chunk["V1014"]
+        chunk["sigla_uf"] = chunk["id_uf"].map(
+            pnad_constants.map_codigo_sigla_uf.value
+        )
+        chunk["id_domicilio"] = (
+            chunk["id_estrato"] + chunk["V1008"] + chunk["V1014"]
+        )
 
         chunk["habitual"] = [np.nan] * len(chunk)
         chunk["efetivo"] = [np.nan] * len(chunk)
@@ -136,7 +146,8 @@ def build_parquet_files(save_path: str) -> str:
 
             os.makedirs(
                 os.path.join(
-                    output_dir, f"ano={ano}/trimestre={trimestre}/sigla_uf={uf}"
+                    output_dir,
+                    f"ano={ano}/trimestre={trimestre}/sigla_uf={uf}",
                 ),
                 exist_ok=True,
             )

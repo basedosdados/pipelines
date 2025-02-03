@@ -1,21 +1,25 @@
 # -*- coding: utf-8 -*-
+from datetime import timedelta
+
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
-from datetime import timedelta
+
 from pipelines.constants import constants
+from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.crawler_anatel.banda_larga_fixa.tasks import (
-    join_tables_in_function,
     get_max_date_in_table_microdados,
     get_year_and_unzip,
+    join_tables_in_function,
 )
-from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.execute_dbt_model.constants import (
+    constants as dump_db_constants,
+)
 from pipelines.utils.metadata.tasks import (
-    update_django_metadata,
     check_if_data_is_outdated,
+    update_django_metadata,
 )
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
@@ -23,7 +27,9 @@ from pipelines.utils.tasks import (
     rename_current_flow_run_dataset_table,
 )
 
-with Flow(name="BD template - Anatel Banda Larga Fixa", code_owners=["trick"]) as flow_anatel_banda_larga_fixa:
+with Flow(
+    name="BD template - Anatel Banda Larga Fixa", code_owners=["trick"]
+) as flow_anatel_banda_larga_fixa:
     # Parameters
     dataset_id = Parameter(
         "dataset_id", default="br_anatel_banda_larga_fixa", required=True
@@ -42,7 +48,9 @@ with Flow(name="BD template - Anatel Banda Larga Fixa", code_owners=["trick"]) a
 
     ano = Parameter("ano", default=None, required=False)
 
-    update_metadata = Parameter("update_metadata", default=True, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=True, required=False
+    )
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ",
@@ -58,14 +66,17 @@ with Flow(name="BD template - Anatel Banda Larga Fixa", code_owners=["trick"]) a
 
     new_ano = get_year_and_unzip(day=ano, upstream_tasks=[rename_flow_run])
 
-    update_tables = get_max_date_in_table_microdados(ano=new_ano, table_id=table_id, upstream_tasks=[new_ano])
+    update_tables = get_max_date_in_table_microdados(
+        ano=new_ano, table_id=table_id, upstream_tasks=[new_ano]
+    )
 
     get_max_date = check_if_data_is_outdated(
-    dataset_id =  dataset_id,
-    table_id =  table_id,
-    data_source_max_date = update_tables,
-    date_format =  "%Y-%m",
-    upstream_tasks=[update_tables])
+        dataset_id=dataset_id,
+        table_id=table_id,
+        data_source_max_date=update_tables,
+        date_format="%Y-%m",
+        upstream_tasks=[update_tables],
+    )
 
     with case(get_max_date, True):
         filepath = join_tables_in_function(
@@ -73,13 +84,15 @@ with Flow(name="BD template - Anatel Banda Larga Fixa", code_owners=["trick"]) a
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(
-                data_path=filepath,
-                dataset_id=dataset_id,
-                table_id=table_id,
-                dump_mode="append",
-                wait=filepath,
-                upstream_tasks=[filepath],  # Fix: Wrap filepath in a list to make it iterable
-            )
+            data_path=filepath,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dump_mode="append",
+            wait=filepath,
+            upstream_tasks=[
+                filepath
+            ],  # Fix: Wrap filepath in a list to make it iterable
+        )
 
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
@@ -126,4 +139,6 @@ with Flow(name="BD template - Anatel Banda Larga Fixa", code_owners=["trick"]) a
                 )
 
 flow_anatel_banda_larga_fixa.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-flow_anatel_banda_larga_fixa.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+flow_anatel_banda_larga_fixa.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)

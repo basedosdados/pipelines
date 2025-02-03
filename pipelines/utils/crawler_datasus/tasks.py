@@ -3,27 +3,27 @@
 Tasks for br_ms_cnes
 """
 
-
 import asyncio
 import os
-from datetime import timedelta
+from datetime import date, datetime, timedelta
 from ftplib import FTP
-import aioftp
+
+import basedosdados as bd
 import pandas as pd
 from prefect import task
 from prefect.tasks.shell import ShellTask
 from simpledbf import Dbf5
 from tqdm import tqdm
-import sys
-from datetime import datetime, date
+
 from pipelines.constants import constants
-from pipelines.utils.crawler_datasus.constants import constants as datasus_constants
+from pipelines.utils.crawler_datasus.constants import (
+    constants as datasus_constants,
+)
 from pipelines.utils.crawler_datasus.utils import (
-    download_chunks,
-    list_datasus_dbc_files,
-    year_month_sigla_uf_parser,
-    just_the_year_parser,
     dbf_to_parquet,
+    download_chunks,
+    just_the_year_parser,
+    list_datasus_dbc_files,
     post_process_dados_complementares,
     post_process_equipamento,
     post_process_equipe,
@@ -34,15 +34,15 @@ from pipelines.utils.crawler_datasus.utils import (
     post_process_habilitacao,
     post_process_incentivos,
     post_process_leito,
+    post_process_microdados_dengue,
     post_process_profissional,
     post_process_regra_contratual,
     post_process_servico_especializado,
-    post_process_microdados_dengue
-
+    year_month_sigla_uf_parser,
 )
-import basedosdados as bd
 from pipelines.utils.metadata.utils import get_api_most_recent_date, get_url
 from pipelines.utils.utils import log
+
 
 @task(
     max_retries=2,
@@ -60,7 +60,7 @@ def check_files_to_parse(
         dataset_id=dataset_id,
         table_id=table_id,
         date_format="%Y-%m",
-        backend=backend
+        backend=backend,
     )
 
     log("------- Building next year/month to parse")
@@ -86,50 +86,66 @@ def check_files_to_parse(
 
     log(f"------- The year_month_to_parse (YYMM) is {year_month_to_parse}")
 
-    #Convert datasus database names to Basedosdados database names
+    # Convert datasus database names to Basedosdados database names
     datasus_database = datasus_constants.DATASUS_DATABASE.value[dataset_id]
-    datasus_database_table = datasus_constants.DATASUS_DATABASE_TABLE.value[table_id]
+    datasus_database_table = datasus_constants.DATASUS_DATABASE_TABLE.value[
+        table_id
+    ]
 
     available_dbs = list_datasus_dbc_files(
-        datasus_database=datasus_database, datasus_database_table=datasus_database_table
+        datasus_database=datasus_database,
+        datasus_database_table=datasus_database_table,
     )
 
     #
     if len(year_month_to_extract) == 0:
-        list_files = [file for file in available_dbs if file.split('/')[-1][4:8] == year_month_to_parse]
+        list_files = [
+            file
+            for file in available_dbs
+            if file.split("/")[-1][4:8] == year_month_to_parse
+        ]
     else:
-        list_files = [file for file in available_dbs if file.split('/')[-1][4:8] in year_month_to_extract ]
+        list_files = [
+            file
+            for file in available_dbs
+            if file.split("/")[-1][4:8] in year_month_to_extract
+        ]
 
-
-
-
-    log(f"------- The following files were selected fom DATASUS FTP: {list_files}")
+    log(
+        f"------- The following files were selected fom DATASUS FTP: {list_files}"
+    )
 
     return list_files
+
 
 @task(
     max_retries=2,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def list_datasus_table_without_date(
-    table_id : str,
-    dataset_id: str
-):
+def list_datasus_table_without_date(table_id: str, dataset_id: str):
     datasus_database = datasus_constants.DATASUS_DATABASE.value[dataset_id]
-    datasus_database_table = datasus_constants.DATASUS_DATABASE_TABLE.value[table_id]
+    datasus_database_table = datasus_constants.DATASUS_DATABASE_TABLE.value[
+        table_id
+    ]
 
     available_dbs = list_datasus_dbc_files(
-        datasus_database=datasus_database, datasus_database_table=datasus_database_table
+        datasus_database=datasus_database,
+        datasus_database_table=datasus_database_table,
     )
 
     return available_dbs
+
 
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def access_ftp_download_files_async(
-    file_list: list, dataset_id: str, table_id: str, max_parallel: int = 20, chunk_size: int = 15
+    file_list: list,
+    dataset_id: str,
+    table_id: str,
+    max_parallel: int = 20,
+    chunk_size: int = 15,
 ) -> list[str]:
     """This task access Datasus FTP server and download a list of files asynchronously
 
@@ -151,7 +167,6 @@ def access_ftp_download_files_async(
     # https://github.com/AlertaDengue/PySUS/blob/main/pysus/ftp/__init__.py#L156
     log(f"------ dowloading {table_id} files from DATASUS FTP")
 
-
     asyncio.run(
         download_chunks(
             files=file_list,
@@ -163,19 +178,32 @@ def access_ftp_download_files_async(
     )
 
     if dataset_id == "br_ms_sinan":
-        dbc_files_path_list = [os.path.join(input_path, just_the_year_parser(file=file), file.split("/")[-1]) for file in tqdm(file_list)]
+        dbc_files_path_list = [
+            os.path.join(
+                input_path,
+                just_the_year_parser(file=file),
+                file.split("/")[-1],
+            )
+            for file in tqdm(file_list)
+        ]
         log(file_list)
-        log(f"------ The following files were downloaded: {dbc_files_path_list}")
+        log(
+            f"------ The following files were downloaded: {dbc_files_path_list}"
+        )
 
     elif dataset_id in ["br_ms_sia", "br_ms_cnes", "br_ms_sih"]:
         dbc_files_path_list = [
             os.path.join(
-                input_path, year_month_sigla_uf_parser(file=file), file.split("/")[-1]
+                input_path,
+                year_month_sigla_uf_parser(file=file),
+                file.split("/")[-1],
             )
             for file in tqdm(file_list)
         ]
         log("Tanto faz...")
-        log(f"------ The following files were downloaded: {dbc_files_path_list}")
+        log(
+            f"------ The following files were downloaded: {dbc_files_path_list}"
+        )
 
     return dbc_files_path_list
 
@@ -237,10 +265,7 @@ def decompress_dbc(file_list: list, dataset_id: str) -> None:
     log("------ Removing dbc files")
 
     log(f"------ Removing /tmp/{dataset_id}/blast-dbf")
-    os.system(f'rm -rf /tmp/{dataset_id}/blast-dbf')
-
-
-
+    os.system(f"rm -rf /tmp/{dataset_id}/blast-dbf")
 
 
 @task
@@ -255,7 +280,6 @@ def decompress_dbf(file_list: list, table_id: str) -> str:
     dbf_file_list = [file.replace(".dbc", ".dbf") for file in file_list]
 
     for file in tqdm(dbf_file_list):
-
         # replace .csv with .dbf
         log(f"-------- Reading {file}")
         dbf = Dbf5(file, codec="iso-8859-1")
@@ -282,7 +306,6 @@ def decompress_dbf(file_list: list, table_id: str) -> str:
 
 @task
 def pre_process_files(file_list: list, dataset_id: str, table_id: str) -> str:
-
     log("Post-processing CSV files")
 
     # todo: colocar em constants
@@ -300,19 +323,18 @@ def pre_process_files(file_list: list, dataset_id: str, table_id: str) -> str:
         "incentivos": post_process_incentivos,
         "regra_contratual": post_process_regra_contratual,
         "servico_especializado": post_process_servico_especializado,
-        "microdados_dengue" : post_process_microdados_dengue
+        "microdados_dengue": post_process_microdados_dengue,
     }
 
     try:
         post_process_function = post_process_functions.get(table_id)
 
-    except: #Exception as e:
+    except:  # noqa: E722
         log(
-            f"The error {e} occurred. It probably indicates that no post-processing function was found for table_id: {table_id}"
+            f"The error occurred. It probably indicates that no post-processing function was found for table_id: {table_id}"
         )
 
     for file in tqdm(file_list):
-
         log(f"-------- wrangling {file.split('/')[-2:]} and saving to parquet")
         concatenated_df = pd.DataFrame()
 
@@ -326,7 +348,7 @@ def pre_process_files(file_list: list, dataset_id: str, table_id: str) -> str:
 
         processed_df = processed_df.astype(str)
         output_path = file.replace(".csv", ".parquet")
-        processed_df.to_parquet(output_path, index=None, compression='gzip')
+        processed_df.to_parquet(output_path, index=None, compression="gzip")
 
         os.system(f"rm -f {file}")
 
@@ -338,8 +360,6 @@ def pre_process_files(file_list: list, dataset_id: str, table_id: str) -> str:
     return output_path
 
 
-
-
 @task
 def is_empty(lista):
     if len(lista) == 0:
@@ -348,38 +368,43 @@ def is_empty(lista):
         return False
 
 
-
-
 @task
-def read_dbf_save_parquet_chunks(file_list: list, table_id: str, dataset_id:str= "br_ms_sia", chunk_size : int = 100000) -> str:
+def read_dbf_save_parquet_chunks(
+    file_list: list,
+    table_id: str,
+    dataset_id: str = "br_ms_sia",
+    chunk_size: int = 100000,
+) -> str:
     """
     Convert dbc to parquet
     """
     log(f"--------- Decompressing {table_id} .DBF files")
 
-
     dbf_file_list = [file.replace(".dbc", ".dbf") for file in file_list]
     _counter = 0
-    log(f'----counter {_counter}')
+    log(f"----counter {_counter}")
     for file in tqdm(dbf_file_list):
-
-
         log(f"-------- Reading {file}")
-        result_path = dbf_to_parquet(dbf=file, table_id=table_id, counter=_counter, chunk_size=chunk_size)
+        dbf_to_parquet(
+            dbf=file,
+            table_id=table_id,
+            counter=_counter,
+            chunk_size=chunk_size,
+        )
         _counter += 1
 
-    return f'/tmp/{dataset_id}/output/{table_id}'
+    return f"/tmp/{dataset_id}/output/{table_id}"
+
 
 @task
 def get_last_modified_date_in_sinan_tablen(
     datasus_database: str,
     datasus_database_table: str,
 ) -> None:
-
     ftp = FTP("ftp.datasus.gov.br")
     ftp.login()
 
-    if datasus_database == 'SINAN':
+    if datasus_database == "SINAN":
         if not datasus_database_table:
             raise ValueError("No group assigned to SINAN_group")
         # Obtendo ano atual
@@ -388,7 +413,10 @@ def get_last_modified_date_in_sinan_tablen(
         year = date_current[2:4]
         # Obtendo a lista de arquivos do diretório
         files = []
-        ftp.dir(f"dissemin/publicos/SINAN/DADOS/PRELIM/{datasus_database_table}{year}.DBC", files.append)
+        ftp.dir(
+            f"dissemin/publicos/SINAN/DADOS/PRELIM/{datasus_database_table}{year}.DBC",
+            files.append,
+        )
 
         # Extraindo a data do primeiro arquivo listado
         if files:
@@ -396,8 +424,10 @@ def get_last_modified_date_in_sinan_tablen(
             file_info = first_file.split()
             if len(file_info) >= 4:
                 select_date = file_info[0]  # A data está na primeira posição
-                file_date = datetime.strptime(select_date, "%m-%d-%y").strftime("%y-%m-%d")
-                final_date = pd.to_datetime(file_date, format='%y-%m-%d')
-                #sys.stdout.write(file_date + "\n")
+                file_date = datetime.strptime(
+                    select_date, "%m-%d-%y"
+                ).strftime("%y-%m-%d")
+                final_date = pd.to_datetime(file_date, format="%y-%m-%d")
+                # sys.stdout.write(file_date + "\n")
     ftp.close()
     return final_date

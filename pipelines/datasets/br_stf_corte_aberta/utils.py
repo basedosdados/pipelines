@@ -2,18 +2,24 @@
 """
 General purpose functions for the br_stf_corte_aberta project
 """
+
 import os
 import time
 from datetime import datetime
-from selenium.webdriver.common.by import By
-from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+
 import numpy as np
 import pandas as pd
-from pipelines.datasets.br_stf_corte_aberta.constants import constants as stf_constants
-from pipelines.utils.utils import log
+from selenium import webdriver
+from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+
+from pipelines.datasets.br_stf_corte_aberta.constants import (
+    constants as stf_constants,
+)
+from pipelines.utils.utils import log
+
 
 def web_scrapping():
     log("Criando as pastas")
@@ -21,27 +27,40 @@ def web_scrapping():
         os.mkdir(stf_constants.STF_INPUT.value)
     options = Options()
 
-    options.add_argument('--headless')
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
+    options.add_argument("--headless")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--disable-blink-features=AutomationControlled")
     options.add_argument("--disable-extensions")
     options.add_argument("--incognito")
 
     # Configurações específicas de download no Firefox
-    options.set_preference("browser.download.folderList", 2)  # Use 2 para salvar no diretório especificado
-    options.set_preference("browser.download.dir", stf_constants.STF_INPUT.value)
-    options.set_preference("browser.helperApps.neverAsk.saveToDisk", "text/csv")  # Specify MIME type for automatic download
+    options.set_preference(
+        "browser.download.folderList", 2
+    )  # Use 2 para salvar no diretório especificado
+    options.set_preference(
+        "browser.download.dir", stf_constants.STF_INPUT.value
+    )
+    options.set_preference(
+        "browser.helperApps.neverAsk.saveToDisk", "text/csv"
+    )  # Specify MIME type for automatic download
     options.set_preference("browser.download.manager.showWhenStarting", False)
-    options.set_preference("pdfjs.disabled", True)  # Desativa o visualizador de PDFs interno
-
+    options.set_preference(
+        "pdfjs.disabled", True
+    )  # Desativa o visualizador de PDFs interno
 
     driver = webdriver.Firefox(options=options)
-    driver.get("https://transparencia.stf.jus.br/extensions/decisoes/decisoes.html")
+    driver.get(
+        "https://transparencia.stf.jus.br/extensions/decisoes/decisoes.html"
+    )
     time.sleep(10)
     driver.maximize_window()
     time.sleep(15)
-    WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="EXPORT-BUTTON-PADRAO"]'))).click()
+    WebDriverWait(driver, 60).until(
+        EC.element_to_be_clickable(
+            (By.XPATH, '//*[@id="EXPORT-BUTTON-PADRAO"]')
+        )
+    ).click()
     time.sleep(15)
     driver.quit()
 
@@ -53,11 +72,17 @@ def read_csv():
     for arquivo in arquivos:
         try:
             if arquivo.endswith(".xlsx"):
-                df = pd.read_excel(stf_constants.STF_INPUT.value + arquivo, dtype=str)
+                df = pd.read_excel(
+                    stf_constants.STF_INPUT.value + arquivo, dtype=str
+                )
             elif arquivo.endswith(".csv"):
-                df = pd.read_csv(stf_constants.STF_INPUT.value + arquivo, dtype=str)
-        except FileNotFoundError as error:
-                log(f"Arquivo não encontrado! Verificando o input: {stf_constants.STF_INPUT.value + arquivo}")
+                df = pd.read_csv(
+                    stf_constants.STF_INPUT.value + arquivo, dtype=str
+                )
+        except FileNotFoundError:
+            log(
+                f"Arquivo não encontrado! Verificando o input: {stf_constants.STF_INPUT.value + arquivo}"
+            )
     return df
 
 
@@ -66,7 +91,7 @@ def fix_columns_data(df):
     for x in lista:
         df[x] = df[x].astype(str)
         if len(df[x]) == 1:
-            df[x] = df[x].replace("-", '')
+            df[x] = df[x].replace("-", "")
         df[x] = df[x].replace("/", "-").astype(str)
         log(df[x].value_counts())
     return df
@@ -74,7 +99,9 @@ def fix_columns_data(df):
 
 def column_bool(df):
     df["Indicador de tramitação"] = (
-        df["Indicador de tramitação"].replace("Não", "false").replace("Sim", "true")
+        df["Indicador de tramitação"]
+        .replace("Não", "false")
+        .replace("Sim", "true")
     )
     return df
 
@@ -93,7 +120,9 @@ def replace_columns(df):
     return df
 
 
-def partition_data(df: pd.DataFrame, column_name: list[str], output_directory: str):
+def partition_data(
+    df: pd.DataFrame, column_name: list[str], output_directory: str
+):
     """
     Particiona os dados em subconjuntos de acordo com os valores únicos de uma coluna.
     Salva cada subconjunto em um arquivo CSV separado.
@@ -125,7 +154,6 @@ def partition_data(df: pd.DataFrame, column_name: list[str], output_directory: s
 
 
 def check_for_data():
-
     web_scrapping()
     log("Iniciando o check for data")
     arquivos = os.listdir(stf_constants.STF_INPUT.value)
@@ -133,11 +161,17 @@ def check_for_data():
     for arquivo in arquivos:
         try:
             if arquivo.endswith(".xlsx"):
-                df = pd.read_excel(stf_constants.STF_INPUT.value + arquivo, dtype=str)
+                df = pd.read_excel(
+                    stf_constants.STF_INPUT.value + arquivo, dtype=str
+                )
             elif arquivo.endswith(".csv"):
-                df = pd.read_csv(stf_constants.STF_INPUT.value + arquivo, dtype=str)
-        except FileNotFoundError as error:
-                log(f"Arquivo não encontrado! Verificando o input: {stf_constants.STF_INPUT.value + arquivo}")
+                df = pd.read_csv(
+                    stf_constants.STF_INPUT.value + arquivo, dtype=str
+                )
+        except FileNotFoundError:
+            log(
+                f"Arquivo não encontrado! Verificando o input: {stf_constants.STF_INPUT.value + arquivo}"
+            )
 
     df["Data da decisão"] = df["Data da decisão"].astype(str).str[0:10]
     data_obj = df["Data da decisão"].astype(str).replace("/", "-")

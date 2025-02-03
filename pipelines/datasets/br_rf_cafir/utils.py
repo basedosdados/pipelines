@@ -4,16 +4,13 @@ General purpose functions for the br_ms_cnes project
 """
 
 import os
-import unicodedata
 from datetime import datetime
-import time
-from typing import Tuple
+
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
 from pipelines.utils.utils import log
-from typing import Tuple, List
 
 
 def strip_string(x: pd.DataFrame) -> pd.DataFrame:
@@ -43,7 +40,7 @@ def parse_api_metadata(url: str, headers: dict = None) -> pd.DataFrame:
         ValueError: Se a quantidade de arquivos extraídos for diferente da quantidade de datas de atualização.
     """
 
-    log(f'Fazendo request para a url: {url}')
+    log(f"Fazendo request para a url: {url}")
 
     response = requests.get(url, headers=headers)
     response.raise_for_status()
@@ -51,31 +48,48 @@ def parse_api_metadata(url: str, headers: dict = None) -> pd.DataFrame:
     soup = BeautifulSoup(response.text, "html.parser")
     elementos = soup.find_all("a")
 
-    log('Extraindo nomes de arquivos e datas de atualização')
+    log("Extraindo nomes de arquivos e datas de atualização")
 
-    linhas_arquivos_datas =  [arquivo.find_parent('td') for arquivo in elementos if arquivo.has_attr('href') and 'csv' in arquivo['href']]
-    nomes_arquivos =  [arquivo.find('a').get('href') for arquivo in linhas_arquivos_datas]
+    linhas_arquivos_datas = [
+        arquivo.find_parent("td")
+        for arquivo in elementos
+        if arquivo.has_attr("href") and "csv" in arquivo["href"]
+    ]
+    nomes_arquivos = [
+        arquivo.find("a").get("href") for arquivo in linhas_arquivos_datas
+    ]
 
-    data_atualizacao_arquivos = [data_atualizacao.find_next_sibling('td') for data_atualizacao in linhas_arquivos_datas if data_atualizacao.find_next_sibling('td').get('align') == 'right']
-    data_atualizacao_arquivos_formatada = [datetime.strptime(a.text.strip(), "%Y-%m-%d %H:%M").date() for a in data_atualizacao_arquivos]
-
+    data_atualizacao_arquivos = [
+        data_atualizacao.find_next_sibling("td")
+        for data_atualizacao in linhas_arquivos_datas
+        if data_atualizacao.find_next_sibling("td").get("align") == "right"
+    ]
+    data_atualizacao_arquivos_formatada = [
+        datetime.strptime(a.text.strip(), "%Y-%m-%d %H:%M").date()
+        for a in data_atualizacao_arquivos
+    ]
 
     if len(nomes_arquivos) != len(data_atualizacao_arquivos_formatada):
         raise ValueError(
             f"A quantidade de arquivos ({len(nomes_arquivos)}) difere da quantidade de datas ({len(data_atualizacao_arquivos_formatada)}). Verifique o FTP da Receita Federal {url}"
         )
 
-    df =  pd.DataFrame(
+    df = pd.DataFrame(
         {
-        'nome_arquivo':nomes_arquivos,
-        'data_atualizacao':data_atualizacao_arquivos_formatada
+            "nome_arquivo": nomes_arquivos,
+            "data_atualizacao": data_atualizacao_arquivos_formatada,
         }
     )
 
-    log('Extração finalizada')
+    log("Extração finalizada")
     return df
 
-def decide_files_to_download(df: pd.DataFrame, data_especifica: datetime.date = None, data_maxima: bool = True) -> tuple[list[str],list[datetime]]:
+
+def decide_files_to_download(
+    df: pd.DataFrame,
+    data_especifica: datetime.date = None,
+    data_maxima: bool = True,
+) -> tuple[list[str], list[datetime]]:
     """
     Decide quais arquivos baixar a depender da necessidade de atualização
 
@@ -92,22 +106,31 @@ def decide_files_to_download(df: pd.DataFrame, data_especifica: datetime.date = 
     """
 
     if data_maxima:
-        max_date = df['data_atualizacao'].max()
-        log(f"Os arquivos serão selecionados utiliozando a data de atualização mais recente: {max_date}")
-        return df[df['data_atualizacao'] == max_date]['nome_arquivo'].tolist(), max_date
+        max_date = df["data_atualizacao"].max()
+        log(
+            f"Os arquivos serão selecionados utiliozando a data de atualização mais recente: {max_date}"
+        )
+        return df[df["data_atualizacao"] == max_date][
+            "nome_arquivo"
+        ].tolist(), max_date
 
     elif data_especifica:
-        filtered_df = df[df['data_atualizacao'] == data_especifica]
+        filtered_df = df[df["data_atualizacao"] == data_especifica]
         if filtered_df.empty:
-            raise ValueError(f"Não há arquivos disponíveis para a data {data_especifica}. Verifique o FTP da Receita Federal.")
-        return filtered_df['nome_arquivo'].tolist(), data_especifica
+            raise ValueError(
+                f"Não há arquivos disponíveis para a data {data_especifica}. Verifique o FTP da Receita Federal."
+            )
+        return filtered_df["nome_arquivo"].tolist(), data_especifica
 
     else:
-        raise ValueError("Critérios inválidos: deve-se selecionar pelo menos um dos parâmetros: 'data_maxima' ou 'data_especifica'.")
+        raise ValueError(
+            "Critérios inválidos: deve-se selecionar pelo menos um dos parâmetros: 'data_maxima' ou 'data_especifica'."
+        )
 
 
-
-def download_csv_files(url:str, file_name:str, download_directory:str, headers:dict) -> None:
+def download_csv_files(
+    url: str, file_name: str, download_directory: str, headers: dict
+) -> None:
     """
     Faz o download de um arquivo CSV a partir de uma URL e salva em um diretório especificado.
 
@@ -138,7 +161,9 @@ def download_csv_files(url:str, file_name:str, download_directory:str, headers:d
             f.write(response.content)
         print(f"Downloaded {file_name}")
     else:
-        print(f"Failed to download {file_name}. Status code: {response.status_code}")
+        print(
+            f"Failed to download {file_name}. Status code: {response.status_code}"
+        )
 
 
 def preserve_zeros(x):

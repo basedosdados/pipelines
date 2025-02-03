@@ -13,7 +13,7 @@ from pipelines.constants import constants
 schedule_br_sfb_sicar_area_imovel = Schedule(
     clocks=[
         CronClock(
-            cron="15 21 15 * *", #At 21:15 on day-of-month 15
+            cron="15 21 15 * *",  # At 21:15 on day-of-month 15
             start_date=datetime(2024, 10, 1, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,

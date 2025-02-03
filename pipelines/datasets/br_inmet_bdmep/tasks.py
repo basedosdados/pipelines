@@ -2,31 +2,29 @@
 """
 Tasks for br_inmet_bdmep
 """
+
 import glob
 import os
 import re
+from datetime import datetime, timedelta
 
-import numpy as np
 import pandas as pd
 from prefect import task
-
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import Select
-
-from datetime import datetime, time, timedelta
-
 from webdriver_manager.chrome import ChromeDriverManager
 
 from pipelines.constants import constants
-from pipelines.datasets.br_inmet_bdmep.constants import constants as inmet_constants
+from pipelines.datasets.br_inmet_bdmep.constants import (
+    constants as inmet_constants,
+)
 from pipelines.datasets.br_inmet_bdmep.utils import (
     download_inmet,
     get_clima_info,
-    year_list,
 )
 from pipelines.utils.utils import log
+
 
 # pylint: disable=C0103
 @task(
@@ -37,7 +35,7 @@ def extract_last_date_from_source():
     """
     Extrai última data de atualização dos dados históricos do site do INMET.
     """
-    padrao = r'(\d{2}/\d{2}/\d{4})'
+    padrao = r"(\d{2}/\d{2}/\d{4})"
     options = webdriver.ChromeOptions()
 
     # https://github.com/SeleniumHQ/selenium/issues/11637
@@ -71,10 +69,13 @@ def extract_last_date_from_source():
 
     driver.get("https://portal.inmet.gov.br/dadoshistoricos/")
 
-    elements = driver.find_elements(By.XPATH, '//*[@id="main"]/div/div/article')
+    elements = driver.find_elements(
+        By.XPATH, '//*[@id="main"]/div/div/article'
+    )
     last_element = elements[-1].text
     last_date = re.findall(padrao, last_element)
-    return datetime.strptime(last_date[-1], '%d/%m/%Y').date()
+    return datetime.strptime(last_date[-1], "%d/%m/%Y").date()
+
 
 @task
 def get_base_inmet(year: int) -> str:
@@ -91,14 +92,18 @@ def get_base_inmet(year: int) -> str:
 
     files = glob.glob(os.path.join(f"/tmp/data/input/{year}/", "*.CSV"))
 
-    base = pd.concat([get_clima_info(file) for file in files], ignore_index=True)
+    base = pd.concat(
+        [get_clima_info(file) for file in files], ignore_index=True
+    )
 
     # ordena as colunas
     ordem = inmet_constants.COLUMNS_ORDER.value
     base = base[ordem]
 
     # Salva o dataframe resultante em um arquivo CSV
-    os.makedirs(os.path.join(f"/tmp/data/output/microdados/ano={year}"), exist_ok=True)
+    os.makedirs(
+        os.path.join(f"/tmp/data/output/microdados/ano={year}"), exist_ok=True
+    )
     name = os.path.join(
         f"/tmp/data/output/microdados/ano={year}/", f"microdados_{year}.csv"
     )

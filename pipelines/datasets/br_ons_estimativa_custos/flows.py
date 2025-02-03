@@ -2,6 +2,7 @@
 """
 Flows for br_ons_estimativa_custos
 """
+
 # pylint: disable=invalid-name
 from datetime import timedelta
 
@@ -14,17 +15,15 @@ from pipelines.constants import constants
 from pipelines.datasets.br_ons_estimativa_custos.constants import (
     constants as ons_constants,
 )
-from pipelines.datasets.br_ons_estimativa_custos.schedules import (
-    schedule_br_ons_estimativa_custos_balanco_energia_subsistemas,
-    schedule_br_ons_estimativa_custos_balanco_energia_subsistemas_dessem,
-    schedule_br_ons_estimativa_custos_custo_marginal_operacao_semanal,
-    schedule_br_ons_estimativa_custos_custo_marginal_operacao_semi_horario,
-    schedule_br_ons_estimativa_custos_custo_variavel_unitario_usinas_termicas,
+from pipelines.datasets.br_ons_estimativa_custos.tasks import (
+    download_data,
+    wrang_data,
 )
-from pipelines.datasets.br_ons_estimativa_custos.tasks import download_data, wrang_data
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.execute_dbt_model.constants import (
+    constants as dump_db_constants,
+)
 from pipelines.utils.metadata.tasks import (
     task_get_api_most_recent_date,
     update_django_metadata,
@@ -44,10 +43,14 @@ with Flow(
         "dataset_id", default="br_ons_estimativa_custos", required=True
     )
     table_id = Parameter(
-        "table_id", default="custo_marginal_operacao_semi_horario", required=True
+        "table_id",
+        default="custo_marginal_operacao_semi_horario",
+        required=True,
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
     )
@@ -56,7 +59,10 @@ with Flow(
     )
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     data_mais_recente_do_bq = task_get_api_most_recent_date(
@@ -101,7 +107,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks = [wait_upload_table]
+                upstream_tasks=[wait_upload_table],
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -134,9 +140,9 @@ br_ons_estimativa_custos_custo_marginal_operacao_semi_horario.storage = GCS(
 br_ons_estimativa_custos_custo_marginal_operacao_semi_horario.run_config = (
     KubernetesRun(image=constants.DOCKER_IMAGE.value)
 )
-#br_ons_estimativa_custos_custo_marginal_operacao_semi_horario.schedule = (
+# br_ons_estimativa_custos_custo_marginal_operacao_semi_horario.schedule = (
 #    schedule_br_ons_estimativa_custos_custo_marginal_operacao_semi_horario
-#)
+# )
 
 
 with Flow(
@@ -151,7 +157,9 @@ with Flow(
         "table_id", default="custo_marginal_operacao_semanal", required=True
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
     )
@@ -160,7 +168,10 @@ with Flow(
     )
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     data_mais_recente_do_bq = task_get_api_most_recent_date(
@@ -205,7 +216,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks = [wait_upload_table]
+                upstream_tasks=[wait_upload_table],
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -236,12 +247,12 @@ with Flow(
 br_ons_estimativa_custos_custo_marginal_operacao_semanal.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
 )
-br_ons_estimativa_custos_custo_marginal_operacao_semanal.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
+br_ons_estimativa_custos_custo_marginal_operacao_semanal.run_config = (
+    KubernetesRun(image=constants.DOCKER_IMAGE.value)
 )
-#br_ons_estimativa_custos_custo_marginal_operacao_semanal.schedule = (
+# br_ons_estimativa_custos_custo_marginal_operacao_semanal.schedule = (
 #    schedule_br_ons_estimativa_custos_custo_marginal_operacao_semanal
-#)
+# )
 
 
 with Flow(
@@ -256,7 +267,9 @@ with Flow(
         "table_id", default="balanco_energia_subsistemas", required=True
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
     )
@@ -265,7 +278,10 @@ with Flow(
     )
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     data_mais_recente_do_bq = task_get_api_most_recent_date(
@@ -310,7 +326,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks = [wait_upload_table]
+                upstream_tasks=[wait_upload_table],
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -340,12 +356,12 @@ with Flow(
 br_ons_estimativa_custos_balanco_energia_subsistemas.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
 )
-br_ons_estimativa_custos_balanco_energia_subsistemas.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
+br_ons_estimativa_custos_balanco_energia_subsistemas.run_config = (
+    KubernetesRun(image=constants.DOCKER_IMAGE.value)
 )
-#br_ons_estimativa_custos_balanco_energia_subsistemas.schedule = (
+# br_ons_estimativa_custos_balanco_energia_subsistemas.schedule = (
 #    schedule_br_ons_estimativa_custos_balanco_energia_subsistemas
-#)
+# )
 
 
 with Flow(
@@ -360,7 +376,9 @@ with Flow(
         "table_id", default="balanco_energia_subsistemas_dessem", required=True
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
     )
@@ -370,7 +388,10 @@ with Flow(
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     data_mais_recente_do_bq = task_get_api_most_recent_date(
@@ -415,7 +436,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks = [wait_upload_table]
+                upstream_tasks=[wait_upload_table],
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -446,12 +467,12 @@ with Flow(
 br_ons_estimativa_custos_balanco_energia_subsistemas_dessem.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
 )
-br_ons_estimativa_custos_balanco_energia_subsistemas_dessem.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
+br_ons_estimativa_custos_balanco_energia_subsistemas_dessem.run_config = (
+    KubernetesRun(image=constants.DOCKER_IMAGE.value)
 )
-#br_ons_estimativa_custos_balanco_energia_subsistemas_dessem.schedule = (
+# br_ons_estimativa_custos_balanco_energia_subsistemas_dessem.schedule = (
 #    schedule_br_ons_estimativa_custos_balanco_energia_subsistemas_dessem
-#)
+# )
 
 with Flow(
     name="br_ons_estimativa_custos.custo_variavel_unitario_usinas_termicas",
@@ -462,10 +483,14 @@ with Flow(
         "dataset_id", default="br_ons_estimativa_custos", required=True
     )
     table_id = Parameter(
-        "table_id", default="custo_variavel_unitario_usinas_termicas", required=True
+        "table_id",
+        default="custo_variavel_unitario_usinas_termicas",
+        required=True,
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
     )
@@ -475,7 +500,10 @@ with Flow(
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     data_mais_recente_do_bq = task_get_api_most_recent_date(
@@ -520,7 +548,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks = [wait_upload_table]
+                upstream_tasks=[wait_upload_table],
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -553,6 +581,6 @@ br_ons_estimativa_custos_custo_variavel_unitario_usinas_termicas.storage = GCS(
 br_ons_estimativa_custos_custo_variavel_unitario_usinas_termicas.run_config = (
     KubernetesRun(image=constants.DOCKER_IMAGE.value)
 )
-#br_ons_estimativa_custos_custo_variavel_unitario_usinas_termicas.schedule = (
+# br_ons_estimativa_custos_custo_variavel_unitario_usinas_termicas.schedule = (
 #    schedule_br_ons_estimativa_custos_custo_variavel_unitario_usinas_termicas
-#)
+# )

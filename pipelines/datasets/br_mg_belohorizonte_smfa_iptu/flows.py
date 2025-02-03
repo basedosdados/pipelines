@@ -2,6 +2,7 @@
 """
 Flows for br_mg_belohorizonte_smfa_iptu
 """
+
 from datetime import timedelta
 
 from prefect import Parameter, case
@@ -10,7 +11,6 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.schedules import every_weeks_iptu
 from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.tasks import (
     download_and_transform,
     get_data_source_sfma_iptu_max_date,
@@ -18,7 +18,9 @@ from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.tasks import (
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.execute_dbt_model.constants import (
+    constants as dump_db_constants,
+)
 from pipelines.utils.metadata.tasks import (
     check_if_data_is_outdated,
     update_django_metadata,
@@ -44,10 +46,15 @@ with Flow(
         "materialize_after_dump", default=True, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
-    update_metadata = Parameter("update_metadata", default=True, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=True, required=False
+    )
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     data_source_max_date = get_data_source_sfma_iptu_max_date()
@@ -86,7 +93,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks = [wait_upload_table]
+                upstream_tasks=[wait_upload_table],
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -115,8 +122,10 @@ with Flow(
                     upstream_tasks=[wait_for_materialization],
                 )
 
-br_mg_belohorizonte_smfa_iptu_iptu.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_mg_belohorizonte_smfa_iptu_iptu.storage = GCS(
+    constants.GCS_FLOWS_BUCKET.value
+)
 br_mg_belohorizonte_smfa_iptu_iptu.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-#br_mg_belohorizonte_smfa_iptu_iptu.schedule = every_weeks_iptu
+# br_mg_belohorizonte_smfa_iptu_iptu.schedule = every_weeks_iptu

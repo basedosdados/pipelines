@@ -10,7 +10,6 @@ from prefect.schedules.clocks import CronClock
 
 from pipelines.constants import constants
 
-
 schedule_br_bd_siga_o_dinheiro = Schedule(
     clocks=[
         CronClock(

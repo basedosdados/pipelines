@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-""" Tasks for Mercado Livre Ofertas dataset """
+"""Tasks for Mercado Livre Ofertas dataset"""
 # pylint: disable=invalid-name
-
 
 import asyncio
 import os
@@ -54,7 +53,7 @@ def crawler_mercadolivre_item():
     df = df.dropna(subset=["title"])
     remained = df.shape[0]
     # print percentage keeped
-    log(f"Percentage keeped: {remained/total*100:.2f}%")
+    log(f"Percentage keeped: {remained / total * 100:.2f}%")
     df = df[new_order_item]
     df = df.astype(str)
     filepath = "/tmp/items_raw.csv"
@@ -100,7 +99,9 @@ def clean_item(filepath):
     item = item.drop("link_vendedor", axis=1)
     # make envio_pais a boolean
     item["envio_pais"] = item["envio_pais"].astype(str)
-    item["envio_pais"] = item["envio_pais"].str.contains("Envio para todo o país")
+    item["envio_pais"] = item["envio_pais"].str.contains(
+        "Envio para todo o país"
+    )
     # make nan equal to False
     item["envio_pais"] = item["envio_pais"].fillna(False)
 
@@ -112,7 +113,8 @@ def clean_item(filepath):
     os.system(f"mkdir -p /tmp/data/br_mercadolivre_ofertas/item/dia={today}")
 
     item.to_csv(
-        f"/tmp/data/br_mercadolivre_ofertas/item/dia={today}/items.csv", index=False
+        f"/tmp/data/br_mercadolivre_ofertas/item/dia={today}/items.csv",
+        index=False,
     )
 
     return "/tmp/data/br_mercadolivre_ofertas/item/"
@@ -172,9 +174,13 @@ def clean_seller(filepath_raw):
     # clean experiencia: 3 anos vendendo no Mercado Livre -> 3
     seller["experiencia"] = seller["experiencia"].apply(clean_experience)
     # clean classificacao: MercadoLíder Platinum -> Platinum
-    seller["classificacao"] = seller["classificacao"].str.replace("MercadoLíder ", "")
+    seller["classificacao"] = seller["classificacao"].str.replace(
+        "MercadoLíder ", ""
+    )
     # clean localizacao: LocalizaçãoJuiz de Fora, Minas Gerais. -> Juiz de Fora, Minas Gerais.
-    seller["localizacao"] = seller["localizacao"].str.replace("Localização", "")
+    seller["localizacao"] = seller["localizacao"].str.replace(
+        "Localização", ""
+    )
     # clean opinioes: [{'Bom': 771, 'Regular': 67, 'Ruim': 174}] -> {'Bom': 771, 'Regular': 67, 'Ruim': 174}
     dict_municipios = const_mercadolivre.MAP_MUNICIPIO_TO_ID.value
     seller["localizacao"] = seller["localizacao"].apply(
@@ -203,7 +209,9 @@ def clean_seller(filepath_raw):
     seller = seller.drop("data", axis=1)
 
     today = pd.Timestamp.today().strftime("%Y-%m-%d")
-    os.system(f"mkdir -p /tmp/data/br_mercadolivre_ofertas/vendedor/dia={today}")
+    os.system(
+        f"mkdir -p /tmp/data/br_mercadolivre_ofertas/vendedor/dia={today}"
+    )
     seller.to_csv(
         f"/tmp/data/br_mercadolivre_ofertas/vendedor/dia={today}/seller.csv",
         index=False,

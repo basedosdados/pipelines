@@ -23,7 +23,7 @@ class constants(Enum):  # pylint: disable=c0103
         # Cargos e Funções
         "card_home_funcoes": "/html/body/div[5]/div/div[88]",
         # Aba Tabelas
-        "tabelas": "/html/body/div[5]/div/div[280]/div[3]"
+        "tabelas": "/html/body/div[5]/div/div[280]/div[3]",
     }
 
     SELECTIONS_DIMENSIONS = [

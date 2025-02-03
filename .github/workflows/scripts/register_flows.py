@@ -105,7 +105,9 @@ def build_and_register(  # pylint: disable=too-many-branches
                         logger.error("Error registering flow:")
                         logger.error(traceback.format_exc())
                         if attempts < max_retries:
-                            logger.error(f"Retrying in {retry_interval} seconds...")
+                            logger.error(
+                                f"Retrying in {retry_interval} seconds..."
+                            )
                             sleep(retry_interval)
                         else:
                             stats["errored"] += 1
@@ -122,7 +124,9 @@ def build_and_register(  # pylint: disable=too-many-branches
                     logger.success(f"  └── Version: {flow_version}")
                     stats["registered"] += 1
                 else:
-                    logger.warning(" Skipped (metadata unchanged)", fg="yellow")
+                    logger.warning(
+                        " Skipped (metadata unchanged)", fg="yellow"
+                    )
                     stats["skipped"] += 1
     return stats
 
@@ -167,7 +171,11 @@ def expand_paths(paths: List[str]) -> List[str]:
     for path in globbed_paths:
         if os.path.isdir(path):
             with os.scandir(path) as directory:
-                out.extend(e.path for e in directory if e.is_file() and e.path.endswith(".py"))
+                out.extend(
+                    e.path
+                    for e in directory
+                    if e.is_file() and e.path.endswith(".py")
+                )
         else:
             out.append(path)
     return out
@@ -186,7 +194,13 @@ def get_project_id(client: "prefect.Client", project: str) -> str:
         - str: the project id
     """
     resp = client.graphql(
-        {"query": {with_args("project", {"where": {"name": {"_eq": project}}}): {"id"}}}
+        {
+            "query": {
+                with_args("project", {"where": {"name": {"_eq": project}}}): {
+                    "id"
+                }
+            }
+        }
     )
     if resp.data.project:
         return resp.data.project[0].id
@@ -208,7 +222,9 @@ def load_flows_from_script(path: str) -> "List[prefect.Flow]":
     orig_sys_path = sys.path.copy()
     sys.path.insert(0, os.path.dirname(abs_path))
     try:
-        with prefect.context({"loading_flow": True, "local_script_path": abs_path}):
+        with prefect.context(
+            {"loading_flow": True, "local_script_path": abs_path}
+        ):
             namespace = runpy.run_path(abs_path, run_name="<flow>")
     except Exception as exc:
         logger.error(f"Error loading {path!r}:", fg="red")
@@ -242,10 +258,14 @@ def prepare_flows(flows: "List[FlowLike]") -> None:
         if isinstance(flow, dict):
             # Add any extra labels to the flow
             if flow.get("environment"):
-                new_labels = set(flow["environment"].get("labels") or []).union(labels)
+                new_labels = set(
+                    flow["environment"].get("labels") or []
+                ).union(labels)
                 flow["environment"]["labels"] = sorted(new_labels)
             else:
-                new_labels = set(flow["run_config"].get("labels") or []).union(labels)
+                new_labels = set(flow["run_config"].get("labels") or []).union(
+                    labels
+                )
                 flow["run_config"]["labels"] = sorted(new_labels)
         else:
             # Set the default flow result if not specified
@@ -536,7 +556,7 @@ def main(
     skipped = stats["skipped"]
     errored = stats["errored"]
     logger.info(
-        f"Registered {registered} flows, skipped {skipped} flows, " f"and errored {errored} flows."
+        f"Registered {registered} flows, skipped {skipped} flows, and errored {errored} flows."
     )
 
     # If not in a watch call, exit with appropriate exit code

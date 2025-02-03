@@ -4,38 +4,31 @@ General purpose functions for the br_cgu_cartao_pagamento project
 """
 
 import datetime
-from arrow import get
-from dateutil.relativedelta import relativedelta
 import gc
+import os
 import shutil
 from functools import lru_cache
-from rapidfuzz import process
-import pandas as pd
-import os
-import unidecode
-import basedosdados as bd
-import requests
-from dateutil.relativedelta import relativedelta
-from pipelines.utils.crawler_cgu.constants import constants
 from typing import List
-from tqdm import tqdm
-from pipelines.utils.utils import log, download_and_unzip_file
-from pipelines.utils.metadata.utils import get_api_most_recent_date, get_url
-from pipelines.utils.crawler_cgu.constants import constants
+
+import basedosdados as bd
+import pandas as pd
+import requests
+import unidecode
+from dateutil.relativedelta import relativedelta
+from rapidfuzz import process
+
 from pipelines.utils.apply_architecture_to_dataframe.utils import (
     read_architecture_table,
     rename_columns,
 )
-from pipelines.utils.utils import log
-from bs4 import BeautifulSoup
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service as ChromeService
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import Select
-from webdriver_manager.chrome import ChromeDriverManager
+from pipelines.utils.crawler_cgu.constants import constants
+from pipelines.utils.metadata.utils import get_api_most_recent_date, get_url
+from pipelines.utils.utils import download_and_unzip_file, log
 
 
-def build_urls(dataset_id: str, url: str, year: int, month: int, table_id: str) -> str:
+def build_urls(
+    dataset_id: str, url: str, year: int, month: int, table_id: str
+) -> str:
     """
     Constructs URLs based on the provided parameters.
 
@@ -53,14 +46,20 @@ def build_urls(dataset_id: str, url: str, year: int, month: int, table_id: str) 
 
     log(f"{dataset_id=}")
 
-    if dataset_id in ["br_cgu_cartao_pagamento", "br_cgu_licitacao_contrato", "br_cgu_beneficios_cidadao"]:
+    if dataset_id in [
+        "br_cgu_cartao_pagamento",
+        "br_cgu_licitacao_contrato",
+        "br_cgu_beneficios_cidadao",
+    ]:
         log(f"{url}{year}{str(month).zfill(2)}/")
 
         return f"{url}{year}{str(month).zfill(2)}/"
 
     elif dataset_id == "br_cgu_servidores_executivo_federal":
         list_url = []
-        for table_name in constants.TABELA_SERVIDORES.value[table_id]["READ"].keys():
+        for table_name in constants.TABELA_SERVIDORES.value[table_id][
+            "READ"
+        ].keys():
             url_completa = f"{url}{year}{str(month).zfill(2)}_{table_name}/"
             list_url.append(url_completa)
         return list_url
@@ -86,7 +85,6 @@ def build_input(table_id):
     """
     list_input = []
     for input in constants.TABELA_SERVIDORES.value[table_id]["READ"].keys():
-
         value_input = f"{input}"
         if not os.path.exists(value_input):
             os.makedirs(value_input)
@@ -96,7 +94,9 @@ def build_input(table_id):
     return list_input
 
 
-def download_file(dataset_id: str, table_id: str, year: int, month: int, relative_month=int) -> None:
+def download_file(
+    dataset_id: str, table_id: str, year: int, month: int, relative_month=int
+) -> None:
     """
     Downloads and unzips a file from a specified URL based on the given table ID, year, and month.
 
@@ -112,13 +112,23 @@ def download_file(dataset_id: str, table_id: str, year: int, month: int, relativ
     str: The last date in the API if the URL is not found.
     """
 
-    if dataset_id in ["br_cgu_cartao_pagamento", "br_cgu_licitacao_contrato", "br_cgu_beneficios_cidadao"]:
+    if dataset_id in [
+        "br_cgu_cartao_pagamento",
+        "br_cgu_licitacao_contrato",
+        "br_cgu_beneficios_cidadao",
+    ]:
         if dataset_id == "br_cgu_cartao_pagamento":
-            value_constants = constants.TABELA.value[table_id] # ! CGU - Cartão de Pagamento
+            value_constants = constants.TABELA.value[
+                table_id
+            ]  # ! CGU - Cartão de Pagamento
         elif dataset_id == "br_cgu_licitacao_contrato":
-            value_constants = constants.TABELA_LICITACAO_CONTRATO.value[table_id]
+            value_constants = constants.TABELA_LICITACAO_CONTRATO.value[
+                table_id
+            ]
         elif dataset_id == "br_cgu_beneficios_cidadao":
-            value_constants = constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]
+            value_constants = constants.TABELA_BENEFICIOS_CIDADAO.value[
+                table_id
+            ]
         input = value_constants["INPUT"]
 
         if not os.path.exists(input):
@@ -135,31 +145,33 @@ def download_file(dataset_id: str, table_id: str, year: int, month: int, relativ
 
         status = requests.get(url).status_code == 200
         if status:
-            log(f'------------------ URL = {url} ------------------')
-            download_and_unzip_file(url, value_constants['INPUT'])
+            log(f"------------------ URL = {url} ------------------")
+            download_and_unzip_file(url, value_constants["INPUT"])
 
             last_date_in_api, next_date_in_api = last_date_in_metadata(
-                                dataset_id=dataset_id,
-                                table_id=table_id,
-                                relative_month=relative_month
-                                )
+                dataset_id=dataset_id,
+                table_id=table_id,
+                relative_month=relative_month,
+            )
 
             return next_date_in_api
 
         else:
-            log('URL não encontrada. Fazendo uma query na BD')
-            log(f'------------------ URL = {url} ------------------')
+            log("URL não encontrada. Fazendo uma query na BD")
+            log(f"------------------ URL = {url} ------------------")
 
             last_date_in_api, next_date_in_api = last_date_in_metadata(
-                                dataset_id=dataset_id,
-                                table_id=table_id,
-                                relative_month=relative_month
-                                )
+                dataset_id=dataset_id,
+                table_id=table_id,
+                relative_month=relative_month,
+            )
 
             return last_date_in_api
 
     elif dataset_id == "br_cgu_servidores_executivo_federal":
-        constants_cgu = constants.TABELA_SERVIDORES.value[table_id]  # ! CGU - Servidores Públicos do Executivo Federal
+        constants_cgu = constants.TABELA_SERVIDORES.value[
+            table_id
+        ]  # ! CGU - Servidores Públicos do Executivo Federal
 
         url = build_urls(
             dataset_id,
@@ -184,6 +196,7 @@ def download_file(dataset_id: str, table_id: str, year: int, month: int, relativ
 
         return next_date_in_api
 
+
 # Função para carregar o dataframe
 @lru_cache(maxsize=1)  # Cache para evitar recarregar a tabela
 def load_municipio() -> None:
@@ -194,7 +207,9 @@ def load_municipio() -> None:
         from_file=True,
     )
     municipio["cidade_uf"] = (
-        municipio["nome"].apply(lambda x: x.upper()) + "-" + municipio["sigla_uf"]
+        municipio["nome"].apply(lambda x: x.upper())
+        + "-"
+        + municipio["sigla_uf"]
     )
     return municipio
 
@@ -206,7 +221,7 @@ def get_similar_cities_process(city):
 
 
 def read_csv(
-    dataset_id : str, table_id: str, column_replace: List = ["VALOR_TRANSACAO"]
+    dataset_id: str, table_id: str, column_replace: List = ["VALOR_TRANSACAO"]
 ) -> pd.DataFrame:
     """
     Reads a CSV file from a specified path and processes its columns.
@@ -232,15 +247,22 @@ def read_csv(
         os.listdir(value_constants["INPUT"])
 
         csv_file = [
-            f for f in os.listdir(value_constants["INPUT"]) if f.endswith(".csv")
+            f
+            for f in os.listdir(value_constants["INPUT"])
+            if f.endswith(".csv")
         ][0]
         log(f"CSV files: {csv_file}")
 
         df = pd.read_csv(
-            f"{value_constants['INPUT']}/{csv_file}", sep=";", encoding="latin1"
+            f"{value_constants['INPUT']}/{csv_file}",
+            sep=";",
+            encoding="latin1",
         )
 
-        df.columns = [unidecode.unidecode(x).upper().replace(" ", "_") for x in df.columns]
+        df.columns = [
+            unidecode.unidecode(x).upper().replace(" ", "_")
+            for x in df.columns
+        ]
 
         for list_column_replace in column_replace:
             df[list_column_replace] = (
@@ -250,7 +272,9 @@ def read_csv(
         return df
 
     if dataset_id == "br_cgu_licitacao_contrato":
-        constants_cgu_licitacao_contrato = constants.TABELA_LICITACAO_CONTRATO.value[table_id]
+        constants_cgu_licitacao_contrato = (
+            constants.TABELA_LICITACAO_CONTRATO.value[table_id]
+        )
         print(os.listdir(constants_cgu_licitacao_contrato["INPUT"]))
         csv_file = [
             f
@@ -259,24 +283,30 @@ def read_csv(
         ][0]
         log(f"CSV files: {csv_file}")
         log(f"{constants_cgu_licitacao_contrato['INPUT']}/{csv_file}")
-        df = pd.read_csv(f"{constants_cgu_licitacao_contrato['INPUT']}/{csv_file}", sep=";", encoding="latin1")
-        df['ano'] = csv_file[:4]
-        df['mes'] = csv_file[4:6]
+        df = pd.read_csv(
+            f"{constants_cgu_licitacao_contrato['INPUT']}/{csv_file}",
+            sep=";",
+            encoding="latin1",
+        )
+        df["ano"] = csv_file[:4]
+        df["mes"] = csv_file[4:6]
 
         df.columns = [unidecode.unidecode(col) for col in df.columns]
         df.columns = [col.replace(" ", "_").lower() for col in df.columns]
 
         if table_id == "licitacao":
-                df["cidade_uf"] = df["municipio"] + "-" + df["uf"]
+            df["cidade_uf"] = df["municipio"] + "-" + df["uf"]
 
-                df["cidade_uf_dir"] = df["cidade_uf"].apply(
-                    lambda x: get_similar_cities_process(x)
-                )
-                df.drop(["cidade_uf", "municipio"], axis=1, inplace=True)
+            df["cidade_uf_dir"] = df["cidade_uf"].apply(
+                lambda x: get_similar_cities_process(x)
+            )
+            df.drop(["cidade_uf", "municipio"], axis=1, inplace=True)
 
-                df.rename(columns={"cidade_uf_dir": "municipio"}, inplace=True)
+            df.rename(columns={"cidade_uf_dir": "municipio"}, inplace=True)
 
-                df["municipio"] = df["municipio"].apply(lambda x: x if x == None else x.split("-")[0])
+            df["municipio"] = df["municipio"].apply(
+                lambda x: x if x is None else x.split("-")[0]
+            )
 
         return df
 
@@ -311,6 +341,7 @@ def last_date_in_metadata(
 
     return last_date_in_api, next_date_in_api
 
+
 def create_column_ano(df: pd.DataFrame, csv_path: str) -> pd.DataFrame:
     """
     Adds a new column 'ano' to the DataFrame based on the first four characters of the csv_path.
@@ -322,10 +353,11 @@ def create_column_ano(df: pd.DataFrame, csv_path: str) -> pd.DataFrame:
     Returns:
     pd.DataFrame: The DataFrame with the added 'ano' column.
     """
-    df['ano'] = int(csv_path[:4])
+    df["ano"] = int(csv_path[:4])
     return df
 
-def create_column_month(df : pd.DataFrame, csv_path : str) -> str:
+
+def create_column_month(df: pd.DataFrame, csv_path: str) -> str:
     """
     Adds a 'mes' column to the DataFrame based on the month extracted from the csv_path.
 
@@ -385,14 +417,13 @@ def read_and_clean_csv(table_id: str) -> pd.DataFrame:
     for csv_path in build_input(table_id):
         path = f"{constants_cgu_servidores['INPUT']}/{csv_path}"
         for get_csv in os.listdir(path):
-            if get_csv.endswith(f"{constants_cgu_servidores['NAME_TABLE']}") == True:
+            if get_csv.endswith(f"{constants_cgu_servidores['NAME_TABLE']}"):
                 log(f"Reading {table_id=}, {csv_path=}, {get_csv=}")
                 df = pd.read_csv(
                     os.path.join(path, get_csv),
                     sep=";",
                     encoding="latin-1",
-                ).rename(
-                    columns=lambda col: col.replace("\x96 ", ""))
+                ).rename(columns=lambda col: col.replace("\x96 ", ""))
                 url_architecture = constants_cgu_servidores["ARCHITECTURE"]
                 df_architecture = read_architecture_table(url_architecture)
                 df = rename_columns(df, df_architecture)
@@ -412,6 +443,7 @@ def read_and_clean_csv(table_id: str) -> pd.DataFrame:
         df
 
     return df
+
 
 def get_source(table_name: str, source: str) -> str:
     ORIGINS = {
@@ -441,8 +473,9 @@ def get_source(table_name: str, source: str) -> str:
             "Servidores_SIAPE": "Servidores SIAPE",
         },
         "afastamentos": {
-                        "Servidores_BACEN": "BACEN",
-                        "Servidores_SIAPE": "SIAPE"},
+            "Servidores_BACEN": "BACEN",
+            "Servidores_SIAPE": "SIAPE",
+        },
         "observacoes": {
             "Aposentados_BACEN": "Aposentados BACEN",
             "Aposentados_SIAPE": "Aposentados SIAPE",
@@ -458,7 +491,10 @@ def get_source(table_name: str, source: str) -> str:
 
     return ORIGINS[table_name][source]
 
-def partition_data_beneficios_cidadao(table_id: str, df, coluna1: str, coluna2: str, counter) -> str:
+
+def partition_data_beneficios_cidadao(
+    table_id: str, df, coluna1: str, coluna2: str, counter
+) -> str:
     if table_id == "novo_bolsa_familia":
         unique_anos = df[coluna1].unique().tolist()
         unique_meses = df[coluna2].unique().tolist()
@@ -471,12 +507,17 @@ def partition_data_beneficios_cidadao(table_id: str, df, coluna1: str, coluna2: 
                     os.makedirs(path_partition)
 
                 # Mudando o filter do Polars para o loc do Pandas
-                df_partition = df.loc[(df[coluna1] == ano_completencia) & (df[coluna2] == mes_completencia)]
+                df_partition = df.loc[
+                    (df[coluna1] == ano_completencia)
+                    & (df[coluna2] == mes_completencia)
+                ]
                 # Usando drop com axis=1 para remover colunas no Pandas
                 df_partition = df_partition.drop([coluna1, coluna2], axis=1)
 
                 # Usando to_parquet do Pandas ao invés do write_parquet do Polars
-                df_partition.to_parquet(f"{path_partition}/data_{counter}.parquet")
+                df_partition.to_parquet(
+                    f"{path_partition}/data_{counter}.parquet"
+                )
 
     else:
         unique_meses = df[coluna1].unique().tolist()
@@ -494,4 +535,3 @@ def partition_data_beneficios_cidadao(table_id: str, df, coluna1: str, coluna2: 
 
             # Usando to_parquet do Pandas ao invés do write_parquet do Polars
             df_partition.to_parquet(f"{path_partition}/data_{counter}.parquet")
-

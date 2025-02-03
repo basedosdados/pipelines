@@ -11,22 +11,24 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.datasets.br_b3_cotacoes.schedules import all_day_cotacoes
 from pipelines.datasets.br_b3_cotacoes.tasks import data_max_b3, tratamento
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.execute_dbt_model.constants import (
+    constants as dump_db_constants,
+)
 from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
     rename_current_flow_run_dataset_table,
 )
-from pipelines.utils.utils import log
 
 with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
     # Parameters
-    dataset_id = Parameter("dataset_id", default="br_b3_cotacoes", required=True)
+    dataset_id = Parameter(
+        "dataset_id", default="br_b3_cotacoes", required=True
+    )
     table_id = Parameter("table_id", default="cotacoes", required=True)
 
     materialization_mode = Parameter(
@@ -37,14 +39,21 @@ with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
-    update_metadata = Parameter("update_metadata", default=True, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=True, required=False
+    )
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
     delta_day = Parameter("delta_day", default=1, required=False)
 
-    output_path = tratamento(delta_day=delta_day, upstream_tasks=[rename_flow_run])
+    output_path = tratamento(
+        delta_day=delta_day, upstream_tasks=[rename_flow_run]
+    )
     data_max = data_max_b3(delta_day=delta_day, upstream_tasks=[output_path])
 
     # pylint: disable=C0103
@@ -71,7 +80,7 @@ with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
             },
             labels=current_flow_labels,
             run_name=f"Materialize {dataset_id}.{table_id}",
-            upstream_tasks = [wait_upload_table]
+            upstream_tasks=[wait_upload_table],
         )
 
         wait_for_materialization = wait_for_flow_run(
@@ -104,4 +113,4 @@ with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
 
 cotacoes.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 cotacoes.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-#cotacoes.schedule = all_day_cotacoes
+# cotacoes.schedule = all_day_cotacoes

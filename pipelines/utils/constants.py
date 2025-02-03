@@ -18,5 +18,5 @@ class constants(Enum):  # pylint: disable=c0103
 
     API_URL = {
         "staging": "https://staging.backend.basedosdados.org/api/v1/graphql",
-        "prod":"https://backend.basedosdados.org/api/v1/graphql"
+        "prod": "https://backend.basedosdados.org/api/v1/graphql",
     }

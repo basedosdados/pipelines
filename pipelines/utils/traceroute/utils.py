@@ -12,9 +12,10 @@ import requests
 
 
 def get_ip_location(
-    ip_address: Union[List[str], str] = None
+    ip_address: Union[List[str], str] = None,
 ) -> Union[
-    List[Tuple[str, str, str, float, float]], Tuple[str, str, str, float, float]
+    List[Tuple[str, str, str, float, float]],
+    Tuple[str, str, str, float, float],
 ]:
     """
     Get the location of an IP address.
@@ -63,7 +64,9 @@ def traceroute(hostname: str):
     """
     traceroute = (  # pylint: disable=redefined-outer-name
         subprocess.Popen(  # pylint: disable=consider-using-with
-            ["traceroute", hostname], stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+            ["traceroute", hostname],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
         )
     )
     ipList = []

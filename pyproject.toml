@@ -131,7 +131,7 @@ optional = true
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.6.0"
-ruff = "^0.2.0"
+ruff = "^0.9.3"
 yamlfix = "^1.16.0"
 shandy-sqlfmt = "^0.20.0"
 typer = "^0.4.0"
@@ -151,12 +151,15 @@ parameterized = "^0.9.0"
 lint = "scripts.lint:main"
 
 [tool.ruff]
-line-length = 100
+line-length = 79
 target-version = "py310"
-exclude = ["pipelines"]
+extend-exclude = [
+  '\{\{cookiecutter.project_name\}\}'
+]
 
 [tool.ruff.lint]
 select = ["E", "F", "I"]
+ignore = ["E501"]
 
 [build-system]
 build-backend = "poetry.core.masonry.api"

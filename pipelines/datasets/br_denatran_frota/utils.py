@@ -165,7 +165,9 @@ def verify_total(df: pl.DataFrame) -> pl.DataFrame:
         ).select(pl.exclude("TOTAL"))
         calculated_total = columns_for_total.select(
             pl.fold(
-                acc=pl.lit(0), function=lambda acc, x: acc + x, exprs=pl.col("*")
+                acc=pl.lit(0),
+                function=lambda acc, x: acc + x,
+                exprs=pl.col("*"),
             ).alias("calculated_total")
         )["calculated_total"]
         return calculated_total
@@ -233,7 +235,9 @@ def fix_suggested_nome_ibge(row: tuple[str, ...]) -> str:
         return row[-1]
 
 
-def verify_match_ibge(denatran_uf: pl.DataFrame, ibge_uf: pl.DataFrame) -> None:
+def verify_match_ibge(
+    denatran_uf: pl.DataFrame, ibge_uf: pl.DataFrame
+) -> None:
     """Take a dataframe of the Denatran data and an IBGE dataframe of municipalities.
 
     Joins them using the IBGE name of both. The IBGE name of denatran_uf is ideally filled via get_city_name().
@@ -397,20 +401,24 @@ def make_filename_pre_2012(
         raise ValueError
     match = re.search(regex_to_search, filename)
     if match:
-        if (year == 2004 or year == 2005) and type_of_file == DenatranType.Municipio:
+        if (
+            year == 2004 or year == 2005
+        ) and type_of_file == DenatranType.Municipio:
             month_value = int(match.group(1))
         else:
             month_in_file = match.group(1).lower().replace(".", "")
-            month_value = MONTHS.get(month_in_file) or MONTHS_SHORT.get(month_in_file)
+            month_value = MONTHS.get(month_in_file) or MONTHS_SHORT.get(
+                month_in_file
+            )
         extension = filename.split(".")[-1]
-        new_filename = (
-            f"{year_dir_name}/{basic_filename}_{month_value}-{year}.{extension}"
-        )
+        new_filename = f"{year_dir_name}/{basic_filename}_{month_value}-{year}.{extension}"
         if month_value == month:
             return new_filename
 
 
-def extract_links_post_2012(month: int, year: int, directory: str) -> list[dict]:
+def extract_links_post_2012(
+    month: int, year: int, directory: str
+) -> list[dict]:
     """Extract links of the Denatran files post 2012.
 
     Args:
@@ -428,13 +436,16 @@ def extract_links_post_2012(month: int, year: int, directory: str) -> list[dict]
         href = node.get("href")
         # Pega a parte relevante do arquivo em questão.
         match = re.search(
-            r"(?i)\/([\w-]+)\/(\d{4})\/(\w+)\/([\w-]+)\.(?:xls|xlsx|rar|zip)$", href
+            r"(?i)\/([\w-]+)\/(\d{4})\/(\w+)\/([\w-]+)\.(?:xls|xlsx|rar|zip)$",
+            href,
         )
 
         if match and re.search("tipo|município", txt, flags=re.IGNORECASE):
             matched_month = match.group(3)
             matched_year = match.group(2)
-            if MONTHS.get(matched_month) == month and matched_year == str(year):
+            if MONTHS.get(matched_month) == month and matched_year == str(
+                year
+            ):
                 filetype = match.group(0).split(".")[-1].lower()
 
                 info = {
@@ -452,7 +463,9 @@ def extract_links_post_2012(month: int, year: int, directory: str) -> list[dict]
     return valid_links
 
 
-def extraction_pre_2012(month: int, year: int, year_dir_name: str, zip_file: str):
+def extraction_pre_2012(
+    month: int, year: int, year_dir_name: str, zip_file: str
+):
     """_summary_
 
     Args:
@@ -478,7 +491,11 @@ def extraction_pre_2012(month: int, year: int, year_dir_name: str, zip_file: str
                 )
             elif re.search(r"Mun\w*", filename, re.IGNORECASE):
                 new_filename = make_filename_pre_2012(
-                    DenatranType.Municipio, year, filename, year_dir_name, month
+                    DenatranType.Municipio,
+                    year,
+                    filename,
+                    year_dir_name,
+                    month,
                 )
             if new_filename:
                 g.extract(file, path=year_dir_name)
@@ -534,7 +551,9 @@ def call_r_to_read_excel(file: str) -> pd.DataFrame:
     return df
 
 
-def treat_uf(denatran_df: pl.DataFrame, ibge_df: pl.DataFrame, uf: str) -> None:
+def treat_uf(
+    denatran_df: pl.DataFrame, ibge_df: pl.DataFrame, uf: str
+) -> None:
     """Take the DENATRAN data at municipality level and compare it to the IBGE data.
 
     This will filter by the uf argument and do all comparisons to ensure consistency.
@@ -550,7 +569,9 @@ def treat_uf(denatran_df: pl.DataFrame, ibge_df: pl.DataFrame, uf: str) -> None:
     """
     denatran_uf = denatran_df.filter(pl.col("sigla_uf") == uf)
     ibge_uf = ibge_df.filter(pl.col("sigla_uf") == uf)
-    ibge_uf = ibge_uf.with_columns(pl.col("nome").apply(asciify).str.to_lowercase())
+    ibge_uf = ibge_uf.with_columns(
+        pl.col("nome").apply(asciify).str.to_lowercase()
+    )
     municipios_na_bd = ibge_uf["nome"].to_list()
     suggested_name_ibge = denatran_uf["nome_denatran"].apply(
         lambda x: get_city_name_ibge(x, ibge_uf)
@@ -559,12 +580,16 @@ def treat_uf(denatran_df: pl.DataFrame, ibge_df: pl.DataFrame, uf: str) -> None:
         suggested_name_ibge.alias("suggested_nome_ibge")
     )
     denatran_uf = denatran_uf.with_columns(
-        denatran_uf.apply(fix_suggested_nome_ibge)["map"].alias("suggested_nome_ibge")
+        denatran_uf.apply(fix_suggested_nome_ibge)["map"].alias(
+            "suggested_nome_ibge"
+        )
     )
     municipios_no_denatran = denatran_uf["suggested_nome_ibge"].to_list()
     d = set(municipios_no_denatran) - set(municipios_na_bd)
     municipios_duplicados = (
-        denatran_uf.groupby("suggested_nome_ibge").count().filter(pl.col("count") > 1)
+        denatran_uf.groupby("suggested_nome_ibge")
+        .count()
+        .filter(pl.col("count") > 1)
     )
     if not municipios_duplicados.is_empty():
         raise ValueError(

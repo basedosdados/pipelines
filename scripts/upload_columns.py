@@ -43,7 +43,9 @@ def create_column(
 
     # Execute the GraphQL query with the provided mutation parameters and headers
     response = backend._execute_query(
-        query=mutation, variables={"input": mutation_parameters}, headers=headers
+        query=mutation,
+        variables={"input": mutation_parameters},
+        headers=headers,
     )
 
     # Print the response for debugging purposes
@@ -123,7 +125,9 @@ def check_metadata_columns(
     dataset_id: str, table_slug: str, backend: b.Backend, url_architecture: str
 ):
     # Get the table ID using the dataset ID and table ID
-    table_id = backend._get_table_id_from_name(gcp_dataset_id=dataset_id, gcp_table_id=table_slug)
+    table_id = backend._get_table_id_from_name(
+        gcp_dataset_id=dataset_id, gcp_table_id=table_slug
+    )
 
     # Read the architecture table
     architecture = read_architecture_table(url_architecture=url_architecture)
@@ -210,10 +214,14 @@ def upload_columns_from_architecture(
     accepted_if_exists_values = ["pass", "replace"]
 
     if if_column_exists not in accepted_if_exists_values:
-        raise ValueError(f"`if_exists` only accepts {accepted_if_exists_values}")
+        raise ValueError(
+            f"`if_exists` only accepts {accepted_if_exists_values}"
+        )
 
     # Get the table ID using the dataset ID and table ID
-    table_id = backend._get_table_id_from_name(gcp_dataset_id=dataset_id, gcp_table_id=table_slug)
+    table_id = backend._get_table_id_from_name(
+        gcp_dataset_id=dataset_id, gcp_table_id=table_slug
+    )
     print(f"table_id: {table_id}\n")
 
     # Read the architecture table
@@ -229,7 +237,9 @@ def upload_columns_from_architecture(
     for _, row in architecture.iterrows():
         print(f"\nColumn: {row['name']}")
 
-        column_id = get_column_id(table_id=table_id, column_name=row["name"], backend=backend)
+        column_id = get_column_id(
+            table_id=table_id, column_name=row["name"], backend=backend
+        )
 
         if column_id and if_column_exists == "pass":
             print("row already exists")
@@ -238,7 +248,9 @@ def upload_columns_from_architecture(
         # Define the mutation parameters for creating a new column
         directory_column_id = None
         if row["directory_column"]:
-            directory_table_slug = row["directory_column"].split(":")[0].split(".")[1]
+            directory_table_slug = (
+                row["directory_column"].split(":")[0].split(".")[1]
+            )
             directory_column_name = row["directory_column"].split(":")[1]
             directory_column_id = get_directory_column_id(
                 directory_column_name, directory_table_slug, backend
@@ -278,7 +290,9 @@ if __name__ == "__main__":
         "producao_aquicultura": "https://docs.google.com/spreadsheets/d/1KdWHg07J-_6FBhY-0U67h-DPTzzsHZG7fc2pUvPamU8/edit#gid=1213668070",
     }
 
-    backend = b.Backend(graphql_url="https://backend.basedosdados.org/api/v1/graphql")
+    backend = b.Backend(
+        graphql_url="https://backend.basedosdados.org/api/v1/graphql"
+    )
     for table_id in TABLE_ID_TO_ARCH_URL:
         upload_columns_from_architecture(
             dataset_id=DATASET_ID,

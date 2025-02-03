@@ -19,7 +19,9 @@ from bs4 import BeautifulSoup
 from pipelines.utils.utils import log
 
 
-def extrai_data_recente(df: pd.DataFrame, table_name: str) -> Union[datetime, date]:
+def extrai_data_recente(
+    df: pd.DataFrame, table_name: str
+) -> Union[datetime, date]:
     """Essa função é utilizada durante a task wrang_data para extrair a data
     mais recente da tabela baixada pela task download_data
 
@@ -63,7 +65,9 @@ def extrai_data_recente(df: pd.DataFrame, table_name: str) -> Union[datetime, da
         date_dict[table_name] == "yyyy-mm-dd"
         and table_name == "custo_variavel_unitario_usinas_termicas"
     ):
-        df["data_inicio"] = pd.to_datetime(df["data_inicio"], format="%Y-%m-%d").dt.date
+        df["data_inicio"] = pd.to_datetime(
+            df["data_inicio"], format="%Y-%m-%d"
+        ).dt.date
         data = df["data_inicio"].max()
 
     if isinstance(data, pd.Timestamp):
@@ -146,17 +150,18 @@ def crawler_ons(
     response = requests.get(url)
 
     html = response.text
-    log(f'--------html response {html}')
+    log(f"--------html response {html}")
 
     soup = BeautifulSoup(html, "html.parser")
 
-    csv_links = soup.find_all("a", href=lambda href: href and href.endswith(".csv"))
+    csv_links = soup.find_all(
+        "a", href=lambda href: href and href.endswith(".csv")
+    )
 
-    log(f'------ csv_links {csv_links}')
+    log(f"------ csv_links {csv_links}")
     csv_urls = [link["href"] for link in csv_links]
     # Filtra valores únicos
     csv_urls = list(set(csv_urls))
-
 
     return csv_urls
 
@@ -262,7 +267,9 @@ def get_columns_pattern_across_files(
     dir_files = os.listdir(files_folder_path)
 
     for file_name in dir_files:
-        df = pd.read_csv(files_folder_path + "/" + file_name, nrows=20, sep=";")
+        df = pd.read_csv(
+            files_folder_path + "/" + file_name, nrows=20, sep=";"
+        )
         # get the column names
         cols = df.columns
 
@@ -315,8 +322,12 @@ def change_columns_name(df: pd.DataFrame, url: str) -> pd.DataFrame:
             StringIO(requests.get(url, timeout=10).content.decode("utf-8"))
         )
 
-        df_architecture["original_name"] = df_architecture["original_name"].fillna("")
-        df_architecture["original_name"] = df_architecture["original_name"].str.strip()
+        df_architecture["original_name"] = df_architecture[
+            "original_name"
+        ].fillna("")
+        df_architecture["original_name"] = df_architecture[
+            "original_name"
+        ].str.strip()
         df_architecture["name"] = df_architecture["name"].str.strip()
 
         values = df_architecture["name"]
@@ -340,11 +351,15 @@ def change_columns_name(df: pd.DataFrame, url: str) -> pd.DataFrame:
 
 def process_date_column(df: pd.DataFrame, date_column: str) -> pd.DataFrame:
     # Check if all observations are in the 'YYYY-MM-DD' format
-    is_valid_format = pd.to_datetime(df[date_column], errors="coerce").notna().all()
+    is_valid_format = (
+        pd.to_datetime(df[date_column], errors="coerce").notna().all()
+    )
 
     # Raise an ValueError if not
     if not is_valid_format:
-        raise ValueError("Not all date observations are in the 'YYYY-MM-DD' format.")
+        raise ValueError(
+            "Not all date observations are in the 'YYYY-MM-DD' format."
+        )
 
     # Create year and month columns
     df["ano"] = pd.to_datetime(df[date_column]).dt.year
@@ -353,7 +368,9 @@ def process_date_column(df: pd.DataFrame, date_column: str) -> pd.DataFrame:
     return df
 
 
-def process_datetime_column(df: pd.DataFrame, datetime_column: str) -> pd.DataFrame:
+def process_datetime_column(
+    df: pd.DataFrame, datetime_column: str
+) -> pd.DataFrame:
     """This function creates separate columns for date and hour from a datetime column
 
     Args:

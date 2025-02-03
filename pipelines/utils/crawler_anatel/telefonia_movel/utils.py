@@ -5,15 +5,15 @@ General purpose functions for the br_anatel_telefonia_movel project of the pipel
 # pylint: disable=too-few-public-methods,invalid-name
 
 import os
-from zipfile import ZipFile
 import time
+from zipfile import ZipFile
+
 import pandas as pd
-import numpy as np
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from pipelines.utils.utils import log
+from selenium.webdriver.support.ui import WebDriverWait
+
 from pipelines.utils.crawler_anatel.telefonia_movel.constants import (
     constants as anatel_constants,
 )
@@ -51,28 +51,38 @@ def download_zip_file(path):
     driver.get(anatel_constants.URL.value)
     driver.maximize_window()
     WebDriverWait(driver, 300).until(
-                EC.element_to_be_clickable(
-                    (By.XPATH, '/html/body/div/section/div/div[3]/div[2]/div[3]/div[2]/header/button')
-                )
-            ).click()
+        EC.element_to_be_clickable(
+            (
+                By.XPATH,
+                "/html/body/div/section/div/div[3]/div[2]/div[3]/div[2]/header/button",
+            )
+        )
+    ).click()
     WebDriverWait(driver, 300).until(
-                EC.element_to_be_clickable(
-                    (By.XPATH, '/html/body/div/section/div/div[3]/div[2]/div[3]/div[2]/div/div[1]/div[2]/div[2]/div/button')
-                )
-            ).click()
+        EC.element_to_be_clickable(
+            (
+                By.XPATH,
+                "/html/body/div/section/div/div[3]/div[2]/div[3]/div[2]/div/div[1]/div[2]/div[2]/div/button",
+            )
+        )
+    ).click()
     time.sleep(150)
     log(os.listdir(path))
 
+
 def unzip_file():
-    download_zip_file(path = anatel_constants.INPUT_PATH.value)
-    zip_file_path = os.path.join(anatel_constants.INPUT_PATH.value, 'acessos_telefonia_movel.zip')
+    download_zip_file(path=anatel_constants.INPUT_PATH.value)
+    zip_file_path = os.path.join(
+        anatel_constants.INPUT_PATH.value, "acessos_telefonia_movel.zip"
+    )
     time.sleep(300)
     try:
-        with ZipFile(zip_file_path, 'r') as zip_ref:
+        with ZipFile(zip_file_path, "r") as zip_ref:
             zip_ref.extractall(anatel_constants.INPUT_PATH.value)
 
     except Exception as e:
-            print(f"Erro ao baixar ou extrair o arquivo ZIP: {str(e)}")
+        print(f"Erro ao baixar ou extrair o arquivo ZIP: {str(e)}")
+
 
 # ! TASK MICRODADOS
 def clean_csv_microdados(ano, semestre, table_id):
@@ -86,19 +96,19 @@ def clean_csv_microdados(ano, semestre, table_id):
         encoding="utf-8",
     )
 
-
     log("Renomeando as colunas:")
 
+    df.rename(
+        columns=anatel_constants.RENAME_COLUMNS_MICRODADOS.value, inplace=True
+    )
 
-    df.rename(columns=anatel_constants.RENAME_COLUMNS_MICRODADOS.value, inplace=True)
-
-    df.drop(anatel_constants.DROP_COLUMNS_MICRODADOS.value, axis=1, inplace=True)
+    df.drop(
+        anatel_constants.DROP_COLUMNS_MICRODADOS.value, axis=1, inplace=True
+    )
 
     df["produto"] = df["produto"].str.lower()
 
-
     df["id_municipio"] = df["id_municipio"].astype(str)
-
 
     df["ddd"] = pd.to_numeric(df["ddd"], downcast="integer").astype(str)
 
@@ -115,7 +125,6 @@ def clean_csv_microdados(ano, semestre, table_id):
 
 # ! TASK BRASIL
 def clean_csv_brasil(table_id):
-
     log("Abrindo os dados do Brasil...")
 
     densidade = pd.read_csv(
@@ -124,18 +133,25 @@ def clean_csv_brasil(table_id):
         encoding="utf-8",
     )
 
-    densidade.rename(columns={"Nível Geográfico Densidade": "geografia"}, inplace=True)
+    densidade.rename(
+        columns={"Nível Geográfico Densidade": "geografia"}, inplace=True
+    )
 
     densidade_brasil = densidade[densidade["geografia"] == "Brasil"]
 
-    densidade_brasil = densidade_brasil[anatel_constants.ORDER_COLUMNS_BRASIL.value]
+    densidade_brasil = densidade_brasil[
+        anatel_constants.ORDER_COLUMNS_BRASIL.value
+    ]
 
     densidade_brasil = densidade_brasil.rename(
         columns=anatel_constants.RENAME_COLUMNS_BRASIL.value
     )
 
     densidade_brasil["densidade"] = (
-        densidade_brasil["densidade"].astype(str).str.replace(",", ".").astype(float)
+        densidade_brasil["densidade"]
+        .astype(str)
+        .str.replace(",", ".")
+        .astype(float)
     )
     log("Salvando os dados do Brasil...")
 
@@ -157,7 +173,9 @@ def clean_csv_uf(table_id):
         encoding="utf-8",
     )
 
-    densidade.rename(columns={"Nível Geográfico Densidade": "geografia"}, inplace=True)
+    densidade.rename(
+        columns={"Nível Geográfico Densidade": "geografia"}, inplace=True
+    )
 
     densidade_uf = densidade[densidade["geografia"] == "UF"]
 
@@ -168,7 +186,10 @@ def clean_csv_uf(table_id):
     )
 
     densidade_uf["densidade"] = (
-        densidade_uf["densidade"].astype(str).str.replace(",", ".").astype(float)
+        densidade_uf["densidade"]
+        .astype(str)
+        .str.replace(",", ".")
+        .astype(float)
     )
     log("Salvando dados por UF")
     densidade_uf.to_csv(
@@ -188,7 +209,9 @@ def clean_csv_municipio(table_id):
         sep=";",
         encoding="utf-8",
     )
-    densidade.rename(columns={"Nível Geográfico Densidade": "geografia"}, inplace=True)
+    densidade.rename(
+        columns={"Nível Geográfico Densidade": "geografia"}, inplace=True
+    )
     densidade_municipio = densidade[densidade["geografia"] == "Municipio"]
     densidade_municipio = densidade_municipio[
         anatel_constants.ORDER_COLUMNS_MUNICIPIO.value
@@ -197,7 +220,10 @@ def clean_csv_municipio(table_id):
         columns=anatel_constants.RENAME_COLUMNS_MUNICIPIO.value
     )
     densidade_municipio["densidade"] = (
-        densidade_municipio["densidade"].astype(str).str.replace(",", ".").astype(float)
+        densidade_municipio["densidade"]
+        .astype(str)
+        .str.replace(",", ".")
+        .astype(float)
     )
     log("Salvando os dados por município...")
     densidade_municipio.to_csv(

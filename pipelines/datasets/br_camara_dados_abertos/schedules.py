@@ -158,7 +158,7 @@ schedules_br_camara_dados_abertos_deputado_profissao = Schedule(
                 "dbt_alias": True,
                 "materialize_after_dump": True,
                 "materialization_mode": "prod",
-                "table_id":"deputado_profissao",
+                "table_id": "deputado_profissao",
                 "dataset_id": "br_camara_dados_abertos",
             },
         ),

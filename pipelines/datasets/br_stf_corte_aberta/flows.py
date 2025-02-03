@@ -2,6 +2,7 @@
 """
 Flows for br_stf_corte_aberta
 """
+
 from datetime import timedelta
 
 from prefect import Parameter, case
@@ -18,7 +19,9 @@ from pipelines.datasets.br_stf_corte_aberta.tasks import (
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.execute_dbt_model.constants import (
+    constants as dump_db_constants,
+)
 from pipelines.utils.metadata.tasks import (
     check_if_data_is_outdated,
     update_django_metadata,
@@ -29,9 +32,13 @@ from pipelines.utils.tasks import (
     rename_current_flow_run_dataset_table,
 )
 
-with Flow(name="br_stf_corte_aberta.decisoes", code_owners=["trick"]) as br_stf:
+with Flow(
+    name="br_stf_corte_aberta.decisoes", code_owners=["trick"]
+) as br_stf:
     # Parameters
-    dataset_id = Parameter("dataset_id", default="br_stf_corte_aberta", required=True)
+    dataset_id = Parameter(
+        "dataset_id", default="br_stf_corte_aberta", required=True
+    )
     table_id = Parameter("table_id", default="decisoes", required=True)
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
@@ -40,10 +47,15 @@ with Flow(name="br_stf_corte_aberta.decisoes", code_owners=["trick"]) as br_stf:
         "materialize_after_dump", default=True, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
-    update_metadata = Parameter("update_metadata", default=True, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=True, required=False
+    )
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     data_source_max_date = get_data_source_stf_max_date()
@@ -110,4 +122,3 @@ with Flow(name="br_stf_corte_aberta.decisoes", code_owners=["trick"]) as br_stf:
 br_stf.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_stf.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 br_stf.schedule = every_day_stf
-

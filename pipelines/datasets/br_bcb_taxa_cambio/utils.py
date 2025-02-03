@@ -2,6 +2,7 @@
 """
 General purpose functions for the br_bcb_indicadores project
 """
+
 import datetime
 import os
 import time as tm
@@ -13,7 +14,9 @@ import pandas as pd
 import pytz
 import requests
 
-from pipelines.datasets.br_bcb_taxa_cambio.constants import constants as bcb_constants
+from pipelines.datasets.br_bcb_taxa_cambio.constants import (
+    constants as bcb_constants,
+)
 from pipelines.utils.apply_architecture_to_dataframe.utils import (
     apply_architecture_to_dataframe,
 )

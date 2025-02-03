@@ -2,10 +2,11 @@
 """
 Prefect flows for basedosdados project
 """
+
 ###############################################################################
 # Automatically managed, please do not touch
 ###############################################################################
-
+# ruff: noqa: F403
 from pipelines.datasets.botdosdados.flows import *
 from pipelines.datasets.br_anatel_banda_larga_fixa.flows import *
 from pipelines.datasets.br_anatel_telefonia_movel.flows import *
@@ -18,21 +19,25 @@ from pipelines.datasets.br_bcb_taxa_cambio.flows import *
 from pipelines.datasets.br_bcb_taxa_selic.flows import *
 from pipelines.datasets.br_bd_indicadores.flows import *
 from pipelines.datasets.br_bd_metadados.flows import *
+from pipelines.datasets.br_bd_siga_o_dinheiro.flows import *
 from pipelines.datasets.br_camara_dados_abertos.flows import *
 from pipelines.datasets.br_cgu_beneficios_cidadao.flows import *
+from pipelines.datasets.br_cgu_cartao_pagamento.flows import *
+from pipelines.datasets.br_cgu_emendas_parlamentares.flows import *
+from pipelines.datasets.br_cgu_licitacao_contrato.flows import *
 from pipelines.datasets.br_cgu_pessoal_executivo_federal.flows import *
 from pipelines.datasets.br_cgu_servidores_executivo_federal.flows import *
+from pipelines.datasets.br_cnj_improbidade_administrativa.flows import *
 from pipelines.datasets.br_cvm_administradores_carteira.flows import *
 from pipelines.datasets.br_cvm_fi.flows import *
 from pipelines.datasets.br_cvm_oferta_publica_distribuicao.flows import *
 from pipelines.datasets.br_denatran_frota.flows import *
 from pipelines.datasets.br_fgv_igp.flows import *
 from pipelines.datasets.br_ibge_inpc.flows import *
-from pipelines.datasets.br_ibge_ipca15.flows import *
 from pipelines.datasets.br_ibge_ipca.flows import *
+from pipelines.datasets.br_ibge_ipca15.flows import *
 from pipelines.datasets.br_ibge_pnadc.flows import *
 from pipelines.datasets.br_inmet_bdmep.flows import *
-from pipelines.datasets.br_bd_siga_o_dinheiro.flows import *
 from pipelines.datasets.br_me_caged.flows import *
 from pipelines.datasets.br_me_cnpj.flows import *
 from pipelines.datasets.br_me_comex_stat.flows import *
@@ -41,6 +46,8 @@ from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.flows import *
 from pipelines.datasets.br_mp_pep_cargos_funcoes.flows import *
 from pipelines.datasets.br_ms_cnes.flows import *
 from pipelines.datasets.br_ms_sia.flows import *
+from pipelines.datasets.br_ms_sih.flows import *
+from pipelines.datasets.br_ms_sinan.flows import *
 from pipelines.datasets.br_ons_avaliacao_operacao.flows import *
 from pipelines.datasets.br_ons_estimativa_custos.flows import *
 from pipelines.datasets.br_poder360_pesquisas.flows import *
@@ -56,9 +63,3 @@ from pipelines.datasets.delete_flows.flows import *
 from pipelines.datasets.fundacao_lemann.flows import *
 from pipelines.datasets.mundo_transfermarkt_competicoes.flows import *
 from pipelines.datasets.mundo_transfermarkt_competicoes_internacionais.flows import *
-from pipelines.datasets.br_cnj_improbidade_administrativa.flows import *
-from pipelines.datasets.br_ms_sih.flows import *
-from pipelines.datasets.br_ms_sinan.flows import *
-from pipelines.datasets.br_cgu_emendas_parlamentares.flows import *
-from pipelines.datasets.br_cgu_cartao_pagamento.flows import *
-from pipelines.datasets.br_cgu_licitacao_contrato.flows import *
