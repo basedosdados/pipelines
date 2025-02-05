@@ -108,4 +108,4 @@ with Flow(name="br_inmet_bdmep", code_owners=["equipe_pipelines"]) as br_inmet:
 
 br_inmet.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_inmet.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-#br_inmet.schedule = every_month_inmet
+br_inmet.schedule = every_month_inmet
