@@ -30,6 +30,16 @@ def strip_string(x: pd.DataFrame) -> pd.DataFrame:
         return x.strip()
     return x
 
+def remove_non_ascii_from_df(df: pd.DataFrame) -> pd.DataFrame:
+    """Remove caracteres não ascii de um dataframe codificando a coluna e decodificando em seguida
+    Returns:
+        pd.DataFrame: Um dataframe
+    """
+    return df.applymap(
+        lambda x: (
+            x.encode("ascii", "ignore").decode("ascii") if isinstance(x, str) else x
+        )
+    )
 
 def parse_api_metadata(url: str, headers: dict = None) -> pd.DataFrame:
     """
