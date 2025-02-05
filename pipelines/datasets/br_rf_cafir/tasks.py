@@ -17,6 +17,7 @@ from pipelines.datasets.br_rf_cafir.utils import (
     parse_api_metadata,
     decide_files_to_download,
     strip_string,
+    remove_non_ascii_from_df,
 )
 from pipelines.utils.utils import log
 from pipelines.constants import constants
@@ -86,8 +87,14 @@ def task_download_files(url: str, file_list: list[str], data_atualizacao:[dateti
             encoding="ISO-8859-1",
         )
 
+
+
+        # Remove ascii /x00 (zero) - crasha tabela na materialização no BQ
+        df = remove_non_ascii_from_df(df)
+
         # tira os espacos em branco
         df = df.applymap(strip_string)
+
 
         log(f"Salvando arquivo: {file}")
 
