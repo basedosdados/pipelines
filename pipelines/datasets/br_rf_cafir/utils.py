@@ -30,14 +30,14 @@ def strip_string(x: pd.DataFrame) -> pd.DataFrame:
         return x.strip()
     return x
 
-def remove_non_ascii_from_df(df: pd.DataFrame) -> pd.DataFrame:
-    """Remove caracteres não ascii de um dataframe codificando a coluna e decodificando em seguida
+def remove_ascii_zero_from_df(df: pd.DataFrame) -> pd.DataFrame:
+    """Remove ASCII 0 (NULL) de colunas tipadas como string de um DataFrame.
     Returns:
-        pd.DataFrame: Um dataframe
+        pd.DataFrame: DataFrame sem ascii 0 (\x00).
     """
     return df.applymap(
         lambda x: (
-            x.encode("ascii", "ignore").decode("ascii") if isinstance(x, str) else x
+            x.replace("\x00", "") if isinstance(x, str) else x
         )
     )
 
