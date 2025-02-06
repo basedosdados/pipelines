@@ -28,6 +28,16 @@ def strip_string(x: pd.DataFrame) -> pd.DataFrame:
     return x
 
 
+def remove_ascii_zero_from_df(df: pd.DataFrame) -> pd.DataFrame:
+    """Remove ASCII 0 (NULL) de colunas tipadas como string de um DataFrame.
+    Returns:
+        pd.DataFrame: DataFrame sem ascii 0 (\x00).
+    """
+    return df.applymap(
+        lambda x: (x.replace("\x00", "") if isinstance(x, str) else x)
+    )
+
+
 def parse_api_metadata(url: str, headers: dict = None) -> pd.DataFrame:
     """
     Faz uma requisição para a URL fornecida e extrai metadados de arquivos CSV.

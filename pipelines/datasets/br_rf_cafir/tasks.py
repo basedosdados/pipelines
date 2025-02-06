@@ -18,6 +18,7 @@ from pipelines.datasets.br_rf_cafir.utils import (
     download_csv_files,
     parse_api_metadata,
     preserve_zeros,
+    remove_ascii_zero_from_df,
     strip_string,
 )
 from pipelines.utils.utils import log
@@ -99,6 +100,9 @@ def task_download_files(
             },
             encoding="ISO-8859-1",
         )
+
+        # Remove ascii /x00 (zero) - crasha tabela na materialização no BQ
+        df = remove_ascii_zero_from_df(df)
 
         # tira os espacos em branco
         df = df.applymap(strip_string)

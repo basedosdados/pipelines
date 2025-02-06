@@ -11,6 +11,7 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
+from pipelines.datasets.br_inmet_bdmep.schedules import every_month_inmet
 from pipelines.datasets.br_inmet_bdmep.tasks import (
     extract_last_date_from_source,
     get_base_inmet,
@@ -125,4 +126,4 @@ with Flow(name="br_inmet_bdmep", code_owners=["equipe_pipelines"]) as br_inmet:
 
 br_inmet.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_inmet.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-# br_inmet.schedule = every_month_inmet
+br_inmet.schedule = every_month_inmet
