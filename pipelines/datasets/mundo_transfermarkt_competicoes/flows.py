@@ -14,7 +14,6 @@ from pipelines.constants import constants
 
 ###############################################################################
 from pipelines.datasets.mundo_transfermarkt_competicoes.schedules import (
-    every_day_brasileirao,
     every_day_copa,
 )
 from pipelines.datasets.mundo_transfermarkt_competicoes.tasks import (
