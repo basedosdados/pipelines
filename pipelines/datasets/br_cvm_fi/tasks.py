@@ -373,7 +373,7 @@ def clean_data_make_partitions_ext(diretorio, table_id):
     ].applymap(limpar_string)
     df_final = df_final[cvm_constants.COLUNAS_FINAIS_EXT.value]
     log(df_final.head())
-    # print(f"Fazendo partições para o ano ------> {i}")
+    # log(f"Fazendo partições para o ano ------> {i}")
     os.makedirs(f"/tmp/data/br_cvm_fi/{table_id}/output/", exist_ok=True)
     to_partitions(
         df_final,
@@ -553,7 +553,7 @@ def clean_data_make_partitions_cad(diretorio, table_id):
         cvm_constants.COLUNAS_ASCI_CAD.value
     ].applymap(limpar_string)
     df_final = df_final[colunas_finais]
-    # print(f"Fazendo partições para o ano ------> {i}")
+    # log(f"Fazendo partições para o ano ------> {i}")
     os.makedirs(f"/tmp/data/br_cvm_fi/{table_id}/output/", exist_ok=True)
     df_final.to_csv(
         f"/tmp/data/br_cvm_fi/{table_id}/output/data.csv", encoding="utf-8", index=False
@@ -576,7 +576,7 @@ def clean_data_make_partitions_balancete(diretorio, table_id):
     arquivos = glob.glob(f"{diretorio}*.csv")
 
     for file in tqdm(arquivos):
-        print(f"Baixando o arquivo ------> {file}")
+        log(f"Baixando o arquivo ------> {file}")
 
         df = pd.read_csv(file, sep=";", encoding="ISO-8859-1", dtype="string")
         df["ano"] = df["DT_COMPTC"].apply(
@@ -602,5 +602,5 @@ def clean_data_make_partitions_balancete(diretorio, table_id):
             partition_columns=["ano", "mes"],
             savepath=f"/tmp/data/br_cvm_fi/{table_id}/output/",
         )
-        print(f"Partições feitas para o ano ------> {file}")
+        log(f"Partições feitas para o ano ------> {file}")
     return f"/tmp/data/br_cvm_fi/{table_id}/output/"
