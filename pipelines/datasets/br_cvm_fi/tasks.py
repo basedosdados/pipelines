@@ -184,7 +184,7 @@ def generate_links_to_download(df: pd.DataFrame, max_date: datetime) -> list[str
     Checks for outdated tables.
     """
     #trocar desatualizado == TRUE por, ultima_atualizacao > max_date
-    lists = df.query(f"ultima_atualizacao == '{max_date}'").arquivo.to_list()
+    lists = df.arquivo.to_list()
 
     log(f'The following files will be downloaded: {lists}')
 
