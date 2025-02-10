@@ -161,7 +161,7 @@ def extract_links_and_dates(url) -> Tuple[pd.DataFrame, str]:
     else:
         dados = {
             "arquivo": links_zip,
-            "ultima_atualizacao": datas_atualizacao[0:],
+            "ultima_atualizacao": datas_atualizacao[1:],
             "data_hoje": datetime.now().strftime("%Y-%m-%d"),
         }
 
@@ -188,7 +188,7 @@ def generate_links_to_download(df: pd.DataFrame, max_date: datetime) -> list[str
 
     log(f'The following files will be downloaded: {lists}')
 
-    return lists
+    return lists[1:2]
 
 
 @task(
