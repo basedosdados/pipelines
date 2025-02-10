@@ -161,7 +161,7 @@ def extract_links_and_dates(url) -> Tuple[pd.DataFrame, str]:
     else:
         dados = {
             "arquivo": links_zip,
-            "ultima_atualizacao": datas_atualizacao[1:],
+            "ultima_atualizacao": datas_atualizacao[0:],
             "data_hoje": datetime.now().strftime("%Y-%m-%d"),
         }
 
@@ -567,9 +567,6 @@ def clean_data_make_partitions_balancete(diretorio, table_id):
 
     arquivos = glob.glob(f"{diretorio}*.csv")
 
-    #Problema 1: somente alguns arquivos possuem coluna TP_FUNDO_CLASSE
-    #problema 2: o nome da coluna CNPJ_FUNDO_CLASSE varia em alguns arquivos para CNPJ_FUNDO
-
     for file in tqdm(arquivos):
         log(f"Baixando o arquivo ------> {file}")
 
@@ -585,7 +582,7 @@ def clean_data_make_partitions_balancete(diretorio, table_id):
 
         df = df.rename(cvm_constants.DICIONARO_DOCUMENTOS_BALANCETE.value, axis=1)
 
-        df["cnpj"] = df["cnpj"].str.replace(r"[/.-]", "")
+        df["cnpj"] = df["cnpj"].str.replace(r"[/.-]", "", regex=True)
 
         df = df.replace(",", ".", regex=True)
 
