@@ -559,4 +559,15 @@ class constants(Enum):  # pylint: disable=c0103
 
     ARQUITETURA_URL_BALANCETE = "https://docs.google.com/spreadsheets/d/1eIMo_hYHy89oh6kHRN9Kh0NytUZzr8__/edit#gid=1045172528"
 
+    DICIONARO_DOCUMENTOS_BALANCETE = {
+        'TP_FUNDO_CLASSE': 'tipo_fundo',
+        'CNPJ_FUNDO': 'cnpj',
+        'DT_COMPTC' : 'data_competencia',
+        'CNPJ_FUNDO_CLASSE': 'cnpj',
+        'PLANO_CONTA_BALCTE' : 'plano_contabil_balancete',
+        'CD_CONTA_BALCTE': 'codigo_conta',
+        'VL_SALDO_BALCTE': 'valor_saldo',
+    }
+
+
     ARQUITETURA_URL_CDA = "https://docs.google.com/spreadsheets/d/1V2XHBXBB_biC0cLoMZ3FxtbC7CPLxQXZhIY7iJDtsSw/edit#gid=0"

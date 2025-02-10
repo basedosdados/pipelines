@@ -564,16 +564,11 @@ def clean_data_make_partitions_cad(diretorio, table_id):
 
 @task
 def clean_data_make_partitions_balancete(diretorio, table_id):
-    df_arq = sheet_to_df(cvm_constants.ARQUITETURA_URL_BALANCETE.value)
-    colunas_totais = df_arq["original_name"].to_list() + ["ano", "mes"]
-    log(colunas_totais)
-    colunas_finais = df_arq["name"].to_list() + ["ano", "mes"]
-    log(colunas_finais)
-    colunas_mapeamento = df_arq[df_arq["observations"].notnull()][
-        "original_name"
-    ].to_list()
-    df_final = pd.DataFrame()
+
     arquivos = glob.glob(f"{diretorio}*.csv")
+
+    #Problema 1: somente alguns arquivos possuem coluna TP_FUNDO_CLASSE
+    #problema 2: o nome da coluna CNPJ_FUNDO_CLASSE varia em alguns arquivos para CNPJ_FUNDO
 
     for file in tqdm(arquivos):
         log(f"Baixando o arquivo ------> {file}")
@@ -586,21 +581,21 @@ def clean_data_make_partitions_balancete(diretorio, table_id):
             lambda x: datetime.strptime(x, "%Y-%m-%d").month
         )
 
-        df_final = df
+        df = check_and_create_column(df, colunas_totais=['TP_FUNDO_CLASSE'])
 
-        df_final = check_and_create_column(df_final, colunas_totais=colunas_totais)
-        df_final[colunas_mapeamento] = df_final[colunas_mapeamento].applymap(
-            lambda x: cvm_constants.MAPEAMENTO.value.get(x, x)
-        )
-        df_final["CNPJ_FUNDO_CLASSE"] = df_final["CNPJ_FUNDO_CLASSE"].str.replace(r"[/.-]", "")
-        df_final = rename_columns(df_arq, df_final)
-        df_final = df_final.replace(",", ".", regex=True)
-        df_final = df_final[colunas_finais]
+        df = df.rename(cvm_constants.DICIONARO_DOCUMENTOS_BALANCETE.value, axis=1)
+
+        df["cnpj"] = df["cnpj"].str.replace(r"[/.-]", "")
+
+        df = df.replace(",", ".", regex=True)
+
         os.makedirs(f"/tmp/data/br_cvm_fi/{table_id}/output/", exist_ok=True)
+
         to_partitions(
-            df_final,
+            df,
             partition_columns=["ano", "mes"],
             savepath=f"/tmp/data/br_cvm_fi/{table_id}/output/",
         )
         log(f"Partições feitas para o ano ------> {file}")
+
     return f"/tmp/data/br_cvm_fi/{table_id}/output/"
