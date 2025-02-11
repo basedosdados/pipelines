@@ -188,7 +188,7 @@ def generate_links_to_download(df: pd.DataFrame, max_date: datetime) -> list[str
 
     log(f'The following files will be downloaded: {lists}')
 
-    return lists[1:2]
+    return lists
 
 
 @task(
