@@ -256,7 +256,10 @@ def clean_data_and_make_partitions(path: str, table_id: str) -> str:
         df["mes"] = df["data_competencia"].apply(
             lambda x: datetime.strptime(x, "%Y-%m-%d").month
         )
+
+
         log(f"File {file} cleaned.")
+
         os.makedirs(f"/tmp/data/br_cvm_fi/{table_id}/output/", exist_ok=True)
         to_partitions(
             df,
@@ -581,6 +584,8 @@ def clean_data_make_partitions_balancete(diretorio, table_id):
         df = check_and_create_column(df, colunas_totais=['TP_FUNDO_CLASSE'])
 
         df = df.rename(cvm_constants.DICIONARO_DOCUMENTOS_BALANCETE.value, axis=1)
+
+        df = df[cvm_constants.ORDEM_DOCUMENTOS_BALANCETE.value]
 
         df["cnpj"] = df["cnpj"].str.replace(r"[/.-]", "", regex=True)
 

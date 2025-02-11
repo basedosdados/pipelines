@@ -569,5 +569,17 @@ class constants(Enum):  # pylint: disable=c0103
         'VL_SALDO_BALCTE': 'valor_saldo',
     }
 
+    ORDEM_DOCUMENTOS_BALANCETE = [
+
+        'cnpj',
+        'data_competencia',
+        'plano_contabil_balancete',
+        'tipo_fundo',
+        'codigo_conta',
+        'valor_saldo',
+        'ano',
+        'mes'
+    ]
+
 
     ARQUITETURA_URL_CDA = "https://docs.google.com/spreadsheets/d/1V2XHBXBB_biC0cLoMZ3FxtbC7CPLxQXZhIY7iJDtsSw/edit#gid=0"
