@@ -10,10 +10,11 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.by import By
-from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from webdriver_manager.chrome import ChromeDriverManager
 
 from pipelines.datasets.br_stf_corte_aberta.constants import (
     constants as stf_constants,
@@ -25,43 +26,47 @@ def web_scrapping():
     log("Criando as pastas")
     if not os.path.exists(stf_constants.STF_INPUT.value):
         os.mkdir(stf_constants.STF_INPUT.value)
-    options = Options()
 
-    options.add_argument("--headless")
+    options = webdriver.ChromeOptions()
+    # https://github.com/SeleniumHQ/selenium/issues/11637
+    prefs = {
+        "download.default_directory": stf_constants.STF_INPUT.value,
+        "download.prompt_for_download": False,
+        "download.directory_upgrade": True,
+        "safebrowsing.enabled": True,
+    }
+    options.add_experimental_option(
+        "prefs",
+        prefs,
+    )
+    options.add_argument("--headless=new")
+    options.add_argument("--test-type")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--no-first-run")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--disable-blink-features=AutomationControlled")
-    options.add_argument("--disable-extensions")
-    options.add_argument("--incognito")
-
-    # Configurações específicas de download no Firefox
-    options.set_preference(
-        "browser.download.folderList", 2
-    )  # Use 2 para salvar no diretório especificado
-    options.set_preference(
-        "browser.download.dir", stf_constants.STF_INPUT.value
+    options.add_argument("--no-default-browser-check")
+    options.add_argument("--ignore-certificate-errors")
+    options.add_argument("--start-maximized")
+    options.add_argument(
+        "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
     )
-    options.set_preference(
-        "browser.helperApps.neverAsk.saveToDisk", "text/csv"
-    )  # Specify MIME type for automatic download
-    options.set_preference("browser.download.manager.showWhenStarting", False)
-    options.set_preference(
-        "pdfjs.disabled", True
-    )  # Desativa o visualizador de PDFs interno
+    driver = webdriver.Chrome(
+        service=ChromeService(ChromeDriverManager().install()), options=options
+    )
 
-    driver = webdriver.Firefox(options=options)
     driver.get(
         "https://transparencia.stf.jus.br/extensions/decisoes/decisoes.html"
     )
-    time.sleep(10)
+    time.sleep(30)
     driver.maximize_window()
-    time.sleep(15)
-    WebDriverWait(driver, 60).until(
+    time.sleep(45)
+    WebDriverWait(driver, 180).until(
         EC.element_to_be_clickable(
             (By.XPATH, '//*[@id="EXPORT-BUTTON-PADRAO"]')
         )
     ).click()
-    time.sleep(15)
+    time.sleep(30)
     driver.quit()
 
 
