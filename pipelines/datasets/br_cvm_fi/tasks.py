@@ -583,7 +583,7 @@ def clean_data_make_partitions_balancete(diretorio, table_id):
 
         df = check_and_create_column(df, colunas_totais=['TP_FUNDO_CLASSE'])
 
-        df = df.rename(cvm_constants.DICIONARO_DOCUMENTOS_BALANCETE.value, axis=1)
+        df = df.rename(cvm_constants.DICIONARIO_DOCUMENTOS_BALANCETE.value, axis=1)
 
         df = df[cvm_constants.ORDEM_DOCUMENTOS_BALANCETE.value]
 

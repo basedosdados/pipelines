@@ -559,7 +559,7 @@ class constants(Enum):  # pylint: disable=c0103
 
     ARQUITETURA_URL_BALANCETE = "https://docs.google.com/spreadsheets/d/1eIMo_hYHy89oh6kHRN9Kh0NytUZzr8__/edit#gid=1045172528"
 
-    DICIONARO_DOCUMENTOS_BALANCETE = {
+    DICIONARIO_DOCUMENTOS_BALANCETE = {
         'CNPJ_FUNDO': 'cnpj',
         'CNPJ_FUNDO_CLASSE': 'cnpj',
         'DT_COMPTC' : 'data_competencia',
