@@ -2,6 +2,7 @@
 """
 General purpose functions for the br_anp_precos_combustiveis project
 """
+
 import os
 from datetime import datetime
 
@@ -10,7 +11,6 @@ import numpy as np
 import pandas as pd
 import requests
 import unidecode
-
 
 from pipelines.datasets.br_anp_precos_combustiveis.constants import (
     constants as anp_constants,
@@ -81,7 +81,6 @@ def get_id_municipio(id_municipio: pd.DataFrame):
 
 
 def open_csvs(url_diesel_gnv, url_gasolina_etanol, url_glp):
-
     data_frames = []
     log("Abrindo os arquivos csvs")
     diesel = pd.read_csv(f"{url_diesel_gnv}", sep=";", encoding="utf-8")
@@ -100,11 +99,12 @@ def open_csvs(url_diesel_gnv, url_gasolina_etanol, url_glp):
 
     log("Dados concatenados com sucesso")
 
-
     return precos_combustiveis
 
 
-def partition_data(df: pd.DataFrame, column_name: list[str], output_directory: str):
+def partition_data(
+    df: pd.DataFrame, column_name: list[str], output_directory: str
+):
     """
     Particiona os dados em subconjuntos de acordo com os valores únicos de uma coluna.
     Salva cada subconjunto em um arquivo CSV separado.
@@ -161,7 +161,9 @@ def rename_and_to_create_endereco(precos_combustiveis: pd.DataFrame):
         + precos_combustiveis["Complemento"].fillna("")
     )
     precos_combustiveis.drop(columns=["sigla_uf"], inplace=True)
-    precos_combustiveis.rename(columns={"Data da Coleta": "data_coleta"}, inplace=True)
+    precos_combustiveis.rename(
+        columns={"Data da Coleta": "data_coleta"}, inplace=True
+    )
 
     return precos_combustiveis
 
@@ -191,7 +193,9 @@ def creating_column_ano(precos_combustiveis: pd.DataFrame):
 
 
 def rename_and_reordening(precos_combustiveis: pd.DataFrame):
-    precos_combustiveis.rename(columns=anp_constants.RENAME.value, inplace=True)
+    precos_combustiveis.rename(
+        columns=anp_constants.RENAME.value, inplace=True
+    )
     precos_combustiveis = precos_combustiveis[anp_constants.ORDEM.value]
 
     return precos_combustiveis
@@ -201,27 +205,29 @@ def rename_columns(precos_combustiveis: pd.DataFrame):
     precos_combustiveis["ano"] = precos_combustiveis["ano"].apply(
         lambda x: str(x).replace(".0", "")
     )
-    precos_combustiveis["cep_revenda"] = precos_combustiveis["cep_revenda"].apply(
-        lambda x: str(x).replace("-", "")
-    )
-    precos_combustiveis["unidade_medida"] = precos_combustiveis["unidade_medida"].map(
+    precos_combustiveis["cep_revenda"] = precos_combustiveis[
+        "cep_revenda"
+    ].apply(lambda x: str(x).replace("-", ""))
+    precos_combustiveis["unidade_medida"] = precos_combustiveis[
+        "unidade_medida"
+    ].map(
         {"R$ / litro": "R$/litro", "R$ / m³": "R$/m3", "R$ / 13 kg": "R$/13kg"}
     )
     precos_combustiveis["nome_estabelecimento"] = precos_combustiveis[
         "nome_estabelecimento"
     ].apply(lambda x: str(x).replace(",", ""))
-    precos_combustiveis["preco_compra"] = precos_combustiveis["preco_compra"].apply(
-        lambda x: str(x).replace(",", ".")
-    )
-    precos_combustiveis["preco_venda"] = precos_combustiveis["preco_venda"].apply(
-        lambda x: str(x).replace(",", ".")
-    )
-    precos_combustiveis["preco_venda"] = precos_combustiveis["preco_venda"].replace(
-        "nan", ""
-    )
-    precos_combustiveis["preco_compra"] = precos_combustiveis["preco_compra"].replace(
-        "nan", ""
-    )
+    precos_combustiveis["preco_compra"] = precos_combustiveis[
+        "preco_compra"
+    ].apply(lambda x: str(x).replace(",", "."))
+    precos_combustiveis["preco_venda"] = precos_combustiveis[
+        "preco_venda"
+    ].apply(lambda x: str(x).replace(",", "."))
+    precos_combustiveis["preco_venda"] = precos_combustiveis[
+        "preco_venda"
+    ].replace("nan", "")
+    precos_combustiveis["preco_compra"] = precos_combustiveis[
+        "preco_compra"
+    ].replace("nan", "")
     precos_combustiveis.replace(np.nan, "", inplace=True)
 
     return precos_combustiveis

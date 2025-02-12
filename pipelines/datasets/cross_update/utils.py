@@ -2,11 +2,12 @@
 """
 Utils for cross_update pipeline
 """
+
 import os
 
 import pandas as pd
-from pandas import json_normalize
 from basedosdados import Backend
+from pandas import json_normalize
 
 from pipelines.utils.metadata.utils import get_headers
 from pipelines.utils.utils import log
@@ -107,7 +108,9 @@ def find_closed_tables(backend: Backend):
     data = json_normalize(response)
     closed_tables = data["table._id"].tolist()
 
-    all_closed_tables = [table for table in closed_tables if table not in open_tables]
+    all_closed_tables = [
+        table for table in closed_tables if table not in open_tables
+    ]
 
     return all_closed_tables
 

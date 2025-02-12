@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-""" Utility functions for the Mercado Livre Ofertas dataset. """
+"""Utility functions for the Mercado Livre Ofertas dataset."""
 
 import asyncio
 import hashlib
@@ -158,7 +158,8 @@ def get_features(soup):
         class_="ui-pdp-container__row ui-vpp-highlighted-specs__attribute-columns__row"
     )
     features_dict = {
-        k: v for k, v in [feature.text.strip().split(":") for feature in features]
+        k: v
+        for k, v in [feature.text.strip().split(":") for feature in features]
     }
     return features_dict
 
@@ -259,7 +260,9 @@ def get_prices(soup, **kwargs):
         dict: A dictionary containing the extracted price values.
     """
     price_element = soup.find(itemprop="price")
-    original_price_element = soup.find("s", class_="andes-money-amount--previous")
+    original_price_element = soup.find(
+        "s", class_="andes-money-amount--previous"
+    )
 
     price = price_element["content"] if price_element else None
 
@@ -287,7 +290,8 @@ def get_prices(soup, **kwargs):
     discount = discount_element.text.strip() if discount_element else None
 
     transport_condition_element = soup.find(
-        "p", class_="ui-pdp-color--BLACK ui-pdp-family--REGULAR ui-pdp-media__title"
+        "p",
+        class_="ui-pdp-color--BLACK ui-pdp-family--REGULAR ui-pdp-media__title",
     )
     transport_condition = (
         transport_condition_element.text.strip()
@@ -416,7 +420,8 @@ async def main_item(dict_tables, kwargs_list):
     """
     contents = []
     coroutines = [
-        process_table(table, url, kwargs_list) for table, url in dict_tables.items()
+        process_table(table, url, kwargs_list)
+        for table, url in dict_tables.items()
     ]
     results = await asyncio.gather(*coroutines)
     for table_results in results:
@@ -430,7 +435,9 @@ def get_features_seller(soup):
     """
     Function to extract seller qualification information from <span> elements.
     """
-    span_elements = soup.find_all("span", class_="buyers-feedback-qualification")
+    span_elements = soup.find_all(
+        "span", class_="buyers-feedback-qualification"
+    )
 
     # Initialize an empty dictionary
     result_dict = {}
@@ -465,7 +472,9 @@ async def get_seller_async(url, seller_id):
         {"class_": "location__wrapper"},
     ]
     keys = ["experience", "reputation", "classification", "location"]
-    tasks = [get_byelement(url=url, attempts=2, **kwargs) for kwargs in kwargs_list]
+    tasks = [
+        get_byelement(url=url, attempts=2, **kwargs) for kwargs in kwargs_list
+    ]
     results = await asyncio.gather(*tasks)
     info = {}
     info["title"] = (
@@ -473,7 +482,9 @@ async def get_seller_async(url, seller_id):
     )
     for key, value in dict(zip(keys, results)).items():
         info[key] = value
-    info["opinions"] = await asyncio.gather(get_features_seller(url, attempts=2))
+    info["opinions"] = await asyncio.gather(
+        get_features_seller(url, attempts=2)
+    )
     info["date"] = datetime.now().strftime("%Y-%m-%d")
     info["seller_id"] = seller_id
 

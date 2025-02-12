@@ -2,6 +2,7 @@
 """
 Flows for br_me_cnpj
 """
+
 from datetime import timedelta
 
 from prefect import Parameter, case
@@ -21,7 +22,9 @@ from pipelines.datasets.br_me_cnpj.schedules import (
 from pipelines.datasets.br_me_cnpj.tasks import get_data_source_max_date, main
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.execute_dbt_model.constants import (
+    constants as dump_db_constants,
+)
 from pipelines.utils.metadata.tasks import (
     check_if_data_is_outdated,
     update_django_metadata,
@@ -50,7 +53,10 @@ with Flow(
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
     tabelas = constants_cnpj.TABELAS.value[0:1]
 
@@ -68,7 +74,9 @@ with Flow(
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
     with case(dados_desatualizados, True):
-        output_filepath = main(tabelas,folder_date=folder_date,today_date=today_date)
+        output_filepath = main(
+            tabelas, folder_date=folder_date, today_date=today_date
+        )
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
@@ -78,7 +86,9 @@ with Flow(
         )
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels(upstream_tasks=[wait_upload_table])
+            current_flow_labels = get_current_flow_labels(
+                upstream_tasks=[wait_upload_table]
+            )
             materialization_flow = create_flow_run(
                 flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
                 project_name=constants.PREFECT_DEFAULT_PROJECT.value,
@@ -92,7 +102,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks=[current_flow_labels]
+                upstream_tasks=[current_flow_labels],
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -100,7 +110,7 @@ with Flow(
                 stream_states=True,
                 stream_logs=True,
                 raise_final_state=True,
-                upstream_tasks=[materialization_flow]
+                upstream_tasks=[materialization_flow],
             )
             wait_for_materialization.max_retries = (
                 dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
@@ -123,7 +133,9 @@ with Flow(
 
 
 br_me_cnpj_empresas.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_me_cnpj_empresas.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_me_cnpj_empresas.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
 br_me_cnpj_empresas.schedule = every_day_empresas
 
 with Flow(
@@ -143,7 +155,10 @@ with Flow(
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
     tabelas = constants_cnpj.TABELAS.value[1:2]
 
@@ -161,7 +176,9 @@ with Flow(
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
     with case(dados_desatualizados, True):
-        output_filepath = main(tabelas,folder_date=folder_date,today_date=today_date)
+        output_filepath = main(
+            tabelas, folder_date=folder_date, today_date=today_date
+        )
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
@@ -171,7 +188,9 @@ with Flow(
         )
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels(upstream_tasks=[wait_upload_table])
+            current_flow_labels = get_current_flow_labels(
+                upstream_tasks=[wait_upload_table]
+            )
             materialization_flow = create_flow_run(
                 flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
                 project_name=constants.PREFECT_DEFAULT_PROJECT.value,
@@ -185,7 +204,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks=[current_flow_labels]
+                upstream_tasks=[current_flow_labels],
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -193,7 +212,7 @@ with Flow(
                 stream_states=True,
                 stream_logs=True,
                 raise_final_state=True,
-                upstream_tasks=[materialization_flow]
+                upstream_tasks=[materialization_flow],
             )
             wait_for_materialization.max_retries = (
                 dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
@@ -215,7 +234,9 @@ with Flow(
             )
 
 br_me_cnpj_socios.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_me_cnpj_socios.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_me_cnpj_socios.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
 br_me_cnpj_socios.schedule = every_day_socios
 
 
@@ -224,10 +245,12 @@ with Flow(
     code_owners=[
         "equipe_pipelines",
     ],
-    executor=LocalDaskExecutor()
+    executor=LocalDaskExecutor(),
 ) as br_me_cnpj_estabelecimentos:
     dataset_id = Parameter("dataset_id", default="br_me_cnpj", required=False)
-    table_id = Parameter("table_id", default="estabelecimentos", required=False)
+    table_id = Parameter(
+        "table_id", default="estabelecimentos", required=False
+    )
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
     )
@@ -237,8 +260,11 @@ with Flow(
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
-     )
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
+    )
     tabelas = constants_cnpj.TABELAS.value[2:3]
 
     folder_date, today_date = get_data_source_max_date()
@@ -255,7 +281,9 @@ with Flow(
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
     with case(dados_desatualizados, True):
-        output_filepath = main(tabelas,folder_date=folder_date,today_date=today_date)
+        output_filepath = main(
+            tabelas, folder_date=folder_date, today_date=today_date
+        )
 
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
@@ -266,7 +294,9 @@ with Flow(
         )
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels(upstream_tasks=[wait_upload_table])
+            current_flow_labels = get_current_flow_labels(
+                upstream_tasks=[wait_upload_table]
+            )
             materialization_flow = create_flow_run(
                 flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
                 project_name=constants.PREFECT_DEFAULT_PROJECT.value,
@@ -280,7 +310,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks=[current_flow_labels]
+                upstream_tasks=[current_flow_labels],
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -288,7 +318,7 @@ with Flow(
                 stream_states=True,
                 stream_logs=True,
                 raise_final_state=True,
-                upstream_tasks=[materialization_flow]
+                upstream_tasks=[materialization_flow],
             )
             wait_for_materialization.max_retries = (
                 dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
@@ -311,7 +341,9 @@ with Flow(
         ## atualiza o diretório de empresas
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels(upstream_tasks=[update_django_metadata])
+            current_flow_labels = get_current_flow_labels(
+                upstream_tasks=[update_django_metadata]
+            )
             materialize_second = create_flow_run(
                 flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
                 project_name=constants.PREFECT_DEFAULT_PROJECT.value,
@@ -323,7 +355,10 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks=[materialization_flow, wait_for_materialization]
+                upstream_tasks=[
+                    materialization_flow,
+                    wait_for_materialization,
+                ],
             )
             materialize_second.set_upstream([materialization_flow])
             wait_for_materialization = wait_for_flow_run(
@@ -375,7 +410,10 @@ with Flow(
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
     tabelas = constants_cnpj.TABELAS.value[3:]
 
@@ -393,7 +431,9 @@ with Flow(
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
     with case(dados_desatualizados, True):
-        output_filepath = main(tabelas,folder_date=folder_date,today_date=today_date)
+        output_filepath = main(
+            tabelas, folder_date=folder_date, today_date=today_date
+        )
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
@@ -403,7 +443,9 @@ with Flow(
         )
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels(upstream_tasks=[wait_upload_table])
+            current_flow_labels = get_current_flow_labels(
+                upstream_tasks=[wait_upload_table]
+            )
             materialization_flow = create_flow_run(
                 flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
                 project_name=constants.PREFECT_DEFAULT_PROJECT.value,
@@ -415,7 +457,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks=[current_flow_labels]
+                upstream_tasks=[current_flow_labels],
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -423,7 +465,7 @@ with Flow(
                 stream_states=True,
                 stream_logs=True,
                 raise_final_state=True,
-                upstream_tasks=[materialization_flow]
+                upstream_tasks=[materialization_flow],
             )
             wait_for_materialization.max_retries = (
                 dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
@@ -443,6 +485,7 @@ with Flow(
             )
 
 br_me_cnpj_simples.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_me_cnpj_simples.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_me_cnpj_simples.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
 br_me_cnpj_simples.schedule = every_day_simples
-

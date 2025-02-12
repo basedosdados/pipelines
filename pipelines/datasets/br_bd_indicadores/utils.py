@@ -2,6 +2,7 @@
 """
 utils for br_bd_indicadores
 """
+
 # pylint: disable=too-few-public-methods
 import collections
 import os
@@ -29,7 +30,9 @@ def create_headers(bearer_token: str) -> dict:
     return headers
 
 
-def create_url(start_date: str, end_date: str, max_results=10) -> Tuple[str, dict]:
+def create_url(
+    start_date: str, end_date: str, max_results=10
+) -> Tuple[str, dict]:
     """
     Creates parameterized url
     """
@@ -49,12 +52,18 @@ def create_url(start_date: str, end_date: str, max_results=10) -> Tuple[str, dic
     return (search_url, query_params)
 
 
-def connect_to_endpoint(url: str, headers: dict, params: dict, next_token=None) -> dict:
+def connect_to_endpoint(
+    url: str, headers: dict, params: dict, next_token=None
+) -> dict:
     """
     Connect to endpoint using params
     """
-    params["next_token"] = next_token  # params object received from create_url function
-    response = requests.request("GET", url, headers=headers, params=params, timeout=30)
+    params["next_token"] = (
+        next_token  # params object received from create_url function
+    )
+    response = requests.request(
+        "GET", url, headers=headers, params=params, timeout=30
+    )
     print("Endpoint Response Code: " + str(response.status_code))
     if response.status_code != 200:
         raise Exception(response.status_code, response.text)
@@ -123,14 +132,20 @@ class GA4RealTimeReport:
                 output["quota"] = response.property_quota
 
             # construct the dataset
-            headers = [header.name for header in response.dimension_headers] + [
-                header.name for header in response.metric_headers
-            ]
+            headers = [
+                header.name for header in response.dimension_headers
+            ] + [header.name for header in response.metric_headers]
             rows = []
             for row in response.rows:
                 rows.append(
-                    [dimension_value.value for dimension_value in row.dimension_values]
-                    + [metric_value.value for metric_value in row.metric_values]
+                    [
+                        dimension_value.value
+                        for dimension_value in row.dimension_values
+                    ]
+                    + [
+                        metric_value.value
+                        for metric_value in row.metric_values
+                    ]
                 )
             output["headers"] = headers
             output["rows"] = rows
@@ -173,7 +188,9 @@ def get_report(analytics, dimension: str, metric: str, VIEW_ID: str):
                 "reportRequests": [
                     {
                         "viewId": VIEW_ID,
-                        "dateRanges": [{"startDate": "today", "endDate": "today"}],
+                        "dateRanges": [
+                            {"startDate": "today", "endDate": "today"}
+                        ],
                         "metrics": [{"expression": metric}],
                         "dimensions": [{"name": dimension}],
                     }
@@ -195,9 +212,13 @@ def parse_data(response) -> pd.DataFrame:
     """
     reports = response["reports"][0]
     columnHeader = reports["columnHeader"]["dimensions"]
-    metricHeader = reports["columnHeader"]["metricHeader"]["metricHeaderEntries"]
+    metricHeader = reports["columnHeader"]["metricHeader"][
+        "metricHeaderEntries"
+    ]
     # Get dimenssion names
-    dim_names = [columnHeader[n].split(":")[1] for n in range(len(columnHeader))]
+    dim_names = [
+        columnHeader[n].split(":")[1] for n in range(len(columnHeader))
+    ]
     # Get metric names
     metric_names = [
         metricHeader[n]["name"].split(":")[1] for n in range(len(metricHeader))
@@ -213,7 +234,9 @@ def parse_data(response) -> pd.DataFrame:
     data_metrics = pd.DataFrame(data["metrics"].tolist())
     data_metrics = data_metrics.applymap(lambda x: x["values"])
     data_metrics = pd.DataFrame(data_metrics[0].tolist())
-    result = pd.concat([data_dimensions, data_metrics], axis=1, ignore_index=True)
+    result = pd.concat(
+        [data_dimensions, data_metrics], axis=1, ignore_index=True
+    )
 
     # Assign columns names to DF
     result.columns = column_names

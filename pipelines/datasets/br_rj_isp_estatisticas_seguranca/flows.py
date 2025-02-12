@@ -2,6 +2,7 @@
 """
 Flows for br_rj_isp_estatisticas_seguranca.
 """
+
 from datetime import timedelta
 
 from prefect import Parameter, case
@@ -29,7 +30,9 @@ from pipelines.datasets.br_rj_isp_estatisticas_seguranca.tasks import (
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.execute_dbt_model.constants import (
+    constants as dump_db_constants,
+)
 from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
@@ -47,7 +50,9 @@ with Flow(
     dataset_id = Parameter(
         "dataset_id", default="br_rj_isp_estatisticas_seguranca", required=True
     )
-    table_id = Parameter("table_id", default="evolucao_mensal_cisp", required=True)
+    table_id = Parameter(
+        "table_id", default="evolucao_mensal_cisp", required=True
+    )
 
     # Materialization mode
     materialization_mode = Parameter(
@@ -60,9 +65,14 @@ with Flow(
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
-    update_metadata = Parameter("update_metadata", default=True, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=True, required=False
+    )
 
     d_files = download_files(
         file_name=isp_constants.EVOLUCAO_MENSAL_CISP.value,
@@ -124,7 +134,9 @@ with Flow(
             )
 
 evolucao_mensal_cisp.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-evolucao_mensal_cisp.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+evolucao_mensal_cisp.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
 evolucao_mensal_cisp.schedule = every_month_evolucao_mensal_cisp
 
 
@@ -139,7 +151,9 @@ with Flow(
     dataset_id = Parameter(
         "dataset_id", default="br_rj_isp_estatisticas_seguranca", required=True
     )
-    table_id = Parameter("table_id", default="taxa_evolucao_mensal_uf", required=True)
+    table_id = Parameter(
+        "table_id", default="taxa_evolucao_mensal_uf", required=True
+    )
 
     # Materialization mode
     materialization_mode = Parameter(
@@ -151,9 +165,14 @@ with Flow(
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
-    update_metadata = Parameter("update_metadata", default=True, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=True, required=False
+    )
 
     d_files = download_files(
         file_name=isp_constants.TAXA_EVOLUCAO_MENSAL_UF.value,
@@ -215,7 +234,9 @@ with Flow(
             )
 
 taxa_evolucao_mensal_uf.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-taxa_evolucao_mensal_uf.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+taxa_evolucao_mensal_uf.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
 taxa_evolucao_mensal_uf.schedule = every_month_taxa_evolucao_mensal_uf
 
 
@@ -244,9 +265,14 @@ with Flow(
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
-    update_metadata = Parameter("update_metadata", default=True, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=True, required=False
+    )
 
     d_files = download_files(
         file_name=isp_constants.TAXA_EVOLUCAO_MENSAL_MUNICIPIO.value,
@@ -312,7 +338,9 @@ taxa_evolucao_mensal_municipio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 taxa_evolucao_mensal_municipio.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-taxa_evolucao_mensal_municipio.schedule = every_month_taxa_evolucao_mensal_municipio
+taxa_evolucao_mensal_municipio.schedule = (
+    every_month_taxa_evolucao_mensal_municipio
+)
 
 
 # ! Feminicidio_mensal_cisp
@@ -325,7 +353,9 @@ with Flow(
     dataset_id = Parameter(
         "dataset_id", default="br_rj_isp_estatisticas_seguranca", required=True
     )
-    table_id = Parameter("table_id", default="feminicidio_mensal_cisp", required=True)
+    table_id = Parameter(
+        "table_id", default="feminicidio_mensal_cisp", required=True
+    )
 
     # Materialization mode
     materialization_mode = Parameter(
@@ -336,10 +366,15 @@ with Flow(
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
-    update_metadata = Parameter("update_metadata", default=True, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=True, required=False
+    )
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     d_files = download_files(
@@ -403,7 +438,9 @@ with Flow(
 
 
 feminicidio_mensal_cisp.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-feminicidio_mensal_cisp.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+feminicidio_mensal_cisp.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
 feminicidio_mensal_cisp.schedule = every_month_feminicidio_mensal_cisp
 
 # ! evolucao_policial_morto_servico_mensal
@@ -418,7 +455,9 @@ with Flow(
         "dataset_id", default="br_rj_isp_estatisticas_seguranca", required=True
     )
     table_id = Parameter(
-        "table_id", default="evolucao_policial_morto_servico_mensal", required=True
+        "table_id",
+        default="evolucao_policial_morto_servico_mensal",
+        required=True,
     )
 
     # Materialization mode
@@ -430,10 +469,15 @@ with Flow(
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
-    update_metadata = Parameter("update_metadata", default=True, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=True, required=False
+    )
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     d_files = download_files(
@@ -495,7 +539,9 @@ with Flow(
                 upstream_tasks=[wait_for_materialization],
             )
 
-evolucao_policial_morto_servico_mensal.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+evolucao_policial_morto_servico_mensal.storage = GCS(
+    constants.GCS_FLOWS_BUCKET.value
+)
 evolucao_policial_morto_servico_mensal.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
@@ -514,7 +560,9 @@ with Flow(
     dataset_id = Parameter(
         "dataset_id", default="br_rj_isp_estatisticas_seguranca", required=True
     )
-    table_id = Parameter("table_id", default="armas_apreendidas_mensal", required=True)
+    table_id = Parameter(
+        "table_id", default="armas_apreendidas_mensal", required=True
+    )
 
     # Materialization mode
     materialization_mode = Parameter(
@@ -525,10 +573,15 @@ with Flow(
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
-    update_metadata = Parameter("update_metadata", default=True, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=True, required=False
+    )
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     d_files = download_files(
@@ -591,7 +644,9 @@ with Flow(
             )
 
 armas_apreendidas_mensal.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-armas_apreendidas_mensal.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+armas_apreendidas_mensal.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
 armas_apreendidas_mensal.schedule = every_month_armas_apreendidas_mensal
 
 # ! evolucao_mensal_municipio
@@ -605,7 +660,9 @@ with Flow(
     dataset_id = Parameter(
         "dataset_id", default="br_rj_isp_estatisticas_seguranca", required=True
     )
-    table_id = Parameter("table_id", default="evolucao_mensal_municipio", required=True)
+    table_id = Parameter(
+        "table_id", default="evolucao_mensal_municipio", required=True
+    )
 
     # Materialization mode
     materialization_mode = Parameter(
@@ -616,10 +673,15 @@ with Flow(
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
-    update_metadata = Parameter("update_metadata", default=True, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=True, required=False
+    )
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     d_files = download_files(
@@ -682,7 +744,9 @@ with Flow(
             )
 
 evolucao_mensal_municipio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-evolucao_mensal_municipio.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+evolucao_mensal_municipio.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
 evolucao_mensal_municipio.schedule = every_month_evolucao_mensal_municipio
 
 # ! evolucao_mensal_municipio
@@ -696,7 +760,9 @@ with Flow(
     dataset_id = Parameter(
         "dataset_id", default="br_rj_isp_estatisticas_seguranca", required=True
     )
-    table_id = Parameter("table_id", default="evolucao_mensal_uf", required=True)
+    table_id = Parameter(
+        "table_id", default="evolucao_mensal_uf", required=True
+    )
 
     # Materialization mode
     materialization_mode = Parameter(
@@ -707,10 +773,15 @@ with Flow(
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
-    update_metadata = Parameter("update_metadata", default=True, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=True, required=False
+    )
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     d_files = download_files(
@@ -773,5 +844,7 @@ with Flow(
             )
 
 evolucao_mensal_uf.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-evolucao_mensal_uf.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+evolucao_mensal_uf.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
 evolucao_mensal_uf.schedule = every_month_evolucao_mensal_uf

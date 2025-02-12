@@ -3,26 +3,27 @@
 Tasks for br_bd_metadados
 """
 
-
 import os
 from datetime import timedelta
-import datetime
 
 import pandas as pd
-from pipelines.datasets.br_bd_metadados.utils import extract_and_process_schedule_data, get_skipped_upload_to_gcs_column, save_files_per_week
 from prefect import Client, task
 
 from pipelines.constants import constants
-from pipelines.utils.utils import log
-#register_flow
+from pipelines.datasets.br_bd_metadados.utils import (
+    extract_and_process_schedule_data,
+    get_skipped_upload_to_gcs_column,
+    save_files_per_week,
+)
+
+# register_flow
+
 
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def crawler_flow_runs(table_id: str = "prefect_flow_runs"):
-
-
     graphql_client = Client()
 
     graphql_query = """{flow_run(where: {_and: [{state: {_nin: ["Scheduled", "Cancelled"]}}]}) {
@@ -56,27 +57,31 @@ def crawler_flow_runs(table_id: str = "prefect_flow_runs"):
 
     graphql_response = graphql_client.graphql(query=graphql_query)
 
-    flow_runs_df = pd.json_normalize(graphql_response["data"]["flow_run"], sep="_")
+    flow_runs_df = pd.json_normalize(
+        graphql_response["data"]["flow_run"], sep="_"
+    )
 
-    flow_runs_df["skipped_upload_to_gcs"] = get_skipped_upload_to_gcs_column(flow_runs_df)
+    flow_runs_df["skipped_upload_to_gcs"] = get_skipped_upload_to_gcs_column(
+        flow_runs_df
+    )
     flow_runs_df["dataset_id"] = flow_runs_df["parameters_dataset_id"]
     flow_runs_df["table_id"] = flow_runs_df["parameters_table_id"]
-    flow_runs_df['labels'] = flow_runs_df['labels'].str[0]
+    flow_runs_df["labels"] = flow_runs_df["labels"].str[0]
 
-    relevant_columns = [col for col in flow_runs_df.columns if not col.startswith("parameters")]
+    relevant_columns = [
+        col for col in flow_runs_df.columns if not col.startswith("parameters")
+    ]
 
     folder_path = f"tmp/{table_id}"
     os.system(f"mkdir -p {folder_path}")
 
-    save_files_per_week(flow_runs_df, relevant_columns,folder_path)
+    save_files_per_week(flow_runs_df, relevant_columns, folder_path)
 
     return folder_path
 
+
 @task
 def crawler_flows(table_id: str = "prefect_flows"):
-
-
-
     graphql_client = Client()
 
     graphql_query = """{flow(where: {archived: {_eq: false}}) {
@@ -102,7 +107,9 @@ def crawler_flows(table_id: str = "prefect_flows"):
 
     graphql_response = graphql_client.graphql(query=graphql_query)
 
-    flow_df = pd.json_normalize(graphql_response, record_path=["data", "flow"], sep="_")
+    flow_df = pd.json_normalize(
+        graphql_response, record_path=["data", "flow"], sep="_"
+    )
 
     flow_df = extract_and_process_schedule_data(flow_df)
 

@@ -1,22 +1,28 @@
 # -*- coding: utf-8 -*-
 import os
-import pandas as pd
-import requests
+from io import BytesIO
 from urllib.request import urlopen
 from zipfile import ZipFile
-from io import BytesIO
 
-from pipelines.utils.crawler_camara_dados_abertos.constants import constants as constants_camara
+import pandas as pd
+import requests
+
+from pipelines.utils.crawler_camara_dados_abertos.constants import (
+    constants as constants_camara,
+)
 from pipelines.utils.utils import log
 
-# ----------------------------------------------------------------------------------- > Universal
-def download_table_despesa(table_id:str) -> None:
 
+# ----------------------------------------------------------------------------------- > Universal
+def download_table_despesa(table_id: str) -> None:
     http_response = urlopen(constants_camara.TABLES_URL.value[table_id])
     zipfile = ZipFile(BytesIO(http_response.read()))
     zipfile.extractall(path=constants_camara.INPUT_PATH.value)
 
-    log(f"Downloading {table_id} from {constants_camara.TABLES_URL.value[table_id]}")
+    log(
+        f"Downloading {table_id} from {constants_camara.TABLES_URL.value[table_id]}"
+    )
+
 
 def download_all_table(table_id: str) -> None:
     """
@@ -35,7 +41,6 @@ def download_all_table(table_id: str) -> None:
 
     url = constants_camara.TABLES_URL.value[table_id]
     input_path = constants_camara.TABLES_INPUT_PATH.value[table_id]
-
 
     log(f"Downloading {table_id} from {url}")
     response = requests.get(url, headers=constants_camara.HEADERS.value)

@@ -2,6 +2,7 @@
 """
 Flows for br_rf_cafir
 """
+
 # pylint: disable=invalid-name
 from datetime import timedelta
 
@@ -11,16 +12,22 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.datasets.br_rf_cafir.constants import constants as br_rf_cafir_constants
-from pipelines.datasets.br_rf_cafir.schedules import schedule_br_rf_cafir_imoveis_rurais
+from pipelines.datasets.br_rf_cafir.constants import (
+    constants as br_rf_cafir_constants,
+)
+from pipelines.datasets.br_rf_cafir.schedules import (
+    schedule_br_rf_cafir_imoveis_rurais,
+)
 from pipelines.datasets.br_rf_cafir.tasks import (
     task_decide_files_to_download,
+    task_download_files,
     task_parse_api_metadata,
-    task_download_files
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.execute_dbt_model.constants import (
+    constants as dump_db_constants,
+)
 from pipelines.utils.metadata.tasks import (
     check_if_data_is_outdated,
     update_django_metadata,
@@ -37,7 +44,9 @@ with Flow(
 ) as br_rf_cafir_imoveis_rurais:
     dataset_id = Parameter("dataset_id", default="br_rf_cafir", required=True)
     table_id = Parameter("table_id", default="imoveis_rurais", required=True)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -47,18 +56,21 @@ with Flow(
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     df_metadata = task_parse_api_metadata(
         url=br_rf_cafir_constants.URL.value[0],
-        headers=br_rf_cafir_constants.HEADERS.value
-        )
+        headers=br_rf_cafir_constants.HEADERS.value,
+    )
 
     arquivos, data_atualizacao = task_decide_files_to_download(
         df=df_metadata,
         upstream_tasks=[df_metadata],
-        )
+    )
 
     is_outdated = check_if_data_is_outdated(
         dataset_id=dataset_id,
@@ -105,7 +117,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks = [wait_upload_table]
+                upstream_tasks=[wait_upload_table],
             )
 
             wait_for_materialization = wait_for_flow_run(

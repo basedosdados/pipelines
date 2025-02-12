@@ -2,6 +2,7 @@
 """
 Tasks for delete_flows
 """
+
 from typing import Dict, List
 
 import pendulum
@@ -20,7 +21,9 @@ def get_prefect_client() -> Client:
 
 
 @task
-def get_old_flows_runs(days_old: int, client: Client = None) -> List[Dict[str, str]]:
+def get_old_flows_runs(
+    days_old: int, client: Client = None
+) -> List[Dict[str, str]]:
     """
     Fetches old flow runs from the API.
     Args:
@@ -37,7 +40,9 @@ def get_old_flows_runs(days_old: int, client: Client = None) -> List[Dict[str, s
     ```
     """
     maximum_start_time = (
-        pendulum.now(tz="America/Sao_Paulo").subtract(days=days_old).to_iso8601_string()
+        pendulum.now(tz="America/Sao_Paulo")
+        .subtract(days=days_old)
+        .to_iso8601_string()
     )
     if not client:
         client = Client()
@@ -63,7 +68,9 @@ def get_old_flows_runs(days_old: int, client: Client = None) -> List[Dict[str, s
 
 
 @task
-def delete_flow_run(flow_run_dict: Dict[str, str], client: Client = None) -> None:
+def delete_flow_run(
+    flow_run_dict: Dict[str, str], client: Client = None
+) -> None:
     """
     Deletes a flow run from the API.
     """
@@ -82,7 +89,9 @@ def delete_flow_run(flow_run_dict: Dict[str, str], client: Client = None) -> Non
             }
         }
     """
-    response = client.graphql(query=query, variables=dict(flow_run_id=flow_run_id))
+    response = client.graphql(
+        query=query, variables=dict(flow_run_id=flow_run_id)
+    )
     success: bool = response["data"]["delete_flow_run"]["success"]
     log(type(response["data"]["delete_flow_run"]))
     log(response["data"])

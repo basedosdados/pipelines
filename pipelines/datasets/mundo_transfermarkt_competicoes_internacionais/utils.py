@@ -5,10 +5,9 @@ General purpose functions for the mundo_transfermarkt_competicoes_internacionais
 ###############################################################################
 
 import re
-from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime
 
-import numpy as np
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
@@ -73,10 +72,14 @@ def process(df, content):
         pandas.DataFrame: DataFrame atualizado com os dados do jogo.
     """
     new_content = {
-        "time_man": content.find_all("div", attrs={"class": "sb-team sb-heim"})[0]
+        "time_man": content.find_all(
+            "div", attrs={"class": "sb-team sb-heim"}
+        )[0]
         .find("a", class_="sb-vereinslink")
         .text,
-        "time_vis": content.find_all("div", attrs={"class": "sb-team sb-gast"})[0]
+        "time_vis": content.find_all(
+            "div", attrs={"class": "sb-team sb-gast"}
+        )[0]
         .find("a", class_="sb-vereinslink")
         .text,
         "gols_man": content.find_all("div", attrs={"class": "sb-endstand"})[0]
@@ -89,24 +92,38 @@ def process(df, content):
             .get_text()
             .strip(),
         ).group(1),
-        "estadio": content.find_all("td", attrs={"class": "hauptlink"})[0].get_text(),
+        "estadio": content.find_all("td", attrs={"class": "hauptlink"})[
+            0
+        ].get_text(),
         "data": re.search(
             re.compile(r"\d+/\d+/\d+"),
-            content.find("a", text=re.compile(r"\d+/\d+/\d")).get_text().strip(),
+            content.find("a", text=re.compile(r"\d+/\d+/\d"))
+            .get_text()
+            .strip(),
         ).group(0),
-        "horario": content.find_all("p", attrs={"class": "sb-datum hide-for-small"})[0]
+        "horario": content.find_all(
+            "p", attrs={"class": "sb-datum hide-for-small"}
+        )[0]
         .get_text()
         .split("|")[2]
         .strip(),
-        "fase": content.find_all("p", attrs={"class": "sb-datum hide-for-small"})[0]
+        "fase": content.find_all(
+            "p", attrs={"class": "sb-datum hide-for-small"}
+        )[0]
         .get_text()
         .split("|")[0]
         .strip(),
-        "publico": content.find_all("td", attrs={"class": "hauptlink"})[1].get_text(),
-        "publico_max": content.find_all("table", attrs={"class": "profilheader"})[0]
+        "publico": content.find_all("td", attrs={"class": "hauptlink"})[
+            1
+        ].get_text(),
+        "publico_max": content.find_all(
+            "table", attrs={"class": "profilheader"}
+        )[0]
         .find_all("td")[2]
         .get_text(),
-        "arbitro": content.find_all("table", attrs={"class": "profilheader"})[1]
+        "arbitro": content.find_all("table", attrs={"class": "profilheader"})[
+            1
+        ]
         .find_all("a")[0]
         .get_text(),
         "arbitro_nacionalidade": content.find_all(
@@ -114,39 +131,41 @@ def process(df, content):
         )[1]
         .find_all("a")[1]
         .get_text(),
-        "gols_1_tempo": content.find_all("div", attrs={"class": "sb-halbzeit"})[0]
+        "gols_1_tempo": content.find_all(
+            "div", attrs={"class": "sb-halbzeit"}
+        )[0]
         .get_text()
         .split()[0],
-        "chutes_man": content.find_all("div", attrs={"class": "sb-statistik-zahl"})[
-            0
-        ].get_text(),
-        "chutes_vis": content.find_all("div", attrs={"class": "sb-statistik-zahl"})[
-            1
-        ].get_text(),
+        "chutes_man": content.find_all(
+            "div", attrs={"class": "sb-statistik-zahl"}
+        )[0].get_text(),
+        "chutes_vis": content.find_all(
+            "div", attrs={"class": "sb-statistik-zahl"}
+        )[1].get_text(),
         "chutes_fora_man": content.find_all(
             "div", attrs={"class": "sb-statistik-zahl"}
         )[2].get_text(),
         "chutes_fora_vis": content.find_all(
             "div", attrs={"class": "sb-statistik-zahl"}
         )[3].get_text(),
-        "defesas_man": content.find_all("div", attrs={"class": "sb-statistik-zahl"})[
-            4
-        ].get_text(),
-        "defesas_vis": content.find_all("div", attrs={"class": "sb-statistik-zahl"})[
-            5
-        ].get_text(),
-        "faltas_man": content.find_all("div", attrs={"class": "sb-statistik-zahl"})[
-            10
-        ].get_text(),
-        "faltas_vis": content.find_all("div", attrs={"class": "sb-statistik-zahl"})[
-            11
-        ].get_text(),
-        "escanteios_man": content.find_all("div", attrs={"class": "sb-statistik-zahl"})[
-            6
-        ].get_text(),
-        "escanteios_vis": content.find_all("div", attrs={"class": "sb-statistik-zahl"})[
-            7
-        ].get_text(),
+        "defesas_man": content.find_all(
+            "div", attrs={"class": "sb-statistik-zahl"}
+        )[4].get_text(),
+        "defesas_vis": content.find_all(
+            "div", attrs={"class": "sb-statistik-zahl"}
+        )[5].get_text(),
+        "faltas_man": content.find_all(
+            "div", attrs={"class": "sb-statistik-zahl"}
+        )[10].get_text(),
+        "faltas_vis": content.find_all(
+            "div", attrs={"class": "sb-statistik-zahl"}
+        )[11].get_text(),
+        "escanteios_man": content.find_all(
+            "div", attrs={"class": "sb-statistik-zahl"}
+        )[6].get_text(),
+        "escanteios_vis": content.find_all(
+            "div", attrs={"class": "sb-statistik-zahl"}
+        )[7].get_text(),
         "impedimentos_man": content.find_all(
             "div", attrs={"class": "sb-statistik-zahl"}
         )[12].get_text(),
@@ -176,10 +195,14 @@ def process_basico(df, content):
         pandas.DataFrame: DataFrame atualizado com os dados do jogo.
     """
     new_content = {
-        "time_man": content.find_all("div", attrs={"class": "sb-team sb-heim"})[0]
+        "time_man": content.find_all(
+            "div", attrs={"class": "sb-team sb-heim"}
+        )[0]
         .find("a", class_="sb-vereinslink")
         .text,
-        "time_vis": content.find_all("div", attrs={"class": "sb-team sb-gast"})[0]
+        "time_vis": content.find_all(
+            "div", attrs={"class": "sb-team sb-gast"}
+        )[0]
         .find("a", class_="sb-vereinslink")
         .text,
         "gols_man": content.find_all("div", attrs={"class": "sb-endstand"})[0]
@@ -192,24 +215,38 @@ def process_basico(df, content):
             .get_text()
             .strip(),
         ).group(1),
-        "estadio": content.find_all("td", attrs={"class": "hauptlink"})[0].get_text(),
+        "estadio": content.find_all("td", attrs={"class": "hauptlink"})[
+            0
+        ].get_text(),
         "data": re.search(
             re.compile(r"\d+/\d+/\d+"),
-            content.find("a", text=re.compile(r"\d+/\d+/\d")).get_text().strip(),
+            content.find("a", text=re.compile(r"\d+/\d+/\d"))
+            .get_text()
+            .strip(),
         ).group(0),
-        "horario": content.find_all("p", attrs={"class": "sb-datum hide-for-small"})[0]
+        "horario": content.find_all(
+            "p", attrs={"class": "sb-datum hide-for-small"}
+        )[0]
         .get_text()
         .split("|")[2]
         .strip(),
-        "fase": content.find_all("p", attrs={"class": "sb-datum hide-for-small"})[0]
+        "fase": content.find_all(
+            "p", attrs={"class": "sb-datum hide-for-small"}
+        )[0]
         .get_text()
         .split("|")[0]
         .strip(),
-        "publico": content.find_all("td", attrs={"class": "hauptlink"})[1].get_text(),
-        "publico_max": content.find_all("table", attrs={"class": "profilheader"})[0]
+        "publico": content.find_all("td", attrs={"class": "hauptlink"})[
+            1
+        ].get_text(),
+        "publico_max": content.find_all(
+            "table", attrs={"class": "profilheader"}
+        )[0]
         .find_all("td")[2]
         .get_text(),
-        "arbitro": content.find_all("table", attrs={"class": "profilheader"})[1]
+        "arbitro": content.find_all("table", attrs={"class": "profilheader"})[
+            1
+        ]
         .find_all("a")[0]
         .get_text(),
         "arbitro_nacionalidade": content.find_all(
@@ -217,7 +254,9 @@ def process_basico(df, content):
         )[1]
         .find_all("a")[1]
         .get_text(),
-        "gols_1_tempo": content.find_all("div", attrs={"class": "sb-halbzeit"})[0]
+        "gols_1_tempo": content.find_all(
+            "div", attrs={"class": "sb-halbzeit"}
+        )[0]
         .get_text()
         .split()[0],
         "chutes_man": None,
@@ -448,30 +487,46 @@ def pegar_valor(df, content):
         "tecnico_vis": content.find_all("div", class_="container-inhalt")[1]
         .find("a")
         .text.strip(),
-        "idade_tecnico_man": content.find_all("div", class_="container-inhalt")[0]
+        "idade_tecnico_man": content.find_all(
+            "div", class_="container-inhalt"
+        )[0]
         .find("b", text="Idade:")
         .nextSibling.strip()
         .split()[0],
-        "idade_tecnico_vis": content.find_all("div", class_="container-inhalt")[1]
+        "idade_tecnico_vis": content.find_all(
+            "div", class_="container-inhalt"
+        )[1]
         .find("b", text="Idade:")
         .nextSibling.strip()
         .split()[0],
-        "data_inicio_tecnico_man": content.find_all("div", class_="container-inhalt")[0]
+        "data_inicio_tecnico_man": content.find_all(
+            "div", class_="container-inhalt"
+        )[0]
         .find("b", text="Desde:")
         .nextSibling.strip(),
-        "data_inicio_tecnico_vis": content.find_all("div", class_="container-inhalt")[1]
+        "data_inicio_tecnico_vis": content.find_all(
+            "div", class_="container-inhalt"
+        )[1]
         .find("b", text="Desde:")
         .nextSibling.strip(),
-        "data_final_tecnico_man": content.find_all("div", class_="container-inhalt")[0]
+        "data_final_tecnico_man": content.find_all(
+            "div", class_="container-inhalt"
+        )[0]
         .find("b", text="Contrato até:")
         .nextSibling.strip(),
-        "data_final_tecnico_vis": content.find_all("div", class_="container-inhalt")[1]
+        "data_final_tecnico_vis": content.find_all(
+            "div", class_="container-inhalt"
+        )[1]
         .find("b", text="Contrato até:")
         .nextSibling.strip(),
-        "proporcao_sucesso_man": content.find_all("div", class_="container-inhalt")[0]
+        "proporcao_sucesso_man": content.find_all(
+            "div", class_="container-inhalt"
+        )[0]
         .find("b", text="Proporção de sucesso:")
         .nextSibling.strip(),
-        "proporcao_sucesso_vis": content.find_all("div", class_="container-inhalt")[1]
+        "proporcao_sucesso_vis": content.find_all(
+            "div", class_="container-inhalt"
+        )[1]
         .find("b", text="Proporção de sucesso:")
         .nextSibling.strip(),
     }
@@ -577,6 +632,7 @@ def valor_vazio(df):
     df = pd.concat([df, pd.DataFrame([valor_content])], ignore_index=True)
     return df
 
+
 def obter_data(link):
     base_link_br = "https://www.transfermarkt.com.br"
     headers = {
@@ -590,7 +646,7 @@ def obter_data(link):
         content.find("a", text=re.compile(r"\d+/\d+/\d")).get_text().strip(),
     ).group(0)
     print(data)
-    return datetime.strptime(data, '%d/%m/%y')
+    return datetime.strptime(data, "%d/%m/%y")
 
 
 def data_url():
@@ -673,7 +729,7 @@ async def execucao_coleta():
                     df = vazio(df)
         else:
             df = vazio(df)
-        log(f"{n+1} dados sobre estatística de {n_links} extraídos.")
+        log(f"{n + 1} dados sobre estatística de {n_links} extraídos.")
 
     df_valor = pd.DataFrame({})
     for n, link in enumerate(links_valor):
@@ -692,7 +748,7 @@ async def execucao_coleta():
                     df_valor = valor_vazio(df_valor)
         else:
             df_valor = valor_vazio(df_valor)
-        log(f"{n+1} valores de {n_links} extraídos.")
+        log(f"{n + 1} valores de {n_links} extraídos.")
 
     # Tratamento
     ## df_valor tratando
@@ -729,12 +785,12 @@ async def execucao_coleta():
     for coluna in colunas_formatar:
         df_valor[coluna] = formatar_data(df_valor[coluna])
 
-    df_valor["data_final_tecnico_vis"] = df_valor["data_final_tecnico_vis"].replace(
-        "-", pd.NaT
-    )
-    df_valor["data_final_tecnico_man"] = df_valor["data_final_tecnico_man"].replace(
-        "-", pd.NaT
-    )
+    df_valor["data_final_tecnico_vis"] = df_valor[
+        "data_final_tecnico_vis"
+    ].replace("-", pd.NaT)
+    df_valor["data_final_tecnico_man"] = df_valor[
+        "data_final_tecnico_man"
+    ].replace("-", pd.NaT)
     # Em seguida, converta a coluna para o formato datetime
     df_valor["data_final_tecnico_vis"] = pd.to_datetime(
         df_valor["data_final_tecnico_vis"], format="%d/%m/%Y", errors="coerce"
@@ -744,7 +800,9 @@ async def execucao_coleta():
     )
     ## df tratamento
     df["data"] = pd.to_datetime(df["data"], format="%d/%m/%y").dt.date
-    df["horario"] = pd.to_datetime(df["horario"], format="%H:%M").dt.strftime("%H:%M")
+    df["horario"] = pd.to_datetime(df["horario"], format="%H:%M").dt.strftime(
+        "%H:%M"
+    )
 
     for index, row in df.iterrows():
         publico = row["publico"]
@@ -759,7 +817,9 @@ async def execucao_coleta():
     df["tipo_fase"] = df["fase"].apply(definir_tipo_fase)
     df["fase"] = df["fase"].apply(definir_fase)
 
-    df["publico_max"] = df["publico_max"].map(lambda x: str(x).replace(".", ""))
+    df["publico_max"] = df["publico_max"].map(
+        lambda x: str(x).replace(".", "")
+    )
     df["publico"] = df["publico"].map(lambda x: str(x).replace(".", ""))
     df["publico_max"] = df["publico_max"].str.replace("\n", "")
 

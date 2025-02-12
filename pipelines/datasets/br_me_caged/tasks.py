@@ -2,6 +2,7 @@
 """
 Tasks for br_me_novo_caged
 """
+
 import os
 
 # pylint: disable=invalid-name

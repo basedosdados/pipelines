@@ -6,7 +6,7 @@ Schedules for br_cvm_fi
 from datetime import datetime
 
 from prefect.schedules import Schedule
-from prefect.schedules.clocks import CronClock, IntervalClock
+from prefect.schedules.clocks import CronClock
 
 from pipelines.constants import constants
 from pipelines.datasets.br_cvm_fi.constants import constants as cvm_constants

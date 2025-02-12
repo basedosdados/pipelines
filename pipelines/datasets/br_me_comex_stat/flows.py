@@ -2,6 +2,7 @@
 """
 Flows for br_me_comex_stat
 """
+
 # pylint: disable=invalid-name
 from datetime import timedelta
 
@@ -11,7 +12,9 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.datasets.br_me_comex_stat.constants import constants as comex_constants
+from pipelines.datasets.br_me_comex_stat.constants import (
+    constants as comex_constants,
+)
 from pipelines.datasets.br_me_comex_stat.schedules import (
     schedule_municipio_exportacao,
     schedule_municipio_importacao,
@@ -25,7 +28,9 @@ from pipelines.datasets.br_me_comex_stat.tasks import (
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.execute_dbt_model.constants import (
+    constants as dump_db_constants,
+)
 from pipelines.utils.metadata.tasks import (
     check_if_data_is_outdated,
     update_django_metadata,
@@ -41,9 +46,15 @@ with Flow(
     name="br_me_comex_stat.municipio_exportacao", code_owners=["Gabriel Pisa"]
 ) as br_comex_municipio_exportacao:
     # Parameters
-    dataset_id = Parameter("dataset_id", default="br_me_comex_stat", required=True)
-    table_id = Parameter("table_id", default="municipio_exportacao", required=True)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    dataset_id = Parameter(
+        "dataset_id", default="br_me_comex_stat", required=True
+    )
+    table_id = Parameter(
+        "table_id", default="municipio_exportacao", required=True
+    )
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     materialization_mode = Parameter(
@@ -55,7 +66,10 @@ with Flow(
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     last_date = parse_last_date(link=comex_constants.DOWNLOAD_LINK.value)
@@ -113,7 +127,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks = [wait_upload_table]
+                upstream_tasks=[wait_upload_table],
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -153,9 +167,15 @@ with Flow(
     name="br_me_comex_stat.municipio_importacao", code_owners=["Gabriel Pisa"]
 ) as br_comex_municipio_importacao:
     # Parameters
-    dataset_id = Parameter("dataset_id", default="br_me_comex_stat", required=True)
-    table_id = Parameter("table_id", default="municipio_importacao", required=True)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    dataset_id = Parameter(
+        "dataset_id", default="br_me_comex_stat", required=True
+    )
+    table_id = Parameter(
+        "table_id", default="municipio_importacao", required=True
+    )
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     materialization_mode = Parameter(
@@ -166,7 +186,10 @@ with Flow(
     )
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     last_date = parse_last_date(link=comex_constants.DOWNLOAD_LINK.value)
@@ -223,7 +246,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks = [wait_upload_table]
+                upstream_tasks=[wait_upload_table],
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -263,9 +286,13 @@ with Flow(
     name="br_me_comex_stat.ncm_exportacao", code_owners=["Gabriel Pisa"]
 ) as br_comex_ncm_exportacao:
     # Parameters
-    dataset_id = Parameter("dataset_id", default="br_me_comex_stat", required=True)
+    dataset_id = Parameter(
+        "dataset_id", default="br_me_comex_stat", required=True
+    )
     table_id = Parameter("table_id", default="ncm_exportacao", required=True)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     materialization_mode = Parameter(
@@ -276,7 +303,10 @@ with Flow(
     )
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     last_date = parse_last_date(link=comex_constants.DOWNLOAD_LINK.value)
@@ -334,7 +364,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks = [wait_upload_table]
+                upstream_tasks=[wait_upload_table],
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -364,7 +394,9 @@ with Flow(
 
 
 br_comex_ncm_exportacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_comex_ncm_exportacao.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_comex_ncm_exportacao.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
 br_comex_ncm_exportacao.schedule = schedule_ncm_exportacao
 
 
@@ -372,9 +404,13 @@ with Flow(
     name="br_me_comex_stat.ncm_importacao", code_owners=["Gabriel Pisa"]
 ) as br_comex_ncm_importacao:
     # Parameters
-    dataset_id = Parameter("dataset_id", default="br_me_comex_stat", required=True)
+    dataset_id = Parameter(
+        "dataset_id", default="br_me_comex_stat", required=True
+    )
     table_id = Parameter("table_id", default="ncm_importacao", required=True)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     materialization_mode = Parameter(
@@ -385,7 +421,10 @@ with Flow(
     )
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
     last_date = parse_last_date(link=comex_constants.DOWNLOAD_LINK.value)
 
@@ -441,7 +480,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks = [wait_upload_table]
+                upstream_tasks=[wait_upload_table],
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -471,5 +510,7 @@ with Flow(
                 )
 
 br_comex_ncm_importacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_comex_ncm_importacao.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_comex_ncm_importacao.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
 br_comex_ncm_importacao.schedule = schedule_ncm_importacao

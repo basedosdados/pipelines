@@ -2,6 +2,7 @@
 """
 Flows for mundo_transfermarkt_competicoes
 """
+
 from datetime import timedelta
 
 from prefect import Parameter, case
@@ -13,19 +14,23 @@ from pipelines.constants import constants
 
 ###############################################################################
 from pipelines.datasets.mundo_transfermarkt_competicoes.schedules import (
-    every_day_brasileirao,
     every_day_copa,
 )
 from pipelines.datasets.mundo_transfermarkt_competicoes.tasks import (
     execucao_coleta_sync,
-    make_partitions,
+    get_data_source_max_date_copa,
     get_data_source_transfermarkt_max_date,
-    get_data_source_max_date_copa
+    make_partitions,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.metadata.tasks import update_django_metadata, check_if_data_is_outdated
+from pipelines.utils.execute_dbt_model.constants import (
+    constants as dump_db_constants,
+)
+from pipelines.utils.metadata.tasks import (
+    check_if_data_is_outdated,
+    update_django_metadata,
+)
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
@@ -41,7 +46,9 @@ with Flow(
     dataset_id = Parameter(
         "dataset_id", default="mundo_transfermarkt_competicoes", required=False
     )
-    table_id = Parameter("table_id", default="brasileirao_serie_a", required=False)
+    table_id = Parameter(
+        "table_id", default="brasileirao_serie_a", required=False
+    )
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
     )
@@ -51,7 +58,10 @@ with Flow(
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
     data_source_max_date = get_data_source_transfermarkt_max_date()
     dados_desatualizados = check_if_data_is_outdated(
@@ -63,8 +73,8 @@ with Flow(
     )
 
     with case(dados_desatualizados, True):
-        df = execucao_coleta_sync(table_id,
-            upstream_tasks=[dados_desatualizados]
+        df = execucao_coleta_sync(
+            table_id, upstream_tasks=[dados_desatualizados]
         )
         output_filepath = make_partitions(df, upstream_tasks=[df])
 
@@ -145,7 +155,10 @@ with Flow(
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     data_source_max_date = get_data_source_max_date_copa()
@@ -158,7 +171,6 @@ with Flow(
     )
 
     with case(outdated, True):
-
         df = execucao_coleta_sync(table_id, upstream_tasks=[outdated])
         output_filepath = make_partitions(df, upstream_tasks=[df])
 
@@ -214,5 +226,7 @@ with Flow(
 
 
 transfermarkt_copa_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-transfermarkt_copa_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+transfermarkt_copa_flow.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
 transfermarkt_copa_flow.schedule = every_day_copa
