@@ -27,9 +27,13 @@ async def unzip_file(zip_path, extract_to):
     except zipfile.BadZipFile:
         log(f"The file {os.path.basename(zip_path)} is not a valid ZIP file.")
     except zipfile.LargeZipFile:
-        log(f"The ZIP file {os.path.basename(zip_path)} is too large to be processed.")
+        log(
+            f"The ZIP file {os.path.basename(zip_path)} is too large to be processed."
+        )
     except zipfile.error as e:
-        log(f"Error extracting ZIP file {os.path.basename(zip_path)}: {str(e)}")
+        log(
+            f"Error extracting ZIP file {os.path.basename(zip_path)}: {str(e)}"
+        )
     os.remove(zip_path)
 
 
@@ -53,7 +57,9 @@ async def get_from_api(
                         headers = {
                             "Authorization": f"Bearer {credentials}",
                         }
-                        response = await client.get(url, headers=headers, params=params)
+                        response = await client.get(
+                            url, headers=headers, params=params
+                        )
                 elif auth_method == "basic":
                     async with httpx.AsyncClient(timeout=timeout) as client:
                         response = await client.get(
@@ -65,7 +71,9 @@ async def get_from_api(
                 response.raise_for_status()
                 return response.content
             except httpx.HTTPError as e:
-                log(f"Download failed with {e}. Retrying ({i+1}/{max_retries})...")
+                log(
+                    f"Download failed with {e}. Retrying ({i + 1}/{max_retries})..."
+                )
         raise httpx.HTTPError(f"Download failed after {max_retries} retries")
 
 
@@ -80,13 +88,17 @@ async def get_in_chunks(
         for i in range(max_retries):
             try:
                 async with httpx.AsyncClient(timeout=timeout) as client:
-                    headers = {"Range": f"bytes={chunk_range[0]}-{chunk_range[1]}"}
+                    headers = {
+                        "Range": f"bytes={chunk_range[0]}-{chunk_range[1]}"
+                    }
                     response = await client.get(url, headers=headers)
                     response.raise_for_status()
                     return response.content
             except httpx.HTTPError as e:
                 log(f"Downloading chunk {chunk_range[0]}-{chunk_range[1]}")
-                log(f"Download failed with {e}. Retrying ({i+1}/{max_retries})...")
+                log(
+                    f"Download failed with {e}. Retrying ({i + 1}/{max_retries})..."
+                )
         raise httpx.HTTPError(f"Download failed after {max_retries} retries")
 
 
@@ -156,7 +168,9 @@ async def download_from_url(
         file_type=file_type,
     )
 
-    base_name = os.path.basename(url) + (".json" if file_type == "json" else "")
+    base_name = os.path.basename(url) + (
+        ".json" if file_type == "json" else ""
+    )
     full_path = os.path.join(save_path, base_name)
 
     with open(full_path, "wb") as fd:

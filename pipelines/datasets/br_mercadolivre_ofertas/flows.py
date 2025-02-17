@@ -2,6 +2,7 @@
 """
 Flows for mercadolivre_ofertas
 """
+
 import datetime
 
 # pylint: disable=invalid-name
@@ -13,7 +14,6 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.datasets.br_mercadolivre_ofertas.schedules import every_day_item
 from pipelines.datasets.br_mercadolivre_ofertas.tasks import (
     clean_item,
     clean_seller,
@@ -24,8 +24,9 @@ from pipelines.datasets.br_mercadolivre_ofertas.tasks import (
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
-from pipelines.utils.metadata.tasks import update_django_metadata
+from pipelines.utils.execute_dbt_model.constants import (
+    constants as dump_db_constants,
+)
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
@@ -40,7 +41,9 @@ with Flow(
         "dataset_id", default="br_mercadolivre_ofertas", required=True
     )
     table_id = Parameter("table_id", default="item", required=True)
-    table_id_sellers = Parameter("table_id_sellers", default="vendedor", required=True)
+    table_id_sellers = Parameter(
+        "table_id_sellers", default="vendedor", required=True
+    )
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
     )
@@ -54,7 +57,10 @@ with Flow(
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
     data_atual = datetime.datetime.now().strftime("%Y-%m-%d")
     get_sellers = Parameter("get_sellers", default=True, required=True)
@@ -182,7 +188,10 @@ with Flow(
     seller_links = Parameter("seller_links", default=None, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
     data_atual = datetime.datetime.now().strftime("%Y-%m-%d")
     filepath_raw = crawler_mercadolivre_seller(seller_ids, seller_links)
@@ -236,7 +245,9 @@ with Flow(
         #     upstream_tasks=[wait_for_materialization],
         # )
 
-br_mercadolivre_ofertas_vendedor.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_mercadolivre_ofertas_vendedor.storage = GCS(
+    constants.GCS_FLOWS_BUCKET.value
+)
 br_mercadolivre_ofertas_vendedor.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )

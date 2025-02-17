@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
+
 from prefect.schedules import Schedule
-from prefect.schedules.clocks import CronClock, IntervalClock
+from prefect.schedules.clocks import CronClock
+
 from pipelines.constants import constants
 
 every_day_emendas_parlamentares = Schedule(

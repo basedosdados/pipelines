@@ -11,11 +11,11 @@ import time
 import zipfile
 from datetime import timedelta
 
+import basedosdados as bd
 import pandas as pd
 import requests
-
-from requests.exceptions import ConnectionError
 from prefect import task
+from requests.exceptions import ConnectionError
 from selenium import webdriver
 from selenium.common.exceptions import (
     ElementNotInteractableException,
@@ -33,7 +33,6 @@ from pipelines.datasets.br_mp_pep_cargos_funcoes.utils import (
     try_find_element,
     try_find_elements,
 )
-import basedosdados as bd
 from pipelines.utils.metadata.utils import get_api_most_recent_date, get_url
 from pipelines.utils.utils import log, to_partitions
 
@@ -97,7 +96,10 @@ def scraper(
         driver.get(constants.TARGET.value)
 
     home_element = try_find_element(
-        driver, By.XPATH, constants.XPATHS.value["card_home_funcoes"], timeout=60 * 4
+        driver,
+        By.XPATH,
+        constants.XPATHS.value["card_home_funcoes"],
+        timeout=60 * 4,
     )
 
     time.sleep(5.0)
@@ -118,13 +120,18 @@ def scraper(
 
     time.sleep(4)
 
-    selectables = driver.find_elements(By.CLASS_NAME, "QvOptional_LED_CHECK_363636")
+    selectables = driver.find_elements(
+        By.CLASS_NAME, "QvOptional_LED_CHECK_363636"
+    )
 
     valid_selections = [
         selection
         for selection in selectables
         if selection.get_attribute("title")
-        in [*constants.SELECTIONS_DIMENSIONS.value, *constants.SELECTIONS_METRICS.value]
+        in [
+            *constants.SELECTIONS_DIMENSIONS.value,
+            *constants.SELECTIONS_METRICS.value,
+        ]
     ]
 
     # NOTE: Nem sempre 'Mês e Cargos' esta selecionado
@@ -144,7 +151,9 @@ def scraper(
     for _ in range(0, len(rest_dimensions_selections)):
         # Wait for DOM changes
         time.sleep(9.0)
-        elements = driver.find_elements(By.CLASS_NAME, "QvExcluded_LED_CHECK_363636")
+        elements = driver.find_elements(
+            By.CLASS_NAME, "QvExcluded_LED_CHECK_363636"
+        )
         head, *_ = [
             selection
             for selection in elements
@@ -165,7 +174,9 @@ def scraper(
 
     metrics_selection = [
         selection
-        for selection in driver.find_elements(By.CLASS_NAME, "QvOptional_LED_CHECK_363636")
+        for selection in driver.find_elements(
+            By.CLASS_NAME, "QvOptional_LED_CHECK_363636"
+        )
         if selection.get_attribute("title") == "CCE & FCE"
     ]
     metrics_selection[0].click()
@@ -179,7 +190,9 @@ def scraper(
     for _ in range(0, len(rest_metrics_selections)):
         # Wait for DOM changes
         time.sleep(9.0)
-        elements = driver.find_elements(By.CLASS_NAME, "QvExcluded_LED_CHECK_363636")
+        elements = driver.find_elements(
+            By.CLASS_NAME, "QvExcluded_LED_CHECK_363636"
+        )
         head, *_ = [
             selection
             for selection in elements
@@ -226,14 +239,18 @@ def scraper(
             f"Failed to select year {year}. Found {len(elements_title)} elements, {elements_title}"
         )
 
-    def wait_for_export(xlsx_hrefs: list[tuple[int, str]], timeout=60 * 10) -> str:
+    def wait_for_export(
+        xlsx_hrefs: list[tuple[int, str]], timeout=60 * 10
+    ) -> str:
         end_time = time.time() + timeout
 
         urls = [url for _, url in xlsx_hrefs]
 
         while time.time() < end_time:
             try:
-                modal_text = driver.find_element(By.CLASS_NAME, "ModalDialog_Text")
+                modal_text = driver.find_element(
+                    By.CLASS_NAME, "ModalDialog_Text"
+                )
                 anchor = modal_text.find_element(By.TAG_NAME, "a")
                 href = anchor.get_attribute("href")
 
@@ -299,7 +316,8 @@ def scraper(
         remove_selected_year, *_ = [
             e
             for e in driver.find_elements(By.CLASS_NAME, "QvSelected")
-            if e.get_attribute("title") is not None and e.get_attribute("title") == str(year)
+            if e.get_attribute("title") is not None
+            and e.get_attribute("title") == str(year)
         ]
 
         remove_selected_year.click()
@@ -307,7 +325,9 @@ def scraper(
 
     log(f"XLSX URLs: {xlsx_hrefs}")
 
-    cookies = {cookie["name"]: cookie["value"] for cookie in driver.get_cookies()}
+    cookies = {
+        cookie["name"]: cookie["value"] for cookie in driver.get_cookies()
+    }
 
     driver.close()
 
@@ -332,7 +352,9 @@ def download_xlsx(scraper_result: tuple[dict, list[tuple[int, str]]]) -> None:
 
     for year, href in urls:
         response = request_wrapper(href)
-        with open(os.path.join(constants.INPUT_DIR.value, f"{year}.xlsx"), "wb") as file:
+        with open(
+            os.path.join(constants.INPUT_DIR.value, f"{year}.xlsx"), "wb"
+        ) as file:
             file.write(response.content)
 
 
@@ -344,7 +366,9 @@ def clean_data() -> pd.DataFrame:
 
     dfs = [
         pd.read_excel(
-            os.path.join(constants.INPUT_DIR.value, file), skipfooter=4, engine="openpyxl"
+            os.path.join(constants.INPUT_DIR.value, file),
+            skipfooter=4,
+            engine="openpyxl",
         )
         for file in files
         if file.endswith(".xlsx")
@@ -353,7 +377,9 @@ def clean_data() -> pd.DataFrame:
     df = pd.concat(dfs).rename(columns=constants.RENAMES.value, errors="raise")
 
     df["raca_cor"] = df["raca_cor"].str.lower().str.title()
-    df["escolaridade_servidor"] = df["escolaridade_servidor"].str.lower().str.title()
+    df["escolaridade_servidor"] = (
+        df["escolaridade_servidor"].str.lower().str.title()
+    )
 
     replaces_by_col = get_normalized_values_by_col()
 
@@ -434,11 +460,15 @@ def is_up_to_date(headless: bool = True) -> bool:
     pattern = r"\b\d{4}$"
 
     while attempts < max_attempts:
-        elements_div = try_find_elements(driver, By.TAG_NAME, "div", timeout=60 * 2)
+        elements_div = try_find_elements(
+            driver, By.TAG_NAME, "div", timeout=60 * 2
+        )
 
         log(f"Found {len(elements_div)} divs. {attempts=}")
 
-        elements_title = [i for i in elements_div if i.get_attribute("title") is not None]
+        elements_title = [
+            i for i in elements_div if i.get_attribute("title") is not None
+        ]
 
         elements_with_valid_date = [
             e
@@ -485,7 +515,10 @@ def is_up_to_date(headless: bool = True) -> bool:
     log(f"Last date website: {text}, parsed as {date_website}")
     backend = bd.Backend(graphql_url=get_url("prod"))
     last_date_in_api = get_api_most_recent_date(
-        dataset_id="br_mp_pep", table_id="cargos_funcoes", date_format="%Y-%m", backend=backend
+        dataset_id="br_mp_pep",
+        table_id="cargos_funcoes",
+        date_format="%Y-%m",
+        backend=backend,
     )
 
     log(f"Last date API: {last_date_in_api}")

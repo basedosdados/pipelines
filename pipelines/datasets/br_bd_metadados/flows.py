@@ -2,6 +2,7 @@
 """
 Flows for br_bd_metadados
 """
+
 # pylint: disable=invalid-name
 from datetime import timedelta
 
@@ -15,10 +16,15 @@ from pipelines.datasets.br_bd_metadados.schedules import (
     every_day_prefect_flow_runs,
     every_day_prefect_flows,
 )
-from pipelines.datasets.br_bd_metadados.tasks import crawler_flow_runs, crawler_flows
+from pipelines.datasets.br_bd_metadados.tasks import (
+    crawler_flow_runs,
+    crawler_flows,
+)
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.execute_dbt_model.constants import (
+    constants as dump_db_constants,
+)
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
@@ -32,8 +38,12 @@ with Flow(
     ],
 ) as bd_prefect_flow_runs:
     # Parameters
-    dataset_id = Parameter("dataset_id", default="br_bd_metadados", required=True)
-    table_id = Parameter("table_id", default="prefect_flow_runs", required=True)
+    dataset_id = Parameter(
+        "dataset_id", default="br_bd_metadados", required=True
+    )
+    table_id = Parameter(
+        "table_id", default="prefect_flow_runs", required=True
+    )
 
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
@@ -45,7 +55,10 @@ with Flow(
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     filepath = crawler_flow_runs()
@@ -91,7 +104,9 @@ with Flow(
         )
 
 bd_prefect_flow_runs.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-bd_prefect_flow_runs.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+bd_prefect_flow_runs.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
 bd_prefect_flow_runs.schedule = every_day_prefect_flow_runs
 
 
@@ -102,7 +117,9 @@ with Flow(
     ],
 ) as bd_prefect_flows:
     # Parameters
-    dataset_id = Parameter("dataset_id", default="br_bd_metadados", required=True)
+    dataset_id = Parameter(
+        "dataset_id", default="br_bd_metadados", required=True
+    )
     table_id = Parameter("table_id", default="prefect_flows", required=True)
 
     materialization_mode = Parameter(
@@ -115,7 +132,10 @@ with Flow(
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     filepath = crawler_flows()

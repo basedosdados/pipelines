@@ -2,12 +2,16 @@
 """
 General utilities for interacting with dbt-rpc
 """
+
+import json
 from datetime import datetime, timedelta
 from typing import List
-from pipelines.utils.utils import log
+
 from dbt_client import DbtClient
 from prefect.schedules.clocks import IntervalClock
-import json
+
+from pipelines.utils.utils import log
+
 
 def get_dbt_client(
     host: str = "dbt-rpc",

@@ -4,40 +4,44 @@ Constant values for the datasets projects
 """
 
 from enum import Enum
+
 import numpy as np
 
-class constants(Enum):  # pylint: disable=c0103
 
+class constants(Enum):  # pylint: disable=c0103
     # ! ================================ CGU - Cartão de Pagamento ===========================================
     """
     Constant values for the br_cgu_cartao_pagamento project
     """
 
     TABELA = {
-        "microdados_governo_federal" : {
-            "INPUT" : "/tmp/input/microdados_governo_federal",
-            "OUTPUT" : "/tmp/output/microdados_governo_federal",
-            "URL" : "https://portaldatransparencia.gov.br/download-de-dados/cpgf/",
-            "READ" : "_CPGF",
-            "ONLY_ONE_FILE" : False},
-
-        "microdados_compras_centralizadas" : {
-            "INPUT" : "/tmp/input/microdados_compras_centralizadas",
-            "OUTPUT" : "/tmp/output/microdados_compras_centralizadas",
-            "URL" : "https://portaldatransparencia.gov.br/download-de-dados/cpcc/",
-            "READ" : "_CPGFComprasCentralizadas",
-            "ONLY_ONE_FILE" : False},
-
-        "microdados_defesa_civil" : {
-            "INPUT" : "/tmp/input/microdados_defesa_civil",
-            "OUTPUT" : "/tmp/output/microdados_defesa_civil",
-            "URL" : "https://portaldatransparencia.gov.br/download-de-dados/cpdc/",
-            "READ" : "_CPDC",
-            "ONLY_ONE_FILE" : False}
-        }
+        "microdados_governo_federal": {
+            "INPUT": "/tmp/input/microdados_governo_federal",
+            "OUTPUT": "/tmp/output/microdados_governo_federal",
+            "URL": "https://portaldatransparencia.gov.br/download-de-dados/cpgf/",
+            "READ": "_CPGF",
+            "ONLY_ONE_FILE": False,
+        },
+        "microdados_compras_centralizadas": {
+            "INPUT": "/tmp/input/microdados_compras_centralizadas",
+            "OUTPUT": "/tmp/output/microdados_compras_centralizadas",
+            "URL": "https://portaldatransparencia.gov.br/download-de-dados/cpcc/",
+            "READ": "_CPGFComprasCentralizadas",
+            "ONLY_ONE_FILE": False,
+        },
+        "microdados_defesa_civil": {
+            "INPUT": "/tmp/input/microdados_defesa_civil",
+            "OUTPUT": "/tmp/output/microdados_defesa_civil",
+            "URL": "https://portaldatransparencia.gov.br/download-de-dados/cpdc/",
+            "READ": "_CPDC",
+            "ONLY_ONE_FILE": False,
+        },
+    }
 
     # ! ================================ CGU - Servidores Públicos do Executivo Federal ===========================================
-    URL_SERVIDORES = "http://portaldatransparencia.gov.br/download-de-dados/servidores/"
+    URL_SERVIDORES = (
+        "http://portaldatransparencia.gov.br/download-de-dados/servidores/"
+    )
 
     TABELA_SERVIDORES = {
         "afastamentos": {
@@ -75,7 +79,6 @@ class constants(Enum):  # pylint: disable=c0103
                 "Reserva_Reforma_Militares": "Reserva Reforma Militares",
                 "Servidores_BACEN": "Servidores BACEN",
                 "Servidores_SIAPE": "Servidores SIAPE",
-                "Militares": "Militares",
             },
             "ONLY_TABLE": True,
             "INPUT": "/tmp/input/cgu_servidores/observacoes",
@@ -178,23 +181,22 @@ class constants(Enum):  # pylint: disable=c0103
     }
 
     TABELA_BENEFICIOS_CIDADAO = {
-        "novo_bolsa_familia" : {
-            "INPUT"  : "/tmp/input/novo_bolsa_familia/",
-            "OUTPUT" : "/tmp/output/novo_bolsa_familia/",
-            "URL" : "https://portaldatransparencia.gov.br/download-de-dados/novo-bolsa-familia/"
-            },
-
-        "bpc" : {
-            "INPUT" : "/tmp/input/bpc/",
-            "OUTPUT" : "/tmp/output/bpc/",
-            "URL" : "https://portaldatransparencia.gov.br/download-de-dados/bpc/"
-            },
-
-        "garantia_safra" : {
-            "INPUT" : "/tmp/input/garantia_safra/",
-            "OUTPUT" : "/tmp/output/garantia_safra/",
-            "URL" : "https://portaldatransparencia.gov.br/download-de-dados/garantia-safra/"}
-        }
+        "novo_bolsa_familia": {
+            "INPUT": "/tmp/input/novo_bolsa_familia/",
+            "OUTPUT": "/tmp/output/novo_bolsa_familia/",
+            "URL": "https://portaldatransparencia.gov.br/download-de-dados/novo-bolsa-familia/",
+        },
+        "bpc": {
+            "INPUT": "/tmp/input/bpc/",
+            "OUTPUT": "/tmp/output/bpc/",
+            "URL": "https://portaldatransparencia.gov.br/download-de-dados/bpc/",
+        },
+        "garantia_safra": {
+            "INPUT": "/tmp/input/garantia_safra/",
+            "OUTPUT": "/tmp/output/garantia_safra/",
+            "URL": "https://portaldatransparencia.gov.br/download-de-dados/garantia-safra/",
+        },
+    }
 
     DTYPES_NOVO_BOLSA_FAMILIA = {
         "MÊS COMPETÊNCIA": str,
@@ -273,34 +275,42 @@ class constants(Enum):  # pylint: disable=c0103
 
     DICT_FOR_TABLE = {
         "novo_bolsa_familia": {
-            "dataset_id":"br_cgu_beneficios_cidadao",
+            "dataset_id": "br_cgu_beneficios_cidadao",
             "table_id": "novo_bolsa_familia",
-            "date_column_name": {"year": "ano_competencia", "month": "mes_competencia"},
-            "date_format": "%Y-%m",
-            "coverage_type": "part_bdpro",
-            "time_delta": {"months": 6},
-            "prefect_mode": "prod",
-            "bq_project": "basedosdados"
-        },
-        "safra_garantia": {
-            "dataset_id":"br_cgu_beneficios_cidadao",
-            "table_id": "safra_garantia",
-            "date_column_name": {"year": "ano_referencia", "month": "mes_referencia",
+            "date_column_name": {
+                "year": "ano_competencia",
+                "month": "mes_competencia",
             },
             "date_format": "%Y-%m",
             "coverage_type": "part_bdpro",
             "time_delta": {"months": 6},
             "prefect_mode": "prod",
-            "bq_project": "basedosdados"
+            "bq_project": "basedosdados",
         },
-        "bpc": {
-            "dataset_id":"br_cgu_beneficios_cidadao",
-            "table_id": "bpc",
-            "date_column_name": {"year": "ano_competencia", "month": "mes_competencia"},
+        "safra_garantia": {
+            "dataset_id": "br_cgu_beneficios_cidadao",
+            "table_id": "safra_garantia",
+            "date_column_name": {
+                "year": "ano_referencia",
+                "month": "mes_referencia",
+            },
             "date_format": "%Y-%m",
             "coverage_type": "part_bdpro",
             "time_delta": {"months": 6},
             "prefect_mode": "prod",
             "bq_project": "basedosdados",
-        }
+        },
+        "bpc": {
+            "dataset_id": "br_cgu_beneficios_cidadao",
+            "table_id": "bpc",
+            "date_column_name": {
+                "year": "ano_competencia",
+                "month": "mes_competencia",
+            },
+            "date_format": "%Y-%m",
+            "coverage_type": "part_bdpro",
+            "time_delta": {"months": 6},
+            "prefect_mode": "prod",
+            "bq_project": "basedosdados",
+        },
     }

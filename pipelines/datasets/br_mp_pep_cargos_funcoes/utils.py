@@ -2,6 +2,7 @@
 """
 General purpose functions for the br_mp_pep_cargos_funcoes project
 """
+
 import time
 
 from selenium.webdriver.chrome.webdriver import WebDriver
@@ -21,11 +22,13 @@ def try_find_element(
         try:
             element = driver.find_element(by, value)
             return element
-        except:
+        except:  # noqa: E722
             time.sleep(sleep)
             continue
 
-    raise Exception(f"Timeout reached. Failed to find element by method {by=}, selector {value=}")
+    raise Exception(
+        f"Timeout reached. Failed to find element by method {by=}, selector {value=}"
+    )
 
 
 def try_find_elements(
@@ -45,11 +48,13 @@ def try_find_elements(
             else:
                 time.sleep(sleep)
                 continue
-        except:
+        except:  # noqa: E722
             time.sleep(sleep)
             continue
 
-    raise Exception(f"Timeout reached. Failed to find element by method {by=}, selector {value=}")
+    raise Exception(
+        f"Timeout reached. Failed to find element by method {by=}, selector {value=}"
+    )
 
 
 def get_normalized_values_by_col():

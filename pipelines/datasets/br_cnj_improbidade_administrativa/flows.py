@@ -7,6 +7,7 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
+
 # from pipelines.datasets.br_cnj_improbidade_administrativa.schedules import every_month
 from pipelines.datasets.br_cnj_improbidade_administrativa.tasks import (
     get_max_date,
@@ -16,7 +17,9 @@ from pipelines.datasets.br_cnj_improbidade_administrativa.tasks import (
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.execute_dbt_model.constants import (
+    constants as dump_db_constants,
+)
 from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
@@ -31,15 +34,28 @@ with Flow(
         "aspeddro",
     ],
 ) as br_cnj_improbidade_administrativa_flow:
-    dataset_id = Parameter("dataset_id", default="br_cnj_improbidade_administrativa", required=True)
+    dataset_id = Parameter(
+        "dataset_id",
+        default="br_cnj_improbidade_administrativa",
+        required=True,
+    )
     table_id = Parameter("table_id", default="condenacao", required=True)
-    update_metadata = Parameter("update_metadata", default=True, required=False)
-    materialization_mode = Parameter("materialization_mode", default="prod", required=False)
-    materialize_after_dump = Parameter("materialize after dump", default=True, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=True, required=False
+    )
+    materialization_mode = Parameter(
+        "materialization_mode", default="prod", required=False
+    )
+    materialize_after_dump = Parameter(
+        "materialize after dump", default=True, required=False
+    )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     is_updated = is_up_to_date()
@@ -114,7 +130,9 @@ with Flow(
                 upstream_tasks=[wait_for_materialization],
             )
 
-br_cnj_improbidade_administrativa_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_cnj_improbidade_administrativa_flow.storage = GCS(
+    constants.GCS_FLOWS_BUCKET.value
+)
 br_cnj_improbidade_administrativa_flow.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )

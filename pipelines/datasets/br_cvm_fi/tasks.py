@@ -12,15 +12,12 @@ from typing import Tuple
 
 import pandas as pd
 import requests
-import rpy2.robjects as ro
 import rpy2.robjects.packages as rpackages
 from bs4 import BeautifulSoup
 from prefect import task
-from rpy2.robjects import pandas2ri
-from rpy2.robjects.packages import importr
-from rpy2.robjects.vectors import StrVector
 from tqdm import tqdm
 
+from pipelines.constants import constants
 from pipelines.datasets.br_cvm_fi.constants import constants as cvm_constants
 from pipelines.datasets.br_cvm_fi.utils import (
     check_and_create_column,
@@ -30,7 +27,7 @@ from pipelines.datasets.br_cvm_fi.utils import (
     sheet_to_df,
 )
 from pipelines.utils.utils import log, to_partitions
-from pipelines.constants import constants
+
 
 @task(
     max_retries=2,
@@ -94,7 +91,9 @@ def download_unzip_csv(
         download_url = f"{url}{files}"
         save_path = f"/tmp/data/br_cvm_fi/{id}/input/{files}"
 
-        r = requests.get(download_url, headers=request_headers, stream=True, timeout=10)
+        r = requests.get(
+            download_url, headers=request_headers, stream=True, timeout=10
+        )
         with open(save_path, "wb") as fd:
             for chunk in tqdm(r.iter_content(chunk_size=chunk_size)):
                 fd.write(chunk)
@@ -142,7 +141,6 @@ def extract_links_and_dates(url) -> Tuple[pd.DataFrame, str]:
             if link.has_attr("href") and link["href"].endswith(".zip"):
                 links_zip.append(link["href"])
 
-
     # Encontra todas as datas de atualização dentro do HTML
     padrao = r"\d{2}-\w{3}-\d{4} \d{2}:\d{2}"
     datas = soup.find_all(string=lambda text: re.findall(padrao, text))
@@ -171,7 +169,7 @@ def extract_links_and_dates(url) -> Tuple[pd.DataFrame, str]:
         lambda x: datetime.strptime(x, "%d-%b-%Y %H:%M").strftime("%Y-%m-%d")
     )
 
-    data_maxima = df['ultima_atualizacao'].max()
+    data_maxima = df["ultima_atualizacao"].max()
 
     return df, data_maxima
 
@@ -180,13 +178,16 @@ def extract_links_and_dates(url) -> Tuple[pd.DataFrame, str]:
     max_retries=2,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def generate_links_to_download(df: pd.DataFrame, max_date: datetime) -> list[str]:
+def generate_links_to_download(
+    df: pd.DataFrame, max_date: datetime
+) -> list[str]:
     """
     Checks for outdated tables.
     """
+
     lists = df.query(f"ultima_atualizacao == '{max_date}'").arquivo.to_list()
 
-    log(f'The following files will be downloaded: {lists}')
+    log(f"The following files will be downloaded: {lists}")
 
     return lists
 
@@ -199,10 +200,8 @@ def check_for_updates(df: pd.DataFrame):
     """
     Checks for outdated tables.
     """
-    #trocar desatualizado == TRUE por, ultima_atualizacao > max_date
-    return df.query(f"ultima_atualizacao == '1'").arquivo.to_list()
-
-
+    # trocar desatualizado == TRUE por, ultima_atualizacao > max_date
+    return df.query("ultima_atualizacao == '1'").arquivo.to_list()
 
 
 @task(
@@ -241,9 +240,11 @@ def clean_data_and_make_partitions(path: str, table_id: str) -> str:
         df = pd.read_csv(f"{path}{file}", sep=";")
         log(f"File {file} read.")
 
-        df["CNPJ_FUNDO_CLASSE"] = df["CNPJ_FUNDO_CLASSE"].str.replace(r"[/.-]", "")
+        df["CNPJ_FUNDO_CLASSE"] = df["CNPJ_FUNDO_CLASSE"].str.replace(
+            r"[/.-]", ""
+        )
 
-        df.drop("ID_SUBCLASSE",axis=1, inplace=True)
+        df.drop("ID_SUBCLASSE", axis=1, inplace=True)
 
         df = rename_columns(df_arq, df)
 
@@ -285,7 +286,9 @@ def clean_data_make_partitions_cda(diretorio, table_id):
         for file in tqdm(arquivos_filtrados):
             log(f"Baixando o arquivo ------> {file}")
 
-            df = pd.read_csv(file, sep=";", encoding="ISO-8859-1", dtype="string")
+            df = pd.read_csv(
+                file, sep=";", encoding="ISO-8859-1", dtype="string"
+            )
             df["ano"] = df["DT_COMPTC"].apply(
                 lambda x: datetime.strptime(x, "%Y-%m-%d").year
             )
@@ -307,16 +310,20 @@ def clean_data_make_partitions_cda(diretorio, table_id):
             cvm_constants.COLUNAS.value
         ].applymap(lambda x: cvm_constants.MAPEAMENTO.value.get(x, x))
 
-        df_final["CNPJ_FUNDO"] = df_final["CNPJ_FUNDO"].str.replace(r"[/.-]", "")
+        df_final["CNPJ_FUNDO"] = df_final["CNPJ_FUNDO"].str.replace(
+            r"[/.-]", ""
+        )
 
         df_final["CNPJ_INSTITUICAO_FINANC_COOBR"] = df_final[
             "CNPJ_INSTITUICAO_FINANC_COOBR"
         ].str.replace(r"[/.-]", "")
 
-        df_final["CPF_CNPJ_EMISSOR"] = df_final["CPF_CNPJ_EMISSOR"].str.replace(
+        df_final["CPF_CNPJ_EMISSOR"] = df_final[
+            "CPF_CNPJ_EMISSOR"
+        ].str.replace(r"[/.-]", "")
+        df_final["CNPJ_EMISSOR"] = df_final["CNPJ_EMISSOR"].str.replace(
             r"[/.-]", ""
         )
-        df_final["CNPJ_EMISSOR"] = df_final["CNPJ_EMISSOR"].str.replace(r"[/.-]", "")
         df_final["CNPJ_FUNDO_COTA"] = df_final["CNPJ_FUNDO_COTA"].str.replace(
             r"[/.-]", ""
         )
@@ -353,8 +360,12 @@ def clean_data_make_partitions_ext(diretorio, table_id):
     arquivos = glob.glob(f"{diretorio}*.csv")[0]
 
     df = pd.read_csv(arquivos, sep=";", encoding="ISO-8859-1", dtype="string")
-    df["ano"] = df["DT_COMPTC"].apply(lambda x: datetime.strptime(x, "%Y-%m-%d").year)
-    df["mes"] = df["DT_COMPTC"].apply(lambda x: datetime.strptime(x, "%Y-%m-%d").month)
+    df["ano"] = df["DT_COMPTC"].apply(
+        lambda x: datetime.strptime(x, "%Y-%m-%d").year
+    )
+    df["mes"] = df["DT_COMPTC"].apply(
+        lambda x: datetime.strptime(x, "%Y-%m-%d").month
+    )
 
     df_final = df
     log(df_final.head())
@@ -413,7 +424,9 @@ def download_csv_cvm(
         log(f"Baixando o arquivo {files}")
         download_url = f"{url}{files}"
         save_path = f"/tmp/data/br_cvm_fi/{table_id}/input/{files}"
-        r = requests.get(download_url, headers=request_headers, stream=True, timeout=10)
+        r = requests.get(
+            download_url, headers=request_headers, stream=True, timeout=10
+        )
         with open(save_path, "wb") as fd:
             for chunk in tqdm(r.iter_content(chunk_size=chunk_size)):
                 fd.write(chunk)
@@ -469,29 +482,33 @@ def clean_data_make_partitions_perfil(diretorio, table_id):
 
         df_final = df
 
-        df_final = check_and_create_column(df_final, colunas_totais=colunas_totais)
+        df_final = check_and_create_column(
+            df_final, colunas_totais=colunas_totais
+        )
         df_final[colunas_mapeamento] = df_final[colunas_mapeamento].applymap(
             lambda x: cvm_constants.MAPEAMENTO.value.get(x, x)
         )
-        df_final["CNPJ_FUNDO_CLASSE"] = df_final["CNPJ_FUNDO_CLASSE"].str.replace(r"[/.-]", "")
-        df_final["CPF_CNPJ_COMITENTE_1"] = df_final["CPF_CNPJ_COMITENTE_1"].str.replace(
-            r"[/.-]", ""
-        )
-        df_final["CPF_CNPJ_COMITENTE_2"] = df_final["CPF_CNPJ_COMITENTE_2"].str.replace(
-            r"[/.-]", ""
-        )
-        df_final["CPF_CNPJ_COMITENTE_3"] = df_final["CPF_CNPJ_COMITENTE_3"].str.replace(
-            r"[/.-]", ""
-        )
-        df_final["CPF_CNPJ_EMISSOR_1"] = df_final["CPF_CNPJ_EMISSOR_1"].str.replace(
-            r"[/.-]", ""
-        )
-        df_final["CPF_CNPJ_EMISSOR_2"] = df_final["CPF_CNPJ_EMISSOR_2"].str.replace(
-            r"[/.-]", ""
-        )
-        df_final["CPF_CNPJ_EMISSOR_3"] = df_final["CPF_CNPJ_EMISSOR_3"].str.replace(
-            r"[/.-]", ""
-        )
+        df_final["CNPJ_FUNDO_CLASSE"] = df_final[
+            "CNPJ_FUNDO_CLASSE"
+        ].str.replace(r"[/.-]", "")
+        df_final["CPF_CNPJ_COMITENTE_1"] = df_final[
+            "CPF_CNPJ_COMITENTE_1"
+        ].str.replace(r"[/.-]", "")
+        df_final["CPF_CNPJ_COMITENTE_2"] = df_final[
+            "CPF_CNPJ_COMITENTE_2"
+        ].str.replace(r"[/.-]", "")
+        df_final["CPF_CNPJ_COMITENTE_3"] = df_final[
+            "CPF_CNPJ_COMITENTE_3"
+        ].str.replace(r"[/.-]", "")
+        df_final["CPF_CNPJ_EMISSOR_1"] = df_final[
+            "CPF_CNPJ_EMISSOR_1"
+        ].str.replace(r"[/.-]", "")
+        df_final["CPF_CNPJ_EMISSOR_2"] = df_final[
+            "CPF_CNPJ_EMISSOR_2"
+        ].str.replace(r"[/.-]", "")
+        df_final["CPF_CNPJ_EMISSOR_3"] = df_final[
+            "CPF_CNPJ_EMISSOR_3"
+        ].str.replace(r"[/.-]", "")
         df_final = rename_columns(df_arq, df_final)
         df_final = df_final.replace(",", ".", regex=True)
         df_final[cvm_constants.COLUNAS_ASCI_PERFIL_MENSAL.value] = df_final[
@@ -538,8 +555,12 @@ def clean_data_make_partitions_cad(diretorio, table_id):
     )
     df_final["CNPJ_FUNDO"] = df_final["CNPJ_FUNDO"].str.replace(r"[/.-]", "")
     df_final["CNPJ_ADMIN"] = df_final["CNPJ_ADMIN"].str.replace(r"[/.-]", "")
-    df_final["CPF_CNPJ_GESTOR"] = df_final["CPF_CNPJ_GESTOR"].str.replace(r"[/.-]", "")
-    df_final["CNPJ_AUDITOR"] = df_final["CNPJ_AUDITOR"].str.replace(r"[/.-]", "")
+    df_final["CPF_CNPJ_GESTOR"] = df_final["CPF_CNPJ_GESTOR"].str.replace(
+        r"[/.-]", ""
+    )
+    df_final["CNPJ_AUDITOR"] = df_final["CNPJ_AUDITOR"].str.replace(
+        r"[/.-]", ""
+    )
     df_final["CNPJ_CUSTODIANTE"] = df_final["CNPJ_CUSTODIANTE"].str.replace(
         r"[/.-]", ""
     )
@@ -559,7 +580,9 @@ def clean_data_make_partitions_cad(diretorio, table_id):
     # log(f"Fazendo partições para o ano ------> {i}")
     os.makedirs(f"/tmp/data/br_cvm_fi/{table_id}/output/", exist_ok=True)
     df_final.to_csv(
-        f"/tmp/data/br_cvm_fi/{table_id}/output/data.csv", encoding="utf-8", index=False
+        f"/tmp/data/br_cvm_fi/{table_id}/output/data.csv",
+        encoding="utf-8",
+        index=False,
     )
 
     return f"/tmp/data/br_cvm_fi/{table_id}/output/data.csv"

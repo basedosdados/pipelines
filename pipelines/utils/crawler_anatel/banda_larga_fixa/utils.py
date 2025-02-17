@@ -2,19 +2,20 @@
 import os
 import time
 from zipfile import ZipFile
-from pipelines.utils.utils import log
+
+import numpy as np
 import pandas as pd
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+
 from pipelines.utils.crawler_anatel.banda_larga_fixa.constants import (
     constants as anatel_constants,
 )
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from pipelines.utils.utils import log, to_partitions
-import numpy as np
+
+
 def download_zip_file(path):
     """
     Downloads a zip file from a specific URL and saves it to the given path.
@@ -56,28 +57,38 @@ def download_zip_file(path):
 
     driver.maximize_window()
     WebDriverWait(driver, 300).until(
-                EC.element_to_be_clickable(
-                    (By.XPATH, '/html/body/div/section/div/div[3]/div[2]/div[3]/div[2]/header/button')
-                )
-            ).click()
+        EC.element_to_be_clickable(
+            (
+                By.XPATH,
+                "/html/body/div/section/div/div[3]/div[2]/div[3]/div[2]/header/button",
+            )
+        )
+    ).click()
 
     WebDriverWait(driver, 300).until(
-                EC.element_to_be_clickable(
-                    (By.XPATH, '/html/body/div/section/div/div[3]/div[2]/div[3]/div[2]/div/div[1]/div[2]/div[2]/div/button')
-                )
-            ).click()
+        EC.element_to_be_clickable(
+            (
+                By.XPATH,
+                "/html/body/div/section/div/div[3]/div[2]/div[3]/div[2]/div/div[1]/div[2]/div[2]/div/button",
+            )
+        )
+    ).click()
     time.sleep(150)
     log(os.listdir(path))
 
+
 def unzip_file():
     download_zip_file(path=anatel_constants.INPUT_PATH.value)
-    zip_file_path = os.path.join(anatel_constants.INPUT_PATH.value, 'acessos_banda_larga_fixa.zip')
+    zip_file_path = os.path.join(
+        anatel_constants.INPUT_PATH.value, "acessos_banda_larga_fixa.zip"
+    )
     log(os.listdir(anatel_constants.INPUT_PATH.value))
     try:
-        with ZipFile(zip_file_path, 'r') as zip_ref:
+        with ZipFile(zip_file_path, "r") as zip_ref:
             zip_ref.extractall(anatel_constants.INPUT_PATH.value)
     except Exception as e:
         print(f"Erro ao baixar ou extrair o arquivo ZIP: {str(e)}")
+
 
 def check_and_create_column(df: pd.DataFrame, col_name: str) -> pd.DataFrame:
     """
@@ -96,7 +107,8 @@ def check_and_create_column(df: pd.DataFrame, col_name: str) -> pd.DataFrame:
         df[col_name] = ""
     return df
 
-def treatment(table_id:str, ano: int):
+
+def treatment(table_id: str, ano: int):
     log("Iniciando o tratamento do arquivo microdados da Anatel")
     df = pd.read_csv(
         f"{anatel_constants.INPUT_PATH.value}Acessos_Banda_Larga_Fixa_{ano}.csv",
@@ -108,10 +120,10 @@ def treatment(table_id:str, ano: int):
         columns=anatel_constants.RENAME_MICRODADOS.value,
         inplace=True,
     )
-    df.drop(anatel_constants.DROP_COLUMNS_MICRODADOS.value, axis=1, inplace=True)
-    df = df[
-        anatel_constants.ORDER_COLUMNS_MICRODADOS.value
-    ]
+    df.drop(
+        anatel_constants.DROP_COLUMNS_MICRODADOS.value, axis=1, inplace=True
+    )
+    df = df[anatel_constants.ORDER_COLUMNS_MICRODADOS.value]
     df.sort_values(
         anatel_constants.SORT_VALUES_MICRODADOS.value,
         inplace=True,
@@ -136,16 +148,20 @@ def treatment(table_id:str, ano: int):
     )
 
 
-def treatment_br(table_id:str):
+def treatment_br(table_id: str):
     log("Iniciando o tratamento do arquivo densidade brasil da Anatel")
     df = pd.read_csv(
         f"{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa.csv",
         sep=";",
         encoding="utf-8",
     )
-    df.rename(columns={"Nível Geográfico Densidade": "Geografia"}, inplace=True)
+    df.rename(
+        columns={"Nível Geográfico Densidade": "Geografia"}, inplace=True
+    )
     df_brasil = df[df["Geografia"] == "Brasil"]
-    df_brasil = df_brasil.drop(anatel_constants.DROP_COLUMNS_BRASIL.value, axis=1)
+    df_brasil = df_brasil.drop(
+        anatel_constants.DROP_COLUMNS_BRASIL.value, axis=1
+    )
     df_brasil["Densidade"] = df_brasil["Densidade"].apply(
         lambda x: float(x.replace(",", "."))
     )
@@ -153,7 +169,7 @@ def treatment_br(table_id:str):
         columns=anatel_constants.RENAME_COLUMNS_BRASIL.value,
         inplace=True,
     )
-    log('Salvando o arquivo densidade brasil da Anatel')
+    log("Salvando o arquivo densidade brasil da Anatel")
     df_brasil.to_csv(
         f"{anatel_constants.TABLES_OUTPUT_PATH.value[table_id]}densidade_brasil.csv",
         index=False,
@@ -163,18 +179,21 @@ def treatment_br(table_id:str):
     )
 
 
-def treatment_uf(table_id:str):
-
+def treatment_uf(table_id: str):
     log("Iniciando o tratamento do arquivo densidade uf da Anatel")
     df = pd.read_csv(
         f"{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa.csv",
         sep=";",
         encoding="utf-8",
     )
-    df.rename(columns={"Nível Geográfico Densidade": "Geografia"}, inplace=True)
+    df.rename(
+        columns={"Nível Geográfico Densidade": "Geografia"}, inplace=True
+    )
     df_uf = df[df["Geografia"] == "UF"]
     df_uf.drop(anatel_constants.DROP_COLUMNS_UF.value, axis=1, inplace=True)
-    df_uf["Densidade"] = df_uf["Densidade"].apply(lambda x: float(x.replace(",", ".")))
+    df_uf["Densidade"] = df_uf["Densidade"].apply(
+        lambda x: float(x.replace(",", "."))
+    )
     df_uf.rename(
         columns=anatel_constants.RENAME_COLUMNS_UF.value,
         inplace=True,
@@ -189,14 +208,16 @@ def treatment_uf(table_id:str):
     )
 
 
-def treatment_municipio(table_id:str):
+def treatment_municipio(table_id: str):
     log("Iniciando o tratamento do arquivo densidade municipio da Anatel")
     df = pd.read_csv(
         f"{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa.csv",
         sep=";",
         encoding="utf-8",
     )
-    df.rename(columns={"Nível Geográfico Densidade": "Geografia"}, inplace=True)
+    df.rename(
+        columns={"Nível Geográfico Densidade": "Geografia"}, inplace=True
+    )
     df_municipio = df[df["Geografia"] == "Municipio"]
     df_municipio.drop(["Município", "Geografia"], axis=1, inplace=True)
     df_municipio["Densidade"] = df_municipio["Densidade"].apply(

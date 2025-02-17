@@ -2,6 +2,7 @@
 """
 Tasks for br_cvm_oferta_publica_distribuicao
 """
+
 import os
 from io import BytesIO
 from urllib.request import urlopen
@@ -11,7 +12,6 @@ import pandas as pd
 from pandas.api.types import is_string_dtype
 from prefect import task
 from unidecode import unidecode
-
 
 
 @task
@@ -43,21 +43,29 @@ def clean_table_oferta_distribuicao(root: str) -> str:
 
     dataframe.columns = [k.lower() for k in dataframe.columns]
 
-    dataframe.loc[(dataframe["oferta_inicial"] == "N"), "oferta_inicial"] = "Nao"
-    dataframe.loc[(dataframe["oferta_inicial"] == "S"), "oferta_inicial"] = "Sim"
+    dataframe.loc[(dataframe["oferta_inicial"] == "N"), "oferta_inicial"] = (
+        "Nao"
+    )
+    dataframe.loc[(dataframe["oferta_inicial"] == "S"), "oferta_inicial"] = (
+        "Sim"
+    )
 
     dataframe.loc[
-        (dataframe["oferta_incentivo_fiscal"] == "N"), "oferta_incentivo_fiscal"
+        (dataframe["oferta_incentivo_fiscal"] == "N"),
+        "oferta_incentivo_fiscal",
     ] = "Nao"
     dataframe.loc[
-        (dataframe["oferta_incentivo_fiscal"] == "S"), "oferta_incentivo_fiscal"
+        (dataframe["oferta_incentivo_fiscal"] == "S"),
+        "oferta_incentivo_fiscal",
     ] = "Sim"
 
     dataframe.loc[
-        (dataframe["oferta_regime_fiduciario"] == "N"), "oferta_regime_fiduciario"
+        (dataframe["oferta_regime_fiduciario"] == "N"),
+        "oferta_regime_fiduciario",
     ] = "Nao"
     dataframe.loc[
-        (dataframe["oferta_regime_fiduciario"] == "S"), "oferta_regime_fiduciario"
+        (dataframe["oferta_regime_fiduciario"] == "S"),
+        "oferta_regime_fiduciario",
     ] = "Sim"
 
     for col in dataframe.columns:

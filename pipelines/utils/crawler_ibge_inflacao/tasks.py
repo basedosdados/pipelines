@@ -2,6 +2,7 @@
 """
 Tasks for br_ibge_inpc
 """
+
 import errno
 
 # pylint: disable=line-too-long, W0702, E1101, W0212,unnecessary-dunder-call,invalid-name,too-many-statements
@@ -11,12 +12,12 @@ import ssl
 from datetime import datetime as dt
 from time import sleep
 
+import basedosdados as bd
 import pandas as pd
 from prefect import task
 from tqdm import tqdm
 
 from pipelines.utils.crawler_ibge_inflacao.utils import get_legacy_session
-import basedosdados as bd
 from pipelines.utils.metadata.utils import get_api_most_recent_date, get_url
 from pipelines.utils.utils import log
 
@@ -114,7 +115,9 @@ def check_for_updates(
 
     dataframe = dataframe[["Mês"]]
 
-    dataframe[["mes", "ano"]] = dataframe["Mês"].str.split(pat=" ", n=1, expand=True)
+    dataframe[["mes", "ano"]] = dataframe["Mês"].str.split(
+        pat=" ", n=1, expand=True
+    )
 
     dataframe["mes"] = dataframe["mes"].map(n_mes)
 
@@ -134,7 +137,9 @@ def check_for_updates(
         date_format="%Y-%m",
         backend=backend,
     )
-    log(f"A data mais recente da tabela no --- Site da BD --- é: {max_date_bd}")
+    log(
+        f"A data mais recente da tabela no --- Site da BD --- é: {max_date_bd}"
+    )
     if dataframe.date() > max_date_bd:
         log(
             f"A tabela {indice} foi atualizada no site do IBGE. O Flow de atualização será executado!"
@@ -383,7 +388,9 @@ def clean_mes_brasil(indice: str) -> None:
             "/tmp/data/input/br. Please, check if br is the value of FOLDER arg in crawler task and if the files was downloaded and if the files was downloaded",
         )
     for arq in arquivos:
-        dataframe = pd.read_csv(arq, skipfooter=14, skiprows=2, sep=";", dtype="str")
+        dataframe = pd.read_csv(
+            arq, skipfooter=14, skiprows=2, sep=";", dtype="str"
+        )
         # renomear colunas
         dataframe.rename(columns=rename, inplace=True)
         # substituir "..." por vazio
@@ -401,9 +408,9 @@ def clean_mes_brasil(indice: str) -> None:
 
         # Split coluna categoria e add id_categoria_bd
         if arq.split("_")[-1].split(".")[0] != "geral":
-            dataframe[["id_categoria", "categoria"]] = dataframe["categoria"].str.split(
-                pat=".", n=1, expand=True
-            )
+            dataframe[["id_categoria", "categoria"]] = dataframe[
+                "categoria"
+            ].str.split(pat=".", n=1, expand=True)
 
         if arq.split("_")[-1].split(".")[0] == "grupo":
             dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
@@ -558,9 +565,9 @@ def clean_mes_rm(indice: str):
 
         # Split coluna categoria e add id_categoria_bd
         if arq.split("_")[-1].split(".")[0] != "geral":
-            dataframe[["id_categoria", "categoria"]] = dataframe["categoria"].str.split(
-                pat=".", n=1, expand=True
-            )
+            dataframe[["id_categoria", "categoria"]] = dataframe[
+                "categoria"
+            ].str.split(pat=".", n=1, expand=True)
 
         if arq.split("_")[-1].split(".")[0] == "grupo":
             dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
@@ -581,28 +588,40 @@ def clean_mes_rm(indice: str):
             dataframe = dataframe[ordem]
             item = pd.DataFrame(dataframe)
 
-        elif "_".join(arq.split("_")[1:]).split(".", maxsplit=1)[0] == "subitem_2020":
+        elif (
+            "_".join(arq.split("_")[1:]).split(".", maxsplit=1)[0]
+            == "subitem_2020"
+        ):
             dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
                 lambda x: x[0] + "." + x[1] + "." + x[2:4] + "." + x[4:7]
             )
             dataframe = dataframe[ordem]
             subitem_2020 = pd.DataFrame(dataframe)
 
-        elif "_".join(arq.split("_")[1:]).split(".", maxsplit=1)[0] == "subitem_2021":
+        elif (
+            "_".join(arq.split("_")[1:]).split(".", maxsplit=1)[0]
+            == "subitem_2021"
+        ):
             dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
                 lambda x: x[0] + "." + x[1] + "." + x[2:4] + "." + x[4:7]
             )
             dataframe = dataframe[ordem]
             subitem_2021 = pd.DataFrame(dataframe)
 
-        elif "_".join(arq.split("_")[1:]).split(".", maxsplit=1)[0] == "subitem_2022":
+        elif (
+            "_".join(arq.split("_")[1:]).split(".", maxsplit=1)[0]
+            == "subitem_2022"
+        ):
             dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
                 lambda x: x[0] + "." + x[1] + "." + x[2:4] + "." + x[4:7]
             )
             dataframe = dataframe[ordem]
             subitem_2022 = pd.DataFrame(dataframe)
 
-        elif "_".join(arq.split("_")[1:]).split(".", maxsplit=1)[0] == "subitem_2023":
+        elif (
+            "_".join(arq.split("_")[1:]).split(".", maxsplit=1)[0]
+            == "subitem_2023"
+        ):
             dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
                 lambda x: x[0] + "." + x[1] + "." + x[2:4] + "." + x[4:7]
             )
@@ -707,7 +726,9 @@ def clean_mes_municipio(indice: str):
         )
 
     for arq in arquivos:
-        dataframe = pd.read_csv(arq, skipfooter=14, skiprows=2, sep=";", dtype="str")
+        dataframe = pd.read_csv(
+            arq, skipfooter=14, skiprows=2, sep=";", dtype="str"
+        )
         # renomear colunas
         dataframe.rename(columns=rename, inplace=True)
         # substituir "..." por vazio
@@ -725,9 +746,9 @@ def clean_mes_municipio(indice: str):
 
         # Split coluna categoria e add id_categoria_bd
         if arq.split("_")[-1].split(".")[0] != "geral":
-            dataframe[["id_categoria", "categoria"]] = dataframe["categoria"].str.split(
-                pat=".", n=1, expand=True
-            )
+            dataframe[["id_categoria", "categoria"]] = dataframe[
+                "categoria"
+            ].str.split(pat=".", n=1, expand=True)
 
         if arq.split("_")[-1].split(".")[0] == "grupo":
             dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
@@ -749,28 +770,40 @@ def clean_mes_municipio(indice: str):
             item = pd.DataFrame(dataframe)
 
         # realiza diversas requisões a API para burlar o limite de 200k valores
-        elif "_".join(arq.split("_")[1:]).split(".", maxsplit=1)[0] == "subitem_2020":
+        elif (
+            "_".join(arq.split("_")[1:]).split(".", maxsplit=1)[0]
+            == "subitem_2020"
+        ):
             dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
                 lambda x: x[0] + "." + x[1] + "." + x[2:4] + "." + x[4:7]
             )
             dataframe = dataframe[ordem]
             subitem_2020 = pd.DataFrame(dataframe)
 
-        elif "_".join(arq.split("_")[1:]).split(".", maxsplit=1)[0] == "subitem_2021":
+        elif (
+            "_".join(arq.split("_")[1:]).split(".", maxsplit=1)[0]
+            == "subitem_2021"
+        ):
             dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
                 lambda x: x[0] + "." + x[1] + "." + x[2:4] + "." + x[4:7]
             )
             dataframe = dataframe[ordem]
             subitem_2021 = pd.DataFrame(dataframe)
 
-        elif "_".join(arq.split("_")[1:]).split(".", maxsplit=1)[0] == "subitem_2022":
+        elif (
+            "_".join(arq.split("_")[1:]).split(".", maxsplit=1)[0]
+            == "subitem_2022"
+        ):
             dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
                 lambda x: x[0] + "." + x[1] + "." + x[2:4] + "." + x[4:7]
             )
             dataframe = dataframe[ordem]
             subitem_2022 = pd.DataFrame(dataframe)
 
-        elif "_".join(arq.split("_")[1:]).split(".", maxsplit=1)[0] == "subitem_2023":
+        elif (
+            "_".join(arq.split("_")[1:]).split(".", maxsplit=1)[0]
+            == "subitem_2023"
+        ):
             dataframe["id_categoria_bd"] = dataframe["id_categoria"].apply(
                 lambda x: x[0] + "." + x[1] + "." + x[2:4] + "." + x[4:7]
             )
@@ -879,7 +912,9 @@ def clean_mes_geral(indice: str):
             dataframe = pd.read_csv(arq, skiprows=2, skipfooter=11, sep=";")
         else:
             dataframe = pd.read_csv(arq, skiprows=2, skipfooter=13, sep=";")
-        dataframe[["mes", "ano"]] = dataframe["Mês"].str.split(" ", n=1, expand=True)
+        dataframe[["mes", "ano"]] = dataframe["Mês"].str.split(
+            " ", n=1, expand=True
+        )
         dataframe["mes"] = dataframe["mes"].map(n_mes)
 
         # renomear colunas

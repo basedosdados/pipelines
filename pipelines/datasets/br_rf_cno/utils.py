@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
-import os
 import asyncio
+import os
 from typing import List
+
 import httpx
 from tqdm import tqdm
+
 from pipelines.utils.utils import log
+
 
 async def download_chunk(
     client: httpx.AsyncClient,
@@ -13,7 +16,7 @@ async def download_chunk(
     end: int,
     filepath: str,
     semaphore: asyncio.Semaphore,
-    pbar: tqdm
+    pbar: tqdm,
 ) -> None:
     """
     Downloads a specific chunk of a file from a given URL and writes it to the specified file path.
@@ -41,7 +44,7 @@ async def download_chunk(
         "Sec-Fetch-Mode": "navigate",
         "Sec-Fetch-Site": "same-origin",
         "Sec-Fetch-User": "?1",
-        "Priority": "u=0, i"
+        "Priority": "u=0, i",
     }
     async with semaphore:
         response = await client.get(url, headers=headers, timeout=60.0)
@@ -49,6 +52,7 @@ async def download_chunk(
             f.seek(start)
             f.write(response.content)
             pbar.update(len(response.content))
+
 
 async def download_file_async(root: str, url: str) -> None:
     """
@@ -64,7 +68,7 @@ async def download_file_async(root: str, url: str) -> None:
     filepath = f"{root}/data.zip"
     os.makedirs(root, exist_ok=True)
 
-    log(f'----- Downloading files from {url}')
+    log(f"----- Downloading files from {url}")
 
     async with httpx.AsyncClient() as client:
         response = await client.head(url, timeout=60.0)
@@ -77,11 +81,17 @@ async def download_file_async(root: str, url: str) -> None:
     tasks: List[asyncio.Task] = []
     semaphore = asyncio.Semaphore(5)  # 5 downloads at the same time
 
-    with tqdm(total=total_size, unit='MB', unit_scale=True, desc=filepath) as pbar:
+    with tqdm(
+        total=total_size, unit="MB", unit_scale=True, desc=filepath
+    ) as pbar:
         async with httpx.AsyncClient() as client:
             for start in range(0, total_size, chunk_size):
                 end = min(start + chunk_size - 1, total_size - 1)
-                tasks.append(download_chunk(client, url, start, end, filepath, semaphore, pbar))
+                tasks.append(
+                    download_chunk(
+                        client, url, start, end, filepath, semaphore, pbar
+                    )
+                )
             await asyncio.gather(*tasks)
 
-    log(f'----- Downloading completed')
+    log("----- Downloading completed")

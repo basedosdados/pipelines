@@ -3,12 +3,15 @@
 Tasks for br_mg_belohorizonte_smfa_iptu
 """
 
+from datetime import datetime
+
 import requests
 from bs4 import BeautifulSoup
 from prefect import task
-import pandas as pd
-from datetime import datetime
-from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.constants import constants
+
+from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.constants import (
+    constants,
+)
 from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.utils import (
     changing_coordinates,
     concat_csv,
@@ -56,7 +59,9 @@ def make_partitions(df):
     log("Iniciando a partição dos dados")
 
     to_partitions(
-        data=df, partition_columns=["ano", "mes"], savepath=constants.OUTPUT_PATH.value
+        data=df,
+        partition_columns=["ano", "mes"],
+        savepath=constants.OUTPUT_PATH.value,
     )
 
     return constants.OUTPUT_PATH.value
@@ -68,7 +73,9 @@ def data_url(url, headers):
 
     soup = BeautifulSoup(response.content, "html.parser")
 
-    links = soup.find_all("a", href=lambda href: href and href.endswith(".csv"))
+    links = soup.find_all(
+        "a", href=lambda href: href and href.endswith(".csv")
+    )
 
     if links:
         link = links[-1]

@@ -2,6 +2,7 @@
 """
 Flows for ibge inflacao
 """
+
 # pylint: disable=C0103, E1123, invalid-name, duplicate-code, R0801
 from datetime import timedelta
 
@@ -21,7 +22,9 @@ from pipelines.utils.crawler_ibge_inflacao.tasks import (
     crawler,
 )
 from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.execute_dbt_model.constants import (
+    constants as dump_db_constants,
+)
 from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
@@ -43,10 +46,15 @@ with Flow(
         "materialize_after_dump", default=True, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     needs_to_update = check_for_updates(
@@ -131,10 +139,15 @@ with Flow("BD Template - IBGE Inflação: mes_rm") as flow_ibge_inflacao_mes_rm:
         "materialize_after_dump", default=True, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     needs_to_update = check_for_updates(
@@ -200,7 +213,9 @@ with Flow("BD Template - IBGE Inflação: mes_rm") as flow_ibge_inflacao_mes_rm:
             )
 
 flow_ibge_inflacao_mes_rm.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-flow_ibge_inflacao_mes_rm.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+flow_ibge_inflacao_mes_rm.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
 
 
 with Flow(
@@ -218,10 +233,15 @@ with Flow(
         "materialize_after_dump", default=True, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     needs_to_update = check_for_updates(
@@ -234,7 +254,9 @@ with Flow(
         )
     # pylint: disable=E1123
 
-    filepath = clean_mes_municipio(indice=INDICE, upstream_tasks=[was_downloaded])
+    filepath = clean_mes_municipio(
+        indice=INDICE, upstream_tasks=[was_downloaded]
+    )
 
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
@@ -287,13 +309,17 @@ with Flow(
             )
 
 
-flow_ibge_inflacao_mes_municipio_.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+flow_ibge_inflacao_mes_municipio_.storage = GCS(
+    constants.GCS_FLOWS_BUCKET.value
+)
 flow_ibge_inflacao_mes_municipio_.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
 
 
-with Flow("BD Template - IBGE Inflação: mes_geral") as flow_ibge_inflacao_mes_geral:
+with Flow(
+    "BD Template - IBGE Inflação: mes_geral"
+) as flow_ibge_inflacao_mes_geral:
     # Parameters
     INDICE = Parameter("indice")
     FOLDER = Parameter("folder")
@@ -307,10 +333,15 @@ with Flow("BD Template - IBGE Inflação: mes_geral") as flow_ibge_inflacao_mes_
     )
 
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     needs_to_update = check_for_updates(

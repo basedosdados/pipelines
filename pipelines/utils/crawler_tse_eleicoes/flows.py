@@ -2,6 +2,7 @@
 """
 Flows for br_tse_eleicoes
 """
+
 # pylint: disable=invalid-name,line-too-long
 from datetime import timedelta
 
@@ -11,33 +12,34 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-
+from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.crawler_tse_eleicoes.tasks import (
     flows_control,
     get_data_source_max_date,
-    preparing_data
+    preparing_data,
 )
-from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.execute_dbt_model.constants import (
+    constants as dump_db_constants,
+)
+from pipelines.utils.metadata.tasks import (
+    check_if_data_is_outdated,
+    update_django_metadata,
+)
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
     rename_current_flow_run_dataset_table,
 )
 
-from pipelines.utils.metadata.tasks import (
-    check_if_data_is_outdated,
-    update_django_metadata,
-)
-
 with Flow(
     name="BD template - BR_TSE_ELEICOES", code_owners=["luiz"]
 ) as br_tse_eleicoes:
-
     # Parameters
 
-    dataset_id = Parameter("dataset_id", default="br_tse_eleicoes", required=True)
+    dataset_id = Parameter(
+        "dataset_id", default="br_tse_eleicoes", required=True
+    )
 
     table_id = Parameter("table_id", required=True)
 
@@ -50,17 +52,28 @@ with Flow(
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
 
     # Inicio das tarefas
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
-    flow = flows_control(table_id=table_id, mode=materialization_mode, upstream_tasks=[rename_flow_run])
+    flow = flows_control(
+        table_id=table_id,
+        mode=materialization_mode,
+        upstream_tasks=[rename_flow_run],
+    )
 
-    data_source_max_date = get_data_source_max_date(flow_class=flow, upstream_tasks=[flow])
+    data_source_max_date = get_data_source_max_date(
+        flow_class=flow, upstream_tasks=[flow]
+    )
 
     outdated = check_if_data_is_outdated(
         dataset_id=dataset_id,
@@ -71,18 +84,19 @@ with Flow(
     )
 
     with case(outdated, True):
-
-        ready_data_path = preparing_data(flow_class=flow, upstream_tasks=[outdated])
-
-        wait_upload_table = create_table_and_upload_to_gcs(
-        data_path=ready_data_path,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dump_mode="append",
-        upstream_tasks=[ready_data_path]
+        ready_data_path = preparing_data(
+            flow_class=flow, upstream_tasks=[outdated]
         )
 
-      # materialize municipio_exportacao
+        wait_upload_table = create_table_and_upload_to_gcs(
+            data_path=ready_data_path,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dump_mode="append",
+            upstream_tasks=[ready_data_path],
+        )
+
+        # materialize municipio_exportacao
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
             current_flow_labels = get_current_flow_labels()
@@ -99,7 +113,6 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
-
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -107,7 +120,6 @@ with Flow(
                 stream_states=True,
                 stream_logs=True,
                 raise_final_state=True,
-
             )
             wait_for_materialization.max_retries = (
                 dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
@@ -131,4 +143,3 @@ with Flow(
 
 br_tse_eleicoes.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_tse_eleicoes.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-

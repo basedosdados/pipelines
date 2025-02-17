@@ -88,7 +88,9 @@ def get_directory_column_id(
     response = backend._simplify_response(response)["allColumn"]
     df = pd.json_normalize(response)
 
-    colunas_de_diretorio = df["table.dataset.fullSlug"].str.contains("diretorios")
+    colunas_de_diretorio = df["table.dataset.fullSlug"].str.contains(
+        "diretorios"
+    )
     for index, coluna in df[colunas_de_diretorio].iterrows():
         if coluna["table.slug"] == directory_table_name:
             print(
@@ -105,7 +107,9 @@ def get_directory_column_id(
     )
 
 
-def modify_directory_metadata(column_id: str, directory_id: str, backend) -> None:
+def modify_directory_metadata(
+    column_id: str, directory_id: str, backend
+) -> None:
     """
     modify directory metadata
     """
@@ -127,7 +131,9 @@ def modify_directory_metadata(column_id: str, directory_id: str, backend) -> Non
 
     headers = get_headers(backend)
 
-    backend._execute_query(query=mutation, variables={"input": variables}, headers=headers)
+    backend._execute_query(
+        query=mutation, variables={"input": variables}, headers=headers
+    )
 
     return None
 
@@ -145,12 +151,16 @@ def select_columns(
 
     for wrong_column_name in not_column_name:
         contains_wrong_column_name = df["name"].str.contains(wrong_column_name)
-        print(f" Removed {contains_wrong_column_name.sum()} columns with {wrong_column_name}")
+        print(
+            f" Removed {contains_wrong_column_name.sum()} columns with {wrong_column_name}"
+        )
         df = df[~contains_wrong_column_name]
 
     if remove_already_done and ("directoryPrimaryKey.name" in df.columns):
         conected = df["directoryPrimaryKey.name"] is not None
-        print(f" Removed {conected.sum()} columns that are already conected to a directory")
+        print(
+            f" Removed {conected.sum()} columns that are already conected to a directory"
+        )
         df = df[~conected]
 
     print("-------------------")
@@ -215,9 +225,13 @@ def link_directory_metadata(
 
     df = get_columns(matching_column_pattern, backend)
 
-    print(f"\nFound {len(df)} columns that include '{matching_column_pattern}'")
+    print(
+        f"\nFound {len(df)} columns that include '{matching_column_pattern}'"
+    )
 
-    columns_list = select_columns(df, not_matching_pattern, ignore_previously_linked_columns)
+    columns_list = select_columns(
+        df, not_matching_pattern, ignore_previously_linked_columns
+    )
 
     if ready_to_change_metadata:
         for column in columns_list:

@@ -22,7 +22,9 @@ from pipelines.datasets.br_mp_pep_cargos_funcoes.tasks import (
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.execute_dbt_model.constants import (
+    constants as dump_db_constants,
+)
 from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
@@ -39,13 +41,22 @@ with Flow(
 ) as datasets_br_mp_pep_cargos_funcoes_flow:
     dataset_id = Parameter("dataset_id", default="br_mp_pep", required=True)
     table_id = Parameter("table_id", default="cargos_funcoes", required=True)
-    update_metadata = Parameter("update_metadata", default=True, required=False)
-    materialization_mode = Parameter("materialization_mode", default="prod", required=False)
-    materialize_after_dump = Parameter("materialize after dump", default=True, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=True, required=False
+    )
+    materialization_mode = Parameter(
+        "materialization_mode", default="prod", required=False
+    )
+    materialize_after_dump = Parameter(
+        "materialize after dump", default=True, required=False
+    )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     setup = setup_web_driver()
@@ -71,7 +82,9 @@ with Flow(
             upstream_tasks=[data_is_up_to_date],
         )
 
-        download = download_xlsx(scraper_result, upstream_tasks=[scraper_result])
+        download = download_xlsx(
+            scraper_result, upstream_tasks=[scraper_result]
+        )
         log_task("Download XLSX finished")
 
         df = clean_data(upstream_tasks=[download])
@@ -129,7 +142,9 @@ with Flow(
                     upstream_tasks=[wait_for_materialization],
                 )
 
-datasets_br_mp_pep_cargos_funcoes_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+datasets_br_mp_pep_cargos_funcoes_flow.storage = GCS(
+    constants.GCS_FLOWS_BUCKET.value
+)
 datasets_br_mp_pep_cargos_funcoes_flow.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )

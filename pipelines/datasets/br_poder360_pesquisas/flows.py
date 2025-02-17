@@ -11,11 +11,12 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.datasets.br_poder360_pesquisas.schedules import every_monday_thursday
 from pipelines.datasets.br_poder360_pesquisas.tasks import crawler
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.execute_dbt_model.constants import (
+    constants as dump_db_constants,
+)
 from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
@@ -29,7 +30,9 @@ with Flow(
     name="br_poder360_pesquisas.microdados", code_owners=["lucas_cr"]
 ) as br_poder360:
     # Parameters
-    dataset_id = Parameter("dataset_id", default="br_poder360_pesquisas", required=True)
+    dataset_id = Parameter(
+        "dataset_id", default="br_poder360_pesquisas", required=True
+    )
     table_id = Parameter("table_id", default="microdados", required=True)
     materialization_mode = Parameter(
         "materialization_mode", default="prod", required=False
@@ -40,7 +43,10 @@ with Flow(
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     filepath = crawler()
@@ -105,4 +111,4 @@ with Flow(
 
 br_poder360.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_poder360.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-#br_poder360.schedule = every_monday_thursday
+# br_poder360.schedule = every_monday_thursday

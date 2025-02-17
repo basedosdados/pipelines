@@ -16,11 +16,11 @@ class constants(Enum):  # pylint: disable=c0103
     INPUT_PATH = "/tmp/data/input/"
 
     TABLES_OUTPUT_PATH = {
-        'microdados' : "/tmp/data/microdados/output/",
-        'densidade_brasil' : "/tmp/data/BRASIL/output/",
-        'densidade_uf' : "/tmp/data/UF/output/",
-        'densidade_municipio' : "/tmp/data/MUNICIPIO/output/"
-        }
+        "microdados": "/tmp/data/microdados/output/",
+        "densidade_brasil": "/tmp/data/BRASIL/output/",
+        "densidade_uf": "/tmp/data/UF/output/",
+        "densidade_municipio": "/tmp/data/MUNICIPIO/output/",
+    }
 
     # ? MICRODADOS
 
@@ -61,25 +61,19 @@ class constants(Enum):  # pylint: disable=c0103
         "Acessos": "acessos",
     }
 
-    DROP_COLUMNS_MICRODADOS = ["grupo_economico",
-                            "municipio",
-                            "ddd_chip"]
+    DROP_COLUMNS_MICRODADOS = ["grupo_economico", "municipio", "ddd_chip"]
 
     # ? --------------------------------------------- > Densidade Municipio
 
-    ORDER_COLUMNS_MUNICIPIO = ["Ano",
-                            "Mês",
-                            "UF",
-                            "Código IBGE",
-                            "Densidade"]
+    ORDER_COLUMNS_MUNICIPIO = ["Ano", "Mês", "UF", "Código IBGE", "Densidade"]
 
     RENAME_COLUMNS_MUNICIPIO = {
-            "Ano": "ano",
-            "Mês": "mes",
-            "UF": "sigla_uf",
-            "Código IBGE Município": "id_municipio",
-            "Densidade": "densidade",
-        }
+        "Ano": "ano",
+        "Mês": "mes",
+        "UF": "sigla_uf",
+        "Código IBGE Município": "id_municipio",
+        "Densidade": "densidade",
+    }
 
     # ? --------------------------------------------- > Densidade UF
 
@@ -87,17 +81,17 @@ class constants(Enum):  # pylint: disable=c0103
         "Ano": "ano",
         "Mês": "mes",
         "UF": "sigla_uf",
-        "Densidade": "densidade"}
+        "Densidade": "densidade",
+    }
 
-    ORDER_COLUMNS_UF = [
-        "Ano",
-        "Mês",
-        "UF",
-        "Densidade"
-        ]
+    ORDER_COLUMNS_UF = ["Ano", "Mês", "UF", "Densidade"]
 
     # ? --------------------------------------------- > Densidade Brasil
 
-    RENAME_COLUMNS_BRASIL = {"Ano": "ano", "Mês": "mes", "Densidade": "densidade"}
+    RENAME_COLUMNS_BRASIL = {
+        "Ano": "ano",
+        "Mês": "mes",
+        "Densidade": "densidade",
+    }
 
     ORDER_COLUMNS_BRASIL = ["Ano", "Mês", "Densidade"]

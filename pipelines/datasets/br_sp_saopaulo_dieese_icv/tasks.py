@@ -2,6 +2,7 @@
 """
 Tasks for br_sp_saopaulo_dieese_icv
 """
+
 import os
 
 import ipeadatapy as idpy

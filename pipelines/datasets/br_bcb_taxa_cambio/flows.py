@@ -20,7 +20,9 @@ from pipelines.datasets.br_bcb_taxa_cambio.tasks import (
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.execute_dbt_model.constants import (
+    constants as dump_db_constants,
+)
 from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
@@ -34,7 +36,9 @@ with Flow(
         "lauris",
     ],
 ) as datasets_br_bcb_taxa_cambio_moeda_flow:
-    dataset_id = Parameter("dataset_id", default="br_bcb_taxa_cambio", required=True)
+    dataset_id = Parameter(
+        "dataset_id", default="br_bcb_taxa_cambio", required=True
+    )
     table_id = Parameter("table_id", default="taxa_cambio", required=True)
     materialization_mode = Parameter(
         "materialization_mode", default="dev", required=False
@@ -43,10 +47,15 @@ with Flow(
         "materialize_after_dump", default=True, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     input_filepath = get_data_taxa_cambio(
@@ -111,8 +120,12 @@ with Flow(
             )
 
 
-datasets_br_bcb_taxa_cambio_moeda_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+datasets_br_bcb_taxa_cambio_moeda_flow.storage = GCS(
+    constants.GCS_FLOWS_BUCKET.value
+)
 datasets_br_bcb_taxa_cambio_moeda_flow.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-datasets_br_bcb_taxa_cambio_moeda_flow.schedule = schedule_every_weekday_taxa_cambio
+datasets_br_bcb_taxa_cambio_moeda_flow.schedule = (
+    schedule_every_weekday_taxa_cambio
+)

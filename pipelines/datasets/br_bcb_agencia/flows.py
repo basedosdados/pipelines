@@ -7,7 +7,9 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.datasets.br_bcb_agencia.constants import constants as agencia_constants
+from pipelines.datasets.br_bcb_agencia.constants import (
+    constants as agencia_constants,
+)
 from pipelines.datasets.br_bcb_agencia.schedules import every_month_agencia
 from pipelines.datasets.br_bcb_agencia.tasks import (
     clean_data,
@@ -16,7 +18,9 @@ from pipelines.datasets.br_bcb_agencia.tasks import (
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import constants as dump_db_constants
+from pipelines.utils.execute_dbt_model.constants import (
+    constants as dump_db_constants,
+)
 from pipelines.utils.metadata.tasks import (
     check_if_data_is_outdated,
     update_django_metadata,
@@ -35,9 +39,13 @@ with Flow(
     ],
 ) as br_bcb_agencia_agencia:
     # Parameters
-    dataset_id = Parameter("dataset_id", default="br_bcb_agencia", required=True)
+    dataset_id = Parameter(
+        "dataset_id", default="br_bcb_agencia", required=True
+    )
     table_id = Parameter("table_id", default="agencia", required=True)
-    update_metadata = Parameter("update_metadata", default=False, required=False)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     # Materialization mode
@@ -50,7 +58,10 @@ with Flow(
     )
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id, wait=table_id
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
     )
 
     data_source_max_date = extract_last_date(
@@ -108,7 +119,7 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks = [wait_upload_table]
+                upstream_tasks=[wait_upload_table],
             )
 
             wait_for_materialization = wait_for_flow_run(
@@ -139,5 +150,7 @@ with Flow(
 
 
 br_bcb_agencia_agencia.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_bcb_agencia_agencia.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_bcb_agencia_agencia.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
 br_bcb_agencia_agencia.schedule = every_month_agencia

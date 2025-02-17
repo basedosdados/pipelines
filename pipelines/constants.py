@@ -2,6 +2,7 @@
 """
 Constants for all flows
 """
+
 from enum import Enum
 
 
@@ -24,11 +25,7 @@ class constants(Enum):  # pylint: disable=c0103
     BASEDOSDADOS_PROD_AGENT_LABEL = "basedosdados"
     BASEDOSDADOS_PERGUNTAS_AGENT_LABEL = "basedosdados-perguntas"
 
-    MODE_TO_PROJECT_DICT = {
-        "prod": "basedosdados",
-        "dev": "basedosdados-dev"
-    }
-
+    MODE_TO_PROJECT_DICT = {"prod": "basedosdados", "dev": "basedosdados-dev"}
 
     ######################################
     # Other constants
@@ -123,12 +120,6 @@ class constants(Enum):  # pylint: disable=c0103
             "user_id": "951646117584592946",
             "type": "user_nickname",
         },
-        "aspeddro": {
-            "user_id": "767136614140346389",
-            "type": "user_nickname"
-        },
-        "luiz": {
-            "user_id": "322508262303989760",
-            "type": "user_nickname"
-        }
+        "aspeddro": {"user_id": "767136614140346389", "type": "user_nickname"},
+        "luiz": {"user_id": "322508262303989760", "type": "user_nickname"},
     }

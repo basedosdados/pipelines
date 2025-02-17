@@ -25,4 +25,6 @@ def log_traceroute(hostname: str):
     route_locations = get_ip_location(ip_list)
     log("Route information:")
     for ip, country, city, lat, lon in route_locations:
-        log(f"IP: {ip}, Country: {country}, City: {city}, Lat: {lat}, Lon: {lon}")
+        log(
+            f"IP: {ip}, Country: {country}, City: {city}, Lat: {lat}, Lon: {lon}"
+        )
