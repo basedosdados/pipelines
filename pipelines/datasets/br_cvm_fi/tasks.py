@@ -163,7 +163,6 @@ def extract_links_and_dates(url) -> Tuple[pd.DataFrame, str]:
             "data_hoje": datetime.now().strftime("%Y-%m-%d"),
         }
 
-
     df = pd.DataFrame(dados)
     df.ultima_atualizacao = df.ultima_atualizacao.apply(
         lambda x: datetime.strptime(x, "%d-%b-%Y %H:%M").strftime("%Y-%m-%d")
@@ -257,7 +256,6 @@ def clean_data_and_make_partitions(path: str, table_id: str) -> str:
         df["mes"] = df["data_competencia"].apply(
             lambda x: datetime.strptime(x, "%Y-%m-%d").month
         )
-
 
         log(f"File {file} cleaned.")
 
@@ -590,7 +588,6 @@ def clean_data_make_partitions_cad(diretorio, table_id):
 
 @task
 def clean_data_make_partitions_balancete(diretorio, table_id):
-
     arquivos = glob.glob(f"{diretorio}*.csv")
 
     for file in tqdm(arquivos):
@@ -604,9 +601,11 @@ def clean_data_make_partitions_balancete(diretorio, table_id):
             lambda x: datetime.strptime(x, "%Y-%m-%d").month
         )
 
-        df = check_and_create_column(df, colunas_totais=['TP_FUNDO_CLASSE'])
+        df = check_and_create_column(df, colunas_totais=["TP_FUNDO_CLASSE"])
 
-        df = df.rename(cvm_constants.DICIONARIO_DOCUMENTOS_BALANCETE.value, axis=1)
+        df = df.rename(
+            cvm_constants.DICIONARIO_DOCUMENTOS_BALANCETE.value, axis=1
+        )
 
         df = df[cvm_constants.ORDEM_DOCUMENTOS_BALANCETE.value]
 
