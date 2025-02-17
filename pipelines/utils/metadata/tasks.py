@@ -228,7 +228,7 @@ def check_if_data_is_outdated(
         return True  # Há atualizações disponíveis
     else:
         log("Não há novas atualizações disponíveis")
-        return True
+        return False
 
 
 @task

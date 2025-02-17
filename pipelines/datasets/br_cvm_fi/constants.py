@@ -492,6 +492,7 @@ class constants(Enum):  # pylint: disable=c0103
     CSV_LIST = [
         "https://dados.cvm.gov.br/dados/FI/DOC/EXTRATO/DADOS/",
         "https://dados.cvm.gov.br/dados/FI/DOC/PERFIL_MENSAL/DADOS/",
+        "https://dados.cvm.gov.br/dados/FI/DOC/BALANCETE/DADOS"
     ]
 
     COLUNAS_ASCI_PERFIL_MENSAL = [
