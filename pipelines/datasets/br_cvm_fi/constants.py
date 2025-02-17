@@ -496,6 +496,7 @@ class constants(Enum):  # pylint: disable=c0103
     CSV_LIST = [
         "https://dados.cvm.gov.br/dados/FI/DOC/EXTRATO/DADOS/",
         "https://dados.cvm.gov.br/dados/FI/DOC/PERFIL_MENSAL/DADOS/",
+        "https://dados.cvm.gov.br/dados/FI/DOC/BALANCETE/DADOS",
     ]
 
     COLUNAS_ASCI_PERFIL_MENSAL = [
@@ -562,5 +563,26 @@ class constants(Enum):  # pylint: disable=c0103
     URL_BALANCETE = "https://dados.cvm.gov.br/dados/FI/DOC/BALANCETE/DADOS/"
 
     ARQUITETURA_URL_BALANCETE = "https://docs.google.com/spreadsheets/d/1eIMo_hYHy89oh6kHRN9Kh0NytUZzr8__/edit#gid=1045172528"
+
+    DICIONARIO_DOCUMENTOS_BALANCETE = {
+        "CNPJ_FUNDO": "cnpj",
+        "CNPJ_FUNDO_CLASSE": "cnpj",
+        "DT_COMPTC": "data_competencia",
+        "PLANO_CONTA_BALCTE": "plano_contabil_balancete",
+        "TP_FUNDO_CLASSE": "tipo_fundo",
+        "CD_CONTA_BALCTE": "codigo_conta",
+        "VL_SALDO_BALCTE": "valor_saldo",
+    }
+
+    ORDEM_DOCUMENTOS_BALANCETE = [
+        "cnpj",
+        "data_competencia",
+        "plano_contabil_balancete",
+        "tipo_fundo",
+        "codigo_conta",
+        "valor_saldo",
+        "ano",
+        "mes",
+    ]
 
     ARQUITETURA_URL_CDA = "https://docs.google.com/spreadsheets/d/1V2XHBXBB_biC0cLoMZ3FxtbC7CPLxQXZhIY7iJDtsSw/edit#gid=0"

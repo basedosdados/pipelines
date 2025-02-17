@@ -183,7 +183,7 @@ def generate_links_to_download(
     """
     Checks for outdated tables.
     """
-    # trocar desatualizado == TRUE por, ultima_atualizacao > max_date
+
     lists = df.query(f"ultima_atualizacao == '{max_date}'").arquivo.to_list()
 
     log(f"The following files will be downloaded: {lists}")
@@ -256,7 +256,9 @@ def clean_data_and_make_partitions(path: str, table_id: str) -> str:
         df["mes"] = df["data_competencia"].apply(
             lambda x: datetime.strptime(x, "%Y-%m-%d").month
         )
+
         log(f"File {file} cleaned.")
+
         os.makedirs(f"/tmp/data/br_cvm_fi/{table_id}/output/", exist_ok=True)
         to_partitions(
             df,
@@ -383,7 +385,7 @@ def clean_data_make_partitions_ext(diretorio, table_id):
     ].applymap(limpar_string)
     df_final = df_final[cvm_constants.COLUNAS_FINAIS_EXT.value]
     log(df_final.head())
-    # print(f"Fazendo partições para o ano ------> {i}")
+    # log(f"Fazendo partições para o ano ------> {i}")
     os.makedirs(f"/tmp/data/br_cvm_fi/{table_id}/output/", exist_ok=True)
     to_partitions(
         df_final,
@@ -573,7 +575,7 @@ def clean_data_make_partitions_cad(diretorio, table_id):
         cvm_constants.COLUNAS_ASCI_CAD.value
     ].applymap(limpar_string)
     df_final = df_final[colunas_finais]
-    # print(f"Fazendo partições para o ano ------> {i}")
+    # log(f"Fazendo partições para o ano ------> {i}")
     os.makedirs(f"/tmp/data/br_cvm_fi/{table_id}/output/", exist_ok=True)
     df_final.to_csv(
         f"/tmp/data/br_cvm_fi/{table_id}/output/data.csv",
@@ -586,19 +588,10 @@ def clean_data_make_partitions_cad(diretorio, table_id):
 
 @task
 def clean_data_make_partitions_balancete(diretorio, table_id):
-    df_arq = sheet_to_df(cvm_constants.ARQUITETURA_URL_BALANCETE.value)
-    colunas_totais = df_arq["original_name"].to_list() + ["ano", "mes"]
-    log(colunas_totais)
-    colunas_finais = df_arq["name"].to_list() + ["ano", "mes"]
-    log(colunas_finais)
-    colunas_mapeamento = df_arq[df_arq["observations"].notnull()][
-        "original_name"
-    ].to_list()
-    df_final = pd.DataFrame()
     arquivos = glob.glob(f"{diretorio}*.csv")
 
     for file in tqdm(arquivos):
-        print(f"Baixando o arquivo ------> {file}")
+        log(f"Baixando o arquivo ------> {file}")
 
         df = pd.read_csv(file, sep=";", encoding="ISO-8859-1", dtype="string")
         df["ano"] = df["DT_COMPTC"].apply(
@@ -608,25 +601,25 @@ def clean_data_make_partitions_balancete(diretorio, table_id):
             lambda x: datetime.strptime(x, "%Y-%m-%d").month
         )
 
-        df_final = df
+        df = check_and_create_column(df, colunas_totais=["TP_FUNDO_CLASSE"])
 
-        df_final = check_and_create_column(
-            df_final, colunas_totais=colunas_totais
+        df = df.rename(
+            cvm_constants.DICIONARIO_DOCUMENTOS_BALANCETE.value, axis=1
         )
-        df_final[colunas_mapeamento] = df_final[colunas_mapeamento].applymap(
-            lambda x: cvm_constants.MAPEAMENTO.value.get(x, x)
-        )
-        df_final["CNPJ_FUNDO_CLASSE"] = df_final[
-            "CNPJ_FUNDO_CLASSE"
-        ].str.replace(r"[/.-]", "")
-        df_final = rename_columns(df_arq, df_final)
-        df_final = df_final.replace(",", ".", regex=True)
-        df_final = df_final[colunas_finais]
+
+        df = df[cvm_constants.ORDEM_DOCUMENTOS_BALANCETE.value]
+
+        df["cnpj"] = df["cnpj"].str.replace(r"[/.-]", "", regex=True)
+
+        df = df.replace(",", ".", regex=True)
+
         os.makedirs(f"/tmp/data/br_cvm_fi/{table_id}/output/", exist_ok=True)
+
         to_partitions(
-            df_final,
+            df,
             partition_columns=["ano", "mes"],
             savepath=f"/tmp/data/br_cvm_fi/{table_id}/output/",
         )
-        print(f"Partições feitas para o ano ------> {file}")
+        log(f"Partições feitas para o ano ------> {file}")
+
     return f"/tmp/data/br_cvm_fi/{table_id}/output/"
