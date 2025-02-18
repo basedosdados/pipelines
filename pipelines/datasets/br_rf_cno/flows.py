@@ -162,6 +162,7 @@ with Flow(
                     date_column_name=unmapped({"date": "data_extracao"}),
                     date_format=unmapped("%Y-%m-%d"),
                     coverage_type=unmapped("part_bdpro"),
+                    time_delta=unmapped({"months": 6}),
                     prefect_mode=unmapped(materialization_mode),
                     bq_project=unmapped("basedosdados"),
                     upstream_tasks=[unmapped(wait_for_materialization)],
