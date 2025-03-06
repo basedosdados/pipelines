@@ -7,9 +7,6 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.datasets.br_cgu_emendas_parlamentares.schedules import (
-    every_day_emendas_parlamentares,
-)
 from pipelines.datasets.br_cgu_emendas_parlamentares.tasks import (
     convert_str_to_float,
     get_last_modified_time,
@@ -127,4 +124,4 @@ br_cgu_emendas_parlamentares_flow.storage = GCS(
 br_cgu_emendas_parlamentares_flow.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_cgu_emendas_parlamentares_flow.schedule = every_day_emendas_parlamentares
+# br_cgu_emendas_parlamentares_flow.schedule = every_day_emendas_parlamentares
