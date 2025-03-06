@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Schedules for br_tse_eleicoes
+Schedules for world_sofascore_competicoes_futebol
 """
 
 from datetime import datetime

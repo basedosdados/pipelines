@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Constants for br_tse_eleicoes pipeline.
+Constants for world_sofascore_competicoes_futebol pipeline.
 """
 
 from enum import Enum
