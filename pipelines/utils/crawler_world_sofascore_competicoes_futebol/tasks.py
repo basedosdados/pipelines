@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 """
-Tasks for br_tse_eleicoes
+Tasks for world_sofascore_competicoes_futebol
 """
 
 # pylint: disable=invalid-name,line-too-long
 
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from prefect import task
 
 from pipelines.utils.crawler_world_sofascore_competicoes_futebol.utils import (
-    extract_all_years,
+    preparing_data_and_max_date,
 )
 
 
@@ -18,10 +18,7 @@ from pipelines.utils.crawler_world_sofascore_competicoes_futebol.utils import (
     max_retries=1,
     retry_delay=timedelta(seconds=60),
 )
-def get_data_source_max_date() -> datetime:
-    return datetime.today()
-
-
-@task
-def preparing_data(table_id: str) -> None:
-    extract_all_years(table_id)
+def get_data_source_max_date_and_preparing_data(
+    table_id: str,
+) -> tuple[str, str]:
+    return preparing_data_and_max_date(table_id)

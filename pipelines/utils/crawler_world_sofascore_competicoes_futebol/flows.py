@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Flows for br_tse_eleicoes
+Flows for world_sofascore_competicoes_futebol
 """
 
 # pylint: disable=invalid-name,line-too-long
@@ -14,8 +14,7 @@ from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 from pipelines.constants import constants
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.crawler_world_sofascore_competicoes_futebol.tasks import (
-    get_data_source_max_date,
-    preparing_data,
+    get_data_source_max_date_and_preparing_data,
 )
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import (
@@ -67,8 +66,10 @@ with Flow(
         wait=table_id,
     )
 
-    data_source_max_date = get_data_source_max_date(
-        upstream_tasks=[rename_flow_run]
+    data_source_max_date, ready_data_path = (
+        get_data_source_max_date_and_preparing_data(
+            table_id=table_id, upstream_tasks=[rename_flow_run]
+        )
     )
 
     outdated = check_if_data_is_outdated(
@@ -80,10 +81,6 @@ with Flow(
     )
 
     with case(outdated, True):
-        ready_data_path = preparing_data(
-            table_id=table_id, upstream_tasks=[outdated]
-        )
-
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=ready_data_path,
             dataset_id=dataset_id,

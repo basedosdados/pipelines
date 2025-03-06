@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 """
-General purpose functions for the br_tse_eleicoes project
+General purpose functions for the world_sofascore_competicoes_futebol project
 """
 # pylint: disable=invalid-name,line-too-long
 
 import concurrent.futures
 import http.client
 import json
+import tempfile
 from datetime import datetime
+from pathlib import Path
 
 import pandas as pd
 import pytz
@@ -17,6 +19,7 @@ from bs4 import BeautifulSoup
 from pipelines.utils.crawler_world_sofascore_competicoes_futebol.constants import (
     constants as sofascore_constants,
 )
+from pipelines.utils.utils import log, to_partitions
 
 
 def form_row_match_halve(statistics: dict) -> dict:
@@ -118,6 +121,7 @@ def get_event_score(event_dict: dict) -> list:
 
 
 def get_statistics_rows_match_halves(event_dict: dict) -> list | bool:
+    # Existe a possibilidade da primeira requisição voltar vazia.
     for _try_ in range(2):
         try:
             url_statistics = f"https://www.sofascore.com/api/v1/event/{event_dict['id_event']}/statistics"
@@ -233,7 +237,7 @@ def form_extract_season(
             if short_round_temp["homeScore"]
         ]
 
-        print(f"Vão ser coletados: {len(id_events)} do ID {season_id}")
+        log(f"Vão ser coletados: {len(id_events)} do ID {season_id}")
 
         with concurrent.futures.ThreadPoolExecutor() as executor:
             tasks_done = [
@@ -249,15 +253,15 @@ def form_extract_season(
                 for round_task in rounds_task
             ]
 
-        print(f"ID {season_id} coletado com sucesso!")
+        log(f"ID {season_id} coletado com sucesso!")
 
         return form_df_year(datas_rounds)
 
     except KeyError:
-        print("Problemas com encontras Round para extrair")
+        log("Problemas com encontrar Round para extrair")
 
 
-def extract_all_years(table_id: str) -> pd.DataFrame:
+def extract_season(table_id: str) -> pd.DataFrame:
     url_base = sofascore_constants.MODE_TO_PROJECT_DICT.value[table_id]
 
     tournament_id = url_base.split("/")[-1]
@@ -276,12 +280,11 @@ def extract_all_years(table_id: str) -> pd.DataFrame:
     games_count = games_count / 30  # A paginas retornam no maximo 30 eventos
     games_count = int(games_count) + (games_count > int(games_count))  #
 
-    list_df_seasons = [
-        form_extract_season(tournament_id, temporada, games_count)
-        for temporada in temporadas
-    ]
+    current_season = max(temporadas, key=lambda row: row["year"])
 
-    df_seasons = pd.concat(list_df_seasons)
+    df_seasons = form_extract_season(
+        tournament_id, current_season, games_count
+    )
 
     df_seasons.rodada = df_seasons.rodada.str.lower().replace(
         sofascore_constants.TRANSLETE.value
@@ -290,3 +293,23 @@ def extract_all_years(table_id: str) -> pd.DataFrame:
     df_seasons.rodada = df_seasons.rodada.str.title()
 
     return df_seasons
+
+
+def preparing_data_and_max_date(table_id: str) -> tuple[str, str]:
+    base_path = Path(tempfile.gettempdir(), "data")
+
+    df_season = extract_season(table_id)
+
+    df_current_year = df_season[df_season["ano"] == df_season["ano"].max()]
+
+    max_date = df_season["data"].max()
+
+    to_partitions(
+        df_current_year,
+        partition_columns=[
+            "ano",
+        ],
+        savepath=base_path,
+    )
+
+    return max_date, base_path
