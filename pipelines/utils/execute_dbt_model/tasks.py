@@ -3,11 +3,13 @@
 Tasks related to DBT flows.
 """
 
+import json
 import os
 import shutil
 from datetime import timedelta
 
 import git
+from dbt.cli.main import dbtRunner, dbtRunnerResult
 from dbt_client import DbtClient
 from prefect import task
 from prefect.engine.signals import FAIL
@@ -60,6 +62,136 @@ def download_repository():
 
 
 @task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def new_execute_dbt_model(
+    dbt_repository_path: str,
+    dataset_id: str,
+    table_id: str,
+    dbt_alias: bool = True,
+    dbt_command: str = "run",
+    target: str = "dev",
+    sync: bool = True,
+    flags: str = None,
+    _vars=None,
+    disable_elementary: bool = False,
+) -> None:
+    """
+    Run a DBT model.
+    Args:
+        dbt_repository_path (str): Path to the dbt repository.
+        dataset_id (str): Dataset ID of the dbt model.
+        table_id (str, optional): Table ID of the dbt model. If None, the
+        whole dataset will be run.
+        dbt_alias (bool, optional): If True, the model will be run by
+        its alias. Defaults to False.
+        dbt_command (str, optional): Command to run in dbt. Defaults to "run".
+        target (str, optional): Target to run in dbt. It specifies in which Big Query project the model will run. Defaults to "dev".
+        sync (bool, optional): If True, the task will be synchronous.
+        flags (str, optional): Flags to pass to the dbt run command.
+        See:
+        https://docs.getdbt.com/reference/dbt-jinja-functions/flags/
+        _vars (Union[dict, List[Dict]], optional): Variables to pass to
+        dbt. Defaults to None.
+        disable_elementary (bool, optional): Disable elementary on-run-end hooks.
+    """
+    if dbt_command not in ["run", "test", "run and test", "run/test"]:
+        raise ValueError(f"Invalid dbt_command: {dbt_command}")
+
+    if table_id:
+        if dbt_alias:
+            selected_table = f"{dataset_id}.{dataset_id}__{table_id}"
+        else:
+            selected_table = f"{dataset_id}.{table_id}"
+    else:
+        selected_table = dataset_id
+
+    if disable_elementary:
+        if _vars is None:
+            _vars = constants_execute.DISABLE_ELEMENTARY_VARS.value
+        else:
+            _vars = merge_vars(
+                constants_execute.DISABLE_ELEMENTARY_VARS.value, _vars
+            )
+
+    # if "run" in dbt_command:
+    #     if flags == "--full-refresh":
+    #         run_command = f"dbt run --full-refresh --select {selected_table} --target {target}"
+    #         flags = None
+    #     else:
+    #        run_command = (
+    #            f"dbt run --select {selected_table} --target {target}"
+    #        )
+
+    # Process variables for CLI args
+    os.chdir(dbt_repository_path)
+    # TODO Install and check status of dbt dependencies;
+    # TODO: implement above in the other task
+    # TODO: refactor cli structure of interaction
+    #!
+    os.system("dbt deps")
+
+    if "run" in dbt_command:
+        cli_args = ["run", "--select", selected_table, "--target", target]
+        if flags and flags.startswith("--full-refresh"):
+            cli_args.insert(1, "--full-refresh")
+        elif flags:
+            cli_args.extend(flags.split())
+
+        if _vars:
+            if isinstance(_vars, list):
+                vars_dict = {}
+                for elem in _vars:
+                    vars_dict.update(elem)
+                vars_str = json.dumps(vars_dict)
+            else:
+                if isinstance(_vars, str):
+                    try:
+                        json.loads(_vars.replace("'", '"'))
+                        vars_str = _vars.replace("'", '"')
+                    except json.JSONDecodeError:
+                        vars_str = json.dumps(eval(_vars))
+                else:
+                    vars_str = json.dumps(_vars)
+
+            cli_args.extend(["--vars", vars_str])
+
+        log(f"Executing dbt command: {' '.join(cli_args)}", level="info")
+        dbt_runner = dbtRunner()
+        running_result: dbtRunnerResult = dbt_runner.invoke(cli_args)
+
+    if "test" in dbt_command:
+        cli_args = ["test", "--select", selected_table, "--target", target]
+        if flags:
+            cli_args.extend(flags.split())
+
+        if _vars:
+            if isinstance(_vars, list):
+                vars_dict = {}
+                for elem in _vars:
+                    vars_dict.update(elem)
+                vars_str = json.dumps(vars_dict)
+            else:
+                if isinstance(_vars, str):
+                    try:
+                        json.loads(_vars.replace("'", '"'))
+                        vars_str = _vars.replace("'", '"')
+                    except json.JSONDecodeError:
+                        vars_str = json.dumps(eval(_vars))
+                else:
+                    vars_str = json.dumps(_vars)
+
+            cli_args.extend(["--vars", vars_str])
+
+        log(f"Executing dbt command: {' '.join(cli_args)}", level="info")
+        dbt_runner = dbtRunner()
+        running_result: dbtRunnerResult = dbt_runner.invoke(cli_args)
+
+        return running_result
+
+
+@task(
     checkpoint=False,
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
@@ -109,6 +241,7 @@ def run_dbt_model(
         dbt. Defaults to None.
         disable_elementary (bool, optional): Disable elementary on-run-end hooks.
     """
+
     if dbt_command not in ["run", "test", "run and test", "run/test"]:
         raise ValueError(f"Invalid dbt_command: {dbt_command}")
 
