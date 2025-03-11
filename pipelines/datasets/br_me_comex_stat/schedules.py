@@ -14,7 +14,7 @@ from pipelines.constants import constants
 schedule_municipio_exportacao = Schedule(
     clocks=[
         CronClock(
-            cron="0 21 10-30 * *",  # At 21:00 on every day-of-month from 10 through 30.
+            cron="0 21 * * *",  # At 21:00 on every day-of-month
             start_date=datetime(2023, 11, 22, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
@@ -36,7 +36,7 @@ schedule_municipio_exportacao = Schedule(
 schedule_municipio_importacao = Schedule(
     clocks=[
         CronClock(
-            cron="0 20 10-30 * *",  # At 20:00 on every day-of-month from 10 through 30.
+            cron="0 20 * * *",  # At 20:00 on every day-of-month
             start_date=datetime(2023, 11, 22, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
@@ -58,7 +58,7 @@ schedule_municipio_importacao = Schedule(
 schedule_ncm_importacao = Schedule(
     clocks=[
         CronClock(
-            cron="30 21 10-30 * *",  # At 21:30 on every day-of-month from 10 through 30.
+            cron="30 21 * * *",  # At 21:30 on every day-of-month
             start_date=datetime(2023, 11, 22, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
@@ -80,7 +80,7 @@ schedule_ncm_importacao = Schedule(
 schedule_ncm_exportacao = Schedule(
     clocks=[
         CronClock(
-            cron="0 22 10-30 * *",  # At 22:00 on every day-of-month from 10 through 30.
+            cron="0 22 * * *",  # At 22:00 on every day-of-month
             start_date=datetime(2023, 11, 22, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
