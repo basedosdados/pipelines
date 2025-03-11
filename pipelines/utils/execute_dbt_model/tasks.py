@@ -3,10 +3,14 @@
 Tasks related to DBT flows.
 """
 
+import os
+import shutil
 from datetime import timedelta
 
+import git
 from dbt_client import DbtClient
 from prefect import task
+from prefect.engine.signals import FAIL
 
 from pipelines.constants import constants
 from pipelines.utils.execute_dbt_model.constants import (
@@ -14,6 +18,45 @@ from pipelines.utils.execute_dbt_model.constants import (
 )
 from pipelines.utils.execute_dbt_model.utils import get_dbt_client, merge_vars
 from pipelines.utils.utils import log
+
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def download_repository():
+    """
+    Downloads the repository specified by the REPOSITORY_URL constant.
+
+    This function creates a repository folder, clones the repository from the specified URL,
+    and logs the success or failure of the download.
+
+    Raises:
+        FAIL: If there is an error when creating the repository folder or downloading the repository.
+    """
+    repo_url = constants_execute.REPOSITORY_URL.value
+
+    # create repository folder
+    try:
+        repository_path = os.path.join(os.getcwd(), "dbt_repository")
+
+        if os.path.exists(repository_path):
+            shutil.rmtree(repository_path, ignore_errors=False)
+        os.makedirs(repository_path)
+
+        log(f"Repository folder created: {repository_path}")
+
+    except Exception as e:
+        raise FAIL(str(f"Error when creating repository folder: {e}")) from e
+
+    # download repository
+    try:
+        git.Repo.clone_from(repo_url, repository_path)
+        log(f"Repository downloaded: {repo_url}")
+    except git.GitCommandError as e:
+        raise FAIL(str(f"Error when downloading repository: {e}")) from e
+    log(os.listdir(repository_path))
+    return repository_path
 
 
 @task(
