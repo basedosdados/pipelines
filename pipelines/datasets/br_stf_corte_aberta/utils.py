@@ -10,9 +10,11 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from webdriver_manager.chrome import ChromeDriverManager
 
 from pipelines.datasets.br_stf_corte_aberta.constants import (
     constants as stf_constants,
@@ -22,7 +24,8 @@ from pipelines.utils.utils import log
 
 def web_scrapping():
     log("Criando as pastas")
-    os.makedirs(stf_constants.STF_INPUT.value, exist_ok=True)
+    if not os.path.exists(stf_constants.STF_INPUT.value):
+        os.mkdir(stf_constants.STF_INPUT.value)
 
     options = webdriver.ChromeOptions()
     # https://github.com/SeleniumHQ/selenium/issues/11637
@@ -48,23 +51,22 @@ def web_scrapping():
     options.add_argument(
         "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
     )
-    driver = webdriver.Chrome(options=options)
-    log("1")
+    driver = webdriver.Chrome(
+        service=ChromeService(ChromeDriverManager().install()), options=options
+    )
+
     driver.get(
         "https://transparencia.stf.jus.br/extensions/decisoes/decisoes.html"
     )
-    log("2")
     time.sleep(30)
-    log(driver.page_source)
-    log("3")
-    WebDriverWait(driver, 600).until(
+    driver.maximize_window()
+    time.sleep(45)
+    WebDriverWait(driver, 180).until(
         EC.element_to_be_clickable(
             (By.XPATH, '//*[@id="EXPORT-BUTTON-PADRAO"]')
         )
     ).click()
-    log("4")
     time.sleep(30)
-
     driver.quit()
 
 
