@@ -55,6 +55,7 @@ def web_scrapping():
     )
     log("2")
     time.sleep(30)
+    log(driver.page_source)
     log("3")
     WebDriverWait(driver, 600).until(
         EC.element_to_be_clickable(
