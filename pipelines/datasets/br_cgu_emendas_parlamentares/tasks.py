@@ -58,7 +58,7 @@ def get_last_modified_time():
 
     data = bd.read_sql(
         constants.QUERY.value,
-        billing_project_id="basedosdados-dev",
+        billing_project_id="basedosdados",
         from_file=True,
     )
 
