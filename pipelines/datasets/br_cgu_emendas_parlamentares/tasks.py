@@ -28,7 +28,9 @@ def download_unzip_file():
 @task
 def convert_str_to_float():
     df = pd.read_csv(
-        f"{constants.INPUT.value}Emendas.csv", sep=";", encoding="latin1"
+        f"{constants.INPUT.value}EmendasParlamentares.csv",
+        sep=";",
+        encoding="latin1",
     )
     log("Convertendo valores para float")
 
@@ -49,7 +51,9 @@ def convert_str_to_float():
 def get_last_modified_time():
     download_unzip_file()
     emendas = pd.read_csv(
-        f"{constants.INPUT.value}Emendas.csv", sep=";", encoding="latin1"
+        f"{constants.INPUT.value}EmendasParlamentares.csv",
+        sep=";",
+        encoding="latin1",
     )
 
     data = bd.read_sql(
