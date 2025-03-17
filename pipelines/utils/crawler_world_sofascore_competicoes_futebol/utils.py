@@ -114,7 +114,7 @@ def get_event_score(event_dict: dict) -> list:
     response_event_short = response_event_short | event_dict
     data_period_events = [
         form_period_dict(period, response_event_short, date_match)
-        for period in range(1, 3)
+        for period in range(1, 5)
     ]
 
     return data_period_events
