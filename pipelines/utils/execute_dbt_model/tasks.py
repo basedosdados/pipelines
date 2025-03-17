@@ -6,8 +6,9 @@ Tasks related to DBT flows.
 import json
 import os
 import shutil
+import traceback
 from datetime import timedelta
-from typing import Any, Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union
 
 import git
 from dbt.cli.main import dbtRunner
@@ -20,7 +21,9 @@ from pipelines.utils.execute_dbt_model.constants import (
     constants as constants_execute,
 )
 from pipelines.utils.execute_dbt_model.utils import (
+    extract_dbt_errors,
     get_dbt_client,
+    log_dbt_messages,
     merge_vars,
     update_keyfile_path_in_profiles,
 )
@@ -154,7 +157,7 @@ def new_execute_dbt_model(
     flags: Optional[str] = None,
     _vars: Optional[Union[dict, List[Dict], str]] = None,
     disable_elementary: bool = False,
-) -> Dict[str, Any]:
+) -> None:
     """
     Run a DBT model using the dbt CLI and process the results.
 
@@ -174,16 +177,15 @@ def new_execute_dbt_model(
         disable_elementary (bool, optional): Disable elementary on-run-end hooks.
 
     Returns:
-        Dict[str, Any]: Execution report and results
+        None: This task doesn't return a value, success is indicated by not raising an exception.
 
     Raises:
         ValueError: If dbt_command is not valid.
-        FAIL: If there is an error during execution.
+        FAIL: If there is an error during execution, with detailed error information.
     """
     if dbt_command not in ["run", "test", "run and test", "run/test"]:
         raise ValueError(f"Invalid dbt_command: {dbt_command}")
 
-    # Determine the select parameter based on dataset and table
     if table_id:
         if dbt_alias:
             selected_table = f"{dataset_id}.{dataset_id}__{table_id}"
@@ -192,7 +194,6 @@ def new_execute_dbt_model(
     else:
         selected_table = dataset_id
 
-    # Handle elementary disabling
     if disable_elementary:
         if _vars is None:
             _vars = constants_execute.DISABLE_ELEMENTARY_VARS.value
@@ -201,14 +202,9 @@ def new_execute_dbt_model(
                 constants_execute.DISABLE_ELEMENTARY_VARS.value, _vars
             )
 
-    # Change to the repository directory
     os.chdir(dbt_repository_path)
+    log(f"Working directory set to: {dbt_repository_path}", level="info")
 
-    # Store execution results
-    all_results = []
-    overall_success = True
-
-    # Execute each command separately
     commands_to_run = []
     if "run" in dbt_command:
         commands_to_run.append("run")
@@ -216,16 +212,13 @@ def new_execute_dbt_model(
         commands_to_run.append("test")
 
     for cmd in commands_to_run:
-        # Build CLI arguments
         cli_args = [cmd, "--select", selected_table, "--target", target]
 
-        # Handle full-refresh flag specially
         if flags and flags.startswith("--full-refresh") and cmd == "run":
             cli_args.insert(1, "--full-refresh")
         elif flags:
             cli_args.extend(flags.split())
 
-        # Add variables if provided
         if _vars:
             if isinstance(_vars, list):
                 vars_dict = {}
@@ -244,90 +237,38 @@ def new_execute_dbt_model(
 
             cli_args.extend(["--vars", vars_str])
 
-        # Execute command
         log(f"Executing dbt command: {' '.join(cli_args)}", level="info")
-        dbt_runner = dbtRunner()
 
         try:
+            dbt_runner = dbtRunner()
             result = dbt_runner.invoke(cli_args)
-            all_results.append(result)
 
-            # Update overall success status
-            overall_success = overall_success and result.success
+            log_dbt_messages(result)
 
-            # Log results from the dbtRunnerResult
-            if hasattr(result, "result"):
-                # Log messages from the execution
-                if hasattr(result.result, "logs"):
-                    for log_entry in result.result.logs:
-                        level_name = log_entry.get("levelname", "INFO")
-                        message = log_entry.get("message", "")
-
-                        # Map DBT log levels to Prefect log levels
-                        if level_name in ("ERROR", "CRITICAL", "FATAL"):
-                            log(f"DBT {level_name}: {message}", level="error")
-                        elif level_name in ("WARNING", "WARN"):
-                            log(
-                                f"DBT {level_name}: {message}", level="warning"
-                            )
-                        else:
-                            log(f"DBT {level_name}: {message}", level="info")
-
-            # If command failed, raise exception with useful information
             if not result.success:
-                error_messages = []
+                error_details = extract_dbt_errors(result)
 
-                # Extract error messages from result
-                if hasattr(result, "result"):
-                    if hasattr(result.result, "logs"):
-                        for log_entry in result.result.logs:
-                            if log_entry.get("levelname") in (
-                                "ERROR",
-                                "CRITICAL",
-                                "FATAL",
-                            ):
-                                error_messages.append(
-                                    log_entry.get("message", "Unknown error")
-                                )
+                if error_details:
+                    error_message = f"DBT {cmd} command failed with the following errors:\n\n"
+                    for i, error in enumerate(error_details, 1):
+                        error_message += f"{i}. {error}\n"
+                else:
+                    error_message = f"DBT {cmd} command failed without providing specific error details."
 
-                    # Check for specific error information
-                    if hasattr(result.result, "error"):
-                        error_messages.append(str(result.result.error))
+                error_message += f"\n\nCommand: dbt {' '.join(cli_args)}"
+                error_message += f"\nWorking directory: {os.getcwd()}"
 
-                    # Check node results for errors
-                    if hasattr(result.result, "results"):
-                        for node_result in result.result.results:
-                            if node_result.status in ("error", "fail"):
-                                node_name = (
-                                    node_result.node.name
-                                    if hasattr(node_result, "node")
-                                    and hasattr(node_result.node, "name")
-                                    else "unknown"
-                                )
-                                error_msg = (
-                                    node_result.message
-                                    if hasattr(node_result, "message")
-                                    else "Unknown error"
-                                )
-                                error_messages.append(
-                                    f"Error in {node_name}: {error_msg}"
-                                )
-
-                # Compile error message
-                error_msg = f"DBT {cmd} command failed."
-                if error_messages:
-                    error_msg += f" Errors: {'; '.join(error_messages)}"
-
-                raise FAIL(error_msg)
+                raise FAIL(error_message)
 
         except Exception as e:
-            overall_success = False
-            error_msg = f"Error executing dbt {cmd}: {str(e)}"
-            log(error_msg, level="error")
-            raise FAIL(error_msg) from e
+            if not isinstance(e, FAIL):
+                error_msg = f"Unexpected error executing dbt {cmd}: {str(e)}"
 
-    # Return a dictionary containing all results and overall success
-    return {"success": overall_success, "results": all_results}
+                error_msg += f"\n\nStack trace:\n{traceback.format_exc()}"
+
+                raise FAIL(error_msg) from e
+            else:
+                raise
 
 
 @task(

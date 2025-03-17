@@ -157,3 +157,90 @@ def update_keyfile_path_in_profiles(
             f"Profile '{profile_name}.{target_name}' not found or doesn't have a keyfile path to update",
             level="warning",
         )
+
+
+def log_dbt_messages(result):
+    """
+    Extract and log all messages from a dbtRunnerResult object.
+
+    Args:
+        result: A dbtRunnerResult object
+    """
+
+    if hasattr(result, "result") and hasattr(result.result, "logs"):
+        for log_entry in result.result.logs:
+            level_name = log_entry.get("levelname", "INFO").upper()
+            message = log_entry.get("message", "")
+
+            if not message:
+                continue
+
+            if level_name in ("ERROR", "CRITICAL", "FATAL"):
+                log(f"DBT {level_name}: {message}", level="error")
+            elif level_name in ("WARNING", "WARN"):
+                log(f"DBT {level_name}: {message}", level="warning")
+            else:
+                important_keywords = [
+                    "success",
+                    "fail",
+                    "error",
+                    "complete",
+                    "finished",
+                    "started",
+                    "running",
+                    "elapsed",
+                    "warning",
+                ]
+                if any(
+                    keyword in message.lower()
+                    for keyword in important_keywords
+                ):
+                    log(f"DBT {level_name}: {message}", level="info")
+
+
+def extract_dbt_errors(result):
+    """
+    Extract all error messages from a dbtRunnerResult object.
+
+    Args:
+        result: A dbtRunnerResult object
+
+    Returns:
+        list: A list of error messages extracted from the result
+    """
+    errors = []
+
+    if hasattr(result, "result") and hasattr(result.result, "logs"):
+        for log_entry in result.result.logs:
+            if log_entry.get("levelname") in ("ERROR", "CRITICAL", "FATAL"):
+                errors.append(log_entry.get("message", ""))
+
+    if hasattr(result, "result") and hasattr(result.result, "results"):
+        for node_result in result.result.results:
+            if hasattr(node_result, "status") and node_result.status in (
+                "error",
+                "fail",
+            ):
+                node_name = "unknown"
+                if hasattr(node_result, "node"):
+                    node = node_result.node
+                    if hasattr(node, "name"):
+                        node_name = node.name
+
+                error_msg = "Unknown error"
+                if hasattr(node_result, "message"):
+                    error_msg = node_result.message
+                elif hasattr(node_result, "error"):
+                    error_msg = node_result.error
+
+                errors.append(f"Error in model {node_name}: {error_msg}")
+
+    if hasattr(result, "result") and hasattr(
+        result.result, "compilation_error"
+    ):
+        errors.append(f"Compilation Error: {result.result.compilation_error}")
+
+    if hasattr(result, "result") and hasattr(result.result, "error"):
+        errors.append(f"General Error: {result.result.error}")
+    log(list(set([e for e in errors if e])))
+    return
