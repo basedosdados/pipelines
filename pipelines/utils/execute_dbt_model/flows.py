@@ -98,8 +98,9 @@ with Flow(name="new_execute_dbt_model") as new_run_dbt_model_flow:
     download_csv_file = Parameter(
         "download_csv_file", default=True, required=False
     )
-    generate_report = Parameter(
-        "generate_report", default=True, required=False
+
+    custom_keyfile_path = Parameter(
+        "custom_keyfile_path", default=None, required=False
     )
 
     rename_flow_run = rename_current_flow_run_dataset_table(
@@ -112,7 +113,9 @@ with Flow(name="new_execute_dbt_model") as new_run_dbt_model_flow:
     repository_path = download_repository()
 
     dependencies_installed = install_dbt_dependencies(
-        dbt_repository_path=repository_path, upstream_tasks=[repository_path]
+        dbt_repository_path=repository_path,
+        custom_keyfile_path=custom_keyfile_path,
+        upstream_tasks=[repository_path],
     )
 
     materialize_result = new_execute_dbt_model(
@@ -120,13 +123,11 @@ with Flow(name="new_execute_dbt_model") as new_run_dbt_model_flow:
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_alias=dbt_alias,
-        sync=True,
         dbt_command=dbt_command,
         target=target,
         flags=flags,
         _vars=_vars,
         disable_elementary=disable_elementary,
-        generate_report=generate_report,
         upstream_tasks=[dependencies_installed],
     )
 
@@ -135,7 +136,7 @@ with Flow(name="new_execute_dbt_model") as new_run_dbt_model_flow:
             dataset_id=dataset_id,
             table_id=table_id,
             bd_project_mode=mode,
-            upstream_tasks=[materialize_result, generate_report],
+            upstream_tasks=[materialize_result],
         )
 
 new_run_dbt_model_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
