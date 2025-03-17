@@ -7,9 +7,10 @@ import json
 import os
 import shutil
 from datetime import timedelta
+from typing import Any, Dict, List, Optional, Union
 
 import git
-from dbt.cli.main import dbtRunner, dbtRunnerResult
+from dbt.cli.main import dbtRunner
 from dbt_client import DbtClient
 from prefect import task
 from prefect.engine.signals import FAIL
@@ -18,7 +19,12 @@ from pipelines.constants import constants
 from pipelines.utils.execute_dbt_model.constants import (
     constants as constants_execute,
 )
-from pipelines.utils.execute_dbt_model.utils import get_dbt_client, merge_vars
+from pipelines.utils.execute_dbt_model.utils import (
+    create_dbt_report,
+    get_dbt_client,
+    merge_vars,
+    process_dbt_logs,
+)
 from pipelines.utils.utils import log
 
 
@@ -26,23 +32,28 @@ from pipelines.utils.utils import log
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def download_repository():
+def download_repository() -> str:
     """
     Downloads the repository specified by the REPOSITORY_URL constant.
 
     This function creates a repository folder, clones the repository from the specified URL,
     and logs the success or failure of the download.
 
+    Returns:
+        str: Path to the downloaded repository.
+
     Raises:
         FAIL: If there is an error when creating the repository folder or downloading the repository.
     """
     repo_url = constants_execute.REPOSITORY_URL.value
 
-    # create repository folder
     try:
         repository_path = os.path.join(os.getcwd(), "dbt_repository")
 
         if os.path.exists(repository_path):
+            log(
+                f"Repository folder already exists. Removing: {repository_path}"
+            )
             shutil.rmtree(repository_path, ignore_errors=False)
         os.makedirs(repository_path)
 
@@ -51,14 +62,58 @@ def download_repository():
     except Exception as e:
         raise FAIL(str(f"Error when creating repository folder: {e}")) from e
 
-    # download repository
     try:
-        git.Repo.clone_from(repo_url, repository_path)
+        repo = git.Repo.clone_from(repo_url, repository_path)
         log(f"Repository downloaded: {repo_url}")
+
+        if not os.path.exists(
+            os.path.join(repository_path, "dbt_project.yml")
+        ):
+            raise FAIL(
+                "Repository downloaded but dbt_project.yml not found. Check repository structure."
+            )
+
+        commit_hash = repo.head.commit.hexsha
+        log(f"Repository cloned at commit: {commit_hash}")
+
     except git.GitCommandError as e:
         raise FAIL(str(f"Error when downloading repository: {e}")) from e
-    log(os.listdir(repository_path))
+
+    log(f"Repository contents: {os.listdir(repository_path)}")
     return repository_path
+
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def install_dbt_dependencies(dbt_repository_path: str) -> None:
+    """
+    Install dbt dependencies using 'dbt deps'.
+
+    Args:
+        dbt_repository_path (str): Path to the dbt repository.
+
+    Returns:
+        None
+
+    Raises:
+        FAIL: If there is an error when installing dependencies.
+    """
+    try:
+        os.chdir(dbt_repository_path)
+        log("Installing dbt dependencies...", level="info")
+
+        dbt_runner = dbtRunner()
+        result = dbt_runner.invoke(["deps"])
+
+        if not result.success:
+            raise FAIL("Failed to install dbt dependencies")
+
+        log("Successfully installed dbt dependencies", level="info")
+        return result
+    except Exception as e:
+        raise FAIL(str(f"Error installing dbt dependencies: {e}")) from e
 
 
 @task(
@@ -68,33 +123,44 @@ def download_repository():
 def new_execute_dbt_model(
     dbt_repository_path: str,
     dataset_id: str,
-    table_id: str,
+    table_id: Optional[str] = None,
     dbt_alias: bool = True,
     dbt_command: str = "run",
     target: str = "dev",
     sync: bool = True,
-    flags: str = None,
-    _vars=None,
+    flags: Optional[str] = None,
+    _vars: Optional[Union[dict, List[Dict], str]] = None,
     disable_elementary: bool = False,
-) -> None:
+    generate_report: bool = True,
+) -> Dict[str, Any]:
     """
-    Run a DBT model.
+    Run a DBT model using the dbt CLI and process the results.
+
     Args:
         dbt_repository_path (str): Path to the dbt repository.
         dataset_id (str): Dataset ID of the dbt model.
         table_id (str, optional): Table ID of the dbt model. If None, the
-        whole dataset will be run.
+            whole dataset will be run.
         dbt_alias (bool, optional): If True, the model will be run by
-        its alias. Defaults to False.
+            its alias. Defaults to True.
         dbt_command (str, optional): Command to run in dbt. Defaults to "run".
-        target (str, optional): Target to run in dbt. It specifies in which Big Query project the model will run. Defaults to "dev".
+        target (str, optional): Target to run in dbt. It specifies in which
+            Big Query project the model will run. Defaults to "dev".
         sync (bool, optional): If True, the task will be synchronous.
         flags (str, optional): Flags to pass to the dbt run command.
-        See:
-        https://docs.getdbt.com/reference/dbt-jinja-functions/flags/
-        _vars (Union[dict, List[Dict]], optional): Variables to pass to
-        dbt. Defaults to None.
+            See: https://docs.getdbt.com/reference/dbt-jinja-functions/flags/
+        _vars (Union[dict, List[Dict], str], optional): Variables to pass to
+            dbt. Defaults to None.
         disable_elementary (bool, optional): Disable elementary on-run-end hooks.
+        generate_report (bool, optional): Whether to generate a detailed report.
+            Defaults to True.
+
+    Returns:
+        Dict[str, Any]: Execution report and results
+
+    Raises:
+        ValueError: If dbt_command is not valid.
+        FAIL: If there is an error during execution.
     """
     if dbt_command not in ["run", "test", "run and test", "run/test"]:
         raise ValueError(f"Invalid dbt_command: {dbt_command}")
@@ -115,30 +181,28 @@ def new_execute_dbt_model(
                 constants_execute.DISABLE_ELEMENTARY_VARS.value, _vars
             )
 
-    # if "run" in dbt_command:
-    #     if flags == "--full-refresh":
-    #         run_command = f"dbt run --full-refresh --select {selected_table} --target {target}"
-    #         flags = None
-    #     else:
-    #        run_command = (
-    #            f"dbt run --select {selected_table} --target {target}"
-    #        )
-
-    # Process variables for CLI args
     os.chdir(dbt_repository_path)
-    # TODO Install and check status of dbt dependencies;
-    # TODO: implement above in the other task
-    # TODO: refactor cli structure of interaction
-    #!
-    os.system("dbt deps")
 
+    all_results = []
+    reports = []
+
+    commands_to_run = []
     if "run" in dbt_command:
-        cli_args = ["run", "--select", selected_table, "--target", target]
-        if flags and flags.startswith("--full-refresh"):
+        commands_to_run.append("run")
+    if "test" in dbt_command:
+        commands_to_run.append("test")
+
+    for cmd in commands_to_run:
+        # Build CLI arguments
+        cli_args = [cmd, "--select", selected_table, "--target", target]
+
+        # Handle full-refresh flag specially
+        if flags and flags.startswith("--full-refresh") and cmd == "run":
             cli_args.insert(1, "--full-refresh")
         elif flags:
             cli_args.extend(flags.split())
 
+        # Add variables if provided
         if _vars:
             if isinstance(_vars, list):
                 vars_dict = {}
@@ -157,38 +221,43 @@ def new_execute_dbt_model(
 
             cli_args.extend(["--vars", vars_str])
 
+        # Execute command
         log(f"Executing dbt command: {' '.join(cli_args)}", level="info")
         dbt_runner = dbtRunner()
-        running_result: dbtRunnerResult = dbt_runner.invoke(cli_args)
 
-    if "test" in dbt_command:
-        cli_args = ["test", "--select", selected_table, "--target", target]
-        if flags:
-            cli_args.extend(flags.split())
+        try:
+            running_result = dbt_runner.invoke(cli_args)
+            all_results.append(running_result)
 
-        if _vars:
-            if isinstance(_vars, list):
-                vars_dict = {}
-                for elem in _vars:
-                    vars_dict.update(elem)
-                vars_str = json.dumps(vars_dict)
-            else:
-                if isinstance(_vars, str):
-                    try:
-                        json.loads(_vars.replace("'", '"'))
-                        vars_str = _vars.replace("'", '"')
-                    except json.JSONDecodeError:
-                        vars_str = json.dumps(eval(_vars))
+            process_dbt_logs(running_result)
+
+            if generate_report:
+                report = create_dbt_report(running_result)
+                reports.append(report)
+
+                if report["success"]:
+                    log(f"DBT {cmd} completed successfully.", level="info")
                 else:
-                    vars_str = json.dumps(_vars)
+                    log(f"DBT {cmd} completed with errors.", level="warning")
+                    error_details = "; ".join(report["errors"])
+                    log(f"Errors: {error_details}", level="error")
 
-            cli_args.extend(["--vars", vars_str])
+            if not running_result.success:
+                raise FAIL(
+                    f"DBT {cmd} command failed. Check logs for details."
+                )
 
-        log(f"Executing dbt command: {' '.join(cli_args)}", level="info")
-        dbt_runner = dbtRunner()
-        running_result: dbtRunnerResult = dbt_runner.invoke(cli_args)
+        except Exception as e:
+            log(f"Error executing dbt {cmd}: {str(e)}", level="error")
+            raise FAIL(f"Error executing dbt {cmd}: {str(e)}") from e
 
-        return running_result
+    final_report = {
+        "success": all(result.success for result in all_results),
+        "command_results": all_results,
+        "reports": reports,
+    }
+
+    return final_report
 
 
 @task(
