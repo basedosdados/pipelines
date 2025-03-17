@@ -81,9 +81,9 @@ run_dbt_model_flow.run_config = KubernetesRun(
 )
 
 
-# The new flow using dbt CLI directly instead of RPC
-with Flow(name="new_execute_dbt_model") as new_run_dbt_model_flow:
-    # Parameters - keep the same parameter interface as the original flow
+with Flow(
+    name=utils_constants.FLOW_EXECUTUE_DBT_MODEL_NEW_NAME.value
+) as new_run_dbt_model_flow:
     dataset_id = Parameter("dataset_id", required=True)
     table_id = Parameter("table_id", default=None, required=False)
     mode = Parameter("mode", default="dev", required=False)
