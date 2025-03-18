@@ -25,6 +25,7 @@ from pipelines.utils.execute_dbt_model.utils import (
     get_dbt_client,
     log_dbt_from_file,
     merge_vars,
+    prepare_bigquery_credentials_from_env,
     process_dbt_log_file,
     update_keyfile_path_in_profiles,
 )
@@ -93,7 +94,9 @@ def download_repository() -> str:
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def install_dbt_dependencies(
-    dbt_repository_path: str, custom_keyfile_path: Optional[str] = None
+    dbt_repository_path: str,
+    ks8_keyfile: bool = True,
+    custom_keyfile_path: Optional[str] = None,
 ) -> None:
     """
     Install dbt dependencies using 'dbt deps' and optionally update the keyfile path
@@ -111,39 +114,64 @@ def install_dbt_dependencies(
     Raises:
         FAIL: If there is an error when installing dependencies.
     """
-    try:
-        os.chdir(dbt_repository_path)
+    if custom_keyfile_path is None and not ks8_keyfile:
+        raise FAIL(
+            "custom_keyfile_path is required when ks8_keyfile is False. "
+        )
 
-        if custom_keyfile_path:
+    if ks8_keyfile:
+        try:
+            custom_keyfile_path = prepare_bigquery_credentials_from_env()
+            log(
+                f"Using credentials from Ks8 Env. Created BigQuery credentials file at: {custom_keyfile_path}",
+                level="info",
+            )
+        except Exception as e:
+            raise log(
+                f"Failed to create credentials file: {str(e)}", level="error"
+            )
+
+    if not ks8_keyfile:
+        log(
+            f"Using credentials from custom_keyfile_path: {custom_keyfile_path}",
+            level="info",
+        )
+        try:
+            os.chdir(dbt_repository_path)
+
             update_keyfile_path_in_profiles(
                 dbt_repository_path, custom_keyfile_path
             )
 
-        log("Installing dbt dependencies...", level="info")
+            log("Installing dbt dependencies...", level="info")
 
-        dbt_runner = dbtRunner()
-        cli_args = ["deps"]
+            dbt_runner = dbtRunner()
+            cli_args = ["deps"]
 
-        result = dbt_runner.invoke(cli_args)
+            result = dbt_runner.invoke(cli_args)
 
-        if not result.success:
-            error_details = ""
-            if hasattr(result, "result") and hasattr(result.result, "logs"):
-                error_logs = [
-                    log_entry.get("message", "")
-                    for log_entry in result.result.logs
-                    if log_entry.get("levelname")
-                    in ("ERROR", "CRITICAL", "FATAL")
-                ]
-                if error_logs:
-                    error_details = f" Details: {'; '.join(error_logs)}"
+            if not result.success:
+                error_details = ""
+                if hasattr(result, "result") and hasattr(
+                    result.result, "logs"
+                ):
+                    error_logs = [
+                        log_entry.get("message", "")
+                        for log_entry in result.result.logs
+                        if log_entry.get("levelname")
+                        in ("ERROR", "CRITICAL", "FATAL")
+                    ]
+                    if error_logs:
+                        error_details = f" Details: {'; '.join(error_logs)}"
 
-            raise FAIL(f"Failed to install dbt dependencies.{error_details}")
+                raise FAIL(
+                    f"Failed to install dbt dependencies.{error_details}"
+                )
 
-        log("Successfully installed dbt dependencies", level="info")
-        return result
-    except Exception as e:
-        raise FAIL(str(f"Error installing dbt dependencies: {e}")) from e
+            log("Successfully installed dbt dependencies", level="info")
+            return result
+        except Exception as e:
+            raise FAIL(str(f"Error installing dbt dependencies: {e}")) from e
 
 
 @task(

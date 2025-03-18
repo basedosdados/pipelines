@@ -3,6 +3,7 @@
 General utilities for interacting with dbt-rpc
 """
 
+import base64
 import json
 import os
 import re
@@ -38,6 +39,52 @@ def get_dbt_client(
         port=port,
         jsonrpc_version=jsonrpc_version,
     )
+
+
+def prepare_bigquery_credentials_from_env() -> str:
+    """
+    Create BigQuery credentials file from GCP_SA_KEY environment variable.
+
+    Returns:
+        str: Path to the created credentials file
+
+    Raises:
+        ValueError: If GCP_SA_KEY environment variable is not found
+        IOError: If credential file cannot be created
+    """
+
+    gcp_sa_key = os.environ.get("GCP_SA_KEY")
+
+    if not gcp_sa_key:
+        raise ValueError("GCP_SA_KEY environment variable not found")
+
+    credentials_dir = "/credentials-dev"
+    os.makedirs(credentials_dir, exist_ok=True)
+
+    credentials_path = os.path.join(credentials_dir, "dev.json")
+
+    try:
+        try:
+            json.loads(gcp_sa_key)
+            credential_content = gcp_sa_key
+        except json.JSONDecodeError:
+            try:
+                credential_content = base64.b64decode(gcp_sa_key).decode(
+                    "utf-8"
+                )
+                json.loads(credential_content)
+            except Exception:
+                credential_content = gcp_sa_key
+
+        with open(credentials_path, "w") as f:
+            f.write(credential_content)
+
+        os.chmod(credentials_path, 0o600)
+
+        return credentials_path
+
+    except Exception as e:
+        raise IOError(f"Failed to create credentials file: {str(e)}") from e
 
 
 def generate_execute_dbt_model_schedules(  # pylint: disable=too-many-arguments,too-many-locals
