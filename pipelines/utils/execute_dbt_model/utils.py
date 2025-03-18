@@ -439,34 +439,6 @@ def log_dbt_from_file(log_path: str = "dbt_repository/logs/dbt.log") -> Dict:
     }
 
 
-def determine_execution_status_from_logs(logs_df: pd.DataFrame) -> str:
-    """
-    Determine the overall execution status based on log entries
-
-    Args:
-        logs_df: DataFrame containing parsed log entries
-
-    Returns:
-        str: 'success', 'warn', or 'fail'
-    """
-    error_logs = logs_df[
-        logs_df.level.str.upper().isin(["ERROR", "CRITICAL", "FATAL"])
-    ]
-    if not error_logs.empty:
-        return "fail"
-
-    warning_logs = logs_df[logs_df.level.str.upper().isin(["WARNING", "WARN"])]
-    if not warning_logs.empty:
-        return "warn"
-
-    success_keywords = ["completed successfully", "ok"]
-    for _, row in logs_df.iterrows():
-        if any(keyword in row["text"].lower() for keyword in success_keywords):
-            return "success"
-
-    return "warn"
-
-
 def parse_and_log_dbt_runner_result(dbt_runner_result):
     """
     Process dbtRunnerResult object, parse logs, log them, and return execution status

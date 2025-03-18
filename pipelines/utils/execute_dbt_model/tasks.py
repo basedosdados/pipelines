@@ -20,7 +20,6 @@ from pipelines.utils.execute_dbt_model.constants import (
     constants as constants_execute,
 )
 from pipelines.utils.execute_dbt_model.utils import (
-    determine_execution_status_from_logs,
     extract_model_execution_status_from_logs,
     get_dbt_client,
     log_dbt_from_file,
@@ -306,12 +305,6 @@ def new_execute_dbt_model(
 
                     log_summary = log_dbt_from_file(log_file_path)
 
-                    status = determine_execution_status_from_logs(logs_df)
-                    log(
-                        f"DBT execution status determined from logs: {status}",
-                        level="info",
-                    )
-
                     model_status = extract_model_execution_status_from_logs(
                         logs_df
                     )
@@ -321,7 +314,7 @@ def new_execute_dbt_model(
                             level="info",
                         )
 
-                    if status == "fail" or log_summary["error_count"] > 0:
+                    if log_summary["error_count"] > 0:
                         if log_summary["error_count"] > 0:
                             raise FAIL(
                                 f"DBT '{cmd}' command failed with {log_summary['error_count']} errors. See logs for details."
