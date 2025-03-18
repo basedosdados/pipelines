@@ -103,7 +103,9 @@ with Flow(
         "custom_keyfile_path", default=None, required=False
     )
 
-    ks8_keyfile = Parameter("ks8_keyfile", default=True, required=False)
+    use_env_credentials = Parameter(
+        "use_env_credentials", default=True, required=False
+    )
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Materialize (CLI): ",
@@ -116,7 +118,7 @@ with Flow(
 
     dependencies_installed = install_dbt_dependencies(
         dbt_repository_path=repository_path,
-        ks8_keyfile=ks8_keyfile,
+        use_env_credentials=use_env_credentials,
         custom_keyfile_path=custom_keyfile_path,
         upstream_tasks=[repository_path],
     )

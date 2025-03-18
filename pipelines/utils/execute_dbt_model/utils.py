@@ -3,7 +3,6 @@
 General utilities for interacting with dbt-rpc
 """
 
-import base64
 import json
 import os
 import re
@@ -41,50 +40,72 @@ def get_dbt_client(
     )
 
 
-def prepare_bigquery_credentials_from_env() -> str:
+def update_profiles_for_env_credentials(dbt_repository_path: str) -> None:
     """
-    Create BigQuery credentials file from GCP_SA_KEY environment variable.
+    Update the DBT profiles.yml to use environment variables for BigQuery authentication.
 
-    Returns:
-        str: Path to the created credentials file
+    This function modifies the profiles.yml file to use environment variables
+    directly for authentication instead of referencing a keyfile on disk.
+
+    Args:
+        dbt_repository_path (str): Path to the DBT repository
 
     Raises:
-        ValueError: If GCP_SA_KEY environment variable is not found
-        IOError: If credential file cannot be created
+        Exception: If profiles.yml cannot be found or updated
     """
 
-    gcp_sa_key = os.environ.get("GCP_SA_KEY")
+    possible_profile_locations = [
+        os.path.join(dbt_repository_path, "profiles.yml"),
+        os.path.join(dbt_repository_path, ".dbt", "profiles.yml"),
+        os.path.expanduser("~/.dbt/profiles.yml"),
+    ]
 
-    if not gcp_sa_key:
-        raise ValueError("GCP_SA_KEY environment variable not found")
+    profiles_path = None
+    for path in possible_profile_locations:
+        if os.path.exists(path):
+            profiles_path = path
+            break
 
-    credentials_dir = "/credentials-dev"
-    os.makedirs(credentials_dir, exist_ok=True)
+    if not profiles_path:
+        raise Exception(
+            "profiles.yml not found in any of the expected locations"
+        )
 
-    credentials_path = os.path.join(credentials_dir, "dev.json")
+    log(f"Found profiles.yml at {profiles_path}", level="info")
 
-    try:
-        try:
-            json.loads(gcp_sa_key)
-            credential_content = gcp_sa_key
-        except json.JSONDecodeError:
-            try:
-                credential_content = base64.b64decode(gcp_sa_key).decode(
-                    "utf-8"
-                )
-                json.loads(credential_content)
-            except Exception:
-                credential_content = gcp_sa_key
+    with open(profiles_path, "r") as f:
+        profiles = yaml.safe_load(f)
 
-        with open(credentials_path, "w") as f:
-            f.write(credential_content)
+    modified = False
+    for profile_name, profile in profiles.items():
+        if "outputs" in profile:
+            for target_name, target in profile["outputs"].items():
+                if target.get("type") == "bigquery":
+                    if "keyfile" in target:
+                        old_keyfile = target["keyfile"]
 
-        os.chmod(credentials_path, 0o600)
+                        target["method"] = "oauth"
 
-        return credentials_path
+                        del target["keyfile"]
 
-    except Exception as e:
-        raise IOError(f"Failed to create credentials file: {str(e)}") from e
+                        log(
+                            f"Updated profile '{profile_name}.{target_name}' from using keyfile '{old_keyfile}' to using environment-based authentication",
+                            level="info",
+                        )
+                        modified = True
+
+    if modified:
+        with open(profiles_path, "w") as f:
+            yaml.dump(profiles, f, default_flow_style=False)
+        log(
+            "Profiles updated to use environment-based authentication",
+            level="info",
+        )
+    else:
+        log(
+            "No BigQuery profiles found that use keyfile authentication",
+            level="warning",
+        )
 
 
 def generate_execute_dbt_model_schedules(  # pylint: disable=too-many-arguments,too-many-locals
