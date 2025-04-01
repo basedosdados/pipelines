@@ -162,6 +162,7 @@ def read_and_partition_beneficios_cidadao(table_id):
                         )
                         number += 1
                         log(f"Chunk {number} carregando.")
+
                         if table_id == "novo_bolsa_familia":
                             partition_data_beneficios_cidadao(
                                 table_id=table_id,
