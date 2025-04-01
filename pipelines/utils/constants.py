@@ -11,7 +11,6 @@ class constants(Enum):  # pylint: disable=c0103
     Constants for utils.
     """
 
-    FLOW_EXECUTUE_DBT_MODEL_NEW_NAME = "Novo DBT: Executa DBT model"
     FLOW_EXECUTE_DBT_MODEL_NAME = "BD template: Executa DBT model"
     FLOW_DUMP_TO_GCS_NAME = "BD template: Ingerir tabela zipada para GCS"
 
