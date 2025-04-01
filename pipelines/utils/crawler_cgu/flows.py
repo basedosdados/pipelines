@@ -143,7 +143,7 @@ flow_cgu_cartao_pagamento.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
 
-# ! ============================================== CGU - Servidores Públicos do Executivo Federal ==============================================
+# ! ============================================== CGU - Servidores Públicos do Executivo Federal =============================================
 
 with Flow(
     name="CGU - Servidores Públicos do Executivo Federal",
@@ -368,7 +368,7 @@ flow_cgu_licitacao_contrato.run_config = KubernetesRun(
 )
 
 
-# ! ================================== CGU - Benefícios Cidadão =====================================
+# ! ================================== CGU - Benefícios Cidadão ====================================
 
 with Flow(
     name="CGU - Benefícios Cidadão", code_owners=["trick"]
