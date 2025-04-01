@@ -115,7 +115,7 @@ with Flow(
             # Trigger DBT flow run
             current_flow_labels = get_current_flow_labels()
             materialization_flow = create_flow_run(
-                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
+                flow_name=utils_constants.FLOW_EXECUTUE_DBT_MODEL_NEW_NAME.value,
                 project_name=constants.PREFECT_DEFAULT_PROJECT.value,
                 parameters={
                     "table_id": table_id,
