@@ -42,12 +42,12 @@ def form_row_match_halve(statistics: dict) -> dict:
     return data
 
 
-def form_row_match_halves(event_score: dict, halves: list) -> list:
-    temp_halves = halves[1:]
+def form_row_match_halves(event_score: list, halves: list) -> list:
+    halves.pop(0)
 
     data = [
         event_score[tempo] | form_row_match_halve(estatisticas)
-        for tempo, estatisticas in enumerate(temp_halves)
+        for tempo, estatisticas in enumerate(halves)
     ]
 
     return data
@@ -61,35 +61,50 @@ def form_period_dict(
         "id_partida": response_event_short["id_event"],
         "data": date_match.strftime("%Y-%m-%d"),
         "hora": date_match.strftime("%H:%M:%S"),
-        "tempo": period,
         "temporada": response_event_short["year"],
         "rodada": response_event_short["round"],
         "mandante_name": response_event_short["homeTeam"]["name"],
         "visitante_name": response_event_short["awayTeam"]["name"],
     }
 
-    if period > 1:
-        mandante_score = (
-            response_event_short["homeScore"]["display"]
-            - response_event_short["homeScore"]["period1"]
-        )
-        visitante_score = (
-            response_event_short["awayScore"]["display"]
-            - response_event_short["awayScore"]["period1"]
-        )
+    period_control = {
+        "regular_period_list": list(),
+        "extra_period_list": list(),
+    }
 
-        data_event["mandante_score"] = mandante_score
-        data_event["visitante_score"] = visitante_score
+    for period in range(1, 3):
+        period_key = f"period{period}"
+        period_extra_key = f"extra{period}"
 
-    else:
-        data_event["mandante_score"] = response_event_short["homeScore"][
-            "period1"
-        ]
-        data_event["visitante_score"] = response_event_short["awayScore"][
-            "period1"
-        ]
+        period_scores = {
+            "mandante_score": response_event_short["homeScore"][period_key],
+            "visitante_score": response_event_short["awayScore"][period_key],
+            "tempo": period,
+        }
 
-    return data_event
+        period_control["regular_period_list"].append(period_scores)
+
+        if period_extra_key in response_event_short["homeScore"].keys():
+            period_extra_scores = {
+                "mandante_score": response_event_short["homeScore"][
+                    period_extra_key
+                ],
+                "visitante_score": response_event_short["awayScore"][
+                    period_extra_key
+                ],
+                "tempo": period + 2,
+            }
+
+            period_control["extra_period_list"].append(period_extra_scores)
+
+    all_period = (
+        period_control["regular_period_list"]
+        + period_control["extra_period_list"]
+    )
+
+    all_period = [data_event | period_data for period_data in all_period]
+
+    return all_period
 
 
 def get_event_score(event_dict: dict) -> list:
@@ -112,10 +127,7 @@ def get_event_score(event_dict: dict) -> list:
     )
 
     response_event_short = response_event_short | event_dict
-    data_period_events = [
-        form_period_dict(period, response_event_short, date_match)
-        for period in range(1, 5)
-    ]
+    data_period_events = form_period_dict(response_event_short, date_match)
 
     return data_period_events
 
@@ -224,10 +236,11 @@ def form_extract_season(
 ) -> pd.DataFrame:
     season_id = season_dict["id"]
 
-    rounds = [
+    rounds_raw = [
         get_rounds_from_season(tournament_id, season_id, index_url)
         for index_url in range(games_count)
     ]
+    rounds = [round for round in rounds_raw if "events" in round.keys()]
 
     try:
         id_events = [
