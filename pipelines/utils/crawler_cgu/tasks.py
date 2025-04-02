@@ -125,7 +125,6 @@ def read_and_partition_beneficios_cidadao(table_id):
             if nome_arquivo.endswith(".csv"):
                 log(f"Carregando o arquivo: {nome_arquivo}")
 
-                df = None
                 with pd.read_csv(
                     f"{constants_cgu_beneficios_cidadao['INPUT']}{nome_arquivo}",
                     sep=";",
@@ -173,7 +172,7 @@ def read_and_partition_beneficios_cidadao(table_id):
                             )
                         elif table_id == "bpc":
                             to_partitions(
-                                df,
+                                data=chunk,
                                 partition_columns=["mes_competencia"],
                                 savepath=constants_cgu_beneficios_cidadao[
                                     "OUTPUT"
@@ -182,7 +181,7 @@ def read_and_partition_beneficios_cidadao(table_id):
                             )
                         else:
                             to_partitions(
-                                df,
+                                data=chunk,
                                 partition_columns=["mes_referencia"],
                                 savepath=constants_cgu_beneficios_cidadao[
                                     "OUTPUT"
