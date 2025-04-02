@@ -6,29 +6,26 @@ from prefect.storage import GCS
 
 from pipelines.constants import constants
 from pipelines.datasets.br_cgu_beneficios_cidadao.schedules import (
+    every_day_bolsa_familia,
     every_day_bpc,
     every_day_garantia_safra,
-    every_day_novo_bolsa_familia,
 )
 from pipelines.utils.crawler_cgu.flows import flow_cgu_beneficios_cidadao
 
 # ! - > Flow: br_cgu_beneficios_cidadao__novo_bolsa_familia
-br_cgu_beneficios_cidadao__novo_bolsa_familia = deepcopy(
-    flow_cgu_beneficios_cidadao
-)
-br_cgu_beneficios_cidadao__novo_bolsa_familia.name = (
+br_cgu_beneficios_cidadao_bolsa_familia = deepcopy(flow_cgu_beneficios_cidadao)
+br_cgu_beneficios_cidadao_bolsa_familia.name = (
     "br_cgu_beneficios_cidadao.novo_bolsa_familia"
 )
-br_cgu_beneficios_cidadao__novo_bolsa_familia.code_owners = ["trick"]
-br_cgu_beneficios_cidadao__novo_bolsa_familia.storage = GCS(
+br_cgu_beneficios_cidadao_bolsa_familia.code_owners = ["trick"]
+br_cgu_beneficios_cidadao_bolsa_familia.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
 )
-br_cgu_beneficios_cidadao__novo_bolsa_familia.run_config = KubernetesRun(
+br_cgu_beneficios_cidadao_bolsa_familia.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_cgu_beneficios_cidadao__novo_bolsa_familia.schedule = (
-    every_day_novo_bolsa_familia,
-)
+br_cgu_beneficios_cidadao_bolsa_familia.schedule = every_day_bolsa_familia
+
 
 # ! - > Flow: br_cgu_beneficios_cidadao__garantia_safra
 br_cgu_beneficios_cidadao__garantia_safra = deepcopy(
