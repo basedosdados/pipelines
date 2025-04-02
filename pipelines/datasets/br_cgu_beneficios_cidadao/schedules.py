@@ -10,7 +10,7 @@ from prefect.schedules.clocks import CronClock
 
 from pipelines.constants import constants
 
-every_day_novo_bolsa_familia = Schedule(
+every_day_bolsa_familia = Schedule(
     clocks=[
         CronClock(
             cron="0 19 * * *",

@@ -279,7 +279,7 @@ def dict_for_table(table_id: str) -> dict:
             "year": "ano_competencia",
             "month": "mes_competencia",
         },
-        "safra_garantia": {
+        "garantia_safra": {
             "year": "ano_referencia",
             "month": "mes_referencia",
         },
