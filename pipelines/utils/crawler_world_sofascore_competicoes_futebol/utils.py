@@ -53,9 +53,7 @@ def form_row_match_halves(event_score: list, halves: list) -> list:
     return data
 
 
-def form_period_dict(
-    period: str | int, response_event_short: dict, date_match: datetime
-) -> dict:
+def form_period_dict(response_event_short: dict, date_match: datetime) -> dict:
     data_event = {
         "ano": date_match.year,
         "id_partida": response_event_short["id_event"],
