@@ -10,6 +10,10 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
+from pipelines.datasets.world_sofascore_competicoes_futebol.schedules import (
+    schedule_brasileirao_serie_a,
+    schedule_uefa_champions_league,
+)
 from pipelines.utils.crawler_world_sofascore_competicoes_futebol.flows import (
     world_sofascore_competicoes_futebol,
 )
@@ -25,7 +29,7 @@ uefa_champions_league.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 uefa_champions_league.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# uefa_champions_league.schedule = schedule_bens
+uefa_champions_league.schedule = schedule_uefa_champions_league
 
 # Tabela: brasileirao_serie_a
 brasileirao_serie_a = deepcopy(world_sofascore_competicoes_futebol)
@@ -37,4 +41,4 @@ brasileirao_serie_a.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 brasileirao_serie_a.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# brasileirao_serie_a.schedule = schedule_bens
+brasileirao_serie_a.schedule = schedule_brasileirao_serie_a

@@ -13,7 +13,7 @@ from pipelines.constants import constants
 schedule_uefa_champions_league = Schedule(
     clocks=[
         CronClock(
-            cron="0 2 * * *",  # everyday at 04:05
+            cron="0 2 * * *",
             start_date=datetime(2025, 2, 25, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
@@ -33,7 +33,7 @@ schedule_uefa_champions_league = Schedule(
 schedule_brasileirao_serie_a = Schedule(
     clocks=[
         CronClock(
-            cron="30 2 * * *",  # everyday at 04:05
+            cron="30 2 * * *",
             start_date=datetime(2025, 2, 25, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
