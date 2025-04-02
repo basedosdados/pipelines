@@ -75,7 +75,6 @@ with Flow(
     outdated = check_if_data_is_outdated(
         dataset_id=dataset_id,
         table_id=table_id,
-        date_type="last_update_date",
         data_source_max_date=data_source_max_date,
         upstream_tasks=[data_source_max_date],
     )
@@ -103,7 +102,6 @@ with Flow(
                     "dbt_alias": dbt_alias,
                     "dbt_command": "run/test",
                     "disable_elementary": False,
-                    "download_csv_file": False,
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
@@ -131,7 +129,7 @@ with Flow(
                     date_format="%Y-%m-%d",
                     prefect_mode=materialization_mode,
                     coverage_type="all_free",
-                    bq_project="basedosdados-dev",
+                    bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
 
