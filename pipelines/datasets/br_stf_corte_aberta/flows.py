@@ -11,7 +11,6 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.datasets.br_stf_corte_aberta.schedules import every_day_stf
 from pipelines.datasets.br_stf_corte_aberta.tasks import (
     download_and_transform,
     get_data_source_stf_max_date,
@@ -121,4 +120,4 @@ with Flow(
                 )
 br_stf.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_stf.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_stf.schedule = every_day_stf
+# br_stf.schedule = every_day_stf

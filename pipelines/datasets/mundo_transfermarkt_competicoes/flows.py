@@ -13,9 +13,6 @@ from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 from pipelines.constants import constants
 
 ###############################################################################
-from pipelines.datasets.mundo_transfermarkt_competicoes.schedules import (
-    every_day_copa,
-)
 from pipelines.datasets.mundo_transfermarkt_competicoes.tasks import (
     execucao_coleta_sync,
     get_data_source_max_date_copa,
@@ -229,4 +226,4 @@ transfermarkt_copa_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 transfermarkt_copa_flow.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-transfermarkt_copa_flow.schedule = every_day_copa
+# transfermarkt_copa_flow.schedule = every_day_copa
