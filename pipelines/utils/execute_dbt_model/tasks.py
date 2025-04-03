@@ -33,12 +33,18 @@ from pipelines.utils.utils import log
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def download_repository() -> str:
+def download_repository(repo_url: str) -> str:
     """
     Downloads the repository specified by the REPOSITORY_URL constant.
 
     This function creates a repository folder, clones the repository from the specified URL,
     and logs the success or failure of the download.
+
+    *Note: it allows the user to specify a different repository branch or URL for testing purposes, as long it's a public one*
+
+    Args:
+        repo_url (str): queries-basedosdados repository url. The default value is parameterized
+        in the flow. The default value is queries-basedosdados main branch.
 
     Returns:
         str: Path to the downloaded repository.
@@ -46,7 +52,6 @@ def download_repository() -> str:
     Raises:
         FAIL: If there is an error when creating the repository folder or downloading the repository.
     """
-    repo_url = constants_execute.REPOSITORY_URL.value
 
     try:
         repository_path = os.path.join(os.getcwd(), "dbt_repository")
@@ -177,7 +182,7 @@ def install_dbt_dependencies(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def new_execute_dbt_model(
+def execute_dbt_model(
     dbt_repository_path: str,
     dataset_id: str,
     table_id: Optional[str] = None,

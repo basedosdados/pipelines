@@ -13,14 +13,14 @@ from pipelines.utils.decorators import Flow
 from pipelines.utils.dump_to_gcs.tasks import download_data_to_gcs
 from pipelines.utils.execute_dbt_model.tasks import (
     download_repository,
+    execute_dbt_model,
     install_dbt_dependencies,
-    new_execute_dbt_model,
 )
 from pipelines.utils.tasks import rename_current_flow_run_dataset_table
 
 with Flow(
     name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value
-) as new_run_dbt_model_flow:
+) as run_dbt_model_flow:
     dataset_id = Parameter("dataset_id", required=True)
     table_id = Parameter("table_id", default=None, required=False)
     mode = Parameter("mode", default="dev", required=False)
@@ -31,27 +31,30 @@ with Flow(
     disable_elementary = Parameter(
         "disable_elementary", default=True, required=False
     )
-    target = Parameter("target", default="dev", required=False)
+    target = Parameter("target", default="prod", required=False)
     download_csv_file = Parameter(
         "download_csv_file", default=True, required=False
     )
-
     custom_keyfile_path = Parameter(
         "custom_keyfile_path", default=None, required=False
     )
-
     use_env_credentials = Parameter(
         "use_env_credentials", default=True, required=False
     )
+    repository_url = Parameter(
+        "repository_url",
+        default="https://github.com/basedosdados/queries-basedosdados",
+        required=False,
+    )
 
     rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Materialize (CLI): ",
+        prefix="DBT Model run/test: ",
         dataset_id=dataset_id,
         table_id=table_id,
         wait=table_id,
     )
 
-    repository_path = download_repository()
+    repository_path = download_repository(repo_url=repository_url)
 
     dependencies_installed = install_dbt_dependencies(
         dbt_repository_path=repository_path,
@@ -60,7 +63,7 @@ with Flow(
         upstream_tasks=[repository_path],
     )
 
-    materialize_result = new_execute_dbt_model(
+    materialize_result = execute_dbt_model(
         dbt_repository_path=repository_path,
         dataset_id=dataset_id,
         table_id=table_id,
@@ -81,7 +84,7 @@ with Flow(
             upstream_tasks=[materialize_result],
         )
 
-new_run_dbt_model_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-new_run_dbt_model_flow.run_config = KubernetesRun(
+run_dbt_model_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+run_dbt_model_flow.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
