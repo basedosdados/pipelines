@@ -88,7 +88,7 @@ with Flow(
             upstream_tasks=[ready_data_path],
         )
 
-        # materialize municipio_exportacao
+        # materialize
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
             current_flow_labels = get_current_flow_labels()

@@ -43,6 +43,7 @@ def form_row_match_halve(statistics: dict) -> dict:
 
 
 def form_row_match_halves(event_score: list, halves: list) -> list:
+    # Primeiro index de halves são informaçoes de todos os tempos juntos. Ignoramos ele
     halves.pop(0)
 
     data = [
@@ -233,11 +234,12 @@ def form_extract_season(
     tournament_id: str | int, season_dict: dict, games_count: int
 ) -> pd.DataFrame:
     season_id = season_dict["id"]
-
+    # Pega os rounds do evento
     rounds_raw = [
         get_rounds_from_season(tournament_id, season_id, index_url)
         for index_url in range(games_count)
     ]
+    # Filtramos apenas os rounds que estão pronto para coleta
     rounds = [round for round in rounds_raw if "events" in round.keys()]
 
     try:
