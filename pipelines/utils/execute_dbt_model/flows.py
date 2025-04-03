@@ -23,7 +23,6 @@ with Flow(
 ) as run_dbt_model_flow:
     dataset_id = Parameter("dataset_id", required=True)
     table_id = Parameter("table_id", default=None, required=False)
-    mode = Parameter("mode", default="dev", required=False)
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
     dbt_command = Parameter("dbt_command", default="run", required=True)
     flags = Parameter("flags", default=None, required=False)
@@ -88,7 +87,7 @@ with Flow(
         download_data_to_gcs(
             dataset_id=dataset_id,
             table_id=table_id,
-            bd_project_mode=mode,
+            bd_project_mode=target,
             upstream_tasks=[materialize_result],
         )
 
