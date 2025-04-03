@@ -1,0 +1,63 @@
+---
+version: 2
+models:
+  - name: item
+    description: A tabela apresenta informações específicas sobre os produtos disponíveis
+      no Mercado Livre. Valores missing podem se dar por instabilidade do site no
+      momento da coleta.
+    columns:
+      - name: data_consulta
+        description: Data consulta da oferta
+      - name: hora_consulta
+        description: Hora consulta da oferta
+      - name: id_item
+        description: ID item
+      - name: titulo
+        description: Título de divulgação, referente ao item
+      - name: id_vendedor
+        description: ID vendedor
+      - name: vendedor
+        description: Nome do vendedor
+      - name: categoria_principal
+        description: Primeira categoria do item classificada no site
+      - name: outras_categorias
+        description: Demais categorias descritas no site em relação ao item
+      - name: caracteristicas
+        description: Características adicionais do item
+      - name: envio_nacional
+        description: Existe envio para todo país?
+      - name: quantidade_avaliacao
+        description: Quantidade de avaliações recebidas
+      - name: avaliacao
+        description: Avaliação média medida em estrelas, em uma escala de zero a cinco
+      - name: preco_original
+        description: Preço original de referência
+      - name: desconto
+        description: Desconto percentual em relação ao preço original de referência
+      - name: preco_final
+        description: Preço de oferta
+  - name: vendedor
+    description: A tabela contém informações sobre os vendedores associados às ofertas
+      presentes na tabela de itens. Valores missing podem se dar por instabilidade
+      do site no momento da coleta.
+    columns:
+      - name: data_consulta
+        description: Data consulta
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+      - name: id_vendedor
+        description: ID Vendedor
+      - name: vendedor
+        description: Nome vendedor
+      - name: classificacao
+        description: Classificação dada pelo Mercado Livre
+      - name: reputacao
+        description: Reputação medido por quantidade de vendas nos últimos dias
+      - name: anos_experiencia
+        description: Anos de experiência
+      - name: avaliacao_bom
+        description: Quantidade de consumidores avaliando como bom
+      - name: avaliacao_regular
+        description: Quantidade de consumidores avaliando como regular
+      - name: avaliacao_ruim
+        description: Quantidade de consumidores avaliando como ruim

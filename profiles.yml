@@ -1,0 +1,29 @@
+---
+default:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: service-account
+      project: basedosdados-dev
+      dataset: dbt
+      location: US
+      threads: 2
+      keyfile: /home/pedro/.basedosdados/credentials/staging.json
+    prod:
+      type: bigquery
+      method: service-account
+      project: basedosdados
+      dataset: dbt
+      location: US
+      threads: 2
+      keyfile: /home/pedro/.basedosdados/credentials/staging.json
+elementary:
+  outputs:
+    default:
+      type: bigquery
+      project: basedosdados
+      dataset: elementary
+      method: service-account
+      keyfile: /tmp/bigquery_keyfile.json
+      threads: 2

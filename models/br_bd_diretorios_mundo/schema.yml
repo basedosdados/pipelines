@@ -1,0 +1,148 @@
+---
+version: 2
+models:
+  - name: br_bd_diretorios_mundo__pais
+    description: A tabela contém dados com identificadores dos países segundo instituições
+      internacionais, além de siglas e os nomes
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [mundo]
+          combination_of_columns: [sigla_pais_iso3]
+    columns:
+      - name: id_pais_m49
+        description: ID País - M49/PNUD
+      - name: id_pais_fao
+        description: ID País - FAO
+      - name: id_pais_gaul
+        description: ID País - GAUL
+      - name: sigla_pais_iso3
+        description: Sigla do País - ISO3
+      - name: sigla_pais_iso2
+        description: Sigla do País - ISO2
+      - name: sigla_pais_pnud
+        description: Sigla do País - PNUD
+      - name: sigla_pais_coi
+        description: Sigla do País - Comité Olímpico Internacional
+      - name: sigla_pais_fifa
+        description: Sigla do País - FIFA
+      - name: nome
+        description: Nome do país em português
+      - name: nome_ingles
+        description: Nome do país em inglês
+      - name: nome_oficial_ingles
+        description: Nome oficial do país em inglês
+      - name: nacionalidade
+        description: Nacionalidade
+      - name: sigla_continente
+        description: Sigla do continente do país
+  - name: br_bd_diretorios_mundo__sistema_harmonizado
+    description: O "Sistema Harmonizado de Designação e de Codificação de Mercadorias",
+      ou simplesmente "Sistema Harmonizado", tem o objetivo maior foi a criação de
+      um sistema único mundial de designação e de codificação de mercadorias.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [mundo]
+          combination_of_columns: [id_sh6]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+    columns:
+      - name: id_sh6
+        description: Identificador de 6 dígitos do Sistema Harmonizado (SH6)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__nomenclatura_comum_mercosul')
+              field: id_sh6
+      - name: id_sh4
+        description: Identificador de 4 dígitos do Sistema Harmonizado (SH6)
+      - name: id_sh2
+        description: Identificador de 2 dígitos do Sistema Harmonizado (SH6)
+      - name: id_ncm_secrom
+        description: Não informado
+      - name: nome_sh6_portugues
+        description: Descrição do id_sh6 em português
+      - name: nome_sh4_portugues
+        description: Descrição do id_sh4 em português
+      - name: nome_sh2_portugues
+        description: Descrição do id_sh2 em português
+      - name: nome_sec_portugues
+        description: Descrição do em português
+      - name: nome_sh6_espanhol
+        description: Descrição do id_sh6 em espanhol
+      - name: nome_sh4_espanhol
+        description: Descrição do id_sh4 em espanhol
+      - name: nome_sh2_espanhol
+        description: Descrição do id_sh2 em espanhol
+      - name: nome_sec_espanhol
+        description: Descrição do em espanhol
+      - name: nome_sh6_ingles
+        description: Descrição do id_sh6 em inglês
+      - name: nome_sh4_ingles
+        description: Descrição do id_sh4 em inglês
+      - name: nome_sh2_ingles
+        description: Descrição do id_sh2 em inglês
+      - name: nome_sec_ingles
+        description: Descrição do em inglês
+  - name: br_bd_diretorios_mundo__nomenclatura_comum_mercosul
+    description: A Nomenclatura Comum do Mercosul (NCM) é um sistema ordenado que
+      permite, pela aplicação de regras e procedimentos próprios, determinar um único
+      código numérico para uma dada mercadoria.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [mundo]
+          combination_of_columns: [id_ncm]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+    columns:
+      - name: id_ncm
+        description: Identificador da Nomenclatura Comum do Mercosul (NCM)
+      - name: id_unidade
+        description: Identificador da unidade estatística do id_ncm
+      - name: id_sh6
+        description: Identificador de 6 dígitos do Sistema Harmonizado (SH6) relacionado
+          com o id_ncm
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__sistema_harmonizado')
+              field: id_sh6
+      - name: id_ppe
+        description: Identificador da Pauta de Produtos Exportados (PPE) do id_ncm
+      - name: id_ppi
+        description: Identificador da Pauta de Produtos Importados (PPI) do id_ncm
+      - name: id_fator_agregado_ncm
+        description: Identificadores de Fator Agregado (FA) do id_ncm
+      - name: id_cgce_n3
+        description: Identificador da Classificação por Grandes Categorias Econômicas
+          (CGCE) do id_ncm
+      - name: id_isic_classe
+        description: 'Identificador da classe da Classificação de Setores Industriais
+          ISIC (International Standard Industrial Classification) do id_ncm '
+      - name: id_siit
+        description: Identificador da classificação de Setores Industriais por Intensidade
+          Tecnológica (SIIT) do id_ncm
+      - name: id_cuci_item
+        description: Identificador do item da Classificação Uniforme para o Comércio
+          Internacional (CUCI) do id_ncm
+      - name: nome_unidade
+        description: Nome da unidade estatística do id_ncm
+      - name: nome_ncm_portugues
+        description: Descrição do id_ncm em português
+      - name: nome_ncm_espanhol
+        description: Descrição do id_ncm em espanhol
+      - name: nome_ncm_ingles
+        description: Descrição do id_ncm em inglês
+  - name: br_bd_diretorios_mundo__continente
+    description: Dados com identificadores dos continentes segundo instituições internacionais,
+      além de siglas e os nomes.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [mundo]
+          combination_of_columns: [sigla]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+    columns:
+      - name: sigla
+        description: Sigla
+      - name: nome_pt
+        description: Nome (português)
+      - name: nome_en
+        description: Nome (inglês)

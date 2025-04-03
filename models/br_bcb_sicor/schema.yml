@@ -1,0 +1,302 @@
+---
+version: 2
+models:
+  - name: br_bcb_sicor__microdados_operacao
+    description: A tabela de Operações contém os microdados das contratações de crédito
+      de cada estado brasileiro. Nela, estão presentes principais informações (categoria
+      de produtor; fonte de recursos; instituição credora; produto financiado e etc)
+      das mais de 19 milhôes de operações de crédito rural registradas no SICOR no
+      período. É importante salientar que cada linha não necessariamente representa
+      uma operação completa. É possível que uma unica operação (identificada pelo
+      id_referencia_bacen) contenha diversos itens e, portanto, seja subdividida em
+      ordens.
+    columns:
+      - name: ano
+        description: Ano da emissão da operação
+      - name: mes
+        description: Mês de emissão da operação
+      - name: data_emissao
+        description: Data de emissão da operação
+      - name: ano_vencimento
+        description: Ano de vencimento da operação
+      - name: mes_vencimento
+        description: Mês de vencimento da operação
+      - name: data_vencimento
+        description: Data de vencimento da operação
+      - name: plano_safra_emissao
+        description: Plano safra de emissao da operação
+      - name: plano_safra_vencimento
+        description: Plano safra de vencimento da operação
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+      - name: id_referencia_bacen
+        description: Identificador único de cada operação de crédito
+      - name: numero_ordem
+        description: Identificador da quantidade de ordens que compõem uma operação
+          de crédito
+      - name: id_categoria_emitente
+        description: Identificador da categoria do emitente
+      - name: id_empreendimento
+        description: Identificador do empreendimento
+      - name: id_fase_ciclo_producao
+        description: Identificador da fase ciclo de produção
+      - name: id_fonte_recurso
+        description: Identificador da fonte de recursos
+      - name: id_instrumento_credito
+        description: Identificador do instrumento de crédito
+      - name: id_programa
+        description: Identificador do programa cujo crédito concedido está relacionado
+      - name: id_referencia_bacen_investimento
+        description: Identificador do refbacen de investimento
+      - name: id_subprograma
+        description: Identificador do subprograma
+      - name: id_tipo_agricultura
+        description: Identificador do tipo de agricultura
+      - name: id_tipo_cultivo
+        description: Identificador do tipo de cultivo
+      - name: id_tipo_encargo_financeiro
+        description: Identificador do tipo de encargos financeiros
+      - name: id_tipo_grao_semente
+        description: Identificador do tipo de grão/semente
+      - name: id_tipo_integracao_consorcio
+        description: Identificador do tipo de integração/consórcio
+      - name: id_tipo_irrigacao
+        description: Identificador de tipo de irrigação
+      - name: id_tipo_seguro
+        description: Identificador do tipo de seguro
+      - name: cnpj_agente_investimento
+        description: Concedente da operação de investimento
+      - name: cnpj_basico_instituicao_financeira
+        description: CNPJ da instituição financeira concedente do crédito
+      - name: id_contrato_sistema_tesouro_nacional
+        description: Código da Secretaria do Tesouro Nacional
+      - name: cnpj_cadastrante
+        description: O BACEN não fornece descrição dessa variável nos metadados
+      - name: data_fim_colheita
+        description: Data do fim de colheita
+      - name: data_fim_plantio
+        description: Data do fim de plantio
+      - name: data_inicio_colheita
+        description: Data do início de colheita
+      - name: data_inicio_plantio
+        description: Data do início de plantio
+      - name: area_financiada
+        description: Área financiada
+      - name: valor_aliquota_proagro
+        description: Valor da alíquota do Proagro
+      - name: valor_parcela_credito
+        description: Valor da parcela de crédito
+      - name: valor_prestacao_investimento
+        description: Valor da prestação de investimento
+      - name: valor_recurso_proprio
+        description: Valor do recurso próprio
+      - name: valor_receita_bruta_esperada
+        description: Valor da receita bruta esperada
+      - name: valor_recurso_proprio_srv
+        description: Garantia de renda mínima do Sistema de Valores a Receber (SRV)
+      - name: valor_quantidade_itens_financiados
+        description: Valor da quantidade de itens financiados
+      - name: valor_produtividade_obtida
+        description: Valor da produtividade obtida
+      - name: valor_previsao_producao
+        description: Valor da previsão de produção
+      - name: taxa_juro
+        description: Taxa de juros
+      - name: taxa_juro_encargo_financeiro_posfixado
+        description: Taxa de juros do encargo financeiro
+      - name: valor_percentual_custo_efetivo_total
+        description: Valor percentual do custo efetivo total
+      - name: valor_percentual_risco_fundo_constitucional
+        description: Valor percentual do risco do fundo constitucional
+      - name: valor_percentual_risco_stn
+        description: Valor percentual risco da Secretaria do Tesouro Nacional (STN)
+  - name: br_bcb_sicor__microdados_saldo
+    description: Esta tabela contém microdados sobre a evolução contábil mensal das
+      operações de crédito rural em curso e já quitadas. Para o aproveitamento completo,
+      sugere-se que esta seja utilizada em conjunto com as tabelas de Operações (microdados_operacao)
+      e liberações (microdados_liberacao) a depender das necessidades de análise.
+    columns:
+      - name: ano
+        description: Ano de referência do saldo
+      - name: mes
+        description: Mês de referência do saldo
+      - name: id_referencia_bacen
+        description: Identificador único de cada operação de crédito
+      - name: numero_ordem
+        description: Identificador da quantidade de ordens que compõem uma operação
+          de crédito
+      - name: id_situacao_operacao
+        description: Situação da operação
+      - name: valor_medio_diario
+        description: Saldo médio diário
+      - name: valor_medio_diario_vincendo
+        description: Saldo médio diário vincendo
+      - name: valor_ultimo_dia
+        description: Saldo do último dia
+  - name: br_bcb_sicor__microdados_liberacao
+    description: Esta tabela contém o registro dos recursos liberados pelas instituições
+      financeiras no decorrer de uma operação de crédito, durante 2013 a julho de
+      2022. A liberação obedece o cronograma de liberação de recursos estipulado no
+      ato da assinatura do contrato que formaliza a operação de crédito rural. Por
+      meio desta base é possível descobrir o montante de recursos efetivamente liberado
+      bem como o status da operação de crédito. Recomenda-se que seja utilizado em
+      conjunto com a tabela de Operações (microdados_operações) e de Saldos (microdados_saldos)
+      a depender das necessidades de análise.
+    columns:
+      - name: ano
+        description: Ano de referência do valor liberado total ou parcial
+      - name: mes
+        description: Mês de referência do valor liberado total ou parcial
+      - name: data_liberacao
+        description: Data de liberação da parcela de crédito total ou parcial
+      - name: id_referencia_bacen
+        description: Identificador único de cada operação de crédito
+      - name: numero_ordem
+        description: Identificador da quantidade de ordens que compõem uma operação
+          de crédito
+      - name: valor_liberado
+        description: Valor total ou parcial liberado na parcela de crédito
+  - name: br_bcb_sicor__empreendimento
+    description: A tabela de empreendimentos é um catálogo do que foi e do que é financiado.
+      Recomenda-se que ela seja utilizada em conjunto com os microdadados de operações
+      de crédito (microdados_operacao) para se ter uma visão completa dos produtos,
+      atividades e demais atributos da operação de crédito que foram alvo de financiamento.
+    columns:
+      - name: id_empreendimento
+        description: Código do empreendimento
+      - name: data_inicio
+        description: Data de criação do empreendimento
+      - name: data_fim
+        description: Data de fim do empreendimento
+      - name: finalidade
+        description: Finalidade do empreendimento
+      - name: atividade
+        description: Atividade do empreendimento
+      - name: modalidade
+        description: Modalidade do empreendimento
+      - name: produto
+        description: Produto do empreendimento
+      - name: variedade
+        description: Variedade do empreendimento
+      - name: cesta_safra
+        description: Cesta de safras do empreendimento
+      - name: zoneamento
+        description: Zoneamento do empreendimento
+      - name: unidade_medida
+        description: Unidade de medida do produto financiado no empreendimento
+      - name: unidade_medida_previsao_producao
+        description: Unidade de medida de previsão de produção do produto financiado
+          no empreendimento
+      - name: consorcio
+        description: Consórcio do empreendimento
+      - name: cedula_mae
+        description: Indica se o empreendimento refere-se a uma cédula mãe
+      - name: id_tipo_cultura
+        description: Código do tipo de cultura do empreendimento
+  - name: br_bcb_sicor__recurso_publico_complemento_operacao
+    description: Em 2023 o Banco Central do Brasil (BCB) liberou informações adicionais
+      das operações de crédito que foram financiadas com recursos públicos.
+    columns:
+      - name: id_referencia_bacen
+        description: Identificador único de cada operação de crédito
+      - name: id_municipio
+        description: ID município 7 dígitos
+      - name: numero_ordem
+        description: Identificador da quantidade de ordens que compõem uma operação
+          de crédito
+      - name: id_referencia_bacen_efetivo
+        description: Identificador único de cada operação de crédito explícito
+      - name: id_agencia
+        description: Identificador da agência da Instituição Financeira
+  - name: br_bcb_sicor__recurso_publico_propriedade
+    description: Em 2023 o Banco Central do Brasil (BCB) liberou informações adicionais
+      das operações de crédito que foram financiadas com recursos públicos. Esta tabela
+      contém dados adicionais do imóvel rural de aplicação do crédito.
+    columns:
+      - name: id_referencia_bacen
+        description: Identificador único de cada operação de crédito
+      - name: numero_ordem
+        description: Identificador da quantidade de ordens que compõem uma operação
+          de crédito
+      - name: tipo_cpf_cnpj
+        description: CPF ou CNPJ do proprietário
+      - name: id_sncr
+        description: Identificar do Imóvel no Sistema Nacional de Cadastro Rural (SNCR)
+      - name: id_nirf
+        description: Identificador do Imóvel na Receita Federal (NIRF)
+      - name: id_car
+        description: Identificador do Cadastro da Área Rural (CAR)
+  - name: br_bcb_sicor__recurso_publico_mutuario
+    description: Em 2023 o Banco Central do Brasil (BCB) liberou informações adicionais
+      das operações de crédito que foram financiadas com recursos públicos. Esta tabela
+      contém dados adicionais sobre o mutuário (tomador do empréstimo).
+    columns:
+      - name: id_referencia_bacen
+        description: Identificador único de cada operação de crédito
+      - name: indicador_sexo
+        description: Sexo
+      - name: tipo_cpf_cnpj
+        description: CPF ou CNPJ do beneficiário
+      - name: tipo_beneficiario
+        description: Tipo do Beneficiário
+      - name: id_dap
+        description: Identificador da Declaração de Aptidão ao PRONAF (DAP)
+  - name: br_bcb_sicor__recurso_publico_gleba
+    description: Em 2023 o Banco Central do Brasil (BCB) liberou informações adicionais
+      das operações de crédito que foram financiadas com recursos públicos. Esta tabela
+      contém dados adicionais sobre as coordenadas geográficas das glebas do imóvel
+      do mutuário.
+    columns:
+      - name: id_referencia_bacen
+        description: Identificador único de cada operação de crédito
+      - name: numerio_ordem
+        description: Identificador da quantidade de ordens que compõem uma operação
+          de crédito
+      - name: numero_identificador_gleba
+        description: Código identificador da gleba
+      - name: indice_gleba
+        description: Número da gleba
+      - name: indice_ponto
+        description: Número do ponto
+      - name: ponto
+        description: ponto
+  - name: br_bcb_sicor__recurso_publico_cooperado
+    description: Em 2023 o Banco Central do Brasil (BCB) liberou informações adicionais
+      das operações de crédito que foram financiadas com recursos públicos. Esta tabela
+      identifica o repasse do crédito a cada menbro de uma cooperativa, caso exista.
+    columns:
+      - name: id_referencia_bacen
+        description: Identificador único de cada operação de crédito
+      - name: numero_ordem
+        description: Identificador da quantidade de ordens que compõem uma operação
+          de crédito
+      - name: tipo_cpf_cnpj
+        description: CPF ou CNPJ do cooperado
+      - name: tipo_pessoa
+        description: Tipo da pessoa jurídica
+      - name: valor_parcela
+        description: Valor da parcela de crédito do cooperado
+  - name: br_bcb_sicor__dicionario
+    description: Dicionário para tradução dos códigos do conjunto br_bcb_sicor. Para
+      taduzir códigos compartilhados entre instituições, como id_municipio, buscar
+      por diretórios
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_tabela
+            - nome_coluna
+            - chave
+            - cobertura_temporal
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_tabela
+        description: ID Tabela
+      - name: nome_coluna
+        description: Nome da coluna
+      - name: chave
+        description: Chave
+      - name: cobertura_temporal
+        description: Cobertura Temporal
+      - name: valor
+        description: Valor

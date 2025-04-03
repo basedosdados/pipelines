@@ -1,0 +1,30 @@
+---
+version: 2
+models:
+  - name: world_ampas_oscar__winner_demographics
+    description: The table presents demographic information of Oscar winners across
+      various categories, including Best Director, Best Actor, Best Supporting Actor,
+      Best Actress, and Best Supporting Actress. The data spans from the 1927 edition
+      to the 2014 edition of the Oscars, providing insights into the winners' demographics
+      over time.
+    columns:
+      - name: name
+        description: Winner name
+      - name: birth_year
+        description: Year of birth
+      - name: birth_date
+        description: Date of birth
+      - name: birthplace
+        description: Birthplace
+      - name: race_ethnicity
+        description: Race ethnicity
+      - name: religion
+        description: Religion
+      - name: sexual_orientation
+        description: Sexual orientation
+      - name: year_edition
+        description: Year of the award edition
+      - name: category
+        description: Award category
+      - name: movie
+        description: Movie

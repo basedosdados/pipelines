@@ -1,0 +1,2354 @@
+---
+version: 2
+models:
+  - name: world_wwf_hydrosheds__rivers_atlas
+    description: HydroRIVERS represents a vectorized line network of all global rivers
+      that have a catchment area of at least 10 km² or an average river flow of at
+      least 0.1 m³/sec, or both.
+    columns:
+      - name: hyriv_id
+        description: 'Unique identifier for each river reach. '
+      - name: next_down
+        description: 'HYRIV_ID of the next downstream line segment. This field can
+          be used for navigation (up- and downstream) within the river network. '
+      - name: main_riv
+        description: HYRIV_ID of the most downstream reach of the connected river
+          basin
+      - name: length_km
+        description: Length of the river reach segment, in kilometers.
+      - name: dist_dn_km
+        description: Distance from the reach outlet, i.e., the most downstream pixel
+          of the reach, to the final downstream location along the river network,
+          in kilometers. This downstream location is either the pour point into the
+          ocean or an endorheic sink
+      - name: dist_up_km
+        description: Distance from the reach outlet, i.e., the most downstream pixel
+          of the reach, to the most upstream location along the river network, in
+          kilometers. The most upstream location is the furthest upstream point from
+          this reach on the watershed divide
+      - name: catch_skm
+        description: Area of the catchment that contributes directly to the individual
+          reach, in square kilometers. The catchment only relates to the reach itself,
+          while the contributing area of all upstream reaches is not included
+      - name: upland_skm
+        description: Total upstream area, in square kilometers, calculated from the
+          headwaters to the pour point (i.e. the most downstream pixel) of the reach.
+          The upstream area only comprises the directly connected watershed area,
+          i.e. it does not include endorheic regions that may be nested within the
+          larger basin.
+      - name: endorheic
+        description: Indicator for endorheic (inland) basins without surface flow
+          connection to the ocean
+      - name: dis_av_cms
+        description: Average long-term discharge estimate for river reach, in cubic
+          meters per second.
+      - name: ord_stra
+        description: Indicator of river order following the Strahler ordering system
+      - name: ord_clas
+        description: Indicator of river order following the classical ordering system
+      - name: ord_flow
+        description: Indicator of river order using river flow to distinguish logarithmic
+          size classes
+      - name: hybas_l12
+        description: HYBAS_ID of the corresponding HydroBASINS sub-basin in which
+          the river reach resides
+      - name: dis_m3_pyr
+        description: Natural Discharge {p} at reach pour point {yr} annual average
+      - name: dis_m3_pmn
+        description: Natural Discharge {p} at reach pour point {mn} annual minimum
+      - name: dis_m3_pmx
+        description: Natural Discharge {p} at reach pour point {mx} annual maximum
+      - name: run_mm_cyr
+        description: Land Surface Runoff {c} in reach catchment {yr} annual average
+      - name: inu_pc_cmn
+        description: Inundation Extent {c} in reach catchment {mn} annual minimum
+      - name: inu_pc_umn
+        description: Inundation Extent {u} in total watershed upstream of reach pour
+          point {mn} annual minimum
+      - name: inu_pc_cmx
+        description: Inundation Extent {c} in reach catchment {mx} annual maximum
+      - name: inu_pc_umx
+        description: Inundation Extent {u} in total watershed upstream of reach pour
+          point {mx} annual maximum
+      - name: inu_pc_clt
+        description: Inundation Extent {c} in reach catchment {lt} long-term maximum
+      - name: inu_pc_ult
+        description: Inundation Extent {u} in total watershed upstream of reach pour
+          point {lt} long-term maximum
+      - name: lka_pc_cse
+        description: Limnicity (Percent Lake Area) {c} in reach catchment {se} spatial
+          extent (%)
+      - name: lka_pc_use
+        description: Limnicity (Percent Lake Area) {u} in total watershed upstream
+          of reach pour point {se} spatial extent (%)
+      - name: lkv_mc_usu
+        description: Lake Volume {u} in total watershed upstream of reach pour point
+          {su} sum
+      - name: rev_mc_usu
+        description: Reservoir Volume {u} in total watershed upstream of reach pour
+          point {su} sum
+      - name: dor_pc_pva
+        description: Degree of Regulation {p} at reach pour point {va} value
+      - name: ria_ha_csu
+        description: vazio
+      - name: ria_ha_usu
+        description: River Area {u} in total watershed upstream of reach pour point
+          {su} sum
+      - name: riv_tc_csu
+        description: vazio
+      - name: riv_tc_usu
+        description: River Volume {u} in total watershed upstream of reach pour point
+          {su} sum
+      - name: gwt_cm_cav
+        description: Groundwater Table Depth {c} in reach catchment {av} average
+      - name: ele_mt_cav
+        description: Elevation {c} in reach catchment {av} average
+      - name: ele_mt_uav
+        description: Elevation {u} in total watershed upstream of reach pour point
+          {av} average
+      - name: ele_mt_cmn
+        description: Elevation {c} in reach catchment {mn} minimum
+      - name: ele_mt_cmx
+        description: Elevation {c} in reach catchment {mx} maximum
+      - name: slp_dg_cav
+        description: Terrain Slope {c} in reach catchment {av} average
+      - name: slp_dg_uav
+        description: Terrain Slope {u} in total watershed upstream of reach pour point
+          {av} average
+      - name: sgr_dk_rav
+        description: Stream Gradient {r} along reach segment {av} average
+      - name: clz_cl_cmj
+        description: Climate Zones {c} in reach catchment {mj} spatial majority
+      - name: cls_cl_cmj
+        description: Climate Strata {c} in reach catchment {mj} spatial majority
+      - name: tmp_dc_cyr
+        description: Air Temperature {c} in reach catchment {yr} annual average
+      - name: tmp_dc_uyr
+        description: Air Temperature {u} in total watershed upstream of reach pour
+          point {yr} annual average
+      - name: tmp_dc_cmn
+        description: Air Temperature {c} in reach catchment {mn} annual minimum
+      - name: tmp_dc_cmx
+        description: Air Temperature {c} in reach catchment {mx} annual maximum
+      - name: tmp_dc_c01
+        description: Air Temperature {c} in reach catchment {01} monthly average
+      - name: tmp_dc_c02
+        description: Air Temperature {c} in reach catchment {02} monthly average
+      - name: tmp_dc_c03
+        description: Air Temperature {c} in reach catchment {03} monthly average
+      - name: tmp_dc_c04
+        description: Air Temperature {c} in reach catchment {04} monthly average
+      - name: tmp_dc_c05
+        description: Air Temperature {c} in reach catchment {05} monthly average
+      - name: tmp_dc_c06
+        description: Air Temperature {c} in reach catchment {06} monthly average
+      - name: tmp_dc_c07
+        description: Air Temperature {c} in reach catchment {07} monthly average
+      - name: tmp_dc_c08
+        description: Air Temperature {c} in reach catchment {08} monthly average
+      - name: tmp_dc_c09
+        description: Air Temperature {c} in reach catchment {09} monthly average
+      - name: tmp_dc_c10
+        description: Air Temperature {c} in reach catchment {10} monthly average
+      - name: tmp_dc_c11
+        description: Air Temperature {c} in reach catchment {11} monthly average
+      - name: tmp_dc_c12
+        description: Air Temperature {c} in reach catchment {12} monthly average
+      - name: pre_mm_cyr
+        description: Precipitation {c} in reach catchment {yr} annual average
+      - name: pre_mm_uyr
+        description: Precipitation {u} in total watershed upstream of reach pour point
+          {yr} annual average
+      - name: pre_mm_c01
+        description: Precipitation {c} in reach catchment {01} monthly average
+      - name: pre_mm_c02
+        description: Precipitation {c} in reach catchment {02} monthly average
+      - name: pre_mm_c03
+        description: Precipitation {c} in reach catchment {03} monthly average
+      - name: pre_mm_c04
+        description: Precipitation {c} in reach catchment {04} monthly average
+      - name: pre_mm_c05
+        description: Precipitation {c} in reach catchment {05} monthly average
+      - name: pre_mm_c06
+        description: Precipitation {c} in reach catchment {06} monthly average
+      - name: pre_mm_c07
+        description: Precipitation {c} in reach catchment {07} monthly average
+      - name: pre_mm_c08
+        description: Precipitation {c} in reach catchment {08} monthly average
+      - name: pre_mm_c09
+        description: Precipitation {c} in reach catchment {09} monthly average
+      - name: pre_mm_c10
+        description: Precipitation {c} in reach catchment {10} monthly average
+      - name: pre_mm_c11
+        description: Precipitation {c} in reach catchment {11} monthly average
+      - name: pre_mm_c12
+        description: Precipitation {c} in reach catchment {12} monthly average
+      - name: pet_mm_cyr
+        description: Potential Evapotranspiration {c} in reach catchment {yr} annual
+          average
+      - name: pet_mm_uyr
+        description: Potential Evapotranspiration {u} in total watershed upstream
+          of reach pour point {yr} annual average
+      - name: pet_mm_c01
+        description: Potential Evapotranspiration {c} in reach catchment {01} monthly
+          average
+      - name: pet_mm_c02
+        description: Potential Evapotranspiration {c} in reach catchment {02} monthly
+          average
+      - name: pet_mm_c03
+        description: Potential Evapotranspiration {c} in reach catchment {03} monthly
+          average
+      - name: pet_mm_c04
+        description: Potential Evapotranspiration {c} in reach catchment {04} monthly
+          average
+      - name: pet_mm_c05
+        description: Potential Evapotranspiration {c} in reach catchment {05} monthly
+          average
+      - name: pet_mm_c06
+        description: Potential Evapotranspiration {c} in reach catchment {06} monthly
+          average
+      - name: pet_mm_c07
+        description: Potential Evapotranspiration {c} in reach catchment {07} monthly
+          average
+      - name: pet_mm_c08
+        description: Potential Evapotranspiration {c} in reach catchment {08} monthly
+          average
+      - name: pet_mm_c09
+        description: Potential Evapotranspiration {c} in reach catchment {09} monthly
+          average
+      - name: pet_mm_c10
+        description: Potential Evapotranspiration {c} in reach catchment {10} monthly
+          average
+      - name: pet_mm_c11
+        description: Potential Evapotranspiration {c} in reach catchment {11} monthly
+          average
+      - name: pet_mm_c12
+        description: Potential Evapotranspiration {c} in reach catchment {12} monthly
+          average
+      - name: aet_mm_cyr
+        description: Actual Evapotranspiration {c} in reach catchment {yr} annual
+          average
+      - name: aet_mm_uyr
+        description: Actual Evapotranspiration {u} in total watershed upstream of
+          reach pour point {yr} annual average
+      - name: aet_mm_c01
+        description: Actual Evapotranspiration {c} in reach catchment {01} monthly
+          average
+      - name: aet_mm_c02
+        description: Actual Evapotranspiration {c} in reach catchment {02} monthly
+          average
+      - name: aet_mm_c03
+        description: Actual Evapotranspiration {c} in reach catchment {03} monthly
+          average
+      - name: aet_mm_c04
+        description: Actual Evapotranspiration {c} in reach catchment {04} monthly
+          average
+      - name: aet_mm_c05
+        description: Actual Evapotranspiration {c} in reach catchment {05} monthly
+          average
+      - name: aet_mm_c06
+        description: Actual Evapotranspiration {c} in reach catchment {06} monthly
+          average
+      - name: aet_mm_c07
+        description: Actual Evapotranspiration {c} in reach catchment {07} monthly
+          average
+      - name: aet_mm_c08
+        description: Actual Evapotranspiration {c} in reach catchment {08} monthly
+          average
+      - name: aet_mm_c09
+        description: Actual Evapotranspiration {c} in reach catchment {09} monthly
+          average
+      - name: aet_mm_c10
+        description: Actual Evapotranspiration {c} in reach catchment {10} monthly
+          average
+      - name: aet_mm_c11
+        description: Actual Evapotranspiration {c} in reach catchment {11} monthly
+          average
+      - name: aet_mm_c12
+        description: Actual Evapotranspiration {c} in reach catchment {12} monthly
+          average
+      - name: ari_ix_cav
+        description: Global Aridity Index {c} in reach catchment {av} average
+      - name: ari_ix_uav
+        description: Global Aridity Index {u} in total watershed upstream of reach
+          pour point {av} average
+      - name: cmi_ix_cyr
+        description: Climate Moisture Index {c} in reach catchment {yr} annual average
+      - name: cmi_ix_uyr
+        description: Climate Moisture Index {u} in total watershed upstream of reach
+          pour point {yr} annual average
+      - name: cmi_ix_c01
+        description: Climate Moisture Index {c} in reach catchment {01} monthly average
+      - name: cmi_ix_c02
+        description: Climate Moisture Index {c} in reach catchment {02} monthly average
+      - name: cmi_ix_c03
+        description: Climate Moisture Index {c} in reach catchment {03} monthly average
+      - name: cmi_ix_c04
+        description: Climate Moisture Index {c} in reach catchment {04} monthly average
+      - name: cmi_ix_c05
+        description: Climate Moisture Index {c} in reach catchment {05} monthly average
+      - name: cmi_ix_c06
+        description: Climate Moisture Index {c} in reach catchment {06} monthly average
+      - name: cmi_ix_c07
+        description: Climate Moisture Index {c} in reach catchment {07} monthly average
+      - name: cmi_ix_c08
+        description: Climate Moisture Index {c} in reach catchment {08} monthly average
+      - name: cmi_ix_c09
+        description: Climate Moisture Index {c} in reach catchment {09} monthly average
+      - name: cmi_ix_c10
+        description: Climate Moisture Index {c} in reach catchment {10} monthly average
+      - name: cmi_ix_c11
+        description: Climate Moisture Index {c} in reach catchment {11} monthly average
+      - name: cmi_ix_c12
+        description: Climate Moisture Index {c} in reach catchment {12} monthly average
+      - name: snw_pc_cyr
+        description: Snow Cover Extent {c} in reach catchment {yr} annual average
+      - name: snw_pc_uyr
+        description: Snow Cover Extent {u} in total watershed upstream of reach pour
+          point {yr} annual average
+      - name: snw_pc_cmx
+        description: Snow Cover Extent {c} in reach catchment {mx} annual maximum
+      - name: snw_pc_c01
+        description: Snow Cover Extent {c} in reach catchment {01} monthly average
+      - name: snw_pc_c02
+        description: Snow Cover Extent {c} in reach catchment {02} monthly average
+      - name: snw_pc_c03
+        description: Snow Cover Extent {c} in reach catchment {03} monthly average
+      - name: snw_pc_c04
+        description: Snow Cover Extent {c} in reach catchment {04} monthly average
+      - name: snw_pc_c05
+        description: Snow Cover Extent {c} in reach catchment {05} monthly average
+      - name: snw_pc_c06
+        description: Snow Cover Extent {c} in reach catchment {06} monthly average
+      - name: snw_pc_c07
+        description: Snow Cover Extent {c} in reach catchment {07} monthly average
+      - name: snw_pc_c08
+        description: Snow Cover Extent {c} in reach catchment {08} monthly average
+      - name: snw_pc_c09
+        description: Snow Cover Extent {c} in reach catchment {09} monthly average
+      - name: snw_pc_c10
+        description: Snow Cover Extent {c} in reach catchment {10} monthly average
+      - name: snw_pc_c11
+        description: Snow Cover Extent {c} in reach catchment {11} monthly average
+      - name: snw_pc_c12
+        description: Snow Cover Extent {c} in reach catchment {12} monthly average
+      - name: glc_cl_cmj
+        description: Land Cover Classes {c} in reach catchment {mj} spatial majority
+      - name: glc_pc_c01
+        description: Land Cover Extent {c} in reach catchment {01} spatial extent
+          (%) by class
+      - name: glc_pc_c02
+        description: Land Cover Extent {c} in reach catchment {02} spatial extent
+          (%) by class
+      - name: glc_pc_c03
+        description: Land Cover Extent {c} in reach catchment {03} spatial extent
+          (%) by class
+      - name: glc_pc_c04
+        description: Land Cover Extent {c} in reach catchment {04} spatial extent
+          (%) by class
+      - name: glc_pc_c05
+        description: Land Cover Extent {c} in reach catchment {05} spatial extent
+          (%) by class
+      - name: glc_pc_c06
+        description: Land Cover Extent {c} in reach catchment {06} spatial extent
+          (%) by class
+      - name: glc_pc_c07
+        description: Land Cover Extent {c} in reach catchment {07} spatial extent
+          (%) by class
+      - name: glc_pc_c08
+        description: Land Cover Extent {c} in reach catchment {08} spatial extent
+          (%) by class
+      - name: glc_pc_c09
+        description: Land Cover Extent {c} in reach catchment {09} spatial extent
+          (%) by class
+      - name: glc_pc_c10
+        description: Land Cover Extent {c} in reach catchment {10} spatial extent
+          (%) by class
+      - name: glc_pc_c11
+        description: Land Cover Extent {c} in reach catchment {11} spatial extent
+          (%) by class
+      - name: glc_pc_c12
+        description: Land Cover Extent {c} in reach catchment {12} spatial extent
+          (%) by class
+      - name: glc_pc_c13
+        description: Land Cover Extent {c} in reach catchment {13} spatial extent
+          (%) by class
+      - name: glc_pc_c14
+        description: Land Cover Extent {c} in reach catchment {14} spatial extent
+          (%) by class
+      - name: glc_pc_c15
+        description: Land Cover Extent {c} in reach catchment {15} spatial extent
+          (%) by class
+      - name: glc_pc_c16
+        description: Land Cover Extent {c} in reach catchment {16} spatial extent
+          (%) by class
+      - name: glc_pc_c17
+        description: Land Cover Extent {c} in reach catchment {17} spatial extent
+          (%) by class
+      - name: glc_pc_c18
+        description: Land Cover Extent {c} in reach catchment {18} spatial extent
+          (%) by class
+      - name: glc_pc_c19
+        description: Land Cover Extent {c} in reach catchment {19} spatial extent
+          (%) by class
+      - name: glc_pc_c20
+        description: Land Cover Extent {c} in reach catchment {20} spatial extent
+          (%) by class
+      - name: glc_pc_c21
+        description: Land Cover Extent {c} in reach catchment {21} spatial extent
+          (%) by class
+      - name: glc_pc_c22
+        description: Land Cover Extent {c} in reach catchment {22} spatial extent
+          (%) by class
+      - name: glc_pc_u01
+        description: Land Cover Extent {u} in total watershed upstream of reach pour
+          point {01} spatial extent (%) by class
+      - name: glc_pc_u02
+        description: Land Cover Extent {u} in total watershed upstream of reach pour
+          point {02} spatial extent (%) by class
+      - name: glc_pc_u03
+        description: Land Cover Extent {u} in total watershed upstream of reach pour
+          point {03} spatial extent (%) by class
+      - name: glc_pc_u04
+        description: Land Cover Extent {u} in total watershed upstream of reach pour
+          point {04} spatial extent (%) by class
+      - name: glc_pc_u05
+        description: Land Cover Extent {u} in total watershed upstream of reach pour
+          point {05} spatial extent (%) by class
+      - name: glc_pc_u06
+        description: Land Cover Extent {u} in total watershed upstream of reach pour
+          point {06} spatial extent (%) by class
+      - name: glc_pc_u07
+        description: Land Cover Extent {u} in total watershed upstream of reach pour
+          point {07} spatial extent (%) by class
+      - name: glc_pc_u08
+        description: Land Cover Extent {u} in total watershed upstream of reach pour
+          point {08} spatial extent (%) by class
+      - name: glc_pc_u09
+        description: Land Cover Extent {u} in total watershed upstream of reach pour
+          point {09} spatial extent (%) by class
+      - name: glc_pc_u10
+        description: Land Cover Extent {u} in total watershed upstream of reach pour
+          point {10} spatial extent (%) by class
+      - name: glc_pc_u11
+        description: Land Cover Extent {u} in total watershed upstream of reach pour
+          point {11} spatial extent (%) by class
+      - name: glc_pc_u12
+        description: Land Cover Extent {u} in total watershed upstream of reach pour
+          point {12} spatial extent (%) by class
+      - name: glc_pc_u13
+        description: Land Cover Extent {u} in total watershed upstream of reach pour
+          point {13} spatial extent (%) by class
+      - name: glc_pc_u14
+        description: Land Cover Extent {u} in total watershed upstream of reach pour
+          point {14} spatial extent (%) by class
+      - name: glc_pc_u15
+        description: Land Cover Extent {u} in total watershed upstream of reach pour
+          point {15} spatial extent (%) by class
+      - name: glc_pc_u16
+        description: Land Cover Extent {u} in total watershed upstream of reach pour
+          point {16} spatial extent (%) by class
+      - name: glc_pc_u17
+        description: Land Cover Extent {u} in total watershed upstream of reach pour
+          point {17} spatial extent (%) by class
+      - name: glc_pc_u18
+        description: Land Cover Extent {u} in total watershed upstream of reach pour
+          point {18} spatial extent (%) by class
+      - name: glc_pc_u19
+        description: Land Cover Extent {u} in total watershed upstream of reach pour
+          point {19} spatial extent (%) by class
+      - name: glc_pc_u20
+        description: Land Cover Extent {u} in total watershed upstream of reach pour
+          point {20} spatial extent (%) by class
+      - name: glc_pc_u21
+        description: Land Cover Extent {u} in total watershed upstream of reach pour
+          point {21} spatial extent (%) by class
+      - name: glc_pc_u22
+        description: Land Cover Extent {u} in total watershed upstream of reach pour
+          point {22} spatial extent (%) by class
+      - name: pnv_cl_cmj
+        description: Potential Natural Vegetation Classes {c} in reach catchment {mj}
+          spatial majority
+      - name: pnv_pc_c01
+        description: Potential Natural Vegetation Extent {c} in reach catchment {01}
+          spatial extent (%) by class
+      - name: pnv_pc_c02
+        description: Potential Natural Vegetation Extent {c} in reach catchment {02}
+          spatial extent (%) by class
+      - name: pnv_pc_c03
+        description: Potential Natural Vegetation Extent {c} in reach catchment {03}
+          spatial extent (%) by class
+      - name: pnv_pc_c04
+        description: Potential Natural Vegetation Extent {c} in reach catchment {04}
+          spatial extent (%) by class
+      - name: pnv_pc_c05
+        description: Potential Natural Vegetation Extent {c} in reach catchment {05}
+          spatial extent (%) by class
+      - name: pnv_pc_c06
+        description: Potential Natural Vegetation Extent {c} in reach catchment {06}
+          spatial extent (%) by class
+      - name: pnv_pc_c07
+        description: Potential Natural Vegetation Extent {c} in reach catchment {07}
+          spatial extent (%) by class
+      - name: pnv_pc_c08
+        description: Potential Natural Vegetation Extent {c} in reach catchment {08}
+          spatial extent (%) by class
+      - name: pnv_pc_c09
+        description: Potential Natural Vegetation Extent {c} in reach catchment {09}
+          spatial extent (%) by class
+      - name: pnv_pc_c10
+        description: Potential Natural Vegetation Extent {c} in reach catchment {10}
+          spatial extent (%) by class
+      - name: pnv_pc_c11
+        description: Potential Natural Vegetation Extent {c} in reach catchment {11}
+          spatial extent (%) by class
+      - name: pnv_pc_c12
+        description: Potential Natural Vegetation Extent {c} in reach catchment {12}
+          spatial extent (%) by class
+      - name: pnv_pc_c13
+        description: Potential Natural Vegetation Extent {c} in reach catchment {13}
+          spatial extent (%) by class
+      - name: pnv_pc_c14
+        description: Potential Natural Vegetation Extent {c} in reach catchment {14}
+          spatial extent (%) by class
+      - name: pnv_pc_c15
+        description: Potential Natural Vegetation Extent {c} in reach catchment {15}
+          spatial extent (%) by class
+      - name: pnv_pc_u01
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of reach pour point {01} spatial extent (%) by class
+      - name: pnv_pc_u02
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of reach pour point {02} spatial extent (%) by class
+      - name: pnv_pc_u03
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of reach pour point {03} spatial extent (%) by class
+      - name: pnv_pc_u04
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of reach pour point {04} spatial extent (%) by class
+      - name: pnv_pc_u05
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of reach pour point {05} spatial extent (%) by class
+      - name: pnv_pc_u06
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of reach pour point {06} spatial extent (%) by class
+      - name: pnv_pc_u07
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of reach pour point {07} spatial extent (%) by class
+      - name: pnv_pc_u08
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of reach pour point {08} spatial extent (%) by class
+      - name: pnv_pc_u09
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of reach pour point {09} spatial extent (%) by class
+      - name: pnv_pc_u10
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of reach pour point {10} spatial extent (%) by class
+      - name: pnv_pc_u11
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of reach pour point {11} spatial extent (%) by class
+      - name: pnv_pc_u12
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of reach pour point {12} spatial extent (%) by class
+      - name: pnv_pc_u13
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of reach pour point {13} spatial extent (%) by class
+      - name: pnv_pc_u14
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of reach pour point {14} spatial extent (%) by class
+      - name: pnv_pc_u15
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of reach pour point {15} spatial extent (%) by class
+      - name: wet_cl_cmj
+        description: Wetland Classes {c} in reach catchment {mj} spatial majority
+      - name: wet_pc_cg1
+        description: vazio
+      - name: wet_pc_ug1
+        description: vazio
+      - name: wet_pc_cg2
+        description: vazio
+      - name: wet_pc_ug2
+        description: vazio
+      - name: wet_pc_c01
+        description: Wetland Extent {c} in reach catchment {01} spatial extent (%)
+          by class
+      - name: wet_pc_c02
+        description: Wetland Extent {c} in reach catchment {02} spatial extent (%)
+          by class
+      - name: wet_pc_c03
+        description: Wetland Extent {c} in reach catchment {03} spatial extent (%)
+          by class
+      - name: wet_pc_c04
+        description: Wetland Extent {c} in reach catchment {04} spatial extent (%)
+          by class
+      - name: wet_pc_c05
+        description: Wetland Extent {c} in reach catchment {05} spatial extent (%)
+          by class
+      - name: wet_pc_c06
+        description: Wetland Extent {c} in reach catchment {06} spatial extent (%)
+          by class
+      - name: wet_pc_c07
+        description: Wetland Extent {c} in reach catchment {07} spatial extent (%)
+          by class
+      - name: wet_pc_c08
+        description: Wetland Extent {c} in reach catchment {08} spatial extent (%)
+          by class
+      - name: wet_pc_c09
+        description: Wetland Extent {c} in reach catchment {09} spatial extent (%)
+          by class
+      - name: wet_pc_u01
+        description: Wetland Extent {u} in total watershed upstream of reach pour
+          point {01} spatial extent (%) by class
+      - name: wet_pc_u02
+        description: Wetland Extent {u} in total watershed upstream of reach pour
+          point {02} spatial extent (%) by class
+      - name: wet_pc_u03
+        description: Wetland Extent {u} in total watershed upstream of reach pour
+          point {03} spatial extent (%) by class
+      - name: wet_pc_u04
+        description: Wetland Extent {u} in total watershed upstream of reach pour
+          point {04} spatial extent (%) by class
+      - name: wet_pc_u05
+        description: Wetland Extent {u} in total watershed upstream of reach pour
+          point {05} spatial extent (%) by class
+      - name: wet_pc_u06
+        description: Wetland Extent {u} in total watershed upstream of reach pour
+          point {06} spatial extent (%) by class
+      - name: wet_pc_u07
+        description: Wetland Extent {u} in total watershed upstream of reach pour
+          point {07} spatial extent (%) by class
+      - name: wet_pc_u08
+        description: Wetland Extent {u} in total watershed upstream of reach pour
+          point {08} spatial extent (%) by class
+      - name: wet_pc_u09
+        description: Wetland Extent {u} in total watershed upstream of reach pour
+          point {09} spatial extent (%) by class
+      - name: for_pc_cse
+        description: Forest Cover Extent {c} in reach catchment {se} spatial extent
+          (%)
+      - name: for_pc_use
+        description: Forest Cover Extent {u} in total watershed upstream of reach
+          pour point {se} spatial extent (%)
+      - name: crp_pc_cse
+        description: Cropland Extent {c} in reach catchment {se} spatial extent (%)
+      - name: crp_pc_use
+        description: Cropland Extent {u} in total watershed upstream of reach pour
+          point {se} spatial extent (%)
+      - name: pst_pc_cse
+        description: Pasture Extent {c} in reach catchment {se} spatial extent (%)
+      - name: pst_pc_use
+        description: Pasture Extent {u} in total watershed upstream of reach pour
+          point {se} spatial extent (%)
+      - name: ire_pc_cse
+        description: Irrigated Area Extent (Equipped) {c} in reach catchment {se}
+          spatial extent (%)
+      - name: ire_pc_use
+        description: Irrigated Area Extent (Equipped) {u} in total watershed upstream
+          of reach pour point {se} spatial extent (%)
+      - name: gla_pc_cse
+        description: Glacier Extent {c} in reach catchment {se} spatial extent (%)
+      - name: gla_pc_use
+        description: Glacier Extent {u} in total watershed upstream of reach pour
+          point {se} spatial extent (%)
+      - name: prm_pc_cse
+        description: Permafrost Extent {c} in reach catchment {se} spatial extent
+          (%)
+      - name: prm_pc_use
+        description: Permafrost Extent {u} in total watershed upstream of reach pour
+          point {se} spatial extent (%)
+      - name: pac_pc_cse
+        description: Protected Area Extent {c} in reach catchment {se} spatial extent
+          (%)
+      - name: pac_pc_use
+        description: Protected Area Extent {u} in total watershed upstream of reach
+          pour point {se} spatial extent (%)
+      - name: tbi_cl_cmj
+        description: Terrestrial Biomes {c} in reach catchment {mj} spatial majority
+      - name: tec_cl_cmj
+        description: Terrestrial Ecoregions {c} in reach catchment {mj} spatial majority
+      - name: fmh_cl_cmj
+        description: Freshwater Major Habitat Types {c} in reach catchment {mj} spatial
+          majority
+      - name: fec_cl_cmj
+        description: Freshwater Ecoregions {c} in reach catchment {mj} spatial majority
+      - name: cly_pc_cav
+        description: Clay Fraction in Soil {c} in reach catchment {av} average
+      - name: cly_pc_uav
+        description: Clay Fraction in Soil {u} in total watershed upstream of reach
+          pour point {av} average
+      - name: slt_pc_cav
+        description: Silt Fraction in Soil {c} in reach catchment {av} average
+      - name: slt_pc_uav
+        description: Silt Fraction in Soil {u} in total watershed upstream of reach
+          pour point {av} average
+      - name: snd_pc_cav
+        description: Sand Fraction in Soil {c} in reach catchment {av} average
+      - name: snd_pc_uav
+        description: Sand Fraction in Soil {u} in total watershed upstream of reach
+          pour point {av} average
+      - name: soc_th_cav
+        description: Organic Carbon Content in Soil {c} in reach catchment {av} average
+      - name: soc_th_uav
+        description: Organic Carbon Content in Soil {u} in total watershed upstream
+          of reach pour point {av} average
+      - name: swc_pc_cyr
+        description: Soil Water Content {c} in reach catchment {yr} annual average
+      - name: swc_pc_uyr
+        description: Soil Water Content {u} in total watershed upstream of reach pour
+          point {yr} annual average
+      - name: swc_pc_c01
+        description: Soil Water Content {c} in reach catchment {01} monthly average
+      - name: swc_pc_c02
+        description: Soil Water Content {c} in reach catchment {02} monthly average
+      - name: swc_pc_c03
+        description: Soil Water Content {c} in reach catchment {03} monthly average
+      - name: swc_pc_c04
+        description: Soil Water Content {c} in reach catchment {04} monthly average
+      - name: swc_pc_c05
+        description: Soil Water Content {c} in reach catchment {05} monthly average
+      - name: swc_pc_c06
+        description: Soil Water Content {c} in reach catchment {06} monthly average
+      - name: swc_pc_c07
+        description: Soil Water Content {c} in reach catchment {07} monthly average
+      - name: swc_pc_c08
+        description: Soil Water Content {c} in reach catchment {08} monthly average
+      - name: swc_pc_c09
+        description: Soil Water Content {c} in reach catchment {09} monthly average
+      - name: swc_pc_c10
+        description: Soil Water Content {c} in reach catchment {10} monthly average
+      - name: swc_pc_c11
+        description: Soil Water Content {c} in reach catchment {11} monthly average
+      - name: swc_pc_c12
+        description: Soil Water Content {c} in reach catchment {12} monthly average
+      - name: lit_cl_cmj
+        description: Lithological Classes {c} in reach catchment {mj} spatial majority
+      - name: kar_pc_cse
+        description: Karst Area Extent {c} in reach catchment {se} spatial extent
+          (%)
+      - name: kar_pc_use
+        description: Karst Area Extent {u} in total watershed upstream of reach pour
+          point {se} spatial extent (%)
+      - name: ero_kh_cav
+        description: Soil Erosion {c} in reach catchment {av} average
+      - name: ero_kh_uav
+        description: Soil Erosion {u} in total watershed upstream of reach pour point
+          {av} average
+      - name: pop_ct_csu
+        description: Population Count {c} in reach catchment {su} sum
+      - name: pop_ct_usu
+        description: Population Count {u} in total watershed upstream of reach pour
+          point {su} sum
+      - name: ppd_pk_cav
+        description: Population Density {c} in reach catchment {av} average
+      - name: ppd_pk_uav
+        description: Population Density {u} in total watershed upstream of reach pour
+          point {av} average
+      - name: urb_pc_cse
+        description: Urban Extent {c} in reach catchment {se} spatial extent (%)
+      - name: urb_pc_use
+        description: Urban Extent {u} in total watershed upstream of reach pour point
+          {se} spatial extent (%)
+      - name: nli_ix_cav
+        description: Nighttime Lights {c} in reach catchment {av} average
+      - name: nli_ix_uav
+        description: Nighttime Lights {u} in total watershed upstream of reach pour
+          point {av} average
+      - name: rdd_mk_cav
+        description: Road Density {c} in reach catchment {av} average
+      - name: rdd_mk_uav
+        description: Road Density {u} in total watershed upstream of reach pour point
+          {av} average
+      - name: hft_ix_c93
+        description: Human Footprint {c} in reach catchment {93} year 1993
+      - name: hft_ix_u93
+        description: Human Footprint {u} in total watershed upstream of reach pour
+          point {93} year 1993
+      - name: hft_ix_c09
+        description: Human Footprint {c} in reach catchment {09} year 2009
+      - name: hft_ix_u09
+        description: Human Footprint {u} in total watershed upstream of reach pour
+          point {09} year 2009
+      - name: gad_id_cmj
+        description: Global Administrative Areas {c} in reach catchment {mj} spatial
+          majority
+      - name: gdp_ud_cav
+        description: Gross Domestic Product {c} in reach catchment {av} average
+      - name: gdp_ud_csu
+        description: Gross Domestic Product {c} in reach catchment {su} sum
+      - name: gdp_ud_usu
+        description: vazio
+      - name: hdi_ix_cav
+        description: Human Development Index {c} in reach catchment {av} average
+      - name: geometry
+        description: Data layers are provided in geographic (latitude/longitude) projection,
+          referenced to datum WGS84
+  - name: world_wwf_hydrosheds__basins_atlas
+    description: HydroBASINS represents a series of vectorized polygon layers that
+      depict sub-basin boundaries at a global scale
+    columns:
+      - name: hybas_id
+        description: Unique basin identifier. The code consists of 10 digits
+      - name: next_down
+        description: Hybas_id of the next downstream polygon. This field can be used
+          for navigation (up- and downstream) within the river network
+      - name: next_sink
+        description: Hybas_id of the next downstream sink
+      - name: main_bas
+        description: 'Hybas_id of the most downstream sink, i.e. the outlet of the
+          main river basin. '
+      - name: dist_sink
+        description: Distance from polygon outlet to the next downstream sink along
+          the river network,in kilometers.
+      - name: dist_main
+        description: Distance from polygon outlet to the most downstream sink, i.e.
+          the outlet of the main river basin along the river network, in kilometers.
+      - name: sub_area
+        description: Area of the individual polygon (i.e. sub-basin), in square kilometers.
+      - name: up_area
+        description: Total upstream area, in square kilometers, calculated from the
+          headwaters to the polygon location (including the polygon)
+      - name: pfaf_id
+        description: The Pfafstetter code
+      - name: endo
+        description: Indicator for endorheic (inland) basins without surface flow
+          connection to the ocean
+      - name: coast
+        description: Indicator for lumped coastal basins. Coastal basins represent
+          conglomerates of small coastal watersheds that drain into the ocean between
+          larger river basins
+      - name: order
+        description: Indicator of river order (classical ordering system)
+      - name: sort
+        description: Indicator showing the record number (sequence) in which the original
+          polygons are stored in the shapefile (i.e. counting upwards from 1 in the
+          original shapefile)
+      - name: dis_m3_pyr
+        description: Natural Discharge {p} at sub-basin pour point {yr} annual average
+      - name: dis_m3_pmn
+        description: Natural Discharge {p} at sub-basin pour point {mn} annual minimum
+      - name: dis_m3_pmx
+        description: Natural Discharge {p} at sub-basin pour point {mx} annual maximum
+      - name: run_mm_syr
+        description: Land Surface Runoff {s} in sub-basin {yr} annual average
+      - name: inu_pc_smn
+        description: Inundation Extent {s} in sub-basin {mn} annual minimum
+      - name: inu_pc_umn
+        description: Inundation Extent {u} in total watershed upstream of sub-basin
+          pour point {mn} annual minimum
+      - name: inu_pc_smx
+        description: Inundation Extent {s} in sub-basin {mx} annual maximum
+      - name: inu_pc_umx
+        description: Inundation Extent {u} in total watershed upstream of sub-basin
+          pour point {mx} annual maximum
+      - name: inu_pc_slt
+        description: Inundation Extent {s} in sub-basin {lt} long-term maximum
+      - name: inu_pc_ult
+        description: Inundation Extent {u} in total watershed upstream of sub-basin
+          pour point {lt} long-term maximum
+      - name: lka_pc_sse
+        description: Limnicity (Percent Lake Area) {s} in sub-basin {se} spatial extent
+          (%)
+      - name: lka_pc_use
+        description: Limnicity (Percent Lake Area) {u} in total watershed upstream
+          of sub-basin pour point {se} spatial extent (%)
+      - name: lkv_mc_usu
+        description: Lake Volume {u} in total watershed upstream of sub-basin pour
+          point {su} sum
+      - name: rev_mc_usu
+        description: Reservoir Volume {u} in total watershed upstream of sub-basin
+          pour point {su} sum
+      - name: dor_pc_pva
+        description: Degree of Regulation {p} at sub-basin pour point {va} value
+      - name: ria_ha_ssu
+        description: River Area {s} in sub-basin {su} sum
+      - name: ria_ha_usu
+        description: River Area {u} in total watershed upstream of sub-basin pour
+          point {su} sum
+      - name: riv_tc_ssu
+        description: River Volume {s} in sub-basin {su} sum
+      - name: riv_tc_usu
+        description: River Volume {u} in total watershed upstream of sub-basin pour
+          point {su} sum
+      - name: gwt_cm_sav
+        description: Groundwater Table Depth {s} in sub-basin {av} average
+      - name: ele_mt_sav
+        description: Elevation {s} in sub-basin {av} average
+      - name: ele_mt_uav
+        description: Elevation {u} in total watershed upstream of sub-basin pour point
+          {av} average
+      - name: ele_mt_smn
+        description: Elevation {s} in sub-basin {mn} minimum
+      - name: ele_mt_smx
+        description: Elevation {s} in sub-basin {mx} maximum
+      - name: slp_dg_sav
+        description: Terrain Slope {s} in sub-basin {av} average
+      - name: slp_dg_uav
+        description: Terrain Slope {u} in total watershed upstream of sub-basin pour
+          point {av} average
+      - name: sgr_dk_sav
+        description: Stream Gradient {s} in sub-basin {av} average
+      - name: clz_cl_smj
+        description: Climate Zones {s} in sub-basin {mj} spatial majority
+      - name: cls_cl_smj
+        description: Climate Strata {s} in sub-basin {mj} spatial majority
+      - name: tmp_dc_syr
+        description: Air Temperature {s} in sub-basin {yr} annual average
+      - name: tmp_dc_uyr
+        description: Air Temperature {u} in total watershed upstream of sub-basin
+          pour point {yr} annual average
+      - name: tmp_dc_smn
+        description: Air Temperature {s} in sub-basin {mn} annual minimum
+      - name: tmp_dc_smx
+        description: Air Temperature {s} in sub-basin {mx} annual maximum
+      - name: tmp_dc_s01
+        description: Air Temperature {s} in sub-basin {01} monthly average
+      - name: tmp_dc_s02
+        description: Air Temperature {s} in sub-basin {02} monthly average
+      - name: tmp_dc_s03
+        description: Air Temperature {s} in sub-basin {03} monthly average
+      - name: tmp_dc_s04
+        description: Air Temperature {s} in sub-basin {04} monthly average
+      - name: tmp_dc_s05
+        description: Air Temperature {s} in sub-basin {05} monthly average
+      - name: tmp_dc_s06
+        description: Air Temperature {s} in sub-basin {06} monthly average
+      - name: tmp_dc_s07
+        description: Air Temperature {s} in sub-basin {07} monthly average
+      - name: tmp_dc_s08
+        description: Air Temperature {s} in sub-basin {08} monthly average
+      - name: tmp_dc_s09
+        description: Air Temperature {s} in sub-basin {09} monthly average
+      - name: tmp_dc_s10
+        description: Air Temperature {s} in sub-basin {10} monthly average
+      - name: tmp_dc_s11
+        description: Air Temperature {s} in sub-basin {11} monthly average
+      - name: tmp_dc_s12
+        description: Air Temperature {s} in sub-basin {12} monthly average
+      - name: pre_mm_syr
+        description: Precipitation {s} in sub-basin {yr} annual average
+      - name: pre_mm_uyr
+        description: Precipitation {u} in total watershed upstream of sub-basin pour
+          point {yr} annual average
+      - name: pre_mm_s01
+        description: Precipitation {s} in sub-basin {01} monthly average
+      - name: pre_mm_s02
+        description: Precipitation {s} in sub-basin {02} monthly average
+      - name: pre_mm_s03
+        description: Precipitation {s} in sub-basin {03} monthly average
+      - name: pre_mm_s04
+        description: Precipitation {s} in sub-basin {04} monthly average
+      - name: pre_mm_s05
+        description: Precipitation {s} in sub-basin {05} monthly average
+      - name: pre_mm_s06
+        description: Precipitation {s} in sub-basin {06} monthly average
+      - name: pre_mm_s07
+        description: Precipitation {s} in sub-basin {07} monthly average
+      - name: pre_mm_s08
+        description: Precipitation {s} in sub-basin {08} monthly average
+      - name: pre_mm_s09
+        description: Precipitation {s} in sub-basin {09} monthly average
+      - name: pre_mm_s10
+        description: Precipitation {s} in sub-basin {10} monthly average
+      - name: pre_mm_s11
+        description: Precipitation {s} in sub-basin {11} monthly average
+      - name: pre_mm_s12
+        description: Precipitation {s} in sub-basin {12} monthly average
+      - name: pet_mm_syr
+        description: Potential Evapotranspiration {s} in sub-basin {yr} annual average
+      - name: pet_mm_uyr
+        description: Potential Evapotranspiration {u} in total watershed upstream
+          of sub-basin pour point {yr} annual average
+      - name: pet_mm_s01
+        description: Potential Evapotranspiration {s} in sub-basin {01} monthly average
+      - name: pet_mm_s02
+        description: Potential Evapotranspiration {s} in sub-basin {02} monthly average
+      - name: pet_mm_s03
+        description: Potential Evapotranspiration {s} in sub-basin {03} monthly average
+      - name: pet_mm_s04
+        description: Potential Evapotranspiration {s} in sub-basin {04} monthly average
+      - name: pet_mm_s05
+        description: Potential Evapotranspiration {s} in sub-basin {05} monthly average
+      - name: pet_mm_s06
+        description: Potential Evapotranspiration {s} in sub-basin {06} monthly average
+      - name: pet_mm_s07
+        description: Potential Evapotranspiration {s} in sub-basin {07} monthly average
+      - name: pet_mm_s08
+        description: Potential Evapotranspiration {s} in sub-basin {08} monthly average
+      - name: pet_mm_s09
+        description: Potential Evapotranspiration {s} in sub-basin {09} monthly average
+      - name: pet_mm_s10
+        description: Potential Evapotranspiration {s} in sub-basin {10} monthly average
+      - name: pet_mm_s11
+        description: Potential Evapotranspiration {s} in sub-basin {11} monthly average
+      - name: pet_mm_s12
+        description: Potential Evapotranspiration {s} in sub-basin {12} monthly average
+      - name: aet_mm_syr
+        description: Actual Evapotranspiration {s} in sub-basin {yr} annual average
+      - name: aet_mm_uyr
+        description: Actual Evapotranspiration {u} in total watershed upstream of
+          sub-basin pour point {yr} annual average
+      - name: aet_mm_s01
+        description: Actual Evapotranspiration {s} in sub-basin {01} monthly average
+      - name: aet_mm_s02
+        description: Actual Evapotranspiration {s} in sub-basin {02} monthly average
+      - name: aet_mm_s03
+        description: Actual Evapotranspiration {s} in sub-basin {03} monthly average
+      - name: aet_mm_s04
+        description: Actual Evapotranspiration {s} in sub-basin {04} monthly average
+      - name: aet_mm_s05
+        description: Actual Evapotranspiration {s} in sub-basin {05} monthly average
+      - name: aet_mm_s06
+        description: Actual Evapotranspiration {s} in sub-basin {06} monthly average
+      - name: aet_mm_s07
+        description: Actual Evapotranspiration {s} in sub-basin {07} monthly average
+      - name: aet_mm_s08
+        description: Actual Evapotranspiration {s} in sub-basin {08} monthly average
+      - name: aet_mm_s09
+        description: Actual Evapotranspiration {s} in sub-basin {09} monthly average
+      - name: aet_mm_s10
+        description: Actual Evapotranspiration {s} in sub-basin {10} monthly average
+      - name: aet_mm_s11
+        description: Actual Evapotranspiration {s} in sub-basin {11} monthly average
+      - name: aet_mm_s12
+        description: Actual Evapotranspiration {s} in sub-basin {12} monthly average
+      - name: ari_ix_sav
+        description: Global Aridity Index {s} in sub-basin {av} average
+      - name: ari_ix_uav
+        description: Global Aridity Index {u} in total watershed upstream of sub-basin
+          pour point {av} average
+      - name: cmi_ix_syr
+        description: Climate Moisture Index {s} in sub-basin {yr} annual average
+      - name: cmi_ix_uyr
+        description: Climate Moisture Index {u} in total watershed upstream of sub-basin
+          pour point {yr} annual average
+      - name: cmi_ix_s01
+        description: Climate Moisture Index {s} in sub-basin {01} monthly average
+      - name: cmi_ix_s02
+        description: Climate Moisture Index {s} in sub-basin {02} monthly average
+      - name: cmi_ix_s03
+        description: Climate Moisture Index {s} in sub-basin {03} monthly average
+      - name: cmi_ix_s04
+        description: Climate Moisture Index {s} in sub-basin {04} monthly average
+      - name: cmi_ix_s05
+        description: Climate Moisture Index {s} in sub-basin {05} monthly average
+      - name: cmi_ix_s06
+        description: Climate Moisture Index {s} in sub-basin {06} monthly average
+      - name: cmi_ix_s07
+        description: Climate Moisture Index {s} in sub-basin {07} monthly average
+      - name: cmi_ix_s08
+        description: Climate Moisture Index {s} in sub-basin {08} monthly average
+      - name: cmi_ix_s09
+        description: Climate Moisture Index {s} in sub-basin {09} monthly average
+      - name: cmi_ix_s10
+        description: Climate Moisture Index {s} in sub-basin {10} monthly average
+      - name: cmi_ix_s11
+        description: Climate Moisture Index {s} in sub-basin {11} monthly average
+      - name: cmi_ix_s12
+        description: Climate Moisture Index {s} in sub-basin {12} monthly average
+      - name: snw_pc_syr
+        description: Snow Cover Extent {s} in sub-basin {yr} annual average
+      - name: snw_pc_uyr
+        description: Snow Cover Extent {u} in total watershed upstream of sub-basin
+          pour point {yr} annual average
+      - name: snw_pc_smx
+        description: Snow Cover Extent {s} in sub-basin {mx} annual maximum
+      - name: snw_pc_s01
+        description: Snow Cover Extent {s} in sub-basin {01} monthly average
+      - name: snw_pc_s02
+        description: Snow Cover Extent {s} in sub-basin {02} monthly average
+      - name: snw_pc_s03
+        description: Snow Cover Extent {s} in sub-basin {03} monthly average
+      - name: snw_pc_s04
+        description: Snow Cover Extent {s} in sub-basin {04} monthly average
+      - name: snw_pc_s05
+        description: Snow Cover Extent {s} in sub-basin {05} monthly average
+      - name: snw_pc_s06
+        description: Snow Cover Extent {s} in sub-basin {06} monthly average
+      - name: snw_pc_s07
+        description: Snow Cover Extent {s} in sub-basin {07} monthly average
+      - name: snw_pc_s08
+        description: Snow Cover Extent {s} in sub-basin {08} monthly average
+      - name: snw_pc_s09
+        description: Snow Cover Extent {s} in sub-basin {09} monthly average
+      - name: snw_pc_s10
+        description: Snow Cover Extent {s} in sub-basin {10} monthly average
+      - name: snw_pc_s11
+        description: Snow Cover Extent {s} in sub-basin {11} monthly average
+      - name: snw_pc_s12
+        description: Snow Cover Extent {s} in sub-basin {12} monthly average
+      - name: glc_cl_smj
+        description: Land Cover Classes {s} in sub-basin {mj} spatial majority
+      - name: glc_pc_s01
+        description: Land Cover Extent {s} in sub-basin {01} spatial extent (%) by
+          class
+      - name: glc_pc_s02
+        description: Land Cover Extent {s} in sub-basin {02} spatial extent (%) by
+          class
+      - name: glc_pc_s03
+        description: Land Cover Extent {s} in sub-basin {03} spatial extent (%) by
+          class
+      - name: glc_pc_s04
+        description: Land Cover Extent {s} in sub-basin {04} spatial extent (%) by
+          class
+      - name: glc_pc_s05
+        description: Land Cover Extent {s} in sub-basin {05} spatial extent (%) by
+          class
+      - name: glc_pc_s06
+        description: Land Cover Extent {s} in sub-basin {06} spatial extent (%) by
+          class
+      - name: glc_pc_s07
+        description: Land Cover Extent {s} in sub-basin {07} spatial extent (%) by
+          class
+      - name: glc_pc_s08
+        description: Land Cover Extent {s} in sub-basin {08} spatial extent (%) by
+          class
+      - name: glc_pc_s09
+        description: Land Cover Extent {s} in sub-basin {09} spatial extent (%) by
+          class
+      - name: glc_pc_s10
+        description: Land Cover Extent {s} in sub-basin {10} spatial extent (%) by
+          class
+      - name: glc_pc_s11
+        description: Land Cover Extent {s} in sub-basin {11} spatial extent (%) by
+          class
+      - name: glc_pc_s12
+        description: Land Cover Extent {s} in sub-basin {12} spatial extent (%) by
+          class
+      - name: glc_pc_s13
+        description: Land Cover Extent {s} in sub-basin {13} spatial extent (%) by
+          class
+      - name: glc_pc_s14
+        description: Land Cover Extent {s} in sub-basin {14} spatial extent (%) by
+          class
+      - name: glc_pc_s15
+        description: Land Cover Extent {s} in sub-basin {15} spatial extent (%) by
+          class
+      - name: glc_pc_s16
+        description: Land Cover Extent {s} in sub-basin {16} spatial extent (%) by
+          class
+      - name: glc_pc_s17
+        description: Land Cover Extent {s} in sub-basin {17} spatial extent (%) by
+          class
+      - name: glc_pc_s18
+        description: Land Cover Extent {s} in sub-basin {18} spatial extent (%) by
+          class
+      - name: glc_pc_s19
+        description: Land Cover Extent {s} in sub-basin {19} spatial extent (%) by
+          class
+      - name: glc_pc_s20
+        description: Land Cover Extent {s} in sub-basin {20} spatial extent (%) by
+          class
+      - name: glc_pc_s21
+        description: Land Cover Extent {s} in sub-basin {21} spatial extent (%) by
+          class
+      - name: glc_pc_s22
+        description: Land Cover Extent {s} in sub-basin {22} spatial extent (%) by
+          class
+      - name: glc_pc_u01
+        description: Land Cover Extent {u} in total watershed upstream of sub-basin
+          pour point {01} spatial extent (%) by class
+      - name: glc_pc_u02
+        description: Land Cover Extent {u} in total watershed upstream of sub-basin
+          pour point {02} spatial extent (%) by class
+      - name: glc_pc_u03
+        description: Land Cover Extent {u} in total watershed upstream of sub-basin
+          pour point {03} spatial extent (%) by class
+      - name: glc_pc_u04
+        description: Land Cover Extent {u} in total watershed upstream of sub-basin
+          pour point {04} spatial extent (%) by class
+      - name: glc_pc_u05
+        description: Land Cover Extent {u} in total watershed upstream of sub-basin
+          pour point {05} spatial extent (%) by class
+      - name: glc_pc_u06
+        description: Land Cover Extent {u} in total watershed upstream of sub-basin
+          pour point {06} spatial extent (%) by class
+      - name: glc_pc_u07
+        description: Land Cover Extent {u} in total watershed upstream of sub-basin
+          pour point {07} spatial extent (%) by class
+      - name: glc_pc_u08
+        description: Land Cover Extent {u} in total watershed upstream of sub-basin
+          pour point {08} spatial extent (%) by class
+      - name: glc_pc_u09
+        description: Land Cover Extent {u} in total watershed upstream of sub-basin
+          pour point {09} spatial extent (%) by class
+      - name: glc_pc_u10
+        description: Land Cover Extent {u} in total watershed upstream of sub-basin
+          pour point {10} spatial extent (%) by class
+      - name: glc_pc_u11
+        description: Land Cover Extent {u} in total watershed upstream of sub-basin
+          pour point {11} spatial extent (%) by class
+      - name: glc_pc_u12
+        description: Land Cover Extent {u} in total watershed upstream of sub-basin
+          pour point {12} spatial extent (%) by class
+      - name: glc_pc_u13
+        description: Land Cover Extent {u} in total watershed upstream of sub-basin
+          pour point {13} spatial extent (%) by class
+      - name: glc_pc_u14
+        description: Land Cover Extent {u} in total watershed upstream of sub-basin
+          pour point {14} spatial extent (%) by class
+      - name: glc_pc_u15
+        description: Land Cover Extent {u} in total watershed upstream of sub-basin
+          pour point {15} spatial extent (%) by class
+      - name: glc_pc_u16
+        description: Land Cover Extent {u} in total watershed upstream of sub-basin
+          pour point {16} spatial extent (%) by class
+      - name: glc_pc_u17
+        description: Land Cover Extent {u} in total watershed upstream of sub-basin
+          pour point {17} spatial extent (%) by class
+      - name: glc_pc_u18
+        description: Land Cover Extent {u} in total watershed upstream of sub-basin
+          pour point {18} spatial extent (%) by class
+      - name: glc_pc_u19
+        description: Land Cover Extent {u} in total watershed upstream of sub-basin
+          pour point {19} spatial extent (%) by class
+      - name: glc_pc_u20
+        description: Land Cover Extent {u} in total watershed upstream of sub-basin
+          pour point {20} spatial extent (%) by class
+      - name: glc_pc_u21
+        description: Land Cover Extent {u} in total watershed upstream of sub-basin
+          pour point {21} spatial extent (%) by class
+      - name: glc_pc_u22
+        description: Land Cover Extent {u} in total watershed upstream of sub-basin
+          pour point {22} spatial extent (%) by class
+      - name: pnv_cl_smj
+        description: Potential Natural Vegetation Classes {s} in sub-basin {mj} spatial
+          majority
+      - name: pnv_pc_s01
+        description: Potential Natural Vegetation Extent {s} in sub-basin {01} spatial
+          extent (%) by class
+      - name: pnv_pc_s02
+        description: Potential Natural Vegetation Extent {s} in sub-basin {02} spatial
+          extent (%) by class
+      - name: pnv_pc_s03
+        description: Potential Natural Vegetation Extent {s} in sub-basin {03} spatial
+          extent (%) by class
+      - name: pnv_pc_s04
+        description: Potential Natural Vegetation Extent {s} in sub-basin {04} spatial
+          extent (%) by class
+      - name: pnv_pc_s05
+        description: Potential Natural Vegetation Extent {s} in sub-basin {05} spatial
+          extent (%) by class
+      - name: pnv_pc_s06
+        description: Potential Natural Vegetation Extent {s} in sub-basin {06} spatial
+          extent (%) by class
+      - name: pnv_pc_s07
+        description: Potential Natural Vegetation Extent {s} in sub-basin {07} spatial
+          extent (%) by class
+      - name: pnv_pc_s08
+        description: Potential Natural Vegetation Extent {s} in sub-basin {08} spatial
+          extent (%) by class
+      - name: pnv_pc_s09
+        description: Potential Natural Vegetation Extent {s} in sub-basin {09} spatial
+          extent (%) by class
+      - name: pnv_pc_s10
+        description: Potential Natural Vegetation Extent {s} in sub-basin {10} spatial
+          extent (%) by class
+      - name: pnv_pc_s11
+        description: Potential Natural Vegetation Extent {s} in sub-basin {11} spatial
+          extent (%) by class
+      - name: pnv_pc_s12
+        description: Potential Natural Vegetation Extent {s} in sub-basin {12} spatial
+          extent (%) by class
+      - name: pnv_pc_s13
+        description: Potential Natural Vegetation Extent {s} in sub-basin {13} spatial
+          extent (%) by class
+      - name: pnv_pc_s14
+        description: Potential Natural Vegetation Extent {s} in sub-basin {14} spatial
+          extent (%) by class
+      - name: pnv_pc_s15
+        description: Potential Natural Vegetation Extent {s} in sub-basin {15} spatial
+          extent (%) by class
+      - name: pnv_pc_u01
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of sub-basin pour point {01} spatial extent (%) by class
+      - name: pnv_pc_u02
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of sub-basin pour point {02} spatial extent (%) by class
+      - name: pnv_pc_u03
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of sub-basin pour point {03} spatial extent (%) by class
+      - name: pnv_pc_u04
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of sub-basin pour point {04} spatial extent (%) by class
+      - name: pnv_pc_u05
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of sub-basin pour point {05} spatial extent (%) by class
+      - name: pnv_pc_u06
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of sub-basin pour point {06} spatial extent (%) by class
+      - name: pnv_pc_u07
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of sub-basin pour point {07} spatial extent (%) by class
+      - name: pnv_pc_u08
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of sub-basin pour point {08} spatial extent (%) by class
+      - name: pnv_pc_u09
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of sub-basin pour point {09} spatial extent (%) by class
+      - name: pnv_pc_u10
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of sub-basin pour point {10} spatial extent (%) by class
+      - name: pnv_pc_u11
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of sub-basin pour point {11} spatial extent (%) by class
+      - name: pnv_pc_u12
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of sub-basin pour point {12} spatial extent (%) by class
+      - name: pnv_pc_u13
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of sub-basin pour point {13} spatial extent (%) by class
+      - name: pnv_pc_u14
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of sub-basin pour point {14} spatial extent (%) by class
+      - name: pnv_pc_u15
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of sub-basin pour point {15} spatial extent (%) by class
+      - name: wet_cl_smj
+        description: Wetland Classes {s} in sub-basin {mj} spatial majority
+      - name: wet_pc_sg1
+        description: vazio
+      - name: wet_pc_ug1
+        description: vazio
+      - name: wet_pc_sg2
+        description: vazio
+      - name: wet_pc_ug2
+        description: vazio
+      - name: wet_pc_s01
+        description: Wetland Extent {s} in sub-basin {01} spatial extent (%) by class
+      - name: wet_pc_s02
+        description: Wetland Extent {s} in sub-basin {02} spatial extent (%) by class
+      - name: wet_pc_s03
+        description: Wetland Extent {s} in sub-basin {03} spatial extent (%) by class
+      - name: wet_pc_s04
+        description: Wetland Extent {s} in sub-basin {04} spatial extent (%) by class
+      - name: wet_pc_s05
+        description: Wetland Extent {s} in sub-basin {05} spatial extent (%) by class
+      - name: wet_pc_s06
+        description: Wetland Extent {s} in sub-basin {06} spatial extent (%) by class
+      - name: wet_pc_s07
+        description: Wetland Extent {s} in sub-basin {07} spatial extent (%) by class
+      - name: wet_pc_s08
+        description: Wetland Extent {s} in sub-basin {08} spatial extent (%) by class
+      - name: wet_pc_s09
+        description: Wetland Extent {s} in sub-basin {09} spatial extent (%) by class
+      - name: wet_pc_u01
+        description: Wetland Extent {u} in total watershed upstream of sub-basin pour
+          point {01} spatial extent (%) by class
+      - name: wet_pc_u02
+        description: Wetland Extent {u} in total watershed upstream of sub-basin pour
+          point {02} spatial extent (%) by class
+      - name: wet_pc_u03
+        description: Wetland Extent {u} in total watershed upstream of sub-basin pour
+          point {03} spatial extent (%) by class
+      - name: wet_pc_u04
+        description: Wetland Extent {u} in total watershed upstream of sub-basin pour
+          point {04} spatial extent (%) by class
+      - name: wet_pc_u05
+        description: Wetland Extent {u} in total watershed upstream of sub-basin pour
+          point {05} spatial extent (%) by class
+      - name: wet_pc_u06
+        description: Wetland Extent {u} in total watershed upstream of sub-basin pour
+          point {06} spatial extent (%) by class
+      - name: wet_pc_u07
+        description: Wetland Extent {u} in total watershed upstream of sub-basin pour
+          point {07} spatial extent (%) by class
+      - name: wet_pc_u08
+        description: Wetland Extent {u} in total watershed upstream of sub-basin pour
+          point {08} spatial extent (%) by class
+      - name: wet_pc_u09
+        description: Wetland Extent {u} in total watershed upstream of sub-basin pour
+          point {09} spatial extent (%) by class
+      - name: for_pc_sse
+        description: Forest Cover Extent {s} in sub-basin {se} spatial extent (%)
+      - name: for_pc_use
+        description: Forest Cover Extent {u} in total watershed upstream of sub-basin
+          pour point {se} spatial extent (%)
+      - name: crp_pc_sse
+        description: Cropland Extent {s} in sub-basin {se} spatial extent (%)
+      - name: crp_pc_use
+        description: Cropland Extent {u} in total watershed upstream of sub-basin
+          pour point {se} spatial extent (%)
+      - name: pst_pc_sse
+        description: Pasture Extent {s} in sub-basin {se} spatial extent (%)
+      - name: pst_pc_use
+        description: Pasture Extent {u} in total watershed upstream of sub-basin pour
+          point {se} spatial extent (%)
+      - name: ire_pc_sse
+        description: Irrigated Area Extent (Equipped) {s} in sub-basin {se} spatial
+          extent (%)
+      - name: ire_pc_use
+        description: Irrigated Area Extent (Equipped) {u} in total watershed upstream
+          of sub-basin pour point {se} spatial extent (%)
+      - name: gla_pc_sse
+        description: Glacier Extent {s} in sub-basin {se} spatial extent (%)
+      - name: gla_pc_use
+        description: Glacier Extent {u} in total watershed upstream of sub-basin pour
+          point {se} spatial extent (%)
+      - name: prm_pc_sse
+        description: Permafrost Extent {s} in sub-basin {se} spatial extent (%)
+      - name: prm_pc_use
+        description: Permafrost Extent {u} in total watershed upstream of sub-basin
+          pour point {se} spatial extent (%)
+      - name: pac_pc_sse
+        description: Protected Area Extent {s} in sub-basin {se} spatial extent (%)
+      - name: pac_pc_use
+        description: Protected Area Extent {u} in total watershed upstream of sub-basin
+          pour point {se} spatial extent (%)
+      - name: tbi_cl_smj
+        description: Terrestrial Biomes {s} in sub-basin {mj} spatial majority
+      - name: tec_cl_smj
+        description: Terrestrial Ecoregions {s} in sub-basin {mj} spatial majority
+      - name: fmh_cl_smj
+        description: Freshwater Major Habitat Types {s} in sub-basin {mj} spatial
+          majority
+      - name: fec_cl_smj
+        description: Freshwater Ecoregions {s} in sub-basin {mj} spatial majority
+      - name: cly_pc_sav
+        description: Clay Fraction in Soil {s} in sub-basin {av} average
+      - name: cly_pc_uav
+        description: Clay Fraction in Soil {u} in total watershed upstream of sub-basin
+          pour point {av} average
+      - name: slt_pc_sav
+        description: Silt Fraction in Soil {s} in sub-basin {av} average
+      - name: slt_pc_uav
+        description: Silt Fraction in Soil {u} in total watershed upstream of sub-basin
+          pour point {av} average
+      - name: snd_pc_sav
+        description: Sand Fraction in Soil {s} in sub-basin {av} average
+      - name: snd_pc_uav
+        description: Sand Fraction in Soil {u} in total watershed upstream of sub-basin
+          pour point {av} average
+      - name: soc_th_sav
+        description: Organic Carbon Content in Soil {s} in sub-basin {av} average
+      - name: soc_th_uav
+        description: Organic Carbon Content in Soil {u} in total watershed upstream
+          of sub-basin pour point {av} average
+      - name: swc_pc_syr
+        description: Soil Water Content {s} in sub-basin {yr} annual average
+      - name: swc_pc_uyr
+        description: Soil Water Content {u} in total watershed upstream of sub-basin
+          pour point {yr} annual average
+      - name: swc_pc_s01
+        description: Soil Water Content {s} in sub-basin {01} monthly average
+      - name: swc_pc_s02
+        description: Soil Water Content {s} in sub-basin {02} monthly average
+      - name: swc_pc_s03
+        description: Soil Water Content {s} in sub-basin {03} monthly average
+      - name: swc_pc_s04
+        description: Soil Water Content {s} in sub-basin {04} monthly average
+      - name: swc_pc_s05
+        description: Soil Water Content {s} in sub-basin {05} monthly average
+      - name: swc_pc_s06
+        description: Soil Water Content {s} in sub-basin {06} monthly average
+      - name: swc_pc_s07
+        description: Soil Water Content {s} in sub-basin {07} monthly average
+      - name: swc_pc_s08
+        description: Soil Water Content {s} in sub-basin {08} monthly average
+      - name: swc_pc_s09
+        description: Soil Water Content {s} in sub-basin {09} monthly average
+      - name: swc_pc_s10
+        description: Soil Water Content {s} in sub-basin {10} monthly average
+      - name: swc_pc_s11
+        description: Soil Water Content {s} in sub-basin {11} monthly average
+      - name: swc_pc_s12
+        description: Soil Water Content {s} in sub-basin {12} monthly average
+      - name: lit_cl_smj
+        description: Lithological Classes {s} in sub-basin {mj} spatial majority
+      - name: kar_pc_sse
+        description: Karst Area Extent {s} in sub-basin {se} spatial extent (%)
+      - name: kar_pc_use
+        description: Karst Area Extent {u} in total watershed upstream of sub-basin
+          pour point {se} spatial extent (%)
+      - name: ero_kh_sav
+        description: Soil Erosion {s} in sub-basin {av} average
+      - name: ero_kh_uav
+        description: Soil Erosion {u} in total watershed upstream of sub-basin pour
+          point {av} average
+      - name: pop_ct_ssu
+        description: Population Count {s} in sub-basin {su} sum
+      - name: pop_ct_usu
+        description: Population Count {u} in total watershed upstream of sub-basin
+          pour point {su} sum
+      - name: ppd_pk_sav
+        description: Population Density {s} in sub-basin {av} average
+      - name: ppd_pk_uav
+        description: Population Density {u} in total watershed upstream of sub-basin
+          pour point {av} average
+      - name: urb_pc_sse
+        description: vazio
+      - name: urb_pc_use
+        description: Urban Extent {u} in total watershed upstream of reach pour point
+          {se} spatial extent (%)
+      - name: nli_ix_sav
+        description: Nighttime Lights {s} in sub-basin {av} average
+      - name: nli_ix_uav
+        description: Nighttime Lights {u} in total watershed upstream of sub-basin
+          pour point {av} average
+      - name: rdd_mk_sav
+        description: Road Density {s} in sub-basin {av} average
+      - name: rdd_mk_uav
+        description: Road Density {u} in total watershed upstream of sub-basin pour
+          point {av} average
+      - name: hft_ix_s93
+        description: Human Footprint {s} in sub-basin {93} year 1993
+      - name: hft_ix_u93
+        description: Human Footprint {u} in total watershed upstream of sub-basin
+          pour point {93} year 1993
+      - name: hft_ix_s09
+        description: Human Footprint {s} in sub-basin {09} year 2009
+      - name: hft_ix_u09
+        description: Human Footprint {u} in total watershed upstream of sub-basin
+          pour point {09} year 2009
+      - name: gad_id_smj
+        description: Global Administrative Areas {s} in sub-basin {mj} spatial majority
+      - name: gdp_ud_sav
+        description: Gross Domestic Product {s} in sub-basin {av} average
+      - name: gdp_ud_ssu
+        description: Gross Domestic Product {s} in sub-basin {su} sum
+      - name: gdp_ud_usu
+        description: vazio
+      - name: hdi_ix_sav
+        description: Human Development Index {s} in sub-basin {av} average
+      - name: geometry
+        description: "The polygon data sets of HydroBASINS are distributed in ESRI\
+          \ ‘shapefile’ format (ESRI 1998).\nEach HydroBASINS shapefile consists of\
+          \ five main files (.dbf, .sbn, .sbx, .shp, .shx).\nAdditionally, basic metadata\
+          \ information is provided in XML format (.xml). Projection\ninformation\
+          \ is provided in an ASCII text file (.prj). All shapefiles are in geographic\n\
+          (latitude/longitude) projection, referenced to datum WGS84"
+  - name: world_wwf_hydrosheds__lakes_atlas
+    description: HydroLAKES aims to provide the shoreline polygons of all global lakes
+      with a surface area of at least 10 ha
+    columns:
+      - name: hylak_id
+        description: Unique lake identifier
+      - name: lake_name
+        description: Name of lake or reservoir
+      - name: country
+        description: Country that the lake (or reservoir) is located in
+      - name: continent
+        description: Continent that the lake (or reservoir) is located in
+      - name: poly_src
+        description: Source of original lake polygon
+      - name: lake_type
+        description: Indicator for lake type
+      - name: grand_id
+        description: ID of the corresponding reservoir in the GRanD database
+      - name: lake_area
+        description: Lake surface area (i.e. polygon area)
+      - name: shore_len
+        description: Length of shoreline (i.e. polygon outline)
+      - name: shore_dev
+        description: Shoreline development, measured as the ratio between shoreline
+          length and the circumference of a circle with the same area
+      - name: vol_total
+        description: Total lake or reservoir volume, in million cubic meters (1 mcm
+          = 0.001 km 3).
+      - name: vol_res
+        description: Reported reservoir volume, or storage volume of added lake regulation,
+          in million cubic meters (1 mcm = 0.001 km3)
+      - name: vol_src
+        description: Total volume source
+      - name: depth_avg
+        description: Average lake depth, in meters
+      - name: dis_avg
+        description: Average long-term discharge flowing through the lake, in cubic
+          meters per second
+      - name: res_time
+        description: Average residence time of the lake water, in days
+      - name: elevation
+        description: Elevation of lake surface, in meters above sea level
+      - name: slope_100
+        description: Average slope within a 100 meter buffer around the lake polygon,
+          in degrees
+      - name: wshd_area
+        description: Area of the watershed associated with the lake, in square kilometers
+      - name: pour_long
+        description: Longitude of the lake pour point, in decimal degrees
+      - name: pour_lat
+        description: Latitude of the lake pour point, in decimal degrees
+      - name: hybas_l12
+        description: HYBAS_ID of the corresponding HydroBASINS sub-basin in which
+          the river reach resides. This ID refers to HydroBASINS at Pfafstetter level
+          12 (without lakes)
+      - name: hyriv_rch
+        description: HYRIV_ID of the corresponding HydroRIVERS stream reach into which
+          the lake drains at its pour point location
+      - name: hyriv_cat
+        description: HYRIV_ID of the corresponding HydroRIVERS reach catchment (i.e.,
+          the catchment that directly drains into the stream reach) in which the lake’s
+          pour point resides
+      - name: dis_m3_pyr
+        description: Natural Discharge {p} at lake pour point {yr} annual average
+      - name: dis_m3_pmn
+        description: Natural Discharge {p} at lake pour point {mn} annual minimum
+      - name: dis_m3_pmx
+        description: Natural Discharge {p} at lake pour point {mx} annual maximum
+      - name: run_mm_vyr
+        description: Land Surface Runoff {v} within 3 km vicinity of lake {yr} annual
+          average
+      - name: inu_pc_vmn
+        description: Inundation Extent {v} within 3 km vicinity of lake {mn} annual
+          minimum
+      - name: inu_pc_umn
+        description: Inundation Extent {u} in total watershed upstream of lake pour
+          point {mn} annual minimum
+      - name: inu_pc_vmx
+        description: Inundation Extent {v} within 3 km vicinity of lake {mx} annual
+          maximum
+      - name: inu_pc_umx
+        description: Inundation Extent {u} in total watershed upstream of lake pour
+          point {mx} annual maximum
+      - name: inu_pc_vlt
+        description: Inundation Extent {v} within 3 km vicinity of lake {lt} long-term
+          maximum
+      - name: inu_pc_ult
+        description: Inundation Extent {u} in total watershed upstream of lake pour
+          point {lt} long-term maximum
+      - name: lka_pc_vse
+        description: Limnicity (Percent Lake Area) {v} within 3 km vicinity of lake
+          {se} spatial extent (%)
+      - name: lka_pc_use
+        description: Limnicity (Percent Lake Area) {u} in total watershed upstream
+          of lake pour point {se} spatial extent (%)
+      - name: lkv_mc_usu
+        description: Lake Volume {u} in total watershed upstream of lake pour point
+          {su} sum
+      - name: rev_mc_usu
+        description: Reservoir Volume {u} in total watershed upstream of lake pour
+          point {su} sum
+      - name: dor_pc_pva
+        description: Degree of Regulation {p} at lake pour point {va} value
+      - name: ria_ha_vsu
+        description: River Area {v} within 3 km vicinity of lake {su} sum
+      - name: ria_ha_usu
+        description: River Area {u} in total watershed upstream of lake pour point
+          {su} sum
+      - name: riv_tc_vsu
+        description: River Volume {v} within 3 km vicinity of lake {su} sum
+      - name: riv_tc_usu
+        description: River Volume {u} in total watershed upstream of lake pour point
+          {su} sum
+      - name: gwt_cm_vav
+        description: Groundwater Table Depth {v} within 3 km vicinity of lake {av}
+          average
+      - name: ele_mt_lav
+        description: Elevation {l} in lake {av} average
+      - name: ele_mt_uav
+        description: Elevation {u} in total watershed upstream of lake pour point
+          {av} average
+      - name: ele_mt_lmn
+        description: Elevation {l} in lake {mn} minimum
+      - name: ele_mt_vmx
+        description: Elevation {v} within 3 km vicinity of lake {mx} maximum
+      - name: slp_dg_vav
+        description: Terrain Slope {v} within 3 km vicinity of lake {av} average
+      - name: slp_dg_uav
+        description: Terrain Slope {u} in total watershed upstream of lake pour point
+          {av} average
+      - name: sgr_dk_vav
+        description: Stream Gradient {v} within 3 km vicinity of lake {av} average
+      - name: clz_cl_lmj
+        description: Climate Zones {l} inside lake polygon {mj} spatial majority
+      - name: cls_cl_lmj
+        description: Climate Strata {l} inside lake polygon {mj} spatial majority
+      - name: tmp_dc_lyr
+        description: Air Temperature {l} inside lake polygon {yr} annual average
+      - name: tmp_dc_uyr
+        description: Air Temperature {u} in total watershed upstream of lake pour
+          point {yr} annual average
+      - name: tmp_dc_lmn
+        description: Air Temperature {l} inside lake polygon {mn} annual minimum
+      - name: tmp_dc_lmx
+        description: Air Temperature {l} inside lake polygon {mx} annual maximum
+      - name: tmp_dc_l01
+        description: Air Temperature {l} inside lake polygon {01} monthly average
+      - name: tmp_dc_l02
+        description: Air Temperature {l} inside lake polygon {02} monthly average
+      - name: tmp_dc_l03
+        description: Air Temperature {l} inside lake polygon {03} monthly average
+      - name: tmp_dc_l04
+        description: Air Temperature {l} inside lake polygon {04} monthly average
+      - name: tmp_dc_l05
+        description: Air Temperature {l} inside lake polygon {05} monthly average
+      - name: tmp_dc_l06
+        description: Air Temperature {l} inside lake polygon {06} monthly average
+      - name: tmp_dc_l07
+        description: Air Temperature {l} inside lake polygon {07} monthly average
+      - name: tmp_dc_l08
+        description: Air Temperature {l} inside lake polygon {08} monthly average
+      - name: tmp_dc_l09
+        description: Air Temperature {l} inside lake polygon {09} monthly average
+      - name: tmp_dc_l10
+        description: Air Temperature {l} inside lake polygon {10} monthly average
+      - name: tmp_dc_l11
+        description: Air Temperature {l} inside lake polygon {11} monthly average
+      - name: tmp_dc_l12
+        description: Air Temperature {l} inside lake polygon {12} monthly average
+      - name: pre_mm_lyr
+        description: Precipitation {l} inside lake polygon {yr} annual average
+      - name: pre_mm_uyr
+        description: Precipitation {u} in total watershed upstream of lake pour point
+          {yr} annual average
+      - name: pre_mm_l01
+        description: Precipitation {l} inside lake polygon {01} monthly average
+      - name: pre_mm_l02
+        description: Precipitation {l} inside lake polygon {02} monthly average
+      - name: pre_mm_l03
+        description: Precipitation {l} inside lake polygon {03} monthly average
+      - name: pre_mm_l04
+        description: Precipitation {l} inside lake polygon {04} monthly average
+      - name: pre_mm_l05
+        description: Precipitation {l} inside lake polygon {05} monthly average
+      - name: pre_mm_l06
+        description: Precipitation {l} inside lake polygon {06} monthly average
+      - name: pre_mm_l07
+        description: Precipitation {l} inside lake polygon {07} monthly average
+      - name: pre_mm_l08
+        description: Precipitation {l} inside lake polygon {08} monthly average
+      - name: pre_mm_l09
+        description: Precipitation {l} inside lake polygon {09} monthly average
+      - name: pre_mm_l10
+        description: Precipitation {l} inside lake polygon {10} monthly average
+      - name: pre_mm_l11
+        description: Precipitation {l} inside lake polygon {11} monthly average
+      - name: pre_mm_l12
+        description: Precipitation {l} inside lake polygon {12} monthly average
+      - name: pet_mm_lyr
+        description: Potential Evapotranspiration {l} inside lake polygon {yr} annual
+          average
+      - name: pet_mm_uyr
+        description: Potential Evapotranspiration {u} in total watershed upstream
+          of lake pour point {yr} annual average
+      - name: pet_mm_l01
+        description: Potential Evapotranspiration {l} inside lake polygon {01} monthly
+          average
+      - name: pet_mm_l02
+        description: Potential Evapotranspiration {l} inside lake polygon {02} monthly
+          average
+      - name: pet_mm_l03
+        description: Potential Evapotranspiration {l} inside lake polygon {03} monthly
+          average
+      - name: pet_mm_l04
+        description: Potential Evapotranspiration {l} inside lake polygon {04} monthly
+          average
+      - name: pet_mm_l05
+        description: Potential Evapotranspiration {l} inside lake polygon {05} monthly
+          average
+      - name: pet_mm_l06
+        description: Potential Evapotranspiration {l} inside lake polygon {06} monthly
+          average
+      - name: pet_mm_l07
+        description: Potential Evapotranspiration {l} inside lake polygon {07} monthly
+          average
+      - name: pet_mm_l08
+        description: Potential Evapotranspiration {l} inside lake polygon {08} monthly
+          average
+      - name: pet_mm_l09
+        description: Potential Evapotranspiration {l} inside lake polygon {09} monthly
+          average
+      - name: pet_mm_l10
+        description: Potential Evapotranspiration {l} inside lake polygon {10} monthly
+          average
+      - name: pet_mm_l11
+        description: Potential Evapotranspiration {l} inside lake polygon {11} monthly
+          average
+      - name: pet_mm_l12
+        description: Potential Evapotranspiration {l} inside lake polygon {12} monthly
+          average
+      - name: aet_mm_vyr
+        description: Actual Evapotranspiration {v} within 3 km vicinity of lake {yr}
+          annual average
+      - name: aet_mm_uyr
+        description: Actual Evapotranspiration {u} in total watershed upstream of
+          lake pour point {yr} annual average
+      - name: aet_mm_v01
+        description: Actual Evapotranspiration {v} within 3 km vicinity of lake {01}
+          monthly average
+      - name: aet_mm_v02
+        description: Actual Evapotranspiration {v} within 3 km vicinity of lake {02}
+          monthly average
+      - name: aet_mm_v03
+        description: Actual Evapotranspiration {v} within 3 km vicinity of lake {03}
+          monthly average
+      - name: aet_mm_v04
+        description: Actual Evapotranspiration {v} within 3 km vicinity of lake {04}
+          monthly average
+      - name: aet_mm_v05
+        description: Actual Evapotranspiration {v} within 3 km vicinity of lake {05}
+          monthly average
+      - name: aet_mm_v06
+        description: Actual Evapotranspiration {v} within 3 km vicinity of lake {06}
+          monthly average
+      - name: aet_mm_v07
+        description: Actual Evapotranspiration {v} within 3 km vicinity of lake {07}
+          monthly average
+      - name: aet_mm_v08
+        description: Actual Evapotranspiration {v} within 3 km vicinity of lake {08}
+          monthly average
+      - name: aet_mm_v09
+        description: Actual Evapotranspiration {v} within 3 km vicinity of lake {09}
+          monthly average
+      - name: aet_mm_v10
+        description: Actual Evapotranspiration {v} within 3 km vicinity of lake {10}
+          monthly average
+      - name: aet_mm_v11
+        description: Actual Evapotranspiration {v} within 3 km vicinity of lake {11}
+          monthly average
+      - name: aet_mm_v12
+        description: Actual Evapotranspiration {v} within 3 km vicinity of lake {12}
+          monthly average
+      - name: ari_ix_lav
+        description: Global Aridity Index {l} inside lake polygon {av} average
+      - name: ari_ix_uav
+        description: Global Aridity Index {u} in total watershed upstream of lake
+          pour point {av} average
+      - name: cmi_ix_lyr
+        description: Climate Moisture Index {l} inside lake polygon {yr} annual average
+      - name: cmi_ix_uyr
+        description: Climate Moisture Index {u} in total watershed upstream of lake
+          pour point {yr} annual average
+      - name: cmi_ix_l01
+        description: Climate Moisture Index {l} inside lake polygon {01} monthly average
+      - name: cmi_ix_l02
+        description: Climate Moisture Index {l} inside lake polygon {02} monthly average
+      - name: cmi_ix_l03
+        description: Climate Moisture Index {l} inside lake polygon {03} monthly average
+      - name: cmi_ix_l04
+        description: Climate Moisture Index {l} inside lake polygon {04} monthly average
+      - name: cmi_ix_l05
+        description: Climate Moisture Index {l} inside lake polygon {05} monthly average
+      - name: cmi_ix_l06
+        description: Climate Moisture Index {l} inside lake polygon {06} monthly average
+      - name: cmi_ix_l07
+        description: Climate Moisture Index {l} inside lake polygon {07} monthly average
+      - name: cmi_ix_l08
+        description: Climate Moisture Index {l} inside lake polygon {08} monthly average
+      - name: cmi_ix_l09
+        description: Climate Moisture Index {l} inside lake polygon {09} monthly average
+      - name: cmi_ix_l10
+        description: Climate Moisture Index {l} inside lake polygon {10} monthly average
+      - name: cmi_ix_l11
+        description: Climate Moisture Index {l} inside lake polygon {11} monthly average
+      - name: cmi_ix_l12
+        description: Climate Moisture Index {l} inside lake polygon {12} monthly average
+      - name: snw_pc_vyr
+        description: Snow Cover Extent {v} within 3 km vicinity of lake {yr} annual
+          average
+      - name: snw_pc_uyr
+        description: Snow Cover Extent {u} in total watershed upstream of lake pour
+          point {yr} annual average
+      - name: snw_pc_vmx
+        description: Snow Cover Extent {v} within 3 km vicinity of lake {mx} annual
+          maximum
+      - name: snw_pc_v01
+        description: Snow Cover Extent {v} within 3 km vicinity of lake {01} monthly
+          average
+      - name: snw_pc_v02
+        description: Snow Cover Extent {v} within 3 km vicinity of lake {02} monthly
+          average
+      - name: snw_pc_v03
+        description: Snow Cover Extent {v} within 3 km vicinity of lake {03} monthly
+          average
+      - name: snw_pc_v04
+        description: Snow Cover Extent {v} within 3 km vicinity of lake {04} monthly
+          average
+      - name: snw_pc_v05
+        description: Snow Cover Extent {v} within 3 km vicinity of lake {05} monthly
+          average
+      - name: snw_pc_v06
+        description: Snow Cover Extent {v} within 3 km vicinity of lake {06} monthly
+          average
+      - name: snw_pc_v07
+        description: Snow Cover Extent {v} within 3 km vicinity of lake {07} monthly
+          average
+      - name: snw_pc_v08
+        description: Snow Cover Extent {v} within 3 km vicinity of lake {08} monthly
+          average
+      - name: snw_pc_v09
+        description: Snow Cover Extent {v} within 3 km vicinity of lake {09} monthly
+          average
+      - name: snw_pc_v10
+        description: Snow Cover Extent {v} within 3 km vicinity of lake {10} monthly
+          average
+      - name: snw_pc_v11
+        description: Snow Cover Extent {v} within 3 km vicinity of lake {11} monthly
+          average
+      - name: snw_pc_v12
+        description: Snow Cover Extent {v} within 3 km vicinity of lake {12} monthly
+          average
+      - name: glc_cl_vmj
+        description: Land Cover Classes {v} within 3 km vicinity of lake {mj} spatial
+          majority
+      - name: glc_pc_v01
+        description: Land Cover Extent {v} within 3 km vicinity of lake {01} spatial
+          extent (%) by class
+      - name: glc_pc_v02
+        description: Land Cover Extent {v} within 3 km vicinity of lake {02} spatial
+          extent (%) by class
+      - name: glc_pc_v03
+        description: Land Cover Extent {v} within 3 km vicinity of lake {03} spatial
+          extent (%) by class
+      - name: glc_pc_v04
+        description: Land Cover Extent {v} within 3 km vicinity of lake {04} spatial
+          extent (%) by class
+      - name: glc_pc_v05
+        description: Land Cover Extent {v} within 3 km vicinity of lake {05} spatial
+          extent (%) by class
+      - name: glc_pc_v06
+        description: Land Cover Extent {v} within 3 km vicinity of lake {06} spatial
+          extent (%) by class
+      - name: glc_pc_v07
+        description: Land Cover Extent {v} within 3 km vicinity of lake {07} spatial
+          extent (%) by class
+      - name: glc_pc_v08
+        description: Land Cover Extent {v} within 3 km vicinity of lake {08} spatial
+          extent (%) by class
+      - name: glc_pc_v09
+        description: Land Cover Extent {v} within 3 km vicinity of lake {09} spatial
+          extent (%) by class
+      - name: glc_pc_v10
+        description: Land Cover Extent {v} within 3 km vicinity of lake {10} spatial
+          extent (%) by class
+      - name: glc_pc_v11
+        description: Land Cover Extent {v} within 3 km vicinity of lake {11} spatial
+          extent (%) by class
+      - name: glc_pc_v12
+        description: Land Cover Extent {v} within 3 km vicinity of lake {12} spatial
+          extent (%) by class
+      - name: glc_pc_v13
+        description: Land Cover Extent {v} within 3 km vicinity of lake {13} spatial
+          extent (%) by class
+      - name: glc_pc_v14
+        description: Land Cover Extent {v} within 3 km vicinity of lake {14} spatial
+          extent (%) by class
+      - name: glc_pc_v15
+        description: Land Cover Extent {v} within 3 km vicinity of lake {15} spatial
+          extent (%) by class
+      - name: glc_pc_v16
+        description: Land Cover Extent {v} within 3 km vicinity of lake {16} spatial
+          extent (%) by class
+      - name: glc_pc_v17
+        description: Land Cover Extent {v} within 3 km vicinity of lake {17} spatial
+          extent (%) by class
+      - name: glc_pc_v18
+        description: Land Cover Extent {v} within 3 km vicinity of lake {18} spatial
+          extent (%) by class
+      - name: glc_pc_v19
+        description: Land Cover Extent {v} within 3 km vicinity of lake {19} spatial
+          extent (%) by class
+      - name: glc_pc_v20
+        description: Land Cover Extent {v} within 3 km vicinity of lake {20} spatial
+          extent (%) by class
+      - name: glc_pc_v21
+        description: Land Cover Extent {v} within 3 km vicinity of lake {21} spatial
+          extent (%) by class
+      - name: glc_pc_v22
+        description: Land Cover Extent {v} within 3 km vicinity of lake {22} spatial
+          extent (%) by class
+      - name: glc_pc_u01
+        description: Land Cover Extent {u} in total watershed upstream of lake pour
+          point {01} spatial extent (%) by class
+      - name: glc_pc_u02
+        description: Land Cover Extent {u} in total watershed upstream of lake pour
+          point {02} spatial extent (%) by class
+      - name: glc_pc_u03
+        description: Land Cover Extent {u} in total watershed upstream of lake pour
+          point {03} spatial extent (%) by class
+      - name: glc_pc_u04
+        description: Land Cover Extent {u} in total watershed upstream of lake pour
+          point {04} spatial extent (%) by class
+      - name: glc_pc_u05
+        description: Land Cover Extent {u} in total watershed upstream of lake pour
+          point {05} spatial extent (%) by class
+      - name: glc_pc_u06
+        description: Land Cover Extent {u} in total watershed upstream of lake pour
+          point {06} spatial extent (%) by class
+      - name: glc_pc_u07
+        description: Land Cover Extent {u} in total watershed upstream of lake pour
+          point {07} spatial extent (%) by class
+      - name: glc_pc_u08
+        description: Land Cover Extent {u} in total watershed upstream of lake pour
+          point {08} spatial extent (%) by class
+      - name: glc_pc_u09
+        description: Land Cover Extent {u} in total watershed upstream of lake pour
+          point {09} spatial extent (%) by class
+      - name: glc_pc_u10
+        description: Land Cover Extent {u} in total watershed upstream of lake pour
+          point {10} spatial extent (%) by class
+      - name: glc_pc_u11
+        description: Land Cover Extent {u} in total watershed upstream of lake pour
+          point {11} spatial extent (%) by class
+      - name: glc_pc_u12
+        description: Land Cover Extent {u} in total watershed upstream of lake pour
+          point {12} spatial extent (%) by class
+      - name: glc_pc_u13
+        description: Land Cover Extent {u} in total watershed upstream of lake pour
+          point {13} spatial extent (%) by class
+      - name: glc_pc_u14
+        description: Land Cover Extent {u} in total watershed upstream of lake pour
+          point {14} spatial extent (%) by class
+      - name: glc_pc_u15
+        description: Land Cover Extent {u} in total watershed upstream of lake pour
+          point {15} spatial extent (%) by class
+      - name: glc_pc_u16
+        description: Land Cover Extent {u} in total watershed upstream of lake pour
+          point {16} spatial extent (%) by class
+      - name: glc_pc_u17
+        description: Land Cover Extent {u} in total watershed upstream of lake pour
+          point {17} spatial extent (%) by class
+      - name: glc_pc_u18
+        description: Land Cover Extent {u} in total watershed upstream of lake pour
+          point {18} spatial extent (%) by class
+      - name: glc_pc_u19
+        description: Land Cover Extent {u} in total watershed upstream of lake pour
+          point {19} spatial extent (%) by class
+      - name: glc_pc_u20
+        description: Land Cover Extent {u} in total watershed upstream of lake pour
+          point {20} spatial extent (%) by class
+      - name: glc_pc_u21
+        description: Land Cover Extent {u} in total watershed upstream of lake pour
+          point {21} spatial extent (%) by class
+      - name: glc_pc_u22
+        description: Land Cover Extent {u} in total watershed upstream of lake pour
+          point {22} spatial extent (%) by class
+      - name: pnv_cl_vmj
+        description: Potential Natural Vegetation Classes {v} within 3 km vicinity
+          of lake {mj} spatial majority
+      - name: pnv_pc_v01
+        description: Potential Natural Vegetation Extent {v} within 3 km vicinity
+          of lake {01} spatial extent (%) by class
+      - name: pnv_pc_v02
+        description: Potential Natural Vegetation Extent {v} within 3 km vicinity
+          of lake {02} spatial extent (%) by class
+      - name: pnv_pc_v03
+        description: Potential Natural Vegetation Extent {v} within 3 km vicinity
+          of lake {03} spatial extent (%) by class
+      - name: pnv_pc_v04
+        description: Potential Natural Vegetation Extent {v} within 3 km vicinity
+          of lake {04} spatial extent (%) by class
+      - name: pnv_pc_v05
+        description: Potential Natural Vegetation Extent {v} within 3 km vicinity
+          of lake {05} spatial extent (%) by class
+      - name: pnv_pc_v06
+        description: Potential Natural Vegetation Extent {v} within 3 km vicinity
+          of lake {06} spatial extent (%) by class
+      - name: pnv_pc_v07
+        description: Potential Natural Vegetation Extent {v} within 3 km vicinity
+          of lake {07} spatial extent (%) by class
+      - name: pnv_pc_v08
+        description: Potential Natural Vegetation Extent {v} within 3 km vicinity
+          of lake {08} spatial extent (%) by class
+      - name: pnv_pc_v09
+        description: Potential Natural Vegetation Extent {v} within 3 km vicinity
+          of lake {09} spatial extent (%) by class
+      - name: pnv_pc_v10
+        description: Potential Natural Vegetation Extent {v} within 3 km vicinity
+          of lake {10} spatial extent (%) by class
+      - name: pnv_pc_v11
+        description: Potential Natural Vegetation Extent {v} within 3 km vicinity
+          of lake {11} spatial extent (%) by class
+      - name: pnv_pc_v12
+        description: Potential Natural Vegetation Extent {v} within 3 km vicinity
+          of lake {12} spatial extent (%) by class
+      - name: pnv_pc_v13
+        description: Potential Natural Vegetation Extent {v} within 3 km vicinity
+          of lake {13} spatial extent (%) by class
+      - name: pnv_pc_v14
+        description: Potential Natural Vegetation Extent {v} within 3 km vicinity
+          of lake {14} spatial extent (%) by class
+      - name: pnv_pc_v15
+        description: Potential Natural Vegetation Extent {v} within 3 km vicinity
+          of lake {15} spatial extent (%) by class
+      - name: pnv_pc_u01
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of lake pour point {01} spatial extent (%) by class
+      - name: pnv_pc_u02
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of lake pour point {02} spatial extent (%) by class
+      - name: pnv_pc_u03
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of lake pour point {03} spatial extent (%) by class
+      - name: pnv_pc_u04
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of lake pour point {04} spatial extent (%) by class
+      - name: pnv_pc_u05
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of lake pour point {05} spatial extent (%) by class
+      - name: pnv_pc_u06
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of lake pour point {06} spatial extent (%) by class
+      - name: pnv_pc_u07
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of lake pour point {07} spatial extent (%) by class
+      - name: pnv_pc_u08
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of lake pour point {08} spatial extent (%) by class
+      - name: pnv_pc_u09
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of lake pour point {09} spatial extent (%) by class
+      - name: pnv_pc_u10
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of lake pour point {10} spatial extent (%) by class
+      - name: pnv_pc_u11
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of lake pour point {11} spatial extent (%) by class
+      - name: pnv_pc_u12
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of lake pour point {12} spatial extent (%) by class
+      - name: pnv_pc_u13
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of lake pour point {13} spatial extent (%) by class
+      - name: pnv_pc_u14
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of lake pour point {14} spatial extent (%) by class
+      - name: pnv_pc_u15
+        description: Potential Natural Vegetation Extent {u} in total watershed upstream
+          of lake pour point {15} spatial extent (%) by class
+      - name: wet_cl_vmj
+        description: Wetland Classes {v} within 3 km vicinity of lake {mj} spatial
+          majority
+      - name: wet_pc_vg1
+        description: vazio
+      - name: wet_pc_ug1
+        description: vazio
+      - name: wet_pc_vg2
+        description: vazio
+      - name: wet_pc_ug2
+        description: vazio
+      - name: wet_pc_v01
+        description: Wetland Extent {v} within 3 km vicinity of lake {01} spatial
+          extent (%) by class
+      - name: wet_pc_v02
+        description: Wetland Extent {v} within 3 km vicinity of lake {02} spatial
+          extent (%) by class
+      - name: wet_pc_v03
+        description: Wetland Extent {v} within 3 km vicinity of lake {03} spatial
+          extent (%) by class
+      - name: wet_pc_v04
+        description: Wetland Extent {v} within 3 km vicinity of lake {04} spatial
+          extent (%) by class
+      - name: wet_pc_v05
+        description: Wetland Extent {v} within 3 km vicinity of lake {05} spatial
+          extent (%) by class
+      - name: wet_pc_v06
+        description: Wetland Extent {v} within 3 km vicinity of lake {06} spatial
+          extent (%) by class
+      - name: wet_pc_v07
+        description: Wetland Extent {v} within 3 km vicinity of lake {07} spatial
+          extent (%) by class
+      - name: wet_pc_v08
+        description: Wetland Extent {v} within 3 km vicinity of lake {08} spatial
+          extent (%) by class
+      - name: wet_pc_v09
+        description: Wetland Extent {v} within 3 km vicinity of lake {09} spatial
+          extent (%) by class
+      - name: wet_pc_u01
+        description: Wetland Extent {u} in total watershed upstream of lake pour point
+          {01} spatial extent (%) by class
+      - name: wet_pc_u02
+        description: Wetland Extent {u} in total watershed upstream of lake pour point
+          {02} spatial extent (%) by class
+      - name: wet_pc_u03
+        description: Wetland Extent {u} in total watershed upstream of lake pour point
+          {03} spatial extent (%) by class
+      - name: wet_pc_u04
+        description: Wetland Extent {u} in total watershed upstream of lake pour point
+          {04} spatial extent (%) by class
+      - name: wet_pc_u05
+        description: Wetland Extent {u} in total watershed upstream of lake pour point
+          {05} spatial extent (%) by class
+      - name: wet_pc_u06
+        description: Wetland Extent {u} in total watershed upstream of lake pour point
+          {06} spatial extent (%) by class
+      - name: wet_pc_u07
+        description: Wetland Extent {u} in total watershed upstream of lake pour point
+          {07} spatial extent (%) by class
+      - name: wet_pc_u08
+        description: Wetland Extent {u} in total watershed upstream of lake pour point
+          {08} spatial extent (%) by class
+      - name: wet_pc_u09
+        description: Wetland Extent {u} in total watershed upstream of lake pour point
+          {09} spatial extent (%) by class
+      - name: for_pc_vse
+        description: Forest Cover Extent {v} within 3 km vicinity of lake {se} spatial
+          extent (%)
+      - name: for_pc_use
+        description: Forest Cover Extent {u} in total watershed upstream of lake pour
+          point {se} spatial extent (%)
+      - name: crp_pc_vse
+        description: Cropland Extent {v} within 3 km vicinity of lake {se} spatial
+          extent (%)
+      - name: crp_pc_use
+        description: Cropland Extent {u} in total watershed upstream of lake pour
+          point {se} spatial extent (%)
+      - name: pst_pc_vse
+        description: Pasture Extent {v} within 3 km vicinity of lake {se} spatial
+          extent (%)
+      - name: pst_pc_use
+        description: Pasture Extent {u} in total watershed upstream of lake pour point
+          {se} spatial extent (%)
+      - name: ire_pc_vse
+        description: Irrigated Area Extent (Equipped) {v} within 3 km vicinity of
+          lake {se} spatial extent (%)
+      - name: ire_pc_use
+        description: Irrigated Area Extent (Equipped) {u} in total watershed upstream
+          of lake pour point {se} spatial extent (%)
+      - name: gla_pc_vse
+        description: Glacier Extent {v} within 3 km vicinity of lake {se} spatial
+          extent (%)
+      - name: gla_pc_use
+        description: Glacier Extent {u} in total watershed upstream of lake pour point
+          {se} spatial extent (%)
+      - name: prm_pc_vse
+        description: Permafrost Extent {v} within 3 km vicinity of lake {se} spatial
+          extent (%)
+      - name: prm_pc_use
+        description: Permafrost Extent {u} in total watershed upstream of lake pour
+          point {se} spatial extent (%)
+      - name: pac_pc_lse
+        description: Protected Area Extent {l} inside lake polygon {se} spatial extent
+          (%)
+      - name: pac_pc_use
+        description: Protected Area Extent {u} in total watershed upstream of lake
+          pour point {se} spatial extent (%)
+      - name: tbi_cl_lmj
+        description: Terrestrial Biomes {l} inside lake polygon {mj} spatial majority
+      - name: tec_cl_lmj
+        description: Terrestrial Ecoregions {l} inside lake polygon {mj} spatial majority
+      - name: fmh_cl_lmj
+        description: Freshwater Major Habitat Types {l} inside lake polygon {mj} spatial
+          majority
+      - name: fec_cl_lmj
+        description: Freshwater Ecoregions {l} inside lake polygon {mj} spatial majority
+      - name: cly_pc_vav
+        description: Clay Fraction in Soil {v} within 3 km vicinity of lake {av} average
+      - name: cly_pc_uav
+        description: Clay Fraction in Soil {u} in total watershed upstream of lake
+          pour point {av} average
+      - name: slt_pc_vav
+        description: Silt Fraction in Soil {v} within 3 km vicinity of lake {av} average
+      - name: slt_pc_uav
+        description: Silt Fraction in Soil {u} in total watershed upstream of lake
+          pour point {av} average
+      - name: snd_pc_vav
+        description: Sand Fraction in Soil {v} within 3 km vicinity of lake {av} average
+      - name: snd_pc_uav
+        description: Sand Fraction in Soil {u} in total watershed upstream of lake
+          pour point {av} average
+      - name: soc_th_vav
+        description: Organic Carbon Content in Soil {v} within 3 km vicinity of lake
+          {av} average
+      - name: soc_th_uav
+        description: Organic Carbon Content in Soil {u} in total watershed upstream
+          of lake pour point {av} average
+      - name: swc_pc_vyr
+        description: Soil Water Content {v} within 3 km vicinity of lake {yr} annual
+          average
+      - name: swc_pc_uyr
+        description: Soil Water Content {u} in total watershed upstream of lake pour
+          point {yr} annual average
+      - name: swc_pc_v01
+        description: Soil Water Content {v} within 3 km vicinity of lake {01} monthly
+          average
+      - name: swc_pc_v02
+        description: Soil Water Content {v} within 3 km vicinity of lake {02} monthly
+          average
+      - name: swc_pc_v03
+        description: Soil Water Content {v} within 3 km vicinity of lake {03} monthly
+          average
+      - name: swc_pc_v04
+        description: Soil Water Content {v} within 3 km vicinity of lake {04} monthly
+          average
+      - name: swc_pc_v05
+        description: Soil Water Content {v} within 3 km vicinity of lake {05} monthly
+          average
+      - name: swc_pc_v06
+        description: Soil Water Content {v} within 3 km vicinity of lake {06} monthly
+          average
+      - name: swc_pc_v07
+        description: Soil Water Content {v} within 3 km vicinity of lake {07} monthly
+          average
+      - name: swc_pc_v08
+        description: Soil Water Content {v} within 3 km vicinity of lake {08} monthly
+          average
+      - name: swc_pc_v09
+        description: Soil Water Content {v} within 3 km vicinity of lake {09} monthly
+          average
+      - name: swc_pc_v10
+        description: Soil Water Content {v} within 3 km vicinity of lake {10} monthly
+          average
+      - name: swc_pc_v11
+        description: Soil Water Content {v} within 3 km vicinity of lake {11} monthly
+          average
+      - name: swc_pc_v12
+        description: Soil Water Content {v} within 3 km vicinity of lake {12} monthly
+          average
+      - name: lit_cl_vmj
+        description: Lithological Classes {v} within 3 km vicinity of lake {mj} spatial
+          majority
+      - name: kar_pc_vse
+        description: Karst Area Extent {v} within 3 km vicinity of lake {se} spatial
+          extent (%)
+      - name: kar_pc_use
+        description: Karst Area Extent {u} in total watershed upstream of lake pour
+          point {se} spatial extent (%)
+      - name: ero_kh_vav
+        description: Soil Erosion {v} within 3 km vicinity of lake {av} average
+      - name: ero_kh_uav
+        description: Soil Erosion {u} in total watershed upstream of lake pour point
+          {av} average
+      - name: pop_ct_vsu
+        description: Population Count {v} within 3 km vicinity of lake {su} sum
+      - name: pop_ct_usu
+        description: Population Count {u} in total watershed upstream of lake pour
+          point {su} sum
+      - name: ppd_pk_vav
+        description: Population Density {v} within 3 km vicinity of lake {av} average
+      - name: ppd_pk_uav
+        description: Population Density {u} in total watershed upstream of lake pour
+          point {av} average
+      - name: urb_pc_vse
+        description: Urban Extent {v} within 3 km vicinity of lake {se} spatial extent
+          (%)
+      - name: urb_pc_use
+        description: Urban Extent {u} in total watershed upstream of lake pour point
+          {se} spatial extent (%)
+      - name: nli_ix_vav
+        description: Nighttime Lights {v} within 3 km vicinity of lake {av} average
+      - name: nli_ix_uav
+        description: Nighttime Lights {u} in total watershed upstream of lake pour
+          point {av} average
+      - name: rdd_mk_vav
+        description: Road Density {v} within 3 km vicinity of lake {av} average
+      - name: rdd_mk_uav
+        description: Road Density {u} in total watershed upstream of lake pour point
+          {av} average
+      - name: hft_ix_v93
+        description: Human Footprint {v} within 3 km vicinity of lake {93} year 1993
+      - name: hft_ix_u93
+        description: Human Footprint {u} in total watershed upstream of lake pour
+          point {93} year 1993
+      - name: hft_ix_v09
+        description: Human Footprint {v} within 3 km vicinity of lake {09} year 2009
+      - name: hft_ix_u09
+        description: Human Footprint {u} in total watershed upstream of lake pour
+          point {09} year 2009
+      - name: gad_id_lmj
+        description: Global Administrative Areas {l} inside lake polygon {mj} spatial
+          majority
+      - name: gdp_ud_vav
+        description: Gross Domestic Product {v} within 3 km vicinity of lake {av}
+          average
+      - name: gdp_ud_vsu
+        description: Gross Domestic Product {v} within 3 km vicinity of lake {su}
+          sum
+      - name: gdp_ud_usu
+        description: Gross Domestic Product {u} in total watershed upstream of lake
+          pour point {su} sum
+      - name: hdi_ix_vav
+        description: Human Development Index {v} within 3 km vicinity of lake {av}
+          average
+      - name: geometry
+        description: Data layers are provided in geographic (latitude/longitude) projection,
+          referenced to datumnWGS84

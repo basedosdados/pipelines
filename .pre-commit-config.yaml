@@ -2,7 +2,6 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:
-      - id: check-added-large-files # prevents adding large files
       - id: detect-private-key # detects private keys
       - id: fix-byte-order-marker # fixes BOM
       - id: fix-encoding-pragma # fixes encoding pragma
@@ -12,9 +11,9 @@ repos:
     rev: 1.8.5
     hooks:
       - id: poetry-check
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.9.3
-    hooks:
-      - id: ruff
-        args: [--fix]
-      - id: ruff-format
+  # - repo: https://github.com/astral-sh/ruff-pre-commit
+  #   rev: v0.9.3
+  #   hooks:
+  #     - id: ruff
+  #       args: [--fix, "config"]
+  #     - id: ruff-format

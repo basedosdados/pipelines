@@ -1,0 +1,117 @@
+---
+version: 2
+models:
+  - name: br_cgu_dados_abertos__organizacao
+    description: Lista de organizações no portal de Dados Abertos
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id
+        description: ID da organização
+      - name: nome
+        description: Nome da organização
+      - name: nome_tokenizado
+        description: Nome da organização tokenizado
+      - name: descricao
+        description: Descrição da organização
+      - name: tipo_esfera_administrativa
+        description: Tipo de esfera administrativa
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município IBGE 7 dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: quantidade_seguidores
+        description: Quantidade de seguidores
+      - name: quantidade_conjuntos
+        description: Quantidade de conjuntos de dados
+  - name: br_cgu_dados_abertos__conjunto
+    description: Lista de conjuntos de dados no portal de Dados Abertos
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id
+        description: ID do conjunto de dados
+      - name: nome
+        description: Nome do conjunto de dados
+      - name: nome_tokenizado
+        description: Nome do conjunto de dados tokenizado
+      - name: descricao
+        description: Descrição do conjunto de dados
+      - name: mantenedor
+        description: Nome do mantenedor do conjunto de dados
+      - name: email_mantenedor
+        description: E-mail do mantenedor do conjunto de dados
+      - name: id_organizacao_responsavel
+        description: ID da organização responsável
+      - name: organizacao_responsavel
+        description: Nome da organização responsável
+      - name: data_criacao
+        description: Data de criação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: data_atualizacao
+        description: Data da última atualização
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: quantidade_reusos
+        description: Quantidade de reusos
+      - name: quantidade_recursos
+        description: Quantidade de recursos
+      - name: quantidade_downloads
+        description: Quantidade de downloads
+  - name: br_cgu_dados_abertos__recurso
+    description: Lista de recursos no portal de Dados Abertos
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id, id_conjunto]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id
+        description: ID do recurso
+      - name: id_conjunto
+        description: ID do conjunto de dados
+      - name: nome
+        description: Nome do recurso
+      - name: descricao
+        description: Descrição do recurso
+      - name: tipo
+        description: Tipo de dado do recurso
+      - name: formato
+        description: Formato de dado do recurso
+      - name: tamanho_bytes
+        description: Tamanho do recurso em bytes
+      - name: url_download
+        description: URL para download
+      - name: data_criacao
+        description: Data de criação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: data_modificacao_metadados
+        description: Data da última modificação de metadados
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: quantidade_downloads
+        description: Quantidade de downloads

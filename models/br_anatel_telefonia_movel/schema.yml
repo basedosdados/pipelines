@@ -1,0 +1,142 @@
+---
+version: 2
+models:
+  - name: br_anatel_telefonia_movel__microdados
+    description: Dados de telefonia móvel (também conhecido como Serviço Móvel Pessoal)
+      a partir de 2019, após reformulação da coleta e divulgação de dados por parte
+      da Anatel, que apresentam o município como menor nível de desagregação dos dados.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ref('ano.ano')
+      - name: mes
+        description: Mês
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: mes
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: ddd
+        description: Código de Discagem Direta a Distância
+      - name: cnpj
+        description: Cadastro Nacional de Pessoa Jurídica
+      - name: empresa
+        description: Nome da empresa
+      - name: porte_empresa
+        description: Porte da empresa
+      - name: tecnologia
+        description: Tecnologia
+      - name: sinal
+        description: Geração de Sistemas Celulares
+      - name: modalidade
+        description: Modalidade de contrato, se pré ou pós-pago
+      - name: pessoa
+        description: Contrato atrelado a Pessoa Física ou Pessoa Jurídica
+      - name: produto
+        description: Tipo de Produto
+      - name: acessos
+        description: Número total de acessos
+  - name: br_anatel_telefonia_movel__densidade_brasil
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    description: Densidade de acessos por domicílios de Telefonia móvel no Brasil
+      por mês e ano
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ref('ano.ano')
+      - name: mes
+        description: Mês
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: mes
+      - name: densidade
+        description: Densidade de acessos por 100 domicílios
+  - name: br_anatel_telefonia_movel__densidade_uf
+    description: Densidade de acessos por domicílios de Telefonia móvel nos estados
+      por mês e ano
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, sigla_uf]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ref('ano.ano')
+      - name: mes
+        description: Mês
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: mes
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: densidade
+        description: Densidade de acessos por 100 domicílios
+  - name: br_anatel_telefonia_movel__densidade_municipio
+    description: Densidade de acessos por domicílios de Telefonia móvel nos municípios
+      por mês e ano
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, id_municipio]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ref('ano.ano')
+      - name: mes
+        description: Mês
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: mes
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: densidade
+        description: Densidade de acessos por 100 domicílios

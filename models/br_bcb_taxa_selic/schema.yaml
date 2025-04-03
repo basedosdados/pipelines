@@ -1,0 +1,12 @@
+---
+version: 2
+models:
+  - name: taxa_selic
+    description: A taxa Selic refere-se à taxa de juros apurada nas operações de empréstimos
+      de um dia entre as instituições financeiras que utilizam títulos públicos federais
+      como garantia
+    columns:
+      - name: data
+        description: Data
+      - name: valor
+        description: Valor

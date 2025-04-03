@@ -1,0 +1,384 @@
+---
+version: 2
+models:
+  - name: world_oecd_public_finance__country
+    description: This table is a cross-country panel dataset with historical data
+      on government revenues and expenditures, macroeconomics, politics, institutional
+      quality, fiscal policy rules, among others. The data come from many sources
+      and are made compatible following methods developed by OECD researchers. It
+      is a rich source for academic research on fiscal policy.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, country]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: Year
+      - name: country
+        description: Country
+      - name: average_employee_social_security_rate
+        description: Average rate of employees' social security contributions, Single
+          person at 100% of average earnings, no child
+      - name: average_employer_social_security_rate
+        description: Average rate of employer's social security contributions, Single
+          person at 100% of average earnings, no child
+      - name: average_income_social_security_rate
+        description: Average rate of income tax and employees' social security contributions,
+          Single person at 100% of average earnings, no child
+      - name: average_income_tax_rate
+        description: Average income tax rate, Single person at 100% of average earnings,
+          no child
+      - name: average_tax_wedge
+        description: Average tax wedge, Single person at 100% of average earnings,
+          no child
+      - name: basic_red_expenditure_government
+        description: Basic research R&D expenditure, government, excluding higher
+          education
+      - name: basic_red_expenditure_intramural
+        description: Basic research R&D expenditure, total intra-mural
+      - name: budget_aproppriation_red
+        description: Government budget appropriations on R&D
+      - name: budget_perspective_medium term
+        description: Use of medium term perspective in budget process
+      - name: cabinet_center
+        description: Government composition - cabinet posts of center parties in percentage
+          of total cabinet posts
+      - name: cabinet_composition
+        description: Cabinet composition
+      - name: cabinet_ideological_composition
+        description: New ideological composition of cabinet
+      - name: cabinet_ideological_gap
+        description: ‘Ideological gap’ between new and old cabinets
+      - name: cabinet_left
+        description: Government composition - cabinet posts of left wing parties in
+          percentage of total cabinet posts
+      - name: cabinet_right
+        description: Government composition - cabinet posts of right wing parties
+          in percentage of total cabinet posts
+      - name: capital_tax_transfers_receipts
+        description: Capital tax and transfers receipts, value
+      - name: capital_transfers
+        description: Capital Transfers paid and other capital payments, value
+      - name: consumer_price_index
+        description: Consumer price index
+      - name: corporate_income_tax_rate
+        description: Corporate income tax, statutory rate
+      - name: corruption_control
+        description: Control of corruption
+      - name: current_expenditure
+        description: General government current expenditures
+      - name: current_expenditure_adjusted
+        description: Cyclically-adjusted general government current expenditures
+      - name: current_expenditure_except_interest
+        description: General government current expenditures, excluding gross interest
+          payments
+      - name: current_expenditure_except_interest_adjusted
+        description: Cyclically-adjusted general government current expenditures,
+          excluding gross interest payments
+      - name: current_receipt
+        description: General government current receipts
+      - name: current_receipt_adjusted
+        description: Cyclically-adjusted general government current receipts
+      - name: current_receipt_except_interest
+        description: General government current receipts excluding gross interest
+          receipts
+      - name: deflator_export
+        description: Deflator, exports of goods and services
+      - name: deflator_gross_domestic_product
+        description: Deflator, Gross Domestic Product
+      - name: deflator_import
+        description: Deflator, imports of goods and services
+      - name: election_turnout
+        description: Voter turnout in election
+      - name: employment_contract_protect_ex_collective_dismissal
+        description: Employment protection of regular contracts, excluding regulation
+          of collective dismissals
+      - name: employment_contract_protect_in_collective_dismissal
+        description: Employment protection of regular contracts, including regulation
+          of collective dismissals
+      - name: exchange_rate
+        description: Exchange rate, USD per national currency
+      - name: expenditure_education
+        description: General government expenditure on Education
+      - name: expenditure_education_adjusted
+        description: Cyclically-adjusted General government expenditure on Education
+      - name: expenditure_family_children
+        description: General government expenditure on Family & Children Benefits
+      - name: expenditure_family_children_adjusted
+        description: Cyclically-adjusted General government expenditure on Family
+          & Children Benefits
+      - name: expenditure_health
+        description: General government expenditure on Health
+      - name: expenditure_health_adjusted
+        description: Cyclically-adjusted General government expenditure on Health
+      - name: expenditure_health_pc
+        description: Public health expenditure per capita
+      - name: expenditure_labor_policy_active
+        description: Public expenditure in active labour market policy measures
+      - name: expenditure_labor_policy_passive
+        description: Public expenditure in passive labour market policy measures
+      - name: expenditure_other_primary_expenditure
+        description: General government expenditure on Other primary expenditure
+      - name: expenditure_other_primary_expenditure_adjusted
+        description: Cyclically-adjusted General government expenditure on Other primary
+          expenditure
+      - name: expenditure_pension
+        description: General government expenditure on Pensions
+      - name: expenditure_pension_adjusted
+        description: Cyclically-adjusted General government expenditure on Pensions
+      - name: expenditure_property_income
+        description: General government expenditure on Property Income
+      - name: expenditure_property_income_adjusted
+        description: Cyclically-adjusted General government expenditure on Property
+          Income
+      - name: expenditure_property_income_except_interest
+        description: General government expenditure on Property income paid (except
+          interest payments)
+      - name: expenditure_property_income_except_interest_adjusted
+        description: Cyclically-adjusted General government expenditure on Property
+          income paid (except interest payments)
+      - name: expenditure_public_investment
+        description: General government expenditure on Public Investment
+      - name: expenditure_public_investment_adjusted
+        description: Cyclically-adjusted General government expenditure on Public
+          Investment
+      - name: expenditure_sickness_disability
+        description: General government expenditure on Sickness & Disability Benefits
+      - name: expenditure_sickness_disability_adjusted
+        description: Cyclically-adjusted General government expenditure on Sickness
+          & Disability Benefits
+      - name: expenditure_subsidies
+        description: General government expenditure on Subsidies
+      - name: expenditure_subsidies_adjusted
+        description: Cyclically-adjusted General government expenditure on Subsidies
+      - name: expenditure_unemployment_benefit
+        description: General government expenditure on Unemployment Benefits
+      - name: expenditure_unemployment_benefit_adjusted
+        description: Cyclically-adjusted General government expenditure on Unemployment
+          Benefits
+      - name: expenditure_wage_intermediate_consumption
+        description: General government expenditure on Wages & Interm. Consumption
+      - name: expenditure_wage_intermediate_consumption_adjusted
+        description: Cyclically-adjusted General government expenditure on Wages &
+          Interm. Consumption
+      - name: export
+        description: Exports of goods and services, value
+      - name: female_labor_participation_rate
+        description: Female labour participation
+      - name: fertility_rate
+        description: Fertility rate
+      - name: financial_assets
+        description: General government financial assets, percent of GDP
+      - name: gini_disposable_income
+        description: Disposable income gini
+      - name: gini_government_income
+        description: Gross income gini
+      - name: gini_market_income
+        description: Market income gini
+      - name: government_capital_stock
+        description: General government capital stock in billions of constant 2011
+          international dollars
+      - name: government_change
+        description: Number of changes in government per year
+      - name: government_confidence
+        description: Confidence in national government
+      - name: government_consumption_fixed_capital
+        description: Government consumption of fixed capital, value
+      - name: government_effectiveness
+        description: Government effectiveness
+      - name: government_employment
+        description: Government Employment
+      - name: government_fixed_capital_formation
+        description: Government fixed capital formation, value, appropriation account
+      - name: gross_domestic_product_current_prices
+        description: Gross Domestic Product, current prices
+      - name: gross_domestic_product_potential_current_prices
+        description: Gross Domestic Product, potential, current prices
+      - name: gross_domestic_product_potential_volume
+        description: Gross Domestic Product, potential, volume
+      - name: gross_domestic_product_volume
+        description: Gross Domestic Product, volume
+      - name: gross_interest_paid
+        description: General government gross interest paid
+      - name: gross_interest_received
+        description: General government gross interest received
+      - name: import
+        description: Imports of goods and services, value
+      - name: index_ourdata
+        description: OURdata Index- Open, Useful, Reusable Government Data
+      - name: indicator_fiscal_council
+        description: Fiscal council
+      - name: indicator_fiscal_rule_balance
+        description: Fiscal rule - Budget balance rule
+      - name: indicator_fiscal_rule_debt
+        description: Fiscal rule - Debt rule
+      - name: indicator_fiscal_rule_expenditure
+        description: Fiscal rule - Expenditure rule
+      - name: indicator_fiscal_rule_revenue
+        description: Fiscal rule - Revenue rule
+      - name: internet_interaction_authoriries
+        description: Individuals using the internet to interact with public authorities
+          by type of activity, sending filled forms (last 12 months)
+      - name: judicial_confidence
+        description: Citizens confidence with the judicial system
+      - name: labor_force
+        description: Labour force
+      - name: life_expectancy
+        description: Life expectancy at birth
+      - name: long_term_interest_rate
+        description: Long-term interest rate on government bonds
+      - name: male_labor_participation_rate
+        description: Male labour participation
+      - name: marginal_tax_wedge
+        description: Marginal tax wedge, Principal earner, Single person at 100% of
+          average earnings, no child
+      - name: net_financial_liabilities
+        description: General government net financial liabilities
+      - name: net_interest_paid
+        description: General government net interest paid
+      - name: net_lending
+        description: General government net lending
+      - name: net_lending_adjusted
+        description: Cyclically-adjusted general government net lending
+      - name: net_personal_average_tax_rate
+        description: Net personal average tax rate, Single person at 100% of average
+          earnings, no child
+      - name: nominal_effective_exchange_rate
+        description: Nominal effective exchange rate, chain-linked, overall weights
+      - name: output_gap
+        description: Output gap
+      - name: performance_budget
+        description: perfomance budget
+      - name: pmr_barriers_entrepeneurship
+        description: OECD Product Market Regulation Indicators - Barriers to entrepreneurship
+      - name: pmr_barriers_trade_investment
+        description: OECD Product Market Regulation Indicators - Barriers to trade
+          and investment
+      - name: pmr_market_regulation_indicator
+        description: OECD Product Market Regulation Indicators - Overall product market
+          regulation indicator
+      - name: pmr_state_control
+        description: OECD Product Market Regulation Indicators - State control
+      - name: political_stability
+        description: Political stability
+      - name: poverty_rate
+        description: Poverty rate after taxes and transfers, poverty line 50%
+      - name: primary_balance
+        description: General government primary balance
+      - name: primary_balance_adjusted
+        description: Cyclically-adjusted general government primary balance
+      - name: primary_total_expenditure_adjustred
+        description: Cyclically-adjusted primary total expenditure
+      - name: primary_total_receipt_adjusted
+        description: Cyclically-adjusted primary total receipts
+      - name: public_private_partnership_capital_stock
+        description: Public-private partnership (PPP) capital stock in billions of
+          constant 2011 international dollars
+      - name: real_effective_exchange_rate
+        description: Real effective exchange rate, constant trade weights
+      - name: regulatory_quality
+        description: Regulatory quality
+      - name: revenue_corporate_tax
+        description: General government revenue from Corporate Income Taxes
+      - name: revenue_corporate_tax_adjusted
+        description: Cyclically-adjusted General government revenue from Corporate
+          Income Taxes
+      - name: revenue_environmental_tax
+        description: General government revenue from Environmental Taxes
+      - name: revenue_environmental_tax_adjusted
+        description: Cyclically-adjusted General government revenue from Environmental
+          Taxes
+      - name: revenue_immovable_property_tax
+        description: General government revenue from Taxes on Immovable Property
+      - name: revenue_immovable_property_tax_adjusted
+        description: Cyclically-adjusted General government revenue from Taxes on
+          Immovable Property
+      - name: revenue_other_consumption_tax
+        description: General government revenue from Other Consumption Taxes
+      - name: revenue_other_consumption_tax_adjusted
+        description: Cyclically-adjusted General government revenue from Other Consumption
+          Taxes
+      - name: revenue_other_non_property_tax
+        description: General government revenue from Other Nonproperty Taxes
+      - name: revenue_other_non_property_tax_adjusted
+        description: Cyclically-adjusted General government revenue from Other Nonproperty
+          Taxes
+      - name: revenue_other_property_tax
+        description: General government revenue from Other Property Taxes
+      - name: revenue_other_property_tax_adjusted
+        description: Cyclically-adjusted General government revenue from Other Property
+          Taxes
+      - name: revenue_personal_income_tax
+        description: General government revenue from Personal Income Taxes
+      - name: revenue_personal_income_tax_adjusted
+        description: Cyclically-adjusted General government revenue from Personal
+          Income Taxes
+      - name: revenue_property_income
+        description: General government revenue from Property Income
+      - name: revenue_property_income_adjusted
+        description: Cyclically-adjusted General government revenue from Property
+          Income
+      - name: revenue_property_income_except_interest
+        description: General government revenue from Property income received (except
+          interest receipts)
+      - name: revenue_property_income_except_interest_adjusted
+        description: Cyclically-adjusted General government revenue from Property
+          income received (except interest receipts)
+      - name: revenue_sales_goods_services_tax
+        description: General government revenue from Sales of Goods & Services
+      - name: revenue_sales_goods_services_tax_adjusted
+        description: Cyclically-adjusted General government revenue from Sales of
+          Goods & Services
+      - name: revenue_social_security_contribution
+        description: General government revenue from Social Security Contributions
+      - name: revenue_social_security_contribution_adjusted
+        description: Cyclically-adjusted General government revenue from Social Security
+          Contributions
+      - name: rule_of_law
+        description: Rule of law
+      - name: rule_of_law_justice_enforcement
+        description: Rule of law, Civil justice, Civil justice is effectively enforced
+      - name: rule_of_law_justice_government_influence
+        description: Rule of law, Civil justice, Civil justice is free of improper
+          government influence
+      - name: rule_of_law_limited_power
+        description: Rule of law, Limited government powers
+      - name: rule_of_law_rights
+        description: Rule of law, Fundamental rights
+      - name: share_women_minister
+        description: Share of women ministers
+      - name: share_women_parliament
+        description: Share of women parliamentarians
+      - name: short_term_interest_rate
+        description: Short-term interest rate
+      - name: size_municipalities
+        description: Size of municipalities
+      - name: term_trade
+        description: Terms of trade
+      - name: total_employment
+        description: Total employment
+      - name: total_expenditure
+        description: General government total expenditures
+      - name: total_expenditure_adjusted
+        description: Cyclically-adjusted total expenditure
+      - name: total_receipt
+        description: General government total receipts
+      - name: total_receipt_adjusted
+        description: Cyclically-adjusted total receipts
+      - name: total_red_expenditure_government
+        description: Total R&D expenditure, government, excluding higher education
+      - name: total_red_expenditure_intramural
+        description: Total R&D expenditure, total intra-mural
+      - name: trade_openness_ratio
+        description: Trade openness ratio
+      - name: underlying_net_lending
+        description: Underlying general government net lending
+      - name: underlying_primary_balance
+        description: Underlying general government primary balance
+      - name: unemployment_rate
+        description: Unemployment rate
+      - name: vat_rate
+        description: VAT statutory rate
+      - name: voice_accountability
+        description: Voice accountability

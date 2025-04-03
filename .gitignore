@@ -157,3 +157,14 @@ notebooks/
 
 
 /DENATRAN_FILES
+
+# dbt
+.user.yml
+target/
+dbt_modules/
+dbt_packages/
+logs/
+models/*/tmp/
+models/*/input/
+models/*/output/
+models/*/extra/

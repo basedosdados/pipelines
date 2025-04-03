@@ -1,0 +1,121 @@
+---
+version: 2
+models:
+  - name: br_ms_sisvan__microdados
+    description: A Vigilância Alimentar e Nutricional (VAN) nos serviços de saúde
+      da Atenção Básica inclui a avaliação antropométrica (medidas corporais) e do
+      consumo alimentar.
+    tests:
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - fase_vida
+            - raca_cor
+            - povo_comunidade
+            - escolaridade
+            - sistema_origem
+          dictionary_model: ref('br_ms_sisvan__dicionario')
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [acompanhamento]
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: Mês
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: Código IBGE do Município
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio_6
+      - name: acompanhamento
+        description: Código do acompanhamento
+      - name: id_individuo
+        description: Código de identificação do indivíduo
+      - name: cnes
+        description: Código CNES do Estabelecimento de Saúde
+      - name: idade
+        description: Anos de vida do indivíduo.
+      - name: fase_vida
+        description: Código da Fase da Vida
+      - name: sexo
+        description: 'Sexo do indivíduo: M - Masculino F - Feminino'
+      - name: raca_cor
+        description: Código da Raça/Cor
+      - name: povo_comunidade
+        description: Código do Povo ou Comunidade Tradicional
+      - name: escolaridade
+        description: Código da Escolaridade
+      - name: data_acompanhamento
+        description: Data do Acompanhamento nutricional do Indivíduo.
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: peso
+        description: Peso do Indivíduo em Quilos
+      - name: altura
+        description: Altura em Centímetros
+      - name: imc
+        description: Índice de Massa Corporal - IMC
+      - name: imc_gestacional
+        description: Índice de Massa Corporal Pré Gestacional - IMC
+      - name: estado_nutricional_peso_idade_crianca
+        description: Estado Nutricional de Peso para Idade de Crianças (0 a 10 anos)
+      - name: estado_nutricional_peso_altura_crianca
+        description: Estado Nutricional de Peso para Altura de Crianças (0 a 10 anos)
+      - name: estado_nutricional_altura_idade_crianca
+        description: Estado Nutricional de Altura para Idade de Crianças (0 a 10 anos)
+      - name: estado_nutricional_imc_idade_crianca
+        description: Estado Nutricional de IMC para Idade de Crianças (0 a 10 anos)
+      - name: estado_nutricional_altura_idade_adolescente
+        description: Estado Nutricional de Altura para Idade de Adolescentes (10 a
+          menos de 20 anos)
+      - name: estado_nutricional_imc_idade_adolescente
+        description: Estado Nutricional de IMC para Idade de Adolescentes (10 a menos
+          de 20 anos)
+      - name: estado_nutricional_adulto
+        description: Estado Nutricional de Adultos
+      - name: estado_nutricional_idoso
+        description: Estado Nutricional de Idosos
+      - name: estado_nutricional_gestantes
+        description: Estado Nutricional de Gestantes
+      - name: sistema_origem
+        description: Código do Sistema de Origem
+  - name: br_ms_sisvan__dicionario
+    description: Dicionário para tradução dos códigos do conjunto br_ms_sisvan. Para
+      taduzir códigos compartilhados entre instituições, como id_municipio, buscar
+      por diretórios
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_tabela
+            - nome_coluna
+            - chave
+            - cobertura_temporal
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+    columns:
+      - name: id_tabela
+        description: ID Tabela
+      - name: nome_coluna
+        description: Nome da coluna
+      - name: chave
+        description: Chave
+      - name: cobertura_temporal
+        description: Cobertura Temporal
+      - name: valor
+        description: Valor
