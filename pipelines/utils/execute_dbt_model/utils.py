@@ -187,7 +187,6 @@ def process_dbt_log_file(
     Returns:
         pd.DataFrame: A DataFrame containing the parsed log entries with columns for time, level, and text.
     """
-    log(f"Reading DBT log file from: {log_path}", level="info")
 
     if not os.path.exists(log_path):
         log(f"Log file not found at path: {log_path}", level="warning")

@@ -43,7 +43,12 @@ with Flow(
     )
     repository_url = Parameter(
         "repository_url",
-        default="https://github.com/basedosdados/queries-basedosdados",
+        default="https://github.com/basedosdados/queries-basedosdados.git",
+        required=False,
+    )
+    repository_branch = Parameter(
+        "repository_branch",
+        default=None,
         required=False,
     )
 
@@ -54,7 +59,10 @@ with Flow(
         wait=table_id,
     )
 
-    repository_path = download_repository(repo_url=repository_url)
+    repository_path = download_repository(
+        repo_url=repository_url,
+        branch=repository_branch,
+    )
 
     dependencies_installed = install_dbt_dependencies(
         dbt_repository_path=repository_path,

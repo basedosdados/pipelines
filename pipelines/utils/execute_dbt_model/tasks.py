@@ -33,18 +33,13 @@ from pipelines.utils.utils import log
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def download_repository(repo_url: str) -> str:
+def download_repository(repo_url: str, branch: str) -> str:
     """
-    Downloads the repository specified by the REPOSITORY_URL constant.
-
-    This function creates a repository folder, clones the repository from the specified URL,
-    and logs the success or failure of the download.
-
-    *Note: it allows the user to specify a different repository branch or URL for testing purposes, as long it's a public one*
+    Downloads the repository specified by the repo_url, optionally from a specific branch.
 
     Args:
-        repo_url (str): queries-basedosdados repository url. The default value is parameterized
-        in the flow. The default value is queries-basedosdados main branch.
+        repo_url (str): queries-basedosdados repository url.
+        branch (str, optional): The specific branch to clone. Defaults to None (which clones the default branch).
 
     Returns:
         str: Path to the downloaded repository.
@@ -69,8 +64,14 @@ def download_repository(repo_url: str) -> str:
         raise FAIL(str(f"Error when creating repository folder: {e}")) from e
 
     try:
-        repo = git.Repo.clone_from(repo_url, repository_path)
-        log(f"Repository downloaded: {repo_url}")
+        if branch:
+            repo = git.Repo.clone_from(
+                repo_url, repository_path, branch=branch
+            )
+            log(f"Repository downloaded: {repo_url}, branch: {branch}")
+        else:
+            repo = git.Repo.clone_from(repo_url, repository_path)
+            log(f"Repository downloaded: {repo_url}, default branch")
 
         if not os.path.exists(
             os.path.join(repository_path, "dbt_project.yml")
@@ -85,7 +86,6 @@ def download_repository(repo_url: str) -> str:
     except git.GitCommandError as e:
         raise FAIL(str(f"Error when downloading repository: {e}")) from e
 
-    log(f"Repository contents: {os.listdir(repository_path)}")
     return repository_path
 
 
