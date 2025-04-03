@@ -44,9 +44,7 @@ with Flow(
     table_id_sellers = Parameter(
         "table_id_sellers", default="vendedor", required=True
     )
-    materialization_mode = Parameter(
-        "materialization_mode", default="prod", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -88,7 +86,7 @@ with Flow(
             parameters={
                 "dataset_id": dataset_id,
                 "table_id": table_id,
-                "mode": materialization_mode,
+                "target": target,
                 "dbt_alias": dbt_alias,
             },
             labels=current_flow_labels,
@@ -113,7 +111,7 @@ with Flow(
         #     date_column_name={"date": "dia"},
         #     date_format="%Y-%m-%d",
         #     coverage_type="all_bdpro",
-        #     prefect_mode=materialization_mode,
+        #     prefect_mode=target,
         #     bq_project="basedosdados",
         #     upstream_tasks=[wait_for_materialization],
         # )
@@ -127,7 +125,7 @@ with Flow(
             parameters={
                 "dataset_id": dataset_id,
                 "table_id": table_id_sellers,
-                "mode": materialization_mode,
+                "target": target,
                 "dbt_alias": dbt_alias,
                 "seller_ids": seller_ids,
                 "seller_links": seller_links,
@@ -155,7 +153,7 @@ with Flow(
         #     date_column_name={"date": "dia"},
         #     date_format="%Y-%m-%d",
         #     coverage_type="all_bdpro",
-        #     prefect_mode=materialization_mode,
+        #     prefect_mode=target,
         #     bq_project="basedosdados",
         #     upstream_tasks=[wait_for_materialization],
         # )
@@ -176,9 +174,7 @@ with Flow(
         "dataset_id", default="br_mercadolivre_ofertas", required=True
     )
     table_id = Parameter("table_id", default="vendedor", required=True)
-    materialization_mode = Parameter(
-        "materialization_mode", default="prod", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -215,7 +211,7 @@ with Flow(
             parameters={
                 "dataset_id": dataset_id,
                 "table_id": table_id,
-                "mode": materialization_mode,
+                "target": target,
                 "dbt_alias": dbt_alias,
             },
             labels=current_flow_labels,
@@ -240,7 +236,7 @@ with Flow(
         #     date_column_name={"date": "dia"},
         #     date_format="%Y-%m-%d",
         #     coverage_type="all_bdpro",
-        #     prefect_mode=materialization_mode,
+        #     prefect_mode=target,
         #     bq_project="basedosdados",
         #     upstream_tasks=[wait_for_materialization],
         # )

@@ -21,7 +21,7 @@ every_day_bolsa_familia = Schedule(
             parameter_defaults={
                 "dataset_id": "br_cgu_beneficios_cidadao",
                 "table_id": "novo_bolsa_familia",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "historical_data": False,
@@ -42,7 +42,7 @@ every_day_garantia_safra = Schedule(
             parameter_defaults={
                 "dataset_id": "br_cgu_beneficios_cidadao",
                 "table_id": "garantia_safra",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "historical_data": False,
@@ -63,7 +63,7 @@ every_day_bpc = Schedule(
             parameter_defaults={
                 "dataset_id": "br_cgu_beneficios_cidadao",
                 "table_id": "bpc",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "historical_data": False,

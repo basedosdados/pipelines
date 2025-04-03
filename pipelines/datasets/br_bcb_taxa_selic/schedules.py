@@ -21,7 +21,7 @@ schedule_every_weekday_taxa_selic = Schedule(
             parameter_defaults={
                 "dataset_id": "br_bcb_taxa_selic",
                 "table_id": "taxa_selic",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
                 "dbt_alias": False,

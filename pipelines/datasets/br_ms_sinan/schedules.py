@@ -20,7 +20,7 @@ everyday_sinan_microdados = Schedule(
             parameter_defaults={
                 "dataset_id": "br_ms_sinan",
                 "table_id": "microdados_dengue",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
                 "dbt_alias": True,

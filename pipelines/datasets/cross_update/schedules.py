@@ -19,7 +19,7 @@ update_metadata_table_schedule = Schedule(
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
-                "materialization_mode": "prod",
+                "target": "prod",
             },
         ),
     ]

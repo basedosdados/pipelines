@@ -20,7 +20,7 @@ every_day_item = Schedule(
             ],
             parameter_defaults={
                 "dataset_id": "br_mercadolivre_ofertas",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": False,
                 "table_id": "item",
                 "dbt_alias": False,

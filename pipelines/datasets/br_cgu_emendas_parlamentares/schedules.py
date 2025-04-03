@@ -17,7 +17,7 @@ every_day_emendas_parlamentares = Schedule(
             parameter_defaults={
                 "dataset_id": "br_cgu_emendas_parlamentares",
                 "table_id": "microdados",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,

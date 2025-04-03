@@ -29,9 +29,7 @@ with Flow(
         "dataset_id", default="br_bd_siga_o_dinheiro", required=True
     )
 
-    materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     table_ids = get_table_ids()
@@ -47,7 +45,7 @@ with Flow(
             parameters={
                 "dataset_id": dataset_id,
                 "table_id": table_id,
-                "mode": materialization_mode,
+                "target": target,
                 "dbt_alias": dbt_alias,
             },
             labels=current_flow_labels,

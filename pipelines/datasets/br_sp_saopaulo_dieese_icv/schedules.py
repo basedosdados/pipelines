@@ -20,7 +20,7 @@ every_month = Schedule(
             ],
             parameter_defaults={
                 "dataset_id": "br_sp_saopaulo_dieese_icv",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize after dump": True,
                 "table_id": "mes",
                 "dbt_alias": False,

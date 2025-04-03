@@ -174,7 +174,7 @@ def crawl_cno(root: str, url: str) -> None:
 def create_parameters_list(
     dataset_id: str,
     table_ids: list,
-    materialization_mode: str,
+    target: str,
     dbt_alias: str,
     dbt_command: str,
     disable_elementary: bool,
@@ -186,7 +186,7 @@ def create_parameters_list(
     Args:
         dataset_id (str): The dataset ID.
         table_ids (list): A list of table IDs.
-        materialization_mode (str): The materialization mode.
+        target (str): The materialization target.
         dbt_alias (str): The DBT alias.
         dbt_command (str): The DBT command.
         disable_elementary (bool): Whether to disable elementary.
@@ -200,7 +200,7 @@ def create_parameters_list(
         {
             "dataset_id": dataset_id,
             "table_id": table_id,
-            "mode": materialization_mode,
+            "target": target,
             "dbt_alias": dbt_alias,
             "dbt_command": dbt_command,
             "disable_elementary": disable_elementary,

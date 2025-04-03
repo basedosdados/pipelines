@@ -21,7 +21,7 @@ Schedules for br_cnj_improbidade_administrativa
 #             parameter_defaults={
 #                 "dataset_id": "br_cnj_improbidade_administrativa",
 #                 "table_id": "condenacao",
-#                 "materialization_mode": "prod",
+#                 "target": "prod",
 #                 "materialize_after_dump": True,
 #                 "dbt_alias": True,
 #             },

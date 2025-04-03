@@ -61,9 +61,7 @@ with Flow(
     table_id = Parameter(
         "table_id", default="documentos_informe_diario", required=True
     )
-    materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
     )
@@ -132,7 +130,7 @@ with Flow(
                 parameters={
                     "dataset_id": dataset_id,
                     "table_id": table_id,
-                    "mode": materialization_mode,
+                    "target": target,
                     "dbt_alias": dbt_alias,
                 },
                 labels=current_flow_labels,
@@ -159,7 +157,7 @@ with Flow(
                     date_column_name={"date": "data_competencia"},
                     date_format="%Y-%m-%d",
                     coverage_type="all_bdpro",
-                    prefect_mode=materialization_mode,
+                    prefect_mode=target,
                     bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
@@ -188,9 +186,7 @@ with Flow(
         required=True,
     )
 
-    materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
     )
@@ -253,7 +249,7 @@ with Flow(
                 parameters={
                     "dataset_id": dataset_id,
                     "table_id": table_id,
-                    "mode": materialization_mode,
+                    "target": target,
                     "dbt_alias": dbt_alias,
                 },
                 labels=current_flow_labels,
@@ -280,7 +276,7 @@ with Flow(
                     date_column_name={"date": "data_competencia"},
                     date_format="%Y-%m-%d",
                     coverage_type="all_bdpro",
-                    prefect_mode=materialization_mode,
+                    prefect_mode=target,
                     bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
@@ -308,9 +304,7 @@ with Flow(
     table_id = Parameter(
         "table_id", default="documentos_extratos_informacoes", required=True
     )
-    materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
     )
@@ -382,7 +376,7 @@ with Flow(
                 parameters={
                     "dataset_id": dataset_id,
                     "table_id": table_id,
-                    "mode": materialization_mode,
+                    "target": target,
                     "dbt_alias": dbt_alias,
                 },
                 labels=current_flow_labels,
@@ -409,7 +403,7 @@ with Flow(
                     date_column_name={"date": "data_competencia"},
                     date_format="%Y-%m-%d",
                     coverage_type="all_bdpro",
-                    prefect_mode=materialization_mode,
+                    prefect_mode=target,
                     bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
@@ -434,9 +428,7 @@ with Flow(
     table_id = Parameter(
         "table_id", default="documentos_perfil_mensal", required=True
     )
-    materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
     )
@@ -502,7 +494,7 @@ with Flow(
                 parameters={
                     "dataset_id": dataset_id,
                     "table_id": table_id,
-                    "mode": materialization_mode,
+                    "target": target,
                     "dbt_alias": dbt_alias,
                 },
                 labels=current_flow_labels,
@@ -529,7 +521,7 @@ with Flow(
                     date_column_name={"date": "data_competencia"},
                     date_format="%Y-%m-%d",
                     coverage_type="all_bdpro",
-                    prefect_mode=materialization_mode,
+                    prefect_mode=target,
                     bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
@@ -554,9 +546,7 @@ with Flow(
     table_id = Parameter(
         "table_id", default="documentos_informacao_cadastral", required=True
     )
-    materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
     )
@@ -612,7 +602,7 @@ with Flow(
                 parameters={
                     "dataset_id": dataset_id,
                     "table_id": table_id,
-                    "mode": materialization_mode,
+                    "target": target,
                     "dbt_alias": dbt_alias,
                 },
                 labels=current_flow_labels,
@@ -637,7 +627,7 @@ with Flow(
                     dataset_id=dataset_id,
                     table_id=table_id,
                     coverage_type="all_bdpro",
-                    prefect_mode=materialization_mode,
+                    prefect_mode=target,
                     bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                     historical_database=False,
@@ -666,9 +656,7 @@ with Flow(
     table_id = Parameter(
         "table_id", default="documentos_balancete", required=True
     )
-    materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
     )
@@ -731,7 +719,7 @@ with Flow(
                 parameters={
                     "dataset_id": dataset_id,
                     "table_id": table_id,
-                    "mode": materialization_mode,
+                    "target": target,
                     "dbt_alias": dbt_alias,
                     "dbt_command": "run/test",
                     "disable_elementary": False,
@@ -760,7 +748,7 @@ with Flow(
                     date_column_name={"date": "data_competencia"},
                     date_format="%Y-%m-%d",
                     coverage_type="all_bdpro",
-                    prefect_mode=materialization_mode,
+                    prefect_mode=target,
                     bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )

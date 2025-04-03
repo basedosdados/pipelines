@@ -21,7 +21,7 @@ every_month_agencia = Schedule(
             parameter_defaults={
                 "dataset_id": "br_bcb_agencia",
                 "table_id": "agencia",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
