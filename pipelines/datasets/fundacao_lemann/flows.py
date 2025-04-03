@@ -31,9 +31,7 @@ with Flow(
         default="ano_escola_serie_educacao_aprendizagem_adequada",
         required=True,
     )
-    materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     current_flow_labels = get_current_flow_labels()
@@ -43,7 +41,7 @@ with Flow(
         parameters={
             "dataset_id": dataset_id,
             "table_id": table_id,
-            "mode": materialization_mode,
+            "target": target,
             "dbt_alias": dbt_alias,
         },
         labels=current_flow_labels,

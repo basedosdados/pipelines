@@ -19,7 +19,7 @@ every_weeks_iptu = Schedule(
             parameter_defaults={
                 "dataset_id": "br_mg_belohorizonte_smfa_iptu",
                 "table_id": "iptu",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,

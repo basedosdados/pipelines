@@ -23,7 +23,7 @@ every_day_brasileirao = Schedule(
             parameter_defaults={
                 "dataset_id": "mundo_transfermarkt_competicoes",
                 "table_id": "brasileirao_serie_a",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
             },
@@ -43,7 +43,7 @@ every_day_copa = Schedule(
             parameter_defaults={
                 "dataset_id": "mundo_transfermarkt_competicoes",
                 "table_id": "copa_brasil",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
             },

@@ -44,9 +44,7 @@ with Flow(
     # Relative_month =  1 means that the data will be downloaded for the current month
     ####
     relative_month = Parameter("relative_month", default=1, required=False)
-    materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -99,7 +97,7 @@ with Flow(
                 parameters={
                     "dataset_id": dataset_id,
                     "table_id": table_id,
-                    "mode": materialization_mode,
+                    "target": target,
                     "dbt_alias": dbt_alias,
                     "dbt_command": "run",
                     "disable_elementary": False,
@@ -133,7 +131,7 @@ with Flow(
                     date_format="%Y-%m",
                     coverage_type="part_bdpro",
                     time_delta={"months": 6},
-                    prefect_mode=materialization_mode,
+                    prefect_mode=target,
                     bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
@@ -155,9 +153,7 @@ with Flow(
         required=True,
     )
     table_id = Parameter("table_id", required=True)
-    materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -220,7 +216,7 @@ with Flow(
                     parameters={
                         "dataset_id": dataset_id,
                         "table_id": table_id,
-                        "mode": materialization_mode,
+                        "target": target,
                         "dbt_alias": dbt_alias,
                         "dbt_command": "run",
                         "disable_elementary": False,
@@ -249,7 +245,7 @@ with Flow(
                         date_format="%Y-%m",
                         coverage_type="part_bdpro",
                         time_delta={"months": 6},
-                        prefect_mode=materialization_mode,
+                        prefect_mode=target,
                         bq_project="basedosdados",
                         upstream_tasks=[wait_for_materialization],
                     )
@@ -272,9 +268,7 @@ with Flow(
     # Relative_month =  1 means that the data will be downloaded for the current month
     ####
     relative_month = Parameter("relative_month", default=1, required=False)
-    materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -327,7 +321,7 @@ with Flow(
                 parameters={
                     "dataset_id": dataset_id,
                     "table_id": table_id,
-                    "mode": materialization_mode,
+                    "target": target,
                     "dbt_alias": dbt_alias,
                     "dbt_command": "run",
                     "disable_elementary": False,
@@ -358,7 +352,7 @@ with Flow(
                     date_format="%Y-%m",
                     coverage_type="part_bdpro",
                     time_delta={"months": 6},
-                    prefect_mode=materialization_mode,
+                    prefect_mode=target,
                     bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
@@ -381,9 +375,7 @@ with Flow(
     # Relative_month =  1 means that the data will be downloaded for the current month
     ####
     relative_month = Parameter("relative_month", default=1, required=False)
-    materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -435,7 +427,7 @@ with Flow(
                 parameters={
                     "dataset_id": dataset_id,
                     "table_id": table_id,
-                    "mode": materialization_mode,
+                    "target": target,
                     "dbt_alias": dbt_alias,
                     "dbt_command": "run",
                     "disable_elementary": False,
@@ -466,7 +458,7 @@ with Flow(
                     date_format="%Y-%m",
                     coverage_type="part_bdpro",
                     time_delta={"months": 6},
-                    prefect_mode=materialization_mode,
+                    prefect_mode=target,
                     bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )

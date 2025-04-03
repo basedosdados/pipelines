@@ -45,9 +45,7 @@ with Flow(name="br_inmet_bdmep", code_owners=["equipe_pipelines"]) as br_inmet:
         "update_metadata", default=True, required=False
     )
 
-    materialization_mode = Parameter(
-        "materialization_mode", default="prod", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
     )
@@ -91,7 +89,7 @@ with Flow(name="br_inmet_bdmep", code_owners=["equipe_pipelines"]) as br_inmet:
                 parameters={
                     "dataset_id": dataset_id,
                     "table_id": table_id,
-                    "mode": materialization_mode,
+                    "target": target,
                     "dbt_alias": dbt_alias,
                 },
                 labels=current_flow_labels,
@@ -119,7 +117,7 @@ with Flow(name="br_inmet_bdmep", code_owners=["equipe_pipelines"]) as br_inmet:
                     date_format="%Y-%m-%d",
                     coverage_type="part_bdpro",
                     time_delta={"months": 6},
-                    prefect_mode=materialization_mode,
+                    prefect_mode=target,
                     bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )

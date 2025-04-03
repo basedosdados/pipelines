@@ -21,7 +21,7 @@ schedule_br_rf_cafir_imoveis_rurais = Schedule(
             parameter_defaults={
                 "dataset_id": "br_rf_cafir",
                 "table_id": "imoveis_rurais",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
                 "dbt_alias": True,

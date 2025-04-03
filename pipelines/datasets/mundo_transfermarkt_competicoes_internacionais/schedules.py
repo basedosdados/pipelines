@@ -22,7 +22,7 @@ every_day_champions_league = Schedule(
             parameter_defaults={
                 "dataset_id": "mundo_transfermarkt_competicoes_internacionais",
                 "table_id": "champions_league",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
             },

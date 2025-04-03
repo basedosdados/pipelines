@@ -21,7 +21,7 @@ every_day_cadastro_aposentados = Schedule(
             parameter_defaults={
                 "dataset_id": "br_cgu_servidores_executivo_federal",
                 "table_id": "cadastro_aposentados",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
@@ -41,7 +41,7 @@ every_day_cadastro_pensionistas = Schedule(
             parameter_defaults={
                 "dataset_id": "br_cgu_servidores_executivo_federal",
                 "table_id": "cadastro_pensionistas",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
@@ -61,7 +61,7 @@ every_day_cadastro_servidores = Schedule(
             parameter_defaults={
                 "dataset_id": "br_cgu_servidores_executivo_federal",
                 "table_id": "cadastro_servidores",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
@@ -82,7 +82,7 @@ every_day_cadastro_reserva_reforma_militares = Schedule(
             parameter_defaults={
                 "dataset_id": "br_cgu_servidores_executivo_federal",
                 "table_id": "cadastro_reserva_reforma_militares",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
@@ -103,7 +103,7 @@ every_day_remuneracao = Schedule(
             parameter_defaults={
                 "dataset_id": "br_cgu_servidores_executivo_federal",
                 "table_id": "remuneracao",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
@@ -123,7 +123,7 @@ every_day_afastamentos = Schedule(
             parameter_defaults={
                 "dataset_id": "br_cgu_servidores_executivo_federal",
                 "table_id": "afastamentos",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
@@ -143,7 +143,7 @@ every_day_observacoes = Schedule(
             parameter_defaults={
                 "dataset_id": "br_cgu_servidores_executivo_federal",
                 "table_id": "observacoes",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,

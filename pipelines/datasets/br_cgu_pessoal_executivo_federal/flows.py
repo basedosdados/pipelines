@@ -43,9 +43,7 @@ with Flow(
         "dataset_id", default="br_cgu_pessoal_executivo_federal", required=True
     )
     table_id = Parameter("table_id", default="terceirizados", required=True)
-    materialization_mode = Parameter(
-        "materialization_mode", default="prod", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
         "materialize after dump", default=True, required=False
     )
@@ -88,7 +86,7 @@ with Flow(
             parameters={
                 "dataset_id": dataset_id,
                 "table_id": table_id,
-                "mode": materialization_mode,
+                "target": target,
                 "dbt_alias": dbt_alias,
             },
             labels=current_flow_labels,

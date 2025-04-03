@@ -40,7 +40,7 @@ with Flow(
         "update_metadata_table", default=False, required=False
     )
     year = Parameter("year", default=2024, required=False)
-    mode = Parameter("mode", default="prod", required=False)
+    target = Parameter("target", default="prod", required=False)
     current_flow_labels = get_current_flow_labels()
 
     # Atualiza a tabela que contem os metadados do BQ
@@ -48,7 +48,7 @@ with Flow(
         update_metadata_table_flow = create_flow_run(
             flow_name="cross_update.update_metadata_table",
             project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-            parameters={"materialization_mode": mode},
+            parameters={"materialization_mode": target},
             labels=current_flow_labels,
         )
 
@@ -61,7 +61,7 @@ with Flow(
 
     # Consulta e  seleciona apenas as tabelas que atendem os critérios de tamanho e abertura(bdpro)
 
-    eligible_to_zip_tables = query_tables(year=year, mode=mode)
+    eligible_to_zip_tables = query_tables(year=year, mode=target)
     tables_to_zip = filter_eligible_download_tables(
         eligible_to_zip_tables, upstream_tasks=[eligible_to_zip_tables]
     )
@@ -100,9 +100,7 @@ with Flow(
     update_metadata = Parameter(
         "update_metadata", default=False, required=False
     )
-    materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -116,7 +114,7 @@ with Flow(
     )
 
     file_path = get_metadata_data(
-        mode=materialization_mode, upstream_tasks=[materialization_mode]
+        mode=target,
     )
 
     wait_upload_table = create_table_and_upload_to_gcs(
@@ -136,7 +134,7 @@ with Flow(
             parameters={
                 "dataset_id": dataset_id,
                 "table_id": table_id,
-                "mode": materialization_mode,
+                "target": target,
                 "dbt_alias": dbt_alias,
             },
             labels=current_flow_labels,
@@ -164,7 +162,7 @@ with Flow(
             dataset_id=dataset_id,
             table_id=table_id,
             coverage_type="all_free",
-            prefect_mode=materialization_mode,
+            prefect_mode=target,
             bq_project="basedosdados",
             historical_database=False,
         )

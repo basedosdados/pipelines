@@ -21,7 +21,7 @@ schedule_br_rf_cno = Schedule(
             parameter_defaults={
                 "dataset_id": "br_rf_cno",
                 "table_id": "microdados",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
                 "dbt_alias": True,

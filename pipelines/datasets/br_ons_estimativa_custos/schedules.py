@@ -22,7 +22,7 @@ schedule_br_ons_estimativa_custos_custo_marginal_operacao_semi_horario = (
                 parameter_defaults={
                     "dataset_id": "br_ons_estimativa_custos",
                     "table_id": "custo_marginal_operacao_semi_horario",
-                    "materialization_mode": "prod",
+                    "target": "prod",
                     "materialize_after_dump": True,
                     "update_metadata": True,
                     "dbt_alias": True,
@@ -45,7 +45,7 @@ schedule_br_ons_estimativa_custos_custo_marginal_operacao_semanal = Schedule(
             parameter_defaults={
                 "dataset_id": "br_ons_estimativa_custos",
                 "table_id": "custo_marginal_operacao_semanal",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
                 "dbt_alias": True,
@@ -67,7 +67,7 @@ schedule_br_ons_estimativa_custos_balanco_energia_subsistemas = Schedule(
             parameter_defaults={
                 "dataset_id": "br_ons_estimativa_custos",
                 "table_id": "balanco_energia_subsistemas",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
                 "dbt_alias": True,
@@ -90,7 +90,7 @@ schedule_br_ons_estimativa_custos_balanco_energia_subsistemas_dessem = (
                 parameter_defaults={
                     "dataset_id": "br_ons_estimativa_custos",
                     "table_id": "balanco_energia_subsistemas_dessem",
-                    "materialization_mode": "prod",
+                    "target": "prod",
                     "materialize_after_dump": True,
                     "update_metadata": True,
                     "dbt_alias": True,
@@ -115,7 +115,7 @@ schedule_br_ons_estimativa_custos_custo_variavel_unitario_usinas_termicas = (
                 parameter_defaults={
                     "dataset_id": "br_ons_estimativa_custos",
                     "table_id": "custo_variavel_unitario_usinas_termicas",
-                    "materialization_mode": "prod",
+                    "target": "prod",
                     "materialize_after_dump": True,
                     "update_metadata": True,
                     "dbt_alias": True,

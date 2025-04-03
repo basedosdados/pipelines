@@ -21,7 +21,7 @@ schedule_br_ons_avaliacao_operacao_reservatorio = Schedule(
             parameter_defaults={
                 "dataset_id": "br_ons_avaliacao_operacao",
                 "table_id": "reservatorio",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize after dump": True,
                 "update_metadata": True,
                 "dbt_alias": True,
@@ -43,7 +43,7 @@ schedule_br_ons_avaliacao_operacao_geracao_usina = Schedule(
             parameter_defaults={
                 "dataset_id": "br_ons_avaliacao_operacao",
                 "table_id": "geracao_usina",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
                 "dbt_alias": True,
@@ -65,7 +65,7 @@ schedule_br_ons_avaliacao_operacao_geracao_termica_motivo_despacho = Schedule(
             parameter_defaults={
                 "dataset_id": "br_ons_avaliacao_operacao",
                 "table_id": "geracao_termica_motivo_despacho",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
                 "dbt_alias": True,
@@ -87,7 +87,7 @@ schedule_br_ons_avaliacao_operacao_energia_natural_afluente = Schedule(
             parameter_defaults={
                 "dataset_id": "br_ons_avaliacao_operacao",
                 "table_id": "energia_natural_afluente",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
                 "dbt_alias": True,
@@ -109,7 +109,7 @@ schedule_br_ons_avaliacao_operacao_energia_armazenada_reservatorio = Schedule(
             parameter_defaults={
                 "dataset_id": "br_ons_avaliacao_operacao",
                 "table_id": "energia_armazenada_reservatorio",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
                 "dbt_alias": True,
@@ -133,7 +133,7 @@ schedule_br_ons_avaliacao_operacao_restricao_operacao_usinas_eolicas = (
                 parameter_defaults={
                     "dataset_id": "br_ons_avaliacao_operacao",
                     "table_id": "restricao_operacao_usinas_eolicas",
-                    "materialization_mode": "prod",
+                    "target": "prod",
                     "materialize_after_dump": True,
                     "update_metadata": True,
                     "dbt_alias": True,
