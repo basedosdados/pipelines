@@ -161,7 +161,6 @@ notebooks/
 # dbt
 .user.yml
 target/
-dbt_modules/
 dbt_packages/
 logs/
 models/*/tmp/

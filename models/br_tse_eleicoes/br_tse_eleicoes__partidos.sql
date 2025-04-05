@@ -33,4 +33,4 @@ select
     safe_cast(sigla_federacao as string) sigla_federacao,
     safe_cast(composicao_federacao as string) composicao_federacao,
     safe_cast(situacao_legenda as string) situacao_legenda
-from {{ generate_path("br_tse_eleicoes_staging.partidos") }}
+from {{ project_path("br_tse_eleicoes_staging.partidos") }}
