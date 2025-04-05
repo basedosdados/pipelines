@@ -8,7 +8,7 @@ jobs:
   validate_comment_and_approval:
     runs-on: ubuntu-latest
 
-    if: ${{ github.event.issue.pull_request }}
+    if: contains(github.event.comment.html_url, '/pull/')
 
     steps:
       - name: Get PR number
