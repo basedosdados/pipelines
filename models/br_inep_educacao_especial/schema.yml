@@ -1,0 +1,391 @@
+---
+version: 2
+models:
+  - name: br_inep_educacao_especial__etapa_ensino
+    description: Número de alunos matriculados na Educação Especial ao longo do tempo
+      por tipo de classe (Comuns ou Exclusivas) e Etapa de Ensino
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: tipo_classe
+        description: Tipo de classe da Educação Especial (e.g. Classes Comuns ou Classes
+          Exclusivas/Especiais)
+      - name: etapa_ensino
+        description: Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
+          Iniciais, Anos Finais, Ensino Fundamental - EJA, ...)
+      - name: quantidade_matricula
+        description: Número de matrículas
+  - name: br_inep_educacao_especial__faixa_etaria
+    description: Número de alunos matriculados na Educação Especial ao longo do tempo
+      por tipo de classe (Comuns ou Exclusivas) e faixa etária
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: tipo_classe
+        description: Tipo de classe da Educação Especial (e.g. Classes Comuns ou Classes
+          Exclusivas/Especiais)
+      - name: faixa_etaria
+        description: Faixa etária
+      - name: quantidade_matricula
+        description: Número de matrículas
+  - name: br_inep_educacao_especial__localizacao
+    description: Número de alunos matriculados na Educação Especial ao longo do tempo
+      por tipo de classe, rede e localização
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: tipo_classe
+        description: Tipo de classe da Educação Especial (e.g. Classes Comuns ou Classes
+          Exclusivas/Especiais)
+      - name: rede
+        description: Rede Escolar (e.g. Federal, Estadual, Municipal e Privada)
+      - name: localizacao
+        description: Localização (e.g. Zona Urbana, Zona Rural)
+      - name: quantidade_matricula
+        description: Número de matrículas
+  - name: br_inep_educacao_especial__sexo_raca_cor
+    description: Número de alunos matriculados na Educação Especial ao longo do tempo
+      por tipo de classe, sexo e raça/cor
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: tipo_classe
+        description: Tipo de classe da Educação Especial (e.g. Classes Comuns ou Classes
+          Exclusivas/Especiais)
+      - name: sexo
+        description: Sexo
+      - name: raca_cor
+        description: Raça/Cor
+      - name: quantidade_matricula
+        description: Número de matrículas
+  - name: br_inep_educacao_especial__tempo_ensino
+    description: Número de alunos matriculados na Educação Especial ao longo do tempo
+      por tipo de classe, rede e tempo de ensino (Integral ou Parcial)
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: tipo_classe
+        description: Tipo de classe da Educação Especial (e.g. Classes Comuns ou Classes
+          Exclusivas/Especiais)
+      - name: rede
+        description: Rede Escolar (e.g. Federal, Estadual, Municipal e Privada)
+      - name: tempo_ensino
+        description: Classificação em tempo integral e tempo parcial
+      - name: quantidade_matricula
+        description: Número de matrículas
+  - name: br_inep_educacao_especial__tipo_deficiencia
+    description: Número de alunos matriculados na Educação Especial ao longo do tempo
+      por tipo de classe e tipo de deficiência, transtorno global do desenvolvimento
+      ou altas habilidades/superdotação
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: tipo_classe
+        description: Tipo de classe da Educação Especial (e.g. Classes Comuns ou Classes
+          Exclusivas/Especiais)
+      - name: tipo_deficiêcia
+        description: Tipo de deficiência, transtorno global do desenvolvimento ou
+          altas habilidades/superdotação
+      - name: quantidade_matricula
+        description: Número de matrículas
+  - name: br_inep_educacao_especial__uf_distorcao_idade_serie
+    description: 'Taxa de distorção idade-série da Educação Especial por UF. Dados
+      obtidos via Pedido LAI (nº protocolo: 23546066150202238)'
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: etapa_ensino
+        description: Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
+          Iniciais, Anos Finais, Ensino Fundamental - EJA, ...)
+      - name: tdi
+        description: Taxa de distorção idade-série
+  - name: br_inep_educacao_especial__brasil_distorcao_idade_serie
+    description: 'Taxa de distorção idade-série da Educação Especial no Brasil. Dados
+      obtidos via Pedido LAI (nº protocolo: 23546066150202238)'
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: etapa_ensino
+        description: Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
+          Iniciais, Anos Finais, Ensino Fundamental - EJA, ...)
+      - name: tdi
+        description: Taxa de distorção idade-série
+  - name: br_inep_educacao_especial__uf_taxa_rendimento
+    description: 'Taxas de rendimento (aprovação, reprovação e abandono) da Educação
+      Especial por UF. Dados obtidos via Pedido LAI (nº protocolo: 23546054413202266)'
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: etapa_ensino
+        description: Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
+          Iniciais, Anos Finais, Ensino Fundamental - EJA, ...)
+      - name: taxa_aprovacao
+        description: Taxa de aprovação
+      - name: taxa_reprovacao
+        description: Taxa de reprovação
+      - name: taxa_abandono
+        description: Taxa de abandono
+  - name: br_inep_educacao_especial__brasil_taxa_rendimento
+    description: 'Taxas de rendimento (aprovação, reprovação e abandono) da Educação
+      Especial no Brasil. Dados obtidos via Pedido LAI (nº protocolo: 23546054413202266)'
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: etapa_ensino
+        description: Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
+          Iniciais, Anos Finais, Ensino Fundamental - EJA, ...)
+      - name: taxa_aprovacao
+        description: Taxa de aprovação
+      - name: taxa_reprovacao
+        description: Taxa de reprovação
+      - name: taxa_abandono
+        description: Taxa de abandono
+  - name: br_inep_educacao_especial__docente_aee
+    description: 'Quantidade de docentes regentes e do Atendimento Educacional Especializado
+      (AEE) no total e com Formação Continuada em Educação Especial. Dados obtidos
+      via Pedido LAI (nº protocolo: 23546035869202316)'
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: quantidade_docente_regente
+        description: Número de professores regentes
+      - name: quantidade_docente_aee
+        description: Número de professores do Atendimento Educacional Especializado
+          (AEE)
+      - name: quantidade_docente_regente_formacao_continuada
+        description: Número de professores regentes com formação continuada sobre
+          Educação Especial
+      - name: quantidade_docente_aee_formacao_continuada
+        description: Número de professores do Atendimento Educacional Especializado
+          (AEE) com formação continuada sobre Educação Especial
+  - name: br_inep_educacao_especial__docente_formacao
+    description: 'Quantidade de docentes da Educação Básica Formação Continuada em
+      Educação Especial por rede de ensino. Dados obtidos via Pedido LAI (nº protocolo:
+      23546049990202406)'
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: rede
+        description: Rede Escolar (e.g. Federal, Estadual, Municipal e Privada)
+      - name: quantidade_docente_formacao_continuada
+        description: Quantidade de docentes da Educação Básica com formação continuada
+          em Educação Especial
+  - name: br_inep_educacao_especial__matricula_aee
+    description: 'Quantidade de matrículas no Atendimento Educacional Especializado
+      (AEE) por unidade da federação e rede de ensino. Dados obtidos via Pedido LAI
+      (nº protocolo: 23546086048202330)'
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: rede
+        description: Rede Escolar (e.g. Federal, Estadual, Municipal e Privada)
+      - name: quantidade_matricula
+        description: Número de matrículas na Educação Especial
+      - name: quantidade_matricula_aee
+        description: Número de matrículas no Atendimento Educacional Especializado
+          (AEE)

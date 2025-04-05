@@ -1,0 +1,2972 @@
+---
+version: 2
+models:
+  - name: br_inep_indicadores_educacionais__brasil
+    description: Indicadores educacionais do Inep a nível Brasil
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [insert unique keys here]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: localizacao
+        description: Localização
+      - name: rede
+        description: Rede Escolar
+      - name: atu_ei
+        description: Média de Alunos por Turma - Educação Infantil
+      - name: atu_ei_creche
+        description: Média de Alunos por Turma - Educação Infantil Creche
+      - name: atu_ei_pre_escola
+        description: Média de Alunos por Turma - Educação Infantil Pré escola
+      - name: atu_ef
+        description: Média de Alunos por Turma - Ensino Fundamental
+      - name: atu_ef_anos_iniciais
+        description: Média de Alunos por Turma - Ensino Fundamental Anos Iniciais
+      - name: atu_ef_anos_finais
+        description: Média de Alunos por Turma - Ensino Fundamental Anos Finais
+      - name: atu_ef_1_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 1º ano
+      - name: atu_ef_2_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 2º ano
+      - name: atu_ef_3_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 3º ano
+      - name: atu_ef_4_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 4º ano
+      - name: atu_ef_5_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 5º ano
+      - name: atu_ef_6_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 6º ano
+      - name: atu_ef_7_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 7º ano
+      - name: atu_ef_8_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 8º ano
+      - name: atu_ef_9_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 9º ano
+      - name: atu_ef_turmas_unif_multi_fluxo
+        description: Média de Alunos por Turma - Ensino Fundamental Turmas Unificadas,
+          Multi, Multietapa e Correção de fluxo
+      - name: atu_em
+        description: Média de Alunos por Turma - Ensino Médio
+      - name: atu_em_1_ano
+        description: Média de Alunos por Turma - Ensino Médio 1º ano
+      - name: atu_em_2_ano
+        description: Média de Alunos por Turma - Ensino Médio 2º ano
+      - name: atu_em_3_ano
+        description: Média de Alunos por Turma - Ensino Médio 3º ano
+      - name: atu_em_4_ano
+        description: Média de Alunos por Turma - Ensino Médio 4º ano
+      - name: atu_em_nao_seriado
+        description: Média de Alunos por Turma - Ensino Médio Não Seriado
+      - name: had_ei
+        description: Média de Horas-Aula diária - Educação Infantil
+      - name: had_ei_creche
+        description: Média de Horas-Aula diária - Educação Infantil Creche
+      - name: had_ei_pre_escola
+        description: Média de Horas-Aula diária - Educação Infantil Pré-escola
+      - name: had_ef
+        description: Média de Horas-Aula diária - Ensino Fundamental
+      - name: had_ef_anos_iniciais
+        description: Média de Horas-Aula diária - Ensino Fundamental Anos Iniciais
+      - name: had_ef_anos_finais
+        description: Média de Horas-Aula diária - Ensino Fundamental Anos Finais
+      - name: had_ef_1_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 1º ano
+      - name: had_ef_2_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 2º ano
+      - name: had_ef_3_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 3º ano
+      - name: had_ef_4_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 4º ano
+      - name: had_ef_5_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 5º ano
+      - name: had_ef_6_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 6º ano
+      - name: had_ef_7_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 7º ano
+      - name: had_ef_8_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 8º ano
+      - name: had_ef_9_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 9º ano
+      - name: had_em
+        description: Média de Horas-Aula diária - Ensino Médio
+      - name: had_em_1_ano
+        description: Média de Horas-Aula diária - Ensino Médio 1º ano
+      - name: had_em_2_ano
+        description: Média de Horas-Aula diária - Ensino Médio 2º ano
+      - name: had_em_3_ano
+        description: Média de Horas-Aula diária - Ensino Médio 3º ano
+      - name: had_em_4_ano
+        description: Média de Horas-Aula diária - Ensino Médio 4º ano
+      - name: had_em_nao_seriado
+        description: Média de Horas-Aula diária - Ensino Médio Não Seriado
+      - name: tdi_ef
+        description: Taxa de distorção idade-série - Ensino Fundamental
+      - name: tdi_ef_anos_iniciais
+        description: Taxa de distorção idade-série - Ensino Fundamental Anos Iniciais
+      - name: tdi_ef_anos_finais
+        description: Taxa de distorção idade-série - Ensino Fundamental Anos Finais
+      - name: tdi_ef_1_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 1º ano
+      - name: tdi_ef_2_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 2º ano
+      - name: tdi_ef_3_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 3º ano
+      - name: tdi_ef_4_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 4º ano
+      - name: tdi_ef_5_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 5º ano
+      - name: tdi_ef_6_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 6º ano
+      - name: tdi_ef_7_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 7º ano
+      - name: tdi_ef_8_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 8º ano
+      - name: tdi_ef_9_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 9º ano
+      - name: tdi_em
+        description: Taxa de distorção idade-série - Ensino Médio
+      - name: tdi_em_1_ano
+        description: Taxa de distorção idade-série - Ensino Médio 1º ano
+      - name: tdi_em_2_ano
+        description: Taxa de distorção idade-série - Ensino Médio 2º ano
+      - name: tdi_em_3_ano
+        description: Taxa de distorção idade-série - Ensino Médio 3º ano
+      - name: tdi_em_4_ano
+        description: Taxa de distorção idade-série - Ensino Médio 4º ano
+      - name: taxa_aprovacao_ef
+        description: Taxa de Aprovação - Ensino Fundamental
+      - name: taxa_aprovacao_ef_anos_iniciais
+        description: Taxa de Aprovação - Ensino Fundamental Anos Iniciais
+      - name: taxa_aprovacao_ef_anos_finais
+        description: Taxa de Aprovação - Ensino Fundamental Anos Finais
+      - name: taxa_aprovacao_ef_1_ano
+        description: Taxa de Aprovação - Ensino Fundamental 1º ano
+      - name: taxa_aprovacao_ef_2_ano
+        description: Taxa de Aprovação - Ensino Fundamental 2º ano
+      - name: taxa_aprovacao_ef_3_ano
+        description: Taxa de Aprovação - Ensino Fundamental 3º ano
+      - name: taxa_aprovacao_ef_4_ano
+        description: Taxa de Aprovação - Ensino Fundamental 4º ano
+      - name: taxa_aprovacao_ef_5_ano
+        description: Taxa de Aprovação - Ensino Fundamental 5º ano
+      - name: taxa_aprovacao_ef_6_ano
+        description: Taxa de Aprovação - Ensino Fundamental 6º ano
+      - name: taxa_aprovacao_ef_7_ano
+        description: Taxa de Aprovação - Ensino Fundamental 7º ano
+      - name: taxa_aprovacao_ef_8_ano
+        description: Taxa de Aprovação - Ensino Fundamental 8º ano
+      - name: taxa_aprovacao_ef_9_ano
+        description: Taxa de Aprovação - Ensino Fundamental 9º ano
+      - name: taxa_aprovacao_em
+        description: Taxa de Aprovação - Ensino Médio
+      - name: taxa_aprovacao_em_1_ano
+        description: Taxa de Aprovação - Ensino Médio 1º ano
+      - name: taxa_aprovacao_em_2_ano
+        description: Taxa de Aprovação - Ensino Médio 2º ano
+      - name: taxa_aprovacao_em_3_ano
+        description: Taxa de Aprovação - Ensino Médio 3º ano
+      - name: taxa_aprovacao_em_4_ano
+        description: Taxa de Aprovação - Ensino Médio 4º ano
+      - name: taxa_aprovacao_em_nao_seriado
+        description: Taxa de Aprovação - Ensino Médio Não Seriado
+      - name: taxa_reprovacao_ef
+        description: Taxa de Reprovação - Ensino Fundamental
+      - name: taxa_reprovacao_ef_anos_iniciais
+        description: Taxa de Reprovação - Ensino Fundamental Anos Iniciais
+      - name: taxa_reprovacao_ef_anos_finais
+        description: Taxa de Reprovação - Ensino Fundamental Anos Finais
+      - name: taxa_reprovacao_ef_1_ano
+        description: Taxa de Reprovação - Ensino Fundamental 1º ano
+      - name: taxa_reprovacao_ef_2_ano
+        description: Taxa de Reprovação - Ensino Fundamental 2º ano
+      - name: taxa_reprovacao_ef_3_ano
+        description: Taxa de Reprovação - Ensino Fundamental 3º ano
+      - name: taxa_reprovacao_ef_4_ano
+        description: Taxa de Reprovação - Ensino Fundamental 4º ano
+      - name: taxa_reprovacao_ef_5_ano
+        description: Taxa de Reprovação - Ensino Fundamental 5º ano
+      - name: taxa_reprovacao_ef_6_ano
+        description: Taxa de Reprovação - Ensino Fundamental 6º ano
+      - name: taxa_reprovacao_ef_7_ano
+        description: Taxa de Reprovação - Ensino Fundamental 7º ano
+      - name: taxa_reprovacao_ef_8_ano
+        description: Taxa de Reprovação - Ensino Fundamental 8º ano
+      - name: taxa_reprovacao_ef_9_ano
+        description: Taxa de Reprovação - Ensino Fundamental 9º ano
+      - name: taxa_reprovacao_em
+        description: Taxa de Reprovação - Ensino Médio
+      - name: taxa_reprovacao_em_1_ano
+        description: Taxa de Reprovação - Ensino Médio 1º ano
+      - name: taxa_reprovacao_em_2_ano
+        description: Taxa de Reprovação - Ensino Médio 2º ano
+      - name: taxa_reprovacao_em_3_ano
+        description: Taxa de Reprovação - Ensino Médio 3º ano
+      - name: taxa_reprovacao_em_4_ano
+        description: Taxa de Reprovação - Ensino Médio 4º ano
+      - name: taxa_reprovacao_em_nao_seriado
+        description: Taxa de Reprovação - Ensino Médio Não Seriado
+      - name: taxa_abandono_ef
+        description: Taxa de Abandono - Ensino Fundamental
+      - name: taxa_abandono_ef_anos_iniciais
+        description: Taxa de Abandono - Ensino Fundamental Anos Iniciais
+      - name: taxa_abandono_ef_anos_finais
+        description: Taxa de Abandono - Ensino Fundamental Anos Finais
+      - name: taxa_abandono_ef_1_ano
+        description: Taxa de Abandono - Ensino Fundamental 1º ano
+      - name: taxa_abandono_ef_2_ano
+        description: Taxa de Abandono - Ensino Fundamental 2º ano
+      - name: taxa_abandono_ef_3_ano
+        description: Taxa de Abandono - Ensino Fundamental 3º ano
+      - name: taxa_abandono_ef_4_ano
+        description: Taxa de Abandono - Ensino Fundamental 4º ano
+      - name: taxa_abandono_ef_5_ano
+        description: Taxa de Abandono - Ensino Fundamental 5º ano
+      - name: taxa_abandono_ef_6_ano
+        description: Taxa de Abandono - Ensino Fundamental 6º ano
+      - name: taxa_abandono_ef_7_ano
+        description: Taxa de Abandono - Ensino Fundamental 7º ano
+      - name: taxa_abandono_ef_8_ano
+        description: Taxa de Abandono - Ensino Fundamental 8º ano
+      - name: taxa_abandono_ef_9_ano
+        description: Taxa de Abandono - Ensino Fundamental 9º ano
+      - name: taxa_abandono_em
+        description: Taxa de Abandono - Ensino Médio
+      - name: taxa_abandono_em_1_ano
+        description: Taxa de Abandono - Ensino Médio 1º ano
+      - name: taxa_abandono_em_2_ano
+        description: Taxa de Abandono - Ensino Médio 2º ano
+      - name: taxa_abandono_em_3_ano
+        description: Taxa de Abandono - Ensino Médio 3º ano
+      - name: taxa_abandono_em_4_ano
+        description: Taxa de Abandono - Ensino Médio 4º ano
+      - name: taxa_abandono_em_nao_seriado
+        description: Taxa de Abandono - Ensino Médio Não seriado
+      - name: tnr_ef
+        description: Taxa de Não Resposta - Ensino Fundamental
+      - name: tnr_ef_anos_iniciais
+        description: Taxa de Não Resposta - Ensino Fundamental Anos Iniciais
+      - name: tnr_ef_anos_finais
+        description: Taxa de Não Resposta - Ensino Fundamental Anos Finais
+      - name: tnr_ef_1_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 1º ano
+      - name: tnr_ef_2_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 2º ano
+      - name: tnr_ef_3_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 3º ano
+      - name: tnr_ef_4_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 4º ano
+      - name: tnr_ef_5_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 5º ano
+      - name: tnr_ef_6_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 6º ano
+      - name: tnr_ef_7_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 7º ano
+      - name: tnr_ef_8_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 8º ano
+      - name: tnr_ef_9_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 9º ano
+      - name: tnr_em
+        description: Taxa de Não Resposta - Ensino Médio
+      - name: tnr_em_1_ano
+        description: Taxa de Não Resposta - Ensino Médio 1º ano
+      - name: tnr_em_2_ano
+        description: Taxa de Não Resposta - Ensino Médio 2º ano
+      - name: tnr_em_3_ano
+        description: Taxa de Não Resposta - Ensino Médio 3º ano
+      - name: tnr_em_4_ano
+        description: Taxa de Não Resposta - Ensino Médio 4º ano
+      - name: tnr_em_nao_seriado
+        description: Taxa de Não Resposta - Ensino Médio Não Seriado
+      - name: dsu_ei
+        description: Percentual de Docentes com Curso Superior - Educação Infantil
+      - name: dsu_ei_creche
+        description: Percentual de Docentes com Curso Superior - Educação Infantil
+          Creche
+      - name: dsu_ei_pre_escola
+        description: Percentual de Docentes com Curso Superior - Educação Infantil
+          Pré-escola
+      - name: dsu_ef
+        description: Percentual de Docentes com Curso Superior - Ensino Fundamental
+      - name: dsu_ef_anos_iniciais
+        description: Percentual de Docentes com Curso Superior - Ensino Fundamental
+          Anos Iniciais
+      - name: dsu_ef_anos_finais
+        description: Percentual de Docentes com Curso Superior - Ensino Fundamental
+          Anos Finais
+      - name: dsu_em
+        description: Percentual de Docentes com Curso Superior - Ensino Médio
+      - name: dsu_ep
+        description: Percentual de Docentes com Curso Superior - Educação Profissional
+      - name: dsu_eja
+        description: Percentual de Docentes com Curso Superior - Educação Jovens Adultos
+      - name: dsu_ee
+        description: Percentual de Docentes com Curso Superior - Educação Especial
+      - name: afd_ei_grupo_1
+        description: Adequação da Formação Docente - Educação Infantil Grupo 1
+      - name: afd_ei_grupo_2
+        description: Adequação da Formação Docente - Educação Infantil Grupo 2
+      - name: afd_ei_grupo_3
+        description: Adequação da Formação Docente - Educação Infantil Grupo 3
+      - name: afd_ei_grupo_4
+        description: Adequação da Formação Docente - Educação Infantil Grupo 4
+      - name: afd_ei_grupo_5
+        description: Adequação da Formação Docente - Educação Infantil Grupo 5
+      - name: afd_ef_grupo_1
+        description: Adequação da Formação Docente - Ensino Fundamental Grupo 1
+      - name: afd_ef_grupo_2
+        description: Adequação da Formação Docente - Ensino Fundamental Grupo 2
+      - name: afd_ef_grupo_3
+        description: Adequação da Formação Docente - Ensino Fundamental Grupo 3
+      - name: afd_ef_grupo_4
+        description: Adequação da Formação Docente - Ensino Fundamental Grupo 4
+      - name: afd_ef_grupo_5
+        description: Adequação da Formação Docente - Ensino Fundamental Grupo 5
+      - name: afd_ef_anos_iniciais_grupo_1
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Iniciais
+          Grupo 1
+      - name: afd_ef_anos_iniciais_grupo_2
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Iniciais
+          Grupo 2
+      - name: afd_ef_anos_iniciais_grupo_3
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Iniciais
+          Grupo 3
+      - name: afd_ef_anos_iniciais_grupo_4
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Iniciais
+          Grupo 4
+      - name: afd_ef_anos_iniciais_grupo_5
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Iniciais
+          Grupo 5
+      - name: afd_ef_anos_finais_grupo_1
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Finais
+          Grupo 1
+      - name: afd_ef_anos_finais_grupo_2
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Finais
+          Grupo 2
+      - name: afd_ef_anos_finais_grupo_3
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Finais
+          Grupo 3
+      - name: afd_ef_anos_finais_grupo_4
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Finais
+          Grupo 4
+      - name: afd_ef_anos_finais_grupo_5
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Finais
+          Grupo 5
+      - name: afd_em_grupo_1
+        description: Adequação da Formação Docente - Ensino Médio Grupo 1
+      - name: afd_em_grupo_2
+        description: Adequação da Formação Docente - Ensino Médio Grupo 2
+      - name: afd_em_grupo_3
+        description: Adequação da Formação Docente - Ensino Médio Grupo 3
+      - name: afd_em_grupo_4
+        description: Adequação da Formação Docente - Ensino Médio Grupo 4
+      - name: afd_em_grupo_5
+        description: Adequação da Formação Docente - Ensino Médio Grupo 5
+      - name: afd_eja_fundamental_grupo_1
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Fundamental Grupo 1
+      - name: afd_eja_fundamental_grupo_2
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Fundamental Grupo 2
+      - name: afd_eja_fundamental_grupo_3
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Fundamental Grupo 3
+      - name: afd_eja_fundamental_grupo_4
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Fundamental Grupo 4
+      - name: afd_eja_fundamental_grupo_5
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Fundamental Grupo 5
+      - name: afd_eja_medio_grupo_1
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Médio Grupo 1
+      - name: afd_eja_medio_grupo_2
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Médio Grupo 2
+      - name: afd_eja_medio_grupo_3
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Médio Grupo 3
+      - name: afd_eja_medio_grupo_4
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Médio Grupo 4
+      - name: afd_eja_medio_grupo_5
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Médio Grupo 5
+      - name: ird_baixa_regularidade
+        description: Regularidade do Corpo Docente - Baixa Regularidade
+      - name: ird_media_baixa
+        description: Regularidade do Corpo Docente - Média a Baixa Regularidade
+      - name: ird_media_alta
+        description: Regularidade do Corpo Docente - Média a Alta Regularidade
+      - name: ird_alta
+        description: Regularidade do Corpo Docente - Alta Regularidade
+      - name: ied_ef_nivel_1
+        description: Esforço Docente - Ensino Fundamental Nível 1
+      - name: ied_ef_nivel_2
+        description: Esforço Docente - Ensino Fundamental Nível 2
+      - name: ied_ef_nivel_3
+        description: Esforço Docente - Ensino Fundamental Nível 3
+      - name: ied_ef_nivel_4
+        description: Esforço Docente - Ensino Fundamental Nível 4
+      - name: ied_ef_nivel_5
+        description: Esforço Docente - Ensino Fundamental Nível 5
+      - name: ied_ef_nivel_6
+        description: Esforço Docente - Ensino Fundamental Nível 6
+      - name: ied_ef_anos_iniciais_nivel_1
+        description: Esforço Docente - Ensino Fundamental Anos Iniciais Nível 1
+      - name: ied_ef_anos_iniciais_nivel_2
+        description: Esforço Docente - Ensino Fundamental Anos Iniciais Nível 2
+      - name: ied_ef_anos_iniciais_nivel_3
+        description: Esforço Docente - Ensino Fundamental Anos Iniciais Nível 3
+      - name: ied_ef_anos_iniciais_nivel_4
+        description: Esforço Docente - Ensino Fundamental Anos Iniciais Nível 4
+      - name: ied_ef_anos_iniciais_nivel_5
+        description: Esforço Docente - Ensino Fundamental Anos Iniciais Nível 5
+      - name: ied_ef_anos_iniciais_nivel_6
+        description: Esforço Docente - Ensino Fundamental Anos Iniciais Nível 6
+      - name: ied_ef_anos_finais_nivel_1
+        description: Esforço Docente - Ensino Fundamental Anos Finais Nível 1
+      - name: ied_ef_anos_finais_nivel_2
+        description: Esforço Docente - Ensino Fundamental Anos Finais Nível 2
+      - name: ied_ef_anos_finais_nivel_3
+        description: Esforço Docente - Ensino Fundamental Anos Finais Nível 3
+      - name: ied_ef_anos_finais_nivel_4
+        description: Esforço Docente - Ensino Fundamental Anos Finais Nível 4
+      - name: ied_ef_anos_finais_nivel_5
+        description: Esforço Docente - Ensino Fundamental Anos Finais Nível 5
+      - name: ied_ef_anos_finais_nivel_6
+        description: Esforço Docente - Ensino Fundamental Anos Finais Nível 6
+      - name: ied_em_nivel_1
+        description: Esforço Docente - Ensino Médio Nível 1
+      - name: ied_em_nivel_2
+        description: Esforço Docente - Ensino Médio Nível 2
+      - name: ied_em_nivel_3
+        description: Esforço Docente - Ensino Médio Nível 3
+      - name: ied_em_nivel_4
+        description: Esforço Docente - Ensino Médio Nível 4
+      - name: ied_em_nivel_5
+        description: Esforço Docente - Ensino Médio Nível 5
+      - name: ied_em_nivel_6
+        description: Esforço Docente - Ensino Médio Nível 6
+      - name: icg_nivel_1
+        description: Complexidade de Gestão da Escola Nível 1
+      - name: icg_nivel_2
+        description: Complexidade de Gestão da Escola Nível 2
+      - name: icg_nivel_3
+        description: Complexidade de Gestão da Escola Nível 3
+      - name: icg_nivel_4
+        description: Complexidade de Gestão da Escola Nível 4
+      - name: icg_nivel_5
+        description: Complexidade de Gestão da Escola Nível 5
+      - name: icg_nivel_6
+        description: Complexidade de Gestão da Escola Nível 6
+  - name: br_inep_indicadores_educacionais__brasil_taxa_transicao
+    description: Os indicadores de transição, equivalentemente denominados como indicadores
+      de fluxo escolar, têm por objetivo informar sobre a trajetória do estudante
+      na educação básica, que por sua vez, depende da estrutura organizacional dos
+      programas de educação formal (sistemática), ou educação escolar, normalmente
+      operacionalizada em níveis de ensino.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [insert unique keys here]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: localizacao
+        description: Localização
+      - name: rede
+        description: Rede Escolar
+      - name: taxa_promocao_ef
+        description: Taxa de Promoção - Ensino Fundamental
+      - name: taxa_promocao_ef_anos_iniciais
+        description: Taxa de Promoção - Ensino Fundamental Anos Iniciais
+      - name: taxa_promocao_ef_anos_finais
+        description: Taxa de Promoção - Ensino Fundamental Anos Finais
+      - name: taxa_promocao_ef_1_ano
+        description: Taxa de Promoção - Ensino Fundamental 1º Ano
+      - name: taxa_promocao_ef_2_ano
+        description: Taxa de Promoção - Ensino Fundamental 2º Ano
+      - name: taxa_promocao_ef_3_ano
+        description: Taxa de Promoção - Ensino Fundamental 3º Ano
+      - name: taxa_promocao_ef_4_ano
+        description: Taxa de Promoção - Ensino Fundamental 4º Ano
+      - name: taxa_promocao_ef_5_ano
+        description: Taxa de Promoção - Ensino Fundamental 5º Ano
+      - name: taxa_promocao_ef_6_ano
+        description: Taxa de Promoção - Ensino Fundamental 6º Ano
+      - name: taxa_promocao_ef_7_ano
+        description: Taxa de Promoção - Ensino Fundamental 7º Ano
+      - name: taxa_promocao_ef_8_ano
+        description: Taxa de Promoção - Ensino Fundamental 8º Ano
+      - name: taxa_promocao_ef_9_ano
+        description: Taxa de Promoção - Ensino Fundamental 9º Ano
+      - name: taxa_promocao_em
+        description: Taxa de Promoção - Ensino Médio
+      - name: taxa_promocao_em_1_ano
+        description: Taxa de Promoção - Ensino Médio 1º Ano
+      - name: taxa_promocao_em_2_ano
+        description: Taxa de Promoção - Ensino Médio 2º Ano
+      - name: taxa_promocao_em_3_ano
+        description: Taxa de Promoção - Ensino Médio 3º Ano
+      - name: taxa_repetencia_ef
+        description: Taxa de Repetência - Ensino Fundamental
+      - name: taxa_repetencia_ef_anos_iniciais
+        description: Taxa de Repetência - Ensino Fundamenta Anos Iniciais
+      - name: taxa_repetencia_ef_anos_finais
+        description: Taxa de Repetência - Ensino Fundamenta Anos Finais
+      - name: taxa_repetencia_ef_1_ano
+        description: Taxa de Repetência - Ensino Fundamental 1º Ano
+      - name: taxa_repetencia_ef_2_ano
+        description: Taxa de Repetência - Ensino Fundamental 2º Ano
+      - name: taxa_repetencia_ef_3_ano
+        description: Taxa de Repetência - Ensino Fundamental 3º Ano
+      - name: taxa_repetencia_ef_4_ano
+        description: Taxa de Repetência - Ensino Fundamental 4º Ano
+      - name: taxa_repetencia_ef_5_ano
+        description: Taxa de Repetência - Ensino Fundamental 5º Ano
+      - name: taxa_repetencia_ef_6_ano
+        description: Taxa de Repetência - Ensino Fundamental 6º Ano
+      - name: taxa_repetencia_ef_7_ano
+        description: Taxa de Repetência - Ensino Fundamental 7º Ano
+      - name: taxa_repetencia_ef_8_ano
+        description: Taxa de Repetência - Ensino Fundamental 8º Ano
+      - name: taxa_repetencia_ef_9_ano
+        description: Taxa de Repetência - Ensino Fundamental 9º Ano
+      - name: taxa_repetencia_em
+        description: Taxa de Repetência - Ensino Médio
+      - name: taxa_repetencia_em_1_ano
+        description: Taxa de Repetência - Ensino Médio 1º Ano
+      - name: taxa_repetencia_em_2_ano
+        description: Taxa de Repetência - Ensino Médio 2º Ano
+      - name: taxa_repetencia_em_3_ano
+        description: Taxa de Repetência - Ensino Médio 3º Ano
+      - name: taxa_evasao_ef
+        description: Taxa de Evasão - Ensino Fundamental
+      - name: taxa_evasao_ef_anos_iniciais
+        description: Taxa de Evasão - Ensino Fundamental Anos Iniciais
+      - name: taxa_evasao_ef_anos_finais
+        description: Taxa de Evasão - Ensino Fundamental Anos Finais
+      - name: taxa_evasao_ef_1_ano
+        description: Taxa de Evasão - Ensino Fundamental 1º Ano
+      - name: taxa_evasao_ef_2_ano
+        description: Taxa de Evasão - Ensino Fundamental 2º Ano
+      - name: taxa_evasao_ef_3_ano
+        description: Taxa de Evasão - Ensino Fundamental 3º Ano
+      - name: taxa_evasao_ef_4_ano
+        description: Taxa de Evasão - Ensino Fundamental 4º Ano
+      - name: taxa_evasao_ef_5_ano
+        description: Taxa de Evasão - Ensino Fundamental 5º Ano
+      - name: taxa_evasao_ef_6_ano
+        description: Taxa de Evasão - Ensino Fundamental 6º Ano
+      - name: taxa_evasao_ef_7_ano
+        description: Taxa de Evasão - Ensino Fundamental 7º Ano
+      - name: taxa_evasao_ef_8_ano
+        description: Taxa de Evasão - Ensino Fundamental 8º Ano
+      - name: taxa_evasao_ef_9_ano
+        description: Taxa de Evasão - Ensino Fundamental 9º Ano
+      - name: taxa_evasao_em
+        description: Taxa de Evasão - Ensino Médio
+      - name: taxa_evasao_em_1_ano
+        description: Taxa de Evasão - Ensino Médio 1º Ano
+      - name: taxa_evasao_em_2_ano
+        description: Taxa de Evasão - Ensino Médio 2º Ano
+      - name: taxa_evasao_em_3_ano
+        description: Taxa de Evasão - Ensino Médio 3º Ano
+      - name: taxa_migracao_eja_ef
+        description: Taxa de Migração para o EJA - Ensino Fundamental
+      - name: taxa_migracao_eja_ef_anos_iniciais
+        description: Taxa de Migração para o EJA - Ensino Fundamental Anos Iniciais
+      - name: taxa_migracao_eja_ef_anos_finais
+        description: Taxa de Migração para o EJA - Ensino Fundamental Anos finais
+      - name: taxa_migracao_eja_ef_1_ano
+        description: Taxa de Migração para o EJA - Ensino Fundamental 1º Ano
+      - name: taxa_migracao_eja_ef_2_ano
+        description: Taxa de Migração para o EJA - Ensino Fundamental 2º Ano
+      - name: taxa_migracao_eja_ef_3_ano
+        description: Taxa de Migração para o EJA - Ensino Fundamental 3º Ano
+      - name: taxa_migracao_eja_ef_4_ano
+        description: Taxa de Migração para o EJA - Ensino Fundamental 4º Ano
+      - name: taxa_migracao_eja_ef_5_ano
+        description: Taxa de Migração para o EJA - Ensino Fundamental 5º Ano
+      - name: taxa_migracao_eja_ef_6_ano
+        description: Taxa de Migração para o EJA - Ensino Fundamental 6º Ano
+      - name: taxa_migracao_eja_ef_7_ano
+        description: Taxa de Migração para o EJA - Ensino Fundamental 7º Ano
+      - name: taxa_migracao_eja_ef_8_ano
+        description: Taxa de Migração para o EJA - Ensino Fundamental 8º Ano
+      - name: taxa_migracao_eja_ef_9_ano
+        description: Taxa de Migração para o EJA - Ensino Fundamental 9º Ano
+      - name: taxa_migracao_eja_em
+        description: Taxa de Migração para o EJA - Ensino Médio
+      - name: taxa_migracao_eja_em_1_ano
+        description: Taxa de Migração para o EJA - Ensino Médio 1º Ano
+      - name: taxa_migracao_eja_em_2_ano
+        description: Taxa de Migração para o EJA - Ensino Médio 2º Ano
+      - name: taxa_migracao_eja_em_3_ano
+        description: Taxa de Migração para o EJA - Ensino Médio 3º Ano
+  - name: br_inep_indicadores_educacionais__escola
+    description: Indicadores educacionais do Inep a nível escola
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [insert unique keys here]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_escola
+        description: ID Escola - INEP
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__escola')
+              field: id_escola
+      - name: localizacao
+        description: Localização
+      - name: rede
+        description: Rede Escolar
+      - name: atu_ei
+        description: Média de Alunos por Turma - Educação Infantil
+      - name: atu_ei_creche
+        description: Média de Alunos por Turma - Educação Infantil Creche
+      - name: atu_ei_pre_escola
+        description: Média de Alunos por Turma - Educação Infantil Pré escola
+      - name: atu_ef
+        description: Média de Alunos por Turma - Ensino Fundamental
+      - name: atu_ef_anos_iniciais
+        description: Média de Alunos por Turma - Ensino Fundamental Anos Iniciais
+      - name: atu_ef_anos_finais
+        description: Média de Alunos por Turma - Ensino Fundamental Anos Finais
+      - name: atu_ef_1_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 1º ano
+      - name: atu_ef_2_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 2º ano
+      - name: atu_ef_3_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 3º ano
+      - name: atu_ef_4_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 4º ano
+      - name: atu_ef_5_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 5º ano
+      - name: atu_ef_6_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 6º ano
+      - name: atu_ef_7_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 7º ano
+      - name: atu_ef_8_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 8º ano
+      - name: atu_ef_9_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 9º ano
+      - name: atu_ef_turmas_unif_multi_fluxo
+        description: Média de Alunos por Turma - Ensino Fundamental Turmas Unificadas,
+          Multi, Multietapa e Correção de fluxo
+      - name: atu_em
+        description: Média de Alunos por Turma - Ensino Médio
+      - name: atu_em_1_ano
+        description: Média de Alunos por Turma - Ensino Médio 1º ano
+      - name: atu_em_2_ano
+        description: Média de Alunos por Turma - Ensino Médio 2º ano
+      - name: atu_em_3_ano
+        description: Média de Alunos por Turma - Ensino Médio 3º ano
+      - name: atu_em_4_ano
+        description: Média de Alunos por Turma - Ensino Médio 4º ano
+      - name: atu_em_nao_seriado
+        description: Média de Alunos por Turma - Ensino Médio Não Seriado
+      - name: had_ei
+        description: Média de Horas-Aula diária - Educação Infantil
+      - name: had_ei_creche
+        description: Média de Horas-Aula diária - Educação Infantil Creche
+      - name: had_ei_pre_escola
+        description: Média de Horas-Aula diária - Educação Infantil Pré-escola
+      - name: had_ef
+        description: Média de Horas-Aula diária - Ensino Fundamental
+      - name: had_ef_anos_iniciais
+        description: Média de Horas-Aula diária - Ensino Fundamental Anos Iniciais
+      - name: had_ef_anos_finais
+        description: Média de Horas-Aula diária - Ensino Fundamental Anos Finais
+      - name: had_ef_1_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 1º ano
+      - name: had_ef_2_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 2º ano
+      - name: had_ef_3_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 3º ano
+      - name: had_ef_4_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 4º ano
+      - name: had_ef_5_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 5º ano
+      - name: had_ef_6_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 6º ano
+      - name: had_ef_7_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 7º ano
+      - name: had_ef_8_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 8º ano
+      - name: had_ef_9_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 9º ano
+      - name: had_em
+        description: Média de Horas-Aula diária - Ensino Médio
+      - name: had_em_1_ano
+        description: Média de Horas-Aula diária - Ensino Médio 1º ano
+      - name: had_em_2_ano
+        description: Média de Horas-Aula diária - Ensino Médio 2º ano
+      - name: had_em_3_ano
+        description: Média de Horas-Aula diária - Ensino Médio 3º ano
+      - name: had_em_4_ano
+        description: Média de Horas-Aula diária - Ensino Médio 4º ano
+      - name: had_em_nao_seriado
+        description: Média de Horas-Aula diária - Ensino Médio Não Seriado
+      - name: tdi_ef
+        description: Taxa de distorção idade-série - Ensino Fundamental
+      - name: tdi_ef_anos_iniciais
+        description: Taxa de distorção idade-série - Ensino Fundamental Anos Iniciais
+      - name: tdi_ef_anos_finais
+        description: Taxa de distorção idade-série - Ensino Fundamental Anos Finais
+      - name: tdi_ef_1_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 1º ano
+      - name: tdi_ef_2_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 2º ano
+      - name: tdi_ef_3_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 3º ano
+      - name: tdi_ef_4_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 4º ano
+      - name: tdi_ef_5_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 5º ano
+      - name: tdi_ef_6_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 6º ano
+      - name: tdi_ef_7_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 7º ano
+      - name: tdi_ef_8_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 8º ano
+      - name: tdi_ef_9_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 9º ano
+      - name: tdi_em
+        description: Taxa de distorção idade-série - Ensino Médio
+      - name: tdi_em_1_ano
+        description: Taxa de distorção idade-série - Ensino Médio 1º ano
+      - name: tdi_em_2_ano
+        description: Taxa de distorção idade-série - Ensino Médio 2º ano
+      - name: tdi_em_3_ano
+        description: Taxa de distorção idade-série - Ensino Médio 3º ano
+      - name: tdi_em_4_ano
+        description: Taxa de distorção idade-série - Ensino Médio 4º ano
+      - name: taxa_aprovacao_ef
+        description: Taxa de Aprovação - Ensino Fundamental
+      - name: taxa_aprovacao_ef_anos_iniciais
+        description: Taxa de Aprovação - Ensino Fundamental Anos Iniciais
+      - name: taxa_aprovacao_ef_anos_finais
+        description: Taxa de Aprovação - Ensino Fundamental Anos Finais
+      - name: taxa_aprovacao_ef_1_ano
+        description: Taxa de Aprovação - Ensino Fundamental 1º ano
+      - name: taxa_aprovacao_ef_2_ano
+        description: Taxa de Aprovação - Ensino Fundamental 2º ano
+      - name: taxa_aprovacao_ef_3_ano
+        description: Taxa de Aprovação - Ensino Fundamental 3º ano
+      - name: taxa_aprovacao_ef_4_ano
+        description: Taxa de Aprovação - Ensino Fundamental 4º ano
+      - name: taxa_aprovacao_ef_5_ano
+        description: Taxa de Aprovação - Ensino Fundamental 5º ano
+      - name: taxa_aprovacao_ef_6_ano
+        description: Taxa de Aprovação - Ensino Fundamental 6º ano
+      - name: taxa_aprovacao_ef_7_ano
+        description: Taxa de Aprovação - Ensino Fundamental 7º ano
+      - name: taxa_aprovacao_ef_8_ano
+        description: Taxa de Aprovação - Ensino Fundamental 8º ano
+      - name: taxa_aprovacao_ef_9_ano
+        description: Taxa de Aprovação - Ensino Fundamental 9º ano
+      - name: taxa_aprovacao_em
+        description: Taxa de Aprovação - Ensino Médio
+      - name: taxa_aprovacao_em_1_ano
+        description: Taxa de Aprovação - Ensino Médio 1º ano
+      - name: taxa_aprovacao_em_2_ano
+        description: Taxa de Aprovação - Ensino Médio 2º ano
+      - name: taxa_aprovacao_em_3_ano
+        description: Taxa de Aprovação - Ensino Médio 3º ano
+      - name: taxa_aprovacao_em_4_ano
+        description: Taxa de Aprovação - Ensino Médio 4º ano
+      - name: taxa_aprovacao_em_nao_seriado
+        description: Taxa de Aprovação - Ensino Médio Não Seriado
+      - name: taxa_reprovacao_ef
+        description: Taxa de Reprovação - Ensino Fundamental
+      - name: taxa_reprovacao_ef_anos_iniciais
+        description: Taxa de Reprovação - Ensino Fundamental Anos Iniciais
+      - name: taxa_reprovacao_ef_anos_finais
+        description: Taxa de Reprovação - Ensino Fundamental Anos Finais
+      - name: taxa_reprovacao_ef_1_ano
+        description: Taxa de Reprovação - Ensino Fundamental 1º ano
+      - name: taxa_reprovacao_ef_2_ano
+        description: Taxa de Reprovação - Ensino Fundamental 2º ano
+      - name: taxa_reprovacao_ef_3_ano
+        description: Taxa de Reprovação - Ensino Fundamental 3º ano
+      - name: taxa_reprovacao_ef_4_ano
+        description: Taxa de Reprovação - Ensino Fundamental 4º ano
+      - name: taxa_reprovacao_ef_5_ano
+        description: Taxa de Reprovação - Ensino Fundamental 5º ano
+      - name: taxa_reprovacao_ef_6_ano
+        description: Taxa de Reprovação - Ensino Fundamental 6º ano
+      - name: taxa_reprovacao_ef_7_ano
+        description: Taxa de Reprovação - Ensino Fundamental 7º ano
+      - name: taxa_reprovacao_ef_8_ano
+        description: Taxa de Reprovação - Ensino Fundamental 8º ano
+      - name: taxa_reprovacao_ef_9_ano
+        description: Taxa de Reprovação - Ensino Fundamental 9º ano
+      - name: taxa_reprovacao_em
+        description: Taxa de Reprovação - Ensino Médio
+      - name: taxa_reprovacao_em_1_ano
+        description: Taxa de Reprovação - Ensino Médio 1º ano
+      - name: taxa_reprovacao_em_2_ano
+        description: Taxa de Reprovação - Ensino Médio 2º ano
+      - name: taxa_reprovacao_em_3_ano
+        description: Taxa de Reprovação - Ensino Médio 3º ano
+      - name: taxa_reprovacao_em_4_ano
+        description: Taxa de Reprovação - Ensino Médio 4º ano
+      - name: taxa_reprovacao_em_nao_seriado
+        description: Taxa de Reprovação - Ensino Médio Não Seriado
+      - name: taxa_abandono_ef
+        description: Taxa de Abandono - Ensino Fundamental
+      - name: taxa_abandono_ef_anos_iniciais
+        description: Taxa de Abandono - Ensino Fundamental Anos Iniciais
+      - name: taxa_abandono_ef_anos_finais
+        description: Taxa de Abandono - Ensino Fundamental Anos Finais
+      - name: taxa_abandono_ef_1_ano
+        description: Taxa de Abandono - Ensino Fundamental 1º ano
+      - name: taxa_abandono_ef_2_ano
+        description: Taxa de Abandono - Ensino Fundamental 2º ano
+      - name: taxa_abandono_ef_3_ano
+        description: Taxa de Abandono - Ensino Fundamental 3º ano
+      - name: taxa_abandono_ef_4_ano
+        description: Taxa de Abandono - Ensino Fundamental 4º ano
+      - name: taxa_abandono_ef_5_ano
+        description: Taxa de Abandono - Ensino Fundamental 5º ano
+      - name: taxa_abandono_ef_6_ano
+        description: Taxa de Abandono - Ensino Fundamental 6º ano
+      - name: taxa_abandono_ef_7_ano
+        description: Taxa de Abandono - Ensino Fundamental 7º ano
+      - name: taxa_abandono_ef_8_ano
+        description: Taxa de Abandono - Ensino Fundamental 8º ano
+      - name: taxa_abandono_ef_9_ano
+        description: Taxa de Abandono - Ensino Fundamental 9º ano
+      - name: taxa_abandono_em
+        description: Taxa de Abandono - Ensino Médio
+      - name: taxa_abandono_em_1_ano
+        description: Taxa de Abandono - Ensino Médio 1º ano
+      - name: taxa_abandono_em_2_ano
+        description: Taxa de Abandono - Ensino Médio 2º ano
+      - name: taxa_abandono_em_3_ano
+        description: Taxa de Abandono - Ensino Médio 3º ano
+      - name: taxa_abandono_em_4_ano
+        description: Taxa de Abandono - Ensino Médio 4º ano
+      - name: taxa_abandono_em_nao_seriado
+        description: Taxa de Abandono - Ensino Médio Não seriado
+      - name: tnr_ef
+        description: Taxa de Não Resposta - Ensino Fundamental
+      - name: tnr_ef_anos_iniciais
+        description: Taxa de Não Resposta - Ensino Fundamental Anos Iniciais
+      - name: tnr_ef_anos_finais
+        description: Taxa de Não Resposta - Ensino Fundamental Anos Finais
+      - name: tnr_ef_1_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 1º ano
+      - name: tnr_ef_2_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 2º ano
+      - name: tnr_ef_3_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 3º ano
+      - name: tnr_ef_4_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 4º ano
+      - name: tnr_ef_5_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 5º ano
+      - name: tnr_ef_6_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 6º ano
+      - name: tnr_ef_7_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 7º ano
+      - name: tnr_ef_8_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 8º ano
+      - name: tnr_ef_9_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 9º ano
+      - name: tnr_em
+        description: Taxa de Não Resposta - Ensino Médio
+      - name: tnr_em_1_ano
+        description: Taxa de Não Resposta - Ensino Médio 1º ano
+      - name: tnr_em_2_ano
+        description: Taxa de Não Resposta - Ensino Médio 2º ano
+      - name: tnr_em_3_ano
+        description: Taxa de Não Resposta - Ensino Médio 3º ano
+      - name: tnr_em_4_ano
+        description: Taxa de Não Resposta - Ensino Médio 4º ano
+      - name: tnr_em_nao_seriado
+        description: Taxa de Não Resposta - Ensino Médio Não Seriado
+      - name: dsu_ei
+        description: Percentual de Docentes com Curso Superior - Educação Infantil
+      - name: dsu_ei_creche
+        description: Percentual de Docentes com Curso Superior - Educação Infantil
+          Creche
+      - name: dsu_ei_pre_escola
+        description: Percentual de Docentes com Curso Superior - Educação Infantil
+          Pré-escola
+      - name: dsu_ef
+        description: Percentual de Docentes com Curso Superior - Ensino Fundamental
+      - name: dsu_ef_anos_iniciais
+        description: Percentual de Docentes com Curso Superior - Ensino Fundamental
+          Anos Iniciais
+      - name: dsu_ef_anos_finais
+        description: Percentual de Docentes com Curso Superior - Ensino Fundamental
+          Anos Finais
+      - name: dsu_em
+        description: Percentual de Docentes com Curso Superior - Ensino Médio
+      - name: dsu_ep
+        description: Percentual de Docentes com Curso Superior - Educação Profissional
+      - name: dsu_eja
+        description: Percentual de Docentes com Curso Superior - Educação Jovens Adultos
+      - name: dsu_ee
+        description: Percentual de Docentes com Curso Superior - Educação Especial
+      - name: afd_ei_grupo_1
+        description: Adequação da Formação Docente - Educação Infantil Grupo 1
+      - name: afd_ei_grupo_2
+        description: Adequação da Formação Docente - Educação Infantil Grupo 2
+      - name: afd_ei_grupo_3
+        description: Adequação da Formação Docente - Educação Infantil Grupo 3
+      - name: afd_ei_grupo_4
+        description: Adequação da Formação Docente - Educação Infantil Grupo 4
+      - name: afd_ei_grupo_5
+        description: Adequação da Formação Docente - Educação Infantil Grupo 5
+      - name: afd_ef_grupo_1
+        description: Adequação da Formação Docente - Ensino Fundamental Grupo 1
+      - name: afd_ef_grupo_2
+        description: Adequação da Formação Docente - Ensino Fundamental Grupo 2
+      - name: afd_ef_grupo_3
+        description: Adequação da Formação Docente - Ensino Fundamental Grupo 3
+      - name: afd_ef_grupo_4
+        description: Adequação da Formação Docente - Ensino Fundamental Grupo 4
+      - name: afd_ef_grupo_5
+        description: Adequação da Formação Docente - Ensino Fundamental Grupo 5
+      - name: afd_ef_anos_iniciais_grupo_1
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Iniciais
+          Grupo 1
+      - name: afd_ef_anos_iniciais_grupo_2
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Iniciais
+          Grupo 2
+      - name: afd_ef_anos_iniciais_grupo_3
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Iniciais
+          Grupo 3
+      - name: afd_ef_anos_iniciais_grupo_4
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Iniciais
+          Grupo 4
+      - name: afd_ef_anos_iniciais_grupo_5
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Iniciais
+          Grupo 5
+      - name: afd_ef_anos_finais_grupo_1
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Finais
+          Grupo 1
+      - name: afd_ef_anos_finais_grupo_2
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Finais
+          Grupo 2
+      - name: afd_ef_anos_finais_grupo_3
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Finais
+          Grupo 3
+      - name: afd_ef_anos_finais_grupo_4
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Finais
+          Grupo 4
+      - name: afd_ef_anos_finais_grupo_5
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Finais
+          Grupo 5
+      - name: afd_em_grupo_1
+        description: Adequação da Formação Docente - Ensino Médio Grupo 1
+      - name: afd_em_grupo_2
+        description: Adequação da Formação Docente - Ensino Médio Grupo 2
+      - name: afd_em_grupo_3
+        description: Adequação da Formação Docente - Ensino Médio Grupo 3
+      - name: afd_em_grupo_4
+        description: Adequação da Formação Docente - Ensino Médio Grupo 4
+      - name: afd_em_grupo_5
+        description: Adequação da Formação Docente - Ensino Médio Grupo 5
+      - name: afd_eja_fundamental_grupo_1
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Fundamental Grupo 1
+      - name: afd_eja_fundamental_grupo_2
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Fundamental Grupo 2
+      - name: afd_eja_fundamental_grupo_3
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Fundamental Grupo 3
+      - name: afd_eja_fundamental_grupo_4
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Fundamental Grupo 4
+      - name: afd_eja_fundamental_grupo_5
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Fundamental Grupo 5
+      - name: afd_eja_medio_grupo_1
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Médio Grupo 1
+      - name: afd_eja_medio_grupo_2
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Médio Grupo 2
+      - name: afd_eja_medio_grupo_3
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Médio Grupo 3
+      - name: afd_eja_medio_grupo_4
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Médio Grupo 4
+      - name: afd_eja_medio_grupo_5
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Médio Grupo 5
+      - name: ird_media_regularidade_docente
+        description: Regularidade do corpo docente nas escolas de educação básica
+      - name: ied_ef_nivel_1
+        description: Esforço Docente - Ensino Fundamental Nível 1
+      - name: ied_ef_nivel_2
+        description: Esforço Docente - Ensino Fundamental Nível 2
+      - name: ied_ef_nivel_3
+        description: Esforço Docente - Ensino Fundamental Nível 3
+      - name: ied_ef_nivel_4
+        description: Esforço Docente - Ensino Fundamental Nível 4
+      - name: ied_ef_nivel_5
+        description: Esforço Docente - Ensino Fundamental Nível 5
+      - name: ied_ef_nivel_6
+        description: Esforço Docente - Ensino Fundamental Nível 6
+      - name: ied_ef_anos_iniciais_nivel_1
+        description: Esforço Docente - Ensino Fundamental Anos Iniciais Nível 1
+      - name: ied_ef_anos_iniciais_nivel_2
+        description: Esforço Docente - Ensino Fundamental Anos Iniciais Nível 2
+      - name: ied_ef_anos_iniciais_nivel_3
+        description: Esforço Docente - Ensino Fundamental Anos Iniciais Nível 3
+      - name: ied_ef_anos_iniciais_nivel_4
+        description: Esforço Docente - Ensino Fundamental Anos Iniciais Nível 4
+      - name: ied_ef_anos_iniciais_nivel_5
+        description: Esforço Docente - Ensino Fundamental Anos Iniciais Nível 5
+      - name: ied_ef_anos_iniciais_nivel_6
+        description: Esforço Docente - Ensino Fundamental Anos Iniciais Nível 6
+      - name: ied_ef_anos_finais_nivel_1
+        description: Esforço Docente - Ensino Fundamental Anos Finais Nível 1
+      - name: ied_ef_anos_finais_nivel_2
+        description: Esforço Docente - Ensino Fundamental Anos Finais Nível 2
+      - name: ied_ef_anos_finais_nivel_3
+        description: Esforço Docente - Ensino Fundamental Anos Finais Nível 3
+      - name: ied_ef_anos_finais_nivel_4
+        description: Esforço Docente - Ensino Fundamental Anos Finais Nível 4
+      - name: ied_ef_anos_finais_nivel_5
+        description: Esforço Docente - Ensino Fundamental Anos Finais Nível 5
+      - name: ied_ef_anos_finais_nivel_6
+        description: Esforço Docente - Ensino Fundamental Anos Finais Nível 6
+      - name: ied_em_nivel_1
+        description: Esforço Docente - Ensino Médio Nível 1
+      - name: ied_em_nivel_2
+        description: Esforço Docente - Ensino Médio Nível 2
+      - name: ied_em_nivel_3
+        description: Esforço Docente - Ensino Médio Nível 3
+      - name: ied_em_nivel_4
+        description: Esforço Docente - Ensino Médio Nível 4
+      - name: ied_em_nivel_5
+        description: Esforço Docente - Ensino Médio Nível 5
+      - name: ied_em_nivel_6
+        description: Esforço Docente - Ensino Médio Nível 6
+      - name: icg_nivel_complexidade_gestao_escola
+        description: Complexidade de Gestão da Escola
+  - name: br_inep_indicadores_educacionais__municipio
+    description: Indicadores educacionais do Inep a nível escola
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [insert unique keys here]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: localizacao
+        description: Localização
+      - name: rede
+        description: Rede Escolar
+      - name: atu_ei
+        description: Média de Alunos por Turma - Educação Infantil
+      - name: atu_ei_creche
+        description: Média de Alunos por Turma - Educação Infantil Creche
+      - name: atu_ei_pre_escola
+        description: Média de Alunos por Turma - Educação Infantil Pré escola
+      - name: atu_ef
+        description: Média de Alunos por Turma - Ensino Fundamental
+      - name: atu_ef_anos_iniciais
+        description: Média de Alunos por Turma - Ensino Fundamental Anos Iniciais
+      - name: atu_ef_anos_finais
+        description: Média de Alunos por Turma - Ensino Fundamental Anos Finais
+      - name: atu_ef_1_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 1º ano
+      - name: atu_ef_2_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 2º ano
+      - name: atu_ef_3_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 3º ano
+      - name: atu_ef_4_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 4º ano
+      - name: atu_ef_5_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 5º ano
+      - name: atu_ef_6_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 6º ano
+      - name: atu_ef_7_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 7º ano
+      - name: atu_ef_8_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 8º ano
+      - name: atu_ef_9_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 9º ano
+      - name: atu_ef_turmas_unif_multi_fluxo
+        description: Média de Alunos por Turma - Ensino Fundamental Turmas Unificadas,
+          Multi, Multietapa e Correção de fluxo
+      - name: atu_em
+        description: Média de Alunos por Turma - Ensino Médio
+      - name: atu_em_1_ano
+        description: Média de Alunos por Turma - Ensino Médio 1º ano
+      - name: atu_em_2_ano
+        description: Média de Alunos por Turma - Ensino Médio 2º ano
+      - name: atu_em_3_ano
+        description: Média de Alunos por Turma - Ensino Médio 3º ano
+      - name: atu_em_4_ano
+        description: Média de Alunos por Turma - Ensino Médio 4º ano
+      - name: atu_em_nao_seriado
+        description: Média de Alunos por Turma - Ensino Médio Não Seriado
+      - name: had_ei
+        description: Média de Horas-Aula diária - Educação Infantil
+      - name: had_ei_creche
+        description: Média de Horas-Aula diária - Educação Infantil Creche
+      - name: had_ei_pre_escola
+        description: Média de Horas-Aula diária - Educação Infantil Pré-escola
+      - name: had_ef
+        description: Média de Horas-Aula diária - Ensino Fundamental
+      - name: had_ef_anos_iniciais
+        description: Média de Horas-Aula diária - Ensino Fundamental Anos Iniciais
+      - name: had_ef_anos_finais
+        description: Média de Horas-Aula diária - Ensino Fundamental Anos Finais
+      - name: had_ef_1_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 1º ano
+      - name: had_ef_2_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 2º ano
+      - name: had_ef_3_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 3º ano
+      - name: had_ef_4_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 4º ano
+      - name: had_ef_5_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 5º ano
+      - name: had_ef_6_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 6º ano
+      - name: had_ef_7_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 7º ano
+      - name: had_ef_8_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 8º ano
+      - name: had_ef_9_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 9º ano
+      - name: had_em
+        description: Média de Horas-Aula diária - Ensino Médio
+      - name: had_em_1_ano
+        description: Média de Horas-Aula diária - Ensino Médio 1º ano
+      - name: had_em_2_ano
+        description: Média de Horas-Aula diária - Ensino Médio 2º ano
+      - name: had_em_3_ano
+        description: Média de Horas-Aula diária - Ensino Médio 3º ano
+      - name: had_em_4_ano
+        description: Média de Horas-Aula diária - Ensino Médio 4º ano
+      - name: had_em_nao_seriado
+        description: Média de Horas-Aula diária - Ensino Médio Não Seriado
+      - name: tdi_ef
+        description: Taxa de distorção idade-série - Ensino Fundamental
+      - name: tdi_ef_anos_iniciais
+        description: Taxa de distorção idade-série - Ensino Fundamental Anos Iniciais
+      - name: tdi_ef_anos_finais
+        description: Taxa de distorção idade-série - Ensino Fundamental Anos Finais
+      - name: tdi_ef_1_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 1º ano
+      - name: tdi_ef_2_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 2º ano
+      - name: tdi_ef_3_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 3º ano
+      - name: tdi_ef_4_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 4º ano
+      - name: tdi_ef_5_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 5º ano
+      - name: tdi_ef_6_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 6º ano
+      - name: tdi_ef_7_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 7º ano
+      - name: tdi_ef_8_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 8º ano
+      - name: tdi_ef_9_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 9º ano
+      - name: tdi_em
+        description: Taxa de distorção idade-série - Ensino Médio
+      - name: tdi_em_1_ano
+        description: Taxa de distorção idade-série - Ensino Médio 1º ano
+      - name: tdi_em_2_ano
+        description: Taxa de distorção idade-série - Ensino Médio 2º ano
+      - name: tdi_em_3_ano
+        description: Taxa de distorção idade-série - Ensino Médio 3º ano
+      - name: tdi_em_4_ano
+        description: Taxa de distorção idade-série - Ensino Médio 4º ano
+      - name: taxa_aprovacao_ef
+        description: Taxa de Aprovação - Ensino Fundamental
+      - name: taxa_aprovacao_ef_anos_iniciais
+        description: Taxa de Aprovação - Ensino Fundamental Anos Iniciais
+      - name: taxa_aprovacao_ef_anos_finais
+        description: Taxa de Aprovação - Ensino Fundamental Anos Finais
+      - name: taxa_aprovacao_ef_1_ano
+        description: Taxa de Aprovação - Ensino Fundamental 1º ano
+      - name: taxa_aprovacao_ef_2_ano
+        description: Taxa de Aprovação - Ensino Fundamental 2º ano
+      - name: taxa_aprovacao_ef_3_ano
+        description: Taxa de Aprovação - Ensino Fundamental 3º ano
+      - name: taxa_aprovacao_ef_4_ano
+        description: Taxa de Aprovação - Ensino Fundamental 4º ano
+      - name: taxa_aprovacao_ef_5_ano
+        description: Taxa de Aprovação - Ensino Fundamental 5º ano
+      - name: taxa_aprovacao_ef_6_ano
+        description: Taxa de Aprovação - Ensino Fundamental 6º ano
+      - name: taxa_aprovacao_ef_7_ano
+        description: Taxa de Aprovação - Ensino Fundamental 7º ano
+      - name: taxa_aprovacao_ef_8_ano
+        description: Taxa de Aprovação - Ensino Fundamental 8º ano
+      - name: taxa_aprovacao_ef_9_ano
+        description: Taxa de Aprovação - Ensino Fundamental 9º ano
+      - name: taxa_aprovacao_em
+        description: Taxa de Aprovação - Ensino Médio
+      - name: taxa_aprovacao_em_1_ano
+        description: Taxa de Aprovação - Ensino Médio 1º ano
+      - name: taxa_aprovacao_em_2_ano
+        description: Taxa de Aprovação - Ensino Médio 2º ano
+      - name: taxa_aprovacao_em_3_ano
+        description: Taxa de Aprovação - Ensino Médio 3º ano
+      - name: taxa_aprovacao_em_4_ano
+        description: Taxa de Aprovação - Ensino Médio 4º ano
+      - name: taxa_aprovacao_em_nao_seriado
+        description: Taxa de Aprovação - Ensino Médio Não Seriado
+      - name: taxa_reprovacao_ef
+        description: Taxa de Reprovação - Ensino Fundamental
+      - name: taxa_reprovacao_ef_anos_iniciais
+        description: Taxa de Reprovação - Ensino Fundamental Anos Iniciais
+      - name: taxa_reprovacao_ef_anos_finais
+        description: Taxa de Reprovação - Ensino Fundamental Anos Finais
+      - name: taxa_reprovacao_ef_1_ano
+        description: Taxa de Reprovação - Ensino Fundamental 1º ano
+      - name: taxa_reprovacao_ef_2_ano
+        description: Taxa de Reprovação - Ensino Fundamental 2º ano
+      - name: taxa_reprovacao_ef_3_ano
+        description: Taxa de Reprovação - Ensino Fundamental 3º ano
+      - name: taxa_reprovacao_ef_4_ano
+        description: Taxa de Reprovação - Ensino Fundamental 4º ano
+      - name: taxa_reprovacao_ef_5_ano
+        description: Taxa de Reprovação - Ensino Fundamental 5º ano
+      - name: taxa_reprovacao_ef_6_ano
+        description: Taxa de Reprovação - Ensino Fundamental 6º ano
+      - name: taxa_reprovacao_ef_7_ano
+        description: Taxa de Reprovação - Ensino Fundamental 7º ano
+      - name: taxa_reprovacao_ef_8_ano
+        description: Taxa de Reprovação - Ensino Fundamental 8º ano
+      - name: taxa_reprovacao_ef_9_ano
+        description: Taxa de Reprovação - Ensino Fundamental 9º ano
+      - name: taxa_reprovacao_em
+        description: Taxa de Reprovação - Ensino Médio
+      - name: taxa_reprovacao_em_1_ano
+        description: Taxa de Reprovação - Ensino Médio 1º ano
+      - name: taxa_reprovacao_em_2_ano
+        description: Taxa de Reprovação - Ensino Médio 2º ano
+      - name: taxa_reprovacao_em_3_ano
+        description: Taxa de Reprovação - Ensino Médio 3º ano
+      - name: taxa_reprovacao_em_4_ano
+        description: Taxa de Reprovação - Ensino Médio 4º ano
+      - name: taxa_reprovacao_em_nao_seriado
+        description: Taxa de Reprovação - Ensino Médio Não Seriado
+      - name: taxa_abandono_ef
+        description: Taxa de Abandono - Ensino Fundamental
+      - name: taxa_abandono_ef_anos_iniciais
+        description: Taxa de Abandono - Ensino Fundamental Anos Iniciais
+      - name: taxa_abandono_ef_anos_finais
+        description: Taxa de Abandono - Ensino Fundamental Anos Finais
+      - name: taxa_abandono_ef_1_ano
+        description: Taxa de Abandono - Ensino Fundamental 1º ano
+      - name: taxa_abandono_ef_2_ano
+        description: Taxa de Abandono - Ensino Fundamental 2º ano
+      - name: taxa_abandono_ef_3_ano
+        description: Taxa de Abandono - Ensino Fundamental 3º ano
+      - name: taxa_abandono_ef_4_ano
+        description: Taxa de Abandono - Ensino Fundamental 4º ano
+      - name: taxa_abandono_ef_5_ano
+        description: Taxa de Abandono - Ensino Fundamental 5º ano
+      - name: taxa_abandono_ef_6_ano
+        description: Taxa de Abandono - Ensino Fundamental 6º ano
+      - name: taxa_abandono_ef_7_ano
+        description: Taxa de Abandono - Ensino Fundamental 7º ano
+      - name: taxa_abandono_ef_8_ano
+        description: Taxa de Abandono - Ensino Fundamental 8º ano
+      - name: taxa_abandono_ef_9_ano
+        description: Taxa de Abandono - Ensino Fundamental 9º ano
+      - name: taxa_abandono_em
+        description: Taxa de Abandono - Ensino Médio
+      - name: taxa_abandono_em_1_ano
+        description: Taxa de Abandono - Ensino Médio 1º ano
+      - name: taxa_abandono_em_2_ano
+        description: Taxa de Abandono - Ensino Médio 2º ano
+      - name: taxa_abandono_em_3_ano
+        description: Taxa de Abandono - Ensino Médio 3º ano
+      - name: taxa_abandono_em_4_ano
+        description: Taxa de Abandono - Ensino Médio 4º ano
+      - name: taxa_abandono_em_nao_seriado
+        description: Taxa de Abandono - Ensino Médio Não seriado
+      - name: tnr_ef
+        description: Taxa de Não Resposta - Ensino Fundamental
+      - name: tnr_ef_anos_iniciais
+        description: Taxa de Não Resposta - Ensino Fundamental Anos Iniciais
+      - name: tnr_ef_anos_finais
+        description: Taxa de Não Resposta - Ensino Fundamental Anos Finais
+      - name: tnr_ef_1_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 1º ano
+      - name: tnr_ef_2_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 2º ano
+      - name: tnr_ef_3_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 3º ano
+      - name: tnr_ef_4_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 4º ano
+      - name: tnr_ef_5_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 5º ano
+      - name: tnr_ef_6_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 6º ano
+      - name: tnr_ef_7_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 7º ano
+      - name: tnr_ef_8_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 8º ano
+      - name: tnr_ef_9_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 9º ano
+      - name: tnr_em
+        description: Taxa de Não Resposta - Ensino Médio
+      - name: tnr_em_1_ano
+        description: Taxa de Não Resposta - Ensino Médio 1º ano
+      - name: tnr_em_2_ano
+        description: Taxa de Não Resposta - Ensino Médio 2º ano
+      - name: tnr_em_3_ano
+        description: Taxa de Não Resposta - Ensino Médio 3º ano
+      - name: tnr_em_4_ano
+        description: Taxa de Não Resposta - Ensino Médio 4º ano
+      - name: tnr_em_nao_seriado
+        description: Taxa de Não Resposta - Ensino Médio Não Seriado
+      - name: dsu_ei
+        description: Percentual de Docentes com Curso Superior - Educação Infantil
+      - name: dsu_ei_creche
+        description: Percentual de Docentes com Curso Superior - Educação Infantil
+          Creche
+      - name: dsu_ei_pre_escola
+        description: Percentual de Docentes com Curso Superior - Educação Infantil
+          Pré-escola
+      - name: dsu_ef
+        description: Percentual de Docentes com Curso Superior - Ensino Fundamental
+      - name: dsu_ef_anos_iniciais
+        description: Percentual de Docentes com Curso Superior - Ensino Fundamental
+          Anos Iniciais
+      - name: dsu_ef_anos_finais
+        description: Percentual de Docentes com Curso Superior - Ensino Fundamental
+          Anos Finais
+      - name: dsu_em
+        description: Percentual de Docentes com Curso Superior - Ensino Médio
+      - name: dsu_ep
+        description: Percentual de Docentes com Curso Superior - Educação Profissional
+      - name: dsu_eja
+        description: Percentual de Docentes com Curso Superior - Educação Jovens Adultos
+      - name: dsu_ee
+        description: Percentual de Docentes com Curso Superior - Educação Especial
+      - name: afd_ei_grupo_1
+        description: Adequação da Formação Docente - Educação Infantil Grupo 1
+      - name: afd_ei_grupo_2
+        description: Adequação da Formação Docente - Educação Infantil Grupo 2
+      - name: afd_ei_grupo_3
+        description: Adequação da Formação Docente - Educação Infantil Grupo 3
+      - name: afd_ei_grupo_4
+        description: Adequação da Formação Docente - Educação Infantil Grupo 4
+      - name: afd_ei_grupo_5
+        description: Adequação da Formação Docente - Educação Infantil Grupo 5
+      - name: afd_ef_grupo_1
+        description: Adequação da Formação Docente - Ensino Fundamental Grupo 1
+      - name: afd_ef_grupo_2
+        description: Adequação da Formação Docente - Ensino Fundamental Grupo 2
+      - name: afd_ef_grupo_3
+        description: Adequação da Formação Docente - Ensino Fundamental Grupo 3
+      - name: afd_ef_grupo_4
+        description: Adequação da Formação Docente - Ensino Fundamental Grupo 4
+      - name: afd_ef_grupo_5
+        description: Adequação da Formação Docente - Ensino Fundamental Grupo 5
+      - name: afd_ef_anos_iniciais_grupo_1
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Iniciais
+          Grupo 1
+      - name: afd_ef_anos_iniciais_grupo_2
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Iniciais
+          Grupo 2
+      - name: afd_ef_anos_iniciais_grupo_3
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Iniciais
+          Grupo 3
+      - name: afd_ef_anos_iniciais_grupo_4
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Iniciais
+          Grupo 4
+      - name: afd_ef_anos_iniciais_grupo_5
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Iniciais
+          Grupo 5
+      - name: afd_ef_anos_finais_grupo_1
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Finais
+          Grupo 1
+      - name: afd_ef_anos_finais_grupo_2
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Finais
+          Grupo 2
+      - name: afd_ef_anos_finais_grupo_3
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Finais
+          Grupo 3
+      - name: afd_ef_anos_finais_grupo_4
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Finais
+          Grupo 4
+      - name: afd_ef_anos_finais_grupo_5
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Finais
+          Grupo 5
+      - name: afd_em_grupo_1
+        description: Adequação da Formação Docente - Ensino Médio Grupo 1
+      - name: afd_em_grupo_2
+        description: Adequação da Formação Docente - Ensino Médio Grupo 2
+      - name: afd_em_grupo_3
+        description: Adequação da Formação Docente - Ensino Médio Grupo 3
+      - name: afd_em_grupo_4
+        description: Adequação da Formação Docente - Ensino Médio Grupo 4
+      - name: afd_em_grupo_5
+        description: Adequação da Formação Docente - Ensino Médio Grupo 5
+      - name: afd_eja_fundamental_grupo_1
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Fundamental Grupo 1
+      - name: afd_eja_fundamental_grupo_2
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Fundamental Grupo 2
+      - name: afd_eja_fundamental_grupo_3
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Fundamental Grupo 3
+      - name: afd_eja_fundamental_grupo_4
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Fundamental Grupo 4
+      - name: afd_eja_fundamental_grupo_5
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Fundamental Grupo 5
+      - name: afd_eja_medio_grupo_1
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Médio Grupo 1
+      - name: afd_eja_medio_grupo_2
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Médio Grupo 2
+      - name: afd_eja_medio_grupo_3
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Médio Grupo 3
+      - name: afd_eja_medio_grupo_4
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Médio Grupo 4
+      - name: afd_eja_medio_grupo_5
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Médio Grupo 5
+      - name: ird_baixa_regularidade
+        description: Regularidade do Corpo Docente - Baixa Regularidade
+      - name: ird_media_baixa
+        description: Regularidade do Corpo Docente - Média a Baixa Regularidade
+      - name: ird_media_alta
+        description: Regularidade do Corpo Docente - Média a Alta Regularidade
+      - name: ird_alta
+        description: Regularidade do Corpo Docente - Alta Regularidade
+      - name: ied_ef_nivel_1
+        description: Esforço Docente - Ensino Fundamental Nível 1
+      - name: ied_ef_nivel_2
+        description: Esforço Docente - Ensino Fundamental Nível 2
+      - name: ied_ef_nivel_3
+        description: Esforço Docente - Ensino Fundamental Nível 3
+      - name: ied_ef_nivel_4
+        description: Esforço Docente - Ensino Fundamental Nível 4
+      - name: ied_ef_nivel_5
+        description: Esforço Docente - Ensino Fundamental Nível 5
+      - name: ied_ef_nivel_6
+        description: Esforço Docente - Ensino Fundamental Nível 6
+      - name: ied_ef_anos_iniciais_nivel_1
+        description: Esforço Docente - Ensino Fundamental Anos Iniciais Nível 1
+      - name: ied_ef_anos_iniciais_nivel_2
+        description: Esforço Docente - Ensino Fundamental Anos Iniciais Nível 2
+      - name: ied_ef_anos_iniciais_nivel_3
+        description: Esforço Docente - Ensino Fundamental Anos Iniciais Nível 3
+      - name: ied_ef_anos_iniciais_nivel_4
+        description: Esforço Docente - Ensino Fundamental Anos Iniciais Nível 4
+      - name: ied_ef_anos_iniciais_nivel_5
+        description: Esforço Docente - Ensino Fundamental Anos Iniciais Nível 5
+      - name: ied_ef_anos_iniciais_nivel_6
+        description: Esforço Docente - Ensino Fundamental Anos Iniciais Nível 6
+      - name: ied_ef_anos_finais_nivel_1
+        description: Esforço Docente - Ensino Fundamental Anos Finais Nível 1
+      - name: ied_ef_anos_finais_nivel_2
+        description: Esforço Docente - Ensino Fundamental Anos Finais Nível 2
+      - name: ied_ef_anos_finais_nivel_3
+        description: Esforço Docente - Ensino Fundamental Anos Finais Nível 3
+      - name: ied_ef_anos_finais_nivel_4
+        description: Esforço Docente - Ensino Fundamental Anos Finais Nível 4
+      - name: ied_ef_anos_finais_nivel_5
+        description: Esforço Docente - Ensino Fundamental Anos Finais Nível 5
+      - name: ied_ef_anos_finais_nivel_6
+        description: Esforço Docente - Ensino Fundamental Anos Finais Nível 6
+      - name: ied_em_nivel_1
+        description: Esforço Docente - Ensino Médio Nível 1
+      - name: ied_em_nivel_2
+        description: Esforço Docente - Ensino Médio Nível 2
+      - name: ied_em_nivel_3
+        description: Esforço Docente - Ensino Médio Nível 3
+      - name: ied_em_nivel_4
+        description: Esforço Docente - Ensino Médio Nível 4
+      - name: ied_em_nivel_5
+        description: Esforço Docente - Ensino Médio Nível 5
+      - name: ied_em_nivel_6
+        description: Esforço Docente - Ensino Médio Nível 6
+      - name: icg_nivel_1
+        description: Complexidade de Gestão da Escola Nível 1
+      - name: icg_nivel_2
+        description: Complexidade de Gestão da Escola Nível 2
+      - name: icg_nivel_3
+        description: Complexidade de Gestão da Escola Nível 3
+      - name: icg_nivel_4
+        description: Complexidade de Gestão da Escola Nível 4
+      - name: icg_nivel_5
+        description: Complexidade de Gestão da Escola Nível 5
+      - name: icg_nivel_6
+        description: Complexidade de Gestão da Escola Nível 6
+  - name: br_inep_indicadores_educacionais__municipio_taxa_transicao
+    description: Os indicadores de transição, equivalentemente denominados como indicadores
+      de fluxo escolar, têm por objetivo informar sobre a trajetória do estudante
+      na educação básica, que por sua vez, depende da estrutura organizacional dos
+      programas de educação formal (sistemática), ou educação escolar, normalmente
+      operacionalizada em níveis de ensino.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [insert unique keys here]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_municipio
+        description: ID Município - IBGE 7 dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: localizacao
+        description: Localização
+      - name: rede
+        description: Rede Escolar
+      - name: taxa_evasao_ef
+        description: Taxa de Evasão - Ensino Fundamental
+      - name: taxa_evasao_ef_1_ano
+        description: Taxa de Evasão - Ensino Fundamental 1º Ano
+      - name: taxa_evasao_ef_2_ano
+        description: Taxa de Evasão - Ensino Fundamental 2º Ano
+      - name: taxa_evasao_ef_3_ano
+        description: Taxa de Evasão - Ensino Fundamental 3º Ano
+      - name: taxa_evasao_ef_4_ano
+        description: Taxa de Evasão - Ensino Fundamental 4º Ano
+      - name: taxa_evasao_ef_5_ano
+        description: Taxa de Evasão - Ensino Fundamental 5º Ano
+      - name: taxa_evasao_ef_6_ano
+        description: Taxa de Evasão - Ensino Fundamental 6º Ano
+      - name: taxa_evasao_ef_7_ano
+        description: Taxa de Evasão - Ensino Fundamental 7º Ano
+      - name: taxa_evasao_ef_8_ano
+        description: Taxa de Evasão - Ensino Fundamental 8º Ano
+      - name: taxa_evasao_ef_9_ano
+        description: Taxa de Evasão - Ensino Fundamental 9º Ano
+      - name: taxa_evasao_ef_anos_finais
+        description: Taxa de Evasão - Ensino Fundamental Anos Finais
+      - name: taxa_evasao_ef_anos_iniciais
+        description: Taxa de Evasão - Ensino Fundamental Anos Iniciais
+      - name: taxa_evasao_em
+        description: Taxa de Evasão - Ensino Médio
+      - name: taxa_evasao_em_1_ano
+        description: Taxa de Evasão - Ensino Médio 1º Ano
+      - name: taxa_evasao_em_2_ano
+        description: Taxa de Evasão - Ensino Médio 2º Ano
+      - name: taxa_evasao_em_3_ano
+        description: Taxa de Evasão - Ensino Médio 3º Ano
+      - name: taxa_migracao_eja_ef
+        description: Taxa de Migração para o EJA - Ensino Fundamental
+      - name: taxa_migracao_eja_ef_1_ano
+        description: Taxa de Migração para o EJA - Ensino Fundamental 1º Ano
+      - name: taxa_migracao_eja_ef_2_ano
+        description: Taxa de Migração para o EJA - Ensino Fundamental 2º Ano
+      - name: taxa_migracao_eja_ef_3_ano
+        description: Taxa de Migração para o EJA - Ensino Fundamental 3º Ano
+      - name: taxa_migracao_eja_ef_4_ano
+        description: Taxa de Migração para o EJA - Ensino Fundamental 4º Ano
+      - name: taxa_migracao_eja_ef_5_ano
+        description: Taxa de Migração para o EJA - Ensino Fundamental 5º Ano
+      - name: taxa_migracao_eja_ef_6_ano
+        description: Taxa de Migração para o EJA - Ensino Fundamental 6º Ano
+      - name: taxa_migracao_eja_ef_7_ano
+        description: Taxa de Migração para o EJA - Ensino Fundamental 7º Ano
+      - name: taxa_migracao_eja_ef_8_ano
+        description: Taxa de Migração para o EJA - Ensino Fundamental 8º Ano
+      - name: taxa_migracao_eja_ef_9_ano
+        description: Taxa de Migração para o EJA - Ensino Fundamental 9º Ano
+      - name: taxa_migracao_eja_ef_anos_finais
+        description: Taxa de Migração para o EJA - Ensino Fundamental Anos finais
+      - name: taxa_migracao_eja_ef_anos_iniciais
+        description: Taxa de Migração para o EJA - Ensino Fundamental Anos Iniciais
+      - name: taxa_migracao_eja_em
+        description: Taxa de Migração para o EJA - Ensino Médio
+      - name: taxa_migracao_eja_em_1_ano
+        description: Taxa de Migração para o EJA - Ensino Médio 1º Ano
+      - name: taxa_migracao_eja_em_2_ano
+        description: Taxa de Migração para o EJA - Ensino Médio 2º Ano
+      - name: taxa_migracao_eja_em_3_ano
+        description: Taxa de Migração para o EJA - Ensino Médio 3º Ano
+      - name: taxa_promocao_ef
+        description: Taxa de Promoção - Ensino Fundamental
+      - name: taxa_promocao_ef_1_ano
+        description: Taxa de Promoção - Ensino Fundamental 1º Ano
+      - name: taxa_promocao_ef_2_ano
+        description: Taxa de Promoção - Ensino Fundamental 2º Ano
+      - name: taxa_promocao_ef_3_ano
+        description: Taxa de Promoção - Ensino Fundamental 3º Ano
+      - name: taxa_promocao_ef_4_ano
+        description: Taxa de Promoção - Ensino Fundamental 4º Ano
+      - name: taxa_promocao_ef_5_ano
+        description: Taxa de Promoção - Ensino Fundamental 5º Ano
+      - name: taxa_promocao_ef_6_ano
+        description: Taxa de Promoção - Ensino Fundamental 6º Ano
+      - name: taxa_promocao_ef_7_ano
+        description: Taxa de Promoção - Ensino Fundamental 7º Ano
+      - name: taxa_promocao_ef_8_ano
+        description: Taxa de Promoção - Ensino Fundamental 8º Ano
+      - name: taxa_promocao_ef_9_ano
+        description: Taxa de Promoção - Ensino Fundamental 9º Ano
+      - name: taxa_promocao_ef_anos_finais
+        description: Taxa de Promoção - Ensino Fundamental Anos Finais
+      - name: taxa_promocao_ef_anos_iniciais
+        description: Taxa de Promoção - Ensino Fundamental Anos Iniciais
+      - name: taxa_promocao_em
+        description: Taxa de Promoção - Ensino Médio
+      - name: taxa_promocao_em_1_ano
+        description: Taxa de Promoção - Ensino Médio 1º Ano
+      - name: taxa_promocao_em_2_ano
+        description: Taxa de Promoção - Ensino Médio 2º Ano
+      - name: taxa_promocao_em_3_ano
+        description: Taxa de Promoção - Ensino Médio 3º Ano
+      - name: taxa_repetencia_ef
+        description: Taxa de Repetência - Ensino Fundamental
+      - name: taxa_repetencia_ef_1_ano
+        description: Taxa de Repetência - Ensino Fundamental 1º Ano
+      - name: taxa_repetencia_ef_2_ano
+        description: Taxa de Repetência - Ensino Fundamental 2º Ano
+      - name: taxa_repetencia_ef_3_ano
+        description: Taxa de Repetência - Ensino Fundamental 3º Ano
+      - name: taxa_repetencia_ef_4_ano
+        description: Taxa de Repetência - Ensino Fundamental 4º Ano
+      - name: taxa_repetencia_ef_5_ano
+        description: Taxa de Repetência - Ensino Fundamental 5º Ano
+      - name: taxa_repetencia_ef_6_ano
+        description: Taxa de Repetência - Ensino Fundamental 6º Ano
+      - name: taxa_repetencia_ef_7_ano
+        description: Taxa de Repetência - Ensino Fundamental 7º Ano
+      - name: taxa_repetencia_ef_8_ano
+        description: Taxa de Repetência - Ensino Fundamental 8º Ano
+      - name: taxa_repetencia_ef_9_ano
+        description: Taxa de Repetência - Ensino Fundamental 9º Ano
+      - name: taxa_repetencia_ef_anos_finais
+        description: Taxa de Repetência - Ensino Fundamenta Anos Finais
+      - name: taxa_repetencia_ef_anos_iniciais
+        description: Taxa de Repetência - Ensino Fundamenta Anos Iniciais
+      - name: taxa_repetencia_em
+        description: Taxa de Repetência - Ensino Médio
+      - name: taxa_repetencia_em_1_ano
+        description: Taxa de Repetência - Ensino Médio 1º Ano
+      - name: taxa_repetencia_em_2_ano
+        description: Taxa de Repetência - Ensino Médio 2º Ano
+      - name: taxa_repetencia_em_3_ano
+        description: Taxa de Repetência - Ensino Médio 3º Ano
+  - name: br_inep_indicadores_educacionais__regiao
+    description: Indicadores educacionais do Inep a nível de região
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [insert unique keys here]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: regiao
+        description: Região
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__regiao')
+              field: nome
+      - name: localizacao
+        description: Localização
+      - name: rede
+        description: Rede Escolar
+      - name: atu_ei
+        description: Média de Alunos por Turma - Educação Infantil
+      - name: atu_ei_creche
+        description: Média de Alunos por Turma - Educação Infantil Creche
+      - name: atu_ei_pre_escola
+        description: Média de Alunos por Turma - Educação Infantil Pré escola
+      - name: atu_ef
+        description: Média de Alunos por Turma - Ensino Fundamental
+      - name: atu_ef_anos_iniciais
+        description: Média de Alunos por Turma - Ensino Fundamental Anos Iniciais
+      - name: atu_ef_anos_finais
+        description: Média de Alunos por Turma - Ensino Fundamental Anos Finais
+      - name: atu_ef_1_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 1º ano
+      - name: atu_ef_2_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 2º ano
+      - name: atu_ef_3_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 3º ano
+      - name: atu_ef_4_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 4º ano
+      - name: atu_ef_5_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 5º ano
+      - name: atu_ef_6_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 6º ano
+      - name: atu_ef_7_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 7º ano
+      - name: atu_ef_8_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 8º ano
+      - name: atu_ef_9_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 9º ano
+      - name: atu_ef_turmas_unif_multi_fluxo
+        description: Média de Alunos por Turma - Ensino Fundamental Turmas Unificadas,
+          Multi, Multietapa e Correção de fluxo)
+      - name: atu_em
+        description: Média de Alunos por Turma - Ensino Médio
+      - name: atu_em_1_ano
+        description: Média de Alunos por Turma - Ensino Médio 1º ano
+      - name: atu_em_2_ano
+        description: Média de Alunos por Turma - Ensino Médio 2º ano
+      - name: atu_em_3_ano
+        description: Média de Alunos por Turma - Ensino Médio 3º ano
+      - name: atu_em_4_ano
+        description: Média de Alunos por Turma - Ensino Médio 4º ano
+      - name: atu_em_nao_seriado
+        description: Média de Alunos por Turma - Ensino Médio Não Seriado
+      - name: had_ei
+        description: Média de Horas-Aula diária - Educação Infantil
+      - name: had_ei_creche
+        description: Média de Horas-Aula diária - Educação Infantil Creche
+      - name: had_ei_pre_escola
+        description: Média de Horas-Aula diária - Educação Infantil Pré-escola
+      - name: had_ef
+        description: Média de Horas-Aula diária - Ensino Fundamental
+      - name: had_ef_anos_iniciais
+        description: Média de Horas-Aula diária - Ensino Fundamental Anos Iniciais
+      - name: had_ef_anos_finais
+        description: Média de Horas-Aula diária - Ensino Fundamental Anos Finais
+      - name: had_ef_1_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 1º ano
+      - name: had_ef_2_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 2º ano
+      - name: had_ef_3_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 3º ano
+      - name: had_ef_4_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 4º ano
+      - name: had_ef_5_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 5º ano
+      - name: had_ef_6_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 6º ano
+      - name: had_ef_7_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 7º ano
+      - name: had_ef_8_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 8º ano
+      - name: had_ef_9_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 9º ano
+      - name: had_em
+        description: Média de Horas-Aula diária - Ensino Médio
+      - name: had_em_1_ano
+        description: Média de Horas-Aula diária - Ensino Médio 1º ano
+      - name: had_em_2_ano
+        description: Média de Horas-Aula diária - Ensino Médio 2º ano
+      - name: had_em_3_ano
+        description: Média de Horas-Aula diária - Ensino Médio 3º ano
+      - name: had_em_4_ano
+        description: Média de Horas-Aula diária - Ensino Médio 4º ano
+      - name: had_em_nao_seriado
+        description: Média de Horas-Aula diária - Ensino Médio Não Seriado
+      - name: tdi_ef
+        description: Taxa de distorção idade-série - Ensino Fundamental
+      - name: tdi_ef_anos_iniciais
+        description: Taxa de distorção idade-série - Ensino Fundamental Anos Iniciais
+      - name: tdi_ef_anos_finais
+        description: Taxa de distorção idade-série - Ensino Fundamental Anos Finais
+      - name: tdi_ef_1_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 1º ano
+      - name: tdi_ef_2_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 2º ano
+      - name: tdi_ef_3_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 3º ano
+      - name: tdi_ef_4_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 4º ano
+      - name: tdi_ef_5_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 5º ano
+      - name: tdi_ef_6_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 6º ano
+      - name: tdi_ef_7_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 7º ano
+      - name: tdi_ef_8_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 8º ano
+      - name: tdi_ef_9_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 9º ano
+      - name: tdi_em
+        description: Taxa de distorção idade-série - Ensino Médio
+      - name: tdi_em_1_ano
+        description: Taxa de distorção idade-série - Ensino Médio 1º ano
+      - name: tdi_em_2_ano
+        description: Taxa de distorção idade-série - Ensino Médio 2º ano
+      - name: tdi_em_3_ano
+        description: Taxa de distorção idade-série - Ensino Médio 3º ano
+      - name: tdi_em_4_ano
+        description: Taxa de distorção idade-série - Ensino Médio 4º ano
+      - name: taxa_aprovacao_ef
+        description: Taxa de Aprovação - Ensino Fundamental
+      - name: taxa_aprovacao_ef_anos_iniciais
+        description: Taxa de Aprovação - Ensino Fundamental Anos Iniciais
+      - name: taxa_aprovacao_ef_anos_finais
+        description: Taxa de Aprovação - Ensino Fundamental Anos Finais
+      - name: taxa_aprovacao_ef_1_ano
+        description: Taxa de Aprovação - Ensino Fundamental 1º ano
+      - name: taxa_aprovacao_ef_2_ano
+        description: Taxa de Aprovação - Ensino Fundamental 2º ano
+      - name: taxa_aprovacao_ef_3_ano
+        description: Taxa de Aprovação - Ensino Fundamental 3º ano
+      - name: taxa_aprovacao_ef_4_ano
+        description: Taxa de Aprovação - Ensino Fundamental 4º ano
+      - name: taxa_aprovacao_ef_5_ano
+        description: Taxa de Aprovação - Ensino Fundamental 5º ano
+      - name: taxa_aprovacao_ef_6_ano
+        description: Taxa de Aprovação - Ensino Fundamental 6º ano
+      - name: taxa_aprovacao_ef_7_ano
+        description: Taxa de Aprovação - Ensino Fundamental 7º ano
+      - name: taxa_aprovacao_ef_8_ano
+        description: Taxa de Aprovação - Ensino Fundamental 8º ano
+      - name: taxa_aprovacao_ef_9_ano
+        description: Taxa de Aprovação - Ensino Fundamental 9º ano
+      - name: taxa_aprovacao_em
+        description: Taxa de Aprovação - Ensino Médio
+      - name: taxa_aprovacao_em_1_ano
+        description: Taxa de Aprovação - Ensino Médio 1º ano
+      - name: taxa_aprovacao_em_2_ano
+        description: Taxa de Aprovação - Ensino Médio 2º ano
+      - name: taxa_aprovacao_em_3_ano
+        description: Taxa de Aprovação - Ensino Médio 3º ano
+      - name: taxa_aprovacao_em_4_ano
+        description: Taxa de Aprovação - Ensino Médio 4º ano
+      - name: taxa_aprovacao_em_nao_seriado
+        description: Taxa de Aprovação - Ensino Médio Não Seriado
+      - name: taxa_reprovacao_ef
+        description: Taxa de Reprovação - Ensino Fundamental
+      - name: taxa_reprovacao_ef_anos_iniciais
+        description: Taxa de Reprovação - Ensino Fundamental Anos Iniciais
+      - name: taxa_reprovacao_ef_anos_finais
+        description: Taxa de Reprovação - Ensino Fundamental Anos Finais
+      - name: taxa_reprovacao_ef_1_ano
+        description: Taxa de Reprovação - Ensino Fundamental 1º ano
+      - name: taxa_reprovacao_ef_2_ano
+        description: Taxa de Reprovação - Ensino Fundamental 2º ano
+      - name: taxa_reprovacao_ef_3_ano
+        description: Taxa de Reprovação - Ensino Fundamental 3º ano
+      - name: taxa_reprovacao_ef_4_ano
+        description: Taxa de Reprovação - Ensino Fundamental 4º ano
+      - name: taxa_reprovacao_ef_5_ano
+        description: Taxa de Reprovação - Ensino Fundamental 5º ano
+      - name: taxa_reprovacao_ef_6_ano
+        description: Taxa de Reprovação - Ensino Fundamental 6º ano
+      - name: taxa_reprovacao_ef_7_ano
+        description: Taxa de Reprovação - Ensino Fundamental 7º ano
+      - name: taxa_reprovacao_ef_8_ano
+        description: Taxa de Reprovação - Ensino Fundamental 8º ano
+      - name: taxa_reprovacao_ef_9_ano
+        description: Taxa de Reprovação - Ensino Fundamental 9º ano
+      - name: taxa_reprovacao_em
+        description: Taxa de Reprovação - Ensino Médio
+      - name: taxa_reprovacao_em_1_ano
+        description: Taxa de Reprovação - Ensino Médio 1º ano
+      - name: taxa_reprovacao_em_2_ano
+        description: Taxa de Reprovação - Ensino Médio 2º ano
+      - name: taxa_reprovacao_em_3_ano
+        description: Taxa de Reprovação - Ensino Médio 3º ano
+      - name: taxa_reprovacao_em_4_ano
+        description: Taxa de Reprovação - Ensino Médio 4º ano
+      - name: taxa_reprovacao_em_nao_seriado
+        description: Taxa de Reprovação - Ensino Médio Não Seriado
+      - name: taxa_abandono_ef
+        description: Taxa de Abandono - Ensino Fundamental
+      - name: taxa_abandono_ef_anos_iniciais
+        description: Taxa de Abandono - Ensino Fundamental Anos Iniciais
+      - name: taxa_abandono_ef_anos_finais
+        description: Taxa de Abandono - Ensino Fundamental Anos Finais
+      - name: taxa_abandono_ef_1_ano
+        description: Taxa de Abandono - Ensino Fundamental 1º ano
+      - name: taxa_abandono_ef_2_ano
+        description: Taxa de Abandono - Ensino Fundamental 2º ano
+      - name: taxa_abandono_ef_3_ano
+        description: Taxa de Abandono - Ensino Fundamental 3º ano
+      - name: taxa_abandono_ef_4_ano
+        description: Taxa de Abandono - Ensino Fundamental 4º ano
+      - name: taxa_abandono_ef_5_ano
+        description: Taxa de Abandono - Ensino Fundamental 5º ano
+      - name: taxa_abandono_ef_6_ano
+        description: Taxa de Abandono - Ensino Fundamental 6º ano
+      - name: taxa_abandono_ef_7_ano
+        description: Taxa de Abandono - Ensino Fundamental 7º ano
+      - name: taxa_abandono_ef_8_ano
+        description: Taxa de Abandono - Ensino Fundamental 8º ano
+      - name: taxa_abandono_ef_9_ano
+        description: Taxa de Abandono - Ensino Fundamental 9º ano
+      - name: taxa_abandono_em
+        description: Taxa de Abandono - Ensino Médio
+      - name: taxa_abandono_em_1_ano
+        description: Taxa de Abandono - Ensino Médio 1º ano
+      - name: taxa_abandono_em_2_ano
+        description: Taxa de Abandono - Ensino Médio 2º ano
+      - name: taxa_abandono_em_3_ano
+        description: Taxa de Abandono - Ensino Médio 3º ano
+      - name: taxa_abandono_em_4_ano
+        description: Taxa de Abandono - Ensino Médio 4º ano
+      - name: taxa_abandono_em_nao_seriado
+        description: Taxa de Abandono - Ensino Médio Não seriado
+      - name: tnr_ef
+        description: Taxa de Não Resposta - Ensino Fundamental
+      - name: tnr_ef_anos_iniciais
+        description: Taxa de Não Resposta - Ensino Fundamental Anos Iniciais
+      - name: tnr_ef_anos_finais
+        description: Taxa de Não Resposta - Ensino Fundamental Anos Finais
+      - name: tnr_ef_1_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 1º ano
+      - name: tnr_ef_2_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 2º ano
+      - name: tnr_ef_3_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 3º ano
+      - name: tnr_ef_4_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 4º ano
+      - name: tnr_ef_5_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 5º ano
+      - name: tnr_ef_6_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 6º ano
+      - name: tnr_ef_7_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 7º ano
+      - name: tnr_ef_8_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 8º ano
+      - name: tnr_ef_9_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 9º ano
+      - name: tnr_em
+        description: Taxa de Não Resposta - Ensino Médio
+      - name: tnr_em_1_ano
+        description: Taxa de Não Resposta - Ensino Médio 1º ano
+      - name: tnr_em_2_ano
+        description: Taxa de Não Resposta - Ensino Médio 2º ano
+      - name: tnr_em_3_ano
+        description: Taxa de Não Resposta - Ensino Médio 3º ano
+      - name: tnr_em_4_ano
+        description: Taxa de Não Resposta - Ensino Médio 4º ano
+      - name: tnr_em_nao_seriado
+        description: Taxa de Não Resposta - Ensino Médio Não Seriado
+      - name: dsu_ei
+        description: Percentual de Docentes com Curso Superior - Educação Infantil
+      - name: dsu_ei_creche
+        description: Percentual de Docentes com Curso Superior - Educação Infantil
+          Creche
+      - name: dsu_ei_pre_escola
+        description: Percentual de Docentes com Curso Superior - Educação Infantil
+          Pré-escola
+      - name: dsu_ef
+        description: Percentual de Docentes com Curso Superior - Ensino Fundamental
+      - name: dsu_ef_anos_iniciais
+        description: Percentual de Docentes com Curso Superior - Ensino Fundamental
+          Anos Iniciais
+      - name: dsu_ef_anos_finais
+        description: Percentual de Docentes com Curso Superior - Ensino Fundamental
+          Anos Finais
+      - name: dsu_em
+        description: Percentual de Docentes com Curso Superior - Ensino Médio
+      - name: dsu_ep
+        description: Percentual de Docentes com Curso Superior - Educação Profissional
+      - name: dsu_eja
+        description: Percentual de Docentes com Curso Superior - Educação Jovens Adultos
+      - name: dsu_ee
+        description: Percentual de Docentes com Curso Superior - Educação Especial
+      - name: afd_ei_grupo_1
+        description: Adequação da Formação Docente - Educação Infantil Grupo 1
+      - name: afd_ei_grupo_2
+        description: Adequação da Formação Docente - Educação Infantil Grupo 2
+      - name: afd_ei_grupo_3
+        description: Adequação da Formação Docente - Educação Infantil Grupo 3
+      - name: afd_ei_grupo_4
+        description: Adequação da Formação Docente - Educação Infantil Grupo 4
+      - name: afd_ei_grupo_5
+        description: Adequação da Formação Docente - Educação Infantil Grupo 5
+      - name: afd_ef_grupo_1
+        description: Adequação da Formação Docente - Ensino Fundamental Grupo 1
+      - name: afd_ef_grupo_2
+        description: Adequação da Formação Docente - Ensino Fundamental Grupo 2
+      - name: afd_ef_grupo_3
+        description: Adequação da Formação Docente - Ensino Fundamental Grupo 3
+      - name: afd_ef_grupo_4
+        description: Adequação da Formação Docente - Ensino Fundamental Grupo 4
+      - name: afd_ef_grupo_5
+        description: Adequação da Formação Docente - Ensino Fundamental Grupo 5
+      - name: afd_ef_anos_iniciais_grupo_1
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Iniciais
+          Grupo 1
+      - name: afd_ef_anos_iniciais_grupo_2
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Iniciais
+          Grupo 2
+      - name: afd_ef_anos_iniciais_grupo_3
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Iniciais
+          Grupo 3
+      - name: afd_ef_anos_iniciais_grupo_4
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Iniciais
+          Grupo 4
+      - name: afd_ef_anos_iniciais_grupo_5
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Iniciais
+          Grupo 5
+      - name: afd_ef_anos_finais_grupo_1
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Finais
+          Grupo 1
+      - name: afd_ef_anos_finais_grupo_2
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Finais
+          Grupo 2
+      - name: afd_ef_anos_finais_grupo_3
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Finais
+          Grupo 3
+      - name: afd_ef_anos_finais_grupo_4
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Finais
+          Grupo 4
+      - name: afd_ef_anos_finais_grupo_5
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Finais
+          Grupo 5
+      - name: afd_em_grupo_1
+        description: Adequação da Formação Docente - Ensino Médio Grupo 1
+      - name: afd_em_grupo_2
+        description: Adequação da Formação Docente - Ensino Médio Grupo 2
+      - name: afd_em_grupo_3
+        description: Adequação da Formação Docente - Ensino Médio Grupo 3
+      - name: afd_em_grupo_4
+        description: Adequação da Formação Docente - Ensino Médio Grupo 4
+      - name: afd_em_grupo_5
+        description: Adequação da Formação Docente - Ensino Médio Grupo 5
+      - name: afd_eja_fundamental_grupo_1
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Fundamental Grupo 1
+      - name: afd_eja_fundamental_grupo_2
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Fundamental Grupo 2
+      - name: afd_eja_fundamental_grupo_3
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Fundamental Grupo 3
+      - name: afd_eja_fundamental_grupo_4
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Fundamental Grupo 4
+      - name: afd_eja_fundamental_grupo_5
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Fundamental Grupo 5
+      - name: afd_eja_medio_grupo_1
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Médio Grupo 1
+      - name: afd_eja_medio_grupo_2
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Médio Grupo 2
+      - name: afd_eja_medio_grupo_3
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Médio Grupo 3
+      - name: afd_eja_medio_grupo_4
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Médio Grupo 4
+      - name: afd_eja_medio_grupo_5
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Médio Grupo 5
+      - name: ird_baixa_regularidade
+        description: Regularidade do Corpo Docente - Baixa Regularidade
+      - name: ird_media_baixa
+        description: Regularidade do Corpo Docente - Média a Baixa Regularidade
+      - name: ird_media_alta
+        description: Regularidade do Corpo Docente - Média a Alta Regularidade
+      - name: ird_alta
+        description: Regularidade do Corpo Docente - Alta Regularidade
+      - name: ied_ef_nivel_1
+        description: Esforço Docente - Ensino Fundamental Nível 1
+      - name: ied_ef_nivel_2
+        description: Esforço Docente - Ensino Fundamental Nível 2
+      - name: ied_ef_nivel_3
+        description: Esforço Docente - Ensino Fundamental Nível 3
+      - name: ied_ef_nivel_4
+        description: Esforço Docente - Ensino Fundamental Nível 4
+      - name: ied_ef_nivel_5
+        description: Esforço Docente - Ensino Fundamental Nível 5
+      - name: ied_ef_nivel_6
+        description: Esforço Docente - Ensino Fundamental Nível 6
+      - name: ied_ef_anos_iniciais_nivel_1
+        description: Esforço Docente - Ensino Fundamental Anos Iniciais Nível 1
+      - name: ied_ef_anos_iniciais_nivel_2
+        description: Esforço Docente - Ensino Fundamental Anos Iniciais Nível 2
+      - name: ied_ef_anos_iniciais_nivel_3
+        description: Esforço Docente - Ensino Fundamental Anos Iniciais Nível 3
+      - name: ied_ef_anos_iniciais_nivel_4
+        description: Esforço Docente - Ensino Fundamental Anos Iniciais Nível 4
+      - name: ied_ef_anos_iniciais_nivel_5
+        description: Esforço Docente - Ensino Fundamental Anos Iniciais Nível 5
+      - name: ied_ef_anos_iniciais_nivel_6
+        description: Esforço Docente - Ensino Fundamental Anos Iniciais Nível 6
+      - name: ied_ef_anos_finais_nivel_1
+        description: Esforço Docente - Ensino Fundamental Anos Finais Nível 1
+      - name: ied_ef_anos_finais_nivel_2
+        description: Esforço Docente - Ensino Fundamental Anos Finais Nível 2
+      - name: ied_ef_anos_finais_nivel_3
+        description: Esforço Docente - Ensino Fundamental Anos Finais Nível 3
+      - name: ied_ef_anos_finais_nivel_4
+        description: Esforço Docente - Ensino Fundamental Anos Finais Nível 4
+      - name: ied_ef_anos_finais_nivel_5
+        description: Esforço Docente - Ensino Fundamental Anos Finais Nível 5
+      - name: ied_ef_anos_finais_nivel_6
+        description: Esforço Docente - Ensino Fundamental Anos Finais Nível 6
+      - name: ied_em_nivel_1
+        description: Esforço Docente - Ensino Médio Nível 1
+      - name: ied_em_nivel_2
+        description: Esforço Docente - Ensino Médio Nível 2
+      - name: ied_em_nivel_3
+        description: Esforço Docente - Ensino Médio Nível 3
+      - name: ied_em_nivel_4
+        description: Esforço Docente - Ensino Médio Nível 4
+      - name: ied_em_nivel_5
+        description: Esforço Docente - Ensino Médio Nível 5
+      - name: ied_em_nivel_6
+        description: Esforço Docente - Ensino Médio Nível 6
+      - name: icg_nivel_1
+        description: Complexidade de Gestão da Escola Nível 1
+      - name: icg_nivel_2
+        description: Complexidade de Gestão da Escola Nível 2
+      - name: icg_nivel_3
+        description: Complexidade de Gestão da Escola Nível 3
+      - name: icg_nivel_4
+        description: Complexidade de Gestão da Escola Nível 4
+      - name: icg_nivel_5
+        description: Complexidade de Gestão da Escola Nível 5
+      - name: icg_nivel_6
+        description: Complexidade de Gestão da Escola Nível 6
+  - name: br_inep_indicadores_educacionais__regiao_taxa_transicao
+    description: Os indicadores de transição, equivalentemente denominados como indicadores
+      de fluxo escolar, têm por objetivo informar sobre a trajetória do estudante
+      na educação básica, que por sua vez, depende da estrutura organizacional dos
+      programas de educação formal (sistemática), ou educação escolar, normalmente
+      operacionalizada em níveis de ensino.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [insert unique keys here]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano_de
+        description: Ano base
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: ano_para
+        description: Próximo ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: regiao
+        description: Região
+        tests:
+          - relationships:
+              to: ref('uf__regiao')
+              field: regiao.regiao
+      - name: localizacao
+        description: Localização
+      - name: rede
+        description: Rede Escolar
+      - name: taxa_promocao_ef
+        description: Taxa de Promoção - Ensino Fundamental
+      - name: taxa_promocao_ef_anos_iniciais
+        description: Taxa de Promoção - Ensino Fundamental Anos Iniciais
+      - name: taxa_promocao_ef_anos_finais
+        description: Taxa de Promoção - Ensino Fundamental Anos Finais
+      - name: taxa_promocao_ef_1_ano
+        description: Taxa de Promoção - Ensino Fundamental 1º Ano
+      - name: taxa_promocao_ef_2_ano
+        description: Taxa de Promoção - Ensino Fundamental 2º Ano
+      - name: taxa_promocao_ef_3_ano
+        description: Taxa de Promoção - Ensino Fundamental 3º Ano
+      - name: taxa_promocao_ef_4_ano
+        description: Taxa de Promoção - Ensino Fundamental 4º Ano
+      - name: taxa_promocao_ef_5_ano
+        description: Taxa de Promoção - Ensino Fundamental 5º Ano
+      - name: taxa_promocao_ef_6_ano
+        description: Taxa de Promoção - Ensino Fundamental 6º Ano
+      - name: taxa_promocao_ef_7_ano
+        description: Taxa de Promoção - Ensino Fundamental 7º Ano
+      - name: taxa_promocao_ef_8_ano
+        description: Taxa de Promoção - Ensino Fundamental 8º Ano
+      - name: taxa_promocao_ef_9_ano
+        description: Taxa de Promoção - Ensino Fundamental 9º Ano
+      - name: taxa_promocao_em
+        description: Taxa de Promoção - Ensino Médio
+      - name: taxa_promocao_em_1_ano
+        description: Taxa de Promoção - Ensino Médio 1º Ano
+      - name: taxa_promocao_em_2_ano
+        description: Taxa de Promoção - Ensino Médio 2º Ano
+      - name: taxa_promocao_em_3_ano
+        description: Taxa de Promoção - Ensino Médio 3º Ano
+      - name: taxa_repetencia_ef
+        description: Taxa de Repetência - Ensino Fundamental
+      - name: taxa_repetencia_ef_anos_iniciais
+        description: Taxa de Repetência - Ensino Fundamenta Anos Iniciais
+      - name: taxa_repetencia_ef_anos_finais
+        description: Taxa de Repetência - Ensino Fundamenta Anos Finais
+      - name: taxa_repetencia_ef_1_ano
+        description: Taxa de Repetência - Ensino Fundamental 1º Ano
+      - name: taxa_repetencia_ef_2_ano
+        description: Taxa de Repetência - Ensino Fundamental 2º Ano
+      - name: taxa_repetencia_ef_3_ano
+        description: Taxa de Repetência - Ensino Fundamental 3º Ano
+      - name: taxa_repetencia_ef_4_ano
+        description: Taxa de Repetência - Ensino Fundamental 4º Ano
+      - name: taxa_repetencia_ef_5_ano
+        description: Taxa de Repetência - Ensino Fundamental 5º Ano
+      - name: taxa_repetencia_ef_6_ano
+        description: Taxa de Repetência - Ensino Fundamental 6º Ano
+      - name: taxa_repetencia_ef_7_ano
+        description: Taxa de Repetência - Ensino Fundamental 7º Ano
+      - name: taxa_repetencia_ef_8_ano
+        description: Taxa de Repetência - Ensino Fundamental 8º Ano
+      - name: taxa_repetencia_ef_9_ano
+        description: Taxa de Repetência - Ensino Fundamental 9º Ano
+      - name: taxa_repetencia_em
+        description: Taxa de Repetência - Ensino Médio
+      - name: taxa_repetencia_em_1_ano
+        description: Taxa de Repetência - Ensino Médio 1º Ano
+      - name: taxa_repetencia_em_2_ano
+        description: Taxa de Repetência - Ensino Médio 2º Ano
+      - name: taxa_repetencia_em_3_ano
+        description: Taxa de Repetência - Ensino Médio 3º Ano
+      - name: taxa_evasao_ef
+        description: Taxa de Evasão - Ensino Fundamental
+      - name: taxa_evasao_ef_anos_iniciais
+        description: Taxa de Evasão - Ensino Fundamental Anos Iniciais
+      - name: taxa_evasao_ef_anos_finais
+        description: Taxa de Evasão - Ensino Fundamental Anos Finais
+      - name: taxa_evasao_ef_1_ano
+        description: Taxa de Evasão - Ensino Fundamental 1º Ano
+      - name: taxa_evasao_ef_2_ano
+        description: Taxa de Evasão - Ensino Fundamental 2º Ano
+      - name: taxa_evasao_ef_3_ano
+        description: Taxa de Evasão - Ensino Fundamental 3º Ano
+      - name: taxa_evasao_ef_4_ano
+        description: Taxa de Evasão - Ensino Fundamental 4º Ano
+      - name: taxa_evasao_ef_5_ano
+        description: Taxa de Evasão - Ensino Fundamental 5º Ano
+      - name: taxa_evasao_ef_6_ano
+        description: Taxa de Evasão - Ensino Fundamental 6º Ano
+      - name: taxa_evasao_ef_7_ano
+        description: Taxa de Evasão - Ensino Fundamental 7º Ano
+      - name: taxa_evasao_ef_8_ano
+        description: Taxa de Evasão - Ensino Fundamental 8º Ano
+      - name: taxa_evasao_ef_9_ano
+        description: Taxa de Evasão - Ensino Fundamental 9º Ano
+      - name: taxa_evasao_em
+        description: Taxa de Evasão - Ensino Médio
+      - name: taxa_evasao_em_1_ano
+        description: Taxa de Evasão - Ensino Médio 1º Ano
+      - name: taxa_evasao_em_2_ano
+        description: Taxa de Evasão - Ensino Médio 2º Ano
+      - name: taxa_evasao_em_3_ano
+        description: Taxa de Evasão - Ensino Médio 3º Ano
+      - name: taxa_migracao_eja_ef
+        description: Taxa de Migração para o EJA - Ensino Fundamental
+      - name: taxa_migracao_eja_ef_anos_iniciais
+        description: Taxa de Migração para o EJA - Ensino Fundamental Anos Iniciais
+      - name: taxa_migracao_eja_ef_anos_finais
+        description: Taxa de Migração para o EJA - Ensino Fundamental Anos finais
+      - name: taxa_migracao_eja_ef_1_ano
+        description: Taxa de Migração para o EJA - Ensino Fundamental 1º Ano
+      - name: taxa_migracao_eja_ef_2_ano
+        description: Taxa de Migração para o EJA - Ensino Fundamental 2º Ano
+      - name: taxa_migracao_eja_ef_3_ano
+        description: Taxa de Migração para o EJA - Ensino Fundamental 3º Ano
+      - name: taxa_migracao_eja_ef_4_ano
+        description: Taxa de Migração para o EJA - Ensino Fundamental 4º Ano
+      - name: taxa_migracao_eja_ef_5_ano
+        description: Taxa de Migração para o EJA - Ensino Fundamental 5º Ano
+      - name: taxa_migracao_eja_ef_6_ano
+        description: Taxa de Migração para o EJA - Ensino Fundamental 6º Ano
+      - name: taxa_migracao_eja_ef_7_ano
+        description: Taxa de Migração para o EJA - Ensino Fundamental 7º Ano
+      - name: taxa_migracao_eja_ef_8_ano
+        description: Taxa de Migração para o EJA - Ensino Fundamental 8º Ano
+      - name: taxa_migracao_eja_ef_9_ano
+        description: Taxa de Migração para o EJA - Ensino Fundamental 9º Ano
+      - name: taxa_migracao_eja_em
+        description: Taxa de Migração para o EJA - Ensino Médio
+      - name: taxa_migracao_eja_em_1_ano
+        description: Taxa de Migração para o EJA - Ensino Médio 1º Ano
+      - name: taxa_migracao_eja_em_2_ano
+        description: Taxa de Migração para o EJA - Ensino Médio 2º Ano
+      - name: taxa_migracao_eja_em_3_ano
+        description: Taxa de Migração para o EJA - Ensino Médio 3º Ano
+  - name: br_inep_indicadores_educacionais__uf
+    description: Indicadores educacionais do Inep a nível de UF
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [insert unique keys here]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: localizacao
+        description: Localização
+      - name: rede
+        description: Rede Escolar
+      - name: atu_ei
+        description: Média de Alunos por Turma - Educação Infantil
+      - name: atu_ei_creche
+        description: Média de Alunos por Turma - Educação Infantil Creche
+      - name: atu_ei_pre_escola
+        description: Média de Alunos por Turma - Educação Infantil Pré escola
+      - name: atu_ef
+        description: Média de Alunos por Turma - Ensino Fundamental
+      - name: atu_ef_anos_iniciais
+        description: Média de Alunos por Turma - Ensino Fundamental Anos Iniciais
+      - name: atu_ef_anos_finais
+        description: Média de Alunos por Turma - Ensino Fundamental Anos Finais
+      - name: atu_ef_1_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 1º ano
+      - name: atu_ef_2_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 2º ano
+      - name: atu_ef_3_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 3º ano
+      - name: atu_ef_4_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 4º ano
+      - name: atu_ef_5_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 5º ano
+      - name: atu_ef_6_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 6º ano
+      - name: atu_ef_7_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 7º ano
+      - name: atu_ef_8_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 8º ano
+      - name: atu_ef_9_ano
+        description: Média de Alunos por Turma - Ensino Fundamental 9º ano
+      - name: atu_ef_turmas_unif_multi_fluxo
+        description: Média de Alunos por Turma - Ensino Fundamental - Turmas Unificadas,
+          Multi, Multietapa e Correção de fluxo
+      - name: atu_em
+        description: Média de Alunos por Turma - Ensino Médio
+      - name: atu_em_1_ano
+        description: Média de Alunos por Turma - Ensino Médio 1º ano
+      - name: atu_em_2_ano
+        description: Média de Alunos por Turma - Ensino Médio 2º ano
+      - name: atu_em_3_ano
+        description: Média de Alunos por Turma - Ensino Médio 3º ano
+      - name: atu_em_4_ano
+        description: Média de Alunos por Turma - Ensino Médio 4º ano
+      - name: atu_em_nao_seriado
+        description: Média de Alunos por Turma - Ensino Médio Não Seriado
+      - name: had_ei
+        description: Média de Horas-Aula diária - Educação Infantil
+      - name: had_ei_creche
+        description: Média de Horas-Aula diária - Educação Infantil Creche
+      - name: had_ei_pre_escola
+        description: Média de Horas-Aula diária - Educação Infantil Pré-escola
+      - name: had_ef
+        description: Média de Horas-Aula diária - Ensino Fundamental
+      - name: had_ef_anos_iniciais
+        description: Média de Horas-Aula diária - Ensino Fundamental Anos Iniciais
+      - name: had_ef_anos_finais
+        description: Média de Horas-Aula diária - Ensino Fundamental Anos Finais
+      - name: had_ef_1_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 1º ano
+      - name: had_ef_2_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 2º ano
+      - name: had_ef_3_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 3º ano
+      - name: had_ef_4_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 4º ano
+      - name: had_ef_5_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 5º ano
+      - name: had_ef_6_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 6º ano
+      - name: had_ef_7_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 7º ano
+      - name: had_ef_8_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 8º ano
+      - name: had_ef_9_ano
+        description: Média de Horas-Aula diária - Ensino Fundamental 9º ano
+      - name: had_em
+        description: Média de Horas-Aula diária - Ensino Médio
+      - name: had_em_1_ano
+        description: Média de Horas-Aula diária - Ensino Médio 1º ano
+      - name: had_em_2_ano
+        description: Média de Horas-Aula diária - Ensino Médio 2º ano
+      - name: had_em_3_ano
+        description: Média de Horas-Aula diária - Ensino Médio 3º ano
+      - name: had_em_4_ano
+        description: Média de Horas-Aula diária - Ensino Médio 4º ano
+      - name: had_em_nao_seriado
+        description: Média de Horas-Aula diária - Ensino Médio Não Seriado
+      - name: tdi_ef
+        description: Taxa de distorção idade-série - Ensino Fundamental
+      - name: tdi_ef_anos_iniciais
+        description: Taxa de distorção idade-série - Ensino Fundamental Anos Iniciais
+      - name: tdi_ef_anos_finais
+        description: Taxa de distorção idade-série - Ensino Fundamental Anos Finais
+      - name: tdi_ef_1_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 1º ano
+      - name: tdi_ef_2_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 2º ano
+      - name: tdi_ef_3_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 3º ano
+      - name: tdi_ef_4_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 4º ano
+      - name: tdi_ef_5_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 5º ano
+      - name: tdi_ef_6_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 6º ano
+      - name: tdi_ef_7_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 7º ano
+      - name: tdi_ef_8_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 8º ano
+      - name: tdi_ef_9_ano
+        description: Taxa de distorção idade-série - Ensino Fundamental 9º ano
+      - name: tdi_em
+        description: Taxa de distorção idade-série - Ensino Médio
+      - name: tdi_em_1_ano
+        description: Taxa de distorção idade-série - Ensino Médio 1º ano
+      - name: tdi_em_2_ano
+        description: Taxa de distorção idade-série - Ensino Médio 2º ano
+      - name: tdi_em_3_ano
+        description: Taxa de distorção idade-série - Ensino Médio 3º ano
+      - name: tdi_em_4_ano
+        description: Taxa de distorção idade-série - Ensino Médio 4º ano
+      - name: taxa_aprovacao_ef
+        description: Taxa de Aprovação - Ensino Fundamental
+      - name: taxa_aprovacao_ef_anos_iniciais
+        description: Taxa de Aprovação - Ensino Fundamental Anos Iniciais
+      - name: taxa_aprovacao_ef_anos_finais
+        description: Taxa de Aprovação - Ensino Fundamental Anos Finais
+      - name: taxa_aprovacao_ef_1_ano
+        description: Taxa de Aprovação - Ensino Fundamental 1º ano
+      - name: taxa_aprovacao_ef_2_ano
+        description: Taxa de Aprovação - Ensino Fundamental 2º ano
+      - name: taxa_aprovacao_ef_3_ano
+        description: Taxa de Aprovação - Ensino Fundamental 3º ano
+      - name: taxa_aprovacao_ef_4_ano
+        description: Taxa de Aprovação - Ensino Fundamental 4º ano
+      - name: taxa_aprovacao_ef_5_ano
+        description: Taxa de Aprovação - Ensino Fundamental 5º ano
+      - name: taxa_aprovacao_ef_6_ano
+        description: Taxa de Aprovação - Ensino Fundamental 6º ano
+      - name: taxa_aprovacao_ef_7_ano
+        description: Taxa de Aprovação - Ensino Fundamental 7º ano
+      - name: taxa_aprovacao_ef_8_ano
+        description: Taxa de Aprovação - Ensino Fundamental 8º ano
+      - name: taxa_aprovacao_ef_9_ano
+        description: Taxa de Aprovação - Ensino Fundamental 9º ano
+      - name: taxa_aprovacao_em
+        description: Taxa de Aprovação - Ensino Médio
+      - name: taxa_aprovacao_em_1_ano
+        description: Taxa de Aprovação - Ensino Médio 1º ano
+      - name: taxa_aprovacao_em_2_ano
+        description: Taxa de Aprovação - Ensino Médio 2º ano
+      - name: taxa_aprovacao_em_3_ano
+        description: Taxa de Aprovação - Ensino Médio 3º ano
+      - name: taxa_aprovacao_em_4_ano
+        description: Taxa de Aprovação - Ensino Médio 4º ano
+      - name: taxa_aprovacao_em_nao_seriado
+        description: Taxa de Aprovação - Ensino Médio Não Seriado
+      - name: taxa_reprovacao_ef
+        description: Taxa de Reprovação - Ensino Fundamental
+      - name: taxa_reprovacao_ef_anos_iniciais
+        description: Taxa de Reprovação - Ensino Fundamental Anos Iniciais
+      - name: taxa_reprovacao_ef_anos_finais
+        description: Taxa de Reprovação - Ensino Fundamental Anos Finais
+      - name: taxa_reprovacao_ef_1_ano
+        description: Taxa de Reprovação - Ensino Fundamental 1º ano
+      - name: taxa_reprovacao_ef_2_ano
+        description: Taxa de Reprovação - Ensino Fundamental 2º ano
+      - name: taxa_reprovacao_ef_3_ano
+        description: Taxa de Reprovação - Ensino Fundamental 3º ano
+      - name: taxa_reprovacao_ef_4_ano
+        description: Taxa de Reprovação - Ensino Fundamental 4º ano
+      - name: taxa_reprovacao_ef_5_ano
+        description: Taxa de Reprovação - Ensino Fundamental 5º ano
+      - name: taxa_reprovacao_ef_6_ano
+        description: Taxa de Reprovação - Ensino Fundamental 6º ano
+      - name: taxa_reprovacao_ef_7_ano
+        description: Taxa de Reprovação - Ensino Fundamental 7º ano
+      - name: taxa_reprovacao_ef_8_ano
+        description: Taxa de Reprovação - Ensino Fundamental 8º ano
+      - name: taxa_reprovacao_ef_9_ano
+        description: Taxa de Reprovação - Ensino Fundamental 9º ano
+      - name: taxa_reprovacao_em
+        description: Taxa de Reprovação - Ensino Médio
+      - name: taxa_reprovacao_em_1_ano
+        description: Taxa de Reprovação - Ensino Médio 1º ano
+      - name: taxa_reprovacao_em_2_ano
+        description: Taxa de Reprovação - Ensino Médio 2º ano
+      - name: taxa_reprovacao_em_3_ano
+        description: Taxa de Reprovação - Ensino Médio 3º ano
+      - name: taxa_reprovacao_em_4_ano
+        description: Taxa de Reprovação - Ensino Médio 4º ano
+      - name: taxa_reprovacao_em_nao_seriado
+        description: Taxa de Reprovação - Ensino Médio Não Seriado
+      - name: taxa_abandono_ef
+        description: Taxa de Abandono - Ensino Fundamental
+      - name: taxa_abandono_ef_anos_iniciais
+        description: Taxa de Abandono - Ensino Fundamental Anos Iniciais
+      - name: taxa_abandono_ef_anos_finais
+        description: Taxa de Abandono - Ensino Fundamental Anos Finais
+      - name: taxa_abandono_ef_1_ano
+        description: Taxa de Abandono - Ensino Fundamental 1º ano
+      - name: taxa_abandono_ef_2_ano
+        description: Taxa de Abandono - Ensino Fundamental 2º ano
+      - name: taxa_abandono_ef_3_ano
+        description: Taxa de Abandono - Ensino Fundamental 3º ano
+      - name: taxa_abandono_ef_4_ano
+        description: Taxa de Abandono - Ensino Fundamental 4º ano
+      - name: taxa_abandono_ef_5_ano
+        description: Taxa de Abandono - Ensino Fundamental 5º ano
+      - name: taxa_abandono_ef_6_ano
+        description: Taxa de Abandono - Ensino Fundamental 6º ano
+      - name: taxa_abandono_ef_7_ano
+        description: Taxa de Abandono - Ensino Fundamental 7º ano
+      - name: taxa_abandono_ef_8_ano
+        description: Taxa de Abandono - Ensino Fundamental 8º ano
+      - name: taxa_abandono_ef_9_ano
+        description: Taxa de Abandono - Ensino Fundamental 9º ano
+      - name: taxa_abandono_em
+        description: Taxa de Abandono - Ensino Médio
+      - name: taxa_abandono_em_1_ano
+        description: Taxa de Abandono - Ensino Médio 1º ano
+      - name: taxa_abandono_em_2_ano
+        description: Taxa de Abandono - Ensino Médio 2º ano
+      - name: taxa_abandono_em_3_ano
+        description: Taxa de Abandono - Ensino Médio 3º ano
+      - name: taxa_abandono_em_4_ano
+        description: Taxa de Abandono - Ensino Médio 4º ano
+      - name: taxa_abandono_em_nao_seriado
+        description: Taxa de Abandono - Ensino Médio Não seriado
+      - name: tnr_ef
+        description: Taxa de Não Resposta - Ensino Fundamental
+      - name: tnr_ef_anos_iniciais
+        description: Taxa de Não Resposta - Ensino Fundamental Anos Iniciais
+      - name: tnr_ef_anos_finais
+        description: Taxa de Não Resposta - Ensino Fundamental Anos Finais
+      - name: tnr_ef_1_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 1º ano
+      - name: tnr_ef_2_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 2º ano
+      - name: tnr_ef_3_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 3º ano
+      - name: tnr_ef_4_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 4º ano
+      - name: tnr_ef_5_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 5º ano
+      - name: tnr_ef_6_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 6º ano
+      - name: tnr_ef_7_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 7º ano
+      - name: tnr_ef_8_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 8º ano
+      - name: tnr_ef_9_ano
+        description: Taxa de Não Resposta - Ensino Fundamental 9º ano
+      - name: tnr_em
+        description: Taxa de Não Resposta - Ensino Médio
+      - name: tnr_em_1_ano
+        description: Taxa de Não Resposta - Ensino Médio 1º ano
+      - name: tnr_em_2_ano
+        description: Taxa de Não Resposta - Ensino Médio 2º ano
+      - name: tnr_em_3_ano
+        description: Taxa de Não Resposta - Ensino Médio 3º ano
+      - name: tnr_em_4_ano
+        description: Taxa de Não Resposta - Ensino Médio 4º ano
+      - name: tnr_em_nao_seriado
+        description: Taxa de Não Resposta - Ensino Médio Não Seriado
+      - name: dsu_ei
+        description: Percentual de Docentes com Curso Superior - Educação Infantil
+      - name: dsu_ei_creche
+        description: Percentual de Docentes com Curso Superior - Educação Infantil
+          Creche
+      - name: dsu_ei_pre_escola
+        description: Percentual de Docentes com Curso Superior - Educação Infantil
+          Pré-escola
+      - name: dsu_ef
+        description: Percentual de Docentes com Curso Superior - Ensino Fundamental
+      - name: dsu_ef_anos_iniciais
+        description: Percentual de Docentes com Curso Superior - Ensino Fundamental
+          Anos Iniciais
+      - name: dsu_ef_anos_finais
+        description: Percentual de Docentes com Curso Superior - Ensino Fundamental
+          Anos Finais
+      - name: dsu_em
+        description: Percentual de Docentes com Curso Superior - Ensino Médio
+      - name: dsu_ep
+        description: Percentual de Docentes com Curso Superior - Educação Profissional
+      - name: dsu_eja
+        description: Percentual de Docentes com Curso Superior - Educação Jovens Adultos
+      - name: dsu_ee
+        description: Percentual de Docentes com Curso Superior - Educação Especial
+      - name: afd_ei_grupo_1
+        description: Adequação da Formação Docente - Educação Infantil Grupo 1
+      - name: afd_ei_grupo_2
+        description: Adequação da Formação Docente - Educação Infantil Grupo 2
+      - name: afd_ei_grupo_3
+        description: Adequação da Formação Docente - Educação Infantil Grupo 3
+      - name: afd_ei_grupo_4
+        description: Adequação da Formação Docente - Educação Infantil Grupo 4
+      - name: afd_ei_grupo_5
+        description: Adequação da Formação Docente - Educação Infantil Grupo 5
+      - name: afd_ef_grupo_1
+        description: Adequação da Formação Docente - Ensino Fundamental Grupo 1
+      - name: afd_ef_grupo_2
+        description: Adequação da Formação Docente - Ensino Fundamental Grupo 2
+      - name: afd_ef_grupo_3
+        description: Adequação da Formação Docente - Ensino Fundamental Grupo 3
+      - name: afd_ef_grupo_4
+        description: Adequação da Formação Docente - Ensino Fundamental Grupo 4
+      - name: afd_ef_grupo_5
+        description: Adequação da Formação Docente - Ensino Fundamental Grupo 5
+      - name: afd_ef_anos_iniciais_grupo_1
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Iniciais
+          Grupo 1
+      - name: afd_ef_anos_iniciais_grupo_2
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Iniciais
+          Grupo 2
+      - name: afd_ef_anos_iniciais_grupo_3
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Iniciais
+          Grupo 3
+      - name: afd_ef_anos_iniciais_grupo_4
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Iniciais
+          Grupo 4
+      - name: afd_ef_anos_iniciais_grupo_5
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Iniciais
+          Grupo 5
+      - name: afd_ef_anos_finais_grupo_1
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Finais
+          Grupo 1
+      - name: afd_ef_anos_finais_grupo_2
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Finais
+          Grupo 2
+      - name: afd_ef_anos_finais_grupo_3
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Finais
+          Grupo 3
+      - name: afd_ef_anos_finais_grupo_4
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Finais
+          Grupo 4
+      - name: afd_ef_anos_finais_grupo_5
+        description: Adequação da Formação Docente - Ensino Fundamental Anos Finais
+          Grupo 5
+      - name: afd_em_grupo_1
+        description: Adequação da Formação Docente - Ensino Médio Grupo 1
+      - name: afd_em_grupo_2
+        description: Adequação da Formação Docente - Ensino Médio Grupo 2
+      - name: afd_em_grupo_3
+        description: Adequação da Formação Docente - Ensino Médio Grupo 3
+      - name: afd_em_grupo_4
+        description: Adequação da Formação Docente - Ensino Médio Grupo 4
+      - name: afd_em_grupo_5
+        description: Adequação da Formação Docente - Ensino Médio Grupo 5
+      - name: afd_eja_fundamental_grupo_1
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Fundamental Grupo 1
+      - name: afd_eja_fundamental_grupo_2
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Fundamental Grupo 2
+      - name: afd_eja_fundamental_grupo_3
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Fundamental Grupo 3
+      - name: afd_eja_fundamental_grupo_4
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Fundamental Grupo 4
+      - name: afd_eja_fundamental_grupo_5
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Fundamental Grupo 5
+      - name: afd_eja_medio_grupo_1
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Médio Grupo 1
+      - name: afd_eja_medio_grupo_2
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Médio Grupo 2
+      - name: afd_eja_medio_grupo_3
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Médio Grupo 3
+      - name: afd_eja_medio_grupo_4
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Médio Grupo 4
+      - name: afd_eja_medio_grupo_5
+        description: Adequação da Formação Docente - Educação Jovens Adultos - Ensino
+          Médio Grupo 5
+      - name: ird_baixa_regularidade
+        description: Regularidade do Corpo Docente - Baixa Regularidade
+      - name: ird_media_baixa
+        description: Regularidade do Corpo Docente - Média a Baixa Regularidade
+      - name: ird_media_alta
+        description: Regularidade do Corpo Docente - Média a Alta Regularidade
+      - name: ird_alta
+        description: Regularidade do Corpo Docente - Alta Regularidade
+      - name: ied_ef_nivel_1
+        description: Esforço Docente - Ensino Fundamental Nível 1
+      - name: ied_ef_nivel_2
+        description: Esforço Docente - Ensino Fundamental Nível 2
+      - name: ied_ef_nivel_3
+        description: Esforço Docente - Ensino Fundamental Nível 3
+      - name: ied_ef_nivel_4
+        description: Esforço Docente - Ensino Fundamental Nível 4
+      - name: ied_ef_nivel_5
+        description: Esforço Docente - Ensino Fundamental Nível 5
+      - name: ied_ef_nivel_6
+        description: Esforço Docente - Ensino Fundamental Nível 6
+      - name: ied_ef_anos_iniciais_nivel_1
+        description: Esforço Docente - Ensino Fundamental Anos Iniciais Nível 1
+      - name: ied_ef_anos_iniciais_nivel_2
+        description: Esforço Docente - Ensino Fundamental Anos Iniciais Nível 2
+      - name: ied_ef_anos_iniciais_nivel_3
+        description: Esforço Docente - Ensino Fundamental Anos Iniciais Nível 3
+      - name: ied_ef_anos_iniciais_nivel_4
+        description: Esforço Docente - Ensino Fundamental Anos Iniciais Nível 4
+      - name: ied_ef_anos_iniciais_nivel_5
+        description: Esforço Docente - Ensino Fundamental Anos Iniciais Nível 5
+      - name: ied_ef_anos_iniciais_nivel_6
+        description: Esforço Docente - Ensino Fundamental Anos Iniciais Nível 6
+      - name: ied_ef_anos_finais_nivel_1
+        description: Esforço Docente - Ensino Fundamental Anos Finais Nível 1
+      - name: ied_ef_anos_finais_nivel_2
+        description: Esforço Docente - Ensino Fundamental Anos Finais Nível 2
+      - name: ied_ef_anos_finais_nivel_3
+        description: Esforço Docente - Ensino Fundamental Anos Finais Nível 3
+      - name: ied_ef_anos_finais_nivel_4
+        description: Esforço Docente - Ensino Fundamental Anos Finais Nível 4
+      - name: ied_ef_anos_finais_nivel_5
+        description: Esforço Docente - Ensino Fundamental Anos Finais Nível 5
+      - name: ied_ef_anos_finais_nivel_6
+        description: Esforço Docente - Ensino Fundamental Anos Finais Nível 6
+      - name: ied_em_nivel_1
+        description: Esforço Docente - Ensino Médio Nível 1
+      - name: ied_em_nivel_2
+        description: Esforço Docente - Ensino Médio Nível 2
+      - name: ied_em_nivel_3
+        description: Esforço Docente - Ensino Médio Nível 3
+      - name: ied_em_nivel_4
+        description: Esforço Docente - Ensino Médio Nível 4
+      - name: ied_em_nivel_5
+        description: Esforço Docente - Ensino Médio Nível 5
+      - name: ied_em_nivel_6
+        description: Esforço Docente - Ensino Médio Nível 6
+      - name: icg_nivel_1
+        description: Complexidade de Gestão da Escola Nível 1
+      - name: icg_nivel_2
+        description: Complexidade de Gestão da Escola Nível 2
+      - name: icg_nivel_3
+        description: Complexidade de Gestão da Escola Nível 3
+      - name: icg_nivel_4
+        description: Complexidade de Gestão da Escola Nível 4
+      - name: icg_nivel_5
+        description: Complexidade de Gestão da Escola Nível 5
+      - name: icg_nivel_6
+        description: Complexidade de Gestão da Escola Nível 6
+  - name: br_inep_indicadores_educacionais__uf_taxa_transicao
+    description: Os indicadores de transição, equivalentemente denominados como indicadores
+      de fluxo escolar, têm por objetivo informar sobre a trajetória do estudante
+      na educação básica, que por sua vez, depende da estrutura organizacional dos
+      programas de educação formal (sistemática), ou educação escolar, normalmente
+      operacionalizada em níveis de ensino.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [insert unique keys here]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano_de
+        description: Ano base
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: ano_para
+        description: Próximo ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: localizacao
+        description: Localização
+      - name: rede
+        description: Rede Escolar
+      - name: taxa_promocao_ef
+        description: Taxa de Promoção - Ensino Fundamental
+      - name: taxa_promocao_ef_anos_iniciais
+        description: Taxa de Promoção - Ensino Fundamental Anos Iniciais
+      - name: taxa_promocao_ef_anos_finais
+        description: Taxa de Promoção - Ensino Fundamental Anos Finais
+      - name: taxa_promocao_ef_1_ano
+        description: Taxa de Promoção - Ensino Fundamental 1º Ano
+      - name: taxa_promocao_ef_2_ano
+        description: Taxa de Promoção - Ensino Fundamental 2º Ano
+      - name: taxa_promocao_ef_3_ano
+        description: Taxa de Promoção - Ensino Fundamental 3º Ano
+      - name: taxa_promocao_ef_4_ano
+        description: Taxa de Promoção - Ensino Fundamental 4º Ano
+      - name: taxa_promocao_ef_5_ano
+        description: Taxa de Promoção - Ensino Fundamental 5º Ano
+      - name: taxa_promocao_ef_6_ano
+        description: Taxa de Promoção - Ensino Fundamental 6º Ano
+      - name: taxa_promocao_ef_7_ano
+        description: Taxa de Promoção - Ensino Fundamental 7º Ano
+      - name: taxa_promocao_ef_8_ano
+        description: Taxa de Promoção - Ensino Fundamental 8º Ano
+      - name: taxa_promocao_ef_9_ano
+        description: Taxa de Promoção - Ensino Fundamental 9º Ano
+      - name: taxa_promocao_em
+        description: Taxa de Promoção - Ensino Médio
+      - name: taxa_promocao_em_1_ano
+        description: Taxa de Promoção - Ensino Médio 1º Ano
+      - name: taxa_promocao_em_2_ano
+        description: Taxa de Promoção - Ensino Médio 2º Ano
+      - name: taxa_promocao_em_3_ano
+        description: Taxa de Promoção - Ensino Médio 3º Ano
+      - name: taxa_repetencia_ef
+        description: Taxa de Repetência - Ensino Fundamental
+      - name: taxa_repetencia_ef_anos_iniciais
+        description: Taxa de Repetência - Ensino Fundamenta Anos Iniciais
+      - name: taxa_repetencia_ef_anos_finais
+        description: Taxa de Repetência - Ensino Fundamenta Anos Finais
+      - name: taxa_repetencia_ef_1_ano
+        description: Taxa de Repetência - Ensino Fundamental 1º Ano
+      - name: taxa_repetencia_ef_2_ano
+        description: Taxa de Repetência - Ensino Fundamental 2º Ano
+      - name: taxa_repetencia_ef_3_ano
+        description: Taxa de Repetência - Ensino Fundamental 3º Ano
+      - name: taxa_repetencia_ef_4_ano
+        description: Taxa de Repetência - Ensino Fundamental 4º Ano
+      - name: taxa_repetencia_ef_5_ano
+        description: Taxa de Repetência - Ensino Fundamental 5º Ano
+      - name: taxa_repetencia_ef_6_ano
+        description: Taxa de Repetência - Ensino Fundamental 6º Ano
+      - name: taxa_repetencia_ef_7_ano
+        description: Taxa de Repetência - Ensino Fundamental 7º Ano
+      - name: taxa_repetencia_ef_8_ano
+        description: Taxa de Repetência - Ensino Fundamental 8º Ano
+      - name: taxa_repetencia_ef_9_ano
+        description: Taxa de Repetência - Ensino Fundamental 9º Ano
+      - name: taxa_repetencia_em
+        description: Taxa de Repetência - Ensino Médio
+      - name: taxa_repetencia_em_1_ano
+        description: Taxa de Repetência - Ensino Médio 1º Ano
+      - name: taxa_repetencia_em_2_ano
+        description: Taxa de Repetência - Ensino Médio 2º Ano
+      - name: taxa_repetencia_em_3_ano
+        description: Taxa de Repetência - Ensino Médio 3º Ano
+      - name: taxa_evasao_ef
+        description: Taxa de Evasão - Ensino Fundamental
+      - name: taxa_evasao_ef_anos_iniciais
+        description: Taxa de Evasão - Ensino Fundamental Anos Iniciais
+      - name: taxa_evasao_ef_anos_finais
+        description: Taxa de Evasão - Ensino Fundamental Anos Finais
+      - name: taxa_evasao_ef_1_ano
+        description: Taxa de Evasão - Ensino Fundamental 1º Ano
+      - name: taxa_evasao_ef_2_ano
+        description: Taxa de Evasão - Ensino Fundamental 2º Ano
+      - name: taxa_evasao_ef_3_ano
+        description: Taxa de Evasão - Ensino Fundamental 3º Ano
+      - name: taxa_evasao_ef_4_ano
+        description: Taxa de Evasão - Ensino Fundamental 4º Ano
+      - name: taxa_evasao_ef_5_ano
+        description: Taxa de Evasão - Ensino Fundamental 5º Ano
+      - name: taxa_evasao_ef_6_ano
+        description: Taxa de Evasão - Ensino Fundamental 6º Ano
+      - name: taxa_evasao_ef_7_ano
+        description: Taxa de Evasão - Ensino Fundamental 7º Ano
+      - name: taxa_evasao_ef_8_ano
+        description: Taxa de Evasão - Ensino Fundamental 8º Ano
+      - name: taxa_evasao_ef_9_ano
+        description: Taxa de Evasão - Ensino Fundamental 9º Ano
+      - name: taxa_evasao_em
+        description: Taxa de Evasão - Ensino Médio
+      - name: taxa_evasao_em_1_ano
+        description: Taxa de Evasão - Ensino Médio 1º Ano
+      - name: taxa_evasao_em_2_ano
+        description: Taxa de Evasão - Ensino Médio 2º Ano
+      - name: taxa_evasao_em_3_ano
+        description: Taxa de Evasão - Ensino Médio 3º Ano
+      - name: taxa_migracao_eja_ef
+        description: Taxa de Migração para o EJA - Ensino Fundamental
+      - name: taxa_migracao_eja_ef_anos_iniciais
+        description: Taxa de Migração para o EJA - Ensino Fundamental Anos Iniciais
+      - name: taxa_migracao_eja_ef_anos_finais
+        description: Taxa de Migração para o EJA - Ensino Fundamental Anos finais
+      - name: taxa_migracao_eja_ef_1_ano
+        description: Taxa de Migração para o EJA - Ensino Fundamental 1º Ano
+      - name: taxa_migracao_eja_ef_2_ano
+        description: Taxa de Migração para o EJA - Ensino Fundamental 2º Ano
+      - name: taxa_migracao_eja_ef_3_ano
+        description: Taxa de Migração para o EJA - Ensino Fundamental 3º Ano
+      - name: taxa_migracao_eja_ef_4_ano
+        description: Taxa de Migração para o EJA - Ensino Fundamental 4º Ano
+      - name: taxa_migracao_eja_ef_5_ano
+        description: Taxa de Migração para o EJA - Ensino Fundamental 5º Ano
+      - name: taxa_migracao_eja_ef_6_ano
+        description: Taxa de Migração para o EJA - Ensino Fundamental 6º Ano
+      - name: taxa_migracao_eja_ef_7_ano
+        description: Taxa de Migração para o EJA - Ensino Fundamental 7º Ano
+      - name: taxa_migracao_eja_ef_8_ano
+        description: Taxa de Migração para o EJA - Ensino Fundamental 8º Ano
+      - name: taxa_migracao_eja_ef_9_ano
+        description: Taxa de Migração para o EJA - Ensino Fundamental 9º Ano
+      - name: taxa_migracao_eja_em
+        description: Taxa de Migração para o EJA - Ensino Médio
+      - name: taxa_migracao_eja_em_1_ano
+        description: Taxa de Migração para o EJA - Ensino Médio 1º Ano
+      - name: taxa_migracao_eja_em_2_ano
+        description: Taxa de Migração para o EJA - Ensino Médio 2º Ano
+      - name: taxa_migracao_eja_em_3_ano
+        description: Taxa de Migração para o EJA - Ensino Médio 3º Ano

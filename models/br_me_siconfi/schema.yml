@@ -1,0 +1,244 @@
+---
+version: 2
+models:
+  - name: br_me_siconfi__municipio_balanco_patrimonial
+    description: Tabela do balanço patrimonial a nível de município.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        test: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: portaria
+        description: Portaria
+      - name: conta
+        description: Conta
+      - name: id_conta_bd
+        description: ID Conta - Base dos Dados
+      - name: conta_bd
+        description: Conta - Base dos Dados
+      - name: valor
+        description: Valor
+  - name: br_me_siconfi__municipio_despesas_funcao
+    description: Tabela de despesas por função a nível de município.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        test: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: estagio
+        description: Estágio
+      - name: portaria
+        description: Portaria
+      - name: conta
+        description: Conta
+      - name: estagio_bd
+        description: Estágio - Compatibilizado pela Base dos Dados
+      - name: id_conta_bd
+        description: ID Conta - Compatibilizado pela Base dos Dados
+      - name: conta_bd
+        description: Conta - Compatibilizado pela Base dos Dados
+      - name: valor
+        description: Valor
+  - name: br_me_siconfi__municipio_despesas_orcamentarias
+    description: Tabela de despesas orçamentárias a nível de município.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        test: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: estagio
+        description: Estágio
+      - name: portaria
+        description: Portaria
+      - name: conta
+        description: Conta
+      - name: estagio_bd
+        description: Estágio - Compatibilizado pela Base dos Dados
+      - name: id_conta_bd
+        description: ID Conta - Compatibilizado pela Base dos Dados
+      - name: conta_bd
+        description: Conta - Compatibilizado pela Base dos Dados
+      - name: valor
+        description: Valor
+  - name: br_me_siconfi__municipio_receitas_orcamentarias
+    description: Tabela de receitas orçamentárias a nível de município.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        test: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: estagio
+        description: Estágio
+      - name: portaria
+        description: Portaria
+      - name: conta
+        description: Conta
+      - name: estagio_bd
+        description: Estágio - Compatibilizado pela Base dos Dados
+      - name: id_conta_bd
+        description: ID Conta - Compatibilizado pela Base dos Dados
+      - name: conta_bd
+        description: Conta - Compatibilizado pela Base dos Dados
+      - name: valor
+        description: Valor
+  - name: br_me_siconfi__uf_despesas_funcao
+    description: Tabela de despesas por função a nível de UF.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        test: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_uf
+        description: ID da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: id_uf
+      - name: estagio
+        description: Estágio
+      - name: portaria
+        description: Portaria
+      - name: conta
+        description: Conta
+      - name: estagio_bd
+        description: Estágio - Compatibilizado pela Base dos Dados
+      - name: id_conta_bd
+        description: ID Conta - Compatibilizado pela Base dos Dados
+      - name: conta_bd
+        description: Conta - Compatibilizado pela Base dos Dados
+      - name: valor
+        description: Valor
+  - name: br_me_siconfi__uf_despesas_orcamentarias
+    description: Tabela de despesas orçamentárias a nível de UF.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        test: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_uf
+        description: ID da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: id_uf
+      - name: estagio
+        description: Estágio
+      - name: portaria
+        description: Portaria
+      - name: conta
+        description: Conta
+      - name: estagio_bd
+        description: Estágio - Compatibilizado pela Base dos Dados
+      - name: id_conta_bd
+        description: ID Conta - Compatibilizado pela Base dos Dados
+      - name: conta_bd
+        description: Conta - Compatibilizado pela Base dos Dados
+      - name: valor
+        description: Valor
+  - name: br_me_siconfi__uf_receitas_orcamentarias
+    description: Tabela de receitas orçamentárias a nível de UF.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        test: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_uf
+        description: ID da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: id_uf
+      - name: estagio
+        description: Estágio
+      - name: portaria
+        description: Portaria
+      - name: conta
+        description: Conta
+      - name: estagio_bd
+        description: Estágio - Compatibilizado pela Base dos Dados
+      - name: id_conta_bd
+        description: ID Conta - Compatibilizado pela Base dos Dados
+      - name: conta_bd
+        description: Conta - Compatibilizado pela Base dos Dados
+      - name: valor
+        description: Valor

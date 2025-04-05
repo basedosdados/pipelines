@@ -1,0 +1,156 @@
+---
+version: 2
+models:
+  - name: metricas_tweets
+    description: dados de metricas de tweets
+    columns:
+      - name: upload_ts
+        description: timestamp of data extraction [partition variable]
+      - name: id
+        description: tweet id [primary key]
+      - name: text
+        description: tweet's text content
+      - name: created_at
+        description: datetime tweet creation
+      - name: retweet_count
+        description: tweet's retweets count
+      - name: reply_count
+        description: tweet's reply count
+      - name: like_count
+        description: tweet's like count
+      - name: quote_count
+        description: number of user profile clicks
+      - name: impression_count
+        description: tweet's impression count
+      - name: user_profile_clicks
+        description: number of clicks in url link
+      - name: url_link_clicks
+        description: time of tweet creation
+      - name: following_count
+        description: user's following count
+      - name: followers_count
+        description: user's followers count at upload day
+      - name: tweet_count
+        description: user's tweets count at upload day
+      - name: listed_count
+        description: user's listed count at upload day
+  - name: twitter_metrics_agg
+    description: dados agregados de métricas de tweets
+    columns:
+      - name: upload_day
+        description: day of data extraction [partition variable]
+      - name: retweets
+        description: total day's retweets
+      - name: replies
+        description: total day's replies
+      - name: likes
+        description: total day's likes
+      - name: quote_tweets
+        description: total day's quote tweets
+      - name: impressions
+        description: total day's impressions
+      - name: profile_clicks
+        description: total day's profile clicks
+      - name: links_clicks
+        description: total day's clicks in embeded tweet links
+      - name: followings
+        description: total followings up to upload_day
+      - name: followers
+        description: total followers up to upload_day
+      - name: tweets
+        description: total tweets up to upload_day
+      - name: listed
+        description: total list that BD's account was listed up to upload_day
+  - name: website_user
+    description: dados de acessos ao site da BD
+    columns:
+      - name: reference_date
+        description: Reference date
+      - name: users_1_day
+        description: Number of users in 1 day
+      - name: users_7_days
+        description: Number of users in the last 7 days
+      - name: users_14_days
+        description: Number of users in the last 14 days
+      - name: users_28_days
+        description: Number of users in the last 28 days
+      - name: users_30_days
+        description: Number of users in the last 30 days
+      - name: new_users
+        description: Number of new users in that date
+  - name: contabilidade
+    description: contabilidade da BD.
+    columns:
+      - name: ano_competencia
+        description: ano de competência
+      - name: mes_competencia
+        description: mês de competência
+      - name: ano_caixa
+        description: ano de caixa
+      - name: mes_caixa
+        description: mês de caixa
+      - name: categoria
+        description: categoria de despesa
+      - name: tipo
+        description: tipo de despesa
+      - name: frequencia
+        description: frequência de pagamento
+      - name: equipe
+        description: equipe relacionada a despesa
+      - name: valor
+        description: valor da despesa
+  - name: receitas_planejadas
+    description: receitas planejadas da BD
+    columns:
+      - name: ano_competencia
+        description: ano de competência
+      - name: mes_competencia
+        description: mês de competência
+      - name: ano_caixa
+        description: ano de caixa
+      - name: mes_caixa
+        description: mês de caixa
+      - name: categoria
+        description: categoria de receita
+      - name: tipo
+        description: tipo de receita
+      - name: frequencia
+        description: frequência de recebimento
+      - name: valor
+        description: valor da receita
+  - name: equipes
+    description: equipes da BD
+    columns:
+      - name: id_pessoa
+        description: id da pessoa
+      - name: data_inicio
+        description: data de início na equipe
+      - name: data_fim
+        description: data de saída da equipe
+      - name: equipe
+        description: nome da equipe
+      - name: nivel
+        description: nível da pessoa na equipe
+      - name: cargo
+        description: cargo da pessoa na equipe
+  - name: pessoas
+    description: pessoas da BD
+    columns:
+      - name: id
+        description: id da pessoa
+      - name: nome
+        description: nome
+      - name: descricao
+        description: descrição pessoal
+      - name: email
+        description: email pessoal
+      - name: twitter
+        description: twitter
+      - name: github
+        description: github
+      - name: website
+        description: website pessoal
+      - name: linkedin
+        description: perfil no linkedin
+      - name: url_foto
+        description: url da foto

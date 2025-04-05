@@ -1,0 +1,219 @@
+---
+version: 2
+models:
+  - name: br_ms_sim__microdados
+    description: Microdados do Sistema de Informações sobre Mortalidade (SIM) do Ministério
+      da Saúde.
+    columns:
+      - name: ano
+        description: Ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+      - name: sequencial_obito
+        description: Sequencial do Óbito
+      - name: tipo_obito
+        description: Tipo do Óbito
+      - name: causa_basica
+        description: Causa Básica (CID-10)
+      - name: data_obito
+        description: Data do Óbito
+      - name: hora_obito
+        description: Hora do Óbito
+      - name: naturalidade
+        description: Naturalidade
+      - name: data_nascimento
+        description: Data de Nascimento
+      - name: idade
+        description: Idade
+      - name: sexo
+        description: Sexo
+      - name: raca_cor
+        description: Raça ou Cor
+      - name: estado_civil
+        description: Estado Civil
+      - name: escolaridade
+        description: Escolaridade
+      - name: ocupacao
+        description: Ocupação Habitual e Ramo de Atividade
+      - name: codigo_bairro_residencia
+        description: Código do Bairro de Residência
+      - name: id_municipio_residencia
+        description: ID Município de Residência - IBGE 7 Dígitos
+      - name: local_ocorrencia
+        description: Local de Ocorrência
+      - name: codigo_bairro_ocorrencia
+        description: Código do Bairro de Ocorrência
+      - name: id_municipio_ocorrencia
+        description: ID Município de Ocorrência - IBGE 7 Dígitos
+      - name: idade_mae
+        description: Idade da Mãe
+      - name: escolaridade_mae
+        description: Escolaridade da Mãe
+      - name: ocupacao_mae
+        description: Ocupação da Mãe
+      - name: quantidade_filhos_vivos
+        description: Quantidade de Filhos Vivos
+      - name: quantidade_filhos_mortos
+        description: Quantidade de Filhos Mortos
+      - name: gravidez
+        description: Tipo da Gravidez
+      - name: gestacao
+        description: Faixa de Semanas de Gestação
+      - name: parto
+        description: Tipo de Parto
+      - name: obito_parto
+        description: Como Foi a Morte em Relação ao Parto
+      - name: morte_parto
+        description: Morte no Parto
+      - name: peso
+        description: Peso (g)
+      - name: obito_gravidez
+        description: Óbito na Gravidez
+      - name: obito_puerperio
+        description: Óbito no Puerperio
+      - name: assistencia_medica
+        description: Assistência Médica
+      - name: exame
+        description: Exame
+      - name: cirurgia
+        description: Cirurgia
+      - name: necropsia
+        description: Necrópsia
+      - name: linha_a
+        description: CIDs informados na Linha A da DO
+      - name: linha_b
+        description: CIDs informados na Linha B da DO
+      - name: linha_c
+        description: CIDs informados na Linha C da DO
+      - name: linha_d
+        description: CIDs informados na Linha D da DO
+      - name: linha_ii
+        description: CIDs informados na Parte II da DO
+      - name: circunstancia_obito
+        description: Circunstância do Óbito
+      - name: acidente_trabalho
+        description: Acidente de Trabalho
+      - name: fonte
+        description: Fonte da Informação
+      - name: codigo_estabelecimento
+        description: Código do Estabelecimento
+      - name: atestante
+        description: Indica se o médico que assina atendeu o paciente
+      - name: data_atestado
+        description: Data do Atestado
+      - name: tipo_pos
+        description: Óbito Investigado
+      - name: data_investigacao
+        description: Data da Investigação
+      - name: causa_basica_original
+        description: Causa Básica Original
+      - name: data_cadastro
+        description: Data do Cadastro
+      - name: fonte_investigacao
+        description: Fonte de Investigação
+      - name: data_recebimento
+        description: Data do Recebimento
+      - name: causa_basica_pre
+        description: Causa Básica Informada Antes da Resseleção
+      - name: tipo_obito_ocorrencia
+        description: Tipo de Ocorrência do Óbito
+      - name: tipo_morte_ocorrencia
+        description: Tipo de Ocorrência da Morte
+      - name: data_cadastro_informacao
+        description: Data do Cadastro da Informação
+      - name: data_cadastro_investigacao
+        description: Data do Cadastro da Investigação
+      - name: id_municipio_svo_iml
+        description: ID Município SVO ou IML - IBGE 7 Dígitos
+      - name: data_recebimento_original
+        description: Data de Recebimento do Original
+      - name: data_recebimento_original_a
+        description: Data de Recebimento do Original A
+      - name: causa_materna
+        description: Causa Externa Associada a uma Causa Materna
+      - name: status_do_epidem
+        description: Status de DO Epidemiológica
+      - name: status_do_nova
+        description: Status de DO Nova
+      - name: serie_escolar_falecido
+        description: Série Escolar do Falecido
+      - name: serie_escolar_mae
+        description: Série Escolar da Mãe
+      - name: escolaridade_2010
+        description: Escolaridade 2010
+      - name: escolaridade_mae_2010
+        description: Escolaridade 2010 da Mãe
+      - name: escolaridade_falecido_2010_agr
+        description: Escolaridade 2010 Agregada do(a) Falecido(a)
+      - name: escolaridade_mae_2010_agr
+        description: Escolaridade 2010 Agregada da Mãe
+      - name: semanas_gestacao
+        description: Semanas de Gestação
+      - name: diferenca_data
+        description: Diferença Entre a Data de Óbito e Data do Recebimento Original
+          da DO
+      - name: data_conclusao_investigacao
+        description: Data de Conclusão da Investigação
+      - name: data_conclusao_caso
+        description: Data de Conclusão do Caso
+      - name: numero_dias_obito_investigacao
+        description: Número de Dias Entre a Data do Óbito e a Data Declarada para
+          a Conclusão da Investigação
+      - name: id_municipio_naturalidade
+        description: ID Município Naturalidade - IBGE 7 Dígitos
+      - name: descricao_estabelecimento
+        description: Descrição do Estabelecimento
+      - name: crm
+        description: Número no Conselho Regional de Medicina (CRM)
+      - name: numero_lote
+        description: Número do Lote
+      - name: status_codificadora
+        description: Status de Instalação de Codificadora
+      - name: codificado
+        description: Codificado
+      - name: versao_sistema
+        description: Versão do Sistema
+      - name: versao_scb
+        description: Versão do Seletor de Causa Básica
+      - name: atestado
+        description: CIDs Informados no Atestado
+      - name: numero_dias_obito_ficha
+        description: Número de Dias Entre a Data do Óbito e a Data do Cadastro da
+          Ficha Síntese de Investigação no Módulo
+      - name: fontes
+        description: Fontes
+      - name: tipo_resgate_informacao
+        description: A Investigação Permitiu o Resgate de Alguma Causa de Óbito Não
+          Informado, ou a Correção de Alguma Antes Informada?
+      - name: tipo_nivel_investigador
+        description: Tipo de Nível Investigador
+      - name: numero_dias_informacao
+        description: Número de Dias Informação
+      - name: fontes_informacao
+        description: Fontes Informação
+      - name: alt_causa
+        description: Alt. Causa
+  - name: br_ms_sim__dicionario
+    description: Dicionário para tradução dos códigos do conjunto br_ms_sim. Para
+      taduzir códigos compartilhados entre instituições, como id_municipio, buscar
+      por diretórios
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_tabela
+            - nome_coluna
+            - chave
+            - cobertura_temporal
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_tabela
+        description: ID Tabela
+      - name: nome_coluna
+        description: Nome da coluna
+      - name: chave
+        description: Chave
+      - name: cobertura_temporal
+        description: Cobertura Temporal
+      - name: valor
+        description: Valor

@@ -1,0 +1,212 @@
+---
+version: 2
+models:
+  - name: br_cgu_cartao_pagamento__microdados_governo_federal
+    description: O Cartão de Pagamento do Governo Federal (CPGF) é um meio de pagamento
+      utilizado pelo governo que funciona de forma similar ao cartão de crédito que
+      utilizamos em nosso dia a dia, porém dentro de limites e regras específicas.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.80
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [transacao]
+          dictionary_model: ref('br_cgu_cartao_pagamento__dicionario')
+    columns:
+      - name: ano_extrato
+        description: Ano do extrato de transações
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes_extrato
+        description: Mês do extrato de transações
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: codigo_orgao_superior
+        description: Código do Órgão Superior da unidade gestora em nome da qual foi
+          gerado o cartão.
+      - name: nome_orgao_superior
+        description: Nome do Órgão Superior da unidade gestora em nome da qual foi
+          gerado o cartão.
+      - name: codigo_orgao
+        description: Código do Órgão Subordinado da unidade gestora em nome da qual
+          foi gerado o cartão
+      - name: nome_orgao
+        description: Nome do Órgão Subordinado da unidade gestora em nome da qual
+          foi gerado o cartão.
+      - name: codigo_unidade_gestora
+        description: Código da Unidade Gestora em nome da qual foi gerado o cartão.
+      - name: nome_unidade_gestora
+        description: Nome da Unidade Gestora
+      - name: cpf_portador
+        description: CPF do portador do cartão utilizado na realização da transação
+      - name: nome_portador
+        description: Nome do portador do cartão utilizado na realização da transação
+      - name: cnpj_cpf_favorecido
+        description: CNPJ do estabelecimento ou CPF da pessoa física que recebeu o
+          pagamento
+      - name: nome_favorecido
+        description: Nome do estabelecimento ou da pessoa física que recebeu o pagamento
+      - name: transacao
+        description: Operação efetuada pelo Portador junto ao Afiliado ou Contratado,
+          mediante utilização do CPGF realizada com o cartão
+      - name: data_transacao
+        description: Data em que a transação foi efetuada
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: valor_transacao
+        description: Valor da transação realizada com o cartão
+  - name: br_cgu_cartao_pagamento__microdados_compras_centralizadas
+    description: Refere-se aos pagamentos realizados através de compras centralizadas,
+      ou seja, aquisições feitas de forma coordenada por um único órgão ou entidade
+      para beneficiar diversas áreas da administração pública.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.80
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [transacao]
+          dictionary_model: ref('br_cgu_cartao_pagamento__dicionario')
+    columns:
+      - name: ano_extrato
+        description: Ano do extrato de transações
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes_extrato
+        description: Mês do extrato de transações
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: codigo_orgao_superior
+        description: Código do Órgão Superior da unidade gestora em nome da qual foi
+          gerado o cartão.
+      - name: nome_orgao_superior
+        description: Nome do Órgão Superior da unidade gestora em nome da qual foi
+          gerado o cartão.
+      - name: codigo_orgao
+        description: Código do Órgão Subordinado da unidade gestora em nome da qual
+          foi gerado o cartão
+      - name: nome_orgao
+        description: Nome do Órgão Subordinado da unidade gestora em nome da qual
+          foi gerado o cartão.
+      - name: codigo_unidade_gestora
+        description: Código da Unidade Gestora em nome da qual foi gerado o cartão.
+      - name: nome_unidade_gestora
+        description: Nome da Unidade Gestora
+      - name: tipo_aquisicao
+        description: Tipo de aquisição
+      - name: cnpj_cpf_favorecido
+        description: CNPJ do estabelecimento ou CPF da pessoa física que recebeu o
+          pagamento
+      - name: nome_favorecido
+        description: Nome do estabelecimento ou da pessoa física que recebeu o pagamento
+      - name: transacao
+        description: Operação efetuada pelo Portador junto ao Afiliado ou Contratado,
+          mediante utilização do CPGF realizada com o cartão
+      - name: data_transacao
+        description: Data em que a transação foi efetuada
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: valor_transacao
+        description: Valor da transação realizada com o cartão
+  - name: br_cgu_cartao_pagamento__microdados_defesa_civil
+    description: O Cartão de Pagamento de Defesa Civil (CPDC) é a forma exclusiva
+      para o pagamento de despesas com ações de resposta promovidas por governos estaduais,
+      do Distrito Federal e municipais com recursos transferidos pela União.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [transacao]
+          dictionary_model: ref('br_cgu_cartao_pagamento__dicionario')
+    columns:
+      - name: ano_extrato
+        description: Ano do extrato de transações
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes_extrato
+        description: Mês do extrato de transações
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: codigo_orgao_superior
+        description: Código do Órgão Superior da unidade gestora em nome da qual foi
+          gerado o cartão.
+      - name: nome_orgao_superior
+        description: Nome do Órgão Superior da unidade gestora em nome da qual foi
+          gerado o cartão.
+      - name: codigo_orgao
+        description: Código do Órgão Subordinado da unidade gestora em nome da qual
+          foi gerado o cartão
+      - name: nome_orgao
+        description: Nome do Órgão Subordinado da unidade gestora em nome da qual
+          foi gerado o cartão.
+      - name: codigo_unidade_gestora
+        description: Código da Unidade Gestora em nome da qual foi gerado o cartão.
+      - name: nome_unidade_gestora
+        description: Nome da Unidade Gestora
+      - name: cpf_portador
+        description: CPF do portador do cartão utilizado na realização da transação
+      - name: nome_portador
+        description: Nome do portador do cartão utilizado na realização da transação
+      - name: cnpj_cpf_favorecido
+        description: CNPJ do estabelecimento ou CPF da pessoa física que recebeu o
+          pagamento
+      - name: nome_favorecido
+        description: Nome do estabelecimento ou da pessoa física que recebeu o pagamento
+      - name: executor_despesa
+        description: Executor da despesa com o CPDC
+      - name: numero_convenio
+        description: Número do convênio a que se refere a despesa
+      - name: codigo_convenente
+        description: Código do convenente do convênio a que se refere a despesa
+      - name: nome_convenente
+        description: Nome do convenente
+      - name: repasse
+        description: Indicador de repasse
+      - name: transacao
+        description: Operação efetuada pelo Portador junto ao Afiliado ou Contratado,
+          mediante utilização do CPGF realizada com o cartão
+      - name: data_transacao
+        description: Data em que a transação foi efetuada
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: valor_transacao
+        description: Valor da transação realizada com o cartão
+  - name: br_cgu_cartao_pagamento__dicionario
+    description: Dicionário para tradução dos códigos do conjunto br_cgu_cartao_pagamento.
+      Para taduzir códigos compartilhados entre instituições, como id_municipio, buscar
+      por diretórios
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_tabela
+            - nome_coluna
+            - chave
+            - cobertura_temporal
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_tabela
+        description: ID Tabela
+      - name: nome_coluna
+        description: Nome da coluna
+      - name: chave
+        description: Chave
+      - name: cobertura_temporal
+        description: Cobertura Temporal
+      - name: valor
+        description: Valor

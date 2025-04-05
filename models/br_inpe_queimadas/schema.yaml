@@ -1,0 +1,31 @@
+---
+version: 2
+models:
+  - name: br_inpe_queimadas__microdados
+    description: Microdados do banco de dados do INPE sobre queimadas
+    columns:
+      - name: ano
+        description: Ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: sigla_uf
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: bioma
+        description: Bioma da área de registro da queimada
+      - name: id_bdq
+        description: ID BDQueimadas - Banco de Dados de Queimadas do INPE
+      - name: id_foco
+        description: ID Foco de incêndio
+        tests: [unique, not_null]
+      - name: data_hora
+        description: Data e hora de registro do foco de incêndio
+      - name: centroide
+        description: Latitude e longitude do foco de queimada

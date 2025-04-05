@@ -1,0 +1,14 @@
+---
+version: 2
+models:
+  - name: br_sp_saopaulo_dieese_icv
+    description: Dados de Custo de vida de São Paulo
+    columns:
+      - name: ano
+        description: Ano de referência
+      - name: mes
+        description: Mês
+      - name: indice
+        description: Índice de Custo de Vida
+      - name: variacao_mensal
+        description: Variação mensal

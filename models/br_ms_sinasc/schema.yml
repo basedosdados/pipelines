@@ -1,0 +1,226 @@
+---
+version: 2
+models:
+  - name: br_ms_sinasc__microdados
+    description: Microdados do Sistema de Informações sobre Mortalidade (SIM) do Ministério
+      da Saúde.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - id_municipio_nascimento
+            - sequencial_nascimento
+            - id_municipio_residencia
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: sequencial_nascimento
+        description: Sequencial do Nascimento
+      - name: id_municipio_nascimento
+        description: ID do município de nascimento - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: local_nascimento
+        description: Local onde ocorreu o nascimento
+      - name: codigo_estabelecimento
+        description: Código do Cadastro Nacional de estabelecimento onde ocorreu o
+          nascimento
+      - name: data_nascimento
+        description: Data do nascimento do recém nascido
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: hora_nascimento
+        description: Horário exato ou aproximado do nascimento do recém nascido
+      - name: sexo
+        description: Sexo
+      - name: peso
+        description: Peso
+      - name: raca_cor
+        description: Raça/Cor
+      - name: apgar1
+        description: Valor do Índice de Apgar, medido no 1º minuto de vida
+      - name: apgar5
+        description: Valor do Índice de Apgar, medido no 5º minuto de vida
+      - name: id_anomalia
+        description: Anomalia congênita identificada no momento do nascimento
+      - name: codigo_anomalia
+        description: Descrição de anomalia congênita
+      - name: semana_gestacao
+        description: Número de semanas de gestação
+      - name: semana_gestacao_estimada
+        description: Método utilizado para verificar n° de semanas de gestação
+      - name: gestacao_agr
+        description: Semanas de gestação agrupado
+      - name: tipo_gravidez
+        description: Tipo de gravidez
+      - name: tipo_parto
+        description: Tipo de parto
+      - name: inicio_pre_natal
+        description: Mês de gestação em que iniciou o pré‐natal
+      - name: pre_natal
+        description: Número de consultas pré‐natal por semana de gestação
+      - name: pre_natal_agr
+        description: Número de consultas de pré‐natal agrupada
+      - name: classificacao_pre_natal
+        description: Códigos de classificação de adequação ao pré natal, gerado pelo
+          sistema
+      - name: quantidade_filhos_vivos
+        description: Número de filhos vivos
+      - name: quantidade_filhos_mortos
+        description: Número de perdas fetais e abortos
+      - name: id_pais_mae
+        description: Se a mãe for estrangeira, constará o código do país de nascimento
+      - name: id_uf_mae
+        description: Código da UF de naturalidade da mãe
+      - name: id_municipio_mae
+        description: Código do município de naturalidade da mãe
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_pais_residencia
+        description: Código do país de residência
+      - name: id_municipio_residencia
+        description: ID Município de Residência - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: data_nascimento_mae
+        description: Data de nascimento da mãe
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: idade_mae
+        description: Idade da mãe
+      - name: escolaridade_mae
+        description: Escolaridade, em anos de estudo concluídos
+      - name: serie_escolar_mae
+        description: Última série escolar concluída da mãe
+      - name: escolaridade_2010_mae
+        description: Escolaridade 2010
+      - name: escolaridade_2010_agr_mae
+        description: Escolaridade 2010 agregada
+      - name: estado_civil_mae
+        description: Situação conjugal da mãe
+      - name: ocupacao_mae
+        description: Ocupação da mãe conforme CBO
+      - name: raca_cor_mae
+        description: Tipo de raça e cor da mãe
+      - name: gestacoes_ant
+        description: Número de gestações anteriores
+      - name: quantidade_parto_normal
+        description: Número de partos vaginais
+      - name: quantidade_parto_cesareo
+        description: Número de partos cesáreos
+      - name: data_ultima_menstruacao
+        description: Data da última menstruação (DUM)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: tipo_apresentacao
+        description: Tipo de apresentação do recém nascido
+      - name: inducao_parto
+        description: Houve indução do trabalho de parto?
+      - name: cesarea_antes_parto
+        description: Cesárea ocorreu antes do trabalho de parto iniciar
+      - name: tipo_robson
+        description: Código do Grupo de Robson, gerado pelo sistema
+      - name: idade_pai
+        description: Idade do pai
+      - name: cartorio
+        description: Identificação do cartório
+      - name: registro_cartorio
+        description: Identificação do registro realizado em cartório
+      - name: data_registro_cartorio
+        description: Data de registro do recém nascido no cartório
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: origem
+        description: Banco de dados de Origem
+      - name: numero_lote
+        description: Número do lote
+      - name: versao_sistema
+        description: Versão do sistema
+      - name: data_cadastro
+        description: Data da declaração do nascido vivo no sistema
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: data_recebimento
+        description: Data do último recebimento do lote (Sisnet)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: data_recebimento_original
+        description: Data de recebimento original calculado pelo sistema
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: diferenca_data
+        description: Diferença entre a data de óbito e data do recebimento original
+          da DO
+      - name: data_declaracao
+        description: Data do preenchimento da declaração
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: funcao_responsavel
+        description: Função exercida pelo responsável pelo preenchimento da declaração
+      - name: documento_responsavel
+        description: Tipo de documento do responsável pelo preenchimento da declaração
+      - name: formacao_profissional_responsavel
+        description: Formação da pessoa que assistiu ao parto
+      - name: status_dn
+        description: Status de Declaração de Nascido Vivo Epidemiológica
+      - name: status_dn_nova
+        description: Status de Declaração de Nascido Vivo Nova
+      - name: paridade
+        description: Variável calculada pelo sistema
+  - name: br_ms_sinasc__dicionario
+    description: Dicionário para tradução dos códigos do conjunto br_ms_sinasc. Para
+      taduzir códigos compartilhados entre instituições, como id_municipio, buscar
+      por diretórios
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_tabela
+            - nome_coluna
+            - chave
+            - cobertura_temporal
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_tabela
+        description: ID Tabela
+      - name: nome_coluna
+        description: Nome da coluna
+      - name: chave
+        description: Chave
+      - name: cobertura_temporal
+        description: Cobertura Temporal
+      - name: valor
+        description: Valor

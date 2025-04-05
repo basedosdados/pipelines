@@ -1,0 +1,749 @@
+---
+version: 2
+models:
+  - name: br_inep_censo_educacao_superior__curso
+    description: Dados a nível de curso.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_curso, id_municipio, tipo_dimensao]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - tipo_dimensao
+            - tipo_organizacao_academica
+            - tipo_organizacao_administrativa
+            - rede
+            - tipo_grau_academico
+            - tipo_modalidade_ensino
+            - tipo_nivel_academico
+          dictionary_model: ref('br_inep_censo_educacao_superior__dicionario')
+    columns:
+      - name: ano
+        description: Ano de referência do Censo da Educação Superior
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação do local de oferta do curso
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município do local de oferta do curso - IBGE 7 Dígitos
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+              ignore_values: '0'
+      - name: tipo_dimensao
+        description: Tipo de dimensão geográfica dos cursos presenciais e a distância
+          ofertados no Brasil e também por instituições brasileiras no exterior
+      - name: tipo_organizacao_academica
+        description: Tipo de Organização Acadêmica da IES
+      - name: tipo_organizacao_administrativa
+        description: Tipo de Categoria Administrativa da IES
+      - name: rede
+        description: Rede de Ensino
+      - name: id_ies
+        description: Código da Instituição
+      - name: nome_curso
+        description: Nome do Curso
+      - name: id_curso
+        description: Código do Curso
+      - name: nome_curso_cine
+        description: Nome do curso, conforme adaptação da Classificação Internacional
+          Normalizada da Educação Cine/Unesco
+      - name: id_curso_cine
+        description: Código de identificação do curso, conforme adaptação da Classificação
+          Internacional Normalizada da Educação Cine/Unesco
+      - name: id_area_geral
+        description: Código de identificação da área geral, conforme adaptação da
+          Classificação Internacional Normalizada da Educação Cine/Unesco
+      - name: nome_area_geral
+        description: Nome da área geral, conforme adaptação da Classificação Internacional
+          Normalizada da Educação Cine/Unesco
+      - name: id_area_especifica
+        description: Código de identificação da área específica, conforme adaptação
+          da Classificação Internacional Normalizada da Educação Cine/Unesco
+      - name: nome_area_especifica
+        description: Nome da área específica, conforme adaptação da Classificação
+          Internacional Normalizada da Educação Cine/Unesco
+      - name: id_area_detalhada
+        description: Código de identificação da área detalhada, conforme adaptação
+          da Classificação Internacional Normalizada da Educação Cine/Unesco
+      - name: nome_area_detalhada
+        description: Nome da área detalhada, conforme adaptação da Classificação Internacional
+          Normalizada da Educação Cine/Unesco
+      - name: tipo_grau_academico
+        description: Tipo do grau acadêmico conferido ao aluno pela conclusão dos
+          requisitos exigidos pelo curso
+      - name: indicador_gratuito
+        description: Informa se o curso é gratuito
+      - name: tipo_modalidade_ensino
+        description: Tipo de modalidade de ensino do curso
+      - name: tipo_nivel_academico
+        description: Tipo de nível acadêmico do curso
+      - name: quantidade_vagas
+        description: Quantidade total de vagas oferecidas
+      - name: quantidade_vagas_diurno
+        description: Quantidade total de vagas oferecidas no turno diurno
+      - name: quantidade_vagas_noturno
+        description: Quantidade total de vagas oferecidas no turno noturno
+      - name: quantidade_vagas_ead
+        description: Quantidade total de vagas oferecidas no curso a distância
+      - name: quantidade_vagas_novas
+        description: Quantidade de vagas novas oferecidas
+      - name: quantidade_vagas_processos_seletivos
+        description: Quantidade de vagas nos processos seletivos
+      - name: quantidade_vagas_remanescentes
+        description: Quantidade de vagas remanescentes
+      - name: quantidade_vagas_programas_especiais
+        description: Quantidade de vagas oferecidas para programas especiais
+      - name: quantidade_inscritos
+        description: Quantidade total de inscritos
+      - name: quantidade_inscritos_diurno
+        description: Quantidade total de inscritos no turno diurno
+      - name: quantidade_inscritos_noturno
+        description: Quantidade total de inscritos no turno noturno
+      - name: quantidade_inscritos_ead
+        description: Quantidade total de inscritos no curso a distância
+      - name: quantidade_inscritos_vagas_novas
+        description: Quantidade de inscritos no processo seletivo de vagas novas
+      - name: quantidade_inscritos_processos_seletivos
+        description: Quantidade de inscritos nos processos seletivos
+      - name: quantidade_inscritos_remanescentes
+        description: Quantidade de inscritos no processo seletivo de vagas remanescentes
+      - name: quantidade_inscritos_programas_especiais
+        description: Quantidade de inscritos no processo seletivo de vagas oferecidas
+          para programas especiais
+      - name: quantidade_ingressantes
+        description: Quantidade de ingressantes
+      - name: quantidade_ingressantes_feminino
+        description: Quantidade de ingressantes do sexo feminino
+      - name: quantidade_ingressantes_masculino
+        description: Quantidade de ingressantes do sexo masculino
+      - name: quantidade_ingressantes_diurno
+        description: Quantidade de ingressantes no turno diurno
+      - name: quantidade_ingressantes_noturno
+        description: Quantidade de ingressantes no turno noturno
+      - name: quantidade_ingressantes_vagas_novas
+        description: Quantidade de ingressantes em vagas novas
+      - name: quantidade_ingressantes_vestibular
+        description: Quantidade de ingressantes por vestibular
+      - name: quantidade_ingressantes_enem
+        description: Quantidade de ingressantes pelo ENEM
+      - name: quantidade_ingressantes_avaliacao_seriada
+        description: Quantidade de ingressantes por meio da avaliação seriada
+      - name: quantidade_ingressantes_selecao_simplificada
+        description: Quantidade de ingressantes por meio de seleção simplificada
+      - name: quantidade_ingressantes_egressos
+        description: Quantidade de alunos que se formaram em um curso de Bacharelado
+          Interdisciplinar ou Licenciatura Interdisciplinar e que ingressaram em um
+          curso de terminalidade
+      - name: quantidade_ingressantes_outro_tipo_selecao
+        description: Quantidade de ingressantes em outro tipo de seleção
+      - name: quantidade_ingressantes_processos_seletivos
+        description: Quantidade de ingressantes nos processos seletivos
+      - name: quantidade_ingressantes_remanescentes
+        description: Quantidade de ingressantes por meio de vagas remanescentes
+      - name: quantidade_ingressantes_programas_especiais
+        description: Quantidade de ingressantes por meio de vagas para programas especiais
+      - name: quantidade_ingressantes_outras_formas
+        description: Quantidade de ingressantes por outras formas de ingresso
+      - name: quantidade_ingressantes_0_17
+        description: Quantidade de ingressantes - Até 17 anos de idade
+      - name: quantidade_ingressantes_18_24
+        description: Quantidade de ingressantes - De 18 a 24 anos de idade
+      - name: quantidade_ingressantes_25_29
+        description: Quantidade de ingressantes - De 25 a 29 anos de idade
+      - name: quantidade_ingressantes_30_34
+        description: Quantidade de ingressantes - De 30 a 34 anos de idade
+      - name: quantidade_ingressantes_35_39
+        description: Quantidade de ingressantes - De 35 a 39 anos de idade
+      - name: quantidade_ingressantes_40_49
+        description: Quantidade de ingressantes - De 40 a 49 anos de idade
+      - name: quantidade_ingressantes_50_59
+        description: Quantidade de ingressantes - De 50 a 59 anos de idade
+      - name: quantidade_ingressantes_60_mais
+        description: Quantidade de ingressantes - De 60 ou mais anos de idade
+      - name: quantidade_ingressantes_branca
+        description: Quantidade de ingressantes - Cor/Raça Branca
+      - name: quantidade_ingressantes_preta
+        description: Quantidade de ingressantes - Cor/Raça Preta
+      - name: quantidade_ingressantes_parda
+        description: Quantidade de ingressantes - Cor/Raça Parda
+      - name: quantidade_ingressantes_amarela
+        description: Quantidade de ingressantes - Cor/Raça Amarela
+      - name: quantidade_ingressantes_indigena
+        description: Quantidade de ingressantes - Cor/Raça Indígena
+      - name: quantidade_ingressantes_cor_nao_declarada
+        description: Quantidade de ingressantes - Cor/Raça não dispõe da informação
+          ou não declarada
+      - name: quantidade_matriculas
+        description: Quantidade de matrículas
+      - name: quantidade_matriculas_feminino
+        description: Quantidade de matrículas do sexo feminino
+      - name: quantidade_matriculas_masculino
+        description: Quantidade de matrículas do sexo masculino
+      - name: quantidade_matriculas_diurno
+        description: Quantidade de matrículas - turno diurno
+      - name: quantidade_matriculas_noturno
+        description: Quantidade de matrículas - turno noturno
+      - name: quantidade_matriculas_0_17
+        description: Quantidade de matrículas - Até 17 anos de idade
+      - name: quantidade_matriculas_18_24
+        description: Quantidade de matrículas - De 18 a 24 anos de idade
+      - name: quantidade_matriculas_25_29
+        description: Quantidade de matrículas - De 25 a 29 anos de idade
+      - name: quantidade_matriculas_30_34
+        description: Quantidade de matrículas - De 30 a 34 anos de idade
+      - name: quantidade_matriculas_35_39
+        description: Quantidade de matrículas - De 35 a 39 anos de idade
+      - name: quantidade_matriculas_40_49
+        description: Quantidade de matrículas - De 40 a 49 anos de idade
+      - name: quantidade_matriculas_50_59
+        description: Quantidade de matrículas - De 50 a 59 anos de idade
+      - name: quantidade_matriculas_60_mais
+        description: Quantidade de matrículas - De 60 ou mais anos de idade
+      - name: quantidade_matriculas_branca
+        description: Quantidade de matrículas - Cor/Raça Branca
+      - name: quantidade_matriculas_preta
+        description: Quantidade de matrículas - Cor/Raça Preta
+      - name: quantidade_matriculas_parda
+        description: Quantidade de matrículas - Cor/Raça Parda
+      - name: quantidade_matriculas_amarela
+        description: Quantidade de matrículas - Cor/Raça Amarela
+      - name: quantidade_matriculas_indigena
+        description: Quantidade de matrículas - Cor/Raça Indígena
+      - name: quantidade_matriculas_cor_nao_declarada
+        description: Quantidade de matrículas - Cor/Raça não dispõe da informação
+          ou não declarada
+      - name: quantidade_concluintes
+        description: Quantidade de concluintes
+      - name: quantidade_concluintes_feminino
+        description: Quantidade de concluintes do sexo feminino
+      - name: quantidade_concluintes_masculino
+        description: Quantidade de concluintes do sexo masculino
+      - name: quantidade_concluintes_diurno
+        description: Quantidade de concluintes - turno diurno
+      - name: quantidade_concluintes_noturno
+        description: Quantidade de concluintes - turno noturno
+      - name: quantidade_concluintes_0_17
+        description: Quantidade de concluintes - Até 17 anos de idade
+      - name: quantidade_concluintes_18_24
+        description: Quantidade de concluintes - De 18 a 24 anos de idade
+      - name: quantidade_concluintes_25_29
+        description: Quantidade de concluintes - De 25 a 29 anos de idade
+      - name: quantidade_concluintes_30_34
+        description: Quantidade de concluintes - De 30 a 34 anos de idade
+      - name: quantidade_concluintes_35_39
+        description: Quantidade de concluintes - De 35 a 39 anos de idade
+      - name: quantidade_concluintes_40_49
+        description: Quantidade de concluintes - De 40 a 49 anos de idade
+      - name: quantidade_concluintes_50_59
+        description: Quantidade de concluintes - De 50 a 59 anos de idade
+      - name: quantidade_concluintes_60_mais
+        description: Quantidade de concluintes - De 60 ou mais anos de idade
+      - name: quantidade_concluintes_branca
+        description: Quantidade de concluintes - Cor/Raça Branca
+      - name: quantidade_concluintes_preta
+        description: Quantidade de concluintes - Cor/Raça Preta
+      - name: quantidade_concluintes_parda
+        description: Quantidade de concluintes - Cor/Raça Parda
+      - name: quantidade_concluintes_amarela
+        description: Quantidade de concluintes - Cor/Raça Amarela
+      - name: quantidade_concluintes_indigena
+        description: Quantidade de concluintes - Cor/Raça Indígena
+      - name: quantidade_concluintes_cor_nao_declarada
+        description: Quantidade de concluintes - Cor/Raça não dispõe da informação
+          ou não declarada
+      - name: quantidade_ingressantes_brasileiro
+        description: Quantidade de ingressantes - nacionalidade brasileira ou brasileira
+          - nascido no exterior ou naturalizado
+      - name: quantidade_ingressantes_estrangeiro
+        description: Quantidade de ingressantes - nacionalidade estrangeira
+      - name: quantidade_matriculas_brasileiro
+        description: Quantidade de matrículas - nacionalidade brasileira ou brasileira
+          - nascido no exterior ou naturalizado
+      - name: quantidade_matriculas_estrangeiro
+        description: Quantidade de matrículas - nacionalidade estrangeira
+      - name: quantidade_concluintes_brasileiro
+        description: Quantidade de concluintes - nacionalidade brasileira ou brasileira
+          - nascido no exterior ou naturalizado
+      - name: quantidade_concluintes_estrangeiro
+        description: Quantidade de concluintes - nacionalidade estrangeira
+      - name: quantidade_alunos_deficiencia
+        description: Quantidade de alunos com deficiência, transtorno global do desenvolvimento
+          ou altas habilidades/superdotação
+      - name: quantidade_ingressantes_deficiencia
+        description: Quantidade de ingressantes - alunos com deficiência, transtorno
+          global do desenvolvimento ou altas habilidades/superdotação
+      - name: quantidade_matriculas_deficiencia
+        description: Quantidade de matrículas - alunos com deficiência, transtorno
+          global do desenvolvimento ou altas habilidades/superdotação
+      - name: quantidade_concluintes_deficiencia
+        description: Quantidade de concluintes - alunos com deficiência, transtorno
+          global do desenvolvimento ou altas habilidades/superdotação
+      - name: quantidade_ingressantes_financiamento
+        description: Quantidade de ingressantes - alunos que utilizam financiamento
+          estudantil
+      - name: quantidade_ingressantes_financiamento_reembolsavel
+        description: Quantidade de ingressantes - alunos que utilizam financiamento
+          estudantil reembolsável
+      - name: quantidade_ingressantes_financiamento_reembolsavel_fies
+        description: Quantidade de ingressantes - alunos que utilizam financiamento
+          estudantil reembolsável - FIES
+      - name: quantidade_ingressantes_financiamento_reembolsavel_instituicao
+        description: Quantidade de ingressantes - alunos que utilizam financiamento
+          estudantil reembolsável - administrado pela instituição
+      - name: quantidade_ingressantes_financiamento_reembolsavel_outros
+        description: Quantidade de ingressantes - alunos que utilizam financiamento
+          estudantil reembolsável - pelo governo estadual, municipal, entidades externas
+          à IES e outras entidades
+      - name: quantidade_ingressantes_financiamento_nao_reembolsavel
+        description: Quantidade de ingressantes - alunos que utilizam financiamento
+          estudantil não reembolsável
+      - name: quantidade_ingressantes_financiamento_nao_reembolsavel_prouni_integral
+        description: Quantidade de ingressantes - alunos que utilizam financiamento
+          estudantil não reembolsável - PROUNI Integral
+      - name: quantidade_ingressantes_financiamento_nao_reembolsavel_prouni_parcial
+        description: Quantidade de ingressantes - alunos que utilizam financiamento
+          estudantil não reembolsável - PROUNI Parcial
+      - name: quantidade_ingressantes_financiamento_nao_reembolsavel_instituicao
+        description: Quantidade de ingressantes - alunos que utilizam financiamento
+          estudantil não reembolsável - administrado pela instituição
+      - name: quantidade_ingressantes_financiamento_nao_reembolsavel_outros
+        description: Quantidade de ingressantes - alunos que utilizam financiamento
+          estudantil não reembolsável - pelo governo estadual, municipal, entidades
+          externas à IES e outras entidades
+      - name: quantidade_matriculas_financiamento
+        description: Quantidade de matrículas - alunos que utilizam financiamento
+          estudantil
+      - name: quantidade_matriculas_financiamento_reembolsavel
+        description: Quantidade de matrículas - alunos que utilizam financiamento
+          estudantil reembolsável
+      - name: quantidade_matriculas_financiamento_reembolsavel_fies
+        description: Quantidade de matrículas - alunos que utilizam financiamento
+          estudantil reembolsável - FIES
+      - name: quantidade_matriculas_financiamento_reembolsavel_instituicao
+        description: Quantidade de matrículas - alunos que utilizam financiamento
+          estudantil reembolsável - administrado pela instituição
+      - name: quantidade_matriculas_financiamento_reembolsavel_outros
+        description: Quantidade de matrículas - alunos que utilizam financiamento
+          estudantil reembolsável - pelo governo estadual, municipal, entidades externas
+          à IES e outras entidades
+      - name: quantidade_matriculas_financiamento_nao_reembolsavel
+        description: Quantidade de matrículas - alunos que utilizam financiamento
+          estudantil não reembolsável
+      - name: quantidade_matriculas_financiamento_nao_reembolsavel_prouni_integral
+        description: Quantidade de matrículas - alunos que utilizam financiamento
+          estudantil não reembolsável - PROUNI Integral
+      - name: quantidade_matriculas_financiamento_nao_reembolsavel_prouni_parcial
+        description: Quantidade de matrículas - alunos que utilizam financiamento
+          estudantil não reembolsável - PROUNI Parcial
+      - name: quantidade_matriculas_financiamento_nao_reembolsavel_instituicao
+        description: Quantidade de matrículas - alunos que utilizam financiamento
+          estudantil não reembolsável - administrado pela instituição
+      - name: quantidade_matriculas_financiamento_nao_reembolsavel_outros
+        description: Quantidade de matrículas - alunos que utilizam financiamento
+          estudantil não reembolsável - pelo governo estadual, municipal, entidades
+          externas à IES e outras entidades
+      - name: quantidade_concluintes_financiamento
+        description: Quantidade de concluintes - alunos que utilizam financiamento
+          estudantil
+      - name: quantidade_concluintes_financiamento_reembolsavel
+        description: Quantidade de concluintes - alunos que utilizam financiamento
+          estudantil reembolsável
+      - name: quantidade_concluintes_financiamento_reembolsavel_fies
+        description: Quantidade de concluintes - alunos que utilizam financiamento
+          estudantil reembolsável - FIES
+      - name: quantidade_concluintes_financiamento_reembolsavel_instituicao
+        description: Quantidade de concluintes - alunos que utilizam financiamento
+          estudantil reembolsável - administrado pela instituição
+      - name: quantidade_concluintes_financiamento_reembolsavel_outros
+        description: Quantidade de concluintes - alunos que utilizam financiamento
+          estudantil reembolsável - pelo governo estadual, municipal, entidades externas
+          à IES e outras entidades
+      - name: quantidade_concluintes_financiamento_nao_reembolsavel
+        description: Quantidade de concluintes - alunos que utilizam financiamento
+          estudantil não reembolsável
+      - name: quantidade_concluintes_financiamento_nao_reembolsavel_prouni_integral
+        description: Quantidade de concluintes - alunos que utilizam financiamento
+          estudantil não reembolsável - PROUNI Integral
+      - name: quantidade_concluintes_financiamento_nao_reembolsavel_prouni_parcial
+        description: Quantidade de concluintes - alunos que utilizam financiamento
+          estudantil não reembolsável - PROUNI Parcial
+      - name: quantidade_concluintes_financiamento_nao_reembolsavel_instituicao
+        description: Quantidade de concluintes - alunos que utilizam financiamento
+          estudantil não reembolsável - administrado pela instituição
+      - name: quantidade_concluintes_financiamento_nao_reembolsavel_outros
+        description: Quantidade de concluintes - alunos que utilizam financiamento
+          estudantil não reembolsável - pelo governo estadual, municipal, entidades
+          externas à IES e outras entidades
+      - name: quantidade_ingressantes_reserva_vaga
+        description: Quantidade de ingressantes - alunos que participam do programa
+          de reserva de vagas
+      - name: quantidade_ingressantes_reserva_vaga_rede_publica
+        description: Quantidade de ingressantes - alunos que participam do programa
+          de reserva de vagas - escola pública
+      - name: quantidade_ingressantes_reserva_vaga_etnico
+        description: Quantidade de ingressantes - alunos que participam do programa
+          de reserva de vagas - cunho étnico
+      - name: quantidade_ingressantes_reserva_vaga_deficiencia
+        description: Quantidade de ingressantes - alunos que participam do programa
+          de reserva de vagas - pessoas com deficiência
+      - name: quantidade_ingressantes_reserva_vaga_social_renda_familiar
+        description: Quantidade de ingressantes - alunos que participam do programa
+          de reserva de vagas - cunho social/renda familiar
+      - name: quantidade_ingressantes_reserva_vaga_outros
+        description: Quantidade de ingressantes - alunos que participam do programa
+          de reserva de vagas - outros tipos
+      - name: quantidade_matriculas_reserva_vaga
+        description: Quantidade de matrículas - alunos que participam do programa
+          de reserva de vagas
+      - name: quantidade_matriculas_reserva_vaga_rede_publica
+        description: Quantidade de matrículas - alunos que participam do programa
+          de reserva de vagas - escola pública
+      - name: quantidade_matriculas_reserva_vaga_etnico
+        description: Quantidade de matrículas - alunos que participam do programa
+          de reserva de vagas - cunho étnico
+      - name: quantidade_matriculas_reserva_vaga_deficiencia
+        description: Quantidade de matrículas - alunos que participam do programa
+          de reserva de vagas - pessoas com deficiência
+      - name: quantidade_matriculas_reserva_vaga_social_renda_familiar
+        description: Quantidade de matrículas - alunos que participam do programa
+          de reserva de vagas - cunho social/renda familiar
+      - name: quantidade_matriculas_reserva_vaga_outros
+        description: Quantidade de matrículas - alunos que participam do programa
+          de reserva de vagas - outros tipos
+      - name: quantidade_concluintes_reserva_vaga
+        description: Quantidade de concluintes - alunos que participam do programa
+          de reserva de vagas
+      - name: quantidade_concluintes_reserva_vaga_rede_publica
+        description: Quantidade de concluintes - alunos que participam do programa
+          de reserva de vagas - escola pública
+      - name: quantidade_concluintes_reserva_vaga_etnico
+        description: Quantidade de concluintes - alunos que participam do programa
+          de reserva de vagas - cunho étnico
+      - name: quantidade_concluintes_reserva_vaga_deficiencia
+        description: Quantidade de concluintes - alunos que participam do programa
+          de reserva de vagas - pessoas com deficiência
+      - name: quantidade_concluintes_reserva_vaga_social_renda_familiar
+        description: Quantidade de concluintes - alunos que participam do programa
+          de reserva de vagas - cunho social/renda familiar
+      - name: quantidade_concluintes_reserva_vaga_outros
+        description: Quantidade de concluintes - alunos que participam do programa
+          de reserva de vagas - outros tipos
+      - name: quantidade_alunos_situacao_trancada
+        description: Quantidade de alunos com situação de vínculo no curso - matrícula
+          trancada
+      - name: quantidade_alunos_situacao_desvinculada
+        description: Quantidade de alunos com situação de vínculo no curso - aluno
+          desvinculado do curso
+      - name: quantidade_alunos_situacao_transferida
+        description: Quantidade de alunos com situação de vínculo no curso - aluno
+          transferido para outro curso da mesma IES
+      - name: quantidade_alunos_situacao_falecidos
+        description: Quantidade de alunos com situação de vínculo no curso - aluno
+          falecido
+      - name: quantidade_ingressantes_em_rede_publica
+        description: Quantidade de ingressantes que terminaram o ensino médio em escolas
+          públicas
+      - name: quantidade_ingressantes_em_rede_privada
+        description: Quantidade de ingressantes que terminaram o ensino médio em escolas
+          privadas
+      - name: quantidade_ingressantes_em_rede_nao_informada
+        description: Quantidade de ingressantes que não informaram o tipo de escola
+          que terminaram o ensino médio
+      - name: quantidade_matriculas_em_rede_publica
+        description: Quantidade de matrículas de alunos que terminaram o ensino médio
+          em escolas públicas
+      - name: quantidade_matriculas_em_rede_privada
+        description: Quantidade de matrículas de alunos que terminaram o ensino médio
+          em escolas privadas
+      - name: quantidade_matriculas_em_rede_nao_informada
+        description: Quantidade de matrículas de alunos que não informaram o tipo
+          de escola que terminaram o ensino médio
+      - name: quantidade_concluintes_em_rede_publica
+        description: Quantidade de concluintes que terminaram o ensino médio em escolas
+          públicas
+      - name: quantidade_concluintes_em_rede_privada
+        description: Quantidade de concluintes que terminaram o ensino médio em escolas
+          privadas
+      - name: quantidade_concluintes_em_rede_nao_informada
+        description: Quantidade de concluintes que não informaram o tipo de escola
+          que terminaram o ensino médio
+      - name: quantidade_alunos_parfor
+        description: Quantidade de alunos que participam do programa especial para
+          a formação de professores em exercício na rede pública de educação básica
+          (PARFOR)
+      - name: quantidade_ingressantes_parfor
+        description: Quantidade de ingressantes que participam do programa especial
+          para a formação de professores em exercício na rede pública de educação
+          básica (PARFOR)
+      - name: quantidade_matriculas_parfor
+        description: Quantidade de matrículas de alunos que participam do programa
+          especial para a formação de professores em exercício na rede pública de
+          educação básica (PARFOR)
+      - name: quantidade_concluintes_parfor
+        description: Quantidade de concluintes que participam do programa especial
+          para a formação de professores em exercício na rede pública de educação
+          básica (PARFOR)
+      - name: quantidade_alunos_apoio_social
+        description: Quantidade de alunos que recebem algum tipo de apoio social
+      - name: quantidade_ingressantes_apoio_social
+        description: Quantidade de ingressantes que recebem algum tipo de apoio social
+      - name: quantidade_matriculas_apoio_social
+        description: Quantidade de matrículas de alunos que recebem algum tipo de
+          apoio social
+      - name: quantidade_concluintes_apoio_social
+        description: Quantidade de concluintes que recebem algum tipo de apoio social
+      - name: quantidade_alunos_atividade_extracurricular
+        description: Quantidade de alunos que participam de algum tipo de atividade
+          extracurricular
+      - name: quantidade_ingressantes_atividade_extracurricular
+        description: Quantidade de ingressantes que participam de algum tipo de atividade
+          extracurricular
+      - name: quantidade_matriculas_atividade_extracurricular
+        description: Quantidade de matrículas de alunos que participam de algum tipo
+          de atividade extracurricular
+      - name: quantidade_concluintes_atividade_extracurricular
+        description: Quantidade de concluintes que participam de algum tipo de atividade
+          extracurricular
+      - name: quantidade_alunos_mobilidade_academica
+        description: Quantidade de alunos que se vincularam temporariamente a outra
+          instituição, sendo ela nacional ou internacional
+      - name: quantidade_ingressantes_mobilidade_academica
+        description: Quantidade de ingressantes que se vincularam temporariamente
+          a outra instituição, sendo ela nacional ou internacional
+      - name: quantidade_matriculas_mobilidade_academica
+        description: Quantidade de alunos regularmente matriculados que se vincularam
+          temporariamente a outra instituição, sendo ela nacional ou internacional
+      - name: quantidade_concluintes_mobilidade_academica
+        description: Quantidade de concluintes que se vincularam temporariamente a
+          outra instituição, sendo ela nacional ou internacional
+  - name: br_inep_censo_educacao_superior__dicionario
+    description: Dicionário para tradução dos códigos do conjunto br_inep_censo_educacao_superior.
+      Para taduzir códigos compartilhados entre instituições, como id_municipio, buscar
+      por diretórios
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_tabela
+            - nome_coluna
+            - chave
+            - cobertura_temporal
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_tabela
+        description: ID Tabela
+      - name: nome_coluna
+        description: Nome da coluna
+      - name: chave
+        description: Chave
+      - name: cobertura_temporal
+        description: Cobertura Temporal
+      - name: valor
+        description: Valor
+  - name: br_inep_censo_educacao_superior__ies
+    description: Dados a nível de instituição de ensino superior (IES).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_ies]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.35
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - tipo_organizacao_academica
+            - tipo_categoria_administrativa
+          dictionary_model: ref('br_inep_censo_educacao_superior__dicionario')
+    columns:
+      - name: ano
+        description: Ano de referência do Censo da Educação Superior
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação da sede administrativa ou reitoria
+          da IES
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município da sede administrativa ou reitoria da IES - IBGE
+          7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: tipo_organizacao_academica
+        description: Tipo de Organização Acadêmica da IES
+      - name: tipo_categoria_administrativa
+        description: Tipo de Categoria Administrativa da IES
+      - name: nome_mantenedora
+        description: Nome da mantenedora da IES
+      - name: id_mantenedora
+        description: Código único de identificação da mantenedora da IES
+      - name: id_ies
+        description: Código único de identificação da IES
+      - name: nome
+        description: Nome da IES
+      - name: sigla
+        description: Sigla da IES
+      - name: endereco
+        description: Endereço da sede administrativa/reitoria da IES
+      - name: numero
+        description: Número do endereço
+      - name: complemento
+        description: Complemento do endereço
+      - name: bairro
+        description: Bairro
+      - name: cep
+        description: CEP
+      - name: quantidade_tecnicos
+        description: Quantidade de funcionários técnico-administrativos
+      - name: quantidade_tecnicos_ef_incompleto_feminino
+        description: Quantidade de funcionários técnico-administrativos do sexo feminino
+          com ensino fundamental incompleto
+      - name: quantidade_tecnicos_ef_incompleto_masculino
+        description: Quantidade de funcionários técnico-administrativos do sexo masculino
+          com ensino fundamental incompleto
+      - name: quantidade_tecnicos_ef_completo_feminino
+        description: Quantidade de funcionários técnico-administrativos do sexo feminino
+          com ensino fundamental completo
+      - name: quantidade_tecnicos_ef_completo_masculino
+        description: Quantidade de funcionários técnico-administrativos do sexo masculino
+          com ensino fundamental completo
+      - name: quantidade_tecnicos_em_feminino
+        description: Quantidade de funcionários técnico-administrativos do sexo feminino
+          com ensino médio
+      - name: quantidade_tecnicos_em_masculino
+        description: Quantidade de funcionários técnico-administrativos do sexo masculino
+          com ensino médio
+      - name: quantidade_tecnicos_es_feminino
+        description: Quantidade de funcionários técnico-administrativos do sexo feminino
+          com nível superior
+      - name: quantidade_tecnicos_es_masculino
+        description: Quantidade de funcionários técnico-administrativos do sexo masculino
+          com nível superior
+      - name: quantidade_tecnicos_especializacao_feminino
+        description: Quantidade de funcionários técnico-administrativos do sexo feminino
+          com especialização
+      - name: quantidade_tecnicos_especializacao_masculino
+        description: Quantidade de funcionários técnico-administrativos do sexo masculino
+          com especialização
+      - name: quantidade_tecnicos_mestrado_feminino
+        description: Quantidade de funcionários técnico-administrativos do sexo feminino
+          com mestrado
+      - name: quantidade_tecnicos_mestrado_masculino
+        description: Quantidade de funcionários técnico-administrativos do sexo masculino
+          com mestrado
+      - name: quantidade_tecnicos_doutorado_feminino
+        description: Quantidade de funcionários técnico-administrativos do sexo feminino
+          com doutorado
+      - name: quantidade_tecnicos_doutorado_masculino
+        description: Quantidade de funcionários técnico-administrativos do sexo masculino
+          com doutorado
+      - name: indicador_biblioteca_acesso_portal_capes
+        description: Informa se as bibliotecas da IES têm acesso ao portal Capes de
+          periódicos
+      - name: indicador_biblioteca_acesso_outras_bases
+        description: Informa se as bibliotecas da IES têm acesso a outras bases de
+          dados licenciadas ou compradas
+      - name: indicador_biblioteca_assina_outras_bases
+        description: Informa se as bibliotecas da IES assinam outras bases de dados
+          licenciadas ou compradas
+      - name: indicador_biblioteca_repositorio_institucional
+        description: Informa se a IES possui base de dados online que reúne de maneira
+          organizada a produção científica da instituição
+      - name: indicador_biblioteca_busca_integrada
+        description: Informa se a IES oferece ferramenta eletrônica que possibilita
+          pesquisar simultaneamente diversas fontes de informação e obter resultado
+          em uma única interface
+      - name: indicador_biblioteca_internet
+        description: Informa se as bibliotecas da IES oferecem serviços pela internet
+      - name: indicador_biblioteca_rede_social
+        description: Informa se as bibliotecas participam de Redes Sociais
+      - name: indicador_biblioteca_catalogo_online
+        description: Informa se a IES possui ferramenta de recuperação de informação
+          que permite ao usuário consultar, de forma local ou remota, a existência
+          e disponibilidade de itens do acervo das bibliotecas
+      - name: quantidade_biblioteca_periodicos_eletronicos
+        description: Quantidade de títulos de periódicos eletrônicos adquiridos pelas
+          bibliotecas por meio de compra, doação ou permuta
+      - name: quantidade_biblioteca_livros_eletronicos
+        description: Quantidade de títulos de livros eletrônicos disponibilizados
+          pelas bibliotecas convertidos ao formato digital ou originalmente produzidos
+          nesse formato para serem lidos em computador ou outros dispositivos
+      - name: quantidade_docentes
+        description: Quantidade total de docentes (em exercício e afastados)
+      - name: quantidade_docentes_exercicio
+        description: Quantidade total de docentes em exercício
+      - name: quantidade_docentes_exercicio_feminino
+        description: Quantidade de docentes em exercício do sexo feminino
+      - name: quantidade_docentes_exercicio_masculino
+        description: Quantidade de docentes em exercício do sexo masculino
+      - name: quantidade_docentes_exercicio_sem_graduacao
+        description: Quantidade de docentes em exercício sem curso de graduação
+      - name: quantidade_docentes_exercicio_graduacao
+        description: Quantidade de docentes em exercício com curso de graduação
+      - name: quantidade_docentes_exercicio_especializacao
+        description: Quantidade de docentes em exercício com especialização
+      - name: quantidade_docentes_exercicio_mestrado
+        description: Quantidade de docentes em exercício com mestrado
+      - name: quantidade_docentes_exercicio_doutorado
+        description: Quantidade de docentes em exercício com doutorado
+      - name: quantidade_docentes_exercicio_integral
+        description: Quantidade de docentes em exercício em tempo integral
+      - name: quantidade_docentes_exercicio_integral_dedicacao_exclusiva
+        description: Quantidade de docentes em exercício em tempo integral com dedicação
+          exclusiva
+      - name: quantidade_docentes_exercicio_integral_sem_dedicacao_exclusiva
+        description: Quantidade de docentes em exercício em tempo integral sem dedicação
+          exclusiva
+      - name: quantidade_docentes_exercicio_parcial
+        description: Quantidade de docentes em exercício em tempo parcial
+      - name: quantidade_docentes_exercicio_horista
+        description: Quantidade de docentes em exercício horista
+      - name: quantidade_docentes_exercicio_0_29
+        description: Quantidade de docentes em exercício - até 29 anos
+      - name: quantidade_docentes_exercicio_30_34
+        description: Quantidade de docentes em exercício - de 30 a 34 anos
+      - name: quantidade_docentes_exercicio_35_39
+        description: Quantidade de docentes em exercício - de 35 a 39 anos
+      - name: quantidade_docentes_exercicio_40_44
+        description: Quantidade de docentes em exercício - de 40 a 44 anos
+      - name: quantidade_docentes_exercicio_45_49
+        description: Quantidade de docentes em exercício - de 45 a 49 anos
+      - name: quantidade_docentes_exercicio_50_54
+        description: Quantidade de docentes em exercício - de 50 a 54 anos
+      - name: quantidade_docentes_exercicio_55_59
+        description: Quantidade de docentes em exercício - de 55 a 59 anos
+      - name: quantidade_docentes_exercicio_60_mais
+        description: Quantidade de docentes em exercício - de 60 anos ou mais
+      - name: quantidade_docentes_exercicio_branca
+        description: Quantidade de docentes em exercício - Cor/Raça branca
+      - name: quantidade_docentes_exercicio_preta
+        description: Quantidade de docentes em exercício - Cor/Raça preta
+      - name: quantidade_docentes_exercicio_parda
+        description: Quantidade de docentes em exercício - Cor/Raça parda
+      - name: quantidade_docentes_exercicio_amarela
+        description: Quantidade de docentes em exercício - Cor/Raça amarela
+      - name: quantidade_docentes_exercicio_indigena
+        description: Quantidade de docentes em exercício - Cor/Raça indígena
+      - name: quantidade_docentes_exercicio_cor_nao_declarada
+        description: Quantidade de docentes em exercício - Cor/Raça não dispõe da
+          informação ou não declarada
+      - name: quantidade_docentes_exercicio_brasileiro
+        description: Quantidade de docentes em exercício - nacionalidade brasileira
+          ou brasileira - nascido no exterior ou naturalizado
+      - name: quantidade_docentes_exercicio_estrangeiro
+        description: Quantidade de docentes em exercício - nacionalidade estrangeira
+      - name: quantidade_docentes_exercicio_deficiencia
+        description: Quantidade de docentes em exercício - com deficiência

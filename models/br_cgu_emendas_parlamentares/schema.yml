@@ -1,0 +1,74 @@
+---
+version: 2
+models:
+  - name: br_cgu_emendas_parlamentares__microdados
+    description: Dados referente a emendas parlamentares
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano_emenda
+            - codigo_emenda
+            - tipo_emenda
+            - localidade_gasto
+            - nome_funcao
+            - nome_subfuncao
+      - not_null_proportion_multiple_columns:
+          at_least: 0.25
+    columns:
+      - name: ano_emenda
+        description: Ano em que emenda foi proposta
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: codigo_emenda
+        description: Identificador da emenda parlamentar
+      - name: numero_emenda
+        description: Número da emenda parlamentar
+      - name: tipo_emenda
+        description: Tipo da emenda parlamentar
+      - name: codigo_autor_emenda
+        description: Código do autor da emenda parlamentar
+      - name: nome_autor_emenda
+        description: Nome do autor da emenda parlamentar
+      - name: localidade_gasto
+        description: Localidade de destinação do recurso. Este campo poderá estar
+          em branco, a depender da localidade de aplicação.
+      - name: sigla_uf_gasto
+        description: Sigla da Unidade da Federação de destinação do recurso. Este
+          campo poderá estar em branco, a depender da localidade de aplicação.
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio_gasto
+        description: Código IBGE do município de destinação do recurso. Este campo
+          poderá estar em branco, a depender da localidade de aplicação.
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: codigo_funcao
+        description: Código da Função em que foi classificada a despesa associada
+          à emenda parlamentar.
+      - name: nome_funcao
+        description: Nome da Função em que foi classificada a despesa associada à
+          emenda parlamentar.
+      - name: codigo_subfuncao
+        description: Código da Subfunção em que foi classificada a despesa associada
+          à emenda parlamentar.
+      - name: nome_subfuncao
+        description: Nome da subfunção em que foi classificada a despesa associada
+          à emenda parlamentar.
+      - name: valor_empenhado
+        description: Valor empenhado para a emenda, no ano
+      - name: valor_liquidado
+        description: Valor liquidado para a emenda, no ano
+      - name: valor_pago
+        description: Valor pago para a emenda, no ano
+      - name: valor_resto_pagar_inscrito
+        description: Valor inscrito em restos a pagar para a emenda, no ano
+      - name: valor_resto_pagar_cancelado
+        description: Valor cancelado das inscrições em restos a pagar, no ano
+      - name: valor_resto_pagar_pagos
+        description: Valor pago das inscrições em restos a pagar, no ano.

@@ -1,0 +1,404 @@
+---
+version: 2
+models:
+  - name: br_inep_sinopse_estatistica_educacao_basica__etapa_ensino_serie
+    description: A base conta com o total de matrículas por município para todas as
+      etapas e subetapas de ensino, além da discriminação dos anos para Anos Iniciais
+      e Finais do Ensino Fundamental, bem como as série do Ensino Médio
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: rede
+        description: Rede Escolar (e.g. federal, estadual, municipal e privada)
+      - name: etapa_ensino
+        description: 'Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
+          Iniciais, Anos Finais, Ensino Fundamental - EJA, ...) '
+      - name: serie
+        description: Série/Ano de ensino
+      - name: quantidade_matricula
+        description: Número de matrículas
+  - name: br_inep_sinopse_estatistica_educacao_basica__faixa_etaria
+    description: A base conta com o total de matrículas por município, etapa de ensino
+      e grupo etário dos alunos
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: etapa_ensino
+        description: Etapa/nível de ensino
+      - name: faixa_etaria
+        description: Faixa Etária
+      - name: quantidade_matricula
+        description: Número de matrículas
+  - name: br_inep_sinopse_estatistica_educacao_basica__localizacao
+    description: A base conta com o total de matrículas por município, rede e localização
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: rede
+        description: Rede Escolar (e.g. federal, estadual, municipal e privada)
+      - name: etapa_ensino
+        description: 'Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
+          Iniciais, Anos Finais, Ensino Fundamental - EJA, ...) '
+      - name: localizacao
+        description: Localização (e.g. Zona Urbana, Zona Rural)
+      - name: quantidade_matricula
+        description: Número de matrículas
+  - name: br_inep_sinopse_estatistica_educacao_basica__tempo_ensino
+    description: A base conta com o total de matrículas por município para todas as
+      etapas de ensino e o tempo ofertado de aulas, seja integral ou regular
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: rede
+        description: Rede Escolar (e.g. federal, estadual, municipal e privada)
+      - name: tempo
+        description: Classificação em tempo integral e tempo parcial
+      - name: etapa_ensino
+        description: 'Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
+          Iniciais, Anos Finais, Ensino Fundamental - EJA, ...) '
+      - name: quantidade_matricula
+        description: Número de matrículas
+  - name: br_inep_sinopse_estatistica_educacao_basica__sexo_raca_cor
+    description: A base conta com o total de matrículas por município para todas as
+      etapas de ensino, sexo e raça/cor
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: etapa_ensino
+        description: 'Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
+          Iniciais, Anos Finais, Ensino Fundamental - EJA, ...) '
+      - name: sexo
+        description: Sexo
+      - name: raca_cor
+        description: Raça/Cor
+      - name: quantidade_matricula
+        description: Número de matrículas
+  - name: br_inep_sinopse_estatistica_educacao_basica__docente_escolaridade
+    description: A base conta com o total de docentes por município, escolaridade
+      e rede
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - id_municipio
+            - escolaridade
+            - tipo_classe
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: tipo_classe
+        description: 'Tipo de classe da Educação Especial (e.g.: Classes Comuns ou
+          Classes Exclusivas/Especiais)'
+      - name: escolaridade
+        description: Escolaridade
+      - name: quantidade_docente
+        description: Número de Docentes
+  - name: br_inep_sinopse_estatistica_educacao_basica__docente_regime_contrato
+    description: A base conta com o total de docentes por município, regime de contrato
+      e rede
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - id_municipio
+            - regime_contrato
+            - rede
+            - tipo_classe
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: tipo_classe
+        description: 'Tipo de classe da Educação Especial (e.g.: Classes Comuns ou
+          Classes Exclusivas/Especiais)'
+      - name: rede
+        description: Rede Escolar (e.g. Federal, Estadual, Municipal e Privada)
+      - name: regime_contrato
+        description: Regime de contratação
+      - name: quantidade_docente
+        description: Número de Docentes
+  - name: br_inep_sinopse_estatistica_educacao_basica__docente_faixa_etaria_sexo
+    description: A base conta com o total de docentes por município, faixa etária
+      e sexo
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - id_municipio
+            - faixa_etaria
+            - sexo
+            - tipo_classe
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: tipo_classe
+        description: 'Tipo de classe da Educação Especial (e.g.: Classes Comuns ou
+          Classes Exclusivas/Especiais)'
+      - name: faixa_etaria
+        description: Faixa Etária dos docentes
+      - name: sexo
+        description: Sexo dos docentes
+      - name: quantidade_docente
+        description: Número de Docentes
+  - name: br_inep_sinopse_estatistica_educacao_basica__docente_deficiencia
+    description: A base conta com o total de docentes por município, tipo de deficiência
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - id_municipio
+            - deficiencia
+            - tipo_classe
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: tipo_classe
+        description: 'Tipo de classe da Educação Especial (e.g.: Classes Comuns ou
+          Classes Exclusivas/Especiais)'
+      - name: deficiencia
+        description: Tipo de deficiência, transtorno global do desenvolvimento ou
+          altas habilidades/superdotação
+      - name: quantidade_docente
+        description: Número de docentes
+  - name: br_inep_sinopse_estatistica_educacao_basica__docente_localizacao
+    description: A base conta com o total de docentes por município, rede e localização
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - id_municipio
+            - rede
+            - localizacao
+            - tipo_classe
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: tipo_classe
+        description: 'Tipo de classe da Educação Especial (e.g.: Classes Comuns ou
+          Classes Exclusivas/Especiais)'
+      - name: rede
+        description: Rede Escolar (e.g. Federal, Estadual, Municipal e Privada)
+      - name: localizacao
+        description: Localização (e.g. Zona Urbana, Zona Rural)
+      - name: quantidade_docente
+        description: Número de docentes
+  - name: br_inep_sinopse_estatistica_educacao_basica__docente_etapa_ensino
+    description: A base conta com o total de docentes por município, faixa etária
+      e sexo
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - id_municipio
+            - etapa_ensino
+            - tipo_classe
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: tipo_classe
+        description: 'Tipo de classe da Educação Especial (e.g.: Classes Comuns ou
+          Classes Exclusivas/Especiais)'
+      - name: etapa_ensino
+        description: Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
+          Iniciais, Anos Finais, Ensino Fundamental - EJA, ...)
+      - name: quantidade_docente
+        description: Número de Docentes

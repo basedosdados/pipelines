@@ -1,0 +1,625 @@
+---
+version: 2
+models:
+  - name: world_oecd_pisa__student
+    description: This table includes contextual information, estimates of student
+      performance and parent-questionnaire data
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, student_id]
+    columns:
+      - name: year
+        description: Year
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: country_id_iso_3
+        description: Country ID ISO3
+        tests:
+          - relationships:
+              to: ref('pais__sigla_pais_iso3')
+              field: sigla_pais_iso3.sigla_pais_iso3
+      - name: country_id_m49
+        description: Country Identifier
+        tests:
+          - relationships:
+              to: ref('pais__id_pais_m49')
+              field: id_pais_m49.id_pais_m49
+      - name: school_id
+        description: School ID
+      - name: student_id
+        description: Student ID
+      - name: assessment_type
+        description: PISA Assessment Cycle (2 digits + 2 character Assessment type
+          - MS/FT)
+      - name: national_centre_code
+        description: National Centre 6-digit Code
+      - name: stratum
+        description: Stratum ID 7-character (cnt + region ID + original stratum ID)
+      - name: subregion
+        description: Adjudicated sub-region code 7-digit code (3-digit country code
+          + region ID + stratum ID)
+      - name: oecd
+        description: OECD country
+      - name: mode_respondent
+        description: Mode of Respondent
+      - name: language_questionnaire
+        description: Language of Questionnaire
+      - name: language_assessment
+        description: Language of Assessment
+      - name: form_id
+        description: Form Identifier
+      - name: international_grade
+        description: Student International Grade (Derived)
+      - name: month_birth
+        description: Student (Standardized) Birth - Month
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: year_birth
+        description: Student (Standardized) Birth - Year
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: gender
+        description: Student (Standardized) Gender
+      - name: effort_put_into_test
+        description: How much effort did you put into this test?
+      - name: effort_would_have_invested
+        description: How much effort would you have invested?
+      - name: occupation_mother
+        description: ISCO-08 Occupation code - Mother
+      - name: occupation_father
+        description: ISCO-08 Occupation code - Father
+      - name: occupation_self
+        description: ISCO-08 Occupation code - Self
+      - name: grade_compared
+        description: Grade compared to modal grade in country
+      - name: age
+        description: Age
+      - name: national_study_programme
+        description: Unique national study programme code
+      - name: country_birth_self
+        description: Country of Birth National Categories- Self
+      - name: country_birth_mother
+        description: Country of Birth National Categories- Mother
+      - name: country_birth_father
+        description: Country of Birth National Categories- Father
+      - name: language_home
+        description: Language at home (3-digit code)
+      - name: isced_level
+        description: ISCED level
+      - name: isced_designation
+        description: ISCED designation
+      - name: isced_orientation
+        description: ISCED orientation
+      - name: mother_isced
+        description: Mothers Education (ISCED)
+      - name: father_isced
+        description: Fathers Education (ISCED)
+      - name: highest_parent_isced
+        description: Highest Education of parents (ISCED)
+      - name: highest_parent_years_schooling
+        description: Index highest parental education in years of schooling
+      - name: mother_isced_alternate_definition
+        description: Mothers Education - alternate definition (ISCED)
+      - name: father_isced_alternate_definition
+        description: Fathers Education - alternate definition (ISCED)
+      - name: highest_parent_isced_alternate_definition
+        description: Highest Education of parents - alternate definition (ISCED)
+      - name: highest_parent_international_years_schooling
+        description: Index highest parental education (international years of schooling
+          scale)
+      - name: mother_isei
+        description: ISEI of mother
+      - name: father_isei
+        description: ISEI of father
+      - name: index_highest_parent_occupation
+        description: Index highest parental occupational status
+      - name: index_immigration_status
+        description: Index Immigration status
+      - name: duration_early_childhood_education_care
+        description: Duration in early childhood education and care
+      - name: grade_repetition
+        description: Grade Repetition
+      - name: student_occupational_status
+        description: Students expected occupational status (SEI)
+      - name: learning_time_mathematics
+        description: Learning time (minutes per week) - <Mathematics>
+      - name: learning_time_language
+        description: Learning time (minutes per week) - <test language>
+      - name: learning_time_science
+        description: Learning time (minutes per week) - <science>
+      - name: learning_time_total
+        description: Learning time (minutes per week) - in total
+      - name: school_change
+        description: Number of school changes
+      - name: number_educational_change
+        description: Number of changes in educational biography (Sum)
+      - name: body_mass_index
+        description: Body mass index of student
+      - name: index_economic_social_cultural_status
+        description: Index of economic, social and cultural status
+      - name: meta_cognition_understanding_remembering
+        description: 'Meta-cognition: understanding and remembering'
+      - name: meta_cognition_summarising
+        description: 'Meta-cognition: summarising'
+      - name: meta_cognition_assess_credibility
+        description: 'Meta-cognition: assess credibility'
+      - name: ict_home
+        description: ICT available at home
+      - name: ict_school
+        description: ICT available at school
+      - name: wle_home_possessions
+        description: Home possessions index (WLE)
+      - name: wle_cultural_possessions
+        description: Cultural possessions at home index (WLE)
+      - name: wle_home_educational_resources
+        description: Home educational resources index (WLE)
+      - name: wle_family_wealth
+        description: Family wealth index (WLE)
+      - name: wle_ict_resources
+        description: ICT resources index (WLE)
+      - name: wle_teacher_support_language
+        description: Teacher support in test language lessons index (WLE)
+      - name: wle_perceived_feedback
+        description: Perceived feedback index (WLE)
+      - name: wle_perceived_parents_emotional_support
+        description: Parents' emotional support perceived by student index (WLE)
+      - name: wle_subjective_well_being_sense_belonging
+        description: 'Subjective well-being: Sense of belonging to school index (WLE)'
+      - name: wle_ict_use_outside_school_leisure
+        description: ICT use outside of school (leisure) index (WLE)
+      - name: wle_ict_use_outside_school_work
+        description: Use of ICT outside of school (for school work activities) index
+          (WLE)
+      - name: wle_ict_use_at_school
+        description: Use of ICT at school in general index (WLE)
+      - name: wle_ict_interest
+        description: Interest in ICT index (WLE)
+      - name: wle_ict_competence
+        description: Perceived ICT competence index (WLE)
+      - name: wle_ict_autonomy
+        description: Perceived autonomy related to ICT use index (WLE)
+      - name: wle_ict_social_interaction
+        description: ICT as a topic in social interaction index (WLE)
+      - name: wle_parental_support_learning
+        description: Current parental support for learning at home index (WLE)
+      - name: wle_parents_emotional_support
+        description: Parents' emotional support index (WLE)
+      - name: wle_parents_perceived_school_quality
+        description: Parents' perceived school quality index (WLE)
+      - name: wle_school_policies_parental_involvement
+        description: School policies for parental involvement index (WLE)
+      - name: wle_previous_parental_support_learning
+        description: Previous parental support for learning at home index (WLE)
+      - name: wle_disciplinay_climate_specific_domain
+        description: Disciplinary climate in specific domain (mathematics,science
+          or language) lessons (WLE)
+      - name: wle_teacher_directed_instruction
+        description: Teacher-directed instruction (WLE)
+      - name: wle_teacher_stimulation_reading
+        description: Teacher's stimulation of reading engagement perceived by student
+          (WLE)
+      - name: wle_adaptation_instruction
+        description: Adaptation of instruction (WLE)
+      - name: wle_perceived_teachers_interest
+        description: Perceived teacher's interest (WLE)
+      - name: wle_joy_reading
+        description: Joy/Like reading (WLE)
+      - name: wle_reading_self_concept_competence
+        description: 'Self-concept of reading: Perception of competence (WLE)'
+      - name: wle_reading_self_concept_difficulty
+        description: 'Self-concept of reading: Perception of difficulty (WLE)'
+      - name: wle_pisa_test_difficulty_perception
+        description: Perception of difficulty of the PISA test (WLE)
+      - name: wle_competitiveness_perception
+        description: Perception of competitiveness at school (WLE)
+      - name: wle_cooperation_perception
+        description: Perception of cooperation at school (WLE)
+      - name: wle_attitude_towards_school_learning_activities
+        description: 'Attitude towards school: learning activities (WLE)'
+      - name: wle_competitiveness
+        description: Competitiveness (WLE)
+      - name: wle_work_mastery
+        description: Work mastery (WLE)
+      - name: wle_general_fear_failure
+        description: General fear of failure (WLE)
+      - name: wle_eudaemonia
+        description: 'Eudaemonia: meaning in life (WLE)'
+      - name: wle_subjective_well_being_positive_affect
+        description: 'Subjective well-being: Positive affect (WLE)'
+      - name: wle_resilence
+        description: Resilience (WLE)
+      - name: wle_mastery_goal_orientation
+        description: Mastery goal orientation (WLE)
+      - name: wle_self_efficacy_regarding_global_issues
+        description: Self-efficacy regarding global issues (WLE)
+      - name: wle_students_awareness_global_issues
+        description: Student's awareness of global issues (WLE)
+      - name: wle_students_attitudes_towards_immigrants
+        description: Student's attitudes towards immigrants (WLE)
+      - name: wle_students_interest_learning_other_cultures
+        description: Student's interest in learning about other cultures (WLE)
+      - name: wle_perspective_taking
+        description: Perspective-taking (WLE)
+      - name: wle_cognitive_flexibility
+        description: Cognitive flexibility/adaptability (WLE)
+      - name: wle_respect_people_from_other_cultures
+        description: Respect for people from other cultures (WLE)
+      - name: wle_intercultural_communication_awareness
+        description: Awareness of intercultural communication (WLE)
+      - name: wle_global_mindedness
+        description: Global-mindedness (WLE)
+      - name: wle_discriminating_school_climate
+        description: Discriminating school climate (WLE)
+      - name: wle_students_experience_being_bullied
+        description: Student's experience of being bullied (WLE)
+      - name: wle_ict_use_during_lessons
+        description: Subject-related ICT use during lessons (WLE)
+      - name: wle_ict_use_outside_lessons
+        description: Subject-related ICT use outside of lessons (WLE)
+      - name: wle_carrer_information
+        description: Information about careers (WLE)
+      - name: wle_labour_market_information_by_school
+        description: Information about the labour market provided by the school (WLE)
+      - name: wle_labour_market_information_outside_school
+        description: Information about the labour market provided outside of school
+          (WLE)
+      - name: wle_financial_matters_confidence
+        description: Confidence about financial matters (WLE)
+      - name: wle_financial_matters_confidence_digital_devices
+        description: Confidence about financial matters using digital devices (WLE)
+      - name: wle_financial_education_school_lessons
+        description: Financial education in school lessons (WLE)
+      - name: wle_parents_involvement_financial_literacy
+        description: Parental involvement in matters of Financial Literacy (WLE)
+      - name: wle_parents_reading_enjoyment
+        description: Parents enjoyment of reading (WLE)
+      - name: wle_parents_attitudes_towards_immigrants
+        description: Parents' attitudes towards immigrants (WLE)
+      - name: wle_parents_interest_learking_other_cultures
+        description: Parents' interest in learning about other cultures (WLE)
+      - name: wle_parents_awareness_global_issues
+        description: Parents' awareness of global issues (WLE)
+      - name: wle_body_image
+        description: Body image (WLE)
+      - name: wle_parents_social_connections
+        description: 'Social Connections: Parents (WLE)'
+      - name: consider_perspective_before_position
+        description: "Agree/disagree: I try to consider everybody's perspective before\
+          \ I take a position."
+      - name: understand_classmates_thinking
+        description: "Agree/disagree: I want to understand my classmates' ways of\
+          \ thinking."
+      - name: view_things_different_angles
+        description: 'Agree/disagree: I can view almost all things from different
+          angles.'
+      - name: imagine_in_somebody_place
+        description: "Agree/disagree: I imagine how I would feel if I were in somebody\
+          \ else's place."
+      - name: one_correct_position_disagreement
+        description: 'Agree/disagree: I think there is only one correct position in
+          a disagreement.'
+      - name: understand_why_people_behave
+        description: 'Agree/disagree: I want to understand why people behave the way
+          they do.'
+      - name: difficult_anticipate_others_think
+        description: 'Agree/disagree: I find it difficult to anticipate what other
+          people think.'
+      - name: envision_friends_points_of_view
+        description: "Agree/disagree: I try to envision how things look from my friends'\
+          \ points of view"
+      - name: final_student_weight
+        description: Final trimmed nonresponse adjusted student weight
+      - name: student_weight_1
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 1
+      - name: student_weight_2
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 2
+      - name: student_weight_3
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 3
+      - name: student_weight_4
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 4
+      - name: student_weight_5
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 5
+      - name: student_weight_6
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 6
+      - name: student_weight_7
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 7
+      - name: student_weight_8
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 8
+      - name: student_weight_9
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 9
+      - name: student_weight_10
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 10
+      - name: student_weight_11
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 11
+      - name: student_weight_12
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 12
+      - name: student_weight_13
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 13
+      - name: student_weight_14
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 14
+      - name: student_weight_15
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 15
+      - name: student_weight_16
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 16
+      - name: student_weight_17
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 17
+      - name: student_weight_18
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 18
+      - name: student_weight_19
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 19
+      - name: student_weight_20
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 20
+      - name: student_weight_21
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 21
+      - name: student_weight_22
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 22
+      - name: student_weight_23
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 23
+      - name: student_weight_24
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 24
+      - name: student_weight_25
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 25
+      - name: student_weight_26
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 26
+      - name: student_weight_27
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 27
+      - name: student_weight_28
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 28
+      - name: student_weight_29
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 29
+      - name: student_weight_30
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 30
+      - name: student_weight_31
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 31
+      - name: student_weight_32
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 32
+      - name: student_weight_33
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 33
+      - name: student_weight_34
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 34
+      - name: student_weight_35
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 35
+      - name: student_weight_36
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 36
+      - name: student_weight_37
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 37
+      - name: student_weight_38
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 38
+      - name: student_weight_39
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 39
+      - name: student_weight_40
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 40
+      - name: student_weight_41
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 41
+      - name: student_weight_42
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 42
+      - name: student_weight_43
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 43
+      - name: student_weight_44
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 44
+      - name: student_weight_45
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 45
+      - name: student_weight_46
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 46
+      - name: student_weight_47
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 47
+      - name: student_weight_48
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 48
+      - name: student_weight_49
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 49
+      - name: student_weight_50
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 50
+      - name: student_weight_51
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 51
+      - name: student_weight_52
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 52
+      - name: student_weight_53
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 53
+      - name: student_weight_54
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 54
+      - name: student_weight_55
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 55
+      - name: student_weight_56
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 56
+      - name: student_weight_57
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 57
+      - name: student_weight_58
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 58
+      - name: student_weight_59
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 59
+      - name: student_weight_60
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 60
+      - name: student_weight_61
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 61
+      - name: student_weight_62
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 62
+      - name: student_weight_63
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 63
+      - name: student_weight_64
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 64
+      - name: student_weight_65
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 65
+      - name: student_weight_66
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 66
+      - name: student_weight_67
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 67
+      - name: student_weight_68
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 68
+      - name: student_weight_69
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 69
+      - name: student_weight_70
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 70
+      - name: student_weight_71
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 71
+      - name: student_weight_72
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 72
+      - name: student_weight_73
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 73
+      - name: student_weight_74
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 74
+      - name: student_weight_75
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 75
+      - name: student_weight_76
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 76
+      - name: student_weight_77
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 77
+      - name: student_weight_78
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 78
+      - name: student_weight_79
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 79
+      - name: student_weight_80
+        description: Final trimmed nonresponse adjusted student replicate BRR-Fay
+          weights 80
+      - name: randomly_assigned_unit_number
+        description: Randomly assigned unit number
+      - name: randomized_final_variance_stratum
+        description: Randomized final variance stratum
+      - name: plausible_value_1_mathematics
+        description: Plausible Value 1 in Mathematics
+      - name: plausible_value_2_mathematics
+        description: Plausible Value 2 in Mathematics
+      - name: plausible_value_3_mathematics
+        description: Plausible Value 3 in Mathematics
+      - name: plausible_value_4_mathematics
+        description: Plausible Value 4 in Mathematics
+      - name: plausible_value_5_mathematics
+        description: Plausible Value 5 in Mathematics
+      - name: plausible_value_6_mathematics
+        description: Plausible Value 6 in Mathematics
+      - name: plausible_value_7_mathematics
+        description: Plausible Value 7 in Mathematics
+      - name: plausible_value_8_mathematics
+        description: Plausible Value 8 in Mathematics
+      - name: plausible_value_9_mathematics
+        description: Plausible Value 9 in Mathematics
+      - name: plausible_value_10_mathematics
+        description: Plausible Value 10 in Mathematics
+      - name: plausible_value_1_reading
+        description: Plausible Value 1 in Reading
+      - name: plausible_value_2_reading
+        description: Plausible Value 2 in Reading
+      - name: plausible_value_3_reading
+        description: Plausible Value 3 in Reading
+      - name: plausible_value_4_reading
+        description: Plausible Value 4 in Reading
+      - name: plausible_value_5_reading
+        description: Plausible Value 5 in Reading
+      - name: plausible_value_6_reading
+        description: Plausible Value 6 in Reading
+      - name: plausible_value_7_reading
+        description: Plausible Value 7 in Reading
+      - name: plausible_value_8_reading
+        description: Plausible Value 8 in Reading
+      - name: plausible_value_9_reading
+        description: Plausible Value 9 in Reading
+      - name: plausible_value_10_reading
+        description: Plausible Value 10 in Reading
+      - name: plausible_value_1_science
+        description: Plausible Value 1 in Science
+      - name: plausible_value_2_science
+        description: Plausible Value 2 in Science
+      - name: plausible_value_3_science
+        description: Plausible Value 3 in Science
+      - name: plausible_value_4_science
+        description: Plausible Value 4 in Science
+      - name: plausible_value_5_science
+        description: Plausible Value 5 in Science
+      - name: plausible_value_6_science
+        description: Plausible Value 6 in Science
+      - name: plausible_value_7_science
+        description: Plausible Value 7 in Science
+      - name: plausible_value_8_science
+        description: Plausible Value 8 in Science
+      - name: plausible_value_9_science
+        description: Plausible Value 9 in Science
+      - name: plausible_value_10_science
+        description: Plausible Value 10 in Science
+      - name: senate_weight
+        description: Senate Weight (sum of 5000 per country)
+      - name: date_database_creation
+        description: Date of the database creation

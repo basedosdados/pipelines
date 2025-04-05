@@ -3,36 +3,18 @@
 Tasks related to DBT flows.
 """
 
+import json
 from datetime import timedelta
+from typing import Any, Literal
 
-from dbt_client import DbtClient
+from dbt.cli.main import dbtRunner
 from prefect import task
 
 from pipelines.constants import constants
 from pipelines.utils.execute_dbt_model.constants import (
     constants as constants_execute,
 )
-from pipelines.utils.execute_dbt_model.utils import get_dbt_client, merge_vars
 from pipelines.utils.utils import log
-
-
-@task(
-    checkpoint=False,
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
-def get_k8s_dbt_client(
-    mode: str = "dev",
-    wait=None,
-) -> DbtClient:
-    """
-    Get a DBT client for the Kubernetes cluster.
-    """
-    if mode not in ["dev", "prod"]:
-        raise ValueError(f"Invalid mode: {mode}")
-    return get_dbt_client(
-        host=f"dbt-rpc-{mode}",
-    )
 
 
 @task(
@@ -41,103 +23,81 @@ def get_k8s_dbt_client(
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def run_dbt_model(
-    dbt_client: DbtClient,
     dataset_id: str,
     table_id: str,
     dbt_alias: bool = True,
-    dbt_command: str = "run",
-    sync: bool = True,
-    flags: str = None,
-    _vars=None,
+    dbt_command: Literal["run", "test", "run/test"] = "run",
+    target: Literal["prod", "dev"] = "dev",
+    flags: str | None = None,
+    _vars: dict[str, Any] | None = None,
     disable_elementary: bool = False,
-):
+) -> None:
     """
     Run a DBT model.
+
     Args:
         dataset_id (str): Dataset ID of the dbt model.
         table_id (str, optional): Table ID of the dbt model. If None, the
         whole dataset will be run.
         dbt_alias (bool, optional): If True, the model will be run by
         its alias. Defaults to False.
+        dbt_command (str): DBT command. Defaults to "run".
+        target (str): The dbt target to use. Defaults to "dev".
         flags (str, optional): Flags to pass to the dbt run command.
         See:
         https://docs.getdbt.com/reference/dbt-jinja-functions/flags/
-        _vars (Union[dict, List[Dict]], optional): Variables to pass to
+        _vars (dict[str, Any], optional): Variables to pass to
         dbt. Defaults to None.
         disable_elementary (bool, optional): Disable elementary on-run-end hooks.
     """
     if dbt_command not in ["run", "test", "run and test", "run/test"]:
         raise ValueError(f"Invalid dbt_command: {dbt_command}")
 
-    if table_id:
-        if dbt_alias:
-            selected_table = f"{dataset_id}.{dataset_id}__{table_id}"
-        else:
-            selected_table = f"{dataset_id}.{table_id}"
-    else:
-        selected_table = dataset_id
+    run_args: list[str] = []
 
-    if disable_elementary:
-        if _vars is None:
-            _vars = constants_execute.DISABLE_ELEMENTARY_VARS.value
-        else:
-            _vars = merge_vars(
-                constants_execute.DISABLE_ELEMENTARY_VARS.value, _vars
-            )
+    selected_table = (
+        f"{dataset_id}.{dataset_id}__{table_id}"
+        if dbt_alias
+        else f"{dataset_id}.{table_id}"
+    )
 
-    if "run" in dbt_command:
-        if flags == "--full-refresh":
-            run_command = f"dbt run --full-refresh --select {selected_table}"
-            flags = None
-        else:
-            run_command = f"dbt run --select {selected_table}"
+    flags_parsed = flags.split(" ") if flags is not None else []
 
-    if _vars:
-        if isinstance(_vars, list):
-            vars_dict = {}
-            for elem in _vars:
-                vars_dict.update(elem)
-            vars_str = f'"{vars_dict}"'
-            run_command += f" --vars {vars_str}"
-        else:
-            vars_str = f"'{_vars}'"
-            run_command = None if dbt_command in ["test"] else run_command
-            if run_command is not None:
-                run_command += f" --vars {vars_str}"
+    variables = (
+        constants_execute.DISABLE_ELEMENTARY_VARS.value
+        if disable_elementary and _vars is None
+        else {**constants_execute.DISABLE_ELEMENTARY_VARS.value, **_vars}  # type: ignore
+    )
 
-    if flags:
-        run_command += f" {flags}"
+    common_args = [
+        f"--select {selected_table}",
+        f"--target {target}",
+        f"--vars '{json.dumps(variables)}'",
+    ]
+
+    if len(flags_parsed) > 0:
+        common_args.extend([i for i in flags_parsed if i != "--full-refresh"])
+
+    # --full-refresh flag is positional and part of run subcommand
+    if "run" in dbt_command and "--full-refresh" in flags_parsed:
+        run_args.insert(1, "--full-refresh")
+
+    dbt_runner = dbtRunner()
 
     if "run" in dbt_command:
-        log(f"Running dbt with command: {run_command}")
-        logs_dict = dbt_client.cli(
-            run_command,
-            sync=sync,
-            logs=True,
-        )
-        for event in logs_dict["result"]["logs"]:
-            if event["levelname"] in ("INFO", "WARN"):
-                log(event["message"])
-            if event["levelname"] == "DEBUG":
-                if "On model" in event["message"]:
-                    log(event["message"])
+        log(f"Running dbt with arguments: {run_args}")
+        dbt_run_result = dbt_runner.invoke(["run", *run_args])
+        if not dbt_run_result.success:
+            raise Exception(f"Failed to run dbt: {dbt_run_result.result}")
 
     if "test" in dbt_command:
-        if _vars:
-            vars_str = f"'{_vars}'"
-            test_command = f"test --select {selected_table} --vars {vars_str}"
-        else:
-            test_command = f"test --select {selected_table}"
+        test_args = ["test", *common_args]
 
-        log(f"Running dbt with command: {test_command}")
-        logs_dict = dbt_client.cli(
-            test_command,
-            sync=sync,
-            logs=True,
-        )
-        for event in logs_dict["result"]["logs"]:
-            if event["levelname"] in ("INFO", "WARN"):
-                log(event["message"])
-            if event["levelname"] == "DEBUG":
-                if "On model" in event["message"]:
-                    log(event["message"])
+        log(f"Running dbt test with arguments: {test_args}")
+
+        dbt_test_result = dbt_runner.invoke(test_args)
+
+        if not dbt_test_result.success:
+            raise Exception(
+                f"Failed to run dbt test: {dbt_test_result.result}"
+            )

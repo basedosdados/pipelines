@@ -1,0 +1,41 @@
+---
+version: 2
+models:
+  - name: br_mp_pep__cargos_funcoes
+    description: "Informações sobre o quantitativo de cargos e funções com características\
+      \ de direção e assessoramento no Poder Executivo Federal Civil e Funções e Gratificações\
+      \ com características técnicas. Essa tabela contém todas as dimensões e apenas\
+      \ as métricas: 'CCE & FCE' e 'DAS e correlatas'"
+    columns:
+      - name: ano
+        description: Ano
+      - name: mes
+        description: Mês
+      - name: funcao
+        description: Função
+      - name: natureza_juridica
+        description: Natureza Júridica
+      - name: orgao_superior
+        description: Órgão Superior
+      - name: escolaridade_servidor
+        description: Escolaridade do Servidor
+      - name: orgao
+        description: Nome do órgão
+      - name: regiao
+        description: Região
+      - name: sexo
+        description: Sexo
+      - name: nivel_funcao
+        description: Nível da função
+      - name: subnivel_funcao
+        description: Subnível da função
+      - name: sigla_uf
+        description: Sigla da UF
+      - name: faixa_etaria
+        description: Faixa Etária
+      - name: raca_cor
+        description: Raça
+      - name: cce_e_fce
+        description: Quantidade de vínculos CCE & FCE
+      - name: das_e_correlatas
+        description: Quantidade de vínculos DAS & correlatas

@@ -1,0 +1,261 @@
+---
+version: 2
+models:
+  - name: br_inep_ideb__municipio
+    description: Dados do Ideb agregados para o Brasil a nível de municipio-rede-ensino-ano.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - sigla_uf
+            - id_municipio
+            - rede
+            - ensino
+            - anos_escolares
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: rede
+        description: Rede Escolar
+        tests:
+          - accepted_values:
+              values: [municipal, estadual, federal, privada, publica]
+      - name: ensino
+        description: Tipo de Ensino
+        tests:
+          - accepted_values:
+              values: [fundamental, medio]
+      - name: anos_escolares
+        description: Anos Escolares
+        tests:
+          - accepted_values:
+              values: [iniciais (1-5), finais (6-9), todos (1-4)]
+      - name: taxa_aprovacao
+        description: Taxa de Aprovação
+      - name: indicador_rendimento
+        description: Indicador de Rendimento (P)
+      - name: nota_saeb_matematica
+        description: Nota SAEB - Matemática
+      - name: nota_saeb_lingua_portuguesa
+        description: Nota SAEB - Língua Portuguesa
+      - name: nota_saeb_media_padronizada
+        description: Nota SAEB - Média Padronizada (N)
+      - name: ideb
+        description: IDEB (N x P)
+      - name: projecao
+        description: Projeção
+  - name: br_inep_ideb__escola
+    description: Dados do Ideb agregados para o Brasil a nível de escola-ano.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - sigla_uf
+            - id_municipio
+            - id_escola
+            - rede
+            - ensino
+            - anos_escolares
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_escola
+        description: ID Escola - INEP
+      - name: rede
+        description: Rede Escolar
+        tests:
+          - accepted_values:
+              values: [municipal, estadual, federal, privada, publica]
+      - name: ensino
+        description: Tipo de Ensino
+        tests:
+          - accepted_values:
+              values: [fundamental, medio]
+      - name: anos_escolares
+        description: Anos Escolares
+        tests:
+          - accepted_values:
+              values: [iniciais (1-5), finais (6-9), todos (1-4)]
+      - name: taxa_aprovacao
+        description: Taxa de Aprovação
+      - name: indicador_rendimento
+        description: Indicador de Rendimento
+      - name: nota_saeb_matematica
+        description: Nota SAEB - Matemática
+      - name: nota_saeb_lingua_portuguesa
+        description: Nota SAEB - Língua Portuguesa
+      - name: nota_saeb_media_padronizada
+        description: Nota SAEB - Média Padronizada
+      - name: ideb
+        description: IDEB (Média Padronizada x Indicador de rendimento)
+      - name: projecao
+        description: Projeção
+  - name: br_inep_ideb__brasil
+    description: Dados do Ideb agregados para o Brasil a nível de rede-anos_escolares-ano
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, rede, ensino, anos_escolares]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.7
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: rede
+        description: Rede Escolar (Dependência Administrativa)
+        tests:
+          - accepted_values:
+              values: [estadual, municipal, privada, publica, total]
+      - name: ensino
+        description: Tipo de Ensino
+        tests:
+          - accepted_values:
+              values: [fundamental, medio]
+      - name: anos_escolares
+        description: Anos Escolares
+        tests:
+          - accepted_values:
+              values: [iniciais (1-5), finais (6-9), todos (1-4)]
+      - name: taxa_aprovacao
+        description: Taxa de Aprovação
+      - name: indicador_rendimento
+        description: Indicador de Rendimento (P)
+      - name: nota_saeb_matematica
+        description: Nota SAEB - Matemática
+      - name: nota_saeb_lingua_portuguesa
+        description: Nota SAEB - Língua Portuguesa
+      - name: nota_saeb_media_padronizada
+        description: Nota SAEB - Média Padronizada (N)
+      - name: ideb
+        description: IDEB (Nota SAEB - Média Padronizada x Indicador de Rendimento)
+      - name: projecao
+        description: Projeção
+  - name: br_inep_ideb__uf
+    description: Ideb a nível de UF, por ano, rede e anos escolares.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.7
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: rede
+        description: Rede Escolar
+        tests:
+          - accepted_values:
+              values: [privada, publica, total, estadual]
+      - name: ensino
+        description: Tipo de Ensino
+        test:
+          - accepted_values:
+              values: [medio, fundamental]
+      - name: anos_escolares
+        description: Anos Escolares
+        test:
+          - accepted_values:
+              values: [iniciais (1-5), finais (6-9), todos (1-4)]
+      - name: taxa_aprovacao
+        description: Taxa de Aprovação
+      - name: indicador_rendimento
+        description: Indicador de Rendimento (P)
+      - name: nota_saeb_matematica
+        description: Nota SAEB - Matemática
+      - name: nota_saeb_lingua_portuguesa
+        description: Nota SAEB - Língua Portuguesa
+      - name: nota_saeb_media_padronizada
+        description: Nota SAEB - Média Padronizada (N)
+      - name: ideb
+        description: IDEB (N x P)
+      - name: projecao
+        description: Projeção
+  - name: br_inep_ideb__regiao
+    description: Ideb a nível de região, por ano, rede e anos escolares.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.7
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: regiao
+        description: Região
+      - name: rede
+        description: Rede Escolar
+        tests:
+          - accepted_values:
+              values: [privada, publica, total, estadual]
+      - name: ensino
+        description: Tipo de Ensino
+        test:
+          - accepted_values:
+              values: [medio, fundamental]
+      - name: anos_escolares
+        description: Anos Escolares
+        test:
+          - accepted_values:
+              values: [iniciais (1-5), finais (6-9), todos (1-4)]
+      - name: taxa_aprovacao
+        description: Taxa de Aprovação
+      - name: indicador_rendimento
+        description: Indicador de Rendimento (P)
+      - name: nota_saeb_matematica
+        description: Nota SAEB - Matemática
+      - name: nota_saeb_lingua_portuguesa
+        description: Nota SAEB - Língua Portuguesa
+      - name: nota_saeb_media_padronizada
+        description: Nota SAEB - Média Padronizada (N)
+      - name: ideb
+        description: IDEB (N x P)
+      - name: projecao
+        description: Projeção

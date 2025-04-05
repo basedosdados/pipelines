@@ -1,0 +1,1597 @@
+---
+version: 2
+models:
+  - name: br_inep_saeb__aluno_ef_2ano
+    description: Microdados do SAEB com respostas dos alunos para as avaliações e
+      questionário socioeconômico matriculados no 2º ano do Ensino Fundamental
+    columns:
+      - name: amostra
+        description: Indicador de participação da amostra
+      - name: ano
+        description: Ano
+      - name: area
+        description: Área em relação ao município
+      - name: bloco_1
+        description: Identificador do Bloco 1
+      - name: bloco_1_aberto
+        description: Identificador do Bloco 1 de resposta construída
+      - name: bloco_2
+        description: Identificador do Bloco 2
+      - name: bloco_2_aberto
+        description: Identificador do Bloco 2 de resposta construída
+      - name: caderno
+        description: Número do caderno de prova
+      - name: conceito_elemento
+        description: Conceito obtido para elemento na produção de texto
+      - name: conceito_proposito
+        description: Conceito obtido para propósito na produção de texto
+      - name: conceito_q1
+        description: Conceito obtido na questão 1 de resposta construída
+      - name: conceito_q2
+        description: Conceito obtido na questão 2 de resposta construída
+      - name: conceito_segmentacao
+        description: Conceito obtido para segmentação na produção de texto
+      - name: disciplina
+        description: Disciplina
+      - name: erro_padrao
+        description: Erro padrão da proficiência
+      - name: erro_padrao_saeb
+        description: Erro padrão da proficiência transformada
+      - name: estrato
+        description: Descrição dos estratos
+      - name: id_aluno
+        description: ID Aluno
+      - name: id_escola
+        description: ID escola - INEP
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+      - name: id_regiao
+        description: ID Região
+      - name: id_turma
+        description: ID Turma
+      - name: indicador_proficiencia
+        description: Indicador para cálculo da proficiência (no mínimo três itens
+          respondidos no caderno de prova)
+      - name: localizacao
+        description: Localização da escola
+      - name: peso_aluno
+        description: Peso do aluno
+      - name: preenchimento_caderno
+        description: Indicador de preenchimento da prova
+      - name: presenca
+        description: Indicador de presença na prova
+      - name: proficiencia
+        description: Proficiência do aluno na escala única do SAEB com média = 0 e
+          desvio = 1 na população de referência
+      - name: proficiencia_saeb
+        description: Proficiência do aluno na escala única do SAEB com média = 750
+          e desvio = 50 na população de referência
+      - name: rede
+        description: Rede Escolar
+      - name: respostas_bloco_1
+        description: Respostas do aluno ao Bloco 1 da prova
+      - name: respostas_bloco_2
+        description: Respostas do aluno ao Bloco 2 da prova
+      - name: resposta_texto
+        description: Análise da Produção Textual
+      - name: serie
+        description: Série
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+      - name: situacao_censo
+        description: Indicador de compatibilização com o Censo Escolar 2019(2)
+      - name: texto_grafia
+        description: Conceito obtido para grafia na produção de texto
+      - name: turno
+        description: Turno
+  - name: br_inep_saeb__aluno_ef_5ano
+    description: Microdados do SAEB com respostas dos alunos para as avaliações e
+      questionário socioeconômico matriculados no 5º ano do Ensino Fundamental
+    columns:
+      - name: aluno_bolsa_escola
+        description: O aluno tem Bolsa Escola?
+      - name: alunos_atentos
+        description: Os alunos prestam atenção no que o professor diz na sua sala
+          de aula?
+      - name: alunos_desordeiros
+        description: Os alunos fazem barulho e desordem na sua sala de aula?
+      - name: alunos_obedientes
+        description: Os alunos fazem o que o professor pede na sua sala de aula?
+      - name: amostra
+        description: Indicador de participação da amostra
+      - name: aniversariante
+        description: Você ainda fará aniversário este ano?
+      - name: ano
+        description: Ano
+      - name: ano_mascara
+        description: Ano da Máscara
+      - name: ano_nascimento
+        description: Ano de nascimento
+      - name: area
+        description: Área em relação ao município
+      - name: bloco_1
+        description: Identificador do Bloco 1
+      - name: bloco_2
+        description: Identificador do Bloco 2
+      - name: bloco_3
+        description: Identificador do Bloco 3
+      - name: boas_notas_disciplina
+        description: Neste ano, você teve boas notas ou conceitos nesta disciplina?
+      - name: caderno
+        description: Número do caderno de prova
+      - name: comparacao_colegas_disciplina
+        description: Na disciplina, como você se compara com os seus colegas de turma?
+      - name: com_quem_mora
+        description: Você mora com quem?
+      - name: consulta_jornais_revistas_licao_casa
+        description: Você susa jornais e revistas para fazer suas lições de casa?
+      - name: correcao_licao_casa
+        description: O(A) professor(a) corrige o dever de casa?
+      - name: correcao_licao_casa_alunos
+        description: O seu professor corrige a lição de casa na sala de aula com os
+          alunos?
+      - name: curso_atividades_artisticas
+        description: Você já fez ou está fazendo curso de música, teatro, dança, artes
+          plásticas?
+      - name: curso_idioma_externo
+        description: Você já fez ou está fazendo curso de língua estrangeira?
+      - name: curso_informatica
+        description: Você já fez ou está fazendo curso de computação?
+      - name: curso_reforco_escolar
+        description: Você já fez ou está fazendo aula de reforço escolar?
+      - name: desempenho_aluno
+        description: Estágio de desempenho
+      - name: disciplina
+        description: Disciplina
+      - name: entendimento_ensino
+        description: Você entende o que o professor ensina nas aulas?
+      - name: erro_padrao
+        description: Erro padrão da proficiência
+      - name: erro_padrao_saeb
+        description: Erro padrão da proficiência transformada
+      - name: escola_publica
+        description: Indica se a escola é pública ou não
+      - name: escolaridade_mae
+        description: Qual é a maior escolaridade da sua mãe (ou mulher responsável
+          por você)?
+      - name: escolaridade_pai
+        description: Qual é a maior escolaridade de seu pai (ou homem responsável
+          por você)?
+      - name: escolaridade_pessoa
+        description: Até que série a pessoa indicada acima estudou?
+      - name: estrato
+        description: Descrição dos estratos
+      - name: estuda_fazendo_anotacoes
+        description: Você estuda habitualmente fazendo anotações das aulas?
+      - name: estuda_fazendo_licao_casa
+        description: Você estuda habitualmente fazendo lição de casa?
+      - name: estuda_fazendo_resumos
+        description: Você estuda habitualmente fazendo resumos?
+      - name: estuda_fora_sala_aula
+        description: Você tem tempo para estudar fora da sala de aula?
+      - name: estuda_lendo_anotacoes
+        description: Você estuda habitualmente lendo anotações das aulas?
+      - name: estuda_lendo_relendo_livros
+        description: Você estuda habitualmente lendo/relendo os livros indicados pela
+          escola?
+      - name: estuda_refazendo_exercicios
+        description: Você estuda habitualmente refazendo os exercícios de classe?
+      - name: estuda_somente_assistindo_aulas
+        description: Você não estuda habitualmente, só assiste as aulas?
+      - name: estudos_mesma_escola
+        description: Desde a primeira série, você estudou sempre nesta mesma escola?
+      - name: evasao_escolar_ate_final_ano
+        description: Alguma vez você abandonou a escola deixando de frequentá-la até
+          o final do ano escolar?
+      - name: evasao_escolar_temporaria
+        description: Você abandonou a escola durante algum tempo?
+      - name: existe_lugar_calmo_estudos
+        description: Existe um lugar calmo para estudar em sua casa?
+      - name: faixa_etaria
+        description: Faixa etária para alunos com 15 anos ou mais ou com 8 anos ou
+          menos
+      - name: faltas_aula
+        description: Você faltou as aulas neste ano?
+      - name: faz_licao_casa
+        description: Você faz o dever de casa da disciplina?
+      - name: fez_redacao
+        description: Este ano você fez redação?
+      - name: forma_chegada_escola
+        description: Considerando a maior distância percorrida, normalmente de que
+          forma você chega à sua escola?
+      - name: frequenta_biblioteca
+        description: 'Com qual frequência você costuma ir à/ao: Biblioteca.'
+      - name: frequenta_cinema
+        description: 'Com qual frequência você costuma ir à/ao: Cinema.'
+      - name: frequenta_espetaculo_exposicao
+        description: 'Com qual frequência você costuma ir à/ao: Espetáculo ou exposição
+          (teatro, museu, dança ou música).'
+      - name: frequenta_festas_comunidade
+        description: Com qual frequência você participa de festas na sua vizinhaça
+          ou comunidade?
+      - name: frequenta_museu
+        description: 'Com qual frequência você costuma ir à/ao: Museu.'
+      - name: frequenta_show
+        description: 'Com qual frequência você costuma ir à/ao: Ver apresentações
+          musicais ou de dança'
+      - name: frequenta_teatro
+        description: 'Com qual frequência você costuma ir à/ao: Ver apresentações
+          teatrais'
+      - name: gabarito_bloco_1
+        description: Gabarito do Bloco 1 do caderno de provas
+      - name: gabarito_bloco_2
+        description: Gabarito do Bloco 2 do caderno de provas
+      - name: gabarito_bloco_3
+        description: Gabarito do Bloco 3 do caderno de provas
+      - name: gosta_estudar_disciplina
+        description: Você gosta de estudar esta disciplina?
+      - name: gosta_leitura
+        description: Você gosta de ler?
+      - name: idade
+        description: Idade
+      - name: idade_entrada_escola
+        description: Com que idade você entrou na escola?
+      - name: id_aluno
+        description: ID Aluno
+      - name: id_escola
+        description: ID escola - INEP
+      - name: idioma_domicilio
+        description: Qual língua você fala com mais frequência em sua casa?
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+      - name: id_regiao
+        description: ID Região
+      - name: id_turma
+        description: ID Turma
+      - name: indicador_inse
+        description: Indicador para cálculo do INSE
+      - name: indicador_proficiencia
+        description: Indicador para cálculo da proficiência (no mínimo três itens
+          respondidos no caderno de prova)
+      - name: indicador_prova_brasil
+        description: Indicador de participação na Prova Brasil
+      - name: inicio_estudos
+        description: Quando você começou a estudar?
+      - name: inse
+        description: Resultado individual do INSE para o aluno
+      - name: leitura_historia_quadrinhos
+        description: Leu ou costuma ler revistas em quadrinhos (mangás, gibis, etc.)?
+      - name: leitura_internet
+        description: 'Com qual frequência você lê: Notícias na internet (ex.: blog,
+          notícia).'
+      - name: leitura_jornais
+        description: Leu jornais este ano?
+      - name: leitura_literatura
+        description: Leu livros de ficção, romances este ano?
+      - name: leitura_literatura_infantojuvenil
+        description: 'Com que frequência você costuma: - Ler literatura infanto-juvenil,
+          literatural em geral'
+      - name: leitura_livros_geral
+        description: 'Com que frequência você costuma: - Ler livros que não sejam
+          das matérias escolares.'
+      - name: leitura_noticias
+        description: 'Com que frequência você costuma: - Ler notícias (jornais, revistas,
+          internet etc.).'
+      - name: leitura_outros_materiais
+        description: Leu outros materiais de leitura este ano?
+      - name: leitura_revista_comportamento
+        description: 'Com qual frequência você lê: Revistas de comportamento, celebridades,
+          esportes ou TV'
+      - name: leitura_revistas_geral
+        description: Leu ou costuma ler revistas em geral
+      - name: leitura_revistas_tematicas
+        description: Leu revistas sobre esportes, música, automóveis, etc. esse ano?
+      - name: localizacao
+        description: Localização da escola
+      - name: mae_le
+        description: Você vê sua mãe, ou mulher responsável por você, lendo?
+      - name: mae_sabe_ler_escrever
+        description: Sua mãe, ou a mulher responsável por você, sabe ler e escrever?
+      - name: mascara
+        description: Número gerado como código de acesso aos Estabelecimentos de Ensino
+          Básico. Este código é o mesmo para todos os Microdados contendo informações
+          sobre os Estabelecimentos no ano de referência
+      - name: mes_nascimento
+        description: Mês de nascimento
+      - name: mora_amigos
+        description: Normalmente, quem mora na sua casa? - Amigos
+      - name: mora_avos
+        description: Normalmente, quem mora na sua casa? - Avô ou avó.
+      - name: mora_irmaos
+        description: Normalmente, quem mora na sua casa? - Irmão(s) ou irmã(s).
+      - name: mora_mae
+        description: Normalmente, quem mora na sua casa? - Mãe (mães ou madrasta).
+      - name: mora_outros_parentes
+        description: Normalmente, quem mora na sua casa? - Outros parentes (tios,
+          primos etc.).
+      - name: mora_pai
+        description: Normalmente, quem mora na sua casa? - Pai (pais ou padrasto).
+      - name: motivo_estar_escola
+        description: 'Você está na escola porque:'
+      - name: motivo_evasao_escolar
+        description: Caso você tenha deixado a escola por algum período, qual foi
+          o motivo?
+      - name: motivo_faltas
+        description: Qual o motivo de suas faltas neste ano?
+      - name: nivel_inse
+        description: Classificação do Indicador de Nível Socioeconômico em grupos
+      - name: ocupacao_mae
+        description: Sua mãe, ou a mulher responsável por você, está trabalhando atualmente?
+      - name: ocupacao_pai
+        description: Seu pai, ou homem responsável por você, está trabalhando atualmente
+      - name: opiniao_teste
+        description: 'Você achou o teste:'
+      - name: pai_le
+        description: Você vê o seu pai, ou homem responsável por você, lendo?
+      - name: pai_sabe_ler_escrever
+        description: Seu pai, ou homem responsável por você, sabe ler e escrever?
+      - name: pandemia_ambiente_tranquilo
+        description: 'Durante a pandemia, indique a frequência com que os seguintes
+          fatos ocorreram: - Em casa havia um lugar tranquilo para eu assistir às
+          aulas.'
+      - name: pandemia_apoio_colegas
+        description: 'Durante a pandemia, indique a frequência com que os seguintes
+          fatos ocorreram: - Meus colegas me apoiaram durante o ensino remoto.'
+      - name: pandemia_apoio_familia
+        description: 'Durante a pandemia, indique a frequência com que os seguintes
+          fatos ocorreram: - Meus familiares apoiaram o meu estudo.'
+      - name: pandemia_auxilio_professor
+        description: 'Durante a pandemia, indique a frequência com que os seguintes
+          fatos ocorreram: - Os professores me auxiliaram a entender o conteúdo.'
+      - name: pandemia_compreensao_conteudo
+        description: 'Durante a pandemia, indique a frequência com que os seguintes
+          fatos ocorreram: - Eu compreendi o conteúdo das aulas remotas.'
+      - name: pandemia_equipamento_ensino_remoto
+        description: 'Durante a pandemia, indique a frequência com que os seguintes
+          fatos ocorreram: - Eu possuía equipamento adequado para acompanhar o ensino
+          remoto.'
+      - name: pandemia_facilidade_programas
+        description: 'Durante a pandemia, indique a frequência com que os seguintes
+          fatos ocorreram: - Tive facilidade em usar os programas de comunicação nas
+          aulas remotas.'
+      - name: pandemia_internet_ensino_remoto
+        description: 'Durante a pandemia, indique a frequência com que os seguintes
+          fatos ocorreram: - Eu tive conexão de internet adequada para acesso às aulas
+          remotas.'
+      - name: pandemia_recebeu_material
+        description: 'Durante a pandemia, indique a frequência com que os seguintes
+          fatos ocorreram: - Recebi material impresso da escola (livros, apostilas,
+          atividades em folha etc.).'
+      - name: participa_atividades_artisticas
+        description: Além das aulas, você participa de atividades como musica, teatro,
+          trabalhos manuais?
+      - name: participa_atividades_esporte
+        description: Além das aulas, você participa de atividades como esportes?
+      - name: participa_excursao_acampamento
+        description: Além das aulas, você participa de atividades como excursões e
+          acampamentos?
+      - name: participa_festas
+        description: Além das aulas, você participa de atividades como festas e outras
+          comemorações?
+      - name: participa_reforco_escolar
+        description: Além das aulas, você participa de atividades como aulas de reforço
+          escolar ou recuperação?
+      - name: participa_trabalho_solidario
+        description: Além das aulas, você participa de atividades como trabalho solidário?
+      - name: peso_aluno
+        description: Peso do aluno
+      - name: peso_aluno_turma
+        description: Peso do aluno na turma
+      - name: peso_escola
+        description: Peso da escola
+      - name: peso_inse
+        description: Peso do aluno para o cálculo do INSE
+      - name: peso_turma
+        description: Peso da turma
+      - name: pessoa_acompanha_vida_escolar
+        description: Quem é a pessoa que acompanha mais de perto sua vida escolar?
+      - name: possui_agua_encanada
+        description: 'Na região que você mora tem: - Água tratada da rua/Água encanada'
+      - name: possui_amigos_sala
+        description: Você tem muitos amigos na sua sala de aula?
+      - name: possui_aspirador_po
+        description: 'Na sua casa tem: - Aspirador de pó.'
+      - name: possui_atlas
+        description: 'Na sua casa tem: - Atlas'
+      - name: possui_automovel
+        description: 'Na sua casa tem:  - Carro.'
+      - name: possui_calculadora
+        description: 'Na sua casa tem: - Calculadora'
+      - name: possui_casa_banheiro
+        description: 'Na sua casa tem:  - Banheiro.'
+      - name: possui_casa_cozinha
+        description: 'Na sua casa tem:  - Cozinha'
+      - name: possui_casa_dormitorio
+        description: 'Na sua casa tem:  - Quartos para dormir.'
+      - name: possui_casa_garagem
+        description: 'Na sua casa tem:  - Garagem'
+      - name: possui_casa_quarto_individual
+        description: 'Na sua casa tem:  - Um quarto só seu.'
+      - name: possui_casa_sala
+        description: 'Na sua casa tem: - Sala'
+      - name: possui_celular
+        description: 'Na sua casa tem: - Telefone celular'
+      - name: possui_computador
+        description: 'Na sua casa tem:  - Computador (ou notebook)'
+      - name: possui_computador_sem_internet
+        description: 'Na sua casa tem:  - Computador (ou notebook) sem internet'
+      - name: possui_dicionario
+        description: 'Na sua casa tem:  - Dicionário'
+      - name: possui_eletrecidade
+        description: 'Na região que você mora tem: - Iluminação na rua.'
+      - name: possui_eletrodomestico_sem_eletricidade
+        description: Não tem eletricidade, mas tem eletrodomestico em casa?
+      - name: possui_empregada_domestica
+        description: Na sua casa trabalha alguma empregada doméstica?
+      - name: possui_empregada_domestica_cinco_dias
+        description: Em sua casa trabalha empregado(a) doméstico(a) pelo menos cinco
+          dias por semana?
+      - name: possui_enciclopedia
+        description: 'Na sua casa tem:  - Enciclopédia'
+      - name: possui_escrivaninha
+        description: 'Na sua casa tem: - Mesa para estudar (ou escrivaninha).'
+      - name: possui_freezer
+        description: 'Na sua casa tem: - Freezer (independente ou segunda porta da
+          geladeira).'
+      - name: possui_geladeira
+        description: 'Na sua casa tem:  - Geladeira.'
+      - name: possui_geladeira_freezer
+        description: 'Na sua casa tem: - Freezer (parte da geladeira duplex).'
+      - name: possui_internet
+        description: 'Na sua casa tem: - Internet/Rede Wi-Fi.'
+      - name: possui_maquina_lavar_roupa
+        description: 'Na sua casa tem: - Máquina de lavar roupa.'
+      - name: possui_microondas
+        description: 'Na sua casa tem: - Forno de microondas.'
+      - name: possui_moradia_rua_urbanizada
+        description: 'Na região que você mora tem: - Rua pavimentada (asfalto ou calçamento).'
+      - name: possui_necessidade_especial
+        description: Você possui algum tipo de necessidade especial?
+      - name: possui_radio
+        description: 'Na sua casa tem: - Aparelho de rádio'
+      - name: possui_tablet
+        description: 'Na sua casa tem:  - Tablet.'
+      - name: possui_telefone
+        description: 'Na sua casa tem: - Telefone residencial'
+      - name: possui_trabalho
+        description: Você trabalha fora de casa? Se sim, qual a carga horária?
+      - name: possui_tv
+        description: 'Na sua casa tem:  - Televisão.'
+      - name: possui_tv_assinatura
+        description: 'Na sua casa tem: - Tv a cabo (Ex.:Net©, Sky© etc.).'
+      - name: possui_videocassete_dvd
+        description: 'Na sua casa tem: - Videocassete e/ou DVD'
+      - name: preenchimento_caderno
+        description: Indicador de preenchimento da prova
+      - name: preenchimento_questionario
+        description: Indicador de preenchimento do questionário
+      - name: presenca
+        description: Indicador de presença na prova
+      - name: pretensao_futura
+        description: 'Quando você terminar o 5º ano(4ª série) você pretende:'
+      - name: professor_conversa_avaliacao
+        description: Seu professor conversa com os alunos sobre avaliação?
+      - name: professor_disciplina
+        description: 'O professor da disciplina:'
+      - name: professor_elogia_merecimento
+        description: Seus professores elogiam ou dão parabéns quando você tira boas
+          notas?
+      - name: professor_esforca_aprendizado
+        description: Seu professor dá uma força para você estudar mais quando não
+          tira notas boas?
+      - name: professor_importa_voce_diz
+        description: Seu professor dá importância ao que você diz?
+      - name: professor_leitura_livros_licao_casa
+        description: O professor da disciplina costuma passar leitura de livros e
+          revistas como lição de casa?
+      - name: professor_trata_carinho
+        description: Seu professor te trata com carinho?
+      - name: proficiencia
+        description: Proficiência do aluno na escala única do SAEB com média = 0 e
+          desvio = 1 na população de referência
+      - name: proficiencia_saeb
+        description: Proficiência do aluno na escala única do SAEB com média = 750
+          e desvio = 50 na população de referência
+      - name: quando_nao_entende_materia
+        description: 'Quando você não entende a matéria:'
+      - name: quantidade_livros
+        description: Além dos livros escolares, quantos livros têm em sua casa?
+      - name: quantidade_mudancas_escola
+        description: Desde o 1º ano, quantas vezes você já mudou de escola?
+      - name: quantidade_pessoas_despesas_domicilio
+        description: Quantas pessoas ajudam a pagar as despesas da casa?
+      - name: quantidade_pessoas_domicilio
+        description: Incluindo você, quantas pessoas vivem atualmente em sua casa?
+      - name: quantos_anos_primeiro_grau
+        description: Há quantos anos você está no 1º grau?
+      - name: raca_cor
+        description: Raça ou Cor
+      - name: recebe_jornais
+        description: Na sua casa chega jornal para ler?
+      - name: recebe_revistas
+        description: Na sua casa chegam revistas de informação geral (Veja, Época)?
+      - name: rede
+        description: Rede Escolar
+      - name: rede_ef
+        description: A partir do primeiro ano do ensino fundamental, em que tipo de
+          escola você estudou?
+      - name: reprovacao
+        description: Você já foi reprovado?
+      - name: responsaveis_ajudam_realizacao_licao_casa
+        description: Com que frequencia seus pais ajudam a fazer lição de casa?
+      - name: responsaveis_almocam_jantam_contigo
+        description: Seus pais ou responsáves almoçam ou jantam com você?
+      - name: responsaveis_cobram_realizacao_licao_casa
+        description: 'Com que frequência seus pais ou responsáveis costumam: - Cobram
+          você a fazer a tarefa de casa.'
+      - name: responsaveis_comparecem_reuniao_pais
+        description: 'Com que frequência seus pais ou responsáveis costumam: - Ir
+          às reuniões de pais na escola.'
+      - name: responsaveis_conhecem_amigo
+        description: 'Seu pai ou sua mãe conhecem: - Algum amigo seu?'
+      - name: responsaveis_conhecem_diretor
+        description: 'Seu pai ou sua mãe conhecem: - O diretor da sua escola?'
+      - name: responsaveis_conhecem_professor
+        description: 'Seu pai ou sua mãe conhecem: - Seu(sua) professor(a)?'
+      - name: responsaveis_conhecem_responsavel_amigo
+        description: 'Seu pai ou sua mãe conhecem: - Algum pai/mãe de amigo seu?'
+      - name: responsaveis_conversam_amigos
+        description: Seus pais ou responsáveis conversam com seus amigos?
+      - name: responsaveis_conversam_boletim
+        description: Quantas vezes seus pais vieram a escola para conversar sobre
+          seu boletim?
+      - name: responsaveis_conversam_comportamento
+        description: Quantas vezes seus pais vieram a escola para atender a chamados
+          relativos ao seu comportamento?
+      - name: responsaveis_conversam_escola
+        description: 'Com que frequência seus pais ou responsáveis costumam: - Conversar
+          com você sobre o que acontece na escola.'
+      - name: responsaveis_conversam_filmes_contigo
+        description: Seus pais ou responsáveis conversam sobre filmes com você?
+      - name: responsaveis_conversam_livros_contigo
+        description: Seus pais ou responsáveis conversam sobre livros com você?
+      - name: responsaveis_conversam_outros_assuntos_contigo
+        description: Com que frequencia seus pais conversam sobre outros assuntos
+          com você?
+      - name: responsaveis_conversam_professor_diretor
+        description: Quantas vezes seus pais vieram a escola para conversar com professores/diretor?
+      - name: responsaveis_conversam_programas_tv_contigo
+        description: Seus pais ou responsáveis conversam sobre programas de TV com
+          você?
+      - name: responsaveis_conversam_responsaveis_amigo
+        description: Com que frequencia seus pais tem conversado com pai/mae/responsável
+          de amigo seu?
+      - name: responsaveis_incentivam_boas_notas
+        description: 'Com que frequência seus pais ou responsáveis costumam: - Incentivar
+          você a tirar boas notas'
+      - name: responsaveis_incentivam_comparecer_aulas
+        description: 'Com que frequência seus pais ou responsáveis costumam: - Incentivar
+          você a comparecer às aulas.'
+      - name: responsaveis_incentivam_estudos
+        description: 'Com que frequência seus pais ou responsáveis costumam: - Incentivar
+          você a estudar.'
+      - name: responsaveis_incentivam_leitura
+        description: Seus pais ou responsáveis incentivam você a ler?
+      - name: responsaveis_incentivam_pontualidade
+        description: Com que frequencia seus pais procuram fazer com que não chegue
+          atrasado na escola?
+      - name: responsaveis_incentivam_realizacao_licao_casa
+        description: 'Com que frequência seus pais ou responsáveis costumam: - Incentivar
+          você a fazer a tarefa de casa.'
+      - name: responsaveis_leem
+        description: 'Com que frequência seus pais ou responsáveis costumam: - Ler
+          em casa'
+      - name: responsaveis_ouvem_musica_contigo
+        description: Seus pais ou responsáveis ouvem música com você?
+      - name: responsaveis_participam_festas_escola
+        description: Quantas vezes seus pais vieram a escola para festas na escola?
+      - name: responsaveis_participam_trabalho_voluntario
+        description: Quantas vezes seus pais vieram a escola para trabalho voluntário?
+      - name: respostas_bloco_1
+        description: Respostas do aluno ao Bloco 1 da prova
+      - name: respostas_bloco_2
+        description: Respostas do aluno ao Bloco 2 da prova
+      - name: respostas_bloco_3
+        description: Respostas do aluno ao Bloco 3 da prova
+      - name: serie
+        description: Série
+      - name: sexo
+        description: Sexo
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+      - name: situacao_censo
+        description: Indicador de compatibilização com o Censo Escolar
+      - name: tempo_chegada_escola
+        description: Quanto tempo você demora para chegar à sua escola?
+      - name: tempo_cursos
+        description: 'Fora da escola em dias de aula, quanto tempo você usa para:
+          - Fazer cursos.'
+      - name: tempo_estudos
+        description: 'Fora da escola em dias de aula, quanto tempo você usa para:
+          - Estudar (lição de casa, trabalhos escolares, etc.).'
+      - name: tempo_lazer
+        description: 'Fora da escola em dias de aula, quanto tempo você usa para:
+          - Lazer (TV, internet, jogar bola, música etc.).'
+      - name: tempo_licao_casa
+        description: Quanto tempo você gasta para fazer as lições de casa?
+      - name: tempo_trabalho_domestico
+        description: 'Fora da escola em dias de aula, quanto tempo você usa para:
+          - Fazer trabalhos domésticos (lavar louça, limpar quintal, cuidar dos irmãos).'
+      - name: tipo_leitura
+        description: O que você mais gosta de ler?
+      - name: tipo_programacao_tv
+        description: A que tipo de programaçaõ de televisão você mais assiste?
+      - name: transporte_escolar
+        description: Você se utiliza de transporte escolar ou passe escolar, para
+          ir à escola?
+      - name: turma_bolsa_escola
+        description: A turma tem aluno Bolsa Escola?
+      - name: turma_exclui
+        description: Na sua turma, você se sente deixado de lado?
+      - name: turno
+        description: Turno
+      - name: utiliza_aprendizado_diariamente
+        description: Você usa o que aprende da disciplina na escola, no seu dia a
+          dia?
+      - name: utiliza_biblioteca_escola
+        description: Você utiliza a biblioteca ou sala de leitura da sua escola?
+      - name: utiliza_biblioteca_externa
+        description: Você lê ou faz consulta na biblioteca fora da escola?
+      - name: utiliza_computador
+        description: Você sabe usar computador?
+      - name: utiliza_computador_escola
+        description: Você usa computador na escola?
+      - name: utiliza_computador_licao_casa
+        description: Você usa computador para lição/trabalho da disciplina?
+  - name: br_inep_saeb__aluno_ef_9ano
+    description: Microdados do SAEB com respostas dos alunos para as avaliações e
+      questionário socioeconômico matriculados no 9º ano do Ensino Fundamental
+    columns:
+      - name: aluno_bolsa_escola
+        description: O aluno tem Bolsa Escola?
+      - name: alunos_atentos
+        description: Os alunos prestam atenção no que o professor diz na sua sala
+          de aula?
+      - name: alunos_desordeiros
+        description: Os alunos fazem barulho e desordem na sua sala de aula?
+      - name: alunos_obedientes
+        description: Os alunos fazem o que o professor pede na sua sala de aula?
+      - name: amostra
+        description: Indicador de participação da amostra
+      - name: ano
+        description: Ano
+      - name: ano_mascara
+        description: Ano da Máscara
+      - name: ano_nascimento
+        description: Ano de nascimento
+      - name: area
+        description: Área em relação ao município
+      - name: bloco_1
+        description: Identificador do Bloco 1
+      - name: bloco_1_aberto
+        description: Identificador do Bloco Aberto 1
+      - name: bloco_2
+        description: Identificador do Bloco 2
+      - name: bloco_2_aberto
+        description: Identificador do Bloco Aberto 2
+      - name: bloco_3
+        description: Identificador do Bloco 3
+      - name: boas_notas_disciplina
+        description: Neste ano, você teve boas notas ou conceitos nesta disciplina?
+      - name: brigou_professor
+        description: Você brigou com algum professor este ano?
+      - name: caderno
+        description: Número do caderno de prova
+      - name: comparacao_colegas_disciplina
+        description: Na disciplina, como você se compara com os seus colegas de turma?
+      - name: com_quem_mora
+        description: Você mora com quem?
+      - name: conceito_q1
+        description: Conceito questão 1
+      - name: conceito_q2
+        description: Conceito questão 2
+      - name: consulta_jornais_revistas_licao_casa
+        description: Você susa jornais e revistas para fazer suas lições de casa?
+      - name: correcao_licao_casa
+        description: O(A) professor(a) corrige o dever de casa?
+      - name: correcao_licao_casa_alunos
+        description: O seu professor corrige a lição de casa na sala de aula com os
+          alunos?
+      - name: curso_atividades_artisticas
+        description: Você já fez ou está fazendo curso de música, teatro, dança, artes
+          plásticas?
+      - name: curso_idioma_externo
+        description: Você já fez ou está fazendo curso de língua estrangeira?
+      - name: curso_informatica
+        description: Você já fez ou está fazendo curso de computação?
+      - name: curso_outros
+        description: Você já fez ou está fazendo algum outro curso?
+      - name: curso_reforco_escolar
+        description: Você já fez ou está fazendo aula de reforço escolar?
+      - name: desempenho_aluno
+        description: Estágio de desempenho
+      - name: desempenho_disciplina
+        description: Como você considera seu desempenho em ciências?
+      - name: desempenho_prejudicado_falta
+        description: O seu desempenho na disciplina é prejudicado quando você falta
+          ou chega atrasado a aula?
+      - name: disciplina
+        description: Disciplina
+      - name: disciplina_auxilia_compreensao
+        description: As aulas da disciplina ajudam você a compreender melhor as outras
+          matérias?
+      - name: entendimento_ensino
+        description: Você entende o que o professor ensina nas aulas?
+      - name: erro_padrao
+        description: Erro padrão da proficiência
+      - name: erro_padrao_saeb
+        description: Erro padrão da proficiência transformada
+      - name: escola_publica
+        description: Indica se a escola é pública ou não
+      - name: escolaridade_mae
+        description: Qual é a maior escolaridade da sua mãe (ou mulher responsável
+          por você)?
+      - name: escolaridade_pai
+        description: Qual é a maior escolaridade de seu pai (ou homem responsável
+          por você)?
+      - name: escolaridade_pessoa
+        description: Até que série a pessoa indicada acima estudou?
+      - name: estado_civil
+        description: Estado civil
+      - name: estrato
+        description: Descrição dos estratos
+      - name: estuda_habitualmente
+        description: Você estuda habitualmente?
+      - name: evasao_escolar_ate_final_ano
+        description: Alguma vez você abandonou a escola deixando de frequentá-la até
+          o final do ano escolar?
+      - name: evasao_escolar_temporaria
+        description: Você abandonou a escola durante algum tempo?
+      - name: existe_lugar_calmo_estudos
+        description: Existe um lugar calmo para estudar em sua casa?
+      - name: faixa_etaria
+        description: Faixa etária para alunos com 19 anos ou mais ou com 12 anos ou
+          menos
+      - name: faltas_aula
+        description: Você faltou as aulas neste ano?
+      - name: familia_avisada_falta
+        description: Quando você falta às aulas, sua família é avisada?
+      - name: faz_licao_casa
+        description: Você faz o dever de casa da disciplina?
+      - name: fez_redacao
+        description: Este ano você fez redação?
+      - name: forma_chegada_escola
+        description: Considerando a maior distância percorrida, normalmente de que
+          forma você chega à sua escola?
+      - name: frequenta_biblioteca
+        description: 'Com qual frequência você costuma ir à/ao: Biblioteca.'
+      - name: frequenta_cinema
+        description: 'Com qual frequência você costuma ir à/ao: Cinema.'
+      - name: frequenta_espetaculo_exposicao
+        description: 'Com qual frequência você costuma ir à/ao: Espetáculo ou exposição
+          (teatro, museu, dança ou música).'
+      - name: frequenta_festas_comunidade
+        description: Com qual frequência você participa de festas na sua vizinhaça
+          ou comunidade?
+      - name: frequenta_show
+        description: 'Com qual frequência você costuma ir à/ao: Ver apresentações
+          musicais ou de dança'
+      - name: frequenta_teatro
+        description: 'Com qual frequência você costuma ir à/ao: Ver apresentações
+          teatrais'
+      - name: gabarito_bloco_1
+        description: Gabarito do Bloco 1 do caderno de provas
+      - name: gabarito_bloco_2
+        description: Gabarito do Bloco 2 do caderno de provas
+      - name: gabarito_bloco_3
+        description: Gabarito do Bloco 3 do caderno de provas
+      - name: gosta_estudar_disciplina
+        description: Você gosta de estudar esta disciplina?
+      - name: idade
+        description: Idade
+      - name: idade_entrada_escola
+        description: Com que idade você entrou na escola?
+      - name: id_aluno
+        description: ID Aluno
+      - name: id_escola
+        description: ID escola - INEP
+      - name: idioma_domicilio
+        description: Qual língua você fala com mais frequência em sua casa?
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+      - name: id_regiao
+        description: ID Região
+      - name: id_turma
+        description: ID Turma
+      - name: indicador_inse
+        description: Indicador para cálculo do INSE
+      - name: indicador_proficiencia
+        description: Indicador para cálculo da proficiência (no mínimo três itens
+          respondidos no caderno de prova)
+      - name: indicador_prova_brasil
+        description: Indicador de participação na Prova Brasil
+      - name: inicio_estudos
+        description: Quando você começou a estudar?
+      - name: inse
+        description: Resultado individual do INSE para o aluno
+      - name: leitura_historia_quadrinhos
+        description: Leu ou costuma ler revistas em quadrinhos (mangás, gibis, etc.)?
+      - name: leitura_internet
+        description: 'Com qual frequência você lê: Notícias na internet (ex.: blog,
+          notícia).'
+      - name: leitura_jornais
+        description: Leu jornais este ano?
+      - name: leitura_literatura
+        description: Leu livros de ficção, romances este ano?
+      - name: leitura_literatura_infantojuvenil
+        description: 'Com que frequência você costuma: - Ler literatura infanto-juvenil,
+          literatural em geral'
+      - name: leitura_livros_geral
+        description: 'Com que frequência você costuma: - Ler livros que não sejam
+          das matérias escolares.'
+      - name: leitura_noticias
+        description: 'Com que frequência você costuma: - Ler notícias (jornais, revistas,
+          internet etc.).'
+      - name: leitura_outros_materiais
+        description: Leu outros materiais de leitura este ano?
+      - name: leitura_revista_comportamento
+        description: 'Com qual frequência você lê: Revistas de comportamento, celebridades,
+          esportes ou TV'
+      - name: leitura_revistas_geral
+        description: Leu ou costuma ler revistas em geral
+      - name: leitura_revistas_tematicas
+        description: Leu revistas sobre esportes, música, automóveis, etc. esse ano?
+      - name: localizacao
+        description: Localização da escola
+      - name: mae_le
+        description: Você vê sua mãe, ou mulher responsável por você, lendo?
+      - name: mae_sabe_ler_escrever
+        description: Sua mãe, ou a mulher responsável por você, sabe ler e escrever?
+      - name: mascara
+        description: Número gerado como código de acesso aos Estabelecimentos de Ensino
+          Básico. Este código é o mesmo para todos os Microdados contendo informações
+          sobre os Estabelecimentos no ano de referência
+      - name: mes_nascimento
+        description: Mês de nascimento
+      - name: mora_amigos
+        description: Normalmente, quem mora na sua casa? - Amigos
+      - name: mora_avos
+        description: Normalmente, quem mora na sua casa? - Avô ou avó.
+      - name: mora_conjuge
+        description: Normalmente, quem mora na sua casa? - Sua esposa/seu marido
+      - name: mora_filhos
+        description: Normalmente, quem mora na sua casa? - Suas filhas/seus filhos
+      - name: mora_irmaos
+        description: Normalmente, quem mora na sua casa? - Irmão(s) ou irmã(s).
+      - name: mora_mae
+        description: Normalmente, quem mora na sua casa? - Mãe (mães ou madrasta).
+      - name: mora_outros_parentes
+        description: Normalmente, quem mora na sua casa? - Outros parentes (tios,
+          primos etc.).
+      - name: mora_pai
+        description: Normalmente, quem mora na sua casa? - Pai (pais ou padrasto).
+      - name: motivo_estar_escola
+        description: 'Você está na escola porque:'
+      - name: motivo_evasao_escolar
+        description: Caso você tenha deixado a escola por algum período, qual foi
+          o motivo?
+      - name: motivo_faltas
+        description: Qual o motivo de suas faltas neste ano?
+      - name: nao_participa
+        description: Você participa de outras atividades promovidas por nenhum destes?
+      - name: nivel_inse
+        description: Classificação do Indicador de Nível Socioeconômico em grupos
+      - name: ocupacao_mae
+        description: Sua mãe, ou a mulher responsável por você, está trabalhando atualmente?
+      - name: ocupacao_pai
+        description: Seu pai, ou homem responsável por você, está trabalhando atualmente
+      - name: opiniao_frase_1
+        description: 'Dê sua opinião sobre a frase: "O professor se esforça para que
+          eu aprenda a disciplina"'
+      - name: opiniao_frase_2
+        description: 'Dê sua opinião sobre a frase: "Eu gosto de ler"'
+      - name: opiniao_frase_3
+        description: 'Dê sua opinião sobre a frase: "A leitura me ajuda a viver no
+          mundo atual"'
+      - name: opiniao_teste
+        description: 'Você achou o teste:'
+      - name: pai_le
+        description: Você vê o seu pai, ou homem responsável por você, lendo?
+      - name: pai_sabe_ler_escrever
+        description: Seu pai, ou homem responsável por você, sabe ler e escrever?
+      - name: pandemia_ambiente_tranquilo
+        description: 'Durante a pandemia, indique a frequência com que os seguintes
+          fatos ocorreram: - Em casa havia um lugar tranquilo para eu assistir às
+          aulas.'
+      - name: pandemia_apoio_colegas
+        description: 'Durante a pandemia, indique a frequência com que os seguintes
+          fatos ocorreram: - Meus colegas me apoiaram durante o ensino remoto.'
+      - name: pandemia_apoio_familia
+        description: 'Durante a pandemia, indique a frequência com que os seguintes
+          fatos ocorreram: - Meus familiares apoiaram o meu estudo.'
+      - name: pandemia_auxilio_professor
+        description: 'Durante a pandemia, indique a frequência com que os seguintes
+          fatos ocorreram: - Os professores me auxiliaram a entender o conteúdo.'
+      - name: pandemia_compreensao_conteudo
+        description: 'Durante a pandemia, indique a frequência com que os seguintes
+          fatos ocorreram: - Eu compreendi o conteúdo das aulas remotas.'
+      - name: pandemia_equipamento_ensino_remoto
+        description: 'Durante a pandemia, indique a frequência com que os seguintes
+          fatos ocorreram: - Eu possuía equipamento adequado para acompanhar o ensino
+          remoto.'
+      - name: pandemia_facilidade_programas
+        description: 'Durante a pandemia, indique a frequência com que os seguintes
+          fatos ocorreram: - Tive facilidade em usar os programas de comunicação nas
+          aulas remotas.'
+      - name: pandemia_internet_ensino_remoto
+        description: 'Durante a pandemia, indique a frequência com que os seguintes
+          fatos ocorreram: - Eu tive conexão de internet adequada para acesso às aulas
+          remotas.'
+      - name: pandemia_recebeu_material
+        description: 'Durante a pandemia, indique a frequência com que os seguintes
+          fatos ocorreram: - Recebi material impresso da escola (livros, apostilas,
+          atividades em folha etc.).'
+      - name: participa_associacao_desportiva
+        description: Você participa de outras atividades promovidas pela Associação
+          Desportiva?
+      - name: participa_associacao_moradores
+        description: Você participa de outras atividades promovidas pela Associação
+          de Moradores?
+      - name: participa_atividades_artisticas
+        description: Além das aulas, você participa de atividades como musica, teatro,
+          trabalhos manuais?
+      - name: participa_atividades_esporte
+        description: Além das aulas, você participa de atividades como esportes?
+      - name: participa_excursao_acampamento
+        description: Além das aulas, você participa de atividades como excursões e
+          acampamentos?
+      - name: participa_festas
+        description: Além das aulas, você participa de atividades como festas e outras
+          comemorações?
+      - name: participa_gremio_escolar
+        description: Você participa de outras atividades promovidas pelo Grêmio Escolar?
+      - name: participa_movimento_religioso
+        description: Você participa de outras atividades promovidas por movimento
+          religioso?
+      - name: participa_ong
+        description: Você participa de outras atividades promovidas por organizações
+          não-governamentais?
+      - name: participa_partido_politico
+        description: Você participa de outras atividades promovidas por partido político?
+      - name: participa_reforco_escolar
+        description: Além das aulas, você participa de atividades como aulas de reforço
+          escolar ou recuperação?
+      - name: participa_sindicato
+        description: Você participa de outras atividades promovidas pelo Sindicato?
+      - name: participa_trabalho_solidario
+        description: Além das aulas, você participa de atividades como trabalho solidário?
+      - name: peso_aluno
+        description: Peso do aluno
+      - name: peso_aluno_turma
+        description: Peso do aluno na turma
+      - name: peso_escola
+        description: Peso da escola
+      - name: peso_inse
+        description: Peso do aluno para o cálculo do INSE
+      - name: peso_turma
+        description: Peso da turma
+      - name: pessoa_acompanha_vida_escolar
+        description: Quem é a pessoa que acompanha mais de perto sua vida escolar?
+      - name: possui_agua_encanada
+        description: 'Na região que você mora tem: - Água tratada da rua/Água encanada'
+      - name: possui_amigos_sala
+        description: Você tem muitos amigos na sua sala de aula?
+      - name: possui_aspirador_po
+        description: 'Na sua casa tem: - Aspirador de pó.'
+      - name: possui_atlas
+        description: 'Na sua casa tem: - Atlas'
+      - name: possui_automovel
+        description: 'Na sua casa tem:  - Carro.'
+      - name: possui_calculadora
+        description: 'Na sua casa tem: - Calculadora'
+      - name: possui_casa_banheiro
+        description: 'Na sua casa tem:  - Banheiro.'
+      - name: possui_casa_cozinha
+        description: 'Na sua casa tem:  - Cozinha'
+      - name: possui_casa_dormitorio
+        description: 'Na sua casa tem:  - Quartos para dormir.'
+      - name: possui_casa_garagem
+        description: 'Na sua casa tem:  - Garagem'
+      - name: possui_casa_quarto_individual
+        description: 'Na sua casa tem:  - Um quarto só seu.'
+      - name: possui_casa_sala
+        description: 'Na sua casa tem: - Sala'
+      - name: possui_celular
+        description: 'Na sua casa tem: - Telefone celular'
+      - name: possui_computador
+        description: 'Na sua casa tem:  - Computador (ou notebook)'
+      - name: possui_computador_sem_internet
+        description: 'Na sua casa tem:  - Computador (ou notebook) sem internet'
+      - name: possui_dicionario
+        description: 'Na sua casa tem:  - Dicionário'
+      - name: possui_eletrecidade
+        description: 'Na região que você mora tem: - Iluminação na rua.'
+      - name: possui_eletrodomestico_sem_eletricidade
+        description: Não tem eletricidade, mas tem eletrodomestico em casa?
+      - name: possui_empregada_domestica
+        description: Na sua casa trabalha alguma empregada doméstica?
+      - name: possui_empregada_domestica_cinco_dias
+        description: Em sua casa trabalha empregado(a) doméstico(a) pelo menos cinco
+          dias por semana?
+      - name: possui_enciclopedia
+        description: 'Na sua casa tem:  - Enciclopédia'
+      - name: possui_escrivaninha
+        description: 'Na sua casa tem: - Mesa para estudar (ou escrivaninha).'
+      - name: possui_filhos
+        description: Quantos filhos você tem?
+      - name: possui_freezer
+        description: 'Na sua casa tem: - Freezer (independente ou segunda porta da
+          geladeira).'
+      - name: possui_geladeira
+        description: 'Na sua casa tem:  - Geladeira.'
+      - name: possui_geladeira_freezer
+        description: 'Na sua casa tem: - Freezer (parte da geladeira duplex).'
+      - name: possui_internet
+        description: 'Na sua casa tem: - Internet/Rede Wi-Fi.'
+      - name: possui_maquina_lavar_roupa
+        description: 'Na sua casa tem: - Máquina de lavar roupa.'
+      - name: possui_microondas
+        description: 'Na sua casa tem: - Forno de microondas.'
+      - name: possui_moradia_rua_urbanizada
+        description: 'Na região que você mora tem: - Rua pavimentada (asfalto ou calçamento).'
+      - name: possui_necessidade_especial
+        description: Você possui algum tipo de necessidade especial?
+      - name: possui_radio
+        description: 'Na sua casa tem: - Aparelho de rádio'
+      - name: possui_tablet
+        description: 'Na sua casa tem:  - Tablet.'
+      - name: possui_telefone
+        description: 'Na sua casa tem: - Telefone residencial'
+      - name: possui_trabalho
+        description: Você trabalha fora de casa? Se sim, qual a carga horária?
+      - name: possui_tv
+        description: 'Na sua casa tem:  - Televisão.'
+      - name: possui_tv_assinatura
+        description: 'Na sua casa tem: - Tv a cabo (Ex.:Net©, Sky© etc.).'
+      - name: possui_videocassete_dvd
+        description: 'Na sua casa tem: - Videocassete e/ou DVD'
+      - name: preenchimento_caderno
+        description: Indicador de preenchimento da prova
+      - name: preenchimento_questionario
+        description: Indicador de preenchimento do questionário
+      - name: presenca
+        description: Indicador de presença na prova
+      - name: presenca_professor
+        description: 'Do 6º ao 9º ano, você teve professor da disciplina:'
+      - name: pretensao_futura
+        description: 'Quando você terminar o 9º ano(8ª série) você pretende:'
+      - name: professor_ajuda_se_necessario
+        description: Seu professor dá uma força para você estudar mais quando não
+          tira notas boas?
+      - name: professor_atende_prontamente
+        description: Quando você precisa de ajuda, o professor está sempre pronto
+          para lhe atender?
+      - name: professor_cobra
+        description: Você acha que seu professor pega no seu pé?
+      - name: professor_conversa_avaliacao
+        description: Seu professor conversa com os alunos sobre avaliação?
+      - name: professor_disciplina
+        description: 'O professor da disciplina:'
+      - name: professor_elogia_merecimento
+        description: Seus professores elogiam ou dão parabéns quando você tira boas
+          notas?
+      - name: professor_esforca_aprendizado
+        description: Seu professor se esforça para que você aprenda a disciplina
+      - name: professor_espera_silencio
+        description: Os profesores têm que esperar muito para que os alunos fiquem
+          quietos na sua sala de aula?
+      - name: professor_importa_voce_diz
+        description: Seu professor dá importância ao que você diz?
+      - name: professor_leitura_livros_licao_casa
+        description: O professor da disciplina costuma passar leitura de livros e
+          revistas como lição de casa?
+      - name: professor_utiliza_espacos_externos
+        description: O seu professor costuma utilizar outros espaços além da sala
+          de aula para o ensino da matéria?
+      - name: proficiencia
+        description: Proficiência do aluno na escala única do SAEB com média = 0 e
+          desvio = 1 na população de referência
+      - name: proficiencia_saeb
+        description: Proficiência do aluno na escala única do SAEB com média = 750
+          e desvio = 50 na população de referência
+      - name: quando_nao_entende_materia
+        description: 'Quando você não entende a matéria:'
+      - name: quantidade_livros
+        description: Além dos livros escolares, quantos livros têm em sua casa?
+      - name: quantidade_mudancas_escola
+        description: Desde o 6º ano, quantas vezes você já mudou de escola?
+      - name: quantidade_pessoas_despesas_domicilio
+        description: Quantas pessoas ajudam a pagar as despesas da casa?
+      - name: quantidade_pessoas_domicilio
+        description: Incluindo você, quantas pessoas vivem atualmente em sua casa?
+      - name: quantos_anos_primeiro_grau
+        description: Há quantos anos você está no 1º grau?
+      - name: quantos_anos_segundo_grau
+        description: Se você está cursando o 2º grau, há quantos anos você o frequenta?
+      - name: raca_cor
+        description: Raça ou Cor
+      - name: recebe_jornais
+        description: Na sua casa chega jornal para ler?
+      - name: recebe_revistas
+        description: Na sua casa chegam revistas de informação geral (Veja, Época)?
+      - name: rede
+        description: Rede Escolar
+      - name: rede_ef
+        description: A partir do sexto ano do ensino fundamental, em que tipo de escola
+          você estudou?
+      - name: reprovacao
+        description: Você já foi reprovado?
+      - name: responsaveis_ajudam_realizacao_tarefa_casa
+        description: Com que frequencia seus pais ajudam a fazer lição de casa?
+      - name: responsaveis_almocam_jantam_contigo
+        description: Seus pais ou responsáves almoçam ou jantam com você?
+      - name: responsaveis_cobram_realizacao_tarefa_casa
+        description: 'Com que frequência seus pais ou responsáveis costumam: - Cobram
+          você a fazer a tarefa de casa.'
+      - name: responsaveis_comparecem_reuniao_pais
+        description: 'Com que frequência seus pais ou responsáveis costumam: - Ir
+          às reuniões de pais na escola.'
+      - name: responsaveis_conhecem_amigo
+        description: 'Seu pai ou sua mãe conhecem: - Algum amigo seu?'
+      - name: responsaveis_conhecem_diretor
+        description: 'Seu pai ou sua mãe conhecem: - O diretor da sua escola?'
+      - name: responsaveis_conhecem_professor
+        description: 'Seu pai ou sua mãe conhecem: - Seu(sua) professor(a)?'
+      - name: responsaveis_conhecem_responsavel_amigo
+        description: 'Seu pai ou sua mãe conhecem: - Algum pai/mãe de amigo seu?'
+      - name: responsaveis_conversam_amigos
+        description: Seus pais ou responsáveis conversam com seus amigos?
+      - name: responsaveis_conversam_amigos_escola
+        description: Seus pais ou responsáveos conversam com seus amigos/colegas de
+          escola?
+      - name: responsaveis_conversam_boletim
+        description: Quantas vezes seus pais vieram a escola para conversar sobre
+          seu boletim?
+      - name: responsaveis_conversam_comportamento
+        description: Quantas vezes seus pais vieram a escola para atender a chamados
+          relativos ao seu comportamento?
+      - name: responsaveis_conversam_diretor
+        description: Com que frequencia seus pais conversam com o diretor da escola?
+      - name: responsaveis_conversam_escola
+        description: 'Com que frequência seus pais ou responsáveis costumam: - Conversar
+          com você sobre o que acontece na escola.'
+      - name: responsaveis_conversam_filmes_contigo
+        description: Seus pais ou responsáveis conversam sobre filmes com você?
+      - name: responsaveis_conversam_livros_contigo
+        description: Seus pais ou responsáveis conversam sobre livros com você?
+      - name: responsaveis_conversam_outros_assuntos_contigo
+        description: Com que frequencia seus pais conversam sobre outros assuntos
+          com você?
+      - name: responsaveis_conversam_professor
+        description: Com que frequencia seus pais conversam com os seus professores?
+      - name: responsaveis_conversam_professor_diretor
+        description: Quantas vezes seus pais vieram a escola para conversar com professores/diretor?
+      - name: responsaveis_conversam_programas_tv_contigo
+        description: Seus pais ou responsáveis conversam sobre programas de TV com
+          você?
+      - name: responsaveis_conversam_responsaveis_amigo
+        description: Com que frequencia seus pais tem conversado com pai/mae/responsável
+          de amigo seu?
+      - name: responsaveis_incentivam_boas_notas
+        description: 'Com que frequência seus pais ou responsáveis costumam: - Incentivar
+          você a tirar boas notas'
+      - name: responsaveis_incentivam_comparecer_aulas
+        description: 'Com que frequência seus pais ou responsáveis costumam: - Incentivar
+          você a comparecer às aulas.'
+      - name: responsaveis_incentivam_estudos
+        description: 'Com que frequência seus pais ou responsáveis costumam: - Incentivar
+          você a estudar.'
+      - name: responsaveis_incentivam_leitura
+        description: Seus pais ou responsáveis incentivam você a ler?
+      - name: responsaveis_incentivam_pontualidade
+        description: Com que frequencia seus pais procuram fazer com que não chegue
+          atrasado na escola?
+      - name: responsaveis_incentivam_realizacao_licao_casa
+        description: 'Com que frequência seus pais ou responsáveis costumam: - Incentivar
+          você a fazer a tarefa de casa.'
+      - name: responsaveis_leem
+        description: 'Com que frequência seus pais ou responsáveis costumam: - Ler
+          em casa'
+      - name: responsaveis_ouvem_musica_contigo
+        description: Seus pais ou responsáveis ouvem música com você?
+      - name: responsaveis_participam_festas_escola
+        description: Quantas vezes seus pais vieram a escola para festas na escola?
+      - name: responsaveis_participam_trabalho_voluntario
+        description: Quantas vezes seus pais vieram a escola para trabalho voluntário?
+      - name: respostas_bloco_1
+        description: Respostas do aluno ao Bloco 1 da prova
+      - name: respostas_bloco_2
+        description: Respostas do aluno ao Bloco 2 da prova
+      - name: respostas_bloco_3
+        description: Respostas do aluno ao Bloco 3 da prova
+      - name: serie
+        description: Série
+      - name: sexo
+        description: Sexo
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+      - name: situacao_censo
+        description: Indicador de compatibilização com o Censo Escolar
+      - name: situacao_economica
+        description: Como é sua situação econômica?
+      - name: supletivo_ef
+        description: Voce concluiu o 1º grau no ensino supletivo?
+      - name: tempo_chegada_escola
+        description: Quanto tempo você demora para chegar à sua escola?
+      - name: tempo_cursos
+        description: 'Fora da escola em dias de aula, quanto tempo você usa para:
+          - Fazer cursos.'
+      - name: tempo_estudos
+        description: 'Fora da escola em dias de aula, quanto tempo você usa para:
+          - Estudar (lição de casa, trabalhos escolares, etc.).'
+      - name: tempo_lazer
+        description: 'Fora da escola em dias de aula, quanto tempo você usa para:
+          - Lazer (TV, internet, jogar bola, música etc.).'
+      - name: tempo_licao_casa
+        description: Quanto tempo você gasta para fazer as lições de casa?
+      - name: tempo_trabalho
+        description: 'Fora da escola em dias de aula, quanto tempo você usa para:
+          - Trabalhar fora de casa (recebendo ou não um salário)'
+      - name: tempo_trabalho_domestico
+        description: 'Fora da escola em dias de aula, quanto tempo você usa para:
+          - Fazer trabalhos domésticos (lavar louça, limpar quintal, cuidar dos irmãos).'
+      - name: tipo_programacao_tv
+        description: A que tipo de programaçaõ de televisão você mais assiste?
+      - name: transporte_escolar
+        description: Você se utiliza de transporte escolar ou passe escolar, para
+          ir à escola?
+      - name: turma_bolsa_escola
+        description: A turma tem aluno Bolsa Escola?
+      - name: turma_exclui
+        description: Na sua turma, você se sente deixado de lado?
+      - name: turno
+        description: Turno
+      - name: utiliza_aprendizado_diariamente
+        description: Você usa o que aprende da disciplina na escola, no seu dia a
+          dia?
+      - name: utiliza_biblioteca_escola
+        description: Você utiliza a biblioteca ou sala de leitura da sua escola?
+      - name: utiliza_biblioteca_externa
+        description: Você lê ou faz consulta na biblioteca fora da escola?
+      - name: utiliza_computador
+        description: Você sabe usar computador?
+      - name: utiliza_computador_escola
+        description: Você usa computador na escola?
+      - name: utiliza_computador_licao_casa
+        description: Você usa computador para lição/trabalho da disciplina?
+  - name: br_inep_saeb__proficiencia
+    description: A tabela resume a proficiencia na avaliação SAEB proporcionando uma
+      série histórica e compatibilizada à partir de 1995 com informações sobre o aluno,
+      a escola e o resultado do exame.
+    columns:
+      - name: amostra
+        description: Amostra
+      - name: ano
+        description: Ano de aplicação do Saeb
+      - name: disciplina
+        description: Disciplina
+      - name: erro_padrao
+        description: Erro padrão da proficiência na escala única do SAEB
+      - name: erro_padrao_saeb
+        description: Erro padrão da proficiência transformado
+      - name: estrato
+        description: Estrato
+      - name: id_aluno
+        description: ID Aluno no SAEB
+      - name: id_escola
+        description: ID Escola - INEP
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+      - name: id_regiao
+        description: ID Região
+      - name: id_turma
+        description: ID Turma no SAEB
+      - name: localizacao
+        description: Localização
+      - name: peso_aluno
+        description: Peso do aluno
+      - name: proficiencia
+        description: Proficiência do aluno calculada na escala única do SAEB, com
+          média = 0 e desvio = 1 na população de referência
+      - name: proficiencia_saeb
+        description: Proficiência transformada na escala única do SAEB, com média
+          = 250, desvio = 50 (do SAEB/97)
+      - name: raca_cor
+        description: Raça/Cor
+      - name: rede
+        description: Rede Escolar
+      - name: serie
+        description: Série/Ano
+      - name: sexo
+        description: Sexo
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+      - name: turno
+        description: Turno
+  - name: br_inep_saeb__municipio
+    description: Tabela resumo dos dados do SAEB com a média e percentual de alunos
+      dentro de cada nível de aprendizado segundo o Inep a nível municipal
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - rede
+            - localizacao
+            - id_municipio
+            - disciplina
+            - serie
+    columns:
+      - name: ano
+        description: Ano
+      - name: rede
+        description: Rede Escolar
+        tests:
+          - accepted_values:
+              values:
+                - municipal
+                - estadual
+                - federal
+                - privada
+                - total - estadual e municipal
+                - total - federal, estadual e municipal
+                - total - federal, estadual, municipal e privada
+      - name: localizacao
+        description: Localização da escola
+        tests:
+          - accepted_values:
+              values: [urbana, rural, total]
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+      - name: disciplina
+        description: Disciplina
+        tests:
+          - accepted_values:
+              values: [LP, MT]
+      - name: serie
+        description: Série/Ano Escolar
+      - name: media
+        description: Média da proficiência
+      - name: nivel_0
+        description: Percentual de alunos que se enquadram no nível zero de aprendizagem
+      - name: nivel_1
+        description: Percentual de alunos que se enquadram no nível um de aprendizagem
+      - name: nivel_2
+        description: Percentual de alunos que se enquadram no nível dois de aprendizagem
+      - name: nivel_3
+        description: Percentual de alunos que se enquadram no nível três de aprendizagem
+      - name: nivel_4
+        description: Percentual de alunos que se enquadram no nível quatro de aprendizagem
+      - name: nivel_5
+        description: Percentual de alunos que se enquadram no nível cinco de aprendizagem
+      - name: nivel_6
+        description: Percentual de alunos que se enquadram no nível seis de aprendizagem
+      - name: nivel_7
+        description: Percentual de alunos que se enquadram no nível sete de aprendizagem
+      - name: nivel_8
+        description: Percentual de alunos que se enquadram no nível oito de aprendizagem
+      - name: nivel_9
+        description: Percentual de alunos que se enquadram no nível nove de aprendizagem
+      - name: nivel_10
+        description: Percentual de alunos que se enquadram no nível dez de aprendizagem
+  - name: br_inep_saeb__dicionario
+    description: Dicionário para tradução dos códigos do conjunto br_inep_saeb. Para
+      taduzir códigos compartilhados entre instituições, como id_municipio, buscar
+      por diretórios
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_tabela
+            - nome_coluna
+            - chave
+            - cobertura_temporal
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_tabela
+        description: ID Tabela
+      - name: nome_coluna
+        description: Nome da coluna
+      - name: chave
+        description: Chave
+      - name: cobertura_temporal
+        description: Cobertura Temporal
+      - name: valor
+        description: Valor
+  - name: br_inep_saeb__brasil
+    description: Tabela resumo dos dados do SAEB com a média e percentual de alunos
+      dentro de cada nível de aprendizado segundo o Inep a nível Brasil
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - rede
+            - localizacao
+            - disciplina
+            - serie
+      - not_null_proportion_multiple_columns:
+          at_least: 0.25
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: rede
+        description: Rede Escolar
+        tests:
+          - accepted_values:
+              values:
+                - municipal
+                - estadual
+                - federal
+                - privada
+                - total - estadual e municipal
+                - total - federal, estadual e municipal
+                - total - federal, estadual, municipal e privada
+      - name: localizacao
+        description: Localização da escola
+        tests:
+          - accepted_values:
+              values: [total, urbana, rural]
+      - name: disciplina
+        description: Disciplina
+        tests:
+          - accepted_values:
+              values: [LP, MT]
+      - name: serie
+        description: Série/Ano Escolar
+      - name: media
+        description: Média da proficiência
+      - name: nivel_0
+        description: Percentual de alunos que se enquadram no nível zero de aprendizagem
+      - name: nivel_1
+        description: Percentual de alunos que se enquadram no nível um de aprendizagem
+      - name: nivel_2
+        description: Percentual de alunos que se enquadram no nível dois de aprendizagem
+      - name: nivel_3
+        description: Percentual de alunos que se enquadram no nível três de aprendizagem
+      - name: nivel_4
+        description: Percentual de alunos que se enquadram no nível quatro de aprendizagem
+      - name: nivel_5
+        description: Percentual de alunos que se enquadram no nível cinco de aprendizagem
+      - name: nivel_6
+        description: Percentual de alunos que se enquadram no nível seis de aprendizagem
+      - name: nivel_7
+        description: Percentual de alunos que se enquadram no nível sete de aprendizagem
+      - name: nivel_8
+        description: Percentual de alunos que se enquadram no nível oito de aprendizagem
+      - name: nivel_9
+        description: Percentual de alunos que se enquadram no nível nove de aprendizagem
+      - name: nivel_10
+        description: Percentual de alunos que se enquadram no nível dez de aprendizagem
+  - name: br_inep_saeb__uf
+    description: Tabela resumo dos dados do SAEB com a média e percentual de alunos
+      dentro de cada nível de aprendizado segundo o Inep a nível estadual
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - rede
+            - localizacao
+            - sigla_uf
+            - disciplina
+            - serie
+      - not_null_proportion_multiple_columns:
+          at_least: 0.25
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: rede
+        description: Rede Escolar
+        tests:
+          - accepted_values:
+              values:
+                - municipal
+                - estadual
+                - federal
+                - privada
+                - total - estadual e municipal
+                - total - federal, estadual e municipal
+                - total - federal, estadual, municipal e privada
+      - name: localizacao
+        description: Localização da escola
+        tests:
+          - accepted_values:
+              values: [total, urbana, rural]
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: disciplina
+        description: Disciplina
+      - name: serie
+        description: Série/Ano Escolar
+      - name: media
+        description: Média da proficiência
+      - name: nivel_0
+        description: Percentual de alunos que se enquadram no nível zero de aprendizagem
+      - name: nivel_1
+        description: Percentual de alunos que se enquadram no nível um de aprendizagem
+      - name: nivel_2
+        description: Percentual de alunos que se enquadram no nível dois de aprendizagem
+      - name: nivel_3
+        description: Percentual de alunos que se enquadram no nível três de aprendizagem
+      - name: nivel_4
+        description: Percentual de alunos que se enquadram no nível quatro de aprendizagem
+      - name: nivel_5
+        description: Percentual de alunos que se enquadram no nível cinco de aprendizagem
+      - name: nivel_6
+        description: Percentual de alunos que se enquadram no nível seis de aprendizagem
+      - name: nivel_7
+        description: Percentual de alunos que se enquadram no nível sete de aprendizagem
+      - name: nivel_8
+        description: Percentual de alunos que se enquadram no nível oito de aprendizagem
+      - name: nivel_9
+        description: Percentual de alunos que se enquadram no nível nove de aprendizagem
+      - name: nivel_10
+        description: Percentual de alunos que se enquadram no nível dez de aprendizagem
+  - name: br_inep_saeb__brasil_taxa_alfabetizacao
+    description: Taxa de alfabetização para o Brasil referente ao 2º ano divulgado
+      pelo SAEB
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, rede, localizacao, area]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: rede
+        description: Rede Escolar
+      - name: localizacao
+        description: Localização da escola
+      - name: area
+        description: 'Área onde a escola está localizada: interior, capital ou total'
+      - name: taxa_alfabetizacao
+        description: Taxa de alfabetização
+  - name: br_inep_saeb__uf_taxa_alfabetizacao
+    description: Taxa de alfabetização por UF referente ao 2º ano divulgado pelo SAEB
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, sigla_uf, rede, localizacao, area]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: rede
+        description: Rede Escolar
+      - name: localizacao
+        description: Localização da escola
+      - name: area
+        description: 'Área onde a escola está localizada: interior, capital ou total'
+      - name: taxa_alfabetizacao
+        description: Taxa de alfabetização

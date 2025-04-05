@@ -1,0 +1,92 @@
+---
+version: 2
+models:
+  - name: br_ibge_ipca15__mes_brasil
+    description: dbt model for table mes_brasil
+    columns:
+      - name: ano
+        description: Ano
+      - name: mes
+        description: Mês
+      - name: indice
+        description: Número índice (dez 1993 = 100)
+      - name: variacao_mensal
+        description: Variação percentual mensal
+      - name: variacao_trimestral
+        description: Variação percentual trimestral
+      - name: variacao_semestral
+        description: Variação percentual semestral
+      - name: variacao_anual
+        description: Variação percentual anual
+      - name: variacao_doze_meses
+        description: Variação percentual doze meses
+  - name: br_ibge_ipca15__mes_categoria_brasil
+    description: dbt model for table mes_categoria_brasil
+    columns:
+      - name: ano
+        description: Ano
+      - name: mes
+        description: Mês
+      - name: id_categoria
+        description: Código identificador grupo
+      - name: id_categoria_bd
+        description: Código identificador grupo - Base dos dados - Baseado em id_categoria
+          para criação de estrutura hierárquica
+      - name: categoria
+        description: Descrição da categoria
+      - name: peso_mensal
+        description: Peso percentual mensal do item
+      - name: variacao_mensal
+        description: Variação percentual mensal
+      - name: variacao_anual
+        description: Variação percentual acumulada no ano
+      - name: variacao_doze_meses
+        description: Variação percentual acumulada em doze meses
+  - name: br_ibge_ipca15__mes_categoria_municipio
+    description: dbt model for table mes_categoria_municipio
+    columns:
+      - name: ano
+        description: Ano
+      - name: mes
+        description: Mês
+      - name: id_municipio
+        description: ID do Município IBGE - 7 Dígitos
+      - name: id_categoria
+        description: Código identificador grupo
+      - name: id_categoria_bd
+        description: Código identificador grupo - Base dos dados - Baseado em id_categoria
+          para criação de estrutura hierárquica
+      - name: categoria
+        description: Descrição da categoria
+      - name: peso_mensal
+        description: Peso percentual mensal do item
+      - name: variacao_mensal
+        description: Variação percentual mensal
+      - name: variacao_anual
+        description: Variação percentual acumulada no ano
+      - name: variacao_doze_meses
+        description: Variação percentual acumulada em doze meses
+  - name: br_ibge_ipca15__mes_categoria_rm
+    description: dbt model for table mes_categoria_rm
+    columns:
+      - name: ano
+        description: Ano
+      - name: mes
+        description: Mês
+      - name: id_regiao_metropolitana
+        description: ID da Região Metropolitana - IBGE
+      - name: id_categoria
+        description: Código identificador grupo
+      - name: id_categoria_bd
+        description: Código identificador grupo - Base dos dados - Baseado em id_categoria
+          para criação de estrutura hierárquica
+      - name: categoria
+        description: Descrição da categoria
+      - name: peso_mensal
+        description: Peso percentual mensal do item
+      - name: variacao_mensal
+        description: Variação percentual mensal
+      - name: variacao_anual
+        description: Variação percentual acumulada no ano
+      - name: variacao_doze_meses
+        description: Variação percentual acumulada em doze meses

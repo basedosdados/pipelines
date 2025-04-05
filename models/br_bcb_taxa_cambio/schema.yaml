@@ -1,0 +1,53 @@
+---
+version: 2
+models:
+  - name: taxa_cambio
+    description: Boletins diários com a Paridade de Compra e a Paridade de Venda,
+      a Cotação de Compra e a Cotação de Venda. São cinco boletins para cada data,
+      um de abertura, três intermediários e um de fechamento.
+    columns:
+      - name: ano
+        description: Ano das cotações
+        tests: [not_null]
+      - name: data_cotacao
+        description: Data das paridades e cotações
+        tests: [not_null]
+      - name: hora_cotacao
+        description: Hora e minuto das paridades e cotações
+        tests: [not_null]
+      - name: moeda
+        description: Moeda
+        tests:
+          - not_null
+          - accepted_values:
+              values:
+                - AUD
+                - CAD
+                - CHF
+                - DKK
+                - EUR
+                - GBP
+                - JPY
+                - NOK
+                - SEK
+                - USD
+      - name: tipo_moeda
+        description: Tipo da moeda. O tipo determina a fórmula de calculo da paridade
+        tests: [not_null]
+      - name: tipo_boletim
+        description: Tipo do boletim (eg. Abertura, Intermediário e Fechamento)
+        tests: [not_null]
+      - name: paridade_compra
+        description: Paridade de compra da moeda consultada contra o dólar
+        tests: [not_null]
+      - name: paridade_venda
+        description: Paridade de venda da moeda consultada contra o dólar
+        tests: [not_null]
+      - name: cotacao_compra
+        description: 'Cotação de compra da moeda consultada contra a unidade monetária
+          corrente: unidade monetária corrente/[moeda].'
+        tests: [not_null]
+      - name: cotacao_venda
+        description: 'Cotação de venda da moeda consultada contra a unidade monetária
+          corrente: unidade monetária corrente/[moeda].'
+        tests: [not_null]

@@ -1,0 +1,93 @@
+---
+version: 2
+models:
+  - name: br_cnpq_bolsas__microdados
+    description: Dados acerca dos pagamentos efetuados pelo CNPq para projetos de
+      pesquisa
+    columns:
+      - name: ano
+        description: Ano
+      - name: processo
+        description: Numero do processo
+      - name: data_inicio_processo
+        description: Data de início do processo
+      - name: data_fim_processo
+        description: Data de término do processo
+      - name: beneficiario
+        description: Nome do beneficiário
+      - name: titulo_projeto
+        description: Título do projeto da bolsa
+      - name: palavra_chave
+        description: Palavras Chave
+      - name: linha_fomento
+        description: Linha de Fomento da bolsa
+      - name: modalidade
+        description: Modalidade da bolsa
+      - name: categoria_nivel
+        description: Categoria/Nível
+      - name: chamada
+        description: Nome Chamada
+      - name: programa_cnpq
+        description: Programa CNPq
+      - name: grande_area_conhecimento
+        description: Grande Área do conhecimento
+      - name: area_conhecimento
+        description: Área do conhecimento
+      - name: subarea_conhecimento
+        description: Subárea do conhecimento
+      - name: pais_origem
+        description: País de origem
+      - name: sigla_uf_origem
+        description: Sigla da Unidade da Federação de origem
+      - name: instituicao_origem
+        description: Nome da Instituição de origem
+      - name: pais_destino
+        description: País de destino
+      - name: sigla_uf_destino
+        description: Sigla da Unidade da Federação de destino
+      - name: municipio_destino
+        description: Nome do município de destino
+      - name: sigla_instituicao_destino
+        description: Sigla da Instituição de destino
+      - name: sigla_instituicao_macro
+        description: Sigla da Instituição Macro
+      - name: instituicao_destino
+        description: Instituição de destino
+      - name: plano_interno
+        description: Plano interno
+      - name: unidade_orcamentaria
+        description: Unidade Orçamentária do recurso
+      - name: fonte_recurso
+        description: Fonte do recurso
+      - name: natureza_despesa
+        description: Natureza da despesa
+      - name: programa_ppa
+        description: Programa Plano Plurianual
+      - name: acao_ppa
+        description: Ação Plano Plurianual
+      - name: valor
+        description: Valor pago da bolsa
+  - name: br_cnpq_bolsas__dicionario
+    description: Dicionário para tradução dos códigos do conjunto br_cnpq_bolsas.
+      Para taduzir códigos compartilhados entre instituições, como id_municipio, buscar
+      por diretórios
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_tabela
+            - nome_coluna
+            - chave
+            - cobertura_temporal
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_tabela
+        description: ID Tabela
+      - name: nome_coluna
+        description: Nome da coluna
+      - name: chave
+        description: Chave
+      - name: cobertura_temporal
+        description: Cobertura Temporal
+      - name: valor
+        description: Valor

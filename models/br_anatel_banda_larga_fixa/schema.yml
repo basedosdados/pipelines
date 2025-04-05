@@ -1,0 +1,138 @@
+---
+version: 2
+models:
+  - name: br_anatel_banda_larga_fixa__microdados
+    description: Microdados de banda larga fixa (também conhecido como Serviço de
+      Comunicação Multimídia) a partir de 2007 que traz dados mensais acerca da empresa
+      ofertante e das especificações técnicas do serviço.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ref('ano.ano')
+      - name: mes
+        description: Mês
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: mes
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: cnpj
+        description: Cadastro Nacional de Pessoa Jurídica
+      - name: empresa
+        description: Nome da empresa
+      - name: porte_empresa
+        description: Porte da empresa
+      - name: tecnologia
+        description: Tecnologia
+      - name: transmissao
+        description: Meios de transmissão
+      - name: velocidade
+        description: Velocidade contratada
+      - name: produto
+        description: Tipo de Produto
+      - name: acessos
+        description: Número total de contratos
+  - name: br_anatel_banda_larga_fixa__densidade_brasil
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    description: Total de acessos e densidade por domicílio da Banda Larga Fixa no
+      Brasil por mês e ano desde março de 2007
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ref('ano.ano')
+      - name: mes
+        description: Mês
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: mes
+      - name: densidade
+        description: Densidade de acessos por 100 domicílios
+  - name: br_anatel_banda_larga_fixa__densidade_uf
+    description: Total de acessos e densidade por domicílio da Banda Larga Fixa nos
+      estados por mês e ano desde março de 2007
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, sigla_uf]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ref('ano.ano')
+      - name: mes
+        description: Mês
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: mes
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: densidade
+        description: Densidade de acessos por 100 domicílios
+  - name: br_anatel_banda_larga_fixa__densidade_municipio
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, id_municipio]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    description: Total de acessos e densidade por domicílio da Banda Larga Fixa nos
+      estados por mês e ano desde março de 2007
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ref('ano.ano')
+      - name: mes
+        description: Mês
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: mes
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: densidade
+        description: Densidade de acessos por 100 domicílios

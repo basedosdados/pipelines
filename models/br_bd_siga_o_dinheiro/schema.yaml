@@ -1,0 +1,79 @@
+---
+version: 2
+models:
+  - name: eleicao_perfil_candidato_2024
+    description: Descreve o perfil dos candidatos da eleição de 2024
+    columns:
+      - name: sequencial
+      - name: ano_sequencial_candidato
+      - name: nome_urna
+      - name: sigla_partido
+      - name: cargo
+      - name: municipio
+      - name: sigla_uf
+      - name: genero
+      - name: raca
+      - name: idade
+      - name: faixa_etaria
+  - name: eleicao_prestacao_contas_candidato_2024
+    description: Informações de prestação de contas no nível de candidato
+    columns:
+      - name: sequencial
+      - name: ano_sequencial_candidato
+      - name: nome_urna
+      - name: sigla_partido
+      - name: cargo
+      - name: sigla_uf
+      - name: genero
+      - name: raca
+      - name: idade
+      - name: faixa_etaria
+      - name: rank_cargo
+      - name: rank_partido
+      - name: rank_cargo_municipio
+      - name: rank_cargo_partido
+      - name: proporcao_despesa_pessoal
+      - name: proporcao_despesa_publicidade
+      - name: proporcao_despesa_outros
+      - name: proporcao_despesa_operacoes
+      - name: receita_partido
+      - name: valor_receita_total
+      - name: valor_despesa_total
+      - name: valor_despesa_pessoal
+      - name: valor_despesa_publicidade
+      - name: valor_despesa_outros
+      - name: valor_despesa_operacoes
+  - name: eleicao_prestacao_contas_candidato_origem_2024
+    description: Informações de prestação de contas no nível de candidato Origem
+    columns:
+      - name: excluir
+      - name: data_conta
+      - name: sequencial_candidato
+      - name: ano_sequencial_candidato
+      - name: receita_despesa
+      - name: origem
+      - name: valor
+      - name: n_linhas
+      - name: categoria
+  - name: eleicao_prestacao_contas_partido_2024
+    description: Informações de prestação de contas no nível de Partido da despesa
+      ou receita '
+    columns:
+      - name: municipio
+      - name: sigla_partido
+      - name: cargo
+      - name: genero
+      - name: raca
+      - name: faixa_etaria
+      - name: valor_receita_total
+      - name: valor_despesa_total
+      - name: valor_despesa_pessoal
+      - name: valor_despesa_publicidade
+      - name: valor_despesa_outros
+      - name: valor_despesa_operacoes
+  - name: eleicao_auxiliar_categoria_origem
+    description: Informação auxiliares de categoria origem
+    columns:
+      - name: receita_despesa
+      - name: origem
+      - name: categoria

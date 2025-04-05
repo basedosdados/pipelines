@@ -1,0 +1,75 @@
+---
+version: 2
+models:
+  - name: br_ibge_pevs__producao_extracao_vegetal
+    description: Quantidade produzida e valor da produção na extração vegetal, por
+      tipo de produto extrativo
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_municipio, tipo_produto, produto]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_municipio
+        description: ID Município IBGE 7 dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: tipo_produto
+        description: Tipo do produto
+      - name: produto
+        description: Nome produto
+      - name: unidade
+        description: Unidade de medida do produto
+      - name: quantidade
+        description: Quantidade da produção
+      - name: valor
+        description: Valor da produção
+  - name: br_ibge_pevs__producao_silvicultura
+    description: Quantidade produzida e valor da produção na silvicultura, por tipo
+      de produto da silvicultura
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - id_municipio
+            - categoria_produto
+            - tipo_produto
+            - subtipo_produto
+            - produto
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_municipio
+        description: ID Município IBGE 7 dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: categoria_produto
+        description: Categoria do produto
+      - name: tipo_produto
+        description: Tipo do produto
+      - name: subtipo_produto
+        description: Subtipo do produto
+      - name: produto
+        description: Nome produto
+      - name: unidade
+        description: Unidade de medida do produto
+      - name: quantidade
+        description: Quantidade da produção
+      - name: valor
+        description: Valor da produção

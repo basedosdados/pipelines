@@ -1,0 +1,1783 @@
+---
+version: 2
+models:
+  - name: br_tse_eleicoes__bens_candidato
+    description: Declaração de bens de candidatos em eleições brasileiras.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.70
+          ignore_values: [tipo_item, data_eleicao, id_eleicao]
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_eleicao
+        description: ID Eleição
+      - name: tipo_eleicao
+        description: Tipo da eleição
+      - name: data_eleicao
+        description: Data da eleição
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: titulo_eleitoral_candidato
+        description: Título eleitoral
+      - name: sequencial_candidato
+        description: Sequencial do Candidato
+      - name: descricao_item
+        description: Descrição do item
+      - name: tipo_item
+        description: Tipo do item
+      - name: valor_item
+        description: Valor do item
+  - name: br_tse_eleicoes__candidatos
+    description: Dados de candidatos em eleições brasileiras.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [email, raca]
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - id_eleicao
+            - sigla_uf
+            - id_municipio_tse
+            - sequencial
+            - numero
+            - cpf
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: cargo
+        description: Cargo
+      - name: cpf
+        description: CPF
+      - name: data_eleicao
+        description: Data da eleição
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: data_nascimento
+        description: Data de nascimento
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+              ignore_values:
+                - '9564-06-17'
+                - '5195-06-20'
+                - '9555-01-15'
+                - '6196-10-02'
+                - '7194-10-30'
+                - '5454-10-09'
+                - '6197-10-02'
+                - '9158-09-24'
+                - '7197-04-17'
+                - '9161-11-09'
+                - '7953-09-05'
+      - name: email
+        description: Email
+      - name: estado_civil
+        description: Estado civil
+      - name: genero
+        description: Gênero
+      - name: idade
+        description: Idade
+      - name: id_eleicao
+        description: ID Eleição
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_municipio_tse
+        description: ID Município - TSE
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio_tse
+              ignore_values: ['73709']
+      - name: instrucao
+        description: Instrução
+      - name: municipio_nascimento
+        description: Município de nascimento
+      - name: nacionalidade
+        description: Nacionalidade
+      - name: nome
+        description: Nome
+      - name: nome_urna
+        description: Nome de urna
+      - name: numero
+        description: Número
+      - name: numero_partido
+        description: Número do partido
+      - name: ocupacao
+        description: Ocupação
+      - name: raca
+        description: Raça ou cor
+      - name: sequencial
+        description: Sequencial
+      - name: sigla_partido
+        description: Sigla do partido
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              ignore_values: [ZZ]
+      - name: sigla_uf_nascimento
+        description: Sigla da unidade da federação de nascimento
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              ignore_values: [ZZ]
+      - name: situacao
+        description: Situação
+      - name: tipo_eleicao
+        description: Tipo da Eleição
+      - name: titulo_eleitoral
+        description: Título eleitoral
+  - name: br_tse_eleicoes__despesas_candidato
+    description: Dados de despesas em campanhas eleitorais a nível de despesa.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - esfera_partidaria_fornecedor
+            - id_municipio_tse_fornecedor
+            - sequencial_candidato_fornecedor
+            - cargo_fornecedor
+            - numero_candidato_fornecedor
+            - sigla_partido_fornecedor
+            - numero_partido_fornecedor
+            - sigla_uf_fornecedor
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: cargo
+        description: Cargo
+      - name: cargo_fornecedor
+        description: Cargo do fornecedor
+      - name: cnae_2_fornecedor
+        description: Classificação Nacional de Atividades Econômicas 2.0 do fornecedor
+      - name: cnae_2_fornecedor_classe
+        description: Classe da CNAE
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__cnae_2')
+              field: classe
+      - name: cnae_2_fornecedor_subclasse
+        description: Subclasse da Classificação de Atividades Econômicas (CNAE)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__cnae_2')
+              field: subclasse
+      - name: cnpj_candidato
+        description: CNPJ do candidato
+      - name: cnpj_prestador_contas
+        description: CNPJ do prestador de contas
+      - name: cpf_cnpj_fornecedor
+        description: CPF ou CNPJ do fornecedor
+      - name: data_despesa
+        description: Data da despesa
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+              ignore_values:
+                - '8200-02-20'
+                - '8008-09-05'
+                - '8200-08-02'
+                - '6200-09-06'
+                - '6200-09-30'
+                - '7200-08-21'
+                - '8006-09-29'
+                - '9200-05-05'
+                - '5919-11-11'
+      - name: data_eleicao
+        description: Data da eleição
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: data_prestacao_contas
+        description: Data de prestação de contas
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: descricao_cnae_2_fornecedor
+        description: Descrição da Classificação Nacional de Atividades Econômicas
+          2.0 do fornecedor
+      - name: descricao_despesa
+        description: Descrição da despesa
+      - name: esfera_partidaria_fornecedor
+        description: Esfera partidária do fornecedor
+      - name: especie_recurso
+        description: Espécie do recurso
+      - name: fonte_recurso
+        description: Fonte do recurso
+      - name: id_eleicao
+        description: ID Eleição
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_municipio_tse
+        description: ID Município - TSE
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio_tse
+              ignore_values: ['73709']
+      - name: id_municipio_tse_fornecedor
+        description: ID Município do fornecedor - TSE
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio_tse
+              ignore_values: ['73709']
+      - name: nome_fornecedor
+        description: Nome do fornecedor
+      - name: nome_fornecedor_rf
+        description: Nome do fornecedor - Receita Federal
+      - name: numero_candidato
+        description: Número do candidato
+      - name: numero_candidato_fornecedor
+        description: Número do candidato do fornecedor
+      - name: numero_documento
+        description: Número do documento
+      - name: numero_partido
+        description: Número do partido
+      - name: numero_partido_fornecedor
+        description: Número do partido do fornecedor
+      - name: origem_despesa
+        description: Origem da despesa
+      - name: sequencial_candidato
+        description: Sequencial do candidato
+      - name: sequencial_candidato_fornecedor
+        description: Sequencial do candidato fornecedor
+      - name: sequencial_despesa
+        description: Sequencial da despesa
+      - name: sequencial_prestador_contas
+        description: Sequencial do prestador de contas
+      - name: sigla_partido
+        description: Sigla do partido
+      - name: sigla_partido_fornecedor
+        description: Sigla do partido do fornecedor
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: sigla_uf_fornecedor
+        description: Sigla da unidade da federação do fornecedor
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              ignore_values: [BR]
+      - name: tipo_despesa
+        description: Tipo da despesa
+      - name: tipo_documento
+        description: Tipo do documento
+      - name: tipo_eleicao
+        description: Tipo da eleição
+      - name: tipo_fornecedor
+        description: Tipo do fornecedor
+      - name: tipo_prestacao_contas
+        description: Tipo de prestação de contas
+      - name: titulo_eleitoral_candidato
+        description: Título eleitoral do candidato
+      - name: turno
+        description: Turno
+      - name: valor_despesa
+        description: Valor da despesa
+  - name: br_tse_eleicoes__detalhes_votacao_municipio
+    description: Dados de detalhes das votações em eleições brasileiras a nível de
+      município.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - turno
+            - id_eleicao
+            - id_municipio_tse
+            - cargo
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+    columns:
+      - name: abstencoes
+        description: Número de Abstenções
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: aptos
+        description: Número de eleitores aptos
+      - name: aptos_totalizadas
+        description: Número de eleitores aptos totalizados
+      - name: cargo
+        description: Cargo
+      - name: comparecimento
+        description: Número de Comparecimentos
+      - name: data_eleicao
+        description: Data da eleição
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: id_eleicao
+        description: ID Eleição
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_municipio_tse
+        description: ID Município - TSE
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio_tse
+              ignore_values: ['73709']
+      - name: proporcao_comparecimento
+        description: Proporção de comparecimento
+      - name: proporcao_votos_brancos
+        description: Proporção de votos brancos
+      - name: proporcao_votos_nulos
+        description: Proporção de votos nulos
+      - name: proporcao_votos_validos
+        description: Proporção de votos válidos
+      - name: secoes
+        description: Número de seções eleitorais
+      - name: secoes_agregadas
+        description: Número de seções eleitorais agregadas
+      - name: secoes_totalizadas
+        description: Número de seções eleitorais totalizadas
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              ignore_values: [ZZ]
+      - name: tipo_eleicao
+        description: Tipo da eleição
+      - name: turno
+        description: Turno
+      - name: votos_brancos
+        description: Número de votos brancos
+      - name: votos_nominais
+        description: Número de votos nominais
+      - name: votos_legenda
+        description: Número de votos em coligações
+      - name: votos_nulos
+        description: Número de votos nulos
+      - name: votos_validos
+        description: Número de votos válidos
+  - name: br_tse_eleicoes__detalhes_votacao_municipio_zona
+    description: Dados de detalhes das votações em eleições brasileiras a nível de
+      zona eleitoral.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - turno
+            - id_eleicao
+            - id_municipio_tse
+            - zona
+            - cargo
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+    columns:
+      - name: abstencoes
+        description: Número de Abstenções
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: aptos
+        description: Número de eleitores aptos
+      - name: aptos_totalizadas
+        description: Número de eleitores aptos totalizados
+      - name: cargo
+        description: Cargo
+      - name: comparecimento
+        description: Número de Comparecimentos
+      - name: data_eleicao
+        description: Data da eleição
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: id_eleicao
+        description: ID Eleição
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_municipio_tse
+        description: ID Município - TSE
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio_tse
+              ignore_values: ['73709']
+      - name: proporcao_comparecimento
+        description: Proporção de comparecimento
+      - name: proporcao_votos_brancos
+        description: Proporção de votos brancos
+      - name: proporcao_votos_nulos
+        description: Proporção de votos nulos
+      - name: proporcao_votos_validos
+        description: Proporção de votos válidos
+      - name: secoes
+        description: Número de seções eleitorais
+      - name: secoes_agregadas
+        description: Número de seções eleitorais agregadas
+      - name: secoes_totalizadas
+        description: Número de seções eleitorais totalizadas
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              ignore_values: [ZZ]
+      - name: tipo_eleicao
+        description: Tipo da eleição
+      - name: turno
+        description: Turno
+      - name: votos_brancos
+        description: Número de votos brancos
+      - name: votos_legenda
+        description: Número de votos em coligações
+      - name: votos_nominais
+        description: Número de votos nominais
+      - name: votos_nulos
+        description: Número de votos nulos
+      - name: votos_validos
+        description: Número de votos válidos
+      - name: zona
+        description: Zona eleitoral
+  - name: br_tse_eleicoes__detalhes_votacao_secao
+    description: Dados de detalhes de votação em eleições brasileiras a nível de seção
+      eleitoral.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - turno
+            - id_eleicao
+            - id_municipio_tse
+            - zona
+            - secao
+            - cargo
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+    columns:
+      - name: abstencoes
+        description: Número de abstenções
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: aptos
+        description: Número de eleitores aptos
+      - name: cargo
+        description: Cargo
+      - name: comparecimento
+        description: Número de comparecimentos
+      - name: data_eleicao
+        description: Data da eleição
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: id_eleicao
+        description: ID Eleição
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_municipio_tse
+        description: ID Município - TSE
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio_tse
+              ignore_values: ['73709']
+      - name: proporcao_comparecimento
+        description: Proporção de comparecimento
+      - name: proporcao_votos_brancos
+        description: Proporção de votos brancos
+      - name: proporcao_votos_legenda
+        description: Proporção de votos em legendas
+      - name: proporcao_votos_nominais
+        description: Proporção de votos nominais
+      - name: proporcao_votos_nulos
+        description: Proporção de votos nulos
+      - name: secao
+        description: Seção eleitoral
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              ignore_values: [ZZ]
+      - name: tipo_eleicao
+        description: Tipo da eleição
+      - name: turno
+        description: Turno
+      - name: votos_brancos
+        description: Número de votos brancos
+      - name: votos_legenda
+        description: Número de votos em legendas
+      - name: votos_nominais
+        description: Número de votos nominais
+      - name: votos_nulos
+        description: Número de votos nulos
+      - name: votos_nulos_apu_sep
+        description: Votos nulos apurados separadamente
+      - name: zona
+        description: Zona eleitoral
+  - name: br_tse_eleicoes__partidos
+    description: 'Dados de partidos em eleições brasileiras a nível de partido. ATENÇÃO:
+      a coluna `sequencial_coligacao` identifica as linhas, mas fora isso há duplicadas
+      por questões de erro do TSE.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - turno
+            - id_eleicao
+            - sigla_uf
+            - id_municipio_tse
+            - cargo
+            - numero
+      - not_null_proportion_multiple_columns:
+          at_least: 0.03
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: cargo
+        description: Cargo
+      - name: composicao_coligacao
+        description: Composição da coligação
+      - name: composicao_federacao
+        description: Composição da federação
+      - name: data_eleicao
+        description: Data da eleição
+      - name: id_eleicao
+        description: ID Eleição
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_municipio_tse
+        description: ID Município - TSE
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio_tse
+              ignore_values: ['73709']
+      - name: nome
+        description: Nome
+      - name: nome_coligacao
+        description: Nome da coligação
+      - name: nome_federacacao
+        description: Nome da federação
+      - name: numero
+        description: Número
+      - name: numero_federacao
+        description: Número da federação
+      - name: sequencial_coligacao
+        description: Sequencial da coligação
+      - name: sigla
+        description: Sigla
+      - name: sigla_federacao
+        description: Sigla da federação
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              ignore_values: [ZZ]
+      - name: situacao_legenda
+        description: Situação da legenda
+      - name: tipo_agremiacao
+        description: Tipo da agremiação
+      - name: tipo_eleicao
+        description: Tipo da eleição
+      - name: turno
+        description: Turno
+  - name: br_tse_eleicoes__perfil_eleitorado_local_votacao
+    description: Perfil eleitorado a nível de local de votação.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.60
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: bairro
+        description: Bairro
+      - name: cep
+        description: CEP
+      - name: eleitores_secao
+        description: Quantidade de eleitores na seção
+      - name: endereco
+        description: Endereço
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_municipio_tse
+        description: ID Município - TSE
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio_tse
+              ignore_values: ['73709']
+      - name: latitude
+        description: Latitude
+      - name: longitude
+        description: Longitude
+      - name: nome
+        description: Nome
+      - name: numero
+        description: Número
+      - name: secao
+        description: Seção eleitoral
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              ignore_values: [ZZ]
+      - name: situacao
+        description: Situação
+      - name: situacao_localidade
+        description: Situação da localidade
+      - name: situacao_secao
+        description: Situação da seção eleitoral
+      - name: situacao_secao_acessibilidade
+        description: Situação de acessibilidade da seção eleitoral
+      - name: situacao_zona
+        description: Situação da zona eleitoral
+      - name: telefone
+        description: Telefone
+      - name: tipo
+        description: Tipo
+      - name: tipo_secao_agregada
+        description: Tipo de seção agregada
+      - name: turno
+        description: Turno
+      - name: zona
+        description: Zona eleitoral
+  - name: br_tse_eleicoes__perfil_eleitorado_municipio_zona
+    description: Dados de perfil do eleitorado a nível de zona eleitoral.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - sigla_uf
+            - id_municipio_tse
+            - situacao_biometria
+            - zona
+            - genero
+            - estado_civil
+            - grupo_idade
+            - instrucao
+            - eleitores
+            - eleitores_biometria
+            - eleitores_deficiencia
+      - not_null_proportion_multiple_columns:
+          at_least: 0.75
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: eleitores
+        description: Número de eleitores
+      - name: eleitores_biometria
+        description: Número de eleitores com biometria
+      - name: eleitores_deficiencia
+        description: Número de eleitores com deficiência
+      - name: estado_civil
+        description: Estado civil
+      - name: genero
+        description: Gênero
+      - name: grupo_idade
+        description: Grupo de idade
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_municipio_tse
+        description: ID Município - TSE
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio_tse
+              ignore_values: ['73709']
+      - name: instrucao
+        description: Instrução
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              ignore_values: [ZZ]
+      - name: situacao_biometria
+        description: Situação da biometria
+      - name: zona
+        description: Zona eleitoral
+  - name: br_tse_eleicoes__perfil_eleitorado_secao
+    description: Perfil eleitorado a nível de seção eleitoral.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.60
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: eleitores
+        description: Número de eleitores
+      - name: eleitores_biometria
+        description: Número de eleitores por biometria
+      - name: eleitores_deficiencia
+        description: Número de eleitores com deficiência
+      - name: eleitores_inclusao_nome_social
+        description: Número de eleitores por inclusão de nome social
+      - name: estado_civil
+        description: Estado civil
+      - name: genero
+        description: Gênero
+      - name: grupo_idade
+        description: Grudo de idade
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_municipio_tse
+        description: ID Município - TSE
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio_tse
+              ignore_values: ['73709']
+      - name: instrucao
+        description: Instrução
+      - name: secao
+        description: Seção eleitoral
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              ignore_values: [ZZ]
+      - name: situacao_biometria
+        description: Situação da biometria
+      - name: zona
+        description: Zona eleitoral
+  - name: br_tse_eleicoes__receitas_candidato
+    description: Dados de financiamento de campanha de receita para candidatos.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - descricao_cnae_2_doador_orig
+            - nome_doador_orig_rf
+            - nome_doador_orig
+            - cpf_cnpj_doador_orig
+            - tipo_doador_orig
+            - entrega_conjunto
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: cargo
+        description: Cargo
+      - name: cargo_candidato_doador
+        description: Cargo do candidato doador
+      - name: cnae_2_doador
+        description: Classificação Nacional de Atividades Econômicas 2.0 do doador
+      - name: cnae_2_doador_classe
+        description: Classe da CNAE
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__cnae_2')
+              field: classe
+      - name: cnae_2_doador_subclasse
+        description: Subclasse da Classificação de Atividades Econômicas (CNAE)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__cnae_2')
+              field: subclasse
+      - name: cnpj_candidato
+        description: CNPJ do candidato
+      - name: cnpj_prestador_contas
+        description: CNPJ do prestador de contas
+      - name: cpf_administrador
+        description: CPF do administrador
+      - name: cpf_cnpj_doador
+        description: CPF ou CNPJ do doador
+      - name: cpf_cnpj_doador_orig
+        description: CPF ou CNPJ do doador originário
+      - name: data_eleicao
+        description: Data da eleição
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: data_prestacao_contas
+        description: Data de prestação de contas
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: data_receita
+        description: Data da receita
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: descricao_cnae_2_doador
+        description: Descrição da Classificação Nacional de Atividades Econômicas
+          2.0 do doador
+      - name: descricao_cnae_2_doador_orig
+        description: Descrição da Classificação Nacional de Atividades Econômicas
+          2.0 do doador originário
+      - name: descricao_receita
+        description: Descrição da receita
+      - name: entrega_conjunto
+        description: Entrega em conjunto
+      - name: esfera_partidaria_doador
+        description: Esfera partidária do doador
+      - name: especie_receita
+        description: Espécie da receita
+      - name: fonte_receita
+        description: Fonte da receita
+      - name: id_eleicao
+        description: ID Eleição
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_municipio_tse
+        description: ID Município - TSE
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio_tse
+              ignore_values: ['73709']
+      - name: id_municipio_tse_doador
+        description: ID Município do doador - TSE
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio_tse
+              ignore_values: ['73709']
+      - name: natureza_receita
+        description: Natureza da receita
+      - name: nome_administrador
+        description: Nome do administrador
+      - name: nome_doador
+        description: Nome do doador
+      - name: nome_doador_orig
+        description: Nome do doador originário
+      - name: nome_doador_orig_rf
+        description: Nome do doador originário - Receita Federal
+      - name: nome_doador_rf
+        description: Nome do doador - Receita Federal
+      - name: numero_candidato
+        description: Número do candidato
+      - name: numero_candidato_doador
+        description: Número do candidato doador
+      - name: numero_documento
+        description: Número do documento
+      - name: numero_documento_doacao
+        description: Número do documento da doação
+      - name: numero_partido
+        description: Número do partido
+      - name: numero_partido_doador
+        description: Número do partido do doador
+      - name: numero_recibo_doacao
+        description: Número do recibo da doação
+      - name: numero_recibo_eleitoral
+        description: Número do recibo eleitoral
+      - name: origem_receita
+        description: Origem da receita
+      - name: sequencial_candidato
+        description: Sequencial do candidato
+      - name: sequencial_candidato_doador
+        description: Sequencial do candidato doador
+      - name: sequencial_prestador_contas
+        description: Sequencial do prestador de contas
+      - name: sequencial_receita
+        description: Sequencial da receita
+      - name: sigla_partido
+        description: Sigla do partido
+      - name: sigla_partido_doador
+        description: Sigla do partido do doador
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: sigla_uf_doador
+        description: Sigla da unidade da federação do doador
+      - name: situacao_receita
+        description: Situação da receita
+      - name: tipo_doador_orig
+        description: Tipo do doador originário
+      - name: tipo_eleicao
+        description: Tipo da eleição
+      - name: tipo_prestacao_contas
+        description: Tipo de prestação de contas
+      - name: titulo_eleitoral_candidato
+        description: Título eleitoral do candidato
+      - name: turno
+        description: Turno
+      - name: valor_receita
+        description: Valor da receita
+  - name: br_tse_eleicoes__receitas_comite
+    description: Receitas de comitês eleitorais
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: cnae_2_doador
+        description: CNAE 2 do Doador
+      - name: cnae_2_doador_classe
+        description: Classe da CNAE
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__cnae_2')
+              field: classe
+      - name: cnae_2_doador_subclasse
+        description: Subclasse da Classificação de Atividades Econômicas (CNAE)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__cnae_2')
+              field: subclasse
+      - name: cnpj_prestador_contas
+        description: CNPJ do prestador de contas
+      - name: cpf_cnpj_doador
+        description: CPF ou CNPJ do doador
+      - name: cpf_cnpj_doador_orig
+        description: CPF ou CNPJ do doador originário
+      - name: cpf_membro
+        description: CPF do membro
+      - name: data_receita
+        description: Data da receita
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+              ignore_values: ['8200-10-01']
+      - name: descricao_cnae_2_doador
+        description: Descrição da Classificação Nacional de Atividades Econômicas
+          2.0 do doador
+      - name: descricao_cnae_2_doador_orig
+        description: Descrição da Classificação Nacional de Atividades Econômicas
+          2.0 do doador originário
+      - name: descricao_receita
+        description: Descrição da receita
+      - name: fonte_receita
+        description: Fonte da receita
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_municipio_tse
+        description: ID Município - Tribunal Superior Eleitoral (TSE)
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio_tse
+              ignore_values: ['73709']
+      - name: natureza_receita
+        description: Natureza da receita
+      - name: nome_doador
+        description: Nome do doador
+      - name: nome_doador_orig
+        description: Nome do doador originário
+      - name: nome_doador_orig_rf
+        description: Nome do doador originário - Receita Federal
+      - name: nome_doador_rf
+        description: Nome do doador - Receita Federal
+      - name: nome_membro
+        description: Nome do membro
+      - name: numero_candidato_doador
+        description: Número do Candidato do Doador
+      - name: numero_documento
+        description: Número do documento
+      - name: numero_partido
+        description: Número do partido
+      - name: numero_partido_doador
+        description: Número do partido do doador
+      - name: origem_receita
+        description: Origem da receita
+      - name: sequencial_comite
+        description: Sequencial do comite
+      - name: sigla_partido
+        description: Sigla do partido
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: sigla_uf_doador
+        description: Sigla da unidade da federação do doador
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              ignore_values: ['02550', '71072', '13897', '41238', '09210', '86614']
+      - name: situacao_receita
+        description: Situação da receita
+      - name: tipo_comite
+        description: Tipo do comite
+      - name: tipo_doador_orig
+        description: Tipo do doador originário
+      - name: tipo_documento
+        description: Tipo de documento
+      - name: tipo_eleicao
+        description: Tipo da eleição
+      - name: valor_receita
+        description: Valor da receita
+  - name: br_tse_eleicoes__receitas_orgao_partidario
+    description: Receitas de Órgãos Partidários
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: cargo_candidato_doador
+        description: Cargo do candidato doador
+      - name: cnae_2_doador
+        description: Classificação Nacional de Atividades Econômicas 2.0 do doador
+      - name: cnae_2_doador_classe
+        description: Classe da CNAE
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__cnae_2')
+              field: classe
+      - name: cnae_2_doador_subclasse
+        description: Subclasse da Classificação de Atividades Econômicas (CNAE)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__cnae_2')
+              field: subclasse
+      - name: cnpj_prestador_contas
+        description: CNPJ do prestador de contas
+      - name: cpf_cnpj_doador
+        description: CPF ou CNPJ do doador
+      - name: cpf_cnpj_doador_orig
+        description: CPF ou CNPJ do doador originário
+      - name: data_prestacao_contas
+        description: Data de prestação de contas
+      - name: data_receita
+        description: Data da receita
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: descricao_cnae_2_doador
+        description: Descrição da Classificação Nacional de Atividades Econômicas
+          2.0 do doador
+      - name: descricao_cnae_2_doador_orig
+        description: Descrição da Classificação Nacional de Atividades Econômicas
+          2.0 do doador originário
+      - name: descricao_receita
+        description: Descrição da receita
+      - name: esfera_partidaria
+        description: Esfera Partidária
+      - name: esfera_partidaria_doador
+        description: Esfera partidária do doador
+      - name: especie_receita
+        description: Espécie da receita
+      - name: fonte_receita
+        description: Fonte da receita
+      - name: id_municipio
+        description: ID Município IBGE 7 Dígitos do diretório
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_municipio_doador
+        description: ID Município do doador - IBGE
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_municipio_tse
+        description: ID Municipio TSE do diretório
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio_tse
+              ignore_values: ['73709']
+      - name: id_municipio_tse_doador
+        description: ID Município do doador - TSE
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio_tse
+              ignore_values: ['73709']
+      - name: natureza_receita
+        description: Natureza da receita
+      - name: nome_doador
+        description: Nome do doador
+      - name: nome_doador_orig
+        description: Nome do doador originário
+      - name: nome_doador_orig_rf
+        description: Nome do doador originário - Receita Federal
+      - name: nome_doador_rf
+        description: Nome do doador - Receita Federal
+      - name: nome_partido
+        description: Nome do partido
+      - name: nome_partido_doador
+        description: Nome do partido do doador
+      - name: numero_candidato_doador
+        description: Número do candidato doador
+      - name: numero_documento
+        description: Número do documento
+      - name: numero_documento_doacao
+        description: Número do documento da doação
+      - name: numero_partido
+        description: Número do partido
+      - name: numero_partido_doador
+        description: Número do partido do doador
+      - name: numero_recibo_doacao
+        description: Número do recibo da doação
+      - name: numero_recibo_eleitoral
+        description: Número do recibo eleitoral
+      - name: origem_receita
+        description: Origem da receita
+      - name: sequencial_candidato_doador
+        description: Sequencial do candidato doador
+      - name: sequencial_diretorio
+        description: Sequencial do diretório
+      - name: sequencial_prestador_contas
+        description: Sequencial do prestador de contas
+      - name: sequencial_receita
+        description: Sequencial da receita
+      - name: sigla_partido
+        description: Sigla do partido
+      - name: sigla_partido_doador
+        description: Sigla do partido do doador
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: sigla_uf_doador
+        description: Sigla da unidade da federação do doador
+      - name: tipo_diretorio
+        description: Tipo diretório
+      - name: tipo_doador_orig
+        description: Tipo do doador originário
+      - name: tipo_documento
+        description: Tipo do documento
+      - name: tipo_eleicao
+        description: Tipo da Eleição
+      - name: tipo_prestacao_contas
+        description: Tipo de prestação de contas
+      - name: valor_receita
+        description: Valor da receita
+  - name: br_tse_eleicoes__resultados_candidato
+    description: Dados de resultados eleitorais a nível de candidato.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.85
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: cargo
+        description: Cargo
+      - name: data_eleicao
+        description: Data da eleição
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: id_eleicao
+        description: ID Eleição
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_municipio_tse
+        description: ID Município - TSE
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio_tse
+              ignore_values: ['73709']
+      - name: numero_candidato
+        description: Número do candidato
+      - name: numero_partido
+        description: Número do partido
+      - name: resultado
+        description: Resultado
+      - name: sequencial_candidato
+        description: Sequencial do candidato
+      - name: sigla_partido
+        description: Sigla do partido
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              ignore_values: [GB, GP, RB]
+      - name: tipo_eleicao
+        description: Tipo da eleição
+      - name: titulo_eleitoral_candidato
+        description: Título eleitoral do candidato
+      - name: turno
+        description: Turno
+      - name: votos
+        description: Número de votos
+  - name: br_tse_eleicoes__resultados_candidato_municipio
+    description: Dados de votação em eleições brasileiras a nível candidato-município.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - turno
+            - id_eleicao
+            - sigla_uf
+            - id_municipio_tse
+            - cargo
+            - sequencial_candidato
+            - numero_candidato
+            - titulo_eleitoral_candidato
+      - not_null_proportion_multiple_columns:
+          at_least: 0.90
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: cargo
+        description: Cargo
+      - name: data_eleicao
+        description: Data da eleição
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: id_eleicao
+        description: ID Eleição
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_municipio_tse
+        description: ID Município - TSE
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio_tse
+              ignore_values: ['73709']
+      - name: numero_candidato
+        description: Número do candidato
+      - name: numero_partido
+        description: Número do partido
+      - name: resultado
+        description: Resultado
+      - name: sequencial_candidato
+        description: Sequencial do candidato
+      - name: sigla_partido
+        description: Sigla do partido
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              ignore_values: [GB, GP, RB]
+      - name: tipo_eleicao
+        description: Tipo da eleição
+      - name: titulo_eleitoral_candidato
+        description: Título eleitoral do candidato
+      - name: turno
+        description: Turno
+      - name: votos
+        description: Número de votos
+  - name: br_tse_eleicoes__resultados_candidato_municipio_zona
+    description: Dados de votação em eleições brasileiras a nível candidato-município-zona.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - turno
+            - id_eleicao
+            - sigla_uf
+            - id_municipio_tse
+            - cargo
+            - zona
+            - sequencial_candidato
+            - numero_candidato
+            - titulo_eleitoral_candidato
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: cargo
+        description: Cargo
+      - name: data_eleicao
+        description: Data da eleição
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: id_eleicao
+        description: ID Eleição
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_municipio_tse
+        description: ID Município - TSE
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio_tse
+              ignore_values: ['73709']
+      - name: numero_candidato
+        description: Número do candidato
+      - name: numero_partido
+        description: Número do partido
+      - name: resultado
+        description: Resultado
+      - name: sequencial_candidato
+        description: Sequencial do candidato
+      - name: sigla_partido
+        description: Sigla do partido
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              ignore_values: [GB, GP, RB]
+      - name: tipo_eleicao
+        description: Tipo da eleição
+      - name: titulo_eleitoral_candidato
+        description: Título eleitoral do candidato
+      - name: turno
+        description: Turno
+      - name: votos
+        description: Número de votos
+      - name: zona
+        description: Zona eleitoral
+  - name: br_tse_eleicoes__resultados_candidato_secao
+    description: Dados de resultados eleitorais a nível de candidato-seção.
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: cargo
+        description: Cargo
+      - name: data_eleicao
+        description: Data da eleição
+      - name: id_eleicao
+        description: ID Eleição
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_municipio_tse
+        description: ID Município - TSE
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio_tse
+              ignore_values: ['73709']
+      - name: numero_candidato
+        description: Número do candidato
+      - name: numero_partido
+        description: Número do partido
+      - name: secao
+        description: Seção eleitoral
+      - name: sequencial_candidato
+        description: Sequencial do candidato
+      - name: sigla_partido
+        description: Sigla do partido
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              ignore_values: [ZZ]
+      - name: tipo_eleicao
+        description: Tipo da eleição
+      - name: titulo_eleitoral_candidato
+        description: Título eleitoral do candidato
+      - name: turno
+        description: Turno
+      - name: votos
+        description: Número de votos
+      - name: zona
+        description: Zona eleitoral
+  - name: br_tse_eleicoes__resultados_partido_municipio
+    description: Dados de resultados em eleições brasileiras a nível de partido-município.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - turno
+            - id_eleicao
+            - id_municipio_tse
+            - cargo
+            - numero_partido
+      - not_null_proportion_multiple_columns:
+          at_least: 0.90
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: cargo
+        description: Cargo
+      - name: data_eleicao
+        description: Data da eleição
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: id_eleicao
+        description: ID Eleição
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_municipio_tse
+        description: ID Município - TSE
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio_tse
+              ignore_values: ['73709']
+      - name: numero_partido
+        description: Número do partido
+      - name: sigla_partido
+        description: Sigla do partido
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              ignore_values: [GB, GP, RB]
+      - name: tipo_eleicao
+        description: Tipo da eleição
+      - name: turno
+        description: Turno
+      - name: votos_legenda
+        description: Número de votos na legenda
+      - name: votos_nominais
+        description: Número de votos nominais
+  - name: br_tse_eleicoes__resultados_partido_municipio_zona
+    description: Dados de resultados em eleições brasileiras a nível de partido-zona.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - turno
+            - id_eleicao
+            - id_municipio_tse
+            - zona
+            - cargo
+            - numero_partido
+      - not_null_proportion_multiple_columns:
+          at_least: 0.90
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: cargo
+        description: Cargo
+      - name: data_eleicao
+        description: Data da eleição
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: id_eleicao
+        description: ID Eleição
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_municipio_tse
+        description: ID Município - TSE
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio_tse
+              ignore_values: ['73709']
+      - name: numero_partido
+        description: Número do partido
+      - name: sigla_partido
+        description: Sigla do partido
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              ignore_values: [GB, GP, RB]
+      - name: tipo_eleicao
+        description: Tipo da eleição
+      - name: turno
+        description: Turno
+      - name: votos_legenda
+        description: Número de votos na legenda
+      - name: votos_nominais
+        description: Número de votos nominais
+      - name: zona
+        description: Zona eleitoral
+  - name: br_tse_eleicoes__resultados_partido_secao
+    description: Dados de resultados em eleições brasileiras a nível de partido-seção.
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: cargo
+        description: Cargo
+      - name: data_eleicao
+        description: Data da eleição
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: id_eleicao
+        description: ID Eleição
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_municipio_tse
+        description: ID Município - TSE
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio_tse
+              ignore_values: ['73709']
+      - name: numero_partido
+        description: Número do partido
+      - name: secao
+        description: Seção eleitoral
+      - name: sigla_partido
+        description: Sigla do partido
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              ignore_values: [ZZ]
+      - name: tipo_eleicao
+        description: Tipo da eleição
+      - name: turno
+        description: Turno
+      - name: votos_legenda
+        description: Número de votos na legenda
+      - name: votos_nominais
+        description: Número de votos nominais
+      - name: zona
+        description: Zona eleitoral
+  - name: br_tse_eleicoes__vagas
+    description: Número de vagas em disputa na eleição por município-cargo.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - id_eleicao
+            - tipo_eleicao
+            - data_eleicao
+            - sigla_uf
+            - id_municipio_tse
+            - cargo
+      - not_null_proportion_multiple_columns:
+          at_least: 0.35
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: cargo
+        description: Cargo
+      - name: data_eleicao
+        description: Data da eleição
+      - name: id_eleicao
+        description: ID Eleição
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_municipio_tse
+        description: ID Município - TSE
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio_tse
+              ignore_values: ['73709']
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              ignore_values: [ZZ]
+      - name: tipo_eleicao
+        description: Tipo da eleição
+      - name: vagas
+        description: Número de vagas
+  - name: br_tse_eleicoes__dicionario
+    description: Dicionário
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_tabela
+            - nome_coluna
+            - chave
+            - cobertura_temporal
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+    columns:
+      - name: id_tabela
+        description: ID Tabela
+      - name: nome_coluna
+        description: Nome da coluna
+      - name: chave
+        description: Chave
+      - name: cobertura_temporal
+        description: Cobertura temporal
+      - name: valor
+        description: Valor
