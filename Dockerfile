@@ -48,11 +48,10 @@ RUN apt-get update && \
 ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
-RUN pip install "poetry<2"
+RUN pip install --no-cache-dir --upgrade pip "poetry==1.8.5"
 WORKDIR /app
 COPY . .
-
-RUN poetry install --without dev
+RUN poetry install --without dev --no-root
 RUN dbt deps && \
     mkdir -p /opt/prefect/app/bases && \
     mkdir -p /root/.basedosdados/templates && \
