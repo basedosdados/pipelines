@@ -2,14 +2,13 @@ name: Table prod
 on:
   issue_comment:
     types: [created, edited, deleted]
-  pull_request_review:
-    types: [submitted]
+
 
 jobs:
   validate_comment_and_approval:
     runs-on: ubuntu-latest
 
-    if: github.event.issue.pull_request || github.event.review.state == 'approved'
+    if: github.event.issue.pull_request
 
     steps:
       - name: Get PR number
