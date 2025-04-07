@@ -23,8 +23,10 @@ repos:
         name: yamlfix
         types: [yaml]
         language: python
-        entry: yamlfix --exclude ".venv/**/*" --exclude "dbt_packages/**/*" --exclude
-          "target/**/*" --exclude ".github/**/*" .
+        entry: yamlfix
+        files: models
+        args:
+          - models/
   # TODO(aspeddro): Enable after fix linter rules for all files in models/
   # - repo: https://github.com/astral-sh/ruff-pre-commit
   #   rev: v0.9.3
