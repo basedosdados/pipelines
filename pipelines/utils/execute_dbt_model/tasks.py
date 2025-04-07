@@ -233,11 +233,6 @@ def execute_dbt_model(
                 constants_execute.DISABLE_ELEMENTARY_VARS.value, _vars
             )
 
-    logs_dir = os.path.join(dbt_repository_path, "logs")
-    if not os.path.exists(logs_dir):
-        os.makedirs(logs_dir)
-        log(f"Created logs directory: {logs_dir}", level="info")
-
     os.chdir(dbt_repository_path)
     log(f"Working directory set to: {dbt_repository_path}", level="info")
 
@@ -256,22 +251,26 @@ def execute_dbt_model(
             cli_args.extend(flags.split())
 
         if _vars:
-            if isinstance(_vars, list):
-                vars_dict = {}
-                for elem in _vars:
-                    vars_dict.update(elem)
-                vars_str = json.dumps(vars_dict)
+            if isinstance(
+                constants_execute.DISABLE_ELEMENTARY_VARS.value, str
+            ):
+                disable_elementary_dict = json.loads(
+                    constants_execute.DISABLE_ELEMENTARY_VARS.value
+                )
             else:
-                if isinstance(_vars, str):
-                    try:
-                        json.loads(_vars.replace("'", '"'))
-                        vars_str = _vars.replace("'", '"')
-                    except json.JSONDecodeError:
-                        vars_str = json.dumps(eval(_vars))
-                else:
-                    vars_str = json.dumps(_vars)
+                disable_elementary_dict = (
+                    constants_execute.DISABLE_ELEMENTARY_VARS.value
+                )
 
-            cli_args.extend(["--vars", vars_str])
+            if isinstance(_vars, str):
+                vars_dict = json.loads(_vars)
+            else:
+                vars_dict = _vars
+
+            variables = {**disable_elementary_dict, **vars_dict}
+            log(variables, level="info")
+
+            cli_args.extend(["--vars", f"{json.dumps(variables)}"])
 
         log(f"Executing dbt command: {' '.join(cli_args)}", level="info")
 
