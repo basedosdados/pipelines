@@ -65,7 +65,7 @@ with Flow(
 
     flow = flows_control(
         table_id=table_id,
-        target=target,
+        mode=target,
         upstream_tasks=[rename_flow_run],
     )
 

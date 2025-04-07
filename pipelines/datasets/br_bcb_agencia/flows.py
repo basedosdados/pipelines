@@ -48,7 +48,6 @@ with Flow(
     )
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
-    # Materialization mode
     target = Parameter("target", default="prod", required=False)
 
     materialize_after_dump = Parameter(
