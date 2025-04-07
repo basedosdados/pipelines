@@ -22,7 +22,7 @@ repos:
       - id: yamlfix
         name: yamlfix
         types: [yaml]
-        language: system
+        language: python
         entry: yamlfix --exclude ".venv/**/*" --exclude "dbt_packages/**/*" --exclude
           "target/**/*" --exclude ".github/**/*" .
   # TODO(aspeddro): Enable after fix linter rules for all files in models/
