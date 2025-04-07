@@ -341,4 +341,4 @@ def execute_dbt_model(
                 )
                 raise FAIL(error_msg) from e
             else:
-                raise
+                raise e
