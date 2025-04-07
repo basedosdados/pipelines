@@ -40,14 +40,14 @@ with Flow(
     use_env_credentials = Parameter(
         "use_env_credentials", default=True, required=False
     )
-    repository_url = Parameter(
-        "repository_url",
+    dbt_repository_url = Parameter(
+        "dbt_repository_url",
         default="https://github.com/basedosdados/queries-basedosdados.git",
         required=False,
     )
-    repository_branch = Parameter(
-        "repository_branch",
-        default=None,
+    dbt_repository_branch = Parameter(
+        "dbt_repository_branch",
+        default="main",
         required=False,
     )
 
@@ -59,8 +59,8 @@ with Flow(
     )
 
     repository_path = download_repository(
-        repo_url=repository_url,
-        branch=repository_branch,
+        repo_url=dbt_repository_url,
+        branch=dbt_repository_branch,
     )
 
     dependencies_installed = install_dbt_dependencies(

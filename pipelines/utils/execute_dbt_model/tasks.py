@@ -33,7 +33,7 @@ from pipelines.utils.utils import log
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def download_repository(repo_url: str, branch: str) -> str:
+def download_repository(repo_url: str, branch: str = "main") -> str:
     """
     Downloads the repository specified by the repo_url, optionally from a specific branch.
 
