@@ -20,5 +20,9 @@ select
     safe_cast(sexo as string) sexo,
     safe_cast(quantidade_docente as int64) quantidade_docente,
 from
-    {{ project_path("br_inep_sinopse_estatistica_educacao_basica_staging.docente_faixa_etaria_sexo") }}
+    {{
+        project_path(
+            "br_inep_sinopse_estatistica_educacao_basica_staging.docente_faixa_etaria_sexo"
+        )
+    }}
     as t

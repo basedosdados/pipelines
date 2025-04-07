@@ -68,4 +68,8 @@ select
         proporcao_contribuicao_energia_armazenada_maxima_sin as float64
     ) proporcao_contribuicao_energia_armazenada_maxima_sin
 from
-    {{ project_path("br_ons_avaliacao_operacao_staging.energia_armazenada_reservatorio") }}t
+    {{
+        project_path(
+            "br_ons_avaliacao_operacao_staging.energia_armazenada_reservatorio"
+        )
+    }}t

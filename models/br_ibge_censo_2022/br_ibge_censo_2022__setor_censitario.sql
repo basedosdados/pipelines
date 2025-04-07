@@ -1431,25 +1431,41 @@ select
     safe_cast(v01411 as int64) v01411,
 from {{ project_path("br_ibge_censo_2022_staging.setor_censitario") }} as setores
 left join
-    {{ project_path("br_ibge_censo_2022_staging.Agregados_por_setores_alfabetizacao_BR") }}
-    as alfabetizacao
-    on left(setores.cd_setor, 15) = alfabetizacao.cd_setor
+    {{
+        project_path(
+            "br_ibge_censo_2022_staging.Agregados_por_setores_alfabetizacao_BR"
+        )
+    }} as alfabetizacao on left(setores.cd_setor, 15) = alfabetizacao.cd_setor
 left join
-    {{ project_path("br_ibge_censo_2022_staging.Agregados_por_setores_caracteristicas_domicilio1_BR") }}
+    {{
+        project_path(
+            "br_ibge_censo_2022_staging.Agregados_por_setores_caracteristicas_domicilio1_BR"
+        )
+    }}
     as domicilio1
     on left(setores.cd_setor, 15) = domicilio1.cd_setor
 left join
-    {{ project_path("br_ibge_censo_2022_staging.Agregados_por_setores_caracteristicas_domicilio2_BR") }}
+    {{
+        project_path(
+            "br_ibge_censo_2022_staging.Agregados_por_setores_caracteristicas_domicilio2_BR"
+        )
+    }}
     as domicilio2
     on left(setores.cd_setor, 15) = domicilio2.cd_setor
 left join
-    {{ project_path("br_ibge_censo_2022_staging.Agregados_por_setores_caracteristicas_domicilio3_BR") }}
+    {{
+        project_path(
+            "br_ibge_censo_2022_staging.Agregados_por_setores_caracteristicas_domicilio3_BR"
+        )
+    }}
     as domicilio3
     on left(setores.cd_setor, 15) = domicilio3.cd_setor
 left join
-    {{ project_path("br_ibge_censo_2022_staging.Agregados_por_setores_cor_ou_raca_BR") }}
-    as cor_ou_raca
-    on left(setores.cd_setor, 15) = cor_ou_raca.cd_setor
+    {{
+        project_path(
+            "br_ibge_censo_2022_staging.Agregados_por_setores_cor_ou_raca_BR"
+        )
+    }} as cor_ou_raca on left(setores.cd_setor, 15) = cor_ou_raca.cd_setor
 left join
     {{ project_path("br_ibge_censo_2022_staging.Agregados_por_setores_demografia_BR") }}
     as demografia

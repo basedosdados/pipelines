@@ -29,4 +29,8 @@ select
         geracao_fotovoltaica_verificada as float64
     ) geracao_fotovoltaica_verificada
 from
-    {{ project_path("br_ons_estimativa_custos_staging.balanco_energia_subsistemas_dessem") }}t
+    {{
+        project_path(
+            "br_ons_estimativa_custos_staging.balanco_energia_subsistemas_dessem"
+        )
+    }}t

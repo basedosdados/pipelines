@@ -32,5 +32,8 @@ select
     safe_cast(localizacao as string) localizacao,
     safe_cast(quantidade_matricula as int64) quantidade_matricula,
 from
-    {{ project_path("br_inep_sinopse_estatistica_educacao_basica_staging.localizacao") }}
-    as t
+    {{
+        project_path(
+            "br_inep_sinopse_estatistica_educacao_basica_staging.localizacao"
+        )
+    }} as t

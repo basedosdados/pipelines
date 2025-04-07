@@ -8,4 +8,8 @@ select
     safe_cast(unidade_territorial as string) unidade_territorial,
     safe_cast(regiao as string) regiao
 from
-    {{ project_path("br_rj_isp_estatisticas_seguranca_staging.relacao_cisp_aisp_risp") }}t
+    {{
+        project_path(
+            "br_rj_isp_estatisticas_seguranca_staging.relacao_cisp_aisp_risp"
+        )
+    }}t

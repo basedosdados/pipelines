@@ -1537,7 +1537,11 @@ from
                         2
                     ) as valor_final,
                 from
-                    {{ project_path("world_wb_mides_staging.raw_despesa_sp_municipio") }}
+                    {{
+                        project_path(
+                            "world_wb_mides_staging.raw_despesa_sp_municipio"
+                        )
+                    }}
             ),
             empenhado_municipio_rj_v1 as (
                 select
@@ -1608,7 +1612,11 @@ from
                     ) as modalidade_despesa,
                     round(safe_cast(valor_empenhado as float64), 2) as valor_final,
                 from
-                    {{ project_path("world_wb_mides_staging.raw_despesa_rj_municipio") }}
+                    {{
+                        project_path(
+                            "world_wb_mides_staging.raw_despesa_rj_municipio"
+                        )
+                    }}
                 where (safe_cast(exercicio_empenho as int64)) < 2017
             ),
             frequencia_rj_v1 as (
@@ -1792,7 +1800,11 @@ from
                     ) as elemento_despesa,
                     round(safe_cast(valor as float64), 2) as valor_inicial,
                 from
-                    {{ project_path("world_wb_mides_staging.raw_despesa_ato_rj_municipio") }}
+                    {{
+                        project_path(
+                            "world_wb_mides_staging.raw_despesa_ato_rj_municipio"
+                        )
+                    }}
                 where tipoato = 'EMPENHO'
             ),
             anulacao_municipio_rj_v2 as (
@@ -1812,7 +1824,11 @@ from
                     ) as id_empenho_bd,
                     round(sum(safe_cast(valor as float64)), 2) as valor_anulacao,
                 from
-                    {{ project_path("world_wb_mides_staging.raw_despesa_ato_rj_municipio") }}
+                    {{
+                        project_path(
+                            "world_wb_mides_staging.raw_despesa_ato_rj_municipio"
+                        )
+                    }}
                 where tipoato = 'CANCELAMENTO EMPENHO'
                 group by 1
             ),

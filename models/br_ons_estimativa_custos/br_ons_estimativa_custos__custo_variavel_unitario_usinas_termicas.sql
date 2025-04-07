@@ -32,7 +32,11 @@ with
             safe_cast(usina as string) usina,
             safe_cast(custo_variavel_unitario as float64) custo_variavel_unitario
         from
-            {{ project_path("br_ons_estimativa_custos_staging.custo_variavel_unitario_usinas_termicas") }}
+            {{
+                project_path(
+                    "br_ons_estimativa_custos_staging.custo_variavel_unitario_usinas_termicas"
+                )
+            }}
             as t
     )
 select *

@@ -88,4 +88,8 @@ select
     safe_cast(quantidade_registro_ocorrencia as int64) quantidade_registro_ocorrencia,
     safe_cast(tipo_fase as string) tipo_fase
 from
-    {{ project_path("br_rj_isp_estatisticas_seguranca_staging.evolucao_mensal_municipio") }}t
+    {{
+        project_path(
+            "br_rj_isp_estatisticas_seguranca_staging.evolucao_mensal_municipio"
+        )
+    }}t

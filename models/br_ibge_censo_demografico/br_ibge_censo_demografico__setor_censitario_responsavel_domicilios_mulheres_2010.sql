@@ -121,5 +121,9 @@ select
     safe_cast(v107 as int64) v107,
     safe_cast(v108 as int64) v108
 from
-    {{ project_path("br_ibge_censo_demografico_staging.setor_censitario_responsavel_domicilios_mulheres_2010") }}
+    {{
+        project_path(
+            "br_ibge_censo_demografico_staging.setor_censitario_responsavel_domicilios_mulheres_2010"
+        )
+    }}
     as t

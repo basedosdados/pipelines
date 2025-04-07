@@ -1,0 +1,22 @@
+{
+  "files.associations": {
+    "*.sql": "jinja-sql"
+  },
+  "[jinja-sql]": {
+    "editor.defaultFormatter": "innoverio.vscode-dbt-power-user",
+    "editor.formatOnSave": true
+  },
+  // Disable default formatter for yaml files
+  "[yaml]": {
+    "editor.defaultFormatter": null
+  },
+  // Run yamlfix on save
+  "emeraldwalk.runonsave": {
+    "commands": [
+      {
+        "match": "\\.(yaml|yml)$",
+        "cmd": "poetry run yamlfix ${file}"
+      }
+    ]
+  }
+}

@@ -25,4 +25,8 @@ select
     safe_cast(quantidade_submetralhadora as int64) quantidade_submetralhadora,
     safe_cast(total as int64) total
 from
-    {{ project_path("br_rj_isp_estatisticas_seguranca_staging.armas_apreendidas_mensal") }}t
+    {{
+        project_path(
+            "br_rj_isp_estatisticas_seguranca_staging.armas_apreendidas_mensal"
+        )
+    }}t

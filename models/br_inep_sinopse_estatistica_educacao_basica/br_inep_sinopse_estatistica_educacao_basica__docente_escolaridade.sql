@@ -19,5 +19,8 @@ select
     safe_cast(escolaridade as string) escolaridade,
     safe_cast(replace(quantidade_docente, ".0", "") as int64) quantidade_docente,
 from
-    {{ project_path("br_inep_sinopse_estatistica_educacao_basica_staging.docente_escolaridade") }}
-    as t
+    {{
+        project_path(
+            "br_inep_sinopse_estatistica_educacao_basica_staging.docente_escolaridade"
+        )
+    }} as t

@@ -65,7 +65,11 @@ with
                 pessoas_residentes_em_territorios_quilombolas_pessoas_ as int64
             ) populacao_residente,
         from
-            {{ project_path("br_ibge_censo_2022_staging.populacao_idade_sexo_territorio_quilombola") }}
+            {{
+                project_path(
+                    "br_ibge_censo_2022_staging.populacao_idade_sexo_territorio_quilombola"
+                )
+            }}
     )
 
 -- por algum motivo o Território Alto da Serra está duplicado.

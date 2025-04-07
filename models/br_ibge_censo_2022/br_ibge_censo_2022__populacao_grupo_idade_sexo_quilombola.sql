@@ -26,8 +26,11 @@ with
             safe_cast(sexo as string) sexo,
             safe_cast(pessoas_quilombolas_pessoas_ as int64) pessoas,
         from
-            {{ project_path("br_ibge_censo_2022_staging.populacao_grupo_idade_sexo_quilombola") }}
-            as t
+            {{
+                project_path(
+                    "br_ibge_censo_2022_staging.populacao_grupo_idade_sexo_quilombola"
+                )
+            }} as t
     )
 select
     ano,

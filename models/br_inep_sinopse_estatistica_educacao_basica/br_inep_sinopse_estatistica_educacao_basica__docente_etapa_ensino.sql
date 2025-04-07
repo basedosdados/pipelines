@@ -20,5 +20,8 @@ select
     safe_cast(etapa_ensino as string) etapa_ensino,
     safe_cast(replace(quantidade_docentes, ".0", "") as int64) quantidade_docente,
 from
-    {{ project_path("br_inep_sinopse_estatistica_educacao_basica_staging.docente_etapa_ensino") }}
-    as t
+    {{
+        project_path(
+            "br_inep_sinopse_estatistica_educacao_basica_staging.docente_etapa_ensino"
+        )
+    }} as t

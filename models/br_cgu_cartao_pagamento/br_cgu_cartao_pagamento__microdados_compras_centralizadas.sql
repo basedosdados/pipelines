@@ -29,5 +29,8 @@ select
     parse_date("%d/%m/%Y", data_transacao) data_transacao,
     safe_cast(valor_transacao as float64) valor_transacao,
 from
-    {{ project_path("br_cgu_cartao_pagamento_staging.microdados_compras_centralizadas") }}
-    as t
+    {{
+        project_path(
+            "br_cgu_cartao_pagamento_staging.microdados_compras_centralizadas"
+        )
+    }} as t

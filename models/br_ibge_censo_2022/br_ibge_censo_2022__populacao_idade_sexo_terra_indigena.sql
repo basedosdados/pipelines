@@ -65,7 +65,11 @@ with
                 pessoas_residentes_em_terras_indigenas_pessoas_ as int64
             ) populacao_residente,
         from
-            {{ project_path("br_ibge_censo_2022_staging.populacao_idade_sexo_terra_indigena") }}
+            {{
+                project_path(
+                    "br_ibge_censo_2022_staging.populacao_idade_sexo_terra_indigena"
+                )
+            }}
     )
 select
     ibge.* except (idade_num, pessoas_indigenas, populacao_residente),

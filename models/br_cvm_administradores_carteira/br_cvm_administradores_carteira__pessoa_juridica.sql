@@ -44,7 +44,11 @@ with
             safe_cast(email as string) email,
             safe_cast(website as string) website
         from
-            {{ project_path("br_cvm_administradores_carteira_staging.pessoa_juridica") }}t
+            {{
+                project_path(
+                    "br_cvm_administradores_carteira_staging.pessoa_juridica"
+                )
+            }}t
     )
 select *
 from tabela

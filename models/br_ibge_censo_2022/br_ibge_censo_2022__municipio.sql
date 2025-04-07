@@ -38,7 +38,11 @@ with
             safe_cast(replace(idade_mediana_anos_, ",", ".") as float64) idade_mediana,
             safe_cast(replace(razao_de_sexo_razao_, ",", ".") as float64) razao_sexo,
         from
-            {{ project_path("br_ibge_censo_2022_staging.municipio_indice_envelhecimento") }}
+            {{
+                project_path(
+                    "br_ibge_censo_2022_staging.municipio_indice_envelhecimento"
+                )
+            }}
     ),
 
     indigenas as (
@@ -105,7 +109,11 @@ with
                 5
             ) as taxa_alfabetizacao
         from
-            {{ project_path("br_ibge_censo_2022_staging.alfabetizacao_grupo_idade_sexo_raca") }}
+            {{
+                project_path(
+                    "br_ibge_censo_2022_staging.alfabetizacao_grupo_idade_sexo_raca"
+                )
+            }}
         group by 1, 2
     )
 

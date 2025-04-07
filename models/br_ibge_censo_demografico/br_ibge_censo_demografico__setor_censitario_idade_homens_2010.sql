@@ -147,4 +147,8 @@ select
     safe_cast(v133 as int64) v133,
     safe_cast(v134 as int64) v134
 from
-    {{ project_path("br_ibge_censo_demografico_staging.setor_censitario_idade_homens_2010") }}t
+    {{
+        project_path(
+            "br_ibge_censo_demografico_staging.setor_censitario_idade_homens_2010"
+        )
+    }}t

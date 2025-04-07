@@ -37,7 +37,11 @@ with
             safe_cast(geracao_referencia as float64) geracao_referencia,
             safe_cast(geracao_referencia_final as float64) geracao_referencia_final
         from
-            {{ project_path("br_ons_avaliacao_operacao_staging.restricao_operacao_usinas_eolicas") }}
+            {{
+                project_path(
+                    "br_ons_avaliacao_operacao_staging.restricao_operacao_usinas_eolicas"
+                )
+            }}
             as t
     )
 select distinct *

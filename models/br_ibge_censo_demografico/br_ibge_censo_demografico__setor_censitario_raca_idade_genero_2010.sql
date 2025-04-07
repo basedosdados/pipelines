@@ -264,5 +264,8 @@ select
     safe_cast(v250 as int64) v250,
     safe_cast(v251 as int64) v251
 from
-    {{ project_path("br_ibge_censo_demografico_staging.setor_censitario_raca_idade_genero_2010") }}
-    as t
+    {{
+        project_path(
+            "br_ibge_censo_demografico_staging.setor_censitario_raca_idade_genero_2010"
+        )
+    }} as t

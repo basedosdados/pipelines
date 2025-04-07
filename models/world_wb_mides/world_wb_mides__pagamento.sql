@@ -1124,7 +1124,11 @@ from
                     round(safe_cast(pago as float64), 2) as valor_final,
                     round(safe_cast(pago as float64), 2) as valor_liquido_recebido,
                 from
-                    {{ project_path("world_wb_mides_staging.raw_despesa_sp_municipio") }}
+                    {{
+                        project_path(
+                            "world_wb_mides_staging.raw_despesa_sp_municipio"
+                        )
+                    }}
             ),
             pago_municipio_rj_v1 as (
                 select
@@ -1168,7 +1172,11 @@ from
                     round(safe_cast(valor_pago as float64), 2) as valor_final,
                     round(safe_cast(valor_pago as float64), 2) as valor_liquido_recebido
                 from
-                    {{ project_path("world_wb_mides_staging.raw_despesa_rj_municipio") }}
+                    {{
+                        project_path(
+                            "world_wb_mides_staging.raw_despesa_rj_municipio"
+                        )
+                    }}
             ),
             frequencia_rj_v1 as (
                 select id_empenho_bd, count(id_empenho_bd) as frequencia_id
@@ -1276,7 +1284,11 @@ from
                     safe_cast(fonterecursos as string) as fonte,
                     round(safe_cast(valor as float64), 2) as valor_inicial,
                 from
-                    {{ project_path("world_wb_mides_staging.raw_despesa_ato_rj_municipio") }}
+                    {{
+                        project_path(
+                            "world_wb_mides_staging.raw_despesa_ato_rj_municipio"
+                        )
+                    }}
                 where tipoato = 'PAGAMENTO'
             ),
             anulacao_municipio_rj_v2 as (
@@ -1297,7 +1309,11 @@ from
                     ) as id_empenho_bd,
                     sum(safe_cast(valor as float64)) as valor_anulacao,
                 from
-                    {{ project_path("world_wb_mides_staging.raw_despesa_ato_rj_municipio") }}
+                    {{
+                        project_path(
+                            "world_wb_mides_staging.raw_despesa_ato_rj_municipio"
+                        )
+                    }}
                 where
                     tipoato in (
                         'CANCEL.PAGAMENTO RET.DOTAÇÃO',

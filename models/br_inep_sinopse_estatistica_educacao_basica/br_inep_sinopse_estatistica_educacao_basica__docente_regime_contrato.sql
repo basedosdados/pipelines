@@ -20,5 +20,9 @@ select
     safe_cast(regime_contrato as string) regime_contrato,
     safe_cast(quantidade_docente as int64) quantidade_docente,
 from
-    {{ project_path("br_inep_sinopse_estatistica_educacao_basica_staging.docente_regime_contrato") }}
+    {{
+        project_path(
+            "br_inep_sinopse_estatistica_educacao_basica_staging.docente_regime_contrato"
+        )
+    }}
     as t

@@ -33,7 +33,7 @@ snapshot-paths: [snapshots]
 # using the `{{ config(...) }}` macro.
 models:
   +post-hook:
-   - GRANT `roles/bigquery.dataViewer` ON TABLE {{ this }} TO "specialGroup:allUsers"
+    - GRANT `roles/bigquery.dataViewer` ON TABLE {{ this }} TO "specialGroup:allUsers"
   +persist_docs:
     relation: true
     columns: true

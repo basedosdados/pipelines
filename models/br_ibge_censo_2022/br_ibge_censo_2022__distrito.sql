@@ -1427,34 +1427,54 @@ select
     safe_cast(v01411 as int64) v01411,
 from {{ project_path("br_ibge_censo_2022_staging.distrito") }} as distritos
 left join
-    {{ project_path("br_ibge_censo_2022_staging.Agregados_por_distritos_alfabetizacao_BR") }}
-    as alfabetizacao
-    on distritos.cd_dist = alfabetizacao.cd_dist
+    {{
+        project_path(
+            "br_ibge_censo_2022_staging.Agregados_por_distritos_alfabetizacao_BR"
+        )
+    }} as alfabetizacao on distritos.cd_dist = alfabetizacao.cd_dist
 left join
-    {{ project_path("br_ibge_censo_2022_staging.Agregados_por_distritos_caracteristicas_domicilio1_BR") }}
+    {{
+        project_path(
+            "br_ibge_censo_2022_staging.Agregados_por_distritos_caracteristicas_domicilio1_BR"
+        )
+    }}
     as domicilio1
     on distritos.cd_dist = domicilio1.cd_dist
 left join
-    {{ project_path("br_ibge_censo_2022_staging.Agregados_por_distritos_caracteristicas_domicilio2_BR") }}
+    {{
+        project_path(
+            "br_ibge_censo_2022_staging.Agregados_por_distritos_caracteristicas_domicilio2_BR"
+        )
+    }}
     as domicilio2
     on distritos.cd_dist = domicilio2.cd_dist
 left join
-    {{ project_path("br_ibge_censo_2022_staging.Agregados_por_distritos_caracteristicas_domicilio3_BR") }}
+    {{
+        project_path(
+            "br_ibge_censo_2022_staging.Agregados_por_distritos_caracteristicas_domicilio3_BR"
+        )
+    }}
     as domicilio3
     on distritos.cd_dist = domicilio3.cd_dist
 left join
-    {{ project_path("br_ibge_censo_2022_staging.Agregados_por_distritos_cor_ou_raca_BR") }}
-    as cor_ou_raca
-    on distritos.cd_dist = cor_ou_raca.cd_dist
+    {{
+        project_path(
+            "br_ibge_censo_2022_staging.Agregados_por_distritos_cor_ou_raca_BR"
+        )
+    }} as cor_ou_raca on distritos.cd_dist = cor_ou_raca.cd_dist
 left join
-    {{ project_path("br_ibge_censo_2022_staging.Agregados_por_distritos_demografia_BR") }}
-    as demografia
-    on distritos.cd_dist = demografia.cd_dist
+    {{
+        project_path(
+            "br_ibge_censo_2022_staging.Agregados_por_distritos_demografia_BR"
+        )
+    }} as demografia on distritos.cd_dist = demografia.cd_dist
 left join
     {{ project_path("br_ibge_censo_2022_staging.Agregados_por_distritos_obitos_BR") }}
     as obitos
     on distritos.cd_dist = obitos.cd_dist
 left join
-    {{ project_path("br_ibge_censo_2022_staging.Agregados_por_distritos_parentesco_BR") }}
-    as parentesco
-    on distritos.cd_dist = parentesco.cd_dist
+    {{
+        project_path(
+            "br_ibge_censo_2022_staging.Agregados_por_distritos_parentesco_BR"
+        )
+    }} as parentesco on distritos.cd_dist = parentesco.cd_dist

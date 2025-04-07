@@ -685,7 +685,11 @@ from
                     round(safe_cast(0 as float64), 2) as valor_ajuste,
                     round(safe_cast(liquidado as float64), 2) as valor_final
                 from
-                    {{ project_path("world_wb_mides_staging.raw_despesa_sp_municipio") }}
+                    {{
+                        project_path(
+                            "world_wb_mides_staging.raw_despesa_sp_municipio"
+                        )
+                    }}
             ),
             liquidado_municipio_rj_v1 as (
                 select
@@ -724,7 +728,11 @@ from
                     round(safe_cast(0 as float64), 2) as valor_ajuste,
                     round(safe_cast(valor_liquidado as float64), 2) as valor_final
                 from
-                    {{ project_path("world_wb_mides_staging.raw_despesa_rj_municipio") }}
+                    {{
+                        project_path(
+                            "world_wb_mides_staging.raw_despesa_rj_municipio"
+                        )
+                    }}
                 where (safe_cast(exercicio_empenho as int64)) < 2017
             ),
             frequencia_rj_v1 as (
@@ -810,7 +818,11 @@ from
                     safe_cast(null as bool) as indicador_restos_pagar,
                     round(safe_cast(valor as float64), 2) as valor_inicial
                 from
-                    {{ project_path("world_wb_mides_staging.raw_despesa_ato_rj_municipio") }}
+                    {{
+                        project_path(
+                            "world_wb_mides_staging.raw_despesa_ato_rj_municipio"
+                        )
+                    }}
                 where tipoato = 'LIQUIDACAO'
             ),
             anulacao_municipio_rj_v2 as (
@@ -831,7 +843,11 @@ from
                     ) as id_empenho_bd,
                     sum(safe_cast(valor as float64)) as valor_anulacao,
                 from
-                    {{ project_path("world_wb_mides_staging.raw_despesa_ato_rj_municipio") }}
+                    {{
+                        project_path(
+                            "world_wb_mides_staging.raw_despesa_ato_rj_municipio"
+                        )
+                    }}
                 where
                     tipoato in (
                         'CANCELAMENTO LIQUIDACAO',

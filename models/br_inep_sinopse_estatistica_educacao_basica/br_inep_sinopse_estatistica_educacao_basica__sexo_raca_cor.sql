@@ -21,5 +21,8 @@ select
     safe_cast(raca_cor as string) raca_cor,
     safe_cast(quantidade_matricula as int64) quantidade_matricula,
 from
-    {{ project_path("br_inep_sinopse_estatistica_educacao_basica_staging.sexo_raca_cor") }}
-    as t
+    {{
+        project_path(
+            "br_inep_sinopse_estatistica_educacao_basica_staging.sexo_raca_cor"
+        )
+    }} as t

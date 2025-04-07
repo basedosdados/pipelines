@@ -68,7 +68,6 @@ jobs:
           check-name: Build Docker image
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           verbose: true
-
       - name: Register Prefect flows
         run: |-
           poetry run python .github/workflows/scripts/register_flows.py --project $PREFECT__SERVER__PROJECT --path pipelines/ --no-schedule --filter-affected-flows

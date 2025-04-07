@@ -22,4 +22,8 @@ select
         custo_marginal_operacao_semanal_carga_pesada as float64
     ) custo_marginal_operacao_semanal_carga_pesada
 from
-    {{ project_path("br_ons_estimativa_custos_staging.custo_marginal_operacao_semanal") }}t
+    {{
+        project_path(
+            "br_ons_estimativa_custos_staging.custo_marginal_operacao_semanal"
+        )
+    }}t

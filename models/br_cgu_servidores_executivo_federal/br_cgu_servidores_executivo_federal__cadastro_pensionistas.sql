@@ -105,5 +105,8 @@ select
     ) diploma_ingresso_servicopublico_instituidor_pensao,
     safe_cast(origem as string) origem,
 from
-    {{ project_path("br_cgu_servidores_executivo_federal_staging.cadastro_pensionistas") }}
-    as t
+    {{
+        project_path(
+            "br_cgu_servidores_executivo_federal_staging.cadastro_pensionistas"
+        )
+    }} as t

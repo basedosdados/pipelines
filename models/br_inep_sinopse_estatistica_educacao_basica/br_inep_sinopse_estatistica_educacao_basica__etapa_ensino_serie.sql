@@ -20,5 +20,8 @@ select
     safe_cast(serie as string) serie,
     safe_cast(quantidade_matricula as int64) quantidade_matricula,
 from
-    {{ project_path("br_inep_sinopse_estatistica_educacao_basica_staging.etapa_ensino_serie") }}
-    as t
+    {{
+        project_path(
+            "br_inep_sinopse_estatistica_educacao_basica_staging.etapa_ensino_serie"
+        )
+    }} as t

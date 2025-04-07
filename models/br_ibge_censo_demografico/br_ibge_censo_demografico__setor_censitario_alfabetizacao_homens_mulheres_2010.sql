@@ -183,5 +183,9 @@ select
     safe_cast(v254 as int64) v254,
     safe_cast(v255 as int64) v255
 from
-    {{ project_path("br_ibge_censo_demografico_staging.setor_censitario_alfabetizacao_homens_mulheres_2010") }}
+    {{
+        project_path(
+            "br_ibge_censo_demografico_staging.setor_censitario_alfabetizacao_homens_mulheres_2010"
+        )
+    }}
     as t
