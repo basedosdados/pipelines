@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import os
 from io import BytesIO
 from urllib.request import urlopen
 from zipfile import ZipFile
@@ -36,29 +35,41 @@ def download_all_table(table_id: str) -> None:
         Exception: If there is an error in the request, such as a non-successful status code.
 
     """
-    if not os.path.exists(constants_camara.INPUT_PATH.value):
-        os.makedirs(constants_camara.INPUT_PATH.value)
 
-    url = constants_camara.TABLES_URL.value[table_id]
-    input_path = constants_camara.TABLES_INPUT_PATH.value[table_id]
+    url = [
+        constants_camara.TABLES_URL.value[table_id],
+        constants_camara.TABLES_URL_ANO_ANTERIOR.value[table_id],
+    ]
+    input_path = [
+        constants_camara.TABLES_INPUT_PATH.value[table_id],
+        constants_camara.TABLES_INPUT_PATH_ANO_ANTERIOR.value[table_id],
+    ]
 
-    log(f"Downloading {table_id} from {url}")
-    response = requests.get(url, headers=constants_camara.HEADERS.value)
-    if response.status_code == 200:
-        with open(input_path, "wb") as f:
-            f.write(response.content)
+    for url_year, input_path_year in dict(zip(url, input_path)).items():
+        log(f"Downloading {table_id} from {url_year}")
+        response = requests.get(
+            url_year, headers=constants_camara.HEADERS.value
+        )
+        if response.status_code == 200:
+            with open(input_path_year, "wb") as f:
+                f.write(response.content)
 
-    if response.status_code >= 400 and response.status_code <= 599:
-        raise Exception(f"Error in request: {response.status_code}")
+        if response.status_code >= 400 and response.status_code <= 599:
+            raise Exception(f"Error in request: {response.status_code}")
 
 
 def download_and_read_data(table_id: str) -> pd.DataFrame:
-    if table_id == "despesa":
-        download_table_despesa(table_id)
-    else:
-        download_all_table(table_id)
-    input_path = constants_camara.TABLES_INPUT_PATH.value[table_id]
-    log(input_path)
-    df = pd.read_csv(input_path, sep=";")
+    breakpoint()
+    for input_path in [
+        constants_camara.TABLES_INPUT_PATH.values(),
+        constants_camara.TABLES_INPUT_PATH_ANO_ANTERIOR.values(),
+    ]:
+        if table_id == "despesa":
+            download_table_despesa(table_id)
+        else:
+            download_all_table(table_id)
+        input_path = constants_camara.TABLES_INPUT_PATH.value[table_id]
+        log(input_path)
+        df = pd.read_csv(input_path, sep=";")
 
     return df
