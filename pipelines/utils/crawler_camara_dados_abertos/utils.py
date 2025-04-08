@@ -59,7 +59,6 @@ def download_all_table(table_id: str) -> None:
 
 
 def download_and_read_data(table_id: str) -> pd.DataFrame:
-    breakpoint()
     for input_path in [
         constants_camara.TABLES_INPUT_PATH.values(),
         constants_camara.TABLES_INPUT_PATH_ANO_ANTERIOR.values(),
