@@ -17,6 +17,7 @@ from pipelines.utils.utils import log
 
 # ----------------------------------------> DADOS CAMARA ABERTA - UNIVERSAL
 
+
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
@@ -25,10 +26,11 @@ def save_data(table_id: str) -> str:
     df = download_and_read_data(table_id)
     if not os.path.exists(f"{constants_camara.OUTPUT_PATH.value}{table_id}"):
         os.makedirs(f"{constants_camara.OUTPUT_PATH.value}{table_id}")
-        
-    for output_path in [constants_camara.TABLES_OUTPUT_PATH.value[table_id],
-                        constants_camara.TABLES_OUTPUT_PATH_ANO_ANTERIOR.value[table_id]]:
 
+    for output_path in [
+        constants_camara.TABLES_OUTPUT_PATH.value[table_id],
+        constants_camara.TABLES_OUTPUT_PATH_ANO_ANTERIOR.value[table_id],
+    ]:
         if table_id == "proposicao_microdados":
             df["ultimoStatus_despacho"] = df["ultimoStatus_despacho"].apply(
                 lambda x: str(x)
@@ -55,7 +57,9 @@ def save_data(table_id: str) -> str:
             )
 
         if table_id == "evento":
-            df = df.rename(columns=constants_camara.RENAME_COLUMNS_EVENTO.value)
+            df = df.rename(
+                columns=constants_camara.RENAME_COLUMNS_EVENTO.value
+            )
             df["descricao"] = df["descricao"].apply(
                 lambda x: str(x).replace("\n", " ").replace("\r", " ")
             )
