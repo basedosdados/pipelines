@@ -78,7 +78,6 @@ with Flow(
             ],  # Fix: Wrap filepath in a list to make it iterable
         )
         with case(materialize_after_dump, True):
-            # Trigger DBT flow run
             current_flow_labels = get_current_flow_labels()
             materialization_flow = create_flow_run(
                 flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,

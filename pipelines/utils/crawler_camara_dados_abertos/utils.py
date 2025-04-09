@@ -14,13 +14,23 @@ from pipelines.utils.utils import log
 
 # ----------------------------------------------------------------------------------- > Universal
 def download_table_despesa(table_id: str) -> None:
-    http_response = urlopen(constants_camara.TABLES_URL.value[table_id])
-    zipfile = ZipFile(BytesIO(http_response.read()))
-    zipfile.extractall(path=constants_camara.INPUT_PATH.value)
+    url = [
+        constants_camara.TABLES_URL.value[table_id],
+        constants_camara.TABLES_URL_ANO_ANTERIOR.value[table_id],
+    ]
+    input_path = [
+        constants_camara.INPUT_PATH.value,
+        constants_camara.INPUT_PATH.value,
+    ]
 
-    log(
-        f"Downloading {table_id} from {constants_camara.TABLES_URL.value[table_id]}"
-    )
+    for url_year, input_path_year in dict(zip(url, input_path)).items():
+        http_response = urlopen(url_year)
+        zipfile = ZipFile(BytesIO(http_response.read()))
+        zipfile.extractall(path=input_path_year)
+
+        log(
+            f"Downloading {table_id} from {url_year} and extracting to {input_path_year}"
+        )
 
 
 def download_all_table(table_id: str) -> None:
@@ -46,7 +56,9 @@ def download_all_table(table_id: str) -> None:
     ]
 
     for url_year, input_path_year in dict(zip(url, input_path)).items():
-        log(f"Downloading {table_id} from {url_year}")
+        log(
+            f"Downloading {table_id} from {url_year} and extracting to {input_path_year}"
+        )
         response = requests.get(
             url_year, headers=constants_camara.HEADERS.value
         )
@@ -60,14 +72,13 @@ def download_all_table(table_id: str) -> None:
 
 def download_and_read_data(table_id: str) -> pd.DataFrame:
     for input_path in [
-        constants_camara.TABLES_INPUT_PATH.values(),
-        constants_camara.TABLES_INPUT_PATH_ANO_ANTERIOR.values(),
+        constants_camara.TABLES_INPUT_PATH.value[table_id],
+        constants_camara.TABLES_INPUT_PATH_ANO_ANTERIOR.value[table_id],
     ]:
         if table_id == "despesa":
             download_table_despesa(table_id)
         else:
             download_all_table(table_id)
-        input_path = constants_camara.TABLES_INPUT_PATH.value[table_id]
         log(input_path)
         df = pd.read_csv(input_path, sep=";")
 
