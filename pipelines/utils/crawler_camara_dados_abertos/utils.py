@@ -59,6 +59,7 @@ def download_all_table(table_id: str) -> None:
     for url_year, input_path_year in dict(zip(url, input_path)).items():
         os.makedirs(constants_camara.INPUT_PATH.value, exist_ok=True)
         log("1, 2, 3 - Testando!!!")
+
         log(
             f"Downloading {table_id} from {url_year} and extracting to {input_path_year}"
         )

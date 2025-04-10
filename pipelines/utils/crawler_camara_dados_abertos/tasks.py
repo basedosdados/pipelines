@@ -15,7 +15,7 @@ from pipelines.utils.crawler_camara_dados_abertos.utils import (
 )
 from pipelines.utils.utils import log
 
-# ----------------------------------------> DADOS CAMARA ABERTA - UNIVERSAL
+# ---------------------------------------> DADOS CAMARA ABERTA - UNIVERSAL
 
 
 @task(
