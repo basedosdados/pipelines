@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 from io import BytesIO
 from urllib.request import urlopen
 from zipfile import ZipFile
@@ -22,15 +23,17 @@ def download_table_despesa(table_id: str) -> None:
         constants_camara.INPUT_PATH.value,
         constants_camara.INPUT_PATH.value,
     ]
-
+    
     for url_year, input_path_year in dict(zip(url, input_path)).items():
+        log(
+            f"Downloading {table_id} from {url_year} and extracting to {input_path_year}"
+        )
+        log("1, 2, 3 - Testando!!!")
         http_response = urlopen(url_year)
         zipfile = ZipFile(BytesIO(http_response.read()))
         zipfile.extractall(path=input_path_year)
 
-        log(
-            f"Downloading {table_id} from {url_year} and extracting to {input_path_year}"
-        )
+        
 
 
 def download_all_table(table_id: str) -> None:
@@ -56,6 +59,7 @@ def download_all_table(table_id: str) -> None:
     ]
 
     for url_year, input_path_year in dict(zip(url, input_path)).items():
+        os.makedirs(constants_camara.INPUT_PATH.value, exist_ok=True)
         log(
             f"Downloading {table_id} from {url_year} and extracting to {input_path_year}"
         )
