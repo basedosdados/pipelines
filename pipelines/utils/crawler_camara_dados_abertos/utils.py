@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 from io import BytesIO
 from urllib.request import urlopen
 from zipfile import ZipFile
@@ -56,19 +57,21 @@ def download_all_table(table_id: str) -> None:
     ]
 
     for url_year, input_path_year in dict(zip(url, input_path)).items():
+        
         log(
             f"Downloading {table_id} from {url_year} and extracting to {input_path_year}"
         )
-        response = requests.get(
-            url_year, headers=constants_camara.HEADERS.value
-        )
-        if response.status_code == 200:
+        try:
+            response = requests.get(
+                url_year, headers=constants_camara.HEADERS.value, timeout=10
+            )
+            response.raise_for_status()
             with open(input_path_year, "wb") as f:
                 f.write(response.content)
 
-        if response.status_code >= 400 and response.status_code <= 599:
-            raise Exception(f"Error in request: {response.status_code}")
-
+            log(f"File downloaded successfully to {input_path_year}")
+        except requests.exceptions.RequestException as e:
+            raise Exception(f"Error in request: {e}")
 
 def download_and_read_data(table_id: str) -> pd.DataFrame:
     for input_path in [
@@ -79,7 +82,9 @@ def download_and_read_data(table_id: str) -> pd.DataFrame:
             download_table_despesa(table_id)
         else:
             download_all_table(table_id)
-        log(input_path)
+        log(
+            f"Reading {table_id} from {input_path} and extracting to {input_path}"
+        )
         df = pd.read_csv(input_path, sep=";")
 
     return df
