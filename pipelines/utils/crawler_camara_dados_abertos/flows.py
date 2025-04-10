@@ -73,9 +73,7 @@ with Flow(
             table_id=table_id,
             dump_mode="append",
             wait=filepath,
-            upstream_tasks=[
-                filepath
-            ],
+            upstream_tasks=[filepath],
         )
         with case(materialize_after_dump, True):
             current_flow_labels = get_current_flow_labels()
