@@ -75,7 +75,7 @@ with Flow(
             wait=filepath,
             upstream_tasks=[
                 filepath
-            ],  # Fix: Wrap filepath in a list to make it iterable
+            ],
         )
         with case(materialize_after_dump, True):
             current_flow_labels = get_current_flow_labels()
