@@ -29,7 +29,7 @@ def save_data(table_id: str) -> str:
 
     for output_path in [
         constants_camara.TABLES_OUTPUT_PATH.value[table_id],
-        constants_camara.TABLES_OUTPUT_PATH_ANO_ANTERIOR.value[table_id]
+        constants_camara.TABLES_OUTPUT_PATH_ANO_ANTERIOR.value[table_id],
     ]:
         if table_id == "proposicao_microdados":
             df["ultimoStatus_despacho"] = df["ultimoStatus_despacho"].apply(
