@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import os
 from io import BytesIO
 from urllib.request import urlopen
 from zipfile import ZipFile
@@ -57,7 +56,6 @@ def download_all_table(table_id: str) -> None:
     ]
 
     for url_year, input_path_year in dict(zip(url, input_path)).items():
-        
         log(
             f"Downloading {table_id} from {url_year} and extracting to {input_path_year}"
         )
@@ -72,6 +70,7 @@ def download_all_table(table_id: str) -> None:
             log(f"File downloaded successfully to {input_path_year}")
         except requests.exceptions.RequestException as e:
             raise Exception(f"Error in request: {e}")
+
 
 def download_and_read_data(table_id: str) -> pd.DataFrame:
     for input_path in [
