@@ -40,7 +40,7 @@ from pipelines.utils.crawler_camara_dados_abertos.flows import (
     flow_camara_dados_abertos,
 )
 
-# ! - > Flow: br_camara_dados_abertos__votacao
+# ! -- > Flow: br_camara_dados_abertos__votacao
 br_camara_dados_abertos__votacao = deepcopy(flow_camara_dados_abertos)
 br_camara_dados_abertos__votacao.name = "br_camara_dados_abertos.votacao"
 br_camara_dados_abertos__votacao.code_owners = ["trick"]
