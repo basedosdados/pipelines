@@ -23,7 +23,7 @@ def download_table_despesa(table_id: str) -> None:
         constants_camara.INPUT_PATH.value,
         constants_camara.INPUT_PATH.value,
     ]
-    
+
     for url_year, input_path_year in dict(zip(url, input_path)).items():
         log(
             f"Downloading {table_id} from {url_year} and extracting to {input_path_year}"
@@ -32,8 +32,6 @@ def download_table_despesa(table_id: str) -> None:
         http_response = urlopen(url_year)
         zipfile = ZipFile(BytesIO(http_response.read()))
         zipfile.extractall(path=input_path_year)
-
-        
 
 
 def download_all_table(table_id: str) -> None:
