@@ -23,28 +23,31 @@ from pipelines.utils.utils import log
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def save_data(table_id: str) -> str:
-    df = download_and_read_data(table_id)
     if not os.path.exists(f"{constants_camara.OUTPUT_PATH.value}{table_id}"):
         os.makedirs(f"{constants_camara.OUTPUT_PATH.value}{table_id}")
-
-    for output_path in [
+    df = download_and_read_data(table_id)
+    df = [df[0], df[1]]
+    output_path = [
         constants_camara.TABLES_OUTPUT_PATH.value[table_id],
         constants_camara.TABLES_OUTPUT_PATH_ANO_ANTERIOR.value[table_id],
-    ]:
+    ]
+    for output_path_year, df_year in zip(output_path, df):
         if table_id == "proposicao_microdados":
-            df["ultimoStatus_despacho"] = df["ultimoStatus_despacho"].apply(
+            df_year["ultimoStatus_despacho"] = df_year[
+                "ultimoStatus_despacho"
+            ].apply(
                 lambda x: str(x)
                 .replace(";", ",")
                 .replace("\n", " ")
                 .replace("\r", " ")
             )
-            df["ementa"] = df["ementa"].apply(
+            df_year["ementa"] = df_year["ementa"].apply(
                 lambda x: str(x)
                 .replace(";", ",")
                 .replace("\n", " ")
                 .replace("\r", " ")
             )
-            df["ano"] = df.apply(
+            df_year["ano"] = df_year.apply(
                 lambda x: x["dataApresentacao"][0:4]
                 if x["ano"] == 0
                 else x["ano"],
@@ -52,20 +55,20 @@ def save_data(table_id: str) -> str:
             )
 
         if table_id == "frente_deputado":
-            df = df.rename(
+            df_year = df_year.rename(
                 columns=constants_camara.RENAME_COLUMNS_FRENTE_DEPUTADO.value
             )
 
         if table_id == "evento":
-            df = df.rename(
+            df_year = df_year.rename(
                 columns=constants_camara.RENAME_COLUMNS_EVENTO.value
             )
-            df["descricao"] = df["descricao"].apply(
+            df_year["descricao"] = df_year["descricao"].apply(
                 lambda x: str(x).replace("\n", " ").replace("\r", " ")
             )
 
         if table_id == "votacao":
-            df["ultimaApresentacaoProposicao_descricao"] = df[
+            df_year["ultimaApresentacaoProposicao_descricao"] = df_year[
                 "ultimaApresentacaoProposicao_descricao"
             ].apply(
                 lambda x: str(x)
@@ -75,7 +78,7 @@ def save_data(table_id: str) -> str:
             )
 
         if table_id == "votacao_objeto":
-            df[["descricao", "proposicao_ementa"]] = df[
+            df_year[["descricao", "proposicao_ementa"]] = df_year[
                 ["descricao", "proposicao_ementa"]
             ].apply(
                 lambda x: str(x)
@@ -85,7 +88,9 @@ def save_data(table_id: str) -> str:
             )
 
         if table_id == "votacao_proposicao":
-            df[["proposicao_ementa"]] = df[["proposicao_ementa"]].apply(
+            df_year[["proposicao_ementa"]] = df_year[
+                ["proposicao_ementa"]
+            ].apply(
                 lambda x: str(x)
                 .replace(";", " ")
                 .replace("\n", " ")
@@ -93,7 +98,7 @@ def save_data(table_id: str) -> str:
             )
 
         if table_id == "licitacao_pedido":
-            df[["observacoes"]] = df[["observacoes"]].apply(
+            df_year[["observacoes"]] = df_year[["observacoes"]].apply(
                 lambda x: str(x)
                 .replace(";", " ")
                 .replace("\n", " ")
@@ -101,16 +106,18 @@ def save_data(table_id: str) -> str:
             )
 
         if table_id == "licitacao_item":
-            df[["especificacao"]] = df[["especificacao"]].apply(
+            df_year[["especificacao"]] = df_year[["especificacao"]].apply(
                 lambda x: str(x)
                 .replace(";", " ")
                 .replace("\n", " ")
                 .replace("\r", " ")
             )
 
-        log(f"Saving {table_id} to {output_path}")
+        log(f"Saving {table_id} to {output_path_year}")
 
-        df.to_csv(output_path, sep=",", index=False, encoding="utf-8")
+        df_year.to_csv(
+            output_path_year, sep=",", index=False, encoding="utf-8"
+        )
 
     return f"{constants_camara.OUTPUT_PATH.value}{table_id}"
 
