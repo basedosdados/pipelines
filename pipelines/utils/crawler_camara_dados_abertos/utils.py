@@ -25,13 +25,16 @@ def download_table_despesa(table_id: str) -> None:
     ]
 
     for url_year, input_path_year in dict(zip(url, input_path)).items():
-        log(
-            f"Downloading {table_id} from {url_year} and extracting to {input_path_year}"
-        )
-        log("1, 2, 3 - Testando!!!")
-        http_response = urlopen(url_year)
-        zipfile = ZipFile(BytesIO(http_response.read()))
-        zipfile.extractall(path=input_path_year)
+        try:
+            log(
+                f"Downloading {table_id} from {url_year} and extracting to {input_path_year}"
+            )
+            http_response = urlopen(url_year)
+            zipfile = ZipFile(BytesIO(http_response.read()))
+            zipfile.extractall(path=input_path_year)
+            log(f"File downloaded successfully to {input_path_year}")
+        except requests.exceptions.RequestException as e:
+            raise Exception(f"Error in request: {e}")
 
 
 def download_all_table(table_id: str) -> None:
@@ -58,7 +61,6 @@ def download_all_table(table_id: str) -> None:
 
     for url_year, input_path_year in dict(zip(url, input_path)).items():
         os.makedirs(constants_camara.INPUT_PATH.value, exist_ok=True)
-        log("1, 2, 3 - Testando!!!")
 
         log(
             f"Downloading {table_id} from {url_year} and extracting to {input_path_year}"
@@ -77,17 +79,19 @@ def download_all_table(table_id: str) -> None:
 
 
 def download_and_read_data(table_id: str) -> pd.DataFrame:
+    if table_id == "despesa":
+        download_table_despesa(table_id)
+    else:
+        download_all_table(table_id)
+    df_year = []
     for input_path in [
         constants_camara.TABLES_INPUT_PATH.value[table_id],
         constants_camara.TABLES_INPUT_PATH_ANO_ANTERIOR.value[table_id],
     ]:
-        if table_id == "despesa":
-            download_table_despesa(table_id)
-        else:
-            download_all_table(table_id)
         log(
             f"Reading {table_id} from {input_path} and extracting to {input_path}"
         )
         df = pd.read_csv(input_path, sep=";")
+        df_year.append(df)
 
-    return df
+    return df_year
