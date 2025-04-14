@@ -66,6 +66,7 @@ def run_dbt_model(
         dbt. Defaults to None.
         disable_elementary (bool, optional): Disable elementary on-run-end hooks.
     """
+
     if dbt_command not in ["run", "test", "run and test", "run/test"]:
         raise ValueError(f"Invalid dbt_command: {dbt_command}")
 
