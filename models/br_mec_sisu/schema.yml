@@ -1,0 +1,317 @@
+---
+version: 2
+models:
+  - name: br_mec_sisu__microdados
+    description: Microdados dos candidatos que utilizam do sistema unificado gerido
+      pelo MEC para as vagas ofertadas por instituições públicas de ensino superior
+      de todo o Brasil
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - semestre
+            - etapa
+            - id_curso
+            - cpf
+            - candidato
+            - opcao
+    columns:
+      - name: ano
+        description: Ano da edição
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: semestre
+        description: Semestre
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: etapa
+        description: Código da etapa
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: id_ies
+        description: ID da Instituição de Ensino Superior
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__instituicao_ensino_superior')
+              field: id_ies
+      - name: sigla_ies
+        description: Sigla da Instituição de Ensino Superior
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: sigla_uf_ies
+        description: Sigla da Unidade da Federação da Instituição de Ensino Superior
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: sigla_uf
+      - name: id_campus
+        description: ID do campus da Instituição Superior
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: campus
+        description: Nome do campus da Instituição Superior
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: sigla_uf_campus
+        description: Sigla da Unidade da Federação do campus da Instituição de Ensino
+          Superior
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: sigla_uf
+      - name: id_municipio_campus
+        description: ID Município do campus da Instituição Superior - IBGE 7 Dígitos
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_curso
+        description: ID Curso - INEP
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: nome_curso
+        description: Nome Curso - INEP
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: turno
+        description: Turno
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: periodicidade
+        description: Periodicidade do curso
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: tipo_cota
+        description: Tipo de Cota
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: modalidade_concorrencia
+        description: Tipo da modalidade de concorrência
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: quantidade_vagas_concorrencia
+        description: Total de vagas ofertadas dentro da modalidade de concorrência
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: percentual_bonus
+        description: Percentual do bônus definido para as ações afirmativas próprias
+          da IES
+      - name: peso_l
+        description: Peso atribuído pela instituição, na adesão ao Sisu, para a prova
+          de linguagens do Enem na oferta do curso no processo seletivo
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: peso_ch
+        description: Peso atribuído pela instituição, na adesão ao Sisu, para a prova
+          de ciências humanas do Enem na oferta do curso no processo seletivo
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: peso_cn
+        description: Peso atribuído pela instituição, na adesão ao Sisu, para a prova
+          de ciências da natureza do Enem na oferta do curso no processo seletivo
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: peso_m
+        description: Peso atribuído pela instituição, na adesão ao Sisu, para a prova
+          de matemática do Enem na oferta do curso no processo seletivo
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: peso_r
+        description: Peso atribuído pela instituição, na adesão ao Sisu, para a prova
+          de redação do Enem na oferta do curso no processo seletivo
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: nota_minima_l
+        description: Nota mínima atribuída pela instituição, na adesão ao Sisu, para
+          a prova de linguagens do Enem na oferta do curso no processo seletivo
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: nota_minima_ch
+        description: Nota mínima atribuída pela instituição, na adesão ao Sisu, para
+          a prova de ciências humanas do Enem na oferta do curso no processo seletivo
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: nota_minima_cn
+        description: Nota mínima atribuída pela instituição, na adesão ao Sisu, para
+          a prova de ciências da natureza do Enem na oferta do curso no processo seletivo
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: nota_minima_m
+        description: Nota mínima atribuída pela instituição, na adesão ao Sisu, para
+          a prova de matematica do Enem na oferta do curso no processo seletivo
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: nota_minima_r
+        description: Nota mínima atribuída pela instituição, na adesão ao Sisu, para
+          a prova de redação do Enem na oferta do curso no processo seletivo
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: media_minima
+        description: Média aritmética mínima (não considerando pesos) dos cinco tipos
+          de provas do Enem
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: cpf
+        description: CPF do candidato
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: inscricao_enem
+        description: Código de inscrição do candidato no Enem
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: candidato
+        description: Nome do candidato
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: sexo
+        description: Sexo do candidato
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: data_nascimento
+        description: Data de nascimento do candidato
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__dia')
+              field: dia.dia
+      - name: sigla_uf_candidato
+        description: Sigla da Unidade da Federação de residência do candidato
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: sigla_uf
+      - name: id_municipio_candidato
+        description: ID do Município de residência do candidato - IBGE 7 Dígitos
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: opcao
+        description: Informa se é a primeira ou segunda opção de curso do candidato
+          no sistema Sisu
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: nota_l
+        description: Nota obtida pelo candidato na prova de linguagens do Enem
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: nota_ch
+        description: Nota obtida pelo candidato na prova de ciências humanas do Enem
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: nota_cn
+        description: Nota obtida pelo candidato na prova de ciências da natureza do
+          Enem
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: nota_m
+        description: Nota obtida pelo candidato na prova de matemática do Enem
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: nota_r
+        description: Nota obtida pelo candidato na redação do Enem
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: nota_l_peso
+        description: Nota ponderada para a prova de linguagens do Enem
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: nota_ch_peso
+        description: Nota ponderada para a prova de ciências humanas do Enem
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: nota_cn_peso
+        description: Nota ponderada para a prova de ciências da natureza do Enem
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: nota_m_peso
+        description: Nota ponderada para a prova de matemática do Enem
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: nota_r_peso
+        description: Nota ponderada para a redação do Enem
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: nota_candidato
+        description: Nota final do candidato
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: nota_corte
+        description: Nota de corte da modalidade/curso na chamada regular
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: classificacao
+        description: Colocação do candiadto considerando todos os inscritos para o
+          mesmo curso
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: status_aprovado
+        description: Informa se o estudante foi aprovado ou não na chamada regular
+          em sua opção de curso
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05
+      - name: status_matricula
+        description: Informa a situação de matrícula registrado pela IES no sistema
+          "Sisu Gestão"
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.05

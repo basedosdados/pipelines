@@ -1,0 +1,113 @@
+---
+version: 2
+models:
+  - name: bigquery_tables
+    description: BigQuery metadata about the BD tables
+    columns:
+      - name: project_id
+        description: Project Id
+      - name: dataset_id
+        description: Dataset Id
+      - name: table_id
+        description: Table Id
+      - name: type
+        description: 'Type '
+      - name: creation_date
+        description: Creation Date
+      - name: last_modified_date
+        description: Last Modified Date
+      - name: creation_time
+        description: Creation Time
+      - name: last_modified_time
+        description: Last Modified Time
+      - name: row_count
+        description: Row Count
+      - name: size_mb
+        description: Size in Mb
+  - name: br_bd_metadados__prefect_flows
+    description: Insert `prefect_flows` table description here
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [flow_group_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: flow_group_id
+        description: Flow group identifier
+      - name: name
+        description: Flow's name
+      - name: created
+        description: Timestamp indicating when the flow was initially created
+      - name: latest_version
+        description: Version number of the latest iteration of the flow
+      - name: last_update
+        description: Timestamp of the last update made to the flow
+      - name: schedule_type
+        description: Type of scheduling employed for the flow (e.g. CronClock, IntervalClock)
+      - name: schedule_cron
+        description: Cron expression defining the flow's scheduling pattern
+      - name: schedule_start_date
+        description: Date when the scheduled execution of the flow starts
+      - name: schedule_filters
+        description: Filters applied to refine the scheduled execution criteria
+      - name: schedule_adjustments
+        description: Adjustments or configurations for the flow's scheduling
+      - name: schedule_labels
+        description: Labels in the flow's scheduling
+      - name: schedule_all_parameters
+        description: All parameters in the schedule
+      - name: schedule_parameters_dataset_id
+        description: Dataset used in scheduling parameters.
+      - name: schedule_parameters_table_id
+        description: Table used in scheduling parameters
+      - name: schedule_parameters_dbt_alias
+        description: Indicates if the model uses alias in DBT
+      - name: schedule_parameters_materialization_mode
+        description: Mode defining where data is materialized
+      - name: schedule_parameters_materialize_after_dump
+        description: Indicates if materialization occurs after data dump
+      - name: schedule_parameters_update_metadata
+        description: Indicates if metadata is updated
+  - name: br_bd_metadados__prefect_flow_runs
+    description: Insert `prefect_flow_runs` table description here
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id
+        description: Unique identifier for the flow run
+      - name: flow_group_id
+        description: Unique identifier for the flow group
+      - name: name
+        description: Name associated with the specific flow run
+      - name: labels
+        description: Labels (determines the project the data will be materialized)
+      - name: flow_project_name
+        description: Name of the project linked to this flow run
+      - name: flow_name
+        description: Name of the flow linked to this flow run
+      - name: flow_archived
+        description: Boolean indicating whether the flow run is archived or active
+      - name: dataset_id
+        description: BigQuery dataset id relevant to this flow run
+      - name: table_id
+        description: BigQuery table id relevant to this flow run
+      - name: start_time
+        description: Date and time when the flow run was initiated
+      - name: end_time
+        description: Date and time when the flow run was completed or ended
+      - name: state
+        description: Current state of the flow run
+      - name: state_message
+        description: Additional message or information related to the state/status
+          of the flow run
+      - name: task_runs
+        description: Information or details regarding individual task runs within
+          this flow run
+      - name: skipped_upload_to_gcs
+        description: Boolean indicating whether the upload to GCS (Google Cloud Storage)
+          was skipped or not for this flow run.
+      - name: error_logs
+        description: Error log records

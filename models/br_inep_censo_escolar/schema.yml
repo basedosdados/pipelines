@@ -1,0 +1,1386 @@
+---
+version: 2
+models:
+  - name: br_inep_censo_escolar__escola
+    description: A tabela contém dados do Censo Escolar ao nível de cada escola. Os
+      dados são organizados em mais de 400 variáveis que traçam um perfil completo
+      da escola, caracterizando desde a infraestrutura física disponível, a equipe
+      pedagógica, a infraestrutura pedagógica, marcas do período letivo como seu começo
+      e fim, além de várias informações agregadas sobre os estudantes da escola. É
+      a única tabela do Censo Escolar liberada pelo INEP a partir de 2021.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_escola]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_escola
+        description: ID Escola - Inep
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__escola')
+              field: id_escola
+      - name: rede
+        description: Rede Escolar
+      - name: tipo_categoria_escola_privada
+        description: Categoria da escola privada
+      - name: tipo_localizacao
+        description: Localização
+      - name: tipo_localizacao_diferenciada
+        description: Localização diferenciada da escola
+      - name: tipo_situacao_funcionamento
+        description: Situação de funcionamento da escola
+      - name: id_orgao_regional
+        description: Código do Órgão Regional
+      - name: data_ano_letivo_inicio
+        description: Data do início do ano letivo da escola
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: data_ano_letivo_termino
+        description: Data do fim do ano letivo da escola
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: vinculo_secretaria_educacao
+        description: A escola pública está vinculada à Secretaria de Educação/Ministério
+          da Educação
+      - name: vinculo_seguranca_publica
+        description: A escola pública está vinculada à Secretaria de Segurança Pública/Forças
+          Armadas/Militar
+      - name: vinculo_secretaria_saude
+        description: A escola pública está vinculada à Secretaria de Saúde/Ministério
+          da Saúde
+      - name: vinculo_outro_orgao
+        description: A escola pública está vinculada a outro órgão da administração
+          pública
+      - name: poder_publico_parceria
+        description: Parceria ou convênio com o poder público (parceria ou convênio
+          firmado entre a Administração Pública e instituições privadas ou instituições
+          públicas de ensino, autarquias e fundações da administração indireta para
+          financiamento do atendimento educacional ou para a oferta do itinerário
+          de formação técnica e profissional do ensino médio)
+      - name: tipo_poder_publico_parceria
+        description: Poder público responsável pela parceria ou convênio entre a Administração
+          Pública e outras instituições
+      - name: conveniada_poder_publico
+        description: A escola é conveniada com o poder público
+      - name: tipo_convenio_poder_publico
+        description: Tipo de convênio com o poder público
+      - name: forma_contratacao_termo_colaboracao
+        description: Forma de contratação entre a Administração Pública e outras instituições
+          - Termo de colaboração (Lei nº 13.019/2014)
+      - name: forma_contratacao_termo_fomento
+        description: Forma de contratação entre a Administração Pública e outras instituições
+          - Termo de fomento (Lei nº 13.019/2014)
+      - name: forma_contratacao_acordo_cooperacao
+        description: Forma de contratação entre a Administração Pública e outras instituições
+          - Acordo de cooperação (Lei nº 13.019/2014)
+      - name: forma_contratacao_prestacao_servico
+        description: Forma de contratação entre a Administração Pública e outras instituições
+          - Contrato de prestação de serviço
+      - name: forma_contratacao_cooperacao_tecnica_financeira
+        description: Forma de contratação entre a Administração Pública e outras instituições
+          - Termo de cooperação técnica e financeira
+      - name: forma_contratacao_consorcio_publico
+        description: Forma de contratação entre a Administração Pública e outras instituições
+          - Contrato de consórcio público/Convênio de cooperação
+      - name: forma_contratacao_parceria_municipal_termo_colaboracao
+        description: Forma(s) de contratação da parceria ou convênio entre a escola
+          e a Secretaria municipal de educação - Termo de colaboração (Lei nº 13.019/2014)
+      - name: forma_contratacao_parceria_municipal_termo_fomento
+        description: Forma(s) de contratação da parceria ou convênio entre a escola
+          e a Secretaria municipal de educação - Termo de fomento (Lei nº 13.019/2014)
+      - name: forma_contratacao_parceria_municipal_acordo_cooperacao
+        description: Forma(s) de contratação da parceria ou convênio entre a escola
+          e a Secretaria municipal de educação - Acordo de cooperação (Lei nº 13.019/2014)
+      - name: forma_contratacao_parceria_municipal_prestacao_servico
+        description: Forma(s) de contratação da parceria ou convênio entre a escola
+          e a Secretaria municipal de educação - Contrato de prestação de serviço
+      - name: forma_contratacao_parceria_municipal_cooperacao_tecnica_financeira
+        description: Forma(s) de contratação da parceria ou convênio entre a escola
+          e a Secretaria municipal de educação - Termo de cooperação técnica e financeira
+      - name: forma_contratacao_parceria_municipal_consorcio_publico
+        description: "Forma(s) de contratação da parceria ou convênio entre a escola\
+          \ e a Secretaria municipal de educação - Contrato de consórcio público/Convênio\
+          \ de\ncooperação"
+      - name: forma_contratacao_parceria_estadual_termo_colaboracao
+        description: Forma(s) de contratação da parceria ou convênio entre a escola
+          e a Secretaria estadual de educação - Termo de colaboração (Lei nº 13.019/2014)
+      - name: forma_contratacao_parceria_estadual_termo_fomento
+        description: Forma(s) de contratação da parceria ou convênio entre a escola
+          e a Secretaria estadual de educação - Termo de fomento (Lei nº 13.019/2014)
+      - name: forma_contratacao_parceria_estadual_acordo_cooperacao
+        description: Forma(s) de contratação da parceria ou convênio entre a escola
+          e a Secretaria estadual de educação - Acordo de cooperação (Lei nº 13.019/2014)
+      - name: forma_contratacao_parceria_estadual_prestacao_servico
+        description: Forma(s) de contratação da parceria ou convênio entre a escola
+          e a Secretaria estadual de educação - Contrato de prestação de serviço
+      - name: forma_contratacao_parceria_estadual_cooperacao_tecnica_financeira
+        description: Forma(s) de contratação da parceria ou convênio entre a escola
+          e a Secretaria estadual de educação - Termo de cooperação técnica e financeira
+      - name: forma_contratacao_parceria_estadual_consorcio_publico
+        description: "Forma(s) de contratação da parceria ou convênio entre a escola\
+          \ e a Secretaria estadual de educação - Contrato de consórcio público/Convênio\
+          \ de\ncooperação"
+      - name: tipo_atendimento_escolarizacao
+        description: Tipo de atendimento ofertado por meio da parceria ou convênio
+          - Escolarização
+      - name: tipo_atendimento_atividade_complementar
+        description: Tipo de atendimento ofertado por meio da parceria ou convênio
+          - Atividade Complementar
+      - name: tipo_atendimento_aee
+        description: Tipo de atendimento ofertado por meio da parceria ou convênio
+          - Atendimento Educacional Especializado (AEE)
+      - name: mantenedora_escola_privada_empresa
+        description: A mantenedora da escola privada é uma empresa ou grupo empresarial
+      - name: mantenedora_escola_privada_ong
+        description: A mantenedora da escola privada é uma ONG
+      - name: mantenedora_escola_privada_oscip
+        description: A mantenedora da escola privada é uma Organização da Sociedade
+          Civil de Interesse Público (Oscip)
+      - name: mantenedora_escola_privada_ong_oscip
+        description: A mantenedora da escola privada é uma Organização da Sociedade
+          Civil de Interesse Público (Oscip) ou uma ONG
+      - name: mantenedora_escola_privada_sindicato
+        description: A mantenedora da escola privada é um sindicato ou associação
+          cooperativa
+      - name: mantenedora_escola_privada_sistema_s
+        description: A mantenedora da escola privada é o sistema S (SENAI, SESI, SESC,
+          entre outros)
+      - name: mantenedora_escola_privada_sem_fins
+        description: A mantenedora da escola privada é uma entidade sem fins lucrativos
+      - name: cnpj_escola_privada
+        description: Número do CNPJ da escola privada
+      - name: cnpj_mantenedora
+        description: Número do CNPJ da mantenedora principal da escola privada
+      - name: tipo_regulamentacao
+        description: A escola tem regulamentação/autorização no conselho ou órgão
+          municipal, estadual ou federal de educação
+      - name: tipo_responsavel_regulamentacao
+        description: Esfera administrativa do conselho ou órgão responsável pela Regulamentação/Autorização
+          da escola
+      - name: id_escola_sede
+        description: Código da escola sede
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__escola')
+              field: id_escola
+      - name: id_ies_ofertante
+        description: Código da Instituição de Ensino Superior (IES) vinculada à escola
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__instituicao_ensino_superior')
+              field: id_ies
+              ignore_values: ['21869', '21869', '21869', '18210', '19333', '21869']  # 6 ocorrências unicas de incompatibilidade
+      - name: local_funcionamento_predio_escolar
+        description: O local de funcionamento da escola é um prédio escolar
+      - name: tipo_local_funcionamento_predio_escolar
+        description: A forma de ocupação do Prédio escolar, e.g., próprio ou alugado
+      - name: local_funcionamento_sala_empresa
+        description: O local de funcionamento da escola é um conjunto de salas de
+          uma empresa
+      - name: local_funcionamento_socioeducativo
+        description: O local de funcionamento da escola é uma unidade de atendimento
+          socioeducativo
+      - name: local_funcionamento_unidade_prisional
+        description: O local de funcionamento da escola é uma unidade prisional
+      - name: local_funcionamento_prisional_socio
+        description: O local de funcionamento da escola é unidade prisional ou unidade
+          de atendimento socioeducativo
+      - name: local_funcionamento_templo_igreja
+        description: O local de funcionamento da escola é um templo ou uma igreja
+      - name: local_funcionamento_casa_professor
+        description: O local de funcionamento da escola é uma casa de um professor
+      - name: local_funcionamento_galpao
+        description: O local de funcionamento da escola é galpão/rancho/paiol/barracão
+      - name: tipo_local_funcionamento_galpao
+        description: A forma de ocupação do galpão/rancho/paiol/barracão, e.g., próprio
+          ou alugado
+      - name: local_funcionamento_outra_escola
+        description: O local de funcionamento da escola é em salas em outra escola
+      - name: local_funcionamento_outros
+        description: O local de funcionamento da escola é em outros
+      - name: predio_compartilhado
+        description: O prédio compartilhado com outra escola
+      - name: agua_filtrada
+        description: Água consumida pelos alunos é filtrada
+      - name: agua_potavel
+        description: A escola fornece água potável para o consumo humano
+      - name: agua_rede_publica
+        description: O abastecimento de água é pela rede pública
+      - name: agua_poco_artesiano
+        description: O abastecimento de água é feito por poço artesiano
+      - name: agua_cacimba
+        description: O abastecimento de água é feito por cacimba/cisterna/poço
+      - name: agua_fonte_rio
+        description: O abastecimento de água é feito por fonte/rio/igarapé/riacho/córrego
+      - name: agua_inexistente
+        description: O abastecimento de água é inexistente
+      - name: energia_rede_publica
+        description: O abastecimento de energia elétrica é feito pela rede pública
+      - name: energia_gerador
+        description: O abastecimento de energia elétrica é por gerador
+      - name: energia_gerador_fossil
+        description: O abastecimento de energia elétrica é por gerador movido a combustível
+          fóssil
+      - name: energia_outros
+        description: O abastecimento de energia elétrica é por outras fontes
+      - name: energia_renovavel
+        description: O abastecimento de energia elétrica é por fontes renováveis ou
+          alternativas
+      - name: energia_inexistente
+        description: O abastecimento de energia elétrica é inexistente
+      - name: esgoto_rede_publica
+        description: O esgoto sanitário é feito pela rede pública
+      - name: esgoto_fossa
+        description: O esgoto sanitário é feito por uma fossa
+      - name: esgoto_fossa_septica
+        description: O esgoto sanitário é feito por uma fossa séptica
+      - name: esgoto_fossa_comum
+        description: O esgoto sanitário é feito por uma fossa comum
+      - name: esgoto_inexistente
+        description: O esgoto sanitário é inexistente
+      - name: lixo_servico_coleta
+        description: O destino do lixo é o serviço de coleta
+      - name: lixo_queima
+        description: O destino do lixo é a queima
+      - name: lixo_enterrado
+        description: O destino do lixo é ser enterrado
+      - name: lixo_destino_final_publico
+        description: O destino do lixo é uma destinação final financiada pelo poder
+          público
+      - name: lixo_descarta_outra_area
+        description: O destino do lixo é ser descartado em outra área
+      - name: lixo_joga_outra_area
+        description: O destino do lixo é ser jogado em outra área
+      - name: lixo_outros
+        description: O destino do lixo não se encaixa em nenhuma das outras variáveis
+      - name: lixo_reciclagem
+        description: O destino do lixo é ser reciclado pela escola realiza
+      - name: tratamento_lixo_separacao
+        description: O tratamento do lixo que a escola realiza é separação do lixo
+      - name: tratamento_lixo_reutilizacao
+        description: O tratamento do lixo que a escola realiza é o reaproveitamento/reutilização
+      - name: tratamento_lixo_reciclagem
+        description: O tratamento do lixo que a escola realiza é reciclagem
+      - name: tratamento_lixo_inexistente
+        description: O tratamento do lixo que a escola realiza é inexistente
+      - name: almoxarifado
+        description: A escola possui almoxarifado
+      - name: area_verde
+        description: A escola possui área verde
+      - name: auditorio
+        description: A escola possui auditório
+      - name: banheiro_fora_predio
+        description: A escola possui banheiros fora do prédio
+      - name: banheiro_dentro_predio
+        description: A escola possui banheiros dentro do prédio
+      - name: banheiro
+        description: A escola possui banheiros
+      - name: banheiro_educacao_infantil
+        description: A escola possui banheiros adequados à educação infantil
+      - name: banheiro_pne
+        description: A escola possui banheiros adequados a pessoas com deficiência
+          ou mobilidade reduzida
+      - name: banheiro_funcionarios
+        description: A escola possui banheiros exclusivo para funcionários
+      - name: banheiro_chuveiro
+        description: A escola possui banheiros ou vestiários com chuveiro
+      - name: bercario
+        description: A escola possui berçário
+      - name: biblioteca
+        description: A escola possui biblioteca
+      - name: biblioteca_sala_leitura
+        description: A escola possui biblioteca e/ou sala de leitura
+      - name: cozinha
+        description: A escola possui cozinha
+      - name: despensa
+        description: A escola possui despensa
+      - name: dormitorio_aluno
+        description: A escola possui dormitório de aluno
+      - name: dormitorio_professor
+        description: A escola possui dormitório de professor
+      - name: laboratorio_ciencias
+        description: A escola possui laboratório de ciências
+      - name: laboratorio_informatica
+        description: A escola possui laboratório de informática
+      - name: laboratorio_educacao_profissional
+        description: Dependências físicas existentes e utilizadas na escola - Laboratório
+          específico para a Educação Profissional
+      - name: patio_coberto
+        description: A escola possui pátio coberto
+      - name: patio_descoberto
+        description: A escola possui pátio descoberto
+      - name: parque_infantil
+        description: A escola possui parque infantil
+      - name: piscina
+        description: A escola possui piscina
+      - name: quadra_esportes
+        description: A escola possui quadra para prática de esportes
+      - name: quadra_esportes_coberta
+        description: A escola possui quadra coberta para prática de esportes
+      - name: quadra_esportes_descoberta
+        description: A escola possui quadra descoberta para prática de esportes
+      - name: refeitorio
+        description: A escola possui refeitório
+      - name: sala_atelie_artes
+        description: A escola possui sala ou ateliê de artes
+      - name: sala_musica_coral
+        description: A escola possui sala de música ou coral
+      - name: sala_estudio_danca
+        description: A escola possui sala ou estúdio de dança
+      - name: sala_multiuso
+        description: A escola possui sala multiuso (música, dança e artes)
+      - name: sala_estudio_gravacao
+        description: Dependências físicas existentes e utilizadas na escola - Estúdio
+          de gravação e edição
+      - name: sala_oficinas_educacao_profissional
+        description: Dependências físicas existentes e utilizadas na escola - Salas
+          de oficinas da Educação Profissional
+      - name: sala_diretoria
+        description: A escola possui sala de diretoria
+      - name: sala_leitura
+        description: A escola possui sala de leitura
+      - name: sala_professor
+        description: A escola possui sala de professores
+      - name: sala_repouso_aluno
+        description: A escola possui sala de repouso para alunos
+      - name: secretaria
+        description: A escola possui sala de secretaria
+      - name: sala_atendimento_especial
+        description: A escola possui sala para atendimento educacional especializado
+          (AEE)
+      - name: terreirao
+        description: A escola possui terreirão
+      - name: viveiro
+        description: A escola possui viveiro/criação de animais
+      - name: dependencia_pne
+        description: A escola possui dependências e vias adequadas a alunos com deficiência
+          ou mobilidade reduzida
+      - name: lavanderia
+        description: A escola possui lavanderia
+      - name: dependencia_outras
+        description: A escola possui dependências não inclusas nas outras variáveis
+      - name: acessibilidade_corrimao
+        description: A escola possui o recurso de acessibilidade corrimão e guarda
+          corpos
+      - name: acessibilidade_elevador
+        description: A escola possui o recurso de acessibilidade elevador
+      - name: acessibilidade_pisos_tateis
+        description: A escola possui o recurso de acessibilidade pisos táteis
+      - name: acessibilidade_vao_livre
+        description: A escola possui o recurso de acessibilidade portas com vão livre
+          de no mínimo 80 cm
+      - name: acessibilidade_rampas
+        description: A escola possui o recurso de acessibilidade rampas
+      - name: acessibilidade_sinal_sonoro
+        description: A escola possui o recurso de acessibilidade sinalização sonora
+      - name: acessibilidade_sinal_tatil
+        description: A escola possui o recurso de acessibilidade sinalização tátil
+      - name: acessibilidade_sinal_visual
+        description: A escola possui o recurso de acessibilidade sinalização visual
+      - name: acessibilidade_inexistente
+        description: A escola não possui nenhum dos recursos de acessibilidade listados
+          nas variáveis
+      - name: quantidade_sala_existente
+        description: Número de salas de aula existentes na escola
+      - name: quantidade_sala_utilizada
+        description: Número de salas de aula utilizadas na escola (dentro e fora do
+          prédio)
+      - name: quantidade_sala_utilizada_dentro
+        description: Número de salas de aula utilizadas na escola - Dentro do prédio
+      - name: quantidade_sala_utilizada_fora
+        description: Número de salas de aula utilizadas na escola - Fora do prédio
+      - name: quantidade_sala_utilizada_climatizada
+        description: Número de salas de aula climatizadas
+      - name: quantidade_sala_utilizada_acessivel
+        description: Número de salas de aula  com acessibilidade para pessoas com
+          deficiência ou mobilidade reduzida
+      - name: equipamento_parabolica
+        description: A escola possui equipamentos de antena parabólica
+      - name: quantidade_equipamento_parabolica
+        description: Quantidade de equipamentos de antena parabólica na escola
+      - name: equipamento_computador
+        description: A escola possui equipamentos de computador
+      - name: equipamento_copiadora
+        description: A escola possui equipamentos de copiadora
+      - name: quantidade_equipamento_copiadora
+        description: Quantidade de equipamentos de copiadora na escola
+      - name: equipamento_impressora
+        description: A escola possui equipamentos de impressora
+      - name: quantidade_equipamento_impressora
+        description: Quantidade de equipamentos de impressora na escola
+      - name: equipamento_impressora_multifuncional
+        description: A escola possui equipamentos de impressora multifuncional
+      - name: quantidade_equipamento_impressora_multifuncional
+        description: Quantidade de equipamentos de impressora multifuncional na escola
+      - name: equipamento_scanner
+        description: A escola possui equipamentos de scanner
+      - name: equipamento_nenhum
+        description: A escola não possui nenhum dos equipamentos listados para uso
+          técnico e administrativo
+      - name: equipamento_dvd
+        description: A escola possui equipamentos de dvd
+      - name: quantidade_equipamento_dvd
+        description: Quantidade de equipamentos de dvd na escola
+      - name: equipamento_som
+        description: A escola possui equipamentos de som
+      - name: quantidade_equipamento_som
+        description: Quantidade de equipamentos de som na escola
+      - name: equipamento_tv
+        description: A escola possui equipamentos de televisão
+      - name: quantidade_equipamento_tv
+        description: Quantidade de equipamentos de televisão na escola
+      - name: equipamento_lousa_digital
+        description: A escola possui equipamentos de lousa digital
+      - name: quantidade_equipamento_lousa_digital
+        description: Quantidades de equipamentos de lousa digital na escola
+      - name: equipamento_multimidia
+        description: A escola possui equipamentos de projetor multimídia
+      - name: quantidade_equipamento_multimidia
+        description: Quantidade de equipamentos de projetor multimídia na escola
+      - name: equipamento_videocassete
+        description: A escola possui equipamentos de videocassete
+      - name: quantidade_equipamento_videocassete
+        description: Quantidade de equipamentos de videocassete na escola
+      - name: equipamento_retroprojetor
+        description: A escola possui equipamentos de retroprojetor
+      - name: quantidade_equipamento_retroprojetor
+        description: Quantidade de equipamentos de retroprojetor na escola
+      - name: equipamento_fax
+        description: A escola possui equipamentos de fax
+      - name: quantidade_equipamento_fax
+        description: Quantidade de equipamentos de fax na escola
+      - name: equipamento_foto
+        description: A escola possui equipamentos de fotografia
+      - name: quantidade_equipamento_foto
+        description: Quantidade de equipamentos de fotografia na escola
+      - name: quantidade_computador_aluno
+        description: Quantidade de computadores em uso pelos alunos
+      - name: desktop_aluno
+        description: A escola possui computador de mesa (desktop) em uso pelos alunos
+      - name: quantidade_desktop_aluno
+        description: Quantidade de computador de mesa (desktop) em uso pelos alunos
+      - name: computador_portatil_aluno
+        description: A escola possui computador portátil em uso pelos alunos
+      - name: quantidade_computador_portatil_aluno
+        description: Quantidade de computador portátil em uso pelos alunos
+      - name: tablet_aluno
+        description: A escola possui tablet em uso pelos alunos
+      - name: quantidade_tablet_aluno
+        description: Quantidade de tablet em uso pelos alunos
+      - name: quantidade_computador
+        description: Quantidade de computadores na escola
+      - name: quantidade_computador_administrativo
+        description: Quantidade de computadores de uso administrativo na escola
+      - name: internet
+        description: A escola possui acesso à internet
+      - name: internet_alunos
+        description: A escola possui acesso à internet para uso dos alunos
+      - name: internet_administrativo
+        description: A escola possui acesso à internet para uso do administrativo
+      - name: internet_aprendizagem
+        description: A escola possui acesso à internet para uso nos processos de ensino
+          e aprendizagem
+      - name: internet_comunidade
+        description: A escola possui acesso à internet para uso da comunidade
+      - name: acesso_internet_computador
+        description: Os equipamentos de computador e tablet que os alunos usam possuem
+          acesso à internet
+      - name: acesso_internet_dispositivo_pessoal
+        description: Os equipamentos de dispositivo pessoal que os alunos usam possuem
+          acesso à internet
+      - name: tipo_rede_local
+        description: Tipo de rede local de interligação de computadores na escola
+      - name: banda_larga
+        description: A escola possui acesso à internet banda larga
+      - name: quantidade_funcionario
+        description: Quantidade de funcionários da escola
+      - name: profissional_administrativo
+        description: A escola possui auxiliar de secretaria ou auxiliar administrativo,
+          atendente
+      - name: quantidade_profissional_administrativo
+        description: Quantidade de auxiliar de secretaria ou auxiliar administrativo,
+          atendente na escola
+      - name: profissional_servico_geral
+        description: A escola possui auxiliar de serviços gerais e similares
+      - name: quantidade_profissional_servico_geral
+        description: Quantidade de auxiliar de serviços gerais e similares na escola
+      - name: profissional_bibliotecario
+        description: A escola possui bibliotecário
+      - name: quantidade_profissional_bibliotecario
+        description: Quantidade de bibliotecário na escola
+      - name: profissional_saude
+        description: A escola possui profissional de saúde (bombeiro, enfermeiro...)
+      - name: quantidade_profissional_saude
+        description: Quantidade de profissional de saúde (bombeiro, enfermeiro...)
+          na escola
+      - name: profissional_coordenador
+        description: A escola possui coordenador de turno/disciplina
+      - name: quantidade_profissional_coordenador
+        description: Quantidade de coordenador de turno/disciplina na escola
+      - name: profissional_fonaudiologo
+        description: A escola possui fonaudiólogo
+      - name: quantidade_profissional_fonaudiologo
+        description: Quantidade de fonaudiólogo na escola
+      - name: profissional_nutricionista
+        description: A escola possui nutricionista
+      - name: quantidade_profissional_nutricionista
+        description: Quantidade de nutricionista na escola
+      - name: profissional_psicologo
+        description: A escola possui psicológo
+      - name: quantidade_profissional_psicologo
+        description: Quantidade de psicológo na escola
+      - name: profissional_alimentacao
+        description: A escola possui profissional de preparação e segurança alimentar
+      - name: quantidade_profissional_alimentacao
+        description: Quantidade de profissional de preparação e segurança alimentar
+          na escola
+      - name: profissional_pedagogia
+        description: A escola possui profissional de pedagogia
+      - name: quantidade_profissional_pedagogia
+        description: Quantidade de profissional de pedagogia na escola
+      - name: profissional_secretario
+        description: A escola possui secretário(a) escolar
+      - name: quantidade_profissional_secretario
+        description: Quantidade de secretário(a) escolar na escola
+      - name: profissional_seguranca
+        description: A escola possui profissional de segurança
+      - name: quantidade_profissional_seguranca
+        description: Quantidade de profissional de segurança na escola
+      - name: profissional_monitor
+        description: A escola possui técnico de laboratório/monitor/similar
+      - name: quantidade_profissional_monitor
+        description: Quantidade de técnico de laboratório/monitor/similar na escola
+      - name: profissional_gestao
+        description: A escola possui profissional de gestão administrativa
+      - name: quantidade_profissional_gestao
+        description: Quantidade de profissional de gestão administrativa na escola
+      - name: profissional_assistente_social
+        description: A escola possui assistente social
+      - name: quantidade_profissional_assistente_social
+        description: Quantidade de assistente social na escola
+      - name: profissional_tradutor_libras
+        description: Profissionais que atuam na escola - Tradutor e Intérprete de
+          Libras para atendimento em outros ambientes da escola que não seja sala
+          de aula
+      - name: quantidade_profissional_tradutor_libras
+        description: Total de profissionais que atuam na escola - Tradutor e Intérprete
+          de Libras para atendimento em outros ambientes da escola que não seja sala
+          de aula
+      - name: alimentacao
+        description: A escola oferece alimentação escola para os alunos - PNAE/FNDE
+      - name: organizacao_serie_ano
+        description: A escola possui como forma de organização do ensino série/ano
+          (séries anuais)
+      - name: organizacao_semestre
+        description: A escola possui como forma de organização do ensino semestres
+      - name: organizacao_fundamental_ciclo
+        description: A escola possui como forma de organização do ensino ciclo(s)
+          do ensino fundamental
+      - name: organizacao_grupo_nao_seriado
+        description: A escola possui como forma de organização do grupos não-seriados
+          com base na idade ou competência (art. 23 LDB)
+      - name: organizacao_modulo
+        description: A escola possui como forma de organização do ensino módulos
+      - name: organizacao_alternancia
+        description: A escola possui como forma de organização do ensino alternância
+          regular de períodos de estudos
+      - name: material_pedagogico_multimidia
+        description: A escola possui acervo multimídia em uso para o desenvolvimento
+          de atividades de aprendizagem
+      - name: material_pedagogico_infantil
+        description: A escola possui brinquedos em uso para o desenvolvimento de atividades
+          de aprendizagem
+      - name: material_pedagogico_cientifico
+        description: A escola possui materiais científicos em uso para o desenvolvimento
+          de atividades de aprendizagem
+      - name: material_pedagogico_difusao
+        description: A escola possui materiais de difusão de áudio em uso para o desenvolvimento
+          de atividades de aprendizagem
+      - name: material_pedagogico_musical
+        description: A escola possui materiais musicais em uso para o desenvolvimento
+          de atividades de aprendizagem
+      - name: material_pedagogico_jogo
+        description: A escola possui jogos em uso para o desenvolvimento de atividades
+          de aprendizagem
+      - name: material_pedagogico_artistica
+        description: A escola possui materiais artísticos em uso para o desenvolvimento
+          de atividades de aprendizagem
+      - name: material_pedagogico_profissional
+        description: Instrumentos e materiais socioculturais e/ou pedagógicos em uso
+          na escola para o desenvolvimento de atividades de ensino e aprendizagem
+          - Materiais para Educação Profissional
+      - name: material_pedagogico_desportiva
+        description: A escola possui materiais desportivos em uso para o desenvolvimento
+          de atividades de aprendizagem
+      - name: material_pedagogico_indigena
+        description: A escola possui materiais para educação índigena em uso para
+          o desenvolvimento de atividades de aprendizagem
+      - name: material_pedagogico_etnico
+        description: A escola possui materiais da educação étnica em uso para o desenvolvimento
+          de atividades de aprendizagem
+      - name: material_pedagogico_campo
+        description: A escola possui materiais para educação no campo em uso para
+          o desenvolvimento de atividades de aprendizagem
+      - name: material_pedagogico_surdo
+        description: Instrumentos, materiais socioculturais e/ou pedagógicos em uso
+          na escola para o desenvolvimento de atividades de ensino aprendizagem -
+          Materiais pedagógicos para a educação bilíngue de surdos
+      - name: material_pedagogico_nenhum
+        description: A escola não possui materiais em uso para o desenvolvimento de
+          atividades de aprendizagem
+      - name: material_especifico_quilombola
+        description: A escola usa materiais didáticos específicos para atendimento
+          à diversidade sociocultural quilombola
+      - name: material_especifico_indigena
+        description: A escola usa materiais didáticos específicos para atendimento
+          à diversidade sociocultural indígena
+      - name: material_especifico_nao_utiliza
+        description: A escola não usa materiais didáticos específicos para atendimento
+          à diversidade sociocultural
+      - name: educacao_indigena
+        description: A escola possui educação indígena
+      - name: tipo_lingua_indigena
+        description: Língua em que o ensino da escola com educação indígena é ministrado
+      - name: id_lingua_indigena_1
+        description: 1ª língua indígena em que o ensino é ministrado
+      - name: id_lingua_indigena_2
+        description: 2ª língua indígena em que o ensino é ministrado
+      - name: id_lingua_indigena_3
+        description: 3ª língua indígena em que o ensino é ministrado
+      - name: programa_brasil_alfabetizado
+        description: A escola cede espaço para turmas do Programa Brasil Alfabetizado
+      - name: final_semana
+        description: A escola abre aos finais de semana para a comunidade
+      - name: exame_selecao
+        description: A escola faz exame de seleção para ingresso de seus alunos
+      - name: reserva_vaga_raca_cor
+        description: 'A escola faz reserva de vagas por sistema de cotas para grupos:
+          Autodeclarado preto, pardo ou indígena (PPI)'
+      - name: reserva_vaga_renda
+        description: 'A escola faz reserva de vagas por sistema de cotas para grupos:
+          Condição de renda'
+      - name: reserva_vaga_publica
+        description: 'A escola faz reserva de vagas por sistema de cotas para grupos:
+          Oriundo de escola pública'
+      - name: reserva_vaga_pcd
+        description: 'A escola faz reserva de vagas por sistema de cotas para grupos:
+          PCD'
+      - name: reserva_vaga_outros
+        description: 'A escola faz reserva de vagas por sistema de cotas para grupos:
+          Outros'
+      - name: reserva_vaga_nenhuma
+        description: A escola não faz reserva de vagas por sistema de cotas para grupos
+      - name: redes_sociais
+        description: A escola possui redes sociais para comunicação institucional
+      - name: espaco_atividade_comunidade
+        description: A escola compartilha espaços para atividades de integração escola-comunidade
+      - name: espaco_equipamento_alunos
+        description: A escola usa espaços e equipamentos do entorno escolar para atividades
+          regulares com os alunos
+      - name: orgao_associacao_pais
+        description: A escola possui associação de pais
+      - name: orgao_associacao_pais_mestres
+        description: A escola possui associação de pais e mestres
+      - name: orgao_conselho_escolar
+        description: A escola possui conselho escolar
+      - name: orgao_gremio_estudantil
+        description: A escola possui grêmio estudantil
+      - name: orgao_outros
+        description: A escola possui outros órgãos colegiados
+      - name: orgao_nenhum
+        description: A escola não possui órgãos colegiados
+      - name: tipo_proposta_pedagogica
+        description: O tipo de proposta pedagógica da escola atualizado nos últimos
+          12 meses até a data de referência
+      - name: tipo_aee
+        description: O tipo de Atendimento Educacional Especializado (AEE) que a escola
+          oferece
+      - name: tipo_atividade_complementar
+        description: O tipo de Atividade Complementar que a escola oferece
+      - name: escolarizacao
+        description: 'Escola possui uma ou mais matrículas de escolarização em alguma
+          das seguintes etapas de ensino: Creche, Pré-Escola, Ensino Fundamental,
+          Ensino Médio, Educação de Jovens e Adultos (EJA), Curso Técnico Concomitante,
+          Curso Técnico Subsequente, Curso FIC Concomitante'
+      - name: mediacao_presencial
+        description: A escola oferece mediação didático-pedagógica presencial
+      - name: mediacao_semipresencial
+        description: A escola oferece mediação didático-pedagógica semipresencial
+      - name: mediacao_ead
+        description: A escola oferece mediação didático-pedagógica ead
+      - name: regular
+        description: A escola oferece metodologia de ensino em etapas consecutivas,
+          da creche ao ensino médio
+      - name: diurno
+        description: A escola possui turmas com horário de início da turma de escolarização
+          entre 05h e 16h
+      - name: noturno
+        description: A escola possui turmas com horário de início da turma de escolarização
+          entre 17h e 04h
+      - name: ead
+        description: A escola possui turmas semipresenciais ou de educação a distância
+          (EAD)
+      - name: educacao_basica
+        description: A escola possui uma ou mais matrículas em educação básica
+      - name: etapa_ensino_infantil
+        description: A escola possui uma ou mais matrículas em educação infantil
+      - name: etapa_ensino_infantil_creche
+        description: A escola possui uma ou mais matrículas em educação básica - creche
+      - name: etapa_ensino_infantil_pre_escola
+        description: A escola possui uma ou mais matrículas em educação básica - pré-escola
+      - name: etapa_ensino_fundamental
+        description: A escola possui uma ou mais matrículas no ensino fundamental
+      - name: etapa_ensino_fundamental_anos_iniciais
+        description: A escola possui uma ou mais matrículas no ensino fundamental
+          - anos iniciais
+      - name: etapa_ensino_fundamental_anos_finais
+        description: A escola possui uma ou mais matrículas no ensino fundamental
+          - anos finais
+      - name: etapa_ensino_medio
+        description: A escola possui uma ou mais matrículas no ensino médio
+      - name: etapa_ensino_profissional
+        description: A escola possui uma ou mais matrículas em educação profissional
+      - name: etapa_ensino_profissional_tecnica
+        description: A escola possui uma ou mais matrículas em educação profissional
+          técnica
+      - name: etapa_ensino_eja
+        description: A escola possui uma ou mais matrículas em educação de jovens
+          e adultos (EJA)
+      - name: etapa_ensino_eja_fundamental
+        description: A escola possui uma ou mais matrículas en educação de jovens
+          e adultos (EJA) - ensino fundamental
+      - name: etapa_ensino_eja_medio
+        description: A escola possui uma ou mais matrículas em educação de jovens
+          e adultos (EJA) - ensino médio
+      - name: etapa_ensino_especial
+        description: A escola possui uma ou mais matrículas em educação especial
+      - name: etapa_ensino_especial_comum
+        description: A escola possui uma ou mais matrículas em educação especial -
+          classe comum
+      - name: etapa_ensino_especial_exclusiva
+        description: A escola possui uma ou mais matrículas em educação especial -
+          classe exclusiva (ao menos uma turma exclusiva de alunos com deficiência,
+          transtorno global do desenvolvimento ou altas habilidades/superdotação -
+          Classes Especiais)
+      - name: etapa_ensino_creche_comum
+        description: A escola oferece creche em classes comuns do ensino regular
+      - name: etapa_ensino_pre_escola_comum
+        description: A escola oferece pré-escola em classes comuns do ensino regular
+      - name: etapa_ensino_fundamental_anos_iniciais_comum
+        description: A escola oferece anos iniciais do ensino fundamental em classes
+          comuns do ensino regular
+      - name: etapa_ensino_fundamental_anos_finais_comum
+        description: A escola oferece anos finais do ensino fundamental em classes
+          comuns do ensino regular
+      - name: etapa_ensino_medio_comum
+        description: A escola oferece ensino médio (médio propedêutico) em classes
+          comuns do ensino regular
+      - name: etapa_ensino_medio_integrado_comum
+        description: A escola oferece curso técnico integrado ao ensino médio em classes
+          comuns do ensino regular
+      - name: etapa_ensino_medio_normal_comum
+        description: A escola oferece ensino médio (normal ou magistério) em classes
+          comuns do ensino regular
+      - name: etapa_ensino_profissional_comum
+        description: A escola oferece educação profissional (curso técnico e/ou curso
+          FIC) em classes comuns
+      - name: etapa_ensino_eja_fundamental_comum
+        description: A escola oferece ensino fundamental em classes comuns da EJA
+      - name: etapa_ensino_eja_medio_comum
+        description: A escola oferece ensino médio em classes comuns da EJA
+      - name: etapa_ensino_eja_profissional_comum
+        description: A escola oferece educação profissional integrada em classes comuns
+          da EJA
+      - name: etapa_ensino_creche_especial_exclusiva
+        description: A escola oferece creche em classes especiais exclusivas para
+          alunos com condições especiais
+      - name: etapa_ensino_pre_escola_especial_exclusiva
+        description: A escola oferece pré-escola em classes especiais exclusivas do
+          ensino regular
+      - name: etapa_ensino_fundamental_anos_iniciais_especial_exclusiva
+        description: A escola oferece os anos iniciais do ensino fundamental em classes
+          especiais
+      - name: etapa_ensino_fundamental_anos_finais_especial_exclusiva
+        description: A escola oferece os anos finais do ensino fundamental em classes
+          especiais
+      - name: etapa_ensino_medio_especial_exclusiva
+        description: A escola oferece ensino médio (médio propedêutico) em classes
+          especiais
+      - name: etapa_ensino_medio_integrado_especial_exclusiva
+        description: A escola oferece curso técnico integrado ao ensino médio em classes
+          especiais
+      - name: etapa_ensino_medio_normal_especial_exclusiva
+        description: A escola oferece ensino médio (normal/magistério) em classes
+          especiais
+      - name: etapa_ensino_profissional_especial_exclusiva
+        description: A escola oferece educação profissional - curso técnico concomitante
+          e/ou susequente e/ou curso FIC concomitante em classes especiais
+      - name: etapa_ensino_eja_fundamental_especial_exclusiva
+        description: A escola oferece ensino fundamental em classes especiais exclusivas
+          da EJA
+      - name: etapa_ensino_eja_medio_especial_exclusiva
+        description: A escola oferece ensino médio em classes especiais exclusivas
+          da EJA
+      - name: quantidade_matricula_educacao_basica
+        description: Quantidade de matrículas em educação básica
+      - name: quantidade_matricula_infantil
+        description: Quantidade de matrículas em educação infantil
+      - name: quantidade_matricula_infantil_creche
+        description: Quantidade de matrículas em educação infantil - creche
+      - name: quantidade_matricula_infantil_pre_escola
+        description: Quantidade de matrículas em educação infantil - pré-escola
+      - name: quantidade_matricula_fundamental
+        description: Quantidade de matrículas no ensino fundamental
+      - name: quantidade_matricula_fundamental_anos_iniciais
+        description: Quantidade de matrículas no ensino fundamental - anos iniciais
+      - name: quantidade_matricula_fundamental_1_ano
+        description: Número de Matrículas do Ensino Fundamental - Anos Iniciais -
+          1º Ano
+      - name: quantidade_matricula_fundamental_2_ano
+        description: Número de Matrículas do Ensino Fundamental - Anos Iniciais -
+          2º Ano
+      - name: quantidade_matricula_fundamental_3_ano
+        description: Número de Matrículas do Ensino Fundamental - Anos Iniciais -
+          3º Ano
+      - name: quantidade_matricula_fundamental_4_ano
+        description: Número de Matrículas do Ensino Fundamental - Anos Iniciais -
+          4º Ano
+      - name: quantidade_matricula_fundamental_5_ano
+        description: Número de Matrículas do Ensino Fundamental - Anos Iniciais -
+          5º Ano
+      - name: quantidade_matricula_fundamental_anos_finais
+        description: Quantidade de matrículas no ensino fundamental - anos finais
+      - name: quantidade_matricula_fundamental_6_ano
+        description: Número de Matrículas do Ensino Fundamental - Anos Finais - 6º
+          Ano
+      - name: quantidade_matricula_fundamental_7_ano
+        description: Número de Matrículas do Ensino Fundamental - Anos Finais - 7º
+          Ano
+      - name: quantidade_matricula_fundamental_8_ano
+        description: Número de Matrículas do Ensino Fundamental - Anos Finais - 8º
+          Ano
+      - name: quantidade_matricula_fundamental_9_ano
+        description: Número de Matrículas do Ensino Fundamental - Anos Finais - 9º
+          Ano
+      - name: quantidade_matricula_medio
+        description: Quantidade de matrículas no ensino médio
+      - name: quantidade_matricula_medio_propedeutico
+        description: Número de Matrículas do Ensino Médio - Propedêutico
+      - name: quantidade_matricula_medio_propedeutico_1_ano
+        description: Número de Matrículas do Ensino Médio - Propedêutico - 1º ano/1ª
+          Série
+      - name: quantidade_matricula_medio_propedeutico_2_ano
+        description: Número de Matrículas do Ensino Médio - Propedêutico - 2º ano/2ª
+          Série
+      - name: quantidade_matricula_medio_propedeutico_3_ano
+        description: Número de Matrículas do Ensino Médio - Propedêutico - 3º ano/3ª
+          Série
+      - name: quantidade_matricula_medio_propedeutico_4_ano
+        description: Número de Matrículas do Ensino Médio - Propedêutico - 4º ano/4ª
+          Série
+      - name: quantidade_matricula_medio_propedeutico_nao_seriado
+        description: Número de Matrículas do Ensino Médio - Propedêutico - Não Seriado
+      - name: quantidade_matricula_medio_tecnico
+        description: Número de Matrículas do Ensino Médio - Curso Técnico Integrado
+          à Educação Profissional
+      - name: quantidade_matricula_medio_tecnico_1_ano
+        description: Número de Matrículas do Ensino Médio - Curso Técnico Integrado
+          à Educação Profissional - 1º ano/1ª Série
+      - name: quantidade_matricula_medio_tecnico_2_ano
+        description: Número de Matrículas do Ensino Médio - Curso Técnico Integrado
+          à Educação Profissional - 2º ano/2ª Série
+      - name: quantidade_matricula_medio_tecnico_3_ano
+        description: Número de Matrículas do Ensino Médio - Curso Técnico Integrado
+          à Educação Profissional - 3º ano/3ª Série
+      - name: quantidade_matricula_medio_tecnico_4_ano
+        description: Número de Matrículas do Ensino Médio - Curso Técnico Integrado
+          à Educação Profissional - 4º ano/4ª Série
+      - name: quantidade_matricula_medio_tecnico_nao_seriado
+        description: Número de Matrículas do Ensino Médio - Curso Técnico Integrado
+          à Educação Profissional - Não Seriado
+      - name: quantidade_matricula_medio_magisterio
+        description: Número de Matrículas do Ensino Médio -  Modalidade Normal/Magistério
+      - name: quantidade_matricula_medio_magisterio_1_ano
+        description: Número de Matrículas do Ensino Médio -  Modalidade Normal/Magistério
+          - 1º ano/1ª Série
+      - name: quantidade_matricula_medio_magisterio_2_ano
+        description: Número de Matrículas do Ensino Médio -  Modalidade Normal/Magistério
+          - 2º ano/2ª Série
+      - name: quantidade_matricula_medio_magisterio_3_ano
+        description: Número de Matrículas do Ensino Médio -  Modalidade Normal/Magistério
+          - 3º ano/3ª Série
+      - name: quantidade_matricula_medio_magisterio_4_ano
+        description: Número de Matrículas do Ensino Médio -  Modalidade Normal/Magistério
+          - 4º ano/4ª Série
+      - name: quantidade_matricula_profissional
+        description: Quantidade de matrículas em educação profissional
+      - name: quantidade_matricula_profissional_tecnica
+        description: Quantidade de matrículas em educação profissional técnica
+      - name: quantidade_matricula_profissional_tecnica_concomitante
+        description: Número de Matrículas da Educação Profissional Técnica - Curso
+          Técnico Concomitante
+      - name: quantidade_matricula_profissional_tecnica_subsequente
+        description: Número de Matrículas da Educação Profissional Técnica - Curso
+          Técnico Subsequente
+      - name: quantidade_matricula_profissional_fic_concomitante
+        description: Número de Matrículas da Educação Profissional - Curso FIC Concomitante
+      - name: quantidade_matricula_eja
+        description: Quantidade de matrículas em educação de jovens e adultos (EJA)
+      - name: quantidade_matricula_eja_fundamental
+        description: Quantidade de matrículas em educação de jovens e adultos (EJA)
+          - ensino fundamental
+      - name: quantidade_matricula_eja_fundamental_anos_iniciais
+        description: Número de Matrículas da Educação de Jovens e Adultos (EJA) -
+          Ensino Fundamental - Anos Iniciais
+      - name: quantidade_matricula_eja_fundamental_anos_finais
+        description: Número de Matrículas da Educação de Jovens e Adultos (EJA) -
+          Ensino Fundamental - Anos Finais
+      - name: quantidade_matricula_eja_fundamental_fic
+        description: Número de Matrículas da Educação de Jovens e Adultos (EJA) -
+          Ensino Fundamental - Curso FIC Integrado na Modalidade EJA de Nível Fundamental
+      - name: quantidade_matricula_eja_medio
+        description: Quantidade de matrículas em educação de jovens e adultos (EJA)
+          - ensino médio
+      - name: quantidade_matricula_eja_medio_nao_profissionalizante
+        description: Número de Matrículas da Educação de Jovens e Adultos (EJA) -
+          Ensino Médio - Sem componente profissionalizante
+      - name: quantidade_matricula_eja_medio_fic
+        description: Número de Matrículas da Educação de Jovens e Adultos (EJA) -
+          Ensino Médio - Curso FIC Integrado na Modalidade EJA de Nível Médio
+      - name: quantidade_matricula_eja_medio_tecnico
+        description: Número de Matrículas da Educação de Jovens e Adultos (EJA) -
+          Ensino Médio - Curso Técnico Integrado na Modalidade EJA de Nível Médio
+      - name: quantidade_matricula_especial
+        description: Quantidade de matrículas em educação especial
+      - name: quantidade_matricula_especial_comum
+        description: Quantidade de matrículas em educação especial - classe comum
+      - name: quantidade_matricula_especial_exclusiva
+        description: Quantidade de matrículas em educação especial - classe exclusiva
+      - name: quantidade_matricula_feminino
+        description: Quantidade de matrículas na educação básica de alunos do gênero
+          feminino
+      - name: quantidade_matricula_masculino
+        description: Quantidade de matrículas na educação básica de alunos do gênero
+          masculino
+      - name: quantidade_matricula_nao_declarada
+        description: Quantidade de matrículas na educação básica de alunos com cor/raça
+          não declarada
+      - name: quantidade_matricula_branca
+        description: Quantidade de matrículas na educação básica de alunos com cor/raça
+          branca
+      - name: quantidade_matricula_preta
+        description: Quantidade de matrículas na educação básica de alunos com cor/raça
+          preta
+      - name: quantidade_matricula_parda
+        description: Quantidade de matrículas na educação básica de alunos com cor/raça
+          parda
+      - name: quantidade_matricula_amarela
+        description: Quantidade de matrículas na educação básica de alunos com cor/raça
+          amarela
+      - name: quantidade_matricula_indigena
+        description: Quantidade de matrículas na educação básica de alunos com cor/raça
+          indigena
+      - name: quantidade_matricula_idade_0_3
+        description: Quantidade de matrículas na educação básica de alunos até 3 anos
+          de idade
+      - name: quantidade_matricula_idade_4_5
+        description: Quantidade de matrículas na educação básica de alunos entre 4
+          e 5 anos de idade
+      - name: quantidade_matricula_idade_6_10
+        description: Quantidade de matrículas na educação básica de alunos entre 6
+          e 10 anos de idade
+      - name: quantidade_matricula_idade_11_14
+        description: Quantidade de matrículas na educação básica de alunos entre 11
+          e 14 anos de idade
+      - name: quantidade_matricula_idade_15_17
+        description: Quantidade de matrículas na educação básica de alunos entre 15
+          e 17 anos de idade
+      - name: quantidade_matricula_idade_18
+        description: Quantidade de matrículas na educação básica de alunos com 18
+          anos de idade ou mais
+      - name: quantidade_matricula_diurno
+        description: Quantidade de matrículas na educação básica - Turno diurno
+      - name: quantidade_matricula_noturno
+        description: Quantidade de matrículas na educação básica - Turno noturno
+      - name: quantidade_matricula_ead
+        description: Quantidade de matrículas na educação básica - A distância
+      - name: quantidade_matricula_infantil_integral
+        description: Quantidade de matrículas em educação infantil - Tempo integral
+      - name: quantidade_matricula_infantil_creche_integral
+        description: Quantidade de matrículas em educação infantil (creche) - Tempo
+          integral
+      - name: quantidade_matricula_infantil_pre_escola_integral
+        description: Quantidade de matrículas em educação infantil (pré-escola) -
+          Tempo integral
+      - name: quantidade_matricula_fundamental_integral
+        description: Quantidade de matrículas no ensino fundamental - Tempo integral
+      - name: quantidade_matricula_fundamental_anos_iniciais_integral
+        description: Quantidade de matrículas no ensino fundamental (anos iniciais)  -
+          Tempo integral
+      - name: quantidade_matricula_fundamental_anos_finais_integral
+        description: Quantidade de matrículas no ensino fundamental (anos finais)
+          - Tempo integral
+      - name: quantidade_matricula_medio_integral
+        description: Quantidade de matrículas no ensino médio - Tempo integral
+      - name: quantidade_matricula_zona_residencia_urbana
+        description: Número de Matrículas da Educação Básica - Localização/Zona de
+          residência do Aluno - Urbana
+      - name: quantidade_matricula_zona_residencia_rural
+        description: Número de Matrículas da Educação Básica - Localização/Zona de
+          residência do Aluno - Rural
+      - name: quantidade_matricula_zona_residencia_nao_aplicavel
+        description: Número de Matrículas da Educação Básica - Localização/Zona de
+          residência do Aluno - Não aplicável para alunos residentes no exterior
+      - name: quantidade_matricula_utiliza_transporte_publico
+        description: Número de Matrículas da Educação Básica de alunos que utilizam
+          transporte escolar público
+      - name: quantidade_matricula_transporte_estadual
+        description: Número de Matrículas da Educação Básica segundo o poder público
+          responsável pelo transporte escolar - Estadual
+      - name: quantidade_matricula_transporte_municipal
+        description: Número de Matrículas da Educação Básica segundo o poder público
+          responsável pelo transporte escolar - Municipal
+      - name: quantidade_docente_educacao_basica
+        description: Quantidade de docentes da educação básica
+      - name: quantidade_docente_infantil
+        description: Quantidade de docentes da educação infantil
+      - name: quantidade_docente_infantil_creche
+        description: Quantidade de docentes da educação infantil - creche
+      - name: quantidade_docente_infantil_pre_escola
+        description: Quantidade de docentes da educação infantil - pré-escola
+      - name: quantidade_docente_fundamental
+        description: Quantidade de docentes do ensino fundamental
+      - name: quantidade_docente_fundamental_anos_iniciais
+        description: Quantidade de docentes do ensino fundamental - anos iniciais
+      - name: quantidade_docente_fundamental_anos_finais
+        description: Quantidade de docentes do ensino fundamental - anos finais
+      - name: quantidade_docente_medio
+        description: Quantidade de docentes do ensino médio
+      - name: quantidade_docente_profissional
+        description: Quantidade de docentes da educação profissional
+      - name: quantidade_docente_profissional_tecnica
+        description: Quantidade de docentes da educação profissional técnica
+      - name: quantidade_docente_eja
+        description: Quantidade de docentes da educação de jovens e adultos (EJA)
+      - name: quantidade_docente_eja_fundamental
+        description: Quantidade de docentes da educação de jovens e adultos (EJA)
+          - ensino fundamental
+      - name: quantidade_docente_eja_medio
+        description: Quantidade de docentes da educação de jovens e adultos (EJA)
+          - ensino médio
+      - name: quantidade_docente_especial
+        description: Quantidade de docentes da educação especial
+      - name: quantidade_docente_especial_comum
+        description: Quantidade de docentes da educação especial - classe comum
+      - name: quantidade_docente_especial_exclusiva
+        description: Quantidade de docentes da educação especial - classe exclusiva
+      - name: quantidade_turma_educacao_basica
+        description: Quantidade de turmas de educação básica
+      - name: quantidade_turma_infantil
+        description: Quantidade de turmas de educação infantil
+      - name: quantidade_turma_infantil_integral
+        description: Número de Turmas da Educação Infantil - Tempo Integral
+      - name: quantidade_turma_infantil_creche
+        description: Quantidade de turmas de educação infantil - creche
+      - name: quantidade_turma_infantil_creche_integral
+        description: Número de Turmas da Educação Infantil - Creche - Tempo Integral
+      - name: quantidade_turma_infantil_pre_escola
+        description: Quantidade de turmas de educação infantil - pré-escola
+      - name: quantidade_turma_infantil_pre_escola_integral
+        description: Número de Turmas da Educação Infantil - Pré-Escola - Tempo Integral
+      - name: quantidade_turma_fundamental
+        description: Quantidade de turmas de ensino fundamental
+      - name: quantidade_turma_fundamental_integral
+        description: Número de Turmas do Ensino Fundamental - Tempo Integral
+      - name: quantidade_turma_fundamental_anos_iniciais
+        description: Quantidade de turmas de ensino fundamental - anos iniciais
+      - name: quantidade_turma_fundamental_anos_iniciais_integral
+        description: Número de Turmas do Ensino Fundamental - Anos Iniciais - Tempo
+          Integral
+      - name: quantidade_turma_fundamental_anos_finais
+        description: Quantidade de turmas de ensino fundamental - anos finais
+      - name: quantidade_turma_fundamental_anos_finais_integral
+        description: Número de Turmas do Ensino Fundamental - Anos Finais - Tempo
+          Integral
+      - name: quantidade_turma_medio
+        description: Quantidade de turmas de ensino médio
+      - name: quantidade_turma_medio_integral
+        description: Número de Turmas do Ensino Médio - Tempo Integral
+      - name: quantidade_turma_profissional
+        description: Quantidade de turmas de educação profissional
+      - name: quantidade_turma_profissional_tecnica
+        description: Quantidade de turmas de educação profissional técnica
+      - name: quantidade_turma_eja
+        description: Quantidade de turmas de educação de jovens e adultos (EJA)
+      - name: quantidade_turma_eja_fundamental
+        description: Quantidade de turmas de educação de jovens e adultos (EJA) -
+          ensino fundamental
+      - name: quantidade_turma_eja_medio
+        description: Quantidade de turmas de educação de jovens e adultos (EJA) -
+          ensino médio
+      - name: quantidade_turma_especial
+        description: Quantidade de turmas de educação especial
+      - name: quantidade_turma_especial_comum
+        description: Quantidade de turmas de educação especial - classe comum
+      - name: quantidade_turma_especial_exclusiva
+        description: Quantidade de turmas de educação especial - classe exclusiva
+      - name: quantidade_turma_diurno
+        description: Número de Turmas da Educação Básica - Turno Diurno
+      - name: quantidade_turma_noturno
+        description: Número de Turmas da Educação Básica - Turno Noturno
+      - name: quantidade_turma_ead
+        description: Número de Turmas da Educação Básica - Turno não aplicável  para
+          turmas semipresenciais ou de Educação a Distância (EAD)
+  - name: br_inep_censo_escolar__turma
+    description: A tabela contém dados que caracterizam as turmas de cada escola brasileira.
+      Entre os dados podemos encontrar as disciplinas feitas pela turma, o horário
+      de começo das aulas, o número de alunos da turma e o nível de ensino no qual
+      se encontra a turma. Há também vários outros aspectos mais específicos, como
+      se a turma passa por atividades complementares, em quais dias da semana ela
+      é ativa e se a turma conta com medidas de inclusão como aulas em libras e em
+      braille.
+    columns:
+      - name: ano
+        description: Ano do Censo
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Código da UF da escola
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: Código do Município da escola
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: rede
+        description: Rede Escolar
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__escola')
+              field: rede
+          - accepted_values:
+              values: [municipal, estadual, federal, privada]
+      - name: id_escola
+        description: Código da Escola
+      - name: id_turma
+        description: Código único da Turma
+      - name: etapa_ensino
+        description: Etapa de ensino da turma
+      - name: tipo_turma
+        description: Tipo de atendimento da turma (e.g. Unidade prisional, Classe
+          hospitalar)
+      - name: hora_inicial
+        description: Hora Inicial
+      - name: minuto_inicial
+        description: Minuto Inicial
+      - name: dia_semana_domingo
+        description: Dias da semana da Turma - Domingo
+      - name: dia_semana_segunda
+        description: Dias da semana da Turma - Segunda-Feira
+      - name: dia_semana_terca
+        description: Dias da semana da Turma - Terça-Feira
+      - name: dia_semana_quarta
+        description: Dias da semana da Turma - Quarta-Feira
+      - name: dia_semana_quinta
+        description: Dias da semana da Turma - Quinta_Feira
+      - name: dia_semana_sexta
+        description: Dias da semana da Turma - Sexta-Feira
+      - name: dia_semana_sabado
+        description: Dias da semana da Turma - Sábado
+      - name: numero_dias_atividade
+        description: Número de dias da semana onde são realizadas atividades da turma
+      - name: numero_duracao_turma
+        description: Duração de funcionamento da Turma - Minutos
+      - name: tipo_atividade_1
+        description: Código do tipo de atividade complementar - Atividade 1
+      - name: tipo_atividade_2
+        description: Código do tipo de atividade complementar - Atividade 2
+      - name: tipo_atividade_3
+        description: Código do tipo de atividade complementar - Atividade 3
+      - name: tipo_atividade_4
+        description: Código do tipo de atividade complementar - Atividade 4
+      - name: tipo_atividade_5
+        description: Código do tipo de atividade complementar - Atividade 5
+      - name: tipo_atividade_6
+        description: Código do tipo de atividade complementar - Atividade 6
+      - name: id_curso_educacao_profissional
+        description: Curso da Educação Profissional Técnica
+      - name: quantidade_matriculas
+        description: Número de matrículas na turma
+      - name: disciplina_lingua_portuguesa
+        description: Áreas do conhecimento/Componentes curriculares - Língua/ Literatura
+          Portuguesa
+      - name: disciplina_educacao_fisica
+        description: Áreas do conhecimento/Componentes curriculares - Educação Física
+      - name: disciplina_artes
+        description: Áreas do conhecimento/Componentes curriculares - Artes (Educação
+          Artística, Teatro, Dança, Música, Artes Plásticas e outras)
+      - name: disciplina_lingua_ingles
+        description: Áreas do conhecimento/Componentes curriculares - Língua/ Literatura
+          estrangeira - Inglês
+      - name: disciplina_lingua_espanhol
+        description: Áreas do conhecimento/Componentes curriculares - Língua/ Literatura
+          estrangeira - Espanhol
+      - name: disciplina_lingua_frances
+        description: Áreas do conhecimento/Componentes curriculares - Língua/ Literatura
+          estrangeira - Francês
+      - name: disciplina_lingua_outra
+        description: Áreas do conhecimento/Componentes curriculares - Língua/ Literatura
+          estrangeira - Outra
+      - name: disciplina_libras
+        description: Áreas do conhecimento/Componentes curriculares - Libras
+      - name: disciplina_lingua_indigena
+        description: Áreas do conhecimento/Componentes curriculares - Língua Indígena
+      - name: disciplina_matematica
+        description: Áreas do conhecimento/Componentes curriculares - Matemática
+      - name: disciplina_ciencias
+        description: Áreas do conhecimento/Componentes curriculares - Ciências
+      - name: disciplina_fisica
+        description: Áreas do conhecimento/Componentes curriculares - Física
+      - name: disciplina_quimica
+        description: Áreas do conhecimento/Componentes curriculares - Química
+      - name: disciplina_biologia
+        description: Áreas do conhecimento/Componentes curriculares - Biologia
+      - name: disciplina_historia
+        description: Áreas do conhecimento/Componentes curriculares - História
+      - name: disciplina_geografia
+        description: Áreas do conhecimento/Componentes curriculares - Geografia
+      - name: disciplina_sociologia
+        description: Áreas do conhecimento/Componentes curriculares - Sociologia
+      - name: disciplina_filosofia
+        description: Áreas do conhecimento/Componentes curriculares - Filosofia
+      - name: disciplina_estudos_sociais
+        description: Áreas do conhecimento/Componentes curriculares - Estudos Sociais
+      - name: disciplina_informatica_comp
+        description: Áreas do conhecimento/Componentes curriculares - Informática
+          / Computação
+      - name: disciplina_ensino_religioso
+        description: Áreas do conhecimento/Componentes curriculares - Ensino Religioso
+      - name: disciplina_profissionalizante
+        description: Áreas do conhecimento/Componentes curriculares - Disciplinas
+          dos cursos técnicos profissionais
+      - name: disciplina_pedagogicas
+        description: Áreas do conhecimento/Componentes curriculares - Disciplinas
+          pedagógicas
+      - name: disciplina_outras
+        description: Áreas do conhecimento/Componentes curriculares - Outras disciplinas
+      - name: tipo_localizacao
+        description: Localização (Escola)
+      - name: tipo_categoria_escola_privada
+        description: Categoria da escola privada
+      - name: conveniada_poder_publico
+        description: Conveniada com o poder público (Escola)
+      - name: tipo_convenio_poder_publico
+        description: Dependência do convênio com o poder público
+      - name: mantenedora_privada_emp
+        description: Mantenedora da escola privada - Empresa, grupo empresarial do
+          setor privado ou pessoa física
+      - name: mantenedora_privada_ong
+        description: Mantenedora da escola privada - Organização não governamental
+          (ONG) - internacional ou nacional.
+      - name: mantenedora_privada_sind
+        description: Mantenedora da escola privada - Sindicatos de trabalhadores ou
+          patronais, associações e cooperativas.
+      - name: mantenedora_privada_sist_s
+        description: Mantenedora da escola privada - Sistema S (Sesi, Senai, Sesc,
+          Outros)
+      - name: mantenedora_privada_s_fins
+        description: Mantenedora da escola privada - Instituições sem fins lucrativos
+      - name: tipo_regulamentacao
+        description: Regulamentação/Autorização no conselho ou órgão municipal, estadual
+          ou federal de educação
+      - name: tipo_localizacao_diferenciada
+        description: Localização diferenciada da escola
+      - name: educacao_indigena
+        description: Escola Indígena
+      - name: braille
+        description: Tipo de Atendimento Educacionl Especializado - Ensino do sistema
+          braille
+      - name: recursos_baixa_visao
+        description: Tipo de Atendimento Educacionl Especializado - Ensino do uso
+          de recursos ópticos e não ópticos
+      - name: processos_mentais
+        description: Tipo de Atendimento Educacionl Especializado - Estratégias para
+          o desenvolvimento de processos mentais
+      - name: orientacao_mobilidade
+        description: Tipo de Atendimento Educacionl Especializado - Ensino de técnicas
+          de orientação e mobilidade
+      - name: sinais
+        description: Tipo de Atendimento Educacionl Especializado - Ensino da Língua
+          Brasileira de Sinais - LIBRAS
+      - name: comunicacao_alt_aument
+        description: Tipo de Atendimento Educacionl Especializado - Ensino de uso
+          de Comunicação Alternativa Aumentada
+      - name: enriquecimento_curricular
+        description: Tipo de Atendimento Educacionl Especializado - Ensino de estratégias
+          para enriquecimento curricular
+      - name: soroban
+        description: Tipo de Atendimento Educacionl Especializado - Ensino de uso
+          do Soroban
+      - name: informatica_acessivel
+        description: Tipo de Atendimento Educacionl Especializado - Ensino da usabilidade
+          e da funcionalidade da informática acessível
+      - name: port_escrita
+        description: Tipo de Atendimento Educacionl Especializado - Ensino da Língua
+          Portuguesa na modalidade escrita
+      - name: autonomia_escolar
+        description: Tipo de Atendimento Educacionl Especializado - Ensino de estratégias
+          para autonomia no ambiente escolar
+      - name: disciplina_atendimento_especiais
+        description: Turma tem disciplinas voltadas ao atendimento às necessidades
+          educacionais específicas de alunos público-alvo
+      - name: disciplina_diver_socio_cultural
+        description: Turma tem disciplinas voltadas à diversidade sociocultural
+  - name: br_inep_censo_escolar__dicionario
+    description: Dicionário para tradução dos códigos do conjunto br_inep_censo_escolar.
+      Para taduzir códigos compartilhados entre instituições, como id_municipio, buscar
+      por diretórios
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_tabela
+            - nome_coluna
+            - chave
+            - cobertura_temporal
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_tabela
+        description: ID Tabela
+      - name: nome_coluna
+        description: Nome da coluna
+      - name: chave
+        description: Chave
+      - name: cobertura_temporal
+        description: Cobertura Temporal
+      - name: valor
+        description: Valor

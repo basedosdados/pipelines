@@ -1,0 +1,64 @@
+---
+version: 2
+models:
+  - name: br_stf_corte_aberta__decisoes
+    description: Decisões de corte aberta do STF
+    columns:
+      - name: ano
+        description: Ano da decisão
+      - name: classe
+        description: Tipo da classe
+      - name: numero
+        description: Número de identificação do processo judicial
+      - name: relator
+        description: Relator do processo
+      - name: link
+        description: Link do processo
+      - name: subgrupo_andamento
+        description: Subgrupo do andamento
+      - name: andamento
+        description: Andamento da decisão
+      - name: observacao_andamento_decisao
+        description: Observação sobre o andamento da decisão
+      - name: modalidade_julgamento
+        description: Modalidade do julgamento (eg. virtual, presencial, monocrática)
+      - name: tipo_julgamento
+        description: Tipo do julgamento (eg. colegiada, monocrático)
+      - name: meio_tramitacao
+        description: Meio da tramitação (eg. eletrônico, físico)
+      - name: indicador_tramitacao
+        description: Indica se o processo está em tramitação
+      - name: assunto_processo
+        description: Assunto do processo
+      - name: ramo_direito
+        description: Ramo de atuação do direito
+      - name: data_autuacao
+        description: Data de autuação
+      - name: data_decisao
+        description: Data da decisão
+      - name: data_baixa_processo
+        description: Data de baixa do processo
+  - name: br_stf_corte_aberta__dicionario
+    description: Dicionário para tradução dos códigos do conjunto br_stf_corte_aberta.
+      Para taduzir códigos compartilhados entre instituições, como id_municipio, buscar
+      por diretórios
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_tabela
+            - nome_coluna
+            - chave
+            - cobertura_temporal
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_tabela
+        description: ID Tabela
+      - name: nome_coluna
+        description: Nome da coluna
+      - name: chave
+        description: Chave
+      - name: cobertura_temporal
+        description: Cobertura Temporal
+      - name: valor
+        description: Valor

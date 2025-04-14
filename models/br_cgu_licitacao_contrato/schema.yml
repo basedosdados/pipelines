@@ -1,0 +1,392 @@
+---
+version: 2
+models:
+  - name: br_cgu_licitacao_contrato__contrato_compra
+    description: Dados referentes a contratos de compras
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.25
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: Mês
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: id_contrato
+        description: Número que identifica o contrato no ComprasNet
+      - name: objeto
+        description: Objeto do contrato
+      - name: fundamento_legal
+        description: Indicação do embasamento legal do contrato
+      - name: modalidade
+        description: Modalidade de compra
+      - name: situacao_contrato
+        description: Situação em que se encontra o contrato
+      - name: id_orgao_superior
+        description: Código do Órgão Superior responsável pela licitação
+      - name: nome_orgao_superior
+        description: Nome do Órgão Superior
+      - name: id_orgao
+        description: Código do Órgão responsável pela licitação
+      - name: nome_orgao
+        description: Nome do Órgão Superior
+      - name: id_unidade_gestora
+        description: Código da Unidade Gestora do contrato.
+      - name: nome_unidade_gestora
+        description: Nome da Unidade Gestora
+      - name: data_assinatura_contrato
+        description: Data da assinatura do contrato
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: data_publicacao_dou
+        description: Data da publicação do contrato no DOU
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: data_inicio_vigencia
+        description: Data de início da vigência do contrato
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: data_fim_vigencia
+        description: Data de fim da vigência do contrato
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: cpf_cnpj_contratado
+        description: CNPJ do contratado
+      - name: nome_contratado
+        description: Nome do contratado
+      - name: valor_inicial_compra
+        description: Valor inicial da compra
+      - name: valor_final_compra
+        description: Valor final da compra após possíveis reajustes, acréscimos etc
+      - name: id_licitacao
+        description: Número que identifica a licitação no SIASG
+      - name: id_unidade_gestora_licitacao
+        description: Código da Unidade Gestora responsável pela licitação
+      - name: nome_unidade_gestora_licitacao
+        description: Nome da Unidade Gestora responsável pela licitação
+      - name: id_modalidade_licitacao
+        description: Código da modalidade
+      - name: modalidade_licitacao
+        description: Modalidade da Licitação
+  - name: br_cgu_licitacao_contrato__contrato_item
+    description: Dados referentes a itens do contrato
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.25
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: Mês
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: id_contrato
+        description: Número que identifica o contrato no ComprasNet
+      - name: id_orgao
+        description: Código do Órgão responsável pela licitação
+      - name: nome_orgao
+        description: Nome do Órgão
+      - name: id_ug
+        description: Código da Unidade Gestora do contrato.
+      - name: nome_uf
+        description: Nome da Unidade Gestora
+      - name: id_item
+        description: Código do item da compra no SIASG.
+      - name: descricao_item
+        description: Descrição do item
+      - name: descricao_complementar_item
+        description: Descrição complementar do item
+      - name: quantidade_item
+        description: Quantidade do item
+      - name: valor_item
+        description: Valor unitário do item
+  - name: br_cgu_licitacao_contrato__contrato_termo_aditivo
+    description: Dados referentes a termo aditivo do contrato
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.25
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: Mês
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: id_contrato
+        description: Número que identifica o contrato no ComprasNet
+      - name: id_orgao_superior
+        description: Código do Órgão Superior responsável pela licitação
+      - name: nome_orgao_superior
+        description: Nome do Órgão Superior
+      - name: id_orgao
+        description: Código do Órgão responsável pela licitação
+      - name: nome_orgao
+        description: Nome do Órgão Superior
+      - name: id_ug
+        description: Código da Unidade Gestora do contrato.
+      - name: nome_ug
+        description: Nome da Unidade Gestora
+      - name: id_termo_aditivo
+        description: Número que identifica o termo aditivo no ComprasNet
+      - name: data_publicacao_dou
+        description: Data da publicação do termo aditivo no DOU
+      - name: objeto
+        description: Objeto do termo aditivo
+  - name: br_cgu_licitacao_contrato__licitacao_item
+    description: Dados referentes a itens da Licitação
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.25
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: Mês
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: id_licitacao
+        description: Número que identifica a licitação no SIASG
+      - name: id_unidade_gestora
+        description: Código da Unidade Gestora responsável pela licitação.
+      - name: nome_unidade_gestora
+        description: Nome da Unidade Gestora
+      - name: id_modalidade
+        description: Código da Modalidade de Compra
+      - name: modalidade
+        description: Modalidades de Compra
+      - name: numero_processo
+        description: Número do processo da licitação
+      - name: id_orgao
+        description: Código do Órgão responsável pela licitação
+      - name: nome_orgao
+        description: Nome do Órgão
+      - name: id_item
+        description: Código do item da compra no SIASG
+      - name: descricao_item
+        description: Descrição do item da compra no SIASG
+      - name: quantidade_item
+        description: Quantidade do item
+      - name: valor_item
+        description: Valor total do item
+      - name: cpf_cnpj_vencedor
+        description: CNPJ do licitante vencedor
+      - name: nome_vencedor
+        description: Nome do CNPJ vencedor
+  - name: br_cgu_licitacao_contrato__licitacao
+    description: Dados referentes a licitação
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.25
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: Mês
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Municipio
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_licitacao
+        description: Número que identifica a licitação no SIASG
+      - name: id_unidade_gestora
+        description: Código da Unidade Gestora responsável pela licitação.
+      - name: nome_unidade_gestora
+        description: Nome da Unidade Gestora
+      - name: id_modalidade_compra
+        description: Código da Modalidade de Compra
+      - name: modalidade_compra
+        description: Modalidades de Compra
+      - name: numero_processo
+        description: Número do processo da licitação
+      - name: objeto
+        description: Objeto da licitação, ou seja, aquilo que se quer comprar, alienar
+          ou contratar
+      - name: situacao_licitacao
+        description: Situação em que se encontra o processo licitatório
+      - name: id_orgao_superior
+        description: Código do Órgão Superior responsável pela licitação
+      - name: nome_orgao_superior
+        description: Nome do Órgão Superior
+      - name: id_orgao
+        description: Código do Órgão responsável pela licitação
+      - name: nome_orgao
+        description: Nome do Órgão
+      - name: data_resultado_compra
+        description: Data da publicação da Homologação no Diário Oficial da União
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: data_abertura
+        description: Data de abertura para envio das Propostas
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: valor_licitacao
+        description: Valor total licitado
+  - name: br_cgu_licitacao_contrato__licitacao_participante
+    description: Dados referentes a participantes da licitação
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.25
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: Mês
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: id_licitacao
+        description: Número que identifica a licitação no SIASG
+      - name: id_unidade_gestora
+        description: Código da Unidade Gestora responsável pela licitação.
+      - name: nome_unidade_gestora
+        description: Nome da Unidade Gestora
+      - name: id_modalidade_compra
+        description: Código da Modalidade de Compra
+      - name: modalidade_compra
+        description: Modalidades de Compra
+      - name: numero_processo
+        description: Número do processo da licitação
+      - name: id_orgao
+        description: Código do Órgão responsável pela licitação
+      - name: nome_orgao
+        description: Nome do Órgão
+      - name: id_item_compra
+        description: Código do item da compra no SIASG
+      - name: descricao_item_compra
+        description: Descrição do item da compra no SIASG
+      - name: cpf_cnpj_participante
+        description: CPF ou CNPJ do participante na licitação
+      - name: nome_participante
+        description: Nome do CNPJ do participante
+      - name: vencedor
+        description: Indica se o participante é vencedor "SIM" ou "NÃO"
+  - name: br_cgu_licitacao_contrato__licitacao_empenho
+    description: Dados referentes a empenho da Licitação
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.25
+    columns:
+      - name: id_processo
+        description: Número do processo da licitação
+      - name: id_unidade_gestora
+        description: Código da Unidade Gestora responsável pela licitação.
+      - name: nome_unidade_gestora
+        description: Nome da Unidade Gestora
+      - name: id_modalidade
+        description: Código da Modalidade de Compra
+      - name: modalidade
+        description: Modalidades de Compra
+      - name: id_empenho
+        description: Código do Empenho da Licitação
+      - name: data_emissao
+        description: Data de Emissão do Empenho
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: observacao
+        description: Observação do Empenho
+      - name: id_licitacao
+        description: Número que identifica a licitação no SIASG
+      - name: valor
+        description: Valor do Empenho (R$)
+  - name: br_cgu_licitacao_contrato__contrato_apostilamento
+    description: Dados referentes ao apostilamento do contrato
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.25
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: Mês
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: id_contrato
+        description: Número que identifica o contrato no ComprasNet
+      - name: id_orgao_superior
+        description: Código do Órgão Superior responsável pela licitação
+      - name: nome_orgao_superior
+        description: Nome do Órgão Superior
+      - name: id_orgao
+        description: Código do Órgão responsável pela licitação
+      - name: nome_orgao
+        description: Nome do Órgão
+      - name: id_unidade_gestora
+        description: Código da Unidade Gestora do contrato.
+      - name: nome_unidade_gestora
+        description: Nome da Unidade Gestora
+      - name: id_apostilamento
+        description: Código do apostilamento
+      - name: descricao_apostilamento
+        description: Descrição do apostilamento
+      - name: situacao_apostilamento
+        description: Situação do apostilamento
+      - name: data_apostilamento
+        description: Data do apostilamento
+      - name: valor_apostilamento
+        description: Valor do apostilamento

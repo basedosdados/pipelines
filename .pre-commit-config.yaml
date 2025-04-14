@@ -3,9 +3,9 @@ repos:
     rev: v5.0.0
     hooks:
       - id: check-added-large-files # prevents adding large files
+        args: ["--maxkb=4000"]
       - id: detect-private-key # detects private keys
       - id: fix-byte-order-marker # fixes BOM
-      - id: fix-encoding-pragma # fixes encoding pragma
       - id: no-commit-to-branch # prevents committing to protected branches
       - id: trailing-whitespace # prevents trailing whitespace
   - repo: https://github.com/python-poetry/poetry
@@ -16,5 +16,15 @@ repos:
     rev: v0.9.3
     hooks:
       - id: ruff
-        args: [--fix]
+        args: [--fix, --exclude, "models/"]
       - id: ruff-format
+  - repo: local
+    hooks:
+      - id: yamlfix
+        name: yamlfix
+        types: [yaml]
+        language: python
+        entry: yamlfix
+        files: models
+        args:
+          - models/

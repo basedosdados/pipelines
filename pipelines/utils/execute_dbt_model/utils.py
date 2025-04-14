@@ -3,7 +3,6 @@
 General utilities for interacting with dbt-rpc
 """
 
-import json
 import os
 import re
 from typing import Dict
@@ -14,38 +13,18 @@ import yaml
 from pipelines.utils.utils import log
 
 
-def update_profiles_for_env_credentials(dbt_repository_path: str) -> None:
+def update_profiles_for_env_credentials() -> None:
     """
     Update the DBT profiles.yml to use environment variables for BigQuery authentication.
 
     This function modifies the profiles.yml file to use environment variables
     directly for authentication instead of referencing a keyfile on disk.
 
-    Args:
-        dbt_repository_path (str): Path to the DBT repository
-
     Raises:
         Exception: If profiles.yml cannot be found or updated
     """
 
-    possible_profile_locations = [
-        os.path.join(dbt_repository_path, "profiles.yml"),
-        os.path.join(dbt_repository_path, ".dbt", "profiles.yml"),
-        os.path.expanduser("~/.dbt/profiles.yml"),
-    ]
-
-    profiles_path = None
-    for path in possible_profile_locations:
-        if os.path.exists(path):
-            profiles_path = path
-            break
-
-    if not profiles_path:
-        raise Exception(
-            "profiles.yml not found in any of the expected locations"
-        )
-
-    log(f"Found profiles.yml at {profiles_path}", level="info")
+    profiles_path = "profiles.yml"
 
     with open(profiles_path, "r") as f:
         profiles = yaml.safe_load(f)
@@ -82,20 +61,7 @@ def update_profiles_for_env_credentials(dbt_repository_path: str) -> None:
         )
 
 
-def merge_vars(vars1, vars2):
-    try:
-        dict1 = json.loads(vars1)
-        dict2 = json.dumps(vars2, ensure_ascii=False)
-        dict2 = json.loads(dict2)
-        merged = {**dict1, **dict2}
-        return json.dumps(merged)
-    except (json.JSONDecodeError, TypeError) as e:
-        log(f"Erro ao mesclar variáveis: {e}")
-        raise
-
-
 def update_keyfile_path_in_profiles(
-    dbt_repository_path: str,
     custom_keyfile_path: str,
     profile_name: str = "default",
     target_name: str = "dev",
@@ -109,7 +75,6 @@ def update_keyfile_path_in_profiles(
     *Note*: it updates the default Big Query credentials in DBT profiles.yml value to your local credentials
 
     Args:
-        dbt_repository_path (str): Path to the dbt repository.
         custom_keyfile_path (str): New path to use for the keyfile.
         profile_name (str): The profile to update. Defaults to "default".
         target_name (str): The target environment to update. Defaults to "dev".
@@ -118,24 +83,7 @@ def update_keyfile_path_in_profiles(
         Exception: If profiles.yml is not found or cannot be updated.
     """
 
-    possible_profile_locations = [
-        os.path.join(dbt_repository_path, "profiles.yml"),
-        os.path.join(dbt_repository_path, ".dbt", "profiles.yml"),
-        os.path.expanduser("~/.dbt/profiles.yml"),
-    ]
-
-    profiles_path = None
-    for path in possible_profile_locations:
-        if os.path.exists(path):
-            profiles_path = path
-            break
-
-    if not profiles_path:
-        raise Exception(
-            "profiles.yml not found in any of the expected locations"
-        )
-
-    log(f"Found profiles.yml at {profiles_path}", level="info")
+    profiles_path = "profiles.yml"
 
     with open(profiles_path, "r") as f:
         profiles = yaml.safe_load(f)
@@ -174,22 +122,20 @@ def update_keyfile_path_in_profiles(
         )
 
 
-def process_dbt_log_file(
-    log_path: str = "dbt_repository/logs/dbt.log",
-) -> pd.DataFrame:
+def process_dbt_log_file(log_path: str) -> pd.DataFrame:
     """
     Process the contents of a dbt log file and return a DataFrame containing the parsed log entries.
     This is the primary function for extracting log information from dbt log files.
 
     Args:
-        log_path (str): The path to the dbt log file. Defaults to "dbt_repository/logs/dbt.log".
+        log_path (str): The path to the dbt log file.
 
     Returns:
         pd.DataFrame: A DataFrame containing the parsed log entries with columns for time, level, and text.
     """
 
     if not os.path.exists(log_path):
-        log(f"Log file not found at path: {log_path}", level="warning")
+        print(f"Log file not found at path: {log_path}")
         return pd.DataFrame(columns=["time", "level", "text"])
 
     try:
@@ -198,7 +144,7 @@ def process_dbt_log_file(
         ) as log_file:
             log_content = log_file.read()
 
-        log(f"Log file size: {len(log_content)} bytes", level="debug")
+        print(f"Log file size: {len(log_content)} bytes")
 
         # Try different patterns to parse the logs
         # Pattern 1: Look for timestamp followed by log level in brackets
@@ -209,9 +155,8 @@ def process_dbt_log_file(
         )
 
         if entries:
-            log(
+            print(
                 f"Found {len(entries)} log entries using pattern 1",
-                level="debug",
             )
             return pd.DataFrame(entries, columns=["time", "level", "text"])
 
@@ -240,7 +185,7 @@ def process_dbt_log_file(
             )
 
         # Pattern 3: Simple line-by-line parsing (fallback)
-        log("Using fallback log parsing method", level="debug")
+        print("Using fallback log parsing method")
         lines = log_content.split("\n")
         entries = []
 
@@ -256,17 +201,16 @@ def process_dbt_log_file(
                 entries.append((time, level, text))
 
         if entries:
-            log(
+            print(
                 f"Found {len(entries)} log entries using fallback method",
-                level="debug",
             )
             return pd.DataFrame(entries, columns=["time", "level", "text"])
 
-        log("Could not parse DBT log file with any pattern", level="warning")
+        print("Could not parse DBT log file with any pattern")
         return pd.DataFrame(columns=["time", "level", "text"])
 
     except Exception as e:
-        log(f"Error parsing DBT log file: {str(e)}", level="error")
+        print(f"Error parsing DBT log file: {str(e)}")
         return pd.DataFrame(columns=["time", "level", "text"])
 
 
@@ -310,7 +254,7 @@ def extract_model_execution_status_from_logs(logs_df: pd.DataFrame) -> Dict:
     return model_status
 
 
-def log_dbt_from_file(log_path: str = "dbt_repository/logs/dbt.log") -> Dict:
+def log_dbt_from_file(log_path) -> Dict:
     """
     Process a dbt log file and log its contents with appropriate log levels.
     This function is designed to be the main entry point for log file parsing.

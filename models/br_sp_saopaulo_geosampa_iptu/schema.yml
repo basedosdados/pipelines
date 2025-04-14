@@ -1,0 +1,77 @@
+---
+version: 2
+models:
+  - name: br_sp_saopaulo_geosampa_iptu__iptu
+    description: O Geosampa disponibiliza a base completa do cadastro imobiliário
+      fiscal relativo ao IPTU (Imposto Predial e Territorial Urbano) da cidade. São
+      mais de 85 milhões de registros e 21,5 GB de informações sobre os imóveis de
+      São Paulo.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.35
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, numero_contribuinte]
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: data_cadastramento
+        description: Data do Cadastramento
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: numero_contribuinte
+        description: Número do contribuinte do iptu
+        tests: [not_null]
+      - name: numero_notificacao
+        description: Número da notificação de lançamento (NL)
+      - name: numero_condominio
+        description: Número do condomínio
+      - name: logradouro
+        description: Logradouro
+      - name: numero_imovel
+        description: Número do Imóvel
+      - name: cep  # Há muito valores de cep que não batem.
+        description: Número do CEP
+      - name: complemento
+        description: Complemento do endereço
+      - name: bairro
+        description: Bairro do Imóvel
+      - name: referencia_imovel
+        description: Referencia do imóvel
+      - name: finalidade_imovel
+        description: Finalidade do imóvel
+      - name: tipo_construcao
+        description: Tipo de padrão da construção
+      - name: tipo_terreno
+        description: Tipo de terreno
+      - name: fracao_ideal
+        description: Fração ideal
+      - name: area_terreno
+        description: Área do terreno
+      - name: area_construida
+        description: Área construída
+      - name: area_ocupada
+        description: Área ocupada
+      - name: testada_imovel
+        description: Testada do imóvel
+      - name: quantidade_esquina_imovel
+        description: Quantidade de esquinas na frente do imóvel
+      - name: valor_terreno
+        description: Valor do metro quadrado do terreno
+      - name: valor_construcao
+        description: Valor do metro quadrado de construção
+      - name: ano_construcao_corrigida
+        description: Ano da construção corrigida
+      - name: quantidade_pavimento
+        description: Quantidade de pavimentos
+      - name: ano_inicio_vida_contribuinte
+        description: Ano de início da vida do contribuinte
+      - name: mes_inicio_vida_contribuinte
+        description: Mês de início da vida do contribuinte
+      - name: fator_obsolescencia
+        description: Fator de obsolescencia

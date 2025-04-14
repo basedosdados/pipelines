@@ -1,0 +1,43 @@
+---
+version: 2
+models:
+  - name: br_b3_cotacoes__cotacoes
+    description: Dados de negociação de ativos listados na B3
+    columns:
+      - name: data_referencia
+        description: Data de referência da informação
+      - name: data_negocio
+        description: Data do pregão
+      - name: hora_fechamento
+        description: Hora (o instante) do negócio fechado (UTC-3)
+      - name: codigo_identificador_negocio
+        description: Número do negócio
+      - name: codigo_instrumento
+        description: Código que identifica um instrumento negociado/registrado em
+          bolsa de valores
+      - name: codigo_participante_comprador
+        description: Código comprador
+      - name: codigo_participante_vendedor
+        description: Código vendedor
+      - name: acao_atualizacao
+        description: Informa a ação de atualização que está ocorrendo (e.g. negócio
+          novo, cancelado)
+      - name: tipo_sessao_pregao
+        description: Tipo sessão do Pregão (e.g. sessão regular, after hours)
+      - name: quantidade_negociada
+        description: Quantidade de ações negociadas
+      - name: preco_negocio
+        description: Preço do negocio
+  - name: br_b3_cotacoes__dicionario
+    description: Dicionário de dados da tabela de cotações
+    columns:
+      - name: id_coluna
+        description: ID da coluna
+      - name: nome_coluna
+        description: Nome da coluna
+      - name: chave
+        description: Chave
+      - name: cobertura_temporal
+        description: Cobertura temporal
+      - name: valor
+        description: Valor

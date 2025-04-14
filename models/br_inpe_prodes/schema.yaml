@@ -1,0 +1,29 @@
+---
+version: 2
+models:
+  - name: br_inpe_prodes__municipio_bioma
+    description: Apresenta o desmatamento dos municipios a partir do ano 2000
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_municipio, bioma]
+    columns:
+      - name: ano
+        description: Ano
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasileiros__municipios')
+              field: id_municipio
+      - name: bioma
+        description: Bioma
+      - name: area_total
+        description: Área total do bioma no município
+      - name: desmatado
+        description: Área Desmatada Total
+      - name: vegetacao_natural
+        description: Área de Vegetação Natural
+      - name: nao_vegetacao_natural
+        description: Área de Não Vegetação Natural
+      - name: hidrografia
+        description: Área de Hidrografia

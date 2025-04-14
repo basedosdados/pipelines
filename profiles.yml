@@ -1,0 +1,28 @@
+---
+default:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: service-account
+      project: basedosdados-dev
+      dataset: dbt
+      location: US
+      threads: 2
+      keyfile: "{{ env_var('BD_DBT_SERVICE_ACCOUNT_FILE_PATH') }}"
+    prod:
+      type: bigquery
+      project: basedosdados
+      dataset: dbt
+      location: US
+      threads: 2
+      keyfile: "{{ env_var('BD_DBT_SERVICE_ACCOUNT_FILE_PATH') }}"
+elementary:
+  outputs:
+    default:
+      type: bigquery
+      project: basedosdados
+      dataset: elementary
+      method: service-account
+      keyfile: /tmp/bigquery_keyfile.json
+      threads: 2

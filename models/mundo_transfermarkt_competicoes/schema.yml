@@ -1,0 +1,229 @@
+---
+version: 2
+models:
+  - name: mundo_transfermarkt_competicoes__brasileirao_serie_a
+    description: "Dados de 2003-03-29 até 2006-12-03 possuem somente as seguintes\
+      \ informações: data, horario, rodada, estadio, time_mandante, time_visitante,\
+      \ gols_mandante, gols_visitante. O motivo é que o site não disponibilizou outras\
+      \ informações.\nA partir de 2007-05-03, informações mais completas foram disponibilizadas,\
+      \ contudo com algumas exceções. - tecnico_mandante e tecnico_visitante possuem\
+      \ alguns valores vazios devido a mudança de padrão. Geralmente técnicos possui\
+      \ id = 0. Contudo quando o técnico é um ex-jogador, ele possuí um id específico.\
+      \ Em consequência da inconsistência no padrão do id dos técnicos, linhas em\
+      \ que esse erro ocorre as colunas valor_equipe_titular_mandante, valor_equipe_titular_visitante,\
+      \ idade_media_titular_mandante, idade_media_titular_visitante, também são afetadas\
+      \ e resultando em vazio; - Na data de 2016-12-11, rodada 38, a partida entre\
+      \ Chapecoense e Atlético-MG não ocorreu em decorrência do desastre que atingiu\
+      \ a equipe do Chapecoense na época, resultando assim em W.O. duplo;\nFonte:\
+      \ https://www.transfermarkt.com/campeonato-brasileiro-serie-a/startseite/wettbewerb/BRA1"
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.20
+    columns:
+      - name: ano_campeonato
+        description: Ano do campeonato
+      - name: data
+        description: Data da partida
+        tests: [not_null]
+      - name: rodada
+        description: Rodada
+      - name: estadio
+        description: Estádio
+      - name: arbitro
+        description: Árbitro
+      - name: publico
+        description: Público presente
+      - name: publico_max
+        description: Público máximo
+      - name: time_mandante
+        description: Time mandante
+        tests: [not_null]
+      - name: time_visitante
+        description: Time visitante
+        tests: [not_null]
+      - name: tecnico_mandante
+        description: Técnico do time mandante
+      - name: tecnico_visitante
+        description: Técnico do time visitante
+      - name: colocacao_mandante
+        description: Colocação do time mandante
+      - name: colocacao_visitante
+        description: Colocação do time visitante
+      - name: valor_equipe_titular_mandante
+        description: Valor da equipe titular do time mandante
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: '>= 1'
+      - name: valor_equipe_titular_visitante
+        description: Valor da equipe titular do time visitante
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: '>= 1'
+      - name: idade_media_titular_mandante
+        description: Idade média da equipe titular do time mandante
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 80
+      - name: idade_media_titular_visitante
+        description: Idade média da equipe titular do time visitante
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 80
+      - name: gols_mandante
+        description: Gols do time mandante
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 20
+      - name: gols_visitante
+        description: Gols do time visitante
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 20
+      - name: gols_1_tempo_mandante
+        description: Gols no primeiro tempo do time mandante
+      - name: gols_1_tempo_visitante
+        description: Gols no primeiro tempo do time visitante
+      - name: escanteios_mandante
+        description: Escanteios do time mandante
+      - name: escanteios_visitante
+        description: Escanteios do time visitante
+      - name: faltas_mandante
+        description: Faltas feitas pelo time mandante
+      - name: faltas_visitante
+        description: Faltas feitas pelo time visitante
+      - name: chutes_bola_parada_mandante
+        description: Chutes de bola parada do time mandante
+      - name: chutes_bola_parada_visitante
+        description: Chutes de bola parada do time visitante
+      - name: defesas_mandante
+        description: Defesas do time mandante
+      - name: defesas_visitante
+        description: Defesas do time visitante
+      - name: impedimentos_mandante
+        description: Impedimentos do time mandante
+      - name: impedimentos_visitante
+        description: Impedimentos do time visitante
+      - name: chutes_mandante
+        description: Chutes do time mandante
+      - name: chutes_visitante
+        description: Chutes do time visitante
+      - name: chutes_fora_mandante
+        description: Chutes fora do time mandante
+      - name: chutes_fora_visitante
+        description: Chutes fora do time visitante
+  - name: mundo_transfermarkt_competicoes__copa_brasil
+    description: Com dados coletados via webscraping, a tabela abrange edições a partir
+      de 2020, quando a fonte dos dados, o site da Transfermarkt, começou a fornecer
+      informações detalhadas sobre vencedores e estatísticas de partidas. Entre 2017
+      e 2020, 91 equipes competiram, com onze já nas oitavas de final, enquanto a
+      edição de 2021 trouxe 92 equipes. A presença de valores nulos reflete a natureza
+      variável da fonte de dados.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.10
+    columns:
+      - name: ano_campeonato
+        description: Ano do campeonato
+      - name: data
+        description: Data da partida
+        tests: [not_null]
+      - name: horario
+        description: Horário da partida
+      - name: fase
+        description: Fase do campeonato
+      - name: tipo_fase
+        description: Tipo de jogo na fase
+      - name: estadio
+        description: Estádio
+      - name: arbitro
+        description: Árbitro
+      - name: publico
+        description: Público presente
+      - name: publico_max
+        description: Público máximo
+      - name: time_mandante
+        description: Time mandante
+        tests: [not_null]
+      - name: time_visitante
+        description: Time visitante
+        tests: [not_null]
+      - name: tecnico_mandante
+        description: Técnico do time mandante
+      - name: tecnico_visitante
+        description: Técnico do time visitante
+      - name: valor_equipe_titular_mandante
+        description: Valor da equipe titular do time mandante
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: '>= 1'
+      - name: valor_equipe_titular_visitante
+        description: Valor da equipe titular do time visitante
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: '>= 1'
+      - name: idade_media_titular_mandante
+        description: Idade média da equipe titular do time mandante
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 80
+      - name: idade_media_titular_visitante
+        description: Idade média da equipe titular do time visitante
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 80
+      - name: gols_mandante
+        description: Gols do time mandante
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 20
+      - name: gols_visitante
+        description: Gols do time visitante
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 20
+      - name: gols_1_tempo_mandante
+        description: Gols no primeiro tempo do time mandante
+      - name: gols_1_tempo_visitante
+        description: Gols no primeiro tempo do time visitante
+      - name: penalti
+        description: Indicador se o jogo foi para os pênaltis
+      - name: gols_penalti_mandante
+        description: Gols nos pênaltis do time mandante
+      - name: gols_penalti_visitante
+        description: Gols nos pênaltis do time visitante
+      - name: escanteios_mandante
+        description: Escanteios do time mandante
+      - name: escanteios_visitante
+        description: Escanteios do time visitante
+      - name: faltas_mandante
+        description: Faltas feitas pelo time mandante
+      - name: faltas_visitante
+        description: Faltas feitas pelo time visitante
+      - name: chutes_bola_parada_mandante
+        description: Chutes de bola parada do time mandante
+      - name: chutes_bola_parada_visitante
+        description: Chutes de bola parada do time visitante
+      - name: defesas_mandante
+        description: Defesas do time mandante
+      - name: defesas_visitante
+        description: Defesas do time visitante
+      - name: impedimentos_mandante
+        description: Impedimentos do time mandante
+      - name: impedimentos_visitante
+        description: Impedimentos do time visitante
+      - name: chutes_mandante
+        description: Chutes do time mandante
+      - name: chutes_visitante
+        description: Chutes do time visitante
+      - name: chutes_fora_mandante
+        description: Chutes fora do time mandante
+      - name: chutes_fora_visitante
+        description: Chutes fora do time visitante

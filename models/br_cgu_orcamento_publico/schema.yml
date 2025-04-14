@@ -1,0 +1,65 @@
+---
+version: 2
+models:
+  - name: br_cgu_orcamento_publico__orcamento
+    description: Orçamento Público do Governo Federal
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+    columns:
+      - name: ano_exercicio
+        description: Ano do exercício a que se referem os valores
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_orgao_superior
+        description: Código do Órgão Superior responsável pela despesa.
+      - name: nome_orgao_superior
+        description: Nome do Órgão Superior responsável pela despesa.
+      - name: id_orgao_subordinado
+        description: Código do Órgão Subordinado responsável pela despesa.
+      - name: nome_orgao_subordinado
+        description: Nome do Órgão Subordinado responsável pela despesa.
+      - name: id_unidade_orcamentaria
+        description: Código da Unidade Orçamentária responsável pela despesa.
+      - name: nome_unidade_orcamentaria
+        description: Nome da Unidade Orçamentária responsável pela despesa.
+      - name: id_funcao
+        description: Código da Função em que foi classificada a despesa.
+      - name: nome_funcao
+        description: Nome da Função em que foi classificada a despesa.
+      - name: id_subfuncao
+        description: Código da Subfunção em que foi classificada a despesa.
+      - name: nome_subfuncao
+        description: Nome da Subfunção em que foi classificada a despesa.
+      - name: id_programa_orcamentario
+        description: Código do Programa em que foi classificada a despesa.
+      - name: nome_programa_orcamentario
+        description: Nome do Programa em que foi classificada a despesa.
+      - name: id_acao
+        description: Código da ação orçamentária em que foi classificada a despesa.
+      - name: nome_acao
+        description: Nome da ação orçamentária em que foi classificada a despesa.
+      - name: id_categoria_economica
+        description: Código da categoria econômica
+      - name: nome_categoria_economica
+        description: Nome da categoria econômica
+      - name: id_grupo_despesa
+        description: Código do grupo de despesa
+      - name: nome_grupo_despesa
+        description: Nome do grupo de despesa
+      - name: id_elemento_despesa
+        description: Código do elemento da despesa
+      - name: nome_elemento_despesa
+        description: Nome do elemento da despesa
+      - name: orcamento_inicial
+        description: Valor do orçamento inicial
+      - name: orcamento_atualizado
+        description: Valor do orçamento atualizado
+      - name: orcamento_empenhado
+        description: Valor do orçamento empenhado
+      - name: orcamento_realizado
+        description: Valor do orçamento realizado
+      - name: porcentagem_realizado_orcamento
+        description: Pordentagm Realizado do orçamento

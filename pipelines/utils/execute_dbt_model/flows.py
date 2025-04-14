@@ -8,18 +8,16 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
-from pipelines.utils.constants import constants as utils_constants
+
+# from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.dump_to_gcs.tasks import download_data_to_gcs
-from pipelines.utils.execute_dbt_model.tasks import (
-    download_repository,
-    execute_dbt_model,
-    install_dbt_dependencies,
-)
+from pipelines.utils.execute_dbt_model.tasks import run_dbt
 from pipelines.utils.tasks import rename_current_flow_run_dataset_table
 
 with Flow(
-    name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value
+    # name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value
+    name="new dbt flow (migration test)"
 ) as run_dbt_model_flow:
     dataset_id = Parameter("dataset_id", required=True)
     table_id = Parameter("table_id", default=None, required=False)
@@ -34,22 +32,6 @@ with Flow(
     download_csv_file = Parameter(
         "download_csv_file", default=True, required=False
     )
-    custom_keyfile_path = Parameter(
-        "custom_keyfile_path", default=None, required=False
-    )
-    use_env_credentials = Parameter(
-        "use_env_credentials", default=True, required=False
-    )
-    dbt_repository_url = Parameter(
-        "dbt_repository_url",
-        default="https://github.com/basedosdados/queries-basedosdados.git",
-        required=False,
-    )
-    dbt_repository_branch = Parameter(
-        "dbt_repository_branch",
-        default="main",
-        required=False,
-    )
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="DBT Model run/test: ",
@@ -58,20 +40,7 @@ with Flow(
         wait=table_id,
     )
 
-    repository_path = download_repository(
-        repo_url=dbt_repository_url,
-        branch=dbt_repository_branch,
-    )
-
-    dependencies_installed = install_dbt_dependencies(
-        dbt_repository_path=repository_path,
-        use_env_credentials=use_env_credentials,
-        custom_keyfile_path=custom_keyfile_path,
-        upstream_tasks=[repository_path],
-    )
-
-    materialize_result = execute_dbt_model(
-        dbt_repository_path=repository_path,
+    materialize_result = run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_alias=dbt_alias,
@@ -80,14 +49,13 @@ with Flow(
         flags=flags,
         _vars=_vars,
         disable_elementary=disable_elementary,
-        upstream_tasks=[dependencies_installed],
     )
 
     with case(download_csv_file, True):
         download_data_to_gcs(
             dataset_id=dataset_id,
             table_id=table_id,
-            bd_project_mode=target,
+            bd_project_mode="staging" if target == "dev" else "prod",
             upstream_tasks=[materialize_result],
         )
 

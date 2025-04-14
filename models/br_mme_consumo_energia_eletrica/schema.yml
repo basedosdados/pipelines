@@ -1,0 +1,38 @@
+---
+version: 2
+models:
+  - name: br_mme_consumo_energia_eletrica__uf
+    description: Consumo de energia elétrica em nível nacional e segmentado pelas
+      classes residencial, industrial, comercial e outros (rural, serviço público
+      e iluminação pública).
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, sigla_uf, tipo_consumo]
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: Mês
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: tipo_consumo
+        description: Tipo de Consumo
+      - name: numero_consumidores
+        description: Número de consumidores de energia elétrica atendidos pela rede
+      - name: consumo
+        description: Consumo de energia elétrica na rede (MWh)
+        tests: [not_null]

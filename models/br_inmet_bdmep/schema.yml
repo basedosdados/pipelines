@@ -1,0 +1,48 @@
+---
+version: 2
+models:
+  - name: br_inmet_bdmep__microdados  ## modelo dbt.sql que está no diretório
+    description: Microdados do Instituto Nacional de Meteorologia
+    columns:
+      - name: ano
+        description: Ano
+      - name: data
+        description: Data
+      - name: hora
+        description: Hora (UTC)
+      - name: id_estacao
+        description: ID da estação meteorológica
+      - name: precipitacao_total
+        description: Precipitação total, horária
+      - name: pressao_atm_hora
+        description: Pressão atmosférica ao nível da estação, horária
+      - name: pressao_atm_max
+        description: Pressão atmosférica máxima ao nível da estação, na hora anterior
+      - name: pressao_atm_min
+        description: Pressão atmosférica mínima ao nível da estação, na hora anterior
+      - name: radiacao_global
+        description: Radiação global
+      - name: temperatura_bulbo_hora
+        description: Temperatura do ar - bulbo seco, horária
+      - name: temperatura_orvalho_hora
+        description: Temperatura do ponto de orvalho, horária
+      - name: temperatura_max
+        description: Temperatura máxima, hora anterior
+      - name: temperatura_min
+        description: Temperatura mínima, hora anterior
+      - name: temperatura_orvalho_max
+        description: Temperatura de orvalho máxima, hora anterior
+      - name: temperatura_orvalho_min
+        description: Temperatura de orvalho mínima, hora anterior
+      - name: umidade_rel_max
+        description: Umidade relativa máxima, hora anterior
+      - name: umidade_rel_min
+        description: Umidade relativa mínima, hora anterior
+      - name: umidade_rel_hora
+        description: Umidade relativa, horária
+      - name: vento_direcao
+        description: Direção do vento
+      - name: vento_rajada_max
+        description: Vento, rajada máxima
+      - name: vento_velocidade
+        description: Vento, velocidade horária
