@@ -8,19 +8,18 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
-from pipelines.utils.constants import constants as utils_constants
+
+# from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.dump_to_gcs.tasks import download_data_to_gcs
 from pipelines.utils.execute_dbt_model.tasks import (
     download_repository,
-    execute_dbt_model,
     install_dbt_dependencies,
+    run_dbt,
 )
 from pipelines.utils.tasks import rename_current_flow_run_dataset_table
 
-with Flow(
-    name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value
-) as run_dbt_model_flow:
+with Flow(name="new execute dbt model (PR #959)") as run_dbt_model_flow:
     dataset_id = Parameter("dataset_id", required=True)
     table_id = Parameter("table_id", default=None, required=False)
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
@@ -70,7 +69,7 @@ with Flow(
         upstream_tasks=[repository_path],
     )
 
-    materialize_result = execute_dbt_model(
+    materialize_result = run_dbt(
         dbt_repository_path=repository_path,
         dataset_id=dataset_id,
         table_id=table_id,

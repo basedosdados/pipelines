@@ -121,6 +121,7 @@ def install_dbt_dependencies(
     Raises:
         FAIL: If there is an error when installing dependencies or configuring authentication.
     """
+
     try:
         os.chdir(dbt_repository_path)
         log(f"Working directory set to: {dbt_repository_path}", level="info")
@@ -182,7 +183,7 @@ def install_dbt_dependencies(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def execute_dbt_model(
+def run_dbt(
     dbt_repository_path: str,
     dataset_id: str,
     table_id: Optional[str] = None,
