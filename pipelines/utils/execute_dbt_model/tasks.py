@@ -21,7 +21,7 @@ from pipelines.utils.execute_dbt_model.utils import (
     log_dbt_from_file,
     process_dbt_log_file,
     # update_keyfile_path_in_profiles,
-    update_profiles_for_env_credentials,
+    # update_profiles_for_env_credentials,
 )
 from pipelines.utils.utils import log
 
@@ -73,10 +73,10 @@ def run_dbt(
     with open(profiles_path, "r") as f:
         log(f.read())
 
-    update_profiles_for_env_credentials()
+    # update_profiles_for_env_credentials()
 
-    with open(profiles_path, "r") as f:
-        log(f.read())
+    # with open(profiles_path, "r") as f:
+    #     log(f.read())
 
     # if custom_keyfile_path is not None:
     #     update_keyfile_path_in_profiles(custom_keyfile_path)
