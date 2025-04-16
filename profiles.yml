@@ -9,7 +9,7 @@ default:
       dataset: dbt
       location: US
       threads: 2
-      keyfile: /credentials-dev/dev.json
+      keyfile: /mnt/creds.json
     prod:
       type: bigquery
       method: service-account
@@ -17,7 +17,7 @@ default:
       dataset: dbt
       location: US
       threads: 2
-      keyfile: /credentials-prod/prod.json
+      keyfile: /mnt/creds.json
 elementary:
   outputs:
     default:
