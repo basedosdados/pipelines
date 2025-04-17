@@ -49,7 +49,9 @@ def join_tables_in_function(table_id: str, ano):
 )
 def get_max_date_in_table_microdados(table_id: str, ano: int):
     if table_id == "microdados":
-        log("Obtendo a data máxima do arquivo microdados da Anatel")
+        log(
+            f"{anatel_constants.INPUT_PATH.value}Acessos_Banda_Larga_Fixa_{ano}.csv"
+        )
         df = pd.read_csv(
             f"{anatel_constants.INPUT_PATH.value}Acessos_Banda_Larga_Fixa_{ano}.csv",
             sep=";",
@@ -59,8 +61,6 @@ def get_max_date_in_table_microdados(table_id: str, ano: int):
         df["data"] = df["Ano"] + "-" + df["Mês"]
 
         df["data"] = pd.to_datetime(df["data"], format="%Y-%m")
-
-        log(df["data"].max())
 
         return df["data"].max()
 
@@ -79,15 +79,12 @@ def get_max_date_in_table_microdados(table_id: str, ano: int):
 
         df["data"] = pd.to_datetime(df["data"], format="%Y-%m")
 
-        log(df["data"].max())
-
         return df["data"].max()
 
 
 @task
 def get_year_and_unzip(day):
     if day is None:
-        log("Download dos dados...")
         unzip_file()
 
     return get_year()

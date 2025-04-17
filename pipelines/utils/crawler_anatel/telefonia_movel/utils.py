@@ -27,7 +27,7 @@ def download_zip_file():
     for recurso in r["resources"]:
         if recurso["format"] == "CSV":
             download_url = recurso["url"]
-            print(
+            log(
                 f"Baixando {download_url} em {anatel_constants.INPUT_PATH.value}"
             )
 
@@ -65,7 +65,6 @@ def unzip_file():
 # ! TASK MICRODADOS
 def clean_csv_microdados(ano, semestre, table_id):
     log("Download dos dados...")
-    log(anatel_constants.URL.value)
     os.system(f"mkdir -p {anatel_constants.INPUT_PATH.value}")
 
     df = pd.read_csv(
@@ -73,8 +72,6 @@ def clean_csv_microdados(ano, semestre, table_id):
         sep=";",
         encoding="utf-8",
     )
-
-    log("Renomeando as colunas:")
 
     df.rename(
         columns=anatel_constants.RENAME_COLUMNS_MICRODADOS.value, inplace=True
@@ -103,8 +100,6 @@ def clean_csv_microdados(ano, semestre, table_id):
 
 # ! TASK BRASIL
 def clean_csv_brasil(table_id):
-    log("Abrindo os dados do Brasil...")
-
     densidade = pd.read_csv(
         f"{anatel_constants.INPUT_PATH.value}Densidade_Telefonia_Movel.csv",
         sep=";",
@@ -131,7 +126,6 @@ def clean_csv_brasil(table_id):
         .str.replace(",", ".")
         .astype(float)
     )
-    log("Salvando os dados do Brasil...")
 
     densidade_brasil.to_csv(
         f"{anatel_constants.TABLES_OUTPUT_PATH.value[table_id]}densidade_brasil.csv",
@@ -144,7 +138,6 @@ def clean_csv_brasil(table_id):
 
 # ! TASK UF
 def clean_csv_uf(table_id):
-    log("Abrindo os dados por UF...")
     densidade = pd.read_csv(
         f"{anatel_constants.INPUT_PATH.value}Densidade_Telefonia_Movel.csv",
         sep=";",
@@ -169,7 +162,6 @@ def clean_csv_uf(table_id):
         .str.replace(",", ".")
         .astype(float)
     )
-    log("Salvando dados por UF")
     densidade_uf.to_csv(
         f"{anatel_constants.TABLES_OUTPUT_PATH.value[table_id]}densidade_uf.csv",
         index=False,
@@ -181,7 +173,6 @@ def clean_csv_uf(table_id):
 
 # ! TASK MUNICIPIO
 def clean_csv_municipio(table_id):
-    log("Abrindo os dados por município...")
     densidade = pd.read_csv(
         f"{anatel_constants.INPUT_PATH.value}Densidade_Telefonia_Movel.csv",
         sep=";",
@@ -203,7 +194,6 @@ def clean_csv_municipio(table_id):
         .str.replace(",", ".")
         .astype(float)
     )
-    log("Salvando os dados por município...")
     densidade_municipio.to_csv(
         f"{anatel_constants.TABLES_OUTPUT_PATH.value[table_id]}densidade_municipio.csv",
         index=False,
