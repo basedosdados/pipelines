@@ -24,7 +24,7 @@ def download_zip_file():
     for recurso in r["resources"]:
         if recurso["format"] == "ZIP":
             download_url = recurso["url"]
-            print(
+            log(
                 f"Baixando {download_url} em {anatel_constants.INPUT_PATH.value}"
             )
 
@@ -48,7 +48,6 @@ def unzip_file():
     zip_file_path = os.path.join(
         anatel_constants.INPUT_PATH.value, "acessos_banda_larga_fixa.zip"
     )
-    log(os.listdir(anatel_constants.INPUT_PATH.value))
     try:
         with ZipFile(zip_file_path, "r") as zip_ref:
             zip_ref.extractall(anatel_constants.INPUT_PATH.value)
