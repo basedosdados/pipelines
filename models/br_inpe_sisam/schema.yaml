@@ -1,0 +1,47 @@
+---
+version: 2
+models:
+  - name: br_inpe_sisam__microdados
+    description: Dados do Sistema de Informações Ambientais integrado à saúde
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_municipio, data_hora]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: sigla_uf
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: data_hora
+        description: Data e hora do registro
+      - name: co_ppb
+        description: Concentração de CO
+      - name: no2_ppb
+        description: Concentração de NO2
+      - name: o3_ppb
+        description: Concentração de O3
+      - name: pm25_ugm3
+        description: PM2.5 em μg/m³
+      - name: so2_ugm3
+        description: SO2 em μg/m³
+      - name: precipitacao_dia
+        description: Total de precipitação no momento do registro
+      - name: temperatura
+        description: Temperatura
+      - name: umidade_relativa
+        description: Umidade relativa do ar
+      - name: vento_direcao
+        description: Direção do vento
+      - name: vento_velocidade
+        description: Velocidade do vento

@@ -488,8 +488,8 @@ def get_affected_flows(fpath: str = None):
     for flow in declared_flows:
         try:
             flows.append(eval(flow))
-        except Exception:
-            logger.warning(f"Could not evaluate {flow}")
+        except Exception as e:
+            logger.warning(f"Could not evaluate {flow}: {e}")
     return flows
 
 

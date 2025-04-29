@@ -1,0 +1,69 @@
+---
+version: 2
+models:
+  - name: br_sfb_sicar__area_imovel
+    description: Esta tabela contém o polígono de demarcação da área dos imóveis com
+      cadastro ambiental rural.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_imovel]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [status, tipo]
+          dictionary_model: ref('br_sfb_sicar__dicionario')
+    columns:
+      - name: data_atualizacao_car
+        description: Data de atualização dos dados na fonte original. O data de atualização
+          pode variar a depender da Unidade da Federação.
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação (UF) onde se localiza o cadastro
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos onde se localiza o cadastro
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_imovel
+        description: Código de Inscrição no do Cadastro Ambiental Rural (CAR)
+      - name: modulos_fiscais
+        description: Quantidade de módulos fiscais do imóvel
+      - name: area
+        description: Área do imóvel
+      - name: status
+        description: Status do cadastro do imóvel
+      - name: tipo
+        description: Tipo do Imóvel Rural
+      - name: condicao
+        description: Condição em que o cadastro se encontra no fluxo de análise pelo
+          órgão competente
+      - name: geometria
+        description: Geometria do imóvel
+  - name: br_sfb_sicar__dicionario
+    description: Dicionário para tradução dos códigos das tabelas do conjunto br_sfb_sicar
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_tabela
+            - nome_coluna
+            - chave
+            - cobertura_temporal
+    columns:
+      - name: id_tabela
+        description: ID Tabela
+      - name: nome_coluna
+        description: Nome da coluna
+      - name: chave
+        description: Chave
+      - name: cobertura_temporal
+        description: Cobertura Temporal
+      - name: valor
+        description: Valor

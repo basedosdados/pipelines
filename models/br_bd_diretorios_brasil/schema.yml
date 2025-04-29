@@ -1,0 +1,670 @@
+---
+version: 2
+models:
+  - name: br_bd_diretorios_brasil__empresa
+    description: A tabela apresenta informações do Cadastro Nacional da Pessoa Jurídica
+      (CNPJ), que é um banco de dados administrado pela Secretaria Especial da Receita
+      Federal do Brasil (RFB). Esse cadastro armazena detalhes cadastrais de pessoas
+      jurídicas e outras entidades relevantes para as administrações tributárias do
+      governo federal, dos estados, do Distrito Federal e dos municípios.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [cnpj]
+    columns:
+      - name: cnpj
+        description: CNPJ
+      - name: cnpj_basico
+        description: CNPJ Básico (8 primeiros dígitos)
+      - name: cnpj_ordem
+        description: CNPJ Ordem
+      - name: cnpj_dv
+        description: CNPJ Dígito Verificador
+      - name: razao_social
+        description: Nome empresarial da pessoa jurídica
+      - name: nome_fantasia
+        description: Denomização Comercial
+      - name: natureza_juridica
+        description: Natureza Jurídica
+      - name: ente_federativo
+        description: Ente Federativo Responsável
+      - name: cnae_fiscal_principal
+        description: CNAE Fiscal Principal
+      - name: cnae_fiscal_secundaria
+        description: CNAEs Fiscais Secundárias
+      - name: capital_social
+        description: Capital Social
+      - name: porte
+        description: Tipo do porte da empresa
+      - name: matriz_filial
+        description: Identificador entre Matriz e Filial
+      - name: situacao_cadastral
+        description: Situação Cadastral
+      - name: situacao_especial
+        description: Situação Especial
+      - name: opcao_simples
+        description: Opção pelo Simples Nacional
+      - name: opcao_mei
+        description: Opção pelo MEI
+      - name: cep
+        description: CEP
+      - name: tipo_logradouro
+        description: Tipo de Logradouro
+      - name: logradouro
+        description: Logradouro
+      - name: numero
+        description: Número
+      - name: complemento
+        description: Complemento
+      - name: bairro
+        description: Bairro
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+      - name: id_code_iso3
+        description: Sigla do País - ISO3
+      - name: id_pais_me
+        description: ID do país - Ministério da Economia
+      - name: nome_pais_me
+        description: Nome do país - Ministério da Economia
+      - name: telefone_1
+        description: Telefone (com DDD) 1
+      - name: telefone_2
+        description: Telefone (com DDD) 2
+      - name: fax
+        description: Fax (con DDD)
+      - name: email
+        description: Email
+  - name: br_bd_diretorios_brasil__municipio
+    description: 'Diretório ligando diversos códigos institucionais de municípios
+      brasileiros: IBGE, Receita Federal, TSE, BCB, regiões, comarcas, região de saúde,
+      etc.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_municipio]
+    columns:
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+      - name: id_municipio_6
+        description: ID Município - IBGE 6 Dígitos
+      - name: id_municipio_tse
+        description: ID Município - Tribunal Superior Eleitoral (TSE)
+      - name: id_municipio_rf
+        description: ID Município - Receita Federal (RF)
+      - name: id_municipio_bcb
+        description: ID Município - Banco Central do Brasil (BCB)
+      - name: nome
+        description: Nome do Município
+      - name: capital_uf
+        description: Município é a Capital da Unidade da Federação
+      - name: id_comarca
+        description: ID Sede Comarca
+      - name: id_regiao_saude
+        description: ID Região de Saúde
+      - name: nome_regiao_saude
+        description: Nome da Região de Saúde
+      - name: id_regiao_imediata
+        description: ID Região Imediata - IBGE
+      - name: nome_regiao_imediata
+        description: Nome da Região Imediata
+      - name: id_regiao_intermediaria
+        description: ID Região Intermediária - IBGE
+      - name: nome_regiao_intermediaria
+        description: Nome da Região Intermediária
+      - name: id_microrregiao
+        description: ID Microrregião - IBGE
+      - name: nome_microrregiao
+        description: Nome da Microrregião
+      - name: id_mesorregiao
+        description: ID Mesorregião - IBGE
+      - name: nome_mesorregiao
+        description: Nome da Mesorregião
+      - name: id_regiao_metropolitana
+        description: ID Região Metropolitana - IBGE
+      - name: nome_regiao_metropolitana
+        description: Nome da Região Metropolitana
+      - name: ddd
+        description: Código de Discagem Direta a Distância (DDD)
+      - name: id_uf
+        description: ID da Unidade da Federação - IBGE
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+      - name: nome_uf
+        description: Nome da Unidade da Federação
+      - name: nome_regiao
+        description: Nome da Grande Região Brasileira
+      - name: amazonia_legal
+        description: Indicador se o município faz parte da Amazônia Legal
+      - name: centroide
+        description: Centróide do município
+  - name: br_bd_diretorios_brasil__cep
+    description: Na tabela, é possível encontrar a numeração dos CEPs, juntamente
+      com informações sobre suas localidades, tais como logradouros, bairros e cidades,
+      além de complementos e identificação geográfica compostos pela latitude e longitude.
+      Os dados foram obtidos através de uma base aberta no Kaggle e validados em relação
+      aos seus pontos de geolocalização.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [cep]
+    columns:
+      - name: cep
+        description: Número do CEP
+      - name: logradouro
+        description: Logradouro
+      - name: localidade
+        description: Localidade, na maior parte dos casos representa o bairro
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+      - name: nome_municipio
+        description: Nome do Município
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+      - name: centroide
+        description: Centróide do CEP
+  - name: br_bd_diretorios_brasil__cnae_1
+    description: Diretório da Classificação Nacional de Atividades Econômicas 1.0.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [cnae_1]
+    columns:
+      - name: cnae_1
+        description: Classificação Nacional de Atividades Econômicas (CNAE) 1.0
+        tests: [not_null]
+      - name: descricao
+        description: Descrição da CNAE 1.0
+      - name: grupo
+        description: Grupo
+      - name: descricao_grupo
+        description: Descrição do Grupo
+      - name: divisao
+        description: Divisão
+      - name: descricao_divisao
+        description: Descrição da Divisão
+      - name: secao
+        description: Seção
+      - name: descricao_secao
+        description: Descrição da Seção
+  - name: br_bd_diretorios_brasil__cnae_2_3_subclasses
+    description: Diretório da Classificação Nacional de Atividades Econômicas - Subclasses
+      2.3.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [cnae_2_3_subclasses]
+    columns:
+      - name: cnae_2_3_subclasses
+        description: Classificação Nacional de Atividades Econômicas (CNAE) - Subclasses
+          2.3
+        tests: [not_null]
+      - name: descricao
+        description: Descrição da CNAE - Subclasses 2.3
+      - name: cnae_2
+        description: Classificação Nacional de Atividades Econômicas (CNAE) 2.0
+      - name: descricao_cnae_2
+        description: Descrição da CNAE 2.0
+      - name: grupo
+        description: Grupo
+      - name: descricao_grupo
+        description: Descrição do Grupo
+      - name: divisao
+        description: Divisão
+      - name: descricao_divisao
+        description: Descrição da Divisão
+      - name: secao
+        description: Seção
+      - name: descricao_secao
+        description: Descrição da Seção
+  - name: br_bd_diretorios_brasil__cbo_1994
+    description: Diretório da Classificação Brasileira de Ocupações 1994.
+    tests:
+      - custom_unique_combinations_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [cbo_1994]
+    columns:
+      - name: cbo_1994
+        description: Classificação Brasileira de Ocupações 1994
+      - name: descricao
+        description: Descrição da CBO1994
+  - name: br_bd_diretorios_brasil__cbo_2002
+    description: Diretório da Classificação Brasileira de Ocupações 2002.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [cbo_2002]
+    columns:
+      - name: cbo_2002
+        description: Classificação Brasileira de Ocupações 2002
+      - name: descricao
+        description: Descrição da CBO2002
+      - name: familia
+        description: Família
+      - name: descricao_familia
+        description: Descrição da Família
+      - name: subgrupo
+        description: Subgrupo
+      - name: descricao_subgrupo
+        description: Descrição do Subgrupo
+      - name: subgrupo_principal
+        description: Subgrupo Principal
+      - name: descricao_subgrupo_principal
+        description: Descrição do Subgrupo Principal
+      - name: grande_grupo
+        description: Grande Grupo
+      - name: descricao_grande_grupo
+        description: Descrição do Grande Grupo
+      - name: indicador_cbo_2002_ativa
+        description: Indica se o código de 6 dígitos da CBO de 2002 permanece ativo
+          ou não
+  - name: br_bd_diretorios_brasil__uf
+    description: Diretório da Classificação Brasileira de Ocupações 1994.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_uf]
+    columns:
+      - name: id_uf
+        description: ID Unidade da Federação - IBGE
+      - name: sigla
+        description: Sigla da Unidade da Federação
+      - name: nome
+        description: Unidade da Federação
+      - name: regiao
+        description: Região
+  - name: br_bd_diretorios_brasil__cid_10
+    description: Diretório da Classificação Internacional de Doenças (CID) 10.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [subcategoria]
+    columns:
+      - name: subcategoria
+        description: Subcategoria da CID-10
+      - name: descricao_subcategoria
+        description: Descrição da Subcategoria da CID-10
+      - name: categoria
+        description: Categoria da CID-10
+      - name: descricao_categoria
+        description: Descrição da Categoria da CID-10
+      - name: capitulo
+        description: Capítulo da CID-10
+      - name: descricao_capitulo
+        description: Descrição do Capítulo da CID-10
+      - name: causa_violencia
+        description: Causa - Violência (Categorias W32 W33 W34 X85 X86 X87 X88 X89
+          X90 X91 X92 X93 X94 X95 X96 X97 X98 X99 Y00 Y01 Y02 Y03 Y04 Y05 Y06 Y07
+          Y08 Y09 Y10 Y11 Y12 Y13 Y14 Y15 Y16 Y17 Y18 Y19 Y20 Y21 Y22 Y23 Y24 Y25
+          Y26 Y27 Y28 Y29 Y30 Y31 Y32 Y33 Y34 Y35 Y87 Y89)
+      - name: causa_overdose
+        description: Causa - Overdose (Categorias F10 F11 F12 F14 F16 F19 T40 T41
+          T42 T43 T44 T45 T46 T47 T48 T49 T50 X42 X43 X44 X45 X46 X47 X48 X49 X60
+          X61 X62 X63 X64 X65 X66 X67 X68 X69 Y12 Y13 Y14 Y15 Y16 Y49 Y50 Y51 Z64
+          Z65)
+      - name: cid_datasus
+        description: Indica se a origem do CID-10 vem do DATASUS
+  - name: br_bd_diretorios_brasil__cid_9
+    description: Diretório da Classificação Internacional de Doenças (CID) 9.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [categoria]
+    columns:
+      - name: categoria
+        description: Categoria da CID-9
+      - name: descricao
+        description: Descrição da Categoria da CID-9
+  - name: br_bd_diretorios_brasil__natureza_juridica
+    description: A tabela reúne as naturezas jurídicas conforme a Comissão Nacional
+      de Classificação (Concla)
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_natureza_juridica]
+    columns:
+      - name: id_natureza_juridica
+        description: ID da Natureza Jurídica
+      - name: descricao
+        description: Descrição da natureza jurídica
+      - name: escopo
+        description: Propósito da natureza jurídica
+  - name: br_bd_diretorios_brasil__setor_censitario_2010
+    description: Diretório de referência para os setores censitário de 2010. Contem
+      o id_setor_censitario, que permite ligar informações (município, distritro,
+      etc)
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_setor_censitario]
+    columns:
+      - name: id_setor_censitario
+        description: ID do setor censitário
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: nome_municipio
+        description: Nome do município
+      - name: id_regiao_metropolitana
+        description: ID da região metropolitana ou RIDE
+      - name: nome_regiao_metropolitana
+        description: Nome da região metropolitana ou RIDE
+      - name: id_distrito
+        description: ID do distrito
+      - name: nome_distrito
+        description: Nome do distrito
+      - name: id_subdistrito
+        description: ID do subdistrito
+      - name: nome_subdistrito
+        description: Nome do subdistrito
+      - name: id_bairro
+        description: ID de bairro
+      - name: nome_bairro
+        description: Nome do bairro
+      - name: sigla_uf
+        description: Sigla do Estado
+      - name: situacao_setor
+        description: ID de situação do setor - Situação urbana - IDs 1, 2 e 3; 1 -
+          Área urbanizada de cidade ou vila 2 - Área não urbanizada de cidade ou vila
+          3 - Área urbana isolada - Situação rural – IDs 4, 5, 6, 7 e 8; 4 - Aglomerado
+          rural de extensão urbana 5 - Aglomerado rural isolado, povoado 6 - Aglomerado
+          rural isolado, núcleo 7 - Aglomerado rural isolado, outros aglomerados 8
+          - Zona rural, exclusive aglomerado rural
+      - name: tipo_setor
+        description: Tipo de setor censitário
+  - name: br_bd_diretorios_brasil__setor_censitario_2022
+    description: Diretório de referência para os setores censitário de 2022. Contem
+      o id_setor_censitario, que permite ligar informações (município, distritro,
+      etc).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_setor_censitario]
+    columns:
+      - name: id_setor_censitario
+        description: ID do setor censitário
+      - name: id_regiao
+        description: ID da região
+      - name: nome_regiao
+        description: Nome da Região
+      - name: id_uf
+        description: ID da UF
+      - name: nome_uf
+        description: Nome da UF
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: nome
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: nome_municipio
+        description: Nome do município
+      - name: id_distrito
+        description: ID do distrito
+      - name: nome_distrito
+        description: Nome do distrito
+      - name: id_subdistrito
+        description: ID do subdistrito
+      - name: nome_subdistrito
+        description: Nome do subdistrito
+      - name: id_microrregiao
+        description: ID da microrregião
+      - name: nome_microrregiao
+        description: Nome da microrregião
+      - name: id_mesorregiao
+        description: ID da microrregião
+      - name: nome_mesorregiao
+        description: Nome da mesorregião
+      - name: id_regiao_imediata
+        description: ID da região geográfica imediata
+      - name: nome_regiao_imediata
+        description: Nome da região geográfica imediata
+      - name: id_regiao_intermediaria
+        description: ID da região geográfica intermediária
+      - name: nome_regiao_intermediaria
+        description: Nome da região geográfica intermediária
+      - name: id_concentracao_urbana
+        description: ID da Concentração Urbana
+      - name: nome_concentracao_urbana
+        description: Nome da Concentração Urbana
+      - name: area_km2
+        description: Área em quilómetro quadrado
+  - name: br_bd_diretorios_brasil__area_conhecimento
+    description: Diretório de áreas de conhecimento segundo a Coordenação de Aperfeiçoamento
+      de Pessoal de Nível Superior (CAPES)
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [especialidade]
+    columns:
+      - name: especialidade
+        description: Classificação da especialidade
+      - name: descricao_especialidade
+        description: Descrição da especialidade
+      - name: subarea
+        description: Subárea
+      - name: descricao_subarea
+        description: Descrição da subárea
+      - name: area
+        description: Área
+      - name: descricao_area
+        description: Descrição da Área
+      - name: grande_area
+        description: Grande Área
+      - name: descricao_grande_area
+        description: Descrição Grande Área
+  - name: br_bd_diretorios_brasil__curso_superior
+    description: A tabela contém dados de cursos do ensino superior no Brasil, desde
+      seu código do INEP até a área onde o curso se insere
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_curso]
+    columns:
+      - name: id_curso
+        description: ID Curso - INEP
+      - name: nome_curso
+        description: Nome do Curso
+      - name: id_area
+        description: ID Área do Curso - INEP
+      - name: nome_area
+        description: Nome da Área do Curso
+      - name: grau_academico
+        description: Grau Acadêmico do Curso
+  - name: br_bd_diretorios_brasil__distrito_1991
+    description: Diretório de distritos de 1991.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_distrito]
+    columns:
+      - name: id_distrito
+        description: ID Distrito - IBGE 9 Dígitos
+      - name: nome
+        description: Nome do Distrito
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+  - name: br_bd_diretorios_brasil__distrito_2000
+    description: Diretório de distritos de 2000.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_distrito]
+    columns:
+      - name: id_distrito
+        description: ID Distrito - IBGE 9 Dígitos
+      - name: nome
+        description: Nome do Distrito
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+  - name: br_bd_diretorios_brasil__distrito_2010
+    description: Diretório de distritos de 2010.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_distrito]
+    columns:
+      - name: id_distrito
+        description: ID Distrito - IBGE 9 Dígitos
+      - name: nome
+        description: Nome do Distrito
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+  - name: br_bd_diretorios_brasil__distrito_2022
+    description: Diretório de distritos de 2022.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_distrito]
+    columns:
+      - name: id_distrito
+        description: ID Distrito - IBGE 9 Dígitos
+      - name: nome
+        description: Nome do Distrito
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+  - name: br_bd_diretorios_brasil__escola
+    description: Tabela contendo informações de escolas originais do Catálogo de Escolas
+      do Inep.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_escola]
+    columns:
+      - name: id_escola
+        description: ID Escola - Inep
+      - name: nome
+        description: Nome da Escola
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+      - name: restricao_atendimento
+        description: Restrição de Atendimento
+      - name: localizacao
+        description: Localização
+      - name: localidade_diferenciada
+        description: Localidade Diferenciada
+      - name: categoria_administrativa
+        description: Categoria Administrativa
+      - name: endereco
+        description: Endereço
+      - name: telefone
+        description: Telefone
+      - name: dependencia_administrativa
+        description: Dependência Administrativa
+      - name: categoria_privada
+        description: Categoria Escola Privada
+      - name: conveniada_poder_publico
+        description: Conveniada Poder Público
+      - name: restricao_atendimento
+        description: regulacao_conselho_educacao
+      - name: Regulamentação pelo Conselho de Educação
+        description: Regulamentação pelo Conselho de Educação
+      - name: porte
+        description: Porte
+      - name: etapas_modalidades_oferecidas
+        description: Etapas e Modalidade de Ensino Oferecidas
+      - name: outras_ofertas_educacionais
+        description: Outras Ofertas Educacionais
+      - name: latitude
+        description: Latitude
+      - name: longitude
+        description: Longitude
+  - name: br_bd_diretorios_brasil__etnia_indigena
+    description: Diretório das etnias indígenas nos Sistemas de Informação Ambulatorial
+      e Hospitalar - SIA/SUS e SIH/SUS - 'https://bvsms.saude.gov.br/bvs/saudelegis/sas/2010/prt0508_28_09_2010.html'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_etnia_indigena]
+    columns:
+      - name: id_etnia_indigena
+        description: ID da etnia indígena
+      - name: nome
+        description: Nome da etnia indígena
+  - name: br_bd_diretorios_brasil__instituicao_ensino_superior
+    description: A tabela contém dados de cada instituição de ensino superior do país.
+      Tem-se desde o nome e seu código até o sua dependência com o setor público.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_ies]
+    columns:
+      - name: id_ies
+        description: ID da Instituição de Ensino Superior
+      - name: nome
+        description: Nome da Instituição de Ensino Superior
+      - name: tipo_instituicao
+        description: Tipo da Instituição de Ensino Superior (e.g. Pública, Privada)
+      - name: rede
+        description: Rede da Instituição de Ensino Superior
+      - name: situacao_funcionamento
+        description: Situação de Funcionamento (e.g. Ativa, Inativa)
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+  - name: br_bd_diretorios_brasil__subatividade_ibge
+    description: Subatividade Econômica segundo IBGE
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_subatividade]
+    columns:
+      - name: id_subatividade
+        description: ID da subatividade econômica
+      - name: descricao
+        description: Descrição da subatividade econômica
+  - name: br_bd_diretorios_brasil__cnae_2
+    description: Insert table description here
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [subclasse]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+    columns:
+      - name: subclasse
+        description: Subclasse da CNAE
+      - name: descricao_subclasse
+        description: Descrição da subclasse da CNAE
+      - name: secao
+        description: Seção da Classificação de Atividades Econômicas (CNAE)
+      - name: descricao_secao
+        description: Descrição da Seção
+      - name: divisao
+        description: Divisão da CNAE
+      - name: descricao_divisao
+        description: Descrição da divisão
+      - name: grupo
+        description: Grupo da CNAE
+      - name: descricao_grupo
+        description: Descrição do grupo
+      - name: classe
+        description: Classe da CNAE
+      - name: descricao_classe
+        description: Descrição da classe
+      - name: indicador_cnae_2_0
+        description: Indica se o código está presente na CNAE 2.0
+      - name: indicador_cnae_2_1
+        description: Indica se o código está presente na CNAE 2.1
+      - name: indicador_cnae_2_2
+        description: Indica se o código está presente na CNAE 2.2
+      - name: indicador_cnae_2_3
+        description: Indica se o código está presente na CNAE 2.3

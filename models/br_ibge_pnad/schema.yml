@@ -1,0 +1,291 @@
+---
+version: 2
+models:
+  - name: br_ibge_pnad__dicionario
+    description: Dicionário para tradução dos códigos do conjunto br_ibge_pnad. Para
+      taduzir códigos compartilhados entre instituições, como id_municipio, buscar
+      por diretórios
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_tabela
+            - nome_coluna
+            - chave
+            - cobertura_temporal
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_tabela
+        description: ID Tabela
+      - name: nome_coluna
+        description: Nome da coluna
+      - name: chave
+        description: Chave
+      - name: cobertura_temporal
+        description: Cobertura Temporal
+      - name: valor
+        description: Valor
+  - name: br_ibge_pnad__microdados_compatibilizados_domicilio
+    description: Microdados da PNAD a nível de domicílio
+    columns:
+      - name: ano
+        description: Ano da pesquisa
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_regiao
+        description: ID da Região - IBGE
+      - name: id_uf
+        description: ID Unidade da Federação - IBGE
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: id_uf
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_domicilio
+        description: Número de identificação do domicílio
+      - name: regiao_metropolitana
+        description: Região Metropolitana (0 = Não e 1 = Sim)
+      - name: zona_urbana
+        description: Zona Urbana
+      - name: tipo_zona_domicilio
+        description: Tipo de zona do domicílio
+      - name: total_pessoas
+        description: Total de pessoas
+      - name: total_pessoas_10_mais
+        description: Total de pessoas 10 anos ou mais
+      - name: especie_domicilio
+        description: Espécie de domicílio
+      - name: tipo_domicilio
+        description: Tipo de domicílio
+      - name: tipo_parede
+        description: Material Predominante das paredes
+      - name: tipo_cobertura
+        description: Material Predominante no telhado
+      - name: possui_agua_rede
+        description: Água provém de rede?
+      - name: tipo_esgoto
+        description: Esgotamento sanitário
+      - name: possui_sanitario_exclusivo
+        description: Sanitário exclusivo do domicílio?
+      - name: lixo_coletado
+        description: O lixo é coletado?
+      - name: possui_iluminacao_eletrica
+        description: Possui iluminação elétrica?
+      - name: quantidade_comodos
+        description: Quantidade de cômodos
+      - name: quantidade_dormitorios
+        description: Quantidade de cômodos servindo como dormitório
+      - name: possui_sanitario
+        description: Possui sanitário?
+      - name: posse_domicilio
+        description: Posse do domicílio
+      - name: possui_filtro
+        description: Possui filtro?
+      - name: possui_fogao
+        description: Possui fogão?
+      - name: possui_geladeira
+        description: Possui geladeira?
+      - name: possui_radio
+        description: Possui rádio?
+      - name: possui_tv
+        description: Possui televisão?
+      - name: renda_mensal_domiciliar
+        description: Renda mensal domiciliar
+      - name: renda_mensal_domiciliar_compativel_1992
+        description: Renda mensal domiciliar compatível com 1992
+      - name: aluguel
+        description: Valor do aluguel
+      - name: prestacao
+        description: Valor da prestação
+      - name: deflator
+        description: Deflator (base outubro de 2012)
+      - name: conversor_moeda
+        description: Conversor de Moeda
+      - name: renda_domicilio_deflacionado
+        description: Renda do domicílio - Valor deflacionado
+      - name: renda_mensal_domiciliar_compativel_1992_deflacionado
+        description: Renda mensal domiciliar compatível com 1992 - Valor deflacionado
+      - name: aluguel_deflacionado
+        description: Aluguel - Valor deflacionado
+      - name: prestacao_deflacionado
+        description: Prestação - Valor deflacionado
+      - name: peso_amostral
+        description: Peso do domicílio
+  - name: br_ibge_pnad__microdados_compatibilizados_pessoa
+    description: Microdados da PNAD a nível de pessoa
+    columns:
+      - name: ano
+        description: Ano da pesquisa
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_regiao
+        description: ID da Região - IBGE
+      - name: id_uf
+        description: ID Unidade da Federação - IBGE
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: id_uf
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_domicilio
+        description: Número de identificação do domicílio
+      - name: regiao_metropolitana
+        description: Região Metropolitana (0 = Não e 1 = Sim)
+      - name: numero_familia
+        description: Número da família
+      - name: ordem
+        description: Número de ordem da pessoa
+      - name: condicao_domicilio
+        description: Condição no domicílio
+      - name: condicao_familia
+        description: Condição na família
+      - name: numero_membros_familia
+        description: Número de membros da família
+      - name: sexo
+        description: Sexo
+      - name: dia_nascimento
+        description: Dia de nascimento
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__dia')
+              field: dia.dia
+      - name: mes_nascimento
+        description: Mês de nascimento
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: ano_nascimento
+        description: Ano do nascimento
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: idade
+        description: Idade
+      - name: raca_cor
+        description: Raça ou Cor (autodeclaração)
+      - name: sabe_ler_escrever
+        description: Sabe ler e escrever
+      - name: frequenta_escola
+        description: Frequenta a escola
+      - name: serie_frequentada
+        description: Série que frequenta
+      - name: grau_frequentado
+        description: Grau que frequenta
+      - name: ultima_serie_frequentada
+        description: Última série frequentada (para quem não frequenta escola)
+      - name: ultimo_grau_frequentado
+        description: Último grau frequentado (para quem não frequenta escola)
+      - name: anos_estudo
+        description: Anos de estudo
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: trabalhou_semana
+        description: Trabalhou na semana
+      - name: tinha_trabalhado_semana
+        description: Tinha trabalhado na semana
+      - name: tinha_outro_trabalho
+        description: Tinha outro trabalho na semana de referência
+      - name: ocupacao_semana
+        description: Ocupação na semana
+      - name: atividade_ramo_negocio_semana
+        description: Atividade ou ramo do négocio na semana
+      - name: atividade_ramo_negocio_anterior
+        description: Atividade ou ramo do negócio anterior
+      - name: possui_carteira_assinada
+        description: Tem carteira de trabalho assinada
+      - name: renda_mensal_dinheiro
+        description: Rendimento mensal em dinheiro
+      - name: renda_mensal_produto_mercadoria
+        description: Rendimento mensal em produtos ou mercadorias
+      - name: horas_trabalhadas_semana
+        description: Horas normalmente trabalhadas na semana - Ocupação principal
+      - name: renda_mensal_dinheiro_outra
+        description: Rendimento mensal em dinheiro ou outras fontes
+      - name: renda_mensal_produto_outra
+        description: Rendimento mensal em produtos ou outras fontes
+      - name: horas_trabalhadas_outros_trabalhos
+        description: Horas normalmente trabalhadas na semana - Outros trabalhos
+      - name: contribui_previdencia
+        description: Contribui para instituto de previdência
+      - name: tipo_instituto_previdencia
+        description: Tipo de instituto de previdência
+      - name: tomou_providencia_conseguir_trabalho_semana
+        description: Tomou providência para conseguir trabalho na semana
+      - name: tomou_providencia_ultimos_2_meses
+        description: Tomou providência nos últimos 2 meses para conseguir trabalho
+      - name: qual_providencia_tomou
+        description: O que foi tomado de medida para encontrar um emprego
+      - name: tinha_carteira_assinada_ultimo_emprego
+        description: Tinha carteira assinada no último emprego
+      - name: renda_aposentadoria
+        description: Valor da Aposentadoria
+      - name: renda_pensao
+        description: Valor da Pensão
+      - name: renda_abono_permanente
+        description: Valor do bônus do salário permanente
+      - name: renda_aluguel
+        description: Valor do Aluguel recebido
+      - name: renda_outras
+        description: Valor de outras rendas
+      - name: renda_mensal_ocupacao_principal
+        description: Rendimento mensal ocupação principal
+      - name: renda_mensal_todos_trabalhos
+        description: Rendimento mensal todos trabalhos
+      - name: renda_mensal_todas_fontes
+        description: Rendimento mensal todas fontes
+      - name: atividade_ramo_negocio_agregado
+        description: Atividade ou ramo do négocio na semana - Agregado
+      - name: horas_trabalhadas_todos_trabalhos
+        description: Horas normalmente trabalhadas na semana em todos os trabalhos
+      - name: posicao_ocupacao
+        description: Posição de ocupação na semana
+      - name: grupos_ocupacao
+        description: Grupos de ocupação na semana
+      - name: renda_mensal_familia
+        description: Rendimento mensal da família
+      - name: ocupacao_ano_anterior
+        description: Ocupação no ano anterior
+      - name: renda_mensal_dinheiro_deflacionado
+        description: Rendimento mensal em dinheiro - Valor deflacionado
+      - name: renda_mensal_produto_mercadoria_deflacionado
+        description: Rendimento mensal em produto ou mercadoria - Valor deflacionado
+      - name: renda_mensal_dinheiro_outra_deflacionado
+        description: Rendimento mensal em dinheiro outra - Valor deflacionado
+      - name: renda_mensal_produto_mercadoria_outra_deflacionado
+        description: Rendimento mensal em produto ou mercadoria outra - Valor deflacionado
+      - name: renda_mensal_ocupacao_principal_deflacionado
+        description: Rendimento mensal da ocupação principal - Valor deflacionado
+      - name: renda_mensal_todos_trabalhos_deflacionado
+        description: Rendimento mensal de todos os trabalhos - Valor deflacionado
+      - name: renda_mensal_todas_fontes_deflacionado
+        description: Rendimento mensal de todas as fontes - Valor deflacionado
+      - name: renda_mensal_familia_deflacionado
+        description: Rendimento mensal da família - Valor deflacionado
+      - name: renda_aposentadoria_deflacionado
+        description: Valor da aposentadoria - Valor deflacionado
+      - name: renda_pensao_deflacionado
+        description: Valor da Pensão - Valor deflacionado
+      - name: renda_abono_deflacionado
+        description: Valor do abono - Valor deflacionado
+      - name: renda_aluguel_deflacionado
+        description: Valor do Aluguel - Valor deflacionado
+      - name: renda_outras_deflacionado
+        description: Rendas Outras - Valor deflacionado

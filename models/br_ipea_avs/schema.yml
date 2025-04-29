@@ -1,0 +1,275 @@
+---
+version: 2
+models:
+  - name: br_ipea_avs__municipio
+    description: A plataforma oferece um panorama da vulnerabilidade e da exclusão
+      social dos municípios e estados. Sua relevância vem justamente da capacidade
+      de fornecer informações sobre a unidade político-administrativa mais próxima
+      do cotidiano dos cidadãos, o município. Além disso, o AVS permite conhecer as
+      desigualdades a nível intramunicipal das diversas espacialidades de uma mesma
+      região metropolitana
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_municipio
+            - raca_cor
+            - sexo
+            - localizacao
+            - udh
+            - ano
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: raca_cor
+        description: Raça/Cor
+      - name: sexo
+        description: Sexo
+      - name: localizacao
+        description: Localização (e.g. zona urbana, zona rural)
+      - name: ivs
+        description: Índice de Vulnerabilidade Social
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+      - name: ivs_infraestrutura_urbana
+        description: Índice de Vulnerabilidade Social - Dimensão Infraestrutura Urbana
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+      - name: ivs_capital_humano
+        description: Índice de Vulnerabilidade Social - Dimensão Capital Humano
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+      - name: ivs_renda_trabalho
+        description: Índice de Vulnerabilidade Social - Dimensão Renda e Trabalho
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+      - name: udh
+        description: ID do Nome da Unidade de Habitação
+      - name: nome_udh
+        description: Nome da Unidade de Habitação
+      - name: idhm
+        description: Índice de Desenvolvimento Humano Municipal
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+      - name: idhm_l
+        description: Índice de Desenvolvimento Humano Municipal - Dimensão Longevidade
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+      - name: idhm_e
+        description: Índice de Desenvolvimento Humano Municipal - Dimensão Educação
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+      - name: idhm_r
+        description: Índice de Desenvolvimento Humano Municipal - Dimensão Renda
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+      - name: idhm_subescolaridade
+        description: Índice de Desenvolvimento Humano Municipal - Dimensão Sub Escolaridade
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+      - name: idhm_subfrequencia
+        description: Índice de Desenvolvimento Humano Municipal - Dimensão Frequência
+          Escolar
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+      - name: prosperidade_social
+        description: Prosperidade Social
+      - name: proporcao_vulnerabilidade_socioeconomica
+        description: Proporção das pessoas com renda per capita inferior a meio salario
+          mínimo e gastam mais de uma hora até o trabalho
+      - name: propocao_energia_eletrica
+        description: Proporção da população em domicílios com energia elétrica
+      - name: proporcao_domicilio_densidade
+        description: Proporção da população em domicílios com densidade maior que
+          2
+      - name: proporcao_sem_agua_esgoto
+        description: Pessoas com abastecimento de água e esgoto inadequado
+      - name: proporcao_sem_coleta
+        description: Pessoas sem o serviço de coleta de lixo
+      - name: renda_per_capita
+        description: Renda per capita
+      - name: renda_media_18_mais
+        description: Proporção dos ocupados com ensino superior completo - 18 anos
+          ou mais
+      - name: proporcao_sem_renda_18_mais
+        description: Proporção dos ocupados sem rendimento - 18 anos ou mais
+      - name: renda_trabalho
+        description: Proporção da renda proveniente de rendimentos do trabalho
+      - name: renda_per_capita_vulneravel
+        description: Média da renda per capita dos vulneráveis à pobreza
+      - name: proporcao_vulneravel
+        description: Proporção de pessoas com renda domiciliar per capita igual ou
+          inferior a meio salário mínimo
+      - name: populacao_vulneravel_15_24
+        description: População vulnerável de 15 a 24 anos
+      - name: proporcao_vulneravel_dependente_idoso
+        description: Proporção de pessoas em domicílios com renda per capita inferior
+          a meio salário mínimo e dependentes de idosos
+      - name: populacao_vulneravel_e_idoso
+        description: População em domicílios vulneráveis e com idoso
+      - name: razao_dependencia
+        description: Razão de dependência
+      - name: fecundidade_total
+        description: Taxa de fecundidade total
+      - name: taxa_envelhecimento
+        description: Taxa de envelhecimento
+      - name: mortalidade_1_menos
+        description: "Mortalidade até 1 ano de idade\n"
+      - name: proporcao_mortalidade_5_menos
+        description: Proporção referente a mortalidade de crianças até 5 anos de idade
+      - name: proporcao_crianca_fora_escola_0_5
+        description: Proporção de crianças de 0 a 5 anos que não frequentam a escola
+      - name: proporcao_escola_5_6
+        description: Proporção de 5 a 6 anos na escola
+      - name: proporcao_crianca_fora_escola_6_14
+        description: Proporção de crianças de 6 a 14 anos que não frequentam a escola
+      - name: proporcao_maternidade_10_17
+        description: Proporção de mulheres de 10 a 17 anos que tiveram filhos
+      - name: maternidade_crianca_15_menos
+        description: Mulheres chefes de família e com filhos menores de 15 anos
+      - name: proporcao_maternidade_fundamental_incompleto_crianca_15_menos
+        description: Proporção de mães chefes de família, sem fundamental completo
+          e com filho menor de 15 anos de idade
+      - name: proporcao_analfabetismo_15_mais
+        description: Taxa de analfabetismo - 15 anos ou mais
+      - name: proporcao_analfabetismo_18_mais
+        description: Taxa de analfabetismo - 18 anos ou mais
+      - name: proporcao_analfabetismo_25_mais
+        description: Taxa de analfabetismo - 25 anos ou mais
+      - name: proporcao_responsavel_fundamental_incompleto
+        description: Proporção de crianças que vivem em domicílios em que nenhum dos
+          moradores tem o ensino fundamental completo
+      - name: proporcao_anos_finais_11_13
+        description: Proporção de alunos de 11 a 13 anos nos anos finais do fundamental
+          ou com fundamental completo
+      - name: proporcao_fundamental_completo_15_17
+        description: Proporção de 15 a 17 anos com fundamental completo
+      - name: proporcao_fundamental_completo_18_mais
+        description: Proporção de alunos de 15 a 17 anos com fundamental completo
+      - name: proporcao_medio_completo_18_20
+        description: Proporção de alunos de 18 a 20 anos com médio completo
+      - name: populacao_ocupada_trabalho
+        description: População ocupada vulnerável à pobreza que retorna diariamente
+          do trabalho
+      - name: proporcao_ocupado_fundamental_18_mais
+        description: Proporção dos ocupados com ensino fundamental completo - 18 anos
+          ou mais
+      - name: proporcao_ocupado_medio_18_mais
+        description: Proporção dos ocupados com ensino médio completo - 18 anos ou
+          mais
+      - name: proporcao_ocupado_superior_18_mais
+        description: Proporção dos ocupados com ensino médio completo - 18 anos ou
+          mais
+      - name: proporcao_desocupado_15_24
+        description: Proporção de pessoas de 15 a 24 anos que não estudam, não trabalham
+          e possuem renda domiciliar per capita igual ou inferior a meio salário mínimo
+      - name: proporcao_desocupado_18_mais
+        description: Taxa de desocupação da população de 18 anos ou mais de idade
+      - name: proporcao_ocupados_informal_18_mais
+        description: Proporção de pessoas de 18 anos ou mais sem fundamental completo
+          e em ocupação informal
+      - name: proporcao_carteira_18_mais
+        description: Proporção de empregados com carteira assinada com 18 anos ou
+          mais
+      - name: proporcao_sem_carteira_18_mais
+        description: Proporção de empregados sem carteira assinada com 18 anos ou
+          mais
+      - name: proporcao_setor_publico_18_mais
+        description: Proporção de trabalhadores do setor público - 18 anos ou mais
+      - name: proporcao_empreendedor_18_mais
+        description: Proporção de trabalhadores por conta própria - 18 anos ou mais
+      - name: proporcao_empregador_18_mais
+        description: Proporção de empregadores - 18 anos ou mais
+      - name: proporcao_mercado_formal_18_mais
+        description: Grau de formalização dos ocupados - 18 anos ou mais
+      - name: proporcao_atividade_10_14
+        description: Taxa de atividade das pessoas de 10 a 14 anos de idade
+      - name: pea_10_mais
+        description: População Economicamente Ativa (PEA) - 10 anos ou mais
+      - name: pea_10_14
+        description: População Economicamente Ativa (PEA) - 10 a 14 anos
+      - name: pea_15_17
+        description: População Economicamente Ativa (PEA) - 15 a 17 anos
+      - name: pea_18_mais
+        description: População Economicamente Ativa (PEA) - 18 anos ou mais
+      - name: expectativa_vida
+        description: Expectativa de vida
+      - name: indice_gini
+        description: Índice de Gini
+      - name: populacao_0_1
+        description: População de até 1 ano
+      - name: populacao_1_3
+        description: População de 1 a 3 anos
+      - name: populacao_4
+        description: População de 4 anos
+      - name: populacao_5
+        description: População de 5 anos
+      - name: populacao_6
+        description: População de 6 anos
+      - name: populacao_6_10
+        description: População de 6 a 10 anos
+      - name: populacao_6_17
+        description: População de 6 a 17 anos
+      - name: populacao_11_13
+        description: População de 11 a 13 anos
+      - name: populacao_11_14
+        description: População de 11 a 14 anos
+      - name: populacao_12_14
+        description: População de 12 a 14 anos
+      - name: populacao_15_mais
+        description: População de 15 anos ou mais
+      - name: populacao_15_17
+        description: População de 15 a 17 anos
+      - name: populacao_15_24
+        description: População de 15 a 24 anos
+      - name: populacao_16_18
+        description: População de 16 a 18 anos
+      - name: populacao_18_mais
+        description: População de 18 anos ou mais
+      - name: populacao_18_20
+        description: População de 18 a 20 anos
+      - name: populacao_18_24
+        description: População de 18 a 24 anos
+      - name: populacao_19_21
+        description: População de 19 a 21 anos
+      - name: populacao_25_mais
+        description: População de 25 anos ou mais
+      - name: populacao_65_mais
+        description: População de 65 anos ou mais

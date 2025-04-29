@@ -1,0 +1,65 @@
+---
+version: 2
+models:
+  - name: br_me_sic__transferencia
+    description: A tabela contém dados sobre custos com transferências a estados e
+      municípios do Governo Federal. Por meio desses dados é possível estudar, por
+      exemplo, o nível de envolvimento e a importância das diversas unidades organizacionais
+      governamentais nessas operações.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+    columns:
+      - name: ano
+        description: Ano do lançamento contábil
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: Mês do lançamento contábil
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: id_esfera_orcamentaria
+        description: Código da esfera orçamentária do custo
+      - name: nome_esfera_orcamentaria
+        description: Nome da esfera orçamentária do custo
+      - name: id_natureza_juridica
+        description: Código da natureza jurídica do Órgão
+      - name: nome_natureza_juridica
+        description: Nome da natureza jurídica do Órgão
+      - name: id_resultado_primario
+        description: Código da classificação da despesa orçamentária por indicador
+          de resultado primário
+      - name: nome_resultado_primario
+        description: Nome da classificação da despesa orçamentária por indicador de
+          resultado primário
+      - name: id_unidade_organizacional_nivel_0
+        description: Código da Unidade organizacional um nível acima dos Ministérios
+          e da AGU, conforme codificação SIORG
+      - name: nome_unidade_organizacional_nivel_0
+        description: Nome da Unidade organizacional um nível acima dos Ministérios
+          e da AGU, conforme codificação SIORG
+      - name: id_unidade_organizacional_nivel_1
+        description: Código da Unidade organizacional no nível dos Ministérios e da
+          AGU, conforme codificação SIORG
+      - name: nome_unidade_organizacional_nivel_1
+        description: Nome da Unidade organizacional no nível dos Ministérios e da
+          AGU, conforme codificação SIORG
+      - name: id_unidade_organizacional_nivel_2
+        description: Código da Unidade organizacional a um nível abaixo dos Ministérios
+          e da AGU, conforme codificação SIORG
+      - name: nome_unidade_organizacional_nivel_2
+        description: Nome da Unidade organizacional a um nível abaixo dos Ministérios
+          e da AGU, conforme codificação SIORG
+      - name: id_unidade_organizacional_nivel_3
+        description: Código da Unidade organizacional a dois níveis abaixo dos Ministérios
+          e da AGU, conforme codificação SIORG
+      - name: nome_unidade_organizacional_nivel_3
+        description: Nome da Unidade organizacional a dois níveis abaixo dos Ministérios
+          e da AGU, conforme codificação SIORG
+      - name: valor_custo_transferencia
+        description: Valor do custo com transferências
+        tests: [not_null]
