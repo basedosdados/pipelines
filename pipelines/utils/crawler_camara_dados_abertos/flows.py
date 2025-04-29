@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# register flow in prefect
+# register flow in prefect now
 
 from datetime import timedelta
 
@@ -71,12 +71,9 @@ with Flow(
             table_id=table_id,
             dump_mode="append",
             wait=filepath,
-            upstream_tasks=[
-                filepath
-            ],  # Fix: Wrap filepath in a list to make it iterable
+            upstream_tasks=[filepath],
         )
         with case(materialize_after_dump, True):
-            # Trigger DBT flow run
             current_flow_labels = get_current_flow_labels()
             materialization_flow = create_flow_run(
                 flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,

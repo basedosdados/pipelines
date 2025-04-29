@@ -55,6 +55,44 @@ class constants(Enum):
         "despesa": f"/tmp/input/Ano-{ANO_ATUAL}.csv",
     }
 
+    TABLES_INPUT_PATH_ANO_ANTERIOR = {
+        # ! - > Proposição
+        "proposicao_microdados": f"/tmp/input/proposicoes-{ANO_ANTERIOR}.csv",
+        "proposicao_autor": f"/tmp/input/proposicoesAutores-{ANO_ANTERIOR}.csv",
+        "proposicao_tema": f"/tmp/input/proposicoesTemas-{ANO_ANTERIOR}.csv",
+        # ! - > Órgão
+        "orgao": "/tmp/input/orgaos.csv",
+        "orgao_deputado": "/tmp/input/orgaosDeputados-57.csv",
+        # ! - > Evento
+        "evento": f"/tmp/input/eventos-{ANO_ANTERIOR}.csv",
+        "evento_orgao": f"/tmp/input/eventosOrgaos-{ANO_ANTERIOR}.csv",
+        "evento_presenca_deputado": f"/tmp/input/eventosPresencaDeputados-{ANO_ANTERIOR}.csv",
+        "evento_requerimento": f"/tmp/input/eventosRequerimentos-{ANO_ANTERIOR}.csv",
+        # ! - > Frente
+        "frente": "/tmp/input/frentes.csv",
+        "frente_deputado": "/tmp/input/frentesDeputados.csv",
+        # ! - > Funcionario
+        "funcionario": "/tmp/input/funcionarios.csv",
+        # ! - > Votação
+        "votacao": f"/tmp/input/votacoes-{ANO_ANTERIOR}.csv",
+        "votacao_orientacao_bancada": f"/tmp/input/votacoesOrientacoes-{ANO_ANTERIOR}.csv",
+        "votacao_parlamentar": f"/tmp/input/votacoesVotos-{ANO_ANTERIOR}.csv",
+        "votacao_objeto": f"/tmp/input/votacoesObjetos-{ANO_ANTERIOR}.csv",
+        "votacao_proposicao": f"/tmp/input/votacoesProposicoes-{ANO_ANTERIOR}.csv",
+        # ! - > Deputado
+        "deputado": "/tmp/input/deputados.csv",
+        "deputado_ocupacao": "/tmp/input/deputadosOcupacoes.csv",
+        "deputado_profissao": "/tmp/input/deputadosProfissoes.csv",
+        # ! - > Licitação
+        "licitacao": f"/tmp/input/licitacoes-{ANO_ANTERIOR}.csv",
+        "licitacao_contrato": f"/tmp/input/licitacoesContratos-{ANO_ANTERIOR}.csv",
+        "licitacao_item": f"/tmp/input/licitacoesItens-{ANO_ANTERIOR}.csv",
+        "licitacao_pedido": f"/tmp/input/licitacoesPedidos-{ANO_ANTERIOR}.csv",
+        "licitacao_proposta": f"/tmp/input/licitacoesPropostas-{ANO_ANTERIOR}.csv",
+        # ! - > Despesa
+        "despesa": f"/tmp/input/Ano-{ANO_ANTERIOR}.csv",
+    }
+
     TABLES_OUTPUT_PATH = {
         # ! - > Proposição
         "proposicao_microdados": f"/tmp/output/proposicao_microdados/proposicoes_{ANO_ATUAL}.csv",
@@ -91,6 +129,44 @@ class constants(Enum):
         "licitacao_proposta": f"/tmp/output/licitacao_proposta/licitacoesPropostas_{ANO_ATUAL}.csv",
         # ! - > Despesa
         "despesa": f"/tmp/output/despesa/despesa_{ANO_ATUAL}.csv",
+    }
+
+    TABLES_OUTPUT_PATH_ANO_ANTERIOR = {
+        # ! - > Proposição
+        "proposicao_microdados": f"/tmp/output/proposicao_microdados/proposicoes_{ANO_ANTERIOR}.csv",
+        "proposicao_autor": f"/tmp/output/proposicao_autor/proposicoesAutores_{ANO_ANTERIOR}.csv",
+        "proposicao_tema": f"/tmp/output/proposicao_tema/proposicoesTemas_{ANO_ANTERIOR}.csv",
+        # ! - > Órgão
+        "orgao": "/tmp/output/orgao/orgaos.csv",
+        "orgao_deputado": "/tmp/output/orgao_deputado/orgaosDeputados-57.csv",
+        # ! - > Evento
+        "evento": f"/tmp/output/evento/eventos_{ANO_ANTERIOR}.csv",
+        "evento_orgao": f"/tmp/output/evento_orgao/eventosOrgaos_{ANO_ANTERIOR}.csv",
+        "evento_presenca_deputado": f"/tmp/output/evento_presenca_deputado/eventosPresencaDeputados_{ANO_ANTERIOR}.csv",
+        "evento_requerimento": f"/tmp/output/evento_requerimento/eventosRequerimentos_{ANO_ANTERIOR}.csv",
+        # ! - > Frente
+        "frente": "/tmp/output/frente/frentes.csv",
+        "frente_deputado": "/tmp/output/frente_deputado/frentesDeputados.csv",
+        # ! - > Funcionario
+        "funcionario": "/tmp/output/funcionario/funcionarios.csv",
+        # ! - > Votação
+        "votacao": f"/tmp/output/votacao/votacoes_{ANO_ANTERIOR}.csv",
+        "votacao_orientacao_bancada": f"/tmp/output/votacao_orientacao_bancada/votacoesOrientacoes_{ANO_ANTERIOR}.csv",
+        "votacao_parlamentar": f"/tmp/output/votacao_parlamentar/votacoesVotos_{ANO_ANTERIOR}.csv",
+        "votacao_objeto": f"/tmp/output/votacao_objeto/votacoesObjetos_{ANO_ANTERIOR}.csv",
+        "votacao_proposicao": f"/tmp/output/votacao_proposicao/votacoesProposicoes_{ANO_ANTERIOR}.csv",
+        # ! - > Deputado
+        "deputado": "/tmp/output/deputado/deputados.csv",
+        "deputado_ocupacao": "/tmp/output/deputadosOcupacoes.csv",
+        "deputado_profissao": "/tmp/output/deputado_profissao/deputadosProfissoes.csv",
+        # ! - > Licitação
+        "licitacao": f"/tmp/output/licitacao/licitacoes_{ANO_ANTERIOR}.csv",
+        "licitacao_contrato": f"/tmp/output/licitacao_contrato/licitacoesContratos_{ANO_ANTERIOR}.csv",
+        "licitacao_item": f"/tmp/output/licitacao_item/licitacoesItens_{ANO_ANTERIOR}.csv",
+        "licitacao_pedido": f"/tmp/output/licitacao_pedido/licitacoesPedidos_{ANO_ANTERIOR}.csv",
+        "licitacao_proposta": f"/tmp/output/licitacao_proposta/licitacoesPropostas_{ANO_ANTERIOR}.csv",
+        # ! - > Despesa
+        "despesa": f"/tmp/output/despesa/despesa_{ANO_ANTERIOR}.csv",
     }
 
     TABLES_URL = {

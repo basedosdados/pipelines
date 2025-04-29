@@ -15,13 +15,26 @@ from pipelines.utils.utils import log
 
 # ----------------------------------------------------------------------------------- > Universal
 def download_table_despesa(table_id: str) -> None:
-    http_response = urlopen(constants_camara.TABLES_URL.value[table_id])
-    zipfile = ZipFile(BytesIO(http_response.read()))
-    zipfile.extractall(path=constants_camara.INPUT_PATH.value)
+    url = [
+        constants_camara.TABLES_URL.value[table_id],
+        constants_camara.TABLES_URL_ANO_ANTERIOR.value[table_id],
+    ]
+    input_path = [
+        constants_camara.INPUT_PATH.value,
+        constants_camara.INPUT_PATH.value,
+    ]
 
-    log(
-        f"Downloading {table_id} from {constants_camara.TABLES_URL.value[table_id]}"
-    )
+    for url_year, input_path_year in dict(zip(url, input_path)).items():
+        try:
+            log(
+                f"Downloading {table_id} from {url_year} and extracting to {input_path_year}"
+            )
+            http_response = urlopen(url_year)
+            zipfile = ZipFile(BytesIO(http_response.read()))
+            zipfile.extractall(path=input_path_year)
+            log(f"File downloaded successfully to {input_path_year}")
+        except requests.exceptions.RequestException as e:
+            raise Exception(f"Error in request: {e}")
 
 
 def download_all_table(table_id: str) -> None:
@@ -36,20 +49,33 @@ def download_all_table(table_id: str) -> None:
         Exception: If there is an error in the request, such as a non-successful status code.
 
     """
-    if not os.path.exists(constants_camara.INPUT_PATH.value):
-        os.makedirs(constants_camara.INPUT_PATH.value)
 
-    url = constants_camara.TABLES_URL.value[table_id]
-    input_path = constants_camara.TABLES_INPUT_PATH.value[table_id]
+    url = [
+        constants_camara.TABLES_URL.value[table_id],
+        constants_camara.TABLES_URL_ANO_ANTERIOR.value[table_id],
+    ]
+    input_path = [
+        constants_camara.TABLES_INPUT_PATH.value[table_id],
+        constants_camara.TABLES_INPUT_PATH_ANO_ANTERIOR.value[table_id],
+    ]
 
-    log(f"Downloading {table_id} from {url}")
-    response = requests.get(url, headers=constants_camara.HEADERS.value)
-    if response.status_code == 200:
-        with open(input_path, "wb") as f:
-            f.write(response.content)
+    for url_year, input_path_year in dict(zip(url, input_path)).items():
+        os.makedirs(constants_camara.INPUT_PATH.value, exist_ok=True)
 
-    if response.status_code >= 400 and response.status_code <= 599:
-        raise Exception(f"Error in request: {response.status_code}")
+        log(
+            f"Downloading {table_id} from {url_year} and extracting to {input_path_year}"
+        )
+        try:
+            response = requests.get(
+                url_year, headers=constants_camara.HEADERS.value, timeout=10
+            )
+            response.raise_for_status()
+            with open(input_path_year, "wb") as f:
+                f.write(response.content)
+
+            log(f"File downloaded successfully to {input_path_year}")
+        except requests.exceptions.RequestException as e:
+            raise Exception(f"Error in request: {e}")
 
 
 def download_and_read_data(table_id: str) -> pd.DataFrame:
@@ -57,8 +83,15 @@ def download_and_read_data(table_id: str) -> pd.DataFrame:
         download_table_despesa(table_id)
     else:
         download_all_table(table_id)
-    input_path = constants_camara.TABLES_INPUT_PATH.value[table_id]
-    log(input_path)
-    df = pd.read_csv(input_path, sep=";")
+    df_year = []
+    for input_path in [
+        constants_camara.TABLES_INPUT_PATH.value[table_id],
+        constants_camara.TABLES_INPUT_PATH_ANO_ANTERIOR.value[table_id],
+    ]:
+        log(
+            f"Reading {table_id} from {input_path} and extracting to {input_path}"
+        )
+        df = pd.read_csv(input_path, sep=";")
+        df_year.append(df)
 
-    return df
+    return df_year
