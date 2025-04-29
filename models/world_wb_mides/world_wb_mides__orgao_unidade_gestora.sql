@@ -20,4 +20,4 @@ from
     {{ set_datalake_project("world_wb_mides_staging.orgao_unidade_gestora") }} as t
 
     -- contém 10 UFs: CE, DF, MG, PB, PE, PR, RJ, RS, SC, SP
-
+    

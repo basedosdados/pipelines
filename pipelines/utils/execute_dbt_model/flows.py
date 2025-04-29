@@ -55,7 +55,6 @@ with Flow(
         download_data_to_gcs(
             dataset_id=dataset_id,
             table_id=table_id,
-            # bd_project_mode="staging" if target == "dev" else "prod",
             upstream_tasks=[materialize_result],
         )
 

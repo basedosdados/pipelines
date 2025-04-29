@@ -62,12 +62,3 @@ jobs:
           context: .
           push: true
           tags: ${{ steps.meta.outputs.tags }},${{ env.IMAGE_NAME }}:latest
-          # build-args: BD_DBT_SERVICE_ACCOUNT=${{secrets.GCP_SA_KEY}}
-
-      # - name: Build and publish Prefect Agent image
-      #   run: |-
-      #     docker build --build-arg BD_DBT_SERVICE_ACCOUNT="$GCP_SA_KEY" -t $IMAGE_NAME:$GITHUB_SHA .
-      #     docker build --build-arg BD_DBT_SERVICE_ACCOUNT=$GCP_SA_KEY -t $IMAGE_NAME:latest .
-      #     echo $GH_PAT | docker login ghcr.io -u gabriel-milan --password-stdin
-      #     docker push $IMAGE_NAME:$GITHUB_SHA
-      #     docker push $IMAGE_NAME:latest

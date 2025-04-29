@@ -69,39 +69,6 @@ def run_dbt(
     if dbt_command not in ["run", "test", "run and test", "run/test"]:
         raise ValueError(f"Invalid dbt_command: {dbt_command}")
 
-    profiles_path = "profiles.yml"
-    with open(profiles_path, "r") as f:
-        log(f.read())
-
-    with open("/mnt/creds.json", "r") as f:
-        log(f.read())
-
-    with open("/credentials-dev/dev.json", "r") as f:
-        log(f.read())
-
-    with open("/credentials-prod/prod.json", "r") as f:
-        log(f.read())
-
-    log(os.getenv("GOOGLE_APPLICATION_CREDENTIALS"))
-
-    # update_profiles_for_env_credentials()
-
-    # with open(profiles_path, "r") as f:
-    #     log(f.read())
-
-    # if custom_keyfile_path is not None:
-    #     update_keyfile_path_in_profiles(custom_keyfile_path)
-    #     log(
-    #         f"Updated profiles.yml to use custom keyfile: {custom_keyfile_path}",
-    #         level="info",
-    #     )
-    # elif use_env_credentials:
-    #     update_profiles_for_env_credentials()
-    #     log(
-    #         "Updated profiles.yml to use environment-based authentication",
-    #         level="info",
-    #     )
-
     if table_id:
         if dbt_alias:
             selected_table = f"{dataset_id}.{dataset_id}__{table_id}"
