@@ -20,8 +20,6 @@ from pipelines.utils.execute_dbt_model.utils import (
     extract_model_execution_status_from_logs,
     log_dbt_from_file,
     process_dbt_log_file,
-    # update_keyfile_path_in_profiles,
-    # update_profiles_for_env_credentials,
 )
 from pipelines.utils.utils import log
 
@@ -39,8 +37,6 @@ def run_dbt(
     flags: Optional[str] = None,
     _vars: Optional[Union[dict, List[Dict], str]] = None,
     disable_elementary: bool = False,
-    # custom_keyfile_path: str | None = None,
-    # use_env_credentials: bool = True,
 ) -> None:
     """
     Execute a DBT model and process logs from the log file.
@@ -57,10 +53,6 @@ def run_dbt(
         _vars (Optional[Union[dict, List[Dict], str]], optional): Variables to pass to
             dbt. Defaults to None.
         disable_elementary (bool, optional): Disable elementary on-run-end hooks. Defaults to False.
-        custom_keyfile_path (str): New path to use for the keyfile. Defaults to None.
-        use_env_credentials (bool, optional): Whether to update profiles.yml to use
-            environment variables for authentication. This is only used if
-            custom_keyfile_path is None. Defaults to True.
 
     Raises:
         ValueError: If dbt_command is invalid.
@@ -92,13 +84,6 @@ def run_dbt(
         commands_to_run.append("test")
 
     log_file_path = os.path.join("logs", "dbt.log")
-
-    model_path = os.path.join(
-        "models", dataset_id, f"{dataset_id}__{table_id}.sql"
-    )
-
-    if os.path.exists(model_path):
-        log(f"{model_path} exists")
 
     for cmd in commands_to_run:
         cli_args = [cmd, "--select", selected_table, "--target", target]
@@ -137,15 +122,12 @@ def run_dbt(
                         f"Found {len(logs_df)} log entries in log file",
                         level="info",
                     )
-                    log(logs_df)
 
                     log_summary = log_dbt_from_file(log_file_path)
-                    log(log_summary)
 
                     model_status = extract_model_execution_status_from_logs(
                         logs_df
                     )
-                    log(model_status)
 
                     if len(model_status) > 0:
                         log(
@@ -153,7 +135,7 @@ def run_dbt(
                             level="info",
                         )
 
-                    if log_summary["error_count"] > 0:
+                    if log_summary["error_count"] > 0 or not result.success:
                         raise FAIL(
                             f"DBT '{cmd}' command failed with {log_summary['error_count']} errors. See logs for details."
                         )
@@ -164,12 +146,6 @@ def run_dbt(
                     f"DBT log file not found at {log_file_path}",
                     level="warning",
                 )
-
-                # if not result.success:
-                #     raise FAIL(
-                #         f"DBT '{cmd}' command failed and no log file was found."
-                #     )
-
         except Exception as e:
             if not isinstance(e, FAIL):
                 error_msg = (
