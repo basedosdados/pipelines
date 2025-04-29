@@ -76,6 +76,12 @@ def run_dbt(
     with open("/mnt/creds.json", "r") as f:
         log(f.read())
 
+    with open("/credentials-dev/dev.json", "r") as f:
+        log(f.read())
+
+    with open("/credentials-prod/prod.json", "r") as f:
+        log(f.read())
+
     log(os.getenv("GOOGLE_APPLICATION_CREDENTIALS"))
 
     # update_profiles_for_env_credentials()

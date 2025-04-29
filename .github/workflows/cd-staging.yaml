@@ -51,7 +51,7 @@ jobs:
           poetry run python .github/workflows/scripts/replace_docker_tag.py $IMAGE_NAME $GITHUB_SHA
       - name: Get all changed files using a comma separator
         id: changed-files
-        uses: tj-actions/changed-files@6cb76d07bee4c9772c6882c06c37837bf82a04d3  # v46
+        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c # v46
         with:
           separator: ' '
       - name: Perform code tree analysis

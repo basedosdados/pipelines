@@ -16,15 +16,18 @@ repos:
     rev: v0.9.3
     hooks:
       - id: ruff
-        args: [--fix, --exclude, "models/"]
+        args: [--fix, --exclude, models/]
       - id: ruff-format
-  - repo: local
+  - repo: https://github.com/lyz-code/yamlfix/
+    rev: 1.17.0
     hooks:
       - id: yamlfix
-        name: yamlfix
-        types: [yaml]
-        language: python
-        entry: yamlfix
         files: models
-        args:
-          - models/
+        args: [models/]
+  - repo: https://github.com/tconbeer/sqlfmt
+    rev: v0.20.0
+    hooks:
+      - id: sqlfmt
+        language_version: python
+        additional_dependencies: ['.[jinjafmt]']
+
