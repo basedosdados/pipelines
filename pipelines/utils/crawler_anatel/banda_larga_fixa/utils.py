@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
+import gc
 import os
-import time
 from zipfile import ZipFile
 
 import numpy as np
 import pandas as pd
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
+import requests
 
 from pipelines.utils.crawler_anatel.banda_larga_fixa.constants import (
     constants as anatel_constants,
@@ -16,78 +13,49 @@ from pipelines.utils.crawler_anatel.banda_larga_fixa.constants import (
 from pipelines.utils.utils import log, to_partitions
 
 
-def download_zip_file(path):
-    """
-    Downloads a zip file from a specific URL and saves it to the given path.
-
-    Args:
-        path (str): The path where the downloaded zip file will be saved.
-
-    Returns:
-        None
-    """
-    if not os.path.exists(path):
-        os.makedirs(path)
-    options = webdriver.ChromeOptions()
-    # https://github.com/SeleniumHQ/selenium/issues/11637
-    prefs = {
-        "download.default_directory": path,
-        "download.prompt_for_download": False,
-        "download.directory_upgrade": True,
-        "safebrowsing.enabled": True,
-    }
-    options.add_experimental_option(
-        "prefs",
-        prefs,
+def download_zip_file():
+    response = requests.get(
+        "https://dados.gov.br/api/publico/conjuntos-dados/acessos---banda-larga-fixa",
+        cookies=anatel_constants.COOKIES.value,
+        headers=anatel_constants.HEADERS.value,
     )
-    options.add_argument("--headless=new")
-    options.add_argument("--test-type")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--no-first-run")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--no-default-browser-check")
-    options.add_argument("--ignore-certificate-errors")
-    options.add_argument("--start-maximized")
-    options.add_argument(
-        "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
-    )
-    driver = webdriver.Chrome(options=options)
-    driver.get(anatel_constants.URL.value)
 
-    driver.maximize_window()
-    WebDriverWait(driver, 300).until(
-        EC.element_to_be_clickable(
-            (
-                By.XPATH,
-                "/html/body/div/section/div/div[3]/div[2]/div[3]/div[2]/header/button",
+    r = response.json()
+    for recurso in r["resources"]:
+        if recurso["format"] == "ZIP":
+            download_url = recurso["url"]
+            log(
+                f"Baixando {download_url} em {anatel_constants.INPUT_PATH.value}"
             )
-        )
-    ).click()
 
-    WebDriverWait(driver, 300).until(
-        EC.element_to_be_clickable(
-            (
-                By.XPATH,
-                "/html/body/div/section/div/div[3]/div[2]/div[3]/div[2]/div/div[1]/div[2]/div[2]/div/button",
-            )
+    with open(
+        os.path.join(
+            anatel_constants.INPUT_PATH.value, "acessos_banda_larga_fixa.zip"
+        ),
+        "wb",
+    ) as file:
+        response = requests.get(
+            download_url,
+            cookies=anatel_constants.COOKIES.value,
+            headers=anatel_constants.HEADERS.value,
         )
-    ).click()
-    time.sleep(150)
-    log(os.listdir(path))
+        file.write(response.content)
 
 
 def unzip_file():
-    download_zip_file(path=anatel_constants.INPUT_PATH.value)
+    os.makedirs(anatel_constants.INPUT_PATH.value, exist_ok=True)
+    download_zip_file()
     zip_file_path = os.path.join(
         anatel_constants.INPUT_PATH.value, "acessos_banda_larga_fixa.zip"
     )
-    log(os.listdir(anatel_constants.INPUT_PATH.value))
     try:
         with ZipFile(zip_file_path, "r") as zip_ref:
             zip_ref.extractall(anatel_constants.INPUT_PATH.value)
     except Exception as e:
         print(f"Erro ao baixar ou extrair o arquivo ZIP: {str(e)}")
+
+    os.remove(zip_file_path)
+    gc.collect()
 
 
 def check_and_create_column(df: pd.DataFrame, col_name: str) -> pd.DataFrame:
