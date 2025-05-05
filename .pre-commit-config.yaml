@@ -22,8 +22,13 @@ repos:
     rev: 1.17.0
     hooks:
       - id: yamlfix
-        files: models
-        args: [models/]
+        args:
+          - --exclude
+          - .venv/**/*
+          - --exclude
+          - dbt_packages/**/*
+          - --exclude
+          - target/**/*
   - repo: https://github.com/tconbeer/sqlfmt
     rev: v0.20.0
     hooks:
