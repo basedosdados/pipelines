@@ -1,12 +1,13 @@
+---
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:
-      - id: check-added-large-files # prevents adding large files
-        args: ["--maxkb=4000"]
-      - id: detect-private-key # detects private keys
-      - id: fix-byte-order-marker # fixes BOM
-      - id: no-commit-to-branch # prevents committing to protected branches
+      - id: check-added-large-files  # prevents adding large files
+        args: [--maxkb=4000]
+      - id: detect-private-key  # detects private keys
+      - id: fix-byte-order-marker  # fixes BOM
+      - id: no-commit-to-branch  # prevents committing to protected branches
   - repo: https://github.com/python-poetry/poetry
     rev: 1.8.5
     hooks:
@@ -29,4 +30,3 @@ repos:
       - id: sqlfmt
         language_version: python
         additional_dependencies: ['.[jinjafmt]']
-

@@ -37,7 +37,7 @@ clean-targets:  # directories to be removed by `dbt clean`
 # using the `{{ config(...) }}` macro.
 models:
   +post-hook:
-   - GRANT `roles/bigquery.dataViewer` ON TABLE {{ this }} TO "specialGroup:allUsers"
+    - GRANT `roles/bigquery.dataViewer` ON TABLE {{ this }} TO "specialGroup:allUsers"
   +persist_docs:
     relation: true
     columns: true

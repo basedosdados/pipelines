@@ -51,7 +51,7 @@ jobs:
           poetry run python .github/workflows/scripts/replace_docker_tag.py $IMAGE_NAME $GITHUB_SHA
       - name: Get all changed files using a space separator
         id: changed-files
-        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c # v46
+        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c  # v46
         with:
           separator: ' '
       - name: Perform code tree analysis
@@ -70,7 +70,6 @@ jobs:
           check-name: Build Docker image
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           verbose: true
-
       - name: Register Prefect flows
         run: |-
           poetry run python .github/workflows/scripts/register_flows.py --project $PREFECT__SERVER__PROJECT --path pipelines/ --no-schedule --filter-affected-flows

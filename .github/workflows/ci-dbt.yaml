@@ -22,4 +22,4 @@ jobs:
       - name: Lint sql
         run: poetry run sqlfmt --diff .
       - name: Lint yaml
-        run: poetry run yamlfix --exclude ".kubernetes/**/*" --check .
+        run: poetry run yamlfix --check .

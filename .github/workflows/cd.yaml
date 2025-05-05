@@ -93,5 +93,5 @@ jobs:
       - name: Install requirements
         run: poetry install --only=dev
       - name: Run script for approving table
-        run: |
+        run: |-
           poetry run python .github/workflows/scripts/table_approve.py --modified-files ${{ steps.changed-files.outputs.all_modified_files }} --graphql-url ${{ secrets.BACKEND_GRAPHQL_URL }} --source-bucket-name ${{ vars.SOURCE_BUCKET_NAME }} --destination-bucket-name ${{ vars.DESTINATION_BUCKET_NAME }} --backup-bucket-name ${{ vars.BACKUP_BUCKET_NAME }} --prefect-backend-token ${{ secrets.PREFECT_AUTH_TOML }} --materialization-target ${{ vars.MATERIALIZATION_TARGET }} --materialization-label ${{ vars.MATERIALIZATION_LABEL }}
