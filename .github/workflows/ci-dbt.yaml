@@ -1,0 +1,25 @@
+---
+name: CI dbt
+on:
+  pull_request:
+    branches: [main]
+jobs:
+  lint:
+    name: Lint dbt
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up poetry
+        run: pipx install poetry==1.8.5
+      - name: Set up python
+        uses: actions/setup-python@v4
+        with:
+          cache: poetry
+          python-version: '3.9'
+      - name: Install requirements
+        run: poetry install --only=dev
+      - name: Lint sql
+        run: poetry run sqlfmt --diff .
+      - name: Lint yaml
+        run: poetry run yamlfix --exclude ".kubernetes/**/*" --check .
