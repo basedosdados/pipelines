@@ -1,0 +1,27 @@
+---
+name: Triggers Elementary Models
+on:
+  schedule:
+    - cron: 00 23 * * 1
+  workflow_dispatch:
+jobs:
+  run_elementary_models:
+    name: Run elementary model
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Set up poetry
+        run: pipx install poetry==1.8.5
+      - name: Set up python
+        uses: actions/setup-python@v4
+        with:
+          cache: poetry
+          python-version: '3.9'
+      - name: Install requirements
+        run: poetry install --only=dev
+      - name: Run script to test DBT model
+        run: |-
+          poetry run python .github/workflows/scripts/triggers_flow_execution.py --dataset-id elementary --graphql-url ${{ secrets.BACKEND_GRAPHQL_URL }} --prefect-backend-token ${{ secrets.PREFECT__BACKEND }}
