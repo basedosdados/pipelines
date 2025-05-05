@@ -24,4 +24,4 @@ jobs:
         run: poetry install --only=dev
       - name: Run script to test DBT model
         run: |-
-          poetry run python .github/workflows/scripts/triggers_flow_execution.py --dataset-id elementary --graphql-url ${{ secrets.BACKEND_GRAPHQL_URL }} --prefect-backend-token ${{ secrets.PREFECT__BACKEND }}
+          poetry run python .github/workflows/scripts/triggers_flow_execution.py --dataset-id elementary --graphql-url ${{ secrets.BACKEND_GRAPHQL_URL }} --prefect-backend-token ${{ secrets.PREFECT_AUTH_TOML }}
