@@ -109,6 +109,7 @@ jobs:
               core.setFailed("No pull request found for this commit.");
             } else {
               const pr = prs.data[0];
+              console.log("PR Number", pr.number);
               core.setOutput("pr_number", pr.number);
             }
       - name: Get PR labels
@@ -123,6 +124,7 @@ jobs:
               issue_number: pr_number
             });
             const approved = labels.data.some(label => label.name === "table-approve");
+            console.log("Approved", approved);
             core.setOutput("table-approve", approved);
       - name: Get changed files in PR
         if: steps.check_label.outputs.table-approve == 'true'
