@@ -111,7 +111,7 @@ Crie um variável ambiente `BD_SERVICE_ACCOUNT_DEV` apontado para o arquivo da c
 Abra o arquivo `~/.bashrc` com seu editor ou use `nano ~/.bashrc` e adicione no final do arquivo.
 
 > [!NOTE]  
-> Certifique-se de o arquivo JSON existir. No exemplo abaixo ele está `$HOME/.basedosdados/credentials/staging.json`
+> Certifique-se de o arquivo JSON existir. No exemplo abaixo ele está em `$HOME/.basedosdados/credentials/staging.json`
 
 ```sh
 export BD_SERVICE_ACCOUNT_DEV="$HOME/.basedosdados/credentials/staging.json"
@@ -131,10 +131,10 @@ Salva e feche e execute `exec bash`
 
 ## Pipelines
 
-> [!IMPORTANT]  
-> Se você for escrever um pipeline crie um ramo com prefixo `statging`. Crie usando `git switch -c staging/nome-do-ramo`
-
 Essa seção cobre o desenvolvimento de pipelines. Pipelines são construídas usando o prefect e são para dados com frequência de atualização alta.
+
+> [!IMPORTANT]  
+> Se você for escrever um pipeline crie um ramo com prefixo `staging/`. Crie usando `git switch -c staging/nome-do-ramo`
 
 ### Estrutura de diretorios
 
@@ -301,14 +301,13 @@ Essa seção explica como enviar dados para o datalake da BD.
 
 1. Escolher a base e entender mais dos dados
 2. Preencher as tabelas de arquitetura
-  - As tabelas de arquitetura determinam qual a estrutura de cada tabela do seu conjunto de dados. Elas definem, por exemplo, o nome, ordem e metadados das variáveis, além de compatibilizações quando há mudanças em versões (por exemplo, se uma variável muda de nome de um ano para o outro).
-  - [Template da tabela de arquitetura para preencher](https://docs.google.com/spreadsheets/d/1sReQvLG6s53BUcvfoeQOS6SOvXRGdv1Li1qFD9oWMds/edit?gid=1596237098#gid=1596237098)
-  - Leia o [Manual de estido da BD](https://basedosdados.org/docs/style_data) para preenchher a tabela de arquitetura
-  - Compartilhe a tabela com a equipe de dados da BD para aprovar.
+    - As tabelas de arquitetura determinam qual a estrutura de cada tabela do seu conjunto de dados. Elas definem, por exemplo, o nome, ordem e metadados das variáveis, além de compatibilizações quando há mudanças em versões (por exemplo, se uma variável muda de nome de um ano para o outro).
+    - [Template da tabela de arquitetura para preencher](https://docs.google.com/spreadsheets/d/1sReQvLG6s53BUcvfoeQOS6SOvXRGdv1Li1qFD9oWMds/edit?gid=1596237098#gid=1596237098)
+    - Leia o [Manual de estido da BD](https://basedosdados.org/docs/style_data) para preenchher a tabela de arquitetura
+    - Compartilhe a tabela com a equipe de dados da BD para aprovar.
 3. Escrever codigo de captura e limpeza de dados
-  - Os arquivos devem estar no formato CSV ou Parquet
+    - Os arquivos devem estar no formato CSV ou Parquet
 4. Chave de acesso ao Google Cloud dos voluntários
-
 
 ### Upload dos dados brutos no BigQuery
 
@@ -372,7 +371,7 @@ arch.upload_columns()
 ## Usando o DBT
 
 > [!IMPORTANT]
-> Ative a env com `source .venv/bin/activate` para executar os comandos `dbt`.
+> Ative a venv com `source .venv/bin/activate` para executar os comandos `dbt`.
 
 ### Materializando o modelo no BigQuery
 
@@ -487,7 +486,9 @@ models:
 
 Para tabelas muito grandes é importante que o teste rode apenas nas linhas novas que serão incluidas. Para isso usaremos o config `where` e uma das keywords `__most_recent_year_month__` | `__most_recent_date__` | `__most_recent_year__`
 
-O `where` é inserido a nível do teste e permite inserir lógica SQL para filtrar os dados.
+###### `where` 
+
+É inserido a nível do teste e permite inserir lógica SQL para filtrar os dados.
 
 ```yaml
 models:
@@ -503,7 +504,7 @@ models:
                 where: "date_column = '2024-01-01'"
 ```
 
-`where + keyword`
+###### `where + keyword`
 
 A macro [`custom_get_where_subquery`](macros/custom_get_where_subquery.sql) detecta a presença de uma das keywords acima e executa uma consulta para determinar os valores mais recentes de ano e mês, data ou ano de uma tabela. Em seguida, substitui a keyword declarada pelos valores mais recentes encontrados, o que garante que o teste seja executado apenas nas linhas mais recentes da tabela.
 
