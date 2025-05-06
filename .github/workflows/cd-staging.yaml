@@ -7,7 +7,16 @@ on:
       - .github/workflows/cd_staging.yaml
       - pipelines/**/*
       - pyproject.toml
+      - poetry.lock
       - Dockerfile
+      # dbt files
+      - models/**/*.sql
+      - models/**/*.yml
+      - macros/**/*
+      - tests-dbt/**/*
+      # dbt config files
+      - dbt_project.yml
+      - packages.yml
 env:
   GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
@@ -24,7 +33,7 @@ env:
   VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
 jobs:
   build-container:
-    if: startsWith(github.head_ref, 'staging/')
+    # if: startsWith(github.head_ref, 'staging/')
     name: Register flows (staging)
     runs-on: ubuntu-22.04
     steps:
