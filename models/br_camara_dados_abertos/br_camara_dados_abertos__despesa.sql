@@ -1,4 +1,4 @@
-{{ config(alias="despesa", schema="br_camara_dados_abertos") }}
+{{ config(alias="despesa", schema="br_camara_dados_abertos", materialized="table") }}
 select distinct
     safe_cast(initcap(txnomeparlamentar) as string) nome_parlamentar,
     safe_cast(replace(cpf, ".0", "") as string) cpf,
@@ -43,4 +43,4 @@ select distinct
     safe_cast(datpagamentorestituicao as datetime) data_pagamento_restituicao,
     safe_cast(vlrrestituicao as float64) valor_restituicao,
     safe_cast(urldocumento as string) url_documento,
-from {{ set_datalake_project("br_camara_dados_abertos_staging.despesa") }} as t
+from `basedosdados-staging.br_camara_dados_abertos_staging.despesa` as t

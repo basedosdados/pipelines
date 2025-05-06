@@ -5,46 +5,100 @@
         materialized="table",
     )
 }}
+
+
+with
+    nacionalidade_mais_frequente as (
+        select *
+        from
+            (
+                select
+                    nome_autor as nome_autor_final,
+                    nacionalidade_autor as nacionalidade_autor,
+                    count(1) as n_aparicoes,
+                    row_number() over (
+                        partition by nome_autor order by count(1) desc
+                    ) as rn
+                from
+                    `basedosdados-staging.world_oceanos_mapeamento_staging.historico_inscritos`
+                where nacionalidade_autor is not null
+                group by nome_autor, nacionalidade_autor
+            )
+        where rn = 1
+
+    ),
+
+    pais_mais_frequente as (
+        select *
+        from
+            (
+                select
+                    nome_autor as nome_autor_final,
+                    pais_residencia_autor as nome_pais_autor,
+                    count(1) as n_aparicoes,
+                    row_number() over (
+                        partition by nome_autor order by count(1) desc
+                    ) as rn_pais
+                from
+                    `basedosdados-staging.world_oceanos_mapeamento_staging.historico_inscritos`
+                where pais_residencia_autor is not null
+                group by nome_autor, nome_pais_autor
+            )
+        where rn_pais = 1
+    ),
+
+    pais_editora_mais_frequente as (
+        select *
+        from
+            (
+                select
+                    nome_editora as nome_editora_final_3,
+                    sede_editora as pais_origem_editora,
+                    sigla_pais_iso2,
+                    count(1) as n_aparicoes,
+                    row_number() over (
+                        partition by nome_editora order by count(1) desc
+                    ) as rn_pais_editora
+                from
+                    `basedosdados-staging.world_oceanos_mapeamento_staging.historico_inscritos`
+                    as inscritos
+                left join
+                    `basedosdados.br_bd_diretorios_mundo.pais` as pais
+                    on inscritos.sede_editora = pais.nome
+                where sede_editora is not null
+                group by nome_editora_final_3, pais_origem_editora, sigla_pais_iso2
+            )
+        where rn_pais_editora = 1
+
+    )
+
 select
     safe_cast(ano as int64) ano,
-    safe_cast(id_inscrito as string) id_inscrito,
-    safe_cast(responsavel_inscricao as string) responsavel,
-    safe_cast(nome_responsavel_inscricao as string) nome_responsavel,
     safe_cast(titulo_livro as string) titulo_livro,
-    safe_cast(isbn as string) isbn,
-    safe_cast(genero_livro_categorias as string) genero_livro,
-    safe_cast(nome_pais_primeira_edicao as string) nome_pais_primeira_edicao,
-    safe_cast(tipo_publicacao as string) tipo_publicacao,
-    safe_cast(nome_autor_final as string) autor_nome,
-    safe_cast(genero_autor as string) autor_genero,
-    safe_cast(idade_autor as string) autor_idade,
-    safe_cast(nome_pais_autor as string) autor_nome_pais,
-    safe_cast(nacionaldade_autor as string) autor_nacionalidade,
+    safe_cast(genero_livro as string) genero_livro,
+    safe_cast(pais_primeira_edicao as string) pais_primeira_edicao,
+    safe_cast(inscritos.nome_autor as string) nome_autor,
     safe_cast(
-        indicador_atividade_economica_principal_autor as string
-    ) autor_indicador_atividade_economica_principal,
-    safe_cast(educacao_formal_autor as string) autor_educacao_formal,
-    safe_cast(
-        indicador_publicacao_outras_obras as boolean
-    ) autor_indicador_publicacao_outras_obras,
-    safe_cast(quantidade_obras_publicadas as int64) autor_quantidade_obras_publicadas,
-    safe_cast(nome_editora_final_3 as string) editora_nome,
-    safe_cast(pais_origem_editora as string) editora_pais_origem,
-    safe_cast(local_sede_editora_normalizado as string) editora_local_sede,
-    safe_cast(ano_criacao_editora as int64) editora_ano_criacao,
-    safe_cast(linha_predominante_editora as string) editora_linha_predominante,
-    safe_cast(canal_distribuicao_editora as string) editora_canal_distribuicao,
-    safe_cast(tiragem_edicao_editora as string) editora_tiragem_edicao,
-    safe_cast(financiamento_edicao_editora as string) editora_financiamento_edicao,
-    safe_cast(grupo_financiamento as string) editora_grupo_financiamento,
-    safe_cast(site_editora as string) editora_site,
-    safe_cast(indicador_outras_edicoes as string) indicador_outras_edicoes,
-    safe_cast(nome_editora_outras_edicoes as string) outras_edicoes_nome_editora,
-    safe_cast(ano_publicacao_outras_edicoes as float64) outras_edicoes_ano_publicacao,
-    safe_cast(nome_pais_outras_edicoes as string) outras_edicoes_nome_pais,
-    safe_cast(indicador_semifinalista_2 as string) indicador_semifinalista,
-    safe_cast(indicador_finalista_2 as string) indicador_finalista,
-    safe_cast(indicador_vencedor_2 as string) indicador_vencedor,
+        nacionalidade_mais_frequente.nacionalidade_autor as string
+    ) nacionaldade_autor,
+    safe_cast(genero_autor as string) genero_autor,
+    safe_cast(faixa_etaria_autor as string) faixa_etaria_autor,
+    safe_cast(pais_mais_frequente.nome_pais_autor as string) nome_pais_autor,
+    safe_cast(inscritos.nome_editora as string) nome_editora,
+    safe_cast(sede_editora as string) sede_editora,
+    safe_cast(site_editora as string) site_editora,
+    safe_cast(pais_editora.sigla_pais_iso2 as string) sigla_pais_iso2,
+    safe_cast(indicador_vencedor as string) indicador_vencedor,
+    safe_cast(indicador_finalista as string) indicador_finalista,
+    safe_cast(indicador_semifinalista as string) indicador_semifinalista,
 from
-    {{ set_datalake_project("world_oceanos_mapeamento_staging.historico_inscritos") }}
-    as t
+    `basedosdados-staging.world_oceanos_mapeamento_staging.historico_inscritos` inscritos
+left join
+    nacionalidade_mais_frequente
+    on nacionalidade_mais_frequente.nome_autor_final = inscritos.nome_autor
+left join
+    pais_mais_frequente on pais_mais_frequente.nome_autor_final = inscritos.nome_autor
+left join
+    pais_editora_mais_frequente as pais_editora
+    on pais_editora.nome_editora_final_3 = inscritos.nome_editora
+order by ano desc
