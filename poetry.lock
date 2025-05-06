@@ -276,13 +276,13 @@ files = [
 
 [[package]]
 name = "basedosdados"
-version = "2.0.0b27"
+version = "2.0.2"
 description = "Organizar e facilitar o acesso a dados brasileiros através de tabelas públicas no BigQuery."
 optional = false
 python-versions = "<4,>=3.9"
 files = [
-    {file = "basedosdados-2.0.0b27-py3-none-any.whl", hash = "sha256:ad2ed3868e5a0e00835d417f6a99ae25f884c43683f2016c4e615ef8cfdef801"},
-    {file = "basedosdados-2.0.0b27.tar.gz", hash = "sha256:f1b4df7248899b6757af9dab358333edc093b93ee4bef96eec1363e148225eb6"},
+    {file = "basedosdados-2.0.2-py3-none-any.whl", hash = "sha256:f1f79636e1b25fd452019a32bfd9a297062a05d674b47a2a8367e158a7bdf31d"},
+    {file = "basedosdados-2.0.2.tar.gz", hash = "sha256:7881b1f9218dcb17c0d2fa27da3f2dfec4acdda543ce2a02ee488402475d1bcc"},
 ]
 
 [package.dependencies]
@@ -293,9 +293,8 @@ google-cloud-bigquery-storage = ">=2.19,<3.0"
 google-cloud-storage = ">=2.9,<3.0"
 gql = {version = ">=3.4,<4.0", optional = true, markers = "extra == \"all\" or extra == \"upload\""}
 loguru = ">=0.7.0,<0.8.0"
-numpy = "<2.0.0"
 pandas = ">=2.0,<3.0"
-pandas-gbq = ">=0.19,<0.20"
+pandas-gbq = ">=0.19"
 pandavro = {version = ">=1.7,<2.0", optional = true, markers = "extra == \"all\" or extra == \"avro\""}
 pydata-google-auth = ">=1.8,<2.0"
 requests-toolbelt = {version = ">=1,<2", optional = true, markers = "extra == \"all\" or extra == \"upload\""}
@@ -926,6 +925,28 @@ dataframe = ["numpy (>=1.18)", "pandas (>=1.0)"]
 diagnostics = ["bokeh (>=1.0.0,!=2.0.0)", "jinja2"]
 distributed = ["distributed (==2021.11.2)"]
 test = ["pre-commit", "pytest", "pytest-rerunfailures", "pytest-xdist"]
+
+[[package]]
+name = "databasers-utils"
+version = "0.1.0"
+description = ""
+optional = false
+python-versions = ">=3.9,<4"
+files = []
+develop = false
+
+[package.dependencies]
+basedosdados = {version = "^2.0.2", extras = ["all"]}
+numpy = "^1.26.4"
+pandas = "^2.2.2"
+requests = ">=2.26.0"
+ruamel-yaml = ">=0.17.10"
+
+[package.source]
+type = "git"
+url = "https://github.com/basedosdados/databasers-utils.git"
+reference = "monorepo-migration"
+resolved_reference = "868ea153355dade23be5cfe5b6b25423e2caa2eb"
 
 [[package]]
 name = "dateparser"
@@ -6102,4 +6123,4 @@ heapdict = "*"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.11"
-content-hash = "12ef56afa9e74da5e8c5248150c4328065157e57a7124d74ee7446d431a1d82f"
+content-hash = "83423775376abec43f3e2f0d692262bb1930dd89b234bf9d6a66f0e4c9751c08"
