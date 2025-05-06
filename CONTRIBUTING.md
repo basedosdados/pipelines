@@ -60,16 +60,13 @@ curl https://pyenv.run | bash
 > [!IMPORTANT]
 > Leia atentamente os avisos depois desse comando, existe um passo a passo essencial para que o `pyenv` funcione
 
-Instale a versão 3.10 do `python`
+Instale o `python`
+
+> [!NOTE]
+> `pyenv` vai instalar a versão em [`.python-version`](/.python-version)
 
 ```sh
-pyenv install -v 3.10
-```
-
-Definir essa versão como versão global
-
-```sh
-pyenv global 3.10
+pyenv install
 ```
 
 #### Instale o poetry
@@ -78,17 +75,28 @@ pyenv global 3.10
 curl -sSL https://install.python-poetry.org | POETRY_VERSION=1.8.5 python3 -
 ```
 
-Crie o ambiente virtual ou ative se já existir
+Configure o poetry para criar o ambiente virtual (venv) no projeto
+
+```sh
+poetry config virtualenvs.in-project true
+```
+
+Crie o ambiente virtual e/ou ative se já existir
 
 ```sh
 poetry shell
 ```
 
+> [!TIP]
+> Existe duas forma de ativar um ambiente virtual (venv). Usando `source .venv/bin/activate` (Linux/MacOS) ou `poetry shell`
+> Para desativar o ambiente virtual usando `source` use o command `deactivate`, se você usou `poetry shell` use `exit`
+
 #### Instalar as dependências
 
 ```sh
-poetry install --with dev --no-root
+poetry install --with dev --with test --no-root
 ```
+
 > [!WARNING]
 > Caso a instalação do `poetry` de erro no pacote do `R`, recomendado rodar a seguinte linha para instalar o R-base `sudo apt -y install r-base`
 
@@ -110,7 +118,7 @@ Crie um variável ambiente `BD_SERVICE_ACCOUNT_DEV` apontado para o arquivo da c
 
 Abra o arquivo `~/.bashrc` com seu editor ou use `nano ~/.bashrc` e adicione no final do arquivo.
 
-> [!NOTE]  
+> [!NOTE]
 > Certifique-se de o arquivo JSON existir. No exemplo abaixo ele está em `$HOME/.basedosdados/credentials/staging.json`
 
 ```sh
@@ -133,7 +141,7 @@ Salva e feche e execute `exec bash`
 
 Essa seção cobre o desenvolvimento de pipelines. Pipelines são construídas usando o prefect e são para dados com frequência de atualização alta.
 
-> [!IMPORTANT]  
+> [!IMPORTANT]
 > Se você for escrever um pipeline crie um ramo com prefixo `staging/`. Crie usando `git switch -c staging/nome-do-ramo`
 
 ### Estrutura de diretorios
@@ -486,7 +494,7 @@ models:
 
 Para tabelas muito grandes é importante que o teste rode apenas nas linhas novas que serão incluidas. Para isso usaremos o config `where` e uma das keywords `__most_recent_year_month__` | `__most_recent_date__` | `__most_recent_year__`
 
-###### `where` 
+###### `where`
 
 É inserido a nível do teste e permite inserir lógica SQL para filtrar os dados.
 
