@@ -2,7 +2,7 @@
 name: Register flows (staging)
 on:
   pull_request:
-    branches: [main]
+    branches: [main, staging/migration_dbt]
     paths:
       - .github/workflows/cd_staging.yaml
       - pipelines/**/*
