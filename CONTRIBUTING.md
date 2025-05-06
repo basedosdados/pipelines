@@ -16,14 +16,14 @@ Neste documento, mostra-se como configurar o ambiente e desenvolver novas featur
 
 ### Requisitos
 
+> [!WARNING]
+> Você precisa ter uma conta no [GitHub](https://github.com/) e ter o `git` configurado.
+
 - Um editor de texto (recomendado [VS Code](https://code.visualstudio.com/))
 - WSL 2, apenas para usuários Windows
 - [`git`](https://git-scm.com/)
 - [`pyenv`](https://github.com/pyenv/pyenv): Para gerenciar versões do `python`
 - [`poetry`](https://python-poetry.org/): Para gerenciar as dependências
-
-> [!WARNING]
-> Você precisa ter uma conta no [GitHub](https://github.com/) e ter o `git` configurado.
 
 Clone esse repositório
 
@@ -88,7 +88,7 @@ poetry shell
 ```
 
 > [!TIP]
-> Existe duas forma de ativar um ambiente virtual (venv). Usando `source .venv/bin/activate` (Linux/MacOS) ou `poetry shell`
+> Existe duas forma de ativar um ambiente virtual (venv). Usando `source .venv/bin/activate` (Linux/MacOS) ou `poetry shell`.
 > Para desativar o ambiente virtual usando `source` use o command `deactivate`, se você usou `poetry shell` use `exit`
 
 #### Instalar as dependências
