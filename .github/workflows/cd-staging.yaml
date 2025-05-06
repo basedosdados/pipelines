@@ -145,6 +145,9 @@ jobs:
               .join(', ');
             console.log("Changed files:", fileNames);
             core.setOutput("files", fileNames);
+      - name: Checkout
+        if: steps.check_label.outputs.table-approve == 'true'
+        uses: actions/checkout@v4
       - name: Set up poetry
         if: steps.check_label.outputs.table-approve == 'true'
         run: pipx install poetry==1.8.5
