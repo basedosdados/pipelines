@@ -80,10 +80,9 @@ jobs:
       - name: Delete archieved flow runs
         run: poetry run python .github/workflows/scripts/delete_archieved_flow_runs.py
   table-approve:
-    if: contains(github.event.pull_request.labels.*.name, 'table-approve')
     needs: build-container
     name: Table approve
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Get PR that triggered the push
         id: get_pr
