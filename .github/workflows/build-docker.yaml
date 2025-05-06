@@ -2,7 +2,7 @@
 name: Build Docker image
 on:
   push:
-    branches: [main]
+    branches: [main, staging/migration_dbt]
     paths:
       - .github/workflows/cd.yaml
       - pipelines/**/*
@@ -10,9 +10,13 @@ on:
       - macros/**/*
       - tests-dbt/**/*
       - pyproject.toml
+      - poetry.lock
       - Dockerfile
+      # DBT config files
+      - dbt_project.yml
+      - packages.yml
   pull_request:
-    branches: [main]
+    branches: [main, staging/migration_dbt]
     paths:
       - .github/workflows/cd_staging.yaml
       - .github/workflows/build-docker.yaml
@@ -21,7 +25,11 @@ on:
       - macros/**/*
       - tests-dbt/**/*
       - pyproject.toml
+      - poetry.lock
       - Dockerfile
+      # DBT config files
+      - dbt_project.yml
+      - packages.yml
 env:
   GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
