@@ -87,8 +87,10 @@ async def fetch(session: aiohttp.ClientSession, url: str) -> Dict[str, Any]:  # 
 
 
 async def main(
-    years: List[int], variables: List[str], categories: List[str]
-) -> None:  # noqa: F821
+    years: List[int],  # noqa: F821
+    variables: List[str],  # noqa: F821
+    categories: List[str],  # noqa: F821
+) -> None:
     """
     Faz requisições para a API para cada ano, variável e categoria, salvando as respostas em arquivos JSON.
 

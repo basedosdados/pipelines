@@ -149,8 +149,8 @@ tx_trans_updated["NU_ANO_CENSO"] = tx_trans_updated["NU_ANO_CENSO"].str.split(
 
 # tx_trans_updated["ano_de"] = tx_trans_updated["NU_ANO_CENSO"].apply(lambda l: int(l[0]))
 tx_trans_updated["ano"] = tx_trans_updated["NU_ANO_CENSO"].apply(
-    lambda l: int(l[1])
-)  # noqa: E741
+    lambda l: int(l[1])  # noqa: E741
+)
 
 tx_trans_updated = tx_trans_updated.drop(columns=["NU_ANO_CENSO"])
 

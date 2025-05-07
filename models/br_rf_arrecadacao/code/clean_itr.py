@@ -20,10 +20,10 @@ def change_types(df):
     df["mes"] = get_month_number(df["mes"])  # noqa: F405
     df["valor_arrecadado"] = (
         df["valor_arrecadado"]
-        .apply(replace_commas)
-        .apply(remove_dots)
+        .apply(replace_commas)  # noqa: F405
+        .apply(remove_dots)  # noqa: F405
         .astype("float")
-    )  # noqa: F405
+    )
 
     return df
 
@@ -51,8 +51,8 @@ if __name__ == "__main__":
     df = format_state(df)
     df = format_region(df)
     df = format_city(df)
-    save_data(
+    save_data(  # noqa: F405
         df=df,
         file_dir="../output/br_rf_arrecadacao_itr",
         partition_cols=["ano", "mes"],
-    )  # noqa: F405
+    )

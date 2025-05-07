@@ -38,8 +38,8 @@ def change_types(df):
     # All remaining columns are monetary values
     for col in df.columns[4:]:
         df[col] = (
-            df[col].apply(replace_commas).apply(remove_dots).astype("float")
-        )  # noqa: F405
+            df[col].apply(replace_commas).apply(remove_dots).astype("float")  # noqa: F405
+        )
 
     return df
 
@@ -50,8 +50,8 @@ if __name__ == "__main__":
     df = remove_empty_columns(df)  # noqa: F405
     df = rename_columns(df)
     df = change_types(df)
-    save_data(
+    save_data(  # noqa: F405
         df=df,
         file_dir="../output/br_rf_arrecadacao_natureza_juridica",
         partition_cols=["ano", "mes"],
-    )  # noqa: F405
+    )
