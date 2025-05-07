@@ -16,7 +16,7 @@ repos:
     rev: v0.9.3
     hooks:
       - id: ruff
-        args: [--fix, --exclude, models/]
+        args: [--fix]
       - id: ruff-format
   - repo: https://github.com/lyz-code/yamlfix/
     rev: 1.17.0
