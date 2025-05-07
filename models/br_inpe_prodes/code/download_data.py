@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-import requests
 import concurrent.futures
-from itertools import product
 import os
+from itertools import product
+
+import requests
 
 
 class DownloaderBrInpeProdes:
-
     def __init__(self, year: int):
         self.year = year
         url_base = f"http://www.dpi.inpe.br/prodesdigital/tabelatxt.php?ano={self.year}"
@@ -16,7 +16,7 @@ class DownloaderBrInpeProdes:
             "Cerrado": f"{url_base}&estado=&bioma=Cerrado&ordem=municipio&type=tabela&output=txt&",
             "Mata Atlântica": f"{url_base}&estado=&bioma=Mata%20Atl%C3%A2ntica&ordem=municipio&type=tabela&output=txt&",
             "Pampa": f"{url_base}&estado=&bioma=Pampa&ordem=municipio&type=tabela&output=txt&",
-            "Pantanal": f"{url_base}&estado=&bioma=Pantanal&ordem=municipio&type=tabela&output=txt&"
+            "Pantanal": f"{url_base}&estado=&bioma=Pantanal&ordem=municipio&type=tabela&output=txt&",
         }
 
     def url(self, bioma: str) -> str:
@@ -40,9 +40,17 @@ def start_downloader(info: tuple) -> None:
 
 def download_all_biomas_data() -> None:
     years = range(2000, 2025)
-    biomas_names = ['Amazônia', 'Caatinga', 'Cerrado', 'Mata Atlântica', 'Pampa', 'Pantanal']
+    biomas_names = [
+        "Amazônia",
+        "Caatinga",
+        "Cerrado",
+        "Mata Atlântica",
+        "Pampa",
+        "Pantanal",
+    ]
     with concurrent.futures.ThreadPoolExecutor() as executor:
         executor.map(start_downloader, product(years, biomas_names))
+
 
 if __name__ == "__main__":
     download_all_biomas_data()

@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import os
+import zipfile
+
 import basedosdados as bd
 import pandas as pd
-import zipfile
 
 URLS = [
     "https://download.inep.gov.br/informacoes_estatisticas/indicadores_educacionais/taxa_transicao/tx_transicao_municipios_2018_2019.zip",
@@ -40,7 +41,10 @@ folders = [
 ]
 
 files = [
-    os.path.join(f, i) for f in folders for i in os.listdir(f) if i.endswith(".xlsx")
+    os.path.join(f, i)
+    for f in folders
+    for i in os.listdir(f)
+    if i.endswith(".xlsx")
 ]
 
 municipio_updated = pd.concat([pd.read_excel(f, skiprows=8) for f in files])
@@ -119,15 +123,19 @@ municipio_updated = municipio_updated.drop(
     columns=["NO_REGIAO", "NO_UF", "NO_MUNICIPIO"]
 ).rename(columns=renames)
 
-municipio_updated = municipio_updated.loc[municipio_updated["id_municipio"].notna(),]
+municipio_updated = municipio_updated.loc[
+    municipio_updated["id_municipio"].notna(),
+]
 
-municipio_updated["NU_ANO_CENSO"] = municipio_updated["NU_ANO_CENSO"].str.split("/")
+municipio_updated["NU_ANO_CENSO"] = municipio_updated[
+    "NU_ANO_CENSO"
+].str.split("/")
 
 municipio_updated["ano_de"] = municipio_updated["NU_ANO_CENSO"].apply(
-    lambda l: int(l[0])
+    lambda l: int(l[0])  # noqa: E741
 )
 municipio_updated["ano_para"] = municipio_updated["NU_ANO_CENSO"].apply(
-    lambda l: int(l[1])
+    lambda l: int(l[1])  # noqa: E741
 )
 
 municipio_updated = municipio_updated.drop(columns=["NU_ANO_CENSO"])
@@ -157,4 +165,6 @@ for ano_para, df in pd.concat(
 ).groupby("ano_para"):
     path = os.path.join(municipio_output_path, f"ano={ano_para}")
     os.makedirs(path, exist_ok=True)
-    df.drop(columns=["ano_para"]).to_csv(os.path.join(path, "data.csv"), index=False)
+    df.drop(columns=["ano_para"]).to_csv(
+        os.path.join(path, "data.csv"), index=False
+    )

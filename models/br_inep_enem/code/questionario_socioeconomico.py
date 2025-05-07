@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
-import pandas as pd
-import numpy as np
 import os
-import requests
-import gc
 import warnings
-from io import StringIO
+
+import pandas as pd
 
 warnings.filterwarnings("ignore")
+
 
 def read_csv_enem_questionario():
     valor = 0
@@ -55,9 +53,20 @@ def read_csv_enem_questionario():
 
         if not os.path.exists(path):
             os.makedirs(path)
-            df.to_csv(os.path.join(path, "questionario_socioeconomico_2023.csv"), index=False, mode="a", header=True)
+            df.to_csv(
+                os.path.join(path, "questionario_socioeconomico_2023.csv"),
+                index=False,
+                mode="a",
+                header=True,
+            )
 
         elif os.path.exists(path):
-            df.to_csv(os.path.join(path, "questionario_socioeconomico_2023.csv"), index=False, mode="a", header=False)
+            df.to_csv(
+                os.path.join(path, "questionario_socioeconomico_2023.csv"),
+                index=False,
+                mode="a",
+                header=False,
+            )
+
 
 read_csv_enem_questionario()

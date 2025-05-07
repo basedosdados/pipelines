@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 import os
+
 import basedosdados as bd
 import pandas as pd
 from utils import (
     RENAMES_BR,
-    get_nivel_serie_disciplina,
-    get_disciplina_serie,
     convert_to_pd_dtype,
-    drop_empty_lines
+    drop_empty_lines,
+    get_disciplina_serie,
+    get_nivel_serie_disciplina,
 )
 
 CWD = os.path.dirname(os.getcwd())
@@ -42,7 +43,9 @@ br_saeb_nivel_long_fmt = pd.melt(
         "localizacao",
     ],
     value_vars=[
-        col for col in br_saeb_latest.columns.tolist() if col.startswith("nivel")
+        col
+        for col in br_saeb_latest.columns.tolist()
+        if col.startswith("nivel")
     ],
 )
 
@@ -53,7 +56,9 @@ br_saeb_media_long_fmt = pd.melt(
         "localizacao",
     ],
     value_vars=[
-        col for col in br_saeb_latest.columns.tolist() if col.startswith("media")
+        col
+        for col in br_saeb_latest.columns.tolist()
+        if col.startswith("media")
     ],
 )
 
@@ -72,7 +77,9 @@ br_saeb_media_long_fmt = (
 
 br_saeb_nivel_long_fmt = (
     br_saeb_nivel_long_fmt.assign(
-        parsed_variable=lambda df: df["variable"].apply(get_nivel_serie_disciplina)
+        parsed_variable=lambda df: df["variable"].apply(
+            get_nivel_serie_disciplina
+        )
     )
     .assign(
         nivel=lambda df: df["parsed_variable"].apply(lambda v: v[0]),
@@ -112,8 +119,9 @@ br_saeb_latest_output["rede"].unique()
 
 br_saeb_latest_output = (
     # apenas MT e LP
-    br_saeb_latest_output.loc[br_saeb_latest_output["disciplina"].isin(["mt", "lp"])]
-    .assign(
+    br_saeb_latest_output.loc[
+        br_saeb_latest_output["disciplina"].isin(["mt", "lp"])
+    ].assign(
         disciplina=lambda df: df["disciplina"].str.upper(),
         rede=lambda df: df["rede"].str.lower(),
         localizacao=lambda df: df["localizacao"].str.lower(),
@@ -149,7 +157,9 @@ col_dtypes = {
 }
 
 # Order columns
-br_saeb_latest_output = br_saeb_latest_output.astype(col_dtypes)[col_dtypes.keys()]
+br_saeb_latest_output = br_saeb_latest_output.astype(col_dtypes)[
+    col_dtypes.keys()
+]
 
 upstream_df = bd.read_sql(
     "select * from `basedosdados-dev.br_inep_saeb.brasil` where ano <> 2021",

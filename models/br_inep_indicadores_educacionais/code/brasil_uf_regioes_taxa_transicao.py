@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import os
+import zipfile
+
 import basedosdados as bd
 import pandas as pd
-import zipfile
 
 URLS = [
     "https://download.inep.gov.br/informacoes_estatisticas/indicadores_educacionais/taxa_transicao/tx_transicao_brasil_regioes_ufs_2019_2020.zip",
@@ -142,10 +143,14 @@ tx_trans_updated = tx_trans_updated.loc[
     tx_trans_updated["NU_ANO_CENSO"].isin(["2019/2020", "2020/2021"]),
 ]
 
-tx_trans_updated["NU_ANO_CENSO"] = tx_trans_updated["NU_ANO_CENSO"].str.split("/")
+tx_trans_updated["NU_ANO_CENSO"] = tx_trans_updated["NU_ANO_CENSO"].str.split(
+    "/"
+)
 
 # tx_trans_updated["ano_de"] = tx_trans_updated["NU_ANO_CENSO"].apply(lambda l: int(l[0]))
-tx_trans_updated["ano"] = tx_trans_updated["NU_ANO_CENSO"].apply(lambda l: int(l[1]))
+tx_trans_updated["ano"] = tx_trans_updated["NU_ANO_CENSO"].apply(
+    lambda l: int(l[1])
+)  # noqa: E741
 
 tx_trans_updated = tx_trans_updated.drop(columns=["NU_ANO_CENSO"])
 

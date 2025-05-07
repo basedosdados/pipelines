@@ -8,9 +8,10 @@ São duas tabelas:
 - uf_taxa_alfabetizacao
 """
 
-import pandas as pd
-import basedosdados as bd
 import os
+
+import basedosdados as bd
+import pandas as pd
 
 os.getcwd()
 
@@ -26,7 +27,9 @@ os.system(f"cd {INPUT}; curl -O -k {URL}")
 
 # Brasil
 
-df_br = pd.read_excel(os.path.join(INPUT, os.path.basename(URL)), sheet_name="Brasil")
+df_br = pd.read_excel(
+    os.path.join(INPUT, os.path.basename(URL)), sheet_name="Brasil"
+)
 
 df_br.columns
 
@@ -72,7 +75,9 @@ pd.concat([df_br_from_bigquery, df_br]).to_csv(  # type: ignore
 
 # Estados
 
-df_ufs = pd.read_excel(os.path.join(INPUT, os.path.basename(URL)), sheet_name="Estados")
+df_ufs = pd.read_excel(
+    os.path.join(INPUT, os.path.basename(URL)), sheet_name="Estados"
+)
 
 df_ufs["DEPENDENCIA_ADM"] = df_ufs["DEPENDENCIA_ADM"].str.lower()
 
@@ -85,7 +90,9 @@ bd_dirs_ufs = bd.read_sql(
     billing_project_id="basedosdados-dev",
 )
 
-uf_map = dict([(i["nome"], i["sigla"]) for i in bd_dirs_ufs.to_dict("records")])  # type: ignore
+uf_map = dict(
+    [(i["nome"], i["sigla"]) for i in bd_dirs_ufs.to_dict("records")]
+)  # type: ignore
 
 df_ufs["NO_UF"].unique()
 
@@ -120,7 +127,9 @@ pd.concat([df_ufs_from_bigquery, df_ufs]).to_csv(  # type: ignore
 
 ## Brasil
 
-tb_br = bd.Table(dataset_id="br_inep_saeb", table_id="brasil_taxa_alfabetizacao")
+tb_br = bd.Table(
+    dataset_id="br_inep_saeb", table_id="brasil_taxa_alfabetizacao"
+)
 tb_br.create(os.path.join(OUTPUT, "brasil_taxa_alfabetizacao.csv"))
 
 

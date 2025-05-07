@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-import pandas as pd
-import numpy as np
 import os
 import zipfile
+
 import basedosdados as bd
+import numpy as np
+import pandas as pd
 
 ROOT = os.path.join("models", "br_inep_ideb")
 INPUT = os.path.join(ROOT, "input")
@@ -75,7 +76,9 @@ df = df.loc[df["sigla_uf"].isin(br_dirs["nome"].tolist())]
 
 assert len(df["sigla_uf"].unique()) == 27
 
-replaces_name_sigla_uf = {i["nome"]: i["sigla"] for i in br_dirs.to_dict("records")}
+replaces_name_sigla_uf = {
+    i["nome"]: i["sigla"] for i in br_dirs.to_dict("records")
+}
 
 df["sigla_uf"] = df["sigla_uf"].replace(replaces_name_sigla_uf)
 

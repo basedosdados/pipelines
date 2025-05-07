@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 import os
-import zipfile
-import pandas as pd
+
 import basedosdados as bd
-import numpy as np
+import pandas as pd
 
-
-INPUT = os.path.join(os.getcwd(), "br_inep_sinopse_estatistica_educacao_basica/input")
-OUTPUT = os.path.join(os.getcwd(), "br_inep_sinopse_estatistica_educacao_basica/output")
+INPUT = os.path.join(
+    os.getcwd(), "br_inep_sinopse_estatistica_educacao_basica/input"
+)
+OUTPUT = os.path.join(
+    os.getcwd(), "br_inep_sinopse_estatistica_educacao_basica/output"
+)
 
 # os.makedirs(INPUT, exist_ok=True)
 # os.makedirs(OUTPUT, exist_ok=True)
@@ -79,7 +81,7 @@ RENAMES_ETAPA_ENSINO_SERIE = {
         "Estadual": " Total_Estadual",
         "Municipal": " Total_Municipal",
         "Privada": " Total_Privada",
-        "Pública": "Urbana_Pública",
+        "Pública": "Urbana_Pública",  # noqa: F601
         "Federal.1": "Urbana_Federal",
         "Estadual.1": "Urbana_Estadual",
         "Municipal.1": "Urbana_Municipal",
@@ -314,89 +316,99 @@ localizacao = {
     },
     "educacao_infantil": {
         "dicionario": RENAMES_ETAPA_ENSINO_SERIE["Educação Infantil"],
-        #"chave": "2.6",  # Para o ano de 2010
-        "chave": "2.7", # 2011 em frente
+        # "chave": "2.6",  # Para o ano de 2010
+        "chave": "2.7",  # 2011 em frente
         "valor": "Educação Infantil",
         "skiprows": 8,
         "table": "docente_localizacao",
     },
     "ensino_infantil_creche": {
         "dicionario": RENAMES_ETAPA_ENSINO_SERIE["Educação Infantil - Creche"],
-        #"chave": "Creche 2.7",  # Para o ano de 2010
-        "chave": "Creche 2.8", # 2011 em frente
+        # "chave": "Creche 2.7",  # Para o ano de 2010
+        "chave": "Creche 2.8",  # 2011 em frente
         "valor": "Educação Infantil - Creche",
         "skiprows": 8,
         "table": "docente_localizacao",
     },
     "educacao_infantil_pre_escola": {
-        "dicionario": RENAMES_ETAPA_ENSINO_SERIE["Educação Infantil - Pré-Escola"],
-        #"chave": "Pré-Escola 2.10",  # Para o ano de 2010
-        "chave": "Pré-Escola 2.12", # 2011 em frente
+        "dicionario": RENAMES_ETAPA_ENSINO_SERIE[
+            "Educação Infantil - Pré-Escola"
+        ],
+        # "chave": "Pré-Escola 2.10",  # Para o ano de 2010
+        "chave": "Pré-Escola 2.12",  # 2011 em frente
         "valor": "Educação Infantil - Pré-Escola",
         "skiprows": 8,
         "table": "docente_localizacao",
     },
     "ensino_fundamental": {
         "dicionario": RENAMES_ETAPA_ENSINO_SERIE["Ensino Fundamental"],
-        "chave": "2.17", # 2011 em frente
-        #"chave": "2.14",  # Para o ano de 2010
+        "chave": "2.17",  # 2011 em frente
+        # "chave": "2.14",  # Para o ano de 2010
         "valor": "Ensino Fundamental",
         "skiprows": 8,
         "table": "docente_localizacao",
     },
     "ensino_fundamental_anos_iniciais": {
-        "dicionario": RENAMES_ETAPA_ENSINO_SERIE["Ensino Fundamental - Anos Iniciais"],
-        "chave": "Anos Iniciais 2.21", # 2011 em frente
-        #"chave": "Anos Iniciais 2.17",  # Para o ano de 2010
+        "dicionario": RENAMES_ETAPA_ENSINO_SERIE[
+            "Ensino Fundamental - Anos Iniciais"
+        ],
+        "chave": "Anos Iniciais 2.21",  # 2011 em frente
+        # "chave": "Anos Iniciais 2.17",  # Para o ano de 2010
         "valor": "Ensino Fundamental - Anos Iniciais",
         "skiprows": 8,
         "table": "docente_localizacao",
     },
     "ensino_fundamental_anos_finais": {
-        "dicionario": RENAMES_ETAPA_ENSINO_SERIE["Ensino Fundamental - Anos Finais"],
-        "chave": "Anos Finais 2.25", # 2011 em frente
-        #"chave": "Anos Finais 2.20",  # Para o ano de 2010
+        "dicionario": RENAMES_ETAPA_ENSINO_SERIE[
+            "Ensino Fundamental - Anos Finais"
+        ],
+        "chave": "Anos Finais 2.25",  # 2011 em frente
+        # "chave": "Anos Finais 2.20",  # Para o ano de 2010
         "valor": "Ensino Fundamental - Anos Finais",
         "skiprows": 8,
         "table": "docente_localizacao",
     },
     "ensino_medio": {
         "dicionario": RENAMES_ETAPA_ENSINO_SERIE["Ensino Médio"],
-        "chave": "Ensino Médio 2.29", # 2011 em frente
-        #"chave": "Ensino Médio 2.23",  # Para o ano de 2010
+        "chave": "Ensino Médio 2.29",  # 2011 em frente
+        # "chave": "Ensino Médio 2.23",  # Para o ano de 2010
         "valor": "Ensino Médio",
         "skiprows": 8,
         "table": "docente_localizacao",
     },
     "educacao_profissional": {
         "dicionario": RENAMES_ETAPA_ENSINO_SERIE["Educação Profissional"],
-        "chave": "2.34", # 2011 em frente
-        #"chave": "2.27",  # Para o ano de 2010
+        "chave": "2.34",  # 2011 em frente
+        # "chave": "2.27",  # Para o ano de 2010
         "valor": "Educação Profissional",
         "skiprows": 8,
         "table": "docente_localizacao",
     },
     "EJA": {
         "dicionario": RENAMES_ETAPA_ENSINO_SERIE["EJA"],
-        "chave": "2.39", # 2011 em frente
-        #"chave": "2.31",  # Para o ano de 2010
+        "chave": "2.39",  # 2011 em frente
+        # "chave": "2.31",  # Para o ano de 2010
         "valor": "EJA",
         "skiprows": 8,
         "table": "docente_localizacao",
     },
     "educacao_especial_classes_comuns": {
-        "dicionario": RENAMES_ETAPA_ENSINO_SERIE["Educação Especial - Classes Comuns"],
-        "chave": "2.45", # 2011 em frente
-        #"chave": "2.36",  # Para o ano de 2010
+        "dicionario": RENAMES_ETAPA_ENSINO_SERIE[
+            "Educação Especial - Classes Comuns"
+        ],
+        "chave": "2.45",  # 2011 em frente
+        # "chave": "2.36",  # Para o ano de 2010
         "valor": "Educação Especial - Classes Comuns",
         "skiprows": 8,
         "table": "docente_localizacao",
     },
     "educacao_especial_classes_exclusivas": {
-        "dicionario": RENAMES_ETAPA_ENSINO_SERIE["Educação Especial - Classes Exclusivas"],
+        "dicionario": RENAMES_ETAPA_ENSINO_SERIE[
+            "Educação Especial - Classes Exclusivas"
+        ],
         "chave": "2.51",
-        #"chave": "2.50",  # Para o ano de 2011
-        #"chave": "2.40",  # Para o ano de 2010
+        # "chave": "2.50",  # Para o ano de 2011
+        # "chave": "2.40",  # Para o ano de 2010
         "valor": "Educação Especial - Classes Exclusivas",
         "skiprows": 8,
         "table": "docente_localizacao",
@@ -405,7 +417,12 @@ localizacao = {
 
 
 def read_sheet(
-    table: str, ano: int, chave: str, valor: str, dicionario: dict, skiprows: int = 9
+    table: str,
+    ano: int,
+    chave: str,
+    valor: str,
+    dicionario: dict,
+    skiprows: int = 9,
 ) -> pd.DataFrame:
     print("Tratando dados de", valor, ano)
     path_excel = os.path.join(
@@ -447,14 +464,18 @@ def read_sheet(
         return df.drop(columns=cols_drop)
 
     dfs_localizacao = {
-        name: drop_unused_columns(df.rename(columns=dicionario, errors="raise"))
+        name: drop_unused_columns(
+            df.rename(columns=dicionario, errors="raise")
+        )
         for name, df in df_localizacao.items()
     }
 
     df_localizacao = pd.concat(
         [
             df.pipe(
-                lambda d: d.loc[(d["id_municipio"].notna()) & (d["id_municipio"] != " "),]
+                lambda d: d.loc[
+                    (d["id_municipio"].notna()) & (d["id_municipio"] != " "),
+                ]
             )
             .pipe(
                 lambda d: pd.melt(
@@ -484,16 +505,24 @@ def read_sheet(
         .replace({i["nome"]: i["sigla"] for i in bd_dir.to_dict("records")})  # type: ignore
     )
 
-    df_localizacao = df_localizacao.rename(columns={"uf": "sigla_uf"}, errors="raise")
+    df_localizacao = df_localizacao.rename(
+        columns={"uf": "sigla_uf"}, errors="raise"
+    )
 
-    df_localizacao["rede"] = df_localizacao["localizacao"].apply(lambda v: v.split("_")[-1])
+    df_localizacao["rede"] = df_localizacao["localizacao"].apply(
+        lambda v: v.split("_")[-1]
+    )
 
     df_localizacao["localizacao"] = df_localizacao["localizacao"].apply(
         lambda v: v.split("_")[0]
     )
-    df_localizacao["localizacao"] = df_localizacao["localizacao"].apply(lambda x: x.strip())
+    df_localizacao["localizacao"] = df_localizacao["localizacao"].apply(
+        lambda x: x.strip()
+    )
 
-    df_localizacao["quantidade_docente"] = df_localizacao["quantidade_docente"].astype(int)
+    df_localizacao["quantidade_docente"] = df_localizacao[
+        "quantidade_docente"
+    ].astype(int)
 
     df_localizacao = df_localizacao[
         [
@@ -508,7 +537,9 @@ def read_sheet(
 
     print("Particionando dados")
     for sigla_uf, df in df_localizacao.groupby("sigla_uf"):
-        path = os.path.join(OUTPUT, f"{table}", f"ano={ano}", f"sigla_uf={sigla_uf}")
+        path = os.path.join(
+            OUTPUT, f"{table}", f"ano={ano}", f"sigla_uf={sigla_uf}"
+        )
         if not os.path.exists(path):
             os.makedirs(path, exist_ok=True)
             df.drop(columns=["sigla_uf"]).to_csv(
@@ -516,8 +547,13 @@ def read_sheet(
             )
         else:
             df.drop(columns=["sigla_uf"]).to_csv(
-                os.path.join(path, "data.csv"), index=False, mode="a", header=False
+                os.path.join(path, "data.csv"),
+                index=False,
+                mode="a",
+                header=False,
             )
+
+
 if __name__ == "__main__":
     lista = [
         "educacao_basica",
@@ -531,7 +567,7 @@ if __name__ == "__main__":
         "educacao_profissional",
         "EJA",
         "educacao_especial_classes_comuns",
-        "educacao_especial_classes_exclusivas"
+        "educacao_especial_classes_exclusivas",
     ]
 
     for x in lista:

@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 import os
+
 import basedosdados as bd
 import pandas as pd
 from utils import (
     RENAMES_UFS,
-    get_nivel_serie_disciplina,
-    get_disciplina_serie,
     convert_to_pd_dtype,
     drop_empty_lines,
+    get_disciplina_serie,
+    get_nivel_serie_disciplina,
 )
 
 CWD = os.path.dirname(os.getcwd())
@@ -43,7 +44,9 @@ ufs_saeb_nivel_long_fmt = pd.melt(
         "localizacao",
     ],
     value_vars=[
-        col for col in ufs_saeb_latest.columns.tolist() if col.startswith("nivel")
+        col
+        for col in ufs_saeb_latest.columns.tolist()
+        if col.startswith("nivel")
     ],
 )
 
@@ -55,7 +58,9 @@ ufs_saeb_media_long_fmt = pd.melt(
         "localizacao",
     ],
     value_vars=[
-        col for col in ufs_saeb_latest.columns.tolist() if col.startswith("media")
+        col
+        for col in ufs_saeb_latest.columns.tolist()
+        if col.startswith("media")
     ],
 )
 
@@ -73,7 +78,9 @@ ufs_saeb_media_long_fmt = (
 
 ufs_saeb_nivel_long_fmt = (
     ufs_saeb_nivel_long_fmt.assign(
-        parsed_variable=lambda df: df["variable"].apply(get_nivel_serie_disciplina)
+        parsed_variable=lambda df: df["variable"].apply(
+            get_nivel_serie_disciplina
+        )
     )
     .assign(
         nivel=lambda df: df["parsed_variable"].apply(lambda v: v[0]),
@@ -118,7 +125,9 @@ bd_dirs_ufs = bd.read_sql(
 
 ufs_saeb_latest_output = (
     # Apenas MT e LP. Não sei porque não subiram outras disciplinas
-    ufs_saeb_latest_output.loc[ufs_saeb_latest_output["disciplina"].isin(["mt", "lp"])]
+    ufs_saeb_latest_output.loc[
+        ufs_saeb_latest_output["disciplina"].isin(["mt", "lp"])
+    ]
     .assign(
         disciplina=lambda df: df["disciplina"].str.upper(),
         rede=lambda df: df["rede"].str.lower(),
@@ -134,7 +143,12 @@ ufs_saeb_latest_output = (
             }
         ),
         sigla_uf=lambda df: df["nome_uf"].replace(
-            dict([(i["nome"], i["sigla"]) for i in bd_dirs_ufs.to_dict("records")])  # type: ignore
+            dict(
+                [
+                    (i["nome"], i["sigla"])
+                    for i in bd_dirs_ufs.to_dict("records")
+                ]
+            )  # type: ignore
         ),
     )
     .drop(columns=["nome_uf"])
@@ -164,7 +178,9 @@ col_dtypes = {
 }
 
 # Order columns
-ufs_saeb_latest_output = ufs_saeb_latest_output.astype(col_dtypes)[col_dtypes.keys()]
+ufs_saeb_latest_output = ufs_saeb_latest_output.astype(col_dtypes)[
+    col_dtypes.keys()
+]
 
 upstream_df = bd.read_sql(
     "select * from `basedosdados-dev.br_inep_saeb.uf` where ano <> 2021",

@@ -1,14 +1,18 @@
 # -*- coding: utf-8 -*-
-import pandas as pd
-import numpy as np
-import requests
-import zipfile
 import io
 import os
+import zipfile
 from pathlib import Path
-import basedosdados as bd
 
-from pirls_utils import LABELS_FROM_CONTEXT_QUESTIONNAIRES, COUNTRY_CODES, RENAMES
+import basedosdados as bd
+import numpy as np
+import pandas as pd
+import requests
+from pirls_utils import (
+    COUNTRY_CODES,
+    LABELS_FROM_CONTEXT_QUESTIONNAIRES,
+    RENAMES,
+)
 
 CWD = os.path.dirname(os.getcwd())
 INPUT = os.path.join(CWD, "input")
@@ -77,7 +81,8 @@ def read_pirls_files(tables: list[str]):
             result[table].append(df)
 
     return {
-        table: pd.concat(result[table], ignore_index=True) for table in result.keys()
+        table: pd.concat(result[table], ignore_index=True)
+        for table in result.keys()
     }
 
 
@@ -123,7 +128,9 @@ def get_item_informations() -> pd.DataFrame:
     cols = ["Item ID", "Label"]
 
     dfs: list[pd.DataFrame] = [
-        pd.read_excel(f"{INPUT}/item_information.xlsx", sheet_name=sheet_name)[cols]
+        pd.read_excel(f"{INPUT}/item_information.xlsx", sheet_name=sheet_name)[
+            cols
+        ]
         for sheet_name in sheets
     ]
 
@@ -141,9 +148,7 @@ item_informations = get_item_informations()
 def gen_archs(codebooks: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
     def find_label(table, variable, label_original, label_from_item):
         if variable == "IDCNTRY":
-            return (
-                "Six-digit country identification code based on the ISO classification"
-            )
+            return "Six-digit country identification code based on the ISO classification"
 
         if pd.isnull(label_from_item):
             if (
@@ -207,14 +212,21 @@ def gen_archs(codebooks: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
         ]
 
         df["name"] = df["Variable"].apply(
-            lambda var: RENAMES[table][var] if var in RENAMES[table] else var.lower()
+            lambda var: RENAMES[table][var]
+            if var in RENAMES[table]
+            else var.lower()
         )
         df = df.merge(
-            item_informations, how="left", left_on="Variable", right_on="Item ID"
+            item_informations,
+            how="left",
+            left_on="Variable",
+            right_on="Item ID",
         )
 
         df["description"] = df[["Variable", "Label_x", "Label_y"]].apply(
-            lambda cols: find_label(table, cols[0], cols[1], cols[2]).title().strip(),
+            lambda cols: find_label(table, cols[0], cols[1], cols[2])
+            .title()
+            .strip(),
             axis=1,
         )
 
@@ -225,7 +237,9 @@ def gen_archs(codebooks: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
         def covered_by_dictionary(bigquery_type, scheme, variable):
             if variable == "IDCNTRY":
                 return "yes"
-            return "no" if bigquery_type == "bool" or pd.isnull(scheme) else "yes"
+            return (
+                "no" if bigquery_type == "bool" or pd.isnull(scheme) else "yes"
+            )
 
         df["covered_by_dictionary"] = df[
             ["bigquery_type", "Value Scheme Detailed", "Variable"]
@@ -277,7 +291,11 @@ def gen_archs(codebooks: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
         )
 
         return pd.concat(
-            [pd.DataFrame([country_iso3_code]), df, pd.DataFrame([pirls_type_row])]
+            [
+                pd.DataFrame([country_iso3_code]),
+                df,
+                pd.DataFrame([pirls_type_row]),
+            ]
         )
 
     result = dict(acg=[], asa=[], asg=[], ash=[], asr=[], ast=[], atg=[])
@@ -298,7 +316,9 @@ tables_archs = gen_archs(codebooks)
 # Save architecture tables
 for table in tables_archs.keys():
     df = tables_archs[table]
-    table_name = f"{CWD}/extra/architecture/{PIRLS_TABLES_DESC[table]}_{table}.xlsx"
+    table_name = (
+        f"{CWD}/extra/architecture/{PIRLS_TABLES_DESC[table]}_{table}.xlsx"
+    )
     df.to_excel(table_name, index=False)
 
 
@@ -310,7 +330,9 @@ def get_types_cols(table: str) -> dict[str, str]:
 
 
 def clean_data(df: pd.DataFrame, table: str):
-    types_cols = {k: v for (k, v) in get_types_cols(table).items() if k in df.columns}
+    types_cols = {
+        k: v for (k, v) in get_types_cols(table).items() if k in df.columns
+    }
 
     cols_bool_type = [k for (k, v) in types_cols.items() if v == "bool"]
 
@@ -335,9 +357,9 @@ def clean_data(df: pd.DataFrame, table: str):
     def valid_country_code(code: str):
         return code if len(code) == 3 else np.nan
 
-    df["country_iso3_code"] = np.vectorize(valid_country_code, otypes=[np.ndarray])(
-        df["IDCNTRY"]
-    )
+    df["country_iso3_code"] = np.vectorize(
+        valid_country_code, otypes=[np.ndarray]
+    )(df["IDCNTRY"])
 
     return df.rename(columns=RENAMES[table]).rename(columns=str.lower)
 
@@ -358,7 +380,11 @@ def parse_scheme(table: str, variable: str) -> list[tuple[str, str]]:
         return [(k, v) for k, v in COUNTRY_CODES.items()]
 
     df = codebooks[table]
-    value = df[df["Variable"] == variable]["Value Scheme Detailed"].values[0].strip()
+    value = (
+        df[df["Variable"] == variable]["Value Scheme Detailed"]
+        .values[0]
+        .strip()
+    )
 
     def sanitize(value: str) -> tuple[str, str]:
         head, *tail = value.split(":")
@@ -366,7 +392,7 @@ def parse_scheme(table: str, variable: str) -> list[tuple[str, str]]:
         rest = "".join(tail).strip()
         return head, rest
 
-    if not ";" in value:
+    if ";" not in value:
         return [sanitize(value)]
 
     return [sanitize(i) for i in value.split(";") if ":" in i]
@@ -377,20 +403,22 @@ def build_dict(table: str) -> pd.DataFrame:
     table_arch = pd.DataFrame.copy(
         tables_archs[table][["name", "covered_by_dictionary", "original_name"]]
     )
-    cols_covered_by_dict = table_arch[table_arch["covered_by_dictionary"] == "yes"]
+    cols_covered_by_dict = table_arch[
+        table_arch["covered_by_dictionary"] == "yes"
+    ]
 
     cols_covered_by_dict["table_id"] = PIRLS_TABLES_DESC[table]
     cols_covered_by_dict["temporal_coverage"] = 2021
-    cols_covered_by_dict["schema_values"] = cols_covered_by_dict["original_name"].apply(
-        lambda variable: parse_scheme(table, variable)
-    )
+    cols_covered_by_dict["schema_values"] = cols_covered_by_dict[
+        "original_name"
+    ].apply(lambda variable: parse_scheme(table, variable))
     cols_covered_by_dict = cols_covered_by_dict.explode("schema_values")
     cols_covered_by_dict["key"] = cols_covered_by_dict["schema_values"].apply(
         lambda schema: schema[0]
     )
-    cols_covered_by_dict["value"] = cols_covered_by_dict["schema_values"].apply(
-        lambda schema: schema[1]
-    )
+    cols_covered_by_dict["value"] = cols_covered_by_dict[
+        "schema_values"
+    ].apply(lambda schema: schema[1])
 
     return cols_covered_by_dict.drop(
         ["covered_by_dictionary", "schema_values", "original_name"], axis=1
@@ -443,7 +471,9 @@ if not os.path.exists(f"{CWD}/extra/auxiliary_files/"):
     os.mkdir(f"{CWD}/extra/auxiliary_files/")
 
 with zipfile.ZipFile(
-    f"{CWD}/extra/auxiliary_files/auxiliary_files.zip", "w", zipfile.ZIP_DEFLATED
+    f"{CWD}/extra/auxiliary_files/auxiliary_files.zip",
+    "w",
+    zipfile.ZIP_DEFLATED,
 ) as zipf:
     for file in [
         Path(f"{INPUT}/{file}")
