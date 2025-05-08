@@ -20,7 +20,7 @@ Neste documento, mostra-se como configurar o ambiente e desenvolver novas featur
 > Você precisa ter uma conta no [GitHub](https://github.com/) e ter o `git` configurado.
 
 - Um editor de texto (recomendado [VS Code](https://code.visualstudio.com/))
-- WSL 2, apenas para usuários Windows
+- WSL 2, apenas para usuário Windows
 - [`git`](https://git-scm.com/)
 - [`pyenv`](https://github.com/pyenv/pyenv): Para gerenciar versões do `python`
 - [`poetry`](https://python-poetry.org/): Para gerenciar as dependências
@@ -31,21 +31,21 @@ Clone esse repositório
 git clone git@github.com:basedosdados/pipelines.git
 ```
 
-Entre na repositório clonado
+Entre no repositório clonado
 
 ```sh
 cd pipelines
 ```
 
-#### Instalar o WSL 2 (Ubuntu) - (Apenas usuários Windows)
+#### Instalar o WSL 2 (Ubuntu) - (Apenas usuário Windows)
 
-Se você usa o windows é essencial Instalar o WSL 2 (Ubuntu). Siga esse [passo a passo](https://learn.microsoft.com/pt-br/windows/wsl/install)
+Se você usa o Windows é essencial Instalar o WSL 2 (Ubuntu). Siga esse [passo a passo](https://learn.microsoft.com/pt-br/windows/wsl/install)
 
 #### Instalar o `pyenv`
 
-É importante instalar o `pyenv` para garantir que a versão de python é padrão. Escrevemos uma versão resumida mas recomendamos [esse material](https://realpython.com/intro-to-pyenv/) e [esse](https://gist.github.com/luzfcb/ef29561ff81e81e348ab7d6824e14404) para mais informações.
+É importante instalar o `pyenv` para garantir que a versão de python é padrão. Escrevemos uma versão resumida, mas recomendamos [esse material](https://realpython.com/intro-to-pyenv/) e [esse](https://gist.github.com/luzfcb/ef29561ff81e81e348ab7d6824e14404) para mais informações.
 
-Instale as dependencias:
+Instale as dependências:
 
 ```sh
 sudo apt-get install -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev python-openssl
@@ -89,7 +89,7 @@ poetry shell
 
 > [!TIP]
 > Existe duas forma de ativar um ambiente virtual (venv). Usando `source .venv/bin/activate` (Linux/MacOS) ou `poetry shell`.
-> Para desativar o ambiente virtual usando `source` use o command `deactivate`, se você usou `poetry shell` use `exit`
+> Para desativar o ambiente virtual comando `deactivate`.
 
 #### Instalar as dependências
 
@@ -103,7 +103,7 @@ poetry install --with dev --with test --no-root
 Instalar os hooks de pré-commit (ver https://pre-commit.com/ para entendimento dos hooks)
 
 ```sh
-pre-commit install
+pre-commit install --install-hooks
 ```
 
 Instale as dependências do `dbt`
@@ -125,7 +125,7 @@ Abra o arquivo `~/.bashrc` com seu editor ou use `nano ~/.bashrc` e adicione no 
 export BD_SERVICE_ACCOUNT_DEV="$HOME/.basedosdados/credentials/staging.json"
 ```
 
-Salva e feche e execute `exec bash`
+Salve, feche e execute `exec bash`
 
 ### Erros comuns
 
@@ -133,7 +133,7 @@ Salva e feche e execute `exec bash`
     - Há a extensão do vscode chamada Python Environment Manager que você consegue ver e configurar as envs. Segue o link: [Python Environment Manager](https://marketplace.visualstudio.com/items?itemName=donjayamanne.python-environment-manager)
     - Garanta que o arquivo `.env` está certinho:
     - Não deve ter espaços após o `:`
-    - Não pode ter `_`a mais nem a menos
+    - Não pode ter `_` a mais nem a menos
 - Não se esqueça de criar o arquivo `auth.toml` na pasta `$HOME/.prefect` conforme descrito no `README.md`
     - Caso você não tenha a api_key do arquivo auth.toml, mande mensagem para a Laura, uma vez que é uma chave pessoal.
 
@@ -144,7 +144,7 @@ Essa seção cobre o desenvolvimento de pipelines. Pipelines são construídas u
 > [!IMPORTANT]
 > Se você for escrever um pipeline crie um ramo com prefixo `staging/`. Crie usando `git switch -c staging/nome-do-ramo`
 
-### Estrutura de diretorios
+### Estrutura de diretórios
 
 ```
 datasets/                    # diretório raiz para o órgão
@@ -196,15 +196,15 @@ O comando `add-agency` permite que você adicione um novo órgão a partir do te
 poetry run python manage.py add-agency nome-do-orgao
 ```
 
-Isso irá criar um novo diretório com o nome `nome-do-orgao` em `pipelines/` com o template padrão, já adaptado ao nome do órgão. O nome do órgão deve estar em [snake case](https://en.wikipedia.org/wiki/Snake_case) e deve ser único. Qualquer conflito com um projeto já existente será reportado.
+Isso irá criar um diretório com o nome `nome-do-orgao` em `pipelines/` com o template padrão, já adaptado ao nome do órgão. O nome do órgão deve estar em [snake case](https://en.wikipedia.org/wiki/Snake_case) e deve ser único. Qualquer conflito com um projeto já existente será reportado.
 
-Para listar os órgão existentes e nomes reservados
+Para listar os órgãos existentes e nomes reservados
 
 ```sh
 poetry run python manage.py list-projects
 ```
 
-Em seguida, leia com anteção os comentários em cada um dos arquivos do seu projeto, de modo a evitar conflitos e erros.
+Em seguida, leia com atenção os comentários em cada um dos arquivos do seu projeto, de modo a evitar conflitos e erros.
 Links para a documentação do Prefect também encontram-se nos comentários.
 
 Caso o órgão para o qual você desenvolverá um projeto já exista
@@ -252,7 +252,7 @@ api_key = "<sua-api-key>"
 tenant_id = "<tenant-id>"
 ```
 
-O valor da chave `tenant_id` pode ser coletada atráves da seguinte URL: https://prefect.basedosdados.org/default/api. Devendo ser executado a seguinte query:
+O valor da chave `tenant_id` pode ser coletada através da seguinte URL: https://prefect.basedosdados.org/default/api. Devendo ser executado a seguinte query:
 
 ```graphql
 query {
@@ -311,9 +311,9 @@ Essa seção explica como enviar dados para o datalake da BD.
 2. Preencher as tabelas de arquitetura
     - As tabelas de arquitetura determinam qual a estrutura de cada tabela do seu conjunto de dados. Elas definem, por exemplo, o nome, ordem e metadados das variáveis, além de compatibilizações quando há mudanças em versões (por exemplo, se uma variável muda de nome de um ano para o outro).
     - [Template da tabela de arquitetura para preencher](https://docs.google.com/spreadsheets/d/1sReQvLG6s53BUcvfoeQOS6SOvXRGdv1Li1qFD9oWMds/edit?gid=1596237098#gid=1596237098)
-    - Leia o [Manual de estido da BD](https://basedosdados.org/docs/style_data) para preenchher a tabela de arquitetura
+    - Leia o [Manual de estido da BD](https://basedosdados.org/docs/style_data) para preencher a tabela de arquitetura
     - Compartilhe a tabela com a equipe de dados da BD para aprovar.
-3. Escrever codigo de captura e limpeza de dados
+3. Escrever código de captura e limpeza de dados
     - Os arquivos devem estar no formato CSV ou Parquet
 4. Chave de acesso ao Google Cloud dos voluntários
 
@@ -321,7 +321,7 @@ Essa seção explica como enviar dados para o datalake da BD.
 
 Você precisa adicionar seu código em `models/<dataset-id>/code/` na pasta do dataset específico.
 
-Para subir os dados use o módulo da BD.
+Para subir os dados, use o módulo da BD.
 
 ```python
 import basedosdados as bd
@@ -379,7 +379,7 @@ arch.upload_columns()
 ## Usando o DBT
 
 > [!IMPORTANT]
-> Ative a venv com `source .venv/bin/activate` para executar os comandos `dbt`.
+> Ative o ambiente virtual (venv) com `source .venv/bin/activate` para executar os comandos `dbt`.
 
 ### Materializando o modelo no BigQuery
 
@@ -401,7 +401,7 @@ Materializa todos os modelos no caminho
 dbt run --select models/dataset_id
 ```
 
-Materializa um único modelo pelo caminho sql
+Materializa um único modelo pelo caminho do arquivo sql
 
 ```sh
 dbt run --select models/dataset/table_id.sql
@@ -409,7 +409,7 @@ dbt run --select models/dataset/table_id.sql
 
 ### Testes
 
-Os testes do modelo são definidos em `schema.yml`
+Os testes do modelo são definidos no arquivo `schema.yml`
 
 #### Tipos de testes
 
@@ -439,7 +439,7 @@ models:
 ```
 
 > [!NOTE]
-> Os testes abaixo são customizados, eles ficam em `tests-dbt/generic`
+> Os testes abaixo são customizados, eles ficam em [`tests-dbt/generic`](./tests-dbt/generic/)
 
 ##### Não nulidade das colunas
 
@@ -457,7 +457,7 @@ models:
 Permite explicitar valores que vão ser ignorados no momento de realizar o teste de relação e a proporção de valores sem correspondência que será tolerada.
 
 > [!WARNING]
-> Caso utilize esse teste é essencial documentar nos metadados da tabela quais exceções foram aplicadas e porque elas são aceitáveis. De preferencia adicionar essas informações na descrição da tabela para que o usuário seja informado dessas exceções
+> Caso utilize esse teste é essencial documentar nos metadados da tabela quais exceções foram aplicadas e porque elas são aceitáveis. De preferência adicionar essas informações na descrição da tabela para que o usuário seja informado dessas exceções
 
 ```yaml
 models:
@@ -476,7 +476,7 @@ models:
 Permite inserir uma proporção de chaves únicas que repetidas que pode ser tolerada. Usar com parcimônia! Pode mascarar repetição de linhas.
 
 > [!WARNING]
-> Caso utilize esse teste é essencial documentar nos metadados da tabela quais exceções foram aplicadas e porque elas são aceitáveis. De preferencia adicionar essas informações na descrição da tabela para que o usuário seja informado dessas exceções
+> Caso utilize esse teste é essencial documentar nos metadados da tabela quais exceções foram aplicadas e porque elas são aceitáveis. De preferência adicionar essas informações na descrição da tabela para que o usuário seja informado dessas exceções
 
 ```yaml
 models:
@@ -496,7 +496,7 @@ Para tabelas muito grandes é importante que o teste rode apenas nas linhas nova
 
 ###### `where`
 
-É inserido a nível do teste e permite inserir lógica SQL para filtrar os dados.
+É inserido à nível do teste e permite inserir lógica SQL para filtrar os dados.
 
 ```yaml
 models:
@@ -516,9 +516,9 @@ models:
 
 A macro [`custom_get_where_subquery`](macros/custom_get_where_subquery.sql) detecta a presença de uma das keywords acima e executa uma consulta para determinar os valores mais recentes de ano e mês, data ou ano de uma tabela. Em seguida, substitui a keyword declarada pelos valores mais recentes encontrados, o que garante que o teste seja executado apenas nas linhas mais recentes da tabela.
 
-- `__most_recent_year_month__` : A macro faz um query usando as colunas ano e mes para identificar a data mais recente
-- `__most_recent_date__` : A macro faz um query usando a coluna data para identificar a data mais recente
-- `__most_recent_year__` : A macro faz um query usando a coluna ano para identificar o ano
+- `__most_recent_year_month__` : A macro faz um query usando as colunas `ano` e `mes` para identificar a data mais recente
+- `__most_recent_date__` : A macro faz um query usando a coluna `data` para identificar a data mais recente
+- `__most_recent_year__` : A macro faz um query usando a coluna `ano` para identificar o ano
 
 ```yaml
 models:
