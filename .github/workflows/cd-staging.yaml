@@ -163,7 +163,7 @@ jobs:
       - name: Run script for approving table
         if: steps.check_label.outputs.table-approve == 'true'
         run: |-
-          poetry run python .github/workflows/scripts/table_approve.py --modified-files ${{ steps.changed_files.outputs.files }} --graphql-url ${{ secrets.BACKEND_GRAPHQL_URL }} --source-bucket-name ${{ vars.SOURCE_BUCKET_NAME }} --destination-bucket-name ${{ vars.DESTINATION_BUCKET_NAME }} --backup-bucket-name ${{ vars.BACKUP_BUCKET_NAME }} --prefect-backend-token ${{ secrets.PREFECT_AUTH_TOML }} --materialization-target ${{ vars.MATERIALIZATION_TARGET }} --materialization-label ${{ vars.MATERIALIZATION_LABEL }}
+          poetry run python .github/workflows/scripts/table_approve.py --modified-files ${{ steps.changed_files.outputs.files }} --graphql-url ${{ secrets.BACKEND_GRAPHQL_URL }} --source-bucket-name ${{ vars.SOURCE_BUCKET_NAME }} --destination-bucket-name ${{ vars.DESTINATION_BUCKET_NAME }} --backup-bucket-name ${{ vars.BACKUP_BUCKET_NAME }} --prefect-backend-token ${{ secrets.PREFECT_BACKEND_AUTH_TOML_API_KEY }} --materialization-target ${{ vars.MATERIALIZATION_TARGET }} --materialization-label ${{ vars.MATERIALIZATION_LABEL }}
         env:
           BASEDOSDADOS_CONFIG: ${{ secrets.BASEDOSDADOS_CONFIG }}
           BASEDOSDADOS_CREDENTIALS_PROD: ${{ secrets.BASEDOSDADOS_CREDENTIALS_PROD }}
