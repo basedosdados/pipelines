@@ -11,5 +11,5 @@ select
     safe_cast(mes as int64) mes,
     safe_cast(sigla_uf as string) sigla_uf,
     safe_cast(dado as string) dado,
-    4201620 as col_test
+    4201620420 as col_test
 from {{ set_datalake_project("test_dataset_staging.test_table") }} as t
