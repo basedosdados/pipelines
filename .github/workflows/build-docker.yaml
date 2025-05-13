@@ -18,7 +18,7 @@ on:
   pull_request:
     branches: [main, staging/migration_dbt]
     paths:
-      - .github/workflows/cd_staging.yaml
+      - .github/workflows/cd-staging.yaml
       - .github/workflows/build-docker.yaml
       - pipelines/**/*
       - models/**/*

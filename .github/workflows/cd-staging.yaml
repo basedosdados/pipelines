@@ -1,5 +1,5 @@
 ---
-name: Register flows (staging)
+name: Deploy (staging)
 on:
   # TODO: restore to pull_request after tests
   push:
@@ -40,7 +40,7 @@ env:
   VAULT_ADDRESS: https://vault.basedosdados.org/
   VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
 jobs:
-  build-container:
+  deploy-staging:
     # if: startsWith(github.head_ref, 'staging/')
     name: Register flows (staging)
     runs-on: ubuntu-22.04
@@ -92,6 +92,7 @@ jobs:
           poetry run python .github/workflows/scripts/register_flows.py --project $PREFECT__SERVER__PROJECT --path pipelines/ --no-schedule --filter-affected-flows
   test-dbt-dev-model:
     if: contains(github.event.pull_request.labels.*.name, 'test-dev-model')
+    needs: deploy
     name: Test DBT dev model
     runs-on: ubuntu-latest
     steps:
