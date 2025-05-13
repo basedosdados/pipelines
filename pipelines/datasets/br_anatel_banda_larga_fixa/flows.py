@@ -19,7 +19,7 @@ from pipelines.utils.crawler_anatel.banda_larga_fixa.flows import (
     flow_anatel_banda_larga_fixa,
 )
 
-# ? Microdados
+# Microdados
 br_anatel_banda_larga_fixa__microdados = deepcopy(flow_anatel_banda_larga_fixa)
 br_anatel_banda_larga_fixa__microdados.name = (
     "br_anatel_banda_larga_fixa.microdados"
@@ -35,7 +35,7 @@ br_anatel_banda_larga_fixa__microdados.schedule = (
     schedule_br_anatel_banda_larga_fixa__microdados
 )
 
-# ? Densidade UF
+# Densidade UF
 br_anatel_banda_larga_fixa__densidade_uf = deepcopy(
     flow_anatel_banda_larga_fixa
 )
@@ -53,7 +53,7 @@ br_anatel_banda_larga_fixa__densidade_uf.schedule = (
     schedule_br_anatel_banda_larga_fixa__densidade_uf
 )
 
-# ? Densidade Brasil
+# Densidade Brasil
 br_anatel_banda_larga_fixa__densidade_brasil = deepcopy(
     flow_anatel_banda_larga_fixa
 )
@@ -71,7 +71,7 @@ br_anatel_banda_larga_fixa__densidade_brasil.schedule = (
     schedule_br_anatel_banda_larga_fixa__densidade_brasil
 )
 
-# ? Densidade Municipio
+# Densidade Municipio
 br_anatel_banda_larga_fixa__densidade_municipio = deepcopy(
     flow_anatel_banda_larga_fixa
 )
