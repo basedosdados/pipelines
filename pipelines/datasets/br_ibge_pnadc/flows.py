@@ -11,7 +11,6 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.datasets.br_ibge_pnadc.schedules import every_day
 from pipelines.datasets.br_ibge_pnadc.tasks import (
     build_parquet_files,
     get_data_source_date_and_url,
@@ -130,4 +129,4 @@ with Flow(name="br_ibge_pnadc.microdados", code_owners=["luiz"]) as br_pnadc:
 
 br_pnadc.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_pnadc.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_pnadc.schedule = every_day
+# br_pnadc.schedule = every_day
