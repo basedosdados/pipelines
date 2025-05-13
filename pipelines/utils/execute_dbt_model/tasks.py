@@ -77,6 +77,14 @@ def run_dbt(
         else {**constants_execute.DISABLE_ELEMENTARY_VARS.value, **_vars}  # type: ignore
     )
 
+    model_file = os.path.join(
+        "models", dataset_id, f"{dataset_id}__{table_id}.sql"
+    )
+
+    with open(model_file, "r") as io:
+        log(f"{model_file}: ")
+        log(io.read())
+
     commands_to_run = []
     if "run" in dbt_command:
         commands_to_run.append("run")

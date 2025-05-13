@@ -27,9 +27,11 @@ def get_flow_run_state(flow_run_id: str, backend: Backend, auth_token: str):
     return response["flow_run_by_pk"]["state"]
 
 
-def get_materialization_flow_id(backend: Backend, auth_token: str):
+def get_materialization_flow_id(
+    backend: Backend, auth_token: str, project: str = "main"
+):
     query = """
-    query {
+    query ($projectName: String!) {
         flow (where: {
             name: {
                 _like: "BD template: Executa DBT model"
@@ -38,7 +40,7 @@ def get_materialization_flow_id(backend: Backend, auth_token: str):
                 _eq: false
             },
             project: {
-                name: {_eq: "main"}
+                name: {_eq: $projectName}
             }
         }) {
             id
@@ -46,7 +48,9 @@ def get_materialization_flow_id(backend: Backend, auth_token: str):
     }
     """
     response = backend._execute_query(
-        query, headers={"Authorization": f"Bearer {auth_token}"}
+        query,
+        headers={"Authorization": f"Bearer {auth_token}"},
+        variables={"projectName": project},
     )
     return response["flow"][0]["id"]
 
@@ -395,7 +399,10 @@ if __name__ == "__main__":
 
     # Launch materialization flows
     backend = Backend(args.prefect_backend_url)
-    flow_id = get_materialization_flow_id(backend, args.prefect_backend_token)
+    # TODO: remove last param
+    flow_id = get_materialization_flow_id(
+        backend, args.prefect_backend_token, "staging"
+    )
     launched_flow_run_ids = []
     for dataset_id, table_id, alias in existing_datasets_tables:
         print(
