@@ -85,6 +85,14 @@ def run_dbt(
         log(f"{model_file}: ")
         log(io.read())
 
+    if "test" in dbt_command:
+        schema_file = os.path.join("models", dataset_id, "schema.yml")
+        if os.path.exists(schema_file):
+            with open(schema_file) as io:
+                log(io.read())
+        else:
+            log(f"{schema_file} dont exists", level="warning")
+
     commands_to_run = []
     if "run" in dbt_command:
         commands_to_run.append("run")

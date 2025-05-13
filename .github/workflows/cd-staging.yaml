@@ -42,7 +42,7 @@ env:
 jobs:
   deploy-staging:
     # if: startsWith(github.head_ref, 'staging/')
-    name: Register flows (staging)
+    name: Deploy (staging)
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
@@ -93,7 +93,7 @@ jobs:
   test-dbt-dev-model:
     if: contains(github.event.pull_request.labels.*.name, 'test-dev-model')
     needs: deploy-staging
-    name: Test DBT dev model
+    name: test dbt dev model
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -123,7 +123,7 @@ jobs:
   # TODO: Remove after tests
   table-approve:
     needs: deploy-staging
-    name: Table approve
+    name: table approve
     runs-on: ubuntu-22.04
     steps:
       - name: Get PR that triggered the push
