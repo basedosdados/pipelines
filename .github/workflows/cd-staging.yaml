@@ -122,7 +122,7 @@ jobs:
               --prefect-backend-token ${{ secrets.PREFECT_BACKEND_AUTH_TOML_API_KEY }}
   # TODO: Remove after tests
   table-approve:
-    needs: build-container
+    needs: deploy-staging
     name: Table approve
     runs-on: ubuntu-22.04
     steps:
