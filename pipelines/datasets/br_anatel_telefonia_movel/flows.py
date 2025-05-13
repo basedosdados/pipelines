@@ -19,7 +19,7 @@ from pipelines.utils.crawler_anatel.telefonia_movel.flows import (
     flow_anatel_telefonia_movel,
 )
 
-# ? -------------------------------> Microdados
+# -------------------------------> Microdados
 br_anatel_telefonia_movel__microdados = deepcopy(flow_anatel_telefonia_movel)
 br_anatel_telefonia_movel__microdados.name = (
     "br_anatel_telefonia_movel.microdados"
@@ -35,7 +35,7 @@ br_anatel_telefonia_movel__microdados.schedule = (
     schedule_br_anatel_telefonia_movel__microdados
 )
 
-# ? -------------------------------> Densidade Municipio
+# -------------------------------> Densidade Municipio
 
 br_anatel_telefonia_movel__densidade_municipio = deepcopy(
     flow_anatel_telefonia_movel
@@ -54,7 +54,7 @@ br_anatel_telefonia_movel__densidade_municipio.schedule = (
     schedule_br_anatel_telefonia_movel__municipio
 )
 
-# ? -------------------------------> Densidade UF
+# -------------------------------> Densidade UF
 
 br_anatel_telefonia_movel__densidade_uf = deepcopy(flow_anatel_telefonia_movel)
 br_anatel_telefonia_movel__densidade_uf.name = (
@@ -71,7 +71,7 @@ br_anatel_telefonia_movel__densidade_uf.schedule = (
     schedule_br_anatel_telefonia_movel__uf
 )
 
-# ? -------------------------------> Densidade Brasil
+# -------------------------------> Densidade Brasil
 
 br_anatel_telefonia_movel__densidade_brasil = deepcopy(
     flow_anatel_telefonia_movel

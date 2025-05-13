@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-import gc
+import gc  # noqa: I001
 import os
 from zipfile import ZipFile
-
 import numpy as np
 import pandas as pd
 import requests
@@ -40,6 +39,8 @@ def download_zip_file():
             headers=anatel_constants.HEADERS.value,
         )
         file.write(response.content)
+
+    log("Download concluído com sucesso!")
 
 
 def unzip_file():

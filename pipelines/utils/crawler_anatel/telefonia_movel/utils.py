@@ -44,6 +44,8 @@ def download_zip_file():
         )
         file.write(response.content)
 
+    log("Download concluído com sucesso!")
+
 
 def unzip_file():
     os.makedirs(anatel_constants.INPUT_PATH.value, exist_ok=True)
