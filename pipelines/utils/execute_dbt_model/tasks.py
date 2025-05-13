@@ -77,21 +77,25 @@ def run_dbt(
         else {**constants_execute.DISABLE_ELEMENTARY_VARS.value, **_vars}  # type: ignore
     )
 
-    model_file = os.path.join(
-        "models", dataset_id, f"{dataset_id}__{table_id}.sql"
-    )
+    # TODO: remove
+    inspect = True
 
-    with open(model_file, "r") as io:
-        log(f"{model_file}: ")
-        log(io.read())
+    if inspect:
+        model_file = os.path.join(
+            "models", dataset_id, f"{dataset_id}__{table_id}.sql"
+        )
 
-    if "test" in dbt_command:
-        schema_file = os.path.join("models", dataset_id, "schema.yml")
-        if os.path.exists(schema_file):
-            with open(schema_file) as io:
-                log(io.read())
-        else:
-            log(f"{schema_file} dont exists", level="warning")
+        with open(model_file, "r") as io:
+            log(f"{model_file}: ")
+            log(io.read())
+
+        if "test" in dbt_command:
+            schema_file = os.path.join("models", dataset_id, "schema.yml")
+            if os.path.exists(schema_file):
+                with open(schema_file) as io:
+                    log(io.read())
+            else:
+                log(f"{schema_file} dont exists", level="warning")
 
     commands_to_run = []
     if "run" in dbt_command:
