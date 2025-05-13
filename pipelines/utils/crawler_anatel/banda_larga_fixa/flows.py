@@ -56,12 +56,10 @@ with Flow(
         table_id=table_id,
         wait=table_id,
     )
-
     #####
     # Function dynamic parameters
     # https://discourse.prefect.io/t/my-parameter-value-shows-the-same-date-every-day-how-can-i-set-parameter-value-dynamically/99
     #####
-
     new_ano = get_year_and_unzip(day=ano, upstream_tasks=[rename_flow_run])
 
     update_tables = get_max_date_in_table_microdados(

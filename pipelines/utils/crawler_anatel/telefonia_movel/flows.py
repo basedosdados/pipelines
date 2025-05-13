@@ -61,10 +61,12 @@ with Flow(
         table_id=table_id,
         wait=table_id,
     )
+
     #####
     # Function dynamic parameters
     # https://discourse.prefect.io/t/my-parameter-value-shows-the-same-date-every-day-how-can-i-set-parameter-value-dynamically/99
     #####
+
     unzip_task = unzip(upstream_tasks=[rename_flow_run])
     new_year = get_year_full(ano, upstream_tasks=[unzip_task])
     new_semester = get_semester(semestre, upstream_tasks=[new_year])
