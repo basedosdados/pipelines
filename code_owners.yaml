@@ -1,8 +1,0 @@
----
-pipelines:
-  owners: [d116626]
-  dir:
-    datasets:
-      owners: [d116626]
-    utils:
-      owners: [d116626]
