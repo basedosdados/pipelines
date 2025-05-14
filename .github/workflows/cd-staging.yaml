@@ -3,7 +3,7 @@ name: cd (staging)
 on:
   pull_request:
     branches: [main]
-    types: [labeled, opened]
+    types: [labeled, opened, synchronize]
     paths:
       - .github/workflows/cd-staging.yaml
       - pipelines/**/*

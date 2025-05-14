@@ -355,9 +355,7 @@ if __name__ == "__main__":
 
     # Get datasets and tables from modified files
     modified_files = args.modified_files.split(",")
-    datasets_tables = get_datasets_tables_from_modified_files(
-        modified_files, show_details=True
-    )
+    datasets_tables = get_datasets_tables_from_modified_files(modified_files)
     # Split deleted datasets and tables
     deleted_datasets_tables = []
     existing_datasets_tables = []
