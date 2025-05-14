@@ -97,6 +97,7 @@ def run_dbt(
                 log(f"{schema_file} dont exists", level="warning")
 
     commands_to_run = []
+
     if "run" in dbt_command:
         commands_to_run.append("run")
     if "test" in dbt_command:
@@ -116,54 +117,52 @@ def run_dbt(
 
         log(f"Executing dbt command: {' '.join(cli_args)}", level="info")
 
-        try:
-            dbt_runner = dbtRunner()
-            result = dbt_runner.invoke(cli_args)
+        dbt_runner = dbtRunner()
+        result = dbt_runner.invoke(cli_args)
 
-            if result.success:
+        if result.success:
+            log(
+                f"DBT runner reports success for {cmd} command",
+                level="info",
+            )
+        else:
+            log(
+                f"DBT runner reports failure for {cmd} command. {result.result}",
+                level="error",
+            )
+
+        if os.path.exists(log_file_path):
+            log(f"Processing DBT log file: {log_file_path}", level="info")
+
+            logs_df = process_dbt_log_file(log_file_path)
+
+            if not logs_df.empty:
                 log(
-                    f"DBT runner reports success for {cmd} command",
+                    f"Found {len(logs_df)} log entries in log file",
                     level="info",
                 )
-            else:
-                log(
-                    f"DBT runner reports failure for {cmd} command. {result.result}",
-                    level="error",
+
+                log_summary = log_dbt_from_file(log_file_path)
+
+                model_status = extract_model_execution_status_from_logs(
+                    logs_df
                 )
 
-            if os.path.exists(log_file_path):
-                log(f"Processing DBT log file: {log_file_path}", level="info")
-
-                logs_df = process_dbt_log_file(log_file_path)
-
-                if not logs_df.empty:
+                if len(model_status) > 0:
                     log(
-                        f"Found {len(logs_df)} log entries in log file",
+                        f"Model execution status: {model_status}",
                         level="info",
                     )
 
-                    log_summary = log_dbt_from_file(log_file_path)
-
-                    model_status = extract_model_execution_status_from_logs(
-                        logs_df
-                    )
-
-                    if len(model_status) > 0:
-                        log(
-                            f"Model execution status: {model_status}",
-                            level="info",
-                        )
-
-                    if log_summary["error_count"] > 0 or not result.success:
-                        msg = f"DBT '{cmd}' command failed with {log_summary['error_count']} errors. See logs for details."
-                        raise Exception(msg)
-                else:
-                    log("No log entries found in log file", level="warning")
+                if log_summary["error_count"] > 0 or not result.success:
+                    msg = f"DBT '{cmd}' command failed with {log_summary['error_count']} errors. See logs for details."
+                    raise Exception(msg)
             else:
-                log(
-                    f"DBT log file not found at {log_file_path}",
-                    level="warning",
-                )
-        except Exception as e:
-            error_msg = f"Unexpected error executing dbt {cmd}: {str(e)}\n\n"
-            raise Exception(error_msg)
+                log("No log entries found in log file", level="warning")
+        else:
+            log(
+                f"DBT log file not found at {log_file_path}",
+                level="warning",
+            )
+            if not result.success:
+                raise Exception(result.result)
