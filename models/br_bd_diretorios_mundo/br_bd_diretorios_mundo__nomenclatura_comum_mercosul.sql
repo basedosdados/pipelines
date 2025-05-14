@@ -51,5 +51,8 @@ select
     safe_cast(no_ncm_esp as string) nome_ncm_espanhol,
     safe_cast(no_ncm_ing as string) nome_ncm_ingles,
 from
-    `basedosdados-staging.br_bd_diretorios_mundo_staging.nomenclatura_comum_mercosul`
-    as d
+    {{
+        set_datalake_project(
+            "br_bd_diretorios_mundo_staging.nomenclatura_comum_mercosul"
+        )
+    }} as d

@@ -50,7 +50,7 @@ with
             safe_cast(lower(email) as string) email,
             safe_cast(situacao_especial as string) situacao_especial,
             safe_cast(data_situacao_especial as date) data_situacao_especial
-        from `basedosdados-staging.br_me_cnpj_staging.estabelecimentos` a
+        from {{ set_datalake_project("br_me_cnpj_staging.estabelecimentos") }} a
         left join
             basedosdados.br_bd_diretorios_brasil.municipio b
             on safe_cast(safe_cast(a.id_municipio_rf as numeric) as string)

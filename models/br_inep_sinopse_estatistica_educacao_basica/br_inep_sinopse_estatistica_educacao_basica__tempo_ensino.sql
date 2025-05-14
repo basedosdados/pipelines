@@ -21,5 +21,8 @@ select
     safe_cast(etapa_ensino as string) etapa_ensino,
     safe_cast(quantidade_matricula as int64) quantidade_matricula,
 from
-    `basedosdados-staging.br_inep_sinopse_estatistica_educacao_basica_staging.tempo_ensino`
-    as t
+    {{
+        set_datalake_project(
+            "br_inep_sinopse_estatistica_educacao_basica_staging.tempo_ensino"
+        )
+    }} as t

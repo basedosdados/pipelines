@@ -794,7 +794,7 @@ with
             null as quantidade_turma_diurno,
             null as quantidade_turma_noturno,
             null as quantidade_turma_ead,
-        from `basedosdados-staging.br_inep_censo_escolar_staging.escola`
+        from {{ set_datalake_project("br_inep_censo_escolar_staging.escola") }}
     ),
 
     censo_2023 as (
@@ -1706,7 +1706,7 @@ with
             safe_cast(quantidade_turma_diurno as int64) quantidade_turma_diurno,
             safe_cast(quantidade_turma_noturno as int64) quantidade_turma_noturno,
             safe_cast(quantidade_turma_ead as int64) quantidade_turma_ead,
-        from `basedosdados-staging.br_inep_censo_escolar_staging.escola_2023`
+        from {{ set_datalake_project("br_inep_censo_escolar_staging.escola_2023") }}
     ),
     censo_2024 as (
         select
@@ -2617,7 +2617,7 @@ with
             safe_cast(quantidade_turma_diurno as int64) quantidade_turma_diurno,
             safe_cast(quantidade_turma_noturno as int64) quantidade_turma_noturno,
             safe_cast(quantidade_turma_ead as int64) quantidade_turma_ead
-        from `basedosdados-staging.br_inep_censo_escolar_staging.escola_2024`
+        from {{ set_datalake_project("br_inep_censo_escolar_staging.escola_2024") }}
     )
 
 select *

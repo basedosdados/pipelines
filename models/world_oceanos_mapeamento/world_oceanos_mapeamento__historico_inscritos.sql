@@ -20,7 +20,11 @@ with
                         partition by nome_autor order by count(1) desc
                     ) as rn
                 from
-                    `basedosdados-staging.world_oceanos_mapeamento_staging.historico_inscritos`
+                    {{
+                        set_datalake_project(
+                            "world_oceanos_mapeamento_staging.historico_inscritos"
+                        )
+                    }}
                 where nacionalidade_autor is not null
                 group by nome_autor, nacionalidade_autor
             )
@@ -40,7 +44,11 @@ with
                         partition by nome_autor order by count(1) desc
                     ) as rn_pais
                 from
-                    `basedosdados-staging.world_oceanos_mapeamento_staging.historico_inscritos`
+                    {{
+                        set_datalake_project(
+                            "world_oceanos_mapeamento_staging.historico_inscritos"
+                        )
+                    }}
                 where pais_residencia_autor is not null
                 group by nome_autor, nome_pais_autor
             )
@@ -60,8 +68,11 @@ with
                         partition by nome_editora order by count(1) desc
                     ) as rn_pais_editora
                 from
-                    `basedosdados-staging.world_oceanos_mapeamento_staging.historico_inscritos`
-                    as inscritos
+                    {{
+                        set_datalake_project(
+                            "world_oceanos_mapeamento_staging.historico_inscritos"
+                        )
+                    }} as inscritos
                 left join
                     `basedosdados.br_bd_diretorios_mundo.pais` as pais
                     on inscritos.sede_editora = pais.nome
@@ -92,7 +103,7 @@ select
     safe_cast(indicador_finalista as string) indicador_finalista,
     safe_cast(indicador_semifinalista as string) indicador_semifinalista,
 from
-    `basedosdados-staging.world_oceanos_mapeamento_staging.historico_inscritos` inscritos
+    {{ set_datalake_project("world_oceanos_mapeamento_staging.historico_inscritos") }} inscritos
 left join
     nacionalidade_mais_frequente
     on nacionalidade_mais_frequente.nome_autor_final = inscritos.nome_autor

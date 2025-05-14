@@ -43,4 +43,4 @@ select distinct
     safe_cast(datpagamentorestituicao as datetime) data_pagamento_restituicao,
     safe_cast(vlrrestituicao as float64) valor_restituicao,
     safe_cast(urldocumento as string) url_documento,
-from `basedosdados-staging.br_camara_dados_abertos_staging.despesa` as t
+from {{ set_datalake_project("br_camara_dados_abertos_staging.despesa") }} as t

@@ -20,5 +20,8 @@ select
     safe_cast(serie as string) serie,
     safe_cast(quantidade_matricula as int64) quantidade_matricula,
 from
-    `basedosdados-staging.br_inep_sinopse_estatistica_educacao_basica_staging.etapa_ensino_serie`
-    as t
+    {{
+        set_datalake_project(
+            "br_inep_sinopse_estatistica_educacao_basica_staging.etapa_ensino_serie"
+        )
+    }} as t

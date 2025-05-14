@@ -18,4 +18,6 @@ select
     safe_cast(categoria as string) categoria,
     safe_cast(indicador_juri_intermediario as string) indicador_juri_intermediario,
     safe_cast(indicador_juri_final as string) indicador_juri_final,
-from `basedosdados-staging.world_oceanos_mapeamento_staging.historico_jurados` as t
+from
+    {{ set_datalake_project("world_oceanos_mapeamento_staging.historico_jurados") }}
+    as t

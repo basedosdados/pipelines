@@ -32,5 +32,8 @@ select
     safe_cast(localizacao as string) localizacao,
     safe_cast(quantidade_matricula as int64) quantidade_matricula,
 from
-    `basedosdados-staging.br_inep_sinopse_estatistica_educacao_basica_staging.localizacao`
-    as t
+    {{
+        set_datalake_project(
+            "br_inep_sinopse_estatistica_educacao_basica_staging.localizacao"
+        )
+    }} as t
