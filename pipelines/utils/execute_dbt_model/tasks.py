@@ -187,7 +187,7 @@ def run_dbt_and_download_data_to_gcs(
         flags=flags,
         _vars=_vars,
         disable_elementary=disable_elementary,
-    )
+    ).run()
 
     if download_csv_file:
-        download_data_to_gcs(dataset_id=dataset_id, table_id=table_id)
+        download_data_to_gcs(dataset_id=dataset_id, table_id=table_id).run()
