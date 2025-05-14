@@ -89,7 +89,12 @@ jobs:
           verbose: true
       - name: Register Prefect flows
         run: |-
-          poetry run python .github/workflows/scripts/register_flows.py --project $PREFECT__SERVER__PROJECT --path pipelines/ --no-schedule --filter-affected-flows
+          poetry run python .github/workflows/scripts/register_flows.py \
+            --project $PREFECT__SERVER__PROJECT \
+            --path pipelines/ \
+            --no-schedule \
+            --filter-affected-flows \
+            --modified-files "${{ steps.changed-files.outputs.all_modified_files }}"
   test-dbt-dev-model:
     if: contains(github.event.pull_request.labels.*.name, 'test-dev-model')
     needs: deploy-staging
