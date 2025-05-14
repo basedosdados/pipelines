@@ -400,9 +400,9 @@ if __name__ == "__main__":
 
     # Launch materialization flows
     backend_prefect = Backend(args.prefect_backend_url)
-    # TODO: remove last param
+
     flow_id = get_materialization_flow_id(
-        backend_prefect, args.prefect_backend_token, "staging"
+        backend_prefect, args.prefect_backend_token
     )
     launched_flow_run_ids = []
     for dataset_id, table_id, alias in existing_datasets_tables:

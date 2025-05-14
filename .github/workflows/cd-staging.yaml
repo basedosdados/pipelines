@@ -1,9 +1,9 @@
 ---
 name: cd (staging)
 on:
-  # TODO: restore to pull_request after tests
-  push:
-    branches: [main, staging/migration_dbt]
+  pull_request:
+    branches: [main]
+    types: [labeled, opened]
     paths:
       - .github/workflows/cd-staging.yaml
       - pipelines/**/*
@@ -18,13 +18,6 @@ on:
       # dbt config files
       - dbt_project.yml
       - packages.yml
-  pull_request:
-    types: [labeled, opened]
-    branches: [main, staging/migration_dbt]
-    paths:
-      - models/**/*.sql
-      - models/**/schema.yml
-      - .github/workflows/cd-staging.yaml
 env:
   GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
@@ -48,7 +41,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Set up poetry
-        run: pipx install poetry
+        run: pipx install poetry==1.8.5
       - name: Set up python
         uses: actions/setup-python@v4
         with:
@@ -124,95 +117,3 @@ jobs:
           poetry run python .github/workflows/scripts/table_test.py \
               --modified-files ${{ steps.changed-files.outputs.all_modified_files }} \
               --prefect-backend-token ${{ secrets.PREFECT_BACKEND_AUTH_TOML_API_KEY }}
-  # TODO: Remove after tests
-  table-approve:
-    needs: deploy-staging
-    name: table approve
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Get PR that triggered the push
-        id: get_pr
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const commits = await github.rest.repos.listCommits({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              sha: context.sha
-            });
-            const commitSha = commits.data[0].sha;
-            const prs = await github.rest.repos.listPullRequestsAssociatedWithCommit({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              commit_sha: commitSha
-            });
-            if (prs.data.length === 0) {
-              core.setFailed("No pull request found for this commit.");
-            } else {
-              const pr = prs.data.at(-1);
-              console.log("PR Number", pr.number);
-              console.log(pr)
-              core.setOutput("pr_number", pr.number);
-            }
-      - name: Get PR labels
-        id: check_label
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const pr_number = core.getInput("pr_number") || '${{ steps.get_pr.outputs.pr_number }}';
-            const labels = await github.rest.issues.listLabelsOnIssue({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: pr_number
-            });
-            const approved = labels.data.some(label => label.name === "table-approve");
-            console.log("table-approve label add:", approved);
-            core.setOutput("table-approve", approved);
-      - name: Get changed files in PR
-        if: steps.check_label.outputs.table-approve == 'true'
-        id: changed_files
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const pr_number = core.getInput("pr_number") || '${{ steps.get_pr.outputs.pr_number }}';
-            const files = await github.rest.pulls.listFiles({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: pr_number
-            });
-            const fileNames = files.data
-              .filter(file => file.status !== 'removed')
-              .map(f => f.filename)
-              .join(',');
-            console.log("Changed files:", fileNames);
-            core.setOutput("files", fileNames);
-      - name: Checkout
-        if: steps.check_label.outputs.table-approve == 'true'
-        uses: actions/checkout@v4
-      - name: Set up poetry
-        if: steps.check_label.outputs.table-approve == 'true'
-        run: pipx install poetry==1.8.5
-      - name: Set up python
-        if: steps.check_label.outputs.table-approve == 'true'
-        uses: actions/setup-python@v4
-        with:
-          cache: poetry
-          python-version: '3.10'
-      - name: Install requirements
-        if: steps.check_label.outputs.table-approve == 'true'
-        run: poetry install --only=dev
-      - name: Run script for approving table
-        if: steps.check_label.outputs.table-approve == 'true'
-        run: |-
-          poetry run python .github/workflows/scripts/table_approve.py \
-            --modified-files ${{ steps.changed_files.outputs.files }} \
-            --source-bucket-name basedosdados-dev \
-            --destination-bucket-name basedosdados \
-            --backup-bucket-name basedosdados-backup \
-            --materialization-target prod \
-            --materialization-label basedosdados \
-            --prefect-backend-token ${{ secrets.PREFECT_BACKEND_AUTH_TOML_API_KEY }}
-        env:
-          BASEDOSDADOS_CONFIG: ${{ secrets.BASEDOSDADOS_CONFIG }}
-          BASEDOSDADOS_CREDENTIALS_PROD: ${{ secrets.BASEDOSDADOS_CREDENTIALS_PROD }}
-          BASEDOSDADOS_CREDENTIALS_STAGING: ${{ secrets.BASEDOSDADOS_CREDENTIALS_STAGING }}

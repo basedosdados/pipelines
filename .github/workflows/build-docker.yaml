@@ -2,7 +2,7 @@
 name: Build Docker image
 on:
   push:
-    branches: [main, staging/migration_dbt]
+    branches: [main]
     paths:
       - .github/workflows/cd.yaml
       - pipelines/**/*
@@ -16,7 +16,7 @@ on:
       - dbt_project.yml
       - packages.yml
   pull_request:
-    branches: [main, staging/migration_dbt]
+    branches: [main]
     paths:
       - .github/workflows/cd-staging.yaml
       - .github/workflows/build-docker.yaml
