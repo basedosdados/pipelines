@@ -10,6 +10,7 @@ from typing import Dict, List, Optional, Union
 from dbt.cli.main import dbtRunner
 from prefect import task
 
+from pipelines.utils.dump_to_gcs.tasks import download_data_to_gcs
 from pipelines.utils.execute_dbt_model.constants import (
     constants as constants_execute,
 )
@@ -163,3 +164,30 @@ def run_dbt(
                 raise Exception(result.result)
 
     return True
+
+
+@task
+def run_dbt_and_download_data_to_gcs(
+    dataset_id: str,
+    table_id: Optional[str] = None,
+    dbt_alias: bool = True,
+    dbt_command: str = "run",
+    target: str = "dev",
+    flags: Optional[str] = None,
+    _vars: Optional[Union[dict, List[Dict], str]] = None,
+    disable_elementary: bool = False,
+    download_csv_file: bool = True,
+):
+    run_dbt.run(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_alias=dbt_alias,
+        dbt_command=dbt_command,
+        target=target,
+        flags=flags,
+        _vars=_vars,
+        disable_elementary=disable_elementary,
+    )
+
+    if download_csv_file:
+        download_data_to_gcs.run(dataset_id=dataset_id, table_id=table_id)
