@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
-import zipfile
-import pandas as pd
+
 import basedosdados as bd
-import numpy as np
+import pandas as pd
 
 pd.set_option("display.max_columns", None)
 pd.set_option("display.max_rows", None)
@@ -156,7 +155,9 @@ escolaridade = {
         "table": "docente_escolaridade",
     },
     "educacao_infantil_pre_escola": {
-        "dicionario": RENAMES_ETAPA_ENSINO_SERIE["Educacao Infantil - Pré-Escola"],
+        "dicionario": RENAMES_ETAPA_ENSINO_SERIE[
+            "Educacao Infantil - Pré-Escola"
+        ],
         # "chave": "2.14",
         "chave": "2.12",  # Para anos anteriores a 2010
         "valor": "Educacao Infantil - Pré-Escola",
@@ -166,13 +167,15 @@ escolaridade = {
     "ensino_fundamental": {
         "dicionario": RENAMES_ETAPA_ENSINO_SERIE["Ensino Fundamental"],
         "chave": "2.19",
-        "chave": "2.16",  # Para anos anteriores a 2010
+        "chave": "2.16",  # Para anos anteriores a 2010  # noqa: F601
         "valor": "Ensino Fundamental",
         "skiprows": 9,
         "table": "docente_escolaridade",
     },
     "ensino_fundamental_anos_iniciais": {
-        "dicionario": RENAMES_ETAPA_ENSINO_SERIE["Ensino Fundamental - Anos Iniciais"],
+        "dicionario": RENAMES_ETAPA_ENSINO_SERIE[
+            "Ensino Fundamental - Anos Iniciais"
+        ],
         # "chave": "2.23",
         "chave": "2.19",  # Para anos anteriores a 2010
         "valor": "Ensino Fundamental - Anos Iniciais",
@@ -180,7 +183,9 @@ escolaridade = {
         "table": "docente_escolaridade",
     },
     "ensino_fundamental_anos_finais": {
-        "dicionario": RENAMES_ETAPA_ENSINO_SERIE["Ensino Fundamental - Anos Finais"],
+        "dicionario": RENAMES_ETAPA_ENSINO_SERIE[
+            "Ensino Fundamental - Anos Finais"
+        ],
         # "chave": "2.27",
         "chave": "2.22",  # Para anos anteriores a 2010
         "valor": "Ensino Fundamental - Anos Finais",
@@ -212,7 +217,9 @@ escolaridade = {
         "table": "docente_escolaridade",
     },
     "educacao_especial_classes_comuns": {
-        "dicionario": RENAMES_ETAPA_ENSINO_SERIE["Educacao Especial - Classes Comuns"],
+        "dicionario": RENAMES_ETAPA_ENSINO_SERIE[
+            "Educacao Especial - Classes Comuns"
+        ],
         # "chave": "2.47",
         "chave": "2.38",  # Para anos anteriores a 2010
         "valor": "Educacao Especial - Classes Comuns",
@@ -225,7 +232,7 @@ escolaridade = {
         ],
         # "chave": "2.53",
         "chave": "2.52",  # Para o ano de 2011
-        "chave": "2.42",  # Para anos anteriores a 2010
+        "chave": "2.42",  # Para anos anteriores a 2010  # noqa: F601
         "valor": "Educacao Especial - Classes Exclusivas",
         "skiprows": 9,
         "table": "docente_escolaridade",
@@ -234,7 +241,12 @@ escolaridade = {
 
 
 def read_sheet(
-    table: str, ano: int, chave: str, valor: str, dicionario: dict, skiprows: int = 9
+    table: str,
+    ano: int,
+    chave: str,
+    valor: str,
+    dicionario: dict,
+    skiprows: int = 9,
 ) -> pd.DataFrame:
     print("Tratando dados de", valor, ano)
     path_excel = os.path.join(
@@ -276,14 +288,18 @@ def read_sheet(
         return df.drop(columns=cols_drop)
 
     dfs_escolaridade = {
-        name: drop_unused_columns(df.rename(columns=dicionario, errors="raise"))
+        name: drop_unused_columns(
+            df.rename(columns=dicionario, errors="raise")
+        )
         for name, df in dfs_escolaridade.items()
     }
 
     df_escolaridade = pd.concat(
         [
             df.pipe(
-                lambda d: d.loc[(d["id_municipio"].notna()) & (d["id_municipio"] != " "),]
+                lambda d: d.loc[
+                    (d["id_municipio"].notna()) & (d["id_municipio"] != " "),
+                ]
             )
             .pipe(
                 lambda d: pd.melt(
@@ -307,13 +323,21 @@ def read_sheet(
         reauth=False,
     )
 
-    df_escolaridade["uf"] = df_escolaridade["uf"].apply(lambda uf: uf.strip()).replace({i["nome"]: i["sigla"] for i in bd_dir.to_dict("records")})  # type: ignore
+    df_escolaridade["uf"] = (
+        df_escolaridade["uf"]
+        .apply(lambda uf: uf.strip())
+        .replace({i["nome"]: i["sigla"] for i in bd_dir.to_dict("records")})
+    )  # type: ignore
 
-    df_escolaridade = df_escolaridade.rename(columns={"uf": "sigla_uf"}, errors="raise")
+    df_escolaridade = df_escolaridade.rename(
+        columns={"uf": "sigla_uf"}, errors="raise"
+    )
 
     print("Particionando dados")
     for sigla_uf, df in df_escolaridade.groupby("sigla_uf"):
-        path = os.path.join(OUTPUT, f"{table}", f"ano={ano}", f"sigla_uf={sigla_uf}")
+        path = os.path.join(
+            OUTPUT, f"{table}", f"ano={ano}", f"sigla_uf={sigla_uf}"
+        )
         if not os.path.exists(path):
             os.makedirs(path, exist_ok=True)
             df.drop(columns=["sigla_uf"]).to_csv(
@@ -321,7 +345,10 @@ def read_sheet(
             )
         else:
             df.drop(columns=["sigla_uf"]).to_csv(
-                os.path.join(path, "data.csv"), index=False, mode="a", header=False
+                os.path.join(path, "data.csv"),
+                index=False,
+                mode="a",
+                header=False,
             )
 
 

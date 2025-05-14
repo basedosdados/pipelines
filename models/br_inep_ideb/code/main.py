@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-import pandas as pd
-import numpy as np
 import os
 import zipfile
-import basedosdados as bd
 
+import basedosdados as bd
+import numpy as np
+import pandas as pd
 
 INPUT = os.path.join(os.getcwd(), "input")
 OUTPUT = os.path.join(os.getcwd(), "output")
@@ -55,7 +55,9 @@ def sanitize_dataframe(df: pd.DataFrame, table_escolas: bool) -> pd.DataFrame:
 
     df["REDE"] = df["REDE"].str.lower()
 
-    df["VL_NOTA_MATEMATICA_2015"] = df["VL_NOTA_MATEMATICA_2015"].apply(to_float)
+    df["VL_NOTA_MATEMATICA_2015"] = df["VL_NOTA_MATEMATICA_2015"].apply(
+        to_float
+    )
 
     df["VL_NOTA_PORTUGUES_2015"] = df["VL_NOTA_PORTUGUES_2015"].apply(to_float)
 
@@ -170,7 +172,7 @@ WHERE ano <> 2015
 )
 
 pd.concat(
-    [escolas_without_2015, fixed_escolas_inicial, fixed_escolas_final] # type: ignore
+    [escolas_without_2015, fixed_escolas_inicial, fixed_escolas_final]  # type: ignore
 ).sort_values(["ano", "sigla_uf"]).to_csv(
     os.path.join(OUTPUT, "escola.csv"), index=False
 )
@@ -184,13 +186,17 @@ del bd_escolas_final
 # Municipios
 
 municipios_inicial = pd.read_excel(
-    os.path.join(INPUT, "divulgacao_anos_iniciais_municipios_2019.xlsx"), skiprows=9
+    os.path.join(INPUT, "divulgacao_anos_iniciais_municipios_2019.xlsx"),
+    skiprows=9,
 )
 municipios_final = pd.read_excel(
-    os.path.join(INPUT, "divulgacao_anos_finais_municipios_2019.xlsx"), skiprows=9
+    os.path.join(INPUT, "divulgacao_anos_finais_municipios_2019.xlsx"),
+    skiprows=9,
 )
 
-municipios_inicial = sanitize_dataframe(municipios_inicial, table_escolas=False)
+municipios_inicial = sanitize_dataframe(
+    municipios_inicial, table_escolas=False
+)
 
 municipios_final = sanitize_dataframe(municipios_final, table_escolas=False)
 
@@ -279,7 +285,7 @@ WHERE ano <> 2015
 )
 
 pd.concat(
-    [municipios_without_2015, fixed_municipios_inicial, fixed_municipios_final] # type: ignore
+    [municipios_without_2015, fixed_municipios_inicial, fixed_municipios_final]  # type: ignore
 ).sort_values(["ano", "sigla_uf"]).to_csv(
     os.path.join(OUTPUT, "municipio.csv"), index=False
 )

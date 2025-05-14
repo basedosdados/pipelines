@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 import os
-import zipfile
-import pandas as pd
+
 import basedosdados as bd
 import numpy as np
+import pandas as pd
 
 pd.set_option("display.max_columns", None)
 pd.set_option("display.max_rows", None)
@@ -75,61 +75,60 @@ RENAMES_ETAPA_ENSINO_SERIE = {
         "Municipal.2": "Turmas Multi - Municipal",
         "Privada.2": "Turmas Multi - Privada",
     },
-    "Educacao Profissional": #{
-
-        # "Unnamed: 1": "uf",
-        # "Unnamed: 3": "id_municipio",
-        # "Pública": "Curso Técnico Integrado (Ensino Médio Integrado) - Pública",
-        # "Federal": "Curso Técnico Integrado (Ensino Médio Integrado) - Federal",
-        # "Estadual": "Curso Técnico Integrado (Ensino Médio Integrado) - Estadual",
-        # "Municipal": "Curso Técnico Integrado (Ensino Médio Integrado) - Municipal",
-        # "Privada": "Curso Técnico Integrado (Ensino Médio Integrado) - Privada",
-        # "Pública.1": "Ensino Médio Normal/Magistério - Pública",
-        # "Federal.1": "Ensino Médio Normal/Magistério - Federal",
-        # "Estadual.1": "Ensino Médio Normal/Magistério - Estadual",
-        # "Municipal.1": "Ensino Médio Normal/Magistério - Municipal",
-        # "Privada.1": "Ensino Médio Normal/Magistério - Privada",
-        # "Pública.2": "Curso Técnico Concomitante - Pública",
-        # "Federal.2": "Curso Técnico Concomitante - Federal",
-        # "Estadual.2": "Curso Técnico Concomitante - Estadual",
-        # "Municipal.2": "Curso Técnico Concomitante - Municipal",
-        # "Privada.2": "Curso Técnico Concomitante - Privada",
-        # "Pública.3": "Curso Técnico Subsequente - Pública",
-        # "Federal.3": "Curso Técnico Subsequente - Federal",
-        # "Estadual.3": "Curso Técnico Subsequente - Estadual",
-        # "Municipal.3": "Curso Técnico Subsequente - Municipal",
-        # "Privada.3": "Curso Técnico Subsequente - Privada",
-        # "Pública.4": "Curso Técnico Misto (Concomitante e Subsequente) - Pública",
-        # "Federal.4": "Curso Técnico Misto (Concomitante e Subsequente) - Federal",
-        # "Estadual.4": "Curso Técnico Misto (Concomitante e Subsequente) - Estadual",
-        # "Municipal.4": "Curso Técnico Misto (Concomitante e Subsequente) - Municipal",
-        # "Privada.4": "Curso Técnico Misto (Concomitante e Subsequente) - Privada",
-        # "Pública.5": "Curso Técnico Integrado a EJA - Pública",
-        # "Federal.5": "Curso Técnico Integrado a EJA - Federal",
-        # "Estadual.5": "Curso Técnico Integrado a EJA - Estadual",
-        # "Municipal.5": "Curso Técnico Integrado a EJA - Municipal",
-        # "Privada.5": "Curso Técnico Integrado a EJA - Privada",
-        # "Pública.6": "EJA Ensino Fundamental Projovem Urbano - Pública",
-        # "Federal.6": "EJA Ensino Fundamental Projovem Urbano - Federal",
-        # "Estadual.6": "EJA Ensino Fundamental Projovem Urbano - Estadual",
-        # "Municipal.6": "EJA Ensino Fundamental Projovem Urbano - Municipal",
-        # "Privada.6": "EJA Ensino Fundamental Projovem Urbano - Privada",
-        # "Pública.7": "Curso FIC Concomitante - Pública",
-        # "Federal.7": "Curso FIC Concomitante - Federal",
-        # "Estadual.7": "Curso FIC Concomitante - Estadual",
-        # "Municipal.7": "Curso FIC Concomitante - Municipal",
-        # "Privada.7": "Curso FIC Concomitante - Privada",
-        # "Pública.8": "Curso FIC Integrado na Modalidade EJA de Nível Fundamental - Pública",
-        # "Federal.8": "Curso FIC Integrado na Modalidade EJA de Nível Fundamental - Federal",
-        # "Estadual.8": "Curso FIC Integrado na Modalidade EJA de Nível Fundamental - Estadual",
-        # "Municipal.8": "Curso FIC Integrado na Modalidade EJA de Nível Fundamental - Municipal",
-        # "Privada.8": "Curso FIC Integrado na Modalidade EJA de Nível Fundamental - Privada",
-        # "Pública.9": "Curso FIC Integrado na Modalidade EJA de Nível Médio - Pública",
-        # "Federal.9": "Curso FIC Integrado na Modalidade EJA de Nível Médio - Federal",
-        # "Estadual.9": "Curso FIC Integrado na Modalidade EJA de Nível Médio - Estadual",
-        # "Municipal.9": "Curso FIC Integrado na Modalidade EJA de Nível Médio - Municipal",
-        # "Privada.9": "Curso FIC Integrado na Modalidade EJA de Nível Médio - Privada",
-    #},
+    "Educacao Profissional":  # {
+    # "Unnamed: 1": "uf",
+    # "Unnamed: 3": "id_municipio",
+    # "Pública": "Curso Técnico Integrado (Ensino Médio Integrado) - Pública",
+    # "Federal": "Curso Técnico Integrado (Ensino Médio Integrado) - Federal",
+    # "Estadual": "Curso Técnico Integrado (Ensino Médio Integrado) - Estadual",
+    # "Municipal": "Curso Técnico Integrado (Ensino Médio Integrado) - Municipal",
+    # "Privada": "Curso Técnico Integrado (Ensino Médio Integrado) - Privada",
+    # "Pública.1": "Ensino Médio Normal/Magistério - Pública",
+    # "Federal.1": "Ensino Médio Normal/Magistério - Federal",
+    # "Estadual.1": "Ensino Médio Normal/Magistério - Estadual",
+    # "Municipal.1": "Ensino Médio Normal/Magistério - Municipal",
+    # "Privada.1": "Ensino Médio Normal/Magistério - Privada",
+    # "Pública.2": "Curso Técnico Concomitante - Pública",
+    # "Federal.2": "Curso Técnico Concomitante - Federal",
+    # "Estadual.2": "Curso Técnico Concomitante - Estadual",
+    # "Municipal.2": "Curso Técnico Concomitante - Municipal",
+    # "Privada.2": "Curso Técnico Concomitante - Privada",
+    # "Pública.3": "Curso Técnico Subsequente - Pública",
+    # "Federal.3": "Curso Técnico Subsequente - Federal",
+    # "Estadual.3": "Curso Técnico Subsequente - Estadual",
+    # "Municipal.3": "Curso Técnico Subsequente - Municipal",
+    # "Privada.3": "Curso Técnico Subsequente - Privada",
+    # "Pública.4": "Curso Técnico Misto (Concomitante e Subsequente) - Pública",
+    # "Federal.4": "Curso Técnico Misto (Concomitante e Subsequente) - Federal",
+    # "Estadual.4": "Curso Técnico Misto (Concomitante e Subsequente) - Estadual",
+    # "Municipal.4": "Curso Técnico Misto (Concomitante e Subsequente) - Municipal",
+    # "Privada.4": "Curso Técnico Misto (Concomitante e Subsequente) - Privada",
+    # "Pública.5": "Curso Técnico Integrado a EJA - Pública",
+    # "Federal.5": "Curso Técnico Integrado a EJA - Federal",
+    # "Estadual.5": "Curso Técnico Integrado a EJA - Estadual",
+    # "Municipal.5": "Curso Técnico Integrado a EJA - Municipal",
+    # "Privada.5": "Curso Técnico Integrado a EJA - Privada",
+    # "Pública.6": "EJA Ensino Fundamental Projovem Urbano - Pública",
+    # "Federal.6": "EJA Ensino Fundamental Projovem Urbano - Federal",
+    # "Estadual.6": "EJA Ensino Fundamental Projovem Urbano - Estadual",
+    # "Municipal.6": "EJA Ensino Fundamental Projovem Urbano - Municipal",
+    # "Privada.6": "EJA Ensino Fundamental Projovem Urbano - Privada",
+    # "Pública.7": "Curso FIC Concomitante - Pública",
+    # "Federal.7": "Curso FIC Concomitante - Federal",
+    # "Estadual.7": "Curso FIC Concomitante - Estadual",
+    # "Municipal.7": "Curso FIC Concomitante - Municipal",
+    # "Privada.7": "Curso FIC Concomitante - Privada",
+    # "Pública.8": "Curso FIC Integrado na Modalidade EJA de Nível Fundamental - Pública",
+    # "Federal.8": "Curso FIC Integrado na Modalidade EJA de Nível Fundamental - Federal",
+    # "Estadual.8": "Curso FIC Integrado na Modalidade EJA de Nível Fundamental - Estadual",
+    # "Municipal.8": "Curso FIC Integrado na Modalidade EJA de Nível Fundamental - Municipal",
+    # "Privada.8": "Curso FIC Integrado na Modalidade EJA de Nível Fundamental - Privada",
+    # "Pública.9": "Curso FIC Integrado na Modalidade EJA de Nível Médio - Pública",
+    # "Federal.9": "Curso FIC Integrado na Modalidade EJA de Nível Médio - Federal",
+    # "Estadual.9": "Curso FIC Integrado na Modalidade EJA de Nível Médio - Estadual",
+    # "Municipal.9": "Curso FIC Integrado na Modalidade EJA de Nível Médio - Municipal",
+    # "Privada.9": "Curso FIC Integrado na Modalidade EJA de Nível Médio - Privada",
+    # },
     #####
     # Valores antes depois de 2018
     ####
@@ -180,7 +179,8 @@ RENAMES_ETAPA_ENSINO_SERIE = {
         "Federal.8": "Curso FIC Integrado na Modalidade EJA de Nível Médio - Federal",
         "Estadual.8": "Curso FIC Integrado na Modalidade EJA de Nível Médio - Estadual",
         "Municipal.8": "Curso FIC Integrado na Modalidade EJA de Nível Médio - Municipal",
-        "Privada.8": "Curso FIC Integrado na Modalidade EJA de Nível Médio - Privada"},
+        "Privada.8": "Curso FIC Integrado na Modalidade EJA de Nível Médio - Privada",
+    },
     "EJA": {
         "Unnamed: 1": "uf",
         "Unnamed: 3": "id_municipio",
@@ -279,7 +279,8 @@ RENAMES_ETAPA_ENSINO_SERIE = {
         "Ensino Médio23": "EJA - Ensino Médio",
         "Classes Comuns25": "Educação Especial - Classes Comuns",
         "Classes Exclusivas26": "Educação Especial - Classes Exclusivas",
-    }}
+    },
+}
 
 
 etapa_ensino = {
@@ -293,7 +294,7 @@ etapa_ensino = {
     "educacao_infantil": {
         "dicionario": RENAMES_ETAPA_ENSINO_SERIE["Educacao Infantil"],
         "chave": "Educação Infantil 2.6",
-        #"chave": "Educação Infantil 2.5", # Em 2010, a chave é 2.5
+        # "chave": "Educação Infantil 2.5", # Em 2010, a chave é 2.5
         "valor": "Educacao Infantil",
         "skiprows": 8,
         "table": "docente_etapa_ensino",
@@ -301,7 +302,7 @@ etapa_ensino = {
     "ensino_fundamental": {
         "dicionario": RENAMES_ETAPA_ENSINO_SERIE["Ensino Fundamental"],
         "chave": "Ensino Fundamental 2.16",
-        #"chave": "Ensino Fundamental 2.13", # Em 2010, a chave é 2.13
+        # "chave": "Ensino Fundamental 2.13", # Em 2010, a chave é 2.13
         "valor": "Ensino Fundamental",
         "skiprows": 8,
         "table": "docente_etapa_ensino",
@@ -309,7 +310,7 @@ etapa_ensino = {
     "educacao_profissional": {
         "dicionario": RENAMES_ETAPA_ENSINO_SERIE["Educacao Profissional"],
         "chave": "Educação Profissional 2.33",
-        #"chave": "Educação Profissional 2.26", # Em 2010, a chave é 26
+        # "chave": "Educação Profissional 2.26", # Em 2010, a chave é 26
         "valor": "Ensino Profissional",
         "skiprows": 9,
         "table": "docente_etapa_ensino",
@@ -317,7 +318,7 @@ etapa_ensino = {
     "EJA": {
         "dicionario": RENAMES_ETAPA_ENSINO_SERIE["EJA"],
         "chave": "EJA 2.38",
-        #"chave": "EJA 2.30", # Em 2010, a chave é 2.30
+        # "chave": "EJA 2.30", # Em 2010, a chave é 2.30
         "valor": "EJA",
         "skiprows": 8,
         "table": "docente_etapa_ensino",
@@ -325,24 +326,28 @@ etapa_ensino = {
     "educacao_especial": {
         "dicionario": RENAMES_ETAPA_ENSINO_SERIE["Educacao Especial"],
         "chave": "Educação Especial 2.43",
-        #"chave": "Educação Especial 2.34", # Em 2010, a chave é 2.34
+        # "chave": "Educação Especial 2.34", # Em 2010, a chave é 2.34
         "valor": "Educacao Especial",
         "skiprows": 8,
         "table": "docente_etapa_ensino",
     },
     "educacao_especial_classes_comuns": {
-        "dicionario": RENAMES_ETAPA_ENSINO_SERIE["Educacao Especial - Classes Comuns"],
+        "dicionario": RENAMES_ETAPA_ENSINO_SERIE[
+            "Educacao Especial - Classes Comuns"
+        ],
         "chave": "Classes Comuns 2.44",
-        #"chave": "Classes Comuns 2.35", # Em 2010, a chave é 2.35
+        # "chave": "Classes Comuns 2.35", # Em 2010, a chave é 2.35
         "valor": "Educacao Especial - Classes Comuns",
         "skiprows": 8,
         "table": "docente_etapa_ensino",
     },
     "educacao_especial_classes_exclusivas": {
-        "dicionario": RENAMES_ETAPA_ENSINO_SERIE["Educacao Especial - Classes Exclusivas"],
+        "dicionario": RENAMES_ETAPA_ENSINO_SERIE[
+            "Educacao Especial - Classes Exclusivas"
+        ],
         "chave": "Classes Exclusivas 2.50",
-        #"chave": "Classes Exclusivas 2.49", # Em 2011, a chave é 2.49
-        #"chave" : "Classes Exclusivas 2.39", # Em 2010, a chave é 2.39
+        # "chave": "Classes Exclusivas 2.49", # Em 2011, a chave é 2.49
+        # "chave" : "Classes Exclusivas 2.39", # Em 2010, a chave é 2.39
         "valor": "Educacao Especial - Classes Exclusivas",
         "skiprows": 8,
         "table": "docente_etapa_ensino",
@@ -358,7 +363,12 @@ etapa_ensino = {
 
 
 def read_sheet(
-    table: str, ano: int, chave: str, valor: str, dicionario: dict, skiprows: int = 9
+    table: str,
+    ano: int,
+    chave: str,
+    valor: str,
+    dicionario: dict,
+    skiprows: int = 9,
 ) -> pd.DataFrame:
     print("Tratando dados de", valor)
     df = pd.read_excel(
@@ -371,9 +381,7 @@ def read_sheet(
         sheet_name=chave,
     )
 
-    sheets_etapa_ensino_serie = {
-        chave: valor
-    }
+    sheets_etapa_ensino_serie = {chave: valor}
 
     dfs_etapa_ensino_serie = {
         name: pd.read_excel(
@@ -405,7 +413,9 @@ def read_sheet(
         return df.drop(columns=cols_drop)
 
     dfs_etapa_ensino_serie = {
-        name: drop_unused_columns(df.rename(columns=dicionario, errors="raise"))
+        name: drop_unused_columns(
+            df.rename(columns=dicionario, errors="raise")
+        )
         for name, df in dfs_etapa_ensino_serie.items()
     }
 
@@ -433,7 +443,10 @@ def read_sheet(
     )
 
     df_etapa_ensino["etapa_ensino"] = (
-        df_etapa_ensino["etapa_ensino"].str.strip().replace("", np.nan).dropna()
+        df_etapa_ensino["etapa_ensino"]
+        .str.strip()
+        .replace("", np.nan)
+        .dropna()
     )
 
     bd_dir = bd.read_sql(
@@ -446,17 +459,25 @@ def read_sheet(
         df_etapa_ensino["etapa_ensino"].str.strip().replace("", np.nan)
     )
 
-    df_etapa_ensino['quantidade_docentes'] = df_etapa_ensino['quantidade_docentes'].astype(int)
+    df_etapa_ensino["quantidade_docentes"] = df_etapa_ensino[
+        "quantidade_docentes"
+    ].astype(int)
 
-    df_etapa_ensino = df_etapa_ensino[pd.notna(df_etapa_ensino["etapa_ensino"])]
+    df_etapa_ensino = df_etapa_ensino[
+        pd.notna(df_etapa_ensino["etapa_ensino"])
+    ]
     df_etapa_ensino["uf"] = (
         df_etapa_ensino["uf"]
         .apply(lambda uf: uf.strip())
         .replace({i["nome"]: i["sigla"] for i in bd_dir.to_dict("records")})  # type: ignore
     )
-    df_etapa_ensino = df_etapa_ensino.rename(columns={"uf": "sigla_uf"}, errors="raise")
+    df_etapa_ensino = df_etapa_ensino.rename(
+        columns={"uf": "sigla_uf"}, errors="raise"
+    )
     for sigla_uf, df in df_etapa_ensino.groupby("sigla_uf"):
-        path = os.path.join(OUTPUT, f"{table}", f"ano={ano}", f"sigla_uf={sigla_uf}")
+        path = os.path.join(
+            OUTPUT, f"{table}", f"ano={ano}", f"sigla_uf={sigla_uf}"
+        )
         if not os.path.exists(path):
             os.makedirs(path, exist_ok=True)
             df.drop(columns=["sigla_uf"]).to_csv(
@@ -464,7 +485,10 @@ def read_sheet(
             )
         else:
             df.drop(columns=["sigla_uf"]).to_csv(
-                os.path.join(path, "data.csv"), index=False, mode="a", header=False
+                os.path.join(path, "data.csv"),
+                index=False,
+                mode="a",
+                header=False,
             )
 
     return df_etapa_ensino
@@ -479,7 +503,7 @@ lista = [
     "educacao_especial",
     "educacao_especial_classes_comuns",
     "educacao_especial_classes_exclusivas",
-    #"educacao_indigena",
+    # "educacao_indigena",
 ]
 
 for x in lista:

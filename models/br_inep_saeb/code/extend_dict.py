@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 # Script para alterar o formato da cobertura temporal do dicionario saeb
 # O formato será expandido, cada linha será um ano
-import basedosdados as bd
-import re
 import itertools
-import pandas as pd
 import os
+import re
+
+import basedosdados as bd
+import pandas as pd
 
 ROOT = os.path.join("models", "br_inep_saeb")
 INPUT = os.path.join(ROOT, "input")
@@ -13,9 +14,13 @@ OUTPUT = os.path.join(ROOT, "output")
 
 os.makedirs(OUTPUT, exist_ok=True)
 
-df = pd.read_csv(os.path.join(INPUT, "staging_br_inep_saeb_dicionario_dicionario.csv"))
+df = pd.read_csv(
+    os.path.join(INPUT, "staging_br_inep_saeb_dicionario_dicionario.csv")
+)
 
-df = df.loc[(df["cobertura_temporal"] != "1") & (df["cobertura_temporal"] != "D"),]
+df = df.loc[
+    (df["cobertura_temporal"] != "1") & (df["cobertura_temporal"] != "D"),
+]
 
 
 def parse_temporal_coverage(temporal_coverage: str) -> list[dict[str, int]]:
@@ -41,7 +46,9 @@ def parse_temporal_coverage(temporal_coverage: str) -> list[dict[str, int]]:
 
             # x(y), 2005(2)
             if len(parts) == 2:
-                return dict(start_year=int(parts[0]), temporal_unit=int(parts[1]))
+                return dict(
+                    start_year=int(parts[0]), temporal_unit=int(parts[1])
+                )
 
             return dict(
                 start_year=int(parts[0]),
@@ -70,11 +77,15 @@ def build_date_range(
         return list(
             range(
                 temporal_coverage["start_year"],
-                temporal_coverage["end_year"] + temporal_coverage["temporal_unit"],
+                temporal_coverage["end_year"]
+                + temporal_coverage["temporal_unit"],
                 temporal_coverage["temporal_unit"],
             )
         )
-    elif "start_year" in temporal_coverage and "temporal_unit" in temporal_coverage:
+    elif (
+        "start_year" in temporal_coverage
+        and "temporal_unit" in temporal_coverage
+    ):
         return list(
             range(
                 temporal_coverage["start_year"],
@@ -146,9 +157,9 @@ def transform_df(table_id: str, df: pd.DataFrame) -> pd.DataFrame:
         variables={"table_id": table_slug},
     )
 
-    payload = backend._simplify_graphql_response(response)["allTable"][0]["coverages"][
-        0
-    ]["datetimeRanges"][0]
+    payload = backend._simplify_graphql_response(response)["allTable"][0][
+        "coverages"
+    ][0]["datetimeRanges"][0]
 
     latest_year = payload["endYear"]
     start_year = payload["startYear"]
@@ -157,7 +168,9 @@ def transform_df(table_id: str, df: pd.DataFrame) -> pd.DataFrame:
         lambda x: list(
             itertools.chain(
                 *[  # type: ignore
-                    build_date_range(i, start_year=start_year, latest_year=latest_year)
+                    build_date_range(
+                        i, start_year=start_year, latest_year=latest_year
+                    )
                     for i in parse_temporal_coverage(x)
                 ]
             )
@@ -177,12 +190,17 @@ dict_output = (
     pd.concat(new_dict.values())
     .drop(columns=["cobertura_temporal"])
     .explode("temporal_coverage_parsed")
-    .rename(columns={"temporal_coverage_parsed": "cobertura_temporal"}, errors="raise")
+    .rename(
+        columns={"temporal_coverage_parsed": "cobertura_temporal"},
+        errors="raise",
+    )
 )
 
 dict_output["id_tabela"].unique()
 
-dict_output["id_tabela"] = dict_output["id_tabela"].replace({"aluno_ef_2_ano": "aluno_ef_2ano"})
+dict_output["id_tabela"] = dict_output["id_tabela"].replace(
+    {"aluno_ef_2_ano": "aluno_ef_2ano"}
+)
 
 dict_output.to_csv(OUTPUT_FILE, index=False)
 

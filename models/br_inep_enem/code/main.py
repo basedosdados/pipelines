@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 # Script para criar dicionario dos microdados e questionarios
-import pandas as pd
-import numpy as np
-import requests
-import zipfile
 import io
 import os
+import zipfile
+
 import basedosdados as bd
+import numpy as np
+import pandas as pd
+import requests
 
 YEARS = range(1998, 2022 + 1)
 
@@ -42,12 +43,14 @@ def build_dictionary(year: int, path: str) -> pd.DataFrame:
     assert isinstance(first_col, str) and first_col.startswith("DICIONÁRIO")
 
     line_separator = (
-        f"QUESTIONÁRIO SOCIOECONÔMICO DO ENEM"
+        "QUESTIONÁRIO SOCIOECONÔMICO DO ENEM"
         if year < 2010
         else "DADOS DO QUESTIONÁRIO SOCIOECONÔMICO"
     )
 
-    start_line = df[df[first_col].str.contains(line_separator, na=False)].index[0]
+    start_line = df[
+        df[first_col].str.contains(line_separator, na=False)
+    ].index[0]
 
     df = df[df.index > start_line]
 
@@ -81,11 +84,17 @@ def build_dictionary(year: int, path: str) -> pd.DataFrame:
     df["cobertura_temporal"] = None
     df["id_tabela"] = f"questionario_socioeconomico_{year}"
 
-    df = df[["id_tabela", "nome_coluna", "chave", "cobertura_temporal", "valor"]]
+    df = df[
+        ["id_tabela", "nome_coluna", "chave", "cobertura_temporal", "valor"]
+    ]
     df = df[df["nome_coluna"] != "IN_QSE"]
 
     # Some records contains multiple values
-    df["chave"] = df["chave"].apply(lambda value: value.split("\n") if isinstance(value, str) and "\n" in value else value)  # type: ignore
+    df["chave"] = df["chave"].apply(
+        lambda value: value.split("\n")
+        if isinstance(value, str) and "\n" in value
+        else value
+    )  # type: ignore
 
     assert isinstance(df, pd.DataFrame)
     df = df.explode("chave")
@@ -124,7 +133,9 @@ def read_remote_sheet(url):
 microdados_arch = read_remote_sheet(
     "https://docs.google.com/spreadsheets/d/1EUhqjdB6BDGlksgy4UY8cwTF7pQBavP7Mrhgi-y3GRI/edit#gid=0"
 )
-microdados_arch = microdados_arch[microdados_arch["covered_by_dictionary"] == "yes"]
+microdados_arch = microdados_arch[
+    microdados_arch["covered_by_dictionary"] == "yes"
+]
 
 
 def get_original_name(col_name: str, year: int) -> str:
@@ -136,7 +147,9 @@ def get_original_name(col_name: str, year: int) -> str:
     return values[0]
 
 
-def get_value_and_keys(df: pd.DataFrame, col_name: str, year: int) -> pd.DataFrame:
+def get_value_and_keys(
+    df: pd.DataFrame, col_name: str, year: int
+) -> pd.DataFrame:
     original_col_name = get_original_name(col_name, year)
     df = df.loc[df["variavel"] == original_col_name][["chave", "valor"]]
     df["nome_coluna"] = col_name
@@ -150,18 +163,22 @@ def build_dictionary_microdados(
     df = pd.read_excel(path)
 
     first_col = df.columns[0]
-    assert isinstance(first_col, str) and first_col.startswith(
-        "DICIONÁRIO"
-    ), f"First column should be a string, {path}="
+    assert isinstance(first_col, str) and first_col.startswith("DICIONÁRIO"), (
+        f"First column should be a string, {path}="
+    )
 
     line_end_separator = (
-        f"QUESTIONÁRIO SOCIOECONÔMICO DO ENEM"
+        "QUESTIONÁRIO SOCIOECONÔMICO DO ENEM"
         if year < 2010
         else "DADOS DO QUESTIONÁRIO SOCIOECONÔMICO"
     )
 
-    start_line = df[df[first_col].str.contains("NU_INSCRICAO", na=False)].index[0]
-    end_line = df[df[first_col].str.contains(line_end_separator, na=False)].index[0]
+    start_line = df[
+        df[first_col].str.contains("NU_INSCRICAO", na=False)
+    ].index[0]
+    end_line = df[
+        df[first_col].str.contains(line_end_separator, na=False)
+    ].index[0]
 
     df = df[(df.index >= start_line) & (df.index < end_line)]
 
@@ -190,12 +207,19 @@ def build_dictionary_microdados(
         for col_name in cols_covered_by_dictionary
     ]
 
-    return pd.concat(result).map(lambda x: x.strip() if isinstance(x, str) else x)
+    return pd.concat(result).map(
+        lambda x: x.strip() if isinstance(x, str) else x
+    )
 
 
 dict_microdados_by_year = pd.concat(
     [
-        build_dictionary_microdados(year, f"{dir_dicts}/{template_file}{year}.xlsx", microdados_arch["name"].to_list()) for year in YEARS  # type: ignore
+        build_dictionary_microdados(
+            year,
+            f"{dir_dicts}/{template_file}{year}.xlsx",
+            microdados_arch["name"].to_list(),
+        )
+        for year in YEARS  # type: ignore
     ]
 )
 
@@ -241,14 +265,19 @@ def gen_unique_key_value(col_name: str, df: pd.DataFrame):
             (df["chave"] == key) & (df["valor"] == value), "ano"
         ].values.astype(int)
 
-        intervals = [list(set(interval)) for interval in create_intervals(years)]
+        intervals = [
+            list(set(interval)) for interval in create_intervals(years)
+        ]
 
-        cobertura_temporal = [make_temporal_cov(interval) for interval in intervals]
+        cobertura_temporal = [
+            make_temporal_cov(interval) for interval in intervals
+        ]
 
         return (str(key), ",".join(cobertura_temporal), str(values_by_key[0]))
 
     ranges = [
-        make_ranges(key, value) for (key, value), _ in df.groupby(["chave", "valor"])  # type: ignore
+        make_ranges(key, value)
+        for (key, value), _ in df.groupby(["chave", "valor"])  # type: ignore
     ]
 
     basic_cols = ["chave", "cobertura_temporal", "valor"]
@@ -283,7 +312,9 @@ dict_microdados = pd.concat(
     ]
 )
 
-pd.concat([dict_microdados, dict_by_table]).to_csv(f"{OUTPUT}/dicionario.csv", index=False)  # type: ignore
+pd.concat([dict_microdados, dict_by_table]).to_csv(
+    f"{OUTPUT}/dicionario.csv", index=False
+)  # type: ignore
 
 # Upload dictionary
 tb = bd.Table(dataset_id="br_inep_enem", table_id="dicionario")

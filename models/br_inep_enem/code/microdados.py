@@ -1,23 +1,11 @@
 # -*- coding: utf-8 -*-
-import pandas as pd
-import numpy as np
-import os
-from io import StringIO
-import requests
-import gc
 import warnings
-import re
-from datetime import datetime
-from os import getenv, walk
-from os.path import join
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
-from uuid import uuid4
-import zipfile
-import basedosdados as bd
+from typing import List
 
 import numpy as np
 import pandas as pd
+
 warnings.filterwarnings("ignore")
 
 
@@ -53,7 +41,8 @@ def to_partitions(
         unique_combinations = (
             data[partition_columns]
             # .astype(str)
-            .drop_duplicates(subset=partition_columns).to_dict(orient="records")
+            .drop_duplicates(subset=partition_columns)
+            .to_dict(orient="records")
         )
 
         for filter_combination in unique_combinations:
@@ -98,13 +87,16 @@ def to_partitions(
 
 
 valor = 0
+
+
 def read_csv_enem():
     global valor
     for df in pd.read_csv(
         "/home/tricktx/dados/br_inep_enem/Microdados ENEM 2023/DADOS/MICRODADOS_ENEM_2023.csv",
         sep=";",
         encoding="latin1",
-        chunksize=100000):
+        chunksize=100000,
+    ):
         valor = valor + 1
         print(valor)
         RENAME = {
@@ -224,15 +216,15 @@ def read_csv_enem():
             "indicador_questionario_socioeconomico",
         ]
         for col in lista:
-            if col not in df_lista.columns:
-                df_lista[col] = str(np.nan)
+            if col not in df_lista.columns:  # noqa: F821
+                df_lista[col] = str(np.nan)  # noqa: F821
 
-        for x in df_lista.columns:
-            df_lista[x] = df_lista[x].apply(
+        for x in df_lista.columns:  # noqa: F821
+            df_lista[x] = df_lista[x].apply(  # noqa: F821
                 lambda x: str(x).replace(".0", "").replace("nan", "")
             )
 
-        df_lista = df_lista[
+        df_lista = df_lista[  # noqa: F821
             [
                 "ano",
                 "id_inscricao",
@@ -304,6 +296,8 @@ def read_csv_enem():
             data=df_lista,
             partition_columns=["ano"],
             savepath="/home/tricktx/dados/br_inep_enem/main/",
-            file_type="csv")
+            file_type="csv",
+        )
+
 
 read_csv_enem()

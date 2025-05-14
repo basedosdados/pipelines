@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 import os
+
 import basedosdados as bd
 import pandas as pd
 from utils import (
     RENAMES_MUN,
-    get_nivel_serie_disciplina,
-    get_disciplina_serie,
     convert_to_pd_dtype,
     drop_empty_lines,
+    get_disciplina_serie,
+    get_nivel_serie_disciplina,
 )
 
 CWD = os.path.dirname(os.getcwd())
@@ -30,7 +31,11 @@ mun_saeb_latest = (
     mun_saeb_latest.drop(0, axis="index")
     .rename(
         # Algumas colunas que tem em estados nao tem em municipio
-        columns={k: v for k, v in RENAMES_MUN.items() if k in mun_saeb_latest.columns},
+        columns={
+            k: v
+            for k, v in RENAMES_MUN.items()
+            if k in mun_saeb_latest.columns
+        },
         errors="raise",
     )
     .drop(columns=["CO_UF", "NO_MUNICIPIO"])
@@ -47,7 +52,9 @@ mun_saeb_nivel_long_fmt = pd.melt(
         "localizacao",
     ],
     value_vars=[
-        col for col in mun_saeb_latest.columns.tolist() if col.startswith("nivel")
+        col
+        for col in mun_saeb_latest.columns.tolist()
+        if col.startswith("nivel")
     ],
 )
 
@@ -60,7 +67,9 @@ mun_saeb_media_long_fmt = pd.melt(
         "localizacao",
     ],
     value_vars=[
-        col for col in mun_saeb_latest.columns.tolist() if col.startswith("media")
+        col
+        for col in mun_saeb_latest.columns.tolist()
+        if col.startswith("media")
     ],
 )
 
@@ -78,7 +87,9 @@ mun_saeb_media_long_fmt = (
 
 mun_saeb_nivel_long_fmt = (
     mun_saeb_nivel_long_fmt.assign(
-        parsed_variable=lambda df: df["variable"].apply(get_nivel_serie_disciplina)
+        parsed_variable=lambda df: df["variable"].apply(
+            get_nivel_serie_disciplina
+        )
     )
     .assign(
         nivel=lambda df: df["parsed_variable"].apply(lambda v: v[0]),
@@ -146,13 +157,20 @@ bd_dirs_ufs = bd.read_sql(
 
 mun_saeb_latest_output = (
     # Apenas MT e LP
-    mun_saeb_latest_output.loc[mun_saeb_latest_output["disciplina"].isin(["mt", "lp"])]
+    mun_saeb_latest_output.loc[
+        mun_saeb_latest_output["disciplina"].isin(["mt", "lp"])
+    ]
     .assign(
         disciplina=lambda df: df["disciplina"].str.upper(),
         rede=lambda df: df["rede"].str.lower(),
         localizacao=lambda df: df["localizacao"].str.lower(),
         sigla_uf=lambda df: df["nome_uf"].replace(
-            dict([(i["nome"], i["sigla"]) for i in bd_dirs_ufs.to_dict("records")])  # type: ignore
+            dict(
+                [
+                    (i["nome"], i["sigla"])
+                    for i in bd_dirs_ufs.to_dict("records")
+                ]
+            )  # type: ignore
         ),
         serie=lambda df: df["serie"].replace(
             {
@@ -191,7 +209,9 @@ col_dtypes = {
 }
 
 # Order columns
-mun_saeb_latest_output = mun_saeb_latest_output.astype(col_dtypes)[col_dtypes.keys()]
+mun_saeb_latest_output = mun_saeb_latest_output.astype(col_dtypes)[
+    col_dtypes.keys()
+]
 
 upstream_df = bd.read_sql(
     "select * from `basedosdados.br_inep_saeb.municipio` where ano <> 2021",

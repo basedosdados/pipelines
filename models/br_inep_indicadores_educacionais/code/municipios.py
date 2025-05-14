@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
 import zipfile
-from functools import reduce
-import pandas as pd
-import basedosdados as bd
-
 from code.constants import (  # type: ignore
     rename_afd,
     rename_atu,
@@ -17,6 +13,10 @@ from code.constants import (  # type: ignore
     rename_tnr,
     rename_tx,
 )
+from functools import reduce
+
+import basedosdados as bd
+import pandas as pd
 
 URLS_MUNICIPIOS = [
     "https://download.inep.gov.br/informacoes_estatisticas/indicadores_educacionais/2023/AFD_2023_MUNICIPIOS.zip",
@@ -60,7 +60,9 @@ afd = pd.read_excel(
     skiprows=10,
 ).drop(columns=UNSUED_COLS)
 
-afd = afd.rename(columns={**COL_ID_MUNICIPIO_RENAME, **rename_afd}, errors="raise")
+afd = afd.rename(
+    columns={**COL_ID_MUNICIPIO_RENAME, **rename_afd}, errors="raise"
+)
 
 afd = afd.loc[afd["ano"] == 2023,]
 afd["localizacao"] = afd["localizacao"].str.lower()
@@ -72,7 +74,9 @@ atu = pd.read_excel(
     skiprows=8,
 ).drop(columns=UNSUED_COLS)
 
-atu = atu.rename(columns={**COL_ID_MUNICIPIO_RENAME, **rename_atu}, errors="raise")
+atu = atu.rename(
+    columns={**COL_ID_MUNICIPIO_RENAME, **rename_atu}, errors="raise"
+)
 
 atu = atu.loc[atu["ano"] == 2023,]
 atu["localizacao"] = atu["localizacao"].str.lower()
@@ -84,7 +88,9 @@ dsu = pd.read_excel(
     skiprows=9,
 ).drop(columns=UNSUED_COLS)
 
-dsu = dsu.rename(columns={**COL_ID_MUNICIPIO_RENAME, **rename_dsu}, errors="raise")
+dsu = dsu.rename(
+    columns={**COL_ID_MUNICIPIO_RENAME, **rename_dsu}, errors="raise"
+)
 
 dsu = dsu.loc[dsu["ano"] == 2023,]
 dsu["localizacao"] = dsu["localizacao"].str.lower()
@@ -97,7 +103,10 @@ had = pd.read_excel(
 
 rename_had_adapted = {
     k: v
-    for k, v in {**{"MED_NS_CAT_01": "had_em_nao_seriado"}, **rename_had}.items()
+    for k, v in {
+        **{"MED_NS_CAT_01": "had_em_nao_seriado"},
+        **rename_had,
+    }.items()
     if k != "MED_NS_CAT_0"
 }
 
@@ -115,7 +124,9 @@ icg = pd.read_excel(
     skiprows=8,
 ).drop(columns=UNSUED_COLS)
 
-icg = icg.rename(columns={**COL_ID_MUNICIPIO_RENAME, **rename_icg}, errors="raise")
+icg = icg.rename(
+    columns={**COL_ID_MUNICIPIO_RENAME, **rename_icg}, errors="raise"
+)
 
 icg = icg.loc[icg["ano"] == 2023,]
 icg["localizacao"] = icg["localizacao"].str.lower()
@@ -127,7 +138,9 @@ ied = pd.read_excel(
     skiprows=10,
 ).drop(columns=UNSUED_COLS)
 
-ied = ied.rename(columns={**COL_ID_MUNICIPIO_RENAME, **rename_ied}, errors="raise")
+ied = ied.rename(
+    columns={**COL_ID_MUNICIPIO_RENAME, **rename_ied}, errors="raise"
+)
 
 ied = ied.loc[ied["ano"] == 2023,]
 ied["localizacao"] = ied["localizacao"].str.lower()
@@ -139,7 +152,9 @@ ird = pd.read_excel(
     skiprows=9,
 ).drop(columns=UNSUED_COLS)
 
-ird = ird.rename(columns={**COL_ID_MUNICIPIO_RENAME, **rename_ird}, errors="raise")
+ird = ird.rename(
+    columns={**COL_ID_MUNICIPIO_RENAME, **rename_ird}, errors="raise"
+)
 
 ird = ird.loc[ird["ano"] == 2023,]
 ird["localizacao"] = ird["localizacao"].str.lower()
@@ -151,7 +166,9 @@ tdi = pd.read_excel(
     skiprows=8,
 ).drop(columns=UNSUED_COLS)
 
-tdi = tdi.rename(columns={**COL_ID_MUNICIPIO_RENAME, **rename_tdi}, errors="raise")
+tdi = tdi.rename(
+    columns={**COL_ID_MUNICIPIO_RENAME, **rename_tdi}, errors="raise"
+)
 
 tdi = tdi.loc[tdi["ano"] == 2023,]
 tdi["localizacao"] = tdi["localizacao"].str.lower()
@@ -163,7 +180,9 @@ tnr = pd.read_excel(
     skiprows=8,
 ).drop(columns=UNSUED_COLS)
 
-tnr = tnr.rename(columns={**COL_ID_MUNICIPIO_RENAME, **rename_tnr}, errors="raise")
+tnr = tnr.rename(
+    columns={**COL_ID_MUNICIPIO_RENAME, **rename_tnr}, errors="raise"
+)
 
 tnr = tnr.loc[tnr["ano"] == 2022,]
 tnr["localizacao"] = tnr["localizacao"].str.lower()
@@ -179,7 +198,9 @@ tx = pd.read_excel(
     skiprows=8,
 ).drop(columns=UNSUED_COLS)
 
-tx = tx.rename(columns={**COL_ID_MUNICIPIO_RENAME, **rename_tx}, errors="raise")
+tx = tx.rename(
+    columns={**COL_ID_MUNICIPIO_RENAME, **rename_tx}, errors="raise"
+)
 
 tx = tx.loc[tx["ano"] == 2022,]
 tx["localizacao"] = tx["localizacao"].str.lower()
@@ -198,7 +219,9 @@ WHERE
 )
 
 tnr_columns = [
-    i for i in tnr.columns if i not in ["ano", "id_municipio", "localizacao", "rede"]
+    i
+    for i in tnr.columns
+    if i not in ["ano", "id_municipio", "localizacao", "rede"]
 ]
 
 tnr["id_municipio"] = tnr["id_municipio"].astype("Int64").astype("str")
@@ -211,7 +234,9 @@ municipio_2022_updated = municipio_2022.drop(columns=tnr_columns).merge(  # type
 )
 
 tx_columns = [
-    i for i in tx.columns if i not in ["ano", "id_municipio", "localizacao", "rede"]
+    i
+    for i in tx.columns
+    if i not in ["ano", "id_municipio", "localizacao", "rede"]
 ]
 
 tx["id_municipio"] = tx["id_municipio"].astype("Int64").astype("str")

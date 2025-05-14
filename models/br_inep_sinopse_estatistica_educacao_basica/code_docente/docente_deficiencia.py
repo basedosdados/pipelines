@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
-import zipfile
-import pandas as pd
+
 import basedosdados as bd
-import numpy as np
+import pandas as pd
 
 INPUT = os.path.join(os.getcwd(), "input")
 OUTPUT = os.path.join(os.getcwd(), "output")
@@ -51,7 +50,9 @@ deficiencia = {
         "table": "docente_deficiencia",
     },
     "educacao_especial_classes_exclusivas": {
-        "dicionario": RENAME_DEFICIENCIA["Educacao Especial - Classes Exclusivas"],
+        "dicionario": RENAME_DEFICIENCIA[
+            "Educacao Especial - Classes Exclusivas"
+        ],
         "chave": "2.54",
         "valor": "Educacao Especial - Classes Exclusivas",
         "skiprows": 7,
@@ -79,7 +80,9 @@ def read_sheet(
     sheets_etapa_ensino_serie = {chave: valor}
 
     dfs_deficiencia = {
-        name: pd.read_excel(path_excel, skiprows=skiprows, sheet_name=sheet_name)
+        name: pd.read_excel(
+            path_excel, skiprows=skiprows, sheet_name=sheet_name
+        )
         for sheet_name, name in sheets_etapa_ensino_serie.items()
     }
 
@@ -110,7 +113,9 @@ def read_sheet(
     df_deficiencia = pd.concat(
         [
             df.pipe(
-                lambda d: d.loc[(d["id_municipio"].notna()) & (d["id_municipio"] != " "),]
+                lambda d: d.loc[
+                    (d["id_municipio"].notna()) & (d["id_municipio"] != " "),
+                ]
             )
             .pipe(
                 lambda d: pd.melt(
@@ -134,17 +139,25 @@ def read_sheet(
         reauth=False,
     )
 
-    df_deficiencia["uf"] = df_deficiencia["uf"].apply(lambda uf: uf.strip()).replace({i["nome"]: i["sigla"] for i in bd_dir.to_dict("records")})  # type: ignore
+    df_deficiencia["uf"] = (
+        df_deficiencia["uf"]
+        .apply(lambda uf: uf.strip())
+        .replace({i["nome"]: i["sigla"] for i in bd_dir.to_dict("records")})
+    )  # type: ignore
 
-    df_deficiencia = df_deficiencia.rename(columns={"uf": "sigla_uf"}, errors="raise")
-
-    df_deficiencia["quantidade_docente"] = df_deficiencia["quantidade_docente"].astype(
-        int
+    df_deficiencia = df_deficiencia.rename(
+        columns={"uf": "sigla_uf"}, errors="raise"
     )
+
+    df_deficiencia["quantidade_docente"] = df_deficiencia[
+        "quantidade_docente"
+    ].astype(int)
 
     print("Particionando dados")
     for sigla_uf, df in df_deficiencia.groupby("sigla_uf"):
-        path = os.path.join(OUTPUT, f"{table}", f"ano={ano}", f"sigla_uf={sigla_uf}")
+        path = os.path.join(
+            OUTPUT, f"{table}", f"ano={ano}", f"sigla_uf={sigla_uf}"
+        )
         if not os.path.exists(path):
             os.makedirs(path, exist_ok=True)
             df.drop(columns=["sigla_uf"]).to_csv(
@@ -152,10 +165,14 @@ def read_sheet(
             )
         else:
             df.drop(columns=["sigla_uf"]).to_csv(
-                os.path.join(path, "data.csv"), index=False, mode="a", header=False
+                os.path.join(path, "data.csv"),
+                index=False,
+                mode="a",
+                header=False,
             )
 
-if __name__ == '__main__' :
+
+if __name__ == "__main__":
     lista = [
         "educacao_especial_classes_comuns",
         "educacao_especial_classes_exclusivas",

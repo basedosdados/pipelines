@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import duckdb
 
+
 def readYearData():
-    duckdb.read_csv("./input/year_fire_data.csv", header = True)
+    duckdb.read_csv("./input/year_fire_data.csv", header=True)
     duckdb.sql("""
         CREATE TABLE year_data AS
         SELECT
@@ -15,8 +16,9 @@ def readYearData():
         FROM './input/year_fire_data.csv'
     """)
 
+
 def readMonthData():
-    duckdb.read_csv("./input/month_fire_data.csv", header = True)
+    duckdb.read_csv("./input/month_fire_data.csv", header=True)
     duckdb.sql("""
         CREATE TABLE month_data AS
         SELECT
@@ -34,6 +36,7 @@ def readMonthData():
         FROM './input/month_fire_data.csv'
     """)
 
+
 def mergeData():
     duckdb.sql("""
         CREATE TABLE complete_data AS
@@ -41,6 +44,7 @@ def mergeData():
             UNION BY NAME
             SELECT * FROM month_data
     """)
+
 
 def getDateFields():
     duckdb.sql("""
@@ -55,6 +59,7 @@ def getDateFields():
                 EXTRACT(SECOND FROM data_hora) AS segundo,
             FROM complete_data
     """)
+
 
 def getStateLetters():
     duckdb.sql("""
@@ -94,6 +99,7 @@ def getStateLetters():
             FROM date_data
     """)
 
+
 def mapCityNames():
     duckdb.sql("""
         CREATE VIEW cidades_dir AS
@@ -110,8 +116,12 @@ def mapCityNames():
 
     """)
 
+
 def saveData():
-    duckdb.sql("COPY city_data TO './output/fire_data' (FORMAT CSV, PARTITION_BY (ano, mes), OVERWRITE_OR_IGNORE);")
+    duckdb.sql(
+        "COPY city_data TO './output/fire_data' (FORMAT CSV, PARTITION_BY (ano, mes), OVERWRITE_OR_IGNORE);"
+    )
+
 
 if __name__ == "__main__":
     readYearData()
@@ -120,6 +130,5 @@ if __name__ == "__main__":
     getDateFields()
     getStateLetters()
     mapCityNames()
-    #saveData()
-    duckdb.sql('SELECT * FROM city_data').show()
-
+    # saveData()
+    duckdb.sql("SELECT * FROM city_data").show()

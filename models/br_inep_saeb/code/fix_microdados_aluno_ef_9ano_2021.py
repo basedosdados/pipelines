@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-import polars as pl
 import os
-import basedosdados as bd
-from databasers_utils import TableArchitecture
 import zipfile
+
+import basedosdados as bd
+import polars as pl
+from databasers_utils import TableArchitecture
 
 ROOT = os.path.join("models", "br_inep_saeb")
 INPUT = os.path.join(ROOT, "input")
@@ -25,9 +26,9 @@ with zipfile.ZipFile(ZIP_FILE) as z:
     z.extract("DADOS/TS_ALUNO_9EF.csv", TMP)
 
 # Apenas Roraima (RR)
-df = pl.read_csv(os.path.join(TMP, "DADOS/TS_ALUNO_9EF.csv"), separator=";").filter(
-    pl.col("ID_UF") == 14
-)
+df = pl.read_csv(
+    os.path.join(TMP, "DADOS/TS_ALUNO_9EF.csv"), separator=";"
+).filter(pl.col("ID_UF") == 14)
 
 csv_columns = df.columns
 
@@ -45,7 +46,10 @@ arch_ef_9ano = tables_arch["aluno_ef_9ano"]
 cols_disciplina = [
     i
     for i in csv_columns
-    if i.endswith("LP") or i.endswith("MT") or i.endswith("CH") or i.endswith("CN")
+    if i.endswith("LP")
+    or i.endswith("MT")
+    or i.endswith("CH")
+    or i.endswith("CN")
 ]
 
 index_cols = [
@@ -129,7 +133,8 @@ def renames_variables(value: tuple[str, str]) -> str:
 other_index_cols = [
     i
     for i in csv_columns
-    if i.startswith("TX_RESP") and i.split("_")[-1] not in ["LP", "MT", "CH", "CN"]
+    if i.startswith("TX_RESP")
+    and i.split("_")[-1] not in ["LP", "MT", "CH", "CN"]
 ]
 
 
@@ -146,7 +151,9 @@ def wide_to_long(df: pl.DataFrame) -> pl.DataFrame:
         )
         .with_columns(
             pl.struct(["variable", "disciplina"]).map_elements(
-                lambda cols: renames_variables((cols["variable"], cols["disciplina"])),
+                lambda cols: renames_variables(
+                    (cols["variable"], cols["disciplina"])
+                ),
                 return_dtype=pl.String,
             )
         )
@@ -208,7 +215,9 @@ len(empty_cols_to_add)
 
 df = (
     df.with_columns([pl.lit(None).alias(col) for col in empty_cols_to_add])
-    .with_columns([pl.col(col_name).cast(pl.String) for col_name in cols_dict.keys()])
+    .with_columns(
+        [pl.col(col_name).cast(pl.String) for col_name in cols_dict.keys()]
+    )
     .select(*cols_dict.keys())
     .filter(pl.col("disciplina") == "MT")
 )

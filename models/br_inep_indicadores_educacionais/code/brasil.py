@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
-from functools import reduce
 import os
-import basedosdados as bd
-import pandas as pd
 import zipfile
-
 from code.constants import (  # type: ignore
     rename_afd,
     rename_atu,
@@ -17,6 +13,10 @@ from code.constants import (  # type: ignore
     rename_tnr,
     rename_tx,
 )
+from functools import reduce
+
+import basedosdados as bd
+import pandas as pd
 
 URLS = [
     "https://download.inep.gov.br/informacoes_estatisticas/indicadores_educacionais/2023/ATU_2023_BRASIL_REGIOES_UFS.zip",
@@ -55,7 +55,9 @@ for file in os.listdir(INPUT_BR):
 
 afd = pd.read_excel(
     os.path.join(
-        INPUT_BR, "AFD_2023_BRASIL_REGIOES_UF", "AFD_BRASIL_REGIOES_UFS_2023.xlsx"
+        INPUT_BR,
+        "AFD_2023_BRASIL_REGIOES_UF",
+        "AFD_BRASIL_REGIOES_UFS_2023.xlsx",
     ),
     skiprows=10,
 )
@@ -71,7 +73,9 @@ afd["rede"] = afd["rede"].str.lower().replace("pública", "publica")
 
 atu = pd.read_excel(
     os.path.join(
-        INPUT_BR, "ATU_2023_BRASIL_REGIOES_UFS", "ATU_BRASIL_REGIOES_UFS_2023.xlsx"
+        INPUT_BR,
+        "ATU_2023_BRASIL_REGIOES_UFS",
+        "ATU_BRASIL_REGIOES_UFS_2023.xlsx",
     ),
     skiprows=8,
 )
@@ -85,7 +89,9 @@ atu["rede"] = atu["rede"].str.lower().replace("pública", "publica")
 # Percentual de Docentes com Curso Superior
 dsu = pd.read_excel(
     os.path.join(
-        INPUT_BR, "DSU_2023_BRASIL_REGIOES_UFS", "DSU_BRASIL_REGIOES_UFS_2023.xlsx"
+        INPUT_BR,
+        "DSU_2023_BRASIL_REGIOES_UFS",
+        "DSU_BRASIL_REGIOES_UFS_2023.xlsx",
     ),
     skiprows=9,
 )
@@ -102,7 +108,9 @@ dsu["rede"] = dsu["rede"].str.lower().replace("pública", "publica")
 
 had = pd.read_excel(
     os.path.join(
-        INPUT_BR, "HAD_2023_BRASIL_REGIOES_UFS", "HAD_BRASIL_REGIOES_UFS_2023.xlsx"
+        INPUT_BR,
+        "HAD_2023_BRASIL_REGIOES_UFS",
+        "HAD_BRASIL_REGIOES_UFS_2023.xlsx",
     ),
     skiprows=8,
 )
@@ -118,7 +126,9 @@ had["rede"] = had["rede"].str.lower().replace("pública", "publica")
 
 icg = pd.read_excel(
     os.path.join(
-        INPUT_BR, "ICG_2023_BRASIL_REGIOES_UFS", "ICG_BRASIL_REGIOES_UFS_2023.xlsx"
+        INPUT_BR,
+        "ICG_2023_BRASIL_REGIOES_UFS",
+        "ICG_BRASIL_REGIOES_UFS_2023.xlsx",
     ),
     skiprows=8,
 )
@@ -134,7 +144,9 @@ icg["rede"] = icg["rede"].str.lower().replace("pública", "publica")
 
 ied = pd.read_excel(
     os.path.join(
-        INPUT_BR, "IED_2023_BRASIL_REGIOES_UFS", "IED_BRASIL_REGIOES_UFS_2023.xlsx"
+        INPUT_BR,
+        "IED_2023_BRASIL_REGIOES_UFS",
+        "IED_BRASIL_REGIOES_UFS_2023.xlsx",
     ),
     skiprows=10,
 )
@@ -149,7 +161,9 @@ ied["rede"] = ied["rede"].str.lower().replace("pública", "publica")
 
 ird = pd.read_excel(
     os.path.join(
-        INPUT_BR, "IRD_2023_BRASIL_REGIOES_UFS", "IRD_BRASIL_REGIOES_UFS_2023.xlsx"
+        INPUT_BR,
+        "IRD_2023_BRASIL_REGIOES_UFS",
+        "IRD_BRASIL_REGIOES_UFS_2023.xlsx",
     ),
     skiprows=9,
 )
@@ -165,7 +179,9 @@ ird["rede"] = ird["rede"].str.lower().replace("pública", "publica")
 
 tdi = pd.read_excel(
     os.path.join(
-        INPUT_BR, "TDI_2023_BRASIL_REGIOES_UFS", "TDI_BRASIL_REGIOES_UFS_2023.xlsx"
+        INPUT_BR,
+        "TDI_2023_BRASIL_REGIOES_UFS",
+        "TDI_BRASIL_REGIOES_UFS_2023.xlsx",
     ),
     skiprows=8,
 )
@@ -181,7 +197,9 @@ tdi["rede"] = tdi["rede"].str.lower().replace("pública", "publica")
 
 tnr = pd.read_excel(
     os.path.join(
-        INPUT_BR, "tnr_brasil_regioes_ufs_2022", "tnr_brasil_regioes_ufs_2022.xlsx"
+        INPUT_BR,
+        "tnr_brasil_regioes_ufs_2022",
+        "tnr_brasil_regioes_ufs_2022.xlsx",
     ),
     skiprows=8,
 )
@@ -255,7 +273,9 @@ bd_dir = bd.read_sql(
 regioes = bd_dir["regiao"].unique()  # type: ignore
 estados = bd_dir["nome"].unique()  # type: ignore
 
-tnr_brasil_2022 = tnr.loc[tnr["UNIDGEO"] == "Brasil",].drop(columns=["UNIDGEO"])
+tnr_brasil_2022 = tnr.loc[tnr["UNIDGEO"] == "Brasil",].drop(
+    columns=["UNIDGEO"]
+)
 
 tnr_ufs_2022 = (
     tnr.loc[tnr["UNIDGEO"].isin(estados),]
@@ -271,7 +291,9 @@ tnr_regioes_2022 = tnr.loc[tnr["UNIDGEO"].isin(regioes),].rename(
 )
 
 tnr_columns = [
-    i for i in tnr_brasil_2022.columns if i not in ["ano", "localizacao", "rede"]
+    i
+    for i in tnr_brasil_2022.columns
+    if i not in ["ano", "localizacao", "rede"]
 ]
 
 # TNR Brasil 2022
@@ -314,7 +336,9 @@ tx_regioes_2022 = tx.loc[tx["UNIDGEO"].isin(regioes),].rename(
 )
 
 tx_columns = [
-    i for i in tx_brasil_2022.columns if i not in ["ano", "localizacao", "rede"]
+    i
+    for i in tx_brasil_2022.columns
+    if i not in ["ano", "localizacao", "rede"]
 ]
 
 # TX Brasil 2022
@@ -350,7 +374,9 @@ brasil_output_path = os.path.join(OUTPUT, "brasil")
 for key, df in brasil_2022_updated.groupby("ano"):
     path = os.path.join(brasil_output_path, f"ano={key}")
     os.makedirs(path, exist_ok=True)
-    df.drop(columns="ano").to_csv(os.path.join(path, "brasil.csv"), index=False)
+    df.drop(columns="ano").to_csv(
+        os.path.join(path, "brasil.csv"), index=False
+    )
 
 
 uf_output_path = os.path.join(OUTPUT, "uf")
@@ -368,7 +394,9 @@ regioes_output_path = os.path.join(OUTPUT, "regiao")
 for year, df in regiao_2022_updated.groupby("ano"):
     path = os.path.join(regioes_output_path, f"ano={year}")
     os.makedirs(path, exist_ok=True)
-    df.drop(columns=["ano"]).to_csv(os.path.join(path, "data.csv"), index=False)
+    df.drop(columns=["ano"]).to_csv(
+        os.path.join(path, "data.csv"), index=False
+    )
 
 
 # Atualizacoes disponivel para 2023
@@ -389,7 +417,9 @@ df_2023 = df_2023.replace("--", None)
 for empty_col in [*tnr_columns, *tx_columns]:
     df_2023[empty_col] = None
 
-brasil_2023 = df_2023.loc[df_2023["UNIDGEO"] == "Brasil",].drop(columns=["UNIDGEO"])[
+brasil_2023 = df_2023.loc[df_2023["UNIDGEO"] == "Brasil",].drop(
+    columns=["UNIDGEO"]
+)[
     brasil_2022.columns  # type: ignore
 ]
 
@@ -398,7 +428,9 @@ assert brasil_2022.shape[1] == brasil_2023.shape[1]  # type: ignore
 for key, df in brasil_2023.groupby("ano"):
     path = os.path.join(brasil_output_path, f"ano={key}")
     os.makedirs(path, exist_ok=True)
-    df.drop(columns="ano").to_csv(os.path.join(path, "brasil.csv"), index=False)
+    df.drop(columns="ano").to_csv(
+        os.path.join(path, "brasil.csv"), index=False
+    )
 
 uf_2023 = (
     df_2023.loc[df_2023["UNIDGEO"].isin(estados),]
@@ -426,4 +458,6 @@ regioes_2023 = (
 for year, df in regioes_2023.groupby("ano"):
     path = os.path.join(regioes_output_path, f"ano={year}")
     os.makedirs(path, exist_ok=True)
-    df.drop(columns=["ano"]).to_csv(os.path.join(path, "data.csv"), index=False)
+    df.drop(columns=["ano"]).to_csv(
+        os.path.join(path, "data.csv"), index=False
+    )

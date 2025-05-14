@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 import os
-import zipfile
-import pandas as pd
+
 import basedosdados as bd
-import numpy as np
+import pandas as pd
 
-
-INPUT = os.path.join(os.getcwd(), "br_inep_sinopse_estatistica_educacao_basica/input")
-OUTPUT = os.path.join(os.getcwd(), "br_inep_sinopse_estatistica_educacao_basica/output")
+INPUT = os.path.join(
+    os.getcwd(), "br_inep_sinopse_estatistica_educacao_basica/input"
+)
+OUTPUT = os.path.join(
+    os.getcwd(), "br_inep_sinopse_estatistica_educacao_basica/output"
+)
 
 # os.makedirs(INPUT, exist_ok=True)
 # os.makedirs(OUTPUT, exist_ok=True)
@@ -225,15 +227,17 @@ localizacao = {
     "educacao_infantil_creche": {
         "dicionario": RENAMES_ETAPA_ENSINO_SERIE["Educação Infantil - Creche"],
         "chave": "2.9",
-        #"chave": "2.8", # para anos anteriores a 2010
+        # "chave": "2.8", # para anos anteriores a 2010
         "valor": "Educação Infantil - Creche",
         "skiprows": 8,
         "table": "docente_faixa_etaria_sexo",
     },
     "educacao_infantil_pre_escola": {
-        "dicionario": RENAMES_ETAPA_ENSINO_SERIE["Educação Infantil - Pré-Escola"],
+        "dicionario": RENAMES_ETAPA_ENSINO_SERIE[
+            "Educação Infantil - Pré-Escola"
+        ],
         "chave": "2.13",
-        #"chave": "2.11", # Para anos anteriores a 2010
+        # "chave": "2.11", # Para anos anteriores a 2010
         "valor": "Educação Infantil - Pré-Escola",
         "skiprows": 8,
         "table": "docente_faixa_etaria_sexo",
@@ -241,23 +245,27 @@ localizacao = {
     "ensino_fundamental": {
         "dicionario": RENAMES_ETAPA_ENSINO_SERIE["Ensino Fundamental"],
         "chave": "2.18",
-        #"chave": "2.15", # Para anos anteriores a 2010
+        # "chave": "2.15", # Para anos anteriores a 2010
         "valor": "Ensino Fundamental",
         "skiprows": 8,
         "table": "docente_faixa_etaria_sexo",
     },
     "ensino_fundamental_anos_iniciais": {
-        "dicionario": RENAMES_ETAPA_ENSINO_SERIE["Ensino Fundamental - Anos Iniciais"],
+        "dicionario": RENAMES_ETAPA_ENSINO_SERIE[
+            "Ensino Fundamental - Anos Iniciais"
+        ],
         "chave": "2.22",
-        #"chave": "2.18", # Para anos anteriores a 2010
+        # "chave": "2.18", # Para anos anteriores a 2010
         "valor": "Ensino Fundamental - Anos Iniciais",
         "skiprows": 8,
         "table": "docente_faixa_etaria_sexo",
     },
     "ensino_fundamental_anos_finais": {
-        "dicionario": RENAMES_ETAPA_ENSINO_SERIE["Ensino Fundamental - Anos Finais"],
+        "dicionario": RENAMES_ETAPA_ENSINO_SERIE[
+            "Ensino Fundamental - Anos Finais"
+        ],
         "chave": "2.26",
-        #"chave": "2.21", # Para anos anteriores a 2010
+        # "chave": "2.21", # Para anos anteriores a 2010
         "valor": "Ensino Fundamental - Anos Finais",
         "skiprows": 8,
         "table": "docente_faixa_etaria_sexo",
@@ -265,7 +273,7 @@ localizacao = {
     "ensino_medio": {
         "dicionario": RENAMES_ETAPA_ENSINO_SERIE["Ensino Médio"],
         "chave": "2.30",
-        #"chave": "2.24", # Para anos anteriores a 2010
+        # "chave": "2.24", # Para anos anteriores a 2010
         "valor": "Ensino Médio",
         "skiprows": 8,
         "table": "docente_faixa_etaria_sexo",
@@ -273,7 +281,7 @@ localizacao = {
     "educacao_profissional": {
         "dicionario": RENAMES_ETAPA_ENSINO_SERIE["Educação Profissional"],
         "chave": "2.35",
-        #"chave": "2.28", # Para anos anteriores a 2010
+        # "chave": "2.28", # Para anos anteriores a 2010
         "valor": "Educação Profissional",
         "skiprows": 8,
         "table": "docente_faixa_etaria_sexo",
@@ -281,24 +289,28 @@ localizacao = {
     "EJA": {
         "dicionario": RENAMES_ETAPA_ENSINO_SERIE["EJA"],
         "chave": "2.40",
-        #"chave": "2.32", # Para anos anteriores a 2010
+        # "chave": "2.32", # Para anos anteriores a 2010
         "valor": "EJA",
         "skiprows": 8,
         "table": "docente_faixa_etaria_sexo",
     },
     "educacao_especial_classes_comuns": {
-        "dicionario": RENAMES_ETAPA_ENSINO_SERIE["Educação Especial - Classes Comuns"],
+        "dicionario": RENAMES_ETAPA_ENSINO_SERIE[
+            "Educação Especial - Classes Comuns"
+        ],
         "chave": "2.46",
-        #"chave": "2.37", # Para anos anteriores a 2010
+        # "chave": "2.37", # Para anos anteriores a 2010
         "valor": "Educação Especial - Classes Comuns",
         "skiprows": 8,
         "table": "docente_faixa_etaria_sexo",
     },
     "educacao_especial_classes_exclusivas": {
-        "dicionario": RENAMES_ETAPA_ENSINO_SERIE["Educação Especial - Classes Exclusivas"],
+        "dicionario": RENAMES_ETAPA_ENSINO_SERIE[
+            "Educação Especial - Classes Exclusivas"
+        ],
         "chave": "2.52",
-        #"chave": "2.51", # Para o ano de 2011
-        #"chave": "2.41", # Para o ano anteriores a 2010
+        # "chave": "2.51", # Para o ano de 2011
+        # "chave": "2.41", # Para o ano anteriores a 2010
         "valor": "Educação Especial - Classes Exclusivas",
         "skiprows": 8,
         "table": "docente_faixa_etaria_sexo",
@@ -307,7 +319,12 @@ localizacao = {
 
 
 def read_sheet(
-    table: str, ano: int, chave: str, valor: str, dicionario: dict, skiprows: int = 9
+    table: str,
+    ano: int,
+    chave: str,
+    valor: str,
+    dicionario: dict,
+    skiprows: int = 9,
 ) -> pd.DataFrame:
     print("Tratando dados de", valor, ano)
     path_excel = os.path.join(
@@ -315,7 +332,7 @@ def read_sheet(
         # f"Sinopse_Estatistica_da_Educacao_Basica_{ano}",
         # f"Sinopse_Estatistica_da_Educaç╞o_Basica_{ano}.xlsx",
         f"Sinopse_Estatistica_da_Educacao_Basica_{ano}",
-        f"Sinopse_Estatistica_da_Educação_Basica_{ano}.xlsx"
+        f"Sinopse_Estatistica_da_Educação_Basica_{ano}.xlsx",
     )
 
     df = pd.read_excel(
@@ -361,7 +378,9 @@ def read_sheet(
     df_faixa_etaria = pd.concat(
         [
             df.pipe(
-                lambda d: d.loc[(d["id_municipio"].notna()) & (d["id_municipio"] != " "),]
+                lambda d: d.loc[
+                    (d["id_municipio"].notna()) & (d["id_municipio"] != " "),
+                ]
             )
             .pipe(
                 lambda d: pd.melt(
@@ -391,7 +410,9 @@ def read_sheet(
         .replace({i["nome"]: i["sigla"] for i in bd_dir.to_dict("records")})  # type: ignore
     )
 
-    df_faixa_etaria = df_faixa_etaria.rename(columns={"uf": "sigla_uf"}, errors="raise")
+    df_faixa_etaria = df_faixa_etaria.rename(
+        columns={"uf": "sigla_uf"}, errors="raise"
+    )
 
     df_faixa_etaria["sexo"] = df_faixa_etaria["faixa_etaria"].apply(
         lambda v: v.split("_")[0]
@@ -400,14 +421,15 @@ def read_sheet(
         lambda v: v.split("_")[-1]
     )
 
-
-    df_faixa_etaria["quantidade_docente"] = df_faixa_etaria["quantidade_docente"].astype(
-        int
-    )
+    df_faixa_etaria["quantidade_docente"] = df_faixa_etaria[
+        "quantidade_docente"
+    ].astype(int)
 
     print("Particionando dados")
     for sigla_uf, df in df_faixa_etaria.groupby("sigla_uf"):
-        path = os.path.join(OUTPUT, f"{table}", f"ano={ano}", f"sigla_uf={sigla_uf}")
+        path = os.path.join(
+            OUTPUT, f"{table}", f"ano={ano}", f"sigla_uf={sigla_uf}"
+        )
         if not os.path.exists(path):
             os.makedirs(path, exist_ok=True)
             df.drop(columns=["sigla_uf"]).to_csv(
@@ -415,10 +437,14 @@ def read_sheet(
             )
         else:
             df.drop(columns=["sigla_uf"]).to_csv(
-                os.path.join(path, "data.csv"), index=False, mode="a", header=False
+                os.path.join(path, "data.csv"),
+                index=False,
+                mode="a",
+                header=False,
             )
 
-if __name__ == '__main__' :
+
+if __name__ == "__main__":
     lista = [
         "educacao_basica",
         "educacao_infantil_creche",

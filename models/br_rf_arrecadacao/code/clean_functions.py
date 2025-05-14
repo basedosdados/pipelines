@@ -1,64 +1,69 @@
 # -*- coding: utf-8 -*-
 import os
-import numpy as np
-import pandas as pd
-from typing import List
 from pathlib import Path
+from typing import List
+
+import pandas as pd
 
 file_directory = os.path.dirname(__file__)
 
-def read_data(file_dir,separator=';'):
+
+def read_data(file_dir, separator=";"):
     data_directory = os.path.join(file_directory, file_dir)
 
     return pd.read_csv(data_directory, sep=separator)
 
+
 def remove_empty_rows(df):
-    return df.dropna(axis=0, how='all')
+    return df.dropna(axis=0, how="all")
+
 
 def remove_empty_columns(df):
-    return df.drop(list(df.filter(regex='Unnamed')), axis=1)
+    return df.drop(list(df.filter(regex="Unnamed")), axis=1)
+
 
 def replace_commas(value):
     string_value = str(value)
-    num_commas = string_value.count(',')
+    num_commas = string_value.count(",")
     if num_commas == 1:
-        return string_value.replace(',','.')
+        return string_value.replace(",", ".")
     elif num_commas > 1:
-        return string_value.replace(',','',num_commas-1).replace(',','.')
+        return string_value.replace(",", "", num_commas - 1).replace(",", ".")
     else:
         return string_value
+
 
 def remove_dots(value):
     string_value = str(value)
-    num_dots = string_value.count('.')
+    num_dots = string_value.count(".")
     if num_dots > 1:
-        return string_value.replace('.','',num_dots-1)
+        return string_value.replace(".", "", num_dots - 1)
     else:
         return string_value
 
-def get_month_number(month_column):
 
+def get_month_number(month_column):
     month_lower = month_column.str.lower()
     month_inits = month_lower.str[:3]
 
     month_numbers = {
-        'jan': '1',
-        'fev': '2',
-        'mar': '3',
-        'abr': '4',
-        'mai': '5',
-        'jun': '6',
-        'jul': '7',
-        'ago': '8',
-        'set': '9',
-        'out': '10',
-        'nov': '11',
-        'dez': '12'
+        "jan": "1",
+        "fev": "2",
+        "mar": "3",
+        "abr": "4",
+        "mai": "5",
+        "jun": "6",
+        "jul": "7",
+        "ago": "8",
+        "set": "9",
+        "out": "10",
+        "nov": "11",
+        "dez": "12",
     }
-    return month_inits.replace(month_numbers).astype('int')
+    return month_inits.replace(month_numbers).astype("int")
+
 
 def get_state_letters(state_column):
-
     state_lower = state_column.str.lower()
     states = {
         "acre": "AC",
@@ -87,22 +92,23 @@ def get_state_letters(state_column):
         "santa catarina": "SC",
         "são paulo": "SP",
         "sergipe": "SE",
-        "tocantins": "TO"
+        "tocantins": "TO",
     }
     return state_lower.replace(states)
 
-def get_region_letters(region_names):
 
+def get_region_letters(region_names):
     region_lower = region_names.str.lower()
 
     regions = {
-        "norte" : "N",
-        "sul" : "S",
-        "centro-oeste" : "CO",
-        "sudeste" : "SE",
-        "nordeste" : "NE"
+        "norte": "N",
+        "sul": "S",
+        "centro-oeste": "CO",
+        "sudeste": "SE",
+        "nordeste": "NE",
     }
     return region_lower.replace(regions)
+
 
 def to_partitions(
     data: pd.DataFrame,
@@ -136,7 +142,8 @@ def to_partitions(
         unique_combinations = (
             data[partition_columns]
             # .astype(str)
-            .drop_duplicates(subset=partition_columns).to_dict(orient="records")
+            .drop_duplicates(subset=partition_columns)
+            .to_dict(orient="records")
         )
 
         for filter_combination in unique_combinations:
@@ -179,6 +186,9 @@ def to_partitions(
     else:
         raise BaseException("Data need to be a pandas DataFrame")
 
-def save_data(df,file_dir,partition_cols):
-    data_directory = os.path.join(file_directory,file_dir)
-    to_partitions(data=df,partition_columns=partition_cols,savepath=data_directory)
+
+def save_data(df, file_dir, partition_cols):
+    data_directory = os.path.join(file_directory, file_dir)
+    to_partitions(
+        data=df, partition_columns=partition_cols, savepath=data_directory
+    )

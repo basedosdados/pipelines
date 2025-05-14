@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-import pandas as pd
-import numpy as np
 import os
 import zipfile
+
 import basedosdados as bd
+import numpy as np
+import pandas as pd
 
 ROOT = os.path.join("models", "br_inep_ideb")
 INPUT = os.path.join(ROOT, "input")
@@ -40,7 +41,10 @@ for key, url in URLS.items():
         z.extractall(output_dir)
 
 XLSX_BR = os.path.join(
-    TMP, "brasil", "divulgacao_brasil_ideb_2023", "divulgacao_brasil_ideb_2023.xlsx"
+    TMP,
+    "brasil",
+    "divulgacao_brasil_ideb_2023",
+    "divulgacao_brasil_ideb_2023.xlsx",
 )
 
 sheet_names_br: list[str] = pd.ExcelFile(XLSX_BR).sheet_names
@@ -101,16 +105,22 @@ tb_brasil_cols_from_bq = tb_brasil._get_columns_from_bq()
 
 assert len(tb_brasil_cols_from_bq["partition_columns"]) == 0
 
-tb_brasil_order_cols: list[str] = [i["name"] for i in tb_brasil_cols_from_bq["columns"]]
+tb_brasil_order_cols: list[str] = [
+    i["name"] for i in tb_brasil_cols_from_bq["columns"]
+]
 
 
-df_brasil_updated = pd.concat([df_brasil[tb_brasil_order_cols], df_brasil_upstream])  # type: ignore
+df_brasil_updated = pd.concat(
+    [df_brasil[tb_brasil_order_cols], df_brasil_upstream]
+)  # type: ignore
 
 OUTPUT_BR = os.path.join(OUTPUT, "brasil.csv")
 
 df_brasil_updated.to_csv(OUTPUT_BR, index=False)
 
-tb_brasil.create(OUTPUT_BR, if_table_exists="replace", if_storage_data_exists="replace")
+tb_brasil.create(
+    OUTPUT_BR, if_table_exists="replace", if_storage_data_exists="replace"
+)
 
 # Regioes, UFs
 
@@ -174,9 +184,9 @@ df_regioes_ufs_latest["anos_escolares"] = df_regioes_ufs_latest[
 
 df_regioes_ufs_latest["projecao"] = np.nan
 
-df_regioes_ufs_latest["ensino"] = df_regioes_ufs_latest["anos_escolares"].apply(
-    lambda v: "medio" if v == "todos (1-4)" else "fundamental"
-)
+df_regioes_ufs_latest["ensino"] = df_regioes_ufs_latest[
+    "anos_escolares"
+].apply(lambda v: "medio" if v == "todos (1-4)" else "fundamental")
 
 df_regioes_ufs_latest["uf_regiao"].unique()
 
@@ -186,9 +196,9 @@ SIGLA_UFS_REPLACES = {
     "M. G. do Sul": "Mato Grosso do Sul",
 }
 
-df_regioes_ufs_latest["uf_regiao"] = df_regioes_ufs_latest["uf_regiao"].replace(
-    SIGLA_UFS_REPLACES
-)
+df_regioes_ufs_latest["uf_regiao"] = df_regioes_ufs_latest[
+    "uf_regiao"
+].replace(SIGLA_UFS_REPLACES)
 
 br_dirs = bd.read_sql(
     "SELECT * from `basedosdados.br_bd_diretorios_brasil.uf`",
@@ -200,7 +210,9 @@ assert isinstance(br_dirs, pd.DataFrame)
 ## Região
 
 df_regioes_latest = df_regioes_ufs_latest.loc[
-    df_regioes_ufs_latest["uf_regiao"].isin(br_dirs["regiao"].unique().tolist())
+    df_regioes_ufs_latest["uf_regiao"].isin(
+        br_dirs["regiao"].unique().tolist()
+    )
 ]
 
 assert len(df_regioes_latest["uf_regiao"].unique()) == 5
@@ -215,7 +227,9 @@ tb_regiao_cols_from_bq = tb_regiao._get_columns_from_bq()
 
 assert len(tb_regiao_cols_from_bq["partition_columns"]) == 0
 
-tb_regiao_order_cols: list[str] = [i["name"] for i in tb_regiao_cols_from_bq["columns"]]
+tb_regiao_order_cols: list[str] = [
+    i["name"] for i in tb_regiao_cols_from_bq["columns"]
+]
 
 df_regiao_upstream = bd.read_sql(
     "select * from `basedosdados.br_inep_ideb.regiao`",
@@ -245,7 +259,9 @@ assert len(df_ufs_latest["uf_regiao"].unique()) == 27
 df_ufs_latest["uf_regiao"].unique()
 
 
-df_ufs_latest = df_ufs_latest.rename(columns={"uf_regiao": "sigla_uf"}, errors="raise")
+df_ufs_latest = df_ufs_latest.rename(
+    columns={"uf_regiao": "sigla_uf"}, errors="raise"
+)
 
 df_ufs_latest["sigla_uf"] = df_ufs_latest["sigla_uf"].replace(
     {i["nome"]: i["sigla"] for i in br_dirs.to_dict("records")}
@@ -257,7 +273,9 @@ tb_uf_cols_from_bq = tb_uf._get_columns_from_bq()
 
 assert len(tb_uf_cols_from_bq["partition_columns"]) == 0
 
-tb_uf_order_cols: list[str] = [i["name"] for i in tb_uf_cols_from_bq["columns"]]
+tb_uf_order_cols: list[str] = [
+    i["name"] for i in tb_uf_cols_from_bq["columns"]
+]
 
 df_uf_upstream = bd.read_sql(
     "select * from `basedosdados.br_inep_ideb.uf`",
@@ -272,7 +290,9 @@ OUTPUT_UF = os.path.join(OUTPUT, "uf.csv")
 
 df_uf_updated.to_csv(OUTPUT_UF, index=False)
 
-tb_uf.create(OUTPUT_UF, if_table_exists="replace", if_storage_data_exists="replace")
+tb_uf.create(
+    OUTPUT_UF, if_table_exists="replace", if_storage_data_exists="replace"
+)
 
 # Municipios
 
@@ -343,7 +363,9 @@ df_municipio_latest["rede"] = (
 
 df_municipio_latest["anos_escolares"].unique()
 
-df_municipio_latest["anos_escolares"] = df_municipio_latest["anos_escolares"].replace(
+df_municipio_latest["anos_escolares"] = df_municipio_latest[
+    "anos_escolares"
+].replace(
     {
         "anos_iniciais": "iniciais (1-5)",
         "anos_finais": "finais (6-9)",
@@ -397,7 +419,9 @@ OUTPUT_MUNICIPIO = os.path.join(OUTPUT, "municipio.csv")
 df_municipio_updated.to_csv(OUTPUT_MUNICIPIO, index=False)
 
 tb_municipio.create(
-    OUTPUT_MUNICIPIO, if_table_exists="replace", if_storage_data_exists="replace"
+    OUTPUT_MUNICIPIO,
+    if_table_exists="replace",
+    if_storage_data_exists="replace",
 )
 
 # Escolas
@@ -462,7 +486,9 @@ df_escolas_latest["rede"] = df_escolas_latest["rede"].str.lower()
 
 df_escolas_latest["anos_escolares"].unique()
 
-df_escolas_latest["anos_escolares"] = df_escolas_latest["anos_escolares"].replace(
+df_escolas_latest["anos_escolares"] = df_escolas_latest[
+    "anos_escolares"
+].replace(
     {
         "anos_iniciais": "iniciais (1-5)",
         "anos_finais": "finais (6-9)",
@@ -485,7 +511,9 @@ df_escolas_latest["id_municipio"] = (
     df_escolas_latest["id_municipio"].astype(int).astype(str)
 )
 
-df_escolas_latest["id_escola"] = df_escolas_latest["id_escola"].astype(int).astype(str)
+df_escolas_latest["id_escola"] = (
+    df_escolas_latest["id_escola"].astype(int).astype(str)
+)
 
 assert (
     df_escolas_latest[["rede", "anos_escolares", "id_escola"]]
@@ -503,7 +531,9 @@ tb_escola_cols_from_bq = tb_escola._get_columns_from_bq(mode="prod")
 
 assert len(tb_escola_cols_from_bq["partition_columns"]) == 0
 
-tb_escola_order_cols: list[str] = [i["name"] for i in tb_escola_cols_from_bq["columns"]]
+tb_escola_order_cols: list[str] = [
+    i["name"] for i in tb_escola_cols_from_bq["columns"]
+]
 
 df_escola_upstream = bd.read_sql(
     "select * from `basedosdados.br_inep_ideb.escola`",

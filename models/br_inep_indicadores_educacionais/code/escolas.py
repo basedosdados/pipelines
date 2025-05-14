@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
 import zipfile
-import pandas as pd
-from functools import reduce
-import basedosdados as bd
-
 from code.constants import (  # type: ignore
     rename_afd,
     rename_atu,
@@ -17,6 +13,10 @@ from code.constants import (  # type: ignore
     rename_tnr,
     rename_tx,
 )
+from functools import reduce
+
+import basedosdados as bd
+import pandas as pd
 
 URLS_ESCOLAS = [
     "https://download.inep.gov.br/informacoes_estatisticas/indicadores_educacionais/2023/AFD_2023_ESCOLAS.zip",
@@ -55,7 +55,10 @@ for file in os.listdir(INPUT_ESC):
         z.extractall(INPUT_ESC)
 
 
-COL_EXTEND_RENAME = {"CO_MUNICIPIO": "id_municipio", "CO_ENTIDADE": "id_escola"}
+COL_EXTEND_RENAME = {
+    "CO_MUNICIPIO": "id_municipio",
+    "CO_ENTIDADE": "id_escola",
+}
 UNSUED_COLS = ["NO_REGIAO", "SG_UF", "NO_MUNICIPIO", "NO_ENTIDADE"]
 
 afd = pd.read_excel(

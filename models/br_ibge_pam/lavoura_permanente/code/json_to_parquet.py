@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 import json
-import numpy as np
 import os
 import re
 from collections import OrderedDict
+from pathlib import Path
+
+import numpy as np
 import pandas as pd
 import pyarrow as pa
-from pathlib import Path
+
 
 def parse_file(file_path):
     dict_list = []
@@ -18,7 +20,9 @@ def parse_file(file_path):
         temp_od = OrderedDict()
         temp_variavel = j[0]["variavel"]
         for r in j[0]["resultados"]:
-            temp_produto = list(r["classificacoes"][0]["categoria"].values())[0]
+            temp_produto = list(r["classificacoes"][0]["categoria"].values())[
+                0
+            ]
             for s in r["series"]:
                 temp_ano = list(s["serie"].keys())[0]
                 temp_valor = list(s["serie"].values())[0]
@@ -35,6 +39,7 @@ def parse_file(file_path):
                 temp_od.clear()
     return dict_list
 
+
 def join_dicts_by_keys(dict_list, keys):
     result = {}
     for d in dict_list:
@@ -45,41 +50,66 @@ def join_dicts_by_keys(dict_list, keys):
             result[key_tuple].update(d)
     return list(result.values())
 
+
 def create_raw_df(dict_list):
     return pd.DataFrame(dict_list, dtype=str)
 
+
 def drop_columns(dataframe):
-    dropped_df = dataframe.drop(columns=[
-        "Área destinada à colheita - percentual do total geral",
-        "Área colhida - percentual do total geral",
-        "Valor da produção - percentual do total geral",
-    ])
+    dropped_df = dataframe.drop(
+        columns=[
+            "Área destinada à colheita - percentual do total geral",
+            "Área colhida - percentual do total geral",
+            "Valor da produção - percentual do total geral",
+        ]
+    )
 
     return dropped_df
 
+
 def rename_columns(dataframe):
-    renamed_dataframe = dataframe.rename(columns={
+    renamed_dataframe = dataframe.rename(
+        columns={
             "Área destinada à colheita": "area_destinada_colheita",
             "Área colhida": "area_colhida",
             "Quantidade produzida": "quantidade_produzida",
             "Rendimento médio da produção": "rendimento_medio_producao",
-            "Valor da produção": "valor_producao"
-        })
+            "Valor da produção": "valor_producao",
+        }
+    )
     return renamed_dataframe
 
+
 def treat_columns(dataframe):
-    dataframe = dataframe[["ano", "sigla_uf", "id_municipio", "produto",
-                           "area_destinada_colheita", "area_colhida",
-                           "quantidade_produzida", "rendimento_medio_producao",
-                           "valor_producao"]]
-    COLUNAS_PARA_TRATAR = ["ano", "area_destinada_colheita", "area_colhida",
-                           "quantidade_produzida", "rendimento_medio_producao",
-                           "valor_producao"]
+    dataframe = dataframe[
+        [
+            "ano",
+            "sigla_uf",
+            "id_municipio",
+            "produto",
+            "area_destinada_colheita",
+            "area_colhida",
+            "quantidade_produzida",
+            "rendimento_medio_producao",
+            "valor_producao",
+        ]
+    ]
+    COLUNAS_PARA_TRATAR = [
+        "ano",
+        "area_destinada_colheita",
+        "area_colhida",
+        "quantidade_produzida",
+        "rendimento_medio_producao",
+        "valor_producao",
+    ]
 
     for coluna in COLUNAS_PARA_TRATAR:
-        dataframe[coluna] = dataframe[coluna].apply(lambda x: np.nan if x in ("-", "..", "...", "X") else x)
+        dataframe[coluna] = dataframe[coluna].apply(
+            lambda x: np.nan if x in ("-", "..", "...", "X") else x
+        )
         dataframe[coluna] = dataframe[coluna].astype("Int64")
     return dataframe
+
 
 def products_weight_ratio_fix(row):
     """
@@ -109,30 +139,39 @@ def products_weight_ratio_fix(row):
         "Maracujá": 0.15,
         "Marmelo": 0.19,
         "Pera": 0.17,
-        "Pêra": 0.17, # Para garantir, pois nos dados parece que só há Pera, sem acento
+        "Pêra": 0.17,  # Para garantir, pois nos dados parece que só há Pera, sem acento
         "Pêssego": 0.13,
         "Tangerina": 0.15,
         "Melancia": 6.08,
-        "Melão": 1.39
+        "Melão": 1.39,
     }
 
     if row["ano"] >= 2001:
         return row
 
-    if (pd.isna(row["quantidade_produzida"]) or pd.isna(row["area_colhida"])
-        or row["quantidade_produzida"] == 0 or row["area_colhida"] == 0):
+    if (
+        pd.isna(row["quantidade_produzida"])
+        or pd.isna(row["area_colhida"])
+        or row["quantidade_produzida"] == 0
+        or row["area_colhida"] == 0
+    ):
         return row
 
     if row["produto"] not in DICIONARIO_DE_PROPORCOES.keys():
         return row
 
-    quantidade_produzida = row["quantidade_produzida"] * DICIONARIO_DE_PROPORCOES[row["produto"]]
-    rendimento_medio_producao = quantidade_produzida / row["area_colhida"] * 1000 # kg / ha
+    quantidade_produzida = (
+        row["quantidade_produzida"] * DICIONARIO_DE_PROPORCOES[row["produto"]]
+    )
+    rendimento_medio_producao = (
+        quantidade_produzida / row["area_colhida"] * 1000
+    )  # kg / ha
 
     row["quantidade_produzida"] = quantidade_produzida
     row["rendimento_medio_producao"] = rendimento_medio_producao
 
     return row
+
 
 def currency_fix(row):
     """
@@ -154,28 +193,36 @@ def currency_fix(row):
     else:
         return row["valor_producao"]
 
+
 def get_existing_years(directory):
     root_dir = Path(directory)
-    year_dirs = root_dir.glob('ano=*')
+    year_dirs = root_dir.glob("ano=*")
     years = set()
     for year_dir in year_dirs:
-        match = re.match(r'ano=(\d+)', year_dir.name)
+        match = re.match(r"ano=(\d+)", year_dir.name)
         if match:
             year = int(match.group(1))
             years.add(year)
 
     return sorted(list(years))
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     ANOS_TRANSFORMADOS = get_existing_years("../parquet")
-    ARQUIVOS_JSON = list(Path('../json/').glob('*.json'))
-    JSON_FALTANTES = [arquivo for arquivo in ARQUIVOS_JSON if int(arquivo.stem) not in ANOS_TRANSFORMADOS]
+    ARQUIVOS_JSON = list(Path("../json/").glob("*.json"))
+    JSON_FALTANTES = [
+        arquivo
+        for arquivo in ARQUIVOS_JSON
+        if int(arquivo.stem) not in ANOS_TRANSFORMADOS
+    ]
 
     for path in JSON_FALTANTES:
         print(f"Criando dict_list com base no arquivo: {path}...")
         dict_list = parse_file(path)
         print("Concatendo as colunas do dict_list...")
-        dict_list = join_dicts_by_keys(dict_list, ["ano", "sigla_uf", "id_municipio", "produto"])
+        dict_list = join_dicts_by_keys(
+            dict_list, ["ano", "sigla_uf", "id_municipio", "produto"]
+        )
         print("Criando DataFrame a partir do dict_list...")
         df = create_raw_df(dict_list)
         print("Removendo as colunas do DataFrame...")
@@ -184,9 +231,13 @@ if __name__ == '__main__':
         df = rename_columns(df)
         print("Tratando as colunas do DataFrame...")
         df = treat_columns(df)
-        print("Tratando a questão dos pesos dos produtos... Impacto em: quantidade_producao e rendimento_medio_producao")
+        print(
+            "Tratando a questão dos pesos dos produtos... Impacto em: quantidade_producao e rendimento_medio_producao"
+        )
         df = df.apply(products_weight_ratio_fix, axis=1)
-        print("Aplicando a correção nominal retroativa da moeda... Impacto: valor_producao")
+        print(
+            "Aplicando a correção nominal retroativa da moeda... Impacto: valor_producao"
+        )
         df["valor_producao"] = df.apply(currency_fix, axis=1)
         print("Transformações finalizadas!")
         temp_ano = df["ano"].max()
@@ -194,16 +245,22 @@ if __name__ == '__main__':
         df.drop(columns=["ano"], inplace=True)
         print("Transformações finalizadas!")
         temp_export_file_path = f"../parquet/ano={temp_ano}/data.parquet"
-        print(f"Exportando o DataFrame particionado em {temp_export_file_path}...")
+        print(
+            f"Exportando o DataFrame particionado em {temp_export_file_path}..."
+        )
         os.makedirs(os.path.dirname(temp_export_file_path), exist_ok=True)
-        temp_schema = pa.schema([("sigla_uf", pa.string()),
-                                 ("id_municipio", pa.string()),
-                                 ("produto", pa.string()),
-                                 ("area_destinada_colheita", pa.int64()),
-                                 ("area_colhida", pa.int64()),
-                                 ("quantidade_produzida", pa.float64()),
-                                 ("rendimento_medio_producao", pa.float64()),
-                                 ("valor_producao", pa.float64())])
+        temp_schema = pa.schema(
+            [
+                ("sigla_uf", pa.string()),
+                ("id_municipio", pa.string()),
+                ("produto", pa.string()),
+                ("area_destinada_colheita", pa.int64()),
+                ("area_colhida", pa.int64()),
+                ("quantidade_produzida", pa.float64()),
+                ("rendimento_medio_producao", pa.float64()),
+                ("valor_producao", pa.float64()),
+            ]
+        )
         df.to_parquet(temp_export_file_path, schema=temp_schema, index=False)
-        del(df) # Liberando memória
+        del df  # Liberando memória
         print()

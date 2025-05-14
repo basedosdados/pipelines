@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-import os
 import io
-import requests
+import os
+
 import basedosdados as bd
-import pandas as pd
 import numpy as np
+import pandas as pd
+import requests
 
 INPUT = os.path.join(os.getcwd(), "input")
 OUTPUT = os.path.join(os.getcwd(), "output")
@@ -14,7 +15,7 @@ os.makedirs(OUTPUT, exist_ok=True)
 
 st = bd.Storage(dataset_id="br_inep_censo_escolar", table_id="turma")
 
-blobs = list(st.bucket.list_blobs(prefix=f"raw/br_inep_censo_escolar/turma/"))
+blobs = list(st.bucket.list_blobs(prefix="raw/br_inep_censo_escolar/turma/"))
 
 for blob in blobs:
     filename = blob.name.split("/")[-1]
@@ -53,12 +54,16 @@ arch_cols = arch.loc[
 
 dfs = {
     year: df.rename(
-        columns={k: v for k, v in renames.items() if k in df.columns}, errors="raise"
+        columns={k: v for k, v in renames.items() if k in df.columns},
+        errors="raise",
     )
     for year, df in dfs.items()
 }
 
-dfs = {year: df[[i for i in arch_cols if i in df.columns]] for year, df in dfs.items()}
+dfs = {
+    year: df[[i for i in arch_cols if i in df.columns]]
+    for year, df in dfs.items()
+}
 
 df = pd.concat([i for _, i in dfs.items()])
 
@@ -103,13 +108,13 @@ df["sigla_uf"].unique()  # type: ignore
 
 bq_storage_cols_order = [i["name"] for i in bq_cols["columns"]]
 
-df["rede"].unique() # type: ignore
+df["rede"].unique()  # type: ignore
 
 df["rede"] = df["rede"].replace(  # type: ignore
     {"1": "federal", "2": "estadual", "3": "municipal", "4": "privada"}
 )
 
-df["rede"].unique() # type: ignore
+df["rede"].unique()  # type: ignore
 
 for keys, df_split in df.groupby(partitions):
     ano, sigla_uf = keys  # type: ignore

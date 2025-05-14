@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 import os
-import zipfile
-import pandas as pd
+
 import basedosdados as bd
-import numpy as np
+import pandas as pd
 
-
-INPUT = os.path.join(os.getcwd(), "br_inep_sinopse_estatistica_educacao_basica/input")
-OUTPUT = os.path.join(os.getcwd(), "br_inep_sinopse_estatistica_educacao_basica/output")
+INPUT = os.path.join(
+    os.getcwd(), "br_inep_sinopse_estatistica_educacao_basica/input"
+)
+OUTPUT = os.path.join(
+    os.getcwd(), "br_inep_sinopse_estatistica_educacao_basica/output"
+)
 
 # os.makedirs(INPUT, exist_ok=True)
 # os.makedirs(OUTPUT, exist_ok=True)
@@ -359,7 +361,7 @@ regime_contrato = {
         "chave": "2.5",
         "valor": "Educação Basica",
         "skiprows": 8,
-        #"skiprows": 9,  # Até o ano de 2021
+        # "skiprows": 9,  # Até o ano de 2021
         "table": "docente_regime_contrato",
     },
     "ensino_infantil_creche": {
@@ -367,7 +369,7 @@ regime_contrato = {
         "chave": "2.11",
         "valor": "Educação Infantil - Creche",
         "skiprows": 8,
-        #"skiprows": 9,  # Até o ano de 2021
+        # "skiprows": 9,  # Até o ano de 2021
         "table": "docente_regime_contrato",
     },
     "educacao_infantil_pre_escola": {
@@ -375,7 +377,7 @@ regime_contrato = {
         "chave": "2.15",
         "valor": "Educação Infantil - Pré-Escola",
         "skiprows": 8,
-        #"skiprows": 9,  # Até o ano de 2021
+        # "skiprows": 9,  # Até o ano de 2021
         "table": "docente_regime_contrato",
     },
     "ensino_fundamental": {
@@ -383,7 +385,7 @@ regime_contrato = {
         "chave": "2.20",
         "valor": "Ensino Fundamental",
         "skiprows": 8,
-        #"skiprows": 9,  # Até o ano de 2021
+        # "skiprows": 9,  # Até o ano de 2021
         "table": "docente_regime_contrato",
     },
     "ensino_fundamental_anos_iniciais": {
@@ -391,7 +393,7 @@ regime_contrato = {
         "chave": "2.24",
         "valor": "Ensino Fundamental - Anos Iniciais",
         "skiprows": 8,
-        #"skiprows": 9,  # Até o ano de 2021
+        # "skiprows": 9,  # Até o ano de 2021
         "table": "docente_regime_contrato",
     },
     "ensino_fundamental_anos_finais": {
@@ -399,7 +401,7 @@ regime_contrato = {
         "chave": "2.28",
         "valor": "Ensino Fundamental - Anos Finais",
         "skiprows": 8,
-        #"skiprows": 9,  # Até o ano de 2021
+        # "skiprows": 9,  # Até o ano de 2021
         "table": "docente_regime_contrato",
     },
     "ensino_medio": {
@@ -407,7 +409,7 @@ regime_contrato = {
         "chave": "2.32",
         "valor": "Ensino Médio",
         "skiprows": 8,
-        #"skiprows": 9,  # Até o ano de 2021
+        # "skiprows": 9,  # Até o ano de 2021
         "table": "docente_regime_contrato",
     },
     "educacao_profissional": {
@@ -415,7 +417,7 @@ regime_contrato = {
         "chave": "2.37",
         "valor": "Educação Profissional",
         "skiprows": 8,
-        #"skiprows": 9,  # Até o ano de 2021
+        # "skiprows": 9,  # Até o ano de 2021
         "table": "docente_regime_contrato",
     },
     "EJA": {
@@ -423,26 +425,28 @@ regime_contrato = {
         "chave": "2.42",
         "valor": "EJA",
         "skiprows": 8,
-        #"skiprows": 9,  # Até o ano de 2021
+        # "skiprows": 9,  # Até o ano de 2021
         "table": "docente_regime_contrato",
     },
     "educacao_especial_classes_comuns": {
         "dicionario": RENAMES_CONTRATO["Educação Especial - Classes Comuns"],
         "chave": "2.49",
-        #"chave": "2.48",  # Para o ano de 2011
+        # "chave": "2.48",  # Para o ano de 2011
         "valor": "Educação Especial - Classes Comuns",
         "skiprows": 8,
-        #"skiprows": 9,  # Até o ano de 2021
+        # "skiprows": 9,  # Até o ano de 2021
         "table": "docente_regime_contrato",
     },
     "educacao_especial_classes_exclusivas": {
-        "dicionario": RENAMES_CONTRATO["Educação Especial - Classes Exclusivas"],
+        "dicionario": RENAMES_CONTRATO[
+            "Educação Especial - Classes Exclusivas"
+        ],
         "chave": "2.55",
-        #"chave": "2.53",  # Para o ano de 2011
+        # "chave": "2.53",  # Para o ano de 2011
         "valor": "Educação Especial - Classes Exclusivas",
-         "skiprows": 8,
-        #"skiprows": 9,  # Até o ano de 2021
-        #"skiprows": 10,  # Para o ano de 2011
+        "skiprows": 8,
+        # "skiprows": 9,  # Até o ano de 2021
+        # "skiprows": 10,  # Para o ano de 2011
         "table": "docente_regime_contrato",
     },
 }
@@ -456,8 +460,8 @@ def read_sheet(
         INPUT,
         # f"Sinopse_Estatistica_da_Educacao_Basica_{ano}",
         # f"Sinopse_Estatistica_da_Educaç╞o_Basica_{ano}.xlsx",
-       f"Sinopse_Estatistica_da_Educacao_Basica_{ano}",
-       f"Sinopse_Estatistica_da_Educação_Basica_{ano}.xlsx"
+        f"Sinopse_Estatistica_da_Educacao_Basica_{ano}",
+        f"Sinopse_Estatistica_da_Educação_Basica_{ano}.xlsx",
     )
 
     df = pd.read_excel(
@@ -493,7 +497,9 @@ def read_sheet(
         return df.drop(columns=cols_drop)
 
     dfs_regime_contrato = {
-        name: drop_unused_columns(df.rename(columns=dicionario, errors="raise"))
+        name: drop_unused_columns(
+            df.rename(columns=dicionario, errors="raise")
+        )
         for name, df in dfs_regime_contrato.items()
     }
 
@@ -526,7 +532,11 @@ def read_sheet(
         reauth=False,
     )
 
-    df_regime_contrato["uf"] = df_regime_contrato["uf"].apply(lambda uf: uf.strip()).replace({i["nome"]: i["sigla"] for i in bd_dir.to_dict("records")})  # type: ignore
+    df_regime_contrato["uf"] = (
+        df_regime_contrato["uf"]
+        .apply(lambda uf: uf.strip())
+        .replace({i["nome"]: i["sigla"] for i in bd_dir.to_dict("records")})
+    )  # type: ignore
 
     df_regime_contrato = df_regime_contrato.rename(
         columns={"uf": "sigla_uf"}, errors="raise"
@@ -536,9 +546,9 @@ def read_sheet(
         lambda v: v.split("_")[-1]
     )
 
-    df_regime_contrato["regime_contrato"] = df_regime_contrato["regime_contrato"].apply(
-        lambda v: v.split("_")[0]
-    )
+    df_regime_contrato["regime_contrato"] = df_regime_contrato[
+        "regime_contrato"
+    ].apply(lambda v: v.split("_")[0])
 
     df_regime_contrato["quantidade_docente"] = df_regime_contrato[
         "quantidade_docente"
@@ -550,7 +560,9 @@ def read_sheet(
 
     print("Particionando dados")
     for sigla_uf, df in df_regime_contrato.groupby("sigla_uf"):
-        path = os.path.join(OUTPUT, f"{table}", f"ano={ano}", f"sigla_uf={sigla_uf}")
+        path = os.path.join(
+            OUTPUT, f"{table}", f"ano={ano}", f"sigla_uf={sigla_uf}"
+        )
         if not os.path.exists(path):
             os.makedirs(path, exist_ok=True)
             df.drop(columns=["sigla_uf"]).to_csv(
@@ -558,8 +570,12 @@ def read_sheet(
             )
         else:
             df.drop(columns=["sigla_uf"]).to_csv(
-                os.path.join(path, "data.csv"), index=False, mode="a", header=False
+                os.path.join(path, "data.csv"),
+                index=False,
+                mode="a",
+                header=False,
             )
+
 
 if __name__ == "__main__":
     lista = [
@@ -579,10 +595,10 @@ if __name__ == "__main__":
     for x in lista:
         # for ano in range(2012, 2019):
         read_sheet(
-        table=regime_contrato[x]["table"],
-        ano=2023,
-        chave=regime_contrato[x]["chave"],
-        valor=regime_contrato[x]["valor"],
-        dicionario=regime_contrato[x]["dicionario"],
-        skiprows=regime_contrato[x]["skiprows"],
-    )
+            table=regime_contrato[x]["table"],
+            ano=2023,
+            chave=regime_contrato[x]["chave"],
+            valor=regime_contrato[x]["valor"],
+            dicionario=regime_contrato[x]["dicionario"],
+            skiprows=regime_contrato[x]["skiprows"],
+        )
