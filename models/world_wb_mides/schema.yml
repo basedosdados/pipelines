@@ -1,0 +1,355 @@
+---
+version: 2
+models:
+  - name: world_wb_mides__empenho
+    description: Dados a nível de empenho.
+    columns:
+      - name: acao
+        description: Descrição da ação orçamentária.
+      - name: ano
+        description: Número do ano de referência da informação.
+      - name: data
+        description: Data do empenho.
+      - name: descricao
+        description: Descrição do empenho
+      - name: elemento_despesa
+        description: Descrição da natureza de despesa.
+      - name: funcao
+        description: Descrição da função orçamentária.
+      - name: id_empenho
+        description: Sequencial identificador do empenho
+      - name: id_empenho_bd
+        description: Código único de identificação
+      - name: id_licitacao
+        description: Sequencial identificador da licitação
+      - name: id_licitacao_bd
+        description: Sequencial identificador único da licitação
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+      - name: id_unidade_gestora
+        description: Código da unidade orçamentária.
+      - name: mes
+        description: Número do mês de referência da informação.
+      - name: modalidade
+        description: Descrição da modalidade do empenho
+      - name: modalidade_licitacao
+        description: Indica modalidade da licitação realizada
+      - name: numero_empenho
+        description: Número do empenho
+      - name: orgao
+        description: Sequencial identificador do órgão.
+      - name: programa
+        description: Descrição do programa orçamentário.
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+      - name: subfuncao
+        description: Descrição da subfunção orçamentária.
+      - name: valor_ajuste
+        description: Valor de correção entre o valor final e valor inicial na ausência
+          da identificação da despesa
+      - name: valor_anulacao
+        description: Valor da anulação, caso haja deduções
+      - name: valor_final
+        description: Resultado dos valores em relação ao empenho no exercício
+      - name: valor_inicial
+        description: Valor bruto do empenho
+      - name: valor_reforco
+        description: Valor do reforço, caso haja incrementos
+  - name: world_wb_mides__licitacao
+    description: Dados a nível de licitação.
+    columns:
+      - name: ano
+        description: Ano
+      - name: ano_processo
+        description: Ano do processo
+      - name: carona
+        description: Licitação Carona
+      - name: contratacao
+        description: Contratação por Itens ou Lotes
+      - name: covid_19
+        description: Licitação ou dispensa no âmbito da COVID-19
+      - name: data_abertura
+        description: Data de Abertura
+      - name: data_edital
+        description: Data de Emissão do Edital
+      - name: data_homologacao
+        description: Data de Publicação da Homologação
+      - name: data_publicacao_dispensa
+        description: Data de Publicação da Dispensa
+      - name: descricao_objeto
+        description: Especificação do Objeto Licitado
+      - name: estagio
+        description: Estágio da Licitação
+      - name: exclusiva_micro_pequena
+        description: Destinação exclusiva a Microempresas e empresas de pequeno porte
+      - name: forma_pagamento
+        description: Forma de Pagamento
+      - name: id_dispensa
+        description: Código da Dispensa
+      - name: id_licitacao
+        description: Código da Licitação
+      - name: id_licitacao_bd
+        description: ID Licitação
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+      - name: id_unidade_gestora
+        description: ID Unidade Gestora
+      - name: mes
+        description: Mês
+      - name: modalidade
+        description: Modalidade da Licitação
+      - name: natureza_objeto
+        description: Natureza do Objeto
+      - name: natureza_processo
+        description: Natureza do Processo
+      - name: orgao
+        description: Órgão
+      - name: preferencia_micro_pequena
+        description: Preferência de contratação para as microempresas e empresas de
+          pequeno porte
+      - name: quantidade_convidados
+        description: Número de convidados (modalidade convite)
+      - name: sigla_uf
+        description: Sigla da Unidade de Federação
+      - name: situacao
+        description: Situação da Licitação
+      - name: tipo
+        description: Tipo de Licitação - Critério de Julgamento
+      - name: tipo_cadastro
+        description: Tipo Cadastro (inicial ou retificação)
+      - name: valor
+        description: Valor da Licitação
+      - name: valor_corrigido
+        description: Valor Corrigido
+      - name: valor_orcamento
+        description: Valor do Orçamento
+  - name: world_wb_mides__licitacao_item
+    description: Dados a nível de licitação-item.
+    columns:
+      - name: ano
+        description: Ano
+      - name: descricao
+        description: Descrição do Item
+      - name: documento
+        description: CPF/CNPJ do vencedor
+      - name: id_dispensa
+        description: Código da Dispensa
+      - name: id_item
+        description: Código do Item
+      - name: id_item_bd
+        description: ID Item
+      - name: id_licitacao
+        description: Código da Licitação
+      - name: id_licitacao_bd
+        description: ID Licitação
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+      - name: id_unidade_gestora
+        description: ID Unidade Gestora
+      - name: nome_vencedor
+        description: Nome do vencedor
+      - name: numero
+        description: Número do item
+      - name: numero_lote
+        description: Número do lote
+      - name: orgao
+        description: ID Órgão
+      - name: quantidade
+        description: Quantidade Homologada
+      - name: quantidade_cotada
+        description: Quantidade Cotada
+      - name: quantidade_proposta
+        description: Quantidade da proposta
+      - name: sigla_uf
+        description: Sigla da Unidade de Federação
+      - name: unidade_medida
+        description: Unidade de medida
+      - name: valor_proposta
+        description: Valor unitário da proposta
+      - name: valor_total
+        description: Valor Total
+      - name: valor_unitario
+        description: Valor Unitário Homologado
+      - name: valor_unitario_cotacao
+        description: Valor Unitário Cotação
+      - name: valor_vencedor
+        description: Valor Homologado
+  - name: world_wb_mides__licitacao_participante
+    description: Dados a nível de licitação-participante.
+    columns:
+      - name: ano
+        description: Ano
+      - name: cep
+        description: CEP
+      - name: classificado
+        description: Participante classificado
+      - name: documento
+        description: CPF/CNPJ do participante
+      - name: endereco
+        description: Endereço
+      - name: habilitado
+        description: Participante habilitado
+      - name: id_dispensa
+        description: Código da Dispensa
+      - name: id_licitacao
+        description: Código da Licitação
+      - name: id_licitacao_bd
+        description: ID Licitação
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+      - name: id_unidade_gestora
+        description: ID Unidade Gestora
+      - name: municipio_participante
+        description: Município do Participante
+      - name: orgao
+        description: Órgão
+      - name: razao_social
+        description: Razão Social
+      - name: sigla_uf
+        description: Sigla da Unidade de Federação
+      - name: tipo
+        description: PF ou PJ
+      - name: vencedor
+        description: Participante Vencedor
+  - name: world_wb_mides__orgao_unidade_gestora
+    description: Dados auxiliares a nível de órgão e unidade gestora.
+    columns:
+      - name: ano
+        description: Ano
+      - name: esfera
+        description: Esfera (e.g. municipal, intermunicipal, estadual, federal)
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+      - name: id_unidade_gestora
+        description: Código da unidade gestora a qual a operação está vinculada
+      - name: nome_orgao
+        description: Nome do órgão
+      - name: nome_unidade_gestora
+        description: Nome da unidade gestora
+      - name: orgao
+        description: Código do órgão ao qual a operação (empenho, liquidação, pagamento
+          ou licitação) está vinculada
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+  - name: world_wb_mides__pagamento
+    description: Dados a nível de pagamento
+    columns:
+      - name: ano
+        description: Ano
+      - name: mes
+        description: Mês
+      - name: data
+        description: Data do pagamento
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+      - name: orgao
+        description: Sequencial identificador do órgão
+      - name: id_unidade_gestora
+        description: Sequencial identificador da unidade gestora
+      - name: id_empenho_bd
+        description: Código único de identificação do empenho
+      - name: id_empenho
+        description: Sequencial identificador do empenho
+      - name: numero_empenho
+        description: Número do empenho
+      - name: id_liquidacao_bd
+        description: Código único de identificação da licitação
+      - name: id_liquidacao
+        description: Sequencial identificador da liquidação
+      - name: numero_liquidacao
+        description: Número da liquidação
+      - name: id_pagamento_bd
+        description: Código único de identificação do pagamento
+      - name: id_pagamento
+        description: Sequencial identificador do pagamento
+      - name: numero
+        description: Número do pagamento
+      - name: fonte
+        description: Fonte do recurso
+      - name: credor
+        description: Nome/Razão Social do credor
+      - name: documento_credor
+        description: Número do documento do credor
+      - name: indicador_restos_pagar
+        description: Indica se ao pagamento realizado é de exercícios anteriores
+      - name: valor_inicial
+        description: Valor pago na fonte
+      - name: valor_anulacao
+        description: Valor da anulação ou estorno, caso haja deduções
+      - name: valor_ajuste
+        description: Valor de correção entre o valor final e valor inicial, caso haja
+          diferença
+      - name: valor_final
+        description: Resultado do valor original descontado das deduções
+      - name: valor_liquido_recebido
+        description: Resultado do valor original descontado das deduções retidas na
+          fonte
+  - name: world_wb_mides__liquidacao
+    description: Dados a nível de liquidação
+    columns:
+      - name: ano
+        description: Ano
+      - name: mes
+        description: Mês
+      - name: data
+        description: Data da liquidação
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+      - name: orgao
+        description: Sequencial identificador do órgão
+      - name: id_unidade_gestora
+        description: Sequencial identificador da unidade gestora
+      - name: id_empenho_bd
+        description: Código único de identificação do empenho
+      - name: id_empenho
+        description: Sequencial identificador do empenho
+      - name: numero_empenho
+        description: Número do empenho
+      - name: id_liquidacao_bd
+        description: Código único de identificação da liquidacao
+      - name: id_liquidacao
+        description: Sequencial identificador da liquidacao
+      - name: numero
+        description: Número da liquidação
+      - name: nome_responsavel
+        description: Nome do liquidante
+      - name: documento_responsavel
+        description: Número do documento do liquidante
+      - name: indicador_restos_pagar
+        description: Indica se a liquidação realizada é de exercícios anteriores
+      - name: valor_inicial
+        description: Valor bruto liquidado
+      - name: valor_anulacao
+        description: Valor da anulação ou estorno, caso haja deduções
+      - name: valor_ajuste
+        description: Valor ajuste
+      - name: valor_final
+        description: Valor líquido da liquidação
+  - name: world_wb_mides__dicionario
+    description: Dicionário para tradução dos códigos do conjunto world_wb_mides.
+      Para taduzir códigos compartilhados entre instituições, como id_municipio, buscar
+      por diretórios
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_tabela
+            - nome_coluna
+            - chave
+            - cobertura_temporal
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_tabela
+        description: ID Tabela
+      - name: nome_coluna
+        description: Nome da coluna
+      - name: chave
+        description: Chave
+      - name: cobertura_temporal
+        description: Cobertura Temporal
+      - name: valor
+        description: Valor

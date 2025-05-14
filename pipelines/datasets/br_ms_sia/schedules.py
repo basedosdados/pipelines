@@ -21,7 +21,7 @@ schedule_br_ms_sia_producao_ambulatorial = Schedule(
             parameter_defaults={
                 "dataset_id": "br_ms_sia",
                 "table_id": "producao_ambulatorial",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
                 "dbt_alias": True,
@@ -44,7 +44,7 @@ schedule_br_ms_sia_psicossocial = Schedule(
             parameter_defaults={
                 "dataset_id": "br_ms_sia",
                 "table_id": "psicossocial",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
                 "dbt_alias": True,

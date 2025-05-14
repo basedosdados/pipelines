@@ -22,7 +22,7 @@ every_day_contrato_compra = Schedule(
             parameter_defaults={
                 "dataset_id": "br_cgu_licitacao_contrato",
                 "table_id": "contrato_compra",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
@@ -42,7 +42,7 @@ every_day_contrato_item = Schedule(
             parameter_defaults={
                 "dataset_id": "br_cgu_licitacao_contrato",
                 "table_id": "contrato_item",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
@@ -62,7 +62,7 @@ every_day_contrato_termo_aditivo = Schedule(
             parameter_defaults={
                 "dataset_id": "br_cgu_licitacao_contrato",
                 "table_id": "contrato_termo_aditivo",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
@@ -82,7 +82,7 @@ every_day_licitacao = Schedule(
             parameter_defaults={
                 "dataset_id": "br_cgu_licitacao_contrato",
                 "table_id": "licitacao",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
@@ -102,7 +102,7 @@ every_day_licitacao_empenho = Schedule(
             parameter_defaults={
                 "dataset_id": "br_cgu_licitacao_contrato",
                 "table_id": "licitacao_empenho",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
@@ -122,7 +122,7 @@ every_day_licitacao_item = Schedule(
             parameter_defaults={
                 "dataset_id": "br_cgu_licitacao_contrato",
                 "table_id": "licitacao_item",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
@@ -142,7 +142,7 @@ every_day_licitacao_participante = Schedule(
             parameter_defaults={
                 "dataset_id": "br_cgu_licitacao_contrato",
                 "table_id": "licitacao_participante",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,

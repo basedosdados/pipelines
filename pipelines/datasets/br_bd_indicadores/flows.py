@@ -47,9 +47,7 @@ with Flow(
     ],
 ) as bd_twt_metricas:
     # Parameters
-    materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
         "materialize after dump", default=True, required=False
     )
@@ -112,7 +110,7 @@ with Flow(
                 parameters={
                     "dataset_id": dataset_id,
                     "table_id": table_id,
-                    "mode": materialization_mode,
+                    "target": target,
                     "dbt_alias": dbt_alias,
                 },
                 labels=current_flow_labels,
@@ -147,9 +145,7 @@ with Flow(
     table_id = Parameter(
         "table_id", default="twitter_metrics_agg", required=True
     )
-    materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     current_flow_labels = get_current_flow_labels()
@@ -159,7 +155,7 @@ with Flow(
         parameters={
             "dataset_id": dataset_id,
             "table_id": table_id,
-            "mode": materialization_mode,
+            "target": target,
             "dbt_alias": dbt_alias,
         },
         labels=current_flow_labels,
@@ -242,9 +238,7 @@ with Flow(
     )
     table_id = Parameter("table_id", default="website_user", required=True)
 
-    materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
 
     materialize_after_dump = Parameter(
         "materialize after dump", default=True, required=False
@@ -301,7 +295,7 @@ with Flow(
             parameters={
                 "dataset_id": dataset_id,
                 "table_id": table_id,
-                "mode": materialization_mode,
+                "target": target,
                 "dbt_alias": dbt_alias,
             },
             labels=current_flow_labels,
@@ -347,9 +341,7 @@ with Flow(
         "sheet_name", default="transacoes_anonimizado", required=True
     )
 
-    materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
 
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
@@ -393,7 +385,7 @@ with Flow(
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
         current_flow_labels = get_current_flow_labels()
-        if materialization_mode == "dev":
+        if target == "dev":
             project_name = "staging"
         else:
             project_name = constants.PREFECT_DEFAULT_PROJECT.value
@@ -403,7 +395,7 @@ with Flow(
             parameters={
                 "dataset_id": dataset_id,
                 "table_id": table_id,
-                "mode": materialization_mode,
+                "target": target,
                 "dbt_alias": dbt_alias,
             },
             labels=current_flow_labels,
@@ -450,9 +442,7 @@ with Flow(
         "sheet_name", default="receitas_planejadas_anonimizado", required=True
     )
 
-    materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
 
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
@@ -500,7 +490,7 @@ with Flow(
             parameters={
                 "dataset_id": dataset_id,
                 "table_id": table_id,
-                "mode": materialization_mode,
+                "target": target,
                 "dbt_alias": dbt_alias,
             },
             labels=current_flow_labels,
@@ -548,9 +538,7 @@ with Flow(
     sheet_name = Parameter("sheet_name", default="equipes", required=True)
     bd_indicadores_equipes.add_task(sheet_name)
 
-    materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
 
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
@@ -598,7 +586,7 @@ with Flow(
             parameters={
                 "dataset_id": dataset_id,
                 "table_id": table_id,
-                "mode": materialization_mode,
+                "target": target,
                 "dbt_alias": dbt_alias,
             },
             labels=current_flow_labels,
@@ -641,9 +629,7 @@ with Flow(
     )
     sheet_name = Parameter("sheet_name", default="pessoas", required=True)
 
-    materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
 
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
@@ -691,7 +677,7 @@ with Flow(
             parameters={
                 "dataset_id": dataset_id,
                 "table_id": table_id,
-                "mode": materialization_mode,
+                "target": target,
                 "dbt_alias": dbt_alias,
             },
             labels=current_flow_labels,

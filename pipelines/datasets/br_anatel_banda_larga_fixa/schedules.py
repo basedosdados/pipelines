@@ -21,7 +21,7 @@ schedule_br_anatel_banda_larga_fixa__microdados = Schedule(
             parameter_defaults={
                 "dataset_id": "br_anatel_banda_larga_fixa",
                 "table_id": "microdados",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
@@ -41,7 +41,7 @@ schedule_br_anatel_banda_larga_fixa__densidade_municipio = Schedule(
             parameter_defaults={
                 "dataset_id": "br_anatel_banda_larga_fixa",
                 "table_id": "densidade_municipio",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
@@ -61,7 +61,7 @@ schedule_br_anatel_banda_larga_fixa__densidade_brasil = Schedule(
             parameter_defaults={
                 "dataset_id": "br_anatel_banda_larga_fixa",
                 "table_id": "densidade_brasil",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
@@ -81,7 +81,7 @@ schedule_br_anatel_banda_larga_fixa__densidade_uf = Schedule(
             parameter_defaults={
                 "dataset_id": "br_anatel_banda_larga_fixa",
                 "table_id": "densidade_uf",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,

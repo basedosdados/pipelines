@@ -21,7 +21,7 @@ every_month = Schedule(
             parameter_defaults={
                 "dataset_id": "br_mp_pep",
                 "table_id": "cargos_funcoes",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": False,
             },

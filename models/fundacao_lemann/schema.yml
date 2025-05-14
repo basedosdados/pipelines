@@ -1,0 +1,60 @@
+---
+version: 2
+models:
+  - name: ano_escola_serie_educacao_aprendizagem_adequada
+    description: Aprendizagem adequada, a nível de escola e séries
+    columns:
+      - name: ano
+        description: NULLABLE
+      - name: id_escola
+        description: NULLABLE
+      - name: serie
+        description: NULLABLE
+      - name: proficiencia_LP
+        description: NULLABLE
+      - name: proficiencia_MT
+        description: NULLABLE
+      - name: insuficiente_LP
+        description: NULLABLE
+      - name: insuficiente_MT
+        description: NULLABLE
+      - name: basico_LP
+        description: NULLABLE
+      - name: basico_MT
+        description: NULLABLE
+      - name: proficiente_LP
+        description: NULLABLE
+      - name: proficiente_MT
+        description: NULLABLE
+      - name: avancado_LP
+        description: NULLABLE
+      - name: avancado_MT
+        description: NULLABLE
+      - name: adequado_LP
+        description: NULLABLE
+      - name: adequado_MT
+        description: NULLABLE
+      - name: insuficiente_pandemia_PB_LP
+        description: NULLABLE
+      - name: insuficiente_pandemia_PB_MT
+        description: NULLABLE
+      - name: basico_pandemia_PB_LP
+        description: NULLABLE
+      - name: basico_pandemia_PB_MT
+        description: NULLABLE
+      - name: proficiente_pandemia_PB_LP
+        description: NULLABLE
+      - name: proficiente_pandemia_PB_MT
+        description: NULLABLE
+      - name: avancado_pandemia_PB_LP
+        description: NULLABLE
+      - name: avancado_pandemia_PB_MT
+        description: NULLABLE
+      - name: adequado_pandemia_PB_LP
+        description: NULLABLE
+      - name: adequado_pandemia_PB_MT
+        description: NULLABLE
+      - name: adequado_pandemia_SP_LP
+        description: NULLABLE
+      - name: adequado_pandemia_SP_MT
+        description: NULLABLE

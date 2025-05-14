@@ -1,0 +1,857 @@
+---
+version: 2
+models:
+  - name: br_datahackers_state_data__microdados
+    description: O mais completo mapeamento do mercado brasileiro de dados [Data Hackers
+      + Bain]
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [p0]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: p0
+        description: Id
+      - name: p1_a
+        description: Idade
+      - name: p1_a_1
+        description: Faixa idade
+      - name: p1_b
+        description: Genero
+      - name: p1_c
+        description: Cor/raca/etnia
+      - name: p1_d
+        description: Pcd
+      - name: p1_e
+        description: Experiencia profissional prejudicada
+      - name: p1_f
+        description: Aspectos prejudicados
+      - name: p1_g
+        description: Vive no brasil
+      - name: p1_i
+        description: Estado onde mora
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: nome
+      - name: p1_i_1
+        description: Uf onde mora
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: p1_i_2
+        description: Regiao onde mora
+      - name: p1_j
+        description: Mudou de estado?
+      - name: p1_k
+        description: Regiao de origem
+      - name: p1_l
+        description: Nivel de ensino
+      - name: p1_m
+        description: Área de formação
+      - name: p2_a
+        description: Qual sua situação atual de trabalho?
+      - name: p2_b
+        description: Setor
+      - name: p2_c
+        description: Numero de funcionarios
+      - name: p2_d
+        description: Gestor?
+      - name: p2_e
+        description: Cargo como gestor
+      - name: p2_f
+        description: Cargo atual
+      - name: p2_g
+        description: Nivel
+      - name: p2_h
+        description: Faixa salarial
+      - name: p2_i
+        description: Quanto tempo de experiência na área de dados você tem?
+      - name: p2_j
+        description: Quanto tempo de experiência na área de ti/engenharia de software
+          você teve antes de começar a trabalhar na área de dados?
+      - name: p2_k
+        description: Você está satisfeito na sua empresa atual?
+      - name: p2_l
+        description: Qual o principal motivo da sua insatisfação com a empresa atual?
+      - name: p2_l_1
+        description: Falta de oportunidade de crescimento no emprego atual
+      - name: p2_l_2
+        description: Salário atual não corresponde ao mercado
+      - name: p2_l_3
+        description: Não tenho uma boa relação com meu líder/gestor
+      - name: p2_l_4
+        description: Gostaria de trabalhar em em outra área de atuação
+      - name: p2_l_5
+        description: Gostaria de receber mais benefícios
+      - name: p2_l_6
+        description: O clima de trabalho/ambiente não é bom
+      - name: p2_l_7
+        description: Falta de maturidade analítica na empresa
+      - name: p2_m
+        description: Você participou de entrevistas de emprego nos últimos 6 meses?
+      - name: p2_n
+        description: Você pretende mudar de emprego nos próximos 6 meses?
+      - name: p2_o
+        description: Quais os principais critérios que você leva em consideração no
+          momento de decidir onde trabalhar?
+      - name: p2_o_1
+        description: Remuneração/salário
+      - name: p2_o_2
+        description: Benefícios
+      - name: p2_o_3
+        description: Propósito do trabalho e da empresa
+      - name: p2_o_4
+        description: Flexibilidade de trabalho remoto
+      - name: p2_o_5
+        description: Ambiente e clima de trabalho
+      - name: p2_o_6
+        description: Oportunidade de aprendizado e trabalhar com referências na área
+      - name: p2_o_7
+        description: Plano de carreira e oportunidades de crescimento profissional
+      - name: p2_o_8
+        description: Maturidade da empresa em termos de tecnologia e dados
+      - name: p2_o_9
+        description: Qualidade dos gestores e líderes
+      - name: p2_o_10
+        description: Reputação que a empresa tem no mercado
+      - name: p2_p
+        description: Atualmente qual a sua forma de trabalho?
+      - name: p2_q
+        description: Qual a forma de trabalho ideal para você?
+      - name: p2_r
+        description: Caso sua empresa decida pelo modelo 100% presencial qual será
+          sua atitude?
+      - name: p2_s
+        description: Sua empresa passu por layoff em 2022?
+      - name: p3_a
+        description: Qual o número aproximado de pessoas que atuam com dados na sua
+          empresa hoje?
+      - name: p3_b
+        description: Quais desses papéis/cargos fazem parte do time (ou chapter) de
+          dados da sua empresa?
+      - name: p3_b_1
+        description: Analytics engineer
+      - name: p3_b_2
+        description: Engenharia de dados/data engineer
+      - name: p3_b_3
+        description: Analista de dados/data analyst
+      - name: p3_b_4
+        description: Cientista de dados/data scientist
+      - name: p3_b_5
+        description: Database administrator/dba
+      - name: p3_b_6
+        description: Analista de business intelligence/bi
+      - name: p3_b_7
+        description: Arquiteto de dados/data architect
+      - name: p3_b_8
+        description: Data product manager/dpm
+      - name: p3_b_9
+        description: Business analyst
+      - name: p3_c
+        description: Quais dessas responsabilidades fazem parte da sua rotina atual
+          de trabalho como gestor?
+      - name: p3_c_1
+        description: Pensar na visão de longo prazo de dados da empresa e fortalecimento
+          da cultura analítica da companhia.
+      - name: p3_c_2
+        description: Organização de treinamentos e iniciativas com o objetivo de aumentar
+          a maturidade analítica das áreas de negócios.
+      - name: p3_c_3
+        description: Atração
+      - name: p3_c_4
+        description: Decisão sobre contratação de ferramentas e tecnologias relacionadas
+          a dados.
+      - name: p3_c_5
+        description: Sou gestor da equipe responsável pela engenharia de dados e por
+          manter o data lake da empresa como fonte única dos dados
+      - name: p3_c_6
+        description: Sou gestor da equipe responsável pela entrega de dados
+      - name: p3_c_7
+        description: Sou gestor da equipe responsável por iniciativas e projetos envolvendo
+          inteligência artificial e machine learning.
+      - name: p3_c_8
+        description: Apesar de ser gestor ainda atuo na parte técnica
+      - name: p3_c_9
+        description: Gestão de projetos de dados
+      - name: p3_c_10
+        description: Gestão de produtos de dados
+      - name: p3_c_11
+        description: Gestão de pessoas
+      - name: p3_d
+        description: Quais são os 3 maiores desafios que você tem como gestor no atual
+          momento?
+      - name: p3_d_1
+        description: Contratar novos talentos.
+      - name: p3_d_2
+        description: Reter talentos.
+      - name: p3_d_3
+        description: Convencer a empresa a aumentar os investimentos na área de dados.
+      - name: p3_d_4
+        description: Gestão de equipes no ambiente remoto.
+      - name: p3_d_5
+        description: Gestão de projetos envolvendo áreas multidisciplinares da empresa.
+      - name: p3_d_6
+        description: Organizar as informações e garantir a qualidade e confiabilidade.
+      - name: p3_d_7
+        description: Conseguir processar e armazenar um alto volume de dados.
+      - name: p3_d_8
+        description: Conseguir gerar valor para as áreas de negócios através de estudos
+          e experimentos.
+      - name: p3_d_9
+        description: Desenvolver e manter modelos machine learning em produção.
+      - name: p3_d_10
+        description: Gerenciar a expectativa das áreas de negócio em relação as entregas
+          das equipes de dados.
+      - name: p3_d_11
+        description: Garantir a manutenção dos projetos e modelos em produção
+      - name: p3_d_12
+        description: Conseguir levar inovação para a empresa através dos dados.
+      - name: p3_d_13
+        description: Garantir retorno do investimento (roi) em projetos de dados.
+      - name: p3_d_14
+        description: Dividir o tempo entre entregas técnicas e gestão.
+      - name: p4_a
+        description: Mesmo que esse não seja seu cargo formal
+      - name: p4_a_1
+        description: Atuacao
+      - name: p4_b
+        description: Quais das fontes de dados listadas você já analisou ou processou
+          no trabalho?
+      - name: p4_b_1
+        description: Dados relacionais (estruturados em bancos sql)
+      - name: p4_b_2
+        description: Dados armazenados em bancos nosql
+      - name: p4_b_3
+        description: Imagens
+      - name: p4_b_4
+        description: Textos/documentos
+      - name: p4_b_5
+        description: Vídeos
+      - name: p4_b_6
+        description: Áudios
+      - name: p4_b_7
+        description: Planilhas
+      - name: p4_b_8
+        description: Dados georeferenciados
+      - name: p4_c
+        description: Entre as fontes de dados listadas
+      - name: p4_c_1
+        description: Dados relacionais (estruturados em bancos sql)
+      - name: p4_c_2
+        description: Dados armazenados em bancos nosql
+      - name: p4_c_3
+        description: Imagens
+      - name: p4_c_4
+        description: Textos/documentos
+      - name: p4_c_5
+        description: Vídeos
+      - name: p4_c_6
+        description: Áudios
+      - name: p4_c_7
+        description: Planilhas
+      - name: p4_c_8
+        description: Dados georeferenciados
+      - name: p4_d
+        description: Quais das linguagens listadas abaixo você utiliza no trabalho?
+      - name: p4_d_1
+        description: Sql
+      - name: p4_d_2
+        description: R
+      - name: p4_d_3
+        description: Python
+      - name: p4_d_4
+        description: C/c++/c#
+      - name: p4_d_5
+        description: .net
+      - name: p4_d_6
+        description: Java
+      - name: p4_d_7
+        description: Julia
+      - name: p4_d_8
+        description: Sas/stata
+      - name: p4_d_9
+        description: Visual basic/vba
+      - name: p4_d_10
+        description: Scala
+      - name: p4_d_11
+        description: Matlab
+      - name: p4_d_12
+        description: Php
+      - name: p4_d_13
+        description: Javascript
+      - name: p4_d_14
+        description: Não utilizo nenhuma linguagem
+      - name: p4_e
+        description: Entre as linguagens listadas abaixo
+      - name: p4_f
+        description: Entre as linguagens listadas abaixo
+      - name: p4_g
+        description: Quais dos bancos de dados/fontes de dados listados abaixo você
+          utiliza no trabalho?
+      - name: p4_g_1
+        description: Mysql
+      - name: p4_g_2
+        description: Oracle
+      - name: p4_g_3
+        description: Sql server
+      - name: p4_f_4
+        description: Amazon aurora ou rds
+      - name: p4_f_5
+        description: Dynamodb
+      - name: p4_f_6
+        description: Coachdb
+      - name: p4_f_7
+        description: Cassandra
+      - name: p4_f_8
+        description: Mongodb
+      - name: p4_f_9
+        description: Mariadb
+      - name: p4_f_10
+        description: Datomic
+      - name: p4_f_11
+        description: S3
+      - name: p4_f_12
+        description: Postgresql
+      - name: p4_f_13
+        description: Elasticsearch
+      - name: p4_f_14
+        description: Db2
+      - name: p4_f_15
+        description: Microsoft access
+      - name: p4_f_16
+        description: Sqlite
+      - name: p4_f_17
+        description: Sybase
+      - name: p4_f_18
+        description: Firebase
+      - name: p4_f_19
+        description: Vertica
+      - name: p4_f_20
+        description: Redis
+      - name: p4_f_21
+        description: Neo4j
+      - name: p4_f_22
+        description: Google bigquery
+      - name: p4_f_23
+        description: Google firestore
+      - name: p4_f_24
+        description: Amazon redshift
+      - name: p4_f_25
+        description: Amazon athena
+      - name: p4_f_26
+        description: Snowflake
+      - name: p4_f_27
+        description: Databricks
+      - name: p4_f_28
+        description: Hbase
+      - name: p4_f_29
+        description: Presto
+      - name: p4_f_30
+        description: Splunk
+      - name: p4_f_31
+        description: Sap hana
+      - name: p4_f_32
+        description: Hive
+      - name: p4_f_33
+        description: Firebird
+      - name: p4_g__1
+        description: Quais das opções de cloud listadas abaixo você utiliza no trabalho?
+      - name: p4_h
+        description: Dentre as opções listadas
+      - name: p4_h_1
+        description: Azure (microsoft)
+      - name: p4_h_2
+        description: Amazon web services (aws)
+      - name: p4_h_3
+        description: Google cloud (gcp)
+      - name: p4_i
+        description: Microsoft powerbi
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: p4_i_1
+        description: Microsoft powerbi
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: p4_i_2
+        description: Qlik view/qlik sense
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: p4_i_3
+        description: Tableau
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: p4_i_4
+        description: Metabase
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: p4_i_5
+        description: Superset
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: p4_i_6
+        description: Redash
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: p4_i_7
+        description: Microstrategy
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: p4_i_8
+        description: Ibm analytics/cognos
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: p4_i_9
+        description: Sap business objects
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: p4_i_10
+        description: Oracle business intelligence
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: p4_i_11
+        description: Amazon quicksight
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: p4_i_12
+        description: Salesforce/einstein analytics
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: p4_i_13
+        description: Mode
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: p4_i_14
+        description: Alteryx
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: p4_i_15
+        description: Birst
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: p4_i_16
+        description: Looker
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: p4_i_17
+        description: Google data studio
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: p4_i_18
+        description: Sas visual analytics
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: p4_i_19
+        description: Grafana
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: p4_i_20
+        description: Tibco spotfire
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: p4_i_21
+        description: Pentaho
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: p4_i_22
+        description: Fazemos todas as análises utilizando apenas excel ou planilhas
+          do google
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: p4_i_23
+        description: Não utilizo nenhuma ferramenta de bi no trabalho
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: p5_a
+        description: Qual seu objetivo na área de dados?
+      - name: p5_b
+        description: Qual oportunidade você está buscando?
+      - name: p5_c
+        description: Há quanto tempo você busca uma oportunidade na área de dados?
+      - name: p5_d
+        description: Como tem sido a busca por um emprego na área de dados?
+      - name: p6_a
+        description: Quais das opções abaixo fazem parte da sua rotina no trabalho
+          atual como engenheiro de dados?
+      - name: p6_a_1
+        description: Desenvolvo pipelines de dados utilizando linguagens de programação
+          como python
+      - name: p6_a_2
+        description: Realizo construções de etls em ferramentas como pentaho
+      - name: p6_a_3
+        description: Crio consultas através da linguagem sql para exportar informações
+          e compartilhar com as áreas de negócio.
+      - name: p6_a_4
+        description: Atuo na integração de diferentes fontes de dados através de plataformas
+          proprietárias como stitch data
+      - name: p6_a_5
+        description: Modelo soluções de arquitetura de dados
+      - name: p6_a_6
+        description: Desenvolvo/cuido da manutenção de repositórios de dados baseados
+          em streaming de eventos como data lakes e data lakehouses.
+      - name: p6_a_7
+        description: Atuo na modelagem dos dados
+      - name: p6_a_8
+        description: Cuido da qualidade dos dados
+      - name: p6_a_9
+        description: Nenhuma das opções listadas refletem meu dia a dia.
+      - name: p6_b
+        description: Quais as ferramentas/tecnologias de etl que você utiliza no trabalho
+          como data engineer?
+      - name: p6_b_1
+        description: Scripts python
+      - name: p6_b_2
+        description: Sql & stored procedures
+      - name: p6_b_3
+        description: Apache airflow
+      - name: p6_b_4
+        description: Luigi
+      - name: p6_b_5
+        description: Aws glue
+      - name: p6_b_6
+        description: Talend
+      - name: p6_b_7
+        description: Pentaho
+      - name: p6_b_8
+        description: Alteryx
+      - name: p6_b_9
+        description: Stitch
+      - name: p6_b_10
+        description: Fivetran
+      - name: p6_b_11
+        description: Google dataflow
+      - name: p6_b_12
+        description: Oracle data integrator
+      - name: p6_b_13
+        description: Ibm datastage
+      - name: p6_b_14
+        description: Sap bw etl
+      - name: p6_b_15
+        description: Sql server integration services (ssis)
+      - name: p6_b_16
+        description: Sas data integration
+      - name: p6_b_17
+        description: Qlik sense
+      - name: p6_b_18
+        description: Knime
+      - name: p6_b_19
+        description: Databricks
+      - name: p6_b_19__1
+        description: Não utilizo ferramentas de etl
+      - name: p6_c
+        description: Sua organização possui um data lake?
+      - name: p6_d
+        description: Qual tecnologia utilizada como plataforma do data lake?
+      - name: p6_e
+        description: Sua organização possui um data warehouse?
+      - name: p6_f
+        description: Qual tecnologia utilizada como plataforma do data warehouse?
+      - name: p6_g
+        description: Quais as ferramentas de gestão de qualidade de dados
+      - name: p6_g_1
+        description: Great expectations
+      - name: p6_g_2
+        description: Dbt
+      - name: p6_g_3
+        description: Aws deequ
+      - name: p6_g_4
+        description: Apache griffin
+      - name: p6_g_5
+        description: Datafold
+      - name: p6_g_6
+        description: Amundsen
+      - name: p6_g_7
+        description: Monte carlo
+      - name: p6_g_8
+        description: Soda
+      - name: p6_g_9
+        description: Big eye
+      - name: p6_g_10
+        description: Data band
+      - name: p6_g_11
+        description: Anomalo
+      - name: p6_g_l
+        description: Metaplane
+      - name: p6_g_m
+        description: Acceldata
+      - name: p6_h
+        description: Em qual das opções abaixo você gasta a maior parte do seu tempo?
+      - name: p6_h_1
+        description: Desenvolvendo pipelines de dados utilizando linguagens de programação
+          como python
+      - name: p6_h_2
+        description: Realizando construções de etls em ferramentas como pentaho
+      - name: p6_h_3
+        description: Criando consultas através da linguagem sql para exportar informações
+          e compartilhar com as áreas de negócio.
+      - name: p6_h_4
+        description: Atuando na integração de diferentes fontes de dados através de
+          plataformas proprietárias como stitch data
+      - name: p6_h_5
+        description: Modelando soluções de arquitetura de dados
+      - name: p6_h_6
+        description: Desenvolvendo/cuidando da manutenção de repositórios de dados
+          baseados em streaming de eventos como data lakes e data lakehouses.
+      - name: p6_h_7
+        description: Atuando na modelagem dos dados
+      - name: p6_h_8
+        description: Cuidando da qualidade dos dados
+      - name: p6_h_9
+        description: Nenhuma das opções listadas refletem meu dia a dia.
+      - name: p7_1
+        description: Quais das opções abaixo fazem parte da sua rotina no trabalho
+          atual com análise de dados?
+      - name: p7_a_1
+        description: Processo e analiso dados utilizando linguagens de programação
+          como python
+      - name: p7_a_2
+        description: Realizo construções de dashboards em ferramentas de bi como powerbi
+      - name: p7_a_3
+        description: Crio consultas através da linguagem sql para exportar informações
+          e compartilhar com as áreas de negócio.
+      - name: p7_a_4
+        description: Utilizo apis para extrair dados e complementar minhas análises.
+      - name: p7_a_5
+        description: Realizo experimentos e estudos utilizando metodologias estatísticas
+          como teste de hipótese
+      - name: p7_a_6
+        description: Desenvolvo/cuido da manutenção de etls utilizando tecnologias
+          como talend
+      - name: p7_a_7
+        description: Atuo na modelagem dos dados
+      - name: p7_a_8
+        description: Desenvolvo/cuido da manutenção de planilhas para atender as áreas
+          de negócio.
+      - name: p7_a_9
+        description: Utilizo ferramentas avançadas de estatística como sas
+      - name: p7_a_10
+        description: Nenhuma das opções listadas refletem meu dia a dia.
+      - name: p7_b
+        description: Quais as ferramentas/tecnologias de etl que você utiliza no trabalho
+          como data analyst?
+      - name: p7_b_1
+        description: Scripts python
+      - name: p7_b_2
+        description: Sql & stored procedures
+      - name: p7_b_3
+        description: Apache airflow
+      - name: p7_b_4
+        description: Luigi
+      - name: p7_b_5
+        description: Aws glue
+      - name: p7_b_6
+        description: Talend
+      - name: p7_b_7
+        description: Pentaho
+      - name: p7_b_8
+        description: Alteryx
+      - name: p7_b_9
+        description: Stitch
+      - name: p7_b_10
+        description: Fivetran
+      - name: p7_b_11
+        description: Google dataflow
+      - name: p7_b_12
+        description: Oracle data integrator
+      - name: p7_b_13
+        description: Ibm datastage
+      - name: p7_b_14
+        description: Sap bw etl
+      - name: p7_b_15
+        description: Sql server integration services (ssis)
+      - name: p7_b_16
+        description: Sas data integration
+      - name: p7_b_17
+        description: Qlik sense
+      - name: p7_b_18
+        description: Knime
+      - name: p7_b_19
+        description: Databricks
+      - name: p7_b_20
+        description: Não utilizo ferramentas de etl
+      - name: p7_c
+        description: Sua empresa utiliza alguma das ferramentas listadas para dar
+          mais autonomia em análise de dados para as áreas de negócio?
+      - name: p7_c_1
+        description: Ferramentas de automl como h2o.ai
+      - name: p7_c_2
+        description: '""point and click"" analytics como alteryx'
+      - name: p7_c_3
+        description: Product metricts & insights como mixpanel
+      - name: p7_c_4
+        description: Ferramentas de análise dentro de ferramentas de crm como salesforce
+          einstein anaytics ou zendesk dashboards.
+      - name: p7_c_5
+        description: Minha empresa não utiliza essas ferramentas.
+      - name: p7_c_6
+        description: Não sei informar.
+      - name: p7_d
+        description: Em qual das opções abaixo você gasta a maior parte do seu tempo
+          de trabalho?
+      - name: p7_d_1
+        description: Processando e analisando dados utilizando linguagens de programação
+          como python
+      - name: p7_d_2
+        description: Realizando construções de dashboards em ferramentas de bi como
+          powerbi
+      - name: p7_d_3
+        description: Criando consultas através da linguagem sql para exportar informações
+          e compartilhar com as áreas de negócio.
+      - name: p7_d_4
+        description: Utilizando apis para extrair dados e complementar minhas análises.
+      - name: p7_d_5
+        description: Realizando experimentos e estudos utilizando metodologias estatísticas
+          como teste de hipótese
+      - name: p7_d_6
+        description: Desenvolvendo/cuidando da manutenção de etls utilizando tecnologias
+          como talend
+      - name: p7_d_7
+        description: Atuando na modelagem dos dados
+      - name: p7_d_8
+        description: Desenvolvendo/cuidando da manutenção de planilhas do excel ou
+          google sheets para atender as áreas de negócio.
+      - name: p7_d_9
+        description: Utilizando ferramentas avançadas de estatística como sas
+      - name: p7_d_10
+        description: Nenhuma das opções listadas refletem meu dia a dia.
+      - name: p8_a
+        description: Quais das opções abaixo fazem parte da sua rotina no trabalho
+          atual com ciência de dados?
+      - name: p8_a_1
+        description: Estudos ad-hoc com o objetivo de confirmar hipóteses
+      - name: p8_a_2
+        description: Sou responsável pela coleta e limpeza dos dados que uso para
+          análise e modelagem.
+      - name: p8_a_3
+        description: Sou responsável por entrar em contato com os times de negócio
+          para definição do problema
+      - name: p8_a_4
+        description: Desenvolvo modelos de machine learning com o objetivo de colocar
+          em produção em sistemas (produtos de dados).
+      - name: p8_a_5
+        description: Sou responsável por colocar modelos em produção
+      - name: p8_a_6
+        description: Cuido da manutenção de modelos de machine learning já em produção
+      - name: p8_a_7
+        description: Realizo construções de dashboards em ferramentas de bi como powerbi
+      - name: p8_a_8
+        description: Utilizo ferramentas avançadas de estatística como sas
+      - name: p8_a_9
+        description: Crio e dou manutenção em etls
+      - name: p8_a_10
+        description: Crio e gerencio soluções de feature store e cultura de mlops.
+      - name: p8_a_11
+        description: Sou responsável por criar e manter a infra que meus modelos e
+          soluções rodam
+      - name: p8_b
+        description: Quais as técnicas e métodos listados abaixo você costuma utilizar
+          no trabalho?
+      - name: p8_b_1
+        description: Utilizo modelos de regressão
+      - name: p8_b_2
+        description: Utilizo redes neurais ou modelos baseados em árvore para criar
+          modelos de classificação
+      - name: p8_b_3
+        description: Desenvolvo sistemas de recomendação (recsys)
+      - name: p8_b_4
+        description: Utilizo métodos estatísticos bayesianos para analisar dados
+      - name: p8_b_5
+        description: Utilizo técnicas de nlp (natural language processing) para análisar
+          dados não-estruturados
+      - name: p8_b_6
+        description: Utilizo métodos estatísticos clássicos (testes de hipótese)
+      - name: p8_b_7
+        description: Utilizo cadeias de markov ou hmms para realizar análises de dados
+      - name: p8_b_8
+        description: Desenvolvo técnicas de clusterização (k-means)
+      - name: p8_b_9
+        description: Realizo previsões através de modelos de séries temporais (time
+          series)
+      - name: p8_b_10
+        description: Utilizo modelos de reinforcement learning (aprendizado por reforço)
+      - name: p8_b_11
+        description: Utilizo modelos de machine learning para detecção de fraude
+      - name: p8_b_l
+        description: Utilizo métodos de visão computacional
+      - name: p8_b_m
+        description: Utilizo modelos de detecção de churn
+      - name: p8_3
+        description: Quais dessas tecnologias fazem parte do seu dia a dia como cientista
+          de dados?
+      - name: p8_c_1
+        description: Ferramentas de bi (powerbi)
+      - name: p8_c_2
+        description: Planilhas (excel)
+      - name: p8_c_3
+        description: Ambientes de desenvolvimento local (r-studio)
+      - name: p8_c_4
+        description: Ambientes de desenvolvimento na nuvem (google colab)
+      - name: p8_c_5
+        description: Ferramentas de automl (datarobot)
+      - name: p8_c_6
+        description: Ferramentas de etl (apache airflow)
+      - name: p8_c_7
+        description: Plataformas de machine learning (tensorflow)
+      - name: p8_c_8
+        description: Feature store (feast)
+      - name: p8_c_9
+        description: Sistemas de controle de versão (github)
+      - name: p8_c_10
+        description: Plataformas de data apps (streamlit)
+      - name: p8_c_11
+        description: Ferramentas de estatística avançada como spss
+      - name: p8_d
+        description: Em qual das opções abaixo você gasta a maior parte do seu tempo
+          no trabalho?
+      - name: p8_d_1
+        description: Estudos ad-hoc com o objetivo de confirmar hipóteses
+      - name: p8_d_2
+        description: Coletando e limpando os dados que uso para análise e modelagem.
+      - name: p8_d_3
+        description: Entrando em contato com os times de negócio para definição do
+          problema
+      - name: p8_d_4
+        description: Desenvolvendo modelos de machine learning com o objetivo de colocar
+          em produção em sistemas (produtos de dados).
+      - name: p8_d_5
+        description: Colocando modelos em produção
+      - name: p8_d_6
+        description: Cuidando da manutenção de modelos de machine learning já em produção
+      - name: p8_d_7
+        description: Realizando construções de dashboards em ferramentas de bi como
+          powerbi
+      - name: p8_d_8
+        description: Utilizando ferramentas avançadas de estatística como sas
+      - name: p8_d_9
+        description: Criando e dando manutenção em etls
+      - name: p8_d_10
+        description: Criando e gerenciando soluções de feature store e cultura de
+          mlops.
+      - name: p8_d_11
+        description: Criando e mantendo a infra que meus modelos e soluções rodam
+          (clusters)

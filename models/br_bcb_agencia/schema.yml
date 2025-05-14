@@ -1,0 +1,93 @@
+---
+version: 2
+models:
+  - name: br_bcb_agencia__agencia
+    description: Esta tabela apresenta o cadastro de agências bancárias do Banco Central
+      do Brasil (BCB)
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, cnpj]
+          config:
+            where: __most_recent_year_month__
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: ano
+              config:
+                where: __most_recent_year_month__
+      - name: mes
+        description: Mês
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: mes
+              config:
+                where: __most_recent_year_month__
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.95
+              config:
+                where: __most_recent_year_month__
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+              config:
+                where: __most_recent_year_month__
+          - dbt_utils.not_null_proportion:
+              at_least: 0.95
+              config:
+                where: __most_recent_year_month__
+      - name: data_inicio
+        description: Data de criação da agência
+      - name: cnpj
+        description: Cadastro Nacional de Pessoa Júridica (CNPJ)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.95
+              config:
+                where: __most_recent_year_month__
+      - name: nome_agencia
+        description: Nome da Agência
+      - name: instituicao
+        description: Nome da Instituição Financeira (IF)
+      - name: segmento
+        description: Segemento de atuação da IF
+      - name: id_compe_bcb_agencia
+        description: Identificador do Sistema de Operações Monetárias e Compensações
+          de Outros Papéis (COMPE) do Banco Central da agência
+      - name: id_compe_bcb_instituicao
+        description: Identificador do Sistema de Operações Monetárias e Compensações
+          de Outros Papéis (COMPE) do Banco Central da instituição
+      - name: cep
+        description: CEP
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__cep')
+              field: cep.cep
+              proportion_allowed_failures: 20
+              config:
+                where: __most_recent_year_month__
+          - dbt_utils.not_null_proportion:
+              at_least: 0.95
+              config:
+                where: __most_recent_year_month__
+      - name: endereco
+        description: endereço da agência
+      - name: complemento
+        description: Complemento do endereço
+      - name: bairro
+        description: Bairro
+      - name: ddd
+        description: ddd
+      - name: fone
+        description: Fone
+      - name: id_instalacao
+        description: identificador de instalação da agência

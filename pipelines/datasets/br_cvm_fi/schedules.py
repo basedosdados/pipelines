@@ -22,7 +22,7 @@ every_day_informe = Schedule(
             parameter_defaults={
                 "dataset_id": "br_cvm_fi",
                 "table_id": "documentos_informe_diario",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "url": cvm_constants.INFORME_DIARIO_URL.value,
@@ -43,7 +43,7 @@ every_day_carteiras = Schedule(
             parameter_defaults={
                 "dataset_id": "br_cvm_fi",
                 "table_id": "documentos_carteiras_fundos_investimento",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "url": cvm_constants.CDA_URL.value,
@@ -64,7 +64,7 @@ every_day_extratos = Schedule(
             parameter_defaults={
                 "dataset_id": "br_cvm_fi",
                 "table_id": "documentos_extratos_informacoes",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "url": cvm_constants.URL_EXT.value,
@@ -87,7 +87,7 @@ every_day_perfil = Schedule(
             parameter_defaults={
                 "dataset_id": "br_cvm_fi",
                 "table_id": "documentos_perfil_mensal",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "url": cvm_constants.URL_PERFIL_MENSAL.value,
@@ -108,7 +108,7 @@ every_day_informacao_cadastral = Schedule(
             parameter_defaults={
                 "dataset_id": "br_cvm_fi",
                 "table_id": "documentos_informacao_cadastral",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "url": cvm_constants.URL_INFO_CADASTRAL.value,
@@ -130,7 +130,7 @@ every_day_balancete = Schedule(
             parameter_defaults={
                 "dataset_id": "br_cvm_fi",
                 "table_id": "documentos_balancete",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "url": cvm_constants.URL_BALANCETE.value,

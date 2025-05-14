@@ -21,7 +21,7 @@ schedule_candidatos = Schedule(
             parameter_defaults={
                 "dataset_id": "br_tse_eleicoes",
                 "table_id": "candidatos",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
@@ -41,7 +41,7 @@ schedule_bens = Schedule(
             parameter_defaults={
                 "dataset_id": "br_tse_eleicoes",
                 "table_id": "bens_candidato",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
@@ -61,7 +61,7 @@ schedule_despesa = Schedule(
             parameter_defaults={
                 "dataset_id": "br_tse_eleicoes",
                 "table_id": "despesas_candidato",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
@@ -82,7 +82,7 @@ schedule_receita = Schedule(
             parameter_defaults={
                 "dataset_id": "br_tse_eleicoes",
                 "table_id": "receitas_candidato",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,

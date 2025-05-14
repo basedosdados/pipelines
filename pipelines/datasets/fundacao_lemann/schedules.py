@@ -20,7 +20,7 @@ every_year = Schedule(
             ],
             parameter_defaults={
                 "dataset_id": "fundacao_lemann",
-                "materialization_mode": "dev",
+                "target": "dev",
                 "materialize after dump": True,
                 "table_id": "ano_escola_serie_educacao_aprendizagem_adequada",
             },

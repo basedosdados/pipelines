@@ -1,0 +1,65 @@
+---
+version: 2
+models:
+  - name: br_inpe_queimadas__microdados
+    description: Dados do INPE sobre focos de queimadas ocorridos no Brasil a partir
+      do ano de 2003.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - latitude
+            - longitude
+            - data_hora
+            - potencia_radiativa_fogo
+      - not_null_proportion_multiple_columns:
+          at_least: 0.70
+    columns:
+      - name: ano
+        description: Ano de referência da passagem do satélite segundo o fuso horário
+          de Greenwich (GMT).
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: Mês de referência da passagem do satélite segundo o fuso horário
+          de Greenwich (GMT).
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: data_hora
+        description: Coluna agregada de data e hora da passagem do satélite o fuso
+          horário de Greenwich (GMT).
+      - name: bioma
+        description: Nome do Bioma.
+      - name: sigla_uf
+        description: Sigla da Unidade Federativa.
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: Identificação do Município.
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: latitude
+        description: Latitude do centro do píxel de fogo ativo apresentada em unidade
+          de graus decimais.
+      - name: longitude
+        description: Longitude do centro do píxel de fogo ativo apresentada em unidade
+          de graus decimais
+      - name: satelite
+        description: Nome do algoritmo utilizado e referencia ao satélite provedor
+          da imagem.
+      - name: dias_sem_chuva
+        description: Número de dias sem chuva até a detecção do foco.
+      - name: precipitacao
+        description: Valor da precipitação acumulada no dia até o momento da detecção
+          do fogo.
+      - name: risco_fogo
+        description: Valor do Risco de Fogo previsto para o dia da detecção do foco.
+      - name: potencia_radiativa_fogo
+        description: Fire Radiative Power, MW (megawatts).

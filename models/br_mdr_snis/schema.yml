@@ -1,0 +1,682 @@
+---
+version: 2
+models:
+  - name: br_mdr_snis__prestador_agua_esgoto
+    description: Está tabela contém informações e indicadores desagregados por prestador
+      de serviço de água e esgoto, fornecendo um panorama detalhado do histórico e
+      do estado da arte da oferta de serviços saneamento básico no Brasil. Atenção!
+      este dataset não representa o conjunto total de dados disponíveis no SNIS. Para
+      saber detalhes sobre como fizemos a seleção dos dados na fonte original basta
+      realizar o download dos arquivos auxíliares no final da página.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_municipio, id_prestador]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_data_tempo__ano')
+              field: ano.ano
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_prestador
+        description: Identificador do prestador de serviço
+      - name: prestador
+        description: Nome do prestador de serviço
+      - name: sigla_prestador
+        description: Sigla do prestador de serviço
+      - name: abrangencia
+        description: Abrangência do prestador de serviço
+      - name: tipo_servico
+        description: Tipo do prestador de serviço
+      - name: natureza_juridica
+        description: Natureza jurídica do prestador de serviço
+      - name: populacao_atendida_agua
+        description: AG001 - População total atendida com abastecimento de água
+      - name: populacao_atentida_esgoto
+        description: ES001 - População total atendida com esgotamento sanitário
+      - name: populacao_urbana
+        description: 'População urbana do município do ano de referência (Fonte: IBGE)'
+      - name: populacao_urbana_atendida_agua
+        description: AG026 - População urbana atendida com abastecimento de água
+      - name: populacao_urbana_atendida_esgoto
+        description: ES026 - População urbana atendida com esgotamento sanitário
+      - name: extensao_rede_agua
+        description: AG005 - Extensão da rede de água
+      - name: extensao_rede_esgoto
+        description: ES004 - Extensão da rede de esgotos
+      - name: local_atendimento_agua
+        description: GE019 - Onde atende com abastecimento de água
+      - name: local_atendimento_esgoto
+        description: GE020 - Onde atende com esgotamento sanitário
+      - name: ano_vencimento_delegacao_agua
+        description: GE017 - Ano de vencimento da delegação de abastecimento de água
+      - name: ano_vencimento_delegacao_esgoto
+        description: GE018 - Ano de vencimento da delegação de esgotamento sanitário
+      - name: quantidade_municipios_agua_delegacao_vigor
+        description: GE001 - Quantidade de municípios atendidos com abastecimento
+          de água com delegação em vigor
+      - name: quantidade_municipios_esgoto_delegacao_vigor
+        description: GE014 - Quantidade de municípios atendidos com esgotamento sanitário
+          com delegação em vigor
+      - name: quantidade_municipios_agua_delegacao_vencida
+        description: GE002 - Quantidade de municípios atendidos com abastecimento
+          de água com delegação vencida
+      - name: quantidade_municipios_esgoto_delegacao_vencida
+        description: GE015 - Quantidade de municípios atendidos com esgotamento sanitário
+          com delegação vencida
+      - name: quantidade_municipios_agua_sem_delegacao
+        description: GE003 - Quantidade de municípios atendidos com abastecimento
+          de água sem delegação
+      - name: quantidade_municipios_esgoto_sem_delegacao
+        description: GE016 - Quantidade de municípios atendidos com esgotamento sanitário
+          sem delegação
+      - name: quantidade_municipios_sem_esgoto_sem_delegacao
+        description: GE030 - Quantidade de municípios não atendidos com esgotamento
+          sanitário e sem delegação para prestar esse serviço
+      - name: quantidade_sede_municipal_agua
+        description: GE008 - Quantidade de Sedes municipais atendidas com abastecimento
+          de água
+      - name: quantidade_sede_municipal_esgoto
+        description: GE009 - Quantidade de Sedes municipais atendidas com esgotamento
+          sanitário
+      - name: quantidade_localidade_agua
+        description: GE010 - Quantidade de Localidades (excluídas as sedes) atendidas
+          com abastecimento de água
+      - name: quantidade_localidade_esgoto
+        description: GE011 - Quantidade de Localidades (excluídas as sedes) atendidas
+          com esgotamento sanitário
+      - name: quantidade_ligacao_total_agua
+        description: AG021 - Quantidade de ligações totais de água
+      - name: quantidade_ligacao_total_esgoto
+        description: ES009 - Quantidade de ligações totais de esgotos
+      - name: quantidade_ligacao_ativa_agua
+        description: AG002 - Quantidade de ligações ativas de água
+      - name: quantidade_ligacao_ativa_esgoto
+        description: ES002 - Quantidade de ligações ativas de esgotos
+      - name: quantidade_economia_ativa_agua
+        description: AG003 - Quantidade de economias ativas de água
+      - name: quantidade_economia_ativa_esgoto
+        description: ES003 - Quantidade de economias ativas de esgotos
+      - name: quantidade_ligacao_micromedia_ativa_agua
+        description: AG004 - Quantidade de ligações ativas de água micromedidas
+      - name: quantidade_economia_residencial_ativa_agua
+        description: AG013 - Quantidade de economias residenciais ativas de água
+      - name: quantidade_economia_micromedida_ativa_agua
+        description: AG014 - Quantidade de economias ativas de água micromedidas
+      - name: quantidade_economia_residencial_micromedida_ativa_agua
+        description: AG022 - Quantidade de economias residenciais ativas de água micromedidas
+      - name: quantidade_economia_residencial_ativa_esgoto
+        description: ES008 - Quantidade de economias residenciais ativas de esgotos
+      - name: volume_agua_produzido
+        description: AG006 - Volume de água produzido
+      - name: volume_agua_tratada_eta
+        description: AG007 - Volume de água tratada em ETAs
+      - name: volume_agua_micromedido
+        description: AG008 - Volume de água micromedido
+      - name: volume_agua_consumido
+        description: AG010 - Volume de água consumido
+      - name: volume_agua_faturado
+        description: AG011 - Volume de água faturado
+      - name: volume_agua_macromedido
+        description: AG012 - Volume de água macromedido
+      - name: volume_agua_tratada_desinfeccao
+        description: AG015 - Volume de água tratada por simples desinfecção
+      - name: volume_agua_bruta_exportado
+        description: AG017 - Volume de água bruta exportado
+      - name: volume_agua_tratada_importado
+        description: AG018 - Volume de água tratada importado
+      - name: volume_agua_tratada_exportado
+        description: AG019 - Volume de água tratada exportado
+      - name: volume_agua_micromedido_economia_ativa
+        description: AG020 - Volume micromedido nas economias residenciais ativas
+          de água
+      - name: volume_servico_agua
+        description: AG024 - Volume de serviço
+      - name: volume_agua_fluoretada
+        description: AG027 - Volume de água fluoretada
+      - name: consumo_eletrico_sistemas_agua
+        description: AG028 - Consumo total de energia elétrica nos sistemas de água
+      - name: volume_esgoto_coletado
+        description: ES005 - Volume de esgotos coletado
+      - name: volume_esgoto_tratado
+        description: ES006 - Volume de esgotos tratado
+      - name: volume_esgoto_faturado
+        description: ES007 - Volume de esgotos faturado
+      - name: volume_esgoto_bruto_exportado
+        description: ES012 - Volume de esgoto bruto exportado
+      - name: volume_esgoto_bruto_importado
+        description: ES013 - Volume de esgotos bruto importado
+      - name: volume_esgoto_importado
+        description: ES014 - Volume de esgoto importado tratado nas instalações do
+          importador
+      - name: volume_esgoto_bruto_exportado_tratamento_importador
+        description: ES015 - Volume de esgoto bruto exportado tratado nas instalações
+          do importador
+      - name: consumo_eletrico_sistemas_esgoto
+        description: ES028 - Consumo total de energia elétrica nos sistemas de esgotos
+      - name: indice_agua_ligacao
+        description: IN001 - Densidade de economias de água por ligação
+      - name: indice_hidrometracao
+        description: IN009 - Índice de hidrometração
+      - name: indice_macromedicao_volume_disponibilizado
+        description: IN010 - Índice de micromedição relativo ao volume disponibilizado
+      - name: indice_macromedicao
+        description: IN011 - Índice de macromedição
+      - name: indice_perda_faturamento
+        description: IN013 - Índice de perdas faturamento
+      - name: indice_micromedido_economia
+        description: IN014 - Consumo micromedido por economia
+      - name: indice_coleta_esgoto
+        description: IN015 - Índice de coleta de esgoto
+      - name: indice_tratamento_esgoto
+        description: IN016 - Índice de tratamento de esgoto
+      - name: indice_consumo_agua_faturado
+        description: IN017 - Consumo de água faturado por economia
+      - name: indice_extensao_agua_ligacao
+        description: IN020 - Extensão da rede de água por ligação
+      - name: indice_extensao_esgoto_ligacao
+        description: IN021 - Extensão da rede de esgoto por ligação
+      - name: indice_consumo_agua_per_capita
+        description: IN022 - Consumo médio per capita de água
+      - name: indice_atendimento_urbano_agua
+        description: IN023 - Índice de atendimento urbano de água
+      - name: indice_atendimento_agua_esgoto
+        description: IN024 - Índice de atendimento urbano de esgoto referido aos municípios
+          atendidos com água
+      - name: indice_volume_agua_economia
+        description: IN025 - Volume de água disponibilizado por economia
+      - name: indice_faturamento_agua
+        description: IN028 - Índice de faturamento de água
+      - name: indice_participacao_economia_agua
+        description: IN043 - Participação das economias residenciais de água no total
+          das economias de água
+      - name: indice_micromedicao_relativo_agua
+        description: IN044 - Índice de micromedição relativo ao consumo
+      - name: indice_esgotamento_agua_consumida
+        description: IN046 - Índice de esgoto tratado referido à água consumida
+      - name: indice_atendimento_esgoto_esgoto
+        description: IN047 - Índice de atendimento urbano de esgoto referido aos municípios
+          atendidos com esgoto
+      - name: indice_perda_distribuicao_agua
+        description: IN049 - Índice de perdas na distribuição
+      - name: indice_perda_linear_agua
+        description: IN050 - Índice bruto de perdas lineares
+      - name: indice_perda_ligacao_agua
+        description: IN051 - Índice de perdas por ligação
+      - name: indice_consumo_agua
+        description: IN052 - Índice de consumo de água
+      - name: indice_consumo_medio_agua
+        description: IN053 - Consumo médio de água por economia
+      - name: indice_atendimento_total_agua
+        description: IN055 - Índice de atendimento total de água
+      - name: indice_atendimento_esgoto_agua
+        description: IN056 - Índice de atendimento total de esgoto referido aos municípios
+          atendidos com água
+      - name: indice_fluoretacao_agua
+        description: IN057 - Índice de fluoretação de água
+      - name: indice_consumo_energia_agua
+        description: IN058 - Índice de consumo de energia elétrica em sistemas de
+          abastecimento de água
+      - name: indice_consumo_energia_esgoto
+        description: 'IN059 - Índice de consumo de energia elétrica em sistemas de
+          esgotamento sanitário '
+      - name: receita_operacional_direta
+        description: FN001 - Receita operacional direta total
+      - name: receita_operacional_direta_agua
+        description: FN002 - Receita operacional direta de água
+      - name: receita_operacional_direta_esgoto
+        description: FN003 - Receita operacional direta de esgoto
+      - name: receita_operacional_indireta
+        description: FN004 - Receita operacional indireta
+      - name: receita_operacional_direta_agua_exportada
+        description: FN007 - Receita operacional direta de água exportada (bruta ou
+          tratada)
+      - name: receita_operacional
+        description: FN005 - Receita operacional total (direta + indireta)
+      - name: receita_operacional_direta_esgoto_importado
+        description: FN038 - Receita operacional direta - esgoto bruto importado
+      - name: arrecadacao_total
+        description: FN006 - Arrecadação total
+      - name: credito_areceber
+        description: FN008 - Créditos de contas a receber
+      - name: despesa_pessoal
+        description: FN010 - Despesa com pessoal próprio
+      - name: quantidade_empregado
+        description: FN026 - Quantidade total de empregados próprios
+      - name: despesa_produto_quimico
+        description: FN011 - Despesa com produtos químicos
+      - name: despesa_energia
+        description: FN013 - Despesa com energia elétrica
+      - name: despesa_servico_terceiro
+        description: FN014 - Despesa com serviços de terceiros
+      - name: despesa_exploracao
+        description: FN015 - Despesas de Exploração (DEX)
+      - name: despesas_juros_divida
+        description: FN016 - Despesas com juros e encargos do serviço da dívida
+      - name: despesa_total_servico
+        description: FN017 - Despesas totais com os serviços (DTS)
+      - name: despesa_ativo
+        description: FN019 - Despesas com depreciação, amortização do ativo diferido
+          e provisão para devedores duvidosos
+      - name: despesa_agua_importada
+        description: FN020 - Despesa com água importada (bruta ou tratada)
+      - name: despesa_fiscal
+        description: FN021 - Despesas fiscais ou tributárias computadas na DEX
+      - name: despesa_fiscal_nao_computada
+        description: FN022 - Despesas fiscais ou tributárias não computadas na DEX
+      - name: despesa_exploracao_outro
+        description: FN027 - Outras despesas de exploração
+      - name: despesa_servico_outro
+        description: FN028 - Outras despesas com os serviços
+      - name: despesa_amortizacao_divida
+        description: FN034 - Despesas com amortizações do serviço da dívida
+      - name: despesas_juros_divida_excecao
+        description: FN035 - Despesas com juros e encargos do serviço da dívida, exceto
+          variações monetária e cambial
+      - name: despesa_divida_variacao
+        description: FN036 - Despesa com variações monetárias e cambiais das dívidas
+      - name: despesa_divida_total
+        description: FN037 - Despesas totais com o serviço da dívida
+      - name: despesa_esgoto_exportado
+        description: FN039 - Despesa com esgoto exportado
+      - name: despesa_capitalizavel_municipio
+        description: FN041 - Despesas capitalizáveis realizadas pelo(s) município(s)
+      - name: despesa_capitalizavel_estado
+        description: FN051 - Despesas capitalizáveis realizadas pelo estado
+      - name: despesa_capitalizavel_prestador
+        description: FN018 - Despesas capitalizáveis realizadas pelo prestador de
+          serviços
+      - name: investimento_agua_prestador
+        description: FN023 - Investimento realizado em abastecimento de água pelo
+          prestador de serviços
+      - name: investimento_esgoto_prestador
+        description: FN024 - Investimento realizado em esgotamento sanitário pelo
+          prestador de serviços
+      - name: investimento_outro_prestador
+        description: FN025 - Outros investimentos realizados pelo prestador de serviços
+      - name: investimento_recurso_proprio_prestador
+        description: FN030 - Investimento com recursos próprios realizado pelo prestador
+          de serviços.
+      - name: investimento_recurso_oneroso_prestador
+        description: FN031 - Investimento com recursos onerosos realizado pelo prestador
+          de serviços.
+      - name: investimento_recurso_nao_oneroso_prestador
+        description: FN032 - Investimento com recursos não onerosos realizado pelo
+          prestador de serviços.
+      - name: investimento_total_prestador
+        description: FN033 - Investimentos totais realizados pelo prestador de serviços
+      - name: investimento_agua_municipio
+        description: FN042 - Investimento realizado em abastecimento de água pelo(s)
+          município(s)
+      - name: investimento_esgoto_municipio
+        description: FN043 - Investimento realizado em esgotamento sanitário pelo(s)
+          município(s)
+      - name: investimento_outro_municipio
+        description: FN044 - Outros investimentos realizados pelo(s) município(s)
+      - name: investimento_recurso_proprio_municipio
+        description: FN045 - Investimento com recursos próprios realizado pelo(s)
+          município(s)
+      - name: investimento_recurso_oneroso_municipio
+        description: FN046 - Investimento com recursos onerosos realizado pelo(s)
+          município(s)
+      - name: investimento_recurso_nao_oneroso_municipio
+        description: FN047 - Investimento com recursos não onerosos realizado pelo(s)
+          município(s)
+      - name: investimento_total_municipio
+        description: FN048 - Investimentos totais realizados pelo(s) município(s)
+      - name: investimento_agua_estado
+        description: FN052 - Investimento realizado em abastecimento de água pelo
+          estado
+      - name: investimento_esgoto_estado
+        description: FN053 - Investimento realizado em esgotamento sanitário pelo
+          estado
+      - name: investimento_outro_estado
+        description: FN054 - Outros investimentos realizados pelo estado
+      - name: investimento_recurso_proprio_estado
+        description: FN055 - Investimento com recursos próprios realizado pelo estado
+      - name: investimento_recurso_oneroso_estado
+        description: FN056 - Investimento com recursos onerosos realizado pelo estado
+      - name: investimento_recurso_nao_oneroso_estado
+        description: FN057 - Investimento com recursos não onerosos realizado pelo
+          estado
+      - name: investimento_total_estado
+        description: FN058 - Investimentos totais realizados pelo estado
+  - name: br_mdr_snis__municipio_agua_esgoto
+    description: Está tabela contém informações e indicadores desagregados por prestador
+      de serviço de água e esgoto, fornecendo um panorama detalhado do histórico e
+      do estado da arte da oferta de serviços saneamento básico no Brasil. Atenção!
+      este dataset não representa o conjunto total de dados disponíveis no SNIS. Para
+      saber detalhes sobre como fizemos a seleção dos dados na fonte original basta
+      realizar o download dos arquivos auxíliares no final da página.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_municipio]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_data_tempo__ano')
+              field: ano.ano
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: populacao_atendida_agua
+        description: AG001 - População total atendida com abastecimento de água
+      - name: populacao_atentida_esgoto
+        description: ES001 - População total atendida com esgotamento sanitário
+      - name: populacao_urbana
+        description: 'População urbana do município do ano de referência (Fonte: IBGE)'
+      - name: populacao_urbana_residente_agua
+        description: G06A - População urbana residente do(s) município(s) com abastecimento
+          de água
+      - name: populacao_urbana_atendida_agua
+        description: AG026 - População urbana atendida com abastecimento de água
+      - name: populacao_urbana_atendida_agua_ibge
+        description: G12A - População total residente do(s) município(s) com abastecimento
+          de água, segundo o IBGE
+      - name: populacao_urbana_residente_esgoto
+        description: G06B - População urbana residente do(s) município(s) com esgotamento
+          sanitário
+      - name: populacao_urbana_atendida_esgoto
+        description: ES026 - População urbana atendida com esgotamento sanitário
+      - name: populacao_urbana_residente_esgoto_ibge
+        description: G12B - População total residente do(s) município(s) com esgotamento
+          sanitário, segundo o IBGE
+      - name: extensao_rede_agua
+        description: AG005 - Extensão da rede de água
+      - name: extensao_rede_esgoto
+        description: ES004 - Extensão da rede de esgotos
+      - name: quantidade_sede_municipal_agua
+        description: GE008 - Quantidade de Sedes municipais atendidas com abastecimento
+          de água
+      - name: quantidade_sede_municipal_esgoto
+        description: GE009 - Quantidade de Sedes municipais atendidas com esgotamento
+          sanitário
+      - name: quantidade_localidade_agua
+        description: GE010 - Quantidade de Localidades (excluídas as sedes) atendidas
+          com abastecimento de água
+      - name: quantidade_localidade_esgoto
+        description: GE011 - Quantidade de Localidades (excluídas as sedes) atendidas
+          com esgotamento sanitário
+      - name: quantidade_ligacao_ativa_agua
+        description: AG002 - Quantidade de ligações ativas de água
+      - name: quantidade_ligacao_ativa_esgoto
+        description: ES002 - Quantidade de ligações ativas de esgotos
+      - name: quantidade_ligacao_total_agua
+        description: AG021 - Quantidade de ligações totais de água
+      - name: quantidade_ligacao_total_esgoto
+        description: ES009 - Quantidade de ligações totais de esgotos
+      - name: quantidade_economia_ativa_agua
+        description: AG003 - Quantidade de economias ativas de água
+      - name: quantidade_economia_ativa_esgoto
+        description: ES003 - Quantidade de economias ativas de esgotos
+      - name: quantidade_ligacao_micromedia_ativa_agua
+        description: AG004 - Quantidade de ligações ativas de água micromedidas
+      - name: quantidade_economia_residencial_ativa_agua
+        description: AG013 - Quantidade de economias residenciais ativas de água
+      - name: quantidade_economia_residencial_ativa_esgoto
+        description: ES008 - Quantidade de economias residenciais ativas de esgotos
+      - name: quantidade_economia_micromedida_ativa_agua
+        description: AG014 - Quantidade de economias ativas de água micromedidas
+      - name: quantidade_economia_residencial_micromedida_ativa_agua
+        description: AG022 - Quantidade de economias residenciais ativas de água micromedidas
+      - name: volume_agua_produzido
+        description: AG006 - Volume de água produzido
+      - name: volume_agua_tratada_eta
+        description: AG007 - Volume de água tratada em ETAs
+      - name: volume_agua_micromedido
+        description: AG008 - Volume de água micromedido
+      - name: volume_agua_consumido
+        description: AG010 - Volume de água consumido
+      - name: volume_agua_faturado
+        description: AG011 - Volume de água faturado
+      - name: volume_agua_macromedido
+        description: AG012 - Volume de água macromedido
+      - name: volume_agua_tratada_desinfeccao
+        description: AG015 - Volume de água tratada por simples desinfecção
+      - name: volume_agua_bruta_exportado
+        description: AG017 - Volume de água bruta exportado
+      - name: volume_agua_tratada_importado
+        description: AG018 - Volume de água tratada importado
+      - name: volume_agua_tratada_exportado
+        description: AG019 - Volume de água tratada exportado
+      - name: volume_agua_micromedido_economia_ativa
+        description: AG020 - Volume micromedido nas economias residenciais ativas
+          de água
+      - name: volume_servico_agua
+        description: AG024 - Volume de serviço
+      - name: volume_agua_fluoretada
+        description: AG027 - Volume de água fluoretada
+      - name: consumo_eletrico_sistemas_agua
+        description: AG028 - Consumo total de energia elétrica nos sistemas de água
+      - name: volume_esgoto_coletado
+        description: ES005 - Volume de esgotos coletado
+      - name: volume_esgoto_tratado
+        description: ES006 - Volume de esgotos tratado
+      - name: volume_esgoto_faturado
+        description: ES007 - Volume de esgotos faturado
+      - name: volume_esgoto_bruto_exportado
+        description: ES012 - Volume de esgoto bruto exportado
+      - name: volume_esgoto_bruto_importado
+        description: ES013 - Volume de esgotos bruto importado
+      - name: volume_esgoto_importado
+        description: ES014 - Volume de esgoto importado tratado nas instalações do
+          importador
+      - name: volume_esgoto_bruto_exportado_tratamento_importador
+        description: ES015 - Volume de esgoto bruto exportado tratado nas instalações
+          do importador
+      - name: consumo_eletrico_sistemas_esgoto
+        description: ES028 - Consumo total de energia elétrica nos sistemas de esgotos
+      - name: indice_agua_ligacao
+        description: IN001_AE - Densidade de economias de água por ligação
+      - name: indice_hidrometracao
+        description: IN009_AE - Índice de hidrometração
+      - name: indice_macromedicao_volume_disponibilizado
+        description: IN010_AE - Índice de micromedição relativo ao volume disponibilizado
+      - name: indice_macromedicao
+        description: IN011_AE - Índice de macromedição
+      - name: indice_perda_faturamento
+        description: IN013_AE - Índice de perdas faturamento
+      - name: indice_micromedido_economia
+        description: IN014_AE - Consumo micromedido por economia
+      - name: indice_coleta_esgoto
+        description: IN015_AE - Índice de coleta de esgoto
+      - name: indice_tratamento_esgoto
+        description: IN016_AE - Índice de tratamento de esgoto
+      - name: indice_consumo_agua_faturado
+        description: IN017_AE - Consumo de água faturado por economia
+      - name: indice_extensao_agua_ligacao
+        description: IN020_AE - Extensão da rede de água por ligação
+      - name: indice_extensao_esgoto_ligacao
+        description: IN021_AE - Extensão da rede de esgoto por ligação
+      - name: indice_consumo_agua_per_capita
+        description: IN022_AE - Consumo médio per capita de água
+      - name: indice_atendimento_urbano_agua
+        description: IN023_AE - Índice de atendimento urbano de água
+      - name: indice_atendimento_agua_esgoto
+        description: IN024_AE - Índice de atendimento urbano de esgoto referido aos
+          municípios atendidos com água
+      - name: indice_volume_agua_economia
+        description: IN025_AE - Volume de água disponibilizado por economia
+      - name: indice_faturamento_agua
+        description: IN028_AE - Índice de faturamento de água
+      - name: indice_participacao_economia_agua
+        description: IN043_AE - Participação das economias residenciais de água no
+          total das economias de água
+      - name: indice_micromedicao_relativo_agua
+        description: IN044_AE - Índice de micromedição relativo ao consumo
+      - name: indice_esgotamento_agua_consumida
+        description: IN046_AE - Índice de esgoto tratado referido à água consumida
+      - name: indice_atendimento_esgoto_esgoto
+        description: IN047_AE - Índice de atendimento urbano de esgoto referido aos
+          municípios atendidos com esgoto
+      - name: indice_perda_distribuicao_agua
+        description: IN049_AE - Índice de perdas na distribuição
+      - name: indice_perda_linear_agua
+        description: IN050_AE - Índice bruto de perdas lineares
+      - name: indice_perda_ligacao_agua
+        description: IN051_AE - Índice de perdas por ligação
+      - name: indice_consumo_agua
+        description: IN052_AE - Índice de consumo de água
+      - name: indice_consumo_medio_agua
+        description: IN053_AE - Consumo médio de água por economia
+      - name: indice_atendimento_total_agua
+        description: IN055_AE - Índice de atendimento total de água
+      - name: indice_atendimento_esgoto_agua
+        description: IN056_AE - Índice de atendimento total de esgoto referido aos
+          municípios atendidos com água
+      - name: indice_fluoretacao_agua
+        description: IN057_AE - Índice de fluoretação de água
+      - name: indice_consumo_energia_agua
+        description: IN058_AE - Índice de consumo de energia elétrica em sistemas
+          de abastecimento de água
+      - name: indice_consumo_energia_esgoto
+        description: 'IN059_AE - Índice de consumo de energia elétrica em sistemas
+          de esgotamento sanitário '
+      - name: receita_operacional_direta
+        description: FN001 - Receita operacional direta total
+      - name: receita_operacional_direta_agua
+        description: FN002 - Receita operacional direta de água
+      - name: receita_operacional_direta_esgoto
+        description: FN003 - Receita operacional direta de esgoto
+      - name: receita_operacional_indireta
+        description: FN004 - Receita operacional indireta
+      - name: receita_operacional_direta_agua_exportada
+        description: FN007 - Receita operacional direta de água exportada (bruta ou
+          tratada)
+      - name: receita_operacional
+        description: FN005 - Receita operacional total (direta + indireta)
+      - name: receita_operacional_direta_esgoto_importado
+        description: FN038 - Receita operacional direta - esgoto bruto importado
+      - name: arrecadacao_total
+        description: FN006 - Arrecadação total
+      - name: credito_areceber
+        description: FN008 - Créditos de contas a receber
+      - name: despesa_pessoal
+        description: FN010 - Despesa com pessoal próprio
+      - name: quantidade_empregado
+        description: FN026 - Quantidade total de empregados próprios
+      - name: despesa_produto_quimico
+        description: FN011 - Despesa com produtos químicos
+      - name: despesa_energia
+        description: FN013 - Despesa com energia elétrica
+      - name: despesa_servico_terceiro
+        description: FN014 - Despesa com serviços de terceiros
+      - name: despesa_exploracao
+        description: FN015 - Despesas de Exploração (DEX)
+      - name: despesas_juros_divida
+        description: FN016 - Despesas com juros e encargos do serviço da dívida
+      - name: despesa_total_servico
+        description: FN017 - Despesas totais com os serviços (DTS)
+      - name: despesa_ativo
+        description: FN019 - Despesas com depreciação, amortização do ativo diferido
+          e provisão para devedores duvidosos
+      - name: despesa_agua_importada
+        description: FN020 - Despesa com água importada (bruta ou tratada)
+      - name: despesa_fiscal
+        description: FN021 - Despesas fiscais ou tributárias computadas na DEX
+      - name: despesa_fiscal_nao_computada
+        description: FN022 - Despesas fiscais ou tributárias não computadas na DEX
+      - name: despesa_exploracao_outro
+        description: FN027 - Outras despesas de exploração
+      - name: despesa_servico_outro
+        description: FN028 - Outras despesas com os serviços
+      - name: despesa_amortizacao_divida
+        description: FN034 - Despesas com amortizações do serviço da dívida
+      - name: despesas_juros_divida_excecao
+        description: FN035 - Despesas com juros e encargos do serviço da dívida, exceto
+          variações monetária e cambial
+      - name: despesa_divida_variacao
+        description: FN036 - Despesa com variações monetárias e cambiais das dívidas
+      - name: despesa_divida_total
+        description: FN037 - Despesas totais com o serviço da dívida
+      - name: despesa_esgoto_exportado
+        description: FN039 - Despesa com esgoto exportado
+      - name: despesa_capitalizavel_municipio
+        description: FN041 - Despesas capitalizáveis realizadas pelo(s) município(s)
+      - name: despesa_capitalizavel_estado
+        description: FN051 - Despesas capitalizáveis realizadas pelo estado
+      - name: despesa_capitalizavel_prestador
+        description: FN018 - Despesas capitalizáveis realizadas pelo prestador de
+          serviços
+      - name: investimento_agua_prestador
+        description: FN023 - Investimento realizado em abastecimento de água pelo
+          prestador de serviços
+      - name: investimento_esgoto_prestador
+        description: FN024 - Investimento realizado em esgotamento sanitário pelo
+          prestador de serviços
+      - name: investimento_outro_prestador
+        description: FN025 - Outros investimentos realizados pelo prestador de serviços
+      - name: investimento_recurso_proprio_prestador
+        description: FN030 - Investimento com recursos próprios realizado pelo prestador
+          de serviços.
+      - name: investimento_recurso_oneroso_prestador
+        description: FN031 - Investimento com recursos onerosos realizado pelo prestador
+          de serviços.
+      - name: investimento_recurso_nao_oneroso_prestador
+        description: FN032 - Investimento com recursos não onerosos realizado pelo
+          prestador de serviços.
+      - name: investimento_total_prestador
+        description: FN033 - Investimentos totais realizados pelo prestador de serviços
+      - name: investimento_agua_municipio
+        description: FN042 - Investimento realizado em abastecimento de água pelo(s)
+          município(s)
+      - name: investimento_esgoto_municipio
+        description: FN043 - Investimento realizado em esgotamento sanitário pelo(s)
+          município(s)
+      - name: investimento_outro_municipio
+        description: FN044 - Outros investimentos realizados pelo(s) município(s)
+      - name: investimento_recurso_proprio_municipio
+        description: FN045 - Investimento com recursos próprios realizado pelo(s)
+          município(s)
+      - name: investimento_recurso_oneroso_municipio
+        description: FN046 - Investimento com recursos onerosos realizado pelo(s)
+          município(s)
+      - name: investimento_recurso_nao_oneroso_municipio
+        description: FN047 - Investimento com recursos não onerosos realizado pelo(s)
+          município(s)
+      - name: investimento_total_municipio
+        description: FN048 - Investimentos totais realizados pelo(s) município(s)
+      - name: investimento_agua_estado
+        description: FN052 - Investimento realizado em abastecimento de água pelo
+          estado
+      - name: investimento_esgoto_estado
+        description: FN053 - Investimento realizado em esgotamento sanitário pelo
+          estado
+      - name: investimento_outro_estado
+        description: FN054 - Outros investimentos realizados pelo estado
+      - name: investimento_recurso_proprio_estado
+        description: FN055 - Investimento com recursos próprios realizado pelo estado
+      - name: investimento_recurso_oneroso_estado
+        description: FN056 - Investimento com recursos onerosos realizado pelo estado
+      - name: investimento_recurso_nao_oneroso_estado
+        description: FN057 - Investimento com recursos não onerosos realizado pelo
+          estado
+      - name: investimento_total_estado
+        description: FN058 - Investimentos totais realizados pelo estado

@@ -1,0 +1,158 @@
+---
+version: 2
+models:
+  - name: br_ons_estimativa_custos__custo_marginal_operacao_semi_horario
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [data, hora, id_subsistema]
+    description: Valores do custo, por unidade de energia produzida, para atender
+      ao incremento de uma unidade de carga no SIN, chamado de Custo Marginal de Operação
+      – CMO. Este CMO é estimado pelo modelo DESSEM para cada barra do sistema em
+      base semi-horária. O CMO do subsistema é obtido pelo média dos CMOs nas barras
+      de cada subsistema, ponderados pelas respectivas cargas, considerando que um
+      aumento de carga no subsistema se dá de maneira uniforme nas barras que a ele
+      pertencem.
+    columns:
+      - name: data
+        description: Data de referência da medição
+      - name: hora
+        description: Hora de referência da medição
+      - name: ano
+        description: Ano de referência da medição
+      - name: mes
+        description: Mês de referência da medição
+      - name: id_subsistema
+        description: Identificador do subsitema da usina
+      - name: subsistema
+        description: Nome do subsistema da usina
+      - name: custo_marginal_operacao
+        description: Valor do Custo Marginal de Operação (CMO)
+  - name: br_ons_estimativa_custos__custo_marginal_operacao_semanal
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [data, id_subsistema]
+    description: Valores do custo, por unidade de energia produzida, para atender
+      ao incremento de uma unidade de carga no SIN, chamado de Custo Marginal de Operação
+      – CMO. Valores para cada semana operativa por subsistema, e por patamar de carga,
+      além da média semanal, estimados pelo modelo Decomp.
+    columns:
+      - name: data
+        description: Data de referência da medição
+      - name: ano
+        description: Ano de referência da medição
+      - name: mes
+        description: Mês de referência da medição
+      - name: id_subsistema
+        description: Identificador do subsitema da usina
+      - name: subsistema
+        description: Nome do subsistema da usina
+      - name: custo_marginal_operacao_semanal
+        description: Valor do Custo Marginal Operacional (CMO) médio semanal
+      - name: custo_marginal_operacao_semanal_carga_leve
+        description: Valor do Custo Marginal Operacional (CMO) no patamar de carga
+          leve
+      - name: custo_marginal_operacao_semanal_carga_media
+        description: Valor do Custo Marginal Operacional (CMO) no patamar de carga
+          média
+      - name: custo_marginal_operacao_semanal_carga_pesada
+        description: Valor do Custo Marginal Operacional (CMO) no patamar de carga
+          pesada
+  - name: br_ons_estimativa_custos__balanco_energia_subsistemas
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [data, hora, id_subsistema]
+    description: Informações da carga e oferta de energia verificados em periodicidade
+      horária por subsistema. A oferta é representada pelos valores de geração das
+      usinas hidráulicas, térmicas, eólicas e fotovoltaicas.
+    columns:
+      - name: data
+        description: Data de referência da medição
+      - name: hora
+        description: Hora de referência da medição
+      - name: ano
+        description: Ano de referência da medição
+      - name: mes
+        description: Mês de referência da medição
+      - name: id_subsistema
+        description: Identificador do subsitema da usina
+      - name: subsistema
+        description: Nome do subsistema da usina
+      - name: geracao_hidraulica_verificada
+        description: Valor verificado de geração hidráulica
+      - name: geracao_termica_verificada
+        description: Valor verificado de geração térmica
+      - name: geracao_eolica_verificada
+        description: Valor verificado de geração eólica
+      - name: geracao_fotovoltaica_verificada
+        description: Valor verificado de geração fotovoltaica
+      - name: carga_verificada
+        description: Valor verificado da carga
+      - name: intercambio_verificado
+        description: Valor verificado do intercâmbio líquido
+  - name: br_ons_estimativa_custos__balanco_energia_subsistemas_dessem
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [data, hora, id_subsistema]
+    description: Informação da programação eletro energética, resultante do modelo
+      DESSEM, da demanda de energia e geração por fontes previstas para um dia de
+      referência em periodicidade semi-horária no subsistema.
+    columns:
+      - name: data
+        description: Data de referência da medição
+      - name: hora
+        description: Hora de referência da medição
+      - name: ano
+        description: Ano de referência da medição
+      - name: mes
+        description: Mês de referência da medição
+      - name: id_subsistema
+        description: Identificador do subsitema da usina
+      - name: subsistema
+        description: Nome do subsistema da usina
+      - name: valor_demanda
+        description: Valor da demanda do subsistema
+      - name: usina_hidraulica_verificada
+        description: Valor verificado de geração das usinas hidráulicas
+      - name: geracao_pequena_usina_hidraulica_verificada
+        description: Valor verificado de geração das pequenas usinas hidráulicas
+      - name: geracao_usina_termica_verificada
+        description: Valor verificado de geração das usinas térmicas
+      - name: geracao_pequena_usina_termica_verificada
+        description: Valor verificado de geração das pequenas usinas térmicas
+      - name: geracao_eolica_verificada
+        description: Valor verificado de geração eólica
+      - name: geracao_fotovoltaica_verificada
+        description: Valor verificado de geração fotovoltaica
+  - name: br_ons_estimativa_custos__custo_variavel_unitario_usinas_termicas
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [data_inicio, data_fim, id_modelo_usina]
+    description: Custo Variável Unitário (CVU) de usinas térmicas considerado no Programa
+      Mensal da Operação, conforme utilizado na execução do modelo DECOMP
+    columns:
+      - name: data_inicio
+        description: Data de início da semana operativa
+      - name: ano
+        description: Ano de início da semana operativa
+      - name: mes
+        description: Mês de início da semana operativa
+      - name: data_fim
+        description: Data de fim da semana operativa
+      - name: ano_pmo
+        description: Ano de Referência do Programa Mensal de Operação (PMO)
+      - name: mes_pmo
+        description: Mês de referência do PMO
+      - name: numero_revisao
+        description: Número da revisão PMO
+      - name: semana_operativa
+        description: Nome do estudo da semana operativa
+      - name: id_modelo_usina
+        description: Código da usina nos modelos de planejamento
+      - name: id_subsistema
+        description: Identificador do subsistema da usina
+      - name: subsistema
+        description: Nome do subsistema da usina
+      - name: usina
+        description: Nome da usina
+      - name: custo_variavel_unitario
+        description: Valor do Custo Variável Unitário (CVU)

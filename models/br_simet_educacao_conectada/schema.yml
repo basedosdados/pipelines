@@ -1,0 +1,142 @@
+---
+version: 2
+models:
+  - name: escola
+    description: Dados sobre conectividade e infraestrutura de Internet nas escolas
+      brasileiras.
+    columns:
+      - name: ano_censo
+        description: Ano do Censo Escolar utilizado
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+      - name: id_escola
+        description: Código INEP da escola
+      - name: id_setor
+        description: Setor censitário da escola
+      - name: rede
+        description: Tipo de rede que a escola pertence (estadual ou municipal)
+      - name: localizacao
+        description: Se a localização da escola é rural ou urbana.
+      - name: porte_escola
+        description: Indica o tamanho da escola, classificado com base no número de
+          estudantes.
+      - name: tipo_rede_local
+        description: Se a escola possui rede interna de distribuição de Internet
+      - name: tipo_energia
+        description: Fonte de energia elétrica que a escola recebe
+      - name: tipo_tecnologia
+        description: Tipo de conexão da escola de acordo com o Censo Escolar 2020
+      - name: tipo_recurso_recebido
+        description: Recursos financeiros destinados à conectividade recebidos pela
+          escola.
+      - name: faixa_velocidade
+        description: Indica a classificação da velocidade de download da Internet,
+          permitindo identificar a qualidade da conexão.
+      - name: nome_empresa_provedora_1
+        description: Empresa que atende a escola baseado nas medições SIMET.
+      - name: nome_empresa_provedora_2
+        description: Para aquelas escolas com mais de uma empresa, a segunda empresa
+          que atende a escola baseado nas medições SIMET.
+      - name: nome_simet_asn
+        description: Quais ASN (identificador de provedores) tiveram medições no entorno
+          da escola.
+      - name: indicador_laboratorio_informatica
+        description: Se a escola possui laboratório de informática
+      - name: indicador_internet
+        description: Se a escola possui conexão com Internet
+      - name: indicador_internet_alunos
+        description: Se a escola possui conexão com Internet para os alunos
+      - name: indicador_internet_aprendizagem
+        description: Se a escola possui conexão com Internet para uso pedagógico
+      - name: indicador_satelite_mec
+        description: Se a escola tem conectividade via Satélite de acordo com os dados
+          do MEC.
+      - name: razao_desktop_aluno
+        description: Número de computadores desktop por aluno
+      - name: razao_comp_portatil_aluno
+        description: Número de computadores portáteis por aluno
+      - name: razao_tablet_aluno
+        description: Número de computadores tablet por aluno
+      - name: quantidade_matricula
+        description: Número de matrículas na escola. Dado extraído diretamente do
+          Censo Escolar.
+      - name: quantidade_matricula_maior_turno
+        description: Número de matrículas na escola no maior turno. Ou seja, número
+          máximo esperado para frequentar a escola ao mesmo tempo.
+      - name: quantidade_turma
+        description: Número de turmas na escola
+      - name: quantidade_medicao
+        description: Número de medições via SIMET nos últimos 6 meses
+      - name: quantidade_medicoes_entorno
+        description: Número de medições no entorno da escola para comparação.
+      - name: quantidade_ipv6
+        description: Quantas medições no entorno foram realizadas utilizando IPv6
+          no entorno da escola.
+      - name: quantidade_asn
+        description: Número de provedores tiveram medições no entorno da escola.
+      - name: media_tcp_download
+        description: Valor relacionado ao desempenho da rede usando o protocolo TCP,
+          especificamente medindo a velocidade média de download dos últimos 6 meses
+          em megabits por segundo (Mbps).
+      - name: media_tcp_upload
+        description: Valor relacionado ao desempenho da rede usando o protocolo TCP,
+          especificamente medindo a velocidade média de upload dos últimos 6 meses
+          em megabits por segundo (Mbps).
+      - name: media_latencia
+        description: Média da latência em milissegundos(ms) dos últimos 6 meses
+      - name: media_perda_pacote
+        description: Média da perda de pacotes dos últimos 6 meses
+      - name: media_jitter_download
+        description: Média do jitter de download em milissegundos(ms) dos últimos
+          6 meses.
+      - name: media_jitter_upload
+        description: Média do jitter de upload em milissegundos(ms) dos últimos 6
+          meses.
+      - name: media_download_entorno
+        description: Média de download no entorno nos últimos 6 meses
+      - name: media_upload_entorno
+        description: Média de upload no entorno nos últimos 6 meses
+      - name: media_latencia_entorno
+        description: Média de latencia no entorno nos últimos 6 meses
+      - name: media_pacotes_entorno
+        description: Média de perda de pacotes no entorno nos últimos 6 meses
+      - name: media_jitter_upload_entorno
+        description: Média de jitter de upload no entorno nos últimos 6 meses
+      - name: media_jitter_download_entorno
+        description: Média de jitter de download no entorno nos últimos 6 meses
+      - name: comparador_empresas
+        description: Quais operadoras provedoras de Internet oferecem serviços no
+          município da escola de acordo com base de dados do comparador de preços
+          da anatel. Dados defazados, de 08/2020.
+      - name: comparativo_download_entorno
+        description: Comparativo da velocidade de download da escola em relação ao
+          seu entorno.
+      - name: comparativo_upload_entorno
+        description: Comparativo da velocidade de upload da escola em relação ao seu
+          entorno
+      - name: comparativo_latencia_entorno
+        description: Comparativo da velocidade de latência da escola em relação ao
+          seu entorno
+      - name: velocidade_download_necessaria
+        description: Velocidade necessária para 50% da escola possa ver um vídeo ao
+          mesmo tempo.
+      - name: razao_download_aluno
+        description: Velocidade em mbit por segundo de download medida pelo SIMET
+          dividido pelo número máximo de alunos em um determinado turno.
+      - name: tipo_download_aluno
+        description: Categorização da velocidade de download medida pelo SIMET dividido
+          pelo número máximo de alunos em um determinado turno.
+      - name: latitude
+        description: Latitude de acordo com todos os esforços de geolocalização. Quando
+          não foi possível geolocalizar a escola, foi ultilizado o centróide do distrito
+          onde ela está.
+      - name: longitude
+        description: Longitude de acordo com todos os esforços de geolocalização.
+          Quando não foi possível geolocalizar a escola, foi ultilizado o centróide
+          do distrito onde ela está.
+      - name: ponto
+        description: União entre longitude de latutude para formar um único ponto.
+      - name: data_ultima_atualizacao
+        description: Data em que os dados foram extraídos da fonte original.
