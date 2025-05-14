@@ -143,7 +143,6 @@ networkx = "2.6.3"
 optional = true
 
 [tool.poetry.group.test.dependencies]
-pytest-cov = "^4.1.0"
 networkx = "^2.6.3"
 parameterized = "^0.9.0"
 
