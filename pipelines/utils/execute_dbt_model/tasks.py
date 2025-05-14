@@ -36,7 +36,7 @@ def run_dbt(
     flags: Optional[str] = None,
     _vars: Optional[Union[dict, List[Dict], str]] = None,
     disable_elementary: bool = False,
-) -> None:
+) -> bool:
     """
     Execute a DBT model and process logs from the log file.
 
@@ -166,3 +166,10 @@ def run_dbt(
             )
             if not result.success:
                 raise Exception(result.result)
+
+    return True
+
+
+@task
+def dbt_run_with_success(result) -> bool:
+    return isinstance(result, bool) and result is True

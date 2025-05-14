@@ -123,7 +123,6 @@ jobs:
         run: |-
           poetry run python .github/workflows/scripts/table_test.py \
               --modified-files ${{ steps.changed-files.outputs.all_modified_files }} \
-              --graphql-url https://prefect.basedosdados.org/default/api \
               --prefect-backend-token ${{ secrets.PREFECT_BACKEND_AUTH_TOML_API_KEY }}
   # TODO: Remove after tests
   table-approve:
@@ -207,7 +206,6 @@ jobs:
         run: |-
           poetry run python .github/workflows/scripts/table_approve.py \
             --modified-files ${{ steps.changed_files.outputs.files }} \
-            --graphql-url https://prefect.basedosdados.org/default/api \
             --source-bucket-name basedosdados-dev \
             --destination-bucket-name basedosdados \
             --backup-bucket-name basedosdados-backup \

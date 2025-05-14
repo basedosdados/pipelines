@@ -4,6 +4,7 @@ DBT-related flows.
 """
 
 from prefect import Parameter, case
+from prefect.exceptions import PrefectException
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
@@ -11,7 +12,10 @@ from pipelines.constants import constants
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.dump_to_gcs.tasks import download_data_to_gcs
-from pipelines.utils.execute_dbt_model.tasks import run_dbt
+from pipelines.utils.execute_dbt_model.tasks import (
+    dbt_run_with_success,
+    run_dbt,
+)
 from pipelines.utils.tasks import rename_current_flow_run_dataset_table
 
 with Flow(
@@ -48,6 +52,13 @@ with Flow(
         _vars=_vars,
         disable_elementary=disable_elementary,
     )
+
+    dbt_result = dbt_run_with_success(
+        materialize_result, upstream_tasks=[materialize_result]
+    )
+
+    with case(dbt_result, False):
+        raise PrefectException("Failed to run dbt")
 
     with case(download_csv_file, True):
         download_data_to_gcs(

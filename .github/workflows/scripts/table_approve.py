@@ -270,7 +270,8 @@ if __name__ == "__main__":
     arg_parser.add_argument(
         "--graphql-url",
         type=str,
-        required=True,
+        required=False,
+        default="https://backend.basedosdados.org/api/v1/graphql",
         help="URL of the GraphQL endpoint.",
     )
 
@@ -366,10 +367,10 @@ if __name__ == "__main__":
         else:
             deleted_datasets_tables.append((dataset_id, table_id, alias))
     # Expand `__all__` tables
-    backend = Backend(args.graphql_url)
+    backend_bd = Backend(args.graphql_url)
     expanded_existing_datasets_tables = []
     for dataset_id, table_id, alias in existing_datasets_tables:
-        expanded_table_ids = expand_alls(dataset_id, table_id, backend)
+        expanded_table_ids = expand_alls(dataset_id, table_id, backend_bd)
         for expanded_dataset_id, expanded_table_id in expanded_table_ids:
             expanded_existing_datasets_tables.append(
                 (expanded_dataset_id, expanded_table_id, alias)
@@ -398,10 +399,10 @@ if __name__ == "__main__":
             )
 
     # Launch materialization flows
-    backend = Backend(args.prefect_backend_url)
+    backend_prefect = Backend(args.prefect_backend_url)
     # TODO: remove last param
     flow_id = get_materialization_flow_id(
-        backend, args.prefect_backend_token, "staging"
+        backend_prefect, args.prefect_backend_token, "staging"
     )
     launched_flow_run_ids = []
     for dataset_id, table_id, alias in existing_datasets_tables:
@@ -430,7 +431,7 @@ if __name__ == "__main__":
             "parameters": parameters,
             "label": args.materialization_label,
         }
-        response = backend._execute_query(
+        response = backend_bd._execute_query(
             mutation,
             variables,
             headers={"Authorization": f"Bearer {args.prefect_backend_token}"},
@@ -445,14 +446,14 @@ if __name__ == "__main__":
         print(f"Monitoring flow run {launched_flow_run_id}...")
         flow_run_state = get_flow_run_state(
             flow_run_id=launched_flow_run_id,
-            backend=backend,
+            backend=backend_bd,
             auth_token=args.prefect_backend_token,
         )
         while flow_run_state not in ["Success", "Failed", "Cancelled"]:
             sleep(5)
             flow_run_state = get_flow_run_state(
                 flow_run_id=launched_flow_run_id,
-                backend=backend,
+                backend=backend_bd,
                 auth_token=args.prefect_backend_token,
             )
         if flow_run_state != "Success":
