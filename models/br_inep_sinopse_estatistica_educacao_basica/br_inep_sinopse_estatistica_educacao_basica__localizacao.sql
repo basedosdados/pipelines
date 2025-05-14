@@ -6,7 +6,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 2007, "end": 2023, "interval": 1},
+            "range": {"start": 2007, "end": 2024, "interval": 1},
         },
         cluster_by="sigla_uf",
     )
@@ -32,8 +32,5 @@ select
     safe_cast(localizacao as string) localizacao,
     safe_cast(quantidade_matricula as int64) quantidade_matricula,
 from
-    {{
-        set_datalake_project(
-            "br_inep_sinopse_estatistica_educacao_basica_staging.localizacao"
-        )
-    }} as t
+    `basedosdados-staging.br_inep_sinopse_estatistica_educacao_basica_staging.localizacao`
+    as t
