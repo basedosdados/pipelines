@@ -58,6 +58,9 @@ with Flow(
             upstream_tasks=[materialize_result],
         )
 
+run_dbt_model_flow.set_reference_tasks(
+    [run_dbt_model_flow.get_tasks(name="materialize_result")[0]]
+)
 run_dbt_model_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 run_dbt_model_flow.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
