@@ -1,12 +1,14 @@
 """
 Script para subir dados do censo escolar de 2024
 """
-import os
+
 import io
-import requests
+import os
+from pathlib import Path
+
 import basedosdados as bd
 import pandas as pd
-from pathlib import Path
+import requests
 
 ROOT = Path("models") / "br_inep_censo_escolar" / "code"
 
@@ -23,7 +25,8 @@ st = bd.Storage(dataset_id="br_inep_censo_escolar", table_id="turma")
 st.download(filename="TURMAS_2024.CSV", mode="raw", savepath=INPUT)
 
 df_turma_2024 = pd.read_csv(
-    INPUT / "raw" / "br_inep_censo_escolar" / "turma" / "TURMAS_2024.CSV", sep=";"
+    INPUT / "raw" / "br_inep_censo_escolar" / "turma" / "TURMAS_2024.CSV",
+    sep=";",
 )
 
 arch = pd.read_csv(
@@ -63,7 +66,9 @@ for i in arch.loc[arch["bigquery_type"] == "STRING"]["name"]:
         # NOTE: fillna("") porque a coerção astype("Int64").astype("String")
         # cria <NA> e ao salvar o csv, <NA> não é salvo como um valor
         # vazio i.e "", ele salva como <NA> e isso é intepretado como uma string no BQ
-        df_turma_2024[i] = df_turma_2024[i].astype("Int64").astype("string").fillna("")  # type: ignore
+        df_turma_2024[i] = (
+            df_turma_2024[i].astype("Int64").astype("string").fillna("")
+        )  # type: ignore
 
 for i in arch.loc[arch["bigquery_type"] == "INT64"]["name"]:
     if i in df_turma_2024.columns:

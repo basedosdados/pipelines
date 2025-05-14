@@ -13,11 +13,12 @@ Tabelas que esse script limpa:
 
 import os
 import zipfile
-import pandas as pd
-import basedosdados as bd
 from pathlib import Path
-import requests
 from typing import Optional
+
+import basedosdados as bd
+import pandas as pd
+import requests
 
 ROOT = Path("models") / "br_inep_sinopse_estatistica_educacao_basica"
 INPUT = ROOT / "input"
@@ -28,7 +29,9 @@ os.makedirs(OUTPUT, exist_ok=True)
 
 URL = "https://download.inep.gov.br/dados_abertos/sinopses_estatisticas/sinopses_estatisticas_censo_escolar_2024.zip"
 
-r = requests.get(URL, headers={"User-Agent": "Mozilla/5.0"}, verify=False, stream=True)
+r = requests.get(
+    URL, headers={"User-Agent": "Mozilla/5.0"}, verify=False, stream=True
+)
 
 with open(INPUT / "2024.zip", "wb") as fd:
     for chunk in r.iter_content(chunk_size=128):
@@ -240,7 +243,9 @@ dfs_etapa_ensino_serie = {
 def wide_to_long_etapa_ensino(
     df: pd.DataFrame, var_name: str, value_name: str
 ) -> pd.DataFrame:
-    df = df.copy().loc[(df["id_municipio"].notna()) & (df["id_municipio"] != " "),]  # type: ignore
+    df = df.copy().loc[
+        (df["id_municipio"].notna()) & (df["id_municipio"] != " "),
+    ]  # type: ignore
     assert df["id_municipio"].unique().size == 5570
     value_vars = [
         col
@@ -277,7 +282,9 @@ def create_etapa_ensino(value: str) -> str:
         elif n == "10":
             return "Educação Profissional - Curso FIC Concomitante"
         elif n == "11":
-            return "Educação Profissional - Curso FIC Integrado na Modalidade EJA"
+            return (
+                "Educação Profissional - Curso FIC Integrado na Modalidade EJA"
+            )
         else:
             raise Exception(f"Invalid {n=}, {value=}")
     elif value.startswith("eja"):
@@ -338,11 +345,15 @@ df_etapa_ensino_serie = (
         .apply(create_etapa_ensino)
         .astype("string"),
         serie=lambda d: d["etapa_ensino"].apply(etapa_ensino_to_serie),
-        rede=lambda d: d["etapa_ensino"].apply(lambda v: v.split("_")[-1].title()),
+        rede=lambda d: d["etapa_ensino"].apply(
+            lambda v: v.split("_")[-1].title()
+        ),
         sigla_uf=lambda d: d["uf"]
         .apply(lambda uf: uf.strip())
         .replace({i["nome"]: i["sigla"] for i in bd_dir.to_dict("records")}),
-        quantidade_matricula=lambda d: d["quantidade_matricula"].astype("Int64"),
+        quantidade_matricula=lambda d: d["quantidade_matricula"].astype(
+            "Int64"
+        ),
     )
     .drop(columns=["etapa_ensino"])
     .rename(
@@ -362,9 +373,13 @@ df_etapa_ensino_serie = (
 
 
 for sigla_uf, df in df_etapa_ensino_serie.groupby("sigla_uf"):
-    save_path_uf = OUTPUT / "etapa_ensino_serie" / "ano=2024" / f"sigla_uf={sigla_uf}"
+    save_path_uf = (
+        OUTPUT / "etapa_ensino_serie" / "ano=2024" / f"sigla_uf={sigla_uf}"
+    )
     os.makedirs(save_path_uf, exist_ok=True)
-    df.drop(columns=["sigla_uf"]).to_csv((save_path_uf / "data.csv"), index=False)
+    df.drop(columns=["sigla_uf"]).to_csv(
+        (save_path_uf / "data.csv"), index=False
+    )
 
 
 ## Faixa etaria
@@ -458,14 +473,18 @@ dfs_faixa_etaria = {
 df_faixa_etaria = pd.concat(
     [
         df.pipe(
-            lambda d: d.loc[(d["id_municipio"].notna()) & (df["id_municipio"] != " "),]
+            lambda d: d.loc[
+                (d["id_municipio"].notna()) & (df["id_municipio"] != " "),
+            ]
         )
         .pipe(
             lambda d: pd.melt(
                 d,
                 id_vars=["id_municipio", "uf"],
                 value_vars=[
-                    c for c in d.columns if c.endswith("anos") or c.endswith("mais")
+                    c
+                    for c in d.columns
+                    if c.endswith("anos") or c.endswith("mais")
                 ],
                 var_name="faixa_etaria",
                 value_name="quantidade_matricula",
@@ -519,7 +538,13 @@ df_faixa_etaria["uf"] = (
 )
 
 df_faixa_etaria = df_faixa_etaria[
-    ["uf", "id_municipio", "etapa_ensino", "faixa_etaria", "quantidade_matricula"]
+    [
+        "uf",
+        "id_municipio",
+        "etapa_ensino",
+        "faixa_etaria",
+        "quantidade_matricula",
+    ]
 ].rename(columns={"uf": "sigla_uf"})  # type: ignore
 
 df_faixa_etaria["quantidade_matricula"] = df_faixa_etaria[
@@ -569,7 +594,9 @@ dfs_localizacao = {
 df_localizacao = pd.concat(
     [
         df.pipe(
-            lambda d: d.loc[(d["id_municipio"].notna()) & (df["id_municipio"] != " "),]
+            lambda d: d.loc[
+                (d["id_municipio"].notna()) & (df["id_municipio"] != " "),
+            ]
         )
         .pipe(
             lambda d: pd.melt(
@@ -619,9 +646,9 @@ df_localizacao["etapa_ensino"] = df_localizacao["etapa"].replace(
     }
 )
 
-df_localizacao["quantidade_matricula"] = df_localizacao["quantidade_matricula"].astype(
-    "Int64"
-)
+df_localizacao["quantidade_matricula"] = df_localizacao[
+    "quantidade_matricula"
+].astype("Int64")
 
 df_localizacao = df_localizacao.rename(columns={"uf": "sigla_uf"})[
     [
@@ -676,7 +703,9 @@ dfs_tempo_ensino = {
 df_tempo_ensino = pd.concat(
     [
         df.pipe(
-            lambda d: d.loc[(d["id_municipio"].notna()) & (df["id_municipio"] != " "),]
+            lambda d: d.loc[
+                (d["id_municipio"].notna()) & (df["id_municipio"] != " "),
+            ]
         )
         .pipe(
             lambda d: pd.melt(
@@ -789,7 +818,9 @@ dfs_sexo_raca_cor = {
 df_sexo_raca_cor = pd.concat(
     [
         df.pipe(
-            lambda d: d.loc[(d["id_municipio"].notna()) & (df["id_municipio"] != " "),]
+            lambda d: d.loc[
+                (d["id_municipio"].notna()) & (df["id_municipio"] != " "),
+            ]
         )
         .pipe(
             lambda d: pd.melt(
@@ -884,7 +915,8 @@ for sigla_uf, df in df_sexo_raca_cor.groupby("sigla_uf"):
 for dir in OUTPUT.iterdir():
     table_id = dir.name
     tb = bd.Table(
-        dataset_id="br_inep_sinopse_estatistica_educacao_basica", table_id=table_id
+        dataset_id="br_inep_sinopse_estatistica_educacao_basica",
+        table_id=table_id,
     )
     tb.create(
         path=dir,
@@ -894,7 +926,8 @@ for dir in OUTPUT.iterdir():
 
 for table_id in os.listdir(OUTPUT):
     tb = bd.Table(
-        dataset_id="br_inep_sinopse_estatistica_educacao_basica", table_id=table_id
+        dataset_id="br_inep_sinopse_estatistica_educacao_basica",
+        table_id=table_id,
     )
     tb.create(
         path=os.path.join(OUTPUT, table_id),
