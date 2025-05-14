@@ -5,13 +5,11 @@ Tasks related to DBT flows.
 
 import json
 import os
-from datetime import timedelta
 from typing import Dict, List, Optional, Union
 
 from dbt.cli.main import dbtRunner
 from prefect import task
 
-from pipelines.constants import constants
 from pipelines.utils.execute_dbt_model.constants import (
     constants as constants_execute,
 )
@@ -23,10 +21,7 @@ from pipelines.utils.execute_dbt_model.utils import (
 from pipelines.utils.utils import log
 
 
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
+@task
 def run_dbt(
     dataset_id: str,
     table_id: Optional[str] = None,
@@ -168,8 +163,3 @@ def run_dbt(
                 raise Exception(result.result)
 
     return True
-
-
-@task
-def dbt_run_with_success(result) -> bool:
-    return isinstance(result, bool) and result is True
