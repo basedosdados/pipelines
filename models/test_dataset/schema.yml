@@ -99,3 +99,7 @@ models:
         description: sigla_uf description
       - name: col_test
         description: Col test description
+        tests:
+          - accepted_values:
+              values: [42016204209]
+              quote: false
