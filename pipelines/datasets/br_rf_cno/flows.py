@@ -62,9 +62,7 @@ with Flow(
         "update_metadata", default=False, required=False
     )
     # url = Parameter("url", default=br_rf_cno_constants.URL.value, required=True)
-    materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -119,7 +117,7 @@ with Flow(
         dbt_parameters = create_parameters_list(
             dataset_id=dataset_id,
             table_ids=table_ids,
-            materialization_mode=materialization_mode,
+            target=target,
             dbt_alias=dbt_alias,
             download_csv_file=True,
             dbt_command="run",
@@ -163,7 +161,7 @@ with Flow(
                     date_format=unmapped("%Y-%m-%d"),
                     coverage_type=unmapped("part_bdpro"),
                     time_delta=unmapped({"months": 6}),
-                    prefect_mode=unmapped(materialization_mode),
+                    prefect_mode=unmapped(target),
                     bq_project=unmapped("basedosdados"),
                     upstream_tasks=[unmapped(wait_for_materialization)],
                 )

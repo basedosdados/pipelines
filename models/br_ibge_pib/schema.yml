@@ -1,0 +1,77 @@
+---
+version: 2
+models:
+  - name: br_ibge_pib__municipio
+    description: Produto Interno Bruto (PIB) municipal a preços correntes
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_municipio]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano
+      - name: id_municipio
+        description: ID Município IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: pib
+        description: Produto Interno Bruto a preços correntes
+      - name: impostos_liquidos
+        description: Impostos, líquidos de subsídios, sobre produtos a preços correntes
+      - name: va
+        description: Valor adicionado bruto a preços correntes total
+      - name: va_agropecuaria
+        description: Valor adicionado bruto a preços correntes da agropecuária
+      - name: va_industria
+        description: Valor adicionado bruto a preços correntes da indústria
+      - name: va_servicos
+        description: Valor adicionado bruto a preços correntes dos serviços, exclusive
+          administração, defesa, educação e saúde públicas e seguridade social
+      - name: va_adespss
+        description: Valor adicionado bruto a preços correntes da administração, defesa,
+          educação e saúde públicas e seguridade social
+  - name: br_ibge_pib__gini
+    description: Índice de Gini do produto interno bruto a preços correntes e do valor
+      adicionado bruto a preços correntes por atividade econômica - Referência 2010
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_uf, ano]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_uf
+        description: ID UF - IBGE 2 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: id_uf
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano
+      - name: gini_pib
+        description: Índice de Gini da distribuição do produto interno bruto a preços
+          correntes
+      - name: gini_va_agro
+        description: Índice de Gini da distribuição do valor adicionado bruto a preços
+          correntes da agropecuária
+      - name: gini_va_industria
+        description: Índice de Gini da distribuição do valor adicionado bruto a preços
+          correntes da indústria
+      - name: gini_va_servicos
+        description: Índice de Gini da distribuição do valor adicionado bruto a preços
+          correntes dos serviços, exclusive administração, defesa, educação e saúde
+          públicas e seguridade social
+      - name: gini_va_adespss
+        description: Índice de Gini da distribuição do valor adicionado bruto a preços
+          correntes da administração, defesa, educação e saúde públicas e seguridade
+          social

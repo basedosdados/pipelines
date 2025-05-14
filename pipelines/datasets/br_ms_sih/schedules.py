@@ -21,7 +21,7 @@ everyday_sih_servicos_profissionais = Schedule(
             parameter_defaults={
                 "dataset_id": "br_ms_sih",
                 "table_id": "servicos_profissionais",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
                 "dbt_alias": True,
@@ -43,7 +43,7 @@ everyday_sih_aihs_reduzidas = Schedule(
             parameter_defaults={
                 "dataset_id": "br_ms_sih",
                 "table_id": "aihs_reduzidas",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
                 "dbt_alias": True,

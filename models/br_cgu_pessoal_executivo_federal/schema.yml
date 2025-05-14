@@ -1,0 +1,50 @@
+---
+version: 2
+models:
+  - name: tercerizados
+    description: dbt model for tercerizados table
+    columns:
+      - name: ano
+        description: Ano
+      - name: mes
+        description: Mês
+      - name: id_terceirizado
+        description: Registro do terceirizado
+      - name: sigla_orgao_superior_unidade_gestora
+        description: Sigla do órgão superior da unidade gestora do terceirizado
+      - name: codigo_unidade_gestora
+        description: Código da unidade gestora do terceirizado
+      - name: unidade_gestora
+        description: Nome da unidade gestora do terceirizado
+      - name: sigla_unidade_gestora
+        description: Sigla da unidade gestora do terceirizado
+      - name: contrato_empresa
+        description: Número do contrato com a empresa terceirizada
+      - name: cnpj_empresa
+        description: CNPJ da empresa terceirizada
+      - name: razao_social_empresa
+        description: Razão Social da empresa terceirizada
+      - name: cpf
+        description: CPF
+      - name: nome
+        description: Nome completo do terceirizado
+      - name: categoria_profissional
+        description: Categoria profissional
+      - name: nivel_escolaridade
+        description: Nível de escolaridade exigido pela ocupação
+      - name: quantidade_horas_trabalhadas_semanais
+        description: Quantidade de horas semanais de trabalho
+      - name: unidade_trabalho
+        description: Unidade onde o terceirizado trabalha
+      - name: valor_mensal
+        description: Valor mensal do salário do terceirizado
+      - name: custo_mensal
+        description: Custo total mensal do terceirizado
+      - name: sigla_orgao_trabalho
+        description: Sigla do órgão onde o terceirizado trabalha
+      - name: nome_orgao_trabalho
+        description: Nome do órgão onde o terceirizado trabalha
+      - name: codigo_siafi_trabalho
+        description: Código SIAFI do órgão onde o terceirizado trabalha
+      - name: codigo_siape_trabalho
+        description: Código SIAPE do órgão onde o terceirizado trabalha

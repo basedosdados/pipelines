@@ -37,9 +37,7 @@ with Flow(
     PERIODO = Parameter("periodo", default="mes", required=False)
     dataset_id = Parameter("dataset_id", default="br_fgv_igp", required=True)
     table_id = Parameter("table_id", default="igp_di_mes", required=True)
-    materialization_mode = Parameter(
-        "materialization_mode", default="prod", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
 
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
@@ -77,7 +75,7 @@ with Flow(
             parameters={
                 "dataset_id": dataset_id,
                 "table_id": table_id,
-                "mode": materialization_mode,
+                "target": target,
                 "dbt_alias": dbt_alias,
             },
             labels=current_flow_labels,
@@ -132,9 +130,7 @@ with Flow(
     PERIODO = Parameter("periodo", default="ano", required=False)
     dataset_id = Parameter("dataset_id", default="br_fgv_igp")
     table_id = Parameter("table_id", default="igp_di_ano")
-    materialization_mode = Parameter(
-        "materialization_mode", default="prod", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
 
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
@@ -172,7 +168,7 @@ with Flow(
             parameters={
                 "dataset_id": dataset_id,
                 "table_id": table_id,
-                "mode": materialization_mode,
+                "target": target,
                 "dbt_alias": dbt_alias,
             },
             labels=current_flow_labels,
@@ -227,9 +223,7 @@ with Flow(
     PERIODO = Parameter("periodo", default="mes", required=False)
     dataset_id = Parameter("dataset_id", default="br_fgv_igp")
     table_id = Parameter("table_id", default="igp_m_mes")
-    materialization_mode = Parameter(
-        "materialization_mode", default="prod", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
 
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
@@ -267,7 +261,7 @@ with Flow(
             parameters={
                 "dataset_id": dataset_id,
                 "table_id": table_id,
-                "mode": materialization_mode,
+                "target": target,
                 "dbt_alias": dbt_alias,
             },
             labels=current_flow_labels,
@@ -322,9 +316,7 @@ with Flow(
     PERIODO = Parameter("periodo", default="ano", required=False)
     dataset_id = Parameter("dataset_id", default="br_fgv_igp")
     table_id = Parameter("table_id", default="igp_m_ano")
-    materialization_mode = Parameter(
-        "materialization_mode", default="prod", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
 
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
@@ -362,7 +354,7 @@ with Flow(
             parameters={
                 "dataset_id": dataset_id,
                 "table_id": table_id,
-                "mode": materialization_mode,
+                "target": target,
                 "dbt_alias": dbt_alias,
             },
             labels=current_flow_labels,
@@ -417,9 +409,7 @@ with Flow(
     PERIODO = Parameter("periodo", default="mes", required=False)
     dataset_id = Parameter("dataset_id", default="br_fgv_igp")
     table_id = Parameter("table_id", default="igp_og_mes")
-    materialization_mode = Parameter(
-        "materialization_mode", default="prod", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
 
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
@@ -457,7 +447,7 @@ with Flow(
             parameters={
                 "dataset_id": dataset_id,
                 "table_id": table_id,
-                "mode": materialization_mode,
+                "target": target,
                 "dbt_alias": dbt_alias,
             },
             labels=current_flow_labels,
@@ -512,9 +502,7 @@ with Flow(
     PERIODO = Parameter("periodo", default="ano", required=False)
     dataset_id = Parameter("dataset_id", default="br_fgv_igp")
     table_id = Parameter("table_id", default="igp_og_ano")
-    materialization_mode = Parameter(
-        "materialization_mode", default="prod", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
 
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
@@ -552,7 +540,7 @@ with Flow(
             parameters={
                 "dataset_id": dataset_id,
                 "table_id": table_id,
-                "mode": materialization_mode,
+                "target": target,
                 "dbt_alias": dbt_alias,
             },
             labels=current_flow_labels,
@@ -607,9 +595,7 @@ with Flow(
     PERIODO = Parameter("periodo", default="mes", required=False)
     dataset_id = Parameter("dataset_id", default="br_fgv_igp")
     table_id = Parameter("table_id", default="igp_10_mes")
-    materialization_mode = Parameter(
-        "materialization_mode", default="prod", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
 
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
@@ -647,7 +633,7 @@ with Flow(
             parameters={
                 "dataset_id": dataset_id,
                 "table_id": table_id,
-                "mode": materialization_mode,
+                "target": target,
                 "dbt_alias": dbt_alias,
             },
             labels=current_flow_labels,

@@ -21,7 +21,7 @@ schedule_uefa_champions_league = Schedule(
             parameter_defaults={
                 "dataset_id": "world_sofascore_competicoes_futebol",
                 "table_id": "uefa_champions_league",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
@@ -41,7 +41,7 @@ schedule_brasileirao_serie_a = Schedule(
             parameter_defaults={
                 "dataset_id": "world_sofascore_competicoes_futebol",
                 "table_id": "brasileirao_serie_a",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,

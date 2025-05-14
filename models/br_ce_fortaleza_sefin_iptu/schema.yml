@@ -1,0 +1,36 @@
+---
+version: 2
+models:
+  - name: br_ce_fortaleza_sefin_iptu__face_quadra
+    description: Valores unitários de terreno das faces de quadra do ano corrente
+      e infraestrutura do trecho de logradouro da face
+    columns:
+      - name: ano
+        description: Ano
+      - name: id_face_quadra
+        description: Identificador único da face de quadra.
+      - name: logradouro
+        description: Nome oficial do logradouro.
+      - name: centroide
+        description: Centroide da face de quadra.
+      - name: metrica
+        description: Sequencial do trecho do logradouro (preenchido com múltiplos
+          de 20 a partir do início do logradouro)
+      - name: pavimentacao
+        description: Indica o tipo de pavimentação que reveste a superfície do logradouro.
+      - name: indicador_agua
+        description: Indica a existência de rede de água
+      - name: indicador_esgoto
+        description: Indica a existência de rede de coleta de esgoto
+      - name: indicador_galeria_pluvial
+        description: Indica a existência de rede de drenagem pluvial.
+      - name: indicador_sarjeta
+        description: Indica a existência de meio-fio.
+      - name: indicador_iluminacao_publica
+        description: Indica a existência de iluminação pública.
+      - name: indicador_arborizacao
+        description: Indica a existência de arborização planejada no canteiro central
+          de vias duplas.
+      - name: valor
+        description: Refere-se ao valor da face da quadra no ano respectivo a publicação
+          dos dados.

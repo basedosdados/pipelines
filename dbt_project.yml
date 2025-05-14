@@ -1,0 +1,428 @@
+---
+# Name your project! Project names should contain only lowercase characters
+# and underscores. A good package name should reflect your organization's
+# name or the intended use of these models
+name: basedosdados
+version: 1.0.0
+config-version: 2
+
+# This setting configures which "profile" dbt uses for this project.
+profile: default
+# Options to disable elementary models
+vars:
+  disable_run_results: false
+  disable_tests_results: false
+  disable_dbt_artifacts_autoupload: true
+  disable_dbt_invocation_autoupload: true
+# These configurations specify where dbt should look for different types of files.
+# The `source-paths` config, for example, states that models in this project can be
+# found in the "models/" directory. You probably won't need to change these!
+model-paths: [models]
+analysis-paths: [analysis]
+test-paths: [tests-dbt]
+seed-paths: [data]
+macro-paths: [macros]
+snapshot-paths: [snapshots]
+target-path: target  # directory which will store compiled SQL files
+clean-targets:  # directories to be removed by `dbt clean`
+  - target
+  - dbt_modules
+# Grant acess
+# bq data control: https://cloud.google.com/bigquery/docs/reference/standard-sql/data-control-language
+# dbt grant statements use https://discourse.getdbt.com/t/the-exact-grant-statements-we-use-in-a-dbt-project/430
+# Configuring models
+# Full documentation: https://docs.getdbt.com/docs/configuring-models
+# In this example config, we tell dbt to build all models in the example/ directory
+# as tables. These settings can be overridden in the individual model files
+# using the `{{ config(...) }}` macro.
+models:
+  +post-hook:
+    - GRANT `roles/bigquery.dataViewer` ON TABLE {{ this }} TO "specialGroup:allUsers"
+  +persist_docs:
+    relation: true
+    columns: true
+  basedosdados:
+    # Config indicated by + and applies to all files under models/example/
+    br_anatel_banda_larga_fixa:
+      +materialized: table
+      +schema: br_anatel_banda_larga_fixa
+    br_anatel_telefonia_movel:
+      +materialized: table  # Materialization type (table, view or incremental)
+      +schema: br_anatel_telefonia_movel
+    br_anp_precos_combustiveis:
+      +materialized: table
+      +schema: br_anp_precos_combustiveis
+    br_ans_beneficiario:
+      +materialized: incremental
+      +schema: br_ans_beneficiario
+    br_b3_cotacoes:
+      +materialized: table
+      +schema: br_b3_cotacoes
+    br_bcb_agencia:
+      +materialized: table
+      +schema: br_bcb_agencia
+    br_bcb_estban:
+      +materialized: table
+      +schema: br_bcb_estban
+    br_bcb_sicor:
+      +materialized: table
+      +schema: br_bcb_sicor
+    br_bcb_taxa_cambio:
+      +materialized: table
+      +schema: br_bcb_taxa_cambio
+      +post-hook:
+        - REVOKE `roles/bigquery.dataViewer` ON TABLE {{ this }} FROM "specialGroup:allUsers"
+        - GRANT `roles/bigquery.dataViewer` ON TABLE {{ this }} TO "group:bd-pro@basedosdados.org"
+    br_bcb_taxa_selic:
+      +materialized: table
+      +schema: br_bcb_taxa_selic
+      +post-hook:
+        - REVOKE `roles/bigquery.dataViewer` ON TABLE {{ this }} FROM "specialGroup:allUsers"
+        - GRANT `roles/bigquery.dataViewer` ON TABLE {{ this }} TO "group:bd-pro@basedosdados.org"
+    br_bd_diretorios_brasil:
+      +materialized: table
+      +schema: br_bd_diretorios_brasil
+    br_bd_diretorios_mundo:
+      +materialized: table
+      +schema: br_bd_diretorios_mundo
+    br_bd_indicadores:
+      +materialized: table
+      +schema: br_bd_indicadores
+    br_bd_metadados:
+      +materialized: table
+      +schema: br_bd_metadados
+    br_bd_siga_o_dinheiro:
+      +materialized: table
+      +schema: br_bd_siga_o_dinheiro
+    br_camara_dados_abertos:
+      +materialized: table
+      +schema: br_camara_dados_abertos
+    br_ce_fortaleza_sefin_iptu:
+      +materialized: table
+      +schema: br_ce_fortaleza_sefin_iptu
+      +post-hook:
+        - REVOKE `roles/bigquery.dataViewer` ON TABLE {{ this }} FROM "specialGroup:allUsers"
+        - GRANT `roles/bigquery.dataViewer` ON TABLE {{ this }} TO "group:bd-pro@basedosdados.org"
+    br_cgu_beneficios_cidadao:
+      +materialized: table
+      +schema: br_cgu_beneficios_cidadao
+    br_cgu_cartao_pagamento:
+      +materialized: table
+      +schema: br_cgu_cartao_pagamento
+    br_cgu_dados_abertos:
+      +materialized: table
+      +schema: br_cgu_dados_abertos
+    br_cgu_emendas_parlamentares:
+      +materialized: table
+      +schema: br_cgu_emendas_parlamentares
+    br_cgu_licitacao_contrato:
+      +materialized: table
+      +schema: br_cgu_licitacao_contrato
+    br_cgu_orcamento_publico:
+      +materialized: table
+      +schema: br_cgu_orcamento_publico
+    br_cgu_pessoal_executivo_federal:
+      +materialized: table
+      +schema: br_cgu_pessoal_executivo_federal
+    br_cgu_receitas_publicas:
+      +materialized: table
+      +schema: br_cgu_receitas_publicas
+    br_cgu_servidores_executivo_federal:
+      +materialized: table
+      +schema: br_cgu_servidores_executivo_federal
+    br_cnj_improbidade_administrativa:
+      +materialized: table
+      +schema: br_cnj_improbidade_administrativa
+    br_cnpq_bolsas:
+      +materialized: table
+      +schema: br_cnpq_bolsas
+    br_cvm_administradores_carteira:
+      +materialized: table
+      +schema: br_cvm_administradores_carteira
+    br_cvm_fi:
+      +materialized: table
+      +schema: br_cvm_fi
+      +post-hook:
+        - REVOKE `roles/bigquery.dataViewer` ON TABLE {{ this }} FROM "specialGroup:allUsers"
+        - GRANT `roles/bigquery.dataViewer` ON TABLE {{ this }} TO "group:bd-pro@basedosdados.org"
+    br_cvm_oferta_publica_distribuicao:
+      +materialized: table
+      +schema: br_cvm_oferta_publica_distribuicao
+    br_datahackers_state_data:
+      +materialized: table
+      +schema: br_datahackers_state_data
+    br_denatran_frota:
+      +materialized: table
+      +schema: br_denatran_frota
+    br_fbsp_absp:
+      +materialized: table
+      +schema: br_fbsp_absp
+    br_fgv_igp:
+      +materialized: table
+      +schema: br_fgv_igp
+    br_geobr_mapas:
+      +materialized: table
+      +schema: br_geobr_mapas
+    br_ibge_censo_2022:
+      +materialized: table
+      +schema: br_ibge_censo_2022
+    br_ibge_censo_demografico:
+      +materialized: table
+      +schema: br_ibge_censo_demografico
+    br_ibge_estadic:
+      +materialized: table
+      +schema: br_ibge_estadic
+    br_ibge_inpc:
+      +materialized: table
+      +schema: br_ibge_inpc
+    br_ibge_ipca:
+      +materialized: table
+      +schema: br_ibge_ipca
+    br_ibge_ipca15:
+      +materialized: table
+      +schema: br_ibge_ipca15
+    br_ibge_pam:
+      +materialized: table
+      +schema: br_ibge_pam
+    br_ibge_pevs:
+      +materialized: table
+      +schema: br_ibge_pevs
+    br_ibge_pib:
+      +materialized: table
+      +schema: br_ibge_pib
+    br_ibge_pnad:
+      +materialized: table
+      +schema: br_ibge_pnad
+    br_ibge_pnad_covid:
+      +materialized: table
+      +schema: br_ibge_pnad_covid
+    br_ibge_pnadc:
+      +materialized: table
+      +schema: br_ibge_pnadc
+    br_ibge_pof:
+      +materialized: table
+      +schema: br_ibge_pof
+    br_ibge_ppm:
+      +materialized: table
+      +schema: br_ibge_ppm
+    br_inep_ana:
+      +materialized: table
+      +schema: br_inep_ana
+    br_inep_censo_educacao_superior:
+      +materialized: table
+      +schema: br_inep_censo_educacao_superior
+    br_inep_censo_escolar:
+      +materialized: table
+      +schema: br_inep_censo_escolar
+    br_inep_educacao_especial:
+      +materialized: table
+      +schema: br_inep_educacao_especial
+    br_inep_enem:
+      +materialized: table
+      +schema: br_inep_enem
+    br_inep_formacao_docente:
+      +materialized: table
+      +schema: br_inep_formacao_docente
+    br_inep_ideb:
+      +materialized: table
+      +schema: br_inep_ideb
+    br_inep_indicador_nivel_socioeconomico:
+      +materialized: table
+      +schema: br_inep_indicador_nivel_socioeconomico
+    br_inep_indicadores_educacionais:
+      +materialized: table
+      +schema: br_inep_indicadores_educacionais
+    br_inep_saeb:
+      +materialized: table
+      +schema: br_inep_saeb
+    br_inep_sinopse_estatistica_educacao_basica:
+      +materialized: table
+      +schema: br_inep_sinopse_estatistica_educacao_basica
+    br_inmet_bdmep:
+      +materialized: table
+      +schema: br_inmet_bdmep
+    br_inpe_prodes:
+      +materialized: table
+      +schema: br_inpe_prodes
+    br_inpe_queimadas:
+      +materialized: table
+      +schema: br_inpe_queimadas
+    br_inpe_sisam:
+      +materialized: table
+      +schema: br_inpe_sisam
+    br_ipea_avs:
+      +materialized: table
+      +schema: br_ipea_avs
+    br_jota:
+      +materialized: table
+      +schema: br_jota
+    br_mdr_snis:
+      +materialized: table
+      +schema: br_mdr_snis
+    br_me_caged:
+      +materialized: table
+      +schema: br_me_caged
+    br_me_cno:
+      +materialized: table
+      +schema: br_me_cno
+    br_me_cnpj:
+      +materialized: table
+      +schema: br_me_cnpj
+    br_me_comex_stat:
+      +materialized: table
+      +schema: br_me_comex_stat
+    br_me_rais:
+      +materialized: table
+      +schema: br_me_rais
+    br_me_sic:
+      +materialized: table
+      +schema: br_me_sic
+    br_me_siconfi:
+      +materialized: table
+      +schema: br_me_siconfi
+    br_mec_prouni:
+      +materialized: table
+      +schema: br_mec_prouni
+    br_mec_sisu:
+      +materialized: table
+      +schema: br_mec_sisu
+    br_mercadolivre_ofertas:
+      +materialized: table
+      +schema: br_mercadolivre_ofertas
+      +post-hook:
+        - REVOKE `roles/bigquery.dataViewer` ON TABLE {{ this }} FROM "specialGroup:allUsers"
+        - GRANT `roles/bigquery.dataViewer` ON TABLE {{ this }} TO "group:bd-pro@basedosdados.org"
+    br_mg_belohorizonte_smfa_iptu:
+      +materialized: table
+      +schema: br_mg_belohorizonte_smfa_iptu
+    br_mme_consumo_energia_eletrica:
+      +materialized: table
+      +schema: br_mme_consumo_energia_eletrica
+    br_mp_pep:
+      +materialized: table
+      +schema: br_mp_pep
+    br_ms_cnes:
+      +materialized: table
+      +schema: br_ms_cnes
+    br_ms_pns:
+      +materialized: table
+      +schema: br_ms_pns
+    br_ms_sia:
+      +materialized: table
+      +schema: br_ms_sia
+    br_ms_sih:
+      +materialized: table
+      +schema: br_ms_sih
+    br_ms_sim:
+      +materialized: table
+      +schema: br_ms_sim
+    br_ms_sinan:
+      +materialized: table
+      +schema: br_ms_sinan
+    br_ms_sinasc:
+      +materialized: table
+      +schema: br_ms_sinasc
+    br_ms_sisvan:
+      +materialized: table
+      +schema: br_ms_sisvan
+    br_ms_vacinacao_covid19:
+      +materialized: table
+      +schema: br_ms_vacinacao_covid19
+    br_ons_avaliacao_operacao:
+      +materialized: table
+      +schema: br_ons_avaliacao_operacao
+    br_ons_estimativa_custos:
+      +materialized: table
+      +schema: br_ons_estimativa_custos
+    br_poder360_pesquisas:
+      +materialized: table
+      +schema: br_poder360_pesquisas
+    br_rf_arrecadacao:
+      +materialized: table
+      +schema: br_rf_arrecadacao
+    br_rf_cafir:
+      +materialized: table
+      +schema: br_rf_cafir
+    br_rf_cno:
+      +materialized: table
+      +schema: br_rf_cno
+    br_rj_isp_estatisticas_seguranca:
+      +materialized: table
+      +schema: br_rj_isp_estatisticas_seguranca
+    br_sfb_sicar:
+      +materialized: table
+      +schema: br_sfb_sicar
+    br_simet_educacao_conectada:
+      +materialized: table
+      +schema: br_simet_educacao_conectada
+    br_sp_saopaulo_dieese_icv:
+      +materialized: table
+      +schema: br_sp_saopaulo_dieese_icv
+    br_sp_saopaulo_geosampa_iptu:
+      +materialized: table
+      +schema: br_sp_saopaulo_geosampa_iptu
+      +post-hook:
+        - REVOKE `roles/bigquery.dataViewer` ON TABLE {{ this }} FROM "specialGroup:allUsers"
+        - GRANT `roles/bigquery.dataViewer` ON TABLE {{ this }} TO "group:bd-pro@basedosdados.org"
+    br_stf_corte_aberta:
+      +materialized: table
+      +schema: br_stf_corte_aberta
+    br_trase_supply_chain:
+      +materialized: table
+      +schema: br_trase_supply_chain
+    br_tse_eleicoes:
+      +materialized: table
+      +schema: br_tse_eleicoes
+    br_tse_eleicoes_2022:
+      +materialized: table
+      +schema: br_tse_eleicoes_2022
+    br_tse_filiacao_partidaria:
+      +materialized: table
+      +schema: br_tse_filiacao_partidaria
+    example:
+      +materialized: table  # Materialization type (table, table or incremental)
+      +schema: example  # Overrides the default schema (defaults to what is set on profiles.yml)
+    fundacao_lemann:
+      +materialized: table
+      +schema: fundacao_lemann
+    mundo_bm_wdi:
+      +materialized: table
+      +schema: mundo_bm_wdi
+    mundo_transfermarkt_competicoes:
+      +materialized: table
+      +schema: mundo_transfermarkt_competicoes
+    mundo_transfermarkt_competicoes_internacionais:
+      +materialized: table
+      +schema: mundo_transfermarkt_competicoes_internacionais
+    test_dataset:
+      +materialized: table
+      +schema: test_dataset
+    world_ampas_oscar:
+      +materialized: table
+      +schema: world_ampas_oscar
+    world_iea_pirls:
+      +materialized: table
+      +schema: world_iea_pirls
+    world_imdb_movies:
+      +materialized: table
+      +schema: world_imdb_movies
+    world_oceanos_mapeamento:
+      +materialized: table
+      +schema: world_oceanos_mapeamento
+    world_oecd_public_finance:
+      +materialized: table
+      +schema: world_oecd_public_finance
+    world_olympedia_olympics:
+      +materialized: table
+      +schema: world_olympedia_olympics
+    world_sofascore_competicoes_futebol:
+      +materialized: table
+      +schema: world_sofascore_competicoes_futebol
+    world_wb_mides:
+      +materialized: table
+      +schema: world_wb_mides
+    world_wwf_hydrosheds:
+      +materialized: table
+      +schema: world_wwf_hydrosheds
+  elementary:
+    +schema: elementary

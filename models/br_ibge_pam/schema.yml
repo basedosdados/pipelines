@@ -1,0 +1,81 @@
+---
+version: 2
+models:
+  - name: br_ibge_pam__lavoura_temporaria
+    description: Área plantada, área colhida, quantidade produzida, rendimento médio
+      e valor da produção das lavouras temporárias
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, sigla_uf, id_municipio, produto]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município IBGE 7 dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: produto
+        description: Produto
+      - name: area_plantada
+        description: Área destinada à colheita
+      - name: area_colhida
+        description: Área colhida
+      - name: quantidade_produzida
+        description: Quantidade da produção
+      - name: rendimento_medio_producao
+        description: Rendimento médio da produção
+      - name: valor_producao
+        description: Valor da produção
+  - name: br_ibge_pam__lavoura_permanente
+    description: Área destinada à colheita, área colhida, quantidade produzida, rendimento
+      médio e valor da produção das lavouras permanentes
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, sigla_uf, id_municipio, produto]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município IBGE 7 dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: produto
+        description: Produto
+      - name: area_destinada_colheita
+        description: Área destinada à colheita
+      - name: area_colhida
+        description: Área colhida
+      - name: quantidade_produzida
+        description: Quantidade da produção
+      - name: rendimento_medio_producao
+        description: Rendimento médio da produção
+      - name: valor_producao
+        description: Valor da produção

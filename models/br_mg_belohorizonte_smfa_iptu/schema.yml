@@ -1,0 +1,97 @@
+---
+version: 2
+models:
+  - name: br_mg_belohorizonte_smfa_iptu__iptu
+    description: Dados referente ao cadastro do IPTU na cidade de Belo Horizonte
+    columns:
+      - name: ano
+        description: Ano
+      - name: mes
+        description: Mês
+      - name: indice_cadastral
+        description: Os imóveis, para inscrição no Cadastro Imobiliário, foram codificados
+          através de sua associação a um código alfanumérico denominado índice cadastral,
+          composto de 15 dígitos.
+      - name: lote
+        description: Código de identificação do lote
+      - name: zoneamento
+        description: Zoneamento vigente no ano de aprovação da planta de valores do
+          IPTU
+      - name: zona_homogenea
+        description: Código da zona homogênea
+      - name: cep
+        description: Número do CEP
+      - name: endereco
+        description: Endereço referente ao IPTU
+      - name: tipo_construtivo
+        description: Unidade construtiva de acordo com o tipo construtivo, como casa,
+          barracão, apartamento e entre outros
+      - name: tipo_ocupacao
+        description: Especifica o tipo de ocupação.
+      - name: padrao_acabamento
+        description: Nível de padrão de acabamento construtivo para caracterização
+          do valor do IPTU
+      - name: tipologia
+        description: Descrição da tipologia associada ao tipo de construção e ao tipo
+          de ocupação.
+      - name: quantidade_economias
+        description: Unidade de núcleo familiar, atividade econômica ou institucional,
+          distintas em um mesmo índice cadastral.
+      - name: frequencia_coleta
+        description: Indica qual é a frequencia de coleta de lixo
+      - name: indicador_rede_telefonica
+        description: Indica a existência de rede telefônica em pelo ao menos um dos
+          logradouros relacionado à frente do imóvel
+      - name: indicador_meio_fio
+        description: Indica a existência de meio-fio para pelo ao menos um dos logradouros
+          relacionado à frente do imóvel.
+      - name: indicador_pavimentacao
+        description: Indica a existência de pavimentação para pelo ao menos um dos
+          logradouros relacionado à frente do imóvel.
+      - name: indicador_arborizacao
+        description: Indica a existência de arborização para pelo ao menos um dos
+          logradouros relacionado à frente do imóvel.
+      - name: indicador_galeria_pluvial
+        description: Indica a existência de galeria pluvial em pelo ao menos um dos
+          logradouros relacionado à frente do imóvel
+      - name: indicador_iluminacao_publica
+        description: Indica a existência de iluminação pública em pelo ao menos um
+          dos logradouros relacionado à frente do imóvel.
+      - name: indicador_rede_esgoto
+        description: Indica a existência de rede de esgoto em pelo ao menos um dos
+          logradouros relacionado à frente do imóvel.
+      - name: indicador_agua
+        description: Indica a existência de rede de água em pelo ao menos um dos logradouros
+          relacionado à frente do imóvel.
+      - name: poligono
+        description: Polígono da feição do imóvel
+      - name: fracao_ideal
+        description: Fração ideal
+      - name: area_terreno
+        description: Área do terreno
+      - name: area_construida
+        description: Área construida
+  - name: br_mg_belohorizonte_smfa_iptu__dicionario
+    description: Dicionário para tradução dos códigos do conjunto br_mg_belohorizonte_smfa_iptu.
+      Para taduzir códigos compartilhados entre instituições, como id_municipio, buscar
+      por diretórios
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_tabela
+            - nome_coluna
+            - chave
+            - cobertura_temporal
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_tabela
+        description: ID Tabela
+      - name: nome_coluna
+        description: Nome da coluna
+      - name: chave
+        description: Chave
+      - name: cobertura_temporal
+        description: Cobertura Temporal
+      - name: valor
+        description: Valor

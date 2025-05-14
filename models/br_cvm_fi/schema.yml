@@ -1,0 +1,956 @@
+---
+version: 2
+models:
+  - name: br_cvm_fi__documentos_balancete
+    description: O balancete é um documento gerado mensalmente pela contabilidade
+      do fundo.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - mes
+            - cnpj
+            - data_competencia
+            - tipo_fundo
+            - plano_contabil_balancete
+            - codigo_conta
+          config:
+            where: __most_recent_year_month__
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
+      - name: mes
+        description: Mês
+      - name: cnpj
+        description: CNPJ do fundo
+      - name: data_competencia
+        description: Data de competência
+      - name: plano_contabil_balancete
+        description: Plano contábil utilizado no balancete
+      - name: tipo_fundo
+        description: Tipo do fundo
+      - name: codigo_conta
+        description: Código da conta
+      - name: saldo_conta
+        description: Saldo da Conta
+  - name: br_cvm_fi__documentos_carteiras_fundos_investimento
+    description: A Composição e Diversificação das Aplicações (CDA) descreve os ativos
+      que compõem as carteiras de fundos de investimento.
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
+      - name: mes
+        description: Mês
+      - name: id_fundo
+        description: Tipo do Fundo
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
+      - name: bloco
+        description: Bloco
+      - name: cnpj
+        description: CNPJ do Fundo
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
+      - name: denominacao_social
+        description: Denominação Social
+      - name: data_competencia
+        description: Data de competência do documento
+      - name: tipo_aplicacao
+        description: Tipo de aplicação
+      - name: tipo_ativo
+        description: Tipo de ativo
+      - name: indicador_emissor_ligado
+        description: Indica se o emissor da aplicação é ligado ao gestor ou administrador
+          do fundo de investimento
+      - name: tipo_negociacao
+        description: Tipo de negociação
+      - name: quantidade_vendas_negocios_mes
+        description: Quantidade de vendas dos negócios realizados no mês
+      - name: valor_vendas_negocios_mes
+        description: Valor das vendas dos negócios realizados no mês
+      - name: quantidade_aquisicoes_negocios_mes
+        description: Quantidade de aquisições dos negócios realizados no mês
+      - name: valor_aquisicoes_negocios_mes
+        description: Valor das aquisições dos negócios realizados no mês
+      - name: quantidade_posicao_final
+        description: Quantidade da posição final
+      - name: valor_mercado_posicao_final
+        description: Valor de mercado da posição final
+      - name: valor_custo_posicao_final
+        description: Valor de custo da posição final
+      - name: prazo_confidencialidae_aplicacao
+        description: Prazo de confidencialidade da aplicação
+      - name: tipo_titulo_publico
+        description: Tipo de título público
+      - name: codigo_isin
+        description: Código ISIN -International Securities Identification Number
+      - name: codigo_selic
+        description: Código SELIC
+      - name: data_emissao
+        description: Data de emissão
+      - name: data_vencimento
+        description: Data de vencimento
+      - name: cnpj_fundo_investido
+        description: CNPJ do fundo investido
+      - name: denominacao_social_fundo_investido
+        description: Denominação social do fundo investido
+      - name: codigo_swap
+        description: Código SWAP
+      - name: descricao_tipo_ativo_swap
+        description: Descrição do tipo de ativo SWAP
+      - name: codigo_ativo
+        description: Código do ativo
+      - name: descricao_ativo
+        description: Descrição do ativo
+      - name: data_inicio_vigencia
+        description: Data início da vigência
+      - name: data_fim_vigencia
+        description: Data fim da vigência
+      - name: cnpj_emissor
+        description: CNPJ do emissor
+      - name: nome_emissor
+        description: Nome do Emissor
+      - name: indicador_titulo_pos_fixado
+        description: Indica se é título pós-fixado
+      - name: codigo_indexador_pos_fixados
+        description: Código do indexador - somente pós-fixados
+      - name: descricao_indexador_pos_fixados
+        description: Descrição do indexador - somente pós-fixados
+      - name: porcentagem_indexador_pos_fixados
+        description: Percentual do indexador - somente pós-fixados
+      - name: porcentagem_cupom_pos_fixados
+        description: Percentual do cupom - somente pós-fixados
+      - name: porcentagem_taxa_concentrada_pre_fixados
+        description: Percentual da taxa contratada - somente pré-fixados
+      - name: indicador_emissor_possui_classificacao_risco
+        description: Indica se o emissor do título possui classificação de risco
+      - name: nome_agencia_classificacao_risco
+        description: Nome da agência de classificação de risco
+      - name: data_classificacao_risco
+        description: Data da classificação de risco
+      - name: grau_risco_atribuido
+        description: Grau de risco atribuído
+      - name: indicador_emissor_pessoa_fisica_juridica
+        description: Indica se o emissor é pessoa física ou jurídica
+      - name: indicador_codigo_identificacao_emissor_pessoa_fisica_juridica
+        description: Informa o código de identificação do emissor, pessoa física ou
+          jurídica
+      - name: indicador_titulo_registrado_cetip
+        description: Indica se é título registrado na CETIP
+      - name: indicador_titulo_possui_garantia_seguro
+        description: Indica se o título possui garantia ou seguro
+      - name: cnpj_instituicao_financeira_coobrigacao
+        description: CNPJ da instituição financeira com coobrigação
+      - name: cnpj_basico_instituicao_financeira_coobrigacao
+        description: CNPJ Básico da instituição financeira com coobrigação
+      - name: indicador_investimento_coletivo
+        description: Indica se é veículo de investimento coletivo
+      - name: indicador_gestao_carteira_influencia_gestor
+        description: Indica se a gestão da carteira do veículo de investimento coletivo
+          conta com influência, direta ou indireta, do gestor
+      - name: codigo_pais
+        description: Código do país
+      - name: nome_pais
+        description: País
+      - name: codigo_bolsa_mercado_balcao
+        description: Código da Bolsa ou Mercado de balcão
+      - name: tipo_bolsa_mercado_balcao
+        description: Bolsa ou Mercado de balcão
+      - name: codigo_ativo_bolsa_mercado_balcao_local_aquisicao
+        description: Código do ativo na Bolsa ou Mercado de balcão onde foi adquirido
+      - name: descricao_ativo_exterior
+        description: Descrição do ativo no exterior
+      - name: quantidade_ativos_exterior
+        description: Quantidade de ativos no exterior
+      - name: valor_ativo_exterior
+        description: Valor do ativo no exterior
+  - name: br_cvm_fi__documentos_extratos_informacoes
+    description: O conjunto de dados disponibiliza os Extratos das Informações (versão
+      2.0), referentes aos Fundos de Investimento da ICVM 555, nos últimos cinco anos.
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
+      - name: mes
+        description: Mês
+      - name: cnpj
+        description: CNPJ do Fundo
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
+      - name: denominacao_social
+        description: Denominação Social
+      - name: data_competencia
+        description: Data de Competência do Documento
+      - name: condominio
+        description: Forma de Condomínio
+      - name: indicador_negociacao_mercado
+        description: Indica se as cotas do fundo são admitidas à negociação em mercado
+          organizado
+      - name: nome_mercado
+        description: Nome do Mercado
+      - name: tipo_prazo
+        description: Tipo de prazo
+      - name: prazo
+        description: Detalhamento sobre o prazo
+      - name: publico_alvo
+        description: Público-alvo
+      - name: indicador_registro_anbima
+        description: Indica se o fundo é registrado na ANBIMA
+      - name: classificacao_anbima
+        description: Classificação de Fundos regulados ANBIMA
+      - name: forma_distribuicao
+        description: Forma de Distribuição
+      - name: politica_investimento
+        description: Política de Investimento
+      - name: porcentagem_aplicacao_maximo_fundo_ligado
+        description: Percentual máximo de aplicação em cotas de fundos de investimento
+          com o mesmo administrador, gestor ou empresas a eles ligadas
+      - name: indicador_resultados_carteira_incorporado_patrimonio_liquido
+        description: Indica se os resultados atrelados à carteira de ativos - dividendos,
+          JSCP, etc - são incorporados ao patrimônio líquido do fundo
+      - name: indicador_fundo_cotas
+        description: Indica se é fundo de cotas
+      - name: indicador_fundo_espelho
+        description: Indica se é fundo-espelho
+      - name: aplicacao_minima
+        description: Aplicação Mínima
+      - name: indicador_atualizacao_diaria_cota
+        description: Indica se o valor da cota será atualizado e informado diariamente
+      - name: prazo_atualizacao_valor_cota
+        description: Prazo de atualização do valor da cota
+      - name: cota_emissao
+        description: Valor da cota utilizado na emissão de cotas
+      - name: patrimonio_liquido_cota
+        description: "Valor da cota utilizado na emissão de cota\n"
+      - name: quantidade_dias_conversao_cota
+        description: Prazo em dias úteis para conversão de cotas após o pedido de
+          resgate
+      - name: quantidade_dias_pagamento_cota
+        description: Prazo em dias úteis para pagamento de resgates após a conversão
+          de cotas
+      - name: quantidade_dias_carencia_resgate_cotas
+        description: Dias de carência para o resgate de cotas
+      - name: quantidade_dias_pagamento_resgates
+        description: Prazo para o efetivo pagamento dos resgates, contado a partir
+          da data do pedido
+      - name: tipo_prazo_pagamento_resgates
+        description: Tipo de prazo para o efetivo pagamento dos resgates
+      - name: indicador_cobranca_taxa_saida_resgates
+        description: Indica se, para o efetivo pagamento dos resgates, há cobrança
+          de taxa de saída
+      - name: taxa_administracao
+        description: Taxa de administração
+      - name: taxa_maxima_custodia
+        description: Taxa máxima de custódia
+      - name: indicador_taxa_performance
+        description: Indica se o fundo cobra taxa de performance
+      - name: taxa_performance
+        description: Taxa de performance
+      - name: parametro_taxa_performance
+        description: Parâmetro utilizado para cobrança de taxa de performance
+      - name: porcentagem_indice_referencia_taxa_performance
+        description: Percentual do Índice de Referência - Taxa de performance
+      - name: valor_cumpom
+        description: Valor do Cupom
+      - name: metodo_calculo_taxa_performance
+        description: Método de cálculo da taxa de performance
+      - name: informacoes_adicionais_taxa_performance
+        description: Informações Adicionais - Taxa de performance
+      - name: indicador_taxa_ingresso
+        description: Indica se o fundo cobra taxa de ingresso
+      - name: taxa_ingresso_real
+        description: Taxa de ingresso
+      - name: porcentagem_taxa_ingresso
+        description: Taxa de ingresso
+      - name: indicador_cobranca_taxa_saida
+        description: Indica se o fundo cobra taxa de saída
+      - name: taxa_saida_real
+        description: Taxa de saída
+      - name: porcentagem_taxa_saida
+        description: Taxa de saída
+      - name: indicador_operacoes_derivativos
+        description: Indica se o fundo pode realizar operações com derivativos
+      - name: finalidade_operacoes_derivativos
+        description: Finalidade das operações com derivativos
+      - name: indicador_operacoes_valor_superior_patrimonio_liquido
+        description: Indica se o fundo pode realizar operações em valor superior ao
+          seu patrimônio líquido
+      - name: fator_limite_total_operacoes_patrimonio_liquido
+        description: Fator limite para o valor total das operações, em relação ao
+          patrimônio líquido
+      - name: indicador_contraparte_ligado
+        description: Indica se o regulamento permite que, em mercado sem contraparte
+          central, o fundo tenha como contraparte o administrador, gestor, fundos
+          de investimento por eles administrados ou geridos, conforme o caso, ou pessoas
+          ligadas
+      - name: indicador_investimentos_exterior
+        description: Indica se o fundo pode realizar investimentos no exterior
+      - name: aplicacao_maxima_ativo_exterior
+        description: Limite máximo, em relação ao Patrimônio Líquido do fundo, que
+          pode ser aplicado em ativos no exterior
+      - name: indicador_ativo_credito_privado
+        description: Indica se o regulamento permite que o fundo adquira ativos de
+          crédito privado
+      - name: aplicacao_maxima_ativo_credito_privado
+        description: Limite máximo, em relação ao Patrimônio Líquido do fundo, que
+          pode ser aplicado em ativos de crédito privado
+      - name: porcentagem_exposicao_minima_emissor_instituicao_financeira
+        description: Exposição mínima permitida pelo Regulamento para emissor do tipo
+          Instituições Financeiras
+      - name: porcentagem_exposicao_maxima_emissor_instituicao_financeira
+        description: Exposição máxima permitida pelo Regulamento para emissor do tipo
+          Instituições Financeira
+      - name: porcentagem_exposicao_minima_emissor_companhias_abertas
+        description: Exposição mínima permitida pelo Regulamento para emissor do tipo
+          Companhias Abertas
+      - name: porcentagem_exposicao_maxima_emissor_companhias_abertas
+        description: Exposição máxima permitida pelo Regulamento para emissor do tipo
+          Companhias Abertas
+      - name: porcentagem_exposicao_minima_emissor_fundos_investimento
+        description: Exposição mínima permitida pelo Regulamento para emissor do tipo
+          Fundos de Investimento
+      - name: porcentagem_exposicao_maxima_emissor_fundos_investimento
+        description: Exposição máxima permitida pelo Regulamento para emissor do tipo
+          Fundos de Investimento
+      - name: porcentagem_exposicao_minima_emissor_uniao_federal
+        description: Exposição mínima permitida pelo Regulamento para emissor do tipo
+          União Federal
+      - name: porcentagem_exposicao_maxima_emissor_uniao_federal
+        description: Exposição máxima permitida pelo Regulamento para emissor do tipo
+          União Federal
+      - name: porcentagem_exposicao_minima_emissor_adm_gestor_pessoas_ligadas
+        description: Exposição mínima permitida pelo Regulamento para emissor do tipo
+          Administrador, Gestor ou Pessoas Ligadas
+      - name: porcentagem_exposicao_maxima_emissor_adm_gestor_pessoas_ligadas
+        description: Exposição máxima permitida pelo Regulamento para emissor do tipo
+          Administrador, Gestor ou Pessoas Ligadas
+      - name: porcentagem_exposicao_minima_emissor_outros
+        description: Exposição mínima permitida pelo Regulamento para emissor do tipo
+          Outros - art. 102, IV, ICVM 555
+      - name: porcentagem_exposicao_maxima_emissor_outros
+        description: Exposição máxima permitida pelo Regulamento para emissor do tipo
+          Outros - art. 102, IV, ICVM 555
+      - name: porcentagem_exposicao_minima_cotas_fi
+        description: Exposição mínima permitida pelo Regulamento para ativo do tipo
+          Cotas de FI 555
+      - name: porcentagem_exposicao_maxima_cotas_fi
+        description: Exposição máxima permitida pelo Regulamento para ativo do tipo
+          Cotas de FI 555
+      - name: porcentagem_exposicao_minima_cotas_fic
+        description: Exposição mínima permitida pelo Regulamento para ativo do tipo
+          Cotas de FIC 555
+      - name: porcentagem_exposicao_maxima_cotas_fic
+        description: Exposição mínima permitida pelo Regulamento para ativo do tipo
+          Cotas de FIC 555
+      - name: porcentagem_exposicao_minima_cotas_fi_qualificados
+        description: Exposição mínima permitida pelo Regulamento para ativo do tipo
+          Cotas de FI 555 para investidores qualificados
+      - name: porcentagem_exposicao_maxima_cotas_fi_qualificados
+        description: Exposição máxima permitida pelo Regulamento para ativo do tipo
+          Cotas de FI 555 para investidores qualificados
+      - name: porcentagem_exposicao_minima_cotas_fic_qualificados
+        description: Exposição mínima permitida pelo Regulamento para ativo do tipo
+          Cotas de FIC 555 para investidores qualificados
+      - name: porcentagem_exposicao_maxima_cotas_fic_qualificados
+        description: Exposição máxima permitida pelo Regulamento para ativo do tipo
+          Cotas de FIC 555 para investidores qualificados
+      - name: porcentagem_exposicao_minima_cotas_fi_profissionais
+        description: Exposição mínima permitida pelo Regulamento para ativo do tipo
+          Cotas de FI 555 para investidores profissionais
+      - name: porcentagem_exposicao_maxima_cotas_fi_profissionais
+        description: Exposição máxima permitida pelo Regulamento para ativo do tipo
+          Cotas de FI 555 para investidores profissionais
+      - name: porcentagem_exposicao_minima_cotas_fic_profissionais
+        description: Exposição mínima permitida pelo Regulamento para ativo do tipo
+          Cotas de FIC 555
+      - name: porcentagem_exposicao_maxima_cotas_fic_profissionais
+        description: "Exposição máxima permitida pelo Regulamento para ativo do tipo\
+          \ Cotas de FIC 555 para investidores profissionas\n"
+      - name: porcentagem_exposicao_minima_cotas_fii
+        description: Exposição mínima permitida pelo Regulamento para ativo do tipo
+          Cotas de FII
+      - name: porcentagem_exposicao_maxima_cotas_fii
+        description: Exposição máxima permitida pelo Regulamento para ativo do tipo
+          Cotas de FII
+      - name: porcentagem_exposicao_minima_cotas_fidc
+        description: Exposição mínima permitida pelo Regulamento para ativo do tipo
+          Cotas de FIDC
+      - name: porcentagem_exposicao_maxima_cotas_fidc
+        description: Exposição máxima permitida pelo Regulamento para ativo do tipo
+          Cotas de FIDC
+      - name: porcentagem_exposicao_minima_cotas_ficfidc
+        description: Exposição mínima permitida pelo Regulamento para ativo do tipo
+          Cotas de FICFIDC
+      - name: porcentagem_exposicao_maxima_cotas_ficfidc
+        description: Exposição máxima permitida pelo Regulamento para ativo do tipo
+          Cotas de FICFIDC
+      - name: porcentagem_exposicao_minima_cotas_fidic_np
+        description: Exposição mínima permitida pelo Regulamento para ativo do tipo
+          Cotas de FIDC-NP
+      - name: porcentagem_exposicao_maxima_cotas_fidic_np
+        description: Exposição máxima permitida pelo Regulamento para ativo do tipo
+          Cotas de FIDC-NP
+      - name: porcentagem_exposicao_minima_cotas_ficfidic_np
+        description: Exposição mínima permitida pelo Regulamento para ativo do tipo
+          Cotas de FICFIDC-NP
+      - name: porcentagem_exposicao_maxima_cotas_ficfidc_np
+        description: Exposição máxima permitida pelo Regulamento para ativo do tipo
+          Cotas de FICFIDC-NP
+      - name: porcentagem_exposicao_minima_cotas_etf
+        description: Exposição mínima permitida pelo Regulamento para ativo do tipo
+          Cotas de Fundos de Índice de Mercado - ETF
+      - name: porcentagem_exposicao_maxima_cotas_etf
+        description: Exposição máxima permitida pelo Regulamento para ativo do tipo
+          Cotas de Fundos de Índice de Mercado - ETF
+      - name: porcentagem_exposicao_minima_cota_cri
+        description: Exposição mínima permitida pelo Regulamento para ativo do tipo
+          CRI
+      - name: porcentagem_exposicao_maxima_cota_cri
+        description: Exposição máxima permitida pelo Regulamento para ativo do tipo
+          CRI
+      - name: porcentagem_exposicao_minima_titulos_publicos_operacoes_comprimessadas
+        description: Exposição mínima permitida pelo Regulamento para ativo do tipo
+          Títulos públicos e operações compromissadas lastreadas nestes títulos
+      - name: porcentagem_exposicao_maxima_titulos_publicos_operacoes_comprimessadas
+        description: Exposição máxima permitida pelo Regulamento para ativo do tipo
+          Títulos públicos e operações compromissadas lastreadas nestes títulos
+      - name: porcentagem_exposicao_minima_ouro
+        description: Exposição mínima permitida pelo Regulamento para ativo do tipo
+          Ouro
+      - name: porcentagem_exposicao_maxima_ouro
+        description: Exposição máxima permitida pelo Regulamento para ativo do tipo
+          Ouro
+      - name: porcentagem_exposicao_minima_titulos_instituicao_financeira_bacen
+        description: Exposição mínima permitida pelo Regulamento para ativo do tipo
+          Títulos de emissão ou coobrigação de instituição financeira autorizada a
+          funcionar pelo Banco Central do Brasil e operações compromissadas lastreadas
+          nestes títulos
+      - name: porcentagem_exposicao_maxima_titulos_instituicao_financeira_bacen
+        description: Exposição máxima permitida pelo Regulamento para ativo do tipo
+          Títulos de emissão ou coobrigação de instituição financeira autorizada a
+          funcionar pelo Banco Central do Brasil e operações compromissadas lastreadas
+          nestes títulos
+      - name: porcentagem_exposicao_minima_valores_mobiliarios
+        description: Exposição mínima permitida pelo Regulamento para ativo do tipo
+          Valores mobiliários previstos na alínea - d - do inciso III do art. 103
+          da ICVM 555
+      - name: porcentagem_exposicao_maxima_valores_mobiliarios
+        description: Exposição máxima permitida pelo Regulamento para ativo do tipo
+          Valores mobiliários previstos na alínea - d - do inciso III do art. 103
+          da ICVM 555
+      - name: porcentagem_exposicao_minima_acoes
+        description: Exposição mínima permitida pelo Regulamento para ativo do tipo
+          Ações ou Certificados de Depósito de Ações
+      - name: porcentagem_exposicao_maxima_acoes
+        description: Exposição máxima permitida pelo Regulamento para ativo do tipo
+          Ações ou Certificados de Depósito de Ações
+      - name: porcentagem_exposicao_minima_debenture
+        description: Exposição mínima permitida pelo Regulamento para ativo do tipo
+          Debêntures
+      - name: porcentagem_exposicao_maxima_debenture
+        description: Exposição máxima permitida pelo Regulamento para ativo do tipo
+          Debêntures
+      - name: porcentagem_exposicao_minima_notas_promissorias
+        description: Exposição mínima permitida pelo Regulamento para ativo do tipo
+          Notas promissórias
+      - name: porcentagem_exposicao_maxima_notas_promissorias
+        description: Exposição máxima permitida pelo Regulamento para ativo do tipo
+          Notas promissórias
+      - name: porcentagem_exposicao_minima_operacoes_compromissadas_titulos_credito_privado
+        description: Exposição mínima permitida pelo Regulamento para ativo do tipo
+          Operações compromissadas lastreadas em títulos de crédito privado
+      - name: porcentagem_exposicao_maxima_operacoes_compromissadas_titulos_credito_privado
+        description: Exposição máxima permitida pelo Regulamento para ativo do tipo
+          Operações compromissadas lastreadas em títulos de crédito privado
+      - name: porcentagem_exposicao_minima_derivativos
+        description: Exposição mínima permitida pelo Regulamento para ativo do tipo
+          Derivativos
+      - name: porcentagem_exposicao_maxima_derivativos
+        description: Exposição máxima permitida pelo Regulamento para ativo do tipo
+          Derivativos
+      - name: porcentagem_exposicao_minima_outros
+        description: Exposição mínima permitida pelo Regulamento para ativo do tipo
+          Outros - art. 103, I, j, ICVM 555
+      - name: porcentagem_exposicao_maxima_outros
+        description: Exposição máxima permitida pelo Regulamento para ativo do tipo
+          Outros - art. 103, I, j, ICVM 555
+      - name: porcentagem_exposicao_minima_cotas_fmiee
+        description: Exposição mínima permitida pelo Regulamento para ativo do tipo
+          Cotas de FMIEE - art. 109, §8º, ICVM 555
+      - name: porcentagem_exposicao_maxima_cotas_fmiee
+        description: Exposição máxima permitida pelo Regulamento para ativo do tipo
+          Cotas de FMIEE - art. 109, §8º, ICVM 555
+      - name: porcentagem_exposicao_minima_cotas_fip
+        description: Exposição mínima permitida pelo Regulamento para ativo do tipo
+          Cotas de FIP - art. 109, §8º, ICVM 555
+      - name: porcentagem_exposicao_maxima_cotas_fip
+        description: Exposição máxima permitida pelo Regulamento para ativo do tipo
+          Cotas de FIP - art. 109, §8º, ICVM 555
+      - name: porcentagem_exposicao_minima_cotas_ficfip
+        description: Exposição mínima permitida pelo Regulamento para ativo do tipo
+          Cotas de FICFIP - art. 109, §8º, ICVM 555
+      - name: porcentagem_exposicao_maxima_cotas_ficfip
+        description: Exposição máxima permitida pelo Regulamento para ativo do tipo
+          Cotas de FICFIP - art. 109, §8º, ICVM 555
+  - name: br_cvm_fi__documentos_informacao_cadastral
+    description: Dados cadastrais de fundos de investimento estruturados e não estruturados
+      (ICVM 555), tais como CNPJ, data de registro e situação do fundo.
+    columns:
+      - name: id_fundo
+        description: Tipo do Fundo
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
+      - name: cnpj
+        description: CNPJ do Fundo
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
+      - name: cnpj_basico
+        description: CNPJ Básico do Fundo
+      - name: denominacao_social
+        description: Denominação Social
+      - name: data_registro
+        description: Data de Registro
+      - name: data_constituicao
+        description: Data de constituição
+      - name: codigo_cvm
+        description: Código CVM
+      - name: data_cancelamento
+        description: Data de Cancelamento
+      - name: situacao
+        description: Situação
+      - name: data_inicio_situacao
+        description: Data início da situação
+      - name: data_inicio_atividade
+        description: Data de início de atividade
+      - name: data_inicio_exercicio
+        description: Data de início do exercício social
+      - name: data_fim_exercicio
+        description: Data fim do exercício social
+      - name: classe
+        description: Classe
+      - name: data_inicio_classe
+        description: Data de início na classe
+      - name: tipo_rentabilidade
+        description: Forma de rentabilidade do fundo - indicador de desempenho
+      - name: tipo_condominio
+        description: Forma de condomínio
+      - name: indicador_fundo_cotas
+        description: Indica se é fundo de cotas
+      - name: indicador_fundo_exclusivo
+        description: Indica se é fundo exclusivo
+      - name: indicador_tributacao_longo_prazo
+        description: Indica se possui tributação de longo prazo
+      - name: publico_alvo
+        description: Público-alvo
+      - name: indicador_entidade_investimento
+        description: Indica se o fundo é entidade de investimento
+      - name: taxa_perfomarnce
+        description: Taxa de performance
+      - name: informacoes_adicionais_taxa_performance
+        description: Informações Adicionais - Taxa de performance
+      - name: taxa_administracao
+        description: Taxa de administração
+      - name: informacoes_adicionais_taxa_administracao
+        description: Informações Adicionais - Taxa de administração
+      - name: valor_patrimonio_liquido
+        description: Valor do patrimônio líquido
+      - name: data_patrimonio_liquido
+        description: Data do patrimônio líquido
+      - name: nome_diretor
+        description: Nome do Diretor Responsável
+      - name: cnpj_administrador
+        description: CNPJ do Administrador
+      - name: cnpj_basico_administrador
+        description: CNPJ Básico do Administrador
+      - name: nome_administrador
+        description: Nome do Administrador
+      - name: indicador_pessoa_fisica_ou_juridica
+        description: Indica se o gestor é pessoa física ou jurídica
+      - name: cpf_cnpj_gestor
+        description: Informa o código de identificação do gestor pessoa física ou
+          jurídica
+      - name: nome_gestor
+        description: Nome do Gestor
+      - name: cnpj_auditor
+        description: CNPJ do Auditor
+      - name: cnpj_basico_auditor
+        description: CNPJ do Auditor
+      - name: nome_auditor
+        description: Nome do Auditor
+      - name: cnpj_custodiante
+        description: CNPJ do Custodiante
+      - name: cnpj_basico_custodiante
+        description: CNPJ Básico do Custodiante
+      - name: nome_custodiante
+        description: Nome do Custodiante
+      - name: cnpj_controlador
+        description: CNPJ do Controlador
+      - name: cnpj_basico_controlador
+        description: CNPJ Básico do Controlador
+      - name: nome_controlador
+        description: Nome do Controlador
+      - name: indicador_aplicacao_total_recursos_exterior
+        description: Indica se o fundo pode aplicar 100% dos recursos no exterior
+  - name: br_cvm_fi__documentos_informe_diario
+    description: O Informe Diário é um demonstrativo que contém as seguintes informações
+      do fundo, relativas à data de competência - Valor total da carteira do fundo;
+      Patrimônio líquido; Valor da cota; Captações realizadas no dia; Resgates pagos
+      no dia; Número de cotistas.
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
+      - name: mes
+        description: Mês
+      - name: id_fundo
+        description: Tipo do Fundo
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
+      - name: cnpj
+        description: CNPJ do Fundo
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
+      - name: data_competencia
+        description: Data de Competência
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
+      - name: valor_total
+        description: Valor total da carteira
+      - name: valor_cota
+        description: Valor da cota
+      - name: valor_patrimonio_liquido
+        description: Valor do patrimônio líquido
+      - name: captacao_dia
+        description: Captação do dia
+      - name: resgate_dia
+        description: Resgate no dia
+      - name: quantidade_cotistas
+        description: Número de cotistas
+  - name: br_cvm_fi__documentos_perfil_mensal
+    description: O conjunto de dados disponibiliza os perfis mensais referentes aos
+      Fundos de Investimento da ICVM 555, nos últimos doze meses, a partir de janeiro/2019.
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
+      - name: mes
+        description: Mês
+      - name: cnpj
+        description: CNPJ do fundo
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
+      - name: denominacao_social
+        description: Denominacao Social
+      - name: data_competencia
+        description: Data de competência do documento
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
+      - name: versao
+        description: Versão do documento
+      - name: quantidade_clientes_cotitstas_pessoa_fisica_private_banking
+        description: Número de clientes cotistas do tipo Pessoa Física Private Banking
+      - name: quantidade_clientes_cotitstas_pessoa_fisica_varejo
+        description: Tipo
+      - name: quantidade_clientes_cotistas_pessoa_juridica_nao_financeira_private_banking
+        description: Número de clientes cotistas do tipo Pessoa Jurídica Não-Financeira
+          Private Banking
+      - name: quantidade_clientes_cotistas_pessoa_juridica_nao_financeira_varejo
+        description: Número de clientes cotistas do tipo Pessoa Jurídica Não-Financeira
+          Varejo
+      - name: quantidade_clientes_cotitstas_banco_comercial
+        description: Número de clientes cotistas do tipo Banco Comercial
+      - name: quantidade_clientes_cotistas_corretora_distribuidora
+        description: Número de clientes cotistas do tipo Corretora ou Distribuidora
+      - name: quantidade_clientes_cotistas_outras_pessoas_juridicas_financeiras
+        description: Número de clientes cotistas do tipo Outras Pessoas Jurídicas
+          Financeiras
+      - name: quantidade_clientes_cotistas_investidores_nao_residentes
+        description: Número de clientes cotistas do tipo Investidores Não Residentes
+      - name: quantidade_clientes_cotistas_entidade_aberta_previdencia_complementar
+        description: Número de clientes cotistas do tipo Entidade Aberta de Previdência
+          Complementar
+      - name: quantidade_clientes_cotistas_entidade_fechada_previdencia_complementar
+        description: Número de clientes cotistas do tipo Entidade Fechada de Previdência
+          Complementar
+      - name: quantidade_clientes_cotistas_regime_proprio_previdencia_servidores_publicos
+        description: Número de clientes cotistas do tipo Regime Próprio de Previdência
+          dos Servidores Públicos
+      - name: quantidade_clientes_cotistas_sociedade_seguradora_resseguradora
+        description: Número de clientes cotistas do tipo Sociedade Seguradora ou Resseguradora
+      - name: quantidade_clientes_cotistas_sociedade_capitalizacao_arrendamento_mercantil
+        description: Número de clientes cotistas do tipo Sociedade de Capitalização
+          e de Arrendamento Mercantil
+      - name: quantidade_clientes_cotistas_fundos_clubes_investimento
+        description: Número de clientes cotistas do tipo Fundos e Clubes de Investimento
+      - name: quantidade_clientes_cotistas_distribuidores_fundo
+        description: Número de clientes cotistas de Distribuidores do Fundo
+      - name: quantidade_clientes_cotistas_outros_tipos
+        description: Número de clientes cotistas de outros tipos não relacionados
+      - name: porcentagem_patrimonio_liquido_detido_cotitstas_pessoa_fisica_private_banking
+        description: Percentual do Patrimônio Líquido do fundo detido por clientes
+          cotistas do tipo Pessoa Física Private Banking
+      - name: porcentagem_patrimonio_liquido_detido_cotitstas_pessoa_fisica_varejo
+        description: Percentual do Patrimônio Líquido do fundo detido por clientes
+          cotistas do tipo Pessoa Física Varejo
+      - name: porcentagem_patrimonio_liquido_detido_cotistas_pessoa_juridica_nao_financeira_private_banking
+        description: Percentual do Patrimônio Líquido do fundo detido por clientes
+          cotistas do tipo Pessoa Jurídica Não-Financeira Private Banking
+      - name: porcentagem_patrimonio_liquido_detido_cotistas_pessoa_juridica_nao_financeira_varejo
+        description: Percentual do Patrimônio Líquido do fundo detido por clientes
+          cotistas do tipo Pessoa Jurídica Não-Financeira Varejo
+      - name: porcentagem_patrimonio_liquido_detido_cotitstas_banco_comercial
+        description: Percentual do Patrimônio Líquido do fundo detido por clientes
+          cotistas do tipo Banco Comercial
+      - name: porcentagem_patrimonio_liquido_detido_cotistas_corretora_distribuidora
+        description: Percentual do Patrimônio Líquido do fundo detido por clientes
+          cotistas do tipo Corretora ou Distribuidora
+      - name: porcentagem_patrimonio_liquido_detido_cotistas_outras_pessoas_juridicas_financeiras
+        description: Percentual do Patrimônio Líquido do fundo detido por clientes
+          cotistas do tipo Outras Pessoas Jurídicas Financeiras
+      - name: porcentagem_patrimonio_liquido_detido_cotistas_investidores_nao_residentes
+        description: Percentual do Patrimônio Líquido do fundo detido por clientes
+          cotistas do tipo Investidores Não Residentes
+      - name: porcentagem_patrimonio_liquido_detido_cotistas_entidade_aberta_previdencia_complementar
+        description: Percentual do Patrimônio Líquido do fundo detido por clientes
+          cotistas do tipo Entidade Aberta de Previdência Complementar
+      - name: porcentagem_patrimonio_liquido_detido_cotistas_entidade_fechada_previdencia_complementar
+        description: Percentual do Patrimônio Líquido do fundo detido por clientes
+          cotistas do tipo Entidade Fechada de Previdência Complementar
+      - name: porcentagem_patrimonio_liquido_detido_cotistas_regime_proprio_previdencia_servidores_publicos
+        description: Percentual do Patrimônio Líquido do fundo detido por clientes
+          cotistas do tipo Regime Próprio de Previdência dos Servidores Públicos
+      - name: porcentagem_patrimonio_liquido_detido_cotistas_sociedade_seguradora_resseguradora
+        description: Percentual do Patrimônio Líquido do fundo detido por clientes
+          cotistas do tipo Sociedade Seguradora ou Resseguradora
+      - name: porcentagem_patrimonio_liquido_detido_cotistas_sociedade_capitalizacao_arrendamento_mercantil
+        description: Percentual do Patrimônio Líquido do fundo detido por clientes
+          cotistas do tipo Sociedade de Capitalização e de Arrendamento Mercantil
+      - name: porcentagem_patrimonio_liquido_cotistas_fundos_clubes_investimento
+        description: Percentual do Patrimônio Líquido do fundo detido por clientes
+          cotistas do tipo Fundos e Clubes de Investimento
+      - name: porcentagem_patrimonio_liquido_cotistas_distribuidores_fundo
+        description: Percentual do Patrimônio Líquido do fundo detido por clientes
+          cotistas de Distribuidores do Fundo
+      - name: porcentagem_patrimonio_liquido_cotistas_outros_tipos
+        description: Percentual do Patrimônio Líquido do fundo detido por clientes
+          cotistas de outros tipos não relacionados
+      - name: resumo_voto_adminstrador_assembleia
+        description: Resumo do teor dos votos proferidos pelo administrador ou por
+          seus representantes, nas assembleias gerais e especiais das companhias nas
+          quais o fundo detenha participação
+      - name: justificativa_voto_administrador_assembleia
+        description: Justificativa teor dos votos proferidos pelo administrador ou
+          por seus representantes, ou as razões sumárias para a sua abstenção ou não
+          comparecimento à assembleia geral
+      - name: porcentagem_valor_em_risco_carteria
+        description: VAR - Valor em Risco - da carteira, calculado para 21 dias úteis
+          e 95% de confiança - em % do PL
+      - name: tipo_modelos_valor_em_risco
+        description: Classe de modelos utilizada para o cálculo do VAR - Valor em
+          Risco
+      - name: prazo_carteira_titulos
+        description: Prazo médio em meses da carteira de títulos do fundo, no último
+          dia útil do mês de referência - em meses e de acordo com a metodologia regulamentada
+          pela SRF
+      - name: resumo_deliberacoes_aprovadas_assembleia
+        description: Resumo das principais deliberações aprovadas em assembleia geral
+          de cotistas
+      - name: valor_total_contrato_compra_dolar
+        description: Valor total dos contratos de compra de US$ liquidados no mês
+      - name: valor_total_contrato_venda_dolar
+        description: Valor total dos contratos de venda de US$ liquidados no mês
+      - name: porcentagem_variacao_diaria_valor_cota
+        description: Variação diária percentual esperada para o valor da cota do fundo
+          no cenário escolhido
+      - name: fator_primitivo_risco
+        description: Fator primitivo de risco IBOVESPA, JUROS-PRE, CUPOM CAMBIAL,
+          DOLAR, Outros
+      - name: cenario_fator_primitivo_risco_ibovespa
+        description: Cenário utilizado - Fator primitivo de risco IBOVESPA
+      - name: cenario_fator_primitivo_risco_juros
+        description: Cenário utilizado - Fator primitivo de risco JUROS
+      - name: cenario_fator_primitivo_cupom_cambial
+        description: Cenário utilizado - Fator primitivo de risco CUPOM CAMBIAL
+      - name: cenario_fator_primitivo_dolar
+        description: Cenário utilizado - Fator primitivo de risco DOLAR
+      - name: cenario_fator_primitivo_outros
+        description: Cenário utilizado - Fator primitivo de risco Outros
+      - name: porcentagem_variacao_diaria_cota_estresse
+        description: Variação diária percentual esperada para o valor da cota do fundo
+          no pior cenário de estresse definido pelo seu administrador
+      - name: porcentagem_variacao_diaria_patrimonio_liquido_taxa_anual_juros
+        description: Variação diária percentual esperada para o patrimônio do fundo
+          caso ocorra uma variação negativa de 1% na taxa anual de juros
+      - name: porcentagem_variacao_diaria_patrimonio_liquido_taxa_cambio
+        description: Variação diária percentual esperada para o patrimônio do fundo
+          caso ocorra uma variação negativa de 1% na taxa de cambio - US$/Real
+      - name: porcentagem_variacao_diaria_patrimonio_liquido_ibovespa
+        description: Variação diária percentual esperada para o patrimônio do fundo
+          caso ocorra uma variação negativa de 1% no preço das ações - IBOVESPA
+      - name: fator_risco_outros
+        description: Fator de risco dos outros tipos de fatores que não sejam juros,
+          câmbio ou bolsa
+      - name: porcentagem_variacao_diaria_patrimonio_liquido_outros
+        description: Variação diária percentual esperada para o patrimônio do fundo
+          caso ocorra uma variação negativa de 1% no principal fator de risco a que
+          o fundo está exposto, caso não seja juros, câmbio ou bolsa
+      - name: porcentagem_valor_colateral_garantia_derivativos
+        description: Valor do Colateral depositado como garantia dos contratos derivativos
+          de balcão mantidos pelo fundo - em % do PL
+      - name: fator_risco_nocional
+        description: Fator de risco nocional - IBOVESPA, JUROS-PRE, CUPOM CAMBIAL,
+          DOLAR, Outros
+      - name: valor_fator_risco_nocional_long_ibovespa
+        description: Valor do fator de risco nocional Long - Fator de risco nocional
+          IBOVESPA
+      - name: valor_fator_risco_nocional_long_juros
+        description: Valor do fator de risco nocional Long - Fator de risco nocional
+          JUROS
+      - name: valor_fator_risco_nocional_long_cupom
+        description: Valor do fator de risco nocional Long - Fator de risco nocional
+          CUPOM CAMBIAL
+      - name: valor_fator_risco_nocional_long_dolar
+        description: Valor do fator de risco nocional Long - Fator de risco nocional
+          DOLAR
+      - name: valor_fator_risco_nocional_long_outro
+        description: Valor do fator de risco nocional Long - Fator de risco nocional
+          Outros
+      - name: valor_fator_risco_nocional_short_ibovespa
+        description: Valor do fator de risco nocional Short - Fator de risco nocional
+          IBOVESPA
+      - name: valor_fator_risco_nocional_short_juros
+        description: Valor do fator de risco nocional Short - Fator de risco nocional
+          JUROS
+      - name: valor_fator_risco_nocional_short_cupom
+        description: Valor do fator de risco nocional Short - Fator de risco nocional
+          CUPOM CAMBIAL
+      - name: valor_fator_risco_nocional_short_dolar
+        description: Valor do fator de risco nocional Short - Fator de risco nocional
+          DOLAR
+      - name: valor_fator_risco_nocional_short_outro
+        description: Valor do fator de risco nocional Short - Fator de risco nocional
+          Outros
+      - name: tipo_pessoa_comitente_1
+        description: Tipo de pessoa do comitente
+      - name: cpf_cnpj_comitente_1
+        description: CNPJ do comitente
+      - name: indicador_comitente_relacionada_administrador_gestor_1
+        description: Indica se o comitente é parte relacionada ao administrador ou
+          gestor do fundo
+      - name: porcentagem_valor_parte_comitente_1
+        description: Valor da parte do comitente - em % do PL
+      - name: tipo_pessoa_comitente_2
+        description: Tipo de pessoa do comitente
+      - name: cpf_cnpj_comitente_2
+        description: CNPJ do comitente
+      - name: indicador_comitente_relacionada_administrador_gestor_2
+        description: Indica se o comitente é parte relacionada ao administrador ou
+          gestor do fundo
+      - name: porcentagem_valor_parte_comitente_2
+        description: Valor da parte do comitente - em % do PL
+      - name: tipo_pessoa_comitente_3
+        description: Tipo de pessoa do comitente
+      - name: cpf_cnpj_comitente_3
+        description: CNPJ do comitente
+      - name: indicador_comitente_relacionada_administrador_gestor_3
+        description: Indica se o comitente é parte relacionada ao administrador ou
+          gestor do fundo
+      - name: porcentagem_valor_parte_comitente_3
+        description: Valor da parte do comitente - em % do PL
+      - name: porcentagem_valor_total_ativos_emissao_partes_relacionadas
+        description: Valor total dos ativos de emissão de partes relacionadas em estoque
+          em % do PL
+      - name: tipo_pessoa_emissor_1
+        description: Tipo de pessoa do emissor
+      - name: cpf_cnpj_emissor_1
+        description: CNPJ do emissor
+      - name: indicador_emissor_relacionada_administrador_gestor_1
+        description: Indica se o emissor é parte relacionada ao administrador ou gestor
+          do fundo
+      - name: porcentagem_valor_parte_emissor_1
+        description: Valor da parte do emissor - em % do PL
+      - name: tipo_pessoa_emissor_2
+        description: Tipo de pessoa do emissor
+      - name: cpf_cnpj_emissor_2
+        description: CNPJ do emissor
+      - name: indicador_emissor_relacionada_administrador_gestor_2
+        description: Indica se o emissor é parte relacionada ao administrador ou gestor
+          do fundo
+      - name: porcentagem_valor_parte_emissor_2
+        description: Valor da parte do emissor - em % do PL
+      - name: tipo_pessoa_emissor_3
+        description: Tipo de pessoa do emissor
+      - name: cpf_cnpj_emissor_3
+        description: CNPJ do emissor
+      - name: indicador_emissor_relacionada_administrador_gestor_3
+        description: Indica se o emissor é parte relacionada ao administrador ou gestor
+          do fundo
+      - name: porcentagem_valor_parte_emissor_3
+        description: Valor da parte do emissor - em % do PL
+      - name: porcentagem_valor_total_ativos_credito_privado
+        description: Valor do total de ativos de crédito privado em estoque - em %
+          do PL
+      - name: indicador_vedada_cobranca_taxa_performance
+        description: Indica se é vedada no regulamento a cobrança de taxa de performance
+          quando o valor da cota do fundo for inferior ao seu valor por ocasião da
+          última cobrança efetuada
+      - name: data_cota_fundo_ultima_cobranca_taxa_performance
+        description: Data da cota de fundo quando da última cobrança de taxa de performance
+          efetuada
+      - name: valor_cota_fundo_ultima_cobranca_taxa_performance
+        description: Valor da cota de fundo quando da última cobrança de taxa de performance
+          efetuada
+      - name: valor_distribuido_direito_dividendos_juros_capital_proprio_outros
+        description: Montante distribuído diretamente aos clientes, referente a direitos
+          a dividendos, juros sobre capital próprio ou outros rendimentos
+      - name: quantidade_cotistas_entidade_previdencia_complementar
+        description: Número de cotistas de entidade de previdência complementar
+      - name: porcentagem_cotistas_entidade_previdencia_complementar
+        description: Percentual de Cotistas de Entidade de Previdência Complementar
+      - name: porcentagem_patrimonio_liquido_maior_cotista
+        description: Percentual patrimônio líquido do maior cotista
+      - name: quantidade_dias_cinquenta_percentual
+        description: Número de dias cinquenta percentual
+      - name: quantidade_dias_cem_percentual
+        description: Número de dias cem percentual
+      - name: indicador_liquidez
+        description: Indica liquidez
+      - name: porcentagem_patrimonio_liquido_convertido_caixa
+        description: Percentual patrimônio líquido convertido em caixa

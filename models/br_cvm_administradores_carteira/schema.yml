@@ -1,0 +1,80 @@
+---
+version: 2
+models:
+  - name: br_cvm_administradores_carteira__pessoa_fisica
+    description: Dados Cadastrais de Administradores de Carteira da CVM (Pessoa Física)
+    columns:
+      - name: nome
+        description: Nome
+      - name: data_registro
+        description: Data de registro
+      - name: data_cancelamento
+        description: Data de cancelamento
+      - name: motivo_cancelamento
+        description: Motivo de cancelamento
+      - name: situacao
+        description: Situação
+      - name: data_inicio_situacao
+        description: Data de início da situação
+      - name: categoria_registro
+        description: Categoria de registro
+  - name: br_cvm_administradores_carteira__pessoa_juridica
+    description: Dados Cadastrais de Administradores de Carteira da CVM (Pessoa Jurídica)
+    columns:
+      - name: cnpj
+        description: Cadastro Nacional de Pessoas Jurídicas (CNPJ)
+      - name: denominacao_social
+        description: Denominação social
+      - name: denominacao_comercial
+        description: Denominação comercial
+      - name: data_registro
+        description: Data de registro
+      - name: data_cancelamento
+        description: Data de cancelamento
+      - name: motivo_cancelamento
+        description: Motivo de cancelamento
+      - name: situacao
+        description: Situação
+      - name: data_inicio_situacao
+        description: Data de início da situação
+      - name: categoria_registro
+        description: Categoria de registro
+      - name: subcategoria_registro
+        description: Subcategoria de registro
+      - name: controle_acionario
+        description: Controle acionário
+      - name: tipo_endereco
+        description: Tipo de endereço
+      - name: logradouro
+        description: Logradouro
+      - name: complemento
+        description: Complemento
+      - name: bairro
+        description: Bairro
+      - name: municipio
+        description: Município
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+      - name: cep
+        description: CEP
+      - name: ddd
+        description: Código DDD
+      - name: telefone
+        description: Telefone
+      - name: valor_patrimonial_liquido
+        description: Valor Patrimonial Líquido
+      - name: data_patrimonio_liquido
+        description: Data Patrimônio Líquido
+      - name: email
+        description: Email
+      - name: website
+        description: Website
+  - name: br_cvm_administradores_carteira__responsavel
+    description: Dados Cadastrais de Administradores de Carteira da CVM.
+    columns:
+      - name: cnpj
+        description: Cadastro Nacional de Pessoas Jurídicas (CNPJ)
+      - name: nome
+        description: Nome
+      - name: tipo
+        description: Tipo

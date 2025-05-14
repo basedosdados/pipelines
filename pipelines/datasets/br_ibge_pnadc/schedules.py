@@ -21,7 +21,7 @@ every_day = Schedule(
             parameter_defaults={
                 "dataset_id": "br_ibge_pnadc",
                 "table_id": "microdados",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,

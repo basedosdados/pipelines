@@ -17,7 +17,7 @@ every_day_microdados_governo_federal = Schedule(
             parameter_defaults={
                 "dataset_id": "br_cgu_cartao_pagamento",
                 "table_id": "microdados_governo_federal",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "historical_data": False,
@@ -38,7 +38,7 @@ every_day_microdados_defesa_civil = Schedule(
             parameter_defaults={
                 "dataset_id": "br_cgu_cartao_pagamento",
                 "table_id": "microdados_defesa_civil",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "historical_data": False,
@@ -59,7 +59,7 @@ every_day_microdados_compras_centralizadas = Schedule(
             parameter_defaults={
                 "dataset_id": "br_cgu_cartao_pagamento",
                 "table_id": "microdados_compras_centralizadas",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "historical_data": False,

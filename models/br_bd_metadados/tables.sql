@@ -1,0 +1,21 @@
+select
+    safe_cast(dataset_id as string) dataset_id,
+    safe_cast(dataset_name as string) dataset_name,
+    safe_cast(id as string) id,
+    safe_cast(name as string) name,
+    safe_cast(date_created as date) date_created,
+    safe_cast(date_last_modified as date) date_last_modified,
+    safe_cast(spatial_coverage as string) spatial_coverage,
+    safe_cast(temporal_coverage as string) temporal_coverage,
+    safe_cast(update_frequency as string) update_frequency,
+    safe_cast(observation_level as string) observation_level,
+    safe_cast(number_rows as int64) number_rows,
+    safe_cast(number_columns as int64) number_columns,
+    safe_cast(outdated as int64) outdated,
+    safe_cast(metadata as date) metadata,
+    safe_cast(data as date) data,
+    safe_cast(release as date) release,
+    safe_cast(published_by as string) published_by,
+    safe_cast(cleaned_by as string) cleaned_by,
+    safe_cast(missing_metadata as string) missing_metadata
+from {{ set_datalake_project("br_bd_metadados_staging.tables") }} as t

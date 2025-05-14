@@ -22,7 +22,7 @@ every_month_inmet = Schedule(
             parameter_defaults={
                 "dataset_id": "br_inmet_bdmep",
                 "table_id": "microdados",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "year": int(d.strftime("%Y")),

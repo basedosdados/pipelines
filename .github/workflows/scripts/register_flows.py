@@ -479,18 +479,55 @@ def get_affected_flows(fpath: str = None):
     flow_files = set()
     for fname in fnames:
         flow_file = Path(fname).parent / "flows.py"
+        print(f"{flow_file=}")
         if flow_file.exists():
             flow_files.add(flow_file)
     declared_flows = []
     for flow_file in flow_files:
         declared_flows.extend(get_declared(flow_file))
+    print(f"{declared_flows=}")
     flows = []
     for flow in declared_flows:
         try:
             flows.append(eval(flow))
-        except Exception:
-            logger.warning(f"Could not evaluate {flow}")
+        except Exception as e:
+            logger.warning(f"Could not evaluate {flow}: {e}")
     return flows
+
+
+def has_dbt_related_files_changed(files: list[str]) -> bool:
+    result = False
+
+    for file in files:
+        if file.endswith("schema.yml"):
+            result = True
+            break
+
+        if file == "profiles.yml":
+            result = True
+            break
+
+        if file == "dbt_project.yml":
+            result = True
+            break
+
+        if file == "packages.yml":
+            result = True
+            break
+
+        if file.startswith("models") and file.endswith(".sql"):
+            result = True
+            break
+
+        if file.startswith("test-dbt") and file.endswith(".sql"):
+            result = True
+            break
+
+        if file.startswith("macros") and file.endswith(".sql"):
+            result = True
+            break
+
+    return result
 
 
 @app.command(name="register", help="Register a flow")
@@ -501,6 +538,7 @@ def main(
     retry_interval: int = 5,
     schedule: bool = True,
     filter_affected_flows: bool = False,
+    modified_files: str | None = None,
 ) -> None:
     """
     A helper for registering Prefect flows. The original implementation does not
@@ -520,7 +558,7 @@ def main(
     paths = expand_paths([path])
 
     # Gets the project ID
-    client = prefect.Client()
+    client = prefect.Client()  # type: ignore
     project_id = get_project_id(client, project)
 
     # Collects flows from paths
@@ -536,6 +574,37 @@ def main(
                 if flow in affected_flows:
                     filtered_flows.append(flow)
             source_to_flows[key] = filtered_flows
+
+    # Force registration of flow execute_dbt_model if some dbt related files is changed
+    flow_execute_dbt_model_changed = (
+        len(
+            [
+                flows
+                for flows in source_to_flows.values()
+                for flow in flows
+                if flow.name == "BD template: Executa DBT model"
+            ]
+        )
+        > 0
+    )
+    dbt_related_files_has_modified = (
+        has_dbt_related_files_changed(modified_files.split(" "))
+        if modified_files is not None
+        else False
+    )
+
+    if not flow_execute_dbt_model_changed and dbt_related_files_has_modified:
+        logger.warning(
+            "Registering 'BD template: Executa DBT model' because dbt related files is changed",
+        )
+        execute_dbt_model_flow = (
+            Path("pipelines") / "utils" / "execute_dbt_model" / "flows.py"
+        )
+        eval_execute_dbt_model = [
+            eval(e) for e in get_declared(execute_dbt_model_flow)
+        ]
+        for key in source_to_flows.keys():
+            source_to_flows[key] = eval_execute_dbt_model
 
     # Iterate through each file, building all storage and registering all flows
     # Log errors as they happen, but only exit once all files have been processed

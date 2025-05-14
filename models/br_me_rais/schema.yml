@@ -1,0 +1,392 @@
+---
+version: 2
+models:
+  - name: br_me_rais__dicionario
+    description: Dicionário para tradução dos códigos do conjunto br_me_rais. Para
+      taduzir códigos compartilhados entre instituições, como id_municipio, buscar
+      por diretórios
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_tabela
+            - nome_coluna
+            - chave
+            - cobertura_temporal
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_tabela
+        description: ID Tabela
+      - name: nome_coluna
+        description: Nome da coluna
+      - name: chave
+        description: Chave
+      - name: cobertura_temporal
+        description: Cobertura Temporal
+      - name: valor
+        description: Valor
+  - name: br_me_rais__microdados_vinculos
+    description: Microdados públicos dos vínculos de emprego na RAIS. Base desidentificada,
+      isto é, que não inclui identificadores únicos de linha. Cada linha representa
+      um vínculo - por isso indicamos este como nível de observação mesmo que não
+      conste como coluna.
+    tests:
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - tipo_vinculo
+            - vinculo_ativo_3112
+            - tipo_admissao
+            - motivo_desligamento
+            - causa_desligamento_1
+            - causa_desligamento_2
+            - causa_desligamento_3
+            - faixa_tempo_emprego
+            - faixa_horas_contratadas
+            - indicador_cei_vinculado
+            - indicador_trabalho_parcial
+            - indicador_trabalho_intermitente
+            - faixa_remuneracao_media_sm
+            - faixa_remuneracao_dezembro_sm
+            - tipo_salario
+            - faixa_etaria
+            - grau_instrucao_1985_2005
+            - grau_instrucao_apos_2005
+            - nacionalidade
+            - sexo
+            - raca_cor
+            - indicador_portador_deficiencia
+            - tipo_deficiencia
+            - subsetor_ibge
+            - tamanho_estabelecimento
+            - tipo_estabelecimento
+            - indicador_simples
+            - bairros_sp
+            - distritos_sp
+            - bairros_fortaleza
+            - bairros_rj
+            - regioes_administrativas_df
+          dictionary_model: ref('br_me_rais__dicionario')
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - custom_relationships:
+              tags: [uf]
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              ignore_values: [IGNORADO]
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: tipo_vinculo
+        description: Tipo do Vínculo
+      - name: vinculo_ativo_3112
+        description: Vínculo Ativo no dia 31/12
+      - name: tipo_admissao
+        description: Tipo da Admissão
+      - name: mes_admissao
+        description: Mês de Admissão
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: mes_desligamento
+        description: Mês de Desligamento
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: motivo_desligamento
+        description: Motivo do Desligamento
+      - name: causa_desligamento_1
+        description: Causa 1 do Desligamento
+      - name: causa_desligamento_2
+        description: Causa 2 do Desligamento
+      - name: causa_desligamento_3
+        description: Causa 3 do Desligamento
+      - name: faixa_tempo_emprego
+        description: Faixa Tempo Emprego
+      - name: tempo_emprego
+        description: Tempo Emprego
+      - name: faixa_horas_contratadas
+        description: Faixa Horas Contratadas
+      - name: quantidade_horas_contratadas
+        description: Quantidade de Horas Contratadas
+      - name: id_municipio_trabalho
+        description: ID Município de Trabalho
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: quantidade_dias_afastamento
+        description: Quantidade de Dias sob Afastamento
+      - name: indicador_cei_vinculado
+        description: Indicador CEI Vinculado
+      - name: indicador_trabalho_parcial
+        description: Indicador Trabalho Parcial
+      - name: indicador_trabalho_intermitente
+        description: Indicador Trabalho Intermitente
+      - name: faixa_remuneracao_media_sm
+        description: Faixa Remuneração Média (Salários Mínimos)
+      - name: valor_remuneracao_media_sm
+        description: Valor da Remuneração Média (Salários Mínimos)
+      - name: valor_remuneracao_media
+        description: Valor da Remuneração Média (Nominal)
+      - name: faixa_remuneracao_dezembro_sm
+        description: Faixa Remuneração em Dezembro (Salários Mínimos)
+      - name: valor_remuneracao_dezembro_sm
+        description: Valor da Remuneração em Dezembro (Salários Mínimos)
+      - name: valor_remuneracao_janeiro
+        description: Valor da Remuneração em Janeiro (Nominal)
+      - name: valor_remuneracao_fevereiro
+        description: Valor da Remuneração em Fevereiro (Nominal)
+      - name: valor_remuneracao_marco
+        description: Valor da Remuneração em Março (Nominal)
+      - name: valor_remuneracao_abril
+        description: Valor da Remuneração em Abril (Nominal)
+      - name: valor_remuneracao_maio
+        description: Valor da Remuneração em Maio (Nominal)
+      - name: valor_remuneracao_junho
+        description: Valor da Remuneração em Junho (Nominal)
+      - name: valor_remuneracao_julho
+        description: Valor da Remuneração em Julho (Nominal)
+      - name: valor_remuneracao_agosto
+        description: Valor da Remuneração em Agosto (Nominal)
+      - name: valor_remuneracao_setembro
+        description: Valor da Remuneração em Setembro (Nominal)
+      - name: valor_remuneracao_outubro
+        description: Valor da Remuneração em Outubro (Nominal)
+      - name: valor_remuneracao_novembro
+        description: Valor da Remuneração em Novembro (Nominal)
+      - name: valor_remuneracao_dezembro
+        description: Valor da Remuneração em Dezembro (Nominal)
+      - name: tipo_salario
+        description: Tipo do Salário
+      - name: valor_salario_contratual
+        description: Valor Contratual do Salário
+      - name: cbo_1994
+        description: Classificação Brasileira de Ocupações (CBO) 1994
+      - name: cbo_2002
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__cbo_2002')
+              field: cbo_2002.cbo_2002
+              ignore_values:  # Não constam aqui: extension://efaidnbmnnnibpcajpcglclefindmkaj/https://portalfat.mte.gov.br/wp-content/uploads/2016/04/CBO2002_Liv3.pdf
+                - '261725'
+                - '782721'
+                - '223162'
+                - '314605'
+                - '516140'
+                - '999999'
+                - '322310'
+                - '991416'
+                - '842305'
+                - '223610'
+                - '342525'
+                - '{ñ cla'
+                - '722225'
+        description: Classificação Brasileira de Ocupações (CBO) 2002
+      - name: faixa_etaria
+        description: Faixa Etária
+      - name: idade
+        description: Idade
+      - name: grau_instrucao_1985_2005
+        description: Grau de Instrução 1985-2005
+      - name: grau_instrucao_apos_2005
+        description: Grau de Instrução Após 2005
+      - name: nacionalidade
+        description: Nacionalidade
+      - name: sexo
+        description: Sexo do Trabalhador
+      - name: raca_cor
+        description: Raça ou Cor
+      - name: indicador_portador_deficiencia
+        description: Indicador de Portador de Deficiência
+      - name: tipo_deficiencia
+        description: Tipo da Deficiência
+      - name: ano_chegada_brasil
+        description: Ano de Chegada no Brasil
+      - name: subatividade_ibge
+        description: Subatividade - IBGE
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__subatividade_ibge')
+              field: id_subatividade
+      - name: subsetor_ibge
+        description: Subsetor - IBGE
+      - name: cnae_1
+        description: Classificação Nacional de Atividades Econômicas (CNAE) 1.0
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__cnae_1')
+              field: cnae_1.cnae_1
+              ignore_values: ['22292']
+      - name: cnae_2
+        description: Classificação Nacional de Atividades Econômicas (CNAE) 2.0
+      - name: cnae_2_subclasse
+        description: Classificação Nacional de Atividades Econômicas (CNAE) 2.0 Subclasse
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__cnae_2_subclasse')
+              field: cnae_2_subclasse.cnae_2_subclasse
+      - name: tamanho_estabelecimento
+        description: Tamanho do Estabelecimento
+      - name: tipo_estabelecimento
+        description: Tipo do Estabelecimento
+      - name: natureza_juridica
+        description: Natureza Jurídica
+      - name: indicador_simples
+        description: Indicador do Simples
+      - name: bairros_sp
+        description: Bairros em São Paulo
+      - name: distritos_sp
+        description: Distritos em São Paulo
+      - name: bairros_fortaleza
+        description: Bairros em Fortaleza
+      - name: bairros_rj
+        description: Bairros no Rio de Janeiro
+      - name: regioes_administrativas_df
+        description: Regiões Administrativas no Distrito Federal
+  - name: br_me_rais__microdados_estabelecimentos
+    description: Microdados de estabelecimentos da RAIS.
+    tests:  # A coluna natureza_estabelecimento é referente apenas ao ano de 1994, por isso, há poucas linhas preenchidas.
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - bairros_rj
+            - distritos_sp
+            - subsetor_ibge
+            - bairros_fortaleza
+            - indicador_simples
+            - regioes_administrativas_df
+            - tamanho_estabelecimento
+            - tipo_estabelecimento
+            - natureza_estabelecimento
+          dictionary_model: ref('br_me_rais__dicionario')
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              ignore_values: [IGNORADO]
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: quantidade_vinculos_ativos
+        description: Estoque de vínculos ativos em 31/12.
+      - name: quantidade_vinculos_clt
+        description: Estoque de vínculos, sob o regime CLT e Outros, ativos em 31/12
+      - name: quantidade_vinculos_estatutarios
+        description: Estoque de vínculos, sob o regime estatutário, ativos em 31/12
+      - name: natureza_estabelecimento
+        description: Natureza do Estabelecimento
+      - name: natureza_juridica
+        description: Natureza jurídica (CONCLA/2002)
+      - name: tamanho_estabelecimento
+        description: Tamanho - empregados ativos em 31/12.
+      - name: tipo_estabelecimento
+        description: Tipo do Estabelecimento
+      - name: indicador_cei_vinculado
+        description: Indicador CEI Vinculado
+      - name: indicador_pat
+        description: Indicador de estabelecimento pertencente ao PAT.
+      - name: indicador_simples
+        description: Indicador de optante pelo SIMPLES.
+      - name: indicador_rais_negativa
+        description: Indicador de RAIS negativa.
+      - name: indicador_atividade_ano
+        description: Indicador de estabelecimento/entidade que exerceu atividade durante
+          o ano de referência.
+      - name: cnae_1
+        description: Código Nacional de Atividades Econômicas 1.0
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__cnae_1')
+              field: cnae_1.cnae_1
+              ignore_values:  # cnae desativada : http://pdet.mte.gov.br/o-programa/tabelas-de-classificacao/nivel-setorial/atualizacoes-realizadas-cnae-95-cnae-1-0
+                - '0000'
+                - '22292'
+                - '22128'
+                - '-1'
+                - '80217'
+                - 000-1
+                - '52612'
+                - '27219'
+                - '27227'
+                - '80225'
+                - '23205'
+                - '45241'
+                - '80128'
+                - '22136'
+                - '72206'
+                - '45519'
+                - '80950'
+                - '45349'
+                - '{ñ cl'
+                - '22110'
+                - '51632'
+                - '45594'
+                - '80942'
+                - '80934'
+                - '45322'
+                - '27111'
+                - '51624'
+                - '45527'
+                - '80926'
+                - '27120'
+                - '22330'
+                - '55123'
+                - '55115'
+                - '80918'
+                - '27294'
+                - '80110'
+                - '40100'
+                - '80306'
+      - name: cnae_2
+        description: Código Nacional de Atividades Econômicas 2.
+      - name: cnae_2_subclasse
+        description: Subclasse do Código Nacional de Atividades Econômicas 2.0
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__cnae_2')
+              field: subclasse
+              ignore_values: ['9999997', 00000-1, '8630505', '3312101', '9999999']  # cnae excluídas: https://www.lefisc.com.br/dim/plantoes/22-07-2020/Decreto10410.htm
+      - name: subsetor_ibge
+        description: Subsetor IBGE
+      - name: subatividade_ibge
+        description: Subatividade IBGE
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__subatividade_ibge')
+              field: id_subatividade
+      - name: cep
+        description: Código de Endereçamento Postal
+      - name: bairros_sp
+        description: Bairros do Municipio de São Paulo
+      - name: distritos_sp
+        description: Distritos do município de São Paulo
+      - name: bairros_fortaleza
+        description: Bairros do município de Fortaleza
+      - name: bairros_rj
+        description: Bairros do município do Rio de Janeiro
+      - name: regioes_administrativas_df
+        description: Regiões Administrativas do Distrito Federal

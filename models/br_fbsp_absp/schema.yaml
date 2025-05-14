@@ -1,0 +1,87 @@
+---
+version: 2
+models:
+  - name: br_fbsp_absp__uf
+    description: A base contempla as informações do Anuário de Segurança Pública a
+      partir de 2007 com as estatísticas criminais compatibilizadas entre anos, com
+      informações acerca dos homicídios, tráfico, furto e roubo, além da força policial,
+      entre outros ao nível das unidades da federação.
+    columns:
+      - name: ano
+        description: Ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+      - name: quantidade_cvli
+        description: Quantidade de Crimes violentos letais intencionais (CVLI)
+      - name: quantidade_feminicidio
+        description: Quantidade de Feminicídios
+      - name: quantidade_ocorrencia_homicidio_doloso
+        description: Quantidade de Homicídio doloso - N° ocorrências
+      - name: quantidade_vitima_homicidio_doloso
+        description: Quantidade de Homicídio doloso - N° vítimas
+      - name: quantidade_latrocinio
+        description: Quantidade de Latrocínio
+      - name: quantidade_lesao_corporal_seguida_de_morte
+        description: Quantidade de Lesão corporal seguida de morte
+      - name: quantidade_morte_a_esclarecer
+        description: Quantidade de Mortes a esclarecer
+      - name: quantidade_morte_intervencao_policial_civil_servico
+        description: Quantidade de Mortes decorrentes de intervenções de Policiais
+          Civis em servico
+      - name: quantidade_morte_intervencao_policial_civil_fora_servico
+        description: Quantidade de Mortes decorrentes de intervenções de Policiais
+          Civis fora de servico
+      - name: quantidade_morte_intervencao_policial_militar_servico
+        description: Quantidade de Mortes decorrentes de intervenções de Policiais
+          Militares em servico
+      - name: quantidade_morte_intervencao_policial_militar_fora_servico
+        description: Quantidade de Mortes decorrentes de intervenções de Policiais
+          Militares fora de servico
+      - name: quantidade_morte_violenta_intencional
+        description: Quantidade de Mortes Violentas Intencionais
+      - name: quantidade_policial_civil_morto_confronto_servico
+        description: Quantidade de Policiais Civis mortos em confronto em servico
+      - name: quantidade_policial_civil_morto_confronto_fora_servico
+        description: Quantidade de Policiais Civis mortos em confronto ou por lesão
+          não natural fora de servico
+      - name: quantidade_policial_militar_morto_confronto_servico
+        description: Quantidade de Policiais Militares mortos em confronto em servico
+      - name: quantidade_policial_militar_morto_confronto_fora_servico
+        description: Quantidade de Policiais Militares mortos em confronto ou por
+          lesão não natural fora de servico
+      - name: quantidade_suicidio
+        description: Quantidade de Suicídio
+      - name: quantidade_estupro
+        description: Quantidade de Estupro (incluindo Estupro de Vulnerável)
+      - name: quantidade_tentativa_estupro
+        description: Quantidade de Tentativa de estupro
+      - name: quantidade_furto_veiculo
+        description: Quantidade de Furto de veículo
+      - name: quantidade_roubo_instituicao_financeira
+        description: Quantidade de Roubo a instituição financeira
+      - name: quantidade_roubo_carga
+        description: Quantidade de Roubo de carga
+      - name: quantidade_roubo_de_veiculo
+        description: Quantidade de Roubo de veículo
+      - name: quantidade_arma_fogo_apreendida
+        description: Quantidade de Armas de fogo apreendidas
+      - name: quantidade_registro_pessoa_desaparecida
+        description: Quantidade de Registros de pessoas desaparecidas
+      - name: quantidade_populacao_sistema_penitenciario
+        description: Quantidade de População do sistema penitenciário
+      - name: despesa_empenhada_seguranca_publica
+        description: Quantidade de Despesas empenhadas na Função Segurança Pública
+  - name: br_fbsp_absp__violencia_escola
+    description: Tabela com indicadores que auxiliam entender o cenário de violência
+      nas escolas
+    columns:
+      - name: ano
+        description: Ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+      - name: tema
+        description: Tema da pesquisa
+      - name: item
+        description: Item referente ao tema da pesquisa
+      - name: quantidade_escola
+        description: Quantidade de escolas que aderiram a resposta

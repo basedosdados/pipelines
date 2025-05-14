@@ -1,0 +1,253 @@
+---
+version: 2
+models:
+  - name: br_rf_cno__vinculos
+    description: Esta tabela apresenta o cadastro de vínculos relacionados a uma determinada
+      obra.
+    tests:
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [qualificacao_contribuinte]
+          dictionary_model: ref('br_rf_cno__dicionario')
+          config:
+            where: __most_recent_date_cno__
+    columns:
+      - name: data_extracao
+        description: Data de extração dos dados na fonte original
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+              config:
+                where: __most_recent_date_cno__
+      - name: data_registro
+        description: Data de registro da obra
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+              config:
+                where: __most_recent_date_cno__
+      - name: data_inicio
+        description: Data de início do vínculo
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+              config:
+                where: __most_recent_date_cno__
+      - name: data_fim
+        description: Data de fim do vínculo
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+              config:
+                where: __most_recent_date_cno__
+      - name: id_cno
+        description: ID da obra no Cadastro Nacional de Obras (CNO)
+      - name: id_responsavel
+        description: ID  (CNPJ/CPF) do responsável pela obra - se for CPF o campo
+          virá em branco.
+      - name: qualificacao_contribuinte
+        description: Qualificação do contribuinte
+  - name: br_rf_cno__areas
+    description: Esta tabela apresenta especificações da obra relacionada a uma determinada
+      obra.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_cno]
+          config:
+            where: __most_recent_date_cno__
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - categoria
+            - destinacao
+            - tipo_obra
+            - tipo_area
+            - tipo_area_complementar
+          dictionary_model: ref('br_rf_cno__dicionario')
+          config:
+            where: __most_recent_date_cno__
+    columns:
+      - name: data_extracao
+        description: Data de extração dos dados na fonte original
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+              config:
+                where: __most_recent_date_cno__
+      - name: id_cno
+        description: ID da obra no Cadastro Nacional de Obras (CNO)
+      - name: categoria
+        description: Categoria da obra
+      - name: destinacao
+        description: Destinação da obra
+      - name: tipo_obra
+        description: Tipo de Obra
+      - name: tipo_area
+        description: Tipo de Área
+      - name: tipo_area_complementar
+        description: Tipo de Área Complementar
+      - name: metragem
+        description: Metragem da Área
+  - name: br_rf_cno__cnaes
+    description: Esta tabela apresenta a subclasse do Código Nacional de Atividades
+      Econômicas (CNAE) relacionado a uma determinada obra.
+    columns:
+      - name: data_extracao
+        description: Data de extração dos dados na fonte original
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+              config:
+                where: __most_recent_date_cno__
+      - name: data_registro
+        description: Data de registro
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+              config:
+                where: __most_recent_date_cno__
+      - name: id_cno
+        description: ID da obra no Cadastro Nacional de Obras (CNO)
+      - name: cnae_2_subclasse
+        description: Código de 7 dígitos da Subclasse da Classificação Nacional de
+          Atividades Econômicas (CNAE)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__cnae_2')
+              field: subclasse
+              config:
+                where: __most_recent_date_cno__
+  - name: br_rf_cno__microdados
+    description: Esta é a tabela cadastral básica do Cadastro Nacional de Obras (CNO).
+      Nela são informadas as informações básicas das obras registradas no CNO.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_cno]
+          config:
+            where: __most_recent_date_cno__
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [situacao, qualificacao_responsavel]
+          dictionary_model: ref('br_rf_cno__dicionario')
+          config:
+            where: __most_recent_date_cno__
+    columns:
+      - name: data_extracao
+        description: Data de extração dos dados na fonte original
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+              config:
+                where: __most_recent_date_cno__
+      - name: data_situacao
+        description: Data da situação da obra
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+              config:
+                where: __most_recent_date_cno__
+      - name: data_registro
+        description: Data de registro
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+              config:
+                where: __most_recent_date_cno__
+      - name: data_inicio
+        description: Data de início da obra
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+              config:
+                where: __most_recent_date_cno__
+      - name: data_inicio_responsabilidade
+        description: Data de início do período de responsabilidade da obra
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+              config:
+                where: __most_recent_date_cno__
+      - name: id_pais
+        description: ID País
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              config:
+                where: __most_recent_date_cno__
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+              config:
+                where: __most_recent_date_cno__
+      - name: id_cno
+        description: ID da obra no Cadastro Nacional de Obras (CNO)
+      - name: id_cno_vinculado
+        description: ID de inscrição vinculada a obra no Cadastro Nacional de Obras
+          (CNO)
+      - name: situacao
+        description: Situação da obra
+      - name: id_responsavel
+        description: ID  (CNPJ/CPF) do responsável pela obra - se for CPF o campo
+          virá em branco
+      - name: nome_responsavel
+        description: Nome do responsável
+      - name: qualificacao_responsavel
+        description: Qualificação do responsável
+      - name: nome_empresarial
+        description: Nome empresarial do responsável pela obra (Se responsável pessoa
+          física, o campo virá em branco)
+      - name: area
+        description: Valor da área total
+      - name: unidade_medida
+        description: Unidade de medida
+      - name: bairro
+        description: Bairro
+      - name: cep
+        description: Número do CEP
+      - name: logradouro
+        description: Logradouro
+      - name: tipo_logradouro
+        description: Tipo de logradouro
+      - name: numero_logradouro
+        description: Número do logradouro
+      - name: complemento
+        description: Complemento do endereço
+      - name: caixa_postal
+        description: Caixa postal no exterior
+  - name: br_rf_cno__dicionario
+    description: Dicionário para tradução dos códigos do conjunto br_rf_cno. Para
+      traduzir códigos compartilhados entre instituições, como id_municipio, buscar
+      por diretórios
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_tabela
+            - nome_coluna
+            - chave
+            - cobertura_temporal
+    columns:
+      - name: id_tabela
+        description: ID Tabela
+      - name: nome_coluna
+        description: Nome da coluna
+      - name: chave
+        description: Chave
+      - name: cobertura_temporal
+        description: Cobertura Temporal
+      - name: valor
+        description: Valor

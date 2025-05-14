@@ -1,0 +1,244 @@
+---
+version: 2
+models:
+  - name: br_me_comex_stat__municipio_exportacao
+    description: Base de dados detalhada por município da empresa exportadora e Posição
+      do Sistema Harmonizado (SH4)
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - mes
+            - id_sh4
+            - id_pais
+            - sigla_uf
+            - id_municipio
+    columns:
+      - name: ano
+        description: Ano
+      - name: mes
+        description: Mês
+      - name: id_sh4
+        description: ID Sistema Harmonizado
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__sistema_harmonizado')
+              field: id_sh4
+              config:
+                where: __most_recent_year_month__
+      - name: id_pais
+        description: ID do País
+      - name: sigla_pais_iso3
+        description: Sigla ISO3 do País
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__municipio')
+              field: sigla_pais_iso3
+              config:
+                where: __most_recent_year_month__
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+              config:
+                where: __most_recent_year_month__
+      - name: peso_liquido_kg
+        description: Peso Líquido
+      - name: valor_fob_dolar
+        description: Valor Livre a Bordo
+  - name: br_me_comex_stat__municipio_importacao
+    description: Base de dados detalhada por município da empresa importadora e Posição
+      do Sistema Harmonizado (SH4)
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - mes
+            - id_sh4
+            - id_pais
+            - sigla_uf
+            - id_municipio
+          config:
+            where: __most_recent_year_month__
+    columns:
+      - name: ano
+        description: Ano
+      - name: mes
+        description: Mês
+      - name: id_sh4
+        description: ID Sistema Harmonizado
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__sistema_harmonizado')
+              field: id_sh4
+              config:
+                where: __most_recent_year_month__
+      - name: id_pais
+        description: ID do País
+      - name: sigla_pais_iso3
+        description: Sigla ISO3 do País
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__municipio')
+              field: sigla_pais_iso3
+              config:
+                where: __most_recent_year_month__
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+              config:
+                where: __most_recent_year_month__
+      - name: peso_liquido_kg
+        description: Peso Líquido
+      - name: valor_fob_dolar
+        description: Valor Livre a Bordo
+  - name: br_me_comex_stat__ncm_importacao
+    description: Base de dados dos produtos importados pelo Brasil segundo a Nomenclatura
+      Comum do Mercosul
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - mes
+            - sigla_uf_ncm
+            - id_ncm
+            - id_pais
+            - id_via
+            - id_urf
+          config:
+            where: __most_recent_year_month__
+    columns:
+      - name: ano
+        description: Ano
+      - name: mes
+        description: Mês
+      - name: id_ncm
+        description: ID Produto - Nomenclatura Comum do Mercosul
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__nomenclatura_comum_mercosul')
+              field: id_ncm
+              config:
+                where: __most_recent_year_month__
+      - name: id_unidade
+        description: ID Unidade
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__nomenclatura_comum_mercosul')
+              field: id_unidade
+              config:
+                where: __most_recent_year_month__
+      - name: id_pais
+        description: ID do País
+      - name: sigla_pais_iso3
+        description: Sigla ISO3 do País
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__municipio')
+              field: sigla_pais_iso3
+              config:
+                where: __most_recent_year_month__
+      - name: sigla_uf_ncm
+        description: Sigla da Unidade da Federação - Nomenclatura Comum do Mercosul
+      - name: id_via
+        description: ID Via de Transporte
+      - name: id_urf
+        description: ID da URF de embarque/desembarque
+      - name: quantidade_estatistica
+        description: Quantidade Estatística
+      - name: peso_liquido_kg
+        description: Peso Líquido
+      - name: valor_fob_dolar
+        description: Valor Livre a Bordo
+      - name: valor_frete
+        description: Valor do Frete
+      - name: valor_seguro
+        description: Valor do Seguro
+  - name: br_me_comex_stat__ncm_exportacao
+    description: Base de dados detalhada de exportação por NCM.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - mes
+            - sigla_uf_ncm
+            - id_ncm
+            - id_pais
+            - id_via
+            - id_urf
+          config:
+            where: __most_recent_year_month__
+    columns:
+      - name: ano
+        description: Ano
+      - name: mes
+        description: Mês
+      - name: id_ncm
+        description: ID Produto - Nomenclatura Comum do Mercosul
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__nomenclatura_comum_mercosul')
+              field: id_ncm
+              config:
+                where: __most_recent_year_month__
+      - name: id_unidade
+        description: ID Unidade
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__nomenclatura_comum_mercosul')
+              field: id_unidade
+              config:
+                where: __most_recent_year_month__
+      - name: id_pais
+        description: ID do País
+      - name: sigla_pais_iso3
+        description: Sigla ISO3 do País
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__municipio')
+              field: sigla_pais_iso3
+              config:
+                where: __most_recent_year_month__
+      - name: sigla_uf_ncm
+        description: Sigla da Unidade da Federação - Nomenclatura Comum do Mercosu
+      - name: id_via
+        description: ID Via de Transporte
+      - name: id_urf
+        description: ID da URF de embarque/desembarque
+      - name: quantidade_estatistica
+        description: Quantidade Estatística
+      - name: peso_liquido_kg
+        description: Peso Líquido
+      - name: valor_fob_dolar
+        description: Valor Livre a Bordo
+  - name: br_me_comex_stat__dicionario
+    description: Dicionário para tradução dos códigos do conjunto br_me_comex_stat.
+      Para taduzir códigos compartilhados entre instituições, como id_municipio, buscar
+      por diretórios
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_tabela
+            - nome_coluna
+            - chave
+            - cobertura_temporal
+    columns:
+      - name: id_tabela
+        description: ID da tabela
+      - name: nome_coluna
+        description: Nome da coluna
+      - name: chave
+        description: Chave
+      - name: cobertura_temporal
+        description: Cobertura temporal
+      - name: valor
+        description: Valor

@@ -1,0 +1,39 @@
+---
+version: 2
+models:
+  - name: br_anp_precos_combustiveis__microdados
+    description: Série Histórica de Preços de Combustíveis - a saber, gasolina, etanol,
+      diesel s10, gasolina aditivada, glp, diesel e gnv - com base na pesquisa de
+      preços da Agência Nacional do Petróleo, Gás Natural e Biocombustíveis realizada
+      a partir da primeira semana de 2004 até os dias de hoje.
+    columns:
+      - name: ano
+        description: Ano
+      - name: sigla_uf
+        description: Sigla da Unidade Federativa da revenda pesquisada
+      - name: id_municipio
+        description: ID Município IBGE - 7 Dígitos
+      - name: bairro_revenda
+        description: Nome do bairro da revenda pesquisada
+      - name: cep_revenda
+        description: Número do Código do Endereço Postal (CEP) do logradouro da revenda
+          pesquisada
+      - name: endereco_revenda
+        description: Endereço de revenda
+      - name: cnpj_revenda
+        description: Número do Cadastro Nacional de Pessoa Jurídica da revenda
+      - name: nome_estabelecimento
+        description: Nome do estabelecimento
+      - name: bandeira_revenda
+        description: Nome da Bandeira da revenda
+      - name: data_coleta
+        description: Data da coleta do preço
+      - name: produto
+        description: Nome do combustível
+      - name: unidade_medida
+        description: Unidade de medida
+      - name: preco_compra
+        description: Preço de venda da distribuidora para o posto revendedor de combustível
+      - name: preco_venda
+        description: Preço de venda ao consumidor final praticado pelo revendedor
+          na data da coleta

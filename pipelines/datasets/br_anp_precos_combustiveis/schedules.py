@@ -20,7 +20,7 @@ every_week_anp_microdados = Schedule(
                 "update_metadata": True,
                 "dbt_alias": True,
                 "materialize_after_dump": True,
-                "materialization_mode": "prod",
+                "target": "prod",
                 "table_id": "microdados",
                 "dataset_id": "br_anp_precos_combustiveis",
             },

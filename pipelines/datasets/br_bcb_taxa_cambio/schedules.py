@@ -21,7 +21,7 @@ schedule_every_weekday_taxa_cambio = Schedule(
             parameter_defaults={
                 "dataset_id": "br_bcb_taxa_cambio",
                 "table_id": "taxa_cambio",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
                 "dbt_alias": False,

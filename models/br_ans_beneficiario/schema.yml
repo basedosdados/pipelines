@@ -1,0 +1,68 @@
+---
+version: 2
+models:
+  - name: informacao_consolidada
+    description: O conjunto contém Informações consolidadas de beneficiários por competência.
+      Este será alterado para inclusão de dados acima de 5 anos e melhorias na qualidade
+      dos dados.
+    columns:
+      - name: ano
+        description: Competência dos dados (AAAA)
+      - name: mes
+        description: Competência dos dados (MM)
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+      - name: id_municipio_6
+        description: ID do Município IBGE - 6 Dígitos
+      - name: sexo
+        description: Sexo (M, F)
+      - name: faixa_etaria
+        description: Faixa etária do beneficiário
+      - name: faixa_etaria_reajuste
+        description: Faixa etária do beneficiária utilizada para o reajuste do plano
+          definida pela Lei 9.656
+      - name: codigo_operadora
+        description: Código de registro da operadora de plano de saúde na ANS
+      - name: razao_social
+        description: Razão Social da Operadora
+      - name: cnpj
+        description: CNPJ da Operadora
+      - name: modalidade_operadora
+        description: Classificação das operadoras de planos privados de assistência
+          à saúde de acordo com seu estatuto jurídico
+      - name: codigo_plano
+        description: Código do plano registrado ou cadastrado na ANS no qual o beneficiário
+          possui vínculo
+      - name: tipo_vigencia_plano
+        description: Início da vigência do plano para comercialização
+      - name: contratacao_beneficiario
+        description: Tipo de contratação do plano do beneficiário
+      - name: segmentacao_beneficiario
+        description: Tipo de segmentação assistencial do plano do beneficiário
+      - name: abrangencia_beneficiario
+        description: Tipo de abrangência do plano do beneficiário
+      - name: cobertura_assistencia_beneficiario
+        description: Tipo de cobertura de plano do beneficiário
+      - name: tipo_vinculo
+        description: Tipo de vinculo do beneficiário
+      - name: quantidade_beneficiario_ativo
+        description: Quantidade de beneficiários ativos na competência
+      - name: quantidade_beneficiario_aderido
+        description: Quantidade de beneficiários aderidos na competência
+      - name: quantidade_beneficiario_cancelado
+        description: Quantidade de beneficiários cancelados na competência
+      - name: data_carga
+        description: Data de Carga dos dados.
+  - name: br_ans_beneficiario__dicionario
+    description: Dicionario
+    columns:
+      - name: id_tabela
+        description: ID da Tabela
+      - name: nome_coluna
+        description: Nome da coluna
+      - name: chave
+        description: Chave
+      - name: cobertura_temporal
+        description: Cobertura temporal
+      - name: valor
+        description: Valor

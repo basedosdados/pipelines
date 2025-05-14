@@ -1,0 +1,1225 @@
+---
+version: 2
+models:
+  - name: br_camara_dados_abertos__votacao
+    description: Identificadores e informações sobre as votações das comissões e do
+      Plenário da Câmara, por ano em que tenham ocorrido.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_votacao, id_orgao, id_evento]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_votacao
+        description: ID da votação
+        tests: [not_null]
+      - name: data
+        description: Data
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: data_registro
+        description: Data do registro da votação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: horario_registro
+        description: Horário do registro da votação
+      - name: id_orgao
+        description: ID do órgão
+        tests: [not_null]
+      - name: sigla_orgao
+        description: Sigla do órgão
+      - name: id_evento
+        description: ID do evento
+      - name: aprovacao
+        description: Indicador se ocorreu a aprovação
+      - name: voto_sim
+        description: Quantidade de votos - Sim
+      - name: voto_nao
+        description: Quantidade de votos - Não
+      - name: voto_outro
+        description: Quantidade de votos - Outros
+      - name: descricao
+        description: Descrição sobre a votação
+      - name: data_hora_ultima_votacao
+        description: Data e hora da última abertura da votação
+      - name: descricao_ultima_votacao
+        description: Descrição da última abertura da votação
+      - name: data_hora_ultima_proposicao
+        description: Data e hora da última apresentação da proposição
+      - name: descricao_ultima_proposicao
+        description: Descrição da última apresentação da proposição
+      - name: id_ultima_proposicao
+        description: ID da última proposição apresentada
+  - name: br_camara_dados_abertos__votacao_objeto
+    description: Cada votação é uma decisão sobre uma e somente uma Proposição, que
+      no Dados Abertos é o chamado objeto da votação. Muitas vezes, porém, a proposição
+      que realmente é votada não é identificada, e em alguns casos não é nem mesmo
+      cadastrada.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_votacao, id_proposicao]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_votacao
+        description: ID da votação
+      - name: data
+        description: Data
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: descricao
+        description: Descrição sobre a votação
+      - name: id_proposicao
+        description: ID proposição
+      - name: ano_proposicao
+        description: Ano da proposição
+      - name: ementa
+        description: Ementa da proposição
+      - name: codigo_tipo
+        description: Código do tipo da proposição
+      - name: sigla_tipo
+        description: Sigla do tipo da proposição
+      - name: numero
+        description: Número da proposição
+      - name: titulo
+        description: Título da proposição
+  - name: br_camara_dados_abertos__votacao_parlamentar
+    description: Separados por ano de ocorrência das votações, estes arquivos têm,
+      em cada linha/registro, identificadores de uma votação, os identificadores básicos
+      de cada Deputado, o voto (ou posicionamento de obstrução) registrado pelo parlamentar
+      e o horário de registro do voto.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_votacao, id_deputado]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_votacao
+        description: ID da votação
+      - name: data
+        description: Data
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: horario
+        description: Horário
+      - name: voto
+        description: Voto
+      - name: id_deputado
+        tests:
+          - relationships:
+              to: ref('br_camara_dados_abertos__deputado')
+              field: id_deputado
+        description: ID do deputado
+      - name: nome
+        description: Nome do deputado
+      - name: sigla_partido
+        description: Sigla do partido
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_legislatura
+        description: ID da legislatura
+  - name: br_camara_dados_abertos__votacao_orientacao_bancada
+    description: Para votações de qualquer tipo, os Partidos e Blocos, bem como as
+      lideranças de Governo, Minoria, Maioria e Oposição, podem recomendar a seus
+      Deputados que votem de um jeito ou de outro, ou podem "liberar a bancada".
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_votacao, sigla_bancada]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_votacao
+        description: ID da votação
+      - name: sigla_orgao
+        description: Sigla do órgão
+      - name: descricao
+        description: Descrição sobre a votação
+      - name: sigla_bancada
+        description: Sigla da bancada
+      - name: orientacao
+        description: Orientação da bancada
+  - name: br_camara_dados_abertos__votacao_proposicao
+    description: Quando alguém fala algo como "a votação do PL 1234", o significado
+      no Dados Abertos é "as várias votações de proposições relacionadas ao PL 1234".
+      O tal PL 1234 é, portanto, a proposição afetada por essas votações.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_votacao, id_proposicao]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_votacao
+        description: ID da votação
+      - name: data
+        description: Data
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: descricao
+        description: Descrição sobre a votação
+      - name: id_proposicao
+        description: ID proposição
+      - name: ano_proposicao
+        description: Ano da proposição
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: titulo
+        description: Título da proposição
+      - name: ementa
+        description: Ementa da proposição
+      - name: codigo_tipo
+        description: Código do tipo da proposição
+      - name: sigla_tipo
+        description: Sigla do tipo da proposição
+      - name: numero
+        description: Número da proposição
+  - name: br_camara_dados_abertos__deputado
+    description: Lista com identificadores e informações sobre todos os parlamentares
+      que já estiveram em exercício em algum momento na história da Câmara.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_deputado]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.001
+    columns:
+      - name: nome
+        description: Nome
+      - name: nome_civil
+        description: Nome cívil
+      - name: data_nascimento
+        description: Data de Nascimento
+      - name: data_falecimento
+        description: Data de Falecimento
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: id_municipio_nascimento
+        description: ID Município - IBGE 7 Dígitos referente ao nascimento
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: sigla_uf_nascimento
+        description: Sigla da Unidade da Federação referente ao nascimento
+      - name: id_deputado
+        description: ID deputado
+      - name: sexo
+        description: Sexo
+      - name: id_inicial_legislatura
+        description: ID inicial da legislatura
+      - name: id_final_legislatura
+        description: ID final da legislatura
+      - name: url_site
+        description: URL do site
+      - name: url_rede_social
+        description: URL das redes sociais
+  - name: br_camara_dados_abertos__deputado_ocupacao
+    description: Lista com identificadores e informações sobre as atividades profissionais
+      ou ocupacionais que o deputado já teve em sua carreira e declarou à Câmara dos
+      Deputados.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_deputado
+            - ano_inicio
+            - ano_fim
+            - entidade
+            - sigla_uf
+            - titulo
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano_inicio
+        description: Ano início
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: ano_fim
+        description: Ano fim
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_deputado
+        description: ID deputado
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+      - name: entidade
+        description: Entidade
+      - name: titulo
+        description: Título da ocupação
+  - name: br_camara_dados_abertos__deputado_profissao
+    description: Lista com identificadores e informações sobre as profissões que o
+      parlamentar declarou à Câmara que já exerceu ou que pode exercer pela sua formação
+      e/ou experiência.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_deputado, data, horario, id_profissao]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_deputado
+        description: ID do deputado
+      - name: data
+        description: Data
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: horario
+        description: Horario
+      - name: id_profissao
+        description: ID da profissão
+      - name: titulo
+        description: Título da profissão
+  - name: br_camara_dados_abertos__proposicao_autor
+    description: Dados que relacionam identificadores básicos de proposições a identificadores
+      básicos de autores.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_proposicao, tipo_autor, ordem_assinatura]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_proposicao
+        description: ID proposição
+      - name: id_deputado
+        description: ID do deputado autor
+        tests:
+          - relationships:
+              to: ref('br_camara_dados_abertos__deputado')
+              field: id_deputado
+      - name: tipo_autor
+        description: Tipo de Autor (i.e Deputado, Órgão do Poder Legislativo)
+      - name: nome_autor
+        description: Nome do autor
+      - name: sigla_partido
+        description: Sigla do partido do autor
+      - name: sigla_uf_autor
+        description: Sigla da Unidade da Federação a qual o autor está vinculado
+      - name: ordem_assinatura
+        description: Ordem assinatura
+      - name: proponente
+        description: Indica se o autor é o proponente da proposição
+  - name: br_camara_dados_abertos__proposicao_microdados
+    description: Dados em que cada registro contém dados sobre uma proposição apresentada
+      à Câmara dos Deputados para deliberação, como identificador universal (URI),
+      sigla, número, ano, ementa, temas e keywords, informações sobre a tramitação
+      mais recente, proposições a que se relacionam, etc.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_proposicao, data_hora_ultimo_status]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.01
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: data
+        description: Data da apresentação da proposição
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: horario
+        description: Horário da apresentação da proposição
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__hora')
+              field: hora
+      - name: id_proposicao
+        description: ID proposição
+      - name: url
+        description: URL proposição
+      - name: numero
+        description: Número da proposição
+      - name: sigla
+        description: Sigla do tipo de proposição
+      - name: tipo
+        description: Especificação do tipo de proposição
+      - name: ementa
+        description: Ementa
+      - name: ementa_detalhada
+        description: Ementa detalhada
+      - name: palavra_chave
+        description: Palavras-chave
+      - name: url_orgao_numerador
+        description: URL do órgão responsável pela numeração
+      - name: url_principal
+        description: URL da proposição principal, se aplicável.
+      - name: url_posterior
+        description: URL da proposição posterior, se houver.
+      - name: url_teor_proposicao
+        description: URL para o texto completo.
+      - name: data_hora_ultimo_status
+        description: Data e hora do último status da proposta.
+      - name: url_relator_ultimo_status
+        description: URL do relator associado ao último status.
+      - name: sigla_orgao_ultimo_status
+        description: Sigla do órgão relacionado ao último status.
+      - name: regime_ultimo_status
+        description: Regime de tramitação associado ao último status.
+      - name: tramitacao_ultimo_status
+        description: Descrição da tramitação associada ao último status.
+      - name: situacao_ultimo_status
+        description: Descrição da situação associada ao último status.
+      - name: despacho_ultimo_status
+        description: Despacho relacionado ao último status.
+      - name: apreciacao_ultimo_status
+        description: Informações sobre a apreciação no último status.
+      - name: sequencia_ultimo_status
+        description: Sequencia do último status
+      - name: url_ultimo_status
+        description: URL relacionada ao último status.
+  - name: br_camara_dados_abertos__proposicao_tema
+    description: Cada registro corresponde a uma área temática na qual uma proposição
+      foi classificada pelo Centro de Documentação e Informação da Câmara.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_proposicao, tema, relevancia]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_proposicao
+        description: ID proposição
+      - name: tipo_proposicao
+        description: Sigla do tipo da proposição
+      - name: numero
+        description: Número da proposição
+      - name: tema
+        description: Descrição do tema
+      - name: relevancia
+        description: Relevancia
+  - name: br_camara_dados_abertos__legislatura
+    description: Lista com os identificadores de todos os períodos de trabalho da
+      Câmara desde sua criação em 1827. De forma simplificada, pode-se dizer que esses
+      períodos vão da posse de um grupo de deputados até a véspera da posse do grupo
+      de deputados seguinte. A duração desses períodos é de 4 anos desde a Constituição
+      de 1988, mas teve variações ao longo do tempo.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_legislatura]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano da eleição
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_legislatura
+        description: ID da legislatura
+      - name: url
+        description: URL da legislatura
+      - name: data_inicio
+        description: Data inicio
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: data_final
+        description: Data final
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+  - name: br_camara_dados_abertos__legislatura_mesa
+    description: Lista dos integrantes da Mesa Diretora da Câmara desde a legislatura
+      51 (1999), com os identificadores de deputados, cargos e datas de início e fim
+      de ocupação desses cargos. No período a que se referem os dados, há duas formações
+      da Mesa Diretora a cada legislatura – ou seja, cada composição da Mesa tem um
+      mandato de dois anos.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_legislatura, data_inicio, nome_deputado]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_legislatura
+        description: ID da legislatura
+      - name: data_inicio
+        description: Data inicio da legislatura
+      - name: data_final
+        description: Data final da legislatura
+      - name: id_orgao
+        description: ID do orgão
+      - name: url_orgao
+        description: URL do orgão
+      - name: sigla_orgao
+        description: Sigla do orgão
+      - name: nome_orgao
+        description: Nome do orgão
+      - name: id_deputado
+        description: ID do deputado
+        tests:
+          - relationships:
+              to: ref('br_camara_dados_abertos__deputado')
+              field: id_deputado
+      - name: nome_deputado
+        description: Nome do deputado
+      - name: cargo
+        description: Cargo do deputado
+      - name: url_deputado
+        description: URL do deputado
+      - name: sigla_partido
+        description: Sigla do partido
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+  - name: br_camara_dados_abertos__orgao
+    description: Lista com identificadores e dados sobre Plenário, Mesa Diretora,
+      comissões permanentes e temporárias, CPIs, conselhos e demais órgãos da Câmara
+      existentes ou já extintos na Câmara dos Deputados.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_orgao]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_orgao
+        description: ID do orgão
+      - name: nome
+        description: Nome do orgão
+      - name: apelido
+        description: Apelido do orgão
+      - name: sigla
+        description: Sigla do orgão
+      - name: tipo_orgao
+        description: Tipo do orgão
+      - name: data_inicio
+        description: Data Inicio
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: data_instalacao
+        description: Data de instalação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: data_final
+        description: Data final
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: situacao
+        description: Situação
+      - name: casa
+        description: Casa
+      - name: sala
+        description: Sala
+  - name: br_camara_dados_abertos__orgao_deputado
+    description: Arquivos com identificadores básicos de órgãos da Câmara e dos deputados
+      que foram seus integrantes, com os cargos que cada um ocupou (inclusive de suplência)
+      e as datas de início e fim do período de exercício de cada cargo.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - nome
+            - nome_deputado
+            - cargo
+            - sigla_uf
+            - data_inicio
+            - data_final
+            - sigla_partido
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_orgao
+        description: ID do órgão
+      - name: nome
+        description: Nome do órgão
+      - name: sigla
+        description: Sigla do órgão
+      - name: nome_deputado
+        description: Nome do deputado
+      - name: cargo
+        description: Cargo
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: data_inicio
+        description: Data inicio
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: data_final
+        description: Data final
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: sigla_partido
+        description: Sigla do partido
+  - name: br_camara_dados_abertos__evento
+    description: Lista com identificadores e informações diversas sobre as reuniões,
+      sessões, audiências, seminários e outros eventos realizados pelos diversos órgãos
+      legislativos da Câmara, inclusive eventos já agendados e não ocorridos. Os arquivos
+      são separados por ano de realização dos eventos. Entre os dados, estão datas
+      de início e fim, tipo de evento, local e descrições em texto livre.
+    tests:
+      - custom_unique_combinations_of_columns:
+          combination_of_columns: [id_evento]
+          proportion_allowed_failures: 0.05
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_evento
+        description: ID do evento
+      - name: url_documento_pauta
+        description: URL da pauta
+      - name: data_inicio
+        description: Data de início
+      - name: horario_inicio
+        description: Horário de início
+      - name: data_final
+        description: Data final
+      - name: horario_final
+        description: Horário final
+      - name: situacao
+        description: Situação do evento (e.g. Encerrada, Cancelada, etc)
+      - name: descricao
+        description: Descrição
+      - name: tipo
+        description: Tipo do evento (e.g. Reunião deliberativa, Palestra, etc)
+      - name: local_externo
+        description: Nome do local externo que o evento foi realizado
+      - name: nome_local
+        description: Local onde foi realizado o evento
+  - name: br_camara_dados_abertos__evento_orgao
+    description: Lista que liga identificadores de eventos aos identificadores dos
+      órgãos que os realizaram. Cada registro desses arquivos identifica um evento
+      e um órgão que o sediou. É comum que eventos como audiências públicas sejam
+      realizados conjuntamente por mais de um órgão, e por isso é possível haver mais
+      de um registro para um mesmo evento.
+    tests:
+      - custom_unique_combinations_of_columns:
+          combination_of_columns: [id_evento, id_orgao]
+          proportion_allowed_failures: 0.05
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_evento
+        description: ID do evento
+      - name: id_orgao
+        description: ID do órgão
+      - name: sigla_orgao
+        description: Sigla do órgão
+  - name: br_camara_dados_abertos__evento_presenca_deputado
+    description: Lista que liga os identificadores de eventos aos identificadores
+      dos deputados que marcaram presença nos eventos realizados. No caso de eventos
+      futuros já cadastrados, são listados os identificadores dos deputados que, por
+      serem membros dos órgãos realizadores, são esperados como participantes dos
+      eventos.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_evento, id_deputado]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_evento
+        description: ID do evento
+      - name: data_inicio
+        description: Data de início
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: horario_inicio
+        description: Horário de início
+      - name: id_deputado
+        description: ID do deputado
+        tests:
+          - relationships:
+              to: ref('br_camara_dados_abertos__deputado')
+              field: id_deputado
+  - name: br_camara_dados_abertos__evento_requerimento
+    description: Lista que liga os identificadores de eventos aos identificadores
+      dos requerimentos. Eventos como as audiências públicas das comissões são realizados
+      em decorrência da aprovação de um ou mais requerimentos, que são um tipo específico
+      de proposições. Os arquivos deste conjunto permitem identificar os requerimentos
+      de realização de cada evento de um determinado ano.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_evento, titulo_requerimento]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_evento
+        description: ID do evento
+      - name: titulo_requerimento
+        description: Título do requerimento
+      - name: id_proposicao
+        description: ID da proposição
+  - name: br_camara_dados_abertos__frente
+    description: As frentes são formadas por deputados e senadores de diferentes partidos
+      que se unem em prol de um determinado assunto. São mais ou menos próximas do
+      que popularmente se conhece como "bancada". As frentes não são órgãos, nem podem
+      ter estrutura própria na Câmara.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_frente]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_frente
+        description: ID da frente
+        tests: [not_null]
+      - name: titulo
+        description: Título
+      - name: data_criacao
+        description: Data
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: id_legislatura
+        description: ID legislatura
+      - name: telefone
+        description: Telefone
+      - name: situacao
+        description: Situação
+      - name: url_documento
+        description: URL do documento
+      - name: id_coordenador
+        description: ID do coordenador
+      - name: nome_coordenador
+        description: Nome do coordenador
+      - name: url_foto_coordenador
+        description: URL da foto do coordenador
+  - name: br_camara_dados_abertos__frente_deputado
+    description: Identificadores básicos de cada frente parlamentar são vinculados
+      aos identificadores básicos dos deputados que foram cadastrados como seus integrantes,
+      por terem sido signatários do pedido de criação da frente. São listados os integrantes
+      das frentes criadas a partir do ano de 2010, na legislatura 54.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_frente, id_deputado, titulo_deputado]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_frente
+        description: ID da frente
+      - name: titulo_deputado
+        description: Título do deputado
+      - name: id_deputado
+        description: ID do deputado
+      - name: nome_deputado
+        description: Nome do deputado
+      - name: url_foto_deputado
+        description: URL da foto do deputado
+  - name: br_camara_dados_abertos__funcionario
+    description: Dados sobre todos os parlamentares e funcionários em atividade na
+      Câmara (servidores, secretários parlamentares e ocupantes dos Cargos de Natureza
+      Especial), informações básicas como nome, número de ponto, lotação, cargo, função
+      e data de nomeação. Até o momento, traz somente os dados como estavam no dia
+      anterior — isto é, não informa variações dos dados ao longo do tempo.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ponto]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: nome
+        description: Nome
+      - name: cargo
+        description: Cargo
+      - name: funcao
+        description: Função
+      - name: data_inicio_historico
+        description: Data de inicio
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: data_nomeacao
+        description: Data de nomeação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: data_publicacao_nomeacao
+        description: Data da publicação da nomeação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: grupo
+        description: Grupo
+      - name: ponto
+        description: Código do ponto
+      - name: ato_nomeacao
+        description: Ato de nomeação
+      - name: lotacao
+        description: Lotação
+  - name: br_camara_dados_abertos__licitacao
+    description: Os identificadores internos e oficiais das licitações realizadas
+      a cada ano pela Câmara dos Deputados, juntos a diversas informações como modalidade
+      e tipo, situação, datas de publicação e abertura, valores estimados, contratados
+      e pagos até o momento, número de propostas recebidas, objeto da contratação
+      e quantidade de itens licitados.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_licitacao]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano_licitacao
+        description: Ano da licitação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ref('ano.ano')
+      - name: id_licitacao
+        description: ID da licitação
+      - name: ano_processo
+        description: Ano do processo
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ref('ano.ano')
+      - name: id_processo
+        description: Número do processo
+      - name: objeto
+        description: Objeto da licitação, ou seja, o que está sendo adquirido ou contratado
+      - name: modalidade
+        description: Modalidade de licitação (i.e Concorrência, Concurso, Pregão Eletrônico,
+          etc.)
+      - name: tipo
+        description: Tipo de licitação (i.e Maior Lance, Menor Preço, etc.)
+      - name: situacao
+        description: Situação da licitação (i.e Julgada, Fracassada, etc.)
+      - name: data_abertura
+        description: Data de abertura
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: ref('data.data')
+      - name: data_publicacao
+        description: Data de publicação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: ref('data.data')
+      - name: data_autorizacao
+        description: Data de autorização
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: ref('data.data')
+      - name: quantidade_item
+        description: Quantidade de itens ou lotes
+      - name: quantidade_unidade
+        description: Quantidade de unidades a serem adquiridas na licitação
+      - name: quantidade_proposta
+        description: Quantidade de propostas recebidas
+      - name: quantidade_contrato
+        description: Quantidade de contratatos resultantes
+      - name: valor_estimado
+        description: Valor estimado
+      - name: valor_contratado
+        description: Valor contratado
+      - name: valor_pago
+        description: Valor contratado
+  - name: br_camara_dados_abertos__licitacao_contrato
+    description: Os dados principais dos contratos que os vencedores de cada licitação
+      estabeleceram junto à Câmara dos Deputados, separados por ano de realização
+      das licitações. As informações incluem os identificadores dos contratos e dos
+      fornecedores, a situação atual do contrato, datas de assinatura, publicação,
+      vigência e extensão, os valores acertados inicialmente e os valores efetivos
+      até o momento (que podem ser diferentes devido a pagamentos ainda não realizados
+      ou a aditivos e rescisões, por exemplo).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_licitacao, id_contrato, valor_total]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano_licitacao
+        description: Ano da licitação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ref('ano.ano')
+      - name: id_licitacao
+        description: ID da licitação
+      - name: ano_contrato
+        description: Ano do contrato
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ref('ano.ano')
+      - name: id_contrato
+        description: ID do contrato
+      - name: tipo_contrato
+        description: Tipo do contrato
+      - name: situacao_contrato
+        description: Situação do contrato
+      - name: descricao
+        description: Descrição
+      - name: data_assinatura
+        description: Data de assinatura do contrato
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: ref('data.data')
+      - name: data_publicacao
+        description: Data de publicação do contrato
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: ref('data.data')
+      - name: data_inicio_contrato
+        description: Data de início da vigência original do contrato
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: ref('data.data')
+      - name: data_fim_contrato
+        description: Data de término da vigência original do contrato
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: ref('data.data')
+      - name: data_fim_ultima_vigencia
+        description: Data de término da última vigência
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: ref('data.data')
+      - name: nome_fornecedor
+        description: Nome do fornecedor
+      - name: endereco_fornecedor
+        description: endereço do fornecedor
+      - name: cidade_fornecedor
+        description: cidade do fornecedor
+      - name: sigla_uf_fornecedor
+        description: Sigla da Unidade da Federação do fornecedor
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: ref('sigla')
+      - name: cpf_cnpj_fornecedor
+        description: CPF ou CNPJ do fornecedor
+      - name: valor_original
+        description: Valor original
+      - name: valor_total
+        description: Valor total
+  - name: br_camara_dados_abertos__licitacao_item
+    description: As licitações da Câmara especificam e buscam adquirir um ou mais
+      iten(s), que pode(m) ser um produto ou serviço isolado ou, na verdade, lote(s)
+      de sub-itens. Este conjunto de arquivos traz o detalhamento dos objetos de cada
+      licitação, conforme o ano de sua realização. As informações incluem descrição
+      e especificação, a quantidade licitada e o preço estimado, observações feitas
+      durante o processo, e, se a licitação já ocorreu, a quantidade realmente contratada
+      e por quais valores, bem como os dados básicos do fornecedor de cada produto.
+      É importante observar que uma mesma licitação pode ser atendida por mais de
+      um fornecedor.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_licitacao
+            - id_item
+            - id_sub_item
+            - id_contrato
+            - cpf_cnpj_fornecedor
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano_licitacao
+        description: Ano da licitação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ref('ano.ano')
+      - name: id_licitacao
+        description: ID da licitação
+      - name: id_item
+        description: Número do item
+      - name: id_sub_item
+        description: Número do subitem
+      - name: descricao
+        description: Descrição
+      - name: especificacao
+        description: Detalhes adicionais sobre o item
+      - name: unidade
+        description: Unidade de medida do item
+      - name: quantidade_licitada
+        description: Quantidade do item
+      - name: valor_unitario_estimado
+        description: Valor unitário estimado do item
+      - name: quantidade_contratada
+        description: Quantidade contratada
+      - name: valor_unitario_contratado
+        description: Valor unitário do contrato
+      - name: valor_total_contratado
+        description: Valor total contratada
+      - name: cpf_cnpj_fornecedor
+        description: CPF ou CNPJ do fornecedor
+      - name: nome_fornecedor
+        description: Nome do fornecedor
+      - name: id_contrato
+        description: ID do contrato
+      - name: ano_contrato
+        description: Ano do contrato
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ref('ano.ano')
+      - name: tipo_contrato
+        description: Tipo do contrato
+      - name: situacao_item
+        description: Situação do item
+      - name: observacao
+        description: Observações adicionais sobre o item ou contrato
+      - name: natureza_despesa
+        description: Natureza da despesa
+      - name: programa_trabalho
+        description: Programa de trabalho ao qual a despesa está vinculada
+  - name: br_camara_dados_abertos__licitacao_pedido
+    description: O Departamento de Material e Patrimônio da Câmara realiza uma licitação
+      para atender a um ou mais pedido(s) de aquisição de produtos ou serviços, feitos
+      por um ou mais órgão(s) da Casa. Este conjunto de arquivos traz informações
+      sobre os pedidos que levaram a cada licitação realizada em um determinado ano.
+      Os dados incluem o órgão solicitante, identificadores e objeto de cada pedido,
+      e as observações feitas por solicitantes ou analistas antes de se iniciarem
+      os processos licitatórios.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_licitacao
+            - id_pedido
+            - id_orgao
+            - observacao
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano_licitacao
+        description: Ano da licitação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ref('ano.ano')
+      - name: id_licitacao
+        description: ID da licitação
+      - name: tipo_registo
+        description: Tipo de registro
+      - name: ano_pedido
+        description: Ano do pedido
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ref('ano.ano')
+      - name: id_pedido
+        description: Número do pedido
+      - name: data_cadastro
+        description: Data de cadastro
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: ref('data.data')
+      - name: horario_cadastro
+        description: Horário de cadastro
+      - name: id_orgao
+        description: ID do orgão
+      - name: orgao
+        description: Orgão
+      - name: descricao
+        description: Descrição
+      - name: observacao
+        description: Informações adicionarios
+  - name: br_camara_dados_abertos__licitacao_proposta
+    description: As empresas interessadas em participar de uma licitação da Câmara
+      fazem suas ofertas na forma de propostas discriminadas para cada item licitado.
+      Este conjunto de arquivos, organizados por ano de realização das licitações,
+      traz as informações estruturadas mais importantes sobre as propostas apresentadas
+      para cada item de cada licitação. Identificação do possível fornecedor, situação
+      de cada um para participar ou não do certame, marcas, quantidades e valores
+      ofertados por item da licitação, e eventuais observações registradas ao longo
+      do processo.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_licitacao
+            - descricao
+            - quantidade_unidade_licitacao
+            - valor_estimado
+            - id_proposta
+            - unidade_proposta
+            - valor_proposta
+            - marca_proposta
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano da licitação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ref('ano.ano')
+      - name: id_licitacao
+        description: ID da licitação
+      - name: descricao
+        description: Descrição
+      - name: quantidade_unidade_licitacao
+        description: Quantidade de unidades que estão sendo licitadas para o item
+      - name: valor_estimado
+        description: Valor estimado
+      - name: unidade_proposta
+        description: Quantidade de unidades propostas pelo fornecedor
+      - name: valor_proposta
+        description: Valor da proposta
+      - name: id_proposta
+        description: ID da proposta
+      - name: marca_proposta
+        description: Marca da proposta
+      - name: cpf_cnpj_fornecedor
+        description: CPF ou CNPJ do fornecedor
+      - name: fornecedor_situacao
+        description: Situação do fornecedor
+      - name: data_proposta
+        description: Data da proposta
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: ref('data.data')
+      - name: validade_proposta
+        description: Validade da proposta
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__dia')
+              field: ref('dia.dia')
+  - name: br_camara_dados_abertos__despesa
+    description: Dados sobre as despesas cobertas pela Cota para Exercício da Atividade
+      Parlamentar de cada deputado desde 2008
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - nome_parlamentar
+            - id_legislatura
+            - categoria_despesa
+            - subcategoria_despesa
+            - fornecedor
+            - cnpj_cpf_fornecedor
+            - numero_documento_fiscal
+            - tipo_documento
+            - ano_competencia
+            - mes_competencia
+            - data_emissao
+            - valor_retido
+            - valor_liquido
+            - nome_passageiro
+            - descricao_passagem_aerea
+            - data_pagamento_restituicao
+            - url_documento
+    columns:
+      - name: nome_parlamentar
+        description: Nome do parlamentar
+      - name: cpf
+        description: Cadastro de Pessoa Física (CPF) do parlamentar
+      - name: id_deputado
+        description: ID do deputado
+      - name: ano_legislatura
+        description: Ano de início da legislatura
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_legislatura
+        description: Número identificador da legislatura
+      - name: sigla_uf
+        description: Sigla da unidade da federação por qual o respectivo parlamentar
+          foi eleito
+      - name: sigla_partido
+        description: Sigla do partido ao qual o parlamentar é/era filiado
+      - name: categoria_despesa
+        description: Título da categoria de despesa à qual seja pertinente o registro
+      - name: subcategoria_despesa
+        description: Título descritivo da subcategoria de despesa
+      - name: fornecedor
+        description: Nome da pessoa física ou empresa fornecedora do serviço ou produto
+          ao qual se refere o registro de despesa
+      - name: cnpj_cpf_fornecedor
+        description: CNPJ ou CPF do fornecedor
+      - name: numero_documento_fiscal
+        description: O número de face do documento fiscal comprovante da despesa
+      - name: tipo_documento
+        description: Indicador numérico do tipo de documento fiscal associado à despesa
+      - name: ano_competencia
+        description: Ano da competência financeira do documento comprobatório da despesa
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ref('ano.ano')
+      - name: mes_competencia
+        description: Mês de competência financeira do documento comprobatório da despesa
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: ref('mes.mes')
+      - name: data_emissao
+        description: Data de emissão do documento comprobatório da despesa a que se
+          refere o registro.
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: valor_documento
+        description: Valor de face do documento comprobatório da despesa
+      - name: valor_retido
+        description: Valor retido
+        tests: [not_null]
+      - name: valor_liquido
+        description: Valor da despesa efetivamente debitado da Cota Parlamentar
+        tests: [not_null]
+      - name: numero_parcela
+        description: Valor numérico diferente de 0 quando a despesa cadastrada é reembolsada
+          pela CEAP de forma parcelada
+      - name: nome_passageiro
+        description: Nos registros referentes a passagens aéreas, o campo traz o nome
+          da pessoa para quem foi emitida a passagem.
+      - name: descricao_passagem_aerea
+        description: Descrição dos trechos de viagem do bilhete
+      - name: data_pagamento_restituicao
+        description: Data e hora, em formato ISO 8601, de quando o parlamentar realizou
+          a restituição à Câmara de valores referentes à despesa citada no registro
+      - name: valor_restituicao
+        description: Valor que o parlamentar devolveu à Câmara
+      - name: url_documento
+        description: URL do documento

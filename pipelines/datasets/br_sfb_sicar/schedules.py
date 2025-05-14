@@ -21,7 +21,7 @@ schedule_br_sfb_sicar_area_imovel = Schedule(
             parameter_defaults={
                 "dataset_id": "br_sfb_sicar",
                 "table_id": "area_imovel",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
                 "dbt_alias": True,

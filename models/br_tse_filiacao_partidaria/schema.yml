@@ -1,0 +1,166 @@
+---
+version: 2
+models:
+  - name: br_tse_filiacao_partidaria__microdados_antigos
+    description: Microdados antigos de filiação partidária do TSE.
+    tests:
+      - custom_not_null_proportion_multiple_columns:
+          at_least: 0.10
+          ignore_values: [data_regularizacao]
+    columns:
+      - name: sigla_partido
+        description: Sigla do partido
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              ignore_values: [ZZ]
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_municipio_tse
+        description: ID Município - TSE
+      - name: zona
+        description: Zona eleitoral
+      - name: secao
+        description: Seção eleitoral
+      - name: titulo_eleitoral
+        description: Título eleitoral
+      - name: nome
+        description: Nome
+      - name: data_filiacao
+        description: Data da filiação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: situacao_registro
+        description: Situação do registro
+      - name: tipo_registro
+        description: Tipo de registro
+      - name: data_processamento
+        description: Data de processamento
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: data_desfiliacao
+        description: Data de desfiliação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: data_cancelamento
+        description: Data de cancelamento
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: data_regularizacao
+        description: Data de regularização
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: motivo_cancelamento
+        description: Motivo de cancelamento
+  - name: br_tse_filiacao_partidaria__microdados
+    description: Microdados de filiação partidária do TSE.
+    tests:
+      - custom_not_null_proportion_multiple_columns:
+          at_least: 0.55
+          ignore_values:
+            - data_desfiliacao
+            - data_exclusao
+            - data_cadastro_desfiliacao
+            - motivo_desfiliacao
+            - motivo_cancelamento
+            - data_cancelamento
+            - nome_social
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [registro_filiacao]
+    columns:
+      - name: registro_filiacao
+        description: Sequecia do registro filiação
+      - name: sigla_partido
+        description: Sigla do partido
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              ignore_values: [ZZ]
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_municipio_tse
+        description: ID Município - TSE
+      - name: zona
+        description: Zona eleitoral
+      - name: secao
+        description: Seção eleitoral
+      - name: titulo_eleitor
+        description: Título de eleitor
+      - name: cpf
+        description: Cadastro de pessoa física
+      - name: nome
+        description: Nome do eleitor
+      - name: nome_social
+        description: Nome social do eleitor
+      - name: sexo
+        description: Sexo
+      - name: situacao_registro
+        description: Situação do registro
+      - name: motivo_desfiliacao
+        description: Código do motivo da desfiliação. Não foi encontrada na documentação
+          a tradução deste código
+      - name: motivo_cancelamento
+        description: Código do motivo de cancelamento. Não foi encontrada na documentação
+          a tradução deste código
+      - name: indicador_origem
+        description: Não foi encontrado uma definição na documentação para este campo
+      - name: data_filiacao
+        description: Data da filiação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: data_desfiliacao
+        description: Data de desfiliação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: data_cadastro_desfiliacao
+        description: Data do cadastro da desfiliação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: data_cancelamento
+        description: Data de cancelamento
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: data_exclusao
+        description: Data de exclusão
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: data_extracao
+        description: Data de extração da linha
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data

@@ -1,0 +1,37 @@
+---
+name: Test DBT model
+on:
+  pull_request:
+    types: [labeled, opened]
+    branches: [main]
+    paths: [models/**, .github/workflows/test_dbt_model.yaml]
+jobs:
+  test_dbt_model:
+    if: contains(github.event.pull_request.labels.*.name, 'test-dev-model')
+    name: Test DBT dev model
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Get all changed files using a comma separator
+        id: changed-files
+        uses: tj-actions/changed-files@v35
+        with:
+          separator: ','
+      - name: Set up poetry
+        run: pipx install poetry==1.8.5
+      - name: Set up python
+        uses: actions/setup-python@v4
+        with:
+          cache: poetry
+          python-version: '3.10'
+      - name: Install requirements
+        run: poetry install --only=dev
+      - name: Run script to test DBT model
+        run: |-
+          poetry run python .github/workflows/scripts/table_test.py \
+            --modified-files ${{ steps.changed-files.outputs.all_modified_files }} \
+            --graphql-url https://prefect.basedosdados.org/api \
+            --prefect-backend-token ${{ secrets.PREFECT_BACKEND_AUTH_TOML_API_KEY }}

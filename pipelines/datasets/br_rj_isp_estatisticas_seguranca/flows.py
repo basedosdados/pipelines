@@ -55,9 +55,7 @@ with Flow(
     )
 
     # Materialization mode
-    materialization_mode = Parameter(
-        "materialization_mode", default="prod", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -101,7 +99,7 @@ with Flow(
             parameters={
                 "dataset_id": dataset_id,
                 "table_id": table_id,
-                "mode": materialization_mode,
+                "target": target,
                 "dbt_alias": dbt_alias,
             },
             labels=current_flow_labels,
@@ -128,7 +126,7 @@ with Flow(
                 date_column_name={"year": "ano", "month": "mes"},
                 date_format="%Y-%m",
                 coverage_type="all_free",
-                prefect_mode=materialization_mode,
+                prefect_mode=target,
                 bq_project="basedosdados",
                 upstream_tasks=[wait_for_materialization],
             )
@@ -156,9 +154,7 @@ with Flow(
     )
 
     # Materialization mode
-    materialization_mode = Parameter(
-        "materialization_mode", default="prod", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -201,7 +197,7 @@ with Flow(
             parameters={
                 "dataset_id": dataset_id,
                 "table_id": table_id,
-                "mode": materialization_mode,
+                "target": target,
                 "dbt_alias": dbt_alias,
             },
             labels=current_flow_labels,
@@ -228,7 +224,7 @@ with Flow(
                 date_column_name={"year": "ano", "month": "mes"},
                 date_format="%Y-%m",
                 coverage_type="all_free",
-                prefect_mode=materialization_mode,
+                prefect_mode=target,
                 bq_project="basedosdados",
                 upstream_tasks=[wait_for_materialization],
             )
@@ -256,9 +252,7 @@ with Flow(
     )
 
     # Materialization mode
-    materialization_mode = Parameter(
-        "materialization_mode", default="prod", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -301,7 +295,7 @@ with Flow(
             parameters={
                 "dataset_id": dataset_id,
                 "table_id": table_id,
-                "mode": materialization_mode,
+                "target": target,
                 "dbt_alias": dbt_alias,
             },
             labels=current_flow_labels,
@@ -328,7 +322,7 @@ with Flow(
                 date_column_name={"year": "ano", "month": "mes"},
                 date_format="%Y-%m",
                 coverage_type="all_free",
-                prefect_mode=materialization_mode,
+                prefect_mode=target,
                 bq_project="basedosdados",
                 upstream_tasks=[wait_for_materialization],
             )
@@ -358,9 +352,7 @@ with Flow(
     )
 
     # Materialization mode
-    materialization_mode = Parameter(
-        "materialization_mode", default="prod", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -404,7 +396,7 @@ with Flow(
             parameters={
                 "dataset_id": dataset_id,
                 "table_id": table_id,
-                "mode": materialization_mode,
+                "target": target,
                 "dbt_alias": dbt_alias,
             },
             labels=current_flow_labels,
@@ -431,7 +423,7 @@ with Flow(
                 date_column_name={"year": "ano", "month": "mes"},
                 date_format="%Y-%m",
                 coverage_type="all_free",
-                prefect_mode=materialization_mode,
+                prefect_mode=target,
                 bq_project="basedosdados",
                 upstream_tasks=[wait_for_materialization],
             )
@@ -461,9 +453,7 @@ with Flow(
     )
 
     # Materialization mode
-    materialization_mode = Parameter(
-        "materialization_mode", default="prod", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -507,7 +497,7 @@ with Flow(
             parameters={
                 "dataset_id": dataset_id,
                 "table_id": table_id,
-                "mode": materialization_mode,
+                "target": target,
                 "dbt_alias": dbt_alias,
             },
             labels=current_flow_labels,
@@ -534,7 +524,7 @@ with Flow(
                 date_column_name={"year": "ano", "month": "mes"},
                 date_format="%Y-%m",
                 coverage_type="all_free",
-                prefect_mode=materialization_mode,
+                prefect_mode=target,
                 bq_project="basedosdados",
                 upstream_tasks=[wait_for_materialization],
             )
@@ -565,9 +555,7 @@ with Flow(
     )
 
     # Materialization mode
-    materialization_mode = Parameter(
-        "materialization_mode", default="prod", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -611,7 +599,7 @@ with Flow(
             parameters={
                 "dataset_id": dataset_id,
                 "table_id": table_id,
-                "mode": materialization_mode,
+                "target": target,
                 "dbt_alias": dbt_alias,
             },
             labels=current_flow_labels,
@@ -638,7 +626,7 @@ with Flow(
                 date_column_name={"year": "ano", "month": "mes"},
                 date_format="%Y-%m",
                 coverage_type="all_free",
-                prefect_mode=materialization_mode,
+                prefect_mode=target,
                 bq_project="basedosdados",
                 upstream_tasks=[wait_for_materialization],
             )
@@ -665,9 +653,7 @@ with Flow(
     )
 
     # Materialization mode
-    materialization_mode = Parameter(
-        "materialization_mode", default="prod", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -711,7 +697,7 @@ with Flow(
             parameters={
                 "dataset_id": dataset_id,
                 "table_id": table_id,
-                "mode": materialization_mode,
+                "target": target,
                 "dbt_alias": dbt_alias,
             },
             labels=current_flow_labels,
@@ -738,7 +724,7 @@ with Flow(
                 date_column_name={"year": "ano", "month": "mes"},
                 date_format="%Y-%m",
                 coverage_type="all_free",
-                prefect_mode=materialization_mode,
+                prefect_mode=target,
                 bq_project="basedosdados",
                 upstream_tasks=[wait_for_materialization],
             )
@@ -765,9 +751,7 @@ with Flow(
     )
 
     # Materialization mode
-    materialization_mode = Parameter(
-        "materialization_mode", default="prod", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -811,7 +795,7 @@ with Flow(
             parameters={
                 "dataset_id": dataset_id,
                 "table_id": table_id,
-                "mode": materialization_mode,
+                "target": target,
                 "dbt_alias": dbt_alias,
             },
             labels=current_flow_labels,
@@ -838,7 +822,7 @@ with Flow(
                 date_column_name={"year": "ano", "month": "mes"},
                 date_format="%Y-%m",
                 coverage_type="all_free",
-                prefect_mode=materialization_mode,
+                prefect_mode=target,
                 bq_project="basedosdados",
                 upstream_tasks=[wait_for_materialization],
             )

@@ -1,0 +1,1099 @@
+---
+version: 2
+# ! modelo dbt armas_apreendidas_mensal
+models:
+  - name: br_rj_isp_estatisticas_seguranca__armas_apreendidas_mensal
+    description: Série histórica mensal por área de delegacia desde 01/2007
+    columns:
+      - name: ano
+        description: Ano
+      - name: mes
+        description: Mês
+      - name: id_cisp
+        description: Número da circunscrição onde ocorreu o fato
+      - name: id_aisp
+        description: Número da Área Integrada de Segurança Pública
+      - name: id_risp
+        description: Número da Região Integrada de Segurança Pública
+      - name: quantidade_arma_fabricacao_caseira
+        description: Arma de fabricação caseira
+      - name: quantidade_carabina
+        description: Carabinas
+      - name: quantidade_espingarda
+        description: Espingardas
+      - name: quantidade_fuzil
+        description: Fuzils
+      - name: quantidade_garrucha
+        description: Garruchas
+      - name: quantidade_garruchao
+        description: Garruchãos
+      - name: quantidade_metralhadora
+        description: Metralhadoras
+      - name: quantidade_outros
+        description: Outros
+      - name: quantidade_pistola
+        description: Pistolas
+      - name: quantidade_revolver
+        description: Revolvers
+      - name: quantidade_submetralhadora
+        description: Submetralhadoras
+      - name: total
+        description: Total
+# ! modelo dbt evolucao_mensal_cisp
+  - name: br_rj_isp_estatisticas_seguranca__evolucao_mensal_cisp
+    description: Evolução mensal CISP
+    columns:
+      - name: ano
+        description: Ano
+      - name: mes
+        description: Mês
+      - name: id_cisp
+        description: Identificador da circunscrição onde ocorreu o fato
+      - name: id_aisp
+        description: Identificador da Área Integrada de Segurança Pública
+      - name: id_risp
+        description: Identificador da Região Integrada de Segurança Pública
+      - name: id_municipio
+        description: Identificador IBGE de 7 dígitos do município da circunscrição
+      - name: regiao
+        description: Região do Rio de Janeiro
+      - name: quantidade_homicidio_doloso
+        description: Homicídio doloso
+      - name: quantidade_latrocinio
+        description: Latrocínio
+      - name: quantidade_lesao_corporal_morte
+        description: Lesão corporal seguida de morte
+      - name: quantidade_crimes_violentos_letais_intencionais
+        description: Crimes violentos letais intencionais (CVLI)
+      - name: quantidade_homicidio_intervencao_policial
+        description: Morte por intervenção de agente do Estado
+      - name: quantidade_letalidade_violenta
+        description: Letalidade violenta
+      - name: quantidade_tentativa_homicidio
+        description: Tentativa de homicídio
+      - name: quantidade_lesao_corporal_dolosa
+        description: Lesão corporal dolosa
+      - name: quantidade_estupro
+        description: Estupro
+      - name: quantidade_homicidio_culposo
+        description: Homicídio culposo (trânsito)
+      - name: quantidade_lesao_corporal_culposa
+        description: Lesão corporal culposa (trânsito)
+      - name: quantidade_roubo_transeunte
+        description: Roubo a transeunte
+      - name: quantidade_roubo_celular
+        description: Roubo ao telefone celular
+      - name: quantidade_roubo_corporal_coletivo
+        description: Roubo coletivo
+      - name: quantidade_roubo_rua
+        description: Roubo de rua
+      - name: quantidade_roubo_veiculo
+        description: Roubo de veículo
+      - name: quantidade_roubo_carga
+        description: Roubo de carga
+      - name: quantidade_roubo_comercio
+        description: Roubo a estabelecimento comercial
+      - name: quantidade_roubo_residencia
+        description: Roubo a residência
+      - name: quantidade_roubo_banco
+        description: Roubo a banco
+      - name: quantidade_roubo_caixa_eletronico
+        description: Roubo a caixa eletrônico
+      - name: quantidade_roubo_conducao_saque
+        description: Roubo com condução da vítima para saque em instituição financeira
+      - name: quantidade_roubo_apos_saque
+        description: Roubo após saque em instituição financeira
+      - name: quantidade_roubo_bicicleta
+        description: Roubo de bicicleta
+      - name: quantidade_outros_roubos
+        description: Outros roubos que não os listados acima
+      - name: quantidade_total_roubos
+        description: Total de roubos
+      - name: quantidade_furto_veiculos
+        description: Furto de veículo
+      - name: quantidade_furto_transeunte
+        description: Furto a transeunte
+      - name: quantidade_furto_coletivo
+        description: Furto coletivo
+      - name: quantidade_furto_celular
+        description: Furto ao telefone celular
+      - name: quantidade_furto_bicicleta
+        description: Furto de bicicleta
+      - name: quantidade_outros_furtos
+        description: Outros furtos que não os listados acima
+      - name: quantidade_total_furtos
+        description: Total de furtos
+      - name: quantidade_sequestro
+        description: Extorsão mediante sequestro (sequestro clássico)
+      - name: quantidade_extorsao
+        description: Extorsão
+      - name: quantidade_sequestro_relampago
+        description: Extorsão com restrição da liberdade da vítima (sequestro relâmpago)
+      - name: quantidade_estelionato
+        description: Estelionato
+      - name: quantidade_apreensao_drogas
+        description: Apreensão de drogas
+      - name: quantidade_registro_posse_drogas
+        description: Número de registros que possuem algum título referente a posse
+          de drogas
+      - name: quantidade_registro_trafico_drogas
+        description: Número de registros que possuem algum título referente a tráfico
+          de drogas
+      - name: quantidade_registro_apreensao_drogas_sem_autor
+        description: Número de registros que possuem algum título referente a apreensão
+          de drogas sem autor
+      - name: quantidade_registro_veiculo_recuperado
+        description: Recuperação de veículo
+      - name: quantidade_apf
+        description: Número de autos de Prisão em Flagrante (APF)
+      - name: quantidade_aaapai
+        description: Número de autos de Apreensão de Adolescente por Prática de Ato
+          Infracional (AAAPAI)
+      - name: quantidade_cmp
+        description: Número de cumprimento de mandado de prisão (CMP)
+      - name: quantidade_cmba
+        description: Número de cumprimento de mandado de busca e apreensão (CMBA)
+      - name: quantidade_ameaca
+        description: Ameaça
+      - name: quantidade_pessoas_desaparecidas
+        description: Pessoas desaparecidas
+      - name: quantidade_encontro_cadaver
+        description: Encontro de cadáver
+      - name: quantidade_encontro_ossada
+        description: Encontro de ossada
+      - name: quantidade_policial_militar_morto_servico
+        description: Policiais Militares mortos em serviço
+      - name: quantidade_policial_civil_morto_servico
+        description: Policiais Civis mortos em serviço
+      - name: quantidade_registro_ocorrencia
+        description: Registro de ocorrências
+      - name: tipo_fase
+        description: Tipo de fase (e.g. Consolidado sem errata, Consolidado com errata)
+
+# ! modelo dbt evolucao_mensal_municipio
+  - name: br_rj_isp_estatisticas_seguranca__evolucao_mensal_municipio
+    description: Série histórica mensal por município desde 2014
+    columns:
+      - name: ano
+        description: Ano
+      - name: mes
+        description: Mês
+      - name: id_municipio
+        description: Identificador IBGE de 7 dígitos do município da circunscrição
+      - name: regiao
+        description: Região do Rio de Janeiro
+      - name: quantidade_homicidio_doloso
+        description: Homicídio doloso
+      - name: quantidade_latrocinio
+        description: Latrocínio
+      - name: quantidade_lesao_corporal_morte
+        description: Lesão corporal seguida de morte
+      - name: quantidade_crimes_violentos_letais_intencionais
+        description: Crimes violentos letais intencionais (CVLI)
+      - name: quantidade_homicidio_intervencao_policial
+        description: Morte por intervenção de agente do Estado
+      - name: quantidade_letalidade_violenta
+        description: Letalidade violenta
+      - name: quantidade_tentativa_homicidio
+        description: Tentativa de homicídio
+      - name: quantidade_lesao_corporal_dolosa
+        description: Lesão corporal dolosa
+      - name: quantidade_estupro
+        description: Estupro
+      - name: quantidade_homicidio_culposo
+        description: Homicídio culposo (trânsito)
+      - name: quantidade_lesao_corporal_culposa
+        description: Lesão corporal culposa (trânsito)
+      - name: quantidade_roubo_transeunte
+        description: Roubo a transeunte
+      - name: quantidade_roubo_celular
+        description: Roubo ao telefone celular
+      - name: quantidade_roubo_corporal_coletivo
+        description: Roubo coletivo
+      - name: quantidade_roubo_rua
+        description: Roubo de rua
+      - name: quantidade_roubo_veiculo
+        description: Roubo de veículo
+      - name: quantidade_roubo_carga
+        description: Roubo de carga
+      - name: quantidade_roubo_comercio
+        description: Roubo a estabelecimento comercial
+      - name: quantidade_roubo_residencia
+        description: Roubo a residência
+      - name: quantidade_roubo_banco
+        description: Roubo a banco
+      - name: quantidade_roubo_caixa_eletronico
+        description: Roubo a caixa eletrônico
+      - name: quantidade_roubo_conducao_saque
+        description: Roubo com condução da vítima para saque em instituição financeira
+      - name: quantidade_roubo_apos_saque
+        description: Roubo após saque em instituição financeira
+      - name: quantidade_roubo_bicicleta
+        description: Roubo de bicicleta
+      - name: quantidade_outros_roubos
+        description: Outros roubos que não os listados acima
+      - name: quantidade_total_roubos
+        description: Total de roubos
+      - name: quantidade_furto_veiculos
+        description: Furto de veículo
+      - name: quantidade_furto_transeunte
+        description: Furto a transeunte
+      - name: quantidade_furto_coletivo
+        description: Furto coletivo
+      - name: quantidade_furto_celular
+        description: Furto ao telefone celular
+      - name: quantidade_furto_bicicleta
+        description: Furto de bicicleta
+      - name: quantidade_outros_furtos
+        description: Outros furtos que não os listados acima
+      - name: quantidade_total_furtos
+        description: Total de furtos
+      - name: quantidade_sequestro
+        description: Extorsão mediante sequestro (sequestro clássico)
+      - name: quantidade_extorsao
+        description: Extorsão
+      - name: quantidade_sequestro_relampago
+        description: Extorsão com restrição da liberdade da vítima (sequestro relâmpago)
+      - name: quantidade_estelionato
+        description: Estelionato
+      - name: quantidade_apreensao_drogas
+        description: Apreensão de drogas
+      - name: quantidade_registro_posse_drogas
+        description: Número de registros que possuem algum título referente a posse
+          de drogas
+      - name: quantidade_registro_trafico_drogas
+        description: Número de registros que possuem algum título referente a tráfico
+          de drogas
+      - name: quantidade_registro_apreensao_drogas_sem_autor
+        description: Número de registros que possuem algum título referente a apreensão
+          de drogas sem autor
+      - name: quantidade_registro_veiculo_recuperado
+        description: Recuperação de veículo
+      - name: quantidade_apf
+        description: Número de autos de Prisão em Flagrante (APF)
+      - name: quantidade_aaapai
+        description: Número de autos de Apreensão de Adolescente por Prática de Ato
+          Infracional (AAAPAI)
+      - name: quantidade_cmp
+        description: Número de cumprimento de mandado de prisão (CMP)
+      - name: quantidade_cmba
+        description: Número de cumprimento de mandado de busca e apreensão (CMBA)
+      - name: quantidade_ameaca
+        description: Ameaça
+      - name: quantidade_pessoas_desaparecida
+        description: Pessoas desaparecidas
+      - name: quantidade_encontro_cadaver
+        description: Encontro de cadáver
+      - name: quantidade_encontro_ossada
+        description: Encontro de ossada
+      - name: quantidade_policial_militar_morto_servico
+        description: Policiais Militares mortos em serviço
+      - name: quantidade_policial_civil_morto_servico
+        description: Policiais Civis mortos em serviço
+      - name: quantidade_registro_ocorrencia
+        description: Registro de ocorrências
+      - name: tipo_fase
+        description: Tipo de fase (e.g. Consolidado sem errata, Consolidado com errata)
+
+# ! modelo dbt evolucao_mensal_uf
+  - name: br_rj_isp_estatisticas_seguranca__evolucao_mensal_uf
+    description: Série histórica mensal no estado desde 01/1991
+    columns:
+      - name: ano
+        description: Ano
+      - name: mes
+        description: Mês
+      - name: quantidade_homicidio_doloso
+        description: Homicídio doloso
+      - name: quantidade_latrocinio
+        description: Latrocínio
+      - name: quantidade_lesao_corporal_morte
+        description: Lesão corporal seguida de morte
+      - name: quantidade_crimes_violentos_letais_intencionais
+        description: Crimes violentos letais intencionais (CVLI)
+      - name: quantidade_homicidio_intervencao_policial
+        description: Morte por intervenção de agente do Estado
+      - name: quantidade_letalidade_violenta
+        description: Letalidade violenta
+      - name: quantidade_tentativa_homicidio
+        description: Tentativa de homicídio
+      - name: quantidade_lesao_corporal_dolosa
+        description: Lesão corporal dolosa
+      - name: quantidade_estupro
+        description: Estupro
+      - name: quantidade_homicidio_culposo
+        description: Homicídio culposo (trânsito)
+      - name: quantidade_lesao_corporal_culposa
+        description: Lesão corporal culposa (trânsito)
+      - name: quantidade_roubo_transeunte
+        description: Roubo a transeunte
+      - name: quantidade_roubo_celular
+        description: Roubo ao telefone celular
+      - name: quantidade_roubo_corporal_coletivo
+        description: Roubo coletivo
+      - name: quantidade_roubo_rua
+        description: Roubo de rua
+      - name: quantidade_roubo_veiculo
+        description: Roubo de veículo
+      - name: quantidade_roubo_carga
+        description: Roubo de carga
+      - name: quantidade_roubo_comercio
+        description: Roubo a estabelecimento comercial
+      - name: quantidade_roubo_residencia
+        description: Roubo a residência
+      - name: quantidade_roubo_banco
+        description: Roubo a banco
+      - name: quantidade_roubo_caixa_eletronico
+        description: Roubo a caixa eletrônico
+      - name: quantidade_roubo_conducao_saque
+        description: Roubo com condução da vítima para saque em instituição financeira
+      - name: quantidade_roubo_apos_saque
+        description: Roubo após saque em instituição financeira
+      - name: quantidade_roubo_bicicleta
+        description: Roubo de bicicleta
+      - name: quantidade_outros_roubo
+        description: Outros roubos que não os listados acima
+      - name: quantidade_total_roubos
+        description: Total de roubos
+      - name: quantidade_furto_veiculos
+        description: Furto de veículo
+      - name: quantidade_furto_transeunte
+        description: Furto a transeunte
+      - name: quantidade_furto_coletivo
+        description: Furto coletivo
+      - name: quantidade_furto_celular
+        description: Furto ao telefone celular
+      - name: quantidade_furto_bicicleta
+        description: Furto de bicicleta
+      - name: quantidade_outros_furto
+        description: Outros furtos que não os listados acima
+      - name: quantidade_total_furtos
+        description: Total de furtos
+      - name: quantidade_sequestro
+        description: Extorsão mediante sequestro (sequestro clássico)
+      - name: quantidade_extorsao
+        description: Extorsão
+      - name: quantidade_sequestro_relampago
+        description: Extorsão com restrição da liberdade da vítima (sequestro relâmpago)
+      - name: quantidade_estelionato
+        description: Estelionato
+      - name: quantidade_apreensao_droga
+        description: Apreensão de drogas
+      - name: quantidade_registro_posse_drogas
+        description: Número de registros que possuem algum título referente a posse
+          de drogas
+      - name: quantidade_registro_trafico_drogas
+        description: Número de registros que possuem algum título referente a tráfico
+          de drogas
+      - name: quantidade_registro_apreensao_drogas_sem_autor
+        description: Número de registros que possuem algum título referente a apreensão
+          de drogas sem autor
+      - name: quantidade_registro_veiculo_recuperado
+        description: Recuperação de veículo
+      - name: quantidade_apf
+        description: Número de autos de Prisão em Flagrante (APF)
+      - name: quantidade_aaapai
+        description: Número de autos de Apreensão de Adolescente por Prática de Ato
+          Infracional (AAAPAI)
+      - name: quantidade_cmp
+        description: Número de cumprimento de mandado de prisão (CMP)
+      - name: quantidade_cmba
+        description: Número de cumprimento de mandado de busca e apreensão (CMBA)
+      - name: quantidade_ameaca
+        description: Ameaça
+      - name: quantidade_pessoa_desaparecida
+        description: Pessoas desaparecidas
+      - name: quantidade_encontro_cadaver
+        description: Encontro de cadáver
+      - name: quantidade_encontro_ossada
+        description: Encontro de ossada
+      - name: quantidade_policial_militar_morto_servico
+        description: Policiais Militares mortos em serviço
+      - name: quantidade_policial_civil_morto_servico
+        description: Policiais Civis mortos em serviço
+      - name: quantidade_registro_ocorrencia
+        description: Registro de ocorrências
+      - name: tipo_fase
+        description: Tipo de fase (e.g. Consolidado sem errata, Consolidado com errata)
+
+# ! modelo dbt evolucao_policial_morto_servico_mensal
+  - name: br_rj_isp_estatisticas_seguranca__evolucao_policial_morto_servico_mensal
+    description: Série histórica mensal por área de delegacia desde 01/2003
+    columns:
+      - name: ano
+        description: Ano
+      - name: mes
+        description: Mês
+      - name: id_cisp
+        description: Identificador da circunscrição onde ocorreu o fato
+      - name: quantidade_policial_militar_morto_servico
+        description: Policiais Militares mortos em serviço
+      - name: quantidade_policial_civil_morto_servico
+        description: Policiais Civis mortos em serviço
+
+# ! modelo dbt feminicidio_mensal_cisp
+  - name: br_rj_isp_estatisticas_seguranca__feminicidio_mensal_cisp
+    description: Feminicídio (Lei 7.448/2016) série histórica mensal por área de delegacia
+      desde 10/2016
+    columns:
+      - name: ano
+        description: Ano
+      - name: mes
+        description: Mês
+      - name: id_cisp
+        description: Identificador da circunscrição onde ocorreu o fato
+      - name: quantidade_morte_feminicidio
+        description: Feminicídios consumados
+      - name: quantidade_tentativa_feminicidio
+        description: Tentativas de feminicídio
+      - name: tipo_fase
+        description: Tipo de fase (e.g. Consolidado sem errata, Consolidado com errata)
+
+# ! modelo dbt taxa_evolucao_mensal_municipio
+  - name: br_rj_isp_estatisticas_seguranca__taxa_evolucao_mensal_municipio
+    description: Série histórica mensal por município desde 01/2014 (taxas por 100
+      mil habitantes)
+    columns:
+      - name: ano
+        description: Ano
+      - name: mes
+        description: Mês
+      - name: id_municipio
+        description: Identificador IBGE de 7 dígitos do município da circunscrição
+      - name: regiao
+        description: Região do Rio de Janeiro
+      - name: taxa_homicidio_doloso
+        description: Homicídio doloso por 100 mil habitantes
+      - name: taxa_latrocinio
+        description: Latrocínio por 100 mil habitantes
+      - name: taxa_lesao_corporal_morte
+        description: Lesão corporal seguida de morte por 100 mil habitantes
+      - name: taxa_crimes_violentos_letais_intencionais
+        description: Crimes violentos letais intencionais (CVLI) por 100 mil habitantes
+      - name: taxa_homicidio_intervencao_policial
+        description: Morte por intervenção de agente do Estado por 100 mil habitantes
+      - name: taxa_letalidade_violenta
+        description: Letalidade violenta por 100 mil habitantes
+      - name: taxa_tentativa_homicidio
+        description: Tentativa de homicídio por 100 mil habitantes
+      - name: taxa_lesao_corporal_dolosa
+        description: Lesão corporal dolosa por 100 mil habitantes
+      - name: taxa_estupro
+        description: Estupro por 100 mil habitantes
+      - name: taxa_homicidio_culposo
+        description: Homicídio culposo (trânsito) por 100 mil habitantes
+      - name: taxa_lesao_corporal_culposa
+        description: Lesão corporal culposa (trânsito) por 100 mil habitantes
+      - name: taxa_roubo_transeunte
+        description: Roubo a transeunte por 100 mil habitantes
+      - name: taxa_roubo_celular
+        description: Roubo ao telefone celular por 100 mil habitantes
+      - name: taxa_roubo_corporal_coletivo
+        description: Roubo coletivo por 100 mil habitantes
+      - name: taxa_roubo_rua
+        description: Roubo de rua por 100 mil habitantes
+      - name: taxa_roubo_veiculo
+        description: Roubo de veículo por 100 mil habitantes
+      - name: taxa_roubo_carga
+        description: Roubo de carga por 100 mil habitantes
+      - name: taxa_roubo_comercio
+        description: Roubo a estabelecimento comercial
+      - name: taxa_roubo_residencia
+        description: Roubo a residência por 100 mil habitantes
+      - name: taxa_roubo_banco
+        description: Roubo a banco por 100 mil habitantes
+      - name: taxa_roubo_caixa_eletronico
+        description: Roubo a caixa eletrônico por 100 mil habitantes
+      - name: taxa_roubo_conducao_saque
+        description: Roubo com condução da vítima para saque em instituição financeira
+          por 100 mil habitantes
+      - name: taxa_roubo_apos_saque
+        description: Roubo após saque em instituição financeira por 100 mil habitantes
+      - name: taxa_roubo_bicicleta
+        description: Roubo de bicicleta por 100 mil habitantes
+      - name: taxa_outros_roubos
+        description: Outros roubos que não os listados acima por 100 mil habitantes
+      - name: taxa_total_roubos
+        description: Total de roubos por 100 mil habitantes
+      - name: taxa_furto_veiculos
+        description: Furto de veículo por 100 mil habitantes
+      - name: taxa_furto_transeunte
+        description: Furto a transeunte por 100 mil habitantes
+      - name: taxa_furto_coletivo
+        description: Furto coletivo por 100 mil habitantes
+      - name: taxa_furto_celular
+        description: Furto ao telefone celular por 100 mil habitantes
+      - name: taxa_furto_bicicleta
+        description: Furto de bicicleta por 100 mil habitantes
+      - name: taxa_outros_furtos
+        description: Outros furtos que não os listados acima por 100 mil habitantes
+      - name: taxa_total_furtos
+        description: Total de furtos por 100 mil habitantes
+      - name: taxa_sequestro
+        description: Extorsão mediante sequestro (sequestro clássico) por 100 mil
+          habitantes
+      - name: taxa_extorsao
+        description: Extorsão por 100 mil habitantes
+      - name: taxa_sequestro_relampago
+        description: Extorsão com restrição da liberdade da vítima (sequestro relâmpago)
+          por 100 mil habitantes
+      - name: taxa_estelionato
+        description: Estelionato por 100 mil habitantes
+      - name: taxa_apreensao_drogas
+        description: Apreensão de drogas por 100 mil habitantes
+      - name: taxa_registro_posse_drogas
+        description: Número de registros que possuem algum título referente a posse
+          de drogas por 100 mil habitantes
+      - name: taxa_registro_trafico_drogas
+        description: Número de registros que possuem algum título referente a tráfico
+          de drogas por 100 mil habitantes
+      - name: taxa_registro_apreensao_drogas_sem_autor
+        description: Número de registros que possuem algum título referente a apreensão
+          de drogas sem autor por 100 mil habitantes
+      - name: taxa_registro_veiculo_recuperado
+        description: Recuperação de veículo por 100 mil habitantes
+      - name: taxa_apf
+        description: Número de autos de Prisão em Flagrante (APF) por 100 mil habitantes
+      - name: taxa_aaapai
+        description: Número de autos de Apreensão de Adolescente por Prática de Ato
+          Infracional (AAAPAI) por 100 mil habitantes
+      - name: taxa_cmp
+        description: Número de cumprimento de mandado de prisão (CMP) por 100 mil
+          habitantes
+      - name: taxa_cmba
+        description: Número de cumprimento de mandado de busca e apreensão (CMBA)
+          por 100 mil habitantes
+      - name: taxa_ameaca
+        description: Ameaça por 100 mil habitantes
+      - name: taxa_pessoas_desaparecidas
+        description: Pessoas desaparecidas por 100 mil habitantes
+      - name: taxa_encontro_cadaver
+        description: Encontro de cadáver por 100 mil habitantes
+      - name: taxa_encontro_ossada
+        description: Encontro de ossada por 100 mil habitantes
+      - name: taxa_policial_militar_morto_servico
+        description: Policiais Militares mortos em serviço por 100 mil habitantes
+      - name: taxa_policial_civil_morto_servico
+        description: Policiais Civis mortos em serviço por 100 mil habitantes
+      - name: taxa_registro_ocorrencia
+        description: Registro de ocorrências por 100 mil habitantes
+      - name: tipo_fase
+        description: Tipo de fase (e.g. Consolidado sem errata, Consolidado com errata)
+
+# ! model dbt taxa_letalidade
+  - name: br_rj_isp_estatisticas_seguranca__taxa_letalidade
+    description: Taxa de evolução mensal no Estado por 100 mil habitantes
+    columns:
+      - name: ano
+        description: Ano
+      - name: regiao
+        description: Região do Rio de Janeiro
+      - name: delito
+        description: Delito
+      - name: contagem_delito
+        description: Contagem de delitos por 100 mil habitantes
+      - name: populacao
+        description: População
+      - name: taxa_cem_mil_habitantes
+        description: Taxa de delito por 100 mil habitantes
+
+# ! modelo dbt taxa_evolucao_mensal_uf
+  - name: br_rj_isp_estatisticas_seguranca__taxa_evolucao_mensal_uf
+    description: Taxa de evolução mensal no Estado por 100 mil habitantes
+    columns:
+      - name: ano
+        description: Ano
+      - name: mes
+        description: Mês
+      - name: taxa_homicidio_doloso
+        description: Homicídio doloso por 100 mil habitantes
+      - name: taxa_latrocinio
+        description: Latrocínio por 100 mil habitantes
+      - name: taxa_lesao_corporal_morte
+        description: Lesão corporal seguida de morte por 100 mil habitantes
+      - name: taxa_crimes_violentos_letais_intencionais
+        description: Crimes violentos letais intencionais (CVLI) por 100 mil habitantes
+      - name: taxa_homicidio_intervencao_policial
+        description: Morte por intervenção de agente do Estado por 100 mil habitantes
+      - name: taxa_letalidade_violenta
+        description: Letalidade violenta por 100 mil habitantes
+      - name: taxa_tentativa_homicidio
+        description: Tentativa de homicídio por 100 mil habitantes
+      - name: taxa_lesao_corporal_dolosa
+        description: Lesão corporal dolosa por 100 mil habitantes
+      - name: taxa_estupro
+        description: Estupro por 100 mil habitantes
+      - name: taxa_homicidio_culposo
+        description: Homicídio culposo (trânsito) por 100 mil habitantes
+      - name: taxa_lesao_corporal_culposa
+        description: Lesão corporal culposa (trânsito) por 100 mil habitantes
+      - name: taxa_roubo_transeunte
+        description: Roubo a transeunte por 100 mil habitantes
+      - name: taxa_roubo_celular
+        description: Roubo ao telefone celular por 100 mil habitantes
+      - name: taxa_roubo_corporal_coletivo
+        description: Roubo coletivo por 100 mil habitantes
+      - name: taxa_roubo_rua
+        description: Roubo de rua por 100 mil habitantes
+      - name: taxa_roubo_veiculo
+        description: Roubo de veículo por 100 mil habitantes
+      - name: taxa_roubo_carga
+        description: Roubo de carga por 100 mil habitantes
+      - name: taxa_roubo_comercio
+        description: Roubo a estabelecimento comercial
+      - name: taxa_roubo_residencia
+        description: Roubo a residência por 100 mil habitantes
+      - name: taxa_roubo_banco
+        description: Roubo a banco por 100 mil habitantes
+      - name: taxa_roubo_caixa_eletronico
+        description: Roubo a caixa eletrônico por 100 mil habitantes
+      - name: taxa_roubo_conducao_saque
+        description: Roubo com condução da vítima para saque em instituição financeira
+          por 100 mil habitantes
+      - name: taxa_roubo_apos_saque
+        description: Roubo após saque em instituição financeira por 100 mil habitantes
+      - name: taxa_roubo_bicicleta
+        description: Roubo de bicicleta por 100 mil habitantes
+      - name: taxa_outros_roubos
+        description: Outros roubos que não os listados acima por 100 mil habitantes
+      - name: taxa_total_roubos
+        description: Total de roubos por 100 mil habitantes
+      - name: taxa_furto_veiculos
+        description: Furto de veículo por 100 mil habitantes
+      - name: taxa_furto_transeunte
+        description: Furto a transeunte por 100 mil habitantes
+      - name: taxa_furto_coletivo
+        description: Furto coletivo por 100 mil habitantes
+      - name: taxa_furto_celular
+        description: Furto ao telefone celular por 100 mil habitantes
+      - name: taxa_furto_bicicleta
+        description: Furto de bicicleta por 100 mil habitantes
+      - name: taxa_outros_furtos
+        description: Outros furtos que não os listados acima por 100 mil habitantes
+      - name: taxa_total_furtos
+        description: Total de furtos por 100 mil habitantes
+      - name: taxa_sequestro
+        description: Extorsão mediante sequestro (sequestro clássico) por 100 mil
+          habitantes
+      - name: taxa_extorsao
+        description: Extorsão por 100 mil habitantes
+      - name: taxa_sequestro_relampago
+        description: Extorsão com restrição da liberdade da vítima (sequestro relâmpago)
+          por 100 mil habitantes
+      - name: taxa_estelionato
+        description: Estelionato por 100 mil habitantes
+      - name: taxa_apreensao_drogas
+        description: Apreensão de drogas por 100 mil habitantes
+      - name: taxa_registro_posse_drogas
+        description: Número de registros que possuem algum título referente a posse
+          de drogas por 100 mil habitantes
+      - name: taxa_registro_trafico_drogas
+        description: Número de registros que possuem algum título referente a tráfico
+          de drogas por 100 mil habitantes
+      - name: taxa_registro_apreensao_drogas_sem_autor
+        description: Número de registros que possuem algum título referente a apreensão
+          de drogas sem autor por 100 mil habitantes
+      - name: taxa_registro_veiculo_recuperado
+        description: Recuperação de veículo por 100 mil habitantes
+      - name: taxa_apf
+        description: Número de autos de Prisão em Flagrante (APF) por 100 mil habitantes
+      - name: taxa_aaapai
+        description: Número de autos de Apreensão de Adolescente por Prática de Ato
+          Infracional (AAAPAI) por 100 mil habitantes
+      - name: taxa_cmp
+        description: Número de cumprimento de mandado de prisão (CMP) por 100 mil
+          habitantes
+      - name: taxa_cmba
+        description: Número de cumprimento de mandado de busca e apreensão (CMBA)
+          por 100 mil habitantes
+      - name: taxa_ameaca
+        description: Ameaça por 100 mil habitantes
+      - name: taxa_pessoas_desaparecidas
+        description: Pessoas desaparecidas por 100 mil habitantes
+      - name: taxa_encontro_cadaver
+        description: Encontro de cadáver por 100 mil habitantes
+      - name: taxa_encontro_ossada
+        description: Encontro de ossada por 100 mil habitantes
+      - name: taxa_policial_militar_morto_servico
+        description: Policiais Militares mortos em serviço por 100 mil habitantes
+      - name: taxa_policial_civil_morto_servico
+        description: Policiais Civis mortos em serviço por 100 mil habitantes
+      - name: taxa_registro_ocorrencia
+        description: Registro de ocorrências por 100 mil habitantes
+      - name: tipo_fase
+        description: Tipo de fase (e.g. Consolidado sem errata, Consolidado com errata)
+
+# ! armas_fogo_apreendidas_mensal
+  - name: br_rj_isp_estatisticas_seguranca__armas_fogo_apreendidas_mensal
+    description: Série histórica mensal por área de delegacia (01/2003 a 12/2006)
+    columns:
+      - name: ano
+        description: Ano
+      - name: mes
+        description: Mês
+      - name: id_municipio
+        description: Identificador IBGE de 7 dígitos do município da circunscrição
+      - name: id_cisp
+        description: Identificador da circunscrição onde ocorreu o fato
+      - name: id_aisp
+        description: Identificador da Área Integrada de Segurança Pública
+      - name: id_risp
+        description: Identificador da Região Integrada de Segurança Pública
+      - name: quantidade_arma_fogo_apreendida
+        description: Quantidade de armas de fogo apreendidas mensalmente
+
+# ! evolucao_mensal_upp
+  - name: br_rj_isp_estatisticas_seguranca__evolucao_mensal_upp
+    description: Série histórica mensal por área de Unidade de Polícia Pacificadora
+      (01/2007 a 06/2021)
+    columns:
+      - name: ano
+        description: Ano
+      - name: mes
+        description: Mês
+      - name: id_upp
+        description: Identificador da Unidade de Polícia Pacificadora (UPP)
+      - name: nome
+        description: Nome da Unidade de Polícia Pacificadora (UPP)
+      - name: quantidade_homicidio_doloso
+        description: Homicídio doloso
+      - name: quantidade_latrocinio
+        description: Latrocínio
+      - name: quantidade_lesao_corporal_morte
+        description: Lesão corporal seguida de morte
+      - name: quantidade_homicidio_intervencao_policial
+        description: Morte por intervenção de agente do Estado
+      - name: quantidade_tentativa_homicidio
+        description: Tentativa de homicídio
+      - name: quantidade_lesao_corporal_dolosa
+        description: Lesão corporal dolosa
+      - name: quantidade_estupro
+        description: Estupro
+      - name: quantidade_homicidio_culposo
+        description: Homicídio culposo (trânsito)
+      - name: quantidade_estupro
+        description: Estupro
+      - name: quantidade_homicidio_culposo
+        description: Homicídio culposo (trânsito)
+      - name: quantidade_lesao_corporal_culposa
+        description: Lesão corporal culposa (trânsito)
+      - name: quantidade_roubo_transeunte
+        description: Roubo a transeunte
+      - name: quantidade_roubo_corporal_coletivo
+        description: Roubo coletivo
+      - name: quantidade_roubo_veiculo
+        description: Roubo de veículo
+      - name: quantidade_roubo_carga
+        description: Roubo de carga
+      - name: quantidade_roubo_comercio
+        description: Roubo a estabelecimento comercial
+      - name: quantidade_roubo_residencia
+        description: Roubo a residência
+      - name: quantidade_roubo_banco
+        description: Roubo a banco
+      - name: quantidade_roubo_caixa_eletronico
+        description: Roubo a caixa eletrônico
+      - name: quantidade_roubo_conducao_saque
+        description: Roubo com condução da vítima para saque em instituição financeira
+      - name: quantidade_total_roubos
+        description: Total de roubos
+      - name: quantidade_furto_veiculos
+        description: Furto de veículo
+      - name: quantidade_total_furto
+        description: Total de furtos
+      - name: quantidade_sequestro
+        description: Extorsão mediante sequestro (sequestro clássico)
+      - name: quantidade_extorsao
+        description: Extorsão
+      - name: quantidade_sequestro_relampago
+        description: Extorsão com restrição da liberdade da vítima (sequestro relâmpago)
+      - name: quantidade_estelionato
+        description: Estelionato
+      - name: quantidade_apreensao_droga
+        description: Apreensão de drogas
+      - name: quantidade_registro_veiculo_recuperado
+        description: Recuperação de veículo
+      - name: quantidade_ameaca
+        description: Ameaça
+      - name: quantidade_pessoa_desaparecida
+        description: Pessoas desaparecidas
+      - name: quantidade_encontro_cadaver
+        description: Encontro de cadáver
+      - name: quantidade_encontro_ossada
+        description: Encontro de ossada
+      - name: quantidade_policial_militar_morto_servico
+        description: Policiais Militares mortos em serviço
+      - name: quantidade_policial_civil_morto_servico
+        description: Policiais Civis mortos em serviço
+      - name: quantidade_registro_ocorrencia
+        description: Registro de ocorrências
+  - name: br_rj_isp_estatisticas_seguranca__relacao_cisp_aisp_risp
+    description: Relação entre Circunscrição Integrada de Segurança Pública (CISP),
+      Área Integrada de Segurança Pública (AISP) e Região Integrada de Segurança Pública
+      (RISP) no estado do Rio de Janeiro
+    columns:
+      - name: id_aisp
+        description: Número da Área Integrada de Segurança Pública
+      - name: id_risp
+        description: Número da Região Integrada de Segurança Pública
+      - name: id_cisp
+        description: Número da Circunscrição Integrada de Segurança Pública
+      - name: id_municipio
+        description: Código IBGE de 7 dígitos do município
+      - name: unidade_territorial
+        description: Unidade Territorial
+      - name: regiao
+        description: Região do Rio de Janeiro
+
+# ! modelo dbt taxa_evolucao_anual_uf
+  - name: br_rj_isp_estatisticas_seguranca__taxa_evolucao_anual_uf
+    description: Série histórica anual no estado desde 1991 (taxas por 100 mil habitantes)
+    columns:
+      - name: ano
+        description: Ano
+      - name: taxa_homicidio_doloso
+        description: Homicídio doloso por 100 mil habitantes
+      - name: taxa_latrocinio
+        description: Latrocínio por 100 mil habitantes
+      - name: taxa_lesao_corporal_morte
+        description: Lesão corporal seguida de morte por 100 mil habitantes
+      - name: taxa_crimes_violentos_letais_intencionais
+        description: Crimes violentos letais intencionais (CVLI) por 100 mil habitantes
+      - name: taxa_homicidio_intervencao_policial
+        description: Morte por intervenção de agente do Estado por 100 mil habitantes
+      - name: taxa_letalidade_violenta
+        description: Letalidade violenta por 100 mil habitantes
+      - name: taxa_tentativa_homicidio
+        description: Tentativa de homicídio por 100 mil habitantes
+      - name: taxa_lesao_corporal_dolosa
+        description: Lesão corporal dolosa por 100 mil habitantes
+      - name: taxa_estupro
+        description: Estupro por 100 mil habitantes
+      - name: taxa_homicidio_culposo
+        description: Homicídio culposo (trânsito) por 100 mil habitantes
+      - name: taxa_lesao_corporal_culposa
+        description: Lesão corporal culposa (trânsito) por 100 mil habitantes
+      - name: taxa_roubo_transeunte
+        description: Roubo a transeunte por 100 mil habitantes
+      - name: taxa_roubo_celular
+        description: Roubo ao telefone celular por 100 mil habitantes
+      - name: taxa_roubo_corporal_coletivo
+        description: Roubo coletivo por 100 mil habitantes
+      - name: taxa_roubo_rua
+        description: Roubo de rua por 100 mil habitantes
+      - name: taxa_roubo_veiculo
+        description: Roubo de veículo por 100 mil habitantes
+      - name: taxa_roubo_carga
+        description: Roubo de carga por 100 mil habitantes
+      - name: taxa_roubo_comercio
+        description: Roubo a estabelecimento comercial
+      - name: taxa_roubo_residencia
+        description: Roubo a residência por 100 mil habitantes
+      - name: taxa_roubo_banco
+        description: Roubo a banco por 100 mil habitantes
+      - name: taxa_roubo_caixa_eletronico
+        description: Roubo a caixa eletrônico por 100 mil habitantes
+      - name: taxa_roubo_conducao_saque
+        description: Roubo com condução da vítima para saque em instituição financeira
+          por 100 mil habitantes
+      - name: taxa_roubo_apos_saque
+        description: Roubo após saque em instituição financeira por 100 mil habitantes
+      - name: taxa_roubo_bicicleta
+        description: Roubo de bicicleta por 100 mil habitantes
+      - name: taxa_outros_roubos
+        description: Outros roubos que não os listados acima por 100 mil habitantes
+      - name: taxa_total_roubos
+        description: Total de roubos por 100 mil habitantes
+      - name: taxa_furto_veiculos
+        description: Furto de veículo por 100 mil habitantes
+      - name: taxa_furto_transeunte
+        description: Furto a transeunte por 100 mil habitantes
+      - name: taxa_furto_coletivo
+        description: Furto coletivo por 100 mil habitantes
+      - name: taxa_furto_celular
+        description: Furto ao telefone celular por 100 mil habitantes
+      - name: taxa_furto_bicicleta
+        description: Furto de bicicleta por 100 mil habitantes
+      - name: taxa_outros_furtos
+        description: Outros furtos que não os listados acima por 100 mil habitantes
+      - name: taxa_total_furtos
+        description: Total de furtos por 100 mil habitantes
+      - name: taxa_sequestro
+        description: Extorsão mediante sequestro (sequestro clássico) por 100 mil
+          habitantes
+      - name: taxa_extorsao
+        description: Extorsão por 100 mil habitantes
+      - name: taxa_sequestro_relampago
+        description: Extorsão com restrição da liberdade da vítima (sequestro relâmpago)
+          por 100 mil habitantes
+      - name: taxa_estelionato
+        description: Estelionato por 100 mil habitantes
+      - name: taxa_apreensao_drogas
+        description: Apreensão de drogas por 100 mil habitantes
+      - name: taxa_registro_posse_drogas
+        description: Número de registros que possuem algum título referente a posse
+          de drogas por 100 mil habitantes
+      - name: taxa_registro_trafico_drogas
+        description: Número de registros que possuem algum título referente a tráfico
+          de drogas por 100 mil habitantes
+      - name: taxa_registro_apreensao_drogas_sem_autor
+        description: Número de registros que possuem algum título referente a apreensão
+          de drogas sem autor por 100 mil habitantes
+      - name: taxa_registro_veiculo_recuperado
+        description: Recuperação de veículo por 100 mil habitantes
+      - name: taxa_apf
+        description: Número de autos de Prisão em Flagrante (APF) por 100 mil habitantes
+      - name: taxa_aaapai
+        description: Número de autos de Apreensão de Adolescente por Prática de Ato
+          Infracional (AAAPAI) por 100 mil habitantes
+      - name: taxa_cmp
+        description: Número de cumprimento de mandado de prisão (CMP) por 100 mil
+          habitantes
+      - name: taxa_cmba
+        description: Número de cumprimento de mandado de busca e apreensão (CMBA)
+          por 100 mil habitantes
+      - name: taxa_ameaca
+        description: Ameaça por 100 mil habitantes
+      - name: taxa_pessoas_desaparecidas
+        description: Pessoas desaparecidas por 100 mil habitantes
+      - name: taxa_encontro_cadaver
+        description: Encontro de cadáver por 100 mil habitantes
+      - name: taxa_encontro_ossada
+        description: Encontro de ossada por 100 mil habitantes
+      - name: taxa_policial_militar_morto_servico
+        description: Policiais Militares mortos em serviço por 100 mil habitantes
+      - name: taxa_policial_civil_morto_servico
+        description: Policiais Civis mortos em serviço por 100 mil habitantes
+      - name: taxa_registro_ocorrencia
+        description: Registro de ocorrências por 100 mil habitantes
+      - name: tipo_fase
+        description: Tipo de fase (e.g. Consolidado sem errata, Consolidado com errata)
+
+# ! modelo dbt taxa_evolucao_anual_municipio
+  - name: br_rj_isp_estatisticas_seguranca__taxa_evolucao_anual_municipio
+    description: Série histórica anual por município desde 2014 (taxas por 100 mil
+      habitantes)
+    columns:
+      - name: ano
+        description: Ano
+      - name: id_municipio
+        description: Código IBGE de 7 dígitos do município
+      - name: regiao
+        description: Região do Rio de Janeiro
+      - name: taxa_homicidio_doloso
+        description: Homicídio doloso por 100 mil habitantes
+      - name: taxa_latrocinio
+        description: Latrocínio por 100 mil habitantes
+      - name: taxa_lesao_corporal_morte
+        description: Lesão corporal seguida de morte por 100 mil habitantes
+      - name: taxa_crimes_violentos_letais_intencionais
+        description: Crimes violentos letais intencionais (CVLI) por 100 mil habitantes
+      - name: taxa_homicidio_intervencao_policial
+        description: Morte por intervenção de agente do Estado por 100 mil habitantes
+      - name: taxa_letalidade_violenta
+        description: Letalidade violenta por 100 mil habitantes
+      - name: taxa_tentativa_homicidio
+        description: Tentativa de homicídio por 100 mil habitantes
+      - name: taxa_lesao_corporal_dolosa
+        description: Lesão corporal dolosa por 100 mil habitantes
+      - name: taxa_estupro
+        description: Estupro por 100 mil habitantes
+      - name: taxa_homicidio_culposo
+        description: Homicídio culposo (trânsito) por 100 mil habitantes
+      - name: taxa_lesao_corporal_culposa
+        description: Lesão corporal culposa (trânsito) por 100 mil habitantes
+      - name: taxa_roubo_transeunte
+        description: Roubo a transeunte por 100 mil habitantes
+      - name: taxa_roubo_celular
+        description: Roubo ao telefone celular por 100 mil habitantes
+      - name: taxa_roubo_corporal_coletivo
+        description: Roubo coletivo por 100 mil habitantes
+      - name: taxa_roubo_rua
+        description: Roubo de rua por 100 mil habitantes
+      - name: taxa_roubo_veiculo
+        description: Roubo de veículo por 100 mil habitantes
+      - name: taxa_roubo_carga
+        description: Roubo de carga por 100 mil habitantes
+      - name: taxa_roubo_comercio
+        description: Roubo a estabelecimento comercial
+      - name: taxa_roubo_residencia
+        description: Roubo a residência por 100 mil habitantes
+      - name: taxa_roubo_banco
+        description: Roubo a banco por 100 mil habitantes
+      - name: taxa_roubo_caixa_eletronico
+        description: Roubo a caixa eletrônico por 100 mil habitantes
+      - name: taxa_roubo_conducao_saque
+        description: Roubo com condução da vítima para saque em instituição financeira
+          por 100 mil habitantes
+      - name: taxa_roubo_apos_saque
+        description: Roubo após saque em instituição financeira por 100 mil habitantes
+      - name: taxa_roubo_bicicleta
+        description: Roubo de bicicleta por 100 mil habitantes
+      - name: taxa_outros_roubos
+        description: Outros roubos que não os listados acima por 100 mil habitantes
+      - name: taxa_total_roubos
+        description: Total de roubos por 100 mil habitantes
+      - name: taxa_furto_veiculos
+        description: Furto de veículo por 100 mil habitantes
+      - name: taxa_furto_transeunte
+        description: Furto a transeunte por 100 mil habitantes
+      - name: taxa_furto_coletivo
+        description: Furto coletivo por 100 mil habitantes
+      - name: taxa_furto_celular
+        description: Furto ao telefone celular por 100 mil habitantes
+      - name: taxa_furto_bicicleta
+        description: Furto de bicicleta por 100 mil habitantes
+      - name: taxa_outros_furtos
+        description: Outros furtos que não os listados acima por 100 mil habitantes
+      - name: taxa_total_furtos
+        description: Total de furtos por 100 mil habitantes
+      - name: taxa_sequestro
+        description: Extorsão mediante sequestro (sequestro clássico) por 100 mil
+          habitantes
+      - name: taxa_extorsao
+        description: Extorsão por 100 mil habitantes
+      - name: taxa_sequestro_relampago
+        description: Extorsão com restrição da liberdade da vítima (sequestro relâmpago)
+          por 100 mil habitantes
+      - name: taxa_estelionato
+        description: Estelionato por 100 mil habitantes
+      - name: taxa_apreensao_drogas
+        description: Apreensão de drogas por 100 mil habitantes
+      - name: taxa_registro_posse_drogas
+        description: Número de registros que possuem algum título referente a posse
+          de drogas por 100 mil habitantes
+      - name: taxa_registro_trafico_drogas
+        description: Número de registros que possuem algum título referente a tráfico
+          de drogas por 100 mil habitantes
+      - name: taxa_registro_apreensao_drogas_sem_autor
+        description: Número de registros que possuem algum título referente a apreensão
+          de drogas sem autor por 100 mil habitantes
+      - name: taxa_registro_veiculo_recuperado
+        description: Recuperação de veículo por 100 mil habitantes
+      - name: taxa_apf
+        description: Número de autos de Prisão em Flagrante (APF) por 100 mil habitantes
+      - name: taxa_aaapai
+        description: Número de autos de Apreensão de Adolescente por Prática de Ato
+          Infracional (AAAPAI) por 100 mil habitantes
+      - name: taxa_cmp
+        description: Número de cumprimento de mandado de prisão (CMP) por 100 mil
+          habitantes
+      - name: taxa_cmba
+        description: Número de cumprimento de mandado de busca e apreensão (CMBA)
+          por 100 mil habitantes
+      - name: taxa_ameaca
+        description: Ameaça por 100 mil habitantes
+      - name: taxa_pessoas_desaparecidas
+        description: Pessoas desaparecidas por 100 mil habitantes
+      - name: taxa_encontro_cadaver
+        description: Encontro de cadáver por 100 mil habitantes
+      - name: taxa_encontro_ossada
+        description: Encontro de ossada por 100 mil habitantes
+      - name: taxa_policial_militar_morto_servico
+        description: Policiais Militares mortos em serviço por 100 mil habitantes
+      - name: taxa_policial_civil_morto_servico
+        description: Policiais Civis mortos em serviço por 100 mil habitantes
+      - name: taxa_registro_ocorrencia
+        description: Registro de ocorrências por 100 mil habitantes
+      - name: tipo_fase
+        description: Tipo de fase (e.g. Consolidado sem errata, Consolidado com errata)

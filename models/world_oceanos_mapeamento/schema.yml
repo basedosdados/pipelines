@@ -1,0 +1,117 @@
+---
+version: 2
+models:
+  - name: world_oceanos_mapeamento__historico_inscritos
+    description: Tabela com o histórico de inscritos do prêmio Oceanos
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, titulo_livro]
+    columns:
+      - name: ano
+        description: Ano
+      - name: titulo_livro
+        description: Título da Obra
+      - name: genero_livro
+        description: Categoria/Gênero Literário
+      - name: pais_primeira_edicao
+        description: País da primeira edição
+      - name: nome_autor
+        description: Nome
+      - name: nacionalidade_autor
+        description: Nacionalidade
+      - name: genero_autor
+        description: Gênero
+      - name: faixa_etaria_autor
+        description: Idade
+      - name: nome_pais_autor
+        description: País
+      - name: nome_editora
+        description: Nome da Editora
+      - name: sede_editora
+        description: Local/Locais de Sede da Editora
+      - name: site_editora
+        description: Site da Editora
+      - name: indicador_semifinalista
+        description: Indica se a Obra foi semifinalista do prêmio
+      - name: indicador_finalista
+        description: Indica se a Obra foi finalsita do prêmio
+      - name: indicador_vencedor
+        description: Indica se a Obra foi vencedora do prêmio
+  - name: world_oceanos_mapeamento__historico_jurados
+    description: A tabela contém informações sobre a participação dos jurados ano
+      a ano, incluindo dados demográficos, o tipo de obra avaliada e se participaram
+      da seleção dos livros finalistas.
+    columns:
+      - name: ano
+        description: Ano
+      - name: nome
+        description: Nome
+      - name: nome_pais
+        description: Nome do País
+      - name: sigla_uf
+        description: Sigla da UF
+      - name: nome_municipio_origem
+        description: Nome do Município de Origem do Inscrito
+      - name: nome_municipio_moradia
+        description: Nome do Município de Moradia do Inscrito
+      - name: genero
+        description: Gênero
+      - name: ocupacao
+        description: Ocupação
+      - name: instituicao
+        description: Instituição
+      - name: categoria
+        description: Categoria do Gênero Literário
+      - name: indicador_mapeamento
+        description: Indica se o inscrito está no Mapeamento
+      - name: indicador_nota_discrepante
+        description: Indica se a nota dada pelo Inscrito é discrepante
+      - name: indicador_juri_intermediario
+        description: Indica se o inscrito fez parte do Júri Intermediário
+      - name: indicador_juri_final
+        description: Indica se o inscrito fez parte do Júri Final
+  - name: world_oceanos_mapeamento__mapeamento
+    description: Mapeamento Oceanos
+    columns:
+      - name: id
+        description: Id
+        tests:
+          - relationships:
+              to: ref('world_oceanos_mapeamento__historico_inscritos')
+              field: id_inscrito
+      - name: titulo
+        description: Título do livro.
+      - name: genero_literario
+        description: Gênero literário.
+      - name: outros_generos_literarios
+        description: Outros gêneros literários.
+      - name: registro_linguistico
+        description: Registro linguístico.
+      - name: tematica
+        description: Temática.
+      - name: espaco_representacao
+        description: Espaço de representação.
+      - name: ambiente_predominante
+        description: Ambiente predominante.
+      - name: temporalidade
+        description: Temporalidade.
+      - name: foco_narrativo
+        description: Foco narrativo.
+      - name: tipo_narrador
+        description: Tipo de narrador.
+      - name: procedimento_expressivo
+        description: Procedimento expressivo.
+      - name: genero_dramaturgico
+        description: Gênero dramatúrgico.
+      - name: interprete
+        description: Intérprete.
+      - name: narrador
+        description: Narrador.
+      - name: formato_cena
+        description: Formato de cena.
+      - name: estetica_cenografica
+        description: Estética cenográfica.
+      - name: tipo_localizacao
+        description: Tipo de localização
+      - name: localizacao_geografica
+        description: Localização geográfica

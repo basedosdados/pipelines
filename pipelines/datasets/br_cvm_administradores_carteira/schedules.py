@@ -20,7 +20,7 @@ schedule_responsavel = Schedule(
             ],
             parameter_defaults={
                 "dataset_id": "br_cvm_administradores_carteira",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "table_id": "responsavel",
                 "dbt_alias": True,
@@ -40,7 +40,7 @@ schedule_fisica = Schedule(
             ],
             parameter_defaults={
                 "dataset_id": "br_cvm_administradores_carteira",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "table_id": "pessoa_fisica",
                 "update_metadata": True,
@@ -61,7 +61,7 @@ schedule_juridica = Schedule(
             ],
             parameter_defaults={
                 "dataset_id": "br_cvm_administradores_carteira",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "table_id": "pessoa_juridica",
                 "update_metadata": True,

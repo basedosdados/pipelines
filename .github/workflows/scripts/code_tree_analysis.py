@@ -475,9 +475,14 @@ if __name__ == "__main__":
 
     # Write dependent file list to file.
     if write_to_file:
-        with open("dependent_files.txt", "w") as f:
+        dependent_files_txt = "dependent_files.txt"
+        with open(dependent_files_txt, "w") as f:
             for file_ in dependent_files:
                 f.write(f"{file_}\n")
+
+        print(f"{dependent_files_txt} content:\n")
+        with open(dependent_files_txt, "r") as f:
+            print(f.read())
 
     # Start a PR message
     message = "### Análise da árvore de código\n\n"

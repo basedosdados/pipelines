@@ -1,0 +1,3680 @@
+---
+version: 2
+models:
+  - name: br_ibge_pnadc__microdados
+    description: Microdados PNADC
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, trimestre, id_pessoa]
+      - custom_dictionary_coverage:
+          tags: [microdados_pnadc]  # tags que devem ser usadas no teste
+          columns_covered_by_dictionary:  # colunas que precisam ser testadas
+            - capital
+            - rm_ride
+            - V1022
+            - V1023
+            - V2005
+            - V2007
+            - V2010
+            - V3001
+            - V3002
+            - V3002A
+            - V3003
+            - V3003A
+            - V3004
+            - V3005
+            - V3005A
+            - V3006
+            - V3006A
+            - V3007
+            - V3008
+            - V3009
+            - V3009A
+            - V3010
+            - V3011
+            - V3011A
+            - V3012
+            - V3013
+            - V3013A
+            - V3013B
+            - V3014
+            - V4001
+            - V4002
+            - V4003
+            - V4004
+            - V4005
+            - V4006
+            - V4006A
+            - V4007
+            - V4008
+            - V4009
+            - V4010  # Não tinha no dicionário
+            - V4012
+            - V40121
+            - V40132
+            - V40132A
+            - V4014
+            - V4015
+            - V40151
+            - V4016
+            - V4017
+            - V40171
+            - V4018
+            - V4019
+            - V4020
+            - V4021
+            - V4022
+            - V4024
+            - V4025
+            - V4026
+            - V4027
+            - V4028
+            - V4029
+            - V4032
+            - V4033
+            - V40331
+            - V403311
+            - V40332
+            - V403321
+            - V40333
+            - V403331
+            - V4034
+            - V40341
+            - V403411
+            - V40342
+            - V403421
+            - V4040
+            - V4043  # Não tinha no dicionário
+            - V40431
+            - V4045
+            - V4046
+            - V4047
+            - V4048
+            - V4049
+            - V4050
+            - V40501
+            - V405011
+            - V40502
+            - V405021
+            - V40503
+            - V405031
+            - V4051
+            - V40511
+            - V405111
+            - V40512
+            - V405121
+            - V4057
+            - V4058
+            - V40581
+            - V405811
+            - V40582
+            - V40583  # Não tinha no dicionário
+            - V405831
+            - V40584  # Não tinha no dicionário
+            - V4059
+            - V40591
+            - V405911
+            - V40592
+            - V405921
+            - V4063
+            - V4063A
+            - V4064
+            - V4064A
+            - V4071
+            - V4072
+            - V4072A
+            - V4073
+            - V4074
+            - V4074A
+            - V4075A
+            - V4076
+            - V4077
+            - V4078
+            - V4078A
+            - V4082
+            - VD2002
+            - VD2004
+            - VD3004
+            - VD3006
+            - VD4001
+            - VD4002
+            - VD4003
+            - VD4004
+            - VD4004A
+            - VD4005
+            - VD4007
+            - VD4008
+            - VD4009
+            - VD4010
+            - VD4011
+            - VD4012
+            - VD4013
+            - VD4014
+            - VD4015
+            - VD4018
+            - VD4023
+            - VD4030
+            - VD4036
+            - VD4037
+          dictionary_model: ref('br_ibge_pnadc__dicionario')  # dicionário que deve ser usado no teste
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: trimestre
+        description: Trimestre
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__trimestre')
+              field: trimestre
+      - name: id_uf
+        description: ID Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: id_uf
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: capital
+        description: Município da Capital
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: id_uf
+      - name: rm_ride
+        description: Região Metropolitana e Região Administrativa Integrada
+      - name: id_upa
+        description: ID Unidade Primária de Amostragem (UPA)
+      - name: id_estrato
+        description: ID Estrato (As 2 primeiras posições representam o código da Unidade
+          da Federação)
+      - name: id_domicilio
+        description: ID Domicílio
+      - name: id_pessoa
+        description: ID Pessoa Entrevistada
+      - name: V1008
+        description: Número de seleção do domicílio
+      - name: V1014
+        description: Painel
+      - name: V1016
+        description: Número da entrevista no domicílio
+      - name: V1022
+        description: Situação do domicílio
+      - name: V1023
+        description: Tipo de área
+      - name: V1027
+        description: Peso do domicílio e das pessoas (Peso trimestral com correção
+          de não entrevista sem pós estratificação pela projeção de população)
+      - name: V1028
+        description: Peso do domicílio e das pessoas (Peso trimestral com correção
+          de não entrevista com pós estratificação pela projeção de população)
+      - name: V1029
+        description: Projeção da população por níveis geográficos
+      - name: V1033
+        description: Projeção da população por sexo e idade
+      - name: posest
+        description: Domínios de projeção (As 2 primeiras posições representam o código
+          da Unidade da Federação e a última, o tipo de área. UF(2) + V1023(1))
+      - name: posest_sxi
+        description: Domínios de projeção (As 2 primeiras posições representam o código
+          da Unidade da Federação e a última, o tipo de área. UF(2) + V1023(1))
+      - name: V2001
+        description: Número de pessoas no domicílio
+      - name: V2003
+        description: Número de ordem
+      - name: V2005
+        description: Condição no domicílio
+      - name: V2007
+        description: Sexo
+      - name: V2008
+        description: Dia de nascimento
+      - name: V20081
+        description: Mês de nascimento
+      - name: V20082
+        description: Ano de nascimento
+      - name: V2009
+        description: Idade do morador na data de referência
+      - name: V2010
+        description: Cor ou raça
+      - name: V3001
+        description: '... sabe ler e escrever?'
+      - name: V3002
+        description: '... frequenta escola?'
+      - name: V3002A
+        description: A escola que ... frequenta é de
+      - name: V3003
+        description: Qual é o curso que ... frequenta?
+      - name: V3003A
+        description: Qual é o curso que ... frequenta?
+      - name: V3004
+        description: A duração deste curso que ... frequenta é de
+      - name: V3005
+        description: Este curso que ... frequenta é seriado?
+      - name: V3005A
+        description: Esse curso que .... frequenta é organizado em
+      - name: V3006
+        description: Qual é o ano/série/semestre que ... frequenta?
+      - name: V3006A
+        description: Qual é a etapa do ensino fundamental que ... frequenta?
+      - name: V3007
+        description: '... já concluiu algum outro curso de graduação?'
+      - name: V3008
+        description: Anteriormente ... frequentou escola?
+      - name: V3009
+        description: Qual foi o curso mais elevado que ... frequentou anteriormente?
+      - name: V3009A
+        description: Qual foi o curso mais elevado que ... frequentou anteriormente?
+      - name: V3010
+        description: A duração deste curso que ... frequentou anteriormente era de
+      - name: V3011
+        description: Este curso que ... frequentou anteriormente era seriado?
+      - name: V3011A
+        description: Esse curso que .... frequentou era organizado em
+      - name: V3012
+        description: '... Concluiu com aprovação, pelo menos a primeira série deste
+          curso que frequentou anteriormente?'
+      - name: V3013
+        description: Qual foi o último ano/série/semestre que ... concluiu com aprovação,
+          neste curso que frequentou anteriormente?
+      - name: V3013A
+        description: Qual foi a etapa de ensino fundamental que ... frequentou?
+      - name: V3013B
+        description: '... Concluiu os anos iniciais deste curso que frequentou anteriormente?'
+      - name: V3014
+        description: '... Concluiu este curso que frequentou anteriormente?'
+      - name: V4001
+        description: Na semana de ... a ... (semana de referência), ... trabalhou
+          ou estagiou, durante pelo menos 1 hora, em alguma atividade remunerada em
+          dinheiro?
+      - name: V4002
+        description: Na semana de ... a ... (semana de referência), ... trabalhou
+          ou estagiou, durante pelo menos 1 hora, em alguma atividade remunerada em
+          produtos, mercadorias, moradia, alimentação, etc.?
+      - name: V4003
+        description: Na semana de ... a ... (semana de referência), ... fez algum
+          bico ou trabalhou em alguma atividade ocasional remunerada durante pelo
+          menos 1 hora?
+      - name: V4004
+        description: Na semana de ... a ... (semana de referência), ... ajudou durante
+          pelo menos 1 hora, sem receber pagamento, no trabalho remunerado de algum
+          morador do domicílio ou de parente?
+      - name: V4005
+        description: Na semana de ... a ... (semana de referência), ... tinha algum
+          trabalho remunerado do qual estava temporariamente afastado?
+      - name: V4006
+        description: Na semana de ... a .... (semana de referência), por que motivo
+          ... estava afastado desse trabalho?
+      - name: V4006A
+        description: Na semana de ... a .... (semana de referência), por que motivo
+          ... estava afastado desse trabalho?
+      - name: V4007
+        description: Durante o tempo de afastamento, ... continuou a receber ao menos
+          uma parte do pagamento?
+      - name: V4008
+        description: Em .../.../...(último dia da semana de referência), fazia quanto
+          tempo que ... estava afastado desse trabalho?
+      - name: V40081
+        description: Tempo que estava afastado (De 1 mês a menos de 1 ano)
+      - name: V40082
+        description: Tempo que estava afastado (De 1 ano a menos de 2 anos)
+      - name: V40083
+        description: Tempo que estava afastado (de 02 anos a 98 anos)
+      - name: V4009
+        description: Quantos trabalhos ... tinha na semana de ... a ... (semana de
+          referência?
+      - name: V4010
+        description: Código da ocupação (cargo ou função)
+      - name: V4012
+        description: Nesse trabalho, ... era
+      - name: V40121
+        description: Trabalhador não remunerado
+      - name: V4013
+        description: Código da principal atividade desse negócio/empresa
+      - name: V40132
+        description: Qual a seção da atividade?
+      - name: V40132A
+        description: Qual a seção da atividade?
+      - name: V4014
+        description: Esse trabalho era na área
+      - name: V4015
+        description: Na semana de ... a ... (semana de referência), ... teve ajuda,
+          nesse trabalho, de pelo menos um trabalhador não remunerado que era membro
+          do domicílio ou parente?
+      - name: V40151
+        description: Quantos trabalhadores não remunerados?
+      - name: V401511
+        description: 1 a 5 trabalhadores não remunerados
+      - name: V401512
+        description: 6 a 10 trabalhadores não remunerados
+      - name: V4016
+        description: Na semana de ... a ... (semana de referência), quantos empregados
+          trabalhavam nesse negócio/empresa que ... tinha?
+      - name: V40161
+        description: 1 a 5 empregados
+      - name: V40162
+        description: 6 a 10 empregados
+      - name: V40163
+        description: 11 a 50 empregados
+      - name: V4017
+        description: Na semana de ... a ... (semana de  referência), ... tinha pelo
+          menos um sócio que trabalhava nesse negócio/empresa?
+      - name: V40171
+        description: Quantos?
+      - name: V401711
+        description: 1 a 5 sócios
+      - name: V4018
+        description: Na semana de ... a ... (semana de referência), contando com ...
+          , quantas pessoas trabalhavam nesse negócio/empresa?
+      - name: V40181
+        description: 1 a 5 pessoas
+      - name: V40182
+        description: 6 a 10 pessoas
+      - name: V40183
+        description: 11 a 50 pessoas
+      - name: V4019
+        description: Esse negócio/empresa era registrado no Cadastro Nacional da Pessoa
+          Jurídica - CNPJ?
+      - name: V4020
+        description: Em que tipo de local funcionava esse negócio/empresa?
+      - name: V4021
+        description: '... exercia normalmente o trabalho em estabelecimento desse
+          negócio/empresa?'
+      - name: V4022
+        description: Então onde ... exercia normalmente esse trabalho?
+      - name: V4024
+        description: No período de ... a ... (período de referência de 30 dias) ...
+          prestava serviço doméstico em mais de um domicílio?
+      - name: V4025
+        description: Nesse trabalho, ... era contratado(a) como empregado temporário?
+      - name: V4026
+        description: Na semana de ... a ... (semana de referência), ... era contratado(a)
+          somente por pessoa responsável pelo negócio/empresa em que trabalhava?
+      - name: V4027
+        description: Na semana de ... a ... (semana de referência) era contratado(a)
+          somente por intermediário (empresa empreiteira, empreiteiro, "gato", etc.)?
+      - name: V4028
+        description: Nesse trabalho, ... era servidor público estatutário (federal,
+          estadual ou municipal)?
+      - name: V4029
+        description: Nesse trabalho, ... tinha carteira de trabalho assinada?
+      - name: V4032
+        description: Era contribuinte de instituto de previdência por esse trabalho?
+      - name: V4033
+        description: Qual era o rendimento bruto mensal que ... recebia/fazia normalmente
+          nesse trabalho? (variável auxiliar)
+      - name: V40331
+        description: Recebia/fazia normalmente nesse trabalho rendimento/retirada
+          em dinheiro?
+      - name: V403311
+        description: Número da faixa do rendimento/retirada em dinheiro
+      - name: V403312
+        description: Qual era o rendimento bruto/retirada mensal que ... recebia/fazia
+          normalmente nesse trabalho? (valor em dinheiro)
+      - name: V40332
+        description: Recebia/fazia normalmente nesse trabalho rendimento/retirada
+          em produtos e mercadorias?
+      - name: V403321
+        description: Número da faixa do rendimento/retirada em produtos e mercadorias
+      - name: V403322
+        description: Qual era o rendimento bruto/retirada mensal que ... recebia/fazia
+          normalmente nesse trabalho ? (valor estimado dos produtos ou mercadorias)
+      - name: V40333
+        description: Recebia/fazia normalmente nesse trabalho rendimento/retirada
+          somente em benefícios?
+      - name: V403331
+        description: Tipo de rendimento/retirada em benefícios que recebia/fazia nesse
+          trabalho
+      - name: V4034
+        description: Qual foi o rendimento bruto que ... recebeu/fez nesse trabalho,
+          no mês de referência? (variável auxiliar)
+      - name: V40341
+        description: Recebeu/fez nesse trabalho rendimento/retirada em dinheiro no
+          mês de referência
+      - name: V403411
+        description: Número da faixa do rendimento/retirada em dinheiro
+      - name: V403412
+        description: Qual foi o rendimento bruto/retirada que ... recebeu/fez nesse
+          trabalho, no mês de referência? (valor em dinheiro)
+      - name: V40342
+        description: Recebeu/fez nesse trabalho no mês de referencia, rendimento/retirada
+          em produtos e mercadorias
+      - name: V403421
+        description: Número da faixa do rendimento/retirada em produtos e mercadorias
+      - name: V403422
+        description: Qual foi o rendimento bruto/retirada que ... recebeu/fez nesse
+          trabalho, no mês de referência? (valor estimado dos produtos ou mercadorias)
+      - name: V4039
+        description: Quantas horas ... trabalhava normalmente, por semana, nesse trabalho
+          principal?
+      - name: V4039C
+        description: Quantas horas ... trabalhou efetivamente na semana de referência
+          nesse trabalho pincipal?
+      - name: V4040
+        description: Até o dia ... (último dia da semana de referência) fazia quanto
+          tempo que ... estava nesse trabalho?
+      - name: V40401
+        description: Fazia quanto tempo que estava nesse trabalho (de 1 mês a menos
+          de 1 ano)
+      - name: V40402
+        description: Fazia quanto tempo que estava nesse trabalho (de 1 ano a menos
+          de 2 anos)
+      - name: V40403
+        description: Fazia quanto tempo estava nesse trabalho (2 anos ou mais)
+      - name: V4041
+        description: Código da ocupação (cargo ou função)
+      - name: V4043
+        description: Nesse trabalho secundário, ... era
+      - name: V40431
+        description: Trabalhador familiar não remunerado
+      - name: V4044
+        description: Código da principal atividade desse negócio/empresa
+      - name: V4045
+        description: Esse trabalho era na área
+      - name: V4046
+        description: Esse negócio/empresa era registrado no Cadastro Nacional da Pessoa
+          Jurídica - CNPJ?
+      - name: V4047
+        description: Nesse trabalho secundário era funcionário público estatutário
+          (federal, estadual ou municipal)?
+      - name: V4048
+        description: Nesse trabalho secundário tinha carteira de trabalho assinada?
+      - name: V4049
+        description: Era contribuinte de instituto de previdência por esse trabalho
+          secundário?
+      - name: V4050
+        description: Qual era o rendimento bruto mensal que ... recebia/fazia normalmente
+          nesse trabalho secundário? (variável auxiliar)
+      - name: V40501
+        description: Recebia/fazia normalmente nesse trabalho secundário rendimento/retirada
+          em dinheiro
+      - name: V405011
+        description: Número da faixa do rendimento/retirada em dinheiro
+      - name: V405012
+        description: Valor em dinheiro do rendimento mensal que recebia normalmente
+          nesse trabalho secundário
+      - name: V40502
+        description: Recebia/fazia normalmente nesse trabalho secundário rendimento/retirada
+          em produtos e mercadorias
+      - name: V405021
+        description: Número da faixa do rendimento/retirada em produtos e mercadorias
+      - name: V405022
+        description: Valor estimado dos produtos e mercadorias que recebia normalmente
+          nesse trabalho secundário
+      - name: V40503
+        description: Recebia/fazia normalmente nesse trabalho secundário rendimento/retirada
+          somente em benefícios
+      - name: V405031
+        description: Tipo de rendimento/retirada em benefícios que recebia/fazia nesse
+          trabalho secundário
+      - name: V4051
+        description: Qual foi o rendimento bruto que ... recebeu/fez nesse trabalho
+          secundário, no mês de referência? (variável auxiliar)
+      - name: V40511
+        description: Recebeu/fez nesse trabalho secundário rendimento/retirada em
+          dinheiro no mês de referência
+      - name: V405111
+        description: Número da faixa do rendimento/retirada em dinheiro
+      - name: V405112
+        description: Valor em dinheiro do rendimento mensal que recebeu nesse trabalho
+          secundário no mês de referência
+      - name: V40512
+        description: Recebeu/fez nesse trabalho secundário no mês de referencia, rendimento/retirada
+          em produtos e mercadorias
+      - name: V405121
+        description: Número da faixa do rendimento/retirada em produtos e mercadorias
+      - name: V405122
+        description: Valor estimado dos produtos e mercadorias que recebia recebeu
+          nesse trabalho secundário no mês de referência
+      - name: V4056
+        description: Quantas horas ... trabalhava normalmente, por semana, nesse trabalho
+          secundário?
+      - name: V4056C
+        description: Quantas horas ... trabalhou efetivamente na semana de referência
+          nesse trabalho secundário?
+      - name: V4057
+        description: Era contribuinte de instituto de previdência por esse(s) outro(s)
+          trabalho(s)?
+      - name: V4058
+        description: Qual era o rendimento bruto mensal que ... recebia/fazia  normalmente
+          nesse(s) outro(s) trabalho(s)? (variável auxiliar)
+      - name: V40581
+        description: Recebia/fazia normalmente nesse(s) outro(s) trabalho(s) rendimento/retirada
+          em dinheiro
+      - name: V405811
+        description: Número da faixa do rendimento/retirada em dinheiro
+      - name: V405812
+        description: Valor em dinheiro do rendimento mensal que recebia normalmente
+          nesse(s) outro(s) trabalho(s)
+      - name: V40582
+        description: Recebia/fazia normalmente nesse(s) outro(s) trabalho(s) rendimento/retirada
+          em produtos e mercadorias
+      - name: V405821
+        description: Número da faixa do rendimento/retirada em produtos e mercadorias
+      - name: V405822
+        description: Valor estimado do produtos e mercadorias que recebia normalmente
+          nesse(s) outro(s) trabalho(s)
+      - name: V40583
+        description: Recebia/fazia normalmente nesse(s) outro(s) trabalho(s) rendimento/retirada
+          somente em benefícios
+      - name: V405831
+        description: Tipo de rendimento/retirada em benefícios que recebia/fazia nesse(s)
+          outro(s) trabalho(s)
+      - name: V40584
+        description: Não remunerado nesse(s) outro(s) trabalho(s)
+      - name: V4059
+        description: Qual foi o rendimento bruto que ... recebeu/fez nesse(s) outro(s)
+          trabalho(s), no mês de referência? (variável auxiliar)
+      - name: V40591
+        description: Recebeu/fez nesse(s) outro(s) trabalho(s) rendimento/retirada
+          em dinheiro no mês de referência
+      - name: V405911
+        description: Número da faixa do rendimento/retirada em dinheiro
+      - name: V405912
+        description: Valor em dinheiro do rendimento mensal que recebeu nesse(s) outro(s)
+          trabalho(s) no mês de referência
+      - name: V40592
+        description: Recebeu/fez nesse(s) outro(s) trabalhos no mês de referencia,
+          rendimento/retirada em produtos e mercadorias
+      - name: V405921
+        description: Número da faixa do rendimento/retirada em produtos e mercadorias
+      - name: V405922
+        description: Valor estimado do produtos e mercadorias que recebia normalmente
+          nesse(s) outro(s) trabalho(s) no mês de referência
+      - name: V4062
+        description: Quantas horas ... trabalhava normalmente, por semana, nesse(s)
+          outro(s) trabalho(s)?
+      - name: V4062C
+        description: Quantas horas ... trabalhou efetivamente na semana de referência
+          nesses outros trabalhos?
+      - name: V4063
+        description: '... gostaria de trabalhar mais horas do que as ... (soma das
+          horas declaradas nas variáveis VD4031, VD4032, VD4033) horas que efetivamente
+          trabalhou no(s) trabalho(s) que tinha na semana de referência?'
+      - name: V4063A
+        description: '... gostaria de trabalhar mais horas do que as ... (soma das
+          horas declaradas nos quesitos 39, 56 e 62) horas que normalmente trabalhava
+          no(s) trabalho(s) que tinha na semana de referência?'
+      - name: V4064
+        description: No mês de referência, ... estaria disponível para trabalhar mais
+          do que as (soma das horas declaradas nas variáveis VD4031, VD4032, VD4033)
+          horas que efetivamente trabalhou no(s) trabalho(s) que tinha na semana de
+          referência?
+      - name: V4064A
+        description: No mês de referência, ... estaria disponível para trabalhar mais
+          do que as (soma das horas declaradas nos quesitos 39, 56 e 62) horas que
+          normalmente trabalhava no(s) trabalho(s) que tinha na semana de referência?
+      - name: V4071
+        description: No período de ... a ... (período de referência de 30 dias), ...
+          Tomou alguma providência para conseguir trabalho, seja um emprego ou um
+          negócio próprio?
+      - name: V4072
+        description: No período de ... a ... (período de referência de 30 dias), qual
+          foi a principal providência que ... tomou para conseguir trabalho?
+      - name: V4072A
+        description: No período de ... a ... (período de referência de 30 dias), qual
+          foi a principal providência que ... tomou para conseguir trabalho?
+      - name: V4073
+        description: Embora não tenha tomado providência para conseguir trabalho,
+          gostaria de ter trabalhado na semana de ... a ... (semana de referência)?
+      - name: V4074
+        description: Qual foi o principal motivo de ... não ter tomado providência
+          para conseguir trabalho no período de ... a ... (período de referência de
+          30 dias)?
+      - name: V4074A
+        description: Qual foi o principal motivo de ... não ter tomado providência
+          para conseguir trabalho no período de ... a ... (período de referência de
+          30 dias)?
+      - name: V4075A
+        description: Quanto tempo depois de ... (último dia da semana de referência)
+          irá começar esse trabalho que conseguiu?
+      - name: V4075A1
+        description: Número de meses para começar o trabalho que conseguiu
+      - name: V4076
+        description: Até o dia ... (último dia da semana de referência), fazia quanto
+          tempo que ... estava sem qualquer trabalho e tentando conseguir trabalho?
+      - name: V40761
+        description: fazia quanto tempo que vinha procurando trabalho (de 1 mês a
+          menos de 1 ano)
+      - name: V40762
+        description: fazia quanto tempo que vinha procurando trabalho (de 1 ano a
+          menos de 2 anos)
+      - name: V40763
+        description: fazia quanto tempo vinha procurando trabalho (2 anos ou mais)
+      - name: V4077
+        description: Se tivesse conseguido um trabalho, ... poderia ter começado a
+          trabalhar na semana de ... a ... (semana de referência)?
+      - name: V4078
+        description: Qual foi o principal motivo para ... não querer(poder começar
+          a) trabalhar na semana de  ... a ... (semana de referência)?
+      - name: V4078A
+        description: Qual foi o principal motivo para ... não querer(poder começar
+          a) trabalhar na semana de ... a ... (semana de referência)?
+      - name: V4082
+        description: No período de captação de 358 dias, ... trabalhou por pelo menos
+          1 hora?
+      - name: VD2002
+        description: Condição no domicílio
+      - name: VD2003
+        description: Número de componentes do domicílio (exclusive as pessoas cuja
+          condição no domicílio era pensionista, empregado doméstico ou parente do
+          empregado doméstico)
+      - name: VD2004
+        description: Espécie da unidade doméstica
+      - name: VD3004
+        description: Nível de instrução mais elevado alcançado (pessoas de 5 anos
+          ou mais de idade) padronizado para o Ensino fundamental - SISTEMA DE 9 ANOS
+      - name: VD3005
+        description: Anos de estudo (pessoas de 5 anos ou mais de idade) padronizado
+          para o Ensino fundamental - SISTEMA DE 9 ANOS
+      - name: VD3006
+        description: Grupos de anos de estudo (pessoas de 5 anos ou mais de idade)
+          padronizado para o Ensino fundamental - SISTEMA DE 9 ANOS
+      - name: VD4001
+        description: Condição em relação à força de trabalho na semana de referência
+          para pessoas de 14 anos ou mais de idade
+      - name: VD4002
+        description: Condição de ocupação na semana de referência para pessoas de
+          14 anos ou mais de idade
+      - name: VD4003
+        description: Força de trabalho potencial para pessoas de 14 anos ou mais de
+          idade
+      - name: VD4004
+        description: Subocupação por insuficiência de horas efetivamente trabalhadas
+          em todos os trabalhos
+      - name: VD4004A
+        description: Subocupação por insuficiência de horas habitualmente trabalhadas
+          em todos os trabalhos
+      - name: VD4005
+        description: Pessoas desalentadas na semana de referência
+      - name: VD4007
+        description: Posição na ocupação no trabalho principal da semana de referência
+          para pessoas de 14 anos ou mais de idade
+      - name: VD4008
+        description: Posição na ocupação no trabalho principal da semana de referência
+          para pessoas de 14 anos ou mais de idade (com subcategorias de empregados)
+      - name: VD4009
+        description: Posição na ocupação e categoria do emprego do trabalho principal
+          da semana de referência para pessoas de 14 anos ou mais de idade
+      - name: VD4010
+        description: Grupamentos de atividade principal do empreendimento do trabalho
+          principal da semana de referência para pessoas de 14 anos ou mais de idade
+      - name: VD4011
+        description: Grupamentos ocupacionais do trabalho principal da semana de referência
+          para pessoas de 14 anos ou mais de idade
+      - name: VD4012
+        description: Contribuição para instituto de previdência em qualquer trabalho
+          da semana de referência para pessoas de 14 anos ou mais de idade
+      - name: VD4013
+        description: Faixa das horas habitualmente trabalhadas por semana em todos
+          os trabalhos para pessoas de 14 anos ou mais de idade
+      - name: VD4014
+        description: Faixa das horas efetivamente trabalhadas na semana de referência
+          em todos os trabalhos para pessoas de 14 anos ou mais de idade
+      - name: VD4015
+        description: Tipo de remuneração habitualmente recebida no trabalho principal
+          para pessoas de 14 anos ou mais de idade
+      - name: VD4016
+        description: Rendimento mensal habitual do trabalho principal para pessoas
+          de 14 anos ou mais de idade (apenas para pessoas que receberam em dinheiro,
+          produtos ou mercadorias no trabalho principal)
+      - name: VD4017
+        description: Rendimento mensal efetivo do trabalho principal para pessoas
+          de 14 anos ou mais de idade (apenas para pessoas que receberam em dinheiro,
+          produtos ou mercadorias no trabalho principal)
+      - name: VD4018
+        description: Tipo de remuneração habitualmente recebida em todos os trabalhos
+          para pessoas de 14 anos ou mais de idade
+      - name: VD4019
+        description: Rendimento mensal habitual de todos os trabalhos para pessoas
+          de 14 anos ou mais de idade (apenas para pessoas que receberam em dinheiro,
+          produtos ou mercadorias em qualquer trabalho)
+      - name: VD4020
+        description: Rendimento mensal efetivo de todos os trabalhos para pessoas
+          de 14 anos ou mais de idade (apenas para pessoas que receberam em dinheiro,
+          produtos ou mercadorias em qualquer trabalho)
+      - name: VD4023
+        description: Motivo pelo qual não procurou trabalho ou não gostaria de ter
+          trabalhado ou não estava disponível para iniciar um trabalho
+      - name: VD4030
+        description: Motivo pelo qual não procurou trabalho ou não gostaria de ter
+          trabalhado ou não estava disponível para iniciar um trabalho
+      - name: VD4031
+        description: Horas habitualmente trabalhadas por semana em todos os trabalhos
+          para pessoas de 14 anos ou mais de idade
+      - name: VD4032
+        description: Horas efetivamente trabalhadas na semana de referência no trabalho
+          principal para pessoas de 14 anos ou mais de idade
+      - name: VD4033
+        description: Horas efetivamente trabalhadas na semana de referência no trabalho
+          secundário para pessoas de 14 anos ou mais de idade
+      - name: VD4034
+        description: Horas efetivamente trabalhadas na semana de referência nos outros
+          trabalhos para pessoas de 14 anos ou mais de idade
+      - name: VD4035
+        description: Horas efetivamente trabalhadas na semana de referência em todos
+          os trabalhos para pessoas de 14 anos ou mais de idade
+      - name: VD4036
+        description: Faixa das horas habitualmente trabalhadas por semana no trabalho
+          principal para pessoas de 14 anos ou mais de idade
+      - name: VD4037
+        description: Faixa das horas efetivamente trabalhadas na semana de referência
+          no trabalho principal para pessoas de 14 anos ou mais de idade
+      - name: V1028001
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028002
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028003
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028004
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028005
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028006
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028007
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028008
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028009
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028010
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028011
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028012
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028013
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028014
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028015
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028016
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028017
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028018
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028019
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028020
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028021
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028022
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028023
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028024
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028025
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028026
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028027
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028028
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028029
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028030
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028031
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028032
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028033
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028034
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028035
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028036
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028037
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028038
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028039
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028040
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028041
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028042
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028043
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028044
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028045
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028046
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028047
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028048
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028049
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028050
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028051
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028052
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028053
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028054
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028055
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028056
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028057
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028058
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028059
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028060
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028061
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028062
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028063
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028064
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028065
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028066
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028067
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028068
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028069
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028070
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028071
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028072
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028073
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028074
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028075
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028076
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028077
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028078
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028079
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028080
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028081
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028082
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028083
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028084
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028085
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028086
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028087
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028088
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028089
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028090
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028091
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028092
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028093
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028094
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028095
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028096
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028097
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028098
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028099
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028100
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028101
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028102
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028103
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028104
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028105
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028106
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028107
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028108
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028109
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028110
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028111
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028112
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028113
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028114
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028115
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028116
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028117
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028118
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028119
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028120
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028121
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028122
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028123
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028124
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028125
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028126
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028127
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028128
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028129
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028130
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028131
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028132
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028133
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028134
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028135
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028136
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028137
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028138
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028139
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028140
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028141
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028142
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028143
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028144
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028145
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028146
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028147
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028148
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028149
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028150
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028151
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028152
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028153
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028154
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028155
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028156
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028157
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028158
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028159
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028160
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028161
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028162
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028163
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028164
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028165
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028166
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028167
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028168
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028169
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028170
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028171
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028172
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028173
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028174
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028175
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028176
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028177
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028178
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028179
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028180
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028181
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028182
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028183
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028184
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028185
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028186
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028187
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028188
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028189
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028190
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028191
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028192
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028193
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028194
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028195
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028196
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028197
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028198
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028199
+        description: Peso replicado do domicílio e das pessoas
+      - name: V1028200
+        description: Peso replicado do domicílio e das pessoas
+      - name: habitual
+        description: Habitual (campo derivado)
+      - name: efetivo
+        description: Efetivo (campo derivado)
+  - name: br_ibge_pnadc__rendimentos_outras_fontes
+    description: Microdados da Pesquisa Suplementar Anual referentes aos rendimentos
+      de outras fontes
+    columns:
+      - name: ano
+        description: Ano
+      - name: trimestre
+        description: Trimestre
+      - name: id_uf
+        description: ID Unidade da Federação
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+      - name: capital
+        description: Município da Capital
+      - name: rm_ride
+        description: Região Metropolitana e Região Administrativa Integrada
+      - name: id_upa
+        description: ID Unidade Primária de Amostragem (UPA)
+      - name: id_estrato
+        description: ID Estrato (As 2 primeiras posições representam o código da Unidade
+          da Federação)
+      - name: id_domicilio
+        description: ID Domicílio
+      - name: id_pessoa
+        description: ID Pessoa Entrevistada
+      - name: V1008
+        description: Número de seleção do domicílio
+      - name: V1014
+        description: Painel
+      - name: V1022
+        description: Situação do domicílio
+      - name: V1023
+        description: Tipo de área
+      - name: V1030
+        description: Projeção da população por níveis geográficos (Projeção da população
+          de 1º de julho por níveis geográficos)
+      - name: V1031
+        description: Peso do domicílio e das pessoas (Peso anual de 1ª visita com
+          correção de não entrevista sem calibração pela projeção de população)
+      - name: V1032
+        description: Peso do domicílio e das pessoas (Peso  anual de 1ª visita com
+          correção de não entrevista com calibração pela projeção de população)
+      - name: V1034
+        description: Projeção da população por sexo e idade (Projeção da população
+          de 1º de julho por sexo e idade)
+      - name: posest
+        description: Domínios de projeção (As 2 primeiras posições representam o código
+          da Unidade da Federação e a última, o tipo de área UF(2) + V1023(1))
+      - name: posest_sxi
+        description: Domínios de projeção por sexo e idade (A primeira posição representa
+          o sexo (1- Homens; 2-Mulheres) e as 2 últimas representam os grupos etários.
+          Sexo(1) + Idade(2))
+      - name: V2001
+        description: Número de pessoas no domicílio
+      - name: V2003
+        description: Número de ordem
+      - name: V5001
+        description: Alguma pessoa do domicílio em que... reside recebeu aposentadoria
+          de instituto de previdência (...)?
+      - name: V50011
+        description: '... recebeu aposentadoria de instituto de previdência (...)'
+      - name: V500111
+        description: Valor efetivamente recebido pela pessoa
+      - name: V5002
+        description: Alguma pessoa do domicílio em que... reside recebeu pensão de
+          instituto de previdência (...)?
+      - name: V50021
+        description: '... recebeu pensão de instituto de previdência (...)'
+      - name: V500211
+        description: Valor efetivamente recebido pela pessoa
+      - name: V5003
+        description: Alguma pessoa do domicílio em que... reside recebeu complementação
+          de aposentadoria (...)?
+      - name: V50031
+        description: '... recebeu complementação ou  suplementação de aposentadoria
+          paga por entidade seguradora ou fundo de pensão'
+      - name: V500311
+        description: Valor efetivamente recebido pela pessoa
+      - name: V5004
+        description: Alguma pessoa do domicílio em que... reside recebeu pensão paga
+          por caixa de assistência social (...)?
+      - name: V50041
+        description: '... recebeu pensão paga por caixa de assistência social, entidade
+          seguradora ou fundo de pensão, como beneficiária de outra pessoa'
+      - name: V500411
+        description: Valor efetivamente recebido pela pessoa
+      - name: V5005
+        description: Alguma pessoa do domicílio em que... reside recebeu pensão alimentícia?
+      - name: V50051
+        description: '... recebeu pensão alimentícia'
+      - name: V500511
+        description: Valor efetivamente recebido pela pessoa
+      - name: V5006
+        description: Alguma pessoa do domicílio em que... reside recebeu aluguel ou
+          arrendamento?
+      - name: V50061
+        description: '... recebeu aluguel ou arrendamento'
+      - name: V500611
+        description: Valor efetivamente recebido pela pessoa
+      - name: V5007
+        description: Alguma pessoa do domicílio em que... reside recebeu doação em
+          dinheiro?
+      - name: V50071
+        description: '... recebeu doação de pessoa que não morava no domicílio'
+      - name: V500711
+        description: Valor efetivamente recebido pela pessoa
+      - name: V5008
+        description: Alguma pessoa do domicílio em que... reside recebeu seguro desemprego?
+      - name: V50081
+        description: '... recebeu seguro desemprego'
+      - name: V500811
+        description: Valor efetivamente recebido pela pessoa
+      - name: V5009
+        description: Alguma pessoa do domicílio em que... reside recebeu BPC -LOAS?
+      - name: V50091
+        description: .. recebeu Benefício Assistencial de Prestação Continuada - BPC
+          - LOAS?
+      - name: V500911
+        description: Valor efetivamente recebido pela pessoa
+      - name: V5010
+        description: Alguma pessoa do domicílio em que... reside recebeu Bolsa família
+          ou do Programa de Erradicação do Trabalho Infantil - PETI?
+      - name: V50101
+        description: Alguma pessoa do domicílio em que... reside recebeu Bolsa família
+          ou do Programa de Erradicação do Trabalho Infantil - PETI?
+      - name: V501011
+        description: Valor efetivamente recebido pela pessoa
+      - name: V5011
+        description: Alguma pessoa do domicílio em que... reside recebeu rendimentos
+          de outro programa social?
+      - name: V50111
+        description: '.... recebeu rendimentos de algum outro programa social, público
+          ou privado'
+      - name: V501111
+        description: Valor efetivamente recebido pela pessoa
+      - name: V5012
+        description: Alguma pessoa do domicílio em que... reside recebeu rendimentos
+          de caderneta de poupança (...)?
+      - name: V50121
+        description: '... recebeu rendimentos de caderneta de poupança (...)?'
+      - name: V501211
+        description: Valor efetivamente recebido pela pessoa
+      - name: V5013
+        description: Alguma pessoa do domicílio em que... reside recebeu rendimentos
+          de parceria, direitos autoriais (...)?
+      - name: V50131
+        description: '...recebeu outros rendimentos como, por exemplo, parceria, direitos
+          autorais, exploração de patentes, etc'
+      - name: V501311
+        description: Valor efetivamente recebido pela pessoa
+      - name: V5001A
+        description: No mês de ... (mês de referência), ... recebeu rendimentos de
+          Benefício Assistencial de Prestação Continuada – BPC-LOAS?
+      - name: V5001A2
+        description: Valor efetivamente recebido
+      - name: V5002A
+        description: No mês de ... (mês de referência), ... recebeu rendimentos de
+          Programa Bolsa Família?
+      - name: V5002A2
+        description: Valor efetivamente recebido
+      - name: V5003A
+        description: No mês de ... (mês de referência), ... recebeu rendimentos de
+          outros programas sociais do governo?
+      - name: V5003A2
+        description: Valor efetivamente recebido
+      - name: V5004A
+        description: No mês de ... (mês de referência), ... recebeu rendimentos de
+          aposentadoria ou pensão de instituto de previdência federal (INSS), estadual,
+          municipal, ou do governo federal, estadual, municipal?
+      - name: V5004A2
+        description: Valor efetivamente recebido
+      - name: V5005A
+        description: No mês de ... (mês de referência), ... recebeu rendimentos de
+          seguro-desemprego, seguro-defeso?
+      - name: V5005A2
+        description: Valor efetivamente recebido
+      - name: V5006A
+        description: No mês de ... (mês de referência), ... recebeu rendimentos de
+          pensão alimentícia, doação ou mesada em dinheiro de pessoa que não morava
+          no domicílio?
+      - name: V5006A2
+        description: Valor efetivamente recebido
+      - name: V5007A
+        description: No mês de ... (mês de referência), ... recebeu rendimentos de
+          aluguel ou arrendamento?
+      - name: V5007A2
+        description: Valor efetivamente recebido
+      - name: V5008A
+        description: No mês de ... (mês de referência), ... recebeu outros rendimentos
+          (bolsa de estudos, rendimento de caderneta de poupança, aplicações financeiras,
+          etc.).
+      - name: V5008A2
+        description: Valor efetivamente recebido
+      - name: VD4046
+        description: Rendimento recebido em todas as fontes (habitual de todos os
+          trabalhos e efetivo de outras fontes apenas para pessoas que receberam em
+          dinheiro, produtos ou mercadorias em qualquer trabalho ou que receberam
+          rendimentos em dinheiro de outras fontes)
+      - name: VD4047
+        description: Rendimento efetivo recebido de programas sociais, seguro-desemprego,
+          seguro-defeso, bolsa de estudos, rendimento de caderneta de poupança e outras
+          aplicações financeiras
+      - name: VD4048
+        description: Rendimento efetivo recebido de outras fontes
+      - name: VD4052
+        description: Rendimento recebido em todas as fontes (habitual de todos os
+          trabalhos e efetivo de outras fontes apenas para pessoas que receberam em
+          dinheiro, produtos, mercadorias, cartão/tíquete transporte ou alimentação
+          em qualquer trabalho ou que receberam rendimentos em dinheiro de outras
+          fontes)
+      - name: VD5001
+        description: Rendimento (efetivo) domiciliar (exclusive rendimentos em cartão/tíquete
+          transporte ou alimentação e exclusive o rendimento das pessoas cuja condição
+          na unidade domiciliar era pensionista, empregado doméstico ou parente do
+          empregado doméstico)
+      - name: VD5002
+        description: Rendimento (efetivo) domiciliar per capita (exclusive rendimentos
+          em cartão/tíquete transporte ou alimentação e exclusive o rendimento das
+          pessoas cuja condição na unidade domiciliar era pensionista, empregado doméstico
+          ou parente do empregado doméstico)
+      - name: VD5003
+        description: Faixa de rendimento (efetivo) domiciliar per capita (exclusive
+          rendimentos em cartão/tíquete transporte ou alimentação e exclusive o rendimento
+          das pessoas cuja condição na unidade domiciliar era pensionista, empregado
+          doméstico ou parente do empregado doméstico)
+      - name: VD5004
+        description: Rendimento (efetivo) domiciliar (inclusive rendimentos em cartão/tíquete
+          transporte ou alimentação e exclusive o rendimento das pessoas cuja condição
+          na unidade domiciliar era pensionista, empregado doméstico ou parente do
+          empregado doméstico)
+      - name: VD5005
+        description: Rendimento (efetivo) domiciliar per capita (inclusive rendimentos
+          em cartão/tíquete transporte ou alimentação e exclusive o rendimento das
+          pessoas cuja condição na unidade domiciliar era pensionista, empregado doméstico
+          ou parente do empregado doméstico)
+      - name: VD5006
+        description: Faixa de rendimento (efetivo) domiciliar per capita (inclusive
+          rendimentos em cartão/tíquete transporte ou alimentação e exclusive o rendimento
+          das pessoas cuja condição na unidade domiciliar era pensionista, empregado
+          doméstico ou parente do empregado doméstico)
+      - name: VD5007
+        description: Rendimento domiciliar (habitual de todos os trabalhos e efetivo
+          de outras fontes e exclusive o rendimento das pessoas cuja condição na unidade
+          domiciliar era pensionista, empregado doméstico ou parente do empregado
+          doméstico)
+      - name: VD5008
+        description: Rendimento domiciliar per capita (habitual de todos os trabalho
+          e efetivo de outras fontes e exclusive o rendimento das pessoas cuja condição
+          na unidade domiciliar era pensionista, empregado doméstico ou parente do
+          empregado doméstico)
+      - name: VD5009
+        description: Faixa de rendimento domiciliar per capita (habitual de todos
+          os trabalho e efetivo de outras fontes e exclusive o rendimento das pessoas
+          cuja condição na unidade domiciliar era pensionista, empregado doméstico
+          ou parente do empregado doméstico)
+      - name: VD5010
+        description: Rendimento domiciliar (habitual de todos os trabalhos e efetivo
+          de outras fontes, inclusive rendimentos em cartão/tíquete transporte ou
+          alimentação e exclusive o rendimento das pessoas cuja condição na unidade
+          domiciliar era pensionista, empregado doméstico ou parente do empregado
+          doméstico)
+      - name: VD5011
+        description: Rendimento domiciliar per capita (habitual de todos os trabalhos
+          e efetivo de outras fontes, inclusive rendimentos em cartão/tíquete transporte
+          ou alimentação e exclusive o rendimento das pessoas cuja condição na unidade
+          domiciliar era pensionista, empregado doméstico ou parente do empregado
+          doméstico)
+      - name: VD5012
+        description: Faixa de rendimento domiciliar per capita (habitual de todos
+          os trabalhos e efetivo de outras fontes, inclusive rendimentos em cartão/tíquete
+          transporte ou alimentação e exclusive o rendimento das pessoas cuja condição
+          na unidade domiciliar era pensionista, empregado doméstico ou parente do
+          empregado doméstico)
+      - name: V1032001
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032002
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032003
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032004
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032005
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032006
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032007
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032008
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032009
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032010
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032011
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032012
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032013
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032014
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032015
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032016
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032017
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032018
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032019
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032020
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032021
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032022
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032023
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032024
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032025
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032026
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032027
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032028
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032029
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032030
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032031
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032032
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032033
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032034
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032035
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032036
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032037
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032038
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032039
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032040
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032041
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032042
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032043
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032044
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032045
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032046
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032047
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032048
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032049
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032050
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032051
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032052
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032053
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032054
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032055
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032056
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032057
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032058
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032059
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032060
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032061
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032062
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032063
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032064
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032065
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032066
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032067
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032068
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032069
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032070
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032071
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032072
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032073
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032074
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032075
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032076
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032077
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032078
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032079
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032080
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032081
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032082
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032083
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032084
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032085
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032086
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032087
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032088
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032089
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032090
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032091
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032092
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032093
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032094
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032095
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032096
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032097
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032098
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032099
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032100
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032101
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032102
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032103
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032104
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032105
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032106
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032107
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032108
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032109
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032110
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032111
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032112
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032113
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032114
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032115
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032116
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032117
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032118
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032119
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032120
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032121
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032122
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032123
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032124
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032125
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032126
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032127
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032128
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032129
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032130
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032131
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032132
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032133
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032134
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032135
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032136
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032137
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032138
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032139
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032140
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032141
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032142
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032143
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032144
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032145
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032146
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032147
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032148
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032149
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032150
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032151
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032152
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032153
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032154
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032155
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032156
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032157
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032158
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032159
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032160
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032161
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032162
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032163
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032164
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032165
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032166
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032167
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032168
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032169
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032170
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032171
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032172
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032173
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032174
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032175
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032176
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032177
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032178
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032179
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032180
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032181
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032182
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032183
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032184
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032185
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032186
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032187
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032188
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032189
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032190
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032191
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032192
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032193
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032194
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032195
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032196
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032197
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032198
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032199
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+      - name: V1032200
+        description: Peso replicado do domicílio e das pessoas (Peso anual de 1ª visita
+          com correção de não entrevista com calibração pela projeção de população)
+  - name: br_ibge_pnadc__educacao
+    description: Microdados da Pesquisa Suplementar Anual referentes a educação
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_pessoa]
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: trimestre
+        description: Trimestre
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__trimestre')
+              field: trimestre.trimestre
+      - name: id_uf
+        description: ID Unidade da Federação
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: capital
+        description: Município da Capital
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: rm_ride
+        description: Região Metropolitana e Região Administrativa Integrada
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: id_upa
+        description: ID Unidade Primária de Amostragem (UPA)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: id_estrato
+        description: ID Estrato (As 2 primeiras posições representam o código da Unidade
+          da Federação)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: id_domicilio
+        description: ID Domicílio
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: id_pessoa
+        description: ID Pessoa entrevistada
+      - name: V1008
+        description: Número de seleção do domicílio
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1014
+        description: Painel
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1016
+        description: Número da entrevista no domicílio
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1022
+        description: Situação do domicílio
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1023
+        description: Tipo de área
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1027
+        description: Peso do domicílio e das pessoas (Peso trimestral com correção
+          de não entrevista sem calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028
+        description: "Peso do domicílio e das pessoas (Peso trimestral com correção\
+          \ de não entrevista com calibração pela projeção de população)\n"
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1029
+        description: 'Projeção da população do trimestre por níveis geográficos (referência:
+          mês do meio)'
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1033
+        description: 'Projeção da população do trimestre por sexo e idade (referência:
+          mês do meio)'
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: posest
+        description: Domínios de projeção (As 2 primeiras posições representam o código
+          da Unidade da Federação e a última, o tipo de área UF(2) + V1023(1))
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: posest_sxi
+        description: Domínios de projeção por sexo e idade (A primeira posição representa
+          o sexo (1- Homens; 2-Mulheres) e as 2 últimas representam os grupos etários.
+          Sexo(1) + Idade(2))
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V2001
+        description: Número de pessoas no domicílio
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V2003
+        description: Número de ordem
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3001
+        description: '... sabe ler e escrever?'
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3002
+        description: '... frequenta escola?'
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3002A
+        description: A escola que ... frequenta é de
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3003A
+        description: Qual é o curso que ... frequenta?
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3004
+        description: 'A duração deste curso que ... frequenta é de:'
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3004A
+        description: Esse curso superior que .... frequenta é de graduação tecnológica?
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3005A
+        description: 'Esse curso que .... frequenta é dividido em:'
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3006
+        description: Qual é o ano/série/semestre que ... frequenta?
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3006A
+        description: Qual é a etapa do ensino fundamental que ... frequenta?
+      - name: V3006B
+        description: 'Este curso que ... frequenta é:'
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3006C
+        description: Em que turno ... frequenta este curso?
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3007
+        description: '... já concluiu algum outro curso de graduação?'
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3008
+        description: Anteriormente ... frequentou escola?
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3009A
+        description: Qual foi o curso mais elevado que ... frequentou?
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3010
+        description: 'A duração deste curso que ... frequentou era de:'
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3010A
+        description: Este curso superior que ... frequentou era de graduação tecnológica?
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3011A
+        description: 'Esse curso que .... frequentou era dividido em:'
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3012
+        description: '... concluiu com aprovação, pelo menos a primeira série deste
+          curso que frequentou?'
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3013
+        description: Qual foi o último ano/série/semestre que ... concluiu com aprovação,
+          neste curso que frequentou
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3013A
+        description: Qual foi a etapa de ensino fundamental que ... frequentou?
+      - name: V3013B
+        description: '... Concluiu os anos iniciais deste curso que frequentou?'
+      - name: V3014
+        description: '... concluiu este curso que frequentou'
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3017
+        description: 'Este curso que ... frequentou foi realizado:'
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3017A
+        description: 'o curso de graduação que frequentou anteriomente foi realizado:'
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3018
+        description: 'O curso do ensino médio (2° grau ou de médio 2° ciclo) que ...
+          frequentou anteriormente foi realizado:'
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3019
+        description: '... frequenta curso técnico de nível médio?'
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3019A
+        description: '... frequenta curso técnico de nível médio ou curso normal (magistério)?'
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3020
+        description: 'Este curso técnico que ... frequenta é feito:'
+      - name: V3020B
+        description: 'Este curso técnico ou normal (magistério) que ... frequenta
+          é:'
+      - name: V3020C
+        description: 'Esse curso técnico ou curso normal (magistério) que frequenta
+          é feito em:'
+      - name: V3021
+        description: '... frequentou anteriormente curso técnico de nível médio?'
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3021A
+        description: Anteriomente,... frequentou curso técnico de nível médioou curso
+          normal (magistério)?
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3022
+        description: 'Este curso técnico que ... frequentou anteriormente foi feito:'
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3022A
+        description: Em que ano ... iniciou este curso técnico que frequentou anteriormente?
+      - name: V3022C
+        description: 'Este curso técnico ou normal (magistério) que ... frequentou
+          era:'
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3022D
+        description: 'Esse curso técnico ou curso normal (magistério) que frequentou
+          era feito em:'
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3022E
+        description: Em que ano ... iniciou este curso técnico ou curso normal (magistério)
+          que frequentou?
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3023
+        description: '... concluiu este curso técnico que frequentou anteriormente?'
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3023A
+        description: '... concluiu este curso técnico ou normal (magistério) que frequentou?'
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3024
+        description: '...frequenta curso pré-vestibular?'
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3025
+        description: '...frequenta algum curso de extensão ou capacitação de nível
+          superior?'
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3026
+        description: '...frequenta algum curso de qualificação profissional?'
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3026A
+        description: 'Este curso qualificação profissional que ... frequenta é de:'
+      - name: V3028
+        description: Anteriormente, ... frequentou algum curso de extensão ou capacitação
+          de nível superior?
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3029
+        description: Anteriormente, ... frequentou algum curso de qualificação profissional?
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3029A
+        description: Em que ano ... Iniciou o (último) curso de qualificação profissional
+          que frequentou anteriormente?
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3030
+        description: Em que ano ... Iniciou o (último) curso de qualificação profissional
+          que frequentou anteriormente?
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3030A
+        description: 'Este curso de qualificação profissional que ... Frequentou era
+          feito em:'
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3032
+        description: Concluiu este (último) curso que ... frequentou?
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3033
+        description: Por que motivo ... não frequenta escola ou creche?
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3033A
+        description: Qual o principal motivo para ... não frequentar escola ou creche?
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3033B
+        description: Normalmente, de segunda a sexta, ... fica com quem na maior parte
+          do tempo?
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3034
+        description: Por que motivo ... não frequenta escola?
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3034A
+        description: Com que idade ... deixou de frequentar escola /o curso superior
+          pela última vez?
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3034B
+        description: Na época, qual foi o principal motivo de ter deixado de frequentar
+          a escola/ o curso superior? Qual foi o principal motivo de nunca ter frequentado
+          escola?
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V3034C
+        description: Atualmente, qual o principal motivo de não frequentar escola/curso
+          superior ou outro curso (nível técnico, qualificação profissional ou pré-vestibular)?
+          Qual foi o principal motivo de nunca ter frequentado escola?
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028001
+        description: Peso replicado 1 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028002
+        description: Peso replicado 2 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028003
+        description: Peso replicado 3 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028004
+        description: Peso replicado 4 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028005
+        description: Peso replicado 5 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028006
+        description: Peso replicado 6 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028007
+        description: Peso replicado 7 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028008
+        description: Peso replicado 8 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028009
+        description: Peso replicado 9 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028010
+        description: Peso replicado 10 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028011
+        description: Peso replicado 11 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028012
+        description: Peso replicado 12 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028013
+        description: Peso replicado 13 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028014
+        description: Peso replicado 14 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028015
+        description: Peso replicado 15 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028016
+        description: Peso replicado 16 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028017
+        description: Peso replicado 17 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028018
+        description: Peso replicado 18 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028019
+        description: Peso replicado 19 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028020
+        description: Peso replicado 20 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028021
+        description: Peso replicado 21 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028022
+        description: Peso replicado 22 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028023
+        description: Peso replicado 23 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028024
+        description: Peso replicado 24 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028025
+        description: Peso replicado 25 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028026
+        description: Peso replicado 26 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028027
+        description: Peso replicado 27 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028028
+        description: Peso replicado 28 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028029
+        description: Peso replicado 29 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028030
+        description: Peso replicado 30 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028031
+        description: Peso replicado 31 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028032
+        description: Peso replicado 32 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028033
+        description: Peso replicado 33 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028034
+        description: Peso replicado 34 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028035
+        description: Peso replicado 35 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028036
+        description: Peso replicado 36 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028037
+        description: Peso replicado 37 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028038
+        description: Peso replicado 38 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028039
+        description: Peso replicado 39 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028040
+        description: Peso replicado 40 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028041
+        description: Peso replicado 41 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028042
+        description: Peso replicado 42 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028043
+        description: Peso replicado 43 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028044
+        description: Peso replicado 44 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028045
+        description: Peso replicado 45 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028046
+        description: Peso replicado 46 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028047
+        description: Peso replicado 47 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028048
+        description: Peso replicado 48 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028049
+        description: Peso replicado 49 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028050
+        description: Peso replicado 50 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028051
+        description: Peso replicado 51 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028052
+        description: Peso replicado 52 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028053
+        description: Peso replicado 53 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028054
+        description: Peso replicado 54 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028055
+        description: Peso replicado 55 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028056
+        description: Peso replicado 56 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028057
+        description: Peso replicado 57 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028058
+        description: Peso replicado 58 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028059
+        description: Peso replicado 59 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028060
+        description: Peso replicado 60 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028061
+        description: Peso replicado 61 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028062
+        description: Peso replicado 62 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028063
+        description: Peso replicado 63 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028064
+        description: Peso replicado 64 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028065
+        description: Peso replicado 65 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028066
+        description: Peso replicado 66 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028067
+        description: Peso replicado 67 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028068
+        description: Peso replicado 68 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028069
+        description: Peso replicado 69 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028070
+        description: Peso replicado 70 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028071
+        description: Peso replicado 71 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028072
+        description: Peso replicado 72 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028073
+        description: Peso replicado 73 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028074
+        description: Peso replicado 74 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028075
+        description: Peso replicado 75 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028076
+        description: Peso replicado 76 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028077
+        description: Peso replicado 77 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028078
+        description: Peso replicado 78 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028079
+        description: Peso replicado 79 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028080
+        description: Peso replicado 80 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028081
+        description: Peso replicado 81 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028082
+        description: Peso replicado 82 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028083
+        description: Peso replicado 83 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028084
+        description: Peso replicado 84 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028085
+        description: Peso replicado 85 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028086
+        description: Peso replicado 86 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028087
+        description: Peso replicado 87 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028088
+        description: Peso replicado 88 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028089
+        description: Peso replicado 89 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028090
+        description: Peso replicado 90 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028091
+        description: Peso replicado 91 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028092
+        description: Peso replicado 92 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028093
+        description: Peso replicado 93 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028094
+        description: Peso replicado 94 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028095
+        description: Peso replicado 95 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028096
+        description: Peso replicado 96 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028097
+        description: Peso replicado 97 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028098
+        description: Peso replicado 98 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028099
+        description: Peso replicado 99 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028100
+        description: Peso replicado 100 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028101
+        description: Peso replicado 101 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028102
+        description: Peso replicado 102 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028103
+        description: Peso replicado 103 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028104
+        description: Peso replicado 104 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028105
+        description: Peso replicado 105 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028106
+        description: Peso replicado 106 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028107
+        description: Peso replicado 107 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028108
+        description: Peso replicado 108 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028109
+        description: Peso replicado 109 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028110
+        description: Peso replicado 110 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028111
+        description: Peso replicado 111 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028112
+        description: Peso replicado 112 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028113
+        description: Peso replicado 113 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028114
+        description: Peso replicado 114 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028115
+        description: Peso replicado 115 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028116
+        description: Peso replicado 116 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028117
+        description: Peso replicado 117 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028118
+        description: Peso replicado 118 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028119
+        description: Peso replicado 119 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028120
+        description: Peso replicado 120 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028121
+        description: Peso replicado 121 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028122
+        description: Peso replicado 122 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028123
+        description: Peso replicado 123 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028124
+        description: Peso replicado 124 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028125
+        description: Peso replicado 125 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028126
+        description: Peso replicado 126 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028127
+        description: Peso replicado 127 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028128
+        description: Peso replicado 128 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028129
+        description: Peso replicado 129 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028130
+        description: Peso replicado 130 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028131
+        description: Peso replicado 131 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028132
+        description: Peso replicado 132 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028133
+        description: Peso replicado 133 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028134
+        description: Peso replicado 134 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028135
+        description: Peso replicado 135 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028136
+        description: Peso replicado 136 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028137
+        description: Peso replicado 137 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028138
+        description: Peso replicado 138 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028139
+        description: Peso replicado 139 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028140
+        description: Peso replicado 140 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028141
+        description: Peso replicado 141 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028142
+        description: Peso replicado 142 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028143
+        description: Peso replicado 143 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028144
+        description: Peso replicado 144 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028145
+        description: Peso replicado 145 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028146
+        description: Peso replicado 146 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028147
+        description: Peso replicado 147 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028148
+        description: Peso replicado 148 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028149
+        description: Peso replicado 149 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028150
+        description: Peso replicado 150 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028151
+        description: Peso replicado 151 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028152
+        description: Peso replicado 152 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028153
+        description: Peso replicado 153 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028154
+        description: Peso replicado 154 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028155
+        description: Peso replicado 155 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028156
+        description: Peso replicado 156 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028157
+        description: Peso replicado 157 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028158
+        description: Peso replicado 158 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028159
+        description: Peso replicado 159 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028160
+        description: Peso replicado 160 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028161
+        description: Peso replicado 161 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028162
+        description: Peso replicado 162 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028163
+        description: Peso replicado 163 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028164
+        description: Peso replicado 164 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028165
+        description: Peso replicado 165 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028166
+        description: Peso replicado 166 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028167
+        description: Peso replicado 167 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028168
+        description: Peso replicado 168 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028169
+        description: Peso replicado 169 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028170
+        description: Peso replicado 170 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028171
+        description: Peso replicado 171 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028172
+        description: Peso replicado 172 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028173
+        description: Peso replicado 173 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028174
+        description: Peso replicado 174 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028175
+        description: Peso replicado 175 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028176
+        description: Peso replicado 176 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028177
+        description: Peso replicado 177 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028178
+        description: Peso replicado 178 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028179
+        description: Peso replicado 179 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028180
+        description: Peso replicado 180 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028181
+        description: Peso replicado 181 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028182
+        description: Peso replicado 182 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028183
+        description: Peso replicado 183 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028184
+        description: Peso replicado 184 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028185
+        description: Peso replicado 185 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028186
+        description: Peso replicado 186 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028187
+        description: Peso replicado 187 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028188
+        description: Peso replicado 188 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028189
+        description: Peso replicado 189 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028190
+        description: Peso replicado 190 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028191
+        description: Peso replicado 191 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028192
+        description: Peso replicado 192 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028193
+        description: Peso replicado 193 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028194
+        description: Peso replicado 194 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028195
+        description: Peso replicado 195 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028196
+        description: Peso replicado 196 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028197
+        description: Peso replicado 197 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028198
+        description: Peso replicado 198 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028199
+        description: Peso replicado 199 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+      - name: V1028200
+        description: Peso replicado 200 do domicílio e das pessoas (Peso trimestral
+          com correção de não entrevista com calibração pela projeção de população)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.01
+  - name: br_ibge_pnadc__dicionario
+    description: Dicionário para tradução dos códigos do conjunto br_ibge_pnadc. Para
+      taduzir códigos compartilhados entre instituições, como id_municipio, buscar
+      por diretórios
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_tabela
+            - nome_coluna
+            - chave
+            - cobertura_temporal
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_tabela
+        description: ID Tabela
+      - name: nome_coluna
+        description: Nome da coluna
+      - name: chave
+        description: Chave
+      - name: cobertura_temporal
+        description: Cobertura Temporal
+      - name: valor
+        description: Valor
