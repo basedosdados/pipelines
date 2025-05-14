@@ -3,7 +3,7 @@ from argparse import ArgumentParser
 from time import sleep
 
 from backend import Backend
-from utils import expand_alls, get_datasets_tables_from_modified_files
+from utils import get_datasets_tables_from_modified_files
 
 
 def get_flow_run_state(flow_run_id: str, backend: Backend, auth_token: str):
@@ -152,9 +152,7 @@ if __name__ == "__main__":
 
     # Get datasets and tables from modified files
     modified_files = args.modified_files.split(",")
-    datasets_tables = get_datasets_tables_from_modified_files(
-        modified_files, show_details=True
-    )
+    datasets_tables = get_datasets_tables_from_modified_files(modified_files)
     # Split deleted datasets and tables
     deleted_datasets_tables = []
     existing_datasets_tables = []
@@ -163,16 +161,18 @@ if __name__ == "__main__":
             existing_datasets_tables.append((dataset_id, table_id, alias))
         else:
             deleted_datasets_tables.append((dataset_id, table_id, alias))
+
     # Expand `__all__` tables
-    backend_bd = Backend(args.graphql_url)
-    expanded_existing_datasets_tables = []
-    for dataset_id, table_id, alias in existing_datasets_tables:
-        expanded_table_ids = expand_alls(dataset_id, table_id, backend_bd)
-        for expanded_dataset_id, expanded_table_id in expanded_table_ids:
-            expanded_existing_datasets_tables.append(
-                (expanded_dataset_id, expanded_table_id, alias)
-            )
-    existing_datasets_tables = expanded_existing_datasets_tables
+    # backend_bd = Backend(args.graphql_url)
+    #
+    # expanded_existing_datasets_tables = []
+    # for dataset_id, table_id, alias in existing_datasets_tables:
+    #     expanded_table_ids = expand_alls(dataset_id, table_id, backend_bd)
+    #     for expanded_dataset_id, expanded_table_id in expanded_table_ids:
+    #         expanded_existing_datasets_tables.append(
+    #             (expanded_dataset_id, expanded_table_id, alias)
+    #         )
+    # existing_datasets_tables = expanded_existing_datasets_tables
 
     # Launch materialization flows
     backend_prefect = Backend("https://prefect.basedosdados.org/api")
