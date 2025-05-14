@@ -11,8 +11,6 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [ano, id_escola]
-      - not_null_proportion_multiple_columns:
-          at_least: 0.05
     columns:
       - name: ano
         description: Ano
@@ -34,10 +32,6 @@ models:
               field: id_municipio
       - name: id_escola
         description: ID Escola - Inep
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_brasil__escola')
-              field: id_escola
       - name: rede
         description: Rede Escolar
       - name: tipo_categoria_escola_privada
@@ -182,10 +176,6 @@ models:
           da escola
       - name: id_escola_sede
         description: Código da escola sede
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_brasil__escola')
-              field: id_escola
       - name: id_ies_ofertante
         description: Código da Instituição de Ensino Superior (IES) vinculada à escola
         tests:

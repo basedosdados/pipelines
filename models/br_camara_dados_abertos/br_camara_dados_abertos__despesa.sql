@@ -1,4 +1,4 @@
-{{ config(alias="despesa", schema="br_camara_dados_abertos") }}
+{{ config(alias="despesa", schema="br_camara_dados_abertos", materialized="table") }}
 select distinct
     safe_cast(initcap(txnomeparlamentar) as string) nome_parlamentar,
     safe_cast(replace(cpf, ".0", "") as string) cpf,
