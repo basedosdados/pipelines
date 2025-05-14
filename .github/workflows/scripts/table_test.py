@@ -175,7 +175,7 @@ if __name__ == "__main__":
     # existing_datasets_tables = expanded_existing_datasets_tables
 
     # Launch materialization flows
-    backend_prefect = Backend("https://prefect.basedosdados.org/api")
+    backend_prefect = Backend(args.prefect_backend_url)
     flow_id = get_materialization_flow_id(
         backend_prefect, args.prefect_backend_token, "staging"
     )
