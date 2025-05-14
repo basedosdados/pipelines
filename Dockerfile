@@ -7,8 +7,8 @@ FROM python:${PYTHON_VERSION}
 # Configure environment
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ENV DEBIAN_FRONTEND=noninteractive
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 # Install gcc, Google Chrome, CLI tools, git, R and others libs Firefox
 RUN apt-get update && \
