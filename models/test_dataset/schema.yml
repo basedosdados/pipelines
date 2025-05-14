@@ -101,5 +101,5 @@ models:
         description: Col test description
         tests:
           - accepted_values:
-              values: [1]
+              values: [2]
               quote: false
