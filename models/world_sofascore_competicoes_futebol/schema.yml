@@ -1,0 +1,395 @@
+---
+version: 2
+models:
+  - name: world_sofascore_competicoes_futebol__brasileirao_serie_a
+    description: Nesta tabela, cada entrada corresponde a um período de 45 minutos
+      de jogo (1º ou 2º tempo) das partidas do Campeonato Brasileiro Série A, com
+      informações desde 2016. A tabela oferece uma visão detalhada e segmentada das
+      partidas , permitindo uma análise aprofundada do desempenho das equipes em diferentes
+      momentos do jogo.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_partida, tempo]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.15
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_partida
+        description: Id da partida
+      - name: data
+        description: Data da partida
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: hora
+        description: Hora da partida
+      - name: temporada
+        description: Temporada em que a partida ocorreu. As vezes temos temporadas
+          que ocorrem entre anos distintos, esses casos podem aparecer como "23/24"
+          como exemplo.
+      - name: rodada
+        description: Rodada da partida
+      - name: tempo
+        description: Primeiro ou Segundo tempo da partida
+      - name: time_mandante
+        description: Nome do time mandante
+      - name: time_visitante
+        description: Nome do time visitante
+      - name: gols_mandante
+        description: Gols efetuados pelo time mandante
+      - name: gols_visitante
+        description: Gols efetuados pelo time visitante
+      - name: posse_bola_mandante
+        description: Porcentagem de posse de bola time mandante
+      - name: posse_bola_visitante
+        description: Porcentagem de posse de bola time visitante
+      - name: gol_esperado_mandante
+        description: Gols esperados (xG) mede a qualidade de uma oportunidade calculando
+          a possibilidade de que o gol seja marcado de uma determinada posição no
+          campo durante uma determinada fase da partida.
+      - name: gol_esperado_visitante
+        description: Gols esperados (xG) mede a qualidade de uma oportunidade calculando
+          a possibilidade de que o gol seja marcado de uma determinada posição no
+          campo durante uma determinada fase da partida.
+      - name: grande_chance_mandante
+        description: Grandes chances de gol mandante
+      - name: grande_chance_visitante
+        description: Grandes chances de gol visitante
+      - name: defesa_goleiro_mandante
+        description: Defesas do goleiro mandante
+      - name: defesa_goleiro_visitante
+        description: Defesas do goleiro visitante
+      - name: escanteio_mandante
+        description: Escanteios time mandante
+      - name: escanteio_visitante
+        description: Escanteios time visitante
+      - name: passe_mandante
+        description: Passes realizados pelo time mandante
+      - name: passe_visitante
+        description: Passes realizados pelo time visitante
+      - name: falta_mandante
+        description: Tiros diretos realizados pelo time mandante
+      - name: falta_visitante
+        description: Tiros diretos realizados pelo time visitante
+      - name: cartao_amarelo_mandante
+        description: Cartões amarelos recebido pelo time mandante
+      - name: cartao_amarelo_visitante
+        description: Cartões amarelos recebido pelo time visitante
+      - name: cartao_vermelho_mandante
+        description: Cartões vermelhos recebido pelo time mandante
+      - name: cartao_vermelho_visitante
+        description: Cartões vermelhos recebido pelo time visitante
+      - name: finalizacao_mandante
+        description: Total finalizações pelo time mandante
+      - name: finalizacao_visitante
+        description: Total finalizações pelo time visitante
+      - name: finalizacao_gol_mandante
+        description: Finalizações no gol pelo time mandante
+      - name: finalizacao_gol_visitante
+        description: Finalizações no gol pelo time visitante
+      - name: finalizacao_trave_mandante
+        description: Finalizações na trave pelo time mandante
+      - name: finalizacao_trave_visitante
+        description: Finalizações na trave pelo time visitante
+      - name: finalizacao_fora_mandante
+        description: Finalizações para fora pelo time mandante
+      - name: finalizacao_fora_visitante
+        description: Finalizações para fora pelo time visitante
+      - name: chute_bloqueado_mandante
+        description: Chutes bloqueados pelo time mandante
+      - name: chute_bloqueado_visitante
+        description: Chutes bloqueados pelo time visitante
+      - name: finalizacao_area_mandante
+        description: Finalizações de dentro da área pelo time mandante
+      - name: finalizacao_area_visitante
+        description: Finalizações de dentro da área pelo time visitante
+      - name: finalizacao_fora_area_mandante
+        description: Finalizações de fora da área pelo time mandante
+      - name: finalizacao_fora_area_visitante
+        description: Finalizações de fora da área pelo time visitante
+      - name: grande_chance_marcada_mandante
+        description: Grandes chances marcados pelo time mandante
+      - name: grande_chance_marcada_visitante
+        description: Grandes chances marcados pelo time visitante
+      - name: grande_chance_perdida_mandante
+        description: Grandes chances perdidas pelo time mandante
+      - name: grande_chance_perdida_visitante
+        description: Grandes chances perdidas pelo time visitante
+      - name: passe_profundidade_mandante
+        description: Passe em profundidade pelo time mandante
+      - name: passe_profundidade_visitante
+        description: Passe em profundidade pelo time visitante
+      - name: falta_terco_final_mandante
+        description: Faltas sofridas no terço final pelo time mandante
+      - name: falta_terco_final_visitante
+        description: Faltas sofridas no terço final pelo time visitante
+      - name: impedimento_mandante
+        description: Impedimentos pelo time mandante
+      - name: impedimento_visitante
+        description: Impedimentos pelo time visitante
+      - name: passes_certo_mandante
+        description: Passes certos pelo time mandante
+      - name: passes_certo_visitante
+        description: Passes certos pelo time visitante
+      - name: lateral_mandante
+        description: Laterais pelo time mandante
+      - name: lateral_visitante
+        description: Laterais pelo time visitante
+      - name: entrada_terco_final_mandante
+        description: Entradas no terço final pelo time mandante
+      - name: entrada_terco_final_visitante
+        description: Entradas no terço final pelo time visitante
+      - name: bola_longa _mandante
+        description: Bolas longas pelo time mandante
+      - name: bola_longa_visitante
+        description: Bolas longas pelo time visitante
+      - name: cruzamento_mandante
+        description: Cruzamentos pelo time mandante
+      - name: cruzamento_visitante
+        description: Cruzamentos pelo time visitante
+      - name: duelo_vencido_mandante
+        description: Porcentagem de duelos vencidos pelo time mandante
+      - name: duelo_vencido_visitante
+        description: Porcentagem de duelos vencidos pelo time visitante
+      - name: desarme_sofrido_mandante
+        description: Desarmes sofridos pelo time mandante
+      - name: desarme_sofrido_visitante
+        description: Desarmes sofridos pelo time visitante
+      - name: duelo_chao_mandante
+        description: Duelos no chão vencidos pelo time mandante
+      - name: duelo_chao_visitante
+        description: Duelos no chão vencidos pelo time visitante
+      - name: duelo_aereo_mandante
+        description: Duelos aéreos vencidos pelo time mandante
+      - name: duelo_aereo_visitante
+        description: Duelos aéreos vencidos pelo time visitante
+      - name: drible_mandante
+        description: Dribles efetuados pelo time mandante
+      - name: drible_visitante
+        description: Dribles efetuados pelo time visitante
+      - name: desarme_mandante
+        description: Desarmes totais realizados pelo time mandante
+      - name: desarme_visitante
+        description: Desarmes totais  realizados pelo time visitante
+      - name: desarme_ganho_mandante
+        description: Porcentagem de desarmes ganhos pelo time mandante
+      - name: desarme_ganho_visitante
+        description: Porcentagem de desarmes ganhos pelo time visitante
+      - name: interceptacao_mandante
+        description: Interceptações efetuadas pelo time mandante
+      - name: interceptacao_visitante
+        description: Interceptações efetuadas pelo time visitante
+      - name: recuperacao_bola_mandante
+        description: Recuperações de bola time mandante
+      - name: recuperacao_bola_visitante
+        description: Recuperações de bola time visitante
+      - name: corte_mandante
+        description: Cortes efetuados pelo time mandante
+      - name: corte_visitante
+        description: Cortes efetuados pelo time visitante
+      - name: tiro_meta_mandante
+        description: Tiros de meta pelo time mandante
+      - name: tiro_meta_visitante
+        description: Tiros de meta pelo time visitante
+  - name: world_sofascore_competicoes_futebol__uefa_champions_league
+    description: Nesta tabela, cada entrada corresponde a um período de 45 minutos
+      de jogo (1º ou 2º tempo) das partidas do UEFA Champions League, com informações
+      desde 2007. A tabela oferece uma visão detalhada e segmentada das partidas ,
+      permitindo uma análise aprofundada do desempenho das equipes em diferentes momentos
+      do jogo.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_partida, tempo]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.14
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_partida
+        description: Id da partida
+      - name: data
+        description: Data da partida
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: hora
+        description: Hora da partida
+      - name: temporada
+        description: Temporada em que a partida ocorreu. As vezes temos temporadas
+          que ocorrem entre anos distintos, esses casos podem aparecer como "23/24"
+          como exemplo.
+      - name: rodada
+        description: Rodada da partida
+      - name: tempo
+        description: Primeiro ou Segundo tempo da partida
+      - name: time_mandante
+        description: Nome do time mandante
+      - name: time_visitante
+        description: Nome do time visitante
+      - name: gols_mandante
+        description: Gols efetuados pelo time mandante
+      - name: gols_visitante
+        description: Gols efetuados pelo time visitante
+      - name: posse_bola_mandante
+        description: Porcentagem de posse de bola time mandante
+      - name: posse_bola_visitante
+        description: Porcentagem de posse de bola time visitante
+      - name: gol_esperado_mandante
+        description: Gols esperados (xG) mede a qualidade de uma oportunidade calculando
+          a possibilidade de que o gol seja marcado de uma determinada posição no
+          campo durante uma determinada fase da partida.
+      - name: gol_esperado_visitante
+        description: Gols esperados (xG) mede a qualidade de uma oportunidade calculando
+          a possibilidade de que o gol seja marcado de uma determinada posição no
+          campo durante uma determinada fase da partida.
+      - name: grande_chance_mandante
+        description: Grandes chances de gol mandante
+      - name: grande_chance_visitante
+        description: Grandes chances de gol visitante
+      - name: defesa_goleiro_mandante
+        description: Defesas do goleiro mandante
+      - name: defesa_goleiro_visitante
+        description: Defesas do goleiro visitante
+      - name: escanteio_mandante
+        description: Escanteios time mandante
+      - name: escanteio_visitante
+        description: Escanteios time visitante
+      - name: passe_mandante
+        description: Passes realizados pelo time mandante
+      - name: passe_visitante
+        description: Passes realizados pelo time visitante
+      - name: falta_mandante
+        description: Tiros diretos realizados pelo time mandante
+      - name: falta_visitante
+        description: Tiros diretos realizados pelo time visitante
+      - name: cartao_amarelo_mandante
+        description: Cartões amarelos recebido pelo time mandante
+      - name: cartao_amarelo_visitante
+        description: Cartões amarelos recebido pelo time visitante
+      - name: cartao_vermelho_mandante
+        description: Cartões vermelhos recebido pelo time mandante
+      - name: cartao_vermelho_visitante
+        description: Cartões vermelhos recebido pelo time visitante
+      - name: finalizacao_mandante
+        description: Total finalizações pelo time mandante
+      - name: finalizacao_visitante
+        description: Total finalizações pelo time visitante
+      - name: finalizacao_gol_mandante
+        description: Finalizações no gol pelo time mandante
+      - name: finalizacao_gol_visitante
+        description: Finalizações no gol pelo time visitante
+      - name: finalizacao_trave_mandante
+        description: Finalizações na trave pelo time mandante
+      - name: finalizacao_trave_visitante
+        description: Finalizações na trave pelo time visitante
+      - name: finalizacao_fora_mandante
+        description: Finalizações para fora pelo time mandante
+      - name: finalizacao_fora_visitante
+        description: Finalizações para fora pelo time visitante
+      - name: chute_bloqueado_mandante
+        description: Chutes bloqueados pelo time mandante
+      - name: chute_bloqueado_visitante
+        description: Chutes bloqueados pelo time visitante
+      - name: finalizacao_area_mandante
+        description: Finalizações de dentro da área pelo time mandante
+      - name: finalizacao_area_visitante
+        description: Finalizações de dentro da área pelo time visitante
+      - name: finalizacao_fora_area_mandante
+        description: Finalizações de fora da área pelo time mandante
+      - name: finalizacao_fora_area_visitante
+        description: Finalizações de fora da área pelo time visitante
+      - name: grande_chance_marcada_mandante
+        description: Grandes chances marcados pelo time mandante
+      - name: grande_chance_marcada_visitante
+        description: Grandes chances marcados pelo time visitante
+      - name: grande_chance_perdida_mandante
+        description: Grandes chances perdidas pelo time mandante
+      - name: grande_chance_perdida_visitante
+        description: Grandes chances perdidas pelo time visitante
+      - name: passe_profundidade_mandante
+        description: Passe em profundidade pelo time mandante
+      - name: passe_profundidade_visitante
+        description: Passe em profundidade pelo time visitante
+      - name: falta_terco_final_mandante
+        description: Faltas sofridas no terço final pelo time mandante
+      - name: falta_terco_final_visitante
+        description: Faltas sofridas no terço final pelo time visitante
+      - name: impedimento_mandante
+        description: Impedimentos pelo time mandante
+      - name: impedimento_visitante
+        description: Impedimentos pelo time visitante
+      - name: passes_certo_mandante
+        description: Passes certos pelo time mandante
+      - name: passes_certo_visitante
+        description: Passes certos pelo time visitante
+      - name: lateral_mandante
+        description: Laterais pelo time mandante
+      - name: lateral_visitante
+        description: Laterais pelo time visitante
+      - name: entrada_terco_final_mandante
+        description: Entradas no terço final pelo time mandante
+      - name: entrada_terco_final_visitante
+        description: Entradas no terço final pelo time visitante
+      - name: bola_longa _mandante
+        description: Bolas longas pelo time mandante
+      - name: bola_longa_visitante
+        description: Bolas longas pelo time visitante
+      - name: cruzamento_mandante
+        description: Cruzamentos pelo time mandante
+      - name: cruzamento_visitante
+        description: Cruzamentos pelo time visitante
+      - name: duelo_vencido_mandante
+        description: Porcentagem de duelos vencidos pelo time mandante
+      - name: duelo_vencido_visitante
+        description: Porcentagem de duelos vencidos pelo time visitante
+      - name: desarme_sofrido_mandante
+        description: Desarmes sofridos pelo time mandante
+      - name: desarme_sofrido_visitante
+        description: Desarmes sofridos pelo time visitante
+      - name: duelo_chao_mandante
+        description: Duelos no chão vencidos pelo time mandante
+      - name: duelo_chao_visitante
+        description: Duelos no chão vencidos pelo time visitante
+      - name: duelo_aereo_mandante
+        description: Duelos aéreos vencidos pelo time mandante
+      - name: duelo_aereo_visitante
+        description: Duelos aéreos vencidos pelo time visitante
+      - name: drible_mandante
+        description: Dribles efetuados pelo time mandante
+      - name: drible_visitante
+        description: Dribles efetuados pelo time visitante
+      - name: desarme_mandante
+        description: Desarmes totais realizados pelo time mandante
+      - name: desarme_visitante
+        description: Desarmes totais  realizados pelo time visitante
+      - name: desarme_ganho_mandante
+        description: Porcentagem de desarmes ganhos pelo time mandante
+      - name: desarme_ganho_visitante
+        description: Porcentagem de desarmes ganhos pelo time visitante
+      - name: interceptacao_mandante
+        description: Interceptações efetuadas pelo time mandante
+      - name: interceptacao_visitante
+        description: Interceptações efetuadas pelo time visitante
+      - name: recuperacao_bola_mandante
+        description: Recuperações de bola time mandante
+      - name: recuperacao_bola_visitante
+        description: Recuperações de bola time visitante
+      - name: corte_mandante
+        description: Cortes efetuados pelo time mandante
+      - name: corte_visitante
+        description: Cortes efetuados pelo time visitante
+      - name: tiro_meta_mandante
+        description: Tiros de meta pelo time mandante
+      - name: tiro_meta_visitante
+        description: Tiros de meta pelo time visitante

@@ -35,5 +35,5 @@ jobs:
       - name: Perform code tree analysis
         id: code-tree-analysis
         continue-on-error: true
-        run: |
+        run: |-
           poetry run python .github/workflows/scripts/code_tree_analysis.py "${{ steps.files.outputs.all }}"

@@ -20,7 +20,7 @@ schedule_br_bd_siga_o_dinheiro = Schedule(
             ],
             parameter_defaults={
                 "dataset_id": "br_bd_siga_o_dinheiro",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "dbt_alias": True,
             },
         ),

@@ -1,0 +1,333 @@
+---
+version: 2
+models:
+  - name: br_trase_supply_chain__beef
+    description: This dataset is the Trase beef supply chain (v2.0.1). Trase maps
+      supply chains for agricultural commodities, making it possible to link products
+      and supply chain actors with specific areas of production, and associated sustainability
+      risks and opportunities. For all beef, offal and live cattle exports from 2015-2017,
+      this model mapped the likely municipality of origin. It use trade and production
+      data, slaughterhouse tax registrations, company assetownership information,
+      export licences, a large dataset of cattle movements between farms and from
+      farms to slaughterhouses, and government data on the origin of cattle slaughtered
+      in exportapproved slaughterhouses.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - municipality_id_production
+            - municipality_id_logistics_hub
+            - exporter_name
+            - importer_name
+            - country_first_import_iso3_id
+    columns:
+      - name: year
+        description: Year
+      - name: biome
+        description: biome
+      - name: country_production_iso3_id
+        description: ISO3 code for the country where the soybeans production occurred
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_pais_iso3
+      - name: state_production
+        description: State acronym where the cattle production occurred
+      - name: municipality_id_production
+        description: Municipality ID (IBGE-7) where the production of cattle occurred
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: municipality_production
+        description: Municipality name where the production of cattle occurred
+      - name: municipality_id_logistics_hub
+        description: Municipality name (IBGE-7) of aggregation of cattle
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: municipality_logistics_hub
+        description: Municipality name where the production of cattle occurred
+      - name: exporter_name
+        description: Exporter name
+      - name: exporter_group
+        description: Exporter group
+      - name: importer_name
+        description: Importer name
+      - name: importer_group
+        description: Importer Group
+      - name: country_first_import_iso3_id
+        description: ISO3 code for the country of destination of the first import
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_pais_iso3
+      - name: country_first_import_name
+        description: Country of destination of the first import
+      - name: economic_bloc
+        description: Economic bloc
+      - name: fob_usd
+        description: Free on Board (FOB) total value
+      - name: beef_equivalent_tonnes
+        description: Unknown
+      - name: land_use
+        description: Land Use
+      - name: product_description
+        description: Product Description
+      - name: zero_deforestation_commitments
+        description: Zero-deforestation commitments(ZDC) are obtained by Global Canopys
+          annual assessment which determines whether a trader has a commitment to
+          zero deforestation in theirsupply chain (net or gross deforestation are
+          both acceptable) for a given commodity, covering a specific country and
+          time period
+      - name: cattle_deforestation_exposure
+        description: Cattle deforestation exposure
+      - name: co2_emissions_deforestation_5
+        description: CO2 emissions caused by cattle deforestation in 5 year period
+      - name: type
+        description: Unknown
+  - name: br_trase_supply_chain__beef_slaughterhouses
+    description: This table contains TRASE beef supply chain logistics hubs extra
+      information
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [slaugtherhouse_id]
+    columns:
+      - name: geom_id
+        description: Geom ID
+      - name: cartodb_id
+        description: Cartodb ID
+      - name: geom_webmercator_id
+        description: Geom Webmercator ID
+      - name: municipality_id
+        description: Municipality ID
+      - name: state
+        description: State acronym
+      - name: address
+        description: Adress of the facility
+      - name: slaugtherhouse_id
+        description: TRASE slaugtherhouse ID
+      - name: company
+        description: Company name
+      - name: other_company_names
+        description: Others names for the company
+      - name: multifunctions
+        description: Brazil's National Economy Activity Codes (CNAE) and descriptions
+          of the facility
+      - name: resolution_id
+        description: Identifies the type of the geom
+      - name: subclass
+        description: Category of the Slaugtherhouse according to TRASE imputation
+          methodology
+      - name: inspection_level
+        description: Identifies inspection level (Eg. System of Federal Inspection
+          (SIF))
+      - name: inspection_number
+        description: Inspection number
+      - name: tac
+        description: Unknown
+      - name: status
+        description: Status of the facility
+      - name: date_sif_registered
+        description: Date of registration of the facility in the System of Federal
+          Inspection (SIF)
+      - name: sif_category
+        description: SIF registration category
+      - name: point
+        description: Geographic location of the refining facility
+  - name: br_trase_supply_chain__soy_beans
+    description: This dataset is Trase soy beans (v2.6) supply chain. The soy supply
+      chain map allocates exports of soy (as bean, oil and cake products) to municipalities
+      of production by (1) making connections between individual shipments leaving
+      Brazilian ports and facilities(crushing and storage facilities); and (2) linking
+      these facilities to municipalities that produce soy.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - municipality_id_production
+            - municipality_id_logistics_hub
+            - exporter_name
+            - importer_name
+            - export_port
+            - country_first_import_iso3_id
+    columns:
+      - name: year
+        description: Year
+      - name: biome
+        description: Biome
+      - name: country_production_iso3_id
+        description: ISO3 code for the country where the soybeans production occurred
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_pais_iso3
+      - name: state_production
+        description: State acronym where the cattle production occurred
+      - name: municipality_name_production
+        description: Municipality name where the production of soy beans occurred
+      - name: municipality_id_production
+        description: Municipality ID (IBGE-7) where the production of soy beans occurred
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: municipality_name_logistics_hub
+        description: Municipality name of aggregation of soy. Either containing a
+          farm of a silo/storage facility that is closest to the municipality of production
+      - name: municipality_id_logistics_hub
+        description: Municipality ID (IBGE-7) of aggregation of soy. Either containing
+          a farm of a silo/storage facility that is closest to the municipality of
+          production
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: export_port
+        description: Porf of Export
+      - name: exporter_name
+        description: Exporter name
+      - name: exporter_group
+        description: Exporter group
+      - name: importer_name
+        description: Importer name
+      - name: importer_group
+        description: Importer group
+      - name: country_first_import_iso3_id
+        description: ISO3 code for the country of destination of the first import
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_pais_iso3
+      - name: country_first_import_name
+        description: Country of destination of the first import
+      - name: economic_bloc_first_import_name
+        description: 'Economic bloc of destination of the first import '
+      - name: fob_usd
+        description: Freight on Board (FOB) total export value
+      - name: soy_equivalent_tones
+        description: Unknown
+      - name: land_use
+        description: Soy beans land use
+      - name: soy_deforestation_exposure
+        description: Soy deforestation exposure estimates how much soy deforestation
+          is associated with the soy supply chain
+      - name: zero_deforestation_commitments
+        description: Zero-deforestation commitments(ZDC) are obtained by Global Canopy’s
+          annual assessment which determines whether a trader has a commitment to
+          zero deforestation in theirsupply chain (net or gross deforestation are
+          both acceptable) for a given commodity, covering a specific country and
+          time period
+      - name: co2_gross_emissions_deforestation_5
+        description: CO2 gross emissions caused by soy deforestation in 5 year period
+      - name: co2_net_emissions_deforestation_5
+        description: CO2 net emissions caused by soy deforestation in 5 year period
+      - name: soy_risk
+        description: Unknown
+      - name: type
+        description: Unkown
+  - name: br_trase_supply_chain__soy_beans_storage_facilities
+    description: This table contains TRASE Soy Beans supply chain logistics extra
+      information about storage facilities
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [cnpj_cpf]
+    columns:
+      - name: geom_id
+        description: Geom ID
+      - name: cartodb_id
+        description: Cartodb ID
+      - name: geom_webmercator_id
+        description: Geom Webmercator ID
+      - name: municipality_id
+        description: Municipality ID
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: state
+        description: State acronym
+      - name: cnpj_cpf
+        description: The National Registry of Legal Entities (CNPJ) or the Individual
+          Taxpayer Registry (CPF)
+      - name: company_person
+        description: Company or person name
+      - name: capacity
+        description: Capacity of the storage facility
+      - name: point
+        description: Geographic location of the refining facility
+      - name: subclass
+        description: Identifies the certainty  of the classification of the facility
+      - name: date
+        description: Unknown
+      - name: dt
+        description: Unknown
+  - name: br_trase_supply_chain__soy_beans_refining_facilities
+    description: This table contains TRASE Soy Beans supply chain logistics extra
+      information about refining facilities
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, refining_facility_id, company]
+    columns:
+      - name: year
+        description: Year
+      - name: geom_id
+        description: Geom ID
+      - name: cartodb_id
+        description: Cartodb ID
+      - name: geom_webmercator_id
+        description: Geom Webmercator ID
+      - name: municipality_id
+        description: Municipality ID
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: state
+        description: State acronym
+      - name: refining_facility_Id
+        description: TRASE Soy Beans refining facility  ID
+      - name: company
+        description: Company name
+      - name: capacity
+        description: Capacity of the refining  facility
+      - name: point
+        description: Geographic location of the refining facility
+  - name: br_trase_supply_chain__soy_beans_crushing_facilities
+    description: This table contains TRASE Soy Beans supply chain logistics extra
+      information about crushing facilities
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, crushing_facility_Id, cnpj]
+    columns:
+      - name: year
+        description: Year
+      - name: geom_id
+        description: Geom ID
+      - name: cartodb_id
+        description: Cartodb ID
+      - name: geom_webmercator_id
+        description: Geom Webmercator ID
+      - name: municipality_id
+        description: Municipality ID
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: state
+        description: State acronym
+      - name: crushing_facility_Id
+        description: TRASE Soy Beans crushing facility  ID
+      - name: cnpj
+        description: National Registry of Legal Entities (CNPJ)
+      - name: company
+        description: Company name
+      - name: capacity
+        description: Capacity of the crushing facility
+      - name: capacity_source
+        description: Source of the capacity of the crushing facility
+      - name: status
+        description: Status of the crushing facility
+      - name: point
+        description: Geographic location of the crushing facility

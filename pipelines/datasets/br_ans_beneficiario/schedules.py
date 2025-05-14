@@ -21,7 +21,7 @@ every_day_ans = Schedule(
             parameter_defaults={
                 "dataset_id": "br_ans_beneficiario",
                 "table_id": "informacao_consolidada",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": False,
                 "update_metadata": True,

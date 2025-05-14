@@ -1,0 +1,154 @@
+---
+version: 2
+models:
+  - name: mundo_transfermarkt_competicoes_internacionais__champions_league
+    description: A tabela da Champions League abrange edições a partir da temporada
+      de 2003, quando a fonte dos dados, coletados através de web scraping, começou
+      a fornecer informações detalhadas sobre vencedores e estatísticas de partidas.
+      Durante esse período, a competição envolveu uma série de equipes de elite representando
+      os melhores clubes da Europa. A competição apresenta equipes de várias nações
+      europeias e é conhecida por suas emocionantes partidas, incluindo a fase de
+      grupos, oitavas de final, quartas de final, semifinais e, finalmente, a grande
+      final. A presença de valores nulos em algumas estatísticas pode refletir a natureza
+      variável da fonte de dados e as diferentes edições do torneio.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.20
+    columns:
+      - name: temporada
+        description: Anos da temporada do campeonato
+      - name: data
+        description: Data da partida
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: horario
+        description: Horário da partida
+      - name: fase
+        description: Fase do campeonato
+      - name: tipo_fase
+        description: Tipo de jogo na fase
+      - name: estadio
+        description: Estádio
+      - name: arbitro
+        description: Árbitro
+      - name: publico
+        description: Público presente
+      - name: publico_max
+        description: Público máximo
+      - name: time_mandante
+        description: Time mandante
+        tests: [not_null]
+      - name: time_visitante
+        description: Time visitante
+        tests: [not_null]
+      - name: tecnico_mandante
+        description: Técnico do time mandante
+      - name: tecnico_visitante
+        description: Técnico do time visitante
+      - name: idade_tecnico_mandante
+        description: Idade do técnico mandante
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 110
+      - name: idade_tecnico_visitante
+        description: Idade do técnico visitante
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 110
+      - name: data_final_tecnico_mandante
+        description: Data final do contrato técnico mandante
+      - name: data_final_tecnico_visitante
+        description: Data final do contrato técnico visitante
+      - name: proporcao_sucesso_mandante
+        description: Proporção de sucesso por jogos mandante
+      - name: proporcao_sucesso_visitante
+        description: Proporção de sucesso por jogos visitante
+      - name: valor_equipe_titular_mandante
+        description: Valor de mercado total mandante
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: '>= 1'
+      - name: valor_equipe_titular_visitante
+        description: Valor de mercado total visitante
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: '>= 1'
+      - name: valor_medio_equipe_titular_mandante
+        description: Valor de compra do time mandante
+      - name: valor_medio_equipe_titular_visitante
+        description: Valor de compra do time visitante
+      - name: convocacao_selecao_principal_mandante
+        description: Número de jogadores na seleção do time mandante
+      - name: convocacao_selecao_principal_visitante
+        description: Número de jogadores na seleção do time visitante
+      - name: selecao_juniores_mandante
+        description: Número de jogadores do juniores do time mandante
+      - name: selecao_juniores_visitante
+        description: Número de jogadores do juniores do time visitante
+      - name: estrangeiros_mandante
+        description: Número de jogadores estrangeiros do time mandante
+      - name: estrangeiros_visitante
+        description: Número de jogadores estrangeiros do time visitante
+      - name: socios_mandante
+        description: Número de sócios ao time mandante
+      - name: socios_visitante
+        description: Número de sócios ao time visitante
+      - name: idade_media_titular_mandante
+        description: Idade média da equipe titular do time mandante
+      - name: idade_media_titular_visitante
+        description: Idade média da equipe titular do time visitante
+      - name: gols_mandante
+        description: Gols do time mandante
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 20
+      - name: gols_visitante
+        description: Gols do time visitante
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 20
+      - name: prorrogacao
+        description: Indicador se o jogo foi vencido na prorrogação
+      - name: penalti
+        description: Indicador se o jogo foi vencido nos pênaltis
+      - name: gols_1_tempo_mandante
+        description: Gols no primeiro tempo do time mandante
+      - name: gols_1_tempo_visitante
+        description: Gols no primeiro tempo do time visitante
+      - name: penalti
+        description: Indicador se o jogo foi para os pênaltis
+      - name: escanteios_mandante
+        description: Escanteios do time mandante
+      - name: escanteios_visitante
+        description: Escanteios do time visitante
+      - name: faltas_mandante
+        description: Faltas feitas pelo time mandante
+      - name: faltas_visitante
+        description: Faltas feitas pelo time visitante
+      - name: chutes_bola_parada_mandante
+        description: Chutes de bola parada do time mandante
+      - name: chutes_bola_parada_visitante
+        description: Chutes de bola parada do time visitante
+      - name: defesas_mandante
+        description: Defesas do time mandante
+      - name: defesas_visitante
+        description: Defesas do time visitante
+      - name: impedimentos_mandante
+        description: Impedimentos do time mandante
+      - name: impedimentos_visitante
+        description: Impedimentos do time visitante
+      - name: chutes_mandante
+        description: Chutes do time mandante
+      - name: chutes_visitante
+        description: Chutes do time visitante
+      - name: chutes_fora_mandante
+        description: Chutes fora do time mandante
+      - name: chutes_fora_visitante
+        description: Chutes fora do time visitante

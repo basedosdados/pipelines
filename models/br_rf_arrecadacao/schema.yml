@@ -1,0 +1,481 @@
+---
+version: 2
+models:
+  - name: br_rf_arrecadacao__uf
+    description: Contém os dados de arrecadação mensal por Unidade da Federação, contendo
+      receitas administradas e não administradas pela Receita Federal do Brasil.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, sigla_uf]
+    columns:
+      - name: ano
+        description: Ano de referência.
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+          - dbt_utils.not_null_proportion:
+              at_least: 0.95
+      - name: mes
+        description: Mês de referência.
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+          - dbt_utils.not_null_proportion:
+              at_least: 0.95
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação.
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+          - dbt_utils.not_null_proportion:
+              at_least: 0.95
+      - name: imposto_importacao
+        description: Imposto sobre a Importação.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.95
+      - name: imposto_exportacao
+        description: Imposto sobre a Exportação.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.95
+      - name: ipi_fumo
+        description: Imposto sobre Produtos Industrializado incidente sobre setor
+          de fumo.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.95
+      - name: ipi_bebidas
+        description: Imposto sobre Produtos Industrializado incidente sobre setor
+          de bebidas.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.95
+      - name: ipi_automoveis
+        description: Imposto sobre Produtos Industrializado incidente sobre setor
+          de automóveis.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.95
+      - name: ipi_importacoes
+        description: Imposto sobre Produtos Industrializado vinculado à importação.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.95
+      - name: ipi_outros
+        description: Imposto sobre Produtos Industrializado incidente sobre outros
+          produtos.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.95
+      - name: irpf
+        description: Imposto sobre a Renda da Pessoa Física.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.95
+      - name: irpj_entidades_financeiras
+        description: Imposto sobre a Renda da Pessoa Jurídica incidente em entidades
+          financeiras.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.95
+      - name: irpj_demais_empresas
+        description: Imposto sobre a Renda da Pessoa Jurídica incidente em demais
+          empresas.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.95
+      - name: irrf_rendimentos_trabalho
+        description: Imposto sobre a Renda Retido na Fonte referente à rendimentos
+          do trabalho.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.95
+      - name: irrf_rendimentos_capital
+        description: Imposto sobre a Renda Retido na Fonte referente à rendimentos
+          do capital.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.95
+      - name: irrf_remessas_exterior
+        description: Imposto sobre a Renda Retido na Fonte referente à remessas para
+          o exterior.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.95
+      - name: irrf_outros_rendimentos
+        description: Imposto sobre a Renda Retido na Fonte referente à outros rendimentos.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.95
+      - name: iof
+        description: Imposto sobre Operações Financeiras.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.95
+      - name: itr
+        description: Imposto sobre a Propriedade Territorial Rural.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.95
+      - name: ipmf
+        description: Imposto Provisório sobre Movimentação Financeira.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.06
+      - name: cpmf
+        description: Contribuição Provisória sobre Movimentação Financeira.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.45
+      - name: cofins
+        description: Contribuição para o Financiamento da Seguridade Social.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.12
+      - name: cofins_entidades_financeiras
+        description: Contribuição para o Financiamento da Seguridade Social referente
+          à entidades financeiras.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.80
+      - name: cofins_demais_empresas
+        description: Contribuição para o Financiamento da Seguridade Social referente
+          à demais empresas.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.80
+      - name: pis_pasep
+        description: Programa de Integração Social e o Programa de Formação do Patrimônio
+          do Servidor Público.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.12
+      - name: pis_pasep_entidades_financeiras
+        description: Programa de Integração Social e o Programa de Formação do Patrimônio
+          do Servidor Público referente à entidades financeiras.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.80
+      - name: pis_pasep_demais_empresas
+        description: Programa de Integração Social e o Programa de Formação do Patrimônio
+          do Servidor Público referente à demais empresas.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.80
+      - name: csll
+        description: Contribuição Social sobre o Lucro Líquido.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.12
+      - name: csll_entidades_financeiras
+        description: Contribuição Social sobre o Lucro Líquido referente à entidades
+          financeiras.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.80
+      - name: csll_demais_empresas
+        description: Contribuição Social sobre o Lucro Líquido referente à demais
+          empresas.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.80
+      - name: cide_combustiveis_parcela_nao_dedutivel
+        description: Parcela não dedutível da Contribuição de Intervenção no Domínio
+          Econômico aplicada à combustíveis.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.03
+      - name: cide_combustiveis
+        description: Contribuição de Intervenção no Domínio Econômico aplicada à combustíveis.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.75
+      - name: cpsss_1
+        description: Contribuição para o Plano de Seguridade Social do Servidor Público.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.12
+      - name: cpsss_2
+        description: Contribuição para o Plano de Seguridade Social do Servidor Público.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.50
+      - name: contribuicao_fundaf
+        description: Contribuições para o Fundo Especial de Desenvolvimento e Aperfeiçoamento
+          das Atividades de Fiscalização (Fundaf).
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.55
+      - name: refis
+        description: Programa de Recuperação Fiscal.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.03
+      - name: paes
+        description: Parcelamento Especial.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.03
+      - name: retencoes_fonte
+        description: Retenções na fonte de CSLL, Cofins e Pis/Pasep, previstas no
+          art. 30 da Lei nº 10.833, de 29 de dezembro de 2003.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.02
+      - name: pagamento_unificado
+        description: Pagamentos referentes a vários tributos feitos em um único documento
+          de arrecadação, tipo parcelamentos, retenções, Simples etc.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.04
+      - name: outras_receitas_rfb
+        description: Outras receitas administradas pela RFB.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.95
+      - name: demais_receitas
+        description: Outras receitas não administradas pela RFB.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.25
+      - name: receita_previdenciaria
+        description: Total da Receita Previdenciária.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.25
+      - name: receita_previdenciaria_propria
+        description: Receita Previdenciária Própria.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.15
+      - name: receita_previdenciaria_demais
+        description: Receita Previdenciária Demais.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.15
+      - name: receitas_outros_orgaos
+        description: Receitas administradas por outros órgãos.
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.50
+  - name: br_rf_arrecadacao__cnae
+    description: Contém os dados de arrecadação bruta mensal realizadas em Documento
+      de Arrecadação de Receitas Federais (Darf), por tributo, efetuada pelos setores
+      econômicos, identificados pela seção, constantes da tabela de Classificação
+      Nacional de Atividades Econômicas(Cnae).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, secao_sigla]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.35
+    columns:
+      - name: ano
+        description: Ano de referência.
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: Mês de referência.
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: secao_sigla
+        description: Código da Seção da atividade econômica constante da Cnae.
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__cnae_2')
+              field: secao
+              ignore_values: [IN, NI, PF]
+      - name: imposto_importacao
+        description: Imposto sobre a Importação.
+      - name: imposto_exportacao
+        description: Imposto sobre a Exportação.
+      - name: ipi
+        description: Imposto sobre Produtos Industrializados.
+      - name: irpf
+        description: Imposto sobre a Renda da Pessoa Física.
+      - name: irpj
+        description: Imposto sobre a Renda da Pessoa Jurídica.
+      - name: irrf
+        description: Imposto sobre a Renda Retido na Fonte.
+      - name: iof
+        description: Imposto sobre Operações Financeiras.
+      - name: itr
+        description: Imposto sobre a Propriedade Territorial Rural.
+      - name: cofins
+        description: Contribuição para o Financiamento da Seguridade Social.
+      - name: pis_pasep
+        description: Programa de Integração Social e o Programa de Formação do Patrimônio
+          do Servidor Público.
+      - name: csll
+        description: Contribuição Social sobre o Lucro Líquido.
+      - name: cide_combustiveis
+        description: Contribuição de Intervenção no Domínio Econômico aplicada à combustíveis.
+      - name: contribuicao_previdenciaria
+        description: Contribuição Previdenciária arrecadada em Darf.
+      - name: cpsss
+        description: Contribuição para o Plano de Seguridade Social do Servidor Público.
+      - name: pagamento_unificado
+        description: Pagamentos referentes a vários tributos feitos em um único documento
+          de arrecadação, como parcelamentos, retenções, Simples etc.
+      - name: outras_receitas_rfb
+        description: Outras receitas administradas pela RFB.
+      - name: demais_receitas
+        description: Outras receitas não administradas pela RFB.
+  - name: br_rf_arrecadacao__natureza_juridica
+    description: Contém os dados de arrecadação bruta mensal realizadas em Documento
+      de Arrecadação de Receitas Federais (Darf), por tributo, efetuada pelos diversos
+      tipos de Naturezas Jurídicas.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, natureza_juridica_codigo]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.15
+    columns:
+      - name: ano
+        description: Ano de referência.
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: Mês de referência.
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: natureza_juridica_codigo
+        description: Código do tipo de Natureza Jurídica.
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__natureza_juridica')
+              field: id_natureza_juridica
+      - name: imposto_importacao
+        description: Imposto sobre a Importação.
+      - name: imposto_exportacao
+        description: Imposto sobre a Exportação.
+      - name: ipi
+        description: Imposto sobre Produtos Industrializados.
+      - name: irpf
+        description: Imposto sobre a Renda da Pessoa Física.
+      - name: irpj
+        description: Imposto sobre a Renda da Pessoa Jurídica.
+      - name: irrf
+        description: Imposto sobre a Renda Retido na Fonte.
+      - name: iof
+        description: Imposto sobre Operações Financeiras.
+      - name: itr
+        description: Imposto sobre a Propriedade Territorial Rural.
+      - name: cofins
+        description: Contribuição para o Financiamento da Seguridade Social.
+      - name: pis_pasep
+        description: Programa de Integração Social e o Programa de Formação do Patrimônio
+          do Servidor Público.
+      - name: csll
+        description: Contribuição Social sobre o Lucro Líquido.
+      - name: cide_combustiveis
+        description: Contribuição de Intervenção no Domínio Econômico aplicada à combustíveis.
+      - name: contribuicao_previdenciaria
+        description: Contribuição Previdenciária arrecadada em Darf.
+      - name: cpsss
+        description: Contribuição para o Plano de Seguridade Social do Servidor Público.
+      - name: pagamento_unificado
+        description: Pagamentos referentes a vários tributos feitos em um único documento
+          de arrecadação, como parcelamentos, retenções, Simples etc.
+      - name: outras_receitas_rfb
+        description: Outras receitas administradas pela RFB.
+      - name: demais_receitas
+        description: Outras receitas não administradas pela RFB.
+  - name: br_rf_arrecadacao__ir_ipi
+    description: Contém os dados de arrecadação decendial do Imposto sobre a Renda
+      (IR) e do Imposto sobre Produtos Industrializados (IPI), discriminados por arrecadação
+      bruta, os respectivos eventos que afetam essa arrecadação bruta e a arrecadação
+      líquida, valor este último passível de repasse aos Fundos de Participação dos
+      Estados e do Municípios, FPM e FPE, de acordo com dispositivo constitucional.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, tributo, decendio]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+    columns:
+      - name: ano
+        description: Ano de referência.
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: Mês de referência.
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: tributo
+        description: Identificação de Tributo (IR ou IPI).
+      - name: decendio
+        description: Decêndio de referência.
+      - name: arrecadacao_bruta
+        description: Valor da arrecadação bruta dos tributos sem nenhum acréscimo
+          ou dedução. É a etapa inicial da arrecadação, quando há o pagamento efetuado
+          pelo contribuinte.
+      - name: retificacao
+        description: Valor do saldo das retificações efetuadas nos Documentos de Arrecadação
+          de Receitas Federais (Darf). São alterações feitas nos documentos de arrecadação
+          em função de erro de preenchimento.
+      - name: compensacao
+        description: Valor do saldo das compensações efetuadas. Utilização de valores
+          pagos anteriormente para quitação de débitos de outros tributos, distintos
+          de IR ou IPI, e vice-versa.
+      - name: restituicao
+        description: Valor do saldo das restituições efetuadas pela Receita Federal
+          em função de pagamentos feitos a maior ou indevidos.
+      - name: outros
+        description: Demais eventos que agem sobre o valor da arrecadação bruta.
+      - name: arrecadacao_liquida
+        description: Valor resultante da arrecadação bruta, depois da incidência dos
+          demais eventos de arrecadação.
+  - name: br_rf_arrecadacao__itr
+    description: Contém os dados de arrecadação líquida mensal do Imposto sobre a
+      Propriedade Territorial Rural (ITR), realizada pelas propriedades rurais, passível
+      de repasse aos próprios municípios onde se localizam essas propriedades rurais,
+      conforme a situação do município, conveniado ou não conveniado com a União para
+      fiscalizar e cobrar o ITR, de acordo com dispositivo constitucional.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, sigla_uf, id_municipio]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+    columns:
+      - name: ano
+        description: Ano de referência.
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: Mês de referência.
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação onde se localiza o município conveniado
+          ou não conveniado.
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID do município conveniado ou não conveniado.
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: valor_arrecadado
+        description: Valor arrecadado.

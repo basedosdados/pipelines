@@ -21,7 +21,7 @@ every_day_stf = Schedule(
             parameter_defaults={
                 "dataset_id": "br_stf_corte_aberta",
                 "table_id": "decisoes",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,

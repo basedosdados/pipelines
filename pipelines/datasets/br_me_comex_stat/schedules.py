@@ -22,7 +22,7 @@ schedule_municipio_exportacao = Schedule(
             parameter_defaults={
                 "dataset_id": "br_me_comex_stat",
                 "table_id": "municipio_exportacao",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
@@ -44,7 +44,7 @@ schedule_municipio_importacao = Schedule(
             parameter_defaults={
                 "dataset_id": "br_me_comex_stat",
                 "table_id": "municipio_importacao",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
@@ -66,7 +66,7 @@ schedule_ncm_importacao = Schedule(
             parameter_defaults={
                 "dataset_id": "br_me_comex_stat",
                 "table_id": "ncm_importacao",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
@@ -88,7 +88,7 @@ schedule_ncm_exportacao = Schedule(
             parameter_defaults={
                 "dataset_id": "br_me_comex_stat",
                 "table_id": "ncm_exportacao",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,

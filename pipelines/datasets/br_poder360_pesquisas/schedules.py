@@ -20,7 +20,7 @@ every_monday_thursday = Schedule(
             ],
             parameter_defaults={
                 "dataset_id": "br_poder360_pesquisas",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize after dump": True,
                 "table_id": "microdados",
                 "dbt_alias": False,

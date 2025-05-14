@@ -1,0 +1,61 @@
+---
+version: 2
+models:
+  - name: br_rf_cafir__imoveis_rurais
+    description: Cadastro de imóveis rurais
+    columns:
+      - name: data_referencia
+        description: Data de divulgação dos dados pela Receita Federal (RF)
+      - name: data_inscricao
+        description: Data de inscrição do imóvel no cadastro de imóveis rurais da
+          Receita Federal (RF)
+      - name: id_imovel_receita_federal
+        description: Identificador do imóvel rural da RF
+      - name: id_imovel_incra
+        description: Identificador do imóvel do Instituto Nacional da Colonização
+          e Reforma Agrária (INCRA)
+      - name: nome
+        description: Nome do imóvel
+      - name: area
+        description: Área do imóvel
+      - name: status_sncr
+        description: Status cadastral do imóvel no Sistema Nacional de Cadastro Rural
+          (SNCR) do INCRA
+      - name: tipo_itr
+        description: Identifica tipo de incidência do Imposto Territórial Rural (ITR)
+      - name: situacao_imovel
+        description: Situação do imóvel no cadastro da RF
+      - name: endereco
+        description: Endereço
+      - name: cep
+        description: CEP
+      - name: distrito
+        description: Distrito do imóvel
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação (UF)
+  - name: br_rf_cafir__dicionario
+    description: Dicionário para tradução dos códigos do conjunto br_rf_cafir. Para
+      taduzir códigos compartilhados entre instituições, como id_municipio, buscar
+      por diretórios
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_tabela
+            - nome_coluna
+            - chave
+            - cobertura_temporal
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_tabela
+        description: ID Tabela
+      - name: nome_coluna
+        description: Nome da coluna
+      - name: chave
+        description: Chave
+      - name: cobertura_temporal
+        description: Cobertura Temporal
+      - name: valor
+        description: Valor

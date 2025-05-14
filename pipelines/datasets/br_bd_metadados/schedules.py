@@ -19,7 +19,7 @@ every_day_prefect_flow_runs = Schedule(
             parameter_defaults={
                 "dataset_id": "br_bd_metadados",
                 "table_id": "prefect_flow_runs",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
             },
@@ -36,7 +36,7 @@ every_day_prefect_flows = Schedule(
             parameter_defaults={
                 "dataset_id": "br_bd_metadados",
                 "table_id": "prefect_flows",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
             },

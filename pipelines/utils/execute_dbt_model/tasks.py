@@ -3,68 +3,55 @@
 Tasks related to DBT flows.
 """
 
-from datetime import timedelta
+import json
+import os
+from typing import Dict, List, Optional, Union
 
-from dbt_client import DbtClient
+from dbt.cli.main import dbtRunner
 from prefect import task
 
-from pipelines.constants import constants
+from pipelines.utils.dump_to_gcs.tasks import download_data_to_gcs
 from pipelines.utils.execute_dbt_model.constants import (
     constants as constants_execute,
 )
-from pipelines.utils.execute_dbt_model.utils import get_dbt_client, merge_vars
+from pipelines.utils.execute_dbt_model.utils import (
+    extract_model_execution_status_from_logs,
+    log_dbt_from_file,
+    process_dbt_log_file,
+)
 from pipelines.utils.utils import log
 
 
-@task(
-    checkpoint=False,
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
-def get_k8s_dbt_client(
-    mode: str = "dev",
-    wait=None,
-) -> DbtClient:
-    """
-    Get a DBT client for the Kubernetes cluster.
-    """
-    if mode not in ["dev", "prod"]:
-        raise ValueError(f"Invalid mode: {mode}")
-    return get_dbt_client(
-        host=f"dbt-rpc-{mode}",
-    )
-
-
-@task(
-    checkpoint=False,
-    max_retries=constants.RUN_DBT_MODEL_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
-def run_dbt_model(
-    dbt_client: DbtClient,
+@task
+def run_dbt(
     dataset_id: str,
-    table_id: str,
+    table_id: Optional[str] = None,
     dbt_alias: bool = True,
     dbt_command: str = "run",
-    sync: bool = True,
-    flags: str = None,
-    _vars=None,
+    target: str = "dev",
+    flags: Optional[str] = None,
+    _vars: Optional[Union[dict, List[Dict], str]] = None,
     disable_elementary: bool = False,
-):
+) -> bool:
     """
-    Run a DBT model.
+    Execute a DBT model and process logs from the log file.
+
     Args:
         dataset_id (str): Dataset ID of the dbt model.
         table_id (str, optional): Table ID of the dbt model. If None, the
-        whole dataset will be run.
+            whole dataset will be run.
         dbt_alias (bool, optional): If True, the model will be run by
-        its alias. Defaults to False.
-        flags (str, optional): Flags to pass to the dbt run command.
-        See:
-        https://docs.getdbt.com/reference/dbt-jinja-functions/flags/
-        _vars (Union[dict, List[Dict]], optional): Variables to pass to
-        dbt. Defaults to None.
-        disable_elementary (bool, optional): Disable elementary on-run-end hooks.
+            its alias. Defaults to True.
+        dbt_command (str, optional): The dbt command to run. Defaults to "run".
+        target (str, optional): The dbt target to use. Defaults to "dev".
+        flags (Optional[str], optional): Flags to pass to the dbt command. Defaults to None.
+        _vars (Optional[Union[dict, List[Dict], str]], optional): Variables to pass to
+            dbt. Defaults to None.
+        disable_elementary (bool, optional): Disable elementary on-run-end hooks. Defaults to False.
+
+    Raises:
+        ValueError: If dbt_command is invalid.
+        FAIL: If dbt execution fails.
     """
     if dbt_command not in ["run", "test", "run and test", "run/test"]:
         raise ValueError(f"Invalid dbt_command: {dbt_command}")
@@ -77,67 +64,110 @@ def run_dbt_model(
     else:
         selected_table = dataset_id
 
-    if disable_elementary:
-        if _vars is None:
-            _vars = constants_execute.DISABLE_ELEMENTARY_VARS.value
+    _vars = json.loads(_vars) if isinstance(_vars, str) else _vars
+
+    variables = (
+        constants_execute.DISABLE_ELEMENTARY_VARS.value
+        if disable_elementary and _vars is None
+        else {**constants_execute.DISABLE_ELEMENTARY_VARS.value, **_vars}  # type: ignore
+    )
+
+    commands_to_run = []
+
+    if "run" in dbt_command:
+        commands_to_run.append("run")
+    if "test" in dbt_command:
+        commands_to_run.append("test")
+
+    log_file_path = os.path.join("logs", "dbt.log")
+
+    for cmd in commands_to_run:
+        cli_args = [cmd, "--select", selected_table, "--target", target]
+
+        if flags and flags.startswith("--full-refresh") and cmd == "run":
+            cli_args.insert(1, "--full-refresh")
+        elif flags:
+            cli_args.extend(flags.split())
+
+        cli_args.extend(["--vars", f"{json.dumps(variables)}"])
+
+        log(f"Executing dbt command: {' '.join(cli_args)}", level="info")
+
+        dbt_runner = dbtRunner()
+        result = dbt_runner.invoke(cli_args)
+
+        if result.success:
+            log(
+                f"DBT runner reports success for {cmd} command",
+                level="info",
+            )
         else:
-            _vars = merge_vars(
-                constants_execute.DISABLE_ELEMENTARY_VARS.value, _vars
+            log(
+                f"DBT runner reports failure for {cmd} command. {result.result}",
+                level="error",
             )
 
-    if "run" in dbt_command:
-        if flags == "--full-refresh":
-            run_command = f"dbt run --full-refresh --select {selected_table}"
-            flags = None
+        if os.path.exists(log_file_path):
+            log(f"Processing DBT log file: {log_file_path}", level="info")
+
+            logs_df = process_dbt_log_file(log_file_path)
+
+            if not logs_df.empty:
+                log(
+                    f"Found {len(logs_df)} log entries in log file",
+                    level="info",
+                )
+
+                log_summary = log_dbt_from_file(log_file_path)
+
+                model_status = extract_model_execution_status_from_logs(
+                    logs_df
+                )
+
+                if len(model_status) > 0:
+                    log(
+                        f"Model execution status: {model_status}",
+                        level="info",
+                    )
+
+                if log_summary["error_count"] > 0 or not result.success:
+                    msg = f"DBT '{cmd}' command failed with {log_summary['error_count']} errors. See logs for details."
+                    raise Exception(msg)
+            else:
+                log("No log entries found in log file", level="warning")
         else:
-            run_command = f"dbt run --select {selected_table}"
+            log(
+                f"DBT log file not found at {log_file_path}",
+                level="warning",
+            )
+            if not result.success:
+                raise Exception(result.result)
 
-    if _vars:
-        if isinstance(_vars, list):
-            vars_dict = {}
-            for elem in _vars:
-                vars_dict.update(elem)
-            vars_str = f'"{vars_dict}"'
-            run_command += f" --vars {vars_str}"
-        else:
-            vars_str = f"'{_vars}'"
-            run_command = None if dbt_command in ["test"] else run_command
-            if run_command is not None:
-                run_command += f" --vars {vars_str}"
+    return True
 
-    if flags:
-        run_command += f" {flags}"
 
-    if "run" in dbt_command:
-        log(f"Running dbt with command: {run_command}")
-        logs_dict = dbt_client.cli(
-            run_command,
-            sync=sync,
-            logs=True,
-        )
-        for event in logs_dict["result"]["logs"]:
-            if event["levelname"] in ("INFO", "WARN"):
-                log(event["message"])
-            if event["levelname"] == "DEBUG":
-                if "On model" in event["message"]:
-                    log(event["message"])
+@task
+def run_dbt_and_download_data_to_gcs(
+    dataset_id: str,
+    table_id: Optional[str] = None,
+    dbt_alias: bool = True,
+    dbt_command: str = "run",
+    target: str = "dev",
+    flags: Optional[str] = None,
+    _vars: Optional[Union[dict, List[Dict], str]] = None,
+    disable_elementary: bool = False,
+    download_csv_file: bool = True,
+):
+    run_dbt.run(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_alias=dbt_alias,
+        dbt_command=dbt_command,
+        target=target,
+        flags=flags,
+        _vars=_vars,
+        disable_elementary=disable_elementary,
+    )
 
-    if "test" in dbt_command:
-        if _vars:
-            vars_str = f"'{_vars}'"
-            test_command = f"test --select {selected_table} --vars {vars_str}"
-        else:
-            test_command = f"test --select {selected_table}"
-
-        log(f"Running dbt with command: {test_command}")
-        logs_dict = dbt_client.cli(
-            test_command,
-            sync=sync,
-            logs=True,
-        )
-        for event in logs_dict["result"]["logs"]:
-            if event["levelname"] in ("INFO", "WARN"):
-                log(event["message"])
-            if event["levelname"] == "DEBUG":
-                if "On model" in event["message"]:
-                    log(event["message"])
+    if download_csv_file:
+        download_data_to_gcs.run(dataset_id=dataset_id, table_id=table_id)

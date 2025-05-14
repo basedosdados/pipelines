@@ -21,7 +21,7 @@ every_month_municipio = Schedule(
             parameter_defaults={
                 "dataset_id": "br_denatran_frota",
                 "table_id": "municipio_tipo",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
@@ -44,7 +44,7 @@ every_month_uf = Schedule(
             parameter_defaults={
                 "dataset_id": "br_denatran_frota",
                 "table_id": "uf_tipo",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,

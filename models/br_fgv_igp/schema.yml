@@ -1,0 +1,121 @@
+---
+version: 2
+models:
+  - name: igp_di_mes
+    description: dbt model for igp_di month table
+    columns:
+      - name: ano
+        description: Ano
+      - name: mes
+        description: Mês
+      - name: indice
+        description: IGP-DI no mês (base ago/1994=100)
+      - name: variacao_mensal
+        description: Variação do índice no mês em relação ao mês anterior
+      - name: variacao_12_meses
+        description: Variação do índice nos últimos 12 meses
+      - name: variacao_acumulada_ano
+        description: Variação acumulada no ano (a partir de janeiro do ano corrente)
+      - name: indice_fechamento_mensal
+        description: Elaboração Ipeadata - calculado a partir da média geométrica
+          dos valores dos meses corrente e seguinte da série original do IGP-DI.
+  - name: igp_di_ano
+    description: dbt model for igp_di year table
+    columns:
+      - name: ano
+        description: Ano
+      - name: indice_medio
+        description: Média dos índices mensais (Ipeadata)
+      - name: indice
+        description: Valor do índice do IGP-DI no último dia do ano
+      - name: variacao_anual
+        description: Variação do índice no ano
+      - name: indice_fechamento_anual
+        description: Elaboração Ipeadata - calculado a partir da média geométrica
+          dos valores dos meses corrente e seguinte da série original do IGP-DI.
+  - name: igp_m_mes
+    description: dbt model for igp_m month table
+    columns:
+      - name: ano
+        description: Ano
+      - name: mes
+        description: Mês
+      - name: indice
+        description: IGP-M no mês (base ago/1994=100)
+      - name: variacao_mensal
+        description: Variação do índice no mês em relação ao mês anterior
+      - name: variacao_12_meses
+        description: Variação do índice nos últimos 12 meses
+      - name: variacao_primeiro_decendio
+        description: Variação nos primeiros 10 dias do mês
+      - name: variacao_segundo_decendio
+        description: Variação entre o 11° e o 20° dias do mês
+      - name: variacao_acumulada_ano
+        description: Variação acumulada no ano (a partir de janeiro do ano corrente)
+      - name: indice_fechamento_mensal
+        description: Elaboração Ipeadata - calculado a partir da média geométrica
+          dos valores dos meses corrente e seguinte da série original do IGP-DI.
+  - name: igp_m_ano
+    description: dbt model for igp_m year table
+    columns:
+      - name: ano
+        description: Ano
+      - name: indice_medio
+        description: Média dos índices mensais (Ipeadata)
+      - name: indice
+        description: Valor do índice do IGP-M no último dia do ano
+      - name: variacao_anual
+        description: Variação do índice no ano
+      - name: indice_fechamento_anual
+        description: Elaboração Ipeadata - calculado a partir da média geométrica
+          dos valores dos meses corrente e seguinte da série original do IGP-DI.
+  - name: igp_og_mes
+    description: dbt model for igp_og month table
+    columns:
+      - name: ano
+        description: Ano
+      - name: mes
+        description: Mês
+      - name: indice
+        description: IGP-OG no mês (base ago/1994=100)
+      - name: variacao_mensal
+        description: Variação do índice no mês em relação ao mês anterior
+      - name: variacao_12_meses
+        description: Variação do índice nos últimos 12 meses
+      - name: variacao_acumulada_ano
+        description: Variação acumulada no ano (a partir de janeiro do ano corrente)
+      - name: indice_fechamento_mensal
+        description: Elaboração Ipeadata - calculado a partir da média geométrica
+          dos valores dos meses corrente e seguinte da série original do IGP-DI.
+  - name: igp_og_ano
+    description: dbt model for igp_og year table
+    columns:
+      - name: ano
+        description: Ano
+      - name: indice_medio
+        description: Média dos índices mensais (Ipeadata)
+      - name: indice
+        description: Valor do índice do IGP-OG no último dia do ano
+      - name: variacao_anual
+        description: Variação do índice no ano
+      - name: indice_fechamento_anual
+        description: Elaboração Ipeadata - calculado a partir da média geométrica
+          dos valores dos meses corrente e seguinte da série original do IGP-DI.
+  - name: igp_10_mes
+    description: dbt model for igp_10 month table
+    columns:
+      - name: ano
+        description: Ano
+      - name: mes
+        description: Mês
+      - name: indice
+        description: IGP-10 no mês (base ago/1994=100)
+      - name: variacao_mensal
+        description: Variação do índice no mês em relação ao mês anterior
+      - name: variacao_12_meses
+        description: Variação do índice nos últimos 12 meses
+      - name: variacao_acumulada_ano
+        description: Variação acumulada no ano (a partir de janeiro do ano corrente)
+      - name: indice_fechamento_mensal
+        description: Elaboração Ipeadata - calculado a partir da média geométrica
+          dos valores dos meses corrente e seguinte da série original do IGP-DI.

@@ -1,0 +1,33 @@
+---
+version: 2
+models:
+  - name: br_firjan_ifgf__ranking
+    description: O Índice Firjan de Gestão Fiscal fornece sob 4 aspectos da administração
+      pública uma nota entre 0 e 1. Tal nota é usada para o ranking estadual e nacional
+      dos municípios avaliados
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_municipio]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: sigla_uf
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: indice_firjan_gestao_fiscal
+        description: Índice Firjan de Gestão Fiscal
+      - name: ranking_estadual
+        description: Ranking do município em relação ao Estado
+      - name: ranking_nacional
+        description: Ranking do município em relação ao Brasil

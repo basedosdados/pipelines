@@ -44,9 +44,7 @@ with Flow(
 ) as br_me_cnpj_empresas:
     dataset_id = Parameter("dataset_id", default="br_me_cnpj", required=False)
     table_id = Parameter("table_id", default="empresas", required=False)
-    materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
     )
@@ -95,7 +93,7 @@ with Flow(
                 parameters={
                     "dataset_id": dataset_id,
                     "table_id": table_id,
-                    "mode": materialization_mode,
+                    "target": target,
                     "dbt_alias": dbt_alias,
                     "dbt_command": "run/test",
                     "disable_elementary": False,
@@ -126,7 +124,7 @@ with Flow(
                 date_format="%Y-%m-%d",
                 coverage_type="part_bdpro",
                 time_delta={"months": 6},
-                prefect_mode=materialization_mode,
+                prefect_mode=target,
                 bq_project="basedosdados",
                 upstream_tasks=[wait_for_materialization],
             )
@@ -146,9 +144,7 @@ with Flow(
 ) as br_me_cnpj_socios:
     dataset_id = Parameter("dataset_id", default="br_me_cnpj", required=False)
     table_id = Parameter("table_id", default="socios", required=False)
-    materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -197,7 +193,7 @@ with Flow(
                 parameters={
                     "dataset_id": dataset_id,
                     "table_id": table_id,
-                    "mode": materialization_mode,
+                    "target": target,
                     "dbt_alias": dbt_alias,
                     "dbt_command": "run/test",
                     "disable_elementary": False,
@@ -228,7 +224,7 @@ with Flow(
                 date_format="%Y-%m-%d",
                 coverage_type="part_bdpro",
                 time_delta={"months": 6},
-                prefect_mode=materialization_mode,
+                prefect_mode=target,
                 bq_project="basedosdados",
                 upstream_tasks=[wait_for_materialization],
             )
@@ -251,9 +247,7 @@ with Flow(
     table_id = Parameter(
         "table_id", default="estabelecimentos", required=False
     )
-    materialization_mode = Parameter(
-        "materialization_mode", default="prod", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
     )
@@ -303,7 +297,7 @@ with Flow(
                 parameters={
                     "dataset_id": dataset_id,
                     "table_id": table_id,
-                    "mode": materialization_mode,
+                    "target": target,
                     "dbt_alias": dbt_alias,
                     "dbt_command": "run/test",
                     "disable_elementary": False,
@@ -334,7 +328,7 @@ with Flow(
                 date_format="%Y-%m-%d",
                 coverage_type="part_bdpro",
                 time_delta={"months": 6},
-                prefect_mode=materialization_mode,
+                prefect_mode=target,
                 bq_project="basedosdados",
                 upstream_tasks=[wait_for_materialization],
             )
@@ -350,7 +344,7 @@ with Flow(
                 parameters={
                     "dataset_id": "br_bd_diretorios_brasil",
                     "table_id": "empresa",
-                    "mode": materialization_mode,
+                    "target": target,
                     "dbt_alias": True,
                 },
                 labels=current_flow_labels,
@@ -380,7 +374,7 @@ with Flow(
                 date_column_name={"date": "data"},
                 date_format="%Y-%m-%d",
                 coverage_type="all_bdpro",
-                prefect_mode=materialization_mode,
+                prefect_mode=target,
                 bq_project="basedosdados",
                 upstream_tasks=[wait_for_materialization],
             )
@@ -401,9 +395,7 @@ with Flow(
 ) as br_me_cnpj_simples:
     dataset_id = Parameter("dataset_id", default="br_me_cnpj", required=True)
     table_id = Parameter("table_id", default="simples", required=True)
-    materialization_mode = Parameter(
-        "materialization_mode", default="dev", required=False
-    )
+    target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -452,7 +444,7 @@ with Flow(
                 parameters={
                     "dataset_id": dataset_id,
                     "table_id": table_id,
-                    "mode": materialization_mode,
+                    "target": target,
                     "dbt_alias": dbt_alias,
                 },
                 labels=current_flow_labels,
@@ -478,7 +470,7 @@ with Flow(
                 dataset_id=dataset_id,
                 table_id=table_id,
                 coverage_type="all_free",
-                prefect_mode=materialization_mode,
+                prefect_mode=target,
                 bq_project="basedosdados",
                 historical_database=False,
                 upstream_tasks=[wait_for_materialization],

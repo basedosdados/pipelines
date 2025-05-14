@@ -1,0 +1,49 @@
+---
+version: 2
+models:
+  - name: br_cgu_receitas_publicas__receitas
+    description: Receitas Públicas do Governo Federal
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+    columns:
+      - name: ano_exercicio
+        description: Ano do Exercício
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: data_lancamento
+        description: Data de Lançamento
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: id_orgao_superior
+        description: Código Órgão Superior
+      - name: nome_orgao_superior
+        description: Nome do Órgão Superior responsável pela receita.
+      - name: id_orgao
+        description: Código do Órgão Subordinado responsável pela receita.
+      - name: nome_orgao
+        description: Nome do Órgão Subordinado responsável pela receita.
+      - name: codigo_unidade_gestora
+        description: Código da Unidade Gestora responsável pela receita.
+      - name: nome_unidade_gestora
+        description: Nome da Unidade Gestora responsável pela receita.
+      - name: categoria_economica
+        description: Categoria Econômica
+      - name: origem
+        description: Detalhamento das categorias
+      - name: especie
+        description: Nível de classificação vinculado à origem
+      - name: detalhamento
+        description: Detalhamento de outros níveis da receita
+      - name: valor_previsto
+        description: Orçamento inicial da receita atualizado por mudanças na previsão
+      - name: valor_lancado
+        description: Valor da receita lançada
+      - name: valor_realizado
+        description: Valor resultado da fase de arrecadação/recolhimento da receita.
+      - name: percentual_realizado
+        description: Percentual realizado

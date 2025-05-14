@@ -1,0 +1,86 @@
+---
+version: 2
+models:
+  - name: br_cvm_oferta_publica_distribuicao__dia
+    description: Ofertas de distribuição (ações, fundos, debêntures, CRI, etc) registradas
+      ou dispensadas de registro.
+    columns:
+      - name: numero_processo
+        description: Número do processo administrativo
+      - name: numero_registro_oferta
+        description: Número de registro da oferta
+      - name: tipo_oferta
+        description: Tipo da oferta
+      - name: tipo_componente_oferta_mista
+        description: Tipo do componente de uma oferta mista
+      - name: tipo_ativo
+        description: Tipo do ativo (valor mobiliário)
+      - name: cnpj_emissor
+        description: CNPJ do emissor
+      - name: nome_emissor
+        description: Nome do emissor
+      - name: cnpj_lider
+        description: CNPJ do líder
+      - name: nome_lider
+        description: Nome do líder
+      - name: nome_vendedor
+        description: Nome do vendedor
+      - name: cnpj_ofertante
+        description: CNPJ do ofertante
+      - name: nome_ofertante
+        description: Nome do ofertante
+      - name: rito_oferta
+        description: Rito seguido para a realização da oferta
+      - name: modalidade_registro_oferta
+        description: Modalidade de registro da oferta. Aplicável a ofertas registradas.
+      - name: modalidade_dispensa_oferta
+        description: Modalidade de dispensa da oferta. Aplicável a ofertas dispensadas
+          de registro.
+      - name: data_abertura_processo
+        description: Data de abertura do processo administrativo
+      - name: data_protocolo
+        description: Data do protocolo
+      - name: data_dispensa_oferta
+        description: Data de dispensa da oferta
+      - name: data_registro_oferta
+        description: Data de registro da oferta
+      - name: data_encerramento_oferta
+        description: Data de encerramento da oferta
+      - name: emissao
+        description: Emissão
+      - name: classe_ativo
+        description: Classe do ativo
+      - name: serie
+        description: Série
+      - name: especie_ativo
+        description: Espécie do ativo (valor mobiliário) objeto da oferta
+      - name: forma_ativo
+        description: Forma do ativo (valor mobiliário) objeto da oferta.
+      - name: data_emissao
+        description: Data da emissão
+      - name: data_vencimento
+        description: Data do vencimento
+      - name: quantidade_sem_lote_suplementar
+        description: Quantidade sem lote suplementar
+      - name: quantidade_no_lote_suplementar
+        description: Quantidade no lote suplementar
+      - name: quantidade_total
+        description: Quantidade total
+      - name: preco_unitario
+        description: Preço unitário
+      - name: valor_total
+        description: Valor total
+      - name: oferta_inicial
+        description: Oferta inicial (IPO)
+      - name: oferta_incentivo_fiscal
+        description: Indica se a oferta é elegível ao incentivo previsto na Lei nº
+          12.431/11.
+      - name: oferta_regime_fiduciario
+        description: Indica se os créditos que lastream a emissão dos ativos (valores
+          mobiliários) objeto da oferta contam com regime fiduciário
+      - name: atualizacao_monetaria
+        description: Atualização monetária
+      - name: juros
+        description: Taxa de juros
+      - name: projeto_audiovisual
+        description: Projeto audiovisual

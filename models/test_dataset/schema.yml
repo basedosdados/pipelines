@@ -1,0 +1,105 @@
+---
+version: 2
+models:
+  - name: test_dataset__test_laura_student
+    description: A subset of variables from PISA data for the years 2000 - 2018 at
+      the student level, collected from the R package 'learning-tower'. This is an
+      excellent dataset for exploring and visualizing data about student results.
+    columns:
+      - name: book
+        description: Number of books
+      - name: car
+        description: Number of cars
+      - name: computer
+        description: Number of computers
+      - name: computer_possession
+        description: Possession of computer
+      - name: country_id_iso_3
+        description: Country 3 character code
+      - name: desk_possession
+        description: Possession of desk to study at
+      - name: dishwasher_possession
+        description: Possession of a dishwasher
+      - name: economic_social_cultural_status
+        description: Index of economic, social and cultural status
+      - name: father_education
+        description: Highest level of father's education
+      - name: gender
+        description: Gender of the student
+      - name: internet_access
+        description: Access to internet
+      - name: mother_education
+        description: Highest level of mother's education
+      - name: room_possession
+        description: Possession of a room of your own
+      - name: school_id
+        description: The school identification number, unique for each country and
+          year combination.
+      - name: score_mathematics
+        description: Simulated score in mathematics
+      - name: score_reading
+        description: Simulated score in reading
+      - name: score_science
+        description: Simulated score in science
+      - name: student_id
+        description: The student identification number, unique for each school, country
+          and year combination.
+      - name: student_weight
+        description: The final survey weight score for the student score
+      - name: television
+        description: Number of televisions
+      - name: wealth_index
+        description: Family wealth index
+      - name: year
+        description: Year of the PISA data
+  - name: test_dataset__test_table_laura
+    description: descrição da tabela
+    columns:
+      - name: atividade
+        description: Atividade do empreendimento
+      - name: cedula_mae
+        description: Indica se o empreendimento refere-se a uma cédula mãe
+      - name: cesta_safra
+        description: Cesta de safras do empreendimento
+      - name: consorcio
+        description: Consórcio do empreendimento
+      - name: data_fim
+        description: Data de fim do empreendimento
+      - name: data_inicio
+        description: Data de criação do empreendimento
+      - name: finalidade
+        description: Finalidade do empreendimento
+      - name: id_empreendimento
+        description: Código do empreendimento
+      - name: id_tipo_cultura
+        description: Código do tipo de cultura do empreendimento
+      - name: modalidade
+        description: Modalidade do empreendimento
+      - name: produto
+        description: Produto do empreendimento
+      - name: unidade_medida
+        description: Unidade de medida do produto financiado no empreendimento
+      - name: unidade_medida_previsao_producao
+        description: Unidade de medida de previsão de produção do produto financiado
+          no empreendimento
+      - name: variedade
+        description: Variedade do empreendimento
+      - name: zoneamento
+        description: Zoneamento do empreendimento
+  - name: test_dataset__test_table
+    description: Test table description
+    columns:
+      - name: ano
+        description: ano description
+      - name: dado
+        description: dado description
+      - name: mes
+        description: mes description
+      - name: sigla_uf
+        description: sigla_uf description
+      - name: col_test
+        description: Col test description
+        tests:
+          - accepted_values:
+              values: [4201620420]
+              quote: false

@@ -1,0 +1,196 @@
+---
+version: 2
+models:
+  - name: world_olympedia_olympics__athlete_bio
+    description: Each role represents an Olympic athlete and their biological information
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [athlete_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.30
+    columns:
+      - name: athlete_id
+        description: Unique Athlete ID
+      - name: name
+        description: Full Name of the Athlete
+      - name: sex
+        description: Male or Female
+      - name: birth_date
+        description: Date of Birth
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: birth_year
+        description: Year of birth
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: height
+        description: Height of Athlete
+      - name: weight
+        description: Weight of Athlete
+      - name: country
+        description: Country the Athlete represents
+      - name: country_noc
+        description: Country Code the Athlete represents
+      - name: description
+        description: Some description about the player in paragraph
+      - name: special_notes
+        description: Special notes about the player in dotpoints
+  - name: world_olympedia_olympics__athlete_event_result
+    description: Event to Athlete Results Dataset. Each role contains a specfic Olympic
+      event / sport with the Athlete participating in the event, including the results
+      (Ranking) which they obtained. Each event could be the same sport but different
+      ID based on the different year the sport was played.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.10
+    columns:
+      - name: edition
+        description: Year - Summer / Winter - Olympics
+      - name: edition_id
+        description: Olympic Game id which could be useful in retrieving the olympic
+          game url
+      - name: country_noc
+        description: Country Code which the Athlete competes for
+      - name: sport
+        description: The sport for that event. Serves as a parent of multiple events.
+      - name: event
+        description: The specific event under a certain sport
+      - name: result_id
+        description: Result / event id for the actual events page
+      - name: athlete
+        description: Athlete competing for the event
+      - name: athlete_id
+        description: Athlete id which can be used to join with athlete bio.
+      - name: position
+        description: Position that the athlete ranked for the event
+      - name: medal
+        description: Whether or not the athlete won a medal, and if so gold, silver,
+          or bronze
+      - name: is_team_sport
+        description: Whether or not the event is a TeamSport
+  - name: world_olympedia_olympics__game_medal_tally
+    description: Medal Tally of countries who has won atleast one medal during the
+      Olympics game. Each role reprents a country in each of the Olympics game played.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [edition_id, country_noc]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+    columns:
+      - name: year
+        description: Year which the game was hosted
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: edition
+        description: Year - Summer / Winter - Olympics
+      - name: edition_id
+        description: Olympic Game id which could be useful in retrieving the olympic
+          game url
+      - name: country
+        description: Country which the game was hosted
+      - name: country_noc
+        description: Country code which the game was hosted
+      - name: gold
+        description: Gold medal count
+      - name: silver
+        description: Silver medal count
+      - name: bronze
+        description: Bronze medal count
+      - name: total
+        description: Total
+  - name: world_olympedia_olympics__country
+    description: List of Countries who has participated in Modern Olympics and their
+      country code
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [name]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+    columns:
+      - name: noc
+        description: Country Code
+      - name: name
+        description: Country Name
+  - name: world_olympedia_olympics__result
+    description: Each Role represents detailed information on the results of a specific
+      sporting event.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [result_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+    columns:
+      - name: result_id
+        description: Unique result id
+      - name: event_title
+        description: Event title of the result
+      - name: edition
+        description: Olympic Game
+      - name: edition_id
+        description: Olympic Game id which could be useful in retrieving the olympic
+          game url
+      - name: sport
+        description: Sport for the event
+      - name: result_date
+        description: Start date of the event
+      - name: result_location
+        description: Location where the event is hosted
+      - name: result_participants
+        description: The number of participants from number of countries
+      - name: result_format
+        description: The format of the event
+      - name: result_detail
+        description: Extra detail about the result
+      - name: result_description
+        description: Extra description about the result
+  - name: world_olympedia_olympics__game
+    description: List of all the Olympic Games from 1896 Athens to 2022 Beijing Olympics.
+      The games only includes Winter and Summer Olympic games.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [edition_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.07
+    columns:
+      - name: year
+        description: year of the Olympics game
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: edition
+        description: Year - Summer / Winter - Olympics
+      - name: edition_id
+        description: Olympic Game id which could be useful in retrieving the olympic
+          game url
+      - name: city
+        description: city that the Olympics game was hosted in
+      - name: country_flag_url
+        description: Country flag url for flag image icon
+      - name: country_noc
+        description: country noc code which can be linked to the olympics country
+          csv file for country name
+      - name: start_date
+        description: Start date of the olympics event
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+              proportion_allowed_failures: 0.2
+      - name: end_date
+        description: End date of the olympic event
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+              proportion_allowed_failures: 0.2
+      - name: competition_date
+        description: Date of the competition
+      - name: is_held
+        description: 'Whether or not the Olympic game happened or not due to war '

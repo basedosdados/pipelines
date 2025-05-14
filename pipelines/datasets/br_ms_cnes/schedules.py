@@ -21,7 +21,7 @@ schedule_br_ms_cnes_estabelecimento = Schedule(
             parameter_defaults={
                 "dataset_id": "br_ms_cnes",
                 "table_id": "estabelecimento",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
                 "dbt_alias": True,
@@ -44,7 +44,7 @@ schedule_br_ms_cnes_profissional = Schedule(
             parameter_defaults={
                 "dataset_id": "br_ms_cnes",
                 "table_id": "profissional",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
                 "dbt_alias": True,
@@ -67,7 +67,7 @@ schedule_br_ms_cnes_equipe = Schedule(
             parameter_defaults={
                 "dataset_id": "br_ms_cnes",
                 "table_id": "equipe",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
                 "dbt_alias": True,
@@ -89,7 +89,7 @@ schedule_br_ms_cnes_leito = Schedule(
             parameter_defaults={
                 "dataset_id": "br_ms_cnes",
                 "table_id": "leito",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
                 "dbt_alias": True,
@@ -111,7 +111,7 @@ schedule_br_ms_cnes_equipamento = Schedule(
             parameter_defaults={
                 "dataset_id": "br_ms_cnes",
                 "table_id": "equipamento",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
                 "dbt_alias": True,
@@ -133,7 +133,7 @@ schedule_br_ms_cnes_estabelecimento_ensino = Schedule(
             parameter_defaults={
                 "dataset_id": "br_ms_cnes",
                 "table_id": "estabelecimento_ensino",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
                 "dbt_alias": True,
@@ -155,7 +155,7 @@ schedule_br_ms_cnes_dados_complementares = Schedule(
             parameter_defaults={
                 "dataset_id": "br_ms_cnes",
                 "table_id": "dados_complementares",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
                 "dbt_alias": True,
@@ -177,7 +177,7 @@ schedule_br_ms_cnes_estabelecimento_filantropico = Schedule(
             parameter_defaults={
                 "dataset_id": "br_ms_cnes",
                 "table_id": "estabelecimento_filantropico",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
                 "dbt_alias": True,
@@ -198,7 +198,7 @@ schedule_br_ms_cnes_gestao_metas = Schedule(
             parameter_defaults={
                 "dataset_id": "br_ms_cnes",
                 "table_id": "gestao_metas",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
                 "dbt_alias": True,
@@ -221,7 +221,7 @@ schedule_br_ms_cnes_habilitacao = Schedule(
             parameter_defaults={
                 "dataset_id": "br_ms_cnes",
                 "table_id": "habilitacao",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
                 "dbt_alias": True,
@@ -243,7 +243,7 @@ schedule_br_ms_cnes_incentivos = Schedule(
             parameter_defaults={
                 "dataset_id": "br_ms_cnes",
                 "table_id": "incentivos",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
                 "dbt_alias": True,
@@ -265,7 +265,7 @@ schedule_br_ms_cnes_regra_contratual = Schedule(
             parameter_defaults={
                 "dataset_id": "br_ms_cnes",
                 "table_id": "regra_contratual",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
                 "dbt_alias": True,
@@ -288,7 +288,7 @@ schedule_br_ms_cnes_servico_especializado = Schedule(
             parameter_defaults={
                 "dataset_id": "br_ms_cnes",
                 "table_id": "servico_especializado",
-                "materialization_mode": "prod",
+                "target": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
                 "dbt_alias": True,
