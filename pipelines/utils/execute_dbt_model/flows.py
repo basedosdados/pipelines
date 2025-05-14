@@ -4,7 +4,6 @@ DBT-related flows.
 """
 
 from prefect import Parameter, case
-from prefect.exceptions import PrefectException
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
@@ -58,7 +57,7 @@ with Flow(
     )
 
     with case(dbt_result, False):
-        raise PrefectException("Failed to run dbt")
+        raise Exception("Failed to run dbt")
 
     with case(download_csv_file, True):
         download_data_to_gcs(
