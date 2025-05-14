@@ -1,5 +1,5 @@
 ---
-name: Deploy (staging)
+name: cd (staging)
 on:
   # TODO: restore to pull_request after tests
   push:
@@ -42,7 +42,7 @@ env:
 jobs:
   deploy-staging:
     # if: startsWith(github.head_ref, 'staging/')
-    name: Deploy (staging)
+    name: deploy (staging)
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
@@ -119,7 +119,7 @@ jobs:
           python-version: '3.10'
       - name: Install requirements
         run: poetry install --only=dev
-      - name: Run script to test DBT model
+      - name: Run script to test dbt dev model
         run: |-
           poetry run python .github/workflows/scripts/table_test.py \
               --modified-files ${{ steps.changed-files.outputs.all_modified_files }} \

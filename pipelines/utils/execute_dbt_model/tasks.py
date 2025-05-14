@@ -10,7 +10,6 @@ from typing import Dict, List, Optional, Union
 
 from dbt.cli.main import dbtRunner
 from prefect import task
-from prefect.engine.signals import FAIL
 
 from pipelines.constants import constants
 from pipelines.utils.execute_dbt_model.constants import (
@@ -129,7 +128,7 @@ def run_dbt(
             else:
                 log(
                     f"DBT runner reports failure for {cmd} command. {result.result}",
-                    level="warning",
+                    level="error",
                 )
 
             if os.path.exists(log_file_path):
@@ -156,9 +155,8 @@ def run_dbt(
                         )
 
                     if log_summary["error_count"] > 0 or not result.success:
-                        raise FAIL(
-                            f"DBT '{cmd}' command failed with {log_summary['error_count']} errors. See logs for details."
-                        )
+                        msg = f"DBT '{cmd}' command failed with {log_summary['error_count']} errors. See logs for details."
+                        raise Exception(msg)
                 else:
                     log("No log entries found in log file", level="warning")
             else:
@@ -167,10 +165,5 @@ def run_dbt(
                     level="warning",
                 )
         except Exception as e:
-            if not isinstance(e, FAIL):
-                error_msg = (
-                    f"Unexpected error executing dbt {cmd}: {str(e)}\n\n"
-                )
-                raise FAIL(error_msg) from e
-            else:
-                raise e
+            error_msg = f"Unexpected error executing dbt {cmd}: {str(e)}\n\n"
+            raise Exception(error_msg)
