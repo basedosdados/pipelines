@@ -411,6 +411,7 @@ Materializa todos os modelos em uma pasta em basedosdados-dev consumindo os dado
 
 ```sh
 dbt run --select model.dateset_id.dateset_id__table_id 
+```
 
 Materializa todos os modelos no caminho em basedosdados-dev consumindo os dados de basedosdados-dev.{table_id}_staging
 
