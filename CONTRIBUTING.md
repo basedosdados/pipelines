@@ -394,33 +394,32 @@ from {{ set_datalake_project("<DATASET_ID>_staging.<TABLE_ID>") }}
 ## Usando o DBT
 
 > [!IMPORTANT]
-> Ative o ambiente virtual (venv) com `source .venv/bin/activate` ou  `pyenv shell` para executar os comandos `dbt`.
+> Ative o ambiente virtual (venv) com `source .venv/bin/activate` ou  `poetry shell` para executar os comandos `dbt`.
 
 ### Materializando o modelo no BigQuery
 
 > [!IMPORTANT]
-> Ao usar modelos com a macro set_datalake_project é necessário utilizar a flag
-> `--target=dev` ou `--target=prod`
+> No arquivo de configuração do DBT schema.yml o target é pré definido como dev. Com esta configuração, quando um modelo dbt for executado os dados serão consumidos do projeto basedosdados-dev.*_staging. Deste modo, não é preciso informar a flag --target no momento de testagem e validação de modelos em ambientes locais.
 
-Materializa um único modelo pelo nome em basedosdados dev consumindo os dados de basedosdados-dev.{table_id}_staging
-
-```sh
-dbt run --select dataset_id__table_id --target=dev
-```
-
-Materializa todos os modelos em uma pasta em basedosdados dev consumindo os dados de basedosdados-dev.{table_id}_staging
+Materializa um único modelo pelo nome em basedosdados-dev consumindo os dados de basedosdados-dev.{table_id}_staging
 
 ```sh
-dbt run --select model.dateset_id.dateset_id__table_id --target=dev
+dbt run --select dataset_id__table_id
 ```
 
-Materializa todos os modelos no caminho
+Materializa todos os modelos em uma pasta em basedosdados-dev consumindo os dados de basedosdados-dev.{table_id}_staging
+
+```sh
+dbt run --select model.dateset_id.dateset_id__table_id 
+
+Materializa todos os modelos no caminho em basedosdados-dev consumindo os dados de basedosdados-dev.{table_id}_staging
 
 ```sh
 dbt run --select models/dataset_id
 ```
 
-Materializa um único modelo pelo caminho do arquivo sql
+
+Materializa um único modelo pelo caminho do arquivo sql em basedosdados-dev consumindo os dados de basedosdados-dev.{table_id}_staging
 
 ```sh
 dbt run --select models/dataset/table_id.sql
