@@ -81,8 +81,9 @@ jobs:
             --schedule \
             --filter-affected-flows \
             --modified-files "${{ steps.files.outputs.all }}"
-      - name: Delete archieved flow runs
-        run: poetry run python .github/workflows/scripts/delete_archieved_flow_runs.py
+      # TODO: https://github.com/basedosdados/pipelines/pull/1017
+      # - name: Delete archieved flow runs
+      #   run: poetry run python .github/workflows/scripts/delete_archieved_flow_runs.py
   table-approve:
     needs: deploy-production
     name: table approve
