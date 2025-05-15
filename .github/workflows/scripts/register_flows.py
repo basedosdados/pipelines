@@ -530,6 +530,29 @@ def has_dbt_related_files_changed(files: list[str]) -> bool:
     return result
 
 
+def pipeline_project_file_relevant_changed(files: list[str]) -> bool:
+    """
+    Check if poetry.lock or pyproject.toml is changed.
+
+    Args:
+        files (list[str]): Files changed.
+
+    Returns:
+        bool: Return true if poetry.lock or pyproject.toml is changed.
+    """
+    result = False
+
+    for file in files:
+        if file == "poetry.lock":
+            result = True
+            break
+        if file == "pyproject.toml":
+            result = True
+            break
+
+    return result
+
+
 @app.command(name="register", help="Register a flow")
 def main(
     project: str = None,
@@ -565,7 +588,17 @@ def main(
     logger.info("Collecting flows...")
     source_to_flows = collect_flows(paths)
 
-    if filter_affected_flows:
+    is_pipelines_project_file_relevant_changed = (
+        pipeline_project_file_relevant_changed(modified_files.split(" "))
+        if modified_files is not None
+        else False
+    )
+
+    # Filter affected flow if not important pipeline project file changed
+    if (
+        filter_affected_flows
+        and not is_pipelines_project_file_relevant_changed
+    ):
         # Filter out flows that are not affected by the change
         affected_flows = get_affected_flows("dependent_files.txt")
         for key in source_to_flows.keys():
