@@ -101,7 +101,7 @@ poetry install --with dev --with test --no-root
 ```
 
 > [!WARNING]
-> Caso a instalação do `poetry` de erro no pacote do `R`, recomendado rodar a seguinte linha para instalar o R-base `sudo apt -y install r-base`
+> Caso a instalação do `poetry` de erro no pacote do `R`, recomendado rodar a seguinte linha para instalar o R-base `sudo apt-get update & apt-get install -y r-base`
 
 Instalar os hooks de pré-commit (ver https://pre-commit.com/ para entendimento dos hooks)
 
