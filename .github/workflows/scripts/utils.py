@@ -71,29 +71,29 @@ def get_datasets_tables_from_modified_files(
             alias = True
         new_datasets_tables.append((dataset_id, table_id, exists, alias))
 
-    datasets_for_schema_files = [
-        Path(file).parent.name
-        for file in modified_files
-        if file.name.startswith("schema")
-        and (file.suffix == ".yaml" or file.suffix == ".yml")
-    ]
-
-    for dataset_id in datasets_for_schema_files:
-        # Remove dataset_table if schema for this dataset
-        for index, new_dataset_table in enumerate(new_datasets_tables):
-            if new_dataset_table[0] == dataset_id:
-                new_datasets_tables.pop(index)
-
-        for file in (Path("models") / dataset_id).iterdir():
-            if file.suffix == ".sql":
-                is_table_alias = file.name.startswith(f"{dataset_id}__")
-                table_id = file.stem
-
-                if is_table_alias:
-                    table_id = table_id.replace(f"{dataset_id}__", "")
-
-                new_datasets_tables.append(
-                    (dataset_id, table_id, file.exists(), is_table_alias)
-                )
+    # datasets_for_schema_files = [
+    #     Path(file).parent.name
+    #     for file in modified_files
+    #     if file.name.startswith("schema")
+    #     and (file.suffix == ".yaml" or file.suffix == ".yml")
+    # ]
+    #
+    # for dataset_id in datasets_for_schema_files:
+    #     # Remove dataset_table if schema for this dataset
+    #     for index, new_dataset_table in enumerate(new_datasets_tables):
+    #         if new_dataset_table[0] == dataset_id:
+    #             new_datasets_tables.pop(index)
+    #
+    #     for file in (Path("models") / dataset_id).iterdir():
+    #         if file.suffix == ".sql":
+    #             is_table_alias = file.name.startswith(f"{dataset_id}__")
+    #             table_id = file.stem
+    #
+    #             if is_table_alias:
+    #                 table_id = table_id.replace(f"{dataset_id}__", "")
+    #
+    #             new_datasets_tables.append(
+    #                 (dataset_id, table_id, file.exists(), is_table_alias)
+    #             )
 
     return new_datasets_tables
