@@ -375,7 +375,8 @@ arch.upload_columns()
 
 #### Macro `set_datalake_project`
 
-Os arquivos sql do dbt usam a macro [`set_datalake_project`](./macros/set_datalake_project.sql) que indica de onde os dados vêm. Ao criar os arquivos usando a função `create_sql_files` a macro será inserida.
+Os arquivos sql do dbt usam a macro [`set_datalake_project`](./macros/set_datalake_project.sql) que indica de qual projeto (basedosdados-staging ou basedosdados-dev) serão consumidos os dados. Ao criar os arquivos usando a função `create_sql_files` a macro será inserida.
+
 
 ```sql
 select
@@ -384,25 +385,30 @@ from {{ set_datalake_project("<DATASET_ID>_staging.<TABLE_ID>") }}
 ```
 
 > [!IMPORTANT]
-> Não use a macro para fazer join, joins deve ser feito com a tabela de prod `basedosdados.<DATASET_ID>.<TABLE_ID>`
+> Não use a macro para fazer join, joins devem ser feitos com a tabelas na zona de produção usando o projeto basedosdados `basedosdados.<DATASET_ID>.<TABLE_ID>` Exemplo: [modelo br_bd_diretorios_brasil__distrito_2022.sql](https://github.com/basedosdados/pipelines/blob/main/models/br_bd_diretorios_brasil/br_bd_diretorios_brasil__distrito_2022.sql)
+
 
 ## Usando o DBT
 
 > [!IMPORTANT]
-> Ative o ambiente virtual (venv) com `source .venv/bin/activate` para executar os comandos `dbt`.
+> Ative o ambiente virtual (venv) com `source .venv/bin/activate` ou  `pyenv shell` para executar os comandos `dbt`.
 
 ### Materializando o modelo no BigQuery
 
-Materializa um único modelo pelo nome
+> [!IMPORTANT]
+> Ao usar modelos com a macro set_datalake_project é necessário utilizar a flag
+> `--target=dev` ou `--target=prod`
+
+Materializa um único modelo pelo nome em basedosdados dev consumindo os dados de basedosdados-dev.{table_id}_staging
 
 ```sh
-dbt run --select dataset_id__table_id
+dbt run --select dataset_id__table_id --target=dev
 ```
 
-Materializa todos os modelos em uma pasta
+Materializa todos os modelos em uma pasta em basedosdados dev consumindo os dados de basedosdados-dev.{table_id}_staging
 
 ```sh
-dbt run --select model.dateset_id.dateset_id__table_id
+dbt run --select model.dateset_id.dateset_id__table_id --target=dev
 ```
 
 Materializa todos os modelos no caminho
