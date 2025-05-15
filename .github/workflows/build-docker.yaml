@@ -31,10 +31,8 @@ on:
       - dbt_project.yml
       - packages.yml
 env:
-  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
-  GH_PAT: ${{ secrets.GH_PAT }}
-  IMAGE_NAME: ghcr.io/basedosdados/prefect-flows
+  REGISTRY: ghcr.io
+  IMAGE_NAME: basedosdados/prefect-flows
 jobs:
   build-container:
     name: Build Docker image
@@ -42,18 +40,23 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Setup Google Cloud CLI
+        uses: google-github-actions/setup-gcloud@v0.2.1
+        with:
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          export_default_credentials: true
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
-          registry: ghcr.io
+          registry: ${{ env.REGISTRY }}
           username: gabriel-milan
           password: ${{ secrets.GH_PAT }}
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: |
-            ${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=sha,format=long,prefix=
       - name: Set up QEMU
@@ -62,5 +65,9 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
+          file: Dockerfile
           push: true
-          tags: ${{ steps.meta.outputs.tags }},${{ env.IMAGE_NAME }}:latest
+          tags: ${{ steps.meta.outputs.tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          # ,${{ env.IMAGE_NAME }}:latest
