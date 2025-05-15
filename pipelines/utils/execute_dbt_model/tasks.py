@@ -5,7 +5,7 @@ Tasks related to DBT flows.
 
 import json
 import os
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from dbt.cli.main import dbtRunner
 from prefect import task
@@ -30,7 +30,7 @@ def run_dbt(
     dbt_command: str = "run",
     target: str = "dev",
     flags: Optional[str] = None,
-    _vars: Optional[Union[dict, List[Dict], str]] = None,
+    _vars: Optional[Union[dict[str, Any], str]] = None,
     disable_elementary: bool = False,
 ) -> bool:
     """
@@ -45,7 +45,7 @@ def run_dbt(
         dbt_command (str, optional): The dbt command to run. Defaults to "run".
         target (str, optional): The dbt target to use. Defaults to "dev".
         flags (Optional[str], optional): Flags to pass to the dbt command. Defaults to None.
-        _vars (Optional[Union[dict, List[Dict], str]], optional): Variables to pass to
+        _vars (Optional[Union[dict[str, Any], str]], optional): Variables to pass to
             dbt. Defaults to None.
         disable_elementary (bool, optional): Disable elementary on-run-end hooks. Defaults to False.
 
@@ -64,12 +64,19 @@ def run_dbt(
     else:
         selected_table = dataset_id
 
-    _vars = json.loads(_vars) if isinstance(_vars, str) else _vars
+    vars_deserialize = (
+        json.loads(_vars)
+        if isinstance(_vars, str)
+        else (_vars if _vars is not None else {})
+    )
 
     variables = (
         constants_execute.DISABLE_ELEMENTARY_VARS.value
-        if disable_elementary and _vars is None
-        else {**constants_execute.DISABLE_ELEMENTARY_VARS.value, **_vars}  # type: ignore
+        if disable_elementary and vars_deserialize is None
+        else {
+            **constants_execute.DISABLE_ELEMENTARY_VARS.value,
+            **vars_deserialize,
+        }
     )
 
     commands_to_run = []
