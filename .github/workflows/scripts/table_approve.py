@@ -8,7 +8,7 @@ from time import sleep
 import basedosdados as bd
 from backend import Backend
 from basedosdados import Dataset, Storage
-from utils import expand_alls, get_datasets_tables_from_modified_files
+from utils import get_datasets_tables_from_modified_files
 
 
 def get_flow_run_state(flow_run_id: str, backend: Backend, auth_token: str):
@@ -365,15 +365,15 @@ if __name__ == "__main__":
         else:
             deleted_datasets_tables.append((dataset_id, table_id, alias))
     # Expand `__all__` tables
-    backend_bd = Backend(args.graphql_url)
-    expanded_existing_datasets_tables = []
-    for dataset_id, table_id, alias in existing_datasets_tables:
-        expanded_table_ids = expand_alls(dataset_id, table_id, backend_bd)
-        for expanded_dataset_id, expanded_table_id in expanded_table_ids:
-            expanded_existing_datasets_tables.append(
-                (expanded_dataset_id, expanded_table_id, alias)
-            )
-    existing_datasets_tables = expanded_existing_datasets_tables
+    # backend_bd = Backend(args.graphql_url)
+    # expanded_existing_datasets_tables = []
+    # for dataset_id, table_id, alias in existing_datasets_tables:
+    #     expanded_table_ids = expand_alls(dataset_id, table_id, backend_bd)
+    #     for expanded_dataset_id, expanded_table_id in expanded_table_ids:
+    #         expanded_existing_datasets_tables.append(
+    #             (expanded_dataset_id, expanded_table_id, alias)
+    #         )
+    # existing_datasets_tables = expanded_existing_datasets_tables
 
     # Sync and create tables
     for dataset_id, table_id, _ in existing_datasets_tables:
@@ -429,7 +429,7 @@ if __name__ == "__main__":
             "parameters": parameters,
             "label": args.materialization_label,
         }
-        response = backend_bd._execute_query(
+        response = backend_prefect._execute_query(
             mutation,
             variables,
             headers={"Authorization": f"Bearer {args.prefect_backend_token}"},
@@ -444,14 +444,14 @@ if __name__ == "__main__":
         print(f"Monitoring flow run {launched_flow_run_id}...")
         flow_run_state = get_flow_run_state(
             flow_run_id=launched_flow_run_id,
-            backend=backend_bd,
+            backend=backend_prefect,
             auth_token=args.prefect_backend_token,
         )
         while flow_run_state not in ["Success", "Failed", "Cancelled"]:
             sleep(5)
             flow_run_state = get_flow_run_state(
                 flow_run_id=launched_flow_run_id,
-                backend=backend_bd,
+                backend=backend_prefect,
                 auth_token=args.prefect_backend_token,
             )
         if flow_run_state != "Success":
