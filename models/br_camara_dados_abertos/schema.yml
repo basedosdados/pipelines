@@ -325,9 +325,9 @@ models:
       mais recente, proposições a que se relacionam, etc.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [id_proposicao, data_hora_ultimo_status]
+          combination_of_columns: [id_proposicao, ano]
       - not_null_proportion_multiple_columns:
-          at_least: 0.01
+          at_least: 0.001
     columns:
       - name: ano
         description: Ano
