@@ -12,7 +12,7 @@
 
 Neste documento, mostra-se como configurar o ambiente para executar os 2 processos de dados existentes na BD: Elaboração de pipelines; Elaboração de códigos de ELT/ETL para subida de dados com frequência de atualização baixa. 
 
-Este guia é dedicado para novos integrantes da quipe da BD e voluntários que desejam colaborar com o projeto.
+Este guia é dedicado para novos integrantes da equipe da BD e voluntários que desejam colaborar com o projeto.
 
 
 ## Configuração de ambiente para desenvolvimento
