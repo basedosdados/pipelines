@@ -10,7 +10,10 @@
 
 # Contribuindo
 
-Neste documento, mostra-se como configurar o ambiente e desenvolver novas features para as pipelines da **BD**. O tutorial é dedicado a não-membros da **BD** e, assim, cobre apenas o caso de desenvolvimento local. Futuramente, o desenvolvimento em cloud estará disponível também para não-membros.
+Neste documento, mostra-se como configurar o ambiente para executar os 2 processos de dados existentes na BD: Elaboração de pipelines; Elaboração de códigos de ELT/ETL para subida de dados com frequência de atualização baixa. 
+
+Este guia é dedicado para novos integrantes da quipe da BD e voluntários que desejam colaborar com o projeto.
+
 
 ## Configuração de ambiente para desenvolvimento
 
