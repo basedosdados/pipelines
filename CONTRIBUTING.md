@@ -10,7 +10,10 @@
 
 # Contribuindo
 
-Neste documento, mostra-se como configurar o ambiente e desenvolver novas features para as pipelines da **BD**. O tutorial é dedicado a não-membros da **BD** e, assim, cobre apenas o caso de desenvolvimento local. Futuramente, o desenvolvimento em cloud estará disponível também para não-membros.
+Neste documento, mostra-se como configurar o ambiente para executar os 2 processos de dados existentes na BD: Elaboração de pipelines; Elaboração de códigos de ELT/ETL para subida de dados com frequência de atualização baixa. 
+
+Este guia é dedicado para novos integrantes da equipe da BD e voluntários que desejam colaborar com o projeto.
+
 
 ## Configuração de ambiente para desenvolvimento
 
@@ -375,7 +378,8 @@ arch.upload_columns()
 
 #### Macro `set_datalake_project`
 
-Os arquivos sql do dbt usam a macro [`set_datalake_project`](./macros/set_datalake_project.sql) que indica de onde os dados vêm. Ao criar os arquivos usando a função `create_sql_files` a macro será inserida.
+Os arquivos sql do dbt usam a macro [`set_datalake_project`](./macros/set_datalake_project.sql) que indica de qual projeto (basedosdados-staging ou basedosdados-dev) serão consumidos os dados. Ao criar os arquivos usando a função `create_sql_files` a macro será inserida.
+
 
 ```sql
 select
@@ -384,34 +388,39 @@ from {{ set_datalake_project("<DATASET_ID>_staging.<TABLE_ID>") }}
 ```
 
 > [!IMPORTANT]
-> Não use a macro para fazer join, joins deve ser feito com a tabela de prod `basedosdados.<DATASET_ID>.<TABLE_ID>`
+> Não use a macro para fazer join, joins devem ser feitos com a tabelas na zona de produção usando o projeto basedosdados `basedosdados.<DATASET_ID>.<TABLE_ID>` Exemplo: [modelo br_bd_diretorios_brasil__distrito_2022.sql](https://github.com/basedosdados/pipelines/blob/main/models/br_bd_diretorios_brasil/br_bd_diretorios_brasil__distrito_2022.sql)
+
 
 ## Usando o DBT
 
 > [!IMPORTANT]
-> Ative o ambiente virtual (venv) com `source .venv/bin/activate` para executar os comandos `dbt`.
+> Ative o ambiente virtual (venv) com `source .venv/bin/activate` ou  `poetry shell` para executar os comandos `dbt`.
 
 ### Materializando o modelo no BigQuery
 
-Materializa um único modelo pelo nome
+> [!IMPORTANT]
+> No arquivo de configuração do DBT schema.yml o target é pré definido como dev. Com esta configuração, quando um modelo dbt for executado os dados serão consumidos do projeto basedosdados-dev.*_staging. Deste modo, não é preciso informar a flag --target no momento de testagem e validação de modelos em ambientes locais.
+
+Materializa um único modelo pelo nome em basedosdados-dev consumindo os dados de basedosdados-dev.{table_id}_staging
 
 ```sh
 dbt run --select dataset_id__table_id
 ```
 
-Materializa todos os modelos em uma pasta
+Materializa todos os modelos em uma pasta em basedosdados-dev consumindo os dados de basedosdados-dev.{table_id}_staging
 
 ```sh
-dbt run --select model.dateset_id.dateset_id__table_id
+dbt run --select model.dateset_id.dateset_id__table_id 
 ```
 
-Materializa todos os modelos no caminho
+Materializa todos os modelos no caminho em basedosdados-dev consumindo os dados de basedosdados-dev.{table_id}_staging
 
 ```sh
 dbt run --select models/dataset_id
 ```
 
-Materializa um único modelo pelo caminho do arquivo sql
+
+Materializa um único modelo pelo caminho do arquivo sql em basedosdados-dev consumindo os dados de basedosdados-dev.{table_id}_staging
 
 ```sh
 dbt run --select models/dataset/table_id.sql
