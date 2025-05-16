@@ -35,6 +35,7 @@ from pipelines.utils.tasks import (
 with Flow(
     name="BD Template - IBGE Inflação: mes_brasil"
 ) as flow_ibge_inflacao_mes_brasil_:
+    # Parameters
     INDICE = Parameter("indice")
     FOLDER = Parameter("folder")
     dataset_id = Parameter("dataset_id")
