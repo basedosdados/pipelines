@@ -11,10 +11,13 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 ENV PATH="$POETRY_HOME/bin:/app/.venv/bin:$PATH"
 
 RUN curl -sSL https://install.python-poetry.org | python3 -
+
 WORKDIR /app
+
+COPY pyproject.toml poetry.lock dbt_project.yml packages.yml ./
+RUN poetry install --no-root && dbt deps
+
 COPY . .
-RUN poetry install && \
-    dbt deps && \
-    mkdir -p /opt/prefect/app/bases && \
+RUN poetry install && mkdir -p /opt/prefect/app/bases && \
     mkdir -p /root/.basedosdados/templates && \
     mkdir -p /root/.basedosdados/credentials/
