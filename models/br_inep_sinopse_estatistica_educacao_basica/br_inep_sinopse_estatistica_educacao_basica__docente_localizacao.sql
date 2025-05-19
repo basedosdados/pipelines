@@ -16,8 +16,8 @@ select
     safe_cast(sigla_uf as string) sigla_uf,
     safe_cast(replace(id_municipio, ".0", "") as string) id_municipio,
     safe_cast(etapa_ensino as string) etapa_ensino,
-    safe_cast(rede as string) rede,
-    safe_cast(localizacao as string) localizacao,
+    case when rede = 'Pública.2' then 'Pública' else rede end rede,
+    case when localizacao = 'Pública.2' then 'Total' else localizacao end localizacao,
     safe_cast(quantidade_docente as int64) quantidade_docente,
 from
     {{
