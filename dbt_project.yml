@@ -424,5 +424,8 @@ models:
     world_wwf_hydrosheds:
       +materialized: table
       +schema: world_wwf_hydrosheds
+    new_arch_pipelines:
+      +materialized: table
+      +schema: new_arch_pipelines
   elementary:
     +schema: elementary
