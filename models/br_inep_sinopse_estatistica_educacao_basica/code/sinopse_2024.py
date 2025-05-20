@@ -9,6 +9,14 @@ Tabelas que esse script limpa:
 - etapa_ensino_serie
 - faixa_etaria
 - sexo_raca_cor
+
+- docente_etapa_ensino
+- docente_localizacao
+- docente_escolaridade
+
+- docente_deficiencia
+- docente_faixa_etaria_sexo
+- docente_regime_contrato
 """
 
 import os
@@ -908,6 +916,9 @@ for sigla_uf, df in df_sexo_raca_cor.groupby("sigla_uf"):
     path = OUTPUT / "sexo_raca_cor" / "ano=2024" / f"sigla_uf={sigla_uf}"
     os.makedirs(path, exist_ok=True)
     df.drop(columns=["sigla_uf"]).to_csv((path / "data.csv"), index=False)
+
+
+## Docente etapa ensino serie
 
 
 ## Subir tabelas
