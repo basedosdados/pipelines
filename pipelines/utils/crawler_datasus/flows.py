@@ -37,6 +37,7 @@ from pipelines.utils.tasks import (
     rename_current_flow_run_dataset_table,
 )
 
+# Disable Schedule: br_ms_cnes.profissional
 with Flow(name="DATASUS-CNES", code_owners=["Gabriel Pisa"]) as flow_cnes:
     # Parameters
     dataset_id = Parameter("dataset_id", required=True)
