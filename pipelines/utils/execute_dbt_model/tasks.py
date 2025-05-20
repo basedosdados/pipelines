@@ -94,7 +94,7 @@ def run_dbt(
             project_id = service_account["project_id"]
             client_email = service_account["client_email"]
             log(
-                f"Service account for prod: project_id: `{project_id}`, client_email: `${client_email}`"
+                f"Service account for prod: project_id: `{project_id}`, client_email: `{client_email}`"
             )
 
     for cmd in commands_to_run:
