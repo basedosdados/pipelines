@@ -22,7 +22,7 @@ headers = constants_cnpj.HEADERS.value
 timeout = constants_cnpj.TIMEOUT.value
 
 
-def data_url(url: str, headers: dict) -> tuple[datetime, datetime]:
+def data_url(url: str, headers: dict) -> tuple[datetime, datetime.date]:
     """
     Fetches data from a URL, parses the HTML to find the latest folder date, and compares it to today's date.
 
@@ -31,7 +31,8 @@ def data_url(url: str, headers: dict) -> tuple[datetime, datetime]:
         headers (dict): Headers to include in the request.
 
     Returns:
-        Tuple[datetime, datetime]: The maximum date found in the folders and today's date.
+
+        tuple[datetime, datetime]: The maximum date found in the folders (max_folder_date) and max last modified date (max_last_modified_date).
     """
 
     link_data = requests.get(
@@ -51,15 +52,26 @@ def data_url(url: str, headers: dict) -> tuple[datetime, datetime]:
         ]
     )
 
-    today_date = datetime.today().strftime("%Y-%m-%d")
-    log(
-        f"A data máxima extraida da API da Receita Federal que será utilizada para comparar com os metadados da BD é: {max_folder_date}"
-    )
-    log(
-        f"A data de hoje gerada para criar partições no Storage é: {today_date} "
+    max_last_modified_date = max(
+        [
+            datetime.strptime(x.get_text().strip(), "%Y-%m-%d %H:%M").strftime(
+                "%Y-%m-%d"
+            )
+            for x in soup.find_all("td", align="right")
+            # exclui linhas que não possuem datas
+            if x.get_text().strip().count(":") == 1
+        ]
     )
 
-    return max_folder_date, today_date
+    log(
+        f"A data máxima extraida da API da Receita Federal que será utilizada para comparar com os metadados da BD: {max_folder_date}"
+    )
+
+    log(
+        f"A data máxima extraida da API da Receita Federal que será utilizada para gerar partições no Storage: {max_last_modified_date}"
+    )
+
+    return max_folder_date, max_last_modified_date
 
 
 # ! Cria o caminho do output
