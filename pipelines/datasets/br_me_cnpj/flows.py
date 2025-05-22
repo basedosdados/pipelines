@@ -58,14 +58,14 @@ with Flow(
     )
     tabelas = constants_cnpj.TABELAS.value[0:1]
 
-    folder_date, today_date = get_data_source_max_date()
+    max_folder_date, max_last_modified_date = get_data_source_max_date()
 
     dados_desatualizados = check_if_data_is_outdated(
         dataset_id=dataset_id,
         table_id=table_id,
-        data_source_max_date=folder_date,
+        data_source_max_date=max_folder_date,
         date_format="%Y-%m",
-        upstream_tasks=[today_date],
+        upstream_tasks=[max_folder_date],
     )
 
     with case(dados_desatualizados, False):
@@ -73,7 +73,9 @@ with Flow(
 
     with case(dados_desatualizados, True):
         output_filepath = main(
-            tabelas, folder_date=folder_date, today_date=today_date
+            tabelas,
+            max_folder_date=max_folder_date,
+            max_last_modified_date=max_last_modified_date,
         )
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
@@ -158,14 +160,14 @@ with Flow(
     )
     tabelas = constants_cnpj.TABELAS.value[1:2]
 
-    folder_date, today_date = get_data_source_max_date()
+    max_folder_date, max_last_modified_date = get_data_source_max_date()
 
     dados_desatualizados = check_if_data_is_outdated(
         dataset_id=dataset_id,
         table_id=table_id,
-        data_source_max_date=folder_date,
+        data_source_max_date=max_folder_date,
         date_format="%Y-%m",
-        upstream_tasks=[today_date],
+        upstream_tasks=[max_folder_date],
     )
 
     with case(dados_desatualizados, False):
@@ -173,7 +175,9 @@ with Flow(
 
     with case(dados_desatualizados, True):
         output_filepath = main(
-            tabelas, folder_date=folder_date, today_date=today_date
+            tabelas,
+            max_folder_date=max_folder_date,
+            max_last_modified_date=max_last_modified_date,
         )
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
@@ -261,14 +265,14 @@ with Flow(
     )
     tabelas = constants_cnpj.TABELAS.value[2:3]
 
-    folder_date, today_date = get_data_source_max_date()
+    max_folder_date, max_last_modified_date = get_data_source_max_date()
 
     dados_desatualizados = check_if_data_is_outdated(
         dataset_id=dataset_id,
         table_id=table_id,
-        data_source_max_date=folder_date,
+        data_source_max_date=max_folder_date,
         date_format="%Y-%m",
-        upstream_tasks=[today_date],
+        upstream_tasks=[max_folder_date],
     )
 
     with case(dados_desatualizados, False):
@@ -276,7 +280,9 @@ with Flow(
 
     with case(dados_desatualizados, True):
         output_filepath = main(
-            tabelas, folder_date=folder_date, today_date=today_date
+            tabelas,
+            max_folder_date=max_folder_date,
+            max_last_modified_date=max_last_modified_date,
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(
@@ -409,14 +415,14 @@ with Flow(
     )
     tabelas = constants_cnpj.TABELAS.value[3:]
 
-    folder_date, today_date = get_data_source_max_date()
+    max_folder_date, max_last_modified_date = get_data_source_max_date()
 
     dados_desatualizados = check_if_data_is_outdated(
-        dataset_id="br_me_cnpj",
-        table_id="estabelecimentos",
-        data_source_max_date=folder_date,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        data_source_max_date=max_folder_date,
         date_format="%Y-%m",
-        upstream_tasks=[today_date],
+        upstream_tasks=[max_folder_date],
     )
 
     with case(dados_desatualizados, False):
@@ -424,7 +430,9 @@ with Flow(
 
     with case(dados_desatualizados, True):
         output_filepath = main(
-            tabelas, folder_date=folder_date, today_date=today_date
+            tabelas,
+            max_folder_date=max_folder_date,
+            max_last_modified_date=max_last_modified_date,
         )
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
