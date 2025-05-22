@@ -51,7 +51,7 @@ def get_data_source_max_date() -> tuple[datetime, datetime.date]:
 def main(
     tabelas: [str],
     max_folder_date: datetime,
-    max_table_date: datetime.date,
+    max_last_modified_date: datetime.date,
 ) -> str:
     """
     Performs the download, processing, and organization of CNPJ data.
@@ -60,7 +60,7 @@ def main(
         tabelas (list): A list of tables to be processed.
         folder_date (datetime): Most recent database release extracted from API
         max_folder_date (datetime): CNPJs max folder date
-        max_table_date (datetime): CNPJs max folder date
+        max_last_modified_date (datetime): CNPJs max last modified date
 
     Returns:
         str: The path to the output folder where the data has been organized.
@@ -70,12 +70,14 @@ def main(
         sufixo = tabela.lower()
 
         # Define o caminho para a pasta de entrada (input)
-        input_path = f"/tmp/data/br_me_cnpj/input/data={max_table_date}/"
+        input_path = (
+            f"/tmp/data/br_me_cnpj/input/data={max_last_modified_date}/"
+        )
         os.makedirs(input_path, exist_ok=True)
         log("Pasta destino input construído")
 
         # Define o caminho para a pasta de saída (output)
-        output_path = destino_output(sufixo, max_table_date)
+        output_path = destino_output(sufixo, max_last_modified_date)
 
         # Loop para baixar e processar os arquivos
         for i in range(0, 10):
@@ -87,15 +89,15 @@ def main(
                     asyncio.run((download_unzip_csv(url_download, input_path)))
                     if tabela == "Estabelecimentos":
                         process_csv_estabelecimentos(
-                            input_path, output_path, max_table_date, i
+                            input_path, output_path, max_last_modified_date, i
                         )
                     elif tabela == "Socios":
                         process_csv_socios(
-                            input_path, output_path, max_table_date, i
+                            input_path, output_path, max_last_modified_date, i
                         )
                     elif tabela == "Empresas":
                         process_csv_empresas(
-                            input_path, output_path, max_table_date, i
+                            input_path, output_path, max_last_modified_date, i
                         )
             else:
                 nome_arquivo = f"{tabela}"
@@ -104,7 +106,7 @@ def main(
                     arquivos_baixados.append(nome_arquivo)
                     asyncio.run((download_unzip_csv(url_download, input_path)))
                     process_csv_simples(
-                        input_path, output_path, max_table_date, sufixo
+                        input_path, output_path, max_last_modified_date, sufixo
                     )
 
     return output_path

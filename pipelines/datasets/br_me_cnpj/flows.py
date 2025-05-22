@@ -58,7 +58,7 @@ with Flow(
     )
     tabelas = constants_cnpj.TABELAS.value[0:1]
 
-    max_folder_date, max_table_date = get_data_source_max_date()
+    max_folder_date, max_last_modified_date = get_data_source_max_date()
 
     dados_desatualizados = check_if_data_is_outdated(
         dataset_id=dataset_id,
@@ -75,7 +75,7 @@ with Flow(
         output_filepath = main(
             tabelas,
             max_folder_date=max_folder_date,
-            max_table_date=max_table_date,
+            max_last_modified_date=max_last_modified_date,
         )
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
@@ -160,7 +160,7 @@ with Flow(
     )
     tabelas = constants_cnpj.TABELAS.value[1:2]
 
-    max_folder_date, max_table_date = get_data_source_max_date()
+    max_folder_date, max_last_modified_date = get_data_source_max_date()
 
     dados_desatualizados = check_if_data_is_outdated(
         dataset_id=dataset_id,
@@ -177,7 +177,7 @@ with Flow(
         output_filepath = main(
             tabelas,
             max_folder_date=max_folder_date,
-            max_table_date=max_table_date,
+            max_last_modified_date=max_last_modified_date,
         )
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
@@ -265,7 +265,7 @@ with Flow(
     )
     tabelas = constants_cnpj.TABELAS.value[2:3]
 
-    max_folder_date, max_table_date = get_data_source_max_date()
+    max_folder_date, max_last_modified_date = get_data_source_max_date()
 
     dados_desatualizados = check_if_data_is_outdated(
         dataset_id=dataset_id,
@@ -282,7 +282,7 @@ with Flow(
         output_filepath = main(
             tabelas,
             max_folder_date=max_folder_date,
-            max_table_date=max_table_date,
+            max_last_modified_date=max_last_modified_date,
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(
@@ -415,7 +415,7 @@ with Flow(
     )
     tabelas = constants_cnpj.TABELAS.value[3:]
 
-    max_folder_date, max_table_date = get_data_source_max_date()
+    max_folder_date, max_last_modified_date = get_data_source_max_date()
 
     dados_desatualizados = check_if_data_is_outdated(
         dataset_id=dataset_id,
@@ -432,7 +432,7 @@ with Flow(
         output_filepath = main(
             tabelas,
             max_folder_date=max_folder_date,
-            max_table_date=max_table_date,
+            max_last_modified_date=max_last_modified_date,
         )
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_filepath,
