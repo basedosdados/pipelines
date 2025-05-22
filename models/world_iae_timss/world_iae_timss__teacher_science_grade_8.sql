@@ -223,4 +223,4 @@ select
     safe_cast(btdehw as int64) btdehw,
     safe_cast(version as string) version,
     safe_cast(scope as int64) scope,
-from {{ set_datalake_project("world_iae_timss_staging.teacher_science_grade_8") }} as t
+from {{ set_datalake_project("world_iae_timss.teacher_science_grade_8") }} as t

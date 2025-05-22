@@ -5,6 +5,7 @@
         materialized="table",
     )
 }}
+
 select
     safe_cast(year as int64) year,
     safe_cast(country_id as int64) country_id,

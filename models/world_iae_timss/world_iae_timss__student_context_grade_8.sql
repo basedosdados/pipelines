@@ -6,7 +6,7 @@
     )
 }}
 select
-    safe_cast(year as string) year,
+    safe_cast(year as int64) year,
     safe_cast(country_m49 as string) country_m49,
     safe_cast(country_id as string) country_id,
     safe_cast(grade_id as string) grade_id,
@@ -120,4 +120,4 @@ select
     safe_cast(bsdgedup as int64) bsdgedup,
     safe_cast(version as string) version,
     safe_cast(scope as int64) scope,
-from {{ set_datalake_project("world_iae_timss_staging.student_context_grade_8") }} as t
+from {{ set_datalake_project("world_iae_timss.student_context_grade_8") }} as t
