@@ -88,6 +88,15 @@ def run_dbt(
 
     log_file_path = os.path.join("logs", "dbt.log")
 
+    if target == "prod":
+        with open("/credentials-prod/prod.json", "r") as f:
+            service_account = json.loads(f.read())
+            project_id = service_account["project_id"]
+            client_email = service_account["client_email"]
+            log(
+                f"Service account for prod: project_id: `{project_id}`, client_email: `{client_email}`"
+            )
+
     for cmd in commands_to_run:
         cli_args = [cmd, "--select", selected_table, "--target", target]
 
