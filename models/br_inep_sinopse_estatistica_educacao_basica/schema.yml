@@ -174,7 +174,7 @@ models:
             - ano
             - id_municipio
             - escolaridade
-            - tipo_classe
+            - etapa_ensino
       - not_null_proportion_multiple_columns:
           at_least: 0.95
     columns:
@@ -196,9 +196,9 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
-      - name: tipo_classe
-        description: 'Tipo de classe da Educação Especial (e.g.: Classes Comuns ou
-          Classes Exclusivas/Especiais)'
+      - name: etapa_ensino
+        description: Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
+          Iniciais, Anos Finais, ...)
       - name: escolaridade
         description: Escolaridade
       - name: quantidade_docente
@@ -213,7 +213,7 @@ models:
             - id_municipio
             - regime_contrato
             - rede
-            - tipo_classe
+            - etapa_ensino
       - not_null_proportion_multiple_columns:
           at_least: 0.95
     columns:
@@ -235,9 +235,9 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
-      - name: tipo_classe
-        description: 'Tipo de classe da Educação Especial (e.g.: Classes Comuns ou
-          Classes Exclusivas/Especiais)'
+      - name: etapa_ensino
+        description: Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
+          Iniciais, Anos Finais, ...)
       - name: rede
         description: Rede Escolar (e.g. Federal, Estadual, Municipal e Privada)
       - name: regime_contrato
@@ -254,7 +254,7 @@ models:
             - id_municipio
             - faixa_etaria
             - sexo
-            - tipo_classe
+            - etapa_ensino
       - not_null_proportion_multiple_columns:
           at_least: 0.95
     columns:
@@ -276,9 +276,9 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
-      - name: tipo_classe
-        description: 'Tipo de classe da Educação Especial (e.g.: Classes Comuns ou
-          Classes Exclusivas/Especiais)'
+      - name: etapa_ensino
+        description: Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
+          Iniciais, Anos Finais, ...)
       - name: faixa_etaria
         description: Faixa Etária dos docentes
       - name: sexo
@@ -293,7 +293,7 @@ models:
             - ano
             - id_municipio
             - deficiencia
-            - tipo_classe
+            - etapa_ensino
       - not_null_proportion_multiple_columns:
           at_least: 0.95
     columns:
@@ -315,9 +315,9 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
-      - name: tipo_classe
-        description: 'Tipo de classe da Educação Especial (e.g.: Classes Comuns ou
-          Classes Exclusivas/Especiais)'
+      - name: etapa_ensino
+        description: Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
+          Iniciais, Anos Finais, ...)
       - name: deficiencia
         description: Tipo de deficiência, transtorno global do desenvolvimento ou
           altas habilidades/superdotação
@@ -332,7 +332,7 @@ models:
             - id_municipio
             - rede
             - localizacao
-            - tipo_classe
+            - etapa_ensino
       - not_null_proportion_multiple_columns:
           at_least: 0.95
     columns:
@@ -354,9 +354,9 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
-      - name: tipo_classe
-        description: 'Tipo de classe da Educação Especial (e.g.: Classes Comuns ou
-          Classes Exclusivas/Especiais)'
+      - name: etapa_ensino
+        description: Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
+          Iniciais, Anos Finais, ...)
       - name: rede
         description: Rede Escolar (e.g. Federal, Estadual, Municipal e Privada)
       - name: localizacao
