@@ -147,9 +147,6 @@ optional = true
 networkx = "^2.6.3"
 parameterized = "^0.9.0"
 
-[tool.poetry.scripts]
-lint = "scripts.lint:main"
-
 [tool.ruff]
 line-length = 79
 target-version = "py310"
