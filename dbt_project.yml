@@ -424,5 +424,8 @@ models:
     world_wwf_hydrosheds:
       +materialized: table
       +schema: world_wwf_hydrosheds
+    dataset_new_arch:
+      +materialized: table
+      +schema: dataset_new_arch
   elementary:
     +schema: elementary
