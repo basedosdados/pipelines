@@ -1,4 +1,4 @@
-{{ config(alias="dicionario", schema="world_iae_timss") }}
+{{ config(alias="dicionario", schema="world_iae_timss", materialized="table") }}
 
 select
     safe_cast(id_tabela as string) id_tabela,

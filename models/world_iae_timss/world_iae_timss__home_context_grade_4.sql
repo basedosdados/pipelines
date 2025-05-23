@@ -118,4 +118,4 @@ select
     safe_cast(asdhaps as int64) asdhaps,
     safe_cast(version as string) version,
     safe_cast(scope as int64) scope,
-from {{ set_datalake_project("world_iae_timss.home_context_grade_4") }} as t
+from {{ set_datalake_project("world_iae_timss_staging.home_context_grade_4") }} as t

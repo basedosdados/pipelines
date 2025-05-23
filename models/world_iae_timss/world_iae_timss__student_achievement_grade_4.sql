@@ -116,4 +116,6 @@ select
     safe_cast(assibm05 as string) assibm05,
     safe_cast(version as int64) version,
     safe_cast(scope as int64) scope,
-from {{ set_datalake_project("world_iae_timss.student_achievement_grade_4") }} as t
+from
+    {{ set_datalake_project("world_iae_timss_staging.student_achievement_grade_4") }}
+    as t
