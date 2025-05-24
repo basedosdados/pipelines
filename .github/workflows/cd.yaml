@@ -160,16 +160,12 @@ jobs:
       - name: Install requirements
         if: steps.check_label.outputs.table-approve == 'true'
         run: poetry install --only=dev
-      - name: Run script for approving table
+      - name: Run prefect flow to execute dbt model in prod
         if: steps.check_label.outputs.table-approve == 'true'
         run: |-
-          poetry run python .github/workflows/scripts/table_approve.py \
+          poetry run python .github/workflows/scripts/prefect_run_dbt.py \
+            --dbt-command run \
             --modified-files ${{ steps.changed_files.outputs.files }} \
-            --source-bucket-name basedosdados-dev \
-            --destination-bucket-name basedosdados \
-            --backup-bucket-name basedosdados-backup \
-            --materialization-target prod \
-            --materialization-label basedosdados \
             --prefect-backend-token ${{ secrets.PREFECT_BACKEND_AUTH_TOML_API_KEY }}
         env:
           BASEDOSDADOS_CONFIG: ${{ secrets.BASEDOSDADOS_CONFIG }}

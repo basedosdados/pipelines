@@ -6,12 +6,56 @@ from pathlib import Path
 from time import sleep
 
 import basedosdados as bd
-from backend import Backend
-from basedosdados import Dataset, Storage
-from utils import get_datasets_tables_from_modified_files
+
+PREFECT_BASE_URL = "https://prefect.basedosdados.org"
 
 
-def get_flow_run_state(flow_run_id: str, backend: Backend, auth_token: str):
+def get_datasets_tables_from_modified_files(
+    modified_files: list[str],  # type: ignore
+) -> list[tuple[str, str, bool, bool]]:
+    """
+    Returns a list of (dataset_id, table_id) from the list of modified files.
+
+    Args:
+        modified_files (List[str]): List of modified files.
+
+    Returns:
+        List[Tuple[str, str, bool, bool]]: List of tuples with dataset IDs and table IDs.
+        List of tuples will also contain two booleans: the first boolean indicates
+        whether the file has been deleted, and the second boolean indicates whether
+        the table_id has an alias.
+    """
+    # Convert to Path
+    modified_files: list[Path] = [Path(file) for file in modified_files]
+    # Get SQL files
+    sql_files: list[Path] = [
+        file for file in modified_files if file.suffix == ".sql"
+    ]
+
+    datasets_tables: list[tuple[str, str, bool, bool]] = [
+        (file.parent.name, file.stem, file.exists(), False)
+        for file in sql_files
+    ]
+
+    # Post-process table_id:
+    # - Some of `table_id` will have the format `{dataset_id}__{table_id}`. We must
+    #   remove the `{dataset_id}__` part.
+    new_datasets_tables: list[tuple[str, str, bool, bool]] = []
+
+    for dataset_id, table_id, exists, _ in datasets_tables:
+        alias = False
+        crop_str = f"{dataset_id}__"
+        if table_id.startswith(crop_str):
+            table_id = table_id[len(crop_str) :]
+            alias = True
+        new_datasets_tables.append((dataset_id, table_id, exists, alias))
+
+    return new_datasets_tables
+
+
+def get_flow_run_state(
+    flow_run_id: str, backend: bd.Backend, auth_token: str
+) -> str:
     query = """
     query ($flow_run_id: uuid!) {
         flow_run_by_pk (id: $flow_run_id) {
@@ -28,8 +72,11 @@ def get_flow_run_state(flow_run_id: str, backend: Backend, auth_token: str):
 
 
 def get_materialization_flow_id(
-    backend: Backend, auth_token: str, project: str = "main"
-):
+    backend: bd.Backend, auth_token: str, project: str = "main"
+) -> str:
+    """
+    Get DBT Flow.
+    """
     query = """
     query ($projectName: String!) {
         flow (where: {
@@ -111,21 +158,21 @@ def push_table_to_bq(
 
     print("UPDATE DATASET DESCRIPTION")
     # updates the dataset description
-    Dataset(dataset_id).update(mode="prod")
+    bd.Dataset(dataset_id).update(mode="prod")
     delete_storage_path = file_path.replace("./downloaded_data/", "")
     print(
         f"DELETE HEADER FILE FROM basedosdados/staging/{dataset_id}_staging/{table_id}/{delete_storage_path}"
     )
-    st = Storage(dataset_id=dataset_id, table_id=table_id)
+    st = bd.Storage(dataset_id=dataset_id, table_id=table_id)
     st.delete_file(filename=delete_storage_path, mode="staging")
     shutil.rmtree("./downloaded_data/")
     return True
 
 
-def save_header_files(dataset_id, table_id):
+def save_header_files(dataset_id: str, table_id: str) -> str:
     print("GET FIRST BLOB PATH")
 
-    ref = Storage(dataset_id=dataset_id, table_id=table_id)
+    ref = bd.Storage(dataset_id=dataset_id, table_id=table_id)
     blobs = (
         ref.client["storage_staging"]
         .bucket("basedosdados-dev")
@@ -185,7 +232,7 @@ def sync_bucket(
     destination_bucket_name: str,
     backup_bucket_name: str,
     mode: str = "staging",
-) -> None:
+) -> bool:
     """Copies proprosed data between storage buckets.
     Creates a backup of old data, then delete it and copies new data into the destination bucket.
 
@@ -211,7 +258,7 @@ def sync_bucket(
             If there are no files corresponding to the given dataset_id and table_id on the source bucket
     """
 
-    ref = Storage(dataset_id=dataset_id, table_id=table_id)
+    ref = bd.Storage(dataset_id=dataset_id, table_id=table_id)
 
     prefix = f"{mode}/{dataset_id}/{table_id}/"
 
@@ -262,32 +309,57 @@ def sync_bucket(
     return False
 
 
+def get_datasets_and_tables_for_modified_files(
+    modified_files: str,
+) -> list[tuple[str, str, bool]]:
+    modified_files_list = modified_files.split(",")
+    datasets_tables = get_datasets_tables_from_modified_files(
+        modified_files_list
+    )
+
+    existing_datasets_tables = []
+
+    for dataset_id, table_id, exists, alias in datasets_tables:
+        if exists:
+            existing_datasets_tables.append((dataset_id, table_id, alias))
+        # else:
+        #     deleted_datasets_tables.append((dataset_id, table_id, alias))
+
+    return existing_datasets_tables
+
+
 if __name__ == "__main__":
     # Start argument parser
     arg_parser = ArgumentParser()
 
-    # Add GraphQL URL argument
+    # Add list of modified files argument
     arg_parser.add_argument(
-        "--graphql-url",
+        "--dbt-command",
         type=str,
-        required=False,
-        default="https://backend.basedosdados.org/api/v1/graphql",
-        help="URL of the GraphQL endpoint.",
+        required=True,
+        help="dbt command",
     )
 
-    # Add list of modified files argument
     arg_parser.add_argument(
         "--modified-files",
         type=str,
-        required=True,
+        required=False,
         help="List of modified files.",
+    )
+
+    # Add argument to skip sync bucket step
+    arg_parser.add_argument(
+        "--skip-sync-bucket",
+        action="store_true",  # Implies default is false, i.e, dont skip
+        help="Skip sync buckets",
     )
 
     # Add source bucket name argument
     arg_parser.add_argument(
         "--source-bucket-name",
         type=str,
-        required=True,
+        required=False,
+        default="basedosdados-dev",
         help="Source bucket name.",
     )
 
@@ -295,7 +367,8 @@ if __name__ == "__main__":
     arg_parser.add_argument(
         "--destination-bucket-name",
         type=str,
-        required=True,
+        required=False,
+        default="basedosdados",
         help="Destination bucket name.",
     )
 
@@ -303,26 +376,9 @@ if __name__ == "__main__":
     arg_parser.add_argument(
         "--backup-bucket-name",
         type=str,
-        required=True,
+        required=False,
+        default="basedosdados-backup",
         help="Backup bucket name.",
-    )
-
-    # Add Prefect backend URL argument
-    arg_parser.add_argument(
-        "--prefect-backend-url",
-        type=str,
-        required=False,
-        default="https://prefect.basedosdados.org/api",
-        help="Prefect backend URL.",
-    )
-
-    # Add prefect base URL argument
-    arg_parser.add_argument(
-        "--prefect-base-url",
-        type=str,
-        required=False,
-        default="https://prefect.basedosdados.org",
-        help="Prefect base URL.",
     )
 
     # Add Prefect API token argument
@@ -346,72 +402,97 @@ if __name__ == "__main__":
     arg_parser.add_argument(
         "--materialization-label",
         type=str,
-        required=True,
+        required=False,
+        default="basedosdados",
         help="Materialization label.",
+    )
+
+    arg_parser.add_argument(
+        "--dataset-id",
+        type=str,
+        required=False,
+        help="Run dbt model for dataset",
     )
 
     # Get arguments
     args = arg_parser.parse_args()
 
     # Get datasets and tables from modified files
-    modified_files = args.modified_files.split(",")
-    datasets_tables = get_datasets_tables_from_modified_files(modified_files)
-    # Split deleted datasets and tables
-    deleted_datasets_tables = []
-    existing_datasets_tables = []
-    for dataset_id, table_id, exists, alias in datasets_tables:
-        if exists:
-            existing_datasets_tables.append((dataset_id, table_id, alias))
-        else:
-            deleted_datasets_tables.append((dataset_id, table_id, alias))
-    # Expand `__all__` tables
-    # backend_bd = Backend(args.graphql_url)
-    # expanded_existing_datasets_tables = []
-    # for dataset_id, table_id, alias in existing_datasets_tables:
-    #     expanded_table_ids = expand_alls(dataset_id, table_id, backend_bd)
-    #     for expanded_dataset_id, expanded_table_id in expanded_table_ids:
-    #         expanded_existing_datasets_tables.append(
-    #             (expanded_dataset_id, expanded_table_id, alias)
-    #         )
-    # existing_datasets_tables = expanded_existing_datasets_tables
+    existing_datasets_tables_from_modified_files = (
+        []
+        if args.modified_files is None
+        else get_datasets_and_tables_for_modified_files(
+            args.modified_files.split(",")
+        )
+    )
 
     # Sync and create tables
-    for dataset_id, table_id, _ in existing_datasets_tables:
-        print(
-            f"\n\n\n\n************   START CREATING TABLE {dataset_id}.{table_id}...   ************"
-        )
-        table_was_created = push_table_to_bq(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            source_bucket_name=args.source_bucket_name,
-            destination_bucket_name=args.destination_bucket_name,
-            backup_bucket_name=args.backup_bucket_name,
-        )
-        if table_was_created:
+    if not args.skip_sync_bucket:
+        for (
+            dataset_id,
+            table_id,
+            _,
+        ) in existing_datasets_tables_from_modified_files:
             print(
-                f"============   TABLE CREATED: basedosdados-staging.{dataset_id}_staging.{table_id}   ============"
+                f"\n\n\n\n************   START CREATING TABLE {dataset_id}.{table_id}...   ************"
             )
-        else:
-            print(
-                f"============   TABLE was NOT created: basedosdados-staging.{dataset_id}_staging.{table_id}   ============"
+            table_was_created = push_table_to_bq(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                source_bucket_name=args.source_bucket_name,
+                destination_bucket_name=args.destination_bucket_name,
+                backup_bucket_name=args.backup_bucket_name,
             )
+            if table_was_created:
+                print(
+                    f"============   TABLE CREATED: basedosdados-staging.{dataset_id}_staging.{table_id}   ============"
+                )
+            else:
+                print(
+                    f"============   TABLE was NOT created: basedosdados-staging.{dataset_id}_staging.{table_id}   ============"
+                )
+    else:
+        print("Skipping sync bucket because --skip-sync-bucket flag is setted")
 
     # Launch materialization flows
-    backend_prefect = Backend(args.prefect_backend_url)
+    backend_prefect = bd.Backend(f"{PREFECT_BASE_URL}/api")
 
     flow_id = get_materialization_flow_id(
-        backend_prefect, args.prefect_backend_token
+        backend=backend_prefect,
+        auth_token=args.prefect_backend_token,
+        project="staging"
+        if args.materialization_target == "dev"
+        and args.materialization_label == "basedosdados-dev"
+        else "main",
     )
+
+    datastes_tables_for_flow_run = existing_datasets_tables_from_modified_files
+
+    if args.dataset_id is not None:
+        datastes_tables_for_flow_run.append((args.dataset_id, "", False))
+
     launched_flow_run_ids = []
-    for dataset_id, table_id, alias in existing_datasets_tables:
+
+    for (
+        dataset_id,
+        table_id,
+        alias,
+    ) in datastes_tables_for_flow_run:
         print(
             f"Launching materialization flow for {dataset_id}.{table_id} (alias={alias})..."
         )
         parameters = {
             "dataset_id": dataset_id,
-            "dbt_alias": alias,
-            "target": args.materialization_target,
             "table_id": table_id,
+            "target": args.materialization_target,
+            "dbt_command": args.dbt_command,
+            "dbt_alias": alias,
+            # Download csv file is true by default
+            # We disable when materialization target is not prod
+            "download_csv_file": args.materialization_target == "prod",
+            # Disable elementary is true by default
+            # We disable when run dbt for elementary dataset
+            "disable_elementary": dataset_id != "elementary",
         }
         mutation = """
         mutation ($flow_id: UUID, $parameters: JSON, $label: String!) {
@@ -436,7 +517,7 @@ if __name__ == "__main__":
         )
         flow_run_id = response["create_flow_run"]["id"]
         launched_flow_run_ids.append(flow_run_id)
-        flow_run_url = f"{args.prefect_base_url}/flow-run/{flow_run_id}"
+        flow_run_url = f"{PREFECT_BASE_URL}/flow-run/{flow_run_id}"
         print(f" - Materialization flow run launched: {flow_run_url}")
 
     # Keep monitoring the launched flow runs until they are finished
