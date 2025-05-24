@@ -103,12 +103,12 @@ def get_materialization_flow_id(
 
 
 def push_table_to_bq(
-    dataset_id,
-    table_id,
+    dataset_id: str,
+    table_id: str,
     source_bucket_name="basedosdados-dev",
     destination_bucket_name="basedosdados",
     backup_bucket_name="basedosdados-backup",
-):
+) -> bool:
     # copy proprosed data between storage buckets
     # create a backup of old data, then delete it and copies new data into the destination bucket
     # modes = ["staging", "raw", "auxiliary_files", "architecture", "header"]
@@ -124,14 +124,12 @@ def push_table_to_bq(
                 backup_bucket_name=backup_bucket_name,
                 mode=mode,
             )
-            print()
         except Exception:
             print(f"DATA ERROR ON {mode}.{dataset_id}.{table_id}")
             traceback.print_exc(file=sys.stderr)
             table_not_exists_in_storage = True
-            print()
 
-    if table_not_exists_in_storage:
+    if table_not_exists_in_storage:  # type: ignore
         print(f"Table {dataset_id}.{table_id} does not have data in storage.")
         return False
 
@@ -141,13 +139,15 @@ def push_table_to_bq(
     tb = bd.Table(dataset_id=dataset_id, table_id=table_id)
 
     # delete table from staging and prod if exists
-    print("DELETE TABLE FROM STAGING AND PROD")
+    print(f"Delete {dataset_id}.{table_id} from staging and prod")
     tb.delete(mode="staging")
 
     file_format = file_path.split(".")[-1]
-    print("CREATE NEW TABLE IN STAGING WITH FILE FORMAT: ", file_format)
-    # create the staging table in bigquery
+    print(
+        f"Create {dataset_id}.{table_id} in staging with file format: {file_format}"
+    )
 
+    # Create the staging table in bigquery
     tb.create(
         path="./downloaded_data/",
         if_table_exists="replace",
@@ -157,7 +157,7 @@ def push_table_to_bq(
     )
 
     print("UPDATE DATASET DESCRIPTION")
-    # updates the dataset description
+    # Updates the dataset description
     bd.Dataset(dataset_id).update(mode="prod")
     delete_storage_path = file_path.replace("./downloaded_data/", "")
     print(
@@ -322,8 +322,6 @@ def get_datasets_and_tables_for_modified_files(
     for dataset_id, table_id, exists, alias in datasets_tables:
         if exists:
             existing_datasets_tables.append((dataset_id, table_id, alias))
-        # else:
-        #     deleted_datasets_tables.append((dataset_id, table_id, alias))
 
     return existing_datasets_tables
 
@@ -349,9 +347,9 @@ if __name__ == "__main__":
 
     # Add argument to skip sync bucket step
     arg_parser.add_argument(
-        "--skip-sync-bucket",
-        action="store_true",  # Implies default is false, i.e, dont skip
-        help="Skip sync buckets",
+        "--sync-bucket",
+        action="store_true",  # Implies default is false, i.e, dont sync buckets
+        help="Sync buckets",
     )
 
     # Add source bucket name argument
@@ -427,7 +425,7 @@ if __name__ == "__main__":
     )
 
     # Sync and create tables
-    if not args.skip_sync_bucket:
+    if args.sync_bucket:
         for (
             dataset_id,
             table_id,
@@ -452,7 +450,7 @@ if __name__ == "__main__":
                     f"============   TABLE was NOT created: basedosdados-staging.{dataset_id}_staging.{table_id}   ============"
                 )
     else:
-        print("Skipping sync bucket because --skip-sync-bucket flag is setted")
+        print("Skipping sync bucket because --sync-bucket was not set")
 
     # Launch materialization flows
     backend_prefect = bd.Backend(f"{PREFECT_BASE_URL}/api")
@@ -538,6 +536,6 @@ if __name__ == "__main__":
         if flow_run_state != "Success":
             raise Exception(
                 f'Flow run {launched_flow_run_id} finished with state "{flow_run_state}". '
-                f"Check the logs at {args.prefect_base_url}/flow-run/{launched_flow_run_id}"
+                f"Check the logs at {PREFECT_BASE_URL}/flow-run/{launched_flow_run_id}"
             )
         print(f"Flow run {launched_flow_run_id} finished successfully.")

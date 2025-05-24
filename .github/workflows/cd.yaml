@@ -165,6 +165,7 @@ jobs:
         run: |-
           poetry run python .github/workflows/scripts/prefect_run_dbt.py \
             --dbt-command run \
+            --sync-bucket \
             --modified-files ${{ steps.changed_files.outputs.files }} \
             --prefect-backend-token ${{ secrets.PREFECT_BACKEND_AUTH_TOML_API_KEY }}
         env:
