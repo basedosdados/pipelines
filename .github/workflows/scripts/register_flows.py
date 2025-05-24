@@ -479,13 +479,11 @@ def get_affected_flows(fpath: str = None):
     flow_files = set()
     for fname in fnames:
         flow_file = Path(fname).parent / "flows.py"
-        print(f"{flow_file=}")
         if flow_file.exists():
             flow_files.add(flow_file)
     declared_flows = []
     for flow_file in flow_files:
         declared_flows.extend(get_declared(flow_file))
-    print(f"{declared_flows=}")
     flows = []
     for flow in declared_flows:
         try:
