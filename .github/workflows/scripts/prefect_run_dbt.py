@@ -17,10 +17,10 @@ def get_datasets_tables_from_modified_files(
     Returns a list of (dataset_id, table_id) from the list of modified files.
 
     Args:
-        modified_files (List[str]): List of modified files.
+        modified_files (list[str]): List of modified files.
 
     Returns:
-        List[Tuple[str, str, bool, bool]]: List of tuples with dataset IDs and table IDs.
+        list[tuple[str, str, bool, bool]]: List of tuples with dataset IDs and table IDs.
         List of tuples will also contain two booleans: the first boolean indicates
         whether the file has been deleted, and the second boolean indicates whether
         the table_id has an alias.
@@ -90,7 +90,9 @@ def get_materialization_flow_id(
                 name: {_eq: $projectName}
             }
         }) {
-            id
+            id,
+            version,
+            run_config
         }
     }
     """
@@ -99,7 +101,9 @@ def get_materialization_flow_id(
         headers={"Authorization": f"Bearer {auth_token}"},
         variables={"projectName": project},
     )
-    return response["flow"][0]["id"]
+    flow_data = response["flow"][0]
+    print(f"get_materialization_flow_id: {flow_data}")
+    return flow_data["id"]
 
 
 def push_table_to_bq(
@@ -453,7 +457,7 @@ if __name__ == "__main__":
         print("Skipping sync bucket because --sync-bucket was not set")
 
     # Launch materialization flows
-    backend_prefect = bd.Backend(f"{PREFECT_BASE_URL}/api")
+    backend_prefect = bd.Backend(graphql_url=f"{PREFECT_BASE_URL}/api")
 
     flow_id = get_materialization_flow_id(
         backend=backend_prefect,
