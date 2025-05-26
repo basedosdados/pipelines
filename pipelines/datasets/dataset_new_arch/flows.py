@@ -1,0 +1,102 @@
+# from datetime import timedelta
+
+from prefect import Parameter, case
+from prefect.run_configs import KubernetesRun
+from prefect.storage import GCS
+
+# from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
+from pipelines.constants import constants
+from pipelines.datasets.dataset_new_arch.tasks import criar_dataframe
+
+# from pipelines.utils.constants import constants as utils_constants
+from pipelines.utils.decorators import Flow
+
+# from pipelines.utils.execute_dbt_model.constants import (
+#     constants as dump_db_constants,
+# )
+# from pipelines.utils.metadata.tasks import update_django_metadata
+from pipelines.utils.tasks import (
+    rename_current_flow_run_dataset_table,
+    template_upload_to_gcs_and_materialization,
+)
+
+with Flow(
+    name="new_arch_pipeline",
+    code_owners=[
+        "trick",
+    ],
+) as new_arch_pipeline:
+    dataset_id = Parameter(
+        "dataset_id",
+        default="dataset_new_arch",
+        required=False,
+    )
+
+    table_id = Parameter("table_id", default="tabela_new_arch", required=False)
+
+    target = Parameter("target", default="dev", required=False)
+
+    materialize_after_dump = Parameter(
+        "materialize_after_dump", default=True, required=False
+    )
+
+    dbt_alias = Parameter(
+        "dbt_alias",
+        default=True,
+        required=False,
+    )
+
+    rename_flow_run = rename_current_flow_run_dataset_table(
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
+    )
+
+    dataframe = criar_dataframe()
+
+    upload_and_materialization_dev = (
+        template_upload_to_gcs_and_materialization(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            data_path=dataframe,
+            target="dev",
+            bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            dump_mode="append",
+            run_model="run/test",
+            upstream_tasks=[dataframe],
+        )
+    )
+
+    with case(target, "prod"):
+        upload_and_materialization_prod = (
+            template_upload_to_gcs_and_materialization(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                data_path=dataframe,
+                target="prod",
+                bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                dump_mode="append",
+                run_model="run/test",
+                upstream_tasks=[upload_and_materialization_dev],
+            )
+        )
+
+        # update_django_metadata(
+        #     dataset_id=dataset_id,
+        #     table_id=table_id,
+        #     date_column_name={"date": "data"},
+        #     date_format="%Y-%m-%d",
+        #     coverage_type="part_bdpro",
+        #     time_delta={"months": 6},
+        #     prefect_mode="materialization_mode",
+        #     bq_project=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+        #     upstream_tasks=[wait_upload_table_prod],
+        # )
+
+new_arch_pipeline.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+new_arch_pipeline.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
