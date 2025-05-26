@@ -59,6 +59,7 @@ from pipelines.datasets.br_sp_saopaulo_dieese_icv.flows import *
 from pipelines.datasets.br_stf_corte_aberta.flows import *
 from pipelines.datasets.br_tse_eleicoes.flows import *
 from pipelines.datasets.cross_update.flows import *
+from pipelines.datasets.dataset_new_arch.flows import *
 from pipelines.datasets.delete_flows.flows import *
 from pipelines.datasets.fundacao_lemann.flows import *
 from pipelines.datasets.mundo_transfermarkt_competicoes.flows import *
