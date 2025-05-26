@@ -331,12 +331,9 @@ def sync_bucket(
 
 
 def get_datasets_and_tables_for_modified_files(
-    modified_files: str,
+    modified_files: list[str],
 ) -> list[tuple[str, str, bool]]:
-    modified_files_list = modified_files.split(",")
-    datasets_tables = get_datasets_tables_from_modified_files(
-        modified_files_list
-    )
+    datasets_tables = get_datasets_tables_from_modified_files(modified_files)
 
     existing_datasets_tables = []
 
