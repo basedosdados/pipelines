@@ -71,6 +71,23 @@ def get_flow_run_state(
     return response["flow_run_by_pk"]["state"]
 
 
+def get_flow_log_error_messages(
+    flow_run_id: str, backend: bd.Backend, auth_token: str
+) -> list[str]:
+    query = """query ($flow_run_id: uuid!) {
+        log(where: {flow_run_id: {_eq: $flow_run_id}, level: {_eq: "ERROR"}}) {
+            message,
+        }
+    }
+    """
+    response = backend._execute_query(
+        query,
+        variables={"flow_run_id": flow_run_id},
+        headers={"Authorization": f"Bearer {auth_token}"},
+    )
+    return [i["message"] for i in response["log"]]
+
+
 def get_materialization_flow_id(
     backend: bd.Backend, auth_token: str, project: str = "main"
 ) -> str:
@@ -538,8 +555,21 @@ if __name__ == "__main__":
                 auth_token=args.prefect_backend_token,
             )
         if flow_run_state != "Success":
+            messages = get_flow_log_error_messages(
+                flow_run_id=launched_flow_run_id,
+                backend=backend_prefect,
+                auth_token=args.prefect_backend_token,
+            )
+            for message in messages:
+                print(message)
+
+            flow_run_url = (
+                f"{PREFECT_BASE_URL}/flow-run/{launched_flow_run_id}"
+            )
+
             raise Exception(
                 f'Flow run {launched_flow_run_id} finished with state "{flow_run_state}". '
-                f"Check the logs at {PREFECT_BASE_URL}/flow-run/{launched_flow_run_id}"
+                f"Check the full logs at {flow_run_url}"
             )
+
         print(f"Flow run {launched_flow_run_id} finished successfully.")

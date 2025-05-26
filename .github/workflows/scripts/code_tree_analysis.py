@@ -418,13 +418,6 @@ def check_for_variable_name_conflicts(
     return conflicts
 
 
-def log(message: str):
-    """
-    Logs a message to the output of a GitHub Action.
-    """
-    print(message)
-
-
 if __name__ == "__main__":
     # Assert arguments.
     if len(sys.argv) not in [2, 3]:
