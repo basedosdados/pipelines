@@ -472,6 +472,7 @@ if __name__ == "__main__":
 
     # Launch materialization flows
     backend_prefect = bd.Backend(graphql_url=f"{PREFECT_BASE_URL}/api")
+    backend_prefect.graphql_url = f"{PREFECT_BASE_URL}/api"
 
     flow_id = get_materialization_flow_id(
         backend=backend_prefect,
