@@ -10,6 +10,7 @@
         cluster_by="sigla_uf",
     )
 }}
+
 with
     censo as (
         select
