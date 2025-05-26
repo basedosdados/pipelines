@@ -22,6 +22,9 @@ jobs:
           python-version-file: .python-version
       - name: Install requirements
         run: poetry install --only=dev
-      - name: Run script to test DBT model
+      - name: Run prefect flow to execute dbt model for elementary
         run: |-
-          poetry run python .github/workflows/scripts/triggers_flow_execution.py --dataset-id elementary --graphql-url ${{ secrets.BACKEND_GRAPHQL_URL }} --prefect-backend-token ${{ secrets.PREFECT_BACKEND_AUTH_TOML_API_KEY }}
+          poetry run python .github/workflows/scripts/prefect_run_dbt.py \
+            --dbt-command run \
+            --dataset-id elementary \
+            --prefect-backend-token ${{ secrets.PREFECT_BACKEND_AUTH_TOML_API_KEY }}
