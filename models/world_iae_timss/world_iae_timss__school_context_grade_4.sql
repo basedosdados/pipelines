@@ -5,13 +5,12 @@
         materialized="table",
     )
 }}
-
 select
     safe_cast(year as int64) year,
-    safe_cast(country_id as int64) country_id,
-    safe_cast(country_m49 as int64) country_m49,
-    safe_cast(grade as string) as grade_id,
-    safe_cast(school as int64) as school_id,
+    safe_cast(country_id as string) country_id,
+    safe_cast(country_m49 as string) country_m49,
+    safe_cast(grade as string) grade_id,
+    safe_cast(school as string) school_id,
     safe_cast(language_school_questionnaire as string) language_school_questionnaire,
     safe_cast(locale_school_questionnaire as string) locale_school_questionnaire,
     safe_cast(acbg03a as string) acbg03a,

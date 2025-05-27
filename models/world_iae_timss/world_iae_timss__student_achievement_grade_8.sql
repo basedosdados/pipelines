@@ -140,7 +140,7 @@ select
     safe_cast(se82env as string) se82env,
     safe_cast(se82nen as string) se82nen,
     safe_cast(version as string) version,
-    safe_cast(scope as int64) scope,
+    safe_cast(scope as string) scope,
 from
     {{ set_datalake_project("world_iae_timss_staging.student_achievement_grade_8") }}
     as t

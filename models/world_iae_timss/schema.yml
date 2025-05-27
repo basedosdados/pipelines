@@ -17,7 +17,7 @@ models:
             - student_id
       - not_null_proportion_multiple_columns:
           at_least: 0.01
-      - custom_dictionaries:
+      - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - country_id
             - grade_id
@@ -378,9 +378,8 @@ models:
             - student_id
       - not_null_proportion_multiple_columns:
           at_least: 0.01
-      - custom_dictionaries:
+      - custom_dictionary_coverage:
           columns_covered_by_dictionary:
-            - year
             - country_m49
             - grade_id
             - student_sex
@@ -696,7 +695,7 @@ models:
           combination_of_columns: [year, country_id, grade_id, school_id]
       - not_null_proportion_multiple_columns:
           at_least: 0.01
-      - custom_dictionaries:
+      - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - grade_id
             - language_school_questionnaire
@@ -1008,7 +1007,7 @@ models:
           combination_of_columns: [year, country_id, grade_id, school_id]
       - not_null_proportion_multiple_columns:
           at_least: 0.01
-      - custom_dictionaries:
+      - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - country_id
             - grade_id
@@ -1345,7 +1344,7 @@ models:
             - school_id
             - class_id
             - student_id
-      - custom_dictionaries:
+      - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - grade_id
             - language_school_questionnaire
@@ -1698,7 +1697,7 @@ models:
             - student_id
       - not_null_proportion_multiple_columns:
           at_least: 0.01
-      - custom_dictionaries:
+      - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - grade_id
             - sex_students
@@ -1958,7 +1957,7 @@ models:
             - student_id
       - not_null_proportion_multiple_columns:
           at_least: 0.01
-      - custom_dictionaries:
+      - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - grade_id
             - student_sex
@@ -2374,7 +2373,7 @@ models:
             - subject_id
       - not_null_proportion_multiple_columns:
           at_least: 0.01
-      - custom_dictionaries:
+      - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - country_id
             - grade_id
@@ -2421,9 +2420,6 @@ models:
             - atbg09f
             - atbg09g
             - atbg09h
-            - ATBG10A
-            - atbg10b
-            - atbg11
             - atbg12a
             - atbg12b
             - atbg12c
@@ -2646,7 +2642,7 @@ models:
             - subject_id
       - not_null_proportion_multiple_columns:
           at_least: 0.01
-      - custom_dictionaries:
+      - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - country_m49
             - grade_id
@@ -3177,7 +3173,7 @@ models:
             - subject_id
       - not_null_proportion_multiple_columns:
           at_least: 0.01
-      - custom_dictionaries:
+      - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - country_id
             - grade_id

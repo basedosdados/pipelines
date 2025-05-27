@@ -116,8 +116,8 @@ select
     safe_cast(bsbp47h as string) bsbp47h,
     safe_cast(bsbs48a as string) bsbs48a,
     safe_cast(bsbs48b as string) bsbs48b,
-    safe_cast(bsdg05s as int64) bsdg05s,
-    safe_cast(bsdgedup as int64) bsdgedup,
+    safe_cast(bsdg05s as string) bsdg05s,
+    safe_cast(bsdgedup as string) bsdgedup,
     safe_cast(version as string) version,
-    safe_cast(scope as int64) scope,
+    safe_cast(scope as string) scope,
 from {{ set_datalake_project("world_iae_timss_staging.student_context_grade_8") }} as t

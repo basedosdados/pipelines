@@ -132,5 +132,5 @@ select
     safe_cast(asbs10e as string) asbs10e,
     safe_cast(asbs10f as string) asbs10f,
     safe_cast(version as string) version,
-    safe_cast(scope as int64) scope,
+    safe_cast(scope as string) scope,
 from {{ set_datalake_project("world_iae_timss_staging.student_context_grade_4") }} as t
