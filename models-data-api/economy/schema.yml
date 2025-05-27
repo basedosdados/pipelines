@@ -2,7 +2,7 @@
 version: 2
 models:
   - name: economy__ipca
-    description: 'Índice de Preços ao Consumidor Amplo (IPCA)'
+    description: Índice de Preços ao Consumidor Amplo (IPCA)
     columns:
       - name: ano
         description: Ano

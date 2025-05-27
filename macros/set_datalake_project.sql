@@ -4,7 +4,9 @@
     {% elif target.name == "data-api" %} {% set prefix = "basedosdados-data-api" %}
     {% else %}
         {% do exceptions.raise_compiler_error(
-            "Invalid target: " ~ target.name ~ ". Use 'dev', 'prod' or 'data-api'."
+            "Invalid target: "
+            ~ target.name
+            ~ ". Use 'dev', 'prod' or 'data-api'."
         ) %}
     {% endif %}
 
