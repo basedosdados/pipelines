@@ -24,7 +24,7 @@ with Flow(
     code_owners=[
         "trick",
     ],
-) as new_arch_pipeline:
+) as arch_pipeline:
     dataset_id = Parameter(
         "dataset_id",
         default="dataset_new_arch",
@@ -95,7 +95,5 @@ with Flow(
         #     upstream_tasks=[wait_upload_table_prod],
         # )
 
-new_arch_pipeline.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-new_arch_pipeline.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
+arch_pipeline.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+arch_pipeline.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)

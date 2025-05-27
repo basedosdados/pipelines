@@ -1,10 +1,10 @@
 import os
 
 import pandas as pd
-import prefect
+from prefect import task
 
 
-@prefect.task
+@task
 def criar_dataframe():
     df = pd.DataFrame(
         {
