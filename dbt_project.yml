@@ -426,12 +426,14 @@ models:
       +schema: world_wwf_hydrosheds
   elementary:
     +schema: elementary
-  models-data-api:
-    basedosdados-data-api:
-      +schema: basedosdados-data-api
-      +persist_docs:
-        relation: true
-        columns: true
-      municipality:
-        +materialized: table
-        +schema: municipality
+  basedosdados-data-api:
+    +schema: basedosdados-data-api
+    +persist_docs:
+      relation: true
+      columns: true
+    municipality:
+      +materialized: table
+      +schema: municipality
+    economy:
+      +materialized: table
+      +schema: economy

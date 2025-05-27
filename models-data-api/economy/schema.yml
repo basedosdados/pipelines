@@ -1,0 +1,14 @@
+---
+version: 2
+models:
+  - name: economy__ipca
+    description: 'Índice de Preços ao Consumidor Amplo (IPCA)'
+    columns:
+      - name: ano
+        description: Ano
+      - name: mes
+        description: Mês
+      - name: variacao_mensal
+        description: Variação Mensal
+      - name: variacao_doze_meses
+        description: Variação dos Últimos 12 Meses

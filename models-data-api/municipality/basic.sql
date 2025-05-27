@@ -32,5 +32,4 @@ select
     safe_cast(nome_uf as string) nome_uf,
     safe_cast(nome_regiao as string) nome_regiao,
     safe_cast(amazonia_legal as int64) amazonia_legal,
-    safe.st_geogfromtext(centroide) centroide
-from {{ set_datalake_project("br_bd_diretorios_brasil_staging.municipio") }} as t
+from basedosdados.br_bd_diretorios_brasil.municipio as t

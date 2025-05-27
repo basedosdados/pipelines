@@ -1,0 +1,64 @@
+---
+version: 2
+models:
+  - name: municipality__basic
+    description: 'Diretório ligando diversos códigos institucionais de municípios
+      brasileiros: IBGE, Receita Federal, TSE, BCB, regiões, comarcas, região de saúde,
+      etc.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_municipio]
+    columns:
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+      - name: id_municipio_6
+        description: ID Município - IBGE 6 Dígitos
+      - name: id_municipio_tse
+        description: ID Município - Tribunal Superior Eleitoral (TSE)
+      - name: id_municipio_rf
+        description: ID Município - Receita Federal (RF)
+      - name: id_municipio_bcb
+        description: ID Município - Banco Central do Brasil (BCB)
+      - name: nome
+        description: Nome do Município
+      - name: capital_uf
+        description: Município é a Capital da Unidade da Federação
+      - name: id_comarca
+        description: ID Sede Comarca
+      - name: id_regiao_saude
+        description: ID Região de Saúde
+      - name: nome_regiao_saude
+        description: Nome da Região de Saúde
+      - name: id_regiao_imediata
+        description: ID Região Imediata - IBGE
+      - name: nome_regiao_imediata
+        description: Nome da Região Imediata
+      - name: id_regiao_intermediaria
+        description: ID Região Intermediária - IBGE
+      - name: nome_regiao_intermediaria
+        description: Nome da Região Intermediária
+      - name: id_microrregiao
+        description: ID Microrregião - IBGE
+      - name: nome_microrregiao
+        description: Nome da Microrregião
+      - name: id_mesorregiao
+        description: ID Mesorregião - IBGE
+      - name: nome_mesorregiao
+        description: Nome da Mesorregião
+      - name: id_regiao_metropolitana
+        description: ID Região Metropolitana - IBGE
+      - name: nome_regiao_metropolitana
+        description: Nome da Região Metropolitana
+      - name: ddd
+        description: Código de Discagem Direta a Distância (DDD)
+      - name: id_uf
+        description: ID da Unidade da Federação - IBGE
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+      - name: nome_uf
+        description: Nome da Unidade da Federação
+      - name: nome_regiao
+        description: Nome da Grande Região Brasileira
+      - name: amazonia_legal
+        description: Indicador se o município faz parte da Amazônia Legal
