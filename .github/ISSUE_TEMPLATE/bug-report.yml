@@ -1,0 +1,33 @@
+---
+name: 🐞 bugfix
+description: 🚨 Relate um bug ou problema encontrado nos dados ou em alguma funcionadade
+  da Base dos Dados
+title: '[bug] <title>'
+labels: [bug, triage]
+body:
+  - type: textarea
+    attributes:
+      label: 🐛 Descrição do Bug
+      description: Explique de forma clara e objetiva o que essa o bug que você está
+        enfrentando. (Acrescente logs, imagens e mensagens de erro)
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 🛠️ Proposta de solução
+      description: Descreva a proposta de solução para o bug.
+  - type: textarea
+    attributes:
+      label: 📄 O bug está impactando algum nível a Base dos Dados?
+      description: O Bug está quebrando outras pipelines, gerando custo adicional
+        e etc? Se sim, relate abaixo
+  - type: textarea
+    attributes:
+      label: 📍 Na sua visão, essa correção deveria ser priorizada?
+      description: Descreva abaixo, se na sua visão, essa correção deveria deveria
+        ser priorizada na próxima sprint.
+  - type: textarea
+    attributes:
+      label: 📌 Outras informações relevantes
+      description: Adicione qualquer outra informação que possa ajudar a investigar
+        e corrigir o problema.

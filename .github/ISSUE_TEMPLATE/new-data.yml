@@ -1,0 +1,63 @@
+---
+name: 📊 data
+description: Solicitação para adicionar novos dados à BD
+title: '[data] <dataset_id>'
+labels: []
+body:
+  - type: textarea
+    attributes:
+      label: 📄 Metadados da Base
+      description: Descreva a base e suas tabelas.
+      placeholder: 'Exemplo: Esta base contém dados sobre...'
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: 📂 Nome do Conjunto (dataset_id)
+      description: Qual o nome do conjunto de dados?
+      placeholder: '`dataset_id`'
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: 📋 Nome da(s) Tabela(s) (table_id)
+      description: Liste o(s) nome(s) da(s) tabela(s).
+      placeholder: '`table_id`'
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 🌐 Fonte Original dos Dados
+      description: Inclua informações sobre a fonte.
+      value: |
+        - Endereço: `<url>`
+        - Tem API? `<sim> / <não>`
+        - É grátis? `<sim> / <não>`
+        - Cobertura espacial: `<area.slug>`
+        - Cobertura temporal: `de YYYY-MM-DD a YYYY-MM-DD`
+        - Frequência de atualização: `<year> / <semester> / <quarter> / <month> / <day> / <hour> / <minute> / <second>`
+        - Nível de Observação (o que representa cada linha da tabela):
+          - `<tabela> - <entidade> - <coluna>`
+  - type: textarea
+    attributes:
+      label: 🛠️ Raspagem
+      description: Detalhes técnicos sobre a extração dos dados.
+      value: |
+        - Nível de dificuldade: `<baixo> / <médio> / <alto>`
+        - Existe código semi-pronto? `<sim> / <não>`
+        - Dificuldades de Big Data (alta frequência, alto volume)? `<alta_frequencia> / <alto_volume> / <não>`
+  - type: checkboxes
+    attributes:
+      label: ✅ Passo a Passo
+      description: Siga os passos da [documentação](https://basedosdados.github.io/sdk/colab_data/)
+      options:
+        - label: 📥 Baixar a pasta template e os dados originais
+        - label: 📝 Preencher as tabelas de arquitetura
+        - label: 🔍 Revisar as tabelas de arquitetura pós correção da equipe
+        - label: 🖥️ Escrever código de captura e limpeza de dados
+        - label: 📂 Organizar arquivos brutos, se necessário
+        - label: 📁 Organizar arquivos auxiliares, se necessário
+        - label: 📜 Criar tabela dicionário, se necessário
+        - label: 📊 Subir tabelas no BigQuery
+        - label: 🔎 Fazer a query para publicação dos dados
+        - label: 📌 Abrir o PR com as labels `table-approve`
