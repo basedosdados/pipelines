@@ -5,7 +5,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 2009, "end": 2022, "interval": 1},
+            "range": {"start": 2009, "end": 2024, "interval": 1},
         },
         cluster_by="sigla_uf",
     )
@@ -91,4 +91,3 @@ select
     ) disciplina_atendimento_especiais,
     safe_cast(disciplina_diver_socio_cultural as int64) disciplina_diver_socio_cultural,
 from {{ set_datalake_project("br_inep_censo_escolar_staging.turma") }} as t
-where safe_cast(ano as int64) < 2023
