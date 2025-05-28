@@ -635,7 +635,7 @@ def main(
             eval(e) for e in get_declared(execute_dbt_model_flow)
         ]
         for key in source_to_flows.keys():
-            source_to_flows[key] = eval_execute_dbt_model
+            source_to_flows[key].extend(eval_execute_dbt_model)
 
     # Iterate through each file, building all storage and registering all flows
     # Log errors as they happen, but only exit once all files have been processed
