@@ -4,7 +4,6 @@ Helper tasks that could fit any pipeline.
 """
 # pylint: disable=C0103, C0301, invalid-name, E1101, R0913
 
-from datetime import timedelta
 from pathlib import Path
 from typing import Union
 
@@ -14,9 +13,6 @@ from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
 from pipelines.utils.constants import constants as utils_constants
-from pipelines.utils.execute_dbt_model.constants import (
-    constants as dump_db_constants,
-)
 from pipelines.utils.utils import (
     dump_header_to_csv,
     log,
@@ -187,17 +183,16 @@ def template_upload_to_gcs_and_materialization(
     dump_mode: str = "append",
     run_model: str = "run/test",
 ):
-    wait_upload_table = create_table_and_upload_to_gcs_teste(
+    create_table_and_upload_to_gcs_teste(
         data_path=data_path,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_mode=dump_mode,
         bucket_name=bucket_name,
         wait=data_path,
-        upstream_tasks=[data_path],
     )
 
-    materialization_flow = create_flow_run(
+    materialization_flow = create_flow_run.run(
         flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
         project_name=constants.PREFECT_DEFAULT_PROJECT.value,
         parameters={
@@ -206,24 +201,17 @@ def template_upload_to_gcs_and_materialization(
             "mode": target,
             "dbt_command": run_model,
             "disable_elementary": False,
+            "download_csv_file": False,
         },
         labels=labels,
         run_name=f"Materialize {dataset_id}.{table_id}",
-        upstream_tasks=[wait_upload_table],
     )
 
-    wait_for_materialization = wait_for_flow_run(
+    wait_for_flow_run.run(
         materialization_flow,
         stream_states=True,
         stream_logs=True,
         raise_final_state=True,
-    )
-
-    wait_for_materialization.max_retries = (
-        dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-    )
-    wait_for_materialization.retry_delay = timedelta(
-        seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
     )
 
     return None
