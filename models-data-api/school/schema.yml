@@ -2,7 +2,7 @@
 version: 2
 models:
   - name: school__basic
-    description: 'Dados das escolas brasileiras'
+    description: Dados das escolas brasileiras
     tests:
       - dbt_utils.unique_combination_of_columns:
           tags: [diretorio]
