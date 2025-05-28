@@ -437,3 +437,6 @@ models:
     economy:
       +materialized: table
       +schema: economy
+    school:
+      +materialized: table
+      +schema: school

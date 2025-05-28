@@ -18,6 +18,14 @@ default:
       location: US
       threads: 2
       keyfile: "{{ env_var('BD_SERVICE_ACCOUNT_DEV', '/credentials-prod/prod.json') }}"
+    data-api:
+      type: bigquery
+      method: service-account
+      project: basedosdados-data-api
+      dataset: dbt
+      location: US
+      threads: 2
+      keyfile: "{{ env_var('BD_SERVICE_ACCOUNT_DEV', '/credentials-prod/prod.json') }}"
 elementary:
   outputs:
     default:

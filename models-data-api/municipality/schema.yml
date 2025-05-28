@@ -62,3 +62,20 @@ models:
         description: Nome da Grande Região Brasileira
       - name: amazonia_legal
         description: Indicador se o município faz parte da Amazônia Legal
+  - name: municipality__mayor
+    description: 'Dados dos prefeitos dos municípios brasileiros'
+    columns:
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+      - name: titulo_eleitoral
+        description: Título Eleitoral
+      - name: nome
+        description: Nome
+      - name: sigla_partido
+        description: Sigla do Partido
+      - name: genero
+        description: Gênero
+      - name: idade
+        description: Idade
+      - name: raca
+        description: Raça
