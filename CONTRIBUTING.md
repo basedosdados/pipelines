@@ -10,7 +10,7 @@
 
 # Contribuindo
 
-Neste documento, mostra-se como configurar o ambiente para executar os 2 processos de dados existentes na BD: Elaboração de pipelines; Elaboração de códigos de ELT/ETL para subida de dados com frequência de atualização baixa. 
+Neste documento, mostra-se como configurar o ambiente para executar os 2 processos de dados existentes na BD: Elaboração de pipelines; Elaboração de códigos de ELT/ETL para subida de dados com frequência de atualização baixa.
 
 Este guia é dedicado para novos integrantes da equipe da BD e voluntários que desejam colaborar com o projeto.
 
@@ -101,7 +101,7 @@ poetry install --with dev --with test --no-root
 ```
 
 > [!WARNING]
-> Caso a instalação do `poetry` de erro no pacote `rpy2`, é recomendado rodar a seguinte linha para instalar o `r-base`: `sudo apt-get update & apt-get install -y r-base`
+> Caso a instalação do `poetry` de erro no pacote `rpy2`, é recomendado rodar a seguinte linha para instalar o `r-base`: `sudo apt-get update & apt-get install -y r-base r-base-dev libtirpc-dev libcurl4-openssl-dev libpcre2-dev`
 
 Instalar os hooks de pré-commit (ver https://pre-commit.com/ para entendimento dos hooks)
 
@@ -410,7 +410,7 @@ dbt run --select dataset_id__table_id
 Materializa todos os modelos em uma pasta em basedosdados-dev consumindo os dados de basedosdados-dev.{table_id}_staging
 
 ```sh
-dbt run --select model.dateset_id.dateset_id__table_id 
+dbt run --select model.dateset_id.dateset_id__table_id
 ```
 
 Materializa todos os modelos no caminho em basedosdados-dev consumindo os dados de basedosdados-dev.{table_id}_staging
