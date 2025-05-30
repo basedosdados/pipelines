@@ -1,0 +1,48 @@
+---
+version: 2
+models:
+  - name: br_anatel_indice_brasileiro_conectividade__municipio
+    description: Dados da Anatel referente ao Índice de Brasileiro de Conectividade,
+      também conhecido como IBC. A agência oferece análises sobre os diferentes aspectos
+      relacionados à conectividades dos municípios e das UFs brasileiras, considerando
+      capacidade da infraestrutura instalada, cobertura de 4G e 5G, além de competitividade
+      na área de conectividade.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_municipio]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+    columns:
+      - name: ano
+        description: Ano
+      - name: sigla_uf
+        description: Sigla da Unidade Federativa
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: Código IBGE do município
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: ibc
+        description: Índice Brasileiro de Conectividade
+      - name: cobertura_pop_4g5g
+        description: Cobertura populacional de 4G e 5G
+      - name: fibra
+        description: Presença de backhaul de rede de fibra ótica no município
+      - name: densidade_smp
+        description: Densidade de acessos de Serviço Móvel Pessoal (telefonia móvel)
+      - name: hhi_smp
+        description: Índice de competitividade (HHI) das empresas de telefonia móvel
+          no município
+      - name: densidade_scm
+        description: Densidade de acessos de Serviços de Comunicação Multimídia (internet
+          banda larga)
+      - name: hhi_scm
+        description: Índice de competitividade (HHI) dos provedores de banda larga
+          no município
+      - name: adensamento_estacoes
+        description: Adensamento de estações de telefonia móvel

@@ -46,6 +46,9 @@ models:
     br_anatel_banda_larga_fixa:
       +materialized: table
       +schema: br_anatel_banda_larga_fixa
+    br_anatel_indice_brasileiro_conectividade:
+      +materialized: table
+      +schema: br_anatel_indice_brasileiro_conectividade
     br_anatel_telefonia_movel:
       +materialized: table  # Materialization type (table, view or incremental)
       +schema: br_anatel_telefonia_movel
