@@ -1,1336 +1,6 @@
 ---
 version: 2
 models:
-  - name: world_iae_timss__student_context_grade_8
-    description: The student context data files gather information on family background,
-      school experiences, and attitudes towards math and science. They also include
-      plausible performance values in these areas, making it possible to analyze how
-      these characteristics relate to academic performance.
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - year
-            - country_id
-            - grade_id
-            - school_id
-            - class_id
-            - student_id
-      - not_null_proportion_multiple_columns:
-          at_least: 0.01
-      - custom_dictionary_coverage:
-          columns_covered_by_dictionary:
-            - country_id
-            - grade_id
-            - student_sex
-            - language_school_questionnaire
-            - locale_school_questionnaire
-            - bsbg01
-            - bsbg03
-            - bsbg04
-            - bsbg05a
-            - bsbg05b
-            - bsbg05c
-            - bsbg05d
-            - bsbg05e
-            - bsbg05f
-            - bsbg06a
-            - bsbg06b
-            - bsbg07
-            - bsbg08a
-            - bsbg08b
-            - bsbg09a
-            - bsbg09b
-            - bsbg10
-            - bsbg11a
-            - bsbg11b
-            - bsbg12a
-            - bsbg12b
-            - bsbg12c
-            - bsbg12d
-            - bsbg12e
-            - bsbg12f
-            - bsbg13a
-            - bsbg13b
-            - bsbg13c
-            - bsbg13d
-            - bsbg13e
-            - bsbg13f
-            - bsbg13g
-            - bsbg14a
-            - bsbg14b
-            - bsbg14c
-            - bsbg14d
-            - bsbg14e
-            - bsbg14f
-            - bsbg14g
-            - bsbg14h
-            - bsbg14i
-            - bsbg15a
-            - bsbg15b
-            - bsbg15c
-            - bsbg15d
-            - bsbg15e
-            - bsbg15f
-            - bsbg16a
-            - bsbg16b
-            - bsbg16c
-            - bsbg16d
-            - bsbm19c
-            - bsbm19e
-            - bsbm19f
-            - bsbm19g
-            - bsbm22d
-            - bsbm22g
-            - bsbm22h
-            - bsbm23a
-            - bsbs25a
-            - bsbs25c
-            - bsbs25d
-            - bsbs25e
-            - bsbs25h
-            - bsbs28d
-            - bsbs28g
-            - bsbs28h
-            - bsbs29a
-            - bsbs29b
-            - bsbb26c
-            - bsbb26e
-            - bsbb26h
-            - bsbb29b
-            - bsbb29c
-            - bsbb29d
-            - bsbb29g
-            - bsbb29h
-            - bsbe32a
-            - bsbe32c
-            - bsbe32h
-            - bsbe32i
-            - bsbe35b
-            - bsbe35c
-            - bsbe35d
-            - bsbe35e
-            - bsbe35g
-            - bsbe35h
-            - bsbc38c
-            - bsbc38e
-            - bsbc38h
-            - bsbc41c
-            - bsbc41d
-            - bsbp44c
-            - bsbp44e
-            - bsbp44h
-            - bsbp47g
-            - bsbp47h
-            - bsbs48a
-            - bsbs48b
-            - bsdg05s
-            - bsdgedup
-            - scope
-          dictionary_model: ref('world_iae_timss__dicionario')
-    columns:
-      - name: year
-        description: Year
-      - name: country_m49
-        description: Numeric country code for the table directory
-        tests:
-          - custom_relationships:
-              to: ref('br_bd_diretorios_mundo__pais')
-              field: id_pais_m49
-              ignore_values: ['926', NA]
-      - name: country_id
-        description: Numeric Country Code
-      - name: grade_id
-        description: Grade Id
-      - name: school_id
-        description: School Id
-      - name: class_id
-        description: Class Id
-      - name: student_id
-        description: Student Id
-      - name: student_sex
-        description: Sex Of Students
-      - name: student_age
-        description: Students Age
-      - name: language_school_questionnaire
-        description: Language Of Student Questionnaire
-      - name: locale_school_questionnaire
-        description: Locale Id Of The Student Questionnaire
-      - name: bsbg01
-        description: Sex Of Student
-      - name: bsbg03
-        description: Freq. Use Test Lang at Home
-      - name: bsbg04
-        description: Amount Of Books In Your Home
-      - name: bsbg05a
-        description: Has own computer
-      - name: bsbg05b
-        description: Has shared computer
-      - name: bsbg05c
-        description: Has smartphone
-      - name: bsbg05d
-        description: Has Internet Access
-      - name: bsbg05e
-        description: Has Study Desk
-      - name: bsbg05f
-        description: Has Own Room
-      - name: bsbg06a
-        description: Parent A’s highest education level
-      - name: bsbg06b
-        description: Parent B’s highest education level
-      - name: bsbg07
-        description: Student's expected education level
-      - name: bsbg08a
-        description: Parent A born in <Country>
-      - name: bsbg08b
-        description: Parent B born in <Country>
-      - name: bsbg09a
-        description: Student born In <Country>
-      - name: bsbg09b
-        description: Age student came to <Country>
-      - name: bsbg10
-        description: How often absent from school
-      - name: bsbg11a
-        description: How often feels tired
-      - name: bsbg11b
-        description: How often feels hungry
-      - name: bsbg12a
-        description: How often uses internet for textbooks
-      - name: bsbg12b
-        description: How often uses internet for assignments
-      - name: bsbg12c
-        description: How often collaborates online with classmates
-      - name: bsbg12d
-        description: How Often Ask Teacher Questions
-      - name: bsbg12e
-        description: How often uses internet for math/science info
-      - name: bsbg12f
-        description: How often uses internet for learning games
-      - name: bsbg13a
-        description: Agrees on writing text on computer
-      - name: bsbg13b
-        description: Agrees on creating presentations on computer
-      - name: bsbg13c
-        description: Agrees on creating graphs on computer
-      - name: bsbg13d
-        description: Agrees on finding information online
-      - name: bsbg13e
-        description: Agrees on identifying trustworthy websites
-      - name: bsbg13f
-        description: Agrees on learning new things on computer
-      - name: bsbg13g
-        description: Agrees on helping friends and family
-      - name: bsbg14a
-        description: Agrees on protecting plants and animals
-      - name: bsbg14b
-        description: Agrees on benefits of nature
-      - name: bsbg14c
-        description: Agrees on most important reason
-      - name: bsbg14d
-        description: Agrees that science and tech solve problems
-      - name: bsbg14e
-        description: Agrees on feeling sad when nature is destroyed
-      - name: bsbg14f
-        description: Agrees on learning about plants and animals
-      - name: bsbg14g
-        description: Agrees on enjoying being in nature
-      - name: bsbg14h
-        description: Agrees that protecting nature is more important
-      - name: bsbg14i
-        description: Agrees that climate change is a priority
-      - name: bsbg15a
-        description: How often reuses things
-      - name: bsbg15b
-        description: How often saves resources
-      - name: bsbg15c
-        description: How often talks about environment
-      - name: bsbg15d
-        description: How often learns about environment
-      - name: bsbg15e
-        description: How often participates in activities
-      - name: bsbg15f
-        description: How often tells friends
-      - name: bsbg16a
-        description: Agrees on enjoying being in school
-      - name: bsbg16b
-        description: Agrees that school is safe
-      - name: bsbg16c
-        description: Agrees on belonging at school
-      - name: bsbg16d
-        description: Agrees that teachers care
-      - name: bsbm19c
-        description: Agrees that math is boring
-      - name: bsbm19e
-        description: Agrees that they like mathematics
-      - name: bsbm19f
-        description: Agrees that they like numers
-      - name: bsbm19g
-        description: Agrees that they like math problems
-      - name: bsbm22d
-        description: Agrees that mathematics is easy
-      - name: bsbm22g
-        description: Agrees that math is harder for them
-      - name: bsbm22h
-        description: Agrees that math makes them confused
-      - name: bsbm23a
-        description: Agrees that math will help them
-      - name: bsbs25a
-        description: Agrees that they enjoy learning science
-      - name: bsbs25c
-        description: Agrees that science is boring
-      - name: bsbs25d
-        description: Agrees that they learn interesting things in science
-      - name: bsbs25e
-        description: Agrees that they like science
-      - name: bsbs25h
-        description: Agrees that they like science experiments
-      - name: bsbs28d
-        description: Agrees that science is easy
-      - name: bsbs28g
-        description: Agrees that science is harder for them
-      - name: bsbs28h
-        description: Agrees that science makes them confused
-      - name: bsbs29a
-        description: Agrees that science will help them
-      - name: bsbs29b
-        description: Agrees that they need science to learn other subjects
-      - name: bsbb26c
-        description: Agrees that biology is boring
-      - name: bsbb26e
-        description: Agrees that they like biology
-      - name: bsbb26h
-        description: Agrees that they like biology experiments
-      - name: bsbb29b
-        description: Agrees that biology is harder for them than for others
-      - name: bsbb29c
-        description: Agrees that biology is not their strength
-      - name: bsbb29d
-        description: Agrees that biology is easy
-      - name: bsbb29g
-        description: Agrees that biology is harder for them
-      - name: bsbb29h
-        description: Agrees that biology makes them confused
-      - name: bsbe32a
-        description: Agrees that they enjoy learning earth science
-      - name: bsbe32c
-        description: Agrees that earth science is boring
-      - name: bsbe32h
-        description: Agrees that they like earth science experiments
-      - name: bsbe32i
-        description: Agrees that earth science is their favorite subject
-      - name: bsbe35b
-        description: Agrees that earth science is harder for them than for others
-      - name: bsbe35c
-        description: Agrees that earth science is not their strength
-      - name: bsbe35d
-        description: Agrees that earth science is easy
-      - name: bsbe35e
-        description: Agrees that they are good at working out problems
-      - name: bsbe35g
-        description: Agrees that earth science is harder for them
-      - name: bsbe35h
-        description: Agrees that earth science makes them confused
-      - name: bsbc38c
-        description: Agrees that chemistry is boring
-      - name: bsbc38e
-        description: Agrees that they like chemistry
-      - name: bsbc38h
-        description: Agrees that they like chemistry experiments
-      - name: bsbc41c
-        description: Agrees that chemistry is not their strength
-      - name: bsbc41d
-        description: Agrees that chemistry is easy
-      - name: bsbp44c
-        description: Agrees that physics is boring
-      - name: bsbp44e
-        description: Agrees that they like physics
-      - name: bsbp44h
-        description: Agrees that they like physics experiments
-      - name: bsbp47g
-        description: Agrees that physics is harder for them
-      - name: bsbp47h
-        description: Agrees that physics makes them confused
-      - name: bsbs48a
-        description: Agrees that learning science will help them
-      - name: bsbs48b
-        description: Agrees that they need science to learn other things
-      - name: bsdg05s
-        description: Number Of Home Study Supports
-      - name: bsdgedup
-        description: Parents' Highest Education Level
-      - name: version
-        description: Data Version
-      - name: scope
-        description: Scope Of This File
-  - name: world_iae_timss__student_achievement_grade_8
-    description: The TIMSS 2023 student achievement data files contain students' scored
-      responses to individual assessment items, enabling item-level analyses. These
-      files also include plausible values for all TIMSS 2023 achievement scales, as
-      well as sampling and weighting variables necessary for accurate statistical
-      analysis.
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - year
-            - country_id
-            - grade_id
-            - school_id
-            - class_id
-            - student_id
-      - not_null_proportion_multiple_columns:
-          at_least: 0.01
-      - custom_dictionary_coverage:
-          columns_covered_by_dictionary:
-            - country_m49
-            - grade_id
-            - student_sex
-            - language_school_questionnaire
-            - locale_school_questionnaire
-            - bsmibm01
-            - bsmibm02
-            - bsmibm03
-            - bsmibm04
-            - bsmibm05
-            - bssibm01
-            - bssibm02
-            - bssibm03
-            - bssibm04
-            - bssibm05
-            - me82num
-            - me82alg
-            - me82geo
-            - me82dat
-            - me82kno
-            - me82app
-            - me82rea
-            - se82bio
-            - se82che
-            - se82phy
-            - se82ear
-            - se82kno
-            - se82app
-            - se82rea
-            - se82env
-            - se82nen
-            - scope
-          dictionary_model: ref('world_iae_timss__dicionario')
-    columns:
-      - name: year
-        description: Year
-      - name: country_m49
-        description: Numeric country code for the table directory
-      - name: country_id
-        description: Numeric Country Code
-      - name: grade_id
-        description: Grade Id
-      - name: school_id
-        description: School Id
-      - name: class_id
-        description: Class Id
-      - name: student_id
-        description: Student Id
-      - name: student_sex
-        description: Sex Of Students
-      - name: student_age
-        description: Students Age
-      - name: language_school_questionnaire
-        description: Language Of Student Achievement Test
-      - name: locale_school_questionnaire
-        description: Locale Id Of The Student Test
-      - name: jkzone
-        description: Jackknife Zone
-      - name: jkrep
-        description: Jackknife Replicate Code
-      - name: totwgt
-        description: Total Student Weight
-      - name: houwgt
-        description: House Weight
-      - name: senwgt
-        description: Senate Weight
-      - name: wgtfac1
-        description: School Weight Factor
-      - name: wgtadj1
-        description: School Weight Adjustment
-      - name: wgtfac2
-        description: Class Weight Factor
-      - name: wgtadj2
-        description: Class Weight Adjustment
-      - name: wgtfac3
-        description: Student Weight Factor
-      - name: wgtadj3
-        description: Student Weight Adjustment
-      - name: bsmmat01
-        description: 1st Plausible Value Mathematics
-      - name: bsmmat02
-        description: 2nd Plausible Value Mathematics
-      - name: bsmmat03
-        description: 3rd Plausible Value Mathematics
-      - name: bsmmat04
-        description: 4th Plausible Value Mathematics
-      - name: bsmmat05
-        description: 5th Plausible Value Mathematics
-      - name: bsmnum01
-        description: 1st Pv Number
-      - name: bsmnum02
-        description: 2nd Pv Number
-      - name: bsmnum03
-        description: 3rd Pv Number
-      - name: bsmnum04
-        description: 4th Pv Number
-      - name: bsmnum05
-        description: 5th Pv Number
-      - name: bsmalg01
-        description: 1st Pv Algebra
-      - name: bsmalg02
-        description: 2nd Pv Algebra
-      - name: bsmalg03
-        description: 3rd Pv Algebra
-      - name: bsmalg04
-        description: 4th Pv Algebra
-      - name: bsmalg05
-        description: 5th Pv Algebra
-      - name: bsmgeo01
-        description: 1st Pv Geometry
-      - name: bsmgeo02
-        description: 2nd Pv Geometry
-      - name: bsmgeo03
-        description: 3rd Pv Geometry
-      - name: bsmgeo04
-        description: 4th Pv Geometry
-      - name: bsmgeo05
-        description: 5th Pv Geometry
-      - name: bsmdat01
-        description: 1st Pv Data And Probability
-      - name: bsmdat02
-        description: 2nd Pv Data And Probability
-      - name: bsmdat03
-        description: 3rd Pv Data And Probability
-      - name: bsmdat04
-        description: 4th Pv Data And Probability
-      - name: bsmdat05
-        description: 5th Pv Data And Probability
-      - name: bsmkno01
-        description: 1st Pv Math Knowing
-      - name: bsmkno02
-        description: 2nd Pv Math Knowing
-      - name: bsmkno03
-        description: 3rd Pv Math Knowing
-      - name: bsmkno04
-        description: 4th Pv Math Knowing
-      - name: bsmkno05
-        description: 5th Pv Math Knowing
-      - name: bsmapp01
-        description: 1st Pv Math Applying
-      - name: bsmapp02
-        description: 2nd Pv Math Applying
-      - name: bsmapp03
-        description: 3rd Pv Math Applying
-      - name: bsmapp04
-        description: 4th Pv Math Applying
-      - name: bsmapp05
-        description: 5th Pv Math Applying
-      - name: bsmrea01
-        description: 1st Pv Math Reasoning
-      - name: bsmrea02
-        description: 2nd Pv Math Reasoning
-      - name: bsmrea03
-        description: 3rd Pv Math Reasoning
-      - name: bsmrea04
-        description: 4th Pv Math Reasoning
-      - name: bsmrea05
-        description: 5th Pv Math Reasoning
-      - name: bsssci01
-        description: 1st Plausible Value Science
-      - name: bsssci02
-        description: 2nd Plausible Value Science
-      - name: bsssci03
-        description: 3rd Plausible Value Science
-      - name: bsssci04
-        description: 4th Plausible Value Science
-      - name: bsssci05
-        description: 5th Plausible Value Science
-      - name: bssbio01
-        description: 1st Pv Biology
-      - name: bssbio02
-        description: 2nd Pv Biology
-      - name: bssbio03
-        description: 3rd Pv Biology
-      - name: bssbio04
-        description: 4th Pv Biology
-      - name: bssbio05
-        description: 5th Pv Biology
-      - name: bssche01
-        description: 1st Pv Chemistry
-      - name: bssche02
-        description: 2nd Pv Chemistry
-      - name: bssche03
-        description: 3rd Pv Chemistry
-      - name: bssche04
-        description: 4th Pv Chemistry
-      - name: bssche05
-        description: 5th Pv Chemistry
-      - name: bssphy01
-        description: 1st Pv Physics
-      - name: bssphy02
-        description: 2nd Pv Physics
-      - name: bssphy03
-        description: 3rd Pv Physics
-      - name: bssphy04
-        description: 4th Pv Physics
-      - name: bssphy05
-        description: 5th Pv Physics
-      - name: bssear01
-        description: 1st Pv Earth Science
-      - name: bssear02
-        description: 2nd Pv Earth Science
-      - name: bssear03
-        description: 3rd Pv Earth Science
-      - name: bssear04
-        description: 4th Pv Earth Science
-      - name: bssear05
-        description: 5th Pv Earth Science
-      - name: bsskno01
-        description: 1st Pv Science Knowing
-      - name: bsskno02
-        description: 2nd Pv Science Knowing
-      - name: bsskno03
-        description: 3rd Pv Science Knowing
-      - name: bsskno04
-        description: 4th Pv Science Knowing
-      - name: bsskno05
-        description: 5th Pv Science Knowing
-      - name: bssapp01
-        description: 1st Pv Science Applying
-      - name: bssapp02
-        description: 2nd Pv Science Applying
-      - name: bssapp03
-        description: 3rd Pv Science Applying
-      - name: bssapp04
-        description: 4th Pv Science Applying
-      - name: bssapp05
-        description: 5th Pv Science Applying
-      - name: bssrea01
-        description: 1st Pv Science Reasoning
-      - name: bssrea02
-        description: 2nd Pv Science Reasoning
-      - name: bssrea03
-        description: 3rd Pv Science Reasoning
-      - name: bssrea04
-        description: 4th Pv Science Reasoning
-      - name: bssrea05
-        description: 5th Pv Science Reasoning
-      - name: bssenv01
-        description: 1st Plausible Value Environmental Awareness
-      - name: bssenv02
-        description: 2nd Plausible Value Environmental Awareness
-      - name: bssenv03
-        description: 3rd Plausible Value Environmental Awareness
-      - name: bssenv04
-        description: 4th Plausible Value Environmental Awareness
-      - name: bssenv05
-        description: 5th Plausible Value Environmental Awareness
-      - name: bsmibm01
-        description: Intern. Math Bench Reached With 1st Pv
-      - name: bsmibm02
-        description: Intern. Math Bench Reached With 2nd Pv
-      - name: bsmibm03
-        description: Intern. Math Bench Reached With 3rd Pv
-      - name: bsmibm04
-        description: Intern. Math Bench Reached With 4th Pv
-      - name: bsmibm05
-        description: Intern. Math Bench Reached With 5th Pv
-      - name: bssibm01
-        description: Intern. Sci Bench Reached With 1st Pv
-      - name: bssibm02
-        description: Intern. Sci Bench Reached With 2nd Pv
-      - name: bssibm03
-        description: Intern. Sci Bench Reached With 3rd Pv
-      - name: bssibm04
-        description: Intern. Sci Bench Reached With 4th Pv
-      - name: bssibm05
-        description: Intern. Sci Bench Reached With 5th Pv
-      - name: me82num
-        description: Nonresponse Indicator Mathematics Number
-      - name: me82alg
-        description: Nonresponse Indicator Mathematics Algebra
-      - name: me82geo
-        description: Nonresponse Indicator Mathematics Geometry And Measurement
-      - name: me82dat
-        description: Nonresponse Indicator Mathematics Data And Probability
-      - name: me82kno
-        description: Nonresponse Indicator Mathematics Knowing
-      - name: me82app
-        description: Nonresponse Indicator Mathematics Applying
-      - name: me82rea
-        description: Nonresponse Indicator Mathematics Reasoning
-      - name: se82bio
-        description: Nonresponse Indicator Science Biology
-      - name: se82che
-        description: Nonresponse Indicator Science Chemistry
-      - name: se82phy
-        description: Nonresponse Indicator Science Physics
-      - name: se82ear
-        description: Nonresponse Indicator Science Earth Science
-      - name: se82kno
-        description: Nonresponse Indicator Science Knowing
-      - name: se82app
-        description: Nonresponse Indicator Science Applying
-      - name: se82rea
-        description: Nonresponse Indicator Science Reasoning
-      - name: se82env
-        description: Nonresponse Indicator Science Environmental
-      - name: se82nen
-        description: Nonresponse Indicator Science Non-Environmental
-      - name: version
-        description: Data Version
-      - name: scope
-        description: Scope Of This File
-  - name: world_iae_timss__school_context_grade_8
-    description: The school context data files contain principals responses to the
-      TIMSS 2023 School Questionnaire. While school-level analyses are possible, it
-      is preferable to use school-level variables as student attributes. To do so,
-      the school context files must be merged with the student context files using
-      country and school identification variables.
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [year, country_id, grade_id, school_id]
-      - not_null_proportion_multiple_columns:
-          at_least: 0.01
-      - custom_dictionary_coverage:
-          columns_covered_by_dictionary:
-            - grade_id
-            - language_school_questionnaire
-            - locale_school_questionnaire
-            - bcbg03a
-            - bcbg03b
-            - bcbg04
-            - bcbg05a
-            - bcbg05b
-            - bcbg06c
-            - bcbg08
-            - bcbg09
-            - bcbg10a
-            - bcbg10b
-            - bcbg11aa
-            - bcbg11ab
-            - bcbg11ac
-            - bcbg11ad
-            - bcbg11ae
-            - bcbg11af
-            - bcbg11ag
-            - bcbg11ah
-            - bcbg11ai
-            - bcbg11ba
-            - bcbg11bb
-            - bcbg11bc
-            - bcbg11bd
-            - bcbg11be
-            - bcbg11ca
-            - bcbg11cb
-            - bcbg11cc
-            - bcbg11cd
-            - bcbg11ce
-            - bcbg12a
-            - bcbg12b
-            - bcbg12c
-            - bcbg12d
-            - bcbg12e
-            - bcbg12f
-            - bcbg12g
-            - bcbg12h
-            - bcbg12i
-            - bcbg12j
-            - bcbg12k
-            - bcbg13a
-            - bcbg13b
-            - bcbg13c
-            - bcbg13d
-            - bcbg14a
-            - bcbg14b
-            - bcbg14c
-            - bcbg14d
-            - bcbg14e
-            - bcbg14f
-            - bcbg14g
-            - bcbg14h
-            - bcbg15a
-            - bcbg15b
-            - bcbg15c
-            - bcbg15d
-            - bcbg15e
-            - bcbg15f
-            - bcbg15g
-            - bcbg15h
-            - bcbg15i
-            - bcbg15j
-            - bcbg15k
-            - bcbg16a
-            - bcbg16b
-            - bcbg19
-            - bcbg20a
-            - bcbg20b
-            - bcbg20c
-            - bcbg21a
-            - bcbg21b
-            - bcbg21c
-            - bcbg21d
-            - bcdgmrs
-            - bcdgsrs
-            - bcdgeas
-            - bcdgdas
-            - bcdgsbc
-            - scope
-          dictionary_model: ref('world_iae_timss__dicionario')
-    columns:
-      - name: year
-        description: Year
-      - name: country_m49
-        description: Numeric country code for the table directory
-        tests:
-          - custom_relationships:
-              to: ref('br_bd_diretorios_mundo__pais')
-              field: id_pais_m49
-              ignore_values: ['926']
-      - name: country_id
-        description: Numeric Country Code
-      - name: grade_id
-        description: Grade Id
-      - name: school_id
-        description: School Id
-      - name: language_school_questionnaire
-        description: Language Of School Questionnaire
-      - name: locale_school_questionnaire
-        description: Locale Id Of School Questionnaire
-      - name: bcbg03a
-        description: Students' economic disadvantage
-      - name: bcbg03b
-        description: Students' economic affluence
-      - name: bcbg04
-        description: Percent Of Students  <Lang Of Test>
-      - name: bcbg05a
-        description: How Many People Live In Area
-      - name: bcbg05b
-        description: Immediate Area Of Sch Location
-      - name: bcbg06a
-        description: Instructional Days Per Year
-      - name: bcbg06b
-        description: Total Instructional Time
-      - name: bcbg06c
-        description: Instructional Days In 1 Calender Week
-      - name: bcbg07
-        description: Total Number Computers
-      - name: bcbg08
-        description: Existing Science Laboratory
-      - name: bcbg09
-        description: Online Learning Management System
-      - name: bcbg10a
-        description: Library Or Media Center
-      - name: bcbg10b
-        description: High Speed Internet
-      - name: bcbg11aa
-        description: Shortage of instructional materials
-      - name: bcbg11ab
-        description: Shortage of general supplies
-      - name: bcbg11ac
-        description: Shortage of school buildings
-      - name: bcbg11ad
-        description: Shortage of heating systems
-      - name: bcbg11ae
-        description: Shortage of instructional space
-      - name: bcbg11af
-        description: Shortage of technological staff
-      - name: bcbg11ag
-        description: Shortage of audio-visual resources
-      - name: bcbg11ah
-        description: Shortage of digital devices
-      - name: bcbg11ai
-        description: Shortage of resources for students with disabilities
-      - name: bcbg11ba
-        description: Shortage of qualified math teachers
-      - name: bcbg11bb
-        description: Shortage of computer software
-      - name: bcbg11bc
-        description: Shortage of library resources
-      - name: bcbg11bd
-        description: Shortage of calculators
-      - name: bcbg11be
-        description: Shortage of concrete learning materials
-      - name: bcbg11ca
-        description: Shortage of qualified science teachers
-      - name: bcbg11cb
-        description: Shortage of science-related computer software
-      - name: bcbg11cc
-        description: Shortage of science library resources
-      - name: bcbg11cd
-        description: Shortage of science calculators
-      - name: bcbg11ce
-        description: Shortage of science calculators
-      - name: bcbg12a
-        description: Teachers’ understanding of students
-      - name: bcbg12b
-        description: Teachers’ belief in student success
-      - name: bcbg12c
-        description: Teachers’ expectations of students
-      - name: bcbg12d
-        description: Teachers’ ability to inspire students
-      - name: bcbg12e
-        description: Parental involvement in school
-      - name: bcbg12f
-        description: Parental commitment to education
-      - name: bcbg12g
-        description: Parental expectations for students
-      - name: bcbg12h
-        description: Parental support
-      - name: bcbg12i
-        description: Students’ desire to do well
-      - name: bcbg12j
-        description: Students’ ability to reach goals
-      - name: bcbg12k
-        description: Students’ respect for classmates
-      - name: bcbg13a
-        description: School provides clear information to parents
-      - name: bcbg13b
-        description: School promotes student interest
-      - name: bcbg13c
-        description: School offers special activities
-      - name: bcbg13d
-        description: School emphasizes the importance of education
-      - name: bcbg14a
-        description: School has a shared educational vision
-      - name: bcbg14b
-        description: School regularly reviews its practices
-      - name: bcbg14c
-        description: School applies a schoolwide educational approach
-      - name: bcbg14d
-        description: School fosters appreciation for learning.
-      - name: bcbg14e
-        description: School teaches students how to take action
-      - name: bcbg14f
-        description: School encourages teachers
-      - name: bcbg14g
-        description: School promotes a sense of community
-      - name: bcbg14h
-        description: School promotes student participation
-      - name: bcbg15a
-        description: Problem of students arriving late to school
-      - name: bcbg15b
-        description: Problem of student absenteeism
-      - name: bcbg15c
-        description: Problem of classroom disturbance
-      - name: bcbg15d
-        description: Problem of cheating
-      - name: bcbg15e
-        description: Problem of profanity
-      - name: bcbg15f
-        description: Problem of vandalism
-      - name: bcbg15g
-        description: Problem of theft
-      - name: bcbg15h
-        description: Problem of student intimidation
-      - name: bcbg15i
-        description: Problem of physical injury
-      - name: bcbg15j
-        description: Problem of teacher intimidation
-      - name: bcbg15k
-        description: Problem of physical injury to teachers
-      - name: bcbg16a
-        description: 'Teacher problem: arriving late to school'
-      - name: bcbg16b
-        description: 'Teacher problem: absenteeism'
-      - name: bcbg17
-        description: Total years as principal
-      - name: bcbg18
-        description: Years Principal At This School
-      - name: bcbg19
-        description: Highest Level Of Formal Education
-      - name: bcbg20a
-        description: Qualifications In Educational Leadership <Certificate Or License>
-      - name: bcbg20b
-        description: Qualifications In Educational Leadership <Isced>
-      - name: bcbg20c
-        description: Qualifications In Educational Leadership <Isced 8>
-      - name: bcbg21a
-        description: Number of months the school was closed in the 2019-2020 school
-          year
-      - name: bcbg21b
-        description: Number of months the school was closed in the 2020-2021 school
-          year
-      - name: bcbg21c
-        description: Number of months the school was closed in the 2021-2022 school
-          year
-      - name: bcbg21d
-        description: Number of months the school was closed in the 2022-2023 school
-          year
-      - name: jkczone
-        description: Jackknife Zone
-      - name: jkcrep
-        description: Jackknife Replicate Code
-      - name: schwgt
-        description: School Level Weight
-      - name: stotwgtu
-        description: Sum Of Student Weights
-      - name: wgtfac1
-        description: School Weight Factor
-      - name: wgtadj1
-        description: School Weight Adjustment
-      - name: bcdgmrs
-        description: Instruction Affected By Math Resource Shortage/Idx
-      - name: bcbgmrs
-        description: Instruction Affected By Math Resource Shortage/Scl
-      - name: bcdgsrs
-        description: Instruction Affected By Science Resource Shortage/Idx
-      - name: bcbgsrs
-        description: Instruction Affected By Science Resource Shortage/Scl
-      - name: bcdgeas
-        description: School Emphasis On Academic Success-Principal/Idx
-      - name: bcbgeas
-        description: School Emphasis On Academic Success-Principal/Scl
-      - name: bcdgdas
-        description: School Discipline-Principal/Idx
-      - name: bcbgdas
-        description: School Discipline-Principal/Scl
-      - name: bcdgsbc
-        description: School Composition By Socioeconomic Background
-      - name: bcdgtihy
-        description: Total Instructional Hours Per Year
-      - name: version
-        description: Data Version
-      - name: scope
-        description: Scope Of This File
-  - name: world_iae_timss__school_context_grade_4
-    description: The school context data files contain principals’ responses to the
-      TIMSS 2023 School Questionnaire. While school-level analyses are possible, it
-      is preferable to use school-level variables as student attributes. To do so,
-      the school context files must be merged with the student context files using
-      country and school identification variables.
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [year, country_id, grade_id, school_id]
-      - not_null_proportion_multiple_columns:
-          at_least: 0.01
-      - custom_dictionary_coverage:
-          columns_covered_by_dictionary:
-            - country_id
-            - grade_id
-            - language_school_questionnaire
-            - locale_school_questionnaire
-            - acbg03a
-            - acbg03b
-            - acbg04
-            - acbg05a
-            - acbg05b
-            - acbg06c
-            - acbg08
-            - acbg09
-            - acbg10a
-            - acbg10b
-            - acbg11aa
-            - acbg11ab
-            - acbg11ac
-            - acbg11ad
-            - acbg11ae
-            - acbg11af
-            - acbg11ag
-            - acbg11ah
-            - acbg11ai
-            - acbg11ba
-            - acbg11bb
-            - acbg11bc
-            - acbg11bd
-            - acbg11be
-            - acbg11ca
-            - acbg11cb
-            - acbg11cc
-            - acbg11cd
-            - acbg12a
-            - acbg12b
-            - acbg12c
-            - acbg12d
-            - acbg12e
-            - acbg12f
-            - acbg12g
-            - acbg12h
-            - acbg12i
-            - acbg12j
-            - acbg12k
-            - acbg13a
-            - acbg13b
-            - acbg13c
-            - acbg13d
-            - acbg13e
-            - acbg13f
-            - acbg13g
-            - acbg13h
-            - acbg14a
-            - acbg14b
-            - acbg14c
-            - acbg14d
-            - acbg14e
-            - acbg14f
-            - acbg14g
-            - acbg14h
-            - acbg14i
-            - acbg14j
-            - acbg15a
-            - acbg15b
-            - acbg16a
-            - acbg16b
-            - acbg16c
-            - acbg16d
-            - acbg16e
-            - acbg16f
-            - acbg16g
-            - acbg16h
-            - acbg16i
-            - acbg16j
-            - acbg16k
-            - acbg16l
-            - acbg19
-            - acbg20a
-            - acbg20b
-            - acbg20c
-            - acbg21a
-            - acbg21b
-            - acbg21c
-            - acbg21d
-            - acdgmrs
-            - acdgsrs
-            - acdgeas
-            - acdgdas
-            - acdglns
-            - acdgsbc
-            - scope
-          dictionary_model: ref('world_iae_timss__dicionario')
-    columns:
-      - name: year
-        description: Year
-      - name: country_id
-        description: Numeric Country Code
-      - name: country_m49
-        description: Numeric country code for the table directory
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_mundo__pais')
-              field: id_pais_m49
-      - name: grade_id
-        description: Grade ID
-      - name: school_id
-        description: School ID
-      - name: language_school_questionnaire
-        description: Language of School Questionnaire
-      - name: locale_school_questionnaire
-        description: Locale ID of School Questionnaire
-      - name: acbg03a
-        description: Economic disadvantage for students
-      - name: acbg03b
-        description: Economic affluence for studentes
-      - name: acbg04
-        description: Percentage os students <Language of Test>
-      - name: acbg05a
-        description: Number of people living in the area
-      - name: acbg05b
-        description: Immediate area of school location
-      - name: acbg06a
-        description: Instructional days per year
-      - name: acbg06b
-        description: Total instructional time
-      - name: acbg06c
-        description: Instructional days in one calendar week
-      - name: acbg07
-        description: Total number of computers
-      - name: acbg08
-        description: Existing science laboratory
-      - name: acbg09
-        description: Online learning management system
-      - name: acbg10a
-        description: Library or media center
-      - name: acbg10b
-        description: High-speed internet
-      - name: acbg11aa
-        description: Shortage of instructional materials
-      - name: acbg11ab
-        description: Shortage of supplies
-      - name: acbg11ac
-        description: Shortage of school buildings
-      - name: acbg11ad
-        description: Shortage of heating systems
-      - name: acbg11ae
-        description: Shortage of instructional space
-      - name: acbg11af
-        description: Shortage of technological staff
-      - name: acbg11ag
-        description: Shortage of audio-visual resources
-      - name: acbg11ah
-        description: Shortage of digital devices
-      - name: acbg11ai
-        description: Shortage of resources for students with disabilities
-      - name: acbg11ba
-        description: Shortage of specialized math teachers
-      - name: acbg11bb
-        description: Shortage of computer software
-      - name: acbg11bc
-        description: Shortage of library resources
-      - name: acbg11bd
-        description: Shortage of calculators
-      - name: acbg11be
-        description: Shortage of concrete objects
-      - name: acbg11ca
-        description: Shortage of specialized science teachers
-      - name: acbg11cb
-        description: Shortage of science computer software
-      - name: acbg11cc
-        description: Shortage of science library resources
-      - name: acbg11cd
-        description: Shortage of science equipment
-      - name: acbg12a
-        description: Teacher understanding of school character
-      - name: acbg12b
-        description: Teacher success in school character
-      - name: acbg12c
-        description: Teacher expectations
-      - name: acbg12d
-        description: Teacher ability to inspire
-      - name: acbg12e
-        description: Parental involvement
-      - name: acbg12f
-        description: Parental commitment
-      - name: acbg12g
-        description: Parental expectations
-      - name: acbg12h
-        description: Parental support
-      - name: acbg12i
-        description: Student desire to do well
-      - name: acbg12j
-        description: Student ability to reach goals
-      - name: acbg12k
-        description: Student respect
-      - name: acbg13a
-        description: Shared vision in the school environment
-      - name: acbg13b
-        description: Reviews of practices in the school environment
-      - name: acbg13c
-        description: Schoolwide approach in the school environment
-      - name: acbg13d
-        description: Teach to appreciate in the school environment
-      - name: acbg13e
-        description: Teach how to take action in the school environment
-      - name: acbg13f
-        description: Encourage teachers in the school environment
-      - name: acbg13g
-        description: Promotes community in the school environment
-      - name: acbg13h
-        description: School promotes participation in the school environment
-      - name: acbg14a
-        description: Problems with arriving late at school
-      - name: acbg14b
-        description: Problems with absenteeism
-      - name: acbg14c
-        description: Problems with classroom disturbance
-      - name: acbg14d
-        description: Problems with cheating
-      - name: acbg14e
-        description: Problems with profanity
-      - name: acbg14f
-        description: Problems with vandalism
-      - name: acbg14g
-        description: Problems with theft
-      - name: acbg14h
-        description: Problems with intimidation among students
-      - name: acbg14i
-        description: Problems with physical fights
-      - name: acbg14j
-        description: Problems with intimidation of teachers
-      - name: acbg15a
-        description: Problems with teachers arriving late at school
-      - name: acbg15b
-        description: Problems with teacher absenteeism
-      - name: acbg16a
-        description: Recognize letters in primary school
-      - name: acbg16b
-        description: Read words in primary school
-      - name: acbg16c
-        description: Read sentences in primary school
-      - name: acbg16d
-        description: Write letters in primary school
-      - name: acbg16e
-        description: Write names in primary school
-      - name: acbg16f
-        description: Write words in primary school
-      - name: acbg16g
-        description: Count up to 100 in primary school
-      - name: acbg16h
-        description: Recognize numbers from in primary school
-      - name: acbg16i
-        description: Recognize numbers higher than in primary school
-      - name: acbg16j
-        description: Write numbers in primary school
-      - name: acbg16k
-        description: Do simple addition in primary school
-      - name: acbg16l
-        description: Do simple subtraction in primary school
-      - name: acbg17
-        description: Years Principal Altogether
-      - name: acbg18
-        description: Total years as a principal
-      - name: acbg19
-        description: Highest level of formal education
-      - name: acbg20a
-        description: Qualifications in educational leadership (certificate or license)
-      - name: acbg20b
-        description: Qualifications in educational leadership (ISCED level 7)
-      - name: acbg20c
-        description: Qualifications in educational leadership (ISCED level 8)
-      - name: acbg21a
-        description: Number of months the school was closed during the 2019-2020 school
-          year
-      - name: acbg21b
-        description: Number of months the school was closed during the 2020-2021 school
-          year
-      - name: acbg21c
-        description: Number of months the school was closed during the 2021-2022 school
-          year
-      - name: acbg21d
-        description: Number of months the school was closed during the 2022-2023 school
-          year
-      - name: jkczone
-        description: Jackknife zone
-      - name: jkcrep
-        description: Jackknife replicate code
-      - name: schwgt
-        description: School level weight
-      - name: stotwgtu
-        description: Sum of student weights
-      - name: wgtfac1
-        description: School weight factor
-      - name: wgtadj1
-        description: School weight adjustment
-      - name: acbgmrs
-        description: Instruction Affected by Math Resource Shortage/SCL
-      - name: acdgmrs
-        description: Instruction Affected by Math Resource Shortage/IDX
-      - name: acbgsrs
-        description: Instruction Affected by Science Resource Shortage/SCL
-      - name: acdgsrs
-        description: Instruction Affected by Science Resource Shortage/IDX
-      - name: acbgeas
-        description: School Emphasis on Academic Success-Principal/SCL
-      - name: acdgeas
-        description: School Emphasis on Academic Success-Principal/IDX
-      - name: acbgdas
-        description: School Discipline-Principal/SCL
-      - name: acdgdas
-        description: School Discipline-Principal/IDX
-      - name: acbglns
-        description: Students Begin with Literacy and Numeracy Skills/SCL
-      - name: acdglns
-        description: Students Begin with Literacy and Numeracy Skills/IDX
-      - name: acdgtihy
-        description: Total Instructional Hours per Year
-      - name: acdgsbc
-        description: School Composition by Socioeconomic Background
-      - name: version
-        description: Version
-      - name: scope
-        description: Scope
   - name: world_iae_timss__home_context_grade_4
     description: The TIMSS 2023 Home Questionnaire, completed by parents of fourth-grade
       students, gathered information on early learning activities, home resources,
@@ -1348,7 +18,7 @@ models:
           columns_covered_by_dictionary:
             - grade_id
             - language_school_questionnaire
-            - locale_school_questionnaire
+              # - locale_school_questionnaire
             - asbh01a
             - asbh01b
             - asbh01c
@@ -1680,6 +350,662 @@ models:
         description: Data Version
       - name: scope
         description: Scope Of This File
+  - name: world_iae_timss__dicionario
+    description: TIMSS 2023 Tables Data Dictionary
+    columns:
+      - name: id_tabela
+        description: ID da tabela
+      - name: nome_coluna
+        description: Nome da coluna
+      - name: chave
+        description: Chave
+      - name: cobertura_temporal
+        description: Cobertura temporal
+      - name: valor
+        description: Valor
+  - name: world_iae_timss__school_context_grade_4
+    description: Insert table description here
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, country_id, grade_id, school_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.01
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            #  - country_id
+            - grade_id
+            - language_school_questionnaire
+             # - locale_school_questionnaire
+            - acbg03a
+            - acbg03b
+            - acbg04
+            - acbg05a
+            - acbg05b
+            - acbg06c
+            - acbg08
+            - acbg09
+            - acbg10a
+            - acbg10b
+            - acbg11aa
+            - acbg11ab
+            - acbg11ac
+            - acbg11ad
+            - acbg11ae
+            - acbg11af
+            - acbg11ag
+            - acbg11ah
+            - acbg11ai
+            - acbg11ba
+            - acbg11bb
+            - acbg11bc
+            - acbg11bd
+            - acbg11be
+            - acbg11ca
+            - acbg11cb
+            - acbg11cc
+            - acbg11cd
+            - acbg12a
+            - acbg12b
+            - acbg12c
+            - acbg12d
+            - acbg12e
+            - acbg12f
+            - acbg12g
+            - acbg12h
+            - acbg12i
+            - acbg12j
+            - acbg12k
+            - acbg13a
+            - acbg13b
+            - acbg13c
+            - acbg13d
+            - acbg13e
+            - acbg13f
+            - acbg13g
+            - acbg13h
+            - acbg14a
+            - acbg14b
+            - acbg14c
+            - acbg14d
+            - acbg14e
+            - acbg14f
+            - acbg14g
+            - acbg14h
+            - acbg14i
+            - acbg14j
+            - acbg15a
+            - acbg15b
+            - acbg16a
+            - acbg16b
+            - acbg16c
+            - acbg16d
+            - acbg16e
+            - acbg16f
+            - acbg16g
+            - acbg16h
+            - acbg16i
+            - acbg16j
+            - acbg16k
+            - acbg16l
+            - acbg19
+            - acbg20a
+            - acbg20b
+            - acbg20c
+            - acbg21a
+            - acbg21b
+            - acbg21c
+            - acbg21d
+            - acdgmrs
+            - acdgsrs
+            - acdgeas
+            - acdgdas
+            - acdglns
+            - acdgsbc
+            - scope
+          dictionary_model: ref('world_iae_timss__dicionario')
+    columns:
+      - name: year
+        description: Year
+      - name: country_id
+        description: Numeric Country Code
+      - name: country_m49
+        description: Numeric country code for the table directory
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: id_pais_m49
+              ignore_values: ['411', '956', '957', '7843', NA]
+      - name: grade_id
+        description: Grade ID
+      - name: school_id
+        description: School ID
+      - name: language_school_questionnaire
+        description: Language of School Questionnaire
+      - name: locale_school_questionnaire
+        description: Locale ID of School Questionnaire
+      - name: acbg03a
+        description: Economic disadvantage for students
+      - name: acbg03b
+        description: Economic affluence for studentes
+      - name: acbg04
+        description: Percentage os students <Language of Test>
+      - name: acbg05a
+        description: Number of people living in the area
+      - name: acbg05b
+        description: Immediate area of school location
+      - name: acbg06a
+        description: Instructional days per year
+      - name: acbg06b
+        description: Total instructional time
+      - name: acbg06c
+        description: Instructional days in one calendar week
+      - name: acbg07
+        description: Total number of computers
+      - name: acbg08
+        description: Existing science laboratory
+      - name: acbg09
+        description: Online learning management system
+      - name: acbg10a
+        description: Library or media center
+      - name: acbg10b
+        description: High-speed internet
+      - name: acbg11aa
+        description: Shortage of instructional materials
+      - name: acbg11ab
+        description: Shortage of supplies
+      - name: acbg11ac
+        description: Shortage of school buildings
+      - name: acbg11ad
+        description: Shortage of heating systems
+      - name: acbg11ae
+        description: Shortage of instructional space
+      - name: acbg11af
+        description: Shortage of technological staff
+      - name: acbg11ag
+        description: Shortage of audio-visual resources
+      - name: acbg11ah
+        description: Shortage of digital devices
+      - name: acbg11ai
+        description: Shortage of resources for students with disabilities
+      - name: acbg11ba
+        description: Shortage of specialized math teachers
+      - name: acbg11bb
+        description: Shortage of computer software
+      - name: acbg11bc
+        description: Shortage of library resources
+      - name: acbg11bd
+        description: Shortage of calculators
+      - name: acbg11be
+        description: Shortage of concrete objects
+      - name: acbg11ca
+        description: Shortage of specialized science teachers
+      - name: acbg11cb
+        description: Shortage of science computer software
+      - name: acbg11cc
+        description: Shortage of science library resources
+      - name: acbg11cd
+        description: Shortage of science equipment
+      - name: acbg12a
+        description: Teacher understanding of school character
+      - name: acbg12b
+        description: Teacher success in school character
+      - name: acbg12c
+        description: Teacher expectations
+      - name: acbg12d
+        description: Teacher ability to inspire
+      - name: acbg12e
+        description: Parental involvement
+      - name: acbg12f
+        description: Parental commitment
+      - name: acbg12g
+        description: Parental expectations
+      - name: acbg12h
+        description: Parental support
+      - name: acbg12i
+        description: Student desire to do well
+      - name: acbg12j
+        description: Student ability to reach goals
+      - name: acbg12k
+        description: Student respect
+      - name: acbg13a
+        description: Shared vision in the school environment
+      - name: acbg13b
+        description: Reviews of practices in the school environment
+      - name: acbg13c
+        description: Schoolwide approach in the school environment
+      - name: acbg13d
+        description: Teach to appreciate in the school environment
+      - name: acbg13e
+        description: Teach how to take action in the school environment
+      - name: acbg13f
+        description: Encourage teachers in the school environment
+      - name: acbg13g
+        description: Promotes community in the school environment
+      - name: acbg13h
+        description: School promotes participation in the school environment
+      - name: acbg14a
+        description: Problems with arriving late at school
+      - name: acbg14b
+        description: Problems with absenteeism
+      - name: acbg14c
+        description: Problems with classroom disturbance
+      - name: acbg14d
+        description: Problems with cheating
+      - name: acbg14e
+        description: Problems with profanity
+      - name: acbg14f
+        description: Problems with vandalism
+      - name: acbg14g
+        description: Problems with theft
+      - name: acbg14h
+        description: Problems with intimidation among students
+      - name: acbg14i
+        description: Problems with physical fights
+      - name: acbg14j
+        description: Problems with intimidation of teachers
+      - name: acbg15a
+        description: Problems with teachers arriving late at school
+      - name: acbg15b
+        description: Problems with teacher absenteeism
+      - name: acbg16a
+        description: Recognize letters in primary school
+      - name: acbg16b
+        description: Read words in primary school
+      - name: acbg16c
+        description: Read sentences in primary school
+      - name: acbg16d
+        description: Write letters in primary school
+      - name: acbg16e
+        description: Write names in primary school
+      - name: acbg16f
+        description: Write words in primary school
+      - name: acbg16g
+        description: Count up to 100 in primary school
+      - name: acbg16h
+        description: Recognize numbers from in primary school
+      - name: acbg16i
+        description: Recognize numbers higher than in primary school
+      - name: acbg16j
+        description: Write numbers in primary school
+      - name: acbg16k
+        description: Do simple addition in primary school
+      - name: acbg16l
+        description: Do simple subtraction in primary school
+      - name: acbg17
+        description: Years Principal Altogether
+      - name: acbg18
+        description: Total years as a principal
+      - name: acbg19
+        description: Highest level of formal education
+      - name: acbg20a
+        description: Qualifications in educational leadership (certificate or license)
+      - name: acbg20b
+        description: Qualifications in educational leadership (ISCED level 7)
+      - name: acbg20c
+        description: Qualifications in educational leadership (ISCED level 8)
+      - name: acbg21a
+        description: Number of months the school was closed during the 2019-2020 school
+          year
+      - name: acbg21b
+        description: Number of months the school was closed during the 2020-2021 school
+          year
+      - name: acbg21c
+        description: Number of months the school was closed during the 2021-2022 school
+          year
+      - name: acbg21d
+        description: Number of months the school was closed during the 2022-2023 school
+          year
+      - name: jkczone
+        description: Jackknife zone
+      - name: jkcrep
+        description: Jackknife replicate code
+      - name: schwgt
+        description: School level weight
+      - name: stotwgtu
+        description: Sum of student weights
+      - name: wgtfac1
+        description: School weight factor
+      - name: wgtadj1
+        description: School weight adjustment
+      - name: acbgmrs
+        description: Instruction Affected by Math Resource Shortage/SCL
+      - name: acdgmrs
+        description: Instruction Affected by Math Resource Shortage/IDX
+      - name: acbgsrs
+        description: Instruction Affected by Science Resource Shortage/SCL
+      - name: acdgsrs
+        description: Instruction Affected by Science Resource Shortage/IDX
+      - name: acbgeas
+        description: School Emphasis on Academic Success-Principal/SCL
+      - name: acdgeas
+        description: School Emphasis on Academic Success-Principal/IDX
+      - name: acbgdas
+        description: School Discipline-Principal/SCL
+      - name: acdgdas
+        description: School Discipline-Principal/IDX
+      - name: acbglns
+        description: Students Begin with Literacy and Numeracy Skills/SCL
+      - name: acdglns
+        description: Students Begin with Literacy and Numeracy Skills/IDX
+      - name: acdgtihy
+        description: Total Instructional Hours per Year
+      - name: acdgsbc
+        description: School Composition by Socioeconomic Background
+      - name: version
+        description: Version
+      - name: scope
+        description: Scope
+  - name: world_iae_timss__school_context_grade_8
+    description: The school context data files contain principals responses to the
+      TIMSS 2023 School Questionnaire. While school-level analyses are possible, it
+      is preferable to use school-level variables as student attributes. To do so,
+      the school context files must be merged with the student context files using
+      country and school identification variables.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, country_id, grade_id, school_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.01
+      - custom_dictionaries:
+          columns_covered_by_dictionary:
+            - grade_id
+            - language_school_questionnaire
+             # - locale_school_questionnaire
+            - bcbg03a
+            - bcbg03b
+            - bcbg04
+            - bcbg05a
+            - bcbg05b
+            - bcbg06c
+            - bcbg08
+            - bcbg09
+            - bcbg10a
+            - bcbg10b
+            - bcbg11aa
+            - bcbg11ab
+            - bcbg11ac
+            - bcbg11ad
+            - bcbg11ae
+            - bcbg11af
+            - bcbg11ag
+            - bcbg11ah
+            - bcbg11ai
+            - bcbg11ba
+            - bcbg11bb
+            - bcbg11bc
+            - bcbg11bd
+            - bcbg11be
+            - bcbg11ca
+            - bcbg11cb
+            - bcbg11cc
+            - bcbg11cd
+            - bcbg11ce
+            - bcbg12a
+            - bcbg12b
+            - bcbg12c
+            - bcbg12d
+            - bcbg12e
+            - bcbg12f
+            - bcbg12g
+            - bcbg12h
+            - bcbg12i
+            - bcbg12j
+            - bcbg12k
+            - bcbg13a
+            - bcbg13b
+            - bcbg13c
+            - bcbg13d
+            - bcbg14a
+            - bcbg14b
+            - bcbg14c
+            - bcbg14d
+            - bcbg14e
+            - bcbg14f
+            - bcbg14g
+            - bcbg14h
+            - bcbg15a
+            - bcbg15b
+            - bcbg15c
+            - bcbg15d
+            - bcbg15e
+            - bcbg15f
+            - bcbg15g
+            - bcbg15h
+            - bcbg15i
+            - bcbg15j
+            - bcbg15k
+            - bcbg16a
+            - bcbg16b
+            - bcbg19
+            - bcbg20a
+            - bcbg20b
+            - bcbg20c
+            - bcbg21a
+            - bcbg21b
+            - bcbg21c
+            - bcbg21d
+            - bcdgmrs
+            - bcdgsrs
+            - bcdgeas
+            - bcdgdas
+            - bcdgsbc
+            - scope
+          dictionary_model: ref('world_iae_timss__dicionario')
+    columns:
+      - name: year
+        description: Year
+      - name: country_m49
+        description: Numeric country code for the table directory
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: id_pais_m49
+      - name: country_id
+        description: Numeric Country Code
+      - name: grade_id
+        description: Grade Id
+      - name: school_id
+        description: School Id
+      - name: language_school_questionnaire
+        description: Language Of School Questionnaire
+      - name: locale_school_questionnaire
+        description: Locale Id Of School Questionnaire
+      - name: bcbg03a
+        description: Students' economic disadvantage
+      - name: bcbg03b
+        description: Students' economic affluence
+      - name: bcbg04
+        description: Percent Of Students  <Lang Of Test>
+      - name: bcbg05a
+        description: How Many People Live In Area
+      - name: bcbg05b
+        description: Immediate Area Of Sch Location
+      - name: bcbg06a
+        description: Instructional Days Per Year
+      - name: bcbg06b
+        description: Total Instructional Time
+      - name: bcbg06c
+        description: Instructional Days In 1 Calender Week
+      - name: bcbg07
+        description: Total Number Computers
+      - name: bcbg08
+        description: Existing Science Laboratory
+      - name: bcbg09
+        description: Online Learning Management System
+      - name: bcbg10a
+        description: Library Or Media Center
+      - name: bcbg10b
+        description: High Speed Internet
+      - name: bcbg11aa
+        description: Shortage of instructional materials
+      - name: bcbg11ab
+        description: Shortage of general supplies
+      - name: bcbg11ac
+        description: Shortage of school buildings
+      - name: bcbg11ad
+        description: Shortage of heating systems
+      - name: bcbg11ae
+        description: Shortage of instructional space
+      - name: bcbg11af
+        description: Shortage of technological staff
+      - name: bcbg11ag
+        description: Shortage of audio-visual resources
+      - name: bcbg11ah
+        description: Shortage of digital devices
+      - name: bcbg11ai
+        description: Shortage of resources for students with disabilities
+      - name: bcbg11ba
+        description: Shortage of qualified math teachers
+      - name: bcbg11bb
+        description: Shortage of computer software
+      - name: bcbg11bc
+        description: Shortage of library resources
+      - name: bcbg11bd
+        description: Shortage of calculators
+      - name: bcbg11be
+        description: Shortage of concrete learning materials
+      - name: bcbg11ca
+        description: Shortage of qualified science teachers
+      - name: bcbg11cb
+        description: Shortage of science-related computer software
+      - name: bcbg11cc
+        description: Shortage of science library resources
+      - name: bcbg11cd
+        description: Shortage of science calculators
+      - name: bcbg11ce
+        description: Shortage of science calculators
+      - name: bcbg12a
+        description: Teachers’ understanding of students
+      - name: bcbg12b
+        description: Teachers’ belief in student success
+      - name: bcbg12c
+        description: Teachers’ expectations of students
+      - name: bcbg12d
+        description: Teachers’ ability to inspire students
+      - name: bcbg12e
+        description: Parental involvement in school
+      - name: bcbg12f
+        description: Parental commitment to education
+      - name: bcbg12g
+        description: Parental expectations for students
+      - name: bcbg12h
+        description: Parental support
+      - name: bcbg12i
+        description: Students’ desire to do well
+      - name: bcbg12j
+        description: Students’ ability to reach goals
+      - name: bcbg12k
+        description: Students’ respect for classmates
+      - name: bcbg13a
+        description: School provides clear information to parents
+      - name: bcbg13b
+        description: School promotes student interest
+      - name: bcbg13c
+        description: School offers special activities
+      - name: bcbg13d
+        description: School emphasizes the importance of education
+      - name: bcbg14a
+        description: School has a shared educational vision
+      - name: bcbg14b
+        description: School regularly reviews its practices
+      - name: bcbg14c
+        description: School applies a schoolwide educational approach
+      - name: bcbg14d
+        description: School fosters appreciation for learning.
+      - name: bcbg14e
+        description: School teaches students how to take action
+      - name: bcbg14f
+        description: School encourages teachers
+      - name: bcbg14g
+        description: School promotes a sense of community
+      - name: bcbg14h
+        description: School promotes student participation
+      - name: bcbg15a
+        description: Problem of students arriving late to school
+      - name: bcbg15b
+        description: Problem of student absenteeism
+      - name: bcbg15c
+        description: Problem of classroom disturbance
+      - name: bcbg15d
+        description: Problem of cheating
+      - name: bcbg15e
+        description: Problem of profanity
+      - name: bcbg15f
+        description: Problem of vandalism
+      - name: bcbg15g
+        description: Problem of theft
+      - name: bcbg15h
+        description: Problem of student intimidation
+      - name: bcbg15i
+        description: Problem of physical injury
+      - name: bcbg15j
+        description: Problem of teacher intimidation
+      - name: bcbg15k
+        description: Problem of physical injury to teachers
+      - name: bcbg16a
+        description: 'Teacher problem: arriving late to school'
+      - name: bcbg16b
+        description: 'Teacher problem: absenteeism'
+      - name: bcbg17
+        description: Total years as principal
+      - name: bcbg18
+        description: Years Principal At This School
+      - name: bcbg19
+        description: Highest Level Of Formal Education
+      - name: bcbg20a
+        description: Qualifications In Educational Leadership <Certificate Or License>
+      - name: bcbg20b
+        description: Qualifications In Educational Leadership <Isced>
+      - name: bcbg20c
+        description: Qualifications In Educational Leadership <Isced 8>
+      - name: bcbg21a
+        description: Number of months the school was closed in the 2019-2020 school
+          year
+      - name: bcbg21b
+        description: Number of months the school was closed in the 2020-2021 school
+          year
+      - name: bcbg21c
+        description: Number of months the school was closed in the 2021-2022 school
+          year
+      - name: bcbg21d
+        description: Number of months the school was closed in the 2022-2023 school
+          year
+      - name: jkczone
+        description: Jackknife Zone
+      - name: jkcrep
+        description: Jackknife Replicate Code
+      - name: schwgt
+        description: School Level Weight
+      - name: stotwgtu
+        description: Sum Of Student Weights
+      - name: wgtfac1
+        description: School Weight Factor
+      - name: wgtadj1
+        description: School Weight Adjustment
+      - name: bcdgmrs
+        description: Instruction Affected By Math Resource Shortage/Idx
+      - name: bcbgmrs
+        description: Instruction Affected By Math Resource Shortage/Scl
+      - name: bcdgsrs
+        description: Instruction Affected By Science Resource Shortage/Idx
+      - name: bcbgsrs
+        description: Instruction Affected By Science Resource Shortage/Scl
+      - name: bcdgeas
+        description: School Emphasis On Academic Success-Principal/Idx
+      - name: bcbgeas
+        description: School Emphasis On Academic Success-Principal/Scl
+      - name: bcdgdas
+        description: School Discipline-Principal/Idx
+      - name: bcbgdas
+        description: School Discipline-Principal/Scl
+      - name: bcdgsbc
+        description: School Composition By Socioeconomic Background
+      - name: bcdgtihy
+        description: Total Instructional Hours Per Year
+      - name: version
+        description: Data Version
+      - name: scope
+        description: Scope Of This File
   - name: world_iae_timss__student_achievement_grade_4
     description: The TIMSS 2023 student achievement data files contain students' scored
       responses to individual assessment items, enabling item-level analyses. These
@@ -1697,13 +1023,13 @@ models:
             - student_id
       - not_null_proportion_multiple_columns:
           at_least: 0.01
-      - custom_dictionary_coverage:
+      - custom_dictionaries:
           columns_covered_by_dictionary:
             - grade_id
             - sex_students
             - itadmini
             - language_student_questionnaire
-            - locale_student_questionnaire
+             # - locale_student_questionnaire
             - asmibm01
             - asmibm02
             - asmibm03
@@ -1723,10 +1049,9 @@ models:
       - name: country_m49
         description: Numeric country code for the table directory
         tests:
-          - custom_relationships:
+          - relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: id_pais_m49
-              ignore_values: [NA, '7843', '926', '957', '956', '411']
       - name: grade_id
         description: Grade ID
       - name: school_id
@@ -1941,6 +1266,330 @@ models:
         description: Version
       - name: scope
         description: Scope
+  - name: world_iae_timss__student_achievement_grade_8
+    description: The TIMSS 2023 student achievement data files contain students' scored
+      responses to individual assessment items, enabling item-level analyses. These
+      files also include plausible values for all TIMSS 2023 achievement scales, as
+      well as sampling and weighting variables necessary for accurate statistical
+      analysis.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - country_id
+            - grade_id
+            - school_id
+            - class_id
+            - student_id
+      - not_null_proportion_multiple_columns:
+          at_least: 0.01
+      - custom_dictionaries:
+          columns_covered_by_dictionary:
+            - year
+            - country_m49
+            - grade_id
+            - student_sex
+            - language_school_questionnaire
+            #  - locale_school_questionnaire
+            - bsmibm01
+            - bsmibm02
+            - bsmibm03
+            - bsmibm04
+            - bsmibm05
+            - bssibm01
+            - bssibm02
+            - bssibm03
+            - bssibm04
+            - bssibm05
+            - me82num
+            - me82alg
+            - me82geo
+            - me82dat
+            - me82kno
+            - me82app
+            - me82rea
+            - se82bio
+            - se82che
+            - se82phy
+            - se82ear
+            - se82kno
+            - se82app
+            - se82rea
+            - se82env
+            - se82nen
+            - scope
+          dictionary_model: ref('world_iae_timss__dicionario')
+    columns:
+      - name: year
+        description: Year
+      - name: country_m49
+        description: Numeric country code for the table directory
+      - name: country_id
+        description: Numeric Country Code
+      - name: grade_id
+        description: Grade Id
+      - name: school_id
+        description: School Id
+      - name: class_id
+        description: Class Id
+      - name: student_id
+        description: Student Id
+      - name: student_sex
+        description: Sex Of Students
+      - name: student_age
+        description: Students Age
+      - name: language_school_questionnaire
+        description: Language Of Student Achievement Test
+      - name: locale_school_questionnaire
+        description: Locale Id Of The Student Test
+      - name: jkzone
+        description: Jackknife Zone
+      - name: jkrep
+        description: Jackknife Replicate Code
+      - name: totwgt
+        description: Total Student Weight
+      - name: houwgt
+        description: House Weight
+      - name: senwgt
+        description: Senate Weight
+      - name: wgtfac1
+        description: School Weight Factor
+      - name: wgtadj1
+        description: School Weight Adjustment
+      - name: wgtfac2
+        description: Class Weight Factor
+      - name: wgtadj2
+        description: Class Weight Adjustment
+      - name: wgtfac3
+        description: Student Weight Factor
+      - name: wgtadj3
+        description: Student Weight Adjustment
+      - name: bsmmat01
+        description: 1st Plausible Value Mathematics
+      - name: bsmmat02
+        description: 2nd Plausible Value Mathematics
+      - name: bsmmat03
+        description: 3rd Plausible Value Mathematics
+      - name: bsmmat04
+        description: 4th Plausible Value Mathematics
+      - name: bsmmat05
+        description: 5th Plausible Value Mathematics
+      - name: bsmnum01
+        description: 1st Pv Number
+      - name: bsmnum02
+        description: 2nd Pv Number
+      - name: bsmnum03
+        description: 3rd Pv Number
+      - name: bsmnum04
+        description: 4th Pv Number
+      - name: bsmnum05
+        description: 5th Pv Number
+      - name: bsmalg01
+        description: 1st Pv Algebra
+      - name: bsmalg02
+        description: 2nd Pv Algebra
+      - name: bsmalg03
+        description: 3rd Pv Algebra
+      - name: bsmalg04
+        description: 4th Pv Algebra
+      - name: bsmalg05
+        description: 5th Pv Algebra
+      - name: bsmgeo01
+        description: 1st Pv Geometry
+      - name: bsmgeo02
+        description: 2nd Pv Geometry
+      - name: bsmgeo03
+        description: 3rd Pv Geometry
+      - name: bsmgeo04
+        description: 4th Pv Geometry
+      - name: bsmgeo05
+        description: 5th Pv Geometry
+      - name: bsmdat01
+        description: 1st Pv Data And Probability
+      - name: bsmdat02
+        description: 2nd Pv Data And Probability
+      - name: bsmdat03
+        description: 3rd Pv Data And Probability
+      - name: bsmdat04
+        description: 4th Pv Data And Probability
+      - name: bsmdat05
+        description: 5th Pv Data And Probability
+      - name: bsmkno01
+        description: 1st Pv Math Knowing
+      - name: bsmkno02
+        description: 2nd Pv Math Knowing
+      - name: bsmkno03
+        description: 3rd Pv Math Knowing
+      - name: bsmkno04
+        description: 4th Pv Math Knowing
+      - name: bsmkno05
+        description: 5th Pv Math Knowing
+      - name: bsmapp01
+        description: 1st Pv Math Applying
+      - name: bsmapp02
+        description: 2nd Pv Math Applying
+      - name: bsmapp03
+        description: 3rd Pv Math Applying
+      - name: bsmapp04
+        description: 4th Pv Math Applying
+      - name: bsmapp05
+        description: 5th Pv Math Applying
+      - name: bsmrea01
+        description: 1st Pv Math Reasoning
+      - name: bsmrea02
+        description: 2nd Pv Math Reasoning
+      - name: bsmrea03
+        description: 3rd Pv Math Reasoning
+      - name: bsmrea04
+        description: 4th Pv Math Reasoning
+      - name: bsmrea05
+        description: 5th Pv Math Reasoning
+      - name: bsssci01
+        description: 1st Plausible Value Science
+      - name: bsssci02
+        description: 2nd Plausible Value Science
+      - name: bsssci03
+        description: 3rd Plausible Value Science
+      - name: bsssci04
+        description: 4th Plausible Value Science
+      - name: bsssci05
+        description: 5th Plausible Value Science
+      - name: bssbio01
+        description: 1st Pv Biology
+      - name: bssbio02
+        description: 2nd Pv Biology
+      - name: bssbio03
+        description: 3rd Pv Biology
+      - name: bssbio04
+        description: 4th Pv Biology
+      - name: bssbio05
+        description: 5th Pv Biology
+      - name: bssche01
+        description: 1st Pv Chemistry
+      - name: bssche02
+        description: 2nd Pv Chemistry
+      - name: bssche03
+        description: 3rd Pv Chemistry
+      - name: bssche04
+        description: 4th Pv Chemistry
+      - name: bssche05
+        description: 5th Pv Chemistry
+      - name: bssphy01
+        description: 1st Pv Physics
+      - name: bssphy02
+        description: 2nd Pv Physics
+      - name: bssphy03
+        description: 3rd Pv Physics
+      - name: bssphy04
+        description: 4th Pv Physics
+      - name: bssphy05
+        description: 5th Pv Physics
+      - name: bssear01
+        description: 1st Pv Earth Science
+      - name: bssear02
+        description: 2nd Pv Earth Science
+      - name: bssear03
+        description: 3rd Pv Earth Science
+      - name: bssear04
+        description: 4th Pv Earth Science
+      - name: bssear05
+        description: 5th Pv Earth Science
+      - name: bsskno01
+        description: 1st Pv Science Knowing
+      - name: bsskno02
+        description: 2nd Pv Science Knowing
+      - name: bsskno03
+        description: 3rd Pv Science Knowing
+      - name: bsskno04
+        description: 4th Pv Science Knowing
+      - name: bsskno05
+        description: 5th Pv Science Knowing
+      - name: bssapp01
+        description: 1st Pv Science Applying
+      - name: bssapp02
+        description: 2nd Pv Science Applying
+      - name: bssapp03
+        description: 3rd Pv Science Applying
+      - name: bssapp04
+        description: 4th Pv Science Applying
+      - name: bssapp05
+        description: 5th Pv Science Applying
+      - name: bssrea01
+        description: 1st Pv Science Reasoning
+      - name: bssrea02
+        description: 2nd Pv Science Reasoning
+      - name: bssrea03
+        description: 3rd Pv Science Reasoning
+      - name: bssrea04
+        description: 4th Pv Science Reasoning
+      - name: bssrea05
+        description: 5th Pv Science Reasoning
+      - name: bssenv01
+        description: 1st Plausible Value Environmental Awareness
+      - name: bssenv02
+        description: 2nd Plausible Value Environmental Awareness
+      - name: bssenv03
+        description: 3rd Plausible Value Environmental Awareness
+      - name: bssenv04
+        description: 4th Plausible Value Environmental Awareness
+      - name: bssenv05
+        description: 5th Plausible Value Environmental Awareness
+      - name: bsmibm01
+        description: Intern. Math Bench Reached With 1st Pv
+      - name: bsmibm02
+        description: Intern. Math Bench Reached With 2nd Pv
+      - name: bsmibm03
+        description: Intern. Math Bench Reached With 3rd Pv
+      - name: bsmibm04
+        description: Intern. Math Bench Reached With 4th Pv
+      - name: bsmibm05
+        description: Intern. Math Bench Reached With 5th Pv
+      - name: bssibm01
+        description: Intern. Sci Bench Reached With 1st Pv
+      - name: bssibm02
+        description: Intern. Sci Bench Reached With 2nd Pv
+      - name: bssibm03
+        description: Intern. Sci Bench Reached With 3rd Pv
+      - name: bssibm04
+        description: Intern. Sci Bench Reached With 4th Pv
+      - name: bssibm05
+        description: Intern. Sci Bench Reached With 5th Pv
+      - name: me82num
+        description: Nonresponse Indicator Mathematics Number
+      - name: me82alg
+        description: Nonresponse Indicator Mathematics Algebra
+      - name: me82geo
+        description: Nonresponse Indicator Mathematics Geometry And Measurement
+      - name: me82dat
+        description: Nonresponse Indicator Mathematics Data And Probability
+      - name: me82kno
+        description: Nonresponse Indicator Mathematics Knowing
+      - name: me82app
+        description: Nonresponse Indicator Mathematics Applying
+      - name: me82rea
+        description: Nonresponse Indicator Mathematics Reasoning
+      - name: se82bio
+        description: Nonresponse Indicator Science Biology
+      - name: se82che
+        description: Nonresponse Indicator Science Chemistry
+      - name: se82phy
+        description: Nonresponse Indicator Science Physics
+      - name: se82ear
+        description: Nonresponse Indicator Science Earth Science
+      - name: se82kno
+        description: Nonresponse Indicator Science Knowing
+      - name: se82app
+        description: Nonresponse Indicator Science Applying
+      - name: se82rea
+        description: Nonresponse Indicator Science Reasoning
+      - name: se82env
+        description: Nonresponse Indicator Science Environmental
+      - name: se82nen
+        description: Nonresponse Indicator Science Non-Environmental
+      - name: version
+        description: Data Version
+      - name: scope
+        description: Scope Of This File
   - name: world_iae_timss__student_context_grade_4
     description: The student context data files gather information on family background,
       school experiences, and attitudes towards math and science. They also include
@@ -1957,12 +1606,12 @@ models:
             - student_id
       - not_null_proportion_multiple_columns:
           at_least: 0.01
-      - custom_dictionary_coverage:
+      - custom_dictionaries:
           columns_covered_by_dictionary:
             - grade_id
             - student_sex
             - language_school_questionnaire
-            - locale_school_questionnaire
+            # - locale_school_questionnaire
             - asbg01
             - asbg03
             - asbg04
@@ -2087,10 +1736,9 @@ models:
       - name: country_m49
         description: Numeric country code for the table directory
         tests:
-          - custom_relationships:
+          - relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: id_pais_m49
-              ignore_values: ['7843', '926', '957', '956', '411']
       - name: grade_id
         description: Grade Id
       - name: school_id
@@ -2355,6 +2003,365 @@ models:
         description: Data Version
       - name: scope
         description: Scope Of This File
+  - name: world_iae_timss__student_context_grade_8
+    description: The student context data files gather information on family background,
+      school experiences, and attitudes towards math and science. They also include
+      plausible performance values in these areas, making it possible to analyze how
+      these characteristics relate to academic performance.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - country_id
+            - grade_id
+            - school_id
+            - class_id
+            - student_id
+      - not_null_proportion_multiple_columns:
+          at_least: 0.01
+      - custom_dictionaries:
+          columns_covered_by_dictionary:
+            - country_id
+            - grade_id
+            - student_sex
+            - language_school_questionnaire
+             # - locale_school_questionnaire
+            - bsbg01
+            - bsbg03
+            - bsbg04
+            - bsbg05a
+            - bsbg05b
+            - bsbg05c
+            - bsbg05d
+            - bsbg05e
+            - bsbg05f
+            - bsbg06a
+            - bsbg06b
+            - bsbg07
+            - bsbg08a
+            - bsbg08b
+            - bsbg09a
+            - bsbg09b
+            - bsbg10
+            - bsbg11a
+            - bsbg11b
+            - bsbg12a
+            - bsbg12b
+            - bsbg12c
+            - bsbg12d
+            - bsbg12e
+            - bsbg12f
+            - bsbg13a
+            - bsbg13b
+            - bsbg13c
+            - bsbg13d
+            - bsbg13e
+            - bsbg13f
+            - bsbg13g
+            - bsbg14a
+            - bsbg14b
+            - bsbg14c
+            - bsbg14d
+            - bsbg14e
+            - bsbg14f
+            - bsbg14g
+            - bsbg14h
+            - bsbg14i
+            - bsbg15a
+            - bsbg15b
+            - bsbg15c
+            - bsbg15d
+            - bsbg15e
+            - bsbg15f
+            - bsbg16a
+            - bsbg16b
+            - bsbg16c
+            - bsbg16d
+            - bsbm19c
+            - bsbm19e
+            - bsbm19f
+            - bsbm19g
+            - bsbm22d
+            - bsbm22g
+            - bsbm22h
+            - bsbm23a
+            - bsbs25a
+            - bsbs25c
+            - bsbs25d
+            - bsbs25e
+            - bsbs25h
+            - bsbs28d
+            - bsbs28g
+            - bsbs28h
+            - bsbs29a
+            - bsbs29b
+            - bsbb26c
+            - bsbb26e
+            - bsbb26h
+            - bsbb29b
+            - bsbb29c
+            - bsbb29d
+            - bsbb29g
+            - bsbb29h
+            - bsbe32a
+            - bsbe32c
+            - bsbe32h
+            - bsbe32i
+            - bsbe35b
+            - bsbe35c
+            - bsbe35d
+            - bsbe35e
+            - bsbe35g
+            - bsbe35h
+            - bsbc38c
+            - bsbc38e
+            - bsbc38h
+            - bsbc41c
+            - bsbc41d
+            - bsbp44c
+            - bsbp44e
+            - bsbp44h
+            - bsbp47g
+            - bsbp47h
+            - bsbs48a
+            - bsbs48b
+            - bsdg05s
+            - bsdgedup
+            - scope
+          dictionary_model: ref('world_iae_timss__dicionario')
+    columns:
+      - name: year
+        description: Year
+      - name: country_m49
+        description: Numeric country code for the table directory
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: id_pais_m49
+      - name: country_id
+        description: Numeric Country Code
+      - name: grade_id
+        description: Grade Id
+      - name: school_id
+        description: School Id
+      - name: class_id
+        description: Class Id
+      - name: student_id
+        description: Student Id
+      - name: student_sex
+        description: Sex Of Students
+      - name: student_age
+        description: Students Age
+      - name: language_school_questionnaire
+        description: Language Of Student Questionnaire
+      - name: locale_school_questionnaire
+        description: Locale Id Of The Student Questionnaire
+      - name: bsbg01
+        description: Sex Of Student
+      - name: bsbg03
+        description: Freq. Use Test Lang at Home
+      - name: bsbg04
+        description: Amount Of Books In Your Home
+      - name: bsbg05a
+        description: Has own computer
+      - name: bsbg05b
+        description: Has shared computer
+      - name: bsbg05c
+        description: Has smartphone
+      - name: bsbg05d
+        description: Has Internet Access
+      - name: bsbg05e
+        description: Has Study Desk
+      - name: bsbg05f
+        description: Has Own Room
+      - name: bsbg06a
+        description: Parent A’s highest education level
+      - name: bsbg06b
+        description: Parent B’s highest education level
+      - name: bsbg07
+        description: Student's expected education level
+      - name: bsbg08a
+        description: Parent A born in <Country>
+      - name: bsbg08b
+        description: Parent B born in <Country>
+      - name: bsbg09a
+        description: Student born In <Country>
+      - name: bsbg09b
+        description: Age student came to <Country>
+      - name: bsbg10
+        description: How often absent from school
+      - name: bsbg11a
+        description: How often feels tired
+      - name: bsbg11b
+        description: How often feels hungry
+      - name: bsbg12a
+        description: How often uses internet for textbooks
+      - name: bsbg12b
+        description: How often uses internet for assignments
+      - name: bsbg12c
+        description: How often collaborates online with classmates
+      - name: bsbg12d
+        description: How Often Ask Teacher Questions
+      - name: bsbg12e
+        description: How often uses internet for math/science info
+      - name: bsbg12f
+        description: How often uses internet for learning games
+      - name: bsbg13a
+        description: Agrees on writing text on computer
+      - name: bsbg13b
+        description: Agrees on creating presentations on computer
+      - name: bsbg13c
+        description: Agrees on creating graphs on computer
+      - name: bsbg13d
+        description: Agrees on finding information online
+      - name: bsbg13e
+        description: Agrees on identifying trustworthy websites
+      - name: bsbg13f
+        description: Agrees on learning new things on computer
+      - name: bsbg13g
+        description: Agrees on helping friends and family
+      - name: bsbg14a
+        description: Agrees on protecting plants and animals
+      - name: bsbg14b
+        description: Agrees on benefits of nature
+      - name: bsbg14c
+        description: Agrees on most important reason
+      - name: bsbg14d
+        description: Agrees that science and tech solve problems
+      - name: bsbg14e
+        description: Agrees on feeling sad when nature is destroyed
+      - name: bsbg14f
+        description: Agrees on learning about plants and animals
+      - name: bsbg14g
+        description: Agrees on enjoying being in nature
+      - name: bsbg14h
+        description: Agrees that protecting nature is more important
+      - name: bsbg14i
+        description: Agrees that climate change is a priority
+      - name: bsbg15a
+        description: How often reuses things
+      - name: bsbg15b
+        description: How often saves resources
+      - name: bsbg15c
+        description: How often talks about environment
+      - name: bsbg15d
+        description: How often learns about environment
+      - name: bsbg15e
+        description: How often participates in activities
+      - name: bsbg15f
+        description: How often tells friends
+      - name: bsbg16a
+        description: Agrees on enjoying being in school
+      - name: bsbg16b
+        description: Agrees that school is safe
+      - name: bsbg16c
+        description: Agrees on belonging at school
+      - name: bsbg16d
+        description: Agrees that teachers care
+      - name: bsbm19c
+        description: Agrees that math is boring
+      - name: bsbm19e
+        description: Agrees that they like mathematics
+      - name: bsbm19f
+        description: Agrees that they like numers
+      - name: bsbm19g
+        description: Agrees that they like math problems
+      - name: bsbm22d
+        description: Agrees that mathematics is easy
+      - name: bsbm22g
+        description: Agrees that math is harder for them
+      - name: bsbm22h
+        description: Agrees that math makes them confused
+      - name: bsbm23a
+        description: Agrees that math will help them
+      - name: bsbs25a
+        description: Agrees that they enjoy learning science
+      - name: bsbs25c
+        description: Agrees that science is boring
+      - name: bsbs25d
+        description: Agrees that they learn interesting things in science
+      - name: bsbs25e
+        description: Agrees that they like science
+      - name: bsbs25h
+        description: Agrees that they like science experiments
+      - name: bsbs28d
+        description: Agrees that science is easy
+      - name: bsbs28g
+        description: Agrees that science is harder for them
+      - name: bsbs28h
+        description: Agrees that science makes them confused
+      - name: bsbs29a
+        description: Agrees that science will help them
+      - name: bsbs29b
+        description: Agrees that they need science to learn other subjects
+      - name: bsbb26c
+        description: Agrees that biology is boring
+      - name: bsbb26e
+        description: Agrees that they like biology
+      - name: bsbb26h
+        description: Agrees that they like biology experiments
+      - name: bsbb29b
+        description: Agrees that biology is harder for them than for others
+      - name: bsbb29c
+        description: Agrees that biology is not their strength
+      - name: bsbb29d
+        description: Agrees that biology is easy
+      - name: bsbb29g
+        description: Agrees that biology is harder for them
+      - name: bsbb29h
+        description: Agrees that biology makes them confused
+      - name: bsbe32a
+        description: Agrees that they enjoy learning earth science
+      - name: bsbe32c
+        description: Agrees that earth science is boring
+      - name: bsbe32h
+        description: Agrees that they like earth science experiments
+      - name: bsbe32i
+        description: Agrees that earth science is their favorite subject
+      - name: bsbe35b
+        description: Agrees that earth science is harder for them than for others
+      - name: bsbe35c
+        description: Agrees that earth science is not their strength
+      - name: bsbe35d
+        description: Agrees that earth science is easy
+      - name: bsbe35e
+        description: Agrees that they are good at working out problems
+      - name: bsbe35g
+        description: Agrees that earth science is harder for them
+      - name: bsbe35h
+        description: Agrees that earth science makes them confused
+      - name: bsbc38c
+        description: Agrees that chemistry is boring
+      - name: bsbc38e
+        description: Agrees that they like chemistry
+      - name: bsbc38h
+        description: Agrees that they like chemistry experiments
+      - name: bsbc41c
+        description: Agrees that chemistry is not their strength
+      - name: bsbc41d
+        description: Agrees that chemistry is easy
+      - name: bsbp44c
+        description: Agrees that physics is boring
+      - name: bsbp44e
+        description: Agrees that they like physics
+      - name: bsbp44h
+        description: Agrees that they like physics experiments
+      - name: bsbp47g
+        description: Agrees that physics is harder for them
+      - name: bsbp47h
+        description: Agrees that physics makes them confused
+      - name: bsbs48a
+        description: Agrees that learning science will help them
+      - name: bsbs48b
+        description: Agrees that they need science to learn other things
+      - name: bsdg05s
+        description: Number Of Home Study Supports
+      - name: bsdgedup
+        description: Parents' Highest Education Level
+      - name: version
+        description: Data Version
+      - name: scope
+        description: Scope Of This File
   - name: world_iae_timss__teacher_context_grade_4
     description: 'In 4th grade, the TIMSS 2023 application was simplified: teachers
       answered a single questionnaire covering both mathematics and science. This
@@ -2373,14 +2380,14 @@ models:
             - subject_id
       - not_null_proportion_multiple_columns:
           at_least: 0.01
-      - custom_dictionary_coverage:
+      - custom_dictionaries:
           columns_covered_by_dictionary:
             - country_id
             - grade_id
             - course
             - subject_id
             - language_school_questionnaire
-            - locale_school_questionnaire
+              # - locale_school_questionnaire
             - atbg02
             - atbg03
             - atbg04
@@ -2451,10 +2458,9 @@ models:
       - name: country_m49
         description: Numeric country code for the table directory
         tests:
-          - custom_relationships:
+          - relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: id_pais_m49
-              ignore_values: ['7843', '926', '957', '956', '411']
       - name: grade_id
         description: Grade ID
       - name: school_id
@@ -2642,13 +2648,13 @@ models:
             - subject_id
       - not_null_proportion_multiple_columns:
           at_least: 0.01
-      - custom_dictionary_coverage:
+      - custom_dictionaries:
           columns_covered_by_dictionary:
             - country_m49
             - grade_id
             - subject_id
             - language_school_questionnaire
-            - locale_school_questionnaire
+             # - locale_school_questionnaire
             - btbg02
             - btbg03
             - btbg04
@@ -2798,10 +2804,9 @@ models:
       - name: country_m49
         description: Numeric country code for the table directory
         tests:
-          - custom_relationships:
+          - relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: id_pais_m49
-              ignore_values: [NA, 926]
       - name: country_id
         description: Numeric Country Code
       - name: grade_id
@@ -3173,13 +3178,13 @@ models:
             - subject_id
       - not_null_proportion_multiple_columns:
           at_least: 0.01
-      - custom_dictionary_coverage:
+      - custom_dictionaries:
           columns_covered_by_dictionary:
             - country_id
             - grade_id
             - subject_id
             - language_school_questionnaire
-            - locale_school_questionnaire
+             # - locale_school_questionnaire
             - btbg02
             - btbg03
             - btbg04
@@ -3374,10 +3379,9 @@ models:
       - name: country_m49
         description: Numeric country code for the table directory
         tests:
-          - custom_relationships:
+          - relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: id_pais_m49
-              ignore_values: [NA, '926']
       - name: country_id
         description: Numeric Country Code
       - name: grade_id
@@ -3870,16 +3874,3 @@ models:
         description: Data Version
       - name: scope
         description: Scope Of This File
-  - name: world_iae_timss__dicionario
-    description: TIMSS 2023 Tables Data Dictionary
-    columns:
-      - name: id_tabela
-        description: ID da tabela
-      - name: nome_coluna
-        description: Nome da coluna
-      - name: chave
-        description: Chave
-      - name: cobertura_temporal
-        description: Cobertura temporal
-      - name: valor
-        description: Valor

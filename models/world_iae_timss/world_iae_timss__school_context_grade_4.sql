@@ -9,8 +9,8 @@ select
     safe_cast(year as int64) year,
     safe_cast(country_id as string) country_id,
     safe_cast(country_m49 as string) country_m49,
-    safe_cast(grade as string) grade_id,
-    safe_cast(school as string) school_id,
+    safe_cast(grade_id as string) grade_id,
+    safe_cast(school_id as string) school_id,
     safe_cast(language_school_questionnaire as string) language_school_questionnaire,
     safe_cast(locale_school_questionnaire as string) locale_school_questionnaire,
     safe_cast(acbg03a as string) acbg03a,
@@ -117,4 +117,4 @@ select
     safe_cast(acdgsbc as string) acdgsbc,
     safe_cast(version as int64) version,
     safe_cast(scope as string) scope,
-from {{ set_datalake_project("world_iae_timss_staging.school_context_grade_4") }} as t
+from {{ set_datalake_project("world_iae_timss.school_context_grade_4") }} as t
