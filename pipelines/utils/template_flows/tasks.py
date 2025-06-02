@@ -191,7 +191,9 @@ def template_upload_to_gcs_and_materialization(
         bucket_name=bucket_name,
         wait=data_path,
     )
-
+    log(
+        f"Materialization flow in {target} for {dataset_id}.{table_id} started."
+    )
     materialization_flow = create_flow_run.run(
         flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
         project_name=constants.PREFECT_DEFAULT_PROJECT.value,
