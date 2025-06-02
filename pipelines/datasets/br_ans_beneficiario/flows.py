@@ -110,7 +110,7 @@ with Flow(
                 labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
                 dump_mode="append",
                 run_model="run/test",
-                upstream_tasks=[get_output],
+                upstream_tasks=[output_filepath],
             )
         )
 
