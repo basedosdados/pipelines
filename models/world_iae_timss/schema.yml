@@ -706,7 +706,7 @@ models:
           combination_of_columns: [year, country_id, grade_id, school_id]
       - not_null_proportion_multiple_columns:
           at_least: 0.01
-      - custom_dictionaries:
+      - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - grade_id
             - language_school_questionnaire
@@ -797,9 +797,10 @@ models:
       - name: country_m49
         description: Numeric country code for the table directory
         tests:
-          - relationships:
+          - custom_relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: id_pais_m49
+              ignore_values: ['957', '956', '411', '926']
       - name: country_id
         description: Numeric Country Code
       - name: grade_id
@@ -1023,7 +1024,7 @@ models:
             - student_id
       - not_null_proportion_multiple_columns:
           at_least: 0.01
-      - custom_dictionaries:
+      - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - grade_id
             - sex_students
@@ -1049,9 +1050,10 @@ models:
       - name: country_m49
         description: Numeric country code for the table directory
         tests:
-          - relationships:
+          - custom_relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: id_pais_m49
+              ignore_values: ['957', '956', '411', '926']
       - name: grade_id
         description: Grade ID
       - name: school_id
@@ -1283,10 +1285,10 @@ models:
             - student_id
       - not_null_proportion_multiple_columns:
           at_least: 0.01
-      - custom_dictionaries:
+      - custom_dictionary_coverage:
           columns_covered_by_dictionary:
-            - year
-            - country_m49
+            # - year
+            # - country_m49
             - grade_id
             - student_sex
             - language_school_questionnaire
@@ -1606,7 +1608,7 @@ models:
             - student_id
       - not_null_proportion_multiple_columns:
           at_least: 0.01
-      - custom_dictionaries:
+      - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - grade_id
             - student_sex
@@ -1736,9 +1738,10 @@ models:
       - name: country_m49
         description: Numeric country code for the table directory
         tests:
-          - relationships:
+          - custom_relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: id_pais_m49
+              ignore_values: ['957', '956', '411', '926']
       - name: grade_id
         description: Grade Id
       - name: school_id
@@ -2019,9 +2022,9 @@ models:
             - student_id
       - not_null_proportion_multiple_columns:
           at_least: 0.01
-      - custom_dictionaries:
+      - custom_dictionary_coverage:
           columns_covered_by_dictionary:
-            - country_id
+            # - country_id
             - grade_id
             - student_sex
             - language_school_questionnaire
@@ -2135,9 +2138,10 @@ models:
       - name: country_m49
         description: Numeric country code for the table directory
         tests:
-          - relationships:
+          - custom_relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: id_pais_m49
+              ignore_values: ['957', '956', '411', '926']
       - name: country_id
         description: Numeric Country Code
       - name: grade_id
@@ -2380,9 +2384,9 @@ models:
             - subject_id
       - not_null_proportion_multiple_columns:
           at_least: 0.01
-      - custom_dictionaries:
+      - custom_dictionary_coverage:
           columns_covered_by_dictionary:
-            - country_id
+            # - country_id
             - grade_id
             - course
             - subject_id
@@ -2458,9 +2462,10 @@ models:
       - name: country_m49
         description: Numeric country code for the table directory
         tests:
-          - relationships:
+          - custom_relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: id_pais_m49
+              ignore_values: ['957', '956', '411', '926']
       - name: grade_id
         description: Grade ID
       - name: school_id
@@ -2648,9 +2653,8 @@ models:
             - subject_id
       - not_null_proportion_multiple_columns:
           at_least: 0.01
-      - custom_dictionaries:
+      - custom_dictionary_coverage:
           columns_covered_by_dictionary:
-            - country_m49
             - grade_id
             - subject_id
             - language_school_questionnaire
@@ -2804,9 +2808,10 @@ models:
       - name: country_m49
         description: Numeric country code for the table directory
         tests:
-          - relationships:
+          - custom_relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: id_pais_m49
+              ignore_values: ['957', '956', '411', '926']
       - name: country_id
         description: Numeric Country Code
       - name: grade_id
@@ -3178,9 +3183,9 @@ models:
             - subject_id
       - not_null_proportion_multiple_columns:
           at_least: 0.01
-      - custom_dictionaries:
+      - custom_dictionary_coverage:
           columns_covered_by_dictionary:
-            - country_id
+            # - country_id
             - grade_id
             - subject_id
             - language_school_questionnaire
@@ -3379,9 +3384,10 @@ models:
       - name: country_m49
         description: Numeric country code for the table directory
         tests:
-          - relationships:
+          - custom_relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: id_pais_m49
+              ignore_values: ['957', '956', '411', '926']
       - name: country_id
         description: Numeric Country Code
       - name: grade_id

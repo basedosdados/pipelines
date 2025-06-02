@@ -117,4 +117,4 @@ select
     safe_cast(acdgsbc as string) acdgsbc,
     safe_cast(version as int64) version,
     safe_cast(scope as string) scope,
-from {{ set_datalake_project("world_iae_timss.school_context_grade_4") }} as t
+from {{ set_datalake_project("world_iae_timss_staging.school_context_grade_4") }} as t

@@ -120,4 +120,4 @@ select
     safe_cast(bsdgedup as string) bsdgedup,
     safe_cast(version as string) version,
     safe_cast(scope as string) scope,
-from {{ set_datalake_project("world_iae_timss.student_context_grade_8") }} as t
+from {{ set_datalake_project("world_iae_timss_staging.student_context_grade_8") }} as t

@@ -403,9 +403,6 @@ models:
     world_iae_timss:
       +materialized: table
       +schema: world_iae_timss
-    world_iae_timss>:
-      +materialized: table
-      +schema: world_iae_timss>
     world_iea_pirls:
       +materialized: table
       +schema: world_iea_pirls
