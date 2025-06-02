@@ -143,3 +143,11 @@ def is_empty(lista):
         return True
     else:
         return False
+
+
+@task
+def get_output():
+    """
+    Returns the output path.
+    """
+    return "/tmp/data/br_ans_beneficiario/output/"

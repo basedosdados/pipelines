@@ -35,3 +35,5 @@ class constants(Enum):  # pylint: disable=c0103
         "QT_BENEFICIARIO_CANCELADO": int,
         "DT_CARGA": str,
     }
+
+    OUTPUT = "/tmp/data/br_ans_beneficiario/output/"

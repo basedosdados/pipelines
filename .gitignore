@@ -164,3 +164,4 @@ models/**/tmp/
 models/**/input/
 models/**/output/
 models/**/extra/
+dbt_internal_packages/
