@@ -18,7 +18,6 @@ models:
           columns_covered_by_dictionary:
             - grade_id
             - language_school_questionnaire
-              # - locale_school_questionnaire
             - asbh01a
             - asbh01b
             - asbh01c
@@ -364,7 +363,10 @@ models:
       - name: valor
         description: Valor
   - name: world_iae_timss__school_context_grade_4
-    description: Insert table description here
+    description: School context data files contain principals' responses to the TIMSS
+      2023 School Questionnaire. To analyze student-level data with school information,
+      these files must be merged with student context data using country and school
+      ID variables.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [year, country_id, grade_id, school_id]
@@ -372,10 +374,8 @@ models:
           at_least: 0.01
       - custom_dictionary_coverage:
           columns_covered_by_dictionary:
-            #  - country_id
             - grade_id
             - language_school_questionnaire
-             # - locale_school_questionnaire
             - acbg03a
             - acbg03b
             - acbg04
@@ -710,7 +710,6 @@ models:
           columns_covered_by_dictionary:
             - grade_id
             - language_school_questionnaire
-             # - locale_school_questionnaire
             - bcbg03a
             - bcbg03b
             - bcbg04
@@ -1030,7 +1029,6 @@ models:
             - sex_students
             - itadmini
             - language_student_questionnaire
-             # - locale_student_questionnaire
             - asmibm01
             - asmibm02
             - asmibm03
@@ -1287,12 +1285,9 @@ models:
           at_least: 0.01
       - custom_dictionary_coverage:
           columns_covered_by_dictionary:
-            # - year
-            # - country_m49
             - grade_id
             - student_sex
             - language_school_questionnaire
-            #  - locale_school_questionnaire
             - bsmibm01
             - bsmibm02
             - bsmibm03
@@ -1613,7 +1608,6 @@ models:
             - grade_id
             - student_sex
             - language_school_questionnaire
-            # - locale_school_questionnaire
             - asbg01
             - asbg03
             - asbg04
@@ -2024,11 +2018,9 @@ models:
           at_least: 0.01
       - custom_dictionary_coverage:
           columns_covered_by_dictionary:
-            # - country_id
             - grade_id
             - student_sex
             - language_school_questionnaire
-             # - locale_school_questionnaire
             - bsbg01
             - bsbg03
             - bsbg04
@@ -2386,12 +2378,10 @@ models:
           at_least: 0.01
       - custom_dictionary_coverage:
           columns_covered_by_dictionary:
-            # - country_id
             - grade_id
             - course
             - subject_id
             - language_school_questionnaire
-              # - locale_school_questionnaire
             - atbg02
             - atbg03
             - atbg04
@@ -2658,7 +2648,6 @@ models:
             - grade_id
             - subject_id
             - language_school_questionnaire
-             # - locale_school_questionnaire
             - btbg02
             - btbg03
             - btbg04
@@ -3185,11 +3174,9 @@ models:
           at_least: 0.01
       - custom_dictionary_coverage:
           columns_covered_by_dictionary:
-            # - country_id
             - grade_id
             - subject_id
             - language_school_questionnaire
-             # - locale_school_questionnaire
             - btbg02
             - btbg03
             - btbg04
