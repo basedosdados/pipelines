@@ -200,7 +200,7 @@ def template_upload_to_gcs_and_materialization(
         parameters={
             "dataset_id": dataset_id,
             "table_id": table_id,
-            "mode": target,
+            "target": target,
             "dbt_command": run_model,
             "disable_elementary": False,
             "download_csv_file": False,
