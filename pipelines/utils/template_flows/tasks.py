@@ -180,6 +180,7 @@ def template_upload_to_gcs_and_materialization(
     target: str,
     bucket_name: str,
     labels: str,
+    dbt_alias: str = True,
     dump_mode: str = "append",
     run_model: str = "run/test",
 ):
@@ -202,6 +203,7 @@ def template_upload_to_gcs_and_materialization(
             "table_id": table_id,
             "target": target,
             "dbt_command": run_model,
+            "dbt_alias": dbt_alias,
             "disable_elementary": False,
             "download_csv_file": False,
         },
