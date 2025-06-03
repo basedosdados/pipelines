@@ -97,7 +97,7 @@ poetry shell
 #### Instalar as dependências
 
 ```sh
-poetry install --with dev --with test --no-root
+poetry install --with dev --no-root
 ```
 
 > [!WARNING]
