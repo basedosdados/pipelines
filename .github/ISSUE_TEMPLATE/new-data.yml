@@ -2,7 +2,7 @@
 name: 📊 data
 description: Solicitação para adicionar novos dados à BD
 title: '[data] <dataset_id>'
-labels: []
+labels: [data]
 body:
   - type: textarea
     attributes:
