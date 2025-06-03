@@ -415,3 +415,11 @@ def cleaning_agencias_data(municipio: pd.DataFrame) -> str:
         del df
 
     return OUTPUT_PATH
+
+
+@task
+def get_output():
+    """
+    Returns the output path.
+    """
+    return br_bcb_estban_constants.OUTPUT_PATH_AGENCIA.value
