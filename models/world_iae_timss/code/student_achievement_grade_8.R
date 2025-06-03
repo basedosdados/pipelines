@@ -172,4 +172,8 @@ for (i in seq_len(nrow(df_final))) {
   }
 }
 
-write.csv(world_iae_timss_student_achievement_grade_8, "~/BD/timms/timms_2023/final_data/world_iae_timss_student_achievement_grade_8.csv", row.names = FALSE)
+write.csv(world_iae_timss_student_achievement_grade_8, "world_iae_timss_student_achievement_grade_8.csv", 
+          row.names = FALSE, 
+          na = "", 
+          fileEncoding = "UTF-8",
+          quote = TRUE)

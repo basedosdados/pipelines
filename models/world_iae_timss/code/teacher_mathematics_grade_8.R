@@ -26,7 +26,7 @@ arquivos <- list.files(
 
 # Lê a tabela de arquitetura com os nomes originais e novos das variáveis
 arquitetura_contexto_prof_mat <- readxl::read_excel(
-  "~/BD/timms/timms_2023/arquitetura/[arquitetura]world_iae_timss_teacher_mathematics_context_grade_8.xlsx")
+  "~/BD/timms/timms_2023/arquitetura/[arquitetura]world_iae_timss_teacher_mathematics_grade_8.xlsx")
 
 # Define colunas de interesse com base na arquitetura
 colunas <- arquitetura_contexto_prof_mat$original_name
@@ -113,7 +113,7 @@ lista_dados <- lapply(lista, function(x) {
 })
 
 # Combina todos os dataframes em um único dataframe final
-world_iae_timss_teacher_mathematics_context_grade_8 <- do.call(rbind, lista_dados)
+world_iae_timss_teacher_mathematics_grade_8 <- do.call(rbind, lista_dados)
 
 # ------------------------------------------------------------------------------
 # Renomeia colunas com base na arquitetura e organiza estrutura final
@@ -124,23 +124,23 @@ nomes_antigos <- arquitetura_contexto_prof_mat$original_name
 nomes_novos   <- arquitetura_contexto_prof_mat$name
 
 # Filtra apenas os nomes existentes no dataframe
-nomes_validos <- nomes_antigos[nomes_antigos %in% colnames(world_iae_timss_teacher_mathematics_context_grade_8)]
-nomes_correspondentes <- nomes_novos[nomes_antigos %in% colnames(world_iae_timss_teacher_mathematics_context_grade_8)]
+nomes_validos <- nomes_antigos[nomes_antigos %in% colnames(world_iae_timss_teacher_mathematics_grade_8)]
+nomes_correspondentes <- nomes_novos[nomes_antigos %in% colnames(world_iae_timss_teacher_mathematics_grade_8)]
 
 # Renomeia as colunas
-world_iae_timss_teacher_mathematics_context_grade_8 <- world_iae_timss_teacher_mathematics_context_grade_8 %>%
+world_iae_timss_teacher_mathematics_grade_8 <- world_iae_timss_teacher_mathematics_grade_8 %>%
   rename_with(~ setNames(nomes_correspondentes, nomes_validos)[.x], .cols = nomes_validos)
 
 # Remove a coluna 'CTY', se ainda existir
-world_iae_timss_teacher_mathematics_context_grade_8 <- world_iae_timss_teacher_mathematics_context_grade_8 %>%
+world_iae_timss_teacher_mathematics_grade_8 <- world_iae_timss_teacher_mathematics_grade_8 %>%
   select(-any_of("CTY"))
 
 # Ordena colunas conforme especificação da arquitetura
 ordem_desejada <- arquitetura_contexto_prof_mat$name
-ordem_final <- ordem_desejada[ordem_desejada %in% colnames(world_iae_timss_teacher_mathematics_context_grade_8)]
+ordem_final <- ordem_desejada[ordem_desejada %in% colnames(world_iae_timss_teacher_mathematics_grade_8)]
 
 # Reorganiza colunas: primeiro as padronizadas, depois as demais (ex: year, country_m49)
-world_iae_timss_teacher_mathematics_context_grade_8 <- world_iae_timss_teacher_mathematics_context_grade_8 %>%
+world_iae_timss_teacher_mathematics_grade_8 <- world_iae_timss_teacher_mathematics_grade_8 %>%
   select(all_of(ordem_final), everything())
 
 # ------------------------------------------------------------------------------
@@ -154,7 +154,7 @@ df_final <- arquitetura_contexto_prof_mat %>%
   left_join(guia_g8, by = c("original_name" = "Variable"))
 
 # Remove rótulos SPSS do dataset
-world_iae_timss_teacher_mathematics_context_grade_8 <- world_iae_timss_teacher_mathematics_context_grade_8 %>%
+world_iae_timss_teacher_mathematics_grade_8 <- world_iae_timss_teacher_mathematics_grade_8 %>%
   mutate(across(everything(), zap_labels))
 
 # Itera por cada linha de df_final
@@ -163,13 +163,17 @@ for (i in seq_len(nrow(df_final))) {
   missing_val <- df_final[["Missing Scheme Detailed: SPSS"]][i]
   
   # Pula se coluna estiver ausente ou valor faltante for NA
-  if (!is.na(missing_val) && col_name %in% names(world_iae_timss_teacher_mathematics_context_grade_8)) {
-    world_iae_timss_teacher_mathematics_context_grade_8[[col_name]] <- ifelse(
-      world_iae_timss_teacher_mathematics_context_grade_8[[col_name]] == missing_val,
+  if (!is.na(missing_val) && col_name %in% names(world_iae_timss_teacher_mathematics_grade_8)) {
+    world_iae_timss_teacher_mathematics_grade_8[[col_name]] <- ifelse(
+      world_iae_timss_teacher_mathematics_grade_8[[col_name]] == missing_val,
       NA,
-      world_iae_timss_teacher_mathematics_context_grade_8[[col_name]]
+      world_iae_timss_teacher_mathematics_grade_8[[col_name]]
     )
   }
 }
 
-write.csv( world_iae_timss_teacher_mathematics_context_grade_8, "~/BD/timms/timms_2023/tabelas/grade_8/world_iae_timss_teacher_mathematics_context_grade_8.csv", row.names = FALSE)
+write.csv(world_iae_timss_teacher_mathematics_grade_8, "world_iae_timss_teacher_mathematics_grade_8.csv", 
+          row.names = FALSE, 
+          na = "", 
+          fileEncoding = "UTF-8",
+          quote = TRUE)
