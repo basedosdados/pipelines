@@ -87,3 +87,8 @@ def treat_data_taxa_cambio(table_id: str) -> str:
 
     # Return the full file path
     return file_info
+
+
+@task
+def get_output(table_id: str) -> pd.DataFrame:
+    return f"tmp/{table_id}/output/"
