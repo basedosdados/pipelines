@@ -139,6 +139,7 @@ typer = "^0.4.0"
 cookiecutter = "^1.7.3"
 networkx = "2.6.3"
 databasers-utils = {git = "https://github.com/basedosdados/databasers-utils.git", rev = "monorepo-migration"}
+ipykernel = "^6.29.5" # Required to run notebook jupyter
 basedosdados = {extras = ["all"], version = "^2.0.2"}
 
 [tool.poetry.group.test]
