@@ -1,3 +1,3 @@
 {
-  "recommendations": ["innoverio.vscode-dbt-power-user", "charliermarsh.ruff", "redhat.vscode-yaml", "ms-python.vscode-pylance", "ms-toolsai.jupyter", "EditorConfig.EditorConfig"]
+  "recommendations": ["innoverio.vscode-dbt-power-user", "charliermarsh.ruff", "redhat.vscode-yaml", "ms-python.vscode-pylance", "ms-toolsai.jupyter", "EditorConfig.EditorConfig", "eamodio.gitlens", "REditorSupport.r"]
 }
