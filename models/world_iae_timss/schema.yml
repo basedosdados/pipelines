@@ -114,7 +114,7 @@ models:
             - asdhedup
             - asdhaps
             - scope
-          dictionary_model: ref('world_iae_timss__dicionario')
+          dictionary_model: ref('world_iae_timss__dictionary')
     columns:
       - name: year
         description: Year
@@ -349,18 +349,18 @@ models:
         description: Data Version
       - name: scope
         description: Scope Of This File
-  - name: world_iae_timss__dicionario
+  - name: world_iae_timss__dictionary
     description: TIMSS 2023 Tables Data Dictionary
     columns:
-      - name: id_tabela
+      - name: table_id
         description: ID da tabela
-      - name: nome_coluna
+      - name: column_name
         description: Nome da coluna
-      - name: chave
+      - name: key
         description: Chave
-      - name: cobertura_temporal
+      - name: temporal_coverage
         description: Cobertura temporal
-      - name: valor
+      - name: value
         description: Valor
   - name: world_iae_timss__school_context_grade_4
     description: School context data files contain principals' responses to the TIMSS
@@ -462,7 +462,7 @@ models:
             - acdglns
             - acdgsbc
             - scope
-          dictionary_model: ref('world_iae_timss__dicionario')
+          dictionary_model: ref('world_iae_timss__dictionary')
     columns:
       - name: year
         description: Year
@@ -789,7 +789,7 @@ models:
             - bcdgdas
             - bcdgsbc
             - scope
-          dictionary_model: ref('world_iae_timss__dicionario')
+          dictionary_model: ref('world_iae_timss__dictionary')
     columns:
       - name: year
         description: Year
@@ -1039,7 +1039,7 @@ models:
             - assibm03
             - assibm04
             - assibm05
-          dictionary_model: ref('world_iae_timss__dicionario')
+          dictionary_model: ref('world_iae_timss__dictionary')
     columns:
       - name: year
         description: Year
@@ -1315,7 +1315,7 @@ models:
             - se82env
             - se82nen
             - scope
-          dictionary_model: ref('world_iae_timss__dicionario')
+          dictionary_model: ref('world_iae_timss__dictionary')
     columns:
       - name: year
         description: Year
@@ -1723,7 +1723,7 @@ models:
             - asbs10e
             - asbs10f
             - scope
-          dictionary_model: ref('world_iae_timss__dicionario')
+          dictionary_model: ref('world_iae_timss__dictionary')
     columns:
       - name: year
         description: Year
@@ -2123,7 +2123,7 @@ models:
             - bsdg05s
             - bsdgedup
             - scope
-          dictionary_model: ref('world_iae_timss__dicionario')
+          dictionary_model: ref('world_iae_timss__dictionary')
     columns:
       - name: year
         description: Year
@@ -2443,7 +2443,7 @@ models:
             - atdglsn
             - atdmmem
             - atdsmes
-          dictionary_model: ref('world_iae_timss__dicionario')
+          dictionary_model: ref('world_iae_timss__dictionary')
     columns:
       - name: year
         description: Year
@@ -2790,7 +2790,7 @@ models:
             - btdglsn
             - btdmmme
             - scope
-          dictionary_model: ref('world_iae_timss__dicionario')
+          dictionary_model: ref('world_iae_timss__dictionary')
     columns:
       - name: year
         description: Year
@@ -3364,7 +3364,7 @@ models:
             - btdglsn
             - btdsmse
             - scope
-          dictionary_model: ref('world_iae_timss__dicionario')
+          dictionary_model: ref('world_iae_timss__dictionary')
     columns:
       - name: year
         description: Year
