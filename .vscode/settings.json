@@ -1,0 +1,25 @@
+{
+  "[jinja-sql]": {
+    "editor.defaultFormatter": "innoverio.vscode-dbt-power-user",
+    "editor.formatOnSave": true
+  },
+  "files.associations": {
+    "*.sql": "jinja-sql"
+  },
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true,
+  },
+  "jupyter.notebookFileRoot": "${workspaceFolder}",
+  "notebook.defaultFormatter": "charliermarsh.ruff",
+  "notebook.formatOnSave.enabled": true,
+  // Disable default formatter for yaml files
+  "[yaml]": {
+    "editor.defaultFormatter": null
+  },
+  // Keep schemas version sync with dbt version
+  "yaml.schemas": {
+    "https://raw.githubusercontent.com/dbt-labs/dbt-jsonschema/main/schemas/1.5/dbt_yml_files-1.5.json": "schema.yml",
+    "https://raw.githubusercontent.com/dbt-labs/dbt-jsonschema/main/schemas/1.5/dbt_project-1.5.json": "dbt_project.yml"
+  },
+}
