@@ -353,15 +353,15 @@ models:
     description: TIMSS 2023 Tables Data Dictionary
     columns:
       - name: table_id
-        description: ID da tabela
+        description: Table ID
       - name: column_name
-        description: Nome da coluna
+        description: Column name
       - name: key
-        description: Chave
+        description: Key
       - name: temporal_coverage
-        description: Cobertura temporal
+        description: Temporal coverage
       - name: value
-        description: Valor
+        description: Value
   - name: world_iae_timss__school_context_grade_4
     description: School context data files contain principals' responses to the TIMSS
       2023 School Questionnaire. To analyze student-level data with school information,
