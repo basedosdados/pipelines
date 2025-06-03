@@ -1,6 +1,6 @@
 ---
-name: 🐞 bugfix
-description: 🚨 Relate um bug ou problema encontrado nos dados ou em alguma funcionadade
+name: 🐞 bug
+description: 🚨 Relate um bug ou problema encontrado nos dados ou em alguma funcionalidade
   da Base dos Dados
 title: '[bug] <title>'
 labels: [bug, triage]
