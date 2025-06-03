@@ -58,7 +58,7 @@ with Flow(
     file_info = treat_data_taxa_cambio(
         table_id=table_id, upstream_tasks=[input_filepath]
     )
-    get_output_file = get_output(
+    get_output = get_output(
         table_id=table_id,
         upstream_tasks=[file_info],
     )
@@ -66,14 +66,14 @@ with Flow(
         template_upload_to_gcs_and_materialization(
             dataset_id=dataset_id,
             table_id=table_id,
-            data_path=get_output_file,
+            data_path=get_output,
             target="dev",
             bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             dbt_alias=dbt_alias,
             dump_mode="append",
             run_model="run/test",
-            upstream_tasks=[get_output_file],
+            upstream_tasks=[get_output],
         )
     )
 
@@ -82,7 +82,7 @@ with Flow(
             template_upload_to_gcs_and_materialization(
                 dataset_id=dataset_id,
                 table_id=table_id,
-                data_path=get_output_file,
+                data_path=get_output,
                 target="prod",
                 bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
                 labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
