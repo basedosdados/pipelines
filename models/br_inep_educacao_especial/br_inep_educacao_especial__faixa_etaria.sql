@@ -16,6 +16,6 @@ select
     safe_cast(sigla_uf as string) sigla_uf,
     safe_cast(id_municipio as string) id_municipio,
     safe_cast(tipo_classe as string) tipo_classe,
-    safe_cast(faixa_etaria as string) faixa_etaria,
+    safe_cast(trim(etapa_ensino) as string) faixa_etaria,
     safe_cast(quantidade_matricula as numeric) quantidade_matricula,
 from {{ set_datalake_project("br_inep_educacao_especial_staging.faixa_etaria") }} as t

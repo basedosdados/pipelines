@@ -18,9 +18,13 @@ select
     safe_cast(tipo_classe as string) tipo_classe,
     safe_cast(
         case
-            when etapa_ensino = 'Ensino Médio Normal/Magistério'
+            when
+                etapa_ensino in (
+                    'Ensino Médio Normal/Magistério',
+                    'Ensino Médio - Ensino Médio Normal/Magistério'
+                )
             then 'Ensino Médio Normal - Magistério'
-            else etapa_ensino
+            else replace(etapa_ensino, "–", "-")
         end as string
     ) etapa_ensino,
     safe_cast(quantidade_matricula as numeric) quantidade_matricula

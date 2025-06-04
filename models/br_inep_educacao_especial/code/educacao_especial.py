@@ -525,10 +525,10 @@ df_sexo_raca_cor = pd.concat(
     .apply(lambda uf: uf.strip())
     .replace({i["nome"]: i["sigla"] for i in bd_dir.to_dict("records")}),
     quantidade_matricula=lambda d: d["quantidade_matricula"].astype("Int64"),
-    sexo=lambda d: d["sexo_raca_cor"].apply(
+    raca_cor=lambda d: d["sexo_raca_cor"].apply(
         lambda v: v.split("_")[-1].title().strip()
     ),
-    raca_cor=lambda d: d["sexo_raca_cor"].apply(
+    sexo=lambda d: d["sexo_raca_cor"].apply(
         lambda v: v.split("_")[0].title().strip()
     ),
 )[
