@@ -42,22 +42,7 @@ body:
     attributes:
       label: 🛠️ Raspagem
       description: Detalhes técnicos sobre a extração dos dados.
-      value: |
+      value: |-
         - Nível de dificuldade: `<baixo> / <médio> / <alto>`
         - Existe código semi-pronto? `<sim> / <não>`
         - Dificuldades de Big Data (alta frequência, alto volume)? `<alta_frequencia> / <alto_volume> / <não>`
-  - type: checkboxes
-    attributes:
-      label: ✅ Passo a Passo
-      description: Siga os passos da [documentação](https://basedosdados.github.io/sdk/colab_data/)
-      options:
-        - label: 📥 Baixar a pasta template e os dados originais
-        - label: 📝 Preencher as tabelas de arquitetura
-        - label: 🔍 Revisar as tabelas de arquitetura pós correção da equipe
-        - label: 🖥️ Escrever código de captura e limpeza de dados
-        - label: 📂 Organizar arquivos brutos, se necessário
-        - label: 📁 Organizar arquivos auxiliares, se necessário
-        - label: 📜 Criar tabela dicionário, se necessário
-        - label: 📊 Subir tabelas no BigQuery
-        - label: 🔎 Fazer a query para publicação dos dados
-        - label: 📌 Abrir o PR com as labels `table-approve`
