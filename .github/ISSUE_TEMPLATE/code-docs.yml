@@ -1,0 +1,29 @@
+---
+name: 📖 docs
+description: ✒️ Relate melhorias ou problemas na documentação em arquivos Markdown,
+  README ou Arquiteturas
+title: '[docs] <title>'
+labels: [documentation]
+body:
+  - type: checkboxes
+    attributes:
+      label: 📌 Tipo de Alteração
+      description: Que tipo de alteração na documentação está sendo sugerida?
+      options:
+        - label: Correção de erro ortográfico ou gramatical
+        - label: Melhoria na clareza ou estrutura
+        - label: Atualização de informações desatualizadas
+        - label: Adição de novos exemplos ou explicações
+        - label: Outro (descreva nos comentários adicionais)
+  - type: textarea
+    attributes:
+      label: 📝 Descrição do Problema ou  da Melhoria
+      description: Explique claramente o problema ou a sugestão de melhoria na documentação.
+        Inclua exemplos, erros encontrados ou pontos que podem ser melhorados.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 🔗 Referências e Links
+      description: Adicione links para a documentação afetada, PRs relacionados ou
+        qualquer outra referência útil.
