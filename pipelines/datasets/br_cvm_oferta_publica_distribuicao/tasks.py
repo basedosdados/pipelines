@@ -77,3 +77,9 @@ def clean_table_oferta_distribuicao(root: str) -> str:
     dataframe.to_csv(ou_filepath, index=False, encoding="utf-8")
 
     return ou_filepath
+
+
+@task
+def get_output(root: str) -> str:
+    """Get output file path"""
+    return f"{root}/output/br_cvm_oferta_publica_distribuicao.csv"

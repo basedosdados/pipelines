@@ -10,12 +10,15 @@ from prefect.storage import GCS
 from pipelines.constants import constants
 from pipelines.utils.crawler_cgu.tasks import (
     dict_for_table,
+    get_current_date_and_download_file,
     get_output,
     partition_data,
     read_and_partition_beneficios_cidadao,
+    verify_all_url_exists_to_download,
 )
 from pipelines.utils.decorators import Flow
 from pipelines.utils.metadata.tasks import (
+    check_if_data_is_outdated,
     update_django_metadata,
 )
 from pipelines.utils.tasks import (
@@ -51,19 +54,19 @@ with Flow(
         wait=table_id,
     )
 
-    # data_source_max_date = get_current_date_and_download_file(
-    #     table_id,
-    #     dataset_id,
-    #     relative_month,
-    # )
+    data_source_max_date = get_current_date_and_download_file(
+        table_id,
+        dataset_id,
+        relative_month,
+    )
 
-    # dados_desatualizados = check_if_data_is_outdated(
-    #     dataset_id=dataset_id,
-    #     table_id=table_id,
-    #     data_source_max_date=data_source_max_date,
-    #     date_format="%Y-%m",
-    #     upstream_tasks=[data_source_max_date],
-    # )
+    dados_desatualizados = check_if_data_is_outdated(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        data_source_max_date=data_source_max_date,
+        date_format="%Y-%m",
+        upstream_tasks=[data_source_max_date],
+    )
 
     # with case(dados_desatualizados, True):
     filepath = partition_data(
@@ -156,25 +159,25 @@ with Flow(
     ####
     relative_month = Parameter("relative_month", default=1, required=False)
 
-    # with case(
-    #     verify_all_url_exists_to_download(
-    #         dataset_id, table_id, relative_month
-    #     ),
-    #     True,
-    # ):
-    #     data_source_max_date = get_current_date_and_download_file(
-    #         table_id,
-    #         dataset_id,
-    #         relative_month,
-    #     )
+    with case(
+        verify_all_url_exists_to_download(
+            dataset_id, table_id, relative_month
+        ),
+        True,
+    ):
+        data_source_max_date = get_current_date_and_download_file(
+            table_id,
+            dataset_id,
+            relative_month,
+        )
 
-    #     dados_desatualizados = check_if_data_is_outdated(
-    #         dataset_id=dataset_id,
-    #         table_id=table_id,
-    #         data_source_max_date=data_source_max_date,
-    #         date_format="%Y-%m",
-    #         upstream_tasks=[data_source_max_date],
-    #     )
+        dados_desatualizados = check_if_data_is_outdated(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            data_source_max_date=data_source_max_date,
+            date_format="%Y-%m",
+            upstream_tasks=[data_source_max_date],
+        )
 
     #     with case(dados_desatualizados, True):
     filepath = partition_data(
@@ -259,19 +262,19 @@ with Flow(
         wait=table_id,
     )
 
-    # data_source_max_date = get_current_date_and_download_file(
-    #     table_id=table_id,
-    #     dataset_id=dataset_id,
-    #     relative_month=relative_month,
-    # )
+    data_source_max_date = get_current_date_and_download_file(
+        table_id=table_id,
+        dataset_id=dataset_id,
+        relative_month=relative_month,
+    )
 
-    # dados_desatualizados = check_if_data_is_outdated(
-    #     dataset_id=dataset_id,
-    #     table_id=table_id,
-    #     data_source_max_date=data_source_max_date,
-    #     date_format="%Y-%m",
-    #     upstream_tasks=[data_source_max_date],
-    # )
+    dados_desatualizados = check_if_data_is_outdated(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        data_source_max_date=data_source_max_date,
+        date_format="%Y-%m",
+        upstream_tasks=[data_source_max_date],
+    )
 
     # with case(dados_desatualizados, True):
     filepath = partition_data(
@@ -358,24 +361,24 @@ with Flow(
         wait=table_id,
     )
 
-    # data_source_max_date = get_current_date_and_download_file(
-    #     table_id=table_id,
-    #     dataset_id=dataset_id,
-    #     relative_month=relative_month,
-    # )
+    data_source_max_date = get_current_date_and_download_file(
+        table_id=table_id,
+        dataset_id=dataset_id,
+        relative_month=relative_month,
+    )
 
-    # dados_desatualizados = check_if_data_is_outdated(
-    #     dataset_id=dataset_id,
-    #     table_id=table_id,
-    #     data_source_max_date=data_source_max_date,
-    #     date_format="%Y-%m",
-    #     upstream_tasks=[data_source_max_date],
-    # )
+    dados_desatualizados = check_if_data_is_outdated(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        data_source_max_date=data_source_max_date,
+        date_format="%Y-%m",
+        upstream_tasks=[data_source_max_date],
+    )
 
     # with case(dados_desatualizados, True):
     filepath = read_and_partition_beneficios_cidadao(
         table_id=table_id,
-        # upstream_tasks=[data_source_max_date],
+        upstream_tasks=[dados_desatualizados],
     )
 
     get_output = get_output(table_id=table_id, upstream_tasks=[filepath])

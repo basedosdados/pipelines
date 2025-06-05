@@ -13,6 +13,7 @@ from pipelines.datasets.br_denatran_frota.tasks import (
     crawl_task,
     get_desired_file_task,
     get_latest_data_task,
+    get_output,
     output_file_to_parquet_task,
     treat_municipio_tipo_task,
     treat_uf_tipo_task,
@@ -28,6 +29,9 @@ from pipelines.utils.tasks import (
     get_current_flow_labels,
     log_task,
     rename_current_flow_run_dataset_table,
+)
+from pipelines.utils.template_flows.tasks import (
+    template_upload_to_gcs_and_materialization,
 )
 
 with Flow(
@@ -92,44 +96,37 @@ with Flow(
             df, constants.UF_TIPO_BASIC_FILENAME.value, upstream_tasks=[df]
         )
 
-        wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=parquet_output,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dump_mode="append",
-            wait=parquet_output,
+        get_output = get_output()
+
+        upload_and_materialization_dev = (
+            template_upload_to_gcs_and_materialization(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                data_path=get_output,
+                target="dev",
+                bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                dbt_alias=dbt_alias,
+                dump_mode="append",
+                run_model="run/test",
+                upstream_tasks=[get_output],
+            )
         )
 
-        with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels()
-            materialization_flow = create_flow_run(
-                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=pipelines_constants.PREFECT_DEFAULT_PROJECT.value,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": table_id,
-                    "target": target,
-                    "dbt_alias": dbt_alias,
-                },
-                labels=current_flow_labels,
-                run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks=[wait_upload_table],
-            )
-
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
-            )
-
-            wait_for_materialization.max_retries = (
-                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-
-            wait_for_materialization.retry_delay = timedelta(
-                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+        with case(target, "prod"):
+            upload_and_materialization_prod = (
+                template_upload_to_gcs_and_materialization(
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    data_path=get_output,
+                    target="prod",
+                    bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                    labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                    dbt_alias=dbt_alias,
+                    dump_mode="append",
+                    run_model="run/test",
+                    upstream_tasks=[upload_and_materialization_dev],
+                )
             )
 
             with case(update_metadata, True):
@@ -142,7 +139,7 @@ with Flow(
                     # time_delta={"months": 6},
                     prefect_mode=target,
                     bq_project="basedosdados",
-                    upstream_tasks=[wait_for_materialization],
+                    upstream_tasks=[upload_and_materialization_prod],
                 )
 
 

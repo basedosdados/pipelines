@@ -271,3 +271,8 @@ def write_csv_file(df: pd.DataFrame) -> str:
     path = "/tmp/data.csv"
     df.to_csv(path, index=False)
     return path
+
+
+@task
+def get_output() -> str:
+    return "/tmp/data.csv"

@@ -933,3 +933,8 @@ def clean_mes_geral(indice: str):
     log(os.system("tree /tmp/data"))
 
     return filepath
+
+
+@task
+def get_output(indice: str) -> str:
+    return f"/tmp/data/output/{indice}/mes_brasil.csv"
