@@ -3,6 +3,8 @@
 Tasks for br-bcb-taxa-selic
 """
 
+import os
+
 from prefect import task
 
 from pipelines.datasets.br_bcb_taxa_selic.utils import (
@@ -12,6 +14,7 @@ from pipelines.datasets.br_bcb_taxa_selic.utils import (
     save_output,
     treat_selic_df,
 )
+from pipelines.utils.utils import log
 
 
 @task
@@ -66,3 +69,9 @@ def treat_data_taxa_selic(table_id: str) -> str:
 
     # Return the full file path
     return file_info
+
+
+@task
+def get_output(table_id: str):
+    log(f"GET_OUTPUT -> {os.listdir(f'tmp/{table_id}/input/')}")
+    return f"/tmp/{table_id}/output/"
