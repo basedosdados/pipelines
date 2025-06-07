@@ -205,3 +205,8 @@ def clean_br_me_comex_stat(
             del df
 
     return f"/tmp/br_me_comex_stat/{table_name}/output"
+
+
+@task
+def get_output(table_name: str):
+    return f"/tmp/br_me_comex_stat/{table_name}/output"

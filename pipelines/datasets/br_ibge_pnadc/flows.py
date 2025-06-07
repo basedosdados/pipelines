@@ -3,31 +3,26 @@
 Flows for br_ibge_pnadc
 """
 
-from datetime import timedelta
-
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
-from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
 from pipelines.datasets.br_ibge_pnadc.tasks import (
     build_parquet_files,
     get_data_source_date_and_url,
+    get_output,
 )
-from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import (
-    constants as dump_db_constants,
-)
 from pipelines.utils.metadata.tasks import (
     check_if_data_is_outdated,
     update_django_metadata,
 )
 from pipelines.utils.tasks import (
-    create_table_and_upload_to_gcs,
-    get_current_flow_labels,
     rename_current_flow_run_dataset_table,
+)
+from pipelines.utils.template_flows.tasks import (
+    template_upload_to_gcs_and_materialization,
 )
 from pipelines.utils.to_download.tasks import to_download
 
@@ -75,55 +70,47 @@ with Flow(name="br_ibge_pnadc.microdados", code_owners=["luiz"]) as br_pnadc:
             input_filepath, upstream_tasks=[input_filepath]
         )
 
-        wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=output_filepath,
+    upload_and_materialization_dev = (
+        template_upload_to_gcs_and_materialization(
             dataset_id=dataset_id,
             table_id=table_id,
+            data_path=get_output,
+            target="dev",
+            bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            dbt_alias=dbt_alias,
             dump_mode="append",
-            wait=output_filepath,
-            upstream_tasks=[output_filepath],
+            run_model="run/test",
+            upstream_tasks=[get_output],
         )
-        with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels()
-            materialization_flow = create_flow_run(
-                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": table_id,
-                    "target": target,
-                    "dbt_alias": dbt_alias,
-                    "dbt_command": "run/test",
-                    "disable_elementary": False,
-                },
-                labels=current_flow_labels,
-                run_name=f"Materialize {dataset_id}.{table_id}",
-            )
+    )
 
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
+    with case(target, "prod"):
+        upload_and_materialization_prod = (
+            template_upload_to_gcs_and_materialization(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                data_path=get_output,
+                target="prod",
+                bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                dbt_alias=dbt_alias,
+                dump_mode="append",
+                run_model="run/test",
+                upstream_tasks=[upload_and_materialization_dev],
             )
-            wait_for_materialization.max_retries = (
-                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
+        )
+        with case(update_metadata, True):
+            update_django_metadata(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                date_column_name={"year": "ano", "quarter": "trimestre"},
+                date_format="%Y-%m",
+                coverage_type="all_free",
+                prefect_mode=target,
+                bq_project="basedosdados",
+                upstream_tasks=[upload_and_materialization_prod],
             )
-            wait_for_materialization.retry_delay = timedelta(
-                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-            )
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id=table_id,
-                    date_column_name={"year": "ano", "quarter": "trimestre"},
-                    date_format="%Y-%m",
-                    coverage_type="all_free",
-                    prefect_mode=target,
-                    bq_project="basedosdados",
-                    upstream_tasks=[wait_for_materialization],
-                )
 
 br_pnadc.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_pnadc.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)

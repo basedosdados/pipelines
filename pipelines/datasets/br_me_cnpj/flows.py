@@ -19,7 +19,11 @@ from pipelines.datasets.br_me_cnpj.schedules import (
     every_day_simples,
     every_day_socios,
 )
-from pipelines.datasets.br_me_cnpj.tasks import get_data_source_max_date, main
+from pipelines.datasets.br_me_cnpj.tasks import (
+    get_data_source_max_date,
+    get_output,
+    main,
+)
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import (
@@ -30,10 +34,12 @@ from pipelines.utils.metadata.tasks import (
     update_django_metadata,
 )
 from pipelines.utils.tasks import (
-    create_table_and_upload_to_gcs,
     get_current_flow_labels,
     log_task,
     rename_current_flow_run_dataset_table,
+)
+from pipelines.utils.template_flows.tasks import (
+    template_upload_to_gcs_and_materialization,
 )
 
 with Flow(
@@ -71,65 +77,57 @@ with Flow(
     with case(dados_desatualizados, False):
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
-    with case(dados_desatualizados, True):
-        output_filepath = main(
-            tabelas,
-            max_folder_date=max_folder_date,
-            max_last_modified_date=max_last_modified_date,
-        )
-        wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=output_filepath,
+    # with case(dados_desatualizados, True):
+    output_filepath = main(
+        tabelas,
+        max_folder_date=max_folder_date,
+        max_last_modified_date=max_last_modified_date,
+    )
+    get_output = get_output(
+        tabelas, max_last_modified_date=max_last_modified_date
+    )
+    upload_and_materialization_dev = (
+        template_upload_to_gcs_and_materialization(
             dataset_id=dataset_id,
             table_id=table_id,
+            data_path=get_output,
+            target="dev",
+            bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            dbt_alias=dbt_alias,
             dump_mode="append",
-            wait=output_filepath,
+            run_model="run/test",
+            upstream_tasks=[get_output],
         )
-        with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels(
-                upstream_tasks=[wait_upload_table]
-            )
-            materialization_flow = create_flow_run(
-                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": table_id,
-                    "target": target,
-                    "dbt_alias": dbt_alias,
-                    "dbt_command": "run/test",
-                    "disable_elementary": False,
-                },
-                labels=current_flow_labels,
-                run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks=[current_flow_labels],
-            )
+    )
 
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
-                upstream_tasks=[materialization_flow],
-            )
-            wait_for_materialization.max_retries = (
-                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-            wait_for_materialization.retry_delay = timedelta(
-                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-            )
-
-            update_django_metadata(
+    with case(target, "prod"):
+        upload_and_materialization_prod = (
+            template_upload_to_gcs_and_materialization(
                 dataset_id=dataset_id,
                 table_id=table_id,
-                date_column_name={"date": "data"},
-                date_format="%Y-%m-%d",
-                coverage_type="part_bdpro",
-                time_delta={"months": 6},
-                prefect_mode=target,
-                bq_project="basedosdados",
-                upstream_tasks=[wait_for_materialization],
+                data_path=get_output,
+                target="prod",
+                bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                dbt_alias=dbt_alias,
+                dump_mode="append",
+                run_model="run/test",
+                upstream_tasks=[upload_and_materialization_dev],
             )
+        )
+
+        update_django_metadata(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            date_column_name={"date": "data"},
+            date_format="%Y-%m-%d",
+            coverage_type="part_bdpro",
+            time_delta={"months": 6},
+            prefect_mode=target,
+            bq_project="basedosdados",
+            upstream_tasks=[upload_and_materialization_prod],
+        )
 
 
 br_me_cnpj_empresas.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -173,65 +171,57 @@ with Flow(
     with case(dados_desatualizados, False):
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
-    with case(dados_desatualizados, True):
-        output_filepath = main(
-            tabelas,
-            max_folder_date=max_folder_date,
-            max_last_modified_date=max_last_modified_date,
-        )
-        wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=output_filepath,
+    # with case(dados_desatualizados, True):
+    output_filepath = main(
+        tabelas,
+        max_folder_date=max_folder_date,
+        max_last_modified_date=max_last_modified_date,
+    )
+    get_output = get_output(
+        tabelas, max_last_modified_date=max_last_modified_date
+    )
+    upload_and_materialization_dev = (
+        template_upload_to_gcs_and_materialization(
             dataset_id=dataset_id,
             table_id=table_id,
+            data_path=get_output,
+            target="dev",
+            bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            dbt_alias=dbt_alias,
             dump_mode="append",
-            wait=output_filepath,
+            run_model="run/test",
+            upstream_tasks=[get_output],
         )
-        with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels(
-                upstream_tasks=[wait_upload_table]
-            )
-            materialization_flow = create_flow_run(
-                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": table_id,
-                    "target": target,
-                    "dbt_alias": dbt_alias,
-                    "dbt_command": "run/test",
-                    "disable_elementary": False,
-                },
-                labels=current_flow_labels,
-                run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks=[current_flow_labels],
-            )
+    )
 
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
-                upstream_tasks=[materialization_flow],
-            )
-            wait_for_materialization.max_retries = (
-                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-            wait_for_materialization.retry_delay = timedelta(
-                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-            )
-
-            update_django_metadata(
+    with case(target, "prod"):
+        upload_and_materialization_prod = (
+            template_upload_to_gcs_and_materialization(
                 dataset_id=dataset_id,
                 table_id=table_id,
-                date_column_name={"date": "data"},
-                date_format="%Y-%m-%d",
-                coverage_type="part_bdpro",
-                time_delta={"months": 6},
-                prefect_mode=target,
-                bq_project="basedosdados",
-                upstream_tasks=[wait_for_materialization],
+                data_path=get_output,
+                target="prod",
+                bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                dbt_alias=dbt_alias,
+                dump_mode="append",
+                run_model="run/test",
+                upstream_tasks=[upload_and_materialization_dev],
             )
+        )
+
+        update_django_metadata(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            date_column_name={"date": "data"},
+            date_format="%Y-%m-%d",
+            coverage_type="part_bdpro",
+            time_delta={"months": 6},
+            prefect_mode=target,
+            bq_project="basedosdados",
+            upstream_tasks=[upload_and_materialization_prod],
+        )
 
 br_me_cnpj_socios.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_me_cnpj_socios.run_config = KubernetesRun(
@@ -278,66 +268,58 @@ with Flow(
     with case(dados_desatualizados, False):
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
-    with case(dados_desatualizados, True):
-        output_filepath = main(
-            tabelas,
-            max_folder_date=max_folder_date,
-            max_last_modified_date=max_last_modified_date,
-        )
+    # with case(dados_desatualizados, True):
+    output_filepath = main(
+        tabelas,
+        max_folder_date=max_folder_date,
+        max_last_modified_date=max_last_modified_date,
+    )
 
-        wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=output_filepath,
+    get_output = get_output(
+        tabelas, max_last_modified_date=max_last_modified_date
+    )
+    upload_and_materialization_dev = (
+        template_upload_to_gcs_and_materialization(
             dataset_id=dataset_id,
             table_id=table_id,
+            data_path=get_output,
+            target="dev",
+            bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            dbt_alias=dbt_alias,
             dump_mode="append",
-            wait=output_filepath,
+            run_model="run/test",
+            upstream_tasks=[get_output],
         )
-        with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels(
-                upstream_tasks=[wait_upload_table]
-            )
-            materialization_flow = create_flow_run(
-                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": table_id,
-                    "target": target,
-                    "dbt_alias": dbt_alias,
-                    "dbt_command": "run/test",
-                    "disable_elementary": False,
-                },
-                labels=current_flow_labels,
-                run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks=[current_flow_labels],
-            )
+    )
 
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
-                upstream_tasks=[materialization_flow],
-            )
-            wait_for_materialization.max_retries = (
-                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-            wait_for_materialization.retry_delay = timedelta(
-                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-            )
-
-            update_django_metadata(
+    with case(target, "prod"):
+        upload_and_materialization_prod = (
+            template_upload_to_gcs_and_materialization(
                 dataset_id=dataset_id,
                 table_id=table_id,
-                date_column_name={"date": "data"},
-                date_format="%Y-%m-%d",
-                coverage_type="part_bdpro",
-                time_delta={"months": 6},
-                prefect_mode=target,
-                bq_project="basedosdados",
-                upstream_tasks=[wait_for_materialization],
+                data_path=get_output,
+                target="prod",
+                bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                dbt_alias=dbt_alias,
+                dump_mode="append",
+                run_model="run/test",
+                upstream_tasks=[upload_and_materialization_dev],
             )
+        )
+
+        update_django_metadata(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            date_column_name={"date": "data"},
+            date_format="%Y-%m-%d",
+            coverage_type="part_bdpro",
+            time_delta={"months": 6},
+            prefect_mode=target,
+            bq_project="basedosdados",
+            upstream_tasks=[upload_and_materialization_prod],
+        )
         ## atualiza o diretório de empresas
         with case(materialize_after_dump, True):
             # Trigger DBT flow run
@@ -355,12 +337,9 @@ with Flow(
                 },
                 labels=current_flow_labels,
                 run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks=[
-                    materialization_flow,
-                    wait_for_materialization,
-                ],
+                upstream_tasks=[upload_and_materialization_prod],
             )
-            materialize_second.set_upstream([materialization_flow])
+            materialize_second.set_upstream([upload_and_materialization_prod])
             wait_for_materialization = wait_for_flow_run(
                 materialize_second,
                 stream_states=True,
@@ -428,61 +407,55 @@ with Flow(
     with case(dados_desatualizados, False):
         log_task(f"Não há atualizações para a tabela de {tabelas}!")
 
-    with case(dados_desatualizados, True):
-        output_filepath = main(
-            tabelas,
-            max_folder_date=max_folder_date,
-            max_last_modified_date=max_last_modified_date,
-        )
-        wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=output_filepath,
+    # with case(dados_desatualizados, True):
+    output_filepath = main(
+        tabelas,
+        max_folder_date=max_folder_date,
+        max_last_modified_date=max_last_modified_date,
+    )
+    get_output = get_output(
+        tabelas, max_last_modified_date=max_last_modified_date
+    )
+    upload_and_materialization_dev = (
+        template_upload_to_gcs_and_materialization(
             dataset_id=dataset_id,
             table_id=table_id,
+            data_path=get_output,
+            target="dev",
+            bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            dbt_alias=dbt_alias,
             dump_mode="append",
-            wait=output_filepath,
+            run_model="run/test",
+            upstream_tasks=[get_output],
         )
-        with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels(
-                upstream_tasks=[wait_upload_table]
-            )
-            materialization_flow = create_flow_run(
-                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": table_id,
-                    "target": target,
-                    "dbt_alias": dbt_alias,
-                },
-                labels=current_flow_labels,
-                run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks=[current_flow_labels],
-            )
+    )
 
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
-                upstream_tasks=[materialization_flow],
-            )
-            wait_for_materialization.max_retries = (
-                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-            wait_for_materialization.retry_delay = timedelta(
-                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-            )
-
-            update_django_metadata(
+    with case(target, "prod"):
+        upload_and_materialization_prod = (
+            template_upload_to_gcs_and_materialization(
                 dataset_id=dataset_id,
                 table_id=table_id,
-                coverage_type="all_free",
-                prefect_mode=target,
-                bq_project="basedosdados",
-                historical_database=False,
-                upstream_tasks=[wait_for_materialization],
+                data_path=get_output,
+                target="prod",
+                bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                dbt_alias=dbt_alias,
+                dump_mode="append",
+                run_model="run/test",
+                upstream_tasks=[upload_and_materialization_dev],
             )
+        )
+
+        update_django_metadata(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            coverage_type="all_free",
+            prefect_mode=target,
+            bq_project="basedosdados",
+            historical_database=False,
+            upstream_tasks=[wait_for_materialization],
+        )
 
 br_me_cnpj_simples.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_me_cnpj_simples.run_config = KubernetesRun(

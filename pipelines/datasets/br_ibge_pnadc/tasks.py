@@ -168,3 +168,8 @@ def build_parquet_files(save_path: str) -> str:
     log("Partitions created")
 
     return "/tmp/data/output/"
+
+
+@task
+def get_output():
+    return "/tmp/data/output/"

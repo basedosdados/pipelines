@@ -524,3 +524,8 @@ def is_up_to_date(headless: bool = True) -> bool:
     log(f"Last date API: {last_date_in_api}")
 
     return last_date_in_api == date_website
+
+
+@task
+def get_output():
+    return constants.OUTPUT_DIR.value
