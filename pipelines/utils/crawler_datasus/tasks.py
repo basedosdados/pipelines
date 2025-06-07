@@ -431,3 +431,8 @@ def get_last_modified_date_in_sinan_tablen(
                 # sys.stdout.write(file_date + "\n")
     ftp.close()
     return final_date
+
+
+@task
+def get_output(dataset_id: str, table_id: str):
+    return f"/tmp/{dataset_id}/output/{table_id}"

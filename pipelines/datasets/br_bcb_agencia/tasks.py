@@ -371,3 +371,11 @@ def clean_data():
             )
 
     return OUTPUT_PATH
+
+
+@task
+def get_output():
+    """
+    Returns the output path.
+    """
+    return agencia_constants.OUTPUT_PATH_AGENCIA.value

@@ -92,3 +92,11 @@ def make_partitions(df):
         output_directory=anp_constants.PATH_OUTPUT.value,
     )
     return anp_constants.PATH_OUTPUT.value
+
+
+@task
+def get_output():
+    """
+    Get the output path for the table.
+    """
+    return anp_constants.PATH_OUTPUT.value
