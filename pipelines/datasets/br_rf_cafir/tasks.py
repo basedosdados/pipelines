@@ -149,3 +149,8 @@ def task_download_files(
         os.remove(os.path.join(br_rf_cafir_constants.PATH.value[0], file))
 
     return br_rf_cafir_constants.PATH.value[1] + "/imoveis_rurais"
+
+
+@task
+def get_output():
+    return br_rf_cafir_constants.PATH.value[1] + "/imoveis_rurais"

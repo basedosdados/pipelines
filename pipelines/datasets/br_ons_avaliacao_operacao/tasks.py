@@ -368,3 +368,10 @@ def wrang_data(
             del df
 
     return True, path_output, data_tabela
+
+
+@task
+def get_output(
+    table_name: str,
+) -> str:
+    return f"/tmp/br_ons_avaliacao_operacao/{table_name}/output"

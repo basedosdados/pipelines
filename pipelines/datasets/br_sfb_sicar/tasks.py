@@ -76,3 +76,11 @@ def unzip_to_parquet(inputpath, outputpath, uf_relase_dates):
         output_folder=outputpath,
         uf_relase_dates=uf_relase_dates,
     )
+
+
+@task
+def get_output(outputpath):
+    """
+    Returns the output path for the processed data.
+    """
+    return outputpath
