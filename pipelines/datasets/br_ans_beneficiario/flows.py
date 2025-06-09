@@ -100,6 +100,7 @@ with Flow(
 
     with case(is_empty(files), False):
         output_filepath = crawler_ans(files, upstream_tasks=[files])
+        get_output = get_output(upstream_tasks=[output_filepath])
         upload_and_materialization_dev = (
             template_upload_to_gcs_and_materialization(
                 dataset_id=dataset_id,

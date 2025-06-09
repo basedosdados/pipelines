@@ -49,6 +49,8 @@ with Flow(
         "update_metadata", default=True, required=False
     )
 
+    get_output = get_output()
+
     df = download_and_transform(upstream_tasks=[rename_flow_run])
     output_path = make_partitions(df=df, upstream_tasks=[df])
 
