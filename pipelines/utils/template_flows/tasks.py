@@ -4,6 +4,7 @@ Helper tasks that could fit any pipeline.
 """
 # pylint: disable=C0103, C0301, invalid-name, E1101, R0913
 
+import os
 from pathlib import Path
 from typing import Union
 
@@ -48,6 +49,8 @@ def create_table_and_upload_to_gcs_teste(
             # MANAGEMENT OF TABLE CREATION
             #
             #####################################
+            log(f"DATA PATH -> {data_path}")
+            log(f"LISTDIR -> {os.listdir(data_path)}")
             log("STARTING TABLE CREATION MANAGEMENT")
             if dump_mode == "append":
                 if tb.table_exists(mode="staging"):
@@ -183,6 +186,7 @@ def template_upload_to_gcs_and_materialization(
     dbt_alias: str = True,
     dump_mode: str = "append",
     run_model: str = "run/test",
+    wait=None,
 ):
     create_table_and_upload_to_gcs_teste(
         data_path=data_path,
@@ -190,7 +194,7 @@ def template_upload_to_gcs_and_materialization(
         table_id=table_id,
         dump_mode=dump_mode,
         bucket_name=bucket_name,
-        wait=data_path,
+        wait=wait,
     )
     log(
         f"Materialization flow in {target} for {dataset_id}.{table_id} started."

@@ -13,7 +13,6 @@ from pipelines.datasets.br_anp_precos_combustiveis.schedules import (
 )
 from pipelines.datasets.br_anp_precos_combustiveis.tasks import (
     download_and_transform,
-    get_output,
     make_partitions,
 )
 from pipelines.utils.decorators import Flow
@@ -26,6 +25,7 @@ from pipelines.utils.tasks import (
 from pipelines.utils.template_flows.tasks import (
     template_upload_to_gcs_and_materialization,
 )
+from pipelines.utils.utils import log_task
 
 with Flow(
     name="br_anp_precos_combustiveis.microdados", code_owners=["trick"]
@@ -51,32 +51,37 @@ with Flow(
 
     df = download_and_transform(upstream_tasks=[rename_flow_run])
     output_path = make_partitions(df=df, upstream_tasks=[df])
-    get_output = get_output(upstream_tasks=[output_path])
+    log_task(output_path)
     upload_and_materialization_dev = (
         template_upload_to_gcs_and_materialization(
             dataset_id=dataset_id,
             table_id=table_id,
-            data_path=get_output,
+            data_path=output_path,
             target="dev",
             bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             dump_mode="append",
             run_model="run/test",
+            wait=output_path,
             upstream_tasks=[output_path],
         )
     )
 
+    log_task(output_path)
     with case(target, "prod"):
+        log_task(output_path)
+        # get_exit_path_for_climb = get_output(upstream_tasks=[upload_and_materialization_dev])
         upload_and_materialization_prod = (
             template_upload_to_gcs_and_materialization(
                 dataset_id=dataset_id,
                 table_id=table_id,
-                data_path=get_output,
+                data_path=output_path,
                 target="prod",
                 bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
                 labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
                 dump_mode="append",
                 run_model="run/test",
+                wait=output_path,
                 upstream_tasks=[upload_and_materialization_dev],
             )
         )

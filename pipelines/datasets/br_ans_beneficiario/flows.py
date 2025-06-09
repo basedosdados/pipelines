@@ -10,7 +10,6 @@ from prefect.storage import GCS
 from pipelines.constants import constants
 from pipelines.datasets.br_ans_beneficiario.schedules import every_day_ans
 from pipelines.datasets.br_ans_beneficiario.tasks import (
-    check_condition,
     check_if_update_date_is_today,
     crawler_ans,
     extract_links_and_dates,
@@ -21,7 +20,6 @@ from pipelines.datasets.br_ans_beneficiario.tasks import (
 )
 from pipelines.utils.decorators import Flow
 from pipelines.utils.metadata.flows import update_django_metadata
-from pipelines.utils.metadata.tasks import check_if_data_is_outdated
 from pipelines.utils.tasks import (
     rename_current_flow_run_dataset_table,
 )
@@ -84,28 +82,28 @@ with Flow(
             links_and_dates, upstream_tasks=[links_and_dates]
         )
 
-        coverage_check = check_if_data_is_outdated(
-            dataset_id,
-            table_id,
-            data_source_max_date=file_last_date,
-            date_format="%Y-%m-%d",
-            upstream_tasks=[links_and_dates, file_last_date],
-        )
+        # coverage_check = check_if_data_is_outdated(
+        #     dataset_id,
+        #     table_id,
+        #     data_source_max_date=file_last_date,
+        #     date_format="%Y-%m-%d",
+        #     upstream_tasks=[links_and_dates, file_last_date],
+        # )
 
-        with case(check_condition(update_date_check, coverage_check), True):
-            # Se check_condition = True, cria a lista com os arquivos para o download.
-            files = files_to_download(
-                links_and_dates, upstream_tasks=[links_and_dates]
-            )
+        # with case(check_condition(update_date_check, coverage_check), True):
+        # Se check_condition = True, cria a lista com os arquivos para o download.
+        files = files_to_download(
+            links_and_dates, upstream_tasks=[links_and_dates]
+        )
 
     with case(is_empty(files), False):
         output_filepath = crawler_ans(files, upstream_tasks=[files])
-        get_output = get_output(upstream_tasks=[output_filepath])
+        get_exit_path_for_climb = get_output(upstream_tasks=[output_filepath])
         upload_and_materialization_dev = (
             template_upload_to_gcs_and_materialization(
                 dataset_id=dataset_id,
                 table_id=table_id,
-                data_path=get_output,
+                data_path=get_exit_path_for_climb,
                 target="dev",
                 bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
                 labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
@@ -120,7 +118,7 @@ with Flow(
                 template_upload_to_gcs_and_materialization(
                     dataset_id=dataset_id,
                     table_id=table_id,
-                    data_path=get_output,
+                    data_path=get_exit_path_for_climb,
                     target="prod",
                     bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
                     labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
