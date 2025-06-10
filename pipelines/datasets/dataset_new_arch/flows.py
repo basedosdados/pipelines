@@ -18,6 +18,7 @@ from pipelines.utils.tasks import (
 from pipelines.utils.template_flows.tasks import (
     template_upload_to_gcs_and_materialization,
 )
+from pipelines.utils.utils import log_task
 
 with Flow(
     name="dataset_new_arch.table_new_arch",
@@ -35,10 +36,6 @@ with Flow(
 
     target = Parameter("target", default="dev", required=False)
 
-    materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
-    )
-
     dbt_alias = Parameter(
         "dbt_alias",
         default=True,
@@ -52,8 +49,8 @@ with Flow(
         wait=table_id,
     )
 
-    dataframe = criar_dataframe()
-
+    dataframe = criar_dataframe(upstream_tasks=[rename_flow_run])
+    log_task(f"DATAFRAME -> {dataframe}", upstream_tasks=[dataframe])
     upload_and_materialization_dev = (
         template_upload_to_gcs_and_materialization(
             dataset_id=dataset_id,

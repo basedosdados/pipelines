@@ -4,7 +4,6 @@ Helper tasks that could fit any pipeline.
 """
 # pylint: disable=C0103, C0301, invalid-name, E1101, R0913
 
-import os
 from pathlib import Path
 from typing import Union
 
@@ -50,7 +49,6 @@ def create_table_and_upload_to_gcs_teste(
             #
             #####################################
             log(f"DATA PATH -> {data_path}")
-            log(f"LISTDIR -> {os.listdir(data_path)}")
             log("STARTING TABLE CREATION MANAGEMENT")
             if dump_mode == "append":
                 if tb.table_exists(mode="staging"):
