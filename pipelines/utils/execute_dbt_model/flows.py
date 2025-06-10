@@ -3,15 +3,16 @@
 DBT-related flows.
 """
 
-from prefect import Parameter
+from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
+from pipelines.utils.dump_to_gcs.tasks import download_data_to_gcs
 from pipelines.utils.execute_dbt_model.tasks import (
-    run_dbt_and_download_data_to_gcs,
+    run_dbt,
 )
 from pipelines.utils.tasks import rename_current_flow_run_dataset_table
 
@@ -39,17 +40,33 @@ with Flow(
         wait=table_id,
     )
 
-    result = run_dbt_and_download_data_to_gcs(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dbt_alias=dbt_alias,
-        dbt_command=dbt_command,
-        target=target,
-        flags=flags,
-        _vars=_vars,
-        disable_elementary=disable_elementary,
-        download_csv_file=download_csv_file,
-    )
+    with case(download_csv_file, False):
+        run_dbt(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dbt_alias=dbt_alias,
+            dbt_command=dbt_command,
+            target=target,
+            flags=flags,
+            _vars=_vars,
+            disable_elementary=disable_elementary,
+        )
+
+    with case(download_csv_file, True):
+        dbt = run_dbt(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dbt_alias=dbt_alias,
+            dbt_command=dbt_command,
+            target=target,
+            flags=flags,
+            _vars=_vars,
+            disable_elementary=disable_elementary,
+        )
+        download_data_to_gcs(
+            dataset_id=dataset_id, table_id=table_id, upstream_tasks=dbt
+        )
+
 
 run_dbt_model_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 run_dbt_model_flow.run_config = KubernetesRun(
