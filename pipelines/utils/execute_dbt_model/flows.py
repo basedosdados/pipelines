@@ -64,7 +64,7 @@ with Flow(
             disable_elementary=disable_elementary,
         )
         download_data_to_gcs(
-            dataset_id=dataset_id, table_id=table_id, upstream_tasks=dbt
+            dataset_id=dataset_id, table_id=table_id, upstream_tasks=[dbt]
         )
 
 
