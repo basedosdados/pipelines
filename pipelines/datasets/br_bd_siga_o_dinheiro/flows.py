@@ -11,9 +11,6 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.datasets.br_bd_siga_o_dinheiro.schedules import (
-    schedule_br_bd_siga_o_dinheiro,
-)
 from pipelines.datasets.br_bd_siga_o_dinheiro.tasks import get_table_ids
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -69,4 +66,4 @@ br_bd_siga_o_dinheiro.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_bd_siga_o_dinheiro.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_bd_siga_o_dinheiro.schedule = schedule_br_bd_siga_o_dinheiro
+# br_bd_siga_o_dinheiro.schedule = schedule_br_bd_siga_o_dinheiro
