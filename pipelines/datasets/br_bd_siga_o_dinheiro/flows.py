@@ -11,9 +11,6 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.datasets.br_bd_siga_o_dinheiro.schedules import (
-    schedule_br_bd_siga_o_dinheiro,
-)
 from pipelines.datasets.br_bd_siga_o_dinheiro.tasks import get_table_ids
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -24,7 +21,7 @@ from pipelines.utils.tasks import get_current_flow_labels
 
 with Flow(
     name="BD template - br_bd_siga_o_dinheiro", code_owners=["luiz"]
-) as br_bd_siga_o_dinheiro:
+) as flow:
     dataset_id = Parameter(
         "dataset_id", default="br_bd_siga_o_dinheiro", required=True
     )
@@ -65,8 +62,6 @@ with Flow(
         )
 
 
-br_bd_siga_o_dinheiro.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_bd_siga_o_dinheiro.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-br_bd_siga_o_dinheiro.schedule = schedule_br_bd_siga_o_dinheiro
+flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+# br_bd_siga_o_dinheiro.schedule = schedule_br_bd_siga_o_dinheiro
