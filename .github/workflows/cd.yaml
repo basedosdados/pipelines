@@ -81,9 +81,29 @@ jobs:
             --schedule \
             --filter-affected-flows \
             --modified-files "${{ steps.files.outputs.all }}"
-      # TODO: https://github.com/basedosdados/pipelines/pull/1017
-      # - name: Delete archieved flow runs
-      #   run: poetry run python .github/workflows/scripts/delete_archieved_flow_runs.py
+  delete-archivied-flows:
+    needs: deploy-production
+    name: delete-archivied-flows
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up poetry
+        run: pipx install poetry==1.8.5
+      - name: Set up python
+        uses: actions/setup-python@v4
+        with:
+          cache: poetry
+          python-version-file: .python-version
+      - name: Write auth.toml
+        run: |-
+          mkdir -p $HOME/.prefect
+          echo $PREFECT_AUTH_TOML | base64 --decode > $HOME/.prefect/auth.toml
+      - name: Install dependencies
+        run: |-
+          poetry install
+      - name: Run script delete archieved flow runs
+        run: poetry run python .github/workflows/scripts/delete_archieved_flow_runs.py
   table-approve:
     needs: deploy-production
     name: table approve
