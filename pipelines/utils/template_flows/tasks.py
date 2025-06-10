@@ -37,7 +37,9 @@ def create_table_and_upload_to_gcs_teste(
             log(f"USING BASEDOSDADOS {bd_version}")
             # pylint: disable=C0103
             tb = bd.Table(dataset_id=dataset_id, table_id=table_id)
+            log(f"TB -> {tb}")
             table_staging = f"{tb.table_full_name['staging']}"
+            log(f"TABLE_STAGING -> {table_staging}")
             # pylint: disable=C0103
             st = bd.Storage(dataset_id=dataset_id, table_id=table_id)
             storage_path = f"{bucket_name}.staging.{dataset_id}.{table_id}"
