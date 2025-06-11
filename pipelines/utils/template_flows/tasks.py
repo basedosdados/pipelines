@@ -13,12 +13,16 @@ from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
 from pipelines.utils.constants import constants as utils_constants
+from pipelines.utils.template_flows.constants import (
+    constants as template_constants,
+)
 from pipelines.utils.utils import (
     dump_header_to_csv,
     log,
 )
 
 
+@task
 def create_table_and_upload_to_gcs_teste(
     data_path: Union[str, Path],
     dataset_id: str,
@@ -188,17 +192,29 @@ def template_upload_to_gcs_and_materialization(
     run_model: str = "run/test",
     wait=None,
 ):
-    create_table_and_upload_to_gcs_teste(
-        data_path=data_path,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dump_mode=dump_mode,
-        bucket_name=bucket_name,
-        wait=wait,
+    create_upload_table_gcs = create_flow_run.run(
+        flow_name=template_constants.FLOW_CREATE_UPLOAD_TABLE_GCS.value,
+        project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+        parameters={
+            "dataset_id": dataset_id,
+            "table_id": table_id,
+            "data_path": data_path,
+            "dump_mode": dump_mode,
+            "bucket_name": bucket_name,
+            "source_format": "csv",
+            "wait": wait,
+        },
+        labels=labels,
+        run_name=f"Create and Upload {dataset_id}.{table_id} to GCS",
     )
-    log(
-        f"Materialization flow in {target} for {dataset_id}.{table_id} started."
+
+    wait_for_flow_run.run(
+        create_upload_table_gcs,
+        stream_states=True,
+        stream_logs=True,
+        raise_final_state=True,
     )
+
     materialization_flow = create_flow_run.run(
         flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
         project_name=constants.PREFECT_DEFAULT_PROJECT.value,
