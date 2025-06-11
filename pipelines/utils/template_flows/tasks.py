@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Helper tasks that could fit any pipeline.
+register flow
 """
 
 from pathlib import Path

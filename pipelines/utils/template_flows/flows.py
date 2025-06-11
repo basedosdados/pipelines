@@ -1,4 +1,4 @@
-# register flow
+# Project: pipelines
 from prefect import Parameter
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
@@ -6,16 +6,13 @@ from prefect.storage import GCS
 from pipelines.constants import constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.tasks import rename_current_flow_run_dataset_table
-from pipelines.utils.template_flows.constants import (
-    constants as template_constants,
-)
 from pipelines.utils.template_flows.tasks import (
     create_table_and_upload_to_gcs_teste,
 )
 
 with Flow(
-    name=template_constants.FLOW_CREATE_UPLOAD_TABLE_GCS.value,
-) as create_table_and_upload_to_gcs:
+    name="BD Template: Create table and upload to GCS",
+) as create_uploado_table_gcs:
     dataset_id = Parameter("dataset_id", required=True)
     table_id = Parameter("table_id", default=None, required=False)
     data_path = Parameter("data_path", required=True)
@@ -39,9 +36,10 @@ with Flow(
         bucket_name=bucket_name,
         source_format=source_format,
         wait=wait,
+        upstream_tasks=[rename_flow_run],
     )
 
-create_table_and_upload_to_gcs.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-create_table_and_upload_to_gcs.run_config = KubernetesRun(
+create_uploado_table_gcs.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+create_uploado_table_gcs.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
