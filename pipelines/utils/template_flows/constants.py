@@ -6,11 +6,7 @@ Constants for utils.
 from enum import Enum
 
 
-class constants(Enum):  # pylint: disable=c0103
-    """
-    Constants for utils.
-    """
-
+class constants(Enum):
     FLOW_CREATE_UPLOAD_TABLE_GCS = (
         "BD Template: Create table and upload to GCS"
     )
