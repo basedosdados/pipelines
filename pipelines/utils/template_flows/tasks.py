@@ -237,5 +237,6 @@ def template_upload_to_gcs_and_materialization(
         stream_logs=True,
         raise_final_state=True,
     )
-
-    return None
+    log(
+        f"[INFO] Template flow to create table and upload to GCS completed for {dataset_id}.{table_id}."
+    )
