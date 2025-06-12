@@ -34,6 +34,13 @@ def create_table_and_upload_to_gcs_teste(
     """
     Create table using BD+ and upload to GCS.
     """
+    log(f"BUCKET_NAME -> {bucket_name}")
+    log(f"DATASET_ID -> {dataset_id}")
+    log(f"TABLE_ID -> {table_id}")
+    log(f"DATA_PATH -> {data_path}")
+    log(f"DUMP_MODE -> {dump_mode}")
+    log(f"SOURCE_FORMAT -> {source_format}")
+
     try:
         if bucket_name in ["basedosdados-dev", "basedosdados"]:
             bd_version = bd.__version__
@@ -53,7 +60,7 @@ def create_table_and_upload_to_gcs_teste(
             # MANAGEMENT OF TABLE CREATION
             #
             #####################################
-            log(f"DATA PATH -> {data_path}")
+            # log(f"DATA PATH -> {data_path}")
             log("STARTING TABLE CREATION MANAGEMENT")
             if dump_mode == "append":
                 if tb.table_exists(mode="staging"):
