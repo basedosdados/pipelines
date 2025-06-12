@@ -193,7 +193,7 @@ def template_upload_to_gcs_and_materialization(
 ):
     create_upload_table_gcs = create_flow_run.run(
         flow_name=template_constants.FLOW_CREATE_UPLOAD_TABLE_GCS.value,
-        project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+        project_name=constants.PREFECT_STAGING_PROJECT.value,
         parameters={
             "dataset_id": dataset_id,
             "table_id": table_id,
