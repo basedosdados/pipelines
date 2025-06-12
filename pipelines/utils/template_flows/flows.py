@@ -6,12 +6,15 @@ from prefect.storage import GCS
 from pipelines.constants import constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.tasks import rename_current_flow_run_dataset_table
+from pipelines.utils.template_flows.constants import (
+    constants as template_constants,
+)
 from pipelines.utils.template_flows.tasks import (
     create_table_and_upload_to_gcs_teste,
 )
 
 with Flow(
-    name="BD Template: Create table and upload to GCS",
+    name=template_constants.FLOW_CREATE_UPLOAD_TABLE_GCS.value,
 ) as create_uploado_table_gcs:
     dataset_id = Parameter("dataset_id", required=True)
     table_id = Parameter("table_id", default=None, required=False)
