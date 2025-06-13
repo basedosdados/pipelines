@@ -1,3 +1,4 @@
+{{ config(alias="microdados", schema="br_poder360", materialized="table") }}
 select
     safe_cast(id_pesquisa as string) id_pesquisa,
     safe_cast(ano as int64) ano,

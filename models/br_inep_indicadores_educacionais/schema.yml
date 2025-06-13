@@ -2203,8 +2203,8 @@ models:
         description: Região
         tests:
           - relationships:
-              to: ref('uf__regiao')
-              field: regiao.regiao
+              to: ref('br_bd_diretorios_brasil__regiao')
+              field: nome
       - name: localizacao
         description: Localização
       - name: rede

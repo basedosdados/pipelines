@@ -1,3 +1,11 @@
+{{
+    config(
+        schema="br_bd_indicadores",
+        alias="receitas_planejadas",
+        materialized="table",
+    )
+}}
+
 select
     safe_cast(ano_competencia as int64) ano_competencia,
     safe_cast(mes_competencia as int64) mes_competencia,
