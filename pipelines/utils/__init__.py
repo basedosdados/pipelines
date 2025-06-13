@@ -14,6 +14,7 @@ from pipelines.utils.execute_dbt_model.flows import *
 # from pipelines.utils.crawler_fgv_igp.flows import *
 # from pipelines.utils.apply_architecture_to_dataframe.flows import *
 from pipelines.utils.metadata.flows import *
+from pipelines.utils.template_flows.flows import *
 from pipelines.utils.to_download.flows import *
 from pipelines.utils.traceroute.flows import *
 from pipelines.utils.transfer_files_to_prod.flows import *

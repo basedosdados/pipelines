@@ -110,3 +110,8 @@ def get_base_inmet(year: int) -> str:
     base.to_csv(name, index=False)
 
     return "/tmp/data/output/microdados/"
+
+
+@task
+def get_output():
+    return "/tmp/data/output/microdados/"
