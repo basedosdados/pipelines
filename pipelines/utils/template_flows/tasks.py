@@ -149,6 +149,10 @@ def create_table_and_upload_to_gcs_teste(
     #####################################
 
     log("STARTING UPLOAD TO GCS")
+    log(f"data_path -> {data_path}")
+    log(f"data_path exists? {data_path.exists()}")
+    log(f"data_path is dir? {data_path.is_dir()}")
+    log(f"data_path is file? {data_path.is_file()}")
     if tb.table_exists(mode="staging"):
         # the name of the files need to be the same or the data doesn't get overwritten
         tb.append(filepath=data_path, if_exists="replace")
