@@ -1,7 +1,7 @@
 ---
 version: 2
 models:
-  - name: br_poder360__microdados
+  - name: br_poder360_pesquisas__microdados
     description: Microdados de pesquisas eleitorais
     tests:
       - not_null_proportion_multiple_columns:
