@@ -3,6 +3,7 @@
 register flow
 """
 
+import os
 from pathlib import Path
 from typing import Union
 
@@ -38,6 +39,7 @@ def create_table_and_upload_to_gcs_teste(
     log(f"DATASET_ID -> {dataset_id}")
     log(f"TABLE_ID -> {table_id}")
     log(f"DATA_PATH -> {data_path}")
+    log(f"LISTDIR -> {os.listdir(data_path)}")
     log(f"DUMP_MODE -> {dump_mode}")
     log(f"SOURCE_FORMAT -> {source_format}")
 
@@ -165,6 +167,7 @@ def create_table_and_upload_to_gcs_teste(
             log("STARTING UPLOAD TO GCS")
             if tb.table_exists(mode="staging"):
                 # the name of the files need to be the same or the data doesn't get overwritten
+                log(os.listdir(data_path))
                 tb.append(filepath=data_path, if_exists="replace")
 
                 log(
