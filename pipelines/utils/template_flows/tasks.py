@@ -3,7 +3,6 @@
 register flow
 """
 
-import os
 from pathlib import Path
 from typing import Union
 
@@ -35,157 +34,302 @@ def create_table_and_upload_to_gcs_teste(
     """
     Create table using BD+ and upload to GCS.
     """
-    log(f"BUCKET_NAME -> {bucket_name}")
-    log(f"DATASET_ID -> {dataset_id}")
-    log(f"TABLE_ID -> {table_id}")
-    log(f"DATA_PATH -> {data_path}")
-    log(f"LISTDIR -> {os.listdir(data_path)}")
-    log(f"DUMP_MODE -> {dump_mode}")
-    log(f"SOURCE_FORMAT -> {source_format}")
+    data_path = Path(data_path)
+    log(f"Data path: {data_path}")
+    bd_version = bd.__version__
+    log(f"USING BASEDOSDADOS {bd_version}")
+    # pylint: disable=C0103
+    tb = bd.Table(dataset_id=dataset_id, table_id=table_id)
+    table_staging = f"{tb.table_full_name['staging']}"
+    # pylint: disable=C0103
+    st = bd.Storage(dataset_id=dataset_id, table_id=table_id)
+    storage_path = f"{st.bucket_name}.staging.{dataset_id}.{table_id}"
+    storage_path_link = f"https://console.cloud.google.com/storage/browser/{bucket_name}/staging/{dataset_id}/{table_id}"
 
-    try:
-        if bucket_name in ["basedosdados-dev", "basedosdados"]:
-            bd_version = bd.__version__
-            log(f"USING BASEDOSDADOS {bd_version}")
-            # pylint: disable=C0103
-            tb = bd.Table(dataset_id=dataset_id, table_id=table_id)
-            log(f"TB -> {tb}")
-            table_staging = f"{tb.table_full_name['staging']}"
-            log(f"TABLE_STAGING -> {table_staging}")
-            # pylint: disable=C0103
-            st = bd.Storage(dataset_id=dataset_id, table_id=table_id)
-            storage_path = f"{bucket_name}.staging.{dataset_id}.{table_id}"
-            storage_path_link = f"https://console.cloud.google.com/storage/browser/{bucket_name}/staging/{dataset_id}/{table_id}"
+    #####################################
+    #
+    # MANAGEMENT OF TABLE CREATION
+    #
+    #####################################
+    log("STARTING TABLE CREATION MANAGEMENT")
+    if dump_mode == "append":
+        if tb.table_exists(mode="staging"):
+            log(
+                f"MODE APPEND: Table ALREADY EXISTS:\n{table_staging}\n{storage_path_link}"
+            )
+        else:
+            # the header is needed to create a table when dosen't exist
+            log(
+                "MODE APPEND: Table DOSEN'T EXISTS\n"
+                + "Start to CREATE HEADER file"
+            )
+            header_path = dump_header_to_csv(
+                data_path=data_path, source_format=source_format
+            )
+            log(f"MODE APPEND: Created HEADER file:\n{header_path}")
 
-            #####################################
-            #
-            # MANAGEMENT OF TABLE CREATION
-            #
-            #####################################
-            # log(f"DATA PATH -> {data_path}")
-            log("STARTING TABLE CREATION MANAGEMENT")
-            if dump_mode == "append":
-                if tb.table_exists(mode="staging"):
-                    log(
-                        f"MODE APPEND: Table ALREADY EXISTS:\n{table_staging}\n{storage_path_link}"
-                    )
-                else:
-                    # the header is needed to create a table when dosen't exist
-                    log(
-                        "MODE APPEND: Table DOSEN'T EXISTS\n"
-                        + "Start to CREATE HEADER file"
-                    )
-                    header_path = dump_header_to_csv(
-                        data_path=data_path, source_format=source_format
-                    )
-                    log(f"MODE APPEND: Created HEADER file:\n{header_path}")
+            tb.create(
+                path=header_path,
+                if_storage_data_exists="replace",
+                if_table_exists="replace",
+                source_format=source_format,
+            )
 
-                    tb.create(
-                        path=header_path,
-                        if_storage_data_exists="replace",
-                        if_table_exists="replace",
-                        source_format=source_format,
-                    )
+            log(
+                "MODE APPEND: Sucessfully CREATED A NEW TABLE:\n"
+                f"{table_staging}\n"
+                f"{storage_path_link}"
+            )  # pylint: disable=C0301
 
-                    log(
-                        "MODE APPEND: Sucessfully CREATED A NEW TABLE:\n"
-                        f"{table_staging}\n"
-                        f"{storage_path_link}"
-                    )  # pylint: disable=C0301
+            st.delete_table(
+                mode="staging", bucket_name=st.bucket_name, not_found_ok=True
+            )
+            log(
+                "MODE APPEND: Sucessfully REMOVED HEADER DATA from Storage:\n"
+                f"{storage_path}\n"
+                f"{storage_path_link}"
+            )  # pylint: disable=C0301
+    elif dump_mode == "overwrite":
+        if tb.table_exists(mode="staging"):
+            log(
+                "MODE OVERWRITE: Table ALREADY EXISTS, DELETING OLD DATA!\n"
+                f"{storage_path}\n"
+                f"{storage_path_link}"
+            )  # pylint: disable=C0301
+            st.delete_table(
+                mode="staging", bucket_name=st.bucket_name, not_found_ok=True
+            )
+            log(
+                "MODE OVERWRITE: Sucessfully DELETED OLD DATA from Storage:\n"
+                f"{storage_path}\n"
+                f"{storage_path_link}"
+            )  # pylint: disable=C0301
+            tb.delete(mode="all")
+            log(
+                "MODE OVERWRITE: Sucessfully DELETED TABLE:\n"
+                f"{table_staging}\n"
+                f"{tb.table_full_name['prod']}"
+            )  # pylint: disable=C0301
 
-                    st.delete_table(
-                        mode="staging",
-                        bucket_name=bucket_name,
-                        not_found_ok=True,
-                    )
-                    log(
-                        "MODE APPEND: Sucessfully REMOVED HEADER DATA from Storage:\n"
-                        f"{storage_path}\n"
-                        f"{storage_path_link}"
-                    )  # pylint: disable=C0301
-            elif dump_mode == "overwrite":
-                if tb.table_exists(mode="staging"):
-                    log(
-                        "MODE OVERWRITE: Table ALREADY EXISTS, DELETING OLD DATA!\n"
-                        f"{storage_path}\n"
-                        f"{storage_path_link}"
-                    )  # pylint: disable=C0301
-                    st.delete_table(
-                        mode="staging",
-                        bucket_name=bucket_name,
-                        not_found_ok=True,
-                    )
-                    log(
-                        "MODE OVERWRITE: Sucessfully DELETED OLD DATA from Storage:\n"
-                        f"{storage_path}\n"
-                        f"{storage_path_link}"
-                    )  # pylint: disable=C0301
-                    tb.delete(mode="all")
-                    log(
-                        "MODE OVERWRITE: Sucessfully DELETED TABLE:\n"
-                        f"{table_staging}\n"
-                        f"{tb.table_full_name['prod']}"
-                    )  # pylint: disable=C0301
-
-                # the header is needed to create a table when dosen't exist
-                # in overwrite mode the header is always created
-                log(
-                    "MODE OVERWRITE: Table DOSEN'T EXISTS\n"
-                    + "Start to CREATE HEADER file"
-                )
-                header_path = dump_header_to_csv(
-                    data_path=data_path, source_format=source_format
-                )
-                log(f"MODE OVERWRITE: Created HEADER file:\n{header_path}")
-
-                tb.create(
-                    path=header_path,
-                    if_storage_data_exists="replace",
-                    if_table_exists="replace",
-                    source_format=source_format,
-                )
-
-                log(
-                    f"MODE OVERWRITE: Sucessfully CREATED TABLE\n{table_staging}\n{storage_path_link}"
-                )
-
-                st.delete_table(
-                    mode="staging", bucket_name=bucket_name, not_found_ok=True
-                )
-                log(
-                    f"MODE OVERWRITE: Sucessfully REMOVED HEADER DATA from Storage\n:"
-                    f"{storage_path}\n"
-                    f"{storage_path_link}"
-                )  # pylint: disable=C0301
-
-            #####################################
-            #
-            # Uploads a bunch of CSVs using BD+
-            #
-            #####################################
-
-            log("STARTING UPLOAD TO GCS")
-            if tb.table_exists(mode="staging"):
-                # the name of the files need to be the same or the data doesn't get overwritten
-                log(os.listdir(data_path))
-                tb.append(filepath=data_path, if_exists="replace")
-
-                log(
-                    f"STEP UPLOAD: Successfully uploaded {data_path} to Storage:\n"
-                    f"{storage_path}\n"
-                    f"{storage_path_link}"
-                )
-            else:
-                # pylint: disable=C0301
-                log(
-                    "STEP UPLOAD: Table does not exist in STAGING, need to create first"
-                )
-
-    except Exception as e:
-        raise ValueError(
-            f"Bucket name {e} is not valid. "
-            "Please use basedosdados or basedosdados-dev"
+        # the header is needed to create a table when dosen't exist
+        # in overwrite mode the header is always created
+        log(
+            "MODE OVERWRITE: Table DOSEN'T EXISTS\n"
+            + "Start to CREATE HEADER file"
         )
+        header_path = dump_header_to_csv(
+            data_path=data_path, source_format=source_format
+        )
+        log(f"MODE OVERWRITE: Created HEADER file:\n{header_path}")
+
+        tb.create(
+            path=header_path,
+            if_storage_data_exists="replace",
+            if_table_exists="replace",
+            source_format=source_format,
+        )
+
+        log(
+            f"MODE OVERWRITE: Sucessfully CREATED TABLE\n{table_staging}\n{storage_path_link}"
+        )
+
+        st.delete_table(
+            mode="staging", bucket_name=st.bucket_name, not_found_ok=True
+        )
+        log(
+            f"MODE OVERWRITE: Sucessfully REMOVED HEADER DATA from Storage\n:"
+            f"{storage_path}\n"
+            f"{storage_path_link}"
+        )  # pylint: disable=C0301
+
+    #####################################
+    #
+    # Uploads a bunch of CSVs using BD+
+    #
+    #####################################
+
+    log("STARTING UPLOAD TO GCS")
+    if tb.table_exists(mode="staging"):
+        # the name of the files need to be the same or the data doesn't get overwritten
+        tb.append(filepath=data_path, if_exists="replace")
+
+        log(
+            f"STEP UPLOAD: Successfully uploaded {data_path} to Storage:\n"
+            f"{storage_path}\n"
+            f"{storage_path_link}"
+        )
+    else:
+        # pylint: disable=C0301
+        log(
+            "STEP UPLOAD: Table does not exist in STAGING, need to create first"
+        )
+
+
+# @task
+# def create_table_and_upload_to_gcs_teste(
+#     data_path: Union[str, Path],
+#     dataset_id: str,
+#     table_id: str,
+#     dump_mode: str,
+#     bucket_name: str,
+#     source_format: str = "csv",
+#     wait=None,  # pylint: disable=unused-argument
+# ) -> None:
+#     """
+#     Create table using BD+ and upload to GCS.
+#     """
+#     log(f"BUCKET_NAME -> {bucket_name}")
+#     log(f"DATASET_ID -> {dataset_id}")
+#     log(f"TABLE_ID -> {table_id}")
+#     log(f"Verificando o path do arquivo: {data_path}")
+#     log(f"Arquivo existe? {Path(data_path).exists()}")
+#     log(f"DUMP_MODE -> {dump_mode}")
+#     log(f"SOURCE_FORMAT -> {source_format}")
+
+#     try:
+#         if bucket_name in ["basedosdados-dev", "basedosdados"]:
+#             bd_version = bd.__version__
+#             log(f"USING BASEDOSDADOS {bd_version}")
+#             # pylint: disable=C0103
+#             tb = bd.Table(dataset_id=dataset_id, table_id=table_id)
+#             log(f"TB -> {tb}")
+#             table_staging = f"{tb.table_full_name['staging']}"
+#             log(f"TABLE_STAGING -> {table_staging}")
+#             # pylint: disable=C0103
+#             st = bd.Storage(dataset_id=dataset_id, table_id=table_id)
+#             storage_path = f"{bucket_name}.staging.{dataset_id}.{table_id}"
+#             storage_path_link = f"https://console.cloud.google.com/storage/browser/{bucket_name}/staging/{dataset_id}/{table_id}"
+
+#             #####################################
+#             #
+#             # MANAGEMENT OF TABLE CREATION
+#             #
+#             #####################################
+#             # log(f"DATA PATH -> {data_path}")
+#             log("STARTING TABLE CREATION MANAGEMENT")
+#             if dump_mode == "append":
+#                 if tb.table_exists(mode="staging"):
+#                     log(
+#                         f"MODE APPEND: Table ALREADY EXISTS:\n{table_staging}\n{storage_path_link}"
+#                     )
+
+#                 else:
+#                     # the header is needed to create a table when dosen't exist
+#                     log(
+#                         "MODE APPEND: Table DOSEN'T EXISTS\n"
+#                         + "Start to CREATE HEADER file"
+#                     )
+#                     header_path = dump_header_to_csv(
+#                         data_path=data_path, source_format=source_format
+#                     )
+#                     log(f"MODE APPEND: Created HEADER file:\n{header_path}")
+
+#                     tb.create(
+#                         path=header_path,
+#                         if_storage_data_exists="replace",
+#                         if_table_exists="replace",
+#                         source_format=source_format,
+#                     )
+
+#                     log(
+#                         "MODE APPEND: Sucessfully CREATED A NEW TABLE:\n"
+#                         f"{table_staging}\n"
+#                         f"{storage_path_link}"
+#                     )  # pylint: disable=C0301
+
+#                     st.delete_table(
+#                         mode="staging",
+#                         bucket_name=bucket_name,
+#                         not_found_ok=True,
+#                     )
+#                     log(
+#                         "MODE APPEND: Sucessfully REMOVED HEADER DATA from Storage:\n"
+#                         f"{storage_path}\n"
+#                         f"{storage_path_link}"
+#                     )  # pylint: disable=C0301
+#             elif dump_mode == "overwrite":
+#                 if tb.table_exists(mode="staging"):
+#                     log(
+#                         "MODE OVERWRITE: Table ALREADY EXISTS, DELETING OLD DATA!\n"
+#                         f"{storage_path}\n"
+#                         f"{storage_path_link}"
+#                     )  # pylint: disable=C0301
+#                     st.delete_table(
+#                         mode="staging",
+#                         bucket_name=bucket_name,
+#                         not_found_ok=True,
+#                     )
+#                     log(
+#                         "MODE OVERWRITE: Sucessfully DELETED OLD DATA from Storage:\n"
+#                         f"{storage_path}\n"
+#                         f"{storage_path_link}"
+#                     )  # pylint: disable=C0301
+#                     tb.delete(mode="all")
+#                     log(
+#                         "MODE OVERWRITE: Sucessfully DELETED TABLE:\n"
+#                         f"{table_staging}\n"
+#                         f"{tb.table_full_name['prod']}"
+#                     )  # pylint: disable=C0301
+
+#                 # the header is needed to create a table when dosen't exist
+#                 # in overwrite mode the header is always created
+#                 log(
+#                     "MODE OVERWRITE: Table DOSEN'T EXISTS\n"
+#                     + "Start to CREATE HEADER file"
+#                 )
+#                 header_path = dump_header_to_csv(
+#                     data_path=data_path, source_format=source_format
+#                 )
+#                 log(f"MODE OVERWRITE: Created HEADER file:\n{header_path}")
+
+#                 tb.create(
+#                     path=header_path,
+#                     if_storage_data_exists="replace",
+#                     if_table_exists="replace",
+#                     source_format=source_format,
+#                 )
+
+#                 log(
+#                     f"MODE OVERWRITE: Sucessfully CREATED TABLE\n{table_staging}\n{storage_path_link}"
+#                 )
+
+#                 st.delete_table(
+#                     mode="staging", bucket_name=bucket_name, not_found_ok=True
+#                 )
+#                 log(
+#                     f"MODE OVERWRITE: Sucessfully REMOVED HEADER DATA from Storage\n:"
+#                     f"{storage_path}\n"
+#                     f"{storage_path_link}"
+#                 )  # pylint: disable=C0301
+
+#             #####################################
+#             #
+#             # Uploads a bunch of CSVs using BD+
+#             #
+#             #####################################
+
+#             log("STARTING UPLOAD TO GCS")
+#             if tb.table_exists(mode="staging"):
+#                 # the name of the files need to be the same or the data doesn't get overwritten
+#                 log(os.listdir(data_path))
+#                 tb.append(filepath=data_path, if_exists="replace")
+
+#                 log(
+#                     f"STEP UPLOAD: Successfully uploaded {data_path} to Storage:\n"
+#                     f"{storage_path}\n"
+#                     f"{storage_path_link}"
+#                 )
+#             else:
+#                 # pylint: disable=C0301
+#                 log(
+#                     "STEP UPLOAD: Table does not exist in STAGING, need to create first"
+#                 )
+
+#     except Exception as e:
+#         raise ValueError(
+#             f"Bucket name {e} is not valid. "
+#             "Please use basedosdados or basedosdados-dev"
+#         )
 
 
 @task
