@@ -1,3 +1,9 @@
+{{
+    config(
+        schema="br_jota", alias="eleicao_perfil_candidato_2022", materialized="table"
+    )
+}}
+
 select
     sequencial,
     concat(ano, sequencial) as ano_sequencial_candidato,

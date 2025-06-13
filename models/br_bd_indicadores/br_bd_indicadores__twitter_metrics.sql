@@ -1,6 +1,8 @@
 {{
     config(
         materialized="incremental",
+        alias="twitter_metrics",
+        schema="br_bd_indicadores",
         partition_by={
             "field": "upload_day",
             "data_type": "date",

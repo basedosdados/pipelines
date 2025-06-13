@@ -1,0 +1,92 @@
+---
+version: 2
+models:
+  - name: br_bd_diretorios_data_tempo__ano
+    description: Diretório de ano
+    columns:
+      - name: ano
+        description: Ano
+      - name: bissexto
+        description: Ano Bissexto
+  - name: br_bd_diretorios_data_tempo__bimestre
+    description: Diretório de bimestres
+    columns:
+      - name: bimestre
+        description: Bimestre
+      - name: semestre
+        description: Semestre
+  - name: br_bd_diretorios_data_tempo__data
+    description: Diretório de data no formato YYYY-MM-DD do ISO-8601
+    columns:
+      - name: data
+        description: Data
+      - name: dia
+        description: Dia do mês
+      - name: mes
+        description: Mês
+      - name: bimestre
+        description: Bimestre
+      - name: trimestre
+        description: Trimestre
+      - name: semestre
+        description: Semestre
+      - name: ano
+        description: Ano
+      - name: dia_semana
+        description: Dia da semana
+  - name: br_bd_diretorios_data_tempo__dia
+    description: Diretório de dias de 1 a 31
+    columns:
+      - name: dia
+        description: Dia
+  - name: br_bd_diretorios_data_tempo__hora
+    description: Diretório de hora
+    columns:
+      - name: hora
+        description: Hora
+  - name: br_bd_diretorios_data_tempo__mes
+    description: Diretório de mês
+    columns:
+      - name: mes
+        description: Mês
+      - name: nome
+        description: Nome do mês
+      - name: bimestre
+        description: Bimestre
+      - name: trimestre
+        description: Trimestre
+      - name: Semestre
+        description: Semestre
+  - name: br_bd_diretorios_data_tempo__minuto
+    description: Diretório de minuto
+    columns:
+      - name: minuto
+        description: Minuto
+  - name: br_bd_diretorios_data_tempo__segundo
+    description: Diretório de segundo
+    columns:
+      - name: segundo
+        description: Segundo
+  - name: br_bd_diretorios_data_tempo__semestre
+    description: Diretório de semestre
+    columns:
+      - name: semestre
+        description: Semetre
+  - name: br_bd_diretorios_data_tempo__tempo
+    description: Diretório de tempo no formato HH:MM:SS do ISO-8601
+    columns:
+      - name: tempo
+        description: Tempo
+      - name: hora
+        description: Hora
+      - name: minuto
+        description: Minuto
+      - name: segundo
+        description: Segundo
+  - name: br_bd_diretorios_data_tempo__trimestre
+    description: Diretório de trimestre
+    columns:
+      - name: trimestre
+        description: Trimestre
+      - name: semestre
+        description: Semestre

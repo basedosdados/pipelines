@@ -50,7 +50,7 @@ models:
         description: Identificador de 6 dígitos do Sistema Harmonizado (SH6)
         tests:
           - relationships:
-              to: ref('br_bd_diretorios_brasil__nomenclatura_comum_mercosul')
+              to: ref('br_bd_diretorios_mundo__nomenclatura_comum_mercosul')
               field: id_sh6
       - name: id_sh4
         description: Identificador de 4 dígitos do Sistema Harmonizado (SH6)

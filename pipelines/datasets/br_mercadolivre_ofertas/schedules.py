@@ -23,7 +23,7 @@ every_day_item = Schedule(
                 "target": "prod",
                 "materialize_after_dump": False,
                 "table_id": "item",
-                "dbt_alias": False,
+                "dbt_alias": True,
                 "table_id_sellers": "vendedor",
                 "materialize_after_dump_sellers": False,
             },

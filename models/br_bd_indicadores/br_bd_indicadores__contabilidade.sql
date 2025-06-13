@@ -1,3 +1,11 @@
+{{
+    config(
+        schema="br_bd_indicadores",
+        alias="contabilidade",
+        materialized="table",
+    )
+}}
+
 select
     safe_cast(safe_cast(ano_competencia as numeric) as int64) ano_competencia,
     safe_cast(safe_cast(mes_competencia as numeric) as int64) mes_competencia,

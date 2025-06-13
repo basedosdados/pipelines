@@ -1,7 +1,7 @@
 ---
 version: 2
 models:
-  - name: taxa_cambio
+  - name: br_bcb_taxa_cambio__taxa_cambio
     description: Boletins diários com a Paridade de Compra e a Paridade de Venda,
       a Cotação de Compra e a Cotação de Venda. São cinco boletins para cada data,
       um de abertura, três intermediários e um de fechamento.

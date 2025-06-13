@@ -23,45 +23,6 @@ models:
         description: Cobertura Temporal
       - name: valor
         description: Valor
-  - name: br_ibge_censo_2022__indice_envelhecimento
-    description: Índice de envelhecimento, idade mediana e razão de sexo da população
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [id_municipio]
-    columns:
-      - name: id_municipio
-        description: ID Município IBGE 7 dígitos
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_brasil__municipio')
-              field: id_municipio
-      - name: indice_envelhecimento
-        description: Índice de envelhecimento
-      - name: idade_mediana
-        description: Idade mediana
-      - name: razao_sexo
-        description: Razão de sexo
-  - name: br_ibge_censo_2022__alfabetizacao_grupo_idade_indigena
-    description: Taxa de alfabetização das pessoas indígenas de 15 anos ou mais de
-      idade por sexo e grupos de idade
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [id_municipio, sexo, grupo_idade]
-    columns:
-      - name: id_municipio
-        description: ID Município IBGE 7 dígitos
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_brasil__municipio')
-              field: id_municipio
-      - name: sexo
-        description: Sexo
-      - name: grupo_idade
-        description: Grupo de Idade
-      - name: alfabetizacao
-        description: Alfabetização
-      - name: populacao_indigena
-        description: Pessoas indígenas de 15 anos ou mais de idade
   - name: br_ibge_censo_2022__alfabetizacao_grupo_idade_sexo_raca
     description: Insert table description here
     tests:
@@ -497,22 +458,6 @@ models:
         description: Pessoas quilombolas residentes em territórios quilombolas
       - name: populacao_residente
         description: Pessoas residentes em territórios quilombolas
-  - name: br_ibge_censo_2022__populacao_grupo_idade_uf
-    description: População, por grupos de idade
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [sigla_uf, grupo_idade]
-    columns:
-      - name: sigla_uf
-        description: Sigla da Unidade da Federação
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_brasil__uf')
-              field: sigla
-      - name: grupo_idade
-        description: Grupo de idade
-      - name: populacao
-        description: População
   - name: br_ibge_censo_2022__caracteristica_domicilio_grupo_idade_raca_tipo_domicilio
     description: Moradores em domicílios particulares permanentes ocupados, por tipo
       do domicílio, segundo grupos de idade e cor ou raça.
