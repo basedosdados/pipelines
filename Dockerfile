@@ -10,6 +10,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
+
 # Install gcc, Google Chrome, CLI tools, git, R and others libs Firefox
 RUN apt-get update && \
     apt-get install --no-install-recommends -y wget gnupg && \
@@ -27,6 +28,7 @@ RUN apt-get update && \
     libssl-dev \
     p7zip-full \
     python3-dev \
+    python3.10-dev \ 
     traceroute \
     wget \
     tesseract-ocr \
@@ -50,9 +52,11 @@ RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 RUN pip install --no-cache-dir --upgrade "pip>=21.2.4" "poetry==1.8.5"
 WORKDIR /app
-COPY . .
-RUN poetry install && \
-dbt deps && \
+COPY pyproject.toml poetry.lock ./
+RUN poetry install  --with dev --with test --no-root && \
+poetry run dbt deps && \
 mkdir -p /opt/prefect/app/bases && \
 mkdir -p /root/.basedosdados/templates && \
 mkdir -p /root/.basedosdados/credentials/
+
+COPY . .
