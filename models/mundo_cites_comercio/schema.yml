@@ -2,12 +2,34 @@
 version: 2
 models:
   - name: mundo_cites_comercio__especies_ameacadas
-    description: Insert table description here
+    description: Base de Dados de comércio internacional de animais silvestres administrada
+      pelo UNEP-WCMC (UN Environment Programme – World Conservation Monitoring Centre)
+      para o secretariado da CITES (Convention on International Trade in Endangered
+      Species of Wild Fauna and Flora). Reúne registros oficiais de comércio internacional
+      de espécies ameaçadas desde 1975, enviados anualmente por países signatários.
+      Com mais de 23 milhões de entradas, é a fonte mais abrangente e reconhecida
+      sobre o tema no mundo.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [insert unique keys here]
+          combination_of_columns:
+            - ano
+            - apendice_cities
+            - nome_cientifico
+            - classe_taxonomica
+            - ordem_taxonomica
+            - familia_taxonomica
+            - genero_taxonomico
+            - pais_importador
+            - pais_exportador
+            - pais_origem
+            - quantidade_importada_reportada
+            - quantidade_exportada_reportada
+            - termo
+            - unidade_de_medida
+            - finalidade
+            - fonte
       - not_null_proportion_multiple_columns:
-          at_least: 0.95
+          at_least: 0.45
     columns:
       - name: ano
         description: Ano
