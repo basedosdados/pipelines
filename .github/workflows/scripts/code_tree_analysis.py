@@ -465,6 +465,8 @@ if __name__ == "__main__":
     for file_ in dependent_files:
         print(f"\t- {file_}")
 
+    dependent_files.add(*changed_files)
+
     # Write dependent file list to file.
     if write_to_file:
         dependent_files_txt = "dependent_files.txt"
