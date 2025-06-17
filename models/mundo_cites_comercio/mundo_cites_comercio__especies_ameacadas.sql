@@ -7,7 +7,7 @@
 }}
 select
     safe_cast(ano as int64) ano,
-    safe_cast(apendice_cities as string) apendice_cities,
+    safe_cast(apendice_cities as string) apendice_cites,
     safe_cast(nome_cientifico as string) nome_cientifico,
     safe_cast(classe_taxonomica as string) classe_taxonomica,
     safe_cast(ordem_taxonomica as string) ordem_taxonomica,
