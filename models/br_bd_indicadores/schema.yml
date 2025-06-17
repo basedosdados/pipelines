@@ -1,7 +1,7 @@
 ---
 version: 2
 models:
-  - name: metricas_tweets
+  - name: br_bd_indicadores__twitter_metrics
     description: dados de metricas de tweets
     columns:
       - name: upload_ts
@@ -34,7 +34,7 @@ models:
         description: user's tweets count at upload day
       - name: listed_count
         description: user's listed count at upload day
-  - name: twitter_metrics_agg
+  - name: br_bd_indicadores__twitter_metrics_agg
     description: dados agregados de métricas de tweets
     columns:
       - name: upload_day
@@ -61,7 +61,7 @@ models:
         description: total tweets up to upload_day
       - name: listed
         description: total list that BD's account was listed up to upload_day
-  - name: website_user
+  - name: br_bd_indicadores__website_user
     description: dados de acessos ao site da BD
     columns:
       - name: reference_date
@@ -78,7 +78,7 @@ models:
         description: Number of users in the last 30 days
       - name: new_users
         description: Number of new users in that date
-  - name: contabilidade
+  - name: br_bd_indicadores__contabilidade
     description: contabilidade da BD.
     columns:
       - name: ano_competencia
@@ -99,7 +99,7 @@ models:
         description: equipe relacionada a despesa
       - name: valor
         description: valor da despesa
-  - name: receitas_planejadas
+  - name: br_bd_indicadores__receitas_planejadas
     description: receitas planejadas da BD
     columns:
       - name: ano_competencia
@@ -118,7 +118,7 @@ models:
         description: frequência de recebimento
       - name: valor
         description: valor da receita
-  - name: equipes
+  - name: br_bd_indicadores__equipes
     description: equipes da BD
     columns:
       - name: id_pessoa
@@ -133,7 +133,7 @@ models:
         description: nível da pessoa na equipe
       - name: cargo
         description: cargo da pessoa na equipe
-  - name: pessoas
+  - name: br_bd_indicadores__pessoas
     description: pessoas da BD
     columns:
       - name: id

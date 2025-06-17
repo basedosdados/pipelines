@@ -22,7 +22,7 @@ models:
         description: ID Município - IBGE 7 Dígitos
         tests:
           - relationships:
-              to: ref('br_bd_diretorios_brasil__municipios')
+              to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
               config:
                 where: __most_recent_year_month__

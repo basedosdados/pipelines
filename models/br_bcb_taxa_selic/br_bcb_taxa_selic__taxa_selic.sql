@@ -1,6 +1,9 @@
 {{
     config(
-        schema="br_bcb_taxa_selic", materialized="table", labels={"tema": "economia"}
+        schema="br_bcb_taxa_selic",
+        materialized="table",
+        alias="taxa_selic",
+        labels={"tema": "economia"},
     )
 }}
 
