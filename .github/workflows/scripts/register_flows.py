@@ -473,12 +473,7 @@ def evaluate_declaration(declared: str) -> Any:
     return eval(declared, {"pipelines": importlib.import_module("pipelines")})
 
 
-def get_affected_flows(modified_files: list[str]) -> list[FlowLike]:
-    modified_python_pipeline_flows = [
-        file
-        for file in modified_files
-        if file.startswith("pipelines/") and file.endswith("flows.py")
-    ]
+def get_affected_flows() -> list[FlowLike]:
     # dependent_files.txt is created by step code tree analysis
     dependent_files_txt = Path("dependent_files.txt")
     dependend_files = (
@@ -491,10 +486,9 @@ def get_affected_flows(modified_files: list[str]) -> list[FlowLike]:
         else []
     )
 
-    affected_flows = set([*dependend_files, *modified_python_pipeline_flows])
-
     flow_files = set()
-    for file in affected_flows:
+
+    for file in dependend_files:
         flow_file = Path(file).parent / "flows.py"
         if flow_file.exists():
             flow_files.add(flow_file)
@@ -574,8 +568,8 @@ def pipeline_project_file_relevant_changed(files: list[str]) -> bool:
 
 @app.command(name="register", help="Register a flow")
 def main(
-    project: str,
-    path: str,
+    project: str | None = None,
+    path: str | None = None,
     max_retries: int = 5,
     retry_interval: int = 5,
     schedule: bool = True,
@@ -621,7 +615,7 @@ def main(
         and not is_pipelines_project_file_relevant_changed
     ):
         # Filter out flows that are not affected by the change
-        affected_flows = get_affected_flows(modified_files_list)
+        affected_flows = get_affected_flows()
         for key in source_to_flows.keys():
             filtered_flows = []
             for flow in source_to_flows[key]:
