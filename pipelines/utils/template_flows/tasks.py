@@ -22,7 +22,6 @@ from pipelines.utils.utils import (
 )
 
 
-@task
 def modify_file_credentials():
     log(f"CREDENTIALS -> {os.listdir('/root/.basedosdados/credentials/')}")
     log(f".BASEDOSDADOS -> {os.listdir('/root/.basedosdados/')}")
@@ -42,6 +41,7 @@ def create_table_and_upload_to_gcs_teste(
     """
     Create table using BD+ and upload to GCS.
     """
+
     modify_file_credentials()
     data_path = Path(data_path)
     log(f"Data path: {data_path}")
