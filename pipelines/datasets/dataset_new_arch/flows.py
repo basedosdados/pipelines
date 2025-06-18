@@ -1,5 +1,3 @@
-# register flow
-
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
