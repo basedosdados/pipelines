@@ -151,3 +151,14 @@ def check_if_url_is_valid(table_id: str) -> bool:
         return False
     else:
         raise ValueError("URL is not valid")
+
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def get_output(table_id: str) -> str:
+    """
+    Get the output path for the table_id.
+    """
+    return f"{constants_camara.OUTPUT_PATH.value}{table_id}"

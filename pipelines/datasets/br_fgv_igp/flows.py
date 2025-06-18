@@ -4,33 +4,32 @@ Flows for br_fgv_igp
 """
 
 # pylint: disable=invalid-name
-from datetime import timedelta
 from pathlib import Path
 
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
-from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.datasets.br_fgv_igp.tasks import clean_fgv_df, crawler_fgv
-from pipelines.utils.constants import constants as utils_constants
-from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import (
-    constants as dump_db_constants,
+from pipelines.datasets.br_fgv_igp.tasks import (
+    clean_fgv_df,
+    crawler_fgv,
+    get_output,
 )
+from pipelines.utils.decorators import Flow
 from pipelines.utils.tasks import (
-    create_table_and_upload_to_gcs,
-    get_current_flow_labels,
     get_temporal_coverage,
     rename_current_flow_run_dataset_table,
+)
+from pipelines.utils.template_flows.tasks import (
+    template_upload_to_gcs_and_materialization,
 )
 
 ROOT = Path("tmp/data")
 
 with Flow(
     name="IGP-DI mensal",
-    code_owners=[],
+    code_owners=["equipe_pipelines"],
 ) as fgv_igpdi_mes_flow:
     # Parameters
     INDICE = Parameter("indice", default="IGPDI", required=True)
@@ -58,41 +57,37 @@ with Flow(
         ],
     )
 
-    wait_upload_table = create_table_and_upload_to_gcs(
-        data_path=filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dump_mode="append",
-        wait=filepath,
+    get_output(df_indice, upstream_tasks=[filepath])
+
+    upload_and_materialization_dev = (
+        template_upload_to_gcs_and_materialization(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            data_path=get_output,
+            target="dev",
+            bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            dbt_alias=dbt_alias,
+            dump_mode="append",
+            run_model="run/test",
+            upstream_tasks=[get_output],
+        )
     )
 
-    with case(materialize_after_dump, True):
-        # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
-        materialization_flow = create_flow_run(
-            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-            parameters={
-                "dataset_id": dataset_id,
-                "table_id": table_id,
-                "target": target,
-                "dbt_alias": dbt_alias,
-            },
-            labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id}",
-        )
-
-        wait_for_materialization = wait_for_flow_run(
-            materialization_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
-        wait_for_materialization.max_retries = (
-            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-        )
-        wait_for_materialization.retry_delay = timedelta(
-            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+    with case(target, "prod"):
+        upload_and_materialization_prod = (
+            template_upload_to_gcs_and_materialization(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                data_path=get_output,
+                target="prod",
+                bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                dbt_alias=dbt_alias,
+                dump_mode="append",
+                run_model="run/test",
+                upstream_tasks=[upload_and_materialization_dev],
+            )
         )
 
     temporal_coverage = get_temporal_coverage(
@@ -123,7 +118,7 @@ fgv_igpdi_mes_flow.run_config = KubernetesRun(
 
 with Flow(
     name="IGP-DI anual",
-    code_owners=[],
+    code_owners=["equipe_pipelines"],
 ) as fgv_igpdi_ano_flow:
     # Parameters
     INDICE = Parameter("indice", default="IGPDI", required=False)
@@ -151,41 +146,37 @@ with Flow(
         ],
     )
 
-    wait_upload_table = create_table_and_upload_to_gcs(
-        data_path=filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dump_mode="append",
-        wait=filepath,
+    get_output(df_indice, upstream_tasks=[filepath])
+
+    upload_and_materialization_dev = (
+        template_upload_to_gcs_and_materialization(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            data_path=get_output,
+            target="dev",
+            bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            dbt_alias=dbt_alias,
+            dump_mode="append",
+            run_model="run/test",
+            upstream_tasks=[get_output],
+        )
     )
 
-    with case(materialize_after_dump, True):
-        # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
-        materialization_flow = create_flow_run(
-            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-            parameters={
-                "dataset_id": dataset_id,
-                "table_id": table_id,
-                "target": target,
-                "dbt_alias": dbt_alias,
-            },
-            labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id}",
-        )
-
-        wait_for_materialization = wait_for_flow_run(
-            materialization_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
-        wait_for_materialization.max_retries = (
-            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-        )
-        wait_for_materialization.retry_delay = timedelta(
-            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+    with case(target, "prod"):
+        upload_and_materialization_prod = (
+            template_upload_to_gcs_and_materialization(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                data_path=get_output,
+                target="prod",
+                bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                dbt_alias=dbt_alias,
+                dump_mode="append",
+                run_model="run/test",
+                upstream_tasks=[upload_and_materialization_dev],
+            )
         )
 
     temporal_coverage = get_temporal_coverage(
@@ -216,7 +207,7 @@ fgv_igpdi_ano_flow.run_config = KubernetesRun(
 
 with Flow(
     name="IGP-M mensal",
-    code_owners=[],
+    code_owners=["equipe_pipelines"],
 ) as fgv_igpm_mes_flow:
     # Parameters
     INDICE = Parameter("indice", default="IGPM", required=False)
@@ -244,41 +235,37 @@ with Flow(
         ],
     )
 
-    wait_upload_table = create_table_and_upload_to_gcs(
-        data_path=filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dump_mode="append",
-        wait=filepath,
+    get_output(df_indice, upstream_tasks=[filepath])
+
+    upload_and_materialization_dev = (
+        template_upload_to_gcs_and_materialization(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            data_path=get_output,
+            target="dev",
+            bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            dbt_alias=dbt_alias,
+            dump_mode="append",
+            run_model="run/test",
+            upstream_tasks=[get_output],
+        )
     )
 
-    with case(materialize_after_dump, True):
-        # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
-        materialization_flow = create_flow_run(
-            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-            parameters={
-                "dataset_id": dataset_id,
-                "table_id": table_id,
-                "target": target,
-                "dbt_alias": dbt_alias,
-            },
-            labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id}",
-        )
-
-        wait_for_materialization = wait_for_flow_run(
-            materialization_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
-        wait_for_materialization.max_retries = (
-            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-        )
-        wait_for_materialization.retry_delay = timedelta(
-            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+    with case(target, "prod"):
+        upload_and_materialization_prod = (
+            template_upload_to_gcs_and_materialization(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                data_path=get_output,
+                target="prod",
+                bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                dbt_alias=dbt_alias,
+                dump_mode="append",
+                run_model="run/test",
+                upstream_tasks=[upload_and_materialization_dev],
+            )
         )
 
     temporal_coverage = get_temporal_coverage(
@@ -309,7 +296,7 @@ fgv_igpm_mes_flow.run_config = KubernetesRun(
 
 with Flow(
     name="IGP-M anual",
-    code_owners=[],
+    code_owners=["equipe_pipelines"],
 ) as fgv_igpm_ano_flow:
     # Parameters
     INDICE = Parameter("indice", default="IGPM", required=False)
@@ -337,41 +324,37 @@ with Flow(
         ],
     )
 
-    wait_upload_table = create_table_and_upload_to_gcs(
-        data_path=filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dump_mode="append",
-        wait=filepath,
+    get_output(df_indice, upstream_tasks=[filepath])
+
+    upload_and_materialization_dev = (
+        template_upload_to_gcs_and_materialization(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            data_path=get_output,
+            target="dev",
+            bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            dbt_alias=dbt_alias,
+            dump_mode="append",
+            run_model="run/test",
+            upstream_tasks=[get_output],
+        )
     )
 
-    with case(materialize_after_dump, True):
-        # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
-        materialization_flow = create_flow_run(
-            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-            parameters={
-                "dataset_id": dataset_id,
-                "table_id": table_id,
-                "target": target,
-                "dbt_alias": dbt_alias,
-            },
-            labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id}",
-        )
-
-        wait_for_materialization = wait_for_flow_run(
-            materialization_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
-        wait_for_materialization.max_retries = (
-            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-        )
-        wait_for_materialization.retry_delay = timedelta(
-            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+    with case(target, "prod"):
+        upload_and_materialization_prod = (
+            template_upload_to_gcs_and_materialization(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                data_path=get_output,
+                target="prod",
+                bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                dbt_alias=dbt_alias,
+                dump_mode="append",
+                run_model="run/test",
+                upstream_tasks=[upload_and_materialization_dev],
+            )
         )
 
     temporal_coverage = get_temporal_coverage(
@@ -402,7 +385,7 @@ fgv_igpm_ano_flow.run_config = KubernetesRun(
 
 with Flow(
     name="IGP-OG mensal",
-    code_owners=[],
+    code_owners=["equipe_pipelines"],
 ) as fgv_igpog_mes_flow:
     # Parameters
     INDICE = Parameter("indice", default="IGPOG", required=False)
@@ -430,41 +413,37 @@ with Flow(
         ],
     )
 
-    wait_upload_table = create_table_and_upload_to_gcs(
-        data_path=filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dump_mode="append",
-        wait=filepath,
+    get_output(df_indice, upstream_tasks=[filepath])
+
+    upload_and_materialization_dev = (
+        template_upload_to_gcs_and_materialization(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            data_path=get_output,
+            target="dev",
+            bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            dbt_alias=dbt_alias,
+            dump_mode="append",
+            run_model="run/test",
+            upstream_tasks=[get_output],
+        )
     )
 
-    with case(materialize_after_dump, True):
-        # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
-        materialization_flow = create_flow_run(
-            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-            parameters={
-                "dataset_id": dataset_id,
-                "table_id": table_id,
-                "target": target,
-                "dbt_alias": dbt_alias,
-            },
-            labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id}",
-        )
-
-        wait_for_materialization = wait_for_flow_run(
-            materialization_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
-        wait_for_materialization.max_retries = (
-            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-        )
-        wait_for_materialization.retry_delay = timedelta(
-            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+    with case(target, "prod"):
+        upload_and_materialization_prod = (
+            template_upload_to_gcs_and_materialization(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                data_path=get_output,
+                target="prod",
+                bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                dbt_alias=dbt_alias,
+                dump_mode="append",
+                run_model="run/test",
+                upstream_tasks=[upload_and_materialization_dev],
+            )
         )
 
     temporal_coverage = get_temporal_coverage(
@@ -495,7 +474,7 @@ fgv_igpog_mes_flow.run_config = KubernetesRun(
 
 with Flow(
     name="IGP-OG anual",
-    code_owners=[],
+    code_owners=["equipe_pipelines"],
 ) as fgv_igpog_ano_flow:
     # Parameters
     INDICE = Parameter("indice", default="IGPOG", required=False)
@@ -523,41 +502,37 @@ with Flow(
         ],
     )
 
-    wait_upload_table = create_table_and_upload_to_gcs(
-        data_path=filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dump_mode="append",
-        wait=filepath,
+    get_output(df_indice, upstream_tasks=[filepath])
+
+    upload_and_materialization_dev = (
+        template_upload_to_gcs_and_materialization(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            data_path=get_output,
+            target="dev",
+            bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            dbt_alias=dbt_alias,
+            dump_mode="append",
+            run_model="run/test",
+            upstream_tasks=[get_output],
+        )
     )
 
-    with case(materialize_after_dump, True):
-        # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
-        materialization_flow = create_flow_run(
-            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-            parameters={
-                "dataset_id": dataset_id,
-                "table_id": table_id,
-                "target": target,
-                "dbt_alias": dbt_alias,
-            },
-            labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id}",
-        )
-
-        wait_for_materialization = wait_for_flow_run(
-            materialization_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
-        wait_for_materialization.max_retries = (
-            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-        )
-        wait_for_materialization.retry_delay = timedelta(
-            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+    with case(target, "prod"):
+        upload_and_materialization_prod = (
+            template_upload_to_gcs_and_materialization(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                data_path=get_output,
+                target="prod",
+                bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                dbt_alias=dbt_alias,
+                dump_mode="append",
+                run_model="run/test",
+                upstream_tasks=[upload_and_materialization_dev],
+            )
         )
 
     temporal_coverage = get_temporal_coverage(
@@ -588,7 +563,7 @@ fgv_igpog_ano_flow.run_config = KubernetesRun(
 
 with Flow(
     name="IGP-10 mensal",
-    code_owners=[],
+    code_owners=["equipe_pipelines"],
 ) as fgv_igp10_mes_flow:
     # Parameters
     INDICE = Parameter("indice", default="IGP10", required=False)
@@ -616,41 +591,37 @@ with Flow(
         ],
     )
 
-    wait_upload_table = create_table_and_upload_to_gcs(
-        data_path=filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dump_mode="append",
-        wait=filepath,
+    get_output(df_indice, upstream_tasks=[filepath])
+
+    upload_and_materialization_dev = (
+        template_upload_to_gcs_and_materialization(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            data_path=get_output,
+            target="dev",
+            bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            dbt_alias=dbt_alias,
+            dump_mode="append",
+            run_model="run/test",
+            upstream_tasks=[get_output],
+        )
     )
 
-    with case(materialize_after_dump, True):
-        # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
-        materialization_flow = create_flow_run(
-            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-            parameters={
-                "dataset_id": dataset_id,
-                "table_id": table_id,
-                "target": target,
-                "dbt_alias": dbt_alias,
-            },
-            labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id}",
-        )
-
-        wait_for_materialization = wait_for_flow_run(
-            materialization_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
-        wait_for_materialization.max_retries = (
-            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-        )
-        wait_for_materialization.retry_delay = timedelta(
-            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+    with case(target, "prod"):
+        upload_and_materialization_prod = (
+            template_upload_to_gcs_and_materialization(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                data_path=get_output,
+                target="prod",
+                bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                dbt_alias=dbt_alias,
+                dump_mode="append",
+                run_model="run/test",
+                upstream_tasks=[upload_and_materialization_dev],
+            )
         )
 
     temporal_coverage = get_temporal_coverage(
