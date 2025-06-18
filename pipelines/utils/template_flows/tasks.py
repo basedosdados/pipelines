@@ -2,28 +2,21 @@
 # """
 # register flow
 # """
-import base64
-import os
 from pathlib import Path
 from typing import Union
 
 import basedosdados as bd
-import toml
 from prefect import task
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
 from pipelines.utils.constants import constants as utils_constants
-from pipelines.utils.template_flows.constants import (
-    constants as template_constants,
-)
 from pipelines.utils.utils import (
     dump_header_to_csv,
     log,
 )
 
 
-@task
 def create_table_and_upload_to_gcs_teste(
     data_path: Union[str, Path],
     dataset_id: str,
@@ -152,10 +145,6 @@ def create_table_and_upload_to_gcs_teste(
     #####################################
 
     log("STARTING UPLOAD TO GCS")
-    log(f"data_path -> {data_path}")
-    log(f"data_path exists? {data_path.exists()}")
-    log(f"data_path is dir? {data_path.is_dir()}")
-    log(f"data_path is file? {data_path.is_file()}")
     if tb.table_exists(mode="staging"):
         # the name of the files need to be the same or the data doesn't get overwritten
         tb.append(filepath=data_path, if_exists="replace")
@@ -180,33 +169,20 @@ def template_upload_to_gcs_and_materialization(
     target: str,
     bucket_name: str,
     labels: str,
+    source_format: str = "csv",
     dbt_alias: str = True,
     dump_mode: str = "append",
     run_model: str = "run/test",
     wait=None,
 ):
-    create_credentials(target=target)
-    create_upload_table_gcs = create_flow_run.run(
-        flow_name=template_constants.FLOW_CREATE_UPLOAD_TABLE_GCS.value,
-        project_name=constants.PREFECT_STAGING_PROJECT.value,
-        parameters={
-            "dataset_id": dataset_id,
-            "table_id": table_id,
-            "data_path": data_path,
-            "dump_mode": dump_mode,
-            "bucket_name": bucket_name,
-            "source_format": "csv",
-            "wait": wait,
-        },
-        labels=labels,
-        run_name=f"Create and Upload {dataset_id}.{table_id} to GCS",
-    )
-
-    wait_for_flow_run.run(
-        create_upload_table_gcs,
-        stream_states=True,
-        stream_logs=True,
-        raise_final_state=True,
+    create_table_and_upload_to_gcs_teste(
+        data_path=data_path,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dump_mode=dump_mode,
+        bucket_name=bucket_name,
+        source_format=source_format,
+        wait=None,  # pylint: disable=unused-argument
     )
 
     materialization_flow = create_flow_run.run(
@@ -234,52 +210,3 @@ def template_upload_to_gcs_and_materialization(
     log(
         f"[INFO] Template flow to create table and upload to GCS completed for {dataset_id}.{table_id}."
     )
-
-
-def _decode_env(env: str) -> str:
-    """
-    Decode environment variable
-    """
-    return base64.b64decode(os.getenv(env).encode("utf-8")).decode("utf-8")
-
-
-def create_credentials(config_path="/root/.basedosdados/", target=None):
-    """
-    Initialize config file
-    """
-
-    # Create config folder
-    config_path = Path(config_path)
-    # config_path.mkdir(exist_ok=True, parents=True)
-
-    config_file = config_path / "config.toml"
-
-    # Create credentials folder
-    # credentials_folder = config_path / "credentials"
-    # credentials_folder.mkdir(exist_ok=True, parents=True)
-    env = os.getenv("BASEDOSDADOS_CONFIG")
-
-    if env:
-        with open(config_file, "w", encoding="utf-8") as f:
-            f.write(_decode_env(env))
-
-        with open(config_file, "r") as toml_file:
-            config_data = toml.load(toml_file)
-
-            log(config_data)
-        if target == "dev":
-            config_data["bucket_name"] = "basedosdados-dev"
-            config_data["gcloud-projects"]["staging"]["name"] = (
-                "basedosdados-dev"
-            )
-            config_data["gcloud-projects"]["prod"]["name"] = "basedosdados-dev"
-
-            with open(config_file, "w") as toml_file:
-                config_data = toml.dump(config_data, toml_file)
-                log(config_data)
-
-            log("TOML data loaded successfully:")
-            log(config_data)
-
-
-create_credentials(target="dev")
