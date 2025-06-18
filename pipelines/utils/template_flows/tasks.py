@@ -255,8 +255,8 @@ def create_credentials(config_path="/root/.basedosdados/", target=None):
     config_file = config_path / "config.toml"
 
     # Create credentials folder
-    credentials_folder = config_path / "credentials"
-    credentials_folder.mkdir(exist_ok=True, parents=True)
+    # credentials_folder = config_path / "credentials"
+    # credentials_folder.mkdir(exist_ok=True, parents=True)
     env = os.getenv("BASEDOSDADOS_CONFIG")
 
     if env:
