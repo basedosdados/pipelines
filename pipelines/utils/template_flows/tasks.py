@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 
 
+import base64
+import os
 from pathlib import Path
 from typing import Union
 
 import basedosdados as bd
+import toml
 from prefect import task
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
@@ -160,6 +163,48 @@ def create_table_and_upload_to_gcs_teste(
         )
 
 
+def _decode_env(env: str) -> str:
+    """
+    Decode environment variable
+    """
+    return base64.b64decode(os.getenv(env).encode("utf-8")).decode("utf-8")
+
+
+def create_credentials(config_path="/root/.basedosdados/", target=None):
+    """
+    Initialize config file
+    """
+
+    # Create config folder
+    config_path = Path(config_path)
+    # config_path.mkdir(exist_ok=True, parents=True)
+
+    config_file = config_path / "config.toml"
+
+    # Create credentials folder
+    # credentials_folder = config_path / "credentials"
+    # credentials_folder.mkdir(exist_ok=True, parents=True)
+    env = os.getenv("BASEDOSDADOS_CONFIG")
+    if env:
+        with open(config_file, "w", encoding="utf-8") as f:
+            f.write(_decode_env(env))
+        with open(config_file, "r") as toml_file:
+            config_data = toml.load(toml_file)
+            log(config_data)
+        if target == "dev":
+            config_data["bucket_name"] = "basedosdados-dev"
+            config_data["gcloud-projects"]["staging"]["name"] = (
+                "basedosdados-dev"
+            )
+            config_data["gcloud-projects"]["prod"]["name"] = "basedosdados-dev"
+            with open(config_file, "w") as toml_file:
+                config_data = toml.dump(config_data, toml_file)
+                log(config_data)
+            log("TOML data loaded successfully:")
+            log(config_data)
+    log(config_data)
+
+
 @task
 def template_upload_to_gcs_and_materialization(
     dataset_id: str,
@@ -174,6 +219,8 @@ def template_upload_to_gcs_and_materialization(
     run_model: str = "run/test",
     wait=None,
 ):
+    log()
+    create_credentials(target=target)
     create_table_and_upload_to_gcs_teste(
         data_path=data_path,
         dataset_id=dataset_id,
