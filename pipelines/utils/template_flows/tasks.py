@@ -250,7 +250,7 @@ def create_credentials(config_path="/root/.basedosdados/", target=None):
 
     # Create config folder
     config_path = Path(config_path)
-    config_path.mkdir(exist_ok=True, parents=True)
+    # config_path.mkdir(exist_ok=True, parents=True)
 
     config_file = config_path / "config.toml"
 
