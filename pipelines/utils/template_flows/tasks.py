@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 import base64
 import os
 from pathlib import Path
@@ -174,14 +171,11 @@ def create_credentials(config_path="/root/.basedosdados/", target=None):
     """
     Initialize config file
     """
-
-    # Create config folder
+    log("Creating credentials and config file")
     config_path = Path(config_path)
     # config_path.mkdir(exist_ok=True, parents=True)
 
     config_file = config_path / "config.toml"
-
-    # Create credentials folder
     # credentials_folder = config_path / "credentials"
     # credentials_folder.mkdir(exist_ok=True, parents=True)
     env = os.getenv("BASEDOSDADOS_CONFIG")
