@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 import os
+import zipfile
+from pathlib import Path
 
 import basedosdados as bd
 import pandas as pd
+import requests
 from utils import (
     RENAMES_BR,
     convert_to_pd_dtype,
@@ -11,18 +14,30 @@ from utils import (
     get_nivel_serie_disciplina,
 )
 
-CWD = os.path.dirname(os.getcwd())
+CWD = Path(os.getcwd()).parent
 
-INPUT = os.path.join(CWD, "input")
-OUTPUT = os.path.join(CWD, "output")
+INPUT = CWD / "input"
+OUTPUT = CWD / "output"
 
 os.makedirs(INPUT, exist_ok=True)
 os.makedirs(OUTPUT, exist_ok=True)
 
+URL = "https://download.inep.gov.br/microdados/planilhas_de_resultados_20250507.zip"
+
+r = requests.get(
+    URL, headers={"User-Agent": "Mozilla/5.0"}, verify=False, stream=True
+)
+
+with open(INPUT / "2023.zip", "wb") as fd:
+    for chunk in r.iter_content(chunk_size=128):
+        fd.write(chunk)
+
+with zipfile.ZipFile(INPUT / "2023.zip") as z:
+    z.extractall(INPUT)
+
 br_saeb_latest = pd.read_excel(
-    os.path.join(INPUT, "saeb_2021_brasil_estados_municipios.xlsx"),
+    INPUT / "PLANILHAS DE RESULTADOS_20250507" / "TS_BRASIL_20250507.xlsx",
     dtype=str,
-    sheet_name="Brasil",
 )
 
 br_saeb_latest.head()
