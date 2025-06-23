@@ -469,7 +469,7 @@ if __name__ == "__main__":
         file for file in changed_files if file.endswith("flows.py")
     ]
     if len(changed_flows_py) > 0:
-        dependent_files.add(*changed_flows_py)
+        dependent_files.update(changed_flows_py)
 
     # Write dependent file list to file.
     if write_to_file:
