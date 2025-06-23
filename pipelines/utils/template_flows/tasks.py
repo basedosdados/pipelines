@@ -177,13 +177,11 @@ def create_credentials(config_path="/root/.basedosdados/", target=None):
 
     config_file = config_path / "config.toml"
     # credentials_folder.mkdir(exist_ok=True, parents=True)
-    env = os.getenv("BASEDOSDADOS_CONFIG")
-
-    if env:
+    if os.getenv("BASEDOSDADOS_CONFIG"):
         log("Environment variable BASEDOSDADOS_CONFIG found.")
         log(f"Config file path: {config_file}")
         with open(config_file, "w", encoding="utf-8") as f:
-            f.write(_decode_env(env))
+            f.write(_decode_env("BASEDOSDADOS_CONFIG"))
         with open(config_file, "r") as toml_file:
             config_data = toml.load(toml_file)
             log(config_data)
