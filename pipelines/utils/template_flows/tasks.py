@@ -35,7 +35,7 @@ def create_table_and_upload_to_gcs_teste(
     log(f"USING BASEDOSDADOS {bd_version}")
     # pylint: disable=C0103
     tb = bd.Table(dataset_id=dataset_id, table_id=table_id)
-    table_staging = f"{tb.table_full_name['staging']}"
+    # table_staging = f"{tb.table_full_name['staging']}"
     # pylint: disable=C0103
     st = bd.Storage(dataset_id=dataset_id, table_id=table_id)
     storage_path = f"{st.bucket_name}.staging.{dataset_id}.{table_id}"
@@ -49,9 +49,7 @@ def create_table_and_upload_to_gcs_teste(
     log("STARTING TABLE CREATION MANAGEMENT")
     if dump_mode == "append":
         if tb.table_exists(mode="staging"):
-            log(
-                f"MODE APPEND: Table ALREADY EXISTS:\n{table_staging}\n{storage_path_link}"
-            )
+            log(f"MODE APPEND: Table ALREADY EXISTS:\n{storage_path_link}")
         else:
             # the header is needed to create a table when dosen't exist
             log(
@@ -72,7 +70,6 @@ def create_table_and_upload_to_gcs_teste(
 
             log(
                 "MODE APPEND: Sucessfully CREATED A NEW TABLE:\n"
-                f"{table_staging}\n"
                 f"{storage_path_link}"
             )  # pylint: disable=C0301
 
@@ -102,7 +99,6 @@ def create_table_and_upload_to_gcs_teste(
             tb.delete(mode="all")
             log(
                 "MODE OVERWRITE: Sucessfully DELETED TABLE:\n"
-                f"{table_staging}\n"
                 f"{tb.table_full_name['prod']}"
             )  # pylint: disable=C0301
 
@@ -124,9 +120,7 @@ def create_table_and_upload_to_gcs_teste(
             source_format=source_format,
         )
 
-        log(
-            f"MODE OVERWRITE: Sucessfully CREATED TABLE\n{table_staging}\n{storage_path_link}"
-        )
+        log(f"MODE OVERWRITE: Sucessfully CREATED TABLE\n{storage_path_link}")
 
         st.delete_table(
             mode="staging", bucket_name=st.bucket_name, not_found_ok=True
