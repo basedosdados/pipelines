@@ -167,7 +167,7 @@ def _decode_env(env: str) -> str:
     return base64.b64decode(os.getenv(env).encode("utf-8")).decode("utf-8")
 
 
-def create_credentials(config_path="data", target=None):
+def create_credentials(config_path="/root/.basedosdados/", target=None):
     """
     Initialize config file
     """
