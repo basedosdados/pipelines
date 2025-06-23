@@ -167,7 +167,7 @@ def _decode_env(env: str) -> str:
     return base64.b64decode(os.getenv(env).encode("utf-8")).decode("utf-8")
 
 
-def create_credentials(config_path="/root/.basedosdados/", target=None):
+def create_credentials(config_path="data", target=None):
     """
     Initialize config file
     """
@@ -176,10 +176,12 @@ def create_credentials(config_path="/root/.basedosdados/", target=None):
     # config_path.mkdir(exist_ok=True, parents=True)
 
     config_file = config_path / "config.toml"
-    # credentials_folder = config_path / "credentials"
     # credentials_folder.mkdir(exist_ok=True, parents=True)
     env = os.getenv("BASEDOSDADOS_CONFIG")
+
     if env:
+        log("Environment variable BASEDOSDADOS_CONFIG found.")
+        log(f"Config file path: {config_file}")
         with open(config_file, "w", encoding="utf-8") as f:
             f.write(_decode_env(env))
         with open(config_file, "r") as toml_file:
@@ -191,12 +193,15 @@ def create_credentials(config_path="/root/.basedosdados/", target=None):
                 "basedosdados-dev"
             )
             config_data["gcloud-projects"]["prod"]["name"] = "basedosdados-dev"
-            with open(config_file, "w") as toml_file:
-                config_data = toml.dump(config_data, toml_file)
-                log(config_data)
             log("TOML data loaded successfully:")
             log(config_data)
-    log(config_data)
+
+            with open(config_file, "w") as toml_file:
+                config_data = toml.dump(config_data, toml_file)
+                log("TOML data loaded successfully:")
+                log(config_data)
+    else:
+        log("Environment variable BASEDOSDADOS_CONFIG not found.")
 
 
 @task
@@ -213,7 +218,6 @@ def template_upload_to_gcs_and_materialization(
     run_model: str = "run/test",
     wait=None,
 ):
-    log()
     create_credentials(target=target)
     create_table_and_upload_to_gcs_teste(
         data_path=data_path,
@@ -222,7 +226,7 @@ def template_upload_to_gcs_and_materialization(
         dump_mode=dump_mode,
         bucket_name=bucket_name,
         source_format=source_format,
-        wait=None,  # pylint: disable=unused-argument
+        wait=None,
     )
 
     materialization_flow = create_flow_run.run(
