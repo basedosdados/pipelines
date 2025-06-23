@@ -189,7 +189,7 @@ def create_credentials(config_path="/root/.basedosdados/", target=None):
             config_data["gcloud-projects"]["prod"]["name"] = "basedosdados-dev"
 
             with open(config_file, "w") as toml_file:
-                config_data = toml.dump(config_data, toml_file)
+                toml.dump(config_data, toml_file)
                 log(f"TOML data loaded successfully to dev: \n {config_data}")
 
             # Reconstruindo o config.toml para o default do ambiente de produção
@@ -203,7 +203,7 @@ def create_credentials(config_path="/root/.basedosdados/", target=None):
             config_data["gcloud-projects"]["prod"]["name"] = "basedosdados"
 
             with open(config_file, "w") as toml_file:
-                config_data = toml.dump(config_data, toml_file)
+                toml.dump(config_data, toml_file)
                 log(f"TOML data loaded successfully to prod: \n {config_data}")
 
     else:
