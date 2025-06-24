@@ -162,26 +162,19 @@ def _decode_env(env: str) -> str:
 
 
 def create_credentials(config_path="/root/.basedosdados/", target=None):
-    """
-    Initialize config file
-    """
     log("Creating credentials and config file")
     config_path = Path(config_path)
     config_file = config_path / "config.toml"
+
     if os.getenv("BASEDOSDADOS_CONFIG"):
         log("Environment variable BASEDOSDADOS_CONFIG found.")
-        log(f"Config file path: {config_file}")
         with open(config_file, "w", encoding="utf-8") as f:
             f.write(_decode_env("BASEDOSDADOS_CONFIG"))
-        with open(config_file, "r") as toml_file:
-            config_data = toml.load(toml_file)
-            log(config_data)
+
+        config_data = toml.load(config_file)
 
         if target == "dev":
-            # Construindo o config.toml para o ambiente de desenvolvimento
-
             log("[INFO] Setting config.toml file to default values for dev.")
-
             config_data["bucket_name"] = "basedosdados-dev"
             config_data["gcloud-projects"]["staging"]["name"] = (
                 "basedosdados-dev"
@@ -190,24 +183,15 @@ def create_credentials(config_path="/root/.basedosdados/", target=None):
 
             with open(config_file, "w") as toml_file:
                 toml.dump(config_data, toml_file)
-                log(f"TOML data loaded successfully to dev: \n {config_data}")
 
-            # # Reconstruindo o config.toml para o default do ambiente de produção
+        def use_config():
+            return toml.load(config_file)["bucket_name"]
 
-            # log("[INFO] Return config.toml file to default values.")
-
-            # config_data["bucket_name"] = "basedosdados"
-            # config_data["gcloud-projects"]["staging"]["name"] = (
-            #     "basedosdados-staging"
-            # )
-            # config_data["gcloud-projects"]["prod"]["name"] = "basedosdados"
-
-            # with open(config_file, "w") as toml_file:
-            #     config_data = toml.dump(config_data, toml_file)
-            #     log(f"TOML data loaded successfully to prod: \n {config_data}")
+        bucket = use_config()
+        log(f"[DEBUG] Bucket definido após config: {bucket}")
 
     else:
-        log("Environment variable BASEDOSDADOS_CONFIG not found. \n")
+        log("Environment variable BASEDOSDADOS_CONFIG not found.")
 
 
 def return_config_toml_default(
@@ -240,6 +224,12 @@ def return_config_toml_default(
                     log(
                         f"TOML data loaded successfully to prod: \n {config_data}"
                     )
+
+            def use_config():
+                return toml.load(config_file)["bucket_name"]
+
+        bucket = use_config()
+        log(f"[DEBUG] Bucket definido após config: {bucket}")
 
 
 @task
