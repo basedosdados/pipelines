@@ -270,18 +270,11 @@ def template_upload_to_gcs_and_materialization(
     dbt_alias: str = True,
     dump_mode: str = "append",
     run_model: str = "run/test",
+    bucket_name: str = None,
+    billing_project_id: str = None,
     wait=None,
 ):
     create_credentials()
-
-    if target == "dev":
-        bucket_name = "basedosdados-dev"
-        billing_project_id = "basedosdados-dev"
-    elif target == "prod":
-        bucket_name = "basedosdados"
-        billing_project_id = "basedosdados"
-    else:
-        raise ValueError(f"Target inválido: {target}")
 
     create_table_and_upload_to_gcs_teste(
         data_path=data_path,
