@@ -33,11 +33,10 @@ def create_table_and_upload_to_gcs_teste(
     log(f"Data path: {data_path}")
     bd_version = bd.__version__
     log(f"USING BASEDOSDADOS {bd_version}")
-    # pylint: disable=C0103
     tb = bd.Table(dataset_id=dataset_id, table_id=table_id)
-    # table_staging = f"{tb.table_full_name['staging']}"
-    # pylint: disable=C0103
-    st = bd.Storage(dataset_id=dataset_id, table_id=table_id)
+    st = bd.Storage(
+        dataset_id=dataset_id, table_id=table_id, bucket_name=bucket_name
+    )
     storage_path = f"{bucket_name}.staging.{dataset_id}.{table_id}"
     storage_path_link = f"https://console.cloud.google.com/storage/browser/{bucket_name}/staging/{dataset_id}/{table_id}"
 
@@ -188,6 +187,7 @@ def create_credentials(config_path="/root/.basedosdados/", target=None):
             return toml.load(config_file)["bucket_name"]
 
         bucket = use_config()
+
         log(f"[DEBUG] Bucket definido após config: {bucket}")
 
     else:
