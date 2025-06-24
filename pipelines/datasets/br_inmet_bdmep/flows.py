@@ -68,20 +68,18 @@ with Flow(name="br_inmet_bdmep", code_owners=["equipe_pipelines"]) as br_inmet:
             year=year, upstream_tasks=[coverage_check]
         )
 
-        upload_and_materialization_dev = (
-            template_upload_to_gcs_and_materialization(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                data_path=get_output,
-                target="dev",
-                bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
-                labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
-                billing_project=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
-                dbt_alias=dbt_alias,
-                dump_mode="append",
-                run_model="run/test",
-                upstream_tasks=[get_output],
-            )
+        upload_and_materialization_dev = template_upload_to_gcs_and_materialization(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            data_path=get_output,
+            target="dev",
+            bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            billing_project_id=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            dbt_alias=dbt_alias,
+            dump_mode="append",
+            run_model="run/test",
+            upstream_tasks=[get_output],
         )
 
         with case(target, "prod"):
@@ -92,7 +90,7 @@ with Flow(name="br_inmet_bdmep", code_owners=["equipe_pipelines"]) as br_inmet:
                 target="prod",
                 bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
                 labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-                billing_project=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                billing_project_id=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
                 dbt_alias=dbt_alias,
                 dump_mode="append",
                 run_model="run/test",

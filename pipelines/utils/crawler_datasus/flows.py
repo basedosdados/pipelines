@@ -108,7 +108,7 @@ with Flow(name="DATASUS-CNES", code_owners=["Gabriel Pisa"]) as flow_cnes:
             target="dev",
             bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
-            billing_project=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            billing_project_id=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             dbt_alias=dbt_alias,
             dump_mode="append",
             run_model="run/test",
@@ -117,20 +117,18 @@ with Flow(name="DATASUS-CNES", code_owners=["Gabriel Pisa"]) as flow_cnes:
     )
 
     with case(target, "prod"):
-        upload_and_materialization_prod = (
-            template_upload_to_gcs_and_materialization(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                data_path=get_output,
-                target="prod",
-                bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-                labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-                billing_project=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-                dbt_alias=dbt_alias,
-                dump_mode="append",
-                run_model="run/test",
-                upstream_tasks=[upload_and_materialization_dev],
-            )
+        upload_and_materialization_prod = template_upload_to_gcs_and_materialization(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            data_path=get_output,
+            target="prod",
+            bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+            labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+            billing_project_id=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+            dbt_alias=dbt_alias,
+            dump_mode="append",
+            run_model="run/test",
+            upstream_tasks=[upload_and_materialization_dev],
         )
 
         with case(update_metadata, True):
@@ -217,7 +215,7 @@ with Flow(name="DATASUS-SIA", code_owners=["Gabriel Pisa"]) as flow_siasus:
             target="dev",
             bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
-            billing_project=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            billing_project_id=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             dbt_alias=dbt_alias,
             dump_mode="append",
             run_model="run/test",
@@ -226,20 +224,18 @@ with Flow(name="DATASUS-SIA", code_owners=["Gabriel Pisa"]) as flow_siasus:
     )
 
     with case(target, "prod"):
-        upload_and_materialization_prod = (
-            template_upload_to_gcs_and_materialization(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                data_path=get_output,
-                target="prod",
-                bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-                labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-                billing_project=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-                dbt_alias=dbt_alias,
-                dump_mode="append",
-                run_model="run/test",
-                upstream_tasks=[upload_and_materialization_dev],
-            )
+        upload_and_materialization_prod = template_upload_to_gcs_and_materialization(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            data_path=get_output,
+            target="prod",
+            bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+            labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+            billing_project_id=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+            dbt_alias=dbt_alias,
+            dump_mode="append",
+            run_model="run/test",
+            upstream_tasks=[upload_and_materialization_dev],
         )
 
         with case(update_metadata, True):
@@ -332,7 +328,7 @@ with Flow(name="DATASUS-SIH", code_owners=["equipe_pipelines"]) as flow_sihsus:
             target="dev",
             bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
-            billing_project=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            billing_project_id=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             dbt_alias=dbt_alias,
             dump_mode="append",
             run_model="run/test",
@@ -341,20 +337,18 @@ with Flow(name="DATASUS-SIH", code_owners=["equipe_pipelines"]) as flow_sihsus:
     )
 
     with case(target, "prod"):
-        upload_and_materialization_prod = (
-            template_upload_to_gcs_and_materialization(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                data_path=get_output,
-                target="prod",
-                bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-                labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-                billing_project=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-                dbt_alias=dbt_alias,
-                dump_mode="append",
-                run_model="run/test",
-                upstream_tasks=[upload_and_materialization_dev],
-            )
+        upload_and_materialization_prod = template_upload_to_gcs_and_materialization(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            data_path=get_output,
+            target="prod",
+            bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+            labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+            billing_project_id=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+            dbt_alias=dbt_alias,
+            dump_mode="append",
+            run_model="run/test",
+            upstream_tasks=[upload_and_materialization_dev],
         )
 
         with case(update_metadata, True):
@@ -446,7 +440,7 @@ with Flow(name="DATASUS-SINAN", code_owners=["trick"]) as flow_sinan:
             target="dev",
             bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
-            billing_project=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            billing_project_id=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             dbt_alias=dbt_alias,
             dump_mode="append",
             run_model="run/test",
@@ -455,20 +449,18 @@ with Flow(name="DATASUS-SINAN", code_owners=["trick"]) as flow_sinan:
     )
 
     with case(target, "prod"):
-        upload_and_materialization_prod = (
-            template_upload_to_gcs_and_materialization(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                data_path=get_output,
-                target="prod",
-                bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-                labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-                billing_project=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-                dbt_alias=dbt_alias,
-                dump_mode="append",
-                run_model="run/test",
-                upstream_tasks=[upload_and_materialization_dev],
-            )
+        upload_and_materialization_prod = template_upload_to_gcs_and_materialization(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            data_path=get_output,
+            target="prod",
+            bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+            labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+            billing_project_id=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+            dbt_alias=dbt_alias,
+            dump_mode="append",
+            run_model="run/test",
+            upstream_tasks=[upload_and_materialization_dev],
         )
 
         with case(update_metadata, True):

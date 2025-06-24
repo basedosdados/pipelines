@@ -99,19 +99,17 @@ with Flow(
     with case(is_empty(files), False):
         output_filepath = crawler_ans(files, upstream_tasks=[files])
         get_exit_path_for_climb = get_output(upstream_tasks=[output_filepath])
-        upload_and_materialization_dev = (
-            template_upload_to_gcs_and_materialization(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                data_path=get_exit_path_for_climb,
-                target="dev",
-                bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
-                labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
-                billing_project=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
-                dump_mode="append",
-                run_model="run/test",
-                upstream_tasks=[output_filepath],
-            )
+        upload_and_materialization_dev = template_upload_to_gcs_and_materialization(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            data_path=get_exit_path_for_climb,
+            target="dev",
+            bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            billing_project_id=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            dump_mode="append",
+            run_model="run/test",
+            upstream_tasks=[output_filepath],
         )
 
         with case(target, "prod"):
@@ -122,7 +120,7 @@ with Flow(
                 target="prod",
                 bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
                 labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-                billing_project=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                billing_project_id=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
                 dump_mode="append",
                 run_model="run/test",
                 upstream_tasks=[upload_and_materialization_dev],
