@@ -192,22 +192,54 @@ def create_credentials(config_path="/root/.basedosdados/", target=None):
                 toml.dump(config_data, toml_file)
                 log(f"TOML data loaded successfully to dev: \n {config_data}")
 
-            # Reconstruindo o config.toml para o default do ambiente de produção
+            # # Reconstruindo o config.toml para o default do ambiente de produção
 
-            log("[INFO] Return config.toml file to default values.")
+            # log("[INFO] Return config.toml file to default values.")
 
-            config_data["bucket_name"] = "basedosdados"
-            config_data["gcloud-projects"]["staging"]["name"] = (
-                "basedosdados-staging"
-            )
-            config_data["gcloud-projects"]["prod"]["name"] = "basedosdados"
+            # config_data["bucket_name"] = "basedosdados"
+            # config_data["gcloud-projects"]["staging"]["name"] = (
+            #     "basedosdados-staging"
+            # )
+            # config_data["gcloud-projects"]["prod"]["name"] = "basedosdados"
 
-            with open(config_file, "w") as toml_file:
-                toml.dump(config_data, toml_file)
-                log(f"TOML data loaded successfully to prod: \n {config_data}")
+            # with open(config_file, "w") as toml_file:
+            #     config_data = toml.dump(config_data, toml_file)
+            #     log(f"TOML data loaded successfully to prod: \n {config_data}")
 
     else:
         log("Environment variable BASEDOSDADOS_CONFIG not found. \n")
+
+
+def return_config_toml_default(
+    config_path="/root/.basedosdados/", target=None
+):
+    """
+    Initialize config file
+    """
+    if target == "dev":
+        log("[INFO] Return config.toml file to default values.")
+        config_path = Path(config_path)
+        config_file = config_path / "config.toml"
+        if os.getenv("BASEDOSDADOS_CONFIG"):
+            log("Environment variable BASEDOSDADOS_CONFIG found.")
+            log(f"Config file path: {config_file}")
+            with open(config_file, "w", encoding="utf-8") as f:
+                f.write(_decode_env("BASEDOSDADOS_CONFIG"))
+            with open(config_file, "r") as toml_file:
+                config_data = toml.load(toml_file)
+                log(config_data)
+
+                config_data["bucket_name"] = "basedosdados"
+                config_data["gcloud-projects"]["staging"]["name"] = (
+                    "basedosdados-staging"
+                )
+                config_data["gcloud-projects"]["prod"]["name"] = "basedosdados"
+
+                with open(config_file, "w") as toml_file:
+                    config_data = toml.dump(config_data, toml_file)
+                    log(
+                        f"TOML data loaded successfully to prod: \n {config_data}"
+                    )
 
 
 @task
@@ -225,6 +257,7 @@ def template_upload_to_gcs_and_materialization(
     wait=None,
 ):
     create_credentials(target=target)
+
     create_table_and_upload_to_gcs_teste(
         data_path=data_path,
         dataset_id=dataset_id,
@@ -234,6 +267,8 @@ def template_upload_to_gcs_and_materialization(
         source_format=source_format,
         wait=None,
     )
+
+    return_config_toml_default(target=target)
 
     materialization_flow = create_flow_run.run(
         flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
