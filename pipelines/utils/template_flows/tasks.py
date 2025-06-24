@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Union
 
 import basedosdados as bd
+import toml
 from prefect import task
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
@@ -21,7 +22,6 @@ def create_table_and_upload_to_gcs_teste(
     table_id: str,
     dump_mode: str,
     bucket_name: str,
-    billing_project_id: str,
     source_format: str = "csv",
     wait=None,  # pylint: disable=unused-argument
 ) -> None:
@@ -31,21 +31,16 @@ def create_table_and_upload_to_gcs_teste(
 
     data_path = Path(data_path)
     log(f"Data path: {data_path}")
-    log(
-        f"[INFO] Utilizando bucket: {bucket_name} e projeto: {billing_project_id}"
-    )
     bd_version = bd.__version__
     log(f"USING BASEDOSDADOS {bd_version}")
     tb = bd.Table(
         dataset_id=dataset_id,
         table_id=table_id,
-        billing_project_id=billing_project_id,
     )
     st = bd.Storage(
         dataset_id=dataset_id,
         table_id=table_id,
         bucket_name=bucket_name,
-        billing_project_id=billing_project_id,
     )
     storage_path = f"{bucket_name}.staging.{dataset_id}.{table_id}"
     storage_path_link = f"https://console.cloud.google.com/storage/browser/{bucket_name}/staging/{dataset_id}/{table_id}"
@@ -170,83 +165,7 @@ def _decode_env(env: str) -> str:
     return base64.b64decode(os.getenv(env).encode("utf-8")).decode("utf-8")
 
 
-# def create_credentials(config_path="/root/.basedosdados/", target=None):
-#     log("Creating credentials and config file")
-#     config_path = Path(config_path)
-#     config_file = config_path / "config.toml"
-
-#     if os.getenv("BASEDOSDADOS_CONFIG"):
-#         log("Environment variable BASEDOSDADOS_CONFIG found.")
-#         with open(config_file, "w", encoding="utf-8") as f:
-#             f.write(_decode_env("BASEDOSDADOS_CONFIG"))
-
-#         config_data = toml.load(config_file)
-
-#         if target == "dev":
-#             log("[INFO] Setting config.toml file to default values for dev.")
-#             config_data["bucket_name"] = "basedosdados-dev"
-#             config_data["gcloud-projects"]["staging"]["name"] = (
-#                 "basedosdados-dev"
-#             )
-#             config_data["gcloud-projects"]["prod"]["name"] = "basedosdados-dev"
-
-#             with open(config_file, "w") as toml_file:
-#                 toml.dump(config_data, toml_file)
-
-#         def use_config():
-#             return toml.load(config_file)["bucket_name"]
-
-#         bucket = use_config()
-
-#         log(f"[DEBUG] Bucket definido após config: {bucket}")
-
-#     else:
-#         log("Environment variable BASEDOSDADOS_CONFIG not found.")
-
-
-# def return_config_toml_default(
-#     config_path="/root/.basedosdados/", target=None
-# ):
-#     """
-#     Initialize config file
-#     """
-#     if target == "dev":
-#         log("[INFO] Return config.toml file to default values.")
-#         config_path = Path(config_path)
-#         config_file = config_path / "config.toml"
-#         if os.getenv("BASEDOSDADOS_CONFIG"):
-#             log("Environment variable BASEDOSDADOS_CONFIG found.")
-#             log(f"Config file path: {config_file}")
-#             with open(config_file, "w", encoding="utf-8") as f:
-#                 f.write(_decode_env("BASEDOSDADOS_CONFIG"))
-#             with open(config_file, "r") as toml_file:
-#                 config_data = toml.load(toml_file)
-#                 log(config_data)
-
-#                 config_data["bucket_name"] = "basedosdados"
-#                 config_data["gcloud-projects"]["staging"]["name"] = (
-#                     "basedosdados-staging"
-#                 )
-#                 config_data["gcloud-projects"]["prod"]["name"] = "basedosdados"
-
-#                 with open(config_file, "w") as toml_file:
-#                     config_data = toml.dump(config_data, toml_file)
-#                     log(
-#                         f"TOML data loaded successfully to prod: \n {config_data}"
-#                     )
-
-#             def use_config():
-#                 return toml.load(config_file)["bucket_name"]
-
-#         bucket = use_config()
-#         log(f"[DEBUG] Bucket definido após config: {bucket}")
-
-
-def create_credentials(config_path="/root/.basedosdados/"):
-    """
-    Decodifica e grava o config.toml, se a env existir.
-    Não altera dinamicamente os valores (isso será feito no código principal).
-    """
+def create_credentials(config_path="/root/.basedosdados/", target=None):
     log("Creating credentials and config file")
     config_path = Path(config_path)
     config_file = config_path / "config.toml"
@@ -255,8 +174,70 @@ def create_credentials(config_path="/root/.basedosdados/"):
         log("Environment variable BASEDOSDADOS_CONFIG found.")
         with open(config_file, "w", encoding="utf-8") as f:
             f.write(_decode_env("BASEDOSDADOS_CONFIG"))
+
+        config_data = toml.load(config_file)
+        log(config_data)
+        if target == "dev":
+            log("[INFO] Setting config.toml file to default values for dev.")
+            config_data["bucket_name"] = "basedosdados-dev"
+            config_data["gcloud-projects"]["staging"]["name"] = (
+                "basedosdados-dev"
+            )
+            config_data["gcloud-projects"]["prod"]["name"] = "basedosdados-dev"
+
+            with open(config_file, "w") as toml_file:
+                toml.dump(config_data, toml_file)
+            log(
+                f"[INFO] TOML data loaded successfully to dev: \n {config_data}"
+            )
+
+        def use_config():
+            return toml.load(config_file)["bucket_name"]
+
+        bucket = use_config()
+
+        log(f"[DEBUG] Bucket definido após config: {bucket}")
+
     else:
         log("Environment variable BASEDOSDADOS_CONFIG not found.")
+
+
+def return_config_toml_default(
+    config_path="/root/.basedosdados/", target=None
+):
+    """
+    Initialize config file
+    """
+    if target == "dev":
+        log("[INFO] Return config.toml file to default values.")
+        config_path = Path(config_path)
+        config_file = config_path / "config.toml"
+        if os.getenv("BASEDOSDADOS_CONFIG"):
+            log("Environment variable BASEDOSDADOS_CONFIG found.")
+            log(f"Config file path: {config_file}")
+            with open(config_file, "w", encoding="utf-8") as f:
+                f.write(_decode_env("BASEDOSDADOS_CONFIG"))
+            with open(config_file, "r") as toml_file:
+                config_data = toml.load(toml_file)
+                log(config_data)
+
+                config_data["bucket_name"] = "basedosdados"
+                config_data["gcloud-projects"]["staging"]["name"] = (
+                    "basedosdados-staging"
+                )
+                config_data["gcloud-projects"]["prod"]["name"] = "basedosdados"
+
+                with open(config_file, "w") as toml_file:
+                    config_data = toml.dump(config_data, toml_file)
+                    log(
+                        f"TOML data loaded successfully to prod: \n {config_data}"
+                    )
+
+            def use_config():
+                return toml.load(config_file)["bucket_name"]
+
+        bucket = use_config()
+        log(f"[DEBUG] Bucket definido após config: {bucket}")
 
 
 @task
@@ -271,7 +252,6 @@ def template_upload_to_gcs_and_materialization(
     dump_mode: str = "append",
     run_model: str = "run/test",
     bucket_name: str = None,
-    billing_project_id: str = None,
     wait=None,
 ):
     create_credentials()
@@ -282,7 +262,6 @@ def template_upload_to_gcs_and_materialization(
         table_id=table_id,
         dump_mode=dump_mode,
         bucket_name=bucket_name,
-        billing_project_id=billing_project_id,
         source_format=source_format,
     )
 

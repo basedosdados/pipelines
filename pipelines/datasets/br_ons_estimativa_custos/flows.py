@@ -78,33 +78,35 @@ with Flow(
 
     with case(filepath[0], True):
         get_output = get_output(ons_constants.TABLE_NAME_LIST.value[0])
-        upload_and_materialization_dev = template_upload_to_gcs_and_materialization(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            data_path=get_output,
-            target="dev",
-            bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
-            labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
-            billing_project_id=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
-            dbt_alias=dbt_alias,
-            dump_mode="append",
-            run_model="run/test",
-            upstream_tasks=[get_output],
-        )
-
-        with case(target, "prod"):
-            upload_and_materialization_prod = template_upload_to_gcs_and_materialization(
+        upload_and_materialization_dev = (
+            template_upload_to_gcs_and_materialization(
                 dataset_id=dataset_id,
                 table_id=table_id,
                 data_path=get_output,
-                target="prod",
-                bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-                labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-                billing_project_id=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                target="dev",
+                bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
                 dbt_alias=dbt_alias,
                 dump_mode="append",
                 run_model="run/test",
-                upstream_tasks=[upload_and_materialization_dev],
+                upstream_tasks=[get_output],
+            )
+        )
+
+        with case(target, "prod"):
+            upload_and_materialization_prod = (
+                template_upload_to_gcs_and_materialization(
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    data_path=get_output,
+                    target="prod",
+                    bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                    labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                    dbt_alias=dbt_alias,
+                    dump_mode="append",
+                    run_model="run/test",
+                    upstream_tasks=[upload_and_materialization_dev],
+                )
             )
 
             with case(update_metadata, True):
@@ -175,33 +177,35 @@ with Flow(
 
     with case(filepath[0], True):
         get_output = get_output(ons_constants.TABLE_NAME_LIST.value[1])
-        upload_and_materialization_dev = template_upload_to_gcs_and_materialization(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            data_path=get_output,
-            target="dev",
-            bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
-            labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
-            billing_project_id=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
-            dbt_alias=dbt_alias,
-            dump_mode="append",
-            run_model="run/test",
-            upstream_tasks=[get_output],
-        )
-
-        with case(target, "prod"):
-            upload_and_materialization_prod = template_upload_to_gcs_and_materialization(
+        upload_and_materialization_dev = (
+            template_upload_to_gcs_and_materialization(
                 dataset_id=dataset_id,
                 table_id=table_id,
                 data_path=get_output,
-                target="prod",
-                bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-                labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-                billing_project_id=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                target="dev",
+                bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
                 dbt_alias=dbt_alias,
                 dump_mode="append",
                 run_model="run/test",
-                upstream_tasks=[upload_and_materialization_dev],
+                upstream_tasks=[get_output],
+            )
+        )
+
+        with case(target, "prod"):
+            upload_and_materialization_prod = (
+                template_upload_to_gcs_and_materialization(
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    data_path=get_output,
+                    target="prod",
+                    bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                    labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                    dbt_alias=dbt_alias,
+                    dump_mode="append",
+                    run_model="run/test",
+                    upstream_tasks=[upload_and_materialization_dev],
+                )
             )
 
             with case(update_metadata, True):
@@ -273,33 +277,35 @@ with Flow(
 
     with case(filepath[0], True):
         get_output = get_output(ons_constants.TABLE_NAME_LIST.value[2])
-        upload_and_materialization_dev = template_upload_to_gcs_and_materialization(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            data_path=get_output,
-            target="dev",
-            bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
-            labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
-            billing_project_id=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
-            dbt_alias=dbt_alias,
-            dump_mode="append",
-            run_model="run/test",
-            upstream_tasks=[get_output],
-        )
-
-        with case(target, "prod"):
-            upload_and_materialization_prod = template_upload_to_gcs_and_materialization(
+        upload_and_materialization_dev = (
+            template_upload_to_gcs_and_materialization(
                 dataset_id=dataset_id,
                 table_id=table_id,
                 data_path=get_output,
-                target="prod",
-                bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-                labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-                billing_project_id=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                target="dev",
+                bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
                 dbt_alias=dbt_alias,
                 dump_mode="append",
                 run_model="run/test",
-                upstream_tasks=[upload_and_materialization_dev],
+                upstream_tasks=[get_output],
+            )
+        )
+
+        with case(target, "prod"):
+            upload_and_materialization_prod = (
+                template_upload_to_gcs_and_materialization(
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    data_path=get_output,
+                    target="prod",
+                    bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                    labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                    dbt_alias=dbt_alias,
+                    dump_mode="append",
+                    run_model="run/test",
+                    upstream_tasks=[upload_and_materialization_dev],
+                )
             )
 
             with case(update_metadata, True):
@@ -371,33 +377,35 @@ with Flow(
 
     with case(filepath[0], True):
         get_output = get_output(ons_constants.TABLE_NAME_LIST.value[3])
-        upload_and_materialization_dev = template_upload_to_gcs_and_materialization(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            data_path=get_output,
-            target="dev",
-            bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
-            labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
-            billing_project_id=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
-            dbt_alias=dbt_alias,
-            dump_mode="append",
-            run_model="run/test",
-            upstream_tasks=[get_output],
-        )
-
-        with case(target, "prod"):
-            upload_and_materialization_prod = template_upload_to_gcs_and_materialization(
+        upload_and_materialization_dev = (
+            template_upload_to_gcs_and_materialization(
                 dataset_id=dataset_id,
                 table_id=table_id,
                 data_path=get_output,
-                target="prod",
-                bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-                labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-                billing_project_id=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                target="dev",
+                bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
                 dbt_alias=dbt_alias,
                 dump_mode="append",
                 run_model="run/test",
-                upstream_tasks=[upload_and_materialization_dev],
+                upstream_tasks=[get_output],
+            )
+        )
+
+        with case(target, "prod"):
+            upload_and_materialization_prod = (
+                template_upload_to_gcs_and_materialization(
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    data_path=get_output,
+                    target="prod",
+                    bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                    labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                    dbt_alias=dbt_alias,
+                    dump_mode="append",
+                    run_model="run/test",
+                    upstream_tasks=[upload_and_materialization_dev],
+                )
             )
 
             with case(update_metadata, True):
@@ -471,33 +479,35 @@ with Flow(
 
     with case(filepath[0], True):
         get_output = get_output(ons_constants.TABLE_NAME_LIST.value[4])
-        upload_and_materialization_dev = template_upload_to_gcs_and_materialization(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            data_path=get_output,
-            target="dev",
-            bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
-            labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
-            billing_project_id=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
-            dbt_alias=dbt_alias,
-            dump_mode="append",
-            run_model="run/test",
-            upstream_tasks=[get_output],
-        )
-
-        with case(target, "prod"):
-            upload_and_materialization_prod = template_upload_to_gcs_and_materialization(
+        upload_and_materialization_dev = (
+            template_upload_to_gcs_and_materialization(
                 dataset_id=dataset_id,
                 table_id=table_id,
                 data_path=get_output,
-                target="prod",
-                bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-                labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-                billing_project_id=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                target="dev",
+                bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
                 dbt_alias=dbt_alias,
                 dump_mode="append",
                 run_model="run/test",
-                upstream_tasks=[upload_and_materialization_dev],
+                upstream_tasks=[get_output],
+            )
+        )
+
+        with case(target, "prod"):
+            upload_and_materialization_prod = (
+                template_upload_to_gcs_and_materialization(
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    data_path=get_output,
+                    target="prod",
+                    bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                    labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                    dbt_alias=dbt_alias,
+                    dump_mode="append",
+                    run_model="run/test",
+                    upstream_tasks=[upload_and_materialization_dev],
+                )
             )
 
             with case(update_metadata, True):

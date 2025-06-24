@@ -74,7 +74,6 @@ with Flow(
             target="dev",
             bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
-            billing_project_id=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             dbt_alias=dbt_alias,
             dump_mode="append",
             run_model="run/test",
@@ -83,18 +82,19 @@ with Flow(
     )
 
     with case(target, "prod"):
-        upload_and_materialization_prod = template_upload_to_gcs_and_materialization(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            data_path=get_output,
-            target="prod",
-            bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-            labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-            billing_project_id=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-            dbt_alias=dbt_alias,
-            dump_mode="append",
-            run_model="run/test",
-            upstream_tasks=[upload_and_materialization_dev],
+        upload_and_materialization_prod = (
+            template_upload_to_gcs_and_materialization(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                data_path=get_output,
+                target="prod",
+                bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                dbt_alias=dbt_alias,
+                dump_mode="append",
+                run_model="run/test",
+                upstream_tasks=[upload_and_materialization_dev],
+            )
         )
         with case(update_metadata, True):
             update_django_metadata(
@@ -160,7 +160,6 @@ with Flow("BD Template - IBGE Inflação: mes_rm") as flow_ibge_inflacao_mes_rm:
             target="dev",
             bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
-            billing_project_id=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             dbt_alias=dbt_alias,
             dump_mode="append",
             run_model="run/test",
@@ -169,18 +168,19 @@ with Flow("BD Template - IBGE Inflação: mes_rm") as flow_ibge_inflacao_mes_rm:
     )
 
     with case(target, "prod"):
-        upload_and_materialization_prod = template_upload_to_gcs_and_materialization(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            data_path=get_output,
-            target="prod",
-            bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-            labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-            billing_project_id=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-            dbt_alias=dbt_alias,
-            dump_mode="append",
-            run_model="run/test",
-            upstream_tasks=[upload_and_materialization_dev],
+        upload_and_materialization_prod = (
+            template_upload_to_gcs_and_materialization(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                data_path=get_output,
+                target="prod",
+                bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                dbt_alias=dbt_alias,
+                dump_mode="append",
+                run_model="run/test",
+                upstream_tasks=[upload_and_materialization_dev],
+            )
         )
         with case(update_metadata, True):
             update_django_metadata(
@@ -249,7 +249,6 @@ with Flow(
             target="dev",
             bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
-            billing_project_id=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             dbt_alias=dbt_alias,
             dump_mode="append",
             run_model="run/test",
@@ -258,18 +257,19 @@ with Flow(
     )
 
     with case(target, "prod"):
-        upload_and_materialization_prod = template_upload_to_gcs_and_materialization(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            data_path=get_output,
-            target="prod",
-            bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-            labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-            billing_project_id=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-            dbt_alias=dbt_alias,
-            dump_mode="append",
-            run_model="run/test",
-            upstream_tasks=[upload_and_materialization_dev],
+        upload_and_materialization_prod = (
+            template_upload_to_gcs_and_materialization(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                data_path=get_output,
+                target="prod",
+                bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                dbt_alias=dbt_alias,
+                dump_mode="append",
+                run_model="run/test",
+                upstream_tasks=[upload_and_materialization_dev],
+            )
         )
         with case(update_metadata, True):
             update_django_metadata(
@@ -340,7 +340,6 @@ with Flow(
             target="dev",
             bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
-            billing_project_id=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
             dbt_alias=dbt_alias,
             dump_mode="append",
             run_model="run/test",
@@ -349,18 +348,19 @@ with Flow(
     )
 
     with case(target, "prod"):
-        upload_and_materialization_prod = template_upload_to_gcs_and_materialization(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            data_path=get_output,
-            target="prod",
-            bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-            labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-            billing_project_id=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-            dbt_alias=dbt_alias,
-            dump_mode="append",
-            run_model="run/test",
-            upstream_tasks=[upload_and_materialization_dev],
+        upload_and_materialization_prod = (
+            template_upload_to_gcs_and_materialization(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                data_path=get_output,
+                target="prod",
+                bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                dbt_alias=dbt_alias,
+                dump_mode="append",
+                run_model="run/test",
+                upstream_tasks=[upload_and_materialization_dev],
+            )
         )
 
         with case(update_metadata, True):
