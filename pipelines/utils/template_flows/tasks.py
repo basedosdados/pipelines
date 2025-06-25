@@ -179,9 +179,8 @@ def create_credentials(config_path="/root/.basedosdados/", target=None):
 
         with open(config_file, "r") as toml_file:
             config_data = toml.load(toml_file)
-            log(config_data)
+            log(f"read:  \n {config_data}")
 
-        log(config_data)
         if target == "dev":
             log("[INFO] Setting config.toml file to default values for dev.")
             config_data["bucket_name"] = "basedosdados-dev"
@@ -219,12 +218,12 @@ def return_config_toml_default(
         config_file = config_path / "config.toml"
         if os.getenv("BASEDOSDADOS_CONFIG"):
             log("Environment variable BASEDOSDADOS_CONFIG found.")
-            log(f"Config file path: {config_file}")
+
             with open(config_file, "w", encoding="utf-8") as f:
                 f.write(_decode_env("BASEDOSDADOS_CONFIG"))
             with open(config_file, "r") as toml_file:
                 config_data = toml.load(toml_file)
-                log(config_data)
+                log(f"read:  \n {config_data}")
 
                 config_data["bucket_name"] = "basedosdados"
                 config_data["gcloud-projects"]["staging"]["name"] = (
@@ -259,7 +258,7 @@ def template_upload_to_gcs_and_materialization(
     bucket_name: str = None,
     wait=None,
 ):
-    create_credentials()
+    create_credentials(target=target)
 
     create_table_and_upload_to_gcs_teste(
         data_path=data_path,
@@ -269,6 +268,8 @@ def template_upload_to_gcs_and_materialization(
         bucket_name=bucket_name,
         source_format=source_format,
     )
+
+    return_config_toml_default(target=target)
 
     materialization_flow = create_flow_run.run(
         flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
