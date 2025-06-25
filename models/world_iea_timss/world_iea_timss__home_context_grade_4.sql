@@ -1,6 +1,6 @@
 {{
     config(
-        alias="home_context_grade_4", schema="world_iae_timss", materialized="table"
+        alias="home_context_grade_4", schema="world_iea_timss", materialized="table"
     )
 }}
 select
@@ -118,4 +118,4 @@ select
     safe_cast(asdhaps as string) asdhaps,
     safe_cast(version as string) version,
     safe_cast(scope as string) scope,
-from {{ set_datalake_project("world_iae_timss_staging.home_context_grade_4") }} as t
+from {{ set_datalake_project("world_iea_timss_staging.home_context_grade_4") }} as t

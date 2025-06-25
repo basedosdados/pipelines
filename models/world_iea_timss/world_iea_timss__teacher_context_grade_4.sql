@@ -1,7 +1,7 @@
 {{
     config(
         alias="teacher_context_grade_4",
-        schema="world_iae_timss",
+        schema="world_iea_timss",
         materialized="table",
     )
 }}
@@ -93,4 +93,4 @@ select
     safe_cast(atdshw as float64) atdshw,
     safe_cast(version as int64) version,
     safe_cast(scope as string) scope,
-from {{ set_datalake_project("world_iae_timss_staging.teacher_context_grade_4") }} as t
+from {{ set_datalake_project("world_iea_timss_staging.teacher_context_grade_4") }} as t

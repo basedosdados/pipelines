@@ -397,15 +397,18 @@ models:
     mundo_transfermarkt_competicoes_internacionais:
       +materialized: table
       +schema: mundo_transfermarkt_competicoes_internacionais
+    student_context_grade_8:
+      +materialized: table
+      +schema: student_context_grade_8
     test_dataset:
       +materialized: table
       +schema: test_dataset
     world_ampas_oscar:
       +materialized: table
       +schema: world_ampas_oscar
-    world_iae_timss:
+    world_iea_timss:
       +materialized: table
-      +schema: world_iae_timss
+      +schema: world_iea_timss
     world_iea_pirls:
       +materialized: table
       +schema: world_iea_pirls

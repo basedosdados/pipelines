@@ -1,7 +1,7 @@
 {{
     config(
         alias="student_context_grade_8",
-        schema="world_iae_timss",
+        schema="world_iea_timss",
         materialized="table",
     )
 }}
@@ -72,6 +72,7 @@ select
     safe_cast(bsbm19e as string) bsbm19e,
     safe_cast(bsbm19f as string) bsbm19f,
     safe_cast(bsbm19g as string) bsbm19g,
+    safe_cast(bsbm20a as string) bsbm20a,
     safe_cast(bsbm22d as string) bsbm22d,
     safe_cast(bsbm22g as string) bsbm22g,
     safe_cast(bsbm22h as string) bsbm22h,
@@ -120,4 +121,4 @@ select
     safe_cast(bsdgedup as string) bsdgedup,
     safe_cast(version as string) version,
     safe_cast(scope as string) scope,
-from {{ set_datalake_project("world_iae_timss_staging.student_context_grade_8") }} as t
+from {{ set_datalake_project("world_iea_timss_staging.student_context_grade_8") }} as t

@@ -1,7 +1,7 @@
 {{
     config(
         alias="student_achievement_grade_8",
-        schema="world_iae_timss",
+        schema="world_iea_timss",
         materialized="table",
     )
 }}
@@ -142,5 +142,5 @@ select
     safe_cast(version as string) version,
     safe_cast(scope as string) scope,
 from
-    {{ set_datalake_project("world_iae_timss_staging.student_achievement_grade_8") }}
+    {{ set_datalake_project("world_iea_timss_staging.student_achievement_grade_8") }}
     as t
