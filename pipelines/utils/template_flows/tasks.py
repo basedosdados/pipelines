@@ -198,7 +198,12 @@ def create_credentials(config_path="/root/.basedosdados/", target=None):
                 "basedosdados-dev"
             )
             config_data["gcloud-projects"]["prod"]["name"] = "basedosdados-dev"
-
+            config_data["gcloud-projects"]["staging"]["credentials_path"] = (
+                "/mnt/creds.json"
+            )
+            config_data["gcloud-projects"]["prod"]["credentials_path"] = (
+                "/mnt/creds.json"
+            )
             with open(config_file, "w") as toml_file:
                 toml.dump(config_data, toml_file)
             log(
