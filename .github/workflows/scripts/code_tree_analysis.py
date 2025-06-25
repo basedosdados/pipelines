@@ -2,7 +2,6 @@
 import ast
 import sys
 from pathlib import Path
-from typing import List, Tuple, Union
 
 import networkx as nx
 from prefect import Flow
@@ -72,7 +71,7 @@ def python_module_to_filename(python_module: str) -> str:
     return f"{file_path}.py"
 
 
-def get_dependencies(python_file: Union[str, Path]) -> List[str]:
+def get_dependencies(python_file: str | Path) -> list[str]:
     """
     Returns a list of dependencies from a Python file. The dependencies are
     defined as the import statements in the file. Their names on the output
@@ -124,7 +123,7 @@ def get_dependencies(python_file: Union[str, Path]) -> List[str]:
     return dependencies
 
 
-def get_declared(python_file: Union[str, Path]) -> List[str]:
+def get_declared(python_file: str) -> list[str]:
     """
     Returns a list of declared variables, functions and classes
     in a Python file. The output must be fully qualified.
@@ -200,7 +199,7 @@ def get_declared(python_file: Union[str, Path]) -> List[str]:
     return declared
 
 
-def list_all_python_files(directory: Union[str, Path]) -> List[Path]:
+def list_all_python_files(directory: str) -> list[str]:
     """
     Returns a list of all Python files in a directory.
 
@@ -227,10 +226,10 @@ def list_all_python_files(directory: Union[str, Path]) -> List[Path]:
         list: A list of all Python files in the directory.
     """
     # Get the directory path.
-    directory = Path(directory)
+    directory_path = Path(directory)
 
     # Get all files in the directory.
-    files = directory.glob("**/*.py")
+    files = directory_path.glob("**/*.py")
 
     # Filter out files that are not Python files.
     files = [f for f in files if f.suffix == ".py"]
@@ -372,8 +371,8 @@ def build_dependency_graph(root_directory: str) -> nx.DiGraph:
 
 
 def check_for_variable_name_conflicts(
-    changed_files: List[str], root_directory: str
-) -> List[Tuple[str, str]]:
+    changed_files: list[str], root_directory: str
+) -> list[tuple[str, str]]:
     """
     Checks if there will be any conflicts with variable names.
     """
@@ -419,13 +418,6 @@ def check_for_variable_name_conflicts(
     return conflicts
 
 
-def log(message: str):
-    """
-    Logs a message to the output of a GitHub Action.
-    """
-    print(message)
-
-
 if __name__ == "__main__":
     # Assert arguments.
     if len(sys.argv) not in [2, 3]:
@@ -435,7 +427,7 @@ if __name__ == "__main__":
     write_to_file = "--write-to-file" in sys.argv
 
     # Get modified files
-    changed_files: List[str] = sys.argv[1].split(" ")
+    changed_files: list[str] = sys.argv[1].split(" ")
     print("These are all the changed files:")
     for file_ in changed_files:
         print(f"\t- {file_}")
@@ -473,6 +465,12 @@ if __name__ == "__main__":
     for file_ in dependent_files:
         print(f"\t- {file_}")
 
+    changed_flows_py = [
+        file for file in changed_files if file.endswith("flows.py")
+    ]
+    if len(changed_flows_py) > 0:
+        dependent_files.update(changed_flows_py)
+
     # Write dependent file list to file.
     if write_to_file:
         dependent_files_txt = "dependent_files.txt"
@@ -480,38 +478,13 @@ if __name__ == "__main__":
             for file_ in dependent_files:
                 f.write(f"{file_}\n")
 
-        print(f"{dependent_files_txt} content:\n")
-        with open(dependent_files_txt, "r") as f:
-            print(f.read())
-
-    # Start a PR message
-    message = "### Análise da árvore de código\n\n"
-
-    # Format a message for the files that depend on the exported declarations.
-    if len(dependent_files) > 0:
-        message += (
-            "**Os seguintes arquivos são afetados diretamente por alterações "
-        )
-        message += "realizadas nesse pull request:**"
-        for file_ in dependent_files:
-            message += f"\n\t- {file_}"
-        message += "\n\n"
-
     # Check for variable name conflicts.
     conflicts = check_for_variable_name_conflicts(changed_files, "pipelines/")
-    if len(conflicts) > 0:
-        message += "**Existem conflitos entre nomes de variáveis nos seguintes objetos:**"
-        for conflict in conflicts:
-            message += "\n\t- {conflict[0]} e {conflict[1]}"
-        message += "\n\n"
 
-    # If there is nothing wrong, let'em know!
-    if len(dependent_files) == 0 and len(conflicts) == 0:
-        message += "*Nenhum problema encontrado!*"
-
-    if not write_to_file:
-        log(message)
+    if not write_to_file and len(dependent_files) > 0:
+        for file_ in dependent_files:
+            print(file_)
 
     # Raise if there are conflicts
     if len(conflicts) > 0:
-        raise Exception("There are variable name conflicts!")
+        raise Exception(f"There are variable name conflicts. {conflicts}")
