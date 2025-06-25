@@ -151,7 +151,7 @@ def create_table_and_upload_to_gcs_teste(
         # the name of the files need to be the same or the data doesn't get overwritten
         tb.append(filepath=data_path, if_exists="replace")
         st.upload(
-            filepath=data_path,
+            path=data_path,
             mode="staging",
             if_exists="replace",
         )
