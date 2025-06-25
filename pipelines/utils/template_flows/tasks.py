@@ -47,7 +47,9 @@ def create_table_and_upload_to_gcs_teste(
         config_path="/root/.basedosdados/",
     )
     st.config = tomlkit.parse(
-        ("/root/.basedosdados/config.toml").open("r", encoding="utf-8").read()
+        Path("/root/.basedosdados/config.toml")
+        .open("r", encoding="utf-8")
+        .read()
     )
 
     log(f"Using bucket: {bucket_name}")
