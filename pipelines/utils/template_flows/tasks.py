@@ -37,14 +37,15 @@ def create_table_and_upload_to_gcs_teste(
         dataset_id=dataset_id,
         table_id=table_id,
         bucket_name=bucket_name,
-        config_path=Path("/root/.basedosdados/config.toml"),
+        config_path="/root/.basedosdados/config.toml",
     )
     st = bd.Storage(
         dataset_id=dataset_id,
         table_id=table_id,
         bucket_name=bucket_name,
-        config_path=Path("/root/.basedosdados/config.toml"),
+        config_path="/root/.basedosdados/config.toml",
     )
+    log(f"Using bucket: {bucket_name}")
     storage_path = f"{bucket_name}.staging.{dataset_id}.{table_id}"
     storage_path_link = f"https://console.cloud.google.com/storage/browser/{bucket_name}/staging/{dataset_id}/{table_id}"
 
