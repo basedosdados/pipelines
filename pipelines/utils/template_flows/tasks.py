@@ -54,6 +54,7 @@ def create_table_and_upload_to_gcs_teste(
     # MANAGEMENT OF TABLE CREATION
     #
     #####################################
+
     log("STARTING TABLE CREATION MANAGEMENT")
     if dump_mode == "append":
         if tb.table_exists(mode="staging"):
@@ -148,8 +149,12 @@ def create_table_and_upload_to_gcs_teste(
     log("STARTING UPLOAD TO GCS")
     if tb.table_exists(mode="staging"):
         # the name of the files need to be the same or the data doesn't get overwritten
-        tb.append(filepath=data_path, if_exists="replace")
-
+        # tb.append(filepath=data_path, if_exists="replace")
+        st.upload(
+            filepath=data_path,
+            mode="staging",
+            if_exists="replace",
+        )
         log(
             f"STEP UPLOAD: Successfully uploaded {data_path} to Storage:\n"
             f"{storage_path}\n"
