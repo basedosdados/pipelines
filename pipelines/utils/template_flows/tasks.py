@@ -36,11 +36,13 @@ def create_table_and_upload_to_gcs_teste(
     tb = bd.Table(
         dataset_id=dataset_id,
         table_id=table_id,
+        config_path=Path("root/.basedosdados/config.toml"),
     )
     st = bd.Storage(
         dataset_id=dataset_id,
         table_id=table_id,
         bucket_name=bucket_name,
+        config_path=Path("root/.basedosdados/config.toml"),
     )
     storage_path = f"{bucket_name}.staging.{dataset_id}.{table_id}"
     storage_path_link = f"https://console.cloud.google.com/storage/browser/{bucket_name}/staging/{dataset_id}/{table_id}"
@@ -166,7 +168,7 @@ def _decode_env(env: str) -> str:
 
 
 def create_credentials(config_path="/root/.basedosdados/", target=None):
-    log("Creating credentials and config file")
+    log(f"Creating credentials and config file, target is: {target}")
     config_path = Path(config_path)
     config_file = config_path / "config.toml"
 
@@ -175,7 +177,10 @@ def create_credentials(config_path="/root/.basedosdados/", target=None):
         with open(config_file, "w", encoding="utf-8") as f:
             f.write(_decode_env("BASEDOSDADOS_CONFIG"))
 
-        config_data = toml.load(config_file)
+        with open(config_file, "r") as toml_file:
+            config_data = toml.load(toml_file)
+            log(config_data)
+
         log(config_data)
         if target == "dev":
             log("[INFO] Setting config.toml file to default values for dev.")
