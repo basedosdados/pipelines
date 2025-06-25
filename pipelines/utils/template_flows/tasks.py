@@ -5,6 +5,7 @@ from typing import Union
 
 import basedosdados as bd
 import toml
+import tomlkit
 from prefect import task
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
@@ -45,6 +46,10 @@ def create_table_and_upload_to_gcs_teste(
         bucket_name=bucket_name,
         config_path="/root/.basedosdados/",
     )
+    st.config = tomlkit.parse(
+        ("/root/.basedosdados/config.toml").open("r", encoding="utf-8").read()
+    )
+
     log(f"Using bucket: {bucket_name}")
     storage_path = f"{bucket_name}.staging.{dataset_id}.{table_id}"
     storage_path_link = f"https://console.cloud.google.com/storage/browser/{bucket_name}/staging/{dataset_id}/{table_id}"
