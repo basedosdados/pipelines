@@ -8,7 +8,6 @@ from pipelines.constants import constants
 from pipelines.datasets.br_bcb_agencia.constants import (
     constants as agencia_constants,
 )
-from pipelines.datasets.br_bcb_agencia.schedules import every_month_agencia
 from pipelines.datasets.br_bcb_agencia.tasks import (
     clean_data,
     download_table,
@@ -135,4 +134,4 @@ br_bcb_agencia_agencia.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_bcb_agencia_agencia.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_bcb_agencia_agencia.schedule = every_month_agencia
+# br_bcb_agencia_agencia.schedule = every_month_agencia
