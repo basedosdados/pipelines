@@ -37,13 +37,13 @@ def create_table_and_upload_to_gcs_teste(
         dataset_id=dataset_id,
         table_id=table_id,
         bucket_name=bucket_name,
-        config_path="/root/.basedosdados/config.toml",
+        config_path="/root/.basedosdados/",
     )
     st = bd.Storage(
         dataset_id=dataset_id,
         table_id=table_id,
         bucket_name=bucket_name,
-        config_path="/root/.basedosdados/config.toml",
+        config_path="/root/.basedosdados/",
     )
     log(f"Using bucket: {bucket_name}")
     storage_path = f"{bucket_name}.staging.{dataset_id}.{table_id}"
