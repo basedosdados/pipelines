@@ -391,6 +391,9 @@ models:
     mundo_bm_wdi:
       +materialized: table
       +schema: mundo_bm_wdi
+    mundo_cites_comercio:
+      +materialized: table
+      +schema: mundo_cites_comercio
     mundo_transfermarkt_competicoes:
       +materialized: table
       +schema: mundo_transfermarkt_competicoes
