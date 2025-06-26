@@ -1,3 +1,11 @@
+{{
+    config(
+        schema="br_bd_indicadores",
+        alias="twitter_metrics_agg",
+        materialized="table",
+    )
+}}
+
 select
     extract(date from timestamp_millis(upload_ts * 1000)) as upload_day,
     sum(retweet_count) as retweets,

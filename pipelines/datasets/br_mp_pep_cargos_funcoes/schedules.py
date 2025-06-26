@@ -23,7 +23,7 @@ every_month = Schedule(
                 "table_id": "cargos_funcoes",
                 "target": "prod",
                 "materialize_after_dump": True,
-                "dbt_alias": False,
+                "dbt_alias": True,
             },
         ),
     ]

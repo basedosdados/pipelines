@@ -13,19 +13,19 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ano.ano
+              field: ano
       - name: country_id_iso_3
         description: Country ID ISO3
         tests:
           - relationships:
-              to: ref('pais__sigla_pais_iso3')
-              field: sigla_pais_iso3.sigla_pais_iso3
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_pais_iso3
       - name: country_id_m49
         description: Country Identifier
         tests:
           - relationships:
-              to: ref('pais__id_pais_m49')
-              field: id_pais_m49.id_pais_m49
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: id_pais_m49
       - name: school_id
         description: School ID
       - name: student_id

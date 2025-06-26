@@ -1,3 +1,11 @@
+{{
+    config(
+        schema="br_bd_indicadores",
+        alias="website_user",
+        materialized="table",
+    )
+}}
+
 select
     safe_cast(reference_date as date) reference_date,
     safe_cast(users_1_day as int64) users_1_day,

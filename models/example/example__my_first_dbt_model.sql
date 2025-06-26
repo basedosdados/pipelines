@@ -5,7 +5,13 @@
 
     Try changing "table" to "view" below
 */
-{{ config(materialized="table") }}
+{{
+    config(
+        schema="example",
+        materialized="table",
+        alias="my_first_dbt_model",
+    )
+}}
 
 with
     source_data as (

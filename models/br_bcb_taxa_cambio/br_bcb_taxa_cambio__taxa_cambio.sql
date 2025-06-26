@@ -1,6 +1,9 @@
 {{
     config(
-        schema="br_bcb_taxa_cambio", materialized="table", labels={"tema": "economia"}
+        schema="br_bcb_taxa_cambio",
+        alias="taxa_cambio",
+        materialized="table",
+        labels={"tema": "economia"},
     )
 }}
 select

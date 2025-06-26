@@ -17,7 +17,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__mes')
-              field: ref('mes.mes')
+              field: mes.mes
       - name: id_servidor
         description: Número de identificação interna do servidor no Portal da Transparência,
           que pode ser utilizado para ligar a outras tabelas do mesmo Dataset.
@@ -55,7 +55,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__mes')
-              field: ref('mes.mes')
+              field: mes.mes
       - name: id_servidor
         description: Número de identificação interna do servidor no Portal da Transparência,
           que pode ser utilizado para ligar a outras tabelas do mesmo Dataset.
@@ -151,7 +151,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__mes')
-              field: ref('mes.mes')
+              field: mes.mes
       - name: id_servidor
         description: Número de identificação interna do servidor no Portal da Transparência,
           que pode ser utilizado para ligar a outras tabelas do mesmo Dataset.
@@ -180,7 +180,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__mes')
-              field: ref('mes.mes')
+              field: mes.mes
       - name: id_servidor
         description: Número de identificação interna do servidor no Portal da Transparência,
           que pode ser utilizado para ligar a outras tabelas do mesmo Dataset.
@@ -287,7 +287,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__mes')
-              field: ref('mes.mes')
+              field: mes.mes
       - name: id_servidor
         description: ID do servidor no Portal da Transparência
       - name: cpf
@@ -387,7 +387,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__mes')
-              field: ref('mes.mes')
+              field: mes.mes
       - name: id_servidor
         description: Número de identificação interna do servidor no Portal da Transparência,
           que pode ser utilizado para ligar a outras tabelas do mesmo Dataset.
@@ -480,7 +480,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__mes')
-              field: ref('mes.mes')
+              field: mes.mes
       - name: sigla_uf
         description: UF de exercício do servidor
         tests:
