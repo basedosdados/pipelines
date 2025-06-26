@@ -65,7 +65,6 @@ jobs:
           separator: ' '
       - name: Perform code tree analysis
         id: code-tree-analysis
-        continue-on-error: true
         run: |
           poetry run python .github/workflows/scripts/code_tree_analysis.py "${{ steps.changed-files.outputs.all_modified_files }}" --write-to-file
       - name: Write auth.toml
