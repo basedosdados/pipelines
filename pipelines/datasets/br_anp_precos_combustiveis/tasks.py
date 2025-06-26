@@ -3,7 +3,9 @@
 Tasks for br_anp_precos_combustiveis
 """
 
+import os
 from datetime import timedelta
+from pathlib import Path
 
 import pandas as pd
 from prefect import task
@@ -25,6 +27,7 @@ from pipelines.datasets.br_anp_precos_combustiveis.utils import (
     rename_and_to_create_endereco,
     rename_columns,
 )
+from pipelines.utils.utils import log
 
 
 @task
@@ -92,3 +95,15 @@ def make_partitions(df):
         output_directory=anp_constants.PATH_OUTPUT.value,
     )
     return anp_constants.PATH_OUTPUT.value
+
+
+@task
+def get_output():
+    """
+    Get the output path for the table.
+    """
+
+    log(f"GET_OUTPUT -> {Path(anp_constants.PATH_OUTPUT.value)}/")
+    log(os.listdir(anp_constants.PATH_OUTPUT.value))
+
+    return f"{Path(anp_constants.PATH_OUTPUT.value)}/"

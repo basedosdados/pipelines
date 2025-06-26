@@ -623,3 +623,11 @@ def clean_data_make_partitions_balancete(diretorio, table_id):
         log(f"Partições feitas para o ano ------> {file}")
 
     return f"/tmp/data/br_cvm_fi/{table_id}/output/"
+
+
+@task
+def get_output(table_id: str) -> str:
+    """
+    Returns the output path for the given table_id.
+    """
+    return f"/tmp/data/br_cvm_fi/{table_id}/output/"

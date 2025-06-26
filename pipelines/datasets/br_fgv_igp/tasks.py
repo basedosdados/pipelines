@@ -59,3 +59,8 @@ def clean_fgv_df(igp_data: IGPData) -> pathlib.Path:
     )
 
     return filepath
+
+
+@task
+def get_output(igp_data: IGPData) -> pathlib.Path:
+    return pathlib.Path(igp_data.filepath)

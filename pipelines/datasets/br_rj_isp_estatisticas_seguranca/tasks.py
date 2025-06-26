@@ -130,3 +130,11 @@ def get_today_date():
     d = datetime.now() - timedelta(days=60)
 
     return d.strftime("%Y-%m")
+
+
+@task
+def get_output(file_name):
+    return (
+        isp_constants.OUTPUT_PATH.value
+        + isp_constants.dict_original.value[file_name]
+    )
