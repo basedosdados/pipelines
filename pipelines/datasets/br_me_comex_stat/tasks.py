@@ -30,7 +30,7 @@ from pipelines.utils.utils import log, to_partitions
 @task
 def parse_last_date(link: str) -> str:
     # Parsing do metadado que informa última atualização
-    response = requests.get(link)
+    response = requests.get(link, verify=False)
     soup = BeautifulSoup(response.content, "html.parser")
     css_selector = "#parent-fieldname-text > h2"
     result = soup.select_one(css_selector)
