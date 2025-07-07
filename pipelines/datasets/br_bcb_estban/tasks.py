@@ -78,6 +78,7 @@ def extract_last_date(table_id: str) -> str:
     options.add_argument("--no-default-browser-check")
     options.add_argument("--ignore-certificate-errors")
     options.add_argument("--start-maximized")
+    options.add_argument("--window-size=1920,1080")
     options.add_argument(
         "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
     )
@@ -88,21 +89,41 @@ def extract_last_date(table_id: str) -> str:
 
     log("iniatilizing drivermanager")
     log(f"using url {br_bcb_estban_constants.ESTBAN_NEW_URL.value}")
+
     driver.get(br_bcb_estban_constants.ESTBAN_NEW_URL.value)
+    title = driver.title
+    sleep(5)
+    log(f"Page title is: {title}")
+    driver.maximize_window()
+    cookies_dict = {
+        "_ga": "GA1.1.920195631.1751045467",
+        "_ga_TPS4R7DC1S": "GS2.1.s1751045467$o1$g1$t1751045590$j60$l0$h0",
+    }
+
+    for key, value in cookies_dict.items():
+        driver.add_cookie({"name": key, "value": value})
+        log(f"adding cookie {key} with value {value}")
+
+    driver.refresh()
+
+    sleep(10)
 
     # select input field and click on it
     log(
         f" Searching for ---- {br_bcb_estban_constants.CSS_INPUT_FIELD_DICT.value[table_id]} to click on"
     )
-    input_field = WebDriverWait(driver, 20).until(
+
+    input_field = WebDriverWait(driver, 60).until(
         EC.element_to_be_clickable(
             (
-                By.CSS_SELECTOR,
+                By.XPATH,
                 br_bcb_estban_constants.CSS_INPUT_FIELD_DICT.value[table_id],
             )
         )
     )
 
+    driver.execute_script("arguments[0].scrollIntoView(true);", input_field)
+    sleep(0.5)
     assert input_field.is_displayed()
 
     input_field.click()
@@ -157,7 +178,7 @@ def download_estban_selenium(save_path: str, table_id: str, date: str) -> str:
         prefs,
     )
 
-    options.add_argument("--headless=new")
+    # options.add_argument("--headless")
     options.add_argument("--test-type")
     options.add_argument("--disable-gpu")
     options.add_argument("--no-first-run")
@@ -177,7 +198,20 @@ def download_estban_selenium(save_path: str, table_id: str, date: str) -> str:
     )
 
     driver.get(br_bcb_estban_constants.ESTBAN_NEW_URL.value)
+
     driver.implicitly_wait(2)
+
+    cookies_dict = {
+        "_ga": "GA1.1.920195631.1751045467",
+        "_ga_TPS4R7DC1S": "GS2.1.s1751045467$o1$g1$t1751045590$j60$l0$h0",
+    }
+
+    for key, value in cookies_dict.items():
+        driver.add_cookie({"name": key, "value": value})
+
+    driver.refresh()
+
+    sleep(10)
 
     # select input field and send keys
     log("looking for input field and sending keys")
@@ -200,6 +234,9 @@ def download_estban_selenium(save_path: str, table_id: str, date: str) -> str:
     log("looking for input field and sending keys")
     # click  button to download file
     sleep(2)
+    log(
+        f" Searching for ---- {br_bcb_estban_constants.CSS_DOWNLOAD_BUTTON.value[table_id]} to click on"
+    )
     download_button = WebDriverWait(driver, 20).until(
         EC.element_to_be_clickable(
             (
@@ -208,6 +245,7 @@ def download_estban_selenium(save_path: str, table_id: str, date: str) -> str:
             )
         )
     )
+
     download_button.click()
     # Sleep time to wait the download
     sleep(12)

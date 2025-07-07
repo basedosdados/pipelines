@@ -13,13 +13,13 @@ class constants(Enum):  # pylint: disable=c0103
     )
 
     CSS_INPUT_FIELD_DICT = {
-        "municipio": "body > app-root > app-root > div > div > main > dynamic-comp > div > div:nth-child(5) > div:nth-child(1) > div > bcb-download-filter > div > ng-select > div > div > div.ng-input > input[type=text]",
-        "agencia": "body > app-root > app-root > div > div > main > dynamic-comp > div > div:nth-child(5) > div:nth-child(2) > div > bcb-download-filter > div > ng-select > div > div > div.ng-input > input[type=text]",
+        "municipio": "/html/body/app-root/app-root/div/div/main/dynamic-comp/div/div[4]/div[1]/div/bcb-download-filter/div/ng-select/div/div/div[2]/input",
+        "agencia": "/html/body/app-root/app-root/div/div/main/dynamic-comp/div/div[4]/div[2]/div/bcb-download-filter/div/ng-select/div/div/div[2]/input",
     }
 
     CSS_DOWNLOAD_BUTTON = {
-        "municipio": "body > app-root > app-root > div > div > main > dynamic-comp > div > div:nth-child(5) > div:nth-child(1) > div > bcb-download-filter > div > button",
-        "agencia": "body > app-root > app-root > div > div > main > dynamic-comp > div > div:nth-child(5) > div:nth-child(2) > div > bcb-download-filter > div > button",
+        "municipio": "/html/body/app-root/app-root/div/div/main/dynamic-comp/div/div[4]/div[1]/div/bcb-download-filter/div/button",
+        "agencia": "/html/body/app-root/app-root/div/div/main/dynamic-comp/div/div[4]/div[2]/div/bcb-download-filter/div/button",
     }
 
     ZIPFILE_PATH_MUNICIPIO = "/tmp/br_bcb_estban/municipio/zipfile"
