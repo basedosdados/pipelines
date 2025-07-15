@@ -349,8 +349,7 @@ models:
         description: Data Version
       - name: scope
         description: Scope Of This File
-<<<<<<< HEAD:models/world_iae_timss/schema.yml
-  - name: world_iae_timss__dictionary
+  - name: world_iea_timss__dictionary
     description: TIMSS 2023 Tables Data Dictionary
     columns:
       - name: table_id
@@ -363,10 +362,7 @@ models:
         description: Temporal coverage
       - name: value
         description: Value
-  - name: world_iae_timss__school_context_grade_4
-=======
   - name: world_iea_timss__school_context_grade_4
->>>>>>> recriando dataset com a sigla correta:models/world_iea_timss/schema.yml
     description: School context data files contain principals' responses to the TIMSS
       2023 School Questionnaire. To analyze student-level data with school information,
       these files must be merged with student context data using country and school
@@ -466,11 +462,7 @@ models:
             - acdglns
             - acdgsbc
             - scope
-<<<<<<< HEAD:models/world_iae_timss/schema.yml
-          dictionary_model: ref('world_iae_timss__dictionary')
-=======
           dictionary_model: ref('world_iea_timss__dictionary')
->>>>>>> recriando dataset com a sigla correta:models/world_iea_timss/schema.yml
     columns:
       - name: year
         description: Year
@@ -797,11 +789,7 @@ models:
             - bcdgdas
             - bcdgsbc
             - scope
-<<<<<<< HEAD:models/world_iae_timss/schema.yml
-          dictionary_model: ref('world_iae_timss__dictionary')
-=======
           dictionary_model: ref('world_iea_timss__dictionary')
->>>>>>> recriando dataset com a sigla correta:models/world_iea_timss/schema.yml
     columns:
       - name: year
         description: Year
@@ -1051,11 +1039,7 @@ models:
             - assibm03
             - assibm04
             - assibm05
-<<<<<<< HEAD:models/world_iae_timss/schema.yml
-          dictionary_model: ref('world_iae_timss__dictionary')
-=======
           dictionary_model: ref('world_iea_timss__dictionary')
->>>>>>> recriando dataset com a sigla correta:models/world_iea_timss/schema.yml
     columns:
       - name: year
         description: Year
@@ -1331,11 +1315,7 @@ models:
             - se82env
             - se82nen
             - scope
-<<<<<<< HEAD:models/world_iae_timss/schema.yml
-          dictionary_model: ref('world_iae_timss__dictionary')
-=======
           dictionary_model: ref('world_iea_timss__dictionary')
->>>>>>> recriando dataset com a sigla correta:models/world_iea_timss/schema.yml
     columns:
       - name: year
         description: Year
@@ -1743,11 +1723,7 @@ models:
             - asbs10e
             - asbs10f
             - scope
-<<<<<<< HEAD:models/world_iae_timss/schema.yml
-          dictionary_model: ref('world_iae_timss__dictionary')
-=======
           dictionary_model: ref('world_iea_timss__dictionary')
->>>>>>> recriando dataset com a sigla correta:models/world_iea_timss/schema.yml
     columns:
       - name: year
         description: Year
@@ -2024,11 +2000,11 @@ models:
         description: Data Version
       - name: scope
         description: Scope Of This File
-  - name: world_iea_timss__teacher_context_grade_4
-    description: 'In 4th grade, the TIMSS 2023 application was simplified: teachers
-      answered a single questionnaire covering both mathematics and science. This
-      questionnaire collected information on the professional context, attitudes towards
-      teaching, and teaching practices in the classes with students sampled.'
+  - name: world_iea_timss__student_context_grade_8
+    description: The student context data files gather information on family background,
+      school experiences, and attitudes towards math and science. They also include
+      plausible performance values in these areas, making it possible to analyze how
+      these characteristics relate to academic performance.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -2036,19 +2012,15 @@ models:
             - country_id
             - grade_id
             - school_id
-            - teacher_id
-            - link_id
-            - tealin_id
-            - subject_id
+            - class_id
+            - student_id
       - not_null_proportion_multiple_columns:
           at_least: 0.01
       - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - grade_id
-            - course
-            - subject_id
+            - student_sex
             - language_school_questionnaire
-<<<<<<< HEAD:models/world_iae_timss/schema.yml
             - bsbg01
             - bsbg03
             - bsbg04
@@ -2151,76 +2123,10 @@ models:
             - bsdg05s
             - bsdgedup
             - scope
-          dictionary_model: ref('world_iae_timss__dictionary')
-=======
-            - atbg02
-            - atbg03
-            - atbg04
-            - atbg05ba
-            - atbg05bb
-            - atbg05bd
-            - atbg06a
-            - atbg06b
-            - atbg06c
-            - atbg06d
-            - atbg06e
-            - atbg06f
-            - atbg06g
-            - atbg06h
-            - atbg06i
-            - atbg06j
-            - atbg06k
-            - atbg07a
-            - atbg07b
-            - atbg07c
-            - atbg07d
-            - atbg07e
-            - atbg07f
-            - atbg07g
-            - atbg08a
-            - atbg08b
-            - atbg08c
-            - atbg08d
-            - atbg08e
-            - atbg08f
-            - atbg08g
-            - atbg09a
-            - atbg09b
-            - atbg09c
-            - atbg09d
-            - atbg09e
-            - atbg09f
-            - atbg09g
-            - atbg09h
-            - atbg12a
-            - atbg12b
-            - atbg12c
-            - atbg12d
-            - atbg12e
-            - atbg12f
-            - atbg12g
-            - atbg13a
-            - atbg13b
-            - atbg13c
-            - atbg13d
-            - atbg13e
-            - atbg13f
-            - atbg13g
-            - atbg13h
-            - atbg13i
-            - atdgeas
-            - atdgsos
-            - atdgtjs
-            - atdglsn
-            - atdmmem
-            - atdsmes
           dictionary_model: ref('world_iea_timss__dictionary')
->>>>>>> recriando dataset com a sigla correta:models/world_iea_timss/schema.yml
     columns:
       - name: year
         description: Year
-      - name: country_id
-        description: Numeric Country Code
       - name: country_m49
         description: Numeric country code for the table directory
         tests:
@@ -2228,22 +2134,21 @@ models:
               to: ref('br_bd_diretorios_mundo__pais')
               field: id_pais_m49
               ignore_values: ['957', '956', '411', '926']
+      - name: country_id
+        description: Numeric Country Code
       - name: grade_id
-        description: Grade ID
+        description: Grade Id
       - name: school_id
-        description: School ID
-      - name: teacher_id
-        description: Teacher ID
-      - name: link_id
-        description: Teacher Link Number
-      - name: tealin_id
-        description: Teacher ID and Link
-      - name: course
-        description: Subject Code
-      - name: subject_id
-        description: Subject ID
+        description: School Id
+      - name: class_id
+        description: Class Id
+      - name: student_id
+        description: Student Id
+      - name: student_sex
+        description: Sex Of Students
+      - name: student_age
+        description: Students Age
       - name: language_school_questionnaire
-<<<<<<< HEAD:models/world_iae_timss/schema.yml
         description: Language Of Student Questionnaire
       - name: locale_school_questionnaire
         description: Locale Id Of The Student Questionnaire
@@ -2453,7 +2358,7 @@ models:
         description: Data Version
       - name: scope
         description: Scope Of This File
-  - name: world_iae_timss__teacher_context_grade_4
+  - name: world_iea_timss__teacher_context_grade_4
     description: 'In 4th grade, the TIMSS 2023 application was simplified: teachers
       answered a single questionnaire covering both mathematics and science. This
       questionnaire collected information on the professional context, attitudes towards
@@ -2538,7 +2443,7 @@ models:
             - atdglsn
             - atdmmem
             - atdsmes
-          dictionary_model: ref('world_iae_timss__dictionary')
+          dictionary_model: ref('world_iea_timss__dictionary')
     columns:
       - name: year
         description: Year
@@ -2566,8 +2471,6 @@ models:
       - name: subject_id
         description: Subject ID
       - name: language_school_questionnaire
-=======
->>>>>>> recriando dataset com a sigla correta:models/world_iea_timss/schema.yml
         description: Language of School Questionnaire
       - name: locale_school_questionnaire
         description: Locale ID of School Questionnaire
@@ -2887,11 +2790,7 @@ models:
             - btdglsn
             - btdmmme
             - scope
-<<<<<<< HEAD:models/world_iae_timss/schema.yml
-          dictionary_model: ref('world_iae_timss__dictionary')
-=======
           dictionary_model: ref('world_iea_timss__dictionary')
->>>>>>> recriando dataset com a sigla correta:models/world_iea_timss/schema.yml
     columns:
       - name: year
         description: Year
@@ -3465,11 +3364,7 @@ models:
             - btdglsn
             - btdsmse
             - scope
-<<<<<<< HEAD:models/world_iae_timss/schema.yml
-          dictionary_model: ref('world_iae_timss__dictionary')
-=======
           dictionary_model: ref('world_iea_timss__dictionary')
->>>>>>> recriando dataset com a sigla correta:models/world_iea_timss/schema.yml
     columns:
       - name: year
         description: Year
@@ -3972,377 +3867,3 @@ models:
         description: Data Version
       - name: scope
         description: Scope Of This File
-  - name: world_iea_timss__student_context_grade_8
-    description: The student context data files gather information on family background,
-      school experiences, and attitudes towards math and science. They also include
-      plausible performance values in these areas, making it possible to analyze how
-      these characteristics relate to academic performance.
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - year
-            - country_id
-            - grade_id
-            - school_id
-            - class_id
-            - student_id
-      - not_null_proportion_multiple_columns:
-          at_least: 0.01
-      - custom_dictionary_coverage:
-          columns_covered_by_dictionary:
-            - grade_id
-            - student_sex
-            - language_school_questionnaire
-            - locale_school_questionnaire
-            - bsbg01
-            - bsbg03
-            - bsbg04
-            - bsbg05a
-            - bsbg05b
-            - bsbg05c
-            - bsbg05d
-            - bsbg05e
-            - bsbg05f
-            - bsbg06a
-            - bsbg06b
-            - bsbg07
-            - bsbg08a
-            - bsbg08b
-            - bsbg09a
-            - bsbg09b
-            - bsbg10
-            - bsbg11a
-            - bsbg11b
-            - bsbg12a
-            - bsbg12b
-            - bsbg12c
-            - bsbg12d
-            - bsbg12e
-            - bsbg12f
-            - bsbg13a
-            - bsbg13b
-            - bsbg13c
-            - bsbg13d
-            - bsbg13e
-            - bsbg13f
-            - bsbg13g
-            - bsbg14a
-            - bsbg14b
-            - bsbg14c
-            - bsbg14d
-            - bsbg14e
-            - bsbg14f
-            - bsbg14g
-            - bsbg14h
-            - bsbg14i
-            - bsbg15a
-            - bsbg15b
-            - bsbg15c
-            - bsbg15d
-            - bsbg15e
-            - bsbg15f
-            - bsbg16a
-            - bsbg16b
-            - bsbg16c
-            - bsbg16d
-            - bsbm19c
-            - bsbm19e
-            - bsbm19f
-            - bsbm19g
-            - bsbm20a
-            - bsbm22d
-            - bsbm22g
-            - bsbm22h
-            - bsbm23a
-            - bsbs25a
-            - bsbs25c
-            - bsbs25d
-            - bsbs25e
-            - bsbs25h
-            - bsbs28d
-            - bsbs28g
-            - bsbs28h
-            - bsbs29a
-            - bsbs29b
-            - bsbb26c
-            - bsbb26e
-            - bsbb26h
-            - bsbb29b
-            - bsbb29c
-            - bsbb29d
-            - bsbb29g
-            - bsbb29h
-            - bsbe32a
-            - bsbe32c
-            - bsbe32h
-            - bsbe32i
-            - bsbe35b
-            - bsbe35c
-            - bsbe35d
-            - bsbe35e
-            - bsbe35g
-            - bsbe35h
-            - bsbc38c
-            - bsbc38e
-            - bsbc38h
-            - bsbc41c
-            - bsbc41d
-            - bsbp44c
-            - bsbp44e
-            - bsbp44h
-            - bsbp47g
-            - bsbp47h
-            - bsbs48a
-            - bsbs48b
-            - bsdg05s
-            - bsdgedup
-            - scope
-          dictionary_model: ref('world_iea_timss__dictionary')
-    columns:
-      - name: year
-        description: Year
-      - name: country_m49
-        description: Numeric country code for the table directory
-        # tests:
-         # - relationships:
-                # to: ref('br_bd_diretorios_mundo__pais')
-               # field: id_pais_m49
-      - name: country_id
-        description: Numeric Country Code
-      - name: grade_id
-        description: Grade Id
-      - name: school_id
-        description: School Id
-      - name: class_id
-        description: Class Id
-      - name: student_id
-        description: Student Id
-      - name: student_sex
-        description: Sex Of Students
-      - name: student_age
-        description: Students Age
-      - name: language_school_questionnaire
-        description: Language Of Student Questionnaire
-      - name: locale_school_questionnaire
-        description: Locale Id Of The Student Questionnaire
-      - name: bsbg01
-        description: Sex Of Student
-      - name: bsbg03
-        description: Freq. Use Test Lang at Home
-      - name: bsbg04
-        description: Amount Of Books In Your Home
-      - name: bsbg05a
-        description: Has own computer
-      - name: bsbg05b
-        description: Has shared computer
-      - name: bsbg05c
-        description: Has smartphone
-      - name: bsbg05d
-        description: Has Internet Access
-      - name: bsbg05e
-        description: Has Study Desk
-      - name: bsbg05f
-        description: Has Own Room
-      - name: bsbg06a
-        description: Parent A’s highest education level
-      - name: bsbg06b
-        description: Parent B’s highest education level
-      - name: bsbg07
-        description: Student's expected education level
-      - name: bsbg08a
-        description: Parent A born in <Country>
-      - name: bsbg08b
-        description: Parent B born in <Country>
-      - name: bsbg09a
-        description: Student born In <Country>
-      - name: bsbg09b
-        description: Age student came to <Country>
-      - name: bsbg10
-        description: How often absent from school
-      - name: bsbg11a
-        description: How often feels tired
-      - name: bsbg11b
-        description: How often feels hungry
-      - name: bsbg12a
-        description: How often uses internet for textbooks
-      - name: bsbg12b
-        description: How often uses internet for assignments
-      - name: bsbg12c
-        description: How often collaborates online with classmates
-      - name: bsbg12d
-        description: How Often Ask Teacher Questions
-      - name: bsbg12e
-        description: How often uses internet for math/science info
-      - name: bsbg12f
-        description: How often uses internet for learning games
-      - name: bsbg13a
-        description: Agrees on writing text on computer
-      - name: bsbg13b
-        description: Agrees on creating presentations on computer
-      - name: bsbg13c
-        description: Agrees on creating graphs on computer
-      - name: bsbg13d
-        description: Agrees on finding information online
-      - name: bsbg13e
-        description: Agrees on identifying trustworthy websites
-      - name: bsbg13f
-        description: Agrees on learning new things on computer
-      - name: bsbg13g
-        description: Agrees on helping friends and family
-      - name: bsbg14a
-        description: Agrees on protecting plants and animals
-      - name: bsbg14b
-        description: Agrees on benefits of nature
-      - name: bsbg14c
-        description: Agrees on most important reason
-      - name: bsbg14d
-        description: Agrees that science and tech solve problems
-      - name: bsbg14e
-        description: Agrees on feeling sad when nature is destroyed
-      - name: bsbg14f
-        description: Agrees on learning about plants and animals
-      - name: bsbg14g
-        description: Agrees on enjoying being in nature
-      - name: bsbg14h
-        description: Agrees that protecting nature is more important
-      - name: bsbg14i
-        description: Agrees that climate change is a priority
-      - name: bsbg15a
-        description: How often reuses things
-      - name: bsbg15b
-        description: How often saves resources
-      - name: bsbg15c
-        description: How often talks about environment
-      - name: bsbg15d
-        description: How often learns about environment
-      - name: bsbg15e
-        description: How often participates in activities
-      - name: bsbg15f
-        description: How often tells friends
-      - name: bsbg16a
-        description: Agrees on enjoying being in school
-      - name: bsbg16b
-        description: Agrees that school is safe
-      - name: bsbg16c
-        description: Agrees on belonging at school
-      - name: bsbg16d
-        description: Agrees that teachers care
-      - name: bsbm19c
-        description: Agrees that math is boring
-      - name: bsbm19e
-        description: Agrees that they like mathematics
-      - name: bsbm19f
-        description: Agrees that they like numers
-      - name: bsbm19g
-        description: Agrees that they like math problems
-      - name: bsbm20a
-        description: Agrees teachers makes it clear
-      - name: bsbm22d
-        description: Agrees that mathematics is easy
-      - name: bsbm22g
-        description: Agrees that math is harder for them
-      - name: bsbm22h
-        description: Agrees that math makes them confused
-      - name: bsbm23a
-        description: Agrees that math will help them
-      - name: bsbs25a
-        description: Agrees that they enjoy learning science
-      - name: bsbs25c
-        description: Agrees that science is boring
-      - name: bsbs25d
-        description: Agrees that they learn interesting things in science
-      - name: bsbs25e
-        description: Agrees that they like science
-      - name: bsbs25h
-        description: Agrees that they like science experiments
-      - name: bsbs28d
-        description: Agrees that science is easy
-      - name: bsbs28g
-        description: Agrees that science is harder for them
-      - name: bsbs28h
-        description: Agrees that science makes them confused
-      - name: bsbs29a
-        description: Agrees that science will help them
-      - name: bsbs29b
-        description: Agrees that they need science to learn other subjects
-      - name: bsbb26c
-        description: Agrees that biology is boring
-      - name: bsbb26e
-        description: Agrees that they like biology
-      - name: bsbb26h
-        description: Agrees that they like biology experiments
-      - name: bsbb29b
-        description: Agrees that biology is harder for them than for others
-      - name: bsbb29c
-        description: Agrees that biology is not their strength
-      - name: bsbb29d
-        description: Agrees that biology is easy
-      - name: bsbb29g
-        description: Agrees that biology is harder for them
-      - name: bsbb29h
-        description: Agrees that biology makes them confused
-      - name: bsbe32a
-        description: Agrees that they enjoy learning earth science
-      - name: bsbe32c
-        description: Agrees that earth science is boring
-      - name: bsbe32h
-        description: Agrees that they like earth science experiments
-      - name: bsbe32i
-        description: Agrees that earth science is their favorite subject
-      - name: bsbe35b
-        description: Agrees that earth science is harder for them than for others
-      - name: bsbe35c
-        description: Agrees that earth science is not their strength
-      - name: bsbe35d
-        description: Agrees that earth science is easy
-      - name: bsbe35e
-        description: Agrees that they are good at working out problems
-      - name: bsbe35g
-        description: Agrees that earth science is harder for them
-      - name: bsbe35h
-        description: Agrees that earth science makes them confused
-      - name: bsbc38c
-        description: Agrees that chemistry is boring
-      - name: bsbc38e
-        description: Agrees that they like chemistry
-      - name: bsbc38h
-        description: Agrees that they like chemistry experiments
-      - name: bsbc41c
-        description: Agrees that chemistry is not their strength
-      - name: bsbc41d
-        description: Agrees that chemistry is easy
-      - name: bsbp44c
-        description: Agrees that physics is boring
-      - name: bsbp44e
-        description: Agrees that they like physics
-      - name: bsbp44h
-        description: Agrees that they like physics experiments
-      - name: bsbp47g
-        description: Agrees that physics is harder for them
-      - name: bsbp47h
-        description: Agrees that physics makes them confused
-      - name: bsbs48a
-        description: Agrees that learning science will help them
-      - name: bsbs48b
-        description: Agrees that they need science to learn other things
-      - name: bsdg05s
-        description: Number Of Home Study Supports
-      - name: bsdgedup
-        description: Parents' Highest Education Level
-      - name: version
-        description: Data Version
-      - name: scope
-        description: Scope Of This File
-  - name: world_iea_timss__dictionary
-    description: TIMSS 2023 Tables Data Dictionary
-    columns:
-      - name: table_id
-        description: Table ID
-      - name: column_name
-        description: Column name
-      - name: key
-        description: Key
-      - name: temporal_coverage
-        description: Temporal coverage
-      - name: value
-        description: Value
