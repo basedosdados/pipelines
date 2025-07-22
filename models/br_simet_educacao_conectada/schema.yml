@@ -1,7 +1,7 @@
 ---
 version: 2
 models:
-  - name: escola
+  - name: br_simet_educacao_conectada__escola
     description: Dados sobre conectividade e infraestrutura de Internet nas escolas
       brasileiras.
     columns:

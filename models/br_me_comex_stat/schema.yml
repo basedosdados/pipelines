@@ -32,7 +32,7 @@ models:
         description: Sigla ISO3 do País
         tests:
           - relationships:
-              to: ref('br_bd_diretorios_mundo__municipio')
+              to: ref('br_bd_diretorios_mundo__pais')
               field: sigla_pais_iso3
               config:
                 where: __most_recent_year_month__
@@ -83,7 +83,7 @@ models:
         description: Sigla ISO3 do País
         tests:
           - relationships:
-              to: ref('br_bd_diretorios_mundo__municipio')
+              to: ref('br_bd_diretorios_mundo__pais')
               field: sigla_pais_iso3
               config:
                 where: __most_recent_year_month__
@@ -143,7 +143,7 @@ models:
         description: Sigla ISO3 do País
         tests:
           - relationships:
-              to: ref('br_bd_diretorios_mundo__municipio')
+              to: ref('br_bd_diretorios_mundo__pais')
               field: sigla_pais_iso3
               config:
                 where: __most_recent_year_month__
@@ -204,7 +204,7 @@ models:
         description: Sigla ISO3 do País
         tests:
           - relationships:
-              to: ref('br_bd_diretorios_mundo__municipio')
+              to: ref('br_bd_diretorios_mundo__pais')
               field: sigla_pais_iso3
               config:
                 where: __most_recent_year_month__
