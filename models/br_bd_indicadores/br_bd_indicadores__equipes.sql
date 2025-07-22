@@ -1,3 +1,10 @@
+{{
+    config(
+        schema="br_bd_indicadores",
+        alias="equipes",
+        materialized="table",
+    )
+}}
 select
     safe_cast(id_pessoa as string) id_pessoa,
     safe_cast(data_inicio as date) data_inicio,

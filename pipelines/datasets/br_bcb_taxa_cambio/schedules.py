@@ -24,7 +24,7 @@ schedule_every_weekday_taxa_cambio = Schedule(
                 "target": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
-                "dbt_alias": False,
+                "dbt_alias": True,
             },
         )
     ],
