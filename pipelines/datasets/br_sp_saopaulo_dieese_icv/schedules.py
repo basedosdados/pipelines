@@ -23,7 +23,7 @@ every_month = Schedule(
                 "target": "prod",
                 "materialize after dump": True,
                 "table_id": "mes",
-                "dbt_alias": False,
+                "dbt_alias": True,
             },
         )
     ],

@@ -1,6 +1,7 @@
 {{
     config(
         schema="br_ans_beneficiario",
+        alias="informacao_consolidada",
         materialized="incremental",
         partition_by={
             "field": "ano",
