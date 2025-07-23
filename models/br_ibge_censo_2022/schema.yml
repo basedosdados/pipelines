@@ -8858,3 +8858,236 @@ models:
         description: Sexo feminino, 10 anos ou mais, Cor ou raça é parda
       - name: V01411
         description: Sexo feminino, 10 anos ou mais, Cor ou raça é indígena
+  - name: br_ibge_censo_2022__estudantes_tea_indigenas
+    description: Estudantes indígenas de 6 anos ou mais de idade diagnosticados com
+      autismo por grupo de idade dos estudantes
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_municipio, grupo_idade]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.02
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_municipio
+        description: ID Município de 7 dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: grupo_idade
+        description: Faixa de Idade
+      - name: populacao_tea
+        description: Quantidade de estudantes indígenas diagnosticados com autismo
+  - name: br_ibge_censo_2022__estudantes_tea_raca_cor_grupo_idade
+    description: Estudantes de 6 anos ou mais de idade diagnosticados com autismo,
+      por cor ou raça e grupo de idade dos estudantes
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_municipio, grupo_idade, raca_cor]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.18
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_municipio
+        description: ID Município de 7 dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: grupo_idade
+        description: Grupo de Idade dos Estudantes
+      - name: raca_cor
+        description: Autodeclaração sobre cor e/ou raça
+      - name: populacao_tea
+        description: Quantidade de estudantes de 6 ou mais de idade diagnosticados
+          com autismo
+  - name: br_ibge_censo_2022__estudantes_tea_sexo_grupo_idade
+    description: Estudantes de 6 anos ou mais de idade diagnosticados com autismo,
+      por sexo e grupo de idade dos estudantes
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_municipio, grupo_idade, sexo]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.65
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_municipio
+        description: ID Município de 7 dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: grupo_idade
+        description: Grupo de Idade dos estudantes diagnósticados com autismo
+      - name: sexo
+        description: Sexo dos estudantes diagnósticados com autismo
+      - name: populacao_tea
+        description: Quantidade de estudantes de 6 ou mais de idade diagnosticados
+          com autismo
+  - name: br_ibge_censo_2022__estudantes_tea_grupo_idade_nivel_escolaridade
+    description: Estudantes de 6 anos ou mais de idade diagnosticados com autismo,
+      por curso que frequentavam e grupo de idade
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_municipio, grupo_idade]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.0
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_municipio
+        description: ID Município de 7 dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: grupo_idade
+        description: Grupo de Idade dos estudantes diagnósticados com autismo
+      - name: creche
+        description: Estudantes diagnósticados com autismo que frequentam a creche
+      - name: pre_escola
+        description: Estudantes diagnósticados com autismo que frequentam a Pré-escola
+      - name: eja
+        description: Estudantes diagnósticados com autismo que frequentam a frequentam
+          a Educação de Jovens e Adultos do ensino fundamental
+      - name: ensino_fundamental
+        description: Estudantes diagnósticados com autismo que frequentam o Regular
+          do Ensino Fundamental
+      - name: eja_ensino_fundamental
+        description: Estudantes diagnósticados com autismo que frequentam a Educação
+          de Jovens e Adultos do ensino fundamental
+      - name: ensino_medio
+        description: Estudantes diagnósticados com autismo que frequentam o Regular
+          do Ensino Médio
+      - name: eja_ensino_medio
+        description: Estudantes diagnósticados com autismo que frequentam a Educação
+          de Jovens e Adultos do ensino médio
+      - name: graduacao
+        description: Estudantes diagnósticados com autismo que frequentam o Ensino
+          Superior de Graduação
+      - name: especializacao
+        description: Estudantes diagnósticados com autismo que frequentam a Especiaização
+          de nivel superior (mínimo 360 horas)
+      - name: mestrado
+        description: Estudantes diagnósticados com autismo que frequentam o Mestrado
+      - name: doutorado
+        description: Estudantes diagnósticados com autismo que frequentam o Doutorado
+  - name: br_ibge_censo_2022__populacao_tea_indigena
+    description: Pessoas indígenas diagnosticadas com autismo
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_municipio]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.02
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_municipio
+        description: ID Município de 7 dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: populacao_tea
+        description: Quantidade de pessoas idígenas diagnosticada com autismo
+  - name: br_ibge_censo_2022__populacao_tea_raca_cor
+    description: População residente diagnosticada com autismo, por cor ou raça
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_municipio, raca_cor]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.54
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_municipio
+        description: ID Município de 7 dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: raca_cor
+        description: Autodeclaração sobre cor e/ou raça
+      - name: populacao_tea
+        description: Quantidade de pessoas diagnosticada com autismo
+  - name: br_ibge_censo_2022__populacao_tea_sexo_grupo_idade
+    description: População residente diagnosticada com autismo, por sexo e grupo de
+      idade
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_municipio, sexo, grupo_idade]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.34
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_municipio
+        description: ID Município de 7 dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: grupo_idade
+        description: Grupo de Idade da População diagnósticada com TEA
+      - name: sexo
+        description: Sexo da População diagnósticada com TEA
+      - name: populacao_tea
+        description: Quantidade de pessoas diagnosticada com autismo
+  - name: br_ibge_censo_2022__populacao_tea_sexo_nivel_escolaridade
+    description: Pessoas de 25 anos ou mais de idade diagnosticadas com autismo, por
+      sexo e nível de instrução
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_municipio, sexo, nivel_instrucao]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.53
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_municipio
+        description: ID Município de 7 dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: grupo_idade
+        description: Idade das Pessoas diagnosticadas com autismo
+      - name: sexo
+        description: Sexo das pessoas diagnosticadas com autismo
+      - name: populacao_tea
+        description: Pessoas de 25 anos ou mais de idade diagnosticadas com autismo
