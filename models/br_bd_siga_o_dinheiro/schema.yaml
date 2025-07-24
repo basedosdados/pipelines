@@ -1,7 +1,7 @@
 ---
 version: 2
 models:
-  - name: eleicao_perfil_candidato_2024
+  - name: br_bd_siga_o_dinheiro__eleicao_perfil_candidato_2024
     description: Descreve o perfil dos candidatos da eleição de 2024
     columns:
       - name: sequencial
@@ -15,7 +15,7 @@ models:
       - name: raca
       - name: idade
       - name: faixa_etaria
-  - name: eleicao_prestacao_contas_candidato_2024
+  - name: br_bd_siga_o_dinheiro__eleicao_prestacao_contas_candidato_2024
     description: Informações de prestação de contas no nível de candidato
     columns:
       - name: sequencial
@@ -43,7 +43,7 @@ models:
       - name: valor_despesa_publicidade
       - name: valor_despesa_outros
       - name: valor_despesa_operacoes
-  - name: eleicao_prestacao_contas_candidato_origem_2024
+  - name: br_bd_siga_o_dinheiro__eleicao_prestacao_contas_candidato_origem_2024
     description: Informações de prestação de contas no nível de candidato Origem
     columns:
       - name: excluir
@@ -55,7 +55,7 @@ models:
       - name: valor
       - name: n_linhas
       - name: categoria
-  - name: eleicao_prestacao_contas_partido_2024
+  - name: br_bd_siga_o_dinheiro__eleicao_prestacao_contas_partido_2024
     description: Informações de prestação de contas no nível de Partido da despesa
       ou receita '
     columns:
@@ -71,7 +71,7 @@ models:
       - name: valor_despesa_publicidade
       - name: valor_despesa_outros
       - name: valor_despesa_operacoes
-  - name: eleicao_auxiliar_categoria_origem
+  - name: br_bd_siga_o_dinheiro__eleicao_auxiliar_categoria_origem
     description: Informação auxiliares de categoria origem
     columns:
       - name: receita_despesa

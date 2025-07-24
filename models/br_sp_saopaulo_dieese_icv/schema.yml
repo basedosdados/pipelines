@@ -1,7 +1,7 @@
 ---
 version: 2
 models:
-  - name: br_sp_saopaulo_dieese_icv
+  - name: br_sp_saopaulo_dieese_icv__mes
     description: Dados de Custo de vida de São Paulo
     columns:
       - name: ano
