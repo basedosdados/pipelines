@@ -403,6 +403,9 @@ models:
     world_ampas_oscar:
       +materialized: table
       +schema: world_ampas_oscar
+    world_iea_timss:
+      +materialized: table
+      +schema: world_iea_timss
     world_iea_pirls:
       +materialized: table
       +schema: world_iea_pirls

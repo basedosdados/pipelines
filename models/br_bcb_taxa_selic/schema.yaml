@@ -1,7 +1,7 @@
 ---
 version: 2
 models:
-  - name: taxa_selic
+  - name: br_bcb_taxa_selic__taxa_selic
     description: A taxa Selic refere-se à taxa de juros apurada nas operações de empréstimos
       de um dia entre as instituições financeiras que utilizam títulos públicos federais
       como garantia
