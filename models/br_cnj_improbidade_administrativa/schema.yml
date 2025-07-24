@@ -35,7 +35,7 @@ models:
         description: Sigla UF
         tests:
           - relationships:
-              to: ref('br_bd_diretorios_nacional__uf')
+              to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
       - name: instancia
         description: Instância

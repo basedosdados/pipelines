@@ -23,7 +23,7 @@ every_day_ans = Schedule(
                 "table_id": "informacao_consolidada",
                 "target": "prod",
                 "materialize_after_dump": True,
-                "dbt_alias": False,
+                "dbt_alias": True,
                 "update_metadata": True,
             },
         ),
