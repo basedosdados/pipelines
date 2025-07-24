@@ -397,9 +397,6 @@ models:
     mundo_transfermarkt_competicoes_internacionais:
       +materialized: table
       +schema: mundo_transfermarkt_competicoes_internacionais
-    student_context_grade_8:
-      +materialized: table
-      +schema: student_context_grade_8
     test_dataset:
       +materialized: table
       +schema: test_dataset
