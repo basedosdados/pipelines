@@ -448,12 +448,14 @@ tb_5ano.create(
     if_storage_data_exists="replace",
 )
 
+# 9 ano
 
-# arch = TableArchitecture(
-#     dataset_id="br_inep_saeb",
-#     tables={
-#         "aluno_ef_5ano": "https://docs.google.com/spreadsheets/d/179zzpF8rcCFHxdaN1QAmA52xvHAVxYZsgd1urGwDbdw/edit?gid=1038748650#gid=1038748650"
-#     },
-# )
-#
-# arch_5ano = arch.tables()["aluno_ef_5ano"]
+df_aluno_ef_9ano = pd.read_csv(
+    INPUT / "MICRODADOS_SAEB_2023" / "DADOS" / "TS_ALUNO_9EF.csv", sep=";"
+)
+
+value_vars_9ano = [
+    i for i in df_aluno_ef_9ano.columns if "MT" in i or "LP" in i
+]
+
+id_vars_9ano = list(set(df_aluno_ef_9ano.columns) - set(value_vars_5ano))
