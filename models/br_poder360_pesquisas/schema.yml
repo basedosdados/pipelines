@@ -1,7 +1,7 @@
 ---
 version: 2
 models:
-  - name: microdados
+  - name: br_poder360_pesquisas__microdados
     description: Microdados de pesquisas eleitorais
     tests:
       - not_null_proportion_multiple_columns:
@@ -15,7 +15,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ref('ano.ano')
+              field: ano
       - name: sigla_uf
         description: Sigla da Unidade da Federação
         tests:
@@ -40,7 +40,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__data')
-              field: data.data
+              field: data
       - name: data_referencia
         description: Data de referencia da coleta da pesquisa, pode ser um unico dia
           ou intervalo de dias.

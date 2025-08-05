@@ -1,3 +1,11 @@
+{{
+    config(
+        schema="br_bd_indicadores",
+        alias="pessoas",
+        materialized="table",
+    )
+}}
+
 select
     safe_cast(id as string) id,
     safe_cast(nome as string) nome,

@@ -1,7 +1,7 @@
 ---
 version: 2
 models:
-  - name: tercerizados
+  - name: br_cgu_pessoal_executivo_federal__terceirizados
     description: dbt model for tercerizados table
     columns:
       - name: ano

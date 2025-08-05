@@ -1,7 +1,7 @@
 ---
 version: 2
 models:
-  - name: bigquery_tables
+  - name: br_bd_metadados__bigquery_tables
     description: BigQuery metadata about the BD tables
     columns:
       - name: project_id

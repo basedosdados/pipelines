@@ -1,3 +1,11 @@
+{{
+    config(
+        schema="br_cgu_pessoal_executivo_federal",
+        materialized="table",
+        alias="terceirizados",
+    )
+}}
+
 select
     safe_cast(ano as string) ano,
     safe_cast(mes as string) mes,
