@@ -5,11 +5,15 @@ arch = TableArchitecture(
     tables={
         # "estudantes_tea_raca_cor_grupo_idade": "https://docs.google.com/spreadsheets/d/169n7y4zWqUNUkfGbmLcENlaCHtSg7FUCb_UQdow8jhI/edit?gid=0#gid=0",
         # "estudantes_tea_sexo_grupo_idade": "https://docs.google.com/spreadsheets/d/1LsAFwz44rYggkjesNvPirseVwnwiU_AhEcokofVSgrQ/edit?gid=0#gid=0",
-        "estudantes_tea_grupo_idade_nivel_escolaridade": "https://docs.google.com/spreadsheets/d/1sfrTAifinAoUeAVemjLmlX2TAEb94brwi8LPYDLRH44/edit?gid=0#gid=0",
+        # "estudantes_tea_grupo_idade_nivel_escolaridade": "https://docs.google.com/spreadsheets/d/1sfrTAifinAoUeAVemjLmlX2TAEb94brwi8LPYDLRH44/edit?gid=0#gid=0",
         # "populacao_tea_indigena": "https://docs.google.com/spreadsheets/d/1y3wRAMCvRayFu6E48eVhN7v2oSk3rXfKYf4XQftlnkQ/edit?gid=0#gid=0",
         # "populacao_tea_raca_cor": "https://docs.google.com/spreadsheets/d/1rYN__xkX1ZJUEj0ZhORwZqZMNealSwabWhqpQ-qwdXY/edit?gid=0#gid=0",
         # "populacao_tea_sexo_grupo_idade": "https://docs.google.com/spreadsheets/d/1r9VKImVH6JW11TQkUGBMGY2Q34u0PUCkoqX9yCpKn4o/edit?gid=0#gid=0",
         # "populacao_tea_sexo_nivel_escolaridade":"https://docs.google.com/spreadsheets/d/1Cg9xXufoQsSppZ5f-BpEpaQPs076AoQZXO7K_T8qWv8/edit?gid=0#gid=0",
+        "estudantes_deficiencia_grupo_idade_nivel_escolaridade": "https://docs.google.com/spreadsheets/d/1OlHKuczK3CXe5rmEgvBJ4CnQKwCzbFRyhGQU8VyFJNY/edit?gid=0#gid=0",
+        "estudantes_deficiencia_grupo_idade_raca_cor": "https://docs.google.com/spreadsheets/d/1FXjSV6wcVd6TRo-AG3s6nu1YrqRySPXENpBb5ZzZmPc/edit?gid=0#gid=0",
+        "estudantes_deficiencia_grupo_idade_sexo": "https://docs.google.com/spreadsheets/d/1GbUX0gEsRKkHsp9WJNgNq6rmbJ0VZXn-5kLuW10I47Q/edit?gid=0#gid=0",
+        "estudantes_indigenas_deficiencia_grupo_idade": "https://docs.google.com/spreadsheets/d/1eNCufcMMpkn2CICbWQbt7myWk3Ybq7zAwghLa689ees/edit?gid=0#gid=0",
     },
 )
 

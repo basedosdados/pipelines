@@ -9091,3 +9091,120 @@ models:
         description: Sexo das pessoas diagnosticadas com autismo
       - name: populacao_tea
         description: Pessoas de 25 anos ou mais de idade diagnosticadas com autismo
+  - name: br_ibge_censo_2022__estudantes_deficiencia_grupo_idade_nivel_escolaridade
+    description: Estudantes de 6 anos ou mais de idade, por curso que frequentavam,
+      grupos de idade e existência de deficiência
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - id_municipio
+            - grupo_idade
+            - nivel_escolaridade
+      - not_null_proportion_multiple_columns:
+          at_least: 0.15
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_municipio
+        description: ID Município de 7 dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: nivel_escolaridade
+        description: Curso que frequentavam os estudantes de 6 anos ou mais que possuem
+          deficiência
+      - name: grupo_idade
+        description: Grupo de Idade de estudantes de 6 anos ou mais de idade que possuem
+          deficiência
+      - name: pessoas_deficiecia
+        description: Estudantes de 6 anos ou mais de idade, por curso que frequentavam,
+          grupos de idade e existência de deficiência
+  - name: br_ibge_censo_2022__estudantes_deficiencia_grupo_idade_raca_cor
+    description: Estudantes de 6 anos ou mais de idade, por cor ou raça, grupos de
+      idade e existência de deficiência
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_municipio, grupo_idade, raca_cor]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.33
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_municipio
+        description: ID Município de 7 dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: raca_cor
+        description: Autodeclaração da raça/cor dos estudantes de 6 anos ou mais que
+          possuem deficiência
+      - name: grupo_idade
+        description: Grupo de Idade de estudantes de 6 anos ou mais de idade que possuem
+          deficiência
+      - name: pessoas_deficiecia
+        description: Estudantes de 6 anos ou mais de idade que possuem deficiência
+  - name: br_ibge_censo_2022__estudantes_deficiencia_grupo_idade_sexo
+    description: Estudantes de 6 anos ou mais de idade, por sexo, grupos de idade
+      e existência de deficiência
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_municipio, grupo_idade, sexo]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.71
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_municipio
+        description: ID Município de 7 dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: sexo
+        description: Sexo dos estudantes de 6 anos ou mais que possuem deficiência
+      - name: grupo_idade
+        description: Grupo de Idade de estudantes de 6 anos ou mais de idade que possuem
+          deficiência
+      - name: pessoas_deficiecia
+        description: Estudantes de 6 anos ou mais de idade que possuem deficiência
+  - name: br_ibge_censo_2022__estudantes_indigenas_deficiencia_grupo_idade
+    description: Estudantes indígenas de 6 anos ou mais de idade, por grupos de idade
+      e existência de deficiência
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_municipio, grupo_idade]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.14
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_municipio
+        description: ID Município de 7 dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: grupo_idade
+        description: Grupo de Idade de estudantes indígenas de 6 anos ou mais de idade
+          que possuem deficiência
+      - name: pessoas_deficiecia
+        description: Estudantes indígenas de 6 anos ou mais de idade que possuem deficiência
