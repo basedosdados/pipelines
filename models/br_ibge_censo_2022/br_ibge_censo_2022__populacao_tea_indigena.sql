@@ -6,7 +6,7 @@
     )
 }}
 select
-    safe_cast(ano as string) ano,
+    safe_cast(ano as int64) ano,
     safe_cast(id_municipio as string) id_municipio,
     safe_cast(populacao_tea as int64) populacao_tea,
 from

@@ -6,7 +6,7 @@
     )
 }}
 select
-    safe_cast(ano as string) ano,
+    safe_cast(ano as int64) ano,
     safe_cast(id_municipio as string) id_municipio,
     safe_cast(grupo_idade as string) grupo_idade,
     safe_cast(raca_cor as string) raca_cor,
