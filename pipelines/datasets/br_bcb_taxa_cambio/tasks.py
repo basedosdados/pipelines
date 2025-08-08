@@ -3,6 +3,8 @@
 Tasks for br_bcb_indicadores
 """
 
+import os
+
 import pandas as pd
 from prefect import task
 
@@ -74,8 +76,9 @@ def treat_data_taxa_cambio(table_id: str) -> str:
     max_date = df["data_cotacao"].max()
     log(max_date)
 
-    save_output_path = f"tmp/{table_id}/output/"
-
+    save_output_path = f"/tmp/{table_id}/output/"
+    log(f"SAVE OUTPUT PATH -> {save_output_path}")
+    # log(f"SAVE OUTPUT PATH -> {os.listdir(save_output_path)}")
     to_partitions(
         data=df, partition_columns=["ano"], savepath=save_output_path
     )
@@ -87,3 +90,9 @@ def treat_data_taxa_cambio(table_id: str) -> str:
 
     # Return the full file path
     return file_info
+
+
+@task
+def get_output(table_id: str) -> pd.DataFrame:
+    log(f"GET_OUTPUT -> {os.listdir(f'/tmp/{table_id}/output/')}")
+    return f"/tmp/{table_id}/output/"
