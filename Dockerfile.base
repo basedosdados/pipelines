@@ -1,0 +1,46 @@
+# Build arguments
+ARG PYTHON_VERSION=3.10-slim
+
+# Python version: 3.10
+FROM python:${PYTHON_VERSION}
+
+LABEL org.opencontainers.image.source=https://github.com/basedosdados/pipelines
+LABEL org.opencontainers.image.description="Base Docker image for pipelines"
+LABEL org.opencontainers.image.authors="Pedro Castro <pedro.castro@basedosdados.org>"
+
+# Configure environment
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install gcc, Google Chrome, CLI tools, git, R and others libs Firefox
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends wget gnupg && \
+    wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - && \
+    echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    freetds-dev \
+    ftp \
+    gcc \
+    google-chrome-stable \
+    libcrypto++-dev \
+    libssl-dev \
+    p7zip-full \
+    python3-dev \
+    traceroute \
+    tesseract-ocr \
+    python3-opencv \
+    git \
+    bzip2 \
+    libxtst6 \
+    libgtk-3-0 \
+    libx11-xcb-dev \
+    libdbus-glib-1-2 \
+    libxt6 \
+    libpci-dev \
+    && \
+    apt-get install -y r-base && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
