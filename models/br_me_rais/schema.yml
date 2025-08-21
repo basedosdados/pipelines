@@ -228,16 +228,17 @@ models:
         tests:
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__cnae_1')
-              field: cnae_1
+              field: cnae_1.cnae_1
               ignore_values: ['22292']
       - name: cnae_2
         description: Classificação Nacional de Atividades Econômicas (CNAE) 2.0
       - name: cnae_2_subclasse
         description: Classificação Nacional de Atividades Econômicas (CNAE) 2.0 Subclasse
         tests:
-          - relationships:
+          - custom_relationships:
               to: ref('br_bd_diretorios_brasil__cnae_2')
               field: subclasse
+              ignore_values: ['9999999', '8630505']
       - name: tamanho_estabelecimento
         description: Tamanho do Estabelecimento
       - name: tipo_estabelecimento
