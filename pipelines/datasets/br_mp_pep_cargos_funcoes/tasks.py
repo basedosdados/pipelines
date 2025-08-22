@@ -259,7 +259,7 @@ def scraper(
                 if href not in urls:
                     return href
             except (NoSuchElementException, StaleElementReferenceException):
-                time.sleep(1.0)
+                time.sleep(3.0)
                 continue
 
         raise Exception("Timeout")
@@ -296,7 +296,7 @@ def scraper(
         log("Send to excel clicked")
 
         log("Exporting...")
-        xlsx_href = wait_for_export(xlsx_hrefs)
+        xlsx_href = wait_for_export(xlsx_hrefs, timeout = 60 * 20)
 
         xlsx_hrefs.append((year, xlsx_href))
 
@@ -438,6 +438,7 @@ def is_up_to_date(headless: bool = True) -> bool:
     options.add_argument("--crash-dumps-dir=/tmp")
     options.add_argument("--remote-debugging-port=9222")
     options.add_argument("--window-size=1920,1080")
+    options.add_argument("--ignore-ssl-errors=yes")
 
     if headless:
         options.add_argument("--headless=new")
