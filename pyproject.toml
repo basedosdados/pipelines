@@ -127,6 +127,7 @@ dependencies = [
   "dbt-core==1.5.6",
   "dbt-bigquery==1.5.9",
   "sicar @ git+https://github.com/urbanogilson/SICAR.git@v0.7.4",
+  "py7zr<2.0.0,>=1.0.0"
 ]
 
 [dependency-groups]
