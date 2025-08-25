@@ -46,6 +46,9 @@ models:
     br_anatel_banda_larga_fixa:
       +materialized: table
       +schema: br_anatel_banda_larga_fixa
+    br_anatel_indice_brasileiro_conectividade:
+      +materialized: table
+      +schema: br_anatel_indice_brasileiro_conectividade
     br_anatel_telefonia_movel:
       +materialized: table  # Materialization type (table, view or incremental)
       +schema: br_anatel_telefonia_movel
@@ -400,6 +403,9 @@ models:
     world_ampas_oscar:
       +materialized: table
       +schema: world_ampas_oscar
+    world_iea_timss:
+      +materialized: table
+      +schema: world_iea_timss
     world_iea_pirls:
       +materialized: table
       +schema: world_iea_pirls

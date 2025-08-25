@@ -18,8 +18,8 @@ models:
         description: Ano
         tests:
           - relationships:
-              to: ref('br_bd_data_tempo__ano')
-              field: ano.ano
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano
       - name: id_municipio
         description: ID Município - IBGE 7 Dígitos
         tests:
@@ -372,8 +372,8 @@ models:
         description: Ano
         tests:
           - relationships:
-              to: ref('br_bd_data_tempo__ano')
-              field: ano.ano
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano
       - name: id_municipio
         description: ID Município - IBGE 7 Dígitos
         tests:

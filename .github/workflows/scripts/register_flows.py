@@ -6,6 +6,7 @@ Custom script for registering flows.
 import ast
 import glob
 import hashlib
+import importlib
 import json
 import os
 import runpy
@@ -14,7 +15,7 @@ import traceback
 from collections import Counter, defaultdict
 from pathlib import Path
 from time import sleep
-from typing import Dict, List, Tuple, Union
+from typing import Any
 
 import box
 import prefect
@@ -24,15 +25,13 @@ from prefect.storage import Local
 from prefect.utilities.graphql import EnumValue, compress, with_args
 from typer import Typer
 
-import pipelines  # noqa: F401
-
 app = Typer()
-FlowLike = Union[box.Box, "prefect.Flow"]
+FlowLike = box.Box | prefect.Flow
 
 
-def build_and_register(  # pylint: disable=too-many-branches
-    client: "prefect.Client",
-    flows: "List[FlowLike]",
+def build_and_register(
+    client: prefect.Client,
+    flows: list[FlowLike],
     project_id: str,
     max_retries: int = 5,
     retry_interval: int = 5,
@@ -132,8 +131,8 @@ def build_and_register(  # pylint: disable=too-many-branches
 
 
 def collect_flows(
-    paths: List[str],
-) -> Dict[str, List[FlowLike]]:
+    paths: list[str],
+) -> dict[str, list[FlowLike]]:
     """
     (Adapted from Prefect original code.)
 
@@ -154,7 +153,7 @@ def collect_flows(
     return out
 
 
-def expand_paths(paths: List[str]) -> List[str]:
+def expand_paths(paths: list[str]) -> list[str]:
     """
     (Adapted from Prefect original code.)
 
@@ -181,7 +180,7 @@ def expand_paths(paths: List[str]) -> List[str]:
     return out
 
 
-def get_project_id(client: "prefect.Client", project: str) -> str:
+def get_project_id(client: prefect.Client, project: str) -> str:
     """
     (Adapted from Prefect original code.)
 
@@ -207,7 +206,7 @@ def get_project_id(client: "prefect.Client", project: str) -> str:
     raise Exception(f"Project {project!r} does not exist")
 
 
-def load_flows_from_script(path: str) -> "List[prefect.Flow]":
+def load_flows_from_script(path: str) -> list[prefect.Flow]:
     """
     (Adapted from Prefect original code.)
 
@@ -241,7 +240,7 @@ def load_flows_from_script(path: str) -> "List[prefect.Flow]":
     return flows
 
 
-def prepare_flows(flows: "List[FlowLike]") -> None:
+def prepare_flows(flows: list[FlowLike]) -> None:
     """
     (Adapted from Prefect original code.)
 
@@ -286,12 +285,12 @@ def prepare_flows(flows: "List[FlowLike]") -> None:
 
 
 def register_serialized_flow(
-    client: "prefect.Client",
+    client: prefect.Client,
     serialized_flow: dict,
     project_id: str,
     force: bool = False,
     schedule: bool = True,
-) -> Tuple[str, int, bool]:
+) -> tuple[str, int, bool]:
     """
     (Adapted from Prefect original code.)
 
@@ -369,7 +368,7 @@ def register_serialized_flow(
     return new_id, prev_version + 1, True
 
 
-def filename_to_python_module(filename: str) -> str:
+def filename_to_python_module(filename: Path) -> str:
     """
     Returns the Python module name from a filename.
 
@@ -394,12 +393,10 @@ def filename_to_python_module(filename: str) -> str:
         str: The Python module name.
     """
     # Get the file path in Python module format.
-    file_path = Path(filename).with_suffix("").as_posix().replace("/", ".")
-
-    return file_path
+    return filename.with_suffix("").as_posix().replace("/", ".")
 
 
-def get_declared(python_file: Union[str, Path]) -> List[str]:
+def get_declared(python_file: Path) -> list[str]:
     """
     Returns a list of declared variables, functions and classes
     in a Python file. The output must be fully qualified.
@@ -432,8 +429,7 @@ def get_declared(python_file: Union[str, Path]) -> List[str]:
         list: A list of declared variables from the Python file.
     """
     # We need to get the contents of the Python file.
-    with open(python_file, "r") as f:
-        content = f.read()
+    content = python_file.read_text()
 
     # Get file path in Python module format.
     file_path = filename_to_python_module(python_file)
@@ -470,26 +466,45 @@ def get_declared(python_file: Union[str, Path]) -> List[str]:
     return declared
 
 
-def get_affected_flows(fpath: str = None):
-    if not fpath:
-        fpath = "dependent_files.txt"
-    with open(fpath, "r") as f:
-        fnames = f.read().splitlines()
-    fnames = [fname for fname in fnames if fname.endswith(".py")]
+def evaluate_declaration(declared: str) -> Any:
+    """
+    Evaluate declaration
+    """
+    return eval(declared, {"pipelines": importlib.import_module("pipelines")})
+
+
+def get_affected_flows() -> list[FlowLike]:
+    # dependent_files.txt is created by step code tree analysis
+    dependent_files_txt = Path("dependent_files.txt")
+    dependend_files = (
+        [
+            fname
+            for fname in dependent_files_txt.read_text().splitlines()
+            if fname.endswith(".py")
+        ]
+        if dependent_files_txt.exists()
+        else []
+    )
+
     flow_files = set()
-    for fname in fnames:
-        flow_file = Path(fname).parent / "flows.py"
+
+    for file in dependend_files:
+        flow_file = Path(file).parent / "flows.py"
         if flow_file.exists():
             flow_files.add(flow_file)
-    declared_flows = []
+
+    declarations = []
     for flow_file in flow_files:
-        declared_flows.extend(get_declared(flow_file))
+        declarations.extend(get_declared(flow_file))
+
     flows = []
-    for flow in declared_flows:
+    for declaration in declarations:
         try:
-            flows.append(eval(flow))
+            evaluate = evaluate_declaration(declaration)
+            if isinstance(evaluate, prefect.Flow):
+                flows.append(evaluate)
         except Exception as e:
-            logger.warning(f"Could not evaluate {flow}: {e}")
+            logger.warning(f"Could not evaluate {declaration}: {e}")
     return flows
 
 
@@ -553,8 +568,8 @@ def pipeline_project_file_relevant_changed(files: list[str]) -> bool:
 
 @app.command(name="register", help="Register a flow")
 def main(
-    project: str = None,
-    path: str = None,
+    project: str | None = None,
+    path: str | None = None,
     max_retries: int = 5,
     retry_interval: int = 5,
     schedule: bool = True,
@@ -586,10 +601,12 @@ def main(
     logger.info("Collecting flows...")
     source_to_flows = collect_flows(paths)
 
+    modified_files_list = (
+        [] if modified_files is None else modified_files.split(" ")
+    )
+
     is_pipelines_project_file_relevant_changed = (
-        pipeline_project_file_relevant_changed(modified_files.split(" "))
-        if modified_files is not None
-        else False
+        pipeline_project_file_relevant_changed(modified_files_list)
     )
 
     # Filter affected flow if not important pipeline project file changed
@@ -598,7 +615,7 @@ def main(
         and not is_pipelines_project_file_relevant_changed
     ):
         # Filter out flows that are not affected by the change
-        affected_flows = get_affected_flows("dependent_files.txt")
+        affected_flows = get_affected_flows()
         for key in source_to_flows.keys():
             filtered_flows = []
             for flow in source_to_flows[key]:
@@ -607,35 +624,41 @@ def main(
             source_to_flows[key] = filtered_flows
 
     # Force registration of flow execute_dbt_model if some dbt related files is changed
+    EXECUTE_DBT_MODEL_FLOW_NAME = "BD template: Executa DBT model"
     flow_execute_dbt_model_changed = (
         len(
             [
                 flows
                 for flows in source_to_flows.values()
                 for flow in flows
-                if flow.name == "BD template: Executa DBT model"
+                if flow.name == EXECUTE_DBT_MODEL_FLOW_NAME
             ]
         )
         > 0
     )
-    dbt_related_files_has_modified = (
-        has_dbt_related_files_changed(modified_files.split(" "))
-        if modified_files is not None
-        else False
+
+    dbt_related_files_has_modified = has_dbt_related_files_changed(
+        modified_files_list
     )
 
     if not flow_execute_dbt_model_changed and dbt_related_files_has_modified:
         logger.warning(
-            "Registering 'BD template: Executa DBT model' because dbt related files is changed",
+            f"Registering {EXECUTE_DBT_MODEL_FLOW_NAME} because dbt related files is changed",
         )
         execute_dbt_model_flow = (
             Path("pipelines") / "utils" / "execute_dbt_model" / "flows.py"
         )
-        eval_execute_dbt_model = [
-            eval(e) for e in get_declared(execute_dbt_model_flow)
+        evals_execute_dbt_model = [
+            evaluate_declaration(declaration)
+            for declaration in get_declared(execute_dbt_model_flow)
         ]
         for key in source_to_flows.keys():
-            source_to_flows[key] = eval_execute_dbt_model
+            flows_instance = [
+                e
+                for e in evals_execute_dbt_model
+                if isinstance(e, prefect.Flow)
+            ]
+            source_to_flows[key].extend(flows_instance)
 
     # Iterate through each file, building all storage and registering all flows
     # Log errors as they happen, but only exit once all files have been processed

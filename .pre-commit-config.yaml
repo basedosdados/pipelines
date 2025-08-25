@@ -8,10 +8,6 @@ repos:
       - id: detect-private-key  # detects private keys
       - id: fix-byte-order-marker  # fixes BOM
       - id: no-commit-to-branch  # prevents committing to protected branches
-  - repo: https://github.com/python-poetry/poetry
-    rev: 1.8.5
-    hooks:
-      - id: poetry-check
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.9.3
     hooks:

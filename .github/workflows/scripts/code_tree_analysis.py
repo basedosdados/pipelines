@@ -465,16 +465,18 @@ if __name__ == "__main__":
     for file_ in dependent_files:
         print(f"\t- {file_}")
 
+    changed_flows_py = [
+        file for file in changed_files if file.endswith("flows.py")
+    ]
+    if len(changed_flows_py) > 0:
+        dependent_files.update(changed_flows_py)
+
     # Write dependent file list to file.
     if write_to_file:
         dependent_files_txt = "dependent_files.txt"
         with open(dependent_files_txt, "w") as f:
             for file_ in dependent_files:
                 f.write(f"{file_}\n")
-
-        print(f"{dependent_files_txt} content:\n")
-        with open(dependent_files_txt, "r") as f:
-            print(f.read())
 
     # Check for variable name conflicts.
     conflicts = check_for_variable_name_conflicts(changed_files, "pipelines/")
