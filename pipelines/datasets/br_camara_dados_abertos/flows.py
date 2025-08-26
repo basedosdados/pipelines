@@ -8,35 +8,34 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
-
-# from pipelines.datasets.br_camara_dados_abertos.schedules import (
-# schedules_br_camara_dados_abertos_deputado,
-# schedules_br_camara_dados_abertos_deputado_ocupacao,
-# schedules_br_camara_dados_abertos_deputado_profissao,
-# schedules_br_camara_dados_abertos_despesa,
-# schedules_br_camara_dados_abertos_evento,
-# schedules_br_camara_dados_abertos_evento_orgao,
-# schedules_br_camara_dados_abertos_evento_presenca_deputado,
-# schedules_br_camara_dados_abertos_evento_requerimento,
-# schedules_br_camara_dados_abertos_frente,
-# schedules_br_camara_dados_abertos_frente_deputado,
-# schedules_br_camara_dados_abertos_funcionario,
-# schedules_br_camara_dados_abertos_licitacao,
-# schedules_br_camara_dados_abertos_licitacao_contrato,
-# schedules_br_camara_dados_abertos_licitacao_item,
-# schedules_br_camara_dados_abertos_licitacao_pedido,
-# schedules_br_camara_dados_abertos_licitacao_proposta,
-# schedules_br_camara_dados_abertos_orgao,
-# schedules_br_camara_dados_abertos_orgao_deputado,
-# schedules_br_camara_dados_abertos_proposicao_autor,
-# schedules_br_camara_dados_abertos_proposicao_microdados,
-# schedules_br_camara_dados_abertos_proposicao_tema,
-# schedules_br_camara_dados_abertos_votacao,
-# schedules_br_camara_dados_abertos_votacao_objeto,
-# schedules_br_camara_dados_abertos_votacao_orientacao_bancada,
-# schedules_br_camara_dados_abertos_votacao_parlamentar,
-# schedules_br_camara_dados_abertos_votacao_proposicao,
-# )
+from pipelines.datasets.br_camara_dados_abertos.schedules import (
+    schedules_br_camara_dados_abertos_deputado,
+    schedules_br_camara_dados_abertos_deputado_ocupacao,
+    schedules_br_camara_dados_abertos_deputado_profissao,
+    schedules_br_camara_dados_abertos_despesa,
+    schedules_br_camara_dados_abertos_evento,
+    schedules_br_camara_dados_abertos_evento_orgao,
+    schedules_br_camara_dados_abertos_evento_presenca_deputado,
+    schedules_br_camara_dados_abertos_evento_requerimento,
+    schedules_br_camara_dados_abertos_frente,
+    schedules_br_camara_dados_abertos_frente_deputado,
+    schedules_br_camara_dados_abertos_funcionario,
+    schedules_br_camara_dados_abertos_licitacao,
+    schedules_br_camara_dados_abertos_licitacao_contrato,
+    schedules_br_camara_dados_abertos_licitacao_item,
+    schedules_br_camara_dados_abertos_licitacao_pedido,
+    schedules_br_camara_dados_abertos_licitacao_proposta,
+    schedules_br_camara_dados_abertos_orgao,
+    schedules_br_camara_dados_abertos_orgao_deputado,
+    schedules_br_camara_dados_abertos_proposicao_autor,
+    schedules_br_camara_dados_abertos_proposicao_microdados,
+    schedules_br_camara_dados_abertos_proposicao_tema,
+    schedules_br_camara_dados_abertos_votacao,
+    schedules_br_camara_dados_abertos_votacao_objeto,
+    schedules_br_camara_dados_abertos_votacao_orientacao_bancada,
+    schedules_br_camara_dados_abertos_votacao_parlamentar,
+    schedules_br_camara_dados_abertos_votacao_proposicao,
+)
 from pipelines.utils.crawler_camara_dados_abertos.flows import (
     flow_camara_dados_abertos,
 )
@@ -51,9 +50,9 @@ br_camara_dados_abertos__votacao.storage = GCS(
 br_camara_dados_abertos__votacao.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_camara_dados_abertos__votacao.schedule = (
-#     schedules_br_camara_dados_abertos_votacao
-# )
+br_camara_dados_abertos__votacao.schedule = (
+    schedules_br_camara_dados_abertos_votacao
+)
 
 # ! - > Flow: br_camara_dados_abertos__votacao_objeto
 
@@ -68,9 +67,9 @@ br_camara_dados_abertos__votacao_objeto.storage = GCS(
 br_camara_dados_abertos__votacao_objeto.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_camara_dados_abertos__votacao_objeto.schedule = (
-#     schedules_br_camara_dados_abertos_votacao_objeto
-# )
+br_camara_dados_abertos__votacao_objeto.schedule = (
+    schedules_br_camara_dados_abertos_votacao_objeto
+)
 
 # ! - > Flow: br_camara_dados_abertos__votacao_orientacao_bancada
 
@@ -87,9 +86,9 @@ br_camara_dados_abertos__votacao_orientacao_bancada.storage = GCS(
 br_camara_dados_abertos__votacao_orientacao_bancada.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_camara_dados_abertos__votacao_orientacao_bancada.schedule = (
-#     schedules_br_camara_dados_abertos_votacao_orientacao_bancada
-# )
+br_camara_dados_abertos__votacao_orientacao_bancada.schedule = (
+    schedules_br_camara_dados_abertos_votacao_orientacao_bancada
+)
 
 # ! - > Flow: br_camara_dados_abertos__votacao_parlamentar
 
@@ -106,9 +105,9 @@ br_camara_dados_abertos__votacao_parlamentar.storage = GCS(
 br_camara_dados_abertos__votacao_parlamentar.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_camara_dados_abertos__votacao_parlamentar.schedule = (
-#     schedules_br_camara_dados_abertos_votacao_parlamentar
-# )
+br_camara_dados_abertos__votacao_parlamentar.schedule = (
+    schedules_br_camara_dados_abertos_votacao_parlamentar
+)
 
 # ! - > Flow: br_camara_dados_abertos__votacao_proposicao
 
@@ -125,9 +124,9 @@ br_camara_dados_abertos__votacao_proposicao.storage = GCS(
 br_camara_dados_abertos__votacao_proposicao.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_camara_dados_abertos__votacao_proposicao.schedule = (
-#     schedules_br_camara_dados_abertos_votacao_proposicao
-# )
+br_camara_dados_abertos__votacao_proposicao.schedule = (
+    schedules_br_camara_dados_abertos_votacao_proposicao
+)
 
 # ! - > Flow: br_camara_dados_abertos__deputado
 
@@ -140,9 +139,9 @@ br_camara_dados_abertos__deputado.storage = GCS(
 br_camara_dados_abertos__deputado.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_camara_dados_abertos__deputado.schedule = (
-#     schedules_br_camara_dados_abertos_deputado
-# )
+br_camara_dados_abertos__deputado.schedule = (
+    schedules_br_camara_dados_abertos_deputado
+)
 
 # ! - > Flow: br_camara_dados_abertos__deputado_ocupacao
 
@@ -159,9 +158,9 @@ br_camara_dados_abertos__deputado_ocupacao.storage = GCS(
 br_camara_dados_abertos__deputado_ocupacao.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_camara_dados_abertos__deputado_ocupacao.schedule = (
-#     schedules_br_camara_dados_abertos_deputado_ocupacao
-# )
+br_camara_dados_abertos__deputado_ocupacao.schedule = (
+    schedules_br_camara_dados_abertos_deputado_ocupacao
+)
 
 # ! - > Flow: br_camara_dados_abertos__deputado_profissao
 
@@ -178,9 +177,9 @@ br_camara_dados_abertos__deputado_profissao.storage = GCS(
 br_camara_dados_abertos__deputado_profissao.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_camara_dados_abertos__deputado_profissao.schedule = (
-#     schedules_br_camara_dados_abertos_deputado_profissao
-# )
+br_camara_dados_abertos__deputado_profissao.schedule = (
+    schedules_br_camara_dados_abertos_deputado_profissao
+)
 
 # ! - > Flow: br_camara_dados_abertos__proposicao_microdados
 
@@ -197,9 +196,9 @@ br_camara_dados_abertos__proposicao_microdados.storage = GCS(
 br_camara_dados_abertos__proposicao_microdados.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_camara_dados_abertos__proposicao_microdados.schedule = (
-#     schedules_br_camara_dados_abertos_proposicao_microdados
-# )
+br_camara_dados_abertos__proposicao_microdados.schedule = (
+    schedules_br_camara_dados_abertos_proposicao_microdados
+)
 
 # ! - > Flow: br_camara_dados_abertos__proposicao_autor
 
@@ -214,9 +213,9 @@ br_camara_dados_abertos__proposicao_autor.storage = GCS(
 br_camara_dados_abertos__proposicao_autor.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_camara_dados_abertos__proposicao_autor.schedule = (
-#     schedules_br_camara_dados_abertos_proposicao_autor
-# )
+br_camara_dados_abertos__proposicao_autor.schedule = (
+    schedules_br_camara_dados_abertos_proposicao_autor
+)
 
 # ! - > Flow: br_camara_dados_abertos__proposicao_tema
 
@@ -231,9 +230,9 @@ br_camara_dados_abertos__proposicao_tema.storage = GCS(
 br_camara_dados_abertos__proposicao_tema.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_camara_dados_abertos__proposicao_tema.schedule = (
-#     schedules_br_camara_dados_abertos_proposicao_tema
-# )
+br_camara_dados_abertos__proposicao_tema.schedule = (
+    schedules_br_camara_dados_abertos_proposicao_tema
+)
 
 # ! - > Flow: br_camara_dados_abertos__orgao
 
@@ -244,9 +243,9 @@ br_camara_dados_abertos__orgao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_camara_dados_abertos__orgao.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_camara_dados_abertos__orgao.schedule = (
-#     schedules_br_camara_dados_abertos_orgao
-# )
+br_camara_dados_abertos__orgao.schedule = (
+    schedules_br_camara_dados_abertos_orgao
+)
 
 # ! - > Flow: br_camara_dados_abertos__orgao_deputado
 
@@ -261,9 +260,9 @@ br_camara_dados_abertos__orgao_deputado.storage = GCS(
 br_camara_dados_abertos__orgao_deputado.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_camara_dados_abertos__orgao_deputado.schedule = (
-#     schedules_br_camara_dados_abertos_orgao_deputado
-# )
+br_camara_dados_abertos__orgao_deputado.schedule = (
+    schedules_br_camara_dados_abertos_orgao_deputado
+)
 
 # ! - > Flow: br_camara_dados_abertos__evento
 
@@ -274,9 +273,9 @@ br_camara_dados_abertos__evento.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_camara_dados_abertos__evento.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_camara_dados_abertos__evento.schedule = (
-#     schedules_br_camara_dados_abertos_evento
-# )
+br_camara_dados_abertos__evento.schedule = (
+    schedules_br_camara_dados_abertos_evento
+)
 
 # ! - > Flow: br_camara_dados_abertos__evento_orgao
 
@@ -291,9 +290,9 @@ br_camara_dados_abertos__evento_orgao.storage = GCS(
 br_camara_dados_abertos__evento_orgao.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_camara_dados_abertos__evento_orgao.schedule = (
-#     schedules_br_camara_dados_abertos_evento_orgao
-# )
+br_camara_dados_abertos__evento_orgao.schedule = (
+    schedules_br_camara_dados_abertos_evento_orgao
+)
 
 # ! - > Flow: br_camara_dados_abertos__evento_presenca_deputado
 
@@ -310,9 +309,9 @@ br_camara_dados_abertos__evento_presenca_deputado.storage = GCS(
 br_camara_dados_abertos__evento_presenca_deputado.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_camara_dados_abertos__evento_presenca_deputado.schedule = (
-#     schedules_br_camara_dados_abertos_evento_presenca_deputado
-# )
+br_camara_dados_abertos__evento_presenca_deputado.schedule = (
+    schedules_br_camara_dados_abertos_evento_presenca_deputado
+)
 
 # ! - > Flow: br_camara_dados_abertos__evento_requerimento
 
@@ -329,9 +328,9 @@ br_camara_dados_abertos__evento_requerimento.storage = GCS(
 br_camara_dados_abertos__evento_requerimento.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_camara_dados_abertos__evento_requerimento.schedule = (
-#     schedules_br_camara_dados_abertos_evento_requerimento
-# )
+br_camara_dados_abertos__evento_requerimento.schedule = (
+    schedules_br_camara_dados_abertos_evento_requerimento
+)
 
 # ! - > Flow: br_camara_dados_abertos__funcionario
 
@@ -346,9 +345,9 @@ br_camara_dados_abertos__funcionario.storage = GCS(
 br_camara_dados_abertos__funcionario.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_camara_dados_abertos__funcionario.schedule = (
-#     schedules_br_camara_dados_abertos_funcionario
-# )
+br_camara_dados_abertos__funcionario.schedule = (
+    schedules_br_camara_dados_abertos_funcionario
+)
 
 # ! - > Flow: br_camara_dados_abertos__frente
 
@@ -359,9 +358,9 @@ br_camara_dados_abertos__frente.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_camara_dados_abertos__frente.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_camara_dados_abertos__frente.schedule = (
-#     schedules_br_camara_dados_abertos_frente
-# )
+br_camara_dados_abertos__frente.schedule = (
+    schedules_br_camara_dados_abertos_frente
+)
 
 # ! - > Flow: br_camara_dados_abertos__frente_deputado
 
@@ -376,9 +375,9 @@ br_camara_dados_abertos__frente_deputado.storage = GCS(
 br_camara_dados_abertos__frente_deputado.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_camara_dados_abertos__frente_deputado.schedule = (
-#     schedules_br_camara_dados_abertos_frente_deputado
-# )
+br_camara_dados_abertos__frente_deputado.schedule = (
+    schedules_br_camara_dados_abertos_frente_deputado
+)
 
 # ! - > Flow: br_camara_dados_abertos__licitacao
 
@@ -391,9 +390,9 @@ br_camara_dados_abertos__licitacao.storage = GCS(
 br_camara_dados_abertos__licitacao.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_camara_dados_abertos__licitacao.schedule = (
-#     schedules_br_camara_dados_abertos_licitacao
-# )
+br_camara_dados_abertos__licitacao.schedule = (
+    schedules_br_camara_dados_abertos_licitacao
+)
 
 # ! - > Flow: br_camara_dados_abertos__licitacao_contrato
 
@@ -410,9 +409,9 @@ br_camara_dados_abertos__licitacao_contrato.storage = GCS(
 br_camara_dados_abertos__licitacao_contrato.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_camara_dados_abertos__licitacao_contrato.schedule = (
-#     schedules_br_camara_dados_abertos_licitacao_contrato
-# )
+br_camara_dados_abertos__licitacao_contrato.schedule = (
+    schedules_br_camara_dados_abertos_licitacao_contrato
+)
 
 # ! - > Flow: br_camara_dados_abertos__licitacao_item
 
@@ -427,9 +426,9 @@ br_camara_dados_abertos__licitacao_item.storage = GCS(
 br_camara_dados_abertos__licitacao_item.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_camara_dados_abertos__licitacao_item.schedule = (
-#     schedules_br_camara_dados_abertos_licitacao_item
-# )
+br_camara_dados_abertos__licitacao_item.schedule = (
+    schedules_br_camara_dados_abertos_licitacao_item
+)
 
 # ! - > Flow: br_camara_dados_abertos__licitacao_proposta
 
@@ -446,9 +445,9 @@ br_camara_dados_abertos__licitacao_proposta.storage = GCS(
 br_camara_dados_abertos__licitacao_proposta.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_camara_dados_abertos__licitacao_proposta.schedule = (
-#     schedules_br_camara_dados_abertos_licitacao_proposta
-# )
+br_camara_dados_abertos__licitacao_proposta.schedule = (
+    schedules_br_camara_dados_abertos_licitacao_proposta
+)
 
 # ! - > Flow: br_camara_dados_abertos__licitacao_pedido
 
@@ -463,9 +462,9 @@ br_camara_dados_abertos__licitacao_pedido.storage = GCS(
 br_camara_dados_abertos__licitacao_pedido.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_camara_dados_abertos__licitacao_pedido.schedule = (
-#     schedules_br_camara_dados_abertos_licitacao_pedido
-# )
+br_camara_dados_abertos__licitacao_pedido.schedule = (
+    schedules_br_camara_dados_abertos_licitacao_pedido
+)
 
 # ! - > Flow: br_camara_dados_abertos__despesa
 
@@ -478,6 +477,6 @@ br_camara_dados_abertos__despesa.storage = GCS(
 br_camara_dados_abertos__despesa.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_camara_dados_abertos__despesa.schedule = (
-#     schedules_br_camara_dados_abertos_despesa
-# )
+br_camara_dados_abertos__despesa.schedule = (
+    schedules_br_camara_dados_abertos_despesa
+)

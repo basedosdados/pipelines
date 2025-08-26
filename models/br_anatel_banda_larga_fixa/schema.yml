@@ -14,7 +14,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ano
+              field: ano.ano
       - name: mes
         description: Mês
         tests:
@@ -63,7 +63,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ano
+              field: ano.ano
       - name: mes
         description: Mês
         tests:
@@ -86,7 +86,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ano
+              field: ano.ano
       - name: mes
         description: Mês
         tests:
@@ -115,7 +115,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ano
+              field: ano.ano
       - name: mes
         description: Mês
         tests:

@@ -9,13 +9,12 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
-
-# from pipelines.datasets.br_anatel_telefonia_movel.schedules import (
-#     schedule_br_anatel_telefonia_movel__brasil,
-#     schedule_br_anatel_telefonia_movel__microdados,
-#     schedule_br_anatel_telefonia_movel__municipio,
-#     schedule_br_anatel_telefonia_movel__uf,
-# )
+from pipelines.datasets.br_anatel_telefonia_movel.schedules import (
+    schedule_br_anatel_telefonia_movel__brasil,
+    schedule_br_anatel_telefonia_movel__microdados,
+    schedule_br_anatel_telefonia_movel__municipio,
+    schedule_br_anatel_telefonia_movel__uf,
+)
 from pipelines.utils.crawler_anatel.telefonia_movel.flows import (
     flow_anatel_telefonia_movel,
 )
@@ -32,9 +31,9 @@ br_anatel_telefonia_movel__microdados.storage = GCS(
 br_anatel_telefonia_movel__microdados.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_anatel_telefonia_movel__microdados.schedule = (
-#     schedule_br_anatel_telefonia_movel__microdados
-# )
+br_anatel_telefonia_movel__microdados.schedule = (
+    schedule_br_anatel_telefonia_movel__microdados
+)
 
 # -------------------------------> Densidade Municipio
 
@@ -51,9 +50,9 @@ br_anatel_telefonia_movel__densidade_municipio.storage = GCS(
 br_anatel_telefonia_movel__densidade_municipio.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_anatel_telefonia_movel__densidade_municipio.schedule = (
-#     schedule_br_anatel_telefonia_movel__municipio
-# )
+br_anatel_telefonia_movel__densidade_municipio.schedule = (
+    schedule_br_anatel_telefonia_movel__municipio
+)
 
 # -------------------------------> Densidade UF
 
@@ -68,9 +67,9 @@ br_anatel_telefonia_movel__densidade_uf.storage = GCS(
 br_anatel_telefonia_movel__densidade_uf.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_anatel_telefonia_movel__densidade_uf.schedule = (
-#     schedule_br_anatel_telefonia_movel__uf
-# )
+br_anatel_telefonia_movel__densidade_uf.schedule = (
+    schedule_br_anatel_telefonia_movel__uf
+)
 
 # -------------------------------> Densidade Brasil
 
@@ -87,6 +86,6 @@ br_anatel_telefonia_movel__densidade_brasil.storage = GCS(
 br_anatel_telefonia_movel__densidade_brasil.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_anatel_telefonia_movel__densidade_brasil.schedule = (
-#     schedule_br_anatel_telefonia_movel__brasil
-# )
+br_anatel_telefonia_movel__densidade_brasil.schedule = (
+    schedule_br_anatel_telefonia_movel__brasil
+)
