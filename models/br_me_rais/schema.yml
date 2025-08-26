@@ -26,10 +26,15 @@ models:
       - name: valor
         description: Valor
   - name: br_me_rais__microdados_vinculos
-    description: Microdados públicos dos vínculos de emprego na RAIS. Base desidentificada,
+    description: |
+      Microdados públicos dos vínculos de emprego na RAIS. Base desidentificada,
       isto é, que não inclui identificadores únicos de linha. Cada linha representa
       um vínculo - por isso indicamos este como nível de observação mesmo que não
       conste como coluna.
+      Comentários:
+        • Alguns valores relacionados à conexão com o diretório foram desconsiderados durante os testes.
+        • Os códigos de cbo_2002 foram ignorados devido à descontinuidade de parte deles, conforme descrito no documento oficial (https://portalfat.mte.gov.br/wp-content/uploads/2016/04/CBO2002_Liv3.pdf).
+        • As variáveis cnae_1 e cnae_2_subclasse apresentam códigos que não existem oficialmente na documentação dos cnae, por isso, não são compatíveis com o diretório.
     tests:
       - custom_dictionary_coverage:
           columns_covered_by_dictionary:
@@ -180,7 +185,7 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__cbo_2002')
               field: cbo_2002.cbo_2002
-              ignore_values:  # Não constam aqui: extension://efaidnbmnnnibpcajpcglclefindmkaj/https://portalfat.mte.gov.br/wp-content/uploads/2016/04/CBO2002_Liv3.pdf
+              ignore_values:
                 - '261725'
                 - '782721'
                 - '223162'
