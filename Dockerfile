@@ -18,13 +18,12 @@ ENV UV_TOOL_BIN_DIR=/usr/local/bin
 
 # Install gcc, Google Chrome, CLI tools, git, R and others libs Firefox
 RUN apt-get update && \
-    apt-get install --no-install-recommends -y wget gnupg && \
-    wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - && \
-    echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list && \
+    apt-get install --no-install-recommends -y curl gnupg && \
+    curl -fsSL https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg && \
+    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] https://dl.google.com/linux/chrome/deb/ stable main" | tee /etc/apt/sources.list.d/google-chrome.list && \
     apt-get update && \
     apt-get install --no-install-recommends -y \
     build-essential \
-    curl \
     freetds-dev \
     ftp \
     gcc \
