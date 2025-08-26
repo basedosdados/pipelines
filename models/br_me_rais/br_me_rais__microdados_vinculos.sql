@@ -1,3 +1,4 @@
+-- Materializando para os dados de parciais de 2024
 {{
     config(
         alias="microdados_vinculos",
