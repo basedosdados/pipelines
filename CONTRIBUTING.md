@@ -22,10 +22,11 @@ Este guia é dedicado para novos integrantes da equipe da BD e voluntários que 
 > [!WARNING]
 > Você precisa ter uma conta no [GitHub](https://github.com/) e ter o `git` configurado.
 
+- [git](https://git-scm.com/)
+- [uv](https://docs.astral.sh/uv/getting-started/installation/)
 - Um editor de texto (recomendado [VS Code](https://code.visualstudio.com/))
 - WSL 2, apenas para usuário Windows
-- [`git`](https://git-scm.com/)
-- [`uv`](https://docs.astral.sh/uv/getting-started/installation/)
+  - Se você usa o Windows é essencial Instalar o WSL 2 (Ubuntu). Siga esse [passo a passo](https://learn.microsoft.com/pt-br/windows/wsl/install)
 
 Clone esse repositório
 
@@ -38,10 +39,6 @@ Entre no repositório clonado
 ```sh
 cd pipelines
 ```
-
-#### Instalar o WSL 2 (Ubuntu) - (Apenas usuário Windows)
-
-Se você usa o Windows é essencial Instalar o WSL 2 (Ubuntu). Siga esse [passo a passo](https://learn.microsoft.com/pt-br/windows/wsl/install)
 
 #### Instalar as dependências
 
@@ -136,13 +133,13 @@ O script `manage.py` é responsável por criar e listar projetos desse repositó
 Você pode obter mais informações sobre os comandos com
 
 ```sh
-uv run python manage.py --help
+uv run manage.py --help
 ```
 
 O comando `add-agency` permite que você adicione um novo órgão a partir do template padrão. Para fazê-lo, basta executar
 
 ```sh
-uv run python manage.py add-agency nome-do-orgao
+uv run manage.py add-agency nome-do-orgao
 ```
 
 Isso irá criar um diretório com o nome `nome-do-orgao` em `pipelines/` com o template padrão, já adaptado ao nome do órgão. O nome do órgão deve estar em [snake case](https://en.wikipedia.org/wiki/Snake_case) e deve ser único. Qualquer conflito com um projeto já existente será reportado.
