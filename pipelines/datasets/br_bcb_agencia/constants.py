@@ -7,6 +7,7 @@ from enum import Enum
 
 
 class constants(Enum):  # pylint: disable=c0103
+    # ==== General tasks constants ==== #
     HEADERS = {
         "sec-ch-ua-platform": '"Windows"',
         "User-Agent": (
@@ -23,15 +24,16 @@ class constants(Enum):  # pylint: disable=c0103
         "host": "www.bcb.gov.br",
     }
 
+    # ==== BCB API constants ==== #
     BASE_URL = (
         "https://www.bcb.gov.br/api/servico/sitebcb/Documentos/byListGuid"
     )
     GUID_LISTA = "50f14992-f03c-4c47-8576-b96a65565485"
     TRONCO = "estabilidadefinanceira"
     PASTA = "/agencias"
-
     BASE_DOWNLOAD_URL = "https://www.bcb.gov.br"
 
+    # ==== Paths constants ==== #
     ZIPFILE_PATH_AGENCIA = "/tmp/br_bcb_agencia/agencia/zipfile"
     INPUT_PATH_AGENCIA = "/tmp/br_bcb_agencia/agencia/input"
     OUTPUT_PATH_AGENCIA = "/tmp/br_bcb_agencia/agencia/output/"

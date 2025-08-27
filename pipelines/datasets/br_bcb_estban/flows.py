@@ -11,6 +11,10 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
+from pipelines.datasets.br_bcb_estban.schedules import (
+    every_month_agencia,
+    every_month_municipio,
+)
 from pipelines.datasets.br_bcb_estban.tasks import (
     cleaning_data,
     download_table,
@@ -86,18 +90,20 @@ with Flow(
         with case(check_if_outdated, True):
             log_task("Existem atualizações! A run será inciada")
 
-            download_file = download_table(
+            downloaded_file_path = download_table(
                 url=data_source_download_url,
                 table_id=table_id,
                 upstream_tasks=[check_if_outdated],
             )
 
-            df_diretorios = get_id_municipio(upstream_tasks=[download_file])
+            df_diretorios = get_id_municipio(
+                upstream_tasks=[downloaded_file_path]
+            )
 
             filepath = cleaning_data(
                 table_id,
                 df_diretorios,
-                upstream_tasks=[download_file, df_diretorios],
+                upstream_tasks=[downloaded_file_path, df_diretorios],
             )
             wait_upload_table = create_table_and_upload_to_gcs(
                 data_path=filepath,
@@ -155,7 +161,7 @@ br_bcb_estban_municipio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_bcb_estban_municipio.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_bcb_estban_municipio.schedule = every_month_municipio
+br_bcb_estban_municipio.schedule = every_month_municipio
 
 
 with Flow(
@@ -211,18 +217,20 @@ with Flow(
         with case(check_if_outdated, True):
             log_task("Existem atualizações! A run será inciada")
 
-            download_file = download_table(
+            downloaded_file_path = download_table(
                 url=data_source_download_url,
                 table_id=table_id,
                 upstream_tasks=[check_if_outdated],
             )
 
-            df_diretorios = get_id_municipio(upstream_tasks=[download_file])
+            df_diretorios = get_id_municipio(
+                upstream_tasks=[downloaded_file_path]
+            )
 
             filepath = cleaning_data(
                 table_id,
                 df_diretorios,
-                upstream_tasks=[download_file, df_diretorios],
+                upstream_tasks=[downloaded_file_path, df_diretorios],
             )
             wait_upload_table = create_table_and_upload_to_gcs(
                 data_path=filepath,
@@ -280,4 +288,4 @@ br_bcb_estban_agencia.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_bcb_estban_agencia.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_bcb_estban_agencia.schedule = every_month_agencia
+br_bcb_estban_agencia.schedule = every_month_agencia

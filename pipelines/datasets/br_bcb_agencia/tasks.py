@@ -42,14 +42,14 @@ from pipelines.utils.utils import log, to_partitions
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def get_documents_metadata() -> dict:
-    pasta = agencia_constants.PASTA.value
+    folder = agencia_constants.PASTA.value
     url = agencia_constants.BASE_URL.value
     headers = agencia_constants.HEADERS.value
     params = {
         "tronco": agencia_constants.TRONCO.value,
         "guidLista": agencia_constants.GUID_LISTA.value,
         "ordem": "DataDocumento desc",
-        "pasta": pasta,
+        "pasta": folder,
     }
     data = fetch_bcb_documents(url, headers, params)
     return data
@@ -61,34 +61,34 @@ def get_documents_metadata() -> dict:
 )
 def get_latest_file(data: dict) -> Tuple[str | None, str | None]:
     """
-    Extrai o link de download mais recente da estrutura JSON da API do BCB.
+    Extracts the most recent download link from the BCB API JSON structure.
 
     Args:
-        data (dict): JSON carregado da API
+        data (dict): JSON loaded from the API
 
     Returns:
-        str: URL absoluta do arquivo mais recente
+        str: Absolute URL of the most recent file
     """
-    documentos = data.get("conteudo", [])
-    if not documentos:
-        log("Nenhum documento encontrado no JSON.")
+    documents = data.get("conteudo", [])
+    if not documents:
+        log("No documents found in the JSON.")
     else:
-        # Ordenar pelos campos de DataDocumento (mais recente primeiro)
-        documentos.sort(
+        # Sort by DataDocumento field (most recent first)
+        documents.sort(
             key=lambda d: dt.datetime.fromisoformat(
                 d["DataDocumento"].replace("Z", "")
             ),
             reverse=True,
         )
 
-        # Pega o primeiro (mais recente)
-        latest = documentos[0]
-        url_relativa = latest["Url"]
+        # Get the first (most recent)
+        latest = documents[0]
+        relative_url = latest["Url"]
         last_date = dt.datetime.strptime(latest["Titulo"], "%m/%Y").strftime(
             "%Y-%m"
         )
         return (
-            agencia_constants.BASE_DOWNLOAD_URL.value + url_relativa,
+            agencia_constants.BASE_DOWNLOAD_URL.value + relative_url,
             last_date,
         )
 
@@ -114,14 +114,14 @@ def download_table(
 )
 def clean_data():
     """
-    This task wrang the data from the downloaded files
+    This task wrangles the data from the downloaded files.
     """
 
     ZIP_PATH = agencia_constants.ZIPFILE_PATH_AGENCIA.value
     INPUT_PATH = agencia_constants.INPUT_PATH_AGENCIA.value
     OUTPUT_PATH = agencia_constants.OUTPUT_PATH_AGENCIA.value
 
-    log("Assegurando a criação de pastas de Input/Output")
+    log("Ensuring creation of Input/Output folders")
     if not os.path.exists(INPUT_PATH):
         os.makedirs(INPUT_PATH, exist_ok=True)
 
@@ -129,9 +129,9 @@ def clean_data():
         os.makedirs(OUTPUT_PATH, exist_ok=True)
 
     zip_files = os.listdir(ZIP_PATH)
-    log("Extraindo Zips")
+    log("Extracting zip files")
     for file in zip_files:
-        log(f"Arquivo --> : {file}")
+        log(f"File --> : {file}")
         with zipfile.ZipFile(os.path.join(ZIP_PATH, file), "r") as z:
             z.extractall(INPUT_PATH)
 
@@ -142,11 +142,11 @@ def clean_data():
             file_path = os.path.join(INPUT_PATH, file)
             df = read_file(file_path=file_path, file_name=file)
 
-            # Padronização dos nomes de colunas
+            # Standardize column names
             df = clean_column_names(df)
             df.rename(columns=rename_cols(), inplace=True)
 
-            # Preenchendo com zeros à esquerda
+            # Fill with leading zeros
             df["id_compe_bcb_agencia"] = (
                 df["id_compe_bcb_agencia"].astype(str).str.zfill(4)
             )
@@ -157,7 +157,7 @@ def clean_data():
             df["cnpj"] = df["cnpj"].astype(str).str.zfill(8)
             df["fone"] = df["fone"].astype(str).str.zfill(8)
 
-            # Colunas criadas, caso não existam
+            # Create columns if they do not exist
             df = check_and_create_column(df, col_name="data_inicio")
             df = check_and_create_column(df, col_name="instituicao")
             df = check_and_create_column(df, col_name="id_instalacao")
@@ -166,12 +166,12 @@ def clean_data():
             )
             df = check_and_create_column(df, col_name="id_compe_bcb_agencia")
 
-            # Removemos ddd para adicionar depois
+            # Remove ddd to add later
             df.drop(columns=["ddd"], inplace=True)
 
-            # Alguns arquivos não possuem a coluna'id_municipio', apenas 'nome'.
-            # Necessário fazer o join por 'nome'
-            log("Padronizando nomes de municípios")
+            # Some files do not have the 'id_municipio' column, only 'nome'.
+            # It is necessary to join by 'nome'
+            log("Standardizing municipality names")
             df = clean_nome_municipio(df, "nome")
 
             municipio = bd.read_sql(
@@ -193,7 +193,7 @@ def clean_data():
                     how="left",
                 )
 
-            # Checkando existência da coluna de DDD
+            # Check if DDD column exists
             if "ddd" not in df.columns:
                 df = pd.merge(
                     df,
@@ -203,16 +203,16 @@ def clean_data():
                     how="left",
                 )
 
-            # Padronização do CEP apenas com números
+            # Standardize CEP to only numbers
             df["cep"] = df["cep"].astype(str)
             df["cep"] = df["cep"].apply(remove_non_numeric_chars)
 
-            # Criação de coluna única de CNPJ
+            # Create unique CNPJ column
             df = create_cnpj_col(df)
             df["cnpj"] = df["cnpj"].apply(remove_non_numeric_chars)
             df["cnpj"] = df["cnpj"].apply(remove_empty_spaces)
 
-            # Colunas para transformar em title() (primeira letra maiúscula e demais minúsculas)
+            # Columns to convert to title() (first letter uppercase, rest lowercase)
             col_list_to_title = [
                 "endereco",
                 "complemento",
@@ -224,15 +224,15 @@ def clean_data():
                 str_to_title(df, column_name=col)
                 log(f"column - {col} converted to title")
 
-            # Removendo acentuação
+            # Remove accents
             df = remove_latin1_accents_from_df(df)
 
-            # Formatação de data
+            # Date formatting
             df["data_inicio"] = df["data_inicio"].apply(format_date)
 
             df = strip_dataframe_columns(df)
             df = df[order_cols()]
-            log("Colunas ordenadas")
+            log("Columns ordered")
 
             to_partitions(
                 data=df,

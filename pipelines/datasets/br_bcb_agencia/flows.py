@@ -10,6 +10,7 @@ from pipelines.constants import constants
 from pipelines.datasets.br_bcb_agencia.constants import (
     constants as agencia_constants,
 )
+from pipelines.datasets.br_bcb_agencia.schedules import every_month_agencia
 from pipelines.datasets.br_bcb_agencia.tasks import (
     clean_data,
     download_table,
@@ -63,13 +64,13 @@ with Flow(
 
     documents_metadata = get_documents_metadata()
 
-    # Checando se os metadados foram carregados
+    # Checking if metadata was loaded
     with case(documents_metadata is None, False):
         data_source_download_url, data_source_max_date = get_latest_file(
             documents_metadata
         )
 
-        # Checando se dados em produção estão atualizados
+        # Checking if production data is up to date
         check_if_outdated = check_if_data_is_outdated(
             dataset_id=dataset_id,
             table_id=table_id,
@@ -79,10 +80,10 @@ with Flow(
         )
 
         with case(check_if_outdated, False):
-            log_task(f"Não há atualizações para a tabela de {table_id}!")
+            log_task(f"No updates for table {table_id}!")
 
         with case(check_if_outdated, True):
-            log_task("Existem atualizações! A run será inciada")
+            log_task("Updates found! The run will be started.")
 
             download_file = download_table(
                 url=data_source_download_url,
@@ -147,11 +148,11 @@ with Flow(
                     )
     with case(documents_metadata is None, True):
         log_task(
-            "Metadados BCB não foram carregados! Não foi possível determinar se o dataset está atualizado."
+            "BCB metadata was not loaded! It was not possible to determine if the dataset is up to date."
         )
 
 br_bcb_agencia_agencia.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_bcb_agencia_agencia.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_bcb_agencia_agencia.schedule = every_month_agencia
+br_bcb_agencia_agencia.schedule = every_month_agencia

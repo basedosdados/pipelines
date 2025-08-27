@@ -9,18 +9,18 @@ import requests
 from pipelines.utils.utils import log
 
 
-# ==== Funções para download de dados ==== #
+# ==== Data download functions ==== #
 def fetch_bcb_documents(
     url: str, headers: dict, params: dict
 ) -> dict[str, Any] | None:
     """
-    Consulta documentos na API do Banco Central.
+    Queries documents from the Central Bank API.
 
     Args:
-        pasta (str): Caminho da pasta na API (ex: "/postos", "/agencias")
+        url (str): API endpoint URL (e.g., "/postos", "/agencias")
 
     Returns:
-        dict | None: Dados retornados pela API ou None em caso de erro.
+        dict | None: Data returned by the API or None in case of error.
     """
 
     try:
@@ -28,7 +28,7 @@ def fetch_bcb_documents(
         response.raise_for_status()
         return response.json()
     except requests.RequestException as e:
-        log(f"Erro ao consultar API do BCB: {e}")
+        log(f"Error querying BCB API: {e}")
         return None
 
 
@@ -72,153 +72,158 @@ def download_file(
     return None
 
 
-# ==== Funções para leitura e tratamento inicial dos arquivos ==== #
+# ==== File reading and initial processing functions ==== #
 def find_cnpj_row_number(file_path: str) -> int:
     """
-    Localiza a linha em que aparece a primeira ocorrência do valor 'CNPJ'
-    (sempre na primeira coluna) e retorna o número da linha.
+    Finds the row number where the first occurrence of the value 'CNPJ'
+    (always in the first column) appears and returns the row number.
 
     Args:
-        file_path (str): Caminho do arquivo.
+        file_path (str): File path.
 
     Returns:
-        int: Número da linha correspondente ao cabeçalho.
+        int: Row number corresponding to the header.
     """
-    df = pd.read_excel(file_path, nrows=20)
-    first_col = df.columns[0]
-    log(f"Primeira coluna identificada: {first_col}")
+    dataframe = pd.read_excel(file_path, nrows=20)
+    first_col = dataframe.columns[0]
+    log(f"First column identified: {first_col}")
 
-    df[first_col] = df[first_col].str.strip()
-    match = df[df[first_col] == "CNPJ"]
+    dataframe[first_col] = dataframe[first_col].str.strip()
+    match = dataframe[dataframe[first_col] == "CNPJ"]
 
     if not match.empty:  # noqa: SIM108
         cnpj_row_number = match.index.tolist()[0]
     else:
-        cnpj_row_number = 9  # valor padrão quando não encontrado
+        cnpj_row_number = 9  # default value when not found
 
     return cnpj_row_number
 
 
 def get_conv_names(file_path: str, skiprows: int) -> dict:
     """
-    Obtém nomes de colunas de um arquivo para uso como conversores (string).
+    Gets column names from a file for use as converters for column names
+    to the reading method (string).
 
     Args:
-        file_path (str): Caminho do arquivo.
-        skiprows (int): Número de linhas a serem ignoradas.
+        file_path (str): File path.
+        skiprows (int): Number of rows to skip.
 
     Returns:
-        dict: Dicionário mapeando nomes de colunas para `str`.
+        dict: Dictionary mapping column names to `str`.
     """
-    df = pd.read_excel(file_path, nrows=20, skiprows=skiprows)
-    cols = df.columns
+    dataframe = pd.read_excel(file_path, nrows=20, skiprows=skiprows)
+    cols = dataframe.columns
     conv = dict(zip(cols, [str] * len(cols), strict=False))
     return conv
 
 
 def read_file(file_path: str, file_name: str) -> pd.DataFrame:
     """
-    Lê um arquivo Excel de agências e retorna um DataFrame tratado.
+    Reads an Excel file of agencies and returns a processed DataFrame.
 
     Args:
-        file_path (str): Caminho do arquivo.
-        file_name (str): Nome do arquivo, utilizado para extrair ano e mês.
+        file_path (str): File path.
+        file_name (str): File name, used to extract year and month.
 
     Returns:
-        pd.DataFrame: DataFrame contendo os dados da agência.
+        pd.DataFrame: DataFrame containing agency data.
     """
     try:
         skiprows = find_cnpj_row_number(file_path=file_path) + 1
         conv = get_conv_names(file_path=file_path, skiprows=skiprows)
-        log(f"Conversores de colunas gerados: {list(conv.keys())}")
-        df = pd.read_excel(
+        log(f"Column converters generated: {list(conv.keys())}")
+        dataframe = pd.read_excel(
             file_path, skiprows=skiprows, converters=conv, skipfooter=2
         )
-        df = create_year_month_cols(df=df, file=file_name)
+        dataframe = create_year_month_cols(dataframe=dataframe, file=file_name)
 
     except Exception as e:
         log(
-            f"Erro ao capturar linha de cabeçalho (skiprows): {e}. Usando valor padrão (9)."
+            f"Error capturing header row (skiprows): {e}. Using default value (9)."
         )
         conv = get_conv_names(file_path=file_path, skiprows=9)
-        df = pd.read_excel(
+        dataframe = pd.read_excel(
             file_path, skiprows=9, converters=conv, skipfooter=2
         )
-        df = create_year_month_cols(df=df, file=file_name)
+        dataframe = create_year_month_cols(dataframe=dataframe, file=file_name)
 
-    return df
+    return dataframe
 
 
-def clean_column_names(df: pd.DataFrame) -> pd.DataFrame:
+def clean_column_names(dataframe: pd.DataFrame) -> pd.DataFrame:
     """
-    Realiza limpeza padronizada nos nomes das colunas de um DataFrame.
+    Standardizes and cleans DataFrame column names.
 
-    Operações aplicadas:
-        - Remove espaços em branco iniciais e finais.
-        - Remove acentuação.
-        - Substitui caracteres especiais por "_".
-        - Converte para letras minúsculas.
+    Operations applied:
+        - Removes leading and trailing whitespace.
+        - Removes accents.
+        - Replaces special characters with "_".
+        - Converts to lowercase.
 
     Args:
-        df (pd.DataFrame): DataFrame de entrada.
+        dataframe (pd.DataFrame): Input DataFrame.
 
     Returns:
-        pd.DataFrame: DataFrame com nomes de colunas limpos.
+        pd.DataFrame: DataFrame with cleaned column names.
     """
-    log("Limpando nomes de colunas...")
-    df.columns = df.columns.str.strip()
-    df.columns = df.columns.map(
+    log("Cleaning column names...")
+    dataframe.columns = dataframe.columns.str.strip()
+    dataframe.columns = dataframe.columns.map(
         lambda x: unicodedata.normalize("NFKD", str(x))
         .encode("ascii", "ignore")
         .decode("utf-8")
     )
-    df.columns = df.columns.str.replace(r"[^\w\s]+", "_", regex=True)
-    df.columns = df.columns.str.lower()
-    return df
+    dataframe.columns = dataframe.columns.str.replace(
+        r"[^\w\s]+", "_", regex=True
+    )
+    dataframe.columns = dataframe.columns.str.lower()
+    return dataframe
 
 
-# ==== Funções de transformação e padronização ==== #
-def create_year_month_cols(df: pd.DataFrame, file: str) -> pd.DataFrame:
+# ==== Transformation and standardization functions ==== #
+def create_year_month_cols(dataframe: pd.DataFrame, file: str) -> pd.DataFrame:
     """
-    Cria colunas de ano e mês a partir do nome do arquivo.
+    Creates year and month columns from the file name.
 
     Args:
-        df (pd.DataFrame): DataFrame de entrada.
-        file (str): Nome do arquivo (primeiros 6 dígitos são ano e mês).
+        dataframe (pd.DataFrame): Input DataFrame.
+        file (str): File name (first 6 digits are year and month).
 
     Returns:
-        pd.DataFrame: DataFrame com colunas 'ano' e 'mes' adicionadas.
+        pd.DataFrame: DataFrame with 'ano' and 'mes' columns added.
     """
-    df["ano"] = file[0:4]
-    df["mes"] = file[4:6]
-    log(f"Colunas 'ano'={file[0:4]} e 'mes'={file[4:6]} criadas.")
-    return df
+    dataframe["ano"] = file[0:4]
+    dataframe["mes"] = file[4:6]
+    log(f"Columns 'ano'={file[0:4]} and 'mes'={file[4:6]} created.")
+    return dataframe
 
 
-def check_and_create_column(df: pd.DataFrame, col_name: str) -> pd.DataFrame:
+def check_and_create_column(
+    dataframe: pd.DataFrame, col_name: str
+) -> pd.DataFrame:
     """
-    Verifica se uma coluna existe no DataFrame.
-    Caso não exista, cria a coluna preenchida com strings vazias.
+    Checks if a column exists in the DataFrame.
+    If not, creates the column filled with empty strings.
 
     Args:
-        df (pd.DataFrame): DataFrame de entrada.
-        col_name (str): Nome da coluna a verificar/criar.
+        dataframe (pd.DataFrame): Input DataFrame.
+        col_name (str): Column name to check/create.
 
     Returns:
-        pd.DataFrame: DataFrame atualizado.
+        pd.DataFrame: Updated DataFrame.
     """
-    if col_name not in df.columns:
-        df[col_name] = ""
-        log(f"Coluna '{col_name}' criada (não existia no DataFrame).")
-    return df
+    if col_name not in dataframe.columns:
+        dataframe[col_name] = ""
+        log(f"Column '{col_name}' created (did not exist in DataFrame).")
+    return dataframe
 
 
 def rename_cols() -> dict:
     """
-    Dicionário de padronização de nomes de colunas.
+    Dictionary for standardizing column names.
 
     Returns:
-        dict: Dicionário com mapeamento de nomes antigos para novos.
+        dict: Dictionary mapping old names to new names.
     """
     rename_dict = {
         "cnpj": "cnpj",
@@ -251,10 +256,10 @@ def rename_cols() -> dict:
 
 def order_cols() -> list:
     """
-    Ordem padrão das colunas no DataFrame.
+    Default column order for the DataFrame.
 
     Returns:
-        list: Lista ordenada de nomes de colunas.
+        list: Ordered list of column names.
     """
     return [
         "ano",
@@ -279,134 +284,142 @@ def order_cols() -> list:
     ]
 
 
-def clean_nome_municipio(df: pd.DataFrame, col_name: str) -> pd.DataFrame:
+def clean_nome_municipio(
+    dataframe: pd.DataFrame, col_name: str
+) -> pd.DataFrame:
     """
-    Realiza limpeza da coluna de município.
+    Cleans the municipality column.
 
-    Operações aplicadas:
-        - Remove acentos.
-        - Remove caracteres especiais.
-        - Converte para minúsculas.
-        - Remove espaços extras.
+    Operations applied:
+        - Removes accents.
+        - Removes special characters.
+        - Converts to lowercase.
+        - Removes extra spaces.
 
     Args:
-        df (pd.DataFrame): DataFrame de entrada.
-        col_name (str): Nome da coluna de município.
+        dataframe (pd.DataFrame): Input DataFrame.
+        col_name (str): Municipality column name.
 
     Returns:
-        pd.DataFrame: DataFrame atualizado.
+        pd.DataFrame: Updated DataFrame.
     """
-    df[col_name] = df[col_name].apply(
+    dataframe[col_name] = dataframe[col_name].apply(
         lambda x: unicodedata.normalize("NFKD", str(x))
         .encode("ascii", "ignore")
         .decode("utf-8")
     )
-    df[col_name] = df[col_name].apply(lambda x: re.sub(r"[^\w\s]", "", x))
-    df[col_name] = df[col_name].str.lower().str.strip()
-    return df
+    dataframe[col_name] = dataframe[col_name].apply(
+        lambda x: re.sub(r"[^\w\s]", "", x)
+    )
+    dataframe[col_name] = dataframe[col_name].str.lower().str.strip()
+    return dataframe
 
 
-def remove_latin1_accents_from_df(df: pd.DataFrame) -> pd.DataFrame:
+def remove_latin1_accents_from_df(dataframe: pd.DataFrame) -> pd.DataFrame:
     """
-    Remove acentuação de todos os valores de um DataFrame.
+    Removes accents from all values in a DataFrame.
 
     Args:
-        df (pd.DataFrame): DataFrame de entrada.
+        dataframe (pd.DataFrame): Input DataFrame.
 
     Returns:
-        pd.DataFrame: DataFrame atualizado.
+        pd.DataFrame: Updated DataFrame.
     """
-    for col in df.columns:
-        df[col] = df[col].apply(
+    for col in dataframe.columns:
+        dataframe[col] = dataframe[col].apply(
             lambda x: "".join(
                 c
                 for c in unicodedata.normalize("NFD", str(x))
                 if unicodedata.category(c) != "Mn"
             )
         )
-    return df
+    return dataframe
 
 
 def remove_non_numeric_chars(s: str) -> str:
     """
-    Remove caracteres não numéricos de uma string.
+    Removes non-numeric characters from a string.
 
     Args:
-        s (str): String de entrada.
+        s (str): Input string.
 
     Returns:
-        str: String contendo apenas números.
+        str: String containing only numbers.
     """
     return re.sub(r"\D", "", s)
 
 
 def remove_empty_spaces(s: str) -> str:
     """
-    Remove espaços em branco de uma string.
+    Removes whitespace from a string.
 
     Args:
-        s (str): String de entrada.
+        s (str): Input string.
 
     Returns:
-        str: String sem espaços.
+        str: String without spaces.
     """
     return re.sub(r"\s", "", s)
 
 
-def create_cnpj_col(df: pd.DataFrame) -> pd.DataFrame:
+def create_cnpj_col(dataframe: pd.DataFrame) -> pd.DataFrame:
     """
-    Constrói a coluna `cnpj` concatenando suas partes.
+    Builds the `cnpj` column by concatenating its parts.
 
     Args:
-        df (pd.DataFrame): DataFrame contendo colunas
-            `cnpj`, `sequencial_cnpj` e `dv_do_cnpj`.
+        dataframe (pd.DataFrame): DataFrame containing columns
+            `cnpj`, `sequencial_cnpj` and `dv_do_cnpj`.
 
     Returns:
-        pd.DataFrame: DataFrame com a coluna `cnpj` final.
+        pd.DataFrame: DataFrame with the final `cnpj` column.
     """
-    df["sequencial_cnpj"] = df["sequencial_cnpj"].astype(str)
-    df["dv_do_cnpj"] = df["dv_do_cnpj"].astype(str)
-    df["cnpj"] = df["cnpj"].astype(str)
+    dataframe["sequencial_cnpj"] = dataframe["sequencial_cnpj"].astype(str)
+    dataframe["dv_do_cnpj"] = dataframe["dv_do_cnpj"].astype(str)
+    dataframe["cnpj"] = dataframe["cnpj"].astype(str)
 
-    df["cnpj"] = df["cnpj"] + df["sequencial_cnpj"] + df["dv_do_cnpj"]
-    log("Coluna 'cnpj' construída.")
-    return df
+    dataframe["cnpj"] = (
+        dataframe["cnpj"]
+        + dataframe["sequencial_cnpj"]
+        + dataframe["dv_do_cnpj"]
+    )
+    log("Column 'cnpj' built.")
+    return dataframe
 
 
-def str_to_title(df: pd.DataFrame, column_name: str) -> pd.DataFrame:
+def str_to_title(dataframe: pd.DataFrame, column_name: str) -> pd.DataFrame:
     """
-    Transforma os valores de uma coluna em formato título (Title Case).
+    Converts the values of a column to title case.
     """
-    df[column_name] = df[column_name].str.title()
-    return df
+    dataframe[column_name] = dataframe[column_name].str.title()
+    return dataframe
 
 
-def strip_dataframe_columns(df: pd.DataFrame) -> pd.DataFrame:
+def strip_dataframe_columns(dataframe: pd.DataFrame) -> pd.DataFrame:
     """
-    Remove espaços extras de todos os valores string de um DataFrame.
+    Removes extra spaces from all string values in a DataFrame.
 
     Args:
-        df (pd.DataFrame): DataFrame de entrada.
+        dataframe (pd.DataFrame): Input DataFrame.
 
     Returns:
-        pd.DataFrame: DataFrame atualizado.
+        pd.DataFrame: Updated DataFrame.
     """
-    for col in df.select_dtypes(include=["object", "string"]).columns:
-        df[col] = df[col].str.strip()
-    return df
+    for col in dataframe.select_dtypes(include=["object", "string"]).columns:
+        dataframe[col] = dataframe[col].str.strip()
+    return dataframe
 
 
 def format_date(date_str: str) -> str:
     """
-    Converte uma string de data para o formato padrão YYYY-MM-DD.
+    Converts a date string to the standard format YYYY-MM-DD.
 
-    Caso não seja possível converter, retorna string vazia.
+    If conversion is not possible, returns an empty string.
 
     Args:
-        date_str (str): Data em formato variável.
+        date_str (str): Date in variable format.
 
     Returns:
-        str: Data formatada ou string vazia.
+        str: Formatted date or empty string.
     """
     try:
         date_obj = pd.to_datetime(date_str)
