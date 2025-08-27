@@ -1,241 +1,224 @@
-# -*- coding: utf-8 -*-
-"""
-General purpose functions for the br_bcb_agencia project
-"""
-
-import os
 import re
 import unicodedata
-from datetime import datetime
-from io import BytesIO
-from urllib.request import urlopen
-from zipfile import ZipFile
+from pathlib import Path
+from typing import Any
 
 import pandas as pd
 import requests
-from lxml import html
 
 from pipelines.utils.utils import log
 
 
-# ---- functions to download data
-def parse_date(url: str) -> datetime:
-    """This function parse the date of a br_bcb_agencia url
+# ==== Funções para download de dados ==== #
+def fetch_bcb_documents(
+    url: str, headers: dict, params: dict
+) -> dict[str, Any] | None:
+    """
+    Consulta documentos na API do Banco Central.
 
     Args:
-        url (str): URL of br_bcb_agencia extracted from https://www.bcb.gov.br/fis/info/agencias.asp?frame=1
+        pasta (str): Caminho da pasta na API (ex: "/postos", "/agencias")
 
     Returns:
-        datetime: a date object
+        dict | None: Dados retornados pela API ou None em caso de erro.
     """
 
-    padrao = re.compile(r"\d+")
+    try:
+        response = requests.get(url, headers=headers, params=params)
+        response.raise_for_status()
+        return response.json()
+    except requests.RequestException as e:
+        log(f"Erro ao consultar API do BCB: {e}")
+        return None
 
-    numeros = padrao.findall(url)
-    data = datetime(int(numeros[0][0:4]), int(numeros[0][4:6]), 1)
 
-    return data
-
-
-def extract_download_links(url, xpath):
-    """extract all download links from bcb agencias website
+def download_file(
+    url: str,
+    download_dir: Path,
+    session: requests.Session = None,
+    filename: str = None,
+) -> Path | None:
+    """
+    Downloads a file from the specified URL and saves it to a given directory.
 
     Args:
-        url (str): bcb url https://www.bcb.gov.br/fis/info/agencias.asp?frame=1
-        xpath (str): xpath which contais donwload links
+        url (str): The URL of the file to download.
+        download_dir (Path): Directory where the file should be saved.
+        session (requests.Session, optional): Optional requests session for reusing connections.
+        filename (str, optional): Custom name to save the file as. Defaults to the name in the URL.
 
     Returns:
-        list: a list of file links
-
+        Path | None: Path to the downloaded file, or None if download failed.
     """
-    # Send a GET request to the URL
-    response = requests.get(url)
+    log(f"Downloading {url}")
+    local_path = (
+        Path(download_dir) / filename.lower()
+        if filename is not None
+        else Path(download_dir) / url.split("/")[-1].lower()
+    )
 
-    # Parse the HTML content of the response using lxml
-    tree = html.fromstring(response.content)
+    try:
+        response = session.get(url) if session else requests.get(url)
+        response.raise_for_status()
 
-    # Extract all the values from the given XPath
-    values = tree.xpath(xpath + "/option/@value")
+        with open(local_path, "wb") as f:
+            f.write(response.content)
 
-    return values
-
-
-def download_and_unzip(url, extract_to):
-    """download and unzip a zip file
-
-    Args:
-        url (str): a url
-        extract_to (str): path to download data
-
-    Returns:
-        list: unziped files in a given folder
-    """
-
-    os.system(f"mkdir -p {extract_to}")
-
-    http_response = urlopen(url)
-    zipfile = ZipFile(BytesIO(http_response.read()))
-    zipfile.extractall(path=extract_to)
+        return local_path
+    except FileNotFoundError:
+        log("Failed to locate directory or create file.")
+    except Exception as e:
+        log(f"Error downloading file: {e}")
+    return None
 
 
-# ---- functions to read data and make previous analysis on column names change across the years and mothns
-
-
+# ==== Funções para leitura e tratamento inicial dos arquivos ==== #
 def find_cnpj_row_number(file_path: str) -> int:
-    """find the row number of the first occurrence of the CNPJ value (which is always in the first column)
-    and returns the row number as an index to further read the file
+    """
+    Localiza a linha em que aparece a primeira ocorrência do valor 'CNPJ'
+    (sempre na primeira coluna) e retorna o número da linha.
 
     Args:
-        file_path (str): the path of the files
+        file_path (str): Caminho do arquivo.
 
     Returns:
-        int: an index that identifies the row number of the column names
+        int: Número da linha correspondente ao cabeçalho.
     """
     df = pd.read_excel(file_path, nrows=20)
-    cnpj_row_number = df[df.iloc[:, 0] == "CNPJ"].index.tolist()[0]
-    print(cnpj_row_number)
+    first_col = df.columns[0]
+    log(f"Primeira coluna identificada: {first_col}")
+
+    df[first_col] = df[first_col].str.strip()
+    match = df[df[first_col] == "CNPJ"]
+
+    if not match.empty:  # noqa: SIM108
+        cnpj_row_number = match.index.tolist()[0]
+    else:
+        cnpj_row_number = 9  # valor padrão quando não encontrado
+
     return cnpj_row_number
 
 
-def get_conv_names(file_path: str, skiprows: str) -> dict:
-    """get column names from a file to be used as a converter
+def get_conv_names(file_path: str, skiprows: int) -> dict:
+    """
+    Obtém nomes de colunas de um arquivo para uso como conversores (string).
 
     Args:
-        file_path (str): file path
-        skiprows (int): Rows to skip given by find_cnpj_row_number function
+        file_path (str): Caminho do arquivo.
+        skiprows (int): Número de linhas a serem ignoradas.
 
     Returns:
-        dict: A dict that maps the column names to the str type
+        dict: Dicionário mapeando nomes de colunas para `str`.
     """
     df = pd.read_excel(file_path, nrows=20, skiprows=skiprows)
     cols = df.columns
-    conv = dict(zip(cols, [str] * len(cols)))
-
+    conv = dict(zip(cols, [str] * len(cols), strict=False))
     return conv
 
 
-def get_files_path(folder_path: str) -> list:
-    """Find files in a folder and returns a list with the files path
-
-    Args:
-        folder_path (str): a path to a folder
-
-    Returns:
-        list: list with files path
-    """
-    for file in os.listdir(folder_path):
-        # the files format change across the year
-        files_list = []
-        if file.endswith(".xls") or file.endswith(".xlsx"):
-            file_path = os.path.join(folder_path, file)
-            files_list.append(file_path)
-
-    return files_list
-
-
 def read_file(file_path: str, file_name: str) -> pd.DataFrame:
-    """Read files from a folder and returns a dataframe
+    """
+    Lê um arquivo Excel de agências e retorna um DataFrame tratado.
 
     Args:
-        file_path (str): a path to a file
-        file_name (str): Name of the file to be read, also used as input to create_year_month_cols function
+        file_path (str): Caminho do arquivo.
+        file_name (str): Nome do arquivo, utilizado para extrair ano e mês.
 
     Returns:
-        pd.DataFrame: a dataframe with the file content (agencias)
+        pd.DataFrame: DataFrame contendo os dados da agência.
     """
     try:
-        # skip all rows before the row containing the CNPJ value
         skiprows = find_cnpj_row_number(file_path=file_path) + 1
-
         conv = get_conv_names(file_path=file_path, skiprows=skiprows)
+        log(f"Conversores de colunas gerados: {list(conv.keys())}")
         df = pd.read_excel(
             file_path, skiprows=skiprows, converters=conv, skipfooter=2
         )
         df = create_year_month_cols(df=df, file=file_name)
 
     except Exception as e:
-        log(e)
+        log(
+            f"Erro ao capturar linha de cabeçalho (skiprows): {e}. Usando valor padrão (9)."
+        )
         conv = get_conv_names(file_path=file_path, skiprows=9)
         df = pd.read_excel(
             file_path, skiprows=9, converters=conv, skipfooter=2
         )
         df = create_year_month_cols(df=df, file=file_name)
+
     return df
 
 
 def clean_column_names(df: pd.DataFrame) -> pd.DataFrame:
-    """This function perfom general cleaning operations with DataFrame
-    columns.
+    """
+    Realiza limpeza padronizada nos nomes das colunas de um DataFrame.
+
+    Operações aplicadas:
+        - Remove espaços em branco iniciais e finais.
+        - Remove acentuação.
+        - Substitui caracteres especiais por "_".
+        - Converte para letras minúsculas.
 
     Args:
-        df (pd.DataFrame): a dataframe
+        df (pd.DataFrame): DataFrame de entrada.
 
     Returns:
-        DataFrame: a dataframe with cleaned columns
+        pd.DataFrame: DataFrame com nomes de colunas limpos.
     """
-    # Remove leading and trailing whitespaces from column names
-    log("---- cleaning col names ----")
+    log("Limpando nomes de colunas...")
     df.columns = df.columns.str.strip()
-
-    # Remove accents and special characters from column names
     df.columns = df.columns.map(
-        lambda x: unicodedata.normalize("NFKD", x)
+        lambda x: unicodedata.normalize("NFKD", str(x))
         .encode("ascii", "ignore")
         .decode("utf-8")
     )
-    # Replace remaining special characters with underscores
     df.columns = df.columns.str.replace(r"[^\w\s]+", "_", regex=True)
-    # Lowercase all column names
     df.columns = df.columns.str.lower()
-
     return df
 
 
-# ---- functions to wrang data
+# ==== Funções de transformação e padronização ==== #
 def create_year_month_cols(df: pd.DataFrame, file: str) -> pd.DataFrame:
-    """This function creates two new columns in the dataframe,
-    one for the year and another for the month.
-
+    """
+    Cria colunas de ano e mês a partir do nome do arquivo.
 
     Args:
-        df (pd.DataFrame): _description_
-        file (str): it refers to the file name, which contains the year and month information.
-        The year is the first 4 digits and the month is the next 2 digits.
+        df (pd.DataFrame): DataFrame de entrada.
+        file (str): Nome do arquivo (primeiros 6 dígitos são ano e mês).
 
     Returns:
-        pd.DataFrame: a dataframe with month and year columns
+        pd.DataFrame: DataFrame com colunas 'ano' e 'mes' adicionadas.
     """
-
     df["ano"] = file[0:4]
     df["mes"] = file[4:6]
-    log(
-        f" ---- creating ano and mes columns ----- ano {file[0:4]} mes {file[4:6]}"
-    )
+    log(f"Colunas 'ano'={file[0:4]} e 'mes'={file[4:6]} criadas.")
     return df
 
 
 def check_and_create_column(df: pd.DataFrame, col_name: str) -> pd.DataFrame:
     """
-    Check if a column exists in a Pandas DataFrame. If it doesn't, create a new column with the given name
-    and fill it with NaN values. If it does exist, do nothing.
+    Verifica se uma coluna existe no DataFrame.
+    Caso não exista, cria a coluna preenchida com strings vazias.
 
-    Parameters:
-    df (Pandas DataFrame): The DataFrame to check.
-    col_name (str): The name of the column to check for or create.
+    Args:
+        df (pd.DataFrame): DataFrame de entrada.
+        col_name (str): Nome da coluna a verificar/criar.
 
     Returns:
-    Pandas DataFrame: The modified DataFrame.
+        pd.DataFrame: DataFrame atualizado.
     """
     if col_name not in df.columns:
         df[col_name] = ""
+        log(f"Coluna '{col_name}' criada (não existia no DataFrame).")
     return df
 
 
-def rename_cols():
-    """this function renames the columns to a standard name
+def rename_cols() -> dict:
+    """
+    Dicionário de padronização de nomes de colunas.
 
     Returns:
-        _type_: it returns a dict with the old and new names
+        dict: Dicionário com mapeamento de nomes antigos para novos.
     """
     rename_dict = {
         "cnpj": "cnpj",
@@ -263,14 +246,17 @@ def rename_cols():
         "id instalacao": "id_instalacao",
         "municipio ibge": "id_municipio",
     }
-
     return rename_dict
 
 
-def order_cols():
-    """Reorder columns to a standard format"""
+def order_cols() -> list:
+    """
+    Ordem padrão das colunas no DataFrame.
 
-    cols_order = [
+    Returns:
+        list: Lista ordenada de nomes de colunas.
+    """
+    return [
         "ano",
         "mes",
         "sigla_uf",
@@ -291,17 +277,24 @@ def order_cols():
         "fone",
         "id_instalacao",
     ]
-    return cols_order
 
 
 def clean_nome_municipio(df: pd.DataFrame, col_name: str) -> pd.DataFrame:
-    """perform cleaning operations on the municipio column
+    """
+    Realiza limpeza da coluna de município.
+
+    Operações aplicadas:
+        - Remove acentos.
+        - Remove caracteres especiais.
+        - Converte para minúsculas.
+        - Remove espaços extras.
 
     Args:
-        df (pd.DataFrame): dataframe with municipio column
+        df (pd.DataFrame): DataFrame de entrada.
+        col_name (str): Nome da coluna de município.
 
     Returns:
-        pd.DataFrame: dataframe with municipio cleaned column
+        pd.DataFrame: DataFrame atualizado.
     """
     df[col_name] = df[col_name].apply(
         lambda x: unicodedata.normalize("NFKD", str(x))
@@ -309,12 +302,20 @@ def clean_nome_municipio(df: pd.DataFrame, col_name: str) -> pd.DataFrame:
         .decode("utf-8")
     )
     df[col_name] = df[col_name].apply(lambda x: re.sub(r"[^\w\s]", "", x))
-    df[col_name] = df[col_name].str.lower()
-    df[col_name] = df[col_name].str.strip()
+    df[col_name] = df[col_name].str.lower().str.strip()
     return df
 
 
-def remove_latin1_accents_from_df(df):
+def remove_latin1_accents_from_df(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Remove acentuação de todos os valores de um DataFrame.
+
+    Args:
+        df (pd.DataFrame): DataFrame de entrada.
+
+    Returns:
+        pd.DataFrame: DataFrame atualizado.
+    """
     for col in df.columns:
         df[col] = df[col].apply(
             lambda x: "".join(
@@ -326,85 +327,89 @@ def remove_latin1_accents_from_df(df):
     return df
 
 
-def remove_non_numeric_chars(s):
-    """Remove non numeric chars from a pd.dataframe column"""
+def remove_non_numeric_chars(s: str) -> str:
+    """
+    Remove caracteres não numéricos de uma string.
+
+    Args:
+        s (str): String de entrada.
+
+    Returns:
+        str: String contendo apenas números.
+    """
     return re.sub(r"\D", "", s)
 
 
-def remove_empty_spaces(s):
-    """Remove empty spaces from a pd.dataframe column"""
+def remove_empty_spaces(s: str) -> str:
+    """
+    Remove espaços em branco de uma string.
+
+    Args:
+        s (str): String de entrada.
+
+    Returns:
+        str: String sem espaços.
+    """
     return re.sub(r"\s", "", s)
 
 
 def create_cnpj_col(df: pd.DataFrame) -> pd.DataFrame:
-    """Takes an dataframe with cnpj, sequencial_cnpj and dv_do_cnpj columns
-    and create a new column with the cnpj
+    """
+    Constrói a coluna `cnpj` concatenando suas partes.
 
     Args:
-        df (pd.DataFrame): a dataframe with cnpj formatted column
-    """
-    # concat cnpj
+        df (pd.DataFrame): DataFrame contendo colunas
+            `cnpj`, `sequencial_cnpj` e `dv_do_cnpj`.
 
+    Returns:
+        pd.DataFrame: DataFrame com a coluna `cnpj` final.
+    """
     df["sequencial_cnpj"] = df["sequencial_cnpj"].astype(str)
     df["dv_do_cnpj"] = df["dv_do_cnpj"].astype(str)
     df["cnpj"] = df["cnpj"].astype(str)
 
     df["cnpj"] = df["cnpj"] + df["sequencial_cnpj"] + df["dv_do_cnpj"]
-    print("cnpj built")
-
+    log("Coluna 'cnpj' construída.")
     return df
 
 
 def str_to_title(df: pd.DataFrame, column_name: str) -> pd.DataFrame:
+    """
+    Transforma os valores de uma coluna em formato título (Title Case).
+    """
     df[column_name] = df[column_name].str.title()
     return df
 
 
 def strip_dataframe_columns(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Strips whitespace from all column values in a Pandas DataFrame.
+    Remove espaços extras de todos os valores string de um DataFrame.
 
-    Parameters:
-        df (pandas.DataFrame): The input DataFrame to be processed.
-
-    Returns:
-        pandas.DataFrame: The processed DataFrame with stripped column values.
-    """
-    # Use applymap to apply the strip method to all values in the DataFrame
-    # Note: applymap applies a function to each element of a DataFrame
-    stripped_df = df.applymap(lambda x: x.strip() if isinstance(x, str) else x)
-
-    return stripped_df
-
-
-def format_date(date_str):
-    """Change random date format to a standard format and, if it doesnt work,
-    fill the results with NaN values.
     Args:
-        date_str (str): a column with dates
+        df (pd.DataFrame): DataFrame de entrada.
 
     Returns:
-        _type_: dataframe with formated dates
+        pd.DataFrame: DataFrame atualizado.
+    """
+    for col in df.select_dtypes(include=["object", "string"]).columns:
+        df[col] = df[col].str.strip()
+    return df
+
+
+def format_date(date_str: str) -> str:
+    """
+    Converte uma string de data para o formato padrão YYYY-MM-DD.
+
+    Caso não seja possível converter, retorna string vazia.
+
+    Args:
+        date_str (str): Data em formato variável.
+
+    Returns:
+        str: Data formatada ou string vazia.
     """
     try:
         date_obj = pd.to_datetime(date_str)
-        formatted_date = date_obj.strftime("%Y-%m-%d")
-    # ! they are random numbers in date column that breaks the code
+        return date_obj.strftime("%Y-%m-%d")
     except ValueError:
-        formatted_date = ""
-    return formatted_date
-
-
-def replace_nan_with_empty_set_coltypes_str(df: pd.DataFrame) -> pd.DataFrame:
-    """This function replace nan values with empty strings and set all columns as strings
-
-    Args:
-        df (pd.DataFrame): a dataframe
-
-    Returns:
-        pd.DataFrame: a datrafaame with all columns as strings and nan values representing null values
-    """
-    for col in df.columns:
-        df[col] = df[col].astype(str)
-        df[col] = df[col].replace("nan", "")
-    return df
+        return ""
