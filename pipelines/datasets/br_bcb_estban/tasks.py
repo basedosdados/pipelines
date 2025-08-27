@@ -36,14 +36,14 @@ from pipelines.utils.utils import clean_dataframe, log, to_partitions
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def get_documents_metadata(table_id: str) -> dict:
-    pasta = br_bcb_estban_constants.TABLES_CONFIGS.value[table_id]["pasta"]
+    folder = br_bcb_estban_constants.TABLES_CONFIGS.value[table_id]["pasta"]
     url = br_bcb_estban_constants.BASE_URL.value
     headers = br_bcb_estban_constants.HEADERS.value
     params = {
         "tronco": br_bcb_estban_constants.TRONCO.value,
         "guidLista": br_bcb_estban_constants.GUID_LISTA.value,
         "ordem": "DataDocumento desc",
-        "pasta": pasta,
+        "pasta": folder,
     }
     data = fetch_bcb_documents(url, headers, params)
     return data
@@ -55,37 +55,37 @@ def get_documents_metadata(table_id: str) -> dict:
 )
 def get_latest_file(data: dict) -> Tuple[str | None, str | None]:
     """
-    Extrai o link de download mais recente da estrutura JSON da API do BCB.
+    Extracts the most recent download link from the BCB API JSON structure.
 
     Args:
-        data (dict): JSON carregado da API
+        data (dict): JSON loaded from the API
 
     Returns:
-        str: URL absoluta do arquivo mais recente
+        str: Absolute URL of the most recent file
     """
-    documentos = data.get("conteudo", [])
-    if not documentos:
-        log("Nenhum documento encontrado no JSON.")
+    documents = data.get("conteudo", [])
+    if not documents:
+        log("No documents found in the JSON.")
     else:
-        # Ordenar pelos campos de DataDocumento (mais recente primeiro)
-        documentos.sort(
+        # Sort by DataDocumento field (most recent first)
+        documents.sort(
             key=lambda d: dt.datetime.fromisoformat(
                 d["DataDocumento"].replace("Z", "")
             ),
             reverse=True,
         )
 
-        # Pega o primeiro (mais recente)
-        latest = documentos[0]
-        url_relativa = latest["Url"]
+        # Get the first (most recent)
+        latest = documents[0]
+        relative_url = latest["Url"]
         last_date = dt.datetime.strptime(latest["Titulo"], "%m/%Y").strftime(
             "%Y-%m"
         )
         log(
-            f"Latest Document: {latest}\nTitulo: {latest['Titulo']}\nLast Date: {last_date}"
+            f"Latest Document: {latest}\nTitle: {latest['Titulo']}\nLast Date: {last_date}"
         )
         return (
-            br_bcb_estban_constants.BASE_DOWNLOAD_URL.value + url_relativa,
+            br_bcb_estban_constants.BASE_DOWNLOAD_URL.value + relative_url,
             last_date,
         )
 
@@ -112,7 +112,10 @@ def download_table(url: str, table_id: str) -> str:
 )
 def get_id_municipio() -> pd.DataFrame:
     """
-    Get id municipio from basedosdados
+    Get id_municipio from basedosdados
+
+    Returns:
+        dict: Dictionary mapping id_municipio_bcb to id_municipio
     """
 
     df_diretorios = bd.read_sql(
@@ -125,20 +128,21 @@ def get_id_municipio() -> pd.DataFrame:
     df_diretorios = dict(
         zip(df_diretorios.id_municipio_bcb, df_diretorios.id_municipio)
     )
-    log("BD diretórios município dataset successfully downloaded!")
+    log("BD directories municipio dataset successfully downloaded!")
     return df_diretorios
 
 
 @task
 def cleaning_data(table_id: str, df_diretorios: pd.DataFrame) -> str:
     """
-    Perform data cleaning operations with data
+    Perform data cleaning operations with the dataset.
 
     Args:
-        dataframe: a raw municipios estban dataset
+        table_id (str): Table identifier.
+        df_diretorios (pd.DataFrame): DataFrame with municipality directories.
 
     Returns:
-        str: file path to a standardized partitioned estban dataset
+        str: File path to a standardized partitioned estban dataset.
     """
     ZIP_PATH = br_bcb_estban_constants.TABLES_CONFIGS.value[table_id][
         "zipfile_path"
@@ -158,21 +162,21 @@ def cleaning_data(table_id: str, df_diretorios: pd.DataFrame) -> str:
         os.makedirs(OUTPUT_PATH, exist_ok=True)
 
     zip_files = os.listdir(ZIP_PATH)
-    log(f"Unziping files ----> {zip_files}")
+    log(f"Unzipping files ----> {zip_files}")
     for file in zip_files:
         if file.endswith(".csv.zip"):
-            log(f"Unziping file ----> : {file}")
+            log(f"Unzipping file ----> : {file}")
             with zipfile.ZipFile(os.path.join(ZIP_PATH, file), "r") as z:
                 z.extractall(INPUT_PATH)
 
     csv_files = os.listdir(INPUT_PATH)
 
     for file in csv_files:
-        log(f"The file being cleaned is:{file}")
+        log(f"The file being cleaned is: {file}")
 
         file_path = os.path.join(INPUT_PATH, file)
 
-        log(f"building {file_path}")
+        log(f"Building {file_path}")
 
         df_raw = pd.read_csv(
             file_path,
@@ -197,11 +201,11 @@ def cleaning_data(table_id: str, df_diretorios: pd.DataFrame) -> str:
         )
         log("Standardizing monetary units.")
         df_long = create_id_verbete_column(df_long, column_name="id_verbete")
-        log("Creating id verbete column.")
+        log("Creating id_verbete column.")
         df_long = create_month_year_columns(df_long, date_column="data_base")
-        log("Creating month year columns.")
+        log("Creating month and year columns.")
         df_ordered = order_cols(df_long, table_id)
-        log("Saving and doing partition.")
+        log("Saving and partitioning.")
 
         # Build and save partition
         to_partitions(

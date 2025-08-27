@@ -17,7 +17,7 @@ from pipelines.datasets.br_bcb_estban.constants import (
 from pipelines.utils.utils import log
 
 
-# ==== Funções para download de dados ==== #
+# ==== Data download functions ==== #
 def fetch_bcb_documents(
     url: str, headers: dict, params: dict
 ) -> dict[str, Any] | None:
@@ -140,7 +140,6 @@ def pre_cleaning_for_pivot_long(
             .astype(str)
             .str.replace(pattern, "", regex=True)
         )
-    log(f"Current dataset cloumns: {dataframe.columns}")
     return dataframe
 
 
@@ -212,7 +211,7 @@ def standardize_monetary_units(
     Correct monetary units from ESTBAN files.
 
     Args:
-        df (pd.DataFrame): Dataframe containing ESTBAN data.
+        dataframe (pd.DataFrame): Dataframe containing ESTBAN data.
         date_column (str): Column name with reference date in YYYYMM format.
         value_column (str): Column name with monetary values.
 
@@ -233,7 +232,7 @@ def create_id_verbete_column(
     Create an ID column for verbete entries by extracting digits.
 
     Args:
-        df (pd.DataFrame): Dataframe with verbete descriptions.
+        dataframe (pd.DataFrame): Dataframe with verbete descriptions.
         column_name (str): Name of the new ID column.
 
     Returns:
@@ -266,11 +265,12 @@ def create_month_year_columns(
 
 def order_cols(dataframe: pd.DataFrame, table_id: str) -> pd.DataFrame:
     """
-    Reorder columns of the input dataframe, based on a order given by configs
+    Reorder columns of the input dataframe, based on an order given by configs
     customized by table_id.
 
     Args:
         dataframe (pd.DataFrame): Input dataframe.
+        table_id (str): Table identifier used to fetch column order.
 
     Returns:
         pd.DataFrame: Dataframe with ordered columns.

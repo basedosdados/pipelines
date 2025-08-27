@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-Constants for br_bcb_agencia pipeline.
+Constants for br_bcb_estban pipeline.
 """
 
 from enum import Enum
 
 
 class constants(Enum):  # pylint: disable=c0103
+    # ==== General tasks constants ==== #
     HEADERS = {
         "sec-ch-ua-platform": '"Windows"',
         "User-Agent": (
@@ -23,14 +24,16 @@ class constants(Enum):  # pylint: disable=c0103
         "host": "www.bcb.gov.br",
     }
 
+    # ==== BCB API constants ==== #
     BASE_URL = (
         "https://www.bcb.gov.br/api/servico/sitebcb/Documentos/byListGuid"
     )
     GUID_LISTA = "f6391806-fd85-43af-acf1-c86d5b8dd6df"
     TRONCO = "estatisticas"
     PASTAS = {"agencia": "agencia", "municipio": "municipio"}
-
     BASE_DOWNLOAD_URL = "https://www.bcb.gov.br"
+
+    # ==== Configs for municipio and agencia tables ==== #
     TABLES_CONFIGS = {
         "agencia": {
             "pasta": "agencia",
