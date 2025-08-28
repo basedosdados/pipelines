@@ -1,0 +1,30 @@
+---
+version: 2
+models:
+  - name: school__basic
+    description: Dados das escolas brasileiras
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_escola]
+    columns:
+      - name: id_escola
+        description: ID Escola - Inep
+      - name: nome
+        description: Nome
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+      - name: endereco
+        description: Endereço
+      - name: categoria_administrativa
+        description: Categoria Administrativa
+      - name: dependencia_administrativa
+        description: Dependência Administrativa
+      - name: etapas_modalidades_oferecidas
+        description: Etapas e Modalidades Oferecidas
+      - name: latitude
+        description: Latitude
+      - name: longitude
+        description: Longitude
