@@ -499,7 +499,7 @@ def update_row_access_policy(
     log("BDpro filter was included")
 
     query_date_column = format_date_column(date_column_name)
-    all_free_last_date = format_date_parameters(free_parameters, date_format)
+    all_free_last_date = format_date_parameters(free_parameters)
 
     query_allusers_access = f'CREATE OR REPLACE ROW ACCESS POLICY allusers_filter  ON  `{project_id}.{dataset_id}.{table_id}` GRANT TO ("allUsers") FILTER USING ({query_date_column}<="{all_free_last_date}")'
     job = client["bigquery"].query(query_allusers_access)
@@ -508,14 +508,12 @@ def update_row_access_policy(
     log("All users filter was included")
 
 
-def format_date_parameters(free_parameters: dict, date_format: str) -> str:
-    if date_format == "%Y-%m-%d":
-        formated_date = f"{free_parameters['endYear']}-{free_parameters['endMonth']}-{free_parameters['endDay']}"
-    elif date_format == "%Y-%m":
-        formated_date = (
-            f"{free_parameters['endYear']}-{free_parameters['endMonth']}-01"
-        )
-    elif date_format == "%Y":
+def format_date_parameters(free_parameters: dict) -> str:
+    formated_date = (
+        f"{free_parameters['endYear']}-{free_parameters['endMonth']}-01"
+    )
+
+    if len(free_parameters.keys()) == 1:
         formated_date = f"{free_parameters['endYear']}-01-01"
 
     return formated_date
