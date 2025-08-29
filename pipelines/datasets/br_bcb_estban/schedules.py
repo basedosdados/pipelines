@@ -16,8 +16,8 @@ from pipelines.constants import constants
 every_month_agencia = Schedule(
     clocks=[
         CronClock(
-            cron="0 23 10-30 * *",  # At 23:00 on every day-of-month from 10 through 30.
-            start_date=datetime(2023, 11, 22, 0, 0),
+            cron="0 22 25-31 * *",  # At 22:00, at the 7 last days the month, on weekdays 1-5
+            start_date=datetime(2025, 7, 30, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -39,8 +39,8 @@ every_month_agencia = Schedule(
 every_month_municipio = Schedule(
     clocks=[
         CronClock(
-            cron="0 23 10-30 * *",  # At 23:00 on every day-of-month from 10 through 30.
-            start_date=datetime(2023, 11, 22, 0, 0),
+            cron="0 22 25-31 * *",  # At 22:00, at the 7 last days the month, on weekdays 1-5
+            start_date=datetime(2025, 7, 30, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
