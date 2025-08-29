@@ -154,3 +154,13 @@ def clean_table_pessoa_juridica(root: str) -> str:
     dataframe.to_csv(ou_filepath, index=False)
 
     return ou_filepath
+
+
+@task
+def get_output(root, table_id) -> str:
+    if table_id == "responsavel":
+        return f"{root}/cleaned/bd_responsavel.csv"
+    if table_id == "pessoa_fisica":
+        return f"{root}/cleaned/bd_pessoa_fisica.csv"
+    if table_id == "pessoa_juridica":
+        return f"{root}/cleaned/bd_pessoa_juridica.csv"

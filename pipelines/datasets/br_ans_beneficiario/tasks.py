@@ -143,3 +143,14 @@ def is_empty(lista):
         return True
     else:
         return False
+
+
+@task
+def get_output():
+    """
+    Returns the output path.
+    """
+
+    log("GET_OUTPUT -> /tmp/data/br_ans_beneficiario/output/")
+    log(os.listdir("/tmp/data/br_ans_beneficiario/output/"))
+    return "/tmp/data/br_ans_beneficiario/output/"

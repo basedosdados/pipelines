@@ -110,3 +110,8 @@ def main(
                     )
 
     return output_path
+
+
+@task
+def get_output(sufixo, max_last_modified_date: datetime.date):
+    return destino_output(sufixo, max_last_modified_date)

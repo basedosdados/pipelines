@@ -8,28 +8,25 @@ import datetime
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
-from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
 from pipelines.datasets.br_mp_pep_cargos_funcoes.schedules import every_month
 from pipelines.datasets.br_mp_pep_cargos_funcoes.tasks import (
     clean_data,
     download_xlsx,
+    get_output,
     is_up_to_date,
     make_partitions,
     scraper,
     setup_web_driver,
 )
-from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import (
-    constants as dump_db_constants,
-)
 from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
-    create_table_and_upload_to_gcs,
-    get_current_flow_labels,
     rename_current_flow_run_dataset_table,
+)
+from pipelines.utils.template_flows.tasks import (
+    template_upload_to_gcs_and_materialization,
 )
 from pipelines.utils.utils import log_task
 
@@ -64,81 +61,74 @@ with Flow(
     with case(data_is_up_to_date, True):
         log_task("Tabela já esta atualizada")
 
-    with case(data_is_up_to_date, False):
-        current_date = datetime.datetime(
-            year=datetime.datetime.now().year,
-            month=datetime.datetime.now().month,
-            day=1,
-        )
-        year_delta = current_date - datetime.timedelta(days=1)
-        year_end = year_delta.year
+    # with case(data_is_up_to_date, False):
+    current_date = datetime.datetime(
+        year=datetime.datetime.now().year,
+        month=datetime.datetime.now().month,
+        day=1,
+    )
+    year_delta = current_date - datetime.timedelta(days=1)
+    year_end = year_delta.year
 
-        scraper_result = scraper(
-            year_start=year_end,
-            year_end=year_end,
-            headless=True,
-            upstream_tasks=[data_is_up_to_date],
-        )
+    scraper_result = scraper(
+        year_start=year_end,
+        year_end=year_end,
+        headless=True,
+        upstream_tasks=[data_is_up_to_date],
+    )
 
-        download = download_xlsx(
-            scraper_result, upstream_tasks=[scraper_result]
-        )
-        log_task("Download XLSX finished")
+    download = download_xlsx(scraper_result, upstream_tasks=[scraper_result])
+    log_task("Download XLSX finished")
 
-        df = clean_data(upstream_tasks=[download])
+    df = clean_data(upstream_tasks=[download])
 
-        output_filepath = make_partitions(df, upstream_tasks=[df])
+    output_filepath = make_partitions(df, upstream_tasks=[df])
 
-        wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=output_filepath,
+    get_output = get_output()
+
+    upload_and_materialization_dev = (
+        template_upload_to_gcs_and_materialization(
             dataset_id=dataset_id,
             table_id=table_id,
+            data_path=get_output,
+            target="dev",
+            bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+            dbt_alias=dbt_alias,
             dump_mode="append",
-            wait=output_filepath,
+            run_model="run/test",
+            upstream_tasks=[get_output],
+        )
+    )
+
+    with case(target, "prod"):
+        upload_and_materialization_prod = (
+            template_upload_to_gcs_and_materialization(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                data_path=get_output,
+                target="prod",
+                bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+                dbt_alias=dbt_alias,
+                dump_mode="append",
+                run_model="run/test",
+                upstream_tasks=[upload_and_materialization_dev],
+            )
         )
 
-        with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels()
-            materialization_flow = create_flow_run(
-                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": table_id,
-                    "target": target,
-                    "dbt_alias": dbt_alias,
-                },
-                labels=current_flow_labels,
-                run_name=r"Materialize {dataset_id}.{table_id}",
+        with case(update_metadata, True):
+            update_django_metadata(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                date_column_name={"year": "ano", "month": "mes"},
+                date_format="%Y-%m",
+                coverage_type="part_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=target,
+                bq_project="basedosdados",
+                upstream_tasks=[upload_and_materialization_prod],
             )
-
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
-                upstream_tasks=[wait_upload_table],
-            )
-            wait_for_materialization.max_retries = (
-                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-            wait_for_materialization.retry_delay = datetime.timedelta(
-                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-            )
-
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id=table_id,
-                    date_column_name={"year": "ano", "month": "mes"},
-                    date_format="%Y-%m",
-                    coverage_type="part_bdpro",
-                    time_delta={"months": 6},
-                    prefect_mode=target,
-                    bq_project="basedosdados",
-                    upstream_tasks=[wait_for_materialization],
-                )
 
 datasets_br_mp_pep_cargos_funcoes_flow.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
