@@ -10,7 +10,7 @@ on:
       - macros/**/*
       - tests-dbt/**/*
       - pyproject.toml
-      - poetry.lock
+      - uv.lock
       - Dockerfile
       # DBT config files
       - dbt_project.yml
@@ -25,7 +25,7 @@ on:
       - macros/**/*
       - tests-dbt/**/*
       - pyproject.toml
-      - poetry.lock
+      - uv.lock
       - Dockerfile
       # DBT config files
       - dbt_project.yml

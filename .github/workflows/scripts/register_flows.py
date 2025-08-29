@@ -545,18 +545,18 @@ def has_dbt_related_files_changed(files: list[str]) -> bool:
 
 def pipeline_project_file_relevant_changed(files: list[str]) -> bool:
     """
-    Check if poetry.lock or pyproject.toml is changed.
+    Check if uv.lock or pyproject.toml is changed.
 
     Args:
         files (list[str]): Files changed.
 
     Returns:
-        bool: Return true if poetry.lock or pyproject.toml is changed.
+        bool: Return true if uv.lock or pyproject.toml is changed.
     """
     result = False
 
     for file in files:
-        if file == "poetry.lock":
+        if file == "uv.lock":
             result = True
             break
         if file == "pyproject.toml":
