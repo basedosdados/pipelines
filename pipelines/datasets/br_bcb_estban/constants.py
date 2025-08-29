@@ -43,6 +43,9 @@ class constants(Enum):  # pylint: disable=c0103
             "rename_mapping": {
                 "#DATA_BASE": "data_base",
                 "UF": "sigla_uf",
+                "MUNICIPIO": "municipio",
+                "CODMUN": "id_municipio_bcb",
+                "CODMUN_IBGE": "id_municipio_original",
                 "CNPJ": "cnpj_basico",
                 "NOME_INSTITUICAO": "instituicao",
                 "AGENCIA": "cnpj_agencia",
@@ -67,6 +70,9 @@ class constants(Enum):  # pylint: disable=c0103
             "rename_mapping": {
                 "#DATA_BASE": "data_base",
                 "UF": "sigla_uf",
+                "MUNICIPIO": "municipio",
+                "CODMUN": "id_municipio_bcb",
+                "CODMUN_IBGE": "id_municipio_original",
                 "CNPJ": "cnpj_basico",
                 "NOME_INSTITUICAO": "instituicao",
                 "AGEN_ESPERADAS": "agencias_esperadas",

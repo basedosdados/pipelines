@@ -120,11 +120,6 @@ def pre_cleaning_for_pivot_long(
     Returns:
         pd.DataFrame: Cleaned dataframe ready for pivoting.
     """
-    dataframe.drop(
-        columns={"MUNICIPIO", "CODMUN_IBGE", "CODMUN"},
-        inplace=True,
-        errors="ignore",
-    )
     rename_mapping = rename_columns(dataframe=dataframe, table_id=table_id)
 
     if rename_mapping is not None:
@@ -132,6 +127,11 @@ def pre_cleaning_for_pivot_long(
     else:
         log("Could not rename columns!", "error")
         raise ValueError("Column renaming failed")
+    dataframe.drop(
+        columns={"MUNICIPIO", "CODMUN_IBGE", "CODMUN"},
+        inplace=True,
+        errors="ignore",
+    )
 
     if "cnpj_agencia" in dataframe.columns.to_list():
         pattern = re.compile(r"'")

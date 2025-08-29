@@ -18,7 +18,6 @@ from pipelines.datasets.br_bcb_estban.constants import (
     constants as br_bcb_estban_constants,
 )
 from pipelines.datasets.br_bcb_estban.utils import (
-    create_id_municipio,
     create_id_verbete_column,
     create_month_year_columns,
     download_file,
@@ -125,8 +124,8 @@ def get_id_municipio() -> pd.DataFrame:
 
     df_diretorios = df_diretorios[["id_municipio_bcb", "id_municipio"]]
 
-    df_diretorios = dict(
-        zip(df_diretorios.id_municipio_bcb, df_diretorios.id_municipio)
+    df_diretorios = pd.DataFrame(
+        df_diretorios, columns=["id_municipio_bcb", "id_municipio"]
     )
     log("BD directories municipio dataset successfully downloaded!")
     return df_diretorios
@@ -185,15 +184,17 @@ def cleaning_data(table_id: str, df_diretorios: pd.DataFrame) -> str:
             encoding="latin-1",
             skipfooter=2,
             skiprows=2,
-            dtype={"CNPJ": str, "CODMUN": str},
+            dtype={"CNPJ": str, "CODMUN": str, "CODMUN_IBGE": str},
         )
 
         log("Reading file.")
         df_raw = clean_dataframe(df_raw)
         log("Cleaning dataframe.")
-        df_wide = create_id_municipio(df_raw, df_diretorios)
-        df_wide = pre_cleaning_for_pivot_long(df_wide, table_id)
-        log("Pre cleaning for pivot long.")
+        df_wide = pre_cleaning_for_pivot_long(df_raw, table_id)
+        df_wide = df_wide.merge(
+            df_diretorios, on=["id_municipio_bcb"], how="left"
+        )
+        log(f"Pre cleaning for pivot long.{df_wide.columns.to_list()}")
         df_long = wide_to_long(df_wide)
         log("Wide to long.")
         df_long = standardize_monetary_units(
@@ -204,9 +205,16 @@ def cleaning_data(table_id: str, df_diretorios: pd.DataFrame) -> str:
         log("Creating id_verbete column.")
         df_long = create_month_year_columns(df_long, date_column="data_base")
         log("Creating month and year columns.")
+        df_long["id_municipio"].fillna(
+            df_long["id_municipio_original"], inplace=True
+        )
+        df_long.loc[
+            df_long["municipio"].str.lower().str.startswith("brasilia"),
+            ["id_municipio"],
+        ] = "5300108"
         df_ordered = order_cols(df_long, table_id)
         log("Saving and partitioning.")
-
+        log(f"Final columns: {df_ordered.columns.to_list()}")
         # Build and save partition
         to_partitions(
             df_ordered,
