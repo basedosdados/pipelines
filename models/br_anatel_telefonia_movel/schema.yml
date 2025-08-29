@@ -19,8 +19,8 @@ models:
         description: Mês
         tests:
           - relationships:
-              to: ref('br_bd_diretorios_data_tempo__data')
-              field: mes
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
       - name: sigla_uf
         description: Sigla da Unidade da Federação
         tests:
@@ -72,8 +72,8 @@ models:
         description: Mês
         tests:
           - relationships:
-              to: ref('br_bd_diretorios_data_tempo__data')
-              field: mes
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
       - name: densidade
         description: Densidade de acessos por 100 domicílios
   - name: br_anatel_telefonia_movel__densidade_uf
@@ -95,8 +95,8 @@ models:
         description: Mês
         tests:
           - relationships:
-              to: ref('br_bd_diretorios_data_tempo__data')
-              field: mes
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
       - name: sigla_uf
         description: Sigla da Unidade da Federação
         tests:
@@ -124,8 +124,8 @@ models:
         description: Mês
         tests:
           - relationships:
-              to: ref('br_bd_diretorios_data_tempo__data')
-              field: mes
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
       - name: sigla_uf
         description: Sigla da Unidade da Federação
         tests:
