@@ -41,7 +41,7 @@ from pipelines.utils.tasks import (
 with Flow(
     name="br_bcb_estban.municipio",
     code_owners=[
-        "Gabriel Pisa",
+        "Luiza",
     ],
 ) as br_bcb_estban_municipio:
     # Parameters
@@ -167,7 +167,7 @@ br_bcb_estban_municipio.schedule = every_month_municipio
 with Flow(
     name="br_bcb_estban.agencia",
     code_owners=[
-        "Gabriel Pisa",
+        "Luiza",
     ],
 ) as br_bcb_estban_agencia:
     # Parameters
