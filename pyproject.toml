@@ -132,7 +132,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-  "pre-commit<4.0.0,>=3.6.0",
+  "pre-commit<5.0.0,>=4.0.0",
   "ruff<1.0.0,>=0.9.3",
   "yamlfix<2.0.0,>=1.16.0",
   "shandy-sqlfmt[jinjafmt]<1.0.0,>=0.20.0",
