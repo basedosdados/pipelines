@@ -9,6 +9,5 @@ Dockerfile
 logs/
 .env
 .dockerignore
-README.md
 target/
 dbt_packages/
