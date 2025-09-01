@@ -22,11 +22,11 @@ Este guia é dedicado para novos integrantes da equipe da BD e voluntários que 
 > [!WARNING]
 > Você precisa ter uma conta no [GitHub](https://github.com/) e ter o `git` configurado.
 
+- [git](https://git-scm.com/)
+- [uv](https://docs.astral.sh/uv/getting-started/installation/)
 - Um editor de texto (recomendado [VS Code](https://code.visualstudio.com/))
 - WSL 2, apenas para usuário Windows
-- [`git`](https://git-scm.com/)
-- [`pyenv`](https://github.com/pyenv/pyenv): Para gerenciar versões do `python`
-- [`poetry`](https://python-poetry.org/): Para gerenciar as dependências
+  - Se você usa o Windows é essencial Instalar o WSL 2 (Ubuntu). Siga esse [passo a passo](https://learn.microsoft.com/pt-br/windows/wsl/install)
 
 Clone esse repositório
 
@@ -40,79 +40,25 @@ Entre no repositório clonado
 cd pipelines
 ```
 
-#### Instalar o WSL 2 (Ubuntu) - (Apenas usuário Windows)
-
-Se você usa o Windows é essencial Instalar o WSL 2 (Ubuntu). Siga esse [passo a passo](https://learn.microsoft.com/pt-br/windows/wsl/install)
-
-#### Instalar o `pyenv`
-
-É importante instalar o `pyenv` para garantir que a versão de python é padrão. Escrevemos uma versão resumida, mas recomendamos [esse material](https://realpython.com/intro-to-pyenv/) e [esse](https://gist.github.com/luzfcb/ef29561ff81e81e348ab7d6824e14404) para mais informações.
-
-Instale as dependências:
-
-```sh
-sudo apt-get install -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev python-openssl
-```
-
-Instale o `pyenv`
-
-```sh
-curl https://pyenv.run | bash
-```
-
-> [!IMPORTANT]
-> Leia atentamente os avisos depois desse comando, existe um passo a passo essencial para que o `pyenv` funcione
-
-Instale o `python`
-
-> [!NOTE]
-> `pyenv` vai instalar a versão em [`.python-version`](/.python-version)
-
-```sh
-pyenv install
-```
-
-#### Instale o poetry
-
-```sh
-curl -sSL https://install.python-poetry.org | POETRY_VERSION=1.8.5 python3 -
-```
-
-Configure o poetry para criar o ambiente virtual (venv) no projeto
-
-```sh
-poetry config virtualenvs.in-project true
-```
-
-Crie o ambiente virtual e/ou ative se já existir
-
-```sh
-poetry shell
-```
-
-> [!TIP]
-> Existe duas forma de ativar um ambiente virtual (venv). Usando `source .venv/bin/activate` (Linux/MacOS) ou `poetry shell`.
-> Para desativar o ambiente virtual comando `deactivate`.
-
 #### Instalar as dependências
 
 ```sh
-poetry install --with dev --no-root
+uv sync
 ```
 
 > [!WARNING]
-> Caso a instalação do `poetry` de erro no pacote `rpy2`, é recomendado rodar a seguinte linha para instalar o `r-base`: `sudo apt-get update & apt-get install -y r-base r-base-dev libtirpc-dev libcurl4-openssl-dev libpcre2-dev`
+> Caso a instalação das dependências apresente um erro no pacote `rpy2`, é recomendado rodar a seguinte linha para instalar o `r-base`: `sudo apt-get update & apt-get install -y r-base r-base-dev libtirpc-dev libcurl4-openssl-dev libpcre2-dev`
 
 Instalar os hooks de pré-commit (ver https://pre-commit.com/ para entendimento dos hooks)
 
 ```sh
-pre-commit install --install-hooks
+uv run pre-commit install --install-hooks
 ```
 
 Instale as dependências do `dbt`
 
 ```sh
-dbt deps
+uv run dbt deps
 ```
 
 #### Configurar as credenciais do DBT
@@ -187,13 +133,13 @@ O script `manage.py` é responsável por criar e listar projetos desse repositó
 Você pode obter mais informações sobre os comandos com
 
 ```sh
-poetry run python manage.py --help
+uv run manage.py --help
 ```
 
 O comando `add-agency` permite que você adicione um novo órgão a partir do template padrão. Para fazê-lo, basta executar
 
 ```sh
-poetry run python manage.py add-agency nome-do-orgao
+uv run manage.py add-agency nome-do-orgao
 ```
 
 Isso irá criar um diretório com o nome `nome-do-orgao` em `pipelines/` com o template padrão, já adaptado ao nome do órgão. O nome do órgão deve estar em [snake case](https://en.wikipedia.org/wiki/Snake_case) e deve ser único. Qualquer conflito com um projeto já existente será reportado.
@@ -201,7 +147,7 @@ Isso irá criar um diretório com o nome `nome-do-orgao` em `pipelines/` com o t
 Para listar os órgãos existentes e nomes reservados
 
 ```sh
-poetry run python manage.py list-projects
+uv run manage.py list-projects
 ```
 
 Em seguida, leia com atenção os comentários em cada um dos arquivos do seu projeto, de modo a evitar conflitos e erros.
@@ -210,7 +156,7 @@ Links para a documentação do Prefect também encontram-se nos comentários.
 Caso o órgão para o qual você desenvolverá um projeto já exista
 
 ```sh
-poetry run python manage.py add-project datasets nome-do-projeto
+uv run manage.py add-project datasets nome-do-projeto
 ```
 
 ### Testar uma pipeline localmente
@@ -284,7 +230,7 @@ run_cloud(
 Execute a pipeline com:
 
 ```sh
-poetry run python test.py
+uv run test.py
 ```
 
 A saída deverá se assemelhar ao exemplo abaixo:
@@ -394,7 +340,7 @@ from {{ set_datalake_project("<DATASET_ID>_staging.<TABLE_ID>") }}
 ## Usando o DBT
 
 > [!IMPORTANT]
-> Ative o ambiente virtual (venv) com `source .venv/bin/activate` ou  `poetry shell` para executar os comandos `dbt`.
+> Ative o ambiente virtual (venv) com `source .venv/bin/activate` para executar os comandos `dbt`.
 
 ### Materializando o modelo no BigQuery
 
