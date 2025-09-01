@@ -102,7 +102,7 @@ jobs:
       - name: Set up Python
         run: uv python install
       - name: Install dependencies
-        run: uv sync --locked --only-dev
+        run: uv sync --locked --only-dev --no-install-project
       - name: Run prefect flow to test dbt model in dev
         run: |-
           uv run .github/workflows/scripts/prefect_run_dbt.py \
