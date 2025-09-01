@@ -86,7 +86,7 @@ jobs:
     if: contains(github.event.pull_request.labels.*.name, 'test-dev-model')
     needs: deploy-staging
     name: test dbt dev model
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -105,7 +105,7 @@ jobs:
         run: uv sync --locked --only-dev
       - name: Run prefect flow to test dbt model in dev
         run: |-
-          uv run .github/workflows/scripts/prefect_run_dbt.py --only-dev \
+          uv run .github/workflows/scripts/prefect_run_dbt.py \
             --dbt-command test \
             --materialization-target dev \
             --materialization-label basedosdados-dev \
