@@ -3,6 +3,7 @@
 General purpose functions for the br_bcb_estban project
 """
 
+import datetime as dt
 import re
 from pathlib import Path
 from typing import Any
@@ -40,6 +41,21 @@ def fetch_bcb_documents(
     except requests.RequestException as e:
         log(f"Error fetching data from BCB API: {e}")
         return None
+
+
+def sort_documents_by_date(docs_metadata: dict) -> list[dict] | None:
+    documents = docs_metadata.get("conteudo", [])
+    if not documents:
+        log("No documents found in the JSON.")
+    else:
+        # Sort by DataDocumento field (most recent first)
+        documents.sort(
+            key=lambda d: dt.datetime.fromisoformat(
+                d["DataDocumento"].replace("Z", "")
+            ),
+            reverse=True,
+        )
+        return documents
 
 
 def download_file(
