@@ -4,7 +4,6 @@ Constants for br_rf_cno
 """
 
 from enum import Enum
-from pathlib import Path
 
 
 class constants(Enum):
@@ -70,7 +69,3 @@ class constants(Enum):
             "Metragem": "metragem",
         },
     }
-
-    CURRENT_DIR = Path(__file__).parent
-    TMP_DIR = CURRENT_DIR / "tmp"
-    OUTPUT_DIR = CURRENT_DIR / "output"
