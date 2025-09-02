@@ -35,7 +35,7 @@ from pipelines.utils.tasks import (
 with Flow(
     name="br_bcb_agencia.agencia",
     code_owners=[
-        "Luiza Vilas Boas",
+        "Luiza",
     ],
 ) as br_bcb_agencia_agencia:
     # Parameters

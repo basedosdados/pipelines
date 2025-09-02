@@ -34,6 +34,7 @@ from pipelines.utils.metadata.tasks import (
     get_api_most_recent_date,
     update_django_metadata,
 )
+from pipelines.utils.metadata.utils import get_url
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
@@ -91,9 +92,7 @@ with Flow(
 
         with case(check_if_outdated, True):
             log_task("Existem atualizações! A run será inciada")
-            backend = bd.Backend(
-                graphql_url=utils_constants.API_URL.value["prod"]
-            )
+            backend = bd.Backend(graphql_url=get_url("prod"))
             api_max_date = get_api_most_recent_date(
                 dataset_id=dataset_id,
                 table_id=table_id,
@@ -113,7 +112,6 @@ with Flow(
                 table_id=unmapped(table_id),
                 upstream_tasks=[unmapped(check_if_outdated)],
             )
-            # wait(downloaded_file_paths)
             df_diretorios = get_id_municipio(
                 upstream_tasks=[downloaded_file_paths]
             )
