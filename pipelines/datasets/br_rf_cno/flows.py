@@ -15,7 +15,6 @@ from pipelines.constants import constants
 from pipelines.datasets.br_rf_cno.constants import (
     constants as br_rf_cno_constants,
 )
-from pipelines.datasets.br_rf_cno.schedules import schedule_br_rf_cno
 from pipelines.datasets.br_rf_cno.tasks import (
     check_need_for_update,
     crawl_cno,
@@ -169,4 +168,4 @@ with Flow(
 
 br_rf_cno_tables.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_rf_cno_tables.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_rf_cno_tables.schedule = schedule_br_rf_cno
+# br_rf_cno_tables.schedule = schedule_br_rf_cno
