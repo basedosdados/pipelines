@@ -5,7 +5,6 @@ Flows for br_bcb_estban
 
 from datetime import timedelta
 
-import basedosdados as bd
 from prefect import Parameter, case, unmapped
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
@@ -20,6 +19,7 @@ from pipelines.datasets.br_bcb_estban.tasks import (
     cleaning_data,
     download_table,
     extract_urls_list,
+    get_api_max_date,
     get_documents_metadata,
     get_id_municipio,
     get_latest_file,
@@ -31,10 +31,8 @@ from pipelines.utils.execute_dbt_model.constants import (
 )
 from pipelines.utils.metadata.tasks import (
     check_if_data_is_outdated,
-    get_api_most_recent_date,
     update_django_metadata,
 )
-from pipelines.utils.metadata.utils import get_url
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
@@ -92,13 +90,7 @@ with Flow(
 
         with case(check_if_outdated, True):
             log_task("Existem atualizações! A run será inciada")
-            backend = bd.Backend(graphql_url=get_url("prod"))
-            api_max_date = get_api_most_recent_date(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                backend=backend,
-                date_format="%Y-%m",
-            )
+            api_max_date = get_api_max_date(dataset_id, table_id)
 
             urls_list = extract_urls_list(
                 documents_metadata,
@@ -230,15 +222,7 @@ with Flow(
 
         with case(check_if_outdated, True):
             log_task("Existem atualizações! A run será inciada")
-            backend = bd.Backend(
-                graphql_url=utils_constants.API_URL.value["prod"]
-            )
-            api_max_date = get_api_most_recent_date(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                backend=backend,
-                date_format="%Y-%m",
-            )
+            api_max_date = get_api_max_date(dataset_id, table_id)
 
             urls_list = extract_urls_list(
                 documents_metadata,

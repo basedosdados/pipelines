@@ -28,6 +28,8 @@ from pipelines.datasets.br_bcb_estban.utils import (
     standardize_monetary_units,
     wide_to_long,
 )
+from pipelines.utils.metadata.tasks import get_api_most_recent_date
+from pipelines.utils.metadata.utils import get_url
 from pipelines.utils.utils import clean_dataframe, log, to_partitions
 
 
@@ -130,6 +132,22 @@ def get_id_municipio() -> pd.DataFrame:
     )
     log("BD directories municipio dataset successfully downloaded!")
     return df_diretorios
+
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def get_api_max_date(dataset_id, table_id):
+    backend = bd.Backend(graphql_url=get_url("prod"))
+    api_max_date = get_api_most_recent_date(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        backend=backend,
+        date_format="%Y-%m",
+    )
+
+    return api_max_date
 
 
 @task
