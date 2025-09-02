@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 .git/
 .github
 .gitignore
@@ -12,3 +13,18 @@ logs/
 README.md
 target/
 dbt_packages/
+=======
+.git/
+.github
+.gitignore
+.ruff_cache/
+.ropeproject/
+.venv/
+dbt_modules/
+Dockerfile
+logs/
+.env
+.dockerignore
+target/
+dbt_packages/
+>>>>>>> main
