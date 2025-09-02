@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from datetime import timedelta
 
-from prefect import Parameter, case
+import basedosdados as bd
+from prefect import Parameter, case, unmapped
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
@@ -10,9 +11,11 @@ from pipelines.constants import constants
 from pipelines.datasets.br_bcb_agencia.constants import (
     constants as agencia_constants,
 )
+from pipelines.datasets.br_bcb_agencia.schedules import every_month_agencia
 from pipelines.datasets.br_bcb_agencia.tasks import (
     clean_data,
     download_table,
+    extract_urls_list,
     get_documents_metadata,
     get_latest_file,
 )
@@ -23,8 +26,10 @@ from pipelines.utils.execute_dbt_model.constants import (
 )
 from pipelines.utils.metadata.tasks import (
     check_if_data_is_outdated,
+    get_api_most_recent_date,
     update_django_metadata,
 )
+from pipelines.utils.metadata.utils import get_url
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
@@ -83,15 +88,30 @@ with Flow(
 
         with case(check_if_outdated, True):
             log_task("Updates found! The run will be started.")
+            backend = bd.Backend(graphql_url=get_url("prod"))
+            api_max_date = get_api_most_recent_date(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                backend=backend,
+                date_format="%Y-%m",
+            )
 
-            download_file = download_table(
-                url=data_source_download_url,
-                download_dir=agencia_constants.ZIPFILE_PATH_AGENCIA.value,
-                upstream_tasks=[check_if_outdated],
+            urls_list = extract_urls_list(
+                documents_metadata,
+                data_source_max_date,
+                api_max_date,
+                date_format="%Y-%m",
+            )
+            downloaded_file_paths = download_table.map(
+                url=urls_list,
+                download_dir=unmapped(
+                    agencia_constants.ZIPFILE_PATH_AGENCIA.value
+                ),
+                upstream_tasks=[unmapped(check_if_outdated)],
             )
 
             filepath = clean_data(
-                upstream_tasks=[download_file],
+                upstream_tasks=[downloaded_file_paths],
             )
 
             wait_upload_table = create_table_and_upload_to_gcs(
@@ -154,4 +174,4 @@ br_bcb_agencia_agencia.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_bcb_agencia_agencia.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_bcb_agencia_agencia.schedule = every_month_agencia
+br_bcb_agencia_agencia.schedule = every_month_agencia

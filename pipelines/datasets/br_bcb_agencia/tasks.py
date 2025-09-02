@@ -31,6 +31,7 @@ from pipelines.datasets.br_bcb_agencia.utils import (
     remove_latin1_accents_from_df,
     remove_non_numeric_chars,
     rename_cols,
+    sort_documents_by_date,
     str_to_title,
     strip_dataframe_columns,
 )
@@ -241,3 +242,63 @@ def clean_data():
             )
 
     return OUTPUT_PATH
+
+
+def validate_date(
+    original_date: dt.datetime | str | pd.Timestamp,
+    date_format: str = "%Y-%m",
+):
+    if isinstance(original_date, dt.datetime):
+        log(f"{original_date} is datetime.")
+        return original_date.date()
+    if isinstance(original_date, str):
+        log(f"{original_date} is string.")
+        final_date = dt.datetime.strptime(original_date, date_format)
+        log(f"{final_date} transformado em {type(final_date.date())}.")
+        return final_date.date()
+    if isinstance(original_date, pd.Timestamp):
+        return original_date
+    log("Unable to validate date.", "warning")
+    return original_date
+
+
+@task
+def extract_urls_list(
+    docs_metadata: dict,
+    date_one: dt.datetime | str,
+    date_two: dt.datetime | str,
+    date_format: str = "%Y-%m",
+) -> list:
+    """ """
+
+    date_one = validate_date(date_one, date_format)
+    date_two = validate_date(date_two, date_format)
+    if date_two >= date_one:
+        start, end = date_one, date_two
+    else:
+        start, end = date_two, date_one
+    sorted_docs = sort_documents_by_date(docs_metadata)
+
+    # First step
+    docs_index = 0
+    current_doc = sorted_docs[docs_index]
+    relative_url = current_doc["Url"]
+    current_date = dt.datetime.strptime(current_doc["Titulo"], "%m/%Y").date()
+    list_result = []
+    while (
+        (current_date <= end)
+        and (current_date > start)
+        and docs_index < len(sorted_docs)
+    ):
+        current_doc = sorted_docs[docs_index]
+        relative_url = current_doc["Url"]
+        current_date = dt.datetime.strptime(
+            current_doc["Titulo"], "%m/%Y"
+        ).date()
+        log(f"Current Document URL: {relative_url}\nLast Date: {current_date}")
+        list_result.append(
+            agencia_constants.BASE_DOWNLOAD_URL.value + relative_url
+        )
+        docs_index += 1
+    log(f"Extracted URLs:{list_result}")
+    return list_result

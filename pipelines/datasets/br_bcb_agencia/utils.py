@@ -1,3 +1,9 @@
+# -*- coding: utf-8 -*-
+"""
+General purpose functions for the br_bcb_agencia project
+"""
+
+import datetime as dt
 import re
 import unicodedata
 from pathlib import Path
@@ -14,22 +20,39 @@ def fetch_bcb_documents(
     url: str, headers: dict, params: dict
 ) -> dict[str, Any] | None:
     """
-    Queries documents from the Central Bank API.
+    Fetch metadata from documents provided by Banco Central API.
 
     Args:
-        url (str): API endpoint URL (e.g., "/postos", "/agencias")
+        url (str): API endpoint URL.
+        headers (dict): Request headers.
+        params (dict): Query parameters.
 
     Returns:
-        dict | None: Data returned by the API or None in case of error.
+        dict[str, Any] | None: API response as a dictionary if successful,
+        otherwise None.
     """
-
     try:
         response = requests.get(url, headers=headers, params=params)
         response.raise_for_status()
         return response.json()
     except requests.RequestException as e:
-        log(f"Error querying BCB API: {e}")
+        log(f"Error fetching data from BCB API: {e}")
         return None
+
+
+def sort_documents_by_date(docs_metadata: dict) -> list[dict] | None:
+    documents = docs_metadata.get("conteudo", [])
+    if not documents:
+        log("No documents found in the JSON.")
+    else:
+        # Sort by DataDocumento field (most recent first)
+        documents.sort(
+            key=lambda d: dt.datetime.fromisoformat(
+                d["DataDocumento"].replace("Z", "")
+            ),
+            reverse=True,
+        )
+        return documents
 
 
 def download_file(
