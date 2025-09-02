@@ -15,7 +15,7 @@ models:
             - cnpj_basico
             - id_verbete
           config:
-            where: __most_recent_year_month__
+            where: __most_recent_year_month__ and id_municipio not in ('5300108')
     columns:
       - name: ano
         description: Ano
