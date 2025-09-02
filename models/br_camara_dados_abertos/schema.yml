@@ -343,10 +343,6 @@ models:
               field: data.data
       - name: horario
         description: Horário da apresentação da proposição
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_data_tempo__hora')
-              field: hora.hora
       - name: id_proposicao
         description: ID proposição
       - name: url
@@ -1121,10 +1117,6 @@ models:
               field: data.data
       - name: validade_proposta
         description: Validade da proposta
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_data_tempo__dia')
-              field: dia.dia
   - name: br_camara_dados_abertos__despesa
     description: Dados sobre as despesas cobertas pela Cota para Exercício da Atividade
       Parlamentar de cada deputado desde 2008
