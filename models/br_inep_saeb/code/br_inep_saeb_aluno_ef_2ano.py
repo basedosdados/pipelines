@@ -166,7 +166,7 @@ value_vars_5ano = [
 id_vars_5ano = list(set(df_aluno_ef_5ano.columns) - set(value_vars_5ano))
 
 
-def process_5ano(
+def batch_process(
     df: pd.DataFrame,
     id_vars: list[str],
     value_vars: list[str],
@@ -205,7 +205,7 @@ def process_5ano(
 
 
 df_wide_5ano = pd.concat(
-    process_5ano(
+    batch_process(
         df_aluno_ef_5ano, value_vars=value_vars_5ano, id_vars=id_vars_5ano
     )
 )
@@ -441,7 +441,7 @@ value_vars_9ano = [
 id_vars_9ano = list(set(df_aluno_ef_9ano.columns) - set(value_vars_9ano))
 
 df_wide_9ano = pd.concat(
-    process_5ano(
+    batch_process(
         df_aluno_ef_9ano, value_vars=value_vars_9ano, id_vars=id_vars_9ano
     )
 )
@@ -516,7 +516,7 @@ renames_9ano = {
     "TX_RESP_Q12d": "possui_tv",
     "TX_RESP_Q13a": "possui_tv_assinatura",
     "TX_RESP_Q13b": "possui_internet",
-    "TX_RESP_Q12b": "possui_comp utador",
+    "TX_RESP_Q12b": "possui_computador",
     "TX_RESP_Q12g": "possui_celular",
     "TX_RESP_Q13d": "possui_escrivaninha",
     "TX_RESP_Q08": "escolaridade_mae",
@@ -607,6 +607,11 @@ missing_cols_9ano = [
 ]
 
 df_wide_9ano[missing_cols_9ano] = None
+
+df_wide_9ano["rede"].unique()
+df_wide_9ano["escola_publica"].unique()
+
+df_wide_9ano["rede"] = df_wide_9ano["escola_publica"]
 
 df_wide_9ano = df_wide_9ano[upstream_9ano_columns]
 
