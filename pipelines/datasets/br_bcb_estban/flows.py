@@ -3,15 +3,19 @@
 Flows for br_bcb_estban
 """
 
-from datetime import datetime, timedelta
+from datetime import timedelta
 
+import basedosdados as bd
 from prefect import Parameter, case, unmapped
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
-# from prefect.futures import wait
 from pipelines.constants import constants
+from pipelines.datasets.br_bcb_estban.schedules import (
+    every_month_agencia,
+    every_month_municipio,
+)
 from pipelines.datasets.br_bcb_estban.tasks import (
     cleaning_data,
     download_table,
@@ -26,8 +30,8 @@ from pipelines.utils.execute_dbt_model.constants import (
     constants as dump_db_constants,
 )
 from pipelines.utils.metadata.tasks import (
-    # get_api_most_recent_date,
     check_if_data_is_outdated,
+    get_api_most_recent_date,
     update_django_metadata,
 )
 from pipelines.utils.tasks import (
@@ -56,16 +60,16 @@ with Flow(
     # Materialization mode
     target = Parameter("target", default="prod", required=False)
 
-    # materialize_after_dump = Parameter(
-    #     "materialize_after_dump", default=True, required=False
-    # )
+    materialize_after_dump = Parameter(
+        "materialize_after_dump", default=True, required=False
+    )
 
-    # rename_flow_run = rename_current_flow_run_dataset_table(
-    #     prefix="Dump: ",
-    #     dataset_id=dataset_id,
-    #     table_id=table_id,
-    #     wait=table_id,
-    # )
+    rename_flow_run = rename_current_flow_run_dataset_table(
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
+    )
 
     documents_metadata = get_documents_metadata(table_id)
 
@@ -75,28 +79,27 @@ with Flow(
             documents_metadata
         )
 
-        # check_if_outdated = check_if_data_is_outdated(
-        #     dataset_id=dataset_id,
-        #     table_id=table_id,
-        #     data_source_max_date=data_source_max_date,
-        #     date_format="%Y-%m",
-        #     upstream_tasks=[data_source_max_date],
-        # )
-        check_if_outdated = True
+        check_if_outdated = check_if_data_is_outdated(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            data_source_max_date=data_source_max_date,
+            date_format="%Y-%m",
+            upstream_tasks=[data_source_max_date],
+        )
         with case(check_if_outdated, False):
             log_task(f"Não há atualizações para a tabela de {table_id}!")
 
         with case(check_if_outdated, True):
             log_task("Existem atualizações! A run será inciada")
-            # backend = bd.Backend(graphql_url=utils_constants.API_URL.value["prod"])
-            # api_max_date = \
-            #     get_api_most_recent_date(
-            #     dataset_id=dataset_id,
-            #     table_id=table_id,
-            #     backend=backend,
-            #     date_format="%Y-%m",
-            # )
-            api_max_date = datetime.strptime("2024-10", "%Y-%m")
+            backend = bd.Backend(
+                graphql_url=utils_constants.API_URL.value["prod"]
+            )
+            api_max_date = get_api_most_recent_date(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                backend=backend,
+                date_format="%Y-%m",
+            )
 
             urls_list = extract_urls_list(
                 documents_metadata,
@@ -129,56 +132,54 @@ with Flow(
             )
 
             # municipio
-            # with case(materialize_after_dump, True):
-            #     # Trigger DBT flow run
-            #     current_flow_labels = get_current_flow_labels()
-            #     materialization_flow = create_flow_run(
-            #         flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-            #         project_name=constants.PREFECT_STAGING_PROJECT.value,
-            #         parameters={
-            #             "table_id": table_id,
-            #             "dataset_id": dataset_id,
-            #             "dbt_command": "run",
-            #             "use_env_credentials": True,
-            #             "target": "dev",
-            #             "download_csv_file": False,
-            #         },
-            #         labels=current_flow_labels,
-            #         run_name=f"Materialize {dataset_id}.{table_id}",
-            #         upstream_tasks=[wait_upload_table],
-            #     )
+            with case(materialize_after_dump, True):
+                # Trigger DBT flow run
+                current_flow_labels = get_current_flow_labels()
+                materialization_flow = create_flow_run(
+                    flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
+                    project_name=constants.PREFECT_STAGING_PROJECT.value,
+                    parameters={
+                        "table_id": table_id,
+                        "dataset_id": dataset_id,
+                        "dbt_command": "run",
+                        "use_env_credentials": True,
+                        "target": "dev",
+                        "download_csv_file": False,
+                    },
+                    labels=current_flow_labels,
+                    run_name=f"Materialize {dataset_id}.{table_id}",
+                    upstream_tasks=[wait_upload_table],
+                )
 
-            #     wait_for_materialization = wait_for_flow_run(
-            #         materialization_flow,
-            #         stream_states=True,
-            #         stream_logs=True,
-            #         raise_final_state=True,
-            #     )
-            #     wait_for_materialization.max_retries = (
-            #         dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            #     )
-            #     wait_for_materialization.retry_delay = timedelta(
-            #         seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-            #     )
+                wait_for_materialization = wait_for_flow_run(
+                    materialization_flow,
+                    stream_states=True,
+                    stream_logs=True,
+                    raise_final_state=True,
+                )
+                wait_for_materialization.max_retries = dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
+                wait_for_materialization.retry_delay = timedelta(
+                    seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+                )
 
-            #     with case(update_metadata, True):
-            #         update_django_metadata(
-            #             dataset_id=dataset_id,
-            #             table_id=table_id,
-            #             date_column_name={"year": "ano", "month": "mes"},
-            #             date_format="%Y-%m",
-            #             coverage_type="part_bdpro",
-            #             time_delta={"months": 6},
-            #             prefect_mode=target,
-            #             bq_project="basedosdados",
-            #             upstream_tasks=[wait_for_materialization],
-            #         )
+                with case(update_metadata, True):
+                    update_django_metadata(
+                        dataset_id=dataset_id,
+                        table_id=table_id,
+                        date_column_name={"year": "ano", "month": "mes"},
+                        date_format="%Y-%m",
+                        coverage_type="part_bdpro",
+                        time_delta={"months": 6},
+                        prefect_mode=target,
+                        bq_project="basedosdados",
+                        upstream_tasks=[wait_for_materialization],
+                    )
 
 br_bcb_estban_municipio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_bcb_estban_municipio.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_bcb_estban_municipio.schedule = every_month_municipio
+br_bcb_estban_municipio.schedule = every_month_municipio
 
 
 with Flow(
@@ -210,7 +211,6 @@ with Flow(
         table_id=table_id,
         wait=table_id,
     )
-    table_id
 
     documents_metadata = get_documents_metadata(table_id)
 
@@ -232,21 +232,37 @@ with Flow(
 
         with case(check_if_outdated, True):
             log_task("Existem atualizações! A run será inciada")
-
-            downloaded_file_path = download_table(
-                url=data_source_download_url,
+            backend = bd.Backend(
+                graphql_url=utils_constants.API_URL.value["prod"]
+            )
+            api_max_date = get_api_most_recent_date(
+                dataset_id=dataset_id,
                 table_id=table_id,
-                upstream_tasks=[check_if_outdated],
+                backend=backend,
+                date_format="%Y-%m",
             )
 
+            urls_list = extract_urls_list(
+                documents_metadata,
+                data_source_max_date,
+                api_max_date,
+                date_format="%Y-%m",
+            )
+
+            downloaded_file_paths = download_table.map(
+                url=urls_list,
+                table_id=unmapped(table_id),
+                upstream_tasks=[unmapped(check_if_outdated)],
+            )
+            # wait(downloaded_file_paths)
             df_diretorios = get_id_municipio(
-                upstream_tasks=[downloaded_file_path]
+                upstream_tasks=[downloaded_file_paths]
             )
 
             filepath = cleaning_data(
                 table_id,
                 df_diretorios,
-                upstream_tasks=[downloaded_file_path, df_diretorios],
+                upstream_tasks=[downloaded_file_paths, df_diretorios],
             )
             wait_upload_table = create_table_and_upload_to_gcs(
                 data_path=filepath,
@@ -304,4 +320,4 @@ br_bcb_estban_agencia.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_bcb_estban_agencia.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_bcb_estban_agencia.schedule = every_month_agencia
+br_bcb_estban_agencia.schedule = every_month_agencia
