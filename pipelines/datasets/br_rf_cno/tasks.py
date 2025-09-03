@@ -15,6 +15,7 @@ import requests
 from bs4 import BeautifulSoup
 from prefect import task
 from requests.exceptions import ConnectionError, HTTPError
+from tqdm import tqdm
 
 from pipelines.constants import constants
 from pipelines.datasets.br_rf_cno.constants import constants as br_rf_cno
@@ -119,7 +120,13 @@ def list_files(input_dir: str) -> list:
 
 
 @task
-def process_file(file, input_dir, output_dir, partition_date, chunksize):
+def process_file(
+    file: str,
+    input_dir: str,
+    output_dir: str,
+    partition_date: str,
+    chunksize: int = 1000000,
+) -> str | None:
     """
     Processes and converts a CSV file to Parquet format in chunks.
     Applies renaming of tables and columns as specified.
@@ -143,30 +150,47 @@ def process_file(file, input_dir, output_dir, partition_date, chunksize):
         log("Invalid partition_date format. Using raw value.")
 
     table_rename = br_rf_cno.TABLES_RENAME.value
-    log(f"Processing file:{file}")
     filename = Path(file).name
+    log(f"Processing file: {filename}")
 
-    if filename.endswith(".csv") and file in table_rename:
+    if filename.endswith(".csv") and filename in table_rename:
         filepath = os.path.join(input_dir, filename)
         table_name = table_rename[filename]
+        output_path = os.path.join(output_dir, table_name)
+        os.makedirs(output_path, exist_ok=True)
 
-        log(f"---- Processing file {filename} as table {table_name}")
-        for i, chunk in enumerate(
-            pd.read_csv(
-                filepath,
-                dtype=str,
-                encoding="latin-1",
-                sep=",",
-                chunksize=chunksize,
-            )
-        ):
-            log(f"   ↳ Processing chunk {i + 1}")
-            process_chunk(chunk, i, output_dir, partition_date, table_name)  # noqa: F405
+        try:
+            log(f"---- Processing file {filename} as table {table_name}")
 
-        os.remove(filepath)  # Remove CSV após processamento
-        log(f"Removed temporary CSV {filename}")
+            # N Chunks
+            with open(filepath, encoding="latin-1") as fp:
+                total_rows = sum(1 for _ in fp) - 1  # -1 header
+                total_chunks = (total_rows // chunksize) + 1
+
+            with tqdm(
+                total=total_chunks, desc=f"{table_name}", unit="chunk"
+            ) as pbar:
+                for i, chunk in enumerate(
+                    pd.read_csv(
+                        filepath,
+                        dtype=str,
+                        encoding="latin-1",
+                        sep=",",
+                        chunksize=chunksize,
+                    )
+                ):
+                    process_chunk(
+                        chunk, i, output_dir, partition_date, table_name
+                    )  # noqa: F405
+                    pbar.update(1)
+
+            os.remove(filepath)
+            log(f"Removed temporary CSV {filename}")
+        except Exception as e:
+            log(f"Unable to process file: {e}", "error")
     else:
         log(f"File {file} not recognized in TABLES_RENAME, skipped.")
+    return output_path
 
 
 @task(

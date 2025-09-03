@@ -48,16 +48,16 @@ with Flow(
         default=["microdados", "areas", "cnaes", "vinculos"],
         required=False,
     )
-    paths = Parameter(
-        "paths",
-        default=[
-            "output/microdados",
-            "output/areas",
-            "output/cnaes",
-            "output/vinculos",
-        ],
-        required=False,
-    )
+    # paths = Parameter(
+    #     "paths",
+    #     default=[
+    #         "output/microdados",
+    #         "output/areas",
+    #         "output/cnaes",
+    #         "output/vinculos",
+    #     ],
+    #     required=False,
+    # )
     update_metadata = Parameter(
         "update_metadata", default=False, required=False
     )
@@ -104,13 +104,13 @@ with Flow(
             upstream_tasks=[data],
         )
 
-        process_file.map(
+        paths = process_file.map(
             files,
             input_dir=unmapped("input"),
             output_dir=unmapped("output"),
             partition_date=unmapped(last_update_original_source),
-            chunksize=unmapped(10000),
-            upstream_tasks=[(last_update_original_source), files],
+            chunksize=unmapped(100000),
+            upstream_tasks=[unmapped(files)],
         )
 
         # 3. subir tabelas para o Storage e materilizar no BQ usando map
