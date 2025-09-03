@@ -13,10 +13,8 @@ from pipelines.utils.decorators import Flow
 
 # from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
+    create_table_and_upload_to_gcs,
     rename_current_flow_run_dataset_table,
-)
-from pipelines.utils.template_flows.tasks import (
-    template_upload_to_gcs_and_materialization,
 )
 from pipelines.utils.utils import log_task
 
@@ -66,19 +64,27 @@ with Flow(
     # )
 
     with case(target, "prod"):
-        upload_and_materialization_prod = (
-            template_upload_to_gcs_and_materialization(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                data_path=dataframe,
-                target="prod",
-                bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-                labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-                dump_mode="append",
-                run_model="run/test",
-                upstream_tasks=[dataframe],
-            )
+        wait_upload_table = create_table_and_upload_to_gcs(
+            data_path=dataframe,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dump_mode="append",
+            wait=[dataframe],
         )
+
+        # upload_and_materialization_prod = (
+        #     template_upload_to_gcs_and_materialization(
+        #         dataset_id=dataset_id,
+        #         table_id=table_id,
+        #         data_path=dataframe,
+        #         target="prod",
+        #         bucket_name=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+        #         labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+        #         dump_mode="append",
+        #         run_model="run/test",
+        #         upstream_tasks=[dataframe],
+        #     )
+        # )
 
         # update_django_metadata(
         #     dataset_id=dataset_id,
