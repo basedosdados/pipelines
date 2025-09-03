@@ -51,19 +51,19 @@ with Flow(
 
     dataframe = criar_dataframe(upstream_tasks=[rename_flow_run])
     log_task(f"DATAFRAME -> {dataframe}", upstream_tasks=[dataframe])
-    upload_and_materialization_dev = (
-        template_upload_to_gcs_and_materialization(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            data_path=dataframe,
-            target="dev",
-            bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
-            labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
-            dump_mode="append",
-            run_model="run/test",
-            upstream_tasks=[dataframe],
-        )
-    )
+    # upload_and_materialization_dev = (
+    #     template_upload_to_gcs_and_materialization(
+    #         dataset_id=dataset_id,
+    #         table_id=table_id,
+    #         data_path=dataframe,
+    #         target="dev",
+    #         bucket_name=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+    #         labels=constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+    #         dump_mode="append",
+    #         run_model="run/test",
+    #         upstream_tasks=[dataframe],
+    #     )
+    # )
 
     with case(target, "prod"):
         upload_and_materialization_prod = (
@@ -76,7 +76,7 @@ with Flow(
                 labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
                 dump_mode="append",
                 run_model="run/test",
-                upstream_tasks=[upload_and_materialization_dev],
+                upstream_tasks=[dataframe],
             )
         )
 

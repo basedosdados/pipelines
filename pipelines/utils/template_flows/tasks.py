@@ -5,7 +5,6 @@ from typing import Union
 
 import basedosdados as bd
 import toml
-import tomlkit
 from prefect import task
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
@@ -38,19 +37,19 @@ def create_table_and_upload_to_gcs_teste(
         dataset_id=dataset_id,
         table_id=table_id,
         bucket_name=bucket_name,
-        config_path="/root/.basedosdados/",
+        # config_path="/root/.basedosdados/",
     )
     st = bd.Storage(
         dataset_id=dataset_id,
         table_id=table_id,
         bucket_name=bucket_name,
-        config_path="/root/.basedosdados/",
+        # config_path="/root/.basedosdados/",
     )
-    st.config = tomlkit.parse(
-        Path("/root/.basedosdados/config.toml")
-        .open("r", encoding="utf-8")
-        .read()
-    )
+    # st.config = tomlkit.parse(
+    #     Path("/root/.basedosdados/config.toml")
+    #     .open("r", encoding="utf-8")
+    #     .read()
+    # )
     log(f"Using bucket: {bucket_name}")
     storage_path = f"{bucket_name}.staging.{dataset_id}.{table_id}"
     storage_path_link = f"https://console.cloud.google.com/storage/browser/{bucket_name}/staging/{dataset_id}/{table_id}"
@@ -298,7 +297,7 @@ def template_upload_to_gcs_and_materialization(
         }
     )
 
-    create_credentials(target=target)
+    # create_credentials(target=target)
 
     create_table_and_upload_to_gcs_teste(
         data_path=data_path,
@@ -309,7 +308,7 @@ def template_upload_to_gcs_and_materialization(
         source_format=source_format,
     )
 
-    return_config_toml_default(target=target)
+    # return_config_toml_default(target=target)
 
     materialization_flow = create_flow_run.run(
         flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
