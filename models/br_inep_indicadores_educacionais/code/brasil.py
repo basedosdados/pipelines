@@ -1,18 +1,14 @@
 # -*- coding: utf-8 -*-
 import os
-import sys
-
-current_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.dirname(
-    current_dir
-)  # Isso vai para /home/laribrito/BD/pipelines/models/br_inep_indicadores_educacionais/
-sys.path.append(parent_dir)
+import zipfile
 
 # Importando o módulo constants
 from functools import reduce
+from pathlib import Path
 
 import basedosdados as bd
 import pandas as pd
+import requests
 from constants import (
     rename_afd,
     rename_atu,
@@ -26,59 +22,58 @@ from constants import (
     rename_tx,
 )
 
-# URLS = [
-#     "https://download.inep.gov.br/informacoes_estatisticas/indicadores_educacionais/2024/ATU_2024_BRASIL_REGIOES_UF.zip",
-#     "https://download.inep.gov.br/informacoes_estatisticas/indicadores_educacionais/2024/tx_rend_brasil_regioes_ufs_2024.zip",
-#     "https://download.inep.gov.br/informacoes_estatisticas/indicadores_educacionais/2024/HAD_2024_BRASIL_REGIOES_UFS.zip",
-#     "https://download.inep.gov.br/informacoes_estatisticas/indicadores_educacionais/2024/TDI_2024_BRASIL_REGIOES_UFS.zip",
-#     "https://download.inep.gov.br/informacoes_estatisticas/indicadores_educacionais/2024/tnr_brasil_regioes_ufs_2024.zip",
-#     "https://download.inep.gov.br/informacoes_estatisticas/indicadores_educacionais/2024/DSU_2024_BRASIL_REGIOES_UFS.zip",
-#     "https://download.inep.gov.br/informacoes_estatisticas/indicadores_educacionais/2024/AFD_2024_BRASIL_REGIOES_UFS.zip",
-#     "https://download.inep.gov.br/informacoes_estatisticas/indicadores_educacionais/2024/IRD_2024_BRASIL_REGIOES_UFS.zip",
-#     "https://download.inep.gov.br/informacoes_estatisticas/indicadores_educacionais/2024/IED_2024_BRASIL_REGIOES_UFS.zip",
-#     "https://download.inep.gov.br/informacoes_estatisticas/indicadores_educacionais/2024/ICG_2024_BRASIL_REGIOES_UFS.zip",
-# ]
+URLS = [
+    "https://download.inep.gov.br/informacoes_estatisticas/indicadores_educacionais/2024/ATU_2024_BRASIL_REGIOES_UF.zip",
+    "https://download.inep.gov.br/informacoes_estatisticas/indicadores_educacionais/2024/tx_rend_brasil_regioes_ufs_2024.zip",
+    "https://download.inep.gov.br/informacoes_estatisticas/indicadores_educacionais/2024/HAD_2024_BRASIL_REGIOES_UFS.zip",
+    "https://download.inep.gov.br/informacoes_estatisticas/indicadores_educacionais/2024/TDI_2024_BRASIL_REGIOES_UFS.zip",
+    "https://download.inep.gov.br/informacoes_estatisticas/indicadores_educacionais/2024/tnr_brasil_regioes_ufs_2024.zip",
+    "https://download.inep.gov.br/informacoes_estatisticas/indicadores_educacionais/2024/DSU_2024_BRASIL_REGIOES_UFS.zip",
+    "https://download.inep.gov.br/informacoes_estatisticas/indicadores_educacionais/2024/AFD_2024_BRASIL_REGIOES_UFS.zip",
+    "https://download.inep.gov.br/informacoes_estatisticas/indicadores_educacionais/2024/IRD_2024_BRASIL_REGIOES_UFS.zip",
+    "https://download.inep.gov.br/informacoes_estatisticas/indicadores_educacionais/2024/IED_2024_BRASIL_REGIOES_UFS.zip",
+    "https://download.inep.gov.br/informacoes_estatisticas/indicadores_educacionais/2024/ICG_2024_BRASIL_REGIOES_UFS.zip",
+]
 
-INPUT = os.path.join(
-    parent_dir, "tmp"
-)  # Agora será: /home/laribrito/BD/pipelines/models/br_inep_indicadores_educacionais/tmp
+ROOT = Path("models") / "br_inep_indicadores_educacionais"
+
+INPUT = os.path.join(ROOT, "tmp")
 
 os.makedirs(INPUT, exist_ok=True)
 
 INPUT_BR = os.path.join(INPUT, "br_regioes_uf")
 
-OUTPUT = os.path.join(parent_dir, "output")
+OUTPUT = os.path.join(ROOT, "output")
 
 os.makedirs(OUTPUT, exist_ok=True)
 os.makedirs(INPUT_BR, exist_ok=True)
 
-# import requests
 
-# # Baixar os arquivos
-# for url in URLS:
-#     filename = url.split("/")[-1]  # pega só o nome do arquivo
-#     filepath = os.path.join(INPUT_BR, filename)
+# Baixar os arquivos
+for url in URLS:
+    filename = url.split("/")[-1]  # pega só o nome do arquivo
+    filepath = os.path.join(INPUT_BR, filename)
 
-#     try:
-#         r = requests.get(url, stream=True, timeout=60)
-#         r.raise_for_status()  # erro se não for 200
-#         with open(filepath, "wb") as f:
-#             for chunk in r.iter_content(chunk_size=8192):
-#                 f.write(chunk)
-#         print(f"Baixado: {filename}")
-#     except Exception as e:
-#         print(f"Erro ao baixar {url}: {e}")
+    try:
+        r = requests.get(url, stream=True, timeout=60)
+        r.raise_for_status()  # erro se não for 200
+        with open(filepath, "wb") as f:
+            for chunk in r.iter_content(chunk_size=8192):
+                f.write(chunk)
+        print(f"Baixado: {filename}")
+    except Exception as e:
+        print(f"Erro ao baixar {url}: {e}")
 
-# # Extrair os arquivos
-# for file in os.listdir(INPUT_BR):
-#     path = os.path.join(INPUT_BR, file)
-#     if os.path.isfile(path) and file.lower().endswith(".zip"):
-#         try:
-#             with zipfile.ZipFile(path) as z:
-#                 z.extractall(INPUT_BR)
-#             print(f"Extraído: {file}")
-#         except zipfile.BadZipFile:
-#             print(f"Arquivo inválido (não é zip de verdade): {file}")
+# Extrair os arquivos
+for file in os.listdir(INPUT_BR):
+    path = os.path.join(INPUT_BR, file)
+    if os.path.isfile(path) and file.lower().endswith(".zip"):
+        try:
+            with zipfile.ZipFile(path) as z:
+                z.extractall(INPUT_BR)
+            print(f"Extraído: {file}")
+        except zipfile.BadZipFile:
+            print(f"Arquivo inválido (não é zip de verdade): {file}")
 
 afd = pd.read_excel(
     os.path.join(
@@ -490,38 +485,33 @@ for year, df in regioes_2024.groupby("ano"):
     )
 
 
-# tb_brasil = bd.Table(
-#     dataset_id="br_inep_indicadores_educacionais",
-#     table_id="brasil"
-# )
+tb_brasil = bd.Table(
+    dataset_id="br_inep_indicadores_educacionais", table_id="brasil"
+)
 
-# tb_brasil.create(
-#     path=brasil_output_path, # Caminho para o arquivo csv ou parquet
-#     if_storage_data_exists='raise',
-#     if_table_exists='replace',
-#     source_format='csv'
-# )
+tb_brasil.create(
+    path=brasil_output_path,  # Caminho para o arquivo csv ou parquet
+    if_storage_data_exists="raise",
+    if_table_exists="replace",
+    source_format="csv",
+)
 
-# tb_regiao = bd.Table(
-#     dataset_id="br_inep_indicadores_educacionais",
-#     table_id="regiao"
-# )
+tb_regiao = bd.Table(
+    dataset_id="br_inep_indicadores_educacionais", table_id="regiao"
+)
 
-# tb_regiao.create(
-#     path=regioes_output_path, # Caminho para o arquivo csv ou parquet
-#     if_storage_data_exists='raise',
-#     if_table_exists='replace',
-#     source_format='csv'
-# )
+tb_regiao.create(
+    path=regioes_output_path,  # Caminho para o arquivo csv ou parquet
+    if_storage_data_exists="raise",
+    if_table_exists="replace",
+    source_format="csv",
+)
 
-# tb_uf = bd.Table(
-#     dataset_id="br_inep_indicadores_educacionais",
-#     table_id="uf"
-# )
+tb_uf = bd.Table(dataset_id="br_inep_indicadores_educacionais", table_id="uf")
 
-# tb_uf.create(
-#     path=uf_output_path, # Caminho para o arquivo csv ou parquet
-#     if_storage_data_exists='raise',
-#     if_table_exists='replace',
-#     source_format='csv'
-# )
+tb_uf.create(
+    path=uf_output_path,  # Caminho para o arquivo csv ou parquet
+    if_storage_data_exists="raise",
+    if_table_exists="replace",
+    source_format="csv",
+)
