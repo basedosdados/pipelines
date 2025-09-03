@@ -32,6 +32,78 @@ bd_dir_uf = bd.read_sql(
     billing_project_id="basedosdados-dev",
 )
 
+
+def possui_necessidade_especial(a: str, b: str, c: str) -> str:
+    empty = ["*", "."]
+    values = [a, b, c]
+
+    for value in values:
+        if value not in empty:
+            return value
+
+    return a
+
+
+def transporte_escolar(a: str, b: str) -> str:
+    empty = ["*", "."]
+    values = [a, b]
+
+    for value in values:
+        if value not in empty:
+            return value
+
+    return a
+
+
+def mora_avos(a: str, b: str) -> str:
+    empty = ["*", "."]
+    values = [a, b]
+
+    for value in values:
+        if value not in empty:
+            return value
+
+    return a
+
+
+def batch_process(
+    df: pd.DataFrame,
+    id_vars: list[str],
+    value_vars: list[str],
+    batch_size: int = 100_000,
+) -> list[pd.DataFrame]:
+    result = []
+
+    for _, batch_df in enumerate(np.array_split(df, len(df) // batch_size)):  # type: ignore
+        assert isinstance(batch_df, pd.DataFrame)
+
+        batch_df_long = batch_df.melt(
+            id_vars=id_vars, value_vars=value_vars
+        ).assign(
+            disciplina=lambda d: d["variable"].apply(
+                lambda v: "LP" if "LP" in v else "MT"
+            ),
+            variable=lambda d: d["variable"].apply(
+                lambda v: v.replace("LP", "").replace("MT", "")
+            ),
+        )
+
+        batch_df_wide = batch_df_long.pivot(
+            index=[
+                col
+                for col in batch_df_long.columns
+                if col not in ["variable", "value"]
+            ],
+            columns="variable",
+            values="value",
+            # aggfunc="first",
+        ).reset_index()
+
+        result.append(batch_df_wide)
+
+    return result
+
+
 # 2 ano
 
 df_aluno_ef_2ano = pd.read_csv(
@@ -66,18 +138,14 @@ df_wide_2ano = df_long_2ano.pivot_table(
 
 
 renames_2ano = {
-    # "CO_CONCEITO_COESAO": "",
     "ID_SAEB": "ano",
     "ID_ESCOLA": "id_escola",
     "CO_CONCEITO_SEGMENTACAO": "conceito_segmentacao",
-    # "IN_ALFABETIZADO": "",
     "CO_RESPOSTA_TEXTO": "resposta_texto",
     "ID_REGIAO": "id_regiao",
     "ID_UF": "id_uf",
-    # "CO_CONCEITO_PONTUACAO": "",
     "ID_SERIE": "serie",
     "IN_SITUACAO_CENSO": "situacao_censo",
-    # "CO_CONCEITO_SEQUENCIA": "",
     "ID_MUNICIPIO": "id_municipio",
     "ID_TURMA": "id_turma",
     "ID_AREA": "area",
@@ -166,44 +234,6 @@ value_vars_5ano = [
 id_vars_5ano = list(set(df_aluno_ef_5ano.columns) - set(value_vars_5ano))
 
 
-def batch_process(
-    df: pd.DataFrame,
-    id_vars: list[str],
-    value_vars: list[str],
-    batch_size: int = 100_000,
-) -> list[pd.DataFrame]:
-    result = []
-
-    for _, batch_df in enumerate(np.array_split(df, len(df) // batch_size)):
-        assert isinstance(batch_df, pd.DataFrame)
-
-        batch_df_long = batch_df.melt(
-            id_vars=id_vars, value_vars=value_vars
-        ).assign(
-            disciplina=lambda d: d["variable"].apply(
-                lambda v: "LP" if "LP" in v else "MT"
-            ),
-            variable=lambda d: d["variable"].apply(
-                lambda v: v.replace("LP", "").replace("MT", "")
-            ),
-        )
-
-        batch_df_wide = batch_df_long.pivot(
-            index=[
-                col
-                for col in batch_df_long.columns
-                if col not in ["variable", "value"]
-            ],
-            columns="variable",
-            values="value",
-            # aggfunc="first",
-        ).reset_index()
-
-        result.append(batch_df_wide)
-
-    return result
-
-
 df_wide_5ano = pd.concat(
     batch_process(
         df_aluno_ef_5ano, value_vars=value_vars_5ano, id_vars=id_vars_5ano
@@ -212,9 +242,6 @@ df_wide_5ano = pd.concat(
 
 df_wide_5ano.columns.to_list()
 
-df_wide_5ano.to_csv(INPUT / "wide_5ano.csv", index=False)
-
-df_wide_5ano = pd.read_csv(INPUT / "wide_5ano.csv")
 
 renames_5ano = {
     "ID_SAEB": "ano",
@@ -310,20 +337,9 @@ upstream_5ano_columns = bd.read_sql(
     billing_project_id="basedosdados-dev",
 ).columns.to_list()
 
-df_wide_5ano = df_wide_5ano.rename(columns=renames_5ano, errors="raise")[
-    [*list(renames_5ano.values()), *["disciplina"]]
-]
-
-
-def possui_necessidade_especial(a: str, b: str, c: str) -> str:
-    empty = ["*", "."]
-    values = [a, b, c]
-
-    for value in values:
-        if value not in empty:
-            return value
-
-    return a
+df_wide_5ano: pd.DataFrame = df_wide_5ano.rename(
+    columns=renames_5ano, errors="raise"
+)[[*list(renames_5ano.values()), *["disciplina"]]]  # type: ignore
 
 
 df_wide_5ano["possui_necessidade_especial"] = df_wide_5ano[
@@ -343,17 +359,6 @@ df_wide_5ano = df_wide_5ano.drop(
 )
 
 
-def transporte_escolar(a: str, b: str) -> str:
-    empty = ["*", "."]
-    values = [a, b]
-
-    for value in values:
-        if value not in empty:
-            return value
-
-    return a
-
-
 df_wide_5ano["transporte_escolar"] = df_wide_5ano[
     [
         "transporte_escolar_1",
@@ -367,17 +372,6 @@ df_wide_5ano = df_wide_5ano.drop(
         "transporte_escolar_2",
     ]
 )
-
-
-def mora_avos(a: str, b: str) -> str:
-    empty = ["*", "."]
-    values = [a, b]
-
-    for value in values:
-        if value not in empty:
-            return value
-
-    return a
 
 
 df_wide_5ano["mora_avos"] = df_wide_5ano[
@@ -403,13 +397,18 @@ df_wide_5ano["sigla_uf"] = (
 
 df_wide_5ano = df_wide_5ano.drop(columns=["id_uf"])
 
-missing_cols_5ano = [
+missing_cols_5ano: list[str] = [
     i for i in upstream_5ano_columns if i not in df_wide_5ano.columns
 ]
 
 df_wide_5ano[missing_cols_5ano] = None
 
-df_wide_5ano = df_wide_5ano[upstream_5ano_columns]
+df_wide_5ano["rede"].unique()
+df_wide_5ano["escola_publica"].unique()
+
+df_wide_5ano["rede"] = df_wide_5ano["escola_publica"]
+
+df_wide_5ano = df_wide_5ano[upstream_5ano_columns]  # type: ignore
 
 for (ano, sigla_uf), df_ano_uf_disc in df_wide_5ano.groupby(  # type: ignore
     ["ano", "sigla_uf"]
@@ -446,9 +445,6 @@ df_wide_9ano = pd.concat(
     )
 )
 
-df_wide_9ano.to_csv(INPUT / "df_wide_9ano.csv", index=False)
-
-df_wide_9ano = pd.read_csv(INPUT / "df_wide_9ano.csv")
 
 renames_9ano = {
     "ID_SAEB": "ano",
@@ -468,7 +464,6 @@ renames_9ano = {
     "ID_CADERNO_": "caderno",
     "ID_BLOCO_1_": "bloco_1",
     "ID_BLOCO_2_": "bloco_2",
-    # "ID_BLOCO_3_": "bloco_3",
     "TX_RESP_BLOCO1_": "respostas_bloco_1",
     "TX_RESP_BLOCO2_": "respostas_bloco_2",
     "IN_PROFICIENCIA_": "indicador_proficiencia",
@@ -540,14 +535,14 @@ renames_9ano = {
     "TX_RESP_Q21a": "tempo_estudos",
 }
 
-upstream_9ano_columns = bd.read_sql(
+upstream_9ano_columns: list[str] = bd.read_sql(
     "select * from basedosdados-dev.br_inep_saeb_staging.aluno_ef_9ano limit 0",
     billing_project_id="basedosdados-dev",
 ).columns.to_list()
 
-df_wide_9ano = df_wide_9ano.rename(columns=renames_9ano, errors="raise")[
-    [*list(renames_9ano.values()), *["disciplina"]]
-]
+df_wide_9ano: pd.DataFrame = df_wide_9ano.rename(
+    columns=renames_9ano, errors="raise"
+)[[*list(renames_9ano.values()), *["disciplina"]]]  # type: ignore
 
 df_wide_9ano["possui_necessidade_especial"] = df_wide_9ano[
     [
@@ -608,12 +603,12 @@ missing_cols_9ano = [
 
 df_wide_9ano[missing_cols_9ano] = None
 
-df_wide_9ano["rede"].unique()
-df_wide_9ano["escola_publica"].unique()
+df_wide_9ano["rede"].unique()  # type: ignore
+df_wide_9ano["escola_publica"].unique()  # type: ignore
 
 df_wide_9ano["rede"] = df_wide_9ano["escola_publica"]
 
-df_wide_9ano = df_wide_9ano[upstream_9ano_columns]
+df_wide_9ano = df_wide_9ano[upstream_9ano_columns]  # type: ignore
 
 for (ano, sigla_uf), df_ano_uf_disc in df_wide_9ano.groupby(  # type: ignore
     ["ano", "sigla_uf"]
