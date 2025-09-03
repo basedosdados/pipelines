@@ -18,7 +18,10 @@ from requests.exceptions import ConnectionError, HTTPError
 
 from pipelines.constants import constants
 from pipelines.datasets.br_rf_cno.constants import constants as br_rf_cno
-from pipelines.datasets.br_rf_cno.utils import *  # noqa: F403
+from pipelines.datasets.br_rf_cno.utils import (
+    download_file_async,
+    process_chunk,
+)  # noqa: F403
 from pipelines.utils.utils import log
 
 
@@ -138,13 +141,12 @@ def process_file(file, input_dir, output_dir, partition_date, chunksize):
         log(f"Partition date {partition_date}.")
     except ValueError:
         log("Invalid partition_date format. Using raw value.")
-    breakpoint()
+
     table_rename = br_rf_cno.TABLES_RENAME.value
     log(f"Processing file:{file}")
     filename = Path(file).name
-    breakpoint()
+
     if filename.endswith(".csv") and file in table_rename:
-        breakpoint()
         filepath = os.path.join(input_dir, filename)
         table_name = table_rename[filename]
 

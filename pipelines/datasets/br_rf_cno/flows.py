@@ -104,22 +104,13 @@ with Flow(
             upstream_tasks=[data],
         )
 
-        process_file(
-            files[0],
-            input_dir="input",
-            output_dir="output",
-            partition_date=last_update_original_source,
-            chunksize=10000,
-            upstream_tasks=[last_update_original_source, files],
-        )
-
-        process_file(
-            files[2],
-            input_dir="input",
-            output_dir="output",
-            partition_date=last_update_original_source,
-            chunksize=10000,
-            upstream_tasks=[last_update_original_source, files],
+        process_file.map(
+            files,
+            input_dir=unmapped("input"),
+            output_dir=unmapped("output"),
+            partition_date=unmapped(last_update_original_source),
+            chunksize=unmapped(10000),
+            upstream_tasks=[(last_update_original_source), files],
         )
 
         # 3. subir tabelas para o Storage e materilizar no BQ usando map

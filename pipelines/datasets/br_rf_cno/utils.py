@@ -140,7 +140,7 @@ def process_chunk(
     Returns:
         None
     """
-    breakpoint()
+
     columns_rename = br_rf_cno.COLUMNS_RENAME.value
     if table_name in columns_rename:
         df_chunk = df_chunk.rename(columns=columns_rename[table_name])
