@@ -52,7 +52,7 @@ def check_need_for_update(url: str) -> str:
             response.raise_for_status()
             break
         except ConnectionError as e:
-            log(f"⚠️ Connection attempt {attempt + 1}/{retries} failed: {e}")
+            log(f"Connection attempt {attempt + 1}/{retries} failed: {e}")
             if attempt < retries - 1:
                 time.sleep(delay)
                 delay *= 2
@@ -89,11 +89,11 @@ def check_need_for_update(url: str) -> str:
 
     if not max_file_date:
         raise ValueError(
-            "❌ File 'cno.zip' not found on the FTP site. "
+            "File 'cno.zip' not found on the FTP site. "
             "Check if the folder structure or file name has changed."
         )
 
-    log(f"✅ Most recent update date for 'cno.zip': {max_file_date}")
+    log(f"Most recent update date for 'cno.zip': {max_file_date}")
     return max_file_date
 
 
@@ -110,7 +110,8 @@ def list_files(input_dir: str) -> list:
     """
     log(f"---- Listing CSV files in {input_dir}")
     paths = [fp.name for fp in Path(input_dir).glob("*.csv")]
-    log(f"📂 Found {len(paths)} CSV files")
+    paths_string = "\n".join(paths)
+    log(f"Found {len(paths)} CSV files:\n{paths_string}")
     return paths
 
 
@@ -134,13 +135,16 @@ def process_file(file, input_dir, output_dir, partition_date, chunksize):
         partition_date = datetime.strptime(
             partition_date, "%Y-%m-%d"
         ).strftime("%Y-%m-%d")
+        log(f"Partition date {partition_date}.")
     except ValueError:
-        log("⚠️ Invalid partition_date format. Using raw value.")
-
+        log("Invalid partition_date format. Using raw value.")
+    breakpoint()
     table_rename = br_rf_cno.TABLES_RENAME.value
-
-    if file.endswith(".csv") and file in table_rename:
-        filename = file
+    log(f"Processing file:{file}")
+    filename = Path(file).name
+    breakpoint()
+    if filename.endswith(".csv") and file in table_rename:
+        breakpoint()
         filepath = os.path.join(input_dir, filename)
         table_name = table_rename[filename]
 
@@ -158,13 +162,13 @@ def process_file(file, input_dir, output_dir, partition_date, chunksize):
             process_chunk(chunk, i, output_dir, partition_date, table_name)  # noqa: F405
 
         os.remove(filepath)  # Remove CSV após processamento
-        log(f"🗑️ Removed temporary CSV {filename}")
+        log(f"Removed temporary CSV {filename}")
     else:
-        log(f"⚠️ File {file} not recognized in TABLES_RENAME, skipped.")
+        log(f"File {file} not recognized in TABLES_RENAME, skipped.")
 
 
 @task(
-    max_retries=5,
+    max_retries=2,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def crawl_cno(root: str, url: str) -> None:
@@ -185,7 +189,7 @@ def crawl_cno(root: str, url: str) -> None:
     log(f"---- Unzipping files from {filepath}")
     shutil.unpack_archive(filepath, extract_dir=root)
     os.remove(filepath)
-    log("✅ Download and unpack completed successfully")
+    log("Download and unpack completed successfully")
 
 
 @task
@@ -226,5 +230,5 @@ def create_parameters_list(
         }
         for table_id in table_ids
     ]
-    log(f"✅ Generated parameters for {len(table_ids)} tables")
+    log(f"Generated parameters for {len(table_ids)} tables")
     return params

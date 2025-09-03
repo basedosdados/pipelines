@@ -116,7 +116,7 @@ async def download_file_async(root: str, url: str) -> None:
                 )
             await asyncio.gather(*tasks)
 
-    log(f"✅ Download completed: {filepath} ({total_size / (1024**2):.2f} MB)")
+    log(f"Download completed: {filepath} ({total_size / (1024**2):.2f} MB)")
 
 
 def process_chunk(
@@ -140,6 +140,7 @@ def process_chunk(
     Returns:
         None
     """
+    breakpoint()
     columns_rename = br_rf_cno.COLUMNS_RENAME.value
     if table_name in columns_rename:
         df_chunk = df_chunk.rename(columns=columns_rename[table_name])

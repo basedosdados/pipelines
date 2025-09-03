@@ -93,17 +93,33 @@ with Flow(
     with case(check_if_outdated, True):
         log_task("Existem atualizações! A run será inciada")
 
-        data = crawl_cno(root="input", url=br_rf_cno_constants.URL.value)
+        data = crawl_cno(
+            root="input",
+            url=br_rf_cno_constants.URL.value,
+            upstream_tasks=[check_if_outdated, last_update_original_source],
+        )
 
-        files = list_files(input_dir="input")
+        files = list_files(
+            input_dir="input",
+            upstream_tasks=[data],
+        )
 
-        process_file.map(
-            files,
-            input_dir=unmapped("input"),
-            output_dir=unmapped("output"),
-            partition_date=unmapped(last_update_original_source),
+        process_file(
+            files[0],
+            input_dir="input",
+            output_dir="output",
+            partition_date=last_update_original_source,
             chunksize=10000,
-            upstream_tasks=[unmapped(data)],
+            upstream_tasks=[last_update_original_source, files],
+        )
+
+        process_file(
+            files[2],
+            input_dir="input",
+            output_dir="output",
+            partition_date=last_update_original_source,
+            chunksize=10000,
+            upstream_tasks=[last_update_original_source, files],
         )
 
         # 3. subir tabelas para o Storage e materilizar no BQ usando map
