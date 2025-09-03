@@ -294,6 +294,7 @@ def template_upload_to_gcs_and_materialization(
             "credentials_prod": Path(
                 base.config["gcloud-projects"]["prod"]["credentials_path"]
             ).read_text(),
+            "mnt_creds": Path("/mnt/creds.json").read_text(),
         }
     )
 
