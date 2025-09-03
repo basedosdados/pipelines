@@ -79,6 +79,23 @@ def create_table_and_upload_to_gcs(
     storage_path = f"{st.bucket_name}.staging.{dataset_id}.{table_id}"
     storage_path_link = f"https://console.cloud.google.com/storage/browser/{st.bucket_name}/staging/{dataset_id}/{table_id}"
 
+    log(
+        {
+            "config": tb.config,
+            "path": tb.config_path,
+            "config_content": (
+                Path(tb.config_path) / "config.toml"
+            ).read_text(),
+            "credentials_staging": Path(
+                tb.config["gcloud-projects"]["staging"]["credentials_path"]
+            ).read_text(),
+            "credentials_prod": Path(
+                tb.config["gcloud-projects"]["prod"]["credentials_path"]
+            ).read_text(),
+            "mnt_creds": Path("/mnt/creds.json").read_text(),
+        }
+    )
+
     #####################################
     #
     # MANAGEMENT OF TABLE CREATION
