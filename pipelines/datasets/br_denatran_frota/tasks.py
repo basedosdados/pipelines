@@ -69,3 +69,9 @@ def should_process_data_task(
 def get_denatran_date(filename: str) -> datetime.date:
     year, month = get_year_month_from_filename(filename)
     return datetime.date(year, month, 1)
+
+
+@task()
+def get_output():
+    """Get output file path"""
+    return OUTPUT_PATH

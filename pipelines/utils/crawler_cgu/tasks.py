@@ -287,3 +287,8 @@ def dict_for_table(table_id: str) -> dict:
     }
 
     return DICT_FOR_TABLE[table_id]
+
+
+@task
+def get_output(table_id: str) -> str:
+    return constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]["OUTPUT"]

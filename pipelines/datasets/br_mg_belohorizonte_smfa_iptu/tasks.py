@@ -95,3 +95,8 @@ def get_data_source_sfma_iptu_max_date():
     source_date = datetime.strptime(data_obj, "%Y-%m").date()
     log(source_date)
     return source_date
+
+
+@task
+def get_output():
+    return constants.OUTPUT_PATH.value

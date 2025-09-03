@@ -67,3 +67,8 @@ def download_and_transform():
 )
 def task_check_for_data():
     return check_for_data()
+
+
+@task
+def get_output():
+    return stf_constants.STF_OUTPUT.value
