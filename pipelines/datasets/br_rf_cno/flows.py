@@ -15,12 +15,12 @@ from pipelines.constants import constants
 from pipelines.datasets.br_rf_cno.constants import (
     constants as br_rf_cno_constants,
 )
-from pipelines.datasets.br_rf_cno.schedules import schedule_br_rf_cno
 from pipelines.datasets.br_rf_cno.tasks import (
     check_need_for_update,
     crawl_cno,
     create_parameters_list,
-    wrangling,
+    list_files,
+    process_file,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -95,11 +95,15 @@ with Flow(
 
         data = crawl_cno(root="input", url=br_rf_cno_constants.URL.value)
 
-        files = wrangling(
-            input_dir="input",
-            output_dir="output",
-            partition_date=last_update_original_source,
-            upstream_tasks=[data],
+        files = list_files(input_dir="input")
+
+        process_file.map(
+            files,
+            input_dir=unmapped("input"),
+            output_dir=unmapped("output"),
+            partition_date=unmapped(last_update_original_source),
+            chunksize=10000,
+            upstream_tasks=[unmapped(data)],
         )
 
         # 3. subir tabelas para o Storage e materilizar no BQ usando map
@@ -168,5 +172,10 @@ with Flow(
 
 
 br_rf_cno_tables.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_rf_cno_tables.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_rf_cno_tables.schedule = schedule_br_rf_cno
+br_rf_cno_tables.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value,
+    memory_limit="1Gi",
+    memory_request="2Gi",
+    cpu_limit=1,
+)
+# br_rf_cno_tables.schedule = schedule_br_rf_cno
