@@ -51,7 +51,6 @@ def create_table_and_upload_to_gcs_teste(
         .open("r", encoding="utf-8")
         .read()
     )
-
     log(f"Using bucket: {bucket_name}")
     storage_path = f"{bucket_name}.staging.{dataset_id}.{table_id}"
     storage_path_link = f"https://console.cloud.google.com/storage/browser/{bucket_name}/staging/{dataset_id}/{table_id}"
@@ -280,6 +279,25 @@ def template_upload_to_gcs_and_materialization(
     bucket_name: str = None,
     wait=None,
 ):
+    base = bd.Base()
+
+    log(
+        {
+            "config": base.config,
+            "path": base.config_path,
+            "target": target,
+            "config_content": (
+                Path(base.config_path) / "config.toml"
+            ).read_text(),
+            "credentials_staging": Path(
+                base.config["gcloud-projects"]["staging"]["credentials_path"]
+            ).read_text(),
+            "credentials_prod": Path(
+                base.config["gcloud-projects"]["prod"]["credentials_path"]
+            ).read_text(),
+        }
+    )
+
     create_credentials(target=target)
 
     create_table_and_upload_to_gcs_teste(
