@@ -1,155 +1,153 @@
-[tool.poetry]
-authors = ["Gabriel Gazola Milan <gabriel.gazola@poli.ufrj.br>"]
-description = ""
-license = "GPL-3.0"
+[project]
 name = "pipelines"
+description = ""
+authors = [
+  { name = "Gabriel Gazola Milan", email = "gabriel.gazola@poli.ufrj.br" },
+]
+readme = "README.md"
+license = "GPL-3.0"
+requires-python = "<3.11,>=3.10"
 version = "0.1.0"
 
-[tool.poetry.dependencies]
-HeapDict = "1.0.1"
-Jinja2 = "3.1.2"
-MarkupSafe = "2.0.1"
-PyYAML = "6.0"
-Unidecode = "^1.3.4"
-basedosdados = {extras = ["all"], version = "^2.0.2"}
-beautifulsoup4 = "4.11.1"
-cachetools = "4.2.4"
-certifi = "2021.10.8"
-charset-normalizer = "2.0.9"
-ckanapi = "4.6"
-click = "^8.0.3"
-cloudpickle = "2.0.0"
-croniter = "1.0.15"
-dask = "2021.11.2"
-distributed = "2021.11.2"
-docker = "5.0.3"
-docopt = "0.6.2"
-fake-useragent = "^1.1.3"
-fsspec = "2021.11.1"
-google-analytics-data = "0.17.0"
-google-api-core = "2.11.1"
-google-api-python-client = "^2.58.0"
-google-auth = "2.22.0"
-google-auth-oauthlib = "^1.0.0"
-google-cloud-bigquery = "^3.11.4"
-google-cloud-bigquery-storage = "^2.19.1"
-google-cloud-core = "2.3.3"
-google-cloud-storage = "^2.9.0"
-google-crc32c = "1.3.0"
-google-resumable-media = "2.5.0"
-googleapis-common-protos = "1.59.1"
-grpcio = "1.56.2"
-hvac = "^0.11.2"
-idna = "3.3"
-ipeadatapy = "^0.1.7"
-locket = "0.2.1"
-loguru = "^0.7.0"
-lxml = "4.9.2"
-marshmallow = "3.14.1"
-marshmallow-oneofschema = "3.0.1"
-matplotlib = "^3.5.2"
-msgpack = "1.0.3"
-mypy-extensions = "0.4.3"
-numpy = ">=1.21.4"
-oauth2client = "^4.1.3"
-oauthlib = "3.1.1"
-openpyxl = "^3.1.0"
-packaging = "21.3"
-pandas = "^2.0.1"
-pandas-gbq = "^0.19.2"
-partd = "1.2.0"
-prefect = "0.15.9"
-proto-plus = "1.22.3"
-protobuf = "4.23.4"
-psutil = "5.8.0"
-pyaml = "20.4.0"
-pyarrow = ">=7.0.0"
-pyasn1 = "0.4.8"
-pyasn1-modules = "0.2.8"
-pydata-google-auth = "^1.8.0"
-pymssql = "2.2.5"
-pyparsing = "3.0.6"
-python = ">=3.10,<3.11"
-python-Levenshtein = "^0.21.1"
-python-box = "5.4.1"
-python-dateutil = "2.8.2"
-python-slugify = "5.0.2"
-pytz = "2021.3"
-pytzdata = "2020.1"
-redis-pal = "^1.0.0"
-requests = "2.26.0"
-requests-oauthlib = "1.3.0"
-rsa = "4.8"
-"ruamel.yaml" = "0.17.10"
-"ruamel.yaml.clib" = "0.2.6"
-rpy2 = "^3.5.11"
-seaborn = "^0.11.2"
-six = "1.16.0"
-sortedcontainers = "2.4.0"
-tabulate = "0.8.9"
-tblib = "1.7.0"
-text-unidecode = "1.3"
-toml = "0.10.2"
-tomlkit = "^0.11.8"
-toolz = "0.11.2"
-tornado = "6.1"
-tqdm = "^4.65.0"
-tweepy = "4.4.0"
-urllib3 = ">=1.26.8"
-websocket-client = "1.2.1"
-wget = "^3.2"
-zict = "2.0.0"
-polars = "^0.19.0"
-selenium = "^4.11.2"
-fastparquet = "^2023.7.0"
-rarfile = "^4.0"
-setuptools = ">=69.0.0,<71.0"
-python-string-utils = "^1.0.0"
-geopandas = "1.0.1"
-shapely = "2.0.1"
-webdriver-manager = "^4.0.1"
-xlrd = ">=2.0.1"
-httpx = ">=0.26.0"
-parameterized = "^0.9.0"
-cffi = "^1.16.0"
-pendulum = "^3.0.0"
-simpledbf = "^0.2.6"
-aioftp = "^0.22.3"
-pathlib = "^1.0.1"
-dbfread = "^2.0.7"
-aiohttp = "^3.9.3"
-dateparser = "^1.2.0"
-fiona = "^1.10.1"
-arrow = "^1.3.0"
-dbt-core = "1.5.6"
-dbt-bigquery = "1.5.9"
-sicar = {git = "https://github.com/urbanogilson/SICAR.git", rev = "v0.7.4"}
-py7zr = "^1.0.0"
+dependencies = [
+  "HeapDict==1.0.1",
+  "Jinja2==3.1.2",
+  "MarkupSafe==2.0.1",
+  "PyYAML==6.0",
+  "Unidecode<2.0.0,>=1.3.4",
+  "basedosdados[all]<3.0.0,>=2.0.2",
+  "beautifulsoup4==4.11.1",
+  "cachetools==4.2.4",
+  "certifi==2021.10.8",
+  "charset-normalizer==2.0.9",
+  "ckanapi==4.6",
+  "click<9.0.0,>=8.0.3",
+  "cloudpickle==2.0.0",
+  "croniter==1.0.15",
+  "dask==2021.11.2",
+  "distributed==2021.11.2",
+  "docker>=6,<7",
+  "docopt==0.6.2",
+  "fake-useragent<2.0.0,>=1.1.3",
+  "fsspec==2021.11.1",
+  "google-analytics-data==0.17.0",
+  "google-api-core==2.11.1",
+  "google-api-python-client<3.0.0,>=2.58.0",
+  "google-auth==2.22.0",
+  "google-auth-oauthlib<2.0.0,>=1.0.0",
+  "google-cloud-bigquery<4.0.0,>=3.11.4",
+  "google-cloud-bigquery-storage<3.0.0,>=2.19.1",
+  "google-cloud-core==2.3.3",
+  "google-cloud-storage<3.0.0,>=2.9.0",
+  "google-crc32c==1.3.0",
+  "google-resumable-media==2.5.0",
+  "googleapis-common-protos==1.59.1",
+  "grpcio==1.56.2",
+  "hvac<1.0.0,>=0.11.2",
+  "idna==3.3",
+  "ipeadatapy<1.0.0,>=0.1.7",
+  "locket==0.2.1",
+  "loguru<1.0.0,>=0.7.0",
+  "lxml==4.9.2",
+  "marshmallow==3.14.1",
+  "marshmallow-oneofschema==3.0.1",
+  "matplotlib<4.0.0,>=3.5.2",
+  "msgpack==1.0.3",
+  "mypy-extensions==0.4.3",
+  "numpy>=1.21.4",
+  "oauth2client<5.0.0,>=4.1.3",
+  "oauthlib==3.1.1",
+  "openpyxl<4.0.0,>=3.1.0",
+  "packaging==21.3",
+  "pandas<3.0.0,>=2.0.1",
+  "pandas-gbq<1.0.0,>=0.19.2",
+  "partd==1.2.0",
+  "prefect==0.15.9",
+  "proto-plus==1.22.3",
+  "protobuf==4.23.4",
+  "psutil==5.8.0",
+  "pyaml==20.4.0",
+  "pyarrow>=7.0.0",
+  "pyasn1==0.4.8",
+  "pyasn1-modules==0.2.8",
+  "pydata-google-auth<2.0.0,>=1.8.0",
+  "pymssql==2.2.5",
+  "pyparsing==3.0.6",
+  "python-Levenshtein<1.0.0,>=0.21.1",
+  "python-box==5.4.1",
+  "python-dateutil==2.8.2",
+  "python-slugify==5.0.2",
+  "pytz==2021.3",
+  "pytzdata==2020.1",
+  "redis-pal<2.0.0,>=1.0.0",
+  "requests==2.26.0",
+  "requests-oauthlib==1.3.0",
+  "rsa==4.8",
+  "ruamel-yaml==0.17.10",
+  "ruamel-yaml-clib==0.2.6",
+  "rpy2<4.0.0,>=3.5.11",
+  "seaborn<1.0.0,>=0.11.2",
+  "six==1.16.0",
+  "sortedcontainers==2.4.0",
+  "tabulate==0.8.9",
+  "tblib==1.7.0",
+  "text-unidecode==1.3",
+  "toml==0.10.2",
+  "tomlkit<1.0.0,>=0.11.8",
+  "toolz==0.11.2",
+  "tornado==6.1",
+  "tqdm<5.0.0,>=4.65.0",
+  "tweepy==4.4.0",
+  "urllib3>=1.26.8",
+  "websocket-client==1.2.1",
+  "wget<4.0,>=3.2",
+  "zict==2.0.0",
+  "polars<1.0.0,>=0.19.0",
+  "selenium<5.0.0,>=4.11.2",
+  "fastparquet<2024.0.0,>=2023.7.0",
+  "rarfile<5.0,>=4.0",
+  "setuptools<71.0,>=69.0.0",
+  "python-string-utils<2.0.0,>=1.0.0",
+  "geopandas==1.0.1",
+  "shapely==2.0.1",
+  "webdriver-manager<5.0.0,>=4.0.1",
+  "xlrd>=2.0.1",
+  "httpx>=0.26.0",
+  "parameterized<1.0.0,>=0.9.0",
+  "cffi<2.0.0,>=1.16.0",
+  "pendulum<4.0.0,>=3.0.0",
+  "simpledbf<1.0.0,>=0.2.6",
+  "aioftp<1.0.0,>=0.22.3",
+  "pathlib<2.0.0,>=1.0.1",
+  "dbfread<3.0.0,>=2.0.7",
+  "aiohttp<4.0.0,>=3.9.3",
+  "dateparser<2.0.0,>=1.2.0",
+  "fiona<2.0.0,>=1.10.1",
+  "arrow<2.0.0,>=1.3.0",
+  "dbt-core==1.5.6",
+  "dbt-bigquery==1.5.9",
+  "sicar @ git+https://github.com/urbanogilson/SICAR.git@v0.7.4",
+  "py7zr<2.0.0,>=1.0.0",
+]
 
-
-[tool.poetry.group.dev]
-optional = true
-
-
-[tool.poetry.group.dev.dependencies]
-pre-commit = "^3.6.0"
-ruff = "^0.9.3"
-yamlfix = "^1.16.0"
-shandy-sqlfmt = {extras = ["jinjafmt"], version = "^0.20.0"}
-typer = "^0.4.0"
-cookiecutter = "^1.7.3"
-networkx = "2.6.3"
-databasers-utils = {git = "https://github.com/basedosdados/databasers-utils.git", rev = "monorepo-migration"}
-ipykernel = "^6.29.5" # Required to run notebook jupyter
-basedosdados = {extras = ["all"], version = "^2.0.2"}
-
+[dependency-groups]
+dev = [
+  "pre-commit<5.0.0,>=4.0.0",
+  "ruff<1.0.0,>=0.9.3",
+  "yamlfix<2.0.0,>=1.16.0",
+  "shandy-sqlfmt[jinjafmt]<1.0.0,>=0.20.0",
+  "typer<1.0.0,>=0.4.0",
+  "cookiecutter<2.0.0,>=1.7.3",
+  "networkx==2.6.3",
+  "databasers-utils @ git+https://github.com/basedosdados/databasers-utils.git@monorepo-migration",
+  "ipykernel>=6.29.5",
+  "basedosdados[all]>=2.0.2",
+]
 
 [tool.ruff]
 line-length = 79
 target-version = "py310"
-extend-exclude = [
-  '\{\{cookiecutter.project_name\}\}'
-]
+extend-exclude = ['\{\{cookiecutter.project_name\}\}']
 
 [tool.ruff.lint]
 select = ["E", "F", "I"]
@@ -158,6 +156,9 @@ ignore = ["E501"]
 [tool.sqlfmt]
 exclude = ["target/**/*", "dbt_packages/**/*", ".venv/**/*"]
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
 [build-system]
-build-backend = "poetry.core.masonry.api"
-requires = ["poetry-core>=1.0.0"]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
