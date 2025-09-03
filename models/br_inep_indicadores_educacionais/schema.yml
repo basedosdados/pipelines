@@ -5,7 +5,7 @@ models:
     description: Indicadores educacionais do Inep a nível Brasil
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [insert unique keys here]
+          combination_of_columns: [regiao, localizacao, rede]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
