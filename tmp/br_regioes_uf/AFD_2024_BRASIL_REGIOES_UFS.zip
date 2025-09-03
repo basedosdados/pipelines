@@ -1,0 +1,49 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="pt-br" lang="pt-br"><head>
+	<title>404 - Inep - Instituto Nacional de Estudos e Pesquisas Educacionais An&iacute;sio Teixeira Legisla&ccedil;&atilde;o e Documentos</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+	<meta name="title" content="Inep" />
+	<meta name="author" content="Núcleo Web/Assessoria de Imprensa" />
+	<meta name="description" content="Inep - Instituto Nacional de Estudos e Pesquisas Educacionais Anísio Teixeira Legislação e Documentos" />
+	<meta name="language" content="pt-br" />
+	<meta name="keywords" content="Inep, Educação Brasil, Site Inep, ensino, estudo, brasil, governo, federal, acessibilidade, faculdades, ensino superior, ensino médio, ensino fundamental, escola, Enem, Enade, Prova Brasil, Provinha Brasil" />
+	<meta name="geo.region" content="BR-DF" />
+	<meta name="geo.placename" content="Distrito Federal" />
+	<meta name="distribution" content="Global" />
+	<meta name="revisit-after" content="1" />
+	<link href="http://www.mec.gov.br/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+    
+<style media="all" type="text/css">
+
+body { margin: 0px; padding: 0px; color : #333;background:#FFFFFF url(http://www.inep.gov.br/back.jpg) 0 -56px repeat-x }
+#lista_bandeiras { display:block; width:850px; height:500px;margin:0 auto; padding:50px 0 0 0; }
+#lista_bandeiras li { list-style:none !important; margin:0 0 16px 0; display:block; float:left !important; }
+#lista_bandeiras li a{ display:block; width:300px; height:24px; padding:111px 0 0 84px; color:#f0f9f6; font-size:11px; font-family:Arial, Helvetica, sans-serif; text-decoration:none }
+#lista_bandeiras li a:hover { /*text-decoration:underline;*/ color:#fff }
+#lista_bandeiras li.bandeira_404 a{ width:747px;height:130px;padding:9px 0 0 25px;background:transparent url(http://public.inep.gov.br/Files/Images/erros/404.png) 0 0 no-repeat }
+#lista_bandeiras li.bandeira_portal a{width:747px;height:130px;padding:9px 0 0 25px; background:transparent url(http://www.inep.gov.br/banner_largo_inep.png) 0 0 no-repeat }
+</style>
+
+<style type="text/css">
+		body {
+			margin:0;
+		}
+</style>
+	
+</head>
+
+<body>
+<div id="barra-brasil">
+    <a href="http://brasil.gov.br" style="background:#7F7F7F; height: 20px; padding:4px 0 4px 10px; display: block; font-family:sans,sans-serif; text-decoration:none; color:white; ">Portal do Governo Brasileiro</a>
+</div>
+		
+<div id="lista_bandeiras">
+  <ul class="vertical">
+    <li class="bandeira_404"><a href="#" title="Error 404 - Ops. A página que você procura não pode ser encontrada!" target="_blank"></a></li>
+    <li class="bandeira_portal"><a href="http://portal.inep.gov.br" title="Portal do inep" target="_blank"></a></li>
+  </ul>
+</div>
+<script src="http://public.inep.gov.br/barra_governo/barra-sistema.js" type="text/javascript"></script>
+</body>
+</html>
