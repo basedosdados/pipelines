@@ -64,13 +64,15 @@ def get_documents_metadata() -> dict:
 )
 def get_latest_file(data: dict) -> Tuple[str | None, str | None]:
     """
-    Extracts the most recent download link from the BCB API JSON structure.
+    Extract the most recent download link and its reference date from BCB metadata.
 
     Args:
-        data (dict): JSON loaded from the API
+        data (dict): JSON loaded from the BCB API.
 
     Returns:
-        str: Absolute URL of the most recent file
+        tuple[str | None, str | None]:
+            - Absolute URL of the most recent file.
+            - Date string in YYYY-MM format.
     """
     documents = data.get("conteudo", [])
     if not documents:
@@ -101,6 +103,16 @@ def get_latest_file(data: dict) -> Tuple[str | None, str | None]:
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def get_api_max_date(dataset_id, table_id):
+    """
+    Get the most recent date available in the API for a given dataset/table.
+
+    Args:
+        dataset_id (str): ID of the dataset in Basedosdados.
+        table_id (str): ID of the table in Basedosdados.
+
+    Returns:
+        str: Maximum date available in the API, formatted as "%Y-%m".
+    """
     backend = bd.Backend(graphql_url=get_url("prod"))
     api_max_date = get_api_most_recent_date(
         dataset_id=dataset_id,
@@ -119,6 +131,17 @@ def get_api_max_date(dataset_id, table_id):
 def download_table(
     url: str, download_dir: str = agencia_constants.ZIPFILE_PATH_AGENCIA.value
 ) -> str:
+    """
+    Download a ZIP file from the given URL and save it to the specified directory.
+
+    Args:
+        url (str): Download URL for the ZIP file.
+        download_dir (str, optional): Local path to store the file.
+            Defaults to `ZIPFILE_PATH_AGENCIA`.
+
+    Returns:
+        str: Path to the downloaded file.
+    """
     if not os.path.exists(download_dir):
         os.makedirs(download_dir, exist_ok=True)
 
@@ -266,6 +289,16 @@ def validate_date(
     original_date: dt.datetime | str | pd.Timestamp,
     date_format: str = "%Y-%m",
 ):
+    """
+    Normalize date input to a `datetime.date` object.
+
+    Args:
+        original_date (datetime | str | pd.Timestamp): Date input in different formats.
+        date_format (str, optional): Format to parse strings. Defaults to "%Y-%m".
+
+    Returns:
+        datetime.date | pd.Timestamp: Normalized date object.
+    """
     if isinstance(original_date, dt.datetime):
         log(f"{original_date} is datetime.")
         return original_date.date()
@@ -287,7 +320,19 @@ def extract_urls_list(
     date_two: dt.datetime | str,
     date_format: str = "%Y-%m",
 ) -> list:
-    """ """
+    """
+    Extract list of document download URLs between two reference dates.
+
+    Args:
+        docs_metadata (dict): Metadata JSON returned from BCB API.
+        date_one (datetime | str): Start date.
+        date_two (datetime | str): End date.
+        date_format (str, optional): Expected format for parsing string dates.
+            Defaults to "%Y-%m".
+
+    Returns:
+        list[str]: List of absolute URLs within the given date range.
+    """
 
     date_one = validate_date(date_one, date_format)
     date_two = validate_date(date_two, date_format)

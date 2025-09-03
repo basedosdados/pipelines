@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-General purpose functions for the br_bcb_estban project
+General-purpose functions for the br_bcb_estban project.
 """
 
 import datetime as dt
@@ -23,7 +23,7 @@ def fetch_bcb_documents(
     url: str, headers: dict, params: dict
 ) -> dict[str, Any] | None:
     """
-    Fetch metadata from documents provided by Banco Central API.
+    Fetch metadata of documents provided by the Banco Central API.
 
     Args:
         url (str): API endpoint URL.
@@ -44,18 +44,29 @@ def fetch_bcb_documents(
 
 
 def sort_documents_by_date(docs_metadata: dict) -> list[dict] | None:
+    """
+    Sort a list of documents by their publication date in descending order.
+
+    Args:
+        docs_metadata (dict): Metadata containing a "conteudo" field
+            with a list of documents.
+
+    Returns:
+        list[dict] | None: Documents sorted by "DataDocumento" (most recent first),
+        or None if no documents found.
+    """
     documents = docs_metadata.get("conteudo", [])
     if not documents:
         log("No documents found in the JSON.")
-    else:
-        # Sort by DataDocumento field (most recent first)
-        documents.sort(
-            key=lambda d: dt.datetime.fromisoformat(
-                d["DataDocumento"].replace("Z", "")
-            ),
-            reverse=True,
-        )
-        return documents
+        return None
+
+    documents.sort(
+        key=lambda d: dt.datetime.fromisoformat(
+            d["DataDocumento"].replace("Z", "")
+        ),
+        reverse=True,
+    )
+    return documents
 
 
 def download_file(
@@ -127,7 +138,8 @@ def pre_cleaning_for_pivot_long(
     """
     Pre-clean ESTBAN dataframe before pivoting.
 
-    This function removes unnecessary columns, renames columns, and cleans CNPJ data.
+    This function renames columns, removes unnecessary columns,
+    and cleans CNPJ values.
 
     Args:
         dataframe (pd.DataFrame): ESTBAN dataframe.
@@ -135,6 +147,9 @@ def pre_cleaning_for_pivot_long(
 
     Returns:
         pd.DataFrame: Cleaned dataframe ready for pivoting.
+
+    Raises:
+        ValueError: If column renaming fails.
     """
     rename_mapping = rename_columns(dataframe=dataframe, table_id=table_id)
 
@@ -178,7 +193,8 @@ def create_id_municipio(
 
 def wide_to_long(dataframe: pd.DataFrame) -> pd.DataFrame:
     """
-    Transform a wide ESTBAN dataframe into a long format through "verbete" columns pivotting.
+    Transform a wide ESTBAN dataframe into a long format
+    by pivoting "verbete" columns.
 
     Args:
         dataframe (pd.DataFrame): Wide-format dataframe.
@@ -224,7 +240,7 @@ def standardize_monetary_units(
     dataframe: pd.DataFrame, date_column: str, value_column: str
 ) -> pd.DataFrame:
     """
-    Correct monetary units from ESTBAN files.
+    Standardize monetary units from ESTBAN files.
 
     Args:
         dataframe (pd.DataFrame): Dataframe containing ESTBAN data.
@@ -254,9 +270,8 @@ def create_id_verbete_column(
     Returns:
         pd.DataFrame: Dataframe with the new column.
     """
-    pattern_digits = re.compile(r"\D")
     dataframe[column_name] = dataframe["verbete_descricao"].str.replace(
-        pattern_digits, "", regex=True
+        r"\D", "", regex=True
     )
     return dataframe
 
@@ -281,8 +296,8 @@ def create_month_year_columns(
 
 def order_cols(dataframe: pd.DataFrame, table_id: str) -> pd.DataFrame:
     """
-    Reorder columns of the input dataframe, based on an order given by configs
-    customized by table_id.
+    Reorder columns of the input dataframe based on the configuration
+    specified for a given table ID.
 
     Args:
         dataframe (pd.DataFrame): Input dataframe.

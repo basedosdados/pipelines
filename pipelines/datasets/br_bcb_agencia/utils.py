@@ -41,18 +41,29 @@ def fetch_bcb_documents(
 
 
 def sort_documents_by_date(docs_metadata: dict) -> list[dict] | None:
+    """
+    Sort a list of documents by their publication date in descending order.
+
+    Args:
+        docs_metadata (dict): Metadata containing a "conteudo" field
+            with a list of documents.
+
+    Returns:
+        list[dict] | None: Documents sorted by "DataDocumento" (most recent first),
+        or None if no documents found.
+    """
     documents = docs_metadata.get("conteudo", [])
     if not documents:
         log("No documents found in the JSON.")
-    else:
-        # Sort by DataDocumento field (most recent first)
-        documents.sort(
-            key=lambda d: dt.datetime.fromisoformat(
-                d["DataDocumento"].replace("Z", "")
-            ),
-            reverse=True,
-        )
-        return documents
+        return None
+
+    documents.sort(
+        key=lambda d: dt.datetime.fromisoformat(
+            d["DataDocumento"].replace("Z", "")
+        ),
+        reverse=True,
+    )
+    return documents
 
 
 def download_file(
