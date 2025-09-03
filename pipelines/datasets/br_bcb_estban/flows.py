@@ -97,6 +97,11 @@ with Flow(
                 data_source_max_date,
                 api_max_date,
                 date_format="%Y-%m",
+                upstream_tasks=[
+                    api_max_date,
+                    data_source_max_date,
+                    documents_metadata,
+                ],
             )
 
             downloaded_file_paths = download_table.map(

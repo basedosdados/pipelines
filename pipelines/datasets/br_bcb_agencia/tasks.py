@@ -300,12 +300,9 @@ def validate_date(
         datetime.date | pd.Timestamp: Normalized date object.
     """
     if isinstance(original_date, dt.datetime):
-        log(f"{original_date} is datetime.")
         return original_date.date()
     if isinstance(original_date, str):
-        log(f"{original_date} is string.")
         final_date = dt.datetime.strptime(original_date, date_format)
-        log(f"{final_date} transformado em {type(final_date.date())}.")
         return final_date.date()
     if isinstance(original_date, pd.Timestamp):
         return original_date

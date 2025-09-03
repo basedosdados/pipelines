@@ -213,7 +213,7 @@ def cleaning_data(table_id: str, df_diretorios: pd.DataFrame) -> str:
         df_wide = df_wide.merge(
             df_diretorios, on=["id_municipio_bcb"], how="left"
         )
-        log(f"Pre cleaning for pivot long.{df_wide.columns.to_list()}")
+        log("Pre cleaning for pivot long.")
         df_long = wide_to_long(df_wide)
         log("Wide to long.")
         df_long = standardize_monetary_units(
@@ -251,16 +251,16 @@ def validate_date(
     date_format: str = "%Y-%m",
 ):
     if isinstance(original_date, dt.datetime):
-        log(f"{original_date} is datetime.")
         return original_date.date()
     if isinstance(original_date, str):
-        log(f"{original_date} is string.")
         final_date = dt.datetime.strptime(original_date, date_format)
-        log(f"{final_date} transformado em {type(final_date.date())}.")
         return final_date.date()
     if isinstance(original_date, pd.Timestamp):
         return original_date
-    log("Unable to validate date.", "warning")
+    log(
+        f"Unable to validate date: {original_date} of type {type(original_date)}.",
+        "warning",
+    )
     return original_date
 
 

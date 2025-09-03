@@ -165,7 +165,7 @@ def read_file(file_path: str, file_name: str) -> pd.DataFrame:
     try:
         skiprows = find_cnpj_row_number(file_path=file_path) + 1
         conv = get_conv_names(file_path=file_path, skiprows=skiprows)
-        log(f"Column converters generated: {list(conv.keys())}")
+        log("Column converters generated.")
         dataframe = pd.read_excel(
             file_path, skiprows=skiprows, converters=conv, skipfooter=2
         )
