@@ -3,6 +3,7 @@
         alias="areas",
         schema="br_rf_cno",
         materialized="incremental",
+        unique_key="id_cno",
         partition_by={
             "field": "data_extracao",
             "data_type": "date",
@@ -19,7 +20,7 @@ select
     safe_cast(tipo_obra as string) tipo_obra,
     safe_cast(tipo_area as string) tipo_area,
     safe_cast(tipo_area_complementar as string) tipo_area_complementar,
-    safe_cast(metragem as float64) metragem,
+    safe_cast(metragem as float64) metragem
 from {{ set_datalake_project("br_rf_cno_staging.areas") }} as t
 {% if is_incremental() %}
     where safe_cast(data as date) > (select max(data_extracao) from {{ this }})
