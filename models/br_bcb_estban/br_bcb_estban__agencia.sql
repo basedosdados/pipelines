@@ -6,7 +6,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 1987, "end": 2024, "interval": 1},
+            "range": {"start": 1987, "end": 2025, "interval": 1},
         },
         cluster_by=["mes", "sigla_uf"],
         pre_hook="DROP ALL ROW ACCESS POLICIES ON {{ this }}",

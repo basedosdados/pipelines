@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import timedelta
 
-from prefect import Parameter, case
+from prefect import Parameter, case, unmapped
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
@@ -10,10 +10,15 @@ from pipelines.constants import constants
 from pipelines.datasets.br_bcb_agencia.constants import (
     constants as agencia_constants,
 )
+from pipelines.datasets.br_bcb_agencia.schedules import every_month_agencia
 from pipelines.datasets.br_bcb_agencia.tasks import (
     clean_data,
     download_table,
-    extract_last_date,
+    extract_urls_list,
+    get_api_max_date,
+    get_documents_metadata,
+    get_latest_file,
+    raise_none_metadata_exception,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -34,7 +39,7 @@ from pipelines.utils.tasks import (
 with Flow(
     name="br_bcb_agencia.agencia",
     code_owners=[
-        "Gabriel Pisa",
+        "Luiza",
     ],
 ) as br_bcb_agencia_agencia:
     # Parameters
@@ -60,93 +65,105 @@ with Flow(
         wait=table_id,
     )
 
-    data_source_max_date = extract_last_date(
-        table_id=table_id,
-    )
+    documents_metadata = get_documents_metadata()
 
-    # task check if is outdated
-    check_if_outdated = check_if_data_is_outdated(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        data_source_max_date=data_source_max_date[0],
-        date_format="%Y-%m",
-        upstream_tasks=[data_source_max_date],
-    )
-
-    with case(check_if_outdated, False):
-        log_task(f"Não há atualizações para a tabela de {table_id}!")
-
-    with case(check_if_outdated, True):
-        log_task("Existem atualizações! A run será inciada")
-
-        donwload_files = download_table(
-            save_path=agencia_constants.ZIPFILE_PATH_AGENCIA.value,
-            table_id=table_id,
-            date=data_source_max_date[1],
-            upstream_tasks=[check_if_outdated],
+    # Checking if metadata was loaded
+    with case(documents_metadata is None, False):
+        data_source_download_url, data_source_max_date = get_latest_file(
+            documents_metadata
         )
 
-        filepath = clean_data(
-            upstream_tasks=[donwload_files],
-        )
-
-        wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=filepath,
+        # Checking if production data is up to date
+        check_if_outdated = check_if_data_is_outdated(
             dataset_id=dataset_id,
             table_id=table_id,
-            dump_mode="append",
-            wait=filepath,
+            data_source_max_date=data_source_max_date,
+            date_format="%Y-%m",
+            upstream_tasks=[data_source_max_date],
         )
 
-        # agencia
-        with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels()
-            materialization_flow = create_flow_run(
-                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": table_id,
-                    "target": target,
-                    "dbt_alias": dbt_alias,
-                    "dbt_command": "run/test",
-                    "disable_elementary": False,
-                },
-                labels=current_flow_labels,
-                run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks=[wait_upload_table],
+        with case(check_if_outdated, False):
+            log_task(f"No updates for table {table_id}!")
+
+        with case(check_if_outdated, True):
+            log_task("Updates found! The run will be started.")
+            api_max_date = get_api_max_date(dataset_id, table_id)
+
+            urls_list = extract_urls_list(
+                documents_metadata,
+                data_source_max_date,
+                api_max_date,
+                date_format="%Y-%m",
+            )
+            downloaded_file_paths = download_table.map(
+                url=urls_list,
+                download_dir=unmapped(
+                    agencia_constants.ZIPFILE_PATH_AGENCIA.value
+                ),
+                upstream_tasks=[unmapped(check_if_outdated)],
             )
 
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
-            )
-            wait_for_materialization.max_retries = (
-                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-            wait_for_materialization.retry_delay = timedelta(
-                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+            filepath = clean_data(
+                upstream_tasks=[downloaded_file_paths],
             )
 
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id=table_id,
-                    date_column_name={"year": "ano", "month": "mes"},
-                    date_format="%Y-%m",
-                    coverage_type="part_bdpro",
-                    time_delta={"months": 6},
-                    prefect_mode=target,
-                    bq_project="basedosdados",
-                    upstream_tasks=[wait_for_materialization],
+            wait_upload_table = create_table_and_upload_to_gcs(
+                data_path=filepath,
+                dataset_id=dataset_id,
+                table_id=table_id,
+                dump_mode="append",
+                wait=filepath,
+            )
+
+            # agencia
+            with case(materialize_after_dump, True):
+                # Trigger DBT flow run
+                current_flow_labels = get_current_flow_labels()
+                materialization_flow = create_flow_run(
+                    flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
+                    project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+                    parameters={
+                        "dataset_id": dataset_id,
+                        "table_id": table_id,
+                        "target": target,
+                        "dbt_alias": dbt_alias,
+                        "dbt_command": "run/test",
+                        "disable_elementary": False,
+                    },
+                    labels=current_flow_labels,
+                    run_name=f"Materialize {dataset_id}.{table_id}",
+                    upstream_tasks=[wait_upload_table],
                 )
 
+                wait_for_materialization = wait_for_flow_run(
+                    materialization_flow,
+                    stream_states=True,
+                    stream_logs=True,
+                    raise_final_state=True,
+                )
+                wait_for_materialization.max_retries = dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
+                wait_for_materialization.retry_delay = timedelta(
+                    seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+                )
 
+                with case(update_metadata, True):
+                    update_django_metadata(
+                        dataset_id=dataset_id,
+                        table_id=table_id,
+                        date_column_name={"year": "ano", "month": "mes"},
+                        date_format="%Y-%m",
+                        coverage_type="part_bdpro",
+                        time_delta={"months": 6},
+                        prefect_mode=target,
+                        bq_project="basedosdados",
+                        upstream_tasks=[wait_for_materialization],
+                    )
+    with case(documents_metadata is None, True):
+        raise_none_metadata_exception(
+            "BCB metadata was not loaded! It was not possible to determine if the dataset is up to date."
+        )
 br_bcb_agencia_agencia.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_bcb_agencia_agencia.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_bcb_agencia_agencia.schedule = every_month_agencia
+br_bcb_agencia_agencia.schedule = every_month_agencia
