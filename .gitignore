@@ -141,7 +141,9 @@ dmypy.json
 notebooks/
 /tests/
 
-
+input/
+tmp/
+output/
 
 
 .DS_Store
